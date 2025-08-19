@@ -9,6 +9,7 @@ PREFIX = re.compile(PREFIX_, re.IGNORECASE)
 INTERPOL_URL_ = r"https?:\/\/www\.interpol\.int\/[^ ]*(\s\d+)?"
 INTERPOL_URL = re.compile(INTERPOL_URL_, re.IGNORECASE)
 BRACKETED = re.compile(r"\(.*\)")
+TRAILING_WHITESPACE = re.compile(r"\s+$", re.MULTILINE)
 
 
 def clean_note(text: Union[Optional[str], List[Optional[str]]]) -> List[str]:
@@ -107,3 +108,8 @@ def remove_bracketed(text: Optional[str]) -> Optional[str]:
     if text is None:
         return None
     return BRACKETED.sub(" ", text)
+
+
+def strip_trailing_whitespace(text: str) -> str:
+    """Strip trailing whitespace, preserving newlines."""
+    return TRAILING_WHITESPACE.sub("", text)

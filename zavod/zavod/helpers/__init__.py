@@ -59,11 +59,21 @@ from zavod.helpers.identification import make_identification
 from zavod.helpers.securities import make_security
 from zavod.helpers.excel import convert_excel_cell, convert_excel_date, parse_xls_sheet
 from zavod.helpers.excel import parse_xlsx_sheet
-from zavod.helpers.html import parse_html_table, cells_to_str, links_to_dict, element_text
+from zavod.helpers.html import (
+    parse_html_table,
+    cells_to_str,
+    links_to_dict,
+    element_text,
+    save_html_text_locally,
+)
 from zavod.helpers.crypto import extract_cryptos
 from zavod.helpers.change import assert_dom_hash, assert_file_hash
 from zavod.helpers.change import assert_url_hash, assert_html_url_hash
-from zavod.helpers.pdf import make_pdf_page_images, parse_pdf_table
+from zavod.helpers.pdf import (
+    make_pdf_page_images,
+    parse_pdf_table,
+    save_pdf_text_locally,
+)
 from zavod.helpers.articles import make_article, make_documentation
 
 __all__ = [
@@ -111,4 +121,6 @@ __all__ = [
     "split_comma_names",
     "make_pdf_page_images",
     "parse_pdf_table",
+    "save_pdf_text_locally",
+    "save_html_text_locally",
 ]

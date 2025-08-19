@@ -1,9 +1,5 @@
 import csv
-from pathlib import Path
 from typing import Dict
-import re
-
-import pdfplumber
 
 from zavod import Context, helpers as h
 
@@ -21,7 +17,6 @@ PDFs = {
         "3a34d71972f2c67b14a1db66d324f88451851e40",
     ),
 }
-TRAILING_WHITESPACE_PATTERN = re.compile(r"\s+$", re.MULTILINE)
 
 
 def parse_name(context, name):
@@ -84,17 +79,6 @@ def crawl_row(context: Context, row: Dict[str, str]):
     context.audit_data(row, ignore=["jor-no", "reward"])
 
 
-def local_save_pdf_text(context: Context, name: str, pdf_path: Path):
-    text = ""
-    with pdfplumber.open(pdf_path) as pdf:
-        for page in pdf.pages:
-            text += page.extract_text()
-    text = TRAILING_WHITESPACE_PATTERN.sub("", text)
-    pdf_text_path = context.dataset.base_path / f"{name}.txt"
-    with open(pdf_text_path, "w") as fh:
-        fh.write(text)
-
-
 def crawl(context: Context):
     path = context.fetch_resource("source.csv", context.data_url)
     with open(path, "r", encoding="utf-8") as fh:
@@ -106,4 +90,4 @@ def crawl(context: Context):
         h.assert_url_hash(context, url, expected_hash)
 
         pdf_path = context.fetch_resource(name, url)
-        local_save_pdf_text(context, name, pdf_path)
+        h.save_pdf_text_locally(context, name, pdf_path)

@@ -9,6 +9,7 @@ from normality import squash_spaces, slugify
 from pdfplumber.page import Page
 
 from zavod.context import Context
+from zavod.helpers.text import strip_trailing_whitespace
 
 
 class IgnoredWarnings(logging.Filter):
@@ -121,3 +122,31 @@ def parse_pdf_table(
 
         page.close()
     pdf.close()
+
+
+def save_pdf_text_locally(context: Context, name: str, pdf_path: Path) -> Path:
+    """
+    Save the text content of a PDF to the dataset directory.
+
+    This is useful for manually updated datasets if you commit the PDF text to git
+    as you might more easily see what changed in the git diff next time it's run locally.
+
+    Args:
+        name: The name of the file to write to excluding .txt
+        pdf_path: The path to the PDF file.
+
+    Returns:
+        The path to the saved text file.
+    """
+
+    text = ""
+    with pdfplumber.open(pdf_path) as pdf:
+        for page in pdf.pages:
+            text += page.extract_text()
+    text = strip_trailing_whitespace(text)
+    # Beware this is writing to the crawler, not the data directory.
+    assert context.dataset.base_path is not None
+    pdf_text_path = context.dataset.base_path / f"{name}.txt"
+    with open(pdf_text_path, "w") as fh:
+        fh.write(text)
+    return pdf_text_path

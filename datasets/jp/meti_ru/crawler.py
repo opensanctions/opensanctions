@@ -3,7 +3,6 @@ import re
 from pathlib import Path
 from urllib.parse import urlparse
 
-import pdfplumber
 from lxml import html
 from rigour.mime.types import CSV
 
@@ -26,8 +25,7 @@ NAMES_PATTERN = re.compile(
 """,
     re.VERBOSE | re.MULTILINE,
 )
-TRAILING_WHITESPACE_PATTERN = re.compile(r"\s+$", re.MULTILINE)
-LOCAL_PATH = Path(__file__).parent
+
 EXPECTED_HASHES = {
     "list_belarus_tokutei.pdf": "cd99cd520f06110ad39f354d6c961fe5c36260e3",
     "list_russia_tokutei.pdf": "16719d740db257758b99f944e4d693797e36a686",
@@ -156,15 +154,7 @@ def crawl(context: Context):
 
     # Update local copy of just the content part of the page to diff easily when
     # there are changes. Commit changes once they're handled.
-    with open(LOCAL_PATH / "page_content.txt", "w") as fh:
-        text = html.tostring(
-            divs[0],
-            pretty_print=True,
-            method="text",
-            encoding="utf-8",
-        ).decode("utf-8")
-        text = TRAILING_WHITESPACE_PATTERN.sub("", text)
-        fh.write(text)
+    h.save_html_text_locally(context, "page_content", divs[0])
 
     for pdf_url in pdf_urls:
         pdf_name = Path(urlparse(pdf_url).path).name
@@ -173,13 +163,7 @@ def crawl(context: Context):
 
         # Save the text of the PDFs linked to from the page for easy diffing.
         # Commit changes once they're handled.
-        pdf_text = ""
-        with pdfplumber.open(pdf_path) as pdf:
-            for page in pdf.pages:
-                pdf_text += page.extract_text()
-        pdf_text_path = LOCAL_PATH / f"{pdf_name}.txt"
-        with open(pdf_text_path, "w") as fh:
-            fh.write(pdf_text)
+        h.save_pdf_text_locally(context, pdf_name, pdf_path)
 
     # Crawling the google sheet
     path = context.fetch_resource("source.csv", context.data_url)
