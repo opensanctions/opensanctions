@@ -10,15 +10,15 @@ from zavod import Context, helpers as h
 PDFs = {
     "wanted-with-reward": (
         "https://pnp.gov.ph/wp-content/uploads/2022/10/AsOfOct13_MWPs-with-Reward-criminality_1665621706.pdf",
-        "",
+        "27d929ae510b184bcea75500ff89de759d7a0dd6",
     ),
     "communist-terrorist-group": (
         "https://pnp.gov.ph/wp-content/uploads/2022/10/CTG-with-Reward.pdf",
-        "",
+        "d87d7d22f9e921e94b3049b4b2856283580324b3",
     ),
     "local-terrorist-group": (
         "https://pnp.gov.ph/wp-content/uploads/2022/10/LTG-with-Reward.pdf",
-        "",
+        "3a34d71972f2c67b14a1db66d324f88451851e40",
     ),
 }
 TRAILING_WHITESPACE_PATTERN = re.compile(r"\s+$", re.MULTILINE)

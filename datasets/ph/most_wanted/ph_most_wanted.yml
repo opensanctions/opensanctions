@@ -14,8 +14,8 @@ manual_check:
     - https://pnp.gov.ph/local-terrorist-group/
 
     Source PDFs can be found in this repository.
-    You can use ChatGPT OCR (max 2 pages at a time), Claude, or any reliable OCR tool, 
-    but be aware of their limits—Claude may crash on large files. Manual, page-by-page 
+    You can use ChatGPT OCR (max 2 pages at a time), Claude, or any reliable OCR tool,
+    but be aware of their limits—Claude may crash on large files. Manual, page-by-page
     review is essential to catch OCR errors and maintain data quality.
     How-To:
     Split large PDFs if needed.
@@ -28,21 +28,21 @@ load_statements: true
 summary: >
   Most wanted individuals by the Philippine National Police.
 description: |
-  The dataset contains detailed information about individuals currently wanted by police 
+  The dataset contains detailed information about individuals currently wanted by police
   authorities in the Philippines. It aggregates data from three most wanted categories:
     - Most Wanted Persons with Reward
     - Communist Terrorist Group
     - Local Terrorist Group
-  For each individual, the dataset provides their name, reward amount (if applicable), 
+  For each individual, the dataset provides their name, reward amount (if applicable),
   alleged offenses, and associated case-control number (CC No.).
 publisher:
   name: Philippine National Police
   acronym: PNP
   country: ph
   description: |
-    The Philippine National Police (PNP) is the primary law enforcement agency responsible 
-    for maintaining peace and order across the Philippines. They are responsible for crime 
-    prevention, investigation, and community protection, including maintainance of the national 
+    The Philippine National Police (PNP) is the primary law enforcement agency responsible
+    for maintaining peace and order across the Philippines. They are responsible for crime
+    prevention, investigation, and community protection, including maintainance of the national
     most wanted lists.
   url: https://pnp.gov.ph
   official: true
@@ -54,6 +54,9 @@ ci_test: false # GPT key not available in CI
 
 dates:
   formats: ["%d %B %Y"]
+
+http:
+  user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
 
 assertions:
   min:
