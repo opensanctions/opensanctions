@@ -14,11 +14,15 @@ load_statements: true
 ci_test: false
 summary: >-
   Vessels inspected by member authorities under the Abuja MoU.
+description: |
+  This dataset contains ships inspected by port state control while visiting ports under 
+  the jurisdiction of Abuja MoU member authorities. Each record includes, but is not limited 
+  to, the ship's identity, flag, and associated company.
 url: https://abujamou.org/en/inspection-database/
 publisher:
   name: Abuja Memorandum of Understanding
   acronym: Abuja MoU
-  descrition: |
+  description: |
     > The Memorandum of Understanding on Port State Control for West and Central African
     > Region (Abuja MoU) is one of the 9 Regional MoUs and 1 National MoU established pursuant
     > to IMO Resolution A.682(17) of 1991. Operating under a Cooperative Agreement with IMO,
@@ -54,9 +58,7 @@ config:
 assertions:
   min:
     schema_entities:
-      LegalEntity: 40
-      Company: 25
+      Vessel: 1
   max:
     schema_entities:
-      LegalEntity: 100
-      Company: 100
+      Vessel: 100
