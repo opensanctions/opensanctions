@@ -19,8 +19,8 @@ SEARCH_DATA = {
     "name": "",
     "compimo": "",
     "compname": "",
-    # Go back ~3 years (approximate as 1095 days)
-    "From": f"{(TODAY - timedelta(days=1095)).strftime("%d.%m.%Y")}",
+    # Go back ~1 year (approximate as 365 days)
+    "From": f"{(TODAY - timedelta(days=365)).strftime("%d.%m.%Y")}",
     "Till": f"{TODAY.strftime("%d.%m.%Y")}",
     "authority": "0",
     "flag": "0",
