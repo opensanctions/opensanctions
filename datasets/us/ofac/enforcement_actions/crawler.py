@@ -1,7 +1,8 @@
+from datetime import date, datetime
 from lxml.html import HtmlElement, fromstring, tostring
 from pydantic import BaseModel, Field
+from rigour.mime.types import HTML
 from typing import Optional, List, Literal
-from datetime import date, datetime
 
 from zavod import Context
 from zavod import helpers as h
@@ -18,7 +19,7 @@ from zavod.stateful.review import (
 )
 
 NAME_XPATH = "//span[@class='treas-page-title']/text()"
-BODY_XPATH = "//div[@id='block-ofac-content']//div[@class='field__item']/p"
+CONTENT_XPATH = "//div[@id='block-ofac-content']//div[@class='content']"
 DATE_XPATH = "//div[@id='block-ofac-content']//div[@class='field__item']/text()"
 PDF_XPATH = "//div[@id='block-ofac-content']//a[@data-entity-type='media']/@href"
 MAX_AGE_DAYS = (date.today() - date(2016, 7, 28)).days
@@ -72,8 +73,8 @@ class Defendant(BaseModel):
     entity_schema: Schema = schema_field
     name: str
     aliases: List[str] = []
-    address: str | List[str] | None = address_field
-    country: str | List[str] | None = []
+    address: List[str] = address_field
+    country: List[str] = []
     status: Status = status_field
     notes: Optional[str] = notes_field
     related_companies: List[RelatedCompany] = []
@@ -93,9 +94,10 @@ aliases of the person. If the name is a person name, use `Person` as the entity_
 
 Specific fields:
 
+- name: The null name of the entity precisely as expressed in the text. If an acronym follows the name in parentheses, include it as an alias and not as part of the name.
 - entity_schema: {schema_field.description}
 - address: {address_field.description}
-- country: Any countries explicitly associated with the defendant in the text. Leave empty if not explicitly stated.
+- country: Any countries the entity is indicated to reside, operate, or have been born or registered in. Leave empty if not explicitly stated.
 - status: {status_field.description}
 - notes: {notes_field.description}
 - related_companies: If the defendant is a person and a related company is mentioned in the source text, add it here.
@@ -188,7 +190,9 @@ def crawl_enforcement_action(context: Context, url: str) -> None:
     if article is None:
         return
     article_name = article.xpath(NAME_XPATH)[0]
-    article_element = article.xpath(BODY_XPATH)[0]
+    article_content = article.xpath(CONTENT_XPATH)
+    assert len(article_content) == 1
+    article_element = article_content[0]
     date = article.xpath(DATE_XPATH)[0]
     article_pdf = article.xpath(PDF_XPATH)[0]
     article_html = tostring(article_element, pretty_print=True).decode("utf-8")
@@ -201,9 +205,9 @@ def crawl_enforcement_action(context: Context, url: str) -> None:
         prompt_result = run_typed_text_prompt(context, PROMPT, article_html, Defendants)
         review = request_review(
             context,
-            article_name,
+            url,
             article_html,
-            "text",
+            HTML,
             "Enforcement Action Notice",
             url,
             prompt_result,
