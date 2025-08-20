@@ -68,21 +68,36 @@ def get_entities(
             yield node, make_entity(context, prefix, schema, node)
 
 
-def make_entity(
-    context: Context, prefix: str, schema: str, node: Element
-) -> Entity:
+def make_entity(context: Context, prefix: str, schema: str, node: Element) -> Entity:
     """Make an entity, set its ID, and add the name and sanction topic so that there is
     at least one property, making it useful and ready to emit."""
     entity = context.make(schema)
     entity.id = context.make_slug(node.findtext("./DATAID"), prefix=prefix)
-    h.apply_name(
-        entity,
-        given_name=node.findtext("./FIRST_NAME"),
-        second_name=node.findtext("./SECOND_NAME"),
-        name3=node.findtext("./THIRD_NAME"),
-        name4=node.findtext("./FOURTH_NAME"),
-        quiet=True,
-    )
+    names = [
+        name
+        for name in [
+            node.findtext("./FIRST_NAME"),
+            node.findtext("./SECOND_NAME"),
+            node.findtext("./THIRD_NAME"),
+            node.findtext("./FOURTH_NAME"),
+        ]
+        if name is not None and name != ""
+    ]
+    if len(names) == 0:
+        context.log.warn("No names found for entity %s", entity.id)
+    elif len(names) == 1:
+        entity.add("name", names[0])
+    else:
+        # The first name in the list is the first name, the last name is the family name,
+        # but unfortunately the rest is murky.
+        # Sometimes, people have multiple last names, sometimes multiple first names, often the
+        # names in the middle are patronymic... So don't do anything fancy with the murky ones.
+        entity.add("firstName", names[0])
+        entity.add("lastName", names[-1])
+        # make_name (which is just a fancy wrapper around " ".join) to generate the full name.
+        name_args = {f"name{i}": name for i, name in enumerate(names)}
+        entity.add("name", h.make_name(**name_args))
+
     entity.add("topics", "sanction")
     return entity
 
