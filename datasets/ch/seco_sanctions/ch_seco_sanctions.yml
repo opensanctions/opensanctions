@@ -189,6 +189,8 @@ lookups:
         values:
           - 1992-07-22
           - 2014-08-13
+      - match: 1960s
+        value: null
   type.gender:
     lowercase: true
     normalize: true
