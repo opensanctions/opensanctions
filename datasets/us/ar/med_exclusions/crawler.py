@@ -21,6 +21,7 @@ def crawl_item(row: Dict[str, str], context: Context):
         country_code="us",
     )
 
+    provider = None
     if provider_name := row.pop("Provider Name"):
 
         provider = context.make("LegalEntity")
@@ -81,7 +82,7 @@ def crawl_item(row: Dict[str, str], context: Context):
         context.emit(facility)
         context.emit(sanction)
 
-    if provider.get("name") and entity_name:
+    if provider and provider.get("name") and entity_name:
         link = context.make("UnknownLink")
         link.id = context.make_id(provider.id, facility.id)
         link.add("object", facility.id)
