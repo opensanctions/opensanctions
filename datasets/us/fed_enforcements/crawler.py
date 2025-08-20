@@ -7,6 +7,7 @@ from pydantic import BaseModel, Field
 
 from zavod import Context
 from zavod import helpers as h
+from zavod.entity import Entity
 from zavod.shed.gpt import run_typed_text_prompt, DEFAULT_MODEL
 from zavod.stateful.review import assert_all_accepted, get_review, request_review
 
@@ -75,12 +76,15 @@ def crawl_bank_entities(context: Context, party_name: str) -> list[BankOrgEntity
     return review.extracted_data.entities if review.accepted else []
 
 
-def crawl_article(context: Context, url: Optional[str]) -> str:
-    if url and (url.endswith(".pdf") or "boarddocs" in url):
+def crawl_article(context: Context, url: Optional[str]) -> Optional[Entity]:
+    if not url or not url.strip():
+        return None
+    if url.endswith(".pdf") or url.endswith(".csv") or "boarddocs" in url:
+        # Create the Documentation but don't try and fetch and extract the title and date.
         title = [None]
         published_at = [None]
     else:
-        doc = context.fetch_html(url, cache_days=90)
+        doc = context.fetch_html(str(url), cache_days=90)
         title = doc.xpath(".//h3[@class='title']/text()")
         published_at = doc.xpath(".//p[@class='article__time']/text()")
     article = h.make_article(context, url, title=title, published_at=published_at[0])
@@ -150,11 +154,12 @@ def crawl_item(
         if is_active:
             entity.add("topics", "reg.action")
 
-        documentation = h.make_documentation(context, entity, article)
+        if article:
+            documentation = h.make_documentation(context, entity, article)
+            context.emit(documentation)
 
         context.emit(entity)
         context.emit(sanction)
-        context.emit(documentation)
 
     # Name = the string that appears in the url column
     context.audit_data(input_dict, ignore=["Name"])
