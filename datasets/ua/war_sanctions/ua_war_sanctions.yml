@@ -458,6 +458,19 @@ lookups:
         registration_number: 0109114
         country: United Arab Emirates
         date: "2024-10-17"
+      - match: "Valiant Marine Ventures FZE (6268870 / United Arab Emirates)"
+        name: "Valiant Marine Ventures FZE"
+        registration_number: 6268870
+        country: United Arab Emirates
+      - match: "Amor Fleet Inc c/o Valiant Marine Ventures FZE (6401357 / United Arab Emirates)"
+        name: "Amor Fleet Inc"
+        care_of: "Valiant Marine Ventures FZE"
+        registration_number: 6401357
+        country: United Arab Emirates
+      - match: "Lydia V Shipping Ltd (6161189 / 13.06.2020)"
+        name: "Lydia V Shipping Ltd"
+        registration_number: 6161189
+        date: "2020-06-13"
   type.date:
     options:
       - match: 23.06.1974 /23.06.1973
@@ -499,6 +512,8 @@ lookups:
           - 04.01.20205)
           - 01.11.22023)
           - 17.03.20205)
+          - 1804807)
+          - 6299069)
         value: null
   type.country:
     options:
