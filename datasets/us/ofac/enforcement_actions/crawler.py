@@ -22,7 +22,8 @@ NAME_XPATH = "//span[@class='treas-page-title']/text()"
 CONTENT_XPATH = "//div[@id='block-ofac-content']//div[@class='content']"
 DATE_XPATH = "//div[@id='block-ofac-content']//div[@class='field__item']/text()"
 PDF_XPATH = "//div[@id='block-ofac-content']//a[@data-entity-type='media']/@href"
-MAX_AGE_DAYS = (date.today() - date(2016, 7, 28)).days
+# Traveling back to summer of 2016 (the first full pdf enforcement was issued on July 5, 2016)
+MAX_AGE_DAYS = (date.today() - date(2016, 7, 8)).days
 
 Schema = Literal["Person", "Company", "LegalEntity"]
 Status = Literal[
@@ -73,8 +74,8 @@ class Defendant(BaseModel):
     entity_schema: Schema = schema_field
     name: str
     aliases: List[str] = []
-    address: List[str] = address_field
-    country: List[str] = []
+    address: str | List[str] | None = address_field
+    country: str | List[str] | None = []
     status: Status = status_field
     notes: Optional[str] = notes_field
     related_companies: List[RelatedCompany] = []
@@ -165,22 +166,15 @@ def check_something_changed(
         return False
 
 
-def break_the_loop(context, enforcement_dates) -> bool:
-    """
-    Check if any enforcement date exceeds the maximum allowed age.
-    """
-    for date_str in enforcement_dates:
-        clean_date = date_str.strip().removesuffix(" -")
-        if not clean_date:
-            continue  # Skip empty strings
-        try:
-            parsed_date = datetime.strptime(clean_date, "%B %d, %Y").date()
-        except ValueError:
-            context.log.warning("Invalid enforcement date format", date=date_str)
-            continue
-        # Traveling back to summer of 2016 (the first full pdf enforcement was issued on July 27, 2016)
-        if not enforcements.within_max_age(context, parsed_date, MAX_AGE_DAYS):
-            return True  # Stop crawling
+def is_too_old(context, doc):
+    for result in doc.xpath(".//div[contains(@class, 'search-result')]"):
+        enforcement_date = result.xpath(
+            ".//div[contains(@class,'margin-top-1') and contains(., 'Enforcement Actions')]/text()[normalize-space()]"
+        )
+        assert len(enforcement_date) == 1, "Expected exactly one enforcement date"
+        clean_date = enforcement_date[0].strip().removesuffix(" -")
+        if not enforcements.within_max_age(context, clean_date, MAX_AGE_DAYS):
+            return True
     return False
 
 
@@ -281,10 +275,7 @@ def crawl(context: Context):
         links = doc.xpath(
             "//div[@class='view-content']//a[contains(@href, 'recent-actions') and not(contains(@href, 'enforcement-actions'))]/@href"
         )
-        enforcement_dates = doc.xpath(
-            "//div[contains(@class,'margin-top-1') and contains(., 'Enforcement Actions')]/text()[normalize-space()]"
-        )
-        if break_the_loop(context, enforcement_dates):
+        if is_too_old(context, doc):
             break
         if not links:
             break
