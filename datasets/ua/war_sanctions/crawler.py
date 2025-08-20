@@ -122,7 +122,6 @@ def rostec_affiliate_id_parts(abbrev_name):
 
 
 def crawl_index_page(context: Context, index_page, data_type, program):
-    print(index_page)
     index_page = fetch_html(
         context,
         index_page,
