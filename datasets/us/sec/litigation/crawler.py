@@ -38,17 +38,6 @@ REGEX_RELEASE_ID = re.compile(r"^lr-(\d{4,})$")
 something_changed = False
 
 
-positions_field = Field(
-    default=[],
-    description=(
-        (
-            "The positions held by the person for an entity who is a person. "
-            "Populate this precisely as listed in the text when the text indicates "
-            "the job role of a person, otherwise leave empty. Include the word 'former'"
-            "if that is indicated in the text."
-        )
-    ),
-)
 schema_field = Field(
     description="Use LegalEntity if it isn't clear whether the entity is a person or a company."
 )
@@ -69,7 +58,6 @@ class Defendant(BaseModel):
     entity_schema: Schema = schema_field
     name: str
     aliases: List[str] = []
-    positions: List[str] = positions_field
     address: List[str] = address_field
     country: List[str] = []
     status: Status = status_field
@@ -88,7 +76,6 @@ NEVER infer, assume, or generate values that are not directly stated in the sour
 Specific fields:
 
 - entity_schema: {schema_field.description}
-- positions: {positions_field.description}
 - address: {address_field.description}
 - country: Any countries the entity is indicated to reside, operate, or have been born or registered in.
 - status: {status_field.description}
@@ -127,7 +114,7 @@ def get_release_id(url: str) -> str:
 
 def source_changed(review: Review, article_element: HtmlElement) -> bool:
     """
-    The key exists but the current source data looks different from the existing version
+    True if the current source data looks different from the existing version
     in spite of heavy normalisation.
     """
     seen_element = fromstring(review.source_value)
@@ -274,6 +261,7 @@ def crawl_index_page(context: Context, doc) -> bool:
 def crawl(context: Context) -> None:
     next_url: Optional[str] = context.data_url
     while next_url:
+        context.log.info("Crawling index page", url=next_url)
         doc = context.fetch_html(next_url)
         doc.make_links_absolute(next_url)
         next_urls = doc.xpath(
