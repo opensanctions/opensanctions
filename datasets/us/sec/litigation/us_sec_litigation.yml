@@ -1,0 +1,63 @@
+title: "US SEC Litigation Releases"
+url: https://www.sec.gov/enforcement-litigation/litigation-releases
+load_statements: true
+coverage:
+  frequency: weekly
+  start: 2025-08-21
+entry_point: crawler.py
+prefix: us-sec-lit
+summary: >
+  Entities subject to civil actions brought by the SEC in federal court.
+description: >
+  This dataset contains entities who are or have been subject to civil actions
+  by the SEC. It includes the names of defendants, a high level indication of the
+  status of the action, and links to more information by the SEC.
+
+  > The SEC's civil law enforcement authority enables the Commission to hold
+  > violators of the federal securities laws accountable for their misconduct
+  > and recover money for the benefit of harmed investors.
+  >
+  > While SEC investigations into possible securities law violations by firms
+  > or individuals are conducted privately to ensure they remain fair and
+  > objective, the SEC takes action publicly when it finds evidence of
+  > wrongdoing. Many violators agree to settlements that are announced once
+  > their cases are made public, but other cases are litigated in federal
+  > court or through an administrative proceeding and decided by a judge or
+  > jury.
+
+  Our standard period of enforcements coverage applies.
+publisher:
+  name: Securities and Exchange Commission
+  acronym: SEC
+  description: |
+    > The federal securities laws empower the Securities and Exchange Commission (SEC)
+    > with broad authority over all aspects of the securities industry. The SEC’s
+    > mission is to protect investors; maintain fair, orderly, and efficient markets;
+    > and facilitate capital formation.
+  country: us
+  url: https://www.sec.gov/
+  official: true
+
+http:
+  user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.2 Safari/605.1.15 (opensanctions.org, zavod)"
+data:
+  url: https://www.sec.gov/enforcement-litigation/litigation-releases
+  format: HTML
+ci_test: false # GPT key not available in CI
+
+dates:
+  formats: ["%b. %d, %Y", "%B %d, %Y"]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 200
+      Company: 400
+    country_entities:
+      us: 100
+      ca: 1
+      gb: 1
+  max:
+    schema_entities:
+      Person: 800
+      Company: 1000
