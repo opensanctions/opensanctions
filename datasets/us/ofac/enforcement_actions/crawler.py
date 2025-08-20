@@ -21,7 +21,6 @@ from zavod.stateful.review import (
 NAME_XPATH = "//span[@class='treas-page-title']/text()"
 CONTENT_XPATH = "//div[@id='block-ofac-content']//div[@class='content']"
 DATE_XPATH = "//div[@id='block-ofac-content']//div[@class='field__item']/text()"
-PDF_XPATH = "//div[@id='block-ofac-content']//a[@data-entity-type='media']/@href"
 # Traveling back to summer of 2016 (the first full pdf enforcement was issued on July 5, 2016)
 MAX_AGE_DAYS = (date.today() - date(2016, 7, 8)).days
 
@@ -79,6 +78,7 @@ class Defendant(BaseModel):
     status: Status = status_field
     notes: Optional[str] = notes_field
     related_companies: List[RelatedCompany] = []
+    pdf_url: Optional[str] = None
 
 
 class Defendants(BaseModel):
@@ -103,6 +103,10 @@ Specific fields:
 - notes: {notes_field.description}
 - related_companies: If the defendant is a person and a related company is mentioned in the source text, add it here.
 - relationship: Use text verbatim from the source. If it's ambiguous, e.g. "agents and owners", use that text exactly as it is, plural and all.
+- pdf_url: The PDF URL exactly as written in the source text.
+  • If multiple PDFs are present, associate each with the correct entity if the source makes that link explicit.
+  • If no PDF is mentioned for an entity, leave this field empty.
+  • Never invent or infer a URL.
 """
 
 
@@ -188,11 +192,8 @@ def crawl_enforcement_action(context: Context, url: str) -> None:
     assert len(article_content) == 1
     article_element = article_content[0]
     date = article.xpath(DATE_XPATH)[0]
-    article_pdf = article.xpath(PDF_XPATH)[0]
     article_html = tostring(article_element, pretty_print=True).decode("utf-8")
-    assert all(
-        [article_name, article_pdf, article_html, date]
-    ), "One or more fields are empty"
+    assert all([article_name, article_html, date]), "One or more fields are empty"
 
     review = get_review(context, Defendants, article_name, MIN_MODEL_VERSION)
     if review is None:
@@ -243,7 +244,7 @@ def crawl_enforcement_action(context: Context, url: str) -> None:
         sanction = h.make_sanction(context, entity)
         h.apply_date(sanction, "date", date)
         sanction.set("sourceUrl", url)
-        sanction.add("sourceUrl", article_pdf)
+        sanction.add("sourceUrl", item.pdf_url, origin=DEFAULT_MODEL)
         sanction.add("status", item.status, origin=DEFAULT_MODEL)
         sanction.add("summary", item.notes, origin=DEFAULT_MODEL)
 
