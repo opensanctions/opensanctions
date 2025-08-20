@@ -131,16 +131,16 @@ def crawl_index_page(context: Context, index_page, data_type, program):
         # cache_days=1,  # only for dev
     )
     main_grid = index_page.find('.//div[@id="main-grid"]')
-    # if data_type == "captain":
-    #     crawl_captain(context, main_grid, program)
-    # for link in main_grid.xpath(".//a/@href"):
-    #     if link.startswith("https:"):
-    #         if data_type == "person":
-    #             crawl_person(context, link, program)
-    #         elif data_type == "legal_entity":
-    #             crawl_legal_entity(context, link, program)
-    #         if data_type == "vessel":
-    #             crawl_vessel(context, link, program)
+    if data_type == "captain":
+        crawl_captain(context, main_grid, program)
+    for link in main_grid.xpath(".//a/@href"):
+        if link.startswith("https:"):
+            if data_type == "person":
+                crawl_person(context, link, program)
+            elif data_type == "legal_entity":
+                crawl_legal_entity(context, link, program)
+            if data_type == "vessel":
+                crawl_vessel(context, link, program)
 
 
 def crawl_captain(context: Context, main_grid, program):
