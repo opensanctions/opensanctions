@@ -62,6 +62,11 @@ LINKS = [
         "type": "legal_entity",
         "program": "Entities from Rostec’s core military holdings producing weapons for Russia’s war against Ukraine.",
     },
+    {  # military component manufacturers
+        "url": "https://war-sanctions.gur.gov.ua/en/components/companies",
+        "type": "legal_entity",
+        "program": "Enterprises involved in the production and supply of military components and parts",
+    },
 ]
 
 # e.g. Ocean Dolphin Ship Management (6270796
@@ -117,6 +122,7 @@ def rostec_affiliate_id_parts(abbrev_name):
 
 
 def crawl_index_page(context: Context, index_page, data_type, program):
+    print(index_page)
     index_page = fetch_html(
         context,
         index_page,
@@ -125,16 +131,16 @@ def crawl_index_page(context: Context, index_page, data_type, program):
         # cache_days=1,  # only for dev
     )
     main_grid = index_page.find('.//div[@id="main-grid"]')
-    if data_type == "captain":
-        crawl_captain(context, main_grid, program)
-    for link in main_grid.xpath(".//a/@href"):
-        if link.startswith("https:"):
-            if data_type == "person":
-                crawl_person(context, link, program)
-            elif data_type == "legal_entity":
-                crawl_legal_entity(context, link, program)
-            if data_type == "vessel":
-                crawl_vessel(context, link, program)
+    # if data_type == "captain":
+    #     crawl_captain(context, main_grid, program)
+    # for link in main_grid.xpath(".//a/@href"):
+    #     if link.startswith("https:"):
+    #         if data_type == "person":
+    #             crawl_person(context, link, program)
+    #         elif data_type == "legal_entity":
+    #             crawl_legal_entity(context, link, program)
+    #         if data_type == "vessel":
+    #             crawl_vessel(context, link, program)
 
 
 def crawl_captain(context: Context, main_grid, program):
