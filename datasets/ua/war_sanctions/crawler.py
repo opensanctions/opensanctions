@@ -62,6 +62,11 @@ LINKS = [
         "type": "legal_entity",
         "program": "Entities from Rostec’s core military holdings producing weapons for Russia’s war against Ukraine.",
     },
+    {  # military component manufacturers
+        "url": "https://war-sanctions.gur.gov.ua/en/components/companies",
+        "type": "legal_entity",
+        "program": "Enterprises involved in the production and supply of military components and parts",
+    },
 ]
 
 # e.g. Ocean Dolphin Ship Management (6270796

@@ -524,6 +524,11 @@ lookups:
           - 5th Floor, Building K, Longhua District, Digital Economy Cross-Border E-Commerce Industrial Park, No 54-6 Guanlan Avenue, Longhua District, Shenzhen, China
           - Building C8, Guanian High-Tech Industrial Park, Guanghu Street, Longhua District, Shenzhen, China
           - A1-5 Building High-Tech Industrial Park, Guangming Street, Guangming New District, Shenzhen, China
+      - match: 'пр-т Леніна, буд. 82, поверх 17, офіс 1701, м. Мурманськ, 183038, Російська Федерація (пр-кт Ленина, дом 82, этаж 17, офис 1701, г. Мурманск, 183038, Российская Федерация; Pr-kt Lenina D. 82, Floor 17, Office 1701, Murmansk 183038, Russian Federation).'
+        values:
+          - пр-т Леніна, буд. 82, поверх 17, офіс 1701, м. Мурманськ, 183038, Російська Федерація
+          - пр-кт Ленина, дом 82, этаж 17, офис 1701, г. Мурманск, 183038, Российская Федерация
+          - Pr-kt Lenina D. 82, Floor 17, Office 1701, Murmansk 183038, Russian Federation
   type.name:
     options:
       - match: Федеральное государственное бюджетное военное образовательное учреждение высшего образования «Академия гражданской защиты Министерства Российской Федерации по делам гражданской обороны чрезвычайных ситуаций и ликвидации последствий стихийных бедствий»

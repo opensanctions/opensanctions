@@ -5,21 +5,6 @@ from openpyxl import load_workbook
 from zavod import Context, helpers as h
 
 
-HEADERS = {
-    "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
-    "pragma": "no-cache",
-    "priority": "u=0, i",
-    "sec-ch-ua": '"Not)A;Brand";v="8", "Chromium";v="138", "Google Chrome";v="138"',
-    "sec-ch-ua-mobile": "?0",
-    "sec-ch-ua-platform": '"macOS"',
-    "sec-fetch-dest": "document",
-    "sec-fetch-mode": "navigate",
-    "sec-fetch-site": "none",
-    "sec-fetch-user": "?1",
-    "upgrade-insecure-requests": "1",
-}
-
-
 def crawl_item(row: Dict[str, str], context: Context):
 
     sanction_date_1 = row.pop("sanction_date1")
@@ -104,7 +89,7 @@ def crawl_item(row: Dict[str, str], context: Context):
 
 
 def crawl_excel_url(context: Context):
-    doc = context.fetch_html(context.data_url, headers=HEADERS)
+    doc = context.fetch_html(context.data_url)
     doc.make_links_absolute(context.data_url)
     links = doc.xpath("//*[text()='List of Sanctioned Providers (XLSX)']/ancestor::a")
     return links[0].get("href")
@@ -113,7 +98,7 @@ def crawl_excel_url(context: Context):
 def crawl(context: Context) -> None:
     # First we find the link to the excel file
     excel_url = crawl_excel_url(context)
-    path = context.fetch_resource("list.xlsx", excel_url, headers=HEADERS)
+    path = context.fetch_resource("list.xlsx", excel_url)
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
 
     wb = load_workbook(path, read_only=True)

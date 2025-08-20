@@ -15,7 +15,7 @@ description: |
   of Tokyo MoU member authorities. Each record includes, but is not limited to, the ship's
   identity, flag, and associated company.
 
-  **Note:** We only include the latest 3 years of data from the source.
+  **Note:** We only include the latest year of data from the source.
 publisher:
   name: Tokyo Memorandum of Understanding
   acronym: Tokyo MoU
