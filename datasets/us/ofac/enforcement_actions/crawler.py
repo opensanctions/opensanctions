@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import date
 from lxml.html import HtmlElement, fromstring, tostring
 from pydantic import BaseModel, Field
 from rigour.mime.types import HTML
