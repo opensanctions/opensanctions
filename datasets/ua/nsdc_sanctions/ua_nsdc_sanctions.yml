@@ -529,6 +529,39 @@ lookups:
           - пр-т Леніна, буд. 82, поверх 17, офіс 1701, м. Мурманськ, 183038, Російська Федерація
           - пр-кт Ленина, дом 82, этаж 17, офис 1701, г. Мурманск, 183038, Российская Федерация
           - Pr-kt Lenina D. 82, Floor 17, Office 1701, Murmansk 183038, Russian Federation
+      - match: 'Российская Федерация, 111024, г. Москва, ул. 2-я Энтузиастов, д. 5, корп. 40, пом. 3/2, вн. терр. Г, муниципальный округ Перово; Ul. 2-Ya Entuziastov D. 5, K. 40, Pomeshch. 3/2, Vn. Ter. G. Munitsipalnyy Okrug Perovo, Moscow 111024, Russian Federation'
+        values:
+          - Российская Федерация, 111024, г. Москва, ул. 2-я Энтузиастов, д. 5, корп. 40, пом. 3/2, вн. терр. Г, муниципальный округ Перово
+          - Ul. 2-Ya Entuziastov D. 5, K. 40, Pomeshch. 3/2, Vn. Ter. G. Munitsipalnyy Okrug Perovo, Moscow 111024, Russian Federation
+      - match: 'Люкс частина 17), офіс 1, (Российская Федерация, г. Санкт-Петербург, ул. Большая Пушкарская, д. 20, лит. А, люкс 110-Н (Люкс часть 17), офис 1; Office 1, Suite 110-N (Suite Part 17), Letter A, 20 Bolshaya Pushrarskaya Street, Kronverkskoye Municipal Distinct, Saint Peterburg 197198, Russian Federation'
+        values:
+          - Российская Федерация, г. Санкт-Петербург, ул. Большая Пушкарская, д. 20, лит. А, люкс 110-Н (Люкс часть 17), офис 1
+          - Office 1, Suite 110-N (Suite Part 17), Letter A, 20 Bolshaya Pushrarskaya Street, Kronverkskoye Municipal Distinct, Saint Peterburg 197198, Russian Federation
+      - match: 'Російська Федерація, 196105, м. Санкт-Петербург, вул. Благодатна, буд. 63, літера А, корп. 6, офіс 16 (Российская Федерация, 196105, г. Санкт-Петербург, ул. Благодатная, д. 63, лит. А, корп. 6, оф. 16; Suite 16, Letter A, Building 6, 63 Blagodatnaya Street, Saint Petersburg 196105, Russian Federation).'
+        values:
+          - Російська Федерація, 196105, м. Санкт-Петербург, вул. Благодатна, буд. 63, літера А, корп. 6, офіс 16
+          - Российская Федерация, 196105, г. Санкт-Петербург, ул. Благодатная, д. 63, лит. А, корп. 6, оф. 16
+          - Suite 16, Letter A, Building 6, 63 Blagodatnaya Street, Saint Petersburg 196105, Russian Federation
+      - match: 'Російська Федерація, 109652, м. Москва, проїзд Луговий, буд. 9, корпус 1, приміщення 2/1 (Российская Федерация, 109652, г. Москва, проезд Луговой, д. 9, корп. 1, помещ. 2/1; Proezd Lugovoi D. 9, K. 1, Promeshch. 2/1, Moscow 109652, Russian Federation).'
+        values:
+          - Російська Федерація, 109652, м. Москва, проїзд Луговий, буд. 9, корпус 1, приміщення 2/1
+          - Российская Федерация, 109652, г. Москва, проезд Луговой, д. 9, корп. 1, помещ. 2/1
+          - Proezd Lugovoi D. 9, K. 1, Promeshch. 2/1, Moscow 109652, Russian Federation
+      - match: 'Російська Федерація, 109390, м. Москва, вул. 1-а Текстильників, буд. 12/9, приміщення 5П (Российская Федерация, 109390, г. Москва, ул. 1-я Текстильщиков, д. 12/9, помещ. 5П; UI. 1-Ya Tekstilshchikov D. 12/9, Pomeshch. 5P, Moscow 109390, Russian Federation).'
+        values:
+          - Російська Федерація, 109390, м. Москва, вул. 1-а Текстильників, буд. 12/9, приміщення 5П
+          - Российская Федерация, 109390, г. Москва, ул. 1-я Текстильщиков, д. 12/9, помещ. 5П
+          - UI. 1-Ya Tekstilshchikov D. 12/9, Pomeshch. 5P, Moscow 109390, Russian Federation
+      - match: 'Російська Федерація, 125167, м. Москва, вул. Вікторенко, буд. 5, будівля 1, БТС Вікторія Плаза (Российская Федерация, 125167, г. Москва, ул. Викторенко, д. 5, здание 1, БТС Виктория Плаза; UI. Viktorenko D. 5, Str. 1, BTS Victory Plaza, Moscow 125167, Russian Federation).'
+        values:
+          - Російська Федерація, 125167, м. Москва, вул. Вікторенко, буд. 5, будівля 1, БТС Вікторія Плаза
+          - Российская Федерация, 125167, г. Москва, ул. Викторенко, д. 5, здание 1, БТС Виктория Плаза
+          - UI. Viktorenko D. 5, Str. 1, BTS Victory Plaza, Moscow 125167, Russian Federation
+      - match: 'юніт 13, 12 поверх, Ван Віста Супріум, Тянь Мун, Гонконг, Китайська Народна Республіка (Unit 13, 12/F, One Vista Supreme, Tien Mun, Hong Kong, China; Flat B, 6th Floor, Block 30, City One Shatin 2, Hang Shing Street, Sha Tin, New Territories, Hong Kong, China).'
+        values:
+          - юніт 13, 12 поверх, Ван Віста Супріум, Тянь Мун, Гонконг, Китайська Народна Республіка
+          - Unit 13, 12/F, One Vista Supreme, Tien Mun, Hong Kong, China
+          - Flat B, 6th Floor, Block 30, City One Shatin 2, Hang Shing Street, Sha Tin, New Territories, Hong Kong, China
   type.name:
     options:
       - match: Федеральное государственное бюджетное военное образовательное учреждение высшего образования «Академия гражданской защиты Министерства Российской Федерации по делам гражданской обороны чрезвычайных ситуаций и ликвидации последствий стихийных бедствий»

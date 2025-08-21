@@ -1,5 +1,6 @@
 import re
 from typing import Optional
+from normality import collapse_spaces
 
 from zavod import Context, helpers as h
 from zavod.entity import Entity
@@ -84,6 +85,7 @@ REGEX_SHIP_PARTY = re.compile(
 
 def extract_label_value_pair(label_elem, value_elem, data):
     label = label_elem.text_content().strip().replace("\n", " ")
+    label = collapse_spaces(label)
     value = [text.strip() for text in value_elem.itertext() if text.strip()]
     if len(value) == 1:
         value = value[0]
@@ -238,11 +240,9 @@ def crawl_vessel(context: Context, link, program):
                         label_elem, value_elem, data
                     )
                     data[label] = value
-
     web_links = details_container.xpath(
         ".//div[contains(@class, 'tools-frame')]//a[contains(@class, 'long-text yellow')]"
     )
-
     name = data.pop("Vessel name")
     type = data.pop("Vessel Type")
     imo_num = data.pop("IMO")
@@ -319,6 +319,7 @@ def crawl_vessel(context: Context, link, program):
             # These always seem to be one of the owner or management companies
             # already included from that section.
             "The person in connection with whomsanctions have been applied",
+            "Sanctions lifted",
         ],
     )
 
@@ -569,7 +570,12 @@ def crawl_legal_entity(context: Context, link, program):
                 data[label] = value
     name = data.pop("Name", None)
     if name is None:
-        name = data.pop("Full name of legal entity")
+        name = data.pop(
+            "Full name of legal entity",
+            # Hardcode the exception: https://war-sanctions.gur.gov.ua/en/components/companies/7171
+            data.pop("Full name of legal entity Liquidated 07.04.2025", None),
+        )
+    assert name is not None, "Name not found"
     name_abbr = data.pop("Abbreviated name of the legal entity", None)
     reg_num = data.pop("Registration number")
 
