@@ -1,12 +1,11 @@
 title: US OFAC Enforcement Actions
 entry_point: crawler.py
 prefix: ofac-ea
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 ci_test: false # GPT key not available in CI
 coverage:
   frequency: weekly
   start: "2025-08-15"
-load_statements: true
 summary: >
   List of formal legal proceedings where the U.S. Treasury's Office of Foreign Assets Control 
   penalizes individuals, companies, or entities that violate American economic sanctions and 
@@ -31,10 +30,10 @@ publisher:
     proliferation of weapons of mass destruction, and other threats to the national
     security, foreign policy or economy of the United States.
   country: us
-  url: https://www.treasury.gov/
+  url: https://ofac.treasury.gov/
   official: true
 tags:
-  - list.sanction
+  - list.enforcement
   - juris.us
   - issuer.west
 url: https://ofac.treasury.gov/recent-actions/enforcement-actions

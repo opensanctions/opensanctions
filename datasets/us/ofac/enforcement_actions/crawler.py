@@ -75,12 +75,12 @@ class Defendant(BaseModel):
     entity_schema: Schema = schema_field
     name: str
     aliases: List[str] = []
-    address: str | List[str] | None = address_field
-    country: str | List[str] | None = []
+    address: List[str] = address_field
+    country: List[str] = []
     status: Status = status_field
     notes: Optional[str] = notes_field
     related_companies: List[RelatedCompany] = []
-    pdf_url: Optional[str] = None
+    pdf_url: List[str] = []
 
 
 class Defendants(BaseModel):
@@ -101,7 +101,7 @@ Specific fields:
 - country: Any countries the entity is indicated to reside, operate, or have been born or registered in. Leave empty if not explicitly stated.
 - status: {status_field.description}
 - notes: {notes_field.description}
-- related_companies: If the defendant is a person and a related company is mentioned in the source text, add it here.
+- related_companies: If the defendant has an ownership or controlling relationship with the related entity, add it here.
 - relationship: Use text verbatim from the source. If it's ambiguous, e.g. "agents and owners", use that text exactly as it is, plural and all.
 - pdf_url: The PDF URL exactly as written in the source text.
   • If multiple PDFs are present, associate each with the correct entity if the source makes that link explicit.
