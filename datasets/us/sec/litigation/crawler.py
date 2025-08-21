@@ -1,5 +1,6 @@
 from typing import Optional, List, Literal
 import re
+from time import sleep
 
 from lxml.html import HtmlElement, fromstring, tostring
 from pydantic import BaseModel, Field
@@ -18,6 +19,34 @@ from zavod.stateful.review import (
     html_to_text_hash,
 )
 
+# Ensure never more than 10 requests per second
+# https://www.sec.gov/about/privacy-information#security
+SLEEP = 0.1
+HEADERS = {
+    "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+    "accept-language": "en-GB,en-US;q=0.9,en;q=0.8",
+    "cache-control": "no-cache",
+    "pragma": "no-cache",
+    "priority": "u=0, i",
+    "sec-ch-ua": '"Not;A=Brand";v="99", "Google Chrome";v="139", "Chromium";v="139"',
+    "sec-ch-ua-mobile": "?0",
+    "sec-ch-ua-platform": '"macOS"',
+    "sec-fetch-dest": "document",
+    "sec-fetch-mode": "navigate",
+    "sec-fetch-site": "none",
+    "sec-fetch-user": "?1",
+    "upgrade-insecure-requests": "1",
+    "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+}
+
+
+MODEL_VERSION = 1
+MIN_MODEL_VERSION = 1
+REGEX_RELEASE_ID = re.compile(r"^lr-(\d{4,})$")
+
+something_changed = False
+
+
 Schema = Literal["Person", "Company", "LegalEntity"]
 Status = Literal[
     "Filed",
@@ -30,13 +59,6 @@ Status = Literal[
     "Supplemental consent order",
     "Other",
 ]
-
-MODEL_VERSION = 1
-MIN_MODEL_VERSION = 1
-REGEX_RELEASE_ID = re.compile(r"^lr-(\d{4,})$")
-
-something_changed = False
-
 
 schema_field = Field(
     description="Use LegalEntity if it isn't clear whether the entity is a person or a company."
@@ -157,8 +179,8 @@ def check_something_changed(
 def crawl_release(
     context: Context, date: str, url: str, see_also_urls: List[str]
 ) -> None:
-
-    doc = context.fetch_html(url, cache_days=15)
+    sleep(SLEEP)
+    doc = context.fetch_html(url, headers=HEADERS, cache_days=15)
     doc.make_links_absolute(url)
     article_xpath = (
         ".//div[contains(@class, 'node-details-layout__main-region__content')]"
@@ -262,7 +284,8 @@ def crawl(context: Context) -> None:
     next_url: Optional[str] = context.data_url
     while next_url:
         context.log.info("Crawling index page", url=next_url)
-        doc = context.fetch_html(next_url)
+        sleep(SLEEP)
+        doc = context.fetch_html(next_url, headers=HEADERS)
         doc.make_links_absolute(next_url)
         next_urls = doc.xpath(
             ".//a[contains(@class, 'usa-pagination__next-page')]/@href"
