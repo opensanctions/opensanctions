@@ -826,6 +826,11 @@ lookups:
           - "TIN: 02012201010017"
           - "OKPO: 27231453"
           - "SWIFT: RINBKG22"
+      - match: "(1) ALTAIR F III S.A R.L (2) SH INVEST LIMITED (3) GALACKTIKA LIMITED LIABILITY COMPANY"
+        values:
+          - ALTAIR F III S.A R.L
+          - SH INVEST LIMITED
+          - GALACKTIKA LIMITED LIABILITY COMPANY
   type.name:
     options:
       - match: "BIC: 136001"
