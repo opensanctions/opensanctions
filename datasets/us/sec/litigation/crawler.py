@@ -23,7 +23,6 @@ from zavod.stateful.review import (
 # https://www.sec.gov/about/privacy-information#security
 SLEEP = 0.1
 HEADERS = {
-    "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
     "accept-language": "en-GB,en-US;q=0.9,en;q=0.8",
     "cache-control": "no-cache",
     "pragma": "no-cache",
@@ -36,13 +35,17 @@ HEADERS = {
     "sec-fetch-site": "none",
     "sec-fetch-user": "?1",
     "upgrade-insecure-requests": "1",
-    "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "user-agent": "OpenSanctions tech@opensanctions.org",
 }
 
 
 MODEL_VERSION = 1
 MIN_MODEL_VERSION = 1
-REGEX_RELEASE_ID = re.compile(r"^lr-(\d{4,})$")
+# lr-25757
+# Sometimes without the first dash
+# Sometimes with a letter at the end
+# sometimes with -0 etc at the end
+REGEX_RELEASE_ID = re.compile(r"^lr-?(\d{4,}\w*(?:-\d+)?)$")
 
 something_changed = False
 

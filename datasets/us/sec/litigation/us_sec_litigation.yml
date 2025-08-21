@@ -41,10 +41,17 @@ publisher:
 data:
   url: https://www.sec.gov/enforcement-litigation/litigation-releases
   format: HTML
-ci_test: false # GPT key not available in CI
+ci_test: false  # GPT key not available in CI
 
 dates:
-  formats: ["%b. %d, %Y", "%B %d, %Y"]
+  formats:
+    - "%b. %d, %Y"
+    - "%B %d, %Y"
+    # Month replacment can't match word boundary after . so don't replace the . (\.\b)
+    - "%B. %d, %Y"
+  months:
+    September:
+      - "Sept"
 
 assertions:
   min:
