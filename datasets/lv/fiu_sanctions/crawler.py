@@ -188,7 +188,9 @@ def crawl_assets_xlsx(context: Context):
     wb = load_workbook(path, read_only=True)
     assert set(wb.sheetnames) == {"Dati", "Informācija par datiem"}
 
-    for row in h.parse_xlsx_sheet(context, wb["Dati"], header_lookup="columns"):
+    for row in h.parse_xlsx_sheet(
+        context, wb["Dati"], header_lookup=context.get_lookup("columns")
+    ):
         name = row.pop("freeze_subject_name")
         birth_date_or_id = row.pop("birth_date_or_id")
         id_values = [name, birth_date_or_id]
@@ -230,5 +232,5 @@ def crawl_assets_xlsx(context: Context):
 
 
 def crawl(context: Context):
-    crawl_sanctions_xml(context)
+    # crawl_sanctions_xml(context)
     crawl_assets_xlsx(context)
