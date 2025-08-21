@@ -21,18 +21,20 @@ from zavod.stateful.review import (
 NAME_XPATH = "//span[@class='treas-page-title']/text()"
 CONTENT_XPATH = "//div[@id='block-ofac-content']//div[@class='content']"
 DATE_XPATH = "//div[@id='block-ofac-content']//div[@class='field__item']/text()"
-# Traveling back to summer of 2016 (the first full pdf enforcement was issued on July 5, 2016)
+# Notices issued before 5 July 2016 are PDFs
 MAX_AGE_DAYS = (date.today() - date(2016, 7, 8)).days
 
 Schema = Literal["Person", "Company", "LegalEntity"]
 Status = Literal[
+    "Settled",
     "Filed",
     "Dismissed",
-    "Settled",
     "Final judgement",
     "Other",
 ]
 
+# Possible variations of enforcement action types found in source data:
+#
 # Settlement Agreement
 # Penalty Notice to an Individual
 # Finding of Violation
@@ -89,13 +91,11 @@ PROMPT = f"""
 Extract the defendants or entities subject to OFAC enforcement actions in the attached article.
 NEVER include relief defendants.
 NEVER infer, assume, or generate values that are not directly stated in the source text.
-
-Trading/D.B.A. names which follow a person name but look like company can just be
-aliases of the person. If the name is a person name, use `Person` as the entity_schema.
+If the name is a person name, use `Person` as the entity_schema.
 
 Specific fields:
 
-- name: The null name of the entity precisely as expressed in the text. If an acronym follows the name in parentheses, include it as an alias and not as part of the name.
+- name: The name of the entity precisely as expressed in the text. If an acronym follows the name in parentheses, include it as an alias and not as part of the name.
 - entity_schema: {schema_field.description}
 - address: {address_field.description}
 - country: Any countries the entity is indicated to reside, operate, or have been born or registered in. Leave empty if not explicitly stated.
@@ -195,7 +195,7 @@ def crawl_enforcement_action(context: Context, url: str) -> None:
     article_html = tostring(article_element, pretty_print=True).decode("utf-8")
     assert all([article_name, article_html, date]), "One or more fields are empty"
 
-    review = get_review(context, Defendants, article_name, MIN_MODEL_VERSION)
+    review = get_review(context, Defendants, url, MIN_MODEL_VERSION)
     if review is None:
         prompt_result = run_typed_text_prompt(context, PROMPT, article_html, Defendants)
         review = request_review(
@@ -236,12 +236,8 @@ def crawl_enforcement_action(context: Context, url: str) -> None:
         entity.add("alias", item.aliases, origin=DEFAULT_MODEL)
         entity.add("topics", "reg.action")
 
-        # We try to link press releases that refer to an original press release number
-        # back to the original press release by using that in the sanction key.
-
-        # In practice often the entity ID and thus sanction ID differs because of
-        # different levels of address details in the press releases.
-        sanction = h.make_sanction(context, entity)
+        # We use the date as a key to make sure notices about separate actions are separate sanction entities
+        sanction = h.make_sanction(context, entity, date)
         h.apply_date(sanction, "date", date)
         sanction.set("sourceUrl", url)
         sanction.add("sourceUrl", item.pdf_url, origin=DEFAULT_MODEL)
@@ -257,7 +253,7 @@ def crawl_enforcement_action(context: Context, url: str) -> None:
             context.emit(link)
 
         article = h.make_article(context, url, title=article_name, published_at=date)
-        documentation = h.make_documentation(context, entity, article, date=date)
+        documentation = h.make_documentation(context, entity, article)
 
         context.emit(entity)
         context.emit(sanction)
