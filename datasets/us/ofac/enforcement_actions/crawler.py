@@ -170,18 +170,6 @@ def check_something_changed(
         return False
 
 
-def is_too_old(context, doc):
-    for result in doc.xpath(".//div[contains(@class, 'search-result')]"):
-        enforcement_date = result.xpath(
-            ".//div[contains(@class,'margin-top-1') and contains(., 'Enforcement Actions')]/text()[normalize-space()]"
-        )
-        assert len(enforcement_date) == 1, "Expected exactly one enforcement date"
-        clean_date = enforcement_date[0].strip().removesuffix(" -")
-        if not enforcements.within_max_age(context, clean_date, MAX_AGE_DAYS):
-            return True
-    return False
-
-
 def crawl_enforcement_action(context: Context, url: str) -> None:
     article = context.fetch_html(url, cache_days=1)
     article.make_links_absolute(context.data_url)
@@ -263,7 +251,8 @@ def crawl_enforcement_action(context: Context, url: str) -> None:
 
 def crawl(context: Context):
     page = 0
-    while True:
+    stop_crawl = False  # flag to break outer loop
+    while not stop_crawl:
         base_url = (
             f"https://ofac.treasury.gov/recent-actions/enforcement-actions?page={page}"
         )
@@ -272,11 +261,19 @@ def crawl(context: Context):
         links = doc.xpath(
             "//div[@class='view-content']//a[contains(@href, 'recent-actions') and not(contains(@href, 'enforcement-actions'))]/@href"
         )
-        if is_too_old(context, doc):
-            break
         if not links:
             break
-        for link in links:
+        search_results = doc.xpath(".//div[contains(@class, 'search-result')]")
+        for idx, result in enumerate(search_results):
+            enforcement_date = result.xpath(
+                ".//div[contains(@class,'margin-top-1') and contains(., 'Enforcement Actions')]/text()[normalize-space()]"
+            )
+            assert len(enforcement_date) == 1, "Expected exactly one enforcement date"
+            clean_date = enforcement_date[0].strip().removesuffix(" -")
+            if not enforcements.within_max_age(context, clean_date, MAX_AGE_DAYS):
+                stop_crawl = True
+                break
+            link = links[idx]
             crawl_enforcement_action(context, link)
         page += 1
 
