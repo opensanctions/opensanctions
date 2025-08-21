@@ -317,12 +317,21 @@ def crawl_entity(context: Context, data: Dict[str, Any]):
             apply_prop(context, entity, sanction, field, value)
 
     name = data.pop("Nom")
-    h.apply_name(
-        entity,
-        first_name=entity.first("firstName", quiet=True),
-        tail_name=name,
-        quiet=True,
-    )
+    first_name = entity.first("firstName", quiet=True)
+    # Entities that don't have a first name usually have their full name in the "Nom" field.
+    if first_name is None:
+        h.apply_name(
+            entity,
+            full=name,
+            quiet=True,
+        )
+    else:
+        h.apply_name(
+            entity,
+            first_name=first_name,
+            tail_name=name,
+            quiet=True,
+        )
     entity.add("topics", "sanction")
     context.emit(entity)
     context.emit(sanction)
