@@ -578,9 +578,18 @@ lookups:
           - 13219
           - 555669
           - 44396
+          - 100386629
+          - 3266528
+          - 75190131
+          - 2897516
+          - 69651149
+          - 2646286
         prop: registrationNumber
       - match: 10477970849
         value: 1047797084940
+        prop: registrationNumber
+      - match: .0276915630
+        value: 0276915630
         prop: registrationNumber
       - regex: # failed validation for entities registered in so called "people's republics"
           - ^122940\d{7}$
