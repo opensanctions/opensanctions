@@ -8,11 +8,11 @@ from zavod import Context
 from zavod.entity import Entity
 from zavod.shed.zyte_api import fetch_html, fetch_resource
 
-# a.k.a. and variations
+# "a.k.a.", "A.K.A.:" and variations
 # ידוע גם ("also known as")
 # ועוד ידוע: ("and also known")
 # a), b), ...
-REGEX_NAME_SPLIT = r"\b[AF]\.?K\.?A[:\.\b]|;|ידוע גם:?|ועוד ידוע:?|\b[a-z]\)"
+REGEX_NAME_SPLIT = r"\b[AF]\.?K\.?A[:\.\b]+|;|ידוע גם:?|ועוד ידוע:?|\b[a-z]\)"
 SKIP_ROWS = {
     'הכרזות – איראן יחידים – סה"כ 23 גורמים מוכרזים:',
     'הכרזות – איראן ארגונים/קבוצות – סה"כ 61 גורמים מוכרזים:',
