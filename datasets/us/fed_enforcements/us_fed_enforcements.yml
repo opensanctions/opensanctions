@@ -4,6 +4,9 @@ prefix: us-fed
 coverage:
   frequency: daily
   start: 2024-04-10
+deploy:
+  memory: "4500Mi"
+  memory_limit: "5500Mi"
 load_statements: true
 ci_test: false  # GPT key not available in CI
 summary: >
