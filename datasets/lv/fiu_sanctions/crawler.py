@@ -232,5 +232,5 @@ def crawl_assets_xlsx(context: Context):
 
 
 def crawl(context: Context):
-    # crawl_sanctions_xml(context)
+    crawl_sanctions_xml(context)
     crawl_assets_xlsx(context)
