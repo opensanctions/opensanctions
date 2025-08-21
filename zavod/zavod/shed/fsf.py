@@ -14,6 +14,9 @@ from zavod import helpers as h
 #      or Victor Byiringiro and “General” Pacifique Ntawunguka, alias Omegam.
 REGEX_LEADER_ALIAS = re.compile(r"led by .+ alias")
 
+# position and title are split like this, and currently they're up to (c)
+LETTER_SPLITS = ["(a)", "(b)", "(c)", "(d)", "(e)"]
+
 
 def parse_country(node: Element) -> Optional[str]:
     description = node.get("countryDescription")
@@ -157,10 +160,19 @@ def parse_entry(context: Context, entry: Element) -> None:
             quiet=True,
             lang=lang,
         )
-        entity.add("title", name.get("title"), quiet=True, lang=lang)
+        # split "(a) Mullah, (b) Maulavi" into ["Mullah", "Maulavi"]
+        titles = [
+            t.strip(", ") for t in h.multi_split(name.get("title", ""), LETTER_SPLITS)
+        ]
+        entity.add("title", titles, quiet=True, lang=lang)
         if entity.schema.is_a("Person"):
-            entity.add("position", name.get("function"), lang=lang)
+            positions = [
+                t.strip(", ")
+                for t in h.multi_split(name.get("function", ""), LETTER_SPLITS)
+            ]
+            entity.add("position", positions, lang=lang)
         else:
+            # Notes will also have LETTER_SPLITS, but there isn't really any value in splitting them
             entity.add("notes", name.get("function"), lang=lang)
         entity.add("gender", name.get("gender"), quiet=True, lang=lang)
 
