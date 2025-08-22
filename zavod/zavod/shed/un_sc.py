@@ -95,7 +95,7 @@ def make_entity(context: Context, prefix: str, schema: str, node: Element) -> En
         entity.add("firstName", names[0])
         entity.add("lastName", names[-1])
         # make_name (which is just a fancy wrapper around " ".join) to generate the full name.
-        name_args = {f"name{i}": name for i, name in enumerate(names)}
+        name_args = {f"name{i+1}": name for i, name in enumerate(names)}
         entity.add("name", h.make_name(**name_args))
 
     entity.add("topics", "sanction")
