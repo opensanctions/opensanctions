@@ -474,6 +474,10 @@ lookups:
         name: "Lydia V Shipping Ltd"
         registration_number: 6161189
         date: "2020-06-13"
+      - match: "Rptd Sold Russia (9992075 / 27.06.2025)"
+        name: "Rptd Sold Russia"
+        registration_number: 9992075
+        date: "2025-06-27"
   type.date:
     options:
       - match: 23.06.1974 /23.06.1973
@@ -588,7 +592,7 @@ lookups:
       - match: 10477970849
         value: 1047797084940
         prop: registrationNumber
-      - match: .0276915630
+      - match: ".0276915630"
         value: 0276915630
         prop: registrationNumber
       - regex: # failed validation for entities registered in so called "people's republics"
