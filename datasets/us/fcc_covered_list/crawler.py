@@ -6,6 +6,15 @@ from zavod import Context, helpers as h
 PROGRAM_NAME = (
     "List of Equipment and Services Covered By Section 2 of The Secure Networks Act"
 )
+HEADERS = {
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    "Accept-Encoding": "gzip, deflate, br",
+    "Accept-Language": "en-GB,en;q=0.9",
+    "Priority": "u=0, i",
+    "Sec-Fetch-Dest": "document",
+    "Sec-Fetch-Mode": "navigate",
+    "Sec-Fetch-Site": "same-origin",
+}
 
 
 def crawl_item(input_dict: dict, context: Context):
@@ -64,7 +73,7 @@ def crawl_item(input_dict: dict, context: Context):
 
 
 def crawl(context: Context):
-    doc = context.fetch_html(context.dataset.url)
+    doc = context.fetch_html(context.dataset.url, headers=HEADERS)
     table = doc.xpath('.//div[contains(@class, "page-body")]//table')[0]
     h.assert_dom_hash(
         table,
