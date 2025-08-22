@@ -147,7 +147,7 @@ def crawl(context: Context):
     divs = doc.xpath(".//div[@class='wrapper2011']")
     assert len(divs) == 1, len(divs)
     # Check hash of the content part of the page
-    h.assert_dom_hash(divs[0], "66a811a8670ae6958bc081fa93a533b6939aab26")
+    h.assert_dom_hash(divs[0], "4aad6cb5239dc452fff0a697d49684aa75eb2901")
     pdf_xpath = (
         ".//a[contains(@href, '.pdf') and contains(@href, '17_russia/list')]/@href"
     )
