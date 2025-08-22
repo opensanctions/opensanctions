@@ -48,6 +48,7 @@ def crawl_row(context: Context, row: dict, reasons_cell: HtmlElement):
     vessel.add("buildDate", row.pop("Year of build"))
     vessel.add("grossRegisteredTonnage", row.pop("Gross Tonnage"))
     vessel.add("type", row.pop("Ship Type"))
+    vessel.add("topics", "mare.detained")
 
     start_date = row.pop("Date of detention")
     if company_name:
