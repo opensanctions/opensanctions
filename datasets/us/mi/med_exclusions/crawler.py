@@ -4,6 +4,16 @@ from openpyxl import load_workbook
 
 from zavod import Context, helpers as h
 
+HEADERS = {
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    "Accept-Encoding": "gzip, deflate, br",
+    "Accept-Language": "en-GB,en;q=0.9",
+    "Priority": "u=0, i",
+    "Sec-Fetch-Dest": "document",
+    "Sec-Fetch-Mode": "navigate",
+    "Sec-Fetch-Site": "none",
+}
+
 
 def crawl_item(row: Dict[str, str], context: Context):
 
@@ -89,7 +99,7 @@ def crawl_item(row: Dict[str, str], context: Context):
 
 
 def crawl_excel_url(context: Context):
-    doc = context.fetch_html(context.data_url)
+    doc = context.fetch_html(context.data_url, headers=HEADERS)
     doc.make_links_absolute(context.data_url)
     links = doc.xpath("//*[text()='List of Sanctioned Providers (XLSX)']/ancestor::a")
     return links[0].get("href")
