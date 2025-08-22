@@ -3,7 +3,6 @@ from typing import Set, Iterable
 from followthemoney import registry
 
 from normality import squash_spaces
-from zavod import settings
 from zavod.entity import Entity
 from zavod.logs import get_logger
 from zavod.runtime.urls import make_entity_url
@@ -72,7 +71,7 @@ class MaritimeExporter(Exporter):
             imos.append("")
         row_type = "VESSEL" if entity.schema.is_a("Vessel") else "ORGANIZATION"
         topics = entity.get("topics", quiet=True)
-        risk_topics = settings.TARGET_TOPICS.intersection(topics)
+        risk_topics = registry.topic.RISKS.intersection(topics)
         if row_type == "VESSEL":
             self._count_vessels += 1
         else:

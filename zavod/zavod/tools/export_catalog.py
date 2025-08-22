@@ -1,6 +1,6 @@
 import json
 from typing import Dict, Any
-from followthemoney import model
+from followthemoney import model, registry
 
 from zavod import settings
 from zavod.util import write_json
@@ -32,7 +32,7 @@ def get_opensanctions_catalog(scope: Dataset) -> Dict[str, Any]:
         "run_time": settings.RUN_TIME_ISO,
         "statements_url": make_published_url("default", "statements.csv"),
         "model": model.to_dict(),
-        "target_topics": settings.TARGET_TOPICS,
+        "target_topics": registry.topic.RISKS,
         "enrich_topics": settings.ENRICH_TOPICS,
         "schemata": sorted(schemata),
         "app": "opensanctions",
