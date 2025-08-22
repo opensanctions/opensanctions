@@ -3,6 +3,9 @@ from rigour.mime.types import XLSX
 from openpyxl import load_workbook
 
 from zavod import Context, helpers as h
+from zavod.shed.zyte_api import fetch_html
+
+URL_XPATH = "//*[text()='List of Sanctioned Providers (XLSX)']/ancestor::a"
 
 
 def crawl_item(row: Dict[str, str], context: Context):
@@ -89,9 +92,11 @@ def crawl_item(row: Dict[str, str], context: Context):
 
 
 def crawl_excel_url(context: Context):
-    doc = context.fetch_html(context.data_url)
+    doc = fetch_html(
+        context, context.data_url, URL_XPATH, html_source="httpResponseBody"
+    )
     doc.make_links_absolute(context.data_url)
-    links = doc.xpath("//*[text()='List of Sanctioned Providers (XLSX)']/ancestor::a")
+    links = doc.xpath(URL_XPATH)
     return links[0].get("href")
 
 
