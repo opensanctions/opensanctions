@@ -264,7 +264,7 @@ def crawl(context: Context):
         if not links:
             break
         search_results = doc.xpath(".//div[contains(@class, 'search-result')]")
-        for idx, result in enumerate(search_results):
+        for result in search_results:
             enforcement_date = result.xpath(
                 ".//div[contains(@class,'margin-top-1') and contains(., 'Enforcement Actions')]/text()[normalize-space()]"
             )
@@ -273,7 +273,9 @@ def crawl(context: Context):
             if not enforcements.within_max_age(context, clean_date, MAX_AGE_DAYS):
                 stop_crawl = True
                 break
-            link = links[idx]
+            link = result.xpath(
+                ".//a[contains(@href, 'recent-actions') and not(contains(@href, 'enforcement-actions'))]/@href"
+            )[0]
             crawl_enforcement_action(context, link)
         page += 1
 
