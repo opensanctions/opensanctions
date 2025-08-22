@@ -5,6 +5,7 @@ coverage:
   start: "2024-09-26"
   schedule: "18 4 1,15 * *"
 load_statements: true
+ci_test: false
 summary: >
   Providers who have been terminated for cause from Michigan's Medicaid program.
 description: |
