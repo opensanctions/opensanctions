@@ -1,0 +1,62 @@
+title: US OFAC Enforcement Actions
+entry_point: crawler.py
+prefix: ofac-ea
+load_statements: true
+ci_test: false # GPT key not available in CI
+coverage:
+  frequency: weekly
+  start: "2025-08-15"
+summary: >
+  List of formal legal proceedings where the U.S. Treasury's Office of Foreign Assets Control 
+  penalizes individuals, companies, or entities that violate American economic sanctions and 
+  embargo programs.
+description: |
+  OFAC Enforcement Actions are formal legal proceedings where the U.S. Treasury's Office 
+  of Foreign Assets Control penalizes individuals, companies, or entities that violate 
+  American economic sanctions and embargo programs. These actions typically involve civil 
+  monetary penalties, settlement agreements, or warning letters for violations such as 
+  conducting business with sanctioned parties, failing to freeze designated assets, or 
+  having inadequate compliance programs. The enforcement actions serve as both punishment 
+  for violations and deterrence for others, with OFAC publicly disclosing significant cases 
+  to provide guidance on sanctions compliance.
+publisher:
+  name: Office of Foreign Assets Control
+  acronym: OFAC
+  description: >
+    OFAC is a divison of the United States Department of the Treasury that administers
+    and enforces economic and trade sanctions based on US foreign policy and national
+    security goals against targeted foreign countries and regimes, terrorists,
+    international narcotics traffickers, those engaged in activities related to the
+    proliferation of weapons of mass destruction, and other threats to the national
+    security, foreign policy or economy of the United States.
+  country: us
+  url: https://ofac.treasury.gov/
+  official: true
+tags:
+  - juris.us
+  - issuer.west
+url: https://ofac.treasury.gov/recent-actions/enforcement-actions
+data:
+  url: https://ofac.treasury.gov/recent-actions/enforcement-actions
+  format: HTML
+  lang: eng
+http:
+  user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.2 Safari/605.1.15"
+dates:
+  formats: ["%m/%d/%Y", "%B %d, %Y"]
+
+# assertions:
+#   min:
+#     schema_entities:
+#       Address: 440
+#       Organization: 300
+#       Security: 200
+#       Person: 70
+#       Company: 4
+#   max:
+#     schema_entities:
+#       Address: 1030
+#       Organization: 720
+#       Security: 460
+#       Person: 160
+#       Company: 50
