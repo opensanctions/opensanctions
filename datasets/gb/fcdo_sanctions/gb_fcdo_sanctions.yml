@@ -130,6 +130,8 @@ lookups:
         value: pol
       - match: Czech
         value: ces
+      - match: Kirghiz; Kyrgyz
+        value: kir
   name_type:
     lowercase: true
     normalize: true
@@ -145,8 +147,6 @@ lookups:
     options:
       - match: Congo (Democratic Republic)
         value: Democratic Republic of Congo
-      - match: Kirghiz; Kyrgyz
-        value: Kyrgyzstan
         # according to 'marinetraffic.com' the vessel is registered in Guinea: https://www.marinetraffic.com/en/ais/details/ships/shipid:214941/mmsi:632001136/imo:9277735/vessel:LUNAR_TIDE
         # what was meant by 'Tazmania' is yet to be figured out
       - match: Tazmania
