@@ -178,6 +178,28 @@ lookups:
         aliases:
           - Step Istanbul
           - Standart Teknik Parca San. Ve Tic. A.S.
+      - match: "SSTP, Step Standard Technical Components Industry and Trading Corporation, Step Corporation, Step Standart Teknik Parca Sanayi Ve Ticaret A.S., Step AS, Step Company, Stap Standart Tek Par San Tic AS, Step Standart Teknyk, Parca San. Ve Tyc. A.S., STEP Standart Teknik Parca San. ve Tic. A.S., Step Standart Teknik Parca Sanayi ve Ticaret Anonim Sirketi, Step A. S., Step S.A., Step Istanbul, Standart Teknik Parca San Ve Tic A.S., Standart Teknik Parca San. Ve Ticaret A.S., Standard Technical Component Industry and Trade Company, Step Standart Teknik Parca San Ve Tic As, Step Istanbul/Standart Teknik Parca San. Ve Tic. A.S."
+        aliases:
+          - SSTP
+          - Step Standard Technical Components Industry and Trading Corporation
+          - Step Corporation
+          - Step Standart Teknik Parca Sanayi Ve Ticaret A.S.
+          - Step AS
+          - Step Company
+          - Stap Standart Tek Par San Tic AS
+          - Step Standart Teknyk
+          - Parca San. Ve Tyc. A.S.
+          - STEP Standart Teknik Parca San. ve Tic. A.S.
+          - Step Standart Teknik Parca Sanayi ve Ticaret Anonim Sirketi
+          - Step A. S.
+          - Step S.A.
+          - Step Istanbul
+          - Standart Teknik Parca San Ve Tic A.S.
+          - Standart Teknik Parca San. Ve Ticaret A.S.
+          - Standard Technical Component Industry and Trade Company
+          - Step Standart Teknik Parca San Ve Tic As
+          - Step Istanbul
+          - Standart Teknik Parca San. Ve Tic. A.S.
 
   type.date:
     options:
