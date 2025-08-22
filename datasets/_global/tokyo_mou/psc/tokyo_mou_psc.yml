@@ -57,3 +57,11 @@ lookups:
           - 1892617
           - 0783218
         prop: registrationNumber
+  type.country:
+    options:
+      - match: Ship registration withdrawn
+        value: null
+  type.email:
+    options:
+      - match: "doubleeastship@163.com??'"
+        value: doubleeastship@163.com
