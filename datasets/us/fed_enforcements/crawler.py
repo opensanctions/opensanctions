@@ -129,6 +129,7 @@ def crawl_item(
         entity = context.make(schema)
         entity.id = context.make_id(party_name, ent.name, affiliation, ent.locality)
         entity.add("name", ent.name, origin=origin)
+        entity.add("sourceUrl", url)
 
         if ent.locality:
             entity.add("address", ent.locality, origin=origin)
@@ -147,7 +148,7 @@ def crawl_item(
         h.apply_date(sanction, "startDate", effective_date)
         sanction.add("provisions", provisions)
         sanction.add("description", sanction_description)
-        sanction.add("sourceUrl", url)
+        sanction.set("sourceUrl", url)
 
         h.apply_date(sanction, "endDate", termination_date)
         is_active = h.is_active(sanction)
