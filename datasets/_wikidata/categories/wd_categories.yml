@@ -177,6 +177,23 @@ config:
     - "Q220098" # warlord
     # skip:
     # - "Q30185" # mayor
+    # Heads of international organisations for which Wikidata Q codes were found
+    - "Q24558593" # Administrator of the United Nations Development Programme
+    - "Q65782205" # Director General of the International Atomic Energy Agency 
+    - "Q66566041" # Director-General of the Food and Agriculture Organization
+    - "Q111363853" # Director-General of the International Labour Organization
+    - "Q108603609" # Director-General of the World Intellectual Property Organization
+    - "Q28784183" # Director-General of UNESCO
+    - "Q67199671" # Executive Director of UNICEF
+    - "Q123171287" # Executive Director of United Nations Office for Project Services
+    - "Q19926443" # President of the International Court of Justice
+    - "Q29511440" # President of the United Nations Economic and Social Council
+    - "Q4352360" # President of the United Nations Security Council
+    - "Q110970831" # President of the World Meteorological Organization
+    - "Q42591216" # Secretary-General of the International Maritime Organization 
+    - "Q17389566" # Secretary-General of the International Telecommunication Union
+    - "Q27832358" # United Nations High Commissioner for Refugees
+    - "Q112963010" # UNRWA Commissioner-General
   categories:
     # Mega collections:
     - category: Political_office-holders_in_Asia
