@@ -24,7 +24,7 @@ REGEX_ALIAS_REGNO = re.compile(
     r"(?P<name>.{5,30})[;,] (Registration no.|ID:) (?P<regno>.{5,20})", re.IGNORECASE
 )
 REGEX_INTERNAL_URL = re.compile(
-    r"http://([\w-]+\.)+azurecontainerapps.io:80/api/published-list"
+    r"http://([\w-]+\.)+azurecontainerapps.io:80/published-list"
 )
 
 
