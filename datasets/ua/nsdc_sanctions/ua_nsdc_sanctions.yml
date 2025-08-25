@@ -110,6 +110,7 @@ lookups:
           - "reg:ir_pr"
           - "reg:cn_tr"
           - "reg:cn_tr_hk"
+          - "reg:number_nin"
         prop: registrationNumber
       - match:
           - "doc:passport"
@@ -117,6 +118,7 @@ lookups:
           - "doc:f_passport"
           - "doc:s_passport"
           - "doc:in_passport"
+          - "doc:passport_ua"
           - "doc:sm_passport"
           - "doc:f_passports_ru"
           - "doc:passport_ru"
@@ -562,6 +564,14 @@ lookups:
           - юніт 13, 12 поверх, Ван Віста Супріум, Тянь Мун, Гонконг, Китайська Народна Республіка
           - Unit 13, 12/F, One Vista Supreme, Tien Mun, Hong Kong, China
           - Flat B, 6th Floor, Block 30, City One Shatin 2, Hang Shing Street, Sha Tin, New Territories, Hong Kong, China
+      - match: 'Російська Федерація, 121205, м. Москва, б-р Великий (інноваційного центру Сколково тер), буд. 30, будівля 1, пов. 3, прим. 33, РБ 33-1 (Российская Федерация, 121205, г. Москва, б-р Большой (инновационного центра Сколково тер), дом 30, стр. 1, эт. 3, пом. 33, РБ 33-1)'
+        values:
+          - Російська Федерація, 121205, м. Москва, б-р Великий (інноваційного центру Сколково тер), буд. 30, будівля 1, пов. 3, прим. 33, РБ 33-1
+          - Российская Федерация, 121205, г. Москва, б-р Большой (инновационного центра Сколково тер), дом 30, стр. 1, эт. 3, пом. 33, РБ 33-1
+      - match: 'Люкс частина 17), офіс 1, (Российская Федерация, г. Санкт-Петербург, ул. Большая Пушкарская, д. 20, лит. А, люкс 110-Н (Люкс часть 17), офис 1, Office 1, Suite 110-N (Suite Part 17), Letter A, 20 Bolshaya Pushrarskaya Street, Kronverkskoye Municipal Distinct, Saint Peterburg 197198, Russian Federation'
+        values:
+          - Российская Федерация, г. Санкт-Петербург, ул. Большая Пушкарская, д. 20, лит. А, люкс 110-Н (Люкс часть 17), офис 1
+          - Office 1, Suite 110-N (Suite Part 17), Letter A, 20 Bolshaya Pushrarskaya Street, Kronverkskoye Municipal Distinct, Saint Peterburg 197198, Russian Federation
   type.name:
     options:
       - match: Федеральное государственное бюджетное военное образовательное учреждение высшего образования «Академия гражданской защиты Министерства Российской Федерации по делам гражданской обороны чрезвычайных ситуаций и ликвидации последствий стихийных бедствий»
