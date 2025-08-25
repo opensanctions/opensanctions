@@ -17,14 +17,7 @@ from zavod.stateful.review import (
 )
 
 
-Schema = Literal["Person", "Company", "LegalEntity"]
-Status = Literal[
-    "Settled",
-    "Filed",
-    "Dismissed",
-    "Final judgement",
-    "Other",
-]
+Schema = Literal["Person", "Company", "LegalEntity", "Vessel"]
 NAME_XPATH = "//h2[@class='uswds-page-title']/text()"
 CONTENT_XPATH = "//article[@class='entity--type-node']"
 DATE_XPATH = "//article[@class='entity--type-node']//time[@class='datetime']/@datetime"
@@ -35,7 +28,12 @@ MIN_MODEL_VERSION = 1
 something_changed = False
 
 schema_field = Field(
-    description="Use LegalEntity if it isn't clear whether the entity is a person or a company."
+    description=(
+        "- 'Person', if the name refers to an individual."
+        "- 'Vessel', if the name refers to a ship or vessel."
+        "- 'LegalEntity', for companies, organizations, or when unclear if the entity is a person or company."
+        "Never invent new schema labels."
+    )
 )
 address_field = Field(
     default=[],
@@ -61,7 +59,6 @@ class Defendant(BaseModel):
     aliases: List[str] = []
     address: List[str] = address_field
     country: List[str] = []
-    status: Status = status_field
     notes: Optional[str] = notes_field
     related_companies: List[RelatedCompany] = []
     pdf_url: List[str] = []
@@ -72,23 +69,22 @@ class Defendants(BaseModel):
 
 
 PROMPT = f"""
-Extract the defendants or entities subject to OFAC enforcement actions in the attached article.
+Extract the defendants, entities and vessels mentioned in OFAC press release in the attached article.
 NEVER include relief defendants.
 NEVER infer, assume, or generate values that are not directly stated in the source text.
 If the name is a person name, use `Person` as the entity_schema.
-Specific fields:
-- name: The name of the entity precisely as expressed in the text. If an acronym follows the name in parentheses, include it as an alias and not as part of the name.
+Output each entity with these fields:
+- name: Exact name as written in the article. If followed by an acronym in parentheses, store that acronym as an alias, not in the name.
 - entity_schema: {schema_field.description}
 - address: {address_field.description}
-- country: Any countries the entity is indicated to reside, operate, or have been born or registered in. Leave empty if not explicitly stated.
-- status: {status_field.description}
+- country: Countries explicitly mentioned as residence, registration, or operation. Leave empty if not stated.
 - notes: {notes_field.description}
-- related_companies: If the defendant has an ownership or controlling relationship with the related entity, add it here.
-- relationship: Use text verbatim from the source. If it's ambiguous, e.g. "agents and owners", use that text exactly as it is, plural and all.
-- pdf_url: The PDF URL exactly as written in the source text.
-  • If multiple PDFs are present, associate each with the correct entity if the source makes that link explicit.
-  • If no PDF is mentioned for an entity, leave this field empty.
-  • Never invent or infer a URL.
+- related_companies: Entities the subject owns or controls, if directly stated.
+- relationship: Copy the exact wording from the text (e.g., "agents and owners"). Do not rephrase.
+- related_url: URLs mentioned in the article that directly reference the entity.  
+  • If multiple URLs are present, link each one only to the entity it explicitly refers to.  
+  • If no URL is provided for an entity, leave this field empty.  
+  • Do not invent, infer, or alter URLs.
 """
 
 
@@ -210,7 +206,6 @@ def crawl_enforcement_action(context: Context, url: str) -> None:
         h.apply_date(sanction, "date", date)
         sanction.set("sourceUrl", url)
         sanction.add("sourceUrl", item.pdf_url, origin=DEFAULT_MODEL)
-        sanction.add("status", item.status, origin=DEFAULT_MODEL)
         sanction.add("summary", item.notes, origin=DEFAULT_MODEL)
 
         for related_company in item.related_companies:
@@ -244,7 +239,7 @@ def crawl(context: Context):
         links = h.links_to_dict(row.pop("press_release_link"))
         url = next(iter(links.values()))
         # Filter out unwanted download/media links
-        if "/news/press-releases/sb" not in url:
+        if "/news/press-releases/" not in url:
             continue  # skip this row
         crawl_enforcement_action(context, url)
     # page += 1
