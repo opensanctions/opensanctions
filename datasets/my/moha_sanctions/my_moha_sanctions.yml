@@ -16,18 +16,14 @@ description: |
   >
   > Where the Minister of Home Affairs is satisfied on information given to him by
   > a police officer that:
-  > 
+  >
   > (a) an entity has knowingly committed, attempted to commit, participated in
   > committing or facilitated the commission of, a terrorist act; or
   > (b) an entity is knowingly acting on behalf of, at the direction of, or in
-  > association with, an entity referred to in paragraph (a), 
+  > association with, an entity referred to in paragraph (a),
   >
   > the Minister of Home Affairs may, by order published in the Gazette, declare the
   > entity to be a specified entity.
-
-  **Note:** This crawler uses an LLM-based approach to extract the data from
-  the PDF file. We are still working on improving the quality of that process
-  in order to ensure the highest possible accuracy.
 publisher:
   name: Ministry of Home Affairs (Kementerian Dalam Negeri)
   acronym: MOHA
