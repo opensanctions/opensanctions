@@ -16,6 +16,7 @@ DATES = [
 ]
 
 
+
 def parse_row(
     context: Context, headers: List[str], row: List[Optional[str]], sanctioned: bool
 ):
@@ -66,6 +67,7 @@ def parse_row(
 
 
 def parse_excel(context: Context, path: Path):
+    # Pass formatting_info=True to get the merged cells
     xls = xlrd.open_workbook(path, formatting_info=True)
     for sheet in xls.sheets():
         res = context.lookup("sanction_is_active", sheet.name)
@@ -74,6 +76,13 @@ def parse_excel(context: Context, path: Path):
             is_active = True
         else:
             is_active = res.is_active
+
+        # sheet.merged_cells is a list of tuples (rlo, rhi, clo, chi)
+        # of row/column indices that are merged together.
+        # cell (rlo, clo) (the top left one) will carry the data and
+        # formatting info; the remainder will be recorded as blank cells
+        # merged_cells_map is a map from any (r, c) in the merged cells
+        # to the top left cell
         merged_cells_map = {
             (r, c): (rlo, clo)
             for (rlo, rhi, clo, chi) in sheet.merged_cells
@@ -82,17 +91,26 @@ def parse_excel(context: Context, path: Path):
         }
         headers: Optional[List[str]] = None
         for r in range(1, sheet.nrows):
-            row = [
-                h.convert_excel_cell(xls, sheet.cell(*merged_cells_map.get((r, c), (r, c))))
-                for c in range(sheet.ncols)
-            ]
+            row = []
+            for c in range(sheet.ncols):
+                # Resolve the cell coordinates to the top left cell of the merged cell
+                # or the cell itself if it's not part of a merged cell
+                cell_coords = merged_cells_map.get((r, c)) or (r, c)
+                cell = sheet.cell(*cell_coords)
+                row.append(h.convert_excel_cell(xls, cell))
+
+            # Skip empty rows (present because formatting_info=True)
             if row[0] is None:
                 continue
+            # "#" is the header for the first (index) column
             if "#" in row[0]:
                 headers = []
                 for ara in row:
+
+                    # Finish when we hit the first empty cell in the header row
                     if ara is None:
                         break
+
                     ara = collapse_spaces(ara)
                     result = context.lookup("headers", ara)
                     if result is None:
