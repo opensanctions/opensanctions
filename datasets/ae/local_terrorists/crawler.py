@@ -1,7 +1,7 @@
 import xlrd
 import re
 
-from typing import List, Optional
+from typing import List, Optional, NamedTuple
 from pathlib import Path
 from normality import collapse_spaces
 from rigour.mime.types import XLS
@@ -10,15 +10,23 @@ from zavod import Context
 from zavod import helpers as h
 
 
+class HeaderSpec(NamedTuple):
+    name: str
+    lang: str
+    type_: str
+
+
 DATES = [
     re.compile(r"رفع الإدراج بموجب قرار مجلس الوزراء رقم \(\d{2}\) لسنة"),
     re.compile(r"مدرج بموجب قرار مجلس الوزراء رقم \(\d{2}\) لسنة"),
 ]
 
 
-
 def parse_row(
-    context: Context, headers: List[str], row: List[Optional[str]], sanctioned: bool
+    context: Context,
+    headers: List[HeaderSpec],
+    row: List[Optional[str]],
+    sanctioned: bool,
 ):
     entity_id = context.make_id(*row)
     schema = context.lookup_value("schema.override", entity_id, "LegalEntity")
@@ -28,35 +36,32 @@ def parse_row(
         entity.add("topics", "sanction")
     sanction = h.make_sanction(context, entity)
     address = {}
-    for (header, lang, type_), value_ in zip(headers, row):
+    for header, value_ in zip(headers, row):
         value = collapse_spaces(value_)
         if value is None or value == "-":
             continue
-        if header in ["index", "issuer"]:
-            continue
-        if header == "category":
-            schema = context.lookup_value("categories", value)
-            if schema is None:
-                context.log.error(f'Unknown category "{value}"', category=value)
-            elif not entity.schema.is_a("Vessel"):
-                entity.add_schema(schema)
-            continue
-        if header in ("program", "provisions"):
-            sanction.add(header, value, lang=lang)
-            continue
-        if header in ("listingDate", "endDate"):
-            for pattern in DATES:
-                value = re.sub(pattern, "", value)
-            h.apply_date(sanction, header, value)
-            continue
-        if header in ["city", "country", "street"]:
-            address[header] = value
-            continue
-        # print(header, value)
-        if header in ["birthDate"]:
-            h.apply_date(entity, header, value)
-        else:
-            entity.add(header, value, lang=lang)
+
+        match header.name:
+            case "index" | "issuer":
+                continue
+            case "category":
+                schema = context.lookup_value("categories", value)
+                if schema is None:
+                    context.log.error(f'Unknown category "{value}"', category=value)
+                elif not entity.schema.is_a("Vessel"):
+                    entity.add_schema(schema)
+            case "program" | "provisions":
+                sanction.add(header.name, value, lang=header.lang)
+            case "listingDate" | "endDate":
+                for pattern in DATES:
+                    value = re.sub(pattern, "", value)
+                h.apply_date(sanction, header.name, value)
+            case "city" | "country" | "street":
+                address[header.name] = value
+            case "birthDate":
+                h.apply_date(entity, header.name, value)
+            case _:
+                entity.add(header.name, value, lang=header.lang)
 
     if len(address):
         addr = h.make_address(context, **address)
@@ -89,7 +94,7 @@ def parse_excel(context: Context, path: Path):
             for r in range(rlo, rhi)
             for c in range(clo, chi)
         }
-        headers: Optional[List[str]] = None
+        headers: Optional[List[HeaderSpec]] = None
         for r in range(1, sheet.nrows):
             row = []
             for c in range(sheet.ncols):
@@ -105,18 +110,18 @@ def parse_excel(context: Context, path: Path):
             # "#" is the header for the first (index) column
             if "#" in row[0]:
                 headers = []
-                for ara in row:
+                for header_text_ara in row:
 
                     # Finish when we hit the first empty cell in the header row
-                    if ara is None:
+                    if header_text_ara is None:
                         break
 
-                    ara = collapse_spaces(ara)
-                    result = context.lookup("headers", ara)
+                    header_text_ara = collapse_spaces(header_text_ara)
+                    result = context.lookup("headers", header_text_ara)
                     if result is None:
-                        context.log.error("Unknown column", arabic=ara)
+                        context.log.error("Unknown column", arabic=header_text_ara)
                         continue
-                    headers.append((result.value, result.lang, result.type))
+                    headers.append(HeaderSpec(result.value, result.lang, result.type))
                 # print(headers)
                 continue
             if headers is None:
