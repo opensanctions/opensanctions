@@ -5,6 +5,8 @@ import base64
 from os import environ as env
 from datetime import datetime, timezone
 
+# from pprint import pprint
+
 from zavod import Context, helpers as h
 
 
@@ -45,7 +47,7 @@ LINKS = [
     },
     {  # captains
         "endpoint": "transport/captains",
-        "type": "captain",
+        "type": "person",
         "program": "Captains of ships involved in the transportation of weapons, stolen Ukrainian products and in the circumvention of sanctions",
     },
     {  # propagandists
@@ -78,6 +80,11 @@ LINKS = [
         "type": "legal_entity",
         "program": "Enterprises involved in the production and supply of military components and parts",
     },
+    # {  # factories
+    #     "endpoint": "tools/companies",
+    #     "type": "legal_entity",
+    #     "program": "Legal entities involved in the production of military equipment and supplies",
+    # },
 ]
 
 
@@ -94,6 +101,19 @@ def generate_token(cid: str, pkey: str) -> str:
     # 5. Base64 encode
     token = base64.b64encode(raw_token.encode("utf-8")).decode("utf-8")
     return token
+
+
+# def emit_captainhood(context: Context, ship_data, person):
+#     ship_id = ship_data.pop("id")
+#     ship_name = ship_data.pop("name")
+#     ship_imo = ship_data.pop("imo")
+
+#     vessel = context.make("Vessel")
+#     vessel.id = context.make_id(ship_name, ship_imo)
+#     vessel.add("name", ship_name)
+#     vessel.add("imo", ship_imo)
+#     vessel.add("captain", person.id)
+#     context.emit(vessel)
 
 
 def crawl_person(context: Context, person_data, program):
@@ -133,6 +153,12 @@ def crawl_person(context: Context, person_data, program):
 
     context.emit(person)
     context.emit(sanction)
+
+    # ships = person_data.pop("ships", None)
+    # if ships:
+    #     for ship in ships:
+    #         emit_captainhood(context, ship, person)
+
     context.audit_data(
         person_data, ["sanctions", "documents", "category", "sport", "places"]
     )
@@ -207,7 +233,7 @@ def crawl_vessel(context: Context, vessel_data, program):
     imo_num = vessel_data.pop("imo")
 
     vessel = context.make("Vessel")
-    vessel.id = context.make_id(name, imo_num)
+    vessel.id = context.make_id(id)
     vessel.add("name", name)
     vessel.add("imoNumber", imo_num)
     vessel.add("type", type)
@@ -274,13 +300,14 @@ def crawl(context: Context):
         program = link_info["program"]
 
         url = f"{context.data_url}{endpoint}"
-        response = context.fetch_json(url, headers=headers, cache_days=1)
+        response = context.fetch_json(url, headers=headers)
         if not response or response.get("code") != 0:
             context.log.warn("No valid data to parse")
             return
         data = response.get("data")
         for entity_details in data:
             if data_type == "person":
+                # pprint(entity_details)
                 crawl_person(context, entity_details, program)
             elif data_type == "legal_entity":
                 crawl_legal_entity(context, entity_details, program)
@@ -288,5 +315,3 @@ def crawl(context: Context):
                 crawl_vessel(context, entity_details, program)
             elif data_type == "management":
                 crawl_management(context, entity_details, program)
-            # elif data_type == "captain":
-            #     crawl_captain(context, entity_details, program)
