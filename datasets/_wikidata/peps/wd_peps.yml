@@ -381,6 +381,7 @@ lookups:
           - "Q60832272" # Grand voyer
           - "Q65238772" # intendant
           - "Q480319" # title of authority
+          - "Q135842653" # directeur de cabinet du ministre des Outre-mer
       - maybe_pep: false
         match:
           - "Q8191099" # affiliate
