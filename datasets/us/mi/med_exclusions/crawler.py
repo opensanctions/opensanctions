@@ -3,7 +3,7 @@ from rigour.mime.types import XLSX
 from openpyxl import load_workbook
 
 from zavod import Context, helpers as h
-from zavod.shed.zyte_api import fetch_html
+from zavod.shed import zyte_api
 
 URL_XPATH = "//*[text()='List of Sanctioned Providers (XLSX)']/ancestor::a"
 
@@ -91,19 +91,22 @@ def crawl_item(row: Dict[str, str], context: Context):
     context.audit_data(row)
 
 
-def crawl_excel_url(context: Context):
-    doc = fetch_html(
+def crawl_excel_url(context: Context) -> str:
+    doc = zyte_api.fetch_html(
         context, context.data_url, URL_XPATH, html_source="httpResponseBody"
     )
     doc.make_links_absolute(context.data_url)
     links = doc.xpath(URL_XPATH)
+    assert len(links) >= 1 and links[0].get("href"), "No link to Excel file found"
     return links[0].get("href")
 
 
 def crawl(context: Context) -> None:
     # First we find the link to the excel file
     excel_url = crawl_excel_url(context)
-    path = context.fetch_resource("list.xlsx", excel_url)
+    _, _, _, path = zyte_api.fetch_resource(
+        context, "list.xlsx", url=excel_url, expected_media_type=XLSX
+    )
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
 
     wb = load_workbook(path, read_only=True)
