@@ -38,6 +38,11 @@ LINKS = [
         "type": "vessel",
         "program": "Marine and Aircraft Vessels, Airports and Ports involved in the transportation of weapons, stolen Ukrainian products and in the circumvention of sanctions",
     },
+    {  # ship management
+        "endpoint": "transport/management",
+        "type": "management",
+        "program": "Management of ships involved in the transportation of weapons, stolen Ukrainian products and in the circumvention of sanctions",
+    },
     {  # captains
         "endpoint": "transport/captains",
         "type": "captain",
@@ -167,10 +172,9 @@ def crawl_legal_entity(context: Context, company_data, program):
 
 
 def emit_manager_relation(context, vessel, vessel_data, role):
-    data = vessel_data.pop(role, None)
+    data = vessel_data.pop(role)
     if not data:
         return
-
     manager = context.make("Company")
     manager.id = context.make_id(data.pop("id"))
 
@@ -179,10 +183,21 @@ def emit_manager_relation(context, vessel, vessel_data, role):
     relation.add("object", vessel.id)
     relation.add("subject", manager.id)
     relation.add("role", role)
-    h.apply_date(relation, "startDate", data.pop("date", None))
-
-    # context.emit(manager)
+    h.apply_date(relation, "startDate", data.pop("date"))
     context.emit(relation)
+
+
+def crawl_management(context: Context, management_data, program):
+    management = context.make("Company")
+    management.id = context.make_id(management_data.pop("id"))
+    management.add("name", management_data.pop("name"))
+    management.add("country", management_data.pop("country"))
+    management.add("imoNumber", management_data.pop("imo"))
+    context.emit(management)
+    sanction = h.make_sanction(context, management)
+    sanction.add("program", program)
+    context.emit(sanction)
+    context.audit_data(management_data)
 
 
 def crawl_vessel(context: Context, vessel_data, program):
@@ -271,5 +286,7 @@ def crawl(context: Context):
                 crawl_legal_entity(context, entity_details, program)
             elif data_type == "vessel":
                 crawl_vessel(context, entity_details, program)
+            elif data_type == "management":
+                crawl_management(context, entity_details, program)
             # elif data_type == "captain":
             #     crawl_captain(context, entity_details, program)
