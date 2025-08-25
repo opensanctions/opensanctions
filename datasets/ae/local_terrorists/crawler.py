@@ -13,7 +13,6 @@ from zavod import helpers as h
 class HeaderSpec(NamedTuple):
     name: str
     lang: str
-    type_: str
 
 
 DATES = [
@@ -121,7 +120,7 @@ def parse_excel(context: Context, path: Path):
                     if result is None:
                         context.log.error("Unknown column", arabic=header_text_ara)
                         continue
-                    headers.append(HeaderSpec(result.value, result.lang, result.type))
+                    headers.append(HeaderSpec(result.value, result.lang))
                 # print(headers)
                 continue
             if headers is None:
