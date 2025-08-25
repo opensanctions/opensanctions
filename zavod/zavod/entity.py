@@ -6,7 +6,6 @@ from followthemoney import registry, Schema, Property, StatementEntity, Statemen
 from followthemoney.value import string_list
 from nomenklatura.store import View
 
-from zavod import settings
 from zavod.meta import Dataset
 from zavod.logs import get_logger
 from zavod.runtime.cleaning import value_clean
@@ -131,7 +130,7 @@ class Entity(StatementEntity):
     @property
     def target(self) -> bool:
         topics = self.get("topics", quiet=True)
-        return len(settings.TARGET_TOPICS.intersection(topics)) > 0
+        return len(registry.topic.RISKS.intersection(topics)) > 0
 
     def _to_nested_dict(
         self: Self, view: "View[Dataset, Entity]", depth: int, path: List[str]
