@@ -66,11 +66,11 @@ tags:
   - sector.maritime
 url: https://war-sanctions.gur.gov.ua/en
 data:
-  url: https://war-sanctions.gur.gov.ua/en
-  format: HTML
+  url: "https://war-sanctions.gur.gov.ua/api/v1/"
+  format: JSON
 
 dates:
-  formats: ["%d.%m.%Y", "%d.%m. %Y", "%d.%m.%Y)", "%m.%Y)"]
+  formats: ["%d.%m.%Y", "%d.%m. %Y", "%d.%m.%Y)", "%m.%Y)", "%m.%Y"]
 
 assertions:
   min:
@@ -553,6 +553,8 @@ lookups:
           - Honduras
           - Montenegro
           - Russia
+      - match: X00
+        value: null
   type.name:
     options:
       - match: 'AUTONOMOUS NON-PROFIT ORGANIZATION OF ADDITIONAL PROFESSIONAL EDUCATION "MARITIME INNOVATION CENTER OF THE REGIONAL BRANCH OF THE ALL-RUSSIAN PUBLIC-STATE ORGANIZATION "VOLUNTARY SOCIETY FOR ASSISTANCE TO THE ARMY, AVIATION AND NAVY OF RUSSIA" OF THE CITY OF SEVASTOPOL"'
