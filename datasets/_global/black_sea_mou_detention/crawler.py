@@ -46,6 +46,7 @@ def crawl_row(context: Context, row: dict):
     vessel.add("buildDate", row.pop("Year of build"))
     vessel.add("grossRegisteredTonnage", row.pop("Tonnage"))
     vessel.add("type", row.pop("Type"))
+    vessel.add("topics", "mare.detained")
     start_date = row.pop("Date of detention")
     if company_name:
         company = context.make("Company")

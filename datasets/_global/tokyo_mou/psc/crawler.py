@@ -86,10 +86,9 @@ def crawl_vessel_row(context: Context, str_row: dict):
     vessel.add("callSign", str_row.pop("callsign"))
     vessel.add("mmsi", str_row.pop("mmsi"))
     vessel.add("grossRegisteredTonnage", str_row.pop("tonnage"))
-    # TODO: map the 'deadweight' once we have a property for it
-    # TODO: add the topic (most likely 'mar.control') once we have it
-    # https://github.com/opensanctions/followthemoney/issues/1
+    vessel.add("deadweightTonnage", str_row.pop("deadweight"))
     vessel.add("flag", str_row.pop("flag"))
+    vessel.add("topics", "mare.detained")
     context.emit(vessel)
 
     class_soc = str_row.pop("classificationsociety")

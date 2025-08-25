@@ -273,6 +273,7 @@ def crawl_vessel(context: Context, link, program):
     for past_flag in h.multi_split(data.pop("Flags (former)"), ["/"]):
         vessel.add("pastFlags", past_flag)
     vessel.add("topics", "poi")
+    vessel.add("topics", "mare.shadow")
     vessel.add("sourceUrl", link)
 
     sanction = h.make_sanction(context, vessel)
