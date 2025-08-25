@@ -14,7 +14,7 @@ summary: >
   All members of national legislatures in the world, collected from hundreds of
   government web sites and consolidated via Wikidata.
 description: |
-  The EveryPolitician project ran until 2019 and created a mechanism for consolidating 
+  The EveryPolitician project ran until 2019 and created a mechanism for consolidating
   data about members of parliament for 233 different countries and territories. As part
   of the project, EveryPolitician operated a large fleet of crawlers which read the web
   sites of parliaments around the world.
@@ -138,3 +138,7 @@ lookups:
         value: barnabeloundou@assnat.cm
       - match: aliyoum@assnatcm
         value: aliyoum@assnat.cm
+      - match: Email:Councillor.Ellick@helanta.co.sh
+        value: Councillor.Ellick@helanta.co.sh
+      - match: (i)joice.george@sansad.nic.in
+        values: joice.george@sansad.nic.in
