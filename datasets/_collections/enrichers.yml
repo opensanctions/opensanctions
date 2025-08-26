@@ -25,6 +25,7 @@ children:
   - ext_lv_business_register
   - ext_kz_companies
   - ext_md_companies
+  - ext_tokyo_mou_psc
   - ext_us_irs_ffi
   - opencorporates
   - ext_ru_egrul
