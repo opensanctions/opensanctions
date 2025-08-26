@@ -66,7 +66,7 @@ class Defendant(BaseModel):
     country: List[str] = []
     notes: Optional[str] = notes_field
     related_companies: List[RelatedCompany] = []
-    pdf_url: List[str] = []
+    related_url: List[str] = []
 
 
 class Defendants(BaseModel):
@@ -81,6 +81,7 @@ If the name is a person name, use `Person` as the entity_schema.
 Output each entity with these fields:
 - name: Exact name as written in the article. If followed by an acronym in parentheses, store that acronym as an alias, not in the name.
 - entity_schema: {schema_field.description}
+- aliases: Other names or acronyms the entity is referred to in the article.
 - address: {address_field.description}
 - country: Countries explicitly mentioned as residence, registration, or operation. Leave empty if not stated.
 - notes: {notes_field.description}
@@ -204,7 +205,7 @@ def crawl_item(context, item, date, url, article_name):
     sanction = h.make_sanction(context, entity, date)
     h.apply_date(sanction, "date", date)
     sanction.set("sourceUrl", url)
-    sanction.add("sourceUrl", item.pdf_url, origin=DEFAULT_MODEL)
+    sanction.add("sourceUrl", item.related_url, origin=DEFAULT_MODEL)
     sanction.add("summary", item.notes, origin=DEFAULT_MODEL)
 
     for related_company in item.related_companies:
@@ -275,22 +276,22 @@ def crawl_enforcement_action(context: Context, url: str) -> None:
 
 def crawl(context: Context):
     page = 0
-    # while True:
-    base_url = f"https://ofac.treasury.gov/press-releases?page={page}"
-    doc = context.fetch_html(base_url, cache_days=1)
-    doc.make_links_absolute(context.data_url)
-    table = doc.xpath("//table[contains(@class, 'views-table')]")
-    # if not table:
-    #     break
-    assert len(table) == 1, "Expected exactly one table in the document"
-    for row in h.parse_html_table(table[0]):
-        links = h.links_to_dict(row.pop("press_release_link"))
-        url = next(iter(links.values()))
-        # Filter out unwanted download/media links
-        if "/news/press-releases/" not in url:
-            continue  # skip this row
-        crawl_enforcement_action(context, url)
-    # page += 1
+    while True:
+        base_url = f"https://ofac.treasury.gov/press-releases?page={page}"
+        doc = context.fetch_html(base_url, cache_days=1)
+        doc.make_links_absolute(context.data_url)
+        table = doc.xpath("//table[contains(@class, 'views-table')]")
+        if not table:
+            break
+        assert len(table) == 1, "Expected exactly one table in the document"
+        for row in h.parse_html_table(table[0]):
+            links = h.links_to_dict(row.pop("press_release_link"))
+            url = next(iter(links.values()))
+            # Filter out unwanted download/media links
+            if "/news/press-releases/" not in url:
+                continue  # skip this row
+            crawl_enforcement_action(context, url)
+        page += 1
 
     assert_all_accepted(context)
     global something_changed
