@@ -16,6 +16,11 @@ from zavod.stateful.review import (
     html_to_text_hash,
 )
 
+# Rough conversion: 1 GPT token ≈ 4 chars English text
+TOKEN_CHAR_RATIO = 4
+MAX_TOKENS = 3000
+MAX_CHARS = MAX_TOKENS * TOKEN_CHAR_RATIO
+
 
 Schema = Literal["Person", "Company", "LegalEntity", "Vessel"]
 NAME_XPATH = "//h2[@class='uswds-page-title']/text()"
@@ -115,6 +120,44 @@ def source_changed(review: Review, article_element: HtmlElement) -> bool:
     return html_to_text_hash(seen_element) != html_to_text_hash(article_element)
 
 
+def split_article_by_headers(article_el):
+    """
+    Splits an article into sections strictly at <h3> or <h4> headers.
+    The content between headers is never cut.
+    """
+    sections = []
+    buffer = []
+    for elem in article_el.iter():
+        # If we encounter a header and buffer is not empty, flush it
+        if elem.tag.lower() in ("h3", "h4") and buffer:
+            sections.append("".join(buffer))
+            buffer = []
+        # Append current element to buffer
+        elem_html = tostring(elem, encoding="unicode", with_tail=True)
+        buffer.append(elem_html)
+    # Flush any remaining content in the buffer
+    if buffer:
+        sections.append("".join(buffer))
+    return sections
+
+
+def get_or_request_review(context, html_part, section_url, url):
+    review = get_review(context, Defendants, section_url, MIN_MODEL_VERSION)
+    if review is None:
+        prompt_result = run_typed_text_prompt(context, PROMPT, html_part, Defendants)
+        review = request_review(
+            context,
+            section_url,
+            html_part,
+            HTML,
+            "Press Release",
+            url,
+            prompt_result,
+            MODEL_VERSION,
+        )
+    return review
+
+
 def check_something_changed(
     context: Context,
     review: Review,
@@ -159,70 +202,75 @@ def crawl_enforcement_action(context: Context, url: str) -> None:
     date = article.xpath(DATE_XPATH)[0]
     article_html = tostring(article_element, pretty_print=True).decode("utf-8")
     assert all([article_name, article_html, date]), "One or more fields are empty"
+    sections = (
+        split_article_by_headers(article_element)
+        if len(article_html) > MAX_CHARS
+        else [article_html]
+    )
+    context.log.info(
+        f"Article length {len(article_html)} chars — {'splitting into sections' if len(sections) > 1 else 'no split needed'}."
+    )
 
-    review = get_review(context, Defendants, url, MIN_MODEL_VERSION)
-    if review is None:
-        prompt_result = run_typed_text_prompt(context, PROMPT, article_html, Defendants)
-        review = request_review(
-            context,
-            url,
-            article_html,
-            HTML,
-            "Enforcement Action Notice",
-            url,
-            prompt_result,
-            MODEL_VERSION,
-        )
+    for i, section_html in enumerate(sections, 1):
+        section_url = f"{url}#section-{i}"  # distinguish reviews per section
+        review = get_or_request_review(context, section_html, section_url, url)
 
-    if check_something_changed(context, review, article_html, article_element):
-        # In the first iteration, we're being super conservative and rejecting
-        # export if the source content has changed regardless of whether the
-        # extraction result has changed. If we see this happening and we see that
-        # the extraction result reliably identifies real data changes, we can
-        # relax this to only reject if the extraction result has changed.
+        if check_something_changed(context, review, section_html, article_element):
+            # In the first iteration, we're being super conservative and rejecting
+            # export if the source content has changed regardless of whether the
+            # extraction result has changed. If we see this happening and we see that
+            # the extraction result reliably identifies real data changes, we can
+            # relax this to only reject if the extraction result has changed.
 
-        # Similarly if we see that broad markup changes don't trigger massive
-        # re-reviews but legitimate changes are reliably detected, we can allow
-        # it to automatically request re-reviews upon extraction changes.
-        global something_changed
-        something_changed = True
-        return
+            # Similarly if we see that broad markup changes don't trigger massive
+            # re-reviews but legitimate changes are reliably detected, we can allow
+            # it to automatically request re-reviews upon extraction changes.
+            global something_changed
+            something_changed = True
+            return
 
-    if not review.accepted:
-        return
+        if not review.accepted:
+            return
 
-    for item in review.extracted_data.defendants:
-        entity = context.make(item.entity_schema)
-        entity.id = context.make_id(item.name, item.address, item.country)
-        entity.add("name", item.name, origin=DEFAULT_MODEL)
-        if item.address != item.country:
-            entity.add("address", item.address, origin=DEFAULT_MODEL)
-        entity.add("country", item.country, origin=DEFAULT_MODEL)
-        entity.add("alias", item.aliases, origin=DEFAULT_MODEL)
-        entity.add("topics", "reg.action")
+        for item in review.extracted_data.defendants:
+            entity = context.make(item.entity_schema)
+            entity.id = context.make_id(item.name, item.address, item.country)
+            entity.add("name", item.name, origin=DEFAULT_MODEL)
+            if item.address != item.country:
+                entity.add("address", item.address, origin=DEFAULT_MODEL)
+            entity.add("country", item.country, origin=DEFAULT_MODEL)
+            entity.add("alias", item.aliases, origin=DEFAULT_MODEL)
+            entity.add("topics", "reg.action")
 
-        # We use the date as a key to make sure notices about separate actions are separate sanction entities
-        sanction = h.make_sanction(context, entity, date)
-        h.apply_date(sanction, "date", date)
-        sanction.set("sourceUrl", url)
-        sanction.add("sourceUrl", item.pdf_url, origin=DEFAULT_MODEL)
-        sanction.add("summary", item.notes, origin=DEFAULT_MODEL)
+            # We use the date as a key to make sure notices about separate actions are separate sanction entities
+            sanction = h.make_sanction(context, entity, date)
+            h.apply_date(sanction, "date", date)
+            sanction.set("sourceUrl", url)
+            sanction.add("sourceUrl", item.pdf_url, origin=DEFAULT_MODEL)
+            sanction.add("summary", item.notes, origin=DEFAULT_MODEL)
 
-        for related_company in item.related_companies:
-            related_company_entity = make_related_company(context, related_company.name)
-            link = make_company_link(
-                context, entity, related_company_entity, related_company.relationship
+            for related_company in item.related_companies:
+                related_company_entity = make_related_company(
+                    context, related_company.name
+                )
+                link = make_company_link(
+                    context,
+                    entity,
+                    related_company_entity,
+                    related_company.relationship,
+                )
+                context.emit(related_company_entity)
+                context.emit(link)
+
+            article = h.make_article(
+                context, url, title=article_name, published_at=date
             )
-            context.emit(related_company_entity)
-            context.emit(link)
+            documentation = h.make_documentation(context, entity, article)
 
-        article = h.make_article(context, url, title=article_name, published_at=date)
-        documentation = h.make_documentation(context, entity, article)
-
-        context.emit(entity)
-        context.emit(sanction)
-        context.emit(article)
-        context.emit(documentation)
+            context.emit(entity)
+            context.emit(sanction)
+            context.emit(article)
+            context.emit(documentation)
 
 
 def crawl(context: Context):
