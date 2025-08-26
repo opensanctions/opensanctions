@@ -13,6 +13,7 @@ summary: >
   These data sources are only partially imported where a link to an existing
   entity of interest can be found.
 children:
+  - ext_abuja_mou_psc
   - ext_cy_companies
   - ext_cz_business_register
   - ext_ee_ariregister
