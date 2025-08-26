@@ -458,3 +458,11 @@ lookups:
         items:
           - prop: taxNumber
             value: 230375214778
+      - match: "OOO иC-4 «ДушанбесоxтMOH» Incorporation: March 2012. Business Identification Number: 0210015117"
+        items:
+          - prop: alias
+            value: OOO иC-4 «ДушанбесоxтMOH»
+          - prop: registrationNumber
+            value: 0210015117
+          - prop: incorporationDate
+            value: 2012-03
