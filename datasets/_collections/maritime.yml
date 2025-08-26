@@ -66,4 +66,6 @@ children:
   - paris_mou_banned
   - black_sea_mou_detention
   - tokyo_mou_detention
+  - ext_tokyo_mou_psc
   - abuja_mou_detention
+  - ext_abuja_mou_psc
