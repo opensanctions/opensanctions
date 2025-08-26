@@ -190,6 +190,43 @@ def check_something_changed(
         return False
 
 
+def crawl_item(context, item, date, url, article_name):
+    entity = context.make(item.entity_schema)
+    entity.id = context.make_id(item.name, item.address, item.country)
+    entity.add("name", item.name, origin=DEFAULT_MODEL)
+    if item.address != item.country:
+        entity.add("address", item.address, origin=DEFAULT_MODEL)
+    entity.add("country", item.country, origin=DEFAULT_MODEL)
+    entity.add("alias", item.aliases, origin=DEFAULT_MODEL)
+    entity.add("topics", "reg.action")
+
+    # We use the date as a key to make sure notices about separate actions are separate sanction entities
+    sanction = h.make_sanction(context, entity, date)
+    h.apply_date(sanction, "date", date)
+    sanction.set("sourceUrl", url)
+    sanction.add("sourceUrl", item.pdf_url, origin=DEFAULT_MODEL)
+    sanction.add("summary", item.notes, origin=DEFAULT_MODEL)
+
+    for related_company in item.related_companies:
+        related_company_entity = make_related_company(context, related_company.name)
+        link = make_company_link(
+            context,
+            entity,
+            related_company_entity,
+            related_company.relationship,
+        )
+        context.emit(related_company_entity)
+        context.emit(link)
+
+    article = h.make_article(context, url, title=article_name, published_at=date)
+    documentation = h.make_documentation(context, entity, article)
+
+    context.emit(entity)
+    context.emit(sanction)
+    context.emit(article)
+    context.emit(documentation)
+
+
 def crawl_enforcement_action(context: Context, url: str) -> None:
     article = context.fetch_html(url, cache_days=1)
     article.make_links_absolute(context.data_url)
@@ -233,44 +270,7 @@ def crawl_enforcement_action(context: Context, url: str) -> None:
             return
 
         for item in review.extracted_data.defendants:
-            entity = context.make(item.entity_schema)
-            entity.id = context.make_id(item.name, item.address, item.country)
-            entity.add("name", item.name, origin=DEFAULT_MODEL)
-            if item.address != item.country:
-                entity.add("address", item.address, origin=DEFAULT_MODEL)
-            entity.add("country", item.country, origin=DEFAULT_MODEL)
-            entity.add("alias", item.aliases, origin=DEFAULT_MODEL)
-            entity.add("topics", "reg.action")
-
-            # We use the date as a key to make sure notices about separate actions are separate sanction entities
-            sanction = h.make_sanction(context, entity, date)
-            h.apply_date(sanction, "date", date)
-            sanction.set("sourceUrl", url)
-            sanction.add("sourceUrl", item.pdf_url, origin=DEFAULT_MODEL)
-            sanction.add("summary", item.notes, origin=DEFAULT_MODEL)
-
-            for related_company in item.related_companies:
-                related_company_entity = make_related_company(
-                    context, related_company.name
-                )
-                link = make_company_link(
-                    context,
-                    entity,
-                    related_company_entity,
-                    related_company.relationship,
-                )
-                context.emit(related_company_entity)
-                context.emit(link)
-
-            article = h.make_article(
-                context, url, title=article_name, published_at=date
-            )
-            documentation = h.make_documentation(context, entity, article)
-
-            context.emit(entity)
-            context.emit(sanction)
-            context.emit(article)
-            context.emit(documentation)
+            crawl_item(context, item, date, url, article_name)
 
 
 def crawl(context: Context):
