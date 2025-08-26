@@ -8,7 +8,7 @@ from zavod import helpers as h
 
 # Useful notes: https://www.fer.xyz/2021/08/interpol
 
-SLEEP_SECS = 1
+SLEEP_SECS = 0.1
 CACHE_VSHORT = 1
 CACHE_SHORT = 3
 CACHE_LONG = 14
