@@ -108,7 +108,9 @@ lookups:
           - "Rptd Sold Undisclosed Interest (04.03.2025)"
           - "Rptd Sold Undisclosed Interest (20.06.2025)"
           - "Rptd Sold russia (05.2004)"
+          - "Rptd Sold Russia (05.2004)"
           - "RPTD SOLD RUSSIA (13.11.2024)"
+          - "Rptd Sold Russia (13.11.2024)"
           - "Rptd Sold Russia (9992075 / 27.06.2025)"
         name: null
       - match: "HK Yongye Ship LTD/ Zhang Yong (6360967 / Hong Kong / 01.11.2022)"
