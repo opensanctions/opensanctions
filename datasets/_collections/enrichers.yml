@@ -20,6 +20,7 @@ children:
   - ext_eu_esma_firds
   - ext_gb_coh_psc
   - ext_ge_company_registry
+  - ext_gb_fca_firds
   - ext_gleif
   - ext_ror
   - ext_icij_offshoreleaks
