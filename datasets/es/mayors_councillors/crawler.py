@@ -108,7 +108,10 @@ def process_excel(
         )
     sheet = workbook[workbook.sheetnames[0]]
     for row in h.parse_xlsx_sheet(
-        context, sheet, skiprows=skiprows, header_lookup="columns"
+        context,
+        sheet,
+        skiprows=skiprows,
+        header_lookup=context.get_lookup("columns"),
     ):
         crawl_item(context, row)
 
