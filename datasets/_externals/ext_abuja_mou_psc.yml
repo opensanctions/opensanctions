@@ -61,7 +61,9 @@ config:
 assertions:
   min:
     schema_entities:
-      Vessel: 1
+      Vessel: 10
+      Organization: 1
   max:
     schema_entities:
       Vessel: 100
+      Organization: 50
