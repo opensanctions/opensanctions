@@ -80,11 +80,11 @@ LINKS = [
         "type": "legal_entity",
         "program": "Enterprises involved in the production and supply of military components and parts",
     },
-    # {  # factories
-    #     "endpoint": "tools/companies",
-    #     "type": "legal_entity",
-    #     "program": "Legal entities involved in the production of military equipment and supplies",
-    # },
+    {  # factories
+        "endpoint": "tools/companies",
+        "type": "legal_entity",
+        "program": "Legal entities involved in the production of military equipment and supplies",
+    },
 ]
 
 
