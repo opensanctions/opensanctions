@@ -157,18 +157,13 @@ def crawl_item(context, item, date, url, article_name):
     entity.add("nationality", item.nationality, origin=DEFAULT_MODEL)
     entity.add("country", item.country, origin=DEFAULT_MODEL)
     entity.add("alias", item.aliases, origin=DEFAULT_MODEL)
-
-    # We use the date as a key to make sure notices about separate actions are separate sanction entities
-    sanction = h.make_sanction(context, entity, date)
-    h.apply_date(sanction, "date", date)
-    sanction.set("sourceUrl", url)
-    sanction.add("sourceUrl", item.related_url, origin=DEFAULT_MODEL)
+    entity.add("sourceUrl", item.related_url, origin=DEFAULT_MODEL)
+    entity.add("sourceUrl", url)
 
     article = h.make_article(context, url, title=article_name, published_at=date)
     documentation = h.make_documentation(context, entity, article)
 
     context.emit(entity)
-    context.emit(sanction)
     context.emit(article)
     context.emit(documentation)
 
