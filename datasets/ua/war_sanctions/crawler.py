@@ -9,7 +9,7 @@ from datetime import datetime, timezone
 
 from zavod import Context, helpers as h
 
-
+# Make sure variables don't get interpolated by the shell.
 WS_CID = env.get("OPENSANCTIONS_WS_CID")
 WS_API_KEY = env.get("OPENSANCTIONS_WS_API_KEY")
 
@@ -292,15 +292,15 @@ def crawl_vessel(context: Context, vessel_data, program):
 
 
 def crawl(context: Context):
-    token = generate_token(WS_CID, WS_API_KEY)
-    headers = {"Authorization": token}
     for link_info in LINKS:
+        token = generate_token(WS_CID, WS_API_KEY)
+        headers = {"Authorization": token}
         endpoint = link_info["endpoint"]
         data_type = link_info["type"]
         program = link_info["program"]
 
         url = f"{context.data_url}{endpoint}"
-        response = context.fetch_json(url, headers=headers)
+        response = context.fetch_json(url, headers=headers, cache_days=1)
         if not response or response.get("code") != 0:
             context.log.warn("No valid data to parse")
             return
