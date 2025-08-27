@@ -1,11 +1,10 @@
 from lxml.html import HtmlElement, fromstring, tostring
 from pydantic import BaseModel, Field
 from rigour.mime.types import HTML
-from typing import Optional, List, Literal
+from typing import List, Literal
 
 from zavod import Context
 from zavod import helpers as h
-from zavod.entity import Entity
 from zavod.shed.gpt import DEFAULT_MODEL, run_typed_text_prompt
 from zavod.stateful.review import (
     Review,
@@ -40,76 +39,36 @@ schema_field = Field(
         "Never invent new schema labels."
     )
 )
-address_field = Field(
-    default=[],
-    description=("The addresses or even just the districts/states of the defendant."),
-)
-status_field = Field(
-    description=(
-        "The status of the enforcement action notice."
-        " If `Other`, add the text used as the status in the source to `notes`."
-    )
-)
-notes_field = Field(default=None, description=("Only used if `status` is `Other`."))
 
 
-class RelatedCompany(BaseModel):
-    name: str
-    relationship: str
-
-
-class Defendant(BaseModel):
+class Designee(BaseModel):
     entity_schema: Schema = schema_field
     name: str
     aliases: List[str] = []
-    address: List[str] = address_field
+    nationality: List[str] = []
     country: List[str] = []
-    notes: Optional[str] = notes_field
-    related_companies: List[RelatedCompany] = []
     related_url: List[str] = []
 
 
-class Defendants(BaseModel):
-    defendants: List[Defendant]
+class Designees(BaseModel):
+    designees: List[Designee]
 
 
 PROMPT = f"""
-Extract the defendants, entities and vessels mentioned in OFAC press release in the attached article.
-NEVER include relief defendants.
+Extract the designees, entities and vessels mentioned in OFAC press release in the attached article.
 NEVER infer, assume, or generate values that are not directly stated in the source text.
 If the name is a person name, use `Person` as the entity_schema.
 Output each entity with these fields:
 - name: Exact name as written in the article. If followed by an acronym in parentheses, store that acronym as an alias, not in the name.
 - entity_schema: {schema_field.description}
 - aliases: Other names or acronyms the entity is referred to in the article.
-- address: {address_field.description}
+- nationality: Nationality of the designee if stated.
 - country: Countries explicitly mentioned as residence, registration, or operation. Leave empty if not stated.
-- notes: {notes_field.description}
-- related_companies: Entities the subject owns or controls, if directly stated.
-- relationship: Copy the exact wording from the text (e.g., "agents and owners"). Do not rephrase.
 - related_url: URLs mentioned in the article that directly reference the entity.  
   • If multiple URLs are present, link each one only to the entity it explicitly refers to.  
   • If no URL is provided for an entity, leave this field empty.  
   • Do not invent, infer, or alter URLs.
 """
-
-
-def make_related_company(context: Context, name: str) -> Entity:
-    entity = context.make("Company")
-    entity.id = context.make_id(name)
-    entity.add("name", name)
-    return entity
-
-
-def make_company_link(
-    context: Context, entity: Entity, related_company: Entity, relationship: str
-) -> Entity:
-    link = context.make("UnknownLink")
-    link.id = context.make_id("Related company", entity.id, related_company.id)
-    link.add("subject", entity)
-    link.add("object", related_company)
-    link.add("role", relationship)
-    return link
 
 
 def source_changed(review: Review, article_element: HtmlElement) -> bool:
@@ -143,9 +102,9 @@ def split_article_by_headers(article_el):
 
 
 def get_or_request_review(context, html_part, section_url, url):
-    review = get_review(context, Defendants, section_url, MIN_MODEL_VERSION)
+    review = get_review(context, Designees, section_url, MIN_MODEL_VERSION)
     if review is None:
-        prompt_result = run_typed_text_prompt(context, PROMPT, html_part, Defendants)
+        prompt_result = run_typed_text_prompt(context, PROMPT, html_part, Designees)
         review = request_review(
             context,
             section_url,
@@ -170,7 +129,7 @@ def check_something_changed(
     In that case it also reprompts to log whether the extracted data has changed.
     """
     if source_changed(review, article_element):
-        prompt_result = run_typed_text_prompt(context, PROMPT, article_html, Defendants)
+        prompt_result = run_typed_text_prompt(context, PROMPT, article_html, Designees)
         if model_hash(prompt_result) == model_hash(review.orig_extraction_data):
             context.log.warning(
                 "The source content has changed but the extracted data has not",
@@ -195,29 +154,15 @@ def crawl_item(context, item, date, url, article_name):
     entity = context.make(item.entity_schema)
     entity.id = context.make_id(item.name, item.address, item.country)
     entity.add("name", item.name, origin=DEFAULT_MODEL)
-    if item.address != item.country:
-        entity.add("address", item.address, origin=DEFAULT_MODEL)
+    entity.add("nationality", item.nationality, origin=DEFAULT_MODEL)
     entity.add("country", item.country, origin=DEFAULT_MODEL)
     entity.add("alias", item.aliases, origin=DEFAULT_MODEL)
-    entity.add("topics", "reg.action")
 
     # We use the date as a key to make sure notices about separate actions are separate sanction entities
     sanction = h.make_sanction(context, entity, date)
     h.apply_date(sanction, "date", date)
     sanction.set("sourceUrl", url)
     sanction.add("sourceUrl", item.related_url, origin=DEFAULT_MODEL)
-    sanction.add("summary", item.notes, origin=DEFAULT_MODEL)
-
-    for related_company in item.related_companies:
-        related_company_entity = make_related_company(context, related_company.name)
-        link = make_company_link(
-            context,
-            entity,
-            related_company_entity,
-            related_company.relationship,
-        )
-        context.emit(related_company_entity)
-        context.emit(link)
 
     article = h.make_article(context, url, title=article_name, published_at=date)
     documentation = h.make_documentation(context, entity, article)
@@ -228,7 +173,7 @@ def crawl_item(context, item, date, url, article_name):
     context.emit(documentation)
 
 
-def crawl_enforcement_action(context: Context, url: str) -> None:
+def crawl_press_release(context: Context, url: str) -> None:
     article = context.fetch_html(url, cache_days=1)
     article.make_links_absolute(context.data_url)
     if article is None:
@@ -270,7 +215,7 @@ def crawl_enforcement_action(context: Context, url: str) -> None:
         if not review.accepted:
             return
 
-        for item in review.extracted_data.defendants:
+        for item in review.extracted_data.designees:
             crawl_item(context, item, date, url, article_name)
 
 
@@ -290,7 +235,7 @@ def crawl(context: Context):
             # Filter out unwanted download/media links
             if "/news/press-releases/" not in url:
                 continue  # skip this row
-            crawl_enforcement_action(context, url)
+            crawl_press_release(context, url)
         page += 1
 
     assert_all_accepted(context)
