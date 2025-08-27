@@ -539,6 +539,10 @@ lookups:
         values:
           - Российская Федерация, г. Санкт-Петербург, ул. Большая Пушкарская, д. 20, лит. А, люкс 110-Н (Люкс часть 17), офис 1
           - Office 1, Suite 110-N (Suite Part 17), Letter A, 20 Bolshaya Pushrarskaya Street, Kronverkskoye Municipal Distinct, Saint Peterburg 197198, Russian Federation
+      - match: 'Люкс частина 17), офіс 1, (Российская Федерация, г. Санкт-Петербург, ул. Большая Пушкарская, д. 20, лит. А, люкс 110-Н (Люкс часть 17), офис 1; Office 1, Suite 110-N (Suite Part 17), Letter A, 20 Bolshaya Pushrarskaya Street, Kronverkskoye Municipal Distinct, Saint Peterburg 197198, Russian Federation'
+        values:
+          - Российская Федерация, г. Санкт-Петербург, ул. Большая Пушкарская, д. 20, лит. А, люкс 110-Н (Люкс часть 17), офис 1
+          - Office 1, Suite 110-N (Suite Part 17), Letter A, 20 Bolshaya Pushrarskaya Street, Kronverkskoye Municipal Distinct, Saint Peterburg 197198, Russian Federation
       - match: 'Російська Федерація, 196105, м. Санкт-Петербург, вул. Благодатна, буд. 63, літера А, корп. 6, офіс 16 (Российская Федерация, 196105, г. Санкт-Петербург, ул. Благодатная, д. 63, лит. А, корп. 6, оф. 16; Suite 16, Letter A, Building 6, 63 Blagodatnaya Street, Saint Petersburg 196105, Russian Federation).'
         values:
           - Російська Федерація, 196105, м. Санкт-Петербург, вул. Благодатна, буд. 63, літера А, корп. 6, офіс 16
