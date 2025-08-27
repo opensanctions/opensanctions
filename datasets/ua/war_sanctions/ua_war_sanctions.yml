@@ -70,7 +70,7 @@ data:
   format: JSON
 
 dates:
-  formats: ["%d.%m.%Y", "%d.%m. %Y", "%d.%m.%Y)", "%m.%Y)", "%m.%Y"]
+  formats: ["%d.%m.%Y", "%d.%m. %Y", "%d.%m.%Y)", "%m.%Y)", "%m.%Y", "%d/%m/%Y"]
 
 assertions:
   min:
@@ -96,501 +96,91 @@ assertions:
       Vessel: 1400
       LegalEntity: 1000
 lookups:
-  ship_party:
-    options:
-      - regex: "Unknown (.+)"
-        name: null
-      - match:
-          - "Unknown"
-          # Rptd -> Reported https://www.insurancejournal.com/news/international/2024/03/20/765613.htm
-          - "Rptd Sold Undisclosed Interest (09.02.2023)"
-          - "Rptd Sold Undisclosed Interest (12.08.2024)"
-          - "Rptd Sold Undisclosed Interest (04.03.2025)"
-          - "Rptd Sold Undisclosed Interest (20.06.2025)"
-          - "Rptd Sold russia (05.2004)"
-          - "RPTD SOLD RUSSIA (13.11.2024)"
-          - "Rptd Sold Russia (9992075 / 27.06.2025)"
-        name: null
-      - match: "HK Yongye Ship LTD/ Zhang Yong (6360967 / Hong Kong / 01.11.2022)"
-        name: "HK Yongye Ship LTD"
-        registration_number: 6360967
-        country: Hong Kong
-        date: "2022-11-01"
-      - match: "Laliya Shipping Corp (6505782 / 22.05.2024)"
-        name: "Laliya Shipping Corp"
-        registration_number: 6505782
-        date: "2024-05-22"
-      - match: "Leasing Company GPB LLC /current name Leasing Company LLC/ c/o Eco Shiping LLC (6129498 / russia / 05.11.2019)"
-        name: ["Leasing Company GPB LLC", "Leasing Company LLC"]
-        registration_number: 6129498
-        care_of: "Eco Shiping LLC"
-        country: Russia
-        date: "2019-11-05"
-      - match: "Leasing Company GPB LLC /current name Leasing Company LLC/ c/o Eco Shiping LLC (6129498 / russia / 19.01.2022)"
-        name: ["Leasing Company GPB LLC", "Leasing Company LLC"]
-        registration_number: 6129498
-        care_of: "Eco Shiping LLC"
-        country: Russia
-        date: "2022-01-19"
-      - match: "Non-Profit Partnership Revival of Maritime Traditions (russia / 2015)"
-        name: "Non-Profit Partnership Revival of Maritime Traditions"
-        country: Russia
-        date: "2015"
-      - match: "Pelagia Shipping LTD /current name Delta Shipping LLC/ c/o Eco Shiping LLC (5863958 / russia / 28.02.2017)"
-        name: ["Pelagia Shipping LTD", "Delta Shipping LLC"]
-        registration_number: 5863958
-        care_of: "Eco Shiping LLC"
-        country: Russia
-        date: "2017-02-28"
-      - match: "Rosnefteflot JSC (3025603 / 07.04.2025)"
-        name: "Rosnefteflot JSC"
-        registration_number: 3025603
-        date: "2025-04-07"
-      - match: "RPTD Sold Gambia (9993073 / 24.02.2025)"
-        name: "9993073"
-        country: Gambia
-        registration_number: "9993073"
-        date: "2025-02-24"
-      - match: "Sergeevich/Grigoryevna с/о Sanin Yuri Sergeevich (0018872 / russia / 11.07.2024)"
-        name: ["Sergeevich", "Grigoryevna"]
-        care_of: "Sanin Yuri Sergeevich"
-        registration_number: 0018872
-        country: Russia
-        date: "2024-07-11"
-      - match: "Trans-Flot/Vladimirovich PV о/с Trans-flot LLC (6184699 / russia / 03.10.2019)"
-        name: ["Trans-Flot", "Vladimirovich PV"]
-        care_of: Trans-flot LLC
-        registration_number: 6184699
-        country: Russia
-        date: "2019-10-03"
-      - match: "Vafa Wholesale Ltd (5266323 / russia / 01.10.2006) (5266323 / russia / 01.10.2006)"
-        name: "Vafa Wholesale Ltd"
-        registration_number: 5266323
-        country: Russia
-        date: "2006-10-01"
-      - match: "Vafa Wholesale Ltd (5266323 / russia / 01.10.2006) (5266323 / russia / 01.11.2007)"
-        name: "Vafa Wholesale Ltd"
-        registration_number: 5266323
-        country: Russia
-        date: "2007-11-01"
-      - match: "Voyage Guard Shipmanagement LLC (6465812 / 14.02.2025)"
-        name: "Voyage Guard Shipmanagement LLC"
-        registration_number: 6465812
-        date: "2025-02-14"
-      - match: "Tian Mu Shipping Ltd (0136621 / 13.02.2025)"
-        name: "Tian Mu Shipping Ltd"
-        registration_number: 0136621
-        date: "2025-02-13"
-      - match: "Capella Shipping LTD-SEY (6149249 / 20.07.2020)"
-        name: "Capella Shipping LTD-SEY"
-        registration_number: 6149249
-        date: "2020-07-20"
-      - match: "Pelagia Shipping Ltd /current Name Delta Shipping Llc/ (5863958 / russian federation / 28.02.2017)"
-        name: ["Pelagia Shipping Ltd", "Delta Shipping Llc"]
-        registration_number: 5863958
-        country: Russia
-        date: "2017-02-28"
-      - match: "Leasing Company Gpb LLC /current Name Leasing Company Llc/ (6129498 / russian federation / 05.11.2019)"
-        name: ["Leasing Company Gpb LLC", "Leasing Company Llc"]
-        registration_number: 6129498
-        country: Russia
-        date: "2019-11-05"
-      - match: "Brandex Group Ltd (5261835 / 19.04.2018)"
-        name: "Brandex Group Ltd"
-        registration_number: 5261835
-        date: "2018-04-19"
-      - match: "Harborline Global Maritime Ltd (0178274 / 10.03.2025)"
-        name: "Harborline Global Maritime Ltd"
-        registration_number: 0178274
-        date: "2025-03-10"
-      - match: "Non-profit Partnership Revival of Maritime Traditions (russian federation / 2015)"
-        name: "Non-profit Partnership Revival of Maritime Traditions"
-        country: Russia
-        date: "2015"
-      - match: "Sergeevich/grigoryevna (0018872 / russian federation / 11.07.2024)"
-        name: ["Sergeevich", "Grigoryevna"]
-        registration_number: 0018872
-        country: Russia
-        date: "2024-07-11"
-      - match: "HK Yongye Ship Ltd/ Zhang Yong (6360967 / Hong Kong / 01.11.2022)"
-        name: ["HK Yongye Ship Ltd", "Zhang Yong"]
-        registration_number: 6360967
-        country: Hong Kong
-        date: "2022-11-01"
-      - match: "Rptd Sold Gambia (9993073 / 24.02.2025)"
-        name: "Rptd Sold Gambia"
-        registration_number: 9993073
-        date: "2025-02-24"
-      - match: "Uship Management FZ-LLC (04.06.2024)"
-        name: "Uship Management FZ-LLC"
-        date: "2024-06-04"
-      - match: "Trans-flot/vladimirovich Pv о/с Trans-flot LLC (6184699 / russian federation / 03.10.2019)"
-        name: ["Trans-flot", "Vladimirovich Pv"]
-        registration_number: 6184699
-        care_of: Trans-flot LLC
-        country: Russia
-        date: "2019-10-03"
-      - match: "Eastern Euro Ship Management (OPC) Pvt Ltd (21.12.2023)"
-        name: "Eastern Euro Ship Management (OPC) Pvt Ltd"
-        date: "2023-12-21"
-      - match: "Eastern Euro Ship Management (OPC) Pvt Ltd (28.12.2023)"
-        name: "Eastern Euro Ship Management (OPC) Pvt Ltd"
-        date: "2023-12-28"
-      - match: "Pelagia Shipping Ltd /current Name Delta Shipping Llc/ c/o Eco Shiping LLC (5863958 / russian federation / 28.02.2017)"
-        name: ["Pelagia Shipping Ltd", "Delta Shipping Llc"]
-        care_of: "Eco Shiping LLC"
-        registration_number: 5863958
-        country: Russia
-        date: "2017-02-28"
-      - match: "Leasing Company Gpb LLC /current Name Leasing Company Llc/ c/o Eco Shiping LLC (6129498 / russian federation / 05.11.2019)"
-        name: ["Leasing Company Gpb LLC", "Leasing Company Llc"]
-        care_of: "Eco Shiping LLC"
-        registration_number: 6129498
-        country: Russia
-        date: "2019-11-05"
-      - match: "Loukio Shipping Co Ltd c/o Scf Management Services (Cyprus) Ltd (4105917 / 27.05.2008)"
-        name: "Loukio Shipping Co Ltd"
-        care_of: "Scf Management Services (Cyprus) Ltd"
-        registration_number: 4105917
-        date: "2008-05-27"
-      - match: "Sergeevich/grigoryevna c/o Sanin Yuri Sergeevich (0018872 / russian federation / 11.07.2024)"
-        name: ["Sergeevich", "Grigoryevna"]
-        care_of: "Sanin Yuri Sergeevich"
-        registration_number: "0018872"
-        country: Russia
-        date: "2024-07-11"
-      - match: "Blue Wave Shipping LTD-MTA c/o Blue Wave Shipping Ltd (5053266 / 06.05.2005)"
-        name: "Blue Wave Shipping LTD-MTA"
-        care_of: "Blue Wave Shipping Ltd"
-        registration_number: 5053266
-        date: "2005-05-06"
-      - match: "Lufindo Holding Ltd c/o Ravel Ship Management Pvt Ltd (6174627 / 04.11.2022)"
-        name: "Lufindo Holding Ltd"
-        care_of: "Ravel Ship Management Pvt Ltd"
-        registration_number: 6174627
-        date: "2022-11-04"
-      - match: "Shore Shipping Inc c/o Gr Shipping Pte Ltd (6404317 / 18.08.2024)"
-        name: "Shore Shipping Inc"
-        care_of: "Gr Shipping Pte Ltd"
-        registration_number: 6404317
-        date: "2024-08-18"
-      - match: "Skyrocket Trading Ltd c/o Lucky Ocean Shipping Ltd (6475990 / 13.03.2024)"
-        name: "Skyrocket Trading Ltd"
-        care_of: "Lucky Ocean Shipping Ltd"
-        registration_number: 6475990
-        date: "2024-03-13"
-      - match: "East Victory Ltd c/o Prominent Shipmanagement Ltd (6346190 / 14.09.2022)"
-        name: "East Victory Ltd"
-        care_of: "Prominent Shipmanagement Ltd"
-        registration_number: 6346190
-        date: "2022-09-14"
-      - match: "Anemone Marine Inc c/o Orion Ship Management (6431909 / 22.12.2023)"
-        name: "Anemone Marine Inc"
-        care_of: "Orion Ship Management"
-        registration_number: 6431909
-        date: "2023-12-22"
-      - match: "Altima Inc c/o Eastern Euro Ship Management (OPC) Pvt Ltd (6451981 / 21.12.2023)"
-        name: "Altima Inc"
-        care_of: "Eastern Euro Ship Management (OPC) Pvt Ltd"
-        registration_number: 6451981
-        date: "2023-12-21"
-      - match: "Trans See Inc c/o Eastern Euro Ship Management (OPC) Pvt Ltd (6202532 / 18.11.2024)"
-        name: "Trans See Inc"
-        care_of: "Eastern Euro Ship Management (OPC) Pvt Ltd"
-        registration_number: 6202532
-        date: "2024-11-18"
-      - match: "Trans See Inc c/o Eastern Euro Ship Management (OPC) Pvt Ltd (6202532 / 17.07.2023)"
-        name: "Trans See Inc"
-        care_of: "Eastern Euro Ship Management (OPC) Pvt Ltd"
-        registration_number: 6202532
-        date: "2023-07-17"
-      - match: "Brain Wave Ship Ltd c/o Zulu Ships Management & Operation - Sole Proprietorship LLC (6467717 / 26.12.2023)"
-        name: "Brain Wave Ship Ltd"
-        care_of: "Zulu Ships Management & Operation - Sole Proprietorship LLC"
-        registration_number: 6467717
-        date: "2023-12-26"
-      - match: "Lorama Shipping Co Ltd c/o Scf Management Services (Cyprus) Ltd (4105921 / 24.02.2009)"
-        name: "Lorama Shipping Co Ltd"
-        care_of: "Scf Management Services (Cyprus) Ltd"
-        registration_number: 4105921
-        date: "2009-02-24"
-      - match: "Am Asia M5 Ltd c/o Salmi Shipmanagement LLC (6187319 / 25.06.2024)"
-        name: "Am Asia M5 Ltd"
-        care_of: "Salmi Shipmanagement LLC"
-        registration_number: 6187319
-        date: "2024-06-25"
-      - match: "Rosemonde Co Ltd c/o Ever Shining Ltd (6393869 / 08.08.2023)"
-        name: "Rosemonde Co Ltd"
-        care_of: "Ever Shining Ltd"
-        registration_number: 6393869
-        date: "2023-08-08"
-      - match: "Yurimaguas Ltd c/o Uship Management FZ-LLC (6489319 / 27.09.2024)"
-        name: "Yurimaguas Ltd"
-        care_of: "Uship Management FZ-LLC"
-        registration_number: 6489319
-        date: "2024-09-27"
-      - match: "Yurimaguas Ltd c/o Uship Management FZ-LLC (6489319 / 10.09.2024)"
-        name: "Yurimaguas Ltd"
-        care_of: "Uship Management FZ-LLC"
-        registration_number: 6489319
-        date: "2024-09-10"
-      - match: "Yurimaguas Ltd c/o Uship Management FZ-LLC (6489319 / 08.06.2024)"
-        name: "Yurimaguas Ltd"
-        care_of: "Uship Management FZ-LLC"
-        registration_number: 6489319
-        date: "2024-06-08"
-      - match: "Gozoso Group Ltd c/o Ocean Dolphin Ship Management Ltd (6264449 / 14.10.2021)"
-        name: "Gozoso Group Ltd"
-        care_of: "Ocean Dolphin Ship Management Ltd"
-        registration_number: 6264449
-        date: "2021-10-14"
-      - match: "Angat Shipping Inc c/o Huang Long Shan Shipmanagement Co Ltd (6474771 / 02.03.2024)"
-        name: "Angat Shipping Inc"
-        care_of: "Huang Long Shan Shipmanagement Co Ltd"
-        registration_number: 6474771
-        date: "2024-03-02"
-      - match: "Trans-flot/vladimirovich Pv о/с Trans-flot LLC c/o Trans-flot LLC (6184699 / russian federation / 03.10.2019)"
-        name: "Trans-flot/vladimirovich Pv"
-        care_of: Trans-flot LLC
-        registration_number: 6184699
-        country: Russia
-        date: "2019-10-03"
-      - match: "Tightship Shipping Management (OPC) Pvt Ltd (6344264 / 01.01.2024)"
-        name: "Tightship Shipping Management (OPC) Pvt Ltd"
-        registration_number: 6344264
-        date: "2024-01-01"
-      - match: Tightship Shipping Management (OPC) Pvt Ltd (6344264 / 30.08.2023)
-        name: "Tightship Shipping Management (OPC) Pvt Ltd"
-        imo_number: 6344264
-        date: "2023-08-30"
-      - match: Tightship Shipping Management (OPC) Pvt Ltd (6344264 / 21.08.2023)
-        name: "Tightship Shipping Management (OPC) Pvt Ltd"
-        imo_number: 6344264
-        date: "2023-08-21"
-      - match: Tightship Shipping Management (OPC) Pvt Ltd (6344264 / 13.06.2023)
-        name: "Tightship Shipping Management (OPC) Pvt Ltd"
-        imo_number: 6344264
-        date: "2023-06-13"
-      - match: Tightship Shipping Management (OPC) Pvt Ltd (6344264 / 09.07.2023)
-        name: "Tightship Shipping Management (OPC) Pvt Ltd"
-        imo_number: 6344264
-        date: "2023-07-09"
-      - match: "Elza Shipping SA c/o Tightship Shipping Management (OPC) Pvt Ltd (6243757 / 28.07.2021)"
-        name: "Elza Shipping SA"
-        care_of: "Tightship Shipping Management (OPC) Pvt Ltd"
-        imo_number: 6243757
-        date: "2021-07-28"
-      - match: Pacific Ocean Shipping Ltd (0127067 / 29.04.2025)
-        name: "Pacific Ocean Shipping Ltd"
-        registration_number: 0127067
-        date: "2025-04-29"
-      - match: Huge Peace Shipping Ltd c/o Pacific Ocean Shipping Ltd (0127053 / 29.04.2025)
-        name: "Huge Peace Shipping Ltd"
-        care_of: "Pacific Ocean Shipping Ltd"
-        registration_number: 0127053
-        date: "2025-04-29"
-      - match: Sea Speed Inc c/o Tightship Shipping Management (OPC) Pvt Ltd (6509842 / 09.08.2024)
-        name: "Sea Speed Inc"
-        care_of: "Tightship Shipping Management (OPC) Pvt Ltd"
-        registration_number: 6509842
-        date: "2024-08-09"
-      - match: Elitoli Trading Co Ltd c/o Tightship Shipping Management (OPC) Pvt Ltd (6139901 / 28.11.2019)
-        name: "Elitoli Trading Co Ltd"
-        care_of: "Tightship Shipping Management (OPC) Pvt Ltd"
-        imo_number: 6139901
-        date: "2019-11-28"
-      - match: Mancera Shipping Co (0211901 / 18.04.2025)
-        name: "Mancera Shipping Co"
-        registration_number: 0211901
-        date: "2025-04-18"
-      - match: "Rptd Sold Undisclosed Interest (9991942 / 18.10.2024)"
-        name: "Rptd Sold Undisclosed Interest"
-        registration_number: 9991942
-        date: "2024-10-18"
-      - match: "Peak Shipping Lines Inc (6216426 / 19.07.2021)"
-        name: "Peak Shipping Lines Inc"
-        registration_number: 6216426
-        date: "2021-07-19"
-      - match: "Kaifu Shipping Ltd (0136021 / 27.01.2025)"
-        name: "Kaifu Shipping Ltd"
-        registration_number: 0136021
-        date: "2025-01-27"
-      - match: "Staksel Co Ltd (4234210 / russian federation)"
-        name: "Staksel Co Ltd"
-        registration_number: 4234210
-        country: Russia
-      - match: "Alexandria Seaways Ltd С/о Matias Ship Management LLC-FZ (0094819 / United Arab Emirates / 02.09.2024)"
-        name: "Alexandria Seaways Ltd"
-        care_of: "Matias Ship Management LLC-FZ"
-        registration_number: 0094819
-        country: United Arab Emirates
-        date: "2024-09-02"
-      - match: "Clio Navigation Ltd С/о Thunder Shipmanagement LLC-FZ (0059624 / United Arab Emirates / 24.09.2024)"
-        name: "Clio Navigation Ltd"
-        care_of: "Thunder Shipmanagement LLC-FZ"
-        registration_number: 0059624
-        country: United Arab Emirates
-        date: "2024-09-24"
-      - match: "Caladium Transport Inc С/о Thunder Shipmanagement LLC-FZ (0130123 / United Arab Emirates / 18.10.2024)"
-        name: "Caladium Transport Inc"
-        care_of: "Thunder Shipmanagement LLC-FZ"
-        registration_number: 0130123
-        country: United Arab Emirates
-        date: "2024-10-18"
-      - match: "Ephesus Marine Inc С/о Thunder Shipmanagement LLC-FZ (0097345 / United Arab Emirates / 02.10.2024)"
-        name: "Ephesus Marine Inc"
-        care_of: "Thunder Shipmanagement LLC-FZ"
-        registration_number: 0097345
-        country: United Arab Emirates
-        date: "2024-10-02"
-      - match: "Garnet Maritime INC-SEY С/о Thunder Shipmanagement LLC-FZ (0081747 / United Arab Emirates / 16.09.2024)"
-        name: "Garnet Maritime INC-SEY"
-        care_of: "Thunder Shipmanagement LLC-FZ"
-        registration_number: 0081747
-        country: United Arab Emirates
-        date: "2024-09-16"
-      - match: "Miltonia Navigation Co С/о Thunder Shipmanagement LLC-FZ (0109114 / United Arab Emirates / 17.10.2024)"
-        name: "Miltonia Navigation Co"
-        care_of: "Thunder Shipmanagement LLC-FZ"
-        registration_number: 0109114
-        country: United Arab Emirates
-        date: "2024-10-17"
-      - match: "Valiant Marine Ventures FZE (6268870 / United Arab Emirates)"
-        name: "Valiant Marine Ventures FZE"
-        registration_number: 6268870
-        country: United Arab Emirates
-      - match: "Amor Fleet Inc c/o Valiant Marine Ventures FZE (6401357 / United Arab Emirates)"
-        name: "Amor Fleet Inc"
-        care_of: "Valiant Marine Ventures FZE"
-        registration_number: 6401357
-        country: United Arab Emirates
-      - match: "Lydia V Shipping Ltd (6161189 / 13.06.2020)"
-        name: "Lydia V Shipping Ltd"
-        registration_number: 6161189
-        date: "2020-06-13"
+  # ship_party:
+  #   options:
+  #     - regex: "Unknown (.+)"
+  #       name: null
+  #     - match:
+  #         - "Unknown"
+  #         # Rptd -> Reported https://www.insurancejournal.com/news/international/2024/03/20/765613.htm
+  #         - "Rptd Sold Undisclosed Interest (09.02.2023)"
+  #         - "Rptd Sold Undisclosed Interest (12.08.2024)"
+  #         - "Rptd Sold Undisclosed Interest (04.03.2025)"
+  #         - "Rptd Sold Undisclosed Interest (20.06.2025)"
+  #         - "Rptd Sold russia (05.2004)"
+  #         - "RPTD SOLD RUSSIA (13.11.2024)"
+  #         - "Rptd Sold Russia (9992075 / 27.06.2025)"
+  #       name: null
   type.date:
     options:
-      - match: 23.06.1974 /23.06.1973
+      - match: "23.06.1974 /23.06.1973"
         values:
           - 1974-06-23
           - 1973-06-23
-      - match: 08.011.2024)
-        value: 2024-01-08
-      - match: 07/03/2023)
-        value: 2023-03-07
+      - match: 27.06.1981 - 22.07.2023
+        value: 1981-06-27
+      - match: 26.04.1961 - 28.01.2020
+        value: 1961-04-26
+      - match: 31.12.1956 - 17.05.2019
+        value: 1956-12-31
+      - match: 18.01.1947 - 16.08.2021
+        value: 1947-01-18
+      - match: 01.09.1960 - 30.03.2015
+        value: 1960-09-01
+      - match: 14.09.1940 - 06.07.2016
+        value: 1940-09-14
+      - match: 15.07.1985 -  2016
+        value: 1985-07-15
+      - match: 06.05.1960 - 21.11.2021
+        value: 1960-05-06
+      - match: 12.08.1986 - 19.05.2021
+        value: 1986-08-12
+      - match: 24.01.1956 - 21.08.2022
+        value: 1956-01-24
       - match: 29.06.1961- 17.08.2018
         value: 1961-06-29
-      - match: 09.17.1975
-        value: 1975
-      - match: 29/11/2023)
-        value: 2023-11-29
-      - match: 02/12/2023)
-        value: 2023-12-02
-      - match: 16/03/2015)
-        value: 2015-03-16
-      - match: 21/02/2005)
-        value: 2005-02-21
-      - match: during 09/2015)
-        value: 2015-09
-      - match: 04/03/2005)
-        value: 2005-03-04
-      - match: 10.09.20224)
-        value: 2024-09-10
-      - match: 08/11/2023)
-        value: 2023-11-08
-      - match: 096.05.2025)
-        value: 2025-05
-      - match: 2007HQZS3
-        value: 2007
-      - match:
-          - 07.04.
-          - 09.05.20234)
-          - 22.02.202)
-          - 04.01.20205)
-          - 01.11.22023)
-          - 17.03.20205)
-          - 1804807)
-          - 6299069)
+      - match: 
+          - 10.09.20224
+          - 04.01.20205
+          - 096.05.2025
+          - 17.03.20205
+          - 1804807
+          - 6299069
+          - 2007HQZS3
+          - 09.17.1975
         value: null
   type.country:
     options:
-      - match: Ukraine, russian federation
-        values:
-          - Ukraine
-          - Russia
-      - match: Cyprus, russian federation
-        values:
-          - Cyprus
-          - Russia
-      - match: Israel, russian federation
-        values:
-          - Israel
-          - Russia
-      - match: TOT Ukraine
-        value: Ukraine
-      - match: Comoro Islands
-        value: Comoros
-      - match:
-          - ","
-          - unknown
-        value: null
-      - match: Bermuda Islands
-        value: bm
-      - match: Armenia, russian federation
-        values:
-          - Armenia
-          - Russia
-      - match: Netherlands, russian federation
-        values:
-          - Netherlands
-          - Russia
-      - match: Montenegro, russian federation
-        values:
-          - Montenegro
-          - Russia
-      - match: Honduras, Montenegro, russian federation
-        values:
-          - Honduras
-          - Montenegro
-          - Russia
-      - match: X00
+      - match: 
+          - X00
+          - ROM
         value: null
   type.name:
     options:
-      - match: 'AUTONOMOUS NON-PROFIT ORGANIZATION OF ADDITIONAL PROFESSIONAL EDUCATION "MARITIME INNOVATION CENTER OF THE REGIONAL BRANCH OF THE ALL-RUSSIAN PUBLIC-STATE ORGANIZATION "VOLUNTARY SOCIETY FOR ASSISTANCE TO THE ARMY, AVIATION AND NAVY OF RUSSIA" OF THE CITY OF SEVASTOPOL"'
-        value: '"MARITIME INNOVATION CENTER OF THE REGIONAL BRANCH OF THE ALL-RUSSIAN PUBLIC-STATE ORGANIZATION "VOLUNTARY SOCIETY FOR ASSISTANCE TO THE ARMY, AVIATION AND NAVY OF RUSSIA" OF THE CITY OF SEVASTOPOL"'
-      - match:
-          - "-"
-          - "2"
+      - match: "-"
         value: null
   type.identifier:
     options:
       - match:
+          - 100386629
+          - 3266528 
+          - 75190131
+          - 2897516 
+          - 69651149
+          - 2646286 
+          - .0276915630
+          - 275074110
+          - 555624
+          - 555669
+          - 6299069
+          - 1804807
           - RS 150443
           - RS 130280
           - 194905962
-          - 555624
-          - 28953
-          - 13219
-          - 555669
-          - 44396
-          - 100386629
-          - 3266528
-          - 75190131
-          - 2897516
-          - 69651149
-          - 2646286
         prop: registrationNumber
       - match: 10477970849
         value: 1047797084940
-        prop: registrationNumber
       - match: ".0276915630"
         value: 0276915630
-        prop: registrationNumber
-      - regex: # failed validation for entities registered in so called "people's republics"
-          - ^122940\d{7}$
-          - ^122930\d{7}$
-          - ^1239\d{9}$
-        prop: registrationNumber
       - match: Невідомо
         value: null
