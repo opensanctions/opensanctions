@@ -7,9 +7,9 @@ coverage:
 entry_point: crawler.py
 prefix: us-sec-lit
 summary: >
-  Entities subject to civil actions brought by the SEC in federal court.
+  Entities subject to civil action brought by the SEC in federal court.
 description: >
-  This dataset contains entities who are or have been subject to civil actions
+  This dataset contains entities who are or have been subject to civil action
   by the SEC. It includes the names of defendants, a high level indication of the
   status of the action, and links to more information by the SEC.
 
@@ -66,3 +66,9 @@ assertions:
     schema_entities:
       Person: 800
       Company: 1000
+
+lookups:
+  type.country:
+    options:
+      - match: Not explicitly stated
+        value: null
