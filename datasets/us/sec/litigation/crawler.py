@@ -116,7 +116,7 @@ def strip_non_body_content(article_element: HtmlElement) -> None:
 
 
 def get_title(url: str, article_element: HtmlElement) -> str:
-    titles = article_element.xpath(".//h1")
+    titles = article_element.xpath(".//h1[contains(@class, 'page-title__heading')]")
     assert len(titles) == 1, (len(titles), url)
     return titles[0].text_content()
 
