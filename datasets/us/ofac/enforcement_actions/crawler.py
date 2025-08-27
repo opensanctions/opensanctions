@@ -276,7 +276,9 @@ def crawl(context: Context):
             link = result.xpath(
                 ".//a[contains(@href, 'recent-actions') or contains(@href, 'recent-issues') and not(contains(@href, 'enforcement-actions'))]/@href"
             )[0]
-            # Skipping one known duplicate of "https://ofac.treasury.gov/recent-actions/20181127_33"
+            # Extract the first link to the enforcement action (or "recent-issues").
+            # Skip one known duplicate case of "https://ofac.treasury.gov/recent-actions/20181127_33" under /recent-issues.
+            # For any other "recent-issues" links, log a warning so we can review them later.
             if link == "https://ofac.treasury.gov/recent-issues/20181127_33":
                 continue
             if "recent-issues" in link:
