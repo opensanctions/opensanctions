@@ -229,6 +229,10 @@ def crawl_body(context: Context, state: CrawlState, link) -> None:
     official_count = 0
     pep_count = 0
     board_doc = context.fetch_html(link, cache_days=1)
+    board_doc_html = etree.tostring(board_doc, encoding="unicode")
+    if "(SGDI) is temporarily unavailable" in board_doc_html:
+        context.log.warning(f"SGDI failover page encountered at {link}, skipping.")
+        return
 
     org_name_elem = board_doc.find(".//div[@id='agencyName']/h1")
     for br in org_name_elem.xpath(".//br"):
