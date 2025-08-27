@@ -535,7 +535,7 @@ lookups:
         values:
           - Российская Федерация, 111024, г. Москва, ул. 2-я Энтузиастов, д. 5, корп. 40, пом. 3/2, вн. терр. Г, муниципальный округ Перово
           - Ul. 2-Ya Entuziastov D. 5, K. 40, Pomeshch. 3/2, Vn. Ter. G. Munitsipalnyy Okrug Perovo, Moscow 111024, Russian Federation
-      - match: 'Люкс частина 17), офіс 1, (Российская Федерация, г. Санкт-Петербург, ул. Большая Пушкарская, д. 20, лит. А, люкс 110-Н (Люкс часть 17), офис 1, Office 1, Suite 110-N (Suite Part 17), Letter A, 20 Bolshaya Pushrarskaya Street, Kronverkskoye Municipal Distinct, Saint Peterburg 197198, Russian Federation'
+      - match: 'Люкс частина 17), офіс 1,  (Российская Федерация, г. Санкт-Петербург, ул. Большая Пушкарская, д. 20, лит. А, люкс 110-Н (Люкс часть 17), офис 1; Office 1, Suite 110-N (Suite Part 17), Letter A, 20 Bolshaya Pushrarskaya Street, Kronverkskoye Municipal Distinct, Saint Peterburg 197198, Russian Federation'
         values:
           - Российская Федерация, г. Санкт-Петербург, ул. Большая Пушкарская, д. 20, лит. А, люкс 110-Н (Люкс часть 17), офис 1
           - Office 1, Suite 110-N (Suite Part 17), Letter A, 20 Bolshaya Pushrarskaya Street, Kronverkskoye Municipal Distinct, Saint Peterburg 197198, Russian Federation
