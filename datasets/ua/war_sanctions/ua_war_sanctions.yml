@@ -70,7 +70,7 @@ data:
   format: JSON
 
 dates:
-  formats: ["%d.%m.%Y", "%d.%m. %Y", "%d.%m.%Y)", "%m.%Y)", "%m.%Y", "%d/%m/%Y"]
+  formats: ["%d.%m.%Y", "%d.%m. %Y", "%m.%Y", "%d/%m/%Y"]
 
 assertions:
   min:
@@ -169,6 +169,51 @@ lookups:
           - RS 150443
           - RS 130280
           - 194905962
+          - 74136104  
+          - 3161890
+          - 73176503  
+          - 76145187
+          - 3125459 
+          - 73768871
+          - 3199991 
+          - 74520161 
+          - 358769 
+          - 3185362 
+          - 3150768 
+          - 3016374 
+          - 9207391 
+          - 11915229  
+          - QCBHT46HNUG4
+          - U52292MH2024OPC427341 
+          - 40279
+          - U52292MH2024OPC426638
+          - 0161038029800019 
+          - AAYFG2678Q
+          - DMCC196521
+          - 2890985 
+          - ZAKDULRX1NF6 
+          - YSF8EX7FMBG6 
+          - YSA2FRK6ZGE9 
+          - 202022772K
+          - dy9dk876mbp4
+          - HE 418991 
+          - 11978506  
+          - 2033130 
+          - 5344160
+          - MDTSLL61V995
+          - OC428060  
+          - 384095-5  
+          - 08S04803
+        prop: registrationNumber
+      - match: 1436594D / 202101036294 
+        values:
+          - 1436594D
+          - 202101036294
+        prop: registrationNumber
+      - match: 1409544P/202101009245
+        values:
+          - 1409544P
+          - 202101009245
         prop: registrationNumber
       - match: 10477970849
         value: 1047797084940
