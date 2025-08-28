@@ -2,11 +2,10 @@ import string
 import random
 import hashlib
 import base64
-from os import environ as env
-from datetime import datetime, timezone
-from typing import Optional
 
-# from pprint import pprint
+from datetime import datetime, timezone
+from os import environ as env
+from typing import Optional
 
 from zavod import Context, helpers as h
 
@@ -156,6 +155,8 @@ def crawl_ship_relation(
             to_prop=to_prop,
         )
 
+    context.audit_data(party_info)
+
 
 def emit_relation(
     context: Context,
@@ -194,7 +195,6 @@ def crawl_person(context: Context, person_data, program, endpoint):
     person.add("name", name_ru, lang="rus")
     person.add("citizenship", person_data.pop("citizenships", None))
     person.add("taxNumber", person_data.pop("itn"))
-    person.add("sourceUrl", links)
     person.add("position", positions)
     person.add("position", position)
     person.add("position", person_data.pop("positions_main", None))
@@ -202,7 +202,6 @@ def crawl_person(context: Context, person_data, program, endpoint):
     h.apply_date(person, "birthDate", dob)
     h.apply_date(person, "deathDate", person_data.pop("date_death", None))
     person.add("topics", "poi")
-    person.add("sourceUrl", links)
     person.add("sourceUrl", person_data.pop("photo"))
     person.add("birthPlace", pob)
 
@@ -249,7 +248,6 @@ def crawl_legal_entity(context: Context, company_data, program):
     legal_entity.add("address", company_data.pop("address"))
     legal_entity.add("country", company_data.pop("country"))
     legal_entity.add("innCode", company_data.pop("itn"))
-    legal_entity.add("sourceUrl", company_data.pop("links"))
     legal_entity.add("sourceUrl", company_data.pop("logo"))
     legal_entity.add("topics", "poi")
     if imo:
@@ -257,6 +255,7 @@ def crawl_legal_entity(context: Context, company_data, program):
 
     sanction = h.make_sanction(context, legal_entity)
     sanction.add("reason", company_data.pop("reason"))
+    sanction.add("sourceUrl", company_data.pop("links"))
     sanction.add("sourceUrl", company_data.pop("documents", None))
     sanction.add("program", program)
     context.emit(legal_entity)
@@ -314,28 +313,23 @@ def crawl_vessel(context: Context, vessel_data, program):
     vessel.add("buildDate", vessel_data.pop("year"))
     vessel.add("grossRegisteredTonnage", vessel_data.pop("weight"))
     vessel.add("deadweightTonnage", vessel_data.pop("dwt"))
-    vessel.add("sourceUrl", vessel_data.pop("links"))
     if "no-ship-photo" not in photo_url:
         vessel.add("sourceUrl", photo_url)
     old_data = vessel_data.pop("old_data", [])
     for item in old_data:
-        name = item.pop("name")
-        flag = item.pop("flag")
-        if name:
-            vessel.add("previousName", name)
-        if flag:  # Only add if flag is not None
-            vessel.add("pastFlags", flag)
+        vessel.add("previousName", item.pop("name"))
+        vessel.add("pastFlags", item.pop("flag"))
     vessel.add("topics", "poi")
     if vessel_data.pop("is_shadow"):
         vessel.add("topics", "mare.shadow")
 
     sanction = h.make_sanction(context, vessel)
     sanction.add("program", program)
-    # sanction.add("sourceUrl", link)
+    sanction.add("sourceUrl", vessel_data.pop("links"))
 
     context.emit(vessel)
     context.emit(sanction)
-    # TODO: emit ownership for owner
+
     for role in ["commerce_manager", "security_manager", "owner"]:
         party_info = vessel_data.pop(role, None)
         crawl_ship_relation(context, party_info, vessel.id, role)
