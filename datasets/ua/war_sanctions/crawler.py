@@ -4,6 +4,7 @@ import hashlib
 import base64
 from os import environ as env
 from datetime import datetime, timezone
+from typing import Optional
 
 # from pprint import pprint
 
@@ -113,14 +114,71 @@ def generate_token(cid: str, pkey: str) -> str:
     return token
 
 
-def emit_link(context: Context, ship_id, entity_id):
+def emit_link(context: Context, ship_id, entity_id, role):
     vessel = context.make("Vessel")
     vessel.id = context.make_slug("vessel", ship_id)
     link = context.make("UnknownLink")
     link.id = context.make_id(ship_id, entity_id)
     link.add("subject", entity_id)
     link.add("object", vessel.id)
+    if role:
+        link.add("role", role)
     context.emit(link)
+
+
+def crawl_ship_relation(
+    context: Context,
+    party_info,
+    vessel_id_slug,
+    rel_role: Optional[str] = None,
+    rel_schema: str = "UnknownLink",
+    from_prop: str = "subject",
+    to_prop: str = "object",
+):
+    if not party_info:
+        return
+    company_id_raw = party_info.pop("id")
+    start_date = party_info.pop("date")
+    care_of_id_raw = party_info.pop("co_id", None)
+
+    emit_relation(
+        context,
+        context.make_slug("company", company_id_raw),
+        vessel_id_slug,
+        rel_schema,
+        rel_role,
+        from_prop,
+        to_prop,
+        start_date,
+    )
+
+    if care_of_id_raw is not None:
+        emit_relation(
+            context,
+            context.make_slug("company", company_id_raw),
+            context.make_slug("company", care_of_id_raw),
+            rel_schema,
+            rel_role="c/o",
+        )
+
+
+def emit_relation(
+    context: Context,
+    subject_id,
+    object_id,
+    rel_schema: str = "UnknownLink",
+    rel_role: Optional[str] = None,
+    from_prop: str = "subject",
+    to_prop: str = "object",
+    start_date: Optional[str] = None,
+):
+    relation = context.make(rel_schema)
+    relation.id = context.make_id(object_id, rel_role, subject_id)
+    relation.add(from_prop, subject_id)
+    relation.add(to_prop, object_id)
+    relation.add("role", rel_role)
+    h.apply_date(relation, "startDate", start_date)
+    context.emit(relation)
 
 
 def crawl_person(context: Context, person_data, program):
@@ -165,7 +223,8 @@ def crawl_person(context: Context, person_data, program):
     related_ships = person_data.pop("ships", None)
     if related_ships:
         for ship_id in related_ships:
-            emit_link(context, ship_id, person.id)
+            # TODO: if the person is a captain, add it to the role
+            emit_link(context, ship_id, person.id, role=None)
 
     context.audit_data(
         person_data, ["sanctions", "documents", "category", "sport", "places"]
@@ -207,33 +266,20 @@ def crawl_legal_entity(context: Context, company_data, program):
     related_ships = company_data.pop("ships", None)
     if related_ships:
         for ship_id in related_ships:
-            emit_link(context, ship_id, legal_entity.id)
+            emit_link(context, ship_id, legal_entity.id, role=None)
 
     context.audit_data(
         company_data, ["sanctions", "products", "rel_companies", "tools", "places"]
     )
 
 
-# def emit_manager_relation(context, vessel, vessel_data, role):
-#     data = vessel_data.pop(role)
-#     if not data:
-#         return
-#     manager = context.make("Company")
-#     manager.id = context.make_slug("company", data.pop("id"))
-
-#     relation = context.make("UnknownLink")
-#     relation.id = context.make_id(vessel.id, manager.id)
-#     relation.add("object", vessel.id)
-#     relation.add("subject", manager.id)
-#     relation.add("role", role)
-#     h.apply_date(relation, "startDate", data.pop("date"))
-#     context.emit(relation)
-
-
 def crawl_manager(context: Context, management_data, program):
     manager = context.make("Company")
     manager.id = context.make_slug("company", management_data.pop("id"))
     manager.add("name", management_data.pop("name"))
+    # We null falsy names via the lookups
+    if not manager.get("name"):
+        return
     manager.add("country", management_data.pop("country"))
     manager.add("imoNumber", management_data.pop("imo"))
     context.emit(manager)
@@ -283,9 +329,10 @@ def crawl_vessel(context: Context, vessel_data, program):
 
     context.emit(vessel)
     context.emit(sanction)
-
-    # for role in ["commerce_manager", "security_manager", "owner"]:
-    #     emit_manager_relation(context, vessel, vessel_data, role)
+    # TODO: emit ownership for owner
+    for role in ["commerce_manager", "security_manager", "owner"]:
+        party_info = vessel_data.pop(role, None)
+        crawl_ship_relation(context, party_info, vessel.id, role)
 
     context.audit_data(
         vessel_data,
