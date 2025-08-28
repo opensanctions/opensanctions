@@ -118,6 +118,10 @@ def generate_token(cid: str, pkey: str) -> str:
     return token
 
 
+def make_id(context: Context, entity_type: str, raw_id: str):
+    return context.make_slug(entity_type, raw_id)
+
+
 def split_dob_dod(raw_date):
     parts = [p.strip() for p in raw_date.split("-")]
     dob = parts[0] if parts and parts[0] else None
@@ -147,7 +151,7 @@ def crawl_ship_relation(
 
     emit_relation(
         context,
-        context.make_slug("entity", company_id_raw),
+        make_id(context, "entity", company_id_raw),
         vessel_id_slug,
         rel_schema,
         rel_role,
@@ -165,8 +169,8 @@ def crawl_ship_relation(
     if care_of_id_raw is not None:
         emit_relation(
             context,
-            context.make_slug("entity", company_id_raw),
-            context.make_slug("entity", care_of_id_raw),
+            make_id(context, "entity", company_id_raw),
+            make_id(context, "entity", care_of_id_raw),
             rel_schema,
             rel_role="c/o",
             from_prop=from_prop,
@@ -195,15 +199,14 @@ def emit_relation(
     context.emit(relation)
 
 
-def crawl_person(context: Context, person_data, program, endpoint):
-    id = person_data.pop("id")
+def crawl_person(context: Context, person_data, program, endpoint, entity_type: str):
     birth_date = person_data.pop("date_bd")
     death_date = person_data.pop("date_death", None)
     if "- " in birth_date:
         birth_date, death_date = split_dob_dod(birth_date)
 
     person = context.make("Person")
-    person.id = context.make_slug("person", id)
+    person.id = make_id(context, entity_type, person_data.pop("id"))
     person.add("name", person_data.pop("name_en"), lang="eng")
     person.add("name", person_data.pop("name_uk"), lang="ukr")
     person.add("name", person_data.pop("name_ru"), lang="rus")
@@ -235,7 +238,7 @@ def crawl_person(context: Context, person_data, program, endpoint):
             emit_relation(
                 context,
                 person.id,
-                context.make_slug("vessel", ship_id_raw),
+                make_id(context, "vessel", ship_id_raw),
                 rel_role=role,
             )
 
@@ -244,14 +247,11 @@ def crawl_person(context: Context, person_data, program, endpoint):
     )
 
 
-def crawl_legal_entity(context: Context, company_data, program):
-    id = company_data.pop("id")
-    name_abbr = company_data.pop("short")
-    imo = company_data.pop("imo", None)
-
+def crawl_legal_entity(context: Context, company_data, program, entity_type: str):
     legal_entity = context.make("LegalEntity")
-    legal_entity.id = context.make_slug("entity", id)
+    legal_entity.id = make_id(context, entity_type, company_data.pop("id"))
     legal_entity.add("name", company_data.pop("name"))
+    name_abbr = company_data.pop("short")
     if len(name_abbr) < 11:
         legal_entity.add("alias", name_abbr)
     else:
@@ -262,6 +262,7 @@ def crawl_legal_entity(context: Context, company_data, program):
     legal_entity.add("innCode", company_data.pop("itn"))
     legal_entity.add("sourceUrl", company_data.pop("logo"))
     legal_entity.add("topics", "poi")
+    imo = company_data.pop("imo", None)
     if imo:
         legal_entity.add_cast("Company", "imoNumber", imo)
 
@@ -279,7 +280,7 @@ def crawl_legal_entity(context: Context, company_data, program):
     if related_ships:
         for ship_id_raw in related_ships:
             emit_relation(
-                context, legal_entity.id, context.make_slug("vessel", ship_id_raw)
+                context, legal_entity.id, make_id(context, "vessel", ship_id_raw)
             )
 
     context.audit_data(
@@ -287,9 +288,9 @@ def crawl_legal_entity(context: Context, company_data, program):
     )
 
 
-def crawl_manager(context: Context, management_data, program):
+def crawl_manager(context: Context, management_data, program, entity_type: str):
     manager = context.make("Company")
-    manager.id = context.make_slug("entity", management_data.pop("id"))
+    manager.id = make_id(context, entity_type, management_data.pop("id"))
     manager.add("name", management_data.pop("name"))
     # We null falsy names via the lookups (and we end up with some loose ends because of that)
     # Linked companies may not exist:
@@ -307,12 +308,9 @@ def crawl_manager(context: Context, management_data, program):
     context.audit_data(management_data)
 
 
-def crawl_vessel(context: Context, vessel_data, program):
-    id = vessel_data.pop("id")
-    photo_url = vessel_data.pop("photo")
-
+def crawl_vessel(context: Context, vessel_data, program, entity_type: str):
     vessel = context.make("Vessel")
-    vessel.id = context.make_slug("vessel", id)
+    vessel.id = make_id(context, entity_type, vessel_data.pop("id"))
     vessel.add("name", vessel_data.pop("name"))
     vessel.add("imoNumber", vessel_data.pop("imo"))
     vessel.add("type", vessel_data.pop("type"))
@@ -323,6 +321,7 @@ def crawl_vessel(context: Context, vessel_data, program):
     vessel.add("buildDate", vessel_data.pop("year"))
     vessel.add("grossRegisteredTonnage", vessel_data.pop("weight"))
     vessel.add("deadweightTonnage", vessel_data.pop("dwt"))
+    photo_url = vessel_data.pop("photo")
     if "no-ship-photo" not in photo_url:
         vessel.add("sourceUrl", photo_url)
     old_data = vessel_data.pop("old_data", [])
@@ -348,7 +347,7 @@ def crawl_vessel(context: Context, vessel_data, program):
     if pi_club_info:
         for club in pi_club_info:
             pi_club = context.make("Organization")
-            pi_club.id = context.make_slug("organization", club.pop("id"))
+            pi_club.id = make_id(context, "organization", club.pop("id"))
             pi_club.add("name", club.pop("name"))
             context.emit(pi_club)
             emit_relation(context, pi_club.id, vessel.id, rel_role="P&I Club")
@@ -375,14 +374,14 @@ def crawl_vessel(context: Context, vessel_data, program):
     )
 
 
-def crawl_rostec_structure(context: Context, structure_data):
+def crawl_rostec_structure(context: Context, structure_data, entity_type: str):
     company_id = structure_data.pop("company_id")
     parent_id = structure_data.pop("parent_id")
     if parent_id and company_id:
         emit_relation(
             context,
-            subject_id=context.make_slug("entity", parent_id),
-            object_id=context.make_slug("entity", company_id),
+            subject_id=make_id(context, entity_type, parent_id),
+            object_id=make_id(context, entity_type, company_id),
             rel_schema="Ownership",
             rel_role="subsidiary of",
             from_prop="owner",
@@ -467,14 +466,14 @@ def crawl(context: Context):
         data = response.get("data")
         for entity_details in data:
             if data_type == "person":
-                crawl_person(context, entity_details, program, endpoint)
+                crawl_person(context, entity_details, program, endpoint, "person")
             elif data_type == "legal_entity":
-                crawl_legal_entity(context, entity_details, program)
+                crawl_legal_entity(context, entity_details, program, "entity")
             elif data_type == "vessel":
-                crawl_vessel(context, entity_details, program)
+                crawl_vessel(context, entity_details, program, "vessel")
             elif data_type == "management":
-                crawl_manager(context, entity_details, program)
+                crawl_manager(context, entity_details, program, "entity")
             elif data_type == "rostec_structure":
-                crawl_rostec_structure(context, entity_details)
+                crawl_rostec_structure(context, entity_details, "entity")
             else:
                 context.log.warn(f"Unknown data type: {data_type}")
