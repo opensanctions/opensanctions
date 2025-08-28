@@ -197,38 +197,31 @@ def emit_relation(
 
 def crawl_person(context: Context, person_data, program, endpoint):
     id = person_data.pop("id")
-    name_en = person_data.pop("name_en")
-    name_uk = person_data.pop("name_uk")
-    name_ru = person_data.pop("name_ru")
-    positions = person_data.pop("positions", None)
-    position = person_data.pop("position", None)
     birth_date = person_data.pop("date_bd")
     death_date = person_data.pop("date_death", None)
     if "- " in birth_date:
         birth_date, death_date = split_dob_dod(birth_date)
-    pob = person_data.pop("city_bd", None)
-    links = person_data.pop("links", None)
 
     person = context.make("Person")
     person.id = context.make_slug("person", id)
-    person.add("name", name_en, lang="eng")
-    person.add("name", name_uk, lang="ukr")
-    person.add("name", name_ru, lang="rus")
+    person.add("name", person_data.pop("name_en"), lang="eng")
+    person.add("name", person_data.pop("name_uk"), lang="ukr")
+    person.add("name", person_data.pop("name_ru"), lang="rus")
     person.add("citizenship", person_data.pop("citizenships", None))
     person.add("taxNumber", person_data.pop("itn"))
-    person.add("position", positions)
-    person.add("position", position)
+    person.add("position", person_data.pop("positions", None))
+    person.add("position", person_data.pop("position", None))
     person.add("position", person_data.pop("positions_main", None))
     person.add("position", person_data.pop("positions_other", None))
     h.apply_date(person, "birthDate", birth_date)
     h.apply_date(person, "deathDate", death_date)
     person.add("topics", "poi")
     person.add("sourceUrl", person_data.pop("photo"))
-    person.add("birthPlace", pob)
+    person.add("birthPlace", person_data.pop("city_bd", None))
 
     sanction = h.make_sanction(context, person)
     sanction.add("reason", person_data.pop("reason", None))
-    sanction.add("sourceUrl", links)
+    sanction.add("sourceUrl", person_data.pop("links", None))
     sanction.add("program", program)
 
     context.emit(person)
@@ -253,19 +246,17 @@ def crawl_person(context: Context, person_data, program, endpoint):
 
 def crawl_legal_entity(context: Context, company_data, program):
     id = company_data.pop("id")
-    name = company_data.pop("name")
     name_abbr = company_data.pop("short")
-    reg_num = company_data.pop("reg")
     imo = company_data.pop("imo", None)
 
     legal_entity = context.make("LegalEntity")
     legal_entity.id = context.make_slug("entity", id)
-    legal_entity.add("name", name)
+    legal_entity.add("name", company_data.pop("name"))
     if len(name_abbr) < 11:
         legal_entity.add("alias", name_abbr)
     else:
         legal_entity.add("name", name_abbr)
-    legal_entity.add("ogrnCode", reg_num)
+    legal_entity.add("ogrnCode", company_data.pop("reg"))
     legal_entity.add("address", company_data.pop("address"))
     legal_entity.add("country", company_data.pop("country"))
     legal_entity.add("innCode", company_data.pop("itn"))
@@ -279,6 +270,7 @@ def crawl_legal_entity(context: Context, company_data, program):
     sanction.add("sourceUrl", company_data.pop("links"))
     sanction.add("sourceUrl", company_data.pop("documents", None))
     sanction.add("program", program)
+
     context.emit(legal_entity)
     context.emit(sanction)
 
@@ -317,16 +309,13 @@ def crawl_manager(context: Context, management_data, program):
 
 def crawl_vessel(context: Context, vessel_data, program):
     id = vessel_data.pop("id")
-    name = vessel_data.pop("name")
-    type = vessel_data.pop("type")
-    imo_num = vessel_data.pop("imo")
     photo_url = vessel_data.pop("photo")
 
     vessel = context.make("Vessel")
     vessel.id = context.make_slug("vessel", id)
-    vessel.add("name", name)
-    vessel.add("imoNumber", imo_num)
-    vessel.add("type", type)
+    vessel.add("name", vessel_data.pop("name"))
+    vessel.add("imoNumber", vessel_data.pop("imo"))
+    vessel.add("type", vessel_data.pop("type"))
     vessel.add("description", vessel_data.pop("info"))
     vessel.add("callSign", vessel_data.pop("callsign"))
     vessel.add("flag", vessel_data.pop("flag"))
