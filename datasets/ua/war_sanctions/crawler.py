@@ -230,17 +230,17 @@ def crawl_legal_entity(context: Context, company_data, program):
 #     context.emit(relation)
 
 
-# def crawl_management(context: Context, management_data, program):
-#     management = context.make("Company")
-#     management.id = context.make_id("company", management_data.pop("id"))
-#     management.add("name", management_data.pop("name"))
-#     management.add("country", management_data.pop("country"))
-#     management.add("imoNumber", management_data.pop("imo"))
-#     context.emit(management)
-#     sanction = h.make_sanction(context, management)
-#     sanction.add("program", program)
-#     context.emit(sanction)
-#     context.audit_data(management_data)
+def crawl_manager(context: Context, management_data, program):
+    manager = context.make("Company")
+    manager.id = context.make_slug("company", management_data.pop("id"))
+    manager.add("name", management_data.pop("name"))
+    manager.add("country", management_data.pop("country"))
+    manager.add("imoNumber", management_data.pop("imo"))
+    context.emit(manager)
+    sanction = h.make_sanction(context, manager)
+    sanction.add("program", program)
+    context.emit(sanction)
+    context.audit_data(management_data)
 
 
 def crawl_vessel(context: Context, vessel_data, program):
@@ -332,5 +332,7 @@ def crawl(context: Context):
                 crawl_legal_entity(context, entity_details, program)
             elif data_type == "vessel":
                 crawl_vessel(context, entity_details, program)
-            # elif data_type == "management":
-            #     crawl_management(context, entity_details, program)
+            elif data_type == "management":
+                crawl_manager(context, entity_details, program)
+            else:
+                context.log.warn(f"Unknown data type: {data_type}")
