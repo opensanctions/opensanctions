@@ -150,7 +150,13 @@ def crawl_ship_relation(
         to_prop,
         start_date,
     )
-
+    # e.g.
+    # {
+    #     "owner": {"id": "511", "date": "18.09.2023", "co_id": "512"},
+    #     "commerce_manager": {"id": "512", "date": "22.11.2024", "co_id": None},
+    #     "security_manager": {"id": "512", "date": "22.11.2024", "co_id": None},
+    # }
+    # Company 511 (subject) → "c/o" → Company 512 (object)
     if care_of_id_raw is not None:
         emit_relation(
             context,
@@ -344,6 +350,15 @@ def crawl_vessel(context: Context, vessel_data, program):
         party_info = vessel_data.pop(role, None)
         crawl_ship_relation(context, party_info, vessel.id, role)
 
+    pi_club_info = vessel_data.pop("pi_club", None)
+    if pi_club_info:
+        for club in pi_club_info:
+            pi_club = context.make("Organization")
+            pi_club.id = context.make_slug("organization", club.pop("id"))
+            pi_club.add("name", club.pop("name"))
+            context.emit(pi_club)
+            emit_relation(context, pi_club.id, vessel.id, rel_role="P&I Club")
+
     context.audit_data(
         vessel_data,
         [
@@ -354,7 +369,6 @@ def crawl_vessel(context: Context, vessel_data, program):
             "transponder_off",
             "russ_ports",
             "ports",
-            "pi_club",
             "shadow_group",
             "sanctions_regime",
             "categories",
