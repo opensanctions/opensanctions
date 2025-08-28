@@ -46,12 +46,12 @@ LINKS = [
         "type": "management",
         "program": "Management of ships involved in the transportation of weapons, stolen Ukrainian products and in the circumvention of sanctions",
     },
-    {
+    {  # companies associated with ships
         "endpoint": "transport/companies",
         "type": "legal_entity",
         "program": "Companies associated with the ships involved in the transportation of weapons, stolen Ukrainian products and in the circumvention of sanctions",
     },
-    {
+    {  # persons associated with ships
         "endpoint": "transport/persons",
         "type": "person",
         "program": "Persons associated with the ships involved in the transportation of weapons, stolen Ukrainian products and in the circumvention of sanctions",
@@ -129,6 +129,11 @@ def crawl_ship_relation(
     start_date = party_info.pop("date")
     care_of_id_raw = party_info.pop("co_id", None)
 
+    if rel_role == "owner":
+        rel_schema = "Ownership"
+        from_prop = "owner"
+        to_prop = "asset"
+
     emit_relation(
         context,
         context.make_slug("company", company_id_raw),
@@ -147,6 +152,8 @@ def crawl_ship_relation(
             context.make_slug("company", care_of_id_raw),
             rel_schema,
             rel_role="c/o",
+            from_prop=from_prop,
+            to_prop=to_prop,
         )
 
 
@@ -169,7 +176,7 @@ def emit_relation(
     context.emit(relation)
 
 
-def crawl_person(context: Context, person_data, program):
+def crawl_person(context: Context, person_data, program, endpoint):
     id = person_data.pop("id")
     name_en = person_data.pop("name_en")
     name_uk = person_data.pop("name_uk")
@@ -211,8 +218,13 @@ def crawl_person(context: Context, person_data, program):
     related_ships = person_data.pop("ships", None)
     if related_ships:
         for ship_id_raw in related_ships:
-            # TODO: if the person is a captain, add it to the role
-            emit_relation(context, person.id, context.make_slug("vessel", ship_id_raw))
+            role = "captain" if endpoint == "transport/captains" else None
+            emit_relation(
+                context,
+                person.id,
+                context.make_slug("vessel", ship_id_raw),
+                rel_role=role,
+            )
 
     context.audit_data(
         person_data, ["sanctions", "documents", "category", "sport", "places"]
@@ -267,7 +279,11 @@ def crawl_manager(context: Context, management_data, program):
     manager = context.make("Company")
     manager.id = context.make_slug("company", management_data.pop("id"))
     manager.add("name", management_data.pop("name"))
-    # We null falsy names via the lookups
+    # We null falsy names via the lookups (and we end up with some loose ends because of that)
+    # Linked companies may not exist:
+    # 'ua-ws-company-22',Company,'Company'
+    # 'ua-ws-company-32',Company,'Company'
+    # 'ua-ws-company-238',Company,'Company'
     if not manager.get("name"):
         return
     manager.add("country", management_data.pop("country"))
@@ -363,8 +379,7 @@ def crawl(context: Context):
         data = response.get("data")
         for entity_details in data:
             if data_type == "person":
-                # pprint(entity_details)
-                crawl_person(context, entity_details, program)
+                crawl_person(context, entity_details, program, endpoint)
             elif data_type == "legal_entity":
                 crawl_legal_entity(context, entity_details, program)
             elif data_type == "vessel":
