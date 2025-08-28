@@ -13,18 +13,21 @@ summary: >
   These data sources are only partially imported where a link to an existing
   entity of interest can be found.
 children:
+  - ext_abuja_mou_psc
   - ext_cy_companies
   - ext_cz_business_register
   - ext_ee_ariregister
   - ext_eu_esma_firds
   - ext_gb_coh_psc
   - ext_ge_company_registry
+  - ext_gb_fca_firds
   - ext_gleif
   - ext_ror
   - ext_icij_offshoreleaks
   - ext_lv_business_register
   - ext_kz_companies
   - ext_md_companies
+  - ext_tokyo_mou_psc
   - ext_us_irs_ffi
   - opencorporates
   - ext_ru_egrul

@@ -7,17 +7,17 @@ coverage:
   frequency: weekly
   start: "2025-08-15"
 summary: >
-  List of formal legal proceedings where the U.S. Treasury's Office of Foreign Assets Control 
-  penalizes individuals, companies, or entities that violate American economic sanctions and 
+  List of formal legal proceedings where the U.S. Treasury's Office of Foreign Assets Control
+  penalizes individuals, companies, or entities that violate American economic sanctions and
   embargo programs.
 description: |
-  OFAC Enforcement Actions are formal legal proceedings where the U.S. Treasury's Office 
-  of Foreign Assets Control penalizes individuals, companies, or entities that violate 
-  American economic sanctions and embargo programs. These actions typically involve civil 
-  monetary penalties, settlement agreements, or warning letters for violations such as 
-  conducting business with sanctioned parties, failing to freeze designated assets, or 
-  having inadequate compliance programs. The enforcement actions serve as both punishment 
-  for violations and deterrence for others, with OFAC publicly disclosing significant cases 
+  OFAC Enforcement Actions are formal legal proceedings where the U.S. Treasury's Office
+  of Foreign Assets Control penalizes individuals, companies, or entities that violate
+  American economic sanctions and embargo programs. These actions typically involve civil
+  monetary penalties, settlement agreements, or warning letters for violations such as
+  conducting business with sanctioned parties, failing to freeze designated assets, or
+  having inadequate compliance programs. The enforcement actions serve as both punishment
+  for violations and deterrence for others, with OFAC publicly disclosing significant cases
   to provide guidance on sanctions compliance.
 publisher:
   name: Office of Foreign Assets Control
@@ -41,7 +41,7 @@ data:
   format: HTML
   lang: eng
 http:
-  user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.2 Safari/605.1.15"
+  user_agent: "OpenSanctions tech@opensanctions.org"
 dates:
   formats: ["%m/%d/%Y", "%B %d, %Y"]
 

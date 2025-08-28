@@ -42,6 +42,9 @@ http:
   backoff_factor: 3
   retry_methods: [POST, GET]
 
+dates:
+  formats: ["%d.%m.%Y"]
+
 assertions:
   min:
     schema_entities:

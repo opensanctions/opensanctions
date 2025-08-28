@@ -115,9 +115,9 @@ def strip_non_body_content(article_element: HtmlElement) -> None:
         el.getparent().remove(el)
 
 
-def get_title(article_element: HtmlElement) -> str:
-    titles = article_element.xpath(".//h1")
-    assert len(titles) == 1
+def get_title(url: str, article_element: HtmlElement) -> str:
+    titles = article_element.xpath(".//h1[contains(@class, 'page-title__heading')]")
+    assert len(titles) == 1, (len(titles), url)
     return titles[0].text_content()
 
 
@@ -248,7 +248,9 @@ def crawl_release(
         sanction.add("summary", item.notes, origin=DEFAULT_MODEL)
         sanction.add("authorityId", release_id)
 
-        article = h.make_article(context, url, title=get_title(doc), published_at=date)
+        article = h.make_article(
+            context, url, title=get_title(url, doc), published_at=date
+        )
         documentation = h.make_documentation(context, entity, article)
 
         context.emit(entity)

@@ -18,8 +18,8 @@ ci_test: false
 summary: >-
   Vessels inspected by member authorities under the Tokyo MoU.
 description: |
-  This dataset contains ships inspected by port state control while visiting ports under 
-  the jurisdiction of Tokyo MoU member authorities. Each record includes, but is not 
+  This dataset contains ships inspected by port state control while visiting ports under
+  the jurisdiction of Tokyo MoU member authorities. Each record includes, but is not
   limited to, the ship's identity, flag, and associated company.
 url: https://www.tokyo-mou.org/inspections-detentions/psc-database/
 publisher:
@@ -62,7 +62,9 @@ config:
 assertions:
   min:
     schema_entities:
-      Vessel: 1
+      Vessel: 100
+      Company: 20
   max:
     schema_entities:
-      Vessel: 100
+      Vessel: 500
+      Company: 150

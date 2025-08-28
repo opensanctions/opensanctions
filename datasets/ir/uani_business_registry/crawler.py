@@ -131,7 +131,9 @@ def crawl(context: Context):
         context.log.info(f"Fetching URL: {url}")
 
         # Fetch the HTML and get the table
-        doc = fetch_html(context, url, ".//div[@class='o-grid']", cache_days=3)
+        doc = fetch_html(
+            context, url, ".//div[@class='o-grid']", cache_days=3, geolocation="ir"
+        )
         doc.make_links_absolute(url)
         table = doc.find(".//div[@class='view-content']//table")
         if table is None:

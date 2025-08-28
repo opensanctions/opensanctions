@@ -171,7 +171,7 @@ def check_something_changed(
 
 
 def crawl_enforcement_action(context: Context, url: str) -> None:
-    article = context.fetch_html(url, cache_days=1)
+    article = context.fetch_html(url, cache_days=7)
     article.make_links_absolute(context.data_url)
     if article is None:
         return
@@ -196,7 +196,6 @@ def crawl_enforcement_action(context: Context, url: str) -> None:
             prompt_result,
             MODEL_VERSION,
         )
-
     if check_something_changed(context, review, article_html, article_element):
         # In the first iteration, we're being super conservative and rejecting
         # export if the source content has changed regardless of whether the
@@ -251,12 +250,13 @@ def crawl_enforcement_action(context: Context, url: str) -> None:
 
 def crawl(context: Context):
     page = 0
-    stop_crawl = False  # flag to break outer loop
-    while not stop_crawl:
+    within_age_limit = True
+    while within_age_limit:
         base_url = (
             f"https://ofac.treasury.gov/recent-actions/enforcement-actions?page={page}"
         )
-        doc = context.fetch_html(base_url, cache_days=1)
+        context.log.info("Crawling index page", url=base_url)
+        doc = context.fetch_html(base_url)
         doc.make_links_absolute(context.data_url)
         links = doc.xpath(
             "//div[@class='view-content']//a[contains(@href, 'recent-actions') and not(contains(@href, 'enforcement-actions'))]/@href"
@@ -271,11 +271,20 @@ def crawl(context: Context):
             assert len(enforcement_date) == 1, "Expected exactly one enforcement date"
             clean_date = enforcement_date[0].strip().removesuffix(" -")
             if not enforcements.within_max_age(context, clean_date, MAX_AGE_DAYS):
-                stop_crawl = True
+                within_age_limit = False
                 break
             link = result.xpath(
-                ".//a[contains(@href, 'recent-actions') and not(contains(@href, 'enforcement-actions'))]/@href"
+                ".//a[contains(@href, 'recent-actions') or contains(@href, 'recent-issues') and not(contains(@href, 'enforcement-actions'))]/@href"
             )[0]
+            # Extract the first link to the enforcement action (or "recent-issues").
+            # Skip one known duplicate case of "https://ofac.treasury.gov/recent-actions/20181127_33" under /recent-issues.
+            # For any other "recent-issues" links, log a warning so we can review them later.
+            if link == "https://ofac.treasury.gov/recent-issues/20181127_33":
+                continue
+            if "recent-issues" in link:
+                context.log.warn(
+                    f"Double check recent-issues link for possible duplicates: {link}"
+                )
             crawl_enforcement_action(context, link)
         page += 1
 
