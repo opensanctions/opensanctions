@@ -12,7 +12,7 @@ from zavod import Context, helpers as h
 # Make sure variables don't get interpolated by the shell.
 WS_CID = env.get("OPENSANCTIONS_WS_CID")
 WS_API_KEY = env.get("OPENSANCTIONS_WS_API_KEY")
-
+WS_API_DOCS = env.get("OPENSANCTIONS_WS_API_DOCS")
 
 LINKS = [
     {  # child kidnappers
@@ -105,11 +105,11 @@ def generate_token(cid: str, pkey: str) -> str:
     sid = "".join(random.choices(string.ascii_letters + string.digits, k=2))
     # 3. Create signature = sha256(cid + sid + timestamp + pkey), lowercase hex
     signature_input = f"{cid}{sid}{timestamp}{pkey}"
-    signature = hashlib.sha256(signature_input.encode("utf-8")).hexdigest().lower()
+    signature = hashlib.sha256(signature_input.encode()).hexdigest().lower()
     # 4. Build raw token string = signature + cid + sid + timestamp
     raw_token = f"{signature}{cid}{sid}{timestamp}"
     # 5. Base64 encode
-    token = base64.b64encode(raw_token.encode("utf-8")).decode("utf-8")
+    token = base64.b64encode(raw_token.encode()).decode()
     return token
 
 
@@ -381,7 +381,68 @@ def crawl_vessel(context: Context, vessel_data, program):
     )
 
 
+def check_updates(context: Context):
+    doc = context.fetch_html(WS_API_DOCS)
+    # Have any new sections been added?
+    change_log = doc.xpath(".//main[@class='relative']")
+    assert len(change_log) == 1, change_log
+    h.assert_dom_hash(change_log[0], "18328f23fa487338c88a408674d1c4682a1f32c6")
+    # Kidnappers:
+    # - kidnappers persons
+    # - kidnappers companies
+    #
+    # Components in weapons:
+    # - components list
+    # - weapon parts
+    # - related legal entities (suppliers, importers, foreign suppliers, etc.)
+    #
+    # Instruments of war:
+    # - equipment list
+    # - factories of the location
+    #
+    # Marine and aircraft vessels:
+    # - ships list
+    # - related legal entities
+    # - related individuals
+    # - captains
+    # - sea ports
+    # - ships categories
+    # - ships management (owners, commerce managers, security managers)
+    #
+    # Stolen Heritage:
+    # - objects list
+    # - involved legal entities
+    # - involved individuals
+    # - places of the incidents
+    #
+    # Partner`s sanctions lists:
+    # - sanctions directory
+    # - lifted sanctions directory
+    # - legal entities
+    # - individuals
+    #
+    # Champions of terror:
+    # - individuals
+    #
+    # Kremlin Mouthpieces:
+    # - individuals
+    #
+    # Executives of War:
+    # - individuals
+    # - structure
+    #
+    # UAV manufacturers:
+    # - UAV list
+    # - manufacturers
+    #
+    # Rostec:
+    # - legal entities
+    # - structure
+
+
 def crawl(context: Context):
+    check_updates(context)
+
     for link_info in LINKS:
         token = generate_token(WS_CID, WS_API_KEY)
         headers = {"Authorization": token}
