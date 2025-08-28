@@ -95,6 +95,11 @@ LINKS = [
         "type": "legal_entity",
         "program": "Legal entities involved in the production of military equipment and supplies",
     },
+    {  # rostec structure
+        "endpoint": "rostec/structure",
+        "type": "rostec_structure",
+        "program": "",
+    },
 ]
 
 
@@ -142,7 +147,7 @@ def crawl_ship_relation(
 
     emit_relation(
         context,
-        context.make_slug("company", company_id_raw),
+        context.make_slug("entity", company_id_raw),
         vessel_id_slug,
         rel_schema,
         rel_role,
@@ -160,8 +165,8 @@ def crawl_ship_relation(
     if care_of_id_raw is not None:
         emit_relation(
             context,
-            context.make_slug("company", company_id_raw),
-            context.make_slug("company", care_of_id_raw),
+            context.make_slug("entity", company_id_raw),
+            context.make_slug("entity", care_of_id_raw),
             rel_schema,
             rel_role="c/o",
             from_prop=from_prop,
@@ -292,7 +297,7 @@ def crawl_legal_entity(context: Context, company_data, program):
 
 def crawl_manager(context: Context, management_data, program):
     manager = context.make("Company")
-    manager.id = context.make_slug("company", management_data.pop("id"))
+    manager.id = context.make_slug("entity", management_data.pop("id"))
     manager.add("name", management_data.pop("name"))
     # We null falsy names via the lookups (and we end up with some loose ends because of that)
     # Linked companies may not exist:
@@ -381,6 +386,21 @@ def crawl_vessel(context: Context, vessel_data, program):
     )
 
 
+def crawl_rostec_structure(context: Context, structure_data):
+    company_id = structure_data.pop("company_id")
+    parent_id = structure_data.pop("parent_id")
+    if parent_id and company_id:
+        emit_relation(
+            context,
+            subject_id=context.make_slug("entity", parent_id),
+            object_id=context.make_slug("entity", company_id),
+            rel_schema="Ownership",
+            rel_role="subsidiary of",
+            from_prop="owner",
+            to_prop="asset",
+        )
+
+
 def check_updates(context: Context):
     doc = context.fetch_html(WS_API_DOCS)
     # Have any new sections been added?
@@ -465,5 +485,7 @@ def crawl(context: Context):
                 crawl_vessel(context, entity_details, program)
             elif data_type == "management":
                 crawl_manager(context, entity_details, program)
+            elif data_type == "rostec_structure":
+                crawl_rostec_structure(context, entity_details)
             else:
                 context.log.warn(f"Unknown data type: {data_type}")
