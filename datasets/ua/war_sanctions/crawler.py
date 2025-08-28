@@ -113,6 +113,13 @@ def generate_token(cid: str, pkey: str) -> str:
     return token
 
 
+def split_dob_dod(raw_date):
+    parts = [p.strip() for p in raw_date.split("-")]
+    dob = parts[0] if parts and parts[0] else None
+    dod = parts[1] if len(parts) > 1 and parts[1] else None
+    return dob, dod
+
+
 def crawl_ship_relation(
     context: Context,
     party_info,
@@ -184,7 +191,10 @@ def crawl_person(context: Context, person_data, program, endpoint):
     name_ru = person_data.pop("name_ru")
     positions = person_data.pop("positions", None)
     position = person_data.pop("position", None)
-    dob = person_data.pop("date_bd")
+    birth_date = person_data.pop("date_bd")
+    death_date = person_data.pop("date_death", None)
+    if "- " in birth_date:
+        birth_date, death_date = split_dob_dod(birth_date)
     pob = person_data.pop("city_bd", None)
     links = person_data.pop("links", None)
 
@@ -199,8 +209,8 @@ def crawl_person(context: Context, person_data, program, endpoint):
     person.add("position", position)
     person.add("position", person_data.pop("positions_main", None))
     person.add("position", person_data.pop("positions_other", None))
-    h.apply_date(person, "birthDate", dob)
-    h.apply_date(person, "deathDate", person_data.pop("date_death", None))
+    h.apply_date(person, "birthDate", birth_date)
+    h.apply_date(person, "deathDate", death_date)
     person.add("topics", "poi")
     person.add("sourceUrl", person_data.pop("photo"))
     person.add("birthPlace", pob)
