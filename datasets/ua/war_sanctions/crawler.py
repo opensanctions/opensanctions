@@ -114,18 +114,6 @@ def generate_token(cid: str, pkey: str) -> str:
     return token
 
 
-def emit_link(context: Context, ship_id, entity_id, role):
-    vessel = context.make("Vessel")
-    vessel.id = context.make_slug("vessel", ship_id)
-    link = context.make("UnknownLink")
-    link.id = context.make_id(ship_id, entity_id)
-    link.add("subject", entity_id)
-    link.add("object", vessel.id)
-    if role:
-        link.add("role", role)
-    context.emit(link)
-
-
 def crawl_ship_relation(
     context: Context,
     party_info,
@@ -222,9 +210,9 @@ def crawl_person(context: Context, person_data, program):
     # 'transport/persons' and 'transport/captains' endpoints provide a list of vessel ids associated with persons
     related_ships = person_data.pop("ships", None)
     if related_ships:
-        for ship_id in related_ships:
+        for ship_id_raw in related_ships:
             # TODO: if the person is a captain, add it to the role
-            emit_link(context, ship_id, person.id, role=None)
+            emit_relation(context, person.id, context.make_slug("vessel", ship_id_raw))
 
     context.audit_data(
         person_data, ["sanctions", "documents", "category", "sport", "places"]
@@ -265,8 +253,10 @@ def crawl_legal_entity(context: Context, company_data, program):
     # 'transport/companies' endpoint provides a list of vessel ids associated with legal entities
     related_ships = company_data.pop("ships", None)
     if related_ships:
-        for ship_id in related_ships:
-            emit_link(context, ship_id, legal_entity.id, role=None)
+        for ship_id_raw in related_ships:
+            emit_relation(
+                context, legal_entity.id, context.make_slug("vessel", ship_id_raw)
+            )
 
     context.audit_data(
         company_data, ["sanctions", "products", "rel_companies", "tools", "places"]
