@@ -96,21 +96,6 @@ assertions:
       Vessel: 1400
       LegalEntity: 1000
 lookups:
-  # ship_party:
-  #   options:
-  #     - regex: "Unknown (.+)"
-  #       name: null
-  #     - match:
-  #         - "Unknown"
-  #         # Rptd -> Reported https://www.insurancejournal.com/news/international/2024/03/20/765613.htm
-  #         - "Rptd Sold Undisclosed Interest (09.02.2023)"
-  #         - "Rptd Sold Undisclosed Interest (12.08.2024)"
-  #         - "Rptd Sold Undisclosed Interest (04.03.2025)"
-  #         - "Rptd Sold Undisclosed Interest (20.06.2025)"
-  #         - "Rptd Sold russia (05.2004)"
-  #         - "RPTD SOLD RUSSIA (13.11.2024)"
-  #         - "Rptd Sold Russia (9992075 / 27.06.2025)"
-  #       name: null
   type.date:
     options:
       - match: "23.06.1974 /23.06.1973"
@@ -157,7 +142,14 @@ lookups:
         value: null
   type.name:
     options:
-      - match: "-"
+      - match: 
+          - "-"
+          - "Unknown"
+        value: null
+      - regex: 
+          - "Unknown (.+)"
+          # Rptd -> Reported https://www.insurancejournal.com/news/international/2024/03/20/765613.htm
+          - "Rptd Sold (.+)"
         value: null
   type.identifier:
     options:
