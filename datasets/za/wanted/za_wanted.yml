@@ -27,15 +27,13 @@ data:
   url: https://www.saps.gov.za/crimestop/wanted/list.php
   format: HTML
 http:
-  retry_statuses:
+  user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.2 Safari/605.1.15 (zavod; opensanctions.org)"
+  max_retries: 5
+  backoff_factor: 3
+  additional_retry_statuses:
     - 404 # usually by the time we check, the page is there.
     - 408
-    - 413
-    - 429
     - 443
-    - 500
-    - 502
-    - 503
 
 assertions:
   min:
