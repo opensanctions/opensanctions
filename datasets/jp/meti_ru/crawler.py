@@ -11,9 +11,6 @@ from zavod import Context
 from zavod import helpers as h
 
 SOURCE_URL = "https://www.meti.go.jp/policy/external_economy/trade_control/02_export/17_russia/russia.html"
-HEADER = {
-    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.2 Safari/605.1.15",
-}
 NAMES_PATTERN = re.compile(
     r"""
     ^\d+\s*                     # Match and ignore leading number and optional whitespace
@@ -140,7 +137,7 @@ def crawl_row(context, row):
 
 
 def crawl(context: Context):
-    html_path = context.fetch_resource("source.html", SOURCE_URL, headers=HEADER)
+    html_path = context.fetch_resource("source.html", SOURCE_URL)
     with open(html_path, "r") as fh:
         doc = html.fromstring(fh.read())
     doc.make_links_absolute(SOURCE_URL)
@@ -168,7 +165,7 @@ def crawl(context: Context):
 
     for pdf_url in pdf_urls:
         pdf_name = Path(urlparse(pdf_url).path).name
-        pdf_path = context.fetch_resource(pdf_name, pdf_url, headers=HEADER)
+        pdf_path = context.fetch_resource(pdf_name, pdf_url)
         h.assert_file_hash(pdf_path, EXPECTED_HASHES.get(pdf_name))
 
         # Save the text of the PDFs linked to from the page for easy diffing.
