@@ -27,9 +27,10 @@ class DataModel(BaseModel):
     @field_validator("lang", mode="after")
     @classmethod
     def validate_lang(cls, value: str) -> str:
-        if registry.language.clean_text(value) is None:
+        lang = registry.language.clean_text(value)
+        if lang is None:
             raise ValueError(f"Invalid language code: {value!r}")
-        return value
+        return lang
 
 
 class ZavodDatasetModel(FTMDatasetModel):
