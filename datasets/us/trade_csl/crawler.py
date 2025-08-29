@@ -162,10 +162,12 @@ def parse_list_entry(context: Context, list_entry: Dict[str, Any]):
     entity = context.make(schema)
     entity.id = context.make_slug(list_entry.pop("id"))
     source_program = list_entry.pop("source", "")
-    if source_program.startswith("Unverified List"):
-        entity.add("topics", "export.control")
-    else:
+    if source_program.startswith("Nonproliferation Sanctions"):
         entity.add("topics", "sanction")
+    elif source_program.startswith("ITAR Debarred"):
+        entity.add("topics", "debarment")
+    else:
+        entity.add("topics", "export.control")
 
     entity_number = list_entry.pop("entity_number", None)
     is_ofac = False
