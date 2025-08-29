@@ -1,5 +1,5 @@
 from datetime import date
-from lxml.html import HtmlElement, fromstring, tostring
+from lxml.html import tostring
 from pydantic import BaseModel, Field
 from rigour.mime.types import HTML
 from typing import Optional, List, Literal
@@ -9,13 +9,11 @@ from zavod import helpers as h
 from zavod.entity import Entity
 from zavod.shed import enforcements
 from zavod.shed.gpt import DEFAULT_MODEL, run_typed_text_prompt
+from zavod.shed.reviews import HtmlChangeTracker
 from zavod.stateful.review import (
-    Review,
     assert_all_accepted,
     request_review,
     get_review,
-    model_hash,
-    html_to_text_hash,
 )
 
 NAME_XPATH = "//span[@class='treas-page-title']/text()"
@@ -47,8 +45,6 @@ Status = Literal[
 
 MODEL_VERSION = 1
 MIN_MODEL_VERSION = 1
-
-something_changed = False
 
 schema_field = Field(
     description="Use LegalEntity if it isn't clear whether the entity is a person or a company."
@@ -128,49 +124,9 @@ def make_company_link(
     return link
 
 
-def source_changed(review: Review, article_element: HtmlElement) -> bool:
-    """
-    The key exists but the current source data looks different from the existing version
-    in spite of heavy normalisation.
-    """
-    seen_element = fromstring(review.source_value)
-    return html_to_text_hash(seen_element) != html_to_text_hash(article_element)
-
-
-def check_something_changed(
-    context: Context,
-    review: Review,
-    article_html: str,
-    article_element: HtmlElement,
-) -> bool:
-    """
-    Returns True if the source content has changed.
-
-    In that case it also reprompts to log whether the extracted data has changed.
-    """
-    if source_changed(review, article_element):
-        prompt_result = run_typed_text_prompt(context, PROMPT, article_html, Defendants)
-        if model_hash(prompt_result) == model_hash(review.orig_extraction_data):
-            context.log.warning(
-                "The source content has changed but the extracted data has not",
-                url=review.source_url,
-                seen_source_value=review.source_value,
-                new_source_value=article_html,
-            )
-        else:
-            # A new extraction result looks different from the known original extraction
-            context.log.warning(
-                "The extracted data has changed",
-                url=review.source_url,
-                orig_extracted_data=review.orig_extraction_data.model_dump(),
-                prompt_result=prompt_result.model_dump(),
-            )
-        return True
-    else:
-        return False
-
-
-def crawl_enforcement_action(context: Context, url: str) -> None:
+def crawl_enforcement_action(
+    context: Context, change_tracker: HtmlChangeTracker, url: str
+) -> None:
     article = context.fetch_html(url, cache_days=7)
     article.make_links_absolute(context.data_url)
     if article is None:
@@ -196,19 +152,8 @@ def crawl_enforcement_action(context: Context, url: str) -> None:
             prompt_result,
             MODEL_VERSION,
         )
-    if check_something_changed(context, review, article_html, article_element):
-        # In the first iteration, we're being super conservative and rejecting
-        # export if the source content has changed regardless of whether the
-        # extraction result has changed. If we see this happening and we see that
-        # the extraction result reliably identifies real data changes, we can
-        # relax this to only reject if the extraction result has changed.
 
-        # Similarly if we see that broad markup changes don't trigger massive
-        # re-reviews but legitimate changes are reliably detected, we can allow
-        # it to automatically request re-reviews upon extraction changes.
-        global something_changed
-        something_changed = True
-        return
+    change_tracker.check_changes(review, article_element, article_html, PROMPT)
 
     if not review.accepted:
         return
@@ -249,6 +194,7 @@ def crawl_enforcement_action(context: Context, url: str) -> None:
 
 
 def crawl(context: Context):
+    change_tracker = HtmlChangeTracker(context)
     page = 0
     within_age_limit = True
     while within_age_limit:
@@ -285,11 +231,8 @@ def crawl(context: Context):
                 context.log.warn(
                     f"Double check recent-issues link for possible duplicates: {link}"
                 )
-            crawl_enforcement_action(context, link)
+            crawl_enforcement_action(context, change_tracker, link)
         page += 1
 
     assert_all_accepted(context)
-    global something_changed
-    assert (
-        not something_changed
-    ), "See what changed to determine whether to trigger re-review."
+    change_tracker.raise_for_changes()
