@@ -34,13 +34,22 @@ from zavod import helpers as h
 REGEX_AUTHORITY_ID_SEP = re.compile(r"(\d+ F\.?R\.?)")
 
 
+def lookup_topic(context: Context, program_name: Optional[str]) -> Optional[str]:
+    """Lookup the topic based on the sanction program."""
+    res = context.lookup("sanction.program", program_name)
+    if res is None:
+        context.log.warn(f"Topic for {program_name!r} not found.")
+        return None
+    return res.topic
+
+
 def emit_relationship(
     context: Context,
     entity_id: str,
     *,
     related_name: str,
     list_entry: Dict[str, Any],
-    source_program: str
+    source_program: str,
 ):
     related_entity = context.make("LegalEntity")
     related_entity.id = context.make_id(related_name)
@@ -162,13 +171,11 @@ def parse_list_entry(context: Context, list_entry: Dict[str, Any]):
     entity = context.make(schema)
     entity.id = context.make_slug(list_entry.pop("id"))
     source_program = list_entry.pop("source", "")
-    if source_program.startswith("Nonproliferation Sanctions"):
-        entity.add("topics", "sanction")
-    elif source_program.startswith("ITAR Debarred"):
-        entity.add("topics", "debarment")
+    if source_program:
+        entity.add("topics", lookup_topic(context, source_program))
     else:
-        entity.add("topics", "export.control")
-
+        # Fallback for entities that don't have a program explicitly stated
+        entity.add("topics", "sanction")
     entity_number = list_entry.pop("entity_number", None)
     is_ofac = False
     if entity_number is not None:
