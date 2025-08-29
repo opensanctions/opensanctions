@@ -1,16 +1,17 @@
-title: Latvia FIU Sanctions
+title: Latvia FIU Sanctions and Asset Freezes
 entry_point: crawler.py
 prefix: lv-sanction
 summary: >
-  National sanctions list of Latvia, effective additionally to UN and
-  EU designations.
+  National sanctions list and asset freezes issued by Latvia, expanding on
+  EU regulations.
 coverage:
   start: 2024-02-24
   frequency: daily
 load_statements: true
 description:
   This dataset contains lists of individuals or entities subject to national
-  sanctions as specified by laws in Latvia.
+  sanctions as specified by laws in Latvia. It also includes a list of asset
+  freezes imposed on entities linked to these individuals or entities.
 
   National sanctions are determined by Latvia's legislative acts and international
   laws. They are imposed by the Cabinet of Ministers following procedures outlined
