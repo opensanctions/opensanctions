@@ -1,7 +1,7 @@
+import re
 from urllib.parse import urlencode, urljoin
 from lxml.etree import _Element
 from lxml.html import document_fromstring
-import re
 
 from zavod.shed.zyte_api import fetch_html, fetch_json
 from zavod import Context
@@ -12,7 +12,7 @@ from zavod import helpers as h
 
 
 REGEX_BIRTH_PLACE_AND_DATE = re.compile(
-    "is geboren in (?P<birthplace>.+) op (?P<birthdate>.+\d{4})(\.| en woont in)"
+    r"is geboren in (?P<birthplace>.+) op (?P<birthdate>.+\d{4})(\.| en woont in)"
 )
 
 
@@ -22,14 +22,19 @@ def unblock_validator(doc):
 
 def crawl_person(context: Context, element: _Element, position: Entity):
     anchor = element.find(".//a")
+    assert anchor is not None, "Failed to extract anchor"
     source_url = urljoin(context.data_url, anchor.get("href"))
     section_xpath = './/main[@class="o-main"]/article/section[2]'
     doc = fetch_html(context, source_url, section_xpath, cache_days=1)
     section = doc.find(section_xpath)
+    assert section is not None, "Failed to extract main section"
 
     # Not a lot of semantic selection information in the HTML so the correctness of
     # the selectors depends very much on hard requirements on this matching.
-    match = re.search(REGEX_BIRTH_PLACE_AND_DATE, section.findtext(".//p"))
+    descr = section.findtext(".//p")
+    assert descr is not None, "Failed to extract description"
+    match = REGEX_BIRTH_PLACE_AND_DATE.search(descr)
+    assert match is not None, "Failed to extract birth information"
     birth_date = match.group("birthdate")
     name = section.findtext(".//h1")
 
@@ -49,8 +54,8 @@ def crawl_person(context: Context, element: _Element, position: Entity):
         end_date=None,
         no_end_implies_current=True,
     )
-
-    context.emit(occupancy)
+    if occupancy is not None:
+        context.emit(occupancy)
     context.emit(person)
 
 
