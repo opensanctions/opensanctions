@@ -27,7 +27,7 @@ publisher:
 data:
   url: https://www.tweedekamer.nl/kamerleden_en_commissies/alle_kamerleden
   format: HTML
-  lang: nl
+  lang: nld
 ci_test: false
 
 dates:
