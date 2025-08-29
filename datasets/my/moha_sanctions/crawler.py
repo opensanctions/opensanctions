@@ -70,16 +70,14 @@ def crawl_table(context: Context, table: _Element) -> None:
 
 
 def crawl_html_url(context: Context) -> str:
-    validator = (
-        ".//*[contains(text(), 'SANCTION LIST MADE BY THE MINISTRY OF HOME AFFAIRS')]"
-    )
+    validator = ".//*[contains(text(), 'LIST OF SANCTIONS UNDER THE MINISTRY OF HOME AFFAIRS (MOHA)')]"
     html = fetch_html(context, context.data_url, validator, cache_days=5)
     for a in html.findall('.//div[@class="uk-container"]//a'):
-        if "senarai sekatan" not in a.text_content().lower():
+        if "sanctions list" not in a.text_content().lower():
             continue
         if ".html" in a.get("href", ""):
             return urljoin(context.data_url, a.get("href"))
-    raise ValueError("No PDF found")
+    raise ValueError("No HTML found")
 
 
 def crawl(context: Context):

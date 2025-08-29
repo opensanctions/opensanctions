@@ -30,12 +30,12 @@ publisher:
   description: |
     Sanctions in the ministry are managed by the division responsible for
     Countering Financing of Terrorism.
-  url: https://www.moha.gov.my/index.php/en/
+  url: https://www.moha.gov.my/utama/index.php/en
   country: my
   official: true
-url: https://www.moha.gov.my/index.php/en/maklumat-perkhidmatan/membanteras-pembiayaan-keganasan2/senarai-kementerian-dalam-negeri
+url: https://www.moha.gov.my/utama/index.php/en/component/content/article/350-list-of-ministries-of-home-affairs
 data:
-  url: https://www.moha.gov.my/index.php/en/maklumat-perkhidmatan/membanteras-pembiayaan-keganasan2/senarai-kementerian-dalam-negeri
+  url: https://www.moha.gov.my/utama/index.php/en/component/content/article/350-list-of-ministries-of-home-affairs
   format: PDF
   lang: msa
 http:
