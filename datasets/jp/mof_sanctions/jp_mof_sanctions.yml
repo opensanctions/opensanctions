@@ -244,7 +244,9 @@ lookups:
           - 国連制裁委員会による指定日
           - 国連制裁員会による指定日
         value: designated_date_un
-      - match: 国 連 参 照 番 号
+      - match:
+          - 国 連 参 照 番 号
+          - 国連参照番号
         value: unsc_id
       - match: 決議1483上の根拠
         value: reason_res1483
@@ -294,6 +296,14 @@ lookups:
         value: China
       - match: タンザニア共和国
         value: tz
+      - match: タジキスタン Tajikistan
+        value: Tajikistan
+      - match: クウェート Kuwait
+        value: Kuwait
+      - match: チュニジア Tunisia
+        value: Tunisia
+      - match: リビア Libya
+        value: Libya
   type.date:
     options:
       - match:
@@ -638,6 +648,10 @@ lookups:
         value: A6489694
       - match: イラク国民ＩＤカード番号00813602、2011年9月18日発行（氏名のアラビア語表記：سالم مصطفى محمد ال منصور）
         value: 00813602
+      - match: リビア旅券203037（リビア、トリポリにて発行）； （リビア旅券347834、Ibrahim Ali Tantoushの名で発行、２０１４年２月２１日失効）
+        values: 
+          - 203037
+          - 347834
   type.name:
     lowercase: true
     normalize: true

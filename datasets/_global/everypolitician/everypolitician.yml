@@ -132,8 +132,7 @@ lookups:
           - Victoria.Oliver@deputies.gov.gg
           - victoria1.oliver@icloud.com
       - match: marycamachotorres@gmail.commarycamachotorres@gmail.com
-        values:
-          - marycamachotorres@gmail.com
+        value: marycamachotorres@gmail.com
       - match: barnabeloundou@assnatcm
         value: barnabeloundou@assnat.cm
       - match: aliyoum@assnatcm
@@ -141,4 +140,4 @@ lookups:
       - match: Email:Councillor.Ellick@helanta.co.sh
         value: Councillor.Ellick@helanta.co.sh
       - match: (i)joice.george@sansad.nic.in
-        values: joice.george@sansad.nic.in
+        value: joice.george@sansad.nic.in
