@@ -64,8 +64,8 @@ Output each entity with these fields:
 - aliases: Other names or acronyms the entity is referred to in the article.
 - nationality: Nationality of the designee if stated.
 - country: Countries explicitly mentioned as residence, registration, or operation. Leave empty if not stated.
-- related_url: URLs mentioned in the article that directly reference the entity.  
-  • If multiple URLs are present, link each one only to the entity it explicitly refers to.  
+- related_url: URLs mentioned in the article specifically associated with the entity.  
+  • If multiple URLs are present, link each one only to the entity it it is associated with.  
   • If no URL is provided for an entity, leave this field empty.  
   • Do not invent, infer, or alter URLs.
 """
