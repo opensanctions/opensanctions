@@ -49,7 +49,6 @@ def crawl_vessel_row(context: Context, str_row: dict, inspection_date: str):
     vessel.add("grossRegisteredTonnage", str_row.pop("tonnage"))
     vessel.add("deadweightTonnage", str_row.pop("deadweight"))
     vessel.add("flag", str_row.pop("flag"))
-    vessel.add("topics", "mare.detained")
     h.apply_date(vessel, "buildDate", str_row.pop("year_of_build"))
     context.emit(vessel)
 
