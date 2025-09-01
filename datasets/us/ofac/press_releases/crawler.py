@@ -2,6 +2,7 @@ from lxml.html import HtmlElement, fromstring, tostring
 from pydantic import BaseModel, Field
 from rigour.mime.types import HTML
 from typing import List, Literal
+from normality import slugify
 
 from zavod import Context
 from zavod import helpers as h
@@ -65,7 +66,7 @@ Output each entity with these fields:
 - nationality: Nationality of the designee if stated.
 - country: Countries explicitly mentioned as residence, registration, or operation. Leave empty if not stated.
 - related_url: URLs mentioned in the article specifically associated with the entity.  
-  • If multiple URLs are present, link each one only to the entity it it is associated with.  
+  • If multiple URLs are present, link each one only to the entity it is associated with.  
   • If no URL is provided for an entity, leave this field empty.  
   • Do not invent, infer, or alter URLs.
 """
@@ -101,13 +102,13 @@ def split_article_by_headers(article_el):
     return sections
 
 
-def get_or_request_review(context, html_part, section_url, url):
-    review = get_review(context, Designees, section_url, MIN_MODEL_VERSION)
+def get_or_request_review(context, html_part, section_key, url):
+    review = get_review(context, Designees, section_key, MIN_MODEL_VERSION)
     if review is None:
         prompt_result = run_typed_text_prompt(context, PROMPT, html_part, Designees)
         review = request_review(
             context,
-            section_url,
+            section_key,
             html_part,
             HTML,
             "Press Release",
@@ -169,7 +170,7 @@ def crawl_item(context, item, date, url, article_name):
 
 
 def crawl_press_release(context: Context, url: str) -> None:
-    article = context.fetch_html(url, cache_days=1)
+    article = context.fetch_html(url, cache_days=7)
     article.make_links_absolute(context.data_url)
     if article is None:
         return
@@ -191,7 +192,7 @@ def crawl_press_release(context: Context, url: str) -> None:
 
     for i, section_html in enumerate(sections, 1):
         section_key = slugify(url, "section", i)  # distinguish reviews per section
-        review = get_or_request_review(context, section_key, section_url, url)
+        review = get_or_request_review(context, section_html, section_key, url)
 
         if check_something_changed(context, review, section_html, article_element):
             # In the first iteration, we're being super conservative and rejecting
@@ -221,7 +222,8 @@ def crawl(context: Context):
         doc = context.fetch_html(base_url, cache_days=1)
         doc.make_links_absolute(context.data_url)
         table = doc.xpath("//table[contains(@class, 'views-table')]")
-        if not table:
+        next_page = doc.xpath("//a[contains(@class, 'usa-pagination__next-page')]")
+        if not table or not next_page:
             break
         assert len(table) == 1, "Expected exactly one table in the document"
         for row in h.parse_html_table(table[0]):
@@ -232,7 +234,7 @@ def crawl(context: Context):
                 continue  # skip this row
             crawl_press_release(context, url)
         page += 1
-
+    assert page < 200
     assert_all_accepted(context)
     global something_changed
     assert (

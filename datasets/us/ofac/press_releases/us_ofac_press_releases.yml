@@ -4,7 +4,7 @@ prefix: ofac-pr
 load_statements: true
 ci_test: false # GPT key not available in CI
 coverage:
-  frequency: weekly
+  frequency: daily
   start: "2025-08-21"
 summary: >
   US OFAC press releases that provide context and details related to sanctioned entities.
