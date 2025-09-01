@@ -1,6 +1,9 @@
+from pathlib import Path
 from typing import Dict, Generator, Optional, Set, cast
 from normality import slugify, squash_spaces
-from lxml.html import HtmlElement
+from lxml.html import HtmlElement, tostring
+from zavod.context import Context
+from zavod.helpers.text import strip_trailing_whitespace
 
 from zavod.logs import get_logger
 from zavod.util import Element
@@ -108,3 +111,32 @@ def links_to_dict(el: Element) -> Dict[str | None, str | None]:
     return {
         slugify(element_text(a), sep="_"): a.get("href") for a in el.findall(".//a")
     }
+
+
+def save_html_text_locally(context: Context, name: str, element: HtmlElement) -> Path:
+    """
+    Save the text content of an HTML element to the dataset directory.
+
+    This is useful for manually updated datasets if you commit the HTML text to git
+    as you might more easily see what changed in the git diff next time it's run locally.
+
+    Args:
+        name: The name of the file to write to excluding .txt
+        element: The HTML element to save the text content of.
+
+    Returns:
+        The path to the saved text file.
+    """
+    text = tostring(
+        element,
+        pretty_print=True,
+        method="text",
+        encoding="utf-8",
+    ).decode("utf-8")
+    text = strip_trailing_whitespace(text)
+    # Beware this is writing to the crawler, not the data directory.
+    assert context.dataset.base_path is not None
+    text_path = context.dataset.base_path / f"{name}.txt"
+    with open(text_path, "w") as fh:
+        fh.write(text)
+    return text_path
