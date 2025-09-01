@@ -72,11 +72,13 @@ def crawl_entity(context: Context, data: Dict[str, Any]):
     h.apply_date(sanction, "endDate", exp_date)
 
     if schema == "Person":
-        h.apply_name(
-            entity,
-            first_name=details.pop("prenom"),
-            last_name=data.pop("nom"),
-        )
+        name = data.pop("nom")
+        first_name = details.pop("prenom")
+        # Entities that don't have a first name usually have their full name in the "Nom" field.
+        if not first_name:
+            h.apply_name(entity, full=name)
+        else:
+            h.apply_name(entity, first_name=first_name, last_name=name)
         entity.add("gender", details.pop("sexe"))
         for dob in h.multi_split(details.pop("dateNaissance"), [";"]):
             h.apply_date(entity, "birthDate", dob.strip())
