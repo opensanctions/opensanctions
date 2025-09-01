@@ -2,7 +2,6 @@ from lxml.html import HtmlElement, fromstring, tostring
 from pydantic import BaseModel, Field
 from rigour.mime.types import HTML
 from typing import List, Literal
-from normality import slugify
 
 from zavod import Context
 from zavod import helpers as h
@@ -63,7 +62,7 @@ Output each entity with these fields:
 - name: Exact name as written in the article. If followed by an acronym in parentheses, store that acronym as an alias, not in the name.
 - entity_schema: {schema_field.description}
 - aliases: Other names or acronyms the entity is referred to in the article.
-- nationality: Nationality of the designee if stated.
+- nationality: Nationality of the designee is an individual and it is stated.
 - country: Countries explicitly mentioned as residence, registration, or operation. Leave empty if not stated.
 - related_url: URLs mentioned in the article specifically associated with the entity.  
   • If multiple URLs are present, link each one only to the entity it is associated with.  
@@ -138,7 +137,7 @@ def check_something_changed(
 
 def crawl_item(context, item, date, url, article_name):
     entity = context.make(item.entity_schema)
-    entity.id = context.make_id(item.name, item.address, item.country)
+    entity.id = context.make_id(item.name, item.country)
     entity.add("name", item.name, origin=DEFAULT_MODEL)
     entity.add("nationality", item.nationality, origin=DEFAULT_MODEL)
     entity.add("country", item.country, origin=DEFAULT_MODEL)
