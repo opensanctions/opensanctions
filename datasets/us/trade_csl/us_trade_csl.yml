@@ -95,16 +95,15 @@ lookups:
         topic: export.control
       # The following programs refer to entities that are emitted with the ID format
       # `ofac-<entity_number>`. This allows them to match directly with existing OFAC data.
-      # The topic for them is set in OFAC crawler.
       - match:
-          - "Capta List (CAP) - Treasury Department"
-          - "Palestinian Legislative Council List (PLC) - Treasury Department"
-          - "Foreign Sanctions Evaders (FSE) - Treasury Department"
-          - "Non-SDN Chinese Military-Industrial Complex Companies List (CMIC) - Treasury Department"
-          - "Non-SDN Menu-Based Sanctions List (NS-MBS List) - Treasury Department"
-          - "Specially Designated Nationals (SDN) - Treasury Department"
-          - "Sectoral Sanctions Identifications List (SSI) - Treasury Department"
-        topic: null
+          - Capta List (CAP) - Treasury Department
+          - Palestinian Legislative Council List (PLC) - Treasury Department
+          - Foreign Sanctions Evaders (FSE) - Treasury Department
+          - Non-SDN Chinese Military-Industrial Complex Companies List (CMIC) - Treasury Department
+          - Non-SDN Menu-Based Sanctions List (NS-MBS List) - Treasury Department
+          - Specially Designated Nationals (SDN) - Treasury Department
+          - Sectoral Sanctions Identifications List (SSI) - Treasury Department
+        topic: sanction
   type:
     options:
       - match:
