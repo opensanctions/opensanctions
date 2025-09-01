@@ -1,6 +1,6 @@
-import openpyxl
+import xlrd
 from followthemoney.types import registry
-from rigour.mime.types import XLSX
+from rigour.mime.types import XLS
 
 from zavod import Context
 from zavod import helpers as h
@@ -62,9 +62,9 @@ def crawl(context: Context):
     doc = context.fetch_html(context.data_url, cache_days=1)
     url = doc.xpath(".//a[contains(normalize-space(.), 'Export as CSV')]/@href")
     assert len(url) == 1, "Expected exactly one URL"
-    path = context.fetch_resource("source.xlsx", url[0])
-    context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
-    workbook: openpyxl.Workbook = openpyxl.load_workbook(path, read_only=True)
-    assert workbook.sheetnames == ["dpl", "Sheet2", "Sheet3"]
-    for row in h.parse_xlsx_sheet(context, sheet=workbook["dpl"]):
+    path = context.fetch_resource("source.xls", url[0])
+    context.export_resource(path, XLS, title=context.SOURCE_TITLE)
+    wb = xlrd.open_workbook(path)
+    assert wb.sheet_names() == ["dpl", "Sheet2", "Sheet3"]
+    for row in h.parse_xls_sheet(context, wb["dpl"]):
         parse_row(context, row)
