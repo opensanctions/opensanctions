@@ -38,7 +38,7 @@ dates:
 assertions:
   min:
     schema_entities:
-      LegalEntity: 250
+      LegalEntity: 240
   max:
     schema_entities:
       LegalEntity: 450
@@ -225,6 +225,46 @@ lookups:
         rows:
           - name_provider: 'Reflections Healthcare'
             npi: '1760196711'
+            action_type_suspend_terminate: 'Suspend'
+            effective_date: '10/13/2023'
+          - name_provider: 'Stepping Stone Treatment Center'
+            npi: '1588338685'
+            action_type_suspend_terminate: 'Suspend'
+            effective_date: '10/13/2023'
+          - name_provider: 'We Kare Behavioral Health'
+            npi: '1508454471'
+            action_type_suspend_terminate: 'Suspend'
+            effective_date: '10/6/2023'
+          - name_provider: 'Generational Wellness'
+            npi: '1952937286'
+            action_type_suspend_terminate: 'Suspend'
+            effective_date: '9/29/2023'
+      - match: |
+          name-provider-legacy-healing-health-community-llc-npi-1083356877-action-type-suspend-terminate-suspend-effective-date-11-9-2023
+          name-provider-helping-handz-counseling-services-outpatent-ntreatment-center-corp-npi-1811597552-action-type-suspend-terminate-suspend-effective-date-11-9-2023
+          name-provider-none-npi-1518567254-action-type-suspend-terminate-none-effective-date-11-9-2023
+          name-provider-none-npi-1891395604-action-type-suspend-terminate-none-effective-date-11-9-2023
+          name-provider-true-answer-community-wellness-npi-1790411825-action-type-suspend-terminate-suspend-effective-date-11-3-2023
+        rows:
+          - name_provider: 'Legacy Healing Health Community LLC'
+            npi: '1083356877'
+            action_type_suspend_terminate: 'Suspend'
+            effective_date: '11/9/2023'
+          - name_provider: 'Helping Handz Counseling Services Outpatent Treatment Center, Corp'
+            npi: ['1811597552', '1518567254', '1891395604']
+            action_type_suspend_terminate: 'Suspend'
+            effective_date: '11/9/2023'
+          - name_provider: 'True Answer Community Wellness'
+            npi: '1790411825'
+            action_type_suspend_terminate: 'Suspend'
+            effective_date: '11/3/2023'
+      - match: |
+          name-provider-legacy-healthcare-llc-npi-1295329001-action-type-suspend-terminate-suspend-effective-date-10-13-2023
+          name-provider-stepping-stone-treatment-center-nwe-kare-behavioral-health-npi-1588338685-n1508454471-action-type-suspend-terminate-suspend-nsuspend-effective-date-10-13-2023-n10-6-2023
+          name-provider-generational-wellness-npi-1952937286-action-type-suspend-terminate-suspend-effective-date-9-29-2023
+        rows:
+          - name_provider: 'Legacy Healthcare, LLC'
+            npi: '1295329001'
             action_type_suspend_terminate: 'Suspend'
             effective_date: '10/13/2023'
           - name_provider: 'Stepping Stone Treatment Center'
