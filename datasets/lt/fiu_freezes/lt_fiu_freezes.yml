@@ -43,6 +43,12 @@ assertions:
       LegalEntity: 100
 
 lookups:
+  sanction.program:
+    options:
+      - match: Lithuania FNTT – List of legal persons or other unincorporated organisations owned or controlled by a sanctioned entity
+        value: LT-SL
+      - match: Lithuania FNTT – National UNSCR 1373 Terrorist Assets Freeze List
+        value: LT-AF
   company_name:
     normalize: true
     options:

@@ -6,10 +6,17 @@ from zavod import helpers as h
 from zavod.shed.zyte_api import fetch_html
 
 
+SANCTION_PROGRAM = "Lithuania FNTT – List of legal persons or other unincorporated organisations owned or controlled by a sanctioned entity"
+ASSET_FREEZE_PROGRAM = (
+    "Lithuania FNTT – National UNSCR 1373 Terrorist Assets Freeze List"
+)
+
+
 def crawl_page(
     context: Context,
     link: str,
     unblock_validator: str,
+    program_key: str,
     required: bool = True,
 ):
     doc = fetch_html(context, link, unblock_validator, cache_days=3)
@@ -59,7 +66,13 @@ def crawl_page(
             company.add(prop, value)
         context.emit(company)
 
-        sanction = h.make_sanction(context, company)
+        sanction = h.make_sanction(
+            context,
+            company,
+            program_name=program_key,
+            source_program_key=program_key,
+            program_key=h.lookup_sanction_program_key(context, program_key),
+        )
         sanction.add("provisions", measures)
         sanction.add("program", legal_grounds)
         context.emit(sanction)
@@ -98,11 +111,13 @@ def crawl(context: Context):
         context,
         "https://fntt.lrv.lt/lt/tarptautines-finansines-sankcijos/sankcionuotu-asmenu-sarasas/",
         ".//*[contains(text(), 'Fizinio ar juridinio asmens, kurio turtas įšaldytas')]",
+        program_key=SANCTION_PROGRAM,
     )
     unsc_1373_doc = crawl_page(
         context,
         "https://fntt.lrv.lt/lt/tarptautines-finansines-sankcijos/JT-STR-1373-sarasas/",
         ".//*[contains(text(), 'JT ST rezoliucijoje 1373 (2001)')]",
+        program_key=ASSET_FREEZE_PROGRAM,
         required=False,
     )
     unsc_1373_main = unsc_1373_doc.xpath(".//main")
