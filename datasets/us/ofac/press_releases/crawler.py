@@ -178,7 +178,7 @@ def crawl_press_release(context: Context, url: str) -> None:
     assert len(article_content) == 1
     article_element = article_content[0]
     date = article.xpath(DATE_XPATH)[0]
-    article_html = tostring(article_element, pretty_print=True).decode("utf-8")
+    article_html = tostring(article_element, pretty_print=True, encoding="unicode")
     assert all([article_name, article_html, date]), "One or more fields are empty"
     sections = (
         split_article_by_headers(article_element)
