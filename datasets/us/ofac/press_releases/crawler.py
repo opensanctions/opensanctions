@@ -81,34 +81,19 @@ def source_changed(review: Review, article_element: HtmlElement) -> bool:
     return html_to_text_hash(seen_element) != html_to_text_hash(article_element)
 
 
-def split_article_by_headers(article_el):
-    """
-    Splits an article into sections strictly at <h3> or <h4> headers.
-    The content between headers is never cut.
-    """
-    sections = []
-    buffer = []
-    for elem in article_el.iter():
-        # If we encounter a header and buffer is not empty, flush it
-        if elem.tag.lower() in ("h3", "h4") and buffer:
-            sections.append("".join(buffer))
-            buffer = []
-        # Append current element to buffer
-        elem_html = tostring(elem, encoding="unicode", with_tail=True)
-        buffer.append(elem_html)
-    # Flush any remaining content in the buffer
-    if buffer:
-        sections.append("".join(buffer))
-    return sections
-
-
-def get_or_request_review(context, html_part, section_key, url):
-    review = get_review(context, Designees, section_key, MIN_MODEL_VERSION)
+def get_or_request_review(context, html_part, article_key, url):
+    review = get_review(context, Designees, article_key, MIN_MODEL_VERSION)
     if review is None:
-        prompt_result = run_typed_text_prompt(context, PROMPT, html_part, Designees)
+        prompt_result = run_typed_text_prompt(
+            context,
+            PROMPT,
+            html_part,
+            Designees,
+            16384,  # This model supports at most 16384 completion tokens
+        )
         review = request_review(
             context,
-            section_key,
+            article_key,
             html_part,
             HTML,
             "Press Release",
@@ -181,38 +166,27 @@ def crawl_press_release(context: Context, url: str) -> None:
     date = article.xpath(DATE_XPATH)[0]
     article_html = tostring(article_element, pretty_print=True, encoding="unicode")
     assert all([article_name, article_html, date]), "One or more fields are empty"
-    sections = (
-        split_article_by_headers(article_element)
-        if len(article_html) > MAX_CHARS
-        else [article_html]
-    )
-    context.log.info(
-        f"Article length {len(article_html)} chars — {'splitting into sections' if len(sections) > 1 else 'no split needed'}."
-    )
 
-    for i, section_html in enumerate(sections, 1):
-        section_key = slugify(url, "section", i)  # distinguish reviews per section
-        review = get_or_request_review(context, section_html, section_key, url)
+    review = get_or_request_review(context, article_html, article_key=url, url=url)
+    if check_something_changed(context, review, article_html, article_element):
+        # In the first iteration, we're being super conservative and rejecting
+        # export if the source content has changed regardless of whether the
+        # extraction result has changed. If we see this happening and we see that
+        # the extraction result reliably identifies real data changes, we can
+        # relax this to only reject if the extraction result has changed.
 
-        if check_something_changed(context, review, section_html, article_element):
-            # In the first iteration, we're being super conservative and rejecting
-            # export if the source content has changed regardless of whether the
-            # extraction result has changed. If we see this happening and we see that
-            # the extraction result reliably identifies real data changes, we can
-            # relax this to only reject if the extraction result has changed.
+        # Similarly if we see that broad markup changes don't trigger massive
+        # re-reviews but legitimate changes are reliably detected, we can allow
+        # it to automatically request re-reviews upon extraction changes.
+        global something_changed
+        something_changed = True
+        return
 
-            # Similarly if we see that broad markup changes don't trigger massive
-            # re-reviews but legitimate changes are reliably detected, we can allow
-            # it to automatically request re-reviews upon extraction changes.
-            global something_changed
-            something_changed = True
-            return
+    if not review.accepted:
+        return
 
-        if not review.accepted:
-            return
-
-        for item in review.extracted_data.designees:
-            crawl_item(context, item, date, url, article_name)
+    for item in review.extracted_data.designees:
+        crawl_item(context, item, date, url, article_name)
 
 
 def crawl(context: Context):
