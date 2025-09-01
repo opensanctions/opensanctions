@@ -1,3 +1,4 @@
+from difflib import Differ
 from lxml.html import HtmlElement, fromstring
 
 from zavod.context import Context
@@ -39,6 +40,16 @@ class HtmlChangeTracker(ChangeTracker):
         """
         Check for changes to HTML source, and if so, to LLM-extracted data.
 
+        This is useful for understanding the scope of changes to the source data
+        and whether/how a crawler should be adapted to re-request reviews for corrections
+        to specific source documents, or adapted to handle broad changes, e.g. a website
+        layout change.
+
+        The diff in the issue can be read more comfortably with e.g.
+        ```
+        cat issues.json | jq '.issues[] | .data.url + "\n" + .data.diff' --raw-output
+        ```
+
         Args:
             review: The review object containing the original source and extracted data.
             element: The HtmlElement to use for hash comparison.
@@ -53,7 +64,6 @@ class HtmlChangeTracker(ChangeTracker):
 
         if seen_content_hash != crawl_content_hash:
             self.increment_changes()
-
             prompt_result = run_typed_text_prompt(
                 self.context, prompt, html, review.data_model
             )
@@ -64,6 +74,7 @@ class HtmlChangeTracker(ChangeTracker):
                     url=review.source_url,
                     seen_source_value=review.source_value,
                     new_source_value=html,
+                    diff=self.diff_text_content(seen_element, element),
                 )
             else:
                 self.context.log.warning(
@@ -71,4 +82,13 @@ class HtmlChangeTracker(ChangeTracker):
                     url=review.source_url,
                     orig_extracted_data=review.orig_extraction_data.model_dump(),
                     prompt_result=prompt_result.model_dump(),
+                    diff=self.diff_text_content(seen_element, element),
                 )
+
+    @staticmethod
+    def diff_text_content(seen_element: HtmlElement, new_element: HtmlElement) -> str:
+        seen_text_lines = seen_element.text_content().splitlines(keepends=True)
+        new_text_lines = new_element.text_content().splitlines(keepends=True)
+        differ = Differ()
+        diff = list(differ.compare(seen_text_lines, new_text_lines))
+        return "\n".join(diff)
