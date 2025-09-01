@@ -14,6 +14,7 @@ from zavod.db import meta, get_engine
 
 KEY_LEN = 255
 VALUE_LEN = 65535
+LARGE_VALUE_LEN = 1024 * 1024
 
 position_table = Table(
     "position",
@@ -52,7 +53,7 @@ review_table = Table(
     Column("key", Unicode(KEY_LEN), nullable=False, index=True),
     Column("dataset", Unicode(KEY_LEN), nullable=False, index=True),
     Column("extraction_schema", JSON, nullable=False),
-    Column("source_value", Unicode(VALUE_LEN), nullable=True),
+    Column("source_value", Unicode(LARGE_VALUE_LEN), nullable=True),
     Column("source_mime_type", Unicode(VALUE_LEN), nullable=True),
     Column("source_label", Unicode(VALUE_LEN), nullable=True),
     Column("source_url", Unicode(VALUE_LEN), nullable=True),
