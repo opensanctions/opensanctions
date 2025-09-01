@@ -77,16 +77,33 @@ lookups:
     options:
       - match: Nonproliferation Sanctions (ISN) - State Department
         value: US-DOS-ISN
+        topic: sanction
       - match: ITAR Debarred (DTC) - State Department
         value: US-AECA-DEBARRED
+        topic: debarment
       - match: Unverified List (UVL) - Bureau of Industry and Security
         value: US-BIS-UVL
+        topic: export.control
       - match: Entity List (EL) - Bureau of Industry and Security
         value: US-BIS-EL
+        topic: export.control
       - match: Denied Persons List (DPL) - Bureau of Industry and Security
         value: US-BIS-DPL
+        topic: export.control
       - match: Military End User (MEU) List - Bureau of Industry and Security
         value: US-BIS-MEU
+        topic: export.control
+      # The following programs refer to entities that are emitted with the ID format
+      # `ofac-<entity_number>`. This allows them to match directly with existing OFAC data.
+      - match:
+          - Capta List (CAP) - Treasury Department
+          - Palestinian Legislative Council List (PLC) - Treasury Department
+          - Foreign Sanctions Evaders (FSE) - Treasury Department
+          - Non-SDN Chinese Military-Industrial Complex Companies List (CMIC) - Treasury Department
+          - Non-SDN Menu-Based Sanctions List (NS-MBS List) - Treasury Department
+          - Specially Designated Nationals (SDN) - Treasury Department
+          - Sectoral Sanctions Identifications List (SSI) - Treasury Department
+        topic: sanction
   type:
     options:
       - match:
