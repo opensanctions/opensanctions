@@ -180,7 +180,7 @@ def crawl_enforcement_action(context: Context, url: str) -> None:
     assert len(article_content) == 1
     article_element = article_content[0]
     date = article.xpath(DATE_XPATH)[0]
-    article_html = tostring(article_element, pretty_print=True).decode("utf-8")
+    article_html = tostring(article_element, pretty_print=True, encoding="unicode")
     assert all([article_name, article_html, date]), "One or more fields are empty"
 
     review = get_review(context, Defendants, url, MIN_MODEL_VERSION)
