@@ -212,7 +212,7 @@ def crawl_enforcement_action(context: Context, date: str, url: str) -> None:
     article_element = fetch_article(context, url)
     if article_element is None:
         return
-    article_html = tostring(article_element, pretty_print=True).decode("utf-8")
+    article_html = tostring(article_element, pretty_print=True, encoding="unicode")
     release_id = get_release_id(url)
     review = get_review(context, Defendants, release_id, MIN_MODEL_VERSION)
     if review is None:

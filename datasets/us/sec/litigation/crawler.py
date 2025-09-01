@@ -191,7 +191,7 @@ def crawl_release(
     article_element = doc.xpath(article_xpath)[0]
     case_numbers = get_case_numbers(article_element)
     strip_non_body_content(article_element)
-    article_html = tostring(article_element, pretty_print=True).decode("utf-8")
+    article_html = tostring(article_element, pretty_print=True, encoding="unicode")
     release_id = get_release_id(url)
     review = get_review(context, Defendants, release_id, MIN_MODEL_VERSION)
     if review is None:
