@@ -190,8 +190,8 @@ def crawl_press_release(context: Context, url: str) -> None:
     )
 
     for i, section_html in enumerate(sections, 1):
-        section_url = f"{url}#section-{i}"  # distinguish reviews per section
-        review = get_or_request_review(context, section_html, section_url, url)
+        section_key = slugify(url, "section", i)  # distinguish reviews per section
+        review = get_or_request_review(context, section_key, section_url, url)
 
         if check_something_changed(context, review, section_html, article_element):
             # In the first iteration, we're being super conservative and rejecting
