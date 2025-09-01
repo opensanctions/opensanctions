@@ -14,32 +14,61 @@ ci_test: false
 exports:
   - statistics.json
 summary: >
-  The company registries and beneficial ownership databases published by
-  OpenSanctions.
+  Reference data, company registries and beneficial ownership databases used as inputs for
+  data enrichment.
 description: |
-  This dataset contains companies and persons not linked to any risk indication. It can
-  be used to perform screening and know-your-business checks in the listed jurisdictions.
+  This collection contains various large reference datasets, including company registries, beneficial ownership databases,
+  and industry or domain specific databases. These data sources are used as a basis for
+  [data enrichment](https://www.opensanctions.org/docs/enrichment/), a process designed to pick out risk-linked entities
+  and their linked network from reference data sources to bring more detail to the main database.
+
+  The data exports listed here contain the complete datasets, but only [a small fraction of each](https://www.opensanctions.org/datasets/enrichers/#sources)
+  (the part that is identifiably linked to a sanctioned or otherwise notable entity) is eventually included in
+  the [main OpenSanctions product](https://www.opensanctions.org/datasets/default/).
+
+  Some of the included data categories include:
+
+  - Company registries from various jurisdictions.
+  - Beneficial ownership databases for a small set of countries where those are open data.
+  - Reference data on LEIs (Legal Entity Identifiers), research organisations.
+  - Port state control data from various international reporting mechanisms.
+  - Banking reference data from the IRS, FinCEN and ISO 9362 (BIC).
+  - ICIJ's Offshore Leaks databases.
+
+  While the use of these data sources is covered by the [data license](https://www.opensanctions.org/licensing/), 
+  a much reduced degree of manual data cleaning is performed on reference datasets. The **datasets are not deduplicated**.
+  This means that if a source registry publishes multiple records that describe a single person or company, they will
+  be reproduced in this data as-is.
+
+  Most reference datasets are **updated once a week**. This doesn't apply to data sources which - by their nature - do not
+  change on a regular basis (e.g. the ICIJ OffshoreLeaks database).
+
+  This collection is also the basis for [OpenScreening](https://resources.linkurious.com/openscreening), a proof of 
+  concept graph service released by Linkurious, Open Ownership and OpenSanctions in 2022.
 datasets:
+  - abuja_mou_psc
   - cy_companies
   - cz_business_register
   - de_offeneregister
-  # - dk_cvr
   - ee_ariregister
   - eu_esma_firds
   - gb_coh_psc
   - gleif
   - icij_offshoreleaks
+  - iso9362_bic
   - kz_companies
   - lv_business_register
   - md_companies
-  - tj_companies
-  # - xk_companies
-  # - ba_companies
+  - ror
   - ru_egrul
   - sk_rpvs
+  - tj_companies
+  - tokyo_mou_psc
   - ua_edr
   - us_corpwatch
-  - us_irs_ffi
-  - us_fincen_msb
   - us_fara_filings
-  - ror
+  - us_fincen_msb
+  - us_irs_ffi
+  # - ba_companies
+  # - dk_cvr
+  # - xk_companies
