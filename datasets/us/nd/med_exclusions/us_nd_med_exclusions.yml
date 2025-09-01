@@ -42,6 +42,8 @@ lookups:
     options:
       - match: Termnation 9/19/2024
         value: 2024-09-19
+      - match: Exclusion 8/20/2025
+        value: 2025-08-20
   type.identifier:
     options:
       - match: R38304 and L9540
