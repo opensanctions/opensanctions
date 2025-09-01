@@ -66,6 +66,10 @@ class HashDelta(object):
     def _collect(
         self,
     ) -> Generator[Tuple[str, Optional[str], Optional[str]], None, None]:
+        # Use entity_id:version key ordering to set prev_hash if available and
+        # compare with curr_hash in the final iteration for that entity_id.
+        # More efficient than random access.
+
         with self.db.iterator(include_key=True, fill_cache=False) as it:
             entity_id: Optional[str] = None
             prev_hash: Optional[str] = None

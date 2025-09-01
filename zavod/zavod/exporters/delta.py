@@ -2,6 +2,7 @@ from typing import Any, Generator
 from zavod.entity import Entity
 from zavod.archive import DELTA_EXPORT_FILE
 from zavod.exporters.common import Exporter, ExportView
+from zavod.exporters.consolidate import consolidate_entity
 from zavod.runtime.delta import HashDelta
 from zavod.util import write_json
 
@@ -32,6 +33,7 @@ class DeltaExporter(Exporter):
             entity = view.get_entity(entity_id)
             if entity is None:  # watman
                 continue
+            entity = consolidate_entity(view.store.linker, entity)
             yield {"op": op, "entity": entity.to_dict()}
 
     def finish(self, view: ExportView) -> None:
