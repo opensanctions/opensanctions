@@ -174,8 +174,9 @@ def parse_list_entry(context: Context, list_entry: Dict[str, Any]):
     if source_program:
         entity.add("topics", lookup_topic(context, source_program))
     else:
-        # Fallback for entities that don't have a program explicitly stated
-        entity.add("topics", "sanction")
+        context.log.warning(
+            "No source program, set the topic fallback", entry_id=entity.id
+        )
     entity_number = list_entry.pop("entity_number", None)
     is_ofac = False
     if entity_number is not None:
