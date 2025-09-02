@@ -20,13 +20,13 @@ description: |
   This collection contains various large reference datasets, including company registries, beneficial ownership databases,
   and industry or domain specific databases. These data sources are used as a basis for
   [data enrichment](https://www.opensanctions.org/docs/enrichment/), a process designed to pick out risk-linked entities
-  and their linked network from reference data sources to bring more detail to the main database.
+  and their adjacent network from reference data sources to bring more detail to the main database.
 
-  The data exports listed here contain the complete datasets, but only [a small fraction of each](https://www.opensanctions.org/datasets/enrichers/#sources)
+  The data exports listed here contain the complete datasets, but only [a small fraction of each data source](https://www.opensanctions.org/datasets/enrichers/#sources)
   (the part that is identifiably linked to a sanctioned or otherwise notable entity) is eventually included in
   the [main OpenSanctions product](https://www.opensanctions.org/datasets/default/).
 
-  Some of the included data categories include:
+  Some of the included data categories are:
 
   - Company registries from various jurisdictions.
   - Beneficial ownership databases for a small set of countries where those are open data.
@@ -36,9 +36,9 @@ description: |
   - ICIJ's Offshore Leaks databases.
 
   While the use of these data sources is covered by the [data license](https://www.opensanctions.org/licensing/), 
-  a much reduced degree of manual data cleaning is performed on reference datasets. The **datasets are not deduplicated**.
-  This means that if a source registry publishes multiple records that describe a single person or company, they will
-  be reproduced in this data as-is.
+  the degree of manual data cleaning performed on reference datasets is not as exhaustive as on the main dataset.
+  The **datasets are not deduplicated**. This means that if a source registry publishes multiple records that
+  describe a single person or company, they will be reproduced in this data as-is.
 
   Most reference datasets are **updated once a week**. This doesn't apply to data sources which - by their nature - do not
   change on a regular basis (e.g. the ICIJ OffshoreLeaks database).
