@@ -57,7 +57,9 @@ If the name is a person name, use `Person` as the entity_schema.
 Output each entity with these fields:
 - name: Exact name as written in the article. If followed by an acronym in parentheses, store that acronym as an alias, not in the name.
 - entity_schema: {schema_field.description}
-- aliases: Other names or acronyms the entity is referred to in the article.
+- aliases: Include only true alternative names or acronyms the entity is explicitly known by in the article. 
+  • An alias must be another legitimate name, "also known as", or widely recognized abbreviation of the entity. 
+  • Example: "Eric Blair, alias George Orwell" is valid.
 - nationality: Nationality of the designee if they are an individual and it is stated.
 - imo: IMO number of the vessel if mentioned.
 - country: Countries explicitly mentioned as residence, registration, or operation. Leave empty if not stated.
