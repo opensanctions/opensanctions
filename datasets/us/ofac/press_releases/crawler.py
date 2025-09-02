@@ -22,6 +22,7 @@ DATE_XPATH = "//article[@class='entity--type-node']//time[@class='datetime']/@da
 
 MODEL_VERSION = 1
 MIN_MODEL_VERSION = 1
+MAX_TOKENS = 16384  # gpt-4o supports at most 16384 completion tokens
 
 something_changed = False
 
@@ -78,11 +79,7 @@ def get_or_request_review(context, html_part, article_key, url):
     review = get_review(context, Designees, article_key, MIN_MODEL_VERSION)
     if review is None:
         prompt_result = run_typed_text_prompt(
-            context,
-            PROMPT,
-            html_part,
-            Designees,
-            16384,  # This model supports at most 16384 completion tokens
+            context, PROMPT, html_part, Designees, MAX_TOKENS
         )
         review = request_review(
             context,
@@ -108,7 +105,9 @@ def check_something_changed(
     In that case it also reprompts to log whether the extracted data has changed.
     """
     if source_changed(review, article_element):
-        prompt_result = run_typed_text_prompt(context, PROMPT, article_html, Designees)
+        prompt_result = run_typed_text_prompt(
+            context, PROMPT, article_html, Designees, MAX_TOKENS
+        )
         if model_hash(prompt_result) == model_hash(review.orig_extraction_data):
             context.log.warning(
                 "The source content has changed but the extracted data has not",
@@ -133,7 +132,9 @@ def crawl_item(context, item, date, url, article_name):
     entity = context.make(item.entity_schema)
     entity.id = context.make_id(item.name, item.country)
     entity.add("name", item.name, origin=DEFAULT_MODEL)
-    entity.add("nationality", item.nationality, origin=DEFAULT_MODEL)
+    if item.nationality:
+        # Add nationality only for 'Person' schema
+        entity.add("nationality", item.nationality, origin=DEFAULT_MODEL)
     entity.add("country", item.country, origin=DEFAULT_MODEL)
     entity.add("alias", item.aliases, origin=DEFAULT_MODEL)
     entity.add("sourceUrl", item.related_url, origin=DEFAULT_MODEL)
@@ -204,7 +205,7 @@ def crawl(context: Context):
                 continue  # skip this row
             crawl_press_release(context, url)
         page += 1
-    assert page < 200
+        assert page < 200
     assert_all_accepted(context)
     global something_changed
     assert (
