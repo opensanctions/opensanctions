@@ -15,14 +15,8 @@ from zavod.stateful.review import (
     html_to_text_hash,
 )
 
-# Rough conversion: 1 GPT token ≈ 4 chars English text
-TOKEN_CHAR_RATIO = 4
-MAX_TOKENS = 3000
-MAX_CHARS = MAX_TOKENS * TOKEN_CHAR_RATIO
-
-
 Schema = Literal["Person", "Company", "LegalEntity", "Vessel"]
-NAME_XPATH = "//h2[@class='uswds-page-title']/text()"
+NAME_XPATH = "//h2[@class='uswds-page-title']"
 CONTENT_XPATH = "//article[@class='entity--type-node']"
 DATE_XPATH = "//article[@class='entity--type-node']//time[@class='datetime']/@datetime"
 
@@ -62,7 +56,7 @@ Output each entity with these fields:
 - name: Exact name as written in the article. If followed by an acronym in parentheses, store that acronym as an alias, not in the name.
 - entity_schema: {schema_field.description}
 - aliases: Other names or acronyms the entity is referred to in the article.
-- nationality: Nationality of the designee is an individual and it is stated.
+- nationality: Nationality of the designee if they are an individual and it is stated.
 - country: Countries explicitly mentioned as residence, registration, or operation. Leave empty if not stated.
 - related_url: URLs mentioned in the article specifically associated with the entity.  
   • If multiple URLs are present, link each one only to the entity it is associated with.  
@@ -156,10 +150,13 @@ def crawl_item(context, item, date, url, article_name):
 def crawl_press_release(context: Context, url: str) -> None:
     article = context.fetch_html(url, cache_days=7)
     article.make_links_absolute(context.data_url)
-    if article is None:
-        return
-    article_name = article.xpath(NAME_XPATH)[0]
+    names = article.xpath(NAME_XPATH)
+    assert len(names) == 1, f"Expected 1 title, got {len(names)}"
+    article_name = names[0].text_content().strip()
     article_content = article.xpath(CONTENT_XPATH)
+    for img in article.xpath(".//img"):
+        if img.get("src").startswith("data:image"):
+            img.getparent().remove(img)
     assert len(article_content) == 1
     article_element = article_content[0]
     date = article.xpath(DATE_XPATH)[0]
