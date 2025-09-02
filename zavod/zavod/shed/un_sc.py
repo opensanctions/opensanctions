@@ -83,23 +83,33 @@ def make_entity(context: Context, prefix: str, schema: str, node: Element) -> En
         ]
         if name is not None and name != ""
     ]
+    apply_un_name_list(context, entity, names)
+
+    entity.add("topics", "sanction")
+    return entity
+
+
+def apply_un_name_list(context: Context, entity: Entity, names: List[str]) -> None:
+    """Apply the list of names given by the UN to an entity.
+
+    The first name in the list is the first name, the last name is the family
+    name, but unfortunately the rest is murky.  Sometimes, people have multiple
+    last names, sometimes multiple first names, often the names in the middle
+    are patronymic... So don't do anything fancy with the murky ones.
+
+    Some other datasets reproduce the UN list in full and use the same
+    semantics, so it's useful to have this as a helper.
+    """
     if len(names) == 0:
         context.log.warn("No names found for entity %s", entity.id)
     elif len(names) == 1:
         entity.add("name", names[0])
     else:
-        # The first name in the list is the first name, the last name is the family name,
-        # but unfortunately the rest is murky.
-        # Sometimes, people have multiple last names, sometimes multiple first names, often the
-        # names in the middle are patronymic... So don't do anything fancy with the murky ones.
         entity.add("firstName", names[0])
         entity.add("lastName", names[-1])
         # make_name (which is just a fancy wrapper around " ".join) to generate the full name.
         name_args = {f"name{i+1}": name for i, name in enumerate(names)}
         entity.add("name", h.make_name(**name_args))
-
-    entity.add("topics", "sanction")
-    return entity
 
 
 def load_un_sc(context: Context) -> Tuple[Dataset, ElementOrTree]:
