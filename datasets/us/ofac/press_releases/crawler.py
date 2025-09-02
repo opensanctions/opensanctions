@@ -41,6 +41,7 @@ class Designee(BaseModel):
     name: str
     aliases: List[str] = []
     nationality: List[str] = []
+    imo: List[str] = []
     country: List[str] = []
     related_url: List[str] = []
 
@@ -58,6 +59,7 @@ Output each entity with these fields:
 - entity_schema: {schema_field.description}
 - aliases: Other names or acronyms the entity is referred to in the article.
 - nationality: Nationality of the designee if they are an individual and it is stated.
+- imo: IMO number of the vessel if mentioned.
 - country: Countries explicitly mentioned as residence, registration, or operation. Leave empty if not stated.
 - related_url: URLs mentioned in the article specifically associated with the entity.  
   • If multiple URLs are present, link each one only to the entity it is associated with.  
@@ -136,6 +138,8 @@ def crawl_item(context, item, date, url, article_name):
     if item.entity_schema != "Person":
         nationality_prop = "country"
     entity.add(nationality_prop, item.nationality, origin=DEFAULT_MODEL)
+    if entity.schema == "Vessel":
+        entity.add("imoNumber", item.imo, origin=DEFAULT_MODEL)
     entity.add("country", item.country, origin=DEFAULT_MODEL)
     entity.add("alias", item.aliases, origin=DEFAULT_MODEL)
     entity.add("sourceUrl", item.related_url, origin=DEFAULT_MODEL)
