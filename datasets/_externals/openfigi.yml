@@ -49,7 +49,11 @@ http:
 
 inputs:
   - sanctions
+  - securities
   - ru_nsd_isin
+  - eu_esma_saris
+  - ext_eu_esma_firds
+  - ext_gb_fca_firds
   - ext_gleif
 
 config:
