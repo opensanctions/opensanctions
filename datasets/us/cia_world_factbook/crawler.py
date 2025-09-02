@@ -26,6 +26,7 @@ REGEX_SKIP_CATEGORY_HTML = re.compile(
     "|<em>2013:</em>"  # Georgia
     "|note:.+"  # Afghanistan
     "|note [1-6]:.+"  # Afghanistan
+    "|<strong>election results:</strong>"  # Bolivia
     ")"
 )
 REGEX_RELEVANT_CATEGORY = re.compile(r"^(chief of state|head of government): ")

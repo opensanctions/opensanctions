@@ -38,7 +38,7 @@ dates:
 assertions:
   min:
     schema_entities:
-      LegalEntity: 250
+      LegalEntity: 240
   max:
     schema_entities:
       LegalEntity: 450
@@ -64,142 +64,6 @@ lookups:
           name-provider-helping-handz-counseling-services-outpatent-ntreatment-center-corp-npi-1811597552-action-type-suspend-terminate-suspend-effective-date-11-9-2023
           name-provider-none-npi-1518567254-action-type-suspend-terminate-none-effective-date-11-9-2023
           name-provider-none-npi-1891395604-action-type-suspend-terminate-none-effective-date-11-9-2023
-          name-provider-harmony-and-wellness-npi-1235850959-action-type-suspend-terminate-suspend-effective-date-11-9-2023
-          name-provider-jackson-youth-and-family-services-npi-1467062539-action-type-suspend-terminate-suspend-effective-date-11-9-2023
-          name-provider-none-npi-1225667264-action-type-suspend-terminate-none-effective-date-11-9-2023
-          name-provider-grand-services-and-more-llc-npi-1336885912-action-type-suspend-terminate-suspend-effective-date-11-9-2023
-        rows:
-          - name_provider: 'Legacy Healing Health Community LLC'
-            npi: '1083356877'
-            action_type_suspend_terminate: 'Suspend'
-            effective_date: '11/9/2023'
-          - name_provider: 'Helping Handz Counseling Services Outpatent Treatment Center, Corp'
-            npi: ['1811597552', '1518567254', '1891395604']
-            action_type_suspend_terminate: 'Suspend'
-            effective_date: '11/9/2023'
-          - name_provider: 'Harmony and Wellness'
-            npi: '1235850959'
-            action_type_suspend_terminate: 'Suspend'
-            effective_date: '11/9/2023'
-          - name_provider: 'Jackson Youth and Family Services'
-            npi: ['1467062539', '1225667264']
-            action_type_suspend_terminate: 'Suspend'
-            effective_date: '11/9/2023'
-          - name_provider: 'Grand Services and More, LLC'
-            npi: '1336885912'
-            action_type_suspend_terminate: 'Suspend'
-            effective_date: '11/9/2023'
-      - match: |
-          name-provider-blume-support-group-llc-npi-1023723475-action-type-suspend-terminate-suspend-effective-date-11-3-2023
-          name-provider-pathfinders-recovery-center-llc-na-starr-innovations-npi-1275079279-n1619541091-action-type-suspend-terminate-suspend-effective-date-11-3-2023-n10-13-2023
-          name-provider-none-npi-none-action-type-suspend-terminate-suspend-effective-date-none
-          name-provider-beyond-blue-npi-1205415957-action-type-suspend-terminate-suspend-effective-date-10-13-2023
-        rows:
-          - name_provider: 'Blume Support Group, LLC'
-            npi: '1023723475'
-            action_type_suspend_terminate: 'Suspend'
-            effective_date: '11/3/2023'
-          - name_provider: 'Pathfinders Recovery Center, LLC'
-            npi: '1275079279'
-            action_type_suspend_terminate: 'Suspend'
-            effective_date: '11/3/2023'
-          - name_provider: 'A Starr Innovations'
-            npi: '1619541091'
-            action_type_suspend_terminate: 'Suspend'
-            effective_date: '10/13/2023'
-          - name_provider: 'Beyond Blue'
-            npi: '1205415957'
-            action_type_suspend_terminate: 'Suspend'
-            effective_date: '10/13/2023'
-      - match: |
-          name-provider-reflections-healthcare-npi-1760196711-action-type-suspend-terminate-suspend-effective-date-10-13-2023
-          name-provider-stepping-stone-treatment-center-nfor-all-care-llc-npi-1588338685-n1700593373-action-type-suspend-terminate-suspend-nsuspend-effective-date-10-13-2023-n10-6-2023
-          name-provider-we-kare-behavioral-health-npi-1508454471-action-type-suspend-terminate-suspend-effective-date-10-6-2023
-        rows:
-          - name_provider: 'Reflections Healthcare'
-            npi: '1760196711'
-            action_type_suspend_terminate: 'Suspend'
-            effective_date: '10/13/2023'
-          - name_provider: 'Stepping Stone Treatment Center'
-            npi: ['1588338685']
-            action_type_suspend_terminate: 'Suspend'
-            effective_date: '10/13/2023'
-          - name_provider: 'For All Care, LLC'
-            npi: '1700593373'
-            action_type_suspend_terminate: 'Suspend'
-            effective_date: '10/6/2023'
-          - name_provider: 'We Kare Behavioral Health'
-            npi: '1508454471'
-            action_type_suspend_terminate: 'Suspend'
-            effective_date: '10/6/2023'
-      - match: |
-          name-provider-lifting-spirits-npi-1063188225-action-type-suspend-terminate-suspend-effective-date-9-15-2023
-          name-provider-new-direction-behavioral-health-and-counseling-nservices-npi-1659961639-action-type-suspend-terminate-suspend-effective-date-9-15-2023
-          name-provider-safe-ark-wellness-npi-1013622638-action-type-suspend-terminate-suspend-effective-date-9-15-2023
-        rows:
-          - name_provider: 'Lifting Spirits'
-            npi: '1063188225'
-            action_type_suspend_terminate: 'Suspend'
-            effective_date: '9/15/2023'
-          - name_provider: 'New Direction Behavioral Health and Counseling Services'
-            npi: '1659961639'
-            action_type_suspend_terminate: 'Suspend'
-            effective_date: '9/15/2023'
-          - name_provider: 'Safe Ark Wellness'
-            npi: '1013622638'
-            action_type_suspend_terminate: 'Suspend'
-            effective_date: '9/15/2023'
-      - match: |
-          name-provider-gifted-behavioral-health-llc-npi-1659944817-action-type-suspend-terminate-suspend-effective-date-11-3-2023
-          name-provider-blume-support-group-llc-na-starr-innovations-npi-1023723475-n1619541091-action-type-suspend-terminate-suspend-effective-date-11-3-2023-n10-13-2023
-          name-provider-none-npi-none-action-type-suspend-terminate-suspend-effective-date-none
-          name-provider-dreams-2-reality-npi-1164170635-action-type-suspend-terminate-suspend-effective-date-10-13-2023
-        rows:
-          - name_provider: 'Gifted Behavioral Health, LLC'
-            npi: '1659944817'
-            action_type_suspend_terminate: 'Suspend'
-            effective_date: '11/3/2023'
-          - name_provider: 'Blume Support Group, LLC'
-            npi: '1023723475'
-            action_type_suspend_terminate: 'Suspend'
-            effective_date: '11/3/2023'
-          - name_provider: 'A Starr Innovations'
-            npi: '1619541091'
-            action_type_suspend_terminate: 'Suspend'
-            effective_date: '10/13/2023'
-          - name_provider: 'Dreams 2 Reality'
-            npi: '1164170635'
-            action_type_suspend_terminate: 'Suspend'
-            effective_date: '10/13/2023'
-      - match: |
-          name-provider-serene-health-center-llc-npi-1861128563-action-type-suspend-terminate-suspend-effective-date-11-3-2023
-          name-provider-gifted-behavioral-health-llc-na-starr-innovations-npi-1659944817-n1619541091-action-type-suspend-terminate-suspend-effective-date-11-3-2023-n10-13-2023
-          name-provider-none-npi-none-action-type-suspend-terminate-suspend-effective-date-none
-          name-provider-east-harmony-point-llc-npi-1225742505-action-type-suspend-terminate-suspend-effective-date-10-13-2023
-        rows:
-          - name_provider: 'Serene Health Center, LLC'
-            npi: '1861128563'
-            action_type_suspend_terminate: 'Suspend'
-            effective_date: '11/3/2023'
-          - name_provider: 'Gifted Behavioral Health, LLC'
-            npi: '1659944817'
-            action_type_suspend_terminate: 'Suspend'
-            effective_date: '11/3/2023'
-          - name_provider: 'A Starr Innovations'
-            npi: '1619541091'
-            action_type_suspend_terminate: 'Suspend'
-            effective_date: '10/13/2023'
-          - name_provider: 'East Harmony Point, LLC'
-            npi: '1225742505'
-            action_type_suspend_terminate: 'Suspend'
-            effective_date: '10/13/2023'
-      - match: |
-          name-provider-legacy-healing-health-community-llc-npi-1083356877-action-type-suspend-terminate-suspend-effective-date-11-9-2023
-          name-provider-helping-handz-counseling-services-outpatent-ntreatment-center-corp-npi-1811597552-action-type-suspend-terminate-suspend-effective-date-11-9-2023
-          name-provider-none-npi-1518567254-action-type-suspend-terminate-none-effective-date-11-9-2023
-          name-provider-none-npi-1891395604-action-type-suspend-terminate-none-effective-date-11-9-2023
-          name-provider-harmony-and-wellness-ngrand-services-and-more-llc-npi-1235850959-n1336885912-action-type-suspend-terminate-suspend-nsuspend-effective-date-11-9-2023
-          name-provider-none-npi-none-action-type-suspend-terminate-none-effective-date-11-9-2023
           name-provider-true-answer-community-wellness-npi-1790411825-action-type-suspend-terminate-suspend-effective-date-11-3-2023
         rows:
           - name_provider: 'Legacy Healing Health Community LLC'
@@ -210,21 +74,17 @@ lookups:
             npi: ['1811597552', '1518567254', '1891395604']
             action_type_suspend_terminate: 'Suspend'
             effective_date: '11/9/2023'
-          - name_provider: 'Harmony and Wellness Grand Services and More, LLC'
-            npi: ['1235850959', '1336885912']
-            action_type_suspend_terminate: 'Suspend'
-            effective_date: '11/9/2023'
           - name_provider: 'True Answer Community Wellness'
             npi: '1790411825'
             action_type_suspend_terminate: 'Suspend'
             effective_date: '11/3/2023'
       - match: |
-          name-provider-reflections-healthcare-npi-1760196711-action-type-suspend-terminate-suspend-effective-date-10-13-2023
+          name-provider-legacy-healthcare-llc-npi-1295329001-action-type-suspend-terminate-suspend-effective-date-10-13-2023
           name-provider-stepping-stone-treatment-center-nwe-kare-behavioral-health-npi-1588338685-n1508454471-action-type-suspend-terminate-suspend-nsuspend-effective-date-10-13-2023-n10-6-2023
           name-provider-generational-wellness-npi-1952937286-action-type-suspend-terminate-suspend-effective-date-9-29-2023
         rows:
-          - name_provider: 'Reflections Healthcare'
-            npi: '1760196711'
+          - name_provider: 'Legacy Healthcare, LLC'
+            npi: '1295329001'
             action_type_suspend_terminate: 'Suspend'
             effective_date: '10/13/2023'
           - name_provider: 'Stepping Stone Treatment Center'
