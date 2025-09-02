@@ -274,7 +274,7 @@ def parse_psc_data(context: Context) -> None:
         asset.add("jurisdiction", "gb")
 
         for nature in data.pop("natures_of_control", []):
-            nature = nature.replace("-", " ").capitalize()
+            nature = (nature or "").replace("-", " ").capitalize()
             link.add("role", nature)
 
         if data.pop("is_sanctioned", False):
