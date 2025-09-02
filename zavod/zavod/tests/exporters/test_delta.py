@@ -18,7 +18,11 @@ from zavod.store import get_store
 ENTITY_A = {"id": "EA", "schema": "Person", "properties": {"name": ["Alice"]}}
 ENTITY_B = {"id": "EB", "schema": "Person", "properties": {"name": ["Bob"]}}
 ENTITY_C = {"id": "EC", "schema": "Person", "properties": {"name": ["Carl"]}}
-ENTITY_CX = {"id": "ECX", "schema": "Person", "properties": {"name": ["Carl Sagan"]}}
+ENTITY_CX = {
+    "id": "ECX",
+    "schema": "Person",
+    "properties": {"name": ["Carl Sagan", "CHARLIE"]},
+}
 ENTITY_D = {"id": "ED", "schema": "Person", "properties": {"name": ["Dory"]}}
 
 
@@ -134,6 +138,10 @@ def test_delta_exporter(testdataset1: Dataset, resolver: Resolver):
         for data in objects:
             if data["entity"]["id"] == canon_id.id:
                 assert data["op"] == "ADD"
+                assert "Charlie" in data["entity"]["properties"]["name"]
+                assert "Carl Sagan" in data["entity"]["properties"]["name"]
+                # CHARLIE should have been consolidated into Charlie
+                assert len(data["entity"]["properties"]["name"]) == 2, data
             if data["entity"]["id"] == "EC":
                 assert data["op"] == "DEL"
             if data["entity"]["id"] == "ECX":
