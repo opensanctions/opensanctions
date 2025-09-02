@@ -31,6 +31,7 @@ children:
   - eu_journal_sanctions
   - eu_sanctions_map
   - ext_eu_esma_firds
+  - ext_gb_fca_firds
   - ext_gleif
   - gb_hmt_invbans
   - gb_hmt_sanctions
