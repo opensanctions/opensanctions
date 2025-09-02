@@ -89,7 +89,9 @@ def make_entity(context: Context, prefix: str, schema: str, node: Element) -> En
     return entity
 
 
-def apply_un_name_list(context: Context, entity: Entity, names: List[str]) -> None:
+def apply_un_name_list(
+    context: Context, entity: Entity, names: List[str], lang: Optional[str] = None
+) -> None:
     """Apply the list of names given by the UN to an entity.
 
     The first name in the list is the first name, the last name is the family
@@ -109,7 +111,7 @@ def apply_un_name_list(context: Context, entity: Entity, names: List[str]) -> No
         entity.add("lastName", names[-1])
         # make_name (which is just a fancy wrapper around " ".join) to generate the full name.
         name_args = {f"name{i+1}": name for i, name in enumerate(names)}
-        entity.add("name", h.make_name(**name_args))
+        entity.add("name", h.make_name(**name_args), lang=lang)
 
 
 def load_un_sc(context: Context) -> Tuple[Dataset, ElementOrTree]:
