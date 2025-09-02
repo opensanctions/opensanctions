@@ -132,9 +132,10 @@ def crawl_item(context, item, date, url, article_name):
     entity = context.make(item.entity_schema)
     entity.id = context.make_id(item.name, item.country)
     entity.add("name", item.name, origin=DEFAULT_MODEL)
-    if item.nationality:
-        # Add nationality only for 'Person' schema
-        entity.add("nationality", item.nationality, origin=DEFAULT_MODEL)
+    nationality_prop = "nationality"
+    if item.entity_schema != "Person":
+        nationality_prop = "country"
+    entity.add(nationality_prop, item.nationality, origin=DEFAULT_MODEL)
     entity.add("country", item.country, origin=DEFAULT_MODEL)
     entity.add("alias", item.aliases, origin=DEFAULT_MODEL)
     entity.add("sourceUrl", item.related_url, origin=DEFAULT_MODEL)
