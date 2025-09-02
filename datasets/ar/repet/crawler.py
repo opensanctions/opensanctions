@@ -4,6 +4,7 @@ from rigour.mime.types import JSON
 
 from zavod import Context, Entity
 from zavod import helpers as h
+from zavod.shed.un_sc import apply_un_name_list
 
 
 URL = "https://repet.jus.gob.ar/xml/%s.json"
@@ -75,14 +76,18 @@ def crawl_common(context: Context, data: Dict[str, str], part: str, schema: str)
     entity.add("notes", h.clean_note(data.pop("NOTE", None)))
     entity.add("alias", h.multi_split(data.pop("NAME_ORIGINAL_SCRIPT"), ALIAS_SPLITS))
 
-    h.apply_name(
-        entity,
-        name1=data.pop("FIRST_NAME", None),
-        name2=data.pop("SECOND_NAME", None),
-        name3=data.pop("THIRD_NAME", None),
-        name4=data.pop("FOURTH_NAME", None),
-        quiet=True,
-    )
+    names = [
+        name
+        for name in [
+            data.pop("FIRST_NAME", None),
+            data.pop("SECOND_NAME", None),
+            data.pop("THIRD_NAME", None),
+            data.pop("FOURTH_NAME", None),
+        ]
+        if name is not None and name != ""
+    ]
+    # The names are copied from the UN list, so use the same semantics
+    apply_un_name_list(context, entity, names)
 
     sanction = h.make_sanction(context, entity)
     submitted_on = parse_date(data.pop("SUBMITTED_ON", None))
