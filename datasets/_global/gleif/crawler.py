@@ -186,10 +186,38 @@ def parse_lei_file(context: Context, fh: BinaryIO) -> None:
         name = entity.find("LegalName")
         proxy.add("name", name.text, lang=name.get("lang"))
         proxy.add("jurisdiction", entity.findtext("LegalJurisdiction"))
+
         status = entity.findtext("EntityStatus")
-        if status in ("DUPLICATE", "ANNULLED"):
-            continue
-        proxy.add("status", status)
+        match status:
+            case "INACTIVE" | "NULL":
+                continue
+            case "ACTIVE":
+                pass
+            case _:
+                # Just in case they ever add a new value to the enum
+                context.log.warn("Unknown EntityStatus", status=status, lei=lei)
+                pass
+
+        registration_status = entity.findtext("RegistrationStatus")
+        # We expect ISSUED or one of the PENDING_ states
+        if registration_status in (
+            "LAPSED",
+            "MERGED",
+            "RETIRED",
+            "ANNULLED",
+            "CANCELLED",
+            "DUPLICATE",
+            "TRANSFERRED",
+        ):
+            # Note: I don't really know what to do in this case except investigate further
+            # what the combinations of EntityStatus and RegistrationStatus are and whether
+            # we can do anything useful with them.
+            context.log.warn(
+                "Entity RegistrationStatus indicates that EntityStatus shoule be inactive",
+                lei=lei,
+                status=registration_status,
+            )
+
         create_date = parse_date(entity.findtext("EntityCreationDate"))
         proxy.add("incorporationDate", create_date)
         authority = entity.find("RegistrationAuthority")
