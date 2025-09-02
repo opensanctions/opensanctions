@@ -10,9 +10,9 @@ from typing import Optional
 from zavod import Context, helpers as h
 
 # Make sure variables don't get interpolated by the shell.
-WS_CID = env.get("OPENSANCTIONS_WS_CID")
-WS_API_KEY = env.get("OPENSANCTIONS_WS_API_KEY")
-WS_API_DOCS = env.get("OPENSANCTIONS_WS_API_DOCS")
+WS_CID = env.get("OPENSANCTIONS_UA_WS_CID")
+WS_API_KEY = env.get("OPENSANCTIONS_UA_WS_API_KEY")
+WS_API_DOCS = env.get("OPENSANCTIONS_UA_WS_API_DOCS")
 
 LINKS = [
     {  # child kidnappers
@@ -191,7 +191,9 @@ def emit_relation(
     start_date: Optional[str] = None,
 ):
     relation = context.make(rel_schema)
-    relation.id = context.make_id(object_id, rel_role, subject_id)
+    relation.id = context.make_id(
+        object_id, rel_role, subject_id, start_date, rel_schema
+    )
     relation.add(from_prop, subject_id)
     relation.add(to_prop, object_id)
     relation.add("role", rel_role)
