@@ -295,6 +295,8 @@ def parse_rr_file(context: Context, fh: BinaryIO):
             assert start_prop == "asset"
             asset = context.make("Company")
             asset.id = lei_id(start_lei)
+            # Also emit leiCode so that Context.emit doesn't complain about the Entity having no properties
+            asset.add("leiCode", start_lei)
             context.emit(asset)
 
         for period in rel.findall(".//RelationshipPeriod"):
