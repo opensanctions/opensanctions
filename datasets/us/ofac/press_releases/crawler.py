@@ -8,7 +8,6 @@ from zavod import helpers as h
 from zavod.shed.gpt import DEFAULT_MODEL, run_typed_text_prompt
 from zavod.stateful.review import (
     Review,
-    assert_all_accepted,
     request_review,
     get_review,
     model_hash,
@@ -53,6 +52,7 @@ class Designees(BaseModel):
 PROMPT = f"""
 Extract the designees, entities and vessels mentioned in OFAC press release in the attached article.
 NEVER infer, assume, or generate values that are not directly stated in the source text.
+EXCLUDE the names of US Treasury officials cited, and US federal government entities.
 If the name is a person name, use `Person` as the entity_schema.
 Output each entity with these fields:
 - name: Exact name as written in the article. If followed by an acronym in parentheses, store that acronym as an alias, not in the name.
@@ -60,7 +60,10 @@ Output each entity with these fields:
 - aliases: Include only true alternative names or acronyms the entity is known by in the article.
   • An alias must be another legitimate name, "also known as", or widely recognized abbreviation of the entity.
   • Example: "Eric Blair, alias George Orwell" is valid.
-  • Avoid: "Mathieu Jacques Michel Philippe (Philippe)" - "Philippe" is NOT valid, it is just a text reference and used as a local abbreviation.
+  • EXCLUDE: Aliases that are a strict subset of the full name, eg: "John Michael Smith (Smith)" - Smith, or 
+    "Megatron Electronics Ltd. (Megatron)" - Megatron.
+  • DO NOT include short aliases in brackets, unless they are specified as "aka", "fka", "also known as" and similar, or are more
+    descriptive than the name they describe, eg. "M23 (March 23 Movement)".
 - nationality: Nationality of the designee if they are an individual and it is stated.
 - imo: IMO number of the vessel if mentioned.
 - country: Countries explicitly mentioned as residence, registration, or operation. Leave empty if not stated.
@@ -214,7 +217,12 @@ def crawl(context: Context):
             crawl_press_release(context, url)
         page += 1
         assert page < 200
-    assert_all_accepted(context)
-    global something_changed
-    msg = "See what changed to determine whether to trigger re-review."
-    assert not something_changed, msg
+
+    # FIXME: This is different from enforcement lists in that it's really just supporting
+    # information; so it might be more OK to allow partial emit. Turning this on to create
+    # something to enrich on. - FL Sep 3, 2025
+
+    # assert_all_accepted(context)
+    # global something_changed
+    # msg = "See what changed to determine whether to trigger re-review."
+    # assert not something_changed, msg
