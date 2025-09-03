@@ -60,7 +60,7 @@ Output each entity with these fields:
 - aliases: Include only true alternative names or acronyms the entity is known by in the article.
   • An alias must be another legitimate name, "also known as", or widely recognized abbreviation of the entity.
   • Example: "Eric Blair, alias George Orwell" is valid.
-  • Avoid: "Mathieu Jacques Michel Philippe (Philippe)" - "Philippe" is NOT valid, it is just a text reference and used as a local abbreviation.
+  • EXCLUDE: Aliases that are a strict subset of the full name, eg: "John Michael Smith (Smith)", "Megatron Electronics Ltd. (Megatron)"
 - nationality: Nationality of the designee if they are an individual and it is stated.
 - imo: IMO number of the vessel if mentioned.
 - country: Countries explicitly mentioned as residence, registration, or operation. Leave empty if not stated.
@@ -214,7 +214,12 @@ def crawl(context: Context):
             crawl_press_release(context, url)
         page += 1
         assert page < 200
-    assert_all_accepted(context)
-    global something_changed
-    msg = "See what changed to determine whether to trigger re-review."
-    assert not something_changed, msg
+
+    # FIXME: This is different from enforcement lists in that it's really just supporting
+    # information; so it might be more OK to allow partial emit. Turning this on to create
+    # something to enrich on. - FL Sep 3, 2025
+
+    # assert_all_accepted(context)
+    # global something_changed
+    # msg = "See what changed to determine whether to trigger re-review."
+    # assert not something_changed, msg
