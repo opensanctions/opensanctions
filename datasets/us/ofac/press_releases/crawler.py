@@ -15,7 +15,7 @@ from zavod.stateful.review import (
     html_to_text_hash,
 )
 
-Schema = Literal["Person", "Company", "LegalEntity", "Vessel"]
+Schema = Literal["Person", "Organization", "Company", "LegalEntity", "Vessel"]
 NAME_XPATH = "//h2[@class='uswds-page-title']"
 CONTENT_XPATH = "//article[@class='entity--type-node']"
 DATE_XPATH = "//article[@class='entity--type-node']//time[@class='datetime']/@datetime"
@@ -215,6 +215,6 @@ def crawl(context: Context):
         assert page < 200
     assert_all_accepted(context)
     global something_changed
-    assert (
-        not something_changed
-    ), "See what changed to determine whether to trigger re-review."
+    assert not something_changed, (
+        "See what changed to determine whether to trigger re-review."
+    )
