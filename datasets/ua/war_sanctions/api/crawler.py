@@ -302,9 +302,11 @@ def crawl_manager(context: Context, management_data, program, entity_type: str):
     manager.add("name", management_data.pop("name"))
     # We null falsy names via the lookups (and we end up with some loose ends because of that)
     # Linked companies may not exist:
-    # 'ua-ws-entity-22',Company,'Company'
-    # 'ua-ws-entity-32',Company,'Company'
-    # 'ua-ws-entity-238',Company,'Company'
+    # 'ua-ws-entity-22': {'name': 'Unknown', 'country': None, 'imo': ''}
+    # 'ua-ws-entity-32': {'name': 'Rptd Sold Undisclosed Interest', 'country': None, 'imo': ''}
+    # 'ua-ws-entity-238': {'name': 'Rptd Sold Russia', 'country': None, 'imo': ''}
+    # 'ua-ws-entity-1272': {'name': 'Rptd Sold Undisclosed Interest', 'country': None, 'imo': '9991942'}
+    # 'ua-ws-entity-1425': {'name': 'Rptd Sold Russia', 'country': None, 'imo': '9992075'}
     if not manager.get("name"):
         return
     manager.add("country", management_data.pop("country"))
