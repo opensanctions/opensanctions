@@ -358,7 +358,9 @@ def crawl_vessel(context: Context, vessel_data, program, entity_type: str):
             pi_club.id = make_id(context, "organization", club.pop("id"))
             pi_club.add("name", club.pop("name"))
             context.emit(pi_club)
-            emit_relation(context, pi_club.id, vessel.id, rel_role="P&I Club")
+            emit_relation(
+                context, subject_id=pi_club.id, object_id=vessel.id, rel_role="P&I Club"
+            )
 
     context.audit_data(
         vessel_data,
@@ -466,7 +468,7 @@ def crawl(context: Context):
         data_type = link_info["type"]
         program = link_info["program"]
 
-        url = f"{context.data_url}{endpoint}"
+        url = f"{WS_API_BASE_URL}{endpoint}"
         response = context.fetch_json(url, headers=headers, cache_days=1)
         if not response or response.get("code") != 0:
             context.log.warn("No valid data to parse")
