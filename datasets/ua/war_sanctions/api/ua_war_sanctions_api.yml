@@ -41,7 +41,7 @@ description: |
   United Engine Corporation—which develop and produce missiles, combat aircraft, and engines
   used in Russia’s war against Ukraine.
 
-  **Military Component Manufacturers**: Enterprises involved in the production and supply of 
+  **Military Component Manufacturers**: Enterprises involved in the production and supply of
   military components and parts.
 
   The objective of the War and Sanctions website is to raise awareness of their conduct,
@@ -66,7 +66,7 @@ tags:
   - sector.maritime
 url: https://war-sanctions.gur.gov.ua/en
 data:
-  url: "https://war-sanctions.gur.gov.ua/api/v1/"
+  url: "https://war-sanctions.gur.gov.ua/en"
   format: JSON
 
 dates:
@@ -102,7 +102,7 @@ lookups:
         values:
           - 1974-06-23
           - 1973-06-23
-      - match: 
+      - match:
           - 10.09.20224
           - 04.01.20205
           - 096.05.2025
@@ -114,17 +114,17 @@ lookups:
         value: null
   type.country:
     options:
-      - match: 
+      - match:
           - X00
           - ROM
         value: null
   type.name:
     options:
-      - match: 
+      - match:
           - "-"
           - "Unknown"
         value: null
-      - regex: 
+      - regex:
           - "Unknown (.+)"
           # Rptd -> Reported https://www.insurancejournal.com/news/international/2024/03/20/765613.htm
           - "Rptd Sold (.+)"
@@ -133,11 +133,11 @@ lookups:
     options:
       - match:
           - 100386629
-          - 3266528 
+          - 3266528
           - 75190131
-          - 2897516 
+          - 2897516
           - 69651149
-          - 2646286 
+          - 2646286
           - .0276915630
           - 275074110
           - 555624
@@ -147,43 +147,43 @@ lookups:
           - RS 150443
           - RS 130280
           - 194905962
-          - 74136104  
+          - 74136104
           - 3161890
-          - 73176503  
+          - 73176503
           - 76145187
-          - 3125459 
+          - 3125459
           - 73768871
-          - 3199991 
-          - 74520161 
-          - 358769 
-          - 3185362 
-          - 3150768 
-          - 3016374 
-          - 9207391 
-          - 11915229  
+          - 3199991
+          - 74520161
+          - 358769
+          - 3185362
+          - 3150768
+          - 3016374
+          - 9207391
+          - 11915229
           - QCBHT46HNUG4
-          - U52292MH2024OPC427341 
+          - U52292MH2024OPC427341
           - 40279
           - U52292MH2024OPC426638
-          - 0161038029800019 
+          - 0161038029800019
           - AAYFG2678Q
           - DMCC196521
-          - 2890985 
-          - ZAKDULRX1NF6 
-          - YSF8EX7FMBG6 
-          - YSA2FRK6ZGE9 
+          - 2890985
+          - ZAKDULRX1NF6
+          - YSF8EX7FMBG6
+          - YSA2FRK6ZGE9
           - 202022772K
           - dy9dk876mbp4
-          - HE 418991 
-          - 11978506  
-          - 2033130 
+          - HE 418991
+          - 11978506
+          - 2033130
           - 5344160
           - MDTSLL61V995
-          - OC428060  
-          - 384095-5  
+          - OC428060
+          - 384095-5
           - 08S04803
         prop: registrationNumber
-      - match: 1436594D / 202101036294 
+      - match: 1436594D / 202101036294
         values:
           - 1436594D
           - 202101036294

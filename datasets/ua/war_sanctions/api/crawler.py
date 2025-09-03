@@ -9,10 +9,13 @@ from typing import Optional
 
 from zavod import Context, helpers as h
 
-# Make sure variables don't get interpolated by the shell.
-WS_CID = env.get("OPENSANCTIONS_UA_WS_CID")
+# Note: These contain special characters, in testing use single quotes
+# to make sure variables don't get interpolated by the shell.
+WS_API_CLIENT_ID = env.get("OPENSANCTIONS_UA_WS_API_CLIENT_ID")
 WS_API_KEY = env.get("OPENSANCTIONS_UA_WS_API_KEY")
-WS_API_DOCS = env.get("OPENSANCTIONS_UA_WS_API_DOCS")
+# We keep these two secret because they were shared with us confidentially
+WS_API_DOCS_URL = env.get("OPENSANCTIONS_UA_WS_API_DOCS_URL")
+WS_API_BASE_URL = env.get("OPENSANCTIONS_UA_WS_API_BASE_URL")
 
 LINKS = [
     {  # child kidnappers
@@ -395,7 +398,7 @@ def crawl_rostec_structure(context: Context, structure_data, entity_type: str):
 
 
 def check_updates(context: Context):
-    doc = context.fetch_html(WS_API_DOCS)
+    doc = context.fetch_html(WS_API_DOCS_URL)
     # Have any new sections been added?
     change_log = doc.xpath(".//main[@class='relative']")
     assert len(change_log) == 1, change_log
@@ -457,7 +460,7 @@ def crawl(context: Context):
     check_updates(context)
 
     for link_info in LINKS:
-        token = generate_token(WS_CID, WS_API_KEY)
+        token = generate_token(WS_API_CLIENT_ID, WS_API_KEY)
         headers = {"Authorization": token}
         endpoint = link_info["endpoint"]
         data_type = link_info["type"]
