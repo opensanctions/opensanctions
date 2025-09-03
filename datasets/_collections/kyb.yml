@@ -5,8 +5,9 @@ deploy:
   cpu: "1000m"
   memory: "2000Mi"
   memory_limit: "4000Mi"
-  disk: "150Gi"
-  disk_limit: "200Gi"
+  disk: "300Gi"
+  disk_limit: "330Gi"
+  premium: true
 coverage:
   frequency: monthly
   start: "2023-09-18"
