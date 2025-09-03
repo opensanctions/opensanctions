@@ -59,7 +59,10 @@ Output each entity with these fields:
 - aliases: Include only true alternative names or acronyms the entity is known by in the article.
   • An alias must be another legitimate name, "also known as", or widely recognized abbreviation of the entity.
   • Example: "Eric Blair, alias George Orwell" is valid.
-  • EXCLUDE: Aliases that are a strict subset of the full name, eg: "John Michael Smith (Smith)", "Megatron Electronics Ltd. (Megatron)"
+  • EXCLUDE: Aliases that are a strict subset of the full name, eg: "John Michael Smith (Smith)" - Smith, or 
+    "Megatron Electronics Ltd. (Megatron)" - Megatron.
+  • DO NOT include short aliases in brackets, unless they are specified as "aka", "fka", "also known as" and similar, or are more
+    descriptive than the name they describe, eg. "M23 (March 23 Movement)".
 - nationality: Nationality of the designee if they are an individual and it is stated.
 - imo: IMO number of the vessel if mentioned.
 - country: Countries explicitly mentioned as residence, registration, or operation. Leave empty if not stated.
