@@ -52,6 +52,7 @@ class Designees(BaseModel):
 PROMPT = f"""
 Extract the designees, entities and vessels mentioned in OFAC press release in the attached article.
 NEVER infer, assume, or generate values that are not directly stated in the source text.
+EXCLUDE the names of US Treasury officials cited, and US federal government entities.
 If the name is a person name, use `Person` as the entity_schema.
 Output each entity with these fields:
 - name: Exact name as written in the article. If followed by an acronym in parentheses, store that acronym as an alias, not in the name.
