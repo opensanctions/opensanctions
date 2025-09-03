@@ -1,0 +1,35 @@
+title: Singapore MAS Enforcement Actions
+entry_point: crawler.py
+prefix: sg-mas-ea
+coverage:
+  frequency: weekly
+  start: 2025-09-03
+load_statements: true
+summary: >
+  Formal regulatory and enforcement actions taken by MAS for breaches of laws and regulations 
+  administered by MAS and related matters.
+description: |
+
+publisher:
+  name: Monetary Authority of Singapore
+  acronym: MAS
+  description: |
+    The Monetary Authority of Singapore (MAS) is Singapore’s central bank and integrated 
+    financial regulator.
+  url: https://www.mas.gov.sg/who-we-are
+  country: sg
+  official: true
+url: https://www.mas.gov.sg/regulation/enforcement/enforcement-actions
+data:
+  url: https://www.mas.gov.sg/regulation/enforcement/enforcement-actions?rows=All
+  format: HTML
+http:
+  user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.2 Safari/605.1.15 (zavod; opensanctions.org)"
+
+# assertions:
+#   min:
+#     schema_entities:
+#       LegalEntity: 700
+#   max:
+#     schema_entities:
+#       LegalEntity: 1400
