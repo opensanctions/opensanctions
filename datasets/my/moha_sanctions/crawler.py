@@ -1,91 +1,151 @@
-from lxml import html
-from lxml.etree import _Element
-from normality import slugify
-from banal import first
 from urllib.parse import urljoin
-from rigour.mime.types import HTML
-from typing import List, Optional
+from rigour.mime.types import PDF
+from typing import Tuple, Dict, Any
+from pdfplumber.page import Page
 
 from zavod import Context
 from zavod import helpers as h
 from zavod.shed.zyte_api import fetch_html
 
-ID_SPLITS = ["(a) ", "(b) ", "(c) ", "(d) ", "(e) ", "(f) "]
+ID_SPLITS = [
+    "(a) ",
+    "(b) ",
+    "(c) ",
+    "(d) ",
+    "(e) ",
+    "(f) ",
+    "(g) ",
+    "(h) ",
+    "(i) ",
+    "(j) ",
+    "(k) ",
+    "(l) ",
+    "(m) ",
+    "(n) ",
+    "(o) ",
+    "(p) ",
+    "(q) ",
+]
+ALIAS_SPLITS = [
+    "a) ",
+    "b) ",
+    "c) ",
+    "d) ",
+    "e) ",
+    "f) ",
+    "g) ",
+    "h) ",
+    "i) ",
+    "j) ",
+    "k) ",
+    "l) ",
+    "m) ",
+    "n) ",
+    "o) ",
+    "p) ",
+    "q) ",
+]
 
 
-def cell_values(el: _Element) -> List[str]:
-    items = [i.text_content().strip() for i in el.findall(".//li")]
-    if len(items):
-        return items
-    text = el.text_content().strip()
-    if text == "-":
-        return []
-    return [text]
+def rename_headers(context, entry, custom_lookup):
+    result = {}
+    for old_key, value in entry.items():
+        new_key = context.lookup_value(custom_lookup, old_key)
+        if new_key is None:
+            context.log.warning("Unknown column title", column=old_key)
+            new_key = old_key
+        result[new_key] = value
+    return result
 
 
-def crawl_table(context: Context, table: _Element) -> None:
-    headers: Optional[List[str]] = None
-    for row in table.findall(".//tr"):
-        cells = row.findall(".//td")
-        if headers is None:
-            texts = [c.text_content().strip() for c in cells]
-            headers = [slugify(t.split(")")[1], sep="_") for t in texts]
-            headers = [context.lookup_value("columns", hd, hd) for hd in headers]
-            continue
-        values = [cell_values(c) for c in cells]
-        row = dict(zip(headers, values))
-        if "date_of_birth" in headers:
-            schema = "Person"
-            key = "person"
-        else:
-            schema = "Organization"
-            key = "group"
-        entity = context.make(schema)
-        reference = first(row.pop("reference"))
-        entity.id = context.make_slug(key, reference)
-        for name in row.pop("name"):
-            entity.add("name", name.split("@"))
-        entity.add("topics", "sanction")
-        entity.add("alias", row.pop("alias", []))
-        entity.add("alias", row.pop("other_name", []))
-        entity.add("address", row.pop("address"))
+def crawl_row(context: Context, row, schema, key) -> None:
+    # pprint(row)
+    entity = context.make(schema)
+    reference = row.pop("reference_no", None)
+    names = row.pop("name")
+    if not names:
+        return
+    date_listed = row.pop("date_listed", None)
+    if reference is not None and "Rujukan" in reference:
+        return
+    if "Disenaraikan" in date_listed:
+        return
+    entity.id = context.make_slug(key, reference)
+    entity.add("name", names)
+    entity.add("topics", "sanction")
+    for field in ["alias", "other_name"]:
+        value = row.pop(field, None)
+        if value and entity.schema.is_a("Organization"):
+            # Use multi_split for both, or customize per schema if needed
+            entity.add("alias", h.multi_split(value, ALIAS_SPLITS))
+        elif value and entity.schema.is_a("Person"):
+            entity.add("alias", h.multi_split(value, ID_SPLITS))
+    entity.add("address", row.pop("address", None))
 
-        if entity.schema.is_a("Person"):
-            entity.add("title", row.pop("title", None))
-            h.apply_dates(entity, "birthDate", row.pop("date_of_birth", None))
-            entity.add("birthPlace", row.pop("place_of_birth", None))
-            entity.add("nationality", row.pop("nationality", None))
-            entity.add("passportNumber", row.pop("passport_number", None))
-            for id in h.multi_split(row.pop("id_number", None), ID_SPLITS):
-                entity.add("idNumber", id)
+    if entity.schema.is_a("Person"):
+        entity.add("title", row.pop("title", None))
+        h.apply_date(entity, "birthDate", row.pop("birth_date", None))
+        entity.add("birthPlace", row.pop("birth_place", None))
+        entity.add("nationality", row.pop("citizenship", None))
+        entity.add("position", row.pop("position", None))
+        entity.add("passportNumber", row.pop("passport_no", None))
+        for id in h.multi_split(row.pop("id_no", None), ID_SPLITS):
+            entity.add("idNumber", id)
 
-        sanction = h.make_sanction(context, entity)
-        h.apply_dates(sanction, "listingDate", row.pop("date_of_listed"))
-        sanction.add("authorityId", reference)
-        sanction.add("program", row.pop("designation", None))
+    sanction = h.make_sanction(context, entity)
+    h.apply_date(sanction, "listingDate", row.pop("date_listed", None))
+    sanction.add("authorityId", reference)
+    sanction.add("program", row.pop("designation", None))
 
-        context.emit(entity)
-        context.emit(sanction)
-        context.audit_data(row, ignore=["no"])
+    context.emit(entity)
+    context.emit(sanction)
+    context.audit_data(row, ignore=["no", "False"])
 
 
-def crawl_html_url(context: Context) -> str:
+def page_settings(page: Page) -> Tuple[Page, Dict[str, Any]]:
+    # Crop top/bottom margins to focus on table area
+    cropped = page.crop((0, 75, page.width, page.height - 10))
+    settings = {
+        "vertical_strategy": "lines",
+        "horizontal_strategy": "lines",
+        "text_tolerance": 1,
+    }
+    return cropped, settings
+
+
+def crawl_pdf_url(context: Context) -> str:
     validator = ".//*[contains(text(), 'LIST OF SANCTIONS UNDER THE MINISTRY OF HOME AFFAIRS (MOHA)')]"
     html = fetch_html(context, context.data_url, validator, cache_days=5)
     for a in html.findall('.//div[@class="uk-container"]//a'):
         if "sanctions list" not in a.text_content().lower():
             continue
-        if ".html" in a.get("href", ""):
+        if ".pdf" in a.get("href", ""):
             return urljoin(context.data_url, a.get("href"))
-    raise ValueError("No HTML found")
+    raise ValueError("No PDF found")
 
 
 def crawl(context: Context):
-    html_url = crawl_html_url(context)
-    path = context.fetch_resource("source.html", html_url)
-    context.export_resource(path, HTML, title=context.SOURCE_TITLE)
+    pdf_url = crawl_pdf_url(context)
+    path = context.fetch_resource("source.pdf", pdf_url)
+    context.export_resource(path, PDF, title=context.SOURCE_TITLE)
 
-    with open(path, "rb") as fh:
-        doc = html.fromstring(fh.read())
-        for table in doc.findall(".//table"):
-            crawl_table(context, table)
+    for row in h.parse_pdf_table(
+        context,
+        path,
+        headers_per_page=True,
+        preserve_header_newlines=True,
+        skiprows=0,
+        page_settings=page_settings,
+    ):
+        row = {k: v.replace("\n", " ").strip() if v else v for k, v in row.items()}
+        # Decide schema based on number of columns in header
+        num_cols = len(row.keys())
+        if num_cols == 13:
+            schema, key = "Person", "person"
+            row = rename_headers(context, row, "columns_person")
+        elif num_cols == 7:
+            schema, key = "Organization", "group"
+            row = rename_headers(context, row, "columns_organization")
+        else:
+            context.log.warning(f"Unexpected number of columns: {num_cols}")
+        crawl_row(context, row, schema, key)

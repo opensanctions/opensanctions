@@ -60,61 +60,68 @@ assertions:
       Organization: 50
 
 lookups:
-  columns:
+  columns_person:
     options:
-      - match: design_ation
-        value: designation
-      - match:
-          - idetification_card_number
-          - idetificationcard_number
-          - identification_card_number
-        value: id_number
-      - match:
-          - date_ofbirth
-        value: date_of_birth
-      - match: referen_ce
-        value: reference
-      - match: nationalit_y
-        value: nationality
-      - match: date_0f_listed
-        value: date_of_listed
-      - match: other_names
+      - match: 1
+        value: no
+      - match: 2
+        value: reference_no
+      - match: 3
+        value: name
+      - match: 4
+        value: title
+      - match: 5
+        value: position
+      - match: 6
+        value: birth_date
+      - match: 7
+        value: birth_place
+      - match: 8
         value: other_name
+      - match: 9
+        value: citizenship
+      - match: 10
+        value: passport_no
+      - match: 11
+        value: id_no
+      - match: 12
+        value: address
+      - match: 13
+        value: date_listed
+  columns_organization:
+    options:
+      - match: 1
+        value: no
+      - match: 2
+        value: reference_no
+      - match: 3
+        value: name
+      - match: 4
+        value: alias
+      - match: 5
+        value: other_name
+      - match: 6
+        value: address
+      - match: 7
+        value: date_listed
+  type.name:
+    options:
+      - match:  "-"
+        value: null
   type.country:
     options:
       - match:
           - "-"
-          - '"'
         value: null
-      - match:
-          - "DL 11, Lorong, Mutiara 2, Taman Bukit Ampang, Lembah Jaya, 68000, Ampang, Selangor, Malaysia"
-        value: Malaysia
-      - match: lraq
-        value: Iraq
-      - match: Punjab, India
-        value: India
-      - match: Idlib, Syria
-        value: Syria
-      - match:
-          - Filipina (Pemastautin Tetap di Malaysi
-          - Filipina (Pemaustautin Tetap di Malaysia)
-          - Filipina (Pemastautin Tetap di Malaysia)
-          - Filipina (Pemasautin Tetap di Malaysia)
-          - Filipina (PemastautinTetap di Malaysia)
-          - Philippines (Permanent Resident in Malaysia)
+      - match: Filipina (Pemastautin Tetap di Malaysia)
         value: Philippines
-      - match:
-          - Pemastautin Tetap di Malaysia
-          - (Pemasautin Tetap di Malaysia)
-        value: Malaysia
   type.date:
     options:
-      - match:
-          - 20.02.1976 13.02.1975 15.02.1976 07.01.1977
-          - "20.02.197613.02.197515.02.197607.01.1977"
-          - "20.2.197613.2.197515.2.19767.1.1977"
+      - match: 20.2.1976 13.2.1975 15.2.1976 7.1.1977
         values:
           - 1976-02-20
           - 1975-02-13
           - 1976-02-15
           - 1977-01-07
+      - match: "-"
+        value: null
