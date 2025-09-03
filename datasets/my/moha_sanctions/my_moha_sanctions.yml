@@ -46,6 +46,7 @@ dates:
     May: Mei
     February: Februari
     August: Ogos
+    January: Januari
 tags:
   - list.sanction
 
@@ -104,15 +105,8 @@ lookups:
         value: address
       - match: 7
         value: date_listed
-  type.name:
-    options:
-      - match:  "-"
-        value: null
   type.country:
     options:
-      - match:
-          - "-"
-        value: null
       - match: Filipina (Pemastautin Tetap di Malaysia)
         value: Philippines
   type.date:
@@ -123,5 +117,3 @@ lookups:
           - 1975-02-13
           - 1976-02-15
           - 1977-01-07
-      - match: "-"
-        value: null

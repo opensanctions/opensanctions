@@ -1,3 +1,5 @@
+import string
+
 from urllib.parse import urljoin
 from rigour.mime.types import PDF
 from typing import Tuple, Dict, Any
@@ -7,44 +9,8 @@ from zavod import Context
 from zavod import helpers as h
 from zavod.shed.zyte_api import fetch_html
 
-ID_SPLITS = [
-    "(a) ",
-    "(b) ",
-    "(c) ",
-    "(d) ",
-    "(e) ",
-    "(f) ",
-    "(g) ",
-    "(h) ",
-    "(i) ",
-    "(j) ",
-    "(k) ",
-    "(l) ",
-    "(m) ",
-    "(n) ",
-    "(o) ",
-    "(p) ",
-    "(q) ",
-]
-ALIAS_SPLITS = [
-    "a) ",
-    "b) ",
-    "c) ",
-    "d) ",
-    "e) ",
-    "f) ",
-    "g) ",
-    "h) ",
-    "i) ",
-    "j) ",
-    "k) ",
-    "l) ",
-    "m) ",
-    "n) ",
-    "o) ",
-    "p) ",
-    "q) ",
-]
+ID_SPLITS = [f"({c}) " for c in string.ascii_lowercase[:17]]  # a-q
+ALIAS_SPLITS = [f"{c}) " for c in string.ascii_lowercase[:17]]  # a-q
 
 
 def rename_headers(context, entry, custom_lookup):
@@ -58,29 +24,30 @@ def rename_headers(context, entry, custom_lookup):
     return result
 
 
+def clean_value(v):
+    if not v:
+        return v
+    v = v.replace("\n", " ").strip()
+    return "" if v == "-" else v
+
+
 def crawl_row(context: Context, row, schema, key) -> None:
-    # pprint(row)
-    entity = context.make(schema)
-    reference = row.pop("reference_no", None)
     names = row.pop("name")
-    if not names:
+    reference = row.pop("reference_no")
+    # Early exits for headers or invalid rows
+    if not names or "Nama" in names:
         return
-    date_listed = row.pop("date_listed", None)
-    if reference is not None and "Rujukan" in reference:
-        return
-    if "Disenaraikan" in date_listed:
-        return
+    entity = context.make(schema)
     entity.id = context.make_slug(key, reference)
-    entity.add("name", names)
+    entity.add("name", names.split("@"))
     entity.add("topics", "sanction")
+    entity.add("address", row.pop("address"))
+
+    alias_splits = ID_SPLITS if entity.schema.is_a("Person") else ALIAS_SPLITS
     for field in ["alias", "other_name"]:
         value = row.pop(field, None)
-        if value and entity.schema.is_a("Organization"):
-            # Use multi_split for both, or customize per schema if needed
-            entity.add("alias", h.multi_split(value, ALIAS_SPLITS))
-        elif value and entity.schema.is_a("Person"):
-            entity.add("alias", h.multi_split(value, ID_SPLITS))
-    entity.add("address", row.pop("address", None))
+        if value:
+            entity.add("alias", h.multi_split(value, alias_splits))
 
     if entity.schema.is_a("Person"):
         entity.add("title", row.pop("title", None))
@@ -95,7 +62,6 @@ def crawl_row(context: Context, row, schema, key) -> None:
     sanction = h.make_sanction(context, entity)
     h.apply_date(sanction, "listingDate", row.pop("date_listed", None))
     sanction.add("authorityId", reference)
-    sanction.add("program", row.pop("designation", None))
 
     context.emit(entity)
     context.emit(sanction)
@@ -127,6 +93,8 @@ def crawl_pdf_url(context: Context) -> str:
 def crawl(context: Context):
     pdf_url = crawl_pdf_url(context)
     path = context.fetch_resource("source.pdf", pdf_url)
+    # If the PDF file has changed, check if the headers mappings are still on
+    h.assert_file_hash(path, "39579602793184083f2f28bfa5ecc0eaaa08a7af")
     context.export_resource(path, PDF, title=context.SOURCE_TITLE)
 
     for row in h.parse_pdf_table(
@@ -137,7 +105,7 @@ def crawl(context: Context):
         skiprows=0,
         page_settings=page_settings,
     ):
-        row = {k: v.replace("\n", " ").strip() if v else v for k, v in row.items()}
+        row = {k: clean_value(v) for k, v in row.items()}
         # Decide schema based on number of columns in header
         num_cols = len(row.keys())
         if num_cols == 13:
