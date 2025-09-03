@@ -8,7 +8,6 @@ from zavod import helpers as h
 from zavod.shed.gpt import DEFAULT_MODEL, run_typed_text_prompt
 from zavod.stateful.review import (
     Review,
-    assert_all_accepted,
     request_review,
     get_review,
     model_hash,
