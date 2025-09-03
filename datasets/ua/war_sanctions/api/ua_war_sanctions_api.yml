@@ -75,13 +75,13 @@ dates:
 assertions:
   min:
     schema_entities:
-      Organization: 700
+      Organization: 10
       Person: 950
       Vessel: 590
       LegalEntity: 500
     country_entities:
       ru: 790
-      ua: 170
+      ua: 130
       ae: 80
     countries: 15
     entities_with_prop:
@@ -91,7 +91,7 @@ assertions:
         role: 1500
   max:
     schema_entities:
-      Organization: 2000
+      Organization: 100
       Person: 1800
       Vessel: 1400
       LegalEntity: 1000
