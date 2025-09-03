@@ -151,13 +151,13 @@ def crawl_ship_relation(
 
     emit_relation(
         context,
-        make_id(context, "entity", company_id_raw),
-        vessel_id_slug,
-        rel_schema,
-        rel_role,
-        from_prop,
-        to_prop,
-        start_date,
+        subject_id=make_id(context, "entity", company_id_raw),
+        object_id=vessel_id_slug,
+        rel_schema=rel_schema,
+        rel_role=rel_role,
+        from_prop=from_prop,
+        to_prop=to_prop,
+        start_date=start_date,
     )
     # e.g.
     # {
@@ -169,9 +169,9 @@ def crawl_ship_relation(
     if care_of_id_raw is not None:
         emit_relation(
             context,
-            make_id(context, "entity", company_id_raw),
-            make_id(context, "entity", care_of_id_raw),
-            rel_schema,
+            subject_id=make_id(context, "entity", company_id_raw),
+            object_id=make_id(context, "entity", care_of_id_raw),
+            rel_schema=rel_schema,
             rel_role="c/o",
             from_prop=from_prop,
             to_prop=to_prop,
@@ -182,6 +182,7 @@ def crawl_ship_relation(
 
 def emit_relation(
     context: Context,
+    *,
     subject_id,
     object_id,
     rel_schema: str = "UnknownLink",
@@ -239,8 +240,8 @@ def crawl_person(context: Context, person_data, program, endpoint, entity_type: 
             role = "captain" if endpoint == "transport/captains" else None
             emit_relation(
                 context,
-                person.id,
-                make_id(context, "vessel", ship_id_raw),
+                subject_id=person.id,
+                object_id=make_id(context, "vessel", ship_id_raw),
                 rel_role=role,
             )
 
@@ -282,7 +283,9 @@ def crawl_legal_entity(context: Context, company_data, program, entity_type: str
     if related_ships:
         for ship_id_raw in related_ships:
             emit_relation(
-                context, legal_entity.id, make_id(context, "vessel", ship_id_raw)
+                context,
+                subject_id=legal_entity.id,
+                object_id=make_id(context, "vessel", ship_id_raw),
             )
 
     context.audit_data(
