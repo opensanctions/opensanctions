@@ -308,9 +308,12 @@ def crawl_manager(context: Context, management_data, program, entity_type: str):
     # 'ua-ws-entity-1272': {'name': 'Rptd Sold Undisclosed Interest', 'country': None, 'imo': '9991942'}
     # 'ua-ws-entity-1425': {'name': 'Rptd Sold Russia', 'country': None, 'imo': '9992075'}
     if not manager.get("name"):
+        manager.add("topics", "poi")
+        context.emit(manager)
         return
     manager.add("country", management_data.pop("country"))
     manager.add("imoNumber", management_data.pop("imo"))
+    manager.add("topics", "poi")
     context.emit(manager)
     sanction = h.make_sanction(context, manager)
     sanction.add("program", program)
