@@ -1,6 +1,7 @@
 import string
 
 from urllib.parse import urljoin
+from datapatch import Lookup
 from rigour.mime.types import PDF
 from typing import Tuple, Dict, Any
 from pdfplumber.page import Page
@@ -13,10 +14,12 @@ ID_SPLITS = [f"({c}) " for c in string.ascii_lowercase[:17]]  # a-q
 ALIAS_SPLITS = [f"{c}) " for c in string.ascii_lowercase[:17]]  # a-q
 
 
-def rename_headers(context, entry, custom_lookup):
+def rename_headers(
+    context: Context, row: Dict[str, Any], custom_lookup: Lookup
+) -> Dict[str, str]:
     result = {}
-    for old_key, value in entry.items():
-        new_key = context.lookup_value(custom_lookup, old_key)
+    for old_key, value in row.items():
+        new_key = custom_lookup.get_value(old_key)
         if new_key is None:
             context.log.warning("Unknown column title", column=old_key)
             new_key = old_key
@@ -110,10 +113,12 @@ def crawl(context: Context):
         num_cols = len(row.keys())
         if num_cols == 13:
             schema, key = "Person", "person"
-            row = rename_headers(context, row, "columns_person")
+            row = rename_headers(context, row, context.get_lookup("columns_person"))
         elif num_cols == 7:
             schema, key = "Organization", "group"
-            row = rename_headers(context, row, "columns_organization")
+            row = rename_headers(
+                context, row, context.get_lookup("columns_organization")
+            )
         else:
             context.log.warning(f"Unexpected number of columns: {num_cols}")
         crawl_row(context, row, schema, key)
