@@ -1,10 +1,11 @@
 import string
 
-from urllib.parse import urljoin
 from datapatch import Lookup
+from normality import squash_spaces
+from pdfplumber.page import Page
 from rigour.mime.types import PDF
 from typing import Tuple, Dict, Any
-from pdfplumber.page import Page
+from urllib.parse import urljoin
 
 from zavod import Context
 from zavod import helpers as h
@@ -12,6 +13,7 @@ from zavod.shed.zyte_api import fetch_html
 
 ID_SPLITS = [f"({c}) " for c in string.ascii_lowercase[:17]]  # a-q
 ALIAS_SPLITS = [f"{c}) " for c in string.ascii_lowercase[:17]]  # a-q
+INVALID_ROWS = "Nama"
 
 
 def rename_headers(
@@ -30,7 +32,7 @@ def rename_headers(
 def clean_value(v):
     if not v:
         return v
-    v = v.replace("\n", " ").strip()
+    v = squash_spaces(v)
     return "" if v == "-" else v
 
 
@@ -38,7 +40,7 @@ def crawl_row(context: Context, row, schema, key) -> None:
     names = row.pop("name")
     reference = row.pop("reference_no")
     # Early exits for headers or invalid rows
-    if not names or "Nama" in names:
+    if not names or INVALID_ROWS in names:
         return
     entity = context.make(schema)
     entity.id = context.make_slug(key, reference)
