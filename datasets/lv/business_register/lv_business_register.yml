@@ -47,3 +47,9 @@ lookups:
           - 2016
           - "-"
         value: null
+  # null falsy first/lastName(s)
+  type.string:
+    options:
+      - match: "-"
+        value: null
+
