@@ -256,12 +256,11 @@ def crawl_person(context: Context, person_data, program, endpoint, entity_type: 
     h.apply_date(person, "birthDate", birth_date)
     h.apply_date(person, "deathDate", death_date)
     person.add("topics", "poi")
-    person.add("sourceUrl", person_data.pop("photo"))
     person.add("birthPlace", person_data.pop("city_bd", None))
 
     sanction = h.make_sanction(context, person)
     sanction.add("reason", person_data.pop("reason", None))
-    sanction.add("sourceUrl", person_data.pop("links", None))
+    # sanction.add("sourceUrl", person_data.pop("links", None))
     sanction.add("program", program)
 
     context.emit(person)
@@ -298,7 +297,6 @@ def crawl_legal_entity(context: Context, company_data, program, entity_type: str
     legal_entity.add("address", company_data.pop("address"))
     legal_entity.add("country", company_data.pop("country"))
     legal_entity.add("innCode", company_data.pop("itn"))
-    legal_entity.add("sourceUrl", company_data.pop("logo"))
     legal_entity.add("topics", "poi")
     imo = company_data.pop("imo", None)
     if imo:
@@ -306,8 +304,8 @@ def crawl_legal_entity(context: Context, company_data, program, entity_type: str
 
     sanction = h.make_sanction(context, legal_entity)
     sanction.add("reason", company_data.pop("reason"))
-    sanction.add("sourceUrl", company_data.pop("links"))
-    sanction.add("sourceUrl", company_data.pop("documents", None))
+    # sanction.add("sourceUrl", company_data.pop("links"))
+    # sanction.add("sourceUrl", company_data.pop("documents", None))
     sanction.add("program", program)
 
     context.emit(legal_entity)
@@ -360,9 +358,6 @@ def crawl_vessel(context: Context, vessel_data, program, entity_type: str):
     vessel.add("buildDate", vessel_data.pop("year"))
     vessel.add("grossRegisteredTonnage", vessel_data.pop("weight"))
     vessel.add("deadweightTonnage", vessel_data.pop("dwt"))
-    photo_url = vessel_data.pop("photo")
-    if "no-ship-photo" not in photo_url:
-        vessel.add("sourceUrl", photo_url)
     old_data = vessel_data.pop("old_data", [])
     for item in old_data:
         vessel.add("previousName", item.pop("name"))
@@ -373,7 +368,7 @@ def crawl_vessel(context: Context, vessel_data, program, entity_type: str):
 
     sanction = h.make_sanction(context, vessel)
     sanction.add("program", program)
-    sanction.add("sourceUrl", vessel_data.pop("links"))
+    # sanction.add("sourceUrl", vessel_data.pop("links"))
 
     context.emit(vessel)
     context.emit(sanction)
