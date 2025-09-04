@@ -42,3 +42,16 @@ assertions:
   max:
     schema_entities:
       LegalEntity: 100000
+
+lookups:
+  type.name:
+    options:
+      - match: 
+          - 31000195963940
+          - 31000229195772
+          - 883644604
+          - 08-12-1985
+          - 05/17/2015
+          - 333063634
+          - 11/04/1985
+        value: null

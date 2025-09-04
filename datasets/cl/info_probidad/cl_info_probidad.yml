@@ -122,6 +122,7 @@ lookups:
           - SOPORTE TECNICO
           - SUBADMINISTRADOR ZONAL
           - SUBJEFE DEPTO. DE RECURSOS HUMANOS
+          - CAPITAN DE NAVIO
 
       - is_pep: null # haven't looked closely yet
         regex:
@@ -379,6 +380,7 @@ lookups:
           - "SECRETARIA(O)"
           - "SECRETARIO ABOGADO DEL TRIBUNAL DE CONTRATACIÓN PÚBLICA"
           - "SECRETARIO ABOGADO"
+          - "SECRETARIO RELATOR"
           - "SECRETARIO EJECUTIVO"
           - "SECRETARIO GENERAL DE POLÍTICA EXTERIOR"
           - "SECRETARIO GENERAL"

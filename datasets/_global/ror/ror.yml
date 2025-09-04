@@ -60,3 +60,7 @@ lookups:
           - 970
           - 976
         value: null
+  type.name:
+    options:
+      - match: 2002
+        value: null

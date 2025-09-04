@@ -578,6 +578,23 @@ lookups:
       - match: 3012-03-30
         value: "2012-03-30"
 
+  type.name:
+    options:
+      # capture all names that contain only "?"
+      - regex: ^\?+$
+        value: null
+      - match:
+          - 360
+          - 74
+          - ????405
+          - "? ??"
+          - 0
+          - ????????(??)????
+          - 119
+          - 1
+          - "."
+        value: null
+
   type.country:
     options:
       - match:

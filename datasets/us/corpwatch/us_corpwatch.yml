@@ -52,3 +52,13 @@ lookups:
       - match:
           - AN
         value: null
+  type.name:
+    options:
+      - match:
+          - 2011438
+          - 26
+          - 43010
+          - 0003
+          - 99
+          - "&"
+        value: null

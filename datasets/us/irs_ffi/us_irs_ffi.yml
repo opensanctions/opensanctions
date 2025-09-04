@@ -50,3 +50,13 @@ lookups:
     options:
       - match: OTHER
         value: null
+      - match: ALAND ISLANDS
+        value: AX
+  type.name:
+    options:
+      - match: 
+          - 198752440001-46
+          - 19875244000146
+          - 272514
+        value: null
+
