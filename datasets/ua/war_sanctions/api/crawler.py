@@ -4,6 +4,7 @@ import hashlib
 import base64
 
 from datetime import datetime, timezone
+from enum import Enum
 from os import environ as env
 from typing import Optional
 
@@ -17,90 +18,100 @@ WS_API_KEY = env.get("OPENSANCTIONS_UA_WS_API_KEY")
 WS_API_DOCS_URL = env.get("OPENSANCTIONS_UA_WS_API_DOCS_URL")
 WS_API_BASE_URL = env.get("OPENSANCTIONS_UA_WS_API_BASE_URL")
 
+
+class WSAPIDataType(str, Enum):
+    PERSON = "person"
+    ORGANIZATION = "organization"
+    LEGAL_ENTITY = "legal_entity"
+    VESSEL = "vessel"
+    MANAGEMENT = "management"
+    ROSTEC_STRUCTURE = "rostec_structure"
+
+
 LINKS = [
     {  # child kidnappers
         "endpoint": "kidnappers/persons",
-        "type": "person",
+        "type": WSAPIDataType.PERSON,
         "program": "Persons involved in the deportation of Ukrainian children",
     },
     {  # child kidnappers
         "endpoint": "kidnappers/companies",
-        "type": "legal_entity",
+        "type": WSAPIDataType.LEGAL_ENTITY,
         "program": "Legal entities involved in the deportation of Ukrainian children",
     },
     {  # uav manufacturers
         "endpoint": "uav/companies",
-        "type": "legal_entity",
+        "type": WSAPIDataType.LEGAL_ENTITY,
         "program": "Legal entities involved in the production of UAVs",
     },
     {  # russian athletes
         "endpoint": "sport/persons",
-        "type": "person",
+        "type": WSAPIDataType.PERSON,
         "program": "Athletes and sports officials participating in Russian influence operations abroad",
     },
     {  # ships
         "endpoint": "transport/ships",
-        "type": "vessel",
+        "type": WSAPIDataType.VESSEL,
         "program": "Marine and Aircraft Vessels, Airports and Ports involved in the transportation of weapons, stolen Ukrainian products and in the circumvention of sanctions",
     },
     {  # ship management
         "endpoint": "transport/management",
-        "type": "management",
+        "type": WSAPIDataType.MANAGEMENT,
         "program": "Management of ships involved in the transportation of weapons, stolen Ukrainian products and in the circumvention of sanctions",
     },
     {  # companies associated with ships
         "endpoint": "transport/companies",
-        "type": "legal_entity",
+        "type": WSAPIDataType.LEGAL_ENTITY,
         "program": "Companies associated with the ships involved in the transportation of weapons, stolen Ukrainian products and in the circumvention of sanctions",
     },
     {  # persons associated with ships
         "endpoint": "transport/persons",
-        "type": "person",
+        "type": WSAPIDataType.PERSON,
         "program": "Persons associated with the ships involved in the transportation of weapons, stolen Ukrainian products and in the circumvention of sanctions",
     },
     {  # captains
         "endpoint": "transport/captains",
-        "type": "person",
+        "type": WSAPIDataType.PERSON,
         "program": "Captains of ships involved in the transportation of weapons, stolen Ukrainian products and in the circumvention of sanctions",
     },
     {  # propagandists
         "endpoint": "propaganda/persons",
-        "type": "person",
+        "type": WSAPIDataType.PERSON,
         "program": "Persons involved in the dissemination of propaganda",
     },
     {  # executives of war
         "endpoint": "executives/persons",
-        "type": "person",
+        "type": WSAPIDataType.PERSON,
         "program": "Officials and entities controlling Russia’s military-industrial policy, defense orders, and wartime economy",
     },
     {  # stealers of heritage
         "endpoint": "stolen/persons",
-        "type": "person",
+        "type": WSAPIDataType.PERSON,
         "program": "Persons involved in the theft and destruction of Ukrainian cultural heritage",
     },
     {  # stealers of heritage
         "endpoint": "stolen/companies",
-        "type": "legal_entity",
+        "type": WSAPIDataType.LEGAL_ENTITY,
         "program": "Legal entities involved in the theft and destruction of Ukrainian cultural heritage",
     },
     {  # russian military-industrial complex
         "endpoint": "rostec/companies",
-        "type": "legal_entity",
+        "type": WSAPIDataType.LEGAL_ENTITY,
         "program": "Entities from Rostec’s core military holdings producing weapons for Russia’s war against Ukraine.",
     },
     {  # military component manufacturers
         "endpoint": "components/companies",
-        "type": "legal_entity",
+        "type": WSAPIDataType.LEGAL_ENTITY,
         "program": "Enterprises involved in the production and supply of military components and parts",
     },
     {  # factories
         "endpoint": "tools/companies",
-        "type": "legal_entity",
+        "type": WSAPIDataType.LEGAL_ENTITY,
         "program": "Legal entities involved in the production of military equipment and supplies",
     },
     {  # rostec structure
         "endpoint": "rostec/structure",
-        "type": "rostec_structure",
+        "type": WSAPIDataType.ROSTEC_STRUCTURE,
         "program": "",
     },
 ]
@@ -141,8 +152,6 @@ def crawl_ship_relation(
     from_prop: str = "subject",
     to_prop: str = "object",
 ):
-    if not party_info:
-        return
     company_id_raw = party_info.pop("id")
     start_date = party_info.pop("date")
     care_of_id_raw = party_info.pop("co_id", None)
@@ -258,6 +267,7 @@ def crawl_legal_entity(context: Context, company_data, program, entity_type: str
     legal_entity.id = make_id(context, entity_type, company_data.pop("id"))
     legal_entity.add("name", company_data.pop("name"))
     name_abbr = company_data.pop("short")
+    # If it's longer, it's usually just a little shortened version of name, not an abbreviation
     if len(name_abbr) < 11:
         legal_entity.add("alias", name_abbr)
     else:
@@ -300,17 +310,11 @@ def crawl_manager(context: Context, management_data, program, entity_type: str):
     manager = context.make("Company")
     manager.id = make_id(context, entity_type, management_data.pop("id"))
     manager.add("name", management_data.pop("name"))
-    # We null falsy names via the lookups (and we end up with some loose ends because of that)
-    # Linked companies may not exist:
-    # 'ua-ws-entity-22': {'name': 'Unknown', 'country': None, 'imo': ''}
-    # 'ua-ws-entity-32': {'name': 'Rptd Sold Undisclosed Interest', 'country': None, 'imo': ''}
-    # 'ua-ws-entity-238': {'name': 'Rptd Sold Russia', 'country': None, 'imo': ''}
-    # 'ua-ws-entity-1272': {'name': 'Rptd Sold Undisclosed Interest', 'country': None, 'imo': '9991942'}
-    # 'ua-ws-entity-1425': {'name': 'Rptd Sold Russia', 'country': None, 'imo': '9992075'}
+    # We null falsy names via the lookups and set the topic once again here
+    # not to emit empty entities
     if not manager.get("name"):
         manager.add("topics", "poi")
         context.emit(manager)
-        return
     manager.add("country", management_data.pop("country"))
     manager.add("imoNumber", management_data.pop("imo"))
     manager.add("topics", "poi")
@@ -354,6 +358,8 @@ def crawl_vessel(context: Context, vessel_data, program, entity_type: str):
 
     for role in ["commerce_manager", "security_manager", "owner"]:
         party_info = vessel_data.pop(role, None)
+        if not party_info:
+            continue
         crawl_ship_relation(context, party_info, vessel.id, role)
 
     pi_club_info = vessel_data.pop("pi_club", None)
@@ -476,8 +482,8 @@ def crawl(context: Context):
         url = f"{WS_API_BASE_URL}{endpoint}"
         response = context.fetch_json(url, headers=headers, cache_days=1)
         if not response or response.get("code") != 0:
-            context.log.warn("No valid data to parse")
-            return
+            context.log.error("No valid data to parse", url=url, response=response)
+            continue
         data = response.get("data")
         for entity_details in data:
             if data_type == "person":
