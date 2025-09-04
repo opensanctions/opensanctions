@@ -84,6 +84,9 @@ lookups:
       - match: Sanction administrative prononcée à l’encontre du réviseur d’entreprises agréé, Monsieur Thierry GRUN
         names:
           - Thierry Grun
+      - match: Sanction administrative à l’encontre d’Alipay (Europe) Limited S.A.
+        names:
+          - Alipay (Europe) Limited S.A.
   # If the name isn't in the subtitle, map the detail URL to the name, if one is present in the PDFs.
   url_to_names:
     lowercase: true
