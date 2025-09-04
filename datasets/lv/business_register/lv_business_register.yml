@@ -32,3 +32,18 @@ publisher:
     their operation, and performs other activities provided for by legislative acts
     in the territory of the Republic of Latvia.
   official: true
+
+lookups:
+  type.name:
+    options:
+      - match: 
+          - 2017
+          - "2015"
+          - 000000
+          - 185+
+          - "421"
+          - 1887
+          - "155"
+          - 2016
+          - "-"
+        value: null
