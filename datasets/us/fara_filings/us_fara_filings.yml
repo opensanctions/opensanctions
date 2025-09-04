@@ -105,3 +105,9 @@ lookups:
         value: SB
       - match: SOUTHWEST AFRICA
         value: NA
+      - match: COTE D'IVOIRE (IVORY COAST)
+        value: CI
+  type.name:
+    options:
+      - match: 5480
+        value: null
