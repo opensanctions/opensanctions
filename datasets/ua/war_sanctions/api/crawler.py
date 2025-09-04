@@ -173,18 +173,15 @@ def crawl_ship_relation(
     party_info,
     vessel_id_slug,
     rel_role: Optional[str] = None,
-    rel_schema: str = "UnknownLink",
-    from_prop: str = "subject",
-    to_prop: str = "object",
 ):
     company_id_raw = party_info.pop("id")
     start_date = party_info.pop("date")
     care_of_id_raw = party_info.pop("co_id", None)
 
     if rel_role == "owner":
-        rel_schema = "Ownership"
-        from_prop = "owner"
-        to_prop = "asset"
+        rel_schema, from_prop, to_prop = "Ownership", "owner", "asset"
+    else:
+        rel_schema, from_prop, to_prop = "UnknownLink", "subject", "object"
 
     emit_relation(
         context,
@@ -381,6 +378,7 @@ def crawl_vessel(context: Context, vessel_data, program, entity_type: str):
     context.emit(vessel)
     context.emit(sanction)
 
+    # 'role' is a field in the API response that we're matching on
     for role in ["commerce_manager", "security_manager", "owner"]:
         party_info = vessel_data.pop(role, None)
         if not party_info:
