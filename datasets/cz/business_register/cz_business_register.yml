@@ -37,3 +37,125 @@ url: https://ares.gov.cz/stranky/otevrena-data
 data:
   url: "https://ares.gov.cz/otevrena-data/ares_vreo_all.tar.gz"
   format: XML+TAR+GZIP
+
+lookups:
+  type.name:
+    options:
+      - match: "SPOLEK ZA CO MOŽNÁ NEJMILOSRDNĚJŠÍ PRODUKTY EKONOMIKY (slovensky/Slovak: SPOLOK ZA ČO MOŽNÁ NAJMILOSRDNEJŠÍ PRODUKTY EKONOMIKY, anglicky/English: ASSOCIATION FOR POSSIBLY THE MOST MERCIFUL PRODUCTS OF ECONOMY, španělsky/Spanish: ASOCIACIÓN PARA LOS PRODUCTOS POSIBLEMENTE MÁS MISERICORDIOSOS DE ECONOMÍA, francouzsky/French: ASSOCIATION POUR LES PRODUITS POSSIBLEMENT LES PLUS MISÉRICORDIEUX DE L'ÉCONOMIE, rusky/Russian: ASSOTSIATSIYA DLYA PO VOZMOZHNOSTI NAIBOLEYE MILOSTIVYKH PRODUKTOV EKONOMIKI, německy/German: VEREINIGUNG FÜR MÖGLICHERWEISE DIE BARMHERZIGSTEN PRODUKTE DER WIRTSCHAFT, italsky/Italian: ASSOCIAZIONE PER I PRODOTTI POSSIBILMENTE PIÙ MISERICORDIOSI DI ECONOMIA, hebrejsky/Hebrew: HAAGUDA LAMUTSARIM ULAY HARAKHUMIM BEYOTER SHEL HAKALKALA)"
+        values:
+          - SPOLEK ZA CO MOŽNÁ NEJMILOSRDNĚJŠÍ PRODUKTY EKONOMIKY
+          - SPOLOK ZA ČO MOŽNÁ NAJMILOSRDNEJŠÍ PRODUKTY EKONOMIKY
+          - ASSOCIATION FOR POSSIBLY THE MOST MERCIFUL PRODUCTS OF ECONOMY
+          - ASOCIACIÓN PARA LOS PRODUCTOS POSIBLEMENTE MÁS MISERICORDIOSOS DE ECONOMÍA
+          - ASSOCIATION POUR LES PRODUITS POSSIBLEMENT LES PLUS MISÉRICORDIEUX DE L'ÉCONOMIE
+          - ASSOTSIATSIYA DLYA PO VOZMOZHNOSTI NAIBOLEYE MILOSTIVYKH PRODUKTOV EKONOMIKI
+          - VEREINIGUNG FÜR MÖGLICHERWEISE DIE BARMHERZIGSTEN PRODUKTE DER WIRTSCHAFT
+          - ASSOCIAZIONE PER I PRODOTTI POSSIBILMENTE PIÙ MISERICORDIOSI DI ECONOMIA
+          - HAAGUDA LAMUTSARIM ULAY HARAKHUMIM BEYOTER SHEL HAKALKALA
+      - match:
+          - "."
+          - 300755
+          - ---
+          - 0
+          - 00000000000000000000000
+          - 580118/0451
+          - " 99 "
+          - 99
+          - "1.2.3."
+          - 04
+          - 580118/0451
+          - 695106/1491
+          - 300755
+          - "-"
+          - 1.9.1984
+        value: null
+  type.date:
+    options:
+      - match: 
+        - 0213-04-15
+        - 5014-05-31
+        - 0013-02-10
+        - 0212-03-27
+        - 0214-08-11
+        - 0211-10-26
+        - 0203-02-21
+        - 0212-09-11
+        - 0214-10-13
+        - 0199-02-23
+        - 0013-06-03
+        - 0212-09-21
+        - 0012-03-21
+        - 0212-04-23
+        - 0204-06-26
+        - 0212-10-05
+        - 0212-07-09
+        - 0214-09-22
+        - 0213-03-13
+        - 0200-03-27
+        - 0213-01-17
+        - 0212-06-28
+        - 0202-12-19
+        - 0212-11-16
+        - 0204-05-14
+        - 0201-03-31
+        - 3013-09-10
+        - 0013-12-22
+        - 0204-01-06
+        - 0203-03-06
+        - 3001-10-30
+        - 0207-05-29
+        - 0201-02-10
+        - 0092-12-08
+        - 0013-11-14
+        - 0213-03-27
+        - 0201-05-15
+        - 0113-06-03
+        - 0204-03-06
+        - 0212-05-28
+        - 3015-03-03
+        - 0214-03-21
+        - 0996-11-14
+        - 0112-10-29
+        - 3013-03-08
+        - 0213-01-09
+        - 3013-06-27
+        - 0200-12-04
+        - 0212-12-31
+        - 0214-05-15
+        - 0213-09-26
+        - 0202-05-30
+        - 3013-10-31
+        - 0012-12-25
+        - 0994-12-17
+        - 0213-05-27
+        - 0012-04-17
+        - 0204-04-23
+        - 0201-06-27
+        - 0212-05-11
+        - 0214-05-14
+        - 0214-08-26
+        - 9018-09-07
+        - 0213-03-05
+        - 0213-06-27
+        - 0204-09-08
+        - 0011-12-19
+        - 0013-06-12
+        - 0213-11-06
+        - 0012-05-30
+        - 0213-10-03
+        - 0214-03-28
+        - 0201-06-11
+        - 0201-10-01
+        - 0201-06-06
+        - 0201-04-11
+        - 0213-10-02
+        - 0210-05-14
+        - 0994-12-22
+        - 0113-07-19
+        - 0203-08-30
+        - 0212-10-23
+        - 0012-03-06
+        - 0214-07-28
+        - 0213-01-25
+        - 0203-11-08
+        value: null
