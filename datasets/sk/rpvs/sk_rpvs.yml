@@ -122,3 +122,10 @@ lookups:
           - the Palm Jumeirah
           - Hodkovičky, 147 00
         prop: region
+      # null falsy firstName
+      - match: 10/46
+        prop: null
+  type.name:
+    options:
+      - match: 1115
+        value: null
