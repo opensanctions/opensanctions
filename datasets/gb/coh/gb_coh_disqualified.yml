@@ -129,3 +129,8 @@ lookups:
       - match: "09818186"
         # previous name according to https://find-and-update.company-information.service.gov.uk/company/09818186
         value: "FARROW & BALL ORANGERIES LTD"
+      # Director's dob provided instead of the company name: 
+      # https://www.opensanctions.org/entities/gb-coh-named-05-08-1966/
+      # https://find-and-update.company-information.service.gov.uk/disqualified-officers/natural/HK0GlB_42rNskR15KNhpZVSFwfE
+      - match: 05/08/1966
+        value: null
