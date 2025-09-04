@@ -3,10 +3,11 @@ import random
 import hashlib
 import base64
 
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from enum import Enum
 from os import environ as env
-from typing import Optional
+from typing import Optional, List
 
 from zavod import Context, helpers as h
 
@@ -28,92 +29,116 @@ class WSAPIDataType(str, Enum):
     ROSTEC_STRUCTURE = "rostec_structure"
 
 
-LINKS = [
-    {  # child kidnappers
-        "endpoint": "kidnappers/persons",
-        "type": WSAPIDataType.PERSON,
-        "program": "Persons involved in the deportation of Ukrainian children",
-    },
-    {  # child kidnappers
-        "endpoint": "kidnappers/companies",
-        "type": WSAPIDataType.LEGAL_ENTITY,
-        "program": "Legal entities involved in the deportation of Ukrainian children",
-    },
-    {  # uav manufacturers
-        "endpoint": "uav/companies",
-        "type": WSAPIDataType.LEGAL_ENTITY,
-        "program": "Legal entities involved in the production of UAVs",
-    },
-    {  # russian athletes
-        "endpoint": "sport/persons",
-        "type": WSAPIDataType.PERSON,
-        "program": "Athletes and sports officials participating in Russian influence operations abroad",
-    },
-    {  # ships
-        "endpoint": "transport/ships",
-        "type": WSAPIDataType.VESSEL,
-        "program": "Marine and Aircraft Vessels, Airports and Ports involved in the transportation of weapons, stolen Ukrainian products and in the circumvention of sanctions",
-    },
-    {  # ship management
-        "endpoint": "transport/management",
-        "type": WSAPIDataType.MANAGEMENT,
-        "program": "Management of ships involved in the transportation of weapons, stolen Ukrainian products and in the circumvention of sanctions",
-    },
-    {  # companies associated with ships
-        "endpoint": "transport/companies",
-        "type": WSAPIDataType.LEGAL_ENTITY,
-        "program": "Companies associated with the ships involved in the transportation of weapons, stolen Ukrainian products and in the circumvention of sanctions",
-    },
-    {  # persons associated with ships
-        "endpoint": "transport/persons",
-        "type": WSAPIDataType.PERSON,
-        "program": "Persons associated with the ships involved in the transportation of weapons, stolen Ukrainian products and in the circumvention of sanctions",
-    },
-    {  # captains
-        "endpoint": "transport/captains",
-        "type": WSAPIDataType.PERSON,
-        "program": "Captains of ships involved in the transportation of weapons, stolen Ukrainian products and in the circumvention of sanctions",
-    },
-    {  # propagandists
-        "endpoint": "propaganda/persons",
-        "type": WSAPIDataType.PERSON,
-        "program": "Persons involved in the dissemination of propaganda",
-    },
-    {  # executives of war
-        "endpoint": "executives/persons",
-        "type": WSAPIDataType.PERSON,
-        "program": "Officials and entities controlling Russia’s military-industrial policy, defense orders, and wartime economy",
-    },
-    {  # stealers of heritage
-        "endpoint": "stolen/persons",
-        "type": WSAPIDataType.PERSON,
-        "program": "Persons involved in the theft and destruction of Ukrainian cultural heritage",
-    },
-    {  # stealers of heritage
-        "endpoint": "stolen/companies",
-        "type": WSAPIDataType.LEGAL_ENTITY,
-        "program": "Legal entities involved in the theft and destruction of Ukrainian cultural heritage",
-    },
-    {  # russian military-industrial complex
-        "endpoint": "rostec/companies",
-        "type": WSAPIDataType.LEGAL_ENTITY,
-        "program": "Entities from Rostec’s core military holdings producing weapons for Russia’s war against Ukraine.",
-    },
-    {  # military component manufacturers
-        "endpoint": "components/companies",
-        "type": WSAPIDataType.LEGAL_ENTITY,
-        "program": "Enterprises involved in the production and supply of military components and parts",
-    },
-    {  # factories
-        "endpoint": "tools/companies",
-        "type": WSAPIDataType.LEGAL_ENTITY,
-        "program": "Legal entities involved in the production of military equipment and supplies",
-    },
-    {  # rostec structure
-        "endpoint": "rostec/structure",
-        "type": WSAPIDataType.ROSTEC_STRUCTURE,
-        "program": "",
-    },
+@dataclass(frozen=True)
+class WSAPILink:
+    endpoint: str
+    type: WSAPIDataType
+    program: str
+
+
+LINKS: List[WSAPILink] = [
+    WSAPILink(
+        # child kidnappers
+        "kidnappers/persons",
+        WSAPIDataType.PERSON,
+        "Persons involved in the deportation of Ukrainian children",
+    ),
+    WSAPILink(
+        # child kidnappers
+        "kidnappers/companies",
+        WSAPIDataType.LEGAL_ENTITY,
+        "Legal entities involved in the deportation of Ukrainian children",
+    ),
+    WSAPILink(
+        # uav manufacturers
+        "uav/companies",
+        WSAPIDataType.LEGAL_ENTITY,
+        "Legal entities involved in the production of UAVs",
+    ),
+    WSAPILink(
+        # russian athletes
+        "sport/persons",
+        WSAPIDataType.PERSON,
+        "Athletes and sports officials participating in Russian influence operations abroad",
+    ),
+    WSAPILink(
+        # ships
+        "transport/ships",
+        WSAPIDataType.VESSEL,
+        "Marine and Aircraft Vessels, Airports and Ports involved in the transportation of weapons, stolen Ukrainian products and in the circumvention of sanctions",
+    ),
+    WSAPILink(
+        # ship management
+        "transport/management",
+        WSAPIDataType.MANAGEMENT,
+        "Management of ships involved in the transportation of weapons, stolen Ukrainian products and in the circumvention of sanctions",
+    ),
+    WSAPILink(
+        # companies associated with ships
+        "transport/companies",
+        WSAPIDataType.LEGAL_ENTITY,
+        "Companies associated with the ships involved in the transportation of weapons, stolen Ukrainian products and in the circumvention of sanctions",
+    ),
+    WSAPILink(
+        # persons associated with ships
+        "transport/persons",
+        WSAPIDataType.PERSON,
+        "Persons associated with the ships involved in the transportation of weapons, stolen Ukrainian products and in the circumvention of sanctions",
+    ),
+    WSAPILink(
+        # captains
+        "transport/captains",
+        WSAPIDataType.PERSON,
+        "Captains of ships involved in the transportation of weapons, stolen Ukrainian products and in the circumvention of sanctions",
+    ),
+    WSAPILink(
+        # propagandists
+        "propaganda/persons",
+        WSAPIDataType.PERSON,
+        "Persons involved in the dissemination of propaganda",
+    ),
+    WSAPILink(
+        # executives of war
+        "executives/persons",
+        WSAPIDataType.PERSON,
+        "Officials and entities controlling Russia’s military-industrial policy, defense orders, and wartime economy",
+    ),
+    WSAPILink(
+        # stealers of heritage
+        "stolen/persons",
+        WSAPIDataType.PERSON,
+        "Persons involved in the theft and destruction of Ukrainian cultural heritage",
+    ),
+    WSAPILink(
+        # stealers of heritage
+        "stolen/companies",
+        WSAPIDataType.LEGAL_ENTITY,
+        "Legal entities involved in the theft and destruction of Ukrainian cultural heritage",
+    ),
+    WSAPILink(
+        # russian military-industrial complex
+        "rostec/companies",
+        WSAPIDataType.LEGAL_ENTITY,
+        "Entities from Rostec’s core military holdings producing weapons for Russia’s war against Ukraine.",
+    ),
+    WSAPILink(
+        # military component manufacturers
+        "components/companies",
+        WSAPIDataType.LEGAL_ENTITY,
+        "Enterprises involved in the production and supply of military components and parts",
+    ),
+    WSAPILink(
+        # factories
+        "tools/companies",
+        WSAPIDataType.LEGAL_ENTITY,
+        "Legal entities involved in the production of military equipment and supplies",
+    ),
+    WSAPILink(
+        # rostec structure
+        "rostec/structure",
+        WSAPIDataType.ROSTEC_STRUCTURE,
+        "Rostec’s organizational structure and key entities",
+    ),
 ]
 
 
@@ -472,29 +497,28 @@ def check_updates(context: Context):
 def crawl(context: Context):
     check_updates(context)
 
-    for link_info in LINKS:
+    for link in LINKS:
         token = generate_token(WS_API_CLIENT_ID, WS_API_KEY)
         headers = {"Authorization": token}
-        endpoint = link_info["endpoint"]
-        data_type = link_info["type"]
-        program = link_info["program"]
 
-        url = f"{WS_API_BASE_URL}{endpoint}"
+        url = f"{WS_API_BASE_URL}{link.endpoint}"
         response = context.fetch_json(url, headers=headers, cache_days=1)
         if not response or response.get("code") != 0:
             context.log.error("No valid data to parse", url=url, response=response)
             continue
         data = response.get("data")
         for entity_details in data:
-            if data_type == "person":
-                crawl_person(context, entity_details, program, endpoint, "person")
-            elif data_type == "legal_entity":
-                crawl_legal_entity(context, entity_details, program, "entity")
-            elif data_type == "vessel":
-                crawl_vessel(context, entity_details, program, "vessel")
-            elif data_type == "management":
-                crawl_manager(context, entity_details, program, "entity")
-            elif data_type == "rostec_structure":
+            if link.type is WSAPIDataType.PERSON:
+                crawl_person(
+                    context, entity_details, link.program, link.endpoint, "person"
+                )
+            elif link.type is WSAPIDataType.LEGAL_ENTITY:
+                crawl_legal_entity(context, entity_details, link.program, "entity")
+            elif link.type is WSAPIDataType.VESSEL:
+                crawl_vessel(context, entity_details, link.program, "vessel")
+            elif link.type is WSAPIDataType.MANAGEMENT:
+                crawl_manager(context, entity_details, link.program, "entity")
+            elif link.type is WSAPIDataType.ROSTEC_STRUCTURE:
                 crawl_rostec_structure(context, entity_details, "entity")
             else:
-                context.log.warn(f"Unknown data type: {data_type}")
+                context.log.warn(f"Unknown data type: {link.type}")
