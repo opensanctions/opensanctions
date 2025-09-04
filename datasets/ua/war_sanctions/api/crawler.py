@@ -439,6 +439,8 @@ def check_updates(context: Context):
     change_log = doc.xpath(".//main[@class='relative']")
     assert len(change_log) == 1, change_log
     h.assert_dom_hash(change_log[0], "18328f23fa487338c88a408674d1c4682a1f32c6")
+    # Existing sections from the API documentation sidebar
+    #
     # Kidnappers:
     # - kidnappers persons
     # - kidnappers companies
