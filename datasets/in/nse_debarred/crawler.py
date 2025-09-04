@@ -125,6 +125,7 @@ def crawl_item(input_dict: dict, context: Context):
             "date_of_nse_circular",
             "symbol",
             "date_of_nse_circular_for_revocation",
+            "date_of_nse_circular_url",
             "nse_circular_no_for_revocation_url",
             "nse_circular_no_for_revocation",
         ],
@@ -142,15 +143,15 @@ def parse_xls_or_xlsx_sheet_from_url(context: Context, url: str, filename: str):
         )
         mimetype = XLSX
         workbook = openpyxl.load_workbook(filepath)
-        # One of the sheets is named "Data" or "Sheet1" and the other is named "Working" in separate files
-        sheet = load_sheet(workbook, ["Working", "Data", "Sheet1"])
+        # One of the sheets is named "Sheet1" and the other is named "Working" in separate files
+        sheet = load_sheet(workbook, ["Sheet1", "Working"])
         items = h.parse_xlsx_sheet(context, sheet, extract_links=True)
     else:
         filepath = shutil.move(
             filepath_tmp, context.get_resource_path(f"{filename}.xls")
         )
         mimetype = XLS
-        items = h.parse_xls_sheet(context, xlrd.open_workbook(filepath)["Working"])
+        items = h.parse_xls_sheet(context, xlrd.open_workbook(filepath)["Sheet1"])
 
     context.export_resource(filepath, mimetype, title=context.SOURCE_TITLE)
     return items
