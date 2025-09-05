@@ -43,12 +43,6 @@ assertions:
       LegalEntity: 100
 
 lookups:
-  sanction.program:
-    options:
-      - match: LT-SL
-        value: LT-SL
-      - match: LT-UNSCR1373
-        value: LT-UNSCR1373
   company_name:
     normalize: true
     options:

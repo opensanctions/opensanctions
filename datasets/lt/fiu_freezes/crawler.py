@@ -64,12 +64,7 @@ def crawl_page(
             company.add(prop, value)
         context.emit(company)
 
-        sanction = h.make_sanction(
-            context,
-            company,
-            source_program_key=program_key,
-            program_key=h.lookup_sanction_program_key(context, program_key),
-        )
+        sanction = h.make_sanction(context, company, program_key=program_key)
         sanction.add("provisions", measures)
         sanction.add("program", legal_grounds)
         context.emit(sanction)
