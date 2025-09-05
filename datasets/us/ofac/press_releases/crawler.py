@@ -29,8 +29,9 @@ schema_field = Field(
     description=(
         "- 'Person', if the name refers to an individual human."
         "- 'Vessel', if the name refers to a ship or vessel."
+        "- 'Company', for entities with a clear legal form (e.g., Inc, LLC, SA de CV)."
         "- 'Organization', for groups like terrorist groups, cartels or government bodies."
-        "- 'LegalEntity', for entities when it is unclear if the entity is a person or company."
+        "- 'LegalEntity', when it is unclear if the entity is a person, company or organization."
         "NEVER invent new schema labels."
     )
 )
@@ -72,23 +73,23 @@ EXCLUDE from extraction:
 <entity_classification>
 When determining entity_schema:
 - Available options: {schema_field.description}
-- Use "Person" for individual human names
-- Use "Organization" as default for entities without specified legal form (like: Inc, LLC, SA de CV)
 </entity_classification>
 
 <extraction_fields>
 For each entity found, extract these fields:
 
 1. **name**: The exact name as written in the article.
-    - If the name is followed by an acronym/alias in brackets, DO NOT include this in the name.
+    - If the name is followed by an acronym or alias in brackets, DO NOT include this in the name.
    
 2. **entity_schema**: Select from available schema types: {schema_field.description}
    
 3. **aliases**: Alternative names or acronyms ONLY if they meet these criteria:
-   - Must be explicitly stated as "also known as", "formerly", "aka", "fka", or similar. Include only the alias, not the "aka" prefix.
-   - DO NOT include short name aliases in brackets
-   - Include acronyms that are MORE descriptive than the primary name (e.g., "March 23 Movement" as an alias for "M23")
-   - DO NOT include subsets of the full name (e.g., "Smith" from "John Michael Smith")
+   - Must be explicitly stated as "also known as", "alias", "formerly", "aka", "fka", or similar. Include ONLY the alias, not the "aka" prefix.
+   - An alias MUST NOT be the last name, family name or patronymic of a person. It MUST NOT be their first name.
+     <example>John Smith (Smith)</example> <alias_error>Smith</alias_error>
+   - An alias MUST NOT be the name of a company with the legal form missing.
+     <example>Acme Corporation (Acme)</example> <alias_error>Acme</alias_error>
+     <example>Acme, Ltd (Acme)</example> <alias_error>Acme</alias_error>
    
 4. **nationality**: For individuals ONLY - their stated nationality
    - Leave empty if not explicitly mentioned or if entity is not a Person
