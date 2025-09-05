@@ -49,10 +49,6 @@ assertions:
       Company: 330
 
 lookups:
-  sanction.program:
-    options:
-      - match: 'Law of Ukraine "On Sanctions" No. 1644-VII dated 14 Aug. 2014'
-        value: UA-SA1644
   sanctioned_status:
     options:
       - match: active

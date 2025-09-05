@@ -14,7 +14,7 @@ CACHE_LONG = 7
 # They seem to mix up ukr, ukr, rus and ukr, rus, ukr so not assuming
 REGEX_NAME_3_PARTS = re.compile(r"^([^\(]+)\(([^,]+),([^,]+)\)$")
 REGEX_ADDR_2_PARTS = re.compile(r"^([^\(]{75,})\((.{75,})\)$")
-PROGRAM_NAME = 'Law of Ukraine "On Sanctions" No. 1644-VII dated 14 Aug. 2014'
+UA_SA1644 = "UA-SA1644"
 
 
 def fetch_data(
@@ -150,11 +150,7 @@ def crawl_common(
     ):
         action_id = action.pop("aid")
         sanction = h.make_sanction(
-            context,
-            entity,
-            key=action_id,
-            program_name=PROGRAM_NAME,
-            program_key=h.lookup_sanction_program_key(context, PROGRAM_NAME),
+            context, entity, key=action_id, program_key=UA_SA1644
         )
         sanction.add("status", action.pop("status"))
         decree = action.pop("decree", None) or {}
