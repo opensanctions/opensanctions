@@ -6,10 +6,15 @@ from zavod import helpers as h
 from zavod.shed.zyte_api import fetch_html
 
 
+LT_SL = "LT-SL"
+LT_UNSCR1373 = "LT-UNSCR1373"
+
+
 def crawl_page(
     context: Context,
     link: str,
     unblock_validator: str,
+    program_key: str,
     required: bool = True,
 ):
     doc = fetch_html(context, link, unblock_validator, cache_days=3)
@@ -59,7 +64,7 @@ def crawl_page(
             company.add(prop, value)
         context.emit(company)
 
-        sanction = h.make_sanction(context, company)
+        sanction = h.make_sanction(context, company, program_key=program_key)
         sanction.add("provisions", measures)
         sanction.add("program", legal_grounds)
         context.emit(sanction)
@@ -98,11 +103,13 @@ def crawl(context: Context):
         context,
         "https://fntt.lrv.lt/lt/tarptautines-finansines-sankcijos/sankcionuotu-asmenu-sarasas/",
         ".//*[contains(text(), 'Fizinio ar juridinio asmens, kurio turtas įšaldytas')]",
+        program_key=LT_SL,
     )
     unsc_1373_doc = crawl_page(
         context,
         "https://fntt.lrv.lt/lt/tarptautines-finansines-sankcijos/JT-STR-1373-sarasas/",
         ".//*[contains(text(), 'JT ST rezoliucijoje 1373 (2001)')]",
+        program_key=LT_UNSCR1373,
         required=False,
     )
     unsc_1373_main = unsc_1373_doc.xpath(".//main")
