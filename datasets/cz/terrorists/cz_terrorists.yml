@@ -42,6 +42,10 @@ assertions:
       Organization: 25
 
 lookups:
+  sanction.program:
+    options:
+      - match: CZ-TERR
+        value: CZ-TERR
   details:
     options:
       - match: " ALBERDI URANGA, Itziar, narozena dne 7.10.1963 v Durangu, Biskajsko (Španělsko), průkaz totožnosti č. 78.865.693 – aktivistka „ETA“"
