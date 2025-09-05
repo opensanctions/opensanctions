@@ -54,7 +54,7 @@ assertions:
 lookups:
   sanction.program:
     options:
-      - match: "Russia Sanctions Act 2022"
+      - match: NZ-RSA2022
         value: NZ-RSA2022
   type.date:
     lowercase: true
