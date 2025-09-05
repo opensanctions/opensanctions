@@ -67,10 +67,7 @@ def crawl(context: Context) -> None:
 
         # Create sanction entity
         sanction = h.make_sanction(
-            context,
-            organization,
-            key="au-terrorist-listing",
-            program_key=h.lookup_sanction_program_key(context, AU_TERROR),
+            context, organization, key="au-terrorist-listing", program_key=AU_TERROR
         )
 
         # Add listing date to sanction
