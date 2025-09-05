@@ -26,7 +26,7 @@ from zavod import Context
 from zavod import helpers as h
 from zavod.shed.un_sc import get_legal_entities, get_persons, Regime, load_un_sc
 
-POLAND_PROGRAM = "art. 118 ustawy z dnia 1 marca 2018 r. o przeciwdziałaniu praniu pieniędzy i finansowaniu terroryzmu"
+PL_AML118 = "PL-AML118"
 UN_SC_PREFIXES = [Regime.TALIBAN, Regime.DAESH_AL_QAIDA]
 
 PSEUDONYM_SPLITS = ["a) ", "b) ", "c) "]
@@ -69,12 +69,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
         )
 
     entity.add("topics", "sanction")
-    sanction = h.make_sanction(
-        context,
-        entity,
-        program_key=h.lookup_sanction_program_key(context, POLAND_PROGRAM),
-    )
-    sanction.add("program", POLAND_PROGRAM, lang="pol")
+    sanction = h.make_sanction(context, entity, program_key=PL_AML118)
     h.apply_date(sanction, "listingDate", row.pop("data_umieszczenia_na_liscie"))
     sanction.add(
         "reason",
