@@ -7,7 +7,7 @@ from zavod import helpers as h
 from zavod.shed import zyte_api
 
 IN_BRACKETS = re.compile(r"\(([^\)]*)\)")
-PROGRAM = "Terrorism (Suppression of Financing) Act 2002; Schedule 2"
+SG_TSFA2002 = "SG-TSFA2002"
 DOB = "Date of Birth:"
 PASSPORT = "Passport No."
 
@@ -40,8 +40,7 @@ def crawl(context: Context):
             sanction = h.make_sanction(
                 context,
                 entity,
-                program_name=PROGRAM,
-                program_key=h.lookup_sanction_program_key(context, PROGRAM),
+                program_key=SG_TSFA2002,
             )
 
             for match in IN_BRACKETS.findall(text):

@@ -43,10 +43,6 @@ assertions:
       Person: 60
 
 lookups:
-  sanction.program:
-    options:
-      - match: "Terrorism (Suppression of Financing) Act 2002; Schedule 2"
-        value: SG-TSFA2002
   props:
     normalize: true
     options:
