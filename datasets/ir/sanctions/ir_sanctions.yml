@@ -67,10 +67,6 @@ assertions:
       Person: 500
 
 lookups:
-  sanction.program:
-    options:
-      - match: IR-MFA-SANC
-        value: IR-MFA-SANC
   schema:
     map:
       Entity: LegalEntity
