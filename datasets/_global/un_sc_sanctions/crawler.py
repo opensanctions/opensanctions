@@ -136,11 +136,11 @@ def parse_common(context: Context, entity: Entity, node: Element) -> Entity:
         source_program_key=program,
         program_key=h.lookup_sanction_program_key(context, program),
     )
-    entity.add("createdAt", node.findtext("./LISTED_ON"))
-    sanction.add("listingDate", node.findtext("./LISTED_ON"))
-    sanction.add("startDate", node.findtext("./LISTED_ON"))
-    sanction.add("modifiedAt", values(node.find("./LAST_DAY_UPDATED")))
-    entity.add("modifiedAt", values(node.find("./LAST_DAY_UPDATED")))
+    h.apply_date(entity, "createdAt", node.findtext("./LISTED_ON"))
+    h.apply_date(sanction, "listingDate", node.findtext("./LISTED_ON"))
+    h.apply_date(sanction, "startDate", node.findtext("./LISTED_ON"))
+    h.apply_date(sanction, "modifiedAt", values(node.find("./LAST_DAY_UPDATED")))
+    h.apply_date(entity, "modifiedAt", values(node.find("./LAST_DAY_UPDATED")))
     sanction.add("unscId", node.findtext("./REFERENCE_NUMBER"))
     return sanction
 
