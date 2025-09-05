@@ -20,7 +20,7 @@ def aggregate_issues(dataset: str) -> None:
         counter[message] += 1
 
     # Process the issues_data as needed
-    for message, count in counter.most_common(100):
+    for message, count in counter.most_common(500):
         print(f"[{count}]: {message}")
 
 
