@@ -251,6 +251,8 @@ def crawl(context: Context):
             # Filter out unwanted download/media links
             if "/news/press-releases/" not in url:
                 continue  # skip this row
+            if "/index.php/" in url:
+                url = url.replace("/index.php/", "/")
             crawl_press_release(context, url)
         page += 1
         assert page < 200
