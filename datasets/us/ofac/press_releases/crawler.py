@@ -86,9 +86,9 @@ For each entity found, extract these fields:
    
 3. **aliases**: Alternative names or acronyms ONLY if they meet these criteria:
    - Must be explicitly stated as "also known as", "formerly", "aka", "fka", or similar. Include only the alias, not the "aka" prefix.
+   - DO NOT include short name aliases in brackets
    - Include acronyms that are MORE descriptive than the primary name (e.g., "March 23 Movement" as an alias for "M23")
-   - EXCLUDE subsets of the full name (e.g., "Smith" from "John Michael Smith")
-   - EXCLUDE short names in brackets
+   - DO NOT include subsets of the full name (e.g., "Smith" from "John Michael Smith")
    
 4. **nationality**: For individuals ONLY - their stated nationality
    - Leave empty if not explicitly mentioned or if entity is not a Person
