@@ -5,7 +5,7 @@ from urllib.parse import urlparse
 
 import pdfplumber
 from lxml import html
-from rigour.mime.types import CSV, HTML, PDF
+from rigour.mime.types import CSV, PDF
 
 from zavod import Context, helpers as h
 from zavod.shed.zyte_api import fetch_resource, fetch_html
