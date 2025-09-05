@@ -69,7 +69,7 @@ assertions:
 lookups:
   sanction.program:
     options:
-      - match: "Individuals And Entities In The Sanction’s List Of The Islamic Republic Of Iran"
+      - match: IR-MFA-SANC
         value: IR-MFA-SANC
   schema:
     map:
