@@ -46,20 +46,42 @@ def crawl_entity(context: Context, data: Dict[str, Any]):
     entity.add("topics", "sanction")
     details = data.pop("mesureDetails")
     aliases = details.pop("alias")
-    for alias in h.multi_split(aliases, [";;", ",;", ";"]):
+    aliasProp = "alias"
+    for alias in h.multi_split(
+        aliases,
+        [
+            "; a)",
+            "; b)",
+            "; c)",
+            "; d)",
+            "; e)",
+            "; f)",
+            "; g)",
+            "; h)",
+            "; i)",
+            ";;",
+            ",;",
+            ";",
+        ],
+    ):
         alias = alias.strip()
         if not alias:
             continue
+        if "Pseudonymes peu fiables" in alias or "Pseudonyme peu fiable" in alias:
+            # After we see a "Pseudonymes peu fiables :" (non-reliable pseudonyms) we switch to the "weakAlias" property
+            aliasProp = "weakAlias"
+            continue
+
         if "/" in alias:
             result = context.lookup("aliases", alias)
             if not result:
                 context.log.warn(f"Alias not found in the lookups: {alias.strip()}")
-                entity.add("alias", alias)
+                entity.add(aliasProp, alias)
             else:
                 for a in result.aliases:
-                    entity.add("alias", a)
+                    entity.add(aliasProp, a)
         else:
-            entity.add("alias", alias.strip())
+            entity.add(aliasProp, alias.strip())
     address = details.pop("adresse")
     entity.add("address", clean_address(address))
     entity.add("notes", details.pop("autresInfos"))

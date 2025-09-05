@@ -368,3 +368,12 @@ lookups:
       - match:
           - UKRAINE et
         value: ua
+  type.name:
+    options:
+      - match:
+          - "Pseudonymes fiables :"
+          - "Pseudonymes fiables:"
+          - "Pseudonyme fiable:"
+          - "Pseudonymes peu fiables :"
+          - "Pseudonyme peu fiable:"
+        value: null
