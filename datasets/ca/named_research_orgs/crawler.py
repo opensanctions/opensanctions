@@ -6,7 +6,7 @@ from zavod.helpers.xml import ElementOrTree
 
 
 COUNTRY_REGEX = re.compile(r"\((.*?)\)")
-PROGRAM_NAME = "Policy on Sensitive Technology Research and Affiliations of Concern"
+CA_NRO = "CA-NRO"
 
 
 def parse_html(doc: ElementOrTree):
@@ -69,8 +69,7 @@ def emit_nro(context: Context, nro):
     sanction = h.make_sanction(
         context,
         entity,
-        program_name=PROGRAM_NAME,
-        program_key=h.lookup_sanction_program_key(context, PROGRAM_NAME),
+        program_key=h.lookup_sanction_program_key(context, CA_NRO),
     )
     context.emit(sanction)
 

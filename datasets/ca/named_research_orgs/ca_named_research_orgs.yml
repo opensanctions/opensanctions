@@ -49,5 +49,5 @@ assertions:
 lookups:
   sanction.program:
     options:
-      - match: "Policy on Sensitive Technology Research and Affiliations of Concern"
+      - match: CA-NRO
         value: CA-NRO
