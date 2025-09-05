@@ -114,11 +114,7 @@ def crawl_entity(context: Context, data: Dict[str, Any]) -> None:
     if associates is not None:
         parse_associates(context, entity, associates)
 
-    sanction = h.make_sanction(
-        context,
-        entity,
-        program_key=h.lookup_sanction_program_key(context, NZ_RSA2022),
-    )
+    sanction = h.make_sanction(context, entity, program_key=NZ_RSA2022)
     sanction.add("startDate", data.pop("Date of Sanction"))
     modified_at = clean_date(data.pop("Date of Additional Sanction"))
     h.apply_date(sanction, "modifiedAt", modified_at)

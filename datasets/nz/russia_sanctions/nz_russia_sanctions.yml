@@ -52,10 +52,6 @@ assertions:
       Company: 70
 
 lookups:
-  sanction.program:
-    options:
-      - match: NZ-RSA2022
-        value: NZ-RSA2022
   type.date:
     lowercase: true
     options:
