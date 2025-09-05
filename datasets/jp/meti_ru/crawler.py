@@ -8,7 +8,7 @@ from lxml import html
 from rigour.mime.types import CSV, HTML, PDF
 
 from zavod import Context, helpers as h
-from zavod.shed.zyte_api import fetch_resource
+from zavod.shed.zyte_api import fetch_resource, fetch_html
 
 SOURCE_URL = "https://www.meti.go.jp/policy/external_economy/trade_control/02_export/17_russia/russia.html"
 NAMES_PATTERN = re.compile(
@@ -137,13 +137,16 @@ def crawl_row(context, row):
 
 
 def crawl(context: Context):
-    _, _, _, html_path = fetch_resource(
-        context, "source.html", SOURCE_URL, HTML, geolocation="jp"
+    divs_xpath = ".//div[@class='wrapper2011']"
+    doc = fetch_html(
+        context,
+        SOURCE_URL,
+        divs_xpath,
+        html_source="httpResponseBody",
+        geolocation="jp",
     )
-    with open(html_path, "r") as fh:
-        doc = html.fromstring(fh.read())
     doc.make_links_absolute(SOURCE_URL)
-    divs = doc.xpath(".//div[@class='wrapper2011']")
+    divs = doc.xpath(divs_xpath)
     assert len(divs) == 1, len(divs)
     # Check hash of the content part of the page
     h.assert_dom_hash(divs[0], "4aad6cb5239dc452fff0a697d49684aa75eb2901")
