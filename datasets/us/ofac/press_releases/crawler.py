@@ -80,16 +80,15 @@ When determining entity_schema:
 For each entity found, extract these fields:
 
 1. **name**: The exact name as written in the article.
-    - If the name is followed by an acronym in brackets, do not include this in the name.
+    - If the name is followed by an acronym/alias in brackets, DO NOT include this in the name.
    
 2. **entity_schema**: Select from available schema types: {schema_field.description}
    
 3. **aliases**: Alternative names or acronyms ONLY if they meet these criteria:
    - Must be explicitly stated as "also known as", "formerly", "aka", "fka", or similar. Include only the alias, not the "aka" prefix.
-   - Must be a legitimate alternative name or widely recognized abbreviation
    - Include acronyms that are MORE descriptive than the primary name (e.g., "March 23 Movement" as an alias for "M23")
    - EXCLUDE subsets of the full name (e.g., "Smith" from "John Michael Smith")
-   - EXCLUDE text reference aliases in brackets unless explicitly marked as aliases
+   - EXCLUDE short names in brackets
    
 4. **nationality**: For individuals ONLY - their stated nationality
    - Leave empty if not explicitly mentioned or if entity is not a Person
