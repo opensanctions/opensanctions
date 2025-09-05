@@ -5,10 +5,10 @@ from urllib.parse import urlparse
 
 import pdfplumber
 from lxml import html
-from rigour.mime.types import CSV
+from rigour.mime.types import CSV, HTML, PDF
 
-from zavod import Context
-from zavod import helpers as h
+from zavod import Context, helpers as h
+from zavod.shed.zyte_api import fetch_resource
 
 SOURCE_URL = "https://www.meti.go.jp/policy/external_economy/trade_control/02_export/17_russia/russia.html"
 NAMES_PATTERN = re.compile(
@@ -137,7 +137,9 @@ def crawl_row(context, row):
 
 
 def crawl(context: Context):
-    html_path = context.fetch_resource("source.html", SOURCE_URL)
+    _, _, _, html_path = fetch_resource(
+        context, "source.html", SOURCE_URL, HTML, geolocation="jp"
+    )
     with open(html_path, "r") as fh:
         doc = html.fromstring(fh.read())
     doc.make_links_absolute(SOURCE_URL)
@@ -165,7 +167,9 @@ def crawl(context: Context):
 
     for pdf_url in pdf_urls:
         pdf_name = Path(urlparse(pdf_url).path).name
-        pdf_path = context.fetch_resource(pdf_name, pdf_url)
+        _, _, _, pdf_path = fetch_resource(
+            context, pdf_name, pdf_url, expected_media_type=PDF, geolocation="jp"
+        )
         h.assert_file_hash(pdf_path, EXPECTED_HASHES.get(pdf_name))
 
         # Save the text of the PDFs linked to from the page for easy diffing.
