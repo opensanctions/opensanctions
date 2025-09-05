@@ -8,6 +8,7 @@ coverage:
 deploy:
   schedule: "@weekly"
 load_statements: true
+ci_test: false # no CI for Zyte
 summary: >-
   Export and service restrictions to Russia, Belarus, and designated third-country entities 
   under Japan's Foreign Exchange and Foreign Trade Law.
