@@ -4,6 +4,9 @@ from zavod import Context
 from zavod import helpers as h
 
 
+AU_TERROR = "AU-TERROR"
+
+
 def parse_listing_dates(date_text: Optional[str]) -> Optional[str]:
     """Parse the listing date text to extract the initial listing date."""
     if not date_text:
@@ -67,8 +70,7 @@ def crawl(context: Context) -> None:
             context,
             organization,
             key="au-terrorist-listing",
-            program_name="Australia Listed Terrorist Organisations",
-            source_program_key="AU-TERROR",
+            program_key=h.lookup_sanction_program_key(context, AU_TERROR),
         )
 
         # Add listing date to sanction
@@ -79,7 +81,6 @@ def crawl(context: Context) -> None:
         sanction.set(
             "reason", "Listed as terrorist organisation under Criminal Code Act 1995"
         )
-        sanction.add("program", "Australia Listed Terrorist Organisations")
         sanction.set("authority", "Attorney-General of Australia")
 
         context.emit(organization)

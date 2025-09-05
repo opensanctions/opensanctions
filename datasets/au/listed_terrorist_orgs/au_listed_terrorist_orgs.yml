@@ -48,6 +48,10 @@ assertions:
       Organization: 500
 
 lookups:
+  sanction.program:
+    options:
+      - match: AU-TERROR
+        value: AU-TERROR
   type.date:
     options:
       - match: Formerly listed as Al-Murabitun on 5 November 2014
