@@ -1,7 +1,7 @@
 from zavod import Context, helpers as h
 from zavod.shed.zyte_api import fetch_html
 
-PROGRAM = "Designated Terrorist Entities under Czech Government Regulation 210/2008"
+CZ_TERR = "CZ-TERR"
 # Announced 17 June 2008, date of effect 17 June 2008
 START_DATE = "2008-06-17"
 
@@ -33,7 +33,7 @@ def crawl_details(context: Context, details: str) -> None:
     # Reflects both a sanctions list and terrorist designations
     entity.add("topics", ["sanction", "crime.terror"])
 
-    sanction = h.make_sanction(context, entity, program_name=PROGRAM)
+    sanction = h.make_sanction(context, entity, program_key=CZ_TERR)
     h.apply_date(sanction, "startDate", START_DATE)
 
     context.emit(entity)

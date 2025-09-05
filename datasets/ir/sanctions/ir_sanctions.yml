@@ -67,10 +67,6 @@ assertions:
       Person: 500
 
 lookups:
-  sanction.program:
-    options:
-      - match: "Individuals And Entities In The Sanction’s List Of The Islamic Republic Of Iran"
-        value: IR-MFA-SANC
   schema:
     map:
       Entity: LegalEntity
