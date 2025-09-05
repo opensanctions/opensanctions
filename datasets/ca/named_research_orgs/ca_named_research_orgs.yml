@@ -45,9 +45,3 @@ assertions:
   max:
     schema_entities:
       Organization: 320
-
-lookups:
-  sanction.program:
-    options:
-      - match: CA-NRO
-        value: CA-NRO

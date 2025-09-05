@@ -66,11 +66,7 @@ def emit_nro(context: Context, nro):
 
     context.emit(entity)
 
-    sanction = h.make_sanction(
-        context,
-        entity,
-        program_key=h.lookup_sanction_program_key(context, CA_NRO),
-    )
+    sanction = h.make_sanction(context, entity, program_key=CA_NRO)
     context.emit(sanction)
 
 
