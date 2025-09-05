@@ -27,10 +27,11 @@ something_changed = False
 
 schema_field = Field(
     description=(
-        "- 'Person', if the name refers to an individual."
+        "- 'Person', if the name refers to an individual human."
         "- 'Vessel', if the name refers to a ship or vessel."
-        "- 'LegalEntity', for companies, organizations, or when unclear if the entity is a person or company."
-        "Never invent new schema labels."
+        "- 'Organization', for groups like terrorist groups, cartels or government bodies."
+        "- 'LegalEntity', for entities when it is unclear if the entity is a person or company."
+        "NEVER invent new schema labels."
     )
 )
 
@@ -50,27 +51,63 @@ class Designees(BaseModel):
 
 
 PROMPT = f"""
-Extract the designees, entities and vessels mentioned in OFAC press release in the attached article.
-NEVER infer, assume, or generate values that are not directly stated in the source text.
-EXCLUDE the names of US Treasury officials cited, and US federal government entities.
-If the name is a person name, use `Person` as the entity_schema.
-Output each entity with these fields:
-- name: Exact name as written in the article. If followed by an acronym in parentheses, store that acronym as an alias, not in the name.
-- entity_schema: {schema_field.description} (prefer `Organization` for entities with no legal type specified)
-- aliases: Include only true alternative names or acronyms the entity is known by in the article.
-  • An alias must be another legitimate name, "also known as", or widely recognized abbreviation of the entity.
-  • Example: "Eric Blair, alias George Orwell" is valid.
-  • EXCLUDE: Aliases that are a strict subset of the full name, eg: "John Michael Smith (Smith)" - Smith, or 
-    "Megatron Electronics Ltd. (Megatron)" - Megatron.
-  • DO NOT include short aliases in brackets, unless they are specified as "aka", "fka", "also known as" and similar, or are more
-    descriptive than the name they describe, eg. "M23 (March 23 Movement)".
-- nationality: Nationality of the designee if they are an individual and it is stated.
-- imo: IMO number of the vessel if mentioned.
-- country: Countries explicitly mentioned as residence, registration, or operation. Leave empty if not stated.
-- related_url: URLs mentioned in the article specifically associated with the entity.  
-  • If multiple URLs are present, link each one only to the entity it is associated with.  
-  • If no URL is provided for an entity, leave this field empty.  
-  • Do not invent, infer, or alter URLs.
+<task>
+Extract sanctions designees, linked entities, and vessels from the OFAC press release in the attached article.
+</task>
+
+<strict_requirements>
+- NEVER infer, assume, or generate values not directly stated in the source text
+- Extract ONLY information explicitly written in the article
+- If data is not provided for a field, leave it empty
+- Do not create or modify URLs
+- Do not invent any country information
+</strict_requirements>
+
+<exclusions>
+EXCLUDE from extraction:
+- US Treasury officials (e.g., Secretary, Under Secretary)
+- US federal government entities (e.g., Department of Treasury, SEC, OFAC itself)
+</exclusions>
+
+<entity_classification>
+When determining entity_schema:
+- Available options: {schema_field.description}
+- Use "Person" for individual human names
+- Use "Organization" as default for entities without specified legal form (like: Inc, LLC, SA de CV)
+</entity_classification>
+
+<extraction_fields>
+For each entity found, extract these fields:
+
+1. **name**: The exact name as written in the article.
+    - If the name is followed by an acronym in brackets, do not include this in the name.
+   
+2. **entity_schema**: Select from available schema types: {schema_field.description}
+   
+3. **aliases**: Alternative names or acronyms ONLY if they meet these criteria:
+   - Must be explicitly stated as "also known as", "aka", "fka", or similar
+   - Must be a legitimate alternative name or widely recognized abbreviation
+   - Include acronyms that are MORE descriptive than the primary name (e.g., "March 23 Movement" as an alias for "M23")
+   - EXCLUDE subsets of the full name (e.g., "Smith" from "John Michael Smith")
+   - EXCLUDE text reference aliases in brackets unless explicitly marked as aliases
+   
+4. **nationality**: For individuals ONLY - their stated nationality
+   - Leave empty if not explicitly mentioned or if entity is not a Person
+   
+5. **imo**: International Maritime Organization number
+   - For vessels ONLY when explicitly stated
+   
+6. **country**: Countries mentioned as:
+   - Residence location
+   - Registration location  
+   - Operation location
+   - MUST be explicitly stated, not inferred
+   
+7. **related_url**: URLs specifically associated with the entity
+   - Link each URL only to its associated entity
+   - Leave empty if no URL is provided
+   - Do not modify or invent URLs
+</extraction_fields>
 """
 
 
