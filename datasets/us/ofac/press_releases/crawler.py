@@ -85,7 +85,7 @@ For each entity found, extract these fields:
 2. **entity_schema**: Select from available schema types: {schema_field.description}
    
 3. **aliases**: Alternative names or acronyms ONLY if they meet these criteria:
-   - Must be explicitly stated as "also known as", "aka", "fka", or similar
+   - Must be explicitly stated as "also known as", "formerly", "aka", "fka", or similar. Include only the alias, not the "aka" prefix.
    - Must be a legitimate alternative name or widely recognized abbreviation
    - Include acronyms that are MORE descriptive than the primary name (e.g., "March 23 Movement" as an alias for "M23")
    - EXCLUDE subsets of the full name (e.g., "Smith" from "John Michael Smith")
