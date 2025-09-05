@@ -95,5 +95,7 @@ def crawl(context: Context):
                 "birthdateStatus",
                 "aliasesStatus",
                 "moiListType",
+                # Sometimes left over because we only use the name1,2,3,4 items for Companies
+                "fullNameAr",
             ],
         )

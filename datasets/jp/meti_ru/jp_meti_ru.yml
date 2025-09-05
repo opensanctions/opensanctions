@@ -8,6 +8,7 @@ coverage:
 deploy:
   schedule: "@weekly"
 load_statements: true
+ci_test: false # no CI for Zyte
 summary: >-
   Export and service restrictions to Russia, Belarus, and designated third-country entities 
   under Japan's Foreign Exchange and Foreign Trade Law.
@@ -39,10 +40,6 @@ data:
   format: CSV
 dates:
   formats: ["%Y年%m月%d日", "%Y 年%m 月%d 日"]
-http:
-  user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.2 Safari/605.1.15 (zavod; opensanctions.org)"
-  backoff_factor: 2
-  additional_retry_statuses: [443]
 
 assertions:
   min:

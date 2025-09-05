@@ -555,6 +555,10 @@ lookups:
           - Honduras
           - Montenegro
           - Russia
+      - match: United States of America, russian federation
+        values:
+          - United States of America
+          - Russia
   type.name:
     options:
       - match: 'AUTONOMOUS NON-PROFIT ORGANIZATION OF ADDITIONAL PROFESSIONAL EDUCATION "MARITIME INNOVATION CENTER OF THE REGIONAL BRANCH OF THE ALL-RUSSIAN PUBLIC-STATE ORGANIZATION "VOLUNTARY SOCIETY FOR ASSISTANCE TO THE ARMY, AVIATION AND NAVY OF RUSSIA" OF THE CITY OF SEVASTOPOL"'
