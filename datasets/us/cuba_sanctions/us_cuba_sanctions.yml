@@ -47,9 +47,3 @@ assertions:
   max:
     schema_entities:
       Company: 1100
-
-lookups:
-  sanction.program:
-    options:
-      - match: "Cuba Restricted List"
-        value: US-DOS-CU-REA

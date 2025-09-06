@@ -10,10 +10,10 @@ ORIGINAL_ACCOMMODATIONS_URL = (
     "https://www.state.gov/cuba-prohibited-accommodations-list-initial-publication/"
 )
 ACCOMMODATIONS_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQMquWjNWZ09dm9_mu9NKrxR33c6pe4hpiGFeheFT4tDZXwpelLudcYdCdME820aKJJo8TfMKbtoXTh/pub?gid=1890354374&single=true&output=csv"
-ACCOMODATIONS_PROGRAM = "Cuba Prohibited Accommodations List"
 ORIGINAL_RESTRICTED_ENTITIES_URL = "https://www.state.gov/division-for-counter-threat-finance-and-sanctions/cuba-restricted-list"
 RESTRICTED_ENTITIES_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQMquWjNWZ09dm9_mu9NKrxR33c6pe4hpiGFeheFT4tDZXwpelLudcYdCdME820aKJJo8TfMKbtoXTh/pub?gid=0&single=true&output=csv"
-RESTRICTED_ENTITIES_PROGRAM = "Cuba Restricted List"
+US_DOS_CU_REA = "US-DOS-CU-REA"
+US_DOS_CU_PAL = "US-DOS-CU-PAL"
 CONTENT_XPATH = ".//div[@class='entry-content']"
 ACTIONS = [
     {
@@ -50,6 +50,8 @@ def crawl_accommodations(context: Context):
             proxy.add("sourceUrl", row.pop("SourceURL"))
             proxy.add("topics", "sanction")
             context.emit(proxy)
+            sanction = h.make_sanction(context, proxy, program_key=US_DOS_CU_PAL)
+            context.emit(sanction)
             context.audit_data(row, ignore=["City"])
 
 
@@ -77,14 +79,7 @@ def crawl_restricted_entities(context: Context):
             proxy.add("classification", row.pop("Category"))
             proxy.add("sourceUrl", row.pop("SourceURL").split(";"))
 
-            sanction = h.make_sanction(
-                context,
-                proxy,
-                program_name=RESTRICTED_ENTITIES_PROGRAM,
-                program_key=h.lookup_sanction_program_key(
-                    context, RESTRICTED_ENTITIES_PROGRAM
-                ),
-            )
+            sanction = h.make_sanction(context, proxy, program_key=US_DOS_CU_REA)
             sanction.add("startDate", row.pop("EffectiveDate"))
             if h.is_active(sanction):
                 proxy.add("topics", "sanction")

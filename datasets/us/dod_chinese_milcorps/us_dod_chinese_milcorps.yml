@@ -67,9 +67,3 @@ assertions:
   max:
     schema_entities:
       Company: 280
-
-lookups:
-  sanction.program:
-    options:
-      - match: "Section 1260H of the William M. (“Mac”) Thornberry National Defense Authorization Act for Fiscal Year 2021 (Public Law 116-283)"
-        value: US-DOD-1260H

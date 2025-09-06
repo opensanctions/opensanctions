@@ -5,9 +5,9 @@ from rigour.mime.types import XLS
 from zavod import Context
 from zavod import helpers as h
 
-# Program name reused from 'us_trade_csl' for consistency
+# Program key reused from 'us_trade_csl' for consistency
 # Refers to the same BIS Denied Persons List program
-PROGRAM_NAME = "Denied Persons List (DPL) - Bureau of Industry and Security"
+US_BIS_DPL = "US-BIS-DPL"
 
 
 def parse_row(context: Context, row):
@@ -36,7 +36,7 @@ def parse_row(context: Context, row):
     citation = row.pop("fr_citation")
     # We don't link it to the website here, since it's included in the us_trade_csl
     # programs, which is linked to the website.
-    sanction = h.make_sanction(context, entity, key=citation, program_name=PROGRAM_NAME)
+    sanction = h.make_sanction(context, entity, key=citation, program_key=US_BIS_DPL)
     sanction.add("program", citation)
     h.apply_date(sanction, "startDate", start_date)
     h.apply_date(sanction, "endDate", row.pop("ending_date"))
