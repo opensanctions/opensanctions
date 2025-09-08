@@ -37,6 +37,7 @@ url: "https://www.michigan.gov/mdhhs/doing-business/providers/providers/billingr
 data:
   url: https://www.michigan.gov/mdhhs/doing-business/providers/providers/billingreimbursement/list-of-sanctioned-providers
   format: HTML
+  lang: eng
 dates:
   formats: ["%m/%d/%Y"]
 http:

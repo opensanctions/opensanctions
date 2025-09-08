@@ -32,6 +32,7 @@ url: "https://ocp.dc.gov/page/excluded-parties-list"
 data:
   url: https://ocp.dc.gov/page/excluded-parties-list
   format: HTML
+  lang: eng
 dates:
   formats: ["%B %d, %Y"]
 

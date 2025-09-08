@@ -29,6 +29,7 @@ url: "https://dphhs.mt.gov/montanahealthcareprograms/terminatedexcludedproviders
 data:
   url: https://dphhs.mt.gov/montanahealthcareprograms/terminatedexcludedproviders
   format: HTML
+  lang: eng
 
 dates:
   formats: ["%m/%d/%Y"]

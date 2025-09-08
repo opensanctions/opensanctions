@@ -37,6 +37,7 @@ url: "https://adverseactions.ldh.la.gov/SelSearch/"
 data:
   url: https://adverseactions.ldh.la.gov/SelSearch/SelSearch/Export
   format: CSV
+  lang: eng
 ci_test: false
 
 dates:

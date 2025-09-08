@@ -1,4 +1,4 @@
-title: United States Periodically Listing Updates to Management (PLUM) Reporting
+title: US Periodically Listing Updates to Management (PLUM) Reporting
 entry_point: crawler.py
 prefix: usplum
 coverage:

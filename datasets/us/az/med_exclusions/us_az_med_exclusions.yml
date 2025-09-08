@@ -31,6 +31,7 @@ url: "https://www.azahcccs.gov/Fraud/Providers/actions.html"
 data:
   url: https://www.azahcccs.gov/Fraud/Downloads/ProviderSuspensionsTerminations.pdf
   format: PDF
+  lang: eng
 ci_test: false
 
 dates:

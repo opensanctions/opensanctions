@@ -30,6 +30,7 @@ url: "https://dhcfp.nv.gov/Providers/PI/PSExclusions/"
 data:
   url: https://dhcfp.nv.gov/Providers/PI/PSExclusions/
   format: PDF
+  lang: eng
 
 dates:
   formats: ["%m/%d/%Y"]
