@@ -34,3 +34,9 @@ assertions:
   max:
     schema_entities:
       LegalEntity: 200
+
+lookups:
+  sanction.program:
+    options:
+      - match: AMLC
+        value: PH-AMLC
