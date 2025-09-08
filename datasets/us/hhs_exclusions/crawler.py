@@ -4,6 +4,9 @@ from typing import Dict, Any
 from zavod import helpers as h
 from zavod import Context
 
+# US HHS OIG List of Excluded Individuals/Entities
+US_HHS_OIG = "US-HHS-OIG"
+
 
 def is_zero(value: str) -> bool:
     return all(c == "0" for c in value)
@@ -75,10 +78,9 @@ def crawl_item(context: Context, row: Dict[str, Any]):
     entity.add("topics", "debarment")
     entity.add("country", "us")
 
-    sanction = h.make_sanction(context, entity)
+    sanction = h.make_sanction(context, entity, program_key=US_HHS_OIG)
     h.apply_date(sanction, "startDate", row.pop("EXCLDATE"))
     sanction.add("reason", row.pop("EXCLTYPE"))
-    sanction.add("program", "US HHS OIG List of Excluded Individuals/Entities")
     waiver_start = row.pop("WAIVERDATE")
     waiver_state = row.pop("WVRSTATE")
     if waiver_start:
