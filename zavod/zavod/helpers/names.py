@@ -80,7 +80,12 @@ def make_name(
 
 
 def set_name_part(
-    entity: Entity, prop: str, value: Optional[str], quiet: bool, lang: Optional[str]
+    entity: Entity,
+    prop: str,
+    value: Optional[str],
+    quiet: bool,
+    lang: Optional[str],
+    model: Optional[str],
 ) -> None:
     if value is None:
         return
@@ -89,7 +94,7 @@ def set_name_part(
         if quiet:
             return
         raise TypeError("Invalid prop: %s [value: %r]" % (prop, value))
-    entity.add(prop_, value, lang=lang)
+    entity.add(prop_, value, lang=lang, origin=model)
 
 
 def apply_name(
@@ -116,6 +121,7 @@ def apply_name(
     is_weak: bool = False,
     quiet: bool = False,
     lang: Optional[str] = None,
+    model: Optional[str] = None,
 ) -> None:
     """A standardised way to set a name for a person or other entity, which handles
     normalising the categories of names found in source data to the correct properties
@@ -145,22 +151,23 @@ def apply_name(
         is_weak: If this is a weak alias name.
         quiet: If this should not raise errors on invalid properties.
         lang: The language of the name.
+        model: GPT model used to translate/transliterate the name.
     """
     if not is_weak:
-        set_name_part(entity, "firstName", given_name, quiet, lang)
-        set_name_part(entity, "firstName", first_name, quiet, lang)
-        set_name_part(entity, "secondName", second_name, quiet, lang)
-        set_name_part(entity, "middleName", middle_name, quiet, lang)
-        set_name_part(entity, "fatherName", patronymic, quiet, lang)
-        set_name_part(entity, "motherName", matronymic, quiet, lang)
-        set_name_part(entity, "lastName", last_name, quiet, lang)
-        set_name_part(entity, "lastName", maiden_name, quiet, lang)
-        set_name_part(entity, "firstName", name1, quiet, lang)
-        set_name_part(entity, "secondName", name2, quiet, lang)
-        set_name_part(entity, "middleName", name3, quiet, lang)
-        set_name_part(entity, "middleName", name4, quiet, lang)
-        set_name_part(entity, "middleName", name5, quiet, lang)
-        set_name_part(entity, "lastName", tail_name, quiet, lang)
+        set_name_part(entity, "firstName", given_name, quiet, lang, model)
+        set_name_part(entity, "firstName", first_name, quiet, lang, model)
+        set_name_part(entity, "secondName", second_name, quiet, lang, model)
+        set_name_part(entity, "middleName", middle_name, quiet, lang, model)
+        set_name_part(entity, "fatherName", patronymic, quiet, lang, model)
+        set_name_part(entity, "motherName", matronymic, quiet, lang, model)
+        set_name_part(entity, "lastName", last_name, quiet, lang, model)
+        set_name_part(entity, "lastName", maiden_name, quiet, lang, model)
+        set_name_part(entity, "firstName", name1, quiet, lang, model)
+        set_name_part(entity, "secondName", name2, quiet, lang, model)
+        set_name_part(entity, "middleName", name3, quiet, lang, model)
+        set_name_part(entity, "middleName", name4, quiet, lang, model)
+        set_name_part(entity, "middleName", name5, quiet, lang, model)
+        set_name_part(entity, "lastName", tail_name, quiet, lang, model)
     if alias:
         name_prop = "alias"
     if is_weak:
@@ -184,7 +191,7 @@ def apply_name(
         suffix=suffix,
     )
     if full is not None and len(full):
-        entity.add(name_prop, full, quiet=quiet, lang=lang)
+        entity.add(name_prop, full, quiet=quiet, lang=lang, origin=model)
 
 
 def split_comma_names(context: Context, text: str) -> List[str]:
