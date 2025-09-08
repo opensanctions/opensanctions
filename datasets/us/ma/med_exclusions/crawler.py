@@ -2,6 +2,7 @@ from typing import Dict
 from openpyxl import load_workbook
 
 from zavod import Context, helpers as h
+from zavod.shed import zyte_api
 
 
 HEADERS = {
@@ -43,16 +44,17 @@ def crawl_item(row: Dict[str, str], context: Context):
 
 
 def crawl_excel_url(context: Context):
-    doc = context.fetch_html(context.data_url, headers=HEADERS)
+    xlsx_xpath = "//*[contains(text(), 'XLSX')]/../@href"
+    doc = zyte_api.fetch_html(context, context.data_url, unblock_validator=xlsx_xpath)
     doc.make_links_absolute(context.data_url)
-    return doc.xpath("//*[contains(text(), 'XLSX')]/../@href")[0]
+    return doc.xpath(xlsx_xpath)[0]
 
 
 def crawl(context: Context) -> None:
     # First we find the link to the excel file
     excel_url = crawl_excel_url(context)
 
-    path = context.fetch_resource("source.xlsx", excel_url)
+    _, _, _, path = zyte_api.fetch_resource(context, "source.xlsx", excel_url)
     context.export_resource(path, title=context.SOURCE_TITLE)
 
     wb = load_workbook(path, read_only=True)

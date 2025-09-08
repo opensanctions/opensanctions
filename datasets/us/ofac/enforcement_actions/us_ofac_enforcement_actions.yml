@@ -35,6 +35,7 @@ publisher:
 tags:
   - juris.us
   - issuer.west
+  - list.enforcement
 url: https://ofac.treasury.gov/recent-actions/enforcement-actions
 data:
   url: https://ofac.treasury.gov/recent-actions/enforcement-actions

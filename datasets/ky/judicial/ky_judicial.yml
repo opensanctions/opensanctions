@@ -34,6 +34,7 @@ publisher:
 data:
   url: https://judicial.ky/chief-justice/
   format: HTML
+  lang: eng
 
 assertions:
   min:

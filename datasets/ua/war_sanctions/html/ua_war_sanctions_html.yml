@@ -1,3 +1,4 @@
+name: ua_war_sanctions
 title: Ukraine War and Sanctions
 entry_point: crawler.py
 prefix: ua-ws

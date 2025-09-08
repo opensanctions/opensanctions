@@ -42,6 +42,7 @@ url: "https://dhs.arkansas.gov/dhs/portal/Exclusions/PublicSearch/"
 data:
   url: https://dhs.arkansas.gov/dhs/portal/exclusions/publicsearch/Download
   format: CSV
+  lang: eng
 ci_test: false
 
 assertions:

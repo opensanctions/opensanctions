@@ -53,6 +53,7 @@ data:
   url: https://api.company-information.service.gov.uk/search/disqualified-officers
   # url: https://api-sandbox.company-information.service.gov.uk/search/disqualified-officers
   format: json
+  lang: eng
 http:
   retry_statuses: [503, 429, 403, 504]
 

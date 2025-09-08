@@ -26,6 +26,7 @@ description: |
   > orders, and orders assessing civil money penalties.
 tags:
   - sector.banking
+  - list.enforcement
 publisher:
   name: Federal Reserve Board
   acronym: FRB
@@ -55,10 +56,6 @@ dates:
   formats: ["%B %d, %Y"]
 
 lookups:
-  sanction.program:
-    options:
-      - match: "US Federal Reserve Enforcement Actions"
-        value: US-FED-ENF
   type.country:
     options:
       - match: Peoples Republic of China

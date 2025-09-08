@@ -5,7 +5,7 @@ from lxml.html import HtmlElement
 from zavod import Context, helpers as h
 
 # US citizens under personal sanctions, including a ban on entry into the Russian Federation
-PROGRAM = "Граждане США, находящиеся под персональными санкциями, включая запрет на въезд в Российскую Федерацию"
+RU_MFA = "RU-MFA"
 
 
 def parse_html_table(
@@ -46,10 +46,7 @@ def crawl(context: Context):
         person.add("citizenship", "us")
         person.add("topics", "sanction.counter")
 
-        sanction = h.make_sanction(
-            context, person, program_key=h.lookup_sanction_program_key(context, PROGRAM)
-        )
-        sanction.add("program", PROGRAM, lang="rus")
+        sanction = h.make_sanction(context, person, program_key=RU_MFA)
 
         context.emit(person)
         context.emit(sanction)

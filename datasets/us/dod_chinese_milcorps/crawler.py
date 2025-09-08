@@ -3,7 +3,7 @@ import csv
 from zavod import Context, helpers as h
 from zavod.shed.zyte_api import fetch_html
 
-PROGRAM_NAME = "Section 1260H of the William M. (“Mac”) Thornberry National Defense Authorization Act for Fiscal Year 2021 (Public Law 116-283)"
+US_DOD_1260H = "US-DOD-1260H"
 
 
 def crawl(context: Context) -> None:
@@ -50,12 +50,7 @@ def crawl(context: Context) -> None:
                 own.add("asset", entity)
                 context.emit(own)
             entity.add("topics", "debarment")
-            sanction = h.make_sanction(
-                context,
-                entity,
-                program_name=PROGRAM_NAME,
-                program_key=h.lookup_sanction_program_key(context, PROGRAM_NAME),
-            )
+            sanction = h.make_sanction(context, entity, program_key=US_DOD_1260H)
             sanction.add("startDate", row.pop("Start date", None))
             sanction.add("endDate", row.pop("End date", None))
             context.emit(sanction)

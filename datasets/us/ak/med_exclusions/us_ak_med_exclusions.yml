@@ -54,6 +54,7 @@ url: https://health.alaska.gov/Commissioner/Pages/ProgramIntegrity/default.aspx
 data:
   url: https://health.alaska.gov/media/h3ueo2kf/alaska-medical-assistance-excluded-provider-list.pdf
   format: PDF
+  lang: eng
 dates:
   formats: ["%m/%d/%Y"]
 

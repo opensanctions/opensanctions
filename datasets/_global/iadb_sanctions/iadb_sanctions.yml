@@ -5,9 +5,9 @@ coverage:
   start: 2021-10-22
   schedule: "@weekly"
 manual_check:
-  last_checked: "2025-08-01"
-  interval: 30
-  message: Please check if one of the IDs (either in REQUEST_DATA or GET_TOKEN_URL) changes when the data is updated. We need to make sure we get the latest data.
+  last_checked: "2025-09-08"
+  interval: 180
+  message: Check if the dataset has been updated recently. If nothing has changed, check if they've made changes to the source, maybe the magic values in in REQUEST_DATA or GET_TOKEN_URL need to be updated. Maybe we can even get rid of this manual check if we're sure that it's stable and we'll be getting new data in the future?
 load_statements: true
 summary: >-
   The firms and individuals listed have been sanctioned for having engaged in

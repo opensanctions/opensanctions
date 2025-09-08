@@ -5,6 +5,7 @@ coverage:
   start: "2024-08-15"
   schedule: "15 4 1,15 * *"
 load_statements: true
+ci_test: false  # Zyte is not available in CI
 summary: >
   Providers who have been suspended or excluded from the MassHealth program.
 description: |
@@ -27,6 +28,7 @@ url: "https://www.mass.gov/info-details/learn-about-suspended-or-excluded-masshe
 data:
   url: https://www.mass.gov/info-details/learn-about-suspended-or-excluded-masshealth-providers
   format: HTML
+  lang: eng
 
 http:
   user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.2 Safari/605.1.15"

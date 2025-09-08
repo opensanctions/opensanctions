@@ -36,6 +36,7 @@ url: "https://medicaid.dhss.delaware.gov/provider/Home/ProgramIntegrityLanding/t
 data:
   url: https://medicaidpublications.dhss.delaware.gov/docs/Search?Command=Core_Download&EntryId=1671
   format: PDF
+  lang: eng
 
 dates:
   formats: ["%m/%d/%Y", "%m/%d/%y", "Reinstated effective %m/%d/%Y"]

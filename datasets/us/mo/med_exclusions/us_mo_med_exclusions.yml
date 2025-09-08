@@ -33,6 +33,7 @@ url: "https://mmac.mo.gov/providers/provider-sanctions/"
 data:
   url: https://mmac.mo.gov/providers/provider-sanctions/
   format: XLSX
+  lang: eng
 ci_test: false
 
 dates:

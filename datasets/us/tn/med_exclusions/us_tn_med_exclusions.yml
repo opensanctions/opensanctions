@@ -45,6 +45,7 @@ url: "https://www.tn.gov/tenncare/fraud-and-abuse/program-integrity.html"
 data:
   url: "https://www.tn.gov/tenncare/fraud-and-abuse/program-integrity/_jcr_content/content/tn_accordion/parsys_terminated_providerlist/tn_complex_datatable.tablejson.json?_=1742231863624"
   format: JSON
+  lang: eng
 dates:
   formats: ["%d-%b-%Y"]
 

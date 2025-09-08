@@ -32,6 +32,7 @@ url: "http://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&R
 data:
   url: http://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=DHS-295094
   format: XLSX
+  lang: eng
 ci_test: false
 
 dates:

@@ -63,6 +63,7 @@ url: https://www.chfs.ky.gov/agencies/dms/dpi/pe/Pages/terminated.aspx
 data:
   url: https://www.chfs.ky.gov/agencies/dms/dpi/pe/Documents/KYMedicaidTerminationList.xlsx
   format: XLSX
+  lang: eng
 ci_test: false
 dates:
   formats: ["%m/%d/%Y"]
