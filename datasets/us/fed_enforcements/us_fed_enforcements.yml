@@ -26,6 +26,7 @@ description: |
   > orders, and orders assessing civil money penalties.
 tags:
   - sector.banking
+  - list.enforcement
 publisher:
   name: Federal Reserve Board
   acronym: FRB

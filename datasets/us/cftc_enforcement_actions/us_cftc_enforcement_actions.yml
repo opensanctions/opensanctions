@@ -29,7 +29,10 @@ publisher:
     > with the advice and consent of the Senate, to serve staggered five-year
     > terms
   url: https://www.cftc.gov/
-
+tags:
+  - issuer.west
+  - sector.financial
+  - list.enforcement
 data:
   url: https://www.cftc.gov/LawRegulation/EnforcementActions/index.htm
   format: HTML
