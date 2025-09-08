@@ -5,6 +5,7 @@ coverage:
   start: "2024-08-15"
   schedule: "15 4 1,15 * *"
 load_statements: true
+ci_test: false  # Zyte is not available in CI
 summary: >
   Providers who have been suspended or excluded from the MassHealth program.
 description: |
