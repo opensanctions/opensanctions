@@ -9,6 +9,8 @@ from urllib.parse import urljoin
 
 CATEGORY1_PROGRAM = "Kazakh Terror Financing list"
 CATEGORY2_PROGRAM = "Participants in terrorist activities"
+KZ_TFL = "KZ-TFL"  # Kazakh Terror Financing List
+KZ_PTA = "KZ-PTA"  # Participants in terrorist activities
 CATEGORY1_URL = "xml_category_1/?status=acting"
 CATEGORY2_URL = "xml_category_2/?status=acting"
 CATEGORY1_EXPORT = "terrorism-financiers-source.xml"
@@ -23,15 +25,14 @@ def added_date_from_note(text: str) -> str | None:
     return None
 
 
-def make_entity(context: Context, el, schema, entity_id, topics, program):
+def make_entity(context: Context, el, schema, entity_id, topics, program_key):
     entity = context.make(schema)
     entity.id = entity_id
     entity.add("notes", h.clean_note(el.findtext("./note")))
     entity.add("topics", topics)
 
-    sanction = h.make_sanction(context, entity)
+    sanction = h.make_sanction(context, entity, program_key=program_key)
     sanction.add("summary", el.findtext("./correction"), lang="rus")
-    sanction.add("program", program)
     listingDate = cast(str | None, el.findtext("./added_to_list"))
     note_date = added_date_from_note(el.findtext("./correction"))
     h.apply_date(sanction, "listingDate", listingDate or note_date)
@@ -60,9 +61,7 @@ def crawl_financiers(context: Context):
         iin = el.findtext("./iin")
         name = h.make_name(given_name=fname, middle_name=mname, last_name=lname)
         entity_id = context.make_id(name, bdate, iin)
-        entity = make_entity(
-            context, el, "Person", entity_id, "sanction", CATEGORY1_PROGRAM
-        )
+        entity = make_entity(context, el, "Person", entity_id, "sanction", KZ_TFL)
         h.apply_name(entity, given_name=fname, middle_name=mname, last_name=lname)
         entity.add("idNumber", iin)
         h.apply_date(entity, "birthDate", bdate)
@@ -81,9 +80,7 @@ def crawl_financiers(context: Context):
     for el in doc.findall(".//org"):
         name = el.findtext(".//org_name")
         entity_id = context.make_id(el.findtext("./note"), name)
-        entity = make_entity(
-            context, el, "Organization", entity_id, "sanction", CATEGORY1_PROGRAM
-        )
+        entity = make_entity(context, el, "Organization", entity_id, "sanction", KZ_TFL)
         for tag in (".//org_name", ".//org_name_en"):
             names = el.findtext(tag)
             if names is None:
@@ -115,7 +112,7 @@ def crawl_terrorists(context: Context):
             "Person",
             entity_id,
             ["sanction", "crime.terror"],
-            CATEGORY2_PROGRAM,
+            KZ_PTA,
         )
         entity.add("name", name)
         entity.add("idNumber", iin)
