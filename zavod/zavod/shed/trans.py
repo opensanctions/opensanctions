@@ -69,7 +69,7 @@ def apply_translit_names(
                 first_name=first_response[lang],
                 last_name=last_response[lang],
                 lang=lang,
-                model=model,
+                origin=model,
             )
     except ConfigurationException as ce:
         context.log.error("Transliteration failed: %s" % ce.message)
@@ -102,7 +102,11 @@ def apply_translit_full_name(
         response = run_text_prompt(context, prompt, name, model=model)
         for lang in response.keys():
             h.apply_name(
-                entity, full=response[lang], lang=lang, alias=alias, model=model
+                entity,
+                full=response[lang],
+                lang=lang,
+                alias=alias,
+                origin=model,
             )
     except ConfigurationException as ce:
         context.log.error("Transliteration failed: %s" % ce.message)
