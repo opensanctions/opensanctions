@@ -35,12 +35,7 @@ REQUEST_TEMPLATE = {
     "sys_class_name": "sp_instance",
     "sp_widget": "dbd0af311b58b450055b9796bc4bcb2d",
 }
-PROGRAM = (
-    "Pursuant to the International Traffic in Arms Regulations (ITAR) §127.10, "
-    "the Assistant Secretary for Political-Military Affairs is authorized to "
-    "impose civil penalties for violations of the Arms Export Control Act (AECA) "
-    "and the ITAR."
-)
+US_DDTC_ENFORCEMENT = "US-DDTC-ENFORCEMENT"
 
 
 def get_link_href(base_url: str, link: Optional[str]) -> Optional[str]:
@@ -59,10 +54,11 @@ def crawl_row(context: Context, row: Dict[str, Any]):
     entity.add("topics", "crime.traffick")
 
     description = row.pop("description")["value"]
-    sanction = h.make_sanction(context, entity, description)
+    sanction = h.make_sanction(
+        context, entity, description, program_key=US_DDTC_ENFORCEMENT
+    )
     sanction.add("reason", description)
     sanction.add("listingDate", row.pop("year")["value"])
-    sanction.add("program", PROGRAM)
 
     sanction.add(
         "sourceUrl",

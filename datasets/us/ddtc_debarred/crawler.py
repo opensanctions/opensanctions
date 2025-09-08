@@ -8,8 +8,8 @@ from zavod import helpers as h
 
 STATUTORY_XLSX_URL = "https://www.pmddtc.state.gov/sys_attachment.do?sys_id=27c46b251baf29102b6ca932f54bcb20"
 ADMINISTRATIVE_XLSX_URL = "https://www.pmddtc.state.gov/sys_attachment.do?sys_id=9f8bbc2f1b8f29d0c6c3866ae54bcbdb"
-STATUTORY_PROGRAM = "Statutory debarment pursuant to §38(g)(4) of the AECA and §127.7 of the International Traffic in Arms Regulations (ITAR)"
-ADMINISTRATIVE_PROGRAM = "Administrative debarment for violations of the AECA/ITAR, as specified in 22 CFR §127.7(a)"
+US_DDTC_SD = "US-DDTC-SD"
+US_DDTC_AD = "US-DDTC-AD"
 
 
 def sheet_to_dicts(sheet):
@@ -37,7 +37,7 @@ def split_names(name: str) -> (str, List[str]):
 def crawl_debarment(
     context: Context,
     row: Dict[str, Any],
-    program: str,
+    program_key: str,
     name_field: str,
     notice_date_field: str,
     birth_date_field=None,
@@ -60,8 +60,7 @@ def crawl_debarment(
         h.apply_date(entity, "birthDate", date_of_birth)
     entity.add("topics", "debarment")
 
-    sanction = h.make_sanction(context, entity)
-    sanction.add("program", program)
+    sanction = h.make_sanction(context, entity, program_key=program_key)
     sanction.add("listingDate", row.pop(notice_date_field).isoformat()[:10])
     sanction.add("listingDate", row.pop("corrected-notice-date", None))
     sanction.add(
@@ -89,7 +88,7 @@ def crawl(context: Context):
         crawl_debarment(
             context,
             row,
-            STATUTORY_PROGRAM,
+            US_DDTC_SD,
             "party-name",
             "notice-date",
             "date-of-birth",
@@ -99,4 +98,4 @@ def crawl(context: Context):
     context.export_resource(path, XLSX, title="Administrative Debarments")
     rows = sheet_to_dicts(openpyxl.load_workbook(path, read_only=True).worksheets[0])
     for row in rows:
-        crawl_debarment(context, row, ADMINISTRATIVE_PROGRAM, "name", "date")
+        crawl_debarment(context, row, US_DDTC_AD, "name", "date")
