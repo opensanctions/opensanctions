@@ -36,7 +36,7 @@ http:
   additional_retry_statuses: [403]
 dates:
   formats: ["%Y-%m-%d", "%m/%d/%Y"]
-ci_test: false
+ci_test: false  # Zyte is not available in CI
 
 assertions:
   min:
