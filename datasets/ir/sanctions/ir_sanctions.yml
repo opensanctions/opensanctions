@@ -8,7 +8,7 @@ coverage:
 manual_check:
   last_checked: "2025-08-01"
   interval: 30
-  message: Please check the website for any updates to the sanctions list.
+  message: Please check the website for any updates to the sanctions list. Navigate to "Full List" near the bottom of the home page. Each of the four sections should have a "Last updated" date for the list.
 deploy:
   schedule: "@monthly"
 load_statements: true
