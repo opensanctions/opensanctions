@@ -3,7 +3,7 @@ from typing import Dict, Optional, Tuple
 from zavod.context import Context
 from zavod.entity import Entity
 from zavod.exc import ConfigurationException
-from zavod.shed.gpt import run_text_prompt
+from zavod.shed.gpt import run_text_prompt, DEFAULT_MODEL
 from zavod import helpers as h
 
 NAME_TRANSLIT_PROMPT = """
@@ -46,6 +46,7 @@ def apply_translit_names(
     first_name: str,
     last_name: str,
     output: Dict[str, Tuple[str, str]] = {"eng": ("Latin", "English")},
+    model: str = DEFAULT_MODEL,
 ) -> None:
     """
     Apply transliterated names to an entity.
@@ -60,14 +61,15 @@ def apply_translit_names(
     """
     try:
         prompt = make_name_translit_prompt(input_code, output)
-        first_response = run_text_prompt(context, prompt, first_name)
-        last_response = run_text_prompt(context, prompt, last_name)
+        first_response = run_text_prompt(context, prompt, first_name, model=model)
+        last_response = run_text_prompt(context, prompt, last_name, model=model)
         for lang in first_response.keys():
             h.apply_name(
                 entity,
                 first_name=first_response[lang],
                 last_name=last_response[lang],
                 lang=lang,
+                origin=model,
             )
     except ConfigurationException as ce:
         context.log.error("Transliteration failed: %s" % ce.message)
@@ -81,6 +83,7 @@ def apply_translit_full_name(
     output: Dict[str, Tuple[str, str]] = {"eng": ("Latin", "English")},
     prompt: Optional[str] = None,
     alias: bool = False,
+    model: str = DEFAULT_MODEL,
 ) -> None:
     """
     Apply transliterated name to an entity.
@@ -91,12 +94,19 @@ def apply_translit_full_name(
         input_code: The ISO 639-2 code for the language of the input names.
         name: The first name to transliterate.
         output: A dictionary mapping ISO 639-2 codes to tuples of script and language
+        model: GPT model used to translate/transliterate the name.
     """
     try:
         if prompt is None:
             prompt = make_name_translit_prompt(input_code, output)
-        response = run_text_prompt(context, prompt, name)
+        response = run_text_prompt(context, prompt, name, model=model)
         for lang in response.keys():
-            h.apply_name(entity, full=response[lang], lang=lang, alias=alias)
+            h.apply_name(
+                entity,
+                full=response[lang],
+                lang=lang,
+                alias=alias,
+                origin=model,
+            )
     except ConfigurationException as ce:
         context.log.error("Transliteration failed: %s" % ce.message)
