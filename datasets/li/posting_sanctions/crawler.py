@@ -161,13 +161,12 @@ def crawl_infractions(context: Context) -> None:
             continue
         entity.add("topics", "reg.warn")
         violation = row.pop("verstoss")
-        sanction = h.make_sanction(context, entity)
+        sanction = h.make_sanction(context, entity, program_key=LI_ENTSG)
         sanction.id = context.make_id(
             "Sanction", "Penalty", entity.id, violation, effective
         )
         h.apply_date(sanction, "date", effective)
         sanction.add("description", "Administrative Penalty")
-        sanction.add("program", "EntsG Sanctions")
         sanction.add("reason", violation)
         sanction.add("sourceUrl", INFRACTION_URL)
         context.emit(sanction)
