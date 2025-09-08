@@ -46,6 +46,7 @@ url: "https://medquest.hawaii.gov/en/plans-providers/provider-exclusion-reinstat
 data:
   url: https://medquest.hawaii.gov/en/plans-providers/provider-exclusion-reinstatement-list.html
   format: PDF
+  lang: eng
 
 ci_test: false
 

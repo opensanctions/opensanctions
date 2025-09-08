@@ -33,6 +33,7 @@ url: "https://mainecare.maine.gov/mhpviewer.aspx?FID=MEEX"
 data:
   url: https://mainecare.maine.gov/PrvExclRpt/Forms/AllItems.aspx
   format: XLSX
+  lang: eng
 
 lookups:
   type.string:

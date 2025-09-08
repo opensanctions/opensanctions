@@ -57,6 +57,7 @@ url: "https://www.in.gov/fssa/ompp/provider-information4/termination-of-provider
 data:
   url: https://www.in.gov/fssa/ompp/provider-information4/termination-of-provider-participation-in-medicaid-and-chip/
   format: HTML
+  lang: eng
 
 exports:
   - statistics.json

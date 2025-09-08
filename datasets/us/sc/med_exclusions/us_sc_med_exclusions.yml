@@ -44,6 +44,7 @@ url: https://www.scdhhs.gov/fraud
 data:
   url: https://www.scdhhs.gov/fraud
   format: XLSX
+  lang: eng
 ci_test: false
 
 dates:

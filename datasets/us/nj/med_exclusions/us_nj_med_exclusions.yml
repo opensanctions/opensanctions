@@ -38,6 +38,7 @@ url: "https://www.njoag.gov/about/divisions-and-offices/office-of-the-insurance-
 data:
   url: https://www.nj.gov/comptroller/doc/nj_debarment_list.pdf
   format: PDF
+  lang: eng
 http:
   user_agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36 opensanctions.org zavod
 

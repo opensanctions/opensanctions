@@ -28,6 +28,7 @@ url: "https://omig.ny.gov/medicaid-fraud/medicaid-exclusions"
 data:
   url: https://apps.omig.ny.gov/exclusions/exporttoexcel.aspx
   format: XLSX
+  lang: eng
 
 dates:
   formats: ["%m/%d/%Y"]

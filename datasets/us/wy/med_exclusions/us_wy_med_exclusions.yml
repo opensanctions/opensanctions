@@ -29,6 +29,7 @@ url: "https://health.wyo.gov/healthcarefin/medicaid/"
 data:
   url: https://health.wyo.gov/healthcarefin/medicaid/
   format: HTML
+  lang: eng
 
 dates:
   formats: ["%m/%d/%Y"]

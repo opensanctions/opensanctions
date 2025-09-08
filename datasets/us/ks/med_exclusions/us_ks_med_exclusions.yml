@@ -27,6 +27,7 @@ url: "https://www.kdhe.ks.gov/172/Medicaid"
 data:
   url: https://www.kdhe.ks.gov/172/Medicaid
   format: HTML
+  lang: eng
 ci_test: false
 
 assertions:

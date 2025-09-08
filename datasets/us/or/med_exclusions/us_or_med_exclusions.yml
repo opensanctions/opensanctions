@@ -38,6 +38,7 @@ url: "https://www.oregon.gov/oha/FOD/PIAU/Pages/Convictions.aspx"
 data:
   url: https://www.oregon.gov/oha/FOD/PIAU/_vti_bin/Lists.asmx
   format: XML
+  lang: eng
 
 assertions:
   min:

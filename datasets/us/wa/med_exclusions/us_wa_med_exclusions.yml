@@ -29,6 +29,7 @@ url: "https://www.hca.wa.gov/billers-providers-partners/become-apple-health-prov
 data:
   url: https://www.hca.wa.gov/billers-providers-partners/become-apple-health-provider/provider-termination-and-exclusion-list
   format: XLSX
+  lang: eng
 
 assertions:
   min:
