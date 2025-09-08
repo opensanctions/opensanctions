@@ -29,6 +29,7 @@ publisher:
 data:
   url: https://parliament.ky/members/
   format: HTML
+  lang: eng
 
 assertions:
   min:

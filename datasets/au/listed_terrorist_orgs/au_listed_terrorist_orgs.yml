@@ -30,6 +30,7 @@ publisher:
 data:
   url: "https://www.nationalsecurity.gov.au/what-australia-is-doing/terrorist-organisations/listed-terrorist-organisations"
   format: HTML
+  lang: eng
 
 dates:
   formats: ["%d %B %Y", "%B %Y"]
