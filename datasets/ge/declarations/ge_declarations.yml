@@ -81,6 +81,10 @@ lookups:
         value: უფროსი პროკურორი
       - match: გენერალური პროკურატურა - სახელმწიფო უსაფრთხოების სამსახურში, სახელმწიფო დაცვის სპეციალურ სამსახურში, დაზვერვის სამსახურში, თავდაცვის სამინისტროსა და შინაგან საქმეთა სამინისტროს სახელმწიფო საქვეუწყებო დაწესებულება - საქართველოს სასაზღვრო პოლიციაში გამოძიების საპროცესო ხელმძღვანელობისა და ოპერატიულ-სამძებრო საქმიანობაზე ზედამხედველობის დეპარტამენტის უფროსი
         value: საგამოძიებო საპროცესო მართვისა და ოპერატიულ-სამძებრო საქმიანობის ზედამხედველობის დეპარტამენტის უფროსი
+      - match: "Prosecutor of the Department for Procedural Supervision of Investigation and Operational-Search Activities in the Department of Counterintelligence of the State Security Service, in the Counterterrorism Center, in the National Intelligence Agency - a State Subagency Establishment of the State Security Service, in the Border Police of the Ministry of Internal Affairs - a State Subagency Establishment of Georgia, and in the Special State Protection Service"
+        value: Prosecutor of the Department for Procedural Supervision of Investigation and Operational-Search Activities in the Department of Counterintelligence of the State Security Service
+      - match: "სახელმწიფო უსაფრთხოების სამსახურის კონტრდაზვერვის დეპარტამენტში, კონტრტერორისტულ ცენტრში, სახელმწიფო უსაფრთხოების სამსახურის სახელმწიფო საქვეუწყებო დაწესებულება - ეროვნულ სადაზვერვო სააგენტოში, შინაგან საქმეთა სამინისტროს სახელმწიფო საქვეუწყებო დაწესებულება - საქართველოს სასაზღვრო პოლიციაში და სახელმწიფო დაცვის სპეციალურ სამსახურში გამოძიების საპროცესო ხელმძღვანელობისა და ოპერატიულ-სამძებრო საქმიანობაზე ზედამხედველობის სამმართველოს პროკურორი"
+        value: სახელმწიფო კომისრის პროკურორი
   known_errors:
     options:
       - match: მამუკა ჯევაიში

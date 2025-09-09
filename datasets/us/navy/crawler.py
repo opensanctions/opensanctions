@@ -1,3 +1,5 @@
+from collections import namedtuple
+from typing import Any, Mapping, Optional
 from lxml import html, etree
 from urllib.parse import urljoin
 import orjson
@@ -5,7 +7,8 @@ import re
 
 from zavod import Context, helpers as h
 from zavod.stateful.positions import categorise
-from zavod.shed.zyte_api import fetch_html
+from zavod.shed import zyte_api
+from zavod.shed.zyte_api import ZyteAPIRequest
 
 BASE_URL = "https://www.navy.mil"
 API_URL = "https://www.navy.mil/API/ArticleCS/Public/GetList?moduleID=709&dpage=%d&TabId=119&language=en-US"
@@ -70,51 +73,69 @@ def crawl_person(context: Context, item_html: str) -> None:
     emit_person(context, "us", url, role, name, title=title, notes="")
 
 
-def parse_json_or_xml(context: Context, url: str, data: str):
-    try:
-        json_doc = orjson.loads(data)
-        return json_doc
-    except orjson.JSONDecodeError:
-        context.log.info(f"Failed to decode JSON from {url}, trying as XML instead")
-
+def parse_json_or_xml(
+    context: Context, url: str, data: str
+) -> Optional[Mapping[str, Any]]:
     try:
         root = etree.fromstring(data)
         html_data = root.xpath(".//*[local-name() = 'data']")[0].text
         done = root.xpath(".//*[local-name() = 'done']")[0].text
         return {"data": html_data, "done": done}
     except etree.XMLSyntaxError as e:
-        context.log.info(f"Failed to parse XML for {url}: {e}")
+        context.log.debug(f"Failed to parse XML for {url}: {e}, trying as JSON instead")
+
+    try:
+        json_doc = orjson.loads(data)
+        return json_doc
+    except orjson.JSONDecodeError:
+        context.log.debug(f"Failed to decode JSON from {url}")
 
 
-def process_page(context: Context, page_number: int):
+ProcessPageResult = namedtuple(
+    "ProcessPageResult",
+    [
+        # Whether the page was successfully fetched
+        "success",
+        # Whether the iteration in the pagination is done. If false, the next page should be fetched.
+        "done",
+    ],
+)
+
+
+def process_page(context: Context, page_number: int) -> ProcessPageResult:
+
     url = API_URL % page_number
     try:
-        data = context.fetch_text(url, headers={"Accept": "application/xml"})
+        resp = zyte_api.fetch(
+            context, ZyteAPIRequest(url=url, headers={"Accept": "application/xml"})
+        )
     except Exception as e:
-        context.log.exception(f"Failed to fetch JSON from {url}: {e}")
-        return False, False
+        context.log.exception(f"Failed to fetch response from {url}: {e}")
+        return ProcessPageResult(success=False, done=False)
 
-    if not data:
+    if not resp.response_text:
         context.log.error(f"No data found for page {page_number}")
-        return False, False
+        resp.invalidate_cache(context)
+        return ProcessPageResult(success=False, done=False)
 
-    doc = parse_json_or_xml(context, url, data)
+    doc = parse_json_or_xml(context, url, resp.response_text)
 
     if not doc:
         context.log.error(f"No parseable data found for page {page_number}")
-        return False, False
+        resp.invalidate_cache(context)
+        return ProcessPageResult(success=False, done=False)
 
     items = html.fromstring(doc["data"]).findall(".//li")
     for item in items:
         item_html = html.tostring(item, encoding="unicode")
         crawl_person(context, item_html)
 
-    return True, doc["done"] == "true"
+    return ProcessPageResult(success=True, done=doc["done"] == "true")
 
 
 def parse_html(context):
     section_xpath = './/div[contains(@class, "DNNModuleContent") and contains(@class, "ModDNNHTMLC")]'
-    doc = fetch_html(context, context.data_url, section_xpath, cache_days=3)
+    doc = zyte_api.fetch_html(context, context.data_url, section_xpath, cache_days=3)
     for section in doc.xpath(section_xpath):
         for row in section.xpath('.//div[@class="row"]'):
             # Extract core HTML elements

@@ -166,6 +166,9 @@ class ZyteResult:
     media_type: Optional[str] = None
     charset: Optional[str] = None
 
+    def invalidate_cache(self, context: Context) -> None:
+        context.cache.delete(self.cache_fingerprint)
+
 
 def get_cache_fingerprint(request_data: Dict[str, Any]) -> str:
     # Slight abuse of the cache key to produce keys of the usual style.
@@ -406,7 +409,7 @@ def fetch_html(
     if not isinstance(matches, list) or not len(matches) > 0:
         # If we've cached a response that no longer passes validation (likely because the code changed),
         # invalidate it so that we don't just get the same cached response on retry.
-        context.cache.delete(zyte_result.cache_fingerprint)
+        zyte_result.invalidate_cache(context)
 
         if previous_retries < retries:
             pause = backoff_factor * (2 ** (previous_retries + 1))

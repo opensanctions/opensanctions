@@ -2,7 +2,7 @@ title: "US Navy Leadership"
 entry_point: crawler.py
 prefix: us-navy
 load_statements: true
-ci_test: false
+ci_test: false  # Zyte is not available in CI
 coverage:
   frequency: daily
   start: 2024-09-13

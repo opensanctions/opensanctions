@@ -139,8 +139,9 @@ def parse_common(context: Context, entity: Entity, node: Element) -> Entity:
     h.apply_date(entity, "createdAt", node.findtext("./LISTED_ON"))
     h.apply_date(sanction, "listingDate", node.findtext("./LISTED_ON"))
     h.apply_date(sanction, "startDate", node.findtext("./LISTED_ON"))
-    h.apply_date(sanction, "modifiedAt", values(node.find("./LAST_DAY_UPDATED")))
-    h.apply_date(entity, "modifiedAt", values(node.find("./LAST_DAY_UPDATED")))
+    for last_day_updated in values(node.find("./LAST_DAY_UPDATED")):
+        h.apply_date(sanction, "modifiedAt", last_day_updated)
+        h.apply_date(entity, "modifiedAt", last_day_updated)
     sanction.add("unscId", node.findtext("./REFERENCE_NUMBER"))
     return sanction
 
