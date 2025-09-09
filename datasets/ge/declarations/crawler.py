@@ -111,7 +111,9 @@ def crawl_enterprise(context: Context, pep: Entity, item: dict, source: str) -> 
     company = context.make("Company")
     company.id = context.make_id(name)
     company.add("name", name, lang="kat")
-    apply_translit_full_name(context, company, "kat", name, TRANSLIT_OUTPUT)
+    apply_translit_full_name(
+        context, entity=company, input_code="kat", name=name, output=TRANSLIT_OUTPUT
+    )
     company.add("address", item.pop("EnterpriseAddress"), lang="kat")
     h.apply_date(company, "incorporationDate", item.pop("RegisterDate"))
     company.add("legalForm", legal_form, lang="kat")
@@ -136,7 +138,13 @@ def crawl_enterprise(context: Context, pep: Entity, item: dict, source: str) -> 
         partner = context.make("LegalEntity")
         partner.id = context.make_id(company.id, partner_name, address)
         partner.add("name", partner_name, lang="kat")
-        apply_translit_full_name(context, partner, "kat", partner_name, TRANSLIT_OUTPUT)
+        apply_translit_full_name(
+            context,
+            entity=partner,
+            input_code="kat",
+            name=partner_name,
+            output=TRANSLIT_OUTPUT,
+        )
         partner.add("address", address, lang="kat")
         partner.add("sourceUrl", source)
         context.emit(partner)

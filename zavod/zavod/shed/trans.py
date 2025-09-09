@@ -101,6 +101,15 @@ def apply_translit_full_name(
             prompt = make_name_translit_prompt(input_code, output)
         response = run_text_prompt(context, prompt, name, model=model)
         for lang in response.keys():
+            transliterated_name = response[lang]
+            if not isinstance(transliterated_name, str):
+                context.log.error(
+                    f'Transliteration for "{name}" in {lang} did not return a string: {transliterated_name}',
+                    prompt=prompt,
+                    name=name,
+                    model=model,
+                )
+                continue
             h.apply_name(
                 entity,
                 full=response[lang],
