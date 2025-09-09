@@ -19,6 +19,7 @@ def test_entity_name(vcontext: Context):
         last_name="Doe",
         lang="eng",
     )
+    assert "John Brandon Doe" in entity.get("name")
     assert entity.caption == "John Brandon Doe"
     for stmt in entity.get_statements("name"):
         assert stmt.lang == "eng"
