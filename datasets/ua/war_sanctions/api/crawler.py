@@ -259,7 +259,7 @@ def crawl_person(context: Context, person_data, program, endpoint, entity_type: 
 
     sanction = h.make_sanction(context, person)
     sanction.add("reason", person_data.pop("reason", None))
-    # sanction.add("sourceUrl", person_data.pop("links", None))
+    sanction.add("sourceUrl", person_data.pop("links", None))
     sanction.add("program", program)
 
     context.emit(person)
@@ -278,7 +278,7 @@ def crawl_person(context: Context, person_data, program, endpoint, entity_type: 
             )
 
     context.audit_data(
-        person_data, ["sanctions", "documents", "category", "sport", "places"]
+        person_data, ["sanctions", "documents", "category", "sport", "places", "photo"]
     )
 
 
@@ -303,8 +303,8 @@ def crawl_legal_entity(context: Context, company_data, program, entity_type: str
 
     sanction = h.make_sanction(context, legal_entity)
     sanction.add("reason", company_data.pop("reason"))
-    # sanction.add("sourceUrl", company_data.pop("links"))
-    # sanction.add("sourceUrl", company_data.pop("documents", None))
+    sanction.add("sourceUrl", company_data.pop("links"))
+    sanction.add("sourceUrl", company_data.pop("documents", None))
     sanction.add("program", program)
 
     context.emit(legal_entity)
@@ -321,7 +321,8 @@ def crawl_legal_entity(context: Context, company_data, program, entity_type: str
             )
 
     context.audit_data(
-        company_data, ["sanctions", "products", "rel_companies", "tools", "places"]
+        company_data,
+        ["sanctions", "products", "rel_companies", "tools", "places", "logo"],
     )
 
 
@@ -367,7 +368,7 @@ def crawl_vessel(context: Context, vessel_data, program, entity_type: str):
 
     sanction = h.make_sanction(context, vessel)
     sanction.add("program", program)
-    # sanction.add("sourceUrl", vessel_data.pop("links"))
+    sanction.add("sourceUrl", vessel_data.pop("links"))
 
     context.emit(vessel)
     context.emit(sanction)
@@ -408,6 +409,7 @@ def crawl_vessel(context: Context, vessel_data, program, entity_type: str):
             "s_persons",
             "documents",
             "sanctions",
+            "photo",
         ],
     )
 
