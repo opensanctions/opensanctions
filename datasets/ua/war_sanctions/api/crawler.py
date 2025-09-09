@@ -22,10 +22,9 @@ WS_API_BASE_URL = env.get("OPENSANCTIONS_UA_WS_API_BASE_URL")
 
 class WSAPIDataType(str, Enum):
     PERSON = "person"
-    ORGANIZATION = "organization"
-    LEGAL_ENTITY = "legal_entity"
+    ENTITY = "entity"
     VESSEL = "vessel"
-    MANAGEMENT = "management"
+    MANAGER = "manager"
     ROSTEC_STRUCTURE = "rostec_structure"
 
 
@@ -46,13 +45,13 @@ LINKS: List[WSAPILink] = [
     WSAPILink(
         # child kidnappers
         "kidnappers/companies",
-        WSAPIDataType.LEGAL_ENTITY,
+        WSAPIDataType.ENTITY,
         "Legal entities involved in the deportation of Ukrainian children",
     ),
     WSAPILink(
         # uav manufacturers
         "uav/companies",
-        WSAPIDataType.LEGAL_ENTITY,
+        WSAPIDataType.ENTITY,
         "Legal entities involved in the production of UAVs",
     ),
     WSAPILink(
@@ -70,13 +69,13 @@ LINKS: List[WSAPILink] = [
     WSAPILink(
         # ship management
         "transport/management",
-        WSAPIDataType.MANAGEMENT,
+        WSAPIDataType.MANAGER,
         "Management of ships involved in the transportation of weapons, stolen Ukrainian products and in the circumvention of sanctions",
     ),
     WSAPILink(
         # companies associated with ships
         "transport/companies",
-        WSAPIDataType.LEGAL_ENTITY,
+        WSAPIDataType.ENTITY,
         "Companies associated with the ships involved in the transportation of weapons, stolen Ukrainian products and in the circumvention of sanctions",
     ),
     WSAPILink(
@@ -112,25 +111,25 @@ LINKS: List[WSAPILink] = [
     WSAPILink(
         # stealers of heritage
         "stolen/companies",
-        WSAPIDataType.LEGAL_ENTITY,
+        WSAPIDataType.ENTITY,
         "Legal entities involved in the theft and destruction of Ukrainian cultural heritage",
     ),
     WSAPILink(
         # russian military-industrial complex
         "rostec/companies",
-        WSAPIDataType.LEGAL_ENTITY,
+        WSAPIDataType.ENTITY,
         "Entities from Rostec’s core military holdings producing weapons for Russia’s war against Ukraine.",
     ),
     WSAPILink(
         # military component manufacturers
         "components/companies",
-        WSAPIDataType.LEGAL_ENTITY,
+        WSAPIDataType.ENTITY,
         "Enterprises involved in the production and supply of military components and parts",
     ),
     WSAPILink(
         # factories
         "tools/companies",
-        WSAPIDataType.LEGAL_ENTITY,
+        WSAPIDataType.ENTITY,
         "Legal entities involved in the production of military equipment and supplies",
     ),
     WSAPILink(
@@ -185,7 +184,7 @@ def crawl_ship_relation(
 
     emit_relation(
         context,
-        subject_id=make_id(context, "entity", company_id_raw),
+        subject_id=make_id(context, WSAPIDataType.MANAGER, company_id_raw),
         object_id=vessel_id_slug,
         rel_schema=rel_schema,
         rel_role=rel_role,
@@ -203,8 +202,8 @@ def crawl_ship_relation(
     if care_of_id_raw is not None:
         emit_relation(
             context,
-            subject_id=make_id(context, "entity", company_id_raw),
-            object_id=make_id(context, "entity", care_of_id_raw),
+            subject_id=make_id(context, WSAPIDataType.MANAGER, company_id_raw),
+            object_id=make_id(context, WSAPIDataType.MANAGER, care_of_id_raw),
             rel_schema=rel_schema,
             rel_role="c/o",
             from_prop=from_prop,
@@ -274,7 +273,7 @@ def crawl_person(context: Context, person_data, program, endpoint, entity_type: 
             emit_relation(
                 context,
                 subject_id=person.id,
-                object_id=make_id(context, "vessel", ship_id_raw),
+                object_id=make_id(context, WSAPIDataType.VESSEL, ship_id_raw),
                 rel_role=role,
             )
 
@@ -318,7 +317,7 @@ def crawl_legal_entity(context: Context, company_data, program, entity_type: str
             emit_relation(
                 context,
                 subject_id=legal_entity.id,
-                object_id=make_id(context, "vessel", ship_id_raw),
+                object_id=make_id(context, WSAPIDataType.VESSEL, ship_id_raw),
             )
 
     context.audit_data(
@@ -505,15 +504,25 @@ def crawl(context: Context):
         for entity_details in data:
             if link.type is WSAPIDataType.PERSON:
                 crawl_person(
-                    context, entity_details, link.program, link.endpoint, "person"
+                    context,
+                    entity_details,
+                    link.program,
+                    link.endpoint,
+                    WSAPIDataType.PERSON,
                 )
-            elif link.type is WSAPIDataType.LEGAL_ENTITY:
-                crawl_legal_entity(context, entity_details, link.program, "entity")
+            elif link.type is WSAPIDataType.ENTITY:
+                crawl_legal_entity(
+                    context, entity_details, link.program, WSAPIDataType.ENTITY
+                )
             elif link.type is WSAPIDataType.VESSEL:
-                crawl_vessel(context, entity_details, link.program, "vessel")
-            elif link.type is WSAPIDataType.MANAGEMENT:
-                crawl_manager(context, entity_details, link.program, "entity")
+                crawl_vessel(
+                    context, entity_details, link.program, WSAPIDataType.VESSEL
+                )
+            elif link.type is WSAPIDataType.MANAGER:
+                crawl_manager(
+                    context, entity_details, link.program, WSAPIDataType.MANAGER
+                )
             elif link.type is WSAPIDataType.ROSTEC_STRUCTURE:
-                crawl_rostec_structure(context, entity_details, "entity")
+                crawl_rostec_structure(context, entity_details, WSAPIDataType.ENTITY)
             else:
                 context.log.warn(f"Unknown data type: {link.type}")
