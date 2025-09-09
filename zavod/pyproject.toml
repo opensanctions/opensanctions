@@ -19,7 +19,7 @@ classifiers = [
 requires-python = ">= 3.11"
 dependencies = [
     "followthemoney == 4.2.0",
-    "nomenklatura == 4.1.3",
+    "nomenklatura == 4.1.4",
     "plyvel == 1.5.1",
     "rigour == 1.3.2",
     "datapatch >= 1.2.4, < 1.3",
