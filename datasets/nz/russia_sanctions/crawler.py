@@ -93,6 +93,7 @@ def crawl_entity(context: Context, data: Dict[str, Any]) -> None:
         middle_name=middle_name,
         last_name=last_name,
         quiet=True,
+        lang="eng",
     )
 
     aliases = data.pop("Alias/Alternate Spellings")
