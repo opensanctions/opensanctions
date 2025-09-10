@@ -239,7 +239,7 @@ def crawl(context: Context):
                 raw_ref = f"{raw_ref}-{reference_seen_count}"
 
             # Sanity check that this raw reference isn't duplicated within its clean ref block.
-            if raw_ref in raw_references and raw_ref != "8058":
+            if raw_ref in raw_references:
                 raise ValueError("Duplicate reference: %s" % raw_ref)
             raw_references.add(raw_ref)
 
