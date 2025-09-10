@@ -197,6 +197,13 @@ def crawl_item(context: Context, listing: Dict[str, Any]) -> None:
                     )
                     continue
             company = context.make("Company")
+            if not company_name:
+                context.log.info(
+                    f"Skipping company with no name for person {person.id}",
+                    company_name=company_name,
+                    person_id=person.id,
+                )
+                continue
             company.id = context.make_slug("named", company_name)
             company.add("name", company_name)
             company.add("jurisdiction", "gb")
