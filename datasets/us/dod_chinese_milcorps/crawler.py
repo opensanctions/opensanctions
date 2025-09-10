@@ -1,14 +1,14 @@
 import csv
 
 from zavod import Context, helpers as h
-from zavod.shed.zyte_api import fetch_html
+from zavod.shed import zyte_api
 
 US_DOD_1260H = "US-DOD-1260H"
 
 
 def crawl(context: Context) -> None:
     results_xpath = ".//div[@class='alist stories release-list']"
-    doc = fetch_html(
+    doc = zyte_api.fetch_html(
         context,
         "https://www.defense.gov/News/Releases/Search/1260H/",
         results_xpath,
@@ -16,7 +16,7 @@ def crawl(context: Context) -> None:
     )
     search_results = doc.xpath(results_xpath)
     assert len(search_results) == 1, "Expected exactly one section in the document"
-    h.assert_dom_hash(search_results[0], "8631af15f87fd72db8ff79b9a6accd3294e702fb")
+    h.assert_dom_hash(search_results[0], "9e1ebd76404cc93000201c78155b5d75ed1d676b")
     # Jan. 7, 2025
     # DOD Releases List of Chinese Military Companies in Accordance with Section 1260H of the National Defense Authorization Act for Fiscal Year 2021
     # Jan. 31, 2024
