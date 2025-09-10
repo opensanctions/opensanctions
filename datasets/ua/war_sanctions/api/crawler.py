@@ -5,6 +5,7 @@ import base64
 
 from dataclasses import dataclass
 from datetime import datetime, timezone
+from normality import squash_spaces
 from enum import Enum
 from os import environ as env
 from typing import Optional, List
@@ -19,6 +20,7 @@ WS_API_KEY = env.get("OPENSANCTIONS_UA_WS_API_KEY")
 WS_API_DOCS_URL = env.get("OPENSANCTIONS_UA_WS_API_DOCS_URL")
 WS_API_BASE_URL = env.get("OPENSANCTIONS_UA_WS_API_BASE_URL")
 
+SPLITS = [" / ", "\r\n", "/"]
 NAMES_LANG_MAP = {
     "name_en": "eng",
     "name_uk": "ukr",
@@ -271,9 +273,6 @@ def emit_relation(
 def crawl_person(context: Context, person_data, program, endpoint, entity_type: str):
     birth_date = person_data.pop("date_bd")
     death_date = person_data.pop("date_death", None)
-    positions = person_data.pop("positions", None)
-    if positions and len(positions) == 1:
-        positions = clean_string(positions[0])
     if "- " in birth_date:
         birth_date, death_date = split_dob_dod(birth_date)
 
@@ -281,11 +280,11 @@ def crawl_person(context: Context, person_data, program, endpoint, entity_type: 
     person.id = make_id(context, entity_type, person_data.pop("id"))
     apply_names(context, person, person_data)
     person.add("citizenship", person_data.pop("citizenships", None))
-    person.add("taxNumber", person_data.pop("itn"))
-    person.add("position", positions)
-    person.add("position", person_data.pop("position", None))
-    person.add("position", person_data.pop("positions_main", None))
-    person.add("position", person_data.pop("positions_other", None))
+    person.add("taxNumber", h.multi_split(person_data.pop("itn"), " / "))
+    for key in ("positions", "position", "positions_main", "positions_other"):
+        position = person_data.pop(key, None)
+        for p in h.multi_split(position, SPLITS):
+            person.add("position", squash_spaces(p))
     h.apply_date(person, "birthDate", birth_date)
     h.apply_date(person, "deathDate", death_date)
     person.add("topics", "poi")
@@ -319,13 +318,14 @@ def crawl_person(context: Context, person_data, program, endpoint, entity_type: 
 def crawl_legal_entity(context: Context, company_data, program, entity_type: str):
     legal_entity = context.make("LegalEntity")
     legal_entity.id = make_id(context, entity_type, company_data.pop("id"))
-    legal_entity.add("name", company_data.pop("name"))
-    name_abbr = company_data.pop("short")
+    legal_entity.add("name", h.multi_split(company_data.pop("name"), [" / "]))
+    name_abbr = h.multi_split(company_data.pop("short"), [" / "])
     # If it's longer, it's usually just a little shortened version of name, not an abbreviation
-    if len(name_abbr) < 11:
-        legal_entity.add("alias", name_abbr)
-    else:
-        legal_entity.add("name", name_abbr)
+    for alias in name_abbr:
+        if len(alias) < 11:
+            legal_entity.add("alias", alias)
+        else:
+            legal_entity.add("name", alias)
     legal_entity.add("ogrnCode", company_data.pop("reg"))
     legal_entity.add("address", company_data.pop("address"))
     legal_entity.add("country", company_data.pop("country"))
