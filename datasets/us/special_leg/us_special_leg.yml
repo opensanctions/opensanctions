@@ -4,7 +4,11 @@ prefix: us-leg
 manual_check:
   last_check: "2025-06-20"
   interval: 90
-  message: Please check whether any amendments have been made to the legislation listed in this dataset.
+  message: >-
+    Please check whether any amendments have been made to the legislation listed in this dataset.
+
+    There does not seem to be a standard way to track amendments to these legislations, so manually
+    searching for press releases announcing amendments to the individual legislations is required.
 coverage:
   frequency: never
   schedule: "@weekly"
@@ -35,17 +39,17 @@ description: |
   procured by executive agencies for use in critical systems. The same restrictions
   apply to to their subsidiaries, successors, and affiliates.
 
-  Section 353 of the [Corrupt and Undemocratic Actors Report: 2023](https://www.state.gov/wp-content/uploads/2023/07/353-Report-Accessible-7.18.2023.pdf) 
-  reports Foreign Persons who have Knowingly Engaged in Actions that Undermine Democratic 
-  Processes or Institutions, Significant Corruption, or Obstruction of Investigations Into 
-  Such Acts of Corruption in El Salvador, Guatemala, Honduras, and Nicaragua. 
+  Section 353 of the [Corrupt and Undemocratic Actors Report: 2023](https://www.state.gov/wp-content/uploads/2023/07/353-Report-Accessible-7.18.2023.pdf)
+  reports Foreign Persons who have Knowingly Engaged in Actions that Undermine Democratic
+  Processes or Institutions, Significant Corruption, or Obstruction of Investigations Into
+  Such Acts of Corruption in El Salvador, Guatemala, Honduras, and Nicaragua.
 
   Since the December 2023 expiration of the Section 353 sanctions authority, individuals
   designated under the [act](https://www.state.gov/reports/section-353-corrupt-and-undemocratic-actors-report/) have been eligible to apply for new visas.
   [Source: Congressional Research Service](https://www.congress.gov/crs-product/IF12486)
 
   Section 154 of the [National Defense Authorization Act for Fiscal Year 2024 (Public Law 118-31)](https://www.congress.gov/118/plaws/publ31/PLAW-118publ31.pdf)
-  prohibits the Department of Defense, beginning October 1, 2027, from obligating or expending 
+  prohibits the Department of Defense, beginning October 1, 2027, from obligating or expending
   funds to procure batteries produced by specified foreign entities or their successors.
 
   Additional pieces of legislation may be added to this dataset from time to time.
