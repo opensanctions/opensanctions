@@ -1106,3 +1106,6 @@ lookups:
       - match: "La société Electricité de France S.A."
         entities:
           - Electricité de France S.A.
+      - match: "La société Horizon Asset Management<br /> <br />"
+        entities:
+          - Horizon Asset Management

@@ -108,6 +108,7 @@ def apply_translit_full_name(
                     prompt=prompt,
                     name=name,
                     model=model,
+                    response=repr(response),
                 )
                 continue
             h.apply_name(
