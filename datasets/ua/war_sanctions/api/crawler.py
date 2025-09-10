@@ -263,14 +263,14 @@ def emit_relation(
     context.emit(relation)
 
 
-def crawl_person(context: Context, person_data, program, endpoint, entity_type: str):
+def crawl_person(context: Context, person_data, program, endpoint):
     birth_date = person_data.pop("date_bd")
     death_date = person_data.pop("date_death", None)
     if "- " in birth_date:
         birth_date, death_date = split_dob_dod(birth_date)
 
     person = context.make("Person")
-    person.id = make_id(context, entity_type, person_data.pop("id"))
+    person.id = make_id(context, WSAPIDataType.PERSON, person_data.pop("id"))
     apply_names(context, person, person_data)
     person.add("citizenship", person_data.pop("citizenships", None))
     person.add("taxNumber", h.multi_split(person_data.pop("itn"), " / "))
@@ -308,9 +308,9 @@ def crawl_person(context: Context, person_data, program, endpoint, entity_type: 
     )
 
 
-def crawl_legal_entity(context: Context, company_data, program, entity_type: str):
+def crawl_legal_entity(context: Context, company_data, program):
     legal_entity = context.make("LegalEntity")
-    legal_entity.id = make_id(context, entity_type, company_data.pop("id"))
+    legal_entity.id = make_id(context, WSAPIDataType.ENTITY, company_data.pop("id"))
     legal_entity.add("name", h.multi_split(company_data.pop("name"), [" / "]))
     name_abbr = h.multi_split(company_data.pop("short"), [" / "])
     # If it's longer, it's usually just a little shortened version of name, not an abbreviation
@@ -353,9 +353,9 @@ def crawl_legal_entity(context: Context, company_data, program, entity_type: str
     )
 
 
-def crawl_manager(context: Context, management_data, program, entity_type: str):
+def crawl_manager(context: Context, management_data, program):
     manager = context.make("Company")
-    manager.id = make_id(context, entity_type, management_data.pop("id"))
+    manager.id = make_id(context, WSAPIDataType.MANAGER, management_data.pop("id"))
     manager.add("name", management_data.pop("name"))
     # We null falsy names via the lookups and set the topic once again here
     # not to emit empty entities
@@ -372,9 +372,9 @@ def crawl_manager(context: Context, management_data, program, entity_type: str):
     context.audit_data(management_data)
 
 
-def crawl_vessel(context: Context, vessel_data, program, entity_type: str):
+def crawl_vessel(context: Context, vessel_data, program):
     vessel = context.make("Vessel")
-    vessel.id = make_id(context, entity_type, vessel_data.pop("id"))
+    vessel.id = make_id(context, WSAPIDataType.VESSEL, vessel_data.pop("id"))
     vessel.add("name", vessel_data.pop("name"))
     vessel.add("imoNumber", vessel_data.pop("imo"))
     vessel.add("type", vessel_data.pop("type"))
@@ -441,14 +441,14 @@ def crawl_vessel(context: Context, vessel_data, program, entity_type: str):
     )
 
 
-def crawl_rostec_structure(context: Context, structure_data, entity_type: str):
+def crawl_rostec_structure(context: Context, structure_data):
     company_id = structure_data.pop("company_id")
     parent_id = structure_data.pop("parent_id")
     if parent_id and company_id:
         emit_relation(
             context,
-            subject_id=make_id(context, entity_type, parent_id),
-            object_id=make_id(context, entity_type, company_id),
+            subject_id=make_id(context, WSAPIDataType.ENTITY, parent_id),
+            object_id=make_id(context, WSAPIDataType.ENTITY, company_id),
             rel_schema="Ownership",
             rel_role="subsidiary of",
             from_prop="owner",
@@ -532,27 +532,14 @@ def crawl(context: Context):
         data = response.get("data")
         for entity_details in data:
             if link.type is WSAPIDataType.PERSON:
-                crawl_person(
-                    context,
-                    entity_details,
-                    link.program,
-                    link.endpoint,
-                    WSAPIDataType.PERSON,
-                )
+                crawl_person(context, entity_details, link.program, link.endpoint)
             elif link.type is WSAPIDataType.ENTITY:
-                crawl_legal_entity(
-                    context, entity_details, link.program, WSAPIDataType.ENTITY
-                )
+                crawl_legal_entity(context, entity_details, link.program)
             elif link.type is WSAPIDataType.VESSEL:
-                crawl_vessel(
-                    context, entity_details, link.program, WSAPIDataType.VESSEL
-                )
+                crawl_vessel(context, entity_details, link.program)
             elif link.type is WSAPIDataType.MANAGER:
-                crawl_manager(
-                    context, entity_details, link.program, WSAPIDataType.MANAGER
-                )
-            # Even though this endpoint is for rostec companies, we still key it with ENTITY type to match the IDs
+                crawl_manager(context, entity_details, link.program)
             elif link.type is WSAPIDataType.ROSTEC_STRUCTURE:
-                crawl_rostec_structure(context, entity_details, WSAPIDataType.ENTITY)
+                crawl_rostec_structure(context, entity_details)
             else:
                 context.log.warn(f"Unknown data type: {link.type}")
