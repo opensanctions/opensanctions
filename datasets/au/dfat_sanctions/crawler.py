@@ -12,6 +12,21 @@ from zavod import helpers as h
 SPLITS = [" %s)" % char for char in string.ascii_lowercase]
 ADDRESS_SPLITS = [";", "ii) ", "iii) "]
 
+# Each entry carries a reference and other names are listed as references with a letter attached
+# e.g. 101 for the primary name and 101a for the alias.
+# Usually, the names are listed in contiguous blocks, but sometimes they're not
+# (they're interrupted by other entries).
+
+KNOWN_VALID_DISCOUNTINOUS_REFERENCES = {
+    "2940j",
+    "8155a",
+    "8155b",
+    "8164a",
+    "8174b",
+    "8183a",
+    "8183b",
+}
+
 
 def clean_date(date):
     splits = [
@@ -56,6 +71,7 @@ def clean_date(date):
 
 
 def clean_reference(ref: str) -> Optional[str]:
+    """Given a reference like 101a, return 101"""
     number = ref
     while len(number):
         try:
@@ -164,7 +180,7 @@ def crawl(context: Context):
     workbook: openpyxl.Workbook = openpyxl.load_workbook(path, read_only=True)
     references = defaultdict(list)
     raw_references: Set[str] = set()
-    reference_iteration: Dict[str, int] = dict()
+    reference_blocks_seen_count: Dict[str, int] = dict()
     last_clean_ref = None
     for sheet in workbook.worksheets:
         headers: Optional[List[str]] = None
@@ -184,36 +200,43 @@ def crawl(context: Context):
                     context.log.warning("No reference", row=row)
                 continue
             raw_ref = str(raw_ref)
-            # get clean ref
+            # Get the reference number without the letter suffix.
             reference = clean_reference(raw_ref)
             if reference is None:
                 context.log.warning("Couldn't clean raw reference", ref=raw_ref)
                 continue
 
-            iteration = reference_iteration.get(reference, None)
-
             # If we've seen this reference before, add a suffix to each new
             # non-contiguous block. We've seen IDs reused (by mistake) for
             # unrelated entities on non-contiguous rows.
+            # For example, if there is the following sequence:
+            # - 101
+            # - 102
+            # - 101a
+            # We want to manually check that 101 and 101a are the same entity.
 
             # first row of contiguous block of clean reference
             if last_clean_ref != reference:
-                iteration = (iteration or 0) + 1
-                reference_iteration[reference] = iteration
+                reference_seen_count = reference_blocks_seen_count.get(reference, 0) + 1
+                reference_blocks_seen_count[reference] = reference_seen_count
             # Stash clean ref before adding suffix
             # to simplify detecting contiguous blocks
             last_clean_ref = reference
 
             # Add suffix so that this block is treated as distinct block from
             # earlier iterations of this reference
-            if iteration > 1 and raw_ref != "2940j":
+            if (
+                reference_seen_count > 1
+                and raw_ref not in KNOWN_VALID_DISCOUNTINOUS_REFERENCES
+            ):
                 context.log.warning(
-                    "Already seen reference. Adding iteration suffix.",
+                    f"Already seen a reference block before for {reference}. Adding iteration suffix, check if {raw_ref} actually belongs to {reference}",
                     ref=reference,
-                    iteration=iteration,
+                    raw_ref=raw_ref,
+                    reference_seen_count=reference_seen_count,
                 )
-                reference = f"{reference}-{iteration}"
-                raw_ref = f"{raw_ref}-{iteration}"
+                reference = f"{reference}-{reference_seen_count}"
+                raw_ref = f"{raw_ref}-{reference_seen_count}"
 
             # Sanity check that this raw reference isn't duplicated within its clean ref block.
             if raw_ref in raw_references and raw_ref != "8058":
