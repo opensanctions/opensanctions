@@ -1,12 +1,13 @@
-import string
-import random
-import hashlib
 import base64
+import hashlib
+import random
+import re
+import string
 
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from normality import squash_spaces
 from enum import Enum
+from normality import squash_spaces
 from os import environ as env
 from typing import Optional, List
 
@@ -20,6 +21,7 @@ WS_API_KEY = env.get("OPENSANCTIONS_UA_WS_API_KEY")
 WS_API_DOCS_URL = env.get("OPENSANCTIONS_UA_WS_API_DOCS_URL")
 WS_API_BASE_URL = env.get("OPENSANCTIONS_UA_WS_API_BASE_URL")
 
+BR_RE = re.compile(r"<br\s*/?>", re.IGNORECASE)
 SPLITS = [" / ", "\r\n", "/"]
 NAMES_LANG_MAP = {
     "name_en": "eng",
@@ -385,7 +387,7 @@ def crawl_vessel(context: Context, vessel_data, program, entity_type: str):
     vessel.add("name", vessel_data.pop("name"))
     vessel.add("imoNumber", vessel_data.pop("imo"))
     vessel.add("type", vessel_data.pop("type"))
-    vessel.add("description", vessel_data.pop("info"))
+    vessel.add("description", squash_spaces(BR_RE.sub(" ", vessel_data.pop("info"))))
     vessel.add("callSign", vessel_data.pop("callsign"))
     vessel.add("flag", vessel_data.pop("flag"))
     vessel.add("mmsi", vessel_data.pop("mmsi"))
