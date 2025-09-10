@@ -45,9 +45,10 @@ assertions:
 lookups:
   type.name:
     options:
-      - match: 
+      - match:
           - 42
           - 27
+          - 888888
           - "--"
         value: null
   type.gender:
