@@ -171,6 +171,24 @@ def generate_token(cid: str, pkey: str) -> str:
     return token
 
 
+def apply_names(context, person, person_data):
+    for key, lang in NAMES_LANG_MAP.items():
+        raw_name = person_data.pop(key)
+        if "/" in raw_name:
+            res = context.lookup("names", raw_name)
+            if res:
+                person.add("name", res.name, lang=lang)
+                person.add("alias", res.alias, lang=lang)
+            else:
+                context.log.warning(
+                    "Multiple names in a single field, please check",
+                    field=key,
+                    raw_name=raw_name,
+                )
+        else:
+            person.add("name", raw_name, lang=lang)
+
+
 def make_id(context: Context, entity_type: str, raw_id: str):
     return context.make_slug(entity_type, raw_id)
 
@@ -261,23 +279,7 @@ def crawl_person(context: Context, person_data, program, endpoint, entity_type: 
 
     person = context.make("Person")
     person.id = make_id(context, entity_type, person_data.pop("id"))
-    for key, lang in NAMES_LANG_MAP.items():
-        raw_name = person_data.pop(key)
-        if "/" in raw_name:
-            res = context.lookup("names", raw_name)
-            if res:
-                name = res.name
-                alias = res.alias
-                person.add("name", name, lang=lang)
-                person.add("alias", alias, lang=lang)
-            else:
-                context.log.warning(
-                    "Multiple names in a single field, please check",
-                    field=key,
-                    raw_name=raw_name,
-                )
-        else:
-            person.add("name", raw_name, lang=lang)
+    apply_names(context, person, person_data)
     person.add("citizenship", person_data.pop("citizenships", None))
     person.add("taxNumber", person_data.pop("itn"))
     person.add("position", positions)
@@ -556,6 +558,7 @@ def crawl(context: Context):
                 crawl_manager(
                     context, entity_details, link.program, WSAPIDataType.MANAGER
                 )
+            # Even though this endpoint is for rostec companies, we still key it with ENTITY type to match the IDs
             elif link.type is WSAPIDataType.ROSTEC_STRUCTURE:
                 crawl_rostec_structure(context, entity_details, WSAPIDataType.ENTITY)
             else:
