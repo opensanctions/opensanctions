@@ -151,15 +151,6 @@ LINKS: List[WSAPILink] = [
 ]
 
 
-def clean_string(string):
-    if not string:
-        return None
-    if "/" in string:
-        strings = [s.strip() for s in string.split("/")]
-        return strings
-    return [string.strip()]
-
-
 def generate_token(cid: str, pkey: str) -> str:
     # 1. Create timestamp in ISO8601 (UTC)
     timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
