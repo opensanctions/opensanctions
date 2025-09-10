@@ -19,6 +19,12 @@ WS_API_KEY = env.get("OPENSANCTIONS_UA_WS_API_KEY")
 WS_API_DOCS_URL = env.get("OPENSANCTIONS_UA_WS_API_DOCS_URL")
 WS_API_BASE_URL = env.get("OPENSANCTIONS_UA_WS_API_BASE_URL")
 
+NAMES_LANG_MAP = {
+    "name_en": "eng",
+    "name_uk": "ukr",
+    "name_ru": "rus",
+}
+
 
 class WSAPIDataType(str, Enum):
     PERSON = "person"
@@ -141,6 +147,15 @@ LINKS: List[WSAPILink] = [
 ]
 
 
+def clean_string(string):
+    if not string:
+        return None
+    if "/" in string:
+        strings = [s.strip() for s in string.split("/")]
+        return strings
+    return [string.strip()]
+
+
 def generate_token(cid: str, pkey: str) -> str:
     # 1. Create timestamp in ISO8601 (UTC)
     timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -238,17 +253,34 @@ def emit_relation(
 def crawl_person(context: Context, person_data, program, endpoint, entity_type: str):
     birth_date = person_data.pop("date_bd")
     death_date = person_data.pop("date_death", None)
+    positions = person_data.pop("positions", None)
+    if positions and len(positions) == 1:
+        positions = clean_string(positions[0])
     if "- " in birth_date:
         birth_date, death_date = split_dob_dod(birth_date)
 
     person = context.make("Person")
     person.id = make_id(context, entity_type, person_data.pop("id"))
-    person.add("name", person_data.pop("name_en"), lang="eng")
-    person.add("name", person_data.pop("name_uk"), lang="ukr")
-    person.add("name", person_data.pop("name_ru"), lang="rus")
+    for key, lang in NAMES_LANG_MAP.items():
+        raw_name = person_data.pop(key)
+        if "/" in raw_name:
+            res = context.lookup("names", raw_name)
+            if res:
+                name = res.name
+                alias = res.alias
+                person.add("name", name, lang=lang)
+                person.add("alias", alias, lang=lang)
+            else:
+                context.log.warning(
+                    "Multiple names in a single field, please check",
+                    field=key,
+                    raw_name=raw_name,
+                )
+        else:
+            person.add("name", raw_name, lang=lang)
     person.add("citizenship", person_data.pop("citizenships", None))
     person.add("taxNumber", person_data.pop("itn"))
-    person.add("position", person_data.pop("positions", None))
+    person.add("position", positions)
     person.add("position", person_data.pop("position", None))
     person.add("position", person_data.pop("positions_main", None))
     person.add("position", person_data.pop("positions_other", None))
@@ -355,7 +387,7 @@ def crawl_vessel(context: Context, vessel_data, program, entity_type: str):
     vessel.add("callSign", vessel_data.pop("callsign"))
     vessel.add("flag", vessel_data.pop("flag"))
     vessel.add("mmsi", vessel_data.pop("mmsi"))
-    vessel.add("buildDate", vessel_data.pop("year"))
+    h.apply_date(vessel, "buildDate", vessel_data.pop("year"))
     vessel.add("grossRegisteredTonnage", vessel_data.pop("weight"))
     vessel.add("deadweightTonnage", vessel_data.pop("dwt"))
     old_data = vessel_data.pop("old_data", [])
