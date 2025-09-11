@@ -7,6 +7,8 @@ from zipfile import ZipFile
 from zavod import Context
 from zavod import helpers as h
 
+BR_CEIS = "BR-CEIS"
+
 
 def get_csv_url(context: Context) -> str:
     """
@@ -84,8 +86,7 @@ def create_entities(data: List[dict], context: Context) -> None:
         entity.add("country", "br")
         entity.add("topics", "debarment")
 
-        sanction = h.make_sanction(context, entity)
-        sanction.add("program", "Brazil disreputed and sanctioned companies")
+        sanction = h.make_sanction(context, entity, program_key=BR_CEIS)
         sanction.add("reason", raw_entity["FUNDAMENTAÇÃO LEGAL"], lang="por")
         context.emit(entity)
         context.emit(sanction)

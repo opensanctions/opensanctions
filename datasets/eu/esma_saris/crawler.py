@@ -3,6 +3,8 @@ import csv
 from zavod import Context
 from zavod import helpers as h
 
+EU_ESMA = "EU-ESMA"
+
 
 def crawl(context: Context) -> None:
     # Set the initial cookie
@@ -30,8 +32,9 @@ def crawl(context: Context) -> None:
             entity = h.make_security(context, isin)
             entity.add("name", row.pop("instrumentFullName", isin))
 
-            sanction = h.make_sanction(context, entity, key=row.pop("id"))
-            sanction.add("program", "ESMA")
+            sanction = h.make_sanction(
+                context, entity, key=row.pop("id"), program_key=EU_ESMA
+            )
             sanction.add("provisions", row.pop("actionType"))
             reason = row.pop("reasonsForTheAction")
             sanction.add("reason", reason)

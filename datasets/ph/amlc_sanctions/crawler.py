@@ -24,7 +24,8 @@ def crawl_row(context: Context, row: Dict[str, str]):
     sanction = h.make_sanction(
         context,
         entity,
-        program_name=program,  # program_key=program
+        program_name=program,
+        program_key=h.lookup_sanction_program_key(context, program),
     )
     sanction.add("program", resolution_no)
     context.emit(sanction)
