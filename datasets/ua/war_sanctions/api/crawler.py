@@ -42,7 +42,7 @@ class WSAPIDataType(str, Enum):
 class WSAPILink:
     endpoint: str
     type: WSAPIDataType
-    program: str
+    program_key: str
 
 
 LINKS: List[WSAPILink] = [
@@ -50,103 +50,103 @@ LINKS: List[WSAPILink] = [
         # child kidnappers
         "kidnappers/persons",
         WSAPIDataType.PERSON,
-        "Persons involved in the deportation of Ukrainian children",
+        "UA-WS-KIDNAPPERS",
     ),
     WSAPILink(
         # child kidnappers
         "kidnappers/companies",
         WSAPIDataType.ENTITY,
-        "Legal entities involved in the deportation of Ukrainian children",
+        "UA-WS-KIDNAPPERS",
     ),
     WSAPILink(
         # uav manufacturers
         "uav/companies",
         WSAPIDataType.ENTITY,
-        "Legal entities involved in the production of UAVs",
+        "UA-WS-UAVS",
     ),
     WSAPILink(
         # russian athletes
         "sport/persons",
         WSAPIDataType.PERSON,
-        "Athletes and sports officials participating in Russian influence operations abroad",
+        "UA-WS-ATHLETES",
     ),
     WSAPILink(
         # ships
         "transport/ships",
         WSAPIDataType.VESSEL,
-        "Marine and Aircraft Vessels, Airports and Ports involved in the transportation of weapons, stolen Ukrainian products and in the circumvention of sanctions",
+        "UA-WS-MARE",
     ),
     WSAPILink(
         # ship management
         "transport/management",
         WSAPIDataType.MANAGER,
-        "Management of ships involved in the transportation of weapons, stolen Ukrainian products and in the circumvention of sanctions",
+        "UA-WS-MARE",
     ),
     WSAPILink(
         # companies associated with ships
         "transport/companies",
         WSAPIDataType.ENTITY,
-        "Companies associated with the ships involved in the transportation of weapons, stolen Ukrainian products and in the circumvention of sanctions",
+        "UA-WS-MARE",
     ),
     WSAPILink(
         # persons associated with ships
         "transport/persons",
         WSAPIDataType.PERSON,
-        "Persons associated with the ships involved in the transportation of weapons, stolen Ukrainian products and in the circumvention of sanctions",
+        "UA-WS-MARE",
     ),
     WSAPILink(
         # captains
         "transport/captains",
         WSAPIDataType.PERSON,
-        "Captains of ships involved in the transportation of weapons, stolen Ukrainian products and in the circumvention of sanctions",
+        "UA-WS-MARE",
     ),
     WSAPILink(
         # propagandists
         "propaganda/persons",
         WSAPIDataType.PERSON,
-        "Persons involved in the dissemination of propaganda",
+        "UA-WS-PROPAGANDISTS",
     ),
     WSAPILink(
         # executives of war
         "executives/persons",
         WSAPIDataType.PERSON,
-        "Officials and entities controlling Russia’s military-industrial policy, defense orders, and wartime economy",
+        "UA-WS-EXECUTIVES",
     ),
     WSAPILink(
         # stealers of heritage
         "stolen/persons",
         WSAPIDataType.PERSON,
-        "Persons involved in the theft and destruction of Ukrainian cultural heritage",
+        "UA-WS-STEALERS",
     ),
     WSAPILink(
         # stealers of heritage
         "stolen/companies",
         WSAPIDataType.ENTITY,
-        "Legal entities involved in the theft and destruction of Ukrainian cultural heritage",
+        "UA-WS-STEALERS",
     ),
     WSAPILink(
         # russian military-industrial complex
         "rostec/companies",
         WSAPIDataType.ENTITY,
-        "Entities from Rostec’s core military holdings producing weapons for Russia’s war against Ukraine.",
+        "UA-WS-MILIND",
     ),
     WSAPILink(
         # military component manufacturers
         "components/companies",
         WSAPIDataType.ENTITY,
-        "Enterprises involved in the production and supply of military components and parts",
+        "UA-WS-MILIND",
     ),
     WSAPILink(
         # factories
         "tools/companies",
         WSAPIDataType.ENTITY,
-        "Legal entities involved in the production of military equipment and supplies",
+        "UA-WS-MILIND",
     ),
     WSAPILink(
         # rostec structure
         "rostec/structure",
         WSAPIDataType.ROSTEC_STRUCTURE,
-        "Rostec’s organizational structure and key entities",
+        "UA-WS-MILIND",
     ),
 ]
 
@@ -263,7 +263,7 @@ def emit_relation(
     context.emit(relation)
 
 
-def crawl_person(context: Context, person_data, program, endpoint):
+def crawl_person(context: Context, person_data, program_key, endpoint):
     birth_date = person_data.pop("date_bd")
     death_date = person_data.pop("date_death", None)
     if "- " in birth_date:
@@ -283,10 +283,11 @@ def crawl_person(context: Context, person_data, program, endpoint):
     person.add("topics", "poi")
     person.add("birthPlace", person_data.pop("city_bd", None))
 
-    sanction = h.make_sanction(context, person)
+    sanction = h.make_sanction(
+        context, person, key=program_key, program_key=program_key
+    )
     sanction.add("reason", person_data.pop("reason", None))
     sanction.add("sourceUrl", person_data.pop("links", None))
-    sanction.add("program", program)
 
     context.emit(person)
     context.emit(sanction)
@@ -308,7 +309,7 @@ def crawl_person(context: Context, person_data, program, endpoint):
     )
 
 
-def crawl_legal_entity(context: Context, company_data, program):
+def crawl_legal_entity(context: Context, company_data, program_key):
     legal_entity = context.make("LegalEntity")
     legal_entity.id = make_id(context, WSAPIDataType.ENTITY, company_data.pop("id"))
     legal_entity.add("name", h.multi_split(company_data.pop("name"), [" / "]))
@@ -328,11 +329,12 @@ def crawl_legal_entity(context: Context, company_data, program):
     if imo:
         legal_entity.add_cast("Company", "imoNumber", imo)
 
-    sanction = h.make_sanction(context, legal_entity)
+    sanction = h.make_sanction(
+        context, legal_entity, key=program_key, program_key=program_key
+    )
     sanction.add("reason", company_data.pop("reason"))
     sanction.add("sourceUrl", company_data.pop("links"))
     sanction.add("sourceUrl", company_data.pop("documents", None))
-    sanction.add("program", program)
 
     context.emit(legal_entity)
     context.emit(sanction)
@@ -353,7 +355,7 @@ def crawl_legal_entity(context: Context, company_data, program):
     )
 
 
-def crawl_manager(context: Context, management_data, program):
+def crawl_manager(context: Context, management_data, program_key):
     manager = context.make("Company")
     manager.id = make_id(context, WSAPIDataType.MANAGER, management_data.pop("id"))
     manager.add("name", management_data.pop("name"))
@@ -366,13 +368,14 @@ def crawl_manager(context: Context, management_data, program):
     manager.add("imoNumber", management_data.pop("imo"))
     manager.add("topics", "poi")
     context.emit(manager)
-    sanction = h.make_sanction(context, manager)
-    sanction.add("program", program)
+    sanction = h.make_sanction(
+        context, manager, key=program_key, program_key=program_key
+    )
     context.emit(sanction)
     context.audit_data(management_data)
 
 
-def crawl_vessel(context: Context, vessel_data, program):
+def crawl_vessel(context: Context, vessel_data, program_key):
     vessel = context.make("Vessel")
     vessel.id = make_id(context, WSAPIDataType.VESSEL, vessel_data.pop("id"))
     vessel.add("name", vessel_data.pop("name"))
@@ -393,8 +396,9 @@ def crawl_vessel(context: Context, vessel_data, program):
     if vessel_data.pop("is_shadow"):
         vessel.add("topics", "mare.shadow")
 
-    sanction = h.make_sanction(context, vessel)
-    sanction.add("program", program)
+    sanction = h.make_sanction(
+        context, vessel, key=program_key, program_key=program_key
+    )
     sanction.add("sourceUrl", vessel_data.pop("links"))
 
     context.emit(vessel)
@@ -532,13 +536,13 @@ def crawl(context: Context):
         data = response.get("data")
         for entity_details in data:
             if link.type is WSAPIDataType.PERSON:
-                crawl_person(context, entity_details, link.program, link.endpoint)
+                crawl_person(context, entity_details, link.program_key, link.endpoint)
             elif link.type is WSAPIDataType.ENTITY:
-                crawl_legal_entity(context, entity_details, link.program)
+                crawl_legal_entity(context, entity_details, link.program_key)
             elif link.type is WSAPIDataType.VESSEL:
-                crawl_vessel(context, entity_details, link.program)
+                crawl_vessel(context, entity_details, link.program_key)
             elif link.type is WSAPIDataType.MANAGER:
-                crawl_manager(context, entity_details, link.program)
+                crawl_manager(context, entity_details, link.program_key)
             elif link.type is WSAPIDataType.ROSTEC_STRUCTURE:
                 crawl_rostec_structure(context, entity_details)
             else:
