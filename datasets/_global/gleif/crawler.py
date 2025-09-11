@@ -2,11 +2,11 @@ import csv
 from contextlib import contextmanager
 from io import TextIOWrapper
 from pathlib import Path
-from typing import BinaryIO, Dict, List, Optional, Tuple, Union
+from typing import IO, Dict, List, Optional, Tuple, Union
 from urllib.parse import urljoin
 from zipfile import ZipFile
 
-from lxml import etree, html
+from lxml import etree
 from normality import slugify
 
 from zavod import Context, Entity
@@ -42,7 +42,9 @@ ADDRESS_PARTS: Dict[str, str] = {
 }
 
 
-def parse_address(entity: Entity, el: etree._Element) -> str:
+def parse_address(entity: Entity, el: Optional[etree._Element]) -> None:
+    if el is None:
+        return
     parts: Dict[str, Union[str, None]] = {}  # FirstAddressLine
     for tag, key in ADDRESS_PARTS.items():
         parts[key] = el.findtext(tag)
@@ -84,13 +86,12 @@ def parse_date(text: Optional[str]) -> Optional[str]:
 
 
 def fetch_cat_file(context: Context, url_part: str, name: str) -> Optional[Path]:
-    res = context.http.get(CAT_URL)
-    doc = html.fromstring(res.text)
+    doc = context.fetch_html(CAT_URL)
     for link in doc.findall(".//a"):
         url = urljoin(CAT_URL, link.get("href"))
         if url_part in url:
             return context.fetch_resource(name, url)
-    context.log.info("Failed HTML", url=CAT_URL, html=res.text)
+    context.log.info("Failed HTML", url=CAT_URL)
     return None
 
 
@@ -166,11 +167,12 @@ def load_isin_mapping(context: Context) -> Dict[str, List[str]]:
     return mapping
 
 
-def parse_lei_file(context: Context, fh: BinaryIO) -> None:
+def parse_lei_file(context: Context, fh: IO[bytes]) -> None:
     elfs = load_elfs()
     bics = load_bic_mapping(context)
     ocurls = load_oc_mapping(context)
     isins = load_isin_mapping(context)
+    idx = 0
     for idx, (_, el) in enumerate(etree.iterparse(fh, tag="{%s}LEIRecord" % LEI)):
         if idx > 0 and idx % 10000 == 0:
             context.log.info("Parse LEIRecord: %d..." % idx)
@@ -184,7 +186,8 @@ def parse_lei_file(context: Context, fh: BinaryIO) -> None:
         if entity is None:
             continue
         name = entity.find("LegalName")
-        proxy.add("name", name.text, lang=name.get("lang"))
+        if name is not None:
+            proxy.add("name", name.text, lang=name.get("lang"))
         proxy.add("jurisdiction", entity.findtext("LegalJurisdiction"))
 
         status = entity.findtext("EntityStatus")
@@ -273,8 +276,9 @@ def parse_lei_file(context: Context, fh: BinaryIO) -> None:
         raise RuntimeError("No entities!")
 
 
-def parse_rr_file(context: Context, fh: BinaryIO):
+def parse_rr_file(context: Context, fh: IO[bytes]):
     tag = "{%s}RelationshipRecord" % RR
+    idx = 0
     for idx, (_, el) in enumerate(etree.iterparse(fh, tag=tag)):
         if idx > 0 and idx % 10000 == 0:
             context.log.info("Parse RelationshipRecord: %d..." % idx)
