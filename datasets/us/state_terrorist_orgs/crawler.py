@@ -4,7 +4,6 @@ from zavod import Context, helpers as h
 from zavod.shed.zyte_api import fetch_html
 
 NORMAL_CASE_RE = r"^(?P<name>[\w\s’'/-]+?)(?:\s*\((?P<alias>[\w\s’'/-]+?)\))?$"
-PROGRAM = "Foreign Terrorist Organizations designated under section 219 of the INA"
 # Foreign Terrorist Organizations designated under section 219 of the INA
 US_FTO219 = "US-FTO219"
 
