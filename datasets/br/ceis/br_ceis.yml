@@ -49,3 +49,6 @@ lookups:
       - match: "13200478118"
         # "Trade name" in the dataset
         value: TERRA EDITORA E GRAFICA
+      - match: "37.176.339/0001-53"
+        # From the dataset
+        values: ["VITAL PRODUTOS MEDICO-HOSPITALARES LTDA", "VITALMED"]
