@@ -167,6 +167,8 @@ def generate_token(cid: str, pkey: str) -> str:
 
 
 def apply_names(context, person, person_data):
+    # TODO: Switch to LLM-backed name splitting helper #2656, once we have it
+    # https://github.com/opensanctions/opensanctions/issues/2656
     for key, lang in NAMES_LANG_MAP.items():
         raw_name = person_data.pop(key)
         if "/" in raw_name:
