@@ -63,7 +63,10 @@ lookups:
           - "tax:inn"
           - "tax:inn2"
         prop: innCode
-      - match: tax:number
+      - match:
+          - "tax:number"
+          - "tax:rnokpp"
+          - "tax:ipn"
         prop: taxNumber
       - match:
           - "reg:odrn"
