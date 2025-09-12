@@ -303,7 +303,7 @@ def crawl_index_page(context: Context, doc) -> bool:
             return False
         action_cell = row["enforcement_actions"]
         # Remove related links so we can assert that there's one key link
-        for ul in action_cell.xpath(".//ul"):
+        for ul in action_cell.findall(".//ul"):
             ul.getparent().remove(ul)
         urls = action_cell.xpath(".//a/@href")
         assert len(urls) == 1

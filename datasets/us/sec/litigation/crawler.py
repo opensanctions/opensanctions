@@ -182,8 +182,7 @@ def crawl_release(
     context: Context, date: str, url: str, see_also_urls: List[str]
 ) -> None:
     sleep(SLEEP)
-    doc = context.fetch_html(url, headers=HEADERS, cache_days=15)
-    doc.make_links_absolute(url)
+    doc = context.fetch_html(url, headers=HEADERS, cache_days=15, absolute_links=True)
     article_xpath = (
         ".//div[contains(@class, 'node-details-layout__main-region__content')]"
     )
@@ -289,8 +288,7 @@ def crawl(context: Context) -> None:
     while next_url:
         context.log.info("Crawling index page", url=next_url)
         sleep(SLEEP)
-        doc = context.fetch_html(next_url, headers=HEADERS)
-        doc.make_links_absolute(next_url)
+        doc = context.fetch_html(next_url, headers=HEADERS, absolute_links=True)
         next_urls = doc.xpath(
             ".//a[contains(@class, 'usa-pagination__next-page')]/@href"
         )
