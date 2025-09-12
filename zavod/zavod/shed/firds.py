@@ -15,7 +15,7 @@ REGEX_DATE = re.compile(r"_(20\d{6})_")
 NS = "{urn:iso:std:iso:20022:tech:xsd:auth.017.001.02}"
 
 
-def parse_element(context: Context, elem: etree._Element) -> None:
+def parse_element(context: Context, file_name: str, elem: etree._Element) -> None:
     attr = elem.find(f"./{NS}FinInstrmGnlAttrbts")
     if attr is None:
         return
@@ -41,15 +41,15 @@ def parse_element(context: Context, elem: etree._Element) -> None:
         issuer = context.make("Organization")
         issuer.id = lei_id
         issuer.add("leiCode", lei)
-        context.emit(issuer)
+        context.emit(issuer, origin=file_name)
         security.add("issuer", lei_id)
 
-    context.emit(security)
+    context.emit(security, origin=file_name)
 
 
-def parse_xml_doc(context: Context, path: str) -> None:
+def parse_xml_doc(context: Context, file_name: str, path: str) -> None:
     for _, elem in etree.iterparse(path, events=("end",), tag=f"{NS}RefData"):
-        parse_element(context, elem)
+        parse_element(context, file_name, elem)
         elem.clear()
         while elem.getprevious() is not None:
             del elem.getparent()[0]
@@ -63,7 +63,7 @@ def parse_xml_file(context: Context, path: Path) -> None:
                     continue
                 tmpfile = archive.extract(name, path=tmpdir)
                 context.log.info("Reading XML file", path=tmpfile)
-                parse_xml_doc(context, tmpfile)
+                parse_xml_doc(context, name, tmpfile)
                 os.unlink(tmpfile)
 
 

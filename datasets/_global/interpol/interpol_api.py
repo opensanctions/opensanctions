@@ -88,7 +88,7 @@ def crawl_notice(context: Context, notice: Dict[str, Any]) -> None:
     entity = context.make("Person")
     entity.id = context.make_slug(entity_id)
     h.apply_name(entity, first_name=first_name, last_name=last_name)
-    entity.add("sourceUrl", url)
+    # entity.add("sourceUrl", url)
     entity.add("nationality", notice.pop("nationalities", []))
     entity.add("country", notice.pop("country_of_birth_id", []))
     entity.add("gender", notice.pop("sex_id", None))
@@ -121,7 +121,7 @@ def crawl_notice(context: Context, notice: Dict[str, Any]) -> None:
         context.emit(sanction)
 
     context.audit_data(notice, ignore=IGNORE_FIELDS)
-    context.emit(entity)
+    context.emit(entity, origin=url)
 
 
 def crawl_query(context: Context, query: Dict[str, Any]) -> int:
