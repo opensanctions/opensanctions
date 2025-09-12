@@ -10,7 +10,6 @@ from pydantic_core import CoreSchema
 from sqlalchemy import func, insert, not_, select, update
 from sqlalchemy.engine import Connection
 from sqlalchemy.sql import Select
-from lxml import html
 import orjson
 
 from zavod.context import Context
