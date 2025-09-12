@@ -13,7 +13,8 @@ Transliterate the following name from the language denoted by the ISO 639-2 Code
 {output_bullets}.
 
 If it looks like a company name, translate the prefix or suffix indicating the legal form,
-e.g. the Georgian შპს to Ltd, or the Russian ООО to LLC.
+e.g. the Georgian შპს to Ltd, or the Russian ООО to LLC. If it looks like there are multiple
+names, do not separate them in the output but adhere strictly to the output specification above.
 """
 POSITION_TRANS_PROMPT = """
 Translate the following public office position label from the language denoted by the
@@ -100,17 +101,18 @@ def apply_translit_full_name(
         if prompt is None:
             prompt = make_name_translit_prompt(input_code, output)
         response = run_text_prompt(context, prompt, name, model=model)
+        if not set(response.keys()).issubset(set(output.keys())):
+            context.log.warning(
+                f"Transliteration for {name} returned unexpected keys. Will skip applying the transliterated name.",
+                prompt=prompt,
+                name=name,
+                model=model,
+                response=repr(response),
+                output=repr(output),
+            )
+            return
+
         for lang in response.keys():
-            transliterated_name = response[lang]
-            if not isinstance(transliterated_name, str):
-                context.log.error(
-                    f'Transliteration for "{name}" in {lang} did not return a string: {transliterated_name}',
-                    prompt=prompt,
-                    name=name,
-                    model=model,
-                    response=repr(response),
-                )
-                continue
             h.apply_name(
                 entity,
                 full=response[lang],
