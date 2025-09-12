@@ -333,14 +333,14 @@ def parse_alias(
     name_prop = ALIAS_TYPES[alias_type.text]
     for name in alias.findall("DocumentedName"):
         names = defaultdict(lambda: "")
-        lang: Optional[str] = "eng"
+        lang = "eng"
         for value in name.findall("DocumentedNamePart/NamePartValue"):
             script_id = value.get("ScriptID")
             if script_id is not None and script_id != "215":  # Latin
-                script = get_ref_element(value, "ScriptValues", script_id)
+                script = get_ref_element(refs, "Script", script_id)
                 script_code = script.get("ScriptCode")
                 script_lang = context.lookup_value("script.lang", script_code)
-                if lang is None:
+                if lang == "eng":
                     lang = script_lang
                 elif lang != script_lang:
                     context.log.warning(
