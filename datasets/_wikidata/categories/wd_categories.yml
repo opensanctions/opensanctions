@@ -736,8 +736,6 @@ config:
       # country: us
     - category: Political_office-holders_in_the_United_States
       topic: role.pep
-    - category: United_States_government_officials
-      topic: role.pep
     - category: Second_Trump_administration_personnel
       topic: role.pep
     - category: Biden_administration_personnel
