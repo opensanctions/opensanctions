@@ -9,7 +9,10 @@ summary: >
   Formal regulatory and enforcement actions taken by MAS for breaches of laws and regulations 
   administered by MAS and related matters.
 description: |
-
+  This dataset contains records of defendants subject to formal enforcement actions by the Monetary 
+  Authority of Singapore (MAS), including both institutions and individuals, for breaches of MAS 
+  regulations and requirements, including market abuse, financial misconduct, and control breaches 
+  related to money laundering.
 publisher:
   name: Monetary Authority of Singapore
   acronym: MAS
@@ -25,6 +28,9 @@ data:
   format: HTML
 http:
   user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.2 Safari/605.1.15 (zavod; opensanctions.org)"
+
+dates:
+  formats: ["%d %B %Y"]
 
 # assertions:
 #   min:
