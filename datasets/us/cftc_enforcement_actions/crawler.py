@@ -326,5 +326,5 @@ def crawl(context: Context) -> None:
 
     assert_all_accepted(context)
     global something_changed
-    msg = "See what changed to determine whether to trigger re-review."
-    assert not something_changed, msg
+    error = "See what changed to determine whether to trigger re-review."
+    assert not something_changed, error
