@@ -37,7 +37,6 @@ def apply_number(
             return
         if unit is not None:
             unit = normalize_unit(unit)
-        if unit is not None:
             text = f"{num} {unit}"
         else:
             text = num
