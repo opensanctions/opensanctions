@@ -182,7 +182,7 @@ def request_review(
     orig_extraction_data: ModelType,
     model_version: int,
     default_accepted: bool = False,
-) -> Optional[Review[ModelType]]:
+) -> Review[ModelType]:
     """
     Add automatically extracted data for review and
     return extracted data if it's marked as accepted.

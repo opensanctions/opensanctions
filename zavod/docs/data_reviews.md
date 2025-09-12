@@ -166,7 +166,7 @@ You could take a couple of strategies to detect the scale of changes in source a
 #### Warn about all changes without publishing
 
 Until we know how stable GPT extraction is for a given crawler, we might want to
-get notified of changes in the source _and_ changes in the gpt extraction response.
+get notified of changes in the source _and_ changes in the GPT extraction response.
 We can do that by hashing the data (appropriately normalised) and comparing to the
 stored versions.
 
