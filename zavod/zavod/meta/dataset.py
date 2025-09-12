@@ -81,7 +81,7 @@ class Dataset(FollowTheMoneyDataset):
         self.http: HTTP = HTTP(data.get("http", {}))
         """HTTP configuration for this dataset."""
 
-        self.dates: DatesSpec = DatesSpec(data.get("dates", {}))
+        self.dates: DatesSpec = DatesSpec.model_validate(data.get("dates", {}))
         """Date parsing configuration for this dataset."""
 
     @cached_property
