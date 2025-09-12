@@ -70,9 +70,11 @@ When determining entity_schema:
 <extraction_fields>
 For each entity found, extract these fields:
 
-1. **name**: The exact name as written in the article.
+1. **name**: The exact name as written in the article, excluding any titles.
     - If the name is followed by an acronym or alias in brackets, DO NOT include this in the name.
-   
+    - NEVER include the honorific/courtesy title (e.g. Ms, Mr) as a part of the name.
+      <example>Ms Jane Doe (JD)</example> <error>Ms Jane Doe</error>
+
 2. **entity_schema**: Select from available schema types: {schema_field.description}
    
 3. **aliases**: Alternative names or acronyms ONLY if they meet these criteria:
@@ -214,7 +216,7 @@ def crawl_enforcement_action(context: Context, url: str, date: str, action_type:
     if not review.accepted:
         return
 
-    for item in review.extracted_data.designees:
+    for item in review.extracted_data.defendants:
         crawl_item(context, item, date, url, article_name, action_type)
 
 
@@ -229,7 +231,8 @@ def crawl(context: Context):
         date = str_row.pop("issue_date")
         # entities = str_row.pop("person_company")
         action_type = str_row.pop("action_type")
-        context.audit_data(str_row)
+        # list of defendants is available in the 'person_company' field
+        context.audit_data(str_row, ["person_company"])
         url = next(iter(links.values()))
         crawl_enforcement_action(context, url, date, action_type)
 
