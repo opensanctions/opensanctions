@@ -171,6 +171,14 @@ lookups:
         value: null
       - match: www.bloodandhonour.co.uk
         prop: website
+      - match: "sales@ruspolymet.ru,"
+        value: "sales@ruspolymet.ru"
+      - match: "info@zrekond.ru,"
+        value: "info@zrekond.ru"
+      - match: "gen@zrekond.ru,"
+        value: "gen@zrekond.ru"
+      - match: "info@npo-poisk.ru,"
+        value: "info@npo-poisk.ru"
   type.date:
     options:
       - match: 00/00/1975
