@@ -5,6 +5,7 @@ coverage:
   frequency: weekly
   start: 2025-09-03
 load_statements: true
+ci_test: false
 summary: >
   Formal regulatory and enforcement actions taken by MAS for breaches of laws and regulations 
   administered by MAS and related matters.
