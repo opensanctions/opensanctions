@@ -1,5 +1,6 @@
 from typing import Dict, Generator, Optional, Set, cast
 from normality import slugify, squash_spaces
+from rigour.text import text_hash
 from lxml.html import HtmlElement
 
 from zavod.logs import get_logger
@@ -30,6 +31,21 @@ def element_text(el: Element, squash: bool = True) -> str:
     if squash:
         text = squash_spaces(text)
     return text
+
+
+def element_text_hash(el: Element) -> str:
+    """
+    Return a hash of the text content of an HtmlElement. Empty elements will return the sha1
+    of no data (`da39a3ee5e6b4b0d3255bfef95601890afd80709`).
+
+    Args:
+        el: The HTML element to extract text from.
+
+    Returns:
+        A hash of the text content of the element
+    """
+    text = element_text(el)
+    return text_hash(text)
 
 
 def parse_html_table(

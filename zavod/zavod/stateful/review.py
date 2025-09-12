@@ -10,7 +10,6 @@ from pydantic_core import CoreSchema
 from sqlalchemy import func, insert, not_, select, update
 from sqlalchemy.engine import Connection
 from sqlalchemy.sql import Select
-from lxml import html
 import orjson
 
 from zavod.context import Context
@@ -182,7 +181,7 @@ def request_review(
     orig_extraction_data: ModelType,
     model_version: int,
     default_accepted: bool = False,
-) -> Optional[Review[ModelType]]:
+) -> Review[ModelType]:
     """
     Add automatically extracted data for review and
     return extracted data if it's marked as accepted.
@@ -320,12 +319,6 @@ def assert_all_accepted(context: Context, raise_on_unaccepted: bool = True) -> N
                 raise Exception(message)
             else:
                 context.log.warning(message)
-
-
-def html_to_text_hash(html: html.HtmlElement) -> str:
-    slug = slugify(html.text_content())
-    assert slug is not None
-    return sha1(slug.encode("utf-8")).hexdigest()
 
 
 def sort_arrays_in_value(value: JsonValue) -> JsonValue:

@@ -15,7 +15,6 @@ from zavod.stateful.review import (
     request_review,
     get_review,
     model_hash,
-    html_to_text_hash,
 )
 
 NAME_XPATH = "//span[@class='treas-page-title']/text()"
@@ -134,7 +133,7 @@ def source_changed(review: Review, article_element: HtmlElement) -> bool:
     in spite of heavy normalisation.
     """
     seen_element = fromstring(review.source_value)
-    return html_to_text_hash(seen_element) != html_to_text_hash(article_element)
+    return h.element_text_hash(seen_element) != h.element_text_hash(article_element)
 
 
 def check_something_changed(
@@ -256,14 +255,13 @@ def crawl(context: Context):
             f"https://ofac.treasury.gov/recent-actions/enforcement-actions?page={page}"
         )
         context.log.info("Crawling index page", url=base_url)
-        doc = context.fetch_html(base_url)
-        doc.make_links_absolute(context.data_url)
+        doc = context.fetch_html(base_url, absolute_links=True)
         links = doc.xpath(
             "//div[@class='view-content']//a[contains(@href, 'recent-actions') and not(contains(@href, 'enforcement-actions'))]/@href"
         )
         if not links:
             break
-        search_results = doc.xpath(".//div[contains(@class, 'search-result')]")
+        search_results = doc.findall(".//div[contains(@class, 'search-result')]")
         for result in search_results:
             enforcement_date = result.xpath(
                 ".//div[contains(@class,'margin-top-1') and contains(., 'Enforcement Actions')]/text()[normalize-space()]"
@@ -290,6 +288,5 @@ def crawl(context: Context):
 
     assert_all_accepted(context)
     global something_changed
-    assert (
-        not something_changed
-    ), "See what changed to determine whether to trigger re-review."
+    error = "See what changed to determine whether to trigger re-review."
+    assert not something_changed, error
