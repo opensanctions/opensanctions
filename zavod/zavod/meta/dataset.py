@@ -18,6 +18,7 @@ from zavod.meta.assertion import Assertion, parse_assertions, Comparison, Metric
 from zavod.meta.model import DataModel, ZavodDatasetModel
 from zavod.meta.dates import DatesSpec
 from zavod.meta.http import HTTP
+from zavod.meta.numbers import NumbersSpec
 from zavod.runtime.urls import make_published_url
 
 if TYPE_CHECKING:
@@ -83,6 +84,9 @@ class Dataset(FollowTheMoneyDataset):
 
         self.dates: DatesSpec = DatesSpec.model_validate(data.get("dates", {}))
         """Date parsing configuration for this dataset."""
+
+        self.numbers: NumbersSpec = NumbersSpec.model_validate(data.get("numbers", {}))
+        """Number parsing configuration for this dataset."""
 
     @cached_property
     def lookups(self) -> Dict[str, Lookup]:
