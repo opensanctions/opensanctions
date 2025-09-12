@@ -96,6 +96,320 @@ assertions:
       Vessel: 1400
       LegalEntity: 1000
 lookups:
+  names:
+    options:
+      - match: NOVIKOV Igor Vladimirovich / Buga
+        name: NOVIKOV Igor Vladimirovich
+        alias: Buga
+      - match: НОВІКОВ Ігор Володимирович / Буга
+        name: НОВІКОВ Ігор Володимирович
+        alias: Буга
+      - match: НОВИКОВ Игорь Владимирович / Буга
+        name: НОВИКОВ Игорь Владимирович
+        alias: Буга
+      - match: UTENKOV / Utyonkov Andrey Anatolievich
+        name: ["UTENKOV Andrey Anatolievich", "Utyonkov Andrey Anatolievich"]
+      - match: УТЄНКОВ / Утьонков Андрій Анатолійович
+        name: ["УТЄНКОВ Андрій Анатолійович", "Утьонков Андрій Анатолійович"]
+      - match: EVSEEVA / Slobodyanyuk Elena Vasilievna
+        name: ["EVSEEVA Elena Vasilievna", "Slobodyanyuk Elena Vasilievna"]
+      - match: ЄВСЄЄВА / Слободянюк Олена Василівна
+        name: ["ЄВСЄЄВА Олена Василівна", "Слободянюк Олена Василівна"]
+      - match: ЕВСЕЕВА / Слободянюк Елена Васильевна
+        name: ["ЕВСЕЕВА Елена Васильевна", "Слободянюк Елена Васильевна"]
+      - match: BOGDANOVA / Papush Marina Vasilevna
+        name: ["BOGDANOVA Marina Vasilevna", "Papush Marina Vasilevna"]
+      - match: БОГДАНОВА / Папуш Марина Василівна
+        name: ["БОГДАНОВА Марина Василівна", "Папуш Марина Василівна"]
+      - match: БОГДАНОВА / Папуш Марина Васильевна
+        name: ["БОГДАНОВА Марина Васильевна", "Папуш Марина Васильевна"]
+      - match: SEMIKOZ / Selishcheva Larisa Alekseevna
+        name: ["SEMIKOZ Larisa Alekseevna", "Selishcheva Larisa Alekseevna"]
+      - match: СЕМИКОЗ / Селіщева Лариса Олексіївна
+        name: ["СЕМИКОЗ Лариса Олексіївна", "Селіщева Лариса Олексіївна"]
+      - match: СЕМИКОЗ / Селищева Лариса Алексеевна
+        name: ["СЕМИКОЗ Лариса Алексеевна", "Селищева Лариса Алексеевна"]
+      - match: TREMASOVA / Ozdoba Elena Nikolaevna
+        name: ["TREMASOVA Elena Nikolaevna", "Ozdoba Elena Nikolaevna"]
+      - match: ТРЕМАСОВА / Оздоба Олена Миколаївна
+        name: ["ТРЕМАСОВА Олена Миколаївна", "Оздоба Олена Миколаївна"]
+      - match: ТРЕМАСОВА / Оздоба Елена Николаевна
+        name: ["ТРЕМАСОВА Елена Николаевна", "Оздоба Елена Николаевна"]
+      - match: KUTSENKO / Vysochina Marina Eduardovna
+        name: ["KUTSENKO Marina Eduardovna", "Vysochina Marina Eduardovna"]
+      - match: КУЦЕНКО / Височина Марина Едуардівна
+        name: ["КУЦЕНКО Марина Едуардівна", "Височина Марина Едуардівна"]
+      - match: КУЦЕНКО / Высочина Марина Эдуардовна
+        name: ["КУЦЕНКО Марина Эдуардовна", "Высочина Марина Эдуардовна"]
+      - match: Nesterova / Goncharova Svetlana Alekseevna
+        name: ["Nesterova Svetlana Alekseevna", "Goncharova Svetlana Alekseevna"]
+      - match: НЕСТЕРОВА / Гончарова Світлана Олексіївна
+        name: ["НЕСТЕРОВА Світлана Олексіївна", "Гончарова Світлана Олексіївна"]
+      - match: НЕСТЕРОВА / Гончарова Светлана Алексеевна
+        name: ["НЕСТЕРОВА Светлана Алексеевна", "Гончарова Светлана Алексеевна"]
+      - match: ASHIKHMINA / Ulanova Yulia Valerievna
+        name: ["ASHIKHMINA Yulia Valerievna", "Ulanova Yulia Valerievna"]
+      - match: АШИХМІНА / Уланова Юлія Валеріївна
+        name: ["АШИХМІНА Юлія Валеріївна", "Уланова Юлія Валеріївна"]
+      - match: АШИХМИНА / Уланова Юлия Валерьевна
+        name: ["АШИХМИНА Юлия Валерьевна", "Уланова Юлия Валерьевна"]
+      - match: PLOTNIKOVA / Partakela Oksana Leonidovna
+        name: ["PLOTNIKOVA Oksana Leonidovna", "Partakela Oksana Leonidovna"]
+      - match: ПЛОТНІКОВА / Партакела Оксана Леонідівна
+        name: ["ПЛОТНІКОВА Оксана Леонідівна", "Партакела Оксана Леонідівна"]
+      - match: ПЛОТНИКОВА / Партакела Оксана Леонидовна
+        name: ["ПЛОТНИКОВА Оксана Леонидовна", "Партакела Оксана Леонидовна"]
+      - match: CHERENKOVA / Silaeva Svetlana Anatolyevna
+        name: ["CHERENKOVA Svetlana Anatolyevna", "Silaeva Svetlana Anatolyevna"]
+      - match: ЧЕРЕНКОВА / Сілаєва Світлана Анатоліївна
+        name: ["ЧЕРЕНКОВА Світлана Анатоліївна", "Сілаєва Світлана Анатоліївна"]
+      - match: ЧЕРЕНКОВА / Силаева Светлана Анатольевна
+        name: ["ЧЕРЕНКОВА Светлана Анатольевна", "Силаева Светлана Анатольевна"]
+      - match: СЛЕСАРЕВА / Слесарьова Ольга Володимирівна
+        name: ["СЛЕСАРЕВА Ольга Володимирівна", "Слесарьова Ольга Володимирівна"]
+      - match: SHVENK / Mishchenko Inna Vladimirovna
+        name: ["SHVENK Inna Vladimirovna", "Mishchenko Inna Vladimirovna"]
+      - match: ШВЕНК / Міщенко Інна Володимирівна
+        name: ["ШВЕНК Інна Володимирівна", "Міщенко Інна Володимирівна"]
+      - match: ШВЕНК / Мищенко Инна Владимировна
+        name: ["ШВЕНК Инна Владимировна", "Мищенко Инна Владимировна"]
+      - match: КУЛЬНЄВ / Кульньов Іван Анатолійович
+        name: ["КУЛЬНЄВ Іван Анатолійович", "Кульньов Іван Анатолійович"]
+      - match: ZAITSEVA / Medoeva Elena Mikhailovna
+        name: ["ZAITSEVA Elena Mikhailovna", "Medoeva Elena Mikhailovna"]
+      - match: ЗАЙЦЕВА / Медоєва Олена Михайлівна
+        name: ["ЗАЙЦЕВА Олена Михайлівна", "Медоєва Олена Михайлівна"]
+      - match: ЗАЙЦЕВА / Медоева Елена Михайловна
+        name: ["ЗАЙЦЕВА Елена Михайловна", "Медоева Елена Михайловна"]
+      - match: PINCHUK / Lantsova / Sopeleva Irina Nikolaevna
+        name: ["PINCHUK Irina Nikolaevna", "Lantsova Irina Nikolaevna", "Sopeleva Irina Nikolaevna"]
+      - match: ПІНЧУК / Ланцова / Сопелєва Ірина Миколаївна
+        name: ["ПІНЧУК Ірина Миколаївна", "Ланцова Ірина Миколаївна", "Сопелєва Ірина Миколаївна"]
+      - match: ПИНЧУК / Ланцова / Сопелева Ирина Николаевна
+        name: ["ПИНЧУК Ирина Николаевна", "Ланцова Ирина Николаевна", "Сопелева Ирина Николаевна"]
+      - match: PYATYKH / Novikova Galina Anatolevna
+        name: ["PYATYKH Galina Anatolevna", "Novikova Galina Anatolevna"]
+      - match: П'ЯТИХ / Новікова Галина Анатоліївна
+        name: ["П'ЯТИХ Галина Анатоліївна", "Новікова Галина Анатоліївна"]
+      - match: ПЯТЫХ / Новикова Галина Анатольевна
+        name: ["ПЯТЫХ Галина Анатольевна", "Новикова Галина Анатольевна"]
+      - match: АГЕЄВА / АГЄЄВА Ірина Анатоліївна
+        name: ["АГЕЄВА Ірина Анатоліївна", "АГЄЄВА Ірина Анатоліївна"]
+      - match: KRAVTSOV / Braun Sergey Sergeevich
+        name: ["KRAVTSOV Sergey Sergeevich", "Braun Sergey Sergeevich"]
+      - match: КРАВЦОВ / Браун Сергій Сергійович
+        name: ["КРАВЦОВ Сергій Сергійович", "Браун Сергій Сергійович"]
+      - match: КРАВЦОВ / Браун Сергей Сергеевич
+        name: ["КРАВЦОВ Сергей Сергеевич", "Браун Сергей Сергеевич"]
+      - match: KIRIENKO/IZRAITEL Sergey Vladilenovich
+        name: ["KIRIENKO Sergey Vladilenovich", "IZRAITEL Sergey Vladilenovich"]
+      - match: КИРІЄНКО/ІЗРАІТЕЛЬ Сергій Владиленович
+        name: ["КИРІЄНКО Сергій Владиленович", "ІЗРАІТЕЛЬ Сергій Владиленович"]
+      - match: КИРИЕНКО/ИЗРАИТЕЛЬ Сергей Владиленович
+        name: ["КИРИЕНКО Сергей Владиленович", "ИЗРАИТЕЛЬ Сергей Владиленович"]
+      - match: VINER/USMANOVA Irina Alexandrovna
+        name: ["VINER Irina Alexandrovna", "USMANOVA Irina Alexandrovna"]
+      - match: ВІНЕР/УСМАНОВА Ірина Олександрівна
+        name: ["ВІНЕР Ірина Олександрівна", "УСМАНОВА Ірина Олександрівна"]
+      - match: ВИНЕР/УСМАНОВА Ирина Александровна
+        name: ["ВИНЕР Ирина Александровна", "УСМАНОВА Ирина Александровна"]
+      - match: VYALBE / Trubitsyna Elena Valerievna
+        name: ["VYALBE Elena Valerievna", "Trubitsyna Elena Valerievna"]
+      - match: ВЯЛЬБЕ / Трубіцина Олена Валеріївна
+        name: ["ВЯЛЬБЕ Олена Валеріївна", "Трубіцина Олена Валеріївна"]
+      - match: ВЯЛЬБЕ / Трубицына Елена Валерьевна
+        name: ["ВЯЛЬБЕ Елена Валерьевна", "Трубицынa Елена Валерьевна"]
+      - match: KREMLEV/LUTFULLOEV Umar Nazarovich
+        name: ["KREMLEV Umar Nazarovich", "LUTFULLOEV Umar Nazarovich"]
+      - match: КРЕМЛЬОВ/ЛУТФУЛЛОЄВ Умар Назарович
+        name: ["КРЕМЛЬОВ Умар Назарович", "ЛУТФУЛЛОЄВ Умар Назарович"]
+      - match: КРЕМЛЕВ/ЛУТФУЛЛОЕВ Умар Назарович
+        name: ["КРЕМЛЕВ Умар Назарович", "ЛУТФУЛЛОЕВ Умар Назарович"]
+      - match: MARKARYAN / Rebrik Vera Yurievna
+        name: ["MARKARYAN Vera Yurievna", "Rebrik Vera Yurievna"]
+      - match: МАРКАРЯН / Ребрик Віра Юріївна
+        name: ["МАРКАРЯН Віра Юріївна", "Ребрик Віра Юріївна"]
+      - match: МАРКАРЯН / Ребрик Вера Юрьевна
+        name: ["МАРКАРЯН Вера Юрьевна", "Ребрик Вера Юрьевна"]
+      - match: KHALILI/GOREEVA Anastasia Alekseevna
+        name: ["KHALILI Anastasia Alekseevna", "GOREEVA Anastasia Alekseevna"]
+      - match: ХАЛІЛІ/ГОРЄЄВА Анастасія Олексіївна
+        name: ["ХАЛІЛІ Анастасія Олексіївна", "ГОРЄЄВА Анастасія Олексіївна"]
+      - match: ХАЛИЛИ/ГОРЕЕВА Анастасия Алексеевна
+        name: ["ХАЛИЛИ Анастасия Алексеевна", "ГОРЕЕВА Анастасия Алексеевна"]
+      - match: KUZNETSOV Yaroslav Vladimirovich / NS
+        name: KUZNETSOV Yaroslav Vladimirovich
+        alias: NS
+      - match: КУЗНЄЦОВ Ярослав Володимирович / NS
+        name: КУЗНЄЦОВ Ярослав Володимирович
+        alias: NS
+      - match: КУЗНЕЦОВ Ярослав Владимирович / NS
+        name: КУЗНЕЦОВ Ярослав Владимирович
+        alias: NS
+      - match: MOSKALENKO Ivan Aleksandrovich / Pure
+        name: MOSKALENKO Ivan Aleksandrovich
+        alias: Pure
+      - match: МОСКАЛЕНКО  Іван Олександрович / Pure
+        name: МОСКАЛЕНКО Іван Олександрович
+        alias: Pure
+      - match: МОСКАЛЕНКО Иван Александрович / Pure
+        name: МОСКАЛЕНКО Иван Александрович
+        alias: Pure
+      - match: ABDULIN Rinat Kamilevych / KingR
+        name: ABDULIN Rinat Kamilevych
+        alias: KingR
+      - match: АБДУЛІН Рінат Камілевич / KingR
+        name: АБДУЛІН Рінат Камілевич
+        alias: KingR
+      - match: АБДУЛИН Ринат Камилевич / KingR
+        name: АБДУЛИН Ринат Камилевич
+        alias: KingR
+      - match: VASILIEV Alexey / Nongrata
+        name: VASILIEV Alexey
+        alias: Nongrata
+      - match: ВАСИЛЬЄВ Олексій / Nongrata
+        name: ВАСИЛЬЄВ Олексій
+        alias: Nongrata
+      - match: ВАСИЛЬЕВ Алексей / Nongrata
+        name: ВАСИЛЬЕВ Алексей
+        alias: Nongrata
+      - match: ROSHCHIN Vitaly / Couguar
+        name: ROSHCHIN Vitaly
+        alias: Couguar
+      - match: РОЩИН Віталій / Couguar
+        name: РОЩИН Віталій
+        alias: Couguar
+      - match: РОЩИН Виталий / Couguar
+        name: РОЩИН Виталий
+        alias: Couguar
+      - match: SATYBALDIN Adlet / Lightweight
+        name: SATYBALDIN Adlet
+        alias: Lightweight
+      - match: САТИБАЛДІН Адлет / Lightweight
+        name: САТИБАЛДІН Адлет
+        alias: Lightweight
+      - match: САТЫБАЛДИН Адлет / Lightweight
+        name: САТЫБАЛДИН Адлет
+        alias: Lightweight
+      - match: PRILEPIN Evgeniy / Zakhar Nikolaevich
+        name: PRILEPIN Evgeniy
+        alias: Zakhar Nikolaevich
+      - match: ПРИЛЄПІН Євген / Захар Миколайович
+        name: ПРИЛЄПІН Євген
+        alias: Захар Миколайович
+      - match: ПРИЛЕПИН Евгений / Захар Николаевич
+        name: ПРИЛЕПИН Евгений
+        alias: Захар Николаевич
+      - match: YUNUSOV Timur Ildarovich / Timati
+        name: YUNUSOV Timur Ildarovich
+        alias: Timati
+      - match: ЮНУСОВ Тимур Ільдарович / Тіматі
+        name: ЮНУСОВ Тимур Ільдарович
+        alias: Тіматі
+      - match: ЮНУСОВ Тимур Ильдарович / Тимати
+        name: ЮНУСОВ Тимур Ильдарович
+        alias: Тимати
+      - match: KEDMI/KAZAKOV Yakov Iosifovich
+        name: ["KEDMI Yakov Iosifovich", "KAZAKOV Yakov Iosifovich"]
+      - match: КЕДМІ/КАЗАКОВ Яків Йосипович
+        name: ["КЕДМІ Яків Йосипович", "КАЗАКОВ Яків Йосипович"]
+      - match: КЕДМИ/КАЗАКОВ Яков Иосифович
+        name: ["КЕДМИ Яков Иосифович", "КАЗАКОВ Яков Иосифович"]
+      - match: MARSHAL/MYNKOV Alexander Vitalyevich
+        name: ["MARSHAL Alexander Vitalyevich", "MYNKOV Alexander Vitalyevich"]
+      - match: МАРШАЛ/МІНЬКОВ Олександр Віталійович
+        name: ["МАРШАЛ Олександр Віталійович", "МИНЬКОВ Олександр Віталійович"]
+      - match: МАРШАЛ/МИНЬКОВ Александр Витальевич
+        name: ["МАРШАЛ Александр Витальевич", "МИНЬКОВ Александр Витальевич"]
+      - match: LEPSVERIDZE / Leps Grigory Viktorovych
+        name: ["LEPSVERIDZE Grigory Viktorovych", "Leps Grigory Viktorovych"]
+      - match: ЛЕПСВЕРІДЗЕ / Лепс Григорій Вікторович
+        name: ["ЛЕПСВЕРІДЗЕ Григорій Вікторович", "Лепс Григорій Вікторович"]
+      - match: ЛЕПСВЕРИДЗЕ / Лепс Григорий Викторович
+        name: ["ЛЕПСВЕРИДЗЕ Григорий Викторович", "Лепс Григорий Викторович"]
+      - match: DOLINA/KUDELMAN/MIONCHINSKAYA Larisa Aleksandrovna
+        name: ["DOLINA Larisa Aleksandrovna", "KUDELMAN Larisa Aleksandrovna", "MIONCHINSKAYA Larisa Aleksandrovna"]
+      - match: ДОЛІНА/КУДЕЛЬМАН/МІОНЧИНСЬКА Лариса Олександрівна
+        name: ["ДОЛІНА Лариса Олександрівна", "КУДЕЛЬМАН Лариса Олександрівна", "МІОНЧИНСЬКА Лариса Олександрівна"]
+      - match: ДОЛИНА/КУДЕЛЬМАН/МИОНЧИНСКАЯ Лариса Александровна
+        name: ["ДОЛИНА Лариса Александровна", "КУДЕЛЬМАН Лариса Александровна", "МИОНЧИНСКАЯ Лариса Александровна"]
+      - match: KOSHARNITSKAYA/KOSTERINA Alexandra Vladimirovna
+        name: ["KOSHARNITSKAYA Alexandra Vladimirovna", "KOSTERINA Alexandra Vladimirovna"]
+      - match: КОШАРНИЦЬКА/КОСТЕРІНА Олександра Володимирівна
+        name: ["КОШАРНИЦЬКА Олександра Володимирівна", "КОСТЕРІНА Олександра Володимирівна"]
+      - match: КОШАРНИЦКАЯ/КОСТЕРИНА Александра Владимировна
+        name: ["КОШАРНИЦКАЯ Александра Владимировна", "КОСТЕРИНА Александра Владимировна"]
+      - match: GALUSTYAN Nshan / Mikhail Sergeevich
+        name: ["GALUSTYAN Nshan Sergeevich", "GALUSTYAN Mikhail Sergeevich"]
+      - match: ГАЛУСТЯН Ншан / Михайло  Сергійович
+        name: ["ГАЛУСТЯН Ншан Сергійович", "ГАЛУСТЯН Михайло Сергійович"]
+      - match: ГАЛУСТЯН Ншан / Михаил Сергеевич
+        name: ["ГАЛУСТЯН Ншан Сергеевич", "ГАЛУСТЯН Михаил Сергеевич"]
+      - match: KUKSENKOVA/SOKIRKO Irina Yulievna
+        name: ["KUKSENKOVA Irina Yulievna", "SOKIRKO Irina Yulievna"]
+      - match: КУКСЕНКОВА/СОКИРКО Ірина Юліївна
+        name: ["КУКСЕНКОВА Ірина Юліївна", "СОКИРКО Ірина Юліївна"]
+      - match: КУКСЕНКОВА/СОКИРКО Ирина Юлиевна
+        name: ["КУКСЕНКОВА Ирина Юлиевна", "СОКИРКО Ирина Юлиевна"]
+      - match: KLYUCHENKOV/LELEKA/MARDAN Sergey Alexandrovich
+        name: ["KLYUCHENKOV Sergey Alexandrovich", "LELEKA Sergey Alexandrovich", "MARDAN Sergey Alexandrovich"]
+      - match: КЛЮЧЕНКОВ/ЛЕЛЕКА/МАРДАН Сергей Александрович
+        name: ["КЛЮЧЕНКОВ Сергей Александрович", "ЛЕЛЕКА Сергей Александрович", "МАРДАН Сергей Александрович"]
+      - match: КЛЮЧЕНКОВ/ЛЕЛЕКА/МАРДАН Сергій Олександрович
+        name: ["КЛЮЧЕНКОВ Сергій Олександрович", "ЛЕЛЕКА Сергій Олександрович", "МАРДАН Сергій Олександрович"]
+      - match: BELAN Viktor Nikolaevich / Dima Bilan
+        name: BELAN Viktor Nikolaevich
+        alias: Dima Bilan
+      - match: БЄЛАН Віктор Миколайович / Діма Білан
+        name: БЄЛАН Віктор Миколайович
+        alias: Діма Білан
+      - match: БЕЛАН Виктор Николаевич / Дима Билан
+        name: БЕЛАН Виктор Николаевич
+        alias: Дима Билан
+      - match: DRONOV Yaroslav Yurievich / Shaman
+        name: DRONOV Yaroslav Yurievich
+        alias: Shaman
+      - match: ДРОНОВ Ярослав Юрійович / Shaman
+        name: ДРОНОВ Ярослав Юрійович
+        alias: Shaman
+      - match: ДРОНОВ Ярослав Юрьевич / Shaman
+        name: ДРОНОВ Ярослав Юрьевич
+        alias: Shaman
+      - match: VASILIEV/VI Timofey Vladimirovich
+        name: ["VASILIEV Timofey Vladimirovich", "VI Timofey Vladimirovich"]
+      - match: ВАСИЛЬЄВ/ВІ Тимофій Володимирович
+        name: ["ВАСИЛЬЄВ Тимофій Володимирович", "ВІ Тимофій Володимирович"]
+      - match: ВАСИЛЬЕВ/ВИ Тимофей Владимирович
+        name: ["ВАСИЛЬЕВ Тимофей Владимирович", "ВИ Тимофей Владимирович"]
+      - match: HASANOV/APACHEV Akim Vladimirovich
+        name: ["HASANOV Akim Vladimirovich", "APACHEV Akim Vladimirovich"]
+      - match: ГАСАНОВ/АПАЧЕВ Акім Володимирович
+        name: ["ГАСАНОВ Акім Володимирович", "АПАЧЕВ Акім Володимирович"]
+      - match: ГАСАНОВ/АПАЧЕВ Аким Владимирович
+        name: ["ГАСАНОВ Аким Владимирович", "АПАЧЕВ Аким Владимирович"]
+      - match: SEVERGINA/KISELEVA Elena Yuryevna
+        name: ["SEVERGINA Elena Yuryevna", "KISELEVA Elena Yuryevna"]
+      - match: СЕВЕРГІНА/КІСЕЛЬОВА Олена Юріївна
+        name: ["СЕВЕРГІНА Олена Юріївна", "КІСЕЛЬОВА Олена Юріївна"]
+      - match: СЕВЕРГИНА/КИСЕЛЕВА Елена Юрьевна
+        name: ["СЕВЕРГИНА Елена Юрьевна", "КИСЕЛЕВА Елена Юрьевна"]
+      - match: MERSH Ilya Alexandrovich/KULIKOVSKY German
+        name: ["MERSH Ilya Alexandrovich", "KULIKOVSKY German"]
+      - match: МЕРШ Ілля Олександрович/КУЛІКОВСЬКИЙ Герман
+        name: ["МЕРШ Ілля Олександрович", "КУЛІКОВСЬКИЙ Герман"]
+      - match: МЕРШ Илья Александрович/КУЛИКОВСКИЙ Герман
+        name: ["МЕРШ Илья Александрович", "КУЛИКОВСКИЙ Герман"]
+      - match: SHAVLO Renat Igorevich/MEDVEDEV Georgy Anatolyevich
+        name: ["SHAVLO Renat Igorevich", "MEDVEDEV Georgy Anatolyevich"]
+      - match: ШАВЛО Ренат Ігорович/МЕДВЕДЄВ Георгій Анатолійович
+        name: ["ШАВЛО Ренат Ігорович", "МЕДВЕДЄВ Георгій Анатолійович"]
+      - match: ШАВЛО Ренат Игоревич/МЕДВЕДЕВ Георгий Анатольевич
+        name: ["ШАВЛО Ренат Игоревич", "МЕДВЕДЕВ Георгий Анатольевич"]
+      - match: ДІГТЯР/ДЄГТЯРЬ Володимир Григорович
+        name: ["ДІГТЯР Володимир Григорович", "ДЄГТЯРЬ Володимир Григорович"]
+      - match: "СЄМЬОНОВ/СЕМЕНОВ Віктор Володимирович"
+        name: ["СЄМЬОНОВ Віктор Володимирович", "СЕМЕНОВ Віктор Володимирович"]
+
   type.date:
     options:
       - match: "23.06.1974 /23.06.1973"
