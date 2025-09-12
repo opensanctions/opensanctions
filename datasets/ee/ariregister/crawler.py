@@ -24,6 +24,8 @@ TYPES = {
     "Sihtasutus": "Organization",  # Foundation
 }
 
+NULL_NAME = {"-", "."}
+
 
 def get_value(
     data: Item, keys: Tuple[str, ...], default: Optional[Default] = None
@@ -69,6 +71,11 @@ def make_officer(context: Context, data: Item, company_id: str) -> Entity:
         data.pop("eesnimi", None),
         get_value(data, ("nimi_arinimi", "nimi")),
     )
+    if first_name in NULL_NAME:
+        first_name = None
+    if last_name in NULL_NAME:
+        last_name = None
+
     proxy = context.make("LegalEntity")
     address = get_address(data)
     proxy.id = context.make_slug(id_number)
