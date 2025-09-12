@@ -117,8 +117,7 @@ def fetch_article(context: Context, url: str) -> HtmlElement | None:
     if url == "https://www.cftc.gov/PressRoom/PressReleases/7274-15":
         return None
     # Try the article in the main page first.
-    doc = context.fetch_html(url, cache_days=30)
-    doc.make_links_absolute(url)
+    doc = context.fetch_html(url, cache_days=30, absolute_links=True)
     article_element = doc.xpath(".//article")[0]
     # All but one are HTML, not PDF.
     redirect_link = article_element.xpath(
@@ -298,7 +297,7 @@ def crawl_index_page(context: Context, doc) -> bool:
     tables = doc.xpath(table_xpath)
     assert len(tables) == 1
     for row in h.parse_html_table(tables[0]):
-        enforcement_date = row["date"].text_content().strip()
+        enforcement_date = h.element_text(row["date"])
         if not enforcements.within_max_age(context, enforcement_date):
             return False
         action_cell = row["enforcement_actions"]
@@ -315,8 +314,7 @@ def crawl_index_page(context: Context, doc) -> bool:
 def crawl(context: Context) -> None:
     next_url: Optional[str] = context.data_url
     while next_url:
-        doc = context.fetch_html(next_url)
-        doc.make_links_absolute(next_url)
+        doc = context.fetch_html(next_url, absolute_links=True)
         next_urls = doc.xpath(".//a[@rel='next']/@href")
         assert len(next_urls) <= 1
         if next_urls:
@@ -328,6 +326,5 @@ def crawl(context: Context) -> None:
 
     assert_all_accepted(context)
     global something_changed
-    assert not something_changed, (
-        "See what changed to determine whether to trigger re-review."
-    )
+    msg = "See what changed to determine whether to trigger re-review."
+    assert not something_changed, msg
