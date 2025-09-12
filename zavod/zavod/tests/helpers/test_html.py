@@ -1,4 +1,3 @@
-from pydoc import text
 from lxml import html
 from rigour.text import text_hash
 

@@ -15,7 +15,6 @@ from zavod.stateful.review import (
     request_review,
     get_review,
     model_hash,
-    html_to_text_hash,
 )
 
 NAME_XPATH = "//span[@class='treas-page-title']/text()"
@@ -134,7 +133,7 @@ def source_changed(review: Review, article_element: HtmlElement) -> bool:
     in spite of heavy normalisation.
     """
     seen_element = fromstring(review.source_value)
-    return html_to_text_hash(seen_element) != html_to_text_hash(article_element)
+    return h.element_text_hash(seen_element) != h.element_text_hash(article_element)
 
 
 def check_something_changed(
@@ -290,6 +289,6 @@ def crawl(context: Context):
 
     assert_all_accepted(context)
     global something_changed
-    assert (
-        not something_changed
-    ), "See what changed to determine whether to trigger re-review."
+    assert not something_changed, (
+        "See what changed to determine whether to trigger re-review."
+    )

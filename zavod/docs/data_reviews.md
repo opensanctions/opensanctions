@@ -177,7 +177,7 @@ def crawl_page():
     for page in pages:
         ...
         seen_article = lxml.html.fromstring(review.source_value)
-        if html_to_text_hash(seen_article) != html_to_text_hash(article_element):
+        if h.element_text_hash(seen_article) != h.element_text_hash(article_element):
             global something_changed
             something_changed = True
 
@@ -220,7 +220,7 @@ then we can allow the crawler to trigger re-extraction and re-reviews automatica
 for page in pages:
     ...
     seen_article = lxml.html.fromstring(review.source_value)
-    if html_to_text_hash(seen_article) != html_to_text_hash(article_element):
+    if h.element_text_hash(seen_article) != h.element_text_hash(article_element):
         prompt_result = run_typed_text_prompt(
             context, PROMPT, html, response_type=Defendants
         )

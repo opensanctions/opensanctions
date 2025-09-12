@@ -322,12 +322,6 @@ def assert_all_accepted(context: Context, raise_on_unaccepted: bool = True) -> N
                 context.log.warning(message)
 
 
-def html_to_text_hash(html: html.HtmlElement) -> str:
-    slug = slugify(html.text_content())
-    assert slug is not None
-    return sha1(slug.encode("utf-8")).hexdigest()
-
-
 def sort_arrays_in_value(value: JsonValue) -> JsonValue:
     """
     Recursively sort and serialize arrays within a json-serializable value.
