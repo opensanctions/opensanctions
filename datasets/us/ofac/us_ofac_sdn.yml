@@ -211,6 +211,30 @@ lookups:
           - Non-SDN Palestinian Legislative Council List
           - Sectoral Sanctions Identifications List
         value: null
+  script.lang:
+    options:
+      - match: Arab
+        value: ara
+      - match: Armn
+        value: hye
+      - match: Hans
+        value: zho
+      - match: Hant
+        value: zho
+      - match: Cyrl
+        value: rus # cough
+      - match: Geor
+        value: kat
+      - match: Grek
+        value: ell
+      - match: Hang
+        value: kor
+      - match: Hebrew
+        value: heb
+      - match: Japanese
+        value: jpn
+      - match: Korean
+        value: kor
   relations:
     options:
       - label: Associate Of
@@ -583,10 +607,10 @@ lookups:
           country: country
       - match: Issuer Name
         prop: name
-  type.name: 
+  type.name:
     options:
-    # Invalid aliases:
-      - match: 
+      # Invalid aliases:
+      - match:
           - "40"
           - "42"
           - "07"
