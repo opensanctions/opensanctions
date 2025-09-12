@@ -68,4 +68,14 @@ lookups:
       - match: "xx/xx/1967-1969"
         values:
           - 1967
+          - 1968
           - 1969
+      - match: "dd/mm/1967-1969"
+        values:
+          - 1967
+          - 1968
+          - 1969
+      - match: "dd/mm/1997-1998"
+        values:
+          - 1997
+          - 1998

@@ -1109,3 +1109,6 @@ lookups:
       - match: "La société Horizon Asset Management<br /> <br />"
         entities:
           - Horizon Asset Management
+      - match: "La société Eternam"
+        entities:
+          - Eternam

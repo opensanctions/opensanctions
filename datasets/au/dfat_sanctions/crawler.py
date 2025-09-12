@@ -21,8 +21,9 @@ KNOWN_VALID_DISCOUNTINOUS_REFERENCES = {
     "2940j",
     "8155a",
     "8155b",
-    "8164a",
-    "8174b",
+    "8164",  # 8164 is after 8164a
+    "8174a",
+    "8174",  # 8174a is the first block
     "8183a",
     "8183b",
 }
