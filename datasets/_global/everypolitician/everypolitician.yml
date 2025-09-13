@@ -105,10 +105,6 @@ lookups:
           - koutsoukosgiannis.gr
           - gunhild.wallin
         value: null
-  type.country:
-    options:
-      - match: sh-hl
-        value: SH
   type.email:
     options:
       - match:

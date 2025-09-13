@@ -127,15 +127,11 @@ lookups:
         values:
           - US
           - SY
-      - match: Libyan Arab Jamahiriya
-        value: Libya
       - match: Possibly Ethiopian
         value: Ethiopia
       - match: Tunisian passport
         value: Tunisia
-      - match:
-          - USSR (until 1991)
-          - former Soviet Union
+      - match: USSR (until 1991)
         value: SUHH
   type.date:
     options:

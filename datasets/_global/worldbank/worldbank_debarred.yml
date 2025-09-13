@@ -58,10 +58,6 @@ assertions:
       Address: 2350
 
 lookups:
-  type.country:
-    options:
-      - match: Somalia, Federal Republic of
-        value: Somalia
   type.address:
     lowercase: true
     options:

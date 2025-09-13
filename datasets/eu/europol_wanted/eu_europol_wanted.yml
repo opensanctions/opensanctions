@@ -40,14 +40,6 @@ assertions:
       Person: 95
 
 lookups:
-  type.country:
-    lowercase: true
-    normalize: true
-    options:
-      - match: Slovene
-        value: Slovenia
-      - match: "Ukranian"
-        value: Ukraine
   type.gender:
     lowercase: true
     normalize: true

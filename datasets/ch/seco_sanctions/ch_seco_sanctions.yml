@@ -138,12 +138,6 @@ lookups:
         value: null
       - match: Moscow
         value: Moscow
-  type.country:
-    lowercase: true
-    normalize: true
-    options:
-      - contains: Syrian Arab Republic
-        value: Syria
   type.date:
     options:
       - match: 1.2.1994/6.3.2000
