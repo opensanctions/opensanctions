@@ -50,17 +50,3 @@ assertions:
   max:
     schema_entities:
       Person: 200
-
-lookups:
-  type.country:
-    options:
-      - match: Кипр
-        value: cy
-      - match:
-          - Российская Федерация
-          - РФ
-        value: ru
-      - match: Израиль
-        value: il
-      - match: Финляндия
-        value: fi

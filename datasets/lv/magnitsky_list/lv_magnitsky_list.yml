@@ -41,11 +41,3 @@ assertions:
   max:
     schema_entities:
       Person: 80
-
-lookups:
-  type.country:
-    lowercase: true
-    normalize: true
-    options:
-      match: Krievijas Federācija
-      value: RU

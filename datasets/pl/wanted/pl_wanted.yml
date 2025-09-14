@@ -61,8 +61,6 @@ lookups:
         value: EE
       - match: RPA # REPUBLIKA POŁUDNIOWEJ AFRYKI
         value: ZA
-      - match: CEJLON
-        value: LK
       - match: ZAIR
         value: CD
       - match: ALBANIA MACEDONIA
@@ -133,12 +131,8 @@ lookups:
         value: TH
       - match: WIELKA BRYTANIA WŁOCHY
         values: [GB, IT]
-      - match: MACEDONIA PÓŁNOCNA
-        value: MK
       - match: POLSKIE BEZ NR PESEL
         value: PL
-      - match: MACEDONIA PÓŁNOCNA
-        value: MK
       - match: ROSJA NIEMCY
         values: [RU, DE]
       - match: ARMENIA HOLANDIA

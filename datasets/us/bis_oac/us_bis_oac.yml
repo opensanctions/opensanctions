@@ -38,14 +38,6 @@ data:
 dates:
   formats: ["%b-%y", "%B %Y"]
 
-lookups:
-  type.country:
-    lowercase: true
-    normalize: true
-    options:
-      - match: LIBYAN ARAB JAMAHIRIYA
-        value: Libya
-
 assertions:
   min:
     schema_entities:
