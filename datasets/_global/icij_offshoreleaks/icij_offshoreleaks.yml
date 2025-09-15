@@ -609,30 +609,14 @@ lookups:
           - Netherlands Antilles
           - Channel Islands
         value: null
-      - match: Cayman
-        value: Cayman Islands
-      - match: COOKISLANDS
-        value: CK
-      - match: Sint Eustatius and Saba Bonaire
-        value: BQ
       - match: ZAM
         value: ZM
       - match:
           - State of Delaware
-          - District of Columbia
           - USA (South Dakota)
           - USA (Delaware)
           - New Hampshire
-          - Unied States
-          - United Stales
         value: United States of America
-      - match: Province of China Taiwan
-        value: Taiwan
-      - match: The Democratic Republic of the Congo
-        value: DR Congo
-      - match:
-          - Labuan
-        value: Malaysia
 
   type.address:
     options:

@@ -201,8 +201,5 @@ lookups:
       - match: SUA
         value:
           - US
-      - match: Federația Rusă
-        values:
-          - RU
       - match: mun. Chișinău
         value: MD

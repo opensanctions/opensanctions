@@ -75,9 +75,7 @@ lookups:
           - DAHOMEY
           - MUSCAT
         value: null
-      - match:
-          - GERMANY FEDERAL REPUBLIC OF
-          - WEST BERLIN
+      - match: WEST BERLIN
         value: DE
       - match: KOSOVA
         value: XK

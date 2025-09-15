@@ -332,18 +332,11 @@ lookups:
     normalize: true
     options:
       - match:
-          - République populaire démocratique de Corée (RPDC)
-          - République populaire démocratique de Corée
-        value: kp
-      - match:
           - PAKISTAN (présumée)
         value: pk
       - match:
           - JORDANIE (présumée)
         value: jo
-      - match:
-          - CENTRAFRIQUE
-        value: cf
       - match:
           - ou RUSSIE
           - RUSSIE (l’Union européenne ne reconnait pas les passeports délivrés par la Fédération de Russie en Crimée)
@@ -352,9 +345,6 @@ lookups:
         values:
           - ua
           - ru
-      - match:
-          - BIÉLORUSSIE
-        value: by
       - match:
           - INDONÉSIE (en décembre 2003)
         value: id

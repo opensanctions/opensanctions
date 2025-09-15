@@ -93,8 +93,6 @@ lookups:
           - Somali Location
           - Somalia Alt.
         value: Somalia
-      - match: Азербайджанська Республіка
-        value: AZ
       - match: Sudanese by birth
         value: Sudan
       - match: United States. Also believed to hold Syrian nationality

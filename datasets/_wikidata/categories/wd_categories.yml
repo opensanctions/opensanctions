@@ -55,10 +55,6 @@ lookups:
           - member states of the United Nations
           - member of the United Nations Security Council
         value: zz
-      - match: Pakistan Occupied Kashmir
-        value: pk
-      - match: Azad Kashmir
-        value: pk-km
       - match:
           - Galicia
           - Ceuta
@@ -69,12 +65,8 @@ lookups:
           - Ambazonia
           - traditional chiefdom in Cameroon
         value: cm
-      - match: Kurdistan
-        value: iq-kr
       - match: Republic of Mahabad
         value: ir
-      - match: Basque Country
-        value: es
       - match: Tatarstan
         value: ru
       - match:

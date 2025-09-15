@@ -274,7 +274,7 @@ lookups:
         prop: vatCode
   type.name:
     options:
-      - match: '-'
+      - match: "-"
         value: null
   type.address:
     lowercase: true
@@ -283,12 +283,6 @@ lookups:
         value: Moscow
       - match: "-"
         value: null
-  type.country:
-    lowercase: true
-    normalize: true
-    options:
-      - contains: Syrian Arab Republic
-        value: Syria
   type.email:
     options:
       - match:
@@ -352,5 +346,5 @@ lookups:
     options:
       - match: PO Box 1406 - 60455
         value: 60455
-      - match: '-'
+      - match: "-"
         value: null

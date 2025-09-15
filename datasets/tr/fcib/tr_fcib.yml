@@ -91,8 +91,6 @@ lookups:
     lowercase: true
     normalize: true
     options:
-      - match: TÜRKİYE CUMHURİYETİ
-        value: Turkey
       - match: IRAK
         value: Irak
       - match:
@@ -101,12 +99,8 @@ lookups:
         value: United Kingdom
       - match: TİRİNİDAD VE TOBAGO
         value: Trinidad and Tobago
-      - match: KORE DEMOKRATİK HALK CUMHURİYETİ
-        value: North Korea
       - match: MARSHALL ADALARI
         value: Marshall Islands
-      - match: Almanya
-        value: Germany
       - match: "IRAK SURİYE"
         values:
           - Iraq
