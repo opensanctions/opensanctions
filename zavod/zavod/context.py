@@ -384,6 +384,7 @@ class Context:
         cache_days: Optional[int] = None,
         method: str = "GET",
         data: Optional[_Body] = None,
+        absolute_links: bool = False,
     ) -> Element:
         """Execute an HTTP request using the contexts' session and return
         an HTML DOM object based on the response. If a `cache_days` argument
@@ -397,6 +398,7 @@ class Context:
             cache_days: Number of days to retain cached responses for.
             method: The HTTP method to use for the request.
             data: The data to be sent in the request body.
+            absolute_links: Whether to convert relative links to absolute links.
         Returns:
             An lxml-based DOM of the web page that has been returned.
         """
@@ -412,7 +414,10 @@ class Context:
         try:
             if text is None or len(text) == 0:
                 raise ValueError("Invalid HTML document: %s" % url)
-            return html.fromstring(text)
+            doc = html.fromstring(text)
+            if absolute_links and isinstance(doc, html.HtmlElement):
+                doc.make_links_absolute(url, params)
+            return doc
         except Exception as exc:
             cache_url = build_url(url, params)
             fingerprint = request_hash(cache_url, auth=auth, method=method, data=data)
