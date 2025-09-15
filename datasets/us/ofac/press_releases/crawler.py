@@ -74,9 +74,9 @@ For each entity found, extract these fields:
    
 3. **aliases**: Alternative names ONLY if they meet these criteria:
    - Must be explicitly stated as "also known as", "alias", "formerly", "aka", "fka", or similar. Include ONLY the alias, not the "aka" prefix.
-   - An alias MUST NOT be an abbreviation consisting of the last name, first name, family name or patronymic of a person.
+   - An alias MUST NOT be a simple abbreviation, only consisting of the last name, first name, family name of a person.
      <example>John Smith (Smith)</example> <error>Smith</error>
-   - An alias MUST NOT be just the name of a company without legal form.
+   - An alias MUST NOT be just the name of a company without the legal form.
      <example>Acme Corporation (Acme)</example> <error>Acme</error>
      <example>Acme, Ltd (Acme)</example> <error>Acme</error>
 
