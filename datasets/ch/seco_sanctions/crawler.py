@@ -23,7 +23,7 @@ NAME_TYPE: Dict[MayStr, str] = {
 NAME_PARTS: Dict[MayStr, MayStr] = {
     "title": "title",
     "given-name": "firstName",
-    "further-given-name": "secondName",
+    "further-given-name": "firstName",
     "father-name": "fatherName",
     "grand-father-name": "fatherName",
     "family-name": "lastName",

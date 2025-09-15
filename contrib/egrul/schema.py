@@ -1,20 +1,20 @@
 from pyspark.sql.types import StringType, StructType, StructField, DateType, ArrayType
 
 entity_fields = [
-    StructField("id", StringType(), False),
-    StructField("seen_date", DateType(), False),
+    StructField("id", StringType(), nullable=False),
+    StructField("seen_date", DateType(), nullable=False),
 ]
 
 person_schema = StructType(
     entity_fields
     + [
         # These names are raw, no splittin or abbreviation replacement
-        StructField("name", StringType(), True),
-        StructField("first_name", StringType(), True),
-        StructField("last_name", StringType(), True),
-        StructField("father_name", StringType(), True),
-        StructField("inn_code", StringType(), True),
-        StructField("countries", ArrayType(StringType()), True),
+        StructField("name", StringType()),
+        StructField("first_name", StringType()),
+        StructField("last_name", StringType()),
+        StructField("father_name", StringType()),
+        StructField("inn_code", StringType()),
+        StructField("countries", ArrayType(StringType())),
     ]
 )
 
@@ -23,24 +23,24 @@ legal_entity_schema = StructType(
     + [
         # These names are raw, no splitting or abbreviation replacement
         # For LegalEntity and Organization
-        StructField("name", StringType(), True),
-        StructField("name_latin", StringType(), True),
+        StructField("name", StringType()),
+        StructField("name_latin", StringType()),
         # For Company
-        StructField("name_full", StringType(), True),
-        StructField("name_short", StringType(), True),
-        StructField("legal_form", StringType(), True),
-        StructField("country", StringType(), True),
-        StructField("jurisdiction", StringType(), True),
-        StructField("inn_code", StringType(), True),
-        StructField("ogrn_code", StringType(), True),
-        StructField("kpp_code", StringType(), True),
-        StructField("incorporation_date", DateType(), True),
-        StructField("dissolution_date", DateType(), True),
-        StructField("email", StringType(), True),
-        StructField("publisher", StringType(), True),
-        StructField("registration_number", StringType(), True),
-        StructField("addresses", ArrayType(StringType()), True),
-        StructField("schema", StringType(), False),
+        StructField("name_full", StringType()),
+        StructField("name_short", StringType()),
+        StructField("legal_form", StringType()),
+        StructField("country", StringType()),
+        StructField("jurisdiction", StringType()),
+        StructField("inn_code", StringType()),
+        StructField("ogrn_code", StringType()),
+        StructField("kpp_code", StringType()),
+        StructField("incorporation_date", DateType()),
+        StructField("dissolution_date", DateType()),
+        StructField("email", StringType()),
+        StructField("publisher", StringType()),
+        StructField("registration_number", StringType()),
+        StructField("addresses", ArrayType(StringType())),
+        StructField("schema", StringType(), nullable=False),
     ]
 )
 
@@ -48,18 +48,18 @@ succession_schema = StructType(
     entity_fields
     + [
         # Only one must be set, the other is the parent and will be null
-        StructField("successor", legal_entity_schema, True),
-        StructField("predecessor", legal_entity_schema, True),
+        StructField("successor", legal_entity_schema),
+        StructField("predecessor", legal_entity_schema),
         # For ease of emission, both of them are set
-        StructField("successor_id", StringType(), True),
-        StructField("predecessor_id", StringType(), True),
+        StructField("successor_id", StringType()),
+        StructField("predecessor_id", StringType()),
     ]
 )
 
 owner_schema = StructType(
     [
-        StructField("person", person_schema, True),
-        StructField("legal_entity", legal_entity_schema, True),
+        StructField("person", person_schema),
+        StructField("legal_entity", legal_entity_schema),
     ]
 )
 
@@ -67,16 +67,16 @@ ownership_schema = StructType(
     entity_fields
     + [
         # Only there for easy emission, always the parent
-        StructField("asset_id", StringType(), False),
-        StructField("owner", owner_schema, False),
-        StructField("summary_1", StringType(), True),
-        StructField("summary_2", StringType(), True),
-        StructField("record_id", StringType(), True),
-        StructField("date", DateType(), True),
-        StructField("end_date", DateType(), True),
-        StructField("start_date", DateType(), True),
-        StructField("shares_count", StringType(), True),
-        StructField("percentage", StringType(), True),
+        StructField("asset_id", StringType(), nullable=False),
+        StructField("owner", owner_schema, nullable=False),
+        StructField("summary_1", StringType()),
+        StructField("summary_2", StringType()),
+        StructField("record_id", StringType()),
+        StructField("date", DateType()),
+        StructField("end_date", DateType()),
+        StructField("start_date", DateType()),
+        StructField("shares_count", StringType()),
+        StructField("percentage", StringType()),
     ]
 )
 
@@ -84,12 +84,12 @@ directorship_schema = StructType(
     entity_fields
     + [
         # Only there for easy emission, always the parent
-        StructField("organization_id", StringType(), True),
-        StructField("director", person_schema, True),
-        StructField("role", StringType(), True),
-        StructField("summary", StringType(), True),
-        StructField("start_date", DateType(), True),
-        StructField("end_date", DateType(), True),
+        StructField("organization_id", StringType()),
+        StructField("director", person_schema),
+        StructField("role", StringType()),
+        StructField("summary", StringType()),
+        StructField("start_date", DateType()),
+        StructField("end_date", DateType()),
     ]
 )
 
@@ -97,10 +97,10 @@ directorship_schema = StructType(
 company_record_schema = StructType(
     [
         # Only there for easy joining, could be omitted in the future
-        StructField("id", StringType(), False),
-        StructField("legal_entity", legal_entity_schema, False),
-        StructField("successions", ArrayType(succession_schema), True),
-        StructField("ownerships", ArrayType(ownership_schema), True),
-        StructField("directorships", ArrayType(directorship_schema), True),
+        StructField("id", StringType(), nullable=False),
+        StructField("legal_entity", legal_entity_schema, nullable=False),
+        StructField("successions", ArrayType(succession_schema)),
+        StructField("ownerships", ArrayType(ownership_schema)),
+        StructField("directorships", ArrayType(directorship_schema)),
     ]
 )

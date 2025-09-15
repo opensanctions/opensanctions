@@ -24,7 +24,7 @@ TYPES = {
     "Sihtasutus": "Organization",  # Foundation
 }
 
-NULL_NAME = {"-", "."}
+NULL_NAME = {"-", ".", "#", "##"}
 
 
 def get_value(

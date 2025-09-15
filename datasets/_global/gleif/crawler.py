@@ -286,32 +286,38 @@ def parse_rr_file(context: Context, fh: IO[bytes]):
         # print(elc)
         rel = elc.find("Relationship")
         if rel is None:
+            el.clear()
             continue
         rel_type = rel.findtext("RelationshipType")
         start_node = rel.find("StartNode")
         end_node = rel.find("EndNode")
         if rel_type is None or start_node is None or end_node is None:
+            el.clear()
             continue
         rel_data = RELATIONSHIPS.get(rel_type)
         if rel_data is None:
             context.log.warn("Unknown relationship: %s", rel_type)
+            el.clear()
             continue
         rel_schema, start_prop, end_prop = rel_data
 
         start_node_type = start_node.findtext("NodeIDType")
         if start_node_type != "LEI":
             context.log.warn("Unknown edge type", node_id_type=start_node_type)
+            el.clear()
             continue
         start_lei = start_node.findtext("NodeID")
 
         end_node_type = end_node.findtext("NodeIDType")
         if end_node_type != "LEI":
             context.log.warn("Unknown edge type", node_id_type=end_node_type)
+            el.clear()
             continue
         end_lei = end_node.findtext("NodeID")
 
         if start_lei is None or end_lei is None:
             context.log.warn("Relationship missing LEI", start=start_lei, end=end_lei)
+            el.clear()
             continue
 
         proxy = context.make(rel_schema)
