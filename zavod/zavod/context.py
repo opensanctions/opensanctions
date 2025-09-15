@@ -555,13 +555,16 @@ class Context:
                 f"Unexpected data found in fields: {unexpected_keys}", data=cleaned
             )
 
-    def emit(self, entity: Entity, external: bool = False) -> None:
+    def emit(
+        self, entity: Entity, external: bool = False, origin: Optional[str] = None
+    ) -> None:
         """Send an entity from the crawling/runner process to be stored.
 
         Args:
             entity: The entity to be stored.
             external: Whether the entity is an enrichment candidate or already
                 part of the dataset.
+            origin: Set the origin for statements where none has been provided.
         """
         if entity.id is None:
             raise ValueError("Entity has no ID: %r", entity)
@@ -582,6 +585,8 @@ class Context:
                 continue
             if stmt.lang is None:
                 stmt.lang = self.lang
+            if stmt.origin is None:
+                stmt.origin = origin
             stmt.dataset = self.dataset.name
             stmt.entity_id = entity.id
             stmt.external = external
