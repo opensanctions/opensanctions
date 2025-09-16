@@ -143,12 +143,11 @@ def crawl_item(context, item, date, url, article_name):
 
 
 def crawl_press_release(context: Context, url: str) -> None:
-    article = context.fetch_html(url, cache_days=7)
-    article.make_links_absolute(context.data_url)
+    article = context.fetch_html(url, cache_days=7, absolute_links=True)
     names = article.findall(".//h2[@class='uswds-page-title']")
     assert len(names) == 1, f"Expected 1 title, got {len(names)}"
     article_name = h.element_text(names[0])
-    article_content = article.findall("//article[@class='entity--type-node']")
+    article_content = article.findall(".//article[@class='entity--type-node']")
     for img in article.findall(".//img"):
         img_src = img.get("src")
         if img_src is None or img_src.startswith("data:image"):
@@ -157,7 +156,7 @@ def crawl_press_release(context: Context, url: str) -> None:
                 img_parent.remove(img)
     assert len(article_content) == 1
     article_element = article_content[0]
-    date = article_element.findall(".//time[@class='datetime']/@datetime")[0]
+    date = article_element.xpath(".//time[@class='datetime']/@datetime")[0]
     article_html = tostring(article_element, pretty_print=True, encoding="unicode")
     assert all([article_name, article_html, date]), "One or more fields are empty"
 
@@ -174,16 +173,17 @@ def crawl(context: Context):
     page = 0
     while True:
         base_url = f"https://ofac.treasury.gov/press-releases?page={page}"
-        doc = context.fetch_html(base_url, cache_days=1)
-        doc.make_links_absolute(context.data_url)
-        table = doc.findall("//table[contains(@class, 'views-table')]")
-        next_page = doc.findall("//a[contains(@class, 'usa-pagination__next-page')]")
+        doc = context.fetch_html(base_url, cache_days=1, absolute_links=True)
+        table = doc.xpath(".//table[contains(@class, 'views-table')]")
+        next_page = doc.xpath(".//a[contains(@class, 'usa-pagination__next-page')]")
         if not table or not next_page:
             break
         assert len(table) == 1, "Expected exactly one table in the document"
         for row in h.parse_html_table(table[0]):
             links = h.links_to_dict(row.pop("press_release_link"))
             url = next(iter(links.values()))
+            if url is None:
+                continue
             # Filter out unwanted download/media links
             if "/news/press-releases/" not in url:
                 continue  # skip this row
@@ -191,6 +191,7 @@ def crawl(context: Context):
                 url = url.replace("/index.php/", "/")
             crawl_press_release(context, url)
         page += 1
+        context.flush()
         assert page < 200
 
     # FIXME: This is different from enforcement lists in that it's really just supporting

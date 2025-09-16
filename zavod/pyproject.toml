@@ -19,9 +19,9 @@ classifiers = [
 requires-python = ">= 3.11"
 dependencies = [
     "followthemoney == 4.2.2",
-    "nomenklatura == 4.1.4",
+    "nomenklatura == 4.1.7",
     "plyvel == 1.5.1",
-    "rigour == 1.3.5",
+    "rigour == 1.3.6",
     "datapatch >= 1.2.4, < 1.3",
     "certifi",
     "colorama",
@@ -35,7 +35,7 @@ dependencies = [
     "pdfplumber == 0.11.7",
     "prefixdate == 0.5.0",
     "psycopg2-binary",
-    "pyicu == 2.15.2",
+    "pyicu == 2.15.3",
     "pywikibot==9.6.3",
     "openai >= 1.33.0, < 2.0.0",
     "requests[security]",
