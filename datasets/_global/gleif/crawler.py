@@ -167,113 +167,190 @@ def load_isin_mapping(context: Context) -> Dict[str, List[str]]:
     return mapping
 
 
+def parse_lei_record(
+    context: Context,
+    el: etree._Element,
+    *,
+    bics: Dict[str, List[str]],
+    ocurls: Dict[str, List[str]],
+    isins: Dict[str, List[str]],
+    elfs: Dict[str, str],
+):
+    elc = h.remove_namespace(el)
+    proxy = context.make("Organization")
+    lei = elc.findtext("LEI")
+    if lei is None:
+        return
+    proxy.id = lei_id(lei)
+    entity = elc.find("Entity")
+    if entity is None:
+        return
+    name = entity.find("LegalName")
+    if name is not None:
+        proxy.add("name", name.text, lang=name.get("lang"))
+    proxy.add("jurisdiction", entity.findtext("LegalJurisdiction"))
+
+    status = entity.findtext("EntityStatus")
+    match status:
+        case "INACTIVE" | "NULL":
+            return
+        case "ACTIVE":
+            pass
+        case _:
+            # Just in case they ever add a new value to the enum
+            context.log.warn("Unknown EntityStatus", status=status, lei=lei)
+            pass
+
+    registration_status = entity.findtext("RegistrationStatus")
+    # We expect ISSUED or one of the PENDING_ states
+    if registration_status in (
+        "LAPSED",
+        "MERGED",
+        "RETIRED",
+        "ANNULLED",
+        "CANCELLED",
+        "DUPLICATE",
+        "TRANSFERRED",
+    ):
+        # Note: I don't really know what to do in this case except investigate further
+        # what the combinations of EntityStatus and RegistrationStatus are and whether
+        # we can do anything useful with them.
+        context.log.warn(
+            "Entity RegistrationStatus indicates that EntityStatus shoule be inactive",
+            lei=lei,
+            status=registration_status,
+        )
+
+    create_date = parse_date(entity.findtext("EntityCreationDate"))
+    proxy.add("incorporationDate", create_date)
+    authority = entity.find("RegistrationAuthority")
+    if authority is not None:
+        reg_id = authority.findtext("RegistrationAuthorityEntityID")
+        proxy.add("registrationNumber", reg_id)
+
+    proxy.add_cast("Company", "swiftBic", bics.get(lei))
+    proxy.add("leiCode", lei, quiet=True)
+    proxy.add_cast("Company", "opencorporatesUrl", ocurls.get(lei))
+    # proxy.add("sourceUrl", f"https://search.gleif.org/#/record/{lei}")
+
+    for isin in isins.get(lei, []):
+        proxy.add_schema("Company")
+        proxy.add("topics", "corp.public")
+        security = h.make_security(context, isin)
+        security.add("issuer", proxy.id)
+        security.add("country", entity.findtext("LegalJurisdiction"))
+        context.emit(security)
+
+    legal_form = entity.find("LegalForm")
+    if legal_form is not None:
+        code = legal_form.findtext("EntityLegalFormCode")
+        if code is not None:
+            proxy.add("legalForm", elfs.get(code))
+        proxy.add("legalForm", legal_form.findtext("OtherLegalForm"))
+
+    registration = elc.find("Registration")
+    if registration is not None:
+        mod_date = parse_date(registration.findtext("LastUpdateDate"))
+        proxy.add("modifiedAt", mod_date)
+
+    successor = elc.find("SuccessorEntity")
+    if successor is not None:
+        succ_lei = successor.findtext("SuccessorLEI")
+        if succ_lei is None:
+            return
+        succession = context.make("Succession")
+        succession.id = f"lei-succession-{lei}-{succ_lei}"
+        succession.add("predecessor", lei)
+        succession.add("successor", lei_id(succ_lei))
+        context.emit(succession)
+
+    parse_address(proxy, entity.find("LegalAddress"))
+    parse_address(proxy, entity.find("HeadquartersAddress"))
+
+    context.emit(proxy)
+
+
 def parse_lei_file(context: Context, fh: IO[bytes]) -> None:
     elfs = load_elfs()
     bics = load_bic_mapping(context)
     ocurls = load_oc_mapping(context)
     isins = load_isin_mapping(context)
+
     idx = 0
     for idx, (_, el) in enumerate(etree.iterparse(fh, tag="{%s}LEIRecord" % LEI)):
         if idx > 0 and idx % 10000 == 0:
             context.log.info("Parse LEIRecord: %d..." % idx)
-        elc = h.remove_namespace(el)
-        proxy = context.make("Organization")
-        lei = elc.findtext("LEI")
-        if lei is None:
-            continue
-        proxy.id = lei_id(lei)
-        entity = elc.find("Entity")
-        if entity is None:
-            continue
-        name = entity.find("LegalName")
-        if name is not None:
-            proxy.add("name", name.text, lang=name.get("lang"))
-        proxy.add("jurisdiction", entity.findtext("LegalJurisdiction"))
-
-        status = entity.findtext("EntityStatus")
-        match status:
-            case "INACTIVE" | "NULL":
-                continue
-            case "ACTIVE":
-                pass
-            case _:
-                # Just in case they ever add a new value to the enum
-                context.log.warn("Unknown EntityStatus", status=status, lei=lei)
-                pass
-
-        registration_status = entity.findtext("RegistrationStatus")
-        # We expect ISSUED or one of the PENDING_ states
-        if registration_status in (
-            "LAPSED",
-            "MERGED",
-            "RETIRED",
-            "ANNULLED",
-            "CANCELLED",
-            "DUPLICATE",
-            "TRANSFERRED",
-        ):
-            # Note: I don't really know what to do in this case except investigate further
-            # what the combinations of EntityStatus and RegistrationStatus are and whether
-            # we can do anything useful with them.
-            context.log.warn(
-                "Entity RegistrationStatus indicates that EntityStatus shoule be inactive",
-                lei=lei,
-                status=registration_status,
-            )
-
-        create_date = parse_date(entity.findtext("EntityCreationDate"))
-        proxy.add("incorporationDate", create_date)
-        authority = entity.find("RegistrationAuthority")
-        if authority is not None:
-            reg_id = authority.findtext("RegistrationAuthorityEntityID")
-            proxy.add("registrationNumber", reg_id)
-
-        proxy.add_cast("Company", "swiftBic", bics.get(lei))
-        proxy.add("leiCode", lei, quiet=True)
-        proxy.add_cast("Company", "opencorporatesUrl", ocurls.get(lei))
-        # proxy.add("sourceUrl", f"https://search.gleif.org/#/record/{lei}")
-
-        for isin in isins.get(lei, []):
-            proxy.add_schema("Company")
-            proxy.add("topics", "corp.public")
-            security = h.make_security(context, isin)
-            security.add("issuer", proxy.id)
-            security.add("country", entity.findtext("LegalJurisdiction"))
-            context.emit(security)
-
-        legal_form = entity.find("LegalForm")
-        if legal_form is not None:
-            code = legal_form.findtext("EntityLegalFormCode")
-            if code is not None:
-                proxy.add("legalForm", elfs.get(code))
-            proxy.add("legalForm", legal_form.findtext("OtherLegalForm"))
-
-        registration = elc.find("Registration")
-        if registration is not None:
-            mod_date = parse_date(registration.findtext("LastUpdateDate"))
-            proxy.add("modifiedAt", mod_date)
-
-        # pprint(proxy.to_dict())
-
-        successor = elc.find("SuccessorEntity")
-        if successor is not None:
-            succ_lei = successor.findtext("SuccessorLEI")
-            if succ_lei is None:
-                continue
-            succession = context.make("Succession")
-            succession.id = f"lei-succession-{lei}-{succ_lei}"
-            succession.add("predecessor", lei)
-            succession.add("successor", lei_id(succ_lei))
-            context.emit(succession)
-
-        parse_address(proxy, entity.find("LegalAddress"))
-        parse_address(proxy, entity.find("HeadquartersAddress"))
-
+        parse_lei_record(context, el, bics=bics, ocurls=ocurls, isins=isins, elfs=elfs)
         el.clear()
-        context.emit(proxy)
 
     if idx == 0:
         raise RuntimeError("No entities!")
+
+
+def parse_relationship_record(context: Context, el: etree._Element):
+    elc = h.remove_namespace(el)
+    rel = elc.find("Relationship")
+    if rel is None:
+        return
+    rel_type = rel.findtext("RelationshipType")
+    start_node = rel.find("StartNode")
+    end_node = rel.find("EndNode")
+    if rel_type is None or start_node is None or end_node is None:
+        return
+    rel_data = RELATIONSHIPS.get(rel_type)
+    if rel_data is None:
+        context.log.warn("Unknown relationship: %s", rel_type)
+        return
+    rel_schema, start_prop, end_prop = rel_data
+
+    start_node_type = start_node.findtext("NodeIDType")
+    if start_node_type != "LEI":
+        context.log.warn("Unknown edge type", node_id_type=start_node_type)
+        return
+    start_lei = start_node.findtext("NodeID")
+
+    end_node_type = end_node.findtext("NodeIDType")
+    if end_node_type != "LEI":
+        context.log.warn("Unknown edge type", node_id_type=end_node_type)
+        return
+    end_lei = end_node.findtext("NodeID")
+
+    if start_lei is None or end_lei is None:
+        context.log.warn("Relationship missing LEI", start=start_lei, end=end_lei)
+        return
+
+    proxy = context.make(rel_schema)
+    rel_id = slugify(rel_type, sep="-")
+    proxy.id = f"lei-{start_lei}-{rel_id}-{end_lei}"
+    proxy.add(start_prop, lei_id(start_lei))
+    proxy.add(end_prop, lei_id(end_lei))
+    proxy.add("role", rel_type.replace("_", " "))
+    proxy.add("status", rel.findtext("RelationshipStatus"))
+
+    if rel_schema == "Ownership":
+        # Organization entities cannot be assets, so we re-emit the asset entity as a Company
+        assert start_prop == "asset"
+        asset = context.make("Company")
+        asset.id = lei_id(start_lei)
+        # Also emit leiCode so that Context.emit doesn't complain about the Entity having no properties
+        asset.add("leiCode", start_lei)
+        context.emit(asset)
+
+    for period in rel.findall(".//RelationshipPeriod"):
+        period_type = period.findtext("PeriodType")
+        if period_type == "RELATIONSHIP_PERIOD":
+            proxy.add("startDate", parse_date(period.findtext("StartDate")))
+            proxy.add("endDate", parse_date(period.findtext("EndDate")))
+
+    for quant in rel.findall(".//RelationshipQuantifier"):
+        amount = quant.findtext("QuantifierAmount")
+        units = quant.findtext("QuantifierUnits")
+        if units == "PERCENTAGE" or units is None:
+            proxy.add("percentage", amount, quiet=True)
+        else:
+            context.log.warn("Unknown rel quantifier", amount=amount, units=units)
+
+    context.emit(proxy)
 
 
 def parse_rr_file(context: Context, fh: IO[bytes]):
@@ -282,77 +359,8 @@ def parse_rr_file(context: Context, fh: IO[bytes]):
     for idx, (_, el) in enumerate(etree.iterparse(fh, tag=tag)):
         if idx > 0 and idx % 10000 == 0:
             context.log.info("Parse RelationshipRecord: %d..." % idx)
-        elc = h.remove_namespace(el)
-        # print(elc)
-        rel = elc.find("Relationship")
-        if rel is None:
-            el.clear()
-            continue
-        rel_type = rel.findtext("RelationshipType")
-        start_node = rel.find("StartNode")
-        end_node = rel.find("EndNode")
-        if rel_type is None or start_node is None or end_node is None:
-            el.clear()
-            continue
-        rel_data = RELATIONSHIPS.get(rel_type)
-        if rel_data is None:
-            context.log.warn("Unknown relationship: %s", rel_type)
-            el.clear()
-            continue
-        rel_schema, start_prop, end_prop = rel_data
-
-        start_node_type = start_node.findtext("NodeIDType")
-        if start_node_type != "LEI":
-            context.log.warn("Unknown edge type", node_id_type=start_node_type)
-            el.clear()
-            continue
-        start_lei = start_node.findtext("NodeID")
-
-        end_node_type = end_node.findtext("NodeIDType")
-        if end_node_type != "LEI":
-            context.log.warn("Unknown edge type", node_id_type=end_node_type)
-            el.clear()
-            continue
-        end_lei = end_node.findtext("NodeID")
-
-        if start_lei is None or end_lei is None:
-            context.log.warn("Relationship missing LEI", start=start_lei, end=end_lei)
-            el.clear()
-            continue
-
-        proxy = context.make(rel_schema)
-        rel_id = slugify(rel_type, sep="-")
-        proxy.id = f"lei-{start_lei}-{rel_id}-{end_lei}"
-        proxy.add(start_prop, lei_id(start_lei))
-        proxy.add(end_prop, lei_id(end_lei))
-        proxy.add("role", rel_type.replace("_", " "))
-        proxy.add("status", rel.findtext("RelationshipStatus"))
-
-        if rel_schema == "Ownership":
-            # Organization entities cannot be assets, so we re-emit the asset entity as a Company
-            assert start_prop == "asset"
-            asset = context.make("Company")
-            asset.id = lei_id(start_lei)
-            # Also emit leiCode so that Context.emit doesn't complain about the Entity having no properties
-            asset.add("leiCode", start_lei)
-            context.emit(asset)
-
-        for period in rel.findall(".//RelationshipPeriod"):
-            period_type = period.findtext("PeriodType")
-            if period_type == "RELATIONSHIP_PERIOD":
-                proxy.add("startDate", parse_date(period.findtext("StartDate")))
-                proxy.add("endDate", parse_date(period.findtext("EndDate")))
-
-        for quant in rel.findall(".//RelationshipQuantifier"):
-            amount = quant.findtext("QuantifierAmount")
-            units = quant.findtext("QuantifierUnits")
-            if units == "PERCENTAGE" or units is None:
-                proxy.add("percentage", amount, quiet=True)
-            else:
-                context.log.warn("Unknown rel quantifier", amount=amount, units=units)
-
+        parse_relationship_record(context, el)
         el.clear()
-        context.emit(proxy)
 
     if idx == 0:
         raise RuntimeError("No relationships!")
