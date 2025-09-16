@@ -589,7 +589,7 @@ lookups:
         value: 281020505755
       - match: =サウジアラビア旅券　F654645（2005年4月30日発行、2010年3月7日失効、ヒジュラ暦では、1426年6月24日発行、1431年3月21日失効）
         value: F654645
-      - match: パキスタン旅券　FA0157612（2009年7月23日発行、2014年7月22日失効、2013年時点で公式に失効措置済み。アラー・ムハンマドの名義で発行されている）
+      - match: パキスタン旅券 FA0157612（2009年7月23日発行、2014年7月22日失効、2013年時点で公式に失効措置済み。アラー・ムハンマドの名義で発行されている）
         value: FA0157612
       - match: アフガニスタン国民IDカード（tazkira）番号 57388（Lashkar Gah District, Helmand Province, Afghanistanにて発行
         value: 57388
@@ -599,11 +599,11 @@ lookups:
         value: 05AT521433
       - match: フランス国民IDカード番号050456101445（2005年5月19日Sous-Prefecture of police of Lorient, Franceにより発行）
         value: 050456101445
-      - match: インドネシア旅券番号　W344982（1985年3月4日Jakarta, Indonesia生まれのAngga Dimas Peshadaとして発行）
+      - match: インドネシア旅券番号 W344982（1985年3月4日Jakarta, Indonesia生まれのAngga Dimas Peshadaとして発行）
         value: W344982
-      - match: インドネシア旅券番号　A2823222（1975年7月14日Rembang, Jawa Tengah, Indonesia生まれのWiji Joko Santosoとして2012年5月28日発行、2017年5月28日失効）
+      - match: インドネシア旅券番号 A2823222（1975年7月14日Rembang, Jawa Tengah, Indonesia生まれのWiji Joko Santosoとして2012年5月28日発行、2017年5月28日失効）
         value: A2823222
-      - match: ロシア外国人旅行旅券番号　514448632（2010年9月8日にAlexandria, Egyptにて、ロシア連邦総領事館により発行）
+      - match: ロシア外国人旅行旅券番号 514448632（2010年9月8日にAlexandria, Egyptにて、ロシア連邦総領事館により発行）
         value: 514448632
       - match: トリニダード・トバゴ旅券番号TA959547、2013年11月19日発行（トリニダード・トバゴ移民局発行､2018年11月18日失効）
         value: TA959547
@@ -634,7 +634,7 @@ lookups:
           - 31/2013/20/003140
       - match: アフガニスタン旅券 OR801168 （Said Jan ‘Abd al-Salamの名義で2006年2月28日に発行、2011年2月27日に失効）
         value: OR801168
-      - match: サウジアラビア旅券　F654645（2005年4月30日発行、2010年3月7日失効、ヒジュラ暦では、1426年6月24日発行、1431年3月21日失効）
+      - match: サウジアラビア旅券 F654645（2005年4月30日発行、2010年3月7日失効、ヒジュラ暦では、1426年6月24日発行、1431年3月21日失効）
         value: F654645
       - match: アフガニスタン国民IDカード（tazkira）番号 57388（Lashkar Gah District, Helmand Province, Afghanistanにて発行）
         value: 57388
