@@ -1,6 +1,7 @@
 import json
 from typing import Dict, Optional
 from rigour.mime.types import JSON
+from normality import normalize
 
 from zavod import Context, Entity
 from zavod import helpers as h
@@ -9,11 +10,14 @@ from zavod.shed.un_sc import apply_un_name_list
 
 URL = "https://repet.jus.gob.ar/xml/%s.json"
 NAME_QUALITY = {
-    "Low": "weakAlias",
-    "Good": "alias",
-    "a.k.a.": "alias",
-    "f.k.a.": "previousName",
-    "": None,
+    "low": "weakAlias",
+    "baja": "weakAlias",  # 'baja'=low
+    "good": "alias",
+    "buena": "alias",  # 'buena'==good
+    "alta": "alias",  # 'alta'==high
+    "alto": "alias",
+    "a k a": "alias",
+    "f k a": "previousName",
 }
 ALIAS_SPLITS = ["original script", ";"]
 
@@ -38,7 +42,8 @@ def parse_date(date):
 
 
 def parse_alias(context: Context, entity: Entity, alias: Dict[str, str]):
-    name_prop = NAME_QUALITY[alias.pop("QUALITY", None)]
+    quality = alias.pop("QUALITY", None)
+    name_prop = NAME_QUALITY[normalize(quality)] if quality else None
     for name in alias.pop("ALIAS_NAME", None).split(";"):
         h.apply_name(
             entity,
