@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: v6.0.0
     hooks:
       - id: check-yaml
       - id: trailing-whitespace
@@ -12,21 +12,18 @@ repos:
         entry: '.yaml files are not allowed. Please use .yml extension instead.'
         language: fail
         files: 'datasets/.*\.yaml$'
-  - repo: https://github.com/psf/black
-    rev: 25.1.0
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.13.0
     hooks:
-      - id: black
+      - id: ruff-check
+        args: ['--select I --fix']
+      - id: ruff-format
   - repo: https://github.com/adrienverge/yamllint.git
-    rev: v1.35.1
+    rev: v1.37.1
     hooks:
       - id: yamllint
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.11.6
-    hooks:
-      - id: ruff
-        args: ['--fix']
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.15.0
+    rev: v1.18.1
     hooks:
       - id: mypy
         # Don't run isolated but use the activated venv. Not perfect but better than re-declaring all deps here
