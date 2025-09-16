@@ -42,14 +42,14 @@ def apply_number(
         if num is None:
             log.warning("Cannot parse number: %s" % (value))
             return
-        if unit is not None:
-            unit = normalize_unit(unit)
-            text = f"{num} {unit}"
         try:
             num = _float_str(float(num))
         except ValueError:
             log.warning("Cannot convert number to float: %s", num)
             return
+        if unit is not None:
+            unit = normalize_unit(unit)
+            text = f"{num} {unit}"
         else:
             text = num
     elif isinstance(value, float):
