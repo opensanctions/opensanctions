@@ -297,7 +297,7 @@ lookups:
         value: ryonha@silibank.com
       - match: helmand_exchange_msp@ yahoo.com
         value: helmand_exchange_msp@yahoo.com
-      - match: info@hamshointl.com and hamshogrou­p@yahoo.com
+      - match: info@hamshointl.com and hamshogroup@yahoo.com
         values:
           - info@hamshointl.com
           - hamshogroup@yahoo.com

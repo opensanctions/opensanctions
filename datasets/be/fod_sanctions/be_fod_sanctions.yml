@@ -253,7 +253,7 @@ lookups:
         values:
           - spccom2@scs‐net.org
           - spccom1@scsnet.org
-      - match: info@hamshointl.com and hamshogrou­p@yahoo.com
+      - match: info@hamshointl.com and hamshogroup@yahoo.com
         values:
           - info@hamshointl.com
           - hamshogroup@yahoo.com

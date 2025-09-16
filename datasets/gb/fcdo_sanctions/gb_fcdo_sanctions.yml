@@ -173,8 +173,12 @@ lookups:
         prop: website
       - match: "sales@ruspolymet.ru,"
         value: "sales@ruspolymet.ru"
+      - match: "ruspolymet@ruspolymet.ru,"
+        value: ruspolymet@ruspolymet.ru
       - match: "info@zrekond.ru,"
         value: "info@zrekond.ru"
+      - match: "zgen@zrekond.ru,"
+        value: "zgen@zrekond.ru"
       - match: "gen@zrekond.ru,"
         value: "gen@zrekond.ru"
       - match: "info@npo-poisk.ru,"

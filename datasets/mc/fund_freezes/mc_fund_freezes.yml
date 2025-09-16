@@ -301,7 +301,7 @@ lookups:
         values:
           - 1940
           - 1941
-      - match: Entre 1977 et 1982.
+      - match: Entre 1977 et 1982.
         values:
           - 1977
           - 1982
