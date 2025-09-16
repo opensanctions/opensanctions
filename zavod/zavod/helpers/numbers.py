@@ -33,7 +33,7 @@ def apply_number(
             separator=entity.dataset.numbers.separator,
         )
         if num is None:
-            log.warning("Cannot parse number: %s", value)
+            log.warning("Cannot parse number: %s" % (value))
             return
         if unit is not None:
             unit = normalize_unit(unit)
