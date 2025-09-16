@@ -58,8 +58,7 @@ def crawl_item(row: Dict[str, str], context: Context):
 
 
 def crawl_data_url(context: Context):
-    doc = context.fetch_html(context.data_url)
-    doc.make_links_absolute(context.data_url)
+    doc = context.fetch_html(context.data_url, absolute_links=True)
     return doc.xpath("//a[contains(text(), 'Sanctioned Provider List')]/@href")[0]
 
 

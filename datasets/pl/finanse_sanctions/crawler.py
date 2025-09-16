@@ -94,9 +94,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
 
 
 def crawl(context: Context):
-    doc = context.fetch_html(context.dataset.url)
-    doc.make_links_absolute(context.dataset.url)
-
+    doc = context.fetch_html(context.dataset.url, absolute_links=True)
     xlsx_link_element = doc.xpath(
         ".//a[@class='file-download' and contains(text(), 'art. 118 ust. 1 pkt 2 (wersja xlsx)')]"
     )

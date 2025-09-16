@@ -118,9 +118,7 @@ def crawl_item(context: Context, row: Dict[str, str]):
 
 
 def crawl_data_url(context: Context):
-    doc = context.fetch_html(context.data_url)
-    # (etree.tostring(doc))
-    doc.make_links_absolute(context.data_url)
+    doc = context.fetch_html(context.data_url, absolute_links=True)
     anchor = doc.xpath('//a/span[text()="Vnitrostátní sankční seznam"]/..')
     assert len(anchor) != 1, len(anchor)
     return anchor[0].get("href")

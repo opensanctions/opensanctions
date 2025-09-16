@@ -98,8 +98,7 @@ def parse_table(table: html.HtmlElement) -> Generator[Dict[str, str], None, None
 
 # Main crawl function to fetch and process data.
 def crawl(context: Context):
-    doc = context.fetch_html(context.data_url)
-    doc.make_links_absolute(context.data_url)
+    doc = context.fetch_html(context.data_url, absolute_links=True)
     table = doc.get_element_by_id("special-measures-table")
     if table is not None:
         for row in parse_table(table):

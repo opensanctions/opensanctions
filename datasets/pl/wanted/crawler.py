@@ -86,9 +86,8 @@ def crawl_person(context: Context, url: str):
 
 def crawl_index(context, url) -> str | None:
     context.log.info(f"Crawling index page {url}")
-    doc = context.fetch_html(url)
+    doc = context.fetch_html(url, absolute_links=True)
     # makes it easier to extract dedicated details page
-    doc.make_links_absolute(context.dataset.data.url)
     cells = doc.xpath("//li[.//a[contains(@href, '/pos/form/r')]]/a/@href")
     for cell in cells:
         crawl_person(context, cell)

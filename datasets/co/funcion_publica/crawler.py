@@ -218,8 +218,7 @@ def crawl(context: Context):
     next_link = "https://www.funcionpublica.gov.co/fdci/consultaCiudadana/consultaPEP?find=FindNext&tipoRegistro=4&offset=0&max=50"
     while next_link:
         context.log.info("Fetching page", url=next_link)
-        doc = context.fetch_html(next_link, cache_days=1)
-        doc.make_links_absolute(next_link)
+        doc = context.fetch_html(next_link, cache_days=1, absolute_links=True)
         step_anchors = doc.xpath("//a[contains(@class, 'step')]")
         context.log.info("Pages", pagenums=[a.text_content() for a in step_anchors])
         if not step_anchors:

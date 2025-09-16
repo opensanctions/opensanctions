@@ -188,8 +188,7 @@ def crawl_row(context: Context, row: Dict[str, HtmlElement], index_url: str):
 
 
 def crawl(context: Context):
-    doc = context.fetch_html(context.data_url, cache_days=1)
-    doc.make_links_absolute(context.data_url)
+    doc = context.fetch_html(context.data_url, cache_days=1, absolute_links=True)
     alphabet_links = doc.xpath(".//div[@itemprop='articleBody']/p//a[@href]")
     assert len(alphabet_links) >= 58, "Expected at least 58 links in `alphabet_links`."
     # Bulgarian alphabet has 30 letters, but the name can start only with 29 of them
