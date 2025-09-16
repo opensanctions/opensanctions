@@ -303,6 +303,9 @@ def assert_all_accepted(context: Context, raise_on_unaccepted: bool = True) -> N
         raise_on_unaccepted: Whether to raise an exception if there are unaccepted items.
             If False, a warning will be logged instead.
     """
+    # Make sure everything is saved to the database in case we raise:
+    context.flush()
+
     count = Review.count_unaccepted(
         context.conn, context.dataset.name, context.version.id
     )
