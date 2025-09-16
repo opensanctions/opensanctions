@@ -13,7 +13,6 @@ from sqlalchemy.sql import Select
 import orjson
 
 from zavod.context import Context
-from zavod.db import get_engine
 from zavod.stateful.model import review_table
 
 log = getLogger(__name__)
@@ -213,49 +212,46 @@ def request_review(
         schema_generator=SchemaGenerator
     )
     now = datetime.now(timezone.utc)
-    with get_engine().begin() as conn:
-        review = Review.by_key(conn, type(orig_extraction_data), dataset, key_slug)
-        if review is None:
-            # First insert
-            context.log.debug("Requesting review", key=key_slug)
-            review = Review(
-                key=key_slug,
-                dataset=dataset,
-                extraction_schema=schema,
-                source_value=source_value,
-                source_mime_type=source_mime_type,
-                source_label=source_label,
-                source_url=source_url,
-                data_model=type(orig_extraction_data),
-                model_version=model_version,
-                orig_extraction_data=orig_extraction_data,
-                extracted_data=orig_extraction_data,
-                accepted=default_accepted,
-                last_seen_version=context.version.id,
-                modified_at=now,
-                modified_by="zavod",
-            )  # type: ignore
-            review.save(conn)
-
-        # We're re-requesting review - likely because the model version > min_model_version.
-        # Mark old row as deleted and insert new row
-        else:
-            context.log.debug("Re-requesting review", key=key_slug)
-            review.extraction_schema = schema
-            review.source_value = source_value
-            review.source_mime_type = source_mime_type
-            review.source_label = source_label
-            review.source_url = source_url
-            review.model_version = model_version
-            review.orig_extraction_data = orig_extraction_data
-            review.extracted_data = orig_extraction_data
-            review.accepted = default_accepted
-            review.last_seen_version = context.version.id
-            review.modified_at = now
-            review.modified_by = "zavod"
-            review.save(conn)
-
-        return review
+    review = Review.by_key(context.conn, type(orig_extraction_data), dataset, key_slug)
+    if review is None:
+        # First insert
+        context.log.debug("Requesting review", key=key_slug)
+        review = Review(
+            key=key_slug,
+            dataset=dataset,
+            extraction_schema=schema,
+            source_value=source_value,
+            source_mime_type=source_mime_type,
+            source_label=source_label,
+            source_url=source_url,
+            data_model=type(orig_extraction_data),
+            model_version=model_version,
+            orig_extraction_data=orig_extraction_data,
+            extracted_data=orig_extraction_data,
+            accepted=default_accepted,
+            last_seen_version=context.version.id,
+            modified_at=now,
+            modified_by="zavod",
+        )  # type: ignore
+        review.save(context.conn)
+    # We're re-requesting review - likely because the model version > min_model_version.
+    # Mark old row as deleted and insert new row
+    else:
+        context.log.debug("Re-requesting review", key=key_slug)
+        review.extraction_schema = schema
+        review.source_value = source_value
+        review.source_mime_type = source_mime_type
+        review.source_label = source_label
+        review.source_url = source_url
+        review.model_version = model_version
+        review.orig_extraction_data = orig_extraction_data
+        review.extracted_data = orig_extraction_data
+        review.accepted = default_accepted
+        review.last_seen_version = context.version.id
+        review.modified_at = now
+        review.modified_by = "zavod"
+        review.save(context.conn)
+    return review
 
 
 def get_review(
@@ -278,24 +274,23 @@ def get_review(
     """
     key_slug = review_key(key_parts)
     assert key_slug is not None
-    with get_engine().begin() as conn:
-        review = Review[ModelType].by_key(
-            conn, data_model, context.dataset.name, key_slug
+    review = Review[ModelType].by_key(
+        context.conn, data_model, context.dataset.name, key_slug
+    )
+    if review is None:
+        context.log.debug("Review not found", key=key_slug)
+        return None
+    if review.model_version < min_model_version:
+        context.log.debug(
+            "Review model version is too old",
+            key=key_slug,
+            min_model_version=min_model_version,
+            model_version=review.model_version,
         )
-        if review is None:
-            context.log.debug("Review not found", key=key_slug)
-            return None
-        if review.model_version < min_model_version:
-            context.log.debug(
-                "Review model version is too old",
-                key=key_slug,
-                min_model_version=min_model_version,
-                model_version=review.model_version,
-            )
-            return None
-        context.log.debug("Review found, updating last_seen_version", key=key_slug)
-        review.update_version(conn, context.version.id)
-        return review
+        return None
+    context.log.debug("Review found, updating last_seen_version", key=key_slug)
+    review.update_version(context.conn, context.version.id)
+    return review
 
 
 def assert_all_accepted(context: Context, raise_on_unaccepted: bool = True) -> None:
@@ -308,17 +303,18 @@ def assert_all_accepted(context: Context, raise_on_unaccepted: bool = True) -> N
         raise_on_unaccepted: Whether to raise an exception if there are unaccepted items.
             If False, a warning will be logged instead.
     """
-    with get_engine().begin() as conn:
-        count = Review.count_unaccepted(conn, context.dataset.name, context.version.id)
-        if count > 0:
-            message = (
-                f"There are {count} unaccepted items for dataset "
-                f"{context.dataset.name} and version {context.version.id}"
-            )
-            if raise_on_unaccepted:
-                raise Exception(message)
-            else:
-                context.log.warning(message)
+    count = Review.count_unaccepted(
+        context.conn, context.dataset.name, context.version.id
+    )
+    if count > 0:
+        message = (
+            f"There are {count} unaccepted items for dataset "
+            f"{context.dataset.name} and version {context.version.id}"
+        )
+        if raise_on_unaccepted:
+            raise Exception(message)
+        else:
+            context.log.warning(message)
 
 
 def sort_arrays_in_value(value: JsonValue) -> JsonValue:
