@@ -10,6 +10,13 @@ NumberValue = Union[str, int, float, Decimal]
 log = get_logger(__name__)
 
 
+def _float_str(float: float) -> str:
+    # TODO: move to ftm to standardize
+    if float.is_integer():
+        return str(int(float))
+    return f"{float:.2f}"
+
+
 def apply_number(
     entity: Entity, prop: str, value: NumberValue, origin: Optional[str] = None
 ) -> None:
@@ -38,9 +45,16 @@ def apply_number(
         if unit is not None:
             unit = normalize_unit(unit)
             text = f"{num} {unit}"
+        try:
+            num = _float_str(float(num))
+        except ValueError:
+            log.warning("Cannot convert number to float: %s", num)
+            return
         else:
             text = num
-    elif isinstance(value, (float, Decimal)):
+    elif isinstance(value, float):
+        text = _float_str(value)
+    elif isinstance(value, Decimal):
         text = f"{value:.2f}"
     else:
         text = str(value)
