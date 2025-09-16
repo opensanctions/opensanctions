@@ -2,13 +2,18 @@ import re
 from itertools import product
 from datetime import datetime
 from prefixdate import parse_parts
-from typing import Dict, Optional, Tuple, List
+from typing import Dict, Literal, Optional, Tuple, List
 from followthemoney.types import registry
 from followthemoney.util import join_text
 from lxml.etree import _Element as Element
+from pydantic import BaseModel
+
+from rigour.mime.types import PLAIN
 
 from zavod import Context, Entity
 from zavod import helpers as h
+from zavod.shed.gpt import run_typed_text_prompt
+from zavod.stateful.review import assert_all_accepted, get_review, request_review
 
 # TODO: sanctions-program full parse
 MayStr = Optional[str]
@@ -46,6 +51,98 @@ REGEX_REGNUM = re.compile(
 )
 REGEX_TAX = re.compile(r"Tax [Rr]egistration [Nn]umber ?: (\d+)\.?")
 REGEX_IMO = re.compile(r"IMO [Nn]umber ?: (\d+)\.?")
+
+Properties = Literal[
+    "email",
+    "phone",
+    "website",
+    "innCode",
+    "ogrnCode",
+    "kppCode",
+    "taxNumber",
+    "imoNumber",
+    "okpoCode",
+    "passportNumber",
+    "uscCode",
+    "swiftBic",
+    "registrationNumber",
+    "identityNumber",
+    "incorporationDate",
+    "dissolutionDate",
+    "address",
+    "country",
+    "position",
+    "birthPlace",
+    "deathDate",
+    "name",
+    "gender",
+]
+
+
+class SimpleValue(BaseModel):
+    property: Properties
+    value: str
+
+
+class RelatedEntity(BaseModel):
+    relationship_schema: Literal["Family", "UnknownLink"]
+    related_entity_schema: Literal["Person", "Company", "LegalEntity"]
+    related_entity_name: List[str]
+    relationship: Optional[str] = None
+
+
+class OtherInfo(BaseModel):
+    values: List[RelatedEntity | SimpleValue] = []
+    include_in_notes: bool = False
+
+
+MIN_VERSION = 1
+VERSION = 1
+
+PROMPT = """
+The attached text is a string from the <other-information> field of an international
+financial sanctions entry about a {schema}.
+
+Extract the values that are present in the text representing related individuals
+or entities, or the simple values representing the properties indicated in the schema.
+
+If the text includes more information or context than can be represented in the
+schema, set the include_in_notes flag to True, then the full original value will
+be kept as a note.
+
+Include ONLY the values that are present in the text.
+NEVER infer, assume, or generate values that are not directly stated in the source text.
+
+Include multiple values as distinct entries in the values array.
+
+Additional rules:
+
+- provide dates in the format YYYY-MM-DD, YYYY-MM or YYYY depending on the
+  precision in the text. Use other values verbatim without changes.
+- incorporationDate and dissolutionDate are for when companies are registered or dissolved.
+- Do not reformat phone numbers.
+- positions:
+  - Only use this if the subjest is a Person.
+  - Include positions prefixed with "former", including the prefix.
+  - Don't include detail about the entity where the position is held, e.g. in
+    "Founder and leader of Jaysh Ayman, an al-Shabaab unit conducting attacks
+    and operations in Kenya and Somalia.", the position is "Founder and leader
+    of Jaysh Ayman" and set the include_in_notes flag to True.
+  - Do include a location in the position if it indicates the scope or jurisdiction
+    of the role, e.g. "Head of the District Department of Internal Affairs in
+    Moskovski District, Minsk" and "Ambassador of the Republic of Belarus to Armenia"
+  - Do include the company name if it is simply part of the role, e.g.
+    "Managing Director of OOO Bergia Group"
+- For addresses, include whatever level of detail is available, even if it's just
+  a city and/or state. e.g. in "Headquarters: Managua, Nicaragua'", use the value
+  "Managua, Nicaragua" as the address. Do extract an address if included as detail,
+  e.g. in parentheses in "Company X (Moscow, Russia)" extract "Moscow, Russia" as
+  the address. But don't set an address from e.g. a work location, e.g. don't extract
+  "Frunzensky district of the city of Minsk" or "Minsk" from "Judge of the court of
+  the Frunzensky district of the city of Minsk"
+- name: Only use this if a formal name is provided. We have a dedicated name field
+  in other fields from the source data.
+"""
 
 
 def parse_address(node: Element):
@@ -234,36 +331,79 @@ def parse_entry(context: Context, target: Element, programs, places):
         if other.text is None:
             continue
         value = other.text.strip()
-        imo_num = REGEX_IMO.fullmatch(value)
-        reg_num = REGEX_REGNUM.fullmatch(value)
-        inn_match = REGEX_INN.fullmatch(value)
-        if entity.schema.is_a("Vessel") and imo_num:
-            entity.add("imoNumber", imo_num.group(1))
-        elif entity.schema.is_a("LegalEntity") and value.startswith(
-            "Date of registration"
-        ):
-            _, reg_date = value.split(":", 1)
-            h.apply_date(entity, "incorporationDate", reg_date.strip())
-        elif entity.schema.is_a("LegalEntity") and value.startswith("Type of entity"):
-            _, legalform = value.split(":", 1)
-            entity.add("legalForm", legalform)
-        elif entity.schema.is_a("LegalEntity") and reg_num:
-            entity.add("registrationNumber", reg_num.group(3))
-        elif inn_match:
-            entity.add("innCode", inn_match.group(1))
-        elif tax := REGEX_TAX.fullmatch(value):
-            entity.add("taxNumber", tax.group(1))
-        elif website := REGEX_WEBSITE.fullmatch(value):
-            entity.add("website", website.group(1))
-        elif email := REGEX_EMAIL.fullmatch(value):
-            entity.add("email", email.group(2))
-        elif phonenumber := REGEX_PHONE.fullmatch(value):
-            entity.add("phone", phonenumber.group(3))
-        elif value == "Registration number: ИНН":
-            pass
-        else:
-            # print(value, other.attrib)
-            entity.add("notes", h.clean_note(value))
+        if not value:
+            continue
+
+        review = get_review(context, OtherInfo, value, MIN_VERSION)
+        if review is None:
+
+            # Import regex-based parsing to reviews if possible
+            item = None
+
+            imo_num = REGEX_IMO.fullmatch(value)
+            reg_num = REGEX_REGNUM.fullmatch(value)
+            inn_match = REGEX_INN.fullmatch(value)
+            if imo_num:
+                item = SimpleValue(property="imoNumber", value=imo_num.group(1))
+            elif entity.schema.is_a("LegalEntity") and value.startswith(
+                "Date of registration"
+            ):
+                _, reg_date = value.split(":", 1)
+                item = SimpleValue(property="incorporationDate", value=reg_date.strip())
+            elif entity.schema.is_a("LegalEntity") and value.startswith(
+                "Type of entity"
+            ):
+                _, legalform = value.split(":", 1)
+                item = SimpleValue(property="legalForm", value=legalform)
+            elif entity.schema.is_a("LegalEntity") and reg_num:
+                item = SimpleValue(
+                    property="registrationNumber", value=reg_num.group(3)
+                )
+            elif inn_match:
+                item = SimpleValue(property="innCode", value=inn_match.group(1))
+            elif tax := REGEX_TAX.fullmatch(value):
+                item = SimpleValue(property="taxNumber", value=tax.group(1))
+            elif website := REGEX_WEBSITE.fullmatch(value):
+                item = SimpleValue(property="website", value=website.group(1))
+            elif email := REGEX_EMAIL.fullmatch(value):
+                item = SimpleValue(property="email", value=email.group(2))
+            elif phonenumber := REGEX_PHONE.fullmatch(value):
+                item = SimpleValue(property="phone", value=phonenumber.group(3))
+            elif value == "Registration number: ИНН":
+                pass
+
+            if item is not None:
+                extraction = OtherInfo(values=[item])
+                review = request_review(
+                    context,
+                    value,
+                    value,
+                    PLAIN,
+                    "other-information",
+                    None,
+                    extraction,
+                    VERSION,
+                    default_accepted=True,
+                )
+            else:
+                extraction = run_typed_text_prompt(context, PROMPT, value, OtherInfo)
+                review = request_review(
+                    context,
+                    value,
+                    value,
+                    PLAIN,
+                    "other-information",
+                    None,
+                    extraction,
+                    VERSION,
+                )
+
+            if review.accepted:
+                for extracted_value in review.extracted_data.values:
+                    entity.add(extracted_value.property, extracted_value.value)
+                if review.extracted_data.include_in_notes:
+                    entity.add("notes", h.clean_note(value))
+
     ssid = target.get("sanctions-set-id")
     if ssid is None:
         ssid = target.findtext("./sanctions-set-id")
@@ -375,3 +515,5 @@ def crawl(context: Context):
 
     for target in doc.findall("./target"):
         parse_entry(context, target, programs, places)
+
+    assert_all_accepted(context, raise_on_unaccepted=False)
