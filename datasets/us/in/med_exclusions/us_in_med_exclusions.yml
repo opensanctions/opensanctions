@@ -69,7 +69,13 @@ exports:
 assertions:
   min:
     schema_entities:
-      LegalEntity: 25
+      LegalEntity: 50
   max:
     schema_entities:
-      LegalEntity: 60
+      LegalEntity: 150
+
+lookups:
+  type.identifier:
+    options:
+      - match: N/A
+        value: null
