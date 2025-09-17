@@ -203,10 +203,8 @@ def crawl(context: Context):
         crawl_deputy(context, item, current_leg_roman)
 
     # Crawl Senators
-    doc = context.fetch_html(SENATORS_URL, cache_days=1)
-    doc.make_links_absolute(SENATORS_URL)
+    doc = context.fetch_html(SENATORS_URL, cache_days=1, absolute_links=True)
     for letter_url in doc.xpath(".//ul[@class='listaOriginal']//@href"):
-        letter_doc = context.fetch_html(letter_url, cache_days=1)
-        letter_doc.make_links_absolute(letter_url)
+        letter_doc = context.fetch_html(letter_url, cache_days=1, absolute_links=True)
         for senator_url in letter_doc.xpath(".//ul[@class='lista-alterna']//@href"):
             crawl_senator(context, senator_url)

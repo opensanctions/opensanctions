@@ -70,8 +70,8 @@ def crawl(context: Context):
         members_xpath,
         html_source="httpResponseBody",
         cache_days=1,
+        absolute_links=True,
     )
-    response.make_links_absolute(context.data_url)
 
     for a_tag in response.findall(members_xpath):
         # For some reason the name is not always present on the member page

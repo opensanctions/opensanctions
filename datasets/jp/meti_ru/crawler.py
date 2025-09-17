@@ -144,8 +144,8 @@ def crawl(context: Context):
         divs_xpath,
         html_source="httpResponseBody",
         geolocation="jp",
+        absolute_links=True,
     )
-    doc.make_links_absolute(SOURCE_URL)
     divs = doc.xpath(divs_xpath)
     assert len(divs) == 1, len(divs)
     # Check hash of the content part of the page

@@ -119,8 +119,9 @@ def process_excel(
 def crawl(context: Context) -> None:
     """Crawl Spanish mayors and councillors data from official sources."""
     # Process historical mayors data (2019-2023)
-    hist_doc = context.fetch_html(context.dataset.model.url, cache_days=1)
-    hist_doc.make_links_absolute(context.dataset.model.url)
+    hist_doc = context.fetch_html(
+        context.dataset.model.url, cache_days=1, absolute_links=True
+    )
     hist_url = hist_doc.xpath(
         ".//div[@class='com-listado com-listado--destacado']//a[contains(@href, 'Alcaldes_Mandato_2019_2023')]/@href"
     )
@@ -133,8 +134,9 @@ def crawl(context: Context) -> None:
         skiprows=7,
     )
     # Process current mayors and councillors data
-    current_doc = context.fetch_html(context.data_url, cache_days=1)
-    current_doc.make_links_absolute(context.data_url)
+    current_doc = context.fetch_html(
+        context.data_url, cache_days=1, absolute_links=True
+    )
     current_url = current_doc.xpath(".//a[@id='concejales_legislatura']/@href")
     assert len(current_url) == 1, "Expected exactly one current URL"
     process_excel(

@@ -162,8 +162,9 @@ def crawl_xlsx(context: Context, url: str, program: str, short_name: str):
 def crawl(context: Context):
     # Use browser to render javascript-based frontend
     table_xpath = './/table[@class="table table-bordered"]'
-    doc = fetch_html(context, context.data_url, table_xpath, cache_days=3)
-    doc.make_links_absolute(context.data_url)
+    doc = fetch_html(
+        context, context.data_url, table_xpath, cache_days=3, absolute_links=True
+    )
     table = doc.find(table_xpath)
     category_urls = [link.get("href") for link in table.findall(".//a")]
 

@@ -54,8 +54,9 @@ def crawl_row(context: Context, row: dict):
 
 def crawl(context: Context):
     csv_xpath = "//table//tr[th[contains(., 'Withhold Release Orders & Findings Dataset')]]//@href"
-    doc = fetch_html(context, context.data_url, csv_xpath, cache_days=1)
-    doc.make_links_absolute(context.data_url)
+    doc = fetch_html(
+        context, context.data_url, csv_xpath, cache_days=1, absolute_links=True
+    )
     csv_url = doc.xpath(csv_xpath)
     assert len(csv_url) == 1, "Expected exactly one CSV url"
     csv_url = csv_url[0]

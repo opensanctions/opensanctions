@@ -47,11 +47,17 @@ def crawl_subpage(context: Context, url: str, entity: Entity, entity_id):
         './/div[@class="c-full-node__info"] | '
         './/*[contains(text(), "The website encountered an unexpected error.")]'
     )
-    doc = fetch_html(context, url, validator_xpath, cache_days=3, geolocation="us")
+    doc = fetch_html(
+        context,
+        url,
+        validator_xpath,
+        cache_days=3,
+        geolocation="us",
+        absolute_links=True,
+    )
     if is_500_page(doc):
         context.log.info(f"Broken link detected: {url}")
         return
-    doc.make_links_absolute(url)
 
     facts_lists = doc.xpath('.//div[@class="c-full-node__info"]')
     assert len(facts_lists) == 1
@@ -131,8 +137,13 @@ def crawl(context: Context):
         context.log.info(f"Fetching URL: {url}")
 
         # Fetch the HTML and get the table
-        doc = fetch_html(context, url, ".//div[@class='o-grid']", geolocation="us")
-        doc.make_links_absolute(url)
+        doc = fetch_html(
+            context,
+            url,
+            ".//div[@class='o-grid']",
+            geolocation="us",
+            absolute_links=True,
+        )
         table = doc.find(".//div[@class='view-content']//table")
         if table is None:
             context.log.info("No more tables found.")

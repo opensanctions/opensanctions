@@ -91,8 +91,7 @@ def crawl(context: Context):
 
     while True:
         url = base_url.format(idx)
-        response = context.fetch_html(url)
-        response.make_links_absolute(url)
+        response = context.fetch_html(url, absolute_links=True)
 
         idx += 1
 

@@ -56,8 +56,8 @@ def crawl_excel_url(context: Context) -> str:
         context,
         context.data_url,
         unblock_validator=provider_list_xpath,
+        absolute_links=True,
     )
-    doc.make_links_absolute(context.data_url)
     return doc.xpath(provider_list_xpath)[0].get("href")
 
 

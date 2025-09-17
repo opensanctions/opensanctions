@@ -257,8 +257,7 @@ def crawl_row(context, names, category, start_date, filename: str):
 
 def crawl_data_url(context: Context):
     file_xpath = "//a[contains(., 'PDF Version')]"
-    doc = fetch_html(context, context.data_url, file_xpath)
-    doc.make_links_absolute(context.data_url)
+    doc = fetch_html(context, context.data_url, file_xpath, absolute_links=True)
     return doc.xpath(file_xpath)[0].get("href")
 
 

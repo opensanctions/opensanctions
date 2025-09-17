@@ -25,8 +25,9 @@ def crawl_item(context: Context, row: Dict[str, str]):
 
 def crawl(context: Context) -> None:
     table_xpath = ".//table[@aria-label='Table of Files associated with page']"
-    doc = fetch_html(context, context.dataset.url, table_xpath, cache_days=1)
-    doc.make_links_absolute(context.dataset.url)
+    doc = fetch_html(
+        context, context.dataset.url, table_xpath, cache_days=1, absolute_links=True
+    )
     table = doc.xpath(table_xpath)
     assert len(table) == 1, "Expected exactly one table in the document"
     link = table[0].xpath(".//a/@href")

@@ -93,9 +93,12 @@ def crawl_item(row: Dict[str, str], context: Context):
 
 def crawl_excel_url(context: Context) -> str:
     doc = zyte_api.fetch_html(
-        context, context.data_url, URL_XPATH, html_source="httpResponseBody"
+        context,
+        context.data_url,
+        URL_XPATH,
+        html_source="httpResponseBody",
+        absolute_links=True,
     )
-    doc.make_links_absolute(context.data_url)
     links = doc.xpath(URL_XPATH)
     assert len(links) >= 1 and links[0].get("href"), "No link to Excel file found"
     return links[0].get("href")

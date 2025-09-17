@@ -78,8 +78,9 @@ def crawl(context: Context):
     while True:
         url = base_url + "?page=" + str(page_num)
         context.log.info("Fetching page: %s" % page_num, url=url)
-        response = context.fetch_html(url, cache_days=1, headers=HEADERS)
-        response.make_links_absolute(url)
+        response = context.fetch_html(
+            url, cache_days=1, headers=HEADERS, absolute_links=True
+        )
 
         # If there are no more fugitives, we can stop crawling.
         if len(response.findall('.//div[@class="teaser "]/div/h3/a')) == 0:

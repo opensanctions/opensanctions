@@ -78,8 +78,8 @@ def crawl(context: Context):
         items_xpath,
         actions=UNBLOCK_ACTIONS,
         javascript=True,
+        absolute_links=True,
     )
-    doc.make_links_absolute(context.data_url)
 
     for item in doc.xpath(items_xpath):
         crawl_item(context, item)

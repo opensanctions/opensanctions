@@ -66,8 +66,9 @@ def crawl_item(row: Dict[str, str], context: Context):
 
 def crawl_pdf_url(context: Context):
     download_xpath = ".//a[contains(text(), 'Med Prov Excl-Rein List')]"
-    doc = fetch_html(context, context.data_url, download_xpath, geolocation="us")
-    doc.make_links_absolute(context.data_url)
+    doc = fetch_html(
+        context, context.data_url, download_xpath, geolocation="us", absolute_links=True
+    )
     return doc.xpath(download_xpath)[0].get("href")
 
 

@@ -85,8 +85,7 @@ def crawl(context: Context):
         # Caching for longer than 1 day can easily lead to missing entries as
         # the new stuff show up on the first page, and cached pages pages won't
         # include the stuff that were shifted off the previous uncached page.
-        response = context.fetch_html(url, cache_days=1)
-        response.make_links_absolute(url)
+        response = context.fetch_html(url, cache_days=1, absolute_links=True)
         table = response.find(".//table")
 
         if table is None:

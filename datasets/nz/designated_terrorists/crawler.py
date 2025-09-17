@@ -89,8 +89,7 @@ def crawl_item(input_dict: dict, context: Context):
 
 
 def crawl(context: Context):
-    response = context.fetch_html(context.data_url)
-    response.make_links_absolute(context.data_url)
+    response = context.fetch_html(context.data_url, absolute_links=True)
 
     table = response.find(".//table")
 
