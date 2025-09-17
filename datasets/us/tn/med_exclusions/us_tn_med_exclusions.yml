@@ -47,7 +47,7 @@ data:
   format: JSON
   lang: eng
 dates:
-  formats: ["%d-%b-%Y"]
+  formats: ["%d-%b-%Y", "%m/%d/%Y"]
 
 assertions:
   min:
