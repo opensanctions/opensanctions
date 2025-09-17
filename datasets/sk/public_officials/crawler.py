@@ -118,10 +118,10 @@ def crawl(context: Context):
         method="POST",
         data=form_data,
         cache_days=2,
+        absolute_links=True,
     )
     link_elements = results_doc.xpath(
         '//div[@id="_sectionLayoutContainer__panelContent"]//a[@href]'
     )
     for link_el in link_elements:
-        results_doc.make_links_absolute(context.data_url)
         parse_details(context, link_el)

@@ -37,8 +37,8 @@ def crawl(context: Context):
         person_xpath,
         html_source="httpResponseBody",
         cache_days=1,
+        absolute_links=True,
     )
-    doc.make_links_absolute(context.data_url)
 
     for person_node in doc.xpath(person_xpath):
         url = person_node.get("href")

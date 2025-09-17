@@ -56,9 +56,11 @@ def crawl_excel_url(context: Context):
         "//*[contains(text(), 'Medicaid Provider Exclusion and Sanction List')]"
     )
     doc = zyte_api.fetch_html(
-        context, context.data_url, unblock_validator=sanction_list_xpath
+        context,
+        context.data_url,
+        unblock_validator=sanction_list_xpath,
+        absolute_links=True,
     )
-    doc.make_links_absolute(context.data_url)
     return doc.xpath(sanction_list_xpath)[0].get("href")
 
 

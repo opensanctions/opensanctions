@@ -81,8 +81,8 @@ def crawl_data_url(context: Context):
         xpath,
         geolocation="US",
         cache_days=1,
+        absolute_links=True,
     )
-    landing_doc.make_links_absolute(context.data_url)
     dataset_url = landing_doc.xpath(xpath)[0].get("href")
 
     dataset_doc = context.fetch_html(dataset_url, cache_days=1, absolute_links=True)

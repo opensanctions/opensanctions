@@ -81,8 +81,7 @@ def crawl_item(url: str, context: Context):
 
 
 def crawl(context: Context):
-    response = context.fetch_html(context.data_url, cache_days=1)
-    response.make_links_absolute(context.data_url)
+    response = context.fetch_html(context.data_url, cache_days=1, absolute_links=True)
 
     # We are going to iterate over all url of the designated persons
     for a in response.findall(".//table[@id='datatable']/tbody/tr/td/a"):

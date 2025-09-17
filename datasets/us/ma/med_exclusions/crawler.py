@@ -45,8 +45,9 @@ def crawl_item(row: Dict[str, str], context: Context):
 
 def crawl_excel_url(context: Context):
     xlsx_xpath = "//*[contains(text(), 'XLSX')]/../@href"
-    doc = zyte_api.fetch_html(context, context.data_url, unblock_validator=xlsx_xpath)
-    doc.make_links_absolute(context.data_url)
+    doc = zyte_api.fetch_html(
+        context, context.data_url, unblock_validator=xlsx_xpath, absolute_links=True
+    )
     return doc.xpath(xlsx_xpath)[0]
 
 
