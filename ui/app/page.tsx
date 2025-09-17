@@ -2,7 +2,7 @@ import Head from 'next/head';
 import { headers } from 'next/headers';
 
 import { verify } from '../lib/auth';
-import { getDatasetStats } from '../lib/db';
+import { getDatasetStats, IDatasetStats } from '../lib/db';
 
 export const dynamic = "force-dynamic";
 
@@ -35,7 +35,7 @@ export default async function Home() {
             </tr>
           </thead>
           <tbody>
-            {stats.map((row: any) => (
+            {stats.map((row: IDatasetStats) => (
               <tr key={row.dataset}>
                 <td>
                   <a href={`/dataset/${encodeURIComponent(row.dataset)}`} className="text-primary text-decoration-underline">

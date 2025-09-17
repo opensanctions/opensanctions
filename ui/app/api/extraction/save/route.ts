@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
       }
     }
     return NextResponse.redirect(new URL(redirectUrl, BASE_URL));
-  } catch (e: any) {
+  } catch (e: unknown) {
     // Log the error but do not expose details to the user
     console.error('Extraction save error:', e);
     return new Response('<h1>An error occurred while saving. Please try again later.</h1>', { status: 500, headers: { 'Content-Type': 'text/html' } });

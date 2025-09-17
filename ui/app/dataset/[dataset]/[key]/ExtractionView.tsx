@@ -4,7 +4,7 @@ import { json } from "@codemirror/lang-json";
 import { keymap } from '@codemirror/view';
 import CodeMirror, { EditorView } from '@uiw/react-codemirror';
 import { jsonSchema } from "codemirror-json-schema";
-import { Draft04 } from 'json-schema-library';
+import { Draft04, JsonSchema } from 'json-schema-library';
 import React, { useState, useEffect, useRef } from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tab from 'react-bootstrap/Tab';
@@ -44,7 +44,7 @@ function AcceptAndContinueButton({ isValid, help }: { isValid: boolean, help: st
   </button>
   const tooltip = <Tooltip id="accept-continue-tooltip">
     {isValid ? (
-      <>"Ctrl/Cmd+Enter"<br />
+<>&quot;Ctrl/Cmd+Enter&quot;<br />
         Accept and continue to next review</>
     ) : help}
 
@@ -59,9 +59,9 @@ function AcceptAndContinueButton({ isValid, help }: { isValid: boolean, help: st
 }
 
 interface ExtractionViewProps {
-  rawData: any;
-  extractedData: any;
-  schema: any;
+  rawData: unknown;
+  extractedData: unknown;
+  schema: JsonSchema;
   accepted: boolean;
   entryKey: string;
   dataset: string;
@@ -72,6 +72,7 @@ export default function ExtractionView({ rawData, extractedData, schema, accepte
   const [editorExtracted, setEditorExtracted] = useState(JSON.stringify(extractedData, null, 2));
   const [flashInvalid, setFlashInvalid] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const editorRef = useRef<any>(null);
 
   function triggerFlash() {

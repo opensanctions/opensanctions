@@ -14,7 +14,7 @@ export async function GET() {
     const count = result?.count;
     return new NextResponse(`ok - ${count} datasets`, { status: 200 });
 
-  } catch (e) {
+  } catch {
     return new NextResponse('error - database query failed', { status: 500 });
   }
 }

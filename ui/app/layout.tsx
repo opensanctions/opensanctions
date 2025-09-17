@@ -1,10 +1,11 @@
-import type { Metadata } from "next";
-
 import { Geist, Geist_Mono } from "next/font/google";
+
+import version from '../version.json';
 
 import "./globals.css";
 
-import version from '../version.json';
+// TODO: CSS should come last but eslint is complaining
+import type { Metadata } from "next";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

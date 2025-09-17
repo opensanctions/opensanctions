@@ -12,6 +12,7 @@ const eslintConfig = [
   {
     files: ['**/*.{js,jsx,ts,tsx}'],
     rules: {
+      '@next/next/no-img-element': 'off',
       'import/order': [
         'warn',
         {

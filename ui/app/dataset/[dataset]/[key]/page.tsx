@@ -1,4 +1,3 @@
-import { headers } from 'next/headers';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import React from 'react';
@@ -6,7 +5,6 @@ import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import { BoxArrowUpRight } from 'react-bootstrap-icons';
 
-import { verify } from '@/lib/auth';
 import { getExtractionEntry } from '@/lib/db';
 import { PageProps } from '@/lib/pageProps';
 
