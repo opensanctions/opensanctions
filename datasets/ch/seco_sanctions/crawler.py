@@ -66,7 +66,7 @@ Properties = Literal[
     "uscCode",
     "swiftBic",
     "registrationNumber",
-    "identityNumber",
+    "idNumber",
     "incorporationDate",
     "dissolutionDate",
     "address",
@@ -86,7 +86,7 @@ class SimpleValue(BaseModel):
 
 class RelatedEntity(BaseModel):
     relationship_schema: Literal["Family", "UnknownLink"]
-    related_entity_schema: Literal["Person", "Company", "LegalEntity"]
+    related_entity_schema: Literal["Person", "Company", "Organization", "LegalEntity"]
     related_entity_name: List[str]
     relationship: Optional[str] = None
 
@@ -113,8 +113,6 @@ Only include entries for properties matching the data.
 Don't make SimpleValue entries with empty values.
 Include multiple values as distinct entries in the simple_values array.
 
-- provide dates in the format YYYY-MM-DD, YYYY-MM or YYYY depending on the
-  precision in the text. Use other values verbatim without changes.
 - specific properties in SimpleValue:
   - email: For email addresses listed in the text.
   - phone: For phone numbers listed in the text.
@@ -128,7 +126,7 @@ Include multiple values as distinct entries in the simple_values array.
   - taxNumber: For tax numbers that don't fit one of the more specific properties available.
   - registrationNumber: For company registration numbers that don't fit one of the more
     specific properties available.
-  - identityNumber: For personal identification numbers.
+  - idNumber: For personal identification numbers.
   - incorporationDate and dissolutionDate are for only when companies are registered or dissolved.
     Do not use these for other dates like travel ban periods.
   - legalForm: e.g. Joint Stock Company - precisely as written in the text.
@@ -165,13 +163,14 @@ Include multiple values as distinct entries in the simple_values array.
     otherwise use UnknownLink.
   - related_entity_schema should only be Person, Company when it's clearly one of those,
     otherwise use LegalEntity.
+  - related_entity_name is the name or names of one related entity.
+    Use distinct RelatedEntity entries for each related entity.
   - relationship - use the exact string used to describe the relationship in the text,
-    otherwise leave blank.
+    otherwise leave as null.
 
   If the text includes more information or context than can be represented in the
   schema, set the include_in_notes flag to True, then the full original value will
   be kept as a note.
-
 
   Include ONLY the values that are present in the text.
   NEVER infer, assume, or generate values that are not directly stated in the source text.
@@ -336,7 +335,29 @@ def parse_identity(context: Context, entity: Entity, node: Element, places):
             context.emit(passport)
 
 
-entries = 0
+def make_related_entities(
+    context: Context, entity: Entity, relationship: RelatedEntity
+) -> List[Entity]:
+    other = context.make(relationship.related_entity_schema)
+    other.id = context.make_id(relationship.related_entity_name)
+    other.add("name", relationship.related_entity_name)
+
+    if relationship.relationship_schema == "Family":
+        role_prop = "relationship"
+        source_prop = "person"
+        target_prop = "relative"
+    else:
+        role_prop = "role"
+        source_prop = "subject"
+        target_prop = "object"
+
+    rel = context.make(relationship.relationship_schema)
+    rel.id = context.make_id(entity.id, other.id, relationship.relationship)
+    rel.add(role_prop, relationship.relationship)
+    rel.add(source_prop, entity.id)
+    rel.add(target_prop, other.id)
+
+    return [rel, other]
 
 
 def parse_entry(context: Context, target: Element, programs, places):
@@ -363,6 +384,57 @@ def parse_entry(context: Context, target: Element, programs, places):
 
     entity.id = context.make_slug(entity_ssid)
     entity.add("gender", node.get("sex"), quiet=True)
+
+    ssid = target.get("sanctions-set-id")
+    if ssid is None:
+        ssid = target.findtext("./sanctions-set-id")
+
+    sanction = h.make_sanction(
+        context,
+        entity,
+        program_name=programs.get(ssid),
+        source_program_key=programs.get(ssid),
+        program_key=h.lookup_sanction_program_key(context, programs.get(ssid)),
+    )
+    sanction.add("authorityId", entity_ssid)
+    last_modification = None
+    last_modification_type = None
+    dates = set()
+    for mod in target.findall("./modification"):
+        mod_type = mod.get("modification-type")
+        effective_date = mod.get("effective-date")
+        if effective_date is not None:
+            if last_modification is None or effective_date > last_modification:
+                last_modification = effective_date
+                last_modification_type = mod_type
+        dates.add(mod.get("publication-date"))
+        if mod_type == "de-listed":
+            sanction.add("endDate", effective_date)
+            continue
+        sanction.add("listingDate", mod.get("publication-date"))
+        sanction.add("startDate", effective_date)
+    dates_ = [d for d in dates if d is not None]
+    if len(dates_):
+        entity.add("createdAt", min(dates_))
+        entity.add("modifiedAt", max(dates_))
+
+    if last_modification_type == "de-listed":
+        return
+    entity.add("topics", "sanction")
+
+    foreign_id = target.findtext("./foreign-identifier")
+    sanction.add("unscId", foreign_id)
+
+    justifications: List[Tuple[str, str]] = []
+    for justification in node.findall("./justification"):
+        ssid = justification.get("ssid")
+        justifications.append((ssid, justification.text))
+
+    # TODO: should this go into sanction:reason?
+    notes = [n for (s, n) in sorted(justifications)]
+    entity.add("notes", h.clean_note("\n\n".join(notes)))
+
+    related_entities = []
     for other in node.findall("./other-information"):
         if other.text is None:
             continue
@@ -370,10 +442,6 @@ def parse_entry(context: Context, target: Element, programs, places):
         if not value:
             continue
 
-        global entries
-        entries += 1
-        if entries < 0:
-            continue
         review = get_review(context, OtherInfo, value, MIN_VERSION)
         if review is None:
             # Import regex-based parsing to reviews if possible
@@ -440,64 +508,24 @@ def parse_entry(context: Context, target: Element, programs, places):
                     VERSION,
                 )
 
-            if review.accepted:
-                for extracted_value in review.extracted_data.simple_values:
-                    entity.add(
-                        extracted_value.property,
-                        extracted_value.value,
-                        origin=LLM_VERSION,
+        if review.accepted:
+            for extracted_value in review.extracted_data.simple_values:
+                if "Date" in extracted_value.property:
+                    h.apply_date(
+                        entity, extracted_value.property, extracted_value.value
                     )
-                if review.extracted_data.include_in_notes:
-                    entity.add("notes", h.clean_note(value))
-
-    ssid = target.get("sanctions-set-id")
-    if ssid is None:
-        ssid = target.findtext("./sanctions-set-id")
-
-    sanction = h.make_sanction(
-        context,
-        entity,
-        program_name=programs.get(ssid),
-        source_program_key=programs.get(ssid),
-        program_key=h.lookup_sanction_program_key(context, programs.get(ssid)),
-    )
-    sanction.add("authorityId", entity_ssid)
-    last_modification = None
-    last_modification_type = None
-    dates = set()
-    for mod in target.findall("./modification"):
-        mod_type = mod.get("modification-type")
-        effective_date = mod.get("effective-date")
-        if effective_date is not None:
-            if last_modification is None or effective_date > last_modification:
-                last_modification = effective_date
-                last_modification_type = mod_type
-        dates.add(mod.get("publication-date"))
-        if mod_type == "de-listed":
-            sanction.add("endDate", effective_date)
-            continue
-        sanction.add("listingDate", mod.get("publication-date"))
-        sanction.add("startDate", effective_date)
-    dates_ = [d for d in dates if d is not None]
-    if len(dates_):
-        entity.add("createdAt", min(dates_))
-        entity.add("modifiedAt", max(dates_))
-
-    if last_modification_type == "de-listed":
-        return
-    entity.add("topics", "sanction")
-
-    foreign_id = target.findtext("./foreign-identifier")
-    sanction.add("unscId", foreign_id)
-
-    justifications: List[Tuple[str, str]] = []
-    for justification in node.findall("./justification"):
-        ssid = justification.get("ssid")
-        justifications.append((ssid, justification.text))
-
-    # TODO: should this go into sanction:reason?
-    notes = [n for (s, n) in sorted(justifications)]
-    entity.add("notes", h.clean_note("\n\n".join(notes)))
+                    continue
+                entity.add(
+                    extracted_value.property,
+                    extracted_value.value,
+                    origin=LLM_VERSION,
+                )
+            for relationship in review.extracted_data.related_entities:
+                related_entities.extend(
+                    make_related_entities(context, entity, relationship)
+                )
+            if review.extracted_data.include_in_notes:
+                entity.add("notes", h.clean_note(value))
 
     for relation in node.findall("./relation"):
         rel_type = relation.get("relation-type")
@@ -531,6 +559,8 @@ def parse_entry(context: Context, target: Element, programs, places):
 
     context.emit(entity)
     context.emit(sanction)
+    for related_entity in related_entities:
+        context.emit(related_entity)
 
 
 def crawl(context: Context):
