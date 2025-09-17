@@ -5,7 +5,7 @@ full_dataset: us_ofac_press_releases
 disabled: false
 hidden: false
 coverage:
-  schedule: "@weekly"
+  schedule: "@daily"
   start: 2025-09-17
 exports:
   - statistics.json
