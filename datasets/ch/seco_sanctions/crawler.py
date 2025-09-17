@@ -1,19 +1,19 @@
 import re
-from itertools import product
 from datetime import datetime
-from prefixdate import parse_parts
-from typing import Dict, Literal, Optional, Tuple, List
+from itertools import product
+from typing import Dict, List, Literal, Optional, Tuple
+
 from followthemoney.types import registry
 from followthemoney.util import join_text
 from lxml.etree import _Element as Element
+from prefixdate import parse_parts
 from pydantic import BaseModel
-
 from rigour.mime.types import PLAIN
+from zavod.shed.gpt import run_typed_text_prompt
+from zavod.stateful.review import assert_all_accepted, get_review, request_review
 
 from zavod import Context, Entity
 from zavod import helpers as h
-from zavod.shed.gpt import run_typed_text_prompt
-from zavod.stateful.review import assert_all_accepted, get_review, request_review
 
 # TODO: sanctions-program full parse
 MayStr = Optional[str]
@@ -74,8 +74,8 @@ Properties = Literal[
     "position",
     "birthPlace",
     "deathDate",
-    "name",
     "gender",
+    "legalForm",
 ]
 
 
@@ -92,56 +92,89 @@ class RelatedEntity(BaseModel):
 
 
 class OtherInfo(BaseModel):
-    values: List[RelatedEntity | SimpleValue] = []
+    simple_values: List[SimpleValue] = []
+    related_entities: List[RelatedEntity] = []
     include_in_notes: bool = False
 
 
 MIN_VERSION = 1
 VERSION = 1
-
+# gpt-4o keeps extracting dissolution date from
+# > Travel ban according to article 3 paragraph 1 and financial sanctions
+# > according to article 1 do not apply until 15 March 2016.
+# and gpt-5-mini is super slow as at 2025-09-17.
+LLM_VERSION = "gpt-4o-mini"
 PROMPT = """
 The attached text is a string from the <other-information> field of an international
 financial sanctions entry about a {schema}.
 
-Extract the values that are present in the text representing related individuals
-or entities, or the simple values representing the properties indicated in the schema.
-
-If the text includes more information or context than can be represented in the
-schema, set the include_in_notes flag to True, then the full original value will
-be kept as a note.
-
-Include ONLY the values that are present in the text.
-NEVER infer, assume, or generate values that are not directly stated in the source text.
-
-Include multiple values as distinct entries in the values array.
-
-Additional rules:
+Extract simple values representing the properties described below and return in the simple_values array.
+Only include entries for properties matching the data.
+Don't make SimpleValue entries with empty values.
+Include multiple values as distinct entries in the simple_values array.
 
 - provide dates in the format YYYY-MM-DD, YYYY-MM or YYYY depending on the
   precision in the text. Use other values verbatim without changes.
-- incorporationDate and dissolutionDate are for when companies are registered or dissolved.
-- Do not reformat phone numbers.
-- positions:
-  - Only use this if the subjest is a Person.
-  - Include positions prefixed with "former", including the prefix.
-  - Don't include detail about the entity where the position is held, e.g. in
-    "Founder and leader of Jaysh Ayman, an al-Shabaab unit conducting attacks
-    and operations in Kenya and Somalia.", the position is "Founder and leader
-    of Jaysh Ayman" and set the include_in_notes flag to True.
-  - Do include a location in the position if it indicates the scope or jurisdiction
-    of the role, e.g. "Head of the District Department of Internal Affairs in
-    Moskovski District, Minsk" and "Ambassador of the Republic of Belarus to Armenia"
-  - Do include the company name if it is simply part of the role, e.g.
-    "Managing Director of OOO Bergia Group"
-- For addresses, include whatever level of detail is available, even if it's just
-  a city and/or state. e.g. in "Headquarters: Managua, Nicaragua'", use the value
-  "Managua, Nicaragua" as the address. Do extract an address if included as detail,
-  e.g. in parentheses in "Company X (Moscow, Russia)" extract "Moscow, Russia" as
-  the address. But don't set an address from e.g. a work location, e.g. don't extract
-  "Frunzensky district of the city of Minsk" or "Minsk" from "Judge of the court of
-  the Frunzensky district of the city of Minsk"
-- name: Only use this if a formal name is provided. We have a dedicated name field
-  in other fields from the source data.
+- specific properties in SimpleValue:
+  - email: For email addresses listed in the text.
+  - phone: For phone numbers listed in the text.
+  - website: For website URLs listed in the text.
+  - uscCode: Only when indicated to be a Unified Social Credit Identifier
+  - innCode: Only when indicated to be a INN number
+  - ogrnCode: Only when indicated to be a OGRN number
+  - kppCode: Only when indicated to be a KPP number
+  - imoNumber: Only when indicated to be an IMO number
+  - swiftBic: Only when indicated to be a Swift or BIC identifier
+  - taxNumber: For tax numbers that don't fit one of the more specific properties available.
+  - registrationNumber: For company registration numbers that don't fit one of the more
+    specific properties available.
+  - identityNumber: For personal identification numbers.
+  - incorporationDate and dissolutionDate are for only when companies are registered or dissolved.
+    Do not use these for other dates like travel ban periods.
+  - legalForm: e.g. Joint Stock Company - precisely as written in the text.
+  - position:
+    - Only use this if the subject is a Person.
+    - Include positions prefixed with "Former", including the prefix.
+    - Include positions like rank and committee membership.
+    - Don't include detail about the entity where the position is held, e.g. in
+      "Founder and leader of Jaysh Ayman, an al-Shabaab unit conducting attacks
+      and operations in Kenya and Somalia.", the position is "Founder and leader
+      of Jaysh Ayman" and set the include_in_notes flag to True.
+    - Do include a location in the position if it indicates the scope or jurisdiction
+      of the role, e.g. "Head of the District Department of Internal Affairs in
+      Moskovski District, Minsk" and "Ambassador of the Republic of Belarus to Armenia"
+    - Do include the company name if it is simply part of the role, e.g.
+      "Managing Director of OOO Bergia Group"
+  - address: include whatever level of detail is available, even if it's just
+    a city and/or state. e.g. in "Headquarters: Managua, Nicaragua'", use the value
+    "Managua, Nicaragua" as the address. Do extract an address if included as detail,
+    e.g. in parentheses in "Company X (Moscow, Russia)" extract "Moscow, Russia" as
+    the address. But don't set an address from e.g. a work location, e.g. don't extract
+    "Frunzensky district of the city of Minsk" or "Minsk" from "Judge of the court of
+    the Frunzensky district of the city of Minsk"
+  - country: Any country mentioned in the text associated with the subject.
+  - birthPlace: The place of birth of a Person subjest, sometimes written as POB.
+  - birthDate: The date of birth of a Person subject, sometimes written as DOB.
+
+  Extract related entities and return in the related_entities array.
+  This is e.g. for family members of the subjext if the subject is a Person.
+  Also for associated companies, e.g. parent/subsidiary companies, or company ownership.
+  Do not use this for employee/employer relationships or any other information.
+
+  - relationship_schema should only be Family for familial relationships between people,
+    otherwise use UnknownLink.
+  - related_entity_schema should only be Person, Company when it's clearly one of those,
+    otherwise use LegalEntity.
+  - relationship - use the exact string used to describe the relationship in the text,
+    otherwise leave blank.
+
+  If the text includes more information or context than can be represented in the
+  schema, set the include_in_notes flag to True, then the full original value will
+  be kept as a note.
+
+
+  Include ONLY the values that are present in the text.
+  NEVER infer, assume, or generate values that are not directly stated in the source text.
 """
 
 
@@ -303,6 +336,9 @@ def parse_identity(context: Context, entity: Entity, node: Element, places):
             context.emit(passport)
 
 
+entries = 0
+
+
 def parse_entry(context: Context, target: Element, programs, places):
     entity = context.make("LegalEntity")
     entity_ssid = target.get("ssid")
@@ -334,9 +370,12 @@ def parse_entry(context: Context, target: Element, programs, places):
         if not value:
             continue
 
+        global entries
+        entries += 1
+        if entries < 0:
+            continue
         review = get_review(context, OtherInfo, value, MIN_VERSION)
         if review is None:
-
             # Import regex-based parsing to reviews if possible
             item = None
 
@@ -373,7 +412,7 @@ def parse_entry(context: Context, target: Element, programs, places):
                 pass
 
             if item is not None:
-                extraction = OtherInfo(values=[item])
+                extraction = OtherInfo(simple_values=[item])
                 review = request_review(
                     context,
                     value,
@@ -386,7 +425,10 @@ def parse_entry(context: Context, target: Element, programs, places):
                     default_accepted=True,
                 )
             else:
-                extraction = run_typed_text_prompt(context, PROMPT, value, OtherInfo)
+                prompt = PROMPT.format(schema=entity.schema.name)
+                extraction = run_typed_text_prompt(
+                    context, prompt, value, OtherInfo, model=LLM_VERSION
+                )
                 review = request_review(
                     context,
                     value,
@@ -399,8 +441,12 @@ def parse_entry(context: Context, target: Element, programs, places):
                 )
 
             if review.accepted:
-                for extracted_value in review.extracted_data.values:
-                    entity.add(extracted_value.property, extracted_value.value)
+                for extracted_value in review.extracted_data.simple_values:
+                    entity.add(
+                        extracted_value.property,
+                        extracted_value.value,
+                        origin=LLM_VERSION,
+                    )
                 if review.extracted_data.include_in_notes:
                     entity.add("notes", h.clean_note(value))
 
