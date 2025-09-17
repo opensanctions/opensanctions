@@ -17,17 +17,6 @@ ADDRESS_SPLITS = [";", "ii) ", "iii) "]
 # Usually, the names are listed in contiguous blocks, but sometimes they're not
 # (they're interrupted by other entries).
 
-KNOWN_VALID_DISCOUNTINOUS_REFERENCES = {
-    "2940j",
-    "8155a",
-    "8155b",
-    "8164",  # 8164 is after 8164a
-    "8174a",
-    "8174",  # 8174a is the first block
-    "8183a",
-    "8183b",
-}
-
 
 def clean_date(date):
     splits = [
@@ -226,10 +215,7 @@ def crawl(context: Context):
 
             # Add suffix so that this block is treated as distinct block from
             # earlier iterations of this reference
-            if (
-                reference_seen_count > 1
-                and raw_ref not in KNOWN_VALID_DISCOUNTINOUS_REFERENCES
-            ):
+            if reference_seen_count > 1:
                 context.log.warning(
                     f"Already seen a reference block before for {reference}. Adding iteration suffix, check if {raw_ref} actually belongs to {reference}",
                     ref=reference,
