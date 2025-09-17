@@ -82,7 +82,7 @@ export async function getDb(assertSchema: boolean = true) {
     }
     const uncheckedDb = new Kysely<ReviewDatabase>({ dialect, log: ['error'] })
     if (assertSchema) {
-      assertSchemaMatchesExpected(uncheckedDb);
+      await assertSchemaMatchesExpected(uncheckedDb);
     }
     db = uncheckedDb;
   }
