@@ -7,7 +7,7 @@ from followthemoney.types import registry
 from followthemoney.util import join_text
 from lxml.etree import _Element as Element
 from prefixdate import parse_parts
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from rigour.mime.types import PLAIN
 from zavod.shed.gpt import run_typed_text_prompt
 from zavod.stateful.review import assert_all_accepted, get_review, request_review
@@ -73,7 +73,6 @@ Properties = Literal[
     "country",
     "position",
     "birthPlace",
-    "deathDate",
     "gender",
     "legalForm",
 ]
@@ -86,7 +85,6 @@ class SimpleValue(BaseModel):
 
 class RelatedEntity(BaseModel):
     relationship_schema: Literal["Family", "UnknownLink"]
-    related_entity_schema: Literal["Person", "Company", "Organization", "LegalEntity"]
     related_entity_name: List[str]
     relationship: Optional[str] = None
 
@@ -94,7 +92,10 @@ class RelatedEntity(BaseModel):
 class OtherInfo(BaseModel):
     simple_values: List[SimpleValue] = []
     related_entities: List[RelatedEntity] = []
-    include_in_notes: bool = False
+    include_in_notes: bool = Field(
+        description="If True, the original value will be included in notes.",
+        default=False,
+    )
 
 
 MIN_VERSION = 1
@@ -109,11 +110,11 @@ The attached text is a string from the <other-information> field of an internati
 financial sanctions entry about a {schema}.
 
 Extract simple values representing the properties described below and return in the simple_values array.
-Only include entries for properties matching the data.
+Only include entries for properties applicable to the data.
 Don't make SimpleValue entries with empty values.
 Include multiple values as distinct entries in the simple_values array.
 
-- specific properties in SimpleValue:
+SimpleValue properties:
   - email: For email addresses listed in the text.
   - phone: For phone numbers listed in the text.
   - website: For website URLs listed in the text.
@@ -134,10 +135,10 @@ Include multiple values as distinct entries in the simple_values array.
     - Only use this if the subject is a Person.
     - Include positions prefixed with "Former", including the prefix.
     - Include positions like rank and committee membership.
-    - Don't include detail about the entity where the position is held, e.g. in
-      "Founder and leader of Jaysh Ayman, an al-Shabaab unit conducting attacks
-      and operations in Kenya and Somalia.", the position is "Founder and leader
-      of Jaysh Ayman" and set the include_in_notes flag to True.
+    - Don't include detail about the entity where the position is held beyond its name and
+      jurisdiction, e.g. in "Founder and leader of Jaysh Ayman, an al-Shabaab unit
+      conducting attacks and operations in Kenya and Somalia.", the position is
+      "Founder and leader of Jaysh Ayman" and set the include_in_notes flag to True.
     - Do include a location in the position if it indicates the scope or jurisdiction
       of the role, e.g. "Head of the District Department of Internal Affairs in
       Moskovski District, Minsk" and "Ambassador of the Republic of Belarus to Armenia"
@@ -151,22 +152,20 @@ Include multiple values as distinct entries in the simple_values array.
     "Frunzensky district of the city of Minsk" or "Minsk" from "Judge of the court of
     the Frunzensky district of the city of Minsk"
   - country: Any country mentioned in the text associated with the subject.
-  - birthPlace: The place of birth of a Person subjest, sometimes written as POB.
+  - birthPlace: The place of birth of a Person subject, sometimes written as POB.
   - birthDate: The date of birth of a Person subject, sometimes written as DOB.
 
   Extract related entities and return in the related_entities array.
-  This is e.g. for family members of the subjext if the subject is a Person.
+  This is e.g. for named family members of the subject if the subject is a Person.
   Also for associated companies, e.g. parent/subsidiary companies, or company ownership.
   Do not use this for employee/employer relationships or any other information.
 
   - relationship_schema should only be Family for familial relationships between people,
     otherwise use UnknownLink.
-  - related_entity_schema should only be Person, Company when it's clearly one of those,
-    otherwise use LegalEntity.
   - related_entity_name is the name or names of one related entity.
     Use distinct RelatedEntity entries for each related entity.
   - relationship - use the exact string used to describe the relationship in the text,
-    otherwise leave as null.
+    otherwise leave as null - e.g. "daughter" or "subsidiary".
 
   If the text includes more information or context than can be represented in the
   schema, set the include_in_notes flag to True, then the full original value will
@@ -338,24 +337,17 @@ def parse_identity(context: Context, entity: Entity, node: Element, places):
 def make_related_entities(
     context: Context, entity: Entity, relationship: RelatedEntity
 ) -> List[Entity]:
-    other = context.make(relationship.related_entity_schema)
+    other = context.make("LegalEntity")
     other.id = context.make_id(relationship.related_entity_name)
     other.add("name", relationship.related_entity_name)
 
-    if relationship.relationship_schema == "Family":
-        role_prop = "relationship"
-        source_prop = "person"
-        target_prop = "relative"
-    else:
-        role_prop = "role"
-        source_prop = "subject"
-        target_prop = "object"
+    res = context.lookup("relations", relationship.relationship_schema)
 
     rel = context.make(relationship.relationship_schema)
     rel.id = context.make_id(entity.id, other.id, relationship.relationship)
-    rel.add(role_prop, relationship.relationship)
-    rel.add(source_prop, entity.id)
-    rel.add(target_prop, other.id)
+    rel.add(res.text, relationship.relationship)
+    rel.add(res.source, entity.id)
+    rel.add(res.target, other.id)
 
     return [rel, other]
 
