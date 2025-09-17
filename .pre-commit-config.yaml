@@ -30,3 +30,11 @@ repos:
         language: system
         exclude: '^datasets|^zavod/zavod/tests'
         args: ['--strict']
+  - repo: local
+    hooks:
+      - id: nextjs-lint
+        name: Next.js ESLint
+        entry: bash -c "cd ui && npx next lint --fix"
+        language: system
+        files: '^ui/'
+        pass_filenames_to_command: false
