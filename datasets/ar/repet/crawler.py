@@ -21,6 +21,14 @@ NAME_QUALITY = {
     "f k a": "previousName",
 }
 ALIAS_SPLITS = ["original script", ";"]
+# Regex for reference numbers
+#   ([A][-\d/ ]+(?:-\s*A?[-\d/ ]+)?) → Group 1
+#       Always starts with "A", allows dashes, digits, slashes, and spaces
+#       Optionally matches a second reference number (e.g. "- A10196/9-2018")
+#   \s+\(([^)]+)\) → Group 2
+#       Captures the country inside parentheses (e.g. "Venezuela")
+#   ([A-Za-z0-9.]+) → Group 3
+#       Captures the internal ID like "ArP.00183"
 REF_REGEX = re.compile(
     r"^([A][-\d/ ]+(?:-\s*A?[-\d/ ]+)?)\s+\(([^)]+)\)([A-Za-z0-9.]+)$"
 )
@@ -105,6 +113,7 @@ def crawl_common(context: Context, data: Dict[str, str], part: str, schema: str)
     ref_num = data.pop("REFERENCE_NUMBER")
     match = REF_REGEX.match(ref_num)
     if match:
+        # Overwiting the ref_num and extracting more structured data
         ref_num = ""
         resolution_number, country_, internal_id = match.groups()
     h.apply_dates(entity, "createdAt", submitted_on)
