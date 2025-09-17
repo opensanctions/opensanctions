@@ -200,7 +200,20 @@ lookups:
           - Step Standart Teknik Parca San Ve Tic As
           - Step Istanbul
           - Standart Teknik Parca San. Ve Tic. A.S.
-
+      - match: "IPMCE ou ITMIVT JSC ou Joint Stock Company “Institute of Precision Mechanics and Computing Equipment Named After S.A. Lebedev of the Russian Academy of Sciences” ou Institute of Precision Mechanics and Computing Equipment Named After S.A. Lebedev of the Russian Academy of Sciences autres dénominations: Aktsionernoye Obshchestvo “Institut Tochnoy Mekhaniki I Vychislitel’noy Tekhniki Imeni S.A. Lebedeva Rossiyskoy Akademii Nauk” ou Aktsionernoye Obshchestvo ITMIVT"
+        aliases:
+          - IPMCE
+          - ITMIVT JSC
+          - Joint Stock Company “Institute of Precision Mechanics and Computing Equipment Named After S.A. Lebedev of the Russian Academy of Sciences”
+          - Institute of Precision Mechanics and Computing Equipment Named After S.A. Lebedev of the Russian Academy of Sciences
+          - Aktsionernoye Obshchestvo “Institut Tochnoy Mekhaniki I Vychislitel’noy Tekhniki Imeni S.A. Lebedeva Rossiyskoy Akademii Nauk”
+          - Aktsionernoye Obshchestvo ITMIVT
+      - match: "Federal State Unitary Enterprise “RFNC-A11-Russian Research Institute of Technical Physics named after Academician E.I. Zababakhin” ou FSUE “RFNC-VNIITF named after Akadem. E.I. Zababakhina” ou RFNC-VNIITF/VNIITF"
+        aliases:
+          - Federal State Unitary Enterprise “RFNC-A11-Russian Research Institute of Technical Physics named after Academician E.I. Zababakhin”
+          - FSUE “RFNC-VNIITF named after Akadem. E.I. Zababakhina”
+          - RFNC-VNIITF
+          - VNIITF
   type.date:
     options:
       - match: 24/06/1402 (calendrier hégirien)
@@ -326,6 +339,7 @@ lookups:
           - Années 1960-1970 (âgé d'environ 50 ans)
           - avant 1964
           - 1980-1990
+          - 10/10/(année inconnue)
         value: null
   type.country:
     lowercase: true
