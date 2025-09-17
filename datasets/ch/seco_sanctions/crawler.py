@@ -1,4 +1,3 @@
-import re
 from datetime import datetime
 from itertools import product
 from typing import Dict, List, Literal, Optional, Tuple
@@ -38,19 +37,6 @@ NAME_PARTS: Dict[MayStr, MayStr] = {
     "whole-name": None,
     "other": None,
 }
-# Some metadata is dirty text in <other-information> tags
-# TODO: take in charge multiple values
-REGEX_WEBSITE = re.compile(r"Website ?: ((https?:|www\.)\S*)")
-REGEX_EMAIL = re.compile(
-    r"E-?mail( address)? ?: ([A-Za-z0-9._-]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+)"
-)
-REGEX_PHONE = re.compile(r"(Tel\.|Telephone)( number)? ?: (\+?[0-9- ()]+)")
-REGEX_INN = re.compile(r"Taxpayer [Ii]dentification [Nn]umber ?: (\d+)\.?")
-REGEX_REGNUM = re.compile(
-    r"(ОГРН/main )?([Ss]tate |Business )?[Rr]egistration number ?: (\d+)\.?"
-)
-REGEX_TAX = re.compile(r"Tax [Rr]egistration [Nn]umber ?: (\d+)\.?")
-REGEX_IMO = re.compile(r"IMO [Nn]umber ?: (\d+)\.?")
 
 PropertyName = Literal[
     "email",
@@ -445,69 +431,20 @@ def parse_entry(context: Context, target: Element, programs, places):
 
         review = get_review(context, OtherInfo, value, MIN_CRAWLER_VERSION)
         if review is None:
-            # Import regex-based parsing to reviews if possible
-            item = None
-
-            imo_num = REGEX_IMO.fullmatch(value)
-            reg_num = REGEX_REGNUM.fullmatch(value)
-            inn_match = REGEX_INN.fullmatch(value)
-            if imo_num:
-                item = SimpleValue(property="imoNumber", value=imo_num.group(1))
-            elif entity.schema.is_a("LegalEntity") and value.startswith(
-                "Date of registration"
-            ):
-                _, reg_date = value.split(":", 1)
-                item = SimpleValue(property="incorporationDate", value=reg_date.strip())
-            elif entity.schema.is_a("LegalEntity") and value.startswith(
-                "Type of entity"
-            ):
-                _, legalform = value.split(":", 1)
-                item = SimpleValue(property="legalForm", value=legalform)
-            elif entity.schema.is_a("LegalEntity") and reg_num:
-                item = SimpleValue(
-                    property="registrationNumber", value=reg_num.group(3)
-                )
-            elif inn_match:
-                item = SimpleValue(property="innCode", value=inn_match.group(1))
-            elif tax := REGEX_TAX.fullmatch(value):
-                item = SimpleValue(property="taxNumber", value=tax.group(1))
-            elif website := REGEX_WEBSITE.fullmatch(value):
-                item = SimpleValue(property="website", value=website.group(1))
-            elif email := REGEX_EMAIL.fullmatch(value):
-                item = SimpleValue(property="email", value=email.group(2))
-            elif phonenumber := REGEX_PHONE.fullmatch(value):
-                item = SimpleValue(property="phone", value=phonenumber.group(3))
-            elif value == "Registration number: ИНН":
-                pass
-
-            if item is not None:
-                extraction = OtherInfo(simple_values=[item])
-                review = request_review(
-                    context=context,
-                    key_parts=value,
-                    source_value=value,
-                    source_mime_type=PLAIN,
-                    source_label="other-information",
-                    source_url=None,
-                    orig_extraction_data=extraction,
-                    model_version=CRAWLER_VERSION,
-                    default_accepted=True,
-                )
-            else:
-                prompt = PROMPT.format(schema=entity.schema.name)
-                extraction = run_typed_text_prompt(
-                    context, prompt, value, OtherInfo, model=LLM_VERSION
-                )
-                review = request_review(
-                    context=context,
-                    key_parts=value,
-                    source_value=value,
-                    source_mime_type=PLAIN,
-                    source_label="other-information",
-                    source_url=None,
-                    orig_extraction_data=extraction,
-                    model_version=CRAWLER_VERSION,
-                )
+            prompt = PROMPT.format(schema=entity.schema.name)
+            extraction = run_typed_text_prompt(
+                context, prompt, value, OtherInfo, model=LLM_VERSION
+            )
+            review = request_review(
+                context=context,
+                key_parts=value,
+                source_value=value,
+                source_mime_type=PLAIN,
+                source_label="other-information",
+                source_url=None,
+                orig_extraction_data=extraction,
+                model_version=CRAWLER_VERSION,
+            )
 
         if review.accepted:
             for extracted_value in review.extracted_data.simple_values:
