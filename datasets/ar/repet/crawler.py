@@ -1,4 +1,5 @@
 import json
+import re
 from typing import Dict, Optional
 from rigour.mime.types import JSON
 from normality import normalize
@@ -20,6 +21,9 @@ NAME_QUALITY = {
     "f k a": "previousName",
 }
 ALIAS_SPLITS = ["original script", ";"]
+REF_REGEX = re.compile(
+    r"^([A][-\d/ ]+(?:-\s*A?[-\d/ ]+)?)\s+\(([^)]+)\)([A-Za-z0-9.]+)$"
+)
 
 
 def values(data):
@@ -98,6 +102,11 @@ def crawl_common(context: Context, data: Dict[str, str], part: str, schema: str)
     submitted_on = parse_date(data.pop("SUBMITTED_ON", None))
     listed_on = parse_date(data.pop("LISTED_ON"))
     modified_at = parse_date(data.pop("LAST_DAY_UPDATED"))
+    ref_num = data.pop("REFERENCE_NUMBER")
+    match = REF_REGEX.match(ref_num)
+    if match:
+        ref_num = ""
+        resolution_number, country_, internal_id = match.groups()
     h.apply_dates(entity, "createdAt", submitted_on)
     h.apply_dates(entity, "createdAt", listed_on)
     if modified_at != []:
@@ -109,7 +118,10 @@ def crawl_common(context: Context, data: Dict[str, str], part: str, schema: str)
     h.apply_dates(sanction, "startDate", listed_on)
     sanction.add("program", data.pop("UN_LIST_TYPE"))
     sanction.add("program", data.pop("LIST_TYPE"))
-    sanction.add("unscId", data.pop("REFERENCE_NUMBER"))
+    sanction.add("unscId", ref_num)
+    if match:
+        sanction.add("recordId", internal_id)
+        sanction.add("authorityId", resolution_number)
     sanction.add("authority", data.pop("SUBMITTED_BY", None))
     context.emit(sanction)
     return entity
