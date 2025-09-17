@@ -95,8 +95,7 @@ def crawl_old_pep_item(context: Context, country: str, lang: str, input_dict: di
 
 
 def crawl(context: Context):
-    doc = context.fetch_html(context.data_url)
-    doc.make_links_absolute(context.data_url)
+    doc = context.fetch_html(context.data_url, absolute_links=True)
 
     for country, lang, name, file_pattern in RESOURCES:
         links = doc.xpath(

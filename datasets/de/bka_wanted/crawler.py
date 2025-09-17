@@ -35,8 +35,7 @@ def crawl(context: Context):
     additional_url = f"{base_url}?additionalHitsOnly=true"
 
     for page_url in [base_url, additional_url]:
-        doc = context.fetch_html(page_url, cache_days=1)
-        doc.make_links_absolute("https://www.bka.de")
+        doc = context.fetch_html(page_url, cache_days=1, absolute_links=True)
 
         for person_node in doc.xpath('.//li[@class="js-dynamiclist-element"]//a'):
             url = person_node.get("href")

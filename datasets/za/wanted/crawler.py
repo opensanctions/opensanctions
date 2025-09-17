@@ -106,9 +106,7 @@ def crawl_person(context: Context, row: Dict[str, html.HtmlElement]):
 
 
 def crawl(context):
-    doc = context.fetch_html(context.data_url, cache_days=1)
-    doc.make_links_absolute(context.data_url)
-
+    doc = context.fetch_html(context.data_url, cache_days=1, absolute_links=True)
     tables = doc.xpath("//table")
     assert len(tables) == 1, len(tables)
     trs = tables[0].xpath(".//tr")

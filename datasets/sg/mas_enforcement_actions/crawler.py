@@ -221,8 +221,7 @@ def crawl_enforcement_action(context: Context, url: str, date: str, action_type:
 
 
 def crawl(context: Context):
-    doc = context.fetch_html(context.data_url, cache_days=7)
-    doc.make_links_absolute(context.data_url)
+    doc = context.fetch_html(context.data_url, cache_days=7, absolute_links=True)
     table = doc.xpath("//table")
     assert len(table) == 1, "Expected exactly one table in the document"
     for row in h.parse_html_table(table[0]):
