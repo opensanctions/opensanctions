@@ -1,5 +1,4 @@
 import { Model, IModelDatum } from "@opensanctions/followthemoney";
-import { unstable_cache } from "next/cache";
 
 
 const FTM_MODEL_URL = "https://data.opensanctions.org/meta/model.json";
@@ -13,11 +12,12 @@ interface IModelSpec {
   //matcher: { [key: string]: IMatcherFeature }
 }
 
-export const getModel = unstable_cache(async () => {
+// TODO(Leon Handreke): Cache this
+export async function getModel(): Promise<Model> {
     const response = await fetch(FTM_MODEL_URL, { cache: "force-cache" });
-    const modelSpec = await response.json() as any as IModelSpec;
+    const modelSpec = await response.json() as unknown as IModelSpec;
     return new Model(modelSpec.model);
-})
+}
 
 export async function getCountries(): Promise<Map<string, string>> {
     const ftmModel = await getModel();
