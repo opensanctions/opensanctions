@@ -1,0 +1,71 @@
+type: external
+title: US OFAC Press Releases
+entry_point: zavod.runner.local_enricher:enrich
+full_dataset: us_ofac_press_releases
+disabled: false
+hidden: false
+coverage:
+  schedule: "@daily"
+  start: 2025-09-17
+exports:
+  - statistics.json
+  - entities.delta.json
+load_statements: true
+ci_test: false
+summary: >
+  US OFAC press releases that provide context and details related to sanctioned entities.
+description: |
+  This dataset includes press releases from the U.S. Office of Foreign Assets 
+  Control (OFAC). They provide background, rationale, and enforcement context 
+  for sanctions actions, offering insight into the measures and the entities 
+  involved.
+publisher:
+  name: Office of Foreign Assets Control
+  acronym: OFAC
+  description: >
+    OFAC is a divison of the United States Department of the Treasury that administers
+    and enforces economic and trade sanctions based on US foreign policy and national
+    security goals against targeted foreign countries and regimes, terrorists,
+    international narcotics traffickers, those engaged in activities related to the
+    proliferation of weapons of mass destruction, and other threats to the national
+    security, foreign policy or economy of the United States.
+  country: us
+  url: https://ofac.treasury.gov/
+  official: true
+tags:
+  - juris.us
+  - issuer.west
+url: https://ofac.treasury.gov/press-releases
+
+inputs:
+  - ann_graph_topics
+  - debarment
+  - sanctions
+  - special_interest
+  - maritime
+
+config:
+  dataset: us_ofac_press_releases
+  strip_namespace: true
+  threshold: 0.7
+  algorithm: regression-v1
+  topics:
+    - sanction
+    - sanction.linked
+    - debarment
+  schemata:
+    - Person
+    - Vessel
+    - Company
+    - Organization
+    - LegalEntity
+
+# assertions:
+#   min:
+#     schema_entities:
+#       Vessel: 10
+#       Organization: 1
+#   max:
+#     schema_entities:
+#       Vessel: 100
+#       Organization: 50
