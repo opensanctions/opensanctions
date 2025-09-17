@@ -69,6 +69,7 @@ lookups:
           - ID // SSN
           - RNE
           - Documento de Identidad
+          - Cedula
         contains:
           - cédula de identidad
           - cedula de identidad
