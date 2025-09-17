@@ -171,37 +171,6 @@ lookups:
         values:
           - HArE.001
           - HArE.002
-      - match:
-          - A-4441/5-2021 (Venezuela)ArP.00162
-          - A-11699/12-2023 (Venezuela)ArP.00156
-          - A-2169/3-2023 (Venezuela)ArP.00166
-          - A-11218/12-2023 (Venezuela)ArP.00179
-          - A-4442/5-2021 (Venezuela)ArP.00178
-          - A-11822/12-2023 (Venezuela)ArP.00158
-          - A-2289/3-2023 (Venezuela)ArP.00168
-          - A-2256/3-2023 (Venezuela)ArP.00184
-          - A-4643/4-2019 (Venezuela)ArP.00165
-          - A-2284/3-2023 (Venezuela)ArP.00157
-          - A-11820/12-2023 (Venezuela)ArP.00172
-          - A-6141/7-2023 (Chile)ArP.00175
-          - A-4838/5-2017 - A10196/9-2018 (Venezuela)ArP.00183
-          - A-2255/3-2023 (Venezuela)ArP.00173
-          - A-9386/11- 2022 (Venezuela)ArP.00171
-          - A-2172/3-2023 (Venezuela)ArP.00169
-          - A-2285/3-2023 (Venezuela)ArP.00180
-          - A-11715/12-2023 (Venezuela)ArP.00182
-          - A-2178/3-2023 (Venezuela)ArP.00176
-          - A-11689/12-2023 (Venezuela)ArP.00167
-          - A-12006/12-2023 (Venezuela)ArP.00170
-          - A-2249/3-2023 (Venezuela)ArP.00177
-          - A-11691/12-2023 (Venezuela)ArP.00174
-          - A-11694-12-2023 (Venezuela)ArP.00161
-          - A-11812/12-2023 (Venezuela)ArP.00163
-          - A-11690/12 - 2023 (Venezuela)ArP.00160
-          - A11693/12 - 2023 (Venezuela)ArP.00159
-          - A-11716/12 - 2023 (Venezuela)ArP.00181
-          - A2251/3-2023 (Venezuela)ArP.00164
-        prop: authorityId
   type.string:
     lowercase: true
     options:
