@@ -10,6 +10,7 @@ import {
   sql,
 } from 'kysely'
 import { Pool } from 'pg'
+
 import { DATABASE_URI } from './constants';
 
 // Types are compile time. We want some sanity checking on the schema at runtime
@@ -81,7 +82,7 @@ export async function getDb(assertSchema: boolean = true) {
     }
     const uncheckedDb = new Kysely<ReviewDatabase>({ dialect, log: ['error'] })
     if (assertSchema) {
-      assertSchemaMatchesExpected(uncheckedDb);
+      await assertSchemaMatchesExpected(uncheckedDb);
     }
     db = uncheckedDb;
   }
@@ -110,7 +111,13 @@ async function assertSchemaMatchesExpected(db: Kysely<ReviewDatabase>) {
   }
 }
 
-export async function getDatasetStats() {
+export interface IDatasetStats {
+  dataset: string;
+  total: number;
+  unaccepted: number;
+}
+
+export async function getDatasetStats(): Promise<IDatasetStats[]> {
   // Subquery to get the latest version for each dataset
   const latestVersionSubquery = (await getDb())
     .selectFrom(tableName)
@@ -172,6 +179,7 @@ export async function getExtractionEntries(dataset: string) {
     .orderBy('review.accepted', 'asc')
     .orderBy('review.modified_at', 'asc')
     .execute();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return rows.map((row: any) => ({
     id: row.id,
     key: row.key,
@@ -215,6 +223,7 @@ export async function updateExtractionEntry({ dataset, key, accepted, extractedD
       .execute();
 
     // Insert new row, copying fields but updating accepted, extractedData, modified_at, modified_by
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { id, ...rest } = prev;
     const newRow: NewReview = {
       ...rest,
