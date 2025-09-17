@@ -10,6 +10,7 @@ import {
   sql,
 } from 'kysely'
 import { Pool } from 'pg'
+
 import { DATABASE_URI } from './constants';
 
 // Types are compile time. We want some sanity checking on the schema at runtime

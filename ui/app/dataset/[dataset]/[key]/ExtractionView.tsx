@@ -1,15 +1,15 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
-import Tabs from 'react-bootstrap/Tabs';
-import Tab from 'react-bootstrap/Tab';
+import { json } from "@codemirror/lang-json";
+import { keymap } from '@codemirror/view';
 import CodeMirror, { EditorView } from '@uiw/react-codemirror';
 import { jsonSchema } from "codemirror-json-schema";
-import { json } from "@codemirror/lang-json";
 import { Draft04 } from 'json-schema-library';
+import React, { useState, useEffect, useRef } from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Tab from 'react-bootstrap/Tab';
+import Tabs from 'react-bootstrap/Tabs';
 import Tooltip from 'react-bootstrap/Tooltip';
-import { keymap } from '@codemirror/view';
 
 
 function SaveButton({ isValid, help }: { isValid: boolean, help: string | null }) {

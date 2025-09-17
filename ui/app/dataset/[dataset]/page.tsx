@@ -1,9 +1,11 @@
-import Link from 'next/link';
-import { getExtractionEntries } from '../../../lib/db';
-import { verify } from '../../../lib/auth';
 import { headers } from 'next/headers';
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
+
 import { PageProps } from '@/lib/pageProps';
+
+import { verify } from '../../../lib/auth';
+import { getExtractionEntries } from '../../../lib/db';
 
 export default async function DatasetPage({ params }: PageProps) {
   const awaitedParams = await params;
