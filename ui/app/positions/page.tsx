@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { Col, Container, Row } from "react-bootstrap";
+import { Container } from "react-bootstrap";
 
 import { PageProps } from "@/lib/pageProps";
 
@@ -19,11 +19,7 @@ export default async function Page({searchParams}: PageProps) {
   return (
     <Container>
       <h1>{TITLE}</h1>
-      <Row>
-        <Col md={9}>
-          <PositionTagger searchParams={await searchParams || {}} />
-        </Col>
-      </Row>
+      <PositionTagger searchParams={await searchParams || {}} />
     </Container>
   );
 }

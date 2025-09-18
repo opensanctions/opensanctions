@@ -30,7 +30,7 @@ export default async function PositionTagger({ searchParams }: { searchParams: S
 
   // Filter out empty string search parameters
   const filteredSearchParams = Object.fromEntries(
-    Object.entries(searchParams).filter(([_, value]) => value !== '')
+    Object.entries(searchParams).filter(([, value]) => value !== '')
   );
 
   const positions = await getPositions(filteredSearchParams);
