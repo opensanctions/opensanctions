@@ -127,8 +127,8 @@ lookups:
     lowercase: true
     options:
       - match:
-          - related-to
-          - UnknownLink
+          - related-to  # for relationships explicit in the xml
+          - UnknownLink  # For LLM-extracted relationships
         schema: UnknownLink
         source: subject
         target: object

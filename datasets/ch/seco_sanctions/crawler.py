@@ -52,7 +52,7 @@ REGEX_REGNUM = re.compile(
 REGEX_TAX = re.compile(r"Tax [Rr]egistration [Nn]umber ?: (\d+)\.?")
 REGEX_IMO = re.compile(r"IMO [Nn]umber ?: (\d+)\.?")
 
-Properties = Literal[
+PropertyName = Literal[
     "email",
     "phone",
     "website",
@@ -80,7 +80,7 @@ Properties = Literal[
 
 
 class SimpleValue(BaseModel):
-    property: Properties
+    property: PropertyName
     value: str
 
 
@@ -99,8 +99,8 @@ class OtherInfo(BaseModel):
     )
 
 
-MIN_VERSION = 1
-VERSION = 1
+MIN_CRAWLER_VERSION = 1
+CRAWLER_VERSION = 1
 # gpt-4o keeps extracting dissolution date from
 # > Travel ban according to article 3 paragraph 1 and financial sanctions
 # > according to article 1 do not apply until 15 March 2016.
@@ -353,7 +353,7 @@ def make_related_entities(
     res = context.lookup("relations", relationship.relationship_schema)
 
     rel = context.make(relationship.relationship_schema)
-    rel.id = context.make_id(entity.id, other.id, relationship.relationship)
+    rel.id = context.make_slug(entity.id, relationship.relationship, other.id)
     rel.add(res.text, relationship.relationship)
     rel.add(res.source, entity.id)
     rel.add(res.target, other.id)
@@ -442,8 +442,7 @@ def parse_entry(context: Context, target: Element, programs, places):
         value = other.text.strip()
         if not value:
             continue
-
-        review = get_review(context, OtherInfo, value, MIN_VERSION)
+        review = get_review(context, OtherInfo, value, MIN_CRAWLER_VERSION)
         if review is None:
             # Import regex-based parsing to reviews if possible
             item = None
@@ -483,14 +482,14 @@ def parse_entry(context: Context, target: Element, programs, places):
             if item is not None:
                 extraction = OtherInfo(simple_values=[item])
                 review = request_review(
-                    context,
-                    value,
-                    value,
-                    PLAIN,
-                    "other-information",
-                    None,
-                    extraction,
-                    VERSION,
+                    context=context,
+                    key_parts=value,
+                    source_value=value,
+                    source_mime_type=PLAIN,
+                    source_label="other-information",
+                    source_url=None,
+                    orig_extraction_data=extraction,
+                    model_version=CRAWLER_VERSION,
                     default_accepted=True,
                 )
             else:
@@ -499,28 +498,44 @@ def parse_entry(context: Context, target: Element, programs, places):
                     context, prompt, value, OtherInfo, model=LLM_VERSION
                 )
                 review = request_review(
-                    context,
-                    value,
-                    value,
-                    PLAIN,
-                    "other-information",
-                    None,
-                    extraction,
-                    VERSION,
+                    context=context,
+                    key_parts=value,
+                    source_value=value,
+                    source_mime_type=PLAIN,
+                    source_label="other-information",
+                    source_url=None,
+                    orig_extraction_data=extraction,
+                    model_version=CRAWLER_VERSION,
                 )
 
         if review.accepted:
             for extracted_value in review.extracted_data.simple_values:
-                if "Date" in extracted_value.property:
-                    h.apply_date(
-                        entity, extracted_value.property, extracted_value.value
+                prop = entity.schema.get(extracted_value.property)
+                if prop is not None:
+                    if prop.type == registry.date:
+                        h.apply_date(
+                            entity, extracted_value.property, extracted_value.value
+                        )
+                        continue
+                    entity.add(
+                        extracted_value.property,
+                        extracted_value.value,
+                        origin=LLM_VERSION,
+                        original_value=value,
                     )
-                    continue
-                entity.add(
-                    extracted_value.property,
-                    extracted_value.value,
-                    origin=LLM_VERSION,
-                )
+                else:
+                    if (
+                        extracted_value.property == "imoNumber"
+                        and not entity.schema.is_a("Vessel")
+                    ):
+                        continue
+                    context.log.warning(
+                        "Unknown property for schema",
+                        property=extracted_value.property,
+                        schema=entity.schema.name,
+                        string=value,
+                        id=entity.id,
+                    )
             for relationship in review.extracted_data.related_entities:
                 related_entities.extend(
                     make_related_entities(context, entity, relationship)
