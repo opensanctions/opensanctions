@@ -16,6 +16,7 @@ publisher:
   name: U.S. Customs and Border Protection
   acronym: CBP
   official: true
+  country: us
   url: https://www.cbp.gov/
   description: |
     The CBP is a unified border agency within the Department of Homeland Security (DHS)

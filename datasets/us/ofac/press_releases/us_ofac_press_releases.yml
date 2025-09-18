@@ -4,11 +4,8 @@ prefix: ofac-pr
 load_statements: true
 ci_test: false # GPT key not available in CI
 coverage:
-  frequency: daily
+  frequency: "daily"
   start: "2025-08-21"
-deploy:
-  memory: "2000Mi"
-  memory_limit: "3000Mi"
 summary: >
   US OFAC press releases that provide context and details related to sanctioned entities.
 description: |

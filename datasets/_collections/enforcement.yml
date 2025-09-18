@@ -17,5 +17,6 @@ children:
   - us_fed_enforcements
   - us_ddtc_debarred
   - us_ddtc_enforcements
+  - us_ofac_enforcement_actions
   - us_sec_pause
   - us_fdic_failed_banks
