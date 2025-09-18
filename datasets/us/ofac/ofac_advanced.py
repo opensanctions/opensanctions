@@ -333,7 +333,22 @@ def parse_alias(
     name_prop = ALIAS_TYPES[alias_type.text]
     for name in alias.findall("DocumentedName"):
         names = defaultdict(lambda: "")
+        lang = "eng"
         for value in name.findall("DocumentedNamePart/NamePartValue"):
+            script_id = value.get("ScriptID")
+            if script_id is not None and script_id != "215":  # Latin
+                script = get_ref_element(refs, "Script", script_id)
+                script_code = script.get("ScriptCode")
+                script_lang = context.lookup_value("script.lang", script_code)
+                if lang == "eng":
+                    lang = script_lang
+                elif lang != script_lang:
+                    context.log.warning(
+                        "Conflicting name languages",
+                        name=name,
+                        lang1=lang,
+                        lang2=script_lang,
+                    )
             type_ = parts.get(value.get("NamePartGroupID"))
             names[type_] = " ".join([names[type_], value.text]).strip()
 
@@ -342,9 +357,10 @@ def parse_alias(
             full=names.pop("Entity Name", None),
             name_prop=name_prop,
             is_weak=is_weak,
+            lang=lang,
         )
-        proxy.add("name", names.pop("Vessel Name", None))
-        proxy.add("name", names.pop("Aircraft Name", None))
+        proxy.add("name", names.pop("Vessel Name", None), lang=lang)
+        proxy.add("name", names.pop("Aircraft Name", None), lang=lang)
         h.apply_name(
             proxy,
             prefix=names.pop("Nickname", None),
@@ -356,6 +372,7 @@ def parse_alias(
             patronymic=names.pop("Patronymic", None),
             is_weak=is_weak,
             name_prop=name_prop,
+            lang=lang,
         )
         context.audit_data(names)
 
