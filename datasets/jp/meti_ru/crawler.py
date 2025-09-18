@@ -48,8 +48,21 @@ def detect_script(context, text: str) -> Optional[str]:
         "Hiragana" not in scripts and "Katakana" not in scripts
     ):
         return "zho"
+    # English / Latin
+    elif dominant == "Latin":
+        return "eng"
     # Do not return a language if uncertain
     return None
+
+
+def process_aliases(context, raw_aliases: str):
+    """Split and detect script for a semicolon-separated string of aliases."""
+    result = []
+    for alias in re.split(r"、|及び|;", raw_aliases):
+        alias = alias.strip()
+        if alias:
+            result.append((alias, detect_script(context, alias)))
+    return result
 
 
 def clean_address(raw_address):
@@ -93,20 +106,14 @@ def clean_name_raw(context, name_jpn, row):
     if match:
         main_name = match.group("main").strip()
         aliases_raw = match.group("aliases") or ""
-        for alias in re.split(r"、|及び", aliases_raw):
-            alias = alias.strip()
-            if alias:
-                aliases.append((alias, detect_script(context, alias)))
+        aliases.extend(process_aliases(context, aliases_raw))
     # Check for cases that require manual processing
     if main_name == "" and not aliases:
         # Identify complex cases with certain characters
         if any(char in name_jpn for char in ["（", "、", ")", "）"]):
             main_name = row.pop("name_jpn_cleaned")
             aliases_raw = row.pop("aliases_jpn_cleaned")
-            for alias in aliases_raw.split(";"):
-                alias = alias.strip()
-                if alias:
-                    aliases.append((alias, detect_script(context, alias)))
+            aliases.extend(process_aliases(context, aliases_raw))
         else:
             # Remove leading numbers for cases with names only
             # (e.g. '4 株式会社コンペル')
@@ -115,10 +122,7 @@ def clean_name_raw(context, name_jpn, row):
             cleaned_name = row.pop("name_jpn_cleaned", "").strip()
             aliases_raw = row.pop("aliases_jpn_cleaned", "").strip()
             main_name = cleaned_name if cleaned_name else name_jpn.strip()
-            for alias in aliases_raw.split(";"):
-                alias = alias.strip()
-                if alias:
-                    aliases.append((alias, detect_script(context, alias)))
+            aliases.extend(process_aliases(context, aliases_raw))
 
     if not main_name:
         context.log.warning(
