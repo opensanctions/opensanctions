@@ -6,12 +6,15 @@ ci_test: false # GPT key not available in CI
 coverage:
   frequency: daily
   start: "2025-08-21"
+deploy:
+  memory: "2000Mi"
+  memory_limit: "3000Mi"
 summary: >
   US OFAC press releases that provide context and details related to sanctioned entities.
 description: |
-  This dataset includes press releases from the U.S. Office of Foreign Assets 
-  Control (OFAC). They provide background, rationale, and enforcement context 
-  for sanctions actions, offering insight into the measures and the entities 
+  This dataset includes press releases from the U.S. Office of Foreign Assets
+  Control (OFAC). They provide background, rationale, and enforcement context
+  for sanctions actions, offering insight into the measures and the entities
   involved.
 publisher:
   name: Office of Foreign Assets Control
