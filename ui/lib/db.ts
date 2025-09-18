@@ -356,7 +356,6 @@ export async function getPositions(filters: IPositionFilters = {}): Promise<IPos
     .selectFrom(POSITION_TABLE_NAME)
     .where('deleted_at', 'is', null);
 
-  // Apply filters (mimicking the filter_query function from router.py)
   if (entity_id !== undefined) {
     query = query.where('entity_id', '=', entity_id);
   }
@@ -364,8 +363,8 @@ export async function getPositions(filters: IPositionFilters = {}): Promise<IPos
     query = query.where('caption', '=', caption);
   }
   if (country !== undefined) {
-    // For JSON array search, we use a LIKE pattern similar to the Python version
-    query = query.where(sql`countries::text`, 'like', sql`'%"${country}"%'`);
+    // TODO(Leon Handreke): How safe is this? I don't know.
+    query = query.where(sql`countries::text`, 'like', sql`'%' || ${country} || '%'`);
   }
   if (dataset !== undefined) {
     query = query.where('dataset', '=', dataset);
