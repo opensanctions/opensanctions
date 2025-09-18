@@ -106,9 +106,9 @@ CRAWLER_VERSION = 1
 # > according to article 1 do not apply until 15 March 2016.
 # It also keenly creates lots of entries no matter how many ways I tell it not to.
 # gpt-4.1-mini was hallucinating values.
-# gpt-4o-mini was also hallucinating some values.
+# gpt-4o-mini was filling in Unknown for props not in the data.
 # gpt-5-mini is super slow as at 2025-09-17 but the quality of values seem very good.
-LLM_VERSION = "gpt-5-mini"
+LLM_VERSION = "gpt-4o-mini"
 PROMPT = """
 The attached text is a string from the other-information field of an international
 financial sanctions entry about an entity type of {schema}.
@@ -181,7 +181,7 @@ Other properties:
   - related_entity_name is the name or names of one related entity.
     Use distinct RelatedEntity entries for each related entity.
   - relationship - use the exact string used to describe the relationship in the text,
-    otherwise leave as null - e.g. "daughter" or "subsidiary".
+    otherwise leave as `null` - e.g. "daughter" or "subsidiary".
 """
 
 
@@ -442,6 +442,7 @@ def parse_entry(context: Context, target: Element, programs, places):
         value = other.text.strip()
         if not value:
             continue
+
         review = get_review(context, OtherInfo, value, MIN_CRAWLER_VERSION)
         if review is None:
             # Import regex-based parsing to reviews if possible
