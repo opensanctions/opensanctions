@@ -19,6 +19,8 @@ description: |
   having inadequate compliance programs. The enforcement actions serve as both punishment
   for violations and deterrence for others, with OFAC publicly disclosing significant cases
   to provide guidance on sanctions compliance.
+
+  This covers notices since 8 July 2016.
 publisher:
   name: Office of Foreign Assets Control
   acronym: OFAC
@@ -46,18 +48,11 @@ http:
 dates:
   formats: ["%m/%d/%Y", "%B %d, %Y"]
 
-# assertions:
-#   min:
-#     schema_entities:
-#       Address: 440
-#       Organization: 300
-#       Security: 200
-#       Person: 70
-#       Company: 4
-#   max:
-#     schema_entities:
-#       Address: 1030
-#       Organization: 720
-#       Security: 460
-#       Person: 160
-#       Company: 50
+assertions:
+  min:
+    schema_entities:
+      Company: 150
+  max:
+    schema_entities:
+      Person: 50
+      Company: 400
