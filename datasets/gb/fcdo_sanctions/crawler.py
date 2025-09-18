@@ -7,7 +7,7 @@ from zavod.helpers.xml import ElementOrTree
 
 def get_xml_link(context: Context) -> str:
     doc = context.fetch_html(context.data_url)
-    xq = ".//section[@id='documents']//a[contains(@href, 'UK_Sanctions_List.xml')]"
+    xq = ".//section[@id='documents']//a[contains(@href, 'UK-Sanctions-List.xml')]"
     for el in doc.xpath(xq):
         return el.get("href")
     raise ValueError("XML link not found")
