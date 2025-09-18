@@ -353,7 +353,7 @@ def make_related_entities(
     res = context.lookup("relations", relationship.relationship_schema)
 
     rel = context.make(relationship.relationship_schema)
-    rel.id = context.make_slug(entity.id, relationship.relationship, other.id)
+    rel.id = context.make_id(entity.id, relationship.relationship, other.id)
     rel.add(res.text, relationship.relationship)
     rel.add(res.source, entity.id)
     rel.add(res.target, other.id)
