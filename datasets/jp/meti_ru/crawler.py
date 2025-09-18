@@ -2,10 +2,12 @@ import csv
 import re
 from pathlib import Path
 from urllib.parse import urlparse
+from typing import Optional
 
 import pdfplumber
 from lxml import html
 from rigour.mime.types import CSV, PDF
+from rigour.text.scripts import get_script
 
 from zavod import Context, helpers as h
 from zavod.shed.zyte_api import fetch_resource, fetch_html
@@ -30,6 +32,24 @@ EXPECTED_HASHES = {
     "250912_list_russia_tokutei.pdf": "16a38c66fe9a05c3acbda50cdca5e93ca420eb83",
     "250912_list_daisangoku_tokutei.pdf": "1464205ea2708c0348e3a1cff5dbf79c513b672c",
 }
+
+
+def detect_script(context, text: str) -> Optional[str]:
+    """Detect dominant script in a string. Return 'jpn' or 'zho' if confident, else None."""
+    scripts = [get_script(ord(ch)) for ch in text if get_script(ord(ch))]
+    if not scripts:
+        context.log.warning(f"Could not detect script for: {text}")
+        return None
+    dominant = max(set(scripts), key=scripts.count)
+    # Only return a language if confident
+    if dominant in {"Hiragana", "Katakana"}:
+        return "jpn"
+    elif dominant == "Han" and (
+        "Hiragana" not in scripts and "Katakana" not in scripts
+    ):
+        return "zho"
+    # Do not return a language if uncertain
+    return None
 
 
 def clean_address(raw_address):
@@ -73,20 +93,20 @@ def clean_name_raw(context, name_jpn, row):
     if match:
         main_name = match.group("main").strip()
         aliases_raw = match.group("aliases") or ""
-        aliases = [
-            alias.strip()
-            for alias in re.split(r"、|及び", aliases_raw)
-            if alias.strip()
-        ]
+        for alias in re.split(r"、|及び", aliases_raw):
+            alias = alias.strip()
+            if alias:
+                aliases.append((alias, detect_script(context, alias)))
     # Check for cases that require manual processing
     if main_name == "" and not aliases:
         # Identify complex cases with certain characters
         if any(char in name_jpn for char in ["（", "、", ")", "）"]):
             main_name = row.pop("name_jpn_cleaned")
             aliases_raw = row.pop("aliases_jpn_cleaned")
-            aliases = [
-                alias.strip() for alias in aliases_raw.split(";") if alias.strip()
-            ]
+            for alias in aliases_raw.split(";"):
+                alias = alias.strip()
+                if alias:
+                    aliases.append((alias, detect_script(context, alias)))
         else:
             # Remove leading numbers for cases with names only
             # (e.g. '4 株式会社コンペル')
@@ -95,7 +115,10 @@ def clean_name_raw(context, name_jpn, row):
             cleaned_name = row.pop("name_jpn_cleaned", "").strip()
             aliases_raw = row.pop("aliases_jpn_cleaned", "").strip()
             main_name = cleaned_name if cleaned_name else name_jpn.strip()
-            aliases = [a.strip() for a in aliases_raw.split(";") if a.strip()]
+            for alias in aliases_raw.split(";"):
+                alias = alias.strip()
+                if alias:
+                    aliases.append((alias, detect_script(context, alias)))
 
     if not main_name:
         context.log.warning(
@@ -113,10 +136,10 @@ def crawl_row(context, row):
     entity = context.make("LegalEntity")
     entity.id = context.make_id(name_jpn, name_en)
     # Japanese name and alias cleanup
-    name_jpn_clean, aliases_jpn = clean_name_raw(context, name_jpn, row)
+    name_jpn_clean, aliases_jpn_zho = clean_name_raw(context, name_jpn, row)
     entity.add("name", name_jpn_clean, lang="jpn")
-    for alias in aliases_jpn:
-        entity.add("alias", alias, lang="jpn")
+    for alias, lang in aliases_jpn_zho:
+        entity.add("alias", alias, lang=lang)
     # English name and alias cleanup
     name_en_clean, aliases = clean_name_en(name_en)
     entity.add("name", name_en_clean, lang="eng")
