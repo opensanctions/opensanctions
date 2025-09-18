@@ -27,16 +27,21 @@ TRAILING_WHITESPACE_PATTERN = re.compile(r"\s+$", re.MULTILINE)
 LOCAL_PATH = Path(__file__).parent
 EXPECTED_HASHES = {
     "list_belarus_tokutei.pdf": "cd99cd520f06110ad39f354d6c961fe5c36260e3",
-    "list_russia_tokutei.pdf": "16719d740db257758b99f944e4d693797e36a686",
-    "list_daisangoku_tokutei.pdf": "c17f5f3b8c7db73177ac3ce4896aded633304c42",
+    "250912_list_russia_tokutei.pdf": "16a38c66fe9a05c3acbda50cdca5e93ca420eb83",
+    "250912_list_daisangoku_tokutei.pdf": "1464205ea2708c0348e3a1cff5dbf79c513b672c",
 }
 
 
 def clean_address(raw_address):
     # Remove the 'location' "所在地：" from the start of the string
-    cleaned_address = re.sub(r"^所在地：", "", raw_address).strip()
-    cleaned_address = re.sub(r"^所在地:", "", cleaned_address).strip()
-    return cleaned_address
+    cleaned = re.sub(r"^所在地[:：]", "", raw_address).strip()
+
+    # Split into parts by common delimiters
+    if any(d in cleaned for d in (" and ", ";")):
+        parts = h.multi_split(cleaned, [" and ", ";"])
+        return [p.strip(" ,;") for p in parts if p.strip()]
+
+    return cleaned
 
 
 def clean_name_en(data_string):
@@ -86,7 +91,11 @@ def clean_name_raw(context, name_jpn, row):
             # Remove leading numbers for cases with names only
             # (e.g. '4 株式会社コンペル')
             name_jpn = re.sub(r"^\d+\s*", "", name_jpn)
-            main_name = name_jpn
+            # Use cleaned fields if available
+            cleaned_name = row.pop("name_jpn_cleaned", "").strip()
+            aliases_raw = row.pop("aliases_jpn_cleaned", "").strip()
+            main_name = cleaned_name if cleaned_name else name_jpn.strip()
+            aliases = [a.strip() for a in aliases_raw.split(";") if a.strip()]
 
     if not main_name:
         context.log.warning(
@@ -123,6 +132,7 @@ def crawl_row(context, row):
     sanction = h.make_sanction(context, entity)
     sanction.add("program", row.pop("program"))
     h.apply_date(sanction, "listingDate", row.pop("designated_date"))
+    h.apply_date(sanction, "modifiedAt", row.pop("last_updated"))
 
     context.emit(entity)
     context.emit(sanction)
@@ -149,10 +159,8 @@ def crawl(context: Context):
     divs = doc.xpath(divs_xpath)
     assert len(divs) == 1, len(divs)
     # Check hash of the content part of the page
-    h.assert_dom_hash(divs[0], "4aad6cb5239dc452fff0a697d49684aa75eb2901")
-    pdf_xpath = (
-        ".//a[contains(@href, '.pdf') and contains(@href, '17_russia/list')]/@href"
-    )
+    h.assert_dom_hash(divs[0], "982832a856dfe254b6282966ec96cfb58d9464aa")
+    pdf_xpath = ".//a[contains(@href, '.pdf') and contains(@href, 'export/17_russia/') and contains(@href, 'tokutei')]/@href"
     pdf_urls = divs[0].xpath(pdf_xpath)
     assert len(pdf_urls) == 3, "Expected exactly 3 PDFs"
 
