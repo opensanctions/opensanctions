@@ -7,17 +7,18 @@ import { ServerSearchParams } from "@/lib/pageProps";
 interface PositionTaggerFormProps {
   searchParams: ServerSearchParams;
   countries: Map<string, string>;
+  datasets: string[];
 }
 
 function submitForm(e: React.ChangeEvent<HTMLSelectElement>) {
   e.target.form?.submit();
 }
 
-export default function PositionTaggerForm({ searchParams, countries }: PositionTaggerFormProps) {
+export default function PositionTaggerForm({ searchParams, countries, datasets }: PositionTaggerFormProps) {
   return (
     <Form className="mb-4" method="get">
       <Row>
-        <Col md={6}>
+        <Col md={4}>
           <input
             name="q"
             type="text"
@@ -26,7 +27,7 @@ export default function PositionTaggerForm({ searchParams, countries }: Position
             className="form-control"
           />
         </Col>
-        <Col md={3}>
+        <Col md={2}>
           <Form.Select name="country" defaultValue={searchParams.country || ""} onChange={submitForm}>
             <option value="">Any country</option>
             {Array.from(countries.entries()).map(([code, name]) => {
@@ -34,7 +35,15 @@ export default function PositionTaggerForm({ searchParams, countries }: Position
             })}
           </Form.Select>
         </Col>
-        <Col md={3}>
+        <Col md={2}>
+          <Form.Select name="dataset" defaultValue={searchParams.dataset || ""} onChange={submitForm}>
+            <option value="">Any dataset</option>
+            {datasets.map((dataset) => {
+              return <option key={dataset} value={dataset}>{dataset}</option>
+            })}
+          </Form.Select>
+        </Col>
+        <Col md={2}>
           <Form.Select name="is_pep" defaultValue={searchParams.is_pep || ""} onChange={submitForm}>
             <option value="">Any PEP status</option>
             <option value="true">PEP</option>

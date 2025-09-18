@@ -96,6 +96,7 @@ export default function PositionTaggerRow({ countries, position }: PositionTagge
         {error && <span className="text-danger">Error saving</span>}
       </td>
       <td>{countryLabels.join(", ")}</td>
+      <td>{positionData.dataset}</td>
       <td>
         <Form.Check
           name="is_pep"

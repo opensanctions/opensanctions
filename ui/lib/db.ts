@@ -337,6 +337,20 @@ export interface IPositionListResponse {
   results: Position[];
 }
 
+export async function getPositionsDatasets(): Promise<string[]> {
+  const db = await getDb();
+
+  const rows = await db
+    .selectFrom(POSITION_TABLE_NAME)
+    .select('dataset')
+    .where('deleted_at', 'is', null)
+    .distinct()
+    .orderBy('dataset', 'asc')
+    .execute();
+
+  return rows.map(row => row.dataset);
+}
+
 export async function getPositions(filters: IPositionFilters = {}): Promise<IPositionListResponse> {
   const {
     dataset,
@@ -442,8 +456,8 @@ export async function softDeleteAndCreatePosition({ entityId, positionUpdate, mo
         ...updatedData,
         // NOTE(Leon Handreke): I don't know how else to make it work than to stringify
         // the lists manually.
-        countries: JSON.stringify(updatedData.countries),
-        topics: JSON.stringify(updatedData.topics),
+        countries: JSON.stringify(updatedData.countries) as unknown as string[],
+        topics: JSON.stringify(updatedData.topics) as unknown as string[],
       })
       .returningAll()
       .executeTakeFirst();
