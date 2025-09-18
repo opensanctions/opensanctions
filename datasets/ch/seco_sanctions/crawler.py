@@ -73,6 +73,7 @@ Properties = Literal[
     "country",
     "position",
     "birthPlace",
+    "birthDate",
     "gender",
     "legalForm",
 ]
@@ -103,57 +104,72 @@ VERSION = 1
 # gpt-4o keeps extracting dissolution date from
 # > Travel ban according to article 3 paragraph 1 and financial sanctions
 # > according to article 1 do not apply until 15 March 2016.
-# and gpt-5-mini is super slow as at 2025-09-17.
-LLM_VERSION = "gpt-4o-mini"
+# It also keenly creates lots of entries no matter how many ways I tell it not to.
+# gpt-4.1-mini was hallucinating values.
+# gpt-4o-mini was also hallucinating some values.
+# gpt-5-mini is super slow as at 2025-09-17 but the quality of values seem very good.
+LLM_VERSION = "gpt-5-mini"
 PROMPT = """
-The attached text is a string from the <other-information> field of an international
-financial sanctions entry about a {schema}.
+The attached text is a string from the other-information field of an international
+financial sanctions entry about an entity type of {schema}.
 
-Extract simple values representing the properties described below and return in the simple_values array.
+We will extract simple values and associated or related persons, companies,
+organisations, or legal entities of unclear type.
+
+Include ONLY the values that are present in the text.
+NEVER infer, assume, or generate values that are not directly stated in the source text.
+
+If we don't extract all the information in the text to structured data, set `include_in_notes` to `true`.
+
+Extract simple values representing the properties described below and return in
+the simple_values array.
+In most cases, a string will correspond to zero or one value for one property,
+but in some cases it may contain more.
 Only include entries for properties applicable to the data.
-Don't make SimpleValue entries with empty values.
-Include multiple values as distinct entries in the simple_values array.
+NEVER make SimpleValue entries with empty/blank/unknown/not applicable values, or make placeholder entries.
+Include multiple values as distinct entries in the simple_values array rather than
+a single entry with comma-separated values.
 
 SimpleValue properties:
+
+For dates, include only as much precision as is in the data - just year or YYYY-MM is fine.
+
+Only when indicated to be the following kind of identifier:
+  - uscCode: Unified Social Credit
+  - innCode: INN number
+  - ogrnCode: OGRN number
+  - kppCode: KPP number
+  - imoNumber: IMO number for a vessel or company
+  - swiftBic: Swift or BIC identifier
+
+Only when indicated to be this kind of identifier and not one of the above more specific types:
+  - taxNumber: Tax number
+  - registrationNumber: Company registration number
+  - idNumber: personal identification numbers
+
+Other properties:
   - email: For email addresses listed in the text.
   - phone: For phone numbers listed in the text.
   - website: For website URLs listed in the text.
-  - uscCode: Only when indicated to be a Unified Social Credit Identifier
-  - innCode: Only when indicated to be a INN number
-  - ogrnCode: Only when indicated to be a OGRN number
-  - kppCode: Only when indicated to be a KPP number
-  - imoNumber: Only when indicated to be an IMO number
-  - swiftBic: Only when indicated to be a Swift or BIC identifier
-  - taxNumber: For tax numbers that don't fit one of the more specific properties available.
-  - registrationNumber: For company registration numbers that don't fit one of the more
-    specific properties available.
-  - idNumber: For personal identification numbers.
-  - incorporationDate and dissolutionDate are for only when companies are registered or dissolved.
-    Do not use these for other dates like travel ban periods.
+  - incorporationDate and dissolutionDate are ONLY for company registration or dissolution.
+    Do NOT use these for other dates like travel ban periods.
   - legalForm: e.g. Joint Stock Company - precisely as written in the text.
-  - position:
-    - Only use this if the subject is a Person.
-    - Include positions prefixed with "Former", including the prefix.
-    - Include positions like rank and committee membership.
-    - Don't include detail about the entity where the position is held beyond its name and
-      jurisdiction, e.g. in "Founder and leader of Jaysh Ayman, an al-Shabaab unit
-      conducting attacks and operations in Kenya and Somalia.", the position is
-      "Founder and leader of Jaysh Ayman" and set the include_in_notes flag to True.
-    - Do include a location in the position if it indicates the scope or jurisdiction
-      of the role, e.g. "Head of the District Department of Internal Affairs in
-      Moskovski District, Minsk" and "Ambassador of the Republic of Belarus to Armenia"
-    - Do include the company name if it is simply part of the role, e.g.
-      "Managing Director of OOO Bergia Group"
-  - address: include whatever level of detail is available, even if it's just
-    a city and/or state. e.g. in "Headquarters: Managua, Nicaragua'", use the value
-    "Managua, Nicaragua" as the address. Do extract an address if included as detail,
-    e.g. in parentheses in "Company X (Moscow, Russia)" extract "Moscow, Russia" as
-    the address. But don't set an address from e.g. a work location, e.g. don't extract
-    "Frunzensky district of the city of Minsk" or "Minsk" from "Judge of the court of
-    the Frunzensky district of the city of Minsk"
+  - address: include whatever level of geographic detail is available, even if it's just
+    a city and/or state. For example, if a city and state is included in parentheses
+    like in "Company X (Moscow, Russia)" extract "Moscow, Russia" as the address.
   - country: Any country mentioned in the text associated with the subject.
-  - birthPlace: The place of birth of a Person subject, sometimes written as POB.
-  - birthDate: The date of birth of a Person subject, sometimes written as DOB.
+
+  Properties only to be used when the subject entity is a Person:
+    - birthPlace: Place of birth, sometimes written as POB.
+    - birthDate: Date of birth of a Person subject, sometimes written as DOB.
+      If a range is given, create one entry for the start, and one for the end.
+    - position:
+      - Include positions prefixed with "Former", including the prefix.
+      - Include positions like rank and committee membership.
+      - Don't include detail about the entity where the position is held beyond
+        its name and geographic scope or jurisdiction
+      - Do include the company name in the position if it is simply part of the role,
+        e.g. "Managing Director of OOO Bergia Group"
 
   Extract related entities and return in the related_entities array.
   This is e.g. for named family members of the subject if the subject is a Person.
@@ -166,13 +182,6 @@ SimpleValue properties:
     Use distinct RelatedEntity entries for each related entity.
   - relationship - use the exact string used to describe the relationship in the text,
     otherwise leave as null - e.g. "daughter" or "subsidiary".
-
-  If the text includes more information or context than can be represented in the
-  schema, set the include_in_notes flag to True, then the full original value will
-  be kept as a note.
-
-  Include ONLY the values that are present in the text.
-  NEVER infer, assume, or generate values that are not directly stated in the source text.
 """
 
 
