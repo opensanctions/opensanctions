@@ -60,7 +60,7 @@ export default async function EntryPage({ params }: PageProps) {
             <h2 className="h5 text-break d-flex">Extracted data</h2>
 
             <ExtractionView
-              rawData={entry.orig_extraction_data}
+              rawData={entry.original_extraction}
               extractedData={entry.extracted_data}
               schema={entry.extraction_schema}
               //schemaNode={schemaNode}

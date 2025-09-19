@@ -1,3 +1,4 @@
+from abc import ABC
 from datetime import datetime, timezone
 from hashlib import sha1
 from typing import Any, Dict, Generic, List, Optional, Type, TypeVar
@@ -7,17 +8,23 @@ from normality import slugify
 from pydantic import BaseModel, JsonValue, PrivateAttr
 from pydantic.json_schema import GenerateJsonSchema, JsonSchemaMode
 from pydantic_core import CoreSchema
+from rigour.mime.types import HTML, PLAIN
+from rigour.text import text_hash
 from sqlalchemy import func, insert, not_, select, update
 from sqlalchemy.engine import Connection
 from sqlalchemy.sql import Select
 import orjson
+from lxml.html import HtmlElement, fromstring, tostring
 
 from zavod.context import Context
 from zavod.stateful.model import review_table
+from zavod import helpers as h
 
 log = getLogger(__name__)
 
 ModelType = TypeVar("ModelType", bound=BaseModel)
+
+MODIFIED_BY_CRAWLER = "zavod"
 
 
 class SchemaGenerator(GenerateJsonSchema):
@@ -37,29 +44,47 @@ class Review(BaseModel, Generic[ModelType]):
 
     id: Optional[int] = None
     key: str
+    """A slug derived from some information from the source that uniquely and
+    consistently identifies the review within the dataset. For an enforcement action,
+    that might be an action reference number or publication url (for lack of a consistent identifier).
+    For a string of names that rarely changes, that string itself might work."""
     dataset: str
     extraction_schema: JsonValue
     source_value: str
+    """The value of the original text, or a url to e.g. an archived image from
+    which the data was extracted."""
     source_mime_type: str
+    """The mime type of the source value. Useful to know how to display
+    the source value to the reviewer."""
     source_label: str
-    source_url: Optional[str]
+    """Used to indicate the context of the source value to the reviewer,
+    e.g. "Banking Organization field in CSV" or "Screenshot of PDF page"."""
+    source_url: Optional[str] = None
     data_model: Type[ModelType]
-    model_version: int
-    _orig_extraction_data: JsonValue = PrivateAttr()
+    crawler_version: int
+    _original_extraction: JsonValue = PrivateAttr()
+    """Only to be edited by the crawler"""
+    origin: Optional[str] = None
     _extracted_data: JsonValue = PrivateAttr()
+    """Editable by the reviewer"""
     accepted: bool
     last_seen_version: str
+    """The crawl version that last saw this review key"""
     modified_at: datetime
     modified_by: str
     deleted_at: Optional[datetime] = None
 
-    @property
-    def orig_extraction_data(self) -> ModelType:
-        return self.data_model.model_validate(self._orig_extraction_data)
+    # Lazily validating the pydantic model fields lets us populate the Review
+    # and check self.crawler_version before validating the data, which is useful
+    # for breaking changes.
 
-    @orig_extraction_data.setter
-    def orig_extraction_data(self, value: ModelType) -> None:
-        self._orig_extraction_data = value.model_dump()
+    @property
+    def original_extraction(self) -> ModelType:
+        return self.data_model.model_validate(self._original_extraction)
+
+    @original_extraction.setter
+    def original_extraction(self, value: ModelType) -> None:
+        self._original_extraction = value.model_dump()
 
     @property
     def extracted_data(self) -> ModelType:
@@ -71,10 +96,10 @@ class Review(BaseModel, Generic[ModelType]):
 
     def __init__(self, **data):  # type: ignore
         super().__init__(**data)
-        if "_orig_extraction_data" in data:
-            self._orig_extraction_data = data.pop("_orig_extraction_data")
+        if "_original_extraction" in data:
+            self._original_extraction = data.pop("_original_extraction")
         else:
-            self._orig_extraction_data = data.pop("orig_extraction_data").model_dump()
+            self._original_extraction = data.pop("original_extraction").model_dump()
         if "_extracted_data" in data:
             self._extracted_data = data.pop("_extracted_data")
         else:
@@ -93,7 +118,7 @@ class Review(BaseModel, Generic[ModelType]):
         if rows == []:
             return None
         review_data = dict(rows[0]._mapping)
-        review_data["_orig_extraction_data"] = review_data.pop("orig_extraction_data")
+        review_data["_original_extraction"] = review_data.pop("original_extraction")
         review_data["_extracted_data"] = review_data.pop("extracted_data")
         review_data["data_model"] = data_model
         review = cls.model_validate(review_data)
@@ -110,40 +135,43 @@ class Review(BaseModel, Generic[ModelType]):
         )
         return cls.load(conn, data_model, select_stmt)
 
-    def save(self, conn: Connection) -> None:
-        if self.id:
-            conn.execute(
+    def save(self, conn: Connection, new_revision: bool) -> None:
+        values = {
+            "key": self.key,
+            "dataset": self.dataset,
+            "extraction_schema": self.extraction_schema,
+            "source_value": self.source_value,
+            "source_mime_type": self.source_mime_type,
+            "source_label": self.source_label,
+            "source_url": self.source_url,
+            "crawler_version": self.crawler_version,
+            "original_extraction": self._original_extraction,
+            "origin": self.origin,
+            "extracted_data": self._extracted_data,
+            "accepted": self.accepted,
+            "last_seen_version": self.last_seen_version,
+            "modified_at": self.modified_at,
+            "modified_by": self.modified_by,
+        }
+        if new_revision:
+            if self.id:
+                conn.execute(
+                    update(review_table)
+                    .where(review_table.c.id == self.id)
+                    .values(deleted_at=datetime.now(timezone.utc))
+                )
+            ins = insert(review_table).values(**values)
+            result = conn.execute(ins)
+            assert result.inserted_primary_key is not None
+            self.id = result.inserted_primary_key[0]
+        else:
+            assert self.id is not None
+            upd = (
                 update(review_table)
                 .where(review_table.c.id == self.id)
-                .values(deleted_at=datetime.now(timezone.utc))
+                .values(**values)
             )
-        ins = insert(review_table).values(
-            key=self.key,
-            dataset=self.dataset,
-            extraction_schema=self.extraction_schema,
-            source_value=self.source_value,
-            source_mime_type=self.source_mime_type,
-            source_label=self.source_label,
-            source_url=self.source_url,
-            model_version=self.model_version,
-            orig_extraction_data=self._orig_extraction_data,
-            extracted_data=self._extracted_data,
-            accepted=self.accepted,
-            last_seen_version=self.last_seen_version,
-            modified_at=self.modified_at,
-            modified_by=self.modified_by,
-        )
-        conn.execute(ins)
-
-    def update_version(self, conn: Connection, version_id: str) -> None:
-        """Update the last_seen_version without adding a historical row."""
-        assert self.id is not None
-        self.last_seen_version = version_id
-        conn.execute(
-            update(review_table)
-            .where(review_table.c.id == self.id)
-            .values(last_seen_version=self.last_seen_version)
-        )
+            result = conn.execute(upd)
 
     @classmethod
     def count_unaccepted(cls, conn: Connection, dataset: str, version_id: str) -> int:
@@ -153,6 +181,84 @@ class Review(BaseModel, Generic[ModelType]):
             not_(review_table.c.accepted),
         )
         return conn.execute(select_stmt).scalar_one()
+
+
+class SourceValue(ABC):
+    """
+    A container for a value that can be serialized for storage and compared in
+    a way that detects changes that justify re-extraction and and potentially
+    re-review.
+    """
+
+    key_parts: str | List[str]
+    """The key parts will be slugified and shorted with a hash of all the
+    parts if the slug would be too long."""
+    mime_type: str
+    label: str
+    url: Optional[str]
+    value_string: str
+
+    def matches(self, review: Review[ModelType]) -> bool:
+        raise NotImplementedError
+
+
+class TextSourceValue(SourceValue):
+    def __init__(
+        self,
+        key_parts: str | List[str],
+        label: str,
+        text: str,
+        url: Optional[str],
+    ):
+        """
+        Args:
+            key_parts: Information from the source that uniquely and
+                consistently identifies the review within the dataset. For a string
+                of names that rarely changes, that string itself might work.
+        """
+        self.key_parts = key_parts
+        self.mime_type = PLAIN
+        self.label = label
+        self.url = url
+        self.value_string = text
+
+    def matches(self, review: Review[ModelType]) -> bool:
+        assert review.source_mime_type == PLAIN, review.source_mime_type
+        return self.value_string == review.source_value
+
+
+class HtmlSourceValue(SourceValue):
+    element: HtmlElement
+
+    def __init__(
+        self,
+        key_parts: str | List[str],
+        label: str,
+        element: HtmlElement,
+        url: str,
+    ):
+        """
+        Sets `value_string` as the serialized HTML of the element.
+
+        Args:
+            key_parts: Information from the source that uniquely and
+                consistently identifies the review within the dataset. For an
+                enforcement action, that might be an action reference number or
+                publication url (for lack of a consistent identifier).
+        """
+        self.key_parts = key_parts
+        self.mime_type = HTML
+        self.label = label
+        self.url = url
+        self.value_string = tostring(element, pretty_print=True, encoding="unicode")
+        self.element = element
+
+    def matches(self, review: Review[ModelType]) -> bool:
+        assert review.source_mime_type == HTML, review.source_mime_type
+        seen_element = fromstring(review.source_value)
+        return h.html.element_text_hash(seen_element) == h.html.element_text_hash(
+            self.element
+        )
 
 
 def review_key(parts: str | List[str]) -> str:
@@ -170,130 +276,126 @@ def review_key(parts: str | List[str]) -> str:
         return f"{slug[:80]}-{hash[:10]}"
 
 
-def request_review(
+def review_extraction(
     context: Context,
-    key_parts: str | List[str],
-    source_value: str,
-    source_mime_type: str,
-    source_label: str,
-    source_url: Optional[str],
-    orig_extraction_data: ModelType,
-    model_version: int,
+    crawler_version: int,
+    source_value: SourceValue,
+    original_extraction: ModelType,
+    origin: str,
     default_accepted: bool = False,
 ) -> Review[ModelType]:
     """
-    Add automatically extracted data for review and
-    return extracted data if it's marked as accepted.
+    Ensures a Review exists for the given key to allow human review of automated
+    data extraction from a source value.
+
+    - If it's new, `extracted_data` will default to `original_extraction` and
+      `accepted` to `default_accepted`.
+    - `last_seen_version` is always updated to the current crawl version.
+    - If it's not accepted yet, `original_extraction` and `extracted_data` will be updated.
+    - If `source_value` AND the `original_extraction` have changed, they
+      will be updated and acceptance status will be reset to `default_accepted`.
+    - Updating `crawler_version` resets `extraction_data` and `acceptance` status
+      as well as updating `original_extraction` and `extraction_schema`.
 
     Args:
         context: The runner context with dataset metadata.
-        key_parts: The key parts will be slugified and shorted with a hash of all the
-            parts if the slug would be too long.
-
-            Should be unique within the dataset, and as consistent as possible between runs.
-        source_value: The value of the original text, or a url to an archived original
-             to be used as evidence by the reviewer and for provenance if we're challenged.
-        source_mime_type: The mime type of the source value. Useful to know how to display
-            the source value to the reviewer.
-        source_label: Used to indicate the context of the source value to the reviewer,
-             e.g. "Banking Organization field in CSV" or "Screenshot of PDF page"
-        source_url: The url where source_value was fetched from.
-        orig_extraction_data: An instance of a pydantic model of data extracted
-             from the source. Any reviewer changes to the data will be validated against
-             this model.
-        model_version: The version of the data model used to extract the data. Useful to determine
-            whether data should be re-extracted when breaking model changes are made.
-        default_accepted: Whether the data should be marked as accepted by default.
+        crawler_version: A version number a crawler can use as a checkpoint for changes
+            requiring re-extraction and/or re-review.
+            Useful e.g. when breaking model changes are made.
+        source_value: The source value for the extracted data.
+        original_extraction: An instance of a pydantic model of data extracted
+            from the source. Any reviewer changes to the data will be validated against
+            this model. Initially `Review.extracted_data` will be set to this value.
+            Reviewer edits will then be stored in `Review.extracted_data` with
+            `Review.original_extraction` remaining as the original.
+        origin: A short string indicating the origin of the extraction, e.g. the
+            model name or "lookups" if it's backfilled from datapatches lookups.
+        default_accepted: Whether the data should be marked as accepted on creation or reset.
     """
-    key_slug = review_key(key_parts)
+    key_slug = review_key(source_value.key_parts)
     assert key_slug is not None
-    dataset = context.dataset.name
-    schema = type(orig_extraction_data).model_json_schema(
-        schema_generator=SchemaGenerator
-    )
+
+    data_model = type(original_extraction)
+    schema = data_model.model_json_schema(schema_generator=SchemaGenerator)
     now = datetime.now(timezone.utc)
-    review = Review.by_key(context.conn, type(orig_extraction_data), dataset, key_slug)
+
+    review = Review.by_key(
+        context.conn, data_model, dataset=context.dataset.name, key=key_slug
+    )
+    save_new_revision = False
     if review is None:
-        # First insert
-        context.log.debug("Requesting review", key=key_slug)
+        context.log.debug("Creating new review", key=key_slug)
         review = Review(
+            dataset=context.dataset.name,
             key=key_slug,
-            dataset=dataset,
-            extraction_schema=schema,
-            source_value=source_value,
-            source_mime_type=source_mime_type,
-            source_label=source_label,
-            source_url=source_url,
-            data_model=type(orig_extraction_data),
-            model_version=model_version,
-            orig_extraction_data=orig_extraction_data,
-            extracted_data=orig_extraction_data,
+            source_mime_type=source_value.mime_type,
+            source_label=source_value.label,
+            source_url=source_value.url,
             accepted=default_accepted,
+            extraction_schema=schema,
+            source_value=source_value.value_string,
+            data_model=data_model,
+            original_extraction=original_extraction,
+            origin=origin,
+            extracted_data=original_extraction,
+            crawler_version=crawler_version,
             last_seen_version=context.version.id,
             modified_at=now,
-            modified_by="zavod",
-        )  # type: ignore
-        review.save(context.conn)
-    # We're re-requesting review - likely because the model version > min_model_version.
-    # Mark old row as deleted and insert new row
-    else:
-        context.log.debug("Re-requesting review", key=key_slug)
-        review.extraction_schema = schema
-        review.source_value = source_value
-        review.source_mime_type = source_mime_type
-        review.source_label = source_label
-        review.source_url = source_url
-        review.model_version = model_version
-        review.orig_extraction_data = orig_extraction_data
-        review.extracted_data = orig_extraction_data
-        review.accepted = default_accepted
-        review.last_seen_version = context.version.id
-        review.modified_at = now
-        review.modified_by = "zavod"
-        review.save(context.conn)
-    return review
-
-
-def get_review(
-    context: Context,
-    data_model: Type[ModelType],
-    key_parts: str | List[str],
-    min_model_version: int,
-) -> Optional[Review[ModelType]]:
-    """
-    Get a review for a given key if it exists and its model is up to date.
-    Returned reviews will have had their last_seen_version updated to the current crawl version.
-
-    Args:
-        context: The runner context with dataset metadata.
-        data_model: The pydantic data model class used to extract the data.
-        key_parts: The key parts will be slugified and shorted if needed consistently
-            with the key generated by `request_review`.
-        min_model_version: The minimum model version that the review is valid for.
-            If the review is older than this version, None is returned.
-    """
-    key_slug = review_key(key_parts)
-    assert key_slug is not None
-    review = Review[ModelType].by_key(
-        context.conn, data_model, context.dataset.name, key_slug
-    )
-    if review is None:
-        context.log.debug("Review not found", key=key_slug)
-        return None
-    if review.model_version < min_model_version:
-        context.log.debug(
-            "Review model version is too old",
-            key=key_slug,
-            min_model_version=min_model_version,
-            model_version=review.model_version,
+            modified_by=MODIFIED_BY_CRAWLER,
         )
-        return None
-    context.log.debug("Review found, updating last_seen_version", key=key_slug)
-    review.update_version(context.conn, context.version.id)
+        save_new_revision = True
+    else:
+        review.last_seen_version = context.version.id
+
+        crawler_version_changed = review.crawler_version < crawler_version
+        # Don't try to read (and thus validate) the extracted data if the crawler
+        # version changed. We bump that when it's backward incompatible.
+        if crawler_version_changed or (
+            not source_value.matches(review)
+            and (
+                model_hash(original_extraction)
+                != model_hash(review.original_extraction)
+            )
+        ):
+            context.log.debug(
+                "Crawler version changed. Resetting review.",
+                key=key_slug,
+                old=review.crawler_version,
+                new=crawler_version,
+            )
+            # If the crawler version changed, we want to update it.
+            # This is useful for breaking changes in the extraction model.
+            # If the source and also the automated extraction changed,
+            # we also want to reset.
+            review.crawler_version = crawler_version
+            review.data_model = data_model
+            review.extraction_schema = schema
+            review.original_extraction = original_extraction
+            review.origin = origin
+            review.extracted_data = original_extraction
+            review.accepted = default_accepted
+            save_new_revision = True
+        elif not review.accepted and (
+            model_hash(original_extraction) != model_hash(review.original_extraction)
+        ):
+            context.log.debug("Extraction changed for unaccepted review.", key=key_slug)
+            # If we haven't accepted this yet and the extraction changed, we want the
+            # change regardless of whether the source changed since the prompt or the
+            # model might be better.
+            review.original_extraction = original_extraction
+            # Resetting extracted_data to original_extraction here loses unaccepted edits
+            # but prompt improvements happen more often than unaccepted edits.
+            review.extracted_data = original_extraction
+            save_new_revision = True
+
+        if save_new_revision:
+            review.modified_at = now
+            review.modified_by = MODIFIED_BY_CRAWLER
+    review.save(context.conn, new_revision=save_new_revision)
     return review
 
 
-def assert_all_accepted(context: Context, raise_on_unaccepted: bool = True) -> None:
+def assert_all_accepted(context: Context, *, raise_on_unaccepted: bool = True) -> None:
     """
     Raise an exception or warning with the number of unaccepted items if any extraction
     entries for the current dataset and version are not accepted yet.
@@ -344,4 +446,4 @@ def model_hash(data: BaseModel) -> str:
     sorted_data = sort_arrays_in_value(raw_data_dump)
     # Sort dictionary keys and convert to orjson
     raw_data_json = orjson.dumps(sorted_data, option=orjson.OPT_SORT_KEYS)
-    return sha1(raw_data_json).hexdigest()
+    return text_hash(raw_data_json.decode("utf-8"))
