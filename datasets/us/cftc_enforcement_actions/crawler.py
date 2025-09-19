@@ -1,20 +1,21 @@
 from typing import Optional, List, Literal
 from pydantic import BaseModel, Field
 import re
+
+from rigour.mime.types import HTML
 from zavod.entity import Entity
 from zavod.shed import enforcements
 
-from lxml.html import HtmlElement, fromstring, tostring
+from lxml.html import HtmlElement, tostring
 
 from zavod.context import Context
 from zavod import helpers as h
 from zavod.shed.gpt import DEFAULT_MODEL, run_typed_text_prompt
 from zavod.stateful.review import (
-    Review,
     assert_all_accepted,
     request_review,
     get_review,
-    model_hash,
+    source_html_matches,
 )
 
 Schema = Literal["Person", "Company", "LegalEntity"]
@@ -28,13 +29,9 @@ Status = Literal[
     "Other",
 ]
 
-MODEL_VERSION = 1
-MIN_MODEL_VERSION = 1
+CRAWLER_VERSION = 1
 
 REGEX_RELEASE_ID = re.compile(r"(\w{2,8}-\w{2,4}[\w #-]*)$")
-
-something_changed = False
-
 
 # Not extracting relationships for now because the results were inconsistent
 # between GPT queries.
@@ -139,48 +136,6 @@ def fetch_article(context: Context, url: str) -> HtmlElement | None:
     return article_element
 
 
-def source_changed(review: Review, article_element: HtmlElement) -> bool:
-    """
-    The key exists but the current source data looks different from the existing version
-    in spite of heavy normalisation.
-    """
-    seen_element = fromstring(review.source_value)
-    return h.element_text_hash(seen_element) != h.element_text_hash(article_element)
-
-
-def check_something_changed(
-    context: Context,
-    review: Review,
-    article_html: str,
-    article_element: HtmlElement,
-) -> bool:
-    """
-    Returns True if the source content has changed.
-
-    In that case it also reprompts to log whether the extracted data has changed.
-    """
-    if source_changed(review, article_element):
-        prompt_result = run_typed_text_prompt(context, PROMPT, article_html, Defendants)
-        if model_hash(prompt_result) == model_hash(review.orig_extraction_data):
-            context.log.warning(
-                "The source content has changed but the extracted data has not",
-                url=review.source_url,
-                seen_source_value=review.source_value,
-                new_source_value=article_html,
-            )
-        else:
-            # A new extraction result looks different from the known original extraction
-            context.log.warning(
-                "The extracted data has changed",
-                url=review.source_url,
-                orig_extracted_data=review.orig_extraction_data.model_dump(),
-                prompt_result=prompt_result.model_dump(),
-            )
-        return True
-    else:
-        return False
-
-
 def make_related_company(context: Context, name: str) -> Entity:
     entity = context.make("Company")
     entity.id = context.make_id(name)
@@ -212,33 +167,20 @@ def crawl_enforcement_action(context: Context, date: str, url: str) -> None:
         return
     article_html = tostring(article_element, pretty_print=True, encoding="unicode")
     release_id = get_release_id(url)
-    review = get_review(context, Defendants, release_id, MIN_MODEL_VERSION)
-    if review is None:
+
+    review = get_review(context, data_model=Defendants, key_parts=release_id)
+    if review is None or not source_html_matches(review, article_element):
         prompt_result = run_typed_text_prompt(context, PROMPT, article_html, Defendants)
         review = request_review(
             context,
-            release_id,
-            article_html,
-            "text/html",
-            "Enforcement Action Notice",
-            url,
-            prompt_result,
-            MODEL_VERSION,
+            key_parts=release_id,
+            source_value=article_html,
+            source_mime_type=HTML,
+            source_label="Enforcement Action Notice",
+            source_url=url,
+            orig_extraction_data=prompt_result,
+            crawler_version=CRAWLER_VERSION,
         )
-
-    if check_something_changed(context, review, article_html, article_element):
-        # In the first iteration, we're being super conservative and rejecting
-        # export if the source content has changed regardless of whether the
-        # extraction result has changed. If we see this happening and we see that
-        # the extraction result reliably identifies real data changes, we can
-        # relax this to only reject if the extraction result has changed.
-
-        # Similarly if we see that broad markup changes don't trigger massive
-        # re-reviews but legitimate changes are reliably detected, we can allow
-        # it to automatically request re-reviews upon extraction changes.
-        global something_changed
-        something_changed = True
-        return
 
     if not review.accepted:
         return
@@ -325,6 +267,3 @@ def crawl(context: Context) -> None:
             break
 
     assert_all_accepted(context)
-    global something_changed
-    error = "See what changed to determine whether to trigger re-review."
-    assert not something_changed, error
