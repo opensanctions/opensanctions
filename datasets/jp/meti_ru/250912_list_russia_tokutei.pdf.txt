@@ -1,7 +1,7 @@
 ○ 国際平和のための国際的な努力に我が国として寄与するために講ずる輸出等に係る禁止措置
 の対象となるロシア連邦の団体（令和四年外務省告示第八十二号）
 指定日：2022 年03月01 日
-最終更新日：2025 年01 月10 日
+最終更新日：2025 年09 月12 日
 １ 株式会社アドミラルティ造船所
 Admiralty Shipyard JSC
 所在地：203, Fontanka Emb., 190121, St. Peterburg, Russia.
@@ -3581,4 +3581,13 @@ Limited Liability Company Technology Flybridge, a.k.a., the following four alias
 -OOO TK Fly Bridge; and
 -Obschestvo s Ogranichennoi Otvetstvennostyu Tekhnologicheskaya Kompaniya Flaibridzh.
 所在地：Patsaeva Prospekt, 7, Building 1, Office 28/1, Dolgoprudny, Moscow Oblast,
-141707, Russia; Dirizhabelnaya Str., 15a, Dolgoprudny, Moscow Oblast, 141700, Russia.
+141707, Russia; Dirizhabelnaya Str., 15a, Dolgoprudny, Moscow Oblast, 141700, Russia.560 アルファ・マシナリー・グループ
+Alfa Machinery Group
+別称：AMG社; 有限会社 AMG
+LLC Company AMG; Kompaniya AMG
+所在地：ul. Kuskovskaya, d. 20A, pom. XIIA, komn. 114, Moscow 111141, Russia
+561 有限会社ヴネシュエコスティル
+LLC Vneshekostil
+別称：OOO Vneshekostil
+所在地：Room. 19, fl.1, pom. I, Building 5, Kashirskoye shosse, 55, Moscow 115211,
+Russia
