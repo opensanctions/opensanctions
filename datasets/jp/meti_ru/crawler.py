@@ -55,7 +55,7 @@ def detect_script(context, text: str) -> Optional[str]:
     return None
 
 
-def process_aliases(context, raw_aliases: str):
+def split_aliases(context, raw_aliases: str):
     """Split and detect script for a semicolon-separated string of aliases."""
     result = []
     for alias in re.split(r"、|及び|;", raw_aliases):
@@ -68,13 +68,9 @@ def process_aliases(context, raw_aliases: str):
 def clean_address(raw_address):
     # Remove the 'location' "所在地：" from the start of the string
     cleaned = re.sub(r"^所在地[:：]", "", raw_address).strip()
-
     # Split into parts by common delimiters
-    if any(d in cleaned for d in (" and ", ";")):
-        parts = h.multi_split(cleaned, [" and ", ";"])
-        return [p.strip(" ,;") for p in parts if p.strip()]
-
-    return cleaned
+    parts = h.multi_split(cleaned, [" and ", ";"])
+    return [p.strip(" ,;") for p in parts if p.strip()]
 
 
 def clean_name_en(data_string):
@@ -106,14 +102,14 @@ def clean_name_raw(context, name_jpn, row):
     if match:
         main_name = match.group("main").strip()
         aliases_raw = match.group("aliases") or ""
-        aliases.extend(process_aliases(context, aliases_raw))
+        aliases.extend(split_aliases(context, aliases_raw))
     # Check for cases that require manual processing
     if main_name == "" and not aliases:
         # Identify complex cases with certain characters
         if any(char in name_jpn for char in ["（", "、", ")", "）"]):
             main_name = row.pop("name_jpn_cleaned")
             aliases_raw = row.pop("aliases_jpn_cleaned")
-            aliases.extend(process_aliases(context, aliases_raw))
+            aliases.extend(split_aliases(context, aliases_raw))
         else:
             # Remove leading numbers for cases with names only
             # (e.g. '4 株式会社コンペル')
@@ -122,7 +118,7 @@ def clean_name_raw(context, name_jpn, row):
             cleaned_name = row.pop("name_jpn_cleaned", "").strip()
             aliases_raw = row.pop("aliases_jpn_cleaned", "").strip()
             main_name = cleaned_name if cleaned_name else name_jpn.strip()
-            aliases.extend(process_aliases(context, aliases_raw))
+            aliases.extend(split_aliases(context, aliases_raw))
 
     if not main_name:
         context.log.warning(
@@ -189,7 +185,7 @@ def crawl(context: Context):
     h.assert_dom_hash(divs[0], "982832a856dfe254b6282966ec96cfb58d9464aa")
     pdf_xpath = ".//a[contains(@href, '.pdf') and contains(@href, 'export/17_russia/') and contains(@href, 'tokutei')]/@href"
     pdf_urls = divs[0].xpath(pdf_xpath)
-    assert len(pdf_urls) == 3, "Expected exactly 3 PDFs"
+    assert len(pdf_urls) == 3, len(pdf_urls)
 
     # Update local copy of just the content part of the page to diff easily when
     # there are changes. Commit changes once they're handled.
