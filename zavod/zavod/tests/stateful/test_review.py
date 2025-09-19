@@ -24,16 +24,16 @@ def get_row(conn, key):
 
 def test_new_key_saved_and_accepted_false(testdataset1):
     context = Context(testdataset1)
-    model = DummyModel(foo="bar")
+    data = DummyModel(foo="bar")
     review = request_review(
         context,
-        "key1",
-        SOURCE_VALUE,
-        SOURCE_MIME_TYPE,
-        SOURCE_LABEL,
-        SOURCE_URL,
-        model,
-        1,
+        key_parts="key1",
+        source_value=SOURCE_VALUE,
+        source_mime_type=SOURCE_MIME_TYPE,
+        source_label=SOURCE_LABEL,
+        source_url=SOURCE_URL,
+        orig_extraction_data=data,
+        crawler_version=1,
     )
     assert review.accepted is False
     row = get_row(context.conn, "key1")
@@ -49,13 +49,13 @@ def test_current_model_version_updates_last_seen_version(testdataset1, monkeypat
     data = DummyModel(foo="bar")
     request_review(
         context1,
-        "key2",
-        SOURCE_VALUE,
-        SOURCE_MIME_TYPE,
-        SOURCE_LABEL,
-        SOURCE_URL,
-        data,
-        1,
+        key_parts="key2",
+        source_value=SOURCE_VALUE,
+        source_mime_type=SOURCE_MIME_TYPE,
+        source_label=SOURCE_LABEL,
+        source_url=SOURCE_URL,
+        orig_extraction_data=data,
+        crawler_version=1,
     )
     row = get_row(context1.conn, "key2")
     assert row and row["last_seen_version"] == context1_version
@@ -65,9 +65,8 @@ def test_current_model_version_updates_last_seen_version(testdataset1, monkeypat
     context2_version = context2.version.id
     review = get_review(
         context2,
-        DummyModel,
-        "key2",
-        1,
+        data_model=DummyModel,
+        key_parts="key2",
     )
     assert review.last_seen_version == context2_version
     row = get_row(context2.conn, "key2")
@@ -75,48 +74,18 @@ def test_current_model_version_updates_last_seen_version(testdataset1, monkeypat
     assert context1_version != context2_version
 
 
-def test_expired_model_version_returns_none(testdataset1, monkeypatch):
-    context = Context(testdataset1)
-    context.begin(clear=True)
-    data = DummyModel(foo="bar")
-    review = request_review(
-        context,
-        "key3",
-        SOURCE_VALUE,
-        SOURCE_MIME_TYPE,
-        SOURCE_LABEL,
-        SOURCE_URL,
-        data,
-        1,
-    )
-    review = get_review(
-        context,
-        DummyModel,
-        "key3",
-        1,
-    )
-    assert review is not None
-    review = get_review(
-        context,
-        DummyModel,
-        "key3",
-        2,
-    )
-    assert review is None
-
-
 def test_re_request_deletes_old_and_inserts_new(testdataset1, monkeypatch):
     context1 = Context(testdataset1)
     data = DummyModel(foo="bar")
     review = request_review(
         context1,
-        "key3",
-        SOURCE_VALUE,
-        SOURCE_MIME_TYPE,
-        SOURCE_LABEL,
-        SOURCE_URL,
-        data,
-        1,
+        key_parts="key3",
+        source_value=SOURCE_VALUE,
+        source_mime_type=SOURCE_MIME_TYPE,
+        source_label=SOURCE_LABEL,
+        source_url=SOURCE_URL,
+        orig_extraction_data=data,
+        crawler_version=1,
         default_accepted=True,
     )
     assert review.accepted is True
@@ -124,13 +93,13 @@ def test_re_request_deletes_old_and_inserts_new(testdataset1, monkeypatch):
     context2 = Context(testdataset1)
     review = request_review(
         context2,
-        "key3",
-        SOURCE_VALUE,
-        SOURCE_MIME_TYPE,
-        SOURCE_LABEL,
-        SOURCE_URL,
-        data2,
-        2,
+        key_parts="key3",
+        source_value=SOURCE_VALUE,
+        source_mime_type=SOURCE_MIME_TYPE,
+        source_label=SOURCE_LABEL,
+        source_url=SOURCE_URL,
+        orig_extraction_data=data2,
+        crawler_version=2,
         default_accepted=False,
     )
     old = (
