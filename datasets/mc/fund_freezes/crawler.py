@@ -4,6 +4,42 @@ from typing import Any, Dict
 from zavod import Context
 from zavod import helpers as h
 
+ALIAS_SPLITS = [
+    "; a)",
+    "; b)",
+    "; c)",
+    "; d)",
+    "; e)",
+    "; f)",
+    "; g)",
+    "; h)",
+    "; i)",
+    "; j)",
+    "; k)",
+    "; l)",
+    "; m)",
+    "; n)",
+    "; o)",
+    "; p)",
+    "  a) ",
+    "  b) ",
+    "  c) ",
+    "  d) ",
+    ";;",
+    ",;",
+    ";",
+    " ou ",
+    "Egalement connue sous le nom:",
+    "Egalement connue sous les noms:",
+    "Autrement connu sous le nom de:",
+    "Autrement connue sous le nom de:",
+    "Anciennement connue sous les noms:",
+    "Nom de scène:",
+    "(autre dénomination :",
+    "(autres dénominations :",
+    "autres dénominations:",
+]
+
 
 def clean_address(text):
     if not text:
@@ -47,23 +83,10 @@ def crawl_entity(context: Context, data: Dict[str, Any]):
     details = data.pop("mesureDetails")
     aliases = details.pop("alias")
     aliasProp = "alias"
-    for alias in h.multi_split(
-        aliases,
-        [
-            "; a)",
-            "; b)",
-            "; c)",
-            "; d)",
-            "; e)",
-            "; f)",
-            "; g)",
-            "; h)",
-            "; i)",
-            ";;",
-            ",;",
-            ";",
-        ],
-    ):
+    # TODO: #2656
+    # Aliases splitting is a good candidate for LLM-backed name splitting helper
+    # https://github.com/opensanctions/opensanctions/issues/2656
+    for alias in h.multi_split(aliases, ALIAS_SPLITS):
         alias = alias.strip()
         if not alias:
             continue

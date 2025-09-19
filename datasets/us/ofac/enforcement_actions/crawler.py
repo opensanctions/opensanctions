@@ -261,7 +261,7 @@ def crawl(context: Context):
         )
         if not links:
             break
-        search_results = doc.findall(".//div[contains(@class, 'search-result')]")
+        search_results = doc.xpath(".//div[contains(@class, 'search-result')]")
         for result in search_results:
             enforcement_date = result.xpath(
                 ".//div[contains(@class,'margin-top-1') and contains(., 'Enforcement Actions')]/text()[normalize-space()]"

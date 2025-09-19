@@ -76,7 +76,14 @@ lookups:
           - 7717727466
           - 770701001
           - 9707028663
+          - 11440513
+          - 13185231
+          - 07500548
         prop: registrationNumber
+  type.country:
+    options:
+      - match: Crimea, Ukraine
+        value: ua-cri
   type.email:
     options:
       - match: "general@angstrem.r"
