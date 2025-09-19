@@ -39,11 +39,9 @@ def crawl_detail_page(context: Context, person: Entity, source_url: str):
         key: (doc.xpath(xpath)[0].strip() if doc.xpath(xpath) else "")
         for key, xpath in details.items()
     }
-    status_list = doc.xpath("//p[@align='center']/font[@color='blue']/text()")
-    status = status_list[0].strip() if status_list else None
-
+    status = doc.findtext(".//p[@align='center']/font[@color='blue']")
     if status not in {"Wanted", "Suspect"}:
-        context.log.warning(f"Unknown or missing status: {status}, url: {source_url}")
+        context.log.warning("Unknown or missing status", status=status, url=source_url)
         status = None
 
     if info.get("aliases"):
