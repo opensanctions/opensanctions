@@ -13,6 +13,7 @@ from zavod import helpers as h
 from zavod.shed.gpt import DEFAULT_MODEL, run_typed_text_prompt
 from zavod.stateful.review import (
     assert_all_accepted,
+    model_hash,
     request_review,
     get_review,
     source_html_matches,
@@ -165,22 +166,53 @@ def crawl_enforcement_action(context: Context, date: str, url: str) -> None:
     article_element = fetch_article(context, url)
     if article_element is None:
         return
+
+    # Scenario: they changed the website and added a carousel in the middle of the article
+    # because "engagement". The source looks different, and it's introducing unrelated data
+    # into the extraction results.
+    #
+    # We'll delete the carousel from the source before prompting.
+    # If the result looks the same as the last accepted, we'll save that as a new accepted review version.
+    carousel = article_element.find(".//[contains(@class, 'carousel')]")
+    carousel.getparent().remove(carousel)
+
     article_html = tostring(article_element, pretty_print=True, encoding="unicode")
     release_id = get_release_id(url)
 
     review = get_review(context, data_model=Defendants, key_parts=release_id)
-    if review is None or not source_html_matches(review, article_element):
+
+    if (
+        review is None
+        or not review.accepted
+        or not source_html_matches(review, article_element)
+    ):
         prompt_result = run_typed_text_prompt(context, PROMPT, article_html, Defendants)
-        review = request_review(
-            context,
-            key_parts=release_id,
-            source_value=article_html,
-            source_mime_type=HTML,
-            source_label="Enforcement Action Notice",
-            source_url=url,
-            orig_extraction_data=prompt_result,
-            crawler_version=CRAWLER_VERSION,
-        )
+
+        # TODO: Delete the first clause once the accepted reviews have been recovered.
+        if review is not None:
+            last_accepted = review.get_latest_accepted()
+            if model_hash(last_accepted.orig_extraction_data) == model_hash(
+                prompt_result
+            ):
+                last_accepted.source_value = article_html
+                last_accepted.last_seen_version = context.version.id
+                last_accepted.modified_at = context.data_time
+                last_accepted.modified_by = "zavod"
+                last_accepted.orig_extraction_data = prompt_result
+                last_accepted.crawler_version = CRAWLER_VERSION
+                last_accepted.save(context.conn)
+                review = last_accepted
+        else:
+            review = request_review(
+                context,
+                key_parts=release_id,
+                source_value=article_html,
+                source_mime_type=HTML,
+                source_label="Enforcement Action Notice",
+                source_url=url,
+                orig_extraction_data=prompt_result,
+                crawler_version=CRAWLER_VERSION,
+            )
 
     if not review.accepted:
         return
