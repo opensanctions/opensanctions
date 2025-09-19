@@ -322,6 +322,10 @@ lookups:
           - role: deputy prime minister
             name: Upendra YADAV
             start_date: 10 March 2024
+      - match: Prime Minister Sushila KARKI
+        holders:
+          - role: Prime Minister
+            name: Sushila KARKI
       # Niue
       - match: "Prime Minister Dalton TAGELAGI"
         holders:
@@ -948,6 +952,7 @@ lookups:
           - ASAD and his family flew to Moscow where they were granted political asylum
           # Nepal
           - "Prime Minister \\(vacant\\)"
+          - "KARKI will serve until elections are held in March 2026"
         holders: []
 
   type.country:
