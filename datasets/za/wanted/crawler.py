@@ -12,9 +12,7 @@ from zavod.entity import Entity
 UNKNOWNS = {"unknown", "uknown"}
 
 
-def crawl_detail_page(
-    context: Context, person: Entity, source_url: str
-) -> Dict[str, str] | None:
+def crawl_detail_page(context: Context, person: Entity, source_url: str):
     """Fetch and parse detailed information from a person's detail page."""
     doc = context.fetch_html(source_url, cache_days=7)
 
@@ -41,10 +39,12 @@ def crawl_detail_page(
         key: (doc.xpath(xpath)[0].strip() if doc.xpath(xpath) else "")
         for key, xpath in details.items()
     }
-    status = doc.xpath("//p[@align='center']/font[@color='blue']/text()")[0]
+    status_list = doc.xpath("//p[@align='center']/font[@color='blue']/text()")
+    status = status_list[0].strip() if status_list else None
+
     if status not in {"Wanted", "Suspect"}:
+        context.log.warning(f"Unknown or missing status: {status}, url: {source_url}")
         status = None
-        context.log.warning(f"Unknown status: {status}")
 
     if info.get("aliases"):
         person.add(
