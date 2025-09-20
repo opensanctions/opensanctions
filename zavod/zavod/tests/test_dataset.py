@@ -46,6 +46,9 @@ def test_basic():
     assert test_ds.model.hidden is True
     assert test_ds.prefix == "xx"
     assert test_ds.is_collection is False
+    assert test_ds.module_path is None
+    assert test_ds.checksum is None
+    assert test_ds.model.data is not None
     assert test_ds.model.data.url is not None
     assert test_ds.model.disabled is False
     assert not len(test_ds.inputs)
@@ -85,6 +88,7 @@ def test_basic():
 
 def test_validation(testdataset1: Dataset, testdataset3: Dataset):
     assert testdataset1.name == "testdataset1"
+    assert testdataset1.checksum is not None
     assert testdataset1.model.publisher is not None
     assert testdataset1.model.publisher.name == "OpenSanctions"
     assert testdataset1.model.publisher.official is False
