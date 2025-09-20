@@ -7,19 +7,11 @@ import { Position } from "@/lib/db";
 import { getCountries } from "@/lib/ftm";
 import { ServerSearchParams } from "@/lib/pageProps";
 
-import PositionTaggerForm from "./PositionTaggerForm";
+import PositionTaggerFilterForm from "./PositionTaggerFilterForm";
 import PositionTaggerRow from "./PositionTaggerRow";
 import { ResponsePagination } from "./ReponsePagination";
 
 
-
-
-
-// export async function getPositions(querystring: string): Promise<ITaggingSearchResponse | null> {
-//   const apiUrl = `${API_URL}/positions/?${querystring}`;
-//   const result = await fetchJsonUrl<ITaggingSearchResponse>(apiUrl);
-//   return result;
-// }
 
 
 
@@ -37,7 +29,7 @@ export default async function PositionTagger({ searchParams }: { searchParams: S
   const positions = await getPositions(filteredSearchParams);
 
   return <>
-    <PositionTaggerForm searchParams={searchParams} countries={countries} datasets={datasets} />
+    <PositionTaggerFilterForm searchParams={searchParams} countries={countries} datasets={datasets} />
     <Table bordered hover>
       <thead>
         <tr>

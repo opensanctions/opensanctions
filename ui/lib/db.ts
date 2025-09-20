@@ -409,6 +409,15 @@ export async function getPositions(filters: IPositionFilters = {}): Promise<IPos
   };
 }
 
+export async function getPositionByEntityId(entityId: string): Promise<Position> {
+  return await (await getDb())
+    .selectFrom(POSITION_TABLE_NAME)
+    .selectAll()
+    .where('entity_id', '=', entityId)
+    .where('deleted_at', 'is', null)
+    .executeTakeFirstOrThrow();
+}
+
 export async function softDeleteAndCreatePosition({ entityId, positionUpdate, modifiedBy } : { entityId: string, positionUpdate: PositionUpdate, modifiedBy: string }): Promise<Position> {
   return await (await getDb()).transaction().execute(async (trx) => {
     // Assert that positionUpdate does not contain modified_at or modified_by

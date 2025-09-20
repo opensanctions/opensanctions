@@ -1,30 +1,39 @@
 "use client"
 
-import { useState } from "react";
+import { useActionState } from "react";
 import { Button, ButtonGroup, Form, Spinner } from "react-bootstrap";
 
-import { Position, PositionUpdate } from "@/lib/db";
+import { Position } from "@/lib/db";
+
+import { updatePosition, toggleTopic, PositionState } from "./actions";
 
 type TopicProps = {
-  label: string
-  topic: string
-  topics: Array<string>
-  disabled: boolean
-  onClick: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void
+  topic: string,
+  label: string,
+  initialState: boolean,
+  toggleTopicAction: (topic: string) => Promise<boolean>,
 }
 
-function Topic({ label, topic, topics, disabled, onClick }: TopicProps) {
-  return <Button
-    name="topic"
-    value={topic}
-    variant="outline-dark"
-    className="btn-sm"
-    active={topics.includes(topic)}
-    disabled={disabled}
-    onClick={onClick}
-  >
-    {label}
-  </Button>
+function Topic({ topic, label, initialState, toggleTopicAction}: TopicProps) {
+  // Use a server-side action to toggle the topic. This is a bit of a tradeoff: More state on the client
+  // and a more general server action, or less state on the client and a very specific server action.
+  // We choose the latter here to keep things simple on the client.
+  const [state, formAction, pending] = useActionState<boolean, FormData>(
+    toggleTopicAction.bind(null, topic),
+    initialState,
+  );
+  return (
+    <Button
+      active={state}
+      variant="outline-dark"
+      className="btn-sm"
+      disabled={pending}
+      formAction={formAction}
+      type="submit"
+    >
+      {label}
+    </Button>
+  );
 }
 
 type PositionTaggerRowProps = {
@@ -33,101 +42,79 @@ type PositionTaggerRowProps = {
 }
 
 export default function PositionTaggerRow({ countries, position }: PositionTaggerRowProps) {
-  // We JSON-ize the position data once to avoid having to deal with differences between
-  // initial rendering (however that work) and the JSON returned by the update request.
-  const [positionData, setPositionData] = useState(JSON.parse(JSON.stringify(position)));
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState(false);
-
-  const countryLabels = positionData.countries.map((code: string) => {
+  const countryLabels = position.countries.map((code: string) => {
     return countries.get(code);
   })
 
-  const onPositionEdit = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    updatePosition({ is_pep: event.target.checked });
-  }
 
-  const onTopicEdit = async (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-    const target = event.target as HTMLButtonElement;
-    const updatedTopics = [...positionData.topics];
-    const index = updatedTopics.indexOf(target.value);
-    if (index == -1) {
-      updatedTopics.push(target.value);
-    } else {
-      updatedTopics.splice(index, 1);
-    }
-    updatePosition({ topics: updatedTopics });
-  }
+  const [state, formAction, pending] = useActionState<PositionState, FormData>(
+    updatePosition.bind(null, position.entity_id),
+    {
+      is_pep: position.is_pep,
+      // topics get handled in a separate action, see above
+    },
+  );
 
-  const updatePosition = (partialData: Partial<PositionUpdate>) => {
-    setSaving(true);
-    const url = `/api/positions/${positionData.entity_id}`;
-    fetch(url, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(partialData),
-    })
-      .then(response => response.json())
-      .then((result) => {
-        if (result == null) {
-          setError(true);
-        } else {
-          setPositionData(result);
-          setSaving(false);
-        }
-      })
-      .catch(() => {
-        setError(true);
-        setSaving(false);
-      });
-  }
+  const topicsSet = new Set(position.topics);
+  // Server action to toggle a topic on this position
+  const boundToggleTopic = toggleTopic.bind(null, position.entity_id);
 
-  const topics = positionData.topics;
   return (
-    <tr key={positionData.entity_id}>
-      <td title={positionData.entity_id}>
-        {saving && <Spinner animation="border" role="status" />}
-        {positionData.caption}
-        {positionData.entity_id.startsWith('Q') &&
-          <a href={`https://www.wikidata.org/wiki/${positionData.entity_id}`} target="_blank" rel="noreferrer">[WD]</a>
+    <tr key={position.entity_id}>
+      <td title={position.entity_id}>
+        {pending && <Spinner animation="border" role="status" />}
+        {position.caption}
+        {position.entity_id.startsWith('Q') &&
+          <a href={`https://www.wikidata.org/wiki/${position.entity_id}`} target="_blank" rel="noreferrer">[WD]</a>
         }
-        {error && <span className="text-danger">Error saving</span>}
       </td>
       <td>{countryLabels.join(", ")}</td>
-      <td>{positionData.dataset}</td>
+      <td>{position.dataset}</td>
       <td>
-        <Form.Check
-          name="is_pep"
-          type="checkbox"
-          checked={positionData.is_pep ?? false}
-          onChange={onPositionEdit}
-          disabled={saving}
-        />
-        {positionData.is_pep == null && "Undecided"}
+        <Form action={formAction}>
+          <Form.Check
+            name="is_pep"
+            type="checkbox"
+            checked={state.is_pep ?? false}
+            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+              event.target.form?.requestSubmit();
+            }}
+            disabled={pending}
+          />
+          {state.is_pep == null && "Undecided"}
+        </Form>
       </td>
       <td>
-        <ButtonGroup aria-label="Scope" className="pb-1 d-inline-block">
-          <Topic label="Nat" topics={topics} topic="gov.national" disabled={saving} onClick={onTopicEdit} />
-          <Topic label="Subnat" topics={topics} topic="gov.state" disabled={saving} onClick={onTopicEdit} />
-          <Topic label="Local" topics={topics} topic="gov.muni" disabled={saving} onClick={onTopicEdit} />
-          <Topic label="IGO" topics={topics} topic="gov.igo" disabled={saving} onClick={onTopicEdit} />
-        </ButtonGroup>
-
-        <ButtonGroup aria-label="Role">
-          <Topic label="Head" topics={topics} topic="gov.head" disabled={saving} onClick={onTopicEdit} />
-          <Topic label="Exec" topics={topics} topic="gov.executive" disabled={saving} onClick={onTopicEdit} />
-          <Topic label="Legis" topics={topics} topic="gov.legislative" disabled={saving} onClick={onTopicEdit} />
-          <Topic label="Juris" topics={topics} topic="gov.judicial" disabled={saving} onClick={onTopicEdit} />
-          <Topic label="Secur" topics={topics} topic="gov.security" disabled={saving} onClick={onTopicEdit} />
-          <Topic label="Fin" topics={topics} topic="gov.financial" disabled={saving} onClick={onTopicEdit} />
-          <Topic label="SOE" topics={topics} topic="gov.soe" disabled={saving} onClick={onTopicEdit} />
-          <Topic label="Diplo" topics={topics} topic="role.diplo" disabled={saving} onClick={onTopicEdit} />
-          <Topic label="Party" topics={topics} topic="pol.party" disabled={saving} onClick={onTopicEdit} />
-        </ButtonGroup>
+        {/* For whatever reason, all of these Buttons need to be wrapped in a Form for Button formAction to work */}
+        <Form>
+          <ButtonGroup aria-label="Scope" className="pb-1">
+            {Object.entries({
+              "gov.national": "Nat",
+              "gov.state": "Subnat",
+              "gov.muni": "Local",
+              "gov.igo": "IGO",
+            }).map(([topic, label]) => (
+              <Topic key={topic} topic={topic} label={label} initialState={topicsSet.has(topic)} toggleTopicAction={boundToggleTopic} />
+            ))}
+          </ButtonGroup>
+          <ButtonGroup aria-label="Role">
+            {Object.entries({
+              "gov.head": "Head",
+              "gov.executive": "Exec",
+              "gov.legislative": "Legis",
+              "gov.judicial": "Juris",
+              "gov.security": "Secur",
+              "gov.financial": "Fin",
+              "gov.soe": "SOE",
+              "role.diplo": "Diplo",
+              "pol.party": "Party",
+            }).map(([topic, label]) => (
+              <Topic key={topic} topic={topic} label={label} initialState={topicsSet.has(topic)} toggleTopicAction={boundToggleTopic} />
+            ))}
+          </ButtonGroup>
+        </Form>
       </td>
-      <td className="text-nowrap" title={positionData.created_at}>{positionData.created_at.slice(0, 10)}</td>
+      <td className="text-nowrap" title={position.created_at.toISOString()}>{position.created_at.toISOString().slice(0, 10)}</td>
     </tr>
   )
 }

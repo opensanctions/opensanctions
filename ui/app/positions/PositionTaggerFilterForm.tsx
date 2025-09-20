@@ -14,8 +14,9 @@ function submitForm(e: React.ChangeEvent<HTMLSelectElement>) {
   e.target.form?.submit();
 }
 
-export default function PositionTaggerForm({ searchParams, countries, datasets }: PositionTaggerFormProps) {
+export default function PositionTaggerFilterForm({ searchParams, countries, datasets }: PositionTaggerFormProps) {
   return (
+    // This is a good old GET form, with the searchParams being used in PositionTagger to filter in the query
     <Form className="mb-4" method="get">
       <Row>
         <Col md={4}>
