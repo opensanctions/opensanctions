@@ -44,7 +44,7 @@ class Dataset(FollowTheMoneyDataset):
         """List of other datasets that this dataset depends on as processing inputs."""
 
         self._data = data
-        self.base_path: Optional[Path] = None
+        self.file_path: Optional[Path] = None
 
         # TODO: this is for backward compatibility, get rid of it one day
         _type = "collection" if self.is_collection else "source"
@@ -83,6 +83,44 @@ class Dataset(FollowTheMoneyDataset):
 
         self.dates: DatesSpec = DatesSpec(data.get("dates", {}))
         """Date parsing configuration for this dataset."""
+
+    @cached_property
+    def module_name(self) -> Optional[str]:
+        if self.model.entry_point is None:
+            return None
+        return self.model.entry_point.rsplit(":", 1)[0]
+
+    @property
+    def module_path(self) -> Optional[Path]:
+        if self.module_name is None or self.file_path is None:
+            return None
+        for file_name in (self.module_name, f"{self.module_name}.py"):
+            code_path = Path(file_name)
+            if self.file_path.parent is not None:
+                code_path = self.file_path.parent.joinpath(code_path)
+            if code_path.is_file():
+                return code_path
+        return None
+
+    @property
+    def method_name(self) -> str:
+        if self.model.entry_point is not None:
+            parts = self.model.entry_point.rsplit(":", 1)
+            if len(parts) == 2:
+                return parts[1]
+        return "crawl"
+
+    @property
+    def checksum(self) -> Optional[str]:
+        if self.file_path is None and self.module_path is None:
+            return None
+        digest = sha1()
+        for path in (self.file_path, self.module_path):
+            if path is None:
+                continue
+            with open(path, "rb") as fh:
+                digest.update(fh.read())
+        return digest.hexdigest()
 
     @cached_property
     def lookups(self) -> Dict[str, Lookup]:

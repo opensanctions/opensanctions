@@ -17,7 +17,7 @@ class ArchiveBackedCatalog(DataCatalog[Dataset]):
         if "name" not in data:
             data["name"] = path.stem
         dataset = Dataset(data)
-        dataset.base_path = path.parent
+        dataset.file_path = path
         self.add(dataset)
         for name in dataset.model.children:
             self.get(name)
