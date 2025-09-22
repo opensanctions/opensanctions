@@ -2,14 +2,18 @@ import io
 import re
 from csv import DictReader
 from pathlib import Path
-from typing import List, Dict, Optional, Tuple, Set
-from zipfile import ZipFile, BadZipFile
-from zavod import Context, Entity, helpers as h
-from zavod.stateful.positions import OccupancyStatus, categorise
+from typing import Dict, List, Optional, Set, Tuple
+from zipfile import BadZipFile, ZipFile
+
+from click.core import F
 from zavod.shed.trans import (
     apply_translit_full_name,
     make_position_translation_prompt,
 )
+from zavod.stateful.positions import OccupancyStatus, categorise
+
+from zavod import Context, Entity
+from zavod import helpers as h
 
 TRANSLIT_OUTPUT = {
     "eng": ("Latin", "English"),
@@ -66,7 +70,7 @@ def read_csv_rows(context: Context, zip_path: Path, file_pattern: str) -> List[D
             return list(reader)
 
 
-def family_row_entity(context: Context, row) -> Entity:
+def build_person_from_family_row(context: Context, row) -> Entity:
     first_name = row.pop("IME_CLANA_PORODICE")
     last_name = row.pop("PREZIME_CLANA_PORODICE")
     # We're dealing with: '-/-'
@@ -86,14 +90,21 @@ def family_row_entity(context: Context, row) -> Entity:
     h.apply_date(entity, "birthDate", dob)
     address = h.make_address(context, city=city, place=row.pop("BORAVISTE"), lang="cnr")
     h.copy_address(entity, address)
-    context.audit_data(row, ignore=["FUNKCIONER_IME", "FUNKCIONER_PREZIME"])
+    context.audit_data(
+        row,
+        [
+            "SRODSTVO",  # the family relationship, we use it elsewhere
+            "FUNKCIONER_IME",
+            "FUNKCIONER_PREZIME",
+        ],
+    )
     return entity
 
 
-def crawl_relative(context, person_entity, relatives):
+def crawl_relatives(context, person_entity, relatives):
     for row in relatives:
         relationship = row.pop("SRODSTVO")
-        relative = family_row_entity(context, row)
+        relative = build_person_from_family_row(context, row)
         if len(relative.caption) < 4:
             return
         context.emit(relative)
@@ -108,19 +119,26 @@ def crawl_relative(context, person_entity, relatives):
         context.emit(rel)
 
 
-def make_affiliation_entities(
-    context: Context, entity: Entity, function, row: dict, filing_date
-) -> Tuple[List[Entity], Set[str]]:  # List[Entity]:
-    """Creates Position and Occupancy provided that the Occupancy meets OpenSanctions criteria.
-    * A position's name include the title and the name of the legal entity
-    * All positions (and Occupancies, Persons) are assumed to be Montenegrin
+def emit_affiliated_position(
+    context: Context,
+    *,
+    person: Entity,
+    function: str,
+    affiliation_data: Dict[str, str],
+    filing_date: str,
+) -> None:
+    """Creates Position and Occupancy after categorization.
+
+    A position's name includes the function and the organization name.
+
+    All positions (and Occupancies, Persons) are assumed to be Montenegrin
     """
 
-    organization = row.pop("ORGANIZACIJA")
-    start_date = row.pop("DATUM_POCETKA_OBAVLJANJA", None)
-    end_date = row.pop("DATUM_PRESTANKA_OBAVLJNJA")
+    organization = affiliation_data.pop("ORGANIZACIJA")
+    start_date = affiliation_data.pop("DATUM_POCETKA_OBAVLJANJA", None)
+    end_date = affiliation_data.pop("DATUM_PRESTANKA_OBAVLJNJA")
     context.audit_data(
-        row,
+        affiliation_data,
         ignore=[
             "ORGANIZACIJA_IMENOVANJA",
             "ORGANIZACIJA_SAGLASNOSTI",
@@ -130,7 +148,7 @@ def make_affiliation_entities(
     )
 
     position_name = f"{function}, {organization}"
-    entity.add("position", position_name)
+    person.add("position", position_name)
 
     position = h.make_position(
         context,
@@ -142,90 +160,104 @@ def make_affiliation_entities(
     )
 
     categorisation = categorise(context, position, is_pep=True)
-    categorisation_topics = set(categorisation.topics)
+    if not categorisation.is_pep:
+        return
 
     occupancy = h.make_occupancy(
         context,
-        entity,
+        person,
         position,
         no_end_implies_current=True,
         categorisation=categorisation,
         start_date=start_date,
         end_date=end_date,
     )
-    entities = []
-    if occupancy:
-        occupancy.add("declarationDate", filing_date)
-        entities.extend([position, occupancy])
-    return entities, categorisation_topics
+    assert occupancy is not None
+    occupancy.add("declarationDate", filing_date)
+
+    person.add("topics", "role.pep")
+    context.emit(position)
+    context.emit(occupancy)
 
 
 # Verified Jan 2025 that when SRODSTVO == Funkcioner,
 # FUNKCIONER_IME roughly equals IME_CLANA_PORODICE (first name)
 # and FUNKCIONER_PREZIME roughly equals PREZIME_CLANA_PORODICE (last name)
-def split_family(rows) -> Tuple[List[Dict[str, str]], Optional[Dict[str, str]]]:
+def split_official_and_relatives(
+    rows,
+) -> Tuple[Optional[Dict[str, str]], List[Dict[str, str]]]:
+    """Split family rows into the relatives and the official."""
+    # SRODSTVO contains Funkcioner for the official, else the family relationship.
     officials = [row for row in rows if row.get("SRODSTVO") == "Funkcioner"]
     relatives = [row for row in rows if row.get("SRODSTVO") != "Funkcioner"]
-    assert len(officials) <= 1, "Multiple 'Funcioner' found in the relatives CSV."
-    return relatives, officials[0] if officials else None
+    assert len(officials) <= 1, "Multiple 'Funkcioner' found in the relatives CSV."
+    return officials[0] if officials else None, relatives
 
 
-def crawl_person(context: Context, person):
-    full_name = person.pop("imeIPrezime")
-    dates = person.pop("izvjestajImovine")
-    function_labels = person.pop("nazivFunkcije")
+def crawl_person(context: Context, person_data) -> bool:
+    """Crawl a person from the data.
+
+    Returns true if a ZIP was read."""
+    full_name = person_data.pop("imeIPrezime")
+    dates = person_data.pop("izvjestajImovine")
+    function_labels: List[str] = person_data.pop("nazivFunkcije")
     filing_date, zip_path = fetch_latest_filing(context, dates)
+
+    family_rows = None
+    function_rows = None
     if zip_path:
-        relatives_rows = read_csv_rows(context, zip_path, "csv_clanovi_porodice_")
+        # Relatives of a person
+        family_rows = read_csv_rows(context, zip_path, "csv_clanovi_porodice_")
+        # Function that this person holds
         function_rows = read_csv_rows(context, zip_path, "csv_funkcije_funkcionera_")
-    else:
-        relatives_rows = []
-        function_rows = []
-    relatives_rows, official = split_family(relatives_rows)
+    official_row, relatives_rows = split_official_and_relatives(family_rows)
 
-    if official:
-        official.pop("SRODSTVO")
-        entity = family_row_entity(context, official)
+    if official_row:
+        person = build_person_from_family_row(context, official_row)
     else:
-        entity = context.make("Person")
-        entity.id = context.make_id(full_name, sorted(function_labels))
-        h.apply_name(entity, full_name)
+        person = context.make("Person")
+        # TODO(Leon Handreke): I think we should be passing *function_labels here,
+        # but that would mean a re-key.
+        person.id = context.make_id(full_name, sorted(function_labels))
+        h.apply_name(person, full_name)
 
-    categorisation_topics = set()
-    position_entities = []
     if function_rows:
+        assert filing_date is not None
         for row in function_rows:
             function = row.pop("FUNKCIJA")
-            entities, topics = make_affiliation_entities(
-                context, entity, function, row, filing_date
+            emit_affiliated_position(
+                context,
+                person=person,
+                function=function,
+                affiliation_data=row,
+                filing_date=filing_date,
             )
-            position_entities.extend(entities)
-            categorisation_topics.update(topics)
     else:
         for label in function_labels:
             position = h.make_position(context, label, country="ME")
             categorisation = categorise(context, position, is_pep=True)
+            if not categorisation.is_pep:
+                continue
             occupancy = h.make_occupancy(
                 context,
-                entity,
+                person,
                 position,
                 no_end_implies_current=False,
                 categorisation=categorisation,
                 status=OccupancyStatus.UNKNOWN,
             )
-            position_entities.extend([position, occupancy])
-            categorisation_topics.update(categorisation.topics)
-
-    if "gov.national" in categorisation_topics:
-        crawl_relative(context, entity, relatives_rows)
-
-    if position_entities:
-        for position in position_entities:
             context.emit(position)
-        context.emit(entity)
+            if occupancy is not None:
+                context.emit(occupancy)
+            person.add("topics", categorisation.topics)
+
+    if "gov.national" in set(person.get("topics")):
+        crawl_relatives(context, person, relatives_rows)
+
+    context.emit(person)
 
     # True if we got some valid rows from the Zip file
-    return relatives_rows or function_rows
+    return bool(relatives_rows or function_rows)
 
 
 def crawl(context: Context):
