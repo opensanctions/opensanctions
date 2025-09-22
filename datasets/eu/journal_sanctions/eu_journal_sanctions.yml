@@ -5,6 +5,9 @@ coverage:
   schedule: "0 */2 * * *"
   frequency: daily
   start: 2023-12-18
+deploy:
+  memory: "1500Mi"
+  memory_limit: "1500Mi"
 load_statements: true
 publisher:
   name: Council of the European Union
