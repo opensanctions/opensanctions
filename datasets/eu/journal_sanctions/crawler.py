@@ -67,17 +67,38 @@ def crawl_row(
     # e.g. check whether https://www.opensanctions.org/statements/NK-VwonxcqhDhAzHKWXCdSdXd/?prop=registrationNumber
     # has 1674003000 from eu_fsf.
     #
-    # canonical_id = linker.get_canonical(entity.id)
-    # for other_id in linker.get_referents(canonical_id):
-    #     if other_id.startswith("eu-fsf-"):
-    #         context.log.warning(
-    #             f"Row {row_idx} is also present in FSF XML: {other_id}, can be removed from sheet",
-    #             row_id=row_id,
-    #             other_id=other_id,
-    #             name=name,
-    #             entity_type=entity_type,
-    #             country=country,
-    #         )
+    canonical_id = linker.get_canonical(entity.id)
+    for other_id in linker.get_referents(canonical_id):
+        if other_id.startswith("eu-fsf-"):
+            context.log.warning(
+                f"Row {row_idx} is also present in FSF XML: {other_id}, can be removed from sheet",
+                row_id=row_id,
+                other_id=other_id,
+                name=name,
+                entity_type=entity_type,
+                country=country,
+            )
+            break
+        if other_id.startswith("eu-sancmap-"):
+            context.log.warning(
+                f"Row {row_idx} is also present in EU Sanctions map: {other_id}, can be removed from sheet",
+                row_id=row_id,
+                other_id=other_id,
+                name=name,
+                entity_type=entity_type,
+                country=country,
+            )
+            break
+        # if other_id.startswith("eu-tb-"):
+        #     context.log.warning(
+        #         f"Row {row_idx} is also present in EU Travel Bans: {other_id}, can be removed from sheet",
+        #         row_id=row_id,
+        #         other_id=other_id,
+        #         name=name,
+        #         entity_type=entity_type,
+        #         country=country,
+        #     )
+        #     break
 
     entity.add("topics", "sanction")
     dob = row.pop("DOB")
