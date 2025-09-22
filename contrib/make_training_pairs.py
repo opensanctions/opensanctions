@@ -10,12 +10,11 @@ from nomenklatura.resolver.identifier import Identifier
 from typing import Any, Optional, Tuple, Generator
 
 from zavod.entity import Entity
+from zavod import settings
 from zavod.integration.dedupe import get_resolver
 from zavod.logs import get_logger, configure_logging
 from zavod.meta import get_catalog, get_multi_dataset
 from zavod.meta.dataset import Dataset
-
-# from zavod.integration import get_resolver
 from zavod.store import View, get_store
 
 log = get_logger(Path(__file__).stem)
@@ -25,30 +24,13 @@ OutFile = click.Path(dir_okay=False, writable=True, file_okay=True, path_type=Pa
 
 # These datasets have particularly jiggy data quality, so we don't want to derive training data
 # from judgements linked to them.
-IGNORE_DATASETS = {"us_sam_exclusions", "us_cia_world_factbook", "opencorporates"}
-
-
-class ChronoResolver(Resolver):
-    @staticmethod
-    def restore_chrono(path: Path) -> Generator[Edge, None, None]:
-        """Load the edges chronologically but don't add them."""
-        edges = []
-        with open(path, "r") as fh:
-            while True:
-                line = fh.readline()
-                if not line:
-                    break
-                edge = Edge.from_line(line)
-                edges.append(edge)
-        edges.sort(key=lambda e: e.timestamp)
-        for edge in edges:
-            yield edge
-
-    def register(self, edge: Edge) -> None:
-        """Add edges to the resolver."""
-        log.debug("Registering edge", edge=edge)
-        self._register(edge)
-        self.connected.cache_clear()
+IGNORE_DATASETS = {
+    "us_sam_exclusions",  # horrific data quality
+    "us_cia_world_factbook",  # too much name-only matching
+    "un_ga_protocol",  # too much name-only matching
+    "tw_shtc",  # too much name-only matching
+    "opencorporates",  # funky enricher
+}
 
 
 def make_replay_resolver() -> Resolver[StatementEntity]:
@@ -83,7 +65,13 @@ def lazy_resolve(view: View, resolver: Resolver, id: Identifier) -> Optional[Ent
         if cluster is None:
             cluster = entity
         else:
-            cluster.merge(entity)
+            try:
+                cluster.merge(entity)
+            except Exception as e:
+                log.warning(
+                    f"Error merging entities: {e}", id1=cluster.id, id2=entity.id
+                )
+                return None
     if cluster and len(connected):
         cluster.id = max(connected).id
     return cluster
@@ -198,8 +186,8 @@ def generate_naive(dataset: Dataset) -> Generator[Any, None, None]:
 
 
 @click.command()
-@click.argument("scope", type=str)
-@click.argument("outfile", type=OutFile)
+@click.argument("scope", type=str, default="default")
+@click.argument("outfile", type=OutFile, default=settings.DATA_PATH / "pairs.json")
 @click.option("--log-level", default="INFO")
 def main(scope: str, outfile: Path, log_level: str):
     configure_logging(level=logging.getLevelNamesMapping()[log_level])
