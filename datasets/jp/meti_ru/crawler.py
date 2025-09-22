@@ -40,18 +40,13 @@ def detect_script(context, text: str) -> Optional[str]:
     if not scripts:
         context.log.warning(f"Could not detect script for: {text}")
         return None
-    dominant = max(set(scripts), key=scripts.count)
-    # Only return a language if confident
-    if dominant in {"Hiragana", "Katakana"}:
+    # Japanese: Hiragana or Katakana present
+    if "Hiragana" in scripts or "Katakana" in scripts:
         return "jpn"
-    elif dominant == "Han" and (
-        "Hiragana" not in scripts and "Katakana" not in scripts
-    ):
-        return "zho"
-    # English / Latin
-    elif dominant == "Latin":
+    # English: Latin alphabet present
+    if "Latin" in scripts:
         return "eng"
-    # Do not return a language if uncertain
+    # Uncertain: Han characters could be Japanese or Chinese
     return None
 
 
