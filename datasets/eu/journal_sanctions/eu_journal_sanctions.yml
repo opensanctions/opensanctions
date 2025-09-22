@@ -84,6 +84,8 @@ lookups:
     options:
       - match: Crimea, Ukraine
         value: ua-cri
+      - match: "Russian-occupied regions of Zaporizhzhia and Kherson"
+        value: ru
   type.email:
     options:
       - match: "general@angstrem.r"
@@ -96,7 +98,7 @@ lookups:
           - 2024/2642
           - 2024/2643
         value: EU-RUSDA
-      - match: 
+      - match:
           - 2024/1485
           - 2014/512
           - 833/2014
