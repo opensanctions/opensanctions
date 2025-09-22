@@ -18,6 +18,7 @@ const expectedColumns = new Set<string>([
   'id',
   'key',
   'dataset',
+  'extraction_checksum',
   'extraction_schema',
   'source_value',
   'source_mime_type',

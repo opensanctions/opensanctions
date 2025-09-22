@@ -43,7 +43,7 @@ class Review(BaseModel, Generic[ModelType]):
     id: Optional[int] = None
     key: str
     dataset: str
-    extraction_checksum: str
+    extraction_checksum: Optional[str]
     extraction_schema: JsonValue
     source_value: str
     source_mime_type: str
@@ -178,6 +178,7 @@ class LLMExtractionConfig(ExtractionConfig[ModelType]):
         self.data_model = data_model
         self.llm_model = llm_model
         self.checksum = text_hash(llm_model + prompt)
+        self.prompt = prompt
 
 
 class SourceValue(ABC):
