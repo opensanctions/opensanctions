@@ -6,7 +6,7 @@ coverage:
   start: 2024-09-23
   end: 2024-06-30
 manual_check:
-  last_checked: "2025-09-01"
+  last_checked: "2025-08-01"
   interval: 90
   message: Please inquire with Global Energy Monitor to check whether any new data has been added to the Global Energy Ownership Tracker.
 deploy:
@@ -15,16 +15,16 @@ exports:
   - statistics.json
 load_statements: true
 summary: >
-  Information on the chain of ownership for various energy projects. The data maps 
+  Information on the chain of ownership for various energy projects. The data maps
   each level of the chain from the direct owner up to their highest-level ultimate parents.
 description: |
-  The Global Energy Ownership Tracker provides information on the chain of ownership for 
-  various energy projects. The data maps each level of the chain from the direct owner 
-  (as in, the lowest-level identified owner in the chain of ownership) up to their 
-  highest-level ultimate parents (e.g., corporations, investment firms, and governments). 
+  The Global Energy Ownership Tracker provides information on the chain of ownership for
+  various energy projects. The data maps each level of the chain from the direct owner
+  (as in, the lowest-level identified owner in the chain of ownership) up to their
+  highest-level ultimate parents (e.g., corporations, investment firms, and governments).
 
-  Ownership links are reported with the percentage of ownership, including owners that have 
-  controlling interest as well as those with minority, non-controlling interests (if over a 
+  Ownership links are reported with the percentage of ownership, including owners that have
+  controlling interest as well as those with minority, non-controlling interests (if over a
   threshold of 5% ownership).
 
   This data is from the Global Energy Ownership Tracker by Global Energy Monitor which
@@ -39,7 +39,7 @@ publisher:
   acronym: GEM
   official: false
   description: |
-    Global Energy Monitor develops and analyzes data on energy infrastructure, resources, and uses. 
+    Global Energy Monitor develops and analyzes data on energy infrastructure, resources, and uses.
     It provides open access to information that is essential to building a sustainable energy future.
   url: https://globalenergymonitor.org
 data:
@@ -427,7 +427,7 @@ lookups:
           - 4205398171
           - 1408004469
         prop: registrationNumber
-      - match: 
+      - match:
           - not found
           - not applicable
         value: null
