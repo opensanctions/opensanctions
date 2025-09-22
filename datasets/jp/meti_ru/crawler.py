@@ -35,7 +35,10 @@ EXPECTED_HASHES = {
 
 
 def detect_script(context, text: str) -> Optional[str]:
-    """Detect dominant script in a string. Return 'jpn' or 'zho' if confident, else None."""
+    """
+    Detect script in a string. Return 'jpn' or 'eng' if confident, else None.
+    Used primarily not to misclassify Chinese names as Japanese.
+    """
     scripts = [get_script(ord(ch)) for ch in text if get_script(ord(ch))]
     if not scripts:
         context.log.warning(f"Could not detect script for: {text}")
@@ -131,9 +134,9 @@ def crawl_row(context, row):
     entity = context.make("LegalEntity")
     entity.id = context.make_id(name_jpn, name_en)
     # Japanese name and alias cleanup
-    name_jpn_clean, aliases_jpn_zho = clean_name_raw(context, name_jpn, row)
+    name_jpn_clean, aliases_jpn = clean_name_raw(context, name_jpn, row)
     entity.add("name", name_jpn_clean, lang="jpn")
-    for alias, lang in aliases_jpn_zho:
+    for alias, lang in aliases_jpn:
         entity.add("alias", alias, lang=lang)
     # English name and alias cleanup
     name_en_clean, aliases = clean_name_en(name_en)
