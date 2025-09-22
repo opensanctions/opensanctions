@@ -52,6 +52,7 @@ review_table = Table(
     Column("id", Integer, primary_key=True),
     Column("key", Unicode(KEY_LEN), nullable=False, index=True),
     Column("dataset", Unicode(KEY_LEN), nullable=False, index=True),
+    Column("extraction_checksum", Unicode(KEY_LEN), nullable=False),
     Column("extraction_schema", JSON, nullable=False),
     Column("source_value", Unicode(LARGE_VALUE_LEN), nullable=True),
     Column("source_mime_type", Unicode(VALUE_LEN), nullable=True),

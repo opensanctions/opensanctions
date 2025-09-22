@@ -12,10 +12,11 @@ from zavod.context import Context
 from zavod import helpers as h
 from zavod.shed.gpt import DEFAULT_MODEL, run_typed_text_prompt
 from zavod.stateful.review import (
+    HtmlSourceValue,
+    LLMExtractionConfig,
     assert_all_accepted,
+    observe_source_value,
     request_review,
-    get_review,
-    source_html_matches,
 )
 
 Schema = Literal["Person", "Company", "LegalEntity"]
@@ -162,22 +163,38 @@ def get_title(article_element: HtmlElement) -> str:
 
 
 def crawl_enforcement_action(context: Context, date: str, url: str) -> None:
+    release_id = get_release_id(url)
     article_element = fetch_article(context, url)
     if article_element is None:
         return
-    article_html = tostring(article_element, pretty_print=True, encoding="unicode")
-    release_id = get_release_id(url)
 
-    review = get_review(context, data_model=Defendants, key_parts=release_id)
-    if review is None or not source_html_matches(review, article_element):
-        prompt_result = run_typed_text_prompt(context, PROMPT, article_html, Defendants)
+    source_value = HtmlSourceValue(
+        key_parts=release_id,
+        mime_type=HTML,
+        label="Enforcement Action Notice",
+        url=url,
+        value_string=tostring(article_element, pretty_print=True, encoding="unicode"),
+        element=article_element,
+    )
+    extraction_config = LLMExtractionConfig(
+        data_model=Defendants,
+        llm_model=DEFAULT_MODEL,
+        prompt=PROMPT,
+    )
+    observation = observe_source_value(context, source_value, extraction_config)
+    review = observation.review
+    if observation.should_extract:
+        prompt_result = run_typed_text_prompt(
+            context,
+            extraction_config.prompt,
+            source_value.value_string,
+            extraction_config.data_model,
+            model=extraction_config.llm_model,
+        )
         review = request_review(
             context,
-            key_parts=release_id,
-            source_value=article_html,
-            source_mime_type=HTML,
-            source_label="Enforcement Action Notice",
-            source_url=url,
+            source_value,
+            extraction_config,
             orig_extraction_data=prompt_result,
             crawler_version=CRAWLER_VERSION,
         )
