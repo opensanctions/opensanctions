@@ -54,12 +54,12 @@ assertions:
   min:
     schema_entities:
       LegalEntity: 570
-      Vessel: 100
+      Vessel: 500
       Person: 15
   max:
     schema_entities:
       LegalEntity: 1340
-      Vessel: 230
+      Vessel: 900
       Person: 50
 
 lookups:
