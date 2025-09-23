@@ -6,6 +6,13 @@ from zavod import helpers as h
 DATA_URL = "https://www.sanctionsmap.eu/api/v1/data?"
 REGIME_URL = "https://www.sanctionsmap.eu/api/v1/regime"
 
+# Why do we parse vessels separately?
+#   > Entities contained in Annex IV of Council Regulation (EU) No 833/2014 are subject to
+#   > specific economic prohibitions as referred to in Article 2(7), 2a(7) and 2b(1) of
+#   > Regulation (EU) No 833/2014. They are, however, not subject to an asset freeze, hence
+#   > not included in the Consolidated list.
+# All sanctioned vessels meeting this definition are provided in a separate XLSX file.
+
 # VESSELS_URL originates from the EU Sanctions Map:
 # https://www.sanctionsmap.eu/
 #
