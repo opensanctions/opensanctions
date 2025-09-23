@@ -1,9 +1,10 @@
 import string
-import openpyxl
-from typing import List, Optional, Set, Tuple, Dict, Any
 from collections import defaultdict
-from normality import slugify
 from datetime import datetime
+from typing import Any, Dict, List, Optional, Set, Tuple
+
+import openpyxl
+from normality import slugify
 from rigour.mime.types import XLSX
 
 from zavod import Context
@@ -81,14 +82,14 @@ def parse_reference(
     schemata = set()
     for row in rows:
         type_ = row.pop("type")
-        schema = context.lookup_value("type", type_)
+        # Lookup by reference first to allow an override for references where there
+        # are two conflicting type specs.
+        schema = context.lookup_value("type", str(reference))
         if schema is None:
-            schema = context.lookup_value("type", reference)
-            if schema is None:
-                context.log.warning(
-                    "Unknown entity type", type=type_, reference=reference
-                )
-                return
+            schema = context.lookup_value("type", type_)
+        if schema is None:
+            context.log.warning("Unknown entity type", type=type_, reference=reference)
+            return
         schemata.add(schema)
     if len(schemata) > 1:
         context.log.error(
