@@ -1,13 +1,19 @@
+import openpyxl
+
 from zavod import Context
 from zavod import helpers as h
 
 DATA_URL = "https://www.sanctionsmap.eu/api/v1/data?"
 REGIME_URL = "https://www.sanctionsmap.eu/api/v1/regime"
+# Extracted from: https://www.sanctionsmap.eu/#/main
+VESSELS_URL = (
+    "https://dk9q89lxhn3e0.cloudfront.net/EU+designated+vessels-+conso+July+2025.xlsx"
+)
 
 TYPES = {"E": "LegalEntity", "P": "Person"}
 
 
-def crawl(context: Context):
+def crawl_regime(context):
     regime = context.fetch_json(REGIME_URL, cache_days=1)
     for item in regime["data"]:
         regime_url = f"{REGIME_URL}/{item['id']}"
@@ -74,3 +80,33 @@ def crawl(context: Context):
                     # context.inspect(id_code)
                     context.emit(entity)
                     context.emit(sanction)
+
+
+def crawl_vessels(context):
+    path = context.fetch_resource("vessels.xlsx", VESSELS_URL)
+    workbook: openpyxl.Workbook = openpyxl.load_workbook(path, read_only=True)
+    assert workbook.sheetnames == ["Sheet1"]
+    for row in h.parse_xlsx_sheet(
+        context,
+        sheet=workbook["Sheet1"],
+    ):
+        name = row.pop("vessel_name")
+        imo = row.pop("imo_number")
+        vessel = context.make("Vessel")
+        vessel.id = context.make_id(name, imo)
+        vessel.add("name", name)
+        vessel.add("imoNumber", imo)
+        vessel.add("topics", "sanction")
+        sanction = h.make_sanction(context, vessel, key=row.pop("column_0"))
+        sanction.add("sourceUrl", row.pop("link_to_relevant_eu_official_journal"))
+        h.apply_date(sanction, "startDate", row.pop("date_of_application"))
+        # TODO: Add program mappings
+        # sanction.add("program", "EU Consolidated List of Designated Vessels")
+        context.emit(vessel)
+        context.emit(sanction)
+        context.audit_data(row)
+
+
+def crawl(context: Context):
+    crawl_regime(context)
+    crawl_vessels(context)

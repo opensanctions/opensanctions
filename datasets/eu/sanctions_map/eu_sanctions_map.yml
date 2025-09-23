@@ -47,6 +47,8 @@ tags:
   - list.sanction.eu
   - issuer.west
   - sector.maritime
+dates:
+  formats: ["%d.%m.%Y", "%d.%m.%Y’"]
 
 assertions:
   min:
