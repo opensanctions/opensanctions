@@ -13,15 +13,15 @@ REGIME_URL = "https://www.sanctionsmap.eu/api/v1/regime"
 #   > not included in the Consolidated list.
 # All sanctioned vessels meeting this definition are provided in a separate XLSX file.
 
-# VESSELS_URL originates from the EU Sanctions Map:
-# https://www.sanctionsmap.eu/
+# VESSELS_URL originates from the EU Sanctions Map: https://www.sanctionsmap.eu/
 #
 # How to find the URL:
 #
 # 1. Go to https://www.sanctionsmap.eu/ and click the download button
 #    for the "Consolidated list of designated vessels" Excel file.
 #
-# 2. If the direct CloudFront link is not visible, search the active JS bundles
+# 2. A new tab opens and the file dowloads. Right click in your download
+#    list and select "Copy Download Link". Alternatively, search the active JS bundles
 #    for `cloudfront.net` to find the `.xlsx` URL.
 #
 # Same list is also published by the Danish Maritime Authority:

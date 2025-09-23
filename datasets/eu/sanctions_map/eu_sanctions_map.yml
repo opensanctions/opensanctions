@@ -11,8 +11,9 @@ manual_check:
   message: |
     Updating VESSELS_URL:
     1. Go to https://www.sanctionsmap.eu/ and click the download button for the "Consolidated list of designated vessels" Excel file.
-    2. If the direct CloudFront link is not visible, search the active JS bundles for `cloudfront.net` to find the `.xlsx` URL.
-    3. Replace VESSELS_URL with the new link.
+    2. A new tab opens and the file dowloads. Right click in your download list and select "Copy Download Link". (Alternatively, search the active JS bundles for `cloudfront.net` to find the `.xlsx` URL.)
+    3. If it was updated, replace VESSELS_URL with the new link.
+
     Alternative fallback: Danish Maritime Authority list
     https://www.dma.dk/growth-and-framework-conditions/maritime-sanctions/sanctions-against-russia-and-belarus/eu-vessel-designations
     (no Official Journal links included)
