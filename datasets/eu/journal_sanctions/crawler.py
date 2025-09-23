@@ -93,16 +93,16 @@ def crawl_unconsolidated_row(
             )
             GC_ROWS.append(row_idx)
             break
-        # if other_id.startswith("eu-tb-"):
-        #     context.log.warning(
-        #         f"Row {row_idx} is also present in EU Travel Bans: {other_id}, can be removed from sheet",
-        #         row_id=row_id,
-        #         other_id=other_id,
-        #         name=name,
-        #         entity_type=entity_type,
-        #         country=country,
-        #     )
-        #     break
+        if other_id.startswith("eu-tb-"):
+            context.log.warning(
+                f"Row {row_idx} is also present in EU Travel Bans: {other_id}, can be removed from sheet",
+                row_id=row_id,
+                other_id=other_id,
+                name=name,
+                entity_type=entity_type,
+                country=country,
+            )
+            break
 
     dob = row.pop("DOB")
     if entity.schema.is_a("Organization"):
@@ -215,7 +215,10 @@ def crawl_context_row(context: Context, row_idx: int, row: Dict[str, str]) -> No
         entity.add("registrationNumber", h.multi_split(reg_number, ";"))
 
     context.emit(entity)
-    context.audit_data(row)
+    context.audit_data(
+        row,
+        ignore=["related", "startDate", "Address", "Notes", "previousName", "Position"],
+    )
 
 
 def crawl(context: Context):
@@ -227,7 +230,7 @@ def crawl(context: Context):
             crawl_unconsolidated_row(context, linker, idx + 2, row)
 
     # Round 2: context.csv with older entries now present in main databases
-    context_url = context.data_url.replace("gid=0", "gid=529093453")
+    context_url = context.data_url.replace("gid=0", "gid=1314630186")
     assert context_url != context.data_url
     path = context.fetch_resource("context.csv", context_url)
     with open(path, "rt") as infh:
