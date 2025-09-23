@@ -5,7 +5,22 @@ from zavod import helpers as h
 
 DATA_URL = "https://www.sanctionsmap.eu/api/v1/data?"
 REGIME_URL = "https://www.sanctionsmap.eu/api/v1/regime"
-# Extracted from: https://www.sanctionsmap.eu/#/main
+
+# VESSELS_URL originates from the EU Sanctions Map:
+# https://www.sanctionsmap.eu/#/main
+#
+# It is the only file published directly by the EU that provides the
+# consolidated vessels list along with links to the Official Journal.
+#
+# Request Data
+#   MIME Type: text/plain
+#   Encoding: UTF-8
+#   Request Data: <-- here is the source of the URL below
+#
+# If this URL changes, we can fall back to the Danish Maritime Authority’s list:
+# https://www.dma.dk/growth-and-framework-conditions/maritime-sanctions/sanctions-against-russia-and-belarus/eu-vessel-designations
+# Note: the DMA list does not include links to the Official Journal.
+
 VESSELS_URL = (
     "https://dk9q89lxhn3e0.cloudfront.net/EU+designated+vessels-+conso+July+2025.xlsx"
 )
