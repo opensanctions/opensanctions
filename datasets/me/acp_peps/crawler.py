@@ -205,13 +205,14 @@ def crawl_person(context: Context, person_data) -> bool:
     function_labels: List[str] = person_data.pop("nazivFunkcije")
     filing_date, zip_path = fetch_latest_filing(context, dates)
 
-    family_rows = None
-    function_rows = None
+    family_rows = []
+    function_rows = []
     if zip_path:
         # Relatives of a person
         family_rows = read_csv_rows(context, zip_path, "csv_clanovi_porodice_")
         # Function that this person holds
         function_rows = read_csv_rows(context, zip_path, "csv_funkcije_funkcionera_")
+
     official_row, relatives_rows = split_official_and_relatives(family_rows)
 
     if official_row:
