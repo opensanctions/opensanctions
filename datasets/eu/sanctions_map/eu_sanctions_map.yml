@@ -5,6 +5,17 @@ coverage:
   schedule: "0 */8 * * *"
   frequency: daily
   start: 2022-05-09
+manual_check:
+  last_checked: "2025-09-23"
+  interval: 90
+  message: |
+    Updating VESSELS_URL:
+    1. Go to https://www.sanctionsmap.eu/ and click the download button for the "Consolidated list of designated vessels" Excel file.
+    2. If the direct CloudFront link is not visible, search the active JS bundles for `cloudfront.net` to find the `.xlsx` URL.
+    3. Replace VESSELS_URL with the new link.
+    Alternative fallback: Danish Maritime Authority list
+    https://www.dma.dk/growth-and-framework-conditions/maritime-sanctions/sanctions-against-russia-and-belarus/eu-vessel-designations
+    (no Official Journal links included)
 load_statements: true
 summary: >
   The EU Sanctions Map is a visualisation of EU sanctions policy. It includes a broader
