@@ -1,22 +1,22 @@
+import re
 from copy import deepcopy
+from datetime import datetime, timedelta
 from typing import List, Set
 from urllib.parse import urlencode
-from datetime import datetime, timedelta
-import re
 
 from followthemoney.types import registry
-from normality import collapse_spaces, slugify
+from normality import collapse_spaces, slugify, squash_spaces
 from requests.exceptions import RetryError
-
 from zavod.context import Context
-from zavod import helpers as h
 from zavod.entity import Entity
-from zavod.stateful.positions import categorise, OccupancyStatus
 from zavod.shed.trans import (
     apply_translit_full_name,
     apply_translit_names,
     make_position_translation_prompt,
 )
+from zavod.stateful.positions import OccupancyStatus, categorise
+
+from zavod import helpers as h
 
 DECLARATION_LIST_URL = "https://declaration.acb.gov.ge/Home/DeclarationList"
 REGEX_CHANGE_PAGE = re.compile(r"changePage\((\d+), \d+\)")
@@ -259,31 +259,33 @@ def crawl_declaration(context: Context, item: dict, is_current_year) -> None:
     )
     person.add("sourceUrl", declaration_url)
 
-    position_kat = item.pop("Position")
+    position_name_kat = item.pop("Position")
     occupancy_description = None
     organization = item.pop("Organisation")
 
-    if "კანდიდატი" in position_kat:  # Candidate
-        context.log.debug(f"Skipping candidate {position_kat}")
+    if "კანდიდატი" in position_name_kat:  # Candidate
+        context.log.debug(f"Skipping candidate {position_name_kat}")
         return
 
-    position_kat = collapse_spaces(REGEX_FORMER.sub("", position_kat))
+    position_name_kat = squash_spaces(REGEX_FORMER.sub("", position_name_kat))
 
-    if len(position_kat) < 35:
-        position_kat = f"{position_kat}, {organization}"
+    if len(position_name_kat) < 35:
+        position_name_kat = f"{position_name_kat}, {organization}"
 
-    if len(position_kat) > registry.name.max_length:
-        occupancy_description = position_kat
-        position_kat = context.lookup_value("positions", position_kat, position_kat)
+    if len(position_name_kat) > registry.name.max_length:
+        occupancy_description = position_name_kat
+        position_name_kat = (
+            context.lookup_value("positions", position_name_kat) or position_name_kat
+        )
 
     position = h.make_position(
         context,
-        position_kat,
+        position_name_kat,
         country="ge",
         lang="kat",
     )
     apply_translit_full_name(
-        context, position, "kat", position_kat, TRANSLIT_OUTPUT, POSITION_PROMPT
+        context, position, "kat", position_name_kat, TRANSLIT_OUTPUT, POSITION_PROMPT
     )
     categorisation = categorise(context, position, is_pep=True)
     if not categorisation.is_pep:
