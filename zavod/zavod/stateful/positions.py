@@ -1,15 +1,16 @@
+from datetime import datetime
 from enum import Enum
 from functools import lru_cache
-from typing import Optional, List
-from datetime import datetime
-from sqlalchemy import select
-from rigour.ids.wikidata import is_qid
+from typing import List, Optional
 
-from zavod.context import Context
+from rigour.ids.wikidata import is_qid
+from sqlalchemy import select
+
+from zavod import helpers as h
 from zavod import settings
+from zavod.context import Context
 from zavod.entity import Entity
 from zavod.stateful.model import position_table
-from zavod import helpers as h
 
 NOTIFIED_SYNC_POSITIONS = False
 
@@ -145,6 +146,10 @@ def occupancy_status(
     death_date: Optional[str] = None,
     categorisation: Optional[PositionCategorisation] = None,
 ) -> Optional[OccupancyStatus]:
+    """Determine the occupancy status of a person in a position given a set of dates.
+
+    If the person should not be considered a PEP, return None.
+    """
     current_iso = current_time.isoformat()
     if death_date is not None and death_date < h.backdate(current_time, AFTER_DEATH):
         # If they died longer ago than AFTER_DEATH threshold, don't consider a PEP.

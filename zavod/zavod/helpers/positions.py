@@ -162,10 +162,14 @@ def make_occupancy(
     if death_date not in person.get("deathDate"):
         h.apply_date(person, "deathDate", death_date)
 
-    if categorisation is not None:
-        assert categorisation.is_pep, (
-            f"{person.id} {person.caption} was passed to make_occupancy despite not being categorized as a PEP"
+    if categorisation is not None and not categorisation.is_pep:
+        context.log.warning(
+            "Person is not categorized as a PEP, but was passed to make_occupancy",
+            person=person.id,
+            position=position.id,
+            categorisation=categorisation,
         )
+        return None
 
     if status is None:
         status = occupancy_status(

@@ -172,7 +172,9 @@ def emit_affiliated_position(
         start_date=start_date,
         end_date=end_date,
     )
-    assert occupancy is not None
+    # If the person should not be considered a PEP, don't emit the occupancy or position.
+    if occupancy is None:
+        return
     occupancy.add("declarationDate", filing_date)
 
     person.add("topics", "role.pep")
