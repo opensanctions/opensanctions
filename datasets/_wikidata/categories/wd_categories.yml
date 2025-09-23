@@ -1833,6 +1833,68 @@ config:
     - category: Suomen_hallinto
       language: fi
 
+    - category: Lietuvos_politikai
+      language: lt
+      country: lt
+    - category: Lietuvos_parlamentų_nariai
+      language: lt
+      country: lt
+      topic: role.pep
+    - category: Lietuvos_ministrai
+      language: lt
+      country: lt
+      topic: role.pep
+    - category: Lietuvos_apskričių_viršininkai
+      language: lt
+      country: lt
+      topic: role.pep
+    - category: Lietuvos_merai
+      language: lt
+      country: lt
+      topic: role.pep
+
+    - category: Ministru_kabineta_locekļi
+      language: lv
+      country: lv
+      topic: role.pep
+    - category: Latvijas_diplomāti
+      language: lv
+      country: lv
+      topic: role.pep
+    - category: Latvijas_diplomāti
+      language: lv
+      country: lv
+      topic: role.pep
+    - category: 14._Saeimas_deputāti
+      language: lv
+      country: lv
+      topic: role.pep
+      position:
+        name: Member of the Saeima
+        country: lv
+        topics:
+          - gov.legislative
+          - gov.national
+    - category: 13._Saeimas_deputāti
+      language: lv
+      country: lv
+      topic: role.pep
+      position:
+        name: Member of the Saeima
+        country: lv
+        topics:
+          - gov.legislative
+          - gov.national
+
+    - category: Eesti_ministrid
+      language: et
+      country: ee
+      topic: role.pep
+    - category: Eesti_kohalike_omavalitsuste_poliitikud
+      language: et
+      country: ee
+      topic: role.pep
+
     ############################################################################
     # Asia regional coverage
     # Subregion: Central Asia
