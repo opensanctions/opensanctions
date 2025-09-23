@@ -7,17 +7,17 @@ DATA_URL = "https://www.sanctionsmap.eu/api/v1/data?"
 REGIME_URL = "https://www.sanctionsmap.eu/api/v1/regime"
 
 # VESSELS_URL originates from the EU Sanctions Map:
-# https://www.sanctionsmap.eu/#/main
+# https://www.sanctionsmap.eu/
 #
-# It is the only file published directly by the EU that provides the
-# consolidated vessels list along with links to the Official Journal.
+# How to find the URL:
 #
-# Request Data
-#   MIME Type: text/plain
-#   Encoding: UTF-8
-#   Request Data: <-- here is the source of the URL below
+# 1. Go to https://www.sanctionsmap.eu/ and click the download button
+#    for the "Consolidated list of designated vessels" Excel file.
 #
-# If this URL changes, we can fall back to the Danish Maritime Authority’s list:
+# 2. If the direct CloudFront link is not visible, search the active JS bundles
+#    for `cloudfront.net` to find the `.xlsx` URL.
+#
+# Same list is also published by the Danish Maritime Authority:
 # https://www.dma.dk/growth-and-framework-conditions/maritime-sanctions/sanctions-against-russia-and-belarus/eu-vessel-designations
 # Note: the DMA list does not include links to the Official Journal.
 
