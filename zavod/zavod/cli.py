@@ -396,7 +396,7 @@ def summarize(
     to_prop: Optional[str] = None,
     to_props: List[str] = [],
 ) -> None:
-    """Sumamrise entities and links in a dataset
+    """Summarise entities and links in a dataset
 
     Example to summarise the positions held by people in a dataset of political entities:
 
