@@ -541,6 +541,9 @@ lookups:
       - match: "Lieu d'enregistrement: Biélorussie"
         props:
           jurisdiction: by
+      - match: "Lieu d'enregistrement: Crimée"
+        props:
+          jurisdiction: ua-cri
       - match: "Date de création: 1989"
         props:
           incorporationDate: 1989
@@ -712,6 +715,34 @@ lookups:
         props:
           jurisdiction: ru
           address: "Saint-Pétersbourg, Fédération de Russie"
+      - match: "Entités associées: PAO Sovcomflot (société mère)"
+        associates:
+          - PAO Sovcomflot (société mère)
+      - match: "Lieu d'enregistrement: Fédération de Russie, région de Tula, Tula"
+        props:
+          jurisdiction: ru
+          address: "Fédération de Russie, région de Tula, Tula"
+      - match: "Type d'entité: société par actions cotée"
+        props:
+          legalForm: société par actions cotée
+      - match: "Lieu d'enregistrement: Tula, Russie"
+        props:
+          jurisdiction: ru
+          address: "Tula, Russie"
+      - match: "Principal établissement: Russie: Numéro d'enregistrement: 1027100592210"
+        props:
+          jurisdiction: ru
+          registrationNumber: 1027100592210
+      - match: "Lieu d'enregistrement: 428903, Fédération de Russie, république de Tchouvachie, Cheboksary, pr. I.Yakovleva, 4"
+        props:
+          jurisdiction: ru
+          address: "428903, Fédération de Russie, république de Tchouvachie, Cheboksary, pr. I.Yakovleva, 4"
+      - match: "Numéro d'enregistrement: 1112130013270: Numéro d'enregistrement: 1112130013270"
+        props:
+          registrationNumber: 1112130013270
+      - match: "Principal établissement: régions de Zaporijjia et de Kherson occupées par la Russie"
+        props:
+          jurisdiction: ru
 
 
   ####################################################################################################
