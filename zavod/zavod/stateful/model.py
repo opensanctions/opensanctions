@@ -52,13 +52,14 @@ review_table = Table(
     Column("id", Integer, primary_key=True),
     Column("key", Unicode(KEY_LEN), nullable=False, index=True),
     Column("dataset", Unicode(KEY_LEN), nullable=False, index=True),
+    Column("extraction_checksum", Unicode(KEY_LEN), nullable=False),
     Column("extraction_schema", JSON, nullable=False),
     Column("source_value", Unicode(LARGE_VALUE_LEN), nullable=True),
     Column("source_mime_type", Unicode(VALUE_LEN), nullable=True),
     Column("source_label", Unicode(VALUE_LEN), nullable=True),
     Column("source_url", Unicode(VALUE_LEN), nullable=True),
     Column("accepted", Boolean, nullable=False, index=True),
-    Column("model_version", Integer, nullable=False),
+    Column("crawler_version", Integer, nullable=False),
     # only to be edited by the crawler
     Column("orig_extraction_data", JSON, nullable=False),
     # editable by the reviewer
