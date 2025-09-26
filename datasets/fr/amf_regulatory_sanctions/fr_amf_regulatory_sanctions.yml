@@ -1118,3 +1118,6 @@ lookups:
           - ["Altaroc Partners", "Amboise Partners SA"]
           - Maurice Tchenio
           - Patrick de Giovanni
+      - match: "La Société de gestion des fonds d'investissement de Bretagne"
+        entities:
+          - La Société de gestion des fonds d'investissement de Bretagne
