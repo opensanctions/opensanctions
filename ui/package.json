@@ -14,6 +14,7 @@
   "dependencies": {
     "@codemirror/lang-json": "^6.0.2",
     "@codemirror/lang-markdown": "^6.3.3",
+    "@opensanctions/followthemoney": "^4.2.2",
     "@uiw/react-codemirror": "^4.24.0",
     "bootstrap": "^5.3.7",
     "codemirror-json-schema": "^0.8.1",
@@ -22,6 +23,7 @@
     "kysely": "^0.28.2",
     "next": "15.4.7",
     "pg": "^8.16.3",
+    "query-string": "^9.1.1",
     "react": "^18.0.0",
     "react-bootstrap": "^2.10.10",
     "react-bootstrap-icons": "^1.11.6",
