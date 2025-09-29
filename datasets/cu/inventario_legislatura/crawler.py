@@ -1,6 +1,3 @@
-from typing import List, Optional
-
-from normality import slugify
 from zavod.stateful.positions import categorise
 
 from zavod import Context
@@ -48,7 +45,6 @@ def crawl(context: Context):
     doc = context.fetch_html(context.data_url)
     tables = doc.findall('.//table[@id="table_1"]')
     assert len(tables) == 1, len(tables)
-    headers: Optional[List[str]] = None
     for row in h.parse_html_table(tables[0]):
         data = h.cells_to_str(row)
         seat_nr = data.pop("escano")
