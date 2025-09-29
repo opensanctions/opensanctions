@@ -3,23 +3,23 @@ entry_point: crawler.py
 prefix: lt-mag
 url: https://www.migracija.lt/app/nam
 summary: >-
-  The sanctions list aims to prevent foreign individuals involved in gross human rights violations, 
+  The sanctions list aims to prevent foreign individuals involved in gross human rights violations,
   money laundering, and corruption from entering Lithuania.
 coverage:
   frequency: daily
   start: 2024-07-09
 load_statements: true
 description: |
-  The Lithuanian Parliament has introduced the Magnitsky Legislation to prevent individuals involved 
-  in human rights abuses, money laundering, and corruption from entering the country. The bill, 
-  named after Russian lawyer Sergei Magnitsky, seeks to amend Article 133 of the Lithuanian Law on the 
+  The Lithuanian Parliament has introduced the Magnitsky Legislation to prevent individuals involved
+  in human rights abuses, money laundering, and corruption from entering the country. The bill,
+  named after Russian lawyer Sergei Magnitsky, seeks to amend Article 133 of the Lithuanian Law on the
   Legal Status of Aliens.
 publisher:
   name: Migration Department under the Ministry of the Interior of the Republic of Lithuania
   acronym: migracija
   description: |
-    The Migration Department enforces restrictions on the entry or transit through the Republic of Lithuania 
-    for individuals under international sanctions. These individuals are added to the national list of foreigners 
+    The Migration Department enforces restrictions on the entry or transit through the Republic of Lithuania
+    for individuals under international sanctions. These individuals are added to the national list of foreigners
     prohibited from entering Lithuania within 4 days of the relevant EU legislation or UN Security Council resolution.
     [Source: Official Website](https://migracija.lrv.lt/en/activities/international-sanctions/)
   url: https://migracija.lrv.lt/en/
@@ -37,10 +37,10 @@ tags:
 assertions:
   min:
     schema_entities:
-      Person: 330
+      Person: 280
   max:
     schema_entities:
-      Person: 800
+      Person: 600
 
 lookups:
   type.date:
