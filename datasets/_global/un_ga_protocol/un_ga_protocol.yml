@@ -47,6 +47,7 @@ lookups:
       - match:
           - Jul-21
           - Jul-19
+          - Jul-24
           - Feb-17
           - May-13
           - 09-Sep-2207

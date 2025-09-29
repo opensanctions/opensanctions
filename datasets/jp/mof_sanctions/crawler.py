@@ -1,15 +1,16 @@
 import re
-import xlrd  # type: ignore
 import string
-from datetime import datetime, date
-from openpyxl import load_workbook
-from openpyxl.cell import Cell
-from rigour.mime.types import XLSX, XLS
-from urllib.parse import urljoin
+from datetime import date, datetime
 from typing import Dict, List, Optional
+from urllib.parse import urljoin
+
+import xlrd  # type: ignore
+from followthemoney.types.identifier import IdentifierType
 from normality import squash_spaces, stringify
 from normality.cleaning import decompose_nfkd
-from followthemoney.types.identifier import IdentifierType
+from openpyxl import load_workbook
+from openpyxl.cell import Cell
+from rigour.mime.types import XLS, XLSX
 
 from zavod import Context, Entity
 from zavod import helpers as h
@@ -25,7 +26,7 @@ SPLITS = SPLITS + ["(i)", "(ii)", "(iii)", "(iv)", "(v)", "(vi)", "(vii)", "(vii
 SPLITS = SPLITS + ["; a.k.a.", "; a.k.a ", ", a.k.a.", ", f.k.a."]
 
 ALIAS_SPLITS = SPLITS + ["; "]
-
+ADDR_SPLITS = ["; and ", ";"]
 DATE_SPLITS = SPLITS + [
     "、",
     "；",
@@ -193,7 +194,7 @@ def emit_row(context: Context, sheet: str, section: str, row: Dict[str, List[str
     entity.add("phone", row.pop("phone", []))
     entity.add("phone", row.pop("fax", []))
 
-    for address_full in row.pop("address", []):
+    for address_full in h.multi_split(row.pop("address", []), ADDR_SPLITS):
         address = h.make_address(context, full=address_full)
         h.apply_address(context, entity, address)
 
@@ -227,6 +228,30 @@ def emit_row(context: Context, sheet: str, section: str, row: Dict[str, List[str
     context.audit_data(row)
 
 
+def trim_rightmost_blank(values: List[str], keep: int = 0) -> List[str]:
+    """
+    Remove rightmost contiguous falsy values from a list, keeping at least `keep` values.
+
+    Args:
+        values: List of values to trim
+        keep: Minimum number of values to keep
+
+    Returns:
+        List with rightmost contiguous falsy values removed
+    """
+    assert len(values) >= keep, len(values)
+
+    # Find the last index with a truthy value
+    last_truthy_idx = -1
+    for i in range(len(values) - 1, -1, -1):
+        if values[i]:
+            last_truthy_idx = i
+            break
+
+    end_idx = max(keep, last_truthy_idx + 1)
+    return values[:end_idx]
+
+
 def crawl_xlsx(context: Context, url: str):
     path = context.fetch_resource("source.xlsx", url)
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
@@ -242,9 +267,14 @@ def crawl_xlsx(context: Context, url: str):
         headers = None
         for cells in sheet.iter_rows(1):
             row = [str_cell(c) for c in cells]
+            # If they've formatted cells beyond the headers, we get them in the
+            # row for the whole sheet. We want to drop those columns unless they
+            # contain data.
+            row = trim_rightmost_blank(row, keep=len(headers) if headers else 0)
 
             # after a header is found, read normal data:
             if headers is not None:
+                assert len(row) == len(headers), (len(row), len(headers), row)
                 data: Dict[str, List[str]] = {}
                 for header, cell in zip(headers, row):
                     if header is None:
@@ -269,10 +299,10 @@ def crawl_xlsx(context: Context, url: str):
             if "告示日付" in teaser:  # jp: Notice date
                 if headers is not None:
                     context.log.error("Found double header?", row=row)
-                # print("SHEET", sheet, row)
+
                 headers = []
                 for cell in row:
-                    cell = squash_spaces(cell)
+                    cell = squash_spaces(stringify(cell) or "")
                     header = context.lookup_value("columns", cell)
                     if header is None:
                         context.log.warning(

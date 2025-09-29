@@ -176,6 +176,8 @@ lookups:
           - 住所・所在地
           - 住 所 ・ 所 在 地
           - 住 所・所在地
+          - 住所等  # residence, etc.
+          - 住所  # residence
           # activity area - residence:
           - 活 動 地 域 ・ 住 所
           - 所在地・住所 登録された事務所の住所
@@ -212,7 +214,9 @@ lookups:
           - 国 籍
           - 国籍
         value: citizenship
-      - match: 旅 券 番 号
+      - match:
+          - 旅 券 番 号
+          - 旅券番号
         # wtf? travel_voucher_number
         value: passport_number
       - match:
@@ -649,7 +653,7 @@ lookups:
       - match: イラク国民ＩＤカード番号00813602、2011年9月18日発行（氏名のアラビア語表記：سالم مصطفى محمد ال منصور）
         value: 00813602
       - match: リビア旅券203037（リビア、トリポリにて発行）； （リビア旅券347834、Ibrahim Ali Tantoushの名で発行、２０１４年２月２１日失効）
-        values: 
+        values:
           - 203037
           - 347834
   type.name:

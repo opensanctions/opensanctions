@@ -1,9 +1,7 @@
-from normality import slugify
-from typing import Optional, List
+from zavod.stateful.positions import categorise
 
 from zavod import Context
 from zavod import helpers as h
-from zavod.stateful.positions import categorise
 
 IGNORE_COLUMNS = [
     "edad",
@@ -21,6 +19,12 @@ IGNORE_COLUMNS = [
     "miembro_del_cc",
     "miembro_del_buro_politico",
     "vinculo_far_minint",
+    "fuente_votos",
+    "link_a_imagen_en_drive",
+    "twitter",
+    "link_twitter",
+    "facebook",
+    "link_facebook",
 ]
 
 
@@ -39,16 +43,10 @@ def crawl(context: Context):
     context.emit(position)
 
     doc = context.fetch_html(context.data_url)
-    table = doc.find('.//table[@id="table_1"]')
-    assert table is not None
-    headers: Optional[List[str]] = None
-    for row in table.findall(".//tr"):
-        if headers is None and len(row.findall(".//th")):
-            headers = [slugify(c.text, sep="_") for c in row.findall(".//th")]
-            continue
-
-        cells = [c.text for c in row.findall("./td")]
-        data = dict(zip(headers, cells))
+    tables = doc.findall('.//table[@id="table_1"]')
+    assert len(tables) == 1, len(tables)
+    for row in h.parse_html_table(tables[0]):
+        data = h.cells_to_str(row)
         seat_nr = data.pop("escano")
         if seat_nr is None:
             continue

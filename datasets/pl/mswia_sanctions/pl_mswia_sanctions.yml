@@ -218,7 +218,10 @@ lookups:
           registrationNumber: "BY192039638"
       - match: 'adres: Republika Białorusi,220070, Mińsk, Radialnaya str. 11B, pokój. 7B (biuro 6) (adres w języku rosyjskim: Республика Беларусь, 220070, Партизанский район, г. Минск, ул. Радиальная, д. 11Б, дом. 7Б (kaб. 6)) numer rejestrowy: 191768505'
         props:
-          address: 
+          address:
             - "Republika Białorusi,220070, Mińsk, Radialnaya str. 11B, pokój. 7B (biuro 6)"
             - "Республика Беларусь, 220070, Партизанский район, г. Минск, ул. Радиальная, д. 11Б, дом. 7Б (каб. 6)"
           registrationNumber: "191768505"
+      - match: "adres: ul. Genewska 31, 03-940 Warszawa"
+        props:
+          address: "ul. Genewska 31, 03-940 Warszawa"
