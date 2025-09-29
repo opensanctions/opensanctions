@@ -78,6 +78,8 @@ lookups:
         value: UN-SC1970
       - contains: "ONU Irak - RCSNU 1518 (2003) et R (CE) 1210/2003"
         value: UN-SC1518
+      - contains: "ONU Iran prolifération - RCSNU 1737 (2006) et suivantes"
+        value: UN-SC1737
       - contains: "ONU République centrafricaine - RCSNU 2127 (2013) et R (UE) 224/2014"
         value: UN-SC2127
       - contains: "ONU Soudan du sud - RCSNU 2206 (2015)  et R (UE) 2015/735"
