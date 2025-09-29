@@ -27,12 +27,14 @@ def emit_relation(context, spouse_name, person_id):
 def crawl(context: Context):
     doc = context.fetch_html(context.data_url, cache_days=1)
     content = doc.findall(".//div[@class='mainContent']")
+    assert len(content) == 1
     containers = content[0].findall(".//div[@class='fluid-container']")
     for c in containers:
         name = c.find(".//div[@title='Salutation and Name']").text_content().strip()
         title = c.find(".//div[@title='Title']").text_content().strip()
         spouse = c.find(".//div[@title='Spouse']").text_content().strip()
         mission = c.find(".//div[@title='Mission Title']").text_content().strip()
+        # Skip entries without a name
         if not name:
             continue
         person = context.make("Person")
