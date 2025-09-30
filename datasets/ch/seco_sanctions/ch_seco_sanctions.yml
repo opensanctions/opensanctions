@@ -74,7 +74,7 @@ lookups:
         value: SECO-YEMEN
       - match: "Ordinance of 12 August 2015 on measures against the Republic of South Sudan (SR 946.231.169.9), annexes 1 and 2"
         value: SECO-SOUTHSUDAN
-      - match: "Ordinance of 4 november 2015 on measures against Burundi (SR 946.231.121.8), annex"
+      - match: "Ordinance of 4 December 2015 on measures against Burundi (SR 946.231.121.8), annex"
         value: SECO-BURUNDI
       - match: "Ordinance of 18 May 2016 on measures against North Korea (SR 946.231.127.6), annexes 1 et 6"
         value: SECO-NORTHKOREA
