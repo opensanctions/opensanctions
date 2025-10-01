@@ -200,5 +200,5 @@ lookups:
       - match: P.O. Box 1863 and 2501
         prop: postOfficeBox
         value:
-          1863
-          2501
+          - 1863
+          - 2501

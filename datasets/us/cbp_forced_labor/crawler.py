@@ -1,6 +1,7 @@
 import csv
 
 from rigour.mime.types import CSV
+from zavod.shed.zyte_api import fetch_html, fetch_resource
 
 from zavod import Context
 from zavod import helpers as h
@@ -55,12 +56,12 @@ def crawl_row(context: Context, row: dict):
 
 def crawl(context: Context):
     csv_xpath = "//a[(contains(., 'Withold') or contains(., 'Withhold')) and contains(., 'Dataset')]/@href"
-    doc = context.fetch_html(context.data_url, absolute_links=True)
+    doc = fetch_html(context, context.data_url, csv_xpath, absolute_links=True)
     csv_url = doc.xpath(csv_xpath)
     assert len(csv_url) == 1, len(csv_url)
     csv_url = csv_url[0]
 
-    path = context.fetch_resource("source.csv", csv_url)
+    _, _, _, path = fetch_resource(context, "source.csv", csv_url, CSV)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
 
     with open(path, "r", encoding="utf-8-sig") as fh:

@@ -26,8 +26,6 @@ country: us
 data:
   url: https://www.cbp.gov/document/stats/withhold-release-orders-findings
   format: html
-http:
-  "user_agent": "tech@opensanctions.org"
 ci_test: false
 dates:
   formats: ["%m/%d/%Y"]
