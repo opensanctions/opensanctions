@@ -2,12 +2,10 @@ title: OHCHR List of Companies Linked to Illegal Settlement in the West Bank
 entry_point: crawler.py
 prefix: ohchr
 coverage:
-  frequency: never
+  frequency: weekly
   start: 2024-02-09
-  end: 2023-06-30
-deploy:
-  schedule: "@monthly"
 load_statements: true
+ci_test: false
 summary: >-
   Database of business enterprises involved in illegal settlement
   activity in the Occupied Palestinian Territory, including East
@@ -74,3 +72,11 @@ url: https://www.ohchr.org/en/business/bhr-database
 data:
   url: https://docs.google.com/spreadsheets/d/e/2PACX-1vT17qv7NxgWJnqmJJiGTncmAQeWI2QKW9Z92CZOXxWJi071xJr5V8CxtnB3AxgFkFZLCg2eGgBizxXs/pub?output=csv
   format: CSV
+
+assertions:
+  min:
+    schema_entities:
+      Company: 190
+  max:
+    schema_entities:
+      Company: 250
