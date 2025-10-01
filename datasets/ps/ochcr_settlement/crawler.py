@@ -1,57 +1,39 @@
-"""
-Create list of OHCHR companies linked to illegal settlements from CSV.
-"""
-
 import csv
-from typing import Dict, Iterable
+from typing import Dict
 
-import zavod.helpers as h
-from zavod import Context
+from zavod import Context, helpers as h
+
+# Program key for OHCHR Business and Human Rights database
+OHCHR_BHR = "OHCHR-BHR"
 
 
 def crawl_row(context: Context, row: Dict[str, str]):
-    """Process one row of the CSV data"""
-    row_id = row.pop("ID").strip(" \t.")
     name = row.pop("Business enterprise").strip()
-    prev_name = row.pop("Previous name").strip()
-    notes = row.pop("Notes").strip()
     activities = row.pop("Sub-paragraph of listed activity (2020 report)").strip()
     country = row.pop("State concerned").strip()
     section = row.pop("Section").strip()
-    date = row.pop("Date")
-    # FIXME: maybe that trailing space will go away?
-    if "Source URL" in row:
-        source_url = row.pop("Source URL").strip()
-    else:
-        source_url = row.pop("Source URL").strip()
-    context.log.info(f"Processing row ID {row_id}: {name}")
-    context.audit_data(row)
+    # Skip entities that are no longer involved
     if section.startswith("A. ") or "no longer involved" in section:
-        context.log.info(
-            f"Skipping company {name} as marked as "
-            f"not involved (Section: {section})"
-        )
         return
+
     entity = context.make("Company")
     entity.id = context.make_id(name, country)
-    context.log.debug(f"Unique ID {entity.id}")
     h.apply_name(entity, name)
-    if prev_name:
-        entity.add("previousName", prev_name)
+    entity.add("previousName", row.pop("Previous name").strip())
     entity.add("program", section)
     entity.add("notes", f"Listed activities: {activities}")
-    entity.add("notes", f"Date of last update: {date}")
-    entity.add("topics", "debarment")
-    if notes:
-        entity.add("notes", notes)
-    entity.add("sourceUrl", source_url)
+    # Only entities from the latest update are marked as 'debarred'
+    entity.add("topics", row.pop("Topics"))
+    entity.add("notes", row.pop("Notes").strip())
+    entity.add("sourceUrl", row.pop("Response URL").strip())
+    entity.add("sourceUrl", row.pop("Source URL").strip())
+
+    sanction = h.make_sanction(context, entity, program_key=OHCHR_BHR)
+    h.apply_date(sanction, "date", row.pop("Date"))
+
+    context.emit(sanction)
     context.emit(entity)
-
-
-def crawl_csv(context: Context, reader: Iterable[Dict[str, str]]):
-    """Process the CSV data"""
-    for row in reader:
-        crawl_row(context, row)
+    context.audit_data(row, ["ID"])
 
 
 def crawl(context: Context):
@@ -59,4 +41,5 @@ def crawl(context: Context):
     path = context.fetch_resource("ohchr_database.csv", context.data_url)
     with open(path, "rt") as infh:
         reader = csv.DictReader(infh)
-        crawl_csv(context, reader)
+        for row in reader:
+            crawl_row(context, row)
