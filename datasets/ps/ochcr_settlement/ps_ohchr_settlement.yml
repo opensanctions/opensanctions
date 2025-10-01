@@ -5,6 +5,7 @@ coverage:
   frequency: weekly
   start: 2024-02-09
 load_statements: true
+ci_test: false
 summary: >-
   Database of business enterprises involved in illegal settlement
   activity in the Occupied Palestinian Territory, including East
