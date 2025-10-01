@@ -25,9 +25,9 @@ publisher:
   url: https://www.pa.gov/en/agencies/dhs.html
   official: true
   country: "us"
-url: https://www.pa.gov/en/agencies/dhs/report-fraud/medicheck-list.html
+url: https://www.pa.gov/agencies/dhs/report-fraud/medicheck-list
 data:
-  url: https://www.humanservices.state.pa.us/Medchk/MedchkSearch/Medchk?target=_blank
+  url: https://www.humanservices.dhs.pa.gov/Medchk/MedchkSearch/Medchk?target=_blank
   format: CSV
 dates:
   formats: ["%m/%d/%Y %H:%M:%S"]
