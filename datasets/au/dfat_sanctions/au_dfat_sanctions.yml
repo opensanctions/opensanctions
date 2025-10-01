@@ -236,6 +236,7 @@ lookups:
       - match:
           - na
           - Aug.
+          - "false passport)"
         value: null
       - match: 07/04/62
         value: "1962-04-07"
@@ -315,5 +316,5 @@ lookups:
           - 1948
           - 1949
           - 1950
-      - match: "3 March 1979 (from false passport)"
+      - match: "3 March 1979 (from"
         value: "1979-03-03"
