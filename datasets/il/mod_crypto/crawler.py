@@ -82,7 +82,7 @@ def write_csv_for_manual_diff(table, path):
         writer = csv.writer(f)
         for row in table.findall(".//tr"):
             cells = [
-                collapse_spaces(c.text_content())
+                squash_spaces(c.text_content())
                 for c in row.xpath(".//*[self::td or self::th]")
             ]
             writer.writerow(cells)
