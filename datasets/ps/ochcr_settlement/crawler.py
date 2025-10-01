@@ -4,8 +4,7 @@ from typing import Dict
 from zavod import Context, helpers as h
 from zavod.shed import zyte_api
 
-# Program key for OHCHR Business and Human Rights database
-OHCHR_BHR = "OHCHR-BHR"
+PROGRAM_KEY = "OHCHR-BHR"
 
 
 def assert_database_hash(doc):
@@ -39,7 +38,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     entity.add("sourceUrl", row.pop("Response URL").strip())
     entity.add("sourceUrl", row.pop("Source URL").strip())
 
-    sanction = h.make_sanction(context, entity, program_key=OHCHR_BHR)
+    sanction = h.make_sanction(context, entity, program_key=PROGRAM_KEY)
     h.apply_date(sanction, "date", row.pop("Date"))
 
     context.emit(sanction)
