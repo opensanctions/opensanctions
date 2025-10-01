@@ -62,6 +62,7 @@ TEXT_KEYS = {
     "Numéro d'enregistrement national principal": "registrationNumber",
     "Numéro d'enregistrement national": "registrationNumber",
     "Numéro d'enregistrement": "registrationNumber",
+    "Numéro d’enregistrement": "registrationNumber",
     "Numéro d'identification de l'entreprise": "registrationNumber",
     "numéro d'identification:": "registrationNumber",
     "Numéro d'immatriculation": "registrationNumber",

@@ -745,6 +745,126 @@ lookups:
       - match: "Principal établissement: régions de Zaporijjia et de Kherson occupées par la Russie"
         props:
           jurisdiction: ru
+      - match: "NIF: 504501388297)"
+        props:
+          innCode: 504501388297
+      - match: "Type d'entité: entreprise fédérale d'État"
+        props:
+          legalForm: entreprise fédérale d'État
+      - match: "Lieu d'enregistrement: Perm, région de Perm, Fédération de Russie"
+        props:
+          jurisdiction: ru
+          address: "Perm, région de Perm, Fédération de Russie"
+      - match: "KPP: 590801001 - Télécopieur: +7 (342) 255-77-43 - Site internet: www.bloki-perm.ru: 1025901604156"
+        schema: Company
+        props:
+          ogrnCode: 1025901604156
+          kppCode: 590801001
+      - match: "Principal établissement: Fédération de Russie - Télécopieur: +7 (492) 243-25-36"
+        props:
+          jurisdiction: ru
+      - match: "Lieu d'enregistrement: Caracas, Venezuela"
+        props:
+          jurisdiction: ve
+          address: "Caracas, Venezuela"
+      - match: "Type d'entité: société d'État chargée de la promotion du développement, de la production et de l'exportation de produits industriels de haute technologie “Rostec”"
+        props:
+          legalForm: société d'État
+          notes: société d'État chargée de la promotion du développement, de la production et de l'exportation de produits industriels de haute technologie “Rostec”
+      - match: "Numéro d'enregistrement: SRN: 1127746541427"
+        props:
+          registrationNumber: 1127746541427
+      - match: "KPP: 772601001 - Télécopieur: +7 (495) 311-01-91: 7726700943"
+        schema: Company
+        props:
+          kppCode: 772601001
+          innCode: 7726700943
+      - match: "Lieu d'enregistrement: Fédération de Russie, 620091, région de Sverdlovsk, Yekaterinburg, Kosmonavtov Ave., building 18"
+        props:
+          jurisdiction: ru
+          address: "Fédération de Russie, 620091, région de Sverdlovsk, Yekaterinburg, Kosmonavtov Ave., building 18"
+      - match: "Lieu d'enregistrement: Iran"
+        props:
+          jurisdiction: ir
+      - match: "Lieu d'enregistrement: Fédération de Russie, 125284, Moscou, Leningradskiy Prospekt, d. 31a, str. 1"
+        props:
+          jurisdiction: ru
+          address: "Fédération de Russie, 125284, Moscou, Leningradskiy Prospekt, d. 31a, str. 1"
+      - match: "Type d'entité: entreprise fédérale d'État"
+        props:
+          legalForm: entreprise fédérale d'État
+      - match: "Lieu d'enregistrement: Kuibyshev, région de Novosibirsk, Fédération de Russie"
+        props:
+          jurisdiction: ru
+          address: "Kuibyshev, région de Novosibirsk, Fédération de Russie"
+      - match: "Principal établissement: Kuibyshev, Fédération de Russie"
+        props:
+          jurisdiction: ru
+          address: "Kuibyshev, Fédération de Russie"
+      - match: "KPP: 545201001 - Télécopieur: +7 (383) 622-12-08"
+        schema: Company
+        props:
+          kppCode: 545201001
+      - match: "Industrial Zone, Ahwaz, Khouzistan, Iran"
+        props:
+          jurisdiction: ir
+          address: "Industrial Zone, Ahwaz, Khouzistan, Iran"
+      - match: "Lieu d'enregistrement: Saint-Pétersbourg et Moscou, Fédération de Russie"
+        props:
+          jurisdiction: ru
+          address: "Saint-Pétersbourg et Moscou, Fédération de Russie"
+      - match: "Date d'enregistrement: 31/07/2002: 1027739028712"
+        props:
+          incorporationDate: 2002-07-31
+          registrationNumber: 1027739028712
+      - match: "Lieu d'enregistrement: 630004, Ulitsa Lenina d. 52, Novossibirsk, Fédération de Russie"
+        props:
+          jurisdiction: ru
+          address: "630004, Ulitsa Lenina d. 52, Novossibirsk, Fédération de Russie"
+      - match: "Numéro d'enregistrement: IR30068GN / 10101920830"
+        props:
+          registrationNumber:
+            - IR30068GN
+            - 10101920830
+      - match: "Date d'enregistrement: 1999 (privatisée en 2009)"
+        props:
+          incorporationDate: 1999
+          notes: privatisée en 2009
+      - match: "Lieu d'enregistrement: Fédération de Russie, 105120, Moscou, Syromyatnichesky pr-d, 6 k.1"
+        props:
+          jurisdiction: ru
+          address: "Fédération de Russie, 105120, Moscou, Syromyatnichesky pr-d, 6 k.1"
+      - match: "CH-550.1.031.089-Numéro d’enregistrement"
+        props:
+          registrationNumber: CH-550.1.031.089
+      - match: "Lieu d'enregistrement: Fédération de Russie, 432030, région d'Ulyanovsk, ville d'Ulyanovsk, Narimanov Ave., 75"
+        props:
+          jurisdiction: ru
+          address: "Fédération de Russie, 432030, région d'Ulyanovsk, ville d'Ulyanovsk, Narimanov Ave., 75"
+      - match: "Lieu d'enregistrement: Fédération de Russie, région de Nizhny Novgorod, Nizhny Novgorod, st. Nartova, d. 6 k. 6, room 25 cab. 96"
+        props:
+          jurisdiction: ru
+          address: "Fédération de Russie, région de Nizhny Novgorod, Nizhny Novgorod, st. Nartova, d. 6 k. 6, room 25 cab. 96"
+      - match: "Principal établissement: Fédération de Russie, région de Nizhny Novgorod, Nizhny Novgorod"
+        props:
+          jurisdiction: ru
+          address: "Fédération de Russie, région de Nizhny Novgorod, Nizhny Novgorod"
+      - match: "Lieu d'enregistrement: Fédération de Russie, 129226, Moscou, Mira Avenue, 125"
+        props:
+          jurisdiction: ru
+          address: "Fédération de Russie, 129226, Moscou, Mira Avenue, 125"
+      - match: "Principal établissement: Fédération de Russie, Yekaterinburg"
+        props:
+          jurisdiction: ru
+          address: "Fédération de Russie, Yekaterinburg"
+      - match: "Lieu d'enregistrement: 300002, Fédération de Russie, Tula, Mosina str., 2"
+        props:
+          jurisdiction: ru
+          address: "300002, Fédération de Russie, Tula, Mosina str., 2"
+      - match: "Type d'entité: société par actions: 5087746137023"
+        props:
+          legalForm: société par actions
+          registrationNumber: 5087746137023
 
 
   ####################################################################################################
@@ -5217,3 +5337,215 @@ lookups:
           incorporationDate: 2023-07-16
         associates:
           - SODELIM
+      - match: "Autre dénomination: PEDEC. Numéro d’enregistrement: IR0000054377. Date d’enregistrement: 27.8.1980"
+        props:
+          registrationNumber: IR0000054377
+          incorporationDate: 1980-08-27
+        aliases:
+          - PEDEC
+      - match: "1368932 - Numéro d’identification fiscale (États-Unis)"
+        props:
+          taxNumber: 1368932
+          jurisdiction: us
+      - match: "4000000128233- Numéro d’enregistrement"
+        props:
+          registrationNumber: 4000000128233
+      - match: "Lieu d’enregistrement: Région de Volgograd, Volgograd, Fédération de Russie"
+        props:
+          address: "Région de Volgograd, Volgograd, Fédération de Russie"
+          jurisdiction: ru
+      - match: "IRL0000000024809 - Numéro d’enregistrement"
+        props:
+          registrationNumber: IRL0000000024809
+      - match: "IR915378784 - Numéro d’enregistrement"
+        props:
+          registrationNumber: IR915378784
+      - match: "Type d’entité: société par actions - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 14.10.2002 - Numéro d’enregistrement: 1027301482603 - Principal établissement: Fédération de Russie - Autres informations: INN/KPP 7303026762 / 732701001"
+        schema: Company
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          incorporationDate: 2002-10-14
+          ogrnCode: 1027301482603
+          innCode: 7303026762
+          kppCode: 732701001
+          address: Fédération de Russie
+      - match: "IR916378778 (Numéro d’enregistrement)"
+        props:
+          registrationNumber: IR916378778
+      - match: "Lieu d'enregistrement: Fédération de Russie, 420036, Republic of Tatarstan, Kazan, Dementyeva st., 1 - Type d'entité: société par actions - Date d'enregistrement: 26.11.2002 Principal établissement: Fédération de Russie: Numéro d'identification fiscale: 1661008339"
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          incorporationDate: 2002-11-26
+          innCode: 1661008339
+          address: "Fédération de Russie, 420036, Republic of Tatarstan, Kazan, Dementyeva st., 1"
+      - match: "Lieu d’enregistrement: Région de Bryansk, Bryansk, Fédération de Russie"
+        props:
+          address: "Région de Bryansk, Bryansk, Fédération de Russie"
+          jurisdiction: ru
+      - match: "Certificat d’inscription au registre du commerce, délivré en mars 2009: 5478431"
+        props:
+          registrationNumber: 5478431
+          incorporationDate: 2009-03
+      - match: "Numéro OMI attribué en 2009: 5878431"
+        props:
+          imoNumber: 5878431
+      - match: "02772297 - Numéro d’entreprise (Royaume Uni)"
+        props:
+          registrationNumber: 02772297
+          jurisdiction: gb
+      - match: "Autorisation commerciale (Bahreïn): 13388"
+        props:
+          registrationNumber: 13388
+          jurisdiction: bh
+      - match: "IR0000365670 - Numéro d’enregistrement"
+        props:
+          registrationNumber: IR0000365670
+      - match: "Autres dénominations: Maroun Oil and Gas Operations ou Maround Oil and Gas Production Co. ou MOGPC. Numéro d'enregistrement: IR0052586388. Date d'enregistrement: 2.12.1998"
+        props:
+          registrationNumber: IR0052586388
+          incorporationDate: 1998-12-02
+        aliases:
+          - Maroun Oil and Gas Operations
+          - Maround Oil and Gas Production Co.
+          - MOGPC
+      - match: "Lieu d'enregistrement: Fédération de Russie, 620024, Ekaterinburg, ulitsa Simkaya, d. 2 - Type d'entité: société par actions - Date d'enregistrement: 18.5.2009 - Principal établissement: Fédération de Russie - Numéro d’enregistrement: 1096674009332: Numéro d'identification fiscale: 6674331056"
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          incorporationDate: 2009-05-18
+          ogrnCode: 1096674009332
+          innCode: 6674331056
+          address: "Fédération de Russie, 620024, Ekaterinburg, ulitsa Simkaya, d. 2"
+      - match: "Type d'entité: société par actions - Lieu d'enregistrement: Fédération de Russie, Saint-Pétersbourg - Date d'enregistrement: 14.10.1993 Principal établissement: Fédération de Russie - Numéro d'identification fiscale: 7814027653 : Numéro d'enregistrement: 1027807560186"
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          incorporationDate: 1993-10-14
+          ogrnCode: 1027807560186
+          innCode: 7814027653
+          address: "Fédération de Russie, Saint-Pétersbourg"
+      - match: "382231 (Numéro d’enregistrement)"
+        props:
+          registrationNumber: 382231
+      - match: "Lieu d’enregistrement: Fédération de Russie (450022, République du Bashkortostan, Oufa, Mendeleev street, 134) - Date d’enregistrement: 12.8.2002 - Principal établissement: Fédération de Russie - Numéro d’enregistrement: 1020202551423: Numéro d'identification fiscale: 00274068924"
+        props:
+          jurisdiction: ru
+          incorporationDate: 2002-08-12
+          ogrnCode: 1020202551423
+          innCode: 00274068924
+          address: "Fédération de Russie (450022, République du Bashkortostan, Oufa, Mendeleev street, 134)"
+      - match: "Lieu d'enregistrement: 676811 oblast d’Amurskaya, Belogorskiy Rayon, Vozhaevka, Fédération de Russie - Date d’enregistrement: 25.5.2009 - Principal établissement: Fédération de Russie - Numéro d’enregistrement: 1092804000255: Numéro d'identification fiscale: 2811005250"
+        props:
+          jurisdiction: ru
+          incorporationDate: 2009-05-25
+          ogrnCode: 1092804000255
+          innCode: 2811005250
+          address: "676811 oblast d’Amurskaya, Belogorskiy Rayon, Vozhaevka, Fédération de Russie"
+      - match: "Type d’entité: société par actions - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 17.1.2003 - Principal établissement: Fédération de Russie - Autres informations: INN/KPP 5008011331/771701001 - Télécopieur: +7 (495) 909-83-73"
+        schema: Company
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          incorporationDate: 2003-01-17
+          innCode: 5008011331
+          kppCode: 771701001
+          address: Fédération de Russie
+      - match: "Type d’entité: société par actions - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 17.1.2003 - Principal établissement: Fédération de Russie - Autres informations: INN/KPP 5008011331/771701001 - Télécopieur: +7 (495) 909-83-73"
+        schema: Company
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          incorporationDate: 2003-01-17
+          innCode: 5008011331
+          kppCode: 771701001
+          address: Fédération de Russie
+      - match: "Type d’entité: entreprise unitaire publique fédérale - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 17.12.1992 - Numéro d’enregistrement: 1027401350932 - Principal établissement: Fédération de Russie - Autres informations: INN/KPP 7423000572 / 745901001 - Télécopieur: +8 (351) 465-22-33, +8 (351) 465-55-66"
+        schema: Company
+        props:
+          jurisdiction: ru
+          legalForm: entreprise unitaire publique fédérale
+          incorporationDate: 1992-12-17
+          ogrnCode: 1027401350932
+          innCode: 7423000572
+          kppCode: 745901001
+          address: Fédération de Russie
+      - match: "Type d’entité: société par actions non publique, propriété privée - Lieu d’enregistrement: Fédération de Russie, oblast de Vologda - Date d’enregistrement: 14.4.1994 - Numéro d’enregistrement: 1023500882437 - Principal établissement: Fédération de Russie - Autres informations: INN: 3525023010 OKPO: 07500548 KPP: 352501001"
+        schema: Company
+        props:
+          jurisdiction: ru
+          legalForm: société par actions non publique, propriété privée
+          incorporationDate: 1994-04-14
+          ogrnCode: 1023500882437
+          innCode: 3525023010
+          okpoCode: 07500548
+          kppCode: 352501001
+          address: "Fédération de Russie, oblast de Vologda"
+      - match: "Numéro d’enregistrement: HRB 81573"
+        props:
+          registrationNumber: HRB 81573
+      - match: "Numéro d’enregistrement - Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Moscou, Fédération de Russie - Date d’enregistrement: 18.8.2011 - Principal établissement: Fédération de Russie - Télécopieur: +7 (499) 608-90-03 - Numéro d’identification fiscale: 7718857267 - KPP: 770501001: 1117746641572"
+        schema: Company
+        props:
+          ogrnCode: 1117746641572
+          jurisdiction: ru
+          legalForm: société à responsabilité limitée
+          incorporationDate: 2011-08-18
+          innCode: 7718857267
+          kppCode: 770501001
+          address: "Moscou, Fédération de Russie"
+      - match: "Type d’entité: société par actions - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 17.11.2003 - Numéro d’enregistrement: 1037825058732 - Principal établissement: Fédération de Russie - Autres informations: INN/KPP 7811144648 / 781101001"
+        schema: Company
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          incorporationDate: 2003-11-17
+          ogrnCode: 1037825058732
+          innCode: 7811144648
+          kppCode: 781101001
+          address: Fédération de Russie
+      - match: "Numéros d'enregistrement: OGRN - Type d’entité: société par actions - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 27.9.2002 - Principal établissement: Fédération de Russie - Télécopieur: 742-35-87: 1025001627012"
+        schema: Company
+        props:
+          ogrnCode: 1025001627012
+          jurisdiction: ru
+          legalForm: société par actions
+          incorporationDate: 2002-09-27
+          address: Fédération de Russie
+      - match: "Type d'entité: société par actions. Lieu d'enregistrement: Oblast de Tcheliabinsk, Fédération de Russie. Date d'enregistrement: 22.6.2000. Numéro d'enregistrement: 1027400870826. Principal établissement: Russie. Numéro d’identification fiscale: 7415029289: Numéro d'enregistrement: 1027400870826"
+        schema: Company
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          incorporationDate: 2000-06-22
+          ogrnCode: 1027400870826
+          innCode: 7415029289
+          address: Oblast de Tcheliabinsk, Fédération de Russie
+      - match: "Lieu d'enregistrement: Fédération de Russie, 123298, Moscou, ulitsa Narodnogo Opolcheniya, d. 40, k. 2- Type d'entité: société à responsabilité limitée - Date d'enregistrement: 25.11.2002 - Principal établissement: Fédération de Russie - Numéro d’enregistrement: 1028601443034: Numéro d'identification fiscale: 8608049090"
+        schema: Company
+        props:
+          jurisdiction: ru
+          legalForm: société à responsabilité limitée
+          incorporationDate: 2002-11-25
+          ogrnCode: 1028601443034
+          innCode: 8608049090
+          address: "Fédération de Russie, 123298, Moscou, ulitsa Narodnogo Opolcheniya, d. 40, k. 2"
+      - match: "Lieu d'enregistrement: Fédération de Russie, 424003, République des Maris, Yoshkar-Ola, st. Suvorova, 15 - Date d'enregistrement: 18.4.2002 - Numéro d’enregistrement: 1021200757808 - Principal établissement: Fédération de Russie: Numéro d'identification fiscale: 1200001885"
+        schema: Company
+        props:
+          jurisdiction: ru
+          incorporationDate: 2002-04-18
+          ogrnCode: 1021200757808
+          innCode: 1200001885
+          address: "Fédération de Russie, 424003, République des Maris, Yoshkar-Ola, st. Suvorova, 15"
+      - match: "Numéro d’enregistrement: 1047422507736 ou 1127746188536"
+        props:
+          ogrnCode:
+            - 1047422507736
+            - 1127746188536
+      - match: "Numéro d’identification fiscale: 7449044990 ou 7715909132"
+        props:
+          innCode:
+            - 7449044990
+            - 7715909132
