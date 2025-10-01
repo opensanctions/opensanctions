@@ -43,6 +43,7 @@ def clean_date(date):
         "Between",
         "circa",
         "Circa",
+        "_x000D_",
     ]
     dates = []
     if isinstance(date, datetime):
@@ -73,7 +74,9 @@ def clean_reference(ref: str) -> Optional[str]:
 
 
 def clean_country(country: str) -> List[str]:
-    return h.multi_split(country, ["a)", "b)", "c)", "d)", ";", ",", " and "])
+    return h.multi_split(
+        country, ["a)", "b)", "c)", "d)", ";", ",", " and ", "_x000D_"]
+    )
 
 
 def parse_reference(

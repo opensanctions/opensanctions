@@ -865,6 +865,10 @@ lookups:
         props:
           legalForm: société par actions
           registrationNumber: 5087746137023
+      - match: "Lieu d'enregistrement: Fédération de Russie, région d'Omsk, Omsk, Karl Marx Avenue, 41"
+        props:
+          jurisdiction: ru
+          address: "Fédération de Russie, région d'Omsk, Omsk, Karl Marx Avenue, 41"
 
 
   ####################################################################################################
@@ -5549,3 +5553,116 @@ lookups:
           innCode:
             - 7449044990
             - 7715909132
+      - match: "IR0000102447 - Numéro d’enregistrement"
+        props:
+          registrationNumber: IR0000102447
+      - match: "Type d'entité: société par actions - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 22.1.1993 (date d'enregistrement national: 16.6.2000) - Personne associée: Pavel Gennadievich Tochilin (directeur général) (NIF: 504501388297): Numéro d'enregistrement: 1025005917023"
+        schema: Company
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          incorporationDate: ["1993-01-22", "2000-06-16"]
+          ogrnCode: 1025005917023
+          innCode: 504501388297
+          address: Fédération de Russie
+        associates:
+          - Pavel Gennadievich Tochilin
+      - match: "SWIFT: REF AIRTH"
+        props:
+          swiftBic: REFAIRTH
+      - match: "Autre dénomination: KEPCO"
+        props:
+          alias: KEPCO
+      - match: "Autre dénomination: Gacharsan Oil Gas Co"
+        props:
+          alias: Gacharsan Oil Gas Co
+      - match: "Autre dénomination: AOGC"
+        props:
+          alias: AOGC
+      - match: "Type d’entité: société par actions non publique - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 11.10.2002 - Numéro d’enregistrement: 1025001627859 - Principal établissement: Fédération de Russie - Autres informations: Numéro d’identification: 13185231 INN: 5013045054 KPP: 504001001 OGRN: 1025001627859"
+        schema: Company
+        props:
+          jurisdiction: ru
+          legalForm: société par actions non publique
+          incorporationDate: 2002-10-11
+          ogrnCode: 1025001627859
+          innCode: 5013045054
+          kppCode: 504001001
+          address: Fédération de Russie
+      - match: "Type d'entité: société par actions cotée. Lieu d'enregistrement: Fédération de Russie. Date d'enregistrement: 1992. Numéro d'enregistrement: 1027739555282. Numéro d’identification fiscale: 7734202860. Principal établissement: Fédération de Russie: Numéro d'enregistrement: 1027739555282"
+        schema: Company
+        props:
+          jurisdiction: ru
+          legalForm: société par actions cotée
+          incorporationDate: 1992
+          ogrnCode: 1027739555282
+          innCode: 7734202860
+          address: Fédération de Russie
+      - match: "IR0000047087 - Numéro d’enregistrement"
+        props:
+          registrationNumber: IR0000047087
+      - match: "SG199004388C - Numéro d’enregistrement: (Singapour)"
+        props:
+          registrationNumber: SG199004388C
+          jurisdiction: sg
+      - match: "Date d’enregistrement: 5.9.1990 (Singapour)"
+        props:
+          incorporationDate: 1990-09-05
+          jurisdiction: sg
+      - match: "Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 7.7.2005 - Numéro d’enregistrement: 1057747407398 - Principal établissement: Crimée - Télécopieur: +7 (495) 363-44-43 - Numéro d’identification fiscale: 7721533826 - KPP: 910201001"
+        schema: Company
+        props:
+          jurisdiction: ru
+          legalForm: société à responsabilité limitée
+          incorporationDate: 2005-07-07
+          ogrnCode: 1057747407398
+          innCode: 7721533826
+          kppCode: 910201001
+          address: Crimée
+      - match: "IR0000368792 - Numéro d’enregistrement"
+        props:
+          registrationNumber: IR0000368792
+      - match: "IR0052586382 - Numéro d’enregistrement"
+        props:
+          registrationNumber: IR0052586382
+      - match: "Code SWIFT succursale de Kish Island: SCERIRTH KSH"
+        props:
+          swiftBic: SCERIRTH KSH
+      - match: "Code SWIFT succursale de Dubaï: SCTSAEA1"
+        props:
+          swiftBic: SCTSAEA1
+      - match: "Code SWIFT succursale de Téhéran: SCERIRTH"
+        props:
+          swiftBic: SCERIRTH
+      - match: "IR0052586388 - Numéro d’enregistrement"
+        props:
+          registrationNumber: IR0052586388
+      - match: "03503060 - Numéro d’enregistrement (Royaume Uni)"
+        props:
+          registrationNumber: 03503060
+          jurisdiction: gb
+      - match: "CH-550.1.031.089-Numéro d’enregistrement"
+        props:
+          registrationNumber: CH-550.1.031.089
+      - match: "CHE-109.711.148 - Numéro de TVA"
+        props:
+          taxNumber: CHE-109.711.148
+      - match: "Fondée en 1995"
+        props:
+          incorporationDate: 1995
+      - match: "IR0022770444 - Numéro d’enregistrement"
+        props:
+          registrationNumber: IR0022770444
+      - match: "IR0000047088 - Numéro d’enregistrement"
+        props:
+          registrationNumber: IR0000047088
+      - match: "Numéro d'enregistrement - Type d’entité: société par actions - Lieu d’enregistrement: Fédération de Russie, région de Sverdlovsk, Yekaterinburg - Date d’enregistrement: 15.5.2009 - Principal établissement: Fédération de Russie, Yekaterinburg - Numéro d’identification fiscale: 6659190900 - KPP: 668601001 - Télécopieur: +7 (343) 352-46-32, +7 (343) 334-46-42, +7 (343) 336-71-20, +7 (343) 329-77-00 - Site internet: www.uraltransmash.com: 1096659005200"
+        schema: Company
+        props:
+          ogrnCode: 1096659005200
+          jurisdiction: ru
+          legalForm: société par actions
+          incorporationDate: 2009-05-15
+          innCode: 6659190900
+          kppCode: 668601001
+          address: "Fédération de Russie, région de Sverdlovsk, Yekaterinburg"
