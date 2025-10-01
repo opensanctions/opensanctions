@@ -2,10 +2,65 @@ import csv
 from typing import Dict
 from pathlib import Path
 
-from normality import collapse_spaces
+from normality import squash_spaces
+from rigour.text.scripts import is_latin
 
 from zavod import Context, helpers as h
 from zavod.shed.zyte_api import fetch_html
+
+
+HOMOGLYPHS = {
+    "ᴄ": "c",
+    "ᴑ": "o",
+    "ᴠ": "v",
+    "ᴡ": "w",
+    "ᴢ": "z",
+    "Α": "A",
+    "Β": "B",
+    "Ε": "E",
+    "Ζ": "Z",
+    "Η": "H",
+    "ϳ": "j",
+    "Κ": "K",
+    "Μ": "M",
+    "Ν": "N",
+    "ο": "o",
+    "Ρ": "P",
+    "Ϲ": "C",
+    "Τ": "T",
+    "Υ": "Y",
+    "Χ": "X",
+    "а": "a",
+    "А": "A",
+    "В": "B",
+    "ԁ": "d",
+    "е": "e",
+    "Е": "E",
+    "ѕ": "s",
+    "Ѕ": "S",
+    "ј": "j",
+    "Ј": "J",
+    "ԛ": "q",
+    "М": "M",
+    "Н": "H",
+    "о": "o",
+    "р": "p",
+    "Р": "P",
+    "с": "c",
+    "С": "C",
+    "Ԍ": "G",
+    "Т": "T",
+    "Ү": "Y",
+    "х": "x",
+    "Х": "X",
+    "ԝ": "w",
+    "Ԝ": "W",
+    "հ": "h",
+    "ո": "n",
+    "ս": "u",
+    "Ս": "U",
+    "օ": "o",
+}
 
 ID_FIELDS = [("id_no", "id_country"), ("residency_no", "residency_country")]
 LOCAL_PATH = Path(__file__).parent
@@ -18,12 +73,16 @@ def remove_zero_width_space(row):
     }
 
 
+def normalize_address(addr):
+    return "".join(HOMOGLYPHS.get(c, c) for c in addr)
+
+
 def write_csv_for_manual_diff(table, path):
     with open(path, "w") as f:
         writer = csv.writer(f)
         for row in table.findall(".//tr"):
             cells = [
-                collapse_spaces(c.text_content())
+                squash_spaces(c.text_content())
                 for c in row.xpath(".//*[self::td or self::th]")
             ]
             writer.writerow(cells)
@@ -41,7 +100,7 @@ def crawl_csv_row(context: Context, row: Dict[str, str]):
         person = context.make("Person")
         person.id = context.make_id(row.get("id_no") or row.get("passport_no") or name)
         h.apply_name(person, full=name, lang="eng")
-        h.apply_date(person, "birthDate", row.pop("dob"))
+        h.apply_date(person, "birthDate", squash_spaces(row.pop("dob")))
         person.add("email", row.pop("email").split(";"))
         person.add("phone", row.pop("phone"))
         for alias in row.pop("alias").split(";"):
@@ -87,6 +146,9 @@ def crawl_csv_row(context: Context, row: Dict[str, str]):
     # --- Wallets --- are always created if wallet data is present
     account_id = row.pop("account/wallet_id")
     if account_id:
+        account_id = normalize_address(account_id)
+        if not is_latin(account_id):
+            context.log.warning(f"Non-latin account ID: {account_id}")
         wallet = context.make("CryptoWallet")
         wallet.id = context.make_id(account_id)
         wallet.set("publicKey", account_id)
