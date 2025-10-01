@@ -2,7 +2,7 @@ import csv
 from typing import Dict
 from pathlib import Path
 
-from normality import collapse_spaces, squash_spaces
+from normality import squash_spaces
 from rigour.text.scripts import is_latin
 
 from zavod import Context, helpers as h
