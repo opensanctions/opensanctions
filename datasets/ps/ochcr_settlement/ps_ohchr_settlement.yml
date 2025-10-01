@@ -2,11 +2,8 @@ title: OHCHR List of Companies Linked to Illegal Settlement in the West Bank
 entry_point: crawler.py
 prefix: ohchr
 coverage:
-  frequency: never
+  frequency: weekly
   start: 2024-02-09
-  end: 2023-06-30
-deploy:
-  schedule: "@monthly"
 load_statements: true
 summary: >-
   Database of business enterprises involved in illegal settlement
@@ -59,8 +56,6 @@ description: |
   j. The use of benefits and reinvestments of enterprises owned
   totally or partially by settlers for developing, expanding and
   maintaining the settlements.
-
-  The data has been extracted manually from the [30 June 2023 update PDF.](https://www.ohchr.org/sites/default/files/documents/hrbodies/hrcouncil/sessions-regular/session31/database-hrc3136/23-06-30-Update-israeli-settlement-opt-database-hrc3136.pdf).
 publisher:
   name: United Nations Human Rights Council
   acronym: OHCHR
@@ -69,7 +64,13 @@ publisher:
   description: |
     > The Human Rights Council is an intergovernmental body within the United Nations system made up of 47 States responsible for the promotion and protection of all human rights around the globe.
   official: true
-url: https://www.ohchr.org/en/hr-bodies/hrc/regular-sessions/session31/database-hrc3136
+url: https://www.ohchr.org/en/business/bhr-database
 data:
-  url: https://docs.google.com/spreadsheets/d/e/2PACX-1vT17qv7NxgWJnqmJJiGTncmAQeWI2QKW9Z92CZOXxWJi071xJr5V8CxtnB3AxgFkFZLCg2eGgBizxXs/pub?output=csv
-  format: CSV
+  url: https://www.ohchr.org/en/business/bhr-database
+  format: HTML
+
+lookups:
+  type.country:
+    options:
+      - match: Israel Israel
+        value: IL
