@@ -71,18 +71,29 @@ def tokenize_name_(schema: Schema, name: str) -> Generator[Tuple[str, str], None
     elif schema.is_a("LegalEntity"):
         nameobj = tag_org_name(nameobj, prenormalize_name)
 
+    # symbolic_parts: Set[NamePart] = set()
+    for span in nameobj.spans:
+        yield (SYMBOL_FIELD, f"{SYMBOL_FIELD}:{span.symbol.category}:{span.symbol.id}")
+
+        # if len(span.parts) == 1 and span.symbol.category in (
+        #     Symbol.Category.NAME,
+        #     Symbol.Category.SYMBOL,
+        # ):
+        #     symbolic_parts.update(span.parts)
+
     name_tokens: Set[str] = set()
     for part in nameobj.parts:
+        name_tokens.add(part.comparable)
         if len(part.form) < 3 or len(part.form) > 30 or is_stopword(part.form):
             continue
+
+        # if part in symbolic_parts:
+        #     continue
 
         yield NAME_PART_FIELD, f"{NAME_PART_FIELD}:{part.comparable}"
         phoneme = part.metaphone
         if phoneme is not None and len(phoneme) > 3:
             yield PHONETIC_FIELD, f"{PHONETIC_FIELD}:{phoneme}"
-
-    for sym in nameobj.symbols:
-        yield (SYMBOL_FIELD, f"{SYMBOL_FIELD}:{sym.category}:{sym.id}")
 
     name_fp = "".join(sorted(name_tokens))
     if len(name_fp) > 3 and len(name_fp) < 200:
