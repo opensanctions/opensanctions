@@ -11,12 +11,10 @@ def crawl_row(context: Context, row: dict):
     country = row.pop("Country")
     sector = row.pop("Industry")
     status = row.pop("Status")
-    merchandise = row.pop("Merchandise")
     wro = row.pop("WRO/Finding")
     remarks = row.pop("Remarks")
     source_url = row.pop("Press Release")
     start_date = row.pop("Effective Date")
-    modified_date = row.pop("Modified Date")
     name = row.pop("Entity")
     name_result = context.lookup("name", name)
     if name_result is None:
@@ -38,20 +36,17 @@ def crawl_row(context: Context, row: dict):
         entity.add("description", wro)
         if entity.schema.is_a("Vessel"):
             entity.add("keywords", sector)
-            entity.add("keywords", merchandise)
         else:
             entity.add("sector", sector)
-            entity.add("sector", merchandise)
 
         if status in ["Active", "Partially Active"]:
             entity.add("topics", "sanction")
             sanction = h.make_sanction(context, entity)
             h.apply_date(sanction, "startDate", start_date)
-            h.apply_date(sanction, "modifiedAt", modified_date)
             context.emit(sanction)
 
         context.emit(entity)
-        context.audit_data(row)
+        context.audit_data(row, ignore=["Calendar Year", "Country Code"])
 
 
 def crawl(context: Context):
