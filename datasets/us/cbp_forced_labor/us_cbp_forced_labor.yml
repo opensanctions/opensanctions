@@ -313,3 +313,6 @@ lookups:
       - match: Taepyung Salt Farm
         entities:
           - name: Taepyung Salt Farm
+      - match: "Giant Manufacturing Co., Ltd."
+        entities:
+          - name: Giant Manufacturing Co., Ltd.
