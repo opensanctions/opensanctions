@@ -193,7 +193,7 @@ lookups:
       - match: 
           - 5878431
           - 644101001
-        prop:  registrationNumber
+        prop: registrationNumber
   identification_segment:
     lowercase: true
     normalize: true
