@@ -73,7 +73,8 @@ def tokenize_name_(schema: Schema, name: str) -> Generator[Tuple[str, str], None
 
     # symbolic_parts: Set[NamePart] = set()
     for span in nameobj.spans:
-        yield (SYMBOL_FIELD, f"{SYMBOL_FIELD}:{span.symbol.category}:{span.symbol.id}")
+        val = f"{SYMBOL_FIELD}:{span.symbol.category.value}:{span.symbol.id}"
+        yield (SYMBOL_FIELD, val)
 
         # if len(span.parts) == 1 and span.symbol.category in (
         #     Symbol.Category.NAME,
