@@ -138,3 +138,6 @@ lookups:
         value: EU-SYR
       - match: 2024/254
         value: EU-GTM
+      # TODO: Remap once it's in the eu_fsf
+      - match: 2010/413
+        value: null
