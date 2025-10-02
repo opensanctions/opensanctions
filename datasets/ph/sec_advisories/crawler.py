@@ -1,10 +1,11 @@
 from typing import cast
+
 from banal import ensure_list
 from lxml.etree import _Element
+from zavod.shed.zyte_api import fetch_html
 
 from zavod import Context
 from zavod import helpers as h
-from zavod.shed.zyte_api import fetch_html
 
 
 def crawl_item(li_tag: _Element, context: Context) -> None:
@@ -58,8 +59,28 @@ def crawl_item(li_tag: _Element, context: Context) -> None:
     context.emit(entity)
 
 
+UNBLOCK_ACTIONS = [
+    {
+        "action": "waitForNavigation",
+        "waitUntil": "networkidle0",
+        "timeout": 31,
+        "onError": "return",
+    },
+    {
+        "action": "waitForSelector",
+        "selector": {
+            "type": "xpath",
+            "value": ".//*[@class='accordion-content']/ul/li",
+            "state": "visible",
+        },
+        "timeout": 15,
+        "onError": "return",
+    },
+]
+
+
 def crawl(context: Context):
     list_xpath = ".//*[@class='accordion-content']/ul/li"
-    doc = fetch_html(context, context.data_url, list_xpath)
+    doc = fetch_html(context, context.data_url, list_xpath, actions=UNBLOCK_ACTIONS)
     for item in doc.findall(list_xpath):
         crawl_item(item, context)
