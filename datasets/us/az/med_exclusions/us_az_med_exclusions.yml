@@ -50,16 +50,16 @@ lookups:
       - match: |
           name-provider-f-a-c-t-s-behavioral-health-npi-1386928414-action-type-suspend-terminate-suspend-effective-date-12-1-2023
           name-provider-none-npi-1235787599-action-type-suspend-terminate-none-effective-date-12-1-2023
-          name-provider-my-behavioral-health-treatment-center-npi-1376209916-action-type-suspend-terminate-suspend-effective-date-12-1-2023
+          name-provider-desert-foothills-counseling-npi-1730553058-action-type-suspend-terminate-suspend-effective-date-11-9-2023
         rows:
           - name_provider: 'F.A.C.T.S. Behavioral Health'
             npi: ['1386928414', '1235787599']
             action_type_suspend_terminate: 'Suspend'
             effective_date: '12/1/2023'
-          - name_provider: 'My Behavioral Health Treatment Center'
-            npi: '1376209916'
+          - name_provider: 'Desert Foothills Counseling'
+            npi: '1730553058'
             action_type_suspend_terminate: 'Suspend'
-            effective_date: '12/1/2023'
+            effective_date: '11/9/2023'
       - match: |
           name-provider-legacy-healing-health-community-llc-npi-1083356877-action-type-suspend-terminate-suspend-effective-date-11-9-2023
           name-provider-helping-handz-counseling-services-outpatent-ntreatment-center-corp-npi-1811597552-action-type-suspend-terminate-suspend-effective-date-11-9-2023
@@ -82,7 +82,7 @@ lookups:
       - match: |
           name-provider-legacy-healthcare-llc-npi-1295329001-action-type-suspend-terminate-suspend-effective-date-10-13-2023
           name-provider-stepping-stone-treatment-center-nwe-kare-behavioral-health-npi-1588338685-n1508454471-action-type-suspend-terminate-suspend-nsuspend-effective-date-10-13-2023-n10-6-2023
-          name-provider-generational-wellness-npi-1952937286-action-type-suspend-terminate-suspend-effective-date-9-29-2023
+          name-provider-maa-wellness-center-inc-npi-1366094393-action-type-suspend-terminate-suspend-effective-date-9-29-2023
         rows:
           - name_provider: 'Legacy Healthcare, LLC'
             npi: '1295329001'
@@ -96,7 +96,7 @@ lookups:
             npi: '1508454471'
             action_type_suspend_terminate: 'Suspend'
             effective_date: '10/6/2023'
-          - name_provider: 'Generational Wellness'
-            npi: '1952937286'
+          - name_provider: 'MAA Wellness Center, Inc.'
+            npi: '1366094393'
             action_type_suspend_terminate: 'Suspend'
             effective_date: '9/29/2023'
