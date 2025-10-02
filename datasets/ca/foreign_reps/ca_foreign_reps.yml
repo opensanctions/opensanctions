@@ -18,7 +18,7 @@ publisher:
   name: Government of Canada
   description: |
     The list is maintained and published by the government of Canada.
-  country: zz
+  country: ca
   url: https://international.canada.ca/en/global-affairs
   official: true
 data:
