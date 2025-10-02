@@ -3,7 +3,7 @@ from rigour.mime.types import CSV
 
 from zavod import Context, helpers as h
 
-US_FCC = "US-FCC"
+PROGRAM_KEY = "US-FCC"
 HEADERS = {
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
     "Accept-Encoding": "gzip, deflate, br",
@@ -51,7 +51,7 @@ def crawl_item(input_dict: dict, context: Context):
         context.emit(ownership)
         context.emit(subsidiary_sanction)
 
-    sanction = h.make_sanction(context, entity, program_key=US_FCC)
+    sanction = h.make_sanction(context, entity, program_key=PROGRAM_KEY)
     sanction.add("description", description)
     sanction.add("description", input_dict.pop("Notes 1"))
     sanction.add("description", input_dict.pop("Notes 2"))

@@ -35,7 +35,7 @@ REQUEST_TEMPLATE = {
     "sys_class_name": "sp_instance",
     "sp_widget": "dbd0af311b58b450055b9796bc4bcb2d",
 }
-US_DDTC_ENFORCEMENT = "US-DDTC-ENFORCEMENT"
+PROGRAM_KEY = "US-DDTC-ENFORCEMENT"
 
 
 def get_link_href(base_url: str, link: Optional[str]) -> Optional[str]:
@@ -54,9 +54,7 @@ def crawl_row(context: Context, row: Dict[str, Any]):
     entity.add("topics", "crime.traffick")
 
     description = row.pop("description")["value"]
-    sanction = h.make_sanction(
-        context, entity, description, program_key=US_DDTC_ENFORCEMENT
-    )
+    sanction = h.make_sanction(context, entity, description, program_key=PROGRAM_KEY)
     sanction.add("reason", description)
     sanction.add("listingDate", row.pop("year")["value"])
 

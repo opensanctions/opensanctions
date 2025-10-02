@@ -5,7 +5,7 @@ from zavod.shed.zyte_api import fetch_html
 
 NORMAL_CASE_RE = r"^(?P<name>[\w\s’'/-]+?)(?:\s*\((?P<alias>[\w\s’'/-]+?)\))?$"
 # Foreign Terrorist Organizations designated under section 219 of the INA
-US_FTO219 = "US-FTO219"
+PROGRAM_KEY = "US-FTO219"
 
 
 def split_clean_name(context, name):
@@ -48,7 +48,7 @@ def crawl_row(context, row):
     entity.add("alias", alias)
     entity.add("previousName", name_former)
 
-    sanction = h.make_sanction(context, entity, program_key=US_FTO219)
+    sanction = h.make_sanction(context, entity, program_key=PROGRAM_KEY)
     h.apply_date(sanction, "startDate", start_date)
     if end_date:
         h.apply_date(sanction, "endDate", end_date)

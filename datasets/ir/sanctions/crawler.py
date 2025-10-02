@@ -5,7 +5,7 @@ from typing import Dict
 
 from zavod import Context, helpers as h
 
-IR_MFA_SANC = "IR-MFA-SANC"
+PROGRAM_KEY = "IR-MFA-SANC"
 
 
 def crawl_row(context: Context, row: Dict[str, str]):
@@ -27,7 +27,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     if schema == "Person" and position.replace("-", ""):
         entity.add("position", position)
 
-    sanction = h.make_sanction(context, entity, program_key=IR_MFA_SANC)
+    sanction = h.make_sanction(context, entity, program_key=PROGRAM_KEY)
     sanction_date = collapse_spaces(row.pop("Sanction Date"))
     h.apply_date(sanction, "date", sanction_date)
     sanction.add("description", row.pop("Sanction Title"))

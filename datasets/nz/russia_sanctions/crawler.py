@@ -25,7 +25,7 @@ TYPES = {
 }
 ASSOCIATE = ("associate", "close associate")
 FAMILY = ("relative", "wife", "son", "daughter", "nephew")
-NZ_RSA2022 = "NZ-RSA2022"
+PROGRAM_KEY = "NZ-RSA2022"
 
 
 def clean_date(value: Any) -> Any:
@@ -115,7 +115,7 @@ def crawl_entity(context: Context, data: Dict[str, Any]) -> None:
     if associates is not None:
         parse_associates(context, entity, associates)
 
-    sanction = h.make_sanction(context, entity, program_key=NZ_RSA2022)
+    sanction = h.make_sanction(context, entity, program_key=PROGRAM_KEY)
     sanction.add("startDate", data.pop("Date of Sanction"))
     modified_at = clean_date(data.pop("Date of Additional Sanction"))
     h.apply_date(sanction, "modifiedAt", modified_at)

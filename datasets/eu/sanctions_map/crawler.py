@@ -31,7 +31,7 @@ REGIME_URL = "https://www.sanctionsmap.eu/api/v1/regime"
 VESSELS_URL = (
     "https://dk9q89lxhn3e0.cloudfront.net/EU+designated+vessels-+conso+July+2025.xlsx"
 )
-EU_MARE = "EU-MARE"
+PROGRAM_KEY = "EU-MARE"
 TYPES = {"E": "LegalEntity", "P": "Person"}
 
 
@@ -120,7 +120,9 @@ def crawl_vessels(context):
         vessel.add("name", name)
         vessel.add("imoNumber", imo)
         vessel.add("topics", "sanction")
-        sanction = h.make_sanction(context, vessel, key=order_id, program_key=EU_MARE)
+        sanction = h.make_sanction(
+            context, vessel, key=order_id, program_key=PROGRAM_KEY
+        )
         sanction.add("sourceUrl", row.pop("link_to_relevant_eu_official_journal"))
         h.apply_date(sanction, "startDate", row.pop("date_of_application"))
         context.emit(vessel)

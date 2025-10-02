@@ -19,7 +19,7 @@ PROGRAMS = [
     "Paragraph 6 of resolution 2371 (2017) and paragraph 6 of resolution 2375 (2017)",
     "Economic resources controlled or operated by Ocean Maritime Management (KPe.020)",
 ]
-UN_SC1718 = "UN-SC1718"
+PROGRAM_KEY = "UN-SC1718"
 
 
 def crawl(context: Context):
@@ -57,7 +57,7 @@ def crawl(context: Context):
             vessel.add("description", row.pop("other_information"))
             vessel.add("type", row.pop("type"))
             # Create the sanction
-            sanction = h.make_sanction(context, vessel, program_key=UN_SC1718)
+            sanction = h.make_sanction(context, vessel, program_key=PROGRAM_KEY)
             h.apply_date(sanction, "startDate", row.pop("date_of_designation"))
             for program in PROGRAMS:
                 value = row.pop(program).strip()

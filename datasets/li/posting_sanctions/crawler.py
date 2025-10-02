@@ -23,7 +23,7 @@ TITLE_GENDER = {
     "Herrn": "male",
 }
 # Liechtenstein "EntsG Sanctions"
-LI_ENTSG = "LI-ENTSG"
+PROGRAM_KEY = "LI-ENTSG"
 
 
 def parse_address(context: Context, addr: str) -> Optional[Entity]:
@@ -127,7 +127,7 @@ def crawl_debarments(context: Context) -> None:
         if entity is None:
             continue
         violation = row.pop("verstoss")
-        sanction = h.make_sanction(context, entity, program_key=LI_ENTSG)
+        sanction = h.make_sanction(context, entity, program_key=PROGRAM_KEY)
         sanction.id = context.make_id(
             "Sanction", "Debarment", entity.id, violation, effective, end
         )
@@ -161,7 +161,7 @@ def crawl_infractions(context: Context) -> None:
             continue
         entity.add("topics", "reg.warn")
         violation = row.pop("verstoss")
-        sanction = h.make_sanction(context, entity, program_key=LI_ENTSG)
+        sanction = h.make_sanction(context, entity, program_key=PROGRAM_KEY)
         sanction.id = context.make_id(
             "Sanction", "Penalty", entity.id, violation, effective
         )
