@@ -4,7 +4,7 @@ from zavod import Context
 from zavod import helpers as h
 
 
-AU_TERROR = "AU-TERROR"
+PROGRAM_KEY = "AU-TERROR"
 
 
 def parse_listing_dates(date_text: Optional[str]) -> Optional[str]:
@@ -67,7 +67,7 @@ def crawl(context: Context) -> None:
 
         # Create sanction entity
         sanction = h.make_sanction(
-            context, organization, key="au-terrorist-listing", program_key=AU_TERROR
+            context, organization, key="au-terrorist-listing", program_key=PROGRAM_KEY
         )
 
         # Add listing date to sanction

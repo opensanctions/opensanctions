@@ -5,7 +5,7 @@ from zavod import helpers as h
 from zavod import Context
 
 # US HHS OIG List of Excluded Individuals/Entities
-US_HHS_OIG = "US-HHS-OIG"
+PROGRAM_KEY = "US-HHS-OIG"
 
 
 def is_zero(value: str) -> bool:
@@ -78,7 +78,7 @@ def crawl_item(context: Context, row: Dict[str, Any]):
     entity.add("topics", "debarment")
     entity.add("country", "us")
 
-    sanction = h.make_sanction(context, entity, program_key=US_HHS_OIG)
+    sanction = h.make_sanction(context, entity, program_key=PROGRAM_KEY)
     h.apply_date(sanction, "startDate", row.pop("EXCLDATE"))
     sanction.add("reason", row.pop("EXCLTYPE"))
     waiver_start = row.pop("WAIVERDATE")

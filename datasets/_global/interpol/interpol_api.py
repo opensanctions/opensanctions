@@ -44,7 +44,7 @@ HEADERS = {
     "upgrade-insecure-requests": "1",
     "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
 }
-INTERPOL_RN = "INTERPOL-RN"
+PROGRAM_KEY = "INTERPOL-RN"
 
 
 def get_countries(context: Context) -> List[str]:
@@ -112,7 +112,7 @@ def crawl_notice(context: Context, notice: Dict[str, Any]) -> None:
         entity.add("topics", "wanted")
 
     for warrant in notice.pop("arrest_warrants", []):
-        sanction = h.make_sanction(context, entity, program_key=INTERPOL_RN)
+        sanction = h.make_sanction(context, entity, program_key=PROGRAM_KEY)
         sanction.add("authorityId", entity_id)
         sanction.add("country", warrant.pop("issuing_country_id", None))
         sanction.add("reason", warrant.pop("charge"))

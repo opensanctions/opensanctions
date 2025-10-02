@@ -7,7 +7,7 @@ from zavod import helpers as h
 
 # Program key reused from 'us_trade_csl' for consistency
 # Refers to the same BIS Denied Persons List program
-US_BIS_DPL = "US-BIS-DPL"
+PROGRAM_KEY = "US-BIS-DPL"
 
 
 def parse_row(context: Context, row):
@@ -36,7 +36,7 @@ def parse_row(context: Context, row):
     citation = row.pop("fr_citation")
     # We don't link it to the website here, since it's included in the us_trade_csl
     # programs, which is linked to the website.
-    sanction = h.make_sanction(context, entity, key=citation, program_key=US_BIS_DPL)
+    sanction = h.make_sanction(context, entity, key=citation, program_key=PROGRAM_KEY)
     sanction.add("program", citation)
     h.apply_date(sanction, "startDate", start_date)
     h.apply_date(sanction, "endDate", row.pop("ending_date"))

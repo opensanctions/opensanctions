@@ -3,7 +3,7 @@ import csv
 from zavod import Context
 from zavod import helpers as h
 
-EU_ESMA = "EU-ESMA"
+PROGRAM_KEY = "EU-ESMA"
 
 
 def crawl(context: Context) -> None:
@@ -33,7 +33,7 @@ def crawl(context: Context) -> None:
             entity.add("name", row.pop("instrumentFullName", isin))
 
             sanction = h.make_sanction(
-                context, entity, key=row.pop("id"), program_key=EU_ESMA
+                context, entity, key=row.pop("id"), program_key=PROGRAM_KEY
             )
             sanction.add("provisions", row.pop("actionType"))
             reason = row.pop("reasonsForTheAction")
