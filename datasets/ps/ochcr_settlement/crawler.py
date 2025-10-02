@@ -32,8 +32,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     entity.add("previousName", row.pop("Previous name").strip())
     entity.add("program", section)
     entity.add("notes", f"Listed activities: {activities}")
-    # Only entities from the latest update are marked as 'debarred'
-    entity.add("topics", row.pop("Topics"))
+    entity.add("topics", "debarment")
     entity.add("notes", row.pop("Notes").strip())
     entity.add("sourceUrl", row.pop("Response URL").strip())
     entity.add("sourceUrl", row.pop("Source URL").strip())

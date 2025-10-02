@@ -58,8 +58,8 @@ description: |
   totally or partially by settlers for developing, expanding and
   maintaining the settlements.
 
-  The data has been extracted manually from the [30 June 2023 update PDF](https://www.ohchr.org/sites/default/files/documents/hrbodies/hrcouncil/sessions-regular/session31/database-hrc3136/23-06-30-Update-israeli-settlement-opt-database-hrc3136.pdf)
-  and the [OHCHR Database of business enterprises involved in the listed activities](https://www.ohchr.org/en/business/bhr-database) on October 1, 2025.
+  The data has been extracted manually from the [OHCHR Database of business enterprises 
+  involved in the listed activities](https://www.ohchr.org/en/business/bhr-database) on October 1, 2025.
 publisher:
   name: United Nations Human Rights Council
   acronym: OHCHR
