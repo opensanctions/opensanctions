@@ -1,16 +1,17 @@
 import csv
 from collections import defaultdict
-from dataclasses import field, dataclass
+from dataclasses import dataclass, field
 from io import StringIO
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, List, Optional, Set
 from urllib.parse import urlencode
-from nomenklatura.wikidata import WikidataClient, Claim
 
-from zavod import Context, Entity
-from zavod import helpers as h
+from nomenklatura.wikidata import Claim, WikidataClient
 from zavod.shed.wikidata.human import wikidata_basic_human
 from zavod.shed.wikidata.position import wikidata_position
 from zavod.stateful.positions import categorised_position_qids
+
+from zavod import Context, Entity
+from zavod import helpers as h
 
 URL = "https://petscan.wmcloud.org/"
 QUERY = {
@@ -143,71 +144,6 @@ def crawl_person(state: CrawlState, qid: str) -> Optional[Entity]:
         if claim.property == "P39":
             crawl_position(state, entity, claim)
     return entity
-
-
-def find_paths(
-    context: Context,
-    category_title: str,
-    page_title: str,
-    path: Tuple[str],
-    max_depth: int,
-    cursor: Any = None,
-) -> Set[str]:
-    """
-    Find all the paths between the page with `page_title` and the category with `category_title`.
-
-    `category_title` must have `Category:` prefix.
-
-    This is SLOWWWW - use for debugging.
-    Better would be if this could be fetched using petscan
-    https://github.com/magnusmanske/petscan_rs/issues/182
-    """
-    paths = set()
-    if len(path) > max_depth:
-        return paths
-    query = {
-        "action": "query",
-        "format": "json",
-        "prop": "categories",
-        "titles": page_title,
-    }
-    if cursor is not None:
-        query["clcontinue"] = cursor
-    url = f"https://en.wikipedia.org/w/api.php?{urlencode(query)}"
-    data = context.fetch_json(url, cache_days=7)
-    pageids = list(data["query"]["pages"].keys())
-    assert len(pageids) == 1
-    categories = data["query"]["pages"][pageids[0]]["categories"]
-
-    for category in categories:
-        if category_title == category["title"]:
-            paths.add(path + (category_title,))
-        if category["title"] == "Category:Contents":
-            continue
-        else:
-            paths.update(
-                find_paths(
-                    context,
-                    category_title,
-                    category["title"],
-                    path + (category["title"],),
-                    max_depth,
-                )
-            )
-    # Paginate
-    if "continue" in data:
-        paths.update(
-            find_paths(
-                context,
-                category_title,
-                page_title,
-                path,
-                max_depth,
-                cursor=data["continue"]["clcontinue"],
-            )
-        )
-
-    return paths
 
 
 def crawl_category(state: CrawlState, category_crawl_spec: Dict[str, Any]) -> None:
