@@ -10,7 +10,7 @@ FIELDS = [
 ]
 
 
-def emit_relation(context, spouse_name, person_id):
+def emit_spouse(context, spouse_name, person_id):
     spouse = context.make("Person")
     spouse.id = context.make_id(spouse_name, person_id)
     spouse.add("name", spouse_name)
