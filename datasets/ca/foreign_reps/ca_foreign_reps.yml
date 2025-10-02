@@ -17,7 +17,8 @@ tags:
 publisher:
   name: Global Affairs Canada
   description: |
-    The list is maintained and published by the government of Canada.
+    The list is maintained and published by Global Affairs Canada, the Canadian 
+    government department responsible for foreign policy and international relations.
   country: ca
   url: https://international.canada.ca/en/global-affairs
   official: true
