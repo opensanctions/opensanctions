@@ -2,7 +2,7 @@ import csv
 from collections import defaultdict
 from dataclasses import dataclass, field
 from io import StringIO
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, List, Optional, Set
 from urllib.parse import urlencode
 
 from nomenklatura.wikidata import Claim, WikidataClient
