@@ -188,8 +188,12 @@ lookups:
         value: RU
   type.identifier:
     options:
-      match: 644101001  # listed as INN, is actually a KPP
-      value: null
+      - match: "BMJIIRT"
+        value: BMJIIRTH # BANK MARKAZI JOMHOURI ISLAMI IRAN
+      - match: 
+          - 5878431
+          - 644101001
+        prop:  registrationNumber
   identification_segment:
     lowercase: true
     normalize: true
@@ -5438,7 +5442,7 @@ lookups:
           jurisdiction: ru
           incorporationDate: 2002-08-12
           ogrnCode: 1020202551423
-          innCode: 00274068924
+          innCode: 0274068924
           address: "Fédération de Russie (450022, République du Bashkortostan, Oufa, Mendeleev street, 134)"
       - match: "Lieu d'enregistrement: 676811 oblast d’Amurskaya, Belogorskiy Rayon, Vozhaevka, Fédération de Russie - Date d’enregistrement: 25.5.2009 - Principal établissement: Fédération de Russie - Numéro d’enregistrement: 1092804000255: Numéro d'identification fiscale: 2811005250"
         props:
@@ -5666,3 +5670,20 @@ lookups:
           innCode: 6659190900
           kppCode: 668601001
           address: "Fédération de Russie, région de Sverdlovsk, Yekaterinburg"
+      - match: "Type d'entité: établissement financier - SWIFT/BIC code: KHJBSDKH et 5040942458 - Principal établissement: Khartoum, Soudan"
+        props:
+          legalForm: établissement financier
+          swiftBic:
+            - KHJBSDKH
+            - 5040942458
+          address: Khartoum, Soudan
+      - match: "Télécopieur : +7 (495) 660-40-99; +7 (812) 385-94-49"
+        props:
+          phone:
+            - +7 (495) 660-40-99
+            - +7 (812) 385-94-49
+      - match: "Télécopieur: +7 (495) 785-08-88"
+        props:
+          phone: +7 (495) 785-08-88
+      - match: "Fax: 8890028"
+        props: []
