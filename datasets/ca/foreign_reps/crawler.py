@@ -38,7 +38,7 @@ def crawl(context: Context):
         if not name:
             continue
         person = context.make("Person")
-        person.id = context.make_id(name, title)
+        person.id = context.make_id(name, country)
 
         for field, xpath in FIELDS:
             elem = c.find(xpath)
