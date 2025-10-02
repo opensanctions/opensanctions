@@ -1,6 +1,6 @@
 title: "Foreign Representatives in Canada: Heads of Missions"
 entry_point: crawler.py
-prefix: ca-missions
+prefix: ca-forreps
 coverage:
   frequency: weekly
   start: 2025-09-29
