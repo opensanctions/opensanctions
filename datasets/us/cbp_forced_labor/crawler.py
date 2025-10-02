@@ -24,7 +24,7 @@ def crawl_row(context: Context, row: dict):
         if not match_entity.get("name"):
             context.log.warning("No name found for a company", entity=match_entity)
             continue
-        schema = "Vessel" if "Fishing Vessels" in country else "LegalEntity"
+        schema = name_result.schema or "LegalEntity"
         entity = context.make(schema)
         entity.id = context.make_id(match_entity.get("name"), country)
         entity.add("name", match_entity.get("name"))
