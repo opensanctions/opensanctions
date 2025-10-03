@@ -59,3 +59,36 @@ lookups:
     options:
       - match: "3035-04-07"
         value: 2025-04-07 # since it's a 'modifiedAt' date
+  columns:
+    lowercase: true
+    options:
+      - match: Name_and_Address
+        value: name_and_address
+      - match: Name
+        value: name
+      - match: Street_Address
+        value: street_address
+      - match: City
+        value: city
+      - match: State
+        value: state
+      - match: Country
+        value: country
+      - match: Postal_Code
+        value: postal_code
+      - match: beginning_date
+        value: effective_date
+      - match: Effective_Date
+        value: effective_date
+      - match: ending_date
+        value: expiration_date
+      - match: Expiration_Date
+        value: expiration_date
+      - match: Standard_Order
+        value: standard_order
+      - match: Last_Update
+        value: last_update
+      - match: Action
+        value: action
+      - match: FR_Citation
+        value: fr_citation
