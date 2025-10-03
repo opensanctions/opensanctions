@@ -4,6 +4,7 @@ prefix: ohchr
 coverage:
   frequency: weekly
   start: 2024-02-09
+  end: 2025-10-01
 load_statements: true
 ci_test: false
 summary: >-
@@ -57,9 +58,6 @@ description: |
   j. The use of benefits and reinvestments of enterprises owned
   totally or partially by settlers for developing, expanding and
   maintaining the settlements.
-
-  The data has been extracted manually from the [OHCHR Database of business enterprises 
-  involved in the listed activities](https://www.ohchr.org/en/business/bhr-database) on October 1, 2025.
 publisher:
   name: United Nations Human Rights Council
   acronym: OHCHR

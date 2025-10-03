@@ -1,20 +1,12 @@
 import csv
 from typing import Dict
 
-from zavod import Context, helpers as h
 from zavod.shed import zyte_api
 
+from zavod import Context
+from zavod import helpers as h
+
 PROGRAM_KEY = "OHCHR-BHR"
-
-
-def assert_database_hash(doc):
-    tables_div = doc.xpath(
-        "//div[@data-block-plugin-id='entity_browser_block:oh_accordion_component']"
-    )
-    assert len(tables_div) == 1, len(tables_div)
-    # If the hash changes, update the 'table_xpath' below and review the page
-    # structure for any new tables that may have been added.
-    h.assert_dom_hash(tables_div[0], "b3fda7012ede1df28021b765c68d71f6e46755ca")
 
 
 def crawl_row(context: Context, row: Dict[str, str]):
@@ -48,16 +40,15 @@ def crawl_row(context: Context, row: Dict[str, str]):
 def crawl(context: Context):
     """Crawl the OHCHR database as converted to CSV"""
     # Check that no new tables have been added
-    table_xpath = "//h5[contains(., 'Business enterprises involved in listed activities')]/following-sibling::div//table"
-    doc = zyte_api.fetch_html(
-        context,
-        context.data_url,
-        table_xpath,
-        html_source="httpResponseBody",
-        absolute_links=True,
-        cache_days=1,
+    content_xpath = "//div[contains(@class, 'ohchr-layout__container')]"
+    doc = zyte_api.fetch_html(context, context.dataset.url, content_xpath, cache_days=1)
+    content = doc.xpath(content_xpath)
+    assert len(content) == 1, len
+    # Check if the data has been updated, normally with a new report, if the content has changed.
+    h.assert_dom_hash(
+        content[0], "565a7ae05da5fcc0527c7a7f75ec832fb05b6fbe", text_only=True
     )
-    assert_database_hash(doc)
+
     # Crawl the CSV version of the database
     path = context.fetch_resource("ohchr_database.csv", context.data_url)
     with open(path, "rt") as infh:
