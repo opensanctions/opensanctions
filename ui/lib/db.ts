@@ -24,7 +24,7 @@ const expectedColumns = new Set<string>([
   'source_label',
   'source_url',
   'accepted',
-  'model_version',
+  'crawler_version',
   'orig_extraction_data',
   'extracted_data',
   'last_seen_version',
@@ -43,7 +43,7 @@ export interface ReviewTable {
   source_label: string
   source_url: string | null
   accepted: boolean
-  model_version: number
+  crawler_version: number
   orig_extraction_data: JSONColumnType<object, object, object>
   extracted_data: JSONColumnType<object, object, object>
   last_seen_version: string

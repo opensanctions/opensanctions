@@ -7,13 +7,17 @@ from normality import slugify
 from pydantic import BaseModel, JsonValue, PrivateAttr
 from pydantic.json_schema import GenerateJsonSchema, JsonSchemaMode
 from pydantic_core import CoreSchema
+from rigour.mime.types import HTML
+from rigour.text import text_hash
 from sqlalchemy import func, insert, not_, select, update
 from sqlalchemy.engine import Connection
 from sqlalchemy.sql import Select
 import orjson
+from lxml.html import HtmlElement, fromstring
 
 from zavod.context import Context
 from zavod.stateful.model import review_table
+from zavod.helpers import html as h
 
 log = getLogger(__name__)
 
@@ -44,7 +48,7 @@ class Review(BaseModel, Generic[ModelType]):
     source_label: str
     source_url: Optional[str]
     data_model: Type[ModelType]
-    model_version: int
+    crawler_version: int
     _orig_extraction_data: JsonValue = PrivateAttr()
     _extracted_data: JsonValue = PrivateAttr()
     accepted: bool
@@ -125,7 +129,7 @@ class Review(BaseModel, Generic[ModelType]):
             source_mime_type=self.source_mime_type,
             source_label=self.source_label,
             source_url=self.source_url,
-            model_version=self.model_version,
+            crawler_version=self.crawler_version,
             orig_extraction_data=self._orig_extraction_data,
             extracted_data=self._extracted_data,
             accepted=self.accepted,
@@ -172,14 +176,16 @@ def review_key(parts: str | List[str]) -> str:
 
 def request_review(
     context: Context,
+    *,
     key_parts: str | List[str],
     source_value: str,
     source_mime_type: str,
     source_label: str,
     source_url: Optional[str],
     orig_extraction_data: ModelType,
-    model_version: int,
+    crawler_version: int,
     default_accepted: bool = False,
+    keep_if_equal: bool = True,
 ) -> Review[ModelType]:
     """
     Add automatically extracted data for review and
@@ -192,18 +198,21 @@ def request_review(
 
             Should be unique within the dataset, and as consistent as possible between runs.
         source_value: The value of the original text, or a url to an archived original
-             to be used as evidence by the reviewer and for provenance if we're challenged.
+            to be used as evidence by the reviewer and for provenance if we're challenged.
         source_mime_type: The mime type of the source value. Useful to know how to display
             the source value to the reviewer.
         source_label: Used to indicate the context of the source value to the reviewer,
-             e.g. "Banking Organization field in CSV" or "Screenshot of PDF page"
+            e.g. "Banking Organization field in CSV" or "Screenshot of PDF page"
         source_url: The url where source_value was fetched from.
         orig_extraction_data: An instance of a pydantic model of data extracted
-             from the source. Any reviewer changes to the data will be validated against
-             this model.
-        model_version: The version of the data model used to extract the data. Useful to determine
-            whether data should be re-extracted when breaking model changes are made.
+            from the source. Any reviewer changes to the data will be validated against
+            this model.
+        crawler_version: A version number a crawler can use as a checkpoint for changes
+            requiring re-extraction and/or re-review.
+            Useful e.g. when breaking model changes are made.
         default_accepted: Whether the data should be marked as accepted by default.
+        keep_if_equal: Keep the accepted status and extracted data if the new
+            orig_extraction_data equals existing orig_extraction_data for this key.
     """
     key_slug = review_key(key_parts)
     assert key_slug is not None
@@ -225,7 +234,7 @@ def request_review(
             source_label=source_label,
             source_url=source_url,
             data_model=type(orig_extraction_data),
-            model_version=model_version,
+            crawler_version=crawler_version,
             orig_extraction_data=orig_extraction_data,
             extracted_data=orig_extraction_data,
             accepted=default_accepted,
@@ -234,19 +243,28 @@ def request_review(
             modified_by="zavod",
         )  # type: ignore
         review.save(context.conn)
-    # We're re-requesting review - likely because the model version > min_model_version.
-    # Mark old row as deleted and insert new row
+    # We're re-requesting review for an existing key for this dataset.
     else:
+        new_result_equals_old = model_hash(orig_extraction_data) == model_hash(
+            review.orig_extraction_data
+        )
+        if keep_if_equal and new_result_equals_old:
+            accepted = review.accepted
+            extracted_data = review.extracted_data
+        else:
+            accepted = default_accepted
+            extracted_data = orig_extraction_data
+
         context.log.debug("Re-requesting review", key=key_slug)
         review.extraction_schema = schema
         review.source_value = source_value
         review.source_mime_type = source_mime_type
         review.source_label = source_label
         review.source_url = source_url
-        review.model_version = model_version
+        review.crawler_version = crawler_version
         review.orig_extraction_data = orig_extraction_data
-        review.extracted_data = orig_extraction_data
-        review.accepted = default_accepted
+        review.extracted_data = extracted_data
+        review.accepted = accepted
         review.last_seen_version = context.version.id
         review.modified_at = now
         review.modified_by = "zavod"
@@ -256,9 +274,9 @@ def request_review(
 
 def get_review(
     context: Context,
+    *,
     data_model: Type[ModelType],
     key_parts: str | List[str],
-    min_model_version: int,
 ) -> Optional[Review[ModelType]]:
     """
     Get a review for a given key if it exists and its model is up to date.
@@ -269,8 +287,6 @@ def get_review(
         data_model: The pydantic data model class used to extract the data.
         key_parts: The key parts will be slugified and shorted if needed consistently
             with the key generated by `request_review`.
-        min_model_version: The minimum model version that the review is valid for.
-            If the review is older than this version, None is returned.
     """
     key_slug = review_key(key_parts)
     assert key_slug is not None
@@ -280,20 +296,12 @@ def get_review(
     if review is None:
         context.log.debug("Review not found", key=key_slug)
         return None
-    if review.model_version < min_model_version:
-        context.log.debug(
-            "Review model version is too old",
-            key=key_slug,
-            min_model_version=min_model_version,
-            model_version=review.model_version,
-        )
-        return None
     context.log.debug("Review found, updating last_seen_version", key=key_slug)
     review.update_version(context.conn, context.version.id)
     return review
 
 
-def assert_all_accepted(context: Context, raise_on_unaccepted: bool = True) -> None:
+def assert_all_accepted(context: Context, *, raise_on_unaccepted: bool = True) -> None:
     """
     Raise an exception or warning with the number of unaccepted items if any extraction
     entries for the current dataset and version are not accepted yet.
@@ -344,4 +352,13 @@ def model_hash(data: BaseModel) -> str:
     sorted_data = sort_arrays_in_value(raw_data_dump)
     # Sort dictionary keys and convert to orjson
     raw_data_json = orjson.dumps(sorted_data, option=orjson.OPT_SORT_KEYS)
-    return sha1(raw_data_json).hexdigest()
+    return text_hash(raw_data_json.decode("utf-8"))
+
+
+def source_html_matches(review: Review[ModelType], element: HtmlElement) -> bool:
+    """
+    True if the source data matches the given element.
+    """
+    assert review.source_mime_type == HTML, review.source_mime_type
+    seen_element = fromstring(review.source_value)
+    return h.element_text_hash(seen_element) == h.element_text_hash(element)
