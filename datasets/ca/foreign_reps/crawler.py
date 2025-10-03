@@ -1,28 +1,36 @@
 import re
+from typing import Tuple
 
-from zavod import Context, helpers as h
 from zavod.stateful.positions import categorise
 
+from zavod import Context
+from zavod import helpers as h
 
 REGEX_TITLES = re.compile(
-    r"^(?:His Excellency|Her Excellency|Mr\.|Ms\.|Mrs\.)\s+", re.IGNORECASE
+    r"^(His Excellency|Her Excellency|Mr\.|Ms\.|Mrs\.)\s+", re.IGNORECASE
 )
 
 
-def strip_title(context, name):
+def split_title(context, name) -> Tuple[str, str | None]:
     title_match = REGEX_TITLES.match(name)
     if title_match:
         name = name[title_match.end() :].strip()
+        title = title_match.group(0).strip().replace(".", "")
     else:
         context.log.warning("Could not match title in name.", name=name)
-    return name
+        title = None
+    return name, title
 
 
-def emit_spouse(context, spouse_name, person_id):
+def emit_spouse(context, spouse_name, person_id, country):
     spouse = context.make("Person")
     spouse.id = context.make_id(spouse_name, person_id)
-    spouse.add("name", strip_title(context, spouse_name))
+    name, title = split_title(context, spouse_name)
+    spouse.add("name", name)
+    spouse.add("title", title)
     spouse.add("topics", "role.rca")
+    spouse.add("country", country)
+    spouse.add("country", "ca")
     context.emit(spouse)
     rel = context.make("Family")
     rel.id = context.make_id(person_id, "spouse", spouse.id)
@@ -40,7 +48,7 @@ def crawl(context: Context):
     for c in containers:
         name = c.find(".//div[@title='Salutation and Name']").text_content().strip()
         country = c.find(".//h2[@title='Country']").text_content().strip()
-        title = c.find(".//div[@title='Title']").text_content().strip()
+        role = c.find(".//div[@title='Title']").text_content().strip()
         spouse = c.find(".//div[@title='Spouse']").text_content().strip()
         mission = c.find(".//div[@title='Mission Title']").text_content().strip()
         # Skip entries without a name
@@ -48,12 +56,15 @@ def crawl(context: Context):
             continue
         person = context.make("Person")
         person.id = context.make_id(name, country)
-        person.add("name", strip_title(context, name))
+        name_clean, title = split_title(context, name)
+        person.add("name", name_clean)
+        person.add("title", title)
         person.add("country", country)
+        person.add("country", "ca")
         person.add("topics", "role.pep")
         position = h.make_position(
             context,
-            name=title,
+            name=f"{role} to Canada",
             country=country,
             topics=["gov.national", "role.diplo"],
             description=mission,
@@ -62,7 +73,7 @@ def crawl(context: Context):
         if categorisation.is_pep:
             occupancy = h.make_occupancy(context, person, position)
             if spouse:
-                emit_spouse(context, spouse, person.id)
+                emit_spouse(context, spouse, person.id, country)
             context.emit(position)
             context.emit(occupancy)
             context.emit(person)
