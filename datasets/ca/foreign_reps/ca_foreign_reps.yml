@@ -1,0 +1,43 @@
+title: "Foreign Representatives in Canada: Heads of Missions"
+entry_point: crawler.py
+prefix: ca-forreps
+coverage:
+  frequency: weekly
+  start: 2025-09-29
+load_statements: true
+summary: >-
+  List of foreign diplomatic representatives and heads of missions accredited to Canada.
+description: |
+  This dataset contains information about foreign diplomatic representatives serving
+  in Canada, including ambassadors, high commissioners, and other heads of diplomatic
+  missions.
+url: https://w05.international.gc.ca/protocol-protocole/Heads-Chefs.aspx
+tags:
+  - list.pep
+publisher:
+  name: Global Affairs Canada
+  description: |
+    Global Affairs Canada is the Canadian
+    government department responsible for foreign policy and international relations.
+  country: ca
+  url: https://international.canada.ca/en/global-affairs
+  official: true
+data:
+  url: https://w05.international.gc.ca/protocol-protocole/Heads-Chefs.aspx
+  format: HTML
+
+assertions:
+  min:
+    schema_entities:
+      Person: 250
+  max:
+    schema_entities:
+      Person: 350
+
+lookups:
+  type.country:
+    options:
+      - match: CONGO, DEMOCRATIC REPUBLIC
+        value: cd
+      - match: KOREA, REPUBLIC
+        value: kr
