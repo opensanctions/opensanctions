@@ -1,9 +1,10 @@
 import csv
 import re
-from typing import Dict
-from normality import squash_spaces
 from functools import cache
+from functools import lru_cache
 from nomenklatura.resolver import Linker
+from normality import squash_spaces
+from typing import Dict
 
 from zavod import Context, Entity
 from zavod.integration import get_dataset_linker
@@ -14,6 +15,11 @@ import zavod.helpers as h
 SPECIAL_CASE_URL = (
     "https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:02014R0833-20240625"
 )
+CONSOLIDATED_LATEST = [
+    "http://data.europa.eu/eli/reg/2014/833",
+    "http://data.europa.eu/eli/dec/2014/512",
+    "http://data.europa.eu/eli/reg/2024/2642",
+]
 # year/number or number/year with optional suffix
 FIRST_CODE_RE = re.compile(
     r"\b(?:No\s+)?(\d{1,4}/\d{1,4})(?:/[A-Z]{2,5})?\b", re.IGNORECASE
@@ -46,6 +52,34 @@ def extract_program_code(context, source_url):
     return match.group(1)
 
 
+@lru_cache(maxsize=1)
+def get_regulation_text(context: Context):
+    """Fetch and normalize the text content of the full regulations."""
+    all_texts = []
+    for link in CONSOLIDATED_LATEST:
+        doc = context.fetch_html(link, cache_days=365)
+        regulation_div = doc.xpath(".//div[@id='PP4Contents']")
+        if not regulation_div:
+            context.log.warning("Could not extract regulation text", url=link)
+            continue  # skip this link and try the next
+        regulation_text = regulation_div[0].text_content()
+        all_texts.append(squash_spaces(regulation_text))
+    return " ".join(all_texts)
+
+
+def is_name_in_the_law(context, the_law: str, names: str, row_id: str):
+    for name in h.multi_split(names, ";"):
+        name = name.strip()
+        if not name:
+            continue
+        if squash_spaces(name.lower()) not in the_law.lower():
+            context.log.warn(
+                "Name not found in consolidated regulation text",
+                name=name,
+                row_id=row_id,
+            )
+
+
 def crawl_unconsolidated_row(
     context: Context, linker: Linker[Entity], row_idx: int, row: Dict[str, str]
 ) -> None:
@@ -62,6 +96,9 @@ def crawl_unconsolidated_row(
     entity = context.make(entity_type)
     entity.id = context.make_id(row_id, name, country)
     context.log.debug(f"Unique ID {entity.id}")
+    # Validate that the name is in the consolidated regulation text
+    the_law = get_regulation_text(context)
+    is_name_in_the_law(context, the_law, name, row_id)
 
     # Commented out since the 20 May journal updates added details like IDs and
     # cyrilic names which aren't in the XML yet but the entities are.
