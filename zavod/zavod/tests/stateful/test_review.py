@@ -24,16 +24,16 @@ def get_row(conn, key):
 
 def test_new_key_saved_and_accepted_false(testdataset1):
     context = Context(testdataset1)
-    model = DummyModel(foo="bar")
+    data = DummyModel(foo="bar")
     review = request_review(
         context,
-        "key1",
-        SOURCE_VALUE,
-        SOURCE_MIME_TYPE,
-        SOURCE_LABEL,
-        SOURCE_URL,
-        model,
-        1,
+        key_parts="key1",
+        source_value=SOURCE_VALUE,
+        source_mime_type=SOURCE_MIME_TYPE,
+        source_label=SOURCE_LABEL,
+        source_url=SOURCE_URL,
+        orig_extraction_data=data,
+        crawler_version=1,
     )
     assert review.accepted is False
     row = get_row(context.conn, "key1")
@@ -49,13 +49,13 @@ def test_current_model_version_updates_last_seen_version(testdataset1, monkeypat
     data = DummyModel(foo="bar")
     request_review(
         context1,
-        "key2",
-        SOURCE_VALUE,
-        SOURCE_MIME_TYPE,
-        SOURCE_LABEL,
-        SOURCE_URL,
-        data,
-        1,
+        key_parts="key2",
+        source_value=SOURCE_VALUE,
+        source_mime_type=SOURCE_MIME_TYPE,
+        source_label=SOURCE_LABEL,
+        source_url=SOURCE_URL,
+        orig_extraction_data=data,
+        crawler_version=1,
     )
     row = get_row(context1.conn, "key2")
     assert row and row["last_seen_version"] == context1_version
@@ -65,9 +65,8 @@ def test_current_model_version_updates_last_seen_version(testdataset1, monkeypat
     context2_version = context2.version.id
     review = get_review(
         context2,
-        DummyModel,
-        "key2",
-        1,
+        data_model=DummyModel,
+        key_parts="key2",
     )
     assert review.last_seen_version == context2_version
     row = get_row(context2.conn, "key2")
@@ -75,63 +74,42 @@ def test_current_model_version_updates_last_seen_version(testdataset1, monkeypat
     assert context1_version != context2_version
 
 
-def test_expired_model_version_returns_none(testdataset1, monkeypatch):
-    context = Context(testdataset1)
-    context.begin(clear=True)
-    data = DummyModel(foo="bar")
-    review = request_review(
-        context,
-        "key3",
-        SOURCE_VALUE,
-        SOURCE_MIME_TYPE,
-        SOURCE_LABEL,
-        SOURCE_URL,
-        data,
-        1,
-    )
-    review = get_review(
-        context,
-        DummyModel,
-        "key3",
-        1,
-    )
-    assert review is not None
-    review = get_review(
-        context,
-        DummyModel,
-        "key3",
-        2,
-    )
-    assert review is None
-
-
-def test_re_request_deletes_old_and_inserts_new(testdataset1, monkeypatch):
+def test_re_request_deletes_old_and_inserts_new(testdataset1):
+    """When the new data is different, the extracted_data reverts to orig_extraction_data."""
     context1 = Context(testdataset1)
     data = DummyModel(foo="bar")
     review = request_review(
         context1,
-        "key3",
-        SOURCE_VALUE,
-        SOURCE_MIME_TYPE,
-        SOURCE_LABEL,
-        SOURCE_URL,
-        data,
-        1,
+        key_parts="key3",
+        source_value=SOURCE_VALUE,
+        source_mime_type=SOURCE_MIME_TYPE,
+        source_label=SOURCE_LABEL,
+        source_url=SOURCE_URL,
+        orig_extraction_data=data,
+        crawler_version=1,
         default_accepted=True,
     )
     assert review.accepted is True
+
+    # Simulate a reviewer changing the extracted data
+    review = get_review(context1, data_model=DummyModel, key_parts="key3")
+    review.extracted_data = DummyModel(foo="barrr")
+    review.modified_by = "test@user.com"
+    review.save(context1.conn)
+
     data2 = DummyModel(foo="baz")
     context2 = Context(testdataset1)
     review = request_review(
         context2,
-        "key3",
-        SOURCE_VALUE,
-        SOURCE_MIME_TYPE,
-        SOURCE_LABEL,
-        SOURCE_URL,
-        data2,
-        2,
+        key_parts="key3",
+        source_value=SOURCE_VALUE,
+        source_mime_type=SOURCE_MIME_TYPE,
+        source_label=SOURCE_LABEL,
+        source_url=SOURCE_URL,
+        orig_extraction_data=data2,
+        crawler_version=1,
         default_accepted=False,
+        keep_if_equal=True,
     )
     old = (
         context2.conn.execute(
@@ -148,7 +126,66 @@ def test_re_request_deletes_old_and_inserts_new(testdataset1, monkeypatch):
     assert new is not None
     assert new["accepted"] is False
     assert new["orig_extraction_data"]["foo"] == "baz"
+    assert new["extracted_data"]["foo"] == "baz"
+    assert new["modified_by"] == "zavod"
     assert review.accepted is False
+
+
+def test_re_request_same_keeps_accepted_and_extracted_data(testdataset1):
+    """When the new data is is same as before, the extracted_data and accepted status are kept."""
+    context1 = Context(testdataset1)
+    data = DummyModel(foo="bar")
+    review = request_review(
+        context1,
+        key_parts="key3",
+        source_value=SOURCE_VALUE,
+        source_mime_type=SOURCE_MIME_TYPE,
+        source_label=SOURCE_LABEL,
+        source_url=SOURCE_URL,
+        orig_extraction_data=data,
+        crawler_version=1,
+        default_accepted=False,
+    )
+    assert review.accepted is False
+
+    # Simulate a reviewer changing the extracted data
+    review = get_review(context1, data_model=DummyModel, key_parts="key3")
+    review.extracted_data = DummyModel(foo="barrr")
+    review.modified_by = "test@user.com"
+    review.accepted = True
+    review.save(context1.conn)
+
+    context2 = Context(testdataset1)
+    review = request_review(
+        context2,
+        key_parts="key3",
+        source_value=SOURCE_VALUE,
+        source_mime_type=SOURCE_MIME_TYPE,
+        source_label=SOURCE_LABEL,
+        source_url=SOURCE_URL,
+        orig_extraction_data=data,
+        crawler_version=1,
+        default_accepted=False,
+        keep_if_equal=True,
+    )
+    old = (
+        context2.conn.execute(
+            review_table.select().where(
+                review_table.c.key == "key3",
+                review_table.c.deleted_at.is_(None),
+            )
+        )
+        .mappings()
+        .first()
+    )
+    assert old is not None
+    new = get_row(context2.conn, "key3")
+    assert new is not None
+    assert new["accepted"] is True
+    assert new["orig_extraction_data"]["foo"] == "bar"
+    assert new["extracted_data"]["foo"] == "barrr"
+    assert new["modified_by"] == "zavod"
+    assert review.accepted is True
 
 
 def test_review_key():
