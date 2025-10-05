@@ -100,8 +100,8 @@ async function assertSchemaMatchesExpected(db: Kysely<ReviewDatabase>) {
   for (const column of reviewTable.columns) {
     existingColumnNames.add(column.name);
   }
-  const unexpected = expectedColumns.difference(existingColumnNames);
-  const missing = existingColumnNames.difference(expectedColumns);
+  const missing = expectedColumns.difference(existingColumnNames);
+  const unexpected = existingColumnNames.difference(expectedColumns);
   if (unexpected.size > 0 || missing.size > 0) {
     let msg = `Table ${tableName} doesn't match expected schema. `;
     if (unexpected.size > 0)

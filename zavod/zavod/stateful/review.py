@@ -8,13 +8,13 @@ from normality import slugify
 from pydantic import BaseModel, JsonValue, PrivateAttr
 from pydantic.json_schema import GenerateJsonSchema, JsonSchemaMode
 from pydantic_core import CoreSchema
-from rigour.mime.types import HTML
+from rigour.mime.types import HTML, PLAIN
 from rigour.text import text_hash
 from sqlalchemy import func, insert, not_, select, update
 from sqlalchemy.engine import Connection
 from sqlalchemy.sql import Select
 import orjson
-from lxml.html import HtmlElement, fromstring
+from lxml.html import HtmlElement, fromstring, tostring
 
 from zavod.context import Context
 from zavod.stateful.model import review_table
@@ -42,19 +42,32 @@ class Review(BaseModel, Generic[ModelType]):
 
     id: Optional[int] = None
     key: str
+    """A slug derived from some information from the source that uniquely and
+    consistently identifies the review within the dataset. For an enforcement action,
+    that might be an action reference number or publication url (for lack of a consistent identifier).
+    For a string of names that rarely changes, that string itself might work."""
     dataset: str
     extraction_checksum: Optional[str]
     extraction_schema: JsonValue
     source_value: str
+    """The value of the original text, or a url to e.g. an archived image from
+    which the data was extracted."""
     source_mime_type: str
+    """The mime type of the source value. Useful to know how to display
+    the source value to the reviewer."""
     source_label: str
+    """Used to indicate the context of the source value to the reviewer,
+    e.g. "Banking Organization field in CSV" or "Screenshot of PDF page"."""
     source_url: Optional[str]
     data_model: Type[ModelType]
     crawler_version: int
     _orig_extraction_data: JsonValue = PrivateAttr()
+    """Only to be edited by the crawler"""
     _extracted_data: JsonValue = PrivateAttr()
+    """Editable by the reviewer"""
     accepted: bool
     last_seen_version: str
+    """The crawl version that last saw this review key"""
     modified_at: datetime
     modified_by: str
     deleted_at: Optional[datetime] = None
@@ -140,7 +153,11 @@ class Review(BaseModel, Generic[ModelType]):
             modified_at=self.modified_at,
             modified_by=self.modified_by,
         )
-        conn.execute(ins)
+        result = conn.execute(ins)
+        if self.id is None:
+            self.id = (
+                result.inserted_primary_key[0] if result.inserted_primary_key else None
+            )
 
     def update_version(self, conn: Connection, version_id: str) -> None:
         """Update the last_seen_version without adding a historical row."""
@@ -167,12 +184,6 @@ class ExtractionConfig(Generic[ModelType]):
     data_model: Type[ModelType]
 
 
-class BackfillExtractionConfig(ExtractionConfig[ModelType]):
-    def __init__(self, data_model: Type[ModelType]):
-        self.data_model = data_model
-        self.checksum = "backfilled"
-
-
 class LLMExtractionConfig(ExtractionConfig[ModelType]):
     def __init__(self, data_model: Type[ModelType], llm_model: str, prompt: str):
         self.data_model = data_model
@@ -182,7 +193,15 @@ class LLMExtractionConfig(ExtractionConfig[ModelType]):
 
 
 class SourceValue(ABC):
+    """
+    A container for a value that can be serialized for storage and compared in
+    a way that detects changes that justify re-extraction and and potentially
+    re-review.
+    """
+
     key_parts: str | List[str]
+    """ The key parts will be slugified and shorted with a hash of all the
+    parts if the slug would be too long."""
     mime_type: str
     label: str
     url: Optional[str]
@@ -192,39 +211,40 @@ class SourceValue(ABC):
         raise NotImplementedError
 
 
+class TextSourceValue(SourceValue):
+    def __init__(
+        self,
+        key_parts: str | List[str],
+        label: str,
+        url: Optional[str],
+        text: str,
+    ):
+        self.key_parts = key_parts
+        self.mime_type = PLAIN
+        self.label = label
+        self.url = url
+        self.value_string = text
+
+    def matches(self, review: Review[ModelType]) -> bool:
+        assert review.source_mime_type == PLAIN, review.source_mime_type
+        return self.value_string == review.source_value
+
+
 class HtmlSourceValue(SourceValue):
-    html: str
     element: HtmlElement
 
     def __init__(
         self,
         key_parts: str | List[str],
-        mime_type: str,
         label: str,
         url: Optional[str],
-        value_string: str,
         element: HtmlElement,
     ):
-        """
-        Args:
-            key_parts: The key parts will be slugified and shorted with a hash of all the
-                parts if the slug would be too long.
-
-                Should be unique within the dataset, and as consistent as possible between runs.
-            source_value: The value of the original text, or a url to an archived original
-                to be used as evidence by the reviewer and for provenance if we're challenged.
-            source_mime_type: The mime type of the source value. Useful to know how to display
-                the source value to the reviewer.
-            source_label: Used to indicate the context of the source value to the reviewer,
-                e.g. "Banking Organization field in CSV" or "Screenshot of PDF page"
-            source_url: The url where source_value was fetched from.
-            value_string: The string value of the source value.
-        """
         self.key_parts = key_parts
-        self.mime_type = mime_type
+        self.mime_type = HTML
         self.label = label
         self.url = url
-        self.value_string = value_string
+        self.value_string = tostring(element, pretty_print=True, encoding="unicode")
         self.element = element
 
     def matches(self, review: Review[ModelType]) -> bool:
@@ -254,17 +274,6 @@ def review_key(parts: str | List[str]) -> str:
     else:
         hash = sha1(slug.encode("utf-8")).hexdigest()
         return f"{slug[:80]}-{hash[:10]}"
-
-
-def should_review(
-    review: Optional[Review[ModelType]], extraction_result: ModelType
-) -> bool:
-    """
-    Determine if a review should be requested for a given extraction result.
-    """
-    if review is None:
-        return True
-    return model_hash(extraction_result) != model_hash(review.orig_extraction_data)
 
 
 def request_review(
@@ -302,7 +311,6 @@ def request_review(
     )
     always_fields = {
         "dataset": dataset,
-        "source_value": source_value.value_string,
         "source_mime_type": source_value.mime_type,
         "source_label": source_value.label,
         "source_url": source_value.url,
@@ -354,12 +362,15 @@ def should_extract(
     extraction_config: ExtractionConfig[ModelType],
 ) -> bool:
     if review is None:
+        print("Extract because no review")
         return True
 
     if not review.accepted and review.extraction_checksum != extraction_config.checksum:
+        print("Extract because not accepted and extraction checksum changed")
         return True
 
     if not source_value.matches(review):
+        print("Extract because source value changed")
         return True
 
     return False
@@ -373,7 +384,7 @@ def observe_source_value(
     """
     Get a review for a given key if it exists and update its last_seen_version to the current crawl version.
 
-    Determine whether extraction should be performed for the given value and extraction config.
+    Determines whether extraction should be performed for the given value and extraction config.
 
     Args:
         context: The runner context with dataset metadata.

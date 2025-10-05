@@ -66,6 +66,7 @@ from zavod.helpers.change import assert_dom_hash, assert_file_hash
 from zavod.helpers.change import assert_url_hash, assert_html_url_hash
 from zavod.helpers.pdf import make_pdf_page_images, parse_pdf_table
 from zavod.helpers.articles import make_article, make_documentation
+from zavod.helpers.llm import prompt_for_review
 
 __all__ = [
     "clean_note",
@@ -113,4 +114,5 @@ __all__ = [
     "split_comma_names",
     "make_pdf_page_images",
     "parse_pdf_table",
+    "prompt_for_review",
 ]

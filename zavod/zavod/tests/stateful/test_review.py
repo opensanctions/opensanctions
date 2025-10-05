@@ -2,17 +2,30 @@ from pydantic import BaseModel
 
 from zavod import settings
 from zavod.context import Context
-from zavod.stateful.review import get_review, request_review, review_key
+from zavod.stateful.review import (
+    observe_source_value,
+    request_review,
+    review_key,
+    TextSourceValue,
+    LLMExtractionConfig,
+)
 from zavod.stateful.model import review_table
-
-SOURCE_LABEL = "test"
-SOURCE_URL = "http://source"
-SOURCE_MIME_TYPE = "text/plain"
-SOURCE_VALUE = "unstructured data"
 
 
 class DummyModel(BaseModel):
     foo: str
+
+
+def mock_source_value(key: str) -> TextSourceValue:
+    return TextSourceValue(
+        key_parts=key, label="test", url="http://source", text="unstructured data"
+    )
+
+
+def mock_extraction_config(prompt: str) -> LLMExtractionConfig:
+    return LLMExtractionConfig(
+        data_model=DummyModel, llm_model="test-llm", prompt=prompt
+    )
 
 
 def get_row(conn, key):
@@ -27,11 +40,8 @@ def test_new_key_saved_and_accepted_false(testdataset1):
     data = DummyModel(foo="bar")
     review = request_review(
         context,
-        key_parts="key1",
-        source_value=SOURCE_VALUE,
-        source_mime_type=SOURCE_MIME_TYPE,
-        source_label=SOURCE_LABEL,
-        source_url=SOURCE_URL,
+        source_value=mock_source_value("key1"),
+        extraction_config=mock_extraction_config(prompt="Extract foo"),
         orig_extraction_data=data,
         crawler_version=1,
     )
@@ -41,19 +51,17 @@ def test_new_key_saved_and_accepted_false(testdataset1):
     assert row["accepted"] is False
 
 
-def test_current_model_version_updates_last_seen_version(testdataset1, monkeypatch):
+def test_current_crawler_version_updates_last_seen_version(testdataset1, monkeypatch):
     monkeypatch.setattr(settings, "RUN_VERSION", "20240101010101-aaa")
     context1 = Context(testdataset1)
     context1.begin(clear=True)
     context1_version = context1.version.id
+    extraction_config = mock_extraction_config(prompt="Extract foo")
     data = DummyModel(foo="bar")
     request_review(
         context1,
-        key_parts="key2",
-        source_value=SOURCE_VALUE,
-        source_mime_type=SOURCE_MIME_TYPE,
-        source_label=SOURCE_LABEL,
-        source_url=SOURCE_URL,
+        source_value=mock_source_value("key2"),
+        extraction_config=extraction_config,
         orig_extraction_data=data,
         crawler_version=1,
     )
@@ -63,28 +71,28 @@ def test_current_model_version_updates_last_seen_version(testdataset1, monkeypat
     context2 = Context(testdataset1)
     context2.begin(clear=True)
     context2_version = context2.version.id
-    review = get_review(
+    observation = observe_source_value(
         context2,
-        data_model=DummyModel,
-        key_parts="key2",
+        source_value=mock_source_value("key2"),
+        extraction_config=extraction_config,
     )
-    assert review.last_seen_version == context2_version
+    # Updated in the db
     row = get_row(context2.conn, "key2")
     assert row["last_seen_version"] == context2_version
     assert context1_version != context2_version
+    # Returned review is up to date
+    assert observation.review.last_seen_version == context2_version
 
 
 def test_re_request_deletes_old_and_inserts_new(testdataset1):
     """When the new data is different, the extracted_data reverts to orig_extraction_data."""
     context1 = Context(testdataset1)
+    extraction_config = mock_extraction_config(prompt="Extract foo")
     data = DummyModel(foo="bar")
     review = request_review(
         context1,
-        key_parts="key3",
-        source_value=SOURCE_VALUE,
-        source_mime_type=SOURCE_MIME_TYPE,
-        source_label=SOURCE_LABEL,
-        source_url=SOURCE_URL,
+        source_value=mock_source_value("key3"),
+        extraction_config=extraction_config,
         orig_extraction_data=data,
         crawler_version=1,
         default_accepted=True,
@@ -92,7 +100,6 @@ def test_re_request_deletes_old_and_inserts_new(testdataset1):
     assert review.accepted is True
 
     # Simulate a reviewer changing the extracted data
-    review = get_review(context1, data_model=DummyModel, key_parts="key3")
     review.extracted_data = DummyModel(foo="barrr")
     review.modified_by = "test@user.com"
     review.save(context1.conn)
@@ -101,15 +108,11 @@ def test_re_request_deletes_old_and_inserts_new(testdataset1):
     context2 = Context(testdataset1)
     review = request_review(
         context2,
-        key_parts="key3",
-        source_value=SOURCE_VALUE,
-        source_mime_type=SOURCE_MIME_TYPE,
-        source_label=SOURCE_LABEL,
-        source_url=SOURCE_URL,
+        source_value=mock_source_value("key3"),
+        extraction_config=extraction_config,
         orig_extraction_data=data2,
         crawler_version=1,
         default_accepted=False,
-        keep_if_equal=True,
     )
     old = (
         context2.conn.execute(
@@ -134,14 +137,12 @@ def test_re_request_deletes_old_and_inserts_new(testdataset1):
 def test_re_request_same_keeps_accepted_and_extracted_data(testdataset1):
     """When the new data is is same as before, the extracted_data and accepted status are kept."""
     context1 = Context(testdataset1)
+    extraction_config = mock_extraction_config(prompt="Extract foo")
     data = DummyModel(foo="bar")
     review = request_review(
         context1,
-        key_parts="key3",
-        source_value=SOURCE_VALUE,
-        source_mime_type=SOURCE_MIME_TYPE,
-        source_label=SOURCE_LABEL,
-        source_url=SOURCE_URL,
+        source_value=mock_source_value("key4"),
+        extraction_config=extraction_config,
         orig_extraction_data=data,
         crawler_version=1,
         default_accepted=False,
@@ -149,7 +150,6 @@ def test_re_request_same_keeps_accepted_and_extracted_data(testdataset1):
     assert review.accepted is False
 
     # Simulate a reviewer changing the extracted data
-    review = get_review(context1, data_model=DummyModel, key_parts="key3")
     review.extracted_data = DummyModel(foo="barrr")
     review.modified_by = "test@user.com"
     review.accepted = True
@@ -158,20 +158,16 @@ def test_re_request_same_keeps_accepted_and_extracted_data(testdataset1):
     context2 = Context(testdataset1)
     review = request_review(
         context2,
-        key_parts="key3",
-        source_value=SOURCE_VALUE,
-        source_mime_type=SOURCE_MIME_TYPE,
-        source_label=SOURCE_LABEL,
-        source_url=SOURCE_URL,
+        source_value=mock_source_value("key4"),
+        extraction_config=extraction_config,
         orig_extraction_data=data,
         crawler_version=1,
         default_accepted=False,
-        keep_if_equal=True,
     )
     old = (
         context2.conn.execute(
             review_table.select().where(
-                review_table.c.key == "key3",
+                review_table.c.key == "key4",
                 review_table.c.deleted_at.is_(None),
             )
         )
@@ -179,7 +175,7 @@ def test_re_request_same_keeps_accepted_and_extracted_data(testdataset1):
         .first()
     )
     assert old is not None
-    new = get_row(context2.conn, "key3")
+    new = get_row(context2.conn, "key4")
     assert new is not None
     assert new["accepted"] is True
     assert new["orig_extraction_data"]["foo"] == "bar"
