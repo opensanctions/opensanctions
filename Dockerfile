@@ -7,7 +7,7 @@ RUN apt-get -qq -y update \
     && apt-get -qq -y upgrade \
     && apt-get -qq -y install --no-install-recommends \
     apt-transport-https ca-certificates build-essential gnupg \
-    tzdata curl python3-pip  python3-dev python3-venv \
+    tzdata curl python3-pip python3-dev python3-venv \
     libicu-dev pkg-config libxml2-dev libxslt1-dev libleveldb-dev libleveldb1d \
     && apt-get -qq -y autoremove \
     && apt-get clean \
@@ -16,7 +16,6 @@ RUN apt-get -qq -y update \
 RUN python3 -m venv /venv
 ENV PATH="/venv/bin:$PATH"
 RUN pip3 install --no-cache-dir -U pip
-RUN pip3 install --no-cache-dir -U "pyicu==2.14"
 
 COPY zavod /opensanctions/zavod
 RUN pip install --no-cache-dir -e /opensanctions/zavod

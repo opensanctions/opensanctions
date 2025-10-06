@@ -67,7 +67,6 @@ dev = [
     "lxml-stubs >= 0.5.1",
     "coverage >= 4.1",
     "requests-mock",
-    "types-setuptools",
     "types-requests",
     "types-openpyxl",
     "types-google-cloud-ndb",
