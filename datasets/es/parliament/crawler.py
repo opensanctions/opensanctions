@@ -1,15 +1,15 @@
 import os
-from urllib.parse import urlencode, urlparse, parse_qs
+from urllib.parse import parse_qs, urlencode, urlparse
 
-from zavod import Context, helpers as h
 from zavod.stateful.positions import categorise
 
+from zavod import Context
+from zavod import helpers as h
 
 SENATORS_URL = "https://www.senado.es/web/composicionorganizacion/senadores/composicionsenado/index.html"
 DEPUTIES_URL = "https://www.congreso.es/en/busqueda-de-diputados"
 DEPUTIES_API_URL = "https://www.congreso.es/en/busqueda-de-diputados?p_p_id=diputadomodule&p_p_lifecycle=2&p_p_state=normal&p_p_mode=view&p_p_resource_id=searchDiputados&p_p_cacheability=cacheLevelPage"
 IGNORE = ["constituency_id", "constituency_name", "legislative_term_id", "gender"]
-EXPECTED_EMPTY_XML = {"20019"}
 
 
 def rename_headers(context, entry):
@@ -123,9 +123,11 @@ def crawl_senator(context, senator_url):
     legis = query_params["legis"][0]
     xml_url = f"https://www.senado.es/web/ficopendataservlet?tipoFich=1&cod={senator_id}&legis={legis}"
     path = context.fetch_resource(f"source_{senator_id}.xml", xml_url)
-    if os.path.getsize(path) == 0 and senator_id in EXPECTED_EMPTY_XML:
-        context.log.info("Empty XML file", url=xml_url)
+    # It looks like some newly-added senators don't have a link to the XML file
+    # on their detail page, and the XML url pattern with their ID returns an empty file.
+    if os.path.getsize(path) == 0:
         return
+
     doc_xml = context.parse_resource_xml(path)
     datos = doc_xml.find("datosPersonales")
     web_id = datos.findtext("idweb")
@@ -153,24 +155,22 @@ def crawl_senator(context, senator_url):
             role_body = cargo.findtext("cargoOrganoNombre")
             emit_pep_entities(
                 context,
-                person,
-                f"{role_title}, {role_body}",
-                "spa",
-                cargo.findtext("cargoAltaFec"),
-                cargo.findtext("cargoBajaFec"),
-                # there are a lot of parliamentary postions, do we want to go into the details?
-                # example: MEMBER OF THE COMMITTEE ON EDUCATION, VOCATIONAL TRAINING, AND SPORTS
+                person=person,
+                role_title=f"{role_title}, {role_body}",
+                language="spa",
+                start_date=cargo.findtext("cargoAltaFec"),
+                end_date=cargo.findtext("cargoBajaFec"),
                 is_pep=True,
             )
 
         if legislatura.findtext("legislaturaActual") == "SI":
             emit_pep_entities(
                 context,
-                person,
-                "Member of the Senate of Spain",
-                "eng",
-                None,
-                None,
+                person=person,
+                role_title="Member of the Senate of Spain",
+                language="eng",
+                start_date=None,
+                end_date=None,
                 is_pep=True,
                 wikidata_id="Q19323171",
             )
