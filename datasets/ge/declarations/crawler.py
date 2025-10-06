@@ -5,7 +5,7 @@ from typing import List, Set
 from urllib.parse import urlencode
 
 from followthemoney.types import registry
-from normality import collapse_spaces, slugify, squash_spaces
+from normality import slugify, squash_spaces
 from requests.exceptions import RetryError
 from zavod.context import Context
 from zavod.entity import Entity
