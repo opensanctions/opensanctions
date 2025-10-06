@@ -6,9 +6,9 @@ from typing import Any, Dict, List, Mapping, Optional, Union
 
 import orjson
 from datapatch import Lookup, LookupException, Result
+from followthemoney.dataset import DataResource
 from followthemoney.schema import Schema
 from followthemoney.util import PathLike, make_entity_id
-from followthemoney.dataset import DataResource
 from lxml import etree, html
 from nomenklatura.cache import Cache
 from nomenklatura.versions import Version
@@ -21,10 +21,10 @@ from structlog.contextvars import bind_contextvars, reset_contextvars
 from zavod import settings
 from zavod.archive import dataset_data_path, dataset_resource_path
 from zavod.audit import inspect
-from zavod.meta import Dataset
-from zavod.entity import Entity
 from zavod.db import get_engine, meta
+from zavod.entity import Entity
 from zavod.logs import get_logger
+from zavod.meta import Dataset
 from zavod.runtime.http_ import (
     _Auth,
     _Body,
@@ -39,7 +39,7 @@ from zavod.runtime.sink import DatasetSink
 from zavod.runtime.stats import ContextStats
 from zavod.runtime.timestamps import TimeStampIndex
 from zavod.runtime.versions import get_latest, make_version
-from zavod.util import join_slug, prefixed_hash_id, Element
+from zavod.util import Element, join_slug, prefixed_hash_id
 
 
 class Context:
@@ -488,26 +488,46 @@ class Context:
         return prefixed_hash_id(prefix, hashed)
 
     def lookup_value(
-        self, lookup: str, value: Optional[str], default: Optional[str] = None
+        self,
+        lookup: str,
+        value: Optional[str],
+        default: Optional[str] = None,
+        warn: bool = False,
     ) -> Optional[str]:
-        """Invoke a datapatch lookup defined in the dataset metadata.
+        """Invoke a datapatch lookup defined in the dataset metadata, returning the `value` attribute.
 
         Args:
             lookup: The name of the lookup. The key under the dataset lookups property.
             value: The data value to look up.
             default: The default value to use if the lookup doesn't match the value.
+            warn: Whether to log a warning if no match is found.
         """
         try:
-            lookup_obj = self.get_lookup(lookup)
-            return lookup_obj.get_value(value, default=default)
+            res = self.lookup(lookup, value, warn)
+            if res is None or res.value is None:
+                return default
+            else:
+                return res.value
         except LookupException:
             return default
 
     def get_lookup(self, lookup: str) -> Lookup:
         return self.dataset.lookups[lookup]
 
-    def lookup(self, lookup: str, value: Optional[str]) -> Optional[Result]:
-        return self.get_lookup(lookup).match(value)
+    def lookup(
+        self, lookup: str, value: Optional[str], warn: bool = False
+    ) -> Optional[Result]:
+        """Invoke a datapatch lookup defined in the dataset metadata.
+
+        Args:
+            lookup: The name of the lookup. The key under the dataset lookups property.
+            value: The data value to look up.
+            warn: Whether to log a warning if no match is found.
+        """
+        res = self.get_lookup(lookup).match(value)
+        if res is None and warn:
+            self.log.warn("No matching lookup found.", lookup=lookup, value=value)
+        return res
 
     def debug_lookups(self) -> None:
         """Output a list of unused lookup options."""
