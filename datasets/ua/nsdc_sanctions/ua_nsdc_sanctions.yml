@@ -110,6 +110,8 @@ lookups:
           - "reg:cn_tr"
           - "reg:cn_tr_hk"
           - "reg:number_nin"
+          - "reg:oae_crn"
+          - "reg:lu"
         prop: registrationNumber
       - match:
           - "doc:passport"
@@ -121,6 +123,7 @@ lookups:
           - "doc:sm_passport"
           - "doc:f_passports_ru"
           - "doc:passport_ru"
+          - "reg:ro_passport"
         identification:
           is_passport: true
       - match: "doc:residence"
@@ -627,7 +630,12 @@ lookups:
           - "5402692"
           - "5740562"
         prop: registrationNumber
-      - match: 9102012001
+      - match:
+          - 9102012001
+          - 673000396800
+          - 381109210543
+          - 773013244155
+          - 025901405163
         prop: innCode
       - match: 1328910
         prop: idNumber
@@ -665,6 +673,7 @@ lookups:
           - Місце проживання
 
           - Уродженка
+          - уродженець
           - Фізична адреса
           - Юридична адреса
           - Місцезнаходження офісу
@@ -738,9 +747,8 @@ lookups:
         prop: ogrnCode
       - match:
           - Особистий номер офіцера
-        prop: idNumber
-      - match:
           - Permanent residence permit - посвідка на постійне проживання
+          - СНІОР
         prop: idNumber
       - contains:
           - Сайт так званого
