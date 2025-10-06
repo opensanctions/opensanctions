@@ -46,7 +46,7 @@ def crawl_row(context: Context, row: dict, reasons_cell: HtmlElement):
     vessel.add("imoNumber", imo)
     vessel.add("flag", row.pop("Ship Flag"))
     vessel.add("buildDate", row.pop("Year of build"))
-    vessel.add("grossRegisteredTonnage", row.pop("Gross Tonnage"))
+    h.apply_number(vessel, "grossRegisteredTonnage", row.pop("Gross Tonnage"))
     vessel.add("type", row.pop("Ship Type"))
     vessel.add("topics", "mare.detained")
 

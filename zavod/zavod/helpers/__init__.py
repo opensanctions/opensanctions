@@ -66,6 +66,7 @@ from zavod.helpers.change import assert_dom_hash, assert_file_hash
 from zavod.helpers.change import assert_url_hash, assert_html_url_hash
 from zavod.helpers.pdf import make_pdf_page_images, parse_pdf_table
 from zavod.helpers.articles import make_article, make_documentation
+from zavod.helpers.numbers import apply_number
 
 __all__ = [
     "clean_note",
@@ -92,6 +93,7 @@ __all__ = [
     "extract_date",
     "replace_months",
     "backdate",
+    "apply_number",
     "convert_excel_cell",
     "convert_excel_date",
     "make_security",

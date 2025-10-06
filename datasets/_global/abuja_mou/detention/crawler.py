@@ -46,7 +46,7 @@ def crawl_row(context: Context, row: dict):
     vessel.add("imoNumber", imo)
     vessel.add("flag", row.pop("Flag"))
     vessel.add("buildDate", row.pop("Year of build"))
-    vessel.add("grossRegisteredTonnage", row.pop("Tonnage"))
+    h.apply_number(vessel, "grossRegisteredTonnage", row.pop("Tonnage"))
     vessel.add("type", row.pop("Type"))
     vessel.add("topics", "mare.detained")
 
