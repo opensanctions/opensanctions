@@ -384,6 +384,7 @@ class Context:
         cache_days: Optional[int] = None,
         method: str = "GET",
         data: Optional[_Body] = None,
+        absolute_links: bool = False,
     ) -> Element:
         """Execute an HTTP request using the contexts' session and return
         an HTML DOM object based on the response. If a `cache_days` argument
@@ -397,6 +398,7 @@ class Context:
             cache_days: Number of days to retain cached responses for.
             method: The HTTP method to use for the request.
             data: The data to be sent in the request body.
+            absolute_links: Whether to convert relative links to absolute links.
         Returns:
             An lxml-based DOM of the web page that has been returned.
         """
@@ -412,7 +414,10 @@ class Context:
         try:
             if text is None or len(text) == 0:
                 raise ValueError("Invalid HTML document: %s" % url)
-            return html.fromstring(text)
+            doc = html.fromstring(text)
+            if absolute_links and isinstance(doc, html.HtmlElement):
+                doc.make_links_absolute(url, params)
+            return doc
         except Exception as exc:
             cache_url = build_url(url, params)
             fingerprint = request_hash(cache_url, auth=auth, method=method, data=data)
@@ -550,18 +555,21 @@ class Context:
                 f"Unexpected data found in fields: {unexpected_keys}", data=cleaned
             )
 
-    def emit(self, entity: Entity, external: bool = False) -> None:
+    def emit(
+        self, entity: Entity, external: bool = False, origin: Optional[str] = None
+    ) -> None:
         """Send an entity from the crawling/runner process to be stored.
 
         Args:
             entity: The entity to be stored.
             external: Whether the entity is an enrichment candidate or already
                 part of the dataset.
+            origin: Set the origin for statements where none has been provided.
         """
         if entity.id is None:
             raise ValueError("Entity has no ID: %r", entity)
         if len(entity.properties) == 0:
-            self.log.error("Entity has no properties", entity=entity)
+            self.log.error("Entity has no properties", entity_id=entity.id)
             return
         self.stats.entities += 1
         if self.stats.entities % 10000 == 0:
@@ -577,6 +585,8 @@ class Context:
                 continue
             if stmt.lang is None:
                 stmt.lang = self.lang
+            if stmt.origin is None:
+                stmt.origin = origin
             stmt.dataset = self.dataset.name
             stmt.entity_id = entity.id
             stmt.external = external

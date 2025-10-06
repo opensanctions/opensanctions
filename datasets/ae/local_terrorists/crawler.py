@@ -129,8 +129,7 @@ def parse_excel(context: Context, path: Path):
 
 
 def crawl(context: Context):
-    doc = context.fetch_html(context.data_url)
-    doc.make_links_absolute(context.data_url)
+    doc = context.fetch_html(context.data_url, absolute_links=True)
     section = doc.xpath(".//h5[text()='Local Terrorist List']")[0].getparent()
     link = section.xpath(
         ".//p[text()='Download Excel File']/ancestor::*[contains(@class,'download-file')]//a"

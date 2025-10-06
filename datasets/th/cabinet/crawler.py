@@ -1,17 +1,21 @@
 import re
-from normality import collapse_spaces
 
-from zavod import Context, helpers as h
-from zavod.stateful.positions import categorise
+from normality import collapse_spaces
 from zavod.shed.trans import apply_translit_full_name, make_position_translation_prompt
 from zavod.shed.zyte_api import fetch_html
+from zavod.stateful.positions import categorise
+
+from zavod import Context
+from zavod import helpers as h
 
 ROLE_PATTERNS = re.compile(
     r"(?P<name>.+?)\s*(?P<role>รองนายกรัฐมนตรี.*|รัฐมนตรีว่าการ.*|รัฐมนตรีประจำ.*|รัฐมนตรีช่วยว่าการ.*|นายกรัฐมนตรี)"
 )
 # Pattern specifically for "นายกรัฐมนตรี" (Prime Minister)
 PRIME_MINISTER_PATTERN = re.compile(r"(?P<role>นายกรัฐมนตรี)\s*(?P<name>.*)")
-REGEX_TITLES = re.compile(r"^(นางสาว|นาง|นาย|พลตำรวจเอก|พันตำรวจเอก|พลเอก|-)")
+REGEX_TITLES = re.compile(
+    r"^(นางสาว|นาง|นาย|พลตำรวจเอก|พันตำรวจเอก|พลเอก|พลตำรวจตรี|ร้อยเอก|พลโท|จ่าเอก|-)"
+)
 POSITION_PROMPT = prompt = make_position_translation_prompt("tha")
 TRANSLIT_OUTPUT = {"eng": ("Latin", "English")}
 

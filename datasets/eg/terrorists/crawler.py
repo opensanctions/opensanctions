@@ -123,8 +123,8 @@ def crawl(context: Context):
         context.data_url,
         ".//*[@class='LinkStyle AutoDownload']",
         geolocation="eg",
+        absolute_links=True,
     )
-    response.make_links_absolute(context.data_url)
 
     excel_link = response.find(".//*[@class='LinkStyle AutoDownload']").get("href")
 

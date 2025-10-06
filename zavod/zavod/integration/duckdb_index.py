@@ -47,6 +47,7 @@ from zavod.logs import get_logger
 from zavod.integration.tokenizer import (
     NAME_PART_FIELD,
     PHONETIC_FIELD,
+    SYMBOL_FIELD,
     WORD_FIELD,
     tokenize_entity,
 )
@@ -65,10 +66,11 @@ DEFAULT_FIELD_STOPWORDS_PCT = {
     registry.identifier.name: 0.0,
     registry.country.name: 90.0,
     registry.address.name: 10.0,
-    registry.date.name: 40.0,
+    registry.date.name: 30.0,
     PHONETIC_FIELD: 30.0,
     WORD_FIELD: 10.0,
     NAME_PART_FIELD: 1.0,
+    SYMBOL_FIELD: 20.0,
 }
 
 
@@ -169,7 +171,7 @@ class DuckDBIndex(BaseIndex[Dataset, Entity]):
         """)
         log.info("Loading data to table %r..." % table)
         self.con.execute(f"COPY {table} FROM '{path}'")
-        path.unlink(missing_ok=True)
+        # path.unlink(missing_ok=True)
         self._clear()
 
     def build(self) -> None:
@@ -220,7 +222,8 @@ class DuckDBIndex(BaseIndex[Dataset, Entity]):
         limit = int((num_tokens / 100) * field_stopwords_pct)
         # limit = min(limit, self.max_stopwords)
         log.info(
-            "Treating %d (%s%%) most common tokens as stopwords for field '%s'..." % (
+            "Treating %d (%s%%) most common tokens as stopwords for field '%s'..."
+            % (
                 limit,
                 field_stopwords_pct,
                 field,
@@ -244,7 +247,9 @@ class DuckDBIndex(BaseIndex[Dataset, Entity]):
             f"{freq} {token}"
             for token, freq in self.con.execute(least_common_query, [field]).fetchall()
         )
-        log.info("5 Least common stopwords for field '%s':\n%s\n" % (field, least_common))
+        log.info(
+            "5 Least common stopwords for field '%s':\n%s\n" % (field, least_common)
+        )
 
     def _apply_stopwords(self, origin_table: str, target_table: str) -> None:
         log.info("Filtering stopwords from %r, as %r..." % (origin_table, target_table))

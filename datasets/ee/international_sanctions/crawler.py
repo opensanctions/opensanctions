@@ -158,9 +158,7 @@ def crawl_rus(context, url):
 
 
 def crawl(context: Context):
-    index_doc = context.fetch_html(context.data_url)
-    index_doc.make_links_absolute(context.data_url)
-
+    index_doc = context.fetch_html(context.data_url, absolute_links=True)
     anchors = index_doc.xpath(".//*[contains(text(), 'LIST OF SUBJECTS')]/ancestor::a")
     assert len(anchors) == 3, "Could not find the links to the lists"
     for a in anchors:

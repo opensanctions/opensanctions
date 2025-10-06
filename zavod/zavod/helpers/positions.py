@@ -1,14 +1,16 @@
-from banal import ensure_list
-from typing import Optional, Iterable, List
 from datetime import datetime
+from typing import Iterable, List, Optional
 
+from banal import ensure_list
+
+from zavod import helpers as h
+from zavod import settings
 from zavod.context import Context
 from zavod.entity import Entity
-from zavod import settings, helpers as h
 from zavod.stateful.positions import (
-    occupancy_status,
     OccupancyStatus,
     PositionCategorisation,
+    occupancy_status,
 )
 
 
@@ -160,8 +162,14 @@ def make_occupancy(
     if death_date not in person.get("deathDate"):
         h.apply_date(person, "deathDate", death_date)
 
-    if categorisation is not None:
-        assert categorisation.is_pep, person
+    if categorisation is not None and not categorisation.is_pep:
+        context.log.warning(
+            "Person is not categorized as a PEP, but was passed to make_occupancy",
+            person=person.id,
+            position=position.id,
+            categorisation=categorisation,
+        )
+        return None
 
     if status is None:
         status = occupancy_status(

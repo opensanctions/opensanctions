@@ -74,8 +74,8 @@ def process_datasets(root: Path) -> List[tuple]:
         if is_due_for_manual_check(manual_check):
             message = manual_check.get("message", "Dataset due for manual review.")
             due.append((dataset_name, message))
-
-        patch_last_checked_line(yml_path)
+            # Only patch if due
+            patch_last_checked_line(yml_path)
 
     return due
 

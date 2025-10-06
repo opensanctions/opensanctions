@@ -83,6 +83,10 @@ assertions:
       Person: 875000
 
 lookups:
+  type.name:
+    options:
+      - match: "..."
+        value: null
   type.date:
     options:
       - match:

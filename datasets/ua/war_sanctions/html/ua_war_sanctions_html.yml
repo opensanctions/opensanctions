@@ -471,6 +471,30 @@ lookups:
         name: "Lydia V Shipping Ltd"
         registration_number: 6161189
         date: "2020-06-13"
+      - match: "Iva Shipping Inc С/о Sterling Ship Management LLC-FZ (0133485 / United Arab Emirates / 05.01.2025)"
+        name: "Iva Shipping Inc"
+        care_of: "Sterling Ship Management LLC-FZ"
+        registration_number: 0133485
+        country: United Arab Emirates
+        date: "2025-01-05"
+      - match: "Blansh Transports Inc С/о Avebury Shipmanagment LLC-FZ (0077308 / United Arab Emirates / 30.09.2024)"
+        name: "Blansh Transports Inc"
+        care_of: "Avebury Shipmanagment LLC-FZ"
+        registration_number: 0077308
+        country: United Arab Emirates
+        date: "2024-09-30"
+      - match: "Cuper Marine Ltd С/о Avebury Shipmanagment LLC-FZ c/o Moonlight Shipmanagement LLC (0108368 / United Arab Emirates / 11.11.2024)"
+        name: "Cuper Marine Ltd"
+        care_of: ["Avebury Shipmanagment LLC-FZ", "Moonlight Shipmanagement LLC"]
+        registration_number: 0108368
+        country: United Arab Emirates
+        date: "2024-11-11"
+      - match: "Echeveria Maritime Co С/о Sterling Ship Management LLC-FZ (0110117 / United Arab Emirates / 14.11.2024)"
+        name: "Echeveria Maritime Co"
+        care_of: "Sterling Ship Management LLC-FZ"
+        registration_number: 0110117
+        country: United Arab Emirates
+        date: "2024-11-14"
   type.date:
     options:
       - match: 23.06.1974 /23.06.1973

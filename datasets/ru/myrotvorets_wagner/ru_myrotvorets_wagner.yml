@@ -40,8 +40,6 @@ lookups:
     options:
       - match: Украна
         value: UA
-      - match: Туркмения
-        value: Turkmenistan
       - match: Россия - Казахстан
         values:
           - Россия

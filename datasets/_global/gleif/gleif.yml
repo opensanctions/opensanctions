@@ -39,12 +39,6 @@ publisher:
 lookups:
   type.country:
     options:
-      - regex: US-\w\w
-        value: us
-      - regex: AE-\w\w
-        value: ae
-      - regex: CA-\w\w
-        value: ca
       - match:
           - UN
           - XX

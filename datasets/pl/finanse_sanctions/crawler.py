@@ -26,7 +26,7 @@ from zavod import Context
 from zavod import helpers as h
 from zavod.shed.un_sc import get_legal_entities, get_persons, Regime, load_un_sc
 
-PL_AML118 = "PL-AML118"
+PROGRAM_KEY = "PL-AML118"
 UN_SC_PREFIXES = [Regime.TALIBAN, Regime.DAESH_AL_QAIDA]
 
 PSEUDONYM_SPLITS = ["a) ", "b) ", "c) "]
@@ -69,7 +69,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
         )
 
     entity.add("topics", "sanction")
-    sanction = h.make_sanction(context, entity, program_key=PL_AML118)
+    sanction = h.make_sanction(context, entity, program_key=PROGRAM_KEY)
     h.apply_date(sanction, "listingDate", row.pop("data_umieszczenia_na_liscie"))
     sanction.add(
         "reason",
@@ -94,9 +94,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
 
 
 def crawl(context: Context):
-    doc = context.fetch_html(context.dataset.url)
-    doc.make_links_absolute(context.dataset.url)
-
+    doc = context.fetch_html(context.dataset.url, absolute_links=True)
     xlsx_link_element = doc.xpath(
         ".//a[@class='file-download' and contains(text(), 'art. 118 ust. 1 pkt 2 (wersja xlsx)')]"
     )

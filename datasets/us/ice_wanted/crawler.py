@@ -151,8 +151,8 @@ def crawl(context: Context):
         wanted_xpath,
         html_source="httpResponseBody",
         cache_days=1,
+        absolute_links=True,
     )
-    doc.make_links_absolute(context.data_url)
 
     for person_node in doc.xpath('.//ul[contains(@class, "usa-card-group")]//li//a'):
         url = person_node.get("href")

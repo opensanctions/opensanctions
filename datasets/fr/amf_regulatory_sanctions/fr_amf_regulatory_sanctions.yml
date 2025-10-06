@@ -1112,3 +1112,12 @@ lookups:
       - match: "La société Eternam"
         entities:
           - Eternam
+      - match: "La société Altaroc Partners (anciennement Amboise Partners SA)<br /> M. Maurice Tchenio<br /> M. Patrick de Giovanni"
+        entities:
+          # It's one entity, we include both previous and current names
+          - ["Altaroc Partners", "Amboise Partners SA"]
+          - Maurice Tchenio
+          - Patrick de Giovanni
+      - match: "La Société de gestion des fonds d'investissement de Bretagne"
+        entities:
+          - La Société de gestion des fonds d'investissement de Bretagne

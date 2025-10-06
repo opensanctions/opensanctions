@@ -1,5 +1,5 @@
 from datetime import date
-from typing import Generator, Optional, Dict, IO
+from typing import Any, Generator, Optional, Dict, IO
 
 from lxml import etree
 from lxml.etree import _Element as Element
@@ -7,6 +7,8 @@ from lxml.etree import _Element as Element
 from address import parse_address
 from zavod import Context
 from zavod import helpers as h
+
+NULL_NAMES = {"-", "0"}
 
 
 def entity_id(
@@ -40,7 +42,7 @@ def entity_id(
 
 def make_person(
     context: Context, el: Element, local_id: Optional[str]
-) -> Optional[Dict[str, str]]:
+) -> Optional[Dict[str, Any]]:
     """
     Parse a person from the XML element.
     Args:
@@ -66,7 +68,9 @@ def make_person(
             countries.append("ru")
         # TODO: Is the else here true?
         else:
-            countries.append(country.get("НаимСтран"))
+            country_name = country.get("НаимСтран")
+            if country_name is not None:
+                countries.append(country_name)
 
     name = h.make_name(
         first_name=first_name, patronymic=patronymic, last_name=last_name
@@ -75,10 +79,10 @@ def make_person(
         "id": entity_id(context, name, inn_code, local_id=local_id),
         "schema": "Person",
         "seen_date": context.data_time.date(),
-        "name": name,
-        "first_name": first_name,
-        "last_name": last_name,
-        "father_name": patronymic,
+        "name": name if name not in NULL_NAMES else None,
+        "first_name": first_name if first_name not in NULL_NAMES else None,
+        "last_name": last_name if last_name not in NULL_NAMES else None,
+        "father_name": patronymic if patronymic not in NULL_NAMES else None,
         "inn_code": inn_code,
         "countries": countries,
     }
@@ -86,7 +90,7 @@ def make_person(
 
 def make_org(
     context: Context, el: Element, local_id: Optional[str]
-) -> Optional[Dict[str, str]]:
+) -> Optional[Dict[str, Any]]:
     """
     Parse an organization from the XML element.
     Args:
@@ -127,10 +131,12 @@ def make_org(
     return org
 
 
-def make_owner(context: Context, company: dict, el: Element) -> Optional[dict]:
+def make_owner(
+    context: Context, company: Dict[str, Any], el: Element
+) -> Optional[Dict[str, Any]]:
     meta = el.find("./ГРНДатаПерв")
     owner = None
-    owner_union = {
+    owner_union: Dict[str, Any] = {
         "person": None,
         "legal_entity": None,
     }
@@ -242,7 +248,7 @@ def make_owner(context: Context, company: dict, el: Element) -> Optional[dict]:
         )
         return None
 
-    ownership = {
+    ownership: Dict[str, Any] = {
         "seen_date": context.data_time.date(),
         "date": date.fromisoformat(str(link_date)) if link_date else None,
         "record_id": link_record_id,
@@ -272,7 +278,10 @@ def make_owner(context: Context, company: dict, el: Element) -> Optional[dict]:
     # The previous key did not contain shares_count and role
     # This ID will also be used to detect changes in ownership when building historic data
     ownership["id"] = context.make_id(
-        company["id"], owner["id"], ownership.get("shares_count"), ownership["role"]
+        str(company["id"]),
+        str(owner["id"]),
+        str(ownership.get("shares_count")),
+        str(ownership["role"]),
     )
 
     reliable_el = el.find("./СвНедДанУчр")
@@ -283,8 +292,8 @@ def make_owner(context: Context, company: dict, el: Element) -> Optional[dict]:
 
 
 def make_directorship(
-    context: Context, company: dict, el: Element
-) -> Optional[Dict[str, str]]:
+    context: Context, company: Dict[str, Any], el: Element
+) -> Optional[Dict[str, Any]]:
     """
     Parse a directorship from the XML element.
     Args:
@@ -314,15 +323,17 @@ def make_directorship(
         "organization_id": company["id"],
     }
     start_date_el = el.find("./ГРНДатаПерв")
-    if start_date_el is not None:
-        directorship["start_date"] = date.fromisoformat(start_date_el.get("ДатаЗаписи"))
+    if start_date_el is not None and start_date_el.get("ДатаЗаписи") is not None:
+        directorship["start_date"] = date.fromisoformat(
+            str(start_date_el.get("ДатаЗаписи"))
+        )
 
     return directorship
 
 
 def build_successor_predecessor(
-    context: Context, other_entity: dict, el: Element
-) -> Optional[dict]:
+    context: Context, other_entity: Dict[str, Any], el: Element
+) -> Optional[Dict[str, Any]]:
     name = el.get("НаимЮЛПолн")
     inn = el.get("ИНН")
     ogrn = el.get("ОГРН")
@@ -332,25 +343,30 @@ def build_successor_predecessor(
         inn=inn,
         ogrn=ogrn,
     )
-    if successor_id is not None:
-        entity = {
-            "schema": "Company",
-            "seen_date": context.data_time.date(),
-            "id": successor_id,
-            "name_full": name,
-            "inn_code": inn,
-            "ogrn_code": ogrn,
-        }
+    if successor_id is None:
+        return None
 
-        if not entity["ogrn_code"]:
-            entity["ogrn_code"] = other_entity.get("ogrn_code")
-        if not entity["inn_code"]:
-            entity["inn_code"] = other_entity.get("inn_code")
-        return entity
+    entity = {
+        "schema": "Company",
+        "seen_date": context.data_time.date(),
+        "id": successor_id,
+        "name_full": name,
+        "inn_code": inn,
+        "ogrn_code": ogrn,
+    }
+
+    if not entity["ogrn_code"]:
+        entity["ogrn_code"] = other_entity.get("ogrn_code")
+    if not entity["inn_code"]:
+        entity["inn_code"] = other_entity.get("inn_code")
+    return entity
 
 
-def parse_company(context: Context, el: Element) -> dict:
-    company = {"schema": "Company", "seen_date": context.data_time.date()}
+def parse_company(context: Context, el: Element) -> Dict[str, Any]:
+    company: Dict[str, Any] = {
+        "schema": "Company",
+        "seen_date": context.data_time.date(),
+    }
     inn = el.get("ИНН")
     ogrn = el.get("ОГРН")
     name_full: Optional[str] = None
@@ -413,7 +429,9 @@ def parse_company(context: Context, el: Element) -> dict:
         succ_entity = build_successor_predecessor(context, company, successor_el)
         if succ_entity is not None:
             succ = {
-                "id": context.make_id(company["id"], "successor", succ_entity["id"]),
+                "id": context.make_id(
+                    str(company["id"]), "successor", succ_entity["id"]
+                ),
                 "seen_date": context.data_time.date(),
                 "successor": succ_entity,
                 "predecessor_id": company["id"],
@@ -425,7 +443,9 @@ def parse_company(context: Context, el: Element) -> dict:
         pred_entity = build_successor_predecessor(context, company, predecessor_el)
         if pred_entity is not None:
             pred = {
-                "id": context.make_id(company["id"], "predecessor", pred_entity["id"]),
+                "id": context.make_id(
+                    str(company["id"]), "predecessor", pred_entity["id"]
+                ),
                 "seen_date": context.data_time.date(),
                 "predecessor": pred_entity,
                 "predecessor_id": pred_entity["id"],
@@ -442,7 +462,7 @@ def parse_company(context: Context, el: Element) -> dict:
     }
 
 
-def parse_sole_trader(context: Context, el: Element) -> Optional[dict]:
+def parse_sole_trader(context: Context, el: Element) -> Optional[Dict[str, Any]]:
     inn = el.get("ИННФЛ")
     ogrn = el.get("ОГРНИП")
     t = {
@@ -460,8 +480,11 @@ def parse_sole_trader(context: Context, el: Element) -> Optional[dict]:
     return {"id": t["id"], "legal_entity": t}
 
 
-def parse_xml(context: Context, handle: IO[bytes]) -> Generator[dict, None, None]:
+def parse_xml(
+    context: Context, handle: IO[bytes]
+) -> Generator[Dict[str, Any], None, None]:
     doc = etree.parse(handle)
+    res: Optional[Dict[str, Any]]
     for el in doc.findall(".//СвЮЛ"):
         res = parse_company(context, el)
         if res is not None:

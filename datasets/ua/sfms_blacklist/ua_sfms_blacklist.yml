@@ -93,8 +93,6 @@ lookups:
           - Somali Location
           - Somalia Alt.
         value: Somalia
-      - match: Азербайджанська Республіка
-        value: AZ
       - match: Sudanese by birth
         value: Sudan
       - match: United States. Also believed to hold Syrian nationality
@@ -117,6 +115,8 @@ lookups:
         value: EG
       - match: "682" # ISO 3166-1 numeric code for Saudi Arabia
         value: SA
+      - match: "Unconfirmed (likely Iran)"
+        value: IR
   type.date:
     options:
       - match: 11 November 1960, 11 November 1967, 11 November 1969, 1 January 1969

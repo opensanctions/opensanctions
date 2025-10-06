@@ -87,12 +87,12 @@ lookups:
         values:
           - 0520665064
           - 0520673467
+      - match: Tüzel Kişi/Kuruluş/Organizasyon
+        value: null
   type.country:
     lowercase: true
     normalize: true
     options:
-      - match: TÜRKİYE CUMHURİYETİ
-        value: Turkey
       - match: IRAK
         value: Irak
       - match:
@@ -101,12 +101,8 @@ lookups:
         value: United Kingdom
       - match: TİRİNİDAD VE TOBAGO
         value: Trinidad and Tobago
-      - match: KORE DEMOKRATİK HALK CUMHURİYETİ
-        value: North Korea
       - match: MARSHALL ADALARI
         value: Marshall Islands
-      - match: Almanya
-        value: Germany
       - match: "IRAK SURİYE"
         values:
           - Iraq
@@ -202,6 +198,8 @@ lookups:
           - 2014-12-17
       - match: 17 Aralık 2014 de gözden geçirilmiştir.)
         value: 2014-12-17
+      - match: 17.12.2014 de güncellenmiş)
+        value: 2014-12-17
   type.identifier:
     lowercase: true
     options:
@@ -237,6 +235,10 @@ lookups:
         value: 654234735
       - match: Lübnan pasaport numarası RL-2244333 -61 Niha El-Mehfara
         value: RL-2244333
+      - match: E4710151 İran (15 ekim 2000 tarihinde düzenlenmiş, 15 Ekim 2005 de geçerliliği sona ermiş)
+        value: E4710151
+      - match: "Diplomatik Pasaport: Z30321794 İranda düzenlenmiş(12 Haziran 2014 tarihinde düzenlenmiş, 12 Hziran 2019 tarihinde sona eriyor)"
+        value: Z30321794
       - match: PAS. NO 4738382
         value: 4738382
       - match: "Pasaport no: 750812604"

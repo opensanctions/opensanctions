@@ -94,8 +94,9 @@ def index_unblock_validator(doc: _Element) -> bool:
 
 def crawl(context: Context) -> None:
     table_xpath = ".//table[contains(@class, 'usa-table')]"
-    doc = fetch_html(context, context.data_url, table_xpath, cache_days=1)
-    doc.make_links_absolute(context.data_url)
+    doc = fetch_html(
+        context, context.data_url, table_xpath, cache_days=1, absolute_links=True
+    )
 
     table = doc.xpath(table_xpath)[0]
     for row in h.parse_html_table(table):

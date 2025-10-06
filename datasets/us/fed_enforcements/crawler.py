@@ -12,7 +12,7 @@ from zavod.shed.gpt import run_typed_text_prompt, DEFAULT_MODEL
 from zavod.stateful.review import assert_all_accepted, get_review, request_review
 
 
-US_FED_ENF = "US-FED-ENF"
+PROGRAM_KEY = "US-FED-ENF"
 
 MODEL_VERSION = 1
 MIN_MODEL_VERSION = 1
@@ -139,7 +139,7 @@ def crawl_item(
             entity.add("topics", "fin.bank")
 
         sanction = h.make_sanction(
-            context, entity, key=[effective_date], program_key=US_FED_ENF
+            context, entity, key=[effective_date], program_key=PROGRAM_KEY
         )
         h.apply_date(sanction, "startDate", effective_date)
         sanction.add("provisions", provisions)

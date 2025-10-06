@@ -22,14 +22,12 @@ publisher:
   country: pl
   official: true
   url: https://www.policja.pl
-tags:
-  - list.wanted
+tags: [list.wanted]
 data:
   url: https://poszukiwani.policja.gov.pl/pos/form/5,Poszukiwani.html
   format: HTML
   lang: pol
-ci_test: false # It's too slow to visit 50k pages in CI
-
+ci_test: false  # It's too slow to visit 50k pages in CI
 assertions:
   min:
     schema_entities:
@@ -37,7 +35,6 @@ assertions:
   max:
     schema_entities:
       Person: 100000
-
 lookups:
   type.gender:
     options:
@@ -46,7 +43,7 @@ lookups:
       - match: kobieta
         value: female
       - match: nieznana
-        value: null
+        value:
   # We split manually to avoid outputting country values where one part is
   # a valid country name. E.g. even if we get a warning on SERBIA I CZARNOGÓRA,
   # we don't want to emit "SERBIA" and "MONTENEGRO" as separate values.
@@ -54,15 +51,13 @@ lookups:
     normalize: true
     options:
       - match:
-          - NIEUSTALONE # unknown
-          - BEZPAŃSTWOWIEC # stateless
+          - NIEUSTALONE  # unknown
+          - BEZPAŃSTWOWIEC  # stateless
         value:
       - match: BEZPAŃSTWOWIEC ESTONIA
         value: EE
-      - match: RPA # REPUBLIKA POŁUDNIOWEJ AFRYKI
+      - match: RPA  # REPUBLIKA POŁUDNIOWEJ AFRYKI
         value: ZA
-      - match: CEJLON
-        value: LK
       - match: ZAIR
         value: CD
       - match: ALBANIA MACEDONIA
@@ -133,15 +128,13 @@ lookups:
         value: TH
       - match: WIELKA BRYTANIA WŁOCHY
         values: [GB, IT]
-      - match: MACEDONIA PÓŁNOCNA
-        value: MK
       - match: POLSKIE BEZ NR PESEL
         value: PL
-      - match: MACEDONIA PÓŁNOCNA
-        value: MK
       - match: ROSJA NIEMCY
         values: [RU, DE]
       - match: ARMENIA HOLANDIA
         values: [AM, NL]
       - match: UGANDA RWANDA
         values: [UG, RW]
+      - match: DANIA SOMALIA
+        values: [DK, SO]

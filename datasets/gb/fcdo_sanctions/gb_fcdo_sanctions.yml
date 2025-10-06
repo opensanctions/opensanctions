@@ -173,15 +173,32 @@ lookups:
         prop: website
       - match: "sales@ruspolymet.ru,"
         value: "sales@ruspolymet.ru"
+      - match: "ruspolymet@ruspolymet.ru,"
+        value: ruspolymet@ruspolymet.ru
       - match: "info@zrekond.ru,"
         value: "info@zrekond.ru"
+      - match: "zgen@zrekond.ru,"
+        value: "zgen@zrekond.ru"
       - match: "gen@zrekond.ru,"
         value: "gen@zrekond.ru"
       - match: "info@npo-poisk.ru,"
         value: "info@npo-poisk.ru"
+      - match: ravabet.eogpc.ir
+        value: ravabet@eogpc.ir
+      - match: http://www.petropars.com/fa/petroparsgroup/pre-شرکت-پتروپارس-ریسورسز-انجینیرینگ-PRE
+        prop: website
+      - match: administrator@nitc.co.ir,
+        value: administrator@nitc.co.ir
   type.date:
     options:
       - match: 00/00/1975
         value: 1975
       - match: 15/08/19yy
         value: null # We don't have a way to represent day-month birthdays
+  type.string:
+    options:
+      - match: P.O. Box 1863 and 2501
+        prop: postOfficeBox
+        value:
+          - 1863
+          - 2501

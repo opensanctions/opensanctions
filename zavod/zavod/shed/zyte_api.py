@@ -376,6 +376,7 @@ def fetch_html(
     retries: int = 3,
     backoff_factor: int = 3,
     previous_retries: int = 0,
+    absolute_links: bool = False,
 ) -> etree._Element:
     """
     Fetch a web page using the Zyte API.
@@ -387,6 +388,7 @@ def fetch_html(
         html_source: browserHtml | httpResponseBody
         retries: The number of times to retry if unblocking fails.
         backoff_factor: Factor to scale the pause between retries.
+        absolute_links: Whether to convert relative links to absolute links.
 
     Returns:
         The parsed HTML document serialized from the DOM.
@@ -404,6 +406,8 @@ def fetch_html(
     )
 
     doc = html.fromstring(zyte_result.response_text)
+    if absolute_links and isinstance(doc, html.HtmlElement):
+        doc.make_links_absolute(url)
 
     matches = doc.xpath(unblock_validator)
     if not isinstance(matches, list) or not len(matches) > 0:

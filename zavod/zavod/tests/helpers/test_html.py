@@ -1,4 +1,5 @@
 from lxml import html
+from rigour.text import text_hash
 
 from zavod import Dataset
 from zavod import helpers as h
@@ -48,3 +49,24 @@ def test_parse_html_table(testdataset1: Dataset):
     links_dict = h.links_to_dict(rows[0]["read_more"])
     assert links_dict["read_more"] == "/james-bond", links_dict
     assert links_dict["extra"] == "/james-bond-extra", links_dict
+
+
+def test_element_text():
+    doc = html.fromstring("<span>&nbsp; </span>")
+    assert h.element_text(doc) == "", doc
+    assert h.element_text(doc, squash=False) == "\xa0 ", doc
+    doc = html.fromstring("<span> Hello, <div>World!</div> &nbsp;</span>")
+    assert h.element_text(doc) == "Hello, World!", doc
+
+
+def test_element_text_hash():
+    doc = html.fromstring("<span>&nbsp; </span>")
+    assert h.element_text_hash(doc) == "da39a3ee5e6b4b0d3255bfef95601890afd80709", doc
+
+    hash = text_hash("Hello, World!")
+    doc = html.fromstring("<span> Hello, <div>World!</div> &nbsp;</span>")
+    assert h.element_text_hash(doc) == hash, (doc, hash)
+    doc = html.fromstring("<span> Hello, <div>World!</div><h3>&nbsp;</h3></span>")
+    assert h.element_text_hash(doc) == hash, (doc, hash)
+    doc = html.fromstring("<span> HELLO, <div>WORLD</div> &nbsp;</span>")
+    assert h.element_text_hash(doc) == hash, (doc, hash)

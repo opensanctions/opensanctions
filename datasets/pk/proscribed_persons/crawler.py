@@ -5,7 +5,7 @@ from zavod import helpers as h
 from zavod.shed.zyte_api import fetch_json
 
 # 4th Schedule under the Anti Terrorism Act, 1997
-PK_ATA1997 = "PK-ATA1997"
+PROGRAM_KEY = "PK-ATA1997"
 
 
 def crawl_person(context: Context, row: dict):
@@ -34,7 +34,7 @@ def crawl_person(context: Context, row: dict):
     entity.add("topics", "wanted")
     entity.add("address", f"{district}, {province}")
 
-    sanction = h.make_sanction(context, entity, program_key=PK_ATA1997)
+    sanction = h.make_sanction(context, entity, program_key=PROGRAM_KEY)
 
     context.emit(entity)
     context.emit(sanction)

@@ -166,9 +166,7 @@ def crawl_row(context: Context, row: Dict[str, str], table_title: str):
 
 
 def crawl(context: Context):
-    doc = context.fetch_html(context.data_url)
-    doc.make_links_absolute(context.data_url)
-
+    doc = context.fetch_html(context.data_url, absolute_links=True)
     table = doc.xpath(".//h3[text() = 'Osoby']/following-sibling::div//table")[0]
     for row in h.parse_html_table(table, header_tag="td"):
         crawl_row(context, h.cells_to_str(row), "osoby")

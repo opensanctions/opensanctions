@@ -53,12 +53,12 @@ dates:
 assertions:
   min:
     schema_entities:
-      Person: 3000
-      Organization: 1000
+      Person: 3500
+      Organization: 1200
   max:
     schema_entities:
-      Person: 5000
-      Organization: 1400
+      Person: 7000
+      Organization: 3000
 lookups:
   schemata:
     options:
@@ -138,10 +138,6 @@ lookups:
         aliases: [Department 140/14]
       - match: Safia Farkash Mohammed Al-Hadad - née le 01/01/1953
         aliases: [Safia Farkash Mohammed Al-Hadad]
-      - match: RFNC-VNIITF / VNIITF
-        aliases:
-          - RFNC-VNIITF
-          - RFNC VNIITF
       - match: Korea Ryenha Machinery J/V Corporation
         aliases: [Korea Ryenha Machinery J/V Corporation]
       - match: JSC “Obukhov Plant” / JSC “GOZ Obukhov plant”
@@ -174,10 +170,6 @@ lookups:
           - NALU
       - match: 7th of Tir Industries of Isfahan/Esfahan
         aliases: [7th of Tir Industries of Isfahan/Esfahan]
-      - match: "Step Istanbul/Standart Teknik Parca San. Ve Tic. A.S."
-        aliases:
-          - Step Istanbul
-          - Standart Teknik Parca San. Ve Tic. A.S.
       - match: "SSTP, Step Standard Technical Components Industry and Trading Corporation, Step Corporation, Step Standart Teknik Parca Sanayi Ve Ticaret A.S., Step AS, Step Company, Stap Standart Tek Par San Tic AS, Step Standart Teknyk, Parca San. Ve Tyc. A.S., STEP Standart Teknik Parca San. ve Tic. A.S., Step Standart Teknik Parca Sanayi ve Ticaret Anonim Sirketi, Step A. S., Step S.A., Step Istanbul, Standart Teknik Parca San Ve Tic A.S., Standart Teknik Parca San. Ve Ticaret A.S., Standard Technical Component Industry and Trade Company, Step Standart Teknik Parca San Ve Tic As, Step Istanbul/Standart Teknik Parca San. Ve Tic. A.S."
         aliases:
           - SSTP
@@ -200,7 +192,10 @@ lookups:
           - Step Standart Teknik Parca San Ve Tic As
           - Step Istanbul
           - Standart Teknik Parca San. Ve Tic. A.S.
-
+      - match: RFNC-VNIITF/VNIITF
+        aliases:
+          - RFNC-VNIITF
+          - VNIITF
   type.date:
     options:
       - match: 24/06/1402 (calendrier hégirien)
@@ -209,8 +204,6 @@ lookups:
         value: 1966-05-25
       - match: "08/1961,"
         value: 1961-08
-      - match: au milieu des années 1940, probablement 1947 1947
-        value: 1947
       - match: au milieu des années 40 (probablement 1947)
         value: 1947
       - match: Othman Ahmed Othman Al Omairah 1973
@@ -241,8 +234,6 @@ lookups:
         value: 1965
       - match: "Janvier 1958"
         value: 1958-01
-      - match: 09/06/1981 ou 1982
-        value: 1982
       - match: Peut-être 23/07/1981
         value: 1981-07-23
       - match: Décembre 1948
@@ -253,8 +244,6 @@ lookups:
         value: 1961-08
       - match: (Environ) 1952
         value: 1952
-      - match: Août 1975
-        value: 1975-08
       - match: 04/1964
         value: 1964-04
       - match: mars 1978
@@ -301,7 +290,7 @@ lookups:
         values:
           - 1940
           - 1941
-      - match: Entre 1977 et 1982.
+      - match: Entre 1977 et 1982.
         values:
           - 1977
           - 1982
@@ -319,31 +308,24 @@ lookups:
         value: 1976-03-27
       - match:
           - Entre le 01/01/1961 et le 31/12/1963
-          - au milieu des années 1940 1940,
           - entre 1975 et 1979
           - Entre 1965 et 1969
           - Entre 1960 et 1975
           - Années 1960-1970 (âgé d'environ 50 ans)
           - avant 1964
           - 1980-1990
+          - 10/10/(année inconnue)
         value: null
   type.country:
     lowercase: true
     normalize: true
     options:
       - match:
-          - République populaire démocratique de Corée (RPDC)
-          - République populaire démocratique de Corée
-        value: kp
-      - match:
           - PAKISTAN (présumée)
         value: pk
       - match:
           - JORDANIE (présumée)
         value: jo
-      - match:
-          - CENTRAFRIQUE
-        value: cf
       - match:
           - ou RUSSIE
           - RUSSIE (l’Union européenne ne reconnait pas les passeports délivrés par la Fédération de Russie en Crimée)
@@ -352,9 +334,6 @@ lookups:
         values:
           - ua
           - ru
-      - match:
-          - BIÉLORUSSIE
-        value: by
       - match:
           - INDONÉSIE (en décembre 2003)
         value: id

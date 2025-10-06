@@ -121,16 +121,9 @@ lookups:
           - Irlande /Eire/
         values:
           - IE
-      - match: Union d.Rép.Soc.Soviét.
-        value: SUHH
-      - match: Géorgie ( Rép. )
-        value: GE
       - match: QUEBEC H2Y 1L6
         value: CA
       - match:
-          - Corée du Sud ( Rép. de )
-          - COREE (REPUBLIQUE DE)
-          - CORÉE, RÉPUBLIQUE DE
           - SKO
         value: South Korea
       - match:
@@ -143,20 +136,10 @@ lookups:
         value: PL
       - match: Scotland, Uk
         value: GB
-      - match:
-          - Azerbaïdjan ( Rép. )
-          - Azerbaijan Republic
-        value: AZ
       - match: Slovénie ( Rép. de )
         value: SI
       - match: Antilles néerlandaises
         value: NL
-      - match: IRAN, RÉPUBLIQUE ISLAMIQUE D'
-        value: IR
-      - match: TCHEQUIE
-        value: CZ
-      - match: TAÏWAN, PROVINCE DE CHINE
-        value: TW
       - match: FÉROÉ, ÎLES
         value: FO
   type.name:

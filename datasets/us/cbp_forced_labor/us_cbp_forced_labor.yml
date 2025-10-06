@@ -16,6 +16,7 @@ publisher:
   name: U.S. Customs and Border Protection
   acronym: CBP
   official: true
+  country: us
   url: https://www.cbp.gov/
   description: |
     The CBP is a unified border agency within the Department of Homeland Security (DHS)
@@ -37,7 +38,7 @@ assertions:
   min:
     schema_entities:
       LegalEntity: 50
-      Vessel: 5
+      Vessel: 3
   max:
     schema_entities:
       LegalEntity: 70
@@ -263,21 +264,27 @@ lookups:
         entities:
           - name: Marange Diamond Fields
       - match: "Fishing Vessel: Hangton No. 112"
+        schema: Vessel
         entities:
           - name: "Hangton No. 112"
       - match: "Fishing Vessels owned by Dalian Ocean Fishing Co. Ltd."
         entities:
-          - name: Fishing Vessels owned by Dalian Ocean Fishing Co. Ltd.
+          - name: Dalian Ocean Fishing Co. Ltd.
+            notes: "Fishing Vessels owned by Dalian Ocean Fishing Co. Ltd."
       - match: "Fishing Vessel: Lien Yi Hsing No. 12"
+        schema: Vessel
         entities:
           - name: "Lien Yi Hsing No. 12"
       - match: "Fishing Vessel: Da Wang"
+        schema: Vessel
         entities:
           - name: "Da Wang"
       - match: "Fishing Vessel: Yu Long No. 2"
+        schema: Vessel
         entities:
           - name: "Yu Long No. 2"
       - match: "Fishing Vessel: Zhen Fa 7"
+        schema: Vessel
         entities:
           - name: "Zhen Fa 7"
       - match: "Inner Mongolia Hengzheng Group Baoanzhao Agriculture, Industry, and Trade Co., Ltd."
@@ -312,3 +319,6 @@ lookups:
       - match: Taepyung Salt Farm
         entities:
           - name: Taepyung Salt Farm
+      - match: "Giant Manufacturing Co., Ltd."
+        entities:
+          - name: Giant Manufacturing Co., Ltd.

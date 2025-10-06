@@ -20,7 +20,7 @@ describe('verify', () => {
       };
     });
     // Re-import after mocking
-    const { verify } = require('./auth');
+    const { verify } = await import('./auth');
     const headers = new Headers({
       'x-goog-iap-jwt-assertion': 'a.jwt.token',
     });
@@ -40,7 +40,7 @@ describe('verify', () => {
       };
     });
     // Re-import after mocking
-    const { verify } = require('./auth');
+    const { verify } = await import('./auth');
     const headers = new Headers({
       'x-goog-iap-jwt-assertion': 'a.jwt.token',
     });

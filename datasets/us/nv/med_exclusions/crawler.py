@@ -91,10 +91,9 @@ def page_settings(page: Page):
 def crawl_pdf_url(context: Context):
     pdf_link_xpath = "//*[text()='NV Exclusion List ']"
     doc = zyte_api.fetch_html(
-        context, context.data_url, pdf_link_xpath, geolocation="US"
+        context, context.data_url, pdf_link_xpath, geolocation="US", absolute_links=True
     )
     # doc = context.fetch_html(context.data_url)
-    doc.make_links_absolute(context.data_url)
     return doc.xpath(pdf_link_xpath)[0].get("href")
 
 

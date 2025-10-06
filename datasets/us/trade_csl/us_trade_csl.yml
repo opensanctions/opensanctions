@@ -553,6 +553,8 @@ lookups:
     options:
       - match: "3033-01-17"
         value: null
+      - match: "8/11/2015"
+        value: 2015 # since we also consider %d %b %Y, I don't want to assume US format %m/%d/%Y
   type.address:
     lowercase: true
     options:

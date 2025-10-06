@@ -32,8 +32,7 @@ def paginate_crawl(context: Context, func, page_url: str, accomplices: bool = Fa
 
 
 def crawl_persons_list(context: Context, url: str, accomplices: bool = False):
-    doc = context.fetch_html(url, cache_days=1)
-    doc.make_links_absolute(url)
+    doc = context.fetch_html(url, cache_days=1, absolute_links=True)
 
     for anchor in doc.xpath('//div[@class="b-archive-item"]//a'):
         anchor_url = anchor.get("href")

@@ -145,8 +145,9 @@ def crawl_row(context: Context, row: Dict):
 
 def crawl_excel_url(context: Context):
     file_xpath = '//a[contains(@id,"filesToDownload_item")][contains(@href, "xlsx")]'
-    doc = fetch_html(context, context.data_url, file_xpath, cache_days=1)
-    doc.make_links_absolute(context.data_url)
+    doc = fetch_html(
+        context, context.data_url, file_xpath, cache_days=1, absolute_links=True
+    )
 
     return doc.xpath(file_xpath)[0].get("href")
 

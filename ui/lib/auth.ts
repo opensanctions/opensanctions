@@ -1,6 +1,7 @@
 // https://cloud.google.com/iap/docs/signed-headers-howto#iap_validate_jwt-nodejs
 
 import { jwtVerify, importSPKI, exportJWK, decodeProtectedHeader } from 'jose';
+
 import { ALLOW_UNAUTHENTICATED, IAP_AUDIENCE } from './constants';
 
 const CACHE_DURATION = 6 * 60 * 60; // 6 hours

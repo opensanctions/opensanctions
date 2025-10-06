@@ -281,6 +281,16 @@ lookups:
         names:
           - name: Sichuan Yitu Landscape Engineering Co., Ltd.
             alias: ["Sichuan Yitu", "四川一土园林绿化工程有限公司"]
+      - match: A2Z Waste Management (Aligarh) Ltd
+        names:
+          - name: A2Z Waste Management (Aligarh) Ltd
+      - match: A2Z Waste Management (Ludhiana) Ltd
+        names:
+          - name: A2Z Waste Management (Ludhiana) Ltd
+      - match: Rishikesh Waste Management Ltd (Formerly Known As A2Z Powertech Ltd)
+        names:
+          - name: Rishikesh Waste Management Ltd
+            previous_name: A2Z Powertech Ltd
   types:
     lowercase: true
     map:

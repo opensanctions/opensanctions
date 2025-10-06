@@ -8,7 +8,7 @@ deploy:
   memory: "4500Mi"
   memory_limit: "5500Mi"
 load_statements: true
-ci_test: false  # GPT key not available in CI
+ci_test: false # GPT key not available in CI
 summary: >
   Enforcement actions against entities and individuals for violations of laws, rules, or regulations
 description: |
@@ -56,14 +56,6 @@ dates:
   formats: ["%B %d, %Y"]
 
 lookups:
-  type.country:
-    options:
-      - match: Peoples Republic of China
-        value: China
-      - match:
-          - Indiana
-          - Illnois
-        value: null
   individual_name:
     options:
       - match: "Carl V. Thomas, Eva June Thomas, Stephen P. Thomas, Mary Beth Thomas, Marguerite Thomas, Charles Tomlinson, Herbert Phillips, Lloyd Phillips, R.L. Phillips, Stanley Phillips, Rhonda Phillips, Scott Ward, Angela Ward, Forrest Buckley, James C. Crowe, Johnny V. Jones, Harper Guinn and Jeff Guinn"

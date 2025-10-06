@@ -1,9 +1,10 @@
 import string
-import openpyxl
-from typing import List, Optional, Set, Tuple, Dict, Any
 from collections import defaultdict
-from normality import slugify
 from datetime import datetime
+from typing import Any, Dict, List, Optional, Set, Tuple
+
+import openpyxl
+from normality import slugify
 from rigour.mime.types import XLSX
 
 from zavod import Context
@@ -16,17 +17,6 @@ ADDRESS_SPLITS = [";", "ii) ", "iii) "]
 # e.g. 101 for the primary name and 101a for the alias.
 # Usually, the names are listed in contiguous blocks, but sometimes they're not
 # (they're interrupted by other entries).
-
-KNOWN_VALID_DISCOUNTINOUS_REFERENCES = {
-    "2940j",
-    "8155a",
-    "8155b",
-    "8164",  # 8164 is after 8164a
-    "8174a",
-    "8174",  # 8174a is the first block
-    "8183a",
-    "8183b",
-}
 
 
 def clean_date(date):
@@ -53,6 +43,7 @@ def clean_date(date):
         "Between",
         "circa",
         "Circa",
+        "_x000D_",
     ]
     dates = []
     if isinstance(date, datetime):
@@ -83,7 +74,9 @@ def clean_reference(ref: str) -> Optional[str]:
 
 
 def clean_country(country: str) -> List[str]:
-    return h.multi_split(country, ["a)", "b)", "c)", "d)", ";", ",", " and "])
+    return h.multi_split(
+        country, ["a)", "b)", "c)", "d)", ";", ",", " and ", "_x000D_"]
+    )
 
 
 def parse_reference(
@@ -92,14 +85,14 @@ def parse_reference(
     schemata = set()
     for row in rows:
         type_ = row.pop("type")
-        schema = context.lookup_value("type", type_)
+        # Lookup by reference first to allow an override for references where there
+        # are two conflicting type specs.
+        schema = context.lookup_value("type", str(reference))
         if schema is None:
-            schema = context.lookup_value("type", reference)
-            if schema is None:
-                context.log.warning(
-                    "Unknown entity type", type=type_, reference=reference
-                )
-                return
+            schema = context.lookup_value("type", type_)
+        if schema is None:
+            context.log.warning("Unknown entity type", type=type_, reference=reference)
+            return
         schemata.add(schema)
     if len(schemata) > 1:
         context.log.error(
@@ -144,7 +137,11 @@ def parse_reference(
             key=source_program,
             program_name=source_program,
             source_program_key=source_program,
-            program_key=h.lookup_sanction_program_key(context, source_program),
+            program_key=(
+                h.lookup_sanction_program_key(context, source_program)
+                if source_program
+                else None
+            ),
         )
         country = clean_country(row.pop("citizenship"))
         if entity.schema.is_a("Person"):
@@ -158,15 +155,15 @@ def parse_reference(
         entity.add("notes", h.clean_note(row.pop("additional_information")))
         listing_info = row.pop("listing_information")
         if isinstance(listing_info, datetime):
-            entity.add("createdAt", listing_info)
+            h.apply_date(entity, "createdAt", listing_info)
             sanction.add("listingDate", listing_info)
         else:
             sanction.add("summary", listing_info)
         # TODO: consider parsing if it's not a datetime?
 
         control_date = row.pop("control_date")
-        sanction.add("startDate", control_date)
-        entity.add("createdAt", control_date)
+        h.apply_date(sanction, "startDate", control_date)
+        h.apply_date(entity, "createdAt", control_date)
         context.audit_data(row, ignore=["reference"])
 
     entity.add("topics", "sanction")
@@ -226,10 +223,7 @@ def crawl(context: Context):
 
             # Add suffix so that this block is treated as distinct block from
             # earlier iterations of this reference
-            if (
-                reference_seen_count > 1
-                and raw_ref not in KNOWN_VALID_DISCOUNTINOUS_REFERENCES
-            ):
+            if reference_seen_count > 1:
                 context.log.warning(
                     f"Already seen a reference block before for {reference}. Adding iteration suffix, check if {raw_ref} actually belongs to {reference}",
                     ref=reference,

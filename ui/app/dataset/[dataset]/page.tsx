@@ -1,9 +1,9 @@
 import Link from 'next/link';
-import { getExtractionEntries } from '../../../lib/db';
-import { verify } from '../../../lib/auth';
-import { headers } from 'next/headers';
 import { notFound } from 'next/navigation';
+
 import { PageProps } from '@/lib/pageProps';
+
+import { getExtractionEntries } from '../../../lib/db';
 
 export default async function DatasetPage({ params }: PageProps) {
   const awaitedParams = await params;
@@ -36,6 +36,7 @@ export default async function DatasetPage({ params }: PageProps) {
             </tr>
           </thead>
           <tbody>
+            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
             {entries.map((entry: any) => (
               <tr key={entry.id}>
                 <td>

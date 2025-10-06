@@ -11,3 +11,4 @@ build/
 dist/
 data/
 textual.log
+uv.lock

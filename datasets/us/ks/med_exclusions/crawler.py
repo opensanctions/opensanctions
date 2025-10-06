@@ -47,8 +47,7 @@ def crawl_item(row: Dict[str, str], context: Context):
 
 def crawl_excel_url(context: Context):
     file_xpath = "//*[text()='Termination List (XLSX)']"
-    doc = fetch_html(context, context.data_url, file_xpath)
-    doc.make_links_absolute(context.data_url)
+    doc = fetch_html(context, context.data_url, file_xpath, absolute_links=True)
     return doc.xpath(file_xpath)[0].get("href")
 
 

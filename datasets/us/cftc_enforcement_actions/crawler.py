@@ -15,7 +15,6 @@ from zavod.stateful.review import (
     request_review,
     get_review,
     model_hash,
-    html_to_text_hash,
 )
 
 Schema = Literal["Person", "Company", "LegalEntity"]
@@ -118,8 +117,7 @@ def fetch_article(context: Context, url: str) -> HtmlElement | None:
     if url == "https://www.cftc.gov/PressRoom/PressReleases/7274-15":
         return None
     # Try the article in the main page first.
-    doc = context.fetch_html(url, cache_days=30)
-    doc.make_links_absolute(url)
+    doc = context.fetch_html(url, cache_days=30, absolute_links=True)
     article_element = doc.xpath(".//article")[0]
     # All but one are HTML, not PDF.
     redirect_link = article_element.xpath(
@@ -147,7 +145,7 @@ def source_changed(review: Review, article_element: HtmlElement) -> bool:
     in spite of heavy normalisation.
     """
     seen_element = fromstring(review.source_value)
-    return html_to_text_hash(seen_element) != html_to_text_hash(article_element)
+    return h.element_text_hash(seen_element) != h.element_text_hash(article_element)
 
 
 def check_something_changed(
@@ -299,12 +297,12 @@ def crawl_index_page(context: Context, doc) -> bool:
     tables = doc.xpath(table_xpath)
     assert len(tables) == 1
     for row in h.parse_html_table(tables[0]):
-        enforcement_date = row["date"].text_content().strip()
+        enforcement_date = h.element_text(row["date"])
         if not enforcements.within_max_age(context, enforcement_date):
             return False
         action_cell = row["enforcement_actions"]
         # Remove related links so we can assert that there's one key link
-        for ul in action_cell.xpath(".//ul"):
+        for ul in action_cell.findall(".//ul"):
             ul.getparent().remove(ul)
         urls = action_cell.xpath(".//a/@href")
         assert len(urls) == 1
@@ -316,8 +314,7 @@ def crawl_index_page(context: Context, doc) -> bool:
 def crawl(context: Context) -> None:
     next_url: Optional[str] = context.data_url
     while next_url:
-        doc = context.fetch_html(next_url)
-        doc.make_links_absolute(next_url)
+        doc = context.fetch_html(next_url, absolute_links=True)
         next_urls = doc.xpath(".//a[@rel='next']/@href")
         assert len(next_urls) <= 1
         if next_urls:
@@ -329,6 +326,5 @@ def crawl(context: Context) -> None:
 
     assert_all_accepted(context)
     global something_changed
-    assert (
-        not something_changed
-    ), "See what changed to determine whether to trigger re-review."
+    error = "See what changed to determine whether to trigger re-review."
+    assert not something_changed, error

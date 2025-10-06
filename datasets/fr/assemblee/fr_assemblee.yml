@@ -58,8 +58,6 @@ lookups:
     options:
       - match: Centrafrique
         value: Central African Republic
-      - match: Maryland (USA)
-        value: USA
       - match: Corée
         value: Korea
       - match: Antilles françaises

@@ -81,16 +81,14 @@ def crawl_data_url(context: Context):
         xpath,
         geolocation="US",
         cache_days=1,
+        absolute_links=True,
     )
-    landing_doc.make_links_absolute(context.data_url)
     dataset_url = landing_doc.xpath(xpath)[0].get("href")
 
-    dataset_doc = context.fetch_html(dataset_url, cache_days=1)
-    dataset_doc.make_links_absolute(dataset_url)
+    dataset_doc = context.fetch_html(dataset_url, cache_days=1, absolute_links=True)
     resource_url = dataset_doc.xpath(xpath)[0].get("href")
 
-    resource_doc = context.fetch_html(resource_url, cache_days=1)
-    resource_doc.make_links_absolute(resource_url)
+    resource_doc = context.fetch_html(resource_url, cache_days=1, absolute_links=True)
     file_xpath = ".//a[contains(@href, '.csv')]"
     file_url = resource_doc.xpath(file_xpath)[0].get("href")
     return file_url

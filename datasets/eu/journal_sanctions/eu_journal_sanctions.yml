@@ -5,6 +5,9 @@ coverage:
   schedule: "0 */2 * * *"
   frequency: daily
   start: 2023-12-18
+deploy:
+  memory: "1500Mi"
+  memory_limit: "2000Mi"
 load_statements: true
 publisher:
   name: Council of the European Union
@@ -76,7 +79,16 @@ lookups:
           - 7717727466
           - 770701001
           - 9707028663
+          - 11440513
+          - 13185231
+          - 07500548
         prop: registrationNumber
+  type.country:
+    options:
+      - match: Crimea, Ukraine
+        value: ua-cri
+      - match: "Russian-occupied regions of Zaporizhzhia and Kherson"
+        value: ru
   type.email:
     options:
       - match: "general@angstrem.r"
@@ -89,7 +101,7 @@ lookups:
           - 2024/2642
           - 2024/2643
         value: EU-RUSDA
-      - match: 
+      - match:
           - 2024/1485
           - 2014/512
           - 833/2014
@@ -126,3 +138,6 @@ lookups:
         value: EU-SYR
       - match: 2024/254
         value: EU-GTM
+      # TODO: Remap once it's in the eu_fsf
+      - match: 2010/413
+        value: null

@@ -3,7 +3,7 @@ import csv
 from zavod import Context, helpers as h
 from zavod.shed import zyte_api
 
-US_DOD_1260H = "US-DOD-1260H"
+PROGRAM_KEY = "US-DOD-1260H"
 
 
 def crawl(context: Context) -> None:
@@ -50,7 +50,7 @@ def crawl(context: Context) -> None:
                 own.add("asset", entity)
                 context.emit(own)
             entity.add("topics", "debarment")
-            sanction = h.make_sanction(context, entity, program_key=US_DOD_1260H)
+            sanction = h.make_sanction(context, entity, program_key=PROGRAM_KEY)
             sanction.add("startDate", row.pop("Start date", None))
             sanction.add("endDate", row.pop("End date", None))
             context.emit(sanction)

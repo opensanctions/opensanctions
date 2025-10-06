@@ -1,11 +1,11 @@
 import re
-from normality import WS, ascii_text
+from normality import WS
 from rigour.ids import StrictFormat
-from rigour.text.phonetics import metaphone
-from rigour.text.scripts import can_latinize
 from rigour.addresses import normalize_address
-from rigour.names import tokenize_name, is_stopword
+from rigour.names import Name
+from rigour.names import tokenize_name, is_stopword, prenormalize_name
 from rigour.names import remove_person_prefixes
+from rigour.names import tag_person_name, tag_org_name
 from typing import Generator, Set, Tuple
 from followthemoney import registry, Schema, StatementEntity
 
@@ -13,6 +13,7 @@ NON_LETTER = re.compile(r"[^a-z0-9]+")
 WORD_FIELD = "wd"
 NAME_PART_FIELD = "np"
 PHONETIC_FIELD = "ph"
+SYMBOL_FIELD = "sy"
 SKIP = (
     # registry.country,
     registry.url,
@@ -40,7 +41,7 @@ SKIP_PROPERTIES = {
 PREFIXES = {
     registry.name: "n",
     registry.identifier: "i",
-    # registry.country: "c",
+    registry.country: "c",
     registry.phone: "p",
     registry.address: "a",
     registry.date: "d",
@@ -58,31 +59,41 @@ TEXT_TYPES = (
 
 
 def tokenize_name_(schema: Schema, name: str) -> Generator[Tuple[str, str], None, None]:
-    name = name.lower()
+    name = name.casefold()
     if schema.is_a("Person"):
         name = remove_person_prefixes(name)
     # Disabled because this has an outsized cost in terms of performance:
     # if schema.is_a("Organization"):
     #     name = remove_org_types(name, normalizer=normalize_name)
+    nameobj = Name(name)
+    if schema.is_a("Person"):
+        nameobj = tag_person_name(nameobj, prenormalize_name)
+    elif schema.is_a("LegalEntity"):
+        nameobj = tag_org_name(nameobj, prenormalize_name)
+
+    # symbolic_parts: Set[NamePart] = set()
+    for span in nameobj.spans:
+        val = f"{SYMBOL_FIELD}:{span.symbol.category.value}:{span.symbol.id}"
+        yield (SYMBOL_FIELD, val)
+
+        # if len(span.parts) == 1 and span.symbol.category in (
+        #     Symbol.Category.NAME,
+        #     Symbol.Category.SYMBOL,
+        # ):
+        #     symbolic_parts.update(span.parts)
 
     name_tokens: Set[str] = set()
-    for token in tokenize_name(name):
-        name_tokens.add(token)
-        if len(token) < 3 or len(token) > 30 or is_stopword(token):
+    for part in nameobj.parts:
+        name_tokens.add(part.comparable)
+        if len(part.form) < 3 or len(part.form) > 30 or is_stopword(part.form):
             continue
 
-        # yield WORD_FIELD, token
-        if not can_latinize(token) or token.isnumeric():
-            yield NAME_PART_FIELD, f"{NAME_PART_FIELD}:{token}"
-            continue
-        ascii_token = ascii_text(token)
-        if len(ascii_token) < 2:
-            continue
-        ascii_token = NON_LETTER.sub("", ascii_token)
-        yield NAME_PART_FIELD, f"{NAME_PART_FIELD}:{ascii_token}"
+        # if part in symbolic_parts:
+        #     continue
 
-        phoneme = metaphone(ascii_token)
-        if len(phoneme) > 3:
+        yield NAME_PART_FIELD, f"{NAME_PART_FIELD}:{part.comparable}"
+        phoneme = part.metaphone
+        if phoneme is not None and len(phoneme) > 3:
             yield PHONETIC_FIELD, f"{PHONETIC_FIELD}:{phoneme}"
 
     name_fp = "".join(sorted(name_tokens))

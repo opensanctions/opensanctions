@@ -32,10 +32,9 @@ def crawl_item(item: _Element, context: Context):
 
 
 def crawl(context: Context):
-    response = context.fetch_html(context.data_url, headers=HEADERS)
-
-    response.make_links_absolute(context.data_url)
-
+    response = context.fetch_html(
+        context.data_url, headers=HEADERS, absolute_links=True
+    )
     for item in response.xpath(
         './/*[contains(text(), "Search Cases:")]/../following-sibling::ul/li/a'
     ):

@@ -1,11 +1,11 @@
 "use client";
 
+import { markdown } from "@codemirror/lang-markdown";
 import CodeMirror from "@uiw/react-codemirror";
 import { EditorView } from "codemirror";
-import Tabs from 'react-bootstrap/Tabs';
 import Tab from 'react-bootstrap/Tab';
+import Tabs from 'react-bootstrap/Tabs';
 import TurndownService from 'turndown';
-import { markdown } from "@codemirror/lang-markdown";
 
 
 export default function SourceView({ sourceValue, sourceMimeType, sourceLabel }: { sourceValue: string, sourceMimeType: string, sourceLabel: string }) {

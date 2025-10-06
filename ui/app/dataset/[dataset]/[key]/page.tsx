@@ -1,15 +1,15 @@
-import { getExtractionEntry } from '@/lib/db';
-import { verify } from '@/lib/auth';
-import { headers } from 'next/headers';
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import React from 'react';
-import ExtractionView from './ExtractionView';
-import Link from 'next/link';
-import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
+import Row from 'react-bootstrap/Row';
 import { BoxArrowUpRight } from 'react-bootstrap-icons';
-import SourceView from './SourceView';
+
+import { getExtractionEntry } from '@/lib/db';
 import { PageProps } from '@/lib/pageProps';
+
+import ExtractionView from './ExtractionView';
+import SourceView from './SourceView';
 
 export default async function EntryPage({ params }: PageProps) {
   const awaitedParams = await params;

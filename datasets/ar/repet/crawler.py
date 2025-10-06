@@ -1,6 +1,8 @@
 import json
+import re
 from typing import Dict, Optional
 from rigour.mime.types import JSON
+from normality import normalize
 
 from zavod import Context, Entity
 from zavod import helpers as h
@@ -9,13 +11,27 @@ from zavod.shed.un_sc import apply_un_name_list
 
 URL = "https://repet.jus.gob.ar/xml/%s.json"
 NAME_QUALITY = {
-    "Low": "weakAlias",
-    "Good": "alias",
-    "a.k.a.": "alias",
-    "f.k.a.": "previousName",
-    "": None,
+    "low": "weakAlias",
+    "baja": "weakAlias",  # 'baja'=low
+    "good": "alias",
+    "buena": "alias",  # 'buena'==good
+    "alta": "alias",  # 'alta'==high
+    "alto": "alias",
+    "a k a": "alias",
+    "f k a": "previousName",
 }
 ALIAS_SPLITS = ["original script", ";"]
+# Regex for reference numbers
+#   ([A][-\d/ ]+(?:-\s*A?[-\d/ ]+)?) → Group 1
+#       Always starts with "A", allows dashes, digits, slashes, and spaces
+#       Optionally matches a second reference number (e.g. "- A10196/9-2018")
+#   \s+\(([^)]+)\) → Group 2
+#       Captures the country inside parentheses (e.g. "Venezuela")
+#   ([A-Za-z0-9.]+) → Group 3
+#       Captures the internal ID like "ArP.00183"
+REF_REGEX = re.compile(
+    r"^([A][-\d/ ]+(?:-\s*A?[-\d/ ]+)?)\s+\(([^)]+)\)([A-Za-z0-9.]+)$"
+)
 
 
 def values(data):
@@ -38,7 +54,8 @@ def parse_date(date):
 
 
 def parse_alias(context: Context, entity: Entity, alias: Dict[str, str]):
-    name_prop = NAME_QUALITY[alias.pop("QUALITY", None)]
+    quality = alias.pop("QUALITY", None)
+    name_prop = NAME_QUALITY[normalize(quality)] if quality else None
     for name in alias.pop("ALIAS_NAME", None).split(";"):
         h.apply_name(
             entity,
@@ -93,6 +110,12 @@ def crawl_common(context: Context, data: Dict[str, str], part: str, schema: str)
     submitted_on = parse_date(data.pop("SUBMITTED_ON", None))
     listed_on = parse_date(data.pop("LISTED_ON"))
     modified_at = parse_date(data.pop("LAST_DAY_UPDATED"))
+    ref_num = data.pop("REFERENCE_NUMBER")
+    match = REF_REGEX.match(ref_num)
+    if match:
+        # Overwiting the ref_num and extracting more structured data
+        ref_num = ""
+        resolution_number, country_, internal_id = match.groups()
     h.apply_dates(entity, "createdAt", submitted_on)
     h.apply_dates(entity, "createdAt", listed_on)
     if modified_at != []:
@@ -104,7 +127,10 @@ def crawl_common(context: Context, data: Dict[str, str], part: str, schema: str)
     h.apply_dates(sanction, "startDate", listed_on)
     sanction.add("program", data.pop("UN_LIST_TYPE"))
     sanction.add("program", data.pop("LIST_TYPE"))
-    sanction.add("unscId", data.pop("REFERENCE_NUMBER"))
+    sanction.add("unscId", ref_num)
+    if match:
+        sanction.add("recordId", internal_id)
+        sanction.add("authorityId", resolution_number)
     sanction.add("authority", data.pop("SUBMITTED_BY", None))
     context.emit(sanction)
     return entity

@@ -411,6 +411,8 @@ lookups:
           - Joint Stock Company Ruschem
           - LLC MC FORTIS-INVEST
           - PJSC Rosneft
+          - Kala Limited
+          - National Iranian Oil Company
         value: SAME
       - match: Subsidiary of the Organisation for Technological Industries (OTI) and therefore the Syrian Ministry of Defence
         values:
@@ -833,6 +835,19 @@ lookups:
           - GALACKTIKA LIMITED LIABILITY COMPANY
       - match: "MASTEL MAKINA ITHALAT IHRACAT LIMITED SIRKETI CARSI SUBESI"
         value: MASTEL MAKINA ITHALAT IHRACAT LIMITED SIRKETI CARSI SUBESI
+      - match: "Ahdaf Investment Company has majority ownership (51.53%)\n1. AHDAF INVESTMENT COMPANY \n2. GHADR INVESTMENT DEVELOPMENT CO. \n3. SABA KARUN OIL AND GAS DEVELOPMENT COMPANY \n4. SABA NAFT SUPPORT SERVICES COMPANY\n5. TOSSEE HAMI GHADR CO."
+        values:
+          - Ahdaf Investment Company
+          - GHADR INVESTMENT DEVELOPMENT CO.
+          - SABA KARUN OIL AND GAS DEVELOPMENT COMPANY
+          - SABA NAFT SUPPORT SERVICES COMPANY
+          - TOSSEE HAMI GHADR CO.
+      - match: "(1) Sokan Arvand Ship Management Company (2) Persia Telecom Co. (3) Nilsun Kish (4) IOEC E&P"
+        values:
+          - Sokan Arvand Ship Management Company
+          - Persia Telecom Co.
+          - Nilsun Kish
+          - IOEC E&P
   type.name:
     options:
       - match: "BIC: 136001"
@@ -992,6 +1007,12 @@ lookups:
         value: indoc@SIBANTHRACITEGROUP.ru
       - match: satpro1974@gmail.com.
         value: satpro1974@gmail.com
+      - match: ir info@macco.ir
+        value: info@macco.ir
+      - match: ravabet.eogpc.ir
+        value: ravabet@eogpc.ir
+      - match: sales@macco
+        value: null
 
   type.gender:
     lowercase: true

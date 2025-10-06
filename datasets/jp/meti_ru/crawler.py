@@ -2,10 +2,12 @@ import csv
 import re
 from pathlib import Path
 from urllib.parse import urlparse
+from typing import Optional
 
 import pdfplumber
 from lxml import html
 from rigour.mime.types import CSV, PDF
+from rigour.text.scripts import get_script
 
 from zavod import Context, helpers as h
 from zavod.shed.zyte_api import fetch_resource, fetch_html
@@ -27,16 +29,46 @@ TRAILING_WHITESPACE_PATTERN = re.compile(r"\s+$", re.MULTILINE)
 LOCAL_PATH = Path(__file__).parent
 EXPECTED_HASHES = {
     "list_belarus_tokutei.pdf": "cd99cd520f06110ad39f354d6c961fe5c36260e3",
-    "list_russia_tokutei.pdf": "16719d740db257758b99f944e4d693797e36a686",
-    "list_daisangoku_tokutei.pdf": "c17f5f3b8c7db73177ac3ce4896aded633304c42",
+    "250912_list_russia_tokutei.pdf": "16a38c66fe9a05c3acbda50cdca5e93ca420eb83",
+    "250912_list_daisangoku_tokutei.pdf": "1464205ea2708c0348e3a1cff5dbf79c513b672c",
 }
+
+
+def detect_script(context, text: str) -> Optional[str]:
+    """
+    Detect script in a string. Return 'jpn' or 'eng' if confident, else None.
+    Used primarily not to misclassify Chinese names as Japanese.
+    """
+    scripts = [get_script(ord(ch)) for ch in text if get_script(ord(ch))]
+    if not scripts:
+        context.log.warning(f"Could not detect script for: {text}")
+        return None
+    # Japanese: Hiragana or Katakana present
+    if "Hiragana" in scripts or "Katakana" in scripts:
+        return "jpn"
+    # English: Latin alphabet present
+    if "Latin" in scripts:
+        return "eng"
+    # Uncertain: Han characters could be Japanese or Chinese
+    return None
+
+
+def split_aliases(context, raw_aliases: str):
+    """Split and detect script for a semicolon-separated string of aliases."""
+    result = []
+    for alias in re.split(r"、|及び|;", raw_aliases):
+        alias = alias.strip()
+        if alias:
+            result.append((alias, detect_script(context, alias)))
+    return result
 
 
 def clean_address(raw_address):
     # Remove the 'location' "所在地：" from the start of the string
-    cleaned_address = re.sub(r"^所在地：", "", raw_address).strip()
-    cleaned_address = re.sub(r"^所在地:", "", cleaned_address).strip()
-    return cleaned_address
+    cleaned = re.sub(r"^所在地[:：]", "", raw_address).strip()
+    # Split into parts by common delimiters
+    parts = h.multi_split(cleaned, [" and ", ";"])
+    return [p.strip(" ,;") for p in parts if p.strip()]
 
 
 def clean_name_en(data_string):
@@ -68,25 +100,23 @@ def clean_name_raw(context, name_jpn, row):
     if match:
         main_name = match.group("main").strip()
         aliases_raw = match.group("aliases") or ""
-        aliases = [
-            alias.strip()
-            for alias in re.split(r"、|及び", aliases_raw)
-            if alias.strip()
-        ]
+        aliases.extend(split_aliases(context, aliases_raw))
     # Check for cases that require manual processing
     if main_name == "" and not aliases:
         # Identify complex cases with certain characters
         if any(char in name_jpn for char in ["（", "、", ")", "）"]):
             main_name = row.pop("name_jpn_cleaned")
             aliases_raw = row.pop("aliases_jpn_cleaned")
-            aliases = [
-                alias.strip() for alias in aliases_raw.split(";") if alias.strip()
-            ]
+            aliases.extend(split_aliases(context, aliases_raw))
         else:
             # Remove leading numbers for cases with names only
             # (e.g. '4 株式会社コンペル')
             name_jpn = re.sub(r"^\d+\s*", "", name_jpn)
-            main_name = name_jpn
+            # Use cleaned fields if available
+            cleaned_name = row.pop("name_jpn_cleaned", "").strip()
+            aliases_raw = row.pop("aliases_jpn_cleaned", "").strip()
+            main_name = cleaned_name if cleaned_name else name_jpn.strip()
+            aliases.extend(split_aliases(context, aliases_raw))
 
     if not main_name:
         context.log.warning(
@@ -106,8 +136,8 @@ def crawl_row(context, row):
     # Japanese name and alias cleanup
     name_jpn_clean, aliases_jpn = clean_name_raw(context, name_jpn, row)
     entity.add("name", name_jpn_clean, lang="jpn")
-    for alias in aliases_jpn:
-        entity.add("alias", alias, lang="jpn")
+    for alias, lang in aliases_jpn:
+        entity.add("alias", alias, lang=lang)
     # English name and alias cleanup
     name_en_clean, aliases = clean_name_en(name_en)
     entity.add("name", name_en_clean, lang="eng")
@@ -123,6 +153,7 @@ def crawl_row(context, row):
     sanction = h.make_sanction(context, entity)
     sanction.add("program", row.pop("program"))
     h.apply_date(sanction, "listingDate", row.pop("designated_date"))
+    h.apply_date(sanction, "modifiedAt", row.pop("last_updated"))
 
     context.emit(entity)
     context.emit(sanction)
@@ -144,17 +175,15 @@ def crawl(context: Context):
         divs_xpath,
         html_source="httpResponseBody",
         geolocation="jp",
+        absolute_links=True,
     )
-    doc.make_links_absolute(SOURCE_URL)
     divs = doc.xpath(divs_xpath)
     assert len(divs) == 1, len(divs)
     # Check hash of the content part of the page
-    h.assert_dom_hash(divs[0], "4aad6cb5239dc452fff0a697d49684aa75eb2901")
-    pdf_xpath = (
-        ".//a[contains(@href, '.pdf') and contains(@href, '17_russia/list')]/@href"
-    )
+    h.assert_dom_hash(divs[0], "982832a856dfe254b6282966ec96cfb58d9464aa")
+    pdf_xpath = ".//a[contains(@href, '.pdf') and contains(@href, 'export/17_russia/') and contains(@href, 'tokutei')]/@href"
     pdf_urls = divs[0].xpath(pdf_xpath)
-    assert len(pdf_urls) == 3, "Expected exactly 3 PDFs"
+    assert len(pdf_urls) == 3, len(pdf_urls)
 
     # Update local copy of just the content part of the page to diff easily when
     # there are changes. Commit changes once they're handled.

@@ -64,6 +64,12 @@ lookups:
           - CC Colombiana
           - CI Paraguaya
           - PRONTUARIO PARAGUAYO
+          - ID
+          - National ID
+          - ID // SSN
+          - RNE
+          - Documento de Identidad
+          - Cedula
         contains:
           - cédula de identidad
           - cedula de identidad
@@ -114,6 +120,14 @@ lookups:
         value: SUHH
       - match: Indonesia (as at Dec. 2003)
         value: Indonesia
+      - match: Palestina / Qatar
+        values:
+          - Palestina
+          - Qatar
+      - match: Egipto // EE.UU.
+        values:
+          - Egypt
+          - USA
   type.date:
     options:
       - match: "2"

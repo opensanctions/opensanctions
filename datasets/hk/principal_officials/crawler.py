@@ -64,9 +64,7 @@ def crawl_members(context: Context, section: str, elem: ElementTree):
 
 
 def crawl(context: Context):
-    doc = context.fetch_html(context.data_url, cache_days=1)
-    doc.make_links_absolute(context.data_url)
-
+    doc = context.fetch_html(context.data_url, cache_days=1, absolute_links=True)
     for section in doc.xpath('//section[@class="blockItem"]'):
         section_name = section.xpath("./h3")[0].text_content()
         officials = section.xpath(".//p//a")

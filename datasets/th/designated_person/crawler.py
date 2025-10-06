@@ -1,13 +1,15 @@
-from typing import Dict
-from lxml.etree import _Element
 import re
+from typing import Dict
 
-from zavod import Context, helpers as h
-from zavod.shed.zyte_api import fetch_html
+from lxml.etree import _Element
 from normality import collapse_spaces
+from zavod.shed.zyte_api import fetch_html
 
+from zavod import Context
+from zavod import helpers as h
 
 REGEX_CLEAN_NAME = re.compile(r"^\d\. ?")
+PASSPORT_SPLITS = [",", "1.", " 2.", " 3. ", " 4."]
 
 
 def parse_table(
@@ -66,7 +68,7 @@ def crawl_item(url: str, context: Context):
 
     passport_numbers = collapse_spaces(info_dict.pop("Passport Number", None))
     if passport_numbers:
-        for passport_number in passport_numbers.split(","):
+        for passport_number in h.multi_split(passport_numbers, PASSPORT_SPLITS):
             passport = h.make_identification(
                 context,
                 entity,
@@ -81,8 +83,7 @@ def crawl_item(url: str, context: Context):
 
 
 def crawl(context: Context):
-    response = context.fetch_html(context.data_url, cache_days=1)
-    response.make_links_absolute(context.data_url)
+    response = context.fetch_html(context.data_url, cache_days=1, absolute_links=True)
 
     # We are going to iterate over all url of the designated persons
     for a in response.findall(".//table[@id='datatable']/tbody/tr/td/a"):

@@ -17,10 +17,13 @@ description: >
   actions by the CFTC, including but not limited to cases that have been settled
   or where a judgment has been entered. Our standard period of enforcements coverage
   applies.
+
+  Our standard period of enforcements coverage applies.
 publisher:
   name: U.S. Commodity Futures Trading Commission
   acronym: CFTC
   official: true
+  country: us
   description: >
     The CFTC is an agency of the US government that regulates the
     U.S. derivatives markets.

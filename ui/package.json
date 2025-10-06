@@ -37,6 +37,9 @@
     "@types/turndown": "^5.0.5",
     "jest": "^30.0.4",
     "ts-jest": "^29.4.0",
-    "typescript": "^5"
+    "typescript": "^5",
+    "eslint": "^9.23.0",
+    "eslint-config-next": "^15.2.4",
+    "eslint-plugin-import": "^2.32.0"
   }
 }
