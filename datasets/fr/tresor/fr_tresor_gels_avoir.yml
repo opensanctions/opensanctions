@@ -190,7 +190,7 @@ lookups:
     options:
       - match: "BMJIIRT"
         value: BMJIIRTH # BANK MARKAZI JOMHOURI ISLAMI IRAN
-      - match: 
+      - match:
           - 5878431
           - 644101001
         prop: registrationNumber
@@ -5675,6 +5675,7 @@ lookups:
           legalForm: établissement financier
           swiftBic:
             - KHJBSDKH
+          registrationNumber:
             - 5040942458
           address: Khartoum, Soudan
       - match: "Télécopieur : +7 (495) 660-40-99; +7 (812) 385-94-49"
@@ -5687,3 +5688,16 @@ lookups:
           phone: +7 (495) 785-08-88
       - match: "Fax: 8890028"
         props: []
+  addresses:
+    # Sometimes we can split on ; but sometimes it's just part of the address.
+    options:
+      - match: "Apt. No 7, 3rd Floor, No 2, 4th Alley, Gandi Ave., Téhéran (Iran); Qaem Magham Farahani St., Téhéran (Iran)"
+        addresses:
+          - Apt. No 7, 3rd Floor, No 2, 4th Alley, Gandi Ave., Téhéran (Iran)
+          - Qaem Magham Farahani St., Téhéran (Iran)
+      - match: "Adresse: 125212, Fédération de Russie, Moscou, Leningradskoye Shosse, 58;"
+        addresses:
+          - "125212, Fédération de Russie, Moscou, Leningradskoye Shosse, 58"
+      - match: "Kosmodamianskaya Naberezhnaya 24, Moscou, Russie 115035; bâtiment 1."
+        addresses:
+          - "Kosmodamianskaya Naberezhnaya 24, Moscou, Russie 115035; bâtiment 1."

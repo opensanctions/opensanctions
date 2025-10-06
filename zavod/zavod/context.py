@@ -6,9 +6,9 @@ from typing import Any, Dict, List, Mapping, Optional, Union
 
 import orjson
 from datapatch import Lookup, LookupException, Result
+from followthemoney.dataset import DataResource
 from followthemoney.schema import Schema
 from followthemoney.util import PathLike, make_entity_id
-from followthemoney.dataset import DataResource
 from lxml import etree, html
 from nomenklatura.cache import Cache
 from nomenklatura.versions import Version
@@ -21,10 +21,10 @@ from structlog.contextvars import bind_contextvars, reset_contextvars
 from zavod import settings
 from zavod.archive import dataset_data_path, dataset_resource_path
 from zavod.audit import inspect
-from zavod.meta import Dataset
-from zavod.entity import Entity
 from zavod.db import get_engine, meta
+from zavod.entity import Entity
 from zavod.logs import get_logger
+from zavod.meta import Dataset
 from zavod.runtime.http_ import (
     _Auth,
     _Body,
@@ -39,7 +39,7 @@ from zavod.runtime.sink import DatasetSink
 from zavod.runtime.stats import ContextStats
 from zavod.runtime.timestamps import TimeStampIndex
 from zavod.runtime.versions import get_latest, make_version
-from zavod.util import join_slug, prefixed_hash_id, Element
+from zavod.util import Element, join_slug, prefixed_hash_id
 
 
 class Context:
@@ -506,8 +506,15 @@ class Context:
     def get_lookup(self, lookup: str) -> Lookup:
         return self.dataset.lookups[lookup]
 
-    def lookup(self, lookup: str, value: Optional[str]) -> Optional[Result]:
-        return self.get_lookup(lookup).match(value)
+    def lookup(
+        self, lookup: str, value: Optional[str], warn: bool = False
+    ) -> Optional[Result]:
+        res = self.get_lookup(lookup).match(value)
+        if res is None and warn:
+            self.log.warn(
+                f"No '{lookup}' lookup found for {value!r}", lookup=lookup, value=value
+            )
+        return res
 
     def debug_lookups(self) -> None:
         """Output a list of unused lookup options."""

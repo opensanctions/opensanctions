@@ -1,12 +1,11 @@
 import json
-from typing import Any, Dict, Optional
 import re
+from typing import Any, Dict, Optional
 
 from datapatch import Lookup
+from followthemoney.types import registry
 from normality import slugify
 from prefixdate import parse_parts
-
-from followthemoney.types import registry
 from rigour.mime.types import JSON
 
 from zavod import Context, Entity
@@ -246,12 +245,16 @@ def apply_prop(context: Context, entity: Entity, sanction: Entity, field: str, v
         date = parse_parts(value.pop("Annee"), value.pop("Mois"), value.pop("Jour"))
         entity.add("birthDate", date)
     elif field in ("ADRESSE_PM", "ADRESSE_PP"):
-        address = h.make_address(
-            context,
-            full=value.pop("Adresse"),
-            country=value.pop("Pays"),
-        )
-        h.copy_address(entity, address)
+        full_address = value.pop("Adresse")
+        country = value.pop("Pays")
+        if ";" in full_address:
+            res = context.lookup("addresses", full_address, warn=True)
+            addresses = res.addresses if res else [full_address]
+        else:
+            addresses = [full_address]
+        for full_address in addresses:
+            address = h.make_address(context, full=full_address, country=country)
+            h.copy_address(entity, address)
     elif field == "LIEU_DE_NAISSANCE":
         entity.add("birthPlace", value.pop("Lieu"), lang="fra")
         entity.add("country", value.pop("Pays"), lang="fra")
