@@ -53,12 +53,12 @@ dates:
 assertions:
   min:
     schema_entities:
-      Person: 3000
-      Organization: 1000
+      Person: 3500
+      Organization: 1200
   max:
     schema_entities:
-      Person: 5000
-      Organization: 1400
+      Person: 7000
+      Organization: 3000
 lookups:
   schemata:
     options:
