@@ -164,13 +164,16 @@ lookups:
       - match:
           - Qatar
         value: null
-      - match: "3rd Km of Khalaj Road, Seyyedi Street, Mashad 91638, Iran, Km 4 of Khalaj Road, End of Seyedi Street, Mashad, Iran, P.O. Box 91735-549, Mashad, Iran, Khalaj Rd., End of Seyyedi Alley, Mashad, Iran, Moqan St., Pasdaran St., Pasdaran Cross Rd., Téhéran, Iran."
+      - match:
+          - "3rd Km of Khalaj Road, Seyyedi Street, Mashad 91638, Iran, Km 4 of Khalaj Road, End of Seyedi Street, Mashad, Iran, P.O. Box 91735-549, Mashad, Iran, Khalaj Rd., End of Seyyedi Alley, Mashad, Iran, Moqan St., Pasdaran St., Pasdaran Cross Rd., Téhéran, Iran."
+          - "3rd Km of Khalaj Road, Seyyedi Street, Mashad 91638, Iran; Km 4 of Khalaj Road, End of Seyedi Street, Mashad, Iran; P.O. Box 91735-549, Mashad, Iran; Khalaj Rd., End of Seyyedi Alley, Mashad, Iran; Moqan St., Pasdaran St., Pasdaran Cross Rd., Téhéran, Iran."
         values:
           - 3rd Km of Khalaj Road, Seyyedi Street, Mashad 91638, Iran
           - Km 4 of Khalaj Road, End of Seyedi Street, Mashad, Iran
           - P.O. Box 91735-549, Mashad, Iran
           - Khalaj Rd., End of Seyyedi Alley, Mashad, Iran
           - Moqan St., Pasdaran St., Pasdaran Cross Rd., Téhéran, Iran.
+      - match:
   type.email:
     options:
       - contains: hotelminsk@udp.gov.by
@@ -880,6 +883,27 @@ lookups:
         props:
           jurisdiction: ru
           address: "Fédération de Russie, région d'Omsk, Omsk, Karl Marx Avenue, 41"
+      - match: "Lieu d'enregistrement: Fédération de Russie (Kraï de Krasnoyarsk., Zheleznogorsk, ul. Lenina, d. ZD. 52)"
+        props:
+          jurisdiction: ru
+          address: "Fédération de Russie (Kraï de Krasnoyarsk., Zheleznogorsk, ul. Lenina, d. ZD. 52)"
+      - match: "Lieu d'enregistrement: Fédération de Russie (115068, Moscou, Velozavodskaya st.,5)"
+        props:
+          jurisdiction: ru
+          address: "Fédération de Russie (115068, Moscou, Velozavodskaya st.,5)"
+      - match: "Lieu d'enregistrement: Moscou, Fédération de Russie (107450, Moscou, Myasnitskaya ul., 39/1)"
+        props:
+          jurisdiction: ru
+          address: "Moscou, Fédération de Russie (107450, Moscou, Myasnitskaya ul., 39/1)"
+      - match: "Lieu d'enregistrement: Moscou, Fédération de Russie (117525, Moscou, ul. Dnepropetrovskaya, D. 3, K. 5)"
+        props:
+          jurisdiction: ru
+          address: "Moscou, Fédération de Russie (117525, Moscou, ul. Dnepropetrovskaya, D. 3, K. 5)"
+      - match: "Numéro d'enregistrement: 7701005930 ("
+        props:
+          innCode: 7701005930
+      - match: "numéro d'identification fiscale)"
+        props: {}
 
 
   ####################################################################################################
@@ -5682,6 +5706,7 @@ lookups:
           legalForm: établissement financier
           swiftBic:
             - KHJBSDKH
+          registrationNumber:
             - 5040942458
           address: Khartoum, Soudan
       - match: "Télécopieur : +7 (495) 660-40-99; +7 (812) 385-94-49"
