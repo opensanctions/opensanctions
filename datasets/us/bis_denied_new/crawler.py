@@ -20,7 +20,7 @@ def parse_row(context: Context, row):
     country = row.pop("country")
     city = row.pop("city")
 
-    entity.id = context.make_id(name, city, country)
+    entity.id = context.make_id(name, city, country, hash_prefix="us_bis_denied")
     entity.add("name", name)
     entity.add("notes", row.pop("action"))
     entity.add("country", country)
