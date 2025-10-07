@@ -6,14 +6,17 @@ coverage:
   start: 2022-03-21
 load_statements: true
 summary: >
-  Terrorists and terrorist entities designated by the Singapore government on top
-  of the UN security council set of sanctions.
+  Entities designated by the Singapore government in addition to the UN security
+  council set of sanctions, imposing financial restrictions.
 description: |
   Singapore seems to mostly enforce the use of the UN SC sanctions list, but adds a very
-  small number of individuals that financial institutions have to screen for additonally.
+  small number of individuals that financial institutions have to screen for additionally.
 
   These additional entities are specified in the [Terrorism (Suppression of Financing)
   Act 2002](https://sso.agc.gov.sg/Act/TSFA2002?WholeDoc=1), first schedule.
+
+  Additional programs may be introduced from time to time to address emerging issues.
+  These will be included here.
 publisher:
   name: Monetary Authority of Singapore
   acronym: MAS
