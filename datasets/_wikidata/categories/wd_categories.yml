@@ -171,7 +171,7 @@ config:
     # - "Q30185" # mayor
     # Heads of international organisations for which Wikidata Q codes were found
     - "Q24558593" # Administrator of the United Nations Development Programme
-    - "Q65782205" # Director General of the International Atomic Energy Agency 
+    - "Q65782205" # Director General of the International Atomic Energy Agency
     - "Q66566041" # Director-General of the Food and Agriculture Organization
     - "Q111363853" # Director-General of the International Labour Organization
     - "Q108603609" # Director-General of the World Intellectual Property Organization
@@ -182,10 +182,14 @@ config:
     - "Q29511440" # President of the United Nations Economic and Social Council
     - "Q4352360" # President of the United Nations Security Council
     - "Q110970831" # President of the World Meteorological Organization
-    - "Q42591216" # Secretary-General of the International Maritime Organization 
+    - "Q42591216" # Secretary-General of the International Maritime Organization
     - "Q17389566" # Secretary-General of the International Telecommunication Union
     - "Q27832358" # United Nations High Commissioner for Refugees
     - "Q112963010" # UNRWA Commissioner-General
+  # These are person QIDs that shouldn't be found. If they are, we're probably including
+  # categories that are by definition generally not PEPs.
+  exclusion_checks:
+    - Q5234712 # Came in via Dallas categories under Category:George_M._Dallas
   categories:
     # Mega collections:
     - category: Political_office-holders_in_Asia
@@ -194,6 +198,10 @@ config:
       depth: 8
     - category: Political_office-holders_in_North_America
       depth: 8
+      negcats: |
+        Polk_administration_cabinet_members
+        19th-century_presidents_of_the_United_States
+        George_M._Dallas
     # - category: Political_office-holders_in_Europe
     #   topic: role.pep
     #   depth: 8
@@ -759,6 +767,9 @@ config:
       topic: role.pep
     - category: Members_of_the_Cabinet_of_the_United_States
       topic: role.pep
+      negcats: |
+        George_M._Dallas
+        Polk_administration_cabinet_members
 
     # Europe
     - category: Presidents_of_the_European_Commission

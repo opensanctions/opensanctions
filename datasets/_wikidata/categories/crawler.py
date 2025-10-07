@@ -81,6 +81,9 @@ class CrawlState(object):
         self.person_topics: Dict[str, Set[str]] = {}
         self.person_positions: Dict[str, Set[Entity]] = {}
         self.emitted_positions: Set[str] = set()
+        self.exclusion_checks: Set[str] = set(
+            context.dataset.config.get("exclusion_checks")
+        )
 
 
 def title_name(title: str) -> str:
@@ -175,6 +178,9 @@ def crawl_category(state: CrawlState, category_crawl_spec: Dict[str, Any]) -> No
         results += 1
         person_qid = row["Wikidata"]
         if person_qid is None:
+            continue
+        if person_qid in state.exclusion_checks:
+            state.context.log.warning("Regression on exclusion found", qid=person_qid)
             continue
         state.persons[person_qid].from_categories.add(cat)
 
