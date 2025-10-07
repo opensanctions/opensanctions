@@ -164,6 +164,13 @@ lookups:
       - match:
           - Qatar
         value: null
+      - match: "3rd Km of Khalaj Road, Seyyedi Street, Mashad 91638, Iran, Km 4 of Khalaj Road, End of Seyedi Street, Mashad, Iran, P.O. Box 91735-549, Mashad, Iran, Khalaj Rd., End of Seyyedi Alley, Mashad, Iran, Moqan St., Pasdaran St., Pasdaran Cross Rd., Téhéran, Iran."
+        values:
+          - 3rd Km of Khalaj Road, Seyyedi Street, Mashad 91638, Iran
+          - Km 4 of Khalaj Road, End of Seyedi Street, Mashad, Iran
+          - P.O. Box 91735-549, Mashad, Iran
+          - Khalaj Rd., End of Seyyedi Alley, Mashad, Iran
+          - Moqan St., Pasdaran St., Pasdaran Cross Rd., Téhéran, Iran.
   type.email:
     options:
       - contains: hotelminsk@udp.gov.by
@@ -190,7 +197,7 @@ lookups:
     options:
       - match: "BMJIIRT"
         value: BMJIIRTH # BANK MARKAZI JOMHOURI ISLAMI IRAN
-      - match: 
+      - match:
           - 5878431
           - 644101001
         prop: registrationNumber
