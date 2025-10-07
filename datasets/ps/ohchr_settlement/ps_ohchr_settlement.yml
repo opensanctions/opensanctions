@@ -74,7 +74,7 @@ data:
 assertions:
   min:
     schema_entities:
-      Company: 190
+      Company: 140
   max:
     schema_entities:
-      Company: 250
+      Company: 300

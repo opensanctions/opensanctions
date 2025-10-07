@@ -26,17 +26,17 @@ def rename_headers(context, entry):
 def emit_pep_entities(
     context,
     person,
-    title,
+    position_name,
     lang,
     start_date,
     end_date,
     is_pep,
     wikidata_id=None,
 ):
-    person.add("position", title)
+    person.add("position", position_name)
     position = h.make_position(
         context,
-        name=title,
+        name=position_name,
         country="es",
         lang=lang,
         topics=["gov.legislative", "gov.national"],
@@ -156,8 +156,8 @@ def crawl_senator(context, senator_url):
             emit_pep_entities(
                 context,
                 person=person,
-                role_title=f"{role_title}, {role_body}",
-                language="spa",
+                position_name=f"{role_title}, {role_body}",
+                lang="spa",
                 start_date=cargo.findtext("cargoAltaFec"),
                 end_date=cargo.findtext("cargoBajaFec"),
                 is_pep=True,
@@ -167,8 +167,8 @@ def crawl_senator(context, senator_url):
             emit_pep_entities(
                 context,
                 person=person,
-                role_title="Member of the Senate of Spain",
-                language="eng",
+                position_name="Member of the Senate of Spain",
+                lang="eng",
                 start_date=None,
                 end_date=None,
                 is_pep=True,
