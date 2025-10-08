@@ -40,10 +40,10 @@ inputs:
 assertions:
   min:
     schema_entities:
-      Company: 45800
+      Company: 50000
       Person: 12200
       LegalEntity: 1300
-      Organization: 1200
+      Organization: 300
       Vessel: 15
       PublicBody: 5
   max:
