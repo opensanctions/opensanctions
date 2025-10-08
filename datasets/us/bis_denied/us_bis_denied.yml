@@ -59,3 +59,10 @@ lookups:
     options:
       - match: "3035-04-07"
         value: 2025-04-07 # since it's a 'modifiedAt' date
+  columns:
+    lowercase: true
+    options:
+      - match: beginning_date
+        value: effective_date
+      - match: ending_date
+        value: expiration_date

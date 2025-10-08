@@ -1,6 +1,7 @@
-from followthemoney.types import registry
-from typing import Dict
 import re
+from typing import Dict
+
+from followthemoney.types import registry
 
 from zavod import Context, Entity
 from zavod import helpers as h
@@ -73,7 +74,7 @@ def crawl_row(context: Context, row: Dict[str, str], table_title: str):
     entity.id = context.make_slug(table_title, name_raw)
     # Normal case: LASTNAME Firstname (Alias) / Company Name (Alias)
     # "lub" = or
-    names = h.multi_split(name_raw, ["(", ")", "lub"])
+    names = h.multi_split(name_raw, ["(w zapisie także", "(", ")", "lub", ","])
 
     if entity.schema.name == "Person":
         # For Persons, we apply all available names as name (not alias), because they are
@@ -82,32 +83,28 @@ def crawl_row(context: Context, row: Dict[str, str], table_title: str):
             name = name.strip("„”")
             name_parts = name.split(" ")
 
-            if len(name_parts) >= 2:
-                # Check if the name is in Cyrillic script (by checking the first character)
-                is_cyrillic = bool(re.search(r"[а-яА-ЯёЁ]", name_parts[0]))
-
-                if is_cyrillic:
-                    # Ivan Ivanovich Ivanov
-                    first_name = name_parts[0]
-                    patronymic = name_parts[1]
-                    last_name = name_parts[2]
-                else:
-                    # IVANOV Ivan
-                    first_name = name_parts[1]
-                    last_name = name_parts[0]
-                    # IVANOV Ivan Ivanovich
-                    patronymic = name_parts[2] if len(name_parts) == 3 else None
-
+            assert len(name_parts) > 1, len(name_parts)
+            if len(name_parts) == 2:
+                last_name, first_name = name_parts
                 h.apply_name(
                     entity,
                     first_name=first_name,
                     last_name=last_name,
-                    patronymic=patronymic,
                 )
-                if last_name not in ["Sechin", "Шнайдер"]:
-                    assert (
-                        last_name.isupper()
-                    ), f"Expected last name '{last_name}' to be fully capitalized"
+            else:
+                res = context.lookup("names", name)
+                if res is None:
+                    context.log.warning("Unhandled person name", name=name)
+                    h.apply_name(entity, full=name)
+                else:
+                    h.apply_name(
+                        entity,
+                        first_name=res.first_name,
+                        second_name=res.second_name,
+                        last_name=res.last_name,
+                        patronymic=res.patronymic,
+                    )
+
     else:
         # "w likwidacji" = in liquidation; "w upadłości" = in bankruptcy
         name = names[0].rstrip(" w likwidacji").rstrip(" w upadłości")

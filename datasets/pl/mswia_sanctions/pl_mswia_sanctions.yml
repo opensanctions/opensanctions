@@ -225,3 +225,102 @@ lookups:
       - match: "adres: ul. Genewska 31, 03-940 Warszawa"
         props:
           address: "ul. Genewska 31, 03-940 Warszawa"
+      - match: "w miejscowości Łuniniec (Luniniec), Republika Białorusi (obywatel Republiki Białorusi)"
+        props:
+          address:
+            - Łuniniec, Republika Białorusi
+            - Luniniec, Republika Białorusi
+      - match: ", (obywatela Republiki Białorusi oraz Federacji Rosyjskiej)"
+        props:
+          citizenship: ["BY", "RU"]
+      - match: "(obywatelka Republiki Białorusi)"
+        props:
+          citizenship: "BY"
+      - match: "adres: ul. Domaniewska 37, 02-672 Warszawa"
+        props:
+          address: "ul. Domaniewska 37, 02-672 Warszawa"
+      - match: "adres: ul. Ostrobramska 101/2, 04-041 Warszawa"
+        props:
+          address: "ul. Ostrobramska 101/2, 04-041 Warszawa"
+  names:
+    options:
+      - match: ALAUDINOV Apti Aronovich
+        first_name: Apti
+        patronymic: Aronovich
+        last_name: ALAUDINOV
+      - match: DAUDOV Magomed Hozhakhmedovich
+        first_name: Magomed
+        patronymic: Hozhakhmedovich
+        last_name: DAUDOV
+      - match: KANTOR Wiaczesław Mosze
+        first_name: Wiaczesław
+        second_name: Mosze
+        last_name: KANTOR
+      - match: MARTYNOV Daniil Vasilevich
+        first_name: Daniil
+        patronymic: Vasilevich
+        last_name: MARTYNOV
+      - match: NECHAYEV Alexy Gennadyevich
+        first_name: Alexy
+        patronymic: Gennadyevich
+        last_name: NECHAYEV
+      - match: SIECZIN Igor Iwanowicz
+        first_name: Igor
+        patronymic: Iwanowicz
+        last_name: SIECZIN
+      - match: Sechin Igor Ivanovich
+        first_name: Igor
+        patronymic: Ivanovich
+        last_name: Sechin
+      - match: ŁOMAKIN Anatolij Giennadiejewicz
+        first_name: Anatolij
+        patronymic: Giennadiejewicz
+        last_name: ŁOMAKIN
+      - match: REISS Błażej Bernard
+        first_name: Błażej
+        second_name:: Bernard
+        last_name: REISS
+      - match: SZNEJDER Andriej Iwanowicz
+        first_name: Andriej
+        patronymic: Iwanowicz
+        last_name: SZNEJDER
+      - match: Андрей Иванович Шнайдер
+        first_name: Андрей
+        patronymic: Иванович
+        last_name: Шнайдер
+      - match: SZNEJDER Siergiej Iwanowicz
+        first_name: Siergiej
+        patronymic: Iwanowicz
+        last_name: SZNEJDER
+      - match: Сергей Иванович Шнайдер
+        first_name: Сергей
+        patronymic: Иванович
+        last_name: Шнайдер
+      - match: Сергій Іванович Шнайдер
+        first_name: Сергій
+        patronymic: Іванович
+        last_name: Шнайдер
+      - match: LESHCHUK Vladimir Evgenyevich
+        first_name: Vladimir
+        patronymic: Evgenyevich
+        last_name: LESHCHUK
+      - match: KARPOWICZ Andriej Michajłowicz
+        first_name: Andriej
+        patronymic: Michajłowicz
+        last_name: KARPOWICZ
+      - match: ЛEЩУK Bлaдиmиp Ebгehьebич
+        first_name: Bлaдиmиp
+        patronymic: Ebгehьebич
+        last_name: ЛEЩУK
+      - match: КАРПОВИЧ Андрей Михайлович
+        first_name: Андрей
+        patronymic: Михайлович
+        last_name: КАРПОВИЧ
+      - match: PENTAL Veronika Ivanowna
+        first_name: Veronika
+        patronymic: Ivanowna
+        last_name: PENTAL
+      - match: ПЕНТАЛЬ Вероника Ивановна
+        first_name: Вероника
+        patronymic: Ивановна
+        last_name: ПЕНТАЛЬ
