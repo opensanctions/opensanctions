@@ -50,7 +50,6 @@ def crawl(context: Context):
         country = c.find(".//h2[@title='Country']").text_content().strip()
         role = c.find(".//div[@title='Title']").text_content().strip()
         spouse = c.find(".//div[@title='Spouse']").text_content().strip()
-        mission = c.find(".//div[@title='Mission Title']").text_content().strip()
         # Skip entries without a name
         if not name:
             continue
@@ -67,7 +66,6 @@ def crawl(context: Context):
             name=f"{role} to Canada",
             country=country,
             topics=["gov.national", "role.diplo"],
-            description=mission,
         )
         categorisation = categorise(context, position, is_pep=True)
         if categorisation.is_pep:
