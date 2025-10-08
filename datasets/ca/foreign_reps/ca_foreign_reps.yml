@@ -6,7 +6,7 @@ coverage:
   start: 2025-09-29
 load_statements: true
 summary: >-
-  List of foreign diplomatic representatives and heads of missions accredited to Canada.
+  List of foreign diplomatic representatives and heads of missions deployed to Canada.
 description: |
   This dataset contains information about foreign diplomatic representatives serving
   in Canada, including ambassadors, high commissioners, and other heads of diplomatic
