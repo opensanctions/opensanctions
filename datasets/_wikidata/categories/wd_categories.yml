@@ -1,3 +1,26 @@
+# As of 2025-10-08 petscan can't tell you which categories fall between the category
+# queried and the categories containing the wikipedia pages it returns.
+# https://github.com/magnusmanske/petscan_rs/issues/182
+#
+# To understand why someone is included, see if it's obvious from the categories listed on
+# on their wikipedia page, otherwise run contrib/wd_categories_path.py to find the path(s)
+# between the categories we query and the person's page.
+# e.g.
+# python contrib/wd_categories_paths.py Category:Political_office-holders_in_North_America Q5234712
+#
+# You can see the top level categories containing them with something like:
+# SELECT key, timestamp FROM cache WHERE key LIKE 'https://petscan.wmcloud.org/%' AND text ILIKE '%"Q5234712"%';
+# in the etl db.
+#
+# If it's truly a mistake in wikipedia, fix the mistake there. The person will drop from
+# the dataset once the page cache expires (see cache_days in this crawler).
+#
+# If the wikipedia category hierarchy is reasonable, identify one or more categories that
+# are under the top level categories, which are causing non-PEPs to be included,
+# and add them one per line to a `negcats` entry in the category config.
+# Consider also adding the person's QID to `exclusion_checks` to detect if other
+# categories cause them to be included that aren't covered by the negcats arguments.
+
 title: Wikidata Persons in Relevant Categories
 entry_point: crawler.py
 prefix: wd
@@ -7,8 +30,10 @@ coverage:
   schedule: "0 22 * * *"
 deploy:
   cpu: "800m"
-  memory: "1500Mi"
+  memory: "2300Mi"
   memory_limit: "2500Mi"
+  # This job takes 7 hours. Restarting it for scale-down is probably not worth it.
+  premium: true
 load_statements: true
 ci_test: false
 exports:
