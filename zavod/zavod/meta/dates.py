@@ -13,7 +13,7 @@ class DatesSpec(BaseModel):
 
     year_only: bool = False
     formats: List[str] = []
-    months: Dict[str, str | List[str]] = {}
+    months: Dict[str | int, str | List[str]] = {}
     mappings: Dict[str, str] = Field(default_factory=dict, exclude=True, init=False)
     months_re: Optional[re.Pattern[str]] = Field(default=None, exclude=True, init=False)
 
