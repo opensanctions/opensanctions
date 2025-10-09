@@ -6,16 +6,12 @@ from typing import List, Literal
 from zavod import Context, helpers as h
 from zavod.shed.gpt import DEFAULT_MODEL, run_typed_text_prompt
 from zavod.stateful.review import (
-    Review,
+    HtmlSourceValue,
     assert_all_accepted,
-    request_review,
-    get_review,
-    model_hash,
+    review_extraction,
 )
 
-ARTICLE_XPATH = "//div[contains(@class, 'mas-section__banner-item')]"
-MODEL_VERSION = 1
-MIN_MODEL_VERSION = 1
+CRAWLER_VERSION = 1
 
 Schema = Literal["Person", "Company", "LegalEntity"]
 something_changed = False
@@ -101,76 +97,17 @@ For each entity found, extract these fields:
 """
 
 
-def source_changed(review: Review, article_element: HtmlElement) -> bool:
-    """
-    The key exists but the current source data looks different from the existing version
-    in spite of heavy normalisation.
-    """
-    seen_element = fromstring(review.source_value)
-    return h.element_text_hash(seen_element) != h.element_text_hash(article_element)
-
-
-def get_or_request_review(context, html_part, article_key, url):
-    review = get_review(context, Defendants, article_key, MIN_MODEL_VERSION)
-    if review is None:
-        prompt_result = run_typed_text_prompt(context, PROMPT, html_part, Defendants)
-        review = request_review(
-            context,
-            article_key,
-            html_part,
-            HTML,
-            "Enforcement Action",
-            url,
-            prompt_result,
-            MODEL_VERSION,
-        )
-    return review
-
-
-def check_something_changed(
-    context: Context,
-    review: Review,
-    article_html: str,
-    article_element: HtmlElement,
-) -> bool:
-    """
-    Returns True if the source content has changed.
-
-    In that case it also reprompts to log whether the extracted data has changed.
-    """
-    if source_changed(review, article_element):
-        prompt_result = run_typed_text_prompt(context, PROMPT, article_html, Defendants)
-        if model_hash(prompt_result) == model_hash(review.orig_extraction_data):
-            context.log.warning(
-                "The source content has changed but the extracted data has not",
-                url=review.source_url,
-                seen_source_value=review.source_value,
-                new_source_value=article_html,
-            )
-        else:
-            # A new extraction result looks different from the known original extraction
-            context.log.warning(
-                "The extracted data has changed",
-                url=review.source_url,
-                orig_extracted_data=review.orig_extraction_data.model_dump(),
-                prompt_result=prompt_result.model_dump(),
-            )
-        return True
-    else:
-        return False
-
-
-def crawl_item(context, item, date, url, article_name, action_type):
+def crawl_item(context, item, date, url, article_name, action_type, origin: str):
     entity = context.make(item.entity_schema)
     entity.id = context.make_id(item.name, item.country)
-    entity.add("name", item.name, origin=DEFAULT_MODEL)
+    entity.add("name", item.name, origin=origin)
     nationality_prop = "nationality"
     if item.entity_schema != "Person":
         nationality_prop = "country"
-    entity.add(nationality_prop, item.nationality, origin=DEFAULT_MODEL)
-    entity.add("country", item.country, origin=DEFAULT_MODEL)
-    entity.add("alias", item.aliases, origin=DEFAULT_MODEL)
-    entity.add("sourceUrl", item.related_url, origin=DEFAULT_MODEL)
+    entity.add(nationality_prop, item.nationality, origin=origin)
+    entity.add("country", item.country, origin=origin)
+    entity.add("alias", item.aliases, origin=origin)
+    entity.add("sourceUrl", item.related_url, origin=origin)
     entity.add("sourceUrl", url)
 
     article = h.make_article(context, url, title=article_name, published_at=date)
@@ -189,34 +126,32 @@ def crawl_item(context, item, date, url, article_name, action_type):
 def crawl_enforcement_action(context: Context, url: str, date: str, action_type: str):
     article = context.fetch_html(url, cache_days=7)
     article.make_links_absolute(context.data_url)
-    article_el = article.xpath(ARTICLE_XPATH)
+    article_el = article.xpath("//div[contains(@class, 'mas-section__banner-item')]")
     assert len(article_el) == 1, "Expected exactly one article in the document"
     article_el = article_el[0]
     article_name = article_el.xpath("./h1")
     assert len(article_name) == 1, "Expected exactly one article title in the document"
     article_name = article_name[0].text_content().strip()
-    article_html = tostring(article_el, pretty_print=True, encoding="unicode")
 
-    review = get_or_request_review(context, article_html, article_key=url, url=url)
-    if check_something_changed(context, review, article_html, article_el):
-        #     # In the first iteration, we're being super conservative and rejecting
-        #     # export if the source content has changed regardless of whether the
-        #     # extraction result has changed. If we see this happening and we see that
-        #     # the extraction result reliably identifies real data changes, we can
-        #     # relax this to only reject if the extraction result has changed.
-
-        #     # Similarly if we see that broad markup changes don't trigger massive
-        #     # re-reviews but legitimate changes are reliably detected, we can allow
-        #     # it to automatically request re-reviews upon extraction changes.
-        global something_changed
-        something_changed = True
-        return
+    source_value = HtmlSourceValue(
+        key_parts=url, label="Enforcement Action", element=article_el, url=url
+    )
+    prompt_result = run_typed_text_prompt(
+        context, PROMPT, source_value.value_string, Defendants
+    )
+    review = review_extraction(
+        context,
+        crawler_version=CRAWLER_VERSION,
+        source_value=source_value,
+        original_extraction=prompt_result,
+        origin=DEFAULT_MODEL,
+    )
 
     if not review.accepted:
         return
 
     for item in review.extracted_data.defendants:
-        crawl_item(context, item, date, url, article_name, action_type)
+        crawl_item(context, item, date, url, article_name, action_type, review.origin)
 
 
 def crawl(context: Context):
@@ -235,6 +170,3 @@ def crawl(context: Context):
         crawl_enforcement_action(context, url, date, action_type)
 
     assert_all_accepted(context)
-    global something_changed
-    msg = "See what changed to determine whether to trigger re-review."
-    assert not something_changed, msg
