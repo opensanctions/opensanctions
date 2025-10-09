@@ -1,20 +1,20 @@
 from datetime import date
+from typing import List, Literal, Optional
+
 from lxml.html import tostring
 from pydantic import BaseModel, Field
 from rigour.mime.types import HTML
-from typing import Optional, List, Literal
-
-from zavod import Context
-from zavod import helpers as h
 from zavod.entity import Entity
 from zavod.shed import enforcements
 from zavod.shed.gpt import DEFAULT_MODEL, run_typed_text_prompt
 from zavod.stateful.review import (
+    HtmlSourceValue,
     assert_all_accepted,
-    request_review,
-    get_review,
-    source_html_matches,
+    review_extraction,
 )
+
+from zavod import Context
+from zavod import helpers as h
 
 NAME_XPATH = "//span[@class='treas-page-title']/text()"
 CONTENT_XPATH = "//div[@id='block-ofac-content']//div[@class='content']"
@@ -136,19 +136,20 @@ def crawl_enforcement_action(context: Context, url: str) -> None:
     article_html = tostring(article_element, pretty_print=True, encoding="unicode")
     assert all([article_name, article_html, date]), "One or more fields are empty"
 
-    review = get_review(context, data_model=Defendants, key_parts=url)
-    if review is None or not source_html_matches(review, article_element):
-        prompt_result = run_typed_text_prompt(context, PROMPT, article_html, Defendants)
-        review = request_review(
-            context,
-            key_parts=url,
-            source_value=article_html,
-            source_mime_type=HTML,
-            source_label="Enforcement Action Notice",
-            source_url=url,
-            orig_extraction_data=prompt_result,
-            crawler_version=CRAWLER_VERSION,
-        )
+    source_value = HtmlSourceValue(
+        key_parts=url,
+        label="Enforcement Action Notice",
+        element=article_element,
+        url=url,
+    )
+    prompt_result = run_typed_text_prompt(context, PROMPT, article_html, Defendants)
+    review = review_extraction(
+        context,
+        crawler_version=CRAWLER_VERSION,
+        source_value=source_value,
+        original_extraction=prompt_result,
+        origin=DEFAULT_MODEL,
+    )
 
     if not review.accepted:
         return
@@ -156,20 +157,20 @@ def crawl_enforcement_action(context: Context, url: str) -> None:
     for item in review.extracted_data.defendants:
         entity = context.make(item.entity_schema)
         entity.id = context.make_id(item.name, item.address, item.country)
-        entity.add("name", item.name, origin=DEFAULT_MODEL)
+        entity.add("name", item.name, origin=review.origin)
         if item.address != item.country:
-            entity.add("address", item.address, origin=DEFAULT_MODEL)
-        entity.add("country", item.country, origin=DEFAULT_MODEL)
-        entity.add("alias", item.aliases, origin=DEFAULT_MODEL)
+            entity.add("address", item.address, origin=review.origin)
+        entity.add("country", item.country, origin=review.origin)
+        entity.add("alias", item.aliases, origin=review.origin)
         entity.add("topics", "reg.action")
 
         # We use the date as a key to make sure notices about separate actions are separate sanction entities
         sanction = h.make_sanction(context, entity, date)
         h.apply_date(sanction, "date", date)
         sanction.set("sourceUrl", url)
-        sanction.add("sourceUrl", item.pdf_url, origin=DEFAULT_MODEL)
-        sanction.add("status", item.status, origin=DEFAULT_MODEL)
-        sanction.add("summary", item.notes, origin=DEFAULT_MODEL)
+        sanction.add("sourceUrl", item.pdf_url, origin=review.origin)
+        sanction.add("status", item.status, origin=review.origin)
+        sanction.add("summary", item.notes, origin=review.origin)
 
         for related_company in item.related_companies:
             related_company_entity = make_related_company(context, related_company.name)
