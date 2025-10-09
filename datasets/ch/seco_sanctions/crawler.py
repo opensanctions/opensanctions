@@ -1,6 +1,5 @@
 import re
 from itertools import product
-from datetime import datetime
 from prefixdate import parse_parts
 from typing import Dict, Optional, Tuple, List
 from followthemoney.types import registry
@@ -353,9 +352,9 @@ def crawl(context: Context):
     doc = context.parse_resource_xml(path)
     root = doc.getroot()
     assert root is not None
-    date = root.get("date")
-    if date is not None:
-        context.data_time = datetime.strptime(date, "%Y-%m-%d")
+    # date = root.get("date")
+    # if date is not None:
+    #     context.data_time = datetime.strptime(date, "%Y-%m-%d")
 
     # TODO(Leon Handreke): Add a lookup to see if a new sanctions program shows up that we don't have in the database
     programs: Dict[str, MayStr] = {}
