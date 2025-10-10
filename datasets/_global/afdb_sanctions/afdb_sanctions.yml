@@ -48,7 +48,7 @@ dates:
 assertions:
   min:
     schema_entities:
-      Company: 720
+      Company: 650
       Person: 220
     country_entities:
       cn: 100

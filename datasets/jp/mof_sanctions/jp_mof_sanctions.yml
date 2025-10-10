@@ -308,6 +308,10 @@ lookups:
         value: Tunisia
       - match: リビア Libya
         value: Libya
+      - match: エジプトEgypt
+        value: Egypt
+      - match: インドネシア Indonesia
+        value: Indonesia
   type.date:
     options:
       - match:

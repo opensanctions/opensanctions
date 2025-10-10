@@ -8,22 +8,22 @@ load_statements: true
 summary: >
   List of all SOEs operating in EITI implementing countries.
 description: |
-  This dataset covers state-owned enterprises (SOE) that are required to make government 
-  payments and disclose information regarding oil, gas, and mining activities in 
-  EITI-implementing countries. The information is provided to facilitate the detection and 
+  This dataset covers state-owned enterprises (SOE) that are required to make government
+  payments and disclose information regarding oil, gas, and mining activities in
+  EITI-implementing countries. The information is provided to facilitate the detection and
   prevention of corruption.
 publisher:
   name: Extractive Industries Transparency Initiative
   acronym: EITI
   description: |
-    By becoming a member of the Extractive Industries Transparency Initiative (EITI), countries commit 
-    to disclose information along the extractive industry value chain – from how extraction rights are 
-    awarded, to how revenues make their way through government and how they benefit the public. The EITI 
-    provides data that can help identify and close channels for corruption – not only in mining, oil and 
-    gas but increasingly in the renewables sector.    
+    By becoming a member of the Extractive Industries Transparency Initiative (EITI), countries commit
+    to disclose information along the extractive industry value chain – from how extraction rights are
+    awarded, to how revenues make their way through government and how they benefit the public. The EITI
+    provides data that can help identify and close channels for corruption – not only in mining, oil and
+    gas but increasingly in the renewables sector.
 
-    In each country that has joined the EITI, a multi-stakeholder group, composed of government, companies 
-    and civil society, supports implementation of the EITI Standard. 
+    In each country that has joined the EITI, a multi-stakeholder group, composed of government, companies
+    and civil society, supports implementation of the EITI Standard.
     [Source: Official Website](https://eiti.org/our-mission)
   url: https://eiti.org
   official: false
@@ -39,3 +39,9 @@ assertions:
   max:
     schema_entities:
       LegalEntity: 1200
+
+lookups:
+  type.url:
+    options:
+      - match: "No"
+        value: null
