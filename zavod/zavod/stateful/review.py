@@ -1,9 +1,11 @@
 from abc import ABC
 from datetime import datetime, timezone
 from hashlib import sha1
-from typing import Any, Dict, Generic, List, Optional, Type, TypeVar
 from logging import getLogger
+from typing import Any, Dict, Generic, List, Optional, Type, TypeVar
 
+import orjson
+from lxml.html import HtmlElement, fromstring, tostring
 from normality import slugify
 from pydantic import BaseModel, JsonValue, PrivateAttr
 from pydantic.json_schema import GenerateJsonSchema, JsonSchemaMode
@@ -13,12 +15,10 @@ from rigour.text import text_hash
 from sqlalchemy import func, insert, not_, select, update
 from sqlalchemy.engine import Connection
 from sqlalchemy.sql import Select
-import orjson
-from lxml.html import HtmlElement, fromstring, tostring
 
+from zavod import helpers as h
 from zavod.context import Context
 from zavod.stateful.model import review_table
-from zavod import helpers as h
 
 log = getLogger(__name__)
 
@@ -223,8 +223,12 @@ class TextSourceValue(SourceValue):
         self.value_string = text
 
     def matches(self, review: Review[ModelType]) -> bool:
+        """
+        Performs the same normalisation as `review_key` so that we consider
+        multiple source values normalising to the same key as a match.
+        """
         assert review.source_mime_type == PLAIN, review.source_mime_type
-        return self.value_string == review.source_value
+        return slugify(self.value_string) == slugify(review.source_value)
 
 
 class HtmlSourceValue(SourceValue):
@@ -357,12 +361,17 @@ def review_extraction(
                 != model_hash(review.original_extraction)
             )
         ):
-            context.log.debug(
-                "Crawler version changed. Resetting review.",
-                key=key_slug,
-                old=review.crawler_version,
-                new=crawler_version,
-            )
+            if crawler_version_changed:
+                context.log.debug(
+                    "Crawler version changed. Resetting review.",
+                    key=key_slug,
+                    old=review.crawler_version,
+                    new=crawler_version,
+                )
+            else:
+                context.log.debug(
+                    "Source value changed. Resetting review.", key=key_slug
+                )
             # If the crawler version changed, we want to update it.
             # This is useful for breaking changes in the extraction model.
             # If the source and also the automated extraction changed,
@@ -386,7 +395,12 @@ def review_extraction(
             # Resetting extracted_data to original_extraction here loses unaccepted edits
             # but prompt improvements happen more often than unaccepted edits.
             review.extracted_data = original_extraction
-            save_new_revision = True
+            # Saving a new revision every crawl for an unaccepted item makes a revision
+            # for items where two items mapping to the same key, e.g.
+            # "American Express Inc" and "American Express Inc." when we're likely not
+            # a ton of reviewer work.
+            # Once accepted, the one extraction won't be overwriting the other.
+            save_new_revision = False
 
         if save_new_revision:
             review.modified_at = now

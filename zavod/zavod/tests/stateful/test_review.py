@@ -1,18 +1,19 @@
 from datetime import datetime
-from pydantic import BaseModel
+
 from lxml import html
+from pydantic import BaseModel
 
 from zavod import settings
 from zavod.context import Context
+from zavod.meta import Dataset
+from zavod.stateful.model import review_table
 from zavod.stateful.review import (
+    HtmlSourceValue,
     Review,
+    TextSourceValue,
     review_extraction,
     review_key,
-    TextSourceValue,
-    HtmlSourceValue,
 )
-from zavod.stateful.model import review_table
-from zavod.meta import Dataset
 
 
 class DummyModel(BaseModel):
@@ -194,7 +195,8 @@ def test_unaccepted_updates_original_extraction(testdataset1: Dataset):
     assert row2["original_extraction"]["foo"] == "bar"
     assert row2["extracted_data"]["foo"] == "bar"
     assert row2["modified_by"] == "zavod"
-    assert len(get_all_rows(context2.conn, "key4")) == 2  # original, updated
+    # Expect this to be updated in-place because it's unaccepted.
+    assert len(get_all_rows(context2.conn, "key4")) == 1
 
 
 def test_crawler_version_bump_resets_review(testdataset1: Dataset):
@@ -271,6 +273,38 @@ def test_html_source_comparison(testdataset1: Dataset):
         modified_at=datetime.utcnow(),
     )
     assert source_value1.matches(review)
+    assert not source_value2.matches(review)
+
+
+def test_text_source_comparison(testdataset1: Dataset):
+    source_value1 = TextSourceValue(
+        key_parts="key7", label="test", url="http://s", text="foo bar"
+    )
+    source_value1dot = TextSourceValue(
+        key_parts="key7", label="test", url="http://s", text="foo. bar."
+    )
+    source_value2 = TextSourceValue(
+        key_parts="key7", label="test", url="http://s", text="foo baz"
+    )
+    review = Review(
+        key="key7",
+        dataset=testdataset1.name,
+        crawler_version=1,
+        source_mime_type=source_value1.mime_type,
+        source_label=source_value1.label,
+        source_url=source_value1.url,
+        source_value=source_value1.value_string,
+        data_model=DummyModel,
+        extraction_schema=DummyModel.model_json_schema(),
+        original_extraction=DummyModel(foo="bar"),
+        extracted_data=DummyModel(foo="bar"),
+        accepted=False,
+        last_seen_version="123",
+        modified_by="test@user.com",
+        modified_at=datetime.utcnow(),
+    )
+    assert source_value1.matches(review)
+    assert source_value1dot.matches(review)
     assert not source_value2.matches(review)
 
 
