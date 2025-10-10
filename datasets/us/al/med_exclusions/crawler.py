@@ -1,12 +1,10 @@
-from typing import Dict, List
 import re
+from typing import Dict, List
 
+from pdfplumber.page import Page
 from pydantic import BaseModel, Field
 from rigour.mime.types import PDF
 from rigour.names.org_types import extract_org_types
-from pdfplumber.page import Page
-
-from zavod import Context, entity, helpers as h
 from zavod.shed.gpt import DEFAULT_MODEL, run_typed_text_prompt
 from zavod.shed.zyte_api import fetch_html, fetch_resource
 from zavod.stateful.review import (
@@ -14,6 +12,9 @@ from zavod.stateful.review import (
     assert_all_accepted,
     review_extraction,
 )
+
+from zavod import Context, entity
+from zavod import helpers as h
 
 # Cases
 #
@@ -47,18 +48,15 @@ NAME_WITH_SUFFIX_REGEX = re.compile(
 NAME_WITH_ROLE_REGEX = re.compile(
     rf"(?P<name>{SIMPLE_NAME_PATTERN}), (?P<role>(([A-Z][a-z]+ ?)+|[A-Z]{{2,4}}))"
 )
-MODEL_VERSION = 2
-MIN_MODEL_VERSION = 2
+CRAWLER_VERSION = 2
 
 positions_field = Field(
     default=[],
     description=(
-        (
-            "The positions held by the person for an entity who is a person. "
-            "Populate this precisely as listed in the text when the text indicates "
-            "the job role of a person, otherwise leave empty. Sometimes this is an "
-            "abbreviation of a job title, e.g. RN for Registered Nurse."
-        )
+        "The positions held by the person for an entity who is a person. "
+        "Populate this precisely as listed in the text when the text indicates "
+        "the job role of a person, otherwise leave empty. Sometimes this is an "
+        "abbreviation of a job title, e.g. RN for Registered Nurse."
     ),
 )
 
@@ -185,11 +183,11 @@ def crawl_row(context, names, category, start_date, filename: str):
             key_parts=names, label='"Name of provider" column', text=names
         )
         prompt_result = run_typed_text_prompt(
-            context, PROMPT, names, response_type=RootEntity
+            context, PROMPT, source_value.value_string, response_type=RootEntity
         )
         review = review_extraction(
             context,
-            crawler_version=MODEL_VERSION,
+            crawler_version=CRAWLER_VERSION,
             source_value=source_value,
             original_extraction=prompt_result,
             origin=DEFAULT_MODEL,
