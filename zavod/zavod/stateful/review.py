@@ -208,7 +208,7 @@ class TextSourceValue(SourceValue):
         key_parts: str | List[str],
         label: str,
         text: str,
-        url: Optional[str],
+        url: Optional[str] = None,
     ):
         """
         Args:
