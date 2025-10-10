@@ -10,9 +10,9 @@ from zavod import Context, entity, helpers as h
 from zavod.shed.gpt import DEFAULT_MODEL, run_typed_text_prompt
 from zavod.shed.zyte_api import fetch_html, fetch_resource
 from zavod.stateful.review import (
-    get_review,
-    request_review,
+    TextSourceValue,
     assert_all_accepted,
+    review_extraction,
 )
 
 # Cases
@@ -180,26 +180,24 @@ def crawl_row(context, names, category, start_date, filename: str):
             origin = filename
 
     if entity_data is None:
-        context.log.debug("unsure about", names=names)
-        review = get_review(context, RootEntity, names, MIN_MODEL_VERSION)
-        if review is None:
-            prompt_result = run_typed_text_prompt(
-                context, PROMPT, names, response_type=RootEntity
-            )
-            review = request_review(
-                context,
-                key_parts=names,
-                source_value=names,
-                source_mime_type="text/plain",
-                source_label="Debarred entities",
-                source_url=None,
-                orig_extraction_data=prompt_result,
-                model_version=MODEL_VERSION,
-            )
+        context.log.debug("unsure about names", names=names)
+        source_value = TextSourceValue(
+            key_parts=names, label='"Name of provider" column', text=names
+        )
+        prompt_result = run_typed_text_prompt(
+            context, PROMPT, names, response_type=RootEntity
+        )
+        review = review_extraction(
+            context,
+            crawler_version=MODEL_VERSION,
+            source_value=source_value,
+            original_extraction=prompt_result,
+            origin=DEFAULT_MODEL,
+        )
         if not review.accepted:
             return
         entity_data = review.extracted_data
-        origin = DEFAULT_MODEL
+        origin = review.origin
 
     entity = context.make("LegalEntity")
     entity.id = context.make_id(entity_data.name, entity_data.positions)
