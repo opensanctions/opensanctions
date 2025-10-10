@@ -24,8 +24,9 @@ const expectedColumns = new Set<string>([
   'source_label',
   'source_url',
   'accepted',
-  'model_version',
-  'orig_extraction_data',
+  'crawler_version',
+  'original_extraction',
+  'origin',
   'extracted_data',
   'last_seen_version',
   'modified_at',
@@ -43,8 +44,9 @@ export interface ReviewTable {
   source_label: string
   source_url: string | null
   accepted: boolean
-  model_version: number
-  orig_extraction_data: JSONColumnType<object, object, object>
+  crawler_version: number
+  original_extraction: JSONColumnType<object, object, object>
+  origin: string | null
   extracted_data: JSONColumnType<object, object, object>
   last_seen_version: string
   modified_at: string
@@ -99,8 +101,8 @@ async function assertSchemaMatchesExpected(db: Kysely<ReviewDatabase>) {
   for (const column of reviewTable.columns) {
     existingColumnNames.add(column.name);
   }
-  const unexpected = expectedColumns.difference(existingColumnNames);
-  const missing = existingColumnNames.difference(expectedColumns);
+  const missing = expectedColumns.difference(existingColumnNames);
+  const unexpected = existingColumnNames.difference(expectedColumns);
   if (unexpected.size > 0 || missing.size > 0) {
     let msg = `Table ${tableName} doesn't match expected schema. `;
     if (unexpected.size > 0)
@@ -172,7 +174,7 @@ export async function getExtractionEntries(dataset: string) {
       'review.modified_at',
       'review.modified_by',
       'review.accepted',
-      'review.orig_extraction_data',
+      'review.original_extraction',
     ])
     .where('review.dataset', '=', dataset)
     .where('review.deleted_at', 'is', null)
@@ -187,7 +189,7 @@ export async function getExtractionEntries(dataset: string) {
     modified_at: row.modified_at,
     modified_by: row.modified_by,
     accepted: row.accepted,
-    raw_data_snippet: JSON.stringify(row.orig_extraction_data).slice(0, 100),
+    raw_data_snippet: JSON.stringify(row.original_extraction).slice(0, 100),
   }));
 }
 
