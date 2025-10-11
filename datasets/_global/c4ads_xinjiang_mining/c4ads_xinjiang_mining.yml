@@ -1,0 +1,42 @@
+title: C4ADS Fractured Veins (Xinjiang Mining Industry)
+entry_point: crawler.py
+prefix: c4-fv
+coverage:
+  frequency: monthly
+  start: 2025-10-02
+load_statements: true
+summary: >-
+  Mining companies in Xinjiang (XUAR) and their links to ultimate beneficial owners.
+description: |
+  > The world is increasingly exposed to the mining industry in the Xinjiang Uyghur 
+  > Autonomous Region (XUAR), with gold and other minerals extracted from the region 
+  > linked to global supply chains and investment. These minerals, as with other 
+  > products manufactured or processed in XUAR, are at high risk of being produced 
+  > through forced labor or in conditions of human rights violations.
+url: https://c4ads.org/reports/fractured-veins/
+tags:
+  - issue.slavery
+publisher:
+  name: Center for Advanced Defense Studies
+  acronym: C4ADS
+  description: |
+    C4ADS is a nonprofit organization dedicated to providing data-driven analysis and
+    evidence-based reporting on global conflict and transnational security issues.
+  url: https://c4ads.org/
+  official: false
+data:
+  url: https://c4ads.org/wp-content/uploads/2023/10/fractured-veins-mines.csv
+  format: CSV
+
+assertions:
+  min:
+    schema_entities:
+      Organization: 6300
+      Company: 4000
+  max:
+    schema_entities:
+      Organization: 12000
+      Company: 8000
+
+dates:
+  formats: ["%m/%d/%y"]
