@@ -1,6 +1,4 @@
 import contextvars
-from datetime import datetime
-from functools import cached_property
 from pathlib import Path
 from typing import Any, Dict, List, Mapping, Optional, Union
 
@@ -12,7 +10,6 @@ from followthemoney.dataset import DataResource
 from lxml import etree, html
 from nomenklatura.cache import Cache
 from nomenklatura.versions import Version
-from prefixdate import DatePrefix
 from requests import Response
 from rigour.urls import ParamsType, build_url
 from sqlalchemy.engine import Connection
@@ -68,17 +65,6 @@ class Context:
             Mapping[str, contextvars.Token[Any]]
         ] = None
 
-        self._data_time: datetime = settings.RUN_TIME
-        # If the dataset has a fixed end time which is in the past,
-        # use that as the data time:
-        if (
-            dataset.model.coverage is not None
-            and dataset.model.coverage.end is not None
-        ):
-            if dataset.model.coverage.end < settings.RUN_TIME_ISO:
-                prefix = DatePrefix(dataset.model.coverage.end)
-                self._data_time = prefix.dt or self._data_time
-
         self.lang: Optional[str] = None
         """Default language for statements emitted from this dataset"""
         if dataset.data is not None:
@@ -116,29 +102,6 @@ class Context:
         if self.dataset.data is None or self.dataset.data.url is None:
             raise ValueError("Dataset has no data URL: %r" % self.dataset)
         return self.dataset.data.url
-
-    @property
-    def data_time(self) -> datetime:
-        """The data provenance time to be used for the emitted statements. This is
-        used to set the first_seen and last_seen properties of statements to a time
-        that may be different than the real run time of the crawler, e.g. when a
-        coverage end is defined, or the data source itself states an update time.
-
-        Returns:
-            The time to be used for the emitted statements."""
-        return self._data_time
-
-    @data_time.setter
-    def data_time(self, value: datetime) -> None:
-        """Modify the data time."""
-        self._data_time = value
-        if hasattr(self, "data_time_iso"):
-            del self.data_time_iso
-
-    @cached_property
-    def data_time_iso(self) -> str:
-        """String representation of `data_time` in ISO format."""
-        return self.data_time.isoformat(sep="T", timespec="seconds")
 
     def begin(self, clear: bool = False) -> None:
         """Prepare the context for running the exporter.
@@ -591,10 +554,10 @@ class Context:
             stmt.entity_id = entity.id
             stmt.external = external
             stmt.schema = entity.schema.name
-            stmt.first_seen = stamps.get(stmt.id, self.data_time_iso)
-            if stmt.first_seen != self.data_time_iso:
+            stmt.first_seen = stamps.get(stmt.id, settings.RUN_TIME_ISO)
+            if stmt.first_seen != settings.RUN_TIME_ISO:
                 self.stats.changed += 1
-            stmt.last_seen = self.data_time_iso
+            stmt.last_seen = settings.RUN_TIME_ISO
             if not self.dry_run:
                 self.sink.emit(stmt)
             self.stats.statements += 1

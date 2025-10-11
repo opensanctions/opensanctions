@@ -4,6 +4,7 @@ from datetime import timedelta
 
 from nomenklatura.wikidata import Item, WikidataClient
 
+from zavod import settings
 from zavod import Context, Entity
 from zavod.shed.wikidata.country import is_historical_country, item_countries
 
@@ -31,8 +32,8 @@ def wikidata_basic_human(
     for claim in item.claims:
         # P569 - birth date
         if claim.property == "P569":
-            too_young = context.data_time - timedelta(days=365 * 18)
-            too_old = context.data_time - timedelta(days=365 * 110)
+            too_young = settings.RUN_TIME - timedelta(days=365 * 18)
+            too_old = settings.RUN_TIME - timedelta(days=365 * 110)
             date = claim.text
             if date.text is None:
                 continue

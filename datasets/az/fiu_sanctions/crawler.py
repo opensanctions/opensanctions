@@ -1,6 +1,5 @@
 from lxml import etree
 from rigour.mime.types import XML
-from datetime import datetime
 
 from zavod import Context
 from zavod import helpers as h
@@ -22,11 +21,11 @@ def crawl(context: Context):
     context.export_resource(path, XML, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
         doc = etree.parse(fh)
-    date = doc.getroot().get("dateGenerated")
-    if date is None:
-        context.log.error("No date found in XML file")
-        return
-    context.data_time = datetime.strptime(date, "%Y-%m-%dT%H:%M:%S")
+    # date = doc.getroot().get("dateGenerated")
+    # if date is None:
+    #     context.log.error("No date found in XML file")
+    #     return
+    # datetime.strptime(date, "%Y-%m-%dT%H:%M:%S")
     entities = doc.find("./ENTITIES")
     assert entities is not None
     if len(list(entities.iterchildren())) > 0:

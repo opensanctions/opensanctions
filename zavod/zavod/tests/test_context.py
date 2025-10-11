@@ -1,4 +1,3 @@
-from datetime import datetime
 from typing import cast
 
 import orjson
@@ -6,7 +5,6 @@ import pytest
 import requests_mock
 from requests.adapters import HTTPAdapter
 
-from zavod import settings
 from zavod.archive import iter_dataset_statements
 from zavod.context import Context
 from zavod.crawl import crawl_dataset
@@ -59,15 +57,6 @@ def test_context_helpers(testdataset1: Dataset):
 
     # don't know how to assert anything here
     context.audit_data({"test": "bla", "foo": 3}, ignore=["foo"])
-
-    assert context.data_time == settings.RUN_TIME
-    assert context.data_time_iso == settings.RUN_TIME.isoformat(
-        sep="T", timespec="seconds"
-    )
-    other = datetime(2020, 1, 1)
-    context.data_time = other
-    assert context.data_time_iso == other.isoformat(sep="T", timespec="seconds")
-
     context.close()
 
 
