@@ -94,7 +94,7 @@ class Review(BaseModel, Generic[ModelType]):
     def extracted_data(self, value: ModelType) -> None:
         self._extracted_data = value.model_dump()
 
-    def __init__(self, **data):  # type: ignore
+    def __init__(self, **data: Any) -> None:
         super().__init__(**data)
         if "_original_extraction" in data:
             self._original_extraction = data.pop("_original_extraction")
