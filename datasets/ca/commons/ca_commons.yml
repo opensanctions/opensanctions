@@ -41,6 +41,7 @@ publisher:
 data:
   url: https://www.ourcommons.ca/Members/en/search/xml
   format: XML
+  lang: eng
 
 assertions:
   min:

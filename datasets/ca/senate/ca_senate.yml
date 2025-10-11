@@ -37,6 +37,7 @@ publisher:
 data:
   url: https://sencanada.ca/umbraco/surface/SenatorsViews/GetSenators?displayfor=senatorslist&Lang=en
   format: HTML
+  lang: eng
 
 assertions:
   min:
