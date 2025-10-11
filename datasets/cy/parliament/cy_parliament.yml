@@ -1,0 +1,39 @@
+title: Cyprus House of Representatives
+prefix: cy-parl
+coverage:
+  frequency: monthly
+  start: 2025-10-11
+load_statements: true
+entry_point: crawler.py
+ci_test: true
+summary: >-
+  Current members of the Cyprus House of Representatives (Βουλή των Αντιπροσώπων)
+description: |
+  Members of the Cyprus House of Representatives (Greek: Βουλή των Αντιπροσώπων,
+  Turkish: Temsilciler Meclisi), the unicameral legislative body of the Republic of Cyprus.
+
+  The House of Representatives consists of 80 members elected by proportional representation
+  for a five-year term. Seats are allocated across six electoral districts corresponding to
+  the administrative districts of Cyprus.
+
+  The data is sourced from the official website of the Cyprus House of Representatives,
+  containing biographical information for current members of parliament.
+url: https://www.parliament.cy/en/general-information/election-composition-and-dissolution-of-the-house-of-representatives
+tags:
+  - list.pep
+publisher:
+  name: Cyprus House of Representatives
+  description: |
+    The Cyprus House of Representatives provides information about its members on its
+    official website. The House exercises legislative power, approves the state budget,
+    and oversees the executive branch of government.
+  country: cy
+  url: https://www.parliament.cy/en/
+  official: true
+data:
+  url: https://www.parliament.cy/en/general-information/composition/members-of-the-house/biographical-notes
+  format: HTML
+  lang: eng
+
+dates:
+  formats: ["%d %B %Y."]
