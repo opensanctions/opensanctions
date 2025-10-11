@@ -282,10 +282,10 @@ def review_key(parts: str | List[str]) -> str:
 
 def review_extraction(
     context: Context,
-    crawler_version: int,
     source_value: SourceValue,
     original_extraction: ModelType,
     origin: str,
+    crawler_version: int = 1,
     default_accepted: bool = False,
 ) -> Review[ModelType]:
     """
@@ -303,9 +303,6 @@ def review_extraction(
 
     Args:
         context: The runner context with dataset metadata.
-        crawler_version: A version number a crawler can use as a checkpoint for changes
-            requiring re-extraction and/or re-review.
-            Useful e.g. when breaking model changes are made.
         source_value: The source value for the extracted data.
         original_extraction: An instance of a pydantic model of data extracted
             from the source. Any reviewer changes to the data will be validated against
@@ -314,6 +311,9 @@ def review_extraction(
             `Review.original_extraction` remaining as the original.
         origin: A short string indicating the origin of the extraction, e.g. the
             model name or "lookups" if it's backfilled from datapatches lookups.
+        crawler_version: A version number a crawler can use as a checkpoint for changes
+            requiring re-extraction and/or re-review.
+            Useful e.g. when breaking model changes are made.
         default_accepted: Whether the data should be marked as accepted on creation or reset.
     """
     key_slug = review_key(source_value.key_parts)

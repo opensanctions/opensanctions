@@ -1,9 +1,8 @@
+from typing import List, Literal
+
 from lxml.html import HtmlElement, fromstring, tostring
 from pydantic import BaseModel, Field
 from rigour.mime.types import HTML
-from typing import List, Literal
-
-from zavod import Context, helpers as h
 from zavod.shed.gpt import DEFAULT_MODEL, run_typed_text_prompt
 from zavod.stateful.review import (
     HtmlSourceValue,
@@ -11,10 +10,10 @@ from zavod.stateful.review import (
     review_extraction,
 )
 
-CRAWLER_VERSION = 1
+from zavod import Context
+from zavod import helpers as h
 
 Schema = Literal["Person", "Company", "LegalEntity"]
-something_changed = False
 
 schema_field = Field(
     description=(
@@ -71,7 +70,7 @@ For each entity found, extract these fields:
       <example>Ms Jane Doe (JD)</example> <error>Ms Jane Doe</error>
 
 2. **entity_schema**: Select from available schema types: {schema_field.description}
-   
+
 3. **aliases**: Alternative names or acronyms ONLY if they meet these criteria:
    - Must be explicitly stated as "also known as", "alias", "formerly", "aka", "fka", or similar. Include ONLY the alias, not the "aka" prefix.
    - An alias MUST NOT be the last name, first name, family name or patronymic of a person.
@@ -82,10 +81,10 @@ For each entity found, extract these fields:
 
 4. **nationality**: For individuals ONLY - their stated nationality
    - Leave empty if not explicitly mentioned or if entity is not a Person
-   
+
 5. **country**: Countries mentioned as:
    - Residence location
-   - Registration location  
+   - Registration location
    - Operation location
    - MUST be explicitly stated, not inferred
 
@@ -141,7 +140,6 @@ def crawl_enforcement_action(context: Context, url: str, date: str, action_type:
     )
     review = review_extraction(
         context,
-        crawler_version=CRAWLER_VERSION,
         source_value=source_value,
         original_extraction=prompt_result,
         origin=DEFAULT_MODEL,

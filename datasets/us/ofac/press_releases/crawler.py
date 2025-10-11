@@ -15,7 +15,6 @@ from zavod import helpers as h
 
 Schema = Literal["Person", "Organization", "Company", "LegalEntity", "Vessel"]
 
-CRAWLER_VERSION = 1
 MAX_TOKENS = 16384  # gpt-4o supports at most 16384 completion tokens
 
 schema_field = Field(
@@ -156,7 +155,6 @@ def crawl_press_release(context: Context, url: str) -> None:
     )
     review = review_extraction(
         context,
-        crawler_version=CRAWLER_VERSION,
         source_value=source_value,
         original_extraction=prompt_result,
         origin=DEFAULT_MODEL,

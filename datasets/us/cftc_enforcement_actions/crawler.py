@@ -26,8 +26,6 @@ Status = Literal[
     "Other",
 ]
 
-CRAWLER_VERSION = 1
-
 REGEX_RELEASE_ID = re.compile(r"(\w{2,8}-\w{2,4}[\w #-]*)$")
 
 # Not extracting relationships for now because the results were inconsistent
@@ -175,7 +173,6 @@ def crawl_enforcement_action(context: Context, date: str, url: str) -> None:
     )
     review = review_extraction(
         context,
-        crawler_version=CRAWLER_VERSION,
         source_value=source_value,
         original_extraction=prompt_result,
         origin=DEFAULT_MODEL,

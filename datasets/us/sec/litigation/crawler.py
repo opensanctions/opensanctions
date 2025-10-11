@@ -36,7 +36,6 @@ HEADERS = {
 }
 
 
-CRAWLER_VERSION = 1
 # e.g. lr-25757
 # Sometimes without the first dash
 # Sometimes with a letter at the end
@@ -153,7 +152,6 @@ def crawl_release(
     prompt_result = run_typed_text_prompt(context, PROMPT, article_html, Defendants)
     review = review_extraction(
         context,
-        crawler_version=CRAWLER_VERSION,
         source_value=source_value,
         original_extraction=prompt_result,
         origin=DEFAULT_MODEL,

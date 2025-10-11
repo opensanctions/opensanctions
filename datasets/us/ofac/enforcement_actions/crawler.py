@@ -43,7 +43,6 @@ Status = Literal[
 # Release​ of Civil Penalties Information
 # Recent OFAC Actions
 
-CRAWLER_VERSION = 1
 
 schema_field = Field(
     description="Use LegalEntity if it isn't clear whether the entity is a person or a company."
@@ -145,7 +144,6 @@ def crawl_enforcement_action(context: Context, url: str) -> None:
     prompt_result = run_typed_text_prompt(context, PROMPT, article_html, Defendants)
     review = review_extraction(
         context,
-        crawler_version=CRAWLER_VERSION,
         source_value=source_value,
         original_extraction=prompt_result,
         origin=DEFAULT_MODEL,

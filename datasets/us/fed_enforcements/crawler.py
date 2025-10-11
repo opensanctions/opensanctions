@@ -17,8 +17,6 @@ from zavod import helpers as h
 
 PROGRAM_KEY = "US-FED-ENF"
 
-CRAWLER_VERSION = 1
-
 
 class BankOrgEntity(BaseModel):
     name: str = Field(
@@ -103,7 +101,6 @@ def crawl_item(
         )
         review = review_extraction(
             context=context,
-            crawler_version=CRAWLER_VERSION,
             source_value=source_value,
             original_extraction=prompt_result,
             origin=DEFAULT_MODEL,
