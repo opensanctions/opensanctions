@@ -1,0 +1,62 @@
+title: Swiss Federal Assembly
+prefix: ch-parl
+coverage:
+  frequency: monthly
+  start: 2025-10-10
+load_statements: true
+entry_point: crawler.py
+ci_test: false
+summary: >-
+  Current and recent Members of the Swiss Federal Assembly (Bundesversammlung)
+description: |
+  This dataset lists the members of the Swiss Federal Assembly.
+
+  The data is collected from the open data web services provided by the
+  Parliamentary Services of the Federal Assembly. The Federal Assembly is the
+  bicameral parliament of Switzerland, consisting of two chambers:
+
+  The **National Council** (Nationalrat/Conseil national/Consiglio nazionale)
+  is the lower chamber with 200 members elected by proportional representation
+  for four-year terms. Seats are distributed among the 26 cantons based on
+  population.
+
+  The **Council of States** (Ständerat/Conseil des États/Consiglio degli Stati)
+  is the upper chamber with 46 members representing the cantons (two per canton,
+  one per half-canton). Members are elected by their respective cantons for
+  four-year terms.
+
+  The Federal Assembly exercises legislative power, approves the federal budget,
+  elects the Federal Council (executive branch), and oversees the administration.
+  Both chambers have equal powers in legislation.
+url: https://www.parlament.ch/en/organe/federal-assembly
+tags:
+  - list.pep
+publisher:
+  name: Parliamentary Services of the Federal Assembly
+  description: |
+    The Swiss Parliament provides open access to parliamentary data through
+    web services at http://ws-old.parlament.ch/. The API offers comprehensive
+    information about parliamentarians, committees, legislative periods,
+    sessions, votes, and parliamentary affairs in multiple languages
+    (German, French, Italian, English).
+  country: ch
+  url: https://www.parlament.ch/de/%C3%BCber-das-parlament/fakten-und-zahlen/open-data-web-services
+  official: true
+data:
+  url: http://ws-old.parlament.ch/councillors/historic
+  format: JSON
+
+assertions:
+  min:
+    schema_entities:
+      Person: 200
+      Position: 1
+    country_entities:
+      ch: 1
+
+lookups:
+  type.language:
+    # Cultural erasure for 400:
+    options:
+      - match: rm
+        value: null
