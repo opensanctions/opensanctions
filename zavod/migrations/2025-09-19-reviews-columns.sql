@@ -6,3 +6,4 @@ UPDATE review SET origin = 'gpt-4o' WHERE origin IS NULL AND dataset = 'sg_mas_e
 UPDATE review SET origin = 'gpt-4o' WHERE origin IS NULL AND dataset = 'us_fed_enforcements';
 UPDATE review SET origin = 'gpt-4o' WHERE origin IS NULL AND dataset = 'us_al_med_exclusions';
 UPDATE review SET origin = 'gpt-4o' WHERE origin IS NULL AND dataset = 'us_ofac_press_releases';
+UPDATE review SET origin = 'gpt-4o' WHERE origin IS NULL AND dataset = 'us_sec_litigation';
