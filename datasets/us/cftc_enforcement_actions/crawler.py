@@ -1,20 +1,19 @@
-from typing import Optional, List, Literal
-from pydantic import BaseModel, Field
 import re
-
-from zavod.entity import Entity
-from zavod.shed import enforcements
+from typing import List, Literal, Optional
 
 from lxml.html import HtmlElement
-
+from pydantic import BaseModel, Field
 from zavod.context import Context
-from zavod import helpers as h
+from zavod.entity import Entity
+from zavod.shed import enforcements
 from zavod.shed.gpt import DEFAULT_MODEL, run_typed_text_prompt
 from zavod.stateful.review import (
     HtmlSourceValue,
     assert_all_accepted,
     review_extraction,
 )
+
+from zavod import helpers as h
 
 Schema = Literal["Person", "Company", "LegalEntity"]
 Status = Literal[
@@ -172,11 +171,7 @@ def crawl_enforcement_action(context: Context, date: str, url: str) -> None:
         url=url,
     )
     prompt_result = run_typed_text_prompt(
-        context,
-        PROMPT,
-        response_type=Defendants,
-        string=source_value.value_string,
-        model=DEFAULT_MODEL,
+        context, PROMPT, response_type=Defendants, string=source_value.value_string
     )
     review = review_extraction(
         context,
@@ -189,11 +184,11 @@ def crawl_enforcement_action(context: Context, date: str, url: str) -> None:
     for item in review.extracted_data.defendants:
         entity = context.make(item.entity_schema)
         entity.id = context.make_id(item.name, item.address, item.country)
-        entity.add("name", item.name, origin=DEFAULT_MODEL)
+        entity.add("name", item.name, origin=review.origin)
         if item.address != item.country:
-            entity.add("address", item.address, origin=DEFAULT_MODEL)
-        entity.add("country", item.country, origin=DEFAULT_MODEL)
-        entity.add("alias", item.aliases, origin=DEFAULT_MODEL)
+            entity.add("address", item.address, origin=review.origin)
+        entity.add("country", item.country, origin=review.origin)
+        entity.add("alias", item.aliases, origin=review.origin)
         entity.add("topics", "reg.action")
 
         # We try to link press releases that refer to an original press release number
@@ -208,11 +203,11 @@ def crawl_enforcement_action(context: Context, date: str, url: str) -> None:
         )
         h.apply_date(sanction, "date", date)
         sanction.set("sourceUrl", url)
-        sanction.add("status", item.status, origin=DEFAULT_MODEL)
-        sanction.add("summary", item.notes, origin=DEFAULT_MODEL)
+        sanction.add("status", item.status, origin=review.origin)
+        sanction.add("summary", item.notes, origin=review.origin)
         sanction.add("authorityId", release_id)
         sanction.add(
-            "authorityId", item.original_press_release_number, origin=DEFAULT_MODEL
+            "authorityId", item.original_press_release_number, origin=review.origin
         )
 
         for related_company in item.related_companies:
