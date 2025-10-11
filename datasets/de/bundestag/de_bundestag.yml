@@ -1,0 +1,61 @@
+title: German Members of the Bundestag
+prefix: de-btg
+coverage:
+  frequency: monthly
+  start: 2025-10-10
+load_statements: true
+entry_point: crawler.py
+ci_test: false
+summary: >-
+  Current and recent Members of the German Federal Parliament; mostly teachers and lawyers
+description: |
+  Members of the German Bundestag (German: Deutscher Bundestag), the legislative body
+  of the Federal Republic of Germany.
+
+  Parties must receive at least 5% of the second votes nationwide or win 
+  three direct constituency seats to enter the Bundestag, with exceptions for parties
+  representing recognized national minorities. 
+
+  The data is sourced from the official open data provided by the German Bundestag
+  administration, containing comprehensive biographical and mandate information for
+  all current members.
+url: https://www.bundestag.de/abgeordnete/biografien
+tags:
+  - list.pep
+publisher:
+  name: German Bundestag
+  description: |
+    The German Bundestag provides open data about its members on its official
+    website. The Bundestag exercises legislative power, elects the Chancellor, approves
+    the budget, and oversees the government.
+  country: de
+  url: https://www.bundestag.de/en/
+  official: true
+data:
+  url: https://www.bundestag.de/services/opendata
+  format: XML
+  lang: deu
+
+dates:
+  formats: ["%d.%m.%Y"]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 500
+      Position: 1
+    country_entities:
+      de: 1
+
+lookups:
+  type.country:
+    options:
+      - match: Großbritanien
+        value: gb
+      - match: Oberösterreich
+        value: at
+      - match:
+          - CSFR
+          - CSSR
+          - Tschechoslowakei
+        value: cshh
