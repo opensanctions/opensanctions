@@ -1,9 +1,7 @@
 from datetime import date
 from typing import List, Literal, Optional
 
-from lxml.html import tostring
 from pydantic import BaseModel, Field
-from rigour.mime.types import HTML
 from zavod.entity import Entity
 from zavod.shed import enforcements
 from zavod.shed.gpt import DEFAULT_MODEL, run_typed_text_prompt
@@ -132,8 +130,6 @@ def crawl_enforcement_action(context: Context, url: str) -> None:
     assert len(article_content) == 1
     article_element = article_content[0]
     date = article.xpath(DATE_XPATH)[0]
-    article_html = tostring(article_element, pretty_print=True, encoding="unicode")
-    assert all([article_name, article_html, date]), "One or more fields are empty"
 
     source_value = HtmlSourceValue(
         key_parts=url,
@@ -141,7 +137,9 @@ def crawl_enforcement_action(context: Context, url: str) -> None:
         element=article_element,
         url=url,
     )
-    prompt_result = run_typed_text_prompt(context, PROMPT, article_html, Defendants)
+    prompt_result = run_typed_text_prompt(
+        context, PROMPT, source_value.value_string, Defendants
+    )
     review = review_extraction(
         context,
         source_value=source_value,

@@ -182,6 +182,9 @@ class Review(BaseModel, Generic[ModelType]):
         )
         return conn.execute(select_stmt).scalar_one()
 
+    def matches_original(self, other: ModelType) -> bool:
+        return model_hash(other) == model_hash(self.original_extraction)
+
 
 class SourceValue(ABC):
     """
@@ -191,7 +194,7 @@ class SourceValue(ABC):
     """
 
     key_parts: str | List[str]
-    """The key parts will be slugified and shorted with a hash of all the
+    """The key parts will be slugified and shortened with a hash of all the
     parts if the slug would be too long."""
     mime_type: str
     label: str
@@ -225,7 +228,7 @@ class TextSourceValue(SourceValue):
     def matches(self, review: Review[ModelType]) -> bool:
         """
         Performs the same normalisation as `review_key` so that we consider
-        multiple source values normalising to the same key as a match.
+        multiple source values normalising to the same key a match.
         """
         assert review.source_mime_type == PLAIN, review.source_mime_type
         return slugify(self.value_string) == slugify(review.source_value)
@@ -351,13 +354,10 @@ def review_extraction(
 
         crawler_version_changed = review.crawler_version < crawler_version
         # Don't try to read (and thus validate) the extracted data if the crawler
-        # version changed. We bump that when it's backward incompatible.
+        # version changed. We bump that when the model isn't backward compatible.
         if crawler_version_changed or (
             not source_value.matches(review)
-            and (
-                model_hash(original_extraction)
-                != model_hash(review.original_extraction)
-            )
+            and not review.matches_original(original_extraction)
         ):
             if crawler_version_changed:
                 context.log.debug(
@@ -370,10 +370,6 @@ def review_extraction(
                 context.log.debug(
                     "Source value changed. Resetting review.", key=key_slug
                 )
-            # If the crawler version changed, we want to update it.
-            # This is useful for breaking changes in the extraction model.
-            # If the source and also the automated extraction changed,
-            # we also want to reset.
             review.crawler_version = crawler_version
             review.data_model = data_model
             review.extraction_schema = schema
@@ -382,9 +378,7 @@ def review_extraction(
             review.extracted_data = original_extraction
             review.accepted = default_accepted
             save_new_revision = True
-        elif not review.accepted and (
-            model_hash(original_extraction) != model_hash(review.original_extraction)
-        ):
+        elif not review.accepted and not review.matches_original(original_extraction):
             context.log.debug("Extraction changed for unaccepted review.", key=key_slug)
             # If we haven't accepted this yet and the extraction changed, we want the
             # change regardless of whether the source changed since the prompt or the

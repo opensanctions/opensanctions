@@ -133,4 +133,4 @@ For web pages, e.g. of regulatory notices, try and use the notice ID if one can 
 Use model documentation (e.g. `fieldname: MyEnum = Field(description="...")`) to explain how fields should be extracted. This gets
 included in the JSON schema so it's made available to the human reviewer in Zavod UI.
 
-OpenAI's structued output API doesn't seem to support JSON schema description properties yet so also include it explicitly in the prompt. See example above.
+OpenAI's structured output API doesn't seem to support JSON schema description properties yet so also include it explicitly in the prompt. See example above.

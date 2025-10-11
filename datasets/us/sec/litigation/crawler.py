@@ -2,9 +2,8 @@ import re
 from time import sleep
 from typing import List, Literal, Optional
 
-from lxml.html import HtmlElement, fromstring, tostring
+from lxml.html import HtmlElement
 from pydantic import BaseModel, Field
-from rigour.mime.types import HTML
 from zavod.context import Context
 from zavod.shed import enforcements
 from zavod.shed.gpt import DEFAULT_MODEL, run_typed_text_prompt
@@ -141,7 +140,6 @@ def crawl_release(
     article_element = doc.xpath(article_xpath)[0]
     case_numbers = get_case_numbers(article_element)
     strip_non_body_content(article_element)
-    article_html = tostring(article_element, pretty_print=True, encoding="unicode")
     release_id = get_release_id(url)
     source_value = HtmlSourceValue(
         key_parts=release_id,
@@ -149,7 +147,9 @@ def crawl_release(
         element=article_element,
         url=url,
     )
-    prompt_result = run_typed_text_prompt(context, PROMPT, article_html, Defendants)
+    prompt_result = run_typed_text_prompt(
+        context, PROMPT, source_value.value_string, Defendants
+    )
     review = review_extraction(
         context,
         source_value=source_value,

@@ -2,7 +2,6 @@ from typing import List, Literal
 
 from lxml.html import tostring
 from pydantic import BaseModel, Field
-from rigour.mime.types import HTML
 from zavod.shed.gpt import DEFAULT_MODEL, run_typed_text_prompt
 from zavod.stateful.review import (
     HtmlSourceValue,
