@@ -2,17 +2,20 @@ from urllib.parse import urljoin
 
 from zavod import Context, Entity
 from zavod import helpers as h
+from zavod.shed.zyte_api import fetch_html
 
 
 def crawl_person(context: Context, position: Entity, url: str) -> None:
-    doc = context.fetch_html(url, cache_days=7)
+    doc = fetch_html(context, url, ".//div[@id='fullpage']", cache_days=7)
     person = context.make("Person")
     person.id = context.make_id(url)
     article = doc.find('.//section[@id="cv_article"]')
     if article is None:
         article = doc.find('.//section[@id="generic_article"]')
     assert article is not None, ("Article section not found", url)
-    person.add("name", article.findtext(".//h1"))
+    name = article.findtext(".//h1")
+    context.log.info(f"Crawling person: {name} ({url})")
+    person.add("name", name)
     person.add("citizenship", "cy")
     person.add("sourceUrl", url)
     person.add("topics", "role.pep")
@@ -51,7 +54,7 @@ def crawl(context: Context) -> None:
     )
     context.emit(position)
 
-    doc = context.fetch_html(context.data_url)
+    doc = fetch_html(context, context.data_url, ".//div[@id='fullpage']")
     for row in doc.findall('.//div[@class="greybox"]//a'):
         if not row.get("href"):
             continue
