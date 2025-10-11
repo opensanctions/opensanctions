@@ -296,10 +296,7 @@ def review_extraction(
       `accepted` to `default_accepted`.
     - `last_seen_version` is always updated to the current crawl version.
     - If it's not accepted yet, `original_extraction` and `extracted_data` will be updated.
-    - If `source_value` AND the `original_extraction` have changed, they
-      will be updated and acceptance status will be reset to `default_accepted`.
-    - Updating `crawler_version` resets `extraction_data` and `acceptance` status
-      as well as updating `original_extraction` and `extraction_schema`.
+    - If both `source_value` and `original_extraction` have changed or `crawler_version` has been bumped, all values are reset as if it's new.
 
     Args:
         context: The runner context with dataset metadata.
@@ -312,8 +309,9 @@ def review_extraction(
         origin: A short string indicating the origin of the extraction, e.g. the
             model name or "lookups" if it's backfilled from datapatches lookups.
         crawler_version: A version number a crawler can use as a checkpoint for changes
-            requiring re-extraction and/or re-review.
-            Useful e.g. when breaking model changes are made.
+            requiring re-extraction and/or re-review. Don't bump this for every crawler
+            change, only for backward incompatible data model changes or to force re-review
+            for some other reason.
         default_accepted: Whether the data should be marked as accepted on creation or reset.
     """
     key_slug = review_key(source_value.key_parts)
@@ -323,13 +321,13 @@ def review_extraction(
     schema = data_model.model_json_schema(schema_generator=SchemaGenerator)
     now = datetime.now(timezone.utc)
 
-    review = Review.by_key(
+    review = Review[ModelType].by_key(
         context.conn, data_model, dataset=context.dataset.name, key=key_slug
     )
     save_new_revision = False
     if review is None:
         context.log.debug("Creating new review", key=key_slug)
-        review = Review(
+        review = Review[ModelType](
             dataset=context.dataset.name,
             key=key_slug,
             source_mime_type=source_value.mime_type,
