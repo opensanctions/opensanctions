@@ -3,6 +3,7 @@ from typing import Iterable, List, Optional
 
 from banal import ensure_list
 
+from followthemoney import registry
 from zavod import helpers as h
 from zavod import settings
 from zavod.context import Context
@@ -191,6 +192,8 @@ def make_occupancy(
 
     person.add("topics", "role.pep")
     if propagate_country:
-        person.add("country", position.get("country"))
+        for country in position.get("country"):
+            if country not in person.get_type_values(registry.country, matchable=True):
+                person.add("country", country)
 
     return occupancy
