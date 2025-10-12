@@ -54,6 +54,7 @@ datasets:
   - ee_ariregister
   - eu_esma_firds
   - gb_coh_psc
+  - gb_fca_firds
   - gleif
   - icij_offshoreleaks
   - iso9362_bic
@@ -69,6 +70,7 @@ datasets:
   - us_corpwatch
   - us_fara_filings
   - us_fincen_msb
+  - us_ofac_press_releases
   - us_irs_ffi
   # - ba_companies
   # - dk_cvr
