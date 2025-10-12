@@ -4,8 +4,8 @@ prefix: jp-shu
 load_statements: true
 ci_test: false
 coverage:
-  frequency: weekly
-  start: 2025-07-29
+  frequency: monthly
+  start: 2025-10-12
 summary: >
   Current members of the Japanese House of Representatives (Shūgiin), the lower house of
   the National Diet of Japan.
