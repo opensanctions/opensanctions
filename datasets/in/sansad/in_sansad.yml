@@ -5,7 +5,7 @@ coverage:
   start: 2025-10-11
 load_statements: true
 entry_point: crawler.py
-ci_test: true
+ci_test: false
 summary: >-
   Current and historical members of the two houses of the Indian Parliament
 description: |
@@ -36,9 +36,9 @@ publisher:
   url: https://parliamentofindia.nic.in/
   official: true
 data:
-  url: https://sansad.in/api_ls/member?loksabha=18&state=&party=&gender=&ageFrom=&ageTo=&noOfTerms=&searchText=&constituency=&sitting=1&locale=en&month=&profession=&otherProfession=&constituencyCategory=&positionCode=&qualification=&noOfChildren=&isFreedomFighter=&memberStatus=s
+  url: https://sansad.in/api_ls/member
   # https://sansad.in/api_rs/member/sitting-members?state=&mpFlag=1&search=&page=1&size=50&locale=en
-  format: HTML
+  format: JSON
   lang: eng
 
 dates:
