@@ -42,6 +42,7 @@ def emit_rca(context: Context, person: Entity, name: str | None, role: str) -> N
     rca.id = context.make_id(person.id, role, name)
     rca.add("name", clean_text(name))
     rca.add("country", "in")
+    # rca.add("topics", "role.rca")
     context.emit(rca)
 
     link = context.make("Family")
