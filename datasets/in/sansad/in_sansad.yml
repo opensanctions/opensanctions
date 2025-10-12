@@ -1,0 +1,65 @@
+title: India Lok and Rajya Sabha Members
+prefix: in-sansad
+coverage:
+  frequency: monthly
+  start: 2025-10-11
+load_statements: true
+entry_point: crawler.py
+ci_test: true
+summary: >-
+  Current and historical members of the two houses of the Indian Parliament
+description: |
+  Members of the Lok Sabha (House of the People), the lower house of the Parliament of
+  India, and the Rajya Sabha (Council of States), the upper house.
+
+  The Lok Sabha consists of up to 552 members, with 543 elected by direct popular vote
+  from single-member constituencies across India, and up to 9 appointed by the President
+  to represent the Anglo-Indian community. Members serve a five-year term, unless the house
+  is dissolved earlier.
+
+  The Rajya Sabha has a maximum of 250 members, with 238 elected by the legislative assemblies
+  of the states and union territories using proportional representation through the single
+  transferable vote system, and 12 appointed by the President for their expertise in specific
+  fields. Members serve staggered six-year terms, with one-third of the members retiring every
+  two years.
+url: https://sansad.in/ls/members
+tags:
+  - list.pep
+publisher:
+  name: Parliament of India
+  description: |
+    The Parliament of India is the supreme legislative body of the Republic of India,
+    consisting of the President of India and the two houses: the Rajya Sabha (Council of
+    States) and the Lok Sabha (House of the People). The Parliament exercises legislative
+    power, approves the budget, and oversees the executive branch of government.
+  country: in
+  url: https://parliamentofindia.nic.in/
+  official: true
+data:
+  url: https://sansad.in/api_ls/member?loksabha=18&state=&party=&gender=&ageFrom=&ageTo=&noOfTerms=&searchText=&constituency=&sitting=1&locale=en&month=&profession=&otherProfession=&constituencyCategory=&positionCode=&qualification=&noOfChildren=&isFreedomFighter=&memberStatus=s
+  # https://sansad.in/api_rs/member/sitting-members?state=&mpFlag=1&search=&page=1&size=50&locale=en
+  format: HTML
+  lang: eng
+
+dates:
+  formats: ["%d/%m/%Y", "%d-%m-%Y", "%d-%b-%Y", "%d-%B-%Y"]
+
+lookups:
+  type.name:
+    options:
+      - match: "."
+        value: null
+  type.email:
+    options:
+      - match: "@sansad.nic.in"
+        value: null
+      - match: "shabana@sansad.nic.in/shabana@vsnl.com"
+        values:
+          - "shabana@sansad.nic.in"
+          - "shabana@vsnl.com"
+      - match: "arkidwai@sansad.nic.in/arkidwai@mantraonline.com"
+        values:
+          - "arkidwai@sansad.nic.in"
+          - "arkidwai@mantraonline.com"
+      - match: "moopanar @sansad.nic.in"
+        value: "moopanar@sansad.nic.in"
