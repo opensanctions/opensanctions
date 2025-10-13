@@ -107,10 +107,12 @@ lookups:
           - "INGENIER.*"
           - "ASISTENT.*"
           - "ANALIST.*"
+          - "TECNICO.*"
       - is_pep: false
         match:
           - BODEGUERO
           - CONSEJERO TECNICO
+          - CONSEJERO TRIBUTARIO
           - DEFENSOR(A) NACIONAL
           - ENCARGADO DE BODEGA
           - ENCARGADO DE MANTENIMIENTO
@@ -123,6 +125,7 @@ lookups:
           - SUBADMINISTRADOR ZONAL
           - SUBJEFE DEPTO. DE RECURSOS HUMANOS
           - CAPITAN DE NAVIO
+          - PROFESIONALES UNIVERSITARIOS
 
       - is_pep: null # haven't looked closely yet
         regex:
@@ -452,13 +455,7 @@ lookups:
           - "SUPERVISOR DE PROGRAMAS, DIRECCIÓN REGIONAL"
           - "SUPLENTE DE MINISTRO"
           - "TEC. EN ENFERMERIA"
-          - "TECNICO A HONORARIOS"
-          - "TECNICO INFORMATICA"
-          - "TECNICO PARAMEDICO"
-          - "TECNICO SOCIAL"
-          - "TECNICO"
           - "TÉCNICO"
-          - "TECNOLOGO MEDICO "
           - "TENIENTE CORONEL"
           - "TERCER NIVEL JERARQUICO"
           - ABOGADO ASESOR
