@@ -28,7 +28,6 @@ def crawl_xml(context: Context, url: str) -> None:
             # Skip deceased persons
             continue
 
-        # person.add("topics", "role.pep")
         person.add("citizenship", "de")
         for nel in mdb.findall("./NAMEN/NAME"):
             person.add("title", nel.findtext("./ANDREDE_TITLE"))

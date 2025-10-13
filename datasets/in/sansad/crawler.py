@@ -43,7 +43,7 @@ def emit_rca(context: Context, person: Entity, name: str | None, role: str) -> N
     rca.id = context.make_id(person.id, role, name)
     rca.add("name", clean_text(name))
     rca.add("country", "in")
-    # rca.add("topics", "role.rca")
+    rca.add("topics", "role.rca")
     context.emit(rca)
 
     link = context.make("Family")
@@ -167,6 +167,7 @@ def crawl_rs_member(context: Context, position: Entity, member: Dict[str, Any]) 
     person.add("email", decode_email(member.pop("emailID", None)))
     person.add("political", clean_text(member.pop("party", None)))
     h.apply_date(person, "birthDate", member.pop("dob", None))
+    # NOTE: deathDate is not provided in the API, this looks like end of term:
     # h.apply_date(person, "deathDate", member.pop("expirationDate", None))
     # person.add("birthPlace", member["birthPlace"])
     person.add("address", clean_text(member.pop("localAdd", None)))
@@ -196,8 +197,8 @@ def crawl_rs_member(context: Context, position: Entity, member: Dict[str, Any]) 
     except RequestException as exc:
         context.log.info(f"Broken MP term data for {person.id}", exc=str(exc))
 
-    # if person.has("deathDate"):
-    #     return
+    if person.has("deathDate"):
+        return
     if "role.pep" not in person.get("topics") and member["mpFlag"] == 0:
         return
 
