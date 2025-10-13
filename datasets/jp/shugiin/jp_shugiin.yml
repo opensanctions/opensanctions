@@ -1,0 +1,47 @@
+title: Japanese House of Representatives Members
+entry_point: crawler.py
+prefix: jp-shu
+load_statements: true
+ci_test: false
+coverage:
+  frequency: monthly
+  start: 2025-10-12
+summary: >
+  Current members of the Japanese House of Representatives (Shūgiin), the lower house of
+  the National Diet of Japan.
+description: |
+  This dataset lists individuals currently serving in the Japanese House of Representatives (Shūgiin).
+  It includes personal details, political affiliations, roles, and parliamentary positions.
+publisher:
+  name: Shūgiin
+  name_en: House of Representatives
+  official: true
+  description: |
+    The Shūgiin is the lower house of the National Diet of Japan. This dataset is based on
+    official data from the House of Representatives.
+  country: jp
+  url: https://www.shugiin.go.jp/internet/index.nsf/html/index_e.htm
+tags:
+  - list.pep
+url: https://www.shugiin.go.jp/internet/index.nsf/html/index_e.htm
+data:
+  url: https://www.shugiin.go.jp/internet/itdb_english.nsf/html/statics/member/mem_a.htm
+
+dates:
+  formats: ["%B %Y", "%d %B %Y"]
+
+lookups:
+  type.date:
+    options:
+      - match: "28 March 1977; currently resides in 2"
+        value: "1977-03-28"
+      - match: "July 1976 (eldest son of a tea farmer)"
+        value: "1976-07"
+      - match: "11 September 1986; raised in Koriyama"
+        value: "1986-09-11"
+      - match: 28 October
+        value: "1965-10-28"
+      - match: February
+        value: "1950-02"
+      - match: "22 July"
+        value: "1979-07-22"

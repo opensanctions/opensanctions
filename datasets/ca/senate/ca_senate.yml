@@ -1,0 +1,48 @@
+title: Canada Members of the Senate
+prefix: ca-senate
+url: https://sencanada.ca/en/senators/
+coverage:
+  frequency: monthly
+  start: 2025-10-10
+load_statements: true
+entry_point: crawler.py
+ci_test: true
+summary: >-
+  Current Members of the Canadian upper chamber, the Senate
+description: |
+  The Senate of Canada is the upper chamber of Canada's bicameral Parliament,
+  alongside the House of Commons. The Senate consists of 105 members appointed
+  by the Governor General on the advice of the Prime Minister. Senators represent
+  regions, provinces, and territories across Canada and serve until the age of 75.
+
+  Senators come from diverse backgrounds including business, science, law,
+  education, athletics, community leadership, and public service. They represent
+  diverse ethnic, socio-economic, and cultural backgrounds.
+
+  The Senate reviews legislation passed by the House of Commons, conducts independent
+  inquiries and studies, and ensures that minorities have a strong voice in
+  Parliament. Senators are independent and free to speak their minds and act
+  on their consciences.
+tags:
+  - list.pep
+publisher:
+  name: Senate of Canada
+  description: |
+    The Senate of Canada provides information about current senators through
+    its official website. The data includes senator names, regions represented,
+    and contact information.
+  country: ca
+  url: https://sencanada.ca/en/
+  official: true
+data:
+  url: https://sencanada.ca/umbraco/surface/SenatorsViews/GetSenators?displayfor=senatorslist&Lang=en
+  format: HTML
+  lang: eng
+
+assertions:
+  min:
+    schema_entities:
+      Person: 90
+      Position: 1
+    country_entities:
+      ca: 1

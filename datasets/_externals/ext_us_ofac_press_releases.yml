@@ -42,10 +42,9 @@ url: https://ofac.treasury.gov/press-releases
 
 inputs:
   - ann_graph_topics
-  - debarment
-  - sanctions
+  - us_sanctions
   - special_interest
-  - maritime
+  # - maritime
 
 config:
   dataset: us_ofac_press_releases
@@ -62,7 +61,6 @@ config:
     - Company
     - Organization
     - LegalEntity
-
 # assertions:
 #   min:
 #     schema_entities:

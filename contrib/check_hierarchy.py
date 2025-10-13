@@ -34,6 +34,8 @@ def main(datasets_path: Path):
     for dataset in catalog.datasets:
         if dataset.is_collection:
             continue
+        if dataset.model.disabled:
+            continue
         if dataset not in children:
             log.warn(f"Dataset {dataset.name!r} has no collections")
 

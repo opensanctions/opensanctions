@@ -10,7 +10,7 @@ from zavod.util import Element
 log = get_logger(__name__)
 
 
-def element_text(el: Element, squash: bool = True) -> str:
+def element_text(el: Element | None, squash: bool = True) -> str:
     """
     Return the text content of an HtmlElement, or an empty string if empty.
 
@@ -23,6 +23,8 @@ def element_text(el: Element, squash: bool = True) -> str:
     """
     # Workaround because lxml-stubs doesn't yet support HtmlElement
     # https://github.com/lxml/lxml-stubs/pull/71
+    if el is None:
+        return ""
     try:
         text = str(cast(HtmlElement, el).text_content())
     except AttributeError:
