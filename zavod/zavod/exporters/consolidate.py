@@ -38,7 +38,7 @@ def simplify_names(entity: Entity) -> Entity:
         names = entity.get(prop)
 
         # Remove names which are marked at weakAlias by at least one other source
-        if len(weak_aliases):
+        if prop.name != "weakAlias" and len(weak_aliases):
             strong_names = [n for n in names if n.casefold() not in weak_aliases]
             if len(strong_names) > 0:
                 names = strong_names
