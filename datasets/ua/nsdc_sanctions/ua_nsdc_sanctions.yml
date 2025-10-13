@@ -80,6 +80,7 @@ lookups:
           - "reg:person_il"
           - "reg:cz_person"
           - "reg:chiop" # https://en.wikipedia.org/wiki/SNILS_(Russia)
+          - "reg:reg_snils" # https://en.wikipedia.org/wiki/SNILS_(Russia)
         prop: idNumber
       - match:
           - null
