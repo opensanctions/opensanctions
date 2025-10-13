@@ -29,10 +29,10 @@ def crawl_member(context: Context, el: etree._Element) -> None:
     )
     # <ConstituencyName>Nepean</ConstituencyName>
     # <ConstituencyProvinceTerritoryName>Ontario</ConstituencyProvinceTerritoryName>
-    const_name = el.findtext("ConstituencyName")
-    const_prov = el.findtext("ConstituencyProvinceTerritoryName")
-    const = ", ".join(filter(None, [const_name, const_prov]))
-    entity.add("address", const)
+    constituency_name = el.findtext("ConstituencyName")
+    constituency_province = el.findtext("ConstituencyProvinceTerritoryName")
+    constituency = ", ".join(filter(None, [constituency_name, constituency_province]))
+    entity.add("address", constituency)
     # <CaucusShortName>Liberal</CaucusShortName>
     entity.add("political", el.findtext("CaucusShortName"))
 
@@ -83,7 +83,7 @@ def yes_minister(context: Context, el: etree._Element) -> None:
     )
     # <Title>Prime Minister</Title>
     title = el.findtext("Title")
-    assert title is not None, "Missing title"
+    assert title is not None, "Missing position title"
     position = h.make_position(
         context,
         title,

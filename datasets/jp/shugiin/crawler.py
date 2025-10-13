@@ -55,8 +55,9 @@ def crawl_members(context: Context, position: Entity, url: str, name: str) -> No
 def crawl(context: Context) -> None:
     position = h.make_position(
         context,
-        "Member of the House of Representatives",
-        "jp",
+        name="Member of the House of Representatives of Japan",
+        wikidata_id="Q17506823",
+        country="jp",
         topics=["gov.legislative", "gov.national"],
     )
 

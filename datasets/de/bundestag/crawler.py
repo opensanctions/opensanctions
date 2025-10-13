@@ -23,8 +23,11 @@ def crawl_xml(context: Context, url: str) -> None:
         person = context.make("Person")
         person.id = context.make_slug("mdb", mdb.findtext("./ID"))
 
+        # STERBEDATUM: Date of death
         if mdb.findtext(".//STERBEDATUM"):
+            # Skip deceased persons
             continue
+
         # person.add("topics", "role.pep")
         person.add("citizenship", "de")
         for nel in mdb.findall("./NAMEN/NAME"):
@@ -48,6 +51,7 @@ def crawl_xml(context: Context, url: str) -> None:
                 context,
                 person,
                 position,
+                # MDBWP: Mitglied des Bundestags (MoP) Wahlperiode (term):
                 start_date=period.findtext("./MDBWP_VON"),
                 end_date=period.findtext("./MDBWP_BIS"),
                 birth_date=mdb.findtext(".//GEBURTSDATUM"),

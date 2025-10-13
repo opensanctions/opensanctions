@@ -14,7 +14,7 @@ def crawl(context: Context) -> None:
         person.add("name", name)
         person.add("name", attr["zit"])
         person.add("citizenship", "at")
-        person.add("title", akgr)
+        person.add("title", akgr)  # akgr: Akademischer Grad
         person.add("gender", gender)
         url = urljoin(context.data_url, bio)
         person.add("sourceUrl", url)

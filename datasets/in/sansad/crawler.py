@@ -1,6 +1,7 @@
 from itertools import count
-from lxml.html import fromstring
 from typing import Any, Dict, List, Set, Tuple
+
+from lxml.html import fromstring
 from prefixdate import parse_formats
 from requests.exceptions import RequestException
 
@@ -124,6 +125,7 @@ def crawl_ls(context: Context) -> None:
     position = h.make_position(
         context,
         name="Member of the Lok Sabha",
+        wikidata_id="Q16556694",
         country="in",
         topics=["gov.legislative", "gov.national"],
     )
@@ -221,6 +223,7 @@ def crawl_rs(context: Context) -> None:
     position = h.make_position(
         context,
         name="Member of the Rajya Sabha",
+        wikidata_id="Q17324844",
         country="in",
         topics=["gov.legislative", "gov.national"],
     )

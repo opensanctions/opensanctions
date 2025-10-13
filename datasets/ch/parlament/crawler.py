@@ -1,9 +1,10 @@
 from itertools import count
+
 from requests import RequestException
+from zavod.stateful.positions import categorise
 
 from zavod import Context
 from zavod import helpers as h
-from zavod.stateful.positions import categorise
 
 IGNORE_FIELDS = {
     "id",
@@ -27,9 +28,11 @@ IGNORE_FIELDS = {
 
 def crawl_councillor(context: Context, councillor_id: int) -> None:
     """Fetch and process detailed profile for a single councillor."""
-    url = f"http://ws-old.parlament.ch/councillors/{councillor_id}"
-    params = {"lang": "en", "format": "json"}
-    data = context.fetch_json(url, params=params, cache_days=1)
+    data = context.fetch_json(
+        f"http://ws-old.parlament.ch/councillors/{councillor_id}",
+        params={"lang": "en", "format": "json"},
+        cache_days=1,
+    )
 
     date_of_death = data.pop("dateOfDeath", None)
     if date_of_death is not None:
@@ -119,8 +122,7 @@ def crawl_councillor(context: Context, councillor_id: int) -> None:
 def crawl(context: Context) -> None:
     """Crawl Swiss Federal Assembly members from the Parliament API."""
 
-    for page in count(1):
-        assert context.data_url is not None
+    for page in count(start=1):
         params = {"pageNumber": page, "lang": "en", "format": "json"}
         try:
             data = context.fetch_json(context.data_url, params=params)

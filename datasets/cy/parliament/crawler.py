@@ -1,8 +1,9 @@
 from urllib.parse import urljoin
 
+from zavod.shed.zyte_api import fetch_html
+
 from zavod import Context, Entity
 from zavod import helpers as h
-from zavod.shed.zyte_api import fetch_html
 
 
 def crawl_person(context: Context, position: Entity, url: str) -> None:
@@ -48,7 +49,8 @@ def crawl_person(context: Context, position: Entity, url: str) -> None:
 def crawl(context: Context) -> None:
     position = h.make_position(
         context,
-        name="Member of Parliament",
+        name="Member of the House of Representatives of Cyprus",
+        wikidata_id="Q19801674",
         country="cy",
         topics=["gov.legislative", "gov.national"],
     )
