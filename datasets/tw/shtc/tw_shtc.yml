@@ -42,6 +42,10 @@ assertions:
       LegalEntity: 15000
 
 lookups:
+  type.name:
+    options:
+      - match: WEIHAI WORLD-SHPPING FREIGHT
+        value: WEIHAI WORLD-SHIPPING FREIGHT
   details:
     options:
       - match: 'Counterfeit Danish driving licence number 20645897 note:made out to Ali Barkani, born on 22 Aug. 1973 in Morocco'
