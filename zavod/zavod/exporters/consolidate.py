@@ -23,11 +23,26 @@ def simplify_names(entity: Entity) -> Entity:
     """Simplify the names of an entity, removing variants in case and names which do not include a letter."""
     if not entity.schema.is_a("LegalEntity"):
         return entity
+
+    # Collect weak aliases (short names which are not very reliable)
+    # 15 characters is arbitrary, but should filter for "noms de guerre" but leave more detailed names
+    # marked as weakAlias. Let's make this longer after we've done a bit of data remediation on the source data
+    # to make sure all weakAlias are actually weak.
+    weak_aliases = entity.get("weakAlias", quiet=True)
+    weak_aliases = [a.casefold() for a in weak_aliases if len(a) < 15]
+
     for prop_ in NAME_PROPS:
         prop = entity.schema.get(prop_)
         if prop is None:
             continue
         names = entity.get(prop)
+
+        # Remove names which are marked at weakAlias by at least one other source
+        if len(weak_aliases):
+            strong_names = [n for n in names if n.casefold() not in weak_aliases]
+            if len(strong_names) > 0:
+                names = strong_names
+
         reduced = reduce_names(names)
         if len(reduced) < len(names):
             stmts = list(entity._statements.get(prop_, set()))
