@@ -236,12 +236,22 @@ lookups:
       - match: "(obywatelka Republiki Białorusi)"
         props:
           citizenship: "BY"
+      - match: "(obywatel Armenii)"
+        props:
+          citizenship: "AM"
       - match: "adres: ul. Domaniewska 37, 02-672 Warszawa"
         props:
           address: "ul. Domaniewska 37, 02-672 Warszawa"
       - match: "adres: ul. Ostrobramska 101/2, 04-041 Warszawa"
         props:
           address: "ul. Ostrobramska 101/2, 04-041 Warszawa"
+      - match: "adres: ul. Ks. Z. Bieńkowskiego nr 4, lok. 4B-4C, 21-500 Biała Podlaska"
+        props:
+          address: "ul. Ks. Z. Bieńkowskiego nr 4, lok. 4B-4C, 21-500 Biała Podlaska"
+      - match: "w języku rosyjskim: „АРУТЮНЯН Армен Серёжаевич"
+        props:
+          name: "АРУТЮНЯН Армен Серёжаевич"
+
   names:
     options:
       - match: ALAUDINOV Apti Aronovich
@@ -324,3 +334,7 @@ lookups:
         first_name: Вероника
         patronymic: Ивановна
         last_name: ПЕНТАЛЬ
+      - match: HARUTYUNYAN Armen Seryozhaevich
+        first_name: Armen
+        patronymic: Seryozhaevich
+        last_name: HARUTYUNYAN

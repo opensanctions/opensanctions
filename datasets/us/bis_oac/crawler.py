@@ -1,14 +1,15 @@
 from csv import DictReader
-from normality import squash_spaces, stringify
-from openpyxl import load_workbook
-from rigour.mime.types import XLS, CSV
+from email.message import Message
 from typing import Dict
 from urllib.parse import urljoin
-from email.message import Message
+
+from normality import squash_spaces, stringify
+from openpyxl import load_workbook
+from rigour.mime.types import CSV, XLS
+from zavod.archive import dataset_data_path
 
 from zavod import Context
 from zavod import helpers as h
-from zavod.archive import dataset_data_path
 
 
 def parse_header(header: str) -> str:
@@ -67,7 +68,7 @@ def crawl_xls(context: Context, path: str):
 
 
 def fetch_file_url(context: Context) -> str:
-    params = {"_": context.data_time.date().isoformat()}
+    params = {"_": settings.RUN_TIME.date().isoformat()}
     doc = context.fetch_html(context.data_url, params=params)
     for link in doc.xpath(".//a[text() = 'Requester List (CSV)']"):
         return urljoin(context.data_url, link.get("href"))

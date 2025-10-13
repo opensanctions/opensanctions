@@ -12,7 +12,7 @@ from openpyxl import load_workbook
 from openpyxl.cell import Cell
 from rigour.mime.types import XLS, XLSX
 
-from zavod import Context, Entity
+from zavod import Context, Entity, settings
 from zavod import helpers as h
 
 # Match non-brackets inside an opening and closing pair of brackets
@@ -129,7 +129,7 @@ def parse_notes(context: Context, entity: Entity, notes: List[str]) -> None:
 
 
 def fetch_excel_url(context: Context) -> str:
-    params = {"_": context.data_time.date().isoformat()}
+    params = {"_": settings.RUN_TIME.date().isoformat()}
     doc = context.fetch_html(context.data_url, params=params)
     for link in doc.findall('.//div[@class="unique-block"]//a'):
         href = urljoin(context.data_url, link.get("href"))
