@@ -8,7 +8,7 @@ from openpyxl import load_workbook
 from rigour.mime.types import CSV, XLS
 from zavod.archive import dataset_data_path
 
-from zavod import Context
+from zavod import Context, settings
 from zavod import helpers as h
 
 
