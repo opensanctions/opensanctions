@@ -1,12 +1,12 @@
 import contextvars
 from pathlib import Path
-from typing import Any, Dict, List, Mapping, Optional, Union
+from typing import Any, Dict, List, Mapping, Optional, Union, cast
 
 import orjson
 from datapatch import Lookup, LookupException, Result
+from followthemoney.dataset import DataResource
 from followthemoney.schema import Schema
 from followthemoney.util import PathLike, make_entity_id
-from followthemoney.dataset import DataResource
 from lxml import etree, html
 from nomenklatura.cache import Cache
 from nomenklatura.versions import Version
@@ -18,10 +18,10 @@ from structlog.contextvars import bind_contextvars, reset_contextvars
 from zavod import settings
 from zavod.archive import dataset_data_path, dataset_resource_path
 from zavod.audit import inspect
-from zavod.meta import Dataset
-from zavod.entity import Entity
 from zavod.db import get_engine, meta
+from zavod.entity import Entity
 from zavod.logs import get_logger
+from zavod.meta import Dataset
 from zavod.runtime.http_ import (
     _Auth,
     _Body,
@@ -36,7 +36,7 @@ from zavod.runtime.sink import DatasetSink
 from zavod.runtime.stats import ContextStats
 from zavod.runtime.timestamps import TimeStampIndex
 from zavod.runtime.versions import get_latest, make_version
-from zavod.util import join_slug, prefixed_hash_id, Element
+from zavod.util import Element, join_slug, prefixed_hash_id
 
 
 class Context:
@@ -379,7 +379,7 @@ class Context:
                 raise ValueError("Invalid HTML document: %s" % url)
             doc = html.fromstring(text)
             if absolute_links and isinstance(doc, html.HtmlElement):
-                doc.make_links_absolute(url, params)
+                cast(html.HtmlElement, doc).make_links_absolute(url, params)
             return doc
         except Exception as exc:
             cache_url = build_url(url, params)

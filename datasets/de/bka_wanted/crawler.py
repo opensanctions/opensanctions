@@ -1,4 +1,6 @@
-from typing import List
+from typing import List, cast
+
+from lxml import html
 from lxml.etree import _Element
 from normality import collapse_spaces
 
@@ -30,19 +32,29 @@ def info_xpath(field: str) -> str:
     return f'//li[@class="c-listitem-detailinfos"][.//span[contains(.//text(),"{field}")]]//span[contains(@class,"c-value-detailinfos")]'
 
 
-def crawl(context: Context):
-    base_url = context.data_url
-    additional_url = f"{base_url}?additionalHitsOnly=true"
+def crawl(context: Context) -> None:
+    additional_url = f"{context.data_url}?additionalHitsOnly=true"
 
-    for page_url in [base_url, additional_url]:
-        doc = context.fetch_html(page_url, cache_days=1, absolute_links=True)
+    # The <base> HTML element specifies the base URL to use for all relative URLs in a document.
+    # Why would you do that? I don't know. But they do.
+    doc = context.fetch_html(context.data_url, cache_days=1, absolute_links=False)
+    base_el = doc.find(".//head/base")
+    assert base_el is not None, "<base> URL not found"
+    base_url = base_el.get("href")
 
-        for person_node in doc.xpath('.//li[@class="js-dynamiclist-element"]//a'):
+    for page_url in [context.data_url, additional_url]:
+        doc = context.fetch_html(page_url, cache_days=1, absolute_links=False)
+        # If this assert trips, they probably got rid of the madness again and we can just
+        # set fetch_html's absolute_links to True (and get rid of the base_url logic above)
+        cast(html.HtmlElement, doc).make_links_absolute(base_url)
+
+        for person_node in doc.findall('.//li[@class="js-dynamiclist-element"]//a'):
             url = person_node.get("href")
+            assert url is not None, "Person node in overview has no href"
             crawl_person(context, url)
 
 
-def crawl_person(context: Context, url: str):
+def crawl_person(context: Context, url: str) -> None:
     doc = context.fetch_html(url, cache_days=1)
 
     names = doc.xpath('.//div[contains(@class, "headerContent")]//h1//text()')
