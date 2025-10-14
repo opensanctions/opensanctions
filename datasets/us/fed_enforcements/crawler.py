@@ -2,20 +2,20 @@ import csv
 from typing import Dict, Optional
 from urllib.parse import urljoin, urlparse
 
-from rigour.mime.types import CSV
 from pydantic import BaseModel, Field
+from rigour.mime.types import CSV
+from zavod.entity import Entity
+from zavod.shed.gpt import DEFAULT_MODEL, run_typed_text_prompt
+from zavod.stateful.review import (
+    TextSourceValue,
+    assert_all_accepted,
+    review_extraction,
+)
 
 from zavod import Context
 from zavod import helpers as h
-from zavod.entity import Entity
-from zavod.shed.gpt import run_typed_text_prompt, DEFAULT_MODEL
-from zavod.stateful.review import assert_all_accepted, get_review, request_review
-
 
 PROGRAM_KEY = "US-FED-ENF"
-
-MODEL_VERSION = 1
-MIN_MODEL_VERSION = 1
 
 
 class BankOrgEntity(BaseModel):
@@ -47,33 +47,6 @@ Instructions for specific fields:
  - locality: {BankOrgEntity.model_fields["locality"].description}
  - country: {BankOrgEntity.model_fields["country"].description}
 """
-
-
-def crawl_bank_entities(context: Context, party_name: str) -> list[BankOrgEntity]:
-    review = get_review(
-        context,
-        BankOrgsResult,
-        party_name,
-        MIN_MODEL_VERSION,
-    )
-    if review is None:
-        prompt_result = run_typed_text_prompt(
-            context,
-            prompt=ORG_PARSE_PROMPT,
-            string=party_name,
-            response_type=BankOrgsResult,
-        )
-        review = request_review(
-            context=context,
-            key_parts=party_name,
-            source_value=party_name,
-            source_mime_type="text/plain",
-            source_label="Banking Organization field in CSV",
-            source_url=None,
-            orig_extraction_data=prompt_result,
-            model_version=MODEL_VERSION,
-        )
-    return review.extracted_data.entities if review.accepted else []
 
 
 def crawl_article(context: Context, url: Optional[str]) -> Optional[Entity]:
@@ -112,12 +85,28 @@ def crawl_item(
         affiliation = input_dict.pop("Individual Affiliation")
         entities = [BankOrgEntity(name=name) for name in names]
     else:
-        origin = DEFAULT_MODEL
         schema = "Company"
         affiliation = None
         party_name = input_dict.pop("Banking Organization")
-
-        entities = crawl_bank_entities(context, party_name)
+        source_value = TextSourceValue(
+            key_parts=party_name,
+            label="Banking Organization field in CSV",
+            text=party_name,
+        )
+        prompt_result = run_typed_text_prompt(
+            context,
+            prompt=ORG_PARSE_PROMPT,
+            string=source_value.value_string,
+            response_type=BankOrgsResult,
+        )
+        review = review_extraction(
+            context=context,
+            source_value=source_value,
+            original_extraction=prompt_result,
+            origin=DEFAULT_MODEL,
+        )
+        origin = review.origin
+        entities = review.extracted_data.entities if review.accepted else []
 
     effective_date = input_dict.pop("Effective Date")
     termination_date = input_dict.pop("Termination Date")
