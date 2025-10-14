@@ -1,0 +1,191 @@
+/// bootstrap overrides
+///
+/// tailwind colors from: https://uicolors.app/tailwind-colors
+
+$blue-50: #EFF4FF;
+$blue-100: #D1E0FF;
+$blue-200: #B2CCFF;
+$blue-300: #84ADFF;
+$blue-400: #528BFF;
+$blue-500: #2970FF;
+$blue-600: #155EEF;
+$blue-700: #004EEB;
+$blue-800: #0040C1;
+$blue-900: #00359E;
+$blue: $blue-700;
+$blue-fg: $blue-900;
+
+$gray-50: #fafafa;
+$gray-100: #f5f5f5;
+$gray-200: #e5e5e5;
+$gray-300: #d4d4d4;
+$gray-400: #a1a1a1;
+$gray-500: #737373;
+$gray-600: #525252;
+$gray-700: #404040;
+$gray-800: #262626;
+$gray-900: #171717;
+$gray: $gray-600;
+$gray-dark: $gray-800;
+
+$green-50: #f0fdf4;
+$green-100: #dcfce7;
+$green-200: #b9f8cf;
+$green-300: #7bf1a8;
+$green-400: #05df72;
+$green-500: #00c950;
+$green-600: #00a63e;
+$green-700: #008236;
+$green-800: #016630;
+$green-900: #0d542b;
+$green: $green-500;
+
+$cyan-50: #ECFDFF;
+$cyan-100: #CFF9FE;
+$cyan-200: #A5F0FC;
+$cyan-300: #67E3F9;
+$cyan-400: #22CCEE;
+$cyan-500: #06AED4;
+$cyan-600: #088AB2;
+$cyan-700: #0E7090;
+$cyan-800: #155B75;
+$cyan-900: #164C63;
+$cyan: $cyan-500;
+
+$red-50: #fef2f2;
+$red-100: #ffe2e2;
+$red-200: #ffc9c9;
+$red-300: #ffa2a2;
+$red-400: #ff6467;
+$red-500: #fb2c36;
+$red-600: #e7000b;
+$red-700: #c10007;
+$red-800: #9f0712;
+$red-900: #82181a;
+$red: $red-500;
+
+// $yellow-50: #fefce8;
+// $yellow-100: #fef9c3;
+// $yellow-200: #fef08a;
+// $yellow-300: #fde047;
+// $yellow-400: #facc15;
+// $yellow-500: #eab308;
+// $yellow-600: #ca8a04;
+// $yellow-700: #a16207;
+// $yellow-800: #854d0e;
+// $yellow-900: #713f12;
+
+// actually amber:
+$yellow-50: #fffbeb;
+$yellow-100: #fef3c6;
+$yellow-200: #fee685;
+$yellow-300: #ffd230;
+$yellow-400: #ffb900;
+$yellow-500: #fe9a00;
+$yellow-600: #e17100;
+$yellow-700: #bb4d00;
+$yellow-800: #973c00;
+$yellow-900: #7b3306;
+$yellow-950: #461901;
+$yellow: $yellow-500;
+
+
+@import "~bootstrap/scss/functions";
+
+$font-family-sans-serif: var(--font-mona-sans), system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !default;
+$font-family-base: $font-family-sans-serif;
+$font-family-code: var(--font-monaspace), monospace;
+$font-family-heading: $font-family-sans-serif;
+
+$primary: $blue-700;
+$secondary: $green-500;
+$tertiary: $green-300;
+$info: $cyan-300;
+$danger: $red-800;
+$success: $green-500;
+$warning: $yellow-300;
+$light: $gray-100;
+$dark: $gray-800;
+
+$code-color: $red-800;
+$theme-blue-logo: $blue-700;
+$theme-blue-dark: $blue-800;
+$theme-blue-bg-light: $blue-500;
+$link-color: $blue-700;
+$link-shade-percentage: 30%;
+
+$inverse-color: white;
+$inverse-link-color: white;
+$inverse-link-hover-color: $blue-100;
+
+// $min-contrast-ratio: 100;
+$color-contrast-dark: $gray-800;
+
+$theme-colors: (
+  "primary":    $primary,
+  "secondary":  $secondary,
+  "tertiary":   $tertiary,
+  "success":    $success,
+  "info":       $info,
+  "warning":    $warning,
+  "danger":     $danger,
+  "light":      $light,
+  "dark":       $dark
+);
+
+@import "~bootstrap/scss/variables";
+@import "~bootstrap/scss/mixins";
+
+$max-text-width: 60em;
+$default-font-size: 16px;
+$content-font-size: $default-font-size * 1.05;
+$list-heading-font-size: $default-font-size * 1.2;
+$default-text-color: $gray-900;
+$text-light: $gray-400;
+$text-muted: $gray-600;
+$text-weight: 500;
+
+$heading-link-color: $link-color;
+$heading-weight: 700;
+
+$navbar-light-color: $gray-700;
+
+
+@mixin heading-font {
+    font-weight: $heading-weight;
+    font-family: $font-family-heading;
+    letter-spacing: 0.01rem;
+
+    a {
+        color: $blue-fg;
+        text-decoration: none;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+}
+
+@mixin code-font {
+  font-family: $font-family-code;
+  -webkit-font-smoothing: auto; /* Try 'auto' instead of 'antialiased' */
+  -moz-osx-font-smoothing: auto; /* Try 'auto' instead of 'grayscale' */
+  text-rendering: optimizeLegibility;
+  font-feature-settings: 'kern' 1; /* Enable kerning */
+}
+
+@mixin sub-title {
+  font-weight: $text-weight;
+  @include code-font;
+  font-size: $default-font-size * 0.8;
+  color: $text-light;
+}
+
+@mixin bg-gradient {
+  background: linear-gradient(
+    to bottom right,
+    $blue-700 0%,
+    $blue-700 60%,
+    $blue-400 100%
+  );
+}

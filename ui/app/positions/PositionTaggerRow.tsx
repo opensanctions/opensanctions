@@ -196,7 +196,7 @@ export default function PositionTaggerRow({ countries, position }: PositionTagge
           ))}
         </ButtonGroup>
       </td>
-      <td className="text-nowrap" title={position.created_at.toString()}>{position.created_at.toString().slice(0, 10)}</td>
+      <td className="text-nowrap" title={position.created_at.toISOString()}>{position.created_at.toISOString().slice(0, 10)}</td>
     </tr>
   )
 }
