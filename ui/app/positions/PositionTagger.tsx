@@ -70,7 +70,7 @@ export default async function PositionTagger({ searchParams }: { searchParams: S
     </div>
 
     <div className="mb-4">
-      <h5>Keyboard Shortcuts</h5>
+      <h5>Keyboard Shortcuts <small className="text-muted">(hover over position to activate)</small></h5>
       <div className="row">
         <div className="col-md-4">
           <strong>PEP Status:</strong>

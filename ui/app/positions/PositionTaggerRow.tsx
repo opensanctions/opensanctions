@@ -87,6 +87,10 @@ export default function PositionTaggerRow({ countries, position }: PositionTagge
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
       if (!isHovered || saving) return;
+      // If any modifier key is pressed, let the browser handle it
+      if (e.metaKey || e.ctrlKey || e.altKey) {
+        return; // Don't handle the key, let browser shortcuts work
+      }
 
       if (e.key === 'x') {
         e.preventDefault();
