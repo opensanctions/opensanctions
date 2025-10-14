@@ -158,12 +158,13 @@ def emit_row(context: Context, sheet: str, section: str, row: Dict[str, List[str
     entity.add("name", parse_names(name_japanese))
     entity.add("alias", parse_names(h.multi_split(row.pop("alias", []), ALIAS_SPLITS)))
     entity.add("alias", parse_names(row.pop("known_alias", [])))
-    entity.add(
-        "weakAlias", parse_names(h.multi_split(row.pop("weak_alias", []), ALIAS_SPLITS))
-    )
-    entity.add(
-        "weakAlias", parse_names(h.multi_split(row.pop("nickname", []), ALIAS_SPLITS))
-    )
+    # FIXME: https://github.com/opensanctions/opensanctions/issues/2928
+    # entity.add(
+    #     "weakAlias", parse_names(h.multi_split(row.pop("weak_alias", []), ALIAS_SPLITS))
+    # )
+    # entity.add(
+    #     "weakAlias", parse_names(h.multi_split(row.pop("nickname", []), ALIAS_SPLITS))
+    # )
     entity.add("previousName", parse_names(row.pop("past_alias", [])))
     entity.add("previousName", parse_names(row.pop("old_name", [])))
     entity.add_cast("Person", "position", row.pop("position", []), lang="eng")

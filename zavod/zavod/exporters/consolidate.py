@@ -50,6 +50,8 @@ def simplify_names(entity: Entity) -> Entity:
             for stmt in stmts:
                 if stmt.value not in reduced:
                     entity._statements[prop_].remove(stmt)
+
+    entity._caption = None
     # TODO: do we want to do cross-field deduplication here? We could deduplicate between
     # alias and name, as well as:
     # firstName, secondName, middleName, patronymic, matronymic
