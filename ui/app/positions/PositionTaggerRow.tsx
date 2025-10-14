@@ -21,7 +21,8 @@ const ROLE_ENTRIES = [
   ["gov.financial", "Fin"],
   ["gov.soe", "SOE"],
   ["role.diplo", "Diplo"],
-  ["pol.party", "Party"]
+  ["pol.party", "Party"],
+  ["gov.religion", "Relig"]
 ] as const;
 
 type PositionTaggerRowProps = {
