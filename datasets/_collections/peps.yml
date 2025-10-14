@@ -33,15 +33,21 @@ children:
   - ann_pep_positions
   - ar_parliament
   - at_meine_abgeordneten
+  - at_parlament
   - bg_jud_declarations
   - br_pep
+  - ca_commons
   - ca_foreign_reps
-  - cn_peoples_congress_wikipedia
+  - ca_senate
+  - ch_parlament
   - cl_info_probidad
+  - cn_peoples_congress_wikipedia
   - co_funcion_publica
   - co_join_dots
   - cu_inventario_legislatura
+  - cy_parliament
   - de_abgeordnetenwatch
+  - de_bundestag
   - dk_pep
   - ee_riigikogu
   - es_mayors_councillors
@@ -51,15 +57,17 @@ children:
   - eu_public_functions
   - everypolitician
   - fr_assemblee
-  - fr_senat
   - fr_maires
+  - fr_senat
   - ge_declarations
   - hk_legco
   - hk_principal_officials
   - hr_public_officials
   - id_regional_2018
   - il_knesset_members
+  - in_sansad
   - is_althingi
+  - jp_shugiin
   - ky_judicial
   - ky_parliament
   - lt_pep_declarations
@@ -67,6 +75,7 @@ children:
   - lv_saeima
   - me_acp_peps
   - mk_officials
+  - mt_parlament
   - mx_deputies
   - mx_governors
   - mx_senators
@@ -79,6 +88,7 @@ children:
   - sk_public_officials
   - th_cabinet
   - tr_parliament
+  - un_ga_protocol
   - us_cia_world_factbook
   - us_cia_world_leaders
   - us_congress
@@ -86,7 +96,6 @@ children:
   - us_plum_book
   - us_plural_legislators
   - us_state_dept
-  - un_ga_protocol
   - uy_pep
   - ve_asamblea_nacional
   - wd_categories
