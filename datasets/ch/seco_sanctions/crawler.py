@@ -1,5 +1,4 @@
 import re
-from datetime import datetime
 from itertools import product
 from typing import Dict, List, Literal, Optional, Tuple
 
@@ -8,7 +7,6 @@ from followthemoney.util import join_text
 from lxml.etree import _Element as Element
 from prefixdate import parse_parts
 from pydantic import BaseModel, Field
-from rigour.mime.types import PLAIN
 from zavod.shed.gpt import run_typed_text_prompt
 from zavod.stateful.review import (
     TextSourceValue,
@@ -103,7 +101,6 @@ class OtherInfo(BaseModel):
     )
 
 
-CRAWLER_VERSION = 1
 # gpt-4o keeps extracting dissolution date from
 # > Travel ban according to article 3 paragraph 1 and financial sanctions
 # > according to article 1 do not apply until 15 March 2016.
@@ -484,7 +481,6 @@ def parse_entry(context: Context, target: Element, programs, places):
             extraction = OtherInfo(simple_values=[item])
             review = review_extraction(
                 context=context,
-                crawler_version=CRAWLER_VERSION,
                 source_value=source_value,
                 original_extraction=extraction,
                 default_accepted=True,
@@ -497,7 +493,6 @@ def parse_entry(context: Context, target: Element, programs, places):
             )
             review = review_extraction(
                 context=context,
-                crawler_version=CRAWLER_VERSION,
                 source_value=source_value,
                 original_extraction=extraction,
                 origin=LLM_VERSION,
