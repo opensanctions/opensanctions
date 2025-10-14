@@ -503,6 +503,7 @@ def parse_entry(context: Context, target: Element, programs, places):
                 origin=LLM_VERSION,
             )
         if not review.accepted:
+            entity.add("notes", h.clean_note(value))
             continue
 
         for extracted_value in review.extracted_data.simple_values:
@@ -528,6 +529,7 @@ def parse_entry(context: Context, target: Element, programs, places):
                     # </justification>
                     # <relation ssid="21013" target-id="9702" relation-type="related-to"></relation>
                     # <other-information ssid="10302">No C 38181; IMO number of the vessel: 9387803.</other-information>
+                    entity.add("notes", h.clean_note(value))
                     continue
                 context.log.warning(
                     "Unknown property for schema",
