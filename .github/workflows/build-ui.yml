@@ -4,10 +4,10 @@ on:
   workflow_dispatch: {}
   push:
     paths:
-      - 'opensanctions/ui/**'
+      - 'ui/**'
   pull_request:
     paths:
-      - 'opensanctions/ui/**'
+      - 'ui/**'
 
 permissions:
   contents: read
