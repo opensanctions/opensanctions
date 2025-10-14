@@ -4,11 +4,8 @@ import { verify } from '../../../../lib/auth';
 import { softDeleteAndCreatePosition } from '../../../../lib/db';
 
 interface PositionUpdateData {
-  caption: string;
-  countries: string[];
   is_pep: boolean | null;
   topics: string[];
-  dataset: string;
 }
 
 export async function PUT(
