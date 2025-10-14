@@ -207,7 +207,7 @@ def run_typed_text_prompt(
             }
         ],
         response_format=response_type,
-        max_tokens=max_tokens,
+        max_completion_tokens=max_tokens,
     )
     assert len(response.choices) > 0
     assert response.choices[0].message is not None

@@ -40,6 +40,7 @@ data:
   format: XML
 dates:
   formats: ["%d.%m.%Y", "%Y", "%b %Y", "%d %B %Y", "%d %b %Y", "%b, %Y"]
+ci_test: false  # No GPT key available in CI
 
 assertions:
   min:
@@ -126,11 +127,17 @@ lookups:
     lowercase: true
     options:
       - match:
-          - related-to
+          - related-to  # for relationships explicit in the xml
+          - UnknownLink  # For LLM-extracted relationships
         schema: UnknownLink
         source: subject
         target: object
         text: role
+      - match: Family
+        schema: Family
+        source: person
+        target: relative
+        text: relationship
   type.address:
     lowercase: true
     options:
