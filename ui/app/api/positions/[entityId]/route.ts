@@ -28,7 +28,7 @@ export async function PUT(
   const data: PositionUpdateData = await req.json();
 
   // We're quite aggresive here, throwing lots of errors if something goes wrong
-  // but not caching them. Oh well, this is internal, so 500 or 404 doesn't matter
+  // but not catching them. Oh well, this is internal, so 500 or 404 doesn't matter
   // all that much.
   const updatedPosition = await softDeleteAndCreatePosition({
     entityId,
