@@ -28,6 +28,7 @@ const expectedColumns = new Set<string>([
   'original_extraction',
   'origin',
   'extracted_data',
+  'fake_column',
   'last_seen_version',
   'modified_at',
   'modified_by',
