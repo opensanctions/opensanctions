@@ -8,8 +8,9 @@ from zavod import Context, helpers as h
 def crawl_row(context: Context, row: Dict[str, str]):
     mine_name = row.pop("Mine_Name_English")
     mine_name_zh = row.pop("Mine_Name_Chinese")
+    company_name = row.pop("Company_Name_English")
     entity = context.make("Organization")
-    entity.id = context.make_id(mine_name, mine_name_zh)
+    entity.id = context.make_id(mine_name, mine_name_zh, company_name)
     entity.add("name", mine_name, lang="eng")
     entity.add("name", mine_name_zh, lang="zho")
     entity.add("classification", row.pop("Mine_Type"))
@@ -17,7 +18,6 @@ def crawl_row(context: Context, row: Dict[str, str]):
     entity.add("topics", "forced.labor")
     context.emit(entity)
 
-    company_name = row.pop("Company_Name_English")
     company_name_zh = row.pop("Company_Name_Chinese")
     owner = context.make("Company")
     owner.id = context.make_id(company_name, company_name_zh)
