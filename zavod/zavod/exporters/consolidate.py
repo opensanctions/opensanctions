@@ -1,3 +1,4 @@
+from normality import WS
 from rigour.names import reduce_names
 from nomenklatura.resolver import Linker
 from nomenklatura.publish.dates import simplify_dates
@@ -29,7 +30,7 @@ def simplify_names(entity: Entity) -> Entity:
     # marked as weakAlias. Let's make this longer after we've done a bit of data remediation on the source data
     # to make sure all weakAlias are actually weak.
     weak_aliases = entity.get("weakAlias", quiet=True)
-    weak_aliases = [a.casefold() for a in weak_aliases if len(a) < 15]
+    weak_aliases = [a.casefold() for a in weak_aliases if len(a) < 15 or WS not in a]
 
     for prop_ in NAME_PROPS:
         prop = entity.schema.get(prop_)
