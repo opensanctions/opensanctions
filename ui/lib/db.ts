@@ -387,7 +387,11 @@ export async function getPositions(filters: IPositionFilters = {}): Promise<IPos
     query = query.where('caption', 'ilike', `%${q}%`);
   }
   if (is_pep !== undefined) {
-    query = query.where('is_pep', '=', is_pep);
+    if (is_pep === null) {
+      query = query.where('is_pep', 'is', null);
+    } else {
+      query = query.where('is_pep', '=', is_pep);
+    }
   }
 
   // Get total count

@@ -23,11 +23,20 @@ export default async function PositionTagger({ searchParams }: { searchParams: S
     Object.entries(searchParams).filter(([, value]) => value !== '')
   )
 
+  let isPepSearchParam = undefined;
+  if (filteredSearchParams.is_pep == "null") {
+    isPepSearchParam = null;
+  } else if (filteredSearchParams.is_pep == "true") {
+    isPepSearchParam = true;
+  } else if (filteredSearchParams.is_pep == "false") {
+    isPepSearchParam = false;
+  }
+
   const positions = await getPositions({
     q: filteredSearchParams.q as string,
     dataset: filteredSearchParams.dataset as string,
     country: filteredSearchParams.country as string,
-    is_pep: filteredSearchParams.is_pep == "null" ? null : filteredSearchParams.is_pep == "true" ? true : false,
+    is_pep: isPepSearchParam,
     limit: filteredSearchParams.limit ? parseInt(filteredSearchParams.limit as string) : undefined,
     offset: filteredSearchParams.offset ? parseInt(filteredSearchParams.offset as string) : undefined,
   });
