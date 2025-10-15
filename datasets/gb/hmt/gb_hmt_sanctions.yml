@@ -848,6 +848,14 @@ lookups:
           - Persia Telecom Co.
           - Nilsun Kish
           - IOEC E&P
+      - match: ELKO RITEIL LLC
+        value: ELKO RITEIL LLC
+      - match: LEASING PROFI LLC
+        value: LEASING PROFI LLC
+      - match: Prince Group Holdings Limited
+        value: Prince Group Holdings Limited
+      - match: Prince Group
+        value: Prince Group
   type.name:
     options:
       - match: "BIC: 136001"
@@ -1011,7 +1019,9 @@ lookups:
         value: info@macco.ir
       - match: ravabet.eogpc.ir
         value: ravabet@eogpc.ir
-      - match: sales@macco
+      - match:
+          - elko.ru
+          - sales@macco
         value: null
 
   type.gender:
