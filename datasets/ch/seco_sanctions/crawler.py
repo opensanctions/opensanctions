@@ -472,6 +472,9 @@ def parse_entry(context: Context, target: Element, programs, places):
                     # <other-information ssid="10302">No C 38181; IMO number of the vessel: 9387803.</other-information>
                     entity.add("notes", h.clean_note(value))
                     continue
+                if extracted_value.property == "kppCode":
+                    entity.add_cast("Company", "kppCode", extracted_value.value)
+                    continue
                 context.log.warning(
                     "Unknown property for schema",
                     property=extracted_value.property,
