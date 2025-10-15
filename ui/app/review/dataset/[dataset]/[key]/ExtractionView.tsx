@@ -1,6 +1,7 @@
 'use client';
 
 import { json } from "@codemirror/lang-json";
+import { syntaxTree } from "@codemirror/language";
 import { keymap } from '@codemirror/view';
 import CodeMirror, { EditorView } from '@uiw/react-codemirror';
 import { jsonSchema } from "codemirror-json-schema";
@@ -65,9 +66,10 @@ interface ExtractionViewProps {
   accepted: boolean;
   entryKey: string;
   dataset: string;
+  search: (query: string) => void;
 }
 
-export default function ExtractionView({ rawData, extractedData, schema, accepted: initialAccepted, entryKey, dataset }: ExtractionViewProps) {
+export default function ExtractionView({ rawData, extractedData, schema, accepted: initialAccepted, entryKey, dataset, search }: ExtractionViewProps) {
   const [accepted, setAccepted] = useState(initialAccepted);
   const [editorExtracted, setEditorExtracted] = useState(JSON.stringify(extractedData, null, 2));
   const [flashInvalid, setFlashInvalid] = useState(false);
@@ -135,6 +137,21 @@ export default function ExtractionView({ rawData, extractedData, schema, accepte
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
   }, [valid, rawData]);
+  useEffect(() => {
+    const editor = editorRef.current;
+    function handler() {
+      const editor = editorRef.current;
+      const state = editor?.view?.state;
+      const pos = editor?.view?.state?.selection.main.head;
+      const tree = syntaxTree(state)
+      const node = tree?.resolveInner(pos);
+      const nodeText = state.doc.sliceString(node.from, node.to);
+      search(nodeText.replace(/^"|"$/g, ""));
+    }
+    editor?.editor.addEventListener('click', handler);
+    return () => editor?.editor.removeEventListener('click', handler);
+  }, [search])
+
 
   const escapeBlurKeymap = keymap.of([
     {
