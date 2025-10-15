@@ -24,10 +24,10 @@ export default async function EntryPage({ params }: PageProps) {
       <nav aria-label="breadcrumb" className="mb-3">
         <ol className="breadcrumb">
           <li className="breadcrumb-item">
-            <Link href="/">Home</Link>
+            <Link href="/review">Reviews</Link>
           </li>
           <li className="breadcrumb-item">
-            <Link href={`/dataset/${encodeURIComponent(dataset)}`}>{dataset}</Link>
+            <Link href={`/review/dataset/${encodeURIComponent(dataset)}`}>{dataset}</Link>
           </li>
           <li className="breadcrumb-item" aria-current="page">
             Key: {key.length > 60

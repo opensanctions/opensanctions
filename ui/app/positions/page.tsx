@@ -1,3 +1,4 @@
+
 import { Metadata } from "next";
 import { Container } from "react-bootstrap";
 
@@ -21,7 +22,6 @@ export default async function Page({searchParams}: PageProps) {
       <h1>{TITLE}</h1>
 
       <PositionTagger searchParams={await searchParams || {}} />
-
     </Container>
   );
 }

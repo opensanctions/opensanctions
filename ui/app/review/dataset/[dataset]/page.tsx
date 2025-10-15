@@ -1,9 +1,9 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
+import { getExtractionEntries } from '@/lib/db';
 import { PageProps } from '@/lib/pageProps';
 
-import { getExtractionEntries } from '../../../lib/db';
 
 export default async function DatasetPage({ params }: PageProps) {
   const awaitedParams = await params;
@@ -15,7 +15,7 @@ export default async function DatasetPage({ params }: PageProps) {
       <nav aria-label="breadcrumb" className="mb-3">
         <ol className="breadcrumb">
           <li className="breadcrumb-item">
-            <Link href="/">Home</Link>
+            <Link href="/review">Reviews</Link>
           </li>
           <li className="breadcrumb-item" aria-current="page">
             {awaitedParams.dataset}

@@ -1,5 +1,7 @@
 import { Geist, Geist_Mono } from "next/font/google";
 
+import Navigation from "@/components/layout/Navigation";
+
 import version from '../version.json';
 
 import "./globals.css";
@@ -32,6 +34,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <Navigation />
         {children}
         <footer className="p-3" style={{ fontSize: '0.9em', height: '50px' }}>
           Zavod UI vsn {version.git} ALPHA (built {version.buildTime})
