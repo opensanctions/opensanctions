@@ -46,7 +46,7 @@ def crawl(context: Context):
     assert len(content) == 1, len
     # Check if the data has been updated, normally with a new report, if the content has changed.
     h.assert_dom_hash(
-        content[0], "565a7ae05da5fcc0527c7a7f75ec832fb05b6fbe", text_only=True
+        content[0], "677e2522d3f3f1a1ba1b26209c5de77aa65ea5f5", text_only=True
     )
 
     # Crawl the CSV version of the database

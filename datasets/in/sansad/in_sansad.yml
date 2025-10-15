@@ -49,6 +49,10 @@ lookups:
     options:
       - match: "."
         value: null
+  type.string:
+    options:
+      - match: "."
+        value: null
   type.email:
     options:
       - match: "@sansad.nic.in"

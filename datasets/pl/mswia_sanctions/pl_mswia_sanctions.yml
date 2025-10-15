@@ -248,9 +248,6 @@ lookups:
       - match: "adres: ul. Ks. Z. Bieńkowskiego nr 4, lok. 4B-4C, 21-500 Biała Podlaska"
         props:
           address: "ul. Ks. Z. Bieńkowskiego nr 4, lok. 4B-4C, 21-500 Biała Podlaska"
-      - match: "w języku rosyjskim: „АРУТЮНЯН Армен Серёжаевич"
-        props:
-          name: "АРУТЮНЯН Армен Серёжаевич"
 
   names:
     options:
@@ -338,3 +335,7 @@ lookups:
         first_name: Armen
         patronymic: Seryozhaevich
         last_name: HARUTYUNYAN
+      - match: "w języku rosyjskim: „АРУТЮНЯН Армен Серёжаевич"
+        first_name: Армен
+        patronymic: Серёжаевич
+        last_name: АРУТЮНЯН

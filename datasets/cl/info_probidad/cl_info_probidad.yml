@@ -126,6 +126,7 @@ lookups:
           - SUBJEFE DEPTO. DE RECURSOS HUMANOS
           - CAPITAN DE NAVIO
           - PROFESIONALES UNIVERSITARIOS
+          - TECNOLOGO MEDICO
 
       - is_pep: null # haven't looked closely yet
         regex:

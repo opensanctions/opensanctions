@@ -226,7 +226,8 @@ def emit_row(context: Context, sheet: str, section: str, row: Dict[str, List[str
     entity.add("topics", "sanction")
     context.emit(entity)
     context.emit(sanction)
-    context.audit_data(row)
+    # TODO: remove IGNORE columns after https://github.com/opensanctions/opensanctions/issues/2928 is fixed
+    context.audit_data(row, ignore=["nickname", "weak_alias"])
 
 
 def trim_rightmost_blank(values: List[str], keep: int = 0) -> List[str]:
