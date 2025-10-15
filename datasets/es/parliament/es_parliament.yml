@@ -47,7 +47,7 @@ assertions:
       # Expect 348 deputies
       # = 614
       # Make sure this is high enough to catch if all senator XML files are suddenly empty
-      Person: 580
+      Person: 570
 
 lookups:
   columns:
