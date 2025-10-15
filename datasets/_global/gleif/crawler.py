@@ -192,9 +192,7 @@ def parse_lei_record(
 
     status = entity.findtext("EntityStatus")
     match status:
-        case "NULL":
-            return
-        case "INACTIVE":
+        case "INACTIVE" | "NULL":
             # We still crawl them because they might be referenced as owners of other entities.
             proxy.add("status", status)
         case "ACTIVE":
