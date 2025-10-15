@@ -38,7 +38,8 @@ class Defendants(BaseModel):
 
 PROMPT = f"""
 <task>
-Extract the defendants or entities from the MAS enforcement action.
+Extract the defendants and related entities named in the attached Monetary Authority
+of Singapore enforcement action.
 </task>
 
 <strict_requirements>
@@ -69,13 +70,11 @@ For each entity found, extract these fields:
 
 2. **entity_schema**: Select from available schema types: {schema_field.description}
 
-3. **aliases**: Alternative names or acronyms ONLY if they meet these criteria:
-   - Must be explicitly stated as "also known as", "alias", "formerly", "aka", "fka", or similar. Include ONLY the alias, not the "aka" prefix.
-   - An alias MUST NOT be the last name, first name, family name or patronymic of a person.
-     <example>John Smith (Smith)</example> <error>Smith</error>
-   - An alias MUST NOT be just the name of a company without legal form.
-     <example>Acme Corporation (Acme)</example> <error>Acme</error>
-     <example>Acme, Ltd (Acme)</example> <error>Acme</error>
+3. **aliases**: ONLY extract aliases that follow an explicit indication of an
+    _alternative_ name, such as "also known as", "alias", "formerly", "aka", "fka".
+    Otherwise the aliases field should just be an empty array. Acronyms or otherwise
+    shortened forms of their name in parentheses used to refer to the entity in the
+    rest of the article are NOT aliases.
 
 4. **nationality**: For individuals ONLY - their stated nationality
    - Leave empty if not explicitly mentioned or if entity is not a Person
