@@ -41,11 +41,11 @@ export async function POST(req: NextRequest) {
       modifiedBy: email!,
     });
 
-    let redirectUrl = `/dataset/${encodeURIComponent(dataset)}`;
+    let redirectUrl = `/review/dataset/${encodeURIComponent(dataset)}`;
     if (acceptAndContinue) {
       const nextKey = await getNextUnacceptedEntryKey(dataset);
       if (nextKey) {
-        redirectUrl = `/dataset/${encodeURIComponent(dataset)}/${encodeURIComponent(nextKey)}`;
+        redirectUrl = `/review/dataset/${encodeURIComponent(dataset)}/${encodeURIComponent(nextKey)}`;
       }
     }
     return NextResponse.redirect(new URL(redirectUrl, BASE_URL));
