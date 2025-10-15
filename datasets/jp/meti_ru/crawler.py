@@ -180,7 +180,7 @@ def crawl(context: Context):
     divs = doc.xpath(divs_xpath)
     assert len(divs) == 1, len(divs)
     # Check hash of the content part of the page
-    h.assert_dom_hash(divs[0], "982832a856dfe254b6282966ec96cfb58d9464aa")
+    h.assert_dom_hash(divs[0], "1c1664fcb9c771b62a2ccdec1d13a0bbbe2722d7")
     pdf_xpath = ".//a[contains(@href, '.pdf') and contains(@href, 'export/17_russia/') and contains(@href, 'tokutei')]/@href"
     pdf_urls = divs[0].xpath(pdf_xpath)
     assert len(pdf_urls) == 3, len(pdf_urls)
