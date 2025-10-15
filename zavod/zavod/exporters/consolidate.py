@@ -18,6 +18,7 @@ NAME_PROPS = (
     "patronymic",
     "matronymic",
 )
+FULL_NAMES = {"name", "alias"}
 
 
 def simplify_names(entity: Entity) -> Entity:
@@ -39,7 +40,7 @@ def simplify_names(entity: Entity) -> Entity:
         names = entity.get(prop)
 
         # Remove names which are marked at weakAlias by at least one other source
-        if prop.name != "weakAlias" and len(weak_aliases):
+        if prop.name in FULL_NAMES and len(weak_aliases):
             strong_names = [n for n in names if n.casefold() not in weak_aliases]
             if len(strong_names) > 0 or prop.name == "alias":
                 names = strong_names
