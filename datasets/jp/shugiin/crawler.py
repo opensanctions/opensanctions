@@ -60,6 +60,7 @@ def crawl(context: Context) -> None:
         country="jp",
         topics=["gov.legislative", "gov.national"],
     )
+    context.emit(position)
 
     doc = context.fetch_html(context.data_url)
     urls = [context.data_url]

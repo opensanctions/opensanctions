@@ -38,7 +38,7 @@ export default function SourceView({ sourceValue, sourceMimeType, sourceLabel, s
   if (sourceMimeType === 'text/html') {
     let highlighted: string;
     if (!!searchQuery) {
-     highlighted = sourceValue.replace(new RegExp(searchQuery, 'gi'), (match) => `<mark>${match}</mark>`);
+      highlighted = sourceValue.replace(new RegExp(searchQuery, 'gi'), (match) => `<mark>${match}</mark>`);
     } else {
       highlighted = sourceValue;
     }

@@ -14,12 +14,12 @@ interface IModelSpec {
 
 // TODO(Leon Handreke): Cache this
 export async function getModel(): Promise<Model> {
-    const response = await fetch(FTM_MODEL_URL, { cache: "force-cache" });
-    const modelSpec = await response.json() as unknown as IModelSpec;
-    return new Model(modelSpec.model);
+  const response = await fetch(FTM_MODEL_URL, { cache: "force-cache" });
+  const modelSpec = await response.json() as unknown as IModelSpec;
+  return new Model(modelSpec.model);
 }
 
 export async function getCountries(): Promise<Map<string, string>> {
-    const ftmModel = await getModel();
-    return ftmModel.getType('country').values;
+  const ftmModel = await getModel();
+  return ftmModel.getType('country').values;
 }
