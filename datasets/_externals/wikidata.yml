@@ -116,6 +116,8 @@ lookups:
         value: 2011-02
       - match: "1991-02-29"
         value: 1991-02
+      - match: "1885-02-29"
+        value: 1885-02
   type.gender:
     lowercase: true
     normalize: true
