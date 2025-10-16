@@ -38,6 +38,7 @@ NAME_SPLITS = [
     ";",
     "繁體中文：",  # Traditional Chinese:
     "簡體中文：",  # Simplified Chinese:
+    "alias: ",
 ]
 PERMANENT_ID_RE = re.compile(r"^(?P<name>.+?)（永久參考號：(?P<unsc_num>.+?)）$")
 # This is not trying to be secure against XSS, it's just basic cleaning of html from a CSV string
