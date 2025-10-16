@@ -24,6 +24,7 @@ def crawl_item(context: Context, item: dict):
     dob = parse_dob(item)
     first_name = item.pop("first_name")
     last_name = item.pop("family_name")
+    gender = item.pop("gender").get("term") or item.pop("gender").get("custom_term")
 
     if not first_name or not last_name:
         return
@@ -34,6 +35,7 @@ def crawl_item(context: Context, item: dict):
     pep.add("country", item.pop("person_country"))
     pep.add("title", item.pop("title_salutation"))
     pep.add("topics", ["gov.national", "gov.legislative", "role.pep"])
+    pep.add("gender", gender)
     position = h.make_position(
         context, name="Member of Parliament", country=pep.get("country")
     )
@@ -50,7 +52,7 @@ def crawl_item(context: Context, item: dict):
         context.emit(pep)
         context.emit(occupancy)
         context.emit(position)
-        context.audit_data(item, ["gender", "updated_by"])
+        context.audit_data(item, ["updated_by"])
 
 
 def crawl(context: Context):
