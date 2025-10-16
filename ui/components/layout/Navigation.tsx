@@ -1,11 +1,16 @@
 import classNames from 'classnames';
+import { headers } from 'next/headers';
 import Link from 'next/link';
 import React from 'react';
-import { NavbarBrand, NavbarCollapse, Navbar, Nav, Container, NavLink } from 'react-bootstrap';
+import { NavbarBrand, NavbarCollapse, Navbar, Nav, Container, NavbarText } from 'react-bootstrap';
+
+import { verify } from '@/lib/auth';
 
 import styles from '@/styles/Navigation.module.scss';
 
-export default function Navigation({}) {
+export default async function Navigation({}) {
+  const email = await verify(await headers());
+
   return (
     <Navbar expand="lg" className={styles.navBar} role="banner">
       <Container>
@@ -30,6 +35,9 @@ export default function Navigation({}) {
             <Link href="/positions/" className={classNames("nav-link", styles.navItem)}>Positions</Link>
             <Link href="/review/" className={classNames("nav-link", styles.navItem)}>Reviews</Link>
           </Nav>
+          <NavbarText className="ps-3">
+            {email}
+          </NavbarText>
         </NavbarCollapse>
       </Container>
     </Navbar >

@@ -21,9 +21,6 @@ export default async function Home() {
       <div className="container-fluid d-flex flex-column p-4">
         <div className="d-flex justify-content-between align-items-center mb-4">
           <h1 className="text-2xl font-bold mb-0">Zavod Reviews</h1>
-          <div className="">
-            Welcome, <strong>{email}</strong>
-          </div>
         </div>
         <p className="mb-3">Unaccepted reviews are pending human verification. Only reviews for the latest version of each dataset are shown.</p>
         <table className="table table-bordered w-100">
