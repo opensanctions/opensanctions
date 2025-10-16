@@ -205,6 +205,6 @@ def crawl(context: Context):
     # Crawl Senators
     doc = context.fetch_html(SENATORS_URL, cache_days=1, absolute_links=True)
     for letter_url in doc.xpath(".//ul[@class='listaOriginal']//@href"):
-        letter_doc = context.fetch_html(letter_url, cache_days=1, absolute_links=True)
+        letter_doc = context.fetch_html(letter_url, absolute_links=True)
         for senator_url in letter_doc.xpath(".//ul[@class='lista-alterna']//@href"):
             crawl_senator(context, senator_url)
