@@ -60,21 +60,38 @@ schema_field = Field(
 )
 address_field = Field(
     default=[],
-    description=("The addresses or even just the districts/states of the defendant."),
+    description=(
+        "The addresses or even just the districts/states of the defendant, only if "
+        "an address or location is specifically about the defendant. This is not "
+        "for the district of the court."
+    ),
 )
 status_field = Field(
     description=(
         "The status of the enforcement action notice."
-        " If `Other`, add the text used as the status in the source to `notes`."
+        " If `Other`, add the text used as the status in the source to `notes`. "
+        "Never use gendered pronouns when the source text used they/them. Use the "
+        "source text verbatim rather than rewriting it to fit the association with "
+        "a single entity."
     )
 )
 notes_field = Field(default=None, description=("Only used if `status` is `Other`."))
+aliases_field = Field(
+    default=[],
+    description=(
+        "ONLY extract aliases that follow an explicit indication of an "
+        '_alternative_ name, such as "also known as", "alias", "formerly", "aka", "fka". '
+        "Otherwise the aliases field should just be an empty array. Acronyms or otherwise "
+        "shortened forms of their name in parentheses used to refer to the entity in the "
+        "rest of the article are NOT aliases and should be left out."
+    ),
+)
 
 
 class Defendant(BaseModel):
     entity_schema: Schema = schema_field
     name: str
-    aliases: List[str] = []
+    aliases: List[str] = aliases_field
     address: List[str] = address_field
     country: List[str] = []
     status: Status = status_field
@@ -90,13 +107,14 @@ Extract the defendants subject to litigation announced in the attached article.
 NEVER include relief defendants.
 NEVER infer, assume, or generate values that are not directly stated in the source text.
 
-Specific fields:
+Instructions for specific fields:
 
 - entity_schema: {schema_field.description}
 - address: {address_field.description}
 - country: Any countries the entity is indicated to reside, operate, or have been born or registered in.
 - status: {status_field.description}
 - notes: {notes_field.description}
+- aliases: {aliases_field.description}
 """
 
 

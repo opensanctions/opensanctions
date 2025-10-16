@@ -391,8 +391,10 @@ def review_extraction(
             # for items where two items mapping to the same key, e.g.
             # "American Express Inc" and "American Express Inc." when we're likely not
             # a ton of reviewer work.
-            # Once accepted, the one extraction won't be overwriting the other.
+            # Once accepted, the one extraction shouldn't be overwriting the other.
             save_new_revision = False
+            review.modified_at = now
+            review.modified_by = MODIFIED_BY_CRAWLER
 
         if save_new_revision:
             review.modified_at = now

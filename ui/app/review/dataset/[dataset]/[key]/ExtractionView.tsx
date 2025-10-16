@@ -59,6 +59,30 @@ function AcceptAndContinueButton({ isValid, help }: { isValid: boolean, help: st
   );
 }
 
+function searchSelectedValue(state: EditorView["state"], search: (query: string) => void) {
+  const pos = state.selection.main.head;
+  const tree = syntaxTree(state)
+  const node = tree?.resolveInner(pos);
+  // Don't search if we clicked outside a string value
+  if (node?.type.name !== "String") {
+    console.log("Not a string node", node?.type.name);
+    return;
+  }
+  const selection = state.selection;
+  const mainRange = selection.ranges[selection.mainIndex];
+  console.log("selection", mainRange);
+  // Don't search if we've selected a value. We're probably trying to edit it
+  // and search might be stealing focus.
+  // It might be nice to be able to search for a partial string by selecting it,
+  // and this is blocking that.
+  if (mainRange.from !== mainRange.to) {
+    console.log("Skipping search because of selection");
+    return;
+  }
+  const nodeText = state.doc.sliceString(node.from, node.to);
+  search(nodeText.replace(/(^"|"$)/g, ""));
+}
+
 interface ExtractionViewProps {
   rawData: unknown;
   extractedData: unknown;
@@ -138,18 +162,17 @@ export default function ExtractionView({ rawData, extractedData, schema, accepte
     return () => window.removeEventListener('keydown', handler);
   }, [valid, rawData]);
   useEffect(() => {
-    const editor = editorRef.current;
+    const element = editorRef.current?.editor;
     function handler() {
       const editor = editorRef.current;
-      const state = editor?.view?.state;
-      const pos = editor?.view?.state?.selection.main.head;
-      const tree = syntaxTree(state)
-      const node = tree?.resolveInner(pos);
-      const nodeText = state.doc.sliceString(node.from, node.to);
-      search(nodeText.replace(/^"|"$/g, ""));
+      if (!editor || !editor.view || !editor.view.state) {
+        console.log("No editor or state", editor);
+        return;
+      }
+      searchSelectedValue(editor.view.state, search);
     }
-    editor?.editor.addEventListener('click', handler);
-    return () => editor?.editor.removeEventListener('click', handler);
+    element.addEventListener('click', handler);
+    return () => element.removeEventListener('click', handler);
   }, [search])
 
 
