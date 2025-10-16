@@ -20,11 +20,11 @@ from typing import Dict
 
 from normality import collapse_spaces
 from openpyxl import load_workbook
-
 from rigour.mime.types import XLSX
+from zavod.shed.un_sc import Regime, get_legal_entities, get_persons, load_un_sc
+
 from zavod import Context
 from zavod import helpers as h
-from zavod.shed.un_sc import get_legal_entities, get_persons, Regime, load_un_sc
 
 PROGRAM_KEY = "PL-AML118"
 UN_SC_PREFIXES = [Regime.TALIBAN, Regime.DAESH_AL_QAIDA]
@@ -45,10 +45,8 @@ def crawl_row(context: Context, row: Dict[str, str]):
     h.apply_date(entity, "birthDate", row.pop("data_urodzenia"))
 
     other_information = row.pop("inne_informacje")
-    res = context.lookup("other_information", other_information)
-    if not res:
-        context.log.warning("No extra information lookup found", row=row)
-    else:
+    res = context.lookup("other_information", other_information, warn=True)
+    if res:
         entity.add(
             "nationality",
             res.properties.get("nationality"),
