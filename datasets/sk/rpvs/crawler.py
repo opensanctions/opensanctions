@@ -1,6 +1,7 @@
 from typing import Any
 
-from zavod import Context, helpers as h
+from zavod import Context
+from zavod import helpers as h
 
 BASE_URL = "https://rpvs.gov.sk/opendatav2"
 ENTITY_DETAILS = (
@@ -51,13 +52,10 @@ IGNORE_PARTNER = [
 #       entity and related people.
 
 
-def rename_headers(context, entry):
+def rename_headers(context: Context, entry):
     result = {}
     for old_key, value in entry.items():
-        new_key = context.lookup_value("columns", old_key)
-        if new_key is None:
-            context.log.warning("Unknown column title", column=old_key)
-            new_key = old_key
+        new_key = context.lookup_value("columns", old_key, old_key, warn=True)
         result[new_key] = value
     return result
 
