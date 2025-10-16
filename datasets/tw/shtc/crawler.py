@@ -1,11 +1,13 @@
 import csv
 import re
 from typing import List, Optional, Tuple
+
 import datapatch
 from rigour.mime.types import CSV
-
-from zavod import Context, helpers as h, Entity
 from zavod.shed.zyte_api import fetch_html
+
+from zavod import Context, Entity
+from zavod import helpers as h
 
 ADDRESS_SPLITS = [
     ";",
@@ -82,6 +84,19 @@ def clean_names(
 
     names_str = HTML_RE.sub("", names_str)
     aliases_str = HTML_RE.sub("", aliases_str)
+
+    # In names_str, we sometimes have the aliases appended to the name, e.g. "John Doe alias: John Doe Jr.)"
+    # In this case, the aliases are repeated in the aliases_str, so we can just ignore
+    # everything after the "alias: " in names_str.
+    if "alias: " in names_str:
+        names_str, aliases_in_names_str = names_str.split("alias: ", 1)
+        if aliases_in_names_str != aliases_str:
+            context.log.warning(
+                "Found aliases in names string, but they are not the same as the aliases in the aliases string. "
+                "Please check if we need to re-work the crawler to also add aliases from the names string.",
+                names_str=names_str,
+                aliases_str=aliases_str,
+            )
 
     split_names = h.multi_split(names_str, NAME_SPLITS)
     # initially just add multipart names

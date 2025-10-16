@@ -67,3 +67,5 @@ lookups:
     options:
       - match: "11/202/2024"
         value: 2024
+      - match: "5/8/"
+        value: null

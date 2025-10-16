@@ -467,7 +467,7 @@ def check_updates(context: Context):
     # Have any new sections been added?
     change_log = doc.xpath(".//main[@class='relative']")
     assert len(change_log) == 1, change_log
-    h.assert_dom_hash(change_log[0], "18328f23fa487338c88a408674d1c4682a1f32c6")
+    h.assert_dom_hash(change_log[0], "99e09c9d3c206a047e7b25083210767918f8dade")
     # Existing sections from the API documentation sidebar
     #
     # Kidnappers:
