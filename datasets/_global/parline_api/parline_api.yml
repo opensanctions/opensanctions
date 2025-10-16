@@ -1,0 +1,35 @@
+title: IPU Parliamentarians
+entry_point: crawler.py
+prefix: parline
+coverage:
+  frequency: daily
+  start: "2025-10-16"
+load_statements: true
+summary: >
+  Members of parliaments worldwide.
+description: |
+  The Inter-Parliamentary Union (IPU) provides information on parliamentarians
+  from around the world. The dataset includes details such as names, gender,
+  date of birth, and country.
+publisher:
+  name: Inter-Parliamentary Union
+  acronym: IPU
+  description: |
+    The Inter-Parliamentary Union is a global organization of national
+    parliaments that fosters parliamentary dialogue and promotes
+    democracy, peace, and cooperation among countries.
+  url: https://www.ipu.org
+  official: false
+  country: "zz"
+tags:
+  - list.pep
+url: https://data.ipu.org/data-tools/api/
+data:
+  url: http://api.data.ipu.org/v1/people
+  format: JSON
+  lang: eng
+
+assertions:
+  min:
+    schema_entities:
+      Person: 4000
