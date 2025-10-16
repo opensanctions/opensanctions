@@ -34,39 +34,62 @@ Any data wrangling code that is repeated in three or more crawlers should
 be considered for inclusion in the helper library.
 """
 
-from zavod.helpers.xml import remove_namespace
-from zavod.helpers.names import make_name, apply_name, split_comma_names
-from zavod.helpers.positions import make_position, make_occupancy
-from zavod.helpers.text import clean_note, is_empty, remove_bracketed
-from zavod.helpers.text import multi_split
-from zavod.helpers.sanctions import (
-    make_sanction,
-    is_active,
-    lookup_sanction_program_key,
+from zavod.helpers.addresses import (
+    apply_address,
+    copy_address,
+    format_address,
+    make_address,
+    postcode_pobox,
 )
-from zavod.helpers.addresses import make_address, format_address
-from zavod.helpers.addresses import copy_address, apply_address, postcode_pobox
+from zavod.helpers.articles import make_article, make_documentation
+from zavod.helpers.change import (
+    assert_dom_hash,
+    assert_file_hash,
+    assert_html_url_hash,
+    assert_url_hash,
+)
+from zavod.helpers.crypto import extract_cryptos
 from zavod.helpers.dates import (
-    extract_years,
-    parse_formats,
     apply_date,
     apply_dates,
-    extract_date,
-    replace_months,
     backdate,
+    extract_date,
+    extract_years,
+    parse_formats,
+    replace_months,
+)
+from zavod.helpers.excel import (
+    convert_excel_cell,
+    convert_excel_date,
+    parse_xls_sheet,
+    parse_xlsx_sheet,
+)
+from zavod.helpers.html import (
+    cells_to_str,
+    element_text,
+    element_text_hash,
+    links_to_dict,
+    parse_html_table,
 )
 from zavod.helpers.identification import make_identification
-from zavod.helpers.securities import make_security
-from zavod.helpers.excel import convert_excel_cell, convert_excel_date, parse_xls_sheet
-from zavod.helpers.excel import parse_xlsx_sheet
-from zavod.helpers.html import element_text, element_text_hash
-from zavod.helpers.html import parse_html_table, cells_to_str, links_to_dict
-from zavod.helpers.crypto import extract_cryptos
-from zavod.helpers.change import assert_dom_hash, assert_file_hash
-from zavod.helpers.change import assert_url_hash, assert_html_url_hash
-from zavod.helpers.pdf import make_pdf_page_images, parse_pdf_table
-from zavod.helpers.articles import make_article, make_documentation
+from zavod.helpers.names import (
+    apply_name,
+    make_name,
+    needs_splitting,
+    split_comma_names,
+)
+from zavod.helpers.names import split_and_apply as split_and_apply_names
 from zavod.helpers.numbers import apply_number
+from zavod.helpers.pdf import make_pdf_page_images, parse_pdf_table
+from zavod.helpers.positions import make_occupancy, make_position
+from zavod.helpers.sanctions import (
+    is_active,
+    lookup_sanction_program_key,
+    make_sanction,
+)
+from zavod.helpers.securities import make_security
+from zavod.helpers.text import clean_note, is_empty, multi_split, remove_bracketed
+from zavod.helpers.xml import remove_namespace
 
 __all__ = [
     "clean_note",
@@ -113,6 +136,8 @@ __all__ = [
     "assert_file_hash",
     "assert_html_url_hash",
     "split_comma_names",
+    "needs_splitting",
+    "split_and_apply_names",
     "make_pdf_page_images",
     "parse_pdf_table",
 ]
