@@ -1,10 +1,22 @@
-from typing import List, Optional, cast
-from normality import squash_spaces
-from followthemoney.util import join_text
 import re
+from typing import List, Optional, cast
+
+from followthemoney.schema import Schema
+from followthemoney.util import join_text
+from normality import squash_spaces
 
 from zavod.context import Context
 from zavod.entity import Entity
+from zavod.shed.names.split import (
+    LLM_MODEL_VERSION,
+    SplitNames,
+    split_names,
+)
+from zavod.stateful.review import (
+    Review,
+    TextSourceValue,
+    review_extraction,
+)
 
 REGEX_AND = re.compile(r"(\band\b|&|\+)", re.I)
 REGEX_LNAME_FNAME = re.compile(r"^\w+, \w+$", re.I)
@@ -12,6 +24,10 @@ REGEX_CLEAN_COMMA = re.compile(
     r", \b(LLC|L\.L\.C|Inc|Jr|INC|L\.P|LP|Sr|III|II|IV|S\.A|LTD|USA INC|\(?A/K/A|\(?N\.K\.A|\(?N/K/A|\(?F\.K\.A|formerly known as|INCORPORATED)\b",  # noqa
     re.I,
 )
+
+KNOWN_AS = r"\b(a\.k\.a\.?|f\.k\.a\.?|d\.b\.a\.?|n\.k\.a\.?|aka|fka|dba|nka|also|formerly|doing business as)\b"
+REGEX_PERSON_NEEDS_SPLIT = re.compile(rf"({KNOWN_AS}|[;\\/\(\):\[\]])", re.I)
+REGEX_ENTITY_NEEDS_SPLIT = re.compile(rf"({KNOWN_AS}|[;/])", re.I)
 
 
 def make_name(
@@ -230,3 +246,57 @@ def split_comma_names(context: Context, text: str) -> List[str]:
                 return [text]
         else:
             return [text]
+
+
+def needs_splitting(schema: Schema, string: Optional[str]) -> bool:
+    """Determine if a name string likely needs splitting into multiple names."""
+    if not string:
+        return False
+
+    if schema.is_a("Person"):
+        return REGEX_PERSON_NEEDS_SPLIT.search(string) is not None
+    else:
+        return REGEX_ENTITY_NEEDS_SPLIT.search(string) is not None
+
+
+def apply_names(
+    entity: Entity, review: Review[SplitNames], lang: Optional[str] = None
+) -> None:
+    field_props = [
+        ("full_name", "name"),
+        ("alias", "alias"),
+        ("weak_alias", "weakAlias"),
+        ("previous_name", "previousName"),
+    ]
+    if not review.accepted:
+        entity.add("name", review.source_value)
+        return
+
+    for field_name, prop in field_props:
+        for name in getattr(review.extracted_data, field_name):
+            entity.add(
+                prop,
+                name,
+                lang=lang,
+                origin=review.origin,
+                original_value=review.source_value,
+            )
+
+
+def split_and_apply(
+    context: Context, entity: Entity, string: Optional[str], lang: Optional[str] = None
+) -> None:
+    if not string:
+        return
+
+    names = split_names(context, string)
+
+    source_value = TextSourceValue(key_parts=string, label="name", text=string)
+    review = review_extraction(
+        context,
+        source_value=source_value,
+        original_extraction=names,
+        origin=LLM_MODEL_VERSION,
+    )
+
+    apply_names(entity, review, lang)

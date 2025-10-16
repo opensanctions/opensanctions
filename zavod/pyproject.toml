@@ -81,9 +81,13 @@ docs = [
     "mkdocstrings[python]",
     "mkdocs-material",
 ]
+dspy = [
+    "dspy == 3.0.3",
+]
 
 [project.scripts]
 zavod = "zavod.cli:cli"
+zavod-tune = "zavod.tune:cli"
 
 [tool.hatch.build.targets.sdist]
 only-include = ["zavod", "LICENSE", "README.md"]

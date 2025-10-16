@@ -30,9 +30,13 @@ def crawl(context: Context) -> None:
         # Map to "130 - FCCCFRP1" if BIC is "FCCCFRP1" because a numeric name is invalid.
         if legal_name == "130" and bic == "FCCCFRP1":
             legal_name = "130 - FCCCFRP1"
+
         entity = context.make("Organization")
         entity.id = f"bic-{bic}"
-        entity.add("name", legal_name)
+        if h.needs_splitting(entity.schema, legal_name):
+            h.split_and_apply_names(context, entity, legal_name)
+        else:
+            entity.add("name", legal_name)
         entity.add("swiftBic", bic)
         entity.add("country", bic[4:6])
         entity.add("address", row.pop("registered_address"))

@@ -1,0 +1,566 @@
+# HTML entities
+- string: "HOLLEY O&#039;BRIEN"
+  full_name: [HOLLEY O'BRIEN]
+- string: "O&#039;Dell"
+  full_name: [O'Dell]
+- string: "Caitlin O&#039;Dell"
+  full_name: [Caitlin O'Dell]
+- string: "O&#39;KANE"
+  full_name: [O'KANE]
+- string: "PATRICIA O&#39;KANE"
+  full_name: [PATRICIA O'KANE]
+- string: "Kakubu Alidor K&#39;Ilaka"
+  full_name: [Kakubu Alidor K'Ilaka]
+- string: "ADE&#39;LEAKA"
+  full_name: [ADE'LEAKA]
+- string: "ADE&#39;LEAKA GORE"
+  full_name: [ADE'LEAKA GORE]
+- string: "KASEY O&#39;CONNOR"
+  full_name: [KASEY O'CONNOR]
+- string: "DEPUTY DIRECTOR FOR OFFICE OF WORKERS&#039; COMPENSATION PROGRAMS, DEPARTMENT OF LABOR"
+  full_name: ["DEPUTY DIRECTOR FOR OFFICE OF WORKERS' COMPENSATION PROGRAMS, DEPARTMENT OF LABOR"]
+- string: "DIRECTOR, ENERGY EMPLOYEES&#039; OCCUPATIONAL ILLNESS COMPENATION, DEPARTMENT OF LABOR"
+  full_name: ["DIRECTOR, ENERGY EMPLOYEES' OCCUPATIONAL ILLNESS COMPENATION, DEPARTMENT OF LABOR"]
+- string: "DEPUTY DIRECTOR, WOMEN&#039;S BUREAU, DEPARTMENT OF LABOR"
+  full_name: ["DEPUTY DIRECTOR, WOMEN'S BUREAU, DEPARTMENT OF LABOR"]
+- string: "HAPPY SAILING INT&#39"
+  full_name: ["HAPPY SAILING INT'"]
+- string: "YANTAI EVER GROWING INT&#39"
+  full_name: ["YANTAI EVER GROWING INT'"]
+# Semicolons
+## ru_cbr_banks
+- string: "Joint-stock Company Universal commercial bank of social development & reconstruction \"BELGORODSOCBANK\"; JSC \"Belgorodsocbank\""
+  full_name:
+    - Joint-stock Company Universal commercial bank of social development & reconstruction "BELGORODSOCBANK"
+    - JSC "Belgorodsocbank"
+- string: "Non-bank credit organization \"Taidon\" Limited liability company; NCO \"Taidon\" LLC"
+  full_name:
+    - Non-bank credit organization "Taidon" Limited liability company
+    - NCO "Taidon" LLC
+- string: "Joint stock company \"GENBANK\"; JSC \"GENBANK\""
+  full_name:
+    - Joint stock company "GENBANK"
+    - JSC "GENBANK"
+- string: "Bank Paygine Limited; Bank Paygine Ltd"
+  full_name:
+    - Bank Paygine Limited
+    - Bank Paygine Ltd
+- string: "Central counterparty \"LCC\" (joint-stock company); LCC (JSC)"
+  full_name:
+    - Central counterparty "LCC" (joint-stock company)
+    - LCC (JSC)
+- string: "Joint-stock bank \"City Invest Bank\"; AO \"City Invest Bank\""
+  full_name:
+    - Joint-stock bank "City Invest Bank"
+    - AO "City Invest Bank"
+## ch_finma_warnings
+- string: "Its-DeCrypted; It's DeCrypted"
+  full_name:
+    - Its-DeCrypted
+    - It's DeCrypted
+- string: "JP Finance; Jean Pierre Technologies LTD"
+  full_name:
+    - JP Finance
+    - Jean Pierre Technologies LTD
+- string: "NOVA INVESTMENT; Novainvests"
+  full_name:
+    - NOVA INVESTMENT
+    - Novainvests
+- string: "Paraiba World; Unique Private Bank Ltd"
+  full_name:
+    - Paraiba World
+    - Unique Private Bank Ltd
+- string: "Royal C Bank; Royal Bank"
+  full_name:
+    - Royal C Bank
+    - Royal Bank
+- string: "StainWayFinancials; Stainway Financials"
+  full_name:
+    - StainWayFinancials
+    - Stainway Financials
+- string: "Swiss Prime; Swiss Prime Limited"
+  full_name:
+    - Swiss Prime
+    - Swiss Prime Limited
+- string: "TBL Trade Block London; Dalipi Holding Co"
+  full_name:
+    - TBL Trade Block London
+    - Dalipi Holding Co
+- string: "TheKryptoBank; KryptoBank (AG)"
+  full_name:
+    - TheKryptoBank
+    - KryptoBank (AG)
+- string: "Trust Capital Investment; Trust Holding Funds Ltd"
+  full_name:
+    - Trust Capital Investment
+    - Trust Holding Funds Ltd
+- string: "UNIQUE Exchange; UNIQUE Crypto LLC"
+  full_name:
+    - UNIQUE Exchange
+    - UNIQUE Crypto LLC
+## other datasets
+- string: "Société par actions \"Shvabe\"; \"Shvabe\" S.A."
+  full_name:
+    - Société par actions "Shvabe"
+    - \"Shvabe\" S.A.
+- string: "Force aérospatiale du Corps des gardiens de la révolution islamique; (IRGC ASF)"
+  full_name: [Force aérospatiale du Corps des gardiens de la révolution islamique]
+  weak_alias: [IRGC ASF]
+- string: "Fondation coopérative Basij; (également connue sous le nom de Bonyad-eh Ta’avon-eh Basij)"
+  full_name: [Fondation coopérative Basij]
+  alias: [Bonyad-eh Ta’avon-eh Basij]
+- string: "Al-Sayyad Company for; Guarding and Protection Services; Ltd"
+  full_name: [Al-Sayyad Company for Guarding and Protection Services Ltd]
+          # ???
+- string: "MUSIC MAR-CO; MUSIC SERVIS, IZOBRAŽEVANJE, MARKETING MARKO KAVTIČNIK S.P."
+- string: "Cho Yan Nathan; a.k.a Nathan Man Man"
+  full_name: [Cho Yan Nathan]
+  alias: [Nathan Man Man]
+- string: "Kreig; a.k.a. Cow Craig; a.k.a. Hall Jermaine; a.k.a. Hall Jermaine Craig; a.k.a. Rhooms Jermain; a.k.a. Rhoomas Jermaine Craig; a.k.a. Rhoomas Rhoomes"
+  full_name: [Kreig]
+  alias:
+    - Cow Craig
+    - Hall Jermaine
+    - Hall Jermaine Craig
+    - Rhooms Jermain
+    - Rhoomas Jermaine Craig
+    - Rhoomas Rhoomes
+- string: INTERMONTE PARTNERS SIM S.P.A. SIGLABILE ANCHE INTERMONTE PARTNERS - SOCIETA' DI INTERMEDIAZIONE MOBILIARE S.P.A. INTERMONTE PARTERS - SOCIETA' DI INTERMEDIAZIONE MOBILIARE P.A. INTERMONTE PARTNERS- SIM P.A.; INTERMONTE PARTNERS SIM; INTERMONTE P SIM; IP SIM"
+  full_name: [INTERMONTE PARTNERS SIM S.P.A.]
+  alias:
+    - INTERMONTE PARTNERS - SOCIETA' DI INTERMEDIAZIONE MOBILIARE S.P.A.
+    - INTERMONTE PARTERS - SOCIETA' DI INTERMEDIAZIONE MOBILIARE P.A.
+    - INTERMONTE PARTNERS- SIM P.A.
+    - INTERMONTE PARTNERS SIM
+    - INTERMONTE P SIM
+  weak_alias: [IP SIM]
+- string: "UNIFAST FINANCE &amp; INVESTMENTS PUBLIC COMPANY LIMITED"
+  full_name: [UNIFAST FINANCE & INVESTMENTS PUBLIC COMPANY LIMITED]
+- string: "BORGES AGRICULTURAL &amp; INDUSTRIAL NUTS SA"
+  full_name: [BORGES AGRICULTURAL & INDUSTRIAL NUTS SA]
+- string: "Nuveen Preferred Securities &amp; Income Opportunities Fund"
+  full_name: [Nuveen Preferred Securities & Income Opportunities Fund]
+- string: "MINOR HOTELS EUROPE &amp; AMERICAS SA"
+  full_name: [MINOR HOTELS EUROPE & AMERICAS SA]
+  # ????? clearly multiple entities
+- string: "Sheikh Mohammed Bin Rashid Al Maktoum, Prime Minister and Vice Pres. of the UAE; Sheikh Hamdan Bin Rashid Al Maktoum, Minister of Finance and Industry of the UAE; and The Executive Office (Dubai)"
+  # ????? clearly multiple entities
+- string: "President of the Republic of Bulgaria, Zhelyo Zhelev; Director, Agency for IntNatl. Assistance, Petko Simeonov"
+  # ????? clearly multiple entities
+- string: "Coordinador de Organismos Empresariales de Comerio Exterior (COECE); Consejo Coordinador Empresarial (CCE)"
+- string: "Vitro, S.A.; Anchor Glass Container Corporation"
+- string: "Шеньчжень Юнісон Біо Тек Ко Лтд; Шеньчжень Лянлішен Байотекнолоджи Ко Лтд; Шеньчжень Юнісон Байосен Біо Тек Ко Лтд"
+- string: "Шеньчжень Байосен Біо Тек Ко Лтд; Шеньчжень Байоусен Байотекнолоджи Ко Лтд; Шеньчжень Боусен Байолоджикал Текнолоджи Ко Лтд"
+- string: "Товариство з обмеженою відповідальністю \"Центральний депозитарій фондів\"; Товариство з обмеженою відповідальністю \"ЦДФ\""
+- string: "COMPAGNIE AERIENNE DES GRANDS LACS (CAGL) ; GREAT LAKES BUSINESS COMPANY (GLBC)"
+- string: "Zijin Mining Group Northwest Co., Ltd.; Former full_name: Xinjiang Zijin Mining Co., Ltd."
+- string: "紫金矿业集团西北有限公司; 曾用名：新疆紫金矿业有限责任公司"
+  # ?????? blank it cos it's not the subject's name?!
+- string: "Subrata Banerjee Father's full_name: KALI BANERJEE; Date of Birth: 19/11/1960; Address: 40/4,BANERJEE PARA ROAD, KOLKATA, 700041"
+  full_name: []
+  # ?????? blank it cos it's not the subject's name?!
+- string: "Amit Agarwal-Father's full_name: Matadeen Agarwal; Date of Birth: 28/01/1982; Address: 29A, Weston Street, 3rd Floor, Kolkata, 700012"
+  full_name: []
+- string: "Nimbus Industries Ltd.Listed at BSE; Address: A/203, Bhoomi Utsav, M.G. Road, Near Kala Hanuman Mandir, Kandivali (West), Mumbai 400067"
+  full_name: [Nimbus Industries Ltd.]
+- string: "Prraneta Industries Ltd.Listed at BSE; Address: S-574/577, 5th Floor, Belgium Square,Ring Road, Surat - 395002"
+  full_name: [Prraneta Industries Ltd.]
+## translit or translation variants
+- string: "Биргит Дизел / Birgit Dizel"
+  full_name:
+    - Биргит Дизел
+    - Birgit Dizel
+- string: "Бернд Бусеманн / Bernd Busemann"
+  full_name:
+    - Бернд Бусеманн
+    - Bernd Busemann
+- string: "Курт Бецк / Kurt Beck"
+- string: "Диетер Алтхаус / Dieter Althaus"
+- string: "Ханс Ајхел / Hans Ajhel"
+- string: "Тилл Бацкхаус / Till Backhaus"
+# Singapore son or daughter of
+# Seen a lot on sg_gov_dir
+- string: "Amir S/O AHAMED"
+  full_name: [Amir S/O AHAMED]
+- string: "Panirselvam s/o KASINATHAN"
+  full_name: [Panirselvam s/o KASINATHAN]
+- string: "NAZEERA BEGAM d/o Maideen"
+  full_name: [NAZEERA BEGAM d/o Maideen]
+- string: "Sree Gaithiri d/o KUNNASEGARAN"
+  full_name: [Sree Gaithiri d/o KUNNASEGARAN]
+- string: "Santhakumari D/O V SERANJEEVI"
+  full_name: [Santhakumari D/O V SERANJEEVI]
+- string: "Mohamed Rizal s/o ALI Barkat"
+  full_name: [Mohamed Rizal s/o ALI Barkat]
+- string: "Manimegalai d/o VELLASAMY"
+  full_name: [Manimegalai d/o VELLASAMY]
+- string: "Adjunct A/Prof Png Gek Kheng"
+  full_name: [Png Gek Kheng]
+- string: "Kristin Geetha D/O Samivelu"
+  full_name: [Kristin Geetha D/O Samivelu]
+- string: "Narasimma s/o TIVASIHA MANI"
+  full_name: [Narasimma s/o TIVASIHA MANI]
+- string: "Afrah D/O MOHAMED YASEEN"
+  full_name: [Afrah D/O MOHAMED YASEEN]
+- string: "Hari Kishen S/O BALAKRISHNAN"
+  full_name: [Hari Kishen S/O BALAKRISHNAN]
+- string: "Sabitri Devi d/o Narpat Panday"
+  full_name: [Sabitri Devi d/o Narpat Panday]
+- string: "Saravenan S/O Tanapal"
+  full_name: [Saravenan S/O Tanapal]
+- string: "Sivakumar s/o VISWANATHAN"
+  full_name: [Sivakumar s/o VISWANATHAN]
+- string: "VENUGOBAL s/o M Thangaraju"
+  full_name: [VENUGOBAL s/o M Thangaraju]
+- string: "Mohan s/o SUPPIAH"
+  full_name: [Mohan s/o SUPPIAH]
+- string: "Mdm Malar Vizhi d/o Anjappan"
+  full_name: [Malar Vizhi d/o Anjappan]
+# a/l is malay for son of
+- string: "Gunasekaren A/L Palasamy"
+  full_name: [Gunasekaren A/L Palasamy]
+- string: "Kumar A/L Rajagopal"
+  full_name: [Kumar A/L Rajagopal]
+- string: "Sivasubramaniam a/l Athinarayanan"
+  full_name: [Sivasubramaniam a/l Athinarayanan]
+- string: "Sanisvara Nethaji Rayer A/L Rajaji"
+  full_name: [Sanisvara Nethaji Rayer A/L Rajaji]
+- string: "Manoharan A/L Malayalam"
+  full_name: [Manoharan A/L Malayalam]
+- string: "Kesavan a/l Subramaniam"
+  full_name: [Kesavan a/l Subramaniam]
+# variants in parentheses
+## org
+- string: "Jaish-i-Mohammed (Mohammad, Muhammad, Muhammed)"
+  full_name: [Jaish-i-Mohammed]
+  alias:
+    - Jaish-i-Mohammad
+    - Jaish-i-Muhammad
+    - Jaish-i-Muhammed
+## person
+- string: "Aleksandr(Alexander/Oleksandr) KARAMAN"
+  full_name: [Aleksandr KARAMAN]
+  alias:
+    - Alexander KARAMAN
+    - Oleksandr KARAMAN
+- string: "Aleksandr(Alexander/Oleksandr) KOFMAN"
+  full_name: [Aleksandr KOFMAN]
+  alias:
+    - Alexander KOFMAN
+    - Oleksandr KOFMAN
+- string: "Aleksandr(Alexander/Oleksandr) ZAKHARCHENKO"
+  full_name: [Aleksandr ZAKHARCHENKO]
+  alias:
+    - Alexander ZAKHARCHENKO
+    - Oleksandr ZAKHARCHENKO
+- string: "Aleksandr(Oleksandr) KALYUSSKY(KALIUSKY/KALYUSKII/KALIUSKYY/KALYUSKYY)"
+  full_name: [Aleksandr KALYUSSKY]
+  alias:
+    - Oleksandr KALYUSSKY
+    - Aleksandr KALIUSKY
+    - Oleksandr KALIUSKY
+    - Aleksandr KALYUSKII
+    - Oleksandr KALYUSKII
+    - Aleksandr KALIUSKYY
+    - Oleksandr KALIUSKYY
+    - Aleksandr KALYUSKYY
+    - Oleksandr KALYUSKYY
+- string: "Aleksandr(Oleksandr) KHODAKOVSKY(KHODAKOVSKYY/KHODAKOVSKII)"
+  full_name: [Aleksandr KHODAKOVSKY]
+  alias:
+    - Oleksandr KHODAKOVSKY
+    - Aleksandr KHODAKOVSKYY
+    - Oleksandr KHODAKOVSKYY
+    - Aleksandr KHODAKOVSKII
+    - Oleksandr KHODAKOVSKII
+- string: "Aleksei(Oleksiy) MOZGOVOY(MOZGOVOI/MOZGOVY/MOZHOVY/MOZHOVYY)"
+  full_name: [Aleksei MOZGOVOY]
+  alias:
+    - Oleksiy MOZGOVOY
+    - Aleksei MOZGOVOI
+    - Oleksiy MOZGOVOI
+    - Aleksei MOZGOVY
+    - Oleksiy MOZGOVY
+    - Aleksei MOZHOVY
+    - Oleksiy MOZHOVY
+    - Aleksei MOZHOVYY
+    - Oleksiy MOZHOVYY
+- string: "Aleksey(Aleksei/Oleksiy) KARYAKIN(KARIAKIN)"
+  full_name: [Aleksey KARYAKIN]
+  alias:
+    - Aleksei KARYAKIN
+    - Oleksiy KARYAKIN
+    - Aleksei KARIAKIN
+    - Oleksiy KARIAKIN
+- string: "Andriy(Andrei/Andrey) PURGIN(PURHIN)"
+  full_name: [Andriy PURGIN]
+  alias:
+    - Andrei PURGIN
+    - Andrey PURGIN
+    - Andriy PURHIN
+    - Andrei PURHIN
+    - Andrey PURHIN
+- string: "Denis (Denys) BEREZOVSKIY(BEREZOVSKY/BEREZOVSKII)"
+  full_name: [Denis BEREZOVSKIY]
+  alias:
+    - Denys BEREZOVSKIY
+    - Denis BEREZOVSKY
+    - Denys BEREZOVSKY
+    - Denis BEREZOVSKII
+    - Denys BEREZOVSKII
+- string: "Dmitry(Dmitriy/Dmytro) SEMYONOV"
+  full_name: [Dmitry SEMYONOV]
+  alias:
+    - Dmitriy SEMYONOV
+    - Dmytro SEMYONOV
+### Japanese wide parentheses
+- string: "Ekaterina(Kateryna) GUBAREVA（HUBARIEVA/HUBAREVA）"
+  full_name: [Ekaterina GUBAREVA]
+  alias:
+    - Kateryna GUBAREVA
+    - Ekaterina HUBARIEVA
+    - Kateryna HUBARIEVA
+    - Ekaterina HUBAREVA
+    - Kateryna HUBAREVA
+- string: "Elmira Khaimourzina（Khaimurzina/Haimurzyna）"
+  full_name: [Elmira Khaimourzina]
+  alias:
+    - Elmira Khaimurzina
+    - Elmira Haimurzyna
+- string: "Igor(Ihor) KAKIDZYANOV(KAKIZYANOV/KAKIDZHANOV)"
+  full_name: [Igor KAKIDZYANOV]
+  alias:
+    - Ihor KAKIDZYANOV
+    - Igor KAKIZYANOV
+    - Ihor KAKIZYANOV
+    - Igor KAKIDZHANOV
+    - Ihor KAKIDZHANOV
+- string: "Igor(Ihor) PLOTNITSKY(PLOTNYTSKY/PLOTNYTSKYY/PLOTNITSKII)"
+  full_name: [Igor PLOTNITSKY]
+  alias:
+    - Ihor PLOTNITSKY
+    - Igor PLOTNYTSKY
+    - Ihor PLOTNYTSKY
+    - Igor PLOTNYTSKYY
+    - Ihor PLOTNYTSKYY
+    - Igor PLOTNITSKII
+    - Ihor PLOTNITSKII
+- string: "MIKI (aka Myoungsik) KIM (aka Cepeda)"
+  full_name: [MIKI KIM]
+  alias:
+    - Myoungsik KIM
+    - MIKI Cepeda
+    - Myoungsik Cepeda
+  # ??? multiple entities?
+- string: "Richard/Rachel Levine"
+- string: "Ричард/Рэйчел ЛЕВИН"
+  full_name:
+    - Ричард ЛЕВИН
+    - Рэйчел ЛЕВИН
+# former names
+- string: "GELOR (formerly ARTARA)"
+  full_name: [GELOR]
+  previous_name: [ARTARA]
+- string: "PERMANENT TSB PLC. (FORMERLY IRISH LIFE AND PERMANENT PLC)"
+  full_name: [PERMANENT TSB PLC.]
+  previous_name: [IRISH LIFE AND PERMANENT PLC]
+- string: "ATTIJARIWAFA BANK (FORMERLY BANQUE COMMERCIALE DU MAROC)"
+  full_name: [ATTIJARIWAFA BANK]
+  previous_name: [BANQUE COMMERCIALE DU MAROC]
+- string: "SUMITOMO MITSUI BANKING CORPORATION (FORMERLY SUMITOMO BANK)"
+  full_name: [SUMITOMO MITSUI BANKING CORPORATION]
+  previous_name: [SUMITOMO BANK]
+- string: "BANK OF CHONGQING CO., LTD. ( FORMERLY CHONGQING COMMERCIAL BANK)"
+  full_name: ["BANK OF CHONGQING CO., LTD."]
+  previous_name: [CHONGQING COMMERCIAL BANK]
+- string: "STATE STREET BANK AND TRUST COMPANY (FORMERLY INVESTORS BANK AND TRUST)"
+  full_name: [STATE STREET BANK AND TRUST COMPANY]
+  previous_name: [INVESTORS BANK AND TRUST]
+- string: "REGION TRADE BANK FOR INVESTMENT AND FINANCE (FORMERLY EMERALD BANK)"
+  full_name: [REGION TRADE BANK FOR INVESTMENT AND FINANCE]
+  previous_name: [EMERALD BANK]
+- string: "BANK OF SHAOXING CO.,LTD (FORMERLY SHAOXING CITY COMMERCIAL BANK)"
+  full_name: ["BANK OF SHAOXING CO.,LTD"]
+  previous_name: [SHAOXING CITY COMMERCIAL BANK]
+- string: "SANTANDER CONSUMER BANK (FORMERLY AKB BANK AG)"
+  full_name: [SANTANDER CONSUMER BANK]
+  previous_name: [AKB BANK AG]
+- string: "BANK OF ANSHAN CO., LTD. (FORMERLY ANSHAN CITY COMMERCIAL BANK)"
+  full_name: ["BANK OF ANSHAN CO., LTD."]
+  previous_name: [ANSHAN CITY COMMERCIAL BANK]
+# aliases with additional demographics
+- string: BABIC Josip geb. 06.02.1979 in Deutschland; GOJKOVIC Dragan geb. 08.09.1977 in Berane/Montenegro; GREPO David geb. 02.03.1983; KAROLY Ferenc geb. 31.03.1975; und weitere
+  full_name: [BABIC Josip]
+  alias:
+    - GOJKOVIC Dragan
+    - GREPO David
+    - KAROLY Ferenc
+- string: "Stuever, Michael geb. 18.01.1970, Müller, Carsten"
+  full_name: ["Stuever, Michael"]
+  alias: ["Müller, Carsten"]
+# names with additional fluff
+#- string: "Ministry of Defence of the Russian Federation, including the Armed Forces of Russia and all operating units wherever located. This includes the national armed services (army, navy, marine, air force, or coast guard), as well as the national guard and national police, government intelligence or reconnaissance organizations of the Russian Federation. All address located in Russia."
+#  full_name: [Ministry of Defence of the Russian Federation]
+- string: "The Ministry of Defence of the Republic of Belarus, including the Armed Forces of Belarus and all operating units wherever located. This includes the national armed services (army and air force), as well as the national guard and national police, government intelligence or reconnaissance organizations of the Republic of Belarus. All addresses located in Belarus."
+  full_name: [The Ministry of Defence of the Republic of Belarus]
+- string: "Department of Atomic Energy facilities: Nuclear reactors (including power plants) not under International Atomic Energy Agency (IAEA) safeguards (excluding Kundankulam 1 and 2)"
+  full_name: [Department of Atomic Energy facilities (including power plants) not under International Atomic Energy Agency (IAEA) safeguards (excluding Kundankulam 1 and 2)]
+# aka, fka, dba
+- string: "Universal Enterprise Limited [aka General Technology Limited, aka Beijing Luo Luo Tech Development Limited, aka Tiger Force Electronics, aka Foshan Nanhai Winhope Trade Company] (Hong Kong Entity), and its sub-units and successors"
+  full_name: [Universal Enterprise Limited]
+  alias:
+    - General Technology Limited
+    - Beijing Luo Luo Tech Development Limited
+    - Tiger Force Electronics
+    - Foshan Nanhai Winhope Trade Company
+- string: "Russian Aerospace Forces (aka VKS);"
+  full_name: [Russian Aerospace Forces]
+  weak_alias: [VKS]
+- string: "Elena; a.k.a. Elena Leonidovna Shifrin Lena; a.k.a Gohkman Alexander; a.k.a Ivanov Elena; a.k.a Belov Shifrin"
+  alias:
+    - Elena Leonidovna Shifrin Lena
+    - Gohkman Alexander
+    - Ivanov Elena
+    - Belov Shifrin
+  weak_alias: [Elena]
+- string: "Yichang Testing Technology Research Institute a.k.a. Yichang Institute of Testing Technology"
+  full_name: [Yichang Testing Technology Research Institute]
+  alias: [Yichang Institute of Testing Technology]
+- string: "Ch'oe Ch'o'l-min (a.k.a Choe Chol Min) (DPRK individual)"
+  full_name: [Ch'oe Ch'o'l-min]
+  alias: [Choe Chol Min]
+- string: "Cho Yan Nathan; a.k.a Nathan Man Man"
+  full_name: [Cho Yan Nathan]
+  alias: [Nathan Man Man]
+- string: "Eric Fru Eric Fru a/k/a Ngi Nji"
+  full_name: [Eric Fru]
+  alias: [Ngi Nji]
+- string: "ACory (a.k.a Jason Cory Wilson) Wilson"
+  full_name: [ACory Wilson]
+  alias: [Jason Cory Wilson]
+- string: "Chitron Electronics Company Ltd., a.k.a. Chi-Chung Electronics Company Ltd. (Chitron-Shenzhen)"
+  full_name: [Chitron Electronics Company Ltd.]
+  alias: [Chi-Chung Electronics Company Ltd. (Chitron-Shenzhen)]
+- string: "AO Institute Stroyproekt (f.k.a., Institut Stroiproekt Zakrytoe Aktsionernoe Obshchestvo)"
+  full_name: [AO Institute Stroyproekt]
+  previous_name: [Institut Stroiproekt Zakrytoe Aktsionernoe Obshchestvo]
+- string: "Zakrytoe Aktsionernoe Obshchestvo 'IFD Kapital' (f.k.a., Zakrytoe Aktsionernoe Obshchestvo IFD Karital)"
+  full_name: [Zakrytoe Aktsionernoe Obshchestvo 'IFD Kapital']
+  previous_name: [Zakrytoe Aktsionernoe Obshchestvo IFD Karital]
+- string: "JSC 'Almaz-Antey' MSDB, f.k.a., Otkrytoe Aktsionernoe Obshchestvo Nauchno Proizvodstvennoe Obedinenie Almaz Imeni Akademika A.A. Raspletina"
+  full_name: [JSC 'Almaz-Antey' MSDB]
+  previous_name: [Otkrytoe Aktsionernoe Obshchestvo Nauchno Proizvodstvennoe Obedinenie Almaz Imeni Akademika A.A. Raspletina]
+- string: "Obshchestvo S Ogranichennoi Otvetstvennostyu 'Molot-Oruzhie' (f.k.a., Obshchestvo S Ogranichennoi Otvetstvennostyu Proizvodstvenno Instrument Kachestvo)"
+  full_name: [Obshchestvo S Ogranichennoi Otvetstvennostyu 'Molot-Oruzhie']
+  previous_name: [Obshchestvo S Ogranichennoi Otvetstvennostyu Proizvodstvenno Instrument Kachestvo]
+- string: "JSC NIIP, f.k.a., Otkrytoe Aktsionernoe Obshchestvo Nauchno Issledovatelski Institute Priborostroeniya Imeni V.V. Tikhomirova"
+  full_name: [JSC NIIP]
+  previous_name: [Otkrytoe Aktsionernoe Obshchestvo Nauchno Issledovatelski Institute Priborostroeniya Imeni V.V. Tikhomirova]
+- string: "SIBERIAN AIRLINES D/B/A S7 AIRLINES"
+  full_name: [SIBERIAN AIRLINES]
+  alias: [S7 AIRLINES]
+- string: "PEARL (A.K.A. NEI-CHIEN CHU) LI"
+  full_name: [PEARL LI]
+  alias: [NEI-CHIEN CHU LI]
+- string: "Southwest Institute of Nuclear Physics and Chemistry (a.k.a., China Academy of Engineering Physics (CAEP)'s 902 Institute)"
+  full_name: [Southwest Institute of Nuclear Physics and Chemistry]
+  alias: [China Academy of Engineering Physics (CAEP)'s 902 Institute]
+- string: "FERDIE (A.K.A. FERNANDO SERO) RESADA"
+  full_name: [FERDIE RESADA]
+  alias: [FERNANDO SERO RESADA]
+- string: "Александар Добриндт / Aleksandar Dobrindt"
+  full_name:
+    - Александар Добриндт
+    - Aleksandar Dobrindt
+- string: "Александар Мајер / Aleksandar Majer"
+  full_name:
+    - Александар Мајер
+    - Aleksandar Majer
+- string: "Андре Брие / Andre Brie"
+  full_name:
+    - Андре Брие
+    - Andre Brie
+- string: "Анналена Баербоцк / Annalena Baerbock"
+  full_name:
+    - Анналена Баербоцк
+    - Annalena Baerbock
+- string: "Барбел Бас / Barbel Bas"
+  full_name:
+    - Барбел Бас
+    - Barbel Bas
+- string: "Барбел Диецкманн / Barbel Dieckmann"
+  full_name:
+    - Барбел Диецкманн
+    - Barbel Dieckmann
+- string: "Sergei (Sergi) Ivanovich Tomchani"
+  full_name: [Sergei Ivanovich Tomchani]
+  alias: [Sergi Ivanovich Tomchani]
+# Examples where parens don't mean variants
+- string: "China Aerospace Science and Technology Corporation (CASC) 8th Academy 811 Research Institute"
+  full_name: [China Aerospace Science and Technology Corporation (CASC) 8th Academy 811 Research Institute]
+  weak_alias: [CASC]
+- string: "VTB BANK (AUSTRIA) AG"
+  full_name: [VTB BANK (AUSTRIA) AG]
+- string: "CSSC OFFSHORE & MARINE ENGINEERING (GROUP) COMPANY LIMITED"
+  full_name: [CSSC OFFSHORE & MARINE ENGINEERING (GROUP) COMPANY LIMITED]
+- string: "Quantum Logix (Private)"
+  full_name: [Quantum Logix (Private)]
+- string: "Quantum Logix (Pvt) Ltd."
+  full_name: [Quantum Logix (Pvt) Ltd.]
+- string: "SMIC Northern Integrated Circuit Manufacturing (Beijing) Co., Ltd."
+  full_name: ["SMIC Northern Integrated Circuit Manufacturing (Beijing) Co., Ltd."]
+- string: "Semiconductor Manufacturing North China (Beijing) Corporation"
+  full_name: [Semiconductor Manufacturing North China (Beijing) Corporation]
+- string: "Centre d'Etudes et de Recherches Scientifiques (CERS)"
+  full_name: [Centre d'Etudes et de Recherches Scientifiques]
+  weak_alias: [CERS]
+- string: "Scientific Studies Research Centre (SSRC)"
+  full_name: [Scientific Studies Research Centre]
+  weak_alias: [SSRC]
+- string: "Scientific Studies and Research Center (SSRC)"
+  full_name: [Scientific Studies and Research Center]
+  weak_alias: [SSRC]
+- string: "Bearings on Lipetsk LLC (Russian entity);"
+  full_name: [Bearings on Lipetsk LLC]
+
+# curl --silent https://data.opensanctions.org/datasets/20251104/us_trade_csl/names.txt | grep \;
+# HPSTAR;
+# Igor Aleksandrovich Michurin (Russian national);
+# Beihang University Ningbo Innovation Institute;Beihang University Qingdao Research Institute
+# Beijing Aerospace Automatic Control Institute (BICD); 12th Institute
+# DJEL; Dongfang Jingyuan Electron Limited
+# Yidatong (Tianjin) Metal Materials Co., Ltd;
+# LES Netcom Nanjing LES Netcom Technology Research Institute Co., Ltd.;
+# CETC 24;Sichuan Solid Circuit Research Institute;CETC 44;CETC Chongqing Sound and Optoelectronics Co., Ltd.
+# Izhmash-Unmanned Systems Company;LLC Research and Production Association Izhbs
+# Sibirskaya Neftyanaya Kompaniya OAO;
+# Dominguez, Carlos; Elint, S.A., Spain Night Vision, S.A., and SNV, S.A
+# NPO Izhmash OAO;OJSC Concern Kalashnikov
+# PMC Wagner;
+# Russian Aerospace Forces (aka VKS);
+# Bearings on Lipetsk LLC (Russian entity);
+# Kreig; a.k.a. Cow Craig; a.k.a. Hall Jermaine; a.k.a. Hall Jermaine Craig; a.k.a. Rhooms Jermain; a.k.a. Rhoomas Jermaine Craig; a.k.a. Rhoomas Rhoomes
+# Elena; a.k.a. Elena Leonidovna Shifrin Lena; a.k.a Gohkman Alexander; a.k.a Ivanov Elena; a.k.a Belov Shifrin
+# Sinobright Import and Export Company;
+# Cho Yan Nathan; a.k.a Nathan Man Man
+# Dandong Mason-Age Trade Co Ltd. (PRC entity);
+
+# curl --silent https://data.opensanctions.org/datasets/20251104/us_trade_csl/names.txt | grep \(
+# China State Shipbuilding Corporation, Limited (CSSC) 702nd Research Institute
+# China Ship Scientific Research Center (CSSRC)
+# China Shipbuilding Industry Group Co., Ltd. (CSIC) 702nd Research Institute
+# Korea Automation Industry (KAI)
+# China Shipbuilding Industry Group Co., Ltd. (CSIC) 713th Research Institute
+# China State Shipbuilding Corporation, Limited (CSSC) 713th Research Institute
+# China State Shipbuilding Corporation, Limited (CSSC) 712th Research Institute
+# FOC (HK) Technology Co., Ltd.
+# China State Shipbuilding Corporation, Limited (CSSC) 714th Research Institute
+# China Shipbuilding Industry Group Co., Ltd. (CSIC) 714th Research Institute
+# China State Shipbuilding Corporation, Limited (CSSC) 715th Research Institute
+# China Shipbuilding Industry Group Co., Ltd. (CSIC) 715th Research Institute
+# China State Shipbuilding Corporation, Limited (CSSC) 707th Research Institute
+# China Shipbuilding Industry Group Co., Ltd. (CSIC) 707th Research Institute
+
+# Ministry of Defence of the Russian Federation, including the Armed Forces of Russia and all operating units wherever located. This includes the national armed services (army, navy, marine, air force, or coast guard), as well as the national guard and national police, government intelligence or reconnaissance organizations of the Russian Federation. All address located in Russia.
+# The Ministry of Defence of the Republic of Belarus, including the Armed Forces of Belarus and all operating units wherever located. This includes the national armed services (army and air force), as well as the national guard and national police, government intelligence or reconnaissance organizations of the Republic of Belarus. All addresses located in Belarus.
+# Department of Atomic Energy facilities: Nuclear reactors (including power plants) not under International Atomic Energy Agency (IAEA) safeguards (excluding Kundankulam 1 and 2)
