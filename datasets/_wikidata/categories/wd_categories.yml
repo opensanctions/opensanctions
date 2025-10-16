@@ -58,6 +58,7 @@ publisher:
     sister projects including Wikipedia, Wikivoyage, Wiktionary, Wikisource, and others.
   url: https://www.wikidata.org
   official: false
+  country: ip
 tags:
   - list.pep
 url: https://meta.wikimedia.org/wiki/PetScan/en
