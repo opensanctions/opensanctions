@@ -166,35 +166,41 @@ export default function PositionTaggerRow({ countries, position }: PositionTagge
         {state.is_pep == null && "Undecided"}
       </td>
       <td>
-        <ButtonGroup aria-label="Scope" >
-          {SCOPE_ENTRIES.map(([topic, label]) => (
-            <Button
-              key={topic}
-              variant="outline-dark"
-              className="btn-sm"
-              active={state.topics.has(topic)}
-              disabled={saving}
-              onClick={() => toggleTopic(topic)}
-            >
-              {label}
-            </Button>
-          ))}
-        </ButtonGroup>
+        {/* Scope Buttons */}
+        <div>
+          <ButtonGroup aria-label="Scope" >
+            {SCOPE_ENTRIES.map(([topic, label]) => (
+              <Button
+                key={topic}
+                variant="outline-dark"
+                className="btn-sm"
+                active={state.topics.has(topic)}
+                disabled={saving}
+                onClick={() => toggleTopic(topic)}
+              >
+                {label}
+              </Button>
+            ))}
+          </ButtonGroup>
+        </div>
 
-        <ButtonGroup aria-label="Role" className="pt-1">
-          {ROLE_ENTRIES.map(([topic, label]) => (
-            <Button
-              key={topic}
-              variant="outline-dark"
-              className="btn-sm"
-              active={state.topics.has(topic)}
-              disabled={saving}
-              onClick={() => toggleTopic(topic)}
-            >
-              {label}
-            </Button>
-          ))}
-        </ButtonGroup>
+        {/* Role Buttons */}
+        <div>
+          <ButtonGroup aria-label="Role" className="pt-1">
+            {ROLE_ENTRIES.map(([topic, label]) => (
+              <Button
+                key={topic}
+                variant="outline-dark"
+                className="btn-sm"
+                active={state.topics.has(topic)}
+                disabled={saving}
+                onClick={() => toggleTopic(topic)}
+              >
+                {label}
+              </Button>
+            ))}
+          </ButtonGroup>
+        </div>
       </td>
       <td className="text-nowrap" title={position.created_at.toISOString()}>{position.created_at.toISOString().slice(0, 10)}</td>
     </tr>

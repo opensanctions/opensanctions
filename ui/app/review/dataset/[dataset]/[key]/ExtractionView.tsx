@@ -45,7 +45,7 @@ function AcceptAndContinueButton({ isValid, help }: { isValid: boolean, help: st
   </button>
   const tooltip = <Tooltip id="accept-continue-tooltip">
     {isValid ? (
-<>&quot;Ctrl/Cmd+Enter&quot;<br />
+      <>&quot;Ctrl/Cmd+Enter&quot;<br />
         Accept and continue to next review</>
     ) : help}
 
