@@ -125,6 +125,22 @@ lookups:
           - 1839329840
           - 00G514380
           - 1538400000
+          - PN306938
+          - CW020029
+          - PN306592
+          - MD014972E
+          - RP030505L
+          - RP030574L
+          - 9908466
+          - SW124284
+          - OS024003
+          - OS007771L
+          - OS014431
+          - DC010032
+          - PN258298L
+          - RN619472
+          - PN325793
+          - PN295543
         prop: registrationNumber
       - match: 12354634983
         value: 1235464983
@@ -160,6 +176,14 @@ lookups:
         value: 1366678260
       - match: "10\n93379521"
         value: 1093379521
+      - match: "OS024306/\nOT021627"
+        values:
+          - OS024306
+          - OT021627
+      - match: "RN757358/\nPN270730"
+        values:
+          - RN757358
+          - PN270730
   license_numbers:
     normalize: true
     options:
@@ -365,11 +389,11 @@ lookups:
         values: ["OKO000003"]
       - match: "RN2\n879412(FL)"
         values: ["RN2879412"]
-      - match: "4429\n4(HI)R149156(MD\n)"
+      - match: "4\n4294(HI)R149156(MD)"
         values: ["44294", "R149156"]
       - match: "254\n128(OH)"
         values: ["254128"]
-      - match: "R006507\n4(OK)"
+      - match: "R0065074(OK\n)"
         values: ["R0065074"]
       - match: "000115803\n2(VA)"
         values: ["0001158032"]
@@ -381,7 +405,7 @@ lookups:
         values: ["10030520"]
       - match: "7\n64907(NY)"
         values: ["764907"]
-      - match: "PN305\n385"
+      - match: "P\nN305385"
         values: ["PN305385"]
       - match: "38M00753200(NJ\n)"
         values: ["38M00753200"]
