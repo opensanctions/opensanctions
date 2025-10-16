@@ -23,6 +23,7 @@ publisher:
     This data was curated by OpenSanctions and initially submitted by our users and customers.
   url: https://www.opensanctions.org
   official: false
+  country: de
 
 assertions:
   min:

@@ -37,6 +37,7 @@ publisher:
     and offers comprehensive reference data for the financial industry.
   url: https://www.swift.com/
   official: true
+  country: zz
 url: https://www.iso9362.org/isobic/overview.html
 data:
   url: https://www.iso9362.org/bicservice/public/v1/bicdata/_pdf
