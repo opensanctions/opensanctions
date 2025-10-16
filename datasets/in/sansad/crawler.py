@@ -34,20 +34,20 @@ def clean_text(text: str | None) -> str | None:
     return text
 
 
-def emit_rca(context: Context, person: Entity, name: str | None, role: str) -> None:
-    if not name:
+def emit_rca(context: Context, person: Entity, raw_name: str | None, role: str) -> None:
+    if not raw_name or not raw_name.strip():
         return
-    if name.startswith("Late "):
+    if raw_name.startswith("Late "):
         return
     rca = context.make("Person")
-    rca.id = context.make_id(person.id, role, name)
-    rca.add("name", clean_text(name))
+    rca.id = context.make_id(person.id, role, raw_name)
+    rca.add("name", clean_text(raw_name))
     rca.add("country", "in")
     rca.add("topics", "role.rca")
     context.emit(rca)
 
     link = context.make("Family")
-    link.id = context.make_id(person.id, "family", name)
+    link.id = context.make_id(person.id, "family", raw_name)
     link.add("person", person)
     link.add("relative", rca)
     link.add("relationship", role)
@@ -152,11 +152,16 @@ def crawl_ls(context: Context) -> None:
 
 
 def crawl_rs_member(context: Context, position: Entity, member: Dict[str, Any]) -> None:
+    raw_name = member.pop("name", "")
+    raw_name_hin = member.pop("hname", "")
+    if not raw_name.strip() and not raw_name_hin.strip():
+        return
+
     person = context.make("Person")
     mpsno = member.pop("mpsno", None)
     person.id = context.make_slug("rs", mpsno)
-    person.add("name", member.pop("name", None))
-    person.add("name", member.pop("hname", None), lang="hin")
+    person.add("name", raw_name)
+    person.add("name", raw_name_hin, lang="hin")
     h.apply_name(
         person,
         first_name=member.pop("firstName", None),
