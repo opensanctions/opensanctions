@@ -38,6 +38,7 @@ def simplify_names(entity: Entity) -> Entity:
         if prop is None:
             continue
         names = entity.get(prop)
+        names_original = len(names)
 
         # Remove names which are marked at weakAlias by at least one other source
         if prop.name in FULL_NAMES and len(weak_aliases):
@@ -46,7 +47,7 @@ def simplify_names(entity: Entity) -> Entity:
                 names = strong_names
 
         reduced = reduce_names(names)
-        if len(reduced) < len(names):
+        if len(reduced) < names_original:
             stmts = list(entity._statements.get(prop_, set()))
             for stmt in stmts:
                 if stmt.value not in reduced:
