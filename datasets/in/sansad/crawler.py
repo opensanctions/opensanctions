@@ -65,8 +65,11 @@ def crawl_ls_member(
     person.id = context.make_slug("ls", mpsno)
     person.add("name", member.pop("name", None))
     person.add("name", member.pop("hname", None), lang="hin")
-    person.add("firstName", member.pop("firstName", None))
-    person.add("lastName", member.pop("lastName", None))
+    h.apply_name(
+        person,
+        first_name=member.pop("firstName", None),
+        last_name=member.pop("lastName", None),
+    )
     person.add("title", member.pop("initial", None))
     person.add("gender", member.pop("gender", None))
     person.add("status", member.pop("status", None))
@@ -152,16 +155,11 @@ def crawl_ls(context: Context) -> None:
 
 
 def crawl_rs_member(context: Context, position: Entity, member: Dict[str, Any]) -> None:
-    raw_name = member.pop("name", "")
-    raw_name_hin = member.pop("hname", "")
-    if not raw_name.strip() and not raw_name_hin.strip():
-        return
-
     person = context.make("Person")
     mpsno = member.pop("mpsno", None)
     person.id = context.make_slug("rs", mpsno)
-    person.add("name", raw_name)
-    person.add("name", raw_name_hin, lang="hin")
+    person.add("name", member.pop("name", ""))
+    person.add("name", member.pop("hname", ""), lang="hin")
     h.apply_name(
         person,
         first_name=member.pop("firstName", None),
