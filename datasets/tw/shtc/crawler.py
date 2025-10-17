@@ -88,13 +88,14 @@ def clean_names(
     # In names_str, we sometimes have the aliases appended to the name, e.g. "John Doe alias: John Doe Jr.)"
     # In this case, the aliases are repeated in the aliases_str, so we can just ignore
     # everything after the "alias: " in names_str.
-    if "alias: " in names_str:
-        names_str, aliases_in_names_str = names_str.split("alias: ", 1)
+    if "alias:" in names_str:
+        names_str, aliases_in_names_str = names_str.split("alias:", 1)
+        aliases_in_names_str = aliases_in_names_str.strip()
         if aliases_in_names_str != aliases_str:
             context.log.warning(
                 "Found aliases in names string, but they are not the same as the aliases in the aliases string. "
                 "Please check if we need to re-work the crawler to also add aliases from the names string.",
-                names_str=names_str,
+                aliases_in_names_str=aliases_in_names_str,
                 aliases_str=aliases_str,
             )
 
