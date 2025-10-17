@@ -16,7 +16,7 @@ The zavod command line tool can publish data from a specific dataset to Wikidata
 The tool iterates over the entities in the specified dataset until it
 finds an entity for which it can perform some action:
 
-1. If an entity has a Wikidata QID, it proposes any edits it can make, awaiting 
+1. If an entity has a Wikidata QID, it proposes any edits it can make, awaiting
    user confirmation to publish.
 3. If an entity does not have a QID, it searches for existing Wikidata items to
    [resolve the entity to](https://www.opensanctions.org/docs/identifiers/),
@@ -48,8 +48,8 @@ In addition to basic zavod setup, the following environment variables:
     ZAVOD_WD_USER
     PYWIKIBOT_DIR=.pywikibot
 
-Get OAuth credentials by registering an 
-[OAuth 1.0a consumer](https://meta.wikimedia.org/wiki/Special:OAuthConsumerRegistration/propose/oauth1a) 
+Get OAuth credentials by registering an
+[OAuth 1.0a consumer](https://meta.wikimedia.org/wiki/Special:OAuthConsumerRegistration/propose/oauth1a)
 with permission to:
 
 - edit existing pages
@@ -57,10 +57,8 @@ with permission to:
 
 Set `ZAVOD_WD_USER` to the username used for the OAuth consumer.
 
-Set `PYWIKIBOT_DIR` to the directory directory with your `user-config.py` - 
+Set `PYWIKIBOT_DIR` to the directory directory with your `user-config.py` -
 `.pywikibot` in this repository is probably sufficient.
-
-Copy an up to date resolve.ijson file to your `ZAVOD_RESOLVER_PATH`.
 
 Run `wd-up` as follows, changing for the dataset and country you'd like to sync up:
 
@@ -73,7 +71,7 @@ zavod wd-up \
   --country-code de
 ```
 
-- The panel on the left shows the current OpenSanctions entity, and below that the 
+- The panel on the left shows the current OpenSanctions entity, and below that the
   proposed actions.
 - The middle panel shows the search results for Wikidata items if the current entity
   does not have a QID. Highlight the right option using up/down arrows.

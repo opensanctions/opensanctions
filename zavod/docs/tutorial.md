@@ -2,7 +2,7 @@
 
 A crawler is a small Python script that will import data from a web origin and
 store it as entities as a data source. `zavod` defines a framework for
-crawlers to retrieve data, parse it and emit structured data about people or 
+crawlers to retrieve data, parse it and emit structured data about people or
 companies into a database.
 
 !!! info "Please note"
@@ -12,7 +12,7 @@ companies into a database.
     team does not automatically assume that responsibility for code contributed by
     others. See our general [inclusion critera](https://www.opensanctions.org/docs/criteria/).
 
-1. Make sure you have [installed zavod](install.md) and [set the required environment variables](install.md#configuration), specifically `ZAVOD_RESOLVER_PATH` and `ZAVOD_SYNC_POSITIONS`.
+1. Make sure you have [installed zavod](install.md) and [set the required environment variables](install.md#configuration), specifically `ZAVOD_SYNC_POSITIONS`.
 2. File a [GitHub issue](https://github.com/opensanctions/opensanctions/issues)
    to discuss the suggested source.
 3. Create a [YAML metadata](#data-source-metadata) description for the new source.
@@ -64,7 +64,7 @@ publisher:
     name: European Union External Action Service
     acronym: EEAS
     official: true
-    description: The EEAS is the EU's diplomatic service, and carries out the EU's foreign and security policy. 
+    description: The EEAS is the EU's diplomatic service, and carries out the EU's foreign and security policy.
     country: eu
     url: https://eeas.europa.eu/topics/sanctions-policy/8442/consolidated-list-of-sanctions_en
 
@@ -82,7 +82,7 @@ Once that YAML file is stored in the correct folder, you should be able to run c
 ```bash
 $ zavod crawl datasets/eu/fsf/eu_fsf_demo.yml
 ....
-2023-08-01 12:36:24 [warning  ] No backfill bucket configured  [zavod.archive] 
+2023-08-01 12:36:24 [warning  ] No backfill bucket configured  [zavod.archive]
 2023-08-01 12:36:24 [info     ] Running dataset                [eue_fsf_demo] dataset=eue_fsf_demo path=/home/you/opensanctions/data/datasets/eue_fsf_demo
 2023-08-01 12:36:24 [error    ] Runner failed: Could not load entry point: crawler [eue_fsf_demo] dataset=eue_fsf_demo
 ```
@@ -137,7 +137,7 @@ from lxml import html
 
 def crawl(context):
     response = context.http.get(context.dataset.data.url)
-    
+
     # Parse the HTTP response into an lxml DOM:
     doc = html.fromstring(response.text)
 
@@ -167,7 +167,7 @@ The goal of each crawler is to produce data about persons and other entities of 
 ```python
 def crawl(context):
 
-    # Create an entity object to which other information can be assigned: 
+    # Create an entity object to which other information can be assigned:
     entity = context.make("Person")
 
     # Each entity needs an ID which is unique within the source database, and
@@ -180,11 +180,11 @@ def crawl(context):
     entity.add('name', 'Joseph Robinette Biden Jr.')
     entity.add('alias', 'Joe Biden')
     entity.add('birthDate', '1942-11-20')
-    
+
     # Invalid property values ('never' is not a date) will produce a log
     # error:
     entity.add('deathDate', 'never')
-    
+
     # Store or update the entity in the database:
     context.emit(entity)
 ```
