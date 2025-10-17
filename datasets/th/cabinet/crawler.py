@@ -14,7 +14,7 @@ ROLE_PATTERNS = re.compile(
 # Pattern specifically for "นายกรัฐมนตรี" (Prime Minister)
 PRIME_MINISTER_PATTERN = re.compile(r"(?P<role>นายกรัฐมนตรี)\s*(?P<name>.*)")
 REGEX_TITLES = re.compile(
-    r"^(นางสาว|นาง|นาย|พลตำรวจเอก|พันตำรวจเอก|พลเอก|พลตำรวจตรี|ร้อยเอก|พลโท|จ่าเอก|-)"
+    r"^(นางสาว|นาง|นาย|พลตำรวจเอก|พันตำรวจเอก|พลเอก|พลตำรวจตรี|ร้อยเอก|พลโท|จ่าเอก|พลตำรวจโท|-)"
 )
 POSITION_PROMPT = prompt = make_position_translation_prompt("tha")
 TRANSLIT_OUTPUT = {"eng": ("Latin", "English")}
