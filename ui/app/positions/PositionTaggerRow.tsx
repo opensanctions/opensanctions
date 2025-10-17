@@ -1,12 +1,14 @@
 "use client"
 
 import Link from "next/link";
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button, ButtonGroup, Form, Spinner } from "react-bootstrap";
 import { BoxArrowUpRight } from "react-bootstrap-icons";
 
 import { OPENSANCTIONS_WEBSITE_BASE_URL } from "@/lib/constants";
 import { Position, PositionUpdate } from "@/lib/db";
+
+import styles from "@/styles/PositionTagger.module.scss";
 
 const SCOPE_ENTRIES = [
   ["gov.national", "Nat"],
@@ -31,9 +33,12 @@ const ROLE_ENTRIES = [
 type PositionTaggerRowProps = {
   countries: Map<string, string>,
   position: Position,
+  isSelected: boolean,
+  onSelect: (entityId: string) => void,
+  setRef: (entityId: string, element: HTMLTableRowElement | null) => void,
 }
 
-export default function PositionTaggerRow({ countries, position }: PositionTaggerRowProps) {
+export default function PositionTaggerRow({ countries, position, isSelected, onSelect, setRef }: PositionTaggerRowProps) {
   const countryLabels = position.countries.map((code: string) => {
     return countries.get(code);
   })
@@ -47,8 +52,6 @@ export default function PositionTaggerRow({ countries, position }: PositionTagge
   });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
-  const rowRef = useRef<HTMLTableRowElement>(null);
 
   const updatePosition = useCallback((partialData: Partial<PositionUpdate>) => {
     setSaving(true);
@@ -91,10 +94,10 @@ export default function PositionTaggerRow({ countries, position }: PositionTagge
     updatePosition({ topics: updatedTopics });
   }, [state.topics, updatePosition]);
 
-  // Keyboard shortcuts for when row is hovered
+  // Keyboard shortcuts for when row is selected
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
-      if (!isHovered || saving) return;
+      if (!isSelected || saving) return;
       // If any modifier key is pressed, let the browser handle it
       if (e.metaKey || e.ctrlKey || e.altKey) {
         return; // Don't handle the key, let browser shortcuts work
@@ -139,18 +142,18 @@ export default function PositionTaggerRow({ countries, position }: PositionTagge
       }
     }
 
-    if (isHovered) {
+    if (isSelected) {
       window.addEventListener('keydown', handleKeyDown);
       return () => window.removeEventListener('keydown', handleKeyDown);
     }
-  }, [isHovered, saving, state.is_pep, updatePosition, toggleTopic]);
+  }, [isSelected, saving, state.is_pep, updatePosition, toggleTopic]);
 
   return (
     <tr
       key={position.entity_id}
-      ref={rowRef}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      ref={(el) => setRef(position.entity_id, el)}
+      onClick={() => onSelect(position.entity_id)}
+      className={isSelected ? styles.rowSelected : undefined}
     >
       <td title={position.entity_id}>
         {saving && <Spinner animation="border" role="status" />}

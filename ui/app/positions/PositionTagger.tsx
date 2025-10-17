@@ -1,14 +1,11 @@
 "use server"
 
-import { Table } from "react-bootstrap";
-
 import { getPositions, getPositionsDatasets } from "@/lib/db";
-import { Position } from "@/lib/db";
 import { getCountries } from "@/lib/ftm";
 import { ServerSearchParams } from "@/lib/pageProps";
 
 import PositionTaggerForm from "./PositionTaggerForm";
-import PositionTaggerRow from "./PositionTaggerRow";
+import PositionTaggerTable from "./PositionTaggerTable";
 import { ResponsePagination } from "./ReponsePagination";
 
 
@@ -44,36 +41,21 @@ export default async function PositionTagger({ searchParams }: { searchParams: S
   return <>
     <PositionTaggerForm searchParams={searchParams} countries={countries} datasets={datasets} />
 
-    <Table bordered hover>
-      <thead>
-        <tr>
-          <th>Position</th>
-          <th>Country</th>
-          <th>Dataset</th>
-          <th className="text-nowrap">Is a PEP</th>
-          <th>Categories</th>
-          <th>First seen</th>
-          <th>Modified</th>
-        </tr>
-      </thead>
-      <tbody>
-        {
-          positions.results.length == 0 ?
-            <tr><td colSpan={6}>No matching results</td></tr> :
-            positions.results.map((row: Position) => {
-              return <PositionTaggerRow countries={countries} key={row.entity_id} position={row} />
-            })
-        }
-      </tbody>
-    </Table>
+    <PositionTaggerTable countries={countries} positions={positions.results} />
+
     <div className="d-flex justify-content-center">
       <ResponsePagination response={positions} searchParams={searchParams} />
     </div>
 
     <div className="mb-4">
-      <h5>Keyboard Shortcuts <small className="text-muted">(hover over position to activate)</small></h5>
+      <h5>Keyboard Shortcuts <small className="text-muted">(click to select position)</small></h5>
       <div className="row">
         <div className="col-md-4">
+          <strong>Navigation:</strong>
+          <ul className="list-unstyled">
+            <li><kbd>↑</kbd> Select previous row</li>
+            <li><kbd>↓</kbd> Select next row</li>
+          </ul>
           <strong>PEP Status:</strong>
           <ul className="list-unstyled">
             <li><kbd>X</kbd> Toggle PEP status</li>
