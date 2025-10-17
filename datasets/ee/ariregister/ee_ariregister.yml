@@ -56,7 +56,7 @@ lookups:
         value: elev.eks@skf.com
       - match: contact@1office.co,
         value: contact@1office.co
-      - match: 'tatjana_nikitina\"@hotmail.com'
+      - match: 'tatjana_nikitina"@hotmail.com'
         value: tatjana_nikitina@hotmail.com
       - match: see.kes.kirjutab.sellel.eposti.adressile.votab.tagasivotmatu.kohustuse.maksta.ekirja.eest.100.eurot@mailinator.com
         value: null
@@ -114,3 +114,5 @@ lookups:
         value: VG
       - match: XKX
         value: XK
+      - match: MON # Monaco
+        value: MC
