@@ -42,6 +42,8 @@ export default function PositionTaggerRow({ countries, position }: PositionTagge
   const [state, setState] = useState({
     is_pep: position.is_pep,
     topics: new Set(position.topics),
+    modified_at: position.modified_at ?? null,
+    modified_by: position.modified_by ?? null,
   });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(false);
@@ -66,7 +68,9 @@ export default function PositionTaggerRow({ countries, position }: PositionTagge
           setState(prevState => ({
             ...prevState,
             is_pep: result.is_pep,
-            topics: new Set(result.topics)
+            topics: new Set(result.topics),
+            modified_at: new Date(result.modified_at),
+            modified_by: result.modified_by,
           }));
           setSaving(false);
         }
@@ -207,6 +211,14 @@ export default function PositionTaggerRow({ countries, position }: PositionTagge
         </div>
       </td>
       <td className="text-nowrap" title={position.created_at.toISOString()}>{position.created_at.toISOString().slice(0, 10)}</td>
+      <td className="text-nowrap" title={state.modified_at?.toISOString()}>
+        {state.modified_at && (
+          <>
+            {state.modified_at?.toISOString().slice(0, 10)}<br />
+            by {state.modified_by?.replace('@opensanctions.org', '')}
+          </>
+        )}
+      </td>
     </tr>
   )
 }

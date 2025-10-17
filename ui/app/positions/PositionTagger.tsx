@@ -53,6 +53,7 @@ export default async function PositionTagger({ searchParams }: { searchParams: S
           <th className="text-nowrap">Is a PEP</th>
           <th>Categories</th>
           <th>First seen</th>
+          <th>Modified</th>
         </tr>
       </thead>
       <tbody>
