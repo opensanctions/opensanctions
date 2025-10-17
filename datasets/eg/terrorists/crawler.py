@@ -20,6 +20,7 @@ DATE_SPLITS = [
     "إدراج في",  # insert
     "الإدراج",  # inclusion
 ]
+PROGRAM_KEY = "EG-UNSC1373"
 
 
 def arabic_to_latin(arabic_date):
@@ -80,7 +81,9 @@ def crawl_terrorist_entities(input_dict: dict, context: Context):
     entity.add("topics", "sanction.counter")
 
     gazette_issue = input_dict.pop("issue_in_official_gazette")
-    sanction = h.make_sanction(context, entity, case_number + gazette_issue)
+    sanction = h.make_sanction(
+        context, entity, case_number + gazette_issue, program_key=PROGRAM_KEY
+    )
     sanction.add("description", f"Case number: {case_number}")
     sanction.add("description", f"Issue in official gazette: {gazette_issue}")
     sanction.add("summary", input_dict.pop("updates"), lang="ara")

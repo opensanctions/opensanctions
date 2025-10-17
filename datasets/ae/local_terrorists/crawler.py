@@ -9,6 +9,8 @@ from rigour.mime.types import XLS
 from zavod import Context
 from zavod import helpers as h
 
+PROGRAM_KEY = "AE-UNSC1373"
+
 
 class HeaderSpec(NamedTuple):
     name: str
@@ -33,7 +35,7 @@ def parse_row(
     entity.id = entity_id
     if sanctioned:
         entity.add("topics", "sanction")
-    sanction = h.make_sanction(context, entity)
+    sanction = h.make_sanction(context, entity, program_key=PROGRAM_KEY)
     address = {}
     for header, value_ in zip(headers, row):
         value = collapse_spaces(value_)

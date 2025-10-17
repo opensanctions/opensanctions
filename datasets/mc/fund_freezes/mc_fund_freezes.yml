@@ -6,7 +6,7 @@ coverage:
   start: 2024-08-16
 load_statements: true
 summary: >
-  A list of entities subject to fund and economic resource freezing procedures
+  A list of entities subject to fund and economic resource freezing procedures.
 description: |
   This dataset publishes a national list of individuals and entities subject to the freezing of funds and economic resources
   in the Principality as mandated by the Sovereign Ordinance No. 8,664 of May 26, 2021.
