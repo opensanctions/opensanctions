@@ -180,10 +180,12 @@ lookups:
         values:
           - OS024306
           - OT021627
+        prop: registrationNumber
       - match: "RN757358/\nPN270730"
         values:
           - RN757358
           - PN270730
+        prop: registrationNumber
   license_numbers:
     normalize: true
     options:

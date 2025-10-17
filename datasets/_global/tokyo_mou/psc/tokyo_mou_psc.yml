@@ -68,3 +68,5 @@ lookups:
     options:
       - match: "doubleeastship@163.com??'"
         value: doubleeastship@163.com
+      - match: "marine @d-sailingshpg.com"
+        value: marine@d-sailingshpg.com"

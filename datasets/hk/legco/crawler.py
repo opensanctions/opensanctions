@@ -108,6 +108,9 @@ UNUSED_PAGE_FIELDS = [
     "occupation",
     "party",
     "office_address",
+    "office_list",
+    "annual_report_list",
+    "other_report_list",
 ]
 PAGE_FIELDS = [
     "qualification",
