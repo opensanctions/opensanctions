@@ -1,9 +1,14 @@
 "use client"
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import Link from "next/link";
+import { useState, useEffect, useCallback } from "react";
 import { Button, ButtonGroup, Form, Spinner } from "react-bootstrap";
+import { BoxArrowUpRight } from "react-bootstrap-icons";
 
+import { OPENSANCTIONS_WEBSITE_BASE_URL } from "@/lib/constants";
 import { Position, PositionUpdate } from "@/lib/db";
+
+import styles from "@/styles/PositionTagger.module.scss";
 
 const SCOPE_ENTRIES = [
   ["gov.national", "Nat"],
@@ -28,9 +33,12 @@ const ROLE_ENTRIES = [
 type PositionTaggerRowProps = {
   countries: Map<string, string>,
   position: Position,
+  isSelected: boolean,
+  onSelect: (entityId: string) => void,
+  setRef: (entityId: string, element: HTMLTableRowElement | null) => void,
 }
 
-export default function PositionTaggerRow({ countries, position }: PositionTaggerRowProps) {
+export default function PositionTaggerRow({ countries, position, isSelected, onSelect, setRef }: PositionTaggerRowProps) {
   const countryLabels = position.countries.map((code: string) => {
     return countries.get(code);
   })
@@ -39,11 +47,11 @@ export default function PositionTaggerRow({ countries, position }: PositionTagge
   const [state, setState] = useState({
     is_pep: position.is_pep,
     topics: new Set(position.topics),
+    modified_at: position.modified_at ?? null,
+    modified_by: position.modified_by ?? null,
   });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
-  const rowRef = useRef<HTMLTableRowElement>(null);
 
   const updatePosition = useCallback((partialData: Partial<PositionUpdate>) => {
     setSaving(true);
@@ -63,7 +71,9 @@ export default function PositionTaggerRow({ countries, position }: PositionTagge
           setState(prevState => ({
             ...prevState,
             is_pep: result.is_pep,
-            topics: new Set(result.topics)
+            topics: new Set(result.topics),
+            modified_at: new Date(result.modified_at),
+            modified_by: result.modified_by,
           }));
           setSaving(false);
         }
@@ -84,10 +94,10 @@ export default function PositionTaggerRow({ countries, position }: PositionTagge
     updatePosition({ topics: updatedTopics });
   }, [state.topics, updatePosition]);
 
-  // Keyboard shortcuts for when row is hovered
+  // Keyboard shortcuts for when row is selected
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
-      if (!isHovered || saving) return;
+      if (!isSelected || saving) return;
       // If any modifier key is pressed, let the browser handle it
       if (e.metaKey || e.ctrlKey || e.altKey) {
         return; // Don't handle the key, let browser shortcuts work
@@ -132,18 +142,18 @@ export default function PositionTaggerRow({ countries, position }: PositionTagge
       }
     }
 
-    if (isHovered) {
+    if (isSelected) {
       window.addEventListener('keydown', handleKeyDown);
       return () => window.removeEventListener('keydown', handleKeyDown);
     }
-  }, [isHovered, saving, state.is_pep, updatePosition, toggleTopic]);
+  }, [isSelected, saving, state.is_pep, updatePosition, toggleTopic]);
 
   return (
     <tr
       key={position.entity_id}
-      ref={rowRef}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      ref={(el) => setRef(position.entity_id, el)}
+      onClick={() => onSelect(position.entity_id)}
+      className={isSelected ? styles.rowSelected : undefined}
     >
       <td title={position.entity_id}>
         {saving && <Spinner animation="border" role="status" />}
@@ -151,6 +161,7 @@ export default function PositionTaggerRow({ countries, position }: PositionTagge
         {position.entity_id.startsWith('Q') &&
           <a href={`https://www.wikidata.org/wiki/${position.entity_id}`} target="_blank" rel="noreferrer">[WD]</a>
         }
+        <small><Link className="ps-2 align-text-bottom" href={`${OPENSANCTIONS_WEBSITE_BASE_URL}/entities/${position.entity_id}`} target="_blank" rel="noreferrer"><BoxArrowUpRight /></Link></small>
         {error && <span className="text-danger">Error saving</span>}
       </td>
       <td>{countryLabels.join(", ")}</td>
@@ -203,6 +214,14 @@ export default function PositionTaggerRow({ countries, position }: PositionTagge
         </div>
       </td>
       <td className="text-nowrap" title={position.created_at.toISOString()}>{position.created_at.toISOString().slice(0, 10)}</td>
+      <td className="text-nowrap" title={state.modified_at?.toISOString()}>
+        {state.modified_at && (
+          <>
+            {state.modified_at?.toISOString().slice(0, 10)}<br />
+            by {state.modified_by?.replace('@opensanctions.org', '')}
+          </>
+        )}
+      </td>
     </tr>
   )
 }

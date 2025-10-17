@@ -1,7 +1,5 @@
 import { Metadata } from 'next';
-import { headers } from 'next/headers';
 
-import { verify } from '@/lib/auth';
 import { getDatasetStats, IDatasetStats } from '@/lib/db';
 
 export const dynamic = "force-dynamic";
