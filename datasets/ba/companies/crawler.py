@@ -68,17 +68,19 @@ def get_secret_param(context: Context) -> str:
     Args:
         context: The context object for the current dataset.
     Returns:
-        The secret param as a str.
+        The secret param as a str, or an empty string if not found.
     """
-    resp = context.fetch_text(context.data_url, cache_days=CACHE_DAYS)
-
-    matches = re.search(r"f\?p=18\d\:\d+\:(\d+)", resp)
-
-    if not matches:
-        context.log.warning("Cannot find secret param")
-        return ""
-    else:
+    try:
+        resp = context.fetch_text(context.data_url, cache_days=CACHE_DAYS)
+        matches = re.search(r"f\?p=18\d\:\d+\:(\d+)", resp)
+        if not matches:
+            context.log.warning("Cannot find secret param")
+            return ""
         return matches.group(1)
+
+    except Exception as e:
+        context.log.warning(f"Failed to get secret param: {e}")
+        return ""
 
 
 def seed_city(context: Context, secret_param: str) -> List[Dict[str, str]]:
