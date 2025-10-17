@@ -1,8 +1,11 @@
 "use client"
 
+import Link from "next/link";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Button, ButtonGroup, Form, Spinner } from "react-bootstrap";
+import { BoxArrowUpRight } from "react-bootstrap-icons";
 
+import { OPENSANCTIONS_WEBSITE_BASE_URL } from "@/lib/constants";
 import { Position, PositionUpdate } from "@/lib/db";
 
 const SCOPE_ENTRIES = [
@@ -151,6 +154,7 @@ export default function PositionTaggerRow({ countries, position }: PositionTagge
         {position.entity_id.startsWith('Q') &&
           <a href={`https://www.wikidata.org/wiki/${position.entity_id}`} target="_blank" rel="noreferrer">[WD]</a>
         }
+        <small><Link className="ps-2 align-text-bottom" href={`${OPENSANCTIONS_WEBSITE_BASE_URL}/entities/${position.entity_id}`} target="_blank" rel="noreferrer"><BoxArrowUpRight /></Link></small>
         {error && <span className="text-danger">Error saving</span>}
       </td>
       <td>{countryLabels.join(", ")}</td>
