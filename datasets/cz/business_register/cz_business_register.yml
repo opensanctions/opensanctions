@@ -52,23 +52,42 @@ lookups:
           - VEREINIGUNG FÜR MÖGLICHERWEISE DIE BARMHERZIGSTEN PRODUKTE DER WIRTSCHAFT
           - ASSOCIAZIONE PER I PRODOTTI POSSIBILMENTE PIÙ MISERICORDIOSI DI ECONOMIA
           - HAAGUDA LAMUTSARIM ULAY HARAKHUMIM BEYOTER SHEL HAKALKALA
+      - match: 'Spolek přátel a příležitostných kamarádů pro výlovy býkovických rybníků "Korálek", "Na Ohrazdě", "Prostřední" a dalších býkovických rybníků a rybníku "Na firmě"a dalších rybníků na území Kunštátska, Lysicka a Boskovicka a také spolek přátel a příležitostných kamarádů pro pořádání různých společenských, kulturních, sportovních, vzdělávacích a ducha rozvíjejících prospěšných aktivit z. s.'
+        value: 'Spolek přátel a příležitostných kamarádů pro výlovy býkovických rybníků "Korálek", "Na Ohrazdě", "Prostřední" a dalších býkovických rybníků a rybníku "Na firmě"a dalších rybníků na území Kunštátska, Lysicka a Boskovicka'
       - match:
           - "."
           - 300755
           - ---
           - 0
-          - 00000000000000000000000
+          - '00000000000000000000000'
           - 580118/0451
-          - " 99 "
+          - '" 99 "'
           - 99
           - "1.2.3."
-          - 04
+          - '04'
           - 580118/0451
           - 695106/1491
           - 300755
           - "-"
           - 1.9.1984
         value: null
+  type.string:
+    options:
+      - match: 
+          - "."
+          - 580118/0451
+          - 1.9.1984
+          - "-"
+          - 0
+          - 695106/1491
+          - 300755
+        value: null
+  type.address:
+    options:
+      - match: "Zelená voda II. 3080/95, 91501 Nové Mesto nad Váhom, Slovensko číslo SR štátnej úradnej ES E0007207504, el. adresa pre zákonné úradné doručovanie do ES a do e-schránky:urad@odbory.org; EKVITA@odbory.org. Spolok má od 01.03.21 regionálnu kanceláriu na adr"
+        value: Zelená voda II. 3080/95, 91501 Nové Mesto nad Váhom, Slovensko číslo SR štátnej úradnej ES E0007207504
+      - match: "Zelená voda II. 3080/95, 91501 Nové Mesto nad Váhom, Slovensko číslo SR štátnej ES E000720505, el. adresa pre zákonné úradné doručovanie do ES a do e-schránky: urad@odbory.org; EKVITA@odbory.org. Spolok má od 01.03.21 regionálnu kanceláriu na adrese Dvor"
+        value: Zelená voda II. 3080/95, 91501 Nové Mesto nad Váhom, Slovensko číslo SR štátnej ES E000720505
   type.date:
     options:
       - match: 
