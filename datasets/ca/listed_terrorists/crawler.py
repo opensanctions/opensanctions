@@ -4,6 +4,7 @@ from zavod import Context
 from zavod import helpers as h
 
 ALIAS_SPLITS = ["; ", ", "]
+PROGRAM_KEY = "CA-UNSC1373"
 
 
 def crawl(context: Context):
@@ -27,4 +28,6 @@ def crawl(context: Context):
         entity.add("modifiedAt", node.findtext("./updated"))
         entity.add("topics", "crime.terror")
 
+        sanction = h.make_sanction(context, entity, program_key=PROGRAM_KEY)
+        context.emit(sanction)
         context.emit(entity)

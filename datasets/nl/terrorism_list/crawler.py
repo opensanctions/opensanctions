@@ -8,6 +8,7 @@ from zavod import helpers as h
 
 ODS = "application/vnd.oasis.opendocument.spreadsheet"
 CellValue = Tuple[str, str, str]
+PROGRAM_KEY = "NL-UNSC1373"
 
 
 def read_table(
@@ -66,7 +67,7 @@ def crawl(context: Context):
             continue
         entity.add("topics", "crime")
 
-        sanction = h.make_sanction(context, entity)
+        sanction = h.make_sanction(context, entity, program_key=PROGRAM_KEY)
         surname = row.pop("Surname")[1]
         first_name = row.pop("First name(s)")[1]
         entity.add("alias", row.pop("Alias")[1])
