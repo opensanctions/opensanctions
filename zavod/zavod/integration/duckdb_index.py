@@ -29,21 +29,19 @@
 # making memory_limit smaller might help fit what the buffer manager manages,
 # plus all the additional DuckDB and non-DuckDB memory usage.
 
-import orjson
-from pathlib import Path
 from collections import defaultdict
+from pathlib import Path
 from typing import Any, Dict, Generator, Iterable, List, Tuple
 
 import duckdb
+import orjson
 from followthemoney import model, registry
 from nomenklatura.index.common import BaseIndex
 from nomenklatura.resolver import Identifier
 from nomenklatura.store import View
 
 from zavod import settings
-from zavod.meta import Dataset
 from zavod.entity import Entity
-from zavod.logs import get_logger
 from zavod.integration.tokenizer import (
     NAME_PART_FIELD,
     PHONETIC_FIELD,
@@ -51,6 +49,8 @@ from zavod.integration.tokenizer import (
     WORD_FIELD,
     tokenize_entity,
 )
+from zavod.logs import get_logger
+from zavod.meta import Dataset
 from zavod.reset import reset_caches
 
 BlockingMatches = List[Tuple[Identifier, float]]
@@ -111,10 +111,10 @@ class DuckDBIndex(BaseIndex[Dataset, Entity]):
         tmp_dir = self.data_dir / "tmp"
         tmp_dir.mkdir(parents=True, exist_ok=True)
         self.duckdb_config = {
-            "preserve_insertion_order": False,
+            "preserve_insertion_order": "false",
             # > If you have a limited amount of memory, try to limit the number of threads
             # "threads": int(settings.XREF_THREADS),
-            "threads": 1,
+            "threads": "1",
             "temp_directory": tmp_dir.as_posix(),
         }
         self.memory_budget = int(options.get("memory", settings.DUCKDB_MEMORY))
