@@ -132,10 +132,12 @@ def publish(dataset_path: Path, latest: bool = False) -> None:
 @click.argument("dataset_path", type=InPath)
 @click.option("-l", "--latest", is_flag=True, default=False)
 @click.option("-c", "--clear", is_flag=True, default=False)
+@click.option("--batch-size", type=int, default=None, help="Database batch size")
 def run(
     dataset_path: Path,
     latest: bool = False,
     clear: bool = False,
+    batch_size: Optional[int] = None,
 ) -> None:
     dataset = _load_dataset(dataset_path)
     if clear:
@@ -176,7 +178,8 @@ def run(
 
         if not dataset.is_collection and dataset.model.load_statements:
             log.info("Loading dataset into database...", dataset=dataset.name)
-            load_dataset_to_db(dataset, linker, external=False)
+            batch_size = batch_size if batch_size else settings.DB_BATCH_SIZE
+            load_dataset_to_db(dataset, linker, external=False, batch_size=batch_size)
         log.info("Dataset run is complete :)", dataset=dataset.name)
     except Exception:
         log.exception("Failed to export and publish %r" % dataset.name)
