@@ -8,7 +8,6 @@ import click
 from followthemoney.cli.util import InPath, OutPath
 from followthemoney.statement import CSV, FORMATS
 from nomenklatura.matching import DefaultAlgorithm
-from nomenklatura.settings import STATEMENT_BATCH
 from nomenklatura.tui import dedupe_ui
 from zavod import settings
 from zavod.archive import clear_data_path, dataset_state_path
@@ -178,7 +177,7 @@ def run(
 
         if not dataset.is_collection and dataset.model.load_statements:
             log.info("Loading dataset into database...", dataset=dataset.name)
-            batch_size = batch_size if batch_size else settings.DB_BATCH_SIZE
+            batch_size = batch_size or settings.DB_BATCH_SIZE
             load_dataset_to_db(dataset, linker, external=False, batch_size=batch_size)
         log.info("Dataset run is complete :)", dataset=dataset.name)
     except Exception:
@@ -188,16 +187,17 @@ def run(
 
 @cli.command("load-db", help="Load dataset statements from the archive into a database")
 @click.argument("dataset_path", type=InPath)
-@click.option("--batch-size", type=int, default=STATEMENT_BATCH)
+@click.option("--batch-size", type=int, default=None, help="Database batch size")
 @click.option("-x", "--external", is_flag=True, default=False)
 def load_db(
     dataset_path: Path,
-    batch_size: int = 5000,
+    batch_size: Optional[int] = None,
     external: bool = False,
 ) -> None:
     try:
         dataset = _load_dataset(dataset_path)
         linker = get_dataset_linker(dataset)
+        batch_size = batch_size or settings.DB_BATCH_SIZE
         load_dataset_to_db(
             dataset,
             linker,
