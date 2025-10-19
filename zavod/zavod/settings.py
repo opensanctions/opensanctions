@@ -18,7 +18,6 @@ DATA_PATH = Path(env_str("OPENSANCTIONS_DATA_PATH", DATA_PATH_)).resolve()
 DATA_PATH.mkdir(parents=True, exist_ok=True)
 
 # Per-run timestamp
-TIME_ZONE = env_str("TZ", "UTC")
 RUN_VERSION = Version.from_env("ZAVOD_VERSION")
 RUN_TIME = RUN_VERSION.dt
 RUN_TIME_ISO = RUN_VERSION.dt.isoformat(sep="T", timespec="seconds")
@@ -34,10 +33,6 @@ ENRICH_TOPICS = {
     "poi",
     "gov.soe",
 }
-
-
-# Store configuration
-STORE_RETAIN_DAYS = int(env_str("ZAVOD_STORE_RETAIN_DAYS", "3"))
 
 # Release version
 RELEASE = env_str("ZAVOD_RELEASE", RUN_TIME.strftime("%Y%m%d"))
@@ -66,9 +61,6 @@ HTTP_RETRY_BACKOFF_MAX = int(env.get("ZAVOD_HTTP_RETRY_BACKOFF_MAX", 120))
 DATABASE_URI = f"sqlite:///{DATA_PATH.joinpath('zavod.sqlite3').as_posix()}"
 DATABASE_URI = env.get("ZAVOD_DATABASE_URI", DATABASE_URI)
 DATABASE_URI = env_str("OPENSANCTIONS_DATABASE_URI", DATABASE_URI)
-
-# Load DB batch size
-DB_BATCH_SIZE = int(env_str("ZAVOD_DB_BATCH_SIZE", "1000"))
 
 # pywikibot settings for editing Wikidata
 WD_CONSUMER_TOKEN = env.get("ZAVOD_WD_CONSUMER_TOKEN")
