@@ -1,5 +1,5 @@
 from typing import Dict, Any, Optional
-from normality import slugify, collapse_spaces
+from normality import slugify, squash_spaces
 
 from zavod import Context
 from zavod import helpers as h
@@ -37,14 +37,14 @@ def crawl_leader(
 ) -> None:
     name = leader["name"]
     name = name.replace("(Acting)", "")
-    name = collapse_spaces(name)
+    name = squash_spaces(name)
     name = context.lookup_value("normalize_name", name, name)
-    if h.is_empty(name):
+    if name is None or h.is_empty(name):
         return
     if "vacant" in name.lower():
         context.log.warning("Double-check vacant position", name=name)
     function = clean_position(leader["title"])
-    gov = collapse_spaces(section)
+    gov = squash_spaces(section) if section else None
     if gov:
         function = f"{function} - {gov}"
         # print(function)
@@ -59,6 +59,7 @@ def crawl_leader(
     person.id = context.make_slug(country, name, function)
     person.add("name", name)
     person.add("position", function)
+    person.add("citizenship", country)
     person.add("sourceUrl", source_url)
 
     res = context.lookup("position_topics", function)
@@ -84,8 +85,9 @@ def crawl_leader(
         )
 
         context.emit(person)
-        context.emit(position)
-        context.emit(occupancy)
+        if occupancy is not None:
+            context.emit(position)
+            context.emit(occupancy)
 
 
 def crawl_country(context: Context, country: str) -> None:
