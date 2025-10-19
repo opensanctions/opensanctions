@@ -1,3 +1,5 @@
+# Check in every month for updates
+# https://sanctionlist.mfa.ir/portal/catalogsearch/139
 title: Iran Sanctions List
 entry_point: crawler.py
 prefix: ir-san

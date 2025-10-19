@@ -12,7 +12,7 @@ deploy:
   cpu_limit: "2000m"
   memory: 3000Mi
   memory_limit: "4000Mi"
-  disk: 150Gi
+  disk: 300Gi
 exports:
   - statistics.json
   - entities.ftm.json

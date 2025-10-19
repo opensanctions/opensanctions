@@ -1,3 +1,7 @@
+# For monthly check-ins on Chinese sanctions, see:
+# Our data: https://docs.google.com/spreadsheets/d/1DhQqlm2MHv3VpVjEJGstbBWlHV0eBJo-omMwn26TQw4/edit?gid=1070466538#gid=1070466538
+# MFA page: https://www.mfa.gov.cn/wjb_673085/zfxxgk_674865/gknrlb/fzcqdcs/
+# MOFCOM page: http://english.mofcom.gov.cn/article/policyrelease/questions
 title: China Sanctions Research
 entry_point: crawler.py
 prefix: cn-sanc
@@ -31,7 +35,6 @@ description: |
   tool but not as a definitive source of sanctions data on China.
 
   * [How China imposes sanctions](https://merics.org/en/report/how-china-imposes-sanctions) (MERICS)
-  * [Rules on Counteracting Unjustified Extra-territorial Application of Foreign Legislation and Other Measures](http://english.mofcom.gov.cn/article/policyrelease/questions/202101/20210103029708.shtml)
   * [MFA Anti-Sanctions List and Measures](https://www.mfa.gov.cn/wjb_673085/zfxxgk_674865/gknrlb/fzcqdcs/)
 publisher:
   name: OpenSanctions
@@ -46,7 +49,6 @@ publisher:
     The Ministry of Foreign Affairs of the People's Republic of China is a
     ministry of the Chinese government responsible for the country's foreign
     relations.
-  # url: https://www.mfa.gov.cn/wjb_673085/zfxxgk_674865/gknrlb/fzcqdcs/
   url: https://www.opensanctions.org/
   official: false
   country: cn
