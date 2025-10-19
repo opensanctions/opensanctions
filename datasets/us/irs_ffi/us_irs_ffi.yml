@@ -4,7 +4,7 @@ prefix: fatca
 coverage:
   frequency: monthly
   start: "2024-11-11"
-load_statements: true
+load_statements: false
 resolve: false
 ci_test: false
 summary: >
@@ -54,9 +54,8 @@ lookups:
         value: AX
   type.name:
     options:
-      - match: 
+      - match:
           - 198752440001-46
           - 19875244000146
           - 272514
         value: null
-

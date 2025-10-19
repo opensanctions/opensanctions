@@ -5,6 +5,7 @@ hidden: true
 coverage:
   frequency: daily
   start: 2020-01-01
+load_statements: false
 summary: >
   This dataset is used to validate and test the OpenSanctions data processing pipeline.
 description: |
