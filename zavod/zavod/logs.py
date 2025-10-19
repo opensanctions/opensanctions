@@ -2,6 +2,7 @@ import logging
 import os
 import re
 import sys
+from rigour.env import TZ_NAME
 from pathlib import Path
 from typing import Callable, Optional
 from typing import Dict, List, Any, MutableMapping
@@ -135,7 +136,7 @@ def configure_logging(level: int = logging.DEBUG) -> None:
     else:
         formatting_processors = [
             structlog.processors.TimeStamper(
-                fmt="%Y-%m-%d %H:%M:%S", utc=settings.TIME_ZONE == "UTC"
+                fmt="%Y-%m-%d %H:%M:%S", utc=TZ_NAME == "UTC"
             )
         ]
 
