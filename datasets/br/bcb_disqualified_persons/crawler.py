@@ -1,5 +1,5 @@
 import itertools
-from typing import Any, Iterable, List, Tuple
+from typing import Any, Iterable, Tuple
 
 from zavod import Context
 from zavod import helpers as h
