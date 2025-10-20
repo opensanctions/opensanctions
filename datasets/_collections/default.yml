@@ -37,6 +37,7 @@ description: |
 children:
   - sanctions
   - eu_sanctions
+  - sanctions_mini
   - crime
   - peps
   - debarment
