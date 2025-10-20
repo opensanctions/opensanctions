@@ -4,17 +4,16 @@ import re
 import sys
 from rigour.env import TZ_NAME
 from pathlib import Path
-from typing import Callable, Optional
-from typing import Dict, List, Any, MutableMapping
+from typing import Any, Callable, Dict, List, MutableMapping, Optional
 
 import structlog
+from followthemoney.schema import Schema
 from lxml.etree import _Element, tostring
 from lxml.html import HtmlElement
 from structlog.contextvars import merge_contextvars
 from structlog.stdlib import get_logger as get_raw_logger
 from structlog.types import Processor
 
-from followthemoney.schema import Schema
 from zavod import settings
 
 Event = MutableMapping[str, str]
@@ -28,10 +27,7 @@ REDACT_IGNORE_LIST = {
     "CLOUDSDK_CONTAINER_CLUSTER",
     "EU_JOURNAL_SEEN_PATH",
     "ZAVOD_DATA_PATH",
-    "ZAVOD_RESOLVER_PATH",
-    "ZAVOD_SYNC_POSITIONS",
     "ZAVOD_OPENSANCTIONS_API_URL",
-    "OPENSANCTIONS_RESOLVER_PATH",
     # The URL redaction will handle these
     "ZAVOD_DATABASE_URI",
     "OPENSANCTIONS_DATABASE_URI",
