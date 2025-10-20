@@ -1,77 +1,64 @@
-from typing import List
-from zavod import Context, helpers as h
+import itertools
+from typing import Any, Iterable, List, Tuple
+
+from zavod import Context
+from zavod import helpers as h
 
 
-def fetch_data(context: Context) -> List[dict]:
-    """
-    Fetches data from the website, or raises an exception on failure.
+def crawl_person(context: Context, name: str, lines: Iterable[dict[str, Any]]) -> None:
+    """Crawl all entries for a person."""
+    first_line = next(iter(lines))
+    person = context.make("Person")
+    tax_number = first_line["CPF"]
+    person.id = context.make_slug(tax_number, prefix="br-cpf")
+    person.add("name", first_line["Nome"])
+    person.add("taxNumber", tax_number)
+    person.add("country", "br")
+    person.add("topics", "corp.disqual")
 
-    :param context: The context object.
-    :return: List of dicts containing data.
-    """
-    response = context.fetch_json(context.data_url)
-    if "value" not in response:
-        context.log.error("Value not found in JSON")
-        return []
-    return response["value"]
+    # When a person is listed multiple times, the end date is only listed in one of the lines.
+    # We extract that one end date here so that we can use it below.
+    end_dates = {line["Prazo_final_penalidade"] for line in lines}
+    end_dates = {date for date in end_dates if date != "Consolidado"}
 
+    for line in lines:
+        assert line["Nome"] == first_line["Nome"]
+        assert line["CPF"] == first_line["CPF"], (
+            "CPF for all lines with the same name should be the same"
+        )
+        pas_number = line.pop("PAS")
 
-def create_entity(input_dict: dict, context: Context):
-    """
-    Creates an entity from the raw data.
+        sanction = h.make_sanction(context, person, key=pas_number)
+        # The ID of the process
+        sanction.add(
+            "description",
+            "Administrative Sanctioning Process Number: {}".format(pas_number),
+        )
 
-    :param input_dict: Data dict extracted from source.
-                       Should have at least following keys:
-                        - CPF
-                        - Nome
-    :param context: The context object.
-    """
-    entity = context.make("Person")
-    tax_number = input_dict["CPF"]
-    entity.id = context.make_slug(tax_number, prefix="br-cpf")
-    entity.add("name", input_dict["Nome"])
-    entity.add("taxNumber", tax_number)
-    entity.add("country", "br")
-    entity.add("topics", "corp.disqual")
+        # The duration is always in years
+        sanction.add("duration", "{} year(s)".format(line.pop("Prazo_em_anos")))
+        # The start and end dates are in the format YYYY-MM-DD
+        sanction.add("startDate", line.pop("Inicio_do_cumprimento"))
+        # If the end date is "Consolidado", the end date is only listed in one of the lines
+        # referring to this person.
+        if line["Prazo_final_penalidade"] == "Consolidado":
+            if len(end_dates) != 1:
+                context.log.error(
+                    'End date "Consolidado", but multiple other end dates found. '
+                    "Unclear which one should be used, using the first one.",
+                    end_dates=end_dates,
+                )
+            sanction.add("endDate", next(iter(end_dates)))
+        else:
+            sanction.add("endDate", line.pop("Prazo_final_penalidade"))
 
-    return entity
+        context.audit_data(line)
 
-
-def create_sanction(input_dict: dict, entity, context: Context):
-    """
-    Creates the sanction for a given entity and the raw data.
-
-    :param input_dict: Data dict extracted from source.
-                       Should have at least following keys:
-                        - PAS
-                        - Prazo_em_ano
-                        - Inicio_do_cumprimento
-                        - Prazo_final_penalidade
-    :param entity: Entity the sanction refers to.
-    :param context: The context object.
-    """
-
-    pas_number = input_dict.pop("PAS")
-
-    sanction = h.make_sanction(context, entity, key=pas_number)
-
-    # The ID of the process
-    sanction.add(
-        "description",
-        "Administrative Sanctioning Process Number: {}".format(pas_number),
-    )
-
-    # The duration is always in years
-    sanction.add("duration", "{} year(s)".format(input_dict.pop("Prazo_em_anos")))
-
-    # The start and end dates are in the format YYYY-MM-DD
-    sanction.add("startDate", input_dict.pop("Inicio_do_cumprimento"))
-    sanction.add("endDate", input_dict.pop("Prazo_final_penalidade"))
-
-    return sanction
+        context.emit(sanction)
+    context.emit(person)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     """
     Entrypoint to the crawler.
 
@@ -80,9 +67,15 @@ def crawl(context: Context):
 
     :param context: The context object.
     """
-    data = fetch_data(context)
-    for line in data:
-        entity = create_entity(line, context)
-        sanction = create_sanction(line, entity, context)
-        context.emit(entity)
-        context.emit(sanction)
+    response = context.fetch_json(context.data_url)
+    if "value" not in response:
+        context.log.error("Value not found in JSON")
+        return
+    data = response["value"]
+
+    lines_by_name: Iterable[Tuple[str, Iterable[dict[str, Any]]]] = itertools.groupby(
+        data, lambda line: line["Nome"]
+    )
+
+    for name, lines in lines_by_name:
+        crawl_person(context, name, lines)
