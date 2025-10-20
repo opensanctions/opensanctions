@@ -15,7 +15,6 @@ permissions:
 jobs:
   python:
     env:
-      OPENSANCTIONS_RESOLVER_PATH: /dev/null
       OPENSSL_CONF: "contrib/openssl.cnf"
 
     runs-on: ubuntu-latest
