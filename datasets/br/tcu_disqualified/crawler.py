@@ -1,8 +1,12 @@
-from zavod import Context, helpers as h
+from typing import Any
+
 from rigour.ids.stdnum_ import CPF
 
+from zavod import Context
+from zavod import helpers as h
 
-def crawl_item(input_dict: dict, context: Context):
+
+def crawl_item(input_dict: dict[str, Any], context: Context) -> None:
     """
     Creates an entity from the raw data.
 
@@ -19,17 +23,19 @@ def crawl_item(input_dict: dict, context: Context):
 
     entity = context.make("Person")
 
+    cpf = input_dict.pop("cpf")
+    name = input_dict.pop("nome")
     # make sure the CPF does not have any punctuation
-    tax_number = CPF.normalize(input_dict["cpf"])
+    cleaned_tax_number = CPF.normalize(cpf)
 
     # if the tax number is None, it means it was invalid
-    if tax_number is None:
-        entity.id = context.make_id(input_dict["cpf"], input_dict["nome"])
+    if cleaned_tax_number is None:
+        entity.id = context.make_id(cpf, name)
     else:
-        entity.id = context.make_slug(tax_number, prefix="br-cpf")
+        entity.id = context.make_slug(cleaned_tax_number, prefix="br-cpf")
 
-    entity.add("name", input_dict["nome"])
-    entity.add("taxNumber", tax_number)
+    entity.add("name", name)
+    entity.add("taxNumber", cleaned_tax_number)
     entity.add("country", "br")
     entity.add("topics", "corp.disqual")
 
@@ -55,12 +61,23 @@ def crawl_item(input_dict: dict, context: Context):
                                restricts individuals from holding certain influential
                                and sensitive positions in the public sector""",
     )
+    context.audit_data(
+        input_dict,
+        ignore=[
+            # Decision date
+            "data_acordao",
+            # State code
+            "uf",
+            # Commune
+            "municipio",
+        ],
+    )
 
     context.emit(entity)
     context.emit(sanction)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     url = context.data_url
     while True:
         response = context.fetch_json(url)
