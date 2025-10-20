@@ -1,6 +1,6 @@
 # Developing crawlers for Politically Exposed Persons (PEPs)
 
-If this is your first crawler, you may want to start with a basic crawler by 
+If this is your first crawler, you may want to start with a basic crawler by
 following the [tutorial](tutorial.md), coming back here when you have one working.
 You may also want to look at children of the [peps collection](https://github.com/opensanctions/opensanctions/blob/main/datasets/_collections/peps.yml)
 to see common approaches.
@@ -30,9 +30,9 @@ Do
 - include the organisational body where needed
 - include the specific geographic jurisdiction where relevant
 - refer to [Wikidata EveryPolitician](https://www.wikidata.org/wiki/Wikidata:WikiProject_every_politician)
-  for examples - specifically [position Q4164871](https://www.wikidata.org/wiki/Q4164871). 
+  for examples - specifically [position Q4164871](https://www.wikidata.org/wiki/Q4164871).
   Much work has been done on defining positions in understandable and accurate
-  ways here, and we plan on contributing our politician in the near future. 
+  ways here, and we plan on contributing our politician in the near future.
 
 Avoid
 
@@ -42,31 +42,31 @@ Avoid
 
 ### Examples
 
-- Prefer `United States representative` over `Member of the House of Representatives` - 
-  while it's true that they're a member of the house of representatives, the 
+- Prefer `United States representative` over `Member of the House of Representatives` -
+  while it's true that they're a member of the house of representatives, the
   common generic term is United States representative.
 - Prefer `Member of the Landtag of Mecklenburg-Vorpommern` over `Member of the Landtag of Mecklenburg-Vorpommern, Germany` -
   the country is already captured
   as a property of the entity.
-- Prefer `Member of the Hellenic Parliament` over `Member of the 17th Hellenic 
-  Parliament (2015-202019)` - there is currently no need to distinguish between 
-  different terms of the same position. Occupancies represent distinct periods 
-  when a given person holds a position. If the same position occurs twice in time, 
-  e.g. it was only possible to be `Minister of Electricity` up until 2015 and 
-  again from 2023, those can be distinguished sufficiently using the dissolution 
+- Prefer `Member of the Hellenic Parliament` over `Member of the 17th Hellenic
+  Parliament (2015-202019)` - there is currently no need to distinguish between
+  different terms of the same position. Occupancies represent distinct periods
+  when a given person holds a position. If the same position occurs twice in time,
+  e.g. it was only possible to be `Minister of Electricity` up until 2015 and
+  again from 2023, those can be distinguished sufficiently using the dissolution
   and inception properties rather than the name.
 
-Use the [`make_position`][zavod.helpers.make_position] helper to generate position entities consistently. 
+Use the [`make_position`][zavod.helpers.make_position] helper to generate position entities consistently.
 
 !!! info "Pro tip"
     It's perfectly fine to emit the same position over and over for each instance
     of a person holding that position, if that simplifies your code.
 
-    It is often convenient to just create the person, all their positions, and 
-    occupancies in a loop. You don't have to track created positions in your 
+    It is often convenient to just create the person, all their positions, and
+    occupancies in a loop. You don't have to track created positions in your
     crawler to avoid duplicates as long as the position `id` is consistent for
     each distinct position encountered. This will be the case if the values you
-    pass [`make_position`][zavod.helpers.make_position] are consistent. The 
+    pass [`make_position`][zavod.helpers.make_position] are consistent. The
     export process will take care of deduplication of entities with consistent
     `id`s.
 
@@ -92,11 +92,7 @@ in the database.
 **Only make occupancies and emit entities for which the returned `categorisation.is_pep` is `True`**.
 See example below.
 
-During development, it is normally best to run Zavod with the [environment variable](install.md#configuration)
-`ZAVOD_SYNC_POSITIONS` set to `false`, meaning the position topics and `is_pep` value supplied to
-`categorise` will be used locally, rather than any value in the database.
-
-In production, positions will be created in the database if they don't already exist,
+Positions will be created in the database if they don't already exist,
 which we can later categorise manually. The `is_pep` and `topics` values
 from the database will then be used during crawling and [enrichment](https://www.opensanctions.org/datasets/annotations/)
 respectively.
@@ -130,7 +126,7 @@ Occupancies and positions should only be emitted for instances where these
 conditions are met. Persons should only be emitted if at least one occupancy
 exists to indicate they meet our criteria for being considered a PEP.
 
-The [`make_occupancy`][zavod.helpers.make_occupancy] helper will only return 
+The [`make_occupancy`][zavod.helpers.make_occupancy] helper will only return
 occupancies if they still meet these conditions, taking the [PEP duration](https://www.opensanctions.org/docs/pep/methodology/#types)
 into account.
 You can use this to create occupancies, automatically set the correct `status`,

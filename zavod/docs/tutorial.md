@@ -12,12 +12,11 @@ companies into a database.
     team does not automatically assume that responsibility for code contributed by
     others. See our general [inclusion critera](https://www.opensanctions.org/docs/criteria/).
 
-1. Make sure you have [installed zavod](install.md) and [set the required environment variables](install.md#configuration), specifically `ZAVOD_SYNC_POSITIONS`.
-2. File a [GitHub issue](https://github.com/opensanctions/opensanctions/issues)
+1. File a [GitHub issue](https://github.com/opensanctions/opensanctions/issues)
    to discuss the suggested source.
-3. Create a [YAML metadata](#data-source-metadata) description for the new source.
-4. Create a [Python script](#developing-a-crawler-script) to fetch and process the data.
-5. Address any data normalisation issues the framework might report.
+2. Create a [YAML metadata](#data-source-metadata) description for the new source.
+3. Create a [Python script](#developing-a-crawler-script) to fetch and process the data.
+4. Address any data normalisation issues the framework might report.
 
 ## Data source metadata
 
