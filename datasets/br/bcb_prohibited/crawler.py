@@ -1,8 +1,12 @@
-from typing import List
-from zavod import Context, helpers as h
+from typing import Any, List, cast
+
+from zavod.entity import Entity
+
+from zavod import Context
+from zavod import helpers as h
 
 
-def fetch_data(context: Context) -> List[dict]:
+def fetch_data(context: Context) -> List[dict[str, Any]]:
     """
     Fetches data from the website, or raises an exception on failure.
 
@@ -13,10 +17,10 @@ def fetch_data(context: Context) -> List[dict]:
     if "value" not in response:
         context.log.error("Value not found in JSON")
         return []
-    return response["value"]
+    return cast(List[dict[str, Any]], response["value"])
 
 
-def create_entity(input_dict: dict, context: Context):
+def create_entity(input_dict: dict[str, Any], context: Context) -> Entity:
     """
     Creates an entity from the raw data.
 
@@ -52,7 +56,9 @@ def create_entity(input_dict: dict, context: Context):
     return entity
 
 
-def create_sanction(input_dict: dict, entity, context: Context):
+def create_sanction(
+    input_dict: dict[str, Any], entity: Entity, context: Context
+) -> Entity:
     """
     Creates the sanction for a given entity and the raw data.
 
@@ -90,7 +96,7 @@ def create_sanction(input_dict: dict, entity, context: Context):
     return sanction
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     """
     Entrypoint to the crawler.
 
