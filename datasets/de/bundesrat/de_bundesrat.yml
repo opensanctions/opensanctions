@@ -32,6 +32,14 @@ data:
 dates:
   formats: ["%d.%m.%Y"]
 
+assertions:
+  min:
+    schema_entities:
+      Person: 150
+  max:
+    schema_entities:
+      Person: 250
+
 lookups:
   start_dates:
     options:
