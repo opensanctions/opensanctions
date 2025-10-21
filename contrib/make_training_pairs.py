@@ -30,6 +30,8 @@ IGNORE_DATASETS = {
     "un_ga_protocol",  # too much name-only matching
     "tw_shtc",  # too much name-only matching
     "opencorporates",  # funky enricher
+    "us_ofac_press_releases",
+    "ext_us_ofac_press_releases",
 }
 
 

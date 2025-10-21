@@ -6,6 +6,9 @@ ci_test: false # GPT key not available in CI
 coverage:
   frequency: "daily"
   start: "2025-08-21"
+deploy:
+  memory: "2000Mi"
+  memory_limit: "3000Mi"
 summary: >
   US OFAC press releases that provide context and details related to sanctioned entities.
 description: |
@@ -34,7 +37,6 @@ data:
   url: https://ofac.treasury.gov/press-releases
   format: HTML
   lang: eng
-
 # assertions:
 #   min:
 #     schema_entities:
