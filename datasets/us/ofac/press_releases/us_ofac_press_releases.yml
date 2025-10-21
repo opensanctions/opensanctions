@@ -34,7 +34,6 @@ data:
   url: https://ofac.treasury.gov/press-releases
   format: HTML
   lang: eng
-
 # assertions:
 #   min:
 #     schema_entities:
