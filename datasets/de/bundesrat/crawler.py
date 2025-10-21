@@ -12,6 +12,8 @@ DOB_REGEX = re.compile(
     r"^Geboren(?: am\s+(?:\d{1,2}\.\d{2}\.\d{4}|\d{1,2}\s+\w+\s+\d{4})| (\d{4}))|"
 )
 
+# TODO: No details in one of the profiles: https://www.bundesrat.de/SharedDocs/personen/DE/laender/nw/feller-dorothee.html
+
 
 def extract_date(context, regex, lookup_key, text):
     """Try to extract a date from text using regex, fallback to context lookup, log if missing."""
@@ -72,6 +74,7 @@ def crawl_item(context: Context, item: HtmlElement) -> None:
             position,
             start_date=start_date if start_date else None,
             categorisation=categorisation,
+            no_end_implies_current=False,
         )
         if occupancy:
             context.emit(position)
@@ -82,5 +85,5 @@ def crawl_item(context: Context, item: HtmlElement) -> None:
 def crawl(context: Context):
     doc = context.fetch_html(context.data_url, cache_days=3, absolute_links=True)
     container = doc.find(".//div[@class='row']/ul[@class='members-list']")
-    for item in container.findall(".//li[@class='even']"):
+    for item in container.xpath(".//li[@class='even' or @class='odd']"):
         crawl_item(context, item)
