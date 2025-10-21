@@ -1,0 +1,69 @@
+title: German Members of the Bundesrat
+prefix: de-brt
+coverage:
+  frequency: monthly
+  start: 2025-10-21
+load_statements: true
+entry_point: crawler.py
+summary: >-
+  Current members of the German Bundesrat, the federal legislative body representing Germany’s 16 states (Länder).
+description: |
+  The German Bundesrat (Federal Council) is the legislative body that represents the 16 federal states (Länder) at 
+  the federal level. Its members are appointed by state governments, while the Bundestag is composed of representatives 
+  directly elected by the German people.
+
+  This dataset is sourced from the official German Bundesrat website and provides comprehensive biographical and mandate 
+  information for all current members.
+url: https://www.bundesrat.de/DE/bundesrat/mitglieder/mitglieder-node.html?param3=Alle&param2=member&param1=state-1
+tags:
+  - list.pep
+publisher:
+  name: German Bundesrat
+  description: |
+    The German Bundesrat provides information about its members on its official website. 
+    As the federal body, it participates in the legislative process, reviewing and approving federal laws.
+  country: de
+  url: https://www.bundesrat.de/EN/homepage/homepage-node.html
+  official: true
+data:
+  url: https://www.bundesrat.de/DE/bundesrat/mitglieder/mitglieder-node.html?param3=Alle&param2=member&param1=state-1
+  format: HTML
+  lang: deu
+dates:
+  formats: ["%d.%m.%Y"]
+
+lookups:
+  start_dates:
+    options:
+      - contains: "Stellvertretendes Mitglied des Bundesrates von 08.11.2022 bis 20.05.2025, seit diesem Tage Mitglied des Bundesrates."
+        value: 2022-11-08
+      - contains: "Stellvertretendes Mitglied des Bundesrates vom 09.03.2021 bis 08.11.2022, seit diesem Tage Mitglied des Bundesrates."
+        value: 2021-03-09
+      - contains: "Mitglied des Bundesrates vom 06.08.2024 bis 19.12.2024, seit diesem Tage Stellvertretendes Mitglied des Bundesrates."
+        value: 2024-08-06
+      - contains: "Stellvertretendes Mitglied des Bundesrates vom 05.09.2017 bis 05.02.2020, erneut vom 04.03.2020 bis 14.12.2021, seit diesem Tag Mitglied des Bundesrates."
+        value: 2017-09-05
+      - contains: "Mitglied des Bundesrates vom 30.06.2017 bis 30.06.2022, seit diesem Tage Stellvertretendes Mitglied des Bundesrates."
+        value: 2017-06-30
+      - contains: "Stellvertretendes Mitglied des Bundesrates von 22.09.2014 bis 22.03.2018, erneut seit 02.03.2022 bis 21.11.2023, seit diesem Tage Mitglied des Bundesrates."
+        value: 2014-09-22
+      - contains: "Mitglied des Bundesrates vom 02.11.2007 bis 04.11.2008, vom 04.11.2008 bis 15.11.2011 Stellvertretendes Mitglied des Bundesrates, seit diesem Tage erneut Mitglied des Bundesrates."
+        value: 2007-11-02
+      - contains: "Stellvertretendes Mitglied des Bundesrates vom 28.06.2017 bis 30.01.2018, seit diesem Tag Mitglied des Bundesrates."
+        value: 2017-06-28
+      - contains: "Stellvertretendes Mitglied des Bundesrates von 29.06.2022 bis 01.08.2024, seit diesem Tage Mitglied des Bundesrates."
+        value: 2022-06-29
+      - contains: "Stellvertretendes Mitglied des Bundesrates von 30.06.2017 bis 27.10.2021, seit diesem Tag Mitglied des Bundesrates."
+        value: 2017-06-30
+  birth_dates:
+    otpions:  
+      - contains: "Geboren am 9. Dezember 1973 in Uelzen"
+        value: 1973-12-09
+      - contains: "Geboren am 28. April 1980 in Saarbrücken"
+        value: 1980-04-28
+      - contains: "Geboren 04.11.1982 in Werneck"
+        value: 1982-11-04
+      - contains: "Geboren 03.09.1969 in Marburg"
+        value: 1969-09-03
+      - contains: "Geboren am 12. Mai 1968 in Bremerhaven"
+        value: 1968-05-12
