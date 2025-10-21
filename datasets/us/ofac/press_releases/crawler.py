@@ -22,6 +22,7 @@ schema_field = Field(
     description=(
         "- 'Person', if the name refers to an individual human."
         "- 'Vessel', if the name refers to a ship or vessel."
+        "- 'Airplane', if the name refers to an aircraft."
         "- 'Company', for entities with a clear legal form (e.g., Inc, LLC, SA de CV)."
         "- 'Organization', for groups like terrorist groups, cartels or government bodies."
         "- 'LegalEntity', when it is unclear if the entity is a person, company or organization."
