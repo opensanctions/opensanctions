@@ -41,6 +41,7 @@ assertions:
       Person: 250
 
 lookups:
+  # TODO: Extract all start/end dates from the membership history
   start_dates:
     options:
       - contains: "Stellvertretendes Mitglied des Bundesrates von 08.11.2022 bis 20.05.2025, seit diesem Tage Mitglied des Bundesrates."
@@ -63,6 +64,28 @@ lookups:
         value: 2022-06-29
       - contains: "Stellvertretendes Mitglied des Bundesrates von 30.06.2017 bis 27.10.2021, seit diesem Tag Mitglied des Bundesrates."
         value: 2017-06-30
+      - contains: "Stellvertretendes Mitglied des Bundesrates vom 23.03.2011 bis 28.04.2015, seit diesem Tage Mitglied des Bundesrates. Präsident des Bundesrates vom 01.11.2022 bis 31.10.2023."
+        value: 2011-03-23
+      - contains: "Seit 20.05.2025 Niedersächsischer Minister für Wirtschaft, Verkehr und Bauen. Stellvertretendes Mitglied des Bundesrates vom 22.11.2017 bis 08.11.2022, erneut seit 20.05.2025."
+        value: 2025-05-20
+      - contains: "Stellvertretendes Mitglied des Bundesrates vom 30.06.2017 bis 30.06.2022, seit diesem Tage Mitglied des Bundesrates."
+        value: 2017-06-30
+      - contains: "Stellvertretendes Mitglied des Bundesrates von 18.01.2014 bis 18.01.2023, seit diesem Tage Mitglied des Bundesrates."
+        value: 2014-01-18
+      - contains: "Stellvertretendes Mitglied des Bundesrates vom 19.02.2013 bis 22.11.2017 und vom 08.11.2022 bis 20.05.2025. Mitglied des Bundesrates vom 22.11.2017 bis 08.11.2022 und seit 20.05.2025."
+        value: 2013-02-19
+      - contains: "Stellvertretendes Mitglied des Bundesrates vom 25.11.2014 bis 19.12.2024, seit diesem Tage Mitglied des Bundesrates."
+        value: 2014-11-25
+      - contains: "Stellvertretendes Mitglied des Bundesrates vom 28.04.2005 bis 24.02.2010, erneut seit 12.05.2016."
+        value: 2005-04-28
+      - contains: "2021 bis 2025 Finanzminister, seit 22.07.2025 Minister für Finanzen und Digitalisierung des Landes Mecklenburg-Vorpommern."
+        value: 2021-01-01
+      - contains: "Stellvertretendes Mitglied des Bundesrates vom 22.10.2013 bis 27.11.2018, seit diesem Tage Mitglied des Bundesrates."
+        value: 2013-10-22
+      - contains: "Zusätzlich vom 15.12.2021 bis 10.07.2024 Stellvertreterin der Ministerpräsidentin, seit diesem Tage Stellvertreterin des Ministerpräsidenten des Landes Rheinland-Pfalz. Stellvertretendes Mitglied des Bundesrates vom 18.05.2021 bis 14.12.2021, seit diesem Tage Mitglied des Bundesrates."
+        value: 2021-05-18
+      - contains: "Stellvertretendes Mitglied des Bundesrates vom 19.02.2013 bis 22.11.2017 und vom 08.11.2022 bis 20.05.2025. Mitglied des Bundesrates vom 22.11.2017 bis 08.11.2022 und seit 20.05.2025."
+        value: 2013-02-19
   birth_dates:
     otpions:  
       - contains: "Geboren am 9. Dezember 1973 in Uelzen"
