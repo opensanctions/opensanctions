@@ -60,5 +60,7 @@ http:
 lookups:
   type.name:
     options:
-      - match: "-"
+      # Skip values that contain only dots, dashes, slashes, or spaces (e.g. "----", "...", "-//-", etc.)
+      # Sometimes we get these values from the name or abbreviation fields.
+      - regex: ^[.\-\/\s]+$
         value: null
