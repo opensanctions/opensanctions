@@ -11,8 +11,9 @@ START_DATE_REGEX = re.compile(
 DOB_REGEX = re.compile(
     r"^Geboren(?: am\s+(?:\d{1,2}\.\d{2}\.\d{4}|\d{1,2}\s+\w+\s+\d{4})| (\d{4}))|"
 )
-
-# TODO: No details in one of the profiles: https://www.bundesrat.de/SharedDocs/personen/DE/laender/nw/feller-dorothee.html
+NO_DETAILS_LIST = [
+    "https://www.bundesrat.de/SharedDocs/personen/DE/laender/nw/feller-dorothee.html"
+]
 
 
 def extract_date(context, regex, lookup_key, text):
@@ -28,6 +29,19 @@ def extract_date(context, regex, lookup_key, text):
     return None
 
 
+def extract_position_and_memberships(context, details, url):
+    position_el = details.find(".//h2")
+    memberships = details.findall(".//ul/li")
+    if position_el is None and not memberships:
+        if url not in NO_DETAILS_LIST:
+            context.log.warning(f"{url}: missing position name or memberships")
+        return None, []
+    else:
+        position_name = position_el.text.strip()
+        memberships = [el.text_content().strip() for el in memberships]
+        return position_name, memberships
+
+
 def crawl_item(context: Context, item: HtmlElement) -> None:
     url = item.find(".//a").get("href")
     assert url, "No URL found for member"
@@ -38,8 +52,7 @@ def crawl_item(context: Context, item: HtmlElement) -> None:
         return
     name = details.find(".//h1").text.strip("\xa0|").strip()
     party = details.find(".//span[@class='organization-name']").text.strip()
-    position_name = details.find(".//h2").text.strip()
-    memberships = [el.text_content().strip() for el in details.findall(".//ul/li")]
+    position_name, memberships = extract_position_and_memberships(context, details, url)
     biography_el = member_doc.xpath(
         ".//div[@class='module-box']/h1[text()='Zur Person']/following-sibling::div[@class='row']"
     )
@@ -53,6 +66,7 @@ def crawl_item(context: Context, item: HtmlElement) -> None:
     person.add("political", party)
     person.add("position", position_name)
     person.add("description", biography)
+    person.add("sourceUrl", url)
     h.apply_date(person, "birthDate", dob)
     for membership in memberships:
         person.add("position", membership.strip())
