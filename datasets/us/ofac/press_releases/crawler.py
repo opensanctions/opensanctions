@@ -12,7 +12,9 @@ from zavod.stateful.review import (
 from zavod import Context
 from zavod import helpers as h
 
-Schema = Literal["Person", "Organization", "Company", "LegalEntity", "Vessel"]
+Schema = Literal[
+    "Person", "Organization", "Company", "LegalEntity", "Vessel", "Airplane"
+]
 
 MAX_TOKENS = 16384  # gpt-4o supports at most 16384 completion tokens
 
@@ -44,7 +46,7 @@ class Designees(BaseModel):
 
 PROMPT = f"""
 <task>
-Extract sanctions designees, linked entities, and vessels from the OFAC press release in the attached article.
+Extract sanctions designees, linked entities, vessels and aircraft from this OFAC press release.
 </task>
 
 <strict_requirements>
@@ -66,21 +68,39 @@ When determining entity_schema:
 - Available options: {schema_field.description}
 </entity_classification>
 
+<name_references>
+IMPORTANT: When an entity is introduced with their full name and then referred to by a shortened
+version throughout the text, the shortened version is NOT an alias—it's simply a narrative reference. 
+
+Example: If the text introduces "Sadiq Abbas Habib Sayyed" and then refers to him as "Sayyed"
+throughout, "Sayyed" is just a reference, not an alias.
+</name_references>
+
 <extraction_fields>
 For each entity found, extract these fields:
 
-1. **name**: The exact name as written in the article.
-    - If the name is followed by an acronym or alias in brackets, DO NOT include this in the name.
+1. **name**: The exact and full legal name as written in the article.
+    - If the name is followed by an acronym or reference in brackets, DO NOT include this in the name.
 
 2. **entity_schema**: Select from available schema types: {schema_field.description}
 
-3. **aliases**: Alternative names ONLY if they meet these criteria:
-   - Must be explicitly stated as "also known as", "alias", "formerly", "aka", "fka", or similar. Include ONLY the alias, not the "aka" prefix.
-   - An alias MUST NOT be a simple abbreviation, only consisting of the last name, first name, family name of a person.
-     <example>John Smith (Smith)</example> <error>Smith</error>
-   - An alias MUST NOT be just the name of a company without the legal form.
-     <example>Acme Corporation (Acme)</example> <error>Acme</error>
-     <example>Acme, Ltd (Acme)</example> <error>Acme</error>
+3. **aliases**: Alternative names or business names ONLY if they meet ALL these criteria:
+   - Must be explicitly marked with alias indicators: "also known as", "a.k.a.", "aka", "formerly
+     known as", "fka", "doing business as", "d/b/a", or similar explicit markers
+   - Must represent a genuinely different name, not just a shortened reference
+   - Extract ONLY the alternative name itself, not the indicator phrase
+   
+   NEVER extract as aliases:
+   - Parenthetical abbreviations or shortened forms of the main name
+     Example: "Sadiq Abbas Habib Sayyed (Sayyed)" → "Sayyed" is NOT an alias
+   - Subsequent narrative references using partial names
+     Example: After introducing "John Smith", later references to "Smith" are NOT aliases
+   - Company names without legal suffixes when the full name includes them
+     Example: "Acme Corporation" referred to as "Acme" is NOT an alias
+   - Pronouns or descriptive references ("the defendant", "the company", etc.)
+   
+   Valid alias example:
+   - "KS International Traders (a.k.a. 'KS Pharmacy')" → "KS Pharmacy" IS an alias
 
 4. **nationality**: For individuals ONLY - their stated nationality
    - Leave empty if not explicitly mentioned or if entity is not a Person
