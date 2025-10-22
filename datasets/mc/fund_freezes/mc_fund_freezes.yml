@@ -347,6 +347,9 @@ lookups:
       - match:
           - UKRAINE et
         value: ua
+      - match: TRINITE-ET-TOBAGO
+        value: tt
+
   type.name:
     options:
       - match:
