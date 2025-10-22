@@ -92,14 +92,28 @@ def crawl(context: Context) -> None:
         entity.add("topics", "sanction")
 
         sanction = h.make_sanction(context, entity)
-        sanction.add("reason", h.multi_split(row.pop("type_of_wmd"), ",、\n"))
+        wmd_types = []
+        # type_of_wmd contains internal codes (B, C, M, N) for the types of weapons
+        wmd_codes = row.pop("type_of_wmd")
+        cw_codes = row.pop("conventional_weapons")
+        if "B" in wmd_codes:
+            wmd_types.append("Biological")
+        if "C" in wmd_codes:
+            wmd_types.append("Chemical")
+        if "M" in wmd_codes:
+            wmd_types.append("Missile")
+        if "N" in wmd_codes:
+            wmd_types.append("Nuclear")
+        # conventional_weapons contains "CW" if the row is (also) about conventional weapons
+        if "CW" in row.pop("conventional_weapons"):
+            wmd_types.append("Conventional Weapons")
+        sanction.add(
+            "reason",
+            "Weapon Types: " + ", ".join(wmd_types),
+            original_value=f"{wmd_codes} {cw_codes}",
+        )
+
         context.emit(entity)
         context.emit(sanction)
 
-        context.audit_data(
-            row,
-            ignore=[
-                # Contains "CW" if the row is (also) about conventional weapons
-                "conventional_weapons"
-            ],
-        )
+        context.audit_data(row)
