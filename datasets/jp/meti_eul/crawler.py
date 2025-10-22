@@ -1,13 +1,13 @@
-from typing import Dict
-from normality import collapse_spaces
-from rigour.mime.types import PDF
-from urllib.parse import urljoin
 import re
+from typing import Dict, Optional
+from urllib.parse import urljoin
+
+from normality import squash_spaces
+from rigour.mime.types import PDF
+from zavod.shed.zyte_api import fetch_html, fetch_resource
 
 from zavod import Context
 from zavod import helpers as h
-from zavod.shed.zyte_api import fetch_html, fetch_resource
-
 
 REGEX_NON_ASCII_PARENS = re.compile(r"([\(（]\w*[^a-zA-Z\)）]{3,}[\)）])")
 REGEX_NON_ASCII = re.compile(r"[^ a-zA-Z'-]+")
@@ -17,6 +17,15 @@ NAME_REPLACEMENTS = [
     ("，", ","),
     ("・", ""),
 ]
+
+HEADERS = {
+    "no": "no",
+    "guo_ming_de_yu_ming\ncountry_or_region": "country_or_region",
+    "qi_ye_ming_zu_zhi_ming\ncompany_or_organization": "company_or_organization",
+    "bie_ming\nalso_known_as": "also_known_as",
+    "xuan_nian_qu_fen\ntype_of_wmd": "type_of_wmd",
+    "tong_chang_bing_qi\nconventional\nweapons": "conventional_weapons",
+}
 
 
 def crawl_pdf_url(context: Context) -> str:
@@ -34,21 +43,13 @@ def crawl_pdf_url(context: Context) -> str:
     raise ValueError("No PDF found")
 
 
-def english_headers(row: Dict[str, str]) -> Dict[str, str]:
-    new_row = {}
-    for key, value in row.items():
-        parts = key.split("\n")
-        if len(parts) == 1:
-            new_key = parts[0]
-        elif len(parts) == 2:
-            new_key = parts[1]
-        else:
-            raise Exception("Unexpected header", header=key, row=row)
-        new_row[new_key] = value
-    return new_row
+def transform_headers(row: Dict[str, Optional[str]]) -> Dict[str, Optional[str]]:
+    if HEADERS.keys() != row.keys():
+        raise Exception(f"Unexpected headers {row.keys()} in row {row!r}")
+    return {HEADERS[key]: value for key, value in row.items()}
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     pdf_url = crawl_pdf_url(context)
     _, _, _, path = fetch_resource(
         context, "source.pdf", pdf_url, expected_media_type=PDF
@@ -56,9 +57,9 @@ def crawl(context: Context):
     context.export_resource(path, PDF, title=context.SOURCE_TITLE)
 
     last_no = 0
-    for holder in h.parse_pdf_table(context, path, preserve_header_newlines=True):
-        holder = english_headers(holder)
-        no = int(holder.pop("no"))
+    for raw_row in h.parse_pdf_table(context, path, preserve_header_newlines=True):
+        row = {k: v or "" for k, v in transform_headers(raw_row).items()}
+        no = int(row.pop("no"))
         if no != last_no + 1:
             context.log.warn(
                 "Row number is not continuous",
@@ -66,7 +67,7 @@ def crawl(context: Context):
                 last_no=last_no,
             )
         last_no = no
-        name = collapse_spaces(holder.pop("company_or_organization")).strip()
+        name = squash_spaces(row.pop("company_or_organization")).strip()
         non_ascii_match = REGEX_NON_ASCII_PARENS.search(name)
         if non_ascii_match:
             name_jpn = non_ascii_match.group(1)
@@ -77,9 +78,9 @@ def crawl(context: Context):
         for orig, repl in NAME_REPLACEMENTS:
             name = name.replace(orig, repl)
 
-        aliases = [collapse_spaces(a) for a in holder.pop("also_known_as").split("・")]
+        aliases = [squash_spaces(a) for a in row.pop("also_known_as").split("・")]
 
-        country = collapse_spaces(holder.pop("country_or_region"))
+        country = squash_spaces(row.pop("country_or_region"))
         country = REGEX_NON_ASCII.sub("", country).strip()
 
         entity = context.make("LegalEntity")
@@ -91,8 +92,14 @@ def crawl(context: Context):
         entity.add("topics", "sanction")
 
         sanction = h.make_sanction(context, entity)
-        sanction.add("reason", h.multi_split(holder.pop("type_of_wmd"), ",、\n"))
+        sanction.add("reason", h.multi_split(row.pop("type_of_wmd"), ",、\n"))
         context.emit(entity)
         context.emit(sanction)
 
-        context.audit_data(holder)
+        context.audit_data(
+            row,
+            ignore=[
+                # Contains "CW" if the row is (also) about conventional weapons
+                "conventional_weapons"
+            ],
+        )
