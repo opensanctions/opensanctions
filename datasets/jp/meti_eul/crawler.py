@@ -105,7 +105,7 @@ def crawl(context: Context) -> None:
         if "N" in wmd_codes:
             wmd_types.append("Nuclear")
         # conventional_weapons contains "CW" if the row is (also) about conventional weapons
-        if "CW" in row.pop("conventional_weapons"):
+        if "CW" in cw_codes:
             wmd_types.append("Conventional Weapons")
         sanction.add(
             "reason",
