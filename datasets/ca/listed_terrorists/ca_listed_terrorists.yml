@@ -54,3 +54,257 @@ lookups:
     options:
       - match: Not yet reviewed
         value: null
+  aliases:
+    options:
+      - match: "Jama'atu Ahlis Sunna Lidda'awati Wal-Jihad (JAS, People of the Tradition of the Prophet for Preaching and Striving / Group Committed to Propagating the Prophet's Teachings and Jihad)"
+        aliases:
+          - Jama'atu Ahlis Sunna Lidda'awati Wal-Jihad
+          - People of the Tradition of the Prophet for Preaching and Striving
+          - Group Committed to Propagating the Prophet's Teachings and Jihad
+      - match: "Revolutionary Armed Forces of Colombia, and Revolutionary Armed Forces of Colombia-People's Army (Fuerzas Armadas Revolucionarias de Colombia-Ejército del Pueblo, FARC-EP)"
+        aliases:
+          - Revolutionary Armed Forces of Colombia
+          - Revolutionary Armed Forces of Colombia-People's Army
+          - Fuerzas Armadas Revolucionarias de Colombia-Ejército del Pueblo
+          - FARC-EP
+      - match: "Jaish-i-Mohammed (Mohammad, Muhammad, Muhammed), Jaish-e-Mohammad (Muhammed), Jaish-e-Mohammad Mujahideen E-Tanzeem, Jeish-e-Mahammed, Army of Mohammed, Mohammed's Army, Tehrik Ul-Furqaan, National Movement for the Restoration of Pakistani Sovereignty and Army of the Prophet."
+        aliases:
+          - Jaish-i-Mohammed
+          - Jaish-i-Mohammad
+          - Jaish-i-Muhammad
+          - Jaish-i-Muhammed
+          - Jaish-e-Mohammad
+          - Jaish-e-Muhammed
+          - Jaish-e-Mohammed Mujahideen E-Tanzeem
+          - Jeish-e-Mahammed
+          - Army of Mohammed
+          - Mohammed's Army
+          - Tehrik Ul-Furqaan
+          - National Movement for the Restoration of Pakistani Sovereignty
+          - Army of the Prophet
+      - match: "Qaedat al-Jihad in the Indian Subcontinent and Jamaat Qaidat al-Jihad fi Shibh al-Qarrah al-Hindiyah (Organization of the Base of Jihad in the Indian Subcontinent)"
+        aliases:
+          - Qaedat al-Jihad in the Indian Subcontinent
+          - Jamaat Qaidat al-Jihad fi Shibh al-Qarrah al-Hindiyah
+          - Organization of the Base of Jihad in the Indian Subcontinent
+      - match: "Ansar al-Dine, Ansar al-Din, Ancar Dine, Ansar ul-Din, Ansar Eddine, Defenders of the Faith, Jum’a Ansar al-din al-salafiya, Harakat Ansar al-Dine, Harakat Ansar al-Din, Ansar Din, Ansar ed dine, Ansar Dine Sud, Ansar Dine katiba (brigade) Khalid Ibn al-Walid."
+        aliases:
+          - Ansar al-Dine
+          - Ansar al-Din
+          - Ancar Dine
+          - Ansar ul-Din
+          - Ansar Eddine
+          - Defenders of the Faith
+          - Jum’a Ansar al-din al-salafiya
+          - Harakat Ansar al-Dine
+          - Harakat Ansar al-Din
+          - Ansar Din
+          - Ansar ed dine
+          - Ansar Dine Sud
+          - Ansar Dine katiba (brigade) Khalid Ibn al-Walid
+      - match: "CDS, Sinaloa Cartel, La Federación (The Federation), Sinaloa Organized Crime Group, Organización del Pacífico (The Pacific Cartel), Organización Guzman-Loera (The Guzman-Loera Organization)"
+        aliases:
+          - Sinaloa Cartel
+          - La Federación
+          - The Federation
+          - Sinaloa Organized Crime Group
+          - Organización del Pacífico
+          - The Pacific Cartel
+          - Organización Guzman-Loera
+          - The Guzman-Loera Organization
+      - match: "Jabhat al-Nusra (JN), Jabhet al-Nusra, The Victory Front, Al-Nusrah Front for the People of the Levant, Jabhat Al-Nusra li-Ahl al-Sham min Mujahedi al-Sham fi Sahat al-Jihad (The Support Front for the People of the Levant by the Levantine Mujahedin on the Battlefields of Jihad), the Front for the Defense of the Syrian People and the Front for the Support of the Syrian People, Jabhat Fateh al-Sham, Jabhat Fatah al-Sham, Fath al-Sham Front, al-Jabha, Fath al-Sham, Tanzim al-Qaeda fi Bilad al-Sham, Al-Qaeda in the Levant, Conquest for al-Sham Front, Conquest of the Levant Front, Fatah al-Sham Front, Fateh al-Sham Front, Front for the Conquest of Syria, Front for the Conquest of Syria/The Levant, Jabhat Fath al-Sham, Jabhat Fath al Sham, Jabhat Fathah al-Sham, Hayat Tahrir al-Sham, Tahrir al-Sham Assembly, Liberation of Syria Assembly, Liberation of the Levant Organisation, Liberation of the Levant Committee, Liberation of al-Sham Commission, Assembly for the Liberation of the Levant, Hay'et Tahrir al-Sham, Tahrir al-Sham, Liwa al-Haqq, the Al-Haqq Brigade, Liwa al-Haq, the Brigade of the Right, the Truth Brigade, Lewa' al-Haq, the al-Haq Battalion, Jabhat Ansar al-Din, Ansar al-Din Front, Supporters/Partisans of the Religion Front, Jaish al-Sunnah, Jaysh al-Sunnah, Jaish al-Sunna, Jaysh al-Sunna."
+        aliases:
+          - Jabhat al-Nusra
+          - Jabhet al-Nusra
+          - The Victory Front
+          - Al-Nusrah Front for the People of the Levant
+          - Jabhat Al-Nusra li-Ahl al-Sham min Mujahedi al-Sham fi Sahat al-Jihad
+          - The Support Front for the People of the Levant by the Levantine Mujahedin on the Battlefields of Jihad
+          - the Front for the Defense of the Syrian People
+          - the Front for the Support of the Syrian People
+          - Jabhat Fateh al-Sham
+          - Jabhat Fatah al-Sham
+          - Fath al-Sham Front
+          - al-Jabha
+          - Fath al-Sham
+          - Tanzim al-Qaeda fi Bilad al-Sham
+          - Al-Qaeda in the Levant
+          - Conquest for al-Sham Front
+          - Conquest of the Levant Front
+          - Fatah al-Sham Front
+          - Fateh al-Sham Front
+          - Front for the Conquest of Syria
+          - Front for the Conquest of Syria/The Levant
+          - Jabhat Fath al-Sham
+          - Jabhat Fath al Sham
+          - Jabhat Fathah al-Sham
+          - Hayat Tahrir al-Sham
+          - Tahrir al-Sham Assembly
+          - Liberation of Syria Assembly
+          - Liberation of the Levant Organisation
+          - Liberation of the Levant Committee
+          - Liberation of al-Sham Commission
+          - Assembly for the Liberation of the Levant
+          - Hay'et Tahrir al-Sham
+          - Tahrir al-Sham
+          - Liwa al-Haqq
+          - the Al-Haqq Brigade
+          - Liwa al-Haq
+          - the Brigade of the Right
+          - the Truth Brigade
+          - Lewa' al-Haq
+          - the al-Haq Battalion
+          - Jabhat Ansar al-Din
+          - Ansar al-Din Front
+          - Supporters/Partisans of the Religion Front
+          - Jaish al-Sunnah
+          - Jaysh al-Sunnah
+          - Jaish al-Sunna
+          - Jaysh al-Sunna
+      - match: "Hizbullah, Hizbollah, Hezbollah, Hezballah, Hizbullah, The Party of God, Islamic Jihad (Islamic Holy War), Islamic Jihad Organization, Islamic Resistance, Islamic Jihad for the Liberation of Palestine, Ansar al-Allah (Followers of God/Partisans of God/God's Helpers), Ansarollah (Followers of God/Partisans of God/God's Helpers), Ansar Allah (Followers of God/Partisans of God/God's Helpers), Al-Muqawamah al-Islamiyyah (Islamic Resistance), Organization of the Oppressed, Organization of the Oppressed on Earth, Revolutionary Justice Organization, Organization of Right Against Wrong and Followers of the Prophet Muhammed."
+        aliases:
+          - Hizbullah
+          - Hizbollah
+          - Hezbollah
+          - Hezballah
+          - Hizbullah
+          - The Party of God
+          - Islamic Jihad
+          - Islamic Holy War
+          - Islamic Jihad Organization
+          - Islamic Resistance
+          - Islamic Jihad for the Liberation
+          - Ansar al-Allah
+          - Followers of God
+          - Partisans of God
+          - God's Helpers
+          - Ansarollah
+          - Ansar Allah
+          - Al-Muqawamah al-Islamiyyah
+          - Organization of the Oppressed
+          - Organization of the Oppressed on Earth
+          - Revolutionary Justice Organization
+          - Organization of Right Against Wrong
+          - Followers of the Prophet Muhammed
+      - match: "International Relief Fund for the Afflicted and Needy, International Relief Fund for the Afflicted and Needy (Canada), IRFAN, IRFAN – Canada, IRFAN Society"
+        aliases:
+          - International Relief Fund for the Afflicted and Needy
+          - International Relief Fund for the Afflicted and Needy (Canada)
+          - IRFAN
+          - IRFAN – Canada
+          - IRFAN Society
+      - match: "Pasdaran (Guardians), Sepah, and Sepah-e-Pasdaran Enghelab Islami"
+        aliases:
+          - Pasdaran
+          - Guardians
+          - Sepah
+          - Sepah-e-Pasdaran Enghelab Islami
+      - match: "Pasdaran-e Enghelab-e Islami (Pasdaran), Sepah-e Qods, Qods/Quds, al Quds, al Quds Force, Qods/Quds Force, Qods Corps, Jerusalem Corps, Jerusalem Force and Qods Force."
+        aliases:
+          - Pasdaran-e Enghelab-e Islami
+          - Pasdaran
+          - Sepah-e Qods
+          - al Quds
+          - al Quds Force
+          - Qods/Quds Force
+          - Qods Corps
+          - Jerusalem Corps
+          - Jerusalem Force
+          - Qods Force
+        weak_aliases:
+          - Qods
+          - Quds
+      - match: "Lashkar-i-Jhangvi, Lashkar-e-Jhangvie, Laskar-e- Jhangvi, Lashkare Jhangvi, Lashkar-e-Jhangwi, Lashkar-i-Jhangwi, Jhangvi Army, Lashkar-e Jhangvi, Lashkar Jhangvi, Lashkar-e-Jhanvi (LeJ), Lashkar-i-Jangvi, Lashkar e Jhangvi, Lashkar Jangvi, Laskar e Jahangvi"
+        aliases:
+          - Lashkar-i-Jhangvi
+          - Lashkar-e-Jhangvie
+          - Laskar-e- Jhangvi
+          - Lashkare Jhangvi
+          - Lashkar-e-Jhangwi
+          - Lashkar-i-Jhangwi
+          - Jhangvi Army
+          - Lashkar-e Jhangvi
+          - Lashkar Jhangvi
+          - Lashkar-e-Jhanvi
+          - Lashkar-i-Jangvi
+          - Lashkar e Jhangvi
+          - Lashkar Jangvi
+          - Laskar e Jahangvi
+        weak_aliases:
+          - LeJ
+      - match: "Jamaat-ud-Dawa (JuD) (Society for Preaching), al-Anfal Trust, Tehrik-e-Hurmate-e-Rasool, al Mansoorian (The Victorious), Army of the Pure, Paasban-e-Kashmir (Kashmir Brigade), Paasban-i-Ahle-Hadith (Ahle-Hadith Brigade), Falah-i-Insaniat Foundation (FIF), Idara Khidmat-e-Khalq, Lashkar-e-Toiba, Lashkar-i-Toiba (LiT), Lashkar-i-Taiba (Holy Regiment), Lashkar-e-Tayyiba (LT) (Army of the Righteous), Lashkar-e-Taibyya, Lashkar-e-Taiba, Lashkar-e-Tayyiba (Army of the Pure and Righteous), Lashkar-e-Taiba (Righteous Army), Lashkar-Taiba (Army of the Good), Lashkar e Toiba, Lashkar e Taiba, Lashkar-E-Tayyaba, Lashkar e Tayyiba"
+        aliases:
+          - Jamaat-ud-Dawa
+          - Society for Preaching
+          - al-Anfal Trust
+          - Tehrik-e-Hurmate-e-Rasool
+          - al Mansoorian
+          - The Victorious
+          - Army of the Pure
+          - Paasban-e-Kashmir
+          - Kashmir Brigade
+          - Paasban-i-Ahle-Hadith
+          - Ahle-Hadith Brigade
+          - Falah-i-Insaniat Foundation
+          - Idara Khidmat-e-Khalq
+          - Lashkar-e-Toiba
+          - Lashkar-i-Toiba
+          - Lashkar-i-Taiba
+          - Holy Regiment
+          - Lashkar-e-Tayyiba
+          - Army of the Righteous
+          - Lashkar-e-Taibyya
+          - Lashkar-e-Taiba
+          - Lashkar-e-Tayyiba
+          - Army of the Pure and Righteous
+          - Righteous Army
+          - Lashkar-Taiba
+          - Army of the Good
+          - Lashkar e Toiba
+          - Lashkar e Taiba
+          - Lashkar-E-Tayyaba
+          - Lashkar e Tayyiba
+      - match: "The Tamil Tigers, the Eellalan Force, the Ellalan Force, the Tiger Movement, the Sangilian Force, the Air Tigers, the Black Tigers (Karum Puligal), the Sea Tigers, the Tiger Organization Security Intelligence Service (TOSIS) and the Women's Combat Force of Liberation Tigers (WCFLT)"
+        aliases:
+          - The Tamil Tigers
+          - the Eellalan Force
+          - the Ellalan Force
+          - the Tiger Movement
+          - the Sangilian Force
+          - the Air Tigers
+          - the Black Tigers
+          - Karum Puligal
+          - the Sea Tigers
+          - the Tiger Organization Security Intelligence Service
+          - the Women's Combat Force of Liberation Tigers
+        weak_aliases:
+          - TOSIS
+          - WCFLT
+      - match: "Harakat al-Jihad al-Islami fi Filistin, Saraya Al-Quds (The Jerusalem Brigades), Al-Quds Brigades, Islamic Jihad, Palestine Islamic Jihad-Shaqaqi Faction, Palestinian Islamic Jihad-Shaqaqi, PIJ-Shaqaqi Faction, PIJ-Shallah Faction, Islamic Jihad of Palestine, Islamic Jihad in Palestine, Abu Ghunaym Squad of the Hizballah Bayt Al-Maqdis, Al-Quds Squads, Al-Awdah Brigades, Islamic Jihad Palestine (IJP), Islamic Jihad – Palestine Faction and Islamic Holy War"
+        aliases:
+          - Harakat al-Jihad al-Islami fi Filistin
+          - Saraya Al-Quds
+          - The Jerusalem Brigades
+          - Al-Quds Brigades
+          - Islamic Jihad
+          - Palestine Islamic Jihad-Shaqaqi Faction
+          - Palestinian Islamic Jihad-Shaqaqi
+          - PIJ-Shaqaqi Faction
+          - PIJ-Shallah Faction
+          - Islamic Jihad of Palestine
+          - Islamic Jihad in Palestine
+          - Abu Ghunaym Squad of the Hizballah Bayt Al-Maqdis
+          - Al-Quds Squads
+          - Al-Awdah Brigades
+          - Islamic Jihad Palestine
+          - Islamic Jihad – Palestine Faction
+          - Islamic Holy War
+      - match: "Afghan Taliban, Movement of Islamic Students, Taleban, Islamic Movement of the Taliban (De Talebano Islami Ghurdzang or Tehrik) and the Islamic Emirate of Afghanistan (De Afghanistan Islami Emarat)"
+        aliases:
+          - Afghan Taliban
+          - Movement of Islamic Students
+          - Taleban
+          - Islamic Movement of the Taliban
+          - De Talebano Islami Ghurdzang
+          - Islamic Emirate of Afghanistan
+          - De Afghanistan Islami Emarat
