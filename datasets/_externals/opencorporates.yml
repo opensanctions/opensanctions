@@ -142,6 +142,10 @@ lookups:
         value: NL
       - match: FÉROÉ, ÎLES
         value: FO
+      - match: Sør-Korea
+        value: KR
+      - match: Sør-Afrika
+        value: ZA
   type.name:
     options:
       - match: "CÔNG TY CỔ PHẦN SẢN XUẤT KINH DOANH TỔNG HỢP VĨNH HƯNG (DOANH NGHIỆP ĐÃ GIẢI THỂ THEO THÔNG BÁO SỐ: 27/TB-ĐKKD NGÀY 16/05/2006 CỦA PHÒNG ĐĂNG KÝ KINH DOANH - SỞ KẾ HOẠCH VÀ ĐẦU TƯ HÀ NỘI). (THÔNG BÁO ĐÓNG MÃ SỐ THUẾ, NGỪNG HOẠT ĐỘNG, THÔNG BÁO SÓ: 1051 C"

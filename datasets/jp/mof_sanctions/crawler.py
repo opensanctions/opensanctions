@@ -44,7 +44,7 @@ DATE_SPLITS = SPLITS + [
 DATE_CLEAN = re.compile(r"(\(|\)|（|）| |改訂日|改訂|まれ)")
 
 
-def note_long_ids(entity, identifiers: List[str]):
+def note_long_ids(entity: Entity, identifiers: List[str]) -> None:
     for identifier in identifiers:
         if len(identifier) > IdentifierType.max_length:
             entity.add("notes", identifier)
@@ -138,7 +138,9 @@ def fetch_excel_url(context: Context) -> str:
     raise ValueError("Could not find XLS file on MoF web site")
 
 
-def emit_row(context: Context, sheet: str, section: str, row: Dict[str, List[str]]):
+def emit_row(
+    context: Context, sheet: str, section: str, row: Dict[str, List[str]]
+) -> None:
     schema = context.lookup_value("schema", section)
     if schema is None:
         context.log.warning("No schema for section", section=section, sheet=sheet)
@@ -254,7 +256,7 @@ def trim_rightmost_blank(values: List[str], keep: int = 0) -> List[str]:
     return values[:end_idx]
 
 
-def crawl_xlsx(context: Context, url: str):
+def crawl_xlsx(context: Context, url: str) -> None:
     path = context.fetch_resource("source.xlsx", url)
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
 
@@ -313,11 +315,11 @@ def crawl_xlsx(context: Context, url: str):
                     headers.append(header)
 
 
-def crawl_xls(context: Context, url: str):
+def crawl_xls(context: Context, url: str) -> None:
     path = context.fetch_resource("source.xls", url)
     context.export_resource(path, XLS, title=context.SOURCE_TITLE)
 
-    xls = xlrd.open_workbook(path)
+    xls = xlrd.open_workbook(str(path))
     for sheet in xls.sheets():
         headers = None
         row0 = [h.convert_excel_cell(xls, c) for c in sheet.row(0)]
@@ -358,6 +360,7 @@ def crawl_xls(context: Context, url: str):
                 # print("SHEET", sheet, row)
                 headers = []
                 for cell in row:
+                    assert cell is not None
                     cell = squash_spaces(cell)
                     header = context.lookup_value("columns", cell)
                     if header is None:
@@ -367,7 +370,7 @@ def crawl_xls(context: Context, url: str):
                     headers.append(header)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     url = fetch_excel_url(context)
     if url.endswith(".xlsx"):
         crawl_xlsx(context, url)
