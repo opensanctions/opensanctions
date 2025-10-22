@@ -68,7 +68,7 @@ def crawl_person(context: Context, data, href, name_raw):
     person.add("sourceUrl", href)
     for pos in position_slk:
         if "verejný funkcionár, ktorý nie je uvedený v písmenách a) až zo)" in pos:
-            pos = context.lookup_value("position", pos, pos, warn=True)
+            pos = context.lookup_value("position", pos, pos, warn_unmatched=True)
         position = h.make_position(
             context,
             pos,

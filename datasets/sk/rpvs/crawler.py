@@ -55,7 +55,7 @@ IGNORE_PARTNER = [
 def rename_headers(context: Context, entry):
     result = {}
     for old_key, value in entry.items():
-        new_key = context.lookup_value("columns", old_key, old_key, warn=True)
+        new_key = context.lookup_value("columns", old_key, old_key, warn_unmatched=True)
         result[new_key] = value
     return result
 

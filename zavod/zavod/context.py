@@ -455,7 +455,8 @@ class Context:
         lookup: str,
         value: Optional[str],
         default: Optional[str] = None,
-        warn: bool = False,
+        *,
+        warn_unmatched: bool = False,
     ) -> Optional[str]:
         """Invoke a datapatch lookup defined in the dataset metadata, returning the `value` attribute.
 
@@ -463,10 +464,10 @@ class Context:
             lookup: The name of the lookup. The key under the dataset lookups property.
             value: The data value to look up.
             default: The default value to use if the lookup doesn't match the value.
-            warn: Whether to log a warning if no match is found.
+            warn_unmatched: Whether to log a warning if no match is found.
         """
         try:
-            res = self.lookup(lookup, value, warn)
+            res = self.lookup(lookup, value, warn_unmatched=warn_unmatched)
             if res is None or res.value is None:
                 return default
             else:
@@ -478,7 +479,7 @@ class Context:
         return self.dataset.lookups[lookup]
 
     def lookup(
-        self, lookup: str, value: Optional[str], warn: bool = False
+        self, lookup: str, value: Optional[str], *, warn_unmatched: bool = False
     ) -> Optional[Result]:
         """Invoke a datapatch lookup defined in the dataset metadata.
 
@@ -488,7 +489,7 @@ class Context:
             warn: Whether to log a warning if no match is found.
         """
         res = self.get_lookup(lookup).match(value)
-        if res is None and warn:
+        if res is None and warn_unmatched:
             self.log.warn("No matching lookup found.", lookup=lookup, value=value)
         return res
 

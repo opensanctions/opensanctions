@@ -3,6 +3,7 @@ from typing import cast
 import orjson
 import pytest
 import requests_mock
+import structlog
 from requests.adapters import HTTPAdapter
 
 from zavod.archive import iter_dataset_statements
@@ -50,7 +51,17 @@ def test_context_helpers(testdataset1: Dataset):
     assert result is not None
     assert result.value == "Fruit"
     assert context.lookup_value("plants", "potato") == "Vegetable"
-    assert context.lookup_value("plants", "stone") is None
+    with structlog.testing.capture_logs() as caplogs:
+        assert context.lookup_value("plants", "stone") is None
+        assert context.lookup_value("plants", "rock", warn_unmatched=True) is None
+    assert caplogs == [
+        {
+            "event": "No matching lookup found.",
+            "log_level": "warning",
+            "lookup": "plants",
+            "value": "rock",
+        }
+    ]
 
     context.inspect(None)
     context.inspect("foo")

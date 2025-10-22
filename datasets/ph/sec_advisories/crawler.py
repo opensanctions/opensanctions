@@ -22,7 +22,7 @@ def crawl_item(li_tag: _Element, context: Context) -> None:
     if not names:
         long_name = li_link.text_content()
         long_name = long_name.replace("SEC Advisory on", "").strip()
-        res = context.lookup("names", long_name, warn=True)
+        res = context.lookup("names", long_name, warn_unmatched=True)
         if not res:
             name = long_name
             description = None

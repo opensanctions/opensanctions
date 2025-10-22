@@ -45,7 +45,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     h.apply_date(entity, "birthDate", row.pop("data_urodzenia"))
 
     other_information = row.pop("inne_informacje")
-    res = context.lookup("other_information", other_information, warn=True)
+    res = context.lookup("other_information", other_information, warn_unmatched=True)
     if res:
         entity.add(
             "nationality",

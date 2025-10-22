@@ -248,7 +248,7 @@ def apply_prop(context: Context, entity: Entity, sanction: Entity, field: str, v
         full_address = value.pop("Adresse")
         country = value.pop("Pays")
         if ";" in full_address:
-            res = context.lookup("addresses", full_address, warn=True)
+            res = context.lookup("addresses", full_address, warn_unmatched=True)
             addresses = res.addresses if res else [full_address]
             assert isinstance(addresses, (list, str)), full_address
         else:
