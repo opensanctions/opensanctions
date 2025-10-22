@@ -54,7 +54,7 @@ def crawl_row(context: Context, str_row, id: str, name, url):
     position = h.make_position(
         context,
         name="Member of the Hellenic Parliament",
-        country="de",
+        country="gr",
         topics=["gov.legislative", "gov.national"],
         lang="eng",
         wikidata_id="Q18915989",
@@ -67,6 +67,7 @@ def crawl_row(context: Context, str_row, id: str, name, url):
             person,
             position,
             start_date=start_date if start_date else None,
+            end_date=end_date if end_date else None,
             categorisation=categorisation,
             no_end_implies_current=False,
         )
