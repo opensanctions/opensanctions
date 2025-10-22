@@ -250,6 +250,7 @@ def apply_prop(context: Context, entity: Entity, sanction: Entity, field: str, v
         if ";" in full_address:
             res = context.lookup("addresses", full_address, warn=True)
             addresses = res.addresses if res else [full_address]
+            assert isinstance(addresses, (list, str)), full_address
         else:
             addresses = [full_address]
         for full_address in addresses:
