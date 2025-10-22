@@ -49,6 +49,27 @@ FOUNDER_DENY_LIST = {
 # JIB	1234567890123	13 digits
 # PIB	123456789012	12 digits
 REGEX_ROUGH_REGNO = re.compile(r"^\d+-?\d{2,}-?[\d-]+$")
+REMOVE_PATTERNS = [
+    r"BRISAN(?: USLJED PRIPAJANJA)?",
+    r"\(BRISAN USLJED PRIPAJANJA\)",
+    r"BRISAN iz sudskog registra[-:]?",
+    r"\(BRISANO IZ SUDSKOG REGISTRA\)",
+    r"BRISAN:.*",
+    r"- BRISAN .*",
+    r"BRISAN(?: -)?",
+    r"BRISAN ZBOG ZAKLJUČENJA LIKVIDACIJE:",
+    r"\(u LIKVIDACIJI\)",
+    r"U STEČAJU",
+    r"LOCAL COM[M]?UNITY",
+    r"\(PRESTANAK\),? u likvidaciji",
+]
+SPLIT_PATTERNS = [
+    r"\(skraćeni naziv:.*\)",
+    r"skraćena oznaka firme:",
+    r"skraćeno:",
+]
+REMOVE_REGEX = re.compile("|".join(REMOVE_PATTERNS), flags=re.IGNORECASE)
+SPLIT_REGEX = re.compile("|".join(SPLIT_PATTERNS), flags=re.IGNORECASE)
 
 
 def roughly_valid_regno(regno: str) -> bool:
@@ -81,6 +102,22 @@ def get_secret_param(context: Context) -> str:
     except Exception as e:
         context.log.warning(f"Failed to get secret param: {e}")
         return ""
+
+
+def clean_name(name: str) -> Tuple[str, str]:
+    """
+    Clean a single company name string, returning (main_name, alias).
+    Alias is empty string if no split is found.
+    """
+    # Remove unwanted patterns
+    cleaned = REMOVE_REGEX.sub("", name).strip(" -:()")
+    # Try to extract alias
+    match = SPLIT_REGEX.search(cleaned)
+    if match:
+        main_name = SPLIT_REGEX.sub("", cleaned).strip(" -:(),")
+        alias = match.group(1).strip() if match.groups() else ""
+        return main_name, alias
+    return cleaned, ""  # no alias found
 
 
 def seed_city(context: Context, secret_param: str) -> List[Dict[str, str]]:
@@ -375,8 +412,8 @@ def crawl_details(context: Context, record: Dict[str, str]) -> None:
             assert record["name"]
             entity.id = context.make_id("BACompany", record["name"])
 
-        entity.add("name", record["name"], lang="bos")
-        entity.add("name", record["abbreviation"], lang="bos")
+        entity.add("name", clean_name(record["name"]), lang="bos")
+        entity.add("name", clean_name(record["abbreviation"]), lang="bos")
         entity.add("status", record.get("status_bankruptcy", None), lang="bos")
 
         entity.add("country", "ba")
