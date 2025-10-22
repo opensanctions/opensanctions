@@ -141,9 +141,8 @@ def fetch_excel_url(context: Context) -> str:
 def emit_row(
     context: Context, sheet: str, section: str, row: Dict[str, List[str]]
 ) -> None:
-    schema = context.lookup_value("schema", section)
+    schema = context.lookup_value("schema", section, warn_unmatched=True)
     if schema is None:
-        context.log.warning("No schema for section", section=section, sheet=sheet)
         return
     entity = context.make(schema)
     name_english = row.pop("name_english")

@@ -22,11 +22,10 @@ def crawl_item(li_tag: _Element, context: Context) -> None:
     if not names:
         long_name = li_link.text_content()
         long_name = long_name.replace("SEC Advisory on", "").strip()
-        res = context.lookup("names", long_name)
+        res = context.lookup("names", long_name, warn_unmatched=True)
         if not res:
             name = long_name
             description = None
-            context.log.warning("No lookup for name: %s" % long_name)
             import json
 
             print("- match: %s" % json.dumps(long_name))

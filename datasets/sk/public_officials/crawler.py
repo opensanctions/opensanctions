@@ -1,11 +1,13 @@
 import re
 
-from zavod import Context, helpers as h
-from zavod.stateful.positions import categorise, OccupancyStatus
 from zavod.shed.trans import (
     apply_translit_full_name,
     make_position_translation_prompt,
 )
+from zavod.stateful.positions import OccupancyStatus, categorise
+
+from zavod import Context
+from zavod import helpers as h
 
 TRANSLIT_OUTPUT = {
     "eng": ("Latin", "English"),
@@ -66,10 +68,7 @@ def crawl_person(context: Context, data, href, name_raw):
     person.add("sourceUrl", href)
     for pos in position_slk:
         if "verejný funkcionár, ktorý nie je uvedený v písmenách a) až zo)" in pos:
-            pos_looked_up = context.lookup_value("position", pos)
-            if pos_looked_up is None:
-                context.log.warning(f"Position match not found for {pos}")
-            pos = pos_looked_up
+            pos = context.lookup_value("position", pos, pos, warn_unmatched=True)
         position = h.make_position(
             context,
             pos,
