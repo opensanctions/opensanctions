@@ -4,9 +4,14 @@ from urllib.parse import parse_qs, urlparse
 import click
 import requests
 from lxml import html
-from normality import collapse_spaces, slugify
+from normality import collapse_spaces, slugify, squash_spaces
 
 from zavod import helpers as h
+
+
+def multiline_squash_spaces(text: str) -> str:
+    """Squash spaces on each line of a multiline string."""
+    return "\n".join(squash_spaces(line) for line in text.split("\n")).strip()
 
 
 def extract_identifying(identifying_information: str) -> dict[str, str]:
@@ -57,7 +62,12 @@ def extract_tables(url: str) -> None:
             fieldnames = [None, "type"]
             with open(filename, "w") as f:
                 for row in rows:
-                    row.update({k: v.text_content().strip() for k, v in row.items()})
+                    row.update(
+                        {
+                            k: multiline_squash_spaces(v.text_content())
+                            for k, v in row.items()
+                        }
+                    )
                     row["type"] = ""
                     row.update(
                         extract_identifying(row.pop("identifying_information", ""))

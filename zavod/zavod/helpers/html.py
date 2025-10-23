@@ -1,11 +1,11 @@
 from typing import Dict, Generator, Optional, Set, cast
+
+from lxml.html import HtmlElement
 from normality import slugify, squash_spaces
 from rigour.text import text_hash
-from lxml.html import HtmlElement
 
 from zavod.logs import get_logger
 from zavod.util import Element
-
 
 log = get_logger(__name__)
 
