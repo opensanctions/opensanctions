@@ -1,11 +1,11 @@
 from typing import Dict, Generator, Optional, Set, cast
+
+from lxml.html import HtmlElement
 from normality import slugify, squash_spaces
 from rigour.text import text_hash
-from lxml.html import HtmlElement
 
 from zavod.logs import get_logger
 from zavod.util import Element
-
 
 log = get_logger(__name__)
 
@@ -56,6 +56,7 @@ def parse_html_table(
     skiprows: int = 0,
     ignore_colspan: Optional[Set[str]] = None,
     slugify_headers: bool = True,
+    index_empty_headers: bool = False,
 ) -> Generator[Dict[str, Element], None, None]:
     """
     Parse an HTML table into a generator yielding a dict for each row.
@@ -81,10 +82,12 @@ def parse_html_table(
 
         if headers is None:
             headers = []
-            for el in row.findall(f"./{header_tag}"):
+            for colnum, el in enumerate(row.findall(f"./{header_tag}")):
                 header_text: Optional[str] = element_text(el)
                 if slugify_headers:
                     header_text = slugify(header_text, sep="_")
+                if index_empty_headers and not header_text:
+                    header_text = f"column_{colnum}"
                 assert header_text is not None, "No table header text"
                 headers.append(header_text)
             continue

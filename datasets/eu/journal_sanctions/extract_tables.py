@@ -4,9 +4,14 @@ from urllib.parse import parse_qs, urlparse
 import click
 import requests
 from lxml import html
-from normality import collapse_spaces, slugify
+from normality import collapse_spaces, slugify, squash_spaces
 
 from zavod import helpers as h
+
+
+def multiline_squash_spaces(text: str) -> str:
+    """Squash spaces on each line of a multiline string."""
+    return "\n".join(squash_spaces(line) for line in text.split("\n")).strip()
 
 
 def extract_identifying(identifying_information: str) -> dict[str, str]:
@@ -40,11 +45,15 @@ def extract_tables(url: str) -> None:
 
     doc = html.fromstring(r.text)
     contentContainer = doc.xpath("//div[@id='textTabContent']")
-    for i, table in enumerate(contentContainer[0].xpath(".//table")):
+    for i, table in enumerate(
+        contentContainer[0].xpath(".//table[contains(@class, 'oj-table')]")
+    ):
         filename = f"{doc_reference}_table_{i}.csv"
 
         try:
-            rows = list(h.parse_html_table(table, header_tag="td"))
+            rows = list(
+                h.parse_html_table(table, header_tag="td", index_empty_headers=True)
+            )
             if len(rows) == 0:
                 # Table for layout, probably
                 header = [c.text_content() for c in table.xpath(".//td")]
@@ -55,7 +64,12 @@ def extract_tables(url: str) -> None:
             fieldnames = [None, "type"]
             with open(filename, "w") as f:
                 for row in rows:
-                    row.update({k: v.text_content().strip() for k, v in row.items()})
+                    row.update(
+                        {
+                            k: multiline_squash_spaces(v.text_content())
+                            for k, v in row.items()
+                        }
+                    )
                     row["type"] = ""
                     row.update(
                         extract_identifying(row.pop("identifying_information", ""))
