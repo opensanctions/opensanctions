@@ -45,7 +45,9 @@ def extract_tables(url: str) -> None:
 
     doc = html.fromstring(r.text)
     contentContainer = doc.xpath("//div[@id='textTabContent']")
-    for i, table in enumerate(contentContainer[0].xpath(".//table")):
+    for i, table in enumerate(
+        contentContainer[0].xpath(".//table[contains(@class, 'oj-table')]")
+    ):
         filename = f"{doc_reference}_table_{i}.csv"
 
         try:
