@@ -67,13 +67,12 @@ def crawl_member(context, member):
         regex=DOB_REGEX,
         lookup_keys={1: "place", 2: "dob"},
     )
-    # Extract party and tenure
-    party, tenure = extract_details(
+    # Extract party
+    party, _ = extract_details(
         context,
         member,
         xpath=".//div[@class='persoon_bijschrift']",
         regex=TENURE_REGEX,
-        lookup_keys={1: "party", 2: "tenure"},
     )
 
     person = context.make("Person")
@@ -88,7 +87,6 @@ def crawl_member(context, member):
     position = h.make_position(
         context,
         name="Member of the Senate of the Netherlands",
-        description=f"{tenure} (days)",
         country="nl",
         topics=["gov.legislative", "gov.national"],
         lang="eng",
