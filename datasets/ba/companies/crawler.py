@@ -1,11 +1,12 @@
+import datetime
+import re
 from typing import Dict, List, Tuple
 from urllib.parse import urljoin
-import re
-import datetime
 
 import requests
 
 from zavod import Context
+from zavod import helpers as h
 
 # It looks like a colon in the company name might break their site, but
 # AL YAHMADI za razvoj i projekte Društvo sa ograničenom odgovornošću Sarajevo
@@ -50,26 +51,23 @@ FOUNDER_DENY_LIST = {
 # PIB	123456789012	12 digits
 REGEX_ROUGH_REGNO = re.compile(r"^\d+-?\d{2,}-?[\d-]+$")
 REMOVE_PATTERNS = [
-    r"BRISAN(?: USLJED PRIPAJANJA)?",
-    r"\(BRISAN USLJED PRIPAJANJA\)",
-    r"BRISAN iz sudskog registra[-:]?",
-    r"\(BRISANO IZ SUDSKOG REGISTRA\)",
-    r"BRISAN:.*",
-    r"- BRISAN .*",
-    r"BRISAN(?: -)?",
-    r"BRISAN ZBOG ZAKLJUČENJA LIKVIDACIJE:",
-    r"\(u LIKVIDACIJI\)",
-    r"U STEČAJU",
-    r"LOCAL COM[M]?UNITY",
+    r"^[\"(]?BRISAN iz sudskog registra[:)\"]?",
+    r"^[\"(]?BRISAN(?: USLJED PRIPAJANJA)?[:)\"]?",
+    r"- BRISAN \w+$",  # "Deleted" and one word
+    r"^\"BRISAN ZBOG ZAKLJUČENJA LIKVIDACIJE[:)\"]?",
     r"\(PRESTANAK\),? u likvidaciji",
+    r"\(u LIKVIDACIJI\)",
+    r"\(?U STEČAJU[:)\"]?$",
 ]
-SPLIT_PATTERNS = [
-    r"\(skraćeni naziv:.*\)",
-    r"skraćena oznaka firme:",
-    r"skraćeno:",
+SPLITS = [
+    "(skraćeni naziv:",
+    ", skraćeni naziv:",
+    "skraćena oznaka firme:",
+    "skraćeno:",
+    "LOCAL COMMUNITY",
+    "LOCAL COMUNITY",  # their typo - usually a translation, but I think it works to just split.
 ]
 REMOVE_REGEX = re.compile("|".join(REMOVE_PATTERNS), flags=re.IGNORECASE)
-SPLIT_REGEX = re.compile("|".join(SPLIT_PATTERNS), flags=re.IGNORECASE)
 
 
 def roughly_valid_regno(regno: str) -> bool:
@@ -104,20 +102,17 @@ def get_secret_param(context: Context) -> str:
         return ""
 
 
-def clean_name(name: str) -> Tuple[str, str]:
+def clean_name(raw_name: str | None) -> List[str | None]:
     """
-    Clean a single company name string, returning (main_name, alias).
-    Alias is empty string if no split is found.
+    Clean a single company name string, returning one name and any aliases found.
+
+    If the input is None or empty, returns [None].
     """
-    # Remove unwanted patterns
-    cleaned = REMOVE_REGEX.sub("", name).strip(" -:()")
-    # Try to extract alias
-    match = SPLIT_REGEX.search(cleaned)
-    if match:
-        main_name = SPLIT_REGEX.sub("", cleaned).strip(" -:(),")
-        alias = match.group(1).strip() if match.groups() else ""
-        return main_name, alias
-    return cleaned, ""  # no alias found
+    if not raw_name:
+        return [None]
+    cleaned = REMOVE_REGEX.sub("", raw_name).strip(" -:()")
+    names = h.multi_split(cleaned, SPLITS)
+    return names
 
 
 def seed_city(context: Context, secret_param: str) -> List[Dict[str, str]]:
@@ -253,7 +248,7 @@ def crawl_details(context: Context, record: Dict[str, str]) -> None:
         details_page = context.fetch_html(record["details_url"])
     except requests.exceptions.HTTPError as exc:
         context.log.warning(
-            f"Failed to fetch company {record["details_url"]}: {type(exc)}, {exc}"
+            f"Failed to fetch company {record['details_url']}: {type(exc)}, {exc}"
         )
         return False
 
@@ -412,8 +407,15 @@ def crawl_details(context: Context, record: Dict[str, str]) -> None:
             assert record["name"]
             entity.id = context.make_id("BACompany", record["name"])
 
-        entity.add("name", clean_name(record["name"]), lang="bos")
-        entity.add("name", clean_name(record["abbreviation"]), lang="bos")
+        # Abbreviation isn't so much an alias as simply a shortened but totally valid form
+        # name:   MIDAX d.o.o. za proizvodnju, promet i usluge Banovići
+        # google translate:
+        #         MIDAX d.o.o. for production, trade and services Banovići
+        # abbrev: MIDAX d.o.o. Banovići
+        for raw_name in [record["name"], record["abbreviation"]]:
+            names = clean_name(raw_name)
+            entity.add("name", names[0], lang="bos")
+            entity.add("alias", names[1:], lang="bos")
         entity.add("status", record.get("status_bankruptcy", None), lang="bos")
 
         entity.add("country", "ba")
@@ -575,7 +577,7 @@ def crawl(context: Context):
                     to_date=period[1],
                 )
                 context.log.debug(
-                    f'{city["city"]}, {period[0]}-{period[1]}: {len(new_recs)}'
+                    f"{city['city']}, {period[0]}-{period[1]}: {len(new_recs)}"
                 )
                 total += len(new_recs)
 
@@ -583,7 +585,7 @@ def crawl(context: Context):
                     crawl_details(context, rec)
 
         else:
-            context.log.debug(f'{city["city"]}, all the time: {len(new_recs)}')
+            context.log.debug(f"{city['city']}, all the time: {len(new_recs)}")
             total += len(new_recs)
 
             for rec in new_recs:
