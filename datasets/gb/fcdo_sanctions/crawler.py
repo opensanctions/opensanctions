@@ -1,8 +1,9 @@
 import re
 
+from zavod.helpers.xml import ElementOrTree
+
 from zavod import Context, Entity
 from zavod import helpers as h
-from zavod.helpers.xml import ElementOrTree
 
 
 def get_xml_link(context: Context) -> str:
@@ -158,7 +159,9 @@ def crawl(context: Context):
             lang = name_tag.findtext(".//NonLatinScriptLanguage")
             lang_code = context.lookup_value("languages", lang)
             if lang is not None and lang_code is None:
-                context.log.warn("Unknown language", language=lang)
+                context.log.warn(
+                    "Unknown language, please add to languages lookup.", language=lang
+                )
                 continue
             h.apply_name(
                 entity, name_tag.findtext("./NameNonLatinScript"), lang=lang_code
