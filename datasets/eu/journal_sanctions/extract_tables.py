@@ -44,7 +44,9 @@ def extract_tables(url: str) -> None:
         filename = f"{doc_reference}_table_{i}.csv"
 
         try:
-            rows = list(h.parse_html_table(table, header_tag="td"))
+            rows = list(
+                h.parse_html_table(table, header_tag="td", index_empty_headers=True)
+            )
             if len(rows) == 0:
                 # Table for layout, probably
                 header = [c.text_content() for c in table.xpath(".//td")]
