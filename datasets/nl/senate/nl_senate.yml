@@ -1,0 +1,62 @@
+title: "Netherlands Senate"
+entry_point: crawler.py
+prefix: nl-senate
+coverage:
+  frequency: monthly
+  start: 2025-10-23
+load_statements: true
+summary: >-
+  Members of the Dutch Senate, the upper house of the parliament of the Netherlands.
+description: |
+  This dataset lists current members of the Dutch Senate, along with their tenure, 
+  political affiliation, date of birth and place of residence.
+tags:
+  - list.pep
+url: https://www.eerstekamer.nl/alle_leden
+publisher:
+  name: Eerste Kamer der Staten-Generaal
+  name_en: Senate
+  acronym: Eerste Kamer
+  description: >-
+    The Senate is the upper house of the bicameral parliament of the Netherlands, 
+    the States General - the other house of parliament being the House of Representatives.
+  country: nl
+  url: https://www.eerstekamer.nl/
+  official: true
+data:
+  url: https://www.eerstekamer.nl/alle_leden
+  format: HTML
+  lang: nld
+dates:
+  formats: ["%d-%m-%Y"]
+
+# 75 seats
+assertions:
+  min:
+    schema_entities:
+      Person: 70
+  max:
+    schema_entities:
+      Person: 80
+
+lookups:
+  details:
+    options:
+      - match: "Geboortedatum: 09-12-1954"
+        details:
+          - dob: "1954-12-09"
+      - match: "Geboortedatum: 07-01-1959"
+        details:
+          - dob: 1959-01-07
+      - match: "Geboortedatum: 23-10-1964"
+        details:
+          - dob: "1964-10-23"
+      - match: "Geboortedatum: 31-01-1956"
+        details:
+          - dob: "1956-01-31"
+      - match: "Geboortedatum: 11-10-1963"
+        details:
+          - dob: "1963-10-11"
+      - match: "Woonplaats: -"
+        details:
+          - place: null
