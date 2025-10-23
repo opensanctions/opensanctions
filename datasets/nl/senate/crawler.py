@@ -3,7 +3,7 @@ from urllib.parse import urljoin
 from normality import squash_spaces
 
 from zavod import Context, helpers as h
-from zavod.stateful.positions import OccupancyStatus, categorise
+from zavod.stateful.positions import categorise
 
 DOB_REGEX = re.compile(r"Woonplaats:\s*(.*?)\s*Geboortedatum:\s*([\d-]+)")
 TENURE_REGEX = re.compile(r"(.*?)\s*Anciënniteit:\s*(.*)")
@@ -33,10 +33,33 @@ def extract_details(context, member, xpath, regex, lookup_keys=None):
     return None, None
 
 
+def extract_name_start_date(context, doc):
+    wrapper = doc.find(".//div[@id='main_content_wrapper']")
+    # Get first sentence of first paragraph
+    description = squash_spaces(wrapper.text_content().strip())
+    first_sentence = description.split("\n", 1)[0].split(".", 1)[0].strip()
+    # Lookup
+    details_res = context.lookup("details", first_sentence)
+    if details_res and details_res.details:
+        details = details_res.details[0]
+        return details.get("name"), details.get("start_date")
+    context.log.warning(
+        "Could not extract name and start date from details",
+        details=first_sentence,
+    )
+    return None, None
+
+
 def crawl_member(context, member):
     a_tag = member.find("./a")
     url = urljoin(context.data_url, a_tag.get("href"))
-    name = member.find(".//div[@class='naam']")
+    doc = context.fetch_html(url, cache_days=3)
+    if doc is None:
+        context.log.warning(f"Failed to fetch member page: {url}")
+        return
+    # Extract name and start date
+    name_clean, start_date = extract_name_start_date(context, doc)
+    # Extract residency and date of birth
     residency, dob = extract_details(
         context,
         member,
@@ -54,18 +77,18 @@ def crawl_member(context, member):
     )
 
     person = context.make("Person")
-    person.id = context.make_id("person", name, dob, party)
-    person.add("name", squash_spaces(name.text))
-    person.add("sourceUrl", url)
+    person.id = context.make_id("person", name_clean, dob, party)
+    person.add("name", name_clean, lang="eng")
     h.apply_date(person, "birthDate", dob)
     person.add("political", party)
-    person.add("topics", "role.pep")
     person.add("address", residency)
-    context.emit(person)
+    person.add("sourceUrl", url)
+    person.add("topics", "role.pep")
 
     position = h.make_position(
         context,
         name="Member of the Senate of the Netherlands",
+        description=f"{tenure} (days)",
         country="nl",
         topics=["gov.legislative", "gov.national"],
         lang="eng",
@@ -78,9 +101,8 @@ def crawl_member(context, member):
             context,
             person,
             position,
-            no_end_implies_current=False,
             categorisation=categorisation,
-            status=OccupancyStatus.UNKNOWN,
+            start_date=start_date,
         )
         if occupancy:
             context.emit(position)
