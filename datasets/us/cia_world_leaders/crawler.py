@@ -1,16 +1,17 @@
-from typing import Dict, Any, Optional
+from typing import Any, Dict, Optional
+
 from normality import slugify, squash_spaces
+from zavod.stateful.positions import categorise
 
 from zavod import Context
 from zavod import helpers as h
-from zavod.stateful.positions import categorise
 
 WEB_URL = "https://www.cia.gov/resources/world-leaders/foreign-governments/%s"
 DATA_URL = "https://www.cia.gov/resources/world-leaders/page-data/foreign-governments/%s/page-data.json"
 SECTIONS = ["leaders", "leaders_2", "leaders_3", "leaders_4"]
 
 
-def clean_position(position: str):
+def clean_position(position: str) -> str:
     replacements = [
         ("Dep.", "Deputy"),
         ("Min.", "Minister"),
@@ -35,14 +36,18 @@ def crawl_leader(
     section: Optional[str],
     leader: Dict[str, Any],
 ) -> None:
-    name = leader["name"]
+    name = squash_spaces(leader["name"])
     name = name.replace("(Acting)", "")
-    name = squash_spaces(name)
-    name = context.lookup_value("normalize_name", name, name)
-    if name is None or h.is_empty(name):
+    if name.lower() in {"(vacant)", "vacant"} or h.is_empty(name):
         return
     if "vacant" in name.lower():
-        context.log.warning("Double-check vacant position", name=name)
+        context.log.warning(
+            "Name contains 'vacant', but it didn't exactly match "
+            "one of our vacant values. Please check the logic, is this a value that "
+            "means the position is vacant or maybe just a weird name?",
+            name=name,
+        )
+
     function = clean_position(leader["title"])
     gov = squash_spaces(section) if section else None
     if gov:
