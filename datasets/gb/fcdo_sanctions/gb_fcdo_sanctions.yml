@@ -132,6 +132,8 @@ lookups:
         value: ces
       - match: Kirghiz; Kyrgyz
         value: kir
+      - match: Croatian
+        value: hrv
   name_type:
     lowercase: true
     normalize: true
