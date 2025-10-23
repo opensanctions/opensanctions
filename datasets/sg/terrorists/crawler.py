@@ -14,6 +14,9 @@ DOB = "Date of Birth:"
 PASSPORT = "Passport No."
 ADDITIONAL_LISTS_PAGE_URL = "https://www.mas.gov.sg/regulation/anti-money-laundering/targeted-financial-sanctions"
 ADDITIONAL_LISTS_DATA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRb11upZ07FLqPyMrglwkgBFfnBUaRgzmSS6m4l7jKRzvsEcYfikz7tdZb-NmeA-1Eh4p1-Ls2-lc-D/pub?gid=0&single=true&output=csv"
+OTHER_MEASURES_HASHES = {
+    "https://www.mas.gov.sg/regulation/notices/notice-snr-n01-1": "47dc095d36ee1564061b7a889b23e0b6f10e8a84"
+}
 
 
 def crawl_terrorism_act(context: Context) -> None:
@@ -73,17 +76,42 @@ def crawl_terrorism_act(context: Context) -> None:
 
 
 def crawl_additional_lists(context: Context) -> None:
-    # Check if they've added any amendments
+    # Check if they've added any measures/regimes and update
+    # https://docs.google.com/spreadsheets/d/1aDFamdLabhba67A-TGSqlMdB5j4zV7h96DRKAUPkbvI/edit?gid=0#gid=0
+    # At the time of writing there's an "Other Financial Measures" section
+    # with link to a page on "Financial measures in relation to Russia".
     validator = ".//*[contains(text(), 'Targeted Financial Sanctions')]"
-    doc = zyte_api.fetch_html(context, ADDITIONAL_LISTS_PAGE_URL, validator)
-    container = doc.findall(".//main")
+    doc = zyte_api.fetch_html(
+        context, ADDITIONAL_LISTS_PAGE_URL, validator, absolute_links=True
+    )
+    container = doc.xpath(".//main")
     assert len(container) == 1, "More than one main container found"
     h.assert_dom_hash(
         node=container[0],
-        hash="7d0d3d29e74cc7e9e64f30e736cf2a3ab096c079",
+        hash="5173029f2075715a702e006a6b3007ab38203397",
         raise_exc=False,
         text_only=True,
     )
+    # Check if the specific other measures pages have changed e.g. with new amendments.
+    for other_link in doc.xpath(".//*[@id='_other-financial-measures']//a/@href"):
+        other_doc = zyte_api.fetch_html(
+            context,
+            other_link,
+            ".//div[contains(@class, 'as-section__banner-item')]",
+            absolute_links=True,
+        )
+        expected_hash = OTHER_MEASURES_HASHES.pop(other_link, None)
+        if expected_hash is None:
+            context.log.warn("Add hash for unknown other measures link", url=other_link)
+        else:
+            other_container = other_doc.xpath(".//main")
+            assert len(other_container) == 1, "More than one main container found"
+            h.assert_dom_hash(
+                node=other_container[0], hash=expected_hash, raise_exc=False
+            )
+    # Check if we found all the expected other measures links
+    assert len(OTHER_MEASURES_HASHES) == 0, OTHER_MEASURES_HASHES.keys()
+
     path = context.fetch_resource("source.csv", ADDITIONAL_LISTS_DATA_URL)
     with open(path, "r") as f:
         for row in DictReader(f):
