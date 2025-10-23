@@ -1,15 +1,25 @@
 import re
+from typing import Dict, Optional, Tuple
 from urllib.parse import urljoin
-from normality import squash_spaces
 
-from zavod import Context, helpers as h
+from lxml.etree import _Element
+from normality import squash_spaces
 from zavod.stateful.positions import categorise
+
+from zavod import Context
+from zavod import helpers as h
 
 DOB_REGEX = re.compile(r"Woonplaats:\s*(.*?)\s*Geboortedatum:\s*([\d-]+)")
 TENURE_REGEX = re.compile(r"(.*?)\s*Anciënniteit:\s*(.*)")
 
 
-def extract_details(context, member, xpath, regex, lookup_keys=None):
+def extract_details(
+    context: Context,
+    member: _Element,
+    xpath: str,
+    regex: re.Pattern[str],
+    lookup_keys: Optional[Dict[int, str]] = None,
+) -> Tuple[Optional[str], Optional[str]]:
     """
     Extracts two fields from a member element. Tries regex first.
     If regex fails, falls back to context.lookup.
@@ -33,10 +43,12 @@ def extract_details(context, member, xpath, regex, lookup_keys=None):
     return None, None
 
 
-def extract_name_start_date(context, doc):
+def extract_name_start_date(
+    context: Context, doc: _Element
+) -> Tuple[Optional[str], Optional[str]]:
     wrapper = doc.find(".//div[@id='main_content_wrapper']")
     # Get first sentence of first paragraph
-    description = squash_spaces(wrapper.text_content().strip())
+    description = h.element_text(wrapper)
     first_sentence = description.split("\n", 1)[0].split(".", 1)[0].strip()
     # Lookup
     details_res = context.lookup("details", first_sentence)
@@ -50,7 +62,7 @@ def extract_name_start_date(context, doc):
     return None, None
 
 
-def crawl_member(context, member):
+def crawl_member(context: Context, member: _Element) -> None:
     a_tag = member.find("./a")
     url = urljoin(context.data_url, a_tag.get("href"))
     doc = context.fetch_html(url, cache_days=3)
@@ -108,7 +120,7 @@ def crawl_member(context, member):
             context.emit(person)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     doc = context.fetch_html(context.data_url, cache_days=3)
     members = doc.findall(".//li[@class='persoon grid-x nowr']")
     if not members:
