@@ -5759,7 +5759,7 @@ lookups:
       - match: "PPC: 770501001"
         props:
           kppCode: 770501001
-      - match: "Principal lieu d'activité: Soi-disant “République populaire de Lougansk”
+      - match: "Principal lieu d'activité: Soi-disant “République populaire de Lougansk”"
         props:
           address: "Soi-disant “République populaire de Lougansk”"
       - match: "Date d'enregistrement: 31.8.1995, 7.9.2002"
