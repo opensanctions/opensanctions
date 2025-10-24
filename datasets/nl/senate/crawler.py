@@ -8,41 +8,37 @@ from zavod.stateful.positions import categorise
 from zavod import Context
 from zavod import helpers as h
 
-# Single regex for both fields (covers 95% of cases)
-RESIDENCY_DOB_REGEX = re.compile(r"Woonplaats:\s*(.*?)\s*Geboortedatum:\s*([\d-]+)")
+RESIDENCY_REGEX = re.compile(r"Woonplaats:\s*(.*)")
+DOB_REGEX = re.compile(r"Geboortedatum:\s*([\d-]+)")
 
 
 def get_residency_dob(
     context: Context,
-    member: _Element,
+    member_el: _Element,
 ) -> Tuple[Optional[str], Optional[str]]:
     """
     Extracts residency and date of birth from a member element.
     Tries regex on the combined text of child nodes. Falls back to context.lookup if missing.
     Returns a tuple: (residency, dob)
     """
-    node = member.find(".//div[@class='cell pasfoto_tekst_k2']")
+    node = member_el.find(".//div[@class='cell pasfoto_tekst_k2']")
     if node is None:
         context.log.warning("No node found for residency and date of birth extraction")
         return None, None
-    # Combine all child text
-    full_text = " ".join(child.text.strip() for child in node if child.text)
-    # Attempt regex extraction first
-    match = RESIDENCY_DOB_REGEX.search(full_text)
-    if match:
-        residency = match.group(1).strip()
-        dob = match.group(2).strip()
-        return residency, dob
-    # Fallback to context.lookup
-    details_res = context.lookup("residency_dob", full_text)
-    if details_res:
-        details = details_res.details[0]
-        return details.get("residency"), details.get("dob")
-    context.log.warning(
-        "Could not extract residency and date of birth",
-        full_text=full_text,
-    )
-    return None, None
+    residency, dob = None, None
+    for child in node:
+        if not child.text:
+            continue
+        if m := DOB_REGEX.search(child.text):
+            dob = m.group(1)
+        elif m := RESIDENCY_REGEX.search(child.text):
+            residency = m.group(1)
+        else:
+            context.log.warning(
+                "Could not extract residency or date of birth", text=child.text
+            )
+
+    return residency, dob
 
 
 def get_name_date_party(
@@ -64,15 +60,21 @@ def get_name_date_party(
     return None, None, None
 
 
-def crawl_member(context: Context, member: _Element, url: str) -> None:
+def crawl_member(context: Context, member_el: _Element) -> None:
+    # Extract residency and date of birth
+    residency, dob = get_residency_dob(context, member_el)
+
+    member_link = member_el.find("./a")
+    if member_link is None or member_link.get("href") is None:
+        context.log.warning("No link found for member", member_el=member_el)
+        return
+    url = urljoin(context.data_url, member_link.get("href"))
     doc = context.fetch_html(url, cache_days=1)
     if doc is None:
         context.log.warning(f"Failed to fetch member page: {url}")
         return
     # Extract name and start date
     name_clean, start_date, party = get_name_date_party(context, doc)
-    # Extract residency and date of birth
-    residency, dob = get_residency_dob(context, member)
 
     person = context.make("Person")
     person.id = context.make_id("person", name_clean, dob, party)
@@ -109,9 +111,7 @@ def crawl_member(context: Context, member: _Element, url: str) -> None:
 
 def crawl(context: Context) -> None:
     doc = context.fetch_html(context.data_url, cache_days=1)
-    members = doc.findall(".//li[@class='persoon grid-x nowr']")
-    for member in members:
-        a_tag = member.find("./a")
-        url = urljoin(context.data_url, a_tag.get("href"))
+    member_list_items = doc.findall(".//li[@class='persoon grid-x nowr']")
+    for member_el in member_list_items:
         # We keep member and URL here since we extract data from both
-        crawl_member(context, member, url)
+        crawl_member(context, member_el)

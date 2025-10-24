@@ -8,7 +8,7 @@ load_statements: true
 summary: >-
   Members of the Dutch Senate, the upper house of the parliament of the Netherlands.
 description: |
-  This dataset lists current members of the Dutch Senate, along with their tenure, 
+  This dataset lists current members of the Dutch Senate, along with their tenure,
   political affiliation, date of birth and place of residence.
 tags:
   - list.pep
@@ -18,7 +18,7 @@ publisher:
   name_en: Senate
   acronym: Eerste Kamer
   description: >-
-    The Senate is the upper house of the bicameral parliament of the Netherlands, 
+    The Senate is the upper house of the bicameral parliament of the Netherlands,
     the States General - the other house of parliament being the House of Representatives.
   country: nl
   url: https://www.eerstekamer.nl/
@@ -40,26 +40,10 @@ assertions:
       Person: 80
 
 lookups:
-  residency_dob:
+  type.address:
     options:
-      - match: "Geboortedatum: 09-12-1954"
-        details:
-          - dob: "1954-12-09"
-      - match: "Geboortedatum: 07-01-1959"
-        details:
-          - dob: 1959-01-07
-      - match: "Geboortedatum: 23-10-1964"
-        details:
-          - dob: "1964-10-23"
-      - match: "Geboortedatum: 31-01-1956"
-        details:
-          - dob: "1956-01-31"
-      - match: "Geboortedatum: 11-10-1963"
-        details:
-          - dob: "1963-10-11"
-      - match: "Woonplaats: -"
-        details:
-          - residency: null
+      - match: '-'
+        value: null
   name_date_party:
     options:
       - match: 'Lies van Aelst-den Uijl is vanaf 13 februari 2024 lid van de SP-fractie in de Eerste Kamer'
@@ -251,7 +235,7 @@ lookups:
             start_date: "2023-06-13"
             party: "BBB"
       - match: 'Andrea van Langen-Visbeek (1968) is vanaf 13 juni 2023 lid van de BBB-fractie in de Eerste Kamer'
-        details:  
+        details:
           - name: "Andrea van Langen-Visbeek"
             start_date: "2023-06-13"
             party: "BBB"
@@ -292,7 +276,7 @@ lookups:
             party: "D66"
       - match: 'Shirin Musa (1977) is sinds 23 september 2025 lid van de VVD-fractie van de Eerste Kamer'
         details:
-          - name: "Shirin Musa" 
+          - name: "Shirin Musa"
             start_date: "2025-09-23"
             party: "VVD"
       - match: 'Annabel Nanninga (1977) is sinds 13 juni 2023 lid en voorzitter van de JA21-fractie in de Eerste Kamer'
@@ -379,7 +363,7 @@ lookups:
         details:
           - name: "Karin Straus"
             start_date: "2025-07-01"
-            party: "VVD" 
+            party: "VVD"
       - match: 'Gom van Strien is sinds 7 juni 2011 lid van de PVV-fractie in de Eerste Kamer'
         details:
           - name: "Gom van Strien"
