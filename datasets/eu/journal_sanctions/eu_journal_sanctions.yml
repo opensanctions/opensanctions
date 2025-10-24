@@ -87,7 +87,13 @@ lookups:
     options:
       - match: Crimea, Ukraine
         value: ua-cri
-      - match: "Russian-occupied regions of Zaporizhzhia and Kherson"
+      - match: "so-called “Luhansk People’s Republic”"
+        value: ua-lpr
+      - match: "so-called “Donetsk People’s Republic”"
+        value: ua-dpr
+      - match:
+          - "Russian-occupied regions of Zaporizhzhia and Kherson"
+          - Moscow, Russian Federation
         value: ru
   type.email:
     options:
@@ -116,7 +122,9 @@ lookups:
           - 359/2011
           - 267/2012
         value: EU-IRN
-      - match: 2014/145
+      - match:
+          - 2014/145
+          - 269/2014
         value: EU-UKR
       - match: 765/2006
         value: EU-BLR
