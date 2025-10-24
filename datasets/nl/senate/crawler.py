@@ -64,10 +64,8 @@ def get_name_date_party(
     return None, None, None
 
 
-def crawl_member(context: Context, member: _Element) -> None:
-    a_tag = member.find("./a")
-    url = urljoin(context.data_url, a_tag.get("href"))
-    doc = context.fetch_html(url, cache_days=3)
+def crawl_member(context: Context, member: _Element, url: str) -> None:
+    doc = context.fetch_html(url, cache_days=1)
     if doc is None:
         context.log.warning(f"Failed to fetch member page: {url}")
         return
@@ -110,10 +108,10 @@ def crawl_member(context: Context, member: _Element) -> None:
 
 
 def crawl(context: Context) -> None:
-    doc = context.fetch_html(context.data_url, cache_days=3)
+    doc = context.fetch_html(context.data_url, cache_days=1)
     members = doc.findall(".//li[@class='persoon grid-x nowr']")
-    if not members:
-        context.log.warning("No members found on the page")
-        return
     for member in members:
-        crawl_member(context, member)
+        a_tag = member.find("./a")
+        url = urljoin(context.data_url, a_tag.get("href"))
+        # We keep member and URL here since we extract data from both
+        crawl_member(context, member, url)

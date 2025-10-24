@@ -260,7 +260,7 @@ lookups:
           - name: "Robbert Lievense"
             start_date: "2024-02-06"
             party: "BBB"
-      - match: 'Marjolein van der Linden is vanaf 14 januari 2025 lid van de VVD-fractie in de Eerste Kamer'
+      - match: 'Marjolein van der Linden (1963) is vanaf 14 januari 2025 lid van de VVD-fractie in de Eerste Kamer'
         details:
           - name: "Marjolein van der Linden"
             start_date: "2025-01-14"
