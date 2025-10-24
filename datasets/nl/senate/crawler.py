@@ -1,65 +1,67 @@
 import re
-from typing import Dict, Optional, Tuple
+from typing import Optional, Tuple
 from urllib.parse import urljoin
 
 from lxml.etree import _Element
-from normality import squash_spaces
 from zavod.stateful.positions import categorise
 
 from zavod import Context
 from zavod import helpers as h
 
-DOB_REGEX = re.compile(r"Woonplaats:\s*(.*?)\s*Geboortedatum:\s*([\d-]+)")
-TENURE_REGEX = re.compile(r"(.*?)\s*Anciënniteit:\s*(.*)")
+# Single regex for both fields (covers 95% of cases)
+RESIDENCY_DOB_REGEX = re.compile(r"Woonplaats:\s*(.*?)\s*Geboortedatum:\s*([\d-]+)")
 
 
-def extract_details(
+def get_residency_dob(
     context: Context,
     member: _Element,
-    xpath: str,
-    regex: re.Pattern[str],
-    lookup_keys: Optional[Dict[int, str]] = None,
 ) -> Tuple[Optional[str], Optional[str]]:
     """
-    Extracts two fields from a member element. Tries regex first.
-    If regex fails, falls back to context.lookup.
+    Extracts residency and date of birth from a member element.
+    Tries regex on the combined text of child nodes. Falls back to context.lookup if missing.
+    Returns a tuple: (residency, dob)
     """
-    node = member.find(xpath)
+    node = member.find(".//div[@class='cell pasfoto_tekst_k2']")
     if node is None:
-        context.log.warning(f"No node found for xpath: {xpath}")
+        context.log.warning("No node found for residency and date of birth extraction")
         return None, None
+    # Combine all child text
     full_text = " ".join(child.text.strip() for child in node if child.text)
-    match = regex.search(full_text)
+    # Attempt regex extraction first
+    match = RESIDENCY_DOB_REGEX.search(full_text)
     if match:
-        return match.group(1), match.group(2)
-    if lookup_keys:
-        details_res = context.lookup("details", full_text)
-        if details_res and details_res.details:
-            details = details_res.details[0]
-            field1 = details.get(lookup_keys.get(1))
-            field2 = details.get(lookup_keys.get(2))
-            return field1, field2
-    context.log.warning(f"Could not extract fields from: {full_text}")
+        residency = match.group(1).strip()
+        dob = match.group(2).strip()
+        return residency, dob
+    # Fallback to context.lookup
+    details_res = context.lookup("residency_dob", full_text)
+    if details_res:
+        details = details_res.details[0]
+        return details.get("residency"), details.get("dob")
+    context.log.warning(
+        "Could not extract residency and date of birth",
+        full_text=full_text,
+    )
     return None, None
 
 
-def extract_name_start_date(
+def get_name_date_party(
     context: Context, doc: _Element
-) -> Tuple[Optional[str], Optional[str]]:
+) -> Tuple[Optional[str], Optional[str], Optional[str]]:
     wrapper = doc.find(".//div[@id='main_content_wrapper']")
     # Get first sentence of first paragraph
     description = h.element_text(wrapper)
     first_sentence = description.split("\n", 1)[0].split(".", 1)[0].strip()
-    # Lookup
-    details_res = context.lookup("details", first_sentence)
+    # Lookup name, start date, and party
+    details_res = context.lookup("name_date_party", first_sentence)
     if details_res and details_res.details:
         details = details_res.details[0]
-        return details.get("name"), details.get("start_date")
+        return details.get("name"), details.get("start_date"), details.get("party")
     context.log.warning(
         "Could not extract name and start date from details",
         details=first_sentence,
     )
-    return None, None
+    return None, None, None
 
 
 def crawl_member(context: Context, member: _Element) -> None:
@@ -70,26 +72,13 @@ def crawl_member(context: Context, member: _Element) -> None:
         context.log.warning(f"Failed to fetch member page: {url}")
         return
     # Extract name and start date
-    name_clean, start_date = extract_name_start_date(context, doc)
+    name_clean, start_date, party = get_name_date_party(context, doc)
     # Extract residency and date of birth
-    residency, dob = extract_details(
-        context,
-        member,
-        xpath=".//div[@class='cell pasfoto_tekst_k2']",
-        regex=DOB_REGEX,
-        lookup_keys={1: "place", 2: "dob"},
-    )
-    # Extract party
-    party, _ = extract_details(
-        context,
-        member,
-        xpath=".//div[@class='persoon_bijschrift']",
-        regex=TENURE_REGEX,
-    )
+    residency, dob = get_residency_dob(context, member)
 
     person = context.make("Person")
     person.id = context.make_id("person", name_clean, dob, party)
-    person.add("name", name_clean, lang="eng")
+    person.add("name", name_clean)
     h.apply_date(person, "birthDate", dob)
     person.add("political", party)
     person.add("address", residency)
