@@ -213,6 +213,7 @@ lookups:
           - "Numero"
           - "n°"
           - "No"
+          - "numéro d'identification fiscale)"
         value: null
       # Sometimes leftover from "NIF/INN"
       - match: "NIF"
@@ -902,8 +903,13 @@ lookups:
       - match: "Numéro d'enregistrement: 7701005930 ("
         props:
           innCode: 7701005930
-      - match: "numéro d'identification fiscale)"
-        props: {}
+      - match: "KPP: 773501001: 1157746406971"
+        props:
+          kppCode: 773501001
+          registrationNumber: 1157746406971
+      - match: "Entités associées: PSB Bank"
+        associates:
+          - PSB Bank
 
 
   ####################################################################################################
@@ -5796,7 +5802,7 @@ lookups:
           legalForm: société publique par actions
           jurisdiction: ru
           incorporationDate: 2002-08-01
-          innCode: 253900880
+          taxNumber: 253900880
           address: Vladivostok, Fédération de Russie
       - match: "Principal lieu d'activité: Soi-disant “République populaire de Donetsk”"
         props:
@@ -5836,17 +5842,16 @@ lookups:
         props:
           registrationNumber: 311748-3301-OOO
       - match: "Adresses de portefeuille de chaîne de blocs connues: TNZxGWCwvsHr6JxQxzoeDXV597Yf7Zb7nV; TC8axQvzJEVR3NKN6mZnJtGy7537GEmh38; TEcuHDQthTmULe8fFLUccBPpjfXaTmJuuD"
-        props:
-          wallets:
-            - currency: null
-              publicKey: TNZxGWCwvsHr6JxQxzoeDXV597Yf7Zb7nV
-            - currency: null
-              publicKey: TC8axQvzJEVR3NKN6mZnJtGy7537GEmh38
-            - currency: null
-              publicKey: TEcuHDQthTmULe8fFLUccBPpjfXaTmJuuD
+        wallets:
+          - currency: null
+            publicKey: TNZxGWCwvsHr6JxQxzoeDXV597Yf7Zb7nV
+          - currency: null
+            publicKey: TC8axQvzJEVR3NKN6mZnJtGy7537GEmh38
+          - currency: null
+            publicKey: TEcuHDQthTmULe8fFLUccBPpjfXaTmJuuD
       - match: "Lieu d'enregistrement: Antilles néerlandaises; Belize; États-Unis d'Amérique"
         props:
-          jurisdictions:
+          jurisdiction:
             - an
             - bz
             - us
