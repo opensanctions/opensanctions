@@ -87,7 +87,13 @@ lookups:
     options:
       - match: Crimea, Ukraine
         value: ua-cri
-      - match: "Russian-occupied regions of Zaporizhzhia and Kherson"
+      - match: "so-called “Luhansk People’s Republic”"
+        value: ua-lpr
+      - match: "so-called “Donetsk People’s Republic”"
+        value: ua-dpr
+      - match:
+          - "Russian-occupied regions of Zaporizhzhia and Kherson"
+          - Moscow, Russian Federation
         value: ru
   type.email:
     options:
@@ -95,6 +101,12 @@ lookups:
         value: "general@angstrem.ru"
       - match: "mss@korund_m.ru"
         value: "mss@korund-m.ru"
+  # This lookup maps the original legislation number to our internal program key.
+  # When we add new legislation to eu_journal_sanctions, they are usually amendments
+  # to existing legislation, and we extract that original legislation number.
+  # If you're faced with a new legislation number, check https://www.sanctionsmap.eu
+  # their "Country or Category" field maps roughly to our program keys, and each of the
+  # programs has a "Legal acts" section (enable with the little checkbox at the top).
   sanction.program:
     options:
       - match:
@@ -116,7 +128,9 @@ lookups:
           - 359/2011
           - 267/2012
         value: EU-IRN
-      - match: 2014/145
+      - match:
+          - 2014/145
+          - 269/2014
         value: EU-UKR
       - match: 765/2006
         value: EU-BLR

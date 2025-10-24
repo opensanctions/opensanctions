@@ -1,13 +1,15 @@
 import csv
 import re
-from typing import Dict
-from normality import squash_spaces
 from functools import cache
+from typing import Dict
+
+import zavod.helpers as h
 from nomenklatura.resolver import Linker
+from normality import squash_spaces
+from rigour.ids.ogrn import OGRN
+from zavod.integration import get_dataset_linker
 
 from zavod import Context, Entity
-from zavod.integration import get_dataset_linker
-import zavod.helpers as h
 
 # Some entities come from the full text of the consolidated COUNCIL REGULATION (EU) No 833/2014.
 #  This consolidated document is treated differently from standard EUR-Lex lookups.
@@ -58,7 +60,7 @@ def crawl_unconsolidated_row(
     source_url = row.pop("Source URL").strip()
     program_code = extract_program_code(context, source_url)
 
-    context.log.info(f"Processing row #{row_idx}: {name}")
+    context.log.debug(f"Processing row #{row_idx}: {name}")
     entity = context.make(entity_type)
     entity.id = context.make_id(row_id, name, country)
     context.log.debug(f"Unique ID {entity.id}")
@@ -125,10 +127,11 @@ def crawl_unconsolidated_row(
     entity.add("website", h.multi_split(row.pop("website"), ";"), quiet=True)
     entity.add("gender", row.pop("Gender", None), quiet=True)
     entity.add("sourceUrl", h.multi_split(source_url, ";"))
-    if "ru" in entity.get("country"):
-        entity.add("ogrnCode", h.multi_split(reg_number, ";"))
-    else:
-        entity.add("registrationNumber", h.multi_split(reg_number, ";"))
+    for reg_num in h.multi_split(reg_number, ";"):
+        if "ru" in entity.get("country") and OGRN.is_valid(reg_num):
+            entity.add("ogrnCode", reg_num)
+        else:
+            entity.add("registrationNumber", reg_num)
 
     for related_name in h.multi_split(row.pop("related"), ";"):
         related = context.make("LegalEntity")
@@ -185,7 +188,7 @@ def crawl_context_row(context: Context, row_idx: int, row: Dict[str, str]) -> No
     reg_number = row.pop("registrationNumber").strip()
     source_url = row.pop("Source URL").strip()
 
-    context.log.info(f"Processing row #{row_idx}: {name}")
+    context.log.debug(f"Processing row #{row_idx}: {name}")
     entity = context.make(entity_type)
     entity.id = context.make_id(row_id, name, country)
     context.log.debug(f"Unique ID {entity.id}")
@@ -217,7 +220,15 @@ def crawl_context_row(context: Context, row_idx: int, row: Dict[str, str]) -> No
     context.emit(entity)
     context.audit_data(
         row,
-        ignore=["related", "startDate", "Address", "Notes", "previousName", "Position"],
+        ignore=[
+            "related",
+            "startDate",
+            "Address",
+            "Notes",
+            "previousName",
+            "Position",
+            "crypto wallet",
+        ],
     )
 
 

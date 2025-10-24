@@ -5719,6 +5719,150 @@ lookups:
           phone: +7 (495) 785-08-88
       - match: "Fax: 8890028"
         props: []
+      - match: "Numéro d'enregistrement ; Type d'entité: société à responsabilité limitée ; Lieu d'enregistrement: Émirats arabes unis ; Date d'enregistrement: 1.4.2008 ; CBLS: 11395424: 5002444"
+        schema: Company
+        props:
+          registrationNumber: [5002444, 11395424]
+          legalForm: société à responsabilité limitée
+          jurisdiction: ae
+          incorporationDate: 2008-04-01
+      - match: "Numéro d'enregistrement ; Type d'entité: société par actions ; Lieu d'enregistrement: Sarapul, Fédération de Russie ; Date d'enregistrement: 10.2.1993 ; Numéro d'identification fiscale: 1827001683: 1021800992190"
+        schema: Company
+        props:
+          ogrnCode: 1021800992190
+          legalForm: société par actions
+          jurisdiction: ru
+          incorporationDate: 1993-02-10
+          innCode: 1827001683
+          address: Sarapul, Fédération de Russie
+      - match: "Numéro de licence commerciale:: 211000004009999"
+        props:
+          registrationNumber: 211000004009999
+      - match: "OGRN ; Type d'entité: société par actions ; Lieu d'enregistrement: Fédération de Russie ; Date d'enregistrement: 29.12.2010 ; Numéro d'identification fiscale: 6441019849: 1106441000951"
+        schema: Company
+        props:
+          ogrnCode: 1106441000951
+          legalForm: société par actions
+          jurisdiction: ru
+          incorporationDate: 2010-12-29
+          innCode: 6441019849
+          address: Fédération de Russie
+      - match: "Numéro d'enregistrement ; Type d'entité: société publique par actions ; Lieu d'enregistrement: Fédération de Russie ; Date d'enregistrement: 16.7.2002 ; Numéro d'identification fiscale: 2540047110 ; KPP: 770501001 ; Télécopieur: +7 495 780 6003 ; Site internet: www.fesco.com/en: 1022502256127"
+        schema: Company
+        props:
+          ogrnCode: 1022502256127
+          legalForm: société publique par actions
+          jurisdiction: ru
+          incorporationDate: 2002-07-16
+          innCode: 2540047110
+          kppCode: 770501001
+      - match: "PPC: 770501001"
+        props:
+          kppCode: 770501001
+      - match: "Principal lieu d'activité: Soi-disant “République populaire de Lougansk”
+        props:
+          address: "Soi-disant “République populaire de Lougansk”"
+      - match: "Date d'enregistrement: 31.8.1995, 7.9.2002"
+        props:
+          incorporationDate: ["1995-08-31", "2002-09-07"]
+      - match: "Numéro OMI ; Type d'entité: société par actions ; Lieu d'enregistrement: Fédération de Russie ; Date d'enregistrement: 1937: 4032815"
+        schema: Company
+        props:
+          imoNumber: 4032815
+          legalForm: société par actions
+          jurisdiction: ru
+          incorporationDate: 1937
+      - match: "PPC: 771301001"
+        props:
+          kppCode: 771301001
+      - match: "Fax: +7 (495) 485-43-95; (495) 485-43-95"
+        props: []
+      - match: "Entités associées: Kalashnikov Concern"
+        associates:
+          - Kalashnikov Concern
+      - match: "Numéro d'enregistrement ; Type d'entité: société par actions ; Date d'enregistrement: 8.11.2011: 1112130014325"
+        schema: Company
+        props:
+          ogrnCode: 1112130014325
+          legalForm: société par actions
+          incorporationDate: 2011-11-08
+      - match: "Lieu d'enregistrement: Izhevsk, Fédération de Russie"
+        props:
+          address: Izhevsk, Fédération de Russie
+      - match: "Numéro d'enregistrement ; Type d'entité: société publique par actions ; Lieu d'enregistrement: Vladivostok, Fédération de Russie ; Date d'enregistrement: 1.8.2002 ; Numéro d'identification fiscale: 253900880: 1022502117505"
+        schema: Company
+        props:
+          ogrnCode: 1022502117505
+          legalForm: société publique par actions
+          jurisdiction: ru
+          incorporationDate: 2002-08-01
+          innCode: 253900880
+          address: Vladivostok, Fédération de Russie
+      - match: "Principal lieu d'activité: Soi-disant “République populaire de Donetsk”"
+        props:
+          address: "Soi-disant “République populaire de Donetsk”"
+      - match: "Principal établissement: République populaire de Chine"
+        props:
+          address: "République populaire de Chine"
+      - match: "Lieu d'enregistrement: Royaume-Uni"
+        props:
+          jurisdiction: gb
+      - match: "OGRN ; Type d'entité: société par actions ; Lieu d'enregistrement: Fédération de Russie ; Date d'enregistrement: 1.7.1998 ; Numéro d'identification fiscale: 1827013914: 1021800992124"
+        schema: Company
+        props:
+          ogrnCode: 1021800992124
+          legalForm: société par actions
+          jurisdiction: ru
+          incorporationDate: 1998-07-01
+          innCode: 1827013914
+          address: Fédération de Russie
+      - match: "Entités associées: PSB Bank; VEB.RF"
+        associates:
+          - PSB Bank
+          - VEB.RF
+      - match: "Lieu d'enregistrement: Kirghizstan"
+        props:
+          jurisdiction: kg
+      - match: "Numéro d'enregistrement: 311479-3301-ООО"
+        props:
+          registrationNumber: 311479-3301-ООО
+      - match: "Entité associée : PSB Bank"
+        associates:
+          - PSB Bank
+      - match: "Lieu d'enregistrement: Bichkek, Kirghizstan"
+        props:
+          address: Bichkek, Kirghizstan
+      - match: "Numéro d'enregistrement: 311748-3301-OOO"
+        props:
+          registrationNumber: 311748-3301-OOO
+      - match: "Adresses de portefeuille de chaîne de blocs connues: TNZxGWCwvsHr6JxQxzoeDXV597Yf7Zb7nV; TC8axQvzJEVR3NKN6mZnJtGy7537GEmh38; TEcuHDQthTmULe8fFLUccBPpjfXaTmJuuD"
+        props:
+          wallets:
+            - currency: null
+              publicKey: TNZxGWCwvsHr6JxQxzoeDXV597Yf7Zb7nV
+            - currency: null
+              publicKey: TC8axQvzJEVR3NKN6mZnJtGy7537GEmh38
+            - currency: null
+              publicKey: TEcuHDQthTmULe8fFLUccBPpjfXaTmJuuD
+      - match: "Lieu d'enregistrement: Antilles néerlandaises; Belize; États-Unis d'Amérique"
+        props:
+          jurisdictions:
+            - an
+            - bz
+            - us
+      - match: "Numéro d'enregistrement ; Type d'entité: société à responsabilité limitée ; Lieu d'enregistrement: Fédération de Russie ; Date d'enregistrement: 19.2.2008: 1089847079630"
+        schema: Company
+        props:
+          registrationNumber: 1089847079630
+          legalForm: société à responsabilité limitée
+          jurisdiction: ru
+          incorporationDate: 2008-02-19
+      - match: "Numéro de TVA: GB202537249"
+        props:
+          taxNumber: GB202537249
+      - match: "Lieu d'enregistrement: États-Unis d'Amérique"
+        props:
+          jurisdiction: us
   addresses:
     # Sometimes we can split on ; but sometimes it's just part of the address.
     options:
@@ -5821,3 +5965,8 @@ lookups:
         addresses:
           - "P.O. Box 16315-189, Téhéran (Iran)"
           - "situé sur le côté ouest de Dabestan Street, Abbas Abad District, Téhéran (Iran)"
+      - match: "St Maarten, Billy Folly Road #37, Sint-Maarten, Antilles néerlandaises; Cohune Walk, 3 Lime St, Belmopan, Belize; 9350 Wilshire Blvd, Beverly Hills CA 90212, États-Unis d'Amérique"
+        addresses:
+          - "St Maarten, Billy Folly Road #37, Sint-Maarten, Antilles néerlandaises"
+          - "Cohune Walk, 3 Lime St, Belmopan, Belize"
+          - "9350 Wilshire Blvd, Beverly Hills CA 90212, États-Unis d'Amérique"
