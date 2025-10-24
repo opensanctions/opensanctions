@@ -220,7 +220,15 @@ def crawl_context_row(context: Context, row_idx: int, row: Dict[str, str]) -> No
     context.emit(entity)
     context.audit_data(
         row,
-        ignore=["related", "startDate", "Address", "Notes", "previousName", "Position"],
+        ignore=[
+            "related",
+            "startDate",
+            "Address",
+            "Notes",
+            "previousName",
+            "Position",
+            "crypto wallet",
+        ],
     )
 
 
