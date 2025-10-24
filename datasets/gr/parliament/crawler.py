@@ -66,10 +66,9 @@ def crawl_row(context: Context, str_row, id: str, name, url):
             context,
             person,
             position,
-            start_date=start_date if start_date else None,
-            end_date=end_date if end_date else None,
+            start_date=start_date,
+            end_date=end_date,
             categorisation=categorisation,
-            no_end_implies_current=False,
         )
         if occupancy:
             context.emit(position)
@@ -90,13 +89,17 @@ def crawl(context: Context):
     # Skip the first and the last options (they are empty)
     for id, name in zip(ids[1:-1], names[1:-1]):
         url = urljoin(context.data_url, f"?MpId={id}")
-        print(url)
         mp_page = context.fetch_html(url, cache_days=3)
         table = mp_page.xpath(".//table[@class='grid']")
+        # Warn if table is missing for MPs not in skip list
         if not table and id not in SKIP_LIST:
-            context.log.warning("No table found for MP", url=url)
+            context.log.warning(
+                "No table found for MP not in skip list", id=id, url=url
+            )
+        # Skip processing if table is missing
+        if not table:
             continue
-        assert len(table) == 1, "Expected exactly one table"
+        assert len(table) == 1, len(table)
         table = table[0]
         for row in h.parse_html_table(
             table, slugify_headers=False, ignore_colspan={"5"}
