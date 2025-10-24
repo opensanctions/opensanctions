@@ -122,7 +122,12 @@ def apply_identification_lookup(
         entity.add("notes", segment, lang="fra")
     if result.props:
         for prop, value in result.props.items():
-            entity.add(prop, value, lang="fra", original_value=segment)
+            if prop == "kppCode":
+                entity.add_cast(
+                    "Company", prop, value, lang="fra", original_value=segment
+                )
+            else:
+                entity.add(prop, value, lang="fra", original_value=segment)
     if result.associates:
         for associate in result.associates:
             other = context.make("LegalEntity")
