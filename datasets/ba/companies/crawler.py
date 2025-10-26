@@ -18,7 +18,7 @@ from zavod import helpers as h
 # responds 400
 #
 # Other companies with Na engleskom jeziku: don't error.
-EXPECTED_ERRORS = 10
+EXPECTED_ERRORS = 100
 
 # Unfortunately no cache for the listing page, as the state of the current
 # page is stored in the session and no cache for details page, as
@@ -90,7 +90,7 @@ def get_secret_param(context: Context) -> str:
         The secret param as a str, or an empty string if not found.
     """
     try:
-        resp = context.fetch_text(context.data_url, cache_days=CACHE_DAYS)
+        resp = context.fetch_text(context.data_url)
         matches = re.search(r"f\?p=18\d\:\d+\:(\d+)", resp)
         if not matches:
             context.log.warning("Cannot find secret param")
@@ -102,14 +102,14 @@ def get_secret_param(context: Context) -> str:
         return ""
 
 
-def clean_name(raw_name: str | None) -> List[str | None]:
+def clean_name(raw_name: str | None) -> List[str]:
     """
     Clean a single company name string, returning one name and any aliases found.
 
     If the input is None or empty, returns [None].
     """
     if not raw_name:
-        return [None]
+        return []
     cleaned = REMOVE_REGEX.sub("", raw_name).strip(" -:()")
     names = h.multi_split(cleaned, SPLITS)
     return names
@@ -134,12 +134,7 @@ def seed_city(context: Context, secret_param: str) -> List[Dict[str, str]]:
         "x03": "-1",
         "x04": "-1",
     }
-    resp = context.fetch_text(
-        url=DICTS_URL,
-        method="POST",
-        data=payload,
-        cache_days=CACHE_DAYS,
-    )
+    resp = context.fetch_text(url=DICTS_URL, method="POST", data=payload)
     cities = re.findall(r'id: (\d+), data: "([\w /-]+)"', resp)
 
     return [{"city": city, "code": code} for code, city in cities]
@@ -196,26 +191,11 @@ def parse_city(
         "pg_rows_fetched": "undefined",
     }
 
-    context.fetch_text(
-        url=TOUCH_URL,
-        method="POST",
-        data=TOUCH_PAYLOAD1,
-        cache_days=CACHE_DAYS,
-    )
+    context.fetch_text(url=TOUCH_URL, method="POST", data=TOUCH_PAYLOAD1)
 
-    context.fetch_text(
-        url=TOUCH_URL,
-        method="POST",
-        data=TOUCH_PAYLOAD2,
-        cache_days=CACHE_DAYS,
-    )
+    context.fetch_text(url=TOUCH_URL, method="POST", data=TOUCH_PAYLOAD2)
 
-    result = context.fetch_html(
-        url=RETRIEVE_URL,
-        method="POST",
-        data=RETRIEVE_PAYLOAD,
-        cache_days=CACHE_DAYS,
-    )
+    result = context.fetch_html(url=RETRIEVE_URL, method="POST", data=RETRIEVE_PAYLOAD)
 
     rows = result.findall(".//tr")
 
@@ -237,15 +217,18 @@ def parse_city(
     return records
 
 
-def crawl_details(context: Context, record: Dict[str, str]) -> None:
+def crawl_details(context: Context, record: Dict[str, str]) -> bool:
     """
     Fetches and emits the details of a company from the website.
+
+    Returns False if an error occurred, True otherwise.
+
     Args:
         context: The context object for the current dataset.
         record: The record to fetch the details for.
     """
     try:
-        details_page = context.fetch_html(record["details_url"])
+        details_page = context.fetch_html(record["details_url"], cache_days=CACHE_DAYS)
     except requests.exceptions.HTTPError as exc:
         context.log.warning(
             f"Failed to fetch company {record['details_url']}: {type(exc)}, {exc}"
@@ -413,9 +396,12 @@ def crawl_details(context: Context, record: Dict[str, str]) -> None:
         #         MIDAX d.o.o. for production, trade and services Banovići
         # abbrev: MIDAX d.o.o. Banovići
         for raw_name in [record["name"], record["abbreviation"]]:
-            names = clean_name(raw_name)
-            entity.add("name", names[0], lang="bos")
-            entity.add("alias", names[1:], lang="bos")
+            if names := clean_name(raw_name):
+                entity.add("name", names[0], lang="bos")
+                entity.add("alias", names[1:], lang="bos")
+        if not entity.has("name"):
+            context.log.warning("No valid name found", url=record["details_url"])
+            return True
         entity.add("status", record.get("status_bankruptcy", None), lang="bos")
 
         entity.add("country", "ba")
@@ -582,8 +568,8 @@ def crawl(context: Context):
                 total += len(new_recs)
 
                 for rec in new_recs:
-                    crawl_details(context, rec)
-
+                    if not crawl_details(context, rec):
+                        error_count += 1
         else:
             context.log.debug(f"{city['city']}, all the time: {len(new_recs)}")
             total += len(new_recs)
