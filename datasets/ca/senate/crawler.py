@@ -32,7 +32,6 @@ def crawl(context: Context) -> None:
         entity.add("name", cells[0])
         entity.add("political", cells[1])
         entity.add("address", cells[2])
-        context.emit(entity)
 
         occupancy = h.make_occupancy(
             context,
@@ -43,6 +42,6 @@ def crawl(context: Context) -> None:
             no_end_implies_current=True,
             propagate_country=False,
         )
-        if occupancy is not None:
+        if occupancy:
             context.emit(occupancy)
-        context.emit(entity)
+            context.emit(entity)
