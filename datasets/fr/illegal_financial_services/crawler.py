@@ -13,12 +13,13 @@ def crawl_item(row: Dict[str, str], context: Context):
     entity.id = context.make_id(name)
     entity.add("name", name)
     entity.add("topics", "crime.fin")
-
+    # name is the website address, (generalized) email
+    # address or name of the malicious actor
     email_clean = registry.email.clean(name)
-    if email_clean:
+    if email_clean is not None:
         entity.add("email", email_clean)
     url_clean = registry.url.clean(name)
-    if url_clean:
+    if url_clean is not None:
         entity.add("website", url_clean)
 
     sanction = h.make_sanction(context, entity)
