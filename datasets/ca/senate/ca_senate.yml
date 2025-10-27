@@ -35,7 +35,7 @@ publisher:
   url: https://sencanada.ca/en/
   official: true
 data:
-  url: https://sencanada.ca/umbraco/surface/SenatorsViews/GetSenators?displayfor=senatorslist&Lang=en
+  url: https://sencanada.ca/umbraco/surface/SenatorsAjax/GetSenators?displayFor=senatorslist&Lang=en
   format: HTML
   lang: eng
 

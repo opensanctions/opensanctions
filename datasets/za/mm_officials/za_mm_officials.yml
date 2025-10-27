@@ -68,13 +68,6 @@ lookups:
         values:
           - mmsoffice@map.fs.gov.za
           - nthabisengmo@map.fs.gov.za
-  normalize_name:
-    lowercase: true
-    normalize: true
-    options:
-      - match:
-          - Vacant
-        value: null
   roles:
     lowercase: true
     options:

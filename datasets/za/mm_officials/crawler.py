@@ -26,6 +26,7 @@ REGEX_NAME_CLEAN = re.compile(
     )\)|
     \(Municipal\sManage|
     Acting\sMunicipal\sManager|
+    \bVacant\b
     """,
     re.VERBOSE + re.IGNORECASE,
 )
@@ -85,7 +86,6 @@ def crawl(context: Context):
             continue
 
         name = clean_name(person_data.get("contact_details.name"))
-        name = context.lookup_value("normalize_name", name, name)
         if h.is_empty(name):
             continue
         if "vacant" in name.lower():
