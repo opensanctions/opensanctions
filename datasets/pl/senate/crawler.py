@@ -7,23 +7,24 @@ from zavod.stateful.positions import OccupancyStatus, categorise
 
 
 def crawl(context: Context) -> None:
-    unblock_validator = ".//div[@class='senator-kontener']"
+    senator_container = ".//div[@class='senator-kontener']"
     doc = zyte_api.fetch_html(
         context,
         context.data_url,
-        unblock_validator=unblock_validator,
-        cache_days=2,
+        unblock_validator=senator_container,
+        cache_days=1,
     )
-    for row in doc.findall(".//div[@class='senator-kontener']"):
+    for row in doc.findall(senator_container):
         link = row.find(".//a")
         if link is None:
             continue
         name = link.text.strip()
         href = link.get("href")
         assert href is not None, "Missing href"
+        assert name, "Missing name for: {}".format(href)
         url = urljoin(context.data_url, href)
         entity = context.make("Person")
-        entity.id = context.make_id(href, name)
+        entity.id = context.make_id(name, href)
         entity.add("citizenship", "pl")
         entity.add("topics", "role.pep")
         entity.add("sourceUrl", url)
