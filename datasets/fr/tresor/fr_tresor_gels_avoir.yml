@@ -46,14 +46,14 @@ assertions:
       Organization: 950
       LegalEntity: 40
       Vessel: 35
-      Company: 50
+      Company: 100
   max:
     schema_entities:
       Person: 8070
       Organization: 2240
       LegalEntity: 120
       Vessel: 80
-      Company: 120
+      Company: 150
 
 lookups:
   sanction.program:
