@@ -30,6 +30,9 @@ data:
   format: HTML
   lang: pol
 
+dates:
+  formats: ["%d-%m-%Y"]
+
 assertions:
   min:
     schema_entities:
