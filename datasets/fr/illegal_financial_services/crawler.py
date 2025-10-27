@@ -1,37 +1,25 @@
 import csv
-import re
 from typing import Dict
 from rigour.mime.types import CSV
 from normality import slugify
 
 from zavod import Context, helpers as h
-
-URL_PATTERN = (
-    r"^(https?:\/\/)?"  # Match the scheme (http or https)
-    r"(([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,})"  # Match domain
-    r"(\/[a-zA-Z0-9-._~:\/?#\[\]@!$&\'()*+,;%=]*)?"  # Match path, query string, fragment
-    r"(\.[a-zA-Z]{2,})?$"  # Match top-level domain
-)
-
-EMAIL_PATTERN = (
-    r"^[a-zA-Z0-9_.+-]+"  # Local part before the @ symbol
-    r"@[a-zA-Z0-9-]+"  # Domain part after the @ symbol
-    r"\.[a-zA-Z0-9-.]+$"  # Top-level domain
-)
+from followthemoney.types import registry
 
 
 def crawl_item(row: Dict[str, str], context: Context):
+    name = row.pop("nom")
     entity = context.make("LegalEntity")
-    entity.id = context.make_id(row.get("nom"))
-    entity.add("name", row.get("nom"))
+    entity.id = context.make_id(name)
+    entity.add("name", name)
     entity.add("topics", "crime.fin")
 
-    if re.match(URL_PATTERN, row.get("nom")):
-        entity.add("website", row.get("nom"))
-    elif re.match(EMAIL_PATTERN, row.get("nom")):
-        entity.add("email", row.get("nom"))
-
-    row.pop("nom")
+    email_clean = registry.email.clean(name)
+    if email_clean:
+        entity.add("email", email_clean)
+    url_clean = registry.url.clean(name)
+    if url_clean:
+        entity.add("website", url_clean)
 
     sanction = h.make_sanction(context, entity)
     h.apply_date(sanction, "date", row.pop("date_inscription"))
