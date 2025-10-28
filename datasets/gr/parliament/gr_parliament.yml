@@ -1,0 +1,126 @@
+title: Hellenic Parliament
+entry_point: crawler.py
+prefix: gr-par
+load_statements: true
+coverage:
+  frequency: monthly
+  start: 2025-10-22
+summary: >
+  Profiles of Members of the Hellenic Parliament, including their political affiliations.
+description: |
+  This dataset lists current and former Members of the Hellenic Parliament (Voulí ton Ellínon),
+  along with their political affiliations.
+publisher:
+  name: Βουλή των Ελλήνων
+  name_en: Hellenic Parliament
+  official: true
+  description: |
+    The Hellenic Parliament is the unicameral legislative body of Greece, responsible
+    for enacting laws and overseeing government functions.
+  country: gr
+  url: https://www.hellenicparliament.gr/en/
+tags:
+  - list.pep
+url: https://www.hellenicparliament.gr/en/Vouleftes/Diatelesantes-Vouleftes-Apo-Ti-Metapolitefsi-Os-Simera/
+data:
+  url: https://www.hellenicparliament.gr/en/Vouleftes/Diatelesantes-Vouleftes-Apo-Ti-Metapolitefsi-Os-Simera/
+  format: html
+  lang: eng
+dates:
+  formats: ["%d/%m/%Y", "%b %d %Y"]
+http:
+  user_agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.2 Safari/605.1.15 (zavod; opensanctions.org)
+  additional_retry_statuses: [403, 443]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 1000
+      Position: 1
+    country_entities:
+      gr: 1
+
+lookups:
+  term:
+    options:
+      - match: "1st (17/11/1974 - 22/10/1977)"
+        dates:
+          - start_date: 1974-11-17
+            end_date: 1977-10-22
+      - match: "2nd (20/11/1977 - 19/09/1981)"
+        dates:
+          - start_date: 1977-11-20
+            end_date: 1981-09-19
+      - match: "3nd (18/10/1981 - 07/05/1985)"
+        dates:
+          - start_date: 1981-10-18
+            end_date: 1985-05-07
+      - match: "4th (02/06/1985 - 02/06/1989)"
+        dates:
+          - start_date: 1985-06-02
+            end_date: 1989-06-02
+      - match: "5th (18/06/1989 - 12/10/1989)"
+        dates:
+          - start_date: 1989-06-18
+            end_date: 1989-10-12
+      - match: "6th (05/11/1989 - 12/03/1990)"
+        dates:
+          - start_date: 1989-11-05
+            end_date: 1990-03-12
+      - match: "7th (08/04/1990 - 11/09/1993)"
+        dates:
+          - start_date: 1990-04-08
+            end_date: 1993-09-11
+      - match: "8th (10/10/1993 - 24/08/1996)"
+        dates:
+          - start_date: 1993-10-10
+            end_date: 1996-08-24
+      - match: "9th (22/09/1996 - 14/03/2000)"
+        dates:
+          - start_date: 1996-09-22
+            end_date: 2000-03-14
+      - match: "10th (09/04/2000 - 11/02/2004)"
+        dates:
+          - start_date: 2000-04-09
+            end_date: 2004-02-11
+      - match: "11th (07/03/2004 - 18/08/2007)"
+        dates:
+          - start_date: 2004-03-07
+            end_date: 2007-08-18
+      - match: "12th (16/09/2007 - 07/09/2009)"
+        dates:
+          - start_date: 2007-09-16
+            end_date: 2009-09-07
+      - match: "13th (04/10/2009 - 11/04/2012)"
+        dates:
+          - start_date: 2009-10-04
+            end_date: 2012-04-11
+      - match: "14th (06/05/2012 - 19/05/2012)"
+        dates:
+          - start_date: 2012-05-06
+            end_date: 2012-05-19
+      - match: "15th (17/06/2012 - 31/12/2014)"
+        dates:
+          - start_date: 2012-06-17
+            end_date: 2014-12-31
+      - match: "16th (25/01/2015 - 28/08/2015)"
+        dates:
+          - start_date: 2015-01-25
+            end_date: 2015-08-28
+      # end date sourced from: https://en.wikipedia.org/wiki/List_of_members_of_the_Hellenic_Parliament,_2015_(September)–2019
+      - match: "17th (20/09/2015 - )"
+        dates:
+          - start_date: 2015-09-20
+            end_date: 2019-06-11
+      - match: "18th (17/07/2020 - 02/10/2020)"
+        dates:
+          - start_date: 2020-07-17
+            end_date: 2020-10-02
+      - match: "19th (28/05/2023 - 29/05/2023)"
+        dates:
+          - start_date: 2023-05-28
+            end_date: 2023-05-29
+      - match: "20th (03/07/2023 - )"
+        dates:
+          - start_date: 2023-07-03
+            end_date: null
