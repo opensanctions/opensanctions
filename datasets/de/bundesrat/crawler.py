@@ -4,28 +4,19 @@ from lxml.html import HtmlElement
 from normality import squash_spaces
 
 from zavod import Context, helpers as h
-from zavod.stateful.positions import categorise
+from zavod.stateful.positions import categorise, OccupancyStatus
 
-# Case 1:
-# Mitglied des Bundesrates seit 30.06.2022
-# Stellvertretendes Mitglied des Bundesrates seit 08.11.2022
-# Case 2:
-# Seit 30.06.2022 Mitglied des Bundesrates
-# , seit 15.11.2021 Stellvertretendes Mitglied des Bundesrates
-START_DATE_REGEX = re.compile(
-    r"(?:Stellvertretendes )?Mitglied des Bundesrates seit (\d{2}\.\d{2}\.\d{4})|,?\s*[Ss]eit (\d{2}\.\d{2}\.\d{4})\s*(?:Stellvertretendes\s+)?Mitglied des Bundesrates"
-)
 # Geboren am DD.MM.YYYY
 # Geboren YYYY
-DOB_REGEX = re.compile(r"^Geboren(?: am\s+(?:\d{1,2}\.\d{2}\.\d{4})| (\d{4}))|")
+DOB_REGEX = re.compile(r"^Geboren(?: am\s+(\d{1,2}\.\d{2}\.\d{4})| (\d{4}))")
 NO_DETAILS_LIST = [
     "https://www.bundesrat.de/SharedDocs/personen/DE/laender/nw/feller-dorothee.html"
 ]
 
 
-def extract_date(context, regex, lookup: Lookup, text):
+def extract_dob(context, lookup: Lookup, text):
     """Try to extract a date from text using regex, fallback to context lookup, log if missing."""
-    match = regex.search(text)
+    match = DOB_REGEX.search(text)
     if match:
         return match.group(1)
     # Fallback to context lookup
@@ -54,6 +45,9 @@ def crawl_item(context: Context, item: HtmlElement) -> None:
     assert url, "No URL found for member"
     member_doc = context.fetch_html(url, cache_days=3)
     details = member_doc.find(".//div[@class='text-box']")
+    assert (
+        details is not None and details.text is not None
+    ), f"No details found for {url}"
     if "N. N." in details.text_content().strip():
         context.log.info("Skipping member with no name")
         return
@@ -69,10 +63,7 @@ def crawl_item(context: Context, item: HtmlElement) -> None:
         ".//div[@class='module-box']/h1[text()='Zur Person']/following-sibling::div[@class='row']"
     )
     biography = squash_spaces(biography_el[0].text_content().strip())
-    start_date = extract_date(
-        context, START_DATE_REGEX, context.get_lookup("start_dates"), biography
-    )
-    dob = extract_date(context, DOB_REGEX, context.get_lookup("birth_dates"), biography)
+    dob = extract_dob(context, context.get_lookup("birth_dates"), biography)
 
     person = context.make("Person")
     person.id = context.make_id(name, party, position_name)
@@ -100,9 +91,9 @@ def crawl_item(context: Context, item: HtmlElement) -> None:
             context,
             person,
             position,
-            start_date=start_date if start_date else None,
             categorisation=categorisation,
             no_end_implies_current=False,
+            status=OccupancyStatus.UNKNOWN,
         )
         if occupancy:
             context.emit(position)
