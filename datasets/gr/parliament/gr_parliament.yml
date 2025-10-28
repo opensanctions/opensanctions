@@ -1,4 +1,4 @@
-title: Hellenic Parliament (Greece)
+title: Hellenic Parliament
 entry_point: crawler.py
 prefix: gr-par
 load_statements: true
@@ -6,10 +6,10 @@ coverage:
   frequency: monthly
   start: 2025-10-22
 summary: >
-  Profiles of Hellenic Parliament members, including roles and political affiliations.
+  Profiles of Members of the Hellenic Parliament, including their political affiliations.
 description: |
-  This dataset lists individuals currently serving in the Hellenic Parliament (Vouli ton
-  Ellinon), along with their political affiliations.
+  This dataset lists current and former Members of the Hellenic Parliament (Voulí ton Ellínon),
+  along with their political affiliations.
 publisher:
   name: Βουλή των Ελλήνων
   name_en: Hellenic Parliament
@@ -30,6 +30,14 @@ dates:
   formats: ["%d/%m/%Y", "%b %d %Y"]
 http:
   user_agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.2 Safari/605.1.15 (zavod; opensanctions.org)
+
+assertions:
+  min:
+    schema_entities:
+      Person: 1000
+      Position: 1
+    country_entities:
+      gr: 1
 
 lookups:
   term:

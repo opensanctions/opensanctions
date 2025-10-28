@@ -52,7 +52,6 @@ def crawl_row(context: Context, str_row, id: str, name, url):
     person = context.make("Person")
     person.id = context.make_slug(id)
     person.add("name", name)
-    person.add("description", str_row.pop("description"))
     person.add("political", str_row.pop("party"))
     person.add("sourceUrl", url)
 
@@ -80,7 +79,8 @@ def crawl_row(context: Context, str_row, id: str, name, url):
             context.emit(occupancy)
             context.emit(person)
 
-    context.audit_data(str_row, ["date", "costituency"])
+    # The "description" column contains information about the date in the row, not the MP's role.
+    context.audit_data(str_row, ["date", "costituency", "description"])
 
 
 def crawl(context: Context):
