@@ -1,5 +1,6 @@
 from urllib.parse import urljoin
 from typing import Tuple, Optional
+from lxml.html import HtmlElement
 
 from zavod import Context, helpers as h
 from zavod.stateful.positions import categorise
@@ -8,8 +9,9 @@ from zavod.stateful.positions import categorise
 # XPath to select all MPs from the dropdown
 MP_XPATH = ".//select[@id='ctl00_ContentPlaceHolder1_dmps_mpsListId']/option"
 # List of IDs to skip:
-# 1. These MPs are not in the dataset
-# 2. Only a few of them have missing tables
+# These entries are explicitly skipped because they currently contain no data.
+# However, the skip list is maintained so we can verify each skipped case,
+# in case the relevant information exists elsewhere.
 SKIP_LIST = [
     "3f25e40d-6ca8-4d3c-890c-7d7f51ec4358",
     "2c05592f-07a9-47b9-bed9-b034010b8225",
@@ -31,7 +33,9 @@ SKIP_LIST = [
 ]
 
 
-def lookup_dates(context: Context, term: str) -> Tuple[Optional[str], Optional[str]]:
+def lookup_term_dates(
+    context: Context, term: str
+) -> Tuple[Optional[str], Optional[str]]:
     dates_lookup_result = context.lookup("term", term)
     if dates_lookup_result is not None:
         dates = dates_lookup_result.dates[0]
@@ -45,7 +49,7 @@ def lookup_dates(context: Context, term: str) -> Tuple[Optional[str], Optional[s
 
 def crawl_row(context: Context, str_row, id: str, name, url):
     term = str_row.pop("term")
-    start_date, end_date = lookup_dates(context, term)
+    start_date, end_date = lookup_term_dates(context, term)
 
     person = context.make("Person")
     person.id = context.make_slug(id)
@@ -72,8 +76,6 @@ def crawl_row(context: Context, str_row, id: str, name, url):
             start_date=start_date,
             end_date=end_date,
             categorisation=categorisation,
-            # Some end dates for previous terms are not available
-            no_end_implies_current=False,
         )
         if occupancy:
             context.emit(position)
@@ -85,25 +87,31 @@ def crawl_row(context: Context, str_row, id: str, name, url):
 
 def crawl(context: Context):
     doc = context.fetch_html(context.data_url, cache_days=1)
-    # Extract MP IDs and names
-    ids = doc.xpath(f"{MP_XPATH}/@value")
-    names = doc.xpath(f"{MP_XPATH}/text()")
-    # Skip the first option ('Select Member')
-    mp_ids_names: list[tuple[str, str]] = list(zip(ids[1:], names[1:]))
-    for id, name in mp_ids_names:
-        url = urljoin(context.data_url, f"?MpId={id}")
+    # Get all <option> elements (skip the first 'Select Member')
+    mp_option_els = doc.findall(
+        ".//select[@id='ctl00_ContentPlaceHolder1_dmps_mpsListId']/option"
+    )[1:]
+    for el in mp_option_els:
+        mp_id = el.get("value")
+        mp_name = el.text
+        assert mp_id is not None and mp_name is not None, "MP ID or name is missing"
+        url = urljoin(context.data_url, f"?MpId={mp_id}")
         mp_page = context.fetch_html(url, cache_days=1)
-        table = mp_page.xpath(".//table[@class='grid']")
-        # Warn if table is missing for MPs not in skip list
-        if not table and id not in SKIP_LIST:
+        tables = mp_page.findall(".//table[@class='grid']")
+        # If no table is found for this MP and they're not already in SKIP_LIST,
+        # log a warning. Check the logged URL manually to confirm whether this MP
+        # genuinely has no details table. If confirmed, add their ID to SKIP_LIST.
+        if not tables and mp_id not in SKIP_LIST:
             context.log.warning(
-                "No table found for MP not in skip list", id=id, url=url
+                "No table found for MP not in skip list", mp_id=mp_id, url=url
             )
         # Skip processing if table is missing
-        if not table:
+        if not tables:
             continue
-        assert len(table) == 1, len(table)
-        table = table[0]
+        assert len(tables) == 1, len(tables)
+        table: HtmlElement = tables[0]
+        # The last row in the table has a colspan=5 and contains no data.
+        # ignore_colspan={"5"} ensures it's skipped during parsing.
         for row in h.parse_html_table(table, ignore_colspan={"5"}):
             str_row = h.cells_to_str(row)
-            crawl_row(context, str_row, id, name, url)
+            crawl_row(context, str_row, mp_id, mp_name.strip(), url)

@@ -98,10 +98,11 @@ lookups:
         dates:
           - start_date: 2015-01-25
             end_date: 2015-08-28
+      # end date sourced from: https://en.wikipedia.org/wiki/List_of_members_of_the_Hellenic_Parliament,_2015_(September)–2019
       - match: "17th (20/09/2015 - )"
         dates:
           - start_date: 2015-09-20
-            end_date: null
+            end_date: 2019-06-11
       - match: "18th (17/07/2020 - 02/10/2020)"
         dates:
           - start_date: 2020-07-17
