@@ -6,8 +6,6 @@ from zavod import Context, helpers as h
 from zavod.stateful.positions import categorise
 
 
-# XPath to select all MPs from the dropdown
-MP_XPATH = ".//select[@id='ctl00_ContentPlaceHolder1_dmps_mpsListId']/option"
 # List of IDs to skip:
 # These entries are explicitly skipped because they currently contain no data.
 # However, the skip list is maintained so we can verify each skipped case,
