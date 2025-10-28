@@ -1,0 +1,421 @@
+title: "Netherlands Senate"
+entry_point: crawler.py
+prefix: nl-senate
+coverage:
+  frequency: monthly
+  start: 2025-10-23
+load_statements: true
+summary: >-
+  Members of the Dutch Senate, the upper house of the parliament of the Netherlands.
+description: |
+  This dataset lists current members of the Dutch Senate, along with their tenure,
+  political affiliation, date of birth and place of residence.
+tags:
+  - list.pep
+url: https://www.eerstekamer.nl/alle_leden
+publisher:
+  name: Eerste Kamer der Staten-Generaal
+  name_en: Senate
+  acronym: Eerste Kamer
+  description: >-
+    The Senate is the upper house of the bicameral parliament of the Netherlands,
+    the States General - the other house of parliament being the House of Representatives.
+  country: nl
+  url: https://www.eerstekamer.nl/
+  official: true
+data:
+  url: https://www.eerstekamer.nl/alle_leden
+  format: HTML
+  lang: nld
+dates:
+  formats: ["%d-%m-%Y"]
+
+# 75 seats
+assertions:
+  min:
+    schema_entities:
+      Person: 70
+  max:
+    schema_entities:
+      Person: 80
+
+lookups:
+  type.address:
+    options:
+      - match: '-'
+        value: null
+  name_date_party:
+    options:
+      - match: 'Lies van Aelst-den Uijl is vanaf 13 februari 2024 lid van de SP-fractie in de Eerste Kamer'
+        details:
+          - name: "Lies van Aelst-den Uijl"
+            start_date: "2024-02-13"
+            party: "SP"
+      - match: 'Willemijn Aerdts (1983) is vanaf 13 juni 2023 lid van de D66-fractie in de Eerste Kamer'
+        details:
+          - name: "Willemijn Aerdts"
+            start_date: "2023-06-13"
+            party: "D66"
+      - match: 'Bastiaan van Apeldoorn (1970) is vanaf 9 juni 2015 lid van de SP-fractie in de Eerste Kamer'
+        details:
+          - name: "Bastiaan van Apeldoorn"
+            start_date: "2015-06-09"
+            party: "SP"
+      - match: 'Janny Bakker-Klein (1960) is vanaf 13 juni 2023 lid van de CDA-fractie in de Eerste Kamer'
+        details:
+          - name: "Janny Bakker-Klein"
+            start_date: "2023-06-13"
+            party: "CDA"
+      - match: 'Pim van Ballekom (1956) is vanaf 11 juni 2019 lid van de VVD-fractie in de Eerste Kamer'
+        details:
+          - name: "Pim van Ballekom"
+            start_date: "2019-06-11"
+      - match: 'Ruben Baumgarten (1969) is vanaf 13 juni 2023 lid van de JA21-fractie in de Eerste Kamer'
+        details:
+          - name: "Ruben Baumgarten"
+            start_date: "2023-06-13"
+            party: "JA21"
+      - match: 'Fatimazhra Belhirch (1975) is sinds 13 juni 2023 lid van de D66-fractie in de Eerste Kamer'
+        details:
+          - name: "Fatimazhra Belhirch"
+            start_date: "2023-06-13"
+            party: "D66"
+      - match: 'Ilse Bezaan (1968) is vanaf 11 juni 2019 lid van de PVV-fractie in de Eerste Kamer'
+        details:
+          - name: "Ilse Bezaan"
+            start_date: "2019-06-11"
+            party: "PVV"
+      - match: 'Karin van Bijsterveld (1970) is vanaf 13 juni 2023 lid van de JA21-fractie in de Eerste Kamer'
+        details:
+          - name: "Karin van Bijsterveld"
+            start_date: "2023-06-13"
+            party: "JA21"
+      - match: 'Theo Bovens (1959) is vanaf 13 juni 2023 lid van de CDA-fractie in de Eerste Kamer'
+        details:
+          - name: "Theo Bovens"
+            start_date: "2023-06-13"
+            party: "CDA"
+      - match: 'Robert (Samuel) Croll (1954) is vanaf 3 juni 2025 lid van de D66-fractie in de Eerste Kamer'
+        details:
+          - name: "Robert (Samuel) Croll"
+            start_date: "2025-06-03"
+            party: "D66"
+      - match: 'Ferd Crone (1954) is vanaf 13 juni 2023 lid van de GroenLinks-PvdA-fractie in de Eerste Kamer'
+        details:
+          - name: "Ferd Crone"
+            start_date: "2023-06-13"
+            party: "GroenLinks-PvdA"
+      - match: 'Johan Dessing (1965) is vanaf 11 juni 2019 lid van de FVD-fractie in de Eerste Kamer'
+        details:
+          - name: "Johan Dessing"
+            start_date: "2019-06-11"
+            party: "FVD"
+      - match: 'Boris Dittrich (1955) is vanaf 11 juni 2019 lid van de D66-fractie in de Eerste Kamer'
+        details:
+          - name: "Boris Dittrich"
+            start_date: "2019-06-11"
+            party: "D66"
+      - match: 'Hugo Doornhof (1978) is vanaf 11 juni 2019 lid van de CDA-fractie in de Eerste Kamer'
+        details:
+          - name: "Hugo Doornhof"
+            start_date: "2019-06-11"
+            party: "CDA"
+      - match: 'Mary Fiers (1968) is vanaf 13 juni 2023 lid van de GroenLinks-PvdA-fractie in de Eerste Kamer'
+        details:
+          - name: "Mary Fiers"
+            start_date: "2023-06-13"
+            party: "GroenLinks-PvdA"
+      - match: 'Robert van Gasteren (1959) is vanaf 11 juli 2023 lid van de BBB-fractie in de Eerste Kamer'
+        details:
+          - name: "Robert van Gasteren"
+            start_date: "2023-07-11"
+            party: "BBB"
+      - match: 'Math Goossen (1954) is vanaf 13 juni 2023 lid van de BBB-fractie in de Eerste Kamer'
+        details:
+          - name: "Math Goossen"
+            start_date: "2023-06-13"
+            party: "BBB"
+      - match: 'Auke van der Goot is vanaf 13 juni 2023 lid van de OPNL-fractie in de Eerste Kamer'
+        details:
+          - name: "Auke van der Goot"
+            start_date: "2023-06-13"
+            party: "OPNL"
+      - match: 'Arie Griffioen (1953) is vanaf 13 juni 2023 lid van de BBB-fractie in de Eerste Kamer'
+        details:
+          - name: "Arie Griffioen"
+            start_date: "2023-06-13"
+            party: "BBB"
+      - match: 'Roel van Gurp (1956) is vanaf 13 juni 2023 lid van de GroenLinks-PvdA-fractie in de Eerste Kamer'
+        details:
+          - name: "Roel van Gurp"
+            start_date: "2023-06-13"
+            party: "GroenLinks-PvdA"
+      - match: 'Eddy Hartog (1962) is vanaf 13 juni 2023 lid van de Volt-fractie in de Eerste Kamer'
+        details:
+          - name: "Eddy Hartog"
+            start_date: "2023-06-13"
+            party: "Volt"
+      - match: 'Alexander van Hattem (1983) is vanaf 9 juni 2015 lid van de PVV-fractie in de Eerste Kamer'
+        details:
+          - name: "Alexander van Hattem"
+            start_date: "2015-06-09"
+            party: "PVV"
+      - match: 'Eric Holterhues (1972) is vanaf 13 juni 2023 lid van de ChristenUnie-fractie in de Eerste Kamer'
+        details:
+          - name: "Eric Holterhues"
+            start_date: "2023-06-13"
+            party: "ChristenUnie"
+      - match: 'Tineke Huizinga-Heringa (1960) is vanaf 11 juni 2019 lid van de ChristenUnie-fractie in de Eerste Kamer'
+        details:
+          - name: "Tineke Huizinga-Heringa"
+            start_date: "2019-06-11"
+            party: "ChristenUnie"
+      - match: 'Rik Janssen (1957) is vanaf 11 juni 2019 lid van de SP-fractie in de Eerste Kamer'
+        details:
+          - name: "Rik Janssen"
+            start_date: "2019-06-11"
+            party: "SP"
+      - match: 'Hetty Janssen-van Helvoort (1954) is vanaf 13 juni 2023 lid van de GroenLinks-PvdA-fractie in de Eerste Kamer'
+        details:
+          - name: "Hetty Janssen-van Helvoort"
+            start_date: "2023-06-13"
+            party: "GroenLinks-PvdA"
+      - match: 'Wim Jaspers (1961) is vanaf 13 juni 2023 lid van de BBB-fractie in de Eerste Kamer'
+        details:
+          - name: "Wim Jaspers"
+            start_date: "2023-06-13"
+            party: "BBB"
+      - match: 'Marian Kaljouw (1956) is vanaf 13 juni 2023 lid van de VVD-fractie in de Eerste Kamer'
+        details:
+          - name: "Marian Kaljouw"
+            start_date: "2023-06-13"
+            party: "VVD"
+      - match: 'Farah Karimi (1960) is sinds 13 juni 2023 lid van de GroenLinks-PvdA-fractie in de Eerste Kamer'
+        details:
+          - name: "Farah Karimi"
+            start_date: "2023-06-13"
+            party: "GroenLinks-PvdA"
+      - match: 'Eric Kemperman is vanaf 13 juni 2023 lid van de Eerste Kamer'
+        details:
+          - name: "Eric Kemperman"
+            start_date: "2023-06-13"
+      - match: 'Ton van Kesteren (1954) is sinds 12 december 2023 van de PVV-fractie in de Eerste Kamer'
+        details:
+          - name: "Ton van Kesteren"
+            start_date: "2023-12-12"
+            party: "PVV"
+      - match: 'Tanja Klip-Martin (1954) is sinds 12 juli 2016 lid van de VVD-fractie in de Eerste Kamer'
+        details:
+          - name: "Tanja Klip-Martin"
+            start_date: "2016-07-12"
+            party: "VVD"
+      - match: 'Saskia Kluit (1973) is sinds 13 juni 2023 lid van de GroenLinks-PvdA-fractie in de Eerste Kamer'
+        details:
+          - name: "Saskia Kluit"
+            start_date: "2023-06-13"
+            party: "GroenLinks-PvdA"
+      - match: 'Frans van Knapen (1948) is vanaf 13 juni 2023 lid van de BBB-fractie in de Eerste Kamer'
+        details:
+          - name: "Frans van Knapen"
+            start_date: "2023-06-13"
+            party: "BBB"
+      - match: 'Niko Koffeman (1958) is sinds 12 juni 2007 lid van de PvdD-fractie in de Eerste Kamer'
+        details:
+          - name: "Niko Koffeman"
+            start_date: "2007-06-12"
+            party: "PvdD"
+      - match: 'Bart Kroon is vanaf 13 juni 2023 lid van de BBB-fractie in de Eerste Kamer'
+        details:
+          - name: "Bart Kroon"
+            start_date: "2023-06-13"
+            party: "BBB"
+      - match: 'Ilona Lagas is vanaf 13 juni 2023 lid van de BBB-fractie in de Eerste Kamer'
+        details:
+          - name: "Ilona Lagas"
+            start_date: "2023-06-13"
+            party: "BBB"
+      - match: 'Andrea van Langen-Visbeek (1968) is vanaf 13 juni 2023 lid van de BBB-fractie in de Eerste Kamer'
+        details:
+          - name: "Andrea van Langen-Visbeek"
+            start_date: "2023-06-13"
+            party: "BBB"
+      - match: 'Robbert Lievense is vanaf 6 februari 2024 lid van de BBB-fractie in de Eerste Kamer'
+        details:
+          - name: "Robbert Lievense"
+            start_date: "2024-02-06"
+            party: "BBB"
+      - match: 'Marjolein van der Linden (1963) is vanaf 14 januari 2025 lid van de VVD-fractie in de Eerste Kamer'
+        details:
+          - name: "Marjolein van der Linden"
+            start_date: "2025-01-14"
+            party: "VVD"
+      - match: 'Henk Marquart Scholtz (1946) is vanaf 13 juni 2023 lid van de BBB-fractie in de Eerste Kamer'
+        details:
+          - name: "Henk Marquart Scholtz"
+            start_date: "2023-06-13"
+            party: "BBB"
+      - match: 'Randy Martens is vanaf 13 juni 2023 lid van de GroenLinks-PvdA-fractie in de Eerste Kamer'
+        details:
+          - name: "Randy Martens"
+            start_date: "2023-06-13"
+            party: "GroenLinks-PvdA"
+      - match: 'Paul van Meenen (1956) is vanaf 20 juni 2023 lid van de D66-fractie in de Eerste Kamer'
+        details:
+          - name: "Paul van Meenen"
+            start_date: "2023-06-20"
+            party: "D66"
+      - match: 'Henk Jan Meijer (1951) is vanaf 11 juni 2019 lid van de VVD-fractie in de Eerste Kamer'
+        details:
+          - name: "Henk Jan Meijer"
+            start_date: "2019-06-11"
+            party: "VVD"
+      - match: 'Carla Moonen (1963) is vanaf 11 juni 2019 lid van de D66-fractie in de Eerste Kamer'
+        details:
+          - name: "Carla Moonen"
+            start_date: "2019-06-11"
+            party: "D66"
+      - match: 'Shirin Musa (1977) is sinds 23 september 2025 lid van de VVD-fractie van de Eerste Kamer'
+        details:
+          - name: "Shirin Musa"
+            start_date: "2025-09-23"
+            party: "VVD"
+      - match: 'Annabel Nanninga (1977) is sinds 13 juni 2023 lid en voorzitter van de JA21-fractie in de Eerste Kamer'
+        details:
+          - name: "Annabel Nanninga"
+            start_date: "2023-06-13"
+            party: "JA21"
+      - match: 'Peter Nicolaï (1947) is vanaf 11 juni 2019 lid van de PvdD-fractie in de Eerste Kamer'
+        details:
+          - name: "Peter Nicolaï"
+            start_date: "2019-06-11"
+            party: "PvdD"
+      - match: 'Joris van den Oetelaar is vanaf 13 juni 2023 lid van de FVD-fractie in de Eerste Kamer'
+        details:
+          - name: "Joris van den Oetelaar"
+            start_date: "2023-06-13"
+            party: "FVD"
+      - match: 'Gert-Jan Oplaat is vanaf 13 juni 2023 lid van de BBB-fractie in de Eerste Kamer'
+        details:
+          - name: "Gert-Jan Oplaat"
+            start_date: "2023-06-13"
+            party: "BBB"
+      - match: 'Tekke Panman (1968) is vanaf 13 juni 2023 lid van de BBB-fractie in de Eerste Kamer'
+        details:
+          - name: "Tekke Panman"
+            start_date: "2023-06-13"
+            party: "BBB"
+      - match: 'Gaby Perin-Gopie (1986) is vanaf 13 juni 2023 lid van de Volt-fractie in de Eerste Kamer'
+        details:
+          - name: "Gaby Perin-Gopie"
+            start_date: "2023-06-13"
+            party: "Volt"
+      - match: 'Koen Petersen (1968) is vanaf 13 juni 2023 lid van de VVD-fractie in de Eerste Kamer'
+        details:
+          - name: "Koen Petersen"
+            start_date: "2023-06-13"
+            party: "VVD"
+      - match: 'Greet Prins (1954) is vanaf 11 juni 2019 lid van de CDA-fractie in de Eerste Kamer'
+        details:
+          - name: "Greet Prins"
+            start_date: "2019-06-11"
+            party: "CDA"
+      - match: 'Artie Ramsodit is vanaf 13 juni 2023 lid van de GroenLinks-PvdA-fractie in de Eerste Kamer'
+        details:
+          - name: "Artie Ramsodit"
+            start_date: "2023-06-13"
+            party: "GroenLinks-PvdA"
+      - match: 'Jeroen Recourt (1970) is sinds 13 juni 2023 lid van de GroenLinks-PvdA-fractie in de Eerste Kamer Eerder was hij van 11 juni 2019 tot 13 juni 2023 lid van de PvdA-fractie in de Eerste Kamer'
+        details:
+          - name: "Jeroen Recourt"
+            start_date: "2019-06-11"
+            party: "PvdA"
+      - match: 'Theo Rietkerk (1962) is vanaf 11 juni 2019 lid van de CDA-fractie in de Eerste Kamer'
+        details:
+          - name: "Theo Rietkerk"
+            start_date: "2019-06-11"
+            party: "CDA"
+      - match: 'Martin van Rooijen (1942) is vanaf 11 juni 2019 lid van de 50PLUS-fractie in de Eerste Kamer'
+        details:
+          - name: "Martin van Rooijen"
+            start_date: "2019-06-11"
+            party: "50PLUS"
+      - match: 'Daan Roovers (1970) is sinds 13 juni 2023 lid van de GroenLinks-PvdA-fractie in de Eerste Kamer'
+        details:
+          - name: "Daan Roovers"
+            start_date: "2023-06-13"
+            party: "GroenLinks-PvdA"
+      - match: 'Paul Rosenmöller (1956) is sinds 13 juni 2023 lid van de GroenLinks-PvdA-fractie in de Eerste Kamer'
+        details:
+          - name: "Paul Rosenmöller"
+            start_date: "2023-06-13"
+            party: "GroenLinks-PvdA"
+      - match: 'Cees van de Sanden is sinds 8 oktober 2025 lid van de Fractie-van de Sanden in de Eerste Kamer'
+        details:
+          - name: "Cees van de Sanden"
+            start_date: "2025-10-08"
+            party: "Fractie-van de Sanden"
+      - match: 'Peter Schalk (1961) is vanaf 9 juni 2015 lid en fractievoorzitter van de SGP-fractie in de Eerste Kamer'
+        details:
+          - name: "Peter Schalk"
+            start_date: "2015-06-09"
+            party: "SGP"
+      - match: 'Karin Straus is vanaf 1 juli 2025 lid van de VVD-fractie in de Eerste Kamer'
+        details:
+          - name: "Karin Straus"
+            start_date: "2025-07-01"
+            party: "VVD"
+      - match: 'Gom van Strien is sinds 7 juni 2011 lid van de PVV-fractie in de Eerste Kamer'
+        details:
+          - name: "Gom van Strien"
+            start_date: "2011-06-07"
+            party: "PVV"
+      - match: 'Hendrik-Jan Talsma (1978) is sinds 6 april 2021 lid van de ChristenUnie-fractie in de Eerste Kamer'
+        details:
+          - name: "Hendrik-Jan Talsma"
+            start_date: "2021-04-06"
+            party: "ChristenUnie"
+      - match: 'Noortje Thijssen (1983) is vanaf 13 juni 2023 lid van de GroenLinks-PvdA-fractie in de Eerste Kamer'
+        details:
+          - name: "Noortje Thijssen"
+            start_date: "2023-06-13"
+            party: "GroenLinks-PvdA"
+      - match: 'Madeleine van Toorenburg (1968) is vanaf 13 juni 2023 lid van de CDA-fractie in de Eerste Kamer'
+        details:
+          - name: "Madeleine van Toorenburg"
+            start_date: "2023-06-13"
+            party: "CDA"
+      - match: 'Gala Veldhoen (1971) is sinds 13 juni 2023 lid van de GroenLinks-PvdA-fractie in de Eerste Kamer'
+        details:
+          - name: "Gala Veldhoen"
+            start_date: "2023-06-13"
+            party: "GroenLinks-PvdA"
+      - match: 'Ingrid Visseren-Hamakers (1970) is vanaf 13 juni 2023 lid van de PvdD-fractie in de Eerste Kamer'
+        details:
+          - name: "Ingrid Visseren-Hamakers"
+            start_date: "2023-06-13"
+            party: "PvdD"
+      - match: 'Rian Vogels (1970) is vanaf 13 juni 2023 lid van de VVD-fractie in de Eerste Kamer'
+        details:
+          - name: "Rian Vogels"
+            start_date: "2023-06-13"
+            party: "VVD"
+      - match: 'Mei Li Vos (1970) is sinds 13 juni 2023 lid van de GroenLinks-PvdA-fractie in de Eerste Kamer'
+        details:
+          - name: "Mei Li Vos"
+            start_date: "2023-06-13"
+            party: "GroenLinks-PvdA"
+      - match: 'Marc de Vries (1958) is vanaf 12 december 2023 lid en fractiesecretaris/penningmeester van de SGP-fractie in de Eerste Kamer'
+        details:
+          - name: "Marc de Vries"
+            start_date: "2023-12-12"
+            party: "SGP"
+      - match: 'Pim Walenkamp (1974) is vanaf 23 september 2025 lid van de Eerste Kamer voor de Fractie-Walenkamp'
+        details:
+          - name: "Pim Walenkamp"
+            start_date: "2025-09-23"
+            party: "Fractie-Walenkamp"
+      - match: 'Elly van Wijk (1962) is vanaf 13 juni 2023 lid van de BBB-fractie in de Eerste Kamer'
+        details:
+          - name: "Elly van Wijk"
+            start_date: "2023-06-13"
+            party: "BBB"
