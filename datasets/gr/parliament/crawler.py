@@ -6,6 +6,9 @@ from zavod import Context, helpers as h
 from zavod.stateful.positions import categorise
 
 
+HEADERS = {
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+}
 # List of IDs to skip:
 # These entries are explicitly skipped because they currently contain no data.
 # However, the skip list is maintained so we can verify each skipped case,
@@ -84,7 +87,7 @@ def crawl_row(context: Context, str_row, id: str, name, url):
 
 
 def crawl(context: Context):
-    doc = context.fetch_html(context.data_url, cache_days=1)
+    doc = context.fetch_html(context.data_url, headers=HEADERS, cache_days=1)
     # Get all <option> elements (skip the first 'Select Member')
     mp_option_els = doc.findall(
         ".//select[@id='ctl00_ContentPlaceHolder1_dmps_mpsListId']/option"
