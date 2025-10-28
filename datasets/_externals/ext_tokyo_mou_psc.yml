@@ -11,8 +11,8 @@ exports:
   - statistics.json
   - entities.delta.json
 deploy:
-  memory: "2000Mi"
-  memory_limit: "3000Mi"
+  memory: "4000Mi"
+  memory_limit: "5000Mi"
 load_statements: true
 ci_test: false
 summary: >-
