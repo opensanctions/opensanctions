@@ -1,10 +1,10 @@
+from typing import cast
 from urllib.parse import urljoin
 
-from zavod import Context
-from zavod import helpers as h
+from zavod import Context, helpers as h
 from zavod.stateful.positions import categorise
 
-
+# "Wybrany dnia:" or "Wybrana dnia:" means "Elected on:"
 START_DATE_XPATH = ".//ul[@class='data']/li[p[@class='left']='Wybrany dnia:' or p[@class='left']='Wybrana dnia:']/p[@class='right']/text()"
 
 
@@ -20,15 +20,16 @@ def crawl_person(context: Context, url: str) -> None:
     pep_doc = context.fetch_html(url, cache_days=1)
     name = pep_doc.findtext(".//div[@id='title_content']/h1")
     if not name:
-        context.log.warning("Missing name for: {}".format(url))
+        context.log.warning(f"Missing name for: {url}")
         return
-    # Extract the "Wybrany dnia:" value
-    start_date = pep_doc.xpath(START_DATE_XPATH)[0]
+    start_date = cast(str, pep_doc.xpath(START_DATE_XPATH)[0])
     if not start_date:
-        context.log.warning("Missing start date for: {}".format(url))
+        context.log.warning(f"Missing start date for: {url}")
         return
-    dob_pob = pep_doc.xpath(".//p[@id='urodzony']/text()")
-    dob, pob = split_dob_pob(dob_pob[0])
+    dob_pob = pep_doc.findtext(".//p[@id='urodzony']")
+    assert dob_pob is not None, f"Missing date and place of birth for: {url}"
+    dob, pob = split_dob_pob(dob_pob)
+
     entity = context.make("Person")
     entity.id = context.make_id(name, dob, pob)
     entity.add("name", name)
@@ -54,7 +55,7 @@ def crawl_person(context: Context, url: str) -> None:
         context,
         person=entity,
         position=position,
-        start_date=start_date.strip(),
+        start_date=start_date,
         categorisation=categorisation,
     )
     if occupancy is not None:
