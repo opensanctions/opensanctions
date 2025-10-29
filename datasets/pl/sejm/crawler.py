@@ -9,8 +9,8 @@ START_DATE_XPATH = ".//ul[@class='data']/li[p[@class='left']='Wybrany dnia:' or 
 
 
 def split_dob_pob(dob_pob: str) -> tuple[str, str]:
-    # Split on the first comma: ['12-09-1960, Bytom']
-    parts = dob_pob[0].split(",", 1)
+    # Split on the first comma: '12-09-1960, Bytom'
+    parts = dob_pob.split(",", 1)
     dob = parts[0].strip()
     pob = parts[1].strip() if len(parts) > 1 else ""
     return dob, pob
@@ -28,9 +28,9 @@ def crawl_person(context: Context, url: str) -> None:
         context.log.warning("Missing start date for: {}".format(url))
         return
     dob_pob = pep_doc.xpath(".//p[@id='urodzony']/text()")
-    dob, pob = split_dob_pob(dob_pob)
+    dob, pob = split_dob_pob(dob_pob[0])
     entity = context.make("Person")
-    entity.id = context.make_id(name, dob_pob)
+    entity.id = context.make_id(name, dob, pob)
     entity.add("name", name)
     entity.add("citizenship", "pl")
     entity.add("topics", "role.pep")
@@ -54,7 +54,7 @@ def crawl_person(context: Context, url: str) -> None:
         context,
         person=entity,
         position=position,
-        start_date=start_date[0].strip(),
+        start_date=start_date.strip(),
         categorisation=categorisation,
     )
     if occupancy is not None:
