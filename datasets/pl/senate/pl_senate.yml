@@ -28,9 +28,12 @@ publisher:
   url: https://www.senat.gov.pl/en/
   official: true
 data:
-  url: https://www.senat.gov.pl/sklad/senatorowie/
+  url: https://www.senat.gov.pl/en/senators/lista-senatorow/
   format: HTML
   lang: pol
+
+dates:
+  formats: ["%d %B %Y"]
 
 assertions:
   min:
@@ -39,3 +42,11 @@ assertions:
       Position: 1
     country_entities:
       pl: 1
+
+lookups:
+  birth_dates:
+    options:
+      - contains: "was born on March 28, 1972 in Warsaw"
+        value: 1972-03-28
+      - contains: "Born on May 13th, 1958 in Szczecin"
+        value: 1958-05-13
