@@ -1,13 +1,15 @@
 import re
-from datapatch import Lookup
-from lxml.html import HtmlElement
-from normality import squash_spaces
 from typing import cast
 from urllib.parse import urljoin
 
-from zavod import Context, helpers as h
+from datapatch import Lookup
+from lxml.html import HtmlElement
+from normality import squash_spaces
 from zavod.shed import zyte_api
 from zavod.stateful.positions import OccupancyStatus, categorise
+
+from zavod import Context
+from zavod import helpers as h
 
 # These entries are explicitly skipped because they currently contain no details.
 # However, the skip list is maintained so we can verify each skipped case,
@@ -25,26 +27,30 @@ def extract_dob(context, lookup: Lookup, text):
     if match:
         return match.group(1)
     # Fallback to context lookup
-    res = lookup.match(text)
-    if res:
-        return res.value
-    context.log.warning(f"No {lookup} found for biography.", biography=text)
+    res = lookup.get_value(text)
+    if res is not None:
+        return res
+
+    context.log.warning(
+        f"DoB regex lookup from biography failed and not found in {lookup}.",
+        biography=text,
+    )
     return None
 
 
 def crawl(context: Context) -> None:
-    senator_container = ".//div[@class='senator-kontener']"
+    senator_container_xpath = ".//div[@class='senator-kontener']"
     doc = zyte_api.fetch_html(
         context,
         context.data_url,
-        unblock_validator=senator_container,
+        unblock_validator=senator_container_xpath,
         cache_days=1,
     )
-    for row in doc.findall(senator_container):
+    for row in doc.findall(senator_container_xpath):
         link = row.find(".//a")
         if link is None:
             continue
-        assert link.text is not None, f"Missing name for: {link.get("href")}"
+        assert link.text is not None, f"Missing name for: {link.get('href')}"
         name = link.text.strip()
         href = link.get("href")
         assert href is not None, "Missing href"
