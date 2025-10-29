@@ -334,6 +334,8 @@ lookups:
         value: "info@chersonesos-sev.ru"
       - match: "https://moscow.rtrs.ru/"
         prop: website
+      - match: "registration@ama ocr.org"
+        value: registration@amaocr.org
       - match: mbbmos@mbbru.com  Mellimos@BMIRU.com  Mellimos@Rex400.ru
         values:
           - mbbmos@mbbru.com
