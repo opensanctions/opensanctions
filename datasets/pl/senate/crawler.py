@@ -8,6 +8,12 @@ from zavod import helpers as h
 from zavod.shed import zyte_api
 from zavod.stateful.positions import OccupancyStatus, categorise
 
+# These entries are explicitly skipped because they currently contain no details.
+# However, the skip list is maintained so we can verify each skipped case,
+# in case the relevant information exists elsewhere.
+SKIP_DETAILS = [
+    "https://www.senat.gov.pl/en/senators/lista-senatorow/senator,1075,11,magdalena-kochan.html"
+]
 # Born on 30 March 1973 in
 DOB_REGEX = re.compile(r"\b[Bb]orn\s+on\s+(\d{1,2}\s+[A-Z][a-z]+\s+\d{4})\s+in\b")
 
@@ -51,7 +57,10 @@ def crawl(context: Context) -> None:
         )
         description_el = pep_doc.find(".//div[@class='description']")
         description = squash_spaces(description_el.text_content().strip())
-        dob = extract_dob(context, context.get_lookup("birth_dates"), description)
+        if not description and url not in SKIP_DETAILS:
+            context.log.warning(f"Missing biography for {name}.", url=url)
+        if description:
+            dob = extract_dob(context, context.get_lookup("birth_dates"), description)
 
         entity = context.make("Person")
         entity.id = context.make_id(name, dob)
