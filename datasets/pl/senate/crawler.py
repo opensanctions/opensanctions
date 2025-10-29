@@ -88,7 +88,8 @@ def crawl(context: Context) -> None:
             position=position,
             no_end_implies_current=False,
             categorisation=categorisation,
-            status=OccupancyStatus.UNKNOWN,
+            # Data source indicates they hold the position now
+            status=OccupancyStatus.CURRENT,
         )
         if occupancy is not None:
             context.emit(occupancy)
