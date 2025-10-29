@@ -1,10 +1,11 @@
 import re
-from urllib.parse import urljoin
 from datapatch import Lookup
+from lxml.html import HtmlElement
 from normality import squash_spaces
+from typing import cast
+from urllib.parse import urljoin
 
-from zavod import Context
-from zavod import helpers as h
+from zavod import Context, helpers as h
 from zavod.shed import zyte_api
 from zavod.stateful.positions import OccupancyStatus, categorise
 
@@ -55,7 +56,7 @@ def crawl(context: Context) -> None:
             unblock_validator=".//div[@class='description']",
             cache_days=1,
         )
-        description_el = pep_doc.find(".//div[@class='description']")
+        description_el = cast(HtmlElement, pep_doc.find(".//div[@class='description']"))
         description = squash_spaces(description_el.text_content().strip())
         if not description and url not in SKIP_DETAILS:
             context.log.warning(f"Missing biography for {name}.", url=url)
