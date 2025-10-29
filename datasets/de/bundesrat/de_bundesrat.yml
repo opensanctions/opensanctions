@@ -45,7 +45,7 @@ assertions:
 
 lookups:
   birth_dates:
-    otpions:
+    options:
       - contains: "Geboren am 9. Dezember 1973 in Uelzen"
         value: 1973-12-09
       - contains: "Geboren am 28. April 1980 in Saarbrücken"
@@ -56,3 +56,15 @@ lookups:
         value: 1969-09-03
       - contains: "Geboren am 12. Mai 1968 in Bremerhaven"
         value: 1968-05-12
+      - contains: "Geboren am 4. Januar 1976 in Marburg"
+        value: 1976-01-04
+      - contains: "Geboren am 24. Juni 1976 in Dresden"
+        value: 1976-06-24
+      - contains: "Geboren 26.03.1964 in Geldern"
+        value: 1964-03-26
+      - contains: "Geboren am 12. August 1988 in Gießen"
+        value: 1988-08-12
+      - contains: "Geboren am 24. Dezember 1971 in Eberswalde-Finow"
+        value: 1971-12-24
+      - contains: "Geboren 08.06.1982 in Borna"
+        value: 1982-06-08
