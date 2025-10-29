@@ -75,7 +75,7 @@ def crawl_unconsolidated_row(
     for other_id in linker.get_referents(canonical_id):
         if other_id.startswith("eu-fsf-"):
             context.log.warning(
-                f"Row {row_idx} is also present in FSF XML: {other_id}, can be moved to context sheet",
+                f"Row {row_idx} is also present in FSF XML: {other_id}",
                 row_id=row_id,
                 other_id=other_id,
                 name=name,
@@ -86,7 +86,7 @@ def crawl_unconsolidated_row(
             break
         if other_id.startswith("eu-sancmap-"):
             context.log.warning(
-                f"Row {row_idx} is also present in EU Sanctions map: {other_id}, can be moved to context",
+                f"Row {row_idx} is also present in EU Sanctions map: {other_id}",
                 row_id=row_id,
                 other_id=other_id,
                 name=name,
@@ -97,7 +97,7 @@ def crawl_unconsolidated_row(
             break
         if other_id.startswith("eu-tb-"):
             context.log.warning(
-                f"Row {row_idx} is also present in EU Travel Bans: {other_id}, can be removed from sheet",
+                f"Row {row_idx} is also present in EU Travel Bans: {other_id}",
                 row_id=row_id,
                 other_id=other_id,
                 name=name,
