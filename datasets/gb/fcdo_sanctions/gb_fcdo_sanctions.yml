@@ -8,15 +8,15 @@ coverage:
   start: 2024-05-09
 load_statements: true
 summary: >-
-  UK sanctions collated by the Foreign, Commonwealth & Development Office
+  Official register of individuals, entities, and vessel subject to UK sanctions 
+  under regulations made pursuant to the Sanctions and Anti-Money Laundering Act 2018.
 description: |
-  As described by the [FCDO](https://www.gov.uk/government/publications/the-uk-sanctions-list):
-
-  > The UK government publishes the UK Sanctions List, which provides
-  > details of those designated under regulations made under the Sanctions
-  > Act. The list also details which sanctions measures apply to these
-  > persons or ships, and in the case of UK designations, provides a
-  > statement of reasons for the designation.
+  The UK Sanctions List provides information on all current UK sanctions designations made 
+  under the 2018 Act. It covers individuals, companies, and vessels subject to financial restrictions, 
+  travel bans, and trade or transport controls, and is updated whenever a designation is created, 
+  changed, or revoked. Each entry shows the sanctions measures that apply, and for UK designations includes 
+  a statement of reasons. From 28 January 2026 the UK Sanctions List will be the [single official source](https://www.gov.uk/guidance/moving-to-a-single-list-for-uk-sanctions-designations-28-january-2026) 
+  for all UK sanctions designations.
 url: https://www.gov.uk/government/publications/the-uk-sanctions-list
 publisher:
   name: Foreign, Commonwealth & Development Office
