@@ -291,6 +291,14 @@ lookups:
         names:
           - name: Rishikesh Waste Management Ltd
             previous_name: A2Z Powertech Ltd
+      - match: Hangzhou Fuchuan Electric Equipment Co., Ltd (also known as Hangzhou Fuchuan Electric Power Equipment Co., Ltd)
+        names:
+          - name: Hangzhou Fuchuan Electric Equipment Co., Ltd
+            alias: "Hangzhou Fuchuan Electric Power Equipment Co., Ltd"
+      - match: International Real Estate Consulting and Investment Joint Stock Company (formerly known as HanoiTC Expert Joint Stock Company)
+        names:
+          - name: International Real Estate Consulting and Investment Joint Stock Company
+            previous_name: "HanoiTC Expert Joint Stock Company"
   types:
     lowercase: true
     map:
