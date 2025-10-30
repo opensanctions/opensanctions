@@ -1,0 +1,42 @@
+title: Poland Members of the Sejm
+prefix: pl-sejm
+url: https://www.sejm.gov.pl/Sejm10.nsf/poslowie.xsp?type=A
+coverage:
+  frequency: monthly
+  start: 2025-10-27
+load_statements: true
+entry_point: crawler.py
+ci_test: true
+summary: >-
+  Current Members of the Polish lower chamber, the Sejm.
+description: |
+  The Sejm of the Republic of Poland is the lower house of the National Assembly. It is
+  composed of 460 deputies elected for a four-year term. The Sejm is responsible for enacting
+  laws, approving the budget, and overseeing the government. Members of the Sejm are elected
+  through a proportional representation system, with each member representing a specific
+  electoral district.
+tags:
+  - list.pep
+publisher:
+  name: Sejm of the Republic of Poland
+  description: |
+    The Sejm is the lower house of the Polish parliament, responsible for
+    legislative functions, including the creation and amendment of laws.
+  country: pl
+  url: https://www.sejm.gov.pl
+  official: true
+data:
+  url: https://www.sejm.gov.pl/Sejm10.nsf/poslowie.xsp?type=A
+  format: HTML
+  lang: pol
+dates:
+  formats: ["%d-%m-%Y"]
+
+# 460 members
+assertions:
+  min:
+    schema_entities:
+      Person: 440
+      Position: 1
+    country_entities:
+      pl: 1
