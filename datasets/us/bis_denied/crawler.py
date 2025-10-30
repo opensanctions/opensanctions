@@ -2,7 +2,6 @@ import csv
 
 import openpyxl
 import xlrd
-from followthemoney.types import registry
 from rigour.mime.types import XLS
 
 from zavod import Context
@@ -13,30 +12,26 @@ from zavod import helpers as h
 PROGRAM_KEY = "US-BIS-DPL"
 
 
+def split_name_address(name_and_address: str):
+    # Split only on the first comma
+    parts = name_and_address.split(",", 1)
+    name = parts[0].strip()
+    address = parts[1].strip() if len(parts) > 1 else None
+    return name, address
+
+
 def parse_row(context: Context, row):
     entity = context.make("LegalEntity")
-    name = row.pop("name")
-    country = row.pop("country")
-    city = row.pop("city")
+    name_and_address = row.pop("name_and_address")
+    name, address = split_name_address(name_and_address)
 
-    entity.id = context.make_id(name, city, country)
+    entity.id = context.make_id(name, address)
     entity.add("name", name)
-    entity.add("notes", row.pop("action"))
-    entity.add("country", country)
-    h.apply_date(entity, "modifiedAt", row.pop("last_update"))
-
-    country_code = registry.country.clean(country)
-    address = h.make_address(
-        context,
-        street=row.pop("street_address"),
-        postal_code=row.pop("postal_code"),
-        city=city,
-        region=row.pop("state"),
-        country_code=country_code,
-    )
+    entity.add("notes", row.pop("type_of_denial"))
+    address = h.make_address(context, full=address)
     h.copy_address(entity, address)
 
-    citation = row.pop("fr_citation")
+    citation = row.pop("appropriate_federal_register_citations")
     # We don't link it to the website here, since it's included in the us_trade_csl
     # programs, which is linked to the website.
     sanction = h.make_sanction(context, entity, key=citation, program_key=PROGRAM_KEY)
@@ -50,15 +45,7 @@ def parse_row(context: Context, row):
     context.emit(entity)
     context.emit(sanction)
 
-    context.audit_data(
-        row,
-        [
-            "counter",
-            "standard_order",
-            "type_of_denial",
-            "name_and_address",
-        ],
-    )
+    context.audit_data(row)
 
 
 def crawl(context: Context):
