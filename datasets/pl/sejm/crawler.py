@@ -41,7 +41,7 @@ def crawl_person(context: Context, url: str) -> None:
 
     position = h.make_position(
         context,
-        name="Member of the Sejm of Poland",
+        name="Member of the Sejm",
         wikidata_id="Q19269361",
         country="pl",
         topics=["gov.legislative", "gov.national"],
