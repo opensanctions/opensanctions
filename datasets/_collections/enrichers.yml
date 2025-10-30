@@ -19,19 +19,20 @@ children:
   - ext_ee_ariregister
   - ext_eu_esma_firds
   - ext_gb_coh_psc
-  - ext_ge_company_registry
   - ext_gb_fca_firds
+  - ext_ge_company_registry
   - ext_gleif
-  - ext_ror
   - ext_icij_offshoreleaks
-  - ext_lv_business_register
   - ext_kz_companies
+  - ext_lv_business_register
   - ext_md_companies
-  - ext_tokyo_mou_psc
-  - ext_us_irs_ffi
-  - opencorporates
+  - ext_ror
   - ext_ru_egrul
+  - ext_tokyo_mou_psc
   - ext_ua_edr
-  - wikidata
+  - ext_us_irs_ffi
+  - ext_us_ofac_press_releases
+  - opencorporates
   - openfigi
   - permid
+  - wikidata
