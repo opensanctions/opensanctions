@@ -1798,6 +1798,52 @@ config:
       country: es
       topic: role.pep
 
+    # country: Netherlands
+    - category: Political_office-holders_in_the_Netherlands
+      country: nl
+      topic: role.pep
+    - category: Members_of_the_Senate_(Netherlands)
+      country: nl
+      topic: role.pep
+      position:
+        name: Member of the Senate
+        country: nl
+        topics:
+          - gov.legislative
+          - gov.national
+    - category: Members_of_the_House_of_Representatives_(Netherlands)
+      country: nl
+      topic: role.pep
+      position:
+        name: Member of the House of Representatives
+        country: nl
+        topics:
+          - gov.legislative
+          - gov.national
+    
+    # country: Germany
+    - category: Political_office-holders_in_Germany
+      country: de
+      topic: role.pep
+    - category: Members_of_the_Bundestag
+      country: de
+      topic: role.pep
+      position:
+        name: Member of the Bundestag
+        country: de
+        topics:
+          - gov.legislative
+          - gov.national
+    - category: Members_of_the_German_Bundesrat
+      country: de
+      topic: role.pep
+      position:
+        name: Member of the Bundesrat
+        country: de
+        topics:
+          - gov.legislative
+          - gov.national
+
     # country: Sweden
     - category: Political_office-holders_in_Sweden
       country: se
@@ -2262,6 +2308,18 @@ config:
       topic: role.pep
     - category: 21st-century_Greek_politicians
       country: gr
+    - category: Political_office-holders_in_Greece
+      country: gr
+      topic: role.pep
+    - category: Members_of_the_Hellenic_Parliament
+      country: gr
+      topic: role.pep
+      position:
+        name: Member of the Hellenic Parliament
+        country: gr
+        topics:
+          - gov.legislative
+          - gov.national
 
     # other territories
     # Taiwan
