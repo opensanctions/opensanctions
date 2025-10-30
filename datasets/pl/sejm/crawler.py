@@ -68,8 +68,7 @@ def crawl(context: Context) -> None:
     doc = context.fetch_html(context.data_url, cache_days=1)
     deputies = doc.findall(".//ul[@class='deputies']/li")
     for deputy in deputies:
-        link = deputy.find(".//a")
-        if link is None:
+        if (link := deputy.find(".//a")) is None:
             continue
         href = link.get("href")
         assert href is not None, "Missing href"
