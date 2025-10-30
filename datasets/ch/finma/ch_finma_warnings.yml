@@ -42,12 +42,12 @@ data:
 assertions:
   min:
     schema_entities:
-      LegalEntity: 1500
+      LegalEntity: 1800
     country_entities:
       ch: 1500
   max:
     schema_entities:
-      LegalEntity: 2000
+      LegalEntity: 2500
 
 lookups:
   type.url:
