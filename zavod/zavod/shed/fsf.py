@@ -1,11 +1,12 @@
+import re
+from typing import Optional
+
+from banal import as_bool
+from followthemoney import registry
 from lxml import etree
 from lxml.etree import _Element as Element
-from banal import as_bool
-from typing import Optional
 from prefixdate import parse_parts
-from followthemoney import registry
 from rigour.langs import iso_639_alpha3
-import re
 
 from zavod import Context, Entity
 from zavod import helpers as h
@@ -16,6 +17,33 @@ REGEX_LEADER_ALIAS = re.compile(r"led by .+ alias")
 
 # position and title are split like this, and currently they're up to (c)
 LETTER_SPLITS = ["(a)", "(b)", "(c)", "(d)", "(e)"]
+
+EU_LANGUAGES = {
+    "bul",  # Bulgarian
+    "hrv",  # Croatian
+    "ces",  # Czech
+    "dan",  # Danish
+    "nld",  # Dutch
+    "eng",  # English
+    "est",  # Estonian
+    "fin",  # Finnish
+    "fra",  # French
+    "deu",  # German
+    "ell",  # Greek
+    "hun",  # Hungarian
+    "gle",  # Irish
+    "ita",  # Italian
+    "lav",  # Latvian
+    "lit",  # Lithuanian
+    "mlt",  # Maltese
+    "pol",  # Polish
+    "por",  # Portuguese
+    "ron",  # Romanian
+    "slk",  # Slovak
+    "slv",  # Slovenian
+    "spa",  # Spanish
+    "swe",  # Swedish
+}
 
 
 def parse_country(node: Element) -> Optional[str]:
@@ -125,7 +153,24 @@ def parse_entry(context: Context, entry: Element) -> None:
     parse_sanctions(context, entity, entry)
     # context.inspect(entry)
 
-    for name in entry.findall("./nameAlias"):
+    names = list(entry.findall("./nameAlias"))
+    if len(names) == 1:
+        name = names[0]
+        raw_lang = name.get("nameLanguage")
+        lang = iso_639_alpha3(raw_lang) if raw_lang else None
+        print(f"SINGLE {lang} - {name.get('wholeName')}")
+
+    name_el_to_lang: dict[Element, str | None] = {}
+    for name_el in entry.findall("./nameAlias"):
+        raw_lang = name.get("nameLanguage")
+        lang = iso_639_alpha3(raw_lang) if raw_lang else None
+        if lang is None and raw_lang is not None and len(raw_lang):
+            context.log.warning("Unknown language", lang=raw_lang)
+            continue
+
+        name_el_to_lang[name_el] = lang
+
+    for name, lang in name_el_to_lang.items():
         is_weak = not as_bool(name.get("strong"))
         remark = name.findtext("./remark")
         if remark is not None:
@@ -145,11 +190,20 @@ def parse_entry(context: Context, entry: Element) -> None:
             elif "alias" in lremark:
                 context.log.warning("Unknown alias remark", remark=remark)
             entity.add("notes", remark, quiet=True)
-        lang2 = name.get("nameLanguage")
-        lang = iso_639_alpha3(lang2) if lang2 else None
-        if lang is None and lang2 is not None and len(lang2):
-            context.log.warning("Unknown language", lang=lang2)
-            continue
+
+        # Often there will be translations of organization names to every EU language under the sun,
+        # and we don't much care for those.
+        # This heuristic tries to downgrade these translations to aliases.
+        # It tries to keep as names only English and and non-EU languages, which are likely to be
+        # the "original" names (e.g. Arabic, Chinese, Russian, Farsi, etc.).
+        # If all available names are in less interesting languages (e.g. Spanish terrorists names
+        # are only in Spanish), keep them as names.
+        less_interesting_langs = EU_LANGUAGES - {"eng"}
+        # If all available names are in less interesting languages, keep those.
+        if len(set(name_el_to_lang.values()) - less_interesting_langs) == 0:
+            treat_as_alias = False
+        else:
+            treat_as_alias = lang in less_interesting_langs
         h.apply_name(
             entity,
             full=name.get("wholeName"),
@@ -157,9 +211,11 @@ def parse_entry(context: Context, entry: Element) -> None:
             middle_name=name.get("middleName"),
             last_name=name.get("lastName"),
             is_weak=is_weak,
+            alias=treat_as_alias,
             quiet=True,
             lang=lang,
         )
+
         # split "(a) Mullah, (b) Maulavi" into ["Mullah", "Maulavi"]
         titles = [
             t.strip(", ") for t in h.multi_split(name.get("title", ""), LETTER_SPLITS)
