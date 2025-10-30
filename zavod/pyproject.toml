@@ -21,7 +21,7 @@ dependencies = [
     "followthemoney == 4.3.0",
     "nomenklatura == 4.1.9",
     "plyvel == 1.5.1",
-    "rigour == 1.3.13",
+    "rigour == 1.4.0",
     "datapatch >= 1.2.4, < 1.3",
     "certifi",
     "colorama",
