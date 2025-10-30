@@ -78,7 +78,7 @@ def crawl(context: Context) -> None:
 
         position = h.make_position(
             context,
-            name="Member of the Senate of Poland",
+            name="Member of the Senate",
             wikidata_id="Q81747225",
             country="pl",
             topics=["gov.legislative", "gov.national"],
