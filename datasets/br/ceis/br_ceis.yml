@@ -52,3 +52,7 @@ lookups:
       - match: "37.176.339/0001-53"
         # From the dataset
         values: ["VITAL PRODUTOS MEDICO-HOSPITALARES LTDA", "VITALMED"]
+      - match: "23402.016955/2025-18"
+        # From the registry: https://casadosdados.com.br/solucao/cnpj/kasvi-importacao-e-distribuicao-de-produtos-para-laboratorios-ltda-13324282000396
+        # matched based on the tax number: 13324282000396
+        values: "KASVI IMPORTACAO E DISTRIBUICAO DE PRODUTOS PARA LABORATORIOS LTDA"
