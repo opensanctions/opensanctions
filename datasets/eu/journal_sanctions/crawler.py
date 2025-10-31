@@ -254,9 +254,9 @@ def crawl(context: Context):
     for row_idx in sorted(set(GC_ROWS)):
         if row_idx != seq_max + 1:
             if seq_start != 0:
-                context.log.warn(f"Row {seq_start}..{seq_max} is in other datasets")
+                context.log.warn(f"Row {seq_start}:{seq_max} is in other datasets")
             seq_start = row_idx
         seq_max = row_idx
 
     if seq_start != 0:
-        context.log.warn(f"Row {seq_start}..{seq_max} is in other datasets")
+        context.log.warn(f"Row {seq_start}:{seq_max} is in other datasets")
