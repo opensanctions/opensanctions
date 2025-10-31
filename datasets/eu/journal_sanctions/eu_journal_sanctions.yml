@@ -9,6 +9,7 @@ deploy:
   memory: "1500Mi"
   memory_limit: "2000Mi"
 load_statements: true
+ci_test: false # extract_program_code calls into EUR-Lex, which is not available in CI
 publisher:
   name: Council of the European Union
   acronym: Council
