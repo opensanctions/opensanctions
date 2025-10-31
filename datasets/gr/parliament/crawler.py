@@ -63,6 +63,7 @@ def crawl_row(context: Context, str_row, id: str, name, url):
     person.add("name", name)
     person.add("political", str_row.pop("party"))
     person.add("sourceUrl", url)
+    person.add("citizenship", "gr")
 
     position = h.make_position(
         context,

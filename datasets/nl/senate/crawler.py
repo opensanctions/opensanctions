@@ -84,6 +84,7 @@ def crawl_member(context: Context, member_el: _Element) -> None:
     person.add("address", residency)
     person.add("sourceUrl", url)
     person.add("topics", "role.pep")
+    person.add("citizenship", "nl")
 
     position = h.make_position(
         context,
