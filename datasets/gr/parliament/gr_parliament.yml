@@ -4,7 +4,7 @@ prefix: gr-par
 load_statements: true
 coverage:
   frequency: monthly
-  start: 2025-10-31
+  start: 2025-10-30
 summary: >
   Profiles of Members of the Hellenic Parliament, including their political affiliations.
 description: |
