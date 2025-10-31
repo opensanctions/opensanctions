@@ -1,4 +1,4 @@
-title: Luxembourg Administrative Sanctions
+title: Luxembourg CSSF Administrative Sanctions and Measures
 entry_point: crawler.py
 prefix: lu-san
 coverage:

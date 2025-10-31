@@ -123,7 +123,7 @@ def crawl(context: Context) -> None:
         context.dataset.model.url, cache_days=1, absolute_links=True
     )
     hist_url = hist_doc.xpath(
-        ".//div[@class='com-listado com-listado--destacado']//a[contains(@href, 'Alcaldes_Mandato_2019_2023')]/@href"
+        ".//div[@class='dnt-link-default']/a[contains(@href, 'Alcaldes_Mandato_2019_2023')]/@href"
     )
     assert len(hist_url) == 1, "Expected exactly one historical URL"
     process_excel(
