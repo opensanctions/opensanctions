@@ -25,7 +25,7 @@ publisher:
   url: https://mpt.gob.es/en/ministerio.html
 tags:
   - list.pep
-url: https://mpt.gob.es/en/politica-territorial/local/sistema_de_informacion_local_-SIL-/alcaldes_y_concejales.html
+url: https://mptmd.gob.es/en/portal/politica-territorial/local/sistema_de_informacion_local_-sil-/alcaldes_y_concejales
 data:
   url: https://concejales.redsara.es/consulta/
   format: html
