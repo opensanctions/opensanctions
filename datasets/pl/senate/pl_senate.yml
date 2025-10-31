@@ -3,7 +3,7 @@ prefix: pl-senate
 url: https://www.senat.gov.pl/en/senators/lista-senatorow/
 coverage:
   frequency: monthly
-  start: 2025-10-27
+  start: 2025-10-31
 load_statements: true
 entry_point: crawler.py
 ci_test: false
@@ -16,14 +16,15 @@ description: |
   Senators represent various regions of Poland and are responsible for
   reviewing legislation, approving or rejecting bills passed by the Sejm,
   and providing oversight of the executive branch.
+  
+  The data includes senator names, regions represented, and a short biography.
 tags:
   - list.pep
 publisher:
   name: Senate of Poland
   description: |
     The Senate of Poland provides information about current senators through
-    its official website. The data includes senator names, regions represented,
-    and a short biography.
+    its official website.
   country: pl
   url: https://www.senat.gov.pl/en/
   official: true
