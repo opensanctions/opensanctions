@@ -3,27 +3,27 @@ prefix: pl-senate
 url: https://www.senat.gov.pl/en/senators/lista-senatorow/
 coverage:
   frequency: monthly
-  start: 2025-10-27
+  start: 2025-10-29
 load_statements: true
 entry_point: crawler.py
 ci_test: false
 summary: >-
   Current Members of the Polish upper chamber, the Senate.
 description: |
-  The Senate of Poland is the upper chamber of the bicameral Parliament,
-  alongside the Sejm. It consists of 100 senators elected for a term of
-  four years through majority voting in single-member constituencies.
-  Senators represent various regions of Poland and are responsible for
-  reviewing legislation, approving or rejecting bills passed by the Sejm,
-  and providing oversight of the executive branch.
+  The dataset provides information about current senators collected
+  from the official website of the Senate of Poland. It insludes details
+  about each senator, such as their name, date of birth, and a short
+  biography. Senators represent various regions of Poland and are
+  responsible for reviewing legislation, approving or rejecting bills
+  passed by the Sejm, and providing oversight of the executive branch.
 tags:
   - list.pep
 publisher:
   name: Senate of Poland
   description: |
-    The Senate of Poland provides information about current senators through
-    its official website. The data includes senator names, regions represented,
-    and a short biography.
+    The Senate of Poland is the upper chamber of the bicameral Parliament,
+    alongside the Sejm. It consists of 100 senators elected for a term of
+    four years through majority voting in single-member constituencies.
   country: pl
   url: https://www.senat.gov.pl/en/
   official: true

@@ -74,11 +74,12 @@ def crawl(context: Context) -> None:
         entity.add("name", name)
         entity.add("sourceUrl", url)
         entity.add("notes", description)
+        entity.add("citizenship", "pl")
         h.apply_date(entity, "birthDate", dob)
 
         position = h.make_position(
             context,
-            name="Member of the Senate of Poland",
+            name="Member of the Senate",
             wikidata_id="Q81747225",
             country="pl",
             topics=["gov.legislative", "gov.national"],

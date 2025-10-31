@@ -52,9 +52,9 @@ def crawl_item(context: Context, item: HtmlElement) -> None:
     assert url, "No URL found for member"
     member_doc = context.fetch_html(url, cache_days=3)
     details = member_doc.find(".//div[@class='text-box']")
-    assert details is not None and details.text is not None, (
-        f"No details found for {url}"
-    )
+    assert (
+        details is not None and details.text is not None
+    ), f"No details found for {url}"
     if "N. N." in h.element_text(details):
         context.log.info("Skipping member with no name", url=url)
         return
@@ -79,6 +79,7 @@ def crawl_item(context: Context, item: HtmlElement) -> None:
     person.add("position", position_name)
     person.add("description", biography)
     person.add("sourceUrl", url)
+    person.add("citizenship", "de")
     h.apply_date(person, "birthDate", dob)
     for membership in memberships:
         person.add("position", membership.strip())
