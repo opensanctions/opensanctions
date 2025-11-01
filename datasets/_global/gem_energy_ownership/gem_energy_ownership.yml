@@ -6,7 +6,7 @@ coverage:
   start: 2024-09-23
   end: 2024-06-30
 manual_check:
-  last_checked: "2025-08-01"
+  last_checked: "2025-11-01"
   interval: 90
   message: Please inquire with Global Energy Monitor to check whether any new data has been added to the Global Energy Ownership Tracker.
 deploy:
