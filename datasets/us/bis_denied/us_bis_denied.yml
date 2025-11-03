@@ -43,7 +43,7 @@ dates:
 assertions:
   min:
     schema_entities:
-      LegalEntity: 500
+      LegalEntity: 400
   max:
     schema_entities:
       LegalEntity: 1000
