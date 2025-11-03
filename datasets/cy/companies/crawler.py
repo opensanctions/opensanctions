@@ -123,6 +123,14 @@ def load_addresses(rows: Iterable[Dict[str, str]]) -> Dict[str, str]:
     return addresses
 
 
+def get_path(file_paths: Dict[str, Path], prefix: str) -> Path:
+    matched_files = [
+        path for name, path in file_paths.items() if name.startswith(prefix)
+    ]
+    assert len(matched_files) == 1, (prefix, len(matched_files))
+    return matched_files[0]
+
+
 def crawl(context: Context) -> None:
     headers = {"Accept": "application/json"}
     meta = context.fetch_json(context.data_url, headers=headers)
@@ -134,23 +142,12 @@ def crawl(context: Context) -> None:
         file_path = context.fetch_resource(file_name, dist_url)
         files[file_name] = file_path
 
-    office_files = [
-        path for name, path in files.items() if name.startswith("registered_office_")
-    ]
-    assert len(office_files) == 1, len(office_files)
-    addresses = load_addresses(iter_rows(office_files[0]))
+    office_path = get_path(files, "registered_office_")
+    addresses = load_addresses(iter_rows(office_path))
     context.log.info("Loaded %d addresses" % len(addresses))
 
-    org_files = [
-        path for name, path in files.items() if name.startswith("organisations_")
-    ]
-    assert len(org_files) == 1, len(org_files)
-    parse_organisations(context, iter_rows(org_files[0]), addresses)
+    org_path = get_path(files, "organisations_")
+    parse_organisations(context, iter_rows(org_path), addresses)
 
-    officials_files = [
-        path
-        for name, path in files.items()
-        if name.startswith("organisation_officials_")
-    ]
-    assert len(officials_files) == 1, len(officials_files)
-    parse_officials(context, iter_rows(officials_files[0]))
+    officials_path = get_path(files, "organisation_officials_")
+    parse_officials(context, iter_rows(officials_path))
