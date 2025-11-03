@@ -32,7 +32,7 @@ def emit_pep_entities(
     end_date,
     is_pep,
     wikidata_id=None,
-):
+) -> bool:
     person.add("position", position_name)
     position = h.make_position(
         context,
@@ -55,6 +55,8 @@ def emit_pep_entities(
         context.emit(occupancy)
         context.emit(position)
         context.emit(person)
+        return True
+    return False
 
 
 def get_birth_date_and_place(context, profile_url):
@@ -68,7 +70,7 @@ def get_birth_date_and_place(context, profile_url):
     return birth_date, birth_place
 
 
-def crawl_deputy(context, item, current_leg_roman):
+def crawl_deputy(context, item, current_leg_roman) -> bool:
     id = item.pop("parliament_member_id")
     query = {
         "p_p_id": "diputadomodule",
@@ -103,7 +105,7 @@ def crawl_deputy(context, item, current_leg_roman):
     person.add("political", party)
     person.add("political", item.pop("parliamentary_group"))
     person.add("sourceUrl", profile_url)
-    emit_pep_entities(
+    emitted = emit_pep_entities(
         context,
         person,
         "Member of the Congress of Deputies of Spain",
@@ -114,9 +116,10 @@ def crawl_deputy(context, item, current_leg_roman):
         wikidata_id="Q18171345",
     )
     context.audit_data(item, IGNORE)
+    return emitted
 
 
-def crawl_senator(context, senator_url):
+def crawl_senator(context: Context, senator_url) -> bool:
     parsed_url = urlparse(senator_url)
     query_params = parse_qs(parsed_url.query)
     senator_id = query_params["id1"][0]
@@ -126,7 +129,10 @@ def crawl_senator(context, senator_url):
     # It looks like some newly-added senators don't have a link to the XML file
     # on their detail page, and the XML url pattern with their ID returns an empty file.
     if os.path.getsize(path) == 0:
-        return
+        context.log.info(
+            "Empty XML file for senator", senator_id=senator_id, url=xml_url
+        )
+        return False
 
     doc_xml = context.parse_resource_xml(path)
     datos = doc_xml.find("datosPersonales")
@@ -148,12 +154,14 @@ def crawl_senator(context, senator_url):
     person.add("notes", datos.findtext("biografia"))
     person.add("sourceUrl", senator_url)
 
+    emitted = False
+
     for legislatura in doc_xml.findall(".//legislatura"):
         # Additional parliamentary roles (cargos)
         for cargo in legislatura.findall(".//cargo"):
             role_title = cargo.findtext("cargoNombre")
             role_body = cargo.findtext("cargoOrganoNombre")
-            emit_pep_entities(
+            emitted |= emit_pep_entities(
                 context,
                 person=person,
                 position_name=f"{role_title}, {role_body}",
@@ -164,7 +172,7 @@ def crawl_senator(context, senator_url):
             )
 
         if legislatura.findtext("legislaturaActual") == "SI":
-            emit_pep_entities(
+            emitted |= emit_pep_entities(
                 context,
                 person=person,
                 position_name="Member of the Senate of Spain",
@@ -174,9 +182,15 @@ def crawl_senator(context, senator_url):
                 is_pep=True,
                 wikidata_id="Q19323171",
             )
+    return emitted
 
 
 def crawl(context: Context):
+    listed_deputies = 0
+    emitted_deputies = 0
+    listed_senators = 0
+    emitted_senators = 0
+
     # Crawl Deputies
     deputies_doc = context.fetch_html(DEPUTIES_URL, cache_days=1)
     leg_select = deputies_doc.xpath("//select[@id='_diputadomodule_legislatura']")[0]
@@ -199,12 +213,20 @@ def crawl(context: Context):
         data=form_data,
     )
     for item in data["data"]:
+        listed_deputies += 1
         item = rename_headers(context, item)
-        crawl_deputy(context, item, current_leg_roman)
+        if crawl_deputy(context, item, current_leg_roman):
+            emitted_deputies += 1
+
+    context.log.info(f"Listed deputies: {listed_deputies}, emitted: {emitted_deputies}")
 
     # Crawl Senators
     doc = context.fetch_html(SENATORS_URL, cache_days=1, absolute_links=True)
     for letter_url in doc.xpath(".//ul[@class='listaOriginal']//@href"):
         letter_doc = context.fetch_html(letter_url, absolute_links=True)
         for senator_url in letter_doc.xpath(".//ul[@class='lista-alterna']//@href"):
-            crawl_senator(context, senator_url)
+            listed_senators += 1
+            if crawl_senator(context, senator_url):
+                emitted_senators += 1
+
+    context.log.info(f"Listed senators: {listed_senators}, emitted: {emitted_senators}")
