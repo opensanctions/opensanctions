@@ -138,3 +138,5 @@ lookups:
         values: [UG, RW]
       - match: DANIA SOMALIA
         values: [DK, SO]
+      - match: ALGIERIA BELGIA
+        values: [DZ, BE]
