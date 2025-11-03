@@ -1,11 +1,10 @@
-from lxml import etree
-from typing import Optional
-from urllib.parse import urljoin
 from zipfile import ZipFile
+
+from lxml import etree
+from zavod.entity import Entity
 
 from zavod import Context
 from zavod import helpers as h
-from zavod.entity import Entity
 
 
 def create_emit_position(context: Context) -> Entity:
@@ -66,18 +65,12 @@ def crawl_person(context: Context, mdb: etree._Element, position: Entity) -> Non
 
 
 def crawl(context: Context) -> None:
-    html = context.fetch_html(context.data_url)
+    html = context.fetch_html(context.data_url, absolute_links=True)
 
-    xml_url: Optional[str] = None
-    for link in html.findall(".//ul[@class='bt-linkliste']//a"):
-        url = urljoin(context.data_url, link.get("href"))
-        if not url.endswith("Stammdaten.zip"):
-            continue
-        xml_url = url
+    xml_urls = html.xpath(".//a[contains(@href, 'Stammdaten.zip')]/@href")
+    assert len(xml_urls) == 1
 
-    assert xml_url, "Could not find XML data URL"
-
-    path = context.fetch_resource("source.zip", url)
+    path = context.fetch_resource("source.zip", xml_urls[0])
     context.export_resource(path, "application/zip", title=context.SOURCE_TITLE)
     with ZipFile(path, "r") as zip:
         for name in zip.namelist():
