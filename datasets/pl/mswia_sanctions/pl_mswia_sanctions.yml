@@ -248,6 +248,12 @@ lookups:
       - match: "adres: ul. Ks. Z. Bieńkowskiego nr 4, lok. 4B-4C, 21-500 Biała Podlaska"
         props:
           address: "ul. Ks. Z. Bieńkowskiego nr 4, lok. 4B-4C, 21-500 Biała Podlaska"
+      - match: "adres: ul. Niepodległości 172, biuro 308, 220141 Mińsk, Republika Białorusi (adres rosyjskojęzyczny: 220141, г. Минск, пр. Независимости, 172, офис 308), numer rejestrowy: 690610877"
+        props:
+          address:
+            - "ul. Niepodległości 172, biuro 308, 220141 Mińsk, Republika Białorusi"
+            - "220141, г. Минск, пр. Независимости, 172, офис 308"
+          registrationNumber: "690610877"
 
   names:
     options:
