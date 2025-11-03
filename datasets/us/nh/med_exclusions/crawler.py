@@ -1,8 +1,10 @@
 from typing import Dict
-from openpyxl import load_workbook
 
-from zavod import Context, helpers as h
+from openpyxl import load_workbook
 from zavod.shed import zyte_api
+
+from zavod import Context
+from zavod import helpers as h
 
 
 def crawl_item(row: Dict[str, str], context: Context):
@@ -73,5 +75,5 @@ def crawl(context: Context) -> None:
 
     wb = load_workbook(path, read_only=True)
 
-    for item in h.parse_xlsx_sheet(context, wb.active, skiprows=2):
+    for item in h.parse_xlsx_sheet(context, wb.active, skiprows=1):
         crawl_item(item, context)
