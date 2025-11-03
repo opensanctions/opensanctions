@@ -1,13 +1,15 @@
 import re
 from typing import Optional
+
+from followthemoney.types import registry
 from lxml import etree
 from lxml.html import HtmlElement
 from normality import collapse_spaces
-from followthemoney.types import registry
-
-from zavod import Context, helpers as h
+from requests.exceptions import HTTPError
 from zavod.stateful.positions import categorise
 
+from zavod import Context
+from zavod import helpers as h
 
 TITLE_REGEX = re.compile(
     r"^(Mr|MR|Ms|Miss|Mrs|Prof|Dr|Professor Sir|Professor|Er. Dr.|Er.|Ar.|Dr.|A/Prof|Clinical A/Prof|Adj A/Prof|Assoc Prof \(Ms\)|Er. Prof.| Er Prof|Justice|Venerable|Bishop)\.? (?P<name>.+)$"
@@ -228,7 +230,15 @@ def crawl_body(context: Context, state: CrawlState, link) -> None:
     expectations = PAGE_EXPECTATIONS.get(link, None)
     official_count = 0
     pep_count = 0
-    board_doc = context.fetch_html(link, cache_days=1)
+    try:
+        board_doc = context.fetch_html(link, cache_days=1)
+    except HTTPError as e:
+        if e.response.status_code == 403:
+            # We see one 403 right now - maybe it's in a "draft" state or something?
+            # https://www.sgdi.gov.sg/ministries/mnd/statutory-boards/bca/departments/p--c/departments/wppd
+            context.log.warning("Access denied for body page", url=link)
+            return
+        raise
 
     org_name_elem = board_doc.find(".//div[@id='agencyName']/h1")
     for br in org_name_elem.xpath(".//br"):
