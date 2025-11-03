@@ -21,7 +21,24 @@ IGNORE = [
 ]
 
 
+def check_next_legislature(context: Context):
+    """Check if the next legislature is already available."""
+    DATA["legislatura"] = "20"
+    DATA["search[legislatura]"] = "20"
+    path = context.fetch_resource(
+        "next_legislature.json", context.data_url, method="POST", data=DATA
+    )
+    with open(path, "r", encoding="utf-8") as fh:
+        data = json.load(fh)
+    count = len(data["results"]["bindings"])
+    if count > 200:
+        context.log.warning(
+            f"Next legislature has {count} senators, update the crawler to include it."
+        )
+
+
 def crawl(context: Context):
+    check_next_legislature(context)
     path = context.fetch_resource(
         "source.json", context.data_url, method="POST", data=DATA
     )
@@ -33,10 +50,6 @@ def crawl(context: Context):
         first_name = item.pop("nome").get("value")
         last_name = item.pop("cognome").get("value")
         dob = item.pop("dataNascita").get("value")
-        # legislature = item.get("legislatura", {}).get("value")
-        # mandate_type = item.get("tipoMandato", {}).get("value")
-        # end_mandate_type = item.get("tipoFineMandato", {}).get("value")
-        # birth_province = item.get("provinciaNascita", {}).get("value")
 
         entity = context.make("Person")
         entity.id = context.make_id(first_name, last_name, dob)
