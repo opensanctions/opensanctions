@@ -1,8 +1,9 @@
 import csv
 from pathlib import Path
 from typing import Dict, Generator, Iterable, Optional
-from normality.cleaning import squash_spaces, remove_unsafe_chars
+
 from followthemoney.util import join_text
+from normality.cleaning import remove_unsafe_chars, squash_spaces
 
 from zavod import Context
 from zavod import helpers as h
@@ -133,15 +134,23 @@ def crawl(context: Context) -> None:
         file_path = context.fetch_resource(file_name, dist_url)
         files[file_name] = file_path
 
-    for name, path in files.items():
-        if name.startswith("registered_office_"):
-            addresses = load_addresses(iter_rows(path))
-            context.log.info("Loaded %d addresses" % len(addresses))
+    office_files = [
+        path for name, path in files.items() if name.startswith("registered_office_")
+    ]
+    assert len(office_files) == 1, len(office_files)
+    addresses = load_addresses(iter_rows(office_files[0]))
+    context.log.info("Loaded %d addresses" % len(addresses))
 
-    for name, path in files.items():
-        if name.startswith("organisations_"):
-            rows = iter_rows(path)
-            parse_organisations(context, rows, addresses)
-        if name.startswith("organisation_officials_"):
-            rows = iter_rows(path)
-            parse_officials(context, rows)
+    org_files = [
+        path for name, path in files.items() if name.startswith("organisations_")
+    ]
+    assert len(org_files) == 1, len(org_files)
+    parse_organisations(context, iter_rows(org_files[0]), addresses)
+
+    officials_files = [
+        path
+        for name, path in files.items()
+        if name.startswith("organisation_officials_")
+    ]
+    assert len(officials_files) == 1, len(officials_files)
+    parse_officials(context, iter_rows(officials_files[0]))
