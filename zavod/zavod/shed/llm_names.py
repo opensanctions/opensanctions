@@ -1,8 +1,9 @@
+from time import sleep
 from typing import List
 
-import dspy
-
-from zavod import settings
+# isort: skip to prevent reordering
+from zavod import settings  # isort: skip
+import dspy  # isort: skip
 
 
 class CleanNames(dspy.Signature):
@@ -28,8 +29,6 @@ def make_module():
 
 def do_thing():
     module = make_module()
-    #print("Have module", module)
-
     names = [
         "EFERMEROV / YEFEMEROV Yulia Alexandrova",
         "Vladimir Putin (Pyutin)",
@@ -38,10 +37,8 @@ def do_thing():
         "Mme Joséphine Solange ANABA MBARGA;Anaba Mbarga joséphine solange",
         "JILL O&#039;CONNOR",
     ]
-
     for text in names:
         response = module(text=text)
-
         print()
         print("Input:", text)
         print("full_names:", response.full_names)
