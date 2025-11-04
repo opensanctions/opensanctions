@@ -236,7 +236,7 @@ def crawl_body(context: Context, state: CrawlState, link) -> None:
         if e.response.status_code == 403:
             # We see one 403 right now - maybe it's in a "draft" state or something?
             # https://www.sgdi.gov.sg/ministries/mnd/statutory-boards/bca/departments/p--c/departments/wppd
-            context.log.warning("Access denied for body page", url=link)
+            context.log.info("Access denied for body page", url=link)
             return
         raise
 
