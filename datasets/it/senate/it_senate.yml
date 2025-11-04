@@ -12,8 +12,7 @@ description: |
   This dataset provides information about the current senators, collected from 
   the official website of the Senate of the Republic (Italy). It includes details 
   about each senator, such as name, date and place of birth, parliamentary term, and 
-  other relevant information. The dataset reflects the composition of the Senate in 
-  the current (19th) legislature.
+  other relevant information.
 tags:
   - list.pep
 publisher:
