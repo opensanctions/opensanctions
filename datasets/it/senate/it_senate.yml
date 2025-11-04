@@ -28,7 +28,7 @@ publisher:
     of the Republic or are appointed by the President for outstanding contributions to 
     the nation in the social, scientific, artistic, or literary fields.
   country: it
-  url: https://dati.senato.it/sito/home
+  url: https://senato.it/
   official: true
 data:
   url: https://dati.senato.it/DatiSenato/virtuoso_bridge/query/execute
