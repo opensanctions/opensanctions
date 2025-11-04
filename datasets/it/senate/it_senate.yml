@@ -31,6 +31,7 @@ publisher:
   url: https://senato.it/
   official: true
 data:
+  # Found on https://dati.senato.it/sito/home
   url: https://dati.senato.it/DatiSenato/virtuoso_bridge/query/execute
   format: JSON
   lang: ita
