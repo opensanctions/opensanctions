@@ -106,7 +106,9 @@ def crawl_regime(context):
 
 def crawl_vessels(context):
     path = context.fetch_resource("vessels.xlsx", VESSELS_URL)
-    workbook: openpyxl.Workbook = openpyxl.load_workbook(path, read_only=True)
+    workbook: openpyxl.Workbook = openpyxl.load_workbook(
+        path, read_only=True, data_only=True
+    )
     assert workbook.sheetnames == ["Sheet1"]
     for row in h.parse_xlsx_sheet(
         context,

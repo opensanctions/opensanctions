@@ -18,13 +18,13 @@ publisher:
   name: Singapore Government Directory
   acronym: SGD
   description: |
-    The Singapore Government Directory is an online information service designed 
-    to enhance communication between the public and public service entities. 
-    It facilitates access to essential information about government ministries, 
+    The Singapore Government Directory is an online information service designed
+    to enhance communication between the public and public service entities.
+    It facilitates access to essential information about government ministries,
     statutory boards, and various public services.
 
-    The directory aims to provide a transparent overview of the roles and 
-    responsibilities of public officials, promoting greater engagement between the 
+    The directory aims to provide a transparent overview of the roles and
+    responsibilities of public officials, promoting greater engagement between the
     government and citizens.
   url: https://www.sgdi.gov.sg
   country: sg
@@ -39,10 +39,10 @@ data:
 assertions:
   min:
     schema_entities:
-      Person: 11000
+      Person: 15_000
   max:
     schema_entities:
-      Person: 24000
+      Person: 40_000
 
 lookups:
   type.email:
