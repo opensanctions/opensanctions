@@ -1,59 +1,26 @@
 import json
 import re
-from rigour.mime.types import JSON
+from typing import Any, Dict
 
-from zavod import Context, helpers as h
+from rigour.mime.types import JSON
 from zavod.stateful.positions import categorise
 
-
-CURRENT_URL = "https://dati.senato.it/DatiSenato/browse/6?"
-DATA = {
-    "alias": "senatori-legislatura",
-    "id": "2",
-    "query_format": "json",
-    "commit": "Download",
-}
-IGNORE = [
-    "tipoMandato",  # mandate_type
-    "tipoFineMandato",  # end_mandate_type
-    "provinciaNascita",  # birth_province
-    "legislatura",  # legislature
-]
+from zavod import Context
+from zavod import helpers as h
 
 
-def roman_to_int(roman):
-    roman_map = {"I": 1, "V": 5, "X": 10, "L": 50, "C": 100, "D": 500, "M": 1000}
-    total = 0
-    prev = 0
-    for char in reversed(roman):
-        value = roman_map[char]
-        if value < prev:
-            total -= value
-        else:
-            total += value
-        prev = value
-    return total
+def build_request_data(legislature: int) -> Dict[str, str]:
+    return {
+        "alias": "senatori-legislatura",
+        "id": "2",
+        "query_format": "json",
+        "commit": "Download",
+        "legislatura": str(legislature),
+        "search[legislatura]": str(legislature),
+    }
 
 
-def get_latest_legislature(context: "Context") -> int | None:
-    doc = context.fetch_html(CURRENT_URL, cache_days=1)
-    legislature_text = doc.findtext(".//div[@class='current_legislatura']/p/text()")
-    assert legislature_text is not None, "Could not find current legislature element"
-    if "legislatura corrente" not in legislature_text.lower():
-        context.log.warn(
-            "Cannot find current legislature in the document", url=CURRENT_URL
-        )
-    # Extract Roman numeral
-    match = re.search(r"\b([IVXLCDM]+)\b", legislature_text)
-    if not match:
-        context.log.warn(
-            "Could not detect Roman numeral for legislature", url=CURRENT_URL
-        )
-        return None
-    return roman_to_int(match.group(1))
-
-
-def crawl_item(context: Context, item):
+def crawl_item(context: Context, item: Dict[str, Any]) -> None:
     first_name = item.pop("nome").get("value")
     last_name = item.pop("cognome").get("value")
     dob = item.pop("dataNascita").get("value")
@@ -93,22 +60,56 @@ def crawl_item(context: Context, item):
         context.emit(position)
         context.emit(entity)
 
-    context.audit_data(item, IGNORE)
+    context.audit_data(
+        item,
+        ignore=[
+            "tipoMandato",  # mandate_type
+            "tipoFineMandato",  # end_mandate_type
+            "provinciaNascita",  # birth_province
+            "legislatura",  # legislature
+        ],
+    )
 
 
-def crawl(context: Context):
-    # At any given point, we only crawl the last two legislatures
-    latest = get_latest_legislature(context)
-    last_two = [latest - 1, latest]
-    for leg in last_two:
+def get_current_legislature(context: Context) -> int:
+    # We start crawling from the 18th, which is the previous one at the time of writing.
+    current_legislature = 18
+    while True:
+        assert current_legislature < 30, "We probably ended up in an endless loop"
+
+        data = context.fetch_json(
+            context.data_url,
+            method="POST",
+            data=build_request_data(current_legislature + 1),
+        )
+        num_senators = len(data["results"]["bindings"])
+        if num_senators > 0:
+            context.log.info(
+                f"Found {num_senators} senators in "
+                ""
+                f"""legislature {current_legislature + 1}, trying next one."""
+            )
+            current_legislature += 1
+        else:
+            context.log.info(
+                f"""No senators found in legislature {current_legislature + 1}, """
+                f"""so {current_legislature} is the current one."""
+            )
+            break
+    return current_legislature
+
+
+def crawl(context: Context) -> None:
+    current_legislature = get_current_legislature(context)
+    last_two_legislatures = [current_legislature - 1, current_legislature]
+
+    for leg in last_two_legislatures:
         context.log.info(f"Crawling legislature {leg}")
-        DATA["legislatura"] = str(leg)
-        DATA["search[legislatura]"] = str(leg)
         path = context.fetch_resource(
             f"senatori_legislatura_{leg}.json",
             context.data_url,
             method="POST",
-            data=DATA,
+            data=build_request_data(leg),
         )
         context.export_resource(path, JSON, title=context.SOURCE_TITLE)
         with open(path, "r") as fh:
