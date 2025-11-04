@@ -45,6 +45,7 @@ def crawl(context: Context):
     context.export_resource(path, JSON, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
         data = json.load(fh)
+    print(f"Found {len(data["results"]["bindings"])} senators in the source data.")
     assert len(data["results"]["bindings"]) > 200
     for item in data["results"]["bindings"]:
         first_name = item.pop("nome").get("value")
