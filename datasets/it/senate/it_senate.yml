@@ -35,7 +35,7 @@ data:
   format: JSON
   lang: ita
 
-# ≈ 200 * 2 legislatures = ≈ 400 senators
+# ~ 200 * 2 legislatures ≈ 400 senators
 assertions:
   min:
     schema_entities:

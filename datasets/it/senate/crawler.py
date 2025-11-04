@@ -37,7 +37,7 @@ def roman_to_int(roman):
 
 def get_latest_legislature(context: "Context") -> int | None:
     doc = context.fetch_html(CURRENT_URL, cache_days=1)
-    legislature_text = doc.findtext(".//div[@class='current_legislatura']/p/text()")
+    legislature_text = doc.findtext(".//div[@class='current_legislatura']/p")
     assert legislature_text is not None, "Could not find current legislature element"
     if "legislatura corrente" not in legislature_text.lower():
         context.log.warn(
