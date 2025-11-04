@@ -17,7 +17,17 @@ IGNORE = [
     "gem_parents",
     "gem_parents_ids",
 ]
-ALIAS_SPLITS = ["[former],", "[former]", "[former name]", "(former)"]
+ALIAS_SPLITS = [
+    "[former],",
+    "[former]",
+    "[FORMER]",
+    "[former name]",
+    "[Former]",
+    "(former)",
+    "[Former}",
+    "[former[",
+    "; ",
+]
 SKIP_IDS = {
     "E100001015587",  # Small shareholders
     "E100000126067",  # Non-promoter shareholders
@@ -25,7 +35,7 @@ SKIP_IDS = {
     "E100000123261",  # natural persons
 }
 SELF_OWNED = {"E100000002236"}
-STATIC_URL = "https://globalenergymonitor.org/wp-content/uploads/2025/05/Global-Energy-Ownership-Tracker-May-2025-V2.xlsx"
+STATIC_URL = "https://globalenergymonitor.org/wp-content/uploads/2025/10/Global-Energy-Ownership-Tracker-October-2025-V1.xlsx"
 REGEX_URL_SPLIT = re.compile(r",\s*http")
 REGEX_POSSIBLE_ASSOCIATES = re.compile(r"（[^（）]*、[^（）]*）| \(\s*[^()]*,[^()]*\)")
 
