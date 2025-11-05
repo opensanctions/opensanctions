@@ -7,11 +7,11 @@ coverage:
 load_statements: true
 entry_point: crawler.py
 summary: >-
-  Current members of the Italian Senate, the upper chamber of Parliament.
+  Current and recent members of the Italian Senate, the upper chamber of Parliament.
 description: |
-  This dataset provides information about the current senators, collected from 
-  the official website of the Senate of the Republic (Italy). It includes details 
-  about each senator, such as name, date and place of birth, parliamentary term, and 
+  This dataset provides information about the current and recent senators, collected from
+  the official website of the Senate of the Republic (Italy). It includes details
+  about each senator, such as name, date and place of birth, parliamentary term, and
   other relevant information.
 tags:
   - list.pep
@@ -20,11 +20,11 @@ publisher:
   name_en: Senate of the Republic
   description: |
     The Senate of the Republic (Senato della Repubblica) is the upper house of the
-    Parliament of Italy. Alongside the Chamber of Deputies, it forms a perfectly 
-    bicameral system, meaning both chambers perform the same legislative functions 
-    independently.  The Senate is composed of 200 elected members and a small number 
-    of senators for life (senatori a vita), who serve ex officio as former Presidents 
-    of the Republic or are appointed by the President for outstanding contributions to 
+    Parliament of Italy. Alongside the Chamber of Deputies, it forms a perfectly
+    bicameral system, meaning both chambers perform the same legislative functions
+    independently.  The Senate is composed of 200 elected members and a small number
+    of senators for life (senatori a vita), who serve ex officio as former Presidents
+    of the Republic or are appointed by the President for outstanding contributions to
     the nation in the social, scientific, artistic, or literary fields.
   country: it
   url: https://senato.it/
