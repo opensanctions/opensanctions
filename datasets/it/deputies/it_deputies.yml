@@ -10,7 +10,7 @@ summary: >-
   Current members of the Italian Chamber of Deputies, the lower chamber of Parliament.
 description: |
   This dataset provides information about the current deputies. It includes details
-  about each deputy, such as name, date and place of birth, political affiliation, and 
+  about each deputy, such as name, date and place of birth, political affiliation, and
   other relevant information.
 tags:
   - list.pep
@@ -31,10 +31,11 @@ dates:
   formats: ["%Y%m%d"]
 
 # The Chamber of Deputies has 400 seats
+# We should have 2 latest legislatures, which is 800 deputies
 assertions:
   min:
     schema_entities:
-      Person: 390
+      Person: 800
       Position: 1
     country_entities:
       it: 1
