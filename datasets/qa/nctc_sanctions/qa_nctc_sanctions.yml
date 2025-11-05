@@ -242,3 +242,7 @@ lookups:
         values:
           - 1987
           - 1989
+      - match: BETWEEN___1980_1982
+        values:
+          - 1980
+          - 1982
