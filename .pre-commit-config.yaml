@@ -121,7 +121,7 @@ repos:
           datasets/xk|
           datasets/za
           )
-        args: ['--strict']
+        args: ['--strict', '--explicit-package-bases']
   - repo: local
     hooks:
       - id: nextjs-lint
