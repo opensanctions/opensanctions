@@ -85,14 +85,13 @@ def get_current_legislature(context: Context) -> int:
         if num_senators > 0:
             context.log.info(
                 f"Found {num_senators} senators in "
-                ""
-                f"""legislature {current_legislature + 1}, trying next one."""
+                f"legislature {current_legislature + 1}, trying next one."
             )
             current_legislature += 1
         else:
             context.log.info(
-                f"""No senators found in legislature {current_legislature + 1}, """
-                f"""so {current_legislature} is the current one."""
+                f"No senators found in legislature {current_legislature + 1}, "
+                f"so {current_legislature} is the current one."
             )
             break
     return current_legislature
