@@ -1,0 +1,42 @@
+title: Italy Members of the Chamber of Deputies
+prefix: it-deputies
+url: https://www.camera.it/leg19/28
+coverage:
+  frequency: monthly
+  start: 2025-11-04
+load_statements: true
+entry_point: crawler.py
+summary: >-
+  Current and recent members of the Italian Chamber of Deputies, the lower chamber of Parliament.
+description: |
+  This dataset provides information about the current and recent deputies. For each deputy,
+  it includes name, date and place of birth, political affiliation, and other relevant information.
+tags:
+  - list.pep
+publisher:
+  name: Camera dei deputati
+  name_en: Chamber of Deputies
+  description: |
+    The Chamber of Deputies is the lower house of the Italian Parliament, with the Senate
+    of the Republic serving as the upper house. Together, the two houses form a perfectly
+    bicameral system, meaning they share identical legislative functions but operate
+    independently. The Chamber of Deputies has 400 seats, of which 392 are elected from
+    constituencies within Italy and 8 are reserved for Italian citizens residing abroad.
+  country: it
+  url: https://www.camera.it/
+  official: true
+data:
+  url: "https://dati.camera.it/sparql"
+  format: JSON
+  lang: ita
+dates:
+  formats: ["%Y%m%d"]
+
+# 400 seats * 2 legislatures = 800 members
+assertions:
+  min:
+    schema_entities:
+      Person: 800
+      Position: 1
+    country_entities:
+      it: 1
