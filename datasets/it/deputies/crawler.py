@@ -1,7 +1,7 @@
-from zavod.stateful.positions import categorise
+from typing import Dict
 
-from zavod import Context
-from zavod import helpers as h
+from zavod import Context, helpers as h
+from zavod.stateful.positions import categorise
 
 # The query retrieves a list of members of
 # the Italian Chamber of Deputies (Camera dei Deputati).
@@ -22,7 +22,7 @@ WHERE {{
   # Deputy membership, group affiliation, and legislature
   ?d a ocd:deputato;
      ocd:aderisce ?aderisce;
-     ocd:rif_leg <http://dati.camera.it/ocd/legislatura.rdf/repubblica_{legislatura}>;
+     ocd:rif_leg <http://dati.camera.it/ocd/legislatura.rdf/repubblica_{legislature}>;
      ocd:rif_mandatoCamera ?mandato.
   OPTIONAL {{ ?d dc:description ?info }}
 
@@ -56,6 +56,10 @@ WHERE {{
 
 }}
 """
+
+
+def build_request_query(legislature: int) -> Dict[str, str]:
+    return {"query": QUERY.format(legislature=legislature), "format": "json"}
 
 
 def crawl_item(context: Context, item):
@@ -107,12 +111,37 @@ def crawl_item(context: Context, item):
     context.audit_data(item)
 
 
-def crawl(context: Context):
-    for leg in [18, 19]:
-        query = QUERY.format(legislatura=leg)
+def get_current_legislature(context: Context) -> int:
+    # We start crawling from the 18th, which is the previous one at the time of writing.
+    current_legislature = 18
+    while True:
+        assert current_legislature < 30, "We probably ended up in an endless loop"
+
         data = context.fetch_json(
-            context.data_url, params={"query": query, "format": "json"}
+            context.data_url, params=build_request_query(current_legislature + 1)
         )
+        num_senators = len(data["results"]["bindings"])
+        if num_senators > 0:
+            context.log.info(
+                f"Found {num_senators} senators in "
+                f"legislature {current_legislature + 1}, trying next one."
+            )
+            current_legislature += 1
+        else:
+            context.log.info(
+                f"No senators found in legislature {current_legislature + 1}, "
+                f"so {current_legislature} is the current one."
+            )
+            break
+    return current_legislature
+
+
+def crawl(context: Context):
+    current_legislature = get_current_legislature(context)
+    last_two_legislatures = [current_legislature - 1, current_legislature]
+    for leg in last_two_legislatures:
+        context.log.info(f"Crawling legislature {leg}")
+        data = context.fetch_json(context.data_url, params=build_request_query(leg))
         bindings = data["results"]["bindings"]
         for item in bindings:
             crawl_item(context, item)
