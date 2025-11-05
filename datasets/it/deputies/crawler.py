@@ -74,9 +74,11 @@ def crawl_item(context: Context, item: dict[str, Any]) -> None:
     h.apply_name(entity, first_name=first_name, last_name=last_name)
     entity.add("sourceUrl", item.pop("persona").get("value"))
     entity.add("birthPlace", item.pop("luogoNascita").get("value"))
+    # nato is the place and date of birth, e.g. "born in Rome, 1 January 1970"
     entity.add("notes", item.pop("nato").get("value"))
     entity.add("notes", item.pop("info", {}).get("value"))
     entity.add("political", item.pop("nomeGruppo").get("value"))
+    # sigla is the abbreviation of the political group
     entity.add("political", item.pop("sigla").get("value"))
     entity.add("gender", item.pop("genere").get("value"))
     entity.add("citizenship", "it")
