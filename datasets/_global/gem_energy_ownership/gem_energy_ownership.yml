@@ -687,7 +687,7 @@ lookups:
           - 9729291114
           - 9731001285
           - 9731011220
-        prop: registrationNumber
+        prop: innCode
       - match:
           - not found
           - not applicable
