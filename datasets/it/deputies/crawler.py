@@ -1,7 +1,9 @@
-from typing import Dict
+from typing import Any, Dict
 
-from zavod import Context, helpers as h
 from zavod.stateful.positions import categorise
+
+from zavod import Context
+from zavod import helpers as h
 
 # The query retrieves a list of members of
 # the Italian Chamber of Deputies (Camera dei Deputati).
@@ -62,12 +64,10 @@ def build_request_query(legislature: int) -> Dict[str, str]:
     return {"query": QUERY.format(legislature=legislature), "format": "json"}
 
 
-def crawl_item(context: Context, item):
+def crawl_item(context: Context, item: dict[str, Any]) -> None:
     first_name = item.pop("nome").get("value")
     last_name = item.pop("cognome").get("value")
     dob = item.pop("dataNascita").get("value")
-    start_date = item.pop("inizioMandato").get("value")
-    end_date = item.pop("fineMandato", {}).get("value")
 
     entity = context.make("Person")
     entity.id = context.make_id(first_name, last_name, dob)
@@ -95,6 +95,8 @@ def crawl_item(context: Context, item):
     if not categorisation.is_pep:
         return
 
+    start_date = item.pop("inizioMandato").get("value")
+    end_date = item.pop("fineMandato", {}).get("value")
     occupancy = h.make_occupancy(
         context,
         person=entity,
@@ -136,12 +138,11 @@ def get_current_legislature(context: Context) -> int:
     return current_legislature
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     current_legislature = get_current_legislature(context)
     last_two_legislatures = [current_legislature - 1, current_legislature]
     for leg in last_two_legislatures:
         context.log.info(f"Crawling legislature {leg}")
         data = context.fetch_json(context.data_url, params=build_request_query(leg))
-        bindings = data["results"]["bindings"]
-        for item in bindings:
+        for item in data["results"]["bindings"]:
             crawl_item(context, item)
