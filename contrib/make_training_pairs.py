@@ -59,6 +59,7 @@ def lazy_resolve(view: View, resolver: Resolver, id: Identifier) -> Optional[Ent
     """Get an entity merging all connected entities from the view."""
     cluster: Optional[Entity] = None
     connected = resolver.connected(id)
+    cluster_id = max(connected).id
 
     for ident in connected:
         entity = view.get_entity(ident.id)
@@ -71,11 +72,14 @@ def lazy_resolve(view: View, resolver: Resolver, id: Identifier) -> Optional[Ent
                 cluster.merge(entity)
             except Exception as e:
                 log.warning(
-                    f"Error merging entities: {e}", id1=cluster.id, id2=entity.id
+                    f"Error merging entities: {e}",
+                    cluster=cluster_id,
+                    id1=cluster.id,
+                    id2=entity.id,
                 )
                 return None
-    if cluster and len(connected):
-        cluster.id = max(connected).id
+    if cluster is not None:
+        cluster.id = cluster_id
     return cluster
 
 
