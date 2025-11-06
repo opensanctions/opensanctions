@@ -86,6 +86,8 @@ lookups:
         value: AU-SYRIA
       - match: "Autonomous (Zimbabwe)"
         value: AU-ZIM
+      - match: "Autonomous (Vessels)"
+        value: AU-VESSELS
       - match: "1267/1989/2253 (ISIL (Da'esh) and Al-Qaida)"
         value: UN-SCISIL
       - match: "1373 (2001)"

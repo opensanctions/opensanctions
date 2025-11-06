@@ -151,11 +151,14 @@ def parse_reference(
         entity.add("birthPlace", row.pop("place_of_birth"), quiet=True)
         entity.add("notes", h.clean_note(row.pop("additional_information")))
         listing_info = row.pop("listing_information")
+        designation_instrument = row.pop("instrument_of_designation")
         if isinstance(listing_info, datetime):
             h.apply_date(entity, "createdAt", listing_info)
             sanction.add("listingDate", listing_info)
         else:
             sanction.add("summary", listing_info)
+        if designation_instrument and designation_instrument != listing_info:
+            sanction.add("summary", designation_instrument)
         # TODO: consider parsing if it's not a datetime?
         for field in PROVISION_FIELDS:
             if row.pop(field):  # Boolean field indicating if the sanction applies
@@ -166,10 +169,7 @@ def parse_reference(
         h.apply_date(entity, "createdAt", control_date)
         context.audit_data(
             row,
-            ignore=[
-                "reference",
-                "instrument_of_designation",
-            ],
+            ignore=["reference"],
         )
 
     entity.add("topics", "sanction")
