@@ -100,11 +100,10 @@ def parse_reference(
     primary_name: Optional[str] = None
     names: List[Tuple[str, str]] = []
     for row in rows:
-        alias_strength = row.pop("alias_strength")
         name = row.pop("name_of_individual_or_entity", None)
         name_type = row.pop("name_type")
         name_prop = context.lookup_value("name_type", name_type)
-        if alias_strength == "Weak":
+        if row.pop("alias_strength") == "Weak":
             name_prop = "weakAlias"
         if name_prop is None:
             context.log.warning("Unknown name type", name_type=name_type)
@@ -144,19 +143,20 @@ def parse_reference(
             entity.add("citizenship", country)
         else:
             entity.add("country", country)
-        if entity.schema.is_a("Vessel"):
+        if entity.schema.properties.get("imoNumber"):
             entity.add("imoNumber", row.pop("imo_number"))
         dates = clean_date(row.pop("date_of_birth"))
         h.apply_dates(entity, "birthDate", dates)
-        entity.add("birthPlace", row.pop("place_of_birth"), quiet=True)
+        pob = row.pop("place_of_birth")
+        entity.add("birthPlace", h.multi_split(pob, SPLITS + ["a) "]), quiet=True)
         entity.add("notes", h.clean_note(row.pop("additional_information")))
         listing_info = row.pop("listing_information")
-        designation_instrument = row.pop("instrument_of_designation")
         if isinstance(listing_info, datetime):
             h.apply_date(entity, "createdAt", listing_info)
             sanction.add("listingDate", listing_info)
         else:
             sanction.add("summary", listing_info)
+        designation_instrument = row.pop("instrument_of_designation")
         # designation instrument is very often the same as listing info
         if designation_instrument and designation_instrument != listing_info:
             sanction.add("summary", designation_instrument)
