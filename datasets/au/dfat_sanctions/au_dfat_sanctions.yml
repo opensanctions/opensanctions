@@ -37,7 +37,7 @@ publisher:
   url: http://dfat.gov.au/
   official: true
 data:
-  url: "https://www.dfat.gov.au/sites/default/files/regulation8_consolidated.xlsx"
+  url: "https://www.dfat.gov.au/sites/default/files/Australian_Sanctions_Consolidated_List.xlsx"
   # url: "https://data.opensanctions.org/datasets/20231015/au_dfat_sanctions/source.xlsx"
   format: XLSX
 
@@ -53,23 +53,12 @@ assertions:
 
 dates:
   formats:
-    - "%Y-%m-%d"
     - "%d/%m/%Y"
-    - "%d/%m /%Y"
-    - "%d %b. %Y"
-    - "%d %b.%Y"
-    - "%d %b %Y"
-    - "%d %B %Y"
-    - "%b. %Y"
-    - "%d %B. %Y"
-    - "%Y"
     - "%m/%Y"
-    - "%B %Y"
-    - "%d-%b-%Y"
-    - "%b %Y"
-    - "%d. %b %Y"
-    - "c. %Y"
-    - "%B, %Y"
+    - "%d/%m/%y"
+    - "(/%m/%Y)"
+    - "/%m/%Y"
+    - "/%m/%d%Y"
 lookups:
   sanction.program:
     options:
@@ -129,192 +118,45 @@ lookups:
           - "751 (Somalia and Eritrea)"
         value: null
   type:
-    normalize: true
-    lowercase: true
     options:
-      - match:
-          - Individual
-          - Person
-          - Aka
+      - match: Individual
         value: Person
-      - match:
-          - Entity
+      - match: Entity
         value: LegalEntity
-      - match: "3590"
-        value: Person
-      - match:
-          - "275" # empty type cell
-          - "288"  # empty type cell
-          - "3198" # one of the rows inexplicably has type "Individual"
-        value: LegalEntity
-
+      - match: Vessel
+        value: Vessel
 
   name_type:
-    normalize: true
-    lowercase: true
     options:
       - match:
-          - aka
-          - a
+          - Aka
+          - Alias
           - Original Script
         value: alias
-      - match:
-          - Formerly known as
-          - Previously listed as
-        value: previousName
-      - match:
-          - Primary name
-          - Primay Name
-          - Primary
-          - null
+      - match: Primary Name
         value: name
 
-  type.address:
-    lowercase: true
-    options:
-      - match:
-          - "Address:"
-          - Lebanon
-          - Peru
-          - Philippines
-          - Qatar
-          - Russia
-          - Somalia
-          - Turkey
-          - n/a
-          - na
-        value: null
-      - match: "Branch Office 6: Shop number 237, Shah Zada Market (also known as Sarai Shahzada), Puli Khishti area, Police District 1, Kabul, Afghanistan, Telephone: +93-202-103386, +93-202-101714, 0202-104748, Mobile: +93-797-059059, +93-702-222222, e-mail: helmand_exchange_msp@yahoo.com"
-        value: Shop number 237, Shah Zada Market (also known as Sarai Shahzada), Puli Khishti area, Police District 1, Kabul, Afghanistan
-
-  type.country:
-    lowercase: true
-    normalize: true
-    options:
-      - contains: Syrian Arab Republic
-        value: Syria
-      - match: Malian / Mauritanian
-        values:
-          - Mauritania
-          - Mali
-      - match: Türkiyish
-        value: Turkey
-      - match:
-          - Turkish/Jordanian
-        values:
-          - Turkey
-          - Jordan
-      - match: Indonesian (as at Dec. 2003)
-        value: Indonesia
-      - match: Ukranian
-        value: UA
-      - match: Belarussian
-        value: BY
-      - match: Tobago
-        value: Trinidad
-      - match: Herzegovina
-        value: Bosnia
-      - match: "France (alt. citizen: Syri"
-        value: France
-      - contains: Fiji (Prakash’s Australian
-        value: Fiji
-      - contains:
-          - as a result of being in the service of declared terrorist organisation
-          - with effect from
-        match: Kuwaiti citizenship withdrawn in 2002
-        value: null
-      - match: Saudi Arabian (this aka only
-        value: Saudi Arabia
-      - match: Possibly Ethiopian
-        value: Ethiopia
-      - match: alt Citizenship Yemeni)
-        value: YE
-      - match: USSR (until 1991)
-        value: SUHH
   type.date:
     options:
-      - match:
-          - na
-          - Aug.
-          - "false passport)"
-        value: null
-      - match: 07/04/62
-        value: "1962-04-07"
-      - match: 05.09.1990
-        value: "1990-09-05"
-      - match: March 16, 1972
-        value: "1972-03-16"
-      - match: 01/10/1983,15/10/1983, 01/01/1980
+      - match: 01/10/1983,15/10/1983
         values:
           - 1983-10-01
           - 1983-10-15
-          - 1980-01-01
-      - match: 09/11/ 1954
-        value: "1954-11-09"
-      - match: 3 March 1979 (from false passport)
-        value: "1979-03-03"
-      - match: 5/06/1953   15/06/1953
+      - match: 7/02/1950/11/1950
         values:
-          - 1953-06-05
-          - 1953-06-15
-      - match: 11/10/1953  10/11/1953
+          - 1950-02-07
+          - 1950-11
+      - match: 24/01/,1973
+        value: 1973-01-24
+      - match: 195,7
+        value: 1957
+      - match: 19/12/1980,19/01/1980
         values:
-          - 1953-10-11
-          - 1953-11-10
-      - match: April 1, 1978
-        value: "1987-04-01"
-      - match:
-          - 5 Feb. 1970 (this aka only, alt born 5 Feb. 1969
-          - 5 Feb. 1970 (this aka only, born 5 Feb. 1969
-        values:
-          - 1969-02-05
-          - 1970-02-05
+          - 1980-12-19
+          - 1980-01-19
       - match: 10/061962
-        values:
-          - 1962-06-10
-      - match: 29-Aprl-1967
-        value: "1967-04-29"
-      - match: 23-Apr-68
-        value: "1968-04-23"
-      - match: 1970-1973
-        values:
-          - 1970
-          - 1971
-          - 1972
-          - 1973
-      - match: 1979-1982
-        values:
-          - 1979
-          - 1980
-          - 1981
-          - 1982
-      - match: 1954-1955
-        values:
-          - 1954
-          - 1955
-      - match: 1966-1967
-        values:
-          - 1966
-          - 1967
-      - match: 1962-1963
-        values:
-          - 1962
-          - 1963
-      - match: 1940-1941
-        values:
-          - 1940
-          - 1941
-      - match: 1956-1957
-        values:
-          - 1956
-          - 1957
-      - match: 1945-1950
-        values:
-          - 1945
-          - 1946
-          - 1947
-          - 1948
-          - 1949
-          - 1950
-      - match: "3 March 1979 (from"
-        value: "1979-03-03"
+        value: 1962-06-10
+      - match:
+          - 196719611973
+          - 2/05/196
+        value: null
