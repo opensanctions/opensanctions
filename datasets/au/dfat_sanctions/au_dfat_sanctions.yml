@@ -125,7 +125,6 @@ lookups:
         value: LegalEntity
       - match: Vessel
         value: Vessel
-
   name_type:
     options:
       - match:
@@ -146,17 +145,31 @@ lookups:
         values:
           - 1950-02-07
           - 1950-11
-      - match: 24/01/,1973
-        value: 1973-01-24
-      - match: 195,7
-        value: 1957
+      - match: 21/03/1962 to 20/04/1962
+        values:
+          - 1962-03-21
+          - 1962-04-20
       - match: 19/12/1980,19/01/1980
         values:
           - 1980-12-19
           - 1980-01-19
+      - match: 24/01/,1973
+        value: 1973-01-24
+      - match: 195,7
+        value: 1957
       - match: 10/061962
         value: 1962-06-10
       - match:
           - 196719611973
           - 2/05/196
         value: null
+  type.identifier:
+    options:
+      - match: 9222650
+        prop: registrationNumber
+      - match: V8
+        value: null
+  type.country:
+    options:
+      - match: Guinea-Bisau
+        value: GW
