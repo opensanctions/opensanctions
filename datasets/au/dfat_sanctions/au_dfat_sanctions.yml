@@ -137,6 +137,21 @@ lookups:
       - match: Primary Name
         value: name
 
+  type.address:
+    lowercase: true
+    options:
+      - match:
+          - "Address:"
+          - Lebanon
+          - Peru
+          - Philippines
+          - Qatar
+          - Russia
+          - Somalia
+          - Turkey
+          - n/a
+          - na
+        value: null
   type.date:
     options:
       - match: 01/10/1983,15/10/1983
