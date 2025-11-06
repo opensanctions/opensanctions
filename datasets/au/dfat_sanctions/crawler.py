@@ -157,6 +157,7 @@ def parse_reference(
             sanction.add("listingDate", listing_info)
         else:
             sanction.add("summary", listing_info)
+        # designation instrument is very often the same as listing info
         if designation_instrument and designation_instrument != listing_info:
             sanction.add("summary", designation_instrument)
         # TODO: consider parsing if it's not a datetime?
