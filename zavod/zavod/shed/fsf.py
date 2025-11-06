@@ -18,33 +18,6 @@ REGEX_LEADER_ALIAS = re.compile(r"led by .+ alias")
 # position and title are split like this, and currently they're up to (c)
 LETTER_SPLITS = ["(a)", "(b)", "(c)", "(d)", "(e)"]
 
-EU_LANGUAGES = {
-    "bul",  # Bulgarian
-    "hrv",  # Croatian
-    "ces",  # Czech
-    "dan",  # Danish
-    "nld",  # Dutch
-    "eng",  # English
-    "est",  # Estonian
-    "fin",  # Finnish
-    "fra",  # French
-    "deu",  # German
-    "ell",  # Greek
-    "hun",  # Hungarian
-    "gle",  # Irish
-    "ita",  # Italian
-    "lav",  # Latvian
-    "lit",  # Lithuanian
-    "mlt",  # Maltese
-    "pol",  # Polish
-    "por",  # Portuguese
-    "ron",  # Romanian
-    "slk",  # Slovak
-    "slv",  # Slovenian
-    "spa",  # Spanish
-    "swe",  # Swedish
-}
-
 
 def parse_country(node: Element) -> Optional[str]:
     description = node.get("countryDescription")
@@ -153,16 +126,9 @@ def parse_entry(context: Context, entry: Element) -> None:
     parse_sanctions(context, entity, entry)
     # context.inspect(entry)
 
-    names = list(entry.findall("./nameAlias"))
-    if len(names) == 1:
-        name = names[0]
-        raw_lang = name.get("nameLanguage")
-        lang = iso_639_alpha3(raw_lang) if raw_lang else None
-        print(f"SINGLE {lang} - {name.get('wholeName')}")
-
     name_el_to_lang: dict[Element, str | None] = {}
     for name_el in entry.findall("./nameAlias"):
-        raw_lang = name.get("nameLanguage")
+        raw_lang = name_el.get("nameLanguage")
         lang = iso_639_alpha3(raw_lang) if raw_lang else None
         if lang is None and raw_lang is not None and len(raw_lang):
             context.log.warning("Unknown language", lang=raw_lang)
@@ -193,17 +159,17 @@ def parse_entry(context: Context, entry: Element) -> None:
 
         # Often there will be translations of organization names to every EU language under the sun,
         # and we don't much care for those.
-        # This heuristic tries to downgrade these translations to aliases.
-        # It tries to keep as names only English and and non-EU languages, which are likely to be
-        # the "original" names (e.g. Arabic, Chinese, Russian, Farsi, etc.).
-        # If all available names are in less interesting languages (e.g. Spanish terrorists names
-        # are only in Spanish), keep them as names.
-        less_interesting_langs = EU_LANGUAGES - {"eng"}
-        # If all available names are in less interesting languages, keep those.
-        if len(set(name_el_to_lang.values()) - less_interesting_langs) == 0:
-            treat_as_alias = False
+        #
+        # If we have at least one name in English/Chinese/Russian/Farsi/Arabic or with no language tag,
+        # put it in the name field and treat the other languages as aliases.
+        interesting_languages = {None, "eng", "zho", "rus", "fas", "ara"}
+        if len(set(name_el_to_lang.values()) & interesting_languages) > 0:
+            treat_as_alias = lang not in interesting_languages
         else:
-            treat_as_alias = lang in less_interesting_langs
+            # If all names we have are in the languages that we commonly assume are translated,
+            # put them all in the name field. This happens e.g. for Spanish-name terrorists.
+            treat_as_alias = False
+
         h.apply_name(
             entity,
             full=name.get("wholeName"),
