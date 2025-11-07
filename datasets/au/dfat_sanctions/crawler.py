@@ -111,6 +111,10 @@ def parse_reference(
         names.append((name_prop, name))
         if name_prop == "name" or primary_name is None:
             primary_name = name
+        # Fallback: if no "name" property was found (e.g. only aliases exist),
+        # promote the first available entry to be the main name.
+        if not any(prop == "name" for prop, _ in names) and names:
+            names[0] = ("name", names[0][1])
 
     entity.id = context.make_slug(reference, primary_name)
     for name_prop, name in names:
@@ -132,11 +136,11 @@ def parse_reference(
             key=source_program,
             program_name=source_program,
             source_program_key=source_program,
-            program_key=(
-                h.lookup_sanction_program_key(context, source_program)
-                if source_program
-                else None
-            ),
+            # program_key=(
+            #     h.lookup_sanction_program_key(context, source_program)
+            #     if source_program
+            #     else None
+            # ),
         )
         country = h.multi_split(row.pop("citizenship"), [","])
         if entity.schema.is_a("Person"):
