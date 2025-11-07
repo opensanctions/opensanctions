@@ -40,11 +40,13 @@ The docker environment will provide the commands inside the container with acces
 
 ## Python virtual environment
 
-The application is a fairly stand-alone Python application, albeit with a large number of library dependencies. That's why we suggest that you should never install `zavod` directly into your system Python, and instead always use a [virtual environment](https://docs.python.org/3/tutorial/venv.html). Within a fresh virtual environment (Python >= 3.10), you should be able to install `zavod` using `pip`:
+The application is a fairly stand-alone Python application, albeit with a large number of library dependencies. To set up a local development environment using `uv`:
 
 ```bash
 # Inside the opensanctions repository path:
-$ pip install -e "./zavod[dev]"
+$ pushd zavod; uv sync --extra dev; popd
+# Activate the virtualenv
+$ source zavod/.venv/bin/activate
 # You can check if the application has been installed successfully by
 # invoking the command-line tool:
 $ zavod --help
@@ -55,9 +57,15 @@ If you encounter any errors during the installation, please consider googling er
 !!! info "Please note"
     `zavod` has dependecies on PyICU - a library related to the transliteration of names in other alphabets to the latin character set - and Plyvel - a fast and feature-rich Python interface to LevelDB. The installation and configuration of both libraries can be complex due to system dependencies. Consider following the [PyICU](https://pypi.org/project/PyICU/) and [Plyvel](https://plyvel.readthedocs.io/en/latest/installation.html) documentation for the installation of both libraries.
 
-    Plyvel on Mac OS X: [issue](https://github.com/wbolster/plyvel/issues/114)
+  To make Plyvel install on macOS, set the following environment variables before running `uv sync`.
 
-For development, you may want to use our [pre-commit](https://pre-commit.com/) configuration to automatically lint and typecheck your contributions. Just run `pip install pre-commit && pre-commit install` and the hooks will automatically run the next time you `git commit`. If you're hacking away and just want to make an intermediate commit without the tool getting in your way, you can always temporarily disable these checks by using `git commit --no-verify`.
+  ```sh
+  export CPPFLAGS="-I$(brew --prefix leveldb)/include/ -L$(brew --prefix leveldb)/lib/ -fno-rtti"
+  ```
+
+  For more information on this painpoint, see the related GitHub [issue](https://github.com/wbolster/plyvel/issues/114)
+
+For development, you may want to use our [prek](https://github.com/j178/prek) configuration to automatically lint and typecheck your contributions. Just run `brew install prek && prek install` and the hooks will automatically run the next time you `git commit`. If you're hacking away and just want to make an intermediate commit without the tool getting in your way, you can always temporarily disable these checks by using `git commit --no-verify`.
 
 ## Configuration
 

@@ -19,42 +19,14 @@ We build on top of the [Follow the Money](https://www.followthemoney.tech) frame
 * [API Documentation](https://api.opensanctions.org/)
 * [Contact](https://www.opensanctions.org/contact/)
 
-## Collaborate with us in Development
+# Running
 
-### Introduction
+The easiest way to run zavod is to use Docker. [See the documentation](https://zavod.opensanctions.org/install/#using-docker).
 
-At the heart of our project is a crawler framework dubbed ``zavod``. To activate the project, you have the option to employ either `docker-compose.yml` or the `Makefile`.
+# Developing
 
-For an enriched experience backed by extensive documentation, we recommend opting for the `Makefile`. More details can be found in the [zavod documentation](https://zavod.opensanctions.org/).
+If you want to make changes to the code or debug an issues, you'll want to set up a development environment. Read more about how to install zavod in a local Python virtual environment in [the documentation](https://zavod.opensanctions.org/install/#python-virtual-environment)
 
-### Environment Setup
-
-1. **Database Initialization**:
-
-``zavod`` can use a database in order to cache information from the data sources. Launch a terminal and set up your database with:
-
-```bash
-docker compose up -d db
-```
-
-2. **Project Building**:
-
-Next, commence the build process with:
-
-```bash
-make build
-# Alternatively, for direct execution:
-docker-compose build --pull
-```
-
-### Deploying the Crawler
-
-Kickstart the crawling process with:
-
-```bash
-# This zeroes in on the dataset located in the datasets directory
-docker compose run --rm app zavod crawl datasets/de/abgeordnetenwatch/de_abgeordnetenwatch.yml
-```
 
 ## Associated Repositories
 
