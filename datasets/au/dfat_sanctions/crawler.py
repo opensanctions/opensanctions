@@ -136,11 +136,11 @@ def parse_reference(
             key=source_program,
             program_name=source_program,
             source_program_key=source_program,
-            # program_key=(
-            #     h.lookup_sanction_program_key(context, source_program)
-            #     if source_program
-            #     else None
-            # ),
+            program_key=(
+                h.lookup_sanction_program_key(context, source_program)
+                if source_program
+                else None
+            ),
         )
         country = h.multi_split(row.pop("citizenship"), [","])
         if entity.schema.is_a("Person"):
