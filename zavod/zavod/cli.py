@@ -238,13 +238,6 @@ def dump_file(
 @click.option("-a", "--algorithm", type=str, default=DefaultAlgorithm.NAME)
 @click.option("-t", "--threshold", type=float, default=None)
 @click.option("-d", "--discount-internal", "discount_internal", type=float, default=1.0)
-@click.option(
-    "-m",
-    "--conflicting-match-threshold",
-    type=float,
-    default=None,
-    help="Threshold for conflicting match reporting",
-)
 def xref(
     dataset_paths: List[Path],
     clear: bool,
@@ -253,7 +246,6 @@ def xref(
     algorithm: str,
     focus_dataset: Optional[str] = None,
     schema: Optional[str] = None,
-    conflicting_match_threshold: Optional[float] = None,
     discount_internal: float = 1.0,
 ) -> None:
     dataset = _load_datasets(dataset_paths)
@@ -270,7 +262,6 @@ def xref(
         algorithm=algorithm,
         focus_dataset=focus_dataset,
         schema_range=schema,
-        conflicting_match_threshold=conflicting_match_threshold,
         discount_internal=discount_internal,
     )
     resolver.commit()

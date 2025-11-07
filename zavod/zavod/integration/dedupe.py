@@ -11,7 +11,6 @@ from zavod.entity import Entity
 from zavod.db import get_engine, meta
 from zavod.logs import get_logger
 from zavod.meta import Dataset
-from zavod.integration.duckdb_index import DuckDBIndex
 
 if TYPE_CHECKING:
     from zavod.store import Store
@@ -46,7 +45,6 @@ def blocking_xref(
     focus_dataset: Optional[str] = None,
     schema_range: Optional[str] = None,
     discount_internal: float = 1.0,
-    conflicting_match_threshold: Optional[float] = None,
 ) -> None:
     """This runs the deduplication process, which compares all entities in the given
     dataset against each other, and stores the highest-scoring candidates for human
@@ -67,7 +65,6 @@ def blocking_xref(
         resolver,
         store,
         index_dir=index_dir,
-        index_type=DuckDBIndex,
         limit=limit,
         range=range,
         scored=True,
@@ -76,7 +73,6 @@ def blocking_xref(
         algorithm=algorithm_type,
         discount_internal=discount_internal,
         user=AUTO_USER,
-        conflicting_match_threshold=conflicting_match_threshold,
     )
 
 
