@@ -50,32 +50,32 @@ Specific fields:
 
 
 def crawl_enforcement_action(context: Context, url: str) -> None:
-    article = context.fetch_html(url, cache_days=7, absolute_links=True)
-    if article is None:
+    article_doc = context.fetch_html(url, cache_days=7, absolute_links=True)
+    if article_doc is None:
         return
-    article_name = article.xpath(NAME_XPATH)[0]
-    article_content = article.xpath(CONTENT_XPATH)
+    article_name = article_doc.xpath(NAME_XPATH)[0]
+    assert article_name, "Article name not found"
+    article_content = article_doc.xpath(CONTENT_XPATH)
     assert len(article_content) == 1
     article_element = article_content[0]
-    date = article.xpath(DATE_XPATH)
-    if date == []:
-        context.log.warning("Date not found in article", url=url)
-        return
-    date = date[0]
-    # Extract topics and resolve lookups
-    raw_topics: List[str] = article.xpath(TOPIC_XPATH)
+    date = article_doc.xpath(DATE_XPATH)
+    # The date is absent in some articles
+    if date != []:
+        date = date[0]
+    # Extract topics and look them up
+    raw_topics: List[str] = article_doc.xpath(TOPIC_XPATH)
     resolved_topics: List[str] = []
     for topic in raw_topics:
         topic_clean = topic.strip()
         res = context.lookup("topics", topic_clean)
-        if res is not None and res.value is not None:
+        if res is not None:
             resolved_topics.append(res.value)
         else:
             context.log.warning("Topic lookup not found", topic=topic_clean)
 
     source_value = HtmlSourceValue(
         key_parts=url,
-        label="Enforcement Action Notice",
+        label="Press Release",
         element=article_element,
         url=url,
     )
@@ -92,9 +92,9 @@ def crawl_enforcement_action(context: Context, url: str) -> None:
     if not review.accepted:
         return
 
-    for item in review.extracted_data.defendants:
+    for item in review.extracted_data.offenders:
         entity = context.make(item.entity_schema)
-        entity.id = context.make_id(item.name, item.address, item.country)
+        entity.id = context.make_id(item.name, str(item.address), str(item.country))
         entity.add("name", item.name, origin=review.origin)
         if item.address != item.country:
             entity.add("address", item.address, origin=review.origin)
@@ -126,7 +126,7 @@ def crawl(context: Context):
         links = doc.xpath(
             "//div[@class='blog news-page']/div[@class='row-fluid']//div[@class='page-header']//a/@href"
         )
-        if not links:
+        if links == [] or len(links) == 0:
             context.log.info("No more links found, stopping crawl")
             break
         for link in links:
