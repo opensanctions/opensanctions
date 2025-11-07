@@ -11,35 +11,31 @@ from zavod.stateful.review import (
 from zavod import Context
 from zavod import helpers as h
 
-NAME_XPATH = "//h1[@itemprop='headline']/text()"
-CONTENT_XPATH = "//div[@itemprop='articleBody']"
-DATE_XPATH = "//div[@itemprop='articleBody']/p[strong][last()]/strong/text()"
-TOPIC_XPATH = "//li[@itemprop='keywords']/a/text()"
+NAME_XPATH: str = "//h1[@itemprop='headline']/text()"
+CONTENT_XPATH: str = "//div[@itemprop='articleBody']"
+DATE_XPATH: str = "//div[@itemprop='articleBody']/p[strong][last()]/strong/text()"
+TOPIC_XPATH: str = "//li[@itemprop='keywords']/a/text()"
 
 Schema = Literal["Person", "Company", "LegalEntity"]
 
 schema_field = Field(
     description="Use LegalEntity if it isn't clear whether the entity is a person or a company."
 )
-address_field = Field(
-    default=[],
-    description=("The addresses or even just the districts/states of the defendant."),
-)
 
 
 class Offender(BaseModel):
     entity_schema: Schema = schema_field
     name: str
-    address: List[str] = address_field
+    address: List[str] = []
     country: List[str] = []
 
 
 class Offenders(BaseModel):
-    defendants: List[Offender]
+    offenders: List[Offender]
 
 
 PROMPT = f"""
-Extract the offenders or entities subject to UK National Crime Agency (NCA) enforcement actions mentioned in the attached article.
+Extract the offenders or entities subject to UK National Crime Agency (NCA) enforcement actions mentioned in the article.
 NEVER include victims, witnesses, investigators, or enforcement officers.
 NEVER infer, assume, or generate values that are not directly stated in the source text.
 If the name refers to an individual person, use Person as the entity_schema.
@@ -48,7 +44,7 @@ Specific fields:
 
 - name: The name of the entity precisely as expressed in the text.
 - entity_schema: {schema_field.description}
-- address: {address_field.description}
+- address: The locations associated with the offender, such as their home address, town, city, or region."
 - country: Any countries the entity is indicated to reside, operate, or have been born or registered in. Leave empty if not explicitly stated.
 """
 
@@ -62,18 +58,20 @@ def crawl_enforcement_action(context: Context, url: str) -> None:
     assert len(article_content) == 1
     article_element = article_content[0]
     date = article.xpath(DATE_XPATH)
-    topic = article.xpath(TOPIC_XPATH)
-    if topic != []:
-        for t in topic:
-            res = context.lookup("topics", t.strip())
-            if res is not None:
-                topic = res.value
-            else:
-                context.log.warning("Lookup not found", topic=t.strip())
     if date == []:
         context.log.warning("Date not found in article", url=url)
         return
     date = date[0]
+    # Extract topics and resolve lookups
+    raw_topics: List[str] = article.xpath(TOPIC_XPATH)
+    resolved_topics: List[str] = []
+    for topic in raw_topics:
+        topic_clean = topic.strip()
+        res = context.lookup("topics", topic_clean)
+        if res is not None and res.value is not None:
+            resolved_topics.append(res.value)
+        else:
+            context.log.warning("Topic lookup not found", topic=topic_clean)
 
     source_value = HtmlSourceValue(
         key_parts=url,
@@ -101,7 +99,8 @@ def crawl_enforcement_action(context: Context, url: str) -> None:
         if item.address != item.country:
             entity.add("address", item.address, origin=review.origin)
         entity.add("country", item.country, origin=review.origin)
-        entity.add("topics", "reg.action")
+        for topic in resolved_topics:
+            entity.add("topics", topic)
 
         # We use the date as a key to make sure notices about separate actions are separate sanction entities
         sanction = h.make_sanction(context, entity, date)
@@ -118,19 +117,22 @@ def crawl_enforcement_action(context: Context, url: str) -> None:
 
 
 def crawl(context: Context):
-    page = 0
-    while page < 20:
-        base_url = f"https://www.nationalcrimeagency.gov.uk/news?start={page * 16}"
-        context.log.info("Crawling index page", url=base_url)
-        doc = context.fetch_html(base_url, absolute_links=True, cache_days=5)
+    page: int = 0
+    base_url: str = "https://www.nationalcrimeagency.gov.uk/news?start={offset}"
+
+    while True:
+        index_url = base_url.format(offset=page * 16)
+        doc = context.fetch_html(index_url, absolute_links=True, cache_days=5)
         links = doc.xpath(
             "//div[@class='blog news-page']/div[@class='row-fluid']//div[@class='page-header']//a/@href"
         )
         if not links:
+            context.log.info("No more links found, stopping crawl")
             break
-        assert links is not None, "No links found on the index page"
         for link in links:
             crawl_enforcement_action(context, link)
+        if page >= 200:  # Limit to 200 pages to avoid infinite loops
+            break
         page += 1
 
     assert_all_accepted(context)
