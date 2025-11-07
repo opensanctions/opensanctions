@@ -571,6 +571,32 @@ lookups:
         values:
           - Російська Федерація, 121205, м. Москва, б-р Великий (інноваційного центру Сколково тер), буд. 30, будівля 1, пов. 3, прим. 33, РБ 33-1
           - Российская Федерация, 121205, г. Москва, б-р Большой (инновационного центра Сколково тер), дом 30, стр. 1, эт. 3, пом. 33, РБ 33-1
+      - match: "People’s Republic of China, Zhejiang, Yiwu, Dongzhen Street, Zone 1 Zongtan, Building 76, Office 401), Китайська Народна Республіка, Чжецзян, м. Іу, Цзян Дун Сінь Цунь, буд. 38, блок 1, кімната 301 (People’s Republic of China, Zhejiang, Yiwu, Jiang Dong Xin Cun, Building 38, Block 1, Room 301"
+        values:
+          - People’s Republic of China, Zhejiang, Yiwu, Dongzhen Street, Zone 1 Zongtan, Building 76, Office 401
+          - Китайська Народна Республіка, Чжецзян, м. Іу, Цзян Дун Сінь Цунь, буд. 38, блок 1, кімната 301
+          - People’s Republic of China, Zhejiang, Yiwu, Jiang Dong Xin Cun, Building 38, Block 1, Room 301
+      - match: "India, 110075, Dwarka, Sector 19, Amberhai Village, Shop No. 104, 1st Floor, New Delhi), Республіка Індія, 110078, Нью-Делі, південно-західний Делі, Дварка, секція 12, вежа Крішни, ділянка № 8, блок № 301, поверх 3 (India, 110078, NSIT Dwarka, Sector 12, Krishna Tower, Plot No. 8, Block No. 301, 3rd Floor, South-West Delhi, New Delhi"
+        values:
+          - India, 110075, Dwarka, Sector 19, Amberhai Village, Shop No. 104, 1st Floor, New Delhi
+          - Республіка Індія, 110078, Нью-Делі, південно-західний Делі, Дварка, секція 12, вежа Крішни, ділянка № 8, блок № 301, поверх 3
+          - India, 110078, NSIT Dwarka, Sector 12, Krishna Tower, Plot No. 8, Block No. 301, 3rd Floor, South-West Delhi, New Delhi
+      - match: "People’s Republic of China, Hong Kong Special Administrative Region, 35 Tai Yau Street, Yee Fat Industrial Building, 5th Floor, Room A516, San Po Kong, Kowloon), Китайська Народна Республіка, особливий адміністративний район Гонконг, 300, Локхарт Роуд, комерційний корпус Куі Фу, 20-й поверх, квартира/кімната A (People’s Republic of China, Hong Kong Special Administrative Region, 300 Lockhart Road, Kui Fu Commercial Building, 20th Floor, Apartment/Room A"
+        values:
+          - People’s Republic of China, Hong Kong Special Administrative Region, 35 Tai Yau Street, Yee Fat Industrial Building, 5th Floor, Room A516, San Po Kong, Kowloon
+          - Китайська Народна Республіка, особливий адміністративний район Гонконг, 300, Локхарт Роуд, комерційний корпус Куі Фу, 20-й поверх, квартира/кімната A
+          - People’s Republic of China, Hong Kong Special Administrative Region, 300 Lockhart Road, Kui Fu Commercial Building, 20th Floor, Apartment/Room A
+      - match: "United States of America, Beverly Hills CA 90212, 9350 Wilshire Blvd), Нідерландські Антильські острови, Сеінт-Мартен, Біллі Фоллі Роуд № 37 (Netherlands Antilles, Sint Maarten, St Maarten, Billy Folly Road № 37), Беліз, Бельмопан,Кохун Вок, 3 Лайм Стріт (Belize, Belmopan, Cohune Walk, 3 Lime St"
+        values:
+          - United States of America, Beverly Hills CA 90212, 9350 Wilshire Blvd
+          - Нідерландські Антильські острови, Сеінт-Мартен, Біллі Фоллі Роуд № 37
+          - Netherlands Antilles, Sint Maarten, St Maarten, Billy Folly Road № 37
+          - Беліз, Бельмопан,Кохун Вок, 3 Лайм Стріт
+          - Belize, Belmopan, Cohune Walk, 3 Lime St
+      - match: "Російська Федерація, 678962, Республіка Саха (Якутія), Нерюнгрінський муніципальний р-н, м. Нерюнгрі, вул. Лужників, буд. 3, к. 2 (Российская Федерация, 678962, Республика Саха (Якутия), Нерюнгринский муниципальный р-н, г. Нерюнгри, ул. Лужников, д. 3, к. 2)"
+        values:
+          - Російська Федерація, 678962, Республіка Саха (Якутія), Нерюнгрінський муніципальний р-н, м. Нерюнгрі, вул. Лужників, буд. 3, к. 2
+          - Российская Федерация, 678962, Республика Саха (Якутия), Нерюнгринский муниципальный р-н, г. Нерюнгри, ул. Лужников, д. 3, к. 2
   type.name:
     options:
       - match: Федеральное государственное бюджетное военное образовательное учреждение высшего образования «Академия гражданской защиты Министерства Российской Федерации по делам гражданской обороны чрезвычайных ситуаций и ликвидации последствий стихийных бедствий»

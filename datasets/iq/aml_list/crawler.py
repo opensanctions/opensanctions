@@ -1,17 +1,19 @@
 import re
+from typing import Optional, Set
+
 from normality import latinize_text
 from openpyxl import load_workbook
 from rigour.mime.types import XLSX
-from typing import Optional
-
-from zavod import Context, helpers as h
-from zavod.shed.zyte_api import fetch_html, fetch_resource
 from zavod.shed.trans import (
     apply_translit_full_name,
 )
+from zavod.shed.zyte_api import fetch_html, fetch_resource
+
+from zavod import Context
+from zavod import helpers as h
 
 # These sheets do not contain actual data but serve as reference sheets
-LOC_IGNORE_LIST = [
+LOCAL_FILE_IGNORE_SHEETS = [
     "الافراد",  # Individuals
     "القوائم المحلية ",  # Local lists
 ]
@@ -112,7 +114,7 @@ def process_xlsx(
     context,
     url: str,
     filename: str,
-    title: str,
+    titles: Set[str],
     ignore_sheets: list = [],
 ):
     context.log.info(f"Processing {filename} from {url}")
@@ -125,7 +127,7 @@ def process_xlsx(
     assert len(link) == 1, link
     file_url = link[0]
     assert file_url.endswith(".xlsx"), file_url
-    assert title in file_url, file_url
+    assert any(title in file_url for title in titles), file_url
 
     _, _, _, path = fetch_resource(context, filename, file_url, XLSX, geolocation="IQ")
     context.export_resource(path, XLSX)
@@ -150,12 +152,15 @@ def crawl(context: Context):
         context,
         "https://aml.iq/?page_id=2169",
         "international.xlsx",
-        "القائمة-الدولية",  # International List
+        {"القائمة-الدولية"},  # International List
     )
     process_xlsx(
         context,
         "https://aml.iq/?page_id=2171",
         "local.xlsx",
-        "القوائم-المحلية",  # Local Lists
-        LOC_IGNORE_LIST,
+        {
+            "القوائم-المحلية",  # Local Lists
+            "القائمة-المحلية",  # Local List
+        },
+        LOCAL_FILE_IGNORE_SHEETS,
     )
