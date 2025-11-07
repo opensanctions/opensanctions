@@ -6,6 +6,7 @@ coverage:
   frequency: weekly
   start: 2025-11-06
 load_statements: true
+ci_test: false # GPT key not available in CI
 summary: >
   Press releases published by the UK National Crime Agency (NCA).
 description: |
