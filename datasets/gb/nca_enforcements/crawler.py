@@ -64,14 +64,13 @@ def crawl_enforcement_action(context: Context, url: str) -> None:
         date = date[0]
     # Extract topics and look them up
     raw_topics: List[str] = article_doc.xpath(TOPIC_XPATH)
-    resolved_topics: List[str] = []
+    topics: List[str] = []
     for topic in raw_topics:
-        topic_clean = topic.strip()
-        res = context.lookup("topics", topic_clean)
+        res = context.lookup("topics", topic)
         if res is not None:
-            resolved_topics.append(res.value)
+            topics.append(res.value)
         else:
-            context.log.warning("Topic lookup not found", topic=topic_clean)
+            context.log.warning("Topic lookup not found", topic=topic)
 
     source_value = HtmlSourceValue(
         key_parts=url,
