@@ -1,4 +1,4 @@
-title: UK NCA Enforcement Actions
+title: UK NCA Press Releases
 entry_point: crawler.py
 prefix: gb-nca-enf
 disabled: false
@@ -7,7 +7,7 @@ coverage:
   start: 2025-11-06
 load_statements: true
 summary: >
-  Enforcement actions and press releases published by the UK National Crime Agency (NCA).
+  Press releases published by the UK National Crime Agency (NCA).
 description: |
   This dataset contains enforcement-related press releases sourced from the official website
   of the National Crime Agency (NCA). It covers actions, arrests, convictions, and operations
@@ -32,14 +32,14 @@ data:
 http:
   retry_statuses: [403]
   user_agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.2 Safari/605.1.15 (zavod; opensanctions.org)
+dates:
+  formats: ["%d %B %Y"]
 
-# assertions:
-#   min:
-#     schema_entities:
-#       Person: 16
-#   max:
-#     schema_entities:
-#       Person: 38
+# TODO: Update assertions after the first full run
+assertions:
+  min:
+    schema_entities:
+      Person: 100
 
 lookups:
   topics:
@@ -67,21 +67,31 @@ lookups:
       - match: Most wanted
         value: wanted
       - match:
-          - Organised immigration crime
-          - Serious and organised crime
-          - Child sexual exploitation
-          - Child sexual abuse
-          - Firearms
-          - Operation Venetic
-          - Stovewood
-          - people smuggling
-          - Kidnap
-          - civil recovery
-          - NSA
-          - Cannabis
-          - Fugitives
-          - Suspicious Activity Reports
-          - Intelligence
           - Border
+          - Cannabis
+          - Child sexual abuse
+          - Child sexual exploitation
+          - civil recovery
+          - Corporate
+          - County Lines
           - Criminal asset denial
+          - CSAE # Child Sexual Abuse and Exploitation
+          - Firearms
+          - Fugitives
+          - Intelligence
+          - Kidnap
+          - NSA
+          - Operation Venetic
+          - Organised crime partnership
+          - Organised immigration crime
+          - people smuggling
+          - Serious and organised crime
+          - Specialist capabilities
+          - Stovewood
+          - Suspicious Activity Reports
         value: crime
+      - match:
+          - Annual Report
+          - Brexit
+          - Steve Rodhouse
+        value: null
