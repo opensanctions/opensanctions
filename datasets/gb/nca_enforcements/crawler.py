@@ -98,7 +98,7 @@ def crawl_enforcement_action(context: Context, url: str) -> None:
         if item.address != item.country:
             entity.add("address", item.address, origin=review.origin)
         entity.add("country", item.country, origin=review.origin)
-        for topic in resolved_topics:
+        for topic in topics:
             entity.add("topics", topic)
 
         # We use the date as a key to make sure notices about separate actions are separate sanction entities
