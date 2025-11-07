@@ -1,6 +1,7 @@
 import re
 from typing import Tuple
 
+from lxml import html
 from zavod.stateful.positions import categorise
 
 from zavod import Context
@@ -43,7 +44,7 @@ def emit_spouse(context, spouse_name, person_id, country):
 def crawl(context: Context):
     doc = context.fetch_html(context.data_url, cache_days=1)
     content = doc.findall(".//div[@class='mainContent']")
-    assert len(content) == 1
+    assert len(content) == 1, html.tostring(doc)
     containers = content[0].findall(".//div[@class='fluid-container']")
     for c in containers:
         name = c.find(".//div[@title='Salutation and Name']").text_content().strip()
