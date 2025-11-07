@@ -1,0 +1,42 @@
+title: UK NCA Enforcement Actions
+entry_point: crawler.py
+prefix: gb-nca-enf
+disabled: false
+coverage:
+  frequency: weekly
+  start: 2025-11-06
+load_statements: true
+summary: >
+  Enforcement actions and press releases published by the UK National Crime Agency (NCA).
+description: |
+  This dataset contains enforcement-related press releases sourced from the official website
+  of the National Crime Agency (NCA). It covers actions, arrests, convictions, and operations
+  related to major criminal threats such as money laundering, modern slavery, drug trafficking,
+  organised immigration crime, fraud, and asset denial. The dataset aggregates items from multiple
+  news categories published under the NCA's [News](https://www.nationalcrimeagency.gov.uk/news/) section.
+url: https://www.nationalcrimeagency.gov.uk/news/
+publisher:
+  name: National Crime Agency
+  acronym: NCA
+  description: >
+    The National Crime Agency leads the UK's fight to cut serious and organised crime,
+    protecting the public by disrupting and bringing to justice those serious and
+    organised criminals who pose the highest risk to the UK.
+  url: https://www.nationalcrimeagency.gov.uk/
+  country: gb
+  official: true
+data:
+  url: https://www.nationalcrimeagency.gov.uk/news/
+  format: HTML
+  lang: eng
+# http:
+#   retry_statuses: [413, 429, 503, 403, 504]
+#   user_agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36 (zavod; opensanctions.org)
+
+# assertions:
+#   min:
+#     schema_entities:
+#       Person: 16
+#   max:
+#     schema_entities:
+#       Person: 38
