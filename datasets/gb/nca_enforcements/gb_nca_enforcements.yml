@@ -29,9 +29,9 @@ data:
   url: https://www.nationalcrimeagency.gov.uk/news/
   format: HTML
   lang: eng
-# http:
-#   retry_statuses: [413, 429, 503, 403, 504]
-#   user_agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36 (zavod; opensanctions.org)
+http:
+  retry_statuses: [403]
+  user_agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.2 Safari/605.1.15 (zavod; opensanctions.org)
 
 # assertions:
 #   min:
@@ -40,3 +40,48 @@ data:
 #   max:
 #     schema_entities:
 #       Person: 38
+
+lookups:
+  topics:
+    options:
+      - match: Drug trafficking
+        value: crime.traffick.drug
+      - match:
+          - Cybercrime
+          - Cyber choices
+        value: crime.cyber
+      - match:
+          - Fraud
+          - False identity documents
+        value: crime.fraud
+      - match:
+          - Modern slavery
+          - Human trafficking
+        value: crime.traffick.human
+      - match:
+          - Money laundering
+          - Illicit finance
+          - Economic crime
+          - Corruption
+        value: crime.fin
+      - match: Most wanted
+        value: wanted
+      - match:
+          - Organised immigration crime
+          - Serious and organised crime
+          - Child sexual exploitation
+          - Child sexual abuse
+          - Firearms
+          - Operation Venetic
+          - Stovewood
+          - people smuggling
+          - Kidnap
+          - civil recovery
+          - NSA
+          - Cannabis
+          - Fugitives
+          - Suspicious Activity Reports
+          - Intelligence
+          - Border
+          - Criminal asset denial
+        value: crime
