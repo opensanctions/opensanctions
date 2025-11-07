@@ -75,8 +75,25 @@ lookups:
           - 32853
           - 25722
           - 29136
+          - 198
         value: null
   type.string:
     options:
       - match: /
         value: null
+  type.country:
+    options:
+      - match: "عرب سعودية"
+        value: "Saudi Arabia"
+      - match: "اندنوسيا"
+        value: "Indonesia"
+      - match: "فلبينية"
+        value: "Philippines"
+      - match: "مسير"
+        value: "Egypt"
+      - match: "يمن"
+        value: "Yemen"
+      - match: "فلبينية/ ماليزيا"
+        values:
+          - "Philippines"
+          - "Malaysia"
