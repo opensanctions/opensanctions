@@ -206,9 +206,8 @@ def parse_row(context: Context, row: Dict[str, Any]):
     entity.add_cast("Person", "nationality", nationalities)
 
     positions = h.multi_split(row.pop("Individual_Position", None), NUMBER_SPLITS)
-    entity.add_cast("Person", "position", positions)
-
-    entity.add_cast("Person", "gender", row.pop("Individual_Gender", None))
+    entity.add("position", positions, quiet=True)
+    entity.add("gender", row.pop("Individual_Gender", None), quiet=True)
 
     name_type = row.pop("AliasType", None)
     name_prop = NAME_TYPES.get(name_type)
