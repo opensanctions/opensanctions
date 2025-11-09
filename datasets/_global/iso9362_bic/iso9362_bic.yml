@@ -10,7 +10,7 @@ exports:
   - statistics.json
   - entities.ftm.json
   - entities.delta.json
-ci_test: false
+ci_test: false # no OpenAI key in CI
 load_statements: true
 summary: >-
   Reference data for SWIFT BIC code, including bank names and addresses
@@ -18,7 +18,7 @@ description: |
   > BIC is the International Standard ISO 9362:2014. This standard specifies
   > the elements and structure of a universal identifier code, the business
   > identifier code (BIC), for financial and non-financial institutions, for
-  > which such an international identifier is required to facilitate 
+  > which such an international identifier is required to facilitate
   > automated processing of information for financial services.
 
   This dataset contains the reference data for the Business Identifier Code.
