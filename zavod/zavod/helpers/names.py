@@ -10,8 +10,10 @@ from zavod.entity import Entity
 from zavod.shed.names.split import (
     LLM_MODEL_VERSION,
     SplitNames,
-    split_names,
 )
+
+# alias split_names so that it could be imported from here
+from zavod.shed.names.split import split_names as split_names
 from zavod.stateful.review import (
     Review,
     TextSourceValue,
@@ -268,8 +270,8 @@ def apply_names(
         ("weak_alias", "weakAlias"),
         ("previous_name", "previousName"),
     ]
-    if not review.accepted:
-        entity.add("name", review.source_value)
+    if review.accepted:
+        entity.add("name", review.source_value, lang=lang)
         return
 
     for field_name, prop in field_props:
