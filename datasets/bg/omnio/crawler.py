@@ -1,6 +1,9 @@
 import csv
 from typing import Dict
+
 from rigour.mime.types import CSV
+from zavod.shed.names.split import LLM_MODEL_VERSION
+from zavod.stateful.review import TextSourceValue, review_extraction
 
 from zavod import Context
 from zavod import helpers as h
@@ -10,6 +13,12 @@ TYPES = {
     "Organization": "Organization",
     "": "LegalEntity",
 }
+ALIAS_PROPS = [
+    ("full_name", "alias"),
+    ("alias", "alias"),
+    ("weak_alias", "weakAlias"),
+    ("previous_name", "previousName"),
+]
 
 
 def crawl_row(context: Context, row: Dict[str, str]):
@@ -38,6 +47,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
         last_name=row.pop("Family_Name"),
         quiet=True,
     )
+
     h.apply_name(
         entity,
         first_name=row.pop("First_Name_BG"),
@@ -50,7 +60,35 @@ def crawl_row(context: Context, row: Dict[str, str]):
 
     entity.add("topics", "sanction")
     # entity.add("name", row.pop("Label"), lang="bul")
-    entity.add("alias", row.pop("Aliases", "").split(";"))
+
+    aliases = row.pop("Aliases")
+    if h.needs_splitting(entity.schema, aliases):
+        names = h.split_names(context, aliases)
+        source_value = TextSourceValue(
+            key_parts=aliases, label="translated aliases", text=aliases
+        )
+        review = review_extraction(
+            context,
+            source_value=source_value,
+            original_extraction=names,
+            origin=LLM_MODEL_VERSION,
+        )
+
+        if review.accepted:
+            for field_name, prop in ALIAS_PROPS:
+                for name in getattr(review.extracted_data, field_name):
+                    entity.add(
+                        prop,
+                        name,
+                        lang="bul",
+                        origin=review.origin,
+                        original_value=review.source_value,
+                    )
+        else:
+            entity.add("alias", aliases, lang="bul")
+    else:
+        entity.add("alias", aliases, lang="bul")
+
     entity.add("alias", row.pop("Aliases_BG", "").split(";"), lang="bul")
     entity.add("country", row.pop("Countries_of_Residence", "").split(";"))
     entity.add(
