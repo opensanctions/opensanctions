@@ -1,8 +1,9 @@
 from lxml import etree
 from rigour.mime.types import XML
-
-from zavod import Context, helpers as h
 from zavod.shed.zyte_api import fetch_resource
+
+from zavod import Context
+from zavod import helpers as h
 
 SOAP_URL = "http://www.cbr.ru/CreditInfoWebServ/CreditOrgInfo.asmx"
 SOAP_HEADERS = {"Content-Type": "text/xml; charset=utf-8"}
@@ -73,13 +74,28 @@ def crawl_details(context: Context, internal_code: str | None, entity):
     if co_data is not None:
         ssv_date = co_data.findtext("SSV_Date")
         reg_date = co_data.findtext("MainDateReg")
+
         en_names = co_data.findtext("encname")
+        if en_names and (h.needs_splitting(entity.schema, en_names) or "," in en_names):
+            h.split_and_apply_names(context, entity, en_names, lang="eng")
+        else:
+            entity.add("name", en_names, lang="eng")
+        if h.needs_splitting(entity.schema, co_data.findtext("OrgName")):
+            h.split_and_apply_names(context, entity, co_data.findtext("OrgName"))
+        else:
+            entity.add("name", co_data.findtext("OrgName"))
+        if h.needs_splitting(entity.schema, co_data.findtext("OrgFullName")):
+            h.split_and_apply_names(context, entity, co_data.findtext("OrgFullName"))
+        else:
+            entity.add("name", co_data.findtext("OrgFullName"))
+        if h.needs_splitting(entity.schema, co_data.findtext("csname")):
+            h.split_and_apply_names(context, entity, co_data.findtext("csname"))
+        else:
+            entity.add("name", co_data.findtext("csname"))
+
         phones = co_data.findtext("phones")
         lic_withd_num = co_data.findtext("licwithdnum")
         lic_withd_date = co_data.findtext("licwithddate")
-        entity.add("name", co_data.findtext("OrgName"))
-        entity.add("name", co_data.findtext("OrgFullName"))
-        entity.add("name", co_data.findtext("csname"))
         entity.add("ogrnCode", co_data.findtext("MainRegNumber"))
         entity.add("bikCode", co_data.findtext("BIC"))
         entity.add("registrationNumber", co_data.findtext("RegNumber"))
@@ -88,9 +104,6 @@ def crawl_details(context: Context, internal_code: str | None, entity):
         entity.add("amount", co_data.findtext("UstMoney"))
         entity.add("status", co_data.findtext("OrgStatus"))
         entity.add("topics", "fin.bank")
-        if en_names is not None:
-            for name in en_names.split(","):
-                entity.add("name", name, lang="eng")
         if phones is not None:
             phones = h.multi_split(phones, ",")
             for phone in phones:
