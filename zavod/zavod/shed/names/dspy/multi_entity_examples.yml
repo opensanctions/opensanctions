@@ -1,0 +1,204 @@
+# Probably distinct entities
+- match: "Ameriprise advisor services inc., H&R Block Financial Advisors Inc."
+  entities:
+    - full_name: ["Ameriprise advisor services inc."]
+    - full_name: ["H&R Block Financial Advisors Inc."]
+- match: "Goldman Sachs Execution & Clearing L.P., Goldman, Sachs & Co."
+  entities:
+    - full_name: ["Goldman Sachs Execution & Clearing L.P."]
+    - full_name: ["Goldman, Sachs & Co."]
+- match: "J.H. Darbie & Co. Inc., Wolf A. Popper Inc."
+  entities:
+    - full_name: ["J.H. Darbie & Co. Inc."]
+    - full_name: ["Wolf A. Popper Inc."]
+- match: "Merrill Lynch Professional Clearing Corp., Merrill Lynch, Pierce, Fenner & Smith Incorporated"
+  entities:
+    - full_name: ["Merrill Lynch Professional Clearing Corp."]
+    - full_name: ["Merrill Lynch, Pierce, Fenner & Smith Incorporated"]
+- match: "Merrill Lynch, Pierce, Fenner & Smith Incorporated, BofA Securities Inc."
+  entities:
+    - full_name: ["Merrill Lynch, Pierce, Fenner & Smith Incorporated"]
+    - full_name: ["BofA Securities Inc."]
+- match: "Morgan Stanley & Co. Incorporated, Morgan Stanley Smith Barney LLC"
+  entities:
+    - full_name: ["Morgan Stanley & Co. Incorporated"]
+    - full_name: ["Morgan Stanley Smith Barney LLC"]
+- match: "Royal Alliance Associates Inc., SunAmerica Securities Inc., Spelman & Co. Inc., Sentra Securities Corporation, FSC Securities Corporation, Advantage Capital Corporation"
+  entities:
+    - full_name: ["Royal Alliance Associates Inc."]
+    - full_name: ["SunAmerica Securities Inc."]
+    - full_name: ["Spelman & Co. Inc."]
+    - full_name: ["Sentra Securities Corporation"]
+    - full_name: ["FSC Securities Corporation"]
+    - full_name: ["Advantage Capital Corporation"]
+
+
+# Single entities
+- match: "Bannon, Ohanesian, & Lecours Inc."
+  entities:
+    - full_name: ["Bannon, Ohanesian, & Lecours Inc."]
+- match: "Braymen, Lambert and Noel Securities Ltd"
+  entities:
+    - full_name: ["Braymen, Lambert and Noel Securities Ltd"]
+- match: "Crowell, Weedon & Co."
+  entities:
+    - full_name: ["Crowell, Weedon & Co."]
+- match: "Merrill Lynch, Pierce Fenner & Smith Inc."
+  entities:
+    - full_name: ["Merrill Lynch, Pierce Fenner & Smith Inc."]
+- match: "Merrill Lynch, Pierce, Fenner & Smith ,Incorporated"
+  entities:
+    - full_name: ["Merrill Lynch, Pierce, Fenner & Smith ,Incorporated"]
+- match: "Merrill Lynch, Pierce, Fenner & Smith Inc"
+  entities:
+    - full_name: ["Merrill Lynch, Pierce, Fenner & Smith Inc"]
+- match: "Merrill Lynch, Pierce, Fenner & Smith Inc."
+  entities:
+    - full_name: ["Merrill Lynch, Pierce, Fenner & Smith Inc."]
+
+
+# Some noise
+- match: 'Merrill Lynch, Pierce, Fenner & Smith Incorporated ("merrill lynch" or the "firm")'
+  entities:
+    - full_name: ["Merrill Lynch, Pierce, Fenner & Smith Incorporated"]
+- match: 'Morgan Keegan & Company Inc. (morgan keegan," "respondent" or "the firm")'
+  entities:
+    - full_name: ["Morgan Keegan & Company Inc."]
+
+
+# Formerly known as
+- match: "Goldman Sachs & Co. LLC (f/k/a Goldman, Sachs & Co.)"
+  entities:
+    - full_name: ["Goldman Sachs & Co. LLC"]
+      previous_name: "Goldman, Sachs & Co."
+- match: "Sanctuary Securities Inc., (formerly known as David A. Noyes & Company)"
+  entities:
+    - full_name: ["Sanctuary Securities Inc."]
+    - previous_name: ["David A. Noyes & Company"]
+- match: Dash Financial Technologies LLC (f/k/a Dash Financial LLC and Electronic Brokerage Systems LLC)
+  entities:
+    - full_name: ["Dash Financial Technologies LLC"]
+      previous_name: ["Dash Financial LLC and Electronic Brokerage Systems LLC"]
+- match: Virtu Americas LLC (f/k/a KCG Americas LLC and Knight Capital Americas LLC)
+  entities:
+    - full_name: ["Virtu Americas LLC"]
+      previous_name: ["KCG Americas LLC and Knight Capital Americas LLC"]
+- match: "Oppenheimber & Co. Inc., F/K/A Fahnestock & Co. Inc."
+  entities:
+    - full_name: ["Oppenheimber & Co. Inc."]
+    - previous_name: ["Fahnestock & Co. Inc."]
+- match: "Goldman, Sachs & Co. LLC (f/k/a Goldman, Sachs & Co.)"
+  entities:
+    - full_name: ["Goldman, Sachs & Co. LLC"]
+      previous_name: ["Goldman, Sachs & Co."]
+- match: "Integral Wealth Securities LLC fka Amera Securities LLC"
+  entities:
+    - full_name: ["Integral Wealth Securities LLC"]
+      previous_name: ["Amera Securities LLC"]
+- match: "TradeUP Securities, Inc. fka Marsco Investment Corp., US Tiger Securities, Inc."
+  entities:
+    - full_name: ["TradeUP Securities, Inc."]
+      previous_name: ["Marsco Investment Corp."]
+    - full_name: ["US Tiger Securities, Inc."]
+- match: "Moomoo Financial Inc., fka Futu Inc."
+  entities:
+    - full_name: ["Moomoo Financial Inc."]
+      previous_name: ["Futu Inc."]
+- match: "Osaic Services, Inc., formerly known as SagePoint Financial, Inc."
+  entities:
+    - full_name: ["Osaic Services, Inc."]
+      previous_name: ["SagePoint Financial, Inc."]
+- match: "Osaic Wealth, Inc., formerly known as Royal Alliance Associates, Inc., Securities America, Inc."
+  entities:
+    - full_name: ["Osaic Wealth, Inc."]
+      previous_name: ["Royal Alliance Associates, Inc."]
+    - full_name: ["Securities America, Inc."]
+- match: "NewEdge Securities, Inc. fka Mid Atlantic Capital Corp."
+  entities:
+    - full_name: ["NewEdge Securities, Inc."]
+      previous_name: ["Mid Atlantic Capital Corp."]
+- match: "Santander US Capital Markets LLC, formerly known as Santander Investment Securities Inc."
+  entities:
+    - full_name: ["Santander US Capital Markets LLC"]
+      previous_name: ["Santander Investment Securities Inc."]
+- match: "Gary Goldberg & Co., LLC (formerly known as Bruderman Brothers LLC)"
+  entities:
+    - full_name: ["Gary Goldberg & Co., LLC"]
+      previous_name: ["Bruderman Brothers LLC"]
+
+
+# Now known as
+- match: "Pickering Energy Partners Inc. n/k/a Tudor, Pickering & Co. Securities Inc."
+  entities:
+    - previous_name: ["Pickering Energy Partners Inc."]
+      full_name: ["Tudor, Pickering & Co. Securities Inc."]
+- match: "Banc of America Securities LLC (now known as Merrill Lynch, Pierce, Fenner & Smith Inc."
+  entities:
+    - previous_name: ["Banc of America Securities LLC"]
+      full_name: ["Merrill Lynch, Pierce, Fenner & Smith Inc."]
+- match: "Banc of America Securities LLC (now known as Merrill Lynch, Pierce, Fenner & Smith Inc.)"
+  entities:
+    - previous_name: Banc of America Securities LLC
+      full_name: Merrill Lynch, Pierce, Fenner & Smith Inc.
+- match: "Crowell Weedon & Co., now known as Crowell Weedon, a division of D.A. Davidson & Co."
+  entities:
+    - previous_name: Crowell Weedon & Co.
+      full_name: Crowell Weedon, a division of D.A. Davidson & Co.
+- match: "SunTrust Robinson Humphrey, Inc. n/k/a Truist Securities, Inc."
+  entities:
+    - previous_name: ["SunTrust Robinson Humphrey, Inc."]
+      full_name: ["Truist Securities, Inc."]
+- match: "SunTrust Robinson Humphrey, Inc. (now known as Truist Securities, Inc.)"
+  entities:
+    - previous_name: ["SunTrust Robinson Humphrey, Inc."]
+      full_name: ["Truist Securities, Inc."]
+- match: "Wells Fargo Advisors, LLC (n/k/a Wells Fargo Clearing Services, LLC), Wells Fargo Advisors Financial Network, LLC"
+  entities:
+    - previous_name: ["Wells Fargo Advisors, LLC"]
+      full_name: ["Wells Fargo Clearing Services, LLC"]
+    - full_name: ["Wells Fargo Advisors Financial Network, LLC"]
+- match: "J.P. Morgan Clearing Corporation n/k/a J.P. Morgan Securities LLC"
+  entities:
+    - previous_name: ["J.P. Morgan Clearing Corporation"]
+      full_name: ["J.P. Morgan Securities LLC"]
+- match: "Chelsie Marie Hovingh (n/k/a Chelsie Marie Jensen)"
+  entities:
+    - previous_name: ["Chelsie Marie Hovingh"]
+      full_name: ["Chelsie Marie Jensen"]
+- match: "Louis Capital Markets, LP (n/k/a Louis Capital Markets, LLC)"
+  entities:
+    - previous_name: ["Louis Capital Markets, LP"]
+      full_name: ["Louis Capital Markets, LLC"]
+- match: "First Clearing, LLC (now known as Wells Fargo Clearing Services, LLC)"
+  entities:
+    - previous_name: ["First Clearing, LLC"]
+      full_name: ["Wells Fargo Clearing Services, LLC"]
+
+# Also known as
+- match: 'Li Kopp (also known as "Sabrina Kopp," "Li Guo," and "Sabrina Guo"'
+  entities:
+    - full_name: Li Kopp
+      alias:
+        - Sabrina Kopp
+        - Li Guo
+        - Sabrina Guo
+- match: "Kostas Tsamos also known as Gus Tsamos"
+  entities:
+    - full_name: "Kostas Tsamos"
+      alias:
+        - "Gus Tsamos"
+- match: "George Apolonides also known as George Apollo"
+  entities:
+    - full_name: "George Apolonides"
+      alias:
+        - "George Apollo"
+- match: "Alexandria Bovee, aka  Alexandria Montgomery"
+  entities:
+    - full_name: "Alexandria Bovee"
+      alias:
+        - "Alexandria Montgomery"
+- match: "Tori K. Uhiren (a.k.a. Tori van der Geest)"
+  entities:
+    - full_name: "Tori K. Uhiren"
+      alias:
+        - "Tori van der Geest"
