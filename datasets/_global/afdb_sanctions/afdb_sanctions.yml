@@ -299,6 +299,14 @@ lookups:
         names:
           - name: International Real Estate Consulting and Investment Joint Stock Company
             previous_name: "HanoiTC Expert Joint Stock Company"
+      - match: "Transformers and Rectifiers (India) Limited (“T&R”)"
+        names:
+          - name: Transformers and Rectifiers (India) Limited
+            alias: "T&R"
+      - match: "CompuAids Inc. D/B/A Groupe Systèmes Et Solutions D’Entreprise Ess Group Enterprise Systems And Solutions Group"
+        names:
+          - name: CompuAids Inc.
+            alias: ["Groupe Systèmes Et Solutions D’Entreprise Ess Group", "Enterprise Systems And Solutions Group"]
   types:
     lowercase: true
     map:
