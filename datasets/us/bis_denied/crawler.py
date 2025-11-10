@@ -90,4 +90,5 @@ def crawl(context: Context):
     context.export_resource(path, XLS, title=context.SOURCE_TITLE)
 
     for row in rows:
+        row = {(k.lower()): v for k, v in row.items()}
         parse_row(context, row)
