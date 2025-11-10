@@ -77,7 +77,7 @@ from zavod.helpers.names import (
     make_name,
     needs_splitting,
     split_comma_names,
-    split_names,
+    clean_names,
 )
 from zavod.helpers.names import split_and_apply as split_and_apply_names
 from zavod.helpers.numbers import apply_number
@@ -139,7 +139,7 @@ __all__ = [
     "split_comma_names",
     "needs_splitting",
     "split_and_apply_names",
-    "split_names",
+    "clean_names",
     "make_pdf_page_images",
     "parse_pdf_table",
 ]
