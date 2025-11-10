@@ -60,6 +60,11 @@ assertions:
       Address: 55
 
 lookups:
+  type.name:
+    options:
+      # https://www.opensanctions.org/entities/Q4172252/
+      - match: LIONEL DUMONT NA NA
+        value: LIONEL DUMONT
   type.country:
     lowercase: true
     normalize: true

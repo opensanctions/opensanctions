@@ -1,8 +1,9 @@
 import re
 from datetime import datetime
+
+from normality import slugify, squash_spaces, stringify
 from openpyxl import load_workbook
 from rigour.mime.types import XLSX
-from normality import slugify, stringify
 
 from zavod import Context
 from zavod import helpers as h
@@ -25,6 +26,16 @@ def parse_interval(sanction, date):
     else:
         for part in h.multi_split(date, DATE_SPLITS):
             h.apply_date(sanction, "startDate", part)
+
+
+def clean_numbered_name(raw_name: str) -> str:
+    """
+    Remove leading numeric prefixes like '1: ', '2: ', etc. from a name string.
+    Example: '1: IBRAHIM 2: ALI 3: ABU BAKR' -> 'IBRAHIM ALI ABU BAKR'
+    """
+    cleaned = re.sub(r"\b\d+\s*:\s*", "", raw_name)
+    cleaned = squash_spaces(cleaned)
+    return cleaned.strip()
 
 
 def lang_pick(record, field):
@@ -78,6 +89,8 @@ def crawl_individuals(context: Context):
         if seq_id in [None, '="-"']:
             continue
         name_en = record.pop("name_of_individual_english", None)
+        if name_en and "1: " in name_en:
+            name_en = clean_numbered_name(name_en)
         name_he = record.pop("name_of_individual_hebrew", None)
         name_ar = record.pop("name_of_individual_arabic", None)
         entity = context.make("Person")
@@ -112,7 +125,8 @@ def crawl_individuals(context: Context):
         context.emit(entity)
         context.emit(sanction)
         context.audit_data(
-            record, ignore=["header"]  # Seems to always be empty, not sure what this is
+            record,
+            ignore=["header"],  # Seems to always be empty, not sure what this is
         )
 
 
