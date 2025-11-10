@@ -27,7 +27,7 @@ REGEX_CLEAN_COMMA = re.compile(
     re.I,
 )
 
-KNOWN_AS = r"\b(a\.k\.a\.?|f\.k\.a\.?|d\.b\.a\.?|n\.k\.a\.?|aka|fka|dba|nka|also|formerly|doing business as)\b"
+KNOWN_AS = r"\b(a\.k\.a\.?|f\.k\.a\.?|d\.b\.a\.?|n\.k\.a\.?|aka|fka|dba|nka|also|formerly|doing business as|known as)\b"
 REGEX_PERSON_NEEDS_SPLIT = re.compile(rf"({KNOWN_AS}|[;\\/\(\):\[\]])", re.I)
 REGEX_ENTITY_NEEDS_SPLIT = re.compile(rf"({KNOWN_AS}|[;/])", re.I)
 

@@ -13,10 +13,13 @@ for a bit longer (2024-07-31)
 """
 
 import re
-from typing import Generator, Dict, Tuple, Optional
+from typing import Dict, Generator, Optional, Tuple
+
 from lxml.etree import _Element
 from normality import slugify
-from zavod import Context, helpers as h
+
+from zavod import Context
+from zavod import helpers as h
 
 
 def parse_table(
@@ -52,6 +55,8 @@ def crawl_item(input_dict: dict, context: Context):
     for dirty_name in input_dict.pop("firms-individuals")[0].split("\n"):
         # for one known instance of ,1 at the end of the name
         dirty_name = re.sub(r",1$", "", dirty_name)
+        if h.needs_splitting(context.make("LegalEntity").schema, dirty_name):
+            print(dirty_name)
         names.extend(h.split_comma_names(context, dirty_name))
     case_summary = input_dict.pop("case-summary")[0].strip()
     case_id, source_url = input_dict.pop("case-id")
@@ -80,7 +85,7 @@ def crawl(context: Context):
     # Each page only displays 15 rows at a time, so we need to loop until we find an empty table
     page_num = 0
     while True:
-        context.log.info(f"Crawling page {page_num}")
+        # context.log.info(f"Crawling page {page_num}")
         url = context.data_url + "?page=" + str(page_num)
         # Caching for longer than 1 day can easily lead to missing entries as
         # the new stuff show up on the first page, and cached pages pages won't

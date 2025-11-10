@@ -3,11 +3,11 @@ from pathlib import Path
 
 from zavod.context import Context
 from zavod.meta.dataset import Dataset
-from zavod.shed.names.dspy.example_data import FIELDS, load_data
 from zavod.shed.names.dspy.optimise import (
     metric_with_feedback,
     metric_with_feedback_dict,
 )
+from zavod.shed.names.dspy.single_entity import FIELDS, load_data
 from zavod.shed.names.dspy.split import load_optimised_module
 from zavod.shed.names.split import split_names
 

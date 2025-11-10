@@ -8,6 +8,7 @@ from zavod.shed.gpt import run_typed_text_prompt
 
 LLM_MODEL_VERSION = "gpt-4o"
 SINGLE_ENTITY_PROGRAM_PATH = Path(__file__).parent / "dspy/single_entity_program.json"
+MULTI_ENTITY_PROGRAM_PATH = Path(__file__).parent / "dspy/multi_entity_program.json"
 
 
 class SplitNames(BaseModel):
