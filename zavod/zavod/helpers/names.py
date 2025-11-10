@@ -13,7 +13,7 @@ from zavod.shed.names.split import (
 )
 
 # alias split_names so that it could be imported from here
-from zavod.shed.names.split import split_names as split_names
+from zavod.shed.names.split import split_names as clean_names
 from zavod.stateful.review import (
     Review,
     TextSourceValue,
@@ -250,22 +250,25 @@ def split_comma_names(context: Context, text: str) -> List[str]:
             return [text]
 
 
-def needs_splitting(schema: Schema, string: Optional[str]) -> bool:
-    """Determine if a name string likely needs splitting into multiple names."""
+def needs_cleaning(entity: Entity, string: Optional[str]) -> bool:
+    """Determine whether a name string likely needs cleaning."""
     if not string:
         return False
 
-    if schema.is_a("Person"):
+    if entity.schema.is_a("Person"):
         return REGEX_PERSON_NEEDS_SPLIT.search(string) is not None
     else:
         return REGEX_ENTITY_NEEDS_SPLIT.search(string) is not None
 
 
 def apply_names(
-    entity: Entity, review: Review[SplitNames], lang: Optional[str] = None
+    entity: Entity,
+    review: Review[SplitNames],
+    alias: bool = False,
+    lang: Optional[str] = None,
 ) -> None:
     field_props = [
-        ("full_name", "name"),
+        ("full_name", "alias" if alias else "name"),
         ("alias", "alias"),
         ("weak_alias", "weakAlias"),
         ("previous_name", "previousName"),
@@ -285,13 +288,32 @@ def apply_names(
             )
 
 
-def split_and_apply(
-    context: Context, entity: Entity, string: Optional[str], lang: Optional[str] = None
+def apply_reviewed_names(
+    context: Context,
+    entity: Entity,
+    string: Optional[str],
+    lang: Optional[str] = None,
+    alias: bool = False,
 ) -> None:
+    """
+    Apply cleaned and categorised names to an entity if accepted, falling back
+    to applying the original string as the name if not.
+
+    Args:
+        context: The current context.
+        entity: The entity to apply names to.
+        string: The raw name(s) string.
+        alias: If this is known to be an alias and not a primary name.
+        lang: The language of the name, if known.
+    """
     if not string:
         return
 
-    names = split_names(context, string)
+    if not needs_cleaning(entity, string):
+        entity.add("name", string, lang=lang)
+        return
+
+    names = clean_names(context, string)
 
     source_value = TextSourceValue(key_parts=string, label="name", text=string)
     review = review_extraction(
@@ -301,4 +323,4 @@ def split_and_apply(
         origin=LLM_MODEL_VERSION,
     )
 
-    apply_names(entity, review, lang)
+    apply_names(entity, review, lang, alias)
