@@ -98,6 +98,24 @@
   full_name:
     - UNIQUE Exchange
     - UNIQUE Crypto LLC
+- string: "Pitoyo, Joko ; Pintono, Joko ; Dulmatin ; Dul Matin ; Abdul Martin ; Abdul Matin ; Amar Umar ; Amar Usman ; Anar Usman ; Djoko Supriyanto ; Jak Imron ; Muktamar ; Novarianto ; Topel"
+  full_name:
+    - Pitoyo, Joko
+  alias:
+    - Pintono, Joko
+    - Dulmatin # Contraction of Abdul Martin?
+    - Dul Matin
+    - Abdul Martin
+    - Abdul Matin
+    - Amar Umar
+    - Amar Usman
+    - Anar Usman
+    - Djoko Supriyanto
+    - Jak Imron
+    - Muktamar # looks long and rare enough to stand on its own?
+    - Novarianto # looks long and rare enough to stand on its own?
+  weak_alias: [Topel]
+
 ## other datasets
 - string: "Société par actions \"Shvabe\"; \"Shvabe\" S.A."
   full_name:
