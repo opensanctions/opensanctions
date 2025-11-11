@@ -13,8 +13,8 @@ import yaml
 from click.testing import CliRunner
 from dspy import Prediction
 
-from zavod.shed.names.dspy.split import load_optimised_module
-from zavod.shed.names.split import SplitNames
+from zavod.shed.names.clean import CleanNames
+from zavod.shed.names.dspy.clean import load_optimised_module
 from zavod.tune import cli
 
 example = {
@@ -64,7 +64,7 @@ def test_optimise(mock_gepa: MagicMock) -> None:
 
 
 @patch("zavod.shed.names.dspy.compare.load_optimised_module")
-@patch("zavod.shed.names.split.run_typed_text_prompt")
+@patch("zavod.shed.names.clean.run_typed_text_prompt")
 def test_compare(run_typed_text_prompt: MagicMock, mock_dspy_load: MagicMock):
     # Mock DSPy module prediction
     mock_optimised_module = MagicMock()
@@ -77,7 +77,7 @@ def test_compare(run_typed_text_prompt: MagicMock, mock_dspy_load: MagicMock):
     )
 
     # Mock direct OpenAI call
-    run_typed_text_prompt.return_value = SplitNames(
+    run_typed_text_prompt.return_value = CleanNames(
         full_name=[],
         alias=["John Doe"],
         weak_alias=[],

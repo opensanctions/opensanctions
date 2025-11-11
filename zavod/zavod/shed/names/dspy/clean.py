@@ -2,12 +2,12 @@ from functools import cache
 from typing import List
 
 from zavod.settings import OPENAI_API_KEY
-from zavod.shed.names.split import LLM_MODEL_VERSION, SINGLE_ENTITY_PROGRAM_PATH
+from zavod.shed.names.clean import LLM_MODEL_VERSION, SINGLE_ENTITY_PROGRAM_PATH
 
 import dspy  # type: ignore
 
 
-class SplitNamesSignature(dspy.Signature):  # type: ignore
+class CleanNamesSignature(dspy.Signature):  # type: ignore
     """Names categorised and cleaned of non-name characters."""
 
     string: str = dspy.InputField()
@@ -31,7 +31,7 @@ def init_module() -> dspy.Predict:
     lm = dspy.LM(f"openai/{LLM_MODEL_VERSION}", api_key=OPENAI_API_KEY)
     dspy.configure(lm=lm)
     dspy.configure_cache(enable_disk_cache=False, enable_memory_cache=True)
-    return dspy.Predict(SplitNamesSignature)
+    return dspy.Predict(CleanNamesSignature)
 
 
 @cache
