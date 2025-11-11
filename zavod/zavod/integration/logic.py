@@ -70,8 +70,8 @@ def logic_securities_mismatch(
     if len(left_isin) > 0 and len(right_isin) > 0:
         if len(left_isin.intersection(right_isin)) == 0:
             if left.id is not None and right.id is not None:
-                log.info("Security ISIN negative match: %s %s" % (left.id, right.id))
-                resolver.decide(left.id, right.id, Judgement.NEGATIVE, user=USER)
+                # log.info("Security ISIN negative match: %s %s" % (left.id, right.id))
+                # resolver.decide(left.id, right.id, Judgement.NEGATIVE, user=USER)
                 return None
     return score
 
