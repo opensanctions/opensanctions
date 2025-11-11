@@ -131,7 +131,9 @@ def links_to_dict(el: Element) -> Dict[str | None, str | None]:
     }
 
 
-def xpath_elements(el: Element, xpath: str) -> List[Element]:
+def xpath_elements(
+    el: Element, xpath: str, *, expect_exactly: Optional[int] = None
+) -> List[Element]:
     """
     Return a list of HtmlElement objects that match the given XPath expression.
     """
@@ -142,14 +144,24 @@ def xpath_elements(el: Element, xpath: str) -> List[Element]:
         raise ValueError(
             f"Expected list[HtmlElement] as result of xpath, got {type(result)}"
         )
+    if expect_exactly is not None and len(result) != expect_exactly:
+        raise ValueError(
+            f"Expected {expect_exactly} elements, got {len(result)} for xpath {xpath!r}"
+        )
     return [cast(HtmlElement, r) for r in result]
 
 
-def xpath_strings(el: Element, xpath: str) -> List[str]:
+def xpath_strings(
+    el: Element, xpath: str, *, expect_exactly: Optional[int] = None
+) -> List[str]:
     """
     Return a list of strings that match the given XPath expression.
     """
     result = el.xpath(xpath)
     if not isinstance(result, list) or not all(isinstance(r, str) for r in result):
         raise ValueError(f"Expected list[str] as result of xpath, got {type(result)}")
+    if expect_exactly is not None and len(result) != expect_exactly:
+        raise ValueError(
+            f"Expected {expect_exactly} elements, got {len(result)} for xpath {xpath!r}"
+        )
     return [cast(str, r) for r in result]

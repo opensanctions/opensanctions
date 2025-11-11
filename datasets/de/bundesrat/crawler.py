@@ -68,6 +68,7 @@ def crawl_item(context: Context, item: HtmlElement) -> None:
     biography_el = h.xpath_elements(
         member_doc,
         ".//div[@class='module-box']/h1[text()='Zur Person']/following-sibling::div[@class='row']",
+        expect_exactly=1,
     )
     biography = h.element_text(biography_el[0])
     dob = extract_dob(context, context.get_lookup("birth_dates"), biography)
