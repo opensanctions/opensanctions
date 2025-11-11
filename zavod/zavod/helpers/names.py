@@ -5,6 +5,7 @@ from followthemoney.util import join_text
 from normality import squash_spaces
 from rigour.data.names import data
 
+from zavod import settings
 from zavod.context import Context
 from zavod.entity import Entity
 from zavod.shed.names.clean import (
@@ -309,6 +310,9 @@ def apply_reviewed_names(
     Apply cleaned and categorised names to an entity if accepted, falling back
     to applying the original string as the name if not.
 
+    Also falls back to applying the original string if the CI environment
+    variable is truthy, so that crawlers using this can run in CI.
+
     Args:
         context: The current context.
         entity: The entity to apply names to.
@@ -319,7 +323,7 @@ def apply_reviewed_names(
     if not string:
         return
 
-    if not name_needs_cleaning(entity, string):
+    if settings.CI or not name_needs_cleaning(entity, string):
         prop = "alias" if alias else "name"
         entity.add(prop, string, lang=lang)
         return
