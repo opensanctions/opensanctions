@@ -1,4 +1,4 @@
-title: UK NCA Press Releases
+title: UK National Crime Agency Press Releases
 entry_point: crawler.py
 prefix: gb-nca-enf
 disabled: false
