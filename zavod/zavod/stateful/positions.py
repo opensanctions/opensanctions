@@ -6,7 +6,6 @@ from typing import List, Optional
 from rigour.ids.wikidata import is_qid
 from sqlalchemy import select
 
-from zavod import helpers as h
 from zavod import settings
 from zavod.context import Context
 from zavod.entity import Entity
@@ -150,6 +149,8 @@ def occupancy_status(
 
     If the person should not be considered a PEP, return None.
     """
+    from zavod import helpers as h
+
     current_iso = current_time.isoformat()
     if death_date is not None and death_date < h.backdate(current_time, AFTER_DEATH):
         # If they died longer ago than AFTER_DEATH threshold, don't consider a PEP.
