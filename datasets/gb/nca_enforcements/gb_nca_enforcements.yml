@@ -47,6 +47,10 @@ lookups:
     options:
       - match: Drug trafficking
         value: crime.traffick.drug
+      - match: Modern slavery
+        value: forced.labor
+      - match: Human trafficking
+        value: crime.traffick.human
       - match:
           - Cybercrime
           - Cyber choices
@@ -55,10 +59,6 @@ lookups:
           - Fraud
           - False identity documents
         value: crime.fraud
-      - match:
-          - Modern slavery
-          - Human trafficking
-        value: crime.traffick.human
       - match:
           - Money laundering
           - Illicit finance

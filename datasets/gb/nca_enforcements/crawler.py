@@ -11,11 +11,6 @@ from zavod.stateful.review import (
 from zavod import Context
 from zavod import helpers as h
 
-NAME_XPATH: str = "//h1[@itemprop='headline']/text()"
-CONTENT_XPATH: str = "//div[@itemprop='articleBody']"
-DATE_XPATH: str = "//div[@itemprop='articleBody']/p[strong][last()]/strong/text()"
-TOPIC_XPATH: str = "//li[@itemprop='keywords']/a/text()"
-
 Schema = Literal["Person", "Company", "LegalEntity"]
 
 schema_field = Field(
@@ -53,17 +48,14 @@ def crawl_enforcement_action(context: Context, url: str) -> None:
     article_doc = context.fetch_html(url, cache_days=7, absolute_links=True)
     if article_doc is None:
         return
-    article_name = article_doc.xpath(NAME_XPATH)[0]
+    article_name = article_doc.xpath("//h1[@itemprop='headline']/text()")[0]
     assert article_name, "Article name not found"
-    article_content = article_doc.xpath(CONTENT_XPATH)
+    article_content = article_doc.xpath("//div[@itemprop='articleBody']")
     assert len(article_content) == 1
     article_element = article_content[0]
-    dates = article_doc.xpath(DATE_XPATH)
-    # The date is absent in some articles
-    if dates != []:
-        date = dates[0]
+
     # Extract topics and look them up
-    raw_topics: List[str] = article_doc.xpath(TOPIC_XPATH)
+    raw_topics: List[str] = article_doc.xpath("//li[@itemprop='keywords']/a/text()")
     topics: List[str] = []
     for topic in raw_topics:
         res = context.lookup("topics", topic, warn_unmatched=True)
@@ -99,6 +91,12 @@ def crawl_enforcement_action(context: Context, url: str) -> None:
         for topic in topics:
             entity.add("topics", topic)
 
+        dates = article_doc.xpath(
+            "//div[@itemprop='articleBody']/p[strong][last()]/strong/text()"
+        )
+        # The date is absent in some articles
+        if dates != []:
+            date = dates[0]
         # We use the date as a key to make sure notices about separate actions are separate sanction entities
         sanction = h.make_sanction(context, entity, date)
         h.apply_date(sanction, "date", date)
@@ -114,11 +112,8 @@ def crawl_enforcement_action(context: Context, url: str) -> None:
 
 
 def crawl(context: Context):
-    page: int = 0
-    base_url: str = "https://www.nationalcrimeagency.gov.uk/news?start={offset}"
-
-    while True:
-        index_url = base_url.format(offset=page * 16)
+    index_url = context.data_url
+    while index_url:
         doc = context.fetch_html(index_url, absolute_links=True, cache_days=5)
         links = doc.xpath(
             "//div[@class='blog news-page']/div[@class='row-fluid']//div[@class='page-header']//a/@href"
@@ -128,8 +123,9 @@ def crawl(context: Context):
             break
         for link in links:
             crawl_enforcement_action(context, link)
-        if page >= 200:  # Limit to 200 pages to avoid infinite loops
-            break
-        page += 1
+        # Find the link to the next page (pagination)
+        next_links = doc.xpath("//a[@aria-label='Go to next > page']/@href")
+        assert len(next_links) <= 1
+        index_url = next_links[0] if next_links else None
 
     assert_all_accepted(context)
