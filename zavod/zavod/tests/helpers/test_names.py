@@ -140,6 +140,7 @@ def test_needs_cleaning(testdataset1: Dataset):
     assert name_needs_cleaning(org, "Company Ltd, Holding Company Ltd.")
 
 
+@patch("zavod.helpers.names.settings.CI", False)  # For validity
 def test_apply_reviewed_names_no_cleaning_needed(vcontext: Context):
     """The original name is used."""
 
@@ -155,6 +156,32 @@ def test_apply_reviewed_names_no_cleaning_needed(vcontext: Context):
     assert entity.get("alias") == ["Jim Doe"]
 
 
+@patch("zavod.helpers.names.settings.CI", True)
+@patch("zavod.shed.names.clean.run_typed_text_prompt")
+def test_apply_reviewed_names_ci_fallback(
+    run_typed_text_prompt: MagicMock, vcontext: Context
+):
+    """
+    Verify that when env var CI is set, we fall back to original name.
+    Mocking to verify that outside CI (on our laptops)
+    """
+    entity = vcontext.make("Person")
+    entity.id = "bla"
+    raw_name = "Jim Doe; James Doe"
+
+    run_typed_text_prompt.return_value = CleanNames(
+        full_name=["Jim Doe", "James Doe"],
+        alias=[],
+        weak_alias=[],
+        previous_name=[],
+    )
+
+    apply_reviewed_names(vcontext, entity, raw_name)
+
+    assert not run_typed_text_prompt.called, run_typed_text_prompt.call_args_list
+
+
+@patch("zavod.helpers.names.settings.CI", False)
 @patch("zavod.shed.names.clean.run_typed_text_prompt")
 def test_apply_reviewed_names(run_typed_text_prompt: MagicMock, vcontext: Context):
     """

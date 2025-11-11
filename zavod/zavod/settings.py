@@ -1,10 +1,9 @@
 from os import environ as env
-
 from pathlib import Path
-from banal import as_bool
-from rigour.env import env_str
-from nomenklatura.versions import Version
 
+from banal import as_bool
+from nomenklatura.versions import Version
+from rigour.env import env_str
 
 # Logging configuration
 LOG_JSON = as_bool(env_str("ZAVOD_LOG_JSON", "false"))
@@ -75,3 +74,9 @@ OPENAI_API_KEY = env.get("OPENSANCTIONS_OPENAI_API_KEY", None)
 AZURE_OPENAI_ENDPOINT = env.get("OPENSANCTIONS_AZURE_OPENAI_ENDPOINT", None)
 
 DUCKDB_MEMORY = int(env_str("ZAVOD_DUCKDB_MEMORY", "2000"))
+
+# Test code in prod code is generally a Bad Idea.
+# This is here to allow for fallbacks to skip some external service usage
+# which allows us to run more crawlers in CI without introducing mocking for those runs.
+# Test code impacted by this should mock settings.CI to False to verify normal operation.
+CI = as_bool(env_str("CI", "false"))

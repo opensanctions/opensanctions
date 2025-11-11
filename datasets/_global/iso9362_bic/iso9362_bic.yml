@@ -10,7 +10,7 @@ exports:
   - statistics.json
   - entities.ftm.json
   - entities.delta.json
-ci_test: false # no OpenAI key in CI
+ci_test: false
 load_statements: true
 summary: >-
   Reference data for SWIFT BIC code, including bank names and addresses
