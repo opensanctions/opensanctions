@@ -1,9 +1,9 @@
 import re
 from typing import List, Optional, cast
 
-from followthemoney.schema import Schema
 from followthemoney.util import join_text
 from normality import squash_spaces
+from rigour.data.names import data
 
 from zavod.context import Context
 from zavod.entity import Entity
@@ -12,8 +12,8 @@ from zavod.shed.names.split import (
     SplitNames,
 )
 
-# alias split_names so that it could be imported from here
-from zavod.shed.names.split import split_names as clean_names
+# alias clean_names so that it could be imported from here
+from zavod.shed.names.split import clean_names as clean_names
 from zavod.stateful.review import (
     Review,
     TextSourceValue,
@@ -26,10 +26,9 @@ REGEX_CLEAN_COMMA = re.compile(
     r", \b(LLC|L\.L\.C|Inc|Jr|INC|L\.P|LP|Sr|III|II|IV|S\.A|LTD|USA INC|\(?A/K/A|\(?N\.K\.A|\(?N/K/A|\(?F\.K\.A|formerly known as|INCORPORATED)\b",  # noqa
     re.I,
 )
-
-KNOWN_AS = r"\b(a\.k\.a\.?|f\.k\.a\.?|d\.b\.a\.?|n\.k\.a\.?|aka|fka|dba|nka|also|formerly|doing business as)\b"
-REGEX_PERSON_NEEDS_SPLIT = re.compile(rf"({KNOWN_AS}|[;\\/\(\):\[\]])", re.I)
-REGEX_ENTITY_NEEDS_SPLIT = re.compile(rf"({KNOWN_AS}|[;/])", re.I)
+KNOWN_AS_PATTERNS = [re.escape(phrase) for phrase in data.STOPPHRASES]
+PATTERN_KNOWN_AS = rf"(\b({'|'.join(KNOWN_AS_PATTERNS)})\b)"
+REGEX_KNOWN_AS = re.compile(PATTERN_KNOWN_AS, re.I)
 
 
 def make_name(
@@ -250,15 +249,25 @@ def split_comma_names(context: Context, text: str) -> List[str]:
             return [text]
 
 
-def needs_cleaning(entity: Entity, string: Optional[str]) -> bool:
+def name_needs_cleaning(entity: Entity, string: Optional[str]) -> bool:
     """Determine whether a name string likely needs cleaning."""
     if not string:
         return False
 
-    if entity.schema.is_a("Person"):
-        return REGEX_PERSON_NEEDS_SPLIT.search(string) is not None
-    else:
-        return REGEX_ENTITY_NEEDS_SPLIT.search(string) is not None
+    for spec in entity.dataset.names.specs_for_schema(entity.schema):
+        # Contains a character considered "dirty" for a matching schema
+        dirty_chars = spec.dirty_chars
+        dirty_chars_extra = spec.dirty_chars_extra
+        all_dirty_chars = dirty_chars + dirty_chars_extra
+        for char in all_dirty_chars:
+            if char in string:
+                return True
+
+        # contains a known-as phrase
+        if REGEX_KNOWN_AS.search(string):
+            return True
+
+    return False
 
 
 def apply_names(
@@ -309,7 +318,7 @@ def apply_reviewed_names(
     if not string:
         return
 
-    if not needs_cleaning(entity, string):
+    if not name_needs_cleaning(entity, string):
         entity.add("name", string, lang=lang)
         return
 
@@ -323,4 +332,4 @@ def apply_reviewed_names(
         origin=LLM_MODEL_VERSION,
     )
 
-    apply_names(entity, review, lang, alias)
+    apply_names(entity, review, alias=alias, lang=lang)

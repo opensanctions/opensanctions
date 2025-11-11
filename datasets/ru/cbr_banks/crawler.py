@@ -78,22 +78,10 @@ def crawl_details(context: Context, internal_code: str | None, entity):
         reg_date = co_data.findtext("MainDateReg")
 
         en_names = co_data.findtext("encname")
-        if en_names and (h.needs_splitting(entity.schema, en_names) or "," in en_names):
-            h.split_and_apply_names(context, entity, en_names, lang="eng")
-        else:
-            entity.add("name", en_names, lang="eng")
-        if h.needs_splitting(entity.schema, co_data.findtext("OrgName")):
-            h.split_and_apply_names(context, entity, co_data.findtext("OrgName"))
-        else:
-            entity.add("name", co_data.findtext("OrgName"))
-        if h.needs_splitting(entity.schema, co_data.findtext("OrgFullName")):
-            h.split_and_apply_names(context, entity, co_data.findtext("OrgFullName"))
-        else:
-            entity.add("name", co_data.findtext("OrgFullName"))
-        if h.needs_splitting(entity.schema, co_data.findtext("csname")):
-            h.split_and_apply_names(context, entity, co_data.findtext("csname"))
-        else:
-            entity.add("name", co_data.findtext("csname"))
+        h.apply_reviewed_names(context, entity, en_names, lang="eng")
+        h.apply_reviewed_names(context, entity, co_data.findtext("OrgName"))
+        h.apply_reviewed_names(context, entity, co_data.findtext("OrgFullName"))
+        h.apply_reviewed_names(context, entity, co_data.findtext("csname"))
 
         phones = co_data.findtext("phones")
         lic_withd_num = co_data.findtext("licwithdnum")

@@ -9,7 +9,7 @@ from zavod.shed.names.dspy.optimise import (
     metric_with_feedback_dict,
 )
 from zavod.shed.names.dspy.split import load_optimised_module
-from zavod.shed.names.split import split_names
+from zavod.shed.names.split import clean_names
 
 
 def compare_single_entity(examples_path: Path, output_path: Path) -> None:
@@ -29,7 +29,7 @@ def compare_single_entity(examples_path: Path, output_path: Path) -> None:
         dspy_result = program(string=example.string)
         dspy_eval = metric_with_feedback(example, dspy_result)
 
-        direct_gpt_result = split_names(context, example.string)
+        direct_gpt_result = clean_names(context, example.string)
         direct_gpt_eval = metric_with_feedback_dict(
             example.toDict(), direct_gpt_result.model_dump()
         )

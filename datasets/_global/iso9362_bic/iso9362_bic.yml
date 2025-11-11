@@ -45,6 +45,10 @@ data:
   lang: eng
 http:
   user_agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36
+names:
+  LegalEntity:
+    # Skip / because of 2913 A/S (company type) instances vs 1 C/O instance
+    dirty_chars: ";"
 
 lookups:
   type.country:
