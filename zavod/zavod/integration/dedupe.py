@@ -11,6 +11,7 @@ from zavod.entity import Entity
 from zavod.db import get_engine, meta
 from zavod.logs import get_logger
 from zavod.meta import Dataset
+from zavod.integration.logic import logic_decide
 
 if TYPE_CHECKING:
     from zavod.store import Store
@@ -72,6 +73,7 @@ def blocking_xref(
         focus_dataset=focus_dataset,
         algorithm=algorithm_type,
         discount_internal=discount_internal,
+        heuristic=logic_decide,
         user=AUTO_USER,
     )
 
