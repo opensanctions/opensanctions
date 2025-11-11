@@ -80,9 +80,8 @@ def logic_decide(
     resolver: Resolver[Entity], left: Entity, right: Entity, score: float
 ) -> Optional[float]:
     """Decide whether to automatically merge two entities based on custom logic."""
-    res_score: Optional[float] = score
     common = model.common_schema(left.schema, right.schema)
-    res_score = logic_unique(resolver, common, left, right, res_score)
+    res_score = logic_unique(resolver, common, left, right, score)
     if res_score is None:
         return None
     res_score = logic_vessel_match(resolver, common, left, right, res_score)
