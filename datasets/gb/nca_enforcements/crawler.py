@@ -31,6 +31,7 @@ class Offenders(BaseModel):
 
 PROMPT = f"""
 Extract the offenders or entities subject to UK National Crime Agency (NCA) enforcement actions mentioned in the article.
+NEVER  include any entries where the name is not explicitly provided (e.g., "a man", "an individual", "two people", etc.).
 NEVER include victims, witnesses, investigators, or enforcement officers.
 NEVER infer, assume, or generate values that are not directly stated in the source text.
 If the name refers to an individual person, use Person as the entity_schema.
@@ -39,7 +40,7 @@ Specific fields:
 
 - name: The name of the entity precisely as expressed in the text.
 - entity_schema: {schema_field.description}
-- address: The locations associated with the offender, such as their home address, town, city, or region."
+- address: The full address or location details as they appear in the article (do not split into components; capture the complete expression such as “123 Main Street, Birmingham”).
 - country: Any countries the entity is indicated to reside, operate, or have been born or registered in. Leave empty if not explicitly stated.
 """
 
@@ -114,7 +115,7 @@ def crawl_enforcement_action(context: Context, url: str) -> None:
 def crawl(context: Context):
     index_url = context.data_url
     while index_url:
-        doc = context.fetch_html(index_url, absolute_links=True, cache_days=5)
+        doc = context.fetch_html(index_url, absolute_links=True)
         links = doc.xpath(
             "//div[@class='blog news-page']/div[@class='row-fluid']//div[@class='page-header']//a/@href"
         )
