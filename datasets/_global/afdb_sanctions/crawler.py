@@ -1,8 +1,9 @@
 import re
 
+from zavod.shed.zyte_api import fetch_html
+
 from zavod import Context
 from zavod import helpers as h
-from zavod.shed.zyte_api import fetch_html
 
 NAME_SPLITS = [
     "doing business as",
@@ -29,6 +30,7 @@ def apply_clean_name(context: Context, entity, name):
         details = names_lookup_result.names[0]
         entity.add("name", details.get("name"))
         entity.add("alias", details.get("alias"))
+        entity.add("weakAlias", details.get("weak_alias"))
         entity.add("previousName", details.get("previous_name"))
     # Only allow the normal "Name (Alias)" format if no alias-y terms were found
     elif NAME_REGEX.match(name) and not DETECT_ALIAS_RE.search(name):
