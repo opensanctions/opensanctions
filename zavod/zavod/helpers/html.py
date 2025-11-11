@@ -1,4 +1,4 @@
-from typing import Dict, Generator, Optional, Set, cast
+from typing import Dict, Generator, List, Optional, Set, cast
 
 from lxml.html import HtmlElement
 from normality import slugify, squash_spaces
@@ -129,3 +129,27 @@ def links_to_dict(el: Element) -> Dict[str | None, str | None]:
     return {
         slugify(element_text(a), sep="_"): a.get("href") for a in el.findall(".//a")
     }
+
+
+def xpath_elements(el: Element, xpath: str) -> List[Element]:
+    """
+    Return a list of HtmlElement objects that match the given XPath expression.
+    """
+    result = el.xpath(xpath)
+    if not isinstance(result, list) or not all(
+        isinstance(r, HtmlElement) for r in result
+    ):
+        raise ValueError(
+            f"Expected list[HtmlElement] as result of xpath, got {type(result)}"
+        )
+    return [cast(HtmlElement, r) for r in result]
+
+
+def xpath_strings(el: Element, xpath: str) -> List[str]:
+    """
+    Return a list of strings that match the given XPath expression.
+    """
+    result = el.xpath(xpath)
+    if not isinstance(result, list) or not all(isinstance(r, str) for r in result):
+        raise ValueError(f"Expected list[str] as result of xpath, got {type(result)}")
+    return [cast(str, r) for r in result]

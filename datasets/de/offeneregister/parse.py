@@ -1,9 +1,9 @@
-import re
 import bz2
-import orjson
+import re
 from functools import lru_cache
 from typing import Any, Optional
 
+import orjson
 from followthemoney.util import join_text, make_entity_id
 
 from zavod import Context, Entity
@@ -74,7 +74,7 @@ def make_rel(
     officer: Entity,
     data: dict[str, Any],
     summary: Optional[str] = None,
-):
+) -> None:
     type_ = data.pop("position")
     schema = REL_SCHEMS[type_]
     if schema == "Ownership" and company.schema.is_a("Asset"):
@@ -101,7 +101,9 @@ def make_rel(
     context.emit(proxy)
 
 
-def make_officer_and_rel(context: Context, company: Entity, data: dict[str, Any]):
+def make_officer_and_rel(
+    context: Context, company: Entity, data: dict[str, Any]
+) -> None:
     type_ = data.pop("type")
     name = data.pop("name")
     rel_summary = None
@@ -152,7 +154,7 @@ def make_company(context: Context, data: dict[str, Any]) -> Entity:
     proxy.add("legalForm", legalForm)
     proxy.add("registrationNumber", reg_nr)
     # FIXME? better gleif matching:
-    proxy.add("registrationNumber", f'{reg_art} {meta.pop("_registerNummer")}')
+    proxy.add("registrationNumber", f"{reg_art} {meta.pop('_registerNummer')}")
     proxy.add("status", data.pop("current_status", None))
     oc_id = data.pop("company_number")
     proxy.add("opencorporatesUrl", f"https://opencorporates.com/companies/de/{oc_id}")
@@ -167,14 +169,14 @@ def make_company(context: Context, data: dict[str, Any]) -> Entity:
     return proxy
 
 
-def parse_record(context: Context, record: dict[str, Any]):
+def parse_record(context: Context, record: dict[str, Any]) -> None:
     company = make_company(context, record)
 
     for data in record.pop("officers", []):
         make_officer_and_rel(context, company, data)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     data_fp = context.fetch_resource("de_companies_ocdata.jsonl.bz2", context.data_url)
     with bz2.open(data_fp) as f:
         idx = 0

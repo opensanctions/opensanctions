@@ -1,12 +1,15 @@
-from typing import Any, Dict
-from rigour.ids.wikidata import is_qid
+from typing import Any, Dict, Optional
 
-from zavod import Context
-from zavod import helpers as h
+from rigour.ids.wikidata import is_qid
 from zavod.stateful.positions import categorise
 
+from zavod import Context, Entity
+from zavod import helpers as h
 
-def make_position(context: Context, parliamentary_period):
+
+def make_position(
+    context: Context, parliamentary_period: Dict[str, Any]
+) -> Optional[Entity]:
     parliament_detail = context.fetch_json(
         parliamentary_period["parliament"]["api_url"],
         cache_days=1,
@@ -16,7 +19,7 @@ def make_position(context: Context, parliamentary_period):
 
     # Don't get Members of EU-Parlament
     if "EU" in parliament_label:
-        return
+        return None
 
     # Create position
     subnational_area = parliament_label if parliament_label != "Bundestag" else None
@@ -28,7 +31,7 @@ def make_position(context: Context, parliamentary_period):
     )
 
 
-def crawl_mandate(context: Context, mandate: Dict[str, Any]):
+def crawl_mandate(context: Context, mandate: Dict[str, Any]) -> None:
     politician = mandate.pop("politician")
     period = mandate.pop("parliament_period")
     period_detail = context.fetch_json(period["api_url"], cache_days=1).pop("data")
@@ -118,7 +121,7 @@ def crawl_mandate(context: Context, mandate: Dict[str, Any]):
     )
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     # Fetch the source data URL specified in the metadata to a local path:
     total_mandates = None
     range_start = 0
