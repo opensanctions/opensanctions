@@ -14,9 +14,8 @@ from followthemoney.cli.util import InPath, OutPath
 from zavod.shed.names.dspy.compare import compare_single_entity
 from zavod.shed.names.dspy.example_data import EXAMPLES_PATH
 from zavod.shed.names.dspy.optimise import LEVELS, optimise_single_entity
+from zavod.shed.names.split import SINGLE_ENTITY_PROGRAM_PATH
 
-SINGLE_ENTITY = "single_entity"
-MODULES = click.Choice([SINGLE_ENTITY], case_sensitive=False)
 LEVEL_OPTIONS = click.Choice(LEVELS, case_sensitive=False)
 
 
@@ -26,31 +25,22 @@ def cli(debug: bool = False) -> None:
 
 
 @cli.command("optimise", help="Crawl a specific dataset")
-@click.argument("name", type=MODULES)
-@click.option(
-    "--examples-path", type=InPath, default=EXAMPLES_PATH, help="Path to examples file"
-)
+@click.argument("examples_path", type=InPath, default=EXAMPLES_PATH)
+@click.argument("program_path", type=OutPath, default=SINGLE_ENTITY_PROGRAM_PATH)
 @click.option("--level", type=str, default="heavy", help="Optimisation level")
 def optimise(
-    name: str, examples_path: Path = EXAMPLES_PATH, level: str = "heavy"
+    examples_path: Path = EXAMPLES_PATH,
+    program_path: Path = SINGLE_ENTITY_PROGRAM_PATH,
+    level: str = "heavy",
 ) -> None:
-    if name == SINGLE_ENTITY:
-        optimise_single_entity(examples_path, level=level)
-    else:
-        raise ValueError(f"Unknown optimisation target: {name}")
+    optimise_single_entity(examples_path, program_path, level=level)
 
 
 @cli.command("compare", help="Compare DSPy module against direct LLM calls")
-@click.argument("name", type=MODULES)
 @click.argument("output_path", type=OutPath)
-@click.option(
-    "--examples-path", type=InPath, default=EXAMPLES_PATH, help="Path to examples file"
-)
-def compare(name: str, output_path: Path, examples_path: Path = EXAMPLES_PATH) -> None:
-    if name == SINGLE_ENTITY:
-        compare_single_entity(examples_path, output_path)
-    else:
-        raise ValueError(f"Unknown comparison target: {name}")
+@click.argument("examples_path", type=InPath, default=EXAMPLES_PATH)
+def compare(output_path: Path, examples_path: Path = EXAMPLES_PATH) -> None:
+    compare_single_entity(examples_path, output_path)
 
 
 @cli.command("dump-examples")

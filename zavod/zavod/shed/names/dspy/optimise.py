@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from normality import slugify
 from zavod.settings import OPENAI_API_KEY
@@ -57,13 +57,18 @@ def metric_with_feedback_dict(
     return dspy.Prediction(score=score, feedback=feedback)
 
 
-def optimise_single_entity(examples_path: Path, level: str = "heavy") -> None:
+def optimise_single_entity(
+    examples_path: Path,
+    program_path: Path,
+    level: str = "heavy",
+    threads: Optional[int] = 32,
+) -> None:
     train_set, val_set, _test_set = load_data(examples_path)
 
     optimizer = dspy.GEPA(
         metric=metric_with_feedback,
         auto=level,
-        num_threads=32,
+        num_threads=threads,
         track_stats=False,
         use_merge=False,
         reflection_lm=dspy.LM(
@@ -75,7 +80,7 @@ def optimise_single_entity(examples_path: Path, level: str = "heavy") -> None:
         init_module(), trainset=train_set, valset=val_set
     )
 
-    optimized_program.save(SINGLE_ENTITY_PROGRAM_PATH, save_program=False)
+    optimized_program.save(program_path, save_program=False)
 
     for predictor in optimized_program.predictors():
         print("Predictor:", predictor)
