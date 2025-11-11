@@ -1,3 +1,5 @@
+from unittest.mock import MagicMock, patch
+
 from structlog.testing import capture_logs
 
 from zavod.context import Context
@@ -153,7 +155,8 @@ def test_apply_reviewed_names_no_cleaning_needed(vcontext: Context):
     assert entity.get("alias") == ["Jim Doe"]
 
 
-def test_apply_reviewed_names(vcontext: Context, requests_mock):
+@patch("zavod.shed.names.split.run_typed_text_prompt")
+def test_apply_reviewed_names(run_typed_text_prompt: MagicMock, vcontext: Context):
     """
     The original name is used.
     A review is created but the unaccepted name(s) are not applied.
@@ -163,16 +166,16 @@ def test_apply_reviewed_names(vcontext: Context, requests_mock):
     entity.id = "bla"
     raw_name = "Jim Doe; James Doe"
 
-    requests_mock.post(
-        "https://api.openai.com/v1/chat/completions",
-        json=SplitNames(
-            full_name=["Jim Doe", "James Doe"],
-            alias=[],
-            weak_alias=[],
-            previous_name=[],
-        ).model_dump(),
+    run_typed_text_prompt.return_value = SplitNames(
+        full_name=["Jim Doe", "James Doe"],
+        alias=[],
+        weak_alias=[],
+        previous_name=[],
     )
+
     apply_reviewed_names(vcontext, entity, raw_name)
+
+    assert run_typed_text_prompt.called, run_typed_text_prompt.call_args_list
 
     # Until it's accepted, the original string is applied.
     assert entity.get("name") == [raw_name]

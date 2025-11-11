@@ -6,9 +6,21 @@ from unittest.mock import MagicMock, patch
 
 import yaml
 from click.testing import CliRunner
+from dspy import Prediction
 
 from zavod.shed.names.dspy.split import load_optimised_module
+from zavod.shed.names.split import SplitNames
 from zavod.tune import cli
+
+example = {
+    "string": "John Doe",
+    "full_name": ["John Doe"],
+    "alias": [],
+    "weak_alias": [],
+    "previous_name": [],
+}
+# Repeat 3 times because test/validation/train sets are each 1/3 of shuffled data
+examples = [example, example, example]
 
 
 @patch("zavod.shed.names.dspy.optimise.dspy.GEPA")
@@ -23,15 +35,6 @@ def test_optimise(mock_gepa: MagicMock) -> None:
     # Create a temporary YAML file with a trivial example.
     # We're mocking the optimisation process, so the content doesn't really matter.
     # But if the file doesn't parse as yaml it should fail.
-    examples = [
-        {
-            "string": "John Doe",
-            "full_name": ["John Doe"],
-            "alias": [],
-            "weak_alias": [],
-            "previous_name": [],
-        }
-    ]
     with NamedTemporaryFile(mode="w", suffix=".yml", delete=False) as f:
         yaml.dump(examples, f)
         examples_path = Path(f.name)
@@ -53,3 +56,48 @@ def test_optimise(mock_gepa: MagicMock) -> None:
     with open(program_path) as f:
         program_data = f.read()
         assert "instructions" in program_data
+
+
+@patch("zavod.shed.names.dspy.compare.load_optimised_module")
+@patch("zavod.shed.names.split.run_typed_text_prompt")
+def test_compare(run_typed_text_prompt: MagicMock, mock_dspy_load: MagicMock):
+    # Mock DSPy module prediction
+    mock_optimised_module = MagicMock()
+    mock_dspy_load.return_value = mock_optimised_module
+    mock_optimised_module.return_value = Prediction(
+        full_name=["John Doe"],
+        alias=[],
+        weak_alias=[],
+        previous_name=[],
+    )
+
+    # Mock direct OpenAI call
+    run_typed_text_prompt.return_value = SplitNames(
+        full_name=[],
+        alias=["John Doe"],
+        weak_alias=[],
+        previous_name=[],
+    )
+
+    with NamedTemporaryFile(mode="w", suffix=".yml", delete=False) as f:
+        yaml.dump(examples, f)
+        examples_path = Path(f.name)
+    output_path = Path(mkdtemp()) / "validation_results.json"
+
+    runner = CliRunner()
+    result = runner.invoke(
+        cli,
+        [
+            "compare",
+            output_path.as_posix(),
+            examples_path.as_posix(),
+        ],
+    )
+
+    assert mock_optimised_module.called, mock_optimised_module.call_args_list
+    assert run_typed_text_prompt.called, run_typed_text_prompt.call_args_list
+    assert result.exit_code == 0, result.output
+
+    with open(output_path) as f:
+        program_data = f.read()
+        assert "incorrectly" in program_data

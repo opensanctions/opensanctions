@@ -5,7 +5,6 @@ from normality import slugify
 from zavod.settings import OPENAI_API_KEY
 from zavod.shed.names.dspy.example_data import FIELDS, load_data
 from zavod.shed.names.dspy.split import init_module
-from zavod.shed.names.split import SINGLE_ENTITY_PROGRAM_PATH
 
 import dspy  # type: ignore
 
