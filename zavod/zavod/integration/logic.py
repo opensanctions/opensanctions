@@ -61,7 +61,7 @@ def logic_securities_mismatch(
     left: Entity,
     right: Entity,
     score: float,
-):
+) -> Optional[float]:
     """Custom logic for avoiding matches between securities with different ISINs."""
     if not common.is_a("Security"):
         return score

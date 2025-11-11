@@ -1,6 +1,5 @@
-from datetime import datetime
-
 from lxml import html
+from rigour.time import utc_now
 from pydantic import BaseModel
 
 from zavod import settings
@@ -270,7 +269,7 @@ def test_html_source_comparison(testdataset1: Dataset):
         accepted=False,
         last_seen_version="123",
         modified_by="test@user.com",
-        modified_at=datetime.utcnow(),
+        modified_at=utc_now(),
     )
     assert source_value1.matches(review)
     assert not source_value2.matches(review)
@@ -301,7 +300,7 @@ def test_text_source_comparison(testdataset1: Dataset):
         accepted=False,
         last_seen_version="123",
         modified_by="test@user.com",
-        modified_at=datetime.utcnow(),
+        modified_at=utc_now(),
     )
     assert source_value1.matches(review)
     assert source_value1dot.matches(review)
