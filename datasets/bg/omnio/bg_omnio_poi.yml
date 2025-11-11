@@ -34,7 +34,6 @@ data:
 dates:
   formats:
     - "%d.%m.%Y"
-ci_test: false # no OpenAI key in CI
 
 assertions:
   min:
