@@ -58,10 +58,10 @@ def crawl_enforcement_action(context: Context, url: str) -> None:
     article_content = article_doc.xpath(CONTENT_XPATH)
     assert len(article_content) == 1
     article_element = article_content[0]
-    date = article_doc.xpath(DATE_XPATH)
+    dates = article_doc.xpath(DATE_XPATH)
     # The date is absent in some articles
-    if date != []:
-        date = date[0]
+    if dates != []:
+        date = dates[0]
     # Extract topics and look them up
     raw_topics: List[str] = article_doc.xpath(TOPIC_XPATH)
     topics: List[str] = []
