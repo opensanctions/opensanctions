@@ -12,7 +12,7 @@ from zavod.helpers import (
     split_comma_names,
 )
 from zavod.meta.dataset import Dataset
-from zavod.shed.names.split import SplitNames
+from zavod.shed.names.clean import CleanNames
 from zavod.stateful.review import Review, review_key
 
 
@@ -155,7 +155,7 @@ def test_apply_reviewed_names_no_cleaning_needed(vcontext: Context):
     assert entity.get("alias") == ["Jim Doe"]
 
 
-@patch("zavod.shed.names.split.run_typed_text_prompt")
+@patch("zavod.shed.names.clean.run_typed_text_prompt")
 def test_apply_reviewed_names(run_typed_text_prompt: MagicMock, vcontext: Context):
     """
     The original name is used.
@@ -166,7 +166,7 @@ def test_apply_reviewed_names(run_typed_text_prompt: MagicMock, vcontext: Contex
     entity.id = "bla"
     raw_name = "Jim Doe; James Doe"
 
-    run_typed_text_prompt.return_value = SplitNames(
+    run_typed_text_prompt.return_value = CleanNames(
         full_name=["Jim Doe", "James Doe"],
         alias=[],
         weak_alias=[],
@@ -188,7 +188,7 @@ def test_apply_reviewed_names(run_typed_text_prompt: MagicMock, vcontext: Contex
 
     # simulate accepting the review.
     key = review_key(raw_name)
-    review = Review.by_key(vcontext.conn, SplitNames, vcontext.dataset.name, key)
+    review = Review.by_key(vcontext.conn, CleanNames, vcontext.dataset.name, key)
     review.accepted = True
     review.save(vcontext.conn, new_revision=True)
 

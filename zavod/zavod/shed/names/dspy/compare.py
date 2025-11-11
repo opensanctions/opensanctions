@@ -3,13 +3,13 @@ from pathlib import Path
 
 from zavod.context import Context
 from zavod.meta.dataset import Dataset
+from zavod.shed.names.clean import clean_names
+from zavod.shed.names.dspy.clean import load_optimised_module
 from zavod.shed.names.dspy.example_data import FIELDS, load_data
 from zavod.shed.names.dspy.optimise import (
     metric_with_feedback,
     metric_with_feedback_dict,
 )
-from zavod.shed.names.dspy.split import load_optimised_module
-from zavod.shed.names.split import clean_names
 
 
 def compare_single_entity(examples_path: Path, output_path: Path) -> None:

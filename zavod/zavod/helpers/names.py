@@ -7,13 +7,13 @@ from rigour.data.names import data
 
 from zavod.context import Context
 from zavod.entity import Entity
-from zavod.shed.names.split import (
+from zavod.shed.names.clean import (
     LLM_MODEL_VERSION,
-    SplitNames,
+    CleanNames,
 )
 
 # alias clean_names so that it could be imported from here
-from zavod.shed.names.split import clean_names as clean_names
+from zavod.shed.names.clean import clean_names as clean_names
 from zavod.stateful.review import (
     Review,
     TextSourceValue,
@@ -272,7 +272,7 @@ def name_needs_cleaning(entity: Entity, string: Optional[str]) -> bool:
 
 def apply_names(
     entity: Entity,
-    review: Review[SplitNames],
+    review: Review[CleanNames],
     alias: bool = False,
     lang: Optional[str] = None,
 ) -> None:
