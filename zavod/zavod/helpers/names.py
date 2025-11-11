@@ -264,9 +264,9 @@ def name_needs_cleaning(entity: Entity, string: Optional[str]) -> bool:
             if char in string:
                 return True
 
-        # contains a known-as phrase
-        if REGEX_KNOWN_AS.search(string):
-            return True
+    # contains a known-as phrase
+    if REGEX_KNOWN_AS.search(string):
+        return True
 
     return False
 
