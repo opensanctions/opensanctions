@@ -1,7 +1,9 @@
 from structlog.testing import capture_logs
 
 from zavod.context import Context
-from zavod.helpers import make_name, apply_name, split_comma_names
+from zavod.entity import Entity
+from zavod.helpers import apply_name, make_name, name_needs_cleaning, split_comma_names
+from zavod.meta.dataset import Dataset
 
 
 def test_make_name():
@@ -116,3 +118,13 @@ def test_split_comma_names(vcontext: Context, caplog):
         assert split_comma_names(vcontext, "A and B Ltd.") == ["A and B Ltd."]
     logs = [f"{entry['log_level']}: {entry['event']}" for entry in cap_logs]
     assert "warning: Not sure how to split on comma or and." in logs
+
+
+def test_needs_cleaning(testdataset1: Dataset):
+    org_data = {"id": "doe", "schema": "Organization", "properties": {}}
+    org = Entity(testdataset1, org_data)
+    assert not name_needs_cleaning(org, "Company Ltd.")
+    # Default
+    assert name_needs_cleaning(org, "Company Ltd; Holding Company Ltd.")
+    # Extra
+    assert name_needs_cleaning(org, "Company Ltd, Holding Company Ltd.")

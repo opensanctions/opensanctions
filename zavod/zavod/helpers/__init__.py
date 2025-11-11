@@ -74,12 +74,12 @@ from zavod.helpers.html import (
 from zavod.helpers.identification import make_identification
 from zavod.helpers.names import (
     apply_name,
-    make_name,
-    needs_splitting,
-    split_comma_names,
+    apply_reviewed_names,
     clean_names,
+    make_name,
+    name_needs_cleaning,
+    split_comma_names,
 )
-from zavod.helpers.names import split_and_apply as split_and_apply_names
 from zavod.helpers.numbers import apply_number
 from zavod.helpers.pdf import make_pdf_page_images, parse_pdf_table
 from zavod.helpers.positions import make_occupancy, make_position
@@ -137,8 +137,8 @@ __all__ = [
     "assert_file_hash",
     "assert_html_url_hash",
     "split_comma_names",
-    "needs_splitting",
-    "split_and_apply_names",
+    "name_needs_cleaning",
+    "apply_reviewed_names",
     "clean_names",
     "make_pdf_page_images",
     "parse_pdf_table",

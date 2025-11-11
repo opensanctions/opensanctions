@@ -35,7 +35,7 @@ def load_single_entity_prompt() -> str:
     return prompt
 
 
-def split_names(context: Context, string: str) -> SplitNames:
+def clean_names(context: Context, string: str) -> SplitNames:
     prompt = load_single_entity_prompt()
     return run_typed_text_prompt(
         context=context,
