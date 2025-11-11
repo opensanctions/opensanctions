@@ -35,7 +35,7 @@ def clean_numbered_name(raw_name: str) -> str:
     """
     cleaned = re.sub(r"\b\d+\s*:\s*", "", raw_name)
     cleaned = squash_spaces(cleaned)
-    return cleaned.strip()
+    return cleaned
 
 
 def lang_pick(record, field):
