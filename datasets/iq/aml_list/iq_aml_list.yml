@@ -90,7 +90,9 @@ lookups:
       - match: "فلبينية"
         value: "Philippines"
       - match: "مسير"
-        value: "Egypt"
+        # Claude thinks it's a misspelling of "Egypt", but let's wait while we
+        # confirm with a native speaker.
+        value: null
       - match: "يمن"
         value: "Yemen"
       - match: "فلبينية/ ماليزيا"
