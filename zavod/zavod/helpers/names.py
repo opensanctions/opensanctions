@@ -282,8 +282,9 @@ def apply_names(
         ("weak_alias", "weakAlias"),
         ("previous_name", "previousName"),
     ]
-    if review.accepted:
-        entity.add("name", review.source_value, lang=lang)
+    if not review.accepted:
+        prop = "alias" if alias else "name"
+        entity.add(prop, review.source_value, lang=lang)
         return
 
     for field_name, prop in field_props:
@@ -319,7 +320,8 @@ def apply_reviewed_names(
         return
 
     if not name_needs_cleaning(entity, string):
-        entity.add("name", string, lang=lang)
+        prop = "alias" if alias else "name"
+        entity.add(prop, string, lang=lang)
         return
 
     names = clean_names(context, string)

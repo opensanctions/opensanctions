@@ -2,8 +2,16 @@ from structlog.testing import capture_logs
 
 from zavod.context import Context
 from zavod.entity import Entity
-from zavod.helpers import apply_name, make_name, name_needs_cleaning, split_comma_names
+from zavod.helpers import (
+    apply_name,
+    apply_reviewed_names,
+    make_name,
+    name_needs_cleaning,
+    split_comma_names,
+)
 from zavod.meta.dataset import Dataset
+from zavod.shed.names.split import SplitNames
+from zavod.stateful.review import Review, review_key
 
 
 def test_make_name():
@@ -128,3 +136,64 @@ def test_needs_cleaning(testdataset1: Dataset):
     assert name_needs_cleaning(org, "Company Ltd; Holding Company Ltd.")
     # Extra
     assert name_needs_cleaning(org, "Company Ltd, Holding Company Ltd.")
+
+
+def test_apply_reviewed_names_no_cleaning_needed(vcontext: Context):
+    """The original name is used."""
+
+    entity = vcontext.make("Person")
+    entity.id = "bla"
+    apply_reviewed_names(vcontext, entity, "Jim Doe")
+    assert entity.get("name") == ["Jim Doe"]
+    assert entity.get("alias") == []
+    entity.set("name", [])  # clear to test alias
+
+    apply_reviewed_names(vcontext, entity, "Jim Doe", alias=True)
+    assert entity.get("name") == []
+    assert entity.get("alias") == ["Jim Doe"]
+
+
+def test_apply_reviewed_names(vcontext: Context, requests_mock):
+    """
+    The original name is used.
+    A review is created but the unaccepted name(s) are not applied.
+    """
+
+    entity = vcontext.make("Person")
+    entity.id = "bla"
+    raw_name = "Jim Doe; James Doe"
+
+    requests_mock.post(
+        "https://api.openai.com/v1/chat/completions",
+        json=SplitNames(
+            full_name=["Jim Doe", "James Doe"],
+            alias=[],
+            weak_alias=[],
+            previous_name=[],
+        ).model_dump(),
+    )
+    apply_reviewed_names(vcontext, entity, raw_name)
+
+    # Until it's accepted, the original string is applied.
+    assert entity.get("name") == [raw_name]
+    assert entity.get("alias") == []
+    entity.set("name", [])  # clear to test alias
+    apply_reviewed_names(vcontext, entity, raw_name, alias=True)
+    assert entity.get("alias") == [raw_name]
+    assert entity.get("name") == []
+    entity.set("alias", [])  # clear to test after accept
+
+    # simulate accepting the review.
+    key = review_key(raw_name)
+    review = Review.by_key(vcontext.conn, SplitNames, vcontext.dataset.name, key)
+    review.accepted = True
+    review.save(vcontext.conn, new_revision=True)
+
+    apply_reviewed_names(vcontext, entity, raw_name)
+    assert set(entity.get("name")) == {"Jim Doe", "James Doe"}
+    assert entity.get("alias") == []
+    entity.set("name", [])  # clear to test alias
+
+    apply_reviewed_names(vcontext, entity, raw_name, alias=True)
+    assert entity.get("name") == []
+    assert set(entity.get("alias")) == {"Jim Doe", "James Doe"}
