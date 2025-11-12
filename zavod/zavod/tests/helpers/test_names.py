@@ -4,6 +4,7 @@ from structlog.testing import capture_logs
 
 from zavod.context import Context
 from zavod.entity import Entity
+from zavod.extract.names.clean import CleanNames
 from zavod.helpers import (
     apply_name,
     apply_reviewed_names,
@@ -12,7 +13,6 @@ from zavod.helpers import (
     split_comma_names,
 )
 from zavod.meta.dataset import Dataset
-from zavod.shed.names.clean import CleanNames
 from zavod.stateful.review import Review, review_key
 
 
@@ -157,7 +157,7 @@ def test_apply_reviewed_names_no_cleaning_needed(vcontext: Context):
 
 
 @patch("zavod.helpers.names.settings.CI", True)
-@patch("zavod.shed.names.clean.run_typed_text_prompt")
+@patch("zavod.extract.names.clean.run_typed_text_prompt")
 def test_apply_reviewed_names_ci_fallback(
     run_typed_text_prompt: MagicMock, vcontext: Context
 ):
@@ -182,7 +182,7 @@ def test_apply_reviewed_names_ci_fallback(
 
 
 @patch("zavod.helpers.names.settings.CI", False)
-@patch("zavod.shed.names.clean.run_typed_text_prompt")
+@patch("zavod.extract.names.clean.run_typed_text_prompt")
 def test_apply_reviewed_names(run_typed_text_prompt: MagicMock, vcontext: Context):
     """
     The original name is used.
