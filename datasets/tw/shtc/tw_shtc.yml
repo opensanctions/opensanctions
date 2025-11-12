@@ -32,6 +32,16 @@ data:
 tags:
   - list.regulatory
   - list.risk
+names:
+  LegalEntity:
+    dirty_phrases:
+      - alias
+      - affiliated
+      - 永久參考號
+      - 繁體中文
+      - 簡體中文
+    dirty_chars_extra: "()：:(）[]<>{}"
+    single_word: true
 
 assertions:
   min:

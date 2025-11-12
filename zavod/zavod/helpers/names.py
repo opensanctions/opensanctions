@@ -264,6 +264,11 @@ def name_needs_cleaning(entity: Entity, string: Optional[str]) -> bool:
             if char in string:
                 return True
 
+        # contains a known dirty phrase
+        for phrase in spec.dirty_phrases:
+            if phrase.lower() in string.lower():
+                return True
+
     # contains a known-as phrase
     if REGEX_KNOWN_AS.search(string):
         return True

@@ -582,3 +582,243 @@
 # Ministry of Defence of the Russian Federation, including the Armed Forces of Russia and all operating units wherever located. This includes the national armed services (army, navy, marine, air force, or coast guard), as well as the national guard and national police, government intelligence or reconnaissance organizations of the Russian Federation. All address located in Russia.
 # The Ministry of Defence of the Republic of Belarus, including the Armed Forces of Belarus and all operating units wherever located. This includes the national armed services (army and air force), as well as the national guard and national police, government intelligence or reconnaissance organizations of the Republic of Belarus. All addresses located in Belarus.
 # Department of Atomic Energy facilities: Nuclear reactors (including power plants) not under International Atomic Energy Agency (IAEA) safeguards (excluding Kundankulam 1 and 2)
+
+
+- string: Emily Liu   [ a.k.a. Emily Lau;  a.k.a. Liu Baoxia ]
+  full_name:
+    - Emily Liu
+  alias:
+    - Emily Lau
+    - Liu Baoxia
+- string: "GUILIN ALPHA RUBBER & PLASTICS TECHNOLOGY CO., LTD; \u7E41\u9AD4\u4E2D\u6587\
+    \uFF1A\u6842\u6797\u963F\u5C14\u6CD5\u6A61\u5851\u79D1\u6280\u6709\u9650\u516C\
+    \u53F8"
+  full_name:
+    - GUILIN ALPHA RUBBER & PLASTICS TECHNOLOGY CO., LTD
+    - "\u6842\u6797\u963F\u5C14\u6CD5\u6A61\u5851\u79D1\u6280\u6709\u9650\u516C\u53F8"
+- string: Allied Business Concerns (Pvt) Ltd.
+  full_name:
+    - Allied Business Concerns (Pvt) Ltd.
+- string: ISLAMIC STATE IN THE GREATER SAHARA (ISGS)
+  full_name:
+    - ISLAMIC STATE IN THE GREATER SAHARA
+  weak_alias:
+    - ISGS
+- string: 'MOHSEN; FAKHRIZADEH-MAHABADI alias:'
+  full_name:
+    - MOHSEN FAKHRIZADEH-MAHABADI
+- string: TOUS POUR LA PAIX ET LE DEVELOPPEMENT (NGO)
+  full_name:
+    - TOUS POUR LA PAIX ET LE DEVELOPPEMENT
+- string: Detail Technology (HK) Limited
+  full_name:
+    - Detail Technology (HK) Limited
+- string: IMAM KHOMEINI RELIEF COMMITTEE (LEBANON BRANCH)
+  full_name:
+    - IMAM KHOMEINI RELIEF COMMITTEE (LEBANON BRANCH)
+- string: CETC 36; CTRONICS Technology Group; Jiangnan Electronic Communications Research
+    Institute (JNECR)
+  full_name:
+    - CETC 36
+    - CTRONICS Technology Group
+    - Jiangnan Electronic Communications Research Institute
+  weak_alias:
+    - JNECR
+- string: COMPAGNIE AERIENNE DES GRANDS LACS (CAGL) ; GREAT LAKES BUSINESS COMPANY
+    (GLBC)
+  full_name:
+    - COMPAGNIE AERIENNE DES GRANDS LACS
+    - GREAT LAKES BUSINESS COMPANY
+  weak_alias:
+    - CAGL
+    - GLBC
+- string: "CHANG AN SHIPPING & TECHNOLOGY\uFF08\u6C38\u4E45\u53C3\u8003\u865F\uFF1A\
+    KPe.055\uFF09"
+  full_name:
+    - CHANG AN SHIPPING & TECHNOLOGY
+- string: 'ESFAHAN NUCLEAR FUEL RESEARCH AND PRODUCTION CENTRE (NFRPC) AND ESFAHAN
+    NUCLEAR TECHNOLOGY CENTRE (ENTC) alias:'
+  full_name:
+    - ESFAHAN NUCLEAR FUEL RESEARCH AND PRODUCTION CENTRE
+    - ESFAHAN NUCLEAR TECHNOLOGY CENTRE
+  weak_alias:
+    - NFRPC
+    - ENTC
+- string: Ascenso Talent; AMC Group (Pty) Ltd; Ascenso Flight Test
+  full_name:
+    - Ascenso Talent
+    - AMC Group (Pty) Ltd
+    - Ascenso Flight Test
+- string: "XAIC Tech (Xi\x92an) Industrial Co., Ltd."
+  full_name:
+    - "XAIC Tech (Xi\x92an) Industrial Co., Ltd."
+- string: "Islamic State in Iraq and Syria \u2013 Greater Sahara (ISIS-GS); Islamic\
+    \ State of Iraq and Syria \u2013 Greater Sahara (ISIS-GS); Islamic State of Iraq\
+    \ and the Levant - Greater Sahara (ISIL-GS); Islamic State of the Greater Sahel;\
+    \ ISIS in the Greater Sahel; ISIS in the Greater Sahara; ISIS in the Islamic Sahel"
+  full_name:
+    - "Islamic State in Iraq and Syria \u2013 Greater Sahara"
+    - "Islamic State of Iraq and Syria \u2013 Greater Sahara"
+    - Islamic State of Iraq and the Levant - Greater Sahara
+    - Islamic State of the Greater Sahel
+    - ISIS in the Greater Sahel
+    - ISIS in the Greater Sahara
+    - ISIS in the Islamic Sahel
+- string: "HUAXIN SHIPPING HONGKONG LTD\uFF08\u6C38\u4E45\u53C3\u8003\u865F\uFF1A\
+    KPe.059\uFF09"
+  full_name:
+    - HUAXIN SHIPPING HONGKONG LTD
+- string: "HENGSHUI HESHUO CELLULOSE CO., LTD.; \u7C21\u9AD4\u4E2D\u6587\uFF1A\u8861\
+    \u6C34\u548C\u7855\u7EA4\u7EF4\u7D20\u6709\u9650\u516C\u53F8"
+  full_name:
+    - HENGSHUI HESHUO CELLULOSE CO., LTD.
+    - "\u8861\u6C34\u548C\u7855\u7EA4\u7EF4\u7D20\u6709\u9650\u516C\u53F8"
+- string: "ANSAR AL-SHARI\u2019A IN TUNISIA (AAS-T)"
+  full_name:
+    - "ANSAR AL-SHARI\u2019A IN TUNISIA"
+  weak_alias:
+    - AAS-T
+- string: "WANG, Zhiqing; \u7C21\u9AD4\u4E2D\u6587\uFF1A\u738B\u5FD7\u6E05"
+  full_name:
+    - WANG, Zhiqing
+    - "\u738B\u5FD7\u6E05"
+- string: 'NASER; MALEKI alias:'
+  full_name:
+    - NASER MALEKI
+- string: ERDC Metal Paint Products (Pvt) Ltd; MPPL
+  full_name:
+    - ERDC Metal Paint Products (Pvt) Ltd
+  weak_alias:
+    - MPPL
+- string: Metal Paint Products (Pvt) Ltd
+  full_name:
+    - Metal Paint Products (Pvt) Ltd
+- string: "CATHAY HARVEST MARINE LTD; \u7E41\u9AD4\u4E2D\u6587\uFF1A\u570B\u8C50\u6D77\
+    \u904B\u6709\u9650\u516C\u53F8"
+  full_name:
+    - CATHAY HARVEST MARINE LTD
+    - "\u570B\u8C50\u6D77\u904B\u6709\u9650\u516C\u53F8"
+- string: "WEIHAI WORLD-SHPPING FREIGHT\uFF08\u6C38\u4E45\u53C3\u8003\u865F\uFF1A\
+    KPe.074\uFF09"
+  full_name:
+    - WEIHAI WORLD-SHPPING FREIGHT
+- string: 'Huawei Technologies Co., Ltd. (Huawei).  Affiliated Entity: Huawei Mobile
+    Technology Ltd.'
+  full_name:
+    - Huawei Technologies Co., Ltd.
+    - Huawei Mobile Technology Ltd.
+  alias:
+    - Huawei
+- string: "IZZITION E-TECHNOLOGY CO., LIMITED; \u7E41\u9AD4\u4E2D\u6587\uFF1A\u4F0A\
+    \u5947\u4FE1\u96FB\u5B50\u79D1\u6280\u6709\u9650\u516C\u53F8"
+  full_name:
+    - IZZITION E-TECHNOLOGY CO., LIMITED
+    - "\u4F0A\u5947\u4FE1\u96FB\u5B50\u79D1\u6280\u6709\u9650\u516C\u53F8"
+- string: 'ABD EL KADER; MAHMOUD; MOHAMED; EL SAYED alias: Es Sayed, Kader; Abdel
+    Khader Mahmoud Mohamed el Sayed'
+  full_name:
+    - ABD EL KADER MAHMOUD MOHAMED EL SAYED
+  alias:
+    - Abdel Khader Mahmoud Mohamed el Sayed
+  weak_alias:
+    - Es Sayed
+    - Kader
+- string: 'IMENSAZAN CONSULTANT ENGINEERS INSTITUTE alias:'
+  full_name:
+    - IMENSAZAN CONSULTANT ENGINEERS INSTITUTE
+- string: AccoTest Technology Co., Ltd. (Hong Kong)
+  full_name:
+    - AccoTest Technology Co., Ltd. (Hong Kong)
+- string: "KOREA MYONGDOK SHIPPING CO\uFF08\u6C38\u4E45\u53C3\u8003\u865F\uFF1AKPe.063\uFF09"
+  full_name:
+    - KOREA MYONGDOK SHIPPING CO
+- string: Zhongke Jingyuan Microelectronics Technology (Beijing) Co., Ltd.; Casue
+  full_name:
+    - Zhongke Jingyuan Microelectronics Technology (Beijing) Co., Ltd. Casue
+- string: 'SHAFI; SULTAN; MOHAMMED; AL-AJMI alias: Shafi al-Ajmi; Sheikh Shafi al-Ajmi;
+    Shaykh Abu-Sultan'
+  full_name:
+    - SHAFI SULTAN MOHAMMED AL-AJMI
+  alias:
+    - Shafi al-Ajmi
+    - Sheikh Shafi al-Ajmi
+    - Shaykh Abu-Sultan
+- string: Superchip Ltd; Superchip (HK) Limited
+  full_name:
+    - Superchip Ltd
+    - Superchip (HK) Limited
+- string: "SHANDONG HUAGUANG OPTOELECTRONICS CO. LTD; \u7C21\u9AD4\u4E2D\u6587\uFF1A\
+    \u5C71\u4E1C\u534E\u5149\u5149\u7535\u5B50\u80A1\u4EFD\u6709\u9650\u516C\u53F8"
+  full_name:
+    - SHANDONG HUAGUANG OPTOELECTRONICS CO. LTD
+    - "\u5C71\u4E1C\u534E\u5149\u5149\u7535\u5B50\u80A1\u4EFD\u6709\u9650\u516C\u53F8"
+- string: Joint Stock Company Nevskoe Design Bureau, a.k.a, the following ten aliases
+  full_name:
+    - Joint Stock Company Nevskoe Design Bureau
+- string: "CHENGDU KEYLINK WIRELESS TECHNOLOGY CO., LTD; \u7C21\u9AD4\u4E2D\u6587\uFF1A\
+    \u6210\u90FD\u5E02\u536B\u83B1\u79D1\u6280\u6709\u9650\u516C\u53F8"
+  full_name:
+    - CHENGDU KEYLINK WIRELESS TECHNOLOGY CO., LTD
+    - "\u6210\u90FD\u5E02\u536B\u83B1\u79D1\u6280\u6709\u9650\u516C\u53F8"
+- string: The Business World (TBW)
+  full_name:
+    - The Business World
+  weak_alias:
+    - TBW
+- string: "SHANGYIYUAN RESOURCES QINGDAO CO LTD; \u7C21\u9AD4\u4E2D\u6587\uFF1A\u4E0A\
+    \u610F\u6E90\u8D44\u6E90 \u9752\u5C9B \u6709\u9650\u516C\u53F8"
+  full_name:
+    - SHANGYIYUAN RESOURCES QINGDAO CO LTD
+    - "\u4E0A\u610F\u6E90\u8D44\u6E90 \u9752\u5C9B \u6709\u9650\u516C\u53F8"
+- string: 'Huawei Technologies Co., Ltd. (Huawei).  Affiliated Entity:  Huawei Marine
+    Networks Co., Ltd.'
+  full_name:
+    - Huawei Technologies Co., Ltd.
+    - Huawei Marine Networks Co., Ltd.
+  alias:
+    - Huawei
+- string: "HUALI BANK; \u7C21\u9AD4\u4E2D\u6587\uFF1A\u671D\u9C9C\u534E\u4E3D\u94F6\
+    \u884C; HWARYO BANK; GORGEOUS BANK OF NORTH KOREA; BRILLIANCE BANKING CORPORATION,\
+    \ LTD."
+  full_name:
+    - HUALI BANK
+    - HWARYO BANK
+    - GORGEOUS BANK OF NORTH KOREA
+    - BRILLIANCE BANKING CORPORATION, LTD.
+    - "\u671D\u9C9C\u534E\u4E3D\u94F6\u884C"
+- string: Cambricon (Nanjing) Information Technology Co., Ltd.
+  full_name:
+    - Cambricon (Nanjing) Information Technology Co., Ltd.
+- string: "TURPAMI LIMITED; \u7E41\u9AD4\u4E2D\u6587\uFF1A\u5857\u723E\u6F58\u6709\
+    \u9650\u516C\u53F8"
+  full_name:
+    - TURPAMI LIMITED
+    - "\u5857\u723E\u6F58\u6709\u9650\u516C\u53F8"
+- string: 'AMIR; RAHIMI alias:'
+  full_name:
+    - AMIR RAHIMI
+- string: "SHEN ZHONG INTERNATIONAL SHPG; \u7E41\u9AD4\u4E2D\u6587\uFF1A\u6C88\u5FE0\
+    \u570B\u969B\u6D77\u904B\u6709\u9650\u516C\u53F8"
+  full_name:
+    - SHEN ZHONG INTERNATIONAL SHPG
+    - "\u6C88\u5FE0\u570B\u969B\u6D77\u904B\u6709\u9650\u516C\u53F8"
+- string: "KOREA SAMJONG SHIPPING\uFF08\u6C38\u4E45\u53C3\u8003\u865F\uFF1AKPe.064\uFF09"
+  full_name:
+    - KOREA SAMJONG SHIPPING
+- string: 'SEYYED HUSSEIN; HOSSEINI alias: Syed Husain Husaini; Syed Husein Huseini'
+  full_name:
+    - SEYYED HUSSEIN HOSSEINI
+  alias:
+    - Syed Husain Husaini
+    - Syed Husein Huseini
+- string: Zhiwei Semiconductor (Shanghai) Co., Ltd.
+  full_name:
+    - Zhiwei Semiconductor (Shanghai) Co., Ltd.
+- string: 'KAVEH CUTTING TOOLS COMPANY alias:'
+  full_name:
+    - KAVEH CUTTING TOOLS COMPANY
+- string: "ZHOUSHAN WISON OFFSHORE AND MARINE CO LTD; \u7C21\u9AD4\u4E2D\u6587\uFF1A\
+    \u821F\u5C71\u60E0\u751F\u6D77\u6D0B\u5DE5\u7A0B\u6709\u9650\u516C\u53F8"
+  full_name:
+    - ZHOUSHAN WISON OFFSHORE AND MARINE CO LTD
+    - "\u821F\u5C71\u60E0\u751F\u6D77\u6D0B\u5DE5\u7A0B\u6709\u9650\u516C\u53F8"

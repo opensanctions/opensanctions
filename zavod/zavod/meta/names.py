@@ -18,6 +18,7 @@ class CleaningSpec(BaseModel):
 
     Use this if you don't want to override the standard characters.
     """
+    dirty_phrases: List[str] = []
 
 
 class NamesSpec(RootModel[Dict[str, CleaningSpec]]):

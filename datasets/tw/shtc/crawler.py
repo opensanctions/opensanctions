@@ -1,5 +1,6 @@
 import csv
 import re
+from random import shuffle
 from typing import List, Optional, Tuple
 
 import datapatch
@@ -41,7 +42,7 @@ NAME_SPLITS = [
     "繁體中文：",  # Traditional Chinese:
     "簡體中文：",  # Simplified Chinese:
 ]
-PERMANENT_ID_RE = re.compile(r"^(?P<name>.+?)（永久參考號：(?P<unsc_num>.+?)）$")
+PERMANENT_ID_RE = re.compile(r"（(?P<unsc_match>永久參考號：(?P<unsc_num>.+?))）$")
 # This is not trying to be secure against XSS, it's just basic cleaning of html from a CSV string
 HTML_RE = re.compile(r"<[^>]+>")
 
@@ -65,71 +66,6 @@ def apply_details_override(
     entity.add("phone", details.get("telephone"))
 
 
-def clean_names(
-    context: Context, names_str: str, aliases_str: str
-) -> Tuple[List[str], List[str], List[str], Optional[str]]:
-    names = []
-    aliases = []
-    unsc_num = None
-
-    # Deal with UNSC numbers in names
-    perm_id_match = PERMANENT_ID_RE.match(names_str)
-    if perm_id_match:
-        names_str = perm_id_match.group("name")
-        unsc_num = perm_id_match.group("unsc_num")
-    if "永久參考號" in names_str:
-        context.log.warning(
-            "Failed to separate name and UNSC number", names_str=names_str
-        )
-
-    names_str = HTML_RE.sub("", names_str)
-    aliases_str = HTML_RE.sub("", aliases_str)
-
-    # In names_str, we sometimes have the aliases appended to the name, e.g. "John Doe alias: John Doe Jr.)"
-    # In this case, the aliases are repeated in the aliases_str, so we can just ignore
-    # everything after the "alias: " in names_str.
-    if "alias:" in names_str:
-        names_str, aliases_in_names_str = names_str.split("alias:", 1)
-        aliases_in_names_str = aliases_in_names_str.strip()
-        if aliases_in_names_str != aliases_str:
-            context.log.warning(
-                "Found aliases in names string, but they are not the same as the aliases in the aliases string. "
-                "Please check if we need to re-work the crawler to also add aliases from the names string.",
-                aliases_in_names_str=aliases_in_names_str,
-                aliases_str=aliases_str,
-            )
-
-    split_names = h.multi_split(names_str, NAME_SPLITS)
-    # initially just add multipart names
-    names.extend([name for name in split_names if len(name.split()) > 1])
-    single_part_names = [name for name in split_names if len(name.split()) == 1]
-
-    split_aliases = h.multi_split(aliases_str, NAME_SPLITS)
-    # initially just add multipart aliases
-    aliases.extend([alias for alias in split_aliases if len(alias.split()) > 1])
-    single_part_aliases = [alias for alias in split_aliases if len(alias.split()) == 1]
-
-    for name in single_part_names:
-        # Skip single part names that are already in multipart names,
-        # e.g. Abdul in Abdul Kader
-        if any(contains_part(name, added) for added in names):
-            continue
-        # Prefer putting single-part names that also occur in aliases into aliases
-        if name in single_part_aliases:
-            continue
-        names.append(name)
-
-    for alias in single_part_aliases:
-        # Skip single part alises that are already in a multipart name or alias
-        if any(contains_part(alias, added) for added in names):
-            continue
-        if any(contains_part(alias, added) for added in aliases):
-            continue
-        aliases.append(alias)
-
-    return names, aliases, unsc_num
-
-
 def crawl_row(context: Context, row):
     names_str = row.pop("名稱name")
     aliases_str = row.pop("別名alias")
@@ -139,9 +75,8 @@ def crawl_row(context: Context, row):
     entity = context.make("LegalEntity")
     entity.id = context.make_id(names_str, aliases_str)
 
-    names, aliases, unsc_num = clean_names(context, names_str, aliases_str)
-    entity.add("name", names)
-    entity.add("alias", aliases)
+    h.apply_reviewed_names(context, entity, names_str)
+    h.apply_reviewed_names(context, entity, aliases_str, alias=True)
 
     for address in h.multi_split(row.pop("地址address"), ADDRESS_SPLITS):
         # Generic override to map more details in the address field
@@ -163,10 +98,10 @@ def crawl_row(context: Context, row):
         entity.add("country", country)
     entity.add("topics", "export.control")
 
-    if unsc_num:
-        sanction = h.make_sanction(context, entity)
-        sanction.add("unscId", unsc_num)
-        context.emit(sanction)
+    # if unsc_num:
+    #    sanction = h.make_sanction(context, entity)
+    #    sanction.add("unscId", unsc_num)
+    #    context.emit(sanction)
 
     context.emit(entity)
     context.audit_data(
@@ -194,9 +129,11 @@ def crawl(context: Context):
     h.assert_url_hash(context, url[0], "d046359c5be70faccb040a94035bba54faff6e80")
 
     # Crawl the CSV file
-    path = context.fetch_resource("shtc_list.csv", context.data_url)
+    path = context.fetch_resource("source.csv", context.data_url)
     context.export_resource(path, mime_type=CSV, title=context.SOURCE_TITLE)
     # utf-8-sig filters out weird Microsoft BOM artifacts
     with open(path, "rt", encoding="utf-8-sig") as infh:
-        for row in csv.DictReader(infh):
+        rows = list(csv.DictReader(infh))
+        shuffle(rows)
+        for row in rows:
             crawl_row(context, row)
