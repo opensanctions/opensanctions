@@ -27,6 +27,7 @@ PROVISION_FIELDS = [
 
 def clean_date(date):
     splits = [
+        "Approximately",
         ", and,",
         " and ",
         "g), ",
