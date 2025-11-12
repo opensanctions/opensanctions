@@ -1,8 +1,8 @@
 from functools import cache
 from typing import List
 
+from zavod.extract.names.clean import LLM_MODEL_VERSION, SINGLE_ENTITY_PROGRAM_PATH
 from zavod.settings import OPENAI_API_KEY
-from zavod.shed.names.clean import LLM_MODEL_VERSION, SINGLE_ENTITY_PROGRAM_PATH
 
 import dspy  # type: ignore
 

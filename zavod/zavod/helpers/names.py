@@ -8,13 +8,13 @@ from rigour.data.names import data
 from zavod import settings
 from zavod.context import Context
 from zavod.entity import Entity
-from zavod.shed.names.clean import (
+from zavod.extract.names.clean import (
     LLM_MODEL_VERSION,
     CleanNames,
 )
 
 # alias clean_names so that it could be imported from here
-from zavod.shed.names.clean import clean_names as clean_names
+from zavod.extract.names.clean import clean_names as clean_names
 from zavod.stateful.review import (
     Review,
     TextSourceValue,
