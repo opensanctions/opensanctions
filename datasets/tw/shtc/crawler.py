@@ -1,6 +1,6 @@
 import csv
 import re
-from typing import List, Optional, Tuple
+from typing import Set
 
 import datapatch
 from rigour.mime.types import CSV
@@ -36,14 +36,11 @@ ADDRESS_SPLITS = [
     "Branch Office 15:",
     "Branch Office 16:",
 ]
-NAME_SPLITS = [
-    ";",
+NAME_CHINESE = [
     "繁體中文：",  # Traditional Chinese:
     "簡體中文：",  # Simplified Chinese:
 ]
 PERMANENT_ID_RE = re.compile(r"^(?P<name>.+?)（永久參考號：(?P<unsc_num>.+?)）$")
-# This is not trying to be secure against XSS, it's just basic cleaning of html from a CSV string
-HTML_RE = re.compile(r"<[^>]+>")
 
 
 def contains_part(part: str, name: str) -> bool:
@@ -65,31 +62,31 @@ def apply_details_override(
     entity.add("phone", details.get("telephone"))
 
 
-def clean_names(
-    context: Context, names_str: str, aliases_str: str
-) -> Tuple[List[str], List[str], List[str], Optional[str]]:
-    names = []
-    aliases = []
-    unsc_num = None
-
+def parse_names(context: Context, entity: Entity, names_str: str, aliases_str: str):
     # Deal with UNSC numbers in names
     perm_id_match = PERMANENT_ID_RE.match(names_str)
     if perm_id_match:
-        names_str = perm_id_match.group("name")
+        names_str = perm_id_match.group("name").strip()
         unsc_num = perm_id_match.group("unsc_num")
+        if unsc_num is not None and len(unsc_num) > 3:
+            sanction = h.make_sanction(context, entity)
+            sanction.add("unscId", unsc_num)
+            context.emit(sanction)
+
     if "永久參考號" in names_str:
         context.log.warning(
             "Failed to separate name and UNSC number", names_str=names_str
         )
 
-    names_str = HTML_RE.sub("", names_str)
-    aliases_str = HTML_RE.sub("", aliases_str)
+    aliases_str = aliases_str.replace("<span   id='alias'>", "")
+    aliases_str = aliases_str.replace("；", ";")  # Chinese semicolon
+    names_str = names_str.replace("；", ";")  # Chinese semicolon
 
     # In names_str, we sometimes have the aliases appended to the name, e.g. "John Doe alias: John Doe Jr.)"
     # In this case, the aliases are repeated in the aliases_str, so we can just ignore
     # everything after the "alias: " in names_str.
-    if "alias:" in names_str:
-        names_str, aliases_in_names_str = names_str.split("alias:", 1)
+    if " alias:" in names_str:
+        names_str, aliases_in_names_str = names_str.split(" alias:", 1)
         aliases_in_names_str = aliases_in_names_str.strip()
         if aliases_in_names_str != aliases_str:
             context.log.warning(
@@ -99,49 +96,66 @@ def clean_names(
                 aliases_str=aliases_str,
             )
 
-    split_names = h.multi_split(names_str, NAME_SPLITS)
-    # initially just add multipart names
-    names.extend([name for name in split_names if len(name.split()) > 1])
-    single_part_names = [name for name in split_names if len(name.split()) == 1]
+    for split in NAME_CHINESE:
+        split = f"; {split}"
+        if split in names_str:
+            names_str, chinese_name = names_str.split(split, 1)
+            entity.add("alias", chinese_name.strip(), lang="zho")
 
-    split_aliases = h.multi_split(aliases_str, NAME_SPLITS)
-    # initially just add multipart aliases
-    aliases.extend([alias for alias in split_aliases if len(alias.split()) > 1])
-    single_part_aliases = [alias for alias in split_aliases if len(alias.split()) == 1]
+    names_str = names_str.strip()
+    entity.add("name", names_str)
 
-    for name in single_part_names:
-        # Skip single part names that are already in multipart names,
-        # e.g. Abdul in Abdul Kader
-        if any(contains_part(name, added) for added in names):
+    aliases: Set[str] = set()
+    for alias in aliases_str.split(";"):
+        alias = alias.strip()
+        if len(alias) == 0:
             continue
-        # Prefer putting single-part names that also occur in aliases into aliases
-        if name in single_part_aliases:
-            continue
-        names.append(name)
+        for split in NAME_CHINESE:
+            splitted = alias.split(split, 1)
+            if len(splitted) > 1:
+                _, chinese_alias = splitted
+                entity.add("alias", chinese_alias.strip(), lang="zho")
+                break
+        else:
+            # TODO: Send to review
+            if len(alias) < 8:
+                entity.add("weakAlias", alias)
+                continue
+            # TODO: Send to review
+            # if " " not in alias:
+            #     context.log.warning("Strange alias", alias=alias)
+            aliases.add(alias)
 
-    for alias in single_part_aliases:
-        # Skip single part alises that are already in a multipart name or alias
-        if any(contains_part(alias, added) for added in names):
-            continue
-        if any(contains_part(alias, added) for added in aliases):
-            continue
-        aliases.append(alias)
+    if " " not in names_str and len(aliases):
+        prev_name = names_str
+        longest_alias = max(aliases, key=len)
+        if len(longest_alias) > len(names_str):
+            if names_str not in longest_alias:
+                aliases.add(names_str)
+            names_str = longest_alias
+            context.log.info(
+                "Promoting longest alias to name", name=names_str, prev_name=prev_name
+            )
 
-    return names, aliases, unsc_num
+    entity.add("name", names_str)
+    for alias in aliases:
+        if alias != names_str:
+            entity.add("alias", alias)
 
 
 def crawl_row(context: Context, row):
-    names_str = row.pop("名稱name")
-    aliases_str = row.pop("別名alias")
-    if not any([names_str, aliases_str]):
+    # Running number, too unstable to build and ID from.
+    item = row.pop("項次item", None)
+    assert item is not None, "Missing item number"
+    names_str = row.pop("名稱name").strip()
+    aliases_str = row.pop("別名alias").strip()
+    if len(names_str) == 0 and len(aliases_str) == 0:
         return
 
     entity = context.make("LegalEntity")
     entity.id = context.make_id(names_str, aliases_str)
 
-    names, aliases, unsc_num = clean_names(context, names_str, aliases_str)
-    entity.add("name", names)
-    entity.add("alias", aliases)
+    parse_names(context, entity, names_str, aliases_str)
 
     for address in h.multi_split(row.pop("地址address"), ADDRESS_SPLITS):
         # Generic override to map more details in the address field
@@ -163,19 +177,8 @@ def crawl_row(context: Context, row):
         entity.add("country", country)
     entity.add("topics", "export.control")
 
-    if unsc_num:
-        sanction = h.make_sanction(context, entity)
-        sanction.add("unscId", unsc_num)
-        context.emit(sanction)
-
     context.emit(entity)
-    context.audit_data(
-        row,
-        [
-            # Running number, too unstable to build and ID from.
-            "項次item"
-        ],
-    )
+    context.audit_data(row)
 
 
 def crawl(context: Context):
