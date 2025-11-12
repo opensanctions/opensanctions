@@ -8,6 +8,7 @@ from zavod.entity import Entity
 
 log = get_logger(__name__)
 USER = "zavod/logic"
+UNIQUE_DATASETS = {"us_ofac_sdn", "eu_fsf", "un_sc_sanctions"}
 
 
 def logic_unique(
@@ -17,15 +18,17 @@ def logic_unique(
     right: Entity,
     score: float,
 ) -> Optional[float]:
-    """We consider the legal entities on the US OFAC SDN to be de jure different."""
-    if not common.is_a("LegalEntity"):
+    """We consider the legal entities on the given unique lists to be, de jure, different."""
+    if common.is_a("Address"):
         return score
-    if "us_ofac_sdn" in left.datasets and "us_ofac_sdn" in right.datasets:
+    both = left.datasets.intersection(right.datasets)
+    uniques = both.intersection(UNIQUE_DATASETS)
+    if len(uniques) > 0:
         if left.id is not None and right.id is not None:
-            log.info("OFAC negative match: %s %s" % (left.id, right.id))
+            scope = "|".join(sorted(uniques))
+            log.info(f"{scope} negative match: {left.id} <> {right.id}")
             resolver.decide(left.id, right.id, Judgement.NEGATIVE, user=USER)
             return None
-    # TODO: should this be true of UN SC as well?
     return score
 
 
