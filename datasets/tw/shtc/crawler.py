@@ -1,10 +1,16 @@
 import csv
 import re
-from typing import Set
+from typing import List, Set
 
 import datapatch
+from pydantic import BaseModel
 from rigour.mime.types import CSV
 from zavod.shed.zyte_api import fetch_html
+from zavod.stateful.review import (
+    TextSourceValue,
+    assert_all_accepted,
+    review_extraction,
+)
 
 from zavod import Context, Entity
 from zavod import helpers as h
@@ -41,6 +47,13 @@ NAME_CHINESE = [
     "簡體中文：",  # Simplified Chinese:
 ]
 PERMANENT_ID_RE = re.compile(r"^(?P<name>.+?)（永久參考號：(?P<unsc_num>.+?)）$")
+SUSPECT_CHAR_RE = re.compile(r"[()（）]")
+
+
+class Names(BaseModel):
+    primary_name: str
+    aliases: List[str] = []
+    weak_aliases: List[str] = []
 
 
 def contains_part(part: str, name: str) -> bool:
@@ -62,8 +75,10 @@ def apply_details_override(
     entity.add("phone", details.get("telephone"))
 
 
-def parse_names(context: Context, entity: Entity, names_str: str, aliases_str: str):
-    primary_name = names_str.strip()
+def parse_names(
+    context: Context, item_num: str, entity: Entity, names_raw: str, aliases_raw: str
+):
+    primary_name = names_raw.strip()
     # Deal with UNSC numbers in names
     perm_id_match = PERMANENT_ID_RE.match(primary_name)
     if perm_id_match:
@@ -76,12 +91,13 @@ def parse_names(context: Context, entity: Entity, names_str: str, aliases_str: s
 
     if "永久參考號" in primary_name:
         context.log.warning(
-            "Failed to separate name and UNSC number", names_str=names_str
+            "Failed to separate name and UNSC number", names_raw=names_raw
         )
 
-    aliases_str = aliases_str.replace("<span   id='alias'>", "")
+    aliases_str = aliases_raw.replace("<span   id='alias'>", "")
     aliases_str = aliases_str.replace("；", ";")  # Chinese semicolon
     primary_name = primary_name.replace("；", ";")  # Chinese semicolon
+    needs_review = False
 
     if " alias:" in primary_name:
         primary_name, aliases_in_names_str = primary_name.split(" alias:", 1)
@@ -101,6 +117,7 @@ def parse_names(context: Context, entity: Entity, names_str: str, aliases_str: s
             entity.add("alias", chinese_name.strip(), lang="zho")
 
     aliases: Set[str] = set()
+    weak_aliases: Set[str] = set()
     for alias in aliases_str.split(";"):
         alias = alias.strip()
         if len(alias) == 0:
@@ -112,13 +129,15 @@ def parse_names(context: Context, entity: Entity, names_str: str, aliases_str: s
                 entity.add("alias", chinese_alias.strip(), lang="zho")
                 break
         else:
-            # TODO: Send to review
             if len(alias) < 8:
-                entity.add("weakAlias", alias)
+                needs_review = True
+                weak_aliases.add(alias)
                 continue
-            # TODO: Send to review
-            # if " " not in alias:
-            #     context.log.warning("Strange alias", alias=alias)
+
+            if " " not in alias:
+                needs_review = True
+            if SUSPECT_CHAR_RE.search(alias):
+                needs_review = True
             aliases.add(alias)
 
     primary_name = primary_name.strip()
@@ -135,17 +154,40 @@ def parse_names(context: Context, entity: Entity, names_str: str, aliases_str: s
                 prev_name=prev_name,
             )
 
-    entity.add("name", primary_name)
+    names = Names(
+        primary_name=primary_name,
+        aliases=list(aliases),
+        weak_aliases=list(weak_aliases),
+    )
+    source_text = f"item: {item_num}\nnames: {names_raw}\naliases: {aliases_raw}"
+    source_value = TextSourceValue(
+        key_parts=[names_raw, aliases_raw],
+        label="Sanction item",
+        text=source_text,
+    )
+    if needs_review:
+        review = review_extraction(
+            context,
+            source_value=source_value,
+            original_extraction=names,
+            origin="SHTCEntityList.csv",
+        )
+        if review.accepted:
+            names = review.extracted_data
 
-    for alias in aliases:
-        if alias != primary_name:
+    entity.add("name", names.primary_name)
+
+    for alias in names.aliases:
+        if alias != names.primary_name:
             entity.add("alias", alias)
+    for weak_alias in names.weak_aliases:
+        entity.add("weakAlias", weak_alias)
 
 
 def crawl_row(context: Context, row):
     # Running number, too unstable to build and ID from.
-    item = row.pop("項次item", None)
-    assert item is not None, "Missing item number"
+    item_num = row.pop("項次item", None)
+    assert item_num is not None, "Missing item number"
     names_str = row.pop("名稱name").strip()
     aliases_str = row.pop("別名alias").strip()
     if len(names_str) == 0 and len(aliases_str) == 0:
@@ -154,7 +196,7 @@ def crawl_row(context: Context, row):
     entity = context.make("LegalEntity")
     entity.id = context.make_id(names_str, aliases_str)
 
-    parse_names(context, entity, names_str, aliases_str)
+    parse_names(context, item_num, entity, names_str, aliases_str)
 
     for address in h.multi_split(row.pop("地址address"), ADDRESS_SPLITS):
         # Generic override to map more details in the address field
@@ -202,3 +244,5 @@ def crawl(context: Context):
     with open(path, "rt", encoding="utf-8-sig") as infh:
         for row in csv.DictReader(infh):
             crawl_row(context, row)
+
+    assert_all_accepted(context, raise_on_unaccepted=False)
