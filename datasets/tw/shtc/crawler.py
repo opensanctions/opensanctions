@@ -63,30 +63,28 @@ def apply_details_override(
 
 
 def parse_names(context: Context, entity: Entity, names_str: str, aliases_str: str):
+    primary_name = names_str.strip()
     # Deal with UNSC numbers in names
-    perm_id_match = PERMANENT_ID_RE.match(names_str)
+    perm_id_match = PERMANENT_ID_RE.match(primary_name)
     if perm_id_match:
-        names_str = perm_id_match.group("name").strip()
+        primary_name = perm_id_match.group("name").strip()
         unsc_num = perm_id_match.group("unsc_num")
         if unsc_num is not None and len(unsc_num) > 3:
             sanction = h.make_sanction(context, entity)
             sanction.add("unscId", unsc_num)
             context.emit(sanction)
 
-    if "永久參考號" in names_str:
+    if "永久參考號" in primary_name:
         context.log.warning(
             "Failed to separate name and UNSC number", names_str=names_str
         )
 
     aliases_str = aliases_str.replace("<span   id='alias'>", "")
     aliases_str = aliases_str.replace("；", ";")  # Chinese semicolon
-    names_str = names_str.replace("；", ";")  # Chinese semicolon
+    primary_name = primary_name.replace("；", ";")  # Chinese semicolon
 
-    # In names_str, we sometimes have the aliases appended to the name, e.g. "John Doe alias: John Doe Jr.)"
-    # In this case, the aliases are repeated in the aliases_str, so we can just ignore
-    # everything after the "alias: " in names_str.
-    if " alias:" in names_str:
-        names_str, aliases_in_names_str = names_str.split(" alias:", 1)
+    if " alias:" in primary_name:
+        primary_name, aliases_in_names_str = primary_name.split(" alias:", 1)
         aliases_in_names_str = aliases_in_names_str.strip()
         if aliases_in_names_str != aliases_str:
             context.log.warning(
@@ -98,12 +96,9 @@ def parse_names(context: Context, entity: Entity, names_str: str, aliases_str: s
 
     for split in NAME_CHINESE:
         split = f"; {split}"
-        if split in names_str:
-            names_str, chinese_name = names_str.split(split, 1)
+        if split in primary_name:
+            primary_name, chinese_name = primary_name.split(split, 1)
             entity.add("alias", chinese_name.strip(), lang="zho")
-
-    names_str = names_str.strip()
-    entity.add("name", names_str)
 
     aliases: Set[str] = set()
     for alias in aliases_str.split(";"):
@@ -126,20 +121,24 @@ def parse_names(context: Context, entity: Entity, names_str: str, aliases_str: s
             #     context.log.warning("Strange alias", alias=alias)
             aliases.add(alias)
 
-    if " " not in names_str and len(aliases):
-        prev_name = names_str
+    primary_name = primary_name.strip()
+    if " " not in primary_name and len(aliases):
+        prev_name = primary_name
         longest_alias = max(aliases, key=len)
-        if len(longest_alias) > len(names_str):
-            if names_str not in longest_alias:
-                aliases.add(names_str)
-            names_str = longest_alias
+        if len(longest_alias) > len(primary_name):
+            if primary_name not in longest_alias:
+                aliases.add(primary_name)
+            primary_name = longest_alias
             context.log.info(
-                "Promoting longest alias to name", name=names_str, prev_name=prev_name
+                "Promoting longest alias to name",
+                name=primary_name,
+                prev_name=prev_name,
             )
 
-    entity.add("name", names_str)
+    entity.add("name", primary_name)
+
     for alias in aliases:
-        if alias != names_str:
+        if alias != primary_name:
             entity.add("alias", alias)
 
 
