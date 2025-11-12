@@ -159,7 +159,7 @@ def parse_names(
         aliases=list(aliases),
         weak_aliases=list(weak_aliases),
     )
-    source_text = f"item: {item_num}\nnames: {names_raw}\naliases: {aliases_raw}"
+    source_text = f"names: {names_raw}\naliases: {aliases_raw}"
     source_value = TextSourceValue(
         key_parts=[names_raw, aliases_raw],
         label="Sanction item",
