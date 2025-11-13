@@ -1,6 +1,8 @@
+from datetime import datetime as dt
 from typing import List, Literal
 
 from pydantic import BaseModel, Field
+from zavod.shed import enforcements
 from zavod.shed.gpt import DEFAULT_MODEL, run_typed_text_prompt
 from zavod.stateful.review import (
     HtmlSourceValue,
@@ -21,6 +23,7 @@ schema_field = Field(
 class Offender(BaseModel):
     entity_schema: Schema = schema_field
     name: str
+    aliases: List[str] = []
     address: List[str] = []
     country: List[str] = []
 
@@ -38,8 +41,9 @@ If the name refers to an individual person, use Person as the entity_schema.
 
 Specific fields:
 
-- name: The name of the entity precisely as expressed in the text.
 - entity_schema: {schema_field.description}
+- name: The name of the entity precisely as expressed in the text.
+- aliases: ONLY extract aliases that follow an explicit indication of an _alternative_ name, such as "also known as", "alias", "formerly", "aka", "fka". Otherwise the aliases field should just be an empty array.
 - address: The full address or location details as they appear in the article (do not split into components; capture the complete expression such as “123 Main Street, Birmingham”).
 - country: Any countries the entity is indicated to reside, operate, or have been born or registered in. Leave empty if not explicitly stated.
 """
@@ -86,6 +90,7 @@ def crawl_enforcement_action(context: Context, url: str) -> None:
         entity = context.make(item.entity_schema)
         entity.id = context.make_id(item.name, str(item.address), str(item.country))
         entity.add("name", item.name, origin=review.origin)
+        entity.add("alias", item.aliases, origin=review.origin)
         if item.address != item.country:
             entity.add("address", item.address, origin=review.origin)
         entity.add("country", item.country, origin=review.origin)
@@ -97,13 +102,19 @@ def crawl_enforcement_action(context: Context, url: str) -> None:
         )
         # The date is absent in some articles
         if dates != []:
-            date = dates[0]
+            raw_date = str(dates[0])  # 03 October 2025
+            parsed_date = dt.strptime(raw_date, "%d %B %Y")
+            if not enforcements.within_max_age(context, parsed_date):
+                continue
+
         # We use the date as a key to make sure notices about separate actions are separate sanction entities
-        sanction = h.make_sanction(context, entity, date)
-        h.apply_date(sanction, "date", date)
+        sanction = h.make_sanction(context, entity, raw_date)
+        h.apply_date(sanction, "date", raw_date)
         sanction.set("sourceUrl", url)
 
-        article = h.make_article(context, url, title=article_name, published_at=date)
+        article = h.make_article(
+            context, url, title=article_name, published_at=raw_date
+        )
         documentation = h.make_documentation(context, entity, article)
 
         context.emit(entity)
@@ -114,14 +125,17 @@ def crawl_enforcement_action(context: Context, url: str) -> None:
 
 def crawl(context: Context):
     index_url = context.data_url
+    seen: set[str] = set()
     while index_url:
+        # Avoid infinite loops in case of pagination issues
+        if index_url in seen:
+            context.log.warning(f"Pagination loop detected at {index_url}, stopping.")
+            break
+        seen.add(index_url)
         doc = context.fetch_html(index_url, absolute_links=True)
         links = doc.xpath(
             "//div[@class='blog news-page']/div[@class='row-fluid']//div[@class='page-header']//a/@href"
         )
-        if links == [] or len(links) == 0:
-            context.log.info("No more links found, stopping crawl")
-            break
         for link in links:
             crawl_enforcement_action(context, link)
         # Find the link to the next page (pagination)
