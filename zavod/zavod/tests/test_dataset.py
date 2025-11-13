@@ -1,11 +1,11 @@
 import pytest
 from followthemoney.exc import MetadataException
-from zavod import settings
+from followthemoney.model import Model
 
-from zavod.meta import get_catalog, Dataset, get_multi_dataset
+from zavod import settings
+from zavod.meta import Dataset, get_catalog, get_multi_dataset
 from zavod.meta.assertion import Assertion
 from zavod.runtime.urls import make_published_url
-
 
 TEST_DATASET = {
     "name": "test",
@@ -22,6 +22,10 @@ TEST_DATASET = {
         "backoff_factor": 0.5,
         "retry_statuses": [500],
         "retry_methods": ["GET"],
+    },
+    "names": {
+        "Organization": {"dirty_chars": "+"},
+        "LegalEntity": {"dirty_chars": ";"},
     },
 }
 
@@ -81,6 +85,19 @@ def test_basic():
     assert test_ds.http.retry_methods == ["GET"]
     assert test_ds.http.backoff_factor == 0.5
     assert test_ds.http.user_agent == settings.HTTP_USER_AGENT
+
+    person_schema = Model.instance().get("Person")
+    person_specs = test_ds.names.specs_for_schema(person_schema)
+    # Org spec doesn't match for Person
+    assert len([s for s in person_specs if "+" in s.dirty_chars]) == 0
+    org_schema = Model.instance().get("Organization")
+    org_specs = test_ds.names.specs_for_schema(org_schema)
+    # Defaults are present (LegalEntity)
+    assert len([s for s in org_specs if ";" in s.dirty_chars]) == 1
+    # Defaults can be overridden
+    assert len([s for s in org_specs if "/" in s.dirty_chars]) == 0
+    # A schema can be added on top of defaults - two different schemata can match
+    assert len([s for s in org_specs if "+" in s.dirty_chars]) == 1
 
 
 def test_validation(testdataset1: Dataset, testdataset3: Dataset):

@@ -1,10 +1,25 @@
-from typing import List, Optional, cast
-from normality import squash_spaces
-from followthemoney.util import join_text
 import re
+from typing import List, Optional, cast
 
+from followthemoney.util import join_text
+from normality import squash_spaces
+from rigour.data.names import data
+
+from zavod import settings
 from zavod.context import Context
 from zavod.entity import Entity
+from zavod.extract.names.clean import (
+    LLM_MODEL_VERSION,
+    CleanNames,
+)
+
+# alias clean_names so that it could be imported from here
+from zavod.extract.names.clean import clean_names as clean_names
+from zavod.stateful.review import (
+    Review,
+    TextSourceValue,
+    review_extraction,
+)
 
 REGEX_AND = re.compile(r"(\band\b|&|\+)", re.I)
 REGEX_LNAME_FNAME = re.compile(r"^\w+, \w+$", re.I)
@@ -12,6 +27,9 @@ REGEX_CLEAN_COMMA = re.compile(
     r", \b(LLC|L\.L\.C|Inc|Jr|INC|L\.P|LP|Sr|III|II|IV|S\.A|LTD|USA INC|\(?A/K/A|\(?N\.K\.A|\(?N/K/A|\(?F\.K\.A|formerly known as|INCORPORATED)\b",  # noqa
     re.I,
 )
+KNOWN_AS_PATTERNS = [re.escape(phrase) for phrase in data.STOPPHRASES]
+PATTERN_KNOWN_AS = rf"(\b({'|'.join(KNOWN_AS_PATTERNS)})\b)"
+REGEX_KNOWN_AS = re.compile(PATTERN_KNOWN_AS, re.I)
 
 
 def make_name(
@@ -230,3 +248,94 @@ def split_comma_names(context: Context, text: str) -> List[str]:
                 return [text]
         else:
             return [text]
+
+
+def name_needs_cleaning(entity: Entity, string: Optional[str]) -> bool:
+    """Determine whether a name string likely needs cleaning."""
+    if not string:
+        return False
+
+    for spec in entity.dataset.names.specs_for_schema(entity.schema):
+        # Contains a character considered "dirty" for a matching schema
+        dirty_chars = spec.dirty_chars
+        dirty_chars_extra = spec.dirty_chars_extra
+        all_dirty_chars = dirty_chars + dirty_chars_extra
+        for char in all_dirty_chars:
+            if char in string:
+                return True
+
+    # contains a known-as phrase
+    if REGEX_KNOWN_AS.search(string):
+        return True
+
+    return False
+
+
+def apply_names(
+    entity: Entity,
+    review: Review[CleanNames],
+    alias: bool = False,
+    lang: Optional[str] = None,
+) -> None:
+    field_props = [
+        ("full_name", "alias" if alias else "name"),
+        ("alias", "alias"),
+        ("weak_alias", "weakAlias"),
+        ("previous_name", "previousName"),
+    ]
+    if not review.accepted:
+        prop = "alias" if alias else "name"
+        entity.add(prop, review.source_value, lang=lang)
+        return
+
+    for field_name, prop in field_props:
+        for name in getattr(review.extracted_data, field_name):
+            entity.add(
+                prop,
+                name,
+                lang=lang,
+                origin=review.origin,
+                original_value=review.source_value,
+            )
+
+
+def apply_reviewed_names(
+    context: Context,
+    entity: Entity,
+    string: Optional[str],
+    lang: Optional[str] = None,
+    alias: bool = False,
+) -> None:
+    """
+    Apply cleaned and categorised names to an entity if accepted, falling back
+    to applying the original string as the name if not.
+
+    Also falls back to applying the original string if the CI environment
+    variable is truthy, so that crawlers using this can run in CI.
+
+    Args:
+        context: The current context.
+        entity: The entity to apply names to.
+        string: The raw name(s) string.
+        alias: If this is known to be an alias and not a primary name.
+        lang: The language of the name, if known.
+    """
+    if not string:
+        return
+
+    if settings.CI or not name_needs_cleaning(entity, string):
+        prop = "alias" if alias else "name"
+        entity.add(prop, string, lang=lang)
+        return
+
+    names = clean_names(context, string)
+
+    source_value = TextSourceValue(key_parts=string, label="name", text=string)
+    review = review_extraction(
+        context,
+        source_value=source_value,
+        original_extraction=names,
+        origin=LLM_MODEL_VERSION,
+    )
+
+    apply_names(entity, review, alias=alias, lang=lang)
