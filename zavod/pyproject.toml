@@ -44,7 +44,7 @@ dependencies = [
     "structlog",
     "xlrd == 2.0.2",
     "cryptography",
-    "duckdb == 1.4.1",
+    "duckdb == 1.4.2",
 ]
 
 [project.urls]
