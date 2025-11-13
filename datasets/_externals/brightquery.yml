@@ -1,5 +1,5 @@
 type: external
-title: BrightQuery Business Identity
+title: BrightQuery Business Identity API
 entry_point: zavod.runner.enrich:enrich
 disabled: false
 hidden: false
@@ -8,9 +8,6 @@ coverage:
   start: 2025-11-07
 exports:
   - statistics.json
-  - entities.ftm.json
-  - statements.csv
-  - targets.simple.csv
 # deploy:
 #   memory: "4000Mi"
 #   disk: "20Gi"
@@ -30,9 +27,7 @@ description: |
   compliance checks, headcount, revenue, and other key attributes. BQ aggregates and normalizes
   data from multiple sources, delivering accurate and up-to-date information for identity
   verification, risk assessment, market analysis, and business intelligence.
-tags:
-  - sector.financial
-url: https://permid.org/about
+url: https://docs.brightquery.com/business_identity_api.html
 publisher:
   name: BrightQuery
   acronym: BQ
