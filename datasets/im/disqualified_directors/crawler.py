@@ -1,14 +1,15 @@
 from typing import Dict, Tuple
+from lxml.etree import _Element as Element
 
 from zavod import Context, helpers as h
 
 
-def extract_data(ele):
-    data_dict = {}
+def extract_data(el: Element) -> Dict[str, str]:
+    data_dict: Dict[str, str] = {}
 
     # Iterate through each p element
-    for p in ele:
-        text_content = p.text_content().strip()
+    for p in el:
+        text_content = h.element_text(p)
 
         # Split on the first colon to get the key and value
         if ":" in text_content:
@@ -35,8 +36,7 @@ def parse_period(period: str) -> Tuple[str, str]:
     return start_date_str.strip(), end_date_str.strip()
 
 
-def crawl_item(item: Dict[str, str], context: Context):
-
+def crawl_item(context: Context, item: Dict[str, str]) -> None:
     name = item.pop("Name")
     birth_date = item.pop("Date of Birth")
     address = item.pop("Address (at date of disqualification)")
@@ -81,8 +81,7 @@ def crawl_item(item: Dict[str, str], context: Context):
 
 
 def crawl(context: Context) -> None:
-
     response = context.fetch_html(context.data_url)
 
-    for item in response.xpath('.//*[@class="accordion-item"]/div'):
-        crawl_item(extract_data(item), context)
+    for item in h.xpath_elements(response, './/*[@class="accordion-item"]/div'):
+        crawl_item(context, extract_data(item))

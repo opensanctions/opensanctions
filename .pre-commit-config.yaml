@@ -73,7 +73,6 @@ repos:
           datasets/cz|
           datasets/dk|
           datasets/ee|
-          datasets/eg|
           datasets/es|
           datasets/eu|
           datasets/fr|
@@ -82,12 +81,9 @@ repos:
           datasets/gg|
           datasets/hk|
           datasets/id|
-          datasets/ie|
           datasets/il|
-          datasets/im|
           datasets/in|
           datasets/ir|
-          datasets/is|
           datasets/jp|
           datasets/kg|
           datasets/kp|

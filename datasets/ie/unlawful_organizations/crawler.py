@@ -1,9 +1,10 @@
+from typing import Any, Dict, List
 import requests
 from zavod import Context, helpers as h
 
 QUERY_URL = " https://www.irishstatutebook.ie/solr/all_leg_title/select?q=unlawful+organisation&rows=10&hl.maxAnalyzedChars=-1&sort=year+desc&facet=true&facet.field=year&facet.field=type&facet.limit=300&facet.mincount=1&json.nl=map&wt=json"
 
-HARD_CODED_DATA = [
+HARD_CODED_DATA: List[Dict[str, Any]] = [
     {
         "url": "https://www.irishstatutebook.ie/eli/1983/si/7/made/en/print?q=unlawful+organisation&search_type=all",
         "title": "S.I. No. 7/1983 - Unlawful Organisation (Suppression) Order, 1983.",
@@ -59,7 +60,7 @@ HARD_CODED_DATA = [
 ]
 
 
-def fetch_new_links(context: Context) -> None:
+def check_and_raise_for_new_links(context: Context) -> None:
     response = requests.get(QUERY_URL)
     data = response.json()
 
@@ -70,7 +71,7 @@ def fetch_new_links(context: Context) -> None:
         raise Exception("Number of found documents is greater than 2.")
 
 
-def process_hardcoded_data(context: Context):
+def process_hardcoded_data(context: Context) -> None:
     for nro in HARD_CODED_DATA:
         data = {
             sec["section_title"]: list(sec["section_content"])
@@ -90,6 +91,6 @@ def process_hardcoded_data(context: Context):
         context.emit(sanction)
 
 
-def crawl(context: Context):
-    fetch_new_links(context)
+def crawl(context: Context) -> None:
+    check_and_raise_for_new_links(context)
     process_hardcoded_data(context)
