@@ -3,7 +3,7 @@ from rigour.mime.types import PDF
 import re
 
 from zavod import Context, helpers as h
-from zavod.shed.zyte_api import fetch_resource
+from zavod.extract.zyte_api import fetch_resource
 from normality import squash_spaces
 
 REGEX_AKA = re.compile(r"\baka\b|a\.k\.a\.?", re.IGNORECASE)

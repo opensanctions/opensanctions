@@ -5,7 +5,7 @@ from urllib.parse import urljoin
 from datapatch import Lookup
 from lxml.html import HtmlElement
 from normality import squash_spaces
-from zavod.shed import zyte_api
+from zavod.extract import zyte_api
 from zavod.stateful.positions import OccupancyStatus, categorise
 
 from zavod import Context

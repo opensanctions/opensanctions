@@ -7,7 +7,7 @@ import csv
 
 
 from zavod import Context, helpers as h
-from zavod.shed.zyte_api import fetch_html, fetch_resource
+from zavod.extract.zyte_api import fetch_html, fetch_resource
 
 REGEX_DBA = re.compile(r"\bdba\b", re.IGNORECASE)
 REGEX_AKA = re.compile(r"\(?a\.?k\.?a\b\.?|\)", re.IGNORECASE)

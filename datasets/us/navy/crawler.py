@@ -7,8 +7,8 @@ import re
 
 from zavod import Context, helpers as h
 from zavod.stateful.positions import categorise
-from zavod.shed import zyte_api
-from zavod.shed.zyte_api import ZyteAPIRequest
+from zavod.extract import zyte_api
+from zavod.extract.zyte_api import ZyteAPIRequest
 
 BASE_URL = "https://www.navy.mil"
 API_URL = "https://www.navy.mil/API/ArticleCS/Public/GetList?moduleID=709&dpage=%d&TabId=119&language=en-US"
@@ -103,7 +103,6 @@ ProcessPageResult = namedtuple(
 
 
 def process_page(context: Context, page_number: int) -> ProcessPageResult:
-
     url = API_URL % page_number
     try:
         resp = zyte_api.fetch(
@@ -145,7 +144,7 @@ def parse_html(context):
 
             if not name_el or not role_el:
                 context.log.warning(
-                    f"Skipping incomplete leader entry:{html.tostring(row, pretty_print=True, encoding="unicode")}"
+                    f"Skipping incomplete leader entry:{html.tostring(row, pretty_print=True, encoding='unicode')}"
                 )
                 continue
             # Extract text content

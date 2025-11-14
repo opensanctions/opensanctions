@@ -3,7 +3,7 @@ from normality import slugify
 
 from zavod import Context
 from zavod import helpers as h
-from zavod.shed.zyte_api import fetch_html
+from zavod.extract.zyte_api import fetch_html
 
 
 def crawl_page(

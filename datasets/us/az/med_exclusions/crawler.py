@@ -2,12 +2,11 @@ from typing import Dict
 from rigour.mime.types import PDF
 
 from zavod import Context, helpers as h
-from zavod.shed.zyte_api import fetch_resource
+from zavod.extract.zyte_api import fetch_resource
 from normality import slugify, stringify
 
 
 def crawl_item(row: Dict[str, str], context: Context):
-
     if not row.get("name_provider") and not row.get("npi"):
         return
 
@@ -32,7 +31,6 @@ def crawl_item(row: Dict[str, str], context: Context):
 
 
 def crawl(context: Context) -> None:
-
     _, _, _, path = fetch_resource(
         context,
         "source.pdf",

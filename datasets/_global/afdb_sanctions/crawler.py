@@ -1,6 +1,6 @@
 import re
 
-from zavod.shed.zyte_api import fetch_html
+from zavod.extract.zyte_api import fetch_html
 
 from zavod import Context
 from zavod import helpers as h

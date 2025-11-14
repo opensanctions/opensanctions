@@ -1,21 +1,13 @@
 import re
-from typing import Optional, Set
+from typing import Optional, Set, Dict, List
 
 from normality import latinize_text
 from openpyxl import load_workbook
 from rigour.mime.types import XLSX
-<<<<<<< HEAD
-=======
-from typing import Dict, List, Optional
-
-from zavod import Context, helpers as h
-from zavod.shed import zyte_api
->>>>>>> 3278f6768 ([iq] Make the typechecker happy)
 from zavod.shed.trans import (
     apply_translit_full_name,
 )
-from zavod.shed.zyte_api import fetch_html, fetch_resource
-
+from zavod.extract.zyte_api import fetch_html, fetch_resource
 from zavod import Context
 from zavod import helpers as h
 
@@ -129,17 +121,13 @@ def process_xlsx(
     excel_link_xpath = (
         '//article[contains(@id, "post-")]//a[contains(@href, "xlsx")]/@href'
     )
-    doc = zyte_api.fetch_html(
-        context, url, excel_link_xpath, cache_days=1, geolocation="IQ"
-    )
+    doc = fetch_html(context, url, excel_link_xpath, cache_days=1, geolocation="IQ")
     file_url = h.xpath_strings(doc, excel_link_xpath, expect_exactly=1)[0]
 
     assert file_url.endswith(".xlsx"), file_url
     assert any(title in file_url for title in titles), file_url
 
-    _, _, _, path = zyte_api.fetch_resource(
-        context, filename, file_url, XLSX, geolocation="IQ"
-    )
+    _, _, _, path = fetch_resource(context, filename, file_url, XLSX, geolocation="IQ")
     context.export_resource(path, XLSX)
 
     wb = load_workbook(path, read_only=True)

@@ -4,7 +4,7 @@ from base64 import b64encode
 
 from zavod.context import Context
 from zavod.meta.dataset import Dataset
-from zavod.shed.zyte_api import (
+from zavod.extract.zyte_api import (
     UnblockFailedException,
     fetch_html,
     fetch_json,

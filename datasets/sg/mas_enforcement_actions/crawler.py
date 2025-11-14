@@ -1,7 +1,7 @@
 from typing import List, Literal
 
 from pydantic import BaseModel, Field
-from zavod.shed.gpt import DEFAULT_MODEL, run_typed_text_prompt
+from zavod.extract.llm import DEFAULT_MODEL, run_typed_text_prompt
 from zavod.stateful.review import (
     HtmlSourceValue,
     assert_all_accepted,
