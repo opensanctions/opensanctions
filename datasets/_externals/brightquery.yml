@@ -37,7 +37,7 @@ publisher:
   url: https://brightquery.com/about/
 
 inputs:
-  - us_dc_exclusions
+  - sanctions
 
 config:
   type: nomenklatura.enrich.brightquery:BrightQueryEnricher
