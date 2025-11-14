@@ -4,7 +4,7 @@ from rigour.names import remove_person_prefixes
 
 from zavod import Context
 from zavod import helpers as h
-from zavod.shed.gpt import run_image_prompt
+from zavod.extract.llm import run_image_prompt
 
 prompt = """
 Extract structured data from the following page of a PDF document. Return

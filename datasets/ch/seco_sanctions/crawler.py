@@ -6,7 +6,7 @@ from followthemoney.util import join_text
 from lxml.etree import _Element as Element
 from prefixdate import parse_parts
 from pydantic import BaseModel, Field
-from zavod.shed.gpt import run_typed_text_prompt
+from zavod.extract.llm import run_typed_text_prompt
 from zavod.stateful.review import (
     TextSourceValue,
     assert_all_accepted,
