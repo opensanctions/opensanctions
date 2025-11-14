@@ -43,6 +43,10 @@ config:
   type: nomenklatura.enrich.brightquery:BrightQueryEnricher
   api_token: ${BQ_API_TOKEN}
   cache_days: 60
+  schemata:
+    - Company
+    - Organization
+    - LegalEntity
 
 # assertions:
 #   min:
