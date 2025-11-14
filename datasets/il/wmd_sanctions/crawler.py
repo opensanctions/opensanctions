@@ -143,13 +143,16 @@ def crawl_row(context: Context, row: Dict):
     context.audit_data(row, ignore=["declaration_date", "originally_declared_by"])
 
 
-def crawl_excel_url(context: Context):
+def crawl_excel_url(context: Context) -> str:
     file_xpath = '//a[contains(@id,"filesToDownload_item")][contains(@href, "xlsx")]'
     doc = fetch_html(
         context, context.data_url, file_xpath, cache_days=1, absolute_links=True
     )
 
-    return doc.xpath(file_xpath)[0].get("href")
+    file_el = h.xpath_elements(doc, file_xpath, expect_exactly=1)[0]
+    file_url = file_el.get("href")
+    assert file_url is not None, "No href to file found"
+    return file_url
 
 
 def crawl(context: Context):
