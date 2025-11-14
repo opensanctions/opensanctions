@@ -5,14 +5,13 @@ from openpyxl import load_workbook
 import re
 
 from zavod import Context, helpers as h
-from zavod.shed.zyte_api import fetch_html, fetch_resource
+from zavod.extract.zyte_api import fetch_html, fetch_resource
 
 REGEX_DBA = re.compile(r"\bdba\b", re.IGNORECASE)
 REGEX_AKA = re.compile(r"\(?a\.?k\.?a\b\.?|\)", re.IGNORECASE)
 
 
 def crawl_individual(row: Dict[str, str], context: Context):
-
     entity = context.make("Person")
     entity.id = context.make_id(
         row.get("last_name"), row.get("first_name"), row.get("npi")
@@ -52,7 +51,6 @@ def crawl_individual(row: Dict[str, str], context: Context):
 
 
 def crawl_organization(row: Dict[str, str], context: Context):
-
     entity = context.make("Company")
     entity.id = context.make_id(row.get("organization_name"))
     names = REGEX_DBA.split(row.pop("organization_name"))

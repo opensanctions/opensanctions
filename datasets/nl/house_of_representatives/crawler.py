@@ -3,7 +3,7 @@ from urllib.parse import urlencode, urljoin
 from lxml.etree import _Element
 from lxml.html import document_fromstring
 
-from zavod.shed.zyte_api import fetch_html, fetch_json
+from zavod.extract.zyte_api import fetch_html, fetch_json
 from zavod import Context
 from zavod.entity import Entity
 from zavod.helpers import make_position, make_occupancy

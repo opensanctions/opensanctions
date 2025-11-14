@@ -1,7 +1,7 @@
 from typing import Dict
 
 from openpyxl import load_workbook
-from zavod.shed import zyte_api
+from zavod.extract import zyte_api
 
 from zavod import Context
 from zavod import helpers as h

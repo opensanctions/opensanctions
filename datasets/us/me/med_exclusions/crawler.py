@@ -3,7 +3,7 @@ from typing import Dict
 
 from openpyxl import load_workbook
 from rigour.mime.types import XLSX
-from zavod.shed import zyte_api
+from zavod.extract import zyte_api
 
 from zavod import Context
 from zavod import helpers as h

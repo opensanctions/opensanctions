@@ -7,7 +7,7 @@ from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
 from zavod.helpers.xml import ElementOrTree
-from zavod.shed.zyte_api import fetch_resource
+from zavod.extract.zyte_api import fetch_resource
 from zavod.shed.un_sc import apply_un_name_list
 from normality import collapse_spaces
 
@@ -72,7 +72,7 @@ def parse_entry(context: Context, entry: ElementOrTree) -> None:
             apply_un_name_list(context, entity, names)
         elif aka_category in ("aka", "fka"):
             # make_name (which is just a fancy wrapper around " ".join) to generate the full name.
-            name_args = {f"name{i+1}": name for i, name in enumerate(names)}
+            name_args = {f"name{i + 1}": name for i, name in enumerate(names)}
             joined_name = h.make_name(**name_args)
 
             if aka_category == "aka":

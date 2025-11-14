@@ -8,7 +8,7 @@ import openpyxl
 
 from zavod import Context, helpers as h
 from zavod.entity import Entity
-from zavod.shed import zyte_api
+from zavod.extract import zyte_api
 
 SEBI_DEBARRMENT_URL = "https://nsearchives.nseindia.com/content/press/prs_ra_sebi.xls"
 OTHER_DEBARRMENT_URL = (

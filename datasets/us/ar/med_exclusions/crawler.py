@@ -4,7 +4,7 @@ import csv
 from rigour.mime.types import CSV
 
 from zavod import Context, helpers as h
-from zavod.shed.zyte_api import fetch_resource
+from zavod.extract.zyte_api import fetch_resource
 
 REGEX_AKA = re.compile(r"\baka\b", re.IGNORECASE)
 REGEX_WORD = re.compile(r"\w{2,}")
@@ -23,7 +23,6 @@ def crawl_item(row: Dict[str, str], context: Context):
 
     provider = None
     if provider_name := row.pop("Provider Name"):
-
         provider = context.make("LegalEntity")
         provider.id = context.make_id(provider_name, zip_code)
 

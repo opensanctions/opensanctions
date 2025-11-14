@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field
 from rigour.mime.types import PDF
 from rigour.names.org_types import extract_org_types
 from zavod.extract.llm import DEFAULT_MODEL, run_typed_text_prompt
-from zavod.shed.zyte_api import fetch_html, fetch_resource
+from zavod.extract.zyte_api import fetch_html, fetch_resource
 from zavod.stateful.review import (
     TextSourceValue,
     assert_all_accepted,

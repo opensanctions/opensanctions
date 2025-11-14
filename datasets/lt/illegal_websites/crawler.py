@@ -3,7 +3,7 @@ from typing import Dict
 from rigour.mime.types import CSV
 
 from zavod import Context
-from zavod.shed.zyte_api import fetch_resource
+from zavod.extract.zyte_api import fetch_resource
 
 
 def crawl_row(context: Context, row: Dict[str, str]):

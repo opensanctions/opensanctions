@@ -3,7 +3,7 @@ from typing import Dict
 import re
 
 from zavod import Context, helpers as h
-from zavod.shed.zyte_api import fetch_html, fetch_resource
+from zavod.extract.zyte_api import fetch_html, fetch_resource
 
 
 AKA_PATTERN = r"\ba\.?k\.?a[\. -]*"

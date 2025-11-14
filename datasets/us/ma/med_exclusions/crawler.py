@@ -2,7 +2,7 @@ from typing import Dict
 from openpyxl import load_workbook
 
 from zavod import Context, helpers as h
-from zavod.shed import zyte_api
+from zavod.extract import zyte_api
 
 
 HEADERS = {
@@ -17,7 +17,6 @@ HEADERS = {
 
 
 def crawl_item(row: Dict[str, str], context: Context):
-
     name = row.pop("provider_name")
 
     if not name:

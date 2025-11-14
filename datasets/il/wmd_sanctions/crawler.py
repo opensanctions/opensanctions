@@ -6,7 +6,7 @@ import re
 
 from zavod import Context
 from zavod.entity import Entity
-from zavod.shed.zyte_api import fetch_html, fetch_resource
+from zavod.extract.zyte_api import fetch_html, fetch_resource
 
 # "a.k.a.", "A.K.A.:" and variations
 # ידוע גם ("also known as")

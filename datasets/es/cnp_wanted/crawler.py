@@ -4,7 +4,7 @@ from typing import Dict
 from urllib.parse import urljoin
 
 from zavod import Context, helpers as h
-from zavod.shed.zyte_api import fetch_html
+from zavod.extract.zyte_api import fetch_html
 
 
 def crawl_item(context: Context, row: Dict[str, str]):
