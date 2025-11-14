@@ -44,7 +44,7 @@ Specific fields:
 - entity_schema: {schema_field.description}
 - name: The name of the entity precisely as expressed in the text.
 - aliases: ONLY extract aliases that follow an explicit indication of an _alternative_ name, such as "also known as", "alias", "formerly", "aka", "fka". Otherwise the aliases field should just be an empty array.
-- address: The full address or location details as they appear in the article (do not split into components; capture the complete expression such as “123 Main Street, Birmingham”).
+- address: The full address or location details as they appear in the article (do not split into components; capture the complete expression such as “123 Main Street, Birmingham”). If no address is given for a specific entity, leave this field as an empty array.
 - country: Any countries the entity is indicated to reside, operate, or have been born or registered in. Leave empty if not explicitly stated.
 """
 
