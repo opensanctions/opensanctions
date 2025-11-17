@@ -2,6 +2,8 @@ from itertools import count
 
 from requests import RequestException
 from zavod.stateful.positions import categorise
+from zavod.extract import zyte_api
+
 
 from zavod import Context
 from zavod import helpers as h
@@ -28,9 +30,9 @@ IGNORE_FIELDS = {
 
 def crawl_councillor(context: Context, councillor_id: int) -> None:
     """Fetch and process detailed profile for a single councillor."""
-    data = context.fetch_json(
-        f"http://ws-old.parlament.ch/councillors/{councillor_id}",
-        params={"lang": "en", "format": "json"},
+    data = zyte_api.fetch_json(
+        context,
+        url=f"http://ws-old.parlament.ch/councillors/{councillor_id}?lang=en&format=json",
         cache_days=1,
     )
 
@@ -123,9 +125,11 @@ def crawl(context: Context) -> None:
     """Crawl Swiss Federal Assembly members from the Parliament API."""
 
     for page in count(start=1):
-        params = {"pageNumber": page, "lang": "en", "format": "json"}
         try:
-            data = context.fetch_json(context.data_url, params=params)
+            data = zyte_api.fetch_json(
+                context,
+                url=context.data_url + f"?pageNumber={page}&lang=en&format=json",
+            )
         except RequestException as exc:
             if exc.response is not None and exc.response.status_code == 404:
                 return
