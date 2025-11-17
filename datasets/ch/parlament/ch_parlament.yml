@@ -5,7 +5,7 @@ coverage:
   start: 2025-10-10
 load_statements: true
 entry_point: crawler.py
-ci_test: false
+ci_test: false  # No Zyte in CI
 summary: >-
   Current and recent Members of the Swiss Federal Assembly (Bundesversammlung)
 description: |
