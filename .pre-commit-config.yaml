@@ -146,7 +146,6 @@ repos:
           datasets/us/sec/harmed_investors|
           datasets/us/sec/litigation|
           datasets/us/cftc_enforcement_actions|
-          datasets/us/in/med_exclusions|
           datasets/us/occ_enfact|
           datasets/us/co/med_exclusions|
           datasets/us/ca/med_exclusions|
