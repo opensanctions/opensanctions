@@ -8,6 +8,8 @@ coverage:
   start: 2025-11-07
 exports:
   - statistics.json
+deploy:
+  memory: "4000Mi"
 http:
   retry_methods:
     - GET
