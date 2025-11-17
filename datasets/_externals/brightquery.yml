@@ -43,7 +43,8 @@ inputs:
 
 config:
   type: nomenklatura.enrich.brightquery:BrightQueryEnricher
-  api_token: ${BQ_API_TOKEN}
+  brightquery_user: ${BRIGHTQUERY_USER}
+  brightquery_pass: ${BRIGHTQUERY_PASS}
   cache_days: 60
   schemata:
     - Company
