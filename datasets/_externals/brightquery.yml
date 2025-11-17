@@ -23,11 +23,11 @@ description: |
   U.S. organizations. It includes corporate family structures, legal status, firmographics,
   compliance checks, headcount, revenue, and other key attributes. BQ aggregates and normalizes
   data from multiple sources, delivering accurate and up-to-date information for identity
-  verification, risk assessment, market analysis, and business intelligence. 
-  
-  The key advantage of this dataset is that it makes it straightforward to link entities in 
-  OpenSanctions to corresponding companies in the BrightQuery directory. This enables richer 
-  profiles, more detailed context, and deeper analysis when combining sanctions data with 
+  verification, risk assessment, market analysis, and business intelligence.
+
+  The key advantage of this dataset is that it makes it straightforward to link entities in
+  OpenSanctions to corresponding companies in the BrightQuery directory. This enables richer
+  profiles, more detailed context, and deeper analysis when combining sanctions data with
   corporate information.
 url: https://docs.brightquery.com/business_identity_api.html
 publisher:
@@ -43,8 +43,8 @@ inputs:
 
 config:
   type: nomenklatura.enrich.brightquery:BrightQueryEnricher
-  brightquery_user: ${BRIGHTQUERY_USER}
-  brightquery_pass: ${BRIGHTQUERY_PASS}
+  username: ${BRIGHTQUERY_USERNAME}
+  password: ${BRIGHTQUERY_PASSWORD}
   cache_days: 60
   schemata:
     - Company
