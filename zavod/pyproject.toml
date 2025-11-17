@@ -59,6 +59,7 @@ dev = [
     "twine",
     "build",
     "mypy",
+    "debugpy",
     "flake8 >= 2.6.0",
     "pytest",
     "ruff>=0.4.0,<1.0.0",
