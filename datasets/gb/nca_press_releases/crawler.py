@@ -1,4 +1,3 @@
-from datetime import datetime as dt
 from typing import List, Literal
 
 from pydantic import BaseModel, Field
@@ -12,6 +11,7 @@ from zavod.stateful.review import (
 
 from zavod import Context
 from zavod import helpers as h
+from zavod.util import Element
 
 Schema = Literal["Person", "Company", "LegalEntity"]
 
@@ -47,6 +47,24 @@ Specific fields:
 - address: The full address or location details as they appear in the article (do not split into components; capture the complete expression such as “123 Main Street, Birmingham”). If no address is given for a specific entity, leave this field as an empty array.
 - country: Any countries the entity is indicated to reside, operate, or have been born or registered in. Leave empty if not explicitly stated.
 """
+
+
+def get_date(context: Context, url: str, article_doc: Element) -> str | None:
+    # The last <p><strong> in the article body usually contains the date,
+    # but some articles don't have a date at all.
+    dates = article_doc.xpath(
+        "//div[@itemprop='articleBody']/p[strong][last()]/strong/text()"
+    )
+    assert len(dates) <= 1
+    if dates != []:
+        raw_date = str(dates[0])
+        # 03 October 2025
+        if len(raw_date.split(" ")) == 3:
+            # it looks like a date
+            return raw_date
+        else:
+            context.log.info("Doesn't look like a date", url=url, raw_date=raw_date)
+    return None
 
 
 def crawl_enforcement_action(context: Context, url: str) -> None:
@@ -97,15 +115,9 @@ def crawl_enforcement_action(context: Context, url: str) -> None:
         for topic in topics:
             entity.add("topics", topic)
 
-        dates = article_doc.xpath(
-            "//div[@itemprop='articleBody']/p[strong][last()]/strong/text()"
-        )
-        # The date is absent in some articles
-        if dates != []:
-            raw_date = str(dates[0])  # 03 October 2025
-            parsed_date = dt.strptime(raw_date, "%d %B %Y")
-            if not enforcements.within_max_age(context, parsed_date):
-                continue
+        raw_date = get_date(context, url, article_doc)
+        if raw_date and not enforcements.within_max_age(context, raw_date):
+            continue
 
         # We use the date as a key to make sure notices about separate actions are separate sanction entities
         sanction = h.make_sanction(context, entity, raw_date)
