@@ -1,5 +1,5 @@
 import csv
-from typing import Any, List, Optional
+from typing import Dict, List, Optional
 
 from rigour.mime.types import CSV
 
@@ -53,10 +53,10 @@ FIELDS = [
 ]
 
 
-def make_position_name(data: dict) -> Optional[str]:
+def make_position_name(data: Dict[str, str]) -> Optional[str]:
     title = data.pop("position")
     legal_entity_name = data.pop("legal_entity")
-    if not any([title, legal_entity_name]):
+    if title is None and legal_entity_name is None:
         return None
 
     position_name = title or "Unknown position"
@@ -68,8 +68,8 @@ def make_position_name(data: dict) -> Optional[str]:
 def make_affiliation_entities(
     context: Context,
     person: Entity,
-    position_name: str,
-    data: dict,
+    position_name: Optional[str],
+    data: Dict[str, str],
 ) -> List[Entity]:
     """Creates Position and Occupancy provided that the Occupancy meets OpenSanctions criteria.
     * A position's name include the title and optionally the name of the legal entity
@@ -118,7 +118,7 @@ def make_person(
     return person
 
 
-def dict_keys_by_prefix(data: dict, prefix: str) -> dict[str:Any]:
+def dict_keys_by_prefix(data: Dict[str, str], prefix: str) -> Dict[str, str]:
     """
     Returns a new dict with keys and values from the original matching the prefix.
     The prefix is removed from the keys in the new dict.
@@ -130,7 +130,7 @@ def dict_keys_by_prefix(data: dict, prefix: str) -> dict[str:Any]:
     }
 
 
-def crawl_row(context, row):
+def crawl_row(context: Context, row: Dict[str, str]) -> None:
     position_entities = []
 
     primary_position_data = dict_keys_by_prefix(row, "primary_")
@@ -167,7 +167,14 @@ def crawl_row(context, row):
         context.emit(person)
 
 
-def crawl_file(context: Context, url, filename, fields, expected_headings):
+def crawl_file(
+    context: Context,
+    *,
+    url: str,
+    filename: str,
+    fields: List[str],
+    expected_headings: List[str],
+) -> None:
     path = context.fetch_resource(filename, url)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
 
@@ -179,7 +186,7 @@ def crawl_file(context: Context, url, filename, fields, expected_headings):
             crawl_row(context, row)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     # Register of appointed civil servants
     #
     # It'd be nice to pass position topics like gov.admin here, but

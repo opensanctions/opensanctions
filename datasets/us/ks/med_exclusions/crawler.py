@@ -4,14 +4,13 @@ from openpyxl import load_workbook
 import re
 
 from zavod import Context, helpers as h
-from zavod.shed.zyte_api import fetch_html, fetch_resource
+from zavod.extract.zyte_api import fetch_html, fetch_resource
 
 # Regular expression to match the comma before "Inc."
 INC_PATTERN = r",\s*Inc\."
 
 
 def crawl_item(row: Dict[str, str], context: Context):
-
     if not row.get("name"):
         return
 

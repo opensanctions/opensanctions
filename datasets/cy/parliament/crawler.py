@@ -1,6 +1,6 @@
 from urllib.parse import urljoin
 
-from zavod.shed.zyte_api import fetch_html
+from zavod.extract.zyte_api import fetch_html
 
 from zavod import Context, Entity
 from zavod import helpers as h

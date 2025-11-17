@@ -2,7 +2,7 @@ from typing import Dict
 from rigour.mime.types import PDF
 
 from zavod import Context, helpers as h
-from zavod.shed.gpt import run_image_prompt
+from zavod.extract.llm import run_image_prompt
 
 prompt = """
 Extract structured data from the following page of a PDF document. Return
@@ -16,7 +16,6 @@ Return an empty string for unset fields.
 
 
 def crawl_item(row: Dict[str, str], context: Context):
-
     if not row.get("last_name"):
         return
 

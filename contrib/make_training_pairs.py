@@ -26,12 +26,14 @@ OutFile = click.Path(dir_okay=False, writable=True, file_okay=True, path_type=Pa
 # from judgements linked to them.
 IGNORE_DATASETS = {
     "us_sam_exclusions",  # horrific data quality
+    "us_fed_enforcements",  # too much name-only matching
+    "us_ddtc_debarred",  # too much name-only matching
     "us_cia_world_factbook",  # too much name-only matching
     "un_ga_protocol",  # too much name-only matching
     "tw_shtc",  # too much name-only matching
     "opencorporates",  # funky enricher
-    "us_ofac_press_releases",
-    "ext_us_ofac_press_releases",
+    "us_ofac_press_releases",  # too much name-only matching
+    "ext_us_ofac_press_releases",  # too much name-only matching
 }
 
 

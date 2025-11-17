@@ -6,7 +6,7 @@ from normality import squash_spaces
 from followthemoney.types import registry
 
 from zavod import Context, helpers as h
-from zavod.shed.zyte_api import fetch_html
+from zavod.extract.zyte_api import fetch_html
 
 REGEX_URLS = r"(https?://[^\s]+)"
 TABLE_XPATH = ".//div[@class='article-content']//table"

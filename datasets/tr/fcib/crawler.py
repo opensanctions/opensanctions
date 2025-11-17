@@ -6,7 +6,7 @@ from rigour.mime.types import XLSX
 
 from zavod import Context
 from zavod import helpers as h
-from zavod.shed.zyte_api import fetch_html, fetch_resource
+from zavod.extract.zyte_api import fetch_html, fetch_resource
 from zavod.shed.un_sc import Regime, get_legal_entities, get_persons, load_un_sc
 
 # original link for assertion

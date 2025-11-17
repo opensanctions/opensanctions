@@ -1,7 +1,7 @@
 import csv
 from typing import Dict
 
-from zavod.shed import zyte_api
+from zavod.extract import zyte_api
 
 from zavod import Context
 from zavod import helpers as h

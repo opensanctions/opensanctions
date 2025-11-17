@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field
 from zavod.context import Context
 from zavod.entity import Entity
 from zavod.shed import enforcements
-from zavod.shed.gpt import DEFAULT_MODEL, run_typed_text_prompt
+from zavod.extract.llm import DEFAULT_MODEL, run_typed_text_prompt
 from zavod.stateful.review import (
     HtmlSourceValue,
     assert_all_accepted,

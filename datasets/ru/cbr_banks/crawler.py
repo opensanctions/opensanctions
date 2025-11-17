@@ -2,7 +2,7 @@ from lxml import etree
 from rigour.mime.types import XML
 
 from zavod import Context, helpers as h
-from zavod.shed.zyte_api import fetch_resource
+from zavod.extract.zyte_api import fetch_resource
 
 SOAP_URL = "http://www.cbr.ru/CreditInfoWebServ/CreditOrgInfo.asmx"
 SOAP_HEADERS = {"Content-Type": "text/xml; charset=utf-8"}

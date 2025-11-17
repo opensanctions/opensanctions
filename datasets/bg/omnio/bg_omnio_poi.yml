@@ -58,6 +58,8 @@ lookups:
         value: YE
       - match: Холандия
         value: NL
+      - match: "c/o Astat Trust reg., Vaduz, Liechtenstein"
+        value: LI
   type.name:
     options:
       - match: '"The Base", Al Qaeda, Islamic Salvation Foundation, The Group for the Preservation of the Holy Sites, The Islamic Army for the Liberation of Holy Places, The World Islamic Front for Jihad Against Jews and Crusaders, Usama Bin Laden Network, Usama Bin Laden Organization'

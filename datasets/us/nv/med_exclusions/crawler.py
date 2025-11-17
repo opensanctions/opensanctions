@@ -3,7 +3,7 @@ from rigour.mime.types import PDF
 from pdfplumber.page import Page
 
 from zavod import Context, helpers as h
-from zavod.shed import zyte_api
+from zavod.extract import zyte_api
 
 
 def crawl_item(row: Dict[str, str], context: Context):
@@ -98,7 +98,6 @@ def crawl_pdf_url(context: Context):
 
 
 def crawl(context: Context) -> None:
-
     _, _, _, path = zyte_api.fetch_resource(
         context, "source.pdf", crawl_pdf_url(context), PDF, geolocation="US"
     )

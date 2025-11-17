@@ -3,7 +3,7 @@ from typing import Dict
 
 from lxml.etree import _Element
 from normality import collapse_spaces
-from zavod.shed.zyte_api import fetch_html
+from zavod.extract.zyte_api import fetch_html
 
 from zavod import Context
 from zavod import helpers as h

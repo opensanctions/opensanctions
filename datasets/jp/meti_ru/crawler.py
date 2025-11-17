@@ -10,7 +10,7 @@ from rigour.mime.types import CSV, PDF
 from rigour.text.scripts import get_script
 
 from zavod import Context, helpers as h
-from zavod.shed.zyte_api import fetch_resource, fetch_html
+from zavod.extract.zyte_api import fetch_resource, fetch_html
 
 SOURCE_URL = "https://www.meti.go.jp/policy/external_economy/trade_control/02_export/17_russia/russia.html"
 NAMES_PATTERN = re.compile(

@@ -1,8 +1,8 @@
 import orjson
 
 from zavod import Context, helpers as h
-from zavod.shed import zyte_api
-from zavod.shed.zyte_api import ZyteAPIRequest
+from zavod.extract import zyte_api
+from zavod.extract.zyte_api import ZyteAPIRequest
 from zavod.stateful.positions import categorise
 
 

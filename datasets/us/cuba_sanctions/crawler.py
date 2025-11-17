@@ -4,7 +4,7 @@ from rigour.mime.types import CSV
 
 from zavod import Context
 from zavod import helpers as h
-from zavod.shed.zyte_api import fetch_html
+from zavod.extract.zyte_api import fetch_html
 
 ORIGINAL_ACCOMMODATIONS_URL = (
     "https://www.state.gov/cuba-prohibited-accommodations-list-initial-publication/"

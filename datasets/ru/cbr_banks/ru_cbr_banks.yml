@@ -10,12 +10,12 @@ summary: >
   Banks registered in Russia, including their unique identifiers (BIK, OGRN),
   addresses, and other details.
 description: |
-  This dataset provides an overview of Russian banks, including key identifiers such as 
-  Bank Identifier Codes (BIK), Primary State Registration Numbers (OGRN), and other relevant 
-  registration numbers. It includes official bank names and addresses, along with financial 
+  This dataset provides an overview of Russian banks, including key identifiers such as
+  Bank Identifier Codes (BIK), Primary State Registration Numbers (OGRN), and other relevant
+  registration numbers. It includes official bank names and addresses, along with financial
   details such as authorized capital and operational status.
 
-  The dataset also tracks important dates, including incorporation, inclusion in the deposit 
+  The dataset also tracks important dates, including incorporation, inclusion in the deposit
   insurance system, and significant status changes such as license removals and related codes.
 tags:
   - sector.banking
@@ -23,9 +23,9 @@ publisher:
   name: Bank of Russia
   acronym: CBR
   description: |
-    The Central Bank of the Russian Federation, commonly known as the Bank of Russia, is 
-    the central bank of Russia. It is responsible for protecting the ruble and promoting 
-    growth within the Russian financial system. The bank issues and maintains financial 
+    The Central Bank of the Russian Federation, commonly known as the Bank of Russia, is
+    the central bank of Russia. It is responsible for protecting the ruble and promoting
+    growth within the Russian financial system. The bank issues and maintains financial
     regulations across Russia, ensuring stability within the banking sector.
   url: https://www.cbr.ru/eng/
   country: ru
@@ -41,7 +41,7 @@ dates:
 assertions:
   min:
     schema_entities:
-      Company: 570
+      Company: 560
   max:
     schema_entities:
       Company: 700

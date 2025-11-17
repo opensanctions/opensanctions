@@ -3,12 +3,11 @@ from rigour.mime.types import XLSX
 from openpyxl import load_workbook
 
 from zavod import Context
-from zavod.shed.zyte_api import fetch_html, fetch_resource
+from zavod.extract.zyte_api import fetch_html, fetch_resource
 from zavod import helpers as h
 
 
 def crawl_item(row: Dict[str, str], context: Context):
-
     entity = context.make("LegalEntity")
     entity.id = context.make_id(row.get("provider_name"), row.get("npi"))
     entity.add("name", row.pop("provider_name"))

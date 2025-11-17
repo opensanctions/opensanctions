@@ -8,9 +8,9 @@ from nomenklatura.enrich.common import EnricherConfig
 from nomenklatura.enrich.common import EnrichmentException
 from nomenklatura.enrich.common import BaseEnricher
 from nomenklatura.matching import get_algorithm, LogicV1
+from nomenklatura.blocker.index import BlockingMatches, Index
 from nomenklatura.resolver import Identifier
-from nomenklatura.judgement import Judgement
-from nomenklatura.resolver import Resolver
+from nomenklatura import Judgement, Resolver
 from nomenklatura.cache import Cache
 
 from zavod.archive import dataset_state_path
@@ -20,7 +20,6 @@ from zavod.entity import Entity
 from zavod.meta import Dataset, get_multi_dataset, get_catalog
 from zavod.store import get_store
 from zavod.reset import reset_caches
-from zavod.integration.duckdb_index import DuckDBIndex, BlockingMatches
 
 
 log = logging.getLogger(__name__)
@@ -70,7 +69,7 @@ class LocalEnricher(BaseEnricher[DS]):
         self.target_store.sync()
         self.target_view = self.target_store.view(target_dataset)
         index_path = dataset_state_path(target_dataset_name) / "enrich-index"
-        self._index = DuckDBIndex(
+        self._index = Index(
             self.target_view, index_path, config.get("index_options", {})
         )
         self._index.build()

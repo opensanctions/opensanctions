@@ -3,7 +3,7 @@ from csv import DictReader
 
 from lxml import html
 from rigour.mime.types import HTML
-from zavod.shed import zyte_api
+from zavod.extract import zyte_api
 
 from zavod import Context
 from zavod import helpers as h

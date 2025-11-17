@@ -2,7 +2,7 @@ from stdnum.pk import cnic as cnic_validator  # type: ignore
 
 from zavod import Context
 from zavod import helpers as h
-from zavod.shed.zyte_api import fetch_json
+from zavod.extract.zyte_api import fetch_json
 
 # 4th Schedule under the Anti Terrorism Act, 1997
 PROGRAM_KEY = "PK-ATA1997"

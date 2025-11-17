@@ -16,7 +16,7 @@ repos:
     rev: v0.13.0
     hooks:
       - id: ruff-check
-        args: ['--select', 'I', '--fix']
+        args: ['--fix']
       - id: ruff-format
   - repo: https://github.com/adrienverge/yamllint.git
     rev: v1.37.1
@@ -33,6 +33,19 @@ repos:
           zavod/zavod/tests|
           contrib/|
           .pywikibot/|
+          datasets/|
+          )
+        args: ['--strict']
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.18.1
+    hooks:
+      - id: mypy
+        # Don't run isolated but use the activated venv. Not perfect but better than re-declaring all deps here
+        language: system
+        files: "datasets/"
+        exclude: |
+          (?x)^(
           datasets/_analysis|
           datasets/_collections|
           datasets/_externals|
@@ -58,7 +71,6 @@ repos:
           datasets/cu|
           datasets/cy|
           datasets/cz|
-          datasets/de|
           datasets/dk|
           datasets/ee|
           datasets/eg|
@@ -69,13 +81,11 @@ repos:
           datasets/ge|
           datasets/gg|
           datasets/hk|
-          datasets/hr|
           datasets/id|
           datasets/ie|
           datasets/il|
           datasets/im|
           datasets/in|
-          datasets/iq|
           datasets/ir|
           datasets/is|
           datasets/jp|

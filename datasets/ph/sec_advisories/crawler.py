@@ -2,7 +2,7 @@ from typing import cast
 
 from banal import ensure_list
 from lxml.etree import _Element
-from zavod.shed.zyte_api import fetch_html
+from zavod.extract.zyte_api import fetch_html
 
 from zavod import Context
 from zavod import helpers as h

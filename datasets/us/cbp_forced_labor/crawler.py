@@ -1,7 +1,7 @@
 import csv
 
 from rigour.mime.types import CSV
-from zavod.shed.zyte_api import fetch_html, fetch_resource
+from zavod.extract.zyte_api import fetch_html, fetch_resource
 
 from zavod import Context
 from zavod import helpers as h

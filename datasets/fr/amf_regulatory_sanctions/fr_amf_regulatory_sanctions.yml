@@ -1121,3 +1121,8 @@ lookups:
       - match: "La Société de gestion des fonds d'investissement de Bretagne"
         entities:
           - La Société de gestion des fonds d'investissement de Bretagne
+      - match: La société Carat GP<br /> M. Jimmy Guinet<br /> M. Sébastien Renaud
+        entities:
+          - Carat GP
+          - Jimmy Guinet
+          - Sébastien Renaud

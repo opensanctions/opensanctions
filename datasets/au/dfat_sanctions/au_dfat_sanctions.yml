@@ -119,6 +119,10 @@ lookups:
           - "2093 (2013)"
           - "751 (Somalia and Eritrea)"
         value: null
+      - match:
+          - 2048 (Guinea-Bissau)
+          - Guinea-Bissau (2048)
+        value: UN-SC2048
   type:
     options:
       - match: Individual
