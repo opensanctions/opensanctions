@@ -136,17 +136,48 @@ def crawl(context: Context) -> None:
         if npi is not None and len(npi):
             entity.add("npiCode", npi)
 
-        h.apply_name(
-            entity,
+        name = h.make_name(
             full=row.pop("Name", None),
-            first_name=row.pop("First", None),
-            middle_name=row.pop("Middle", None),
-            last_name=row.pop("Last", None),
+            first_name=row.get("First", None),
+            middle_name=row.get("Middle", None),
+            last_name=row.get("Last", None),
             prefix=row.pop("Prefix", None),
             suffix=row.pop("Suffix", None),
-            lang="eng",
-            quiet=True,
         )
+
+        if not name:
+            return
+        full_name_prop = "name"
+
+        # Not vessels
+        if len(name) < 5 and entity.schema.is_a("LegalEntity"):
+            context.log.info(
+                "Moving legal entity name to weakAlias",
+                full_name=name,
+                cross_ref=cross_ref,
+            )
+            full_name_prop = "weakAlias"
+        elif len(name) < 10 and " " not in name and entity.schema.is_a("Person"):
+            context.log.info(
+                "Moving person name to weakAlias",
+                full_name=name,
+                cross_ref=cross_ref,
+            )
+            full_name_prop = "weakAlias"
+        # Treat longer single word entity names as iffy for now
+        # len("Sebastiano") == 10
+        elif len(name) < 11 and " " not in name and entity.schema.is_a("LegalEntity"):
+            context.log.info(
+                "Moving legal entity name to alias",
+                full_name=name,
+                cross_ref=cross_ref,
+            )
+            full_name_prop = "alias"
+
+        entity.add(full_name_prop, name, lang="eng")
+        entity.add("firstName", row.pop("First", None), quiet=True, lang="eng")
+        entity.add("middleName", row.pop("Middle", None), quiet=True, lang="eng")
+        entity.add("lastName", row.pop("Last", None), quiet=True, lang="eng")
 
         state = row.pop("State / Province", None)
         country = row.pop("Country", None)
