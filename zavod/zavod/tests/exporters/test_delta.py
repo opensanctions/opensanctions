@@ -11,7 +11,7 @@ from zavod.archive import DELTA_EXPORT_FILE, DATASETS, DELTA_INDEX_FILE
 from zavod.entity import Entity
 from zavod.exporters import export_dataset
 from zavod.meta import Dataset
-from zavod.publish import _publish_artifacts
+from zavod.publish import _archive_artifacts
 from zavod.runtime.versions import make_version
 from zavod.store import get_store
 
@@ -81,7 +81,7 @@ def test_delta_exporter(testdataset1: Dataset, resolver: Resolver):
         dataset_path / DELTA_INDEX_FILE, expected_versions
     )
 
-    _publish_artifacts(testdataset1)
+    _archive_artifacts(testdataset1)
 
     version2 = Version.new("bbb")
     make_version(testdataset1, version2, overwrite=True)
@@ -113,7 +113,7 @@ def test_delta_exporter(testdataset1: Dataset, resolver: Resolver):
     )
 
     # Round 3: check that the delta exporter can handle resolver changes
-    _publish_artifacts(testdataset1)
+    _archive_artifacts(testdataset1)
     version3 = Version.new("ccc")
     make_version(testdataset1, version3, overwrite=True)
     canon_id = resolver.decide("EC", "ECX", Judgement.POSITIVE)
