@@ -1,14 +1,15 @@
+from typing import Dict
 from zavod import Context, helpers as h
 
 
-def crawl_item(input_dict: dict, context: Context):
+def crawl_item(context: Context, row: Dict[str, str | None]) -> None:
     entity = context.make("Person")
 
     # The last row of the table is empty
-    if all(v is None for v in input_dict.values()):
+    if all(v is None for v in row.values()):
         return
 
-    id_ = input_dict.pop("id")
+    id_ = row.pop("id")
 
     entity.id = context.make_slug(id_)
 
@@ -21,7 +22,7 @@ def crawl_item(input_dict: dict, context: Context):
     # Finally, we will remove the information contained in the brackets, because they are not relevant
     names = [
         name.strip()
-        for name in input_dict.pop("person_name").split("• ")
+        for name in (row.pop("person_name") or "").split("• ")
         if name.strip()
     ]
     for name in names:
@@ -31,7 +32,7 @@ def crawl_item(input_dict: dict, context: Context):
         entity.add("alias", aliases)
 
     sanction = h.make_sanction(context, entity)
-    h.apply_date(sanction, "startDate", input_dict.pop("date_of_freezing"))
+    h.apply_date(sanction, "startDate", row.pop("date_of_freezing"))
     sanction.add(
         "program",
         "Decree No. (14) of 2015 Concerning the Enforcement of Security Council Resolutions",
@@ -39,11 +40,11 @@ def crawl_item(input_dict: dict, context: Context):
 
     context.emit(entity)
     context.emit(sanction)
-    context.audit_data(input_dict)
+    context.audit_data(row)
 
 
-def crawl(context: Context):
-    response = context.fetch_html(context.data_url)
-    table = response.find(".//table")
+def crawl(context: Context) -> None:
+    doc = context.fetch_html(context.data_url)
+    table = h.xpath_elements(doc, ".//table", expect_exactly=1)[0]
     for row in h.parse_html_table(table, header_tag="td"):
-        crawl_item(h.cells_to_str(row), context)
+        crawl_item(context, h.cells_to_str(row))
