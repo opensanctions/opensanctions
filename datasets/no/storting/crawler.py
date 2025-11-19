@@ -73,7 +73,7 @@ def crawl_item(context, item: dict, term: str) -> None:
     h.apply_date(entity, "deathDate", parse_ms_date(item.pop("death_date", None)))
     entity.add("political", item.pop("party").pop("name"))
     entity.add("citizenship", "no")
-    entity.add("gender", context.lookup_value("gender", item.pop("gender")))
+    entity.add("gender", context.lookup_value("gender", item.pop("gender")), lang="eng")
     if not entity.get("gender")[0]:
         context.log.warning(f"Unknown gender for {entity.id}")
 
