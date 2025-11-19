@@ -1,0 +1,72 @@
+title: Norway Members of the Storting
+prefix: no-storting
+url: https://www.stortinget.no/en/In-English/Members-of-the-Storting/current-members-of-parliament/
+coverage:
+  frequency: monthly
+  start: 2025-11-19
+load_statements: true
+entry_point: crawler.py
+summary: >-
+  Current and recent members of the Norwegian Storting, the national legislature.
+description: |
+  This dataset provides information about the current and recent members of the Storting,
+  Norwegian Parliament. It includes details about each member, such as name, date and
+  place of birth, parliamentary term, and political affiliation.
+tags:
+  - list.pep
+publisher:
+  name: Stortinget
+  description: |
+    The Storting (Stortinget) is the supreme legislature of Norway, consisting of 169 representatives
+    elected every four years. It is a unicameral body, meaning it has only one chamber, and is
+    responsible for making laws, approving the budget, and overseeing the government.
+  country: "no"
+  url: https://www.stortinget.no/en/
+  official: true
+data:
+  url: https://data.stortinget.no/eksport/representanter?stortingsperiodeid=2025-2029&format=json
+  format: JSON
+  lang: nor
+
+# 169 members
+assertions:
+  min:
+    schema_entities:
+      Person: 165
+      Position: 1
+    country_entities:
+      no: 1
+
+lookups:
+  columns:
+    options:
+      - match: etternavn
+        value: last_name
+      - match: fornavn
+        value: first_name
+      - match: kjoenn
+        value: gender
+      - match: foedselsdato
+        value: birth_date
+      - match: doedsdato
+        value: death_date
+      - match: fylke
+        value: constituency
+      - match: parti
+        value: party
+      - match: vara_representant
+        value: is_deputy
+      - match: respons_dato_tid
+        value: response_date_time
+      - match: navn
+        value: name
+      - match: representert_parti
+        value: represented_party
+      - match: historisk_fylke
+        value: historical_constituency
+  gender:
+    options:
+      - match: "1"
+        value: female
+      - match: "2"
+        value: male
