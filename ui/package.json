@@ -42,7 +42,7 @@
     "ts-jest": "^29.4.0",
     "typescript": "^5",
     "eslint": "^9.23.0",
-    "eslint-config-next": "^15.2.4",
+    "eslint-config-next": "^16.0.3",
     "eslint-plugin-import": "^2.32.0"
   }
 }
