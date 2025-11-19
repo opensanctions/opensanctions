@@ -1,5 +1,7 @@
+from typing import Optional, Dict, Any, Tuple
+
 from zavod import Context, helpers as h
-from zavod.stateful.positions import OccupancyStatus, categorise
+from zavod.stateful.positions import categorise
 
 
 def translate_keys(member, context) -> dict:
@@ -12,6 +14,22 @@ def translate_keys(member, context) -> dict:
                 context.lookup_value("keys", nk) or nk: nv for nk, nv in v.items()
             }
     return translated
+
+
+def extract_terms(
+    item: Dict[str, Any],
+) -> Tuple[Optional[str], Optional[str]]:
+    """
+    Extract the start and end dates of the main parliamentary term.
+    """
+    for role in item.pop("person_mandate", {}).pop("mandate", []):
+        if role.get("organ_code") == "kam" and role.get("type") == "kammaruppdrag":
+            #  Member of Parliament, Deputy Minister
+            if role.get("role_code") in {"Riksdagsledamot", "Statsrådsersättare"}:
+                start = role.get("from")
+                end = role.get("tom")
+                return start, end
+    return (None, None)
 
 
 def crawl(context: Context):
@@ -50,14 +68,14 @@ def crawl(context: Context):
         if not categorisation.is_pep:
             return
 
+        start_date, end_date = extract_terms(item)
         occupancy = h.make_occupancy(
             context,
             person=entity,
             position=position,
-            # start_date=term.split("-")[0],
-            # end_date=term.split("-")[1],
+            start_date=start_date,
+            end_date=end_date,
             categorisation=categorisation,
-            status=OccupancyStatus.CURRENT,
         )
         if occupancy is not None:
             context.emit(occupancy)
@@ -75,7 +93,6 @@ def crawl(context: Context):
                 "bild_url_80",
                 "bild_url_192",
                 "bild_url_max",
-                "person_mandate",
                 "person_info",
                 "iort",
             ],
