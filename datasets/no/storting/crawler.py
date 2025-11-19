@@ -71,13 +71,11 @@ def crawl_item(context, item: dict, term: str) -> None:
     h.apply_name(entity, first_name=first_name, last_name=last_name)
     h.apply_date(entity, "birthDate", parse_ms_date(item.pop("birth_date")))
     h.apply_date(entity, "deathDate", parse_ms_date(item.pop("death_date", None)))
+    entity.add("political", item.pop("party").pop("name"))
+    entity.add("citizenship", "no")
     entity.add("gender", context.lookup_value("gender", item.pop("gender")))
     if not entity.get("gender")[0]:
         context.log.warning(f"Unknown gender for {entity.id}")
-    entity.add("political", item.pop("party").pop("name"))
-    entity.add("citizenship", "no")
-    if _ := item.pop("is_deputy", False):
-        entity.add("topics", "role.pep")
 
     position = h.make_position(
         context,
@@ -106,11 +104,11 @@ def crawl_item(context, item: dict, term: str) -> None:
 
     context.audit_data(
         item,
-        ["constituency", "response_date_time", "versjon"],
+        ["constituency", "response_date_time", "versjon", "is_deputy"],
     )
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     terms = get_latest_terms(context)
     for term in terms:
         data = context.fetch_json(DATA_URL.format(term=term), cache_days=3)
