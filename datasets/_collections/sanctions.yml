@@ -96,6 +96,7 @@ children:
   - nz_designated_terrorists
   - nz_russia_sanctions
   - ph_amlc_sanctions
+  - pk_proscribed_persons
   - pl_finanse_sanctions
   - pl_mswia_sanctions
   - ps_local_freezing

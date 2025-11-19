@@ -13,52 +13,27 @@ for a bit longer (2024-07-31)
 """
 
 import re
-from typing import Generator, Dict, Tuple, Optional
+from typing import Dict
 from lxml.etree import _Element
-from normality import slugify
 from zavod import Context, helpers as h
 
 
-def parse_table(
-    table: _Element,
-) -> Generator[Dict[str, Tuple[str, Optional[str]]], None, None]:
-    headers = None
-    for row in table.findall(".//tr"):
-        if headers is None:
-            headers = []
-            for el in row.findall("./th"):
-                headers.append(slugify(el.text_content()))
-            continue
-
-        cells = []
-        for el in row.findall("./td"):
-            for span in el.findall(".//span"):
-                # add newline to split spans later if we want
-                span.tail = "\n" + span.tail if span.tail else "\n"
-
-            a = el.find(".//a")
-            if a is None:
-                cells.append((el.text_content(), None))
-            else:
-                cells.append((el.text_content(), a.get("href")))
-
-        assert len(headers) == len(cells)
-        yield {hdr: c for hdr, c in zip(headers, cells)}
-
-
-def crawl_item(input_dict: dict, context: Context):
-    schema = "LegalEntity"
+def crawl_item(context: Context, row: Dict[str, _Element]) -> None:
     names = []
-    for dirty_name in input_dict.pop("firms-individuals")[0].split("\n"):
+    name_els = row.pop("firms_individuals")
+    assert name_els is not None
+    for dirty_name_el in name_els.findall(".//span"):
         # for one known instance of ,1 at the end of the name
-        dirty_name = re.sub(r",1$", "", dirty_name)
+        dirty_name = re.sub(r",1$", "", h.element_text(dirty_name_el))
         names.extend(h.split_comma_names(context, dirty_name))
-    case_summary = input_dict.pop("case-summary")[0].strip()
-    case_id, source_url = input_dict.pop("case-id")
-    date = input_dict.pop("action-date-sort-ascending")[0].strip()
+    case_summary = h.element_text(row.pop("case_summary"))
+    case_id_el = row.pop("case_id")
+    case_id = h.element_text(case_id_el)
+    source_url = case_id_el.get("href")
+    date = h.element_text(row.pop("action_date_sort_ascending"))
 
     for name in names:
-        entity = context.make(schema)
+        entity = context.make("LegalEntity")
         entity.id = context.make_slug(name)
         entity.add("name", name)
         entity.add("topics", "reg.action")
@@ -68,15 +43,15 @@ def crawl_item(input_dict: dict, context: Context):
         sanction = h.make_sanction(context, entity, key=case_id)
         description = f"{date}: {case_summary}"
         sanction.add("description", description)
-        sanction.add("authorityId", case_id.strip())
+        sanction.add("authorityId", case_id)
         sanction.add("sourceUrl", source_url)
         h.apply_date(sanction, "date", date)
         context.emit(sanction)
 
-    context.audit_data(input_dict, ignore=["document-type"])
+    context.audit_data(row, ignore=["document_type"])
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     # Each page only displays 15 rows at a time, so we need to loop until we find an empty table
     page_num = 0
     while True:
@@ -95,8 +70,8 @@ def crawl(context: Context):
             context.log.info("Reached empty state")
             break
 
-        for item in parse_table(table):
-            crawl_item(item, context)
+        for row in h.parse_html_table(table):
+            crawl_item(context, row)
 
         page_num += 1
         if page_num > 3000:
