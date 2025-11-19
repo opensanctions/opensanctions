@@ -9,7 +9,7 @@ from zavod.helpers import (
     apply_name,
     apply_reviewed_names,
     make_name,
-    name_needs_cleaning,
+    is_name_irregular,
     split_comma_names,
 )
 from zavod.meta.dataset import Dataset
@@ -130,14 +130,14 @@ def test_split_comma_names(vcontext: Context, caplog):
     assert "warning: Not sure how to split on comma or and." in logs
 
 
-def test_needs_cleaning(testdataset1: Dataset):
+def test_is_name_irregular(testdataset1: Dataset):
     org_data = {"id": "doe", "schema": "Organization", "properties": {}}
     org = Entity(testdataset1, org_data)
-    assert not name_needs_cleaning(org, "Company Ltd.")
+    assert not is_name_irregular(org, "Company Ltd.")
     # Default
-    assert name_needs_cleaning(org, "Company Ltd; Holding Company Ltd.")
+    assert is_name_irregular(org, "Company Ltd; Holding Company Ltd.")
     # Extra
-    assert name_needs_cleaning(org, "Company Ltd, Holding Company Ltd.")
+    assert is_name_irregular(org, "Company Ltd, Holding Company Ltd.")
 
 
 @patch("zavod.helpers.names.settings.CI", False)  # For validity

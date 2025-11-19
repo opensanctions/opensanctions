@@ -79,7 +79,7 @@ from zavod.helpers.names import (
     apply_reviewed_names,
     clean_names,
     make_name,
-    name_needs_cleaning,
+    is_name_irregular,
     split_comma_names,
 )
 from zavod.helpers.numbers import apply_number
@@ -139,7 +139,7 @@ __all__ = [
     "assert_file_hash",
     "assert_html_url_hash",
     "split_comma_names",
-    "name_needs_cleaning",
+    "is_name_irregular",
     "apply_reviewed_names",
     "clean_names",
     "make_pdf_page_images",

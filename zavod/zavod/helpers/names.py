@@ -250,8 +250,8 @@ def split_comma_names(context: Context, text: str) -> List[str]:
             return [text]
 
 
-def name_needs_cleaning(entity: Entity, string: Optional[str]) -> bool:
-    """Determine whether a name string likely needs cleaning."""
+def is_name_irregular(entity: Entity, string: Optional[str]) -> bool:
+    """Determine whether a name string potentially needs cleaning."""
     if not string:
         return False
 
@@ -323,7 +323,7 @@ def apply_reviewed_names(
     if not string:
         return
 
-    if settings.CI or not name_needs_cleaning(entity, string):
+    if settings.CI or not is_name_irregular(entity, string):
         prop = "alias" if alias else "name"
         entity.add(prop, string, lang=lang)
         return
