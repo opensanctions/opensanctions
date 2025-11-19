@@ -2,15 +2,25 @@ import io
 import csv
 import time
 from pathlib import Path
-from typing import Optional, Dict, Any, Generator
+from typing import Literal, Optional, Dict, Any, Generator, Tuple
 from zipfile import ZipFile
 from urllib.parse import urljoin
+from pydantic import BaseModel
 from rigour.mime.types import ZIP
 
 from zavod import Context
 from zavod import helpers as h
+from zavod.stateful.review import TextSourceValue, review_extraction
 
 DOWNLOAD_URL = "https://sam.gov/api/prod/fileextractservices/v1/api/download/"
+
+
+NameProp = Literal["name", "alias", "weakAlias"]
+
+
+class FullName(BaseModel):
+    name: str
+    property_name: NameProp
 
 
 def parse_date(date: Optional[str]):
@@ -19,14 +29,14 @@ def parse_date(date: Optional[str]):
     return date
 
 
-def read_rows(zip_path: Path) -> Generator[Dict[str, Any], None, None]:
+def read_rows(zip_path: Path) -> Generator[Tuple[str, Dict[str, Any]], None, None]:
     with ZipFile(zip_path, "r") as zip:
         for file_name in zip.namelist():
             with zip.open(file_name) as zfh:
                 fh = io.TextIOWrapper(zfh)
                 reader = csv.DictReader(fh, delimiter=",", quotechar='"')
                 for row in reader:
-                    yield row
+                    yield file_name, row
 
 
 def crawl_data_url(context: Context) -> str:
@@ -46,7 +56,7 @@ def crawl(context: Context) -> None:
     path = context.fetch_resource("source.zip", data_url)
     context.export_resource(path, ZIP, title=context.SOURCE_TITLE)
     schemata: Dict[str, str] = {}
-    for row in read_rows(path):
+    for filename, row in read_rows(path):
         classification = row.pop("Classification")
         schema = context.lookup_value("classifications", classification)
         if schema is None:
@@ -136,17 +146,54 @@ def crawl(context: Context) -> None:
         if npi is not None and len(npi):
             entity.add("npiCode", npi)
 
-        h.apply_name(
-            entity,
+        name = h.make_name(
             full=row.pop("Name", None),
-            first_name=row.pop("First", None),
-            middle_name=row.pop("Middle", None),
-            last_name=row.pop("Last", None),
+            first_name=row.get("First", None),
+            middle_name=row.get("Middle", None),
+            last_name=row.get("Last", None),
             prefix=row.pop("Prefix", None),
             suffix=row.pop("Suffix", None),
-            lang="eng",
-            quiet=True,
         )
+
+        if not name:
+            return
+        full_name_prop = "name"
+        # Not vessels
+        if len(name) < 5 and entity.schema.is_a("LegalEntity"):
+            full_name_prop = "weakAlias"
+        elif len(name) < 10 and " " not in name and entity.schema.is_a("Person"):
+            full_name_prop = "weakAlias"
+        # Treat longer single word entity names as iffy for now
+        # len("Sebastiano") == 10
+        elif len(name) < 11 and " " not in name and entity.schema.is_a("LegalEntity"):
+            full_name_prop = "alias"
+
+        names_string = (
+            f"Full name: {name}\n"
+            f"Schema: {entity.schema.name}\n"
+            f"First name: {row.get('First')}\n"
+            f"Middle name: {row.get('Middle')}\n"
+            f"Last name: {row.get('Last')}\n"
+            f"Cross-reference: {cross_ref}\n"
+        )
+        source_value = TextSourceValue(names_string, "All names", names_string)
+        extraction = FullName(name=name, property_name=full_name_prop)
+        origin = filename
+        if full_name_prop != "name":
+            review = review_extraction(context, source_value, extraction, origin)
+            if review.accepted:
+                extraction = review.extracted_data
+
+        entity.add(
+            extraction.property_name,
+            extraction.name,
+            lang="eng",
+            origin=origin,
+        )
+
+        entity.add("firstName", row.pop("First", None), quiet=True, lang="eng")
+        entity.add("middleName", row.pop("Middle", None), quiet=True, lang="eng")
+        entity.add("lastName", row.pop("Last", None), quiet=True, lang="eng")
 
         state = row.pop("State / Province", None)
         country = row.pop("Country", None)
