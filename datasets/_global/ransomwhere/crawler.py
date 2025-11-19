@@ -16,7 +16,8 @@ def crawl(context: Context):
         wallet.add("topics", "crime.theft")
         wallet.add("createdAt", entry.pop("createdAt"))
         wallet.add("modifiedAt", entry.pop("updatedAt"))
-        wallet.add("alias", entry.pop("family"))
+        # Family is the category of ransomware that uses this wallet.
+        wallet.add("notes", entry.pop("family"))
         h.apply_number(wallet, "balance", entry.pop("balance"))
         h.apply_number(wallet, "amountUsd", entry.pop("balanceUSD"))
         wallet.add("currency", entry.pop("blockchain"))
