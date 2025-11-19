@@ -19,7 +19,10 @@ def test_browser_html(testdataset1: Dataset):
     with requests_mock.Mocker() as m:
         m.post(
             "https://api.zyte.com/v1/extract",
-            json={"browserHtml": "<html><h1>Hello, World!</h1></html>"},
+            json={
+                "browserHtml": "<html><h1>Hello, World!</h1></html>",
+                "statusCode": 200,
+            },
         )
         doc = fetch_html(context, "https://test.com/bla", ".//h1")
         el = doc.find(".//h1")
@@ -61,6 +64,7 @@ def test_fetch_html_http_response_body(testdataset1: Dataset):
                 "httpResponseHeaders": [
                     {"name": "content-type", "value": "text/html; charset=iso-8859-1"}
                 ],
+                "statusCode": 200,
             },
         )
         doc = fetch_html(
@@ -86,7 +90,7 @@ def test_unblock_failed(testdataset1: Dataset):
     with requests_mock.Mocker() as m:
         m.post(
             "https://api.zyte.com/v1/extract",
-            json={"browserHtml": "<html><h1>Enable JS</h1></html>"},
+            json={"browserHtml": "<html><h1>Enable JS</h1></html>", "statusCode": 200},
         )
         with pytest.raises(UnblockFailedException):
             fetch_html(context, "https://test.com/bla", ".//div", backoff_factor=0)
@@ -101,7 +105,10 @@ def test_caching(testdataset1: Dataset):
     with requests_mock.Mocker() as m:
         m.post(
             "https://api.zyte.com/v1/extract",
-            json={"browserHtml": "<html><h1>Hello, World!</h1></html>"},
+            json={
+                "browserHtml": "<html><h1>Hello, World!</h1></html>",
+                "statusCode": 200,
+            },
         )
         doc = fetch_html(context, "https://test.com/bla", ".//h1", cache_days=14)
         el = doc.find(".//h1")
@@ -130,6 +137,7 @@ def test_fetch_resource(testdataset1: Dataset):
                 "httpResponseHeaders": [
                     {"name": "content-type", "value": "text/csv; charset=latin-1"}
                 ],
+                "statusCode": 200,
             },
         )
 
@@ -182,6 +190,7 @@ def test_fetch_text(testdataset1: Dataset):
                 "httpResponseHeaders": [
                     {"name": "content-type", "value": "text/plain; charset=utf-8"}
                 ],
+                "statusCode": 200,
             },
         )
         cached, media_type, charset, text = fetch_text(
@@ -208,6 +217,7 @@ def test_fetch_json(testdataset1: Dataset):
                 "httpResponseHeaders": [
                     {"name": "content-type", "value": "application/json; charset=utf-8"}
                 ],
+                "statusCode": 200,
             },
         )
         data = fetch_json(
@@ -237,6 +247,7 @@ def test_fetch_json_expect_json(testdataset1: Dataset):
                 "httpResponseHeaders": [
                     {"name": "content-type", "value": "text/html; charset=utf-8"}
                 ],
+                "statusCode": 200,
             },
         )
         with pytest.raises(AssertionError) as exc:
