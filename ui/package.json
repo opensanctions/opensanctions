@@ -27,7 +27,7 @@
     "react": "^19.2.0",
     "react-bootstrap": "^2.10.10",
     "react-bootstrap-icons": "^1.11.6",
-    "react-dom": "^18.0.0",
+    "react-dom": "^19.2.0",
     "sass": "^1.87.0",
     "turndown": "^7.2.0"
   },
@@ -36,7 +36,7 @@
     "@types/node": "^20",
     "@types/pg": "^8.15.4",
     "@types/react": "^19",
-    "@types/react-dom": "^18",
+    "@types/react-dom": "^19",
     "@types/turndown": "^5.0.5",
     "jest": "^30.0.4",
     "ts-jest": "^29.4.0",
