@@ -158,6 +158,9 @@ class ZyteResult:
 
     response_text: str
 
+    # If the response is served from the cache, status_code is None
+    status_code: Optional[int]
+
     # The cache fingerprint
     cache_fingerprint: str
     from_cache: bool
@@ -232,7 +235,10 @@ def fetch(
                 "HTTP cache hit", url=zyte_request.url, fingerprint=fingerprint
             )
             return ZyteResult(
-                response_text=text, from_cache=True, cache_fingerprint=fingerprint
+                response_text=text,
+                status_code=None,
+                from_cache=True,
+                cache_fingerprint=fingerprint,
             )
 
     context.log.debug(f"Zyte API request: {zyte_request.url}", data=zyte_data)
@@ -255,6 +261,7 @@ def fetch(
         text = b64_text.decode(charset) if charset is not None else b64_text.decode()
 
     return ZyteResult(
+        status_code=api_response.json()["statusCode"],
         response_text=text,
         media_type=media_type,
         charset=charset,

@@ -9,7 +9,7 @@ from zavod import helpers as h
 PROGRAM_KEY = "OHCHR-BHR"
 
 
-def crawl_row(context: Context, row: Dict[str, str]):
+def crawl_row(context: Context, row: Dict[str, str]) -> None:
     name = row.pop("Business enterprise").strip()
     activities = row.pop("Sub-paragraph of listed activity (2020 report)").strip()
     country = row.pop("State concerned").strip()
@@ -37,16 +37,16 @@ def crawl_row(context: Context, row: Dict[str, str]):
     context.audit_data(row, ["ID"])
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     """Crawl the OHCHR database as converted to CSV"""
     # Check that no new tables have been added
     content_xpath = "//div[contains(@class, 'ohchr-layout__container')]"
+    assert context.dataset.url is not None
     doc = zyte_api.fetch_html(context, context.dataset.url, content_xpath, cache_days=1)
-    content = doc.xpath(content_xpath)
-    assert len(content) == 1, len
+    content = h.xpath_elements(doc, content_xpath, expect_exactly=1)
     # Check if the data has been updated, normally with a new report, if the content has changed.
     h.assert_dom_hash(
-        content[0], "677e2522d3f3f1a1ba1b26209c5de77aa65ea5f5", text_only=True
+        content[0], "f6e6457c4df67f8c60186762e7568470703b1aa3", text_only=True
     )
 
     # Crawl the CSV version of the database
