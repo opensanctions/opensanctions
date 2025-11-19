@@ -1,5 +1,5 @@
 import re
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 
 from zavod import Context, helpers as h
 from zavod.stateful.positions import categorise
@@ -10,18 +10,27 @@ CUTOFF_YEAR = date.today().year - 20
 
 def parse_ms_date(ms_date: str) -> str | None:
     """
-    Convert /Date(1763485375798+0100)/ or /Date(-106963200000)/ to 'YYYY-MM-DD'.
-    Ignores timezone. Returns None if input is None or invalid.
+    Converts /Date(1763485375798+0100)/ or /Date(-106963200000+0200)/
+    to ISO format date string 'YYYY-MM-DD'.
+    Returns None if input is None.
     """
     if not ms_date:
         return None
-    # Extract digits (with optional minus sign)
-    match = re.search(r"-?\d+", ms_date)
+    # Extract milliseconds and optional timezone offset
+    match = re.match(r"/Date\((?P<ms>-?\d+)(?P<tz>[+-]\d{4})?\)/", ms_date)
     if not match:
-        return None  # Could not find a number
-    ms = int(match.group(0))
+        raise ValueError(f"Invalid MS date format: {ms_date}")
+    ms = int(match.group("ms"))
+    tz = match.group("tz")
+    # Convert milliseconds to UTC datetime
     dt = datetime.utcfromtimestamp(ms / 1000)
-    return dt.date().isoformat()
+    # Apply timezone offset if present
+    if tz:
+        sign = 1 if tz[0] == "+" else -1
+        hours_offset = int(tz[1:3])
+        minutes_offset = int(tz[3:5])
+        dt += timedelta(hours=hours_offset, minutes=minutes_offset) * sign
+    return str(dt.date().isoformat())
 
 
 def translate_keys(member, context) -> dict:
