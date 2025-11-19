@@ -2,7 +2,7 @@ import io
 import csv
 import time
 from pathlib import Path
-from typing import Optional, Dict, Any, Generator, Tuple
+from typing import Literal, Optional, Dict, Any, Generator, Tuple
 from zipfile import ZipFile
 from urllib.parse import urljoin
 from pydantic import BaseModel
@@ -15,9 +15,12 @@ from zavod.stateful.review import TextSourceValue, review_extraction
 DOWNLOAD_URL = "https://sam.gov/api/prod/fileextractservices/v1/api/download/"
 
 
+NameProp = Literal["name", "alias", "weakAlias"]
+
+
 class FullName(BaseModel):
     name: str
-    property_name: str
+    property_name: NameProp
 
 
 def parse_date(date: Optional[str]):
@@ -171,6 +174,7 @@ def crawl(context: Context) -> None:
             f"First name: {row.get('First')}\n"
             f"Middle name: {row.get('Middle')}\n"
             f"Last name: {row.get('Last')}\n"
+            f"Cross-reference: {cross_ref}\n"
         )
         source_value = TextSourceValue(names_string, "All names", names_string)
         extraction = FullName(name=name, property_name=full_name_prop)
