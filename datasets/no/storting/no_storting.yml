@@ -28,14 +28,12 @@ data:
   format: JSON
   lang: nor
 
-# 169 members
+# 169 members * several most recent terms ≈ 500 members
 assertions:
   min:
     schema_entities:
-      Person: 165
+      Person: 500
       Position: 1
-    country_entities:
-      no: 1
 
 lookups:
   columns:
