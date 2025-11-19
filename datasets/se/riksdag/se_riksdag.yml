@@ -1,0 +1,69 @@
+title: Sweden Members of Riksdag
+prefix: se-riksdag
+url: https://www.riksdagen.se/en/members-and-parties/members/
+coverage:
+  frequency: monthly
+  start: 2025-11-19
+load_statements: true
+entry_point: crawler.py
+summary: >-
+  Current and recent members of the Swedish Parliament (Riksdag).
+description: |
+  This dataset provides information about the current and recent members of the Riksdag,
+  the national legislature of Sweden. It includes details such as name, date and place
+  of birth, parliamentary term, and political affiliation.
+tags:
+  - list.pep
+publisher:
+  name: Riksdagen
+  description: |
+    The Riksdag is the national legislature and the supreme decision-making body of Sweden.
+    It consists of 349 members who are elected every four years.
+  country: "se"
+  url: https://www.riksdagen.se/en/
+  official: true
+data:
+  url: https://data.riksdagen.se/personlista/?utformat=json
+  format: JSON
+  lang: swe
+
+# 349 members
+assertions:
+  min:
+    schema_entities:
+      Person: 345
+      Position: 1
+    country_entities:
+      se: 1
+
+lookups:
+  keys:
+    options:
+      - match: intressent_id
+        value: official_id
+      - match: tilltalsnamn
+        value: first_name
+      - match: efternamn
+        value: last_name
+      - match: fodd_ar
+        value: birth_year
+      - match: kon
+        value: gender
+      - match: parti
+        value: party
+      - match: valkrets
+        value: constituency
+      - match: hangar_guid
+        value: hangar_id
+      - match: sorteringsnamn
+        value: sort_name
+      - match: personuppdrag
+        value: person_mandate
+      - match: personuppgift
+        value: person_info
+  gender:
+    options:
+      - match: kvinna
+        value: female
+      - match: man
+        value: male
