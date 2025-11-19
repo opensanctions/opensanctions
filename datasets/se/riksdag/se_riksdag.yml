@@ -23,15 +23,15 @@ publisher:
   url: https://www.riksdagen.se/en/
   official: true
 data:
-  url: https://data.riksdagen.se/personlista/?utformat=json
+  url: https://data.riksdagen.se/personlista/?iid=&fnamn=&enamn=&f_ar=&kn=&parti=&valkrets=&rdlstatus=tjanst&org=&utformat=json&sort=sorteringsnamn&sortorder=asc&termlista=
   format: JSON
   lang: swe
 
-# 349 members
+# 2018 - 
 assertions:
   min:
     schema_entities:
-      Person: 345
+      Person: 500
       Position: 1
     country_entities:
       se: 1

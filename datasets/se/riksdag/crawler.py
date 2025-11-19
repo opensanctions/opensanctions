@@ -32,6 +32,16 @@ def extract_terms(
     return (None, None)
 
 
+def extract_gender(context, gender, entity_id) -> Optional[str]:
+    # Okänt is Swedish for "unknown"
+    if "okänt" in gender.lower():
+        return None
+    gender = context.lookup_value("gender", gender)
+    if not gender:
+        context.log.warning(f"Unknown gender for {entity_id}")
+    return gender
+
+
 def crawl(context: Context):
     data = context.fetch_json(context.data_url, cache_days=3)
     for item in data["personlista"]["person"]:
@@ -47,11 +57,7 @@ def crawl(context: Context):
         entity.add("political", item.pop("party"))
         entity.add("citizenship", "se")
         entity.add("sourceUrl", item.pop("person_url_xml"))
-        entity.add(
-            "gender", context.lookup_value("gender", item.pop("gender")), lang="eng"
-        )
-        if not entity.get("gender")[0]:
-            context.log.warning(f"Unknown gender for {entity.id}")
+        entity.add("gender", extract_gender(context, item.pop("gender"), entity.id))
 
         position = h.make_position(
             context,
