@@ -295,6 +295,43 @@ def apply_names(
             )
 
 
+def review_names(
+    context: Context,
+    entity: Entity,
+    string: Optional[str],
+    lang: Optional[str] = None,
+    alias: bool = False,
+) -> Optional[Review[CleanNames]]:
+    """
+    Clean names if needed, then post them for review.
+
+    Args:
+        context: The current context.
+        entity: The entity to apply names to.
+        string: The raw name(s) string.
+        alias: If this is known to be an alias and not a primary name.
+        lang: The language of the name, if known.
+    """
+    if not string:
+        return None
+
+    if settings.CI or not is_name_irregular(entity, string):
+        prop = "alias" if alias else "name"
+        entity.add(prop, string, lang=lang)
+        return None
+
+    names = clean_names(context, string)
+
+    source_value = TextSourceValue(key_parts=string, label="name", text=string)
+    review = review_extraction(
+        context,
+        source_value=source_value,
+        original_extraction=names,
+        origin=LLM_MODEL_VERSION,
+    )
+    return review
+
+
 def apply_reviewed_names(
     context: Context,
     entity: Entity,
@@ -303,8 +340,9 @@ def apply_reviewed_names(
     alias: bool = False,
 ) -> None:
     """
-    Apply cleaned and categorised names to an entity if accepted, falling back
-    to applying the original string as the name if not.
+    Clean names if needed, then post them for review.
+    Cleaned names are applied to an entity if accepted, falling back
+    to applying the original string as the name or alias if not.
 
     Also falls back to applying the original string if the CI environment
     variable is truthy, so that crawlers using this can run in CI.
@@ -316,22 +354,7 @@ def apply_reviewed_names(
         alias: If this is known to be an alias and not a primary name.
         lang: The language of the name, if known.
     """
-    if not string:
+    review = review_names(context, entity, string, lang=lang, alias=alias)
+    if review is None:
         return
-
-    if settings.CI or not is_name_irregular(entity, string):
-        prop = "alias" if alias else "name"
-        entity.add(prop, string, lang=lang)
-        return
-
-    names = clean_names(context, string)
-
-    source_value = TextSourceValue(key_parts=string, label="name", text=string)
-    review = review_extraction(
-        context,
-        source_value=source_value,
-        original_extraction=names,
-        origin=LLM_MODEL_VERSION,
-    )
-
     apply_names(entity, review, alias=alias, lang=lang)
