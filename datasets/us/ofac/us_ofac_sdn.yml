@@ -411,6 +411,7 @@ lookups:
           - Numero Unico de Identificacao Tributaria (NUIT)
           - UAE Identification
           - Romanian C.R.
+          - Tarjeta de Identidad
         identification: true
         prop: idNumber
       - match:
@@ -587,6 +588,8 @@ lookups:
           - "Digital Currency Address - BSC"
           - "Digital Currency Address - ARB"
           - "Digital Currency Address - TRX"
+          - "Digital Currency Address - BNB"
+          - "Digital Currency Address - SOL"
         nested:
           schema: CryptoWallet
           feature: currency

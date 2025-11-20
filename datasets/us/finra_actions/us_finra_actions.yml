@@ -616,3 +616,57 @@ lookups:
         names:
           - Robert W. Baird & Co. Inc.
           - Hefren-Tillotson Inc.
+      - match: "pryor, counts & co. inc. malcolmn d. pryor"
+        names:
+          - Pryor, Counts & Co. Inc.
+          - Malcolm D. Pryor
+      - match: "waddell and reed inc. robert hechler, robert williams"
+        names:
+          - Waddell and Reed Inc.
+          - Robert Hechler
+          - Robert Williams
+      - match: "berthel, fisher & company financial services inc. craig vincent mineart"
+        names:
+          - Berthel, Fisher & Company Financial Services Inc.
+          - Craig Vincent Mineart
+      - match: "morgan keegan & company inc. george e. bagwell iii, woodley h. bagwell"
+        names:
+          - Morgan Keegan & Company Inc.
+          - George E. Bagwell III
+          - Woodley H. Bagwell
+      - match: "stoever, glass & company inc. michael f. carrigg"
+        names:
+          - Stoever, Glass & Company Inc.
+          - Michael F. Carrigg
+      - match: "hennion & walsh inc. richard hennion, william w. walsh"
+        names:
+          - Hennion & Walsh Inc.
+          - Richard Hennion
+          - William W. Walsh
+      - match: "t.j. raney & sons inc. ian c. malone, alton b. raney ii, thomas d. raney"
+        names:
+          - T.J. Raney & Sons Inc.
+          - Ian C. Malone
+          - Alton B. Raney II
+          - Thomas D. Raney
+      - match: "fox and company investments inc. james w. moldermaker"
+        names:
+          - Fox and Company Investments Inc.
+          - James W. Moldermaker
+      - match: "peyton, chandler & sullivan inc. richard s. from"
+        names:
+          - Peyton, Chandler & Sullivan Inc.
+          - Richard S. From
+      - match: "j.p. turner and company l.l.c. s. cheryl bauman"
+        names:
+          - J.P. Turner and Company L.L.C.
+          - S. Cheryl Bauman
+      - match: "hattier sandford & reynoir, l.l.p. vance g. reynoir"
+        names:
+          - Hattier Sandford & Reynoir, L.L.P.
+          - Vance G. Reynoir
+      - match: "friedman, billings, ramsey & co. inc. emanuel j. friedman, nicholas j. nichols"
+        names:
+          - Friedman, Billings, Ramsey & Co. Inc.
+          - Emanuel J. Friedman
+          - Nicholas J. Nichols

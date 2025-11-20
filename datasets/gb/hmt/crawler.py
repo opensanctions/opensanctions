@@ -1,4 +1,5 @@
-from typing import Optional, Dict, Any, List
+from typing import Optional, Dict, Any, List, Tuple
+from lxml.etree import _Element as Element
 from banal import first
 
 from rigour.mime.types import XML
@@ -63,7 +64,7 @@ def parse_countries(text: Any) -> List[str]:
     return countries
 
 
-def parse_companies(context: Context, value: Optional[str]):
+def parse_companies(context: Context, value: Optional[str]) -> List[str]:
     if value is None:
         return []
     result = context.lookup("companies", value)
@@ -75,7 +76,7 @@ def parse_companies(context: Context, value: Optional[str]):
     return result.values
 
 
-def split_reg_no(text: str):
+def split_reg_no(text: str) -> List[str]:
     text = text.replace("Tax Identification Number: INN", "; INN")
     text = text.replace("INN:", "; INN:")
     text = text.replace("TIN:", "; TIN:")
@@ -93,7 +94,7 @@ def split_reg_no(text: str):
     return h.multi_split(text, NUMBER_SPLITS + [";", " / "])
 
 
-def id_reg_no(value: str):
+def id_reg_no(value: str) -> Tuple[str, str, str]:
     match = REGEX_REG_NO_TYPES.match(value)
     if match is None:
         return "LegalEntity", "registrationNumber", value
@@ -101,7 +102,7 @@ def id_reg_no(value: str):
     return schema, prop, match.group("value")
 
 
-def split_phone(text: str):
+def split_phone(text: str) -> List[str]:
     # Splits on (1) ... (2) ... if there's more than one index to avoid splitting
     # when it's just an optional part of the number in parens.
     values = REGEX_PHONE_SPLIT.split(text)
@@ -115,7 +116,7 @@ def filter_unknown(value: List[str]) -> List[str]:
     return [v for v in value if v.strip() not in ["-"]]
 
 
-def parse_row(context: Context, row: Dict[str, Any]):
+def parse_row(context: Context, row: Dict[str, Any]) -> None:
     group_type = row.pop("GroupTypeDescription")
     listing_date = row.pop("DateListed")
     designated_date = row.pop("DateDesignated", None)
@@ -344,9 +345,9 @@ def parse_row(context: Context, row: Dict[str, Any]):
     context.emit(sanction)
 
 
-def make_row(el):
+def make_row(el: Element) -> Dict[str, str]:
     row = {}
-    for cell in el.getchildren():
+    for cell in el:
         nil = cell.get("{http://www.w3.org/2001/XMLSchema-instance}nil")
         if cell.text is None or nil == "true":
             continue
@@ -358,7 +359,7 @@ def make_row(el):
     return row
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     path = context.fetch_resource("source.xml", context.data_url)
     context.export_resource(path, XML, title=context.SOURCE_TITLE)
     doc = context.parse_resource_xml(path)
