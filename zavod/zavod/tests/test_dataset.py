@@ -25,7 +25,7 @@ TEST_DATASET = {
     },
     "names": {
         "Organization": {"reject_chars": "+"},
-        "LegalEntity": {"reject_chars": "-"},
+        "LegalEntity": {"reject_chars": "-", "allow_chars": "/"},
     },
 }
 
@@ -89,15 +89,20 @@ def test_basic():
     person_schema = Model.instance().get("Person")
     person_specs = test_ds.names.specs_for_schema(person_schema)
     # Org spec doesn't match for Person
-    assert len([s for s in person_specs if "+" in s.reject_chars]) == 0
+    assert len([s for s in person_specs if "+" in s.reject_chars_consolidated]) == 0
     org_schema = Model.instance().get("Organization")
     org_specs = test_ds.names.specs_for_schema(org_schema)
     # Defaults are present (LegalEntity)
-    assert len([s for s in org_specs if ";" in s.reject_chars]) == 1
-    # Defaults can be added to (LegalEntity)
-    assert len([s for s in org_specs if "-" in s.reject_chars]) == 1
+    assert len([s for s in org_specs if ";" in s.reject_chars_consolidated]) == 1
+    assert len([s for s in org_specs if ";" in s.reject_chars_baseline]) == 1
+    # Characters can be added to (LegalEntity)
+    assert len([s for s in org_specs if "-" in s.reject_chars_consolidated]) == 1
+    assert len([s for s in org_specs if "-" in s.reject_chars_baseline]) == 0
+    # Characters can be allowed (LegalEntity)
+    assert len([s for s in org_specs if "/" in s.reject_chars_consolidated]) == 0
+    assert len([s for s in org_specs if "/" in s.reject_chars_baseline]) == 1
     # A schema can be added on top of defaults (Organization), both Org and LegalEntity (above) apply
-    assert len([s for s in org_specs if "+" in s.reject_chars]) == 1
+    assert len([s for s in org_specs if "+" in s.reject_chars_consolidated]) == 1
 
 
 def test_validation(testdataset1: Dataset, testdataset3: Dataset):

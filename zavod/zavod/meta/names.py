@@ -24,9 +24,6 @@ class CleaningSpec(BaseModel):
     Remember that characters defined for other matching schema specs will still apply.
     """
 
-    class Config:
-        populate_by_name = True
-
     @cached_property
     def reject_chars_consolidated(self) -> Set[str]:
         """Get the full set of characters to reject for this spec."""
@@ -57,11 +54,10 @@ class NamesSpec(RootModel[Dict[str, CleaningSpec]]):
         if isinstance(obj, dict):
             instance = cls()
             for schema, spec in obj.items():
-                if schema in instance:
+                if schema in instance.root:
                     # Merge with default
                     default_spec = instance.root[schema]
                     merged_spec = default_spec.model_copy(update=spec)
-                    print(schema, default_spec, merged_spec)
                     instance.root[schema] = merged_spec
                 else:
                     instance.root[schema] = CleaningSpec.model_validate(spec)
