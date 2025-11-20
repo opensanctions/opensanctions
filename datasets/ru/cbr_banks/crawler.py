@@ -1,8 +1,7 @@
 from lxml import etree
 from rigour.mime.types import XML
 
-from zavod import Context
-from zavod import helpers as h
+from zavod import Context, helpers as h
 from zavod.extract.zyte_api import fetch_resource
 
 SOAP_URL = "http://www.cbr.ru/CreditInfoWebServ/CreditOrgInfo.asmx"
@@ -76,14 +75,17 @@ def crawl_details(context: Context, internal_code: str | None, entity):
         reg_date = co_data.findtext("MainDateReg")
 
         en_names = co_data.findtext("encname")
-        h.apply_reviewed_names(context, entity, en_names, lang="eng")
-        h.apply_reviewed_names(context, entity, co_data.findtext("OrgName"))
-        h.apply_reviewed_names(context, entity, co_data.findtext("OrgFullName"))
-        h.apply_reviewed_names(context, entity, co_data.findtext("csname"))
+        h.review_names(context, entity, en_names, lang="eng")
+        h.review_names(context, entity, co_data.findtext("OrgName"))
+        h.review_names(context, entity, co_data.findtext("OrgFullName"))
+        h.review_names(context, entity, co_data.findtext("csname"))
 
         phones = co_data.findtext("phones")
         lic_withd_num = co_data.findtext("licwithdnum")
         lic_withd_date = co_data.findtext("licwithddate")
+        entity.add("name", co_data.findtext("OrgName"))
+        entity.add("name", co_data.findtext("OrgFullName"))
+        entity.add("name", co_data.findtext("csname"))
         entity.add("ogrnCode", co_data.findtext("MainRegNumber"))
         entity.add("bikCode", co_data.findtext("BIC"))
         entity.add("registrationNumber", co_data.findtext("RegNumber"))
@@ -92,6 +94,9 @@ def crawl_details(context: Context, internal_code: str | None, entity):
         entity.add("amount", co_data.findtext("UstMoney"))
         entity.add("status", co_data.findtext("OrgStatus"))
         entity.add("topics", "fin.bank")
+        if en_names is not None:
+            for name in en_names.split(","):
+                entity.add("name", name, lang="eng")
         if phones is not None:
             phones = h.multi_split(phones, ",")
             for phone in phones:
