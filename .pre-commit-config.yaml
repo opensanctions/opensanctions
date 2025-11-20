@@ -41,6 +41,7 @@ repos:
     rev: v1.18.1
     hooks:
       - id: mypy
+        name: mypy-datasets
         # Don't run isolated but use the activated venv. Not perfect but better than re-declaring all deps here
         language: system
         files: "datasets/"
