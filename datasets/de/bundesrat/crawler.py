@@ -51,19 +51,16 @@ def crawl_item(context: Context, item: HtmlElement) -> None:
     assert url, "No URL found for member"
     member_doc = context.fetch_html(url, cache_days=3)
     details = member_doc.find(".//div[@class='text-box']")
-    assert details is not None and details.text is not None, (
-        f"No details found for {url}"
-    )
+    assert (
+        details is not None and details.text is not None
+    ), f"No details found for {url}"
     if "N. N." in h.element_text(details):
         context.log.info("Skipping member with no name", url=url)
         return
-    # Three most important fields are name, party, and position.
-    # If any of these are missing, we want to fail fast rather than silently skip.
-    # mypy may complain here because `.find()` can technically return None,
-    # but in practice every member page has an <h1> tag with the name,
-    # so we assert this implicitly by letting it raise if missing.
-    name = h.element_text(details.find(".//h1")).strip("\xa0|").strip()
-    party = h.element_text(details.find(".//span[@class='organization-name']")).strip()
+
+    name_party = h.element_text(details.find(".//h1"))
+    name, party = name_party.split(" |", 1)
+    assert name and party, f"Missing name or party for {url}"
     position_name, memberships = extract_position_and_memberships(context, details, url)
     biography_el = h.xpath_elements(
         member_doc,
