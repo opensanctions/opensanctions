@@ -21,7 +21,8 @@ e.g.
 ```yaml
 names:
   Company:
-    dirty_chars_extra: ","
+    reject_chars: ","
+    allow_chars: "/"
 ```
 
 

@@ -256,11 +256,7 @@ def is_name_irregular(entity: Entity, string: Optional[str]) -> bool:
         return False
 
     for spec in entity.dataset.names.specs_for_schema(entity.schema):
-        # Contains a character considered "dirty" for a matching schema
-        dirty_chars = spec.dirty_chars
-        dirty_chars_extra = spec.dirty_chars_extra
-        all_dirty_chars = dirty_chars + dirty_chars_extra
-        for char in all_dirty_chars:
+        for char in spec.reject_chars_consolidated:
             if char in string:
                 return True
 

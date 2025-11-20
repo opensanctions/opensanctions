@@ -1,23 +1,39 @@
-from typing import Any, Dict, List
+from functools import cached_property
+from typing import Any, Dict, List, Set
 
 from followthemoney.schema import Schema
 from pydantic import BaseModel, RootModel
 
 
 class CleaningSpec(BaseModel):
-    dirty_chars: str = ""
+    reject_chars_baseline: str = ""
     """
     The standard characters that suggest a name needs cleaning.
-
-    Use this to override the default set of characters.
-    There's no need to redefine all the characters handled by an ancestor schema;
     """
-    dirty_chars_extra: str = ""
+    reject_chars: str = ""
     """
     Additional characters specific to this schema that suggest a name needs cleaning.
 
-    Use this if you don't want to override the standard characters.
+    Use this to define characters in dataset-specific config. Adds to the baseline
+    characters for default specs.
     """
+    allow_chars: str = ""
+    """
+    Characters that would otherwise trigger cleaning but are allowed for this schema.
+
+    Remember that characters defined for other matching schema specs will still apply.
+    """
+
+    class Config:
+        populate_by_name = True
+
+    @cached_property
+    def reject_chars_consolidated(self) -> Set[str]:
+        """Get the full set of characters to reject for this spec."""
+        baseline = set(self.reject_chars_baseline)
+        reject_extra = set(self.reject_chars)
+        allow = set(self.allow_chars)
+        return (baseline | reject_extra) - allow
 
 
 class NamesSpec(RootModel[Dict[str, CleaningSpec]]):
@@ -25,13 +41,13 @@ class NamesSpec(RootModel[Dict[str, CleaningSpec]]):
 
     root: Dict[str, CleaningSpec] = {
         "Person": CleaningSpec(
-            dirty_chars=";\\/()[]<>{}:",
+            reject_chars_baseline=";\\/()[]<>{}:",
         ),
         "LegalEntity": CleaningSpec(
-            dirty_chars="/;",
+            reject_chars_baseline="/;",
         ),
         "Vessel": CleaningSpec(
-            dirty_chars="/;",
+            reject_chars_baseline="/;",
         ),
     }
 
@@ -45,6 +61,7 @@ class NamesSpec(RootModel[Dict[str, CleaningSpec]]):
                     # Merge with default
                     default_spec = instance.root[schema]
                     merged_spec = default_spec.model_copy(update=spec)
+                    print(schema, default_spec, merged_spec)
                     instance.root[schema] = merged_spec
                 else:
                     instance.root[schema] = CleaningSpec.model_validate(spec)

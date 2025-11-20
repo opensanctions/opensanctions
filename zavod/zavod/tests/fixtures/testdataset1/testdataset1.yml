@@ -32,7 +32,7 @@ dates:
     mar: März
 names:
   Organization:
-    dirty_chars_extra: ","
+    reject_chars: ","
 
 lookups:
   plants:
