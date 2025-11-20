@@ -23,6 +23,7 @@ publisher:
   url: https://www.riksdagen.se/en/
   official: true
 data:
+  # API docs: https://www.riksdagen.se/sv/dokument-och-lagar/riksdagens-oppna-data/
   url: https://data.riksdagen.se/personlista/?iid=&fnamn=&enamn=&f_ar=&kn=&parti=&valkrets=&rdlstatus=tjanst&org=&utformat=json&sort=sorteringsnamn&sortorder=asc&termlista=
   format: JSON
   lang: swe
@@ -63,12 +64,6 @@ lookups:
         value: person_info
       - match: uppdrag
         value: mandate
-      - match: organ_kod
-        value: organ_code
-      - match: typ
-        value: type
-      - match: roll_kod
-        value: role_code
   gender:
     options:
       - match: kvinna

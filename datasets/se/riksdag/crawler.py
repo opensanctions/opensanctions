@@ -4,15 +4,15 @@ from zavod import Context, helpers as h
 from zavod.stateful.positions import categorise
 
 
+# The Riksdag Open Data API endpoint we use as a data_url (see docs: https://www.riksdagen.se/sv/dokument-och-lagar/riksdagens-oppna-data/)
+# returns only individuals who have served in the Swedish Parliament in some capacity since 2018.
+# The dataset includes both full members and temporary substitutes ("ersättare") but does NOT always provide
+# explicit parliamentary term boundaries for every person.
+
+
 def translate_keys(member, context) -> dict:
     # Translate top-level keys
     translated = {context.lookup_value("keys", k) or k: v for k, v in member.items()}
-    # Translate all nested dicts at level 2
-    for k, v in translated.items():
-        if isinstance(v, dict):
-            translated[k] = {
-                context.lookup_value("keys", nk) or nk: nv for nk, nv in v.items()
-            }
     return translated
 
 
@@ -23,13 +23,16 @@ def extract_terms(
     Extract the start and end dates of the main parliamentary term.
     """
     for role in item.pop("person_mandate", {}).pop("mandate", []):
-        if role.get("organ_code") == "kam" and role.get("type") == "kammaruppdrag":
-            #  Member of Parliament, Deputy Minister
-            if role.get("role_code") in {"Riksdagsledamot", "Statsrådsersättare"}:
+        if role.get("organ_kod") == "kam" and role.get("typ") == "kammaruppdrag":
+            if role.get("roll_kod") in {
+                "Ersättare",  #  Substitute MP
+                "Riksdagsledamot",  # MP
+                "Statsrådsersättare",  # MP substituting for a minister
+            }:
                 start = role.get("from")
                 end = role.get("tom")
                 return start, end
-    return (None, None)
+    return None, None
 
 
 def extract_gender(context, gender, entity_id) -> Optional[str]:
@@ -67,14 +70,14 @@ def crawl(context: Context):
             topics=["gov.legislative", "gov.national"],
             lang="eng",
         )
-        status = item.pop("status")
-        is_pep = True if "tjänstgörande riksdagsledamot" in status.lower() else False
 
-        categorisation = categorise(context, position, is_pep=is_pep)
+        categorisation = categorise(context, position, is_pep=True)
         if not categorisation.is_pep:
-            return
+            continue
 
         start_date, end_date = extract_terms(item)
+        # We only scrape MPs from 2018 onward. Some individuals lack explicit
+        # parliamentary term dates; in those cases, the status is set to UNKNOWN.
         occupancy = h.make_occupancy(
             context,
             person=entity,
@@ -82,6 +85,7 @@ def crawl(context: Context):
             start_date=start_date,
             end_date=end_date,
             categorisation=categorisation,
+            no_end_implies_current=False,
         )
         if occupancy is not None:
             context.emit(occupancy)
@@ -101,5 +105,6 @@ def crawl(context: Context):
                 "bild_url_max",
                 "person_info",
                 "iort",
+                "status",
             ],
         )
