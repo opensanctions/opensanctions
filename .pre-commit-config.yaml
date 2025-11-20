@@ -217,4 +217,4 @@ repos:
         entry: bash -c "cd ui && npx next lint --fix"
         language: system
         files: '^ui/'
-        pass_filenames_to_command: false
+        pass_filenames: false
