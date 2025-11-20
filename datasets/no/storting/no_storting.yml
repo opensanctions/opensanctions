@@ -10,7 +10,7 @@ summary: >-
   Current and recent members of the Norwegian Storting, the national legislature.
 description: |
   This dataset provides information about the current and recent members of the Storting,
-  Norwegian Parliament. It includes details about each member, such as name, date and
+  the Norwegian Parliament. It includes details about each member, such as name, date and
   place of birth, parliamentary term, and political affiliation.
 tags:
   - list.pep
