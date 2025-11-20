@@ -23,6 +23,9 @@ class CleaningSpec(BaseModel):
 
     Remember that characters defined for other matching schema specs will still apply.
     """
+    min_chars: int = 2
+    require_space: bool = False
+    allow_nullwords: bool = False
 
     @cached_property
     def reject_chars_consolidated(self) -> Set[str]:
@@ -39,6 +42,7 @@ class NamesSpec(RootModel[Dict[str, CleaningSpec]]):
     root: Dict[str, CleaningSpec] = {
         "Person": CleaningSpec(
             reject_chars_baseline=";\\/()[]<>{}:",
+            require_space=True,
         ),
         "LegalEntity": CleaningSpec(
             reject_chars_baseline="/;",

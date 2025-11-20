@@ -133,11 +133,20 @@ def test_split_comma_names(vcontext: Context, caplog):
 def test_is_name_irregular(testdataset1: Dataset):
     org_data = {"id": "doe", "schema": "Organization", "properties": {}}
     org = Entity(testdataset1, org_data)
+    person_data = {"id": "jon", "schema": "Person", "properties": {}}
+    person = Entity(testdataset1, person_data)
     assert not is_name_irregular(org, "Company Ltd.")
-    # Default
+    # Default reject chars
     assert is_name_irregular(org, "Company Ltd; Holding Company Ltd.")
-    # Extra
+    # Extra reject chars
     assert is_name_irregular(org, "Company Ltd, Holding Company Ltd.")
+    # Nullwords
+    assert is_name_irregular(org, "Unknown")
+    # Below min chars
+    assert is_name_irregular(org, "A")
+    # Require space
+    assert is_name_irregular(person, "Johnson")
+    assert not is_name_irregular(org, "Johnson")
 
 
 @patch("zavod.helpers.names.settings.CI", False)  # For validity
