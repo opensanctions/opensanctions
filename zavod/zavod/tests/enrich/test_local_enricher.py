@@ -44,7 +44,7 @@ AAA_BANK = {
 
 def make_enricher_dataset(dataset_data, target_dataset):
     dataset_data_copy = deepcopy(dataset_data)
-    dataset_data_copy["config"]["dataset"] = target_dataset
+    dataset_data_copy["full_dataset"] = target_dataset
     return Dataset.make(dataset_data_copy)
 
 
