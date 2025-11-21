@@ -15,10 +15,10 @@ class CleanNamesSignature(dspy.Signature):  # type: ignore
         desc="A list of the names of this entity, potentially in various languages and transliterations."
     )
     alias: list[str] = dspy.OutputField(
-        desc="A list of alternative names or nicknames for this entity."
+        desc="A list of alternative but still fully descriptive names for this entity."
     )
     weak_alias: list[str] = dspy.OutputField(
-        desc="A list of names with low confidence or a very low degree of uniqueness in the context of legal entity names."
+        desc="A list of names with low confidence or a very low degree of uniqueness in the context of legal entity names. Includes clear nicknames with no similarity to the full name."
     )
     previous_name: list[str] = dspy.OutputField(
         desc="A list of names this entity was known by in the past."
