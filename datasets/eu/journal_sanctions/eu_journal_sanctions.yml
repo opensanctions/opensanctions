@@ -144,7 +144,9 @@ lookups:
         value: EU-HTI
       - match: 2023/888
         value: EU-MDA
-      - match: 2023/2135
+      - match:
+          - 2023/2135
+          - 2023/2147
         value: EU-SDNZ
       - match: 2001/931
         value: EU-TERR
