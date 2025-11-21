@@ -5,7 +5,7 @@ full_dataset: md_companies
 disabled: false
 hidden: false
 coverage:
-  schedule: "@weekly"
+  schedule: monthly
   start: 2023-03-21
 exports:
   - statistics.json
@@ -60,6 +60,8 @@ config:
     - role.rca
     - sanction
     - sanction.linked
+    - export.control
+    - export.control.linked
     - debarment
     - asset.frozen
     - poi

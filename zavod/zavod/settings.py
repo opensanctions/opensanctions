@@ -73,8 +73,6 @@ ZYTE_API_KEY = env.get("OPENSANCTIONS_ZYTE_API_KEY", None)
 OPENAI_API_KEY = env.get("OPENSANCTIONS_OPENAI_API_KEY", None)
 AZURE_OPENAI_ENDPOINT = env.get("OPENSANCTIONS_AZURE_OPENAI_ENDPOINT", None)
 
-DUCKDB_MEMORY = int(env_str("ZAVOD_DUCKDB_MEMORY", "2000"))
-
 # Test code in prod code is generally a Bad Idea.
 # This is here to allow for fallbacks to skip some external service usage
 # which allows us to run more crawlers in CI without introducing mocking for those runs.

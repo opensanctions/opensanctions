@@ -5,7 +5,7 @@ full_dataset: tokyo_mou_psc
 disabled: false
 hidden: false
 coverage:
-  schedule: "@weekly"
+  schedule: "weekly"
   start: 2025-08-22
 exports:
   - statistics.json
@@ -51,6 +51,8 @@ config:
   topics:
     - sanction
     - sanction.linked
+    - export.control
+    - export.control.linked
     - debarment
   schemata:
     - Company
