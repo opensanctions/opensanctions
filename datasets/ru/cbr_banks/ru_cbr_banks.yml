@@ -38,7 +38,7 @@ data:
 dates:
   formats: ["%d.%m.%Y", "%Y-%m-%dT00:00:00+03:00", "%Y-%m-%dT00:00:00+04:00"]
 names:
-  Company:
+  LegalEntity:
     # Plenty of names should be split on comma, but not all.
     reject_chars: ","
 
