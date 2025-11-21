@@ -848,6 +848,10 @@ lookups:
         value: Prince Group Holdings Limited
       - match: Prince Group
         value: Prince Group
+      - match: "(1) Aeza International Ltd (2) Hypercore Ltd"
+        values:
+          - Aeza International Ltd
+          - Hypercore Ltd
   type.name:
     options:
       - match: "BIC: 136001"

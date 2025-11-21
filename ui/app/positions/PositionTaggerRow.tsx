@@ -97,6 +97,10 @@ export default function PositionTaggerRow({ countries, position, isSelected, onS
   // Keyboard shortcuts for when row is selected
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
+      // If we're typing in the search box, don't handle the key.
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        return;
+      }
       if (!isSelected || saving) return;
       // If any modifier key is pressed, let the browser handle it
       if (e.metaKey || e.ctrlKey || e.altKey) {

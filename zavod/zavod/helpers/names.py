@@ -224,9 +224,7 @@ def split_comma_names(context: Context, text: str) -> List[str]:
             if res:
                 return cast("List[str]", res.names)
             else:
-                context.log.warning(
-                    "Not sure how to split on comma or and.", text=text.lower()
-                )
+                context.log.warning("Not sure how to split on comma or and.", text=text)
                 return [text]
         else:
             return [text]

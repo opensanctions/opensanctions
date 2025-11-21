@@ -1,3 +1,19 @@
+# This discovers entities in three ways:
+#
+# - wikidata items with a Declarator.org ID
+# - wikidata items holding one of the "seed" positions defined below
+# - wikidata items in specific Wikipedia categories defined below, using https://petscan.wmcloud.org
+#
+# # Categories
+#
+# People in categories with a topic defined are emitted with that topic.
+# Otherwise those people are merely exported as external entities.
+#
+# So to add PEPs for a category sufficiently specific to only include PEPs,
+# add the category with the role.pep topic.
+#
+# ## False positives from categories
+#
 # As of 2025-10-08 petscan can't tell you which categories fall between the category
 # queried and the categories containing the wikipedia pages it returns.
 # https://github.com/magnusmanske/petscan_rs/issues/182
@@ -797,6 +813,135 @@ config:
         George_M._Dallas
         Polk_administration_cabinet_members
 
+    # Canada
+    - category: 21st-century_Canadian_federal_ministers
+      topic: role.pep
+    - category: 21st-century_members_of_the_House_of_Commons_of_Canada
+      topic: role.pep
+      position:
+        name: Member of Parliament of Canada
+        wikidata_id: Q15964890
+        country: ca
+        topics:
+          - gov.legislative
+          - gov.national
+    - category: 21st-century_members_of_the_Senate_of_Canada
+      topic: role.pep
+      position:
+        name: Senator of Canada
+        wikidata_id: Q18524027
+        country: ca
+        topics:
+          - gov.legislative
+          - gov.national
+    - category: 21st-century_members_of_the_Legislative_Assembly_of_Ontario
+      topic: role.pep
+      position:
+        name: Member of the Legislative Assembly of Ontario
+        wikidata_id: Q3305347
+        country: ca
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: 21st-century_members_of_the_National_Assembly_of_Quebec
+      topic: role.pep
+      position:
+        name: Member of the National Assembly of Quebec
+        wikidata_id: Q3305338
+        country: ca
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: 21st-century_members_of_the_Nova_Scotia_House_of_Assembly
+      topic: role.pep
+      position:
+        name: Member of the Nova Scotia House of Assembly
+        wikidata_id: Q18239264
+        country: ca
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: 21st-century_members_of_the_Legislative_Assembly_of_New_Brunswick
+      topic: role.pep
+      position:
+        name: Member of the Legislative Assembly of New Brunswick
+        wikidata_id: Q18984329
+        country: ca
+        topics:
+          - gov.legislative
+    - category: 21st-century_members_of_the_Legislative_Assembly_of_Manitoba
+      topic: role.pep
+      position:
+        name: Member of the Legislative Assembly of Manitoba
+        wikidata_id: Q19007867
+        country: ca
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: 21st-century_members_of_the_Legislative_Assembly_of_British_Columbia
+      topic: role.pep
+      position:
+        name: Member of the Legislative Assembly of British Columbia
+        wikidata_id: Q19004821
+        country: ca
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: 21st-century_members_of_the_Legislative_Assembly_of_Alberta
+      topic: role.pep
+      position:
+        name: Member of the Legislative Assembly of Alberta
+        wikidata_id: Q15964815
+        country: ca
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: 21st-century_members_of_the_Legislative_Assembly_of_Saskatchewan
+      topic: role.pep
+      position:
+        name: Member of the Legislative Assembly of Saskatchewan
+        wikidata_id: Q18675661
+        country: ca
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: 21st-century_members_of_the_Newfoundland_and_Labrador_House_of_Assembly
+      topic: role.pep
+      position:
+        name: Member of the Newfoundland and Labrador House of Assembly
+        wikidata_id: Q19403853
+        country: ca
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: 21st-century_members_of_the_Legislative_Assembly_of_Prince_Edward_Island
+      topic: role.pep
+      position:
+        name: Member of the Legislative Assembly of Prince Edward Island
+        wikidata_id: Q21010685
+        country: ca
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: 21st-century_members_of_the_Legislative_Assembly_of_the_Northwest_Territories
+      topic: role.pep
+      position:
+        name: Member of the Legislative Assembly of the Northwest Territories
+        wikidata_id: Q45308871
+        country: ca
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: 21st-century_members_of_the_Yukon_Legislative_Assembly
+      topic: role.pep
+      position:
+        name: Member of the Yukon Legislative Assembly
+        wikidata_id: Q18608478
+        country: ca
+        topics:
+          - gov.legislative
+          - gov.state
+
     # Europe
     - category: Presidents_of_the_European_Commission
       topic: role.pep
@@ -876,7 +1021,7 @@ config:
       country: br
       topic: role.pep
       language: pt
-    - categories: Funcionários_do_governo_do_Brasil
+    - category: Funcionários_do_governo_do_Brasil
       country: br
       language: pt
     - category: Diputados_del_Congreso_de_la_Nación_Argentina_por_provincia
@@ -1820,7 +1965,7 @@ config:
         topics:
           - gov.legislative
           - gov.national
-    
+
     # country: Germany
     - category: Political_office-holders_in_Germany
       country: de
