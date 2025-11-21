@@ -8,8 +8,8 @@ coverage:
   schedule: "@daily"
   start: 2025-09-17
 deploy:
-  memory: "2000Mi"
-  memory_limit: "4000Mi"
+  memory: "3000Mi"
+  memory_limit: "5000Mi"
 exports:
   - statistics.json
 load_statements: true
@@ -46,8 +46,8 @@ inputs:
   # - maritime
 
 config:
-  dataset: us_ofac_press_releases
-  strip_namespace: true
+  index_options:
+    memory: 2000
   threshold: 0.7
   algorithm: regression-v1
   topics:

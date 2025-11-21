@@ -62,10 +62,9 @@ inputs:
   - special_interest
 
 config:
-  dataset: us_irs_ffi
-  strip_namespace: true
-  fuzzy: false
   threshold: 0.7
+  index_options:
+    memory: 3000
   algorithm: regression-v1
   topics:
     - role.pep

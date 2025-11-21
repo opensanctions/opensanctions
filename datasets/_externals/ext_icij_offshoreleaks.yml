@@ -69,12 +69,10 @@ inputs:
   - sanctions
 
 config:
-  dataset: icij_offshoreleaks
   index_options:
     match_batch: 300
-  strip_namespace: true
+    memory: 4000
   threshold: 0.7
-  memory: 4000
   algorithm: regression-v1
   topics:
     - role.pep

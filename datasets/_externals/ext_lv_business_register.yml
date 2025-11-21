@@ -49,9 +49,8 @@ inputs:
   - sanctions
 
 config:
-  dataset: lv_business_register
-  memory: 3500
-  strip_namespace: true
+  index_options:
+    memory: 3500
   threshold: 0.7
   algorithm: regression-v1
   topics:
