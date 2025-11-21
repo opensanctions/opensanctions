@@ -4,6 +4,7 @@ from typing import List, Optional, cast
 from followthemoney.util import join_text
 from normality import squash_spaces
 from rigour.data.names import data
+from rigour.names.check import is_nullword
 
 from zavod import settings
 from zavod.context import Context
@@ -252,13 +253,28 @@ def split_comma_names(context: Context, text: str) -> List[str]:
 
 def is_name_irregular(entity: Entity, string: Optional[str]) -> bool:
     """Determine whether a name string potentially needs cleaning."""
+    string = squash_spaces(string or "")
+
     if not string:
         return False
 
     for spec in entity.dataset.names.specs_for_schema(entity.schema):
+        # Contains rejected characters
         for char in spec.reject_chars_consolidated:
             if char in string:
                 return True
+
+        # is nullword
+        if not spec.allow_nullwords and is_nullword(string, normalize=True):
+            return True
+
+        # min length
+        if len(string) < spec.min_chars:
+            return True
+
+        # requires space
+        if spec.require_space and " " not in string:
+            return True
 
     # contains a known-as phrase
     if REGEX_KNOWN_AS.search(string):
