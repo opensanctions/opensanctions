@@ -5,7 +5,7 @@ full_dataset: abuja_mou_psc
 disabled: false
 hidden: false
 coverage:
-  schedule: "weekly"
+  frequency: weekly
   start: 2025-08-18
 exports:
   - statistics.json
