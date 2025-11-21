@@ -2,6 +2,7 @@ from functools import cache
 from pathlib import Path
 from typing import List
 
+from followthemoney import Schema
 from pydantic import BaseModel
 from zavod.context import Context
 from zavod.extract.llm import run_typed_text_prompt
@@ -35,12 +36,13 @@ def load_single_entity_prompt() -> str:
     return prompt
 
 
-def clean_names(context: Context, string: str) -> CleanNames:
+def clean_names(context: Context, schema: Schema, strings: List[str]) -> CleanNames:
     prompt = load_single_entity_prompt()
+    attached_string = "Entity Schema: " + schema.name + "\nName strings:\n- " + "\n- ".join(strings)
     return run_typed_text_prompt(
         context=context,
         prompt=prompt,
-        string=f"Input string: {string}",
+        string=attached_string,
         response_type=CleanNames,
         model=LLM_MODEL_VERSION,
     )

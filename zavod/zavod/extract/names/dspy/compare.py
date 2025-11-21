@@ -23,13 +23,13 @@ def compare_single_entity(examples_path: Path, output_path: Path) -> None:
     results = []
 
     for example in test_set:
-        print("String:", example.string)
+        print("Strings:", example.strings)
         gold = example.toDict()
-        del gold["string"]
-        dspy_result = program(string=example.string)
+        del gold["strings"]
+        dspy_result = program(strings=example.strings, entity_schema=example.schema)
         dspy_eval = metric_with_feedback(example, dspy_result)
 
-        direct_gpt_result = clean_names(context, example.string)
+        direct_gpt_result = clean_names(context, example.schema, example.strings)
         direct_gpt_eval = metric_with_feedback_dict(
             example.toDict(), direct_gpt_result.model_dump()
         )
@@ -41,7 +41,8 @@ def compare_single_entity(examples_path: Path, output_path: Path) -> None:
             ):
                 agree = False
         result = {
-            "string": example.string,
+            "strings": example.strings,
+            "schema": example.schema,
             "gold": gold,
             "dspy_result": {
                 "output": dspy_result.toDict(),

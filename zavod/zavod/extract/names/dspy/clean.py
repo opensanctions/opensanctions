@@ -10,7 +10,15 @@ import dspy  # type: ignore
 class CleanNamesSignature(dspy.Signature):  # type: ignore
     """Names categorised and cleaned of non-name characters."""
 
-    string: str = dspy.InputField()
+    # Inputs
+    entity_schema: str = dspy.InputField(
+        desc="The schema denotes the type of entity. Both Persons and Organizations are specialisation of LegalEntity. Company is a specialisation of Organization. Everything extends Thing."
+    )
+    strings: List[str] = dspy.InputField(
+        desc="A list of raw name strings to be cleaned and categorised. Each string might contain multiple names."
+    )
+
+    # Outputs
     full_name: List[str] = dspy.OutputField(
         desc="A list of the names of this entity, potentially in various languages and transliterations."
     )

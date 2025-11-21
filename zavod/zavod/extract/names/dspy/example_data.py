@@ -23,7 +23,7 @@ def load_data(
         num_names = sum([len(case[field]) for field in FIELDS])
         if num_names == 0:
             continue
-        dspy_dataset.append(dspy.Example(case).with_inputs("string"))
+        dspy_dataset.append(dspy.Example(case).with_inputs("strings", "entity_schema"))
 
     random.Random(0).shuffle(dspy_dataset)
     train_set = dspy_dataset[: int(len(dspy_dataset) * 0.33)]
