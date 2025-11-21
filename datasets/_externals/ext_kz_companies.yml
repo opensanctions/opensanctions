@@ -59,10 +59,8 @@ inputs:
   - debarment
 
 config:
-  dataset: kz_companies
-  memory: 3500
-  strip_namespace: true
-  fuzzy: false
+  index_options:
+    memory: 3500
   threshold: 0.7
   algorithm: regression-v1
   topics:

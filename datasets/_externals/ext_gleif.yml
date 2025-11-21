@@ -74,13 +74,10 @@ inputs:
   - special_interest
 
 config:
-  dataset: gleif
   index_options:
     max_candidates: 25
     match_batch: 300
-  memory: 4000
-  strip_namespace: true
-  fuzzy: false
+    memory: 4000
   threshold: 0.5
   algorithm: regression-v1
   topics:
