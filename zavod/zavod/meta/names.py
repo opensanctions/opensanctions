@@ -1,8 +1,13 @@
 from functools import cached_property
-from typing import Any, Dict, List, Set
+from typing import Any, Dict, Optional, Set
+from logging import getLogger
 
+from followthemoney import Model
 from followthemoney.schema import Schema
 from pydantic import BaseModel, RootModel
+
+
+log = getLogger(__name__)
 
 
 class CleaningSpec(BaseModel):
@@ -57,17 +62,28 @@ class NamesSpec(RootModel[Dict[str, CleaningSpec]]):
         """Merge provided values with defaults."""
         if isinstance(obj, dict):
             instance = cls()
-            for schema, spec in obj.items():
-                if schema in instance.root:
+            for schema_name, spec in obj.items():
+                if schema_name in instance.root:
+                    schema = Model.instance().get(schema_name)
+                    assert schema is not None, schema_name
                     # Merge with default
-                    default_spec = instance.root[schema]
+                    default_spec = instance.root[schema_name]
                     merged_spec = default_spec.model_copy(update=spec)
-                    instance.root[schema] = merged_spec
+                    instance.root[schema_name] = merged_spec
                 else:
-                    instance.root[schema] = CleaningSpec.model_validate(spec)
+                    instance.root[schema_name] = CleaningSpec.model_validate(spec)
             return instance
         raise TypeError(f"object must be a dict, got {type(obj)}")
 
-    def specs_for_schema(self, schema: Schema) -> List[CleaningSpec]:
-        """Returns the specs for all schemas that match the entity."""
-        return [spec for name, spec in self.root.items() if schema.is_a(name)]
+    def get_spec(self, schema: Schema) -> Optional[CleaningSpec]:
+        """Returns the spec for the most specific schema that matches the entity."""
+        matching_specs = [
+            (Model.instance().get(name), spec)
+            for name, spec in self.root.items()
+            if schema.is_a(name)
+        ]
+        # schema names validated in model_validate
+        specs = [(s, spec) for s, spec in matching_specs if s is not None]
+        specs.sort(key=lambda pair: len(pair[0].schemata), reverse=True)
+        # We don't support multiple inheritance for now. Unlikely to define a spec for Asset.
+        return specs[0][1] if specs else None

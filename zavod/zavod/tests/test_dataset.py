@@ -24,6 +24,7 @@ TEST_DATASET = {
         "retry_methods": ["GET"],
     },
     "names": {
+        # Person not defined here to test defaults
         "Organization": {"reject_chars": "+"},
         "LegalEntity": {"reject_chars": "-", "allow_chars": "/"},
     },
@@ -87,22 +88,32 @@ def test_basic():
     assert test_ds.http.user_agent == settings.HTTP_USER_AGENT
 
     person_schema = Model.instance().get("Person")
-    person_specs = test_ds.names.specs_for_schema(person_schema)
-    # Org spec doesn't match for Person
-    assert len([s for s in person_specs if "+" in s.reject_chars_consolidated]) == 0
+    person_spec = test_ds.names.get_spec(person_schema)
+    # Default specs are present (Person)
+    # Only person spec has <
+    assert "<" in person_spec.reject_chars_consolidated
     org_schema = Model.instance().get("Organization")
-    org_specs = test_ds.names.specs_for_schema(org_schema)
-    # Defaults are present (LegalEntity)
-    assert len([s for s in org_specs if ";" in s.reject_chars_consolidated]) == 1
-    assert len([s for s in org_specs if ";" in s.reject_chars_baseline]) == 1
-    # Characters can be added to (LegalEntity)
-    assert len([s for s in org_specs if "-" in s.reject_chars_consolidated]) == 1
-    assert len([s for s in org_specs if "-" in s.reject_chars_baseline]) == 0
+    org_spec = test_ds.names.get_spec(org_schema)
+    # A schema can be added in addition to defaults (Organization)
+    # Ony org spec has +
+    assert "+" in org_spec.reject_chars_consolidated
+    legal_entity_schema = Model.instance().get("LegalEntity")
+    legal_entity_spec = test_ds.names.get_spec(legal_entity_schema)
+    # Defaults chars are present in extended spec (LegalEntity)
+    assert ";" in legal_entity_spec.reject_chars_consolidated
+    assert ";" in legal_entity_spec.reject_chars_baseline
+    # Denied characters can be added to (LegalEntity)
+    assert "-" in legal_entity_spec.reject_chars_consolidated
+    assert "-" not in legal_entity_spec.reject_chars_baseline
     # Characters can be allowed (LegalEntity)
-    assert len([s for s in org_specs if "/" in s.reject_chars_consolidated]) == 0
-    assert len([s for s in org_specs if "/" in s.reject_chars_baseline]) == 1
-    # A schema can be added on top of defaults (Organization), both Org and LegalEntity (above) apply
-    assert len([s for s in org_specs if "+" in s.reject_chars_consolidated]) == 1
+    assert "/" not in legal_entity_spec.reject_chars_consolidated
+    assert "/" in legal_entity_spec.reject_chars_baseline
+    # Most specific ancestor schema specs apply (PublicBody not directly defined)
+    assert "PublicBody" not in test_ds.names.root
+    body_schema = Model.instance().get("PublicBody")
+    body_spec = test_ds.names.get_spec(body_schema)
+    assert "+" in body_spec.reject_chars_consolidated  # Organization
+    assert "-" not in body_spec.reject_chars_consolidated  # LegalEntity
 
 
 def test_validation(testdataset1: Dataset, testdataset3: Dataset):

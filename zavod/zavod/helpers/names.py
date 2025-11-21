@@ -258,8 +258,8 @@ def is_name_irregular(entity: Entity, string: Optional[str]) -> bool:
     if not string:
         return False
 
-    for spec in entity.dataset.names.specs_for_schema(entity.schema):
-        # Contains rejected characters
+    spec = entity.dataset.names.get_spec(entity.schema)
+    if spec:
         for char in spec.reject_chars_consolidated:
             if char in string:
                 return True

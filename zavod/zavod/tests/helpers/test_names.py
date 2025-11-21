@@ -135,11 +135,10 @@ def test_is_name_irregular(testdataset1: Dataset):
     org = Entity(testdataset1, org_data)
     person_data = {"id": "jon", "schema": "Person", "properties": {}}
     person = Entity(testdataset1, person_data)
-    assert not is_name_irregular(org, "Company Ltd.")
-    # Default reject chars
-    assert is_name_irregular(org, "Company Ltd; Holding Company Ltd.")
-    # Extra reject chars
-    assert is_name_irregular(org, "Company Ltd, Holding Company Ltd.")
+
+    assert not is_name_irregular(org, "Org NPO")
+    # Rejected chars
+    assert is_name_irregular(org, "Org NPO, Org Charitable")
     # Nullwords
     assert is_name_irregular(org, "Unknown")
     # Below min chars
