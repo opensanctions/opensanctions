@@ -93,7 +93,16 @@ For each entity found, extract these fields:
 """
 
 
-def crawl_item(context, item, date, url, article_name, action_type, origin: str):
+def crawl_item(
+    context: Context,
+    *,
+    item: Defendant,
+    date: str,
+    url: str,
+    article_name: str,
+    action_type: str,
+    origin: str,
+) -> None:
     entity = context.make(item.entity_schema)
     entity.id = context.make_id(item.name, item.country)
     entity.add("name", item.name, origin=origin)
@@ -119,15 +128,16 @@ def crawl_item(context, item, date, url, article_name, action_type, origin: str)
     context.emit(sanction)
 
 
-def crawl_enforcement_action(context: Context, url: str, date: str, action_type: str):
+def crawl_enforcement_action(
+    context: Context, url: str, date: str, action_type: str
+) -> None:
     article = context.fetch_html(url, cache_days=7)
     article.make_links_absolute(context.data_url)
-    article_el = article.xpath("//div[contains(@class, 'mas-section__banner-item')]")
-    assert len(article_el) == 1, "Expected exactly one article in the document"
-    article_el = article_el[0]
-    article_name = article_el.xpath("./h1")
-    assert len(article_name) == 1, "Expected exactly one article title in the document"
-    article_name = article_name[0].text_content().strip()
+    article_el = h.xpath_elements(
+        article, "//div[contains(@class, 'mas-section__banner-item')]", expect_exactly=1
+    )[0]
+    article_name_el = h.xpath_elements(article_el, "./h1", expect_exactly=1)
+    article_name = h.element_text(article_name_el[0])
 
     source_value = HtmlSourceValue(
         key_parts=url, label="Enforcement Action", element=article_el, url=url
@@ -146,13 +156,20 @@ def crawl_enforcement_action(context: Context, url: str, date: str, action_type:
         return
 
     for item in review.extracted_data.defendants:
-        crawl_item(context, item, date, url, article_name, action_type, review.origin)
+        crawl_item(
+            context,
+            item=item,
+            date=date,
+            url=url,
+            article_name=article_name,
+            action_type=action_type,
+            origin=review.origin,
+        )
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     doc = context.fetch_html(context.data_url, cache_days=7, absolute_links=True)
-    table = doc.xpath("//table")
-    assert len(table) == 1, "Expected exactly one table in the document"
+    table = h.xpath_elements(doc, "//table", expect_exactly=1)
     for row in h.parse_html_table(table[0]):
         links = h.links_to_dict(row.pop("title"))
         str_row = h.cells_to_str(row)
@@ -162,6 +179,9 @@ def crawl(context: Context):
         # list of defendants is available in the 'person_company' field
         context.audit_data(str_row, ["person_company"])
         url = next(iter(links.values()))
+        assert url is not None
+        assert date is not None
+        assert action_type is not None
         crawl_enforcement_action(context, url, date, action_type)
 
     assert_all_accepted(context)

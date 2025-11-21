@@ -84,8 +84,7 @@ def crawl_additional_lists(context: Context) -> None:
     doc = zyte_api.fetch_html(
         context, ADDITIONAL_LISTS_PAGE_URL, validator, absolute_links=True
     )
-    container = doc.xpath(".//main")
-    assert len(container) == 1, "More than one main container found"
+    container = h.xpath_elements(doc, ".//main", expect_exactly=1)
     h.assert_dom_hash(
         node=container[0],
         hash="5173029f2075715a702e006a6b3007ab38203397",
@@ -93,7 +92,9 @@ def crawl_additional_lists(context: Context) -> None:
         text_only=True,
     )
     # Check if the specific other measures pages have changed e.g. with new amendments.
-    for other_link in doc.xpath(".//*[@id='_other-financial-measures']//a/@href"):
+    for other_link in h.xpath_strings(
+        doc, ".//*[@id='_other-financial-measures']//a/@href"
+    ):
         other_doc = zyte_api.fetch_html(
             context,
             other_link,
@@ -104,8 +105,7 @@ def crawl_additional_lists(context: Context) -> None:
         if expected_hash is None:
             context.log.warn("Add hash for unknown other measures link", url=other_link)
         else:
-            other_container = other_doc.xpath(".//main")
-            assert len(other_container) == 1, "More than one main container found"
+            other_container = h.xpath_elements(other_doc, ".//main", expect_exactly=1)
             h.assert_dom_hash(
                 node=other_container[0], hash=expected_hash, raise_exc=False
             )
