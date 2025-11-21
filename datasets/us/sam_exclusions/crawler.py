@@ -10,7 +10,6 @@ from rigour.mime.types import ZIP
 
 from zavod import Context
 from zavod import helpers as h
-from zavod.stateful.review import TextSourceValue, review_extraction
 
 DOWNLOAD_URL = "https://sam.gov/api/prod/fileextractservices/v1/api/download/"
 
@@ -168,21 +167,8 @@ def crawl(context: Context) -> None:
         elif len(name) < 11 and " " not in name and entity.schema.is_a("LegalEntity"):
             full_name_prop = "alias"
 
-        names_string = (
-            f"Full name: {name}\n"
-            f"Schema: {entity.schema.name}\n"
-            f"First name: {row.get('First')}\n"
-            f"Middle name: {row.get('Middle')}\n"
-            f"Last name: {row.get('Last')}\n"
-            f"Cross-reference: {cross_ref}\n"
-        )
-        source_value = TextSourceValue(names_string, "All names", names_string)
         extraction = FullName(name=name, property_name=full_name_prop)
         origin = filename
-        if full_name_prop != "name":
-            review = review_extraction(context, source_value, extraction, origin)
-            if review.accepted:
-                extraction = review.extracted_data
 
         entity.add(
             extraction.property_name,
@@ -190,6 +176,8 @@ def crawl(context: Context) -> None:
             lang="eng",
             origin=origin,
         )
+
+        h.review_names(context, entity, [name], "eng")
 
         entity.add("firstName", row.pop("First", None), quiet=True, lang="eng")
         entity.add("middleName", row.pop("Middle", None), quiet=True, lang="eng")

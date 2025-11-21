@@ -3,7 +3,7 @@ from typing import List, Optional, cast
 
 from followthemoney.util import join_text
 from normality import squash_spaces
-from rigour.data.names import data
+from rigour.data.names.data import STOPPHRASES
 from rigour.names.check import is_nullword
 
 from zavod import settings
@@ -12,13 +12,14 @@ from zavod.entity import Entity
 from zavod.extract.names.clean import (
     LLM_MODEL_VERSION,
     CleanNames,
+    RawNames,
 )
 
 # alias clean_names so that it could be imported from here
 from zavod.extract.names.clean import clean_names as clean_names
 from zavod.stateful.review import (
+    JSONSourceValue,
     Review,
-    TextSourceValue,
     review_extraction,
 )
 
@@ -28,7 +29,7 @@ REGEX_CLEAN_COMMA = re.compile(
     r", \b(LLC|L\.L\.C|Inc|Jr|INC|L\.P|LP|Sr|III|II|IV|S\.A|LTD|USA INC|\(?A/K/A|\(?N\.K\.A|\(?N/K/A|\(?F\.K\.A|formerly known as|INCORPORATED)\b",  # noqa
     re.I,
 )
-KNOWN_AS_PATTERNS = [re.escape(phrase) for phrase in data.STOPPHRASES]
+KNOWN_AS_PATTERNS = [re.escape(phrase) for phrase in STOPPHRASES]
 PATTERN_KNOWN_AS = rf"(\b({'|'.join(KNOWN_AS_PATTERNS)})\b)"
 REGEX_KNOWN_AS = re.compile(PATTERN_KNOWN_AS, re.I)
 
@@ -285,6 +286,7 @@ def is_name_irregular(entity: Entity, string: Optional[str]) -> bool:
 
 def apply_names(
     entity: Entity,
+    strings: List[Optional[str]],
     review: Review[CleanNames],
     alias: bool = False,
     lang: Optional[str] = None,
@@ -297,7 +299,8 @@ def apply_names(
     ]
     if not review.accepted:
         prop = "alias" if alias else "name"
-        entity.add(prop, review.source_value, lang=lang)
+        for string in strings:
+            entity.add(prop, string, lang=lang)
         return
 
     for field_name, prop in field_props:
@@ -314,7 +317,7 @@ def apply_names(
 def review_names(
     context: Context,
     entity: Entity,
-    string: Optional[str],
+    strings: List[Optional[str]],
     lang: Optional[str] = None,
     alias: bool = False,
 ) -> Optional[Review[CleanNames]]:
@@ -328,17 +331,26 @@ def review_names(
         alias: If this is known to be an alias and not a primary name.
         lang: The language of the name, if known.
     """
-    if not string:
+    strings = [s for s in strings if s]
+
+    if not strings:
         return None
 
-    if settings.CI or not is_name_irregular(entity, string):
+    if settings.CI or not any(is_name_irregular(entity, s) for s in strings):
         prop = "alias" if alias else "name"
-        entity.add(prop, string, lang=lang)
+        for string in strings:
+            entity.add(prop, string, lang=lang)
         return None
 
-    names = clean_names(context, string)
+    non_blank_strings = [s for s in strings if s and s.strip()]
+    raw_names = RawNames(entity_schema=entity.schema.name, strings=non_blank_strings)
+    names = clean_names(context, raw_names)
 
-    source_value = TextSourceValue(key_parts=string, label="name", text=string)
+    source_value = JSONSourceValue(
+        key_parts=[entity.schema.name] + non_blank_strings,
+        label="names",
+        data=raw_names.model_dump(),
+    )
     review = review_extraction(
         context,
         source_value=source_value,
@@ -351,7 +363,7 @@ def review_names(
 def apply_reviewed_names(
     context: Context,
     entity: Entity,
-    string: Optional[str],
+    strings: List[Optional[str]],
     lang: Optional[str] = None,
     alias: bool = False,
 ) -> None:
@@ -370,7 +382,7 @@ def apply_reviewed_names(
         alias: If this is known to be an alias and not a primary name.
         lang: The language of the name, if known.
     """
-    review = review_names(context, entity, string, lang=lang, alias=alias)
+    review = review_names(context, entity, strings, lang=lang, alias=alias)
     if review is None:
         return
-    apply_names(entity, review, alias=alias, lang=lang)
+    apply_names(entity, strings, review, alias=alias, lang=lang)

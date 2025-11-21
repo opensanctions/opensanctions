@@ -1,8 +1,10 @@
 import json
 from pathlib import Path
 
+from followthemoney import Model
+
 from zavod.context import Context
-from zavod.extract.names.clean import clean_names
+from zavod.extract.names.clean import RawNames, clean_names
 from zavod.extract.names.dspy.clean import load_optimised_module
 from zavod.extract.names.dspy.example_data import FIELDS, load_data
 from zavod.extract.names.dspy.optimise import (
@@ -26,10 +28,15 @@ def compare_single_entity(examples_path: Path, output_path: Path) -> None:
         print("Strings:", example.strings)
         gold = example.toDict()
         del gold["strings"]
-        dspy_result = program(strings=example.strings, entity_schema=example.schema)
+        dspy_result = program(
+            strings=example.strings, entity_schema=example.entity_schema
+        )
         dspy_eval = metric_with_feedback(example, dspy_result)
 
-        direct_gpt_result = clean_names(context, example.schema, example.strings)
+        schema = Model.instance().get(example.entity_schema)
+        assert schema is not None, example.entity_schema
+        raw_names = RawNames(entity_schema=schema.name, strings=example.strings)
+        direct_gpt_result = clean_names(context, raw_names)
         direct_gpt_eval = metric_with_feedback_dict(
             example.toDict(), direct_gpt_result.model_dump()
         )
@@ -42,7 +49,7 @@ def compare_single_entity(examples_path: Path, output_path: Path) -> None:
                 agree = False
         result = {
             "strings": example.strings,
-            "schema": example.schema,
+            "schema": example.entity_schema,
             "gold": gold,
             "dspy_result": {
                 "output": dspy_result.toDict(),

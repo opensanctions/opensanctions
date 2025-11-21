@@ -174,7 +174,7 @@
   full_name: [Cho Yan Nathan]
   alias: [Nathan Man Man]
 - strings: ["Kreig; a.k.a. Cow Craig; a.k.a. Hall Jermaine; a.k.a. Hall Jermaine Craig; a.k.a. Rhooms Jermain; a.k.a. Rhoomas Jermaine Craig; a.k.a. Rhoomas Rhoomes"]
-  entity_schema: LegalEntity]
+  entity_schema: LegalEntity
   alias:
     - Cow Craig
     - Hall Jermaine
@@ -732,6 +732,420 @@
 - strings: ["A. AHMED"]
   entity_schema: Person
   weakAlias: [A. AHMED]
+- entity_schema: Organization
+  strings:
+    - "Revolu\u010Dn\xED lidov\u011B osvobozeneck\xE1 arm\xE1da/fronta/strana"
+  full_name:
+    - "Revolu\u010Dn\xED lidov\u011B osvobozeneck\xE1 arm\xE1da"
+    - "Revolu\u010Dn\xED lidov\u011B osvobozeneck\xE1 fronta"
+    - "Revolu\u010Dn\xED lidov\u011B osvobozeneck\xE1 strana"
+- entity_schema: Organization
+  strings:
+    - "Forradalmi N\xE9pi Felszabad\xEDt\xE1si Hadsereg/Front/P\xE1rt"
+  full_name:
+    - "Forradalmi N\xE9pi Felszabad\xEDt\xE1si Hadsereg"
+    - "Forradalmi N\xE9pi Felszabad\xEDt\xE1si Front"
+    - "Forradalmi N\xE9pi Felszabad\xEDt\xE1si P\xE1rt"
+- entity_schema: Organization
+  strings:
+    - "Revolucion\u0101r\u0101 Tautas atbr\u012Bvo\u0161an\u0101s armija/fronte/partija"
+  full_name:
+    - "Revolucion\u0101r\u0101 Tautas atbr\u012Bvo\u0161an\u0101s armija"
+    - "Revolucion\u0101r\u0101 Tautas atbr\u012Bvo\u0161an\u0101s fronte"
+    - "Revolucion\u0101r\u0101 Tautas atbr\u012Bvo\u0161an\u0101s partija"
+- entity_schema: Organization
+  strings:
+    - "Revoliucin\u0117 liaudies i\u0161laisvinimo armija/frontas/partija"
+  full_name:
+    - "Revoliucin\u0117 liaudies i\u0161laisvinimo armija"
+    - "Revoliucin\u0117 liaudies i\u0161laisvinimo frontas"
+    - "Revoliucin\u0117 liaudies i\u0161laisvinimo partija"
+- entity_schema: Organization
+  strings:
+    - "Revolu\u010Dn\xE1 \u013Eudov\xE1 oslobodzovacia arm\xE1da/front/strana"
+  full_name:
+    - "Revolu\u010Dn\xE1 \u013Eudov\xE1 oslobodzovacia arm\xE1da"
+    - "Revolu\u010Dn\xE1 \u013Eudov\xE1 oslobodzovacia front"
+    - "Revolu\u010Dn\xE1 \u013Eudov\xE1 oslobodzovacia strana"
+- entity_schema: Organization
+  strings:
+    - Revolucionarna ljudska osvobodilna vojska/fronta/stranka
+  full_name:
+    - Revolucionarna ljudska osvobodilna vojska
+    - Revolucionarna ljudska osvobodilna fronta
+    - Revolucionarna ljudska osvobodilna stranka
+- entity_schema: Organization
+  strings:
+    - "\u0420\u0435\u0432\u043E\u043B\u044E\u0446\u0438\u043E\u043D\u043D\u0430 \u043D\
+      \u0430\u0440\u043E\u0434\u043E\u043E\u0441\u0432\u043E\u0431\u043E\u0434\u0438\
+      \u0442\u0435\u043B\u043D\u0430 \u0430\u0440\u043C\u0438\u044F/\u0444\u0440\u043E\
+      \u043D\u0442/\u043F\u0430\u0440\u0442\u0438\u044F"
+  full_name:
+    - "\u0420\u0435\u0432\u043E\u043B\u044E\u0446\u0438\u043E\u043D\u043D\u0430 \u043D\
+      \u0430\u0440\u043E\u0434\u043E\u043E\u0441\u0432\u043E\u0431\u043E\u0434\u0438\
+      \u0442\u0435\u043B\u043D\u0430 \u0430\u0440\u043C\u0438\u044F"
+    - "\u0420\u0435\u0432\u043E\u043B\u044E\u0446\u0438\u043E\u043D\u043D\u0430 \u043D\
+      \u0430\u0440\u043E\u0434\u043E\u043E\u0441\u0432\u043E\u0431\u043E\u0434\u0438\
+      \u0442\u0435\u043B\u043D\u0430 \u0444\u0440\u043E\u043D\u0442"
+    - "\u0420\u0435\u0432\u043E\u043B\u044E\u0446\u0438\u043E\u043D\u043D\u0430 \u043D\
+      \u0430\u0440\u043E\u0434\u043E\u043E\u0441\u0432\u043E\u0431\u043E\u0434\u0438\
+      \u0442\u0435\u043B\u043D\u0430 \u043F\u0430\u0440\u0442\u0438\u044F"
+- entity_schema: Organization
+  strings:
+    - Revolutionary People's Liberation Army/Front/Party
+  full_name:
+    - Revolutionary People's Liberation Army
+    - Revolutionary People's Liberation Front
+    - Revolutionary People's Liberation Party
+- entity_schema: Organization
+  strings:
+    - "\u0395\u03C0\u03B1\u03BD\u03B1\u03C3\u03C4\u03B1\u03C4\u03B9\u03BA\u03CC\u03C2\
+      \ \u039B\u03B1\u03CA\u03BA\u03CC\u03C2 \u0391\u03C0\u03B5\u03BB\u03B5\u03C5\u03B8\
+      \u03B5\u03C1\u03C9\u03C4\u03B9\u03BA\u03CC\u03C2 \u03A3\u03C4\u03C1\u03B1\u03C4\
+      \u03CC\u03C2/\u039C\u03AD\u03C4\u03C9\u03C0\u03BF/\u039A\u03CC\u03BC\u03BC\u03B1"
+  full_name:
+    - "\u0395\u03C0\u03B1\u03BD\u03B1\u03C3\u03C4\u03B1\u03C4\u03B9\u03BA\u03CC\u03C2\
+      \ \u039B\u03B1\u03CA\u03BA\u03CC\u03C2 \u0391\u03C0\u03B5\u03BB\u03B5\u03C5\u03B8\
+      \u03B5\u03C1\u03C9\u03C4\u03B9\u03BA\u03CC\u03C2 \u03A3\u03C4\u03C1\u03B1\u03C4\
+      \u03CC\u03C2"
+    - "\u0395\u03C0\u03B1\u03BD\u03B1\u03C3\u03C4\u03B1\u03C4\u03B9\u03BA\u03CC\u03C2\
+      \ \u039B\u03B1\u03CA\u03BA\u03CC\u03C2 \u0391\u03C0\u03B5\u03BB\u03B5\u03C5\u03B8\
+      \u03B5\u03C1\u03C9\u03C4\u03B9\u03BA\u03CC\u03C2 \u039C\u03AD\u03C4\u03C9\u03C0\
+      \u03BF"
+    - "\u0395\u03C0\u03B1\u03BD\u03B1\u03C3\u03C4\u03B1\u03C4\u03B9\u03BA\u03CC\u03C2\
+      \ \u039B\u03B1\u03CA\u03BA\u03CC\u03C2 \u0391\u03C0\u03B5\u03BB\u03B5\u03C5\u03B8\
+      \u03B5\u03C1\u03C9\u03C4\u03B9\u03BA\u03CC\u03C2 \u039A\u03CC\u03BC\u03BC\u03B1"
+- entity_schema: Organization
+  strings:
+    - "Al Qa\u2019ida/Armata islamic\u0103"
+  full_name:
+    - Al Qa'ida
+    - "Armata islamic\u0103"
+- entity_schema: Organization
+  strings:
+    - "Al Qa\u2019ida/ Islamic Army"
+  full_name:
+    - "Al Qa\u2019ida"
+    - Islamic Army
+- entity_schema: Organization
+  strings:
+    - "Al Qaida/Ex\xE9rcito isl\xE2mico"
+  full_name:
+    - Al Qaida
+    - "Ex\xE9rcito isl\xE2mico"
+- entity_schema: Person
+  strings:
+    - Allahdad
+  weak_alias:
+    - Allahdad
+- entity_schema: Person
+  strings:
+    - Akhund
+  weak_alias:
+    - Akhund
+- entity_schema: Person
+  strings:
+    - Shahidwror
+  weak_alias:
+    - Shahidwror
+- entity_schema: Person
+  strings:
+    - Ahmed
+  weak_alias:
+    - Ahmed
+- entity_schema: Person
+  strings:
+    - Al-Libi
+  weak_alias:
+    - Al-Libi
+- entity_schema: Person
+  strings:
+    - Atiqullah
+  weak_alias:
+    - Atiqullah
+- entity_schema: Person
+  strings:
+    - Qerman
+  weak_alias:
+    - Qerman
+- entity_schema: Person
+  strings:
+    - Muhelisi
+  weak_alias:
+    - Muhelisi
+- entity_schema: Person
+  strings:
+    - Saifuding
+  weak_alias:
+    - Saifuding
+- entity_schema: Person
+  strings:
+    - Zakir
+  weak_alias:
+    - Zakir
+- entity_schema: Person
+  strings:
+    - Shamsuddin
+  weak_alias:
+    - Shamsuddin
+- entity_schema: Person
+  strings:
+    - Rashid Al-Maghribi (the Moroccan)
+  full_name:
+    - Rashid Al-Maghribi
+- entity_schema: Person
+  strings:
+    - Abu-Ahmad Al-Amriki (the American)
+  full_name:
+    - Abu-Ahmad Al-Amriki
+- entity_schema: Person
+  strings:
+    - Rehmatullah
+  weak_alias:
+    - Rehmatullah
+- entity_schema: Person
+  strings:
+    - Abu-Khalil
+  weak_alias:
+    - Abu-Khalil
+- entity_schema: Person
+  strings:
+    - Saber
+  weak_alias:
+    - Saber
+- entity_schema: Person
+  strings:
+    - Zakariya
+  weak_alias:
+    - Zakariya
+- entity_schema: Person
+  strings:
+    - Salmane
+  weak_alias:
+    - Salmane
+- entity_schema: Person
+  strings:
+    - Saleh
+  weak_alias:
+    - Saleh
+- entity_schema: Person
+  strings:
+    - Foopie
+  weak_alias:
+    - Foopie
+- entity_schema: Person
+  strings:
+    - Fupi
+  weak_alias:
+    - Fupi
+- entity_schema: Organization
+  strings:
+    - "Al Qa\u2019ida / Islamska vojska"
+  full_name:
+    - "Al Qa\u2019ida"
+    - Islamska vojska
+- entity_schema: Organization
+  strings:
+    - "\u0391\u03BB \u039A\u03AC\u03B9\u03BD\u03C4\u03B1/\u0399\u03C3\u03BB\u03B1\u03BC\
+    \u03B9\u03BA\u03CC\u03C2 \u03C3\u03C4\u03C1\u03B1\u03C4\u03CC\u03C2"
+  full_name:
+    - "\u0391\u03BB \u039A\u03AC\u03B9\u03BD\u03C4\u03B1"
+    - "\u0399\u03C3\u03BB\u03B1\u03BC\u03B9\u03BA\u03CC\u03C2 \u03C3\u03C4\u03C1\u03B1\
+    \u03C4\u03CC\u03C2"
+- entity_schema: Person
+  strings:
+    - "Sa\u2019id"
+  weak_alias:
+    - Sa'id
+- entity_schema: Organization
+  strings:
+    - "Revolution\xE4re Volksbefreiungsarmee/-front/- partei"
+  full_name:
+    - "Revolution\xE4re Volksbefreiungsarmee"
+    - "Revolution\xE4re Volksbefreiungsfront"
+    - "Revolution\xE4re Volksbefreiungspartei"
+- entity_schema: Organization
+  strings:
+    - "Folkets Revolution\xE6re Befrielsesh\xE6r/Befrielsesfront/Parti"
+  full_name:
+    - "Folkets Revolution\xE6re Befrielsesh\xE6r"
+    - "Folkets Revolution\xE6re Befrielsesfront"
+    - "Folkets Revolution\xE6re Parti"
+- entity_schema: Organization
+  strings:
+    - DHKP/C
+  weak_alias:
+    - DHKP/C
+- entity_schema: Organization
+  strings:
+    - "Narodna oslobodila\u010Dka revolucionarna vojska/fronta/stranka"
+  alias:
+    - "Narodna oslobodila\u010Dka revolucionarna vojska"
+    - "Narodna oslobodila\u010Dka revolucionarna fronta"
+    - "Narodna oslobodila\u010Dka revolucionarna stranka"
+- entity_schema: Person
+  strings:
+    - Faiz
+  weak_alias:
+    - Faiz
+- entity_schema: Person
+  strings:
+    - Hidayatullah
+  weak_alias:
+    - Hidayatullah
+- entity_schema: Person
+  strings:
+    - Al-Kimawi
+  weak_alias:
+    - Al-Kimawi
+- entity_schema: Person
+  strings:
+    - Walijan
+  weak_alias:
+    - Walijan
+- entity_schema: Person
+  strings:
+    - Mahmud
+  weak_alias:
+    - Mahmud
+- entity_schema: Person
+  strings:
+    - Bilal
+  weak_alias:
+    - Bilal
+- entity_schema: Organization
+  strings:
+    - The Organization Base of Jihad/Country of the Two Rivers
+  full_name:
+    - The Organization Base of Jihad
+    - Country of the Two Rivers
+- entity_schema: Person
+  strings:
+    - Hizrat
+  weak_alias:
+    - Hizrat
+- entity_schema: Person
+  strings:
+    - Mucchad
+  weak_alias:
+    - Mucchad
+- entity_schema: Person
+  strings:
+    - Lazhar
+  weak_alias:
+    - Lazhar
+- entity_schema: Person
+  strings:
+    - Hassan
+  weak_alias:
+    - Hassan
+- entity_schema: Person
+  strings:
+    - Kakazada
+  weak_alias:
+    - Kakazada
+- entity_schema: Person
+  strings:
+    - Matiullah
+  weak_alias:
+    - Matiullah
+- entity_schema: Person
+  strings:
+    - al-Hammad
+  weak_alias:
+    - al-Hammad
+- entity_schema: Person
+  strings:
+    - Baryaly
+  weak_alias:
+    - Baryaly
+- entity_schema: Person
+  strings:
+    - Baryalai
+  weak_alias:
+    - Baryalai
+- entity_schema: Person
+  strings:
+    - Gurg
+  weak_alias:
+    - Gurg
+- entity_schema: Person
+  strings:
+    - Sanani
+  weak_alias:
+    - Sanani
+- entity_schema: Person
+  strings:
+    - Sadruddin
+  full_name:
+    - Sadruddin
+  weak_alias:
+    - Sadruddin
+- entity_schema: Person
+  strings:
+    - Shams-u-Rahman
+  full_name:
+    - Shams-u-Rahman
+- entity_schema: Person
+  strings:
+    - Shamsurrahman
+  weak_alias:
+    - Shamsurrahman
+- entity_schema: Person
+  strings:
+    - Jalloul
+  weak_alias:
+    - Jalloul
+- entity_schema: Person
+  strings:
+    - Encep Nurjaman (birth name)
+  full_name:
+    - Encep Nurjaman
+- entity_schema: Person
+  strings:
+    - Hambali
+  weak_alias:
+    - Hambali
+- entity_schema: Person
+  strings:
+    - Nurjaman
+  weak_alias:
+    - Nurjaman
+- entity_schema: Person
+  strings:
+    - Mubarok
+  weak_alias:
+    - Mubarok
+- entity_schema: Person
+  strings:
+    - Mustafa
+  weak_alias:
+    - Mustafa
+- entity_schema: Person
+  strings:
+    - "Mera\u2019i"
+  weak_alias:
+    - "Mera\u2019i"
+- entity_schema: Person
+  strings:
+    - Abdalarak
+  weak_alias:
+    - Abdalarak
+- entity_schema: Person
+  strings:
+    - Chadian
+  weak_alias:
+    - Chadian
+- entity_schema: Person
+  strings:
+    - Fodhil
+  weak_alias:
+    - Fodhil
+- entity_schema: Person
+  strings:
+    - Adel
+  weak_alias:
+    - Adel
 
 # curl --silent https://data.opensanctions.org/datasets/20251104/us_trade_csl/names.txt | grep \;
 # HPSTAR;

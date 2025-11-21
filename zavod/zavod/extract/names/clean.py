@@ -2,13 +2,19 @@ from functools import cache
 from pathlib import Path
 from typing import List
 
-from followthemoney import Schema
 from pydantic import BaseModel
 from zavod.context import Context
 from zavod.extract.llm import run_typed_text_prompt
 
 LLM_MODEL_VERSION = "gpt-4o"
 SINGLE_ENTITY_PROGRAM_PATH = Path(__file__).parent / "dspy/single_entity_program.json"
+
+
+class RawNames(BaseModel):
+    """Name strings and schema supplied to the LLM for cleaning and categorisation"""
+
+    entity_schema: str
+    strings: List[str]
 
 
 class CleanNames(BaseModel):
@@ -36,13 +42,13 @@ def load_single_entity_prompt() -> str:
     return prompt
 
 
-def clean_names(context: Context, schema: Schema, strings: List[str]) -> CleanNames:
+def clean_names(context: Context, raw_names: RawNames) -> CleanNames:
     prompt = load_single_entity_prompt()
-    attached_string = "Entity Schema: " + schema.name + "\nName strings:\n- " + "\n- ".join(strings)
     return run_typed_text_prompt(
         context=context,
         prompt=prompt,
-        string=attached_string,
+        string="The entity schema and name strings as JSON:\n\n"
+        + raw_names.model_dump_json(),
         response_type=CleanNames,
         model=LLM_MODEL_VERSION,
     )

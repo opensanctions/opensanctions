@@ -57,7 +57,7 @@ def dump_examples(input_path: Path, output_path: Path) -> None:
 
     examples = []
     for review in reviews:
-        example = {"string": review["source_value"]}
+        example = json.loads(review["source_value"])
         for key, value in json.loads(review["extracted_data"]).items():
             if value:
                 example[key] = value
