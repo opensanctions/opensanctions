@@ -64,9 +64,12 @@ lookups:
         value: person_info
       - match: uppdrag
         value: mandate
-  gender:
+  type.gender:
+    lowercase: true
     options:
       - match: kvinna
         value: female
       - match: man
         value: male
+      - match: okänt
+        value: null

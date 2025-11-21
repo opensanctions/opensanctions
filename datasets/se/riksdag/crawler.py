@@ -22,6 +22,13 @@ def extract_terms(
     """
     Extract the start and end dates of the main parliamentary term.
     """
+    # Data model provides all roles a person has ever had, including roles in
+    # committees, government agencies, political party functions, or temporary
+    # substitute assignments. We are only interested in roles that represent
+    # actual service in the national parliament
+    #
+    #    organ_kod == "kam"             assignment belongs to the parliamentary chamber
+    #    typ == "kammaruppdrag"         chamber-level duty (not committee work)
     for role in item.pop("person_mandate", {}).pop("mandate", []):
         if role.get("organ_kod") == "kam" and role.get("typ") == "kammaruppdrag":
             if role.get("roll_kod") in {
@@ -33,16 +40,6 @@ def extract_terms(
                 end = role.get("tom")
                 return start, end
     return None, None
-
-
-def extract_gender(context, gender, entity_id) -> Optional[str]:
-    # Okänt is Swedish for "unknown"
-    if "okänt" in gender.lower():
-        return None
-    gender = context.lookup_value("gender", gender)
-    if not gender:
-        context.log.warning(f"Unknown gender for {entity_id}")
-    return gender
 
 
 def crawl(context: Context):
@@ -60,7 +57,7 @@ def crawl(context: Context):
         entity.add("political", item.pop("party"))
         entity.add("citizenship", "se")
         entity.add("sourceUrl", item.pop("person_url_xml"))
-        entity.add("gender", extract_gender(context, item.pop("gender"), entity.id))
+        entity.add("gender", item.pop("gender"), lang="eng")
 
         position = h.make_position(
             context,
