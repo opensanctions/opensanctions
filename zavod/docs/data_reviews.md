@@ -34,7 +34,7 @@ The basic workflow is:
 For example, imagine a crawler crawling web pages with regulatory notices.
 
 ```python
-from zavod.shed.gpt import run_typed_text_prompt
+from zavod.extract.llm import run_typed_text_prompt
 from zavod.stateful.review import review_extraction, assert_all_accepted, HtmlSourceValue
 
 

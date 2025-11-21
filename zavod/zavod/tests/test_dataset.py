@@ -1,11 +1,11 @@
 import pytest
 from followthemoney.exc import MetadataException
-from zavod import settings
+from followthemoney.model import Model
 
-from zavod.meta import get_catalog, Dataset, get_multi_dataset
+from zavod import settings
+from zavod.meta import Dataset, get_catalog, get_multi_dataset
 from zavod.meta.assertion import Assertion
 from zavod.runtime.urls import make_published_url
-
 
 TEST_DATASET = {
     "name": "test",
@@ -22,6 +22,11 @@ TEST_DATASET = {
         "backoff_factor": 0.5,
         "retry_statuses": [500],
         "retry_methods": ["GET"],
+    },
+    "names": {
+        # Person not defined here to test defaults
+        "Organization": {"reject_chars": "+"},
+        "LegalEntity": {"reject_chars": "-", "allow_chars": "/"},
     },
 }
 
@@ -81,6 +86,34 @@ def test_basic():
     assert test_ds.http.retry_methods == ["GET"]
     assert test_ds.http.backoff_factor == 0.5
     assert test_ds.http.user_agent == settings.HTTP_USER_AGENT
+
+    person_schema = Model.instance().get("Person")
+    person_spec = test_ds.names.get_spec(person_schema)
+    # Default specs are present (Person)
+    # Only person spec has <
+    assert "<" in person_spec.reject_chars_consolidated
+    org_schema = Model.instance().get("Organization")
+    org_spec = test_ds.names.get_spec(org_schema)
+    # A schema can be added in addition to defaults (Organization)
+    # Ony org spec has +
+    assert "+" in org_spec.reject_chars_consolidated
+    legal_entity_schema = Model.instance().get("LegalEntity")
+    legal_entity_spec = test_ds.names.get_spec(legal_entity_schema)
+    # Defaults chars are present in extended spec (LegalEntity)
+    assert ";" in legal_entity_spec.reject_chars_consolidated
+    assert ";" in legal_entity_spec.reject_chars_baseline
+    # Denied characters can be added to (LegalEntity)
+    assert "-" in legal_entity_spec.reject_chars_consolidated
+    assert "-" not in legal_entity_spec.reject_chars_baseline
+    # Characters can be allowed (LegalEntity)
+    assert "/" not in legal_entity_spec.reject_chars_consolidated
+    assert "/" in legal_entity_spec.reject_chars_baseline
+    # Most specific ancestor schema specs apply (PublicBody not directly defined)
+    assert "PublicBody" not in test_ds.names.root
+    body_schema = Model.instance().get("PublicBody")
+    body_spec = test_ds.names.get_spec(body_schema)
+    assert "+" in body_spec.reject_chars_consolidated  # Organization
+    assert "-" not in body_spec.reject_chars_consolidated  # LegalEntity
 
 
 def test_validation(testdataset1: Dataset, testdataset3: Dataset):
