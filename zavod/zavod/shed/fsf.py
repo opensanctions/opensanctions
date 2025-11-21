@@ -1,3 +1,5 @@
+from collections import defaultdict
+from itertools import groupby
 from lxml import etree
 from lxml.etree import _Element as Element
 from banal import as_bool
@@ -125,31 +127,37 @@ def parse_entry(context: Context, entry: Element) -> None:
     parse_sanctions(context, entity, entry)
     # context.inspect(entry)
 
+    lang_groups = defaultdict(list)
     for name in entry.findall("./nameAlias"):
-        is_weak = not as_bool(name.get("strong"))
-        remark = name.findtext("./remark")
-        if remark is not None:
-            # context.inspect(name)
-            lremark = remark.lower()
-            if "low quality" in lremark or "lo quality" in lremark:
-                is_weak = True
-                remark = None
-            elif "ood quality" in lremark or "god quality" in lremark:
-                remark = None
-            elif "high quality" in lremark:
-                remark = None
-            elif "quality" in lremark:
-                context.log.warning("Unknown quality", remark=remark)
-            elif REGEX_LEADER_ALIAS.search(lremark):
-                pass
-            elif "alias" in lremark:
-                context.log.warning("Unknown alias remark", remark=remark)
-            entity.add("notes", remark, quiet=True)
         lang2 = name.get("nameLanguage")
         lang = iso_639_alpha3(lang2) if lang2 else None
         if lang is None and lang2 is not None and len(lang2):
             context.log.warning("Unknown language", lang=lang2)
             continue
+        lang_groups[lang].append(name)
+    for lang, name in lang_groups.items():
+        for name in name:
+            is_weak = not as_bool(name.get("strong"))
+            remark = name.findtext("./remark")
+            if remark is not None:
+                # context.inspect(name)
+                lremark = remark.lower()
+                if "low quality" in lremark or "lo quality" in lremark:
+                    is_weak = True
+                    remark = None
+                elif "ood quality" in lremark or "god quality" in lremark:
+                    remark = None
+                elif "high quality" in lremark:
+                    remark = None
+                elif "quality" in lremark:
+                    context.log.warning("Unknown quality", remark=remark)
+                elif REGEX_LEADER_ALIAS.search(lremark):
+                    pass
+                elif "alias" in lremark:
+                    context.log.warning("Unknown alias remark", remark=remark)
+                entity.add("notes", remark, quiet=True)
+        if not is_weak:
+            h.review_names(context, entity, name.get("wholeName"), lang=lang)
         h.apply_name(
             entity,
             full=name.get("wholeName"),
