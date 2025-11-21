@@ -670,3 +670,78 @@ lookups:
           - Friedman, Billings, Ramsey & Co. Inc.
           - Emanuel J. Friedman
           - Nicholas J. Nichols
+      - match: "Wilson-Davis & Co. Inc. James C. Snow, Byron B. Barkley"
+        names:
+          - Wilson-Davis & Co. Inc.
+          - James C. Snow
+          - Byron B. Barkley
+      - match: "Smith, Brown & Groover Inc. Raymond Hill Smith Jr."
+        names:
+          - Smith, Brown & Groover Inc.
+          - Raymond Hill Smith Jr.
+      - match: "H.C. Wainwright & Co. LLC John Wesley Chambers, Robert Eugene Kristal"
+        names:
+          - H.C. Wainwright & Co. LLC
+          - John Wesley Chambers
+          - Robert Eugene Kristal
+      - match: "Wilson-Davis & Co. James C. Snow Jr., Lyle Wesley Davis, Byron Bert Barkley, Craig Stanton Norton"
+        names:
+          - Wilson-Davis & Co.
+          - James C. Snow Jr.
+          - Lyle Wesley Davis
+          - Byron Bert Barkley
+          - Craig Stanton Norton
+      - match: "Wilson-Davis & Co. Inc. James C. Snow, Byron B. Barkley"
+        names:
+          - Wilson-Davis & Co. Inc.
+          - James C. Snow
+          - Byron B. Barkley
+      - match: "WILSON-DAVIS & CO. JAMES C. SNOW JR., LYLE WESLEY DAVIS, BYRON BERT BARKLEY, CRAIG STANTON NORTON"
+        names:
+          - WILSON-DAVIS & CO.
+          - JAMES C. SNOW JR.
+          - LYLE WESLEY DAVIS
+          - BYRON BERT BARKLEY
+          - CRAIG STANTON NORTON
+      - match: "Buckman, Buckman & Reid Inc. Harry John (\"Chip\") Buckman Jr."
+        names:
+          - Buckman, Buckman & Reid Inc.
+          - Harry John ("Chip") Buckman Jr.
+      - match: "WILSON-DAVIS & CO. INC. BYRON B. BARKLEY, JAMES C. SNOW"
+        names:
+          - WILSON-DAVIS & CO. INC.
+          - BYRON B. BARKLEY
+          - JAMES C. SNOW
+      - match: "Berthel, Fisher & Co. Financial Services Inc. Jeffrey Paul Dragon"
+        names:
+          - Berthel, Fisher & Co. Financial Services Inc.
+          - Jeffrey Paul Dragon
+      - match: "WILSON-DAVIS & CO. INC. JAMES C. SNOW, BYRON B. BARKLEY"
+        names:
+          - WILSON-DAVIS & CO. INC.
+          - JAMES C. SNOW
+          - BYRON B. BARKLEY
+      - match: "RAYMOND JAMES FINANCIAL SERVICES INC., RAYMOND JAMES & ASSOCIATES INC. LINDA L. BUSBY"
+        names:
+          - RAYMOND JAMES FINANCIAL SERVICES INC.
+          - RAYMOND JAMES & ASSOCIATES INC.
+          - LINDA L. BUSBY
+      - match: "RIDGEWAY & CONGER INC. LEIGH GARBER, PHILIP BRISARD, KENLEY BRISARD"
+        names:
+          - RIDGEWAY & CONGER INC.
+          - LEIGH GARBER
+          - PHILIP BRISARD
+          - KENLEY BRISARD
+      - match: "STIFEL, NICOLAUS & COMPANY INC. KURT A. LALOMIA"
+        names:
+          - STIFEL, NICOLAUS & COMPANY INC.
+          - KURT A. LALOMIA
+      - match: "CANTOR FITZGERALD & CO. JARRED KESSLER, JOSEPH LUDOVICO"
+        names:
+          - CANTOR FITZGERALD & CO.
+          - JARRED KESSLER
+          - JOSEPH LUDOVICO
+      - match: "BRAYMEN, LAMBERT AND NOEL SECURITIES LTD SHANNON BRAYMEN"
+        names:
+          - BRAYMEN, LAMBERT AND NOEL SECURITIES LTD
+          - SHANNON BRAYMEN
