@@ -73,6 +73,8 @@ config:
     - sanction
     - sanction.linked
     - sanction.counter
+    - export.control
+    - export.control.linked
     - debarment
     - asset.frozen
     - poi

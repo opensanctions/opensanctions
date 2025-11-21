@@ -5,7 +5,7 @@ full_dataset: abuja_mou_psc
 disabled: false
 hidden: false
 coverage:
-  schedule: "@weekly"
+  schedule: "weekly"
   start: 2025-08-18
 exports:
   - statistics.json
@@ -44,12 +44,14 @@ inputs:
 
 config:
   index_options:
-    memory: 3000
+    memory: 2500
   threshold: 0.7
   algorithm: regression-v1
   topics:
     - sanction
     - sanction.linked
+    - export.control
+    - export.control.linked
     - debarment
   schemata:
     - Company

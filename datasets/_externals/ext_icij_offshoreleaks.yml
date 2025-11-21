@@ -4,6 +4,10 @@ entry_point: zavod.runner.local_enricher:enrich
 full_dataset: icij_offshoreleaks
 disabled: false
 hidden: false
+coverage:
+  frequency: weekly
+  start: 2022-05-23
+  end: 2023-07-26
 exports:
   - statistics.json
   - entities.delta.json
@@ -13,10 +17,6 @@ deploy:
   disk: "100Gi"
 load_statements: true
 ci_test: false
-coverage:
-  start: 2022-05-23
-  end: 2023-07-26
-  schedule: "1 12 * * *"
 summary: >-
   Combined data from the Panama Papers, Paradise Papers, Pandora Papers
   and other cross-border investigations conducted by ICIJ and its partners
@@ -79,6 +79,8 @@ config:
     - role.rca
     - sanction
     - sanction.linked
+    - export.control
+    - export.control.linked
     - debarment
     - asset.frozen
     - poi
