@@ -26,6 +26,11 @@ jobs:
         uses: tj-actions/changed-files@24d32ffd492484c1d75e0c0b894501ddb9d30d62  # v47.0.0
         with:
           files: 'datasets/**/*.py'
+      - name: Get all modified files
+        id: changed-files
+        uses: tj-actions/changed-files@24d32ffd492484c1d75e0c0b894501ddb9d30d62  # v47.0.0
+        with:
+          files: 'datasets/**'
       - uses: actions/setup-python@v6
         with:
           python-version: '3.11'
@@ -44,3 +49,8 @@ jobs:
               ruff check $dataset
               ruff format --check --diff $dataset
           done
+      - name: pre-commit (prek)
+        if: ${{ steps.changed-python.outputs.all_changed_files != '' }}
+        run: |
+          set -euxo pipefail
+          prek run --files ${{ steps.changed-files.outputs.all_changed_files }}
