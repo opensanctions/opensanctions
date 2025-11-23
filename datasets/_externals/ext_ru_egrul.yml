@@ -12,11 +12,11 @@ exports:
   - entities.delta.json
 deploy:
   premium: true
-  cpu: "1000m"
+  cpu: "1500m"
   cpu_limit: "2000m"
-  disk: "150Gi"
   memory: "12Gi"
   memory_limit: "15Gi"
+  disk: "250Gi"
 load_statements: true
 summary: >-
   Companies database of the Russian Federation as maintained and published by
@@ -76,7 +76,7 @@ config:
   index_options:
     max_candidates: 200
     match_batch: 300
-    memory: 7000
+    memory: 5000
   threshold: 0.7
   limit: 100
   max_bin: 14

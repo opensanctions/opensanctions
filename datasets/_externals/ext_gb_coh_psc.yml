@@ -12,9 +12,10 @@ exports:
   - entities.delta.json
 deploy:
   premium: true
-  cpu: "3000m"
-  memory: "11Gi"
-  memory_limit: "12Gi"
+  cpu: "1500m"
+  cpu_limit: "2500m"
+  memory: "12Gi"
+  memory_limit: "15Gi"
   disk: "250Gi"
 load_statements: true
 ci_test: false
@@ -65,7 +66,7 @@ config:
   index_options:
     max_candidates: 100
     match_batch: 300
-    memory: 3500
+    memory: 4000
   limit: 100
   max_bin: 14
   threshold: 0.5
