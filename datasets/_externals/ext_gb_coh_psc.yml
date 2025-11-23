@@ -12,7 +12,7 @@ exports:
   - entities.delta.json
 deploy:
   premium: true
-  cpu: "2000m"
+  cpu: "3000m"
   memory: "11Gi"
   memory_limit: "12Gi"
   disk: "250Gi"

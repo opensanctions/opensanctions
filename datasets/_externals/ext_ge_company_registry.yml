@@ -13,6 +13,7 @@ exports:
   - entities.delta.json
 deploy:
   schedule: "@monthly"
+  cpu: "2000m"
   memory: "5000Mi"
   memory_limit: "6000Mi"
   disk: "100Gi"

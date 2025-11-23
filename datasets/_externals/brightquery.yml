@@ -9,6 +9,7 @@ coverage:
 exports:
   - statistics.json
 deploy:
+  cpu: "1000m"
   memory: "4000Mi"
 http:
   retry_methods:

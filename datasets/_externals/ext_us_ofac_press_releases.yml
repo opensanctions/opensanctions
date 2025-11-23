@@ -8,6 +8,7 @@ coverage:
   frequency: daily
   start: 2025-09-17
 deploy:
+  cpu: "2000m"
   memory: "3000Mi"
   memory_limit: "5000Mi"
 exports:
