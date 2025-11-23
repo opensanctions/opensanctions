@@ -4,7 +4,7 @@ entry_point: zavod.runner.enrich:enrich
 disabled: false
 hidden: false
 coverage:
-  frequency: daily
+  frequency: weekly
   start: 2025-11-07
 exports:
   - statistics.json
