@@ -10,10 +10,9 @@ exports:
   - statistics.json
   - entities.delta.json
 deploy:
-  schedule: "1 10 * * *"
-  cpu: "2000m"
+  cpu: "3000m"
   memory: "5000Mi"
-  memory_limit: "6000Mi"
+  memory_limit: "6500Mi"
   disk: "150Gi"
 load_statements: true
 summary: >

@@ -9,9 +9,9 @@ exports:
   - statistics.json
   - entities.delta.json
 deploy:
-  cpu: "2000m"
+  cpu: "3000m"
   memory: "5000Mi"
-  memory_limit: "6000Mi"
+  memory_limit: "6500Mi"
   disk: "150Gi"
 load_statements: true
 ci_test: false
@@ -52,7 +52,7 @@ inputs:
 config:
   index_options:
     match_batch: 300
-    memory: 4000
+    memory: 3000
   limit: 100
   max_bin: 14
   threshold: 0.7
