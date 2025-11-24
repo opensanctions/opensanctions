@@ -25,6 +25,7 @@ data:
   # API docs: https://avoindata.eduskunta.fi/#/fi/home; https://avoindata.eduskunta.fi/#/fi/members
   url: https://avoindata.eduskunta.fi/api/v1/seating/
   format: JSON
+  lang: fin
 dates:
   formats: ["%d.%m.%Y"]
 

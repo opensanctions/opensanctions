@@ -1,3 +1,4 @@
+from typing import Any, Dict, List
 from zavod import Context, helpers as h
 
 from zavod.stateful.positions import categorise
@@ -21,9 +22,10 @@ IGNORE = [
     "work_history",
     "government_memberships",
 ]
+PEP_URL = "https://avoindata.eduskunta.fi/api/v1/memberofparliament/{person_id}/fi"
 
 
-def translate_keys(context, data) -> dict|list:
+def translate_keys(context, data: Any) -> Any:
     """Recursively translate keys in nested dictionaries and lists."""
     if isinstance(data, dict):
         translated = {}
@@ -41,46 +43,40 @@ def translate_keys(context, data) -> dict|list:
         return data
 
 
-def get_all_parliamentary_terms(edustajatoimet):
+def get_parliamentary_terms(edustajatoimet: Dict) -> List[Dict]:
     """Extract all parliamentary terms as a list."""
-    edustajatoimi = edustajatoimet.pop("parliamentary_term")
-
-    if isinstance(edustajatoimi, dict):
-        return [edustajatoimi]
-    elif isinstance(edustajatoimi, list):
-        return edustajatoimi
+    term = edustajatoimet.pop("parliamentary_term")
+    if isinstance(term, dict):
+        return [term]
+    elif isinstance(term, list):
+        return term
     else:
         return []
 
 
 def crawl(context: Context) -> None:
-    data = context.fetch_json(context.data_url, cache_days=5)
+    data: List[Dict[str, Any]] = context.fetch_json(context.data_url, cache_days=5)
     for item in data:
         id = item.pop("hetekaId")
-        pep_data = context.fetch_json(
-            f"https://avoindata.eduskunta.fi/api/v1/memberofparliament/{id}/fi",
-            cache_days=5,
-        )
-        translated = translate_keys(context, pep_data)
-        henkilo = translated.get("jsonNode", {}).get("person", {})
-        first_name = henkilo.pop("first_name")
-        last_name = henkilo.pop("last_name")
-        birth_year = henkilo.pop("birth_year")
-        person_id = henkilo.pop("person_id")
+        pep_url = PEP_URL.format(person_id=id)
+        pep_data = context.fetch_json(pep_url, cache_days=5)
+        translated: Dict[str, Any] = translate_keys(context, pep_data)
+        pep: Dict[str, Any] = translated.get("jsonNode", {}).get("person", {})
+        first_name = pep.pop("first_name")
+        last_name = pep.pop("last_name")
+        birth_year = pep.pop("birth_year")
+        person_id = pep.pop("person_id")
 
         entity = context.make("Person")
-        entity.id = context.make_id(first_name, last_name, birth_year)
+        entity.id = context.make_id(person_id, first_name, last_name, birth_year)
         h.apply_name(entity, first_name=first_name, last_name=last_name)
-        entity.add(
-            "sourceUrl",
-            f"https://avoindata.eduskunta.fi/api/v1/memberofparliament/{person_id}/fi",
-        )
-        entity.add("birthPlace", henkilo.pop("birth_place", None))
         entity.add("birthDate", birth_year)
+        entity.add("birthPlace", pep.pop("birth_place", None))
+        entity.add("gender", pep.pop("gender"), lang="eng")
+        entity.add("position", pep.pop("occupation"))
+        entity.add("address", pep.pop("current_municipality"))
+        entity.add("sourceUrl", pep_url)
         entity.add("citizenship", "fi")
-        entity.add("gender", henkilo.pop("gender"))
-        entity.add("address", henkilo.pop("current_municipality"))
-        entity.add("position", henkilo.pop("occupation"))
 
         position = h.make_position(
             context,
@@ -93,11 +89,10 @@ def crawl(context: Context) -> None:
 
         categorisation = categorise(context, position, is_pep=True)
         if not categorisation.is_pep:
-            return
+            continue
 
-        # Get parliamentary terms
-        parliamentary_terms = henkilo.pop("parliamentary_terms", {})
-        all_terms = get_all_parliamentary_terms(parliamentary_terms)
+        parliamentary_terms = pep.pop("parliamentary_terms", {})
+        all_terms = get_parliamentary_terms(parliamentary_terms)
 
         for term in all_terms:
             start_date = term.pop("start_date")
@@ -116,4 +111,4 @@ def crawl(context: Context) -> None:
                 context.emit(position)
                 context.emit(occupancy)
 
-        context.audit_data(henkilo, IGNORE)
+        context.audit_data(pep, IGNORE)
