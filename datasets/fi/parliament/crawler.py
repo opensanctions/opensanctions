@@ -1,4 +1,4 @@
-from typing import Any, Dict, List
+from typing import Any, cast
 from zavod import Context, helpers as h
 
 from zavod.stateful.positions import categorise
@@ -24,7 +24,7 @@ IGNORE = [
 PEP_URL = "https://avoindata.eduskunta.fi/api/v1/memberofparliament/{person_id}/fi"
 
 
-def translate_keys(context, data: Any) -> Any:
+def translate_keys(context: Context, data: Any) -> Any:
     """Recursively translate keys in nested dictionaries and lists."""
     if isinstance(data, dict):
         translated = {}
@@ -42,7 +42,7 @@ def translate_keys(context, data: Any) -> Any:
         return data
 
 
-def get_parliamentary_terms(edustajatoimet: Dict) -> List[Dict]:
+def get_parliamentary_terms(edustajatoimet: dict[str, Any]) -> list[dict[str, Any]]:
     """Extract all parliamentary terms as a list."""
     term = edustajatoimet.pop("parliamentary_term")
     if isinstance(term, dict):
@@ -53,36 +53,35 @@ def get_parliamentary_terms(edustajatoimet: Dict) -> List[Dict]:
         return []
 
 
-def get_party(pep: Dict) -> str:
+def get_party(pep: dict[str, Any]) -> str:
     parliamentary_groups = pep.pop("parties")
     current_group = parliamentary_groups.pop("current_party")
-    political = current_group.pop("name")
-    return political
+    return cast(str, current_group.pop("name"))  # noqa: F821
 
 
 def crawl(context: Context) -> None:
-    data: List[Dict[str, Any]] = context.fetch_json(context.data_url, cache_days=5)
+    data: list[dict[str, Any]] = context.fetch_json(context.data_url, cache_days=5)
     for item in data:
-        id = item.pop("hetekaId")
-        pep_url = PEP_URL.format(person_id=id)
-        pep_data = context.fetch_json(pep_url, cache_days=5)
-        translated: Dict[str, Any] = translate_keys(context, pep_data)
-        pep: Dict[str, Any] = translated.get("jsonNode", {}).get("person", {})
-        first_name = pep.pop("first_name")
-        last_name = pep.pop("last_name")
-        birth_year = pep.pop("birth_year")
-        person_id = pep.pop("person_id")
+        pep_url = PEP_URL.format(person_id=item.pop("hetekaId"))
+        raw_data = context.fetch_json(pep_url, cache_days=5)
+        translated_data: dict[str, Any] = translate_keys(context, raw_data)
+        pep_data: dict[str, Any] = translated_data.get("jsonNode", {}).get("person", {})
+
+        first_name = pep_data.pop("first_name")
+        last_name = pep_data.pop("last_name")
+        birth_year = pep_data.pop("birth_year")
+        person_id = pep_data.pop("person_id")
 
         entity = context.make("Person")
         entity.id = context.make_id(person_id, first_name, last_name, birth_year)
         h.apply_name(entity, first_name=first_name, last_name=last_name)
         entity.add("birthDate", birth_year)
-        entity.add("birthPlace", pep.pop("birth_place", None))
-        entity.add("gender", pep.pop("gender"), lang="eng")
-        entity.add("position", pep.pop("occupation"))
-        entity.add("address", pep.pop("current_municipality"))
+        entity.add("birthPlace", pep_data.pop("birth_place", None))
+        entity.add("gender", pep_data.pop("gender"), lang="eng")
+        entity.add("position", pep_data.pop("occupation"))
+        entity.add("address", pep_data.pop("current_municipality"))
         entity.add("sourceUrl", pep_url)
-        entity.add("political", get_party(pep))
+        entity.add("political", get_party(pep_data))
         entity.add("citizenship", "fi")
 
         position = h.make_position(
@@ -98,7 +97,7 @@ def crawl(context: Context) -> None:
         if not categorisation.is_pep:
             continue
 
-        parliamentary_terms = pep.pop("parliamentary_terms", {})
+        parliamentary_terms = pep_data.pop("parliamentary_terms", {})
         all_terms = get_parliamentary_terms(parliamentary_terms)
 
         for term in all_terms:
@@ -118,4 +117,4 @@ def crawl(context: Context) -> None:
                 context.emit(position)
                 context.emit(occupancy)
 
-        context.audit_data(pep, IGNORE)
+        context.audit_data(pep_data, IGNORE)
