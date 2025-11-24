@@ -45,7 +45,7 @@ lookups:
         value: male 
       - match: Nainen
         value: female
-  columns:
+  keys:
     options:
       # Top-level person fields
       - match: Henkilo
@@ -85,17 +85,17 @@ lookups:
         value: parliamentary_term
       - match: EdustajantoimenTila
         value: parliamentary_status
+      - match: Kansanedustajana
+        value: as_member_of_parliament
       # Parliamentary groups (parties)
       - match: Eduskuntaryhmat
-        value: parliamentary_groups
+        value: parties
       - match: NykyinenEduskuntaryhma
-        value: current_parliamentary_group
+        value: current_party
       - match: Eduskuntaryhma
-        value: parliamentary_group
+        value: party
       - match: NykyinenVaalipiiri
         value: current_electoral_district
-      - match: Vaalipiiri
-        value: electoral_district
       # Committee memberships
       - match: NykyisetToimielinjasenyydet
         value: current_committee_memberships
