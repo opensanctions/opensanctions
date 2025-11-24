@@ -47,6 +47,8 @@ def crawl(context: Context) -> None:
             # rdlstatus="" gives only active members
             # rdlstatus="tjanst" (in service, for whatever reason) gives all members of the current and past term
             # rdlstatus="samtliga" (all) gives members of all terms (since 1991)
+            # We pass "tjanst" because some members don't include term dates in their data,
+            # so we can't reliably filter the really old ones from "samtliga".
             "rdlstatus": "tjanst",
         },
         cache_days=3,
