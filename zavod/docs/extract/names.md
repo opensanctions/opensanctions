@@ -35,13 +35,74 @@ LLMs can do a lot of the categorisation and cleaning for us. We pair this with [
 
 ## Name cleaning helper
 
-The helper [zavod.helpers.apply_reviewed_names][] makes it easy to
+The helper [zavod.helpers.review_names][] makes it easy to
 
 1. prompt for proper name categorisation and cleaning
 2. get it reviewed
-3. apply each extracted name to the correct property of an entity
+
+Once a dataset is fully reviewed, you can replace `review_names()` with [zavod.helpers.apply_reviewed_names][] which will
+
+1. Call `review_names()` to do the cleaning and ensure a review exists
+3. apply each extracted name to the correct property of an entity if the review is accepted
 3. fall back to applying the original string cleaning wasn't deemed necessary, or human review is pending.
 
+
+### What's a clean name?
+
+#### weakAlias
+
+- For Persons
+    - single token e.g. `Foopie` or `John` but not `John Smith`.
+    - Watch out for Chinese, Korean etc which don't have spaces - use an LLM or online translation to check namishness
+    - Watch out Indonesian names can be single tokens. If in doubt, make it an `alias`
+
+- For organisations
+    - acronyms of their name e.g. `JSC SMZ` for `JOINT STOCK COMPANY SEROV MECHANICAL PLANT`
+    - really short short forms
+
+#### previousName
+
+- Anything explicitly a previous name e.g.
+    - `formerly ...`
+    - `f/k/a`
+
+#### alias
+
+- Anything explicitly an alias, e.g.
+    - `a.k.a`
+    - `also ...`
+
+- When variants are given, it's nice to expand the variants as aliases and keep the "primary" form, e.g.
+```
+- strings: ["Aleksandr(Oleksandr) KALYUSSKY(KALIUSKY)"]
+  entity_schema: Person
+  full_name: [Aleksandr KALYUSSKY]
+  alias:
+    - Oleksandr KALYUSSKY
+    - Aleksandr KALIUSKY
+    - Oleksandr KALIUSKY
+```
+
+#### name
+
+- Anything else that doesn't clearly need splitting or categorisation
+- If multiple names are given but not indicated to be aliases, treat them all as `name`.
+
+#### Splitting
+
+- Transliterations given equal prominence can all be considered the same prop (if they're all in full)
+```
+- strings: ["Александар Добриндт / Aleksandar Dobrindt"]
+  entity_schema: LegalEntity
+  full_name:
+    - Александар Добриндт
+    - Aleksandar Dobrindt
+```
+- Watch out for place names at the end - it might just denote a branch. e.g. these are different ways of saying `Al-Qaida in Iraq` so don't split the location at the end
+    - `The Organization Base of Jihad/Mesopotamia`
+    - `The Organization Base of Jihad/Country of the Two Rivers`
+- Especially in Person names, see if it's a cultural thing that's maybe one person's full official name
+    - e.g. `Amir S/O AHAMED` means Amir son of Ahmed and appears to be one valid full name in Singapore
 
 ## Prompt engineering
 
