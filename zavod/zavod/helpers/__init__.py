@@ -76,9 +76,6 @@ from zavod.helpers.html import (
 from zavod.helpers.identification import make_identification
 from zavod.helpers.names import (
     apply_name,
-    apply_reviewed_names,
-    review_names,
-    clean_names,
     make_name,
     is_name_irregular,
     split_comma_names,
@@ -141,9 +138,6 @@ __all__ = [
     "assert_html_url_hash",
     "split_comma_names",
     "is_name_irregular",
-    "apply_reviewed_names",
-    "review_names",
-    "clean_names",
     "make_pdf_page_images",
     "parse_pdf_table",
     "xpath_elements",

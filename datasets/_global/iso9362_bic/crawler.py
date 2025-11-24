@@ -1,5 +1,6 @@
 from zavod import Context
 from zavod import helpers as h
+from zavod.extract.names.clean import apply_reviewed_names
 
 STATIC_URL = "https://data.opensanctions.org/contrib/iso9362_bic/20241021/ISOBIC.pdf"
 EXTRACT_ARGS = {"text_x_tolerance_ratio": 0.6}
@@ -33,7 +34,7 @@ def crawl(context: Context) -> None:
 
         entity = context.make("Organization")
         entity.id = f"bic-{bic}"
-        h.apply_reviewed_names(context, entity, [legal_name])
+        apply_reviewed_names(context, entity, [legal_name])
         entity.add("swiftBic", bic)
         entity.add("country", bic[4:6])
         entity.add("address", row.pop("registered_address"))

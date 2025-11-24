@@ -10,6 +10,7 @@ from rigour.mime.types import ZIP
 
 from zavod import Context
 from zavod import helpers as h
+from zavod.extract.names.clean import review_names
 
 DOWNLOAD_URL = "https://sam.gov/api/prod/fileextractservices/v1/api/download/"
 
@@ -177,7 +178,7 @@ def crawl(context: Context) -> None:
             origin=origin,
         )
 
-        h.review_names(context, entity, [name], "eng")
+        review_names(context, entity, [name], "eng")
 
         entity.add("firstName", row.pop("First", None), quiet=True, lang="eng")
         entity.add("middleName", row.pop("Middle", None), quiet=True, lang="eng")

@@ -9,6 +9,7 @@ import re
 
 from zavod import Context, Entity
 from zavod import helpers as h
+from zavod.extract.names.clean import review_names
 
 # e.g. FDLR-FOCA is led by i“Lieutenant-General” Gaston Iyamuremye, alias Rumuli
 #      or Victor Byiringiro and “General” Pacifique Ntawunguka, alias Omegam.
@@ -152,7 +153,7 @@ def parse_entry(context: Context, entry: Element) -> None:
             continue
 
         if not is_weak:
-            h.review_names(context, entity, [name.get("wholeName")], lang=lang)
+            review_names(context, entity, [name.get("wholeName")], lang=lang)
 
         h.apply_name(
             entity,

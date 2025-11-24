@@ -2,6 +2,7 @@ from lxml import etree
 from rigour.mime.types import XML
 
 from zavod import Context, helpers as h
+from zavod.extract.names.clean import review_names
 from zavod.extract.zyte_api import fetch_resource
 
 SOAP_URL = "http://www.cbr.ru/CreditInfoWebServ/CreditOrgInfo.asmx"
@@ -75,10 +76,10 @@ def crawl_details(context: Context, internal_code: str | None, entity):
         reg_date = co_data.findtext("MainDateReg")
 
         en_names = co_data.findtext("encname")
-        h.review_names(context, entity, [en_names], lang="eng")
-        h.review_names(context, entity, [co_data.findtext("OrgName")])
-        h.review_names(context, entity, [co_data.findtext("OrgFullName")])
-        h.review_names(context, entity, [co_data.findtext("csname")])
+        review_names(context, entity, [en_names], lang="eng")
+        review_names(context, entity, [co_data.findtext("OrgName")])
+        review_names(context, entity, [co_data.findtext("OrgFullName")])
+        review_names(context, entity, [co_data.findtext("csname")])
 
         phones = co_data.findtext("phones")
         lic_withd_num = co_data.findtext("licwithdnum")
