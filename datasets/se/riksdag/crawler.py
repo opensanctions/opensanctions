@@ -65,7 +65,10 @@ def crawl(context: Context) -> None:
         h.apply_date(entity, "birthDate", item.pop("birth_year"))
         entity.add("political", item.pop("party"))
         entity.add("citizenship", "se")
-        entity.add("sourceUrl", item.pop("person_url_xml"))
+        # TODO(Leon Handreke): Do we want to add an XML to sourceUrl?
+        # I remember there being some discussion about this in the past.
+        # Tracking this in https://github.com/opensanctions/crawler-planning/issues/558
+        # entity.add("sourceUrl", item.pop("person_url_xml"))
         entity.add("gender", item.pop("gender"), lang="eng")
 
         position = h.make_position(
