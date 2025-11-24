@@ -206,6 +206,8 @@ class SourceValue(ABC):
 
 
 class TextSourceValue(SourceValue):
+    mime_type: str = PLAIN
+
     def __init__(
         self,
         key_parts: str | List[str],
@@ -220,7 +222,6 @@ class TextSourceValue(SourceValue):
                 of names that rarely changes, that string itself might work.
         """
         self.key_parts = key_parts
-        self.mime_type = PLAIN
         self.label = label
         self.url = url
         self.value_string = text
@@ -230,12 +231,44 @@ class TextSourceValue(SourceValue):
         Performs the same normalisation as `review_key` so that we consider
         multiple source values normalising to the same key a match.
         """
-        assert review.source_mime_type == PLAIN, review.source_mime_type
+        if review.source_mime_type != self.mime_type:
+            return False
+
         return slugify(self.value_string) == slugify(review.source_value)
+
+
+class JSONSourceValue(SourceValue):
+    mime_type: str = "application/json"
+
+    def __init__(
+        self,
+        key_parts: str | List[str],
+        label: str,
+        data: JsonValue,
+        url: Optional[str] = None,
+    ):
+        """
+        Args:
+            key_parts: Information from the source that uniquely and
+                consistently identifies the review within the dataset. For a JSON
+                object, that might be a unique id field or a url.
+        """
+        self.key_parts = key_parts
+        self.label = label
+        self.url = url
+        options = orjson.OPT_SORT_KEYS | orjson.OPT_INDENT_2
+        self.value_string = orjson.dumps(data, option=options).decode("utf-8")
+
+    def matches(self, review: "Review[ModelType]") -> bool:
+        if review.source_mime_type != self.mime_type:
+            return False
+
+        return text_hash(self.value_string) == text_hash(review.source_value)
 
 
 class HtmlSourceValue(SourceValue):
     element: HtmlElement
+    mime_type: str = HTML
 
     def __init__(
         self,
@@ -254,18 +287,17 @@ class HtmlSourceValue(SourceValue):
                 publication url (for lack of a consistent identifier).
         """
         self.key_parts = key_parts
-        self.mime_type = HTML
         self.label = label
         self.url = url
         self.value_string = tostring(element, pretty_print=True, encoding="unicode")
         self.element = element
 
     def matches(self, review: Review[ModelType]) -> bool:
-        assert review.source_mime_type == HTML, review.source_mime_type
+        if review.source_mime_type != self.mime_type:
+            return False
+
         seen_element = fromstring(review.source_value)
-        return h.html.element_text_hash(seen_element) == h.html.element_text_hash(
-            self.element
-        )
+        return h.element_text_hash(seen_element) == h.element_text_hash(self.element)
 
 
 def review_key(parts: str | List[str]) -> str:

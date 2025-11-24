@@ -10,6 +10,13 @@ LLM_MODEL_VERSION = "gpt-4o"
 SINGLE_ENTITY_PROGRAM_PATH = Path(__file__).parent / "dspy/single_entity_program.json"
 
 
+class RawNames(BaseModel):
+    """Name strings and schema supplied to the LLM for cleaning and categorisation"""
+
+    entity_schema: str
+    strings: List[str]
+
+
 class CleanNames(BaseModel):
     """Names categorised and cleaned of non-name characters."""
 
@@ -35,12 +42,13 @@ def load_single_entity_prompt() -> str:
     return prompt
 
 
-def clean_names(context: Context, string: str) -> CleanNames:
+def clean_names(context: Context, raw_names: RawNames) -> CleanNames:
     prompt = load_single_entity_prompt()
     return run_typed_text_prompt(
         context=context,
         prompt=prompt,
-        string=f"Input string: {string}",
+        string="The entity schema and name strings as JSON:\n\n"
+        + raw_names.model_dump_json(),
         response_type=CleanNames,
         model=LLM_MODEL_VERSION,
     )

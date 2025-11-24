@@ -150,6 +150,10 @@ def parse_entry(context: Context, entry: Element) -> None:
         if lang is None and lang2 is not None and len(lang2):
             context.log.warning("Unknown language", lang=lang2)
             continue
+
+        if not is_weak:
+            h.review_names(context, entity, [name.get("wholeName")], lang=lang)
+
         h.apply_name(
             entity,
             full=name.get("wholeName"),
