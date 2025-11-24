@@ -1,4 +1,4 @@
-from typing import Optional, Dict, Any, Tuple
+from typing import Optional, Any
 
 from zavod import Context, helpers as h
 from zavod.stateful.positions import categorise
@@ -8,15 +8,14 @@ from zavod.stateful.positions import categorise
 # does NOT always provide explicit parliamentary term boundaries for every person.
 
 
-def translate_keys(member, context) -> dict:
+def translate_keys(context: Context, member_dict: dict[str, Any]) -> dict[str, Any]:
     # Translate top-level keys
-    translated = {context.lookup_value("keys", k) or k: v for k, v in member.items()}
-    return translated
+    return {context.lookup_value("keys", k) or k: v for k, v in member_dict.items()}
 
 
 def extract_terms(
-    item: Dict[str, Any],
-) -> Tuple[Optional[str], Optional[str]]:
+    item: dict[str, Any],
+) -> tuple[Optional[str], Optional[str]]:
     """
     Extract the start and end dates of the main parliamentary term.
     """
@@ -40,7 +39,7 @@ def extract_terms(
     return None, None
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     data = context.fetch_json(
         context.data_url,
         params={
@@ -53,7 +52,7 @@ def crawl(context: Context):
         cache_days=3,
     )
     for item in data["personlista"]["person"]:
-        item = translate_keys(item, context)
+        item = translate_keys(context, item)
         id = item.pop("official_id")
         first_name = item.pop("first_name")
         last_name = item.pop("last_name")
