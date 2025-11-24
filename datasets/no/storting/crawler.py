@@ -1,11 +1,10 @@
 import re
-from datetime import date, datetime, timedelta
+from datetime import datetime, timedelta
 
 from zavod import Context, helpers as h
-from zavod.stateful.positions import categorise
+from zavod.stateful.positions import categorise, EXTENDED_AFTER_OFFICE
 
-DATA_URL = "https://data.stortinget.no/eksport/representanter?stortingsperiodeid={term}&format=json"
-CUTOFF_YEAR = date.today().year - 20
+CUTOFF = datetime.now() - timedelta(days=EXTENDED_AFTER_OFFICE)
 
 
 def parse_ms_date(ms_date: str) -> str | None:
@@ -33,14 +32,14 @@ def parse_ms_date(ms_date: str) -> str | None:
     return str(dt.date().isoformat())
 
 
-def translate_keys(member, context) -> dict:
+def translate_keys(context, member) -> dict:
     # Translate top-level keys
-    translated = {context.lookup_value("columns", k) or k: v for k, v in member.items()}
+    translated = {context.lookup_value("keys", k) or k: v for k, v in member.items()}
     # Translate all nested dicts at level 2
     for k, v in translated.items():
         if isinstance(v, dict):
             translated[k] = {
-                context.lookup_value("columns", nk) or nk: nv for nk, nv in v.items()
+                context.lookup_value("keys", nk) or nk: nv for nk, nv in v.items()
             }
     return translated
 
@@ -54,7 +53,7 @@ def get_latest_terms(context) -> list[str]:
     for p in periods:
         start_year_str = p["id"].split("-")[0]
         start_year = int(start_year_str)
-        if start_year >= CUTOFF_YEAR:
+        if start_year >= CUTOFF.year:
             term_ids.append(p["id"])
     # Sort newest first
     term_ids.sort(reverse=True)
@@ -111,8 +110,9 @@ def crawl_item(context, item: dict, term: str) -> None:
 def crawl(context: Context) -> None:
     terms = get_latest_terms(context)
     for term in terms:
-        data = context.fetch_json(DATA_URL.format(term=term), cache_days=3)
+        url = f"{context.data_url}?stortingsperiodeid={term}&format=json"
+        data = context.fetch_json((url), cache_days=3)
         items = data.get("representanter_liste")
         for item in items:
-            item = translate_keys(item, context)
+            item = translate_keys(context, item)
             crawl_item(context, item, term)

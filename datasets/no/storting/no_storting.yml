@@ -24,7 +24,7 @@ publisher:
   url: https://www.stortinget.no/en/
   official: true
 data:
-  url: https://data.stortinget.no/eksport/representanter?stortingsperiodeid=2025-2029&format=json
+  url: https://data.stortinget.no/eksport/representanter
   format: JSON
   lang: nor
 
@@ -36,7 +36,7 @@ assertions:
       Position: 1
 
 lookups:
-  columns:
+  keys:
     options:
       - match: etternavn
         value: last_name
