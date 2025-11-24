@@ -6,7 +6,9 @@ from typing import Any, Dict, Generic, List, Optional, Type, TypeVar
 
 import orjson
 from lxml.html import HtmlElement, fromstring, tostring
-from normality import slugify
+from normality import WS, category_replace, slugify, squash_spaces, stringify
+from normality.constants import SLUG_CATEGORIES
+
 from pydantic import BaseModel, JsonValue, PrivateAttr
 from pydantic.json_schema import GenerateJsonSchema, JsonSchemaMode
 from pydantic_core import CoreSchema
@@ -300,12 +302,32 @@ class HtmlSourceValue(SourceValue):
         return h.element_text_hash(seen_element) == h.element_text_hash(self.element)
 
 
+def unicode_slug(parts: str | List[str]) -> Optional[str]:
+    """Slugify a text string. This will not transliterate the text to ASCII,
+    but will replace punctuation with - and remove all
+    characters that are not alphanumeric or the separator."""
+
+    sep = "-"
+
+    text = stringify(parts)
+    if text is None:
+        return None
+
+    text = text.lower().replace(sep, WS)
+    replaced = category_replace(text, SLUG_CATEGORIES)
+    text = squash_spaces(replaced)
+    text = "".join([c for c in text if (c.isprintable() and c.isalnum()) or c == WS])
+    if len(text) == 0:
+        return None
+    return text.replace(WS, sep)
+
+
 def review_key(parts: str | List[str]) -> str:
     """Generates a unique key for a given string of party names.
     If the slug would be longer than 255 chars, we include a truncated hash of the
     string with part of the slug to ensure it's consistent, unique, and short enough.
     """
-    slug = slugify(parts)
+    slug = unicode_slug(parts)
     assert slug is not None
     # Hardcoding based on model.KEY_LEN to prevent inadvertent key changes
     if len(slug) <= 255:
