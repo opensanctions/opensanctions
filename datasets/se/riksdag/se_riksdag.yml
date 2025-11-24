@@ -28,7 +28,8 @@ data:
   format: JSON
   lang: swe
 
-# 2018 -
+# 2018 - (maybe it's actually the current/past term? The docs aren't clear)
+# The parliament has 349 member seats
 assertions:
   min:
     schema_entities:
