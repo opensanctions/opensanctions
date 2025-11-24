@@ -18,7 +18,8 @@ from zavod.extract.names.dspy.clean import load_optimised_module
 from zavod.tune import cli
 
 example = {
-    "string": "John Doe",
+    "entity_schema": "Person",
+    "strings": ["John Doe"],
     "full_name": ["John Doe"],
     "alias": [],
     "weak_alias": [],
@@ -98,6 +99,7 @@ def test_compare(run_typed_text_prompt: MagicMock, mock_dspy_load: MagicMock):
             examples_path.as_posix(),
         ],
     )
+    assert result.exit_code == 0, result.output
 
     assert mock_optimised_module.called, mock_optimised_module.call_args_list
     assert run_typed_text_prompt.called, run_typed_text_prompt.call_args_list
