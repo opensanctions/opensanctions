@@ -5869,6 +5869,7 @@ lookups:
         props:
           jurisdiction: us
       - match: "1.1.1972 ; Nationalité: soudanaise ; Sexe: masculin ; Fonction: commandant adjoint des Forces de soutien rapide ; Entités associées: Forces de soutien rapide; Al Junaid Multi Activities Co Ltd ; Personnes associées: Mohamed Hamdan Dagalo: Date de naissance"
+        schema: Person
         associates:
           - Forces de soutien rapide
           - Al Junaid Multi Activities Co Ltd
