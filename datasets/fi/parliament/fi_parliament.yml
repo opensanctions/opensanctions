@@ -7,14 +7,15 @@ coverage:
 load_statements: true
 entry_point: crawler.py
 summary: >-
-  Current members of the Finnish Parliament, including their political affiliations.
+  Current members of the Eduskunta, the Finnish Parliament.
 description: |
-  This dataset provides information about the current members of the Finnish Parliament
-  (Eduskunta). It includes names and political affiliations of all current members.
+  This dataset contains information on the current members of the Finnish Parliament (Eduskunta).
+  It includes the names and political affiliations of all members, along with details such as their
+  parliamentary terms and dates of birth.
 tags:
   - list.pep
 publisher:
-  name: Eduskunta
+  name: Suomen eduskunta
   description: |
     The Eduskunta is the Parliament of Finland, responsible for making laws and overseeing
     the government. It consists of 200 members elected every four years.
@@ -41,8 +42,8 @@ assertions:
 lookups:
   type.gender:
     options:
-      - match: Mies 
-        value: male 
+      - match: Mies
+        value: male
       - match: Nainen
         value: female
   keys:
