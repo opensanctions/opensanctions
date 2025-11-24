@@ -24,11 +24,11 @@ publisher:
   official: true
 data:
   # API docs: https://www.riksdagen.se/sv/dokument-och-lagar/riksdagens-oppna-data/
-  url: https://data.riksdagen.se/personlista/?iid=&fnamn=&enamn=&f_ar=&kn=&parti=&valkrets=&rdlstatus=tjanst&org=&utformat=json&sort=sorteringsnamn&sortorder=asc&termlista=
+  url: https://data.riksdagen.se/personlista/
   format: JSON
   lang: swe
 
-# 2018 - 
+# 2018 -
 assertions:
   min:
     schema_entities:

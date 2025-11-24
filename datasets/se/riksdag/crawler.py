@@ -4,10 +4,8 @@ from zavod import Context, helpers as h
 from zavod.stateful.positions import categorise
 
 
-# The Riksdag Open Data API endpoint we use as a data_url (see docs: https://www.riksdagen.se/sv/dokument-och-lagar/riksdagens-oppna-data/)
-# returns only individuals who have served in the Swedish Parliament in some capacity since 2018.
-# The dataset includes both full members and temporary substitutes ("ersättare") but does NOT always provide
-# explicit parliamentary term boundaries for every person.
+# The dataset includes both full members and temporary substitutes ("ersättare") but
+# does NOT always provide explicit parliamentary term boundaries for every person.
 
 
 def translate_keys(member, context) -> dict:
@@ -43,7 +41,17 @@ def extract_terms(
 
 
 def crawl(context: Context):
-    data = context.fetch_json(context.data_url, cache_days=3)
+    data = context.fetch_json(
+        context.data_url,
+        params={
+            "utformat": "json",
+            # rdlstatus="" gives only active members
+            # rdlstatus="tjanst" (in service, for whatever reason) gives all members of the current and past term
+            # rdlstatus="samtliga" (all) gives members of all terms (since 1991)
+            "rdlstatus": "tjanst",
+        },
+        cache_days=3,
+    )
     for item in data["personlista"]["person"]:
         item = translate_keys(item, context)
         id = item.pop("official_id")
