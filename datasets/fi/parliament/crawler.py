@@ -12,8 +12,7 @@ IGNORE = [
     "sort_name",
     "electoral_districts",
     "parliamentary_status",
-    "Kansanedustajana",
-    "parliamentary_groups",
+    "as_member_of_parliament",
     "phone",
     "email",
     "nickname",
@@ -31,7 +30,7 @@ def translate_keys(context, data: Any) -> Any:
         translated = {}
         for key, value in data.items():
             # Translate the key
-            new_key = context.lookup_value("columns", key) or key
+            new_key = context.lookup_value("keys", key) or key
             # Recursively translate the value
             translated[new_key] = translate_keys(context, value)
         return translated
@@ -52,6 +51,13 @@ def get_parliamentary_terms(edustajatoimet: Dict) -> List[Dict]:
         return term
     else:
         return []
+
+
+def get_party(pep: Dict) -> str:
+    parliamentary_groups = pep.pop("parties")
+    current_group = parliamentary_groups.pop("current_party")
+    political = current_group.pop("name")
+    return political
 
 
 def crawl(context: Context) -> None:
@@ -76,6 +82,7 @@ def crawl(context: Context) -> None:
         entity.add("position", pep.pop("occupation"))
         entity.add("address", pep.pop("current_municipality"))
         entity.add("sourceUrl", pep_url)
+        entity.add("political", get_party(pep))
         entity.add("citizenship", "fi")
 
         position = h.make_position(
