@@ -44,6 +44,10 @@ class CleaningSpec(BaseModel):
 class NamesSpec(RootModel[Dict[str, CleaningSpec]]):
     """Name cleaning requirements by schema. All matching schema configurations will apply"""
 
+    ###################
+    # Beware that when introducing defaults for more specific schemata, these could take
+    # precedence over extensions to the existing defaults in some datasets' metadata.
+    # Those datasets might need to be updated to extend the new default instead.
     root: Dict[str, CleaningSpec] = {
         "Person": CleaningSpec(
             reject_chars_baseline=";\\/()[]<>{}:",

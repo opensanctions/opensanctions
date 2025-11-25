@@ -12,7 +12,7 @@ While we've done this using simple, explainable logic for the most part, this le
 
 ## What's a dirty name?
 
-The helper [zavod.helpers.name_needs_cleaning][] returns true if a name potentially needs cleaning.
+The helper [zavod.helpers.is_name_irregular][] returns true if a name potentially needs cleaning.
 
 A dataset can customise what should be considered "in need of cleaning" using options under the `names` key of the dataset metadata. Each field under `names` is a schema type, so that different rules can apply to different entities in the dataset.
 
@@ -25,8 +25,15 @@ names:
     allow_chars: "/"
 ```
 
+#### ::: zavod.meta.names.NamesSpec
+    options:
+      members: []
+      show_bases: false
 
-::: zavod.meta.names.CleaningSpec
+#### ::: zavod.meta.names.CleaningSpec
+    options:
+      show_if_no_docstring: true
+      show_bases: false
 
 ## Using LLMs
 
