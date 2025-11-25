@@ -340,7 +340,7 @@ def review_names(
     Args:
         context: The current context.
         entity: The entity to apply names to.
-        string: The raw name(s) string.
+        strings: The raw name(s) string.
     """
     non_blank_strings = [s for s in strings if s]
     if not non_blank_strings:
@@ -370,7 +370,7 @@ def apply_reviewed_names(
     Args:
         context: The current context.
         entity: The entity to apply names to.
-        string: The raw name(s) string.
+        strings: The raw name(s) string.
         alias: If this is known to be an alias and not a primary name.
         lang: The language of the name, if known.
     """
