@@ -1,6 +1,6 @@
 from typing import Any, cast
-from zavod import Context, helpers as h
 
+from zavod import Context, helpers as h
 from zavod.stateful.positions import categorise
 
 IGNORE = [
@@ -20,8 +20,8 @@ IGNORE = [
     "parliamentary_term_suspended",
     "work_history",
     "government_memberships",
+    "person_id",
 ]
-PEP_URL = "https://avoindata.eduskunta.fi/api/v1/memberofparliament/{person_id}/fi"
 
 
 def translate_keys(context: Context, data: Any) -> Any:
@@ -43,7 +43,7 @@ def translate_keys(context: Context, data: Any) -> Any:
 
 
 def get_parliamentary_terms(edustajatoimet: dict[str, Any]) -> list[dict[str, Any]]:
-    """Extract all parliamentary terms as a list."""
+    """Extract all parliamentary terms (current term and all previous ones) for the current MP."""
     term = edustajatoimet.pop("parliamentary_term")
     if isinstance(term, dict):
         return [term]
@@ -60,28 +60,34 @@ def get_party(pep: dict[str, Any]) -> str:
 
 
 def crawl(context: Context) -> None:
-    data: list[dict[str, Any]] = context.fetch_json(context.data_url, cache_days=5)
+    data: list[dict[str, Any]] = context.fetch_json(
+        f"{context.data_url}seating/", cache_days=5
+    )
     for item in data:
-        pep_url = PEP_URL.format(person_id=item.pop("hetekaId"))
-        raw_data = context.fetch_json(pep_url, cache_days=5)
+        pep_id = item.pop("hetekaId")
+        raw_data = context.fetch_json(
+            f"{context.data_url}memberofparliament/{pep_id}/fi", cache_days=5
+        )
         translated_data: dict[str, Any] = translate_keys(context, raw_data)
         pep_data: dict[str, Any] = translated_data.get("jsonNode", {}).get("person", {})
 
         first_name = pep_data.pop("first_name")
         last_name = pep_data.pop("last_name")
         birth_year = pep_data.pop("birth_year")
-        person_id = pep_data.pop("person_id")
 
         entity = context.make("Person")
-        entity.id = context.make_id(person_id, first_name, last_name, birth_year)
+        entity.id = context.make_id(pep_id, first_name, last_name, birth_year)
         h.apply_name(entity, first_name=first_name, last_name=last_name)
         entity.add("birthDate", birth_year)
         entity.add("birthPlace", pep_data.pop("birth_place", None))
         entity.add("gender", pep_data.pop("gender"), lang="eng")
         entity.add("position", pep_data.pop("occupation"))
         entity.add("address", pep_data.pop("current_municipality"))
-        entity.add("sourceUrl", pep_url)
         entity.add("political", get_party(pep_data))
+        entity.add(
+            "sourceUrl",
+            f"https://www.eduskunta.fi/SV/kansanedustajat/Sidor/{pep_id}.aspx",
+        )
         entity.add("citizenship", "fi")
 
         position = h.make_position(
@@ -98,6 +104,7 @@ def crawl(context: Context) -> None:
             continue
 
         parliamentary_terms = pep_data.pop("parliamentary_terms", {})
+        # Past and current terms for the current Member of Parliament
         all_terms = get_parliamentary_terms(parliamentary_terms)
 
         for term in all_terms:

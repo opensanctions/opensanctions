@@ -1,6 +1,6 @@
 title: Finland Members of Parliament
-prefix: fi-parliament
-url: https://www.eduskunta.fi/EN/Pages/default.aspx
+prefix: fi-eduskunta
+url: https://avoindata.eduskunta.fi/#/fi/members
 coverage:
   frequency: monthly
   start: 2025-11-24
@@ -16,6 +16,7 @@ tags:
   - list.pep
 publisher:
   name: Suomen eduskunta
+  name_en: Parliament of Finland
   description: |
     The Eduskunta is the Parliament of Finland, responsible for making laws and overseeing
     the government. It consists of 200 members elected every four years.
@@ -23,8 +24,8 @@ publisher:
   url: https://www.eduskunta.fi/EN/Pages/default.aspx
   official: true
 data:
-  # API docs: https://avoindata.eduskunta.fi/#/fi/home; https://avoindata.eduskunta.fi/#/fi/members
-  url: https://avoindata.eduskunta.fi/api/v1/seating/
+  # API docs: https://avoindata.eduskunta.fi/#/fi/home
+  url: https://avoindata.eduskunta.fi/api/v1/
   format: JSON
   lang: fin
 dates:
