@@ -162,6 +162,11 @@ def test_apply_reviewed_names_no_cleaning_needed(vcontext: Context):
     apply_reviewed_names(vcontext, entity, ["Jim Doe"], alias=True)
     assert entity.get("name") == []
     assert entity.get("alias") == ["Jim Doe"]
+    entity.set("alias", [])  # clear to test multiple
+
+    apply_reviewed_names(vcontext, entity, ["Jim Doe", "James Doe"])
+    assert entity.get("alias") == []
+    assert set(entity.get("name")) == {"Jim Doe", "James Doe"}
 
 
 @patch("zavod.helpers.names.settings.CI", True)
