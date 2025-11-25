@@ -46,7 +46,7 @@ names:
     # G&G INTERNACIONAL S.A.S. and as a LegalEntity entry it can cause lots of false
     # positives on person names.
     min_chars: 11
-    # Review even even company names without spaces since they can be very generic.
+    # Review all company names without spaces since they can be very generic in this dataset.
     require_space: true
   Person:
     min_chars: 10
