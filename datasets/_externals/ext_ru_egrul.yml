@@ -76,7 +76,7 @@ config:
   index_options:
     max_candidates: 200
     match_batch: 300
-    memory: 5000
+    memory: 3500
   threshold: 0.7
   limit: 100
   max_bin: 14
