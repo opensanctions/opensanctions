@@ -284,7 +284,7 @@ def is_name_irregular(entity: Entity, string: Optional[str]) -> bool:
 
 def apply_names(
     entity: Entity,
-    strings: List[Optional[str]],
+    strings: List[str],
     review: Review[CleanNames],
     alias: bool = False,
     lang: Optional[str] = None,
@@ -296,9 +296,8 @@ def apply_names(
         ("previous_name", "previousName"),
     ]
     if not review.accepted:
-        prop = "alias" if alias else "name"
         for string in strings:
-            entity.add(prop, string, lang=lang)
+            apply_name(entity, full=string, alias=alias, lang=lang)
         return
 
     for field_name, prop in field_props:
@@ -312,40 +311,14 @@ def apply_names(
             )
 
 
-def review_names(
-    context: Context,
-    entity: Entity,
-    strings: List[Optional[str]],
-    lang: Optional[str] = None,
-    alias: bool = False,
-) -> Optional[Review[CleanNames]]:
-    """
-    Clean names if needed, then post them for review.
-
-    Args:
-        context: The current context.
-        entity: The entity to apply names to.
-        string: The raw name(s) string.
-        alias: If this is known to be an alias and not a primary name.
-        lang: The language of the name, if known.
-    """
-    strings = [s for s in strings if s]
-
-    if not strings:
-        return None
-
-    if settings.CI or not any(is_name_irregular(entity, s) for s in strings):
-        prop = "alias" if alias else "name"
-        for string in strings:
-            entity.add(prop, string, lang=lang)
-        return None
-
-    non_blank_strings = [s for s in strings if s and s.strip()]
-    raw_names = RawNames(entity_schema=entity.schema.name, strings=non_blank_strings)
+def _review_names(
+    context: Context, entity: Entity, strings: List[str]
+) -> Review[CleanNames]:
+    raw_names = RawNames(entity_schema=entity.schema.name, strings=strings)
     names = clean_names(context, raw_names)
 
     source_value = JSONSourceValue(
-        key_parts=[entity.schema.name] + non_blank_strings,
+        key_parts=[entity.schema.name] + strings,
         label="names",
         data=raw_names.model_dump(),
     )
@@ -356,6 +329,27 @@ def review_names(
         origin=LLM_MODEL_VERSION,
     )
     return review
+
+
+def review_names(
+    context: Context, entity: Entity, strings: List[Optional[str]]
+) -> Optional[Review[CleanNames]]:
+    """
+    Clean names if needed, then post them for review.
+
+    Args:
+        context: The current context.
+        entity: The entity to apply names to.
+        string: The raw name(s) string.
+    """
+    non_blank_strings = [s for s in strings if s]
+    if not non_blank_strings:
+        return None
+
+    if settings.CI or not any(is_name_irregular(entity, s) for s in non_blank_strings):
+        return None
+
+    return _review_names(context, entity, non_blank_strings)
 
 
 def apply_reviewed_names(
@@ -380,7 +374,15 @@ def apply_reviewed_names(
         alias: If this is known to be an alias and not a primary name.
         lang: The language of the name, if known.
     """
-    review = review_names(context, entity, strings, lang=lang, alias=alias)
-    if review is None:
-        return
-    apply_names(entity, strings, review, alias=alias, lang=lang)
+    non_blank_strings = [s for s in strings if s]
+    if not non_blank_strings:
+        return None
+
+    if settings.CI or not any(is_name_irregular(entity, s) for s in non_blank_strings):
+        for string in non_blank_strings:
+            apply_name(entity, full=string, alias=alias, lang=lang)
+        return None
+
+    review = _review_names(context, entity, non_blank_strings)
+
+    apply_names(entity, non_blank_strings, review, alias=alias, lang=lang)
