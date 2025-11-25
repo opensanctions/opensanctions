@@ -820,3 +820,6 @@ lookups:
           - HENNION & WALSH INC.
           - William W. Walsh
           - Richard Hennion
+      - match: "SCOTT and STRINGFELLOW LLC"
+        names:
+          - SCOTT and STRINGFELLOW LLC
