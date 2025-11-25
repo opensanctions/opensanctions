@@ -1146,45 +1146,828 @@
     - Adel
   weak_alias:
     - Adel
-
-# curl --silent https://data.opensanctions.org/datasets/20251104/us_trade_csl/names.txt | grep \;
-# HPSTAR;
-# Igor Aleksandrovich Michurin (Russian national);
-# Beihang University Ningbo Innovation Institute;Beihang University Qingdao Research Institute
-# Beijing Aerospace Automatic Control Institute (BICD); 12th Institute
-# DJEL; Dongfang Jingyuan Electron Limited
-# Yidatong (Tianjin) Metal Materials Co., Ltd;
-# LES Netcom Nanjing LES Netcom Technology Research Institute Co., Ltd.;
-# CETC 24;Sichuan Solid Circuit Research Institute;CETC 44;CETC Chongqing Sound and Optoelectronics Co., Ltd.
-# Izhmash-Unmanned Systems Company;LLC Research and Production Association Izhbs
-# Sibirskaya Neftyanaya Kompaniya OAO;
-# Dominguez, Carlos; Elint, S.A., Spain Night Vision, S.A., and SNV, S.A
-# NPO Izhmash OAO;OJSC Concern Kalashnikov
-# PMC Wagner;
-# Russian Aerospace Forces (aka VKS);
-# Bearings on Lipetsk LLC (Russian entity);
-# Kreig; a.k.a. Cow Craig; a.k.a. Hall Jermaine; a.k.a. Hall Jermaine Craig; a.k.a. Rhooms Jermain; a.k.a. Rhoomas Jermaine Craig; a.k.a. Rhoomas Rhoomes
-# Elena; a.k.a. Elena Leonidovna Shifrin Lena; a.k.a Gohkman Alexander; a.k.a Ivanov Elena; a.k.a Belov Shifrin
-# Sinobright Import and Export Company;
-# Cho Yan Nathan; a.k.a Nathan Man Man
-# Dandong Mason-Age Trade Co Ltd. (PRC entity);
-
-# curl --silent https://data.opensanctions.org/datasets/20251104/us_trade_csl/names.txt | grep \(
-# China State Shipbuilding Corporation, Limited (CSSC) 702nd Research Institute
-# China Ship Scientific Research Center (CSSRC)
-# China Shipbuilding Industry Group Co., Ltd. (CSIC) 702nd Research Institute
-# Korea Automation Industry (KAI)
-# China Shipbuilding Industry Group Co., Ltd. (CSIC) 713th Research Institute
-# China State Shipbuilding Corporation, Limited (CSSC) 713th Research Institute
-# China State Shipbuilding Corporation, Limited (CSSC) 712th Research Institute
-# FOC (HK) Technology Co., Ltd.
-# China State Shipbuilding Corporation, Limited (CSSC) 714th Research Institute
-# China Shipbuilding Industry Group Co., Ltd. (CSIC) 714th Research Institute
-# China State Shipbuilding Corporation, Limited (CSSC) 715th Research Institute
-# China Shipbuilding Industry Group Co., Ltd. (CSIC) 715th Research Institute
-# China State Shipbuilding Corporation, Limited (CSSC) 707th Research Institute
-# China Shipbuilding Industry Group Co., Ltd. (CSIC) 707th Research Institute
-
-# Ministry of Defence of the Russian Federation, including the Armed Forces of Russia and all operating units wherever located. This includes the national armed services (army, navy, marine, air force, or coast guard), as well as the national guard and national police, government intelligence or reconnaissance organizations of the Russian Federation. All address located in Russia.
-# The Ministry of Defence of the Republic of Belarus, including the Armed Forces of Belarus and all operating units wherever located. This includes the national armed services (army and air force), as well as the national guard and national police, government intelligence or reconnaissance organizations of the Republic of Belarus. All addresses located in Belarus.
-# Department of Atomic Energy facilities: Nuclear reactors (including power plants) not under International Atomic Energy Agency (IAEA) safeguards (excluding Kundankulam 1 and 2)
+- entity_schema: LegalEntity
+  strings:
+    - ZYFRA
+  weak_alias:
+    - ZYFRA
+- entity_schema: LegalEntity
+  strings:
+    - ZUKM OOO
+  weak_alias:
+    - ZUKM OOO
+- entity_schema: LegalEntity
+  strings:
+    - ZSERVERS
+  full_name:
+    - ZSERVERS
+- entity_schema: LegalEntity
+  strings:
+    - ZAO AKUTA
+  weak_alias:
+    - ZAO AKUTA
+- entity_schema: LegalEntity
+  strings:
+    - ZALOG OOO
+  weak_alias:
+    - ZALOG OOO
+- entity_schema: LegalEntity
+  strings:
+    - YMV KREYN
+  full_name:
+    - YMV KREYN
+- entity_schema: LegalEntity
+  strings:
+    - YASA PART
+  weak_alias:
+    - YASA PART
+- entity_schema: LegalEntity
+  strings:
+    - YAS AIR
+  weak_alias:
+    - YAS AIR
+- entity_schema: Company
+  strings:
+    - WTC2, INC.
+  weak_alias:
+    - WTC2, INC.
+- entity_schema: Company
+  strings:
+    - WMC NWH PA
+  weak_alias:
+    - WMC NWH PA
+- entity_schema: Company
+  strings:
+    - WJM, INC.
+  weak_alias:
+    - WJM, INC.
+- entity_schema: Company
+  strings:
+    - WINKY INC
+  weak_alias:
+    - WINKY INC
+- entity_schema: Company
+  strings:
+    - WILKES PAC
+  full_name:
+    - WILKES PAC
+- entity_schema: LegalEntity
+  strings:
+    - VEB.RF
+  weak_alias:
+    - VEB.RF
+- entity_schema: LegalEntity
+  strings:
+    - UDS NEFT
+  weak_alias:
+    - UDS NEFT
+- entity_schema: LegalEntity
+  strings:
+    - UCPMB
+  weak_alias:
+    - UCPMB
+- entity_schema: LegalEntity
+  strings:
+    - UCON LLC
+  weak_alias:
+    - UCON LLC
+- entity_schema: LegalEntity
+  strings:
+    - UCK
+  weak_alias:
+    - UCK
+- entity_schema: LegalEntity
+  strings:
+    - UBRIR PAO
+  weak_alias:
+    - UBRIR PAO
+- entity_schema: LegalEntity
+  strings:
+    - TRUSTINFO
+  weak_alias:
+    - TRUSTINFO
+- entity_schema: LegalEntity
+  strings:
+    - TRIBIT
+  full_name:
+    - TRIBIT
+- entity_schema: LegalEntity
+  strings:
+    - TNG GRUPP
+  weak_alias:
+    - TNG GRUPP
+- entity_schema: Company
+  strings:
+    - TIN INC.
+  weak_alias:
+    - TIN INC.
+- entity_schema: LegalEntity
+  strings:
+    - ZDRAVO
+  weak_alias:
+    - ZDRAVO
+- entity_schema: LegalEntity
+  strings:
+    - ZD.RU
+  weak_alias:
+    - ZD.RU
+- entity_schema: LegalEntity
+  strings:
+    - ZAT NNK
+  weak_alias:
+    - ZAT NNK
+- entity_schema: LegalEntity
+  strings:
+    - ZARECHYE-OKA
+  full_name:
+    - ZARECHYE-OKA
+- entity_schema: Person
+  strings:
+    - ABU-YUNUS
+  weak_alias:
+    - ABU-YUNUS
+- entity_schema: LegalEntity
+  strings:
+    - ZOTOGRANDE
+  full_name:
+    - ZOTOGRANDE
+- entity_schema: LegalEntity
+  strings:
+    - ZORSECURITY
+  full_name:
+    - ZORSECURITY
+- entity_schema: LegalEntity
+  strings:
+    - ZINCUM LLC
+  full_name:
+    - ZINCUM LLC
+- entity_schema: LegalEntity
+  strings:
+    - ZIL-M LLC
+  full_name:
+    - ZIL-M LLC
+- entity_schema: LegalEntity
+  strings:
+    - ZEYNABIYYUN
+  full_name:
+    - ZEYNABIYYUN
+- entity_schema: LegalEntity
+  strings:
+    - ZET AKSIS
+  full_name:
+    - ZET AKSIS
+- entity_schema: LegalEntity
+  strings:
+    - ZENIT 3D
+  full_name:
+    - ZENIT 3D
+- entity_schema: LegalEntity
+  strings:
+    - ZAPSIBCOMBANK
+  full_name:
+    - ZAPSIBCOMBANK
+- entity_schema: LegalEntity
+  strings:
+    - ZAO TSFT
+  weak_alias:
+    - ZAO TSFT
+- entity_schema: LegalEntity
+  strings:
+    - ZAO SNGB
+  weak_alias:
+    - ZAO SNGB
+- entity_schema: LegalEntity
+  strings:
+    - ZAO RTSLT
+  weak_alias:
+    - ZAO RTSLT
+- entity_schema: LegalEntity
+  strings:
+    - ZAO REESTR
+  weak_alias:
+    - ZAO REESTR
+- entity_schema: LegalEntity
+  strings:
+    - ZAO PRSD
+  weak_alias:
+    - ZAO PRSD
+- entity_schema: LegalEntity
+  strings:
+    - ZAO NNK
+  weak_alias:
+    - ZAO NNK
+- entity_schema: LegalEntity
+  strings:
+    - Z AXIS LLC
+  weak_alias:
+    - Z AXIS LLC
+- entity_schema: LegalEntity
+  strings:
+    - YUVENTA
+  weak_alias:
+    - YUVENTA
+- entity_schema: LegalEntity
+  strings:
+    - YURR
+  weak_alias:
+    - YURR
+- entity_schema: LegalEntity
+  strings:
+    - YUNIK LEB
+  full_name:
+    - YUNIK LEB
+- entity_schema: LegalEntity
+  strings:
+    - YUGANSKNEFTEGAZ
+  full_name:
+    - YUGANSKNEFTEGAZ
+- entity_schema: LegalEntity
+  strings:
+    - YUESEM
+  weak_alias:
+    - YUESEM
+- entity_schema: LegalEntity
+  strings:
+    - YONA STAR
+  full_name:
+    - YONA STAR
+- entity_schema: LegalEntity
+  strings:
+    - YAMALGAZINVEST
+  full_name:
+    - YAMALGAZINVEST
+- entity_schema: LegalEntity
+  strings:
+    - YAMAKEN-GUMI
+  full_name:
+    - YAMAKEN-GUMI
+- entity_schema: LegalEntity
+  strings:
+    - YAMAGUCHI-GUMI
+  full_name:
+    - YAMAGUCHI-GUMI
+- entity_schema: LegalEntity
+  strings:
+    - YAKUZA
+  full_name:
+    - YAKUZA
+- entity_schema: LegalEntity
+  strings:
+    - YAKT SOKOL
+  full_name:
+    - YAKT SOKOL
+- entity_schema: LegalEntity
+  strings:
+    - XINGTAC
+  full_name:
+    - XINGTAC
+- entity_schema: LegalEntity
+  strings:
+    - XAKI
+  weak_alias:
+    - XAKI
+- entity_schema: Company
+  strings:
+    - WWWPRESTONZONE.COM
+  full_name:
+    - WWWPRESTONZONE.COM
+- entity_schema: LegalEntity
+  strings:
+    - WWW.SERCUBA.COM
+  full_name:
+    - WWW.SERCUBA.COM
+- entity_schema: LegalEntity
+  strings:
+    - WWW.NUEVOCONTINENTE.COM.PE
+  full_name:
+    - WWW.NUEVOCONTINENTE.COM.PE
+- entity_schema: LegalEntity
+  strings:
+    - WWW.CUBA-SHOP.NET
+  full_name:
+    - WWW.CUBA-SHOP.NET
+- entity_schema: LegalEntity
+  strings:
+    - WWW.BNTDTORG.BY
+  full_name:
+    - WWW.BNTDTORG.BY
+- entity_schema: LegalEntity
+  strings:
+    - WWW.BNTD.BY
+  full_name:
+    - WWW.BNTD.BY
+- entity_schema: LegalEntity
+  strings:
+    - WWW.AEROCONTINENTE.COM.PE
+  full_name:
+    - WWW.AEROCONTINENTE.COM.PE
+- entity_schema: LegalEntity
+  strings:
+    - WWW.AEROCONTINENTE.COM
+  full_name:
+    - WWW.AEROCONTINENTE.COM
+- entity_schema: LegalEntity
+  strings:
+    - WHITEPIGEON
+  full_name:
+    - WHITEPIGEON
+- entity_schema: LegalEntity
+  strings:
+    - WESKEL LLC
+  full_name:
+    - WESKEL LLC
+- entity_schema: Company
+  strings:
+    - WEDO, LLC
+  weak_alias:
+    - WEDO, LLC
+- entity_schema: LegalEntity
+  strings:
+    - WEAR FARMS
+  full_name:
+    - WEAR FARMS
+- entity_schema: LegalEntity
+  strings:
+    - WALNUTHILL
+  full_name:
+    - WALNUTHILL
+- entity_schema: LegalEntity
+  strings:
+    - WAED
+  weak_alias:
+    - WAED
+- entity_schema: LegalEntity
+  strings:
+    - WAAD
+  weak_alias:
+    - WAAD
+- entity_schema: LegalEntity
+  strings:
+    - VZPP-S AO
+  weak_alias:
+    - VZPP-S AO
+- entity_schema: LegalEntity
+  strings:
+    - VYMPEL-SODEISTVIE
+  full_name:
+    - VYMPEL-SODEISTVIE
+- entity_schema: LegalEntity
+  strings:
+    - VVB, PAO
+  weak_alias:
+    - VVB, PAO
+- entity_schema: LegalEntity
+  strings:
+    - VTB FOREKS
+  weak_alias:
+    - VTB FOREKS
+- entity_schema: LegalEntity
+  strings:
+    - VTB DC LTD
+  weak_alias:
+    - VTB DC LTD
+- entity_schema: LegalEntity
+  strings:
+    - VTB BANK
+  weak_alias:
+    - VTB BANK
+- entity_schema: LegalEntity
+  strings:
+    - VTB AFRICA
+  weak_alias:
+    - VTB AFRICA
+- entity_schema: LegalEntity
+  strings:
+    - VTB 24 PAO
+  weak_alias:
+    - VTB 24 PAO
+- entity_schema: LegalEntity
+  strings:
+    - VTB 24 JSC
+  weak_alias:
+    - VTB 24 JSC
+- entity_schema: LegalEntity
+  strings:
+    - VSP KIROV
+  weak_alias:
+    - VSP KIROV
+- entity_schema: LegalEntity
+  strings:
+    - VOSTOKGAZPROM
+  full_name:
+    - VOSTOKGAZPROM
+- entity_schema: LegalEntity
+  strings:
+    - VOLTAG LLC
+  full_name:
+    - VOLTAG LLC
+- entity_schema: LegalEntity
+  strings:
+    - VNIGRI PAO
+  full_name:
+    - VNIGRI PAO
+- entity_schema: LegalEntity
+  strings:
+    - VNIGRI JSC
+  full_name:
+    - VNIGRI JSC
+- entity_schema: LegalEntity
+  strings:
+    - VNESHTORGBANK
+  full_name:
+    - VNESHTORGBANK
+- entity_schema: LegalEntity
+  strings:
+    - VNESHECONOMBANK
+  full_name:
+    - VNESHECONOMBANK
+- entity_schema: LegalEntity
+  strings:
+    - VIV ANSANM
+  full_name:
+    - VIV ANSANM
+- entity_schema: LegalEntity
+  strings:
+    - VINSAVER
+  full_name:
+    - VINSAVER
+- entity_schema: LegalEntity
+  strings:
+    - VIN7 LLC
+  weak_alias:
+    - VIN7 LLC
+- entity_schema: Company
+  strings:
+    - VIEW, INC.
+  weak_alias:
+    - VIEW, INC.
+- entity_schema: LegalEntity
+  strings:
+    - VEZIR
+  weak_alias:
+    - VEZIR
+- entity_schema: LegalEntity
+  strings:
+    - VETERAN
+  weak_alias:
+    - VETERAN
+- entity_schema: LegalEntity
+  strings:
+    - VERKHNECHONSKNEFTEGAZ
+  full_name:
+    - VERKHNECHONSKNEFTEGAZ
+- entity_schema: LegalEntity
+  strings:
+    - VEGACY
+  weak_alias:
+    - VEGACY
+- entity_schema: LegalEntity
+  strings:
+    - VEB SERVIS
+  weak_alias:
+    - VEB SERVIS
+- entity_schema: LegalEntity
+  strings:
+    - VAZIR
+  weak_alias:
+    - VAZIR
+- entity_schema: LegalEntity
+  strings:
+    - VAWARC
+  weak_alias:
+    - VAWARC
+- entity_schema: LegalEntity
+  strings:
+    - VANKORNEFT
+  full_name:
+    - VANKORNEFT
+- entity_schema: LegalEntity
+  strings:
+    - VALKOM
+  weak_alias:
+    - VALKOM
+- entity_schema: LegalEntity
+  strings:
+    - VAIBOS
+  full_name:
+    - VAIBOS
+- entity_schema: LegalEntity
+  strings:
+    - VAD, AO
+  weak_alias:
+    - VAD, AO
+- entity_schema: LegalEntity
+  strings:
+    - VACUUMKARAN
+  full_name:
+    - VACUUMKARAN
+- entity_schema: LegalEntity
+  strings:
+    - VABO 2012
+  full_name:
+    - VABO 2012
+- entity_schema: Company
+  strings:
+    - VA HOTLINE
+  weak_alias:
+    - VA HOTLINE
+- entity_schema: LegalEntity
+  strings:
+    - UWSP
+  weak_alias:
+    - UWSP
+- entity_schema: LegalEntity
+  strings:
+    - UWSA
+  weak_alias:
+    - UWSA
+- entity_schema: LegalEntity
+  strings:
+    - UVIKOM OOO
+  weak_alias:
+    - UVIKOM OOO
+- entity_schema: LegalEntity
+  strings:
+    - UVICOM LTD
+  weak_alias:
+    - UVICOM LTD
+- entity_schema: LegalEntity
+  strings:
+    - USA REALLY
+  weak_alias:
+    - USA REALLY
+- entity_schema: LegalEntity
+  strings:
+    - URANGEO AO
+  weak_alias:
+    - URANGEO AO
+- entity_schema: LegalEntity
+  strings:
+    - URALOIL
+  full_name:
+    - URALOIL
+- entity_schema: LegalEntity
+  strings:
+    - URALMASHPLANT
+  full_name:
+    - URALMASHPLANT
+- entity_schema: LegalEntity
+  strings:
+    - UPEL
+  weak_alias:
+    - UPEL
+- entity_schema: Company
+  strings:
+    - UNY, LLC
+  weak_alias:
+    - UNY, LLC
+- entity_schema: LegalEntity
+  strings:
+    - UNIJET
+  weak_alias:
+    - UNIJET
+- entity_schema: LegalEntity
+  strings:
+    - UNIIKM AO
+  weak_alias:
+    - UNIIKM AO
+- entity_schema: Company
+  strings:
+    - UMOJA, P C
+  weak_alias:
+    - UMOJA, P C
+- entity_schema: LegalEntity
+  strings:
+    - UMATEX JSC
+  weak_alias:
+    - UMATEX JSC
+- entity_schema: LegalEntity
+  strings:
+    - UMAC LLC
+  weak_alias:
+    - UMAC LLC
+- entity_schema: LegalEntity
+  strings:
+    - UM AIR
+  weak_alias:
+    - UM AIR
+- entity_schema: Company
+  strings:
+    - ULTRASONICS
+  full_name:
+    - ULTRASONICS
+- entity_schema: LegalEntity
+  strings:
+    - ULNAMMO
+  weak_alias:
+    - ULNAMMO
+- entity_schema: LegalEntity
+  strings:
+    - UIY INC
+  weak_alias:
+    - UIY INC
+- entity_schema: LegalEntity
+  strings:
+    - UGLEMETBANK
+  full_name:
+    - UGLEMETBANK
+- entity_schema: LegalEntity
+  strings:
+    - UEC-SATURN
+  full_name:
+    - UEC-SATURN
+- entity_schema: LegalEntity
+  strings:
+    - TWIRWANEHO
+  full_name:
+    - TWIRWANEHO
+- entity_schema: LegalEntity
+  strings:
+    - TUREYA OOO
+  weak_alias:
+    - TUREYA OOO
+- entity_schema: LegalEntity
+  strings:
+    - TULAMMO
+  weak_alias:
+    - TULAMMO
+- entity_schema: LegalEntity
+  strings:
+    - TSRT SOFT
+  weak_alias:
+    - TSRT SOFT
+- entity_schema: LegalEntity
+  strings:
+    - TSNIIAG
+  weak_alias:
+    - TSNIIAG
+- entity_schema: LegalEntity
+  strings:
+    - TSENTRKURORT
+  full_name:
+    - TSENTRKURORT
+- entity_schema: LegalEntity
+  strings:
+    - TSENTRIZBIRKOM
+  full_name:
+    - TSENTRIZBIRKOM
+- entity_schema: LegalEntity
+  strings:
+    - TSB ZHCHK
+  weak_alias:
+    - TSB ZHCHK
+- entity_schema: LegalEntity
+  strings:
+    - TRUST LIFE
+  full_name:
+    - TRUST LIFE
+- entity_schema: LegalEntity
+  strings:
+    - TRUCLEAN
+  weak_alias:
+    - TRUCLEAN
+- entity_schema: LegalEntity
+  strings:
+    - TRO YA LLC
+  weak_alias:
+    - TRO YA LLC
+- entity_schema: LegalEntity
+  strings:
+    - TRO NORGE
+  weak_alias:
+    - TRO NORGE
+- entity_schema: LegalEntity
+  strings:
+    - TRO ITALIA
+  weak_alias:
+    - TRO ITALIA
+- entity_schema: LegalEntity
+  strings:
+    - TRO
+  weak_alias:
+    - TRO
+- entity_schema: LegalEntity
+  strings:
+    - TRIZROBOTICS
+  full_name:
+    - TRIZROBOTICS
+- entity_schema: LegalEntity
+  strings:
+    - TRIBIT OOO
+  full_name:
+    - TRIBIT OOO
+- entity_schema: LegalEntity
+  strings:
+    - TRIANGULYATIKA
+  full_name:
+    - TRIANGULYATIKA
+- entity_schema: LegalEntity
+  strings:
+    - TRIANGULATICA
+  full_name:
+    - TRIANGULATICA
+- entity_schema: LegalEntity
+  strings:
+    - TREND GYO
+  weak_alias:
+    - TREND GYO
+- entity_schema: LegalEntity
+  strings:
+    - TREIDSTORI
+  full_name:
+    - TREIDSTORI
+- entity_schema: LegalEntity
+  strings:
+    - TRAPSA
+  weak_alias:
+    - TRAPSA
+- entity_schema: LegalEntity
+  strings:
+    - TRANSSTROYMEKHANIZATSIYA
+  full_name:
+    - TRANSSTROYMEKHANIZATSIYA
+- entity_schema: LegalEntity
+  strings:
+    - TRANSOIL
+  full_name:
+    - TRANSOIL
+- entity_schema: LegalEntity
+  strings:
+    - TRANSNEFT
+  full_name:
+    - TRANSNEFT
+- entity_schema: LegalEntity
+  strings:
+    - TRANSKAPITALBANK
+  full_name:
+    - TRANSKAPITALBANK
+- entity_schema: LegalEntity
+  strings:
+    - TRANSGAZELLE
+  full_name:
+    - TRANSGAZELLE
+- entity_schema: LegalEntity
+  strings:
+    - TRANSCIBA
+  full_name:
+    - TRANSCIBA
+- entity_schema: LegalEntity
+  strings:
+    - TRADING
+  weak_alias:
+    - TRADING
+- entity_schema: LegalEntity
+  strings:
+    - TRADEX CO
+  weak_alias:
+    - TRADEX CO
+- entity_schema: LegalEntity
+  strings:
+    - TOTAL RX
+  weak_alias:
+    - TOTAL RX
+- entity_schema: LegalEntity
+  strings:
+    - TOTAL LOOK
+  weak_alias:
+    - TOTAL LOOK
+- entity_schema: LegalEntity
+  strings:
+    - TN ALABUGA
+  full_name:
+    - TN ALABUGA
+- entity_schema: LegalEntity
+  strings:
+    - TMR LTD
+  weak_alias:
+    - TMR LTD
+- entity_schema: LegalEntity
+  strings:
+    - TK BANK
+  weak_alias:
+    - TK BANK
+- entity_schema: LegalEntity
+  strings:
+    - TIVA GROUP
+  weak_alias:
+    - TIVA GROUP
+- entity_schema: LegalEntity
+  strings:
+    - TIVA DARYA
+  full_name:
+    - TIVA DARYA
+- entity_schema: LegalEntity
+  strings:
+    - TITAN-MIKRO
+  full_name:
+    - TITAN-MIKRO
+- entity_schema: LegalEntity
+  strings:
+    - TISA KISH
+  full_name:
+    - TISA KISH
+- entity_schema: Company
+  strings:
+    - TIP FARMS
+  weak_alias:
+    - TIP FARMS

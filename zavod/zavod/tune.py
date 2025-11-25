@@ -19,6 +19,11 @@ from zavod.extract.names.dspy.optimise import LEVELS, optimise_single_entity
 LEVEL_OPTIONS = click.Choice(LEVELS, case_sensitive=False)
 
 
+class IndentedListDumper(yaml.Dumper):
+    def increase_indent(self, flow=False, indentless=False):
+        return super(IndentedListDumper, self).increase_indent(flow, False)
+
+
 @click.group(help="Zavod DSPy optimisation and evaluation tools")
 def cli(debug: bool = False) -> None:
     pass
@@ -64,7 +69,13 @@ def dump_examples(input_path: Path, output_path: Path) -> None:
         examples.append(example)
 
     with output_path.open("w") as f:
-        yaml.dump(examples, f, sort_keys=False)
+        yaml.dump(
+            examples,
+            f,
+            Dumper=IndentedListDumper,
+            default_flow_style=False,
+            sort_keys=False,
+        )
 
 
 if __name__ == "__main__":

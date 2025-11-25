@@ -59,6 +59,7 @@ Once a dataset is fully reviewed, you can replace `review_names()` with [zavod.h
 - For organisations
     - acronyms of their name e.g. `JSC SMZ` for `JOINT STOCK COMPANY SEROV MECHANICAL PLANT`
     - really short short forms
+    - names where a significant part is a really common term, e.g. `TRO ITALIA` or `VA HOTLINE`
 
 #### previousName
 
@@ -71,6 +72,9 @@ Once a dataset is fully reviewed, you can replace `review_names()` with [zavod.h
 - Anything explicitly an alias, e.g.
     - `a.k.a`
     - `also ...`
+    - for Persons, when it's obviously a nickname, e.g. `American Joe Miedusiewski`
+    - for Organisations, we might capture some really vague names as `alias`, especially when a more distinctive complete alternative name is known.
+
 
 - When variants are given, it's nice to expand the variants as aliases and keep the "primary" form, e.g.
 ```
