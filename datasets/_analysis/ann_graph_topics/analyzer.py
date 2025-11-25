@@ -39,15 +39,11 @@ def analyze_entity(context: Context, view: View, entity: Entity) -> None:
     topics = entity.get_type_values(registry.topic)
     for prop, adjacent in view.get_adjacent(entity):
         asch = adjacent.schema
-        if prop.reverse is None or not asch.edge:
-            continue
 
         # For when the other entity is on the other side of an edge
         other_prop = (
             asch.source_prop if prop.reverse == asch.target_prop else asch.target_prop
         )
-        if other_prop is None:
-            continue
 
         # Tag role.rca for family relations of PEPs
         if "role.pep" in topics and adjacent.schema.is_a("Family"):
@@ -70,6 +66,13 @@ def analyze_entity(context: Context, view: View, entity: Entity) -> None:
         # Tag sanction.linked for sanction-linked entities
         if "sanction" in topics:
             if entity.schema.is_a("Security"):
+                continue
+            if adjacent.schema.is_a("Security"):
+                adj_topics = non_graph_topics(context, adjacent)
+                if adj_topics.intersection({"sanction", "sanction.linked"}):
+                    continue
+                emit_patch(context, entity, adjacent, "sanction.linked", adj_topics)
+            if not asch.edge:
                 continue
             if adjacent.schema.name not in (
                 "Ownership",
