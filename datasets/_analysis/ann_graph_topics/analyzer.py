@@ -13,9 +13,24 @@ def non_graph_topics(context: Context, entity: Entity) -> Set[str]:
     return {s.value for s in topic_stmts if s.dataset != context.dataset.name}
 
 
-def emit_patch(context: Context, entity: Entity, topic: str) -> None:
-    patch = context.make(entity.schema)
-    patch.id = entity.id
+def emit_patch(
+    context: Context,
+    risk_source: Entity,
+    related_entity: Entity,
+    topic: str,
+    existing_topics: Set[str],
+) -> None:
+    context.log.info(
+        f"Adding topic: {topic}",
+        source=risk_source.caption,
+        source_id=risk_source.id,
+        linked=related_entity.caption,
+        linked_id=related_entity.id,
+        topics=existing_topics,
+    )
+
+    patch = context.make(related_entity.schema)
+    patch.id = related_entity.id
     patch.add("topics", topic)
     context.emit(patch)
 
@@ -42,15 +57,7 @@ def analyze_entity(context: Context, view: View, entity: Entity) -> None:
                 other_topics = non_graph_topics(context, other)
                 if other_topics.intersection({"role.rca", "role.pep"}):
                     continue
-                context.log.info(
-                    "Adding topic: role.rca",
-                    pep=entity.caption,
-                    pep_id=entity.id,
-                    rca=other.caption,
-                    rca_id=other.id,
-                    topics=other_topics,
-                )
-                emit_patch(context, other, "role.rca")
+                emit_patch(context, entity, other, "role.rca", other_topics)
 
         # Family is eternal, business is time-bound:
         if len(adjacent.get("endDate", quiet=True)) > 0:
@@ -79,15 +86,7 @@ def analyze_entity(context: Context, view: View, entity: Entity) -> None:
                 other_topics = non_graph_topics(context, other)
                 if other_topics.intersection({"sanction", "sanction.linked"}):
                     continue
-                context.log.info(
-                    "Adding topic: sanction.linked",
-                    sanctioned=entity.caption,
-                    sanctioned_id=entity.id,
-                    linked=other.caption,
-                    linked_id=other.id,
-                    topics=other_topics,
-                )
-                emit_patch(context, other, "sanction.linked")
+                emit_patch(context, entity, other, "sanction.linked", other_topics)
 
         if (
             "sanction.linked" in topics
@@ -101,15 +100,7 @@ def analyze_entity(context: Context, view: View, entity: Entity) -> None:
                 other_topics = non_graph_topics(context, other)
                 if other_topics.intersection({"sanction", "sanction.linked"}):
                     continue
-                context.log.info(
-                    "Adding topic: sanction.linked",
-                    sanctioned=entity.caption,
-                    sanctioned_id=entity.id,
-                    linked=other.caption,
-                    linked_id=other.id,
-                    topics=other_topics,
-                )
-                emit_patch(context, other, "sanction.linked")
+                emit_patch(context, entity, other, "sanction.linked", other_topics)
 
 
 def crawl(context: Context) -> None:
