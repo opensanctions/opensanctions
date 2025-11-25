@@ -49,6 +49,7 @@ def analyze_entity(context: Context, view: View, entity: Entity) -> None:
         if other_prop is None:
             continue
 
+        # Tag role.rca for family relations of PEPs
         if "role.pep" in topics and adjacent.schema.is_a("Family"):
             for other_id in adjacent.get(other_prop):
                 other = view.get_entity(other_id)
@@ -66,6 +67,7 @@ def analyze_entity(context: Context, view: View, entity: Entity) -> None:
             )
             continue
 
+        # Tag sanction.linked for sanction-linked entities
         if "sanction" in topics:
             if entity.schema.is_a("Security"):
                 continue
@@ -88,6 +90,7 @@ def analyze_entity(context: Context, view: View, entity: Entity) -> None:
                     continue
                 emit_patch(context, entity, other, "sanction.linked", other_topics)
 
+        # Tag sanction.linked for Assets of sanction.linked Owners
         if (
             "sanction.linked" in topics
             and adjacent.schema.is_a("Ownership")
