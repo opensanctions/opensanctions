@@ -63,7 +63,13 @@ def crawl(context: Context) -> None:
         entity.id = context.make_id(first_name, last_name, id)
         h.apply_name(entity, first_name=first_name, last_name=last_name)
         h.apply_date(entity, "birthDate", item.pop("birth_year"))
-        entity.add("political", item.pop("party"))
+
+        # They only use abbreviations, which are pretty meaningless.
+        # Full names only on their website.
+        party_key = item.pop("party")
+        party = context.lookup_value("parties", party_key, warn_unmatched=True)
+        entity.add("political", party)
+
         entity.add("citizenship", "se")
         entity.add("gender", item.pop("gender"))
 

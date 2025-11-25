@@ -65,6 +65,29 @@ lookups:
         value: person_info
       - match: uppdrag
         value: mandate
+  parties:
+    options:
+      - match: ["", "-"]
+        value: null
+      # Copied from the dropdown on https://data.riksdagen.se/personlista/
+      - match: S
+        value: Socialdemokraterna
+      - match: M
+        value: Moderata samlingspartiet
+      - match: SD
+        value: Sverigedemokraterna
+      - match: MP
+        value: Miljöpartiet
+      - match: C
+        value: Centerpartiet
+      - match: V
+        value: Vänsterpartiet
+      - match: L
+        value: Liberalerna
+      - match: KD
+        value: Kristdemokraterna
+      - match: nyd
+        value: Ny demokrati
   type.gender:
     lowercase: true
     options:
