@@ -22,11 +22,11 @@ def emit_patch(
 ) -> None:
     context.log.info(
         f"Adding topic: {topic}",
-        source=risk_source.caption,
-        source_id=risk_source.id,
-        linked=related_entity.caption,
-        linked_id=related_entity.id,
-        topics=existing_topics,
+        risk_source=risk_source.caption,
+        risk_source_id=risk_source.id,
+        related_entity=related_entity.caption,
+        related_entity_id=related_entity.id,
+        existing_topics=list(existing_topics),
     )
 
     patch = context.make(related_entity.schema)
@@ -67,7 +67,7 @@ def analyze_entity(context: Context, view: View, entity: Entity) -> None:
         if "sanction" in topics:
             if entity.schema.is_a("Security"):
                 continue
-            if adjacent.schema.is_a("Security"):
+            if prop.name == "securities" and adjacent.schema.is_a("Security"):
                 adj_topics = non_graph_topics(context, adjacent)
                 if adj_topics.intersection({"sanction", "sanction.linked"}):
                     continue
