@@ -24,7 +24,8 @@ def parse_ms_date(ms_date: str | None) -> date | None:
       which in the -0700 timezone was 2015-10-19T17:40:15"
     - The offset doesn't modify the timestamp; it's metadata about local time
 
-    For dates (like dates of birth), we need the LOCAL date, so we:
+    We use naive (non-timezone-aware) dates everywhere in our data model and interpret based
+    on context. For dates of birth, that means local time. So to get local time, we:
     1. Parse the UTC timestamp
     2. Apply the offset to get the local datetime
     3. Extract the date from that local datetime
