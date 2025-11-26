@@ -23,6 +23,17 @@ IGNORE = [
     "person_id",
 ]
 
+HEADERS = {
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    "Accept-Encoding": "gzip, deflate, br",
+    "Accept-Language": "en-GB,en;q=0.9",
+    "Connection": "keep-alive",
+    "Priority": "u=0, i",
+    "Sec-Fetch-Dest": "document",
+    "Sec-Fetch-Mode": "navigate",
+    "Sec-Fetch-Site": "none",
+}
+
 
 def translate_keys(context: Context, data: Any) -> Any:
     """Recursively translate keys in nested dictionaries and lists."""
@@ -61,7 +72,7 @@ def get_party(pep: dict[str, Any]) -> str:
 
 def crawl(context: Context) -> None:
     data: list[dict[str, Any]] = context.fetch_json(
-        f"{context.data_url}seating/", cache_days=5
+        f"{context.data_url}seating/", headers=HEADERS, cache_days=5
     )
     for item in data:
         pep_id = item.pop("hetekaId")

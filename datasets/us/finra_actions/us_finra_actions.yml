@@ -823,3 +823,7 @@ lookups:
       - match: "SCOTT and STRINGFELLOW LLC"
         names:
           - SCOTT and STRINGFELLOW LLC
+      - match: "STOEVER, GLASS & COMPANY INC. FREDERICK J. STOEVER"
+        names:
+          - STOEVER, GLASS & COMPANY INC.
+          - Frederick J. Stoever
