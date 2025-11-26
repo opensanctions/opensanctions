@@ -1,7 +1,19 @@
+from unittest.mock import MagicMock, patch
+
 from structlog.testing import capture_logs
 
 from zavod.context import Context
-from zavod.helpers import make_name, apply_name, split_comma_names
+from zavod.entity import Entity
+from zavod.extract.names.clean import CleanNames
+from zavod.helpers import (
+    apply_name,
+    apply_reviewed_names,
+    make_name,
+    is_name_irregular,
+    split_comma_names,
+)
+from zavod.meta.dataset import Dataset
+from zavod.stateful.review import Review, review_key
 
 
 def test_make_name():
@@ -116,3 +128,115 @@ def test_split_comma_names(vcontext: Context, caplog):
         assert split_comma_names(vcontext, "A and B Ltd.") == ["A and B Ltd."]
     logs = [f"{entry['log_level']}: {entry['event']}" for entry in cap_logs]
     assert "warning: Not sure how to split on comma or and." in logs
+
+
+def test_is_name_irregular(testdataset1: Dataset):
+    org_data = {"id": "doe", "schema": "Organization", "properties": {}}
+    org = Entity(testdataset1, org_data)
+    person_data = {"id": "jon", "schema": "Person", "properties": {}}
+    person = Entity(testdataset1, person_data)
+
+    assert not is_name_irregular(org, "Org NPO")
+    # Rejected chars
+    assert is_name_irregular(org, "Org NPO, Org Charitable")
+    # Nullwords
+    assert is_name_irregular(org, "Unknown")
+    # Below min chars
+    assert is_name_irregular(org, "A")
+    # Require space
+    assert is_name_irregular(person, "Johnson")
+    assert not is_name_irregular(org, "Johnson")
+
+
+@patch("zavod.helpers.names.settings.CI", False)  # For validity
+def test_apply_reviewed_names_no_cleaning_needed(vcontext: Context):
+    """The original name is used."""
+
+    entity = vcontext.make("Person")
+    entity.id = "bla"
+    apply_reviewed_names(vcontext, entity, ["Jim Doe"])
+    assert entity.get("name") == ["Jim Doe"]
+    assert entity.get("alias") == []
+    entity.set("name", [])  # clear to test alias
+
+    apply_reviewed_names(vcontext, entity, ["Jim Doe"], alias=True)
+    assert entity.get("name") == []
+    assert entity.get("alias") == ["Jim Doe"]
+    entity.set("alias", [])  # clear to test multiple
+
+    apply_reviewed_names(vcontext, entity, ["Jim Doe", "James Doe"])
+    assert entity.get("alias") == []
+    assert set(entity.get("name")) == {"Jim Doe", "James Doe"}
+
+
+@patch("zavod.helpers.names.settings.CI", True)
+@patch("zavod.extract.names.clean.run_typed_text_prompt")
+def test_apply_reviewed_names_ci_fallback(
+    run_typed_text_prompt: MagicMock, vcontext: Context
+):
+    """
+    Verify that when env var CI is set, we fall back to original name.
+    Mocking to verify that outside CI (on our laptops)
+    """
+    entity = vcontext.make("Person")
+    entity.id = "bla"
+    raw_name = "Jim Doe; James Doe"
+
+    run_typed_text_prompt.return_value = CleanNames(
+        full_name=["Jim Doe", "James Doe"],
+        alias=[],
+        weak_alias=[],
+        previous_name=[],
+    )
+
+    apply_reviewed_names(vcontext, entity, [raw_name])
+
+    assert not run_typed_text_prompt.called, run_typed_text_prompt.call_args_list
+
+
+@patch("zavod.helpers.names.settings.CI", False)
+@patch("zavod.extract.names.clean.run_typed_text_prompt")
+def test_apply_reviewed_names(run_typed_text_prompt: MagicMock, vcontext: Context):
+    """
+    The original name is used.
+    A review is created but the unaccepted name(s) are not applied.
+    """
+
+    entity = vcontext.make("Person")
+    entity.id = "bla"
+    raw_name = "Jim Doe; James Doe"
+
+    run_typed_text_prompt.return_value = CleanNames(
+        full_name=["Jim Doe", "James Doe"],
+        alias=[],
+        weak_alias=[],
+        previous_name=[],
+    )
+
+    apply_reviewed_names(vcontext, entity, [raw_name])
+
+    assert run_typed_text_prompt.called, run_typed_text_prompt.call_args_list
+
+    # Until it's accepted, the original string is applied.
+    assert entity.get("name") == [raw_name]
+    assert entity.get("alias") == []
+    entity.set("name", [])  # clear to test alias
+    apply_reviewed_names(vcontext, entity, [raw_name], alias=True)
+    assert entity.get("alias") == [raw_name]
+    assert entity.get("name") == []
+    entity.set("alias", [])  # clear to test after accept
+
+    # simulate accepting the review.
+    key = review_key(["Person", raw_name])
+    review = Review.by_key(vcontext.conn, CleanNames, vcontext.dataset.name, key)
+    review.accepted = True
+    review.save(vcontext.conn, new_revision=True)
+
+    apply_reviewed_names(vcontext, entity, [raw_name])
+    assert set(entity.get("name")) == {"Jim Doe", "James Doe"}
+    assert entity.get("alias") == []
+    entity.set("name", [])  # clear to test alias
+
+    apply_reviewed_names(vcontext, entity, [raw_name], alias=True)
+    assert entity.get("name") == []
+    assert set(entity.get("alias")) == {"Jim Doe", "James Doe"}

@@ -11,6 +11,7 @@ exports:
   - entities.ftm.json
 deploy:
   schedule: "1 0 * * *"
+  cpu: "2000m"
   memory: "5000Mi"
 load_statements: true
 ci_test: false

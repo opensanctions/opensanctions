@@ -1,0 +1,154 @@
+title: Finland Members of Parliament
+prefix: fi-eduskunta
+url: https://avoindata.eduskunta.fi/#/fi/members
+coverage:
+  frequency: monthly
+  start: 2025-11-24
+load_statements: true
+entry_point: crawler.py
+summary: >-
+  Current members of the Eduskunta, the Finnish Parliament.
+description: |
+  This dataset contains information on the current members of the Finnish Parliament (Eduskunta).
+  It includes the names and political affiliations of all members, along with details such as their
+  parliamentary terms and dates of birth.
+tags:
+  - list.pep
+publisher:
+  name: Suomen eduskunta
+  name_en: Parliament of Finland
+  description: |
+    The Eduskunta is the Parliament of Finland, responsible for making laws and overseeing
+    the government. It consists of 200 members elected every four years.
+  country: fi
+  url: https://www.eduskunta.fi/EN/Pages/default.aspx
+  official: true
+data:
+  # API docs: https://avoindata.eduskunta.fi/#/fi/home
+  url: https://avoindata.eduskunta.fi/api/v1/
+  format: JSON
+  lang: fin
+http:
+  user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.2 Safari/605.1.15 (zavod; OpenSanctions.org)"
+dates:
+  formats: ["%d.%m.%Y"]
+
+# 200 members
+assertions:
+  min:
+    schema_entities:
+      Person: 195
+      Position: 1
+    country_entities:
+      fi: 1
+
+lookups:
+  type.gender:
+    options:
+      - match: Mies
+        value: male
+      - match: Nainen
+        value: female
+  keys:
+    options:
+      # Top-level person fields
+      - match: Henkilo
+        value: person
+      - match: EtunimetNimi
+        value: first_name
+      - match: SukuNimi
+        value: last_name
+      - match: KutsumaNimi
+        value: nickname
+      - match: SyntymaPvm
+        value: birth_year
+      - match: SyntymaPaikka
+        value: birth_place
+      - match: SukuPuoliKoodi
+        value: gender
+      - match: HenkiloNro
+        value: person_id
+      - match: Ammatti
+        value: occupation
+      - match: NykyinenKotikunta
+        value: current_municipality
+      - match: Puh
+        value: phone
+      - match: SahkoPosti
+        value: email
+      - match: LajitteluNimi
+        value: sort_name
+      - match: kieliKoodi
+        value: language_code
+      - match: tyyppiKoodi
+        value: type_code
+      # Parliamentary terms
+      - match: Edustajatoimet
+        value: parliamentary_terms
+      - match: Edustajatoimi
+        value: parliamentary_term
+      - match: EdustajantoimenTila
+        value: parliamentary_status
+      - match: Kansanedustajana
+        value: as_member_of_parliament
+      # Parliamentary groups (parties)
+      - match: Eduskuntaryhmat
+        value: parties
+      - match: NykyinenEduskuntaryhma
+        value: current_party
+      - match: Eduskuntaryhma
+        value: party
+      - match: NykyinenVaalipiiri
+        value: current_electoral_district
+      # Committee memberships
+      - match: NykyisetToimielinjasenyydet
+        value: current_committee_memberships
+      - match: AiemmatToimielinjasenyydet
+        value: former_committee_memberships
+      - match: Toimielin
+        value: committee
+      - match: Jasenyys
+        value: membership
+      - match: OnkoValiokunta
+        value: is_committee
+      # Education
+      - match: Koulutukset
+        value: education
+      - match: Koulutus
+        value: degree
+      # Interests/Affiliations
+      - match: Sidonnaisuudet
+        value: affiliations
+      - match: Sidonnaisuus
+        value: affiliation
+      - match: RyhmaOtsikko
+        value: category_title
+      - match: Sidonta
+        value: affiliation_detail
+      - match: Otsikko
+        value: title
+      # Common fields across multiple sections
+      - match: Nimi
+        value: name
+      - match: Tunnus
+        value: code
+      - match: AlkuPvm
+        value: start_date
+      - match: LoppuPvm
+        value: end_date
+      - match: Rooli
+        value: role
+      - match: EdustajatoimiKeskeytynyt
+        value: parliamentary_term_suspended
+      - match: ToimenKeskeytys
+        value: term_suspension
+      - match: Selite
+        value: reason
+      - match: TilallaHenkilo
+        value: substitute_person
+      - match: TyoUra
+        value: work_history
+      - match: ValtioneuvostonJasenyydet
+        value: government_memberships
+      - match: Vaalipiirit
+        value: electoral_districts

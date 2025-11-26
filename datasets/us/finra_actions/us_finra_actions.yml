@@ -35,10 +35,10 @@ ci_test: false
 assertions:
   min:
     schema_entities:
-      LegalEntity: 11500
+      LegalEntity: 14500
   max:
     schema_entities:
-      LegalEntity: 15000
+      LegalEntity: 17000
 
 dates:
   formats: ["%m/%d/%Y"]
@@ -567,9 +567,6 @@ lookups:
       - match: samuel a. ramirez and co. inc.
         names:
           - Samuel A. Ramirez and Co. Inc.
-      - match: scott and stringfellow llc
-        names:
-          - Scott and Stringfellow LLC
       - match: spelman and co.
         names:
           - Spelman and Co.
@@ -616,3 +613,213 @@ lookups:
         names:
           - Robert W. Baird & Co. Inc.
           - Hefren-Tillotson Inc.
+      - match: "pryor, counts & co. inc. malcolmn d. pryor"
+        names:
+          - Pryor, Counts & Co. Inc.
+          - Malcolm D. Pryor
+      - match: "waddell and reed inc. robert hechler, robert williams"
+        names:
+          - Waddell and Reed Inc.
+          - Robert Hechler
+          - Robert Williams
+      - match: "berthel, fisher & company financial services inc. craig vincent mineart"
+        names:
+          - Berthel, Fisher & Company Financial Services Inc.
+          - Craig Vincent Mineart
+      - match: "morgan keegan & company inc. george e. bagwell iii, woodley h. bagwell"
+        names:
+          - Morgan Keegan & Company Inc.
+          - George E. Bagwell III
+          - Woodley H. Bagwell
+      - match: "stoever, glass & company inc. michael f. carrigg"
+        names:
+          - Stoever, Glass & Company Inc.
+          - Michael F. Carrigg
+      - match: "hennion & walsh inc. richard hennion, william w. walsh"
+        names:
+          - Hennion & Walsh Inc.
+          - Richard Hennion
+          - William W. Walsh
+      - match: "t.j. raney & sons inc. ian c. malone, alton b. raney ii, thomas d. raney"
+        names:
+          - T.J. Raney & Sons Inc.
+          - Ian C. Malone
+          - Alton B. Raney II
+          - Thomas D. Raney
+      - match: "fox and company investments inc. james w. moldermaker"
+        names:
+          - Fox and Company Investments Inc.
+          - James W. Moldermaker
+      - match: "peyton, chandler & sullivan inc. richard s. from"
+        names:
+          - Peyton, Chandler & Sullivan Inc.
+          - Richard S. From
+      - match: "j.p. turner and company l.l.c. s. cheryl bauman"
+        names:
+          - J.P. Turner and Company L.L.C.
+          - S. Cheryl Bauman
+      - match: "hattier sandford & reynoir, l.l.p. vance g. reynoir"
+        names:
+          - Hattier Sandford & Reynoir, L.L.P.
+          - Vance G. Reynoir
+      - match: "friedman, billings, ramsey & co. inc. emanuel j. friedman, nicholas j. nichols"
+        names:
+          - Friedman, Billings, Ramsey & Co. Inc.
+          - Emanuel J. Friedman
+          - Nicholas J. Nichols
+      - match: "Wilson-Davis & Co. Inc. James C. Snow, Byron B. Barkley"
+        names:
+          - Wilson-Davis & Co. Inc.
+          - James C. Snow
+          - Byron B. Barkley
+      - match: "Smith, Brown & Groover Inc. Raymond Hill Smith Jr."
+        names:
+          - Smith, Brown & Groover Inc.
+          - Raymond Hill Smith Jr.
+      - match: "H.C. Wainwright & Co. LLC John Wesley Chambers, Robert Eugene Kristal"
+        names:
+          - H.C. Wainwright & Co. LLC
+          - John Wesley Chambers
+          - Robert Eugene Kristal
+      - match: "Wilson-Davis & Co. James C. Snow Jr., Lyle Wesley Davis, Byron Bert Barkley, Craig Stanton Norton"
+        names:
+          - Wilson-Davis & Co.
+          - James C. Snow Jr.
+          - Lyle Wesley Davis
+          - Byron Bert Barkley
+          - Craig Stanton Norton
+      - match: "Wilson-Davis & Co. Inc. James C. Snow, Byron B. Barkley"
+        names:
+          - Wilson-Davis & Co. Inc.
+          - James C. Snow
+          - Byron B. Barkley
+      - match: "WILSON-DAVIS & CO. JAMES C. SNOW JR., LYLE WESLEY DAVIS, BYRON BERT BARKLEY, CRAIG STANTON NORTON"
+        names:
+          - WILSON-DAVIS & CO.
+          - JAMES C. SNOW JR.
+          - LYLE WESLEY DAVIS
+          - BYRON BERT BARKLEY
+          - CRAIG STANTON NORTON
+      - match: "Buckman, Buckman & Reid Inc. Harry John (\"Chip\") Buckman Jr."
+        names:
+          - Buckman, Buckman & Reid Inc.
+          - Harry John ("Chip") Buckman Jr.
+      - match: "WILSON-DAVIS & CO. INC. BYRON B. BARKLEY, JAMES C. SNOW"
+        names:
+          - WILSON-DAVIS & CO. INC.
+          - BYRON B. BARKLEY
+          - JAMES C. SNOW
+      - match: "Berthel, Fisher & Co. Financial Services Inc. Jeffrey Paul Dragon"
+        names:
+          - Berthel, Fisher & Co. Financial Services Inc.
+          - Jeffrey Paul Dragon
+      - match: "WILSON-DAVIS & CO. INC. JAMES C. SNOW, BYRON B. BARKLEY"
+        names:
+          - WILSON-DAVIS & CO. INC.
+          - JAMES C. SNOW
+          - BYRON B. BARKLEY
+      - match: "RAYMOND JAMES FINANCIAL SERVICES INC., RAYMOND JAMES & ASSOCIATES INC. LINDA L. BUSBY"
+        names:
+          - RAYMOND JAMES FINANCIAL SERVICES INC.
+          - RAYMOND JAMES & ASSOCIATES INC.
+          - LINDA L. BUSBY
+      - match: "RIDGEWAY & CONGER INC. LEIGH GARBER, PHILIP BRISARD, KENLEY BRISARD"
+        names:
+          - RIDGEWAY & CONGER INC.
+          - LEIGH GARBER
+          - PHILIP BRISARD
+          - KENLEY BRISARD
+      - match: "STIFEL, NICOLAUS & COMPANY INC. KURT A. LALOMIA"
+        names:
+          - STIFEL, NICOLAUS & COMPANY INC.
+          - KURT A. LALOMIA
+      - match: "CANTOR FITZGERALD & CO. JARRED KESSLER, JOSEPH LUDOVICO"
+        names:
+          - CANTOR FITZGERALD & CO.
+          - JARRED KESSLER
+          - JOSEPH LUDOVICO
+      - match: "BRAYMEN, LAMBERT AND NOEL SECURITIES LTD SHANNON BRAYMEN"
+        names:
+          - BRAYMEN, LAMBERT AND NOEL SECURITIES LTD
+          - SHANNON BRAYMEN
+      - match: "Buckman, Buckman & Reid H. John Buckman"
+        names:
+          - Buckman, Buckman & Reid
+          - H. John Buckman
+      - match: "Radnor Rearch & Trading Company TALMAN HARRIS, WILLIAM SCHOLANDER"
+        names:
+          - Radnor Research & Trading Company
+          - Talman Harris
+          - William Scholander
+      - match: "R.M. DUNCAN SECURITIES INC, CALTON AND ASSOCIATES INC RANDALL M. DUNCAN, STEPHEN B. MURCHISON, KENNETH R. HARTER"
+        names:
+          - R.M. Duncan Securities Inc
+          - Calton and Associates Inc
+          - Randall M. Duncan
+          - Stephen B. Murchison
+          - Kenneth R. Harter
+      - match: "JEFFERIES & COMPANY INC. Anthony J. Russo, Robert A. D'Addario"
+        names:
+          - JEFFERIES & COMPANY INC.
+          - Anthony J. Russo
+          - Robert A. D'Addario
+      - match: "STOEVER, GLASS & COMPANY INC. MICHAEL FRANCIS CARRIGG"
+        names:
+          - STOEVER, GLASS & COMPANY INC.
+          - Michael Francis Carrigg
+      - match: "COBURN and MEREDITH INC. ELIZABETH COBURN DERWAY"
+        names:
+          - COBURN and MEREDITH INC.
+          - Elizabeth Coburn Derway
+      - match: "MCGINN, SMITH & CO. INC. TIMOTHY M. MCGINN, DAVID L. SMITH"
+        names:
+          - MCGINN, SMITH & CO. INC.
+          - Timothy M. McGinn
+          - David L. Smith
+      - match: "BREAN MURRAY, CARRET & CO. LLC. JEROME S. BARON"
+        names:
+          - BREAN MURRAY, CARRET & CO. LLC.
+          - Jerome S. Baron
+      - match: "STOEVER, GLASS and COMPANY INC. MICHAEL FRANCIS CARRIGG"
+        names:
+          - STOEVER, GLASS and COMPANY INC.
+          - Michael Francis Carrigg
+      - match: "J.P. TURNER & CO. LLC ROBERT S. MEYER, S. CHERYL BAUMAN"
+        names:
+          - J.P. TURNER & CO. LLC
+          - Robert S. Meyer
+          - S. Cheryl Bauman
+      - match: "JAMES I. BLACK and COMPANY JESS G. TUCKER"
+        names:
+          - JAMES I. BLACK and COMPANY
+          - Jess G. Tucker
+      - match: "B. RILEY AND CO. INC. KNUT L. GREVLE, SHERRY LEE TEJEDA"
+        names:
+          - B. RILEY AND CO. INC.
+          - Knut L. Grevle
+          - Sherry Lee Tejeda
+      - match: "GRIFFIN MILLS and LONG LLC WALTER A. MILLS"
+        names:
+          - GRIFFIN MILLS and LONG LLC
+          - Walter A. Mills
+      - match: "BOENNING & SCATTERGOOD INC. JAMES STILL, THOMAS J. CHANCLER"
+        names:
+          - BOENNING & SCATTERGOOD INC.
+          - James Still
+          - Thomas J. Chancler
+      - match: "LH ROSS and COMPANY INC. FRANKYN R. MICHELIN"
+        names:
+          - LH ROSS and COMPANY INC.
+          - Frankyn R. Michelin
+      - match: "LH ROSS and COMPANY INC. FRANKLYN R. MICHELIN"
+        names:
+          - LH ROSS and COMPANY INC.
+          - Franklyn R. Michelin
+      - match: "HENNION & WALSH INC. WILLIAM W. WALSH, RICHARD HENNION"
+        names:
+          - HENNION & WALSH INC.
+          - William W. Walsh
+          - Richard Hennion
+      - match: "SCOTT and STRINGFELLOW LLC"
+        names:
+          - SCOTT and STRINGFELLOW LLC

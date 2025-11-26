@@ -4,7 +4,7 @@ from rigour.mime.types import JSON
 from zavod import Context, helpers as h
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     path = context.fetch_resource("source.json", context.data_url)
     context.export_resource(path, JSON, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:

@@ -4,12 +4,14 @@ import shutil
 from pathlib import Path
 from tempfile import NamedTemporaryFile, mkdtemp
 import os
+import logging
 from nomenklatura import Resolver, settings as nk_settings
 
 from zavod import settings
 from zavod.context import Context
 from zavod.entity import Entity
 from zavod.db import get_engine, meta
+from zavod.logs import configure_logging, reset_logging
 from zavod.meta import get_catalog, load_dataset_from_path, Dataset
 from zavod.integration import get_resolver
 from zavod.stateful.model import create_db
@@ -154,3 +156,11 @@ def disk_db_uri(monkeypatch) -> Generator[str, None, None]:
     monkeypatch.setattr(settings, "DATABASE_URI", db_uri)
     yield db_uri
     os.unlink(db_file.name)
+
+
+@pytest.fixture(scope="function")
+def logger() -> Generator[logging.Logger, None, None]:
+    """Configure logging, and reset after test."""
+    logger = configure_logging()
+    yield logger
+    reset_logging(logger)

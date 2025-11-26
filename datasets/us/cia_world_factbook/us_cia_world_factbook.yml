@@ -179,12 +179,6 @@ lookups:
           - role: Chairperson, Presidential Leadership Council
             name: Rashad Muhammad al-ALIMI
             start_date: 19 April 2022
-      # Benin
-      - match: President Patrice TALON
-        holders:
-          - role: President
-            name: Patrice TALON
-            start_date: 6 April 2016
       # Afghanistan
       - match: "Taliban Leader HAYBATULLAH Akhundzada (since 15 August 2021)"
         holders:
@@ -236,60 +230,32 @@ lookups:
           - role: Officer Commanding British Forces on Diego Garcia
             name: Andrew WILLIAMS
             start_date: January 2025
+      # Malawi
+      - match: President Peter MUTHARIKA (since 4 October)
+        holders:
+          - role: President
+            name: Peter MUTHARIKA
+            start_date: 4 October 2025
+      - match: Vice President Jane ANSAH (since 4 October)
+        holders:
+          - role: Vice President
+            name: Jane ANSAH
+            start_date: 4 October 2025
 
       # Not additional heads, just notes
       - regex:
           # Afghanistan
           - 'overall Taliban Leader HAYBATULLAH Akhundzada is the \[so-called\] Amir-ul Momineen of the Taliban and is seen by them as a head of government'
           - "^note [-–] "
-          - "^chief of state since 28 August 2014"
-          - "^council members rotate the 1-year term"
-          - "^HAMDOUK served as prime minister"
-          - "^he was later freed and reinstated"
-          - "^the Sovereign Council currently consists of "
-          - "first vice president \\(vacant"
-          - "^NDAW resigned"
-          - "GOITA served as vice president"
-          - "installed on 13 December 2016\\) resigned"
-          - "Prime Minister vacant \\(as of 17 August 2023"
-          - "the specific titles associated"
-          - "functions as the commander-in-chief and chief executive"
-          - "North Korea revised its constitution in 2019"
           - "the prime minister's official title is"
-          - "vice presidents \\(vacant"
-          - "new elections have not yet"
           - "[Pp]resident \\(vacant"
-          - "the Policy and Resources Committee"
-          - "the chief officer, an appointed civilian, is responsible"
-          - "Prime Minister HUN MANET succeeded"
-          - "the position had been vacant"
           - "^presidency member since"
-          - "he was reappointed by the president"
-          - "inauguration scheduled for 17 November 2023"
-          - "resigned on 7 November 2023 but remains in caretaker status until new elections on 10 March 2024\\)"
-          # Italy
-          - "the deputy prime ministers' official titles are Vice Presidents of the Council of Ministers"
-          # Malaysia
-          - "he will be installed on 31 January 2024\\)"
-          # South Africa
-          - Deputy President David MABUZA resigned 1 March 2023
-          - "Prime Minister \\(in transition\\)"
-          # Hungary
-          - "\\(vacant\\)"
-          - a replacement will be chosen in March 2024
-          # Bulgaria
-          - "chief of state: president \\(vacant\\)"
-          # Angola - already emitted in chief of state entry incl date.
-          - President Joao Manuel Goncalves LOURENCO
           # Bangladesh
           - vacant
-          # Thailand
-          - also spelled Vajiralongkorn (since 1 December 2016)
           # Syria
           - former President Bashar al-ASAD was overthrown by Islamist rebels on 8 December 2024
           - ASAD and his family flew to Moscow where they were granted political asylum
           # Nepal
-          - "Prime Minister \\(vacant\\)"
           - "KARKI will serve until elections are held in March 2026"
         holders: []
 

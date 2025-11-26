@@ -10,10 +10,9 @@ exports:
   - statistics.json
   - entities.delta.json
 deploy:
-  schedule: "1 10 * * *"
-  cpu: "2000m"
+  cpu: "3000m"
   memory: "5000Mi"
-  memory_limit: "6000Mi"
+  memory_limit: "6500Mi"
   disk: "150Gi"
 load_statements: true
 summary: >
@@ -63,19 +62,18 @@ inputs:
   - special_interest
 
 config:
-  dataset: eu_esma_firds
-  strip_namespace: true
-  max_bin: 14
   index_options:
     match_batch: 300
-  memory: 3000
-  fuzzy: false
+    memory: 3000
+  max_bin: 14
   threshold: 0.6
   algorithm: logic-v1
   topics:
     - sanction
     - sanction.linked
     - sanction.counter
+    - export.control
+    - export.control.linked
     - debarment
     - asset.frozen
     - poi

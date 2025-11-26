@@ -318,3 +318,9 @@ def test_review_key():
         review_key(["key1"] * 100)
         == "key1-key1-key1-key1-key1-key1-key1-key1-key1-key1-key1-key1-key1-key1-key1-key1--5611368bed"
     )
+    # All punctuation incl / becomes dash (backward compatibility with normality slugify)
+    assert review_key("STEPHEN D/B/A S CONTRACTING") == "stephen-d-b-a-s-contracting"
+    # Non-ascii printable characters are kept
+    assert review_key("Север Мухамадмухтар Крот") == "север-мухамадмухтар-крот"
+    # Zero-width and other non-printable are removed
+    assert review_key("name\u200bwith\u200cweird\u200dchars") == "namewithweirdchars"

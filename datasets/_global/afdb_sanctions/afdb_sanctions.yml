@@ -307,6 +307,10 @@ lookups:
         names:
           - name: CompuAids Inc.
             alias: ["Groupe Systèmes Et Solutions D’Entreprise Ess Group", "Enterprise Systems And Solutions Group"]
+      - match: "Mr. Jamshed Sharifov Russian Name: Джамшед Шарифов Also known as Dzhamshed Abdulamidovich Sharifov (in Tajik: Чамшед Абдуламидович Шарифов)"
+        names:
+          - name: ["Jamshed Sharifov", "Джамшед Шарифов"]
+            alias: ["Dzhamshed Abdulamidovich Sharifov", "Чамшед Абдуламидович Шарифов"]
   types:
     lowercase: true
     map:

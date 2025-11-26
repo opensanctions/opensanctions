@@ -1,7 +1,7 @@
 import logging
 from decimal import Decimal
 from typing import Generator, Iterator, List, Tuple
-from followthemoney import registry, model, DS
+from followthemoney import registry, model
 from followthemoney.helpers import check_person_cutoff
 
 from nomenklatura.enrich.common import EnricherConfig
@@ -25,7 +25,7 @@ from zavod.reset import reset_caches
 log = logging.getLogger(__name__)
 
 
-class LocalEnricher(BaseEnricher[DS]):
+class LocalEnricher(BaseEnricher[Dataset]):
     """
     Uses a local index to look up entities in a given dataset.
 
@@ -60,15 +60,17 @@ class LocalEnricher(BaseEnricher[DS]):
 
     """
 
-    def __init__(self, dataset: DS, cache: Cache, config: EnricherConfig):
+    def __init__(self, dataset: Dataset, cache: Cache, config: EnricherConfig):
         super().__init__(dataset, cache, config)
-        target_dataset_name = config["dataset"]
-        target_dataset = get_catalog().require(target_dataset_name)
+        assert dataset.model.full_dataset is not None, (
+            "LocalEnricher requires a target dataset name as `full_dataset`"
+        )
+        target_dataset = get_catalog().require(dataset.model.full_dataset)
         target_linker = get_dataset_linker(target_dataset)
         self.target_store = get_store(target_dataset, target_linker)
         self.target_store.sync()
         self.target_view = self.target_store.view(target_dataset)
-        index_path = dataset_state_path(target_dataset_name) / "enrich-index"
+        index_path = dataset_state_path(target_dataset.name) / "enrich-index"
         self._index = Index(
             self.target_view, index_path, config.get("index_options", {})
         )
@@ -171,7 +173,7 @@ class LocalEnricher(BaseEnricher[DS]):
 def save_match(
     context: Context,
     resolver: Resolver[Entity],
-    enricher: LocalEnricher[Dataset],
+    enricher: LocalEnricher,
     entity: Entity,
     match: Entity,
 ) -> None:

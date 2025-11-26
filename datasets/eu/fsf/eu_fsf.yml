@@ -274,7 +274,10 @@ lookups:
         prop: vatCode
   type.name:
     options:
-      - match: "-"
+      - match: 
+          - "-"
+          - "общество с ограниченной ответственностью"
+          - "открытое акционерное общество"
         value: null
   type.address:
     lowercase: true
