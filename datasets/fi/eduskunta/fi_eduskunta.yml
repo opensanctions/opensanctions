@@ -5,6 +5,7 @@ coverage:
   frequency: monthly
   start: 2025-11-24
 load_statements: true
+ci_test: false
 entry_point: crawler.py
 summary: >-
   Current members of the Eduskunta, the Finnish Parliament.
