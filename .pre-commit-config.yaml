@@ -103,7 +103,7 @@ repos:
           datasets/my|
           datasets/ng|
           datasets/nl|
-          datasets/no|
+          datasets/no/nbim_exclusions|
           datasets/np|
           datasets/nz|
           datasets/ph|
