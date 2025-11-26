@@ -23,14 +23,16 @@ IGNORE = [
     "person_id",
 ]
 
-HEADERS = {"Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"}
-# Accept-Encoding: gzip, deflate, br
-# Accept-Language: en-GB,en;q=0.9
-# Connection: keep-alive
-# Priority: u=0, i
-# Sec-Fetch-Dest: document
-# Sec-Fetch-Mode: navigate
-# Sec-Fetch-Site: none
+HEADERS = {
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    "Accept-Encoding": "gzip, deflate, br",
+    "Accept-Language": "en-GB,en;q=0.9",
+    "Connection": "keep-alive",
+    "Priority": "u=0, i",
+    "Sec-Fetch-Dest": "document",
+    "Sec-Fetch-Mode": "navigate",
+    "Sec-Fetch-Site": "none",
+}
 
 
 def translate_keys(context: Context, data: Any) -> Any:
