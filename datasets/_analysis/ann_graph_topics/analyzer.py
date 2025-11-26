@@ -94,6 +94,10 @@ def analyze_entity(context: Context, view: View, entity: Entity) -> None:
                 emit_patch(context, entity, other, "sanction.linked", other_topics)
 
         # Tag sanction.linked for Assets of sanction.linked Owners
+        #
+        # This works by each run of this analyzer tagging further along the
+        # ownership chain. So sanction.linked values from this analyzer
+        # may be used in subsequent runs.
         if (
             "sanction.linked" in topics
             and adjacent.schema.is_a("Ownership")
