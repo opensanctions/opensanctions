@@ -1,5 +1,6 @@
 import re
 from datetime import datetime, timedelta, date, timezone
+from typing import Any
 
 from zavod import Context, helpers as h
 from zavod.stateful.positions import categorise, EXTENDED_AFTER_OFFICE
@@ -62,7 +63,7 @@ def parse_ms_date(ms_date: str | None) -> date | None:
         return dt_utc.date()
 
 
-def translate_keys(context, member) -> dict:
+def translate_keys(context: Context, member: dict[str, Any]) -> dict[str, Any]:
     # Translate top-level keys
     translated = {context.lookup_value("keys", k) or k: v for k, v in member.items()}
     # Translate all nested dicts at level 2
@@ -74,7 +75,7 @@ def translate_keys(context, member) -> dict:
     return translated
 
 
-def get_latest_terms(context) -> list[str]:
+def get_latest_terms(context: Context) -> list[str]:
     data = context.fetch_json(
         "https://data.stortinget.no/eksport/stortingsperioder?format=json", cache_days=3
     )
@@ -90,7 +91,7 @@ def get_latest_terms(context) -> list[str]:
     return term_ids
 
 
-def crawl_item(context, item: dict, term: str) -> None:
+def crawl_item(context: Context, item: dict[str, Any], term: str) -> None:
     id = item.pop("id")
     first_name = item.pop("first_name")
     last_name = item.pop("last_name")
