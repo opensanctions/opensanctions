@@ -48,6 +48,11 @@ data:
   format: HTML
 dates:
   formats: ["%m/%d/%Y %H:%M:%S %p"]
+http:
+  additional_retry_statuses: [443]
+  total_retries: 5
+  backoff_factor: 3
+  retry_methods: [POST, GET]
 
 assertions:
   min:
