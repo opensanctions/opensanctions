@@ -1,7 +1,9 @@
+import json
 from typing import Any, cast
 
 from zavod import Context, helpers as h
 from zavod.stateful.positions import categorise
+from zavod.extract import zyte_api
 
 IGNORE = [
     "current_committee_memberships",
@@ -22,17 +24,6 @@ IGNORE = [
     "government_memberships",
     "person_id",
 ]
-
-HEADERS = {
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-    "Accept-Encoding": "gzip, deflate, br",
-    "Accept-Language": "en-GB,en;q=0.9",
-    "Connection": "keep-alive",
-    "Priority": "u=0, i",
-    "Sec-Fetch-Dest": "document",
-    "Sec-Fetch-Mode": "navigate",
-    "Sec-Fetch-Site": "none",
-}
 
 
 def translate_keys(context: Context, data: Any) -> Any:
@@ -71,9 +62,11 @@ def get_party(pep: dict[str, Any]) -> str:
 
 
 def crawl(context: Context) -> None:
-    data: list[dict[str, Any]] = context.fetch_json(
-        f"{context.data_url}seating/", headers=HEADERS, cache_days=5
+    _, _, _, path = zyte_api.fetch_resource(
+        context, "data.json", f"{context.data_url}seating/"
     )
+    with open(path, "r") as fh:
+        data = json.load(fh)
     for item in data:
         pep_id = item.pop("hetekaId")
         raw_data = context.fetch_json(
