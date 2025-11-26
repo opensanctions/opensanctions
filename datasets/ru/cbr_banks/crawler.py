@@ -75,7 +75,7 @@ def crawl_details(context: Context, internal_code: str | None, entity):
         reg_date = co_data.findtext("MainDateReg")
 
         en_names = co_data.findtext("encname")
-        h.review_names(context, entity, [en_names], lang="eng")
+        h.review_names(context, entity, [en_names])
         h.review_names(context, entity, [co_data.findtext("OrgName")])
         h.review_names(context, entity, [co_data.findtext("OrgFullName")])
         h.review_names(context, entity, [co_data.findtext("csname")])
