@@ -69,9 +69,13 @@ def crawl(context: Context) -> None:
         data = json.load(fh)
     for item in data:
         pep_id = item.pop("hetekaId")
-        raw_data = context.fetch_json(
-            f"{context.data_url}memberofparliament/{pep_id}/fi", cache_days=5
+        _, _, _, raw_path = zyte_api.fetch_resource(
+            context,
+            f"item_{pep_id}.json",
+            f"{context.data_url}memberofparliament/{pep_id}/fi",
         )
+        with open(raw_path, "r") as fh:
+            raw_data = json.load(fh)
         translated_data: dict[str, Any] = translate_keys(context, raw_data)
         pep_data: dict[str, Any] = translated_data.get("jsonNode", {}).get("person", {})
 
