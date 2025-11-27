@@ -167,14 +167,17 @@ def parse_entry(context: Context, entry: Element) -> None:
                 lang=lang,
             )
         else:
+            if not full_name and (first_name and last_name):
+                # Currently full_name always exists with first and last, but just make sure.
+                full_name = h.make_name(
+                    first_name=first_name,
+                    middle_name=middle_name,
+                    last_name=last_name,
+                )
             h.apply_reviewed_names(context, entity, full_name, lang=lang)
             entity.add("firstName", first_name, quiet=True, lang=lang)
             entity.add("middleName", middle_name, quiet=True, lang=lang)
             entity.add("lastName", last_name, quiet=True, lang=lang)
-        if (first_name and last_name) and not full_name:
-            # Currently the source data has a full name for every entry with first+last,
-            # but if that changes, we should consider constructing a full name from parts.
-            context.log.warning("Name parts but no full name", entity_id=entity.id)
 
         # split "(a) Mullah, (b) Maulavi" into ["Mullah", "Maulavi"]
         titles = [
