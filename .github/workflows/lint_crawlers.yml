@@ -53,4 +53,4 @@ jobs:
         if: ${{ steps.changed-python.outputs.all_changed_files != '' }}
         run: |
           set -euxo pipefail
-          prek run --files ${{ steps.changed-files.outputs.all_changed_files }}
+          prek run --files ${{ steps.changed-files.outputs.all_changed_files }} mypy

@@ -827,3 +827,8 @@ lookups:
         names:
           - STOEVER, GLASS & COMPANY INC.
           - Frederick J. Stoever
+      - match: MCGINN, SMITH & CO. INC. MCGINN TIMOTHY M, DAVID L. SMITH
+        names:
+          - MCGINN, SMITH & CO. INC.
+          - MCGINN TIMOTHY M
+          - DAVID L. SMITH
