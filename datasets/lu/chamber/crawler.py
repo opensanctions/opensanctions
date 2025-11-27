@@ -54,22 +54,22 @@ def crawl_row(context: Context, row: dict[str, str]) -> None:
     context.audit_data(row, ["PHONE_EXT", "MOBILE", "EMAIL", "ADDRESS"])
 
 
-def crawl(context: Context):
-    for name, endpoint in ENDPOINTS.items():
+def crawl(context: Context) -> None:
+    for resource_name, endpoint in ENDPOINTS.items():
         source_url = urljoin(context.data_url, endpoint)
         data = context.fetch_json(source_url, cache_days=5)
         # Find the CSV resource
-        csv_resource = None
-        for resource in data.get("resources", []):
-            if resource.get("format") == "csv":
-                csv_resource = resource
-                break
+        csv_resources = [
+            r for r in data.get("resources", []) if r.get("format") == "csv"
+        ]
+        assert len(csv_resources) == 1, (
+            f"Expected exactly 1 CSV resource for {source_url}, got {len(csv_resources)}"
+        )
+        csv_resource = csv_resources[0]
 
-        if not csv_resource:
-            context.log.warning(f"No CSV resource found for {source_url}")
-            continue
-
-        path = context.fetch_resource(f"{name}_deputies.csv", csv_resource["url"])
+        path = context.fetch_resource(
+            f"{resource_name}_deputies.csv", csv_resource["url"]
+        )
         context.export_resource(path, CSV, title=context.SOURCE_TITLE)
         with open(path, "r", encoding="utf-8-sig") as fh:
             for row in csv.DictReader(fh):
