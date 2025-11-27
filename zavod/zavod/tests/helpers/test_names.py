@@ -154,19 +154,14 @@ def test_apply_reviewed_names_no_cleaning_needed(vcontext: Context):
 
     entity = vcontext.make("Person")
     entity.id = "bla"
-    apply_reviewed_names(vcontext, entity, ["Jim Doe"])
+    apply_reviewed_names(vcontext, entity, "Jim Doe")
     assert entity.get("name") == ["Jim Doe"]
     assert entity.get("alias") == []
     entity.set("name", [])  # clear to test alias
 
-    apply_reviewed_names(vcontext, entity, ["Jim Doe"], alias=True)
+    apply_reviewed_names(vcontext, entity, "Jim Doe", alias=True)
     assert entity.get("name") == []
     assert entity.get("alias") == ["Jim Doe"]
-    entity.set("alias", [])  # clear to test multiple
-
-    apply_reviewed_names(vcontext, entity, ["Jim Doe", "James Doe"])
-    assert entity.get("alias") == []
-    assert set(entity.get("name")) == {"Jim Doe", "James Doe"}
 
 
 @patch("zavod.helpers.names.settings.CI", True)
@@ -189,7 +184,7 @@ def test_apply_reviewed_names_ci_fallback(
         previous_name=[],
     )
 
-    apply_reviewed_names(vcontext, entity, [raw_name])
+    apply_reviewed_names(vcontext, entity, raw_name)
 
     assert not run_typed_text_prompt.called, run_typed_text_prompt.call_args_list
 
@@ -213,7 +208,7 @@ def test_apply_reviewed_names(run_typed_text_prompt: MagicMock, vcontext: Contex
         previous_name=[],
     )
 
-    apply_reviewed_names(vcontext, entity, [raw_name])
+    apply_reviewed_names(vcontext, entity, raw_name)
 
     assert run_typed_text_prompt.called, run_typed_text_prompt.call_args_list
 
@@ -221,7 +216,7 @@ def test_apply_reviewed_names(run_typed_text_prompt: MagicMock, vcontext: Contex
     assert entity.get("name") == [raw_name]
     assert entity.get("alias") == []
     entity.set("name", [])  # clear to test alias
-    apply_reviewed_names(vcontext, entity, [raw_name], alias=True)
+    apply_reviewed_names(vcontext, entity, raw_name, alias=True)
     assert entity.get("alias") == [raw_name]
     assert entity.get("name") == []
     entity.set("alias", [])  # clear to test after accept
@@ -232,11 +227,11 @@ def test_apply_reviewed_names(run_typed_text_prompt: MagicMock, vcontext: Contex
     review.accepted = True
     review.save(vcontext.conn, new_revision=True)
 
-    apply_reviewed_names(vcontext, entity, [raw_name])
+    apply_reviewed_names(vcontext, entity, raw_name)
     assert set(entity.get("name")) == {"Jim Doe", "James Doe"}
     assert entity.get("alias") == []
     entity.set("name", [])  # clear to test alias
 
-    apply_reviewed_names(vcontext, entity, [raw_name], alias=True)
+    apply_reviewed_names(vcontext, entity, raw_name, alias=True)
     assert entity.get("name") == []
     assert set(entity.get("alias")) == {"Jim Doe", "James Doe"}
