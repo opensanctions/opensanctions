@@ -284,7 +284,7 @@ def is_name_irregular(entity: Entity, string: Optional[str]) -> bool:
 
 def apply_names(
     entity: Entity,
-    strings: List[str],
+    string: str,
     review: Review[CleanNames],
     alias: bool = False,
     lang: Optional[str] = None,
@@ -296,8 +296,7 @@ def apply_names(
         ("previous_name", "previousName"),
     ]
     if not review.accepted:
-        for string in strings:
-            apply_name(entity, full=string, alias=alias, lang=lang)
+        apply_name(entity, full=string, alias=alias, lang=lang)
         return
 
     for field_name, prop in field_props:
@@ -307,13 +306,12 @@ def apply_names(
                 name,
                 lang=lang,
                 origin=review.origin,
-                original_value=review.source_value,
+                original_value=string,
             )
 
 
-def _review_names(
-    context: Context, entity: Entity, strings: List[str]
-) -> Review[CleanNames]:
+def _review_names(context: Context, entity: Entity, string: str) -> Review[CleanNames]:
+    strings = [string]
     raw_names = RawNames(entity_schema=entity.schema.name, strings=strings)
     names = clean_names(context, raw_names)
 
@@ -332,7 +330,7 @@ def _review_names(
 
 
 def review_names(
-    context: Context, entity: Entity, strings: List[Optional[str]]
+    context: Context, entity: Entity, string: Optional[str]
 ) -> Optional[Review[CleanNames]]:
     """
     Clean names if needed, then post them for review.
@@ -340,22 +338,21 @@ def review_names(
     Args:
         context: The current context.
         entity: The entity to apply names to.
-        strings: The raw name(s) string.
+        string: The raw name(s) string.
     """
-    non_blank_strings = [s for s in strings if s]
-    if not non_blank_strings:
+    if not string or not string.strip():
         return None
 
-    if settings.CI or not any(is_name_irregular(entity, s) for s in non_blank_strings):
+    if settings.CI or not is_name_irregular(entity, string):
         return None
 
-    return _review_names(context, entity, non_blank_strings)
+    return _review_names(context, entity, string)
 
 
 def apply_reviewed_names(
     context: Context,
     entity: Entity,
-    strings: List[Optional[str]],
+    string: Optional[str],
     lang: Optional[str] = None,
     alias: bool = False,
 ) -> None:
@@ -370,19 +367,17 @@ def apply_reviewed_names(
     Args:
         context: The current context.
         entity: The entity to apply names to.
-        strings: The raw name(s) string.
+        string: The raw name(s) string.
         alias: If this is known to be an alias and not a primary name.
         lang: The language of the name, if known.
     """
-    non_blank_strings = [s for s in strings if s]
-    if not non_blank_strings:
+    if not string or not string.strip():
         return None
 
-    if settings.CI or not any(is_name_irregular(entity, s) for s in non_blank_strings):
-        for string in non_blank_strings:
-            apply_name(entity, full=string, alias=alias, lang=lang)
+    if settings.CI or not is_name_irregular(entity, string):
+        apply_name(entity, full=string, alias=alias, lang=lang)
         return None
 
-    review = _review_names(context, entity, non_blank_strings)
+    review = _review_names(context, entity, string)
 
-    apply_names(entity, non_blank_strings, review, alias=alias, lang=lang)
+    apply_names(entity, string, review, alias=alias, lang=lang)

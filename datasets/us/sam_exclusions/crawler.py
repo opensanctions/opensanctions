@@ -177,7 +177,7 @@ def crawl(context: Context) -> None:
             origin=origin,
         )
 
-        h.review_names(context, entity, [name])
+        h.review_names(context, entity, name)
 
         entity.add("firstName", row.pop("First", None), quiet=True, lang="eng")
         entity.add("middleName", row.pop("Middle", None), quiet=True, lang="eng")

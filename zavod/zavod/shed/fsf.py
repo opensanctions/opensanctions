@@ -151,19 +151,34 @@ def parse_entry(context: Context, entry: Element) -> None:
             context.log.warning("Unknown language", lang=lang2)
             continue
 
-        if not is_weak:
-            h.review_names(context, entity, [name.get("wholeName")])
+        full_name = name.get("wholeName")
+        first_name = name.get("firstName")
+        middle_name = name.get("middleName")
+        last_name = name.get("lastName")
+        if is_weak:
+            h.apply_name(
+                entity,
+                full=full_name,
+                first_name=first_name,
+                middle_name=middle_name,
+                last_name=last_name,
+                is_weak=True,
+                quiet=True,
+                lang=lang,
+            )
+        else:
+            if not full_name and (first_name and last_name):
+                # Currently full_name always exists with first and last, but just make sure.
+                full_name = h.make_name(
+                    first_name=first_name,
+                    middle_name=middle_name,
+                    last_name=last_name,
+                )
+            h.apply_reviewed_names(context, entity, full_name, lang=lang)
+            entity.add("firstName", first_name, quiet=True, lang=lang)
+            entity.add("middleName", middle_name, quiet=True, lang=lang)
+            entity.add("lastName", last_name, quiet=True, lang=lang)
 
-        h.apply_name(
-            entity,
-            full=name.get("wholeName"),
-            first_name=name.get("firstName"),
-            middle_name=name.get("middleName"),
-            last_name=name.get("lastName"),
-            is_weak=is_weak,
-            quiet=True,
-            lang=lang,
-        )
         # split "(a) Mullah, (b) Maulavi" into ["Mullah", "Maulavi"]
         titles = [
             t.strip(", ") for t in h.multi_split(name.get("title", ""), LETTER_SPLITS)
