@@ -12,7 +12,7 @@ summary: >-
 description: |
   This dataset provides information about the current and recent MPs, collected from
   the official website of the Chamber of Deputies (Luxembourg). It includes details
-  about each senator, such as name, date of birth, political affiliation term, and
+  about each senator, such as name, date of birth, political affiliation, term, and
   other relevant information.
 tags:
   - list.pep
