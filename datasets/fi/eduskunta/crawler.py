@@ -70,7 +70,9 @@ def crawl(context: Context) -> None:
     for item in data:
         pep_id = item.pop("hetekaId")
         _, _, _, raw_path = zyte_api.fetch_resource(
-            context, f"item_{pep_id}.json", f"{context.data_url}memberofparliament/{pep_id}/fi"
+            context,
+            f"item_{pep_id}.json",
+            f"{context.data_url}memberofparliament/{pep_id}/fi",
         )
         with open(raw_path, "r") as fh:
             raw_data = json.load(fh)
