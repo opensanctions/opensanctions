@@ -57,6 +57,9 @@ lookups:
           - 09-Sep-2228
           - 09-Jan-0721
           - 09-Sep-2221
+          - Feb-23
+          - Nov-21
+          - Aug-19
         value: null
   normalize_name:
     lowercase: true
