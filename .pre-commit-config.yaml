@@ -82,7 +82,8 @@ repos:
           datasets/gg|
           datasets/hk|
           datasets/id|
-          datasets/il|
+          datasets/il/knesset_members|
+          datasets/il/mod_crypto|
           datasets/in|
           datasets/ir|
           datasets/jp|

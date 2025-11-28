@@ -2,7 +2,7 @@ title: Spain Members of Parliament
 entry_point: crawler.py
 prefix: es-par
 load_statements: true
-ci_test: false
+ci_test: false # No Zyte API in CI
 coverage:
   frequency: weekly
   start: 2025-07-29
@@ -33,12 +33,6 @@ data:
 dates:
   # Wed Apr 14 00:00:00 CEST 1976
   formats: ["%d/%m/%Y", "%b %d %Y"]
-http:
-  user_agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.2 Safari/605.1.15
-  total_retries: 5
-  backoff_factor: 2
-  retry_statuses: [403, 443]
-  retry_methods: [GET, POST]
 
 assertions:
   min:

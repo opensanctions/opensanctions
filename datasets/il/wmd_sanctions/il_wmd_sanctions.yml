@@ -40,7 +40,10 @@ ci_test: false
 tags:
   - list.sanction
 dates:
-  formats: ["%d %b %Y"]
+  formats:
+    - "%d %b %Y"
+    - "%d %m %Y"
+    - "%d %m %y"
   months:
     Mar: במרץ
     Apr: באפריל
@@ -57,6 +60,10 @@ assertions:
       Organization: 143
 
 lookups:
+  type.date:
+    options:
+      - match: "27jul  1973"
+        value: 1973-07-27
   type.country:
     lowercase: true
     normalize: true
@@ -74,6 +81,8 @@ lookups:
     options:
       - match: "563120368, issued on 22 Mar. 2013 (Passport expiration date: March 22, 2018)"
         value: "563120368, issued 22 Mar. 2013, expires March 22, 2018"
+      - match: "108120258 (issued\xa0by the Democratic People's Republic of Korea on\xa014 Feb. 2018; expiration date 14 Feb. 2023)"
+        value: "108120258 (DPRK), issued 14 Feb. 2018, expires 14 Feb. 2023"
   type.name:
     options:
       - match: ":"
@@ -95,29 +104,55 @@ lookups:
     normalize: true
     lowercase: true
     options:
-      - match: פרטי זיהוי אחרים או פרטים נוספים
+      - match:
+          - פרטי זיהוי אחרים או פרטים נוספים
+          - "Other identifying details or additional information"
         value: other_info
-      - match: מדינת אזרחות/ תושבות (יחיד)  מדינת התאגדות (ארגון)
+      - match:
+          - מדינת אזרחות/ תושבות (יחיד)  מדינת התאגדות (ארגון)
+          - "Country of citizenship / residence (individual) or Country of incorporation (organization)"
         value: address_nationality
-      - match: תאריך לידה (יחיד)  תאריך התאגדות (ארגון)
+      - match:
+          - תאריך לידה (יחיד)  תאריך התאגדות (ארגון)
+          - תאריך התאגדות (ארגון)
+          - "Date of birth (individual) or Date of incorporation (organization)"
         value: birth_incorp_date
-      - match: מספרי דרכון/זיהוי (יחיד)  מספר רישום (ארגון)
-        value: passports_ids
-      - contains: בשפת המקור; בתעתיק לטיני (לרבות אפשרויות האיות הידועות על שמות וכינויים אלה)
+      - match:
+          - מספרי דרכון/זיהוי (יחיד)  מספר רישום (ארגון)
+          - "Passport/Identification Numbers (individual) or Registration Number (organization)"
+        value: identifiers
+      - contains:
+          - בשפת המקור; בתעתיק לטיני (לרבות אפשרויות האיות הידועות על שמות וכינויים אלה)
+          - "Entity name: in the original language; in Latin transliteration (including known spelling variants of these names and aliases)"
         value: name
-      - contains: (אימוץ קבוע)
+      - contains:
+          - (אימוץ קבוע)
+          - "Date of adoption of the designation in Israel"
         value: isreal_adoption_date
-      - contains: (אימוץ אוטומטי זמני)
-        value: isreal_temp_adoption_date
-      - match: מספר החלטה ומספר סידורי ברשומות, כפי שניתנה ע"י הגורם הבינ"ל המוסמך שהכריז במקור
-        value: serial_no
+      - match:
+          - "Date of the update to the designation in Israel"
+          - " מועד אימוץ ההכרזה בישראל (אימוץ אוטומטי זמני)"
+        value: israel_update_date
+      - match:
+          - מספר החלטה ומספר סידורי ברשומות, כפי שניתנה ע"י הגורם הבינ"ל המוסמך שהכריז במקור
+          - \" מספר סידורי ברשומות כפי שניתנה ע"\י הגורם הבינ"ל המוסמך שהכריז במקור
+          - "Serial number in the records as provided by the competent international authority that made the original designation"
+        value: original_serial_no
+      - match:
+          - מספר החלטה ושנת קבלת ההחלטה כפי שניתנה ע"י הגורם הבינ"ל המוסמך שהכריז במקור
+          - "Decision number and year of issuance as provided by the competent international authority that made the original designation"
+        value: original_decision_id
       - match:
           - זהות הגורם הזר המוסמך שהכריז במקור
           - "זהות הגורם שהכריז במקור"
-        value: originally_declared_by
+          - "Identity of the foreign authority that made the original designation"
+        value: original_authority_id
       - match:
           - 'מועד ההכרזה המקורי: מועד ההכרזה ע"י הגורם הזר המוסמך שהכרזתו אומצה בישראל'
           - 'מועד ההכרזה המקורי: מועד ההכרזה ע"י הגוף הבינ"ל המוסמך שהכרזתו אומצה בישראל'
+          - "The date of designation by the competent foreign authority whose designation was adopted in Israel"
         value: declaration_date
-      - match: מס"ד
+      - match:
+          - מס"ד
+          - "Serial Number"
         value: record_id

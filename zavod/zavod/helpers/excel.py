@@ -125,7 +125,7 @@ def parse_xlsx_sheet(
     skiprows: int = 0,
     header_lookup: Optional[Lookup] = None,
     extract_links: bool = False,
-) -> Iterator[Dict[str | None, str | None]]:
+) -> Iterator[Dict[str, str | None]]:
     """
     Parse an Excel sheet into a sequence of dictionaries.
 
@@ -158,12 +158,12 @@ def parse_xlsx_sheet(
                 headers.append(slugify_text(header, sep="_"))
             continue
 
-        record = {}
+        record: dict[str, str | None] = {}
         for cell_ix, (header, cell) in enumerate(zip(headers, row)):
             value = cell.value
             if isinstance(value, datetime):
                 value = value.date()
-            record[header] = stringify(value)
+            record[header or ""] = stringify(value)
 
             if extract_links:
                 # Check if the cell has a hyperlink

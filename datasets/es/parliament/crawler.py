@@ -5,6 +5,7 @@ from zavod.stateful.positions import categorise
 
 from zavod import Context
 from zavod import helpers as h
+from zavod.extract import zyte_api
 
 SENATORS_URL = "https://www.senado.es/web/composicionorganizacion/senadores/composicionsenado/index.html"
 DEPUTIES_URL = "https://www.congreso.es/en/busqueda-de-diputados"
@@ -221,10 +222,23 @@ def crawl(context: Context):
     context.log.info(f"Listed deputies: {listed_deputies}, emitted: {emitted_deputies}")
 
     # Crawl Senators
-    doc = context.fetch_html(SENATORS_URL, cache_days=1, absolute_links=True)
-    for letter_url in doc.xpath(".//ul[@class='listaOriginal']//@href"):
-        letter_doc = context.fetch_html(letter_url, absolute_links=True)
-        for senator_url in letter_doc.xpath(".//ul[@class='lista-alterna']//@href"):
+    letter_url_xpath = ".//ul[@class='listaOriginal']//@href"
+    doc = zyte_api.fetch_html(
+        context,
+        SENATORS_URL,
+        unblock_validator=letter_url_xpath,
+        cache_days=1,
+        absolute_links=True,
+    )
+    for letter_url in h.xpath_strings(doc, letter_url_xpath):
+        senator_url_xpath = ".//ul[@class='lista-alterna']//@href"
+        letter_doc = zyte_api.fetch_html(
+            context,
+            letter_url,
+            unblock_validator=senator_url_xpath,
+            absolute_links=True,
+        )
+        for senator_url in h.xpath_strings(letter_doc, senator_url_xpath):
             listed_senators += 1
             if crawl_senator(context, senator_url):
                 emitted_senators += 1
