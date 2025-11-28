@@ -61,13 +61,14 @@ def crawl(context: Context):
         with open(data_path, "w") as out:
             out.write(fh.read())
 
-    if context.dataset.data is not None and context.dataset.data.format == "FAIL":
-        # Used by tests to trigger a runner failure.
-        raise RuntimeError("Pipeline is broken")
-
     context.export_resource(data_path, CSV, title=context.SOURCE_TITLE)
     with open(data_path, "r") as fh:
         for row in csv.DictReader(fh):
             crawl_row(context, row)
 
     context.log.warn("This is a test warning")
+
+    # Simulate failure _after_ some emits
+    if context.dataset.data is not None and context.dataset.data.format == "FAIL":
+        # Used by tests to trigger a runner failure.
+        raise RuntimeError("Pipeline is broken")

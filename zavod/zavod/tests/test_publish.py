@@ -1,4 +1,6 @@
 from typing import Optional
+
+import pytest
 from nomenklatura.versions import VersionHistory
 
 from zavod import settings
@@ -76,10 +78,9 @@ def test_publish_failure(testdataset1: Dataset):
     latest_path = published_path / "latest" / testdataset1.name
     assert testdataset1.data is not None
     testdataset1.data.format = "FAIL"
-    try:
+    with pytest.raises(RunFailedException):
         crawl_dataset(testdataset1)
-    except RunFailedException:
-        archive_failure(testdataset1, latest=True)
+    archive_failure(testdataset1, latest=True)
     clear_data_path(testdataset1.name)
 
     history = _read_history(testdataset1.name)
@@ -95,3 +96,8 @@ def test_publish_failure(testdataset1: Dataset):
 
     # We don't want failed runs to end up in /datasets
     assert len(list(latest_path.glob("*"))) == 0
+
+    # Shouldn't be able to backfill from failed (but archived) run
+    clear_data_path(testdataset1.name)
+    assert len(list(iter_dataset_statements(testdataset1))) == 0
+    assert len(list(iter_previous_statements(testdataset1))) == 0
