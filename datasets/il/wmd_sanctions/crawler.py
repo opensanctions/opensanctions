@@ -1,5 +1,5 @@
 from rigour.mime.types import XLSX
-from typing import Dict
+from typing import Any, Optional
 from zavod import helpers as h
 import openpyxl
 import re
@@ -34,7 +34,7 @@ CHOPSKA = [
 ]
 
 
-def apply_identifiers(entity: Entity, text: str, *, default_prop: str):
+def apply_identifiers(entity: Entity, text: str, *, default_prop: str) -> None:
     """
     Split and add passport and ID numbers but don't try and parse fully.
     """
@@ -52,7 +52,7 @@ def apply_identifiers(entity: Entity, text: str, *, default_prop: str):
         entity.add(default_prop, item.strip())
 
 
-def extract_n_pop_address(text: str):
+def extract_n_pop_address(text: str) -> tuple[Optional[str], Optional[str]]:
     """
     Extract address and update the text by removing the extracted address.
     """
@@ -75,7 +75,7 @@ def extract_n_pop_address(text: str):
         return None, text
 
 
-def clean_date(date_str: str):
+def clean_date(date_str: str) -> list[str]:
     """
     Clean the  date string by replacing newlines, colons, and dots with a
     space character so it matches date pattern and return a multi split of dates
@@ -98,7 +98,7 @@ def apply_names(context: Context, entity: Entity, names_string: str) -> None:
         h.apply_name(entity, full=alias, alias=True)
 
 
-def crawl_row(context: Context, row: Dict):
+def crawl_row(context: Context, row: dict[str, Any]) -> None:
     record_id = row.pop("record_id")
     if not record_id.isnumeric():  # not a record
         if record_id not in SKIP_ROWS:
@@ -172,7 +172,7 @@ def crawl_excel_url(context: Context) -> str:
     return file_url
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     excel_url = crawl_excel_url(context)
     _, _, _, source_path = fetch_resource(
         context, "source.xlsx", excel_url, expected_media_type=XLSX
@@ -180,6 +180,7 @@ def crawl(context: Context):
     context.export_resource(source_path, XLSX, title=context.SOURCE_TITLE)
 
     wb = openpyxl.load_workbook(source_path, read_only=True)
+    assert wb.active
     for row_num, row in enumerate(
         h.parse_xlsx_sheet(
             context, wb.active, header_lookup=context.get_lookup("columns"), skiprows=2
