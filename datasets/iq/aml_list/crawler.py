@@ -52,7 +52,7 @@ def extract_listing_date(decision_number: Optional[str]) -> Optional[str]:
     return match.group(0) if match else None
 
 
-def crawl_row(row: Dict[str | None, str | None], context: Context) -> None:
+def crawl_row(row: Dict[str, str | None], context: Context) -> None:
     row.pop("id", None)
     # Skip empty rows
     if not any(row.values()):

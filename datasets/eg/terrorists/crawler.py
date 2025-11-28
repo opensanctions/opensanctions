@@ -37,7 +37,7 @@ def clean_date(date_str: str) -> List[str]:
     return h.multi_split(collapse_spaces(latin_date), DATE_SPLITS)
 
 
-def crawl_terrorist(context: Context, input_dict: dict[str | None, Any]) -> None:
+def crawl_terrorist(context: Context, input_dict: dict[str, Any]) -> None:
     name = input_dict.pop("name")
     case_number = input_dict.pop("case_number")
 
@@ -67,9 +67,7 @@ def crawl_terrorist(context: Context, input_dict: dict[str | None, Any]) -> None
     context.audit_data(input_dict)
 
 
-def crawl_terrorist_entities(
-    context: Context, input_dict: dict[str | None, Any]
-) -> None:
+def crawl_terrorist_entities(context: Context, input_dict: dict[str, Any]) -> None:
     name = input_dict.pop("name")
     case_number = input_dict.pop("case_number")
 
@@ -95,7 +93,7 @@ def crawl_terrorist_entities(
     context.audit_data(input_dict, ignore=["series"])
 
 
-def crawl_legal_persons(context: Context, input_dict: dict[str | None, Any]) -> None:
+def crawl_legal_persons(context: Context, input_dict: dict[str, Any]) -> None:
     name = input_dict.pop("name")
     case_number = input_dict.pop("case_number")
 
