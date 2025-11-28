@@ -1,4 +1,4 @@
-from typing import List, Literal
+from typing import List, Literal, Optional
 
 from pydantic import BaseModel, Field
 from zavod.extract.llm import DEFAULT_MODEL, run_typed_text_prompt
@@ -100,7 +100,7 @@ def crawl_item(
     date: str,
     url: str,
     article_name: str,
-    action_type: str,
+    action_type: Optional[str],
     origin: str,
 ) -> None:
     entity = context.make(item.entity_schema)
@@ -129,7 +129,7 @@ def crawl_item(
 
 
 def crawl_enforcement_action(
-    context: Context, url: str, date: str, action_type: str
+    context: Context, url: str, date: str, action_type: Optional[str]
 ) -> None:
     article = context.fetch_html(url, cache_days=7)
     article.make_links_absolute(context.data_url)
@@ -181,7 +181,6 @@ def crawl(context: Context) -> None:
         url = next(iter(links.values()))
         assert url is not None
         assert date is not None
-        assert action_type is not None
         crawl_enforcement_action(context, url, date, action_type)
 
     assert_all_accepted(context)
