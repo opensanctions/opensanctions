@@ -69,16 +69,16 @@ lookups:
           - role: Chief of state
             name: TUIMALEALI'IFANO Va’aletoa Sualauvi II
             start_date: 21 July 2017
-      - match: "co-chiefs of state Captains Regent Denise BRONZETTI and Italo RIGHI (for the period 1 April 2025 - 30 September 2025)"
+      - match: "co-chiefs of state Captains Regent Matteo ROSSI and Lorenzo BUGLI (for the period 1 October 2025 - 31 March 2026)"
         holders:
           - role: Co-chief of state
-            name: Denise BRONZETTI
-            start_date: 1 April 2025
-            end_date: 30 September 2025
+            name: Matteo ROSSI
+            start_date: 1 October 2025
+            end_date: 31 March 2026
           - role: Co-chief of state
-            name: Italo RIGHI
-            start_date: 1 April 2025
-            end_date: 30 September 2025
+            name: Lorenzo BUGLI
+            start_date: 1 October 2025
+            end_date: 31 March 2026
       # Russia
       - match: "represented by UK High Commissioner to New Zealand and Governor (nonresident) of the Pitcairn Islands Iona THOMAS (since 9 August 2022)"
         holders:
