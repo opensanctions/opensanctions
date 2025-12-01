@@ -37,11 +37,14 @@ publisher:
   description: |
     The Federale Overheidsdienst Financien (FOD) is the finance ministry of Belgium.
   country: be
-  url: https://financien.belgium.be/nl/over_de_fod
+  url: https://finance.belgium.be/en/control-financial-instruments-and-institutions/compliance/financial-sanctions
   official: true
 data:
-  url: "https://financien.belgium.be/sites/default/files/thesaurie/Consolidated%20list.zip"
-  format: ZIP/XML
+  url: "https://sifi.minfin.fgov.be/public/api/consolidated-list"
+  format: CSV
+
+dates:
+  formats: ["%d-%m-%y"]
 
 assertions:
   min:
@@ -69,6 +72,24 @@ lookups:
           - eu-fsf-eu-9442-82 # Unica
           - eu-fsf-eu-9443-81 # New Konk
         value: Vessel
+  identifier_prop:
+    options:
+      - match:
+          - "id-National identification card"
+          - "other-Other identification number"
+          - "birthcert-Birth certificate"
+          - "drivinglicence-Driving licence) [known to be false]"
+        value: idNumber
+      - match: "passport-National passport"
+        value: passportNumber
+      - match: "regnumber-Registration Number"
+        value: registrationNumber
+      - match:
+          - "taxid-Tax identification number"
+          - "fiscalcode-National Fiscal Code"
+        value: taxNumber
+      - match: "swiftbic-SWIFT BIC"
+        value: swiftBic
   sanction.program:
     # in accordance with https://sanctionsmap.eu/#/main?search=%7B%22value%22:%22%22,%22searchType%22:%7B%7D%7D
     options:
@@ -289,4 +310,8 @@ lookups:
       - match: PO Box 1406 - 60455
         value: 60455
       - match: "-"
+        value: null
+  type.date:
+    options:
+      - match: "N/A"
         value: null
