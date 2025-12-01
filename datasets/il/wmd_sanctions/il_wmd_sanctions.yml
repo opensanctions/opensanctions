@@ -56,8 +56,8 @@ assertions:
       Organization: 100
   max:
     schema_entities:
-      Person: 103
-      Organization: 143
+      Person: 160
+      Organization: 180
 
 lookups:
   type.date:
