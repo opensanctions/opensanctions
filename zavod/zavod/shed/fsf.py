@@ -170,17 +170,35 @@ def parse_entry(context: Context, entry: Element) -> None:
             # put them all in the name field. This happens e.g. for Spanish-name terrorists.
             treat_as_alias = False
 
-        h.apply_name(
-            entity,
-            full=name.get("wholeName"),
-            first_name=name.get("firstName"),
-            middle_name=name.get("middleName"),
-            last_name=name.get("lastName"),
-            is_weak=is_weak,
-            alias=treat_as_alias,
-            quiet=True,
-            lang=lang,
-        )
+        full_name = name.get("wholeName")
+        first_name = name.get("firstName")
+        middle_name = name.get("middleName")
+        last_name = name.get("lastName")
+        if is_weak:
+            h.apply_name(
+                entity,
+                full=full_name,
+                first_name=first_name,
+                middle_name=middle_name,
+                last_name=last_name,
+                is_weak=True,
+                quiet=True,
+                lang=lang,
+            )
+        else:
+            if not full_name and (first_name and last_name):
+                # Currently full_name always exists with first and last, but just make sure.
+                full_name = h.make_name(
+                    first_name=first_name,
+                    middle_name=middle_name,
+                    last_name=last_name,
+                )
+            h.apply_reviewed_names(
+                context, entity, full_name, lang=lang, alias=treat_as_alias
+            )
+            entity.add("firstName", first_name, quiet=True, lang=lang)
+            entity.add("middleName", middle_name, quiet=True, lang=lang)
+            entity.add("lastName", last_name, quiet=True, lang=lang)
 
         # split "(a) Mullah, (b) Maulavi" into ["Mullah", "Maulavi"]
         titles = [

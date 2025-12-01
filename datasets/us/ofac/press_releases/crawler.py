@@ -2,7 +2,7 @@ from typing import List, Literal
 
 from lxml.html import tostring
 from pydantic import BaseModel, Field
-from zavod.shed.gpt import DEFAULT_MODEL, run_typed_text_prompt
+from zavod.extract.llm import DEFAULT_MODEL, run_typed_text_prompt
 from zavod.stateful.review import (
     HtmlSourceValue,
     assert_all_accepted,
@@ -71,7 +71,7 @@ When determining entity_schema:
 
 <name_references>
 IMPORTANT: When an entity is introduced with their full name and then referred to by a shortened
-version throughout the text, the shortened version is NOT an alias—it's simply a narrative reference. 
+version throughout the text, the shortened version is NOT an alias—it's simply a narrative reference.
 
 Example: If the text introduces "Sadiq Abbas Habib Sayyed" and then refers to him as "Sayyed"
 throughout, "Sayyed" is just a reference, not an alias.
@@ -90,7 +90,7 @@ For each entity found, extract these fields:
      known as", "fka", "doing business as", "d/b/a", or similar explicit markers
    - Must represent a genuinely different name, not just a shortened reference
    - Extract ONLY the alternative name itself, not the indicator phrase
-   
+
    NEVER extract as aliases:
    - Parenthetical abbreviations or shortened forms of the main name
      Example: "Sadiq Abbas Habib Sayyed (Sayyed)" → "Sayyed" is NOT an alias
@@ -99,7 +99,7 @@ For each entity found, extract these fields:
    - Company names without legal suffixes when the full name includes them
      Example: "Acme Corporation" referred to as "Acme" is NOT an alias
    - Pronouns or descriptive references ("the defendant", "the company", etc.)
-   
+
    Valid alias example:
    - "KS International Traders (a.k.a. 'KS Pharmacy')" → "KS Pharmacy" IS an alias
 

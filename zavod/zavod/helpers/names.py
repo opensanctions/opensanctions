@@ -1,10 +1,27 @@
-from typing import List, Optional, cast
-from normality import squash_spaces
-from followthemoney.util import join_text
 import re
+from typing import List, Optional, cast
 
+from followthemoney.util import join_text
+from normality import squash_spaces
+from rigour.data.names.data import STOPPHRASES
+from rigour.names.check import is_nullword
+
+from zavod import settings
 from zavod.context import Context
 from zavod.entity import Entity
+from zavod.extract.names.clean import (
+    LLM_MODEL_VERSION,
+    CleanNames,
+    RawNames,
+)
+
+# alias clean_names so that it could be imported from here
+from zavod.extract.names.clean import clean_names as clean_names
+from zavod.stateful.review import (
+    JSONSourceValue,
+    Review,
+    review_extraction,
+)
 
 REGEX_AND = re.compile(r"(\band\b|&|\+)", re.I)
 REGEX_LNAME_FNAME = re.compile(r"^\w+, \w+$", re.I)
@@ -12,6 +29,9 @@ REGEX_CLEAN_COMMA = re.compile(
     r", \b(LLC|L\.L\.C|Inc|Jr|INC|L\.P|LP|Sr|III|II|IV|S\.A|LTD|USA INC|\(?A/K/A|\(?N\.K\.A|\(?N/K/A|\(?F\.K\.A|formerly known as|INCORPORATED)\b",  # noqa
     re.I,
 )
+KNOWN_AS_PATTERNS = [re.escape(phrase) for phrase in STOPPHRASES]
+PATTERN_KNOWN_AS = rf"(\b({'|'.join(KNOWN_AS_PATTERNS)})\b)"
+REGEX_KNOWN_AS = re.compile(PATTERN_KNOWN_AS, re.I)
 
 
 def make_name(
@@ -224,9 +244,140 @@ def split_comma_names(context: Context, text: str) -> List[str]:
             if res:
                 return cast("List[str]", res.names)
             else:
-                context.log.warning(
-                    "Not sure how to split on comma or and.", text=text.lower()
-                )
+                context.log.warning("Not sure how to split on comma or and.", text=text)
                 return [text]
         else:
             return [text]
+
+
+def is_name_irregular(entity: Entity, string: Optional[str]) -> bool:
+    """Determine whether a name string potentially needs cleaning."""
+    string = squash_spaces(string or "")
+
+    if not string:
+        return False
+
+    spec = entity.dataset.names.get_spec(entity.schema)
+    if spec:
+        for char in spec.reject_chars_consolidated:
+            if char in string:
+                return True
+
+        # is nullword
+        if not spec.allow_nullwords and is_nullword(string, normalize=True):
+            return True
+
+        # min length
+        if len(string) < spec.min_chars:
+            return True
+
+        # requires space
+        if spec.require_space and " " not in string:
+            return True
+
+    # contains a known-as phrase
+    if REGEX_KNOWN_AS.search(string):
+        return True
+
+    return False
+
+
+def apply_names(
+    entity: Entity,
+    string: str,
+    review: Review[CleanNames],
+    alias: bool = False,
+    lang: Optional[str] = None,
+) -> None:
+    field_props = [
+        ("full_name", "alias" if alias else "name"),
+        ("alias", "alias"),
+        ("weak_alias", "weakAlias"),
+        ("previous_name", "previousName"),
+    ]
+    if not review.accepted:
+        apply_name(entity, full=string, alias=alias, lang=lang)
+        return
+
+    for field_name, prop in field_props:
+        for name in getattr(review.extracted_data, field_name):
+            entity.add(
+                prop,
+                name,
+                lang=lang,
+                origin=review.origin,
+                original_value=string,
+            )
+
+
+def _review_names(context: Context, entity: Entity, string: str) -> Review[CleanNames]:
+    strings = [string]
+    raw_names = RawNames(entity_schema=entity.schema.name, strings=strings)
+    names = clean_names(context, raw_names)
+
+    source_value = JSONSourceValue(
+        key_parts=[entity.schema.name] + strings,
+        label="names",
+        data=raw_names.model_dump(),
+    )
+    review = review_extraction(
+        context,
+        source_value=source_value,
+        original_extraction=names,
+        origin=LLM_MODEL_VERSION,
+    )
+    return review
+
+
+def review_names(
+    context: Context, entity: Entity, string: Optional[str]
+) -> Optional[Review[CleanNames]]:
+    """
+    Clean names if needed, then post them for review.
+
+    Args:
+        context: The current context.
+        entity: The entity to apply names to.
+        string: The raw name(s) string.
+    """
+    if not string or not string.strip():
+        return None
+
+    if settings.CI or not is_name_irregular(entity, string):
+        return None
+
+    return _review_names(context, entity, string)
+
+
+def apply_reviewed_names(
+    context: Context,
+    entity: Entity,
+    string: Optional[str],
+    lang: Optional[str] = None,
+    alias: bool = False,
+) -> None:
+    """
+    Clean names if needed, then post them for review.
+    Cleaned names are applied to an entity if accepted, falling back
+    to applying the original string as the name or alias if not.
+
+    Also falls back to applying the original string if the CI environment
+    variable is truthy, so that crawlers using this can run in CI.
+
+    Args:
+        context: The current context.
+        entity: The entity to apply names to.
+        string: The raw name(s) string.
+        alias: If this is known to be an alias and not a primary name.
+        lang: The language of the name, if known.
+    """
+    if not string or not string.strip():
+        return None
+
+    if settings.CI or not is_name_irregular(entity, string):
+        apply_name(entity, full=string, alias=alias, lang=lang)
+        return None
+
+    review = _review_names(context, entity, string)
+
+    apply_names(entity, string, review, alias=alias, lang=lang)

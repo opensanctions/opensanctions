@@ -46,7 +46,8 @@ def clean_identifier(prop: Property, value: str) -> Optional[str]:
     normalized: Optional[str] = value
     if prop.format in VALIDATE_FORMATS:
         format_ = get_identifier_format(prop.format)
-        normalized = format_.normalize(value)
+        if format_ is not None:
+            normalized = format_.normalize(value)
     if normalized is None:
         log.warning(
             f"Failed to validate {prop.format} identifier: {value}",

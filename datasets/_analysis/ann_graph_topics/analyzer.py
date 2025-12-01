@@ -1,3 +1,5 @@
+from typing import Set
+
 from followthemoney import registry
 
 from zavod import Context, Entity
@@ -6,56 +8,71 @@ from zavod.store import get_store, View
 from zavod.integration import get_dataset_linker
 
 
+def non_graph_topics(context: Context, entity: Entity) -> Set[str]:
+    topic_stmts = entity.get_statements("topics")
+    return {s.value for s in topic_stmts if s.dataset != context.dataset.name}
+
+
+def emit_patch(
+    context: Context,
+    risk_source: Entity,
+    related_entity: Entity,
+    topic: str,
+    existing_topics: Set[str],
+) -> None:
+    context.log.info(
+        f"Adding topic: {topic}",
+        risk_source=risk_source.caption,
+        risk_source_id=risk_source.id,
+        related_entity=related_entity.caption,
+        related_entity_id=related_entity.id,
+        existing_topics=list(existing_topics),
+    )
+
+    patch = context.make(related_entity.schema)
+    patch.id = related_entity.id
+    patch.add("topics", topic)
+    context.emit(patch)
+
+
 def analyze_entity(context: Context, view: View, entity: Entity) -> None:
     topics = entity.get_type_values(registry.topic)
     for prop, adjacent in view.get_adjacent(entity):
         asch = adjacent.schema
-        if prop.reverse is None or not asch.edge:
-            continue
 
+        # For when the other entity is on the other side of an edge
         other_prop = (
             asch.source_prop if prop.reverse == asch.target_prop else asch.target_prop
         )
-        if other_prop is None:
-            continue
 
+        # Tag role.rca for family relations of PEPs
         if "role.pep" in topics and adjacent.schema.is_a("Family"):
             for other_id in adjacent.get(other_prop):
                 other = view.get_entity(other_id)
                 if other is None or not other.schema.is_a("Person"):
                     continue
-                other_topic_stmts = other.get_statements("topics")
-                other_topics = [
-                    s.value
-                    for s in other_topic_stmts
-                    if s.dataset != context.dataset.name
-                ]
-                if "role.rca" in other_topics or "role.pep" in other_topics:
+                other_topics = non_graph_topics(context, other)
+                if other_topics.intersection({"role.rca", "role.pep"}):
                     continue
-                context.log.info(
-                    "Adding topic: role.rca",
-                    pep=entity.caption,
-                    pep_id=entity.id,
-                    rca=other.caption,
-                    rca_id=other.id,
-                    topics=other_topics,
-                )
-                patch = context.make(other.schema)
-                patch.id = other.id
-                patch.add("topics", "role.rca")
-                context.emit(patch)
+                emit_patch(context, entity, other, "role.rca", other_topics)
 
         # Family is eternal, business is time-bound:
         if len(adjacent.get("endDate", quiet=True)) > 0:
             context.log.info(
-                "Skipping entity with end date",
-                adjacent=adjacent.id,
-                entity=entity.id,
+                "Skipping entity with end date", adjacent=adjacent.id, entity=entity.id
             )
             continue
 
+        # Tag sanction.linked for sanction-linked entities
         if "sanction" in topics:
             if entity.schema.is_a("Security"):
+                continue
+            if prop.name == "securities" and adjacent.schema.is_a("Security"):
+                adj_topics = non_graph_topics(context, adjacent)
+                if adj_topics.intersection({"sanction", "sanction.linked"}):
+                    continue
+                emit_patch(context, entity, adjacent, "sanction.linked", adj_topics)
+            if not asch.edge:
                 continue
             if adjacent.schema.name not in (
                 "Ownership",
@@ -71,27 +88,16 @@ def analyze_entity(context: Context, view: View, entity: Entity) -> None:
                 other = view.get_entity(other_id)
                 if other is None:
                     continue
-                other_topic_stmts = other.get_statements("topics")
-                other_topics = [
-                    s.value
-                    for s in other_topic_stmts
-                    if s.dataset != context.dataset.name
-                ]
-                if "sanction" in other_topics or "sanction.linked" in other_topics:
+                other_topics = non_graph_topics(context, other)
+                if other_topics.intersection({"sanction", "sanction.linked"}):
                     continue
-                context.log.info(
-                    "Adding topic: sanction.linked",
-                    sanctioned=entity.caption,
-                    sanctioned_id=entity.id,
-                    linked=other.caption,
-                    linked_id=other.id,
-                    topics=other_topics,
-                )
-                patch = context.make(other.schema)
-                patch.id = other.id
-                patch.add("topics", "sanction.linked")
-                context.emit(patch)
+                emit_patch(context, entity, other, "sanction.linked", other_topics)
 
+        # Tag sanction.linked for Assets of sanction.linked Owners
+        #
+        # This works by each run of this analyzer tagging further along the
+        # ownership chain. So sanction.linked values from this analyzer
+        # may be used in subsequent runs.
         if (
             "sanction.linked" in topics
             and adjacent.schema.is_a("Ownership")
@@ -101,26 +107,10 @@ def analyze_entity(context: Context, view: View, entity: Entity) -> None:
                 other = view.get_entity(other_id)
                 if other is None:
                     continue
-                other_topic_stmts = other.get_statements("topics")
-                other_topics = [
-                    s.value
-                    for s in other_topic_stmts
-                    if s.dataset != context.dataset.name
-                ]
-                if "sanction" in other_topics or "sanction.linked" in other_topics:
+                other_topics = non_graph_topics(context, other)
+                if other_topics.intersection({"sanction", "sanction.linked"}):
                     continue
-                context.log.info(
-                    "Adding topic: sanction.linked",
-                    sanctioned=entity.caption,
-                    sanctioned_id=entity.id,
-                    linked=other.caption,
-                    linked_id=other.id,
-                    topics=other_topics,
-                )
-                patch = context.make(other.schema)
-                patch.id = other.id
-                patch.add("topics", "sanction.linked")
-                context.emit(patch)
+                emit_patch(context, entity, other, "sanction.linked", other_topics)
 
 
 def crawl(context: Context) -> None:

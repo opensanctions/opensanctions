@@ -34,9 +34,9 @@ REDACT_IGNORE_LIST = {
     "ZAVOD_HTTP_RETRY_TOTAL",
     "ZAVOD_HTTP_RETRY_BACKOFF_FACTOR",
     "ZAVOD_HTTP_RETRY_BACKOFF_MAX",
-    "ZAVOD_XREF_MEMORY",
-    "ZAVOD_XREF_THREADS",
     "NOMENKLATURA_DB_STMT_TIMEOUT",
+    "NOMENKLATURA_DUCKDB_MEMORY",
+    "NOMENKLATURA_DUCKDB_THREADS",
 }
 REDACT_MIN_LENGTH = 5
 URI_WITH_CREDENTIALS = r"(\w+)://[^:]+:[^@]+@"
@@ -109,7 +109,7 @@ def set_logging_context_dataset_name(dataset_name: str) -> None:
     structlog.contextvars.bind_contextvars(dataset=dataset_name)
 
 
-def configure_logging(level: int = logging.DEBUG) -> None:
+def configure_logging(level: int = logging.DEBUG) -> logging.Logger:
     """Configure log levels and structured logging."""
 
     base_processors: List[Processor] = [
@@ -174,6 +174,11 @@ def configure_logging(level: int = logging.DEBUG) -> None:
     logger.setLevel(level)
     logger.handlers.clear()
     logger.addHandler(handler)
+    return logger
+
+
+def reset_logging(logger: logging.Logger) -> None:
+    logger.handlers.clear()
 
 
 def get_logger(name: str) -> structlog.stdlib.BoundLogger:

@@ -79,3 +79,7 @@ lookups:
         values:
           - 1997
           - 1998
+      - match: "dd/mm/1984-1985"
+        values:
+          - 1984
+          - 1985

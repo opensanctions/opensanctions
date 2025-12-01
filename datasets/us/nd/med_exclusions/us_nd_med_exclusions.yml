@@ -52,7 +52,9 @@ lookups:
         values:
           - R38304
           - L9540
-      - match: L3826
+      - match:
+          - L3826
+          - 461081816
         prop: registrationNumber
       - match: 164924109
         value: 1649524109

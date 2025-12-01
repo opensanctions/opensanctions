@@ -1,8 +1,8 @@
-title: German Members of the Bundesrat
+title: Germany Members of the Bundesrat
 prefix: de-brt
 coverage:
   frequency: monthly
-  start: 2025-10-21
+  start: 2025-10-29
 load_statements: true
 entry_point: crawler.py
 summary: >-
@@ -68,3 +68,5 @@ lookups:
         value: 1971-12-24
       - contains: "Geboren 08.06.1982 in Borna"
         value: 1982-06-08
+      - contains: "Geboren am 13. November 1986 in Warschau"
+        value: 1986-11-13

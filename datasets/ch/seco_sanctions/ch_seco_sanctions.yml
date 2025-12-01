@@ -101,7 +101,7 @@ lookups:
         value: SECO-SYRIA
       - match: "Ordinance of 24 June 2020 on measures against Nicaragua (RS 946.231.158.5), Annex"
         value: SECO-NICARAGUA
-      - match: "Ordinance of 16 December 2022 on measures concerning Haiti (SR 946.231.139.4), annex"
+      - match: "Ordinance of 16 December 2022 on measures concerning Haiti (SR 946.231.139.4)"
         value: SECO-HAITI
       - match: "Ordinance  of 19 March 2002 on measures against Zimbabwe (SR 946.209.2), annex 2"
         value: SECO-ZIM

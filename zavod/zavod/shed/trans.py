@@ -3,7 +3,7 @@ from typing import Dict, Optional, Tuple
 from zavod.context import Context
 from zavod.entity import Entity
 from zavod.exc import ConfigurationException
-from zavod.shed.gpt import run_text_prompt, DEFAULT_MODEL
+from zavod.extract.llm import run_text_prompt, DEFAULT_MODEL
 from zavod import helpers as h
 
 NAME_TRANSLIT_PROMPT = """

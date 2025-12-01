@@ -12,6 +12,12 @@ from zavod import helpers as h
 
 SPLITS = [" %s)" % char for char in string.ascii_lowercase]
 ADDRESS_SPLITS = [";", "ii) ", "iii) "]
+PROVISION_FIELDS = [
+    "travel_ban",
+    "arms_embargo",
+    "maritime_restriction",
+    "targeted_financial_sanction",
+]
 
 # Each entry carries a reference and other names are listed as references with a letter attached
 # e.g. 101 for the primary name and 101a for the alias.
@@ -19,38 +25,32 @@ ADDRESS_SPLITS = [";", "ii) ", "iii) "]
 # (they're interrupted by other entries).
 
 
-def clean_date(date):
+def clean_date(date: str) -> List[str]:
     splits = [
-        "a)",
-        "b)",
-        "c)",
-        "d)",
-        "e)",
-        "f)",
-        "g)",
-        "h)",
-        "i)",
-        " or ",
-        " and ",
-        " to ",
-        "alt DOB:",
-        "alt DOB",
-        ";",
-        ">>",
         "Approximately",
-        "approximately",
-        "Approx",
-        "Between",
-        "circa",
-        "Circa",
-        "_x000D_",
+        ", and,",
+        " and ",
+        "g), ",
+        "h), ",
+        "i), ",
+        "j), ",
+        "g) ",
+        "h) ",
+        "i) ",
+        "j) ",
+        ", ",
+        " ,",
+        ",\xa0",
+        "\xa0",
+        " ",
     ]
     dates = []
+    if " to " in str(date):
+        return [date]
     if isinstance(date, datetime):
         date = date.date().isoformat()
     if isinstance(date, int):
         date = str(date)
-    date = h.remove_bracketed(date)
     if date is None:
         return dates
     date = date.replace("\n", " ")
@@ -73,21 +73,15 @@ def clean_reference(ref: str) -> Optional[str]:
     raise ValueError()
 
 
-def clean_country(country: str) -> List[str]:
-    return h.multi_split(
-        country, ["a)", "b)", "c)", "d)", ";", ",", " and ", "_x000D_"]
-    )
-
-
 def parse_reference(
-    context: Context, reference: int, rows: List[Dict[str, Any]]
+    context: Context, reference: str, rows: List[Dict[str, Any]]
 ) -> None:
     schemata = set()
     for row in rows:
         type_ = row.pop("type")
         # Lookup by reference first to allow an override for references where there
         # are two conflicting type specs.
-        schema = context.lookup_value("type", str(reference))
+        schema = context.lookup_value("type", reference)
         if schema is None:
             schema = context.lookup_value("type", type_)
         if schema is None:
@@ -110,6 +104,8 @@ def parse_reference(
         name = row.pop("name_of_individual_or_entity", None)
         name_type = row.pop("name_type")
         name_prop = context.lookup_value("name_type", name_type)
+        if row.pop("alias_strength") == "Weak":
+            name_prop = "weakAlias"
         if name_prop is None:
             context.log.warning("Unknown name type", name_type=name_type)
             return
@@ -143,15 +139,17 @@ def parse_reference(
                 else None
             ),
         )
-        country = clean_country(row.pop("citizenship"))
+        country = h.multi_split(row.pop("citizenship"), [","])
         if entity.schema.is_a("Person"):
-            entity.add("nationality", country)
+            entity.add("citizenship", country)
         else:
             entity.add("country", country)
+        if entity.schema.properties.get("imoNumber"):
+            entity.add("imoNumber", row.pop("imo_number"))
         dates = clean_date(row.pop("date_of_birth"))
-        if dates != ["na"]:
-            h.apply_dates(entity, "birthDate", dates)
-        entity.add("birthPlace", row.pop("place_of_birth"), quiet=True)
+        h.apply_dates(entity, "birthDate", dates)
+        pob = row.pop("place_of_birth")
+        entity.add("birthPlace", h.multi_split(pob, SPLITS + ["a) "]), quiet=True)
         entity.add("notes", h.clean_note(row.pop("additional_information")))
         listing_info = row.pop("listing_information")
         if isinstance(listing_info, datetime):
@@ -159,19 +157,29 @@ def parse_reference(
             sanction.add("listingDate", listing_info)
         else:
             sanction.add("summary", listing_info)
+        designation_instrument = row.pop("instrument_of_designation")
+        # designation instrument is very often the same as listing info
+        if designation_instrument and designation_instrument != listing_info:
+            sanction.add("summary", designation_instrument)
         # TODO: consider parsing if it's not a datetime?
-
+        for field in PROVISION_FIELDS:
+            if row.pop(field):  # Boolean field indicating if the sanction applies
+                # Convert the field name into a readable label, e.g. "arms_embargo" → "Arms embargo"
+                sanction.add("provisions", field.replace("_", " ").capitalize())
         control_date = row.pop("control_date")
         h.apply_date(sanction, "startDate", control_date)
         h.apply_date(entity, "createdAt", control_date)
-        context.audit_data(row, ignore=["reference"])
+        context.audit_data(
+            row,
+            ignore=["reference"],
+        )
 
     entity.add("topics", "sanction")
     context.emit(entity)
     context.emit(sanction)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     path = context.fetch_resource("source.xlsx", context.data_url)
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
 

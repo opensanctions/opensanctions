@@ -248,7 +248,7 @@ lookups:
       - match: 'Baraka Qurilish Servis Llc (“Bqs”)'
         names:
           - name: Baraka Qurilish Servis Llc
-            alias: "Bqs"
+            weak_alias: "Bqs"
       - match: 'Ecograph Llc Aka Ecography Company (Ecograph)'
         names:
           - name: Ecograph Llc
@@ -291,6 +291,38 @@ lookups:
         names:
           - name: Rishikesh Waste Management Ltd
             previous_name: A2Z Powertech Ltd
+      - match: Hangzhou Fuchuan Electric Equipment Co., Ltd (also known as Hangzhou Fuchuan Electric Power Equipment Co., Ltd)
+        names:
+          - name: Hangzhou Fuchuan Electric Equipment Co., Ltd
+            alias: "Hangzhou Fuchuan Electric Power Equipment Co., Ltd"
+      - match: International Real Estate Consulting and Investment Joint Stock Company (formerly known as HanoiTC Expert Joint Stock Company)
+        names:
+          - name: International Real Estate Consulting and Investment Joint Stock Company
+            previous_name: "HanoiTC Expert Joint Stock Company"
+      - match: "Transformers and Rectifiers (India) Limited (“T&R”)"
+        names:
+          - name: Transformers and Rectifiers (India) Limited
+            weak_alias: "T&R"
+      - match: "CompuAids Inc. D/B/A Groupe Systèmes Et Solutions D’Entreprise Ess Group Enterprise Systems And Solutions Group"
+        names:
+          - name: CompuAids Inc.
+            alias: ["Groupe Systèmes Et Solutions D’Entreprise Ess Group", "Enterprise Systems And Solutions Group"]
+      - match: "Mr. Jamshed Sharifov Russian Name: Джамшед Шарифов Also known as Dzhamshed Abdulamidovich Sharifov (in Tajik: Чамшед Абдуламидович Шарифов)"
+        names:
+          - name: ["Jamshed Sharifov", "Джамшед Шарифов"]
+            alias: ["Dzhamshed Abdulamidovich Sharifov", "Чамшед Абдуламидович Шарифов"]
+      - match: "JXTE MUNICIPAL CONSTRUCTION ENGINEERING CO. LTD (ALSO KNOWN AS JIANGXI JIAOGONG MUNICIPAL CONSTRUCTION ENGINEERING CO., LTD)"
+        names:
+          - name: JXTE Municipal Construction Engineering Co. Ltd
+            alias: "Jiangxi Jiaogong Municipal Construction Engineering Co., Ltd"
+      - match: "JXTE ASSEMBLY MANUFACTURING CO. LTD (ALSO KNOWN AS JIANGXI JIAOGONG ASSEMBLY MANUFACTURING CO., LTD)"
+        names:
+          - name: JXTE Assembly Manufacturing Co. Ltd
+            alias: "Jiangxi Jiaogong Assembly Manufacturing Co., Ltd"
+      - match: "Société Malienne de Construction, de Transport et d'Hydrocarbure (SOMACOTH SA) & M. Boubacar Bah"
+        names:
+          - name: ["Société Malienne de Construction, de Transport et d'Hydrocarbure", "Boubacar Bah"]
+            alias: "SOMACOTH SA"
   types:
     lowercase: true
     map:

@@ -1,5 +1,6 @@
 from typing import cast
 from urllib.parse import urljoin
+from lxml.html import HtmlElement
 
 from zavod import Context, helpers as h
 from zavod.stateful.positions import categorise
@@ -14,6 +15,15 @@ def split_dob_pob(dob_pob: str) -> tuple[str, str]:
     dob = parts[0].strip()
     pob = parts[1].strip() if len(parts) > 1 else ""
     return dob, pob
+
+
+def extract_party_name(context, doc: HtmlElement, label_id: str) -> str | None:
+    el = doc.xpath(f".//p[@id='{label_id}']/following-sibling::p[@class='right']")
+    if el is not None and len(el) == 1:
+        return el[0].text_content().strip()
+    else:
+        context.log.warning("Missing party affiliation.", doc=doc)
+        return None
 
 
 def crawl_person(context: Context, url: str) -> None:
@@ -37,11 +47,14 @@ def crawl_person(context: Context, url: str) -> None:
     entity.add("topics", "role.pep")
     entity.add("sourceUrl", url)
     entity.add("birthPlace", pob)
+    # 'lblLista' is the party during the elections; 'lblKlub' is the cyrrent party
+    entity.add("political", extract_party_name(context, pep_doc, "lblLista"))
+    entity.add("political", extract_party_name(context, pep_doc, "lblKlub"))
     h.apply_date(entity, "birthDate", dob)
 
     position = h.make_position(
         context,
-        name="Member of the Sejm of Poland",
+        name="Member of the Sejm",
         wikidata_id="Q19269361",
         country="pl",
         topics=["gov.legislative", "gov.national"],

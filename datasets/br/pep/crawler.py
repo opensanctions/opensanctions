@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from zavod import Context
 from zavod import helpers as h
 from zavod.stateful.positions import categorise
-from zavod.shed.zyte_api import fetch_resource
+from zavod.extract.zyte_api import fetch_resource
 
 
 ZIP = "application/x-zip-compressed"
@@ -58,7 +58,7 @@ def create_entity(raw_entity: Dict[str, Any], context: Context) -> None:
     person.add("name", raw_entity["Nome_PEP"])
     person.add("taxNumber", raw_entity["CPF"])
 
-    position_name = f'{raw_entity["Descrição_Função"]}, {raw_entity["Nome_Órgão"]}'
+    position_name = f"{raw_entity['Descrição_Função']}, {raw_entity['Nome_Órgão']}"
     position = h.make_position(context, position_name, country="br")
     categorisation = categorise(context, position, is_pep=True)
 

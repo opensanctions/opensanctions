@@ -39,7 +39,7 @@ data:
 ci_test: false
 
 dates:
-  formats: ["%m/%d/%Y"]
+  formats: ["%m/%d/%Y", "%m/%d/%y"]
 assertions:
   min:
     schema_entities:

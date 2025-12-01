@@ -1,16 +1,16 @@
 import logging
 from decimal import Decimal
 from typing import Generator, Iterator, List, Tuple
-from followthemoney import registry, model, DS
+from followthemoney import registry, model
 from followthemoney.helpers import check_person_cutoff
 
 from nomenklatura.enrich.common import EnricherConfig
 from nomenklatura.enrich.common import EnrichmentException
 from nomenklatura.enrich.common import BaseEnricher
 from nomenklatura.matching import get_algorithm, LogicV1
+from nomenklatura.blocker.index import BlockingMatches, Index
 from nomenklatura.resolver import Identifier
-from nomenklatura.judgement import Judgement
-from nomenklatura.resolver import Resolver
+from nomenklatura import Judgement, Resolver
 from nomenklatura.cache import Cache
 
 from zavod.archive import dataset_state_path
@@ -20,13 +20,12 @@ from zavod.entity import Entity
 from zavod.meta import Dataset, get_multi_dataset, get_catalog
 from zavod.store import get_store
 from zavod.reset import reset_caches
-from zavod.integration.duckdb_index import DuckDBIndex, BlockingMatches
 
 
 log = logging.getLogger(__name__)
 
 
-class LocalEnricher(BaseEnricher[DS]):
+class LocalEnricher(BaseEnricher[Dataset]):
     """
     Uses a local index to look up entities in a given dataset.
 
@@ -61,16 +60,18 @@ class LocalEnricher(BaseEnricher[DS]):
 
     """
 
-    def __init__(self, dataset: DS, cache: Cache, config: EnricherConfig):
+    def __init__(self, dataset: Dataset, cache: Cache, config: EnricherConfig):
         super().__init__(dataset, cache, config)
-        target_dataset_name = config["dataset"]
-        target_dataset = get_catalog().require(target_dataset_name)
+        assert dataset.model.full_dataset is not None, (
+            "LocalEnricher requires a target dataset name as `full_dataset`"
+        )
+        target_dataset = get_catalog().require(dataset.model.full_dataset)
         target_linker = get_dataset_linker(target_dataset)
         self.target_store = get_store(target_dataset, target_linker)
         self.target_store.sync()
         self.target_view = self.target_store.view(target_dataset)
-        index_path = dataset_state_path(target_dataset_name) / "enrich-index"
-        self._index = DuckDBIndex(
+        index_path = dataset_state_path(target_dataset.name) / "enrich-index"
+        self._index = Index(
             self.target_view, index_path, config.get("index_options", {})
         )
         self._index.build()
@@ -172,7 +173,7 @@ class LocalEnricher(BaseEnricher[DS]):
 def save_match(
     context: Context,
     resolver: Resolver[Entity],
-    enricher: LocalEnricher[Dataset],
+    enricher: LocalEnricher,
     entity: Entity,
     match: Entity,
 ) -> None:

@@ -17,7 +17,17 @@ IGNORE = [
     "gem_parents",
     "gem_parents_ids",
 ]
-ALIAS_SPLITS = ["[former],", "[former]", "[former name]", "(former)"]
+ALIAS_SPLITS = [
+    "[former],",
+    "[former]",
+    "[FORMER]",
+    "[former name]",
+    "[Former]",
+    "(former)",
+    "[Former}",
+    "[former[",
+    "; ",
+]
 SKIP_IDS = {
     "E100001015587",  # Small shareholders
     "E100000126067",  # Non-promoter shareholders
@@ -25,7 +35,7 @@ SKIP_IDS = {
     "E100000123261",  # natural persons
 }
 SELF_OWNED = {"E100000002236"}
-STATIC_URL = "https://globalenergymonitor.org/wp-content/uploads/2025/05/Global-Energy-Ownership-Tracker-May-2025-V2.xlsx"
+STATIC_URL = "https://globalenergymonitor.org/wp-content/uploads/2025/10/Global-Energy-Ownership-Tracker-October-2025-V1.xlsx"
 REGEX_URL_SPLIT = re.compile(r",\s*http")
 REGEX_POSSIBLE_ASSOCIATES = re.compile(r"（[^（）]*、[^（）]*）| \(\s*[^()]*,[^()]*\)")
 
@@ -186,7 +196,20 @@ def crawl_rel(context: Context, row: Dict[str, str], skipped: Set[str]):
 
 
 def crawl(context: Context):
-    path = context.fetch_resource("source.xlsx", STATIC_URL)
+    path = context.fetch_resource(
+        "source.xlsx",
+        STATIC_URL,
+        # Sending fewer headers seems to fail sometimes, some sort of browser fingerprinting?
+        headers={
+            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:145.0) Gecko/20100101 Firefox/145.0",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            "Accept-Language": "en-US,en;q=0.5",
+            "Accept-Encoding": "gzip, deflate, br, zstd",
+            "Connection": "keep-alive",
+            "Sec-Fetch-Dest": "document",
+            "Sec-Fetch-Mode": "navigate",
+        },
+    )
     # context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
 
     workbook: openpyxl.Workbook = openpyxl.load_workbook(path, read_only=True)

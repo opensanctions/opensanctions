@@ -47,6 +47,7 @@ children:
   - cu_inventario_legislatura
   - cy_parliament
   - de_abgeordnetenwatch
+  - de_bundesrat
   - de_bundestag
   - dk_pep
   - ee_riigikogu
@@ -60,6 +61,7 @@ children:
   - fr_maires
   - fr_senat
   - ge_declarations
+  - gr_parliament
   - hk_legco
   - hk_principal_officials
   - hr_public_officials
@@ -82,6 +84,9 @@ children:
   - ng_chipper_peps
   - ng_join_dots
   - nl_house_of_representatives
+  - nl_senate
+  - pl_sejm
+  - pl_senate
   - ro_fiu_declarations
   - sg_gov_dir
   - si_zvezoskop

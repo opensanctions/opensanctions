@@ -1,12 +1,12 @@
 from rigour.mime.types import XLSX
-from typing import Dict
+from typing import Any, Optional
 from zavod import helpers as h
 import openpyxl
 import re
 
 from zavod import Context
 from zavod.entity import Entity
-from zavod.shed.zyte_api import fetch_html, fetch_resource
+from zavod.extract.zyte_api import fetch_html, fetch_resource
 
 # "a.k.a.", "A.K.A.:" and variations
 # ידוע גם ("also known as")
@@ -18,16 +18,23 @@ SKIP_ROWS = {
     'הכרזות – איראן ארגונים/קבוצות – סה"כ 61 גורמים מוכרזים:',
     'הכרזות – צפון קוריאה יחידים – סה"כ 80 גורמים מוכרזים:',
     'הכרזות – צפון קוריאה ארגונים/קבוצות – סה"כ 75 גורמים מוכרזים:',
+    "Designations – Iran, organizations/groups – a total of 78 designated entities",
+    "Designations – North Korea, individuals – a total of 80 designated persons",
+    "Designations – North Korea, organizations/groups – a total of 75 designated entities",
+    "Designations – Iran, individuals – a total of 43 designated persons",
+    "Serial Number",
 }
 SPLITS = ["a)", "b)", "c)", "d)", "e)"]
 CHOPSKA = [
     ("מספר זיהוי:", "idNumber"),
     ("מספר דרכון:", "passportNumber"),
     ("Passport no:", "passportNumber"),
+    ("VAT Number", "taxNumber"),
+    ("Business RegistrationNumber", "registrationNumber"),
 ]
 
 
-def apply_identifiers(entity: Entity, text: str):
+def apply_identifiers(entity: Entity, text: str, *, default_prop: str) -> None:
     """
     Split and add passport and ID numbers but don't try and parse fully.
     """
@@ -42,10 +49,10 @@ def apply_identifiers(entity: Entity, text: str):
             item = parts[0]
             if len(parts) > 1:
                 entity.add(prop, parts[1].strip())
-        entity.add("passportNumber", item.strip())
+        entity.add(default_prop, item.strip())
 
 
-def extract_n_pop_address(text: str):
+def extract_n_pop_address(text: str) -> tuple[Optional[str], Optional[str]]:
     """
     Extract address and update the text by removing the extracted address.
     """
@@ -68,7 +75,7 @@ def extract_n_pop_address(text: str):
         return None, text
 
 
-def clean_date(date_str: str):
+def clean_date(date_str: str) -> list[str]:
     """
     Clean the  date string by replacing newlines, colons, and dots with a
     space character so it matches date pattern and return a multi split of dates
@@ -91,7 +98,7 @@ def apply_names(context: Context, entity: Entity, names_string: str) -> None:
         h.apply_name(entity, full=alias, alias=True)
 
 
-def crawl_row(context: Context, row: Dict):
+def crawl_row(context: Context, row: dict[str, Any]) -> None:
     record_id = row.pop("record_id")
     if not record_id.isnumeric():  # not a record
         if record_id not in SKIP_ROWS:
@@ -102,7 +109,7 @@ def crawl_row(context: Context, row: Dict):
         return
 
     names_string = row.pop("name")
-    serial_no = row.pop("serial_no")
+    serial_no = row.pop("original_serial_no")
 
     schema = context.lookup_value("schema", serial_no)
     if schema is None:
@@ -116,10 +123,13 @@ def crawl_row(context: Context, row: Dict):
     apply_names(context, entity, names_string)
     if entity.schema.is_a("Person"):
         h.apply_dates(entity, "birthDate", clean_date(row.pop("birth_incorp_date")))
-        apply_identifiers(entity, row.pop("passports_ids"))
+        apply_identifiers(entity, row.pop("identifiers"), default_prop="passportNumber")
     elif entity.schema.is_a("Organization"):
         h.apply_dates(
             entity, "incorporationDate", clean_date(row.pop("birth_incorp_date"))
+        )
+        apply_identifiers(
+            entity, row.pop("identifiers"), default_prop="registrationNumber"
         )
 
     # Extract address if it exists from either the info or nationality attibrutes
@@ -133,26 +143,36 @@ def crawl_row(context: Context, row: Dict):
     entity.add("topics", "sanction")
 
     sanction = h.make_sanction(context, entity)
-    h.apply_dates(
-        sanction, "startDate", clean_date(row.pop("isreal_temp_adoption_date"))
-    )
+    h.apply_dates(sanction, "modifiedAt", clean_date(row.pop("israel_update_date")))
     h.apply_dates(sanction, "startDate", clean_date(row.pop("isreal_adoption_date")))
 
     context.emit(entity)
     context.emit(sanction)
-    context.audit_data(row, ignore=["declaration_date", "originally_declared_by"])
+    context.audit_data(
+        row,
+        ignore=[
+            "declaration_date",
+            # Example: UNSC
+            "original_authority_id",
+            # Example: "(2006) - 1737"
+            "original_decision_id",
+        ],
+    )
 
 
-def crawl_excel_url(context: Context):
+def crawl_excel_url(context: Context) -> str:
     file_xpath = '//a[contains(@id,"filesToDownload_item")][contains(@href, "xlsx")]'
     doc = fetch_html(
         context, context.data_url, file_xpath, cache_days=1, absolute_links=True
     )
 
-    return doc.xpath(file_xpath)[0].get("href")
+    file_el = h.xpath_elements(doc, file_xpath, expect_exactly=1)[0]
+    file_url = file_el.get("href")
+    assert file_url is not None, "No href to file found"
+    return file_url
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     excel_url = crawl_excel_url(context)
     _, _, _, source_path = fetch_resource(
         context, "source.xlsx", excel_url, expected_media_type=XLSX
@@ -160,6 +180,7 @@ def crawl(context: Context):
     context.export_resource(source_path, XLSX, title=context.SOURCE_TITLE)
 
     wb = openpyxl.load_workbook(source_path, read_only=True)
+    assert wb.active
     for row_num, row in enumerate(
         h.parse_xlsx_sheet(
             context, wb.active, header_lookup=context.get_lookup("columns"), skiprows=2

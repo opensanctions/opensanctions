@@ -486,7 +486,7 @@ class Context:
         Args:
             lookup: The name of the lookup. The key under the dataset lookups property.
             value: The data value to look up.
-            warn: Whether to log a warning if no match is found.
+            warn_unmatched: Whether to log a warning if no match is found.
         """
         res = self.get_lookup(lookup).match(value)
         if res is None and warn_unmatched:

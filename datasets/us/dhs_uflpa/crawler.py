@@ -4,7 +4,7 @@ from normality import collapse_spaces, slugify
 from zavod import Context
 from zavod import helpers as h
 from zavod.helpers.xml import ElementOrTree
-from zavod.shed.zyte_api import fetch_html
+from zavod.extract.zyte_api import fetch_html
 
 
 # NAME (and one alias: NAME)

@@ -4,7 +4,7 @@ from time import sleep
 
 from zavod import Context
 from zavod import helpers as h
-from zavod.shed.zyte_api import fetch_html
+from zavod.extract.zyte_api import fetch_html
 
 # Ensure never more than 10 requests per second
 # https://www.sec.gov/about/privacy-information#security

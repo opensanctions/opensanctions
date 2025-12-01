@@ -8,7 +8,7 @@ coverage:
   start: "2024-05-02"
   end: "2025-05-23"
 manual_check:
-  last_checked: "2025-10-01"
+  last_checked: "2025-11-01"
   interval: 30
   message: Please check the website for any updates to the sanctions list. Navigate to "Full List" near the bottom of the home page. Each of the four sections should have a "Last updated" date for the list.
 deploy:

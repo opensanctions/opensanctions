@@ -9,7 +9,7 @@ from urllib.parse import urljoin
 
 from zavod import Context
 from zavod import helpers as h
-from zavod.shed.zyte_api import fetch_html
+from zavod.extract.zyte_api import fetch_html
 
 ID_SPLITS = [f"({c}) " for c in string.ascii_lowercase[:17]]  # a-q
 ALIAS_SPLITS = [f"{c}) " for c in string.ascii_lowercase[:17]]  # a-q

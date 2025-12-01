@@ -1,6 +1,5 @@
-from datetime import datetime
-
 from lxml import html
+from rigour.time import utc_now
 from pydantic import BaseModel
 
 from zavod import settings
@@ -270,7 +269,7 @@ def test_html_source_comparison(testdataset1: Dataset):
         accepted=False,
         last_seen_version="123",
         modified_by="test@user.com",
-        modified_at=datetime.utcnow(),
+        modified_at=utc_now(),
     )
     assert source_value1.matches(review)
     assert not source_value2.matches(review)
@@ -301,7 +300,7 @@ def test_text_source_comparison(testdataset1: Dataset):
         accepted=False,
         last_seen_version="123",
         modified_by="test@user.com",
-        modified_at=datetime.utcnow(),
+        modified_at=utc_now(),
     )
     assert source_value1.matches(review)
     assert source_value1dot.matches(review)
@@ -319,3 +318,9 @@ def test_review_key():
         review_key(["key1"] * 100)
         == "key1-key1-key1-key1-key1-key1-key1-key1-key1-key1-key1-key1-key1-key1-key1-key1--5611368bed"
     )
+    # All punctuation incl / becomes dash (backward compatibility with normality slugify)
+    assert review_key("STEPHEN D/B/A S CONTRACTING") == "stephen-d-b-a-s-contracting"
+    # Non-ascii printable characters are kept
+    assert review_key("Север Мухамадмухтар Крот") == "север-мухамадмухтар-крот"
+    # Zero-width and other non-printable are removed
+    assert review_key("name\u200bwith\u200cweird\u200dchars") == "namewithweirdchars"

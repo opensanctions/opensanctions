@@ -39,6 +39,18 @@ data:
 
 dates:
   formats: ["%m/%d/%Y"]
+names:
+  LegalEntity:
+    # Review names shorter than 11 chars, e.g. Sebastiano from G&G INTERNACIONAL S.A.S.
+    # We make Sebastiano an alias because it doesn't seem to be the primary official name of
+    # G&G INTERNACIONAL S.A.S. and as a LegalEntity entry it can cause lots of false
+    # positives on person names.
+    min_chars: 11
+    # Review all company names without spaces since they can be very generic in this dataset.
+    require_space: true
+  Person:
+    min_chars: 10
+
 assertions:
   min:
     schema_entities:
@@ -208,4 +220,5 @@ lookups:
           - "S.A.P.I. DE C.V."
           - "S.R.O."
           # "Individual","","","YUKI","","****", (invalid lastName)
+          - H # H and H Metalform GmbH
         value: null

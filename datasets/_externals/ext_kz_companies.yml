@@ -11,6 +11,7 @@ exports:
   - statistics.json
   - entities.delta.json
 deploy:
+  cpu: "2000m"
   memory: "3000Mi"
   memory_limit: "5000Mi"
   disk: 100Gi
@@ -59,10 +60,8 @@ inputs:
   - debarment
 
 config:
-  dataset: kz_companies
-  memory: 3500
-  strip_namespace: true
-  fuzzy: false
+  index_options:
+    memory: 3500
   threshold: 0.7
   algorithm: regression-v1
   topics:
@@ -70,6 +69,8 @@ config:
     - role.rca
     - sanction
     - sanction.linked
+    - export.control
+    - export.control.linked
     - debarment
     - asset.frozen
     - poi

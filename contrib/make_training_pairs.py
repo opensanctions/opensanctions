@@ -26,12 +26,14 @@ OutFile = click.Path(dir_okay=False, writable=True, file_okay=True, path_type=Pa
 # from judgements linked to them.
 IGNORE_DATASETS = {
     "us_sam_exclusions",  # horrific data quality
+    "us_fed_enforcements",  # too much name-only matching
+    "us_ddtc_debarred",  # too much name-only matching
     "us_cia_world_factbook",  # too much name-only matching
     "un_ga_protocol",  # too much name-only matching
     "tw_shtc",  # too much name-only matching
     "opencorporates",  # funky enricher
-    "us_ofac_press_releases",
-    "ext_us_ofac_press_releases",
+    "us_ofac_press_releases",  # too much name-only matching
+    "ext_us_ofac_press_releases",  # too much name-only matching
 }
 
 
@@ -59,6 +61,7 @@ def lazy_resolve(view: View, resolver: Resolver, id: Identifier) -> Optional[Ent
     """Get an entity merging all connected entities from the view."""
     cluster: Optional[Entity] = None
     connected = resolver.connected(id)
+    cluster_id = max(connected).id
 
     for ident in connected:
         entity = view.get_entity(ident.id)
@@ -71,11 +74,14 @@ def lazy_resolve(view: View, resolver: Resolver, id: Identifier) -> Optional[Ent
                 cluster.merge(entity)
             except Exception as e:
                 log.warning(
-                    f"Error merging entities: {e}", id1=cluster.id, id2=entity.id
+                    f"Error merging entities: {e}",
+                    cluster=cluster_id,
+                    id1=cluster.id,
+                    id2=entity.id,
                 )
                 return None
-    if cluster and len(connected):
-        cluster.id = max(connected).id
+    if cluster is not None:
+        cluster.id = cluster_id
     return cluster
 
 

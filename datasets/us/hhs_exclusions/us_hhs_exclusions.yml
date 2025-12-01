@@ -53,3 +53,10 @@ assertions:
     schema_entities:
       Person: 92000
       Company: 4000
+
+
+lookups:
+  type.name:
+    options:
+      - match: "INNOVATIVE MEDICAL PRODUCTS IN"
+        value: "INNOVATIVE MEDICAL PRODUCTS INC"

@@ -1,6 +1,7 @@
-from typing import Any, Dict
-from normality import collapse_spaces
 import re
+from typing import Any, Dict
+
+from normality import collapse_spaces
 
 from zavod import Context
 from zavod import helpers as h
@@ -22,6 +23,8 @@ RE_NAME_SPLIT = re.compile("|".join(NAME_SPLITS), re.IGNORECASE)
 
 def crawl_entity(context: Context, data: Dict[str, Any]):
     name_raw = data.pop("title")
+    if not name_raw:
+        return
     address = data.pop("address")
     country = collapse_spaces(data.pop("nationality"))
     entity = context.make("LegalEntity")

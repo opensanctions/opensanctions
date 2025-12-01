@@ -1,13 +1,13 @@
 import csv
-from typing import Dict
 from pathlib import Path
+from typing import Dict
 
 from normality import squash_spaces
 from rigour.text.scripts import is_latin
+from zavod.extract.zyte_api import fetch_html
 
-from zavod import Context, helpers as h
-from zavod.shed.zyte_api import fetch_html
-
+from zavod import Context
+from zavod import helpers as h
 
 HOMOGLYPHS = {
     "ᴄ": "c",
@@ -209,7 +209,7 @@ def crawl(context: Context):
 
     write_csv_for_manual_diff(tables[0], LOCAL_PATH / "releases.csv")
     write_csv_for_manual_diff(tables[1], LOCAL_PATH / "wallets.csv")
-    h.assert_dom_hash(container, "fc03c5b3f5349b4594deaf16d3262a4239bc56a6")
+    h.assert_dom_hash(container, "72f78441d876e62ab710aa7768db63b6355384e5")
 
     # At the time of writing, the table on the web page is missing some public keys,
     # so we maintain the data manually in a google sheet, but dump the table to csv

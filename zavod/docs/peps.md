@@ -29,6 +29,7 @@ Do
 - include the role
 - include the organisational body where needed
 - include the specific geographic jurisdiction where relevant
+- include `citizenship` for members of national parliaments (except for members of the United Kingdom Parliament)
 - refer to [Wikidata EveryPolitician](https://www.wikidata.org/wiki/Wikidata:WikiProject_every_politician)
   for examples - specifically [position Q4164871](https://www.wikidata.org/wiki/Q4164871).
   Much work has been done on defining positions in understandable and accurate
@@ -49,7 +50,7 @@ Avoid
   the country is already captured
   as a property of the entity.
 - Prefer `Member of the Hellenic Parliament` over `Member of the 17th Hellenic
-  Parliament (2015-202019)` - there is currently no need to distinguish between
+  Parliament (2015-2019)` - there is currently no need to distinguish between
   different terms of the same position. Occupancies represent distinct periods
   when a given person holds a position. If the same position occurs twice in time,
   e.g. it was only possible to be `Minister of Electricity` up until 2015 and

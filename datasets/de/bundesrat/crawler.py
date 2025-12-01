@@ -4,7 +4,6 @@ from typing import Optional
 from datapatch import Lookup
 from lxml.etree import _Element
 from lxml.html import HtmlElement
-from normality import squash_spaces
 from zavod.stateful.positions import OccupancyStatus, categorise
 
 from zavod import Context
@@ -42,8 +41,8 @@ def extract_position_and_memberships(
             context.log.warning(f"{url}: missing position name or memberships")
         return None, []
     else:
-        position_name = str(position_el.text).strip()
-        memberships = [str(el.text_content()).strip() for el in memberships_els]
+        position_name = h.element_text(position_el)
+        memberships = [h.element_text(el) for el in memberships_els]
         return position_name, memberships
 
 
@@ -58,18 +57,17 @@ def crawl_item(context: Context, item: HtmlElement) -> None:
     if "N. N." in h.element_text(details):
         context.log.info("Skipping member with no name", url=url)
         return
-    # Three most important fields are name, party, and position.
-    # If any of these are missing, we want to fail fast rather than silently skip.
-    # mypy may complain here because `.find()` can technically return None,
-    # but in practice every member page has an <h1> tag with the name,
-    # so we assert this implicitly by letting it raise if missing.
-    name = details.find(".//h1").text.strip("\xa0|").strip()
-    party = details.find(".//span[@class='organization-name']").text.strip()
+
+    name_party = h.element_text(details.find(".//h1"))
+    name, party = name_party.split(" |", 1)
+    assert name and party, f"Missing name or party for {url}"
     position_name, memberships = extract_position_and_memberships(context, details, url)
-    biography_el = member_doc.xpath(
-        ".//div[@class='module-box']/h1[text()='Zur Person']/following-sibling::div[@class='row']"
+    biography_el = h.xpath_elements(
+        member_doc,
+        ".//div[@class='module-box']/h1[text()='Zur Person']/following-sibling::div[@class='row']",
+        expect_exactly=1,
     )
-    biography = squash_spaces(biography_el[0].text_content().strip())
+    biography = h.element_text(biography_el[0])
     dob = extract_dob(context, context.get_lookup("birth_dates"), biography)
 
     person = context.make("Person")
@@ -79,6 +77,7 @@ def crawl_item(context: Context, item: HtmlElement) -> None:
     person.add("position", position_name)
     person.add("description", biography)
     person.add("sourceUrl", url)
+    person.add("citizenship", "de")
     h.apply_date(person, "birthDate", dob)
     for membership in memberships:
         person.add("position", membership.strip())
@@ -111,5 +110,6 @@ def crawl_item(context: Context, item: HtmlElement) -> None:
 def crawl(context: Context) -> None:
     doc = context.fetch_html(context.data_url, cache_days=3, absolute_links=True)
     container = doc.find(".//div[@class='row']/ul[@class='members-list']")
-    for item in container.xpath(".//li[@class='even' or @class='odd']"):
+    assert container is not None
+    for item in h.xpath_elements(container, ".//li[@class='even' or @class='odd']"):
         crawl_item(context, item)

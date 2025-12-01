@@ -3,7 +3,7 @@ entry_point: crawler.py
 prefix: nl-senate
 coverage:
   frequency: monthly
-  start: 2025-10-23
+  start: 2025-10-28
 load_statements: true
 summary: >-
   Members of the Dutch Senate, the upper house of the parliament of the Netherlands.

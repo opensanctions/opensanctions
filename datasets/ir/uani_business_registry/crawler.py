@@ -4,7 +4,7 @@ from lxml.html import HtmlElement
 from normality import slugify
 
 from zavod import Context, Entity, helpers as h
-from zavod.shed.zyte_api import fetch_html
+from zavod.extract.zyte_api import fetch_html
 
 
 def parse_facts_list(container: HtmlElement) -> Dict[str, List[HtmlElement]]:
