@@ -29,6 +29,7 @@ data:
   lang: nor
 
 # 169 members * several most recent terms ≈ 300 members
+# In total, we eneded up with 320 members, many of whom have served as deputies across multiple terms.
 assertions:
   min:
     schema_entities:
