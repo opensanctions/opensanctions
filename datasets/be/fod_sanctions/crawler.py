@@ -1,5 +1,5 @@
 from csv import DictReader
-from typing import Dict
+from typing import Dict, List
 from lxml import etree
 from zipfile import ZipFile
 
@@ -33,12 +33,8 @@ def apply_identifier(context: Context, entity: Entity, id_number_line: str):
     if len(parts) == 1:
         prop = "idNumber"
     if len(parts) == 2:
-        # Intentionally don't set the prop here
         prop = context.lookup_value(
-            "identifier_prop",
-            parts[1].strip(") "),
-            default=prop,
-            warn_unmatched=True,
+            "identifier_prop", parts[1].strip(") "), warn_unmatched=True
         )
 
     if prop == "passportNumber":
@@ -47,47 +43,45 @@ def apply_identifier(context: Context, entity: Entity, id_number_line: str):
     if prop:
         entity.add(prop, parts[0].strip(), original_value=id_number_line)
     else:
-        # Replace literal \n mistakes in source with spaces for readability
-        entity.add("notes", id_number_line.replace("\\n", " "))
+        entity.add("notes", id_number_line)
 
 
-def crawl_row(context: Context, row: Dict[str, str]):
+def crawl_row(context: Context, entity_id: str | None, row: Dict[str, List[str]]):
     entity = context.make("LegalEntity")
-    name = row.pop("Wholename")
-    assert name, row
-    birth_date = row.pop("Birth date")
-    birth_country = row.pop("Birth country").split("\n")
-    entity.id = context.make_id(name, birth_date, birth_country)
-    for name in name.split("\n"):
+    entity.id = entity_id
+
+    whole_names = row.pop("Wholename")
+    assert whole_names, row
+    for name in whole_names:
         h.apply_reviewed_names(context, entity, name)
-    entity.add_cast("Person", "lastName", row.pop("Lastname").split("\n"))
-    entity.add_cast("Person", "firstName", row.pop("Firstname").split("\n"))
-    entity.add_cast("Person", "middleName", row.pop("Middlename").split("\n"))
-    entity.add_cast("Person", "gender", row.pop("Gender").split("\n"))
-    entity.add_cast("Person", "birthPlace", row.pop("Birth place").split("\n"))
-    if birth_date:
+    entity.add_cast("Person", "lastName", row.pop("Lastname"))
+    entity.add_cast("Person", "firstName", row.pop("Firstname"))
+    entity.add_cast("Person", "middleName", row.pop("Middlename"))
+    entity.add_cast("Person", "gender", row.pop("Gender"))
+    entity.add_cast("Person", "birthPlace", row.pop("Birth place"))
+    for birth_date in row.pop("Birth date"):
         entity.add_schema("Person")
         h.apply_date(entity, "birthDate", birth_date)
-    entity.add("country", birth_country)
-    if position := row.pop("Function").replace("\\n", " "):
+    entity.add("country", row.pop("Birth country"))
+    if position := row.pop("Function"):
         if entity.schema.is_a("Person"):
             entity.add("position", position)
         else:
             entity.add("notes", position)
-    # Intentionally don't split literal \n here because in these cases it's not
-    # separating id number items, it's embedded within a single id number.
-    for id_number_line in row.pop("Number").split("\n"):
+    for id_number_line in row.pop("Number"):
         apply_identifier(context, entity, id_number_line)
-    entity.add("notes", row.pop("Remark").replace("\\n", " "))
-    entity.add("sourceUrl", row.pop("Links").split("\n"))
+    entity.add("notes", row.pop("Remark"))
+    entity.add("sourceUrl", row.pop("Links"))
     entity.add("topics", "sanction")
 
     sanction = h.make_sanction(context, entity)
-    h.apply_date(sanction, "listingDate", row.pop("Publication date"))
-    sanction.add(
-        "programId",
-        h.lookup_sanction_program_key(context, row.pop("Embargos")),
-    )
+    for listing_date in row.pop("Publication date"):
+        h.apply_date(sanction, "listingDate", listing_date)
+    for program_id in row.pop("Embargos"):
+        sanction.add(
+            "programId",
+            h.lookup_sanction_program_key(context, program_id),
+        )
     sanction.add("reason", row.pop("Regulation"))
 
     context.emit(entity)
@@ -102,7 +96,16 @@ def crawl_csv(context: Context):
     with open(path, "r", encoding="utf-8-sig") as fh:
         reader = DictReader(fh, delimiter=";")
         for row in reader:
-            crawl_row(context, row)
+            # Use raw values before any splitting/replacing for id
+            name = row.get("Wholename")
+            birth_date = row.get("Birth date")
+            birth_country = row.get("Birth country")
+            entity_id = context.make_id(name, birth_date, birth_country)
+            # They split distinct values with newlines. They also have some
+            # literal backslash-n sequences which are some kind of data handling mistake
+            # and not delimiting distinct values.
+            split_row = {k: v.replace("\\n", " ").split("\n") for k, v in row.items()}
+            crawl_row(context, entity_id, split_row)
 
 
 def crawl_old_xml(context: Context):
