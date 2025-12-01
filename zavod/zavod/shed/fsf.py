@@ -1,11 +1,12 @@
+import re
+from typing import Optional
+
+from banal import as_bool
+from followthemoney import registry
 from lxml import etree
 from lxml.etree import _Element as Element
-from banal import as_bool
-from typing import Optional
 from prefixdate import parse_parts
-from followthemoney import registry
 from rigour.langs import iso_639_alpha3
-import re
 
 from zavod import Context, Entity
 from zavod import helpers as h
@@ -125,7 +126,17 @@ def parse_entry(context: Context, entry: Element) -> None:
     parse_sanctions(context, entity, entry)
     # context.inspect(entry)
 
-    for name in entry.findall("./nameAlias"):
+    name_el_to_lang: dict[Element, str | None] = {}
+    for name_el in entry.findall("./nameAlias"):
+        raw_lang = name_el.get("nameLanguage")
+        lang = iso_639_alpha3(raw_lang) if raw_lang else None
+        if lang is None and raw_lang is not None and len(raw_lang):
+            context.log.warning("Unknown language", lang=raw_lang)
+            continue
+
+        name_el_to_lang[name_el] = lang
+
+    for name, lang in name_el_to_lang.items():
         is_weak = not as_bool(name.get("strong"))
         remark = name.findtext("./remark")
         if remark is not None:
@@ -145,11 +156,19 @@ def parse_entry(context: Context, entry: Element) -> None:
             elif "alias" in lremark:
                 context.log.warning("Unknown alias remark", remark=remark)
             entity.add("notes", remark, quiet=True)
-        lang2 = name.get("nameLanguage")
-        lang = iso_639_alpha3(lang2) if lang2 else None
-        if lang is None and lang2 is not None and len(lang2):
-            context.log.warning("Unknown language", lang=lang2)
-            continue
+
+        # Often there will be translations of organization names to every EU language under the sun,
+        # and we don't much care for those.
+        #
+        # If we have at least one name in English/Chinese/Russian/Farsi/Arabic or with no language tag,
+        # put it in the name field and treat the other languages as aliases.
+        interesting_languages = {None, "eng", "zho", "rus", "fas", "ara"}
+        if len(set(name_el_to_lang.values()) & interesting_languages) > 0:
+            treat_as_alias = lang not in interesting_languages
+        else:
+            # If all names we have are in the languages that we commonly assume are translated,
+            # put them all in the name field. This happens e.g. for Spanish-name terrorists.
+            treat_as_alias = False
 
         full_name = name.get("wholeName")
         first_name = name.get("firstName")
@@ -174,7 +193,9 @@ def parse_entry(context: Context, entry: Element) -> None:
                     middle_name=middle_name,
                     last_name=last_name,
                 )
-            h.apply_reviewed_names(context, entity, full_name, lang=lang)
+            h.apply_reviewed_names(
+                context, entity, full_name, lang=lang, alias=treat_as_alias
+            )
             entity.add("firstName", first_name, quiet=True, lang=lang)
             entity.add("middleName", middle_name, quiet=True, lang=lang)
             entity.add("lastName", last_name, quiet=True, lang=lang)
