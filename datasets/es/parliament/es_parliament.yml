@@ -31,7 +31,6 @@ data:
   format: html
   lang: spa
 dates:
-  # Wed Apr 14 00:00:00 CEST 1976
   formats: ["%d/%m/%Y", "%b %d %Y"]
 
 assertions:

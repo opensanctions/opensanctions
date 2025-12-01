@@ -1,9 +1,10 @@
 import os
+from typing import Optional
 from urllib.parse import parse_qs, urlencode, urlparse
 
 from zavod.stateful.positions import categorise
 
-from zavod import Context
+from zavod import Context, Entity
 from zavod import helpers as h
 from zavod.extract import zyte_api
 
@@ -13,7 +14,7 @@ DEPUTIES_API_URL = "https://www.congreso.es/en/busqueda-de-diputados?p_p_id=dipu
 IGNORE = ["constituency_id", "constituency_name", "legislative_term_id", "gender"]
 
 
-def rename_headers(context, entry):
+def rename_headers(context: Context, entry: dict[str, str]) -> dict[str, str]:
     result = {}
     for old_key, value in entry.items():
         new_key = context.lookup_value("columns", old_key)
@@ -25,14 +26,15 @@ def rename_headers(context, entry):
 
 
 def emit_pep_entities(
-    context,
-    person,
-    position_name,
-    lang,
-    start_date,
-    end_date,
-    is_pep,
-    wikidata_id=None,
+    context: Context,
+    *,
+    person: Entity,
+    position_name: str,
+    lang: str,
+    start_date: Optional[str],
+    end_date: Optional[str],
+    is_pep: bool,
+    wikidata_id: Optional[str] = None,
 ) -> bool:
     person.add("position", position_name)
     position = h.make_position(
@@ -60,18 +62,32 @@ def emit_pep_entities(
     return False
 
 
-def get_birth_date_and_place(context, profile_url):
-    doc = context.fetch_html(profile_url, cache_days=15)
-    born = doc.xpath("//h3[text() = 'Personal file']")[0].getnext().text_content()
+def get_birth_date_and_place(
+    context: Context, profile_url: str
+) -> tuple[str, str | None]:
+    """Get the birth date and place from the profile URL.
+
+    Format looks like one of the following:
+
+    - "Born on 05/12/1976"
+    - "Born on 09/03/1975 in Riudoms (Tarragona)"
+    """
+    born_xpath = "//h3[text() = 'Personal file']"
+    doc = zyte_api.fetch_html(
+        context, profile_url, unblock_validator=born_xpath, cache_days=15
+    )
+    born = h.element_text(
+        h.xpath_elements(doc, born_xpath, expect_exactly=1)[0].getnext()
+    )
     parts = born.split(" in ")
     birth_date = parts[0].replace("Born on", "").strip()
-    # very rough sanity check for date
-    assert "00:00:00 CE" in birth_date, birth_date
     birth_place = parts[1].strip() if len(parts) > 1 else None
     return birth_date, birth_place
 
 
-def crawl_deputy(context, item, current_leg_roman) -> bool:
+def crawl_deputy(
+    context: Context, item: dict[str, str], current_leg_roman: str
+) -> bool:
     id = item.pop("parliament_member_id")
     query = {
         "p_p_id": "diputadomodule",
@@ -86,7 +102,6 @@ def crawl_deputy(context, item, current_leg_roman) -> bool:
 
     name = item.pop("full_name")
     party = item.pop("party")
-    birth_date, birth_place = get_birth_date_and_place(context, profile_url)
 
     person = context.make("Person")
     person.id = context.make_id(id, name, party)
@@ -98,9 +113,7 @@ def crawl_deputy(context, item, current_leg_roman) -> bool:
         second_name=first_names[1] if len(first_names) > 1 else None,
         last_name=item.pop("last_name"),
     )
-    birth_date = birth_date.split(" ", 1)[1]
-    birth_date = birth_date.replace("CEST", "CET")
-    birth_date = birth_date.replace("00:00:00 CET", "")
+    birth_date, birth_place = get_birth_date_and_place(context, profile_url)
     h.apply_date(person, "birthDate", birth_date)
     person.add("birthPlace", birth_place)
     person.add("political", party)
@@ -108,11 +121,11 @@ def crawl_deputy(context, item, current_leg_roman) -> bool:
     person.add("sourceUrl", profile_url)
     emitted = emit_pep_entities(
         context,
-        person,
-        "Member of the Congress of Deputies of Spain",
-        "eng",
-        item.pop("start_date"),
-        item.pop("end_date", None),
+        person=person,
+        position_name="Member of the Congress of Deputies of Spain",
+        lang="eng",
+        start_date=item.pop("start_date"),
+        end_date=item.pop("end_date", None),
         is_pep=True,
         wikidata_id="Q18171345",
     )
@@ -120,13 +133,15 @@ def crawl_deputy(context, item, current_leg_roman) -> bool:
     return emitted
 
 
-def crawl_senator(context: Context, senator_url) -> bool:
+def crawl_senator(context: Context, senator_url: str) -> bool:
     parsed_url = urlparse(senator_url)
     query_params = parse_qs(parsed_url.query)
     senator_id = query_params["id1"][0]
     legis = query_params["legis"][0]
     xml_url = f"https://www.senado.es/web/ficopendataservlet?tipoFich=1&cod={senator_id}&legis={legis}"
-    path = context.fetch_resource(f"source_{senator_id}.xml", xml_url)
+    _, _, _, path = zyte_api.fetch_resource(
+        context, filename=f"source_{senator_id}.xml", url=xml_url
+    )
     # It looks like some newly-added senators don't have a link to the XML file
     # on their detail page, and the XML url pattern with their ID returns an empty file.
     if os.path.getsize(path) == 0:
@@ -137,12 +152,16 @@ def crawl_senator(context: Context, senator_url) -> bool:
 
     doc_xml = context.parse_resource_xml(path)
     datos = doc_xml.find("datosPersonales")
+    assert datos is not None
     web_id = datos.findtext("idweb")
-    first_names = datos.findtext("nombre").split(" ", 1)
+    first_names = h.element_text(
+        h.xpath_elements(datos, "nombre", expect_exactly=1)[0]
+    ).split(" ", 1)
     last_name = datos.findtext("apellidos")
 
     person = context.make("Person")
-    person.id = context.make_id(web_id, first_names, last_name)
+    # We ignore the type error here because we don't want to rekey
+    person.id = context.make_id(web_id, first_names, last_name)  # type: ignore
     h.apply_name(
         person,
         first_name=first_names[0],
@@ -186,18 +205,27 @@ def crawl_senator(context: Context, senator_url) -> bool:
     return emitted
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     listed_deputies = 0
     emitted_deputies = 0
     listed_senators = 0
     emitted_senators = 0
 
     # Crawl Deputies
-    deputies_doc = context.fetch_html(DEPUTIES_URL, cache_days=1)
-    leg_select = deputies_doc.xpath("//select[@id='_diputadomodule_legislatura']")[0]
-    current_leg_option = leg_select.xpath("//option[@selected='selected']")[0]
-    current_leg_decimal = current_leg_option.xpath("@value")[0]
-    current_leg_roman = current_leg_option.text_content().split(" ")[0].strip()
+    legislature_select_xpath = "//select[@id='_diputadomodule_legislatura']"
+    deputies_doc = zyte_api.fetch_html(
+        context, DEPUTIES_URL, unblock_validator=legislature_select_xpath, cache_days=1
+    )
+    leg_select = h.xpath_elements(
+        deputies_doc, legislature_select_xpath, expect_exactly=1
+    )[0]
+    current_leg_option = h.xpath_elements(
+        leg_select, "//option[@selected='']", expect_exactly=1
+    )[0]
+    current_leg_decimal = h.xpath_strings(
+        current_leg_option, "@value", expect_exactly=1
+    )[0]
+    current_leg_roman = h.element_text(current_leg_option).split(" ")[0].strip()
     form_data = {
         "_diputadomodule_idLegislatura": current_leg_decimal,
         "_diputadomodule_genero": "0",
