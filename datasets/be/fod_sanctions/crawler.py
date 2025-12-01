@@ -2,7 +2,6 @@ from csv import DictReader
 from typing import Dict
 from lxml import etree
 from zipfile import ZipFile
-import re
 
 from rigour.mime.types import CSV
 
@@ -11,12 +10,9 @@ from zavod import helpers as h
 from zavod.entity import Entity
 from zavod.shed.fsf import parse_entry
 
-# For when they have a newline or a literal \n in the data
-REGEX_BACKSLASH_N = re.compile(r"\\n|\n")
-
-
-def split(text: str) -> list[str]:
-    return REGEX_BACKSLASH_N.split(text)
+OLD_DATA_URL = (
+    "https://financien.belgium.be/sites/default/files/thesaurie/Consolidated%20list.zip"
+)
 
 
 # count of identifiers by number of parts (split on opening paren)
@@ -25,6 +21,11 @@ def split(text: str) -> list[str]:
 # 3: 1369
 # 4: 387
 # ...
+# could benefit from LLM extraction e.g.
+# "02800443 (id-National identification card) ((identity card))"
+# "02810614 (id-National identification card) (ID no)"
+# "03 01  118013 (other-Other identification number) (Passport number,  national ID  number, other numbers of  identity  documents: 03 01  118013)",
+# "0363464 (passport-National passport)  (issued by Palestinian Authority)"
 def apply_identifier(context: Context, entity: Entity, id_number_line: str):
     parts = id_number_line.split("(")
     prop = None
@@ -57,7 +58,8 @@ def crawl_row(context: Context, row: Dict[str, str]):
     birth_date = row.pop("Birth date")
     birth_country = row.pop("Birth country").split("\n")
     entity.id = context.make_id(name, birth_date, birth_country)
-    entity.add("name", name.split("\n"))
+    for name in name.split("\n"):
+        h.apply_reviewed_names(context, entity, name)
     entity.add_cast("Person", "lastName", row.pop("Lastname").split("\n"))
     entity.add_cast("Person", "firstName", row.pop("Firstname").split("\n"))
     entity.add_cast("Person", "middleName", row.pop("Middlename").split("\n"))
@@ -67,7 +69,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
         entity.add_schema("Person")
         h.apply_date(entity, "birthDate", birth_date)
     entity.add("country", birth_country)
-    if position := split(row.pop("Function")):
+    if position := row.pop("Function").replace("\\n", " "):
         if entity.schema.is_a("Person"):
             entity.add("position", position)
         else:
@@ -76,19 +78,22 @@ def crawl_row(context: Context, row: Dict[str, str]):
     # separating id number items, it's embedded within a single id number.
     for id_number_line in row.pop("Number").split("\n"):
         apply_identifier(context, entity, id_number_line)
-    entity.add("notes", split(row.pop("Remark")))
+    entity.add("notes", row.pop("Remark").replace("\\n", " "))
     entity.add("sourceUrl", row.pop("Links").split("\n"))
     entity.add("topics", "sanction")
 
     sanction = h.make_sanction(context, entity)
     h.apply_date(sanction, "listingDate", row.pop("Publication date"))
-    # TODO: program
-    row.pop("Embargos")
-    row.pop("type")
-    row.pop("Regulation")
+    sanction.add(
+        "programId",
+        h.lookup_sanction_program_key(context, row.pop("Embargos")),
+    )
+    sanction.add("reason", row.pop("Regulation"))
 
     context.emit(entity)
     context.emit(sanction)
+
+    context.audit_data(row, ["type"])
 
 
 def crawl_csv(context: Context):
@@ -101,7 +106,7 @@ def crawl_csv(context: Context):
 
 
 def crawl_old_xml(context: Context):
-    path = context.fetch_resource("source.zip", context.data_url)
+    path = context.fetch_resource("source.zip", OLD_DATA_URL)
     context.export_resource(path, "application/zip", title=context.SOURCE_TITLE)
     with ZipFile(path, "r") as zip:
         for name in zip.namelist():
@@ -115,5 +120,5 @@ def crawl_old_xml(context: Context):
 
 
 def crawl(context: Context):
-    # crawl_old_xml(context)
+    crawl_old_xml(context)
     crawl_csv(context)
