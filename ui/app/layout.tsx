@@ -31,9 +31,6 @@ export default function RootLayout({
           <Navigation />
           {children}
         </div>
-        <footer className="p-3" style={{ fontSize: '0.9em', height: '50px' }}>
-          Zavod UI vsn {version.git} ALPHA (built {version.buildTime})
-        </footer>
       </body>
     </html>
   );

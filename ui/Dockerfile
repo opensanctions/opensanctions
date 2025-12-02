@@ -21,10 +21,6 @@ RUN useradd -u 10000 -s /bin/false app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# Add build arg and env for git revision
-ARG GIT_REVISION=unknown
-ENV ZAVOD_UI_GIT_REVISION=$GIT_REVISION
-
 RUN mkdir /app
 COPY . /app
 
