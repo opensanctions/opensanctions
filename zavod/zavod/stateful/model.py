@@ -79,6 +79,22 @@ Index(
 )
 
 
+review_entity_table = Table(
+    "review_entity",
+    meta,
+    Column("review_key", Unicode(KEY_LEN), nullable=False, index=True),
+    Column("entity_id", Unicode(KEY_LEN), nullable=False, index=True),
+    Column("dataset", Unicode(KEY_LEN), nullable=False, index=True),
+    Index(
+        "ix_review_entity_unique_review_key_entity_id_dataset",
+        "review_key",
+        "entity_id",
+        "dataset",
+        unique=True,
+    ),
+)
+
+
 def create_db() -> None:
     """Create all stateful database tables."""
     engine = get_engine()
@@ -90,5 +106,6 @@ def create_db() -> None:
             statement_table,
             program_table,
             review_table,
+            review_entity_table,
         ],
     )

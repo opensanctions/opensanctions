@@ -15,12 +15,13 @@ from pydantic_core import CoreSchema
 from rigour.mime.types import HTML, PLAIN
 from rigour.text import text_hash
 from sqlalchemy import func, insert, not_, select, update
+from sqlalchemy.dialects import postgresql, sqlite
 from sqlalchemy.engine import Connection
 from sqlalchemy.sql import Select
 
 from zavod import helpers as h
 from zavod.context import Context
-from zavod.stateful.model import review_table
+from zavod.stateful.model import review_table, review_entity_table
 
 log = getLogger(__name__)
 
@@ -187,6 +188,28 @@ class Review(BaseModel, Generic[ModelType]):
     def matches_original(self, other: ModelType) -> bool:
         return model_hash(other) == model_hash(self.original_extraction)
 
+    def link_entity(self, context: Context, entity_id: str) -> None:
+        """Adds a link between this review and an entity ID.
+        If the link already exists, this operation succeeds without error."""
+
+        if context.conn.dialect.name == "postgresql":
+            insert = postgresql.insert
+        else:
+            insert = sqlite.insert
+        ins = (
+            insert(review_entity_table)
+            .values(
+                review_key=self.key,
+                entity_id=entity_id,
+                dataset=self.dataset,
+            )
+            .on_conflict_do_nothing(
+                index_elements=["review_key", "entity_id", "dataset"]
+            )
+        )
+
+        context.conn.execute(ins)
+
 
 class SourceValue(ABC):
     """
@@ -300,6 +323,14 @@ class HtmlSourceValue(SourceValue):
 
         seen_element = fromstring(review.source_value)
         return h.element_text_hash(seen_element) == h.element_text_hash(self.element)
+
+
+def delete_entity_links(context: Context) -> None:
+    """Deletes all review-entity links for the current dataset."""
+    del_stmt = review_entity_table.delete().where(
+        review_entity_table.c.dataset == context.dataset.name
+    )
+    context.conn.execute(del_stmt)
 
 
 def unicode_slug(parts: str | List[str]) -> Optional[str]:
