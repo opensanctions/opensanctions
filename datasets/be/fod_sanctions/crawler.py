@@ -77,11 +77,9 @@ def crawl_row(context: Context, entity_id: str | None, row: Dict[str, List[str]]
     sanction = h.make_sanction(context, entity)
     for listing_date in row.pop("Publication date"):
         h.apply_date(sanction, "listingDate", listing_date)
-    for program_id in row.pop("Embargos"):
-        sanction.add(
-            "programId",
-            h.lookup_sanction_program_key(context, program_id),
-        )
+    for embargo in row.pop("Embargos"):
+        program_id = h.lookup_sanction_program_key(context, embargo)
+        sanction.add("programId", program_id)
     sanction.add("reason", row.pop("Regulation"))
 
     context.emit(entity)
@@ -93,6 +91,7 @@ def crawl_row(context: Context, entity_id: str | None, row: Dict[str, List[str]]
 def crawl_csv(context: Context):
     path = context.fetch_resource("source.csv", context.data_url)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
+    record_count = 0
     with open(path, "r", encoding="utf-8-sig") as fh:
         reader = DictReader(fh, delimiter=";")
         for row in reader:
@@ -106,11 +105,14 @@ def crawl_csv(context: Context):
             # and not delimiting distinct values.
             split_row = {k: v.replace("\\n", " ").split("\n") for k, v in row.items()}
             crawl_row(context, entity_id, split_row)
+            record_count += 1
+    context.log.info(f"Crawled {record_count} CSV records.")
 
 
 def crawl_old_xml(context: Context):
     path = context.fetch_resource("source.zip", OLD_DATA_URL)
     context.export_resource(path, "application/zip", title=context.SOURCE_TITLE)
+    record_count = 0
     with ZipFile(path, "r") as zip:
         for name in zip.namelist():
             if name.endswith(".xml"):
@@ -119,7 +121,8 @@ def crawl_old_xml(context: Context):
                     doc_ = h.remove_namespace(doc)
                     for entry in doc_.findall(".//sanctionEntity"):
                         parse_entry(context, entry)
-                        # print(entry, entry.get("euReferenceNumber"), entry.attrib)
+                        record_count += 1
+    context.log.info(f"Crawled {record_count} XML records.")
 
 
 def crawl(context: Context):
