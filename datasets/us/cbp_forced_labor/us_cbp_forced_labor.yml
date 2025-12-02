@@ -322,3 +322,9 @@ lookups:
       - match: "Giant Manufacturing Co., Ltd."
         entities:
           - name: Giant Manufacturing Co., Ltd.
+      - match: "Mangalore Ganesh Beedi Works"
+        entities:
+          - name: Mangalore Ganesh Beedi Works
+      - match: "Firemount Group Ltd."
+        entities:
+          - name: Firemount Group Ltd."
