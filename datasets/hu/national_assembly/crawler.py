@@ -1,9 +1,28 @@
 from lxml import html
-from zavod import Context
-
-# from zavod import helpers as h
-
 from zavod.shed import zyte_api
+from zavod.stateful.positions import categorise
+
+from zavod import Context
+from zavod import helpers as h
+
+
+def split_party_name(context: Context, full_name: str) -> tuple[str, str | None]:
+    """Split MP name and party affiliation from format 'Surname, Given (PARTY)'."""
+    if "(" not in full_name:
+        context.log.warning(f"No party found in: {full_name}")
+        return full_name, None
+    name, party = full_name.rsplit("(", 1)
+    return name.strip(), party.rstrip(")").strip()
+
+
+def parse_name(context, full_name: str) -> tuple[str, str]:
+    """Strip title prefix and return (last_name, first_name) from 'Last, First' format."""
+    name = full_name.strip().removeprefix("Dr. ").removeprefix("Prof. ")
+    if "," not in name:
+        context.log.warning(f"Expected comma-separated name: {full_name}")
+        return "", name
+    last, first = (part.strip() for part in name.split(",", 1))
+    return last, first
 
 
 def crawl_row(context: Context, row: html.Element) -> None:
@@ -14,20 +33,68 @@ def crawl_row(context: Context, row: html.Element) -> None:
     url = url_el.get("href")
     assert url is not None, "No URL found in row"
     unblock_pep = ".//div[@class='pair-content']"
-    pep_doc = zyte_api.fetch_html(context, url, unblock_pep, cache_days=1)
+    pep_doc = zyte_api.fetch_html(context, url, unblock_pep, cache_days=5)
 
-    # print(html.tostring(pep_doc, pretty_print=True, encoding="unicode"))
-    pep_name = pep_doc.xpath(".//div[@class='pair-content']/text()")
-    print(pep_name[0])
-    # name = h.element_text(pep_name)
+    name_party_raw = pep_doc.xpath(".//div[@class='pair-content']//h1")
+    assert len(name_party_raw) == 1, f"No PEP name found in the document: url={url}"
+    name_party = h.element_text(name_party_raw[0])
+    name, party = split_party_name(context, name_party)
+    last_name, first_name = parse_name(context, name)
+
+    entity = context.make("Person")
+    entity.id = context.make_id(name, party)
+    h.apply_name(entity, first_name=first_name, last_name=last_name)
+    entity.add("political", party)
+    entity.add("sourceUrl", url)
+    entity.add("citizenship", "hu")
+
+    position = h.make_position(
+        context,
+        name="Member of the National Assembly of Hungary",
+        wikidata_id="Q17590876",
+        country="hu",
+        topics=["gov.legislative", "gov.national"],
+        lang="eng",
+    )
+
+    elections_table = pep_doc.xpath(
+        '//table[.//th[@colspan="5" and text()="Elections"]]'
+    )[0]
+    assert elections_table is not None, "No elections table found in the document"
+
+    for row in h.parse_html_table(
+        elections_table,
+        skiprows=1,
+        ignore_colspan={"5"},
+        index_empty_headers=True,
+    ):
+        str_row = h.cells_to_str(row)
+        start_date = str_row.pop("from")
+        end_date = str_row.pop("to", None)
+
+        categorisation = categorise(context, position, is_pep=True)
+        if not categorisation.is_pep:
+            return
+
+        occupancy = h.make_occupancy(
+            context,
+            person=entity,
+            position=position,
+            start_date=start_date,
+            end_date=end_date,
+            categorisation=categorisation,
+        )
+        if occupancy is not None:
+            context.emit(occupancy)
+            context.emit(position)
+            context.emit(entity)
 
 
 def crawl(context: Context):
     unblock = ".//table[@class=' table table-bordered']"
-    doc = zyte_api.fetch_html(context, context.data_url, unblock, cache_days=1)
-    # print(html.tostring(doc, pretty_print=True, encoding="unicode"))
+    doc = zyte_api.fetch_html(context, context.data_url, unblock, cache_days=5)
     table = doc.find(unblock)
-    assert table is not None, "Could not find the main table in the document"
+    assert table is not None, table
     rows = table.findall(".//tbody/tr")
     for row in rows:
         crawl_row(context, row)
