@@ -89,13 +89,24 @@ export type Position = Selectable<PositionTable>
 export type NewPosition = Insertable<PositionTable>
 export type PositionUpdate = Updateable<PositionTable>
 
+export interface ReviewEntityTable {
+  review_key: string
+  entity_id: string
+  dataset: string
+}
+export type ReviewEntity = Selectable<ReviewEntityTable>
+export type NewReviewEntity = Insertable<ReviewEntityTable>
+export type ReviewEntityUpdate = Updateable<ReviewEntityTable>
+
 export interface ReviewDatabase {
   review: ReviewTable
   position: PositionTable
+  review_entity: ReviewEntityTable
 }
 
 const REVIEW_TABLE_NAME = 'review';
 const POSITION_TABLE_NAME = 'position';
+const REVIEW_ENTITY_TABLE_NAME = 'review_entity';
 const dbUrl = DATABASE_URI;
 let db: Kysely<ReviewDatabase> | null = null;
 
@@ -250,6 +261,15 @@ export async function getExtractionEntry(dataset: string, key: string) {
     .where('deleted_at', 'is', null)
     .selectAll()
     .executeTakeFirst();
+}
+
+export async function getRelatedEntities(reviewKey: string, dataset: string): Promise<ReviewEntity[]> {
+  return await (await getDb())
+    .selectFrom(REVIEW_ENTITY_TABLE_NAME)
+    .where('review_key', '=', reviewKey)
+    .where('dataset', '=', dataset)
+    .selectAll()
+    .execute();
 }
 
 export async function updateExtractionEntry({ dataset, key, accepted, extractedData, modifiedBy }: { dataset: string, key: string, accepted: boolean, extractedData: object, modifiedBy: string }) {

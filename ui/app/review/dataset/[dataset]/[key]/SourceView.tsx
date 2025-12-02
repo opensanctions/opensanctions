@@ -9,14 +9,18 @@ import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
 import TurndownService from 'turndown';
 
+import { ReviewEntity } from '@/lib/db';
+import styles from "@/styles/Review.module.scss";
+
 type SourceViewProps = {
   sourceValue: string,
   sourceMimeType: string,
   sourceLabel: string,
-  searchQuery: string
+  searchQuery: string,
+  relatedEntities: ReviewEntity[]
 };
 
-export default function SourceView({ sourceValue, sourceMimeType, sourceLabel, searchQuery }: SourceViewProps) {
+export default function SourceView({ sourceValue, sourceMimeType, sourceLabel, searchQuery, relatedEntities }: SourceViewProps) {
 
   const markdownRef = useRef<ReactCodeMirrorRef>(null);
 
@@ -95,6 +99,23 @@ export default function SourceView({ sourceValue, sourceMimeType, sourceLabel, s
       <Tabs className="flex-shrink-0">
         {tabs}
       </Tabs>
+      {relatedEntities.length > 0 && (
+        <div>
+          <h4 className="h6 pt-2">Related entities</h4>
+          <ul className={styles.relatedEntities}>
+            {relatedEntities.map((entity) => (
+              <li key={entity.entity_id}>
+                <a
+                  href={`https://opensanctions.org/entities/${entity.entity_id}/`}
+                  target="_blank"
+                >
+                  {entity.entity_id}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   )
 }

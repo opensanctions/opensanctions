@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import React from 'react';
 import Row from 'react-bootstrap/Row';
 
-import { getExtractionEntry } from '@/lib/db';
+import { getExtractionEntry, getRelatedEntities } from '@/lib/db';
 import { PageProps } from '@/lib/pageProps';
 
 import DataView from './DataView';
@@ -16,6 +16,7 @@ export default async function EntryPage({ params }: PageProps) {
 
   if (!entry) return notFound();
 
+  const relatedEntities = await getRelatedEntities(key, dataset);
 
   return (
     <div className="pb-4 d-flex flex-column" style={{ minHeight: 0 }}>
@@ -36,7 +37,7 @@ export default async function EntryPage({ params }: PageProps) {
       </nav>
       <div className="flex-grow-1 d-flex flex-column mb-4" style={{ minHeight: 0 }}>
         <Row style={{ height: '100%' }}>
-          <DataView dataset={dataset} entryKey={key} entry={entry} />
+          <DataView dataset={dataset} entryKey={key} entry={entry} relatedEntities={relatedEntities} />
         </Row>
       </div>
     </div >
