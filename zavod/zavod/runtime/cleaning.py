@@ -89,10 +89,11 @@ def value_clean(
             clean = unicodedata.normalize("NFC", clean)
             if entity.schema.is_a("LegalEntity") and not is_name(clean):
                 log.warning(
-                    f"Property value {prop_.name!r} is not a valid name: {value}",
+                    f"Property value {value!r} is not a valid name.",
                     entity_id=entity.id,
                     value=value,
                     clean=clean,
+                    prop=prop_.name,
                 )
                 continue
         if prop_.type == registry.date and clean is not None:
