@@ -11,7 +11,7 @@ export default async function DatasetPage({ params }: PageProps) {
   if (!entries) return notFound();
 
   return (
-    <div className="container-fluid  p-4">
+    <div>
       <nav aria-label="breadcrumb" className="mb-3">
         <ol className="breadcrumb">
           <li className="breadcrumb-item">

@@ -18,7 +18,7 @@ export default async function EntryPage({ params }: PageProps) {
 
 
   return (
-    <div className="p-4 d-flex flex-column" style={{ height: 'calc(100vh - 50px)', minHeight: 0 }}>
+    <div className="pb-4 d-flex flex-column" style={{ minHeight: 0 }}>
       <nav aria-label="breadcrumb" className="mb-3">
         <ol className="breadcrumb">
           <li className="breadcrumb-item">

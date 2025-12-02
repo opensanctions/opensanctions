@@ -27,9 +27,11 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <div className="container-fluid d-flex flex-column pl-4 pr-4">
+        <div className="container-fluid d-flex flex-column pl-4 pr-4" style={{ height: '100vh' }}>
           <Navigation />
-          {children}
+          <div className="flex-grow-1 d-flex flex-column" style={{ minHeight: 0 }}>
+            {children}
+          </div>
         </div>
       </body>
     </html>
