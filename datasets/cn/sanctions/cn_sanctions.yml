@@ -9,7 +9,7 @@ coverage:
   frequency: never
   start: 2024-03-08
 manual_check:
-  last_checked: "2025-10-01"
+  last_checked: "2025-12-01"
   interval: 45
   message: Please do a quick research to find out whether the Chinese government has introduced any new sanctions.
 deploy:
