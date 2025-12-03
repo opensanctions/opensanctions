@@ -1,5 +1,5 @@
 from lxml import html
-from zavod.shed import zyte_api
+from zavod.extract import zyte_api
 from zavod.stateful.positions import categorise
 
 from zavod import Context
@@ -35,9 +35,10 @@ def crawl_row(context: Context, row: html.Element) -> None:
     unblock_pep = ".//div[@class='pair-content']"
     pep_doc = zyte_api.fetch_html(context, url, unblock_pep, cache_days=5)
 
-    name_party_raw = pep_doc.xpath(".//div[@class='pair-content']//h1")
-    assert len(name_party_raw) == 1, f"No PEP name found in the document: url={url}"
-    name_party = h.element_text(name_party_raw[0])
+    name_party_raw = h.xpath_elements(
+        pep_doc, ".//div[@class='pair-content']//h1", expect_exactly=1
+    )[0]
+    name_party = h.element_text(name_party_raw)
     name, party = split_party_name(context, name_party)
     last_name, first_name = parse_name(context, name)
 
@@ -57,10 +58,9 @@ def crawl_row(context: Context, row: html.Element) -> None:
         lang="eng",
     )
 
-    elections_table = pep_doc.xpath(
-        '//table[.//th[@colspan="5" and text()="Elections"]]'
+    elections_table = h.xpath_elements(
+        pep_doc, '//table[.//th[@colspan="5" and text()="Elections"]]', expect_exactly=1
     )[0]
-    assert elections_table is not None, "No elections table found in the document"
 
     for row in h.parse_html_table(
         elections_table,
@@ -90,7 +90,7 @@ def crawl_row(context: Context, row: html.Element) -> None:
             context.emit(entity)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     unblock = ".//table[@class=' table table-bordered']"
     doc = zyte_api.fetch_html(context, context.data_url, unblock, cache_days=5)
     table = doc.find(unblock)
