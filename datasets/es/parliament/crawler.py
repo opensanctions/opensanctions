@@ -1,6 +1,6 @@
 import os
 from typing import Optional
-from urllib.parse import parse_qs, urlencode, urlparse
+from urllib.parse import parse_qs, urlencode, urljoin, urlparse
 
 from zavod.stateful.positions import categorise
 
@@ -266,10 +266,15 @@ def crawl(context: Context) -> None:
             unblock_validator="//div[@class='caja12']",
             absolute_links=True,
         )
-        for senator_url in h.xpath_strings(
+        for senator_href in h.xpath_strings(
             letter_doc, ".//ul[@class='lista-alterna']//@href"
         ):
             listed_senators += 1
+
+            # Sometimes, absolute_links=True doesn't work (if lxml doesn't want to parse as HTML)
+            # urljoin will do the right thing in all cases (if senator_href contains a full URL
+            # or just a path)
+            senator_url = urljoin(letter_url, senator_href)
             if crawl_senator(context, senator_url):
                 emitted_senators += 1
 
