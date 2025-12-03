@@ -259,14 +259,16 @@ def crawl(context: Context) -> None:
         absolute_links=True,
     )
     for letter_url in h.xpath_strings(doc, letter_url_xpath):
-        senator_url_xpath = ".//ul[@class='lista-alterna']//@href"
         letter_doc = zyte_api.fetch_html(
             context,
             letter_url,
-            unblock_validator=senator_url_xpath,
+            # div of the main list, which may be empty for some letters
+            unblock_validator="//div[@class='caja12']",
             absolute_links=True,
         )
-        for senator_url in h.xpath_strings(letter_doc, senator_url_xpath):
+        for senator_url in h.xpath_strings(
+            letter_doc, ".//ul[@class='lista-alterna']//@href"
+        ):
             listed_senators += 1
             if crawl_senator(context, senator_url):
                 emitted_senators += 1
