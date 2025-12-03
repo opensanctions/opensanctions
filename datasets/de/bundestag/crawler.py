@@ -65,9 +65,11 @@ def crawl_person(context: Context, mdb: etree._Element, position: Entity) -> Non
 
 
 def crawl(context: Context) -> None:
-    html = context.fetch_html(context.data_url, absolute_links=True)
+    html_doc = context.fetch_html(context.data_url, absolute_links=True)
 
-    xml_urls = html.xpath(".//a[contains(@href, 'Stammdaten.zip')]/@href")
+    xml_urls = h.xpath_strings(
+        html_doc, ".//a[contains(@href, 'Stammdaten.zip')]/@href"
+    )
     assert len(xml_urls) == 1
 
     path = context.fetch_resource("source.zip", xml_urls[0])

@@ -5,8 +5,7 @@ from openpyxl import load_workbook
 from zavod import Context, helpers as h
 
 
-def crawl_item(row: Dict[str, str], context: Context):
-
+def crawl_item(context: Context, row: Dict[str, str | None]) -> None:
     name = row.pop("provider_name")
 
     if not name:
@@ -19,7 +18,7 @@ def crawl_item(row: Dict[str, str], context: Context):
     entity.id = context.make_id(name, row.get("national_provider_identification_npi"))
     entity.add("name", name)
     entity.add("npiCode", row.pop("national_provider_identification_npi"))
-    entity.add("address", row.pop("service_location_address").split("\n"))
+    entity.add("address", (row.pop("service_location_address") or "").split("\n"))
     entity.add("country", "us")
 
     sanction = h.make_sanction(context, entity)
@@ -31,9 +30,13 @@ def crawl_item(row: Dict[str, str], context: Context):
     context.audit_data(row)
 
 
-def crawl_excel_url(context: Context):
+def crawl_excel_url(context: Context) -> str:
     doc = context.fetch_html(context.data_url, absolute_links=True)
-    return doc.xpath("//*[text()='Terminated providers']")[0].get("href")
+    excel_url = h.xpath_elements(
+        doc, "//*[text()='Terminated providers']", expect_exactly=1
+    )[0].get("href")
+    assert excel_url is not None
+    return excel_url
 
 
 def crawl(context: Context) -> None:
@@ -43,6 +46,7 @@ def crawl(context: Context) -> None:
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
 
     wb = load_workbook(path, read_only=True)
+    assert wb.active is not None
 
-    for item in h.parse_xlsx_sheet(context, wb.active, skiprows=1):
-        crawl_item(item, context)
+    for row in h.parse_xlsx_sheet(context, wb.active, skiprows=1):
+        crawl_item(context, row)

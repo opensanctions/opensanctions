@@ -4,7 +4,7 @@ from rigour.mime.types import XLSX
 from openpyxl import load_workbook
 
 from zavod import Context, helpers as h
-from zavod.shed.zyte_api import fetch_resource
+from zavod.extract.zyte_api import fetch_resource
 
 REGEX_DBA = re.compile(r"\bdba\b", re.IGNORECASE)
 
@@ -25,7 +25,6 @@ def crawl_item(row: Dict[str, str], context: Context):
             last_name=row.pop("last_name_or_practice_name"),
         )
     else:
-
         raw_business_name = row.pop("last_name_or_practice_name")
         entity = context.make("Company")
         entity.id = context.make_id(raw_business_name, row.get("npi"))

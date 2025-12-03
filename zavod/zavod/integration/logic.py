@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import List, Optional
 from rigour.names import prenormalize_name
 from followthemoney import Schema, model, registry
 from nomenklatura import Resolver, Judgement
@@ -79,6 +79,54 @@ def logic_securities_mismatch(
     return score
 
 
+def _perfect_identifier_match(left: List[str], right: List[str]) -> bool:
+    left_set = set(left)
+    right_set = set(right)
+    longest = max(len(left_set), len(right_set))
+    if longest == 0:
+        return False
+    return len(left_set.intersection(right_set)) == longest
+
+
+def logic_identifiers(
+    resolver: Resolver[Entity],
+    common: Schema,
+    left: Entity,
+    right: Entity,
+    score: float,
+) -> Optional[float]:
+    """Custom logic for avoiding matches between Russian entities with different identifiers."""
+    if not common.is_a("LegalEntity") or left.id is None or right.id is None:
+        return score
+    left_countries = set(left.get_type_values(registry.country, matchable=True))
+    right_countries = set(right.get_type_values(registry.country, matchable=True))
+    overlap = left_countries.intersection(right_countries)
+    if "ru" in overlap and len(left_countries) == 1 and len(right_countries) == 1:
+        if common.is_a("Person"):
+            left_inns = left.get("innCode")
+            right_inns = right.get("innCode")
+            if _perfect_identifier_match(left_inns, right_inns):
+                log.info("Russian INN match: %s %s" % (left.id, right.id))
+                resolver.decide(left.id, right.id, Judgement.POSITIVE, user=USER)
+                return None
+        if common.is_a("Organization"):
+            left_ogrns = left.get("ogrnCode")
+            right_ogrns = right.get("ogrnCode")
+            if _perfect_identifier_match(left_ogrns, right_ogrns):
+                log.info("Russian OGRN match: %s %s" % (left.id, right.id))
+                resolver.decide(left.id, right.id, Judgement.POSITIVE, user=USER)
+                return None
+    if common.is_a("Organization"):
+        for unique_prop in {"leiCode", "imoNumber"}:
+            left_vals = left.get(unique_prop, quiet=True)
+            right_vals = right.get(unique_prop, quiet=True)
+            if _perfect_identifier_match(left_vals, right_vals):
+                log.info(f"Organization {unique_prop} match: {left.id} <> {right.id}")
+                resolver.decide(left.id, right.id, Judgement.POSITIVE, user=USER)
+                return None
+    return score
+
+
 def logic_decide(
     resolver: Resolver[Entity], left: Entity, right: Entity, score: float
 ) -> Optional[float]:
@@ -88,6 +136,9 @@ def logic_decide(
     if res_score is None:
         return None
     res_score = logic_vessel_match(resolver, common, left, right, res_score)
+    if res_score is None:
+        return None
+    res_score = logic_identifiers(resolver, common, left, right, res_score)
     if res_score is None:
         return None
     res_score = logic_securities_mismatch(resolver, common, left, right, res_score)

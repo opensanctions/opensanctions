@@ -26,7 +26,7 @@ description: |
   > - acts or omissions that on an aggregate company level lead to unacceptable greenhouse gas emissions
   > - gross corruption or other serious financial crime
   > - other particularly serious violations of fundamental ethical norms
-url: https://www.nbim.no/en/responsible-investment/ethical-exclusions/exclusion-of-companies/
+url: https://www.nbim.no/en/responsible-investment/exclusion-of-companies/
 publisher:
   name: Norges Bank Investment Management
   acronym: NBIM
@@ -40,7 +40,7 @@ publisher:
   url: https://www.nbim.no/en/
   official: true
 data:
-  url: https://www.nbim.no/en/responsible-investment/ethical-exclusions/exclusion-of-companies/
+  url: https://www.nbim.no/en/responsible-investment/exclusion-of-companies/
   format: HTML
 dates:
   formats: ["%d.%m.%Y"]

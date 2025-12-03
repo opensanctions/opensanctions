@@ -2,7 +2,7 @@ from urllib.parse import urljoin
 
 from zavod import Context, Entity, settings
 from zavod import helpers as h
-from zavod.shed.zyte_api import fetch_html
+from zavod.extract.zyte_api import fetch_html
 
 LEGISLATURES = {
     "https://parlament.mt/en/14th-leg/political-groups/": ("2022", "2027"),

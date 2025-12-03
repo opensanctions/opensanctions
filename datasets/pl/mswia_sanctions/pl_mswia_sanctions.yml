@@ -253,7 +253,20 @@ lookups:
           address:
             - "ul. Niepodległości 172, biuro 308, 220141 Mińsk, Republika Białorusi"
             - "220141, г. Минск, пр. Независимости, 172, офис 308"
-          registrationNumber: "690610877"
+          registrationNumber: "90610877"
+      - match: "adres: ul. Tarczyńska 5/9/9, 02-025 Warszawa "
+        props:
+          address: "ul. Tarczyńska 5/9/9, 02-025 Warszawa"
+      - match: "adres: 121108, Moskwa, ulica Kastanaewska, d. 43 k.4, piętro 1 pom V of 1, Federacja Rosyjska INN: 7731010279 (adres w języku rosyjskim: 121108, город Москва, Кастанаевская ул., 43, к. 4, эт 1 пом V оф 1)"
+        props:
+          address:
+            - "121108, Moskwa, ulica Kastanaewska, d. 43 k.4, piętro 1 pom V of 1, Federacja Rosyjska"
+            - "121108, город Москва, Кастанаевская ул., 43, к. 4, эт 1 пом V оф 1"
+          innCode: 7731010279
+      - match: "adres: 127018, miasto: Moskwa, ul. Oktyabrskaja 6, Federacja Rosyjska INN: 7751147024"
+        props:
+          address: "127018, miasto: Moskwa, ul. Oktyabrskaja 6, Federacja Rosyjska"
+          innCode: 7751147024
 
   names:
     options:

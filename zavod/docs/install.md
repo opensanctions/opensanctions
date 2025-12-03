@@ -77,6 +77,5 @@ For development, you may want to use our [prek](https://github.com/j178/prek) co
   defaults to the `data/` subdirectory of the current working directory when the
   `zavod` command is invoked.
 * `ZAVOD_ARCHIVE_BACKEND` default `FileSystemBackend`.
-    - `AnonymousGoogleCloudBackend` is nice for crawler development - it allows backfilling from the OpenSanctions data lake which is handy for delta comparisons to previous production runs. Requires `ZAVOD_ARCHIVE_BUCKET` to be set.
-    - `GoogleCloudBackend` additionally allows publishing to the data lake. gcloud environment credentials are required.
+    - `GoogleCloudBackend` uses the data lake as archive. Google Cloud credentials are required. Crawler team members configure configure read-access to the bucket, e.g. with the environment variable `GOOGLE_APPLICATION_CREDENTIALS=~/.etl-crawlerteam-sa-key.json`
 * `ZAVOD_ARCHIVE_BUCKET` - e.g. `data.opensanctions.org`

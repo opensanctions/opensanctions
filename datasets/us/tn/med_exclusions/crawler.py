@@ -1,5 +1,5 @@
 from zavod import Context, helpers as h
-from zavod.shed import zyte_api
+from zavod.extract import zyte_api
 
 
 def crawl(context: Context) -> None:

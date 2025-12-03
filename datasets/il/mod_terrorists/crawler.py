@@ -1,5 +1,7 @@
 import re
 from datetime import datetime
+from pathlib import Path
+from typing import Any, Iterator, Optional
 
 from normality import slugify, squash_spaces, stringify
 from openpyxl import load_workbook
@@ -7,6 +9,7 @@ from rigour.mime.types import XLSX
 
 from zavod import Context
 from zavod import helpers as h
+from zavod.entity import Entity
 
 ORG_URL = "https://nbctf.mod.gov.il/he/Announcements/Documents/NBCTFIsrael%20-%20Terror%20Organization%20Designation%20List_XL.xlsx"
 PEOPLE_URL = "https://nbctf.mod.gov.il/he/Announcements/Documents/NBCTF%20Israel%20designation%20Individuals_XL.xlsx"
@@ -16,7 +19,7 @@ SPLITS = ["; ", "Id Number", "a) ", "b) ", "c) ", " :", "\n"]
 DATE_SPLITS = ["OR", ";", " - ", "a) ", "b) ", "c) "]
 
 
-def parse_interval(sanction, date):
+def parse_interval(sanction: Entity, date: Optional[str]) -> None:
     if date is None:
         return
     date = date.strip()
@@ -38,7 +41,7 @@ def clean_numbered_name(raw_name: str) -> str:
     return cleaned
 
 
-def lang_pick(record, field):
+def lang_pick(record: dict[str, str], field: str) -> Optional[str]:
     hebrew = record.pop(f"{field}_hebrew", None)
     english = record.pop(f"{field}_english", None)
     if english is not None:
@@ -46,17 +49,17 @@ def lang_pick(record, field):
     return hebrew
 
 
-def header_names(cells):
+def header_names(cells: list[Any]) -> list[str]:
     headers = []
     for idx, cell in enumerate(cells):
         if cell is None:
             cell = f"column_{idx}"
         cell = cell.replace("(DD/MM/YYYY)", "")
-        headers.append(slugify(cell, "_"))
+        headers.append(slugify(cell, "_") or "")
     return headers
 
 
-def excel_records(path):
+def excel_records(context: Context, path: str | Path) -> Iterator[dict[str, str]]:
     wb = load_workbook(filename=path, read_only=True)
     for sheet in wb.worksheets:
         headers = None
@@ -76,15 +79,15 @@ def excel_records(path):
                 headers = header_names(cells)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     crawl_organizations(context)
     crawl_individuals(context)
 
 
-def crawl_individuals(context: Context):
+def crawl_individuals(context: Context) -> None:
     path = context.fetch_resource("individuals.xlsx", PEOPLE_URL)
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
-    for record in excel_records(path):
+    for record in excel_records(context, path):
         seq_id = record.pop("internal_seq_id", None)
         if seq_id in [None, '="-"']:
             continue
@@ -130,12 +133,12 @@ def crawl_individuals(context: Context):
         )
 
 
-def crawl_organizations(context: Context):
+def crawl_organizations(context: Context) -> None:
     path = context.fetch_resource("organizations.xlsx", ORG_URL)
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
     seq_ids = {}
-    links = []
-    for record in excel_records(path):
+    links: list[tuple[str, str]] = []
+    for record in excel_records(context, path):
         seq_id = record.pop("internal_seq_id", None)
         name_en = record.pop("organization_name_english", None)
         name_he = record.pop("organization_name_hebrew", None)
@@ -186,7 +189,8 @@ def crawl_organizations(context: Context):
 
         linked = record.pop("linked_to_internal_seq_id", "")
         for link in linked.split(";"):
-            links.append((max(link, seq_id), min(link, seq_id)))
+            if seq_id is not None:
+                links.append((max(link, seq_id), min(link, seq_id)))
 
         street = lang_pick(record, "street")
         city = lang_pick(record, "city_village")
@@ -238,8 +242,8 @@ def crawl_organizations(context: Context):
         object_id = seq_ids.get(object)
         if subject_id is None or object_id is None:
             continue
-        link = context.make("UnknownLink")
-        link.id = context.make_id(subject_id, object_id)
-        link.add("subject", subject_id)
-        link.add("object", object_id)
-        context.emit(link)
+        linked_entity = context.make("UnknownLink")
+        linked_entity.id = context.make_id(subject_id, object_id)
+        linked_entity.add("subject", subject_id)
+        linked_entity.add("object", object_id)
+        context.emit(linked_entity)

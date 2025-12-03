@@ -8,6 +8,7 @@ coverage:
 exports:
   - statistics.json
 deploy:
+  cpu: "1000m"
   memory: "4000Mi"
 load_statements: true
 ci_test: false

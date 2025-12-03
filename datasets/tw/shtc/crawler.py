@@ -5,7 +5,7 @@ from typing import List, Set
 import datapatch
 from pydantic import BaseModel
 from rigour.mime.types import CSV
-from zavod.shed.zyte_api import fetch_html
+from zavod.extract.zyte_api import fetch_html
 from zavod.stateful.review import (
     TextSourceValue,
     assert_all_accepted,

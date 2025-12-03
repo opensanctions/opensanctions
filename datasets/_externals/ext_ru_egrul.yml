@@ -12,11 +12,11 @@ exports:
   - entities.delta.json
 deploy:
   premium: true
-  cpu: "1000m"
+  cpu: "1500m"
   cpu_limit: "2000m"
-  disk: "150Gi"
   memory: "12Gi"
   memory_limit: "15Gi"
+  disk: "250Gi"
 load_statements: true
 summary: >-
   Companies database of the Russian Federation as maintained and published by
@@ -73,22 +73,21 @@ inputs:
   - special_interest
 
 config:
-  limit: 100
-  max_bin: 14
   index_options:
     max_candidates: 200
     match_batch: 300
-  dataset: ru_egrul
-  memory: 5000
-  strip_namespace: true
-  fuzzy: false
+    memory: 3500
   threshold: 0.7
+  limit: 100
+  max_bin: 14
   algorithm: regression-v1
   topics:
     - role.pep
     - role.rca
     - sanction
     - sanction.linked
+    - export.control
+    - export.control.linked
     - debarment
     - asset.frozen
     - poi

@@ -1,14 +1,12 @@
 import json
 from rigour.time import iso_datetime
-
-from zavod.logs import configure_logging
+import logging
 from zavod.archive import ISSUES_FILE, dataset_resource_path
 from zavod.context import Context
 from zavod.meta import Dataset
 
 
-def test_issue_logger(testdataset1: Dataset):
-    configure_logging()
+def test_issue_logger(testdataset1: Dataset, logger: logging.Logger):
     issues_path = dataset_resource_path(testdataset1.name, ISSUES_FILE)
     context = Context(testdataset1)
     context.begin(clear=True)

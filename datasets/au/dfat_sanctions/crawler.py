@@ -25,7 +25,7 @@ PROVISION_FIELDS = [
 # (they're interrupted by other entries).
 
 
-def clean_date(date):
+def clean_date(date: str) -> List[str]:
     splits = [
         "Approximately",
         ", and,",
@@ -74,14 +74,14 @@ def clean_reference(ref: str) -> Optional[str]:
 
 
 def parse_reference(
-    context: Context, reference: int, rows: List[Dict[str, Any]]
+    context: Context, reference: str, rows: List[Dict[str, Any]]
 ) -> None:
     schemata = set()
     for row in rows:
         type_ = row.pop("type")
         # Lookup by reference first to allow an override for references where there
         # are two conflicting type specs.
-        schema = context.lookup_value("type", str(reference))
+        schema = context.lookup_value("type", reference)
         if schema is None:
             schema = context.lookup_value("type", type_)
         if schema is None:
@@ -179,7 +179,7 @@ def parse_reference(
     context.emit(sanction)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     path = context.fetch_resource("source.xlsx", context.data_url)
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
 

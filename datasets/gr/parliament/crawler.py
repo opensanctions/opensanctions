@@ -1,5 +1,5 @@
 from urllib.parse import urljoin
-from typing import Tuple, Optional
+from typing import Dict, Tuple, Optional
 from lxml.html import HtmlElement
 
 from zavod import Context, helpers as h
@@ -37,6 +37,7 @@ SKIP_LIST = [
     "75f888b4-9245-479c-9aaa-b034010b4284",
     "79bf7490-332e-40c7-a226-b034010b36eb",
     "591f30ee-64a4-4f03-bfd0-b034010b18f2",
+    "363082e4-9389-409b-abf8-b34700d49a75",
 ]
 
 
@@ -54,8 +55,11 @@ def lookup_term_dates(
         return None, None
 
 
-def crawl_row(context: Context, str_row, id: str, name, url):
+def crawl_row(
+    context: Context, str_row: Dict[str, str | None], id: str, name: str, url: str
+) -> None:
     term = str_row.pop("term")
+    assert term is not None, "Term is missing"
     start_date, end_date = lookup_term_dates(context, term)
 
     person = context.make("Person")
@@ -93,7 +97,7 @@ def crawl_row(context: Context, str_row, id: str, name, url):
     context.audit_data(str_row, ["date", "costituency", "description"])
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     doc = context.fetch_html(context.data_url, headers=HEADERS, cache_days=1)
     # Get all <option> elements (skip the first 'Select Member')
     mp_option_els = doc.findall(

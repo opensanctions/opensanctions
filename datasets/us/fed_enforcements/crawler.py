@@ -5,7 +5,7 @@ from urllib.parse import urljoin, urlparse
 from pydantic import BaseModel, Field
 from rigour.mime.types import CSV
 from zavod.entity import Entity
-from zavod.shed.gpt import DEFAULT_MODEL, run_typed_text_prompt
+from zavod.extract.llm import DEFAULT_MODEL, run_typed_text_prompt
 from zavod.stateful.review import (
     TextSourceValue,
     assert_all_accepted,

@@ -12,6 +12,7 @@ exports:
   - statements.csv
   - targets.simple.csv
 deploy:
+  cpu: "1000m"
   memory: 4000Mi
   disk: "20Gi"
 load_statements: true

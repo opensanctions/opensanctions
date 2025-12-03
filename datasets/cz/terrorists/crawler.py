@@ -1,5 +1,5 @@
 from zavod import Context, helpers as h
-from zavod.shed.zyte_api import fetch_html
+from zavod.extract.zyte_api import fetch_html
 
 PROGRAM_KEY = "CZ-TERR"
 # Announced 17 June 2008, date of effect 17 June 2008

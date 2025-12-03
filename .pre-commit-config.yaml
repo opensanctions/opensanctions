@@ -16,7 +16,7 @@ repos:
     rev: v0.13.0
     hooks:
       - id: ruff-check
-        args: ['--select', 'I', '--fix']
+        args: ['--fix']
       - id: ruff-format
   - repo: https://github.com/adrienverge/yamllint.git
     rev: v1.37.1
@@ -33,6 +33,20 @@ repos:
           zavod/zavod/tests|
           contrib/|
           .pywikibot/|
+          datasets/|
+          )
+        args: ['--strict']
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.18.1
+    hooks:
+      - id: mypy
+        name: mypy-datasets
+        # Don't run isolated but use the activated venv. Not perfect but better than re-declaring all deps here
+        language: system
+        files: "datasets/"
+        exclude: |
+          (?x)^(
           datasets/_analysis|
           datasets/_collections|
           datasets/_externals|
@@ -58,10 +72,8 @@ repos:
           datasets/cu|
           datasets/cy|
           datasets/cz|
-          datasets/de|
           datasets/dk|
           datasets/ee|
-          datasets/eg|
           datasets/es|
           datasets/eu|
           datasets/fr|
@@ -69,15 +81,11 @@ repos:
           datasets/ge|
           datasets/gg|
           datasets/hk|
-          datasets/hr|
           datasets/id|
-          datasets/ie|
-          datasets/il|
-          datasets/im|
+          datasets/il/knesset_members|
+          datasets/il/mod_crypto|
           datasets/in|
-          datasets/iq|
           datasets/ir|
-          datasets/is|
           datasets/jp|
           datasets/kg|
           datasets/kp|
@@ -96,26 +104,107 @@ repos:
           datasets/my|
           datasets/ng|
           datasets/nl|
-          datasets/no|
+          datasets/no/nbim_exclusions|
           datasets/np|
           datasets/nz|
           datasets/ph|
           datasets/pk|
           datasets/pl|
-          datasets/ps|
           datasets/qa|
           datasets/ro|
           datasets/rs|
           datasets/ru|
           datasets/sg|
           datasets/si|
-          datasets/sk|
+          datasets/sk/rpvs|
           datasets/th|
           datasets/tj|
           datasets/tr|
           datasets/tw|
           datasets/ua|
-          datasets/us|
+          datasets/us/sc/med_exclusions|
+          datasets/us/cia_world_leaders|
+          datasets/us/sec_pause|
+          datasets/us/ice_wanted|
+          datasets/us/irs_ffi|
+          datasets/us/ga/med_exclusions|
+          datasets/us/ms/med_exclusions|
+          datasets/us/mt/med_exclusions|
+          datasets/us/plum_book|
+          datasets/us/mo/med_exclusions|
+          datasets/us/state_terrorist_exclusion|
+          datasets/us/ma/med_exclusions|
+          datasets/us/ak/med_exclusions|
+          datasets/us/ky/med_exclusions|
+          datasets/us/klepto_hr_visa|
+          datasets/us/al/med_exclusions|
+          datasets/us/nh/med_exclusions|
+          datasets/us/mn/med_exclusions|
+          datasets/us/ofac/enforcement_actions|
+          datasets/us/ofac/press_releases|
+          datasets/us/mi/med_exclusions|
+          datasets/us/sec/pause|
+          datasets/us/sec/harmed_investors|
+          datasets/us/sec/litigation|
+          datasets/us/cftc_enforcement_actions|
+          datasets/us/occ_enfact|
+          datasets/us/co/med_exclusions|
+          datasets/us/ca/med_exclusions|
+          datasets/us/ia/med_exclusions|
+          datasets/us/ddtc_enforcements|
+          datasets/us/wv/med_exclusions|
+          datasets/us/ddtc_debarred|
+          datasets/us/fbi_most_wanted|
+          datasets/us/sam_exclusions|
+          datasets/us/nk_jointventures|
+          datasets/us/state_dept|
+          datasets/us/wy/med_exclusions|
+          datasets/us/cia_world_factbook|
+          datasets/us/fara_filings|
+          datasets/us/pa/med_exclusions|
+          datasets/us/fincen_msb|
+          datasets/us/fbi_lazarus_crypto|
+          datasets/us/nc/med_exclusions|
+          datasets/us/special_leg|
+          datasets/us/sec_litigation_releases|
+          datasets/us/dod_chinese_milcorps|
+          datasets/us/nd/med_exclusions|
+          datasets/us/nj/med_exclusions|
+          datasets/us/me/med_exclusions|
+          datasets/us/ar/med_exclusions|
+          datasets/us/nv/med_exclusions|
+          datasets/us/dc/exclusions|
+          datasets/us/cuba_sanctions|
+          datasets/us/md/med_exclusions|
+          datasets/us/ks/med_exclusions|
+          datasets/us/ne/med_exclusions|
+          datasets/us/hi/med_exclusions|
+          datasets/us/de/med_exclusions|
+          datasets/us/fdic_failed_banks|
+          datasets/us/az/med_exclusions|
+          datasets/us/ny/med_exclusions|
+          datasets/us/hhs_exclusions|
+          datasets/us/oh/med_exclusions|
+          datasets/us/plural_legislators|
+          datasets/us/fed_enforcements|
+          datasets/us/trade_csl|
+          datasets/us/or/med_exclusions|
+          datasets/us/corpwatch|
+          datasets/us/cbp_forced_labor|
+          datasets/us/fcc_covered_list|
+          datasets/us/dhs_uflpa|
+          datasets/us/fda_restricted|
+          datasets/us/la/med_exclusions|
+          datasets/us/congress|
+          datasets/us/bis_oac|
+          datasets/us/bis_denied|
+          datasets/us/state_terrorist_orgs|
+          datasets/us/fincen_special_measures|
+          datasets/us/dea_fugitives|
+          datasets/us/ss_wanted|
+          datasets/us/wa/med_exclusions|
+          datasets/us/tn/med_exclusions|
+          datasets/us/navy|
           datasets/uy|
           datasets/ve|
           datasets/xk|
@@ -129,4 +218,4 @@ repos:
         entry: bash -c "cd ui && npx next lint --fix"
         language: system
         files: '^ui/'
-        pass_filenames_to_command: false
+        pass_filenames: false

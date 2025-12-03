@@ -448,3 +448,11 @@ lookups:
         values: ["0001158032"]
       - match: "RN598766\n(PA)"
         values: ["RN598766"]
+      - match: "4429 4(HI)R149156(MD)"
+        values: ["44294", "R149156"]
+      - match: "25 4128(OH)"
+        values: ["254128"]
+      - match: "RN34898 7L(PA)"
+        values: ["RN348987L"]
+      - match: "PN30 5385"
+        values: ["PN305385"]

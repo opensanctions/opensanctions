@@ -17,14 +17,11 @@ def get_element_text(doc: _Element, xpath_value: str, join_str: str = " ") -> Li
         join_str (str): String to and join the extracted text
     """
     tag_list = []
-    for tag in doc.xpath(xpath_value):
-        try:
-            content = tag.text_content()
-            content = content.replace("\xad", "").strip()
-            if len(content):
-                tag_list.append(content)
-        except AttributeError:  #  node is already a text content
-            tag_list.append(tag)
+    for tag in h.xpath_elements(doc, xpath_value):
+        content = h.element_text(tag)
+        content = content.replace("\xad", "").strip()
+        if len(content):
+            tag_list.append(content)
     return tag_list
 
 
@@ -57,7 +54,9 @@ def crawl(context: Context) -> None:
 def crawl_person(context: Context, url: str) -> None:
     doc = context.fetch_html(url, cache_days=1)
 
-    names = doc.xpath('.//div[contains(@class, "headerContent")]//h1//text()')
+    names = h.xpath_strings(
+        doc, './/div[contains(@class, "headerContent")]//h1//text()'
+    )
     name = collapse_spaces(" ".join(names).replace("\xad", ""))
     if name is None or "Unbekannte Person" in name:
         return

@@ -1,7 +1,9 @@
 from itertools import count
 
-from requests import RequestException
+import orjson
 from zavod.stateful.positions import categorise
+from zavod.extract import zyte_api
+
 
 from zavod import Context
 from zavod import helpers as h
@@ -28,9 +30,9 @@ IGNORE_FIELDS = {
 
 def crawl_councillor(context: Context, councillor_id: int) -> None:
     """Fetch and process detailed profile for a single councillor."""
-    data = context.fetch_json(
-        f"http://ws-old.parlament.ch/councillors/{councillor_id}",
-        params={"lang": "en", "format": "json"},
+    data = zyte_api.fetch_json(
+        context,
+        url=f"http://ws-old.parlament.ch/councillors/{councillor_id}?lang=en&format=json",
         cache_days=1,
     )
 
@@ -123,26 +125,43 @@ def crawl(context: Context) -> None:
     """Crawl Swiss Federal Assembly members from the Parliament API."""
 
     for page in count(start=1):
-        params = {"pageNumber": page, "lang": "en", "format": "json"}
+        result = zyte_api.fetch(
+            context,
+            cache_days=14,
+            zyte_request=zyte_api.ZyteAPIRequest(
+                url=context.data_url + f"?pageNumber={page}&lang=en&format=json",
+            ),
+        )
+        if len(result.response_text) > 0 and result.status_code == 404:
+            # We've reached the end of the list
+            return
+        if result.status_code != 200:
+            context.log.exception(
+                f"Failed to fetch index page {page} of councillors", result=result
+            )
+            return
+
         try:
-            data = context.fetch_json(context.data_url, params=params)
-        except RequestException as exc:
-            if exc.response is not None and exc.response.status_code == 404:
-                return
+            data = orjson.loads(result.response_text)
+        except orjson.JSONDecodeError:
+            result.invalidate_cache(context)
             raise
 
         if not isinstance(data, list):
             context.log.error("Expected list of councillors", data=data)
+            result.invalidate_cache(context)
             return
 
         for councillor in data:
             if not isinstance(councillor, dict):
                 context.log.warning("Invalid councillor data", data=councillor)
+                result.invalidate_cache(context)
                 continue
 
             councillor_id = councillor.get("id")
             if councillor_id is None:
                 context.log.warning("Councillor missing ID", councillor=councillor)
+                result.invalidate_cache(context)
                 continue
 
             crawl_councillor(context, councillor_id)

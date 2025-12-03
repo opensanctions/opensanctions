@@ -131,3 +131,7 @@ lookups:
         names:
           - name_clean: al-Nusrah Front
             alias: ["Hay’at Tahrir al-Sham", "ANF", "HTS"]
+      - match: "Antifa Ost, aka Hammerbande"
+        names:
+          - name_clean: Antifa Ost
+            alias: ["Hammerbande"]

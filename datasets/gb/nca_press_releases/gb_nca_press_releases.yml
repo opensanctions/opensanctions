@@ -1,0 +1,98 @@
+title: UK National Crime Agency Press Releases
+entry_point: crawler.py
+prefix: gb-nca-pr
+disabled: false
+coverage:
+  frequency: weekly
+  start: 2025-11-06
+load_statements: true
+ci_test: false # GPT key not available in CI
+summary: >
+  Press releases published by the UK National Crime Agency (NCA).
+description: |
+  This dataset contains enforcement-related press releases sourced from the official website
+  of the National Crime Agency (NCA). It covers actions, arrests, convictions, and operations
+  related to major criminal threats such as money laundering, modern slavery, drug trafficking,
+  organised immigration crime, fraud, and asset denial. The dataset aggregates items from multiple
+  news categories published under the NCA's [News](https://www.nationalcrimeagency.gov.uk/news/) section.
+url: https://www.nationalcrimeagency.gov.uk/news/
+publisher:
+  name: National Crime Agency
+  acronym: NCA
+  description: >
+    The National Crime Agency leads the UK's fight to cut serious and organised crime,
+    protecting the public by disrupting and bringing to justice those serious and
+    organised criminals who pose the highest risk to the UK.
+  url: https://www.nationalcrimeagency.gov.uk/
+  country: gb
+  official: true
+data:
+  url: https://www.nationalcrimeagency.gov.uk/news/
+  format: HTML
+  lang: eng
+http:
+  retry_statuses: [403]
+  user_agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.2 Safari/605.1.15 (zavod; opensanctions.org)
+dates:
+  formats: ["%d %B %Y"]
+
+# TODO: Update assertions after the first full run
+assertions:
+  min:
+    schema_entities:
+      Person: 100
+
+lookups:
+  topics:
+    options:
+      - match: Drug trafficking
+        value: crime.traffick.drug
+      - match: Modern slavery
+        value: forced.labor
+      - match: Human trafficking
+        value: crime.traffick.human
+      - match:
+          - Cybercrime
+          - Cyber choices
+        value: crime.cyber
+      - match:
+          - Fraud
+          - False identity documents
+        value: crime.fraud
+      - match:
+          - Money laundering
+          - Illicit finance
+          - Economic crime
+          - Corruption
+        value: crime.fin
+      - match: Most wanted
+        value: wanted
+      - match:
+          - Border
+          - Cannabis
+          - Child sexual abuse
+          - Child sexual exploitation
+          - civil recovery
+          - Corporate
+          - County Lines
+          - Criminal asset denial
+          - CSAE # Child Sexual Abuse and Exploitation
+          - Firearms
+          - Fugitives
+          - Intelligence
+          - Kidnap
+          - NSA
+          - Operation Venetic
+          - Organised crime partnership
+          - Organised immigration crime
+          - people smuggling
+          - Serious and organised crime
+          - Specialist capabilities
+          - Stovewood
+          - Suspicious Activity Reports
+        value: crime
+      - match:
+          - Annual Report
+          - Brexit
+          - Steve Rodhouse
+        value: null

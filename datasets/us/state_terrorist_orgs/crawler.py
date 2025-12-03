@@ -1,7 +1,7 @@
 import re
 
 from zavod import Context, helpers as h
-from zavod.shed.zyte_api import fetch_html
+from zavod.extract.zyte_api import fetch_html
 
 NORMAL_CASE_RE = r"^(?P<name>[\w\s’'/-]+?)(?:\s*\((?P<alias>[\w\s’'/-]+?)\))?$"
 # Foreign Terrorist Organizations designated under section 219 of the INA

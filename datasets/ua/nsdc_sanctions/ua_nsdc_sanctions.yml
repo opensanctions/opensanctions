@@ -124,6 +124,7 @@ lookups:
           - "doc:sm_passport"
           - "doc:f_passports_ru"
           - "doc:passport_ru"
+          - "doc:passport_il"
           - "reg:ro_passport"
         identification:
           is_passport: true

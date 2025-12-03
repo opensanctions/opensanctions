@@ -307,6 +307,22 @@ lookups:
         names:
           - name: CompuAids Inc.
             alias: ["Groupe Systèmes Et Solutions D’Entreprise Ess Group", "Enterprise Systems And Solutions Group"]
+      - match: "Mr. Jamshed Sharifov Russian Name: Джамшед Шарифов Also known as Dzhamshed Abdulamidovich Sharifov (in Tajik: Чамшед Абдуламидович Шарифов)"
+        names:
+          - name: ["Jamshed Sharifov", "Джамшед Шарифов"]
+            alias: ["Dzhamshed Abdulamidovich Sharifov", "Чамшед Абдуламидович Шарифов"]
+      - match: "JXTE MUNICIPAL CONSTRUCTION ENGINEERING CO. LTD (ALSO KNOWN AS JIANGXI JIAOGONG MUNICIPAL CONSTRUCTION ENGINEERING CO., LTD)"
+        names:
+          - name: JXTE Municipal Construction Engineering Co. Ltd
+            alias: "Jiangxi Jiaogong Municipal Construction Engineering Co., Ltd"
+      - match: "JXTE ASSEMBLY MANUFACTURING CO. LTD (ALSO KNOWN AS JIANGXI JIAOGONG ASSEMBLY MANUFACTURING CO., LTD)"
+        names:
+          - name: JXTE Assembly Manufacturing Co. Ltd
+            alias: "Jiangxi Jiaogong Assembly Manufacturing Co., Ltd"
+      - match: "Société Malienne de Construction, de Transport et d'Hydrocarbure (SOMACOTH SA) & M. Boubacar Bah"
+        names:
+          - name: ["Société Malienne de Construction, de Transport et d'Hydrocarbure", "Boubacar Bah"]
+            alias: "SOMACOTH SA"
   types:
     lowercase: true
     map:

@@ -4,7 +4,7 @@ from urllib.parse import urljoin
 
 from normality import squash_spaces
 from rigour.mime.types import PDF
-from zavod.shed.zyte_api import fetch_html, fetch_resource
+from zavod.extract.zyte_api import fetch_html, fetch_resource
 
 from zavod import Context
 from zavod import helpers as h

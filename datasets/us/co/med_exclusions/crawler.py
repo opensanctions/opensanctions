@@ -3,7 +3,7 @@ from rigour.mime.types import XLSX
 from openpyxl import load_workbook
 
 from zavod import Context, helpers as h
-from zavod.shed import zyte_api
+from zavod.extract import zyte_api
 
 
 def crawl_item(row: Dict[str, str], context: Context):
