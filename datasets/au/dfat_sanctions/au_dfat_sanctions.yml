@@ -131,6 +131,11 @@ lookups:
         value: LegalEntity
       - match: Vessel
         value: Vessel
+      # Override blank types
+      - match: 8401
+        value: Vessel
+      - match: 8402
+        value: Vessel
   name_type:
     options:
       - match:
@@ -192,6 +197,8 @@ lookups:
         prop: registrationNumber
       - match: V8
         value: null
+      - match: 9422547
+        value: 9422457
   type.country:
     options:
       - match: Guinea-Bisau

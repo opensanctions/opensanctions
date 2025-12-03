@@ -160,6 +160,7 @@ lookups:
           - transmasculine
           - intersex man
           - male organism
+          - non-binary man
         value: male
       - match:
           - transgender
