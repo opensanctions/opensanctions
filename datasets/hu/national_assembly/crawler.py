@@ -15,7 +15,7 @@ def split_party_name(context: Context, full_name: str) -> tuple[str, str | None]
     return name.strip(), party.rstrip(")").strip()
 
 
-def parse_name(context, full_name: str) -> tuple[str, str]:
+def parse_name(context: Context, full_name: str) -> tuple[str, str]:
     """Strip title prefix and return (last_name, first_name) from 'Last, First' format."""
     name = full_name.strip().removeprefix("Dr. ").removeprefix("Prof. ")
     if "," not in name:
