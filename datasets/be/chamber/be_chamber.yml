@@ -1,0 +1,42 @@
+title: Belgium Members of the Chamber of Representatives
+prefix: be-chamber
+url: https://www.dekamer.be/kvvcr/showpage.cfm?section=/depute&language=fr&cfm=cvlist54.cfm?legis=56&today=y
+coverage:
+  frequency: monthly
+  start: 2025-12-03
+load_statements: true
+entry_point: crawler.py
+summary: >-
+  Current and recent members of the Belgian Chamber of Representatives, the lower chamber of Parliament.
+description: |
+  This dataset provides information about the current and recent members of the Belgian Chamber of Representatives,
+  including their names, political affiliations, parliamentary terms, and other relevant information.
+tags:
+  - list.pep
+publisher:
+  name: Chamber of Representatives
+  description: |
+    The Chamber of Representatives is the lower house of the Federal Parliament of Belgium. It is
+    composed of 150 members elected by direct universal suffrage. The Chamber plays a key role in the
+    legislative process, representing the Belgian people and overseeing the government.
+  country: be
+  url: https://www.dekamer.be/kvvcr/index.cfm
+  official: true
+data:
+  url: https://www.dekamer.be/kvvcr/showpage.cfm?section=/depute&language=fr&cfm=cvlist54.cfm?legis=56&today=y
+  format: HTML
+
+assertions:
+  min:
+    schema_entities:
+      Person: 150
+      Position: 1
+    country_entities:
+      be: 1
+
+lookups:
+  term_dates:
+    options:
+      - match: "CV : Législature 56 (09.06.2024 - ....)"
+        start_date: "2024-06-09"
+        end_date: null
