@@ -17,7 +17,7 @@ export default async function DatasetPage({ params }: PageProps) {
           <li className="breadcrumb-item">
             <Link href="/review">Reviews</Link>
           </li>
-          <li className="breadcrumb-item" aria-current="page">
+          <li className="breadcrumb-item active" aria-current="page">
             {awaitedParams.dataset}
           </li>
         </ol>

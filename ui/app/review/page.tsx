@@ -17,7 +17,7 @@ export default async function Home() {
 
   return (
     <>
-      <div className="d-flex justify-content-between align-items-center mb-4">
+      <div className="d-flex justify-content-between align-items-center mb-4 ">
         <h1 className="text-2xl font-bold mb-0">{TITLE}</h1>
       </div>
 

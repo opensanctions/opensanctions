@@ -25,7 +25,7 @@ export default function RootLayout({
     <html lang="en">
       <head />
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-light`}
       >
         <div className="container-fluid d-flex flex-column pl-4 pr-4" style={{ height: '100vh' }}>
           <Navigation />
