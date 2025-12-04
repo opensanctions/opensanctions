@@ -94,7 +94,7 @@ assertions:
       Organization: 100
       Person: 1800
       Vessel: 1400
-      LegalEntity: 1000
+      LegalEntity: 1400
 lookups:
   names:
     options:
@@ -504,6 +504,7 @@ lookups:
           - OC428060
           - 384095-5
           - 08S04803
+          - 100534485
         prop: registrationNumber
       - match: 1436594D / 202101036294
         values:
