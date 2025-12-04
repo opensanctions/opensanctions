@@ -15,7 +15,7 @@ import { Pool } from 'pg'
 import { DATABASE_URI } from './constants';
 
 // Types are compile time. We want some sanity checking on the schema at runtime
-const expectedColumns = new Set<string>([
+const expectedReviewColumns = new Set<string>([
   'id',
   'key',
   'dataset',
@@ -34,7 +34,6 @@ const expectedColumns = new Set<string>([
   'modified_by',
   'deleted_at',
 ])
-
 const expectedPositionColumns = new Set<string>([
   'id',
   'entity_id',
@@ -47,6 +46,11 @@ const expectedPositionColumns = new Set<string>([
   'modified_at',
   'modified_by',
   'deleted_at',
+])
+const expectedReviewEntityColumns = new Set<string>([
+  'review_key',
+  'entity_id',
+  'dataset',
 ])
 
 export interface ReviewTable {
@@ -168,8 +172,9 @@ async function assertSchemaMatchesExpected(db: Kysely<ReviewDatabase>) {
   // Check that the table schema matches the expected columns
   const tables = await db.introspection.getTables()
 
-  checkTableSchema(tables, REVIEW_TABLE_NAME, expectedColumns);
+  checkTableSchema(tables, REVIEW_TABLE_NAME, expectedReviewColumns);
   checkTableSchema(tables, POSITION_TABLE_NAME, expectedPositionColumns);
+  checkTableSchema(tables, REVIEW_ENTITY_TABLE_NAME, expectedReviewEntityColumns);
 }
 
 export interface IDatasetStats {
