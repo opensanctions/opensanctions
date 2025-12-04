@@ -71,13 +71,12 @@ function searchSelectedValue(state: EditorView["state"], search: (query: string)
   }
   const selection = state.selection;
   const mainRange = selection.ranges[selection.mainIndex];
-  console.log("selection", mainRange);
+
   // Don't search if we've selected a value. We're probably trying to edit it
   // and search might be stealing focus.
   // It might be nice to be able to search for a partial string by selecting it,
   // and this is blocking that.
   if (mainRange.from !== mainRange.to) {
-    console.log("Skipping search because of selection");
     return;
   }
   const nodeText = state.doc.sliceString(node.from, node.to);

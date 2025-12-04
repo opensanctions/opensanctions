@@ -20,14 +20,26 @@ type SourceViewProps = {
   relatedEntities: ReviewEntity[]
 };
 
-export default function SourceView({ sourceValue, sourceMimeType, sourceLabel, searchQuery, relatedEntities }: SourceViewProps) {
+function searchInCodemirror(ref: React.RefObject<ReactCodeMirrorRef | null>, searchQuery: string) {
+  if (ref.current?.view) {
+    openSearchPanel(ref.current?.view);
+    ref.current?.view?.dispatch({
+      effects: [
+        setSearchQuery.of(new SearchQuery({ search: searchQuery }))
+      ]
+    });
+  }
+}
 
+export default function SourceView({ sourceValue, sourceMimeType, sourceLabel, searchQuery, relatedEntities }: SourceViewProps) {
+  const rawValueRef = useRef<ReactCodeMirrorRef>(null);
   const markdownRef = useRef<ReactCodeMirrorRef>(null);
 
   const tabs: React.ReactNode[] = [];
   const tab = (title: string, content: React.ReactNode | null = null) => {
     return <Tab key={title} eventKey={title} title={title} >
       {content ? content : <CodeMirror
+        ref={rawValueRef}
         value={sourceValue}
         height="100%"
         width="100%"
@@ -84,14 +96,10 @@ export default function SourceView({ sourceValue, sourceMimeType, sourceLabel, s
   }
 
   useEffect(() => {
-    if (!!searchQuery && markdownRef.current?.view) {
-      openSearchPanel(markdownRef.current?.view);
-      markdownRef.current?.view?.dispatch({
-        effects: [
-          setSearchQuery.of(new SearchQuery({ search: searchQuery }))
-        ]
-      });
-    }
+    if (!!searchQuery && rawValueRef.current)
+      searchInCodemirror(rawValueRef, searchQuery);
+    if (!!searchQuery && markdownRef.current)
+      searchInCodemirror(markdownRef, searchQuery);
   }, [searchQuery]);
 
   return (
