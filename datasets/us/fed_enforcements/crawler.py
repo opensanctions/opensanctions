@@ -10,6 +10,7 @@ from zavod.stateful.review import (
     TextSourceValue,
     assert_all_accepted,
     review_extraction,
+    reset_entity_links,
 )
 
 from zavod import Context
@@ -69,6 +70,7 @@ def crawl_item(
     context: Context, original_filename: str, input_dict: Dict[str, Optional[str]]
 ):
     origin = None
+    review = None
     if input_dict["Individual"]:
         schema = "Person"
         party_name = input_dict.pop("Individual")
@@ -117,6 +119,8 @@ def crawl_item(
     for ent in entities:
         entity = context.make(schema)
         entity.id = context.make_id(party_name, ent.name, affiliation, ent.locality)
+        if review:
+            review.link_entity(context, entity)
         entity.add("name", ent.name, origin=origin)
         entity.add("sourceUrl", url)
 
@@ -152,6 +156,7 @@ def crawl_item(
 
 
 def crawl(context: Context):
+    reset_entity_links(context)
     original_filename = urlparse(context.data_url).path.split("/")[-1]
     path = context.fetch_resource("source.csv", context.data_url)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
