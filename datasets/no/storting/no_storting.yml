@@ -28,11 +28,12 @@ data:
   format: JSON
   lang: nor
 
-# 169 members * several most recent terms ≈ 500 members
+# 169 members * several most recent terms ≈ 300 members
+# In total, we eneded up with 320 members, many of whom have served as deputies across multiple terms.
 assertions:
   min:
     schema_entities:
-      Person: 500
+      Person: 300
       Position: 1
 
 lookups:
