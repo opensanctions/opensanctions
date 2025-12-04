@@ -70,15 +70,12 @@ def crawl_entity(context: Context, *, url: str, name: str, category: str) -> Non
                     break
             if value is None:
                 if ":" in row:
-                    res = context.lookup("contacts", row)
+                    res = context.lookup("contacts", row, warn_unmatched=True)
                     if res:
                         if res.prop:
                             entity.add(res.prop, row)
                         else:
                             continue
-                    context.log.warn(
-                        "possible non-address line slipping through", line=row
-                    )
                     entity.add("notes", row)
                 address.append(row)
         if address:

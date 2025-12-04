@@ -76,7 +76,9 @@ lookups:
           - "499 Park Avenue New York, NY 10022 Phone: 1-212-461-1848 Fax: 1-212-916-1531 Email: aimllc.ny@alphainvestmentlc.com Website: www.alphainvestmentllc.com"
           - "(The former website http://scc-gov.org/ is no longer accessible. However, the current website is accessible.)"
           - "22 West 19th Street, Suite 701 New York, NY 10011 Phone: 1-718-289-3163 Fax: none www.williamburkeventures.com"
-        prio: notes
+          - "67 Wall StreetNew York, NY 10005Phone: 1-626-412-0524Fax: NoneEmail: support@24providenttrade.comWebsite: www.24providenttrade.com"
+          - "90 Park Avenue, 41st FloorNew York, NY 10016Phone: NoneWebsite: http://www.12-wcm.com"
+        prop: notes
   type.email:
     options:
       - match:
