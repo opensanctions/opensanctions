@@ -326,7 +326,7 @@ def _review_names(context: Context, entity: Entity, string: str) -> Review[Clean
         original_extraction=names,
         origin=LLM_MODEL_VERSION,
     )
-    review.link_entity(context, entity.id)
+    review.link_entity(context, entity)
     return review
 
 

@@ -82,6 +82,7 @@ Index(
 review_entity_table = Table(
     "review_entity",
     meta,
+    # If this was review.id, versioned updates of reviews would need to update these entries.
     Column("review_key", Unicode(KEY_LEN), nullable=False, index=True),
     Column("entity_id", Unicode(KEY_LEN), nullable=False, index=True),
     Column("dataset", Unicode(KEY_LEN), nullable=False, index=True),

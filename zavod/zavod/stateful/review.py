@@ -21,6 +21,7 @@ from sqlalchemy.sql import Select
 
 from zavod import helpers as h
 from zavod.context import Context
+from zavod.entity import Entity
 from zavod.stateful.model import review_table, review_entity_table
 
 log = getLogger(__name__)
@@ -188,9 +189,10 @@ class Review(BaseModel, Generic[ModelType]):
     def matches_original(self, other: ModelType) -> bool:
         return model_hash(other) == model_hash(self.original_extraction)
 
-    def link_entity(self, context: Context, entity_id: str) -> None:
+    def link_entity(self, context: Context, entity: Entity) -> None:
         """Adds a link between this review and an entity ID.
         If the link already exists, this operation succeeds without error."""
+        assert entity.id is not None
 
         if context.conn.dialect.name == "postgresql":
             insert = postgresql.insert
@@ -200,7 +202,7 @@ class Review(BaseModel, Generic[ModelType]):
             insert(review_entity_table)
             .values(
                 review_key=self.key,
-                entity_id=entity_id,
+                entity_id=entity.id,
                 dataset=self.dataset,
             )
             .on_conflict_do_nothing(
@@ -325,7 +327,7 @@ class HtmlSourceValue(SourceValue):
         return h.element_text_hash(seen_element) == h.element_text_hash(self.element)
 
 
-def delete_entity_links(context: Context) -> None:
+def reset_entity_links(context: Context) -> None:
     """Deletes all review-entity links for the current dataset."""
     del_stmt = review_entity_table.delete().where(
         review_entity_table.c.dataset == context.dataset.name
