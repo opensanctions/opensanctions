@@ -16,7 +16,7 @@ export default async function EntryPage({ params }: PageProps) {
 
   if (!entry) return notFound();
 
-  const relatedEntities = await getRelatedEntities(key, dataset);
+  const relatedEntities = await getRelatedEntities(key, dataset, entry.last_seen_version);
 
   return (
     <div className="pb-4 d-flex flex-column" style={{ minHeight: 0 }}>

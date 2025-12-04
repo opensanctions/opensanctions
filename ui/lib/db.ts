@@ -51,6 +51,7 @@ const expectedReviewEntityColumns = new Set<string>([
   'review_key',
   'entity_id',
   'dataset',
+  'last_seen_version',
 ])
 
 export interface ReviewTable {
@@ -97,6 +98,7 @@ export interface ReviewEntityTable {
   review_key: string
   entity_id: string
   dataset: string
+  last_seen_version: string
 }
 export type ReviewEntity = Selectable<ReviewEntityTable>
 export type NewReviewEntity = Insertable<ReviewEntityTable>
@@ -268,11 +270,12 @@ export async function getExtractionEntry(dataset: string, key: string) {
     .executeTakeFirst();
 }
 
-export async function getRelatedEntities(reviewKey: string, dataset: string): Promise<ReviewEntity[]> {
+export async function getRelatedEntities(reviewKey: string, dataset: string, lastSeenVersion: string): Promise<ReviewEntity[]> {
   return await (await getDb())
     .selectFrom(REVIEW_ENTITY_TABLE_NAME)
     .where('review_key', '=', reviewKey)
     .where('dataset', '=', dataset)
+    .where('last_seen_version', '=', lastSeenVersion)
     .selectAll()
     .execute();
 }

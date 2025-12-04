@@ -2,7 +2,7 @@ from abc import ABC
 from datetime import datetime, timezone
 from hashlib import sha1
 from logging import getLogger
-from typing import Any, Dict, Generic, List, Optional, Type, TypeVar
+from typing import Any, Callable, Dict, Generic, List, Optional, Type, TypeVar
 
 import orjson
 from lxml.html import HtmlElement, fromstring, tostring
@@ -14,10 +14,12 @@ from pydantic.json_schema import GenerateJsonSchema, JsonSchemaMode
 from pydantic_core import CoreSchema
 from rigour.mime.types import HTML, PLAIN
 from rigour.text import text_hash
-from sqlalchemy import func, insert, not_, select, update
+from sqlalchemy import TableClause, func, insert, not_, select, update
 from sqlalchemy.dialects import postgresql, sqlite
 from sqlalchemy.engine import Connection
 from sqlalchemy.sql import Select
+from sqlalchemy.dialects.sqlite.dml import Insert as SqliteInsert
+from sqlalchemy.dialects.postgresql.dml import Insert as PostgresqlInsert
 
 from zavod import helpers as h
 from zavod.context import Context
@@ -27,7 +29,7 @@ from zavod.stateful.model import review_table, review_entity_table
 log = getLogger(__name__)
 
 ModelType = TypeVar("ModelType", bound=BaseModel)
-
+Insert = Callable[[TableClause], SqliteInsert | PostgresqlInsert]
 MODIFIED_BY_CRAWLER = "zavod"
 
 
@@ -195,7 +197,7 @@ class Review(BaseModel, Generic[ModelType]):
         assert entity.id is not None
 
         if context.conn.dialect.name == "postgresql":
-            insert = postgresql.insert
+            insert: Insert = postgresql.insert
         else:
             insert = sqlite.insert
         ins = (
@@ -204,9 +206,11 @@ class Review(BaseModel, Generic[ModelType]):
                 review_key=self.key,
                 entity_id=entity.id,
                 dataset=self.dataset,
+                last_seen_version=self.last_seen_version,
             )
-            .on_conflict_do_nothing(
-                index_elements=["review_key", "entity_id", "dataset"]
+            .on_conflict_do_update(
+                index_elements=["review_key", "entity_id", "dataset"],
+                set_={"last_seen_version": self.last_seen_version},
             )
         )
 
@@ -325,14 +329,6 @@ class HtmlSourceValue(SourceValue):
 
         seen_element = fromstring(review.source_value)
         return h.element_text_hash(seen_element) == h.element_text_hash(self.element)
-
-
-def reset_entity_links(context: Context) -> None:
-    """Deletes all review-entity links for the current dataset."""
-    del_stmt = review_entity_table.delete().where(
-        review_entity_table.c.dataset == context.dataset.name
-    )
-    context.conn.execute(del_stmt)
 
 
 def unicode_slug(parts: str | List[str]) -> Optional[str]:

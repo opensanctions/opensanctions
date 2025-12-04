@@ -10,7 +10,6 @@ from rigour.mime.types import ZIP
 
 from zavod import Context
 from zavod import helpers as h
-from zavod.stateful.review import reset_entity_links
 
 
 DOWNLOAD_URL = "https://sam.gov/api/prod/fileextractservices/v1/api/download/"
@@ -53,7 +52,6 @@ def crawl_data_url(context: Context) -> str:
 
 
 def crawl(context: Context) -> None:
-    reset_entity_links(context)
     data_url = crawl_data_url(context)
     path = context.fetch_resource("source.zip", data_url)
     context.export_resource(path, ZIP, title=context.SOURCE_TITLE)

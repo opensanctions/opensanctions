@@ -99,7 +99,7 @@ export default function SourceView({ sourceValue, sourceMimeType, sourceLabel, s
       <Tabs className="flex-shrink-0">
         {tabs}
       </Tabs>
-      {relatedEntities.length > 0 && (
+      {relatedEntities.length > 0 ? (
         <div>
           <h4 className="h6 pt-2">Related entities</h4>
           <ul className={styles.relatedEntities}>
@@ -115,7 +115,7 @@ export default function SourceView({ sourceValue, sourceMimeType, sourceLabel, s
             ))}
           </ul>
         </div>
-      )}
+      ) : <p className="m-2">No entities linked to this review.</p>}
     </div>
   )
 }
