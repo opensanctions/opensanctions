@@ -91,7 +91,7 @@ def crawl_row(context: Context, row: html.Element) -> None:
 
 
 def crawl(context: Context) -> None:
-    unblock = ".//table[@class=' table table-bordered']"
+    table_xpath = ".//table[@class=' table table-bordered']"
     doc = zyte_api.fetch_html(context, context.data_url, unblock, cache_days=5)
     table = doc.find(unblock)
     assert table is not None, table
