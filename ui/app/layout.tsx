@@ -25,15 +25,14 @@ export default function RootLayout({
     <html lang="en">
       <head />
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-light`}
       >
-        <div className="container-fluid d-flex flex-column pl-4 pr-4">
+        <div className="container-fluid d-flex flex-column pl-4 pr-4" style={{ height: '100vh' }}>
           <Navigation />
-          {children}
+          <div className="flex-grow-1 d-flex flex-column" style={{ minHeight: 0 }}>
+            {children}
+          </div>
         </div>
-        <footer className="p-3" style={{ fontSize: '0.9em', height: '50px' }}>
-          Zavod UI vsn {version.git} ALPHA (built {version.buildTime})
-        </footer>
       </body>
     </html>
   );

@@ -6,6 +6,7 @@ import {
   Kysely,
   PostgresDialect,
   Selectable,
+  TableMetadata,
   Updateable,
   sql,
 } from 'kysely'
@@ -47,7 +48,7 @@ const expectedPositionColumns = new Set<string>([
   'modified_by',
   'deleted_at',
 ])
-const existingColumnNames = new Set<string>();
+
 export interface ReviewTable {
   id: Generated<number>
   key: string
@@ -124,48 +125,40 @@ export async function getDb(assertSchema: boolean = true) {
   return db;
 }
 
-async function assertSchemaMatchesExpected(db: Kysely<ReviewDatabase>) {
-  // Check that the table schema matches the expected schema
-  const tables = await db.introspection.getTables()
-
-  // Check review table
-  const reviewTable = tables.find(t => t.name === REVIEW_TABLE_NAME)
-  if (!reviewTable) {
-    throw new Error(`Review table not found in database`);
+function checkTableSchema(
+  tables: TableMetadata[],
+  tableName: string,
+  expectedColumns: Set<string>
+): void {
+  const table = tables.find(t => t.name === tableName);
+  if (!table) {
+    throw new Error(`Table ${tableName} not found in database`);
   }
-  for (const column of reviewTable.columns) {
+
+  const existingColumnNames = new Set<string>();
+  for (const column of table.columns) {
     existingColumnNames.add(column.name);
   }
+
   const missing = expectedColumns.difference(existingColumnNames);
   const unexpected = existingColumnNames.difference(expectedColumns);
+
   if (unexpected.size > 0 || missing.size > 0) {
-    let msg = `Table ${REVIEW_TABLE_NAME} doesn't match expected schema. `;
+    let msg = `Table ${tableName} doesn't match expected schema. `;
     if (unexpected.size > 0)
       msg += `Unexpected columns: ${Array.from(unexpected).join(', ')}. `;
     if (missing.size > 0)
       msg += `Missing columns: ${Array.from(missing).join(', ')}. `;
     throw new Error(msg);
   }
+}
 
-  // Check position table
-  const positionTable = tables.find(t => t.name === POSITION_TABLE_NAME)
-  if (!positionTable) {
-    throw new Error(`Position table not found in database`);
-  }
-  const existingPositionColumnNames = new Set<string>();
-  for (const column of positionTable.columns) {
-    existingPositionColumnNames.add(column.name);
-  }
-  const unexpectedPosition = expectedPositionColumns.difference(existingPositionColumnNames);
-  const missingPosition = existingPositionColumnNames.difference(expectedPositionColumns);
-  if (unexpectedPosition.size > 0 || missingPosition.size > 0) {
-    let msg = `Table position doesn't match expected schema. `;
-    if (unexpectedPosition.size > 0)
-      msg += `Unexpected columns: ${Array.from(unexpectedPosition).join(', ')}. `;
-    if (missingPosition.size > 0)
-      msg += `Missing columns: ${Array.from(missingPosition).join(', ')}. `;
-    throw new Error(msg);
-  }
+async function assertSchemaMatchesExpected(db: Kysely<ReviewDatabase>) {
+  // Check that the table schema matches the expected columns
+  const tables = await db.introspection.getTables()
+
+  checkTableSchema(tables, REVIEW_TABLE_NAME, expectedColumns);
+  checkTableSchema(tables, POSITION_TABLE_NAME, expectedPositionColumns);
 }
 
 export interface IDatasetStats {
