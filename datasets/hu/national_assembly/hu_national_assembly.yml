@@ -10,7 +10,8 @@ summary: >
   Profiles of Members of the Hungarian Parliament, including their political affiliations.
 description: |
   This dataset lists current Members of the Hungarian National Assembly (Országgyűlés),
-  along with their political affiliations and terms of office.
+  along with their political affiliations and terms of office. Where available, it also
+  includes information on members' non-parliamentary roles, such as government positions.
 publisher:
   name: Országgyűlés
   name_en: Hungarian National Assembly
