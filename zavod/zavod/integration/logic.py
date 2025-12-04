@@ -127,6 +127,31 @@ def logic_identifiers(
     return score
 
 
+def logic_pkpro_ids(
+    resolver: Resolver[Entity],
+    common: Schema,
+    left: Entity,
+    right: Entity,
+    score: float,
+) -> Optional[float]:
+    """Custom logic for avoiding matches between entities from Pakistan."""
+    if not common.is_a("Person"):
+        return score
+    PK = "pk_proscribed_persons"
+    if PK not in left.datasets or PK not in right.datasets:
+        return score
+    left_ids_ = left.get_statements("idNumber")
+    left_ids = set([s.value for s in left_ids_ if s.dataset == PK])
+    right_ids_ = right.get_statements("idNumber")
+    right_ids = set([s.value for s in right_ids_ if s.dataset == PK])
+    if len(left_ids) > 0 and len(right_ids) > 0 and left_ids.isdisjoint(right_ids):
+        if left.id is not None and right.id is not None:
+            log.info("PK proscribed negative match: %s %s" % (left.id, right.id))
+            resolver.decide(left.id, right.id, Judgement.NEGATIVE, user=USER)
+            return None
+    return score
+
+
 def logic_decide(
     resolver: Resolver[Entity], left: Entity, right: Entity, score: float
 ) -> Optional[float]:
@@ -136,6 +161,9 @@ def logic_decide(
     if res_score is None:
         return None
     res_score = logic_vessel_match(resolver, common, left, right, res_score)
+    if res_score is None:
+        return None
+    res_score = logic_pkpro_ids(resolver, common, left, right, res_score)
     if res_score is None:
         return None
     res_score = logic_identifiers(resolver, common, left, right, res_score)
