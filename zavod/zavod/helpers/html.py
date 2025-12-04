@@ -163,3 +163,7 @@ def xpath_strings(
             f"Expected {expect_exactly} elements, got {len(result)} for xpath {xpath!r}"
         )
     return [cast(str, r) for r in result]
+
+
+def xpath_string(el: Element, xpath: str) -> str:
+    return xpath_strings(el, xpath, expect_exactly=1)[0]

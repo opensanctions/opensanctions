@@ -4,10 +4,10 @@ from typing import Dict
 from urllib.parse import urljoin
 
 from zavod import Context, helpers as h
-from zavod.extract.zyte_api import fetch_html
+from zavod.extract import zyte_api
 
 
-def crawl_item(context: Context, row: Dict[str, str]):
+def crawl_item(context: Context, row: Dict[str, str]) -> None:
     # Create the entity based on the schema
     first_name = row.pop("first_name")
     last_name = row.pop("last_name")
@@ -26,13 +26,13 @@ def crawl_item(context: Context, row: Dict[str, str]):
     # Initialize facts to collect key-value pairs
     facts = {}
     if details_section is not None:
-        for element in details_section.getchildren():
+        for element in details_section:
             # If it's a <dt>, set it as a key (e.g., 'Nombre y apellidos')
             if element.tag == "dt":
                 facts_key = slugify(element.text, sep="_")
             # If it's a <dd>, set it as the value for the last key (e.g., 'Marek Dawid LEGIEC')
             if element.tag == "dd" and facts_key:
-                facts[facts_key] = element.text.strip()
+                facts[facts_key] = h.element_text(element)
                 facts_key = None  # Reset key after each value
 
         # Add additional fields from the facts dictionary to the entity
@@ -68,11 +68,13 @@ def parse_link_element(
     }
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     link_xpath = ".//a[starts-with(@href, 'colabora_masbucados_detalle')]"
-    doc = fetch_html(context, context.data_url, link_xpath, cache_days=1)
+    doc = zyte_api.fetch_html(
+        context, context.data_url, unblock_validator=link_xpath, cache_days=1
+    )
     # Find all <a> elements with the specified pattern
-    link_elements = doc.xpath(link_xpath)
+    link_elements = h.xpath_elements(doc, link_xpath)
     if not link_elements:
         context.log.warn("No link elements found in the document.")
         return

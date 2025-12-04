@@ -71,6 +71,7 @@ from zavod.helpers.html import (
     links_to_dict,
     parse_html_table,
     xpath_elements,
+    xpath_string,
     xpath_strings,
 )
 from zavod.helpers.identification import make_identification
@@ -148,4 +149,5 @@ __all__ = [
     "parse_pdf_table",
     "xpath_elements",
     "xpath_strings",
+    "xpath_string",
 ]
