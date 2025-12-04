@@ -32,8 +32,8 @@ def crawl_row(context: Context, row: html.Element) -> None:
         return
     url = url_el.get("href")
     assert url is not None, "No URL found in row"
-    unblock_pep = ".//div[@class='pair-content']"
-    pep_doc = zyte_api.fetch_html(context, url, unblock_pep, cache_days=5)
+    validator = ".//div[@class='pair-content']"
+    pep_doc = zyte_api.fetch_html(context, url, validator, cache_days=5)
 
     name_party_raw = h.xpath_elements(
         pep_doc, ".//div[@class='pair-content']//h1", expect_exactly=1
