@@ -1,8 +1,35 @@
 from zavod.extract import zyte_api
+from zavod.entity import Entity
 from zavod.stateful.positions import categorise
 
 from zavod import Context
 from zavod import helpers as h
+
+
+def categorise_and_emit(
+    context: Context,
+    entity: Entity,
+    position: Entity,
+    start_date: str | None,
+    end_date: str | None,
+    is_pep: bool | None,
+) -> None:
+    categorisation = categorise(context, position, is_pep=is_pep)
+    if not categorisation.is_pep:
+        return
+
+    occupancy = h.make_occupancy(
+        context,
+        person=entity,
+        position=position,
+        start_date=start_date,
+        end_date=end_date,
+        categorisation=categorisation,
+    )
+    if occupancy is not None:
+        context.emit(occupancy)
+        context.emit(position)
+        context.emit(entity)
 
 
 def crawl_row(context: Context, url: str, raw_name: str, party: str) -> None:
@@ -30,11 +57,10 @@ def crawl_row(context: Context, url: str, raw_name: str, party: str) -> None:
         topics=["gov.legislative", "gov.national"],
         lang="eng",
     )
-
+    # Table with all parliamentary terms
     elections_table = h.xpath_elements(
         pep_doc, '//table[.//th[@colspan="5" and text()="Elections"]]', expect_exactly=1
     )[0]
-
     for row in h.parse_html_table(
         elections_table,
         skiprows=1,
@@ -42,25 +68,44 @@ def crawl_row(context: Context, url: str, raw_name: str, party: str) -> None:
         index_empty_headers=True,
     ):
         str_row = h.cells_to_str(row)
-        start_date = str_row.pop("from")
-        end_date = str_row.pop("to", None)
-
-        categorisation = categorise(context, position, is_pep=True)
-        if not categorisation.is_pep:
-            return
-
-        occupancy = h.make_occupancy(
+        categorise_and_emit(
             context,
-            person=entity,
+            entity=entity,
             position=position,
-            start_date=start_date,
-            end_date=end_date,
-            categorisation=categorisation,
+            start_date=str_row.pop("from"),
+            end_date=str_row.pop("to", None),
+            is_pep=True,
         )
-        if occupancy is not None:
-            context.emit(occupancy)
-            context.emit(position)
-            context.emit(entity)
+    # Table with state functions, e.g. 'Parliamentary Secretary for Finance'
+    state_functions_table = h.xpath_elements(
+        pep_doc, '//table[.//th[@colspan="3" and text()="State functions"]]'
+    )
+    if len(state_functions_table) > 0:
+        for row in h.parse_html_table(
+            state_functions_table[0],
+            skiprows=1,
+            ignore_colspan={"3"},
+            index_empty_headers=True,
+        ):
+            str_row = h.cells_to_str(row)
+            function = str_row.pop("function")
+            if not function:
+                continue
+            position = h.make_position(
+                context,
+                name=function,
+                country="hu",
+                topics=["gov.national"],
+            )
+            categorise_and_emit(
+                context,
+                entity=entity,
+                position=position,
+                start_date=str_row.pop("from"),
+                end_date=str_row.pop("to", None),
+                # is_pep is not set, since we rely on positions UI to set that topic rather than the crawler
+                is_pep=None,
+            )
 
 
 def crawl(context: Context) -> None:
