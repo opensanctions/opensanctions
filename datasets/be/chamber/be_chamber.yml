@@ -21,7 +21,7 @@ publisher:
     composed of 150 members elected by direct universal suffrage. The Chamber plays a key role in the
     legislative process, representing the Belgian people and overseeing the government.
   country: be
-  url: https://www.dekamer.be/kvvcr/index.cfm
+  url: https://www.dekamer.be/
   official: true
 data:
   url: https://www.dekamer.be/kvvcr/showpage.cfm?section=/depute&language=fr&cfm=cvlist54.cfm?legis=56&today=y
