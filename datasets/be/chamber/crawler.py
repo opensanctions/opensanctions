@@ -1,4 +1,5 @@
 from datetime import datetime
+from lxml.html import HtmlElement
 
 from zavod import Context, helpers as h
 from zavod.extract import zyte_api
@@ -15,19 +16,16 @@ def get_latest_terms(context: Context, term: str) -> tuple[int | None, int | Non
         return None, None
 
 
-def crawl_persons(context: Context, row, start_date: int, end_date: int) -> None:
+def crawl_persons(context: Context, row: HtmlElement, start_date: int, end_date: int) -> None:
     cells = h.xpath_elements(row, ".//td[@class='td1' or @class='td0']")
     name = h.xpath_strings(cells[0], ".//b/text()", expect_exactly=1)[0].strip()
     profile_url = h.xpath_strings(cells[0], ".//a/@href", expect_exactly=1)[0]
-    member_key = (
-        profile_url.split("key=")[1].split("&")[0] if "key=" in profile_url else None
-    )
 
     group_texts = h.xpath_strings(cells[1], ".//a/text()")
     political_group = group_texts[0].strip() if group_texts else ""
 
     entity = context.make("Person")
-    entity.id = context.make_id(name, member_key)
+    entity.id = context.make_id(name, political_group)
     entity.add("name", name)
     entity.add("political", political_group)
     entity.add("sourceUrl", profile_url)
@@ -50,7 +48,7 @@ def crawl_persons(context: Context, row, start_date: int, end_date: int) -> None
         person=entity,
         position=position,
         start_date=str(start_date),
-        end_date=str(end_date),
+        end_date=str(end_date) if end_date else None,
         categorisation=categorisation,
     )
     if occupancy is not None:
@@ -84,12 +82,21 @@ def crawl(context: Context) -> None:
             seen_urls.add(url)
             terms.append({"url": url, "text": text})
     # Process each legislature term
-    for term in terms:
+    for idx, term in enumerate(terms):
         start_date, end_date = get_latest_terms(context, term["text"])
-        # Skip terms that ended before our cutoff year
-        if not (start_date and end_date and end_date >= CUTOFF_YEAR):
+        # First term in the list is always the current legislature.
+        # For current terms, we set end_date to None because members are still serving
+        # and haven't left office yet. The end year in the lookup (e.g., "2025" for 
+        # "56 (2024-2025)") shouldn't be used as an actual end_date for occupancy records 
+        # until the term actually concludes and new elections occur.
+        if idx == 0:
+            end_date = None
+        
+        # Skip terms that ended before our cutoff year (skip this check for current term)
+        if end_date is not None and end_date < CUTOFF_YEAR:
             context.log.info(f"Skipping old term {term['text']} (ended {end_date})")
             continue
+
         # Fetch the member list page for this term
         term_doc = zyte_api.fetch_html(
             context,
