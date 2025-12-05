@@ -1,3 +1,4 @@
+from datetime import timedelta
 from normality import slugify
 from rigour.mime.types import CSV
 from typing import Dict
@@ -8,7 +9,7 @@ import re
 from zavod import helpers as h
 from zavod.context import Context
 from zavod.entity import Entity
-from zavod.stateful.positions import OccupancyStatus, categorise
+from zavod.stateful.positions import YEAR_DAYS, OccupancyStatus, categorise
 from zavod import settings
 
 # NUMERO DOCUMENTO
@@ -92,7 +93,7 @@ def crawl_sheet_row(context: Context, row: Dict[str, str]):
         (
             "Find their declarations of assets and income, conflicts of interest"
             " and income and complementary taxes (Law 2013 of 2019) at "
-            f'{row.pop("ENLACE_CONSULTA_LEY_2013_2019")}'
+            f"{row.pop('ENLACE_CONSULTA_LEY_2013_2019')}"
         ),
     )
 
@@ -167,7 +168,9 @@ def crawl_table_row(
     if key in seen:
         return
 
-    if str_row.pop("fecha_publicacion") < h.backdate(settings.RUN_TIME, 365 * 5):
+    if str_row.pop("fecha_publicacion") < h.backdate(
+        settings.RUN_TIME, timedelta(days=YEAR_DAYS * 5)
+    ):
         context.log.warning("Skipping potentially too old position", key=key)
         return
 
@@ -183,7 +186,7 @@ def crawl_table_row(
         (
             "Find their declarations of assets and income, conflicts of interest"
             " and income and complementary taxes (Law 2013 of 2019) at "
-            f'{links.pop("consultar_declaraciones_ley_2013_de_2019")}'
+            f"{links.pop('consultar_declaraciones_ley_2013_de_2019')}"
         ),
     )
 

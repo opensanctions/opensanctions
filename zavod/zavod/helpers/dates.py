@@ -142,7 +142,7 @@ def apply_dates(entity: Entity, prop: str, texts: Iterable[DateValue]) -> None:
         apply_date(entity, prop, text)
 
 
-def backdate(date: datetime, days: int) -> str:
+def backdate(date: datetime, delta: timedelta) -> str:
     """Return a partial ISO8601 date string backdated by the number of days provided"""
-    dt = date - timedelta(days=days)
+    dt = date - delta
     return dt.isoformat()[:10]

@@ -6,10 +6,10 @@ from openpyxl import load_workbook
 from rigour.mime.types import XLSX
 
 from zavod import Context, helpers as h
+from zavod.stateful.positions import YEAR_DAYS
 
 
 def crawl_item(row: Dict[str, str], context: Context):
-
     enrollment_type = row.pop("enrollment_type")
     npi = row.pop("npi")
     license_type = row.pop("state_license_type")
@@ -62,7 +62,7 @@ def crawl_item(row: Dict[str, str], context: Context):
             # to more accurately represent the semantics intended by the publisher?
             sanction_end_datetime = datetime.strptime(
                 sanction_start_date, "%Y-%m-%d"
-            ) + timedelta(days=2 * 365)
+            ) + timedelta(days=2 * YEAR_DAYS)
             sanction_end_date = sanction_end_datetime.date().isoformat()
         h.apply_date(sanction, "endDate", sanction_end_date)
 
