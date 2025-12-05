@@ -9,6 +9,7 @@ from followthemoney import registry, Property, model
 from zavod.logs import get_logger
 from zavod.runtime.lookups import prop_lookup
 
+
 if TYPE_CHECKING:
     from zavod.entity import Entity
 
@@ -67,6 +68,14 @@ def value_clean(
     fuzzy: bool = False,
     format: Optional[str] = None,
 ) -> Generator[Tuple[Property, str], None, None]:
+    if prop.deprecated:
+        log.warning(
+            "Deprecated property used: %s" % prop.name,
+            entity_id=entity.id,
+            schema=entity.schema.name,
+            prop=prop.name,
+        )
+
     for prop_, item in prop_lookup(entity, prop, value):
         clean: Optional[str] = item
         if not cleaned:
