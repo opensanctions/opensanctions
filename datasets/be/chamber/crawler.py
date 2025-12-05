@@ -20,9 +20,7 @@ def crawl_persons(context: Context, row, start_date: int, end_date: int) -> None
     name = h.xpath_strings(cells[0], ".//b/text()", expect_exactly=1)[0].strip()
     profile_url = h.xpath_strings(cells[0], ".//a/@href", expect_exactly=1)[0]
     member_key = (
-        profile_url.split("key=")[1].split("&")[0]
-        if "key=" in profile_url
-        else None
+        profile_url.split("key=")[1].split("&")[0] if "key=" in profile_url else None
     )
 
     group_texts = h.xpath_strings(cells[1], ".//a/text()")
@@ -46,7 +44,7 @@ def crawl_persons(context: Context, row, start_date: int, end_date: int) -> None
     categorisation = categorise(context, position, is_pep=True)
     if not categorisation.is_pep:
         return
-    
+
     occupancy = h.make_occupancy(
         context,
         person=entity,
@@ -72,21 +70,22 @@ def crawl(context: Context) -> None:
         cache_days=4,
     )
     # Extract legislature terms from menu
-    terms = []
-    seen_urls = set()
+    terms: list = []
+    seen_urls: set[str] = set()
     for link in doc.findall('.//div[@class="menu"]//a'):
-        url = link.get('href')
+        url = link.get("href")
         text = h.element_text(link).strip()
-        
+        assert url, url
+
         # Only keep entries with explicit date format "XX (YYYY-YYYY)"
         # The first link "Actuels" (current members) duplicates the most recent term,
         # so we filter for entries with parentheses to get unique dated terms.
-        if text and '(' in text and ')' in text and url not in seen_urls:
+        if text and "(" in text and ")" in text and url not in seen_urls:
             seen_urls.add(url)
-            terms.append({'url': url, 'text': text}) 
+            terms.append({"url": url, "text": text})
     # Process each legislature term
     for term in terms:
-        start_date, end_date = get_latest_terms(context, term['text'])
+        start_date, end_date = get_latest_terms(context, term["text"])
         # Skip terms that ended before our cutoff year
         if not (start_date and end_date and end_date >= CUTOFF_YEAR):
             context.log.info(f"Skipping old term {term['text']} (ended {end_date})")
@@ -94,12 +93,14 @@ def crawl(context: Context) -> None:
         # Fetch the member list page for this term
         term_doc = zyte_api.fetch_html(
             context,
-            term['url'],
+            term["url"],
             unblock_validator=unblock_validator,
             absolute_links=True,
             cache_days=4,
         )
         # Extract and process all members from the table
-        table = h.xpath_elements(term_doc, "//table[@width='100%']", expect_exactly=1)[0]
+        table = h.xpath_elements(term_doc, "//table[@width='100%']", expect_exactly=1)[
+            0
+        ]
         for row in h.xpath_elements(table, ".//tr[td[@class='td1' or @class='td0']]"):
             crawl_persons(context, row, start_date, end_date)
