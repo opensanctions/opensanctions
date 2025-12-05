@@ -1,5 +1,6 @@
 from datetime import datetime
 from lxml.html import HtmlElement
+from normality import squash_spaces
 
 from zavod import Context, helpers as h
 from zavod.extract import zyte_api
@@ -11,21 +12,26 @@ CUTOFF_YEAR = datetime.now().year - (EXTENDED_AFTER_OFFICE // 365)
 def get_latest_terms(context: Context, term: str) -> tuple[int | None, int | None]:
     res = context.lookup("term_dates", term, warn_unmatched=True)
     if res:
-        return int(res.start_date), int(res.end_date) if res.end_date else None
+        return int(res.start_date), int(res.end_date)
     else:
         return None, None
 
 
-def crawl_persons(context: Context, row: HtmlElement, start_date: int, end_date: int) -> None:
+def crawl_persons(
+    context: Context, row: HtmlElement, start_date: int, end_date: int | None
+) -> None:
     cells = h.xpath_elements(row, ".//td[@class='td1' or @class='td0']")
     name = h.xpath_strings(cells[0], ".//b/text()", expect_exactly=1)[0].strip()
     profile_url = h.xpath_strings(cells[0], ".//a/@href", expect_exactly=1)[0]
 
     group_texts = h.xpath_strings(cells[1], ".//a/text()")
     political_group = group_texts[0].strip() if group_texts else ""
+    # Normalize whitespace in the name (different terms may include inconsistent spacing)
+    name = squash_spaces(name)
 
     entity = context.make("Person")
-    entity.id = context.make_id(name, political_group)
+    # Use the normalized name as the stable identifier (it's the only consistent cross-term key)
+    entity.id = context.make_id(name)
     entity.add("name", name)
     entity.add("political", political_group)
     entity.add("sourceUrl", profile_url)
@@ -84,14 +90,15 @@ def crawl(context: Context) -> None:
     # Process each legislature term
     for idx, term in enumerate(terms):
         start_date, end_date = get_latest_terms(context, term["text"])
+        assert start_date is not None, start_date
         # First term in the list is always the current legislature.
         # For current terms, we set end_date to None because members are still serving
-        # and haven't left office yet. The end year in the lookup (e.g., "2025" for 
-        # "56 (2024-2025)") shouldn't be used as an actual end_date for occupancy records 
+        # and haven't left office yet. The end year in the lookup (e.g., "2025" for
+        # "56 (2024-2025)") shouldn't be used as an actual end_date for occupancy records
         # until the term actually concludes and new elections occur.
         if idx == 0:
             end_date = None
-        
+
         # Skip terms that ended before our cutoff year (skip this check for current term)
         if end_date is not None and end_date < CUTOFF_YEAR:
             context.log.info(f"Skipping old term {term['text']} (ended {end_date})")
