@@ -7,6 +7,7 @@ from normality import collapse_spaces
 from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
+from zavod.extract.zyte_api import fetch_html
 
 
 UNKNOWNS = {"unknown", "uknown"}
@@ -14,7 +15,13 @@ UNKNOWNS = {"unknown", "uknown"}
 
 def crawl_detail_page(context: Context, person: Entity, source_url: str):
     """Fetch and parse detailed information from a person's detail page."""
-    doc = context.fetch_html(source_url, cache_days=7)
+    doc = fetch_html(
+        context,
+        source_url,
+        "//td[b[contains(text(), 'Crime:')]]",
+        geolocation="za",
+        cache_days=7,
+    )
 
     # Extract details using XPath based on the provided HTML structure
     details = {
@@ -56,7 +63,7 @@ def crawl_detail_page(context: Context, person: Entity, source_url: str):
     person.add("height", info.get("height"))
     person.add("weight", info.get("weight"))
 
-    person.add("notes", f"{status} - {info["crime"]}")
+    person.add("notes", f"{status} - {info['crime']}")
 
     context.emit(person)
 
@@ -104,7 +111,14 @@ def crawl_person(context: Context, row: Dict[str, html.HtmlElement]):
 
 
 def crawl(context):
-    doc = context.fetch_html(context.data_url, cache_days=1, absolute_links=True)
+    doc = fetch_html(
+        context,
+        context.data_url,
+        "//table",
+        geolocation="za",
+        cache_days=1,
+        absolute_links=True,
+    )
     tables = doc.xpath("//table")
     assert len(tables) == 1, len(tables)
     trs = tables[0].xpath(".//tr")
