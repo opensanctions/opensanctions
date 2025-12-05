@@ -4,9 +4,9 @@ from normality import squash_spaces
 
 from zavod import Context, helpers as h
 from zavod.extract import zyte_api
-from zavod.stateful.positions import categorise, EXTENDED_AFTER_OFFICE
+from zavod.stateful.positions import categorise, EXTENDED_AFTER_OFFICE_YEARS
 
-CUTOFF_YEAR = datetime.now().year - (EXTENDED_AFTER_OFFICE // 365)
+CUTOFF_YEAR = datetime.now().year - EXTENDED_AFTER_OFFICE_YEARS
 
 
 def get_latest_terms(context: Context, term: str) -> tuple[int | None, int | None]:
