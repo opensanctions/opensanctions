@@ -20,7 +20,7 @@ from zavod.util import write_json
 log = get_logger(__name__)
 
 
-class DatasetVersionExitStatus(StrEnum):
+class DatasetVersionResult(StrEnum):
     SUCCESS = "success"
     FAILURE = "failure"
 
@@ -75,9 +75,7 @@ def get_base_dataset_metadata(
     return meta
 
 
-def write_dataset_index(
-    dataset: Dataset, exit_status: DatasetVersionExitStatus
-) -> None:
+def write_dataset_index(dataset: Dataset, result: DatasetVersionResult) -> None:
     """Export dataset metadata to index.json."""
     catalog = get_catalog()
     version = get_latest(dataset.name, backfill=True)
@@ -104,7 +102,7 @@ def write_dataset_index(
         meta["issue_levels"] = issues.by_level()
         meta["issue_count"] = sum(meta["issue_levels"].values())
     meta["last_export"] = settings.RUN_TIME_ISO
-    meta["exit_status"] = exit_status.value
+    meta["result"] = result.value
     # NOTE: when adding a another URL here, make sure to update Delivery Service,
     # it has a static list of URLs to rewrite
     meta["issues_url"] = make_artifact_url(dataset.name, version.id, ISSUES_FILE)

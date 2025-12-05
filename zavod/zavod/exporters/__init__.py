@@ -18,7 +18,7 @@ from zavod.exporters.maritime import MaritimeExporter
 from zavod.exporters.delta import DeltaExporter
 
 from zavod.exporters.fragment import ViewFragment
-from zavod.exporters.metadata import DatasetVersionExitStatus, write_dataset_index
+from zavod.exporters.metadata import DatasetVersionResult, write_dataset_index
 from zavod.exporters.metadata import write_catalog, write_delta_index
 
 log = get_logger(__name__)
@@ -93,6 +93,6 @@ def export_dataset(dataset: Dataset, view: View) -> None:
 
     # Export metadata and issues (after the context is closed & flushed)
     write_delta_index(dataset)
-    write_dataset_index(dataset, DatasetVersionExitStatus.SUCCESS)
+    write_dataset_index(dataset, DatasetVersionResult.SUCCESS)
     write_catalog(dataset)
     log.info("Exported dataset: %s" % dataset.name, dataset=dataset.name)
