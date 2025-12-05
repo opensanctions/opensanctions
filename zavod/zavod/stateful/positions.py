@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from enum import Enum
 from functools import lru_cache
 from typing import List, Optional
@@ -13,13 +13,13 @@ from zavod.stateful.model import position_table
 
 NOTIFIED_SYNC_POSITIONS = False
 
-YEAR = 365  # days
-DEFAULT_AFTER_OFFICE = 5 * YEAR
-EXTENDED_AFTER_OFFICE = 20 * YEAR
-NO_EXPIRATION = 50 * YEAR
-AFTER_DEATH = 5 * YEAR
-MAX_AGE = 110 * YEAR
-MAX_OFFICE = 40 * YEAR
+YEAR_DAYS = 365  # days
+DEFAULT_AFTER_OFFICE = timedelta(days=5 * YEAR_DAYS)
+EXTENDED_AFTER_OFFICE = timedelta(days=20 * YEAR_DAYS)
+NO_EXPIRATION = timedelta(days=50 * YEAR_DAYS)
+AFTER_DEATH = timedelta(days=5 * YEAR_DAYS)
+MAX_AGE = timedelta(days=110 * YEAR_DAYS)
+MAX_OFFICE = timedelta(days=40 * YEAR_DAYS)
 
 
 class OccupancyStatus(Enum):
@@ -123,7 +123,7 @@ def categorised_position_qids(context: Context) -> List[str]:
     return qids
 
 
-def get_after_office(topics: List[str]) -> int:
+def get_after_office(topics: List[str]) -> timedelta:
     if "gov.national" in topics:
         if "gov.head" in topics:
             return NO_EXPIRATION
