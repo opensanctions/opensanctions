@@ -1,7 +1,7 @@
 import string
 from collections import defaultdict
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any, Optional
 
 import openpyxl
 from normality import slugify
@@ -25,7 +25,7 @@ PROVISION_FIELDS = [
 # (they're interrupted by other entries).
 
 
-def clean_date(date: str) -> List[str]:
+def clean_date(date: str) -> list[str]:
     splits = [
         "Approximately",
         ", and,",
@@ -74,7 +74,7 @@ def clean_reference(ref: str) -> Optional[str]:
 
 
 def parse_reference(
-    context: Context, reference: str, rows: List[Dict[str, Any]]
+    context: Context, reference: str, rows: list[dict[str, Any]]
 ) -> None:
     schemata = set()
     for row in rows:
@@ -99,7 +99,7 @@ def parse_reference(
     entity = context.make(schemata.pop())
 
     primary_name: Optional[str] = None
-    names: List[Tuple[str, str]] = []
+    names: list[tuple[str, str]] = []
     for row in rows:
         name = row.pop("name_of_individual_or_entity", None)
         name_type = row.pop("name_type")
@@ -185,15 +185,15 @@ def crawl(context: Context) -> None:
 
     workbook: openpyxl.Workbook = openpyxl.load_workbook(path, read_only=True)
     references = defaultdict(list)
-    raw_references: Set[str] = set()
-    reference_blocks_seen_count: Dict[str, int] = dict()
+    raw_references: set[str] = set()
+    reference_blocks_seen_count: dict[str, int] = dict()
     last_clean_ref = None
     for sheet in workbook.worksheets:
-        headers: Optional[List[str]] = None
-        for row_num, row in enumerate(sheet.rows):
-            cells = [c.value for c in row]
+        headers: Optional[list[str]] = None
+        for row_num, raw_row in enumerate(sheet.rows):
+            cells = [c.value for c in raw_row]
             if headers is None:
-                headers = [slugify(h, sep="_") for h in cells]
+                headers = [slugify(h, sep="_") or "" for h in cells]
                 continue
             row = dict(zip(headers, cells))
 
@@ -201,7 +201,9 @@ def crawl(context: Context) -> None:
             raw_ref = row.get("reference")
             context.log.debug("Parsing row", row_num=row, raw_ref=raw_ref)
             if raw_ref is None:
-                row_values = {v.strip() or None for v in row.values() if v is not None}
+                row_values = {
+                    str(v).strip() or None for v in row.values() if v is not None
+                }
                 if row_values and row_values != {None}:
                     context.log.warning("No reference", row=row)
                 continue

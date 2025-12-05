@@ -28,7 +28,7 @@ IGNORE_COLUMNS = [
 ]
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     pos = "X Legislatura de la Asamblea Nacional del Poder Popular (ANPP)"
     inception_date = "2023"
     dissolution_date = "2028"
@@ -74,7 +74,8 @@ def crawl(context: Context):
             no_end_implies_current=False,
             categorisation=categorisation,
         )
-        context.emit(occupancy)
+        if occupancy:
+            context.emit(occupancy)
 
         context.audit_data(data, ignore=IGNORE_COLUMNS)
         context.emit(entity)

@@ -27,18 +27,22 @@ def make_position_name(category: str, job_title: str) -> str:
     return position_name
 
 
-def crawl_current_pep_item(context: Context, country: str, lang: str, input_dict: dict):
-    first_name = input_dict.pop("first_name")
-    last_name = input_dict.pop("last_name")
+def crawl_current_pep_item(
+    context: Context, *, country: str, lang: str, row: dict[str, str | None]
+) -> None:
+    first_name = row.pop("first_name")
+    last_name = row.pop("last_name")
 
     entity = context.make("Person")
     entity.id = context.make_slug(first_name, last_name)
     h.apply_name(entity, first_name=first_name, last_name=last_name)
 
-    birth_date = input_dict.pop("birth_date")
+    birth_date = row.pop("birth_date")
     h.apply_date(entity, "birthDate", birth_date.strip() if birth_date else None)
-    category = input_dict.pop("category")
-    job_title = input_dict.pop("job_title")
+    category = row.pop("category")
+    job_title = row.pop("job_title")
+    assert job_title is not None, row
+    assert category is not None, row
     position_name = make_position_name(category, job_title)
     assert position_name != "Socialdemokratiet"
     assert position_name is not None, entity.id
@@ -46,12 +50,14 @@ def crawl_current_pep_item(context: Context, country: str, lang: str, input_dict
     position = h.make_position(context, position_name, country=country, lang=lang)
     categorisation = categorise(context, position, is_pep=True)
 
+    listing_date = row.pop("listing_date")
+    assert listing_date is not None, row
     occupancy = h.make_occupancy(
         context,
         entity,
         position,
         True,
-        start_date=input_dict.pop("listing_date").strip(),
+        start_date=listing_date.strip(),
         categorisation=categorisation,
     )
 
@@ -60,29 +66,32 @@ def crawl_current_pep_item(context: Context, country: str, lang: str, input_dict
         context.emit(position)
         context.emit(occupancy)
 
-    context.audit_data(input_dict, ignore=["new_on_list"])
+    context.audit_data(row, ignore=["new_on_list"])
 
 
-def crawl_old_pep_item(context: Context, country: str, lang: str, input_dict: dict):
-    last_name = input_dict.pop("last_name")
-    first_name = input_dict.pop("first_name")
+def crawl_old_pep_item(
+    context: Context, *, country: str, lang: str, row: dict[str, str | None]
+) -> None:
+    last_name = row.pop("last_name")
+    first_name = row.pop("first_name")
 
     entity = context.make("Person")
     entity.id = context.make_slug(first_name, last_name)
     h.apply_name(entity, first_name=first_name, last_name=last_name)
 
-    h.apply_date(entity, "birthDate", input_dict.pop("birth_date"))
+    h.apply_date(entity, "birthDate", row.pop("birth_date"))
 
-    position = h.make_position(
-        context, input_dict.pop("job_title"), country=country, lang=lang
-    )
-
+    job_title = row.pop("job_title")
+    assert job_title is not None, row
+    position = h.make_position(context, job_title, country=country, lang=lang)
+    removal_date = row.pop("removal_date")
+    assert removal_date is not None, row
     occupation = h.make_occupancy(
         context,
         entity,
         position,
         True,
-        end_date=input_dict.pop("removal_date").strip(),
+        end_date=removal_date.strip(),
         categorisation=categorise(context, position, is_pep=True),
     )
 
@@ -91,18 +100,18 @@ def crawl_old_pep_item(context: Context, country: str, lang: str, input_dict: di
         context.emit(position)
         context.emit(occupation)
 
-    context.audit_data(input_dict)
+    context.audit_data(row)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     doc = context.fetch_html(context.data_url, absolute_links=True)
 
     for country, lang, name, file_pattern in RESOURCES:
-        links = doc.xpath(
-            f'//h2[strong[contains(text(), "PEP-liste ")]]/following-sibling::*//a[contains(@href, "{file_pattern}")]'
+        link = h.xpath_string(
+            doc,
+            f'//h2[strong[contains(text(), "PEP-liste ")]]/following-sibling::*//a[contains(@href, "{file_pattern}")]/@href',
         )
-        assert len(links) == 1, (file_pattern, links)
-        path = context.fetch_resource(name, links[0].get("href"))
+        path = context.fetch_resource(name, link)
         context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
 
         wb = load_workbook(path, read_only=True)
@@ -113,10 +122,10 @@ def crawl(context: Context):
             if "Tidligere PEP'ere" in wb.sheetnames
             else "Tidligere PEP'er"
         )
-        for item in h.parse_xlsx_sheet(
+        for row in h.parse_xlsx_sheet(
             context, wb[old_sheet], header_lookup=context.get_lookup("columns")
         ):
-            crawl_old_pep_item(context, country, lang, item)
+            crawl_old_pep_item(context, country=country, lang=lang, row=row)
 
         new_sheet = (
             "Nuværende PEP'ere"
@@ -125,25 +134,22 @@ def crawl(context: Context):
         )
         # Crawl current PEP list
         category = None
-        for item in h.parse_xlsx_sheet(
+        for row in h.parse_xlsx_sheet(
             context, wb[new_sheet], 1, header_lookup=context.get_lookup("columns")
         ):
-            if not any([item["category"], item["first_name"], item["last_name"]]):
+            if not any([row["category"], row["first_name"], row["last_name"]]):
                 continue
             # Meaning "No boards"
-            if item["last_name"] == "Ingen styrelser etc.":
+            if row["last_name"] == "Ingen styrelser etc.":
                 continue
 
-            if (
-                item["category"]
-                and sum(1 if v else 0 for v in list(item.values())) == 1
-            ):
-                category = item["category"]
+            if row["category"] and sum(1 if v else 0 for v in list(row.values())) == 1:
+                category = row["category"]
                 continue
             else:
-                item["category"] = category
-            assert item["category"] is not None, item
+                row["category"] = category
+            assert row["category"] is not None, row
 
-            crawl_current_pep_item(context, country, lang, item)
+            crawl_current_pep_item(context, country=country, lang=lang, row=row)
 
         assert len(wb.sheetnames) == 2, wb.sheetnames

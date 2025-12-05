@@ -2561,6 +2561,7 @@ config:
       language: ru
       position:
         name: Minister of the Russian Federation
+        wikidata_id: Q15620328
         country: ru
         topics:
           - gov.executive
@@ -2571,6 +2572,7 @@ config:
       language: ru
       position:
         name: Minister of the Russian Federation
+        wikidata_id: Q15620328
         country: ru
         topics:
           - gov.executive
@@ -2812,20 +2814,14 @@ config:
       language: ru
       position:
         name: Member of the Security Council of Russia
+        wikidata_id: Q38715670
         country: ru
         topics:
           - gov.national
           - gov.security
     - category: Действительные государственные советники Российской Федерации 1-го класса # 1st class Active State Councillor of the Russian Federation
-      topic: role.pep
       country: ru
       language: ru
-      position:
-        name: 1st class Active State Councillor of the Russian Federation
-        country: ru
-        topics:
-          - gov.national
-          - gov.executive
     - category: Государственные_деятели_Российской_Федерации # Statesmen of the Russian Federation
       country: ru
       language: ru

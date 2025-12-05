@@ -18,7 +18,7 @@ export default async function EntryPage({ params }: PageProps) {
 
 
   return (
-    <div className="p-4 d-flex flex-column" style={{ height: 'calc(100vh - 50px)', minHeight: 0 }}>
+    <div className="pb-4 d-flex flex-column" style={{ minHeight: 0 }}>
       <nav aria-label="breadcrumb" className="mb-3">
         <ol className="breadcrumb">
           <li className="breadcrumb-item">
@@ -27,7 +27,7 @@ export default async function EntryPage({ params }: PageProps) {
           <li className="breadcrumb-item">
             <Link href={`/review/dataset/${encodeURIComponent(dataset)}`}>{dataset}</Link>
           </li>
-          <li className="breadcrumb-item" aria-current="page">
+          <li className="breadcrumb-item active" aria-current="page">
             Key: {key.length > 60
               ? `${key.slice(0, 30)}...${key.slice(-30)}`
               : key}
