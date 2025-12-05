@@ -1,11 +1,13 @@
+from typing import Any
 import orjson
 from lxml import html
+from lxml.etree import _Element as Element
 from rigour.mime.types import JSON
 
 from zavod import Context, helpers as h
 
 
-def extract_html_field(tree, field_text):
+def extract_html_field(tree: Element, field_text: str) -> str:
     """
     Extracts the text from the <span> immediately following a <strong>
     containing the given field_text (case-sensitive).
@@ -13,11 +15,11 @@ def extract_html_field(tree, field_text):
     xpath = (
         f"//strong[contains(text(), '{field_text}')]/following-sibling::span[1]/text()"
     )
-    result = tree.xpath(xpath)
+    result = h.xpath_strings(tree, xpath)
     return result[0].strip() if result else ""
 
 
-def crawl_item(context: Context, item: dict):
+def crawl_item(context: Context, item: dict[str, Any]) -> None:
     trading_name = item.pop("tradingname")
     sponsor_name = item.pop("sponsorname")
     abn = item.pop("abn")
@@ -79,7 +81,7 @@ def crawl_item(context: Context, item: dict):
     )
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     path = context.fetch_resource(
         "source.json",
         context.data_url,

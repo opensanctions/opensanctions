@@ -23,13 +23,13 @@ MAYOR_TOPICS = ["gov.muni", "gov.head"]
 COUNCILLOR_TOPICS = ["gov.muni", "gov.legislative"]
 
 
-def crawl_item(context: Context, row: Dict[str, str]):
+def crawl_item(context: Context, row: Dict[str, str | None]) -> None:
     name = row.pop("name")
     province = row.pop("province")
     municipality = row.pop("municipality")
     first_last_name = row.pop("last_name", None)
     second_last_name = row.pop("second_last_name", None)
-    position = row.pop("position", None)
+    position_name = row.pop("position", None)
 
     if not name or not province or not municipality:
         context.log.warning("Missing required fields", row=row)
@@ -47,27 +47,29 @@ def crawl_item(context: Context, row: Dict[str, str]):
     pep.add("political", row.pop("party"))
     pep.add("topics", "role.pep")
     # Positions are available for the current officials; historical data lists only mayors
-    if not position:
-        position, topics = f"Mayor of {municipality}, {province}", MAYOR_TOPICS
+    if not position_name:
+        position_name, topics = f"Mayor of {municipality}, {province}", MAYOR_TOPICS
     else:
-        translated = context.lookup_value("positions", position.strip())
+        translated = context.lookup_value("positions", position_name.strip())
         if translated:
-            position = f"{translated} of {municipality}, {province}"
+            position_name = f"{translated} of {municipality}, {province}"
             topics = (
                 MAYOR_TOPICS
                 if "Mayor" in translated
-                else COUNCILLOR_TOPICS if "Councillor" in translated else DEFAULT_TOPICS
+                else COUNCILLOR_TOPICS
+                if "Councillor" in translated
+                else DEFAULT_TOPICS
             )
         else:
-            context.log.warning("Unknown position", position=position.strip())
-            position, topics = (
-                f"{position.strip()} of {municipality}, {province}",
+            context.log.warning("Unknown position", position=position_name.strip())
+            position_name, topics = (
+                f"{position_name.strip()} of {municipality}, {province}",
                 DEFAULT_TOPICS,
             )
-    pep.add("position", position)
+    pep.add("position", position_name)
     position = h.make_position(
         context,
-        position,
+        position_name,
         country="es",
         subnational_area=row.pop("ine_code"),
         lang="spa",
@@ -118,18 +120,19 @@ def process_excel(
 
 def crawl(context: Context) -> None:
     """Crawl Spanish mayors and councillors data from official sources."""
+    assert context.dataset.model.url is not None
     # Process historical mayors data (2019-2023)
     hist_doc = context.fetch_html(
         context.dataset.model.url, cache_days=1, absolute_links=True
     )
-    hist_url = hist_doc.xpath(
-        ".//div[@class='dnt-link-default']/a[contains(@href, 'Alcaldes_Mandato_2019_2023')]/@href"
+    hist_url = h.xpath_string(
+        hist_doc,
+        ".//div[@class='dnt-link-default']/a[contains(@href, 'Alcaldes_Mandato_2019_2023')]/@href",
     )
-    assert len(hist_url) == 1, "Expected exactly one historical URL"
     process_excel(
         context=context,
         filename="historical.xlsx",
-        url=hist_url[0],
+        url=hist_url,
         title="Mayors 2019-2023",
         skiprows=7,
     )
@@ -137,12 +140,13 @@ def crawl(context: Context) -> None:
     current_doc = context.fetch_html(
         context.data_url, cache_days=1, absolute_links=True
     )
-    current_url = current_doc.xpath(".//a[@id='concejales_legislatura']/@href")
-    assert len(current_url) == 1, "Expected exactly one current URL"
+    current_url = h.xpath_string(
+        current_doc, ".//a[@id='concejales_legislatura']/@href"
+    )
     process_excel(
         context=context,
         filename="current.xlsx",
-        url=current_url[0],
+        url=current_url,
         title=context.SOURCE_TITLE,
         skiprows=5,
     )
