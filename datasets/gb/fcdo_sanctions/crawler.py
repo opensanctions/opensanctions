@@ -95,7 +95,12 @@ def make_ship(context: Context, designation: ElementOrTree, entity: Entity):
             owner_entity.id = context.make_slug("named", owner.text)
             owner_entity.add("name", owner.text)
             context.emit(owner_entity)
-            entity.add("owner", owner_entity)
+
+            own = context.make("Ownership")
+            own.id = context.make_id("ownership", owner_entity.id, entity.id)
+            own.add("owner", owner_entity.id)
+            own.add("asset", entity.id)
+            context.emit(own)
 
         # Add the registration number
         # Add the type
