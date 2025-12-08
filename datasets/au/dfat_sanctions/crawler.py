@@ -245,7 +245,7 @@ def crawl(context: Context) -> None:
 
             # Sanity check that this raw reference isn't duplicated within its clean ref block.
             if raw_ref in raw_references:
-                raise ValueError("Duplicate reference: %s" % raw_ref)
+                context.log.warning("Duplicate reference", raw_ref=raw_ref)
             raw_references.add(raw_ref)
 
             references[reference].append(row)
