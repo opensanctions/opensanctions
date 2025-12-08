@@ -141,25 +141,15 @@ def crawl(context: Context):
                 continue
 
             # context.inspect(name_tag)
-
-            # name1 is always a given name
-            # name6 is always a family name
-            # name2-name5 are sometimes given names, sometimes patro-/matronymic names
-            # We play it safe here and put into more specific properties only what we're sure of
             h.apply_name(
                 entity,
-                given_name=name_tag.findtext("./Name1"),
+                full=name_tag.findtext("./Name"),
+                name1=name_tag.findtext("./Name1"),
+                name2=name_tag.findtext("./Name2"),
+                name3=name_tag.findtext("./Name3"),
+                name4=name_tag.findtext("./Name4"),
+                name5=name_tag.findtext("./Name5"),
                 last_name=name_tag.findtext("./Name6"),
-                # We call make_name here to avoid having name2-name5 put into the wrong properties by h.apply_name
-                full=h.make_name(
-                    full=name_tag.findtext("./Name"),
-                    name1=name_tag.findtext("./Name1"),
-                    name2=name_tag.findtext("./Name2"),
-                    name3=name_tag.findtext("./Name3"),
-                    name4=name_tag.findtext("./Name4"),
-                    name5=name_tag.findtext("./Name5"),
-                    tail_name=name_tag.findtext("./Name6"),
-                ),
                 lang="eng",
                 name_prop=name_prop,
                 quiet=True,
