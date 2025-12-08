@@ -30,7 +30,7 @@ def parse_comment(text: str) -> Optional[str | None]:
     return m.group(2)
 
 
-def crawl_group(context: Context, text: str):
+def crawl_group(context: Context, text: str) -> None:
     """
     Process a group in the list along with associated stack of commentary.
     """
@@ -84,7 +84,7 @@ def crawl_group(context: Context, text: str):
     context.emit(sanction)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     context.log.info(f"Fetching legislation from {context.data_url}")
     page: HtmlElement = context.fetch_html(context.data_url, cache_days=1)
     ulists = page.find_class("LegUnorderedList")

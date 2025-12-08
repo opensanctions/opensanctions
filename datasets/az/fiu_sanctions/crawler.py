@@ -16,7 +16,7 @@ def get_xml_url(context: Context) -> str:
     raise ValueError("No XML link found")
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     path = context.fetch_resource("source.xml", get_xml_url(context))
     context.export_resource(path, XML, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:

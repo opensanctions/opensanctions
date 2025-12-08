@@ -57,7 +57,6 @@ repos:
           datasets/am|
           datasets/ar|
           datasets/at|
-          datasets/az|
           datasets/ba|
           datasets/be|
           datasets/bg/jud_declarations|
@@ -73,7 +72,11 @@ repos:
           datasets/ee|
           datasets/eu|
           datasets/fr|
-          datasets/gb|
+          datasets/gb/coh|
+          datasets/gb/fca_firds|
+          datasets/gb/fcdo_sanctions|
+          datasets/gb/nca_most_wanted|
+          datasets/gb/nca_press_releases|
           datasets/ge|
           datasets/gg|
           datasets/hk|
@@ -94,8 +97,6 @@ repos:
           datasets/mc|
           datasets/md|
           datasets/me|
-          datasets/mk|
-          datasets/mt|
           datasets/mx|
           datasets/my|
           datasets/ng|
