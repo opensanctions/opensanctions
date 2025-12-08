@@ -5889,8 +5889,7 @@ lookups:
           jurisdiction: cn
           legalForm: agence gouvernementale
           incorporationDate: 1984-04
-          address: "106 Guangming Road, Urumqi, région autonome ouïgoure du Xinjiang (XUAR), Chine"
-          principalPlaceOfBusiness: "Urumqi, région autonome ouïgoure du Xinjiang (XUAR), Chine"
+          address: ["106 Guangming Road, Urumqi, région autonome ouïgoure du Xinjiang (XUAR), Chine", "Urumqi, région autonome ouïgoure du Xinjiang (XUAR), Chine"]
       - match: "Personnes associées: Guangqiu YANG 杨光秋  (2.2017-2.2023)"
         associates:
           - Guangqiu YANG 杨光秋
