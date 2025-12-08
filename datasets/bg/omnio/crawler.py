@@ -12,7 +12,7 @@ TYPES = {
 }
 
 
-def crawl_row(context: Context, row: Dict[str, str]):
+def crawl_row(context: Context, row: Dict[str, str]) -> None:
     entity = context.make(TYPES[row.pop("Entity_Type")])
     row.pop("Entity_Type_BG")
     entity.id = context.make_id(
@@ -110,7 +110,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     )
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     path = context.fetch_resource("source.csv", context.data_url)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
