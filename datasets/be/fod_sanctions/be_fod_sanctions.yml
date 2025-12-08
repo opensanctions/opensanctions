@@ -59,10 +59,15 @@ assertions:
       Vessel: 4
 lookups:
   subject_type:
+    lowercase: true
     options:
-      - match: person
+      - match:
+          - person
+          - P
         value: Person
-      - match: enterprise
+      - match:
+          - enterprise
+          - E
         value: Organization
   schema_override:
     options:
