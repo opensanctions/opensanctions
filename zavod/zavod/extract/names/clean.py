@@ -43,6 +43,7 @@ def load_single_entity_prompt() -> str:
 
 
 def clean_names(context: Context, raw_names: RawNames) -> CleanNames:
+    """Use an LLM to clean and categorise names."""
     prompt = load_single_entity_prompt()
     return run_typed_text_prompt(
         context=context,
