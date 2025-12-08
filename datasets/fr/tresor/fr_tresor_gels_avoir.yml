@@ -5892,7 +5892,8 @@ lookups:
           address: ["106 Guangming Road, Urumqi, région autonome ouïgoure du Xinjiang (XUAR), Chine", "Urumqi, région autonome ouïgoure du Xinjiang (XUAR), Chine"]
       - match: "Personnes associées: Guangqiu YANG 杨光秋  (2.2017-2.2023)"
         associates:
-          - Guangqiu YANG 杨光秋
+          - Guangqiu YANG
+          - 杨光秋
       - match: "Personne associée : Zhiyong GONG 龚志勇 (depuis  2.2023-); secrétaire du Parti communiste  chinois (PCC)/chef de la  polic publique du XPCC/inspecteur en chef du Bureau  de sécurité"
         associates:
           - Zhiyong GONG 龚志勇
