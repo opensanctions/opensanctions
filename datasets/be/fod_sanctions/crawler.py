@@ -75,9 +75,9 @@ def crawl_row(context: Context, entity_id: str | None, row: Dict[str, List[str]]
         h.apply_dates(entity, "birthDate", row.pop("Birth date"))
         entity.add("position", row.pop("Function"))
     else:
-        entity.add("name", row.pop("Firstname"))
-        # Organization with name
+        # There's an organization with the following Firstname
         # "صنایع شهید ستاری"
+        entity.add("name", row.pop("Firstname"))
         entity.add("notes", row.pop("Function"))
         row.pop("Gender")  # Rustecdrone is male, apparently.
 
