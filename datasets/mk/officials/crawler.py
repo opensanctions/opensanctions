@@ -1,5 +1,4 @@
-from typing import Dict, List
-
+from itertools import count
 from zavod import Context
 from zavod import helpers as h
 from zavod.stateful.positions import categorise
@@ -12,7 +11,7 @@ IGNORE_COLUMNS = [
 ]
 
 
-def make_position_name(position, institution) -> List[str]:
+def make_position_name(position: str, institution: str) -> list[str]:
     institution_langs = institution.split("\n") if institution else []
 
     if position is None and institution is not None:
@@ -24,7 +23,7 @@ def make_position_name(position, institution) -> List[str]:
     raise ValueError("No position or institution")
 
 
-def crawl_row(context: Context, row: Dict[str, str]):
+def crawl_row(context: Context, row: dict[str, str]) -> None:
     person = context.make("Person")
 
     first_name = row.pop("name")
@@ -74,11 +73,11 @@ def crawl_row(context: Context, row: Dict[str, str]):
     context.audit_data(row, IGNORE_COLUMNS)
 
 
-def crawl(context: Context):
-    page = 0
-    while True:
+def crawl(context: Context) -> None:
+    for page in count(start=0):
         # the API maximum number of records per page is 2000
         params = {"page": page, "size": 2000}
+        assert context.dataset.data is not None
         res = context.http.post(
             context.dataset.data.url,
             params=params,
@@ -92,4 +91,8 @@ def crawl(context: Context):
         for row in data.get("content"):
             crawl_row(context, row)
 
-        page += 1
+        # As of 2025-12, we crawl 8 pages before terminating, so 100 seems like a safe limit for now
+        if page >= 100:
+            raise RuntimeError(
+                "Reached page 100 without exiting - are we in an infinite loop?"
+            )

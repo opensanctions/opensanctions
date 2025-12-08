@@ -57,7 +57,6 @@ repos:
           datasets/am|
           datasets/ar|
           datasets/at|
-          datasets/az|
           datasets/ba|
           datasets/be|
           datasets/bg/jud_declarations|
@@ -98,8 +97,6 @@ repos:
           datasets/mc|
           datasets/md|
           datasets/me|
-          datasets/mk|
-          datasets/mt|
           datasets/mx|
           datasets/my|
           datasets/ng|
