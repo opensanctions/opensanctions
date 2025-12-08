@@ -11,7 +11,7 @@ from zavod.crawl import crawl_dataset
 from zavod.store import get_store
 from zavod.exporters import export_dataset
 from zavod.integration import get_dataset_linker
-from zavod.publish import publish_dataset, publish_failure
+from zavod.publish import publish_dataset, archive_failure
 from zavod.exc import RunFailedException
 
 
@@ -71,25 +71,27 @@ def test_publish_dataset(testdataset1: Dataset):
 
 
 def test_publish_failure(testdataset1: Dataset):
-    arch_path = settings.ARCHIVE_PATH / DATASETS
-    art_path = settings.ARCHIVE_PATH / ARTIFACTS
-    latest_path = arch_path / "latest" / testdataset1.name
+    published_path = settings.ARCHIVE_PATH / DATASETS
+    artifacts_path = settings.ARCHIVE_PATH / ARTIFACTS
+    latest_path = published_path / "latest" / testdataset1.name
     assert testdataset1.data is not None
     testdataset1.data.format = "FAIL"
     try:
         crawl_dataset(testdataset1)
     except RunFailedException:
-        publish_failure(testdataset1, latest=True)
+        archive_failure(testdataset1, latest=True)
     clear_data_path(testdataset1.name)
 
     history = _read_history(testdataset1.name)
     assert history is not None
     assert history.latest is not None
     assert history.latest.id is not None
-    artifact_path = art_path / testdataset1.name / history.latest.id
+    artifact_path = artifacts_path / testdataset1.name / history.latest.id
 
     assert not latest_path.joinpath("statements.pack").exists()
     assert not latest_path.joinpath("issues.json").exists()
     assert artifact_path.joinpath("issues.json").exists()
     assert artifact_path.joinpath("index.json").exists()
-    assert latest_path.joinpath("index.json").exists()
+
+    # We don't want failed runs to end up in /datasets
+    assert len(list(latest_path.glob("*"))) == 0
