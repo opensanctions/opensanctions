@@ -87,7 +87,7 @@ lookups:
           - Qaedat al-Jihad in the Indian Subcontinent
           - Jamaat Qaidat al-Jihad fi Shibh al-Qarrah al-Hindiyah
           - Organization of the Base of Jihad in the Indian Subcontinent
-      - match: "Ansar al-Dine, Ansar al-Din, Ancar Dine, Ansar ul-Din, Ansar Eddine, Defenders of the Faith, Jum’a Ansar al-din al-salafiya, Harakat Ansar al-Dine, Harakat Ansar al-Din, Ansar Din, Ansar ed dine, Ansar Dine Sud, Ansar Dine katiba (brigade) Khalid Ibn al-Walid."
+      - match: "Ansar al-Dine, Ansar al-Din, Ancar Dine, Ansar ul-Din, Ansar Eddine, Defenders of the Faith, Jum'a Ansar al-din al-salafiya, Harakat Ansar al-Dine, Harakat Ansar al-Din, Ansar Din, Ansar ed dine, Ansar Dine Sud, Ansar Dine katiba (brigade) Khalid Ibn al-Walid"
         aliases:
           - Ansar al-Dine
           - Ansar al-Din
@@ -95,7 +95,7 @@ lookups:
           - Ansar ul-Din
           - Ansar Eddine
           - Defenders of the Faith
-          - Jum’a Ansar al-din al-salafiya
+          - Jum'a Ansar al-din al-salafiya
           - Harakat Ansar al-Dine
           - Harakat Ansar al-Din
           - Ansar Din

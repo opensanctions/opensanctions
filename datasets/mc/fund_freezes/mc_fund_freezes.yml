@@ -49,6 +49,8 @@ dates:
     - "%b %Y"
   months:
     "Oct": "octobre"
+    "Jan": "janvier"
+    "May": "mai"
 
 assertions:
   min:

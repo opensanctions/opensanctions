@@ -5868,6 +5868,36 @@ lookups:
       - match: "Lieu d'enregistrement: États-Unis d'Amérique"
         props:
           jurisdiction: us
+      - match: "NIF, numéro d'identification fiscale - Lieu d'enregistrement: Bangui (République centrafricaine) - Date d'enregistrement: 24.10.2017 - Principal établissement: République centrafricaine - : succursale de M-Finans: M 354838 D 0001"
+        props:
+          registrationNumber: M 354838 D 0001
+          jurisdiction: Central African Republic
+          incorporationDate: 2017-10-24
+          address: Bangui (République centrafricaine)
+      - match: "personnes  et entités associées: Yevgeny Prigozhin (décédé), groupe  Wagner, Dimitri Sytii, Valery  Zakharov, Perfilev, Svetlana  Troitskaya, Lobaye Invest"
+        associates:
+          - Yevgeny Prigozhin
+          - groupe Wagner
+          - Dimitri Sytii
+          - Valery Zakharov
+          - Perfilev
+          - Svetlana Troitskaya
+          - Lobaye Invest
+      - match: "Lieu d’enregistrement: 106 Guangming Road, Urumqi, région autonome ouïgoure du Xinjiang (XUAR), Chine - Date d’enregistrement: avril 1984b- Principal établissement: Urumqi, région autonome ouïgoure du Xinjiang (XUAR), Chine: Type d’entité: agence gouvernementale"
+        schema: Company
+        props:
+          jurisdiction: cn
+          legalForm: agence gouvernementale
+          incorporationDate: 1984-04
+          address: ["106 Guangming Road, Urumqi, région autonome ouïgoure du Xinjiang (XUAR), Chine", "Urumqi, région autonome ouïgoure du Xinjiang (XUAR), Chine"]
+      - match: "Personnes associées: Guangqiu YANG 杨光秋  (2.2017-2.2023)"
+        associates:
+          - Guangqiu YANG
+          - 杨光秋
+      - match: "Personne associée : Zhiyong GONG 龚志勇 (depuis  2.2023-); secrétaire du Parti communiste  chinois (PCC)/chef de la  polic publique du XPCC/inspecteur en chef du Bureau  de sécurité"
+        associates:
+          - Zhiyong GONG
+          - 龚志勇
   addresses:
     # Sometimes we can split on ; but sometimes it's just part of the address.
     options:
