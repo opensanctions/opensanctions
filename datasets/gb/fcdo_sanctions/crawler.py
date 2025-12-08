@@ -237,6 +237,47 @@ def crawl_xml(context: Context):
             context.log.error(f"Failed to parse designation with id {unique_id}: {e}")
 
 
+def ext_emit_linked_entity(
+    context: Context,
+    entity: Entity,
+    related_name: str,
+    relation_type: str = "unknown",
+    reverse: bool = False,
+):
+    """Create and emit a related organization entity with a relationship.
+
+    Args:
+        context: The processing context
+        entity: The main entity
+        related_name: Name of the related organization
+        relation_type: "ownership" or "unknown" (default)
+        reverse: If True, related entity is subject; if False, main entity is subject
+    """
+    related_name = related_name.strip()
+    if not related_name:
+        return
+
+    related = context.make("Organization")
+    related.id = context.make_id(related_name)
+    related.add("name", related_name)
+    context.emit(related, True)
+
+    if relation_type == "ownership":
+        own = context.make("Ownership")
+        own.id = context.make_id("ownership", related.id, entity.id)
+        own.add("owner", related.id)
+        own.add("asset", entity.id)
+        context.emit(own, True)
+    else:
+        link = context.make("UnknownLink")
+        subject_id = related.id if reverse else entity.id
+        object_id = entity.id if reverse else related.id
+        link.id = context.make_id("linked", subject_id, object_id)
+        link.add("subject", subject_id)
+        link.add("object", object_id)
+        context.emit(link, True)
+
+
 def ext_make_legal_entity(context: Context, row: dict, entity: Entity):
     entity.add("phone", row.pop("Phone number"))
     email_address = row.pop("Email address")
@@ -261,37 +302,13 @@ def ext_make_legal_entity(context: Context, row: dict, entity: Entity):
         country=row.pop("Address Country"),
     )
     h.copy_address(entity, addr)
+    print(row.get("Subsidiaries"))
+    for subsidiary in row.pop("Subsidiaries").split("|"):
+        ext_emit_linked_entity(context, entity, subsidiary, reverse=True)
 
-    if row.get("Subsidiaries"):
-        for subsidiary in row.pop("Subsidiaries").split("|"):
-            subsidiary = subsidiary.strip()
-            if not subsidiary:
-                continue
-
-            sub_entity = context.make("Organization")
-            sub_entity.id = context.make_slug(subsidiary)
-            sub_entity.add("name", subsidiary)
-            context.emit(sub_entity, True)
-
-            link = context.make("UnknownLink")
-            link.id = context.make_id("linked", sub_entity.id, entity.id)
-            link.add("subject", sub_entity.id)
-            link.add("object", entity.id)
-            context.emit(link, True)
-
-    if row.get("Parent company"):
-        parent = row.pop("Parent company").strip()
-        if parent:
-            parent_entity = context.make("Organization")
-            parent_entity.id = context.make_slug(parent)
-            parent_entity.add("name", parent)
-            context.emit(parent_entity, True)
-
-            link = context.make("UnknownLink")
-            link.id = context.make_id("linked", entity.id, parent_entity.id)
-            link.add("subject", entity.id)
-            link.add("object", parent_entity.id)
-            context.emit(link, True)
+    print(row.get("Parent company"))
+    for parent in row.pop("Parent company").split("|"):
+        ext_emit_linked_entity(context, entity, parent)
 
 
 def ext_make_person(context: Context, row: dict, entity: Entity):
@@ -321,49 +338,11 @@ def ext_make_ship(context: Context, row: dict, entity: Entity):
     entity.add("buildDate", row.pop("Year Built"))
     entity.add("registrationNumber", row.pop("Hull identification number (HIN)"))
     entity.add("imoNumber", row.pop("IMO number"))
-
-    # TODO: We might want ot change it to "Unknown Link", since it covers both operators and owners
-    current_owners = row.pop("Current owner/operator (s)")
-    if current_owners:
-        for owner_name in current_owners.split("|"):
-            owner_name = owner_name.strip()
-            if not owner_name:
-                continue
-
-            owner = context.make("Organization")
-            owner.id = context.make_id(owner_name)
-            owner.add("name", owner_name)
-            context.emit(owner, True)
-
-            own = context.make("Ownership")
-            own.id = context.make_id("ownership", owner.id, entity.id)
-            own.add("owner", owner.id)
-            own.add("asset", entity.id)
-            context.emit(own, True)
-
-    past_owners = row.pop("Previous owner/operator (s)")
-    if past_owners:
-        for owner_name in past_owners.split("|"):
-            owner_name = owner_name.strip()
-            if not owner_name:
-                continue
-
-            past_owner = context.make("Organization")
-            past_owner.id = context.make_slug(owner_name)
-            past_owner.add("name", owner_name)
-            context.emit(past_owner, True)
-
-            link = context.make("UnknownLink")
-            link.id = context.make_id("linked", past_owner.id, entity.id)
-            link.add("subject", past_owner.id)
-            link.add("object", entity.id)
-            context.emit(link, True)
-
-    # Add business registration numbers
-    business_reg = row.pop("Business registration number (s)")
-    if business_reg:
-        for reg_num in business_reg.split("|"):
-            entity.add("registrationNumber", reg_num.strip())
+    # TODO: split on semicolons
+    for owner_name in row.pop("Current owner/operator (s)").split("|"):
+        ext_emit_linked_entity(context, entity, owner_name, relation_type="ownership")
+    for owner_name in row.pop("Previous owner/operator (s)").split("|"):
+        ext_emit_linked_entity(context, entity, owner_name, reverse=True)
 
 
 def ext_crawl_csv(context: Context):
