@@ -100,7 +100,6 @@ def crawl_row(context: Context, row: Dict[str, str], table_title: str):
                     h.apply_name(
                         entity,
                         first_name=res.first_name,
-                        second_name=res.second_name,
                         last_name=res.last_name,
                         patronymic=res.patronymic,
                     )
