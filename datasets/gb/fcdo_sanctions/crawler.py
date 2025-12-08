@@ -1,5 +1,7 @@
 import re
+import csv
 
+from rigour.mime.types import CSV
 from zavod.helpers.xml import ElementOrTree
 
 from zavod import Context, Entity
@@ -12,6 +14,16 @@ def get_xml_link(context: Context) -> str:
     for el in doc.xpath(xq):
         return el.get("href")
     raise ValueError("XML link not found")
+
+
+def get_csv_link(context: Context) -> str | None:
+    doc = context.fetch_html(context.data_url)
+    xq = ".//section[@id='documents']//a[contains(@href, 'UK-Sanctions-List.csv')]"
+    for el in h.xpath_elements(doc, xq):
+        if el.get("href") is None:
+            continue
+        return el.get("href")
+    raise ValueError("CSV link not found")
 
 
 def entity_type(type: str) -> str:
@@ -113,7 +125,7 @@ def make_ship(context: Context, designation: ElementOrTree, entity: Entity):
             entity.add("flag", flag.text)
 
 
-def crawl(context: Context):
+def crawl_xml(context: Context):
     # Get the XML file
     url = get_xml_link(context)
     xml = context.fetch_resource("source.xml", url)
@@ -223,3 +235,238 @@ def crawl(context: Context):
             context.emit(sanction)
         except ValueError as e:
             context.log.error(f"Failed to parse designation with id {unique_id}: {e}")
+
+
+def ext_make_legal_entity(context: Context, row: dict, entity: Entity):
+    entity.add("phone", row.pop("Phone number"))
+    email_address = row.pop("Email address")
+    if email_address:
+        for email in re.split(email_split, email_address):
+            entity.add("email", email.strip())
+    entity.add("website", row.pop("Website"))
+    # Mix of legal forms and sectors
+    entity.add("summary", row.pop("Type of entity"))
+
+    postcode, pobox = h.postcode_pobox(row.pop("Address Postal Code"))
+    addr = h.make_address(
+        context,
+        street=row.pop("Address Line 1"),
+        street2=row.pop("Address Line 2"),
+        street3=row.pop("Address Line 3"),
+        place=row.pop("Address Line 4"),
+        region=row.pop("Address Line 5"),
+        city=row.pop("Address Line 6"),
+        postal_code=postcode,
+        po_box=pobox,
+        country=row.pop("Address Country"),
+    )
+    h.copy_address(entity, addr)
+
+    if row.get("Subsidiaries"):
+        for subsidiary in row.pop("Subsidiaries").split("|"):
+            subsidiary = subsidiary.strip()
+            if not subsidiary:
+                continue
+
+            sub_entity = context.make("Organization")
+            sub_entity.id = context.make_slug(subsidiary)
+            sub_entity.add("name", subsidiary)
+            context.emit(sub_entity, True)
+
+            link = context.make("UnknownLink")
+            link.id = context.make_id("linked", sub_entity.id, entity.id)
+            link.add("subject", sub_entity.id)
+            link.add("object", entity.id)
+            context.emit(link, True)
+
+    if row.get("Parent company"):
+        parent = row.pop("Parent company").strip()
+        if parent:
+            parent_entity = context.make("Organization")
+            parent_entity.id = context.make_slug(parent)
+            parent_entity.add("name", parent)
+            context.emit(parent_entity, True)
+
+            link = context.make("UnknownLink")
+            link.id = context.make_id("linked", entity.id, parent_entity.id)
+            link.add("subject", entity.id)
+            link.add("object", parent_entity.id)
+            context.emit(link, True)
+
+
+def ext_make_person(context: Context, row: dict, entity: Entity):
+    h.apply_date(entity, "birthDate", row.pop("D.O.B"))
+    entity.add("title", row.pop("Title", None))
+    entity.add("gender", row.pop("Gender"))
+    entity.add("birthPlace", row.pop("Town of birth"))
+    entity.add("birthPlace", row.pop("Country of birth"))
+    entity.add("idNumber", row.pop("National Identifier number"))
+    entity.add("nationality", row.pop("Nationality(/ies)"))
+    entity.add("position", row.pop("Position"))
+
+    passport_no = row.pop("Passport number")
+    passport = context.make("Passport")
+    passport.id = context.make_id(passport_no, entity.id)
+    passport.add("number", passport_no)
+    passport.add("summary", row.pop("Passport additional information"))
+    passport.add("holder", entity.id)
+    context.emit(passport, True)
+
+
+def ext_make_ship(context: Context, row: dict, entity: Entity):
+    entity.add("type", row.pop("Type of ship"))
+    entity.add("flag", row.pop("Current believed flag of ship"))
+    entity.add("pastFlags", row.pop("Previous flags"))
+    entity.add("tonnage", row.pop("Tonnage of ship"))
+    entity.add("buildDate", row.pop("Year Built"))
+    entity.add("registrationNumber", row.pop("Hull identification number (HIN)"))
+    entity.add("imoNumber", row.pop("IMO number"))
+
+    # TODO: We might want ot change it to "Unknown Link", since it covers both operators and owners
+    current_owners = row.pop("Current owner/operator (s)")
+    if current_owners:
+        for owner_name in current_owners.split("|"):
+            owner_name = owner_name.strip()
+            if not owner_name:
+                continue
+
+            owner = context.make("Organization")
+            owner.id = context.make_id(owner_name)
+            owner.add("name", owner_name)
+            context.emit(owner, True)
+
+            own = context.make("Ownership")
+            own.id = context.make_id("ownership", owner.id, entity.id)
+            own.add("owner", owner.id)
+            own.add("asset", entity.id)
+            context.emit(own, True)
+
+    past_owners = row.pop("Previous owner/operator (s)")
+    if past_owners:
+        for owner_name in past_owners.split("|"):
+            owner_name = owner_name.strip()
+            if not owner_name:
+                continue
+
+            past_owner = context.make("Organization")
+            past_owner.id = context.make_slug(owner_name)
+            past_owner.add("name", owner_name)
+            context.emit(past_owner, True)
+
+            link = context.make("UnknownLink")
+            link.id = context.make_id("linked", past_owner.id, entity.id)
+            link.add("subject", past_owner.id)
+            link.add("object", entity.id)
+            context.emit(link, True)
+
+    # Add business registration numbers
+    business_reg = row.pop("Business registration number (s)")
+    if business_reg:
+        for reg_num in business_reg.split("|"):
+            entity.add("registrationNumber", reg_num.strip())
+
+
+def ext_crawl_csv(context: Context):
+    csv_url = get_csv_link(context)
+    path = context.fetch_resource("source.csv", csv_url)
+    context.export_resource(path, CSV, title=context.SOURCE_TITLE)
+    with open(path, "r", encoding="utf-8") as fh:
+        # Skip the first metadata row
+        next(fh)
+        for row in csv.DictReader(fh):
+            entity = context.make(entity_type(row.pop("Designation Type")))
+            unique_id = row.pop("Unique ID")
+            entity.id = context.make_slug(unique_id)
+            name_type = row.pop("Name type")
+            name_prop = context.lookup_value("name_type", name_type)
+            if name_prop is None and name_type:
+                context.log.warn("Unknown name type", name_type=name_type)
+            h.apply_name(
+                entity,
+                full=row.pop("Name 6"),
+                name1=row.pop("Name 1"),
+                # name2=row.pop("Name 2"),
+                name3=row.pop("Name 3"),
+                name4=row.pop("Name 4"),
+                name5=row.pop("Name 5"),
+                lang="eng",
+                name_prop=name_prop,
+                quiet=True,
+            )
+            # if not entity.has("name"):
+            #     context.log.info("No names found for entity", id=entity.id)
+
+            # Add non-latin name
+            non_latin_name = row.pop("Name non-latin script")
+            non_latin_lang = row.pop("Non-latin script language")
+            if non_latin_name:
+                lang_code = context.lookup_value("languages", non_latin_lang)
+                if non_latin_lang and lang_code is None:
+                    context.log.warn(
+                        "Unknown language, please add to languages lookup.",
+                        language=non_latin_lang,
+                    )
+                else:
+                    h.apply_name(entity, non_latin_name, lang=lang_code)
+
+            if entity.schema.label in ["Person", "Organization"]:
+                ext_make_legal_entity(context, row, entity)
+            if entity.schema.label == "Person":
+                ext_make_person(context, row, entity)
+            if entity.schema.label == "Vessel":
+                ext_make_ship(context, row, entity)
+
+            if entity.schema.label not in ["Person", "Organization", "Vessel"]:
+                context.log.warn(
+                    "Unknown entity type",
+                    id=entity.id,
+                    type=entity.schema.label,
+                    row=row,
+                )
+                continue
+
+            regime_name = row.pop("Regime Name")
+
+            sanction = h.make_sanction(
+                context,
+                entity,
+                program_name=regime_name,
+                source_program_key=regime_name,
+                program_key=h.lookup_sanction_program_key(context, regime_name),
+            )
+
+            sanction.add("authorityId", unique_id)
+            sanction.add("authorityId", row.pop("OFSI Group ID"))
+            sanction.add("unscId", row.pop("UN Reference Number"))
+            sanction.add("authority", row.pop("Designation source"))
+            sanction.add("reason", row.pop("UK Statement of Reasons"))
+            h.apply_date(sanction, "modifiedAt", row.pop("Last Updated"))
+            h.apply_date(sanction, "startDate", row.pop("Date Designated"))
+
+            entity.add("notes", row.pop("Other Information"))
+            entity.add("topics", "sanction")
+
+            sanctions_imposed = row.pop("Sanctions Imposed")
+            if sanctions_imposed:
+                sanction.add("provisions", sanctions_imposed.split("|"))
+
+            context.emit(entity, True)
+            context.emit(sanction, True)
+
+            context.audit_data(
+                row,
+                [
+                    "Name 2",
+                    "National Identifier additional information",
+                    "Non-latin script type",
+                    "Business registration number (s)",
+                    "Alias strength",
+                    "Title",
+                    "Length of ship",
+                ],
+            )
+
+
+def crawl(context: Context):
+    # crawl_xml(context)
+    ext_crawl_csv(context)

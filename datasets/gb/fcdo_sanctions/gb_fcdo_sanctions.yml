@@ -134,6 +134,8 @@ lookups:
         value: kir
       - match: Croatian
         value: hrv
+      - match: Japanese
+        value: jpn
   name_type:
     lowercase: true
     normalize: true
@@ -196,6 +198,8 @@ lookups:
     options:
       - match: 00/00/1975
         value: 1975
+      - match: "'00/00/1975"
+        value: 1975
       - match: 15/08/19yy
         value: null # We don't have a way to represent day-month birthdays
   type.string:
@@ -205,3 +209,20 @@ lookups:
         value:
           - 1863
           - 2501
+      - match: "P.O Box 11365-171"
+        prop: postOfficeBox
+        value: "11365-171"
+      - match: "P.O.Box 14155-6569"
+        prop: postOfficeBox
+        value: "14155-6569"
+      - match: "P.O. Box 11365-8486"
+        prop: postOfficeBox
+        value: "11365-8486"
+  type.url:
+    options:
+      - match: "Unknown"
+        value: null
+  type.identifier:
+    options:
+      - match: "Indonesia, number T710219 (issued in Sukoharjo, Central Java, Indonesia)"
+        value: "T710219"
