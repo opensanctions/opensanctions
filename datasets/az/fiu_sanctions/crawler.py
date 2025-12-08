@@ -37,11 +37,21 @@ def crawl(context: Context):
         name_original = ind.findtext("NAME_ORIGINAL_SCRIPT")
         entity.id = context.make_id(data_id, name_original)
         entity.add("name", name_original, lang="aze")
-        h.apply_name(
-            entity,
-            first_name=ind.findtext("FIRST_NAME"),
-            second_name=ind.findtext("SECOND_NAME"),
-            last_name=ind.findtext("THIRD_NAME"),
+        # SECOND NAME and THIRD NAME are murky.
+        # For Azeri names, SECOND_NAME is the family name, THIRD_NAME is a patronymic
+        # (the part suffixed by "oğlu" in NAME_ORIGINAL_SCRIPT).
+        # For Arabic name, SECOND_NAME is a patronymic, THIRD_NAME is the family name.
+        #
+        # Who knows how else they'll use it, so I'm only confidnent about FIRST_NAME,
+        # the rest we just join and stuff in `name`.
+        entity.add("firstName", ind.findtext("FIRST_NAME"), lang="eng")
+        entity.add(
+            "name",
+            h.make_name(
+                first_name=ind.findtext("FIRST_NAME"),
+                second_name=ind.findtext("SECOND_NAME"),
+                last_name=ind.findtext("THIRD_NAME"),
+            ),
             lang="eng",
         )
         if ind.findtext("FOURTH_NAME"):

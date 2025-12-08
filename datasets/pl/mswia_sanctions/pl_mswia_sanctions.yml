@@ -279,8 +279,7 @@ lookups:
         patronymic: Hozhakhmedovich
         last_name: DAUDOV
       - match: KANTOR Wiaczesław Mosze
-        first_name: Wiaczesław
-        second_name: Mosze
+        first_name: Wiaczesław Mosze
         last_name: KANTOR
       - match: MARTYNOV Daniil Vasilevich
         first_name: Daniil
@@ -303,8 +302,7 @@ lookups:
         patronymic: Giennadiejewicz
         last_name: ŁOMAKIN
       - match: REISS Błażej Bernard
-        first_name: Błażej
-        second_name:: Bernard
+        first_name: Błażej Bernard
         last_name: REISS
       - match: SZNEJDER Andriej Iwanowicz
         first_name: Andriej

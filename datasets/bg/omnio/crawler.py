@@ -12,7 +12,7 @@ TYPES = {
 }
 
 
-def crawl_row(context: Context, row: Dict[str, str]):
+def crawl_row(context: Context, row: Dict[str, str]) -> None:
     entity = context.make(TYPES[row.pop("Entity_Type")])
     row.pop("Entity_Type_BG")
     entity.id = context.make_id(
@@ -31,20 +31,34 @@ def crawl_row(context: Context, row: Dict[str, str]):
         context.log.warning("Skip row", row=row)
         return
 
-    h.apply_name(
-        entity,
-        first_name=row.pop("First_Name"),
-        second_name=row.pop("Second_Name"),
-        last_name=row.pop("Family_Name"),
-        quiet=True,
+    # Second_Name is often a patronymic or other heredetary component, but not quite clear,
+    # so that part we only stuff in `name` (as a joined string), while
+    # First_Name and Last_Name get put in the right fields.
+    first_name = row.pop("First_Name")
+    second_name = row.pop("Second_Name")
+    family_name = row.pop("Family_Name")
+    entity.add("firstName", first_name, quiet=True)
+    entity.add("lastName", family_name, quiet=True)
+    entity.add(
+        "name",
+        h.make_name(
+            given_name=first_name, second_name=second_name, last_name=family_name
+        ),
+        lang="eng",
     )
-    h.apply_name(
-        entity,
-        first_name=row.pop("First_Name_BG"),
-        second_name=row.pop("Second_Name_BG"),
-        last_name=row.pop("Family_Name_BG"),
-        alias=True,
-        quiet=True,
+    # Same for Bulgarian names, but they go in `alias`.
+    first_name_bg = row.pop("First_Name_BG")
+    second_name_bg = row.pop("Second_Name_BG")
+    family_name_bg = row.pop("Family_Name_BG")
+    entity.add("firstName", first_name_bg, quiet=True, lang="bul")
+    entity.add("lastName", family_name_bg, quiet=True, lang="bul")
+    entity.add(
+        "alias",
+        h.make_name(
+            given_name=first_name_bg,
+            second_name=second_name_bg,
+            last_name=family_name_bg,
+        ),
         lang="bul",
     )
 
@@ -96,7 +110,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     )
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     path = context.fetch_resource("source.csv", context.data_url)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
