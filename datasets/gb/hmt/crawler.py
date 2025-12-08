@@ -221,14 +221,29 @@ def parse_row(context: Context, row: Dict[str, Any]) -> None:
         context.log.warning("Unknown name quality", quality=name_quality)
         return
 
+    # name1 is always a given name
+    # name6 is always a family name
+    # name2-name5 are sometimes given names, sometimes patro-/matronymic names
+    # We play it safe here and put into more specific properties only what we're sure of
+    name1 = row.pop("name1", None)
+    name2 = row.pop("name2", None)
+    name3 = row.pop("name3", None)
+    name4 = row.pop("name4", None)
+    name5 = row.pop("name5", None)
+    name6 = row.pop("Name6", None)
     h.apply_name(
         entity,
-        name1=row.pop("name1", None),
-        name2=row.pop("name2", None),
-        name3=row.pop("name3", None),
-        name4=row.pop("name4", None),
-        name5=row.pop("name5", None),
-        tail_name=row.pop("Name6", None),
+        given_name=name1,
+        last_name=name6,
+        # We call make_name here to avoid having name2-name5 put into the wrong properties by h.apply_name
+        full=h.make_name(
+            name1=name1,
+            name2=name2,
+            name3=name3,
+            name4=name4,
+            name5=name5,
+            tail_name=name6,
+        ),
         name_prop=name_prop,
         is_weak=is_weak,
         quiet=True,
