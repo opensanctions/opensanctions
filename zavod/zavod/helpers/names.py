@@ -348,7 +348,7 @@ def review_names(
         context: The current context.
         entity: The entity to apply names to.
         string: The raw name(s) string.
-        llm_cleaning: Whether to use LLM cleaning before review.
+        enable_llm_cleaning: Whether to use LLM-based name cleaning.
     """
     if not string or not string.strip():
         return None
@@ -381,7 +381,7 @@ def apply_reviewed_names(
         string: The raw name(s) string.
         lang: The language of the name, if known.
         alias: If this is known to be an alias and not a primary name.
-        llm_cleaning: Whether to use LLM cleaning before review.
+        enable_llm_cleaning: Whether to use LLM-based name cleaning.
     """
     if not string or not string.strip():
         return None
