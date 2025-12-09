@@ -7,8 +7,9 @@ import zavod.helpers as h
 from nomenklatura.resolver import Linker
 from normality import squash_spaces
 from rigour.ids.ogrn import OGRN
-from zavod.integration import get_dataset_linker
 
+from zavod.extract.zyte_api import fetch_html
+from zavod.integration import get_dataset_linker
 from zavod import Context, Entity
 
 # Some entities come from the full text of the consolidated COUNCIL REGULATION (EU) No 833/2014.
@@ -29,10 +30,9 @@ def extract_program_code(context, source_url):
     """Fetch EU act code from a EUR-Lex page."""
     if SPECIAL_CASE_URL in source_url:
         return "833/2014"
-    doc = context.fetch_html(source_url, cache_days=365)
-    program_nodes = doc.xpath(
-        "//div[@class='eli-main-title']/p[@class='oj-doc-ti']/text()"
-    )
+    program_xpath = "//div[@class='eli-main-title']/p[@class='oj-doc-ti']/text()"
+    doc = fetch_html(context, source_url, program_xpath, cache_days=365)
+    program_nodes = doc.xpath(program_xpath)
     if not program_nodes:
         context.log.warning(f"Could not find program for {source_url}")
         return
