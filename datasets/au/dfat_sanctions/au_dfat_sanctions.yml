@@ -72,6 +72,8 @@ lookups:
         value: AU-LIBYA
       - match: "Autonomous (Myanmar)"
         value: AU-MYANMAR
+      - match: "Autonomous (Afghanistan)"
+        value: AU-AFGHANISTAN
       - match: "Autonomous (Russia)"
         value: AU-RUSSIA
       - match: "Autonomous (Thematic – Corruption)"
@@ -123,6 +125,8 @@ lookups:
           - 2048 (Guinea-Bissau)
           - Guinea-Bissau (2048)
         value: UN-SC2048
+      - match: 2653 (Haiti)
+        value: UN-SC2653
   type:
     options:
       - match: Individual
