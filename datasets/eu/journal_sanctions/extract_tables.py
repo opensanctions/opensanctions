@@ -1,10 +1,23 @@
+# Tries to extract tables from EU journal sanctions HTML pages.
+# Tries to map common key/value pairs in a cell to distinct columns.
+#
+# Usage:
+#   python extract_tables.py --url "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32022R2092"
+#
+# They seem to be introducing Cloudfront WAF - if you encounter an empty response,
+# save as "Complete" from your browser,then use --path to the .htm file
+
+
 import csv
+from pathlib import Path
+from typing import Optional
 from urllib.parse import parse_qs, urlparse
 
 import click
 import requests
 from lxml import html
 from normality import collapse_spaces, slugify, squash_spaces
+from followthemoney.cli.util import InPath
 
 from zavod import helpers as h
 
@@ -31,19 +44,26 @@ def extract_identifying(identifying_information: str) -> dict[str, str]:
 
 
 @click.command()
-@click.argument("URL", type=str)
-def extract_tables(url: str) -> None:
+@click.option("--url", type=str)
+@click.option("--path", type=InPath)
+def extract_tables(url: Optional[str], path: Optional[Path]) -> None:
     """
     Args:
         url: https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=...
     """
-    query_params = parse_qs(urlparse(url).query)
-    doc_reference = query_params.get("uri")[0].replace(":", "_")
 
-    r = requests.get(url)
-    r.raise_for_status()
+    if url:
+        r = requests.get(url)
+        r.raise_for_status()
+        html_content = r.text
+        query_params = parse_qs(urlparse(url).query)
+        doc_reference = query_params.get("uri")[0].replace(":", "_")
+    else:
+        with open(path, "r") as f:
+            html_content = f.read()
+        doc_reference = path.stem.replace(":", "_").replace(" ", "_")
 
-    doc = html.fromstring(r.text)
+    doc = html.fromstring(html_content)
     contentContainer = doc.xpath("//div[@id='textTabContent']")
     for i, table in enumerate(
         contentContainer[0].xpath(".//table[contains(@class, 'oj-table')]")
