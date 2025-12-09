@@ -20,10 +20,10 @@ class RawNames(BaseModel):
 class CleanNames(BaseModel):
     """Names categorised and cleaned of non-name characters."""
 
-    full_name: List[str]
-    alias: List[str]
-    weak_alias: List[str]
-    previous_name: List[str]
+    full_name: List[str] = []
+    alias: List[str] = []
+    weak_alias: List[str] = []
+    previous_name: List[str] = []
 
 
 class DSPySignature(BaseModel):

@@ -311,11 +311,11 @@ def apply_names(
 
 
 def _review_names(
-    context: Context, entity: Entity, string: str, llm_cleaning: bool
+    context: Context, entity: Entity, string: str, enable_llm_cleaning: bool
 ) -> Review[CleanNames]:
     strings = [string]
     raw_names = RawNames(entity_schema=entity.schema.name, strings=strings)
-    if llm_cleaning:
+    if enable_llm_cleaning:
         names = clean_names(context, raw_names)
     else:
         names = CleanNames(full_name=strings)
@@ -336,7 +336,10 @@ def _review_names(
 
 
 def review_names(
-    context: Context, entity: Entity, string: Optional[str], llm_cleaning: bool = False
+    context: Context,
+    entity: Entity,
+    string: Optional[str],
+    enable_llm_cleaning: bool = False,
 ) -> Optional[Review[CleanNames]]:
     """
     Clean names if needed, then post them for review.
@@ -353,7 +356,7 @@ def review_names(
     if settings.CI or not is_name_irregular(entity, string):
         return None
 
-    return _review_names(context, entity, string, llm_cleaning)
+    return _review_names(context, entity, string, enable_llm_cleaning)
 
 
 def apply_reviewed_names(
@@ -362,7 +365,7 @@ def apply_reviewed_names(
     string: Optional[str],
     lang: Optional[str] = None,
     alias: bool = False,
-    llm_cleaning: bool = False,
+    enable_llm_cleaning: bool = False,
 ) -> None:
     """
     Clean names if needed, then post them for review.
@@ -387,6 +390,8 @@ def apply_reviewed_names(
         apply_name(entity, full=string, alias=alias, lang=lang)
         return None
 
-    review = _review_names(context, entity, string, llm_cleaning=llm_cleaning)
+    review = _review_names(
+        context, entity, string, enable_llm_cleaning=enable_llm_cleaning
+    )
 
     apply_names(entity, string, review, alias=alias, lang=lang)
