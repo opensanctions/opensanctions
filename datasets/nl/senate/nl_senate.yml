@@ -419,3 +419,23 @@ lookups:
           - name: "Elly van Wijk"
             start_date: "2023-06-13"
             party: "BBB"
+      - match: 'Toine Beukering (1958) is sinds 18 november 2025 lid van de Fractie-Beukering'
+        details:
+          - name: "Toine Beukering"
+            start_date: "2025-11-18"
+            party: "Fractie-Beukering"
+      - match: 'Arie Griffioen (1953) is vanaf 28 november 2025 lid van de D66-fractie in de Eerste Kamer'
+        details:
+          - name: "Arie Griffioen"
+            start_date: "2025-11-28"
+            party: "D66"
+      - match: 'Antoon Kanis (1990) is vanaf 18 november 2025 lid van de D66-fractie in de Eerste Kamer'
+        details:
+          - name: "Antoon Kanis"
+            start_date: "2025-11-18"
+            party: "D66"
+      - match: 'Ingrid Visseren-Hamakers (1970) is sinds 10 november 2025 lid van de Fractie-Visseren-Hamakers'
+        details:
+          - name: "Ingrid Visseren-Hamakers"
+            start_date: "2025-11-10"
+            party: "Fractie-Visseren-Hamakers"
