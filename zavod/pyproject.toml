@@ -82,7 +82,7 @@ docs = [
     "mkdocs-material",
 ]
 dspy = [
-    "dspy == 3.0.3",
+    "dspy == 3.0.4",
 ]
 
 [project.scripts]
