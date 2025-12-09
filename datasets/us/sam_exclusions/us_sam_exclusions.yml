@@ -45,11 +45,11 @@ names:
     # We make Sebastiano an alias because it doesn't seem to be the primary official name of
     # G&G INTERNACIONAL S.A.S. and as a LegalEntity entry it can cause lots of false
     # positives on person names.
-    min_chars: 11
-    # Review all company names without spaces since they can be very generic in this dataset.
-    require_space: true
+    single_token_min_length: 11
   Person:
-    min_chars: 10
+    single_token_min_length: 10
+  Vessel:
+    min_length: 5
 
 assertions:
   min:

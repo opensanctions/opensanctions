@@ -29,6 +29,7 @@ class CleaningSpec(BaseModel):
     Remember that characters defined for other matching schema specs will still apply.
     """
     min_chars: int = 2
+    single_token_min_length: int = 2
     require_space: bool = False
     allow_nullwords: bool = False
 

@@ -33,6 +33,8 @@ dates:
 names:
   Organization:
     reject_chars: ","
+    min_length: 3
+    single_token_min_length: 4
 
 lookups:
   plants:

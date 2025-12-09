@@ -141,8 +141,12 @@ def test_is_name_irregular(testdataset1: Dataset):
     assert is_name_irregular(org, "Org NPO, Org Charitable")
     # Nullwords
     assert is_name_irregular(org, "Unknown")
-    # Below min chars
-    assert is_name_irregular(org, "A")
+    # min_chars
+    assert is_name_irregular(org, "A")  # too short
+    assert not is_name_irregular(org, "A A")  # long enough
+    # single_token_min_length
+    assert is_name_irregular(org, "AAA")  # too short
+    assert not is_name_irregular(org, "AAAA")  # long enough
     # Require space
     assert is_name_irregular(person, "Johnson")
     assert not is_name_irregular(org, "Johnson")
