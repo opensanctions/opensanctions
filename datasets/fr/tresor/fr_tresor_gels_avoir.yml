@@ -158,6 +158,9 @@ lookups:
           - fr-ga-5143
           - fr-ga-5142
         value: Vessel
+      - match:
+          - fr-ga-8393
+        value: Organization
   type.address:
     lowercase: true
     options:
