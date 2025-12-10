@@ -184,17 +184,18 @@ def test_apply_reviewed_names_ci_fallback(
         previous_name=[],
     )
 
-    apply_reviewed_names(vcontext, entity, raw_name)
+    apply_reviewed_names(vcontext, entity, raw_name, enable_llm_cleaning=True)
 
     assert not run_typed_text_prompt.called, run_typed_text_prompt.call_args_list
 
 
 @patch("zavod.helpers.names.settings.CI", False)
 @patch("zavod.extract.names.clean.run_typed_text_prompt")
-def test_apply_reviewed_names(run_typed_text_prompt: MagicMock, vcontext: Context):
+def test_apply_reviewed_names_llm(run_typed_text_prompt: MagicMock, vcontext: Context):
     """
     The original name is used.
-    A review is created but the unaccepted name(s) are not applied.
+    A review is created but the automatically extracted names are not applied until accepted.
+    LLM-based cleaning is used.
     """
 
     entity = vcontext.make("Person")
@@ -208,7 +209,7 @@ def test_apply_reviewed_names(run_typed_text_prompt: MagicMock, vcontext: Contex
         previous_name=[],
     )
 
-    apply_reviewed_names(vcontext, entity, raw_name)
+    apply_reviewed_names(vcontext, entity, raw_name, enable_llm_cleaning=True)
 
     assert run_typed_text_prompt.called, run_typed_text_prompt.call_args_list
 
@@ -216,7 +217,9 @@ def test_apply_reviewed_names(run_typed_text_prompt: MagicMock, vcontext: Contex
     assert entity.get("name") == [raw_name]
     assert entity.get("alias") == []
     entity.set("name", [])  # clear to test alias
-    apply_reviewed_names(vcontext, entity, raw_name, alias=True)
+    apply_reviewed_names(
+        vcontext, entity, raw_name, alias=True, enable_llm_cleaning=True
+    )
     assert entity.get("alias") == [raw_name]
     assert entity.get("name") == []
     entity.set("alias", [])  # clear to test after accept
@@ -227,11 +230,53 @@ def test_apply_reviewed_names(run_typed_text_prompt: MagicMock, vcontext: Contex
     review.accepted = True
     review.save(vcontext.conn, new_revision=True)
 
-    apply_reviewed_names(vcontext, entity, raw_name)
+    apply_reviewed_names(vcontext, entity, raw_name, enable_llm_cleaning=True)
     assert set(entity.get("name")) == {"Jim Doe", "James Doe"}
     assert entity.get("alias") == []
     entity.set("name", [])  # clear to test alias
 
-    apply_reviewed_names(vcontext, entity, raw_name, alias=True)
+    apply_reviewed_names(
+        vcontext, entity, raw_name, alias=True, enable_llm_cleaning=True
+    )
     assert entity.get("name") == []
     assert set(entity.get("alias")) == {"Jim Doe", "James Doe"}
+
+
+@patch("zavod.helpers.names.settings.CI", False)
+@patch("zavod.extract.names.clean.run_typed_text_prompt")
+def test_apply_reviewed_names_manual(
+    run_typed_text_prompt: MagicMock, vcontext: Context
+):
+    """
+    The original name is used.
+    A review is created but the manually extracted names are not applied until accepted.
+    LLM-based cleaning is not used.
+    """
+
+    entity = vcontext.make("Person")
+    entity.id = "bla"
+    raw_name = "Jim Doe; James Doe"
+
+    run_typed_text_prompt.return_value = CleanNames(
+        alias=["SHOULD NOT END UP IN ENTITY"]
+    )
+
+    apply_reviewed_names(vcontext, entity, raw_name)
+
+    assert not run_typed_text_prompt.called, run_typed_text_prompt.call_args_list
+
+    # Until it's accepted, the original string is applied.
+    assert entity.get("name") == [raw_name]
+    assert entity.get("alias") == []
+    entity.set("name", [])  # clear to test after accept
+
+    # simulate manually editing and accepting the review.
+    key = review_key(["Person", raw_name])
+    review = Review.by_key(vcontext.conn, CleanNames, vcontext.dataset.name, key)
+    review.accepted = True
+    review.extracted_data = CleanNames(full_name=["James Doe"], alias=["Jim Doe"])
+    review.save(vcontext.conn, new_revision=True)
+
+    apply_reviewed_names(vcontext, entity, raw_name)
+    assert entity.get("name") == ["James Doe"]
+    assert entity.get("alias") == ["Jim Doe"]

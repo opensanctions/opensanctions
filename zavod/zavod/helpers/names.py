@@ -310,10 +310,15 @@ def apply_names(
             )
 
 
-def _review_names(context: Context, entity: Entity, string: str) -> Review[CleanNames]:
+def _review_names(
+    context: Context, entity: Entity, string: str, enable_llm_cleaning: bool
+) -> Review[CleanNames]:
     strings = [string]
     raw_names = RawNames(entity_schema=entity.schema.name, strings=strings)
-    names = clean_names(context, raw_names)
+    if enable_llm_cleaning:
+        names = clean_names(context, raw_names)
+    else:
+        names = CleanNames(full_name=strings)
 
     source_value = JSONSourceValue(
         key_parts=[entity.schema.name] + strings,
@@ -331,7 +336,10 @@ def _review_names(context: Context, entity: Entity, string: str) -> Review[Clean
 
 
 def review_names(
-    context: Context, entity: Entity, string: Optional[str]
+    context: Context,
+    entity: Entity,
+    string: Optional[str],
+    enable_llm_cleaning: bool = False,
 ) -> Optional[Review[CleanNames]]:
     """
     Clean names if needed, then post them for review.
@@ -340,6 +348,7 @@ def review_names(
         context: The current context.
         entity: The entity to apply names to.
         string: The raw name(s) string.
+        enable_llm_cleaning: Whether to use LLM-based name cleaning.
     """
     if not string or not string.strip():
         return None
@@ -347,7 +356,7 @@ def review_names(
     if settings.CI or not is_name_irregular(entity, string):
         return None
 
-    return _review_names(context, entity, string)
+    return _review_names(context, entity, string, enable_llm_cleaning)
 
 
 def apply_reviewed_names(
@@ -356,6 +365,7 @@ def apply_reviewed_names(
     string: Optional[str],
     lang: Optional[str] = None,
     alias: bool = False,
+    enable_llm_cleaning: bool = False,
 ) -> None:
     """
     Clean names if needed, then post them for review.
@@ -369,8 +379,9 @@ def apply_reviewed_names(
         context: The current context.
         entity: The entity to apply names to.
         string: The raw name(s) string.
-        alias: If this is known to be an alias and not a primary name.
         lang: The language of the name, if known.
+        alias: If this is known to be an alias and not a primary name.
+        enable_llm_cleaning: Whether to use LLM-based name cleaning.
     """
     if not string or not string.strip():
         return None
@@ -379,6 +390,8 @@ def apply_reviewed_names(
         apply_name(entity, full=string, alias=alias, lang=lang)
         return None
 
-    review = _review_names(context, entity, string)
+    review = _review_names(
+        context, entity, string, enable_llm_cleaning=enable_llm_cleaning
+    )
 
     apply_names(entity, string, review, alias=alias, lang=lang)

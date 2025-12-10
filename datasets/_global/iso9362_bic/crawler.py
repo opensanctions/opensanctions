@@ -33,7 +33,7 @@ def crawl(context: Context) -> None:
 
         entity = context.make("Organization")
         entity.id = f"bic-{bic}"
-        h.apply_reviewed_names(context, entity, legal_name)
+        h.apply_reviewed_names(context, entity, legal_name, enable_llm_cleaning=True)
         entity.add("swiftBic", bic)
         entity.add("country", bic[4:6])
         entity.add("address", row.pop("registered_address"))
