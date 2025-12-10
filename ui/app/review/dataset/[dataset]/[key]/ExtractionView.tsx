@@ -65,8 +65,8 @@ function searchSelectedValue(state: EditorView["state"], search: (query: string)
   const tree = syntaxTree(state)
   const node = tree?.resolveInner(pos);
   // Don't search if we clicked outside a string value
-  if (node?.type.name !== "String") {
-    console.log("Not a string node", node?.type.name);
+  if (node?.type.name !== "String" && node?.type.name !== "Literal") {
+    console.log("Not a string or literal node", node?.type.name);
     return;
   }
   const selection = state.selection;

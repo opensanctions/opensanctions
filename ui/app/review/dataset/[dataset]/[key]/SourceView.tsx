@@ -3,14 +3,17 @@
 import { markdown } from "@codemirror/lang-markdown";
 import { openSearchPanel, setSearchQuery, SearchQuery } from "@codemirror/search";
 import CodeMirror, { ReactCodeMirrorRef } from "@uiw/react-codemirror";
+import { yaml } from "@codemirror/lang-yaml";
 import { EditorView } from "codemirror";
 import { useEffect, useRef } from "react";
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
 import TurndownService from 'turndown';
+import { stringify as stringifyToYaml } from 'yaml';
 
 import { ReviewEntity } from '@/lib/db';
 import styles from "@/styles/Review.module.scss";
+import { json } from "stream/consumers";
 
 type SourceViewProps = {
   sourceValue: string,
@@ -31,23 +34,36 @@ function searchInCodemirror(ref: React.RefObject<ReactCodeMirrorRef | null>, sea
   }
 }
 
+function makeCodeMirror(ref: React.RefObject<ReactCodeMirrorRef | null>, title: string, value: string, extensions: any[]) {
+  return <CodeMirror
+    ref={ref}
+    value={value}
+    height="100%"
+    width="100%"
+    editable={false}
+    style={{ height: '100%', width: '100%' }}
+    extensions={[
+      EditorView.lineWrapping,
+      // Allow setting focus to allow opening search panel despite being read-only
+      EditorView.contentAttributes.of({ tabindex: "0" }),
+      ...extensions
+    ]}
+    title={title}
+    basicSetup={{
+      searchKeymap: true,
+    }}
+  />
+}
+
 export default function SourceView({ sourceValue, sourceMimeType, sourceLabel, searchQuery, relatedEntities }: SourceViewProps) {
   const rawValueRef = useRef<ReactCodeMirrorRef>(null);
+  const jsonRef = useRef<ReactCodeMirrorRef>(null);
   const markdownRef = useRef<ReactCodeMirrorRef>(null);
 
   const tabs: React.ReactNode[] = [];
   const tab = (title: string, content: React.ReactNode | null = null) => {
     return <Tab key={title} eventKey={title} title={title} >
-      {content ? content : <CodeMirror
-        ref={rawValueRef}
-        value={sourceValue}
-        height="100%"
-        width="100%"
-        editable={false}
-        style={{ height: '100%', width: '100%' }}
-        extensions={[EditorView.lineWrapping]}
-        title={sourceLabel}
-      />}
+      {content ? content : makeCodeMirror(rawValueRef, title, sourceValue, [])}
     </Tab>
   }
 
@@ -65,28 +81,21 @@ export default function SourceView({ sourceValue, sourceMimeType, sourceLabel, s
     ))
 
     const turndownService = new TurndownService();
-    tabs.push(tab("As Markdown",
-      <CodeMirror
-        ref={markdownRef}
-        value={turndownService.turndown(sourceValue)}
-        height="100%"
-        width="100%"
-        editable={false}
-        style={{ height: '100%', width: '100%' }}
-        extensions={[
-          markdown(),
-          EditorView.lineWrapping,
-          // Allow setting focus to allow opening search panel despite being read-only
-          EditorView.contentAttributes.of({ tabindex: "0" }),
-        ]}
-        title={sourceLabel}
-        basicSetup={{
-          searchKeymap: true,
-        }}
-      />
-    ));
+    tabs.push(
+      tab(
+        "As Markdown",
+        makeCodeMirror(markdownRef, "As Markdown", turndownService.turndown(sourceValue), [markdown()])
+      )
+    );
 
     tabs.push(tab("Original HTML"))
+  } else if (sourceMimeType === 'application/json') {
+    tabs.push(
+      tab(
+        "Original JSON as YAML",
+        makeCodeMirror(jsonRef, "Original JSON as YAML", stringifyToYaml(JSON.parse(sourceValue)), [yaml()])
+      )
+    );
   } else if (sourceMimeType === 'text/plain') {
     tabs.push(tab("Original Plain Text"))
   } else if (sourceMimeType === 'image/png') {
@@ -100,6 +109,8 @@ export default function SourceView({ sourceValue, sourceMimeType, sourceLabel, s
       searchInCodemirror(rawValueRef, searchQuery);
     if (!!searchQuery && markdownRef.current)
       searchInCodemirror(markdownRef, searchQuery);
+    if (!!searchQuery && jsonRef.current)
+      searchInCodemirror(jsonRef, searchQuery);
   }, [searchQuery]);
 
   return (
