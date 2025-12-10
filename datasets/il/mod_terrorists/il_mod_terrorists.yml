@@ -86,6 +86,11 @@ lookups:
       - match:
           - Ramallah
           - Khan Younis, Gaza
+          - Balata Refugee Camp, Nablus
+          - Qalqilya
+          - Tulkarm
+          - Nur a-Shams Refugee Camp Tulkarm
+          - Jenin Refugee Camp
           - אזרחות פלסטינית
           - Gaza
           - עזה
@@ -126,6 +131,10 @@ lookups:
           - Iraq
       - match: Saada, Yemen
         value: Yemen
+      - match: Gaza, Turkey
+        values:
+          - PS
+          - Turkey
   type.date:
     options:
       - match:
