@@ -4,8 +4,9 @@ import { json } from "@codemirror/lang-json";
 import { syntaxTree } from "@codemirror/language";
 import { keymap } from '@codemirror/view';
 import CodeMirror, { EditorView } from '@uiw/react-codemirror';
-import { jsonSchema } from "codemirror-json-schema";
+import { yamlSchema } from "codemirror-json-schema/yaml";
 import { Draft04, JsonSchema } from 'json-schema-library';
+import { parse as parseYaml, stringify as stringifyToYaml } from 'yaml';
 import React, { useState, useEffect, useRef } from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tab from 'react-bootstrap/Tab';
@@ -95,7 +96,7 @@ interface ExtractionViewProps {
 
 export default function ExtractionView({ rawData, extractedData, schema, accepted: initialAccepted, entryKey, dataset, search }: ExtractionViewProps) {
   const [accepted, setAccepted] = useState(initialAccepted);
-  const [editorExtracted, setEditorExtracted] = useState(JSON.stringify(extractedData, null, 2));
+  const [editorExtracted, setEditorExtracted] = useState(stringifyToYaml(extractedData, null, 2));
   const [flashInvalid, setFlashInvalid] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -112,7 +113,7 @@ export default function ExtractionView({ rawData, extractedData, schema, accepte
 
   let errors: string[];
   try {
-    const editorExtractedParsed = JSON.parse(editorExtracted)
+    const editorExtractedParsed = parseYaml(editorExtracted)
     errors = schemaNode.validate(editorExtractedParsed).map(e => e.message);
   } catch (e) {
     if (e instanceof SyntaxError) {
@@ -123,7 +124,7 @@ export default function ExtractionView({ rawData, extractedData, schema, accepte
   }
 
   const valid = errors.length === 0;
-  const errorSummary = errors.length === 0 ? null : `${errors.length} error(s) in Extracted JSON: ${errors.join('; ')}`;
+  const errorSummary = errors.length === 0 ? null : `${errors.length} error(s) in Extracted YAML: ${errors.join('; ')}`;
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -155,7 +156,7 @@ export default function ExtractionView({ rawData, extractedData, schema, accepte
       }
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 't') {
         e.preventDefault();
-        setEditorExtracted(JSON.stringify(rawData, null, 2));
+        setEditorExtracted(stringifyToYaml(rawData, null, 2));
       }
     }
     window.addEventListener('keydown', handler);
@@ -193,8 +194,8 @@ export default function ExtractionView({ rawData, extractedData, schema, accepte
           <Tab eventKey="raw" title="Original extraction">
             <div style={{ height: '100%' }}>
               <CodeMirror
-                value={JSON.stringify(rawData, null, 2)}
-                extensions={[jsonSchema(schema), EditorView.lineWrapping]}
+                value={stringifyToYaml(rawData, null, 2)}
+                extensions={[yamlSchema(schema), EditorView.lineWrapping]}
                 editable={false}
                 height="100%"
                 style={{ height: '100%', width: '100%' }}
@@ -202,12 +203,12 @@ export default function ExtractionView({ rawData, extractedData, schema, accepte
               />
             </div>
           </Tab>
-          <Tab eventKey="extracted" title="Extracted JSON">
+          <Tab eventKey="extracted" title="Edit extracted data">
             <div style={{ height: '100%' }} className={flashInvalid ? 'editor-flash-invalid' : ''}>
               <CodeMirror
                 ref={editorRef}
                 value={editorExtracted}
-                extensions={[jsonSchema(schema), EditorView.lineWrapping, escapeBlurKeymap]}
+                extensions={[yamlSchema(schema), EditorView.lineWrapping, escapeBlurKeymap]}
                 height="100%"
                 style={{ height: '100%' }}
                 width="100%"
@@ -248,7 +249,7 @@ export default function ExtractionView({ rawData, extractedData, schema, accepte
               <button
                 type="button"
                 className="btn btn-outline-secondary me-2"
-                onClick={() => setEditorExtracted(JSON.stringify(rawData, null, 2))}
+                onClick={() => setEditorExtracted(stringifyToYaml(rawData, null, 2))}
               >
                 Reset
               </button>

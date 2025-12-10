@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { verify } from '../../../../lib/auth';
 import { BASE_URL } from '../../../../lib/constants';
 import { updateExtractionEntry, getNextUnacceptedEntryKey } from '../../../../lib/db';
+import { parse as parseYaml } from 'yaml';
 
 function getAsString(formData: FormData, key: string) {
   const value = formData.get(key);
@@ -37,7 +38,7 @@ export async function POST(req: NextRequest) {
       dataset,
       key,
       accepted,
-      extractedData: JSON.parse(extractedData) as object,
+      extractedData: parseYaml(extractedData) as object,
       modifiedBy: email!,
     });
 
