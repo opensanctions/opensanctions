@@ -321,8 +321,10 @@ def _review_names(
     raw_names = RawNames(entity_schema=entity.schema.name, strings=strings)
     if enable_llm_cleaning:
         names = clean_names(context, raw_names)
+        origin = LLM_MODEL_VERSION
     else:
         names = CleanNames(full_name=strings)
+        origin = "analyst"
 
     source_value = JSONSourceValue(
         key_parts=[entity.schema.name] + strings,
@@ -333,7 +335,7 @@ def _review_names(
         context,
         source_value=source_value,
         original_extraction=names,
-        origin=LLM_MODEL_VERSION,
+        origin=origin,
     )
     review.link_entity(context, entity)
     return review
