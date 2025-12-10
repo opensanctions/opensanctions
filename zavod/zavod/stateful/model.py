@@ -60,7 +60,7 @@ review_table = Table(
     Column("accepted", Boolean, nullable=False, index=True),
     Column("crawler_version", Integer, nullable=False),
     Column("original_extraction", JSON, nullable=False),
-    Column("origin", Unicode(VALUE_LEN), nullable=False),
+    Column("origin", Unicode(VALUE_LEN), nullable=True),
     Column("extracted_data", JSON, nullable=False),
     Column("last_seen_version", Unicode(KEY_LEN), nullable=False, index=True),
     Column("modified_at", DateTime, nullable=False),

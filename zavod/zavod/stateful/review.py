@@ -372,7 +372,7 @@ def review_extraction(
     context: Context,
     source_value: SourceValue,
     original_extraction: ModelType,
-    origin: str,
+    origin: Optional[str] = None,
     crawler_version: int = 1,
     default_accepted: bool = False,
 ) -> Review[ModelType]:
