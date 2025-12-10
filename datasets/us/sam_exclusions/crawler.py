@@ -1,3 +1,15 @@
+# How to review names in this dataset:
+#
+# - The standard rules in https://zavod.opensanctions.org/extract/names/#whats-a-clean-name apply
+# - See the single_token_min_length settings in the metadata.
+#   If it looks like a name was selected for review because it doesn't contain
+#   a space (it's a single token) and is shorter than the threshold, follow the
+#   link(s) to related entities.
+#     - Acronyms or shortened forms of more complete names seen in the entity should generally be
+#       added as alias unless they're really vague and likely to cause false matches.
+#     - Non-person names that might match a person first/last name should usually be added as alias
+#       rather than a primary name.
+
 import io
 import csv
 import time
@@ -178,7 +190,13 @@ def crawl(context: Context) -> None:
             origin=origin,
         )
 
-        h.review_names(context, entity, name)
+        # The low quality names tend to come from OFAC so check those.
+        if agency == "TREAS-OFAC":
+            h.review_names(context, entity, name)
+        # TODO: Once we're done with reviews and change the OFAC clause to apply_reviewed_names,
+        # and remove the heuristic-based cleaning/adding above, add the rest normally:
+        # else:
+        #     entity.add("name", name, lang="eng")
 
         entity.add("firstName", row.pop("First", None), quiet=True, lang="eng")
         entity.add("middleName", row.pop("Middle", None), quiet=True, lang="eng")

@@ -271,6 +271,10 @@ def is_name_irregular(entity: Entity, string: Optional[str]) -> bool:
         if len(string) < spec.min_chars:
             return True
 
+        # single token min length
+        if " " not in string and len(string) < spec.single_token_min_length:
+            return True
+
         # requires space
         if spec.require_space and " " not in string:
             return True
