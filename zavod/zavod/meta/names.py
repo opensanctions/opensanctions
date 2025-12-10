@@ -12,9 +12,7 @@ log = getLogger(__name__)
 
 class CleaningSpec(BaseModel):
     reject_chars_baseline: str = ""
-    """
-    The standard characters that suggest a name needs cleaning.
-    """
+    """The standard characters that suggest a name needs cleaning."""
     reject_chars: str = ""
     """
     Additional characters specific to this schema that suggest a name needs cleaning.
@@ -30,6 +28,7 @@ class CleaningSpec(BaseModel):
     """
     min_chars: int = 2
     single_token_min_length: int = 2
+    """Minimum length for names with no spaces, i.e. a single token."""
     require_space: bool = False
     allow_nullwords: bool = False
 

@@ -190,10 +190,11 @@ def crawl(context: Context) -> None:
             origin=origin,
         )
 
-        # The low quality names come from OFAC to check those.
+        # The low quality names tend to come from OFAC so check those.
         if agency == "TREAS-OFAC":
             h.review_names(context, entity, name)
-        # TODO: Once we're done with reviews and change this to apply_reviewed_names:
+        # TODO: Once we're done with reviews and change the OFAC clause to apply_reviewed_names,
+        # and remove the heuristic-based cleaning/adding above, add the rest normally:
         # else:
         #     entity.add("name", name, lang="eng")
 
