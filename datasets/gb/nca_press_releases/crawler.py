@@ -53,7 +53,7 @@ def get_date(context: Context, url: str, article_doc: Element) -> str | None:
     # The last <p><strong> in the article body usually contains the date,
     # but some articles don't have a date at all.
     dates = article_doc.xpath(
-        "//div[@itemprop='articleBody']/p[strong][last()]/strong/text()"
+        "//div[@itemprop='articleBody']/p[strong][last()]/strong[last()]/text()"
     )
     assert len(dates) <= 1
     if dates != []:
