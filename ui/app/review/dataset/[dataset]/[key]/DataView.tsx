@@ -45,7 +45,6 @@ export default function DataView({ entry, dataset, entryKey, relatedEntities }: 
           rawData={entry.original_extraction}
           extractedData={entry.extracted_data}
           schema={entry.extraction_schema}
-          //schemaNode={schemaNode}
           accepted={entry.accepted}
           entryKey={entryKey}
           dataset={dataset}

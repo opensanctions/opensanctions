@@ -1,11 +1,9 @@
 "use client";
 
 import { markdown } from "@codemirror/lang-markdown";
-import { openSearchPanel, setSearchQuery, SearchQuery } from "@codemirror/search";
 import CodeMirror, { ReactCodeMirrorRef } from "@uiw/react-codemirror";
 import { yaml } from "@codemirror/lang-yaml";
-import { EditorView } from "codemirror";
-import { useEffect, useRef } from "react";
+import { Decoration, DecorationSet, EditorView, MatchDecorator, ViewPlugin, ViewUpdate } from "@codemirror/view";
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
 import TurndownService from 'turndown';
@@ -13,7 +11,6 @@ import { stringify as stringifyToYaml } from 'yaml';
 
 import { ReviewEntity } from '@/lib/db';
 import styles from "@/styles/Review.module.scss";
-import { json } from "stream/consumers";
 
 type SourceViewProps = {
   sourceValue: string,
@@ -23,20 +20,32 @@ type SourceViewProps = {
   relatedEntities: ReviewEntity[]
 };
 
-function searchInCodemirror(ref: React.RefObject<ReactCodeMirrorRef | null>, searchQuery: string) {
-  if (ref.current?.view) {
-    openSearchPanel(ref.current?.view);
-    ref.current?.view?.dispatch({
-      effects: [
-        setSearchQuery.of(new SearchQuery({ search: searchQuery }))
-      ]
-    });
-  }
+function createHighlighter(searchQuery: string) {
+  if (!searchQuery) return [];
+
+  const decorator = new MatchDecorator({
+    regexp: new RegExp(searchQuery, 'gi'),
+    decoration: Decoration.mark({ class: 'cm-searchMatch' })
+  });
+
+  return ViewPlugin.fromClass(class {
+    decorations: DecorationSet;
+
+    constructor(view: EditorView) {
+      this.decorations = decorator.createDeco(view);
+    }
+
+    update(update: ViewUpdate) {
+      this.decorations = decorator.updateDeco(update, this.decorations);
+    }
+  }, {
+    decorations: v => v.decorations
+  });
 }
 
-function makeCodeMirror(ref: React.RefObject<ReactCodeMirrorRef | null>, title: string, value: string, extensions: any[]) {
+function makeCodeMirror(title: string, value: string, extensions: any[], searchQuery: string) {
+  const highlighter = createHighlighter(searchQuery);
   return <CodeMirror
-    ref={ref}
     value={value}
     height="100%"
     width="100%"
@@ -44,9 +53,8 @@ function makeCodeMirror(ref: React.RefObject<ReactCodeMirrorRef | null>, title: 
     style={{ height: '100%', width: '100%' }}
     extensions={[
       EditorView.lineWrapping,
-      // Allow setting focus to allow opening search panel despite being read-only
-      EditorView.contentAttributes.of({ tabindex: "0" }),
-      ...extensions
+      ...extensions,
+      ...(highlighter ? [highlighter] : [])
     ]}
     title={title}
     basicSetup={{
@@ -56,14 +64,11 @@ function makeCodeMirror(ref: React.RefObject<ReactCodeMirrorRef | null>, title: 
 }
 
 export default function SourceView({ sourceValue, sourceMimeType, sourceLabel, searchQuery, relatedEntities }: SourceViewProps) {
-  const rawValueRef = useRef<ReactCodeMirrorRef>(null);
-  const jsonRef = useRef<ReactCodeMirrorRef>(null);
-  const markdownRef = useRef<ReactCodeMirrorRef>(null);
 
   const tabs: React.ReactNode[] = [];
   const tab = (title: string, content: React.ReactNode | null = null) => {
     return <Tab key={title} eventKey={title} title={title} >
-      {content ? content : makeCodeMirror(rawValueRef, title, sourceValue, [])}
+      {content ? content : makeCodeMirror(title, sourceValue, [], searchQuery)}
     </Tab>
   }
 
@@ -84,7 +89,7 @@ export default function SourceView({ sourceValue, sourceMimeType, sourceLabel, s
     tabs.push(
       tab(
         "As Markdown",
-        makeCodeMirror(markdownRef, "As Markdown", turndownService.turndown(sourceValue), [markdown()])
+        makeCodeMirror("As Markdown", turndownService.turndown(sourceValue), [markdown()], searchQuery)
       )
     );
 
@@ -93,7 +98,7 @@ export default function SourceView({ sourceValue, sourceMimeType, sourceLabel, s
     tabs.push(
       tab(
         "Original JSON as YAML",
-        makeCodeMirror(jsonRef, "Original JSON as YAML", stringifyToYaml(JSON.parse(sourceValue)), [yaml()])
+        makeCodeMirror("Original JSON as YAML", stringifyToYaml(JSON.parse(sourceValue)), [yaml()], searchQuery)
       )
     );
   } else if (sourceMimeType === 'text/plain') {
@@ -103,15 +108,6 @@ export default function SourceView({ sourceValue, sourceMimeType, sourceLabel, s
   } else {
     tabs.push(tab(sourceMimeType))
   }
-
-  useEffect(() => {
-    if (!!searchQuery && rawValueRef.current)
-      searchInCodemirror(rawValueRef, searchQuery);
-    if (!!searchQuery && markdownRef.current)
-      searchInCodemirror(markdownRef, searchQuery);
-    if (!!searchQuery && jsonRef.current)
-      searchInCodemirror(jsonRef, searchQuery);
-  }, [searchQuery]);
 
   return (
     <div className="flex-grow-1 d-flex flex-column source-view" style={{ height: '100%' }}>
