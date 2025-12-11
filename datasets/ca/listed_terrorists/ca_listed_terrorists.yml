@@ -308,3 +308,20 @@ lookups:
           - De Talebano Islami Ghurdzang
           - Islamic Emirate of Afghanistan
           - De Afghanistan Islami Emarat
+      - match: "IS-Mozambique, Islamic State of Iraq and Syria-Mozambique (ISIS-Mozambique), Ansar al-Sunna, Ahl al-Sunna wa al-Jamma (ASWJ), Al-Shabaab, Al-Shabaab in Mozambique, Islamic State Central Africa Province (ISCAP or ISCA), Wilayah Mozambique, Mozambique Province, and Islamic State Mozambique Province (ISMP)"
+        aliases:
+          - IS-Mozambique
+          - Islamic State of Iraq and Syria-Mozambique
+          - ISIS-Mozambique
+          - Ansar al-Sunna
+          - Ahl al-Sunna wa al-Jamma
+          - ASWJ
+          - Al-Shabaab
+          - Al-Shabaab in Mozambique
+          - Islamic State Central Africa Province
+          - ISCAP
+          - ISCA
+          - Wilayah Mozambique
+          - Mozambique Province
+          - Islamic State Mozambique Province
+          - ISMP

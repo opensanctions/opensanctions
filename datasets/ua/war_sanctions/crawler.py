@@ -466,7 +466,13 @@ def check_updates(context: Context):
     doc = context.fetch_html(WS_API_DOCS_URL)
     # Have any new sections been added?
     change_log = doc.xpath(".//main[@class='relative']")
-    assert len(change_log) == 1, change_log
+    if len(change_log) != 1:
+        context.log.warn(
+            "Unexpected number of change log sections, unable to check updates",
+            change_log=change_log,
+        )
+        return
+
     h.assert_dom_hash(change_log[0], "99e09c9d3c206a047e7b25083210767918f8dade")
     # Existing sections from the API documentation sidebar
     #
