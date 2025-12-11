@@ -33,8 +33,8 @@ def categorise_and_emit(
 
 
 def crawl_row(context: Context, url: str, raw_name: str, party: str) -> None:
-    unblock_pep = ".//div[@class='pair-content']"
-    pep_doc = zyte_api.fetch_html(context, url, unblock_pep, cache_days=5)
+    validator = ".//div[@class='pair-content']"
+    pep_doc = zyte_api.fetch_html(context, url, validator, cache_days=5)
     entity = context.make("Person")
     entity.id = context.make_id(raw_name, party)
 
