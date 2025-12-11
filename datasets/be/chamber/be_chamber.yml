@@ -37,32 +37,32 @@ assertions:
       be: 1
 
 lookups:
-  term_dates:
+  term_years:
     options:
       - match: "56 (2024-2025)"
-        start_date: "2024"
-        end_date: "2025"
+        start_date: 2024
+        end_date: 2025
       - match: "55 (2019-2024)"
-        start_date: "2019"
-        end_date: "2024"
+        start_date: 2019
+        end_date: 2024
       - match: "54 (2014-2019)"
-        start_date: "2014"
-        end_date: "2019"
+        start_date: 2014
+        end_date: 2019
       - match: "53 (2010-2014)"
-        start_date: "2010"
-        end_date: "2014"
+        start_date: 2010
+        end_date: 2014
       - match: "52 (2007-2010)"
-        start_date: "2007"
-        end_date: "2010"
+        start_date: 2007
+        end_date: 2010
       - match: "51 (2003-2007)"
-        start_date: "2003"
-        end_date: "2007"
+        start_date: 2003
+        end_date: 2007
       - match: "50 (1999-2003)"
-        start_date: "1999"
-        end_date: "2003"
+        start_date: 1999
+        end_date: 2003
       - match: "49 (1995-1999)"
-        start_date: "1995"
-        end_date: "1999"
+        start_date: 1995
+        end_date: 1999
       - match: "48 (1991-1995)"
-        start_date: "1991"
-        end_date: "1995"
+        start_date: 1991
+        end_date: 1995

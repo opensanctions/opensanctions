@@ -17,9 +17,9 @@ CUTOFF_YEAR = datetime.now().year - EXTENDED_AFTER_OFFICE_YEARS
 
 
 def get_terms(context: Context, term: str) -> tuple[int | None, int | None]:
-    res = context.lookup("term_dates", term, warn_unmatched=True)
+    res = context.lookup("term_years", term, warn_unmatched=True)
     if res:
-        return int(res.start_date), int(res.end_date)
+        return res.start_date, res.end_date
     else:
         return None, None
 
