@@ -103,7 +103,7 @@ def crawl_row(context: Context, url: str, raw_name: str, party: str) -> None:
                 position=position,
                 start_date=str_row.pop("from"),
                 end_date=str_row.pop("to", None),
-                # is_pep is not set, since we rely on positions UI to set that topic rather than the crawler
+                # is_pep is not set, since not all these positions are necessarily PEP positions
                 is_pep=None,
             )
 
