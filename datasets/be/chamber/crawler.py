@@ -1,15 +1,22 @@
 from datetime import datetime
 from lxml.html import HtmlElement
 from normality import squash_spaces
+from typing import NamedTuple
 
 from zavod import Context, helpers as h
 from zavod.extract import zyte_api
 from zavod.stateful.positions import categorise, EXTENDED_AFTER_OFFICE_YEARS
 
+
+class LegislatureTerm(NamedTuple):
+    url: str
+    text: str
+
+
 CUTOFF_YEAR = datetime.now().year - EXTENDED_AFTER_OFFICE_YEARS
 
 
-def get_latest_terms(context: Context, term: str) -> tuple[int | None, int | None]:
+def get_terms(context: Context, term: str) -> tuple[int | None, int | None]:
     res = context.lookup("term_dates", term, warn_unmatched=True)
     if res:
         return int(res.start_date), int(res.end_date)
@@ -30,7 +37,9 @@ def crawl_persons(
     name = squash_spaces(name)
 
     entity = context.make("Person")
-    # Use the normalized name as the stable identifier (it's the only consistent cross-term key)
+    # Use the normalized name as the stable identifier. We don't have consistent unique identifiers
+    # (like national IDs or member numbers) across all legislature terms, so the normalized name
+    # is our only reliable way to link the same individual across multiple terms and avoid duplicates
     entity.id = context.make_id(name)
     entity.add("name", name)
     entity.add("political", political_group)
@@ -74,22 +83,22 @@ def crawl(context: Context) -> None:
         cache_days=4,
     )
     # Extract legislature terms from menu
-    terms: list = []
+    terms: list[LegislatureTerm] = []
     seen_urls: set[str] = set()
     for link in doc.findall('.//div[@class="menu"]//a'):
         url = link.get("href")
         text = h.element_text(link).strip()
-        assert url, url
+        assert url is not None, url
 
         # Only keep entries with explicit date format "XX (YYYY-YYYY)"
         # The first link "Actuels" (current members) duplicates the most recent term,
         # so we filter for entries with parentheses to get unique dated terms.
         if text and "(" in text and ")" in text and url not in seen_urls:
             seen_urls.add(url)
-            terms.append({"url": url, "text": text})
+            terms.append(LegislatureTerm(url=url, text=text))
     # Process each legislature term
     for idx, term in enumerate(terms):
-        start_date, end_date = get_latest_terms(context, term["text"])
+        start_date, end_date = get_terms(context, term.text)
         assert start_date is not None, start_date
         # First term in the list is always the current legislature.
         # For current terms, we set end_date to None because members are still serving
@@ -101,13 +110,13 @@ def crawl(context: Context) -> None:
 
         # Skip terms that ended before our cutoff year (skip this check for current term)
         if end_date is not None and end_date < CUTOFF_YEAR:
-            context.log.info(f"Skipping old term {term['text']} (ended {end_date})")
+            context.log.info(f"Skipping old term {term.text} (ended {end_date})")
             continue
 
         # Fetch the member list page for this term
         term_doc = zyte_api.fetch_html(
             context,
-            term["url"],
+            term.url,
             unblock_validator=unblock_validator,
             absolute_links=True,
             cache_days=4,
