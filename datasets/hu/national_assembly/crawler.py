@@ -38,10 +38,6 @@ def crawl_row(context: Context, url: str, raw_name: str, party: str) -> None:
     entity = context.make("Person")
     entity.id = context.make_id(raw_name, party)
 
-    for honorific in ["Dr.", "Prof."]:
-        if raw_name.startswith(honorific):
-            raw_name = raw_name[len(honorific) :].strip()
-
     last_name, first_name = raw_name.split(",", 1)
 
     h.apply_name(entity, first_name=first_name, last_name=last_name)
