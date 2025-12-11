@@ -84,10 +84,10 @@ lookups:
         value: null
   type.address:
     options:
-      - match: "Zelená voda II. 3080/95, 91501 Nové Mesto nad Váhom, Slovensko číslo SR štátnej úradnej ES E0007207504, el. adresa pre zákonné úradné doručovanie do ES a do e-schránky:urad@odbory.org; EKVITA@odbory.org. Spolok má od 01.03.21 regionálnu kanceláriu na adr"
-        value: Zelená voda II. 3080/95, 91501 Nové Mesto nad Váhom, Slovensko číslo SR štátnej úradnej ES E0007207504
-      - match: "Zelená voda II. 3080/95, 91501 Nové Mesto nad Váhom, Slovensko číslo SR štátnej ES E000720505, el. adresa pre zákonné úradné doručovanie do ES a do e-schránky: urad@odbory.org; EKVITA@odbory.org. Spolok má od 01.03.21 regionálnu kanceláriu na adrese Dvor"
-        value: Zelená voda II. 3080/95, 91501 Nové Mesto nad Váhom, Slovensko číslo SR štátnej ES E000720505
+      - match: Zelená voda II. 3080/95, 91501 Nové Mesto nad Váhom, Slovensko, číslo SR štátnej úradnej ES E0007207504, el. adresa pre zákonné úradné doručovanie do ES a do e-schránky:urad@odbory.org, EKVITA@odbory.org. Spolok má od 01.03.21 regionálnu kanceláriu na adr"
+        value: Zelená voda II. 3080/95, 91501 Nové Mesto nad Váhom, Slovensko, číslo SR štátnej úradnej ES E0007207504
+      - match: "Zelená voda II. 3080/95, 91501 Nové Mesto nad Váhom, Slovensko, číslo SR štátnej ES E000720505, el. adresa pre zákonné úradné doručovanie do ES a do e-schránky: urad@odbory.org, EKVITA@odbory.org. Spolok má od 01.03.21 regionálnu kanceláriu na adrese Dvor"
+        value: Zelená voda II. 3080/95, 91501 Nové Mesto nad Váhom, Slovensko, číslo SR štátnej ES E000720505
   type.date:
     options:
       - match: 
