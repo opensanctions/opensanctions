@@ -73,7 +73,7 @@ lookups:
         value: null
   type.string:
     options:
-      - match: 
+      - match:
           - "."
           - 580118/0451
           - 1.9.1984
@@ -90,7 +90,7 @@ lookups:
         value: Zelená voda II. 3080/95, 91501 Nové Mesto nad Váhom, Slovensko, číslo SR štátnej ES E000720505
   type.date:
     options:
-      - match: 
+      - match:
           - 0213-04-15
           - 5014-05-31
           - 0013-02-10
