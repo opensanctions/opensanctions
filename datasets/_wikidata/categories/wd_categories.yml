@@ -1237,6 +1237,8 @@ config:
     # Venezuela
     - category: Members_of_the_National_Assembly_(Venezuela)
       country: ve
+      negcats: |
+        Nicolás_Maduro
       topic: role.pep
       position:
         name: Member of the National Assembly
@@ -1246,6 +1248,8 @@ config:
           - gov.national
     - category: Members_of_the_Senate_of_Venezuela
       country: ve
+      negcats: |
+        Nicolás_Maduro
       topic: role.pep
       position:
         name: Member of the Senate of Venezuela
@@ -1255,6 +1259,8 @@ config:
           - gov.national
     - category: Presidents_of_Venezuela
       country: ve
+      negcats: |
+        Nicolás_Maduro
       topic: role.pep
       position:
         name: President of Venezuela
@@ -1264,6 +1270,8 @@ config:
           - gov.national
     - category: Vice_presidents_of_Venezuela
       country: ve
+      negcats: |
+        Nicolás_Maduro
       topic: role.pep
       position:
         name: Vice President of Venezuela
@@ -1273,12 +1281,18 @@ config:
           - gov.national
     - category: Government_ministers_of_Venezuela
       country: ve
+      negcats: |
+        Nicolás_Maduro
       topic: role.pep
     - category: Venezuelan_politicians
       country: ve
+      negcats: |
+        Nicolás_Maduro
     - category: Diputados_de_Venezuela
       country: ve
       language: es
+      negcats: |
+        Nicolás_Maduro
       topic: role.pep
       position:
         name: Deputy of Venezuela
@@ -1289,6 +1303,8 @@ config:
     - category: Presidentes_de_Venezuela
       country: ve
       language: es
+      negcats: |
+        Nicolás_Maduro
       topic: role.pep
       position:
         name: President of Venezuela
@@ -1299,6 +1315,8 @@ config:
     - category: Ministros_por_presidente_de_Venezuela
       country: ve
       language: es
+      negcats: |
+        Nicolás_Maduro
       topic: role.pep
     - category: Alcaldes_de_Venezuela
       country: ve
@@ -1313,6 +1331,8 @@ config:
     - category: Políticos_de_Venezuela
       country: ve
       language: es
+      negcats: |
+        Nicolás_Maduro
 
     # Nicaragua
     - category: Members_of_the_National_Assembly_(Nicaragua)
