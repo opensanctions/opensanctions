@@ -15,7 +15,8 @@ description: |
 tags:
   - list.pep
 publisher:
-  name: Chamber of Representatives
+  name: Chambre des représentants
+  name_en: Chamber of Representatives
   description: |
     The Chamber of Representatives is the lower house of the Federal Parliament of Belgium. It is
     composed of 150 members elected by direct universal suffrage. The Chamber plays a key role in the
