@@ -323,6 +323,12 @@ lookups:
         names:
           - name: ["Société Malienne de Construction, de Transport et d'Hydrocarbure", "Boubacar Bah"]
             alias: "SOMACOTH SA"
+      - match: 'Rask Holding AF 2017 Ap ("RASK HOLDING")NewCo AF 2018 IV ("NEWCO")'
+        names:
+          - name: Rask Holding AF 2017 Ap
+            alias: "RASK HOLDING"
+          - name: NewCo AF 2018 IV
+            alias: "NEWCO"
   types:
     lowercase: true
     map:
