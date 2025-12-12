@@ -32,16 +32,6 @@ def xlsx_check(doc: HtmlElement) -> bool | str:
     return False
 
 
-def clean_str(context: Context, record: dict[str, Any]) -> dict[str, Any]:
-    for k, v in record.rows():
-        v = str(v)
-        if v.strip() == "/":
-            record[k] = ""
-        else:
-            record[k] = v
-    return record
-
-
 def crawl_person(context: Context, path: Path) -> None:
     wb = load_workbook(path, read_only=True)
     for row in h.parse_xlsx_sheet(
@@ -110,7 +100,6 @@ def crawl_legal_entities(context: Context, path: Path) -> None:
 
         sanction = h.make_sanction(context, legalent)
         h.apply_date(sanction, "startDate", included_date)
-        print(sanction.to_dict())
 
         context.emit(legalent)
         context.emit(sanction)
