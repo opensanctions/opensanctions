@@ -7,18 +7,22 @@ from openpyxl import load_workbook
 from rigour.mime.types import XLSX
 
 AUDIT_FIELDS = [
-    'row_no', 
-    'mother_name', 
-    'birth_place', 
-    'first_and_surname', 
-    'country', 'doc_type', 
-    'doc_no', 'doc_issue_auth', 
-    'doc_issue_date', 
-    'description',
+    "row_no",
+    "mother_name",
+    "birth_place",
+    "first_and_surname",
+    "country",
+    "doc_type",
+    "doc_no",
+    "doc_issue_auth",
+    "doc_issue_date",
+    "description",
 ]
+
 
 class MissingDataFile(Exception):
     pass
+
 
 def xlsx_check(doc: HtmlElement) -> bool | str:
     for link in doc.iterlinks():
@@ -27,8 +31,9 @@ def xlsx_check(doc: HtmlElement) -> bool | str:
             return link[2]
     return False
 
+
 def clean_str(context: Context, record: dict[str, Any]) -> dict[str, Any]:
-    for k,v in record.rows():
+    for k, v in record.rows():
         v = str(v)
         if v.strip() == "/":
             record[k] = ""
@@ -45,7 +50,6 @@ def crawl_person(context: Context, path: Path) -> None:
         skiprows=2,
         header_lookup=context.get_lookup("columns"),
     ):
-        
         national_id = row.pop("national_id")
         fullname_en = row.pop("full_name_en")
         fullname_ar = row.pop("full_name_ar")
@@ -56,11 +60,9 @@ def crawl_person(context: Context, path: Path) -> None:
         person = context.make("Person")
         person.id = context.make_id(
             national_id,
-            fullname_ar, 
+            fullname_ar,
             birth_date,
         )
-        sanction = context.make("Sanction")
-        sanction.id = context.make_id("jo", fullname_ar, included_date)
 
         person.add("name", fullname_ar, lang="ara")
         person.add("name", fullname_en, lang="eng")
@@ -70,19 +72,25 @@ def crawl_person(context: Context, path: Path) -> None:
         h.apply_date(person, "birthDate", birth_date)
         person.add("sourceUrl", context.dataset.data.url)
 
-        address_ent = h.make_address(context, street=row.pop("area_and_street"), city=row.pop("city"), country=country, lang="ara")
+        address_ent = h.make_address(
+            context,
+            street=row.pop("area_and_street"),
+            city=row.pop("city"),
+            country=country,
+            lang="ara",
+        )
         h.copy_address(person, address_ent)
 
+        sanction = h.make_sanction(context, person)
         h.apply_date(sanction, "startDate", included_date)
-        sanction.add("sourceUrl", context.dataset.data.url)
-        sanction.add("entity", person)
 
         context.emit(person)
         context.emit(sanction)
 
         context.audit_data(row, AUDIT_FIELDS)
-    
-def crawl_legal_entity(context: Context, path: Path) -> None:
+
+
+def crawl_legal_entities(context: Context, path: Path) -> None:
     wb = load_workbook(path, read_only=True)
     for row in h.parse_xlsx_sheet(
         context,
@@ -90,27 +98,25 @@ def crawl_legal_entity(context: Context, path: Path) -> None:
         skiprows=1,
         header_lookup=context.get_lookup("columns"),
     ):
-        
         full_name_en = row.pop("full_name_en")
         included_date = row.pop("included_date")
-        
+
         legalent = context.make("LegalEntity")
         legalent.id = context.make_id(full_name_en)
-        sanction = context.make("Sanction")
-        sanction.id = context.make_id("jo", full_name_en, included_date)
 
         legalent.add("name", row.pop("full_name_ar"), lang="ara")
         legalent.add("name", full_name_en, lang="eng")
         legalent.add("classification", row.pop("classification"), lang="ara")
 
+        sanction = h.make_sanction(context, legalent)
         h.apply_date(sanction, "startDate", included_date)
-        sanction.add("sourceUrl", context.dataset.data.url)
-        sanction.add("entity", legalent)
+        print(sanction.to_dict())
 
         context.emit(legalent)
         context.emit(sanction)
 
         context.audit_data(row, AUDIT_FIELDS)
+
 
 def crawl(context: Context):
     doc = context.fetch_html(context.data_url, cache_days=5)
@@ -124,4 +130,4 @@ def crawl(context: Context):
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
 
     crawl_person(context, path)
-    crawl_legal_entity(context, path)
+    crawl_legal_entities(context, path)
