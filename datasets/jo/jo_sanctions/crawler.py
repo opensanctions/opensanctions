@@ -1,4 +1,3 @@
-from typing import Generator
 from pathlib import Path
 from zavod import Context
 from zavod import helpers as h
