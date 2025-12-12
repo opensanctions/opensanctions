@@ -125,11 +125,11 @@ lookups:
           - 2048 (Guinea-Bissau)
           - Guinea-Bissau (2048)
         value: UN-SC2048
-      - match: 
+      - match:
           - 2653 (Haiti)
           - (2653) Haiti
         value: UN-SC2653
-      - match: 
+      - match:
           - 1737 (Iran)
           - 1737 Iran)
           - 1737 (ran)
