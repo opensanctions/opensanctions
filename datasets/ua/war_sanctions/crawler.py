@@ -463,7 +463,15 @@ def crawl_rostec_structure(context: Context, structure_data):
 
 
 def check_updates(context: Context):
-    doc = context.fetch_html(WS_API_DOCS_URL)
+    try:
+        doc = context.fetch_html(WS_API_DOCS_URL)
+    except Exception as e:
+        context.log.warn(
+            "Failed to fetch API documentation",
+            url=WS_API_DOCS_URL,
+            error=str(e),
+        )
+        return
     # Have any new sections been added?
     change_log = doc.xpath(".//main[@class='relative']")
     if len(change_log) != 1:

@@ -45,8 +45,9 @@ def clean_date(date: str) -> list[str]:
         " ",
     ]
     dates = []
-    if " to " in str(date):
-        return [date]
+    date_str = str(date).lower()
+    if " to " in date_str or "between" in date_str:
+        return [date_str]
     if isinstance(date, datetime):
         date = date.date().isoformat()
     if isinstance(date, int):
@@ -101,7 +102,7 @@ def parse_reference(
     primary_name: Optional[str] = None
     names: list[tuple[str, str]] = []
     for row in rows:
-        name = row.pop("name_of_individual_or_entity", None)
+        name = row.pop("name_of_individual_or_entity_or_vessel", None)
         name_type = row.pop("name_type")
         name_prop = context.lookup_value("name_type", name_type)
         if row.pop("alias_strength") == "Weak":

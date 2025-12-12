@@ -63,7 +63,7 @@ lookups:
         value: SECO-BRUS
       - match: "Ordinance of 30 March 2011 on measures against Libya (SR 946.231.149.82), annexes 2, 3, 4 and 5"
         value: SECO-LIBYA
-      - match: "Ordinance of 11 November 2015 on measures against the Islamic Republic of Iran (SR 946.231.143.6), annexes 6-7"
+      - match: "Ordinance of 12 December 2025 on measures against the Islamic Republic of Iran (SR 946.231.143.6), annexes 11-14"
         value: SECO-IRAN
       - match: "Ordinance of 2 October 2000 on measures against individuals and entities associated with Usama bin Laden, the group «Al-Qaïda» or the Taliban (SR 946.203), annex 2"
         value: SECO-AFGH
