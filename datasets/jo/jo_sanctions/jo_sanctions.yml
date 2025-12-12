@@ -1,4 +1,3 @@
-name: jo_sanctions
 title: "Kingdom of Jordan National Sanctions List"
 url: https://sanctions.amlu.gov.jo/EN/List/National1_List
 load_statements: true
@@ -6,22 +5,27 @@ coverage:
   frequency: weekly
   start: 2025-12-03
 description: >
+  The Kingdom of Jordan's national-level sanctions mechanism. It is part of 
+  Jordan's compliance framework for combating money laundering and terrorist financing
+  and is administered by the Anti Money Laundering and Counter Terrorist Financing Unit.
+summary: >
   The national sanctions list of the Kingdom Jordan, administered by the
   Anti Money Laundering and Counter Terrorist Financing Unit.
 entry_point: crawler.py
 prefix: jo-sanc
 publisher:
   name: Anti Money Laundering and Counter Terrorist Financing Unit
+  url: https://sanctions.amlu.gov.jo/
+  country: jo
+  official: true
+tags:
+  - list.sanction
+  - juris.jo
 
 data:
   url: https://sanctions.amlu.gov.jo/EN/List/National1_List
   format: XLSX
-
-dates:
-  formats:
-    - "%Y-%m-%d"
-    - "%d/%m/%Y"
-    - "%m/%Y"
+  lang: ara
 
 assertions:
   min:
@@ -32,6 +36,12 @@ assertions:
     schema_entities:
       LegalEntity: 50
       Person: 75
+
+dates:
+  formats:
+    - "%Y-%m-%d"
+    - "%d/%m/%Y"
+    - "%m/%Y"
 
 lookups:
   columns:
@@ -90,194 +100,11 @@ lookups:
         value: 1987-12-04
   type.country:
     options:
-      - match:
-          - "أردني"
-          - "اردني"
-          - "الاردن"
-        value: "jo"
-      - match: "سوري"
-        value: "sy"
-      - match: "لبناني"
-        value: "lb"
-      - match: "عراقي"
-        value: "iq"
-      - match: "سعودي"
-        value: "sa"
-      - match: "إماراتي"
-        value: "ae"
-      - match: "قطري"
-        value: "qa"
-      - match: "بحريني"
-        value: "bh"
-      - match: "كويتي"
-        value: "kw"
-      - match: "عماني"
-        value: "om"
-      - match: "مصري"
-        value: "eg"
-      - match: "ليبي"
-        value: "ly"
-      - match: "تونسي"
-        value: "tn"
-      - match: "جزائري"
-        value: "dz"
-      - match: "مغربي"
-        value: "ma"
-      - match: "سوداني"
-        value: "sd"
-      - match: "صومالي"
-        value: "so"
-      - match: "يمني"
-        value: "ye"
-      - match: "فلسطيني"
-        value: "ps"
-      - match: "إسرائيلي"
-        value: "il"
-      - match: "تركي"
-        value: "tr"
-      - match: "يوناني"
-        value: "gr"
-      - match: "روسي"
-        value: "ru"
-      - match: "أوكراني"
-        value: "ua"
-      - match: "أمريكي"
-        value: "us"
-      - match: "كندي"
-        value: "ca"
-      - match: "بريطاني"
-        value: "gb"
-      - match: "فرنسي"
-        value: "fr"
-      - match: "ألماني"
-        value: "de"
-      - match: "إسباني"
-        value: "es"
-      - match: "برتغالي"
-        value: "pt"
-      - match: "إيطالي"
-        value: "it"
-      - match: "هولندي"
-        value: "nl"
-      - match: "سويدي"
-        value: "se"
-      - match: "نرويجي"
-        value: "no"
-      - match: "دانماركي"
-        value: "dk"
-      - match: "فنلندي"
-        value: "fi"
-      - match: "بولندي"
-        value: "pl"
-      - match: "تشيكي"
-        value: "cz"
-      - match: "مجارى"
-        value: "hu"
-      - match: "روماني"
-        value: "ro"
-      - match: "بلغاري"
-        value: "bg"
-      - match: "صربي"
-        value: "rs"
-      - match: "كرواتي"
-        value: "hr"
-      - match: "بوسني"
-        value: "ba"
-      - match: "سلوفيني"
-        value: "si"
-      - match: "برازيلي"
-        value: "br"
-      - match: "أرجنتيني"
-        value: "ar"
-      - match: "مكسيكي"
-        value: "mx"
-      - match: "تشيلي"
-        value: "cl"
-      - match: "بيروفي"
-        value: "pe"
-      - match: "كولومبي"
-        value: "co"
-      - match: "فنزويلي"
-        value: "ve"
-      - match: "إكوادوري"
-        value: "ec"
-      - match: "جنوب أفريقي"
-        value: "za"
-      - match: "هندي"
-        value: "in"
-      - match: "باكستاني"
-        value: "pk"
-      - match: "بنغلاديشي"
-        value: "bd"
-      - match: "سريلانكي"
-        value: "lk"
-      - match: "نيبالي"
-        value: "np"
-      - match: "ميلاليزي"
-        value: "my"
-      - match: "إندونيسي"
-        value: "id"
-      - match: "فلبيني"
-        value: "ph"
-      - match: "فيتنامي"
-        value: "vn"
-      - match: "تايلاندي"
-        value: "th"
-      - match: "صيني"
-        value: "cn"
-      - match: "ياباني"
-        value: "jp"
-      - match: "كوري"
-        value: "kr"
-      - match: "أسترالي"
-        value: "au"
-      - match: "نيوزيلندي"
-        value: "nz"
-      - match: "أيرلندي"
-        value: "ie"
-      - match: "سويسري"
-        value: "ch"
-      - match: "نمساوي"
-        value: "at"
-      - match: "بلجيكي"
-        value: "be"
-      - match: "لوكسمبورغي"
-        value: "lu"
-      - match: "ليختنشتايني"
-        value: "li"
-      - match: "مالطي"
-        value: "mt"
-      - match: "أيسلندي"
-        value: "is"
-      - match: "لاتفي"
-        value: "lv"
-      - match: "ليتواني"
-        value: "lt"
-      - match: "إستوني"
-        value: "ee"
-      - match: "بيلاروسي"
-        value: "by"
-      - match: "كازاخستاني"
-        value: "kz"
-      - match: "أوزبكي"
-        value: "uz"
-      - match: "تركمني"
-        value: "tm"
-      - match: "طاجيكي"
-        value: "tj"
-      - match: "قيرغيزي"
-        value: "kg"
-      - match: "أرميني"
-        value: "am"
-      - match: "أذربيجاني"
-        value: "az"
-      - match: "جورجي"
-        value: "ge"
-      - match: "مولدافي"
-        value: "md"
-      - match: "قبرصي"
-        value: "cy"
-      - match: "كوبي"
-        value: "cu"
       - match: "/"
         value: null
+      - match:
+          - الاردن
+          - اردني
+        value: "jo"
+      - match: بوسني
+        value: "ba"
