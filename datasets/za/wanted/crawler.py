@@ -93,11 +93,12 @@ def crawl_person(context: Context, row: Dict[str, html.HtmlElement]):
     id = parse_qs(urlparse(detail_url).query)["bid"][0]
     person.id = context.make_slug(id)
 
+    # name3 handles additional middle names
     h.apply_name(
         person,
         first_name=forename_list[0],
-        second_name=forename_list[1] if len(forename_list) > 1 else None,
-        middle_name=forename_list[2] if len(forename_list) > 2 else None,
+        middle_name=forename_list[1] if len(forename_list) > 1 else None,
+        name3=forename_list[2] if len(forename_list) > 2 else None,
         last_name=last_name,
     )
     assert len(forename_list) <= 3, len(forename_list)
