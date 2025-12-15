@@ -173,6 +173,11 @@ lookups:
           - role: CNSP Prime Minister
             name: Ali Mahaman Lamine ZEINE
             start_date: 9 August 2023
+      # Syria
+      - match: Ahmad al-Shara'
+        holders:
+          - role: Head of state
+            name: Ahmad al-Shara
       # Yemen
       - match: "Presidential Leadership Council Chairperson Dr. Rashad Muhammad al-ALIMI (since 19 April 2022)"
         holders:
@@ -211,6 +216,12 @@ lookups:
           - role: President
             name: Emomali RAHMON
             start_date: 16 November 1994
+      # Kyrgyzstan
+      - match: "Chairman of the Cabinet of Ministers Adylbek KASYMALIYEV (since 18 December 2024)"
+        holders:
+          - role: Chairman of the Cabinet of Ministers
+            name: Adylbek KASYMALIYEV
+            start_date: 18 December 2024
       # This is also Emomali RAHMON, split from the previous statement because there is a semicolon in the text
       - match: head of state and Supreme Assembly Chairman since 20 November 1992)
         holders:
