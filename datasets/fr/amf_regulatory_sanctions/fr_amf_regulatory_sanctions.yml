@@ -1126,3 +1126,7 @@ lookups:
           - Carat GP
           - Jimmy Guinet
           - Sébastien Renaud
+      - match: La société Novaxia Investissement<br /> M. Joachim Azan
+        entities:
+          - Novaxia Investissement
+          - Joachim Azan
