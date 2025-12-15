@@ -1,19 +1,13 @@
 from datetime import datetime
 from lxml.html import HtmlElement
-from typing import NamedTuple
 
 from zavod import Context, helpers as h
 from zavod.extract import zyte_api
-from zavod.stateful.positions import categorise, get_after_office
-
-
-class LegislatureTerm(NamedTuple):
-    url: str
-    text: str
+from zavod.stateful.positions import categorise, get_after_office, OccupancyStatus
 
 
 POSITION_TOPICS = ["gov.legislative", "gov.national"]
-CUTOFF_YEAR = datetime.now() - get_after_office(POSITION_TOPICS)
+CUTOFF_DATE = (datetime.now() - get_after_office(POSITION_TOPICS)).year
 
 
 def get_terms(context: Context, term: str) -> tuple[int | None, int | None]:
@@ -46,7 +40,9 @@ def get_dob(context: Context, profile_url: str) -> str:
 
 
 def crawl_persons(
-    context: Context, row: HtmlElement, start_date: int, end_date: int | None
+    context: Context,
+    row: HtmlElement,
+    status: OccupancyStatus,
 ) -> None:
     cells = h.xpath_elements(row, ".//td[@class='td1' or @class='td0']")
     name = h.xpath_strings(cells[0], ".//b/text()", expect_exactly=1)[0].strip()
@@ -57,10 +53,7 @@ def crawl_persons(
     dob = get_dob(context, profile_url)
 
     entity = context.make("Person")
-    # Use the normalized name as the stable identifier. We don't have consistent unique identifiers
-    # (like national IDs or member numbers) across all legislature terms, so the normalized name
-    # is our only reliable way to link the same individual across multiple terms and avoid duplicates
-    entity.id = context.make_id(name)
+    entity.id = context.make_id(name, dob)
     entity.add("name", name)
     entity.add("political", political_group)
     entity.add("sourceUrl", profile_url)
@@ -83,9 +76,8 @@ def crawl_persons(
         context,
         person=entity,
         position=position,
-        start_date=str(start_date),
-        end_date=str(end_date) if end_date else None,
         categorisation=categorisation,
+        status=status,
     )
     if occupancy is not None:
         context.emit(entity)
@@ -103,41 +95,31 @@ def crawl(context: Context) -> None:
         absolute_links=True,
         cache_days=4,
     )
-    # Extract legislature terms from menu
-    terms: list[LegislatureTerm] = []
-    seen_urls: set[str] = set()
-    for link in doc.findall('.//div[@class="menu"]//a'):
+    # Extract and process legislature terms from menu
+    for idx, link in enumerate(doc.findall('.//div[@class="menu"]//a')):
         url = link.get("href")
         text = h.element_text(link).strip()
         assert url is not None, url
 
-        # Only keep entries with explicit date format "XX (YYYY-YYYY)"
-        # The first link "Actuels" (current members) duplicates the most recent term,
-        # so we filter for entries with parentheses to get unique dated terms.
-        if text and "(" in text and ")" in text and url not in seen_urls:
-            seen_urls.add(url)
-            terms.append(LegislatureTerm(url=url, text=text))
-    # Process each legislature term
-    for idx, term in enumerate(terms):
-        start_date, end_date = get_terms(context, term.text)
-        assert start_date is not None, start_date
-        # First term in the list is always the current legislature.
-        # For current terms, we set end_date to None because members are still serving
-        # and haven't left office yet. The end year in the lookup (e.g., "2025" for
-        # "56 (2024-2025)") shouldn't be used as an actual end_date for occupancy records
-        # until the term actually concludes and new elections occur.
-        if idx == 0:
-            end_date = None
+        # Legislative term dates (e.g., "55 (2019-2024)") don't reflect individual members'
+        # actual service periods. Members may join/leave mid-term. We use explicit status
+        # (CURRENT/ENDED) instead of dates to avoid misrepresenting when someone held office.
+        # Term dates are only used to filter out old legislatures before the cutoff.
+        is_current = idx == 0
+        status = OccupancyStatus.CURRENT if is_current else OccupancyStatus.ENDED
 
-        # Skip terms that ended before our cutoff year (skip this check for current term)
-        if end_date is not None and end_date < CUTOFF_YEAR:
-            context.log.info(f"Skipping old term {term.text} (ended {end_date})")
-            continue
+        # For historical terms, check if they ended before cutoff
+        if not is_current and "(" in text and ")" in text:
+            _, end_date = get_terms(context, text)
+            if end_date is not None and end_date < CUTOFF_DATE:
+                context.log.info(f"Skipping old term {text} (ended {end_date})")
+                continue
 
+        context.log.info(f"Processing term: {text} (status={status})")
         # Fetch the member list page for this term
         term_doc = zyte_api.fetch_html(
             context,
-            term.url,
+            url,
             unblock_validator=unblock_validator,
             absolute_links=True,
             cache_days=4,
@@ -147,4 +129,4 @@ def crawl(context: Context) -> None:
             0
         ]
         for row in h.xpath_elements(table, ".//tr[td[@class='td1' or @class='td0']]"):
-            crawl_persons(context, row, start_date, end_date)
+            crawl_persons(context, row, status)
