@@ -85,6 +85,11 @@ def crawl_enforcement_action(context: Context, url: str) -> None:
         if res is not None:
             topics.append(res.value)
 
+    # Topics mapped to null will cause articles to be skipped during processing.
+    # It's a way to filter out articles that are not relevant to OpenSanctions' scope.
+    if not topics:
+        return
+
     source_value = HtmlSourceValue(
         key_parts=url,
         label="Press Release",
