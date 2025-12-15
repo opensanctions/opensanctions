@@ -1,11 +1,10 @@
 from datetime import datetime
 from lxml.html import HtmlElement
-from normality import squash_spaces
 from typing import NamedTuple
 
 from zavod import Context, helpers as h
 from zavod.extract import zyte_api
-from zavod.stateful.positions import categorise, EXTENDED_AFTER_OFFICE_YEARS
+from zavod.stateful.positions import categorise, get_after_office
 
 
 class LegislatureTerm(NamedTuple):
@@ -14,7 +13,7 @@ class LegislatureTerm(NamedTuple):
 
 
 POSITION_TOPICS = ["gov.legislative", "gov.national"]
-CUTOFF_YEAR = datetime.now().year - get_after_office(POSITION_TOPICS)
+CUTOFF_YEAR = datetime.now() - get_after_office(POSITION_TOPICS)
 
 
 def get_terms(context: Context, term: str) -> tuple[int | None, int | None]:
@@ -23,6 +22,27 @@ def get_terms(context: Context, term: str) -> tuple[int | None, int | None]:
         return res.start_date, res.end_date
     else:
         return None, None
+
+
+def get_dob(context: Context, profile_url: str) -> str:
+    pep_doc = zyte_api.fetch_html(
+        context,
+        profile_url,
+        unblock_validator="//table",
+        absolute_links=True,
+        cache_days=4,
+    )
+    print(profile_url)
+    bio_text = h.xpath_strings(
+        pep_doc,
+        './/td/p[contains(., "| Né")]/text()',
+        expect_exactly=1,
+    )[0]
+    # Split on | and find the part with "Né"
+    parts = [part.strip() for part in bio_text.split("|")]
+    birth_info = next(part for part in parts if part.startswith("Né"))
+    date_str = birth_info.split(" le ")[-1].rstrip(".")
+    return date_str
 
 
 def crawl_persons(
@@ -34,8 +54,7 @@ def crawl_persons(
 
     group_texts = h.xpath_strings(cells[1], ".//a/text()")
     political_group = group_texts[0].strip() if group_texts else ""
-    # Normalize whitespace in the name (different terms may include inconsistent spacing)
-    name = squash_spaces(name)
+    dob = get_dob(context, profile_url)
 
     entity = context.make("Person")
     # Use the normalized name as the stable identifier. We don't have consistent unique identifiers
@@ -46,6 +65,7 @@ def crawl_persons(
     entity.add("political", political_group)
     entity.add("sourceUrl", profile_url)
     entity.add("citizenship", "be")
+    h.apply_date(entity, "birthDate", dob)
 
     position = h.make_position(
         context,

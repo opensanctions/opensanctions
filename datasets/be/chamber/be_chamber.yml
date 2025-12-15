@@ -27,6 +27,21 @@ publisher:
 data:
   url: https://www.dekamer.be/kvvcr/showpage.cfm?section=/depute&language=fr&cfm=cvlist54.cfm?legis=56&today=y
   format: HTML
+dates:
+  formats: ["%d %B %Y"]
+  months:
+    "january": "janvier"
+    "february": "février"
+    "march": "mars"
+    "april": "avril"
+    "may": "mai"
+    "june": "juin"
+    "july": "juillet"
+    "august": "aout"
+    "september": "septembre"
+    "october": "octobre"
+    "november": "novembre"
+    "december": "décembre"
 
 assertions:
   min:
