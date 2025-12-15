@@ -100,6 +100,9 @@ def crawl(context: Context) -> None:
         text = h.element_text(link).strip()
         assert url is not None, url
 
+        if not text:
+            continue
+
         # Legislative term dates (e.g., "55 (2019-2024)") don't reflect individual members'
         # actual service periods. Members may join/leave mid-term. We use explicit status
         # (CURRENT/ENDED) instead of dates to avoid misrepresenting when someone held office.
