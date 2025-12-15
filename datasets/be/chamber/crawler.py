@@ -13,7 +13,8 @@ class LegislatureTerm(NamedTuple):
     text: str
 
 
-CUTOFF_YEAR = datetime.now().year - EXTENDED_AFTER_OFFICE_YEARS
+POSITION_TOPICS = ["gov.legislative", "gov.national"]
+CUTOFF_YEAR = datetime.now().year - get_after_office(POSITION_TOPICS)
 
 
 def get_terms(context: Context, term: str) -> tuple[int | None, int | None]:
