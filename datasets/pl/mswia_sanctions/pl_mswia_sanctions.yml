@@ -267,6 +267,16 @@ lookups:
         props:
           address: "127018, miasto: Moskwa, ul. Oktyabrskaja 6, Federacja Rosyjska"
           innCode: 7751147024
+      - match: "adres: al. Jana Christiana Szucha 8, 00-582 Warszawa "
+        props:
+          address: "al. Jana Christiana Szucha 8, 00-582 Warszawa"
+      - match: ": 7705122392 (adres w jęz. rosyjskim: 105064, г. Москва, Пер. Малый Казённый, д. 3)"
+        props:
+          address: "105064, г. Москва, Пер. Малый Казённый, д. 3"
+          innCode: 7705122392
+      - match: "adres: Per. Mały Kazenny 3 Moskwa, 105064 Moskwa, Federacja Rosyjska "
+        props:
+          address: "Per. Mały Kazenny 3 Moskwa, 105064 Moskwa, Federacja Rosyjska"
 
   names:
     options:

@@ -104,12 +104,6 @@ lookups:
         value: 2020-09-02
       - match: 09/10,2034
         value: 2034-10-09
-      - match: 12/10/024
-        value: 2024-10-12
-      - match:
-          - 12/18/024
-          - 12/19/024
-        value: 2024
   type.identifier:
     lowercase: true
     options:
@@ -117,7 +111,6 @@ lookups:
           - N/A
           - A000000123
           - n N/A
-          - "1538\n400000"
         value: null
       - match:
           - D000045167
@@ -166,14 +159,6 @@ lookups:
         value: 1073778361
       - match: 3336C0003X
         prop: sector
-      - match: "1093 379521"
-        value: 1093379521
-      - match: 103195716
-        value: 1023195716
-      - match: "1093\n379521"
-        value: 1093379521
-      - match: LC1366678260
-        value: 1366678260
       - match: "10\n93379521"
         value: 1093379521
       - match: "OS024306/\nOT021627"
@@ -189,110 +174,48 @@ lookups:
   license_numbers:
     normalize: true
     options:
-      - match: "C2-\n0023834"
-        values: ["C2-0023834"]
       - match: "C2-\n0009261"
         values: ["C2-0009261"]
-      - match: "C1-0008124\nMD5243"
-        values:
-          - C1-0008124
-          - MD5243
       - match: "LG0000537 L1-\n0036672 AN-\n0007759"
         values:
           - LG0000537
           - L1-0036672
           - AN-0007759
-      - match: "C1-0003896\nMD2182"
-        values:
-          - C1-0003896
-          - MD2182
-      - match: "LG-0000732 L1-\n0036411"
-        values:
-          - LG-0000732
-          - L1-0036411
       - match: "SP013433(PA )\nRN538139(PA)\n538142(NY)"
         values:
           - SP013433
           - RN538139
           - RN538142
-      - match: "2006204640\nA300000834"
-        values:
-          - 2006204640
-          - A300000834
-      - match: "PROMISe#10301996\n7"
-        values: ["PROMISe#103019967"]
       - match: "CSR No. DR-\n0008693"
         values: ["CSR No. DR-0008693"]
-      - match: "PROMISe#10238919\n5"
-        values: ["PROMISe#102389195"]
       - match: "PROMIS#001400491\nMA049957"
         values:
           - PROMIS#001400491
           - MA049957
-      - match: "Lic# 060954-\nSurrendered"
-        values: ["Lic# 060954-Surrendered"]
       - match: "CSR-\n#PO-0007542"
         values: ["CSR-#PO-0007542"]
       - match: "DE Lic# C1-\n0008919Lic# 060954-\nSurrendered"
         values:
           - DE Lic# C1-0008919
           - Lic# 060954-Surrendered
-      - match: "LE-\n0000166"
-        values: ["LE-0000166"]
       - match: "Lic#\n21693"
         values: ["Lic#21693"]
-      - match: "LE-\n0000163"
-        values: ["LE-0000163"]
       - match: "PROMIS#\n001237131 Lic#\nOS006737L"
         values:
           - PROMIS# 001237131
           - Lic# OS006737L
-      - match: "PROMISe #:\n102890890"
-        values: ["PROMISe #: 102890890"]
-      - match: "PROMISe #:\n001479203"
-        values: ["PROMISe #: 001479203"]
-      - match: "PROMISe #:\n102943161"
-        values: ["PROMISe #: 102943161"]
-      - match: "License No. Ll-\n0028082"
-        values: ["License No. Ll-0028082"]
-      - match: "PROMISe #:\n001578490"
-        values: ["PROMISe #: 001578490"]
-      - match: "Promisse#\n103022078"
-        values: ["Promise#103022078"]
       - match: "PROMISe# 103581399:\n001609326"
         values:
           - PROMISe# 103581399
           - 001609326
-      - match: "RPOMISe#:\n000554205"
-        values: ["RPOMISe#: 000554205"]
-      - match: "C2-\n0007020"
-        values: ["C2-0007020"]
-      - match: "0101-\n259300"
-        values: ["0101-259300"]
       - match: "PROMISe# 001651787:\nMD061558L"
         values:
           - PROMISe# 001651787
           - MD061558L
       - match: "0101\n243103(VA)"
         values: ["0101-243103"]
-      - match: "L8-\n0010389"
-        values: ["L8-0010389"]
-      - match: "7649\n07(NY)"
-        values: ["7649-07"]
-      - match: "1003052\n0(PA)"
-        values: ["10030520"]
-      - match: "PN\n288655 (PA)"
-        values: ["PN288655"]
       - match: "DR-\n0011976"
         values: ["DR-0011976"]
-      - match: "PN5246084 (FL)\n9920556 (PA)"
-        values:
-          - PN5246084
-          - 9920556
-      - match: "25MB0418\n4600(NJ)"
-        values: ["25MB04184600"]
-      - match: "OKO00000\n3(PA)"
-        values: ["OKO000003"]
       - match: "RN2879\n412(FL)"
         values: ["RN2879412"]
       - match: "44294(HI)R1\n49156(MD)"
@@ -303,12 +226,6 @@ lookups:
         values: ["140646NC"]
       - match: "R006\n5074(OK)"
         values: ["R0065074"]
-      - match: "RN348987\nL(PA)"
-        values: ["RN348987L"]
-      - match: "0001158032(V\nA)"
-        values: ["0001158032VA"]
-      - match: "Lp-\n0010371"
-        values: ["Lp-0010371"]
       - match: "D0085021 (MD)\n35.141180 (OH)\nMD457463 (PA)"
         values:
           - D0085021
@@ -324,16 +241,10 @@ lookups:
           - RN9580326
           - RN277251L
           - 36107
-      - match: "LG-\n0000520"
-        values: ["LG-0000520"]
       - match: "28R103788700 (NJ)\nRP450314 (PA)"
         values:
           - 28R103788700
           - RP450314
-      - match: "PN299600 (PA)\n0001-282341 (VA)"
-        values:
-          - PN299600
-          - 0001-282341
       - match: RN708529 (PA) DH067595 (PA)
         values:
           - RN708529
@@ -344,96 +255,34 @@ lookups:
           - CW019470
           - SW129964
           - 089.0134176
-      - match: PN311543 (PA) 342620(TX)
-        values:
-          - PN311543
-          - 342620
       - match: "PC0000956(DE) PC004240 (PA) PRC14110(DC)"
         values:
           - PC0000956
           - PC004240
           - PRC14110
-      - match: "LH-\n0010266"
-        values: ["LH-0010266"]
       - match: "764 907(NY)"
         values: ["764 907"]
-      - match: "100305 20(PA)"
-        values: ["100305 20"]
       - match: "140646( NC)"
         values: ["140646"]
-      - match: "R0 065074(OK)"
-        values: ["R0 065074"]
-      - match: "RN3489 87L(PA)"
-        values: ["RN3489 87L"]
-      - match: "0001158032 (VA)"
-        values: ["0001158032"]
       - match: "SP011438 / RN571698"
         values: ["SP011438", "RN571698"]
-      - match: "DE Lic#\nC10002433"
-        values: ["C10002433"]
-      - match: "C7-0003062-\nExpired"
-        values: ["C7-0003062-Expired"]
-      - match: "PROMISe#10301\n9967"
-        values: ["PROMISe#103019967"]
-      - match: "PROMISe#10238\n9195"
-        values: ["PROMISe#102389195"]
-      - match: "DE: E1-\n000198"
-        values: ["E1-000198"]
-      - match: "PROMIS#001400\n491 MA049957"
-        values: ["PROMIS#001400491", "MA049957"]
-      - match: "PROMISe#0011261\n05"
-        values: ["PROMISe#001126105"]
       - match: "APP-\n000402687(OH)"
         values: ["APP-000402687"]
-      - match: "25MB0\n4184600(NJ)"
-        values: ["25MB04184600"]
-      - match: "OK\nO000003(PA)"
-        values: ["OKO000003"]
-      - match: "RN2\n879412(FL)"
-        values: ["RN2879412"]
       - match: "4\n4294(HI)R149156(MD)"
         values: ["44294", "R149156"]
-      - match: "254\n128(OH)"
-        values: ["254128"]
-      - match: "R0065074(OK\n)"
-        values: ["R0065074"]
       - match: "000115803\n2(VA)"
         values: ["0001158032"]
-      - match: "26NN1131100\n(NJ)"
-        values: ["26NN1131100"]
-      - match: "PN\n314465"
-        values: ["PN314465"]
       - match: "1003\n0520(PA)"
         values: ["10030520"]
-      - match: "7\n64907(NY)"
-        values: ["764907"]
       - match: "P\nN305385"
         values: ["PN305385"]
-      - match: "38M00753200(NJ\n)"
-        values: ["38M00753200"]
       - match: "DC011252\n(PA)"
         values: ["DC011252"]
-      - match: "0104557268\n(VA)"
-        values: ["0104557268"]
       - match: "RN707737 (PA)\nPN299600 (PA)\n0001-282341 (VA)"
         values:
           - RN707737
           - PN299600
           - 0001-282341
-      - match: "26NP07943800(N\nJ)"
-        values: ["26NP07943800"]
-      - match: "25MB04184600(\nNJ)"
-        values: ["25MB04184600"]
-      - match: "RN2879412(F\nL)"
-        values: ["RN2879412"]
-      - match: "R\n0065074(OK)"
-        values: ["R0065074"]
-      - match: "RN348987L(\nPA)"
-        values: ["RN348987L"]
-      - match: "214272\n(NY)"
-        values: ["214272"]
-      - match: "764907(N\nY)"
-        values: ["764907"]
       - match: "AJ008885\n(PA)"
         values: ["AJ008885"]
       - match: "PN310619\n(PA)"
@@ -448,11 +297,11 @@ lookups:
         values: ["0001158032"]
       - match: "RN598766\n(PA)"
         values: ["RN598766"]
-      - match: "4429 4(HI)R149156(MD)"
-        values: ["44294", "R149156"]
       - match: "25 4128(OH)"
         values: ["254128"]
       - match: "RN34898 7L(PA)"
         values: ["RN348987L"]
       - match: "PN30 5385"
         values: ["PN305385"]
+      - match: "R0065074(O\nK)"
+        values: ["R0065074"]
