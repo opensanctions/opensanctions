@@ -26,7 +26,6 @@ def get_dob(context: Context, profile_url: str) -> str:
         absolute_links=True,
         cache_days=4,
     )
-    print(profile_url)
     bio_text = h.xpath_strings(
         pep_doc,
         './/td/p[contains(., "| Né")]/text()',
