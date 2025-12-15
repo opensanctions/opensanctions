@@ -119,15 +119,6 @@ def value_clean(
                 )
                 # clean = clean[: prop.type.max_length]
 
-            # FIXME at 2025-12-01: We're emitting USCC codes *both* in the usccCode
-            # and registrationNumber props (where they used to live). See
-            # https://github.com/opensanctions/opensanctions/issues/2542 to track
-            # removal of this.
-            if prop_.format == "uscc":
-                fallback_prop = entity.schema.get("registrationNumber")
-                if fallback_prop is not None:
-                    yield fallback_prop, clean
-
             yield prop_, clean
             continue
         if prop_.type == registry.phone:
