@@ -72,7 +72,7 @@ lookups:
         value: crime.fin
       - match: Most wanted
         value: wanted
-      - match:        
+      - match:
           - Organised crime partnership
           - Organised immigration crime
           - Serious and organised crime
