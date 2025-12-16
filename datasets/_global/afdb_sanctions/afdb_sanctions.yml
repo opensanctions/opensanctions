@@ -329,6 +329,12 @@ lookups:
             alias: "RASK HOLDING"
           - name: NewCo AF 2018 IV
             alias: "NEWCO"
+      - match: "Tetralink Taylor & Associates (Tanzania) Limited"
+        names:
+          - name: Tetralink Taylor & Associates (Tanzania) Limited
+      - match: "Tetralink Taylor & Associates (Rwanda) Limited."
+        names:
+          - name: Tetralink Taylor & Associates (Rwanda) Limited
   types:
     lowercase: true
     map:

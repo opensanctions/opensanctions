@@ -79,6 +79,8 @@ lookups:
           - 523931831
       - match: 79090613232)
         value: 79090613232
+      - match: ": 7705122392 (adres w jęz. rosyjskim: 105064, г. Москва, Пер. Малый Казённый, д. 3)"
+        value: 7705122392
   type.name:
     options:
       - match: do 3.03.2022 r. – SULZER MIXPAC POLAND Sp. z o.o.
@@ -270,10 +272,6 @@ lookups:
       - match: "adres: al. Jana Christiana Szucha 8, 00-582 Warszawa "
         props:
           address: "al. Jana Christiana Szucha 8, 00-582 Warszawa"
-      - match: ": 7705122392 (adres w jęz. rosyjskim: 105064, г. Москва, Пер. Малый Казённый, д. 3)"
-        props:
-          address: "105064, г. Москва, Пер. Малый Казённый, д. 3"
-          innCode: 7705122392
       - match: "adres: Per. Mały Kazenny 3 Moskwa, 105064 Moskwa, Federacja Rosyjska "
         props:
           address: "Per. Mały Kazenny 3 Moskwa, 105064 Moskwa, Federacja Rosyjska"
