@@ -913,6 +913,16 @@ lookups:
       - match: "Entités associées: PSB Bank"
         associates:
           - PSB Bank
+      - match: "Type de société: Société à responsabilité limitée"
+        props:
+          legalForm: Société à responsabilité limitée
+      - match: "Gang haïtien basé dans le quartier de Village-de-Dieu, à Port-au-Prince"
+        props:
+          jurisdiction: ht
+          address: "Village-de-Dieu, Port-au-Prince, Haïti"
+      - match: "Lieu d’enregistrement: Viêt Nam"
+        props:
+          jurisdiction: vn
 
 
   ####################################################################################################
