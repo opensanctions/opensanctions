@@ -100,7 +100,7 @@ jobs:
         with:
           token: ${{ secrets.OPERATIONS_PAT }}
           repository: opensanctions/operations
-          event-type: release
+          event-type: deploy-zavod-ui
           client-payload: |-
             {
               "environment": "${{ github.ref == 'refs/heads/main' && 'prod' || 'test' }}",
