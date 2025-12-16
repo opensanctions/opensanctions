@@ -272,6 +272,9 @@ lookups:
       - match: "adres: al. Jana Christiana Szucha 8, 00-582 Warszawa "
         props:
           address: "al. Jana Christiana Szucha 8, 00-582 Warszawa"
+      - match: "adres: Per. Mały Kazenny 3 Moskwa, 105064 Moskwa, Federacja Rosyjska "
+        props:
+          address: "Per. Mały Kazenny 3 Moskwa, 105064 Moskwa, Federacja Rosyjska"
 
   names:
     options:
