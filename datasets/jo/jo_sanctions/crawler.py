@@ -27,7 +27,7 @@ def xlsx_check(doc: HtmlElement) -> bool | str:
     for link in doc.iterlinks():
         ext = link[2].split(".")[-1]
         if "xlsx" in ext:
-            return link[2]
+            return str(link[2])
     return False
 
 
@@ -59,7 +59,7 @@ def crawl_person(context: Context, path: Path) -> None:
         person.add("idNumber", national_id)
         person.add("nationality", row.pop("nationality"))
         h.apply_date(person, "birthDate", birth_date)
-        person.add("sourceUrl", context.dataset.data.url)
+        person.add("sourceUrl", context.data.url)
 
         address_ent = h.make_address(
             context,
@@ -106,7 +106,7 @@ def crawl_legal_entities(context: Context, path: Path) -> None:
         context.audit_data(row, AUDIT_FIELDS)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     doc = context.fetch_html(context.data_url, cache_days=5)
     url = xlsx_check(doc)
     if url is False:
