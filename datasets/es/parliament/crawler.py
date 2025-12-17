@@ -156,8 +156,7 @@ def crawl_senator(context: Context, senator_url: str) -> bool:
     last_name = datos.findtext("apellidos")
 
     person = context.make("Person")
-    # We ignore the type error here because we don't want to rekey
-    person.id = context.make_id(web_id, first_name, last_name)  # type: ignore
+    person.id = context.make_id(web_id, first_name, last_name)
     h.apply_name(
         person,
         first_name=first_name,
