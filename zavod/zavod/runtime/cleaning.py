@@ -75,6 +75,10 @@ def value_clean(
             schema=entity.schema.name,
             prop=prop.name,
         )
+    # Materialize prop_lookup results to check if value came from a lookup.
+    # Looked-up values are treated as authoritative and skip name validation.
+    lookup_results = list(prop_lookup(entity, prop, value))
+    went_through_lookup = len(lookup_results) > 0
 
     for prop_, item in prop_lookup(entity, prop, value):
         clean: Optional[str] = item
@@ -93,7 +97,9 @@ def value_clean(
         # See https://github.com/opensanctions/followthemoney/issues/71
         # to track creation of a NamePart type.
         if (
-            prop_.type == registry.name or prop_ in VALIDATE_AS_NAME_PROPS
+            not went_through_lookup  # Only validate if didn't go through lookup
+            and prop_.type == registry.name
+            or prop_ in VALIDATE_AS_NAME_PROPS
         ) and clean is not None:
             clean = unicodedata.normalize("NFC", clean)
             if entity.schema.is_a("LegalEntity") and not is_name(clean):
