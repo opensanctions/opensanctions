@@ -472,3 +472,13 @@ lookups:
             value: "XT-8 #0003127"
           - prop: taxNumber
             value: 300001499
+      - match: "National ID No. 1911872730979"
+        items:
+          - prop: idNumber
+            value: 1911872730979
+      - match: "Incorporation number: 2081024224. eTIN 137517739557."
+        items:
+          - prop: registrationNumber
+            value: 2081024224
+          - prop: taxNumber
+            value: 137517739557
