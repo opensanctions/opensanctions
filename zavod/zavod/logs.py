@@ -46,8 +46,8 @@ REGEX_URI_WITH_CREDENTIALS = re.compile(URI_WITH_CREDENTIALS)
 class RedactingProcessor:
     """A structlog processor that redact sensitive information from log messages."""
 
-    def __init__(self, repl_pattrns: Dict[str, str | Callable[[str], str]]) -> None:
-        self.repl_regexes = {re.compile(p): r for p, r in repl_pattrns.items()}
+    def __init__(self, replace_patterns: Dict[str, str | Callable[[str], str]]) -> None:
+        self.repl_regexes = {re.compile(p): r for p, r in replace_patterns.items()}
 
     def __call__(self, logger: Any, method_name: str, event_dict: Event) -> Event:
         return self.redact_dict(event_dict)
@@ -94,7 +94,12 @@ def configure_redactor() -> Callable[[Any, str, Event], Event]:
     that contained that value.
     """
     pattern_map: Dict[str, str | Callable[[str], str]] = dict()
-    for key, value in os.environ.items():
+    env_vars_longest_first = sorted(
+        os.environ.items(),
+        key=lambda kv: len(kv[1]),
+        reverse=True,
+    )
+    for key, value in env_vars_longest_first:
         if key in REDACT_IGNORE_LIST:
             continue
         if len(value) < REDACT_MIN_LENGTH:
