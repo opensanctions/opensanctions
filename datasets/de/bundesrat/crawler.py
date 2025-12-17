@@ -9,6 +9,13 @@ from zavod.stateful.positions import OccupancyStatus, categorise
 from zavod import Context
 from zavod import helpers as h
 
+# NOTE: Bundesrat members are regional executives (Minister-Presidents, Senators,
+# etc.) who hold their Bundesrat seat by virtue of their regional office. We label
+# all as "Mitglied des Bundesrates" as suggested by the website, since this is the
+# federal legislative role relevant for PEP tracking. Status is set to UNKNOWN
+# because members alternate between deputy and full member roles in ways not clearly
+# documented on the source website.
+
 # Geboren am DD.MM.YYYY
 # Geboren YYYY
 DOB_REGEX = re.compile(r"^Geboren(?: am\s+(\d{1,2}\.\d{2}\.\d{4})| (\d{4}))")
