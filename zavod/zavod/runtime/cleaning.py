@@ -8,7 +8,7 @@ from followthemoney import registry, Property, model
 from followthemoney.types import PropertyType
 
 from zavod.logs import get_logger
-from zavod.runtime.lookups import prop_lookup, type_lookup
+from zavod.runtime.lookups import prop_lookup, get_type_lookup
 
 
 if TYPE_CHECKING:
@@ -64,7 +64,7 @@ def clean_identifier(prop: Property, value: str) -> Optional[str]:
 def is_lookup_value(entity: "Entity", type_: PropertyType, value: str) -> bool:
     """Check if a given value for a certain property type was obtained from
     a lookup. This is used to skip validation for looked-up values."""
-    lookup = type_lookup(entity.dataset, type_)
+    lookup = get_type_lookup(entity.dataset, type_)
     if lookup is None:
         return False
     result = lookup.match(value)
