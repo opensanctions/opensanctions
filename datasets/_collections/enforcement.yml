@@ -13,10 +13,13 @@ description: |
   across various jurisdictions and agencies. US federal agencies make up a
   significant portion of the collection.
 children:
+  - eu_esma_saris
+  - no_nbim_exclusions
+  - sg_mas_enforcement_actions
   - us_cftc_enforcement_actions
-  - us_fed_enforcements
   - us_ddtc_debarred
   - us_ddtc_enforcements
+  - us_fdic_failed_banks
+  - us_fed_enforcements
   - us_ofac_enforcement_actions
   - us_sec_pause
-  - us_fdic_failed_banks
