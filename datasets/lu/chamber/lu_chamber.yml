@@ -35,7 +35,7 @@ dates:
 assertions:
   min:
     schema_entities:
-      Person: 180
+      Person: 60  # The Chamber is made up of 60 seats. Some previous members may be included.
       Position: 1
     country_entities:
       lu: 1
