@@ -76,11 +76,11 @@ def crawl_row(context: Context, row: Dict[str, str], program: str, url: str):
     passport_other = row.pop("passport_number_other_info", "")  # LegalEntity
     birth_establishment_date = split(row.pop("date_of_birth_establishment", ""))
     birth_place = row.pop("birth_place", "")
-    birth_dates = split(row.pop("birth_date", ""))
-    gazette_date = row.pop("gazette_date", "")
-    nationality = row.pop("nationality", "")
-    mother_name = row.pop("mother_name", "")
-    father_name = row.pop("father_name", "")
+    birth_dates = split(row.pop("birth_date"))
+    gazette_date = row.pop("gazette_date")
+    nationality = row.pop("nationality")
+    mother_name = row.pop("mother_name")
+    father_name = row.pop("father_name")
     if gazette_date:
         matched_date = REGEX_GAZZETE_DATE.search(gazette_date)
         gazette_date = matched_date.group(0) if matched_date else ""
