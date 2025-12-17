@@ -44,7 +44,11 @@ REGEX_URI_WITH_CREDENTIALS = re.compile(URI_WITH_CREDENTIALS)
 
 
 class RedactingProcessor:
-    """A structlog processor that redact sensitive information from log messages."""
+    """
+    A structlog processor that redact sensitive information from log messages.
+
+    Patterns must be ordered such that longer/more specific patterns come first.
+    """
 
     def __init__(self, replace_patterns: Dict[str, str | Callable[[str], str]]) -> None:
         self.repl_regexes = {re.compile(p): r for p, r in replace_patterns.items()}
