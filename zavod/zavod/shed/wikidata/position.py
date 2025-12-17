@@ -71,6 +71,38 @@ IGNORE_TYPES: Set[str] = {
     "Q2977",  # cathedral
 }
 
+# TEMP: We're starting to include municipal PEPs for specific countries
+MUNI_COUNTRIES = {
+    "au",
+    "be",
+    "br",
+    "by",
+    "ca",
+    "co",
+    "cz",
+    "es",
+    "fr",
+    "gb",
+    "gt",
+    "hu",
+    "id",
+    "is",
+    "it",
+    "ke",
+    "kr",
+    "mx",
+    "ni",
+    "nl",
+    "pl",
+    "ro",
+    "ru",
+    "sk",
+    "ua",
+    "us",
+    "ve",
+    "za",
+}
+
 
 def wikidata_position(
     context: Context, client: WikidataClient, item: Item
@@ -162,6 +194,9 @@ def wikidata_position(
     real_topics.discard("role.pep")
     if "gov.muni" in real_topics:
         real_topics.discard("gov.head")
+
+    if "gov.muni" in real_topics and MUNI_COUNTRIES.isdisjoint(position.countries):
+        return None
 
     position.set("topics", real_topics)
     return position

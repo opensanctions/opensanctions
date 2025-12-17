@@ -24,37 +24,6 @@ QUERY = {
     "search_max_results": 1000,
     "sortorder": "ascending",
 }
-# TEMP: We're starting to include municipal PEPs for specific countries
-MUNI_COUNTRIES = {
-    "au",
-    "be",
-    "br",
-    "by",
-    "ca",
-    "co",
-    "cz",
-    "es",
-    "fr",
-    "gb",
-    "gt",
-    "hu",
-    "id",
-    "is",
-    "it",
-    "ke",
-    "kr",
-    "mx",
-    "ni",
-    "nl",
-    "pl",
-    "ro",
-    "ru",
-    "sk",
-    "ua",
-    "us",
-    "ve",
-    "za",
-}
 # That one time a PEP customer asked to be included....
 ALWAYS_PERSONS = ["Q21258544"]
 
@@ -217,11 +186,6 @@ def crawl_position_holder(state: CrawlState, position_qid: str) -> Set[str]:
     position = wikidata_position(state.context, state.client, item)
     if position is None:
         state.ignore_positions.add(position_qid)
-        return persons
-
-    # TEMP: skip municipal governments
-    topics = position.get("topics")
-    if "gov.muni" in topics and MUNI_COUNTRIES.isdisjoint(position.countries):
         return persons
 
     query = f"""
