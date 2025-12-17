@@ -64,25 +64,25 @@ lookups:
     options:
       - match: "Council Decision concerning restrictive measures in view of the situation in Russia"
         value: EU-RUS
-      - match: 
+      - match:
           - "Council Decision concerning restrictive measures in view of Russia’s destabilising activities"
           - "Council Decision (CFSP) concerning restrictive measures in view of Russia’s destabilising activities"
         value: EU-RUSDA
       - match: "Council Decision establishing restrictive measures against those who support, facilitate or enable violent actions by Hamas and the Palestinian Islamic Jihad"
         value: EU-HAM
-      - match: 
+      - match:
           - "Council Decision amending Decision (CFSP) 2024/254 concerning restrictive measures in view of the situation in Guatemala"
           - "Council Decision concerning restrictive measures in view of the situation in Guatemala"
         value: EU-GTM
       - match: "Council Decision concerning restrictive measures in view of activities undermining the stability and political transition of Sudan"
         value: EU-SDNZ
-      - match: 
+      - match:
           - "Council Decision concerning restrictive measures in view of Iran’s military support to Russia’s war of aggression against Ukraine and to armed groups and entities in the Middle East and the Red Sea region"
           - "Council Decision concerning restrictive measures against Iran"
           - "Council Decision concerning restrictive measures directed against certain persons and entities in view of the situation in Iran"
           - "Council Decision concerning restrictive measures against Iran and repealing Common Position 2007/140/CFSP"
         value: EU-IRN
-      - match: 
+      - match:
           - "Council Decision concerning restrictive measures in view of actions destabilising the Republic of Moldova"
           - "Corrigendum to Council Decision concerning restrictive measures in view of actions destabilising the Republic of Moldova"
         value: EU-MDA
@@ -92,7 +92,7 @@ lookups:
         value: EU-NIC
       - match: "Council Decision concerning restrictive measures against cyber-attacks threatening the Union or its Member States"
         value: EU-CYB
-      - match: 
+      - match:
           - "Council Decision concerning restrictive measures against the proliferation and use of chemical weapons"
           - "Council Decision (CFSP) 2024/2695 amending Decision (CFSP) 2018/1544 concerning restrictive measures against the proliferation and use of chemical weapons"
         value: EU-CHEM
@@ -133,9 +133,9 @@ lookups:
       - match: "Council Decision concerning restrictive measures against Somalia and repealing Common Position 2009/138/CFSP"
         value: EU-SOM
       - match: "Council Decision concerning restrictive measures in view of the situation in South Sudan and repealing Decision 2014/449/CFSP"
-        value: 
+        value: EU-SSD
       - match: "Council Decision concerning restrictive measures in view of the situation in Sudan and repealing Decision 2011/423/CFSP"
-        value: 
+        value: EU-SDN
       - match: "Council Decision concerning restrictive measures in view of Türkiye’s unauthorised drilling activities in the Eastern Mediterranean"
         value: EU-TUR
   subject_type:
