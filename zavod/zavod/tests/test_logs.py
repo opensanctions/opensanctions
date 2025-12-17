@@ -40,6 +40,20 @@ def test_redact_dict():
     }
 
 
+def test_redact_contained():
+    """When one potentially sensitive value is contained within another, the most
+    complete one is redacted."""
+    # Two contained so that configuration order doesn't affect validity of test
+    os.environ["AAA"] = "BEEEF"
+    os.environ["BBB"] = "DEEADBEEEF"
+    os.environ["CCC"] = "DEEAD"
+    processor = configure_redactor()
+    assert (
+        processor.redact_str("aaa DEEAD bbb DEEADBEEEF ccc BEEEF ddd")
+        == "aaa ${CCC} bbb ${BBB} ccc ${AAA} ddd"
+    )
+
+
 def test_redactor():
     processor = RedactingProcessor({"DEADBEEF": "### Redacted ###"})
     test_dict = {
