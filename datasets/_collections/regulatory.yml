@@ -11,7 +11,7 @@ summary: >
 description: |
   This collection includes datasets that track individuals and entities that
   are subject to regulatory actions and restrictions, such as investor warnings,
-  penalities and fines, or bans from specific activities or industries. 
+  penalities and fines, or bans from specific activities or industries.
 
   These watchlists are maintained by government agencies, international
   organizations, or other regulatory bodies.
@@ -33,6 +33,7 @@ children:
   - no_nbim_exclusions
   - ph_sec_advisories
   - ps_ohchr_settlement
+  - sg_mas_enforcement_actions
   - tr_cmb_banned
   - us_bis_oac
   - us_ddtc_debarred

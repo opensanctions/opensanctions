@@ -14,6 +14,7 @@ description: |
   analysis of entities that are of special interest to the public.
 ci_test: false
 children:
+  - c4ads_xinjiang_mining
   - c4ads_xinjiang
   - eiti_soe
   - gem_energy_ownership
