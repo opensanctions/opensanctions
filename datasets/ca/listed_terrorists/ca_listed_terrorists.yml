@@ -54,6 +54,10 @@ lookups:
     options:
       - match: Not yet reviewed
         value: null
+  type.name:
+    options:
+      - match: 764
+        value: 764
   aliases:
     options:
       - match: "Jama'atu Ahlis Sunna Lidda'awati Wal-Jihad (JAS, People of the Tradition of the Prophet for Preaching and Striving / Group Committed to Propagating the Prophet's Teachings and Jihad)"

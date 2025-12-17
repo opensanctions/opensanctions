@@ -5,9 +5,10 @@ from rigour.ids import get_identifier_format
 from rigour.names import is_name
 from prefixdate.precision import Precision
 from followthemoney import registry, Property, model
+from followthemoney.types import PropertyType
 
 from zavod.logs import get_logger
-from zavod.runtime.lookups import prop_lookup
+from zavod.runtime.lookups import prop_lookup, get_type_lookup
 
 
 if TYPE_CHECKING:
@@ -60,6 +61,16 @@ def clean_identifier(prop: Property, value: str) -> Optional[str]:
     return normalized
 
 
+def is_lookup_value(entity: "Entity", type_: PropertyType, value: str) -> bool:
+    """Check if a given value for a certain property type was obtained from
+    a lookup. This is used to skip validation for looked-up values."""
+    lookup = get_type_lookup(entity.dataset, type_)
+    if lookup is None:
+        return False
+    result = lookup.match(value)
+    return result is not None
+
+
 def value_clean(
     entity: "Entity",
     prop: Property,
@@ -97,14 +108,15 @@ def value_clean(
         ) and clean is not None:
             clean = unicodedata.normalize("NFC", clean)
             if entity.schema.is_a("LegalEntity") and not is_name(clean):
-                log.warning(
-                    f"Property value {value!r} is not a valid name.",
-                    entity_id=entity.id,
-                    value=value,
-                    clean=clean,
-                    prop=prop_.name,
-                )
-                continue
+                if not is_lookup_value(entity, registry.name, item):
+                    log.warning(
+                        f"Property value {value!r} is not a valid name.",
+                        entity_id=entity.id,
+                        value=value,
+                        clean=clean,
+                        prop=prop_.name,
+                    )
+                    continue
         if prop_.type == registry.date and clean is not None:
             # none of the information in OpenSanctions is time-critical
             clean = clean[: Precision.DAY.value]

@@ -6,15 +6,15 @@ coverage:
 load_statements: true
 entry_point: crawler.py
 summary: >-
-  Current members of the German Bundesrat, the federal legislative body 
+  Current members of the German Bundesrat, the federal legislative body
   representing Germany’s 16 states (Länder).
 description: |
-  The German Bundesrat (Federal Council) is the legislative body that represents 
-  the 16 federal states (Länder) at the federal level. Its members are appointed 
-  by state governments, while the Bundestag is composed of representatives directly 
+  The German Bundesrat (Federal Council) is the legislative body that represents
+  the 16 federal states (Länder) at the federal level. Its members are appointed
+  by state governments, while the Bundestag is composed of representatives directly
   elected by the German people.
 
-  This dataset is sourced from the official German Bundesrat website and provides 
+  This dataset is sourced from the official German Bundesrat website and provides
   biographical and mandate information for all current members.
 url: https://www.bundesrat.de/DE/bundesrat/mitglieder/mitglieder-node.html?param3=Alle&param2=member&param1=state-1
 tags:
@@ -22,8 +22,8 @@ tags:
 publisher:
   name: German Bundesrat
   description: |
-    The German Bundesrat provides information about its members on its official 
-    website. As the federal body, it participates in the legislative process, 
+    The German Bundesrat provides information about its members on its official
+    website. As the federal body, it participates in the legislative process,
     reviewing and approving federal laws.
   country: de
   url: https://www.bundesrat.de/EN/homepage/homepage-node.html
