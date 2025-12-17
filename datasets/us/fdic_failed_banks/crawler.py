@@ -1,4 +1,6 @@
 import csv
+from rigour.mime.types import CSV
+
 from zavod import Context
 from zavod import helpers as h
 from typing import Dict
@@ -33,23 +35,29 @@ def crawl_row(context: Context, row: Dict[str, str]):
     entity.add("topics", "fin.bank")
     entity.add("topics", "reg.warn")
     entity.add("jurisdiction", "us")
-    entity.add("notes", f"Cert: {row.get('Cert', '')}")
-    entity.add("notes", f"Fund: {row.get('Fund', '')}")
+    entity.add("registrationNumber", row.get("Cert", "").strip())
+    # entity.add("notes", f"Cert: {row.get('Cert', '')}")
+    # entity.add("notes", f"Fund: {row.get('Fund', '')}")
     h.apply_date(entity, "dissolutionDate", closing_date)
 
+    # FIXME: Remove acquiring institution handling for now because it
+    # emits a lot of single-property entities that clutter the dataset and
+    # create the perception that these banks, too, have failed:
+    entity.add("notes", f"Acquiring Institution: {acquiring_institution}")
+
     # Check if acquiring_institution has a value
-    if acquiring_institution:
-        succ_entity = context.make("Company")
-        succ_entity.id = context.make_id(acquiring_institution)
-        succ_entity.add("name", acquiring_institution)
-        succ = context.make("Succession")
-        succ.id = context.make_id(entity.id, "successor", succ_entity.id)
+    # if acquiring_institution:
+    #     succ_entity = context.make("Company")
+    #     succ_entity.id = context.make_id(acquiring_institution)
+    #     succ_entity.add("name", acquiring_institution)
+    #     succ = context.make("Succession")
+    #     succ.id = context.make_id(entity.id, "successor", succ_entity.id)
 
-        succ.add("predecessor", entity.id)
-        succ.add("successor", succ_entity.id)
+    #     succ.add("predecessor", entity.id)
+    #     succ.add("successor", succ_entity.id)
 
-        context.emit(succ)
-        context.emit(succ_entity)
+    #     context.emit(succ)
+    #     context.emit(succ_entity)
 
     address = h.format_address(
         city=row.pop("City"),
@@ -59,7 +67,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     entity.add("address", address)
 
     context.emit(entity)
-    context.log.info(f"Emitted entity for bank: {bank_name}")
+    # context.log.info(f"Emitted entity for bank: {bank_name}")
 
 
 def crawl(context: Context):
@@ -69,7 +77,7 @@ def crawl(context: Context):
     source_path = context.fetch_resource("source.csv", context.data_url)
 
     # Register the CSV file as a resource with the dataset
-    context.export_resource(source_path, "text/csv", title="FDIC Failed Banks CSV file")
+    context.export_resource(source_path, CSV, title="FDIC Failed Banks CSV file")
 
     # Attempt to open the CSV file with different encodings
 
@@ -78,4 +86,4 @@ def crawl(context: Context):
         for row in reader:
             crawl_row(context, row)
 
-    context.log.info("Finished processing FDIC Failed Bank List")
+    # context.log.info("Finished processing FDIC Failed Bank List")
