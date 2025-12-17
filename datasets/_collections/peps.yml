@@ -57,6 +57,7 @@ children:
   - eu_meps
   - eu_public_functions
   - everypolitician
+  - fi_eduskunta
   - fr_assemblee
   - fr_maires
   - fr_senat
@@ -65,10 +66,12 @@ children:
   - hk_legco
   - hk_principal_officials
   - hr_public_officials
+  - hu_national_assembly
   - id_regional_2018
   - il_knesset_members
   - in_sansad
   - is_althingi
+  - it_deputies
   - jp_shugiin
   - ky_judicial
   - ky_parliament
@@ -85,6 +88,7 @@ children:
   - ng_join_dots
   - nl_house_of_representatives
   - nl_senate
+  - no_storting
   - pl_sejm
   - pl_senate
   - ro_fiu_declarations

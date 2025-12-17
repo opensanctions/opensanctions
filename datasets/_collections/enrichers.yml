@@ -14,6 +14,7 @@ summary: >
   entity of interest can be found.
 children:
   - ext_abuja_mou_psc
+  - ext_ba_companies
   - ext_cy_companies
   - ext_cz_business_register
   - ext_ee_ariregister
