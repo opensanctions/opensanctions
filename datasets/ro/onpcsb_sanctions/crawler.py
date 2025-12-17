@@ -1,6 +1,8 @@
 import csv
 from typing import Dict
+
 from zavod import Context, helpers as h
+from zavod.extract import zyte_api
 
 
 def crawl_row(context: Context, row: Dict[str, str]):
@@ -78,8 +80,15 @@ def crawl_row(context: Context, row: Dict[str, str]):
 
 
 def crawl(context: Context):
-    doc = context.fetch_html(context.dataset.url, cache_days=1, absolute_links=True)
-    url = doc.xpath(".//a[contains(text(), 'HG nr. 1.272/2005')]/@href")
+    url_xpath = ".//a[contains(text(), 'HG nr. 1.272/2005')]/@href"
+    doc = zyte_api.fetch_html(
+        context,
+        context.dataset.url,
+        url_xpath,
+        cache_days=1,
+        absolute_links=True,
+    )
+    url = doc.xpath(url_xpath)
     assert len(url) == 1, "Expected exactly one link in the document"
     h.assert_url_hash(context, url[0], "583e5e471beabb3b5bde7b259770998952bdfea0")
     # AL-ZINDANI, Shaykh Abd-al-Majid

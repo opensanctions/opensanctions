@@ -64,12 +64,7 @@ lookups:
         value: Head of the Agency for Licensing and Permits of the Ministry of Economic Development and Investments of the Republic of Armenia
       - match: Deputy Head of the Control Division of the Investigation Divisions of the Yerjan City Administrative Districts Investigation Division of the Investigation Department of the RA Investigation Committee (Senior Investigator of the Criminal Investigation Department)
         value: Deputy Head of the Control Division of the Investigation Divisions of the Yerjan City Administrative Districts Investigation Division of the Investigation Department
-  normalize_name:
-    lowercase: true
-    normalize: true
-    options:
-      - match:
-          - null null null
+      - match: null null null
         value: null
 dates:
   formats: ["%B %d %Y", "%Y-%m-%d"]

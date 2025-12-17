@@ -3,6 +3,7 @@ url: https://www.onpcsb.ro/en/a/126/legislatie
 entry_point: crawler.py
 prefix: ro-onpcsb
 load_statements: true
+ci_test: false
 coverage:
   frequency: never
   start: 2024-08-05
@@ -43,9 +44,6 @@ data:
   format: csv
 tags:
   - list.sanction
-http:
-  user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.2 Safari/605.1.15 (zavod; opensanctions.org)"
-  additional_retry_statuses: [443]
 
 dates:
   formats: ["%m/%d/%Y", "%Y"]
