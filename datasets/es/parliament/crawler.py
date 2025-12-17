@@ -105,12 +105,10 @@ def crawl_deputy(
 
     person = context.make("Person")
     person.id = context.make_id(id, name, party)
-    first_names = item.pop("first_name").split(" ", 1)
     h.apply_name(
         person,
         full=name,
-        first_name=first_names[0],
-        second_name=first_names[1] if len(first_names) > 1 else None,
+        first_name=item.pop("first_name"),
         last_name=item.pop("last_name"),
     )
     birth_date, birth_place = get_birth_date_and_place(context, profile_url)
@@ -154,18 +152,15 @@ def crawl_senator(context: Context, senator_url: str) -> bool:
     datos = doc_xml.find("datosPersonales")
     assert datos is not None
     web_id = datos.findtext("idweb")
-    first_names = h.element_text(
-        h.xpath_elements(datos, "nombre", expect_exactly=1)[0]
-    ).split(" ", 1)
+    first_name = h.element_text(h.xpath_elements(datos, "nombre", expect_exactly=1)[0])
     last_name = datos.findtext("apellidos")
 
     person = context.make("Person")
     # We ignore the type error here because we don't want to rekey
-    person.id = context.make_id(web_id, first_names, last_name)  # type: ignore
+    person.id = context.make_id(web_id, first_name, last_name)  # type: ignore
     h.apply_name(
         person,
-        first_name=first_names[0],
-        second_name=first_names[1] if len(first_names) > 1 else None,
+        first_name=first_name,
         last_name=last_name,
     )
     h.apply_date(person, "birthDate", datos.findtext("fechaNacimiento"))
