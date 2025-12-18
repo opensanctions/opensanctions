@@ -1,5 +1,5 @@
 title: Belgium Members of the Chamber of Representatives
-prefix: be-chamber
+prefix: be-kam
 url: https://www.dekamer.be/kvvcr/showpage.cfm?section=/depute&language=fr&cfm=cvlist54.cfm?legis=56&today=y
 coverage:
   frequency: monthly
