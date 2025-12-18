@@ -7,18 +7,18 @@ coverage:
 load_statements: true
 ci_test: false
 summary: >
-  Formal regulatory and enforcement actions taken by MAS for breaches of laws and regulations 
+  Formal regulatory and enforcement actions taken by MAS for breaches of laws and regulations
   administered by MAS and related matters.
 description: |
-  This dataset contains records of defendants subject to formal enforcement actions by the Monetary 
-  Authority of Singapore (MAS), including both institutions and individuals, for breaches of MAS 
-  regulations and requirements, including market abuse, financial misconduct, and control breaches 
+  This dataset contains records of defendants subject to formal enforcement actions by the Monetary
+  Authority of Singapore (MAS), including both institutions and individuals, for breaches of MAS
+  regulations and requirements, including market abuse, financial misconduct, and control breaches
   related to money laundering.
 publisher:
   name: Monetary Authority of Singapore
   acronym: MAS
   description: |
-    The Monetary Authority of Singapore (MAS) is Singapore’s central bank and integrated 
+    The Monetary Authority of Singapore (MAS) is Singapore’s central bank and integrated
     financial regulator.
   url: https://www.mas.gov.sg/who-we-are
   country: sg
@@ -33,10 +33,20 @@ http:
 dates:
   formats: ["%d %B %Y"]
 
-# assertions:
-#   min:
-#     schema_entities:
-#       LegalEntity: 700
-#   max:
-#     schema_entities:
-#       LegalEntity: 1400
+assertions:
+  min:
+    schema_entities:
+      Person: 170
+      Company: 100
+      Article: 100
+  max:
+    schema_entities:
+      Person: 400
+      Company: 250
+      Article: 250
+
+lookups:
+  type.country:
+    options:
+      - match: Republic of Marshall Islands
+        value: MH
