@@ -236,3 +236,7 @@ lookups:
         value: GW
       - match: Isfahan
         value: IR
+      - match: a) Sudan b) South Sudan
+        values:
+          - Sudan
+          - South Sudan

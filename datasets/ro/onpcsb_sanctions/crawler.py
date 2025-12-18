@@ -87,6 +87,7 @@ def crawl(context: Context):
         url_xpath,
         cache_days=1,
         absolute_links=True,
+        geolocation="RO",
     )
     url = doc.xpath(url_xpath)
     assert len(url) == 1, "Expected exactly one link in the document"
