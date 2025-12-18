@@ -1,0 +1,83 @@
+title: Belgium Members of the Chamber of Representatives
+prefix: be-kam
+url: https://www.dekamer.be/kvvcr/showpage.cfm?section=/depute&language=fr&cfm=cvlist54.cfm?legis=56&today=y
+coverage:
+  frequency: monthly
+  start: 2025-12-03
+load_statements: true
+ci_test: false
+entry_point: crawler.py
+summary: >-
+  Current and recent members of the Belgian Chamber of Representatives, the lower chamber of Parliament.
+description: |
+  This dataset provides information about the current and recent members of the Belgian Chamber of Representatives,
+  including their names, political affiliations, parliamentary terms, and other relevant information.
+tags:
+  - list.pep
+publisher:
+  name: Chambre des représentants
+  name_en: Chamber of Representatives
+  description: |
+    The Chamber of Representatives is the lower house of the Federal Parliament of Belgium. It is
+    composed of 150 members elected by direct universal suffrage. The Chamber plays a key role in the
+    legislative process, representing the Belgian people and overseeing the government.
+  country: be
+  url: https://www.dekamer.be/
+  official: true
+data:
+  url: https://www.dekamer.be/kvvcr/showpage.cfm?section=/depute&language=fr&cfm=cvlist54.cfm?legis=56&today=y
+  format: HTML
+dates:
+  formats: ["%d %B %Y"]
+  months:
+    "january": "janvier"
+    "february": "février"
+    "march": "mars"
+    "april": "avril"
+    "may": "mai"
+    "june": "juin"
+    "july": "juillet"
+    "august": "aout"
+    "september": "septembre"
+    "october": "octobre"
+    "november": "novembre"
+    "december": "décembre"
+
+assertions:
+  min:
+    schema_entities:
+      Person: 620
+      Position: 1
+    country_entities:
+      be: 1
+
+lookups:
+  term_years:
+    options:
+      - match: "56 (2024-2025)"
+        start_date: 2024
+        end_date: 2025
+      - match: "55 (2019-2024)"
+        start_date: 2019
+        end_date: 2024
+      - match: "54 (2014-2019)"
+        start_date: 2014
+        end_date: 2019
+      - match: "53 (2010-2014)"
+        start_date: 2010
+        end_date: 2014
+      - match: "52 (2007-2010)"
+        start_date: 2007
+        end_date: 2010
+      - match: "51 (2003-2007)"
+        start_date: 2003
+        end_date: 2007
+      - match: "50 (1999-2003)"
+        start_date: 1999
+        end_date: 2003
+      - match: "49 (1995-1999)"
+        start_date: 1995
+        end_date: 1999
+      - match: "48 (1991-1995)"
+        start_date: 1991
+        end_date: 1995
