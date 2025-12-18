@@ -5,7 +5,7 @@ from typing import Any
 from zavod import Context, helpers as h
 from zavod.stateful.positions import categorise, EXTENDED_AFTER_OFFICE
 
-CUTOFF = datetime.now() - timedelta(days=EXTENDED_AFTER_OFFICE)
+CUTOFF = datetime.now() - EXTENDED_AFTER_OFFICE
 
 
 def parse_ms_date(ms_date: str | None) -> date | None:

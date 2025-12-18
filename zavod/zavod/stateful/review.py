@@ -2,30 +2,33 @@ from abc import ABC
 from datetime import datetime, timezone
 from hashlib import sha1
 from logging import getLogger
-from typing import Any, Dict, Generic, List, Optional, Type, TypeVar
+from typing import Any, Callable, Dict, Generic, List, Optional, Type, TypeVar
 
 import orjson
-from lxml.html import HtmlElement, fromstring, tostring
+from lxml.html import fromstring, tostring
 from normality import WS, category_replace, slugify, squash_spaces, stringify
 from normality.constants import SLUG_CATEGORIES
-
 from pydantic import BaseModel, JsonValue, PrivateAttr
 from pydantic.json_schema import GenerateJsonSchema, JsonSchemaMode
 from pydantic_core import CoreSchema
 from rigour.mime.types import HTML, PLAIN
 from rigour.text import text_hash
-from sqlalchemy import func, insert, not_, select, update
+from sqlalchemy import TableClause, func, insert, not_, select, update
+from sqlalchemy.dialects import postgresql, sqlite
 from sqlalchemy.engine import Connection
 from sqlalchemy.sql import Select
+from sqlalchemy.dialects.sqlite.dml import Insert as SqliteInsert
+from sqlalchemy.dialects.postgresql.dml import Insert as PostgresqlInsert
 
-from zavod import helpers as h
 from zavod.context import Context
-from zavod.stateful.model import review_table
+from zavod.entity import Entity
+from zavod.stateful.model import review_table, review_entity_table
+from zavod.util import Element
 
 log = getLogger(__name__)
 
 ModelType = TypeVar("ModelType", bound=BaseModel)
-
+Insert = Callable[[TableClause], SqliteInsert | PostgresqlInsert]
 MODIFIED_BY_CRAWLER = "zavod"
 
 
@@ -187,6 +190,31 @@ class Review(BaseModel, Generic[ModelType]):
     def matches_original(self, other: ModelType) -> bool:
         return model_hash(other) == model_hash(self.original_extraction)
 
+    def link_entity(self, context: Context, entity: Entity) -> None:
+        """Adds a link between this review and an entity ID.
+        If the link already exists, this operation succeeds without error."""
+        assert entity.id is not None
+
+        if context.conn.dialect.name == "postgresql":
+            insert: Insert = postgresql.insert
+        else:
+            insert = sqlite.insert
+        ins = (
+            insert(review_entity_table)
+            .values(
+                review_key=self.key,
+                entity_id=entity.id,
+                dataset=self.dataset,
+                last_seen_version=self.last_seen_version,
+            )
+            .on_conflict_do_update(
+                index_elements=["review_key", "entity_id", "dataset"],
+                set_={"last_seen_version": self.last_seen_version},
+            )
+        )
+
+        context.conn.execute(ins)
+
 
 class SourceValue(ABC):
     """
@@ -269,14 +297,14 @@ class JSONSourceValue(SourceValue):
 
 
 class HtmlSourceValue(SourceValue):
-    element: HtmlElement
+    element: Element
     mime_type: str = HTML
 
     def __init__(
         self,
         key_parts: str | List[str],
         label: str,
-        element: HtmlElement,
+        element: Element,
         url: str,
     ):
         """
@@ -298,8 +326,11 @@ class HtmlSourceValue(SourceValue):
         if review.source_mime_type != self.mime_type:
             return False
 
+        # deserialize the stored HTML back into an element so that we can extract
+        # the text content like we do with the supplied element and compare only
+        # the text content.
         seen_element = fromstring(review.source_value)
-        return h.element_text_hash(seen_element) == h.element_text_hash(self.element)
+        return element_text_hash(seen_element) == element_text_hash(self.element)
 
 
 def unicode_slug(parts: str | List[str]) -> Optional[str]:
@@ -509,3 +540,9 @@ def model_hash(data: BaseModel) -> str:
     # Sort dictionary keys and convert to orjson
     raw_data_json = orjson.dumps(sorted_data, option=orjson.OPT_SORT_KEYS)
     return text_hash(raw_data_json.decode("utf-8"))
+
+
+def element_text_hash(el: Element) -> str:
+    text = str(el.xpath("string()", smart_strings=False))
+    text = squash_spaces(text)
+    return text_hash(text)

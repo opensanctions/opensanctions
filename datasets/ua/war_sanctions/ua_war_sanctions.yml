@@ -417,6 +417,18 @@ lookups:
         name: ["КИРИЛЛОВА Елена Александровна", "Надель Елена Александровна"]
       - match: "ГАРНАСЬКО/ГОРНОСЬКО Алина Александровна"
         name: ["ГАРНАСЬКО Алина Александровна", "ГОРНОСЬКО Алина Александровна"]
+      - match: ["PORYVAJ Natalya Vladimirovna / Natasha Korolyova"]
+        name: ["PORYVAJ Natalya Vladimirovna", "Natasha Korolyova"]
+      - match: ["ПОРИВАЙ Наталія Володимирівна / Наташа Корольова"]
+        name: ["ПОРИВАЙ Наталія Володимирівна", "Наташа Корольова"]
+      - match: ["ПОРЫВАЙ Наталья Владимировна / Наташа Королева"]
+        name: ["ПОРЫВАЙ Наталья Владимировна", "Наташа Королева"]
+      - match: ["FEDOROV Kirill/Alconafter"]
+        name: ["FEDOROV Kirill", "Alconafter"]
+      - match: ["ФЕДОРОВ Кирило/Alconafter"]
+        name: ["ФЕДОРОВ Кирило", "Alconafter"]
+      - match: ["ФЕДОРОВ Кирилл/Alconafter"]
+        name: ["ФЕДОРОВ Кирилл", "Alconafter"]
 
   type.date:
     options:

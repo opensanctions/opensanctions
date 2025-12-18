@@ -156,6 +156,12 @@ lookups:
         value: EU-SYR
       - match: 2024/254
         value: EU-GTM
+      - match: 1183/2005
+        value: EU-COD
+      - match: 2016/849
+        value: EU-PRK
+      - match: 2017/2063
+        value: EU-VEN
       # TODO: Remap once it's in the eu_fsf
       - match: 2010/413
         value: null

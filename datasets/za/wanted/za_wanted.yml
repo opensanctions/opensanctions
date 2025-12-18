@@ -6,6 +6,7 @@ coverage:
   frequency: daily
   start: 2024-01-19
 load_statements: true
+ci_test: false # No Zyte in CI
 summary: >
   Wanted persons list of South African Police Service
 description: |

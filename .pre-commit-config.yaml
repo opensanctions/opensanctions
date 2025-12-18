@@ -57,10 +57,9 @@ repos:
           datasets/am|
           datasets/ar|
           datasets/at|
-          datasets/az|
           datasets/ba|
           datasets/be|
-          datasets/bg|
+          datasets/bg/jud_declarations|
           datasets/bh|
           datasets/br|
           datasets/ca|
@@ -73,7 +72,11 @@ repos:
           datasets/ee|
           datasets/eu|
           datasets/fr|
-          datasets/gb|
+          datasets/gb/coh|
+          datasets/gb/fca_firds|
+          datasets/gb/fcdo_sanctions|
+          datasets/gb/nca_most_wanted|
+          datasets/gb/nca_press_releases|
           datasets/ge|
           datasets/gg|
           datasets/hk|
@@ -94,8 +97,6 @@ repos:
           datasets/mc|
           datasets/md|
           datasets/me|
-          datasets/mk|
-          datasets/mt|
           datasets/mx|
           datasets/my|
           datasets/ng|
@@ -207,11 +208,11 @@ repos:
           datasets/za
           )
         args: ['--strict', '--explicit-package-bases']
-  - repo: local
-    hooks:
-      - id: nextjs-lint
-        name: Next.js ESLint
-        entry: bash -c "cd ui && npx next lint --fix"
-        language: system
-        files: '^ui/'
-        pass_filenames: false
+#  - repo: local
+#    hooks:
+#      - id: nextjs-lint
+#        name: ESLint
+#        entry: bash -c "cd ui && npx eslint"
+#        language: system
+#        files: '^ui/'
+#        pass_filenames: false

@@ -15,6 +15,10 @@ description: |
   related to major criminal threats such as money laundering, modern slavery, drug trafficking,
   organised immigration crime, fraud, and asset denial. The dataset aggregates items from multiple
   news categories published under the NCA's [News](https://www.nationalcrimeagency.gov.uk/news/) section.
+
+  Press releases are filtered by topic to focus on organized and financially motivated crime.
+  Articles related to firearm offenses, local drug enforcement, and child exploitation are excluded
+  as they fall outside OpenSanctions' core scope.
 url: https://www.nationalcrimeagency.gov.uk/news/
 publisher:
   name: National Crime Agency
@@ -44,6 +48,7 @@ assertions:
 
 lookups:
   topics:
+    # Topics mapped to null will cause articles to be skipped during processing.
     options:
       - match: Drug trafficking
         value: crime.traffick.drug
@@ -68,11 +73,18 @@ lookups:
       - match: Most wanted
         value: wanted
       - match:
+          - Organised crime partnership
+          - Organised immigration crime
+          - Serious and organised crime
+          - Corporate
+          - civil recovery
+        value: crime
+      # Add new topics here if they're not relevant to OpenSanctions' scope.
+      - match:
           - Border
           - Cannabis
           - Child sexual abuse
           - Child sexual exploitation
-          - civil recovery
           - Corporate
           - County Lines
           - Criminal asset denial
@@ -83,15 +95,10 @@ lookups:
           - Kidnap
           - NSA
           - Operation Venetic
-          - Organised crime partnership
-          - Organised immigration crime
           - people smuggling
-          - Serious and organised crime
           - Specialist capabilities
           - Stovewood
           - Suspicious Activity Reports
-        value: crime
-      - match:
           - Annual Report
           - Brexit
           - Steve Rodhouse

@@ -54,6 +54,10 @@ lookups:
     options:
       - match: Not yet reviewed
         value: null
+  type.name:
+    options:
+      - match: 764
+        value: 764
   aliases:
     options:
       - match: "Jama'atu Ahlis Sunna Lidda'awati Wal-Jihad (JAS, People of the Tradition of the Prophet for Preaching and Striving / Group Committed to Propagating the Prophet's Teachings and Jihad)"
@@ -87,7 +91,7 @@ lookups:
           - Qaedat al-Jihad in the Indian Subcontinent
           - Jamaat Qaidat al-Jihad fi Shibh al-Qarrah al-Hindiyah
           - Organization of the Base of Jihad in the Indian Subcontinent
-      - match: "Ansar al-Dine, Ansar al-Din, Ancar Dine, Ansar ul-Din, Ansar Eddine, Defenders of the Faith, Jum’a Ansar al-din al-salafiya, Harakat Ansar al-Dine, Harakat Ansar al-Din, Ansar Din, Ansar ed dine, Ansar Dine Sud, Ansar Dine katiba (brigade) Khalid Ibn al-Walid."
+      - match: "Ansar al-Dine, Ansar al-Din, Ancar Dine, Ansar ul-Din, Ansar Eddine, Defenders of the Faith, Jum'a Ansar al-din al-salafiya, Harakat Ansar al-Dine, Harakat Ansar al-Din, Ansar Din, Ansar ed dine, Ansar Dine Sud, Ansar Dine katiba (brigade) Khalid Ibn al-Walid"
         aliases:
           - Ansar al-Dine
           - Ansar al-Din
@@ -95,7 +99,7 @@ lookups:
           - Ansar ul-Din
           - Ansar Eddine
           - Defenders of the Faith
-          - Jum’a Ansar al-din al-salafiya
+          - Jum'a Ansar al-din al-salafiya
           - Harakat Ansar al-Dine
           - Harakat Ansar al-Din
           - Ansar Din
@@ -308,3 +312,20 @@ lookups:
           - De Talebano Islami Ghurdzang
           - Islamic Emirate of Afghanistan
           - De Afghanistan Islami Emarat
+      - match: "IS-Mozambique, Islamic State of Iraq and Syria-Mozambique (ISIS-Mozambique), Ansar al-Sunna, Ahl al-Sunna wa al-Jamma (ASWJ), Al-Shabaab, Al-Shabaab in Mozambique, Islamic State Central Africa Province (ISCAP or ISCA), Wilayah Mozambique, Mozambique Province, and Islamic State Mozambique Province (ISMP)"
+        aliases:
+          - IS-Mozambique
+          - Islamic State of Iraq and Syria-Mozambique
+          - ISIS-Mozambique
+          - Ansar al-Sunna
+          - Ahl al-Sunna wa al-Jamma
+          - ASWJ
+          - Al-Shabaab
+          - Al-Shabaab in Mozambique
+          - Islamic State Central Africa Province
+          - ISCAP
+          - ISCA
+          - Wilayah Mozambique
+          - Mozambique Province
+          - Islamic State Mozambique Province
+          - ISMP

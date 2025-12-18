@@ -72,6 +72,8 @@ lookups:
         value: AU-LIBYA
       - match: "Autonomous (Myanmar)"
         value: AU-MYANMAR
+      - match: "Autonomous (Afghanistan)"
+        value: AU-AFGHANISTAN
       - match: "Autonomous (Russia)"
         value: AU-RUSSIA
       - match: "Autonomous (Thematic – Corruption)"
@@ -98,7 +100,7 @@ lookups:
         value: UN-SC1533
       - match: "1591 (Sudan)"
         value: UN-SC1591
-      - match: "1718 (DPRK)"
+      - match: "1718 Committee (DPRK)"
         value: UN-SC1718
       - match:
           - "1970 (Libya) 1973 (Libya)"
@@ -123,6 +125,15 @@ lookups:
           - 2048 (Guinea-Bissau)
           - Guinea-Bissau (2048)
         value: UN-SC2048
+      - match:
+          - 2653 (Haiti)
+          - (2653) Haiti
+        value: UN-SC2653
+      - match:
+          - 1737 (Iran)
+          - 1737 Iran)
+          - 1737 (ran)
+        value: UN-SC1737
   type:
     options:
       - match: Individual
@@ -163,6 +174,18 @@ lookups:
         value: null
       - match: "Branch Office 6: Shop number 237, Shah Zada Market (also known as Sarai Shahzada), Puli Khishti area, Police District 1, Kabul, Afghanistan, Telephone: +93-202-103386, +93-202-101714, 0202-104748, Mobile: +93-797-059059, +93-702-222222, e-mail: helmand_exchange_msp@yahoo.com"
         value: Shop number 237, Shah Zada Market (also known as Sarai Shahzada), Puli Khishti area, Police District 1, Kabul, Afghanistan
+      - match: "a) 3rd Km of Khalaj Road, Seyyedi Street, Mashad, 91638, Iran (Islamic Republic of) _x000D_\nb) Km 4 of Khalaj Road, End of Seyedi Street, Mashad, Iran (Islamic Republic of) _x000D_\nc) P.O. Box 91735-549, Mashad, Iran (Islamic Republic of) _x000D_\nd) Khalaj Rd., End of Seyyedi Alley, Mashad, Iran (Islamic Republic of) _x000D_\ne) Moqan St., Pasdaran St., Pasdaran Cross Rd., Tehran, Iran (Islamic Republic of)"
+        values:
+          - "3rd Km of Khalaj Road, Seyyedi Street, Mashad, 91638, Iran (Islamic Republic of)"
+          - "Km 4 of Khalaj Road, End of Seyedi Street, Mashad, Iran (Islamic Republic of)"
+          - "P.O. Box 91735-549, Mashad, Iran (Islamic Republic of)"
+          - "Khalaj Rd., End of Seyyedi Alley, Mashad, Iran (Islamic Republic of)"
+          - "Moqan St., Pasdaran St., Pasdaran Cross Rd., Tehran, Iran (Islamic Republic of)"
+      - match: "a) Next To Nirou Battery Mfg. Co, Shahid Babaii Expressway, Nobonyad Square, Tehran, Iran (Islamic Republic of) _x000D_\nb) Pasdaran St., P.O. Box 16765, Tehran, 1835, Iran (Islamic Republic of) _x000D_\nc) Babaei Highway - Next to Niru M.F.G, Tehran, Iran (Islamic Republic of)"
+        values:
+          - "Next To Nirou Battery Mfg. Co, Shahid Babaii Expressway, Nobonyad Square, Tehran, Iran (Islamic Republic of)"
+          - "Pasdaran St., P.O. Box 16765, Tehran, 1835, Iran (Islamic Republic of)"
+          - "Babaei Highway - Next to Niru M.F.G, Tehran, Iran (Islamic Republic of)"
   type.date:
     options:
       - match: 01/10/1983,15/10/1983
@@ -187,6 +210,14 @@ lookups:
         value: 1957
       - match: 10/061962
         value: 1962-06-10
+      - match: between 1963 and 1968
+        values:
+          - 1963
+          - 1964
+          - 1965
+          - 1966
+          - 1967
+          - 1968
       - match:
           - 196719611973
           - 2/05/196
@@ -203,3 +234,9 @@ lookups:
     options:
       - match: Guinea-Bisau
         value: GW
+      - match: Isfahan
+        value: IR
+      - match: a) Sudan b) South Sudan
+        values:
+          - Sudan
+          - South Sudan

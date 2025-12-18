@@ -4,12 +4,12 @@ import React from 'react';
 import Col from 'react-bootstrap/Col';
 import { BoxArrowUpRight } from 'react-bootstrap-icons';
 
-import { Review } from '@/lib/db';
+import { Review, ReviewEntity } from '@/lib/db';
 
 import ExtractionView from './ExtractionView';
 import SourceView from './SourceView';
 
-export default function DataView({ entry, dataset, entryKey }: { entry: Review, dataset: string, entryKey: string }) {
+export default function DataView({ entry, dataset, entryKey, relatedEntities }: { entry: Review, dataset: string, entryKey: string, relatedEntities: ReviewEntity[] }) {
   const [searchQuery, setSearchQuery] = React.useState('');
 
   return (
@@ -35,6 +35,7 @@ export default function DataView({ entry, dataset, entryKey }: { entry: Review, 
           sourceMimeType={entry.source_mime_type}
           sourceLabel={entry.source_label}
           searchQuery={searchQuery}
+          relatedEntities={relatedEntities}
         />
       </Col>
       <Col className="d-flex flex-column" style={{ height: '100%' }}>
@@ -44,7 +45,6 @@ export default function DataView({ entry, dataset, entryKey }: { entry: Review, 
           rawData={entry.original_extraction}
           extractedData={entry.extracted_data}
           schema={entry.extraction_schema}
-          //schemaNode={schemaNode}
           accepted={entry.accepted}
           entryKey={entryKey}
           dataset={dataset}

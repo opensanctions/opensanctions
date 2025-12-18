@@ -1,37 +1,74 @@
 "use client";
 
 import { markdown } from "@codemirror/lang-markdown";
-import { openSearchPanel, setSearchQuery, SearchQuery } from "@codemirror/search";
 import CodeMirror, { ReactCodeMirrorRef } from "@uiw/react-codemirror";
-import { EditorView } from "codemirror";
-import { useEffect, useRef } from "react";
+import { yaml } from "@codemirror/lang-yaml";
+import { Decoration, DecorationSet, EditorView, MatchDecorator, ViewPlugin, ViewUpdate } from "@codemirror/view";
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
 import TurndownService from 'turndown';
+import { stringify as stringifyToYaml } from 'yaml';
+
+import { ReviewEntity } from '@/lib/db';
+import styles from "@/styles/Review.module.scss";
 
 type SourceViewProps = {
   sourceValue: string,
   sourceMimeType: string,
   sourceLabel: string,
-  searchQuery: string
+  searchQuery: string,
+  relatedEntities: ReviewEntity[]
 };
 
-export default function SourceView({ sourceValue, sourceMimeType, sourceLabel, searchQuery }: SourceViewProps) {
+function createHighlighter(searchQuery: string) {
+  if (!searchQuery) return [];
 
-  const markdownRef = useRef<ReactCodeMirrorRef>(null);
+  const decorator = new MatchDecorator({
+    regexp: new RegExp(searchQuery, 'gi'),
+    decoration: Decoration.mark({ class: 'cm-searchMatch' })
+  });
+
+  return ViewPlugin.fromClass(class {
+    decorations: DecorationSet;
+
+    constructor(view: EditorView) {
+      this.decorations = decorator.createDeco(view);
+    }
+
+    update(update: ViewUpdate) {
+      this.decorations = decorator.updateDeco(update, this.decorations);
+    }
+  }, {
+    decorations: v => v.decorations
+  });
+}
+
+function makeCodeMirror(title: string, value: string, extensions: any[], searchQuery: string) {
+  const highlighter = createHighlighter(searchQuery);
+  return <CodeMirror
+    value={value}
+    height="100%"
+    width="100%"
+    editable={false}
+    style={{ height: '100%', width: '100%' }}
+    extensions={[
+      EditorView.lineWrapping,
+      ...extensions,
+      ...(highlighter ? [highlighter] : [])
+    ]}
+    title={title}
+    basicSetup={{
+      searchKeymap: true,
+    }}
+  />
+}
+
+export default function SourceView({ sourceValue, sourceMimeType, sourceLabel, searchQuery, relatedEntities }: SourceViewProps) {
 
   const tabs: React.ReactNode[] = [];
   const tab = (title: string, content: React.ReactNode | null = null) => {
     return <Tab key={title} eventKey={title} title={title} >
-      {content ? content : <CodeMirror
-        value={sourceValue}
-        height="100%"
-        width="100%"
-        editable={false}
-        style={{ height: '100%', width: '100%' }}
-        extensions={[EditorView.lineWrapping]}
-        title={sourceLabel}
-      />}
+      {content ? content : makeCodeMirror(title, sourceValue, [], searchQuery)}
     </Tab>
   }
 
@@ -49,28 +86,21 @@ export default function SourceView({ sourceValue, sourceMimeType, sourceLabel, s
     ))
 
     const turndownService = new TurndownService();
-    tabs.push(tab("As Markdown",
-      <CodeMirror
-        ref={markdownRef}
-        value={turndownService.turndown(sourceValue)}
-        height="100%"
-        width="100%"
-        editable={false}
-        style={{ height: '100%', width: '100%' }}
-        extensions={[
-          markdown(),
-          EditorView.lineWrapping,
-          // Allow setting focus to allow opening search panel despite being read-only
-          EditorView.contentAttributes.of({ tabindex: "0" }),
-        ]}
-        title={sourceLabel}
-        basicSetup={{
-          searchKeymap: true,
-        }}
-      />
-    ));
+    tabs.push(
+      tab(
+        "As Markdown",
+        makeCodeMirror("As Markdown", turndownService.turndown(sourceValue), [markdown()], searchQuery)
+      )
+    );
 
     tabs.push(tab("Original HTML"))
+  } else if (sourceMimeType === 'application/json') {
+    tabs.push(
+      tab(
+        "Original JSON as YAML",
+        makeCodeMirror("Original JSON as YAML", stringifyToYaml(JSON.parse(sourceValue)), [yaml()], searchQuery)
+      )
+    );
   } else if (sourceMimeType === 'text/plain') {
     tabs.push(tab("Original Plain Text"))
   } else if (sourceMimeType === 'image/png') {
@@ -79,22 +109,28 @@ export default function SourceView({ sourceValue, sourceMimeType, sourceLabel, s
     tabs.push(tab(sourceMimeType))
   }
 
-  useEffect(() => {
-    if (!!searchQuery && markdownRef.current?.view) {
-      openSearchPanel(markdownRef.current?.view);
-      markdownRef.current?.view?.dispatch({
-        effects: [
-          setSearchQuery.of(new SearchQuery({ search: searchQuery }))
-        ]
-      });
-    }
-  }, [searchQuery]);
-
   return (
     <div className="flex-grow-1 d-flex flex-column source-view" style={{ height: '100%' }}>
       <Tabs className="flex-shrink-0">
         {tabs}
       </Tabs>
+      {relatedEntities.length > 0 ? (
+        <div>
+          <h4 className="h6 pt-2">Related entities</h4>
+          <ul className={styles.relatedEntities}>
+            {relatedEntities.map((entity) => (
+              <li key={entity.entity_id}>
+                <a
+                  href={`https://opensanctions.org/entities/${entity.entity_id}/`}
+                  target="_blank"
+                >
+                  {entity.entity_id}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : <p className="m-2">No entities linked to this review.</p>}
     </div>
   )
 }

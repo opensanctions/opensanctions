@@ -1,10 +1,19 @@
 from zavod import Context, helpers as h
 from zavod.stateful.positions import categorise
+from zavod.extract import zyte_api
 
 
 def crawl(context: Context):
-    doc = context.fetch_html(context.data_url)
-    table = doc.find(".//table[@class='table table-bordered declarations']")
+    table_xpath = ".//table[@class='table table-bordered declarations']"
+    doc = zyte_api.fetch_html(
+        context,
+        context.data_url,
+        table_xpath,
+        cache_days=1,
+        absolute_links=True,
+        geolocation="RO",
+    )
+    table = doc.find(table_xpath)
     rows = table.xpath("./tr")
     for row in rows:
         first_td = row.xpath("./td[1]")

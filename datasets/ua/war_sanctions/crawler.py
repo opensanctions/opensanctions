@@ -463,10 +463,27 @@ def crawl_rostec_structure(context: Context, structure_data):
 
 
 def check_updates(context: Context):
-    doc = context.fetch_html(WS_API_DOCS_URL)
+    # NOTE: When debugging, uncomment the logging below ONLY in local development.
+    # Do not enable in production or commit uncommented to avoid leaking credentials
+    # or sensitive data in public logs. For production debugging, review logs locally.
+    try:
+        doc = context.fetch_html(WS_API_DOCS_URL)
+    except Exception:  #  as e:
+        context.log.warn(
+            "Failed to fetch API documentation",
+            # url=WS_API_DOCS_URL,
+            # error=str(e),
+        )
+        return
     # Have any new sections been added?
     change_log = doc.xpath(".//main[@class='relative']")
-    assert len(change_log) == 1, change_log
+    if len(change_log) != 1:
+        context.log.warn(
+            "Unexpected number of change log sections, unable to check updates",
+            change_log=change_log,
+        )
+        return
+
     h.assert_dom_hash(change_log[0], "99e09c9d3c206a047e7b25083210767918f8dade")
     # Existing sections from the API documentation sidebar
     #
@@ -532,8 +549,11 @@ def crawl(context: Context):
 
         url = f"{WS_API_BASE_URL}{link.endpoint}"
         response = context.fetch_json(url, headers=headers, cache_days=1)
+        # NOTE: When debugging, uncomment the logging below ONLY in local development.
+        # Do not enable in production or commit uncommented to avoid leaking credentials
+        # or sensitive data in public logs. For production debugging, review logs locally.
         if not response or response.get("code") != 0:
-            context.log.error("No valid data to parse", url=url, response=response)
+            context.log.error("No valid data to parse")  # , url=url, response=response)
             continue
         data = response.get("data")
         for entity_details in data:

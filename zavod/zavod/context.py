@@ -530,7 +530,7 @@ class Context:
         for key, value in data.items():
             if key in ignore:
                 continue
-            if value is None or value == "":
+            if value is None or value == "" or value == []:
                 continue
             cleaned[key] = value
         if len(cleaned):

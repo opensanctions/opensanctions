@@ -72,5 +72,9 @@ def crawl(context: Context) -> None:
         )
         context.export_resource(path, CSV, title=context.SOURCE_TITLE)
         with open(path, "r", encoding="utf-8-sig") as fh:
-            for row in csv.DictReader(fh):
+            rows = list(csv.DictReader(fh))
+            if "actifs" in resource_name:
+                # The Chamber is made up of 60 seats.
+                assert len(rows) >= 55, len(rows)
+            for row in rows:
                 crawl_row(context, row)

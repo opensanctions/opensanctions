@@ -53,7 +53,7 @@ def get_date(context: Context, url: str, article_doc: Element) -> str | None:
     # The last <p><strong> in the article body usually contains the date,
     # but some articles don't have a date at all.
     dates = article_doc.xpath(
-        "//div[@itemprop='articleBody']/p[strong][last()]/strong/text()"
+        "//div[@itemprop='articleBody']/p[strong][last()]/strong[last()]/text()"
     )
     assert len(dates) <= 1
     if dates != []:
@@ -84,6 +84,11 @@ def crawl_enforcement_action(context: Context, url: str) -> None:
         res = context.lookup("topics", topic, warn_unmatched=True)
         if res is not None:
             topics.append(res.value)
+
+    # Topics mapped to null will cause articles to be skipped during processing.
+    # It's a way to filter out articles that are not relevant to OpenSanctions' scope.
+    if not topics:
+        return
 
     source_value = HtmlSourceValue(
         key_parts=url,

@@ -1,6 +1,5 @@
 import logging
-from collections import defaultdict
-from typing import Any, Dict, Set, Tuple, cast
+from typing import Tuple
 from urllib.parse import urlencode
 
 import click
@@ -9,7 +8,7 @@ from zavod.logs import configure_logging
 from zavod.meta.dataset import Dataset
 
 
-def petscan(context: Context, category_title: str, depth: int) -> str:
+def petscan(context: Context, category_title: str, language: str, depth: int) -> str:
     petscan_query = {
         "doit": "",
         "depth": depth,
@@ -19,6 +18,7 @@ def petscan(context: Context, category_title: str, depth: int) -> str:
         "search_max_results": 1000,
         "sortorder": "ascending",
         "categories": category_title,
+        "language": language,
     }
     petscan_url = f"https://petscan.wmcloud.org/?{urlencode(petscan_query)}"
     text = context.fetch_text(petscan_url, cache_days=7)
@@ -30,6 +30,7 @@ def find_paths_downwards(
     context: Context,
     category_title: str,
     qid: str,
+    language: str,
     max_depth: int,
     path: Tuple[str, ...] = (),
 ) -> None:
@@ -51,7 +52,7 @@ def find_paths_downwards(
     while cursor is not None or url is None:
         if cursor is not None:
             query["cmcontinue"] = cursor
-        url = f"https://en.wikipedia.org/w/api.php?{urlencode(query)}"
+        url = f"https://{language}.wikipedia.org/w/api.php?{urlencode(query)}"
 
         subcategories_result = context.fetch_json(url, cache_days=7)
         if "continue" in subcategories_result:
@@ -60,20 +61,30 @@ def find_paths_downwards(
             cursor = None
 
         for cat in subcategories_result["query"]["categorymembers"]:
-            subcategory_title = cat["title"].replace("Category:", "").replace(" ", "_")
+            # "Category" prefix is in the wiki language
+            subcategory_title = cat["title"].split(":", 1)[1].replace(" ", "_")
             print(". " * len(path), subcategory_title)
-            petscan_response = petscan(context, subcategory_title, max_depth)
+            petscan_response = petscan(context, subcategory_title, language, max_depth)
             if qid in petscan_response:
                 print(". " * len(path), f"!!! Found {qid} in {subcategory_title} !!!")
-                find_paths_downwards(context, cat["title"], qid, max_depth - 1, path)
+                find_paths_downwards(
+                    context, cat["title"], qid, language, max_depth - 1, path
+                )
 
 
 @click.command()
 @click.option("--debug", is_flag=True, default=False)
 @click.argument("category_title", type=str)
 @click.argument("qid", type=str)
+@click.argument("language", type=str)
 @click.argument("max_depth", type=int, default=3)
-def cli(category_title: str, qid: str, max_depth: int = 3, debug: bool = False) -> None:
+def cli(
+    category_title: str,
+    qid: str,
+    language: str,
+    max_depth: int = 3,
+    debug: bool = False,
+) -> None:
     """Find the nested category paths between a page and a category containing it.
 
     It's useful to understand which specific categories cause a person to be included
@@ -93,7 +104,7 @@ def cli(category_title: str, qid: str, max_depth: int = 3, debug: bool = False) 
     level = logging.DEBUG if debug else logging.INFO
     configure_logging(level=level)
 
-    find_paths_downwards(context, category_title, qid, max_depth)
+    find_paths_downwards(context, category_title, qid, language, max_depth)
 
 
 if __name__ == "__main__":

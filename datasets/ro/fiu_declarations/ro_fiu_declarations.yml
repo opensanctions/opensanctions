@@ -3,14 +3,15 @@ url: https://www.onpcsb.ro/en/a/101/declarations-of-assets-and-interests
 entry_point: crawler.py
 prefix: ro-fiu
 load_statements: true
+ci_test: false
 coverage:
   frequency: weekly
   start: 2024-12-30
 summary: >
   List of the public officials in the Financial Intelligence Unit of Romania (FIU).
 description: |
-  The dataset includes details of public officials in the Financial Intelligence Unit 
-  of Romania required to file asset declarations. These declarations are part of measures 
+  The dataset includes details of public officials in the Financial Intelligence Unit
+  of Romania required to file asset declarations. These declarations are part of measures
   aimed at ensuring transparency and preventing illicit financial activities.
 tags:
   - list.pep
@@ -20,14 +21,17 @@ publisher:
   acronym: ONPCSB
   official: true
   description: |
-    The National Office for Preventing and Combating Money Laundering is Romania's Financial 
-    Intelligence Unit (FIU), an administrative entity responsible for leading, coordinating, 
+    The National Office for Preventing and Combating Money Laundering is Romania's Financial
+    Intelligence Unit (FIU), an administrative entity responsible for leading, coordinating,
     and implementing the country's system to combat money laundering and terrorist financing.
   country: ro
   url: https://www.onpcsb.ro/en/a/115/general-framework
 data:
   url: https://www.onpcsb.ro/en/a/101/declarations-of-assets-and-interests
   format: html
+http:
+  user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.2 Safari/605.1.15 (zavod; opensanctions.org)"
+  additional_retry_statuses: [443]
 
 assertions:
   min:

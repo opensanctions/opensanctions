@@ -9,7 +9,6 @@ Clean, correctly categorised names are important to maximise recall (finding all
 
 While we've done this using simple, explainable logic for the most part, this leaves some noise or incorrectly-categorised names for a number of sources.
 
-
 ## What's a dirty name?
 
 The helper [zavod.helpers.is_name_irregular][] returns true if a name potentially needs cleaning.
@@ -98,6 +97,22 @@ Once a dataset is fully reviewed, you can replace `review_names()` with [zavod.h
 
 - Anything else that doesn't clearly need splitting or categorisation
 - If multiple names are given but not indicated to be aliases, treat them all as `name`.
+
+
+#### middleName, fatherName, motherName
+
+Some sources provide a bunch of names, e.g. name1, name2, ..., name6. A pattern we've seen is that
+
+- name1 and name6, for example, are often reliably firstName and lastName respectively
+- the sequence of names together make up an accurate representation of a full name
+- the names in between might be middle names and patronymics, but we can't reliably categorise them.
+
+The approach we take is
+
+- construct a full name from the sequence (`h.make_name`) and add to the `name` property.
+- assign `firstName` and `lastName`
+- drop the remaining values on the principle that matching on those is supported via the full name, and dropping the name parts is better than mis-categorising them.
+
 
 #### Splitting
 

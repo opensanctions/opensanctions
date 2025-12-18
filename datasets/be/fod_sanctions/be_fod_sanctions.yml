@@ -49,20 +49,27 @@ dates:
 assertions:
   min:
     schema_entities:
-      Person: 3500
-      Organization: 950
+      Person: 4000
+      Organization: 2100
+      Address: 1150
       Vessel: 1
   max:
     schema_entities:
-      Person: 8300
-      Organization: 2234
+      Person: 9400
+      Organization: 5000
+      Address: 2750
       Vessel: 4
 lookups:
   subject_type:
+    lowercase: true
     options:
-      - match: person
+      - match:
+          - person
+          - P
         value: Person
-      - match: enterprise
+      - match:
+          - enterprise
+          - E
         value: Organization
   schema_override:
     options:
