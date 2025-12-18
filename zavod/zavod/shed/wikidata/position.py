@@ -194,9 +194,31 @@ def wikidata_position(
     real_topics.discard("role.pep")
     if "gov.muni" in real_topics:
         real_topics.discard("gov.head")
-
-    if "gov.muni" in real_topics and MUNI_COUNTRIES.isdisjoint(position.countries):
-        return None
+        if MUNI_COUNTRIES.isdisjoint(position.countries):
+            return None
 
     position.set("topics", real_topics)
     return position
+
+
+def position_holders(client: WikidataClient, item: Item) -> Set[str]:
+    """Find persons who have held the position defined by `item`."""
+    query = f"""
+    SELECT ?person WHERE {{
+        ?person wdt:P39 wd:{item.id} .
+        ?person wdt:P31 wd:Q5
+    }}
+    """
+    persons: Set[str] = set()
+    response = client.query(query)
+    for result in response.results:
+        person_qid = result.plain("person")
+        if person_qid is not None:
+            persons.add(person_qid)
+
+    for claim in item.claims:
+        if claim.property == "P1308":  # officeholder
+            if claim.qid is not None:
+                persons.add(claim.qid)
+
+    return persons
