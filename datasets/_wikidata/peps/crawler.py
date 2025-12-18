@@ -8,7 +8,7 @@ from nomenklatura.wikidata import WikidataClient, SparqlValue
 from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
-from zavod.stateful.positions import PositionCategorisation, categorise
+from zavod.shed.wikidata.position import wikidata_position
 
 DECISION_NATIONAL = "national"
 
@@ -40,7 +40,7 @@ def truncate_date(text: Optional[str]) -> Optional[str]:
     return text[:10]
 
 
-def pick_country(*qids: List[str]) -> Optional[str]:
+def pick_country(*qids: str) -> Optional[str]:
     for qid in qids:
         territory = get_territory_by_qid(qid)
         if territory is not None and territory.ftm_country is not None:
@@ -50,7 +50,6 @@ def pick_country(*qids: List[str]) -> Optional[str]:
 
 def crawl_holder(
     context: Context,
-    categorisation: PositionCategorisation,
     position: Entity,
     holder: Dict[str, str],
 ) -> None:
@@ -75,6 +74,8 @@ def crawl_holder(
     entity.add("birthDate", birth_date, original_value=holder.get("person_birth"))
     entity.add("deathDate", holder.get("person_death"))
 
+    position_topics = position.get("topics")
+    is_diplomat = "role.diplo" in position_topics
     occupancy = h.make_occupancy(
         context,
         entity,
@@ -82,8 +83,7 @@ def crawl_holder(
         False,
         end_date=end_date,
         start_date=start_date,
-        categorisation=categorisation,
-        propagate_country=("role.diplo" not in categorisation.topics),
+        propagate_country=not is_diplomat,
     )
     if not occupancy:
         return
@@ -274,7 +274,7 @@ def query_position_classes(context: Context, client: WikidataClient) -> List[Pos
     classes: List[Position] = []
     for binding in response.results:
         qid = binding.plain("class")
-        if not is_qid(qid):
+        if qid is None or not is_qid(qid):
             continue
         label = binding.plain("classLabel")
         res = context.lookup("position_subclasses", qid)
@@ -287,35 +287,29 @@ def query_position_classes(context: Context, client: WikidataClient) -> List[Pos
 
 
 def crawl(context: Context):
-    seen_positions = set()
+    seen_positions: Set[str] = set()
     cache_days = context.dataset.config.get("cache_days", 14)
     client = WikidataClient(context.cache, context.http, cache_days=cache_days)
     position_classes = query_position_classes(context, client)
 
     for country in all_countries():
-        include_local = False
         context.log.info(f"Crawling country: {country.qid} ({country.label})")
-
-        if country.code == "us":
-            include_local = True
 
         for wd_position in query_positions(context, client, position_classes, country):
             if wd_position.qid in seen_positions:
                 continue
 
-            position = h.make_position(
-                context,
-                wd_position.label,
-                country=wd_position.country_codes,
-                wikidata_id=wd_position.qid,
-            )
-            categorisation = categorise(context, position, is_pep=None)
-            if not categorisation.is_pep:
+            seen_positions.add(wd_position.qid)
+
+            pos_item = client.fetch_item(wd_position.qid)
+            if pos_item is None:
                 continue
-            if not include_local and ("gov.muni" in categorisation.topics):
+
+            position = wikidata_position(context, client, pos_item)
+            if position is None:
                 continue
 
             for holder in query_position_holders(context, client, wd_position):
-                crawl_holder(context, categorisation, position, holder)
+                crawl_holder(context, position, holder)
             seen_positions.add(wd_position.qid)
             context.flush()
