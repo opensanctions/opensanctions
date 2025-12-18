@@ -277,6 +277,7 @@ lookups:
           - The Gorev Foundation
           - JSC Military Industrial Corporation NPO Mashinostroyenia
           - Rosatom
+          - rosatom
           - Rostec
           - JSC INTEGRAL
           - Convoy Africa SARL
@@ -312,17 +313,166 @@ lookups:
           - PJSC Rosneft
           - Kala Limited
           - National Iranian Oil Company
+          - OOO Mercury Renaissance
+          - Hypercore Ltd
+          - Fajr Aviation Composite Industries
+          - Ghods/Qods Aviation Industry
+          - Iran Helicopter Support and Renewal(IHSRC)/PANHA
+          - AIS Iran Co
+          - Electronic Component Industries (ECI)
+          - Iran Electronics Industries Co (Saga)
+          - Iranian Electronic Science & Research Institute
+          - Isfahan Optics Industry (SAPA)
+          - Shiraz Electronics Industries (Sara Shiraz)
+          - The Institute of Isayran Co
+          - Telecommunication Industries of Iran (SAMA)
+          - Electronic Component Industries (ECI)
+          - Security Industry Information Space (SASTOBA)
+          - KAZSTANEX LLP
+          - UZSTANEX LLC
+          - Kalashnikov Concern JSC
+          - Belneftekhim
+          - Belorusneft
+          - CJSC Belarusian Oil Company
+          - Brest branch
+          - Gomel branch
+          - Grodno branch
+          - Mogilev branch
+          - Vitsebsk branch
+          - Adipati Agricultural Produce Trading Ltd
+          - ROSTANEX
+          - KAZSTANEX LLP
+          - UZSTANEX LLC
+          - HUSTLE SHIFT LLC
+          - EMKO-RUS
+          - AVTONOMNAYA NEKOMMERCHESKAYA
+          - OBRAZOVANIYA UCHEBNYI TSENTR UNIMATIK
+          - TSENTR MOLODEZHNOGO INNOVATSIONNOGO TVORCHESTVA
+          - UNIMATIK-MSK
+          - ALTEGRITY LLC
+          - Islamic Revolutionary Guards Corps
+          - Mehr Bank
+          - Aeza International Ltd
+          - Ahlone International Port Terminal 1
+          - Amber International Company Ltd.
+          - Ammunition Industries Group (AMIG)
+          - Ammunition and Metallurgy Group
+          - Anhydrous Ethanol Plant (Taungzinaye)
+          - Ansar Bank
+          - Aung Myint Moh Min Insurance Company Ltd.
+          - Aung Thitsa Oo General Insurance Company Limited
+          - Aung Thitsa Oo Life Insurance Company Limited
+          - Aung Zayya Oo Co., Ltd.
+          - BIC Bank
+          - Bagwa Gone Company Ltd.
+          - Bagwa Gone Gems Company Ltd.
+          - Bandoola Transportation Company Inc
+          - Berger Paints Manufacturing Limited
+          - Bo Aung Kyaw Terminal
+          - Cannery
+          - Cargo Link Petroleum Logistics Company Limited
+          - Cement plant (Myaingglay)
+          - Chernomorneftegaz
+          - Coal Mine (Maw Taung)
+          - Coal Mine and Power Plant (Mai Khot)
+          - Dagon Beverages Company Ltd.
+          - Dagon FC Company Ltd.;
+          - Dagon Rum Factory (Shwe Pyi Thar)
+          - Defense Industries Organisation (DIO)
+          - Disposable Syringe Factory (Hwambi)
+          - Electro Sanam Company
+          - Ettehad Technical Group
+          - Fajr Industrial Group
+          - Feodosia Trade Port
+          - Galvanized Iron Sheet Factory (Than Hlyin)
+          - Gas plant (Botahthaung)
+          - Gas plant (Mandalay)
+          - Gems Extraction Mine (Mine Shu – Loi Saung Htauk)
+          - Glass Factory (Than Hlyin)
+          - Golden Majestic Star Mobile Company Limited
+          - Gosgidrographia and Port-Terminal
+          - Granite Mine and Processing Plant (Balin)
+          - Gypsum Mine and Transportation Plant (Htone Bo)
+          - High Tension Steel Bolts, Nuts and Washers Manufacturing Plant (Ywama)
+          - Hlaing Inland Terminal and Logistics Co., Ltd.
+          - Hteedan Port (Kyeemyindine)
+          - IST Ltd TRADE DEVELOPMENT
+          - Indoor Skydiving
+          - Indsutrial Factories of Precision (IFP)
+          - Innwa Bank Ltd
+          - Jade Extraction Mine (Lone Khin – Hpakan)
+          - Joza Industrial Co
+          - Kan Thar Yar International Specialist Hospital
+          - Kayah State Mineral Production Company Ltd
+          - Kerch Ferry Crossing
+          - Kerch Fish Port
+          - Kerch Trade Port
+          - LLC UNIMATICENVERSION
+          - Marble mine and processing plant (Mandalay)
+          - Myanmar Economic Corporation Telecommunication (MECTel)
+          - Myanmar Imperial Jade (Gems & Jewellery) Co., Ltd.
+          - Myanmar Land and Development Ltd
+          - Myanmar Mobile Money Services Company Ltd.
+          - Myanmar Rubber Wood Co., Ltd.
+          - Myanmar Ruby Enterprise (Gems & Jewellery) Co., Ltd.
+          - Myanmar Tharkaung Finance Co., Ltd.
+          - Myawaddy Agricultural Services Col, Ltd
+          - Myawaddy Bank Ltd.
+          - Myawaddy Clean Drinking Water Service
+          - Myawady Football Club
+          - Mytel Wallet International Myanmar Company
+          - Nawadae Hotel and Tourism Ltd.
+          - Nay Pyi Taw Ye Pyar Drinking Water Plant (Naypyitaw)
+          - Ngwe Pin Lei Livestock Breedings and Fisheries Co., Ltd.
+          - Ngwe Pin Lei Premium Marine Products Co., Ltd.
+          - Ngwe Pinlae Industrial Zone
+          - Oxygen Plant (Mindama)
+          - Paper Factory (Myainggalay)
+          - Printing Factory (Yangon)
+          - Pyinmabin Industrial Zone
+          - Refractory Plant (Aung Lan)
+          - Rice Mills and Rice Storage (Hteedan Port)
+          - Safety Equipment Procurement (SEP)
+          - Sanam Industrial Group
+          - Sandaku Myint Mo Co., Ltd.
+          - Shahid Basir Industry
+          - Ship Breaking Yard (Thilawa)
+          - Shwe Gandamar International Trading Ltd
+          - Shwe Innwa Gems
+          - Star High Co., Ltd.
+          - Star High Group Company Ltd
+          - Sugar Mill (Du Yin Gabo)
+          - Tea factory (Kan Yeik Thar)
+          - Tea powder and tea mix factory (Pyinmabin)
+          - Tristar Tyre Manufacturing Company Ltd
+          - Tyre Retreading Plant (Ywama)
+          - Virgin Coconut Oil Factory (Pathein)
+          - Wolfram Mine (Dawei)
+          - Ya Mahdi Industries Group
+          - Yalta Trade Port
+          - Yevpatoria Trade Port
+          - Zheng Heng (Cambodia) Co., Ltd
+          - ZhengHeng Development Group
         value: SAME
       - match: Subsidiary of the Organisation for Technological Industries (OTI) and therefore the Syrian Ministry of Defence
         values:
           - Organisation for Technological Industries (OTI)
           - Syrian Ministry of Defence
-      - match: JSC “Krasnodargastroy”. JSC “Lengazpetstroy”. JSC “Volgogaz”. LLC”NGKM”
-        values:
-          - JSC “Krasnodargastroy”
-          - JSC “Lengazpetstroy”
-          - JSC “Volgogaz”
-          - LLC ”NGKM”
+      - match: JSC 'Krasnodargastroy'
+        value: JSC “Krasnodargastroy”
+      - match: JSC 'Lengazpetstroy'
+        value: JSC “Lengazpetstroy”
+      - match: JSC 'Volgogaz'
+        value: JSC “Volgogaz”
+      - match: LLC'NGKM'
+        value: LLC ”NGKM”
+
+      # - match: JSC “Krasnodargastroy”. JSC “Lengazpetstroy”. JSC “Volgogaz”. LLC”NGKM”
+      #   values:
+      #     - JSC “Krasnodargastroy”
+      #     - JSC “Lengazpetstroy”
+      #     - JSC “Volgogaz”
+      #     - LLC ”NGKM”
       - match: (1) BIC Bank (2) Zheng Heng (Cambodia) Co., Ltd (3) ZhengHeng Development Group
         values:
           - BIC Bank
@@ -345,6 +495,8 @@ lookups:
           - Aeroflot Aviation School, Private Professional Educational Organisation
           - Aeroflot – Finance Limited Liability Company
           - A-Technics Limited Liability Company
+      - match: M Babaei Indsutries
+        value: M Babaei Industries
       - match: Electro Sanam Company. Ettehad Technical Group. Fajr Industrial Group. Indsutrial Factories of Precision (IFP). Joza Industrial Co. M Babaei Indsutries. Machinery. Safety Equipment Procurement (SEP). Sanam Industrial Group. Shahid Bagheri Industrial Group (SBIG). Shahid Hemmat Industrial Group (SHIG). Ya Mahdi Industries Group
         values:
           - Electro Sanam Company
@@ -366,6 +518,58 @@ lookups:
           - Iran Aircraft Manufacturing Company
           - Iran Helicopter Support and Renewal (IHSRC)
           - Shahid Basir Industry
+      # TODO: fix alternate spellings
+      - match: "ASHOK (Gems and Jewellery) Co., Ltd. (alternate spelling: Thawka)"
+        values:
+          - ["ASHOK (Gems and Jewellery) Co., Ltd.", "Thawka"]
+      - match: "Cancri (Gems and Jewellery) Co., Ltd. (alternate spelling: Phu Sha Star)"
+        values:
+          - ["Cancri (Gems and Jewellery) Co., Ltd.", 'Phu Sha Star']
+      - match: "Da Na Theiddi Kyal (Jewellery) Co., Ltd. (alternate spelling: Da Na Theiddihi Star and Danatheidi Star (Gems and Jewellery) Co., Ltd)"
+        values:
+          - ["Da Na Theiddi Kyal (Jewellery) Co., Ltd.", 'Da Na Theiddihi Star and Danatheidi Star (Gems and Jewellery) Co., Ltd']
+      - match: "Du Won Kyal (Jewellery) Co., Ltd. (alternate spelling: Du Won Star and Du Won Star (Gems & Jewellery) Co., Ltd.)"
+        values:
+          - ["Du Won Kyal (Jewellery) Co., Ltd.", 'Du Won Star and Du Won Star (Gems & Jewellery) Co., Ltd.']
+      - match: "Hawk Star (Gems and Jewellery) Co., Ltd. (alternate spellings: Thine Ngat Kyal (Jewellery) Co., Ltd. and Thein Nget Star)"
+        values:
+          - ["Hawk Star (Gems and Jewellery) Co., Ltd.", "Thine Ngat Kyal (Jewellery) Co., Ltd.", "Thein Nget Star"]
+      - match: "Inndagaw Industrial Complex; Kanpauk Oil Palm Estate and Palm Oil Mill Project (KOPP)"
+        values:
+          - "Inndagaw Industrial Complex"
+          - "Kanpauk Oil Palm Estate and Palm Oil Mill Project (KOPP)"
+      - match: "Iran Aircraft Industries (ACI)/SAHA/SIA"
+        values:
+          - ["Iran Aircraft Industries (ACI)", "SAHA", "SIA"]
+      - match: Iran Aircraft Manufacturing Company/HESA/HASA
+        values:
+          - ["Iran Aircraft Manufacturing Company", "HESA", "HASA"]
+      - match: "Kone Yar Thi Star (alternate spelling: Aquarii (Gems & Jewellery) Co., Ltd."
+        values:
+          - ["Kone Yar Thi Star", "Aquarii (Gems & Jewellery) Co., Ltd."]
+      - match: "Lann Pyi Marine Company Ltd; Larbathakedi Micro Finance Service Association Inc."
+        values:
+          - "Lann Pyi Marine Company Ltd"
+          - "Larbathakedi Micro Finance Service Association Inc."
+      - match: "Lyrae (Gems and Jewellery) Co., Ltd. (alternate spelling: Saung Tar Yar Star)"
+        values:
+          - ["Lyrae (Gems and Jewellery) Co., Ltd.", "Saung Tar Yar Star"]
+      - match: "Mon Hsu Jewellery Co., Ltd. (alternate spelling: Mine Shu)"
+        values:
+          - ["Mon Hsu Jewellery Co., Ltd.", "Mine Shu"]
+      - match: "Myawaddy Trading Ltd; Myawaddy Travels and Tours Co., Ltd."
+        values:
+          - "Myawaddy Trading Ltd"
+          - "Myawaddy Travels and Tours Co., Ltd."
+      - match: "Pone Nyet (Gems and Jewellery) Co., Ltd. (alternate spelling: Pone Nyat and One Nyat (Jewellery) Co., Ltd.)"
+        values:
+          - ["Pone Nyet (Gems and Jewellery) Co., Ltd.", "Pone Nyat and One Nyat (Jewellery) Co., Ltd."]
+      - match: "Sabai (Jewellery) Co., Ltd. (alternate spellings: Sabae (Gems and Jewellery) Co., Ltd., and Jasmine)"
+        values:
+          - ["Sabai (Jewellery) Co., Ltd.", "Sabae (Gems and Jewellery) Co., Ltd.", "Jasmine"]
+      - match: "Seik Ta Ya Kyal (Jewellery) Co., Ltd. (alternate spellings: Si Tra Star, Seik Tra Star and Seiktra Star (Gems and Jewellery) Co., Ltd.)"
+        values:
+          - ["Seik Ta Ya Kyal (Jewellery) Co., Ltd.", "Si Tra Star", "Seik Tra Star", "Seiktra Star (Gems and Jewellery) Co., Ltd."]
       - match: "Adipati Agricultural Produce Trading Ltd. ASHOK (Gems and Jewellery) Co., Ltd. (alternate spelling: Thawka). Aung Thitsa Oo General Insurance Company Limited. Aung Thitsa Oo Life Insurance Company Limited. Bandoola Transportation Company Inc. Berger Paints Manufacturing Limited. Bo Aung Kyaw Terminal. Cancri (Gems and Jewellery) Co., Ltd. (alternate spelling: Phu Sha Star). Da Na Theiddi Kyal (Jewellery) Co., Ltd. (alternate spelling: Da Na Theiddihi Star and Danatheidi Star (Gems and Jewellery) Co., Ltd). Du Won Kyal (Jewellery) Co., Ltd. (alternate spelling: Du Won Star and Du Won Star (Gems & Jewellery) Co., Ltd.). Hawk Star (Gems and Jewellery) Co., Ltd. (alternate spellings: Thine Ngat Kyal (Jewellery) Co., Ltd. and Thein Nget Star). Hlaing Inland Terminal and Logistics Co., Ltd.. Inndagaw Industrial Complex; Kanpauk Oil Palm Estate and Palm Oil Mill Project (KOPP). Kayah State Mineral Production Company Ltd. Kone Yar Thi Star (alternate spelling: Aquarii (Gems & Jewellery) Co., Ltd.. Lann Pyi Marine Company Ltd; Larbathakedi Micro Finance Service Association Inc.. Lyrae (Gems and Jewellery) Co., Ltd. (alternate spelling: Saung Tar Yar Star). Mon Hsu Jewellery Co., Ltd. (alternate spelling: Mine Shu). Myanmar Imperial Jade (Gems & Jewellery) Co., Ltd.. Myanmar Land and Development Ltd. Myanmar Rubber Wood Co., Ltd.. Myanmar Ruby Enterprise (Gems & Jewellery) Co., Ltd.. Myanmar Tharkaung Finance Co., Ltd.. Myawaddy Agricultural Services Col, Ltd. Myawaddy Bank Ltd.. Myawaddy Clean Drinking Water Service. Myawaddy Trading Ltd; Myawaddy Travels and Tours Co., Ltd.. Myawady Football Club. Nawadae Hotel and Tourism Ltd.. Ngwe Pin Lei Livestock Breedings and Fisheries Co., Ltd.. Ngwe Pin Lei Premium Marine Products Co., Ltd.. Ngwe Pinlae Industrial Zone. Pone Nyet (Gems and Jewellery) Co., Ltd. (alternate spelling: Pone Nyat and One Nyat (Jewellery) Co., Ltd.). Pyinmabin Industrial Zone. Sabai (Jewellery) Co., Ltd. (alternate spellings: Sabae (Gems and Jewellery) Co., Ltd., and Jasmine). Seik Ta Ya Kyal (Jewellery) Co., Ltd. (alternate spellings: Si Tra Star, Seik Tra Star and Seiktra Star (Gems and Jewellery) Co., Ltd.). Shwe Gandamar International Trading Ltd. Shwe Innwa Gems"
         values:
           - Adipati Agricultural Produce Trading Ltd.
@@ -377,8 +581,8 @@ lookups:
           - Bo Aung Kyaw Terminal
           - Cancri (Gems and Jewellery) Co., Ltd.
           - Phu Sha Star
-          - Da Na Theiddi Kyal (Jewellery) Co., Ltd.
-          - Da Na Theiddihi Star and Danatheidi Star (Gems and Jewellery) Co., Ltd
+          # - Da Na Theiddi Kyal (Jewellery) Co., Ltd.
+          # - Da Na Theiddihi Star and Danatheidi Star (Gems and Jewellery) Co., Ltd
           - Du Won Kyal (Jewellery) Co., Ltd.
           - Du Won Star and Du Won Star (Gems & Jewellery) Co., Ltd.
           - Hawk Star (Gems and Jewellery) Co., Ltd.
@@ -420,6 +624,38 @@ lookups:
           - Seiktra Star (Gems and Jewellery) Co., Ltd.
           - Shwe Gandamar International Trading Ltd.
           - Shwe Innwa Gems
+      - match: Agro Pack Co., Ltd.; Aung Myint Mo Min Securities
+        values:
+          - Agro Pack Co., Ltd.
+          - Aung Myint Mo Min Securities
+      - match: Container Transport and Port Clearance Yard (Ywama) Cotton Ginning Factory (Myitthar)
+        values:
+          - Container Transport and Port Clearance Yard (Ywama)
+          - Cotton Ginning Factory (Myitthar)
+      - match: Dagon Dairy Farm, Dairy Factory and Cannery (Pyinmabin)
+        values:
+          - Dagon Dairy Farm
+          - Dairy Factory and Cannery (Pyinmabin)
+      # - match: GSM Mobil Phone (438,000) Allocation (Ayeyarwadi Division)
+      #   values:
+      #     - GSM Mobil Phone (438,000) Allocation (Ayeyarwadi Division)
+      - match: Myanmar Sigma Cable Wire Factory (Hlaing Thar Yar);
+        values:
+          - Myanmar Sigma Cable Wire Factory (Hlaing Thar Yar)
+      - match: Nan Myaing Coffee (Pyin Oo Lwin); Okkala Golf Resort
+        values:
+          - Nan Myaing Coffee (Pyin Oo Lwin)
+          - Okkala Golf Resort
+      - match: No. 1 Steel Rolling Mill in Kyauk Swae Kyowe on site of Pinpet Iron Ore Mine
+        values:
+          - No. 1 Steel Rolling Mill in Kyauk Swae Kyowe
+          - Pinpet Iron Ore Mine
+      - match: No. 2 Steel Mill and Fabrication Shop (Myaungdagar)
+        values:
+          - No. 2 Steel Mill and Fabrication Shop (Myaungdagar)
+      - match: No. 3 Steel Mill 3 (Ywama)
+        values:
+          - No. 3 Steel Mill 3 (Ywama)
       - match: Agro Pack Co., Ltd.; Aung Myint Mo Min Securities. Ahlone International Port Terminal 1. Amber International Company Ltd.. Anhydrous Ethanol Plant (Taungzinaye). Aung Myint Moh Min Insurance Company Ltd.. Aung Zayya Oo Co., Ltd.. Bagwa Gone Company Ltd.. Bagwa Gone Gems Company Ltd.. Cannery. Cement plant (Myaingglay). Coal Mine (Maw Taung). Coal Mine and Power Plant (Mai Khot). Container Transport and Port Clearance Yard (Ywama) Cotton Ginning Factory (Myitthar). Dagon Beverages Company Ltd.. Dagon Dairy Farm, Dairy Factory and Cannery (Pyinmabin). Dagon FC Company Ltd.;. Dagon Rum Factory (Shwe Pyi Thar). Disposable Syringe Factory (Hwambi). Galvanized Iron Sheet Factory (Than Hlyin). Gas plant (Botahthaung). Gas plant (Mandalay). Gems Extraction Mine (Mine Shu – Loi Saung Htauk). Glass Factory (Than Hlyin). Golden Majestic Star Mobile Company Limited. Granite Mine and Processing Plant (Balin). GSM Mobil Phone (438,000) Allocation (Ayeyarwadi Division). Gypsum Mine and Transportation Plant (Htone Bo). High Tension Steel Bolts, Nuts and Washers Manufacturing Plant (Ywama). Hteedan Port (Kyeemyindine). Indoor Skydiving. Innwa Bank Ltd. Jade Extraction Mine (Lone Khin – Hpakan). Kan Thar Yar International Specialist Hospital. Marble mine and processing plant (Mandalay). Myanmar Economic Corporation Telecommunication (MECTel). Myanmar Mobile Money Services Company Ltd.. Myanmar Mobile Money Services Company Ltd.;. Myanmar Sigma Cable Wire Factory (Hlaing Thar Yar);. Mytel Wallet International Myanmar Company. Nan Myaing Coffee (Pyin Oo Lwin); Okkala Golf Resort. Nay Pyi Taw Ye Pyar Drinking Water Plant (Naypyitaw). No. 1 Steel Rolling Mill in Kyauk Swae Kyowe on site of Pinpet Iron Ore Mine. No. 2 Steel Mill and Fabrication Shop (Myaungdagar). No. 3 Steel Mill 3 (Ywama). Oxygen Plant (Mindama). Paper Factory (Myainggalay). Printing Factory (Yangon). Refractory Plant (Aung Lan). Remote sensing ground station. Rice Mills and Rice Storage (Hteedan Port). Sandaku Myint Mo Co., Ltd.. Ship Breaking Yard (Thilawa). Star High Co., Ltd.. Star High Group Company Ltd. Sugar Mill (Du Yin Gabo). Sugar mill (Kanbalu). Sugar Mill (Kanhla). Tea factory (Kan Yeik Thar). Tea powder and tea mix factory (Pyinmabin). Tristar Tyre Manufacturing Company Ltd. Tyre Retreading Plant (Ywama). Virgin Coconut Oil Factory (Pathein). Wolfram Mine (Dawei)
         values:
           - Agro Pack Co., Ltd.
@@ -503,7 +739,7 @@ lookups:
         value: Libyan Investment Authority
       - match: Libyan subsidiary of the Central Bank of Libya.
         value: Central Bank of Libya
-      - match: (1) Basij Cooperative Foundation (BCF) (2) Bank Sepah
+      - match: Basij Cooperative Foundation (BCF)Bank Sepah
         values:
           - Basij Cooperative Foundation (BCF)
           - Bank Sepah
@@ -553,7 +789,7 @@ lookups:
           - Belneftekhim
           - Belorusneft
           - CJSC Belarusian Oil Company
-      - match: (1) CHEAZ Group (2) TsUP CHEAZ (3) ChEAZ-ELPRY (4) CHEAZ-Siberia (5) ERA Engineering (6) IZVA
+      - match: CHEAZ Group;  TsUP CHEAZ; ChEAZ-ELPRY; CHEAZ-Siberia; ERA Engineering ; IZVA
         values:
           - CHEAZ Group
           - TsUP CHEAZ
@@ -568,7 +804,7 @@ lookups:
           - Cham Holding (parent)
           - Cham Holdings (parent)
         value: Cham Holdings
-      - match: (1) Kurort Livadiia (2) OOO Analitichesky Tsentr Katekhon (3) OOO TSARGRAD Media (4) OOO Imenie TSARGRAD
+      - match: Kurort Livadiia; OOO Analitichesky Tsentr Katekhon; OOO TSARGRAD Media; OOO Imenie TSARGRAD
         values:
           - Kurort Livadiia
           - OOO Analitichesky Tsentr Katekhon
@@ -585,6 +821,9 @@ lookups:
         values:
           - Defense Industries Organisation (DIO)
           - Ministry of Defence and Armed Force Logistics (MODAFL)
+      - match: Chernomorneftegaz (also subject to Sanctions)
+        values:
+          - Chernomorneftegaz
       - match: Chernomorneftegaz (also subject to Sanctions). Feodosia Trade Port. Gosgidrographia and Port-Terminal. Kerch Ferry Crossing. Kerch Fish Port. Kerch Trade Port. Yalta Trade Port. Yevpatoria Trade Port
         values:
           - Chernomorneftegaz
@@ -606,7 +845,7 @@ lookups:
           - Shiraz Electronics Industries (Sara Shiraz)
           - Telecommunication Industries of Iran (SAMA)
           - The Institute of Isayran Co
-      - match: Agropromyshlenny Kompleks Voronezhski OOO Anninskii Elevator OOO Auditkonsalt OOO Belinveststroi OOO Dve Stolitsy OOO Kontrakt OOO Ladoga OOO Nekommercheskaya Organizatsiya Fond Khimicheskoe Razoruzhenie I Konversiya Azovskaya Zernovaya Kompaniya OOO Ekspluatiruyushchaya Kompaniya Tsentr OOO
+      - match: Agropromyshlenny Kompleks Voronezhski OOO, Anninskii Elevator OOO, Auditkonsalt OOO, Belinveststroi OOO, Dve Stolitsy OOO, Kontrakt OOO, Ladoga OOO, Nekommercheskaya Organizatsiya Fond Khimicheskoe Razoruzhenie I Konversiya
         values:
           - Agropromyshlenny Kompleks Voronezhski OOO
           - Anninskii Elevator OOO
@@ -616,16 +855,20 @@ lookups:
           - Kontrakt OOO
           - Ladoga OOO
           - Nekommercheskaya Organizatsiya Fond Khimicheskoe Razoruzhenie I Konversiya
+      - match: Azovskaya Zernovaya Kompaniya OOO Ekspluatiruyushchaya Kompaniya Tsentr OOO
+        values:
           - Azovskaya Zernovaya Kompaniya OOO
           - Ekspluatiruyushchaya Kompaniya Tsentr OOO
-      - match: (1) OOO SCF Arctic (2) SCF Management Services (Cyprus) Ltd (3) PAO Novoship; (4) SCF management Services (St. Petersburg) Ltd (5) Sovcomflot (UK) Ltd (6) SCF Management Services (St. Petersburg) Ltd  subdivision in Yuzhno-Sakhalinsk (7) Sovcomflot (Cyprus) Ltd; (8) SCF Management Services (Novorossiysk) Ltd (9) SCF GEO
+      - match: OOO SCF Arctic; SCF Management Services (Cyprus) Ltd; PAO Novoship; SCF management Services (St. Petersburg) Ltd; Sovcomflot (UK) Ltd; SCF Management Services (St. Petersburg) Ltd  subdivision in Yuzhno-Sakhalinsk;
         values:
           - OOO SCF Arctic
           - SCF Management Services (Cyprus) Ltd
-          - PAO Novoship;
+          - PAO Novoship
           - SCF management Services (St. Petersburg) Ltd
           - Sovcomflot (UK) Ltd
-          - SCF Management Services (St. Petersburg) Ltd  subdivision in Yuzhno-Sakhalinsk
+          - SCF Management Services (St. Petersburg) Ltd subdivision in Yuzhno-Sakhalinsk
+      - match: Sovcomflot (Cyprus) Ltd; SCF Management Services (Novorossiysk) Ltd; SCF GEO
+        values:
           - Sovcomflot (Cyprus) Ltd
           - SCF Management Services (Novorossiysk) Ltd
           - SCF GEO
@@ -645,7 +888,7 @@ lookups:
       - match: Bena Properties (subsidiary), Cham Holding Building, Daraa Highway, Ashrafiyat Sahnaya Rif Dimashq, Syria, P.O. Box 9525
         values:
           - Bena Properties
-      - match: (1) Novin Energy (2) TAMAS
+      - match: Novin Energy, TAMAS
         values:
           - Novin Energy
           - TAMAS
@@ -668,17 +911,21 @@ lookups:
           - KAZSTANEX LLP
           - ROSTANEX
           - UZSTANEX LLC
-      - match: Joint-Stock Company “Russian Electronics” Ruselectronics
+      - match: "Joint-Stock Company 'Russian Electronics' Ruselectronics"
         values:
-          - Joint-Stock Company “Russian Electronics”
+          - Joint-Stock Company 'Russian Electronics'
           - Ruselectronics
       - match: AKTSIONERNOE OBSHCHESTVO NAUCHNO-PROIZVODSTVENNOE PREDPRIYATIE SALYUT-27; ZAKRYTOE AKTSIONERNOE OBSHCHESTVO GOSTINICHNYI KOMPLEKS KRONA
         values:
           - AKTSIONERNOE OBSHCHESTVO NAUCHNO-PROIZVODSTVENNOE PREDPRIYATIE SALYUT-27
           - ZAKRYTOE AKTSIONERNOE OBSHCHESTVO GOSTINICHNYI KOMPLEKS KRONA
+      - match: ZAKRYTOE AKTSIONERNOE OBSHCHESTVO NAUCHNO-PROIZVODSTVENNOE PREDPRIYATIE SALYUT-MIKRO; AKTSIONERNOE OBSHCHESTVO NAUCHNO-PROIZVODSTVENNOE PREDPRIYATIE SALYUT-25;
+        values:
+          - ZAKRYTOE AKTSIONERNOE OBSHCHESTVO NAUCHNO-PROIZVODSTVENNOE PREDPRIYATIE SALYUT-MIKRO
+          - AKTSIONERNOE OBSHCHESTVO NAUCHNO-PROIZVODSTVENNOE PREDPRIYATIE SALYUT-25
       - match: P & P HOLDING GMBH
         value: P & P Holding GmbH
-      - match: (1) EKC AG USA Corporation (2) EKC AG Turkey Madencilik Anonim Sirketi
+      - match: EKC AG USA Corporation; EKC AG Turkey Madencilik Anonim Sirketi;
         values:
           - EKC AG USA Corporation
           - EKC AG Turkey Madencilik Anonim Sirketi
@@ -698,7 +945,7 @@ lookups:
         value: Vorkutaugol JSC
       - match: AVILON KHOLDINGRUS
         value: AVILON KHOLDINGRUS
-      - match: (1) Suzhou Neway Machine Tool Design and Research Institute Co., Ltd. (2) Neway Cnc (USA), Inc.
+      - match: Suzhou Neway Machine Tool Design and Research Institute Co., Ltd.; Neway Cnc (USA), Inc.
         values:
           - Suzhou Neway Machine Tool Design and Research Institute Co., Ltd.
           - Neway Cnc (USA), Inc.
@@ -706,9 +953,9 @@ lookups:
         values: []
       - match: "SUZHOU SHUNYI INVESTMENT CO., LTD"
         value: SUZHOU SHUNYI INVESTMENT CO., LTD
-      - match: "(1) 苏州百胜动力科技有限公司 – SUZHOU YUM POWER TECHNOLOGY CO., LTD. (2)  苏州佰昇国际贸易有限公司 - SUZHOU BAISHENG INTERNATIONAL TRADE CO., LTD."
+      - match: "苏州百胜动力科技有限公司 – SUZHOU YUM POWER TECHNOLOGY CO., LTD.; 苏州佰昇国际贸易有限公司 - SUZHOU BAISHENG INTERNATIONAL TRADE CO., LTD."
         values:
-          - 苏州百胜动力科技有限公司 - SUZHOU YUM POWER TECHNOLOGY CO., LTD
+          - 苏州百胜动力科技有限公司 – SUZHOU YUM POWER TECHNOLOGY CO., LTD
           - 苏州佰昇国际贸易有限公司 - SUZHOU BAISHENG INTERNATIONAL TRADE CO., LTD
       - match: INITSIAVIVA-23
         value: INITSIAVIVA-23
@@ -719,20 +966,27 @@ lookups:
       # SWIFT via https://wise.com/gb/swift-codes/bic-swift-code-checker?code=RINBKG22
       - match: "(1) Kyrgz BIK number: 136001 (2) TIN: 02012201010017 (3) OKPO: 27231453 (4) SWIFT: RINBKG22"
         values: []
-      - match: "(1) ALTAIR F III S.A R.L (2) SH INVEST LIMITED (3) GALACKTIKA LIMITED LIABILITY COMPANY"
+      - match: "ALTAIR F III S.A R.LSH INVEST LIMITEDGALACKTIKA LIMITED LIABILITY COMPANY"
         values:
           - ALTAIR F III S.A R.L
           - SH INVEST LIMITED
           - GALACKTIKA LIMITED LIABILITY COMPANY
       - match: "MASTEL MAKINA ITHALAT IHRACAT LIMITED SIRKETI CARSI SUBESI"
         value: MASTEL MAKINA ITHALAT IHRACAT LIMITED SIRKETI CARSI SUBESI
-      - match: "Ahdaf Investment Company has majority ownership (51.53%)\n1. AHDAF INVESTMENT COMPANY \n2. GHADR INVESTMENT DEVELOPMENT CO. \n3. SABA KARUN OIL AND GAS DEVELOPMENT COMPANY \n4. SABA NAFT SUPPORT SERVICES COMPANY\n5. TOSSEE HAMI GHADR CO."
+      - match: Ahdaf Investment Company has majority ownership (51.53%)1. AHDAF INVESTMENT COMPANY 2. GHADR INVESTMENT DEVELOPMENT CO. 3. SABA KARUN OIL AND GAS DEVELOPMENT COMPANY 4. SABA NAFT SUPPORT SERVICES COMPANY5. TOSSEE HAMI GHADR CO.
         values:
           - Ahdaf Investment Company
           - GHADR INVESTMENT DEVELOPMENT CO.
           - SABA KARUN OIL AND GAS DEVELOPMENT COMPANY
           - SABA NAFT SUPPORT SERVICES COMPANY
           - TOSSEE HAMI GHADR CO.
+      # - match: "Ahdaf Investment Company has majority ownership (51.53%)\n1. AHDAF INVESTMENT COMPANY \n2. GHADR INVESTMENT DEVELOPMENT CO. \n3. SABA KARUN OIL AND GAS DEVELOPMENT COMPANY \n4. SABA NAFT SUPPORT SERVICES COMPANY\n5. TOSSEE HAMI GHADR CO."
+      #   values:
+      #     - Ahdaf Investment Company
+      #     - GHADR INVESTMENT DEVELOPMENT CO.
+      #     - SABA KARUN OIL AND GAS DEVELOPMENT COMPANY
+      #     - SABA NAFT SUPPORT SERVICES COMPANY
+      #     - TOSSEE HAMI GHADR CO.
       - match: "(1) Sokan Arvand Ship Management Company (2) Persia Telecom Co. (3) Nilsun Kish (4) IOEC E&P"
         values:
           - Sokan Arvand Ship Management Company
@@ -751,3 +1005,13 @@ lookups:
         values:
           - Aeza International Ltd
           - Hypercore Ltd
+      - match: LIMITED LIABILITY COMPANY 'SIBERIAN SCIENTIFIC AND INDUSTRIAL CORPORATION'; NP 'NPK 'Siberian Ceramics'
+        values:
+          - LIMITED LIABILITY COMPANY 'SIBERIAN SCIENTIFIC AND INDUSTRIAL CORPORATION'
+          - NP 'NPK 'Siberian Ceramics'
+      - match: "Public Joint Stock Company 'BINBANK'; ASSOCIATION 'CTT 'ACADEMNOVOTECH'; NON-COMMERCIAL PARTNERSHIP INNOVATION-IMPLEMENTATION CENTER; ASSOCIATION TECHNOLOGICAL PLATFORM AIR MOBILITY AND AVIATION TECHNOLOGIES;"
+        values:
+          - Public Joint Stock Company 'BINBANK'
+          - ASSOCIATION 'CTT 'ACADEMNOVOTECH'
+          - NON-COMMERCIAL PARTNERSHIP INNOVATION-IMPLEMENTATION CENTER
+          - ASSOCIATION TECHNOLOGICAL PLATFORM AIR MOBILITY AND AVIATION TECHNOLOGIES
