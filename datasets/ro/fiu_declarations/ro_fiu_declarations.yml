@@ -3,6 +3,7 @@ url: https://www.onpcsb.ro/en/a/101/declarations-of-assets-and-interests
 entry_point: crawler.py
 prefix: ro-fiu
 load_statements: true
+ci_test: false
 coverage:
   frequency: weekly
   start: 2024-12-30
