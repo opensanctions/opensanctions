@@ -28,7 +28,7 @@ def get_csv_link(context: Context) -> str | None:
 
 
 def parse_companies(context: Context, value: Optional[str]) -> List[str]:
-    if value is None:
+    if not value:
         return []
     result = context.lookup("companies", value, warn_unmatched=True)
     if result is None:
@@ -343,11 +343,11 @@ def ext_make_ship(context: Context, row: dict, entity: Entity):
     entity.add("buildDate", row.pop("Year Built"))
     entity.add("registrationNumber", row.pop("Hull identification number (HIN)"))
     entity.add("imoNumber", row.pop("IMO number"))
-    # TODO: split on semicolons
-    for owner in row.pop("Current owner/operator (s)").split("|"):
+    # TODO: split on "/", warn on special chars, strip, null "UNKNOWN"
+    if owner := row.pop("Current owner/operator (s)"):
         owner_entity = context.make("Organization")
-        owner_entity.id = context.make_slug("named", owner.text)
-        owner_entity.add("name", owner.text)
+        owner_entity.id = context.make_slug("named", owner)
+        owner_entity.add("name", owner)
         context.emit(owner_entity)
 
         own = context.make("Ownership")
@@ -356,15 +356,15 @@ def ext_make_ship(context: Context, row: dict, entity: Entity):
         own.add("asset", entity.id)
         context.emit(own)
 
-    for owner in row.pop("Previous owner/operator (s)").split("|"):
-        owner_entity = context.make("Organization")
-        owner_entity.id = context.make_slug("named", owner.text)
-        owner_entity.add("name", owner.text)
-        context.emit(owner_entity)
+    if previous_owner := row.pop("Previous owner/operator (s)"):
+        previous_owner_entity = context.make("Organization")
+        previous_owner_entity.id = context.make_slug("named", previous_owner)
+        previous_owner_entity.add("name", previous_owner)
+        context.emit(previous_owner_entity)
 
         own = context.make("UnknownLink")
-        own.id = context.make_id("ownership", owner_entity.id, entity.id)
-        own.add("subject", owner_entity.id)
+        own.id = context.make_id("ownership", previous_owner_entity.id, entity.id)
+        own.add("subject", previous_owner_entity.id)
         own.add("object", entity.id)
         context.emit(own)
 
