@@ -153,15 +153,24 @@ def crawl_xml(context: Context):
                 continue
 
             # context.inspect(name_tag)
+            # name1 is always a given name
+            # name6 is always a family name
+            # name2-name5 are sometimes given names, sometimes patro-/matronymic names
+            # We play it safe here and put into more specific properties only what we're sure of
             h.apply_name(
                 entity,
-                full=name_tag.findtext("./Name"),
-                name1=name_tag.findtext("./Name1"),
-                name2=name_tag.findtext("./Name2"),
-                name3=name_tag.findtext("./Name3"),
-                name4=name_tag.findtext("./Name4"),
-                name5=name_tag.findtext("./Name5"),
+                given_name=name_tag.findtext("./Name1"),
                 last_name=name_tag.findtext("./Name6"),
+                # We call make_name here to avoid having name2-name5 put into the wrong properties by h.apply_name
+                full=h.make_name(
+                    full=name_tag.findtext("./Name"),
+                    name1=name_tag.findtext("./Name1"),
+                    name2=name_tag.findtext("./Name2"),
+                    name3=name_tag.findtext("./Name3"),
+                    name4=name_tag.findtext("./Name4"),
+                    name5=name_tag.findtext("./Name5"),
+                    tail_name=name_tag.findtext("./Name6"),
+                ),
                 lang="eng",
                 name_prop=name_prop,
                 quiet=True,
@@ -360,14 +369,25 @@ def ext_crawl_csv(context: Context):
             name_prop = context.lookup_value("name_type", name_type)
             if name_prop is None and name_type:
                 context.log.warn("Unknown name type", name_type=name_type)
+
+            # name1 is always a given name
+            # name6 is always a family name
+            # name2-name5 are sometimes given names, sometimes patro-/matronymic names
+            # We play it safe here and put into more specific properties only what we're sure of
             h.apply_name(
                 entity,
-                full=row.pop("Name 6"),
-                name1=row.pop("Name 1"),
-                # name2=row.pop("Name 2"),
-                name3=row.pop("Name 3"),
-                name4=row.pop("Name 4"),
-                name5=row.pop("Name 5"),
+                given_name=row.pop("Name 1"),
+                last_name=row.pop("Name 6"),
+                # We call make_name here to avoid having name2-name5 put into the wrong properties by h.apply_name
+                full=h.make_name(
+                    full=row.pop("Name"),
+                    name1=row.pop("Name 1"),
+                    name2=row.pop("Name 2"),
+                    name3=row.pop("Name 3"),
+                    name4=row.pop("Name 4"),
+                    name5=row.pop("Name 5"),
+                    tail_name=row.pop("Name 6"),
+                ),
                 lang="eng",
                 name_prop=name_prop,
                 quiet=True,
