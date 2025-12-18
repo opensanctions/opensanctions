@@ -11,7 +11,18 @@ from zavod import Context
 from zavod import helpers as h
 
 SPLITS = [" %s)" % char for char in string.ascii_lowercase]
-ADDRESS_SPLITS = [";", "ii) ", "iii) "]
+ADDRESS_SPLITS = [
+    ";",
+    "ii) ",
+    "iii) ",
+    "a) ",
+    "b) ",
+    "c) ",
+    "d) ",
+    "_x000D_,",
+    "_x000D_\n",
+    "_x000D_",
+]
 PROVISION_FIELDS = [
     "travel_ban",
     "arms_embargo",
@@ -102,7 +113,7 @@ def parse_reference(
     primary_name: Optional[str] = None
     names: list[tuple[str, str]] = []
     for row in rows:
-        name = row.pop("name_of_individual_or_entity_or_vessel", None)
+        name = row.pop("name_of_individual_or_entity")
         name_type = row.pop("name_type")
         name_prop = context.lookup_value("name_type", name_type)
         if row.pop("alias_strength") == "Weak":
@@ -151,13 +162,15 @@ def parse_reference(
         h.apply_dates(entity, "birthDate", dates)
         pob = row.pop("place_of_birth")
         entity.add("birthPlace", h.multi_split(pob, SPLITS + ["a) "]), quiet=True)
-        entity.add("notes", h.clean_note(row.pop("additional_information")))
+        notes = h.clean_note(row.pop("additional_information"))
+        if notes:
+            entity.add("notes", (note.replace("_x000D_", "") for note in notes))
         listing_info = row.pop("listing_information")
         if isinstance(listing_info, datetime):
             h.apply_date(entity, "createdAt", listing_info)
             sanction.add("listingDate", listing_info)
         else:
-            sanction.add("summary", listing_info)
+            sanction.add("summary", listing_info.replace("_x000D_", ""))
         designation_instrument = row.pop("instrument_of_designation")
         # designation instrument is very often the same as listing info
         if designation_instrument and designation_instrument != listing_info:
