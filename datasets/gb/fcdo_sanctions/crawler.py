@@ -1,5 +1,6 @@
 import re
 import csv
+from typing import Optional, List
 
 from rigour.mime.types import CSV
 from zavod.helpers.xml import ElementOrTree
@@ -24,6 +25,17 @@ def get_csv_link(context: Context) -> str | None:
             continue
         return el.get("href")
     raise ValueError("CSV link not found")
+
+
+def parse_companies(context: Context, value: Optional[str]) -> List[str]:
+    if value is None:
+        return []
+    result = context.lookup("companies", value, warn_unmatched=True)
+    if result is None:
+        return []
+    if result.value == "SAME":
+        return [value]
+    return result.values
 
 
 def entity_type(type: str) -> str:
@@ -246,47 +258,6 @@ def crawl_xml(context: Context):
             context.log.error(f"Failed to parse designation with id {unique_id}: {e}")
 
 
-def ext_emit_linked_entity(
-    context: Context,
-    entity: Entity,
-    related_name: str,
-    relation_type: str = "unknown",
-    reverse: bool = False,
-):
-    """Create and emit a related organization entity with a relationship.
-
-    Args:
-        context: The processing context
-        entity: The main entity
-        related_name: Name of the related organization
-        relation_type: "ownership" or "unknown" (default)
-        reverse: If True, related entity is subject; if False, main entity is subject
-    """
-    related_name = related_name.strip()
-    if not related_name:
-        return
-
-    related = context.make("Organization")
-    related.id = context.make_id(related_name)
-    related.add("name", related_name)
-    context.emit(related, True)
-
-    if relation_type == "ownership":
-        own = context.make("Ownership")
-        own.id = context.make_id("ownership", related.id, entity.id)
-        own.add("owner", related.id)
-        own.add("asset", entity.id)
-        context.emit(own, True)
-    else:
-        link = context.make("UnknownLink")
-        subject_id = related.id if reverse else entity.id
-        object_id = entity.id if reverse else related.id
-        link.id = context.make_id("linked", subject_id, object_id)
-        link.add("subject", subject_id)
-        link.add("object", object_id)
-        context.emit(link, True)
-
-
 def ext_make_legal_entity(context: Context, row: dict, entity: Entity):
     entity.add("phone", row.pop("Phone number"))
     email_address = row.pop("Email address")
@@ -311,13 +282,38 @@ def ext_make_legal_entity(context: Context, row: dict, entity: Entity):
         country=row.pop("Address Country"),
     )
     h.copy_address(entity, addr)
-    print(row.get("Subsidiaries"))
-    for subsidiary in row.pop("Subsidiaries").split("|"):
-        ext_emit_linked_entity(context, entity, subsidiary, reverse=True)
+    # # print(row.get("Subsidiaries"))
+    # for subsidiary in row.pop("Subsidiaries").split("|"):
+    #     ext_emit_linked_entity(context, entity, subsidiary, reverse=True)
 
-    print(row.get("Parent company"))
-    for parent in row.pop("Parent company").split("|"):
-        ext_emit_linked_entity(context, entity, parent)
+    # # print(row.get("Parent company"))
+    # for parent in row.pop("Parent company").split("|"):
+    #     ext_emit_linked_entity(context, entity, parent)
+
+    parent_names = row.pop("Parent company", None)
+    for name in parse_companies(context, parent_names):
+        parent = context.make("Organization")
+        parent.id = context.make_slug("named", name)
+        parent.add("name", name)
+        context.emit(parent)
+
+        ownership = context.make("Ownership")
+        ownership.id = context.make_id(parent.id, "owns", entity.id)
+        ownership.add("owner", parent)
+        ownership.add("asset", entity)
+        context.emit(ownership)
+
+    for name in parse_companies(context, row.pop("Subsidiaries", None)):
+        subsidiary = context.make("Company")
+        subsidiary.id = context.make_slug("named", name)
+        subsidiary.add("name", name)
+        context.emit(subsidiary)
+
+        ownership = context.make("Ownership")
+        ownership.id = context.make_id(entity.id, "owns", subsidiary.id)
+        ownership.add("owner", entity)
+        ownership.add("asset", subsidiary)
+        context.emit(ownership)
 
 
 def ext_make_person(context: Context, row: dict, entity: Entity):
@@ -348,10 +344,29 @@ def ext_make_ship(context: Context, row: dict, entity: Entity):
     entity.add("registrationNumber", row.pop("Hull identification number (HIN)"))
     entity.add("imoNumber", row.pop("IMO number"))
     # TODO: split on semicolons
-    for owner_name in row.pop("Current owner/operator (s)").split("|"):
-        ext_emit_linked_entity(context, entity, owner_name, relation_type="ownership")
-    for owner_name in row.pop("Previous owner/operator (s)").split("|"):
-        ext_emit_linked_entity(context, entity, owner_name, reverse=True)
+    for owner in row.pop("Current owner/operator (s)").split("|"):
+        owner_entity = context.make("Organization")
+        owner_entity.id = context.make_slug("named", owner.text)
+        owner_entity.add("name", owner.text)
+        context.emit(owner_entity)
+
+        own = context.make("Ownership")
+        own.id = context.make_id("ownership", owner_entity.id, entity.id)
+        own.add("owner", owner_entity.id)
+        own.add("asset", entity.id)
+        context.emit(own)
+
+    for owner in row.pop("Previous owner/operator (s)").split("|"):
+        owner_entity = context.make("Organization")
+        owner_entity.id = context.make_slug("named", owner.text)
+        owner_entity.add("name", owner.text)
+        context.emit(owner_entity)
+
+        own = context.make("UnknownLink")
+        own.id = context.make_id("ownership", owner_entity.id, entity.id)
+        own.add("subject", owner_entity.id)
+        own.add("object", entity.id)
+        context.emit(own)
 
 
 def ext_crawl_csv(context: Context):
@@ -374,19 +389,21 @@ def ext_crawl_csv(context: Context):
             # name6 is always a family name
             # name2-name5 are sometimes given names, sometimes patro-/matronymic names
             # We play it safe here and put into more specific properties only what we're sure of
+            given_name = row.pop("Name 1")
+            last_name = row.pop("Name 6")
             h.apply_name(
                 entity,
-                given_name=row.pop("Name 1"),
-                last_name=row.pop("Name 6"),
+                given_name=given_name,
+                last_name=last_name,
                 # We call make_name here to avoid having name2-name5 put into the wrong properties by h.apply_name
                 full=h.make_name(
-                    full=row.pop("Name"),
-                    name1=row.pop("Name 1"),
+                    # full=row.pop("Name"),
+                    name1=given_name,
                     name2=row.pop("Name 2"),
                     name3=row.pop("Name 3"),
                     name4=row.pop("Name 4"),
                     name5=row.pop("Name 5"),
-                    tail_name=row.pop("Name 6"),
+                    tail_name=last_name,
                 ),
                 lang="eng",
                 name_prop=name_prop,
