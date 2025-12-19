@@ -7,7 +7,7 @@ deploy:
   memory_limit: "6000Mi"
   disk: "280Gi"
   disk_limit: "280Gi"
-  # premium: true
+  premium: true
 coverage:
   frequency: monthly
   start: "2023-09-18"
