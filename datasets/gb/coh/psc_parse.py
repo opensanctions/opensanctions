@@ -145,6 +145,8 @@ def parse_base_data(context: Context) -> None:
         context.audit_data(row, ignore=IGNORE_BASE_COLUMNS)
         context.emit(entity)
 
+    data_path.unlink()
+
 
 def get_psc_data_url(context: Context) -> str:
     res = context.http.get(PSC_URL)
@@ -286,6 +288,8 @@ def parse_psc_data(context: Context) -> None:
         context.emit(psc)
         context.emit(link)
         context.emit(asset)
+
+    data_path.unlink()
 
 
 def crawl(context: Context) -> None:
