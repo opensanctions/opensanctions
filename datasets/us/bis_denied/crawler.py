@@ -37,9 +37,7 @@ def parse_row(context: Context, row):
     sanction = h.make_sanction(context, entity, key=citation, program_key=PROGRAM_KEY)
     sanction.add("program", citation)
     h.apply_date(sanction, "startDate", row.pop("effective_date"))
-    h.apply_date(
-        sanction, "endDate", row.pop("expiration_date", row.pop("expiratin_date"))
-    )
+    h.apply_date(sanction, "endDate", row.pop("expiration_date"))
 
     if h.is_active(sanction):
         entity.add("topics", "sanction")
