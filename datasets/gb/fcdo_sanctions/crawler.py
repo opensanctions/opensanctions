@@ -278,43 +278,36 @@ def ext_make_legal_entity(context: Context, row: dict, entity: Entity):
         country=row.pop("Address Country"),
     )
     h.copy_address(entity, addr)
-    # # print(row.get("Subsidiaries"))
-    # for subsidiary in row.pop("Subsidiaries").split("|"):
-    #     ext_emit_linked_entity(context, entity, subsidiary, reverse=True)
 
-    # # print(row.get("Parent company"))
-    # for parent in row.pop("Parent company").split("|"):
-    #     ext_emit_linked_entity(context, entity, parent)
-
-    parent_names = row.pop("Parent company", None)
+    parent_names = row.pop("Parent company")
     for name in parse_companies(context, parent_names):
         parent = context.make("Organization")
         parent.id = context.make_slug("named", name)
         parent.add("name", name)
-        context.emit(parent)
+        context.emit(parent, external=True)
 
         ownership = context.make("Ownership")
         ownership.id = context.make_id(parent.id, "owns", entity.id)
         ownership.add("owner", parent)
         ownership.add("asset", entity)
-        context.emit(ownership)
+        context.emit(ownership, external=True)
 
-    for name in parse_companies(context, row.pop("Subsidiaries", None)):
+    for name in parse_companies(context, row.pop("Subsidiaries")):
         subsidiary = context.make("Company")
         subsidiary.id = context.make_slug("named", name)
         subsidiary.add("name", name)
-        context.emit(subsidiary)
+        context.emit(subsidiary, external=True)
 
         ownership = context.make("Ownership")
         ownership.id = context.make_id(entity.id, "owns", subsidiary.id)
         ownership.add("owner", entity)
         ownership.add("asset", subsidiary)
-        context.emit(ownership)
+        context.emit(ownership, external=True)
 
 
 def ext_make_person(context: Context, row: dict, entity: Entity):
     h.apply_date(entity, "birthDate", row.pop("D.O.B"))
-    entity.add("title", row.pop("Title", None))
+    entity.add("title", row.pop("Title"))
     entity.add("gender", row.pop("Gender"))
     entity.add("birthPlace", row.pop("Town of birth"))
     entity.add("birthPlace", row.pop("Country of birth"))
@@ -328,7 +321,7 @@ def ext_make_person(context: Context, row: dict, entity: Entity):
     passport.add("number", passport_no)
     passport.add("summary", row.pop("Passport additional information"))
     passport.add("holder", entity.id)
-    context.emit(passport, True)
+    context.emit(passport, external=True)
 
 
 def ext_make_ship(context: Context, row: dict, entity: Entity):
@@ -344,25 +337,25 @@ def ext_make_ship(context: Context, row: dict, entity: Entity):
         owner_entity = context.make("Organization")
         owner_entity.id = context.make_slug("named", owner)
         owner_entity.add("name", owner)
-        context.emit(owner_entity)
+        context.emit(owner_entity, external=True)
 
         own = context.make("Ownership")
         own.id = context.make_id("ownership", owner_entity.id, entity.id)
         own.add("owner", owner_entity.id)
         own.add("asset", entity.id)
-        context.emit(own)
+        context.emit(own, external=True)
 
     if previous_owner := row.pop("Previous owner/operator (s)"):
         previous_owner_entity = context.make("Organization")
         previous_owner_entity.id = context.make_slug("named", previous_owner)
         previous_owner_entity.add("name", previous_owner)
-        context.emit(previous_owner_entity)
+        context.emit(previous_owner_entity, external=True)
 
         own = context.make("UnknownLink")
         own.id = context.make_id("ownership", previous_owner_entity.id, entity.id)
         own.add("subject", previous_owner_entity.id)
         own.add("object", entity.id)
-        context.emit(own)
+        context.emit(own, external=True)
 
 
 def ext_crawl_csv(context: Context):
@@ -462,8 +455,8 @@ def ext_crawl_csv(context: Context):
             if sanctions_imposed:
                 sanction.add("provisions", sanctions_imposed.split("|"))
 
-            context.emit(entity, True)
-            context.emit(sanction, True)
+            context.emit(entity, external=True)
+            context.emit(sanction, external=True)
 
             context.audit_data(
                 row,
