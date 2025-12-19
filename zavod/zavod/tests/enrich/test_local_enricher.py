@@ -16,7 +16,7 @@ from zavod.store import get_store
 DATASET_DATA = {
     "name": "test_enricher",
     "title": "An enrichment dataset",
-    "config": {"cutoff": 0.5},
+    "config": {"cutoff": 0.5, "algorithm": "logic-v1"},
     "entry_point": "zavod.runner.local_enricher:enrich",
     "inputs": ["testdataset_enrich_subject"],
 }

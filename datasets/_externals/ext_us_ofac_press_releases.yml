@@ -41,16 +41,14 @@ tags:
 url: https://ofac.treasury.gov/press-releases
 
 inputs:
-  - ann_graph_topics
+  # - ann_graph_topics
   - us_sanctions
-  - special_interest
+  # - special_interest
   # - maritime
 
 config:
   index_options:
     memory: 2000
-  threshold: 0.7
-  algorithm: regression-v1
   topics:
     - sanction
     - sanction.linked
