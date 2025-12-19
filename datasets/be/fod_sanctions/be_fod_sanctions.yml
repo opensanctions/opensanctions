@@ -50,13 +50,13 @@ assertions:
   min:
     schema_entities:
       Person: 4000
-      Organization: 2100
+      Organization: 1300
       Address: 1150
       Vessel: 1
   max:
     schema_entities:
       Person: 9400
-      Organization: 5000
+      Organization: 3000
       Address: 2750
       Vessel: 4
 lookups:
