@@ -23,7 +23,7 @@ def save_match(
         return None
     judgement = resolver.get_judgement(match.id, entity.id)
 
-    if judgement not in (Judgement.NEGATIVE, Judgement.POSITIVE):
+    if judgement == Judgement.NO_JUDGEMENT:
         context.emit(match, external=True)
 
     # Store previously confirmed matches to the database and make

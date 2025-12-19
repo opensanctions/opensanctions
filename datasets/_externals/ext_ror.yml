@@ -50,10 +50,8 @@ inputs:
   - us_bis_denied
 
 config:
-  threshold: 0.7
   index_options:
     memory: 2000
-  algorithm: regression-v1
   topics:
     - role.pep
     - role.rca

@@ -7,7 +7,7 @@ from followthemoney.helpers import check_person_cutoff
 from nomenklatura.enrich.common import EnricherConfig
 from nomenklatura.enrich.common import EnrichmentException
 from nomenklatura.enrich.common import BaseEnricher
-from nomenklatura.matching import get_algorithm, LogicV1
+from nomenklatura.matching import get_algorithm, EntityResolveRegression
 from nomenklatura.blocker.index import BlockingMatches, Index
 from nomenklatura.resolver import Identifier
 from nomenklatura import Judgement, Resolver
@@ -76,14 +76,14 @@ class LocalEnricher(BaseEnricher[Dataset]):
         )
         self._index.build()
 
-        algo_name = config.get("algorithm", LogicV1.NAME)
+        algo_name = config.get("algorithm", EntityResolveRegression.NAME)
         _algorithm = get_algorithm(algo_name)
         if _algorithm is None:
             raise Exception(f"Unknown algorithm: {algo_name}")
         self._algorithm = _algorithm
         self._algorithm_config = _algorithm.default_config()
         self._cutoff = float(config.get("cutoff", 0.5))
-        self._limit = int(config.get("limit", 5))
+        self._limit = int(config.get("limit", 10))
         self._max_bin = int(config.get("max_bin", 10))
 
     def close(self) -> None:
@@ -183,7 +183,7 @@ def save_match(
         return None
     judgement = resolver.get_judgement(match.id, entity.id)
 
-    if judgement not in (Judgement.NEGATIVE, Judgement.POSITIVE):
+    if judgement == Judgement.NO_JUDGEMENT:
         context.emit(match, external=True)
 
     # Store previously confirmed matches to the database and make
