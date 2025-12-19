@@ -11,6 +11,7 @@ deploy:
 coverage:
   start: "2023-08-23"
   frequency: monthly
+ci_test: false
 exports:
   - statistics.json
   - entities.ftm.json
@@ -29,4 +30,3 @@ description: |
 datasets:
   - default
   - kyb
-ci_test: false
