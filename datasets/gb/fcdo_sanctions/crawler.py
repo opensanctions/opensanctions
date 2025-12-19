@@ -9,6 +9,9 @@ from zavod import Context, Entity
 from zavod import helpers as h
 
 
+EMAIL_SPLIT = re.compile(r"[; ]")
+
+
 def get_xml_link(context: Context) -> str:
     doc = context.fetch_html(context.data_url)
     xq = ".//section[@id='documents']//a[contains(@href, 'UK-Sanctions-List.xml')]"
@@ -50,10 +53,6 @@ def entity_type(type: str) -> str:
             raise ValueError("Unknown entity type")
 
 
-name_pat = re.compile(r"Name(\d+)")
-email_split = re.compile(r"[; ]")
-
-
 def make_legal_entity(context: Context, designation: ElementOrTree, entity: Entity):
     # Add phone numbers
     for phone_number in designation.iterfind(".//PhoneNumbers//PhoneNumber"):
@@ -63,7 +62,7 @@ def make_legal_entity(context: Context, designation: ElementOrTree, entity: Enti
     for emails in designation.iterfind(".//EmailAddresses//EmailAddress"):
         if emails.text is None:
             continue
-        for email in re.split(email_split, emails.text):
+        for email in re.split(EMAIL_SPLIT, emails.text):
             entity.add("email", email.strip())
     # Add addresses
     for address in designation.iterfind(".//Addresses//Address"):
@@ -260,10 +259,7 @@ def crawl_xml(context: Context):
 
 def ext_make_legal_entity(context: Context, row: dict, entity: Entity):
     entity.add("phone", row.pop("Phone number"))
-    email_address = row.pop("Email address")
-    if email_address:
-        for email in re.split(email_split, email_address):
-            entity.add("email", email.strip())
+    entity.add("email", h.multi_split(row.pop("Email address"), [", ", "; "]))
     entity.add("website", row.pop("Website"))
     # Mix of legal forms and sectors
     entity.add("summary", row.pop("Type of entity"))

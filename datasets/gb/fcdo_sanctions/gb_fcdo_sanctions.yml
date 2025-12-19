@@ -221,6 +221,25 @@ lookups:
         prop: website
       - match: administrator@nitc.co.ir,
         value: administrator@nitc.co.ir
+      - match: and millim@silibank.com
+        value: millim@silibank.com
+      - match: request@mehr fci.ir
+        value: request@mehrfci.ir
+      - match: info@etemad mobin.com
+        value: info@etemadmobin.com
+      - match: www.surena gc.com
+        prop: website
+        value: www.surenagc.com
+      - match: info@zala.aero 20shrhrabota@gmail.com
+        values:
+          - info@zala.aero
+          - 20shrhrabota@gmail.com
+      - match: indoc@SIBANTHRACITE GROUP.ru
+        value: indoc@SIBANTHRACITEGROUP.ru
+      - match: Sikhknowledge@gmail.com and Savingpunjab@gmail.com
+        values:
+          - Sikhknowledge@gmail.com
+          - Savingpunjab@gmail.com
   type.date:
     options:
       - match: "'00/00/1975"
