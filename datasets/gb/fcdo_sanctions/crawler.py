@@ -332,8 +332,8 @@ def ext_make_ship(context: Context, row: dict, entity: Entity):
     entity.add("buildDate", row.pop("Year Built"))
     entity.add("registrationNumber", row.pop("Hull identification number (HIN)"))
     entity.add("imoNumber", row.pop("IMO number"))
-    # TODO: split on "/", warn on special chars, strip, null "UNKNOWN"
-    if owner := row.pop("Current owner/operator (s)"):
+    owner = row.pop("Current owner/operator (s)")
+    for owner in parse_companies(context, owner.strip()):
         owner_entity = context.make("Organization")
         owner_entity.id = context.make_slug("named", owner)
         owner_entity.add("name", owner)
@@ -345,7 +345,8 @@ def ext_make_ship(context: Context, row: dict, entity: Entity):
         own.add("asset", entity.id)
         context.emit(own, external=True)
 
-    if previous_owner := row.pop("Previous owner/operator (s)"):
+    previous_owner = row.pop("Previous owner/operator (s)")
+    for previous_owner in parse_companies(context, previous_owner.strip()):
         previous_owner_entity = context.make("Organization")
         previous_owner_entity.id = context.make_slug("named", previous_owner)
         previous_owner_entity.add("name", previous_owner)
@@ -386,7 +387,6 @@ def ext_crawl_csv(context: Context):
                 last_name=last_name,
                 # We call make_name here to avoid having name2-name5 put into the wrong properties by h.apply_name
                 full=h.make_name(
-                    # full=row.pop("Name"),
                     name1=given_name,
                     name2=row.pop("Name 2"),
                     name3=row.pop("Name 3"),
@@ -461,12 +461,10 @@ def ext_crawl_csv(context: Context):
             context.audit_data(
                 row,
                 [
-                    "Name 2",
                     "National Identifier additional information",
                     "Non-latin script type",
                     "Business registration number (s)",
                     "Alias strength",
-                    "Title",
                     "Length of ship",
                 ],
             )
