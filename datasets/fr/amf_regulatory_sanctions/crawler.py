@@ -41,6 +41,7 @@ PREFIXES = [
     "société",
     "Banque",
     "la société",
+    "La société",
     "Caisse",
     "cabinet",
     "La sociétés",
