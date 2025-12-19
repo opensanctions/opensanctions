@@ -54,39 +54,68 @@ assertions:
 lookups:
   sanction.program:
     options:
-      - match:
-          - "The Afghanistan (Sanctions) (EU Exit) Regulations 2020"
-          - "Isil (Da'esh) and Al-Qaeda (United Nations Sanctions) (EU Exit) Regulations 2019"
-          - "The Republic of Belarus (Sanctions) (EU Exit) Regulations 2019"
-          - "The Bosnia and Herzegovina (Sanctions) (EU Exit) Regulations 2020"
-          - "The Central African Republic (Sanctions) (EU Exit) Regulations 2020"
-          - "The Chemical Weapons (Sanctions) (EU Exit) Regulations 2019"
-          - "The Counter-Terrorism (Sanctions) (EU Exit) Regulations 2019"
-          - "The Counter-Terrorism (International Sanctions) (EU Exit) Regulations 2019"
-          - "The Cyber (Sanctions) (EU Exit) Regulations 2020"
-          - "The Democratic People's Republic of Korea (Sanctions) (EU Exit) Regulations 2019"
-          - "The Global Anti-Corruption Sanctions Regulations 2021"
-          - "The Global Human Rights Sanctions Regulations 2020"
-          - "The Republic of Guinea-Bissau (Sanctions) (EU Exit) Regulations 2019"
-          - "The Guinea (Sanctions) (EU Exit) Regulations 2019"
-          - "The Haiti (Sanctions) Regulations 2022"
-          - "The Iran (Sanctions) (Nuclear) (EU Exit) Regulations 2019"
-          - "The Iran (Sanctions) Regulations 2023"
-          - "The Libya (Sanctions) (EU Exit) Regulations 2020"
-          - "The Mali (Sanctions) (EU Exit) Regulations 2020"
-          - "The Myanmar (Sanctions) Regulations 2021"
-          - "The Russia (Sanctions) (EU Exit) Regulations 2019"
-          - "The Syria (Sanctions) (EU Exit) Regulations 2019"
-          - "The Venezuela (Sanctions) (EU Exit) Regulations 2019"
-          - "The Yemen (Sanctions) (EU Exit) Regulations 2020"
-          - "The Sudan (Sanctions) (EU Exit) Regulations 2020"
-          - "The South Sudan (Sanctions) (EU Exit) Regulations 2019"
-          - "The Somalia (Sanctions) (EU Exit) Regulations 2020"
-          - "The Nicaragua (Sanctions) (EU Exit) Regulations 2020"
-          - "The Iraq (Sanctions) (EU Exit) Regulations 2020"
-          - "The Democratic Republic of the Congo (Sanctions) (EU Exit) Regulations 2019"
-          - "The Global Irregular Migration and Trafficking in Persons Sanctions Regulations 2025"
+      - match: The Global Irregular Migration and Trafficking in Persons Sanctions Regulations 2025
         value: GB-SAMLA
+      - match: The Global Human Rights Sanctions Regulations 2020
+        value: GB-HR
+      - match: The Global Anti-Corruption Sanctions Regulations 2021
+        value: GB-AC
+      - match: The Democratic Republic of the Congo (Sanctions) (EU Exit) Regulations 2019
+        value: GB-DRC
+      - match: The Afghanistan (Sanctions) (EU Exit) Regulations 2020
+        value: GB-AFG
+      - match: The Republic of Belarus (Sanctions) (EU Exit) Regulations 2019
+        value: GB-BLR
+      - match: The Bosnia and Herzegovina (Sanctions) (EU Exit) Regulations 2020
+        value: GB-BH
+      - match: The Central African Republic (Sanctions) (EU Exit) Regulations 2020
+        value: GB-CAR
+      - match: The Chemical Weapons (Sanctions) (EU Exit) Regulations 2019
+        value: GB-CW
+      - match: The Cyber (Sanctions) (EU Exit) Regulations 2020
+        value: GB-CYB
+      - match: The Republic of Guinea-Bissau (Sanctions) (EU Exit) Regulations 2019
+        value: GB-GNB
+      - match: The Libya (Sanctions) (EU Exit) Regulations 2020
+        value: GB-LBY
+      - match: The Mali (Sanctions) (EU Exit) Regulations 2020
+        value: GB-MLI
+      - match: The Myanmar (Sanctions) Regulations 2021
+        value: GB-MMR
+      - match: The Russia (Sanctions) (EU Exit) Regulations 2019
+        value: GB-RUS
+      - match: The Syria (Sanctions) (EU Exit) Regulations 2019
+        value: GB-SYR
+      - match: The Iraq (Sanctions) (EU Exit) Regulations 2020
+        value: GB-IRQ
+      - match: The Nicaragua (Sanctions) (EU Exit) Regulations 2020
+        value: GB-NIC
+      - match: The Somalia (Sanctions) (EU Exit) Regulations 2020
+        value: GB-SOM
+      - match: The South Sudan (Sanctions) (EU Exit) Regulations 2019
+        value: GB-SSD
+      - match: The Sudan (Sanctions) (EU Exit) Regulations 2020
+        value: GB-SDN
+      - match: The Yemen (Sanctions) (EU Exit) Regulations 2020
+        value: GB-YEM
+      - match: The Venezuela (Sanctions) (EU Exit) Regulations 2019
+        value: GB-VEN
+      - match: The Haiti (Sanctions) Regulations 2022
+        value: GB-HT
+      - match: The Guinea (Sanctions) (EU Exit) Regulations 2019
+        value: GB-GU
+      - match: The Counter-Terrorism (International Sanctions) (EU Exit) Regulations 2019
+        value: GB-ICT
+      - match: The Counter-Terrorism (Sanctions) (EU Exit) Regulations 2019
+        value: GB-CT
+      - match: The Iran (Sanctions) Regulations 2023
+        value: GB-IRAN
+      - match: The Iran (Sanctions) (Nuclear) (EU Exit) Regulations 2019
+        value: GB-IRAN-NW
+      - match: The Democratic People's Republic of Korea (Sanctions) (EU Exit) Regulations 2019
+        value: GB-DPRK
+      - match: Isil (Da'esh) and Al-Qaeda (United Nations Sanctions) (EU Exit) Regulations 2019
+        value: GB-ISIL
   languages:
     options:
       - match: Arabic
@@ -229,6 +258,8 @@ lookups:
           - Is the Parent company
           - Parent and branches
           - State Owned Enterprise (SOE)
+          - ORGANIZATSIYA DOPOLNITELNOGO
+          - Machinery
         values: []
       - match:
           - Htoo Group of Companies
@@ -429,6 +460,8 @@ lookups:
           - Star High Co., Ltd.
           - Star High Group Company Ltd
           - Sugar Mill (Du Yin Gabo)
+          - Sugar mill (Kanbalu)
+          - Sugar Mill (Kanhla)
           - Tea factory (Kan Yeik Thar)
           - Tea powder and tea mix factory (Pyinmabin)
           - Tristar Tyre Manufacturing Company Ltd
@@ -440,6 +473,7 @@ lookups:
           - Yevpatoria Trade Port
           - Zheng Heng (Cambodia) Co., Ltd
           - ZhengHeng Development Group
+          - Remote sensing ground station
         value: SAME
       - match: Subsidiary of the Organisation for Technological Industries (OTI) and therefore the Syrian Ministry of Defence
         values:
@@ -461,58 +495,75 @@ lookups:
         value: Limited Liability Company STROYGAZMONTAZH
       - match: M Babaei Indsutries
         value: M Babaei Industries
-      # TODO: fix alternate spellings
       - match: "ASHOK (Gems and Jewellery) Co., Ltd. (alternate spelling: Thawka)"
         values:
-          - ["ASHOK (Gems and Jewellery) Co., Ltd.", "Thawka"]
+          - ASHOK (Gems and Jewellery) Co., Ltd
+          - Thawka
       - match: "Cancri (Gems and Jewellery) Co., Ltd. (alternate spelling: Phu Sha Star)"
         values:
-          - ["Cancri (Gems and Jewellery) Co., Ltd.", 'Phu Sha Star']
+          - Cancri (Gems and Jewellery) Co., Ltd
+          - Phu Sha Star
       - match: "Da Na Theiddi Kyal (Jewellery) Co., Ltd. (alternate spelling: Da Na Theiddihi Star and Danatheidi Star (Gems and Jewellery) Co., Ltd)"
         values:
-          - ["Da Na Theiddi Kyal (Jewellery) Co., Ltd.", 'Da Na Theiddihi Star and Danatheidi Star (Gems and Jewellery) Co., Ltd']
+          - Da Na Theiddi Kyal (Jewellery) Co., Ltd
+          - Da Na Theiddihi Star
+          - Danatheidi Star (Gems and Jewellery) Co., Ltd
       - match: "Du Won Kyal (Jewellery) Co., Ltd. (alternate spelling: Du Won Star and Du Won Star (Gems & Jewellery) Co., Ltd.)"
         values:
-          - ["Du Won Kyal (Jewellery) Co., Ltd.", 'Du Won Star and Du Won Star (Gems & Jewellery) Co., Ltd.']
+          - Du Won Kyal (Jewellery) Co., Ltd
+          - Du Won Star
+          - Du Won Star (Gems & Jewellery) Co., Ltd
       - match: "Hawk Star (Gems and Jewellery) Co., Ltd. (alternate spellings: Thine Ngat Kyal (Jewellery) Co., Ltd. and Thein Nget Star)"
         values:
-          - ["Hawk Star (Gems and Jewellery) Co., Ltd.", "Thine Ngat Kyal (Jewellery) Co., Ltd.", "Thein Nget Star"]
+          - Hawk Star (Gems and Jewellery) Co., Ltd
+          - Thine Ngat Kyal (Jewellery) Co., Ltd
+          - Thein Nget Star
       - match: "Inndagaw Industrial Complex; Kanpauk Oil Palm Estate and Palm Oil Mill Project (KOPP)"
         values:
           - "Inndagaw Industrial Complex"
           - "Kanpauk Oil Palm Estate and Palm Oil Mill Project (KOPP)"
       - match: "Iran Aircraft Industries (ACI)/SAHA/SIA"
         values:
-          - ["Iran Aircraft Industries (ACI)", "SAHA", "SIA"]
+          - Iran Aircraft Industries (ACI)
       - match: Iran Aircraft Manufacturing Company/HESA/HASA
         values:
-          - ["Iran Aircraft Manufacturing Company", "HESA", "HASA"]
+          - Iran Aircraft Manufacturing Company
       - match: "Kone Yar Thi Star (alternate spelling: Aquarii (Gems & Jewellery) Co., Ltd."
         values:
-          - ["Kone Yar Thi Star", "Aquarii (Gems & Jewellery) Co., Ltd."]
+          - Kone Yar Thi Star
+          - Aquarii (Gems & Jewellery) Co., Ltd
       - match: "Lann Pyi Marine Company Ltd; Larbathakedi Micro Finance Service Association Inc."
         values:
           - "Lann Pyi Marine Company Ltd"
           - "Larbathakedi Micro Finance Service Association Inc."
       - match: "Lyrae (Gems and Jewellery) Co., Ltd. (alternate spelling: Saung Tar Yar Star)"
         values:
-          - ["Lyrae (Gems and Jewellery) Co., Ltd.", "Saung Tar Yar Star"]
+          - Lyrae (Gems and Jewellery) Co., Ltd
+          - Saung Tar Yar Star
       - match: "Mon Hsu Jewellery Co., Ltd. (alternate spelling: Mine Shu)"
         values:
-          - ["Mon Hsu Jewellery Co., Ltd.", "Mine Shu"]
+          - Mon Hsu Jewellery Co., Ltd
+          - Mine Shu
       - match: "Myawaddy Trading Ltd; Myawaddy Travels and Tours Co., Ltd."
         values:
           - "Myawaddy Trading Ltd"
           - "Myawaddy Travels and Tours Co., Ltd."
       - match: "Pone Nyet (Gems and Jewellery) Co., Ltd. (alternate spelling: Pone Nyat and One Nyat (Jewellery) Co., Ltd.)"
         values:
-          - ["Pone Nyet (Gems and Jewellery) Co., Ltd.", "Pone Nyat and One Nyat (Jewellery) Co., Ltd."]
+          - Pone Nyet (Gems and Jewellery) Co., Ltd
+          - Pone Nyat
+          - One Nyat (Jewellery) Co., Ltd
       - match: "Sabai (Jewellery) Co., Ltd. (alternate spellings: Sabae (Gems and Jewellery) Co., Ltd., and Jasmine)"
         values:
-          - ["Sabai (Jewellery) Co., Ltd.", "Sabae (Gems and Jewellery) Co., Ltd.", "Jasmine"]
+          - Sabai (Jewellery) Co., Ltd
+          - Sabae (Gems and Jewellery) Co., Ltd
+          - Jasmine
       - match: "Seik Ta Ya Kyal (Jewellery) Co., Ltd. (alternate spellings: Si Tra Star, Seik Tra Star and Seiktra Star (Gems and Jewellery) Co., Ltd.)"
         values:
-          - ["Seik Ta Ya Kyal (Jewellery) Co., Ltd.", "Si Tra Star", "Seik Tra Star", "Seiktra Star (Gems and Jewellery) Co., Ltd."]
+          - Seik Ta Ya Kyal (Jewellery) Co., Ltd
+          - Si Tra Star
+          - Seik Tra Star
+          - Seiktra Star (Gems and Jewellery) Co., Ltd
       - match: Agro Pack Co., Ltd.; Aung Myint Mo Min Securities
         values:
           - Agro Pack Co., Ltd.
@@ -572,12 +623,14 @@ lookups:
           - Atomic Energy Organisation of Iran (AEOI)
         values:
           - Atomic Energy Organisation of Iran (AEOI)
-      # TODO: remap all MODAFL to the right value
+      - match: MODAFL
+        values:
+          - Ministry of Defence and Armed Forces Logistics
       - match:
           - Defence Industries Organisation (DIO), Ministry of Defence Armed Forces Logistics (MODAFL)
         values:
           - Defence Industries Organisation (DIO)
-          - Ministry of Defence and Armed Force Logistics (MODAFL)
+          - Ministry of Defence Armed Forces Logistics (MODAFL)
       - match:
           - Owned/controlled by Khatam al Anbiya Construction Headquarters
           - Khatam-al Anbiya Construction Headquarters
@@ -612,11 +665,11 @@ lookups:
           - OOO Imenie TSARGRAD
       - match: DTRSC. Ministry of Defence and Armed Force Logistics (MODAFL)
         values:
-          - Ministry of Defence and Armed Force Logistics (MODAFL)
+          - Ministry of Defence and Armed Forces Logistics (MODAFL)
       - match: Iran Electronic Industries (a MODAFL subsidiary)
         values:
           - Iran Electronic Industries
-          - Ministry of Defence and Armed Force Logistics (MODAFL)
+          - Ministry of Defence and Armed Forces Logistics (MODAFL)
       - match: Chernomorneftegaz (also subject to Sanctions)
         values:
           - Chernomorneftegaz
