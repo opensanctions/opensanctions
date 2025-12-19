@@ -2,12 +2,12 @@ type: collection
 title: Know-Your-Business (KYB) Datasets
 hidden: true
 deploy:
-  cpu: "1000m"
-  memory: "2000Mi"
-  memory_limit: "4000Mi"
+  cpu: "2000m"
+  memory: "6000Mi"
+  memory_limit: "6000Mi"
   disk: "300Gi"
-  disk_limit: "330Gi"
-  premium: true
+  disk_limit: "300Gi"
+  # premium: true
 coverage:
   frequency: monthly
   start: "2023-09-18"
