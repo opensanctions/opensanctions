@@ -1,7 +1,6 @@
 from typing import Optional
 from datetime import timedelta
-# from fingerprints import clean_brackets
-
+from followthemoney import registry
 from nomenklatura.wikidata import Item, WikidataClient
 
 from zavod import settings
@@ -38,7 +37,7 @@ def wikidata_basic_human(
             if date.text is None:
                 continue
             # Skip people from too far ago
-            if date.text < "1900-01-01":
+            if date.text < registry.date.RELEVANCE_MIN:
                 return None
             if strict and date.text > too_young.isoformat():
                 # context.log.warning("Person is too young", qid=item.id, date=date.text)
