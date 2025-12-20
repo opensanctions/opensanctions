@@ -10,8 +10,8 @@ deploy:
   premium: true
   cpu: "1000m"
   cpu_limit: "2000m"
-  memory: 4000Mi
-  memory_limit: "6000Mi"
+  memory: 8Gi
+  memory_limit: 10Gi
   disk: 280Gi
 exports:
   - statistics.json
