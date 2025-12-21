@@ -1,22 +1,23 @@
+import orjson
 import contextvars
 from pathlib import Path
 from typing import Any, Dict, List, Mapping, Optional, Union, cast
-
-import orjson
 from datapatch import Lookup, LookupException, Result
 from followthemoney.dataset import DataResource
 from followthemoney.schema import Schema
 from followthemoney.util import PathLike, make_entity_id
+from followthemoney.statement.serialize import PackStatementWriter
 from lxml import etree, html
 from nomenklatura.cache import Cache
 from nomenklatura.versions import Version
 from requests import Response
+from rigour.env import ENCODING
 from rigour.urls import ParamsType, build_url
 from sqlalchemy.engine import Connection
 from structlog.contextvars import bind_contextvars, reset_contextvars
 
 from zavod import settings
-from zavod.archive import dataset_data_path, dataset_resource_path
+from zavod.archive import STATEMENTS_FILE, dataset_data_path, dataset_resource_path
 from zavod.audit import inspect
 from zavod.db import get_engine, meta
 from zavod.entity import Entity
@@ -32,7 +33,6 @@ from zavod.runtime.http_ import (
 )
 from zavod.runtime.issues import DatasetIssues
 from zavod.runtime.resources import DatasetResources
-from zavod.runtime.sink import DatasetSink
 from zavod.runtime.stats import ContextStats
 from zavod.runtime.timestamps import TimeStampIndex
 from zavod.runtime.versions import get_latest, make_version
@@ -54,7 +54,6 @@ class Context:
         self.dataset = dataset
         self.dry_run = dry_run
         self.stats = ContextStats()
-        self.sink = DatasetSink(dataset)
         self.issues = DatasetIssues(dataset)
         self.resources = DatasetResources(dataset)
         self.log = get_logger(dataset.name)
@@ -64,6 +63,8 @@ class Context:
         self._structlog_contextvars_tokens: Optional[
             Mapping[str, contextvars.Token[Any]]
         ] = None
+        self._writer_path = dataset_resource_path(dataset.name, STATEMENTS_FILE)
+        self._writer: Optional[PackStatementWriter] = None
 
         self.lang: Optional[str] = None
         """Default language for statements emitted from this dataset"""
@@ -131,7 +132,8 @@ class Context:
             self._cache.close()
         if self._timestamps is not None:
             self._timestamps.close()
-        self.sink.close()
+        if self._writer is not None:
+            self._writer.close()
         reset_contextvars(**(self._structlog_contextvars_tokens or {}))
         self.issues.close()
         if not self.dry_run:
@@ -580,7 +582,10 @@ class Context:
                 self.stats.changed += 1
             stmt.last_seen = settings.RUN_TIME_ISO
             if not self.dry_run:
-                self.sink.emit(stmt)
+                if self._writer is None:
+                    fh = self._writer_path.open("w", encoding=ENCODING)
+                    self._writer = PackStatementWriter(fh)
+                self._writer.write(stmt)
             self.stats.statements += 1
 
     def __hash__(self) -> int:
