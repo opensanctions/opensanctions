@@ -84,9 +84,9 @@ def read_base_data_csv(path: PathLike) -> Generator[Dict[str, str], None, None]:
     with ZipFile(path, "r") as zip:
         for name in zip.namelist():
             with zip.open(name, "r") as fh:
-                fhtext = TextIOWrapper(fh)
-                for row in csv.DictReader(fhtext):
-                    yield {k.strip(): v for (k, v) in row.items()}
+                with TextIOWrapper(fh) as fhtext:
+                    for row in csv.DictReader(fhtext):
+                        yield {k.strip(): v for (k, v) in row.items()}
 
 
 def parse_base_data(context: Context) -> None:
@@ -162,9 +162,9 @@ def read_psc_data(path: PathLike) -> Generator[Dict[str, Any], None, None]:
     with ZipFile(path, "r") as zip:
         for name in zip.namelist():
             with zip.open(name, "r") as fh:
-                fhtext = TextIOWrapper(fh)
-                while line := fhtext.readline():
-                    yield json.loads(line)
+                with TextIOWrapper(fh) as fhtext:
+                    for line in fhtext:
+                        yield json.loads(line)
 
 
 def parse_psc_data(context: Context) -> None:
@@ -283,7 +283,11 @@ def parse_psc_data(context: Context) -> None:
             psc.add("topics", "sanction")
 
         context.audit_data(
-            data, ignore=["service_address_is_same_as_registered_office_address"]
+            data,
+            ignore=[
+                "service_address_is_same_as_registered_office_address",
+                "identity_verification_details",
+            ],
         )
         context.emit(psc)
         context.emit(link)
