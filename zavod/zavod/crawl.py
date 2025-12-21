@@ -9,6 +9,7 @@ from zavod.archive import dataset_data_path
 from zavod.runtime.stats import ContextStats
 from zavod.runtime.loader import load_entry_point
 from zavod.runner.enrich import enrich
+from zavod.reset import reset_caches
 
 # HACK: Importing the enrich module in the test avoids a segfault otherwise happening
 # on OS X, probably related to the nested use of import_module.
@@ -71,3 +72,4 @@ def crawl_dataset(dataset: Dataset, dry_run: bool = False) -> ContextStats:
         raise RunFailedException() from exc
     finally:
         context.close()
+        reset_caches()
