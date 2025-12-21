@@ -12,9 +12,16 @@ log = get_logger(__name__)
 
 
 class TimeStampIndex(object):
+    BUFFER = 50 * 1024 * 1024
+
     def __init__(self, dataset: Dataset) -> None:
         self.path = dataset_state_path(dataset.name) / "timestamps"
-        self.db = plyvel.DB(self.path.as_posix(), create_if_missing=True)
+        self.db = plyvel.DB(
+            self.path.as_posix(),
+            create_if_missing=True,
+            write_buffer_size=self.BUFFER,
+            lru_cache_size=self.BUFFER,
+        )
 
     def index(self, statements: Iterable[Statement]) -> None:
         log.info("Building timestamp index...")
