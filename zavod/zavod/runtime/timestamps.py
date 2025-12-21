@@ -1,4 +1,5 @@
 import plyvel  # type: ignore
+import shutil
 from typing import Dict, Iterable
 from rigour.env import ENCODING as E
 from followthemoney import Statement
@@ -12,8 +13,8 @@ log = get_logger(__name__)
 
 class TimeStampIndex(object):
     def __init__(self, dataset: Dataset) -> None:
-        path = dataset_state_path(dataset.name) / "timestamps"
-        self.db = plyvel.DB(path.as_posix(), create_if_missing=True)
+        self.path = dataset_state_path(dataset.name) / "timestamps"
+        self.db = plyvel.DB(self.path.as_posix(), create_if_missing=True)
 
     def index(self, statements: Iterable[Statement]) -> None:
         log.info("Building timestamp index...")
@@ -28,6 +29,7 @@ class TimeStampIndex(object):
             batch.put(key.encode(E), stmt.first_seen.encode(E))
             if idx > 0 and idx % 500_000 == 0:
                 batch.write()
+                batch.clear()
                 batch = self.db.write_batch()
         batch.write()
         # self.db.compact_range()
@@ -50,6 +52,7 @@ class TimeStampIndex(object):
 
     def close(self) -> None:
         self.db.close()
+        shutil.rmtree(self.path.as_posix(), ignore_errors=True)
 
     def __hash__(self) -> int:
         return hash(self.db.name)
