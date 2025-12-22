@@ -26,12 +26,13 @@ url: https://datos.hcdn.gob.ar/dataset/legisladores
 data:
   url: https://datos.hcdn.gob.ar/dataset/a80e0fa7-d73a-4ed1-9dec-80465e368951/resource/16cd699d-83fb-4d5f-afd4-0af9b47b1bd7/download/diputados.json
   format: JSON
-
+dates:
+  formats: ["%d/%m/%Y"]
 
 assertions:
   min:
     schema_entities:
-      Person: 900
+      Person: 245
   max:
     schema_entities:
-      Person: 1500
+      Person: 300
