@@ -5,8 +5,11 @@ import pytest
 import requests_mock
 import structlog
 from requests.adapters import HTTPAdapter
+from followthemoney.statement import read_statements, PACK
 
-from zavod.archive import iter_dataset_statements
+from zavod import settings
+from zavod.archive import iter_dataset_statements, dataset_resource_path
+from zavod.archive import STATEMENTS_FILE
 from zavod.context import Context
 from zavod.crawl import crawl_dataset
 from zavod.entity import Entity
@@ -14,7 +17,6 @@ from zavod.exc import RunFailedException
 from zavod.meta import Dataset
 from zavod.runtime.http_ import request_hash
 from zavod.runtime.loader import load_entry_point
-from zavod.runtime.sink import DatasetSink
 from zavod.tests.conftest import XML_DOC
 
 
@@ -243,7 +245,9 @@ def test_context_fetchers_exceptions(testdataset1: Dataset):
 
 
 def test_crawl_dataset(testdataset1: Dataset):
-    DatasetSink(testdataset1).clear()
+    path = dataset_resource_path(testdataset1.name, STATEMENTS_FILE)
+    if path.is_file():
+        path.unlink()
     assert len(list(iter_dataset_statements(testdataset1))) == 0
     context = Context(testdataset1)
     context.begin(clear=True)
@@ -272,3 +276,25 @@ def test_crawl_dataset_wrapper(testdataset1: Dataset):
     testdataset1.data.format = "FAIL"
     with pytest.raises(RunFailedException):
         crawl_dataset(testdataset1)
+
+
+def test_dataset_sink(testdataset1: Dataset):
+    context = Context(testdataset1)
+    assert context._writer_path.is_relative_to(settings.DATA_PATH)
+    entity = context.make("Person")
+    entity.id = "foo"
+    entity.add("name", "Foo")
+    context.emit(entity)
+    context.close()
+    assert context._writer_path.is_file()
+    with open(context._writer_path, "rb") as fh:
+        stmts = list(read_statements(fh, PACK))
+        for stmt in stmts:
+            assert stmt.dataset == testdataset1.name, stmt
+            assert stmt.entity_id == "foo"
+        assert len(stmts) == 2, stmts
+        props = [s.prop for s in stmts]
+        assert "id" in props, props
+        assert "name" in props, props
+    # context.sink.clear()
+    # assert not context._writer_path.is_file()
