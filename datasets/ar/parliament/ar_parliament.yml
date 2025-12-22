@@ -5,6 +5,7 @@ coverage:
   frequency: daily
   start: 2023-12-31
 load_statements: true
+ci_test: false # No Zyte API in CI
 summary: >-
   Current and recent members of the Argentine Chamber of Deputies, the lower
   house of the National Congress.
