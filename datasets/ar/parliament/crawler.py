@@ -1,13 +1,26 @@
 import json
-from lxml import html
-from rigour.mime.types import JSON, HTML
+from rigour.mime.types import JSON
 
 from zavod import Context
 from zavod import helpers as h
+from zavod.extract import zyte_api
 from zavod.stateful.positions import categorise
 
 
 HTML_DATA_URL = "https://www.hcdn.gob.ar/diputados/"
+UNBLOCK_ACTIONS = [
+    {
+        "action": "waitForNavigation",
+        "waitUntil": "networkidle0",
+        "timeout": 31,
+        "onError": "return",
+    },
+    {
+        "action": "waitForTimeout",
+        "timeout": 15,
+        "onError": "return",
+    },
+]
 
 
 def crawl_json(context: Context) -> None:
@@ -75,22 +88,27 @@ def crawl_personal_page(context: Context, url):
 
 def crawl(context: Context):
     crawl_json(context)
-    path = context.fetch_resource("source.html", HTML_DATA_URL)
-    context.export_resource(path, HTML, title=context.SOURCE_TITLE)
-
-    with open(path, "r") as fh:
-        doc = html.parse(fh)
-        doc = doc.getroot()
-        doc.make_links_absolute(HTML_DATA_URL)
+    table_xpath = ".//table"
+    doc = zyte_api.fetch_html(
+        context,
+        HTML_DATA_URL,
+        table_xpath,
+        actions=UNBLOCK_ACTIONS,
+        cache_days=1,
+        absolute_links=True,
+    )
 
     # Find the table containing the deputy data
-    for row in h.parse_html_table(doc.find(".//table")):
+    for row in h.parse_html_table(
+        h.xpath_elements(doc, table_xpath, expect_exactly=1)[0]
+    ):
         str_row = h.cells_to_str(row)
         name_el = row.pop("diputado")
         link = name_el.xpath(".//a/@href")
 
         name = str_row.pop("diputado")
-        if "pendiente de incorporacion" in name.lower():
+        assert name, name
+        if "pendiente de incorporac" in name.lower():
             continue
 
         # Create and emit the person entity
@@ -130,8 +148,8 @@ def crawl(context: Context):
         if occupancy:
             occupancy.add("description", str_row.pop("distrito"))
 
-        # Emit the entities
-        context.emit(person)
-        context.emit(position)
-        context.emit(occupancy)
-        context.audit_data(str_row, ignore=["mandato"])
+            # Emit the entities
+            context.emit(person)
+            context.emit(position)
+            context.emit(occupancy)
+            context.audit_data(str_row, ignore=["mandato"])
