@@ -34,6 +34,7 @@ IGNORE_DATASETS = {
     "opencorporates",  # funky enricher
     "us_ofac_press_releases",  # too much name-only matching
     "ext_us_ofac_press_releases",  # too much name-only matching
+    "eu_esma_sanctions",  # too much name-only matching
 }
 
 
