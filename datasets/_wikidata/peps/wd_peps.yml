@@ -8,6 +8,7 @@ coverage:
 deploy:
   memory: "1500Mi"
   memory_limit: "2500Mi"
+  schedule: "0 0 * * 2,4,6"
 load_statements: true
 exports:
   - entities.ftm.json
