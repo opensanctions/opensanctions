@@ -12,7 +12,7 @@ log = get_logger(__name__)
 
 
 class TimeStampIndex(object):
-    BUFFER = 50 * 1024 * 1024
+    BUFFER = 10 * 1024 * 1024
 
     def __init__(self, dataset: Dataset) -> None:
         self.path = dataset_state_path(dataset.name) / "timestamps"
