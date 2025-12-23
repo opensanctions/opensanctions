@@ -76,7 +76,7 @@ def _extract_text(element, xpath_query):
 
 def crawl_personal_page(context: Context, url):
     context.log.debug("Starting crawling personal page", url=url)
-    doc = context.fetch_html(url, cache_days=1)
+    doc = context.fetch_html(url, cache_days=30)
 
     # Extract additional details from the personal page
     profession = _extract_text(doc, './/p[@class="encabezadoProfesion"]/span/text()')
@@ -87,6 +87,7 @@ def crawl_personal_page(context: Context, url):
 
 
 def crawl(context: Context):
+    # TODO: lower cache after dedupe
     crawl_json(context)
     table_xpath = ".//table"
     doc = zyte_api.fetch_html(
@@ -94,7 +95,7 @@ def crawl(context: Context):
         HTML_DATA_URL,
         table_xpath,
         actions=UNBLOCK_ACTIONS,
-        cache_days=1,
+        cache_days=30,
         absolute_links=True,
     )
 
