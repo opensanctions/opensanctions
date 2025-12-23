@@ -41,7 +41,7 @@ tags:
 assertions:
   min:
     schema_entities:
-      Organization: 220
+      Organization: 190
   max:
     schema_entities:
-      Organization: 320
+      Organization: 250

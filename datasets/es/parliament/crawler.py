@@ -35,6 +35,7 @@ def emit_pep_entities(
     end_date: Optional[str],
     is_pep: bool,
     wikidata_id: Optional[str] = None,
+    external: bool = False,
 ) -> bool:
     person.add("position", position_name)
     position = h.make_position(
@@ -55,9 +56,9 @@ def emit_pep_entities(
         categorisation=categorisation,
     )
     if occupancy:
-        context.emit(occupancy)
-        context.emit(position)
-        context.emit(person)
+        context.emit(occupancy, external=external)
+        context.emit(position, external=external)
+        context.emit(person, external=external)
         return True
     return False
 
@@ -105,12 +106,10 @@ def crawl_deputy(
 
     person = context.make("Person")
     person.id = context.make_id(id, name, party)
-    first_names = item.pop("first_name").split(" ", 1)
     h.apply_name(
         person,
         full=name,
-        first_name=first_names[0],
-        second_name=first_names[1] if len(first_names) > 1 else None,
+        first_name=item.pop("first_name"),
         last_name=item.pop("last_name"),
     )
     birth_date, birth_place = get_birth_date_and_place(context, profile_url)
@@ -154,54 +153,59 @@ def crawl_senator(context: Context, senator_url: str) -> bool:
     datos = doc_xml.find("datosPersonales")
     assert datos is not None
     web_id = datos.findtext("idweb")
-    first_names = h.element_text(
+    full_first_name = h.element_text(
         h.xpath_elements(datos, "nombre", expect_exactly=1)[0]
-    ).split(" ", 1)
+    )
+    split_first_name = full_first_name.split(" ", 1)
     last_name = datos.findtext("apellidos")
 
-    person = context.make("Person")
-    # We ignore the type error here because we don't want to rekey
-    person.id = context.make_id(web_id, first_names, last_name)  # type: ignore
-    h.apply_name(
-        person,
-        first_name=first_names[0],
-        second_name=first_names[1] if len(first_names) > 1 else None,
-        last_name=last_name,
-    )
-    h.apply_date(person, "birthDate", datos.findtext("fechaNacimiento"))
-    h.apply_date(person, "deathDate", datos.findtext("fechaFallecimiento"))
-    person.add("birthPlace", datos.findtext("lugarNacimiento"))
-    person.add("notes", datos.findtext("biografia"))
-    person.add("sourceUrl", senator_url)
+    old_id = context.make_id(web_id, split_first_name, last_name)
+    new_id = context.make_id(web_id, full_first_name, last_name)
 
     emitted = False
+    # TODO: remove old_id after the migration is complete
+    for person_id, external in [(old_id, False), (new_id, True)]:
+        person = context.make("Person")
+        person.id = person_id
+        h.apply_name(
+            person,
+            first_name=full_first_name,
+            last_name=last_name,
+        )
+        h.apply_date(person, "birthDate", datos.findtext("fechaNacimiento"))
+        h.apply_date(person, "deathDate", datos.findtext("fechaFallecimiento"))
+        person.add("birthPlace", datos.findtext("lugarNacimiento"))
+        person.add("notes", datos.findtext("biografia"))
+        person.add("sourceUrl", senator_url)
 
-    for legislatura in doc_xml.findall(".//legislatura"):
-        # Additional parliamentary roles (cargos)
-        for cargo in legislatura.findall(".//cargo"):
-            role_title = cargo.findtext("cargoNombre")
-            role_body = cargo.findtext("cargoOrganoNombre")
-            emitted |= emit_pep_entities(
-                context,
-                person=person,
-                position_name=f"{role_title}, {role_body}",
-                lang="spa",
-                start_date=cargo.findtext("cargoAltaFec"),
-                end_date=cargo.findtext("cargoBajaFec"),
-                is_pep=True,
-            )
+        for legislatura in doc_xml.findall(".//legislatura"):
+            # Additional parliamentary roles (cargos)
+            for cargo in legislatura.findall(".//cargo"):
+                role_title = cargo.findtext("cargoNombre")
+                role_body = cargo.findtext("cargoOrganoNombre")
+                emitted |= emit_pep_entities(
+                    context,
+                    person=person,
+                    position_name=f"{role_title}, {role_body}",
+                    lang="spa",
+                    start_date=cargo.findtext("cargoAltaFec"),
+                    end_date=cargo.findtext("cargoBajaFec"),
+                    is_pep=True,
+                    external=external,
+                )
 
-        if legislatura.findtext("legislaturaActual") == "SI":
-            emitted |= emit_pep_entities(
-                context,
-                person=person,
-                position_name="Member of the Senate of Spain",
-                lang="eng",
-                start_date=None,
-                end_date=None,
-                is_pep=True,
-                wikidata_id="Q19323171",
-            )
+            if legislatura.findtext("legislaturaActual") == "SI":
+                emitted |= emit_pep_entities(
+                    context,
+                    person=person,
+                    position_name="Member of the Senate of Spain",
+                    lang="eng",
+                    start_date=None,
+                    end_date=None,
+                    is_pep=True,
+                    wikidata_id="Q19323171",
+                    external=external,
+                )
     return emitted
 
 
