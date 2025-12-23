@@ -35,11 +35,32 @@ def crawl_item(row: Dict[str, str], context: Context):
 
 
 def crawl_excel_url(context: Context):
-    file_xpath = "//a[starts-with(@href, 'https://mmac.mo.gov/')][contains(@href, 'sanction-list') or contains(@href, 'Sanction-List')]"
-    doc = fetch_html(context, context.data_url, file_xpath)
-    links = doc.xpath(file_xpath)
-    assert len(links) == 1, links
-    return links[0].get("href")
+    """
+    Navigate from the main page to the exclusions page and extract
+    the direct download URL for the exclusions Excel file.
+
+    Flow:
+    1. Main page → exclusions page
+    2. Exclusions page → Excel download link
+    """
+    exclusions_page_xpath = "//a[starts-with(@href, 'https://mmac.mo.gov/')][contains(@href, 'sanction-list') or contains(@href, 'Sanction-List')]/@href"
+    main_page = fetch_html(
+        context,
+        context.data_url,
+        exclusions_page_xpath,
+    )
+    exclusions_page_url = h.xpath_string(main_page, exclusions_page_xpath)
+    assert exclusions_page_url, exclusions_page_url
+
+    # Fetch the page that contains the Excel download link
+    excel_download_xpath = "//div[@class='entry']//a[contains(@href, 'Sanction-List') and contains(@href, '.xlsx')]/@href"
+    exclusions_page = fetch_html(
+        context,
+        exclusions_page_url,
+        excel_download_xpath,
+    )
+    excel_url = h.xpath_string(exclusions_page, excel_download_xpath)
+    return excel_url
 
 
 def crawl(context: Context) -> None:
