@@ -15,7 +15,7 @@ def salvage_entity(context: Context, entry):
     entity.add("name", name)
     entity.add("notes", details)
     entity.add("topics", "sanction")
-    parse_sanctions(context, entity, entry)
+    parse_sanctions(context, entity, entry, program_attrib="numberTitle")
     context.emit(entity)
 
 
