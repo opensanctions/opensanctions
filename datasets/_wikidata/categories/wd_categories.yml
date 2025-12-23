@@ -43,11 +43,11 @@ prefix: wd
 coverage:
   frequency: daily
   start: 2024-09-10
-  schedule: "0 22 * * *"
 deploy:
   cpu: "800m"
   memory: "2300Mi"
-  memory_limit: "2500Mi"
+  memory_limit: "3000Mi"
+  schedule: "0 0 * * 0,1,3,5"
   # This job takes 7 hours. Restarting it for scale-down is probably not worth it.
   premium: true
 load_statements: true
