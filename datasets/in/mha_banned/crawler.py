@@ -5,6 +5,7 @@ import re
 from lxml import html
 
 from zavod import Context
+from zavod.entity import Entity
 from zavod import helpers as h
 
 
@@ -38,7 +39,7 @@ def crawl_entity(
     authority_id: str,
     source_url: str,
     detail_url: str | None,
-) -> None:
+) -> Entity:
     entity = context.make(schema)
     # Include aliases in ID because there are different individuals whose alias
     # is all that distinguishes them.
@@ -85,10 +86,10 @@ def crawl_common(
     program: str,
     authority_id: str,
     source_url: str,
-    detail_url: List[str],
+    detail_url: str,
 ) -> None:
     if any(term in names.lower() for term in COMPLEX_TERMS):
-        res = context.lookup("names", names)
+        res = context.lookup("names", names, warn_unmatched=True)
         if res is None:
             context.log.warn("Complex name needs cleaning", url=source_url, name=names)
             crawl_entity(
@@ -137,11 +138,11 @@ def crawl_organisations(
         doc = html.fromstring(fh.read())
     doc.make_links_absolute(url)
 
-    table = doc.xpath(".//table")[0]
+    table = h.xpath_elements(doc, ".//table", expect_exactly=1)[0]
     for row in h.parse_html_table(table):
-        authority_id = row.pop("sr_no").text_content()
-        names = row.pop("title").text_content()
-        detail_url = row.pop("download_link").xpath(".//a/@href")
+        authority_id = h.xpath_string(row.pop("sr_no"), ".//text()")
+        names = h.xpath_string(row.pop("title"), ".//text()")
+        detail_url = h.xpath_string(row.pop("download_link"), ".//a/@href")
         crawl_common(
             context, "Organization", names, program, authority_id, url, detail_url
         )
@@ -154,22 +155,20 @@ def crawl_individuals(context: Context, url: str, filename: str, program: str) -
         doc = html.fromstring(fh.read())
     doc.make_links_absolute(url)
 
-    table = doc.xpath(".//table")[0]
+    table = h.xpath_elements(doc, ".//table", expect_exactly=1)[0]
     for row in h.parse_html_table(table):
-        authority_id = row.pop("sr_no").text_content()
-        names = row.pop("title").text_content().strip().rstrip(".")
-        detail_url = row.pop("download_link").xpath(".//a/@href")
+        authority_id = h.xpath_string(row.pop("sr_no"), ".//text()")
+        names = h.xpath_string(row.pop("title"), ".//text()").strip().rstrip(".")
+        detail_url = h.xpath_string(row.pop("download_link"), ".//a/@href")
         crawl_common(context, "Person", names, program, authority_id, url, detail_url)
 
 
 def get_link_by_label(doc: _Element, label: str) -> Optional[str]:
     label_xpath = f".//td[contains(text(), '{label}')]"
-    label_cells = doc.xpath(label_xpath)
-    assert len(label_cells) == 1
-
-    anchors = label_cells[0].xpath("./following-sibling::td//a")
-    assert len(anchors) == 1
-
+    label_cells = h.xpath_elements(doc, label_xpath, expect_exactly=1)
+    anchors = h.xpath_elements(
+        label_cells[0], "./following-sibling::td//a", expect_exactly=1
+    )
     link = anchors[0]
     return link.get("href")
 
@@ -184,9 +183,7 @@ def parse_names(field: str) -> List[str]:
 
 
 def crawl(context: Context) -> None:
-    doc = context.fetch_html(
-        context.dataset.model.url, cache_days=1, absolute_links=True
-    )
+    doc = context.fetch_html(context.data_url, cache_days=1, absolute_links=True)
 
     associations_url = get_link_by_label(doc, ASSOCIATIONS_LABEL)
     crawl_organisations(
