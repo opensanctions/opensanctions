@@ -24,6 +24,9 @@ url: https://www.mha.gov.in/en/divisionofmha/counter-terrorism-and-counter-radic
 data:
   url: https://www.mha.gov.in/en/divisionofmha/counter-terrorism-and-counter-radicalization-division
   format: HTML
+http:
+  user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.2 Safari/605.1.15 (zavod; opensanctions.org)"
+  additional_retry_statuses: [403]
 tags:
   - list.sanction
 
@@ -36,7 +39,7 @@ assertions:
 lookups:
   sanction.program:
     options:
-      - match: 
+      - match:
           - "UNLAWFUL ASSOCIATIONS UNDER SECTION 3 OF UNLAWFUL ACTIVITIES (PREVENTION) ACT, 1967"
           - "TERRORIST ORGANISATIONS LISTED IN THE FIRST SCHEDULE OF THE UNLAWFUL ACTIVITIES (PREVENTION) ACT, 1967"
           - "INDIVIDUALS TERRORISTS LISTED IN THE FOURTH SCHEDULE OF THE UNLAWFUL ACTIVITIES (PREVENTION) ACT, 1967"

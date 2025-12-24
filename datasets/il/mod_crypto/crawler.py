@@ -209,7 +209,7 @@ def crawl(context: Context):
 
     write_csv_for_manual_diff(tables[0], LOCAL_PATH / "releases.csv")
     write_csv_for_manual_diff(tables[1], LOCAL_PATH / "wallets.csv")
-    h.assert_dom_hash(container, "72f78441d876e62ab710aa7768db63b6355384e5")
+    h.assert_dom_hash(container, "36f0215ed4ac0e1e8b76df5bf565f72aaac5eaba")
 
     # At the time of writing, the table on the web page is missing some public keys,
     # so we maintain the data manually in a google sheet, but dump the table to csv
