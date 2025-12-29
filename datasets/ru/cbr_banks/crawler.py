@@ -2,6 +2,7 @@ from lxml import etree
 from rigour.mime.types import XML
 
 from zavod import Context, helpers as h
+from zavod.entity import Entity
 from zavod.extract.zyte_api import fetch_resource
 
 SOAP_URL = "http://www.cbr.ru/CreditInfoWebServ/CreditOrgInfo.asmx"
@@ -53,24 +54,42 @@ def bic_to_int_code(context: Context, bic):
 
     # Extract the result
     result = tree.find(".//BicToIntCodeResult")
-    if result is not None:
+    if result is not None and result.text != "-1":
         return result.text
     else:
         context.log.info("No internal code found for BIC", bic=bic)
         return None
 
 
-def crawl_details(context: Context, internal_code: str | None, entity):
-    """Gets detailed credit information for an internal code."""
-    if internal_code is None:
-        co_data = None
-        lic_data = None
-    else:
+def crawl_details(context: Context, bic: str, entity: Entity, short_name: str | None):
+    """Crawl additional details on best-effort basis and emit."""
+    co_data = None
+    lic_data = None
+    internal_code = bic_to_int_code(context, bic)
+
+    if internal_code is not None:
         result = get_org_info(context, internal_code)
+        error = result.findtext(".//CreditInfoByIntCodeXMLResult/Error")
+        if error:
+            if error == "NotFound":
+                # Usually when the license has expired but the bic is still listed
+                pass
+            else:
+                context.log.error(
+                    "Error fetching details",
+                    internal_code=internal_code,
+                    entity_id=entity.id,
+                    error=error.text,
+                )
+
         co_data = result.find(".//CreditOrgInfo/CO")
         lic_data = result.find(".//CreditOrgInfo/LIC")
 
-    if co_data is not None:
+    if co_data is None:
+        # This is all caps ugliness - let's only use it when we're not getting nice names
+        # from the detailed info.
+        h.apply_reviewed_names(context, entity, short_name, enable_llm_cleaning=True)
+    else:
         ssv_date = co_data.findtext("SSV_Date")
         reg_date = co_data.findtext("MainDateReg")
 
@@ -143,8 +162,6 @@ def crawl_details(context: Context, internal_code: str | None, entity):
         h.apply_date(
             entity, "incorporationDate", co_data.findtext("DateKGRRegistration")
         )
-    else:
-        context.log.warning(f"No details found for BIC {internal_code}")
 
     if lic_data is not None:
         license_date = lic_data.findtext("LDate")
@@ -182,5 +199,7 @@ def crawl(context: Context):
         bic = record.findtext("Bic")
         entity = context.make("Company")
         entity.id = context.make_slug(bic)
-        int_code = bic_to_int_code(context, bic)
-        crawl_details(context, int_code, entity)
+        entity.add("ogrnCode", record.findtext("RegNum"))
+        entity.add("bikCode", bic)
+
+        crawl_details(context, bic, entity, record.findtext("ShortName"))
