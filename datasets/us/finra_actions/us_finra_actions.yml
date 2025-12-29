@@ -832,3 +832,6 @@ lookups:
           - MCGINN, SMITH & CO. INC.
           - MCGINN TIMOTHY M
           - DAVID L. SMITH
+      - match: Carter, Terry & Company Inc.
+        names:
+          - Carter, Terry & Company Inc.
