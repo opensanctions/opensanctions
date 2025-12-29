@@ -1,6 +1,8 @@
 import csv
 from typing import Dict
 
+from rigour.mime.types import PDF
+
 from zavod import Context, helpers as h
 from zavod.extract import zyte_api
 
@@ -89,9 +91,12 @@ def crawl(context: Context):
         absolute_links=True,
         geolocation="RO",
     )
-    url = doc.xpath(url_xpath)
-    assert len(url) == 1, "Expected exactly one link in the document"
-    h.assert_url_hash(context, url[0], "583e5e471beabb3b5bde7b259770998952bdfea0")
+    pdf_url = h.xpath_string(doc, url_xpath)
+    # Zyte because the connection times out when connecting from Google Cloud.
+    _, _, _, path = zyte_api.fetch_resource(context, "source.pdf", pdf_url, PDF)
+    # Ensure that the PDF our Google Sheet is based on hasn't changed
+    # since we last updated the Google Sheet.
+    h.assert_file_hash(path, "583e5e471beabb3b5bde7b259770998952bdfea0")
     # AL-ZINDANI, Shaykh Abd-al-Majid
     # ...
     # AL AKHTAR TRUST
