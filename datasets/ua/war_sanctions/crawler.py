@@ -15,11 +15,11 @@ from zavod import Context, helpers as h
 
 # Note: These contain special characters, in testing use single quotes
 # to make sure variables don't get interpolated by the shell.
-WS_API_CLIENT_ID = env.get("OPENSANCTIONS_UA_WS_API_CLIENT_ID")
-WS_API_KEY = env.get("OPENSANCTIONS_UA_WS_API_KEY")
+WS_API_CLIENT_ID = env["OPENSANCTIONS_UA_WS_API_CLIENT_ID"]
+WS_API_KEY = env["OPENSANCTIONS_UA_WS_API_KEY"]
 # We keep these two secret because they were shared with us confidentially
-WS_API_DOCS_URL = env.get("OPENSANCTIONS_UA_WS_API_DOCS_URL")
-WS_API_BASE_URL = env.get("OPENSANCTIONS_UA_WS_API_BASE_URL")
+WS_API_DOCS_URL = env["OPENSANCTIONS_UA_WS_API_DOCS_URL"]
+WS_API_BASE_URL = env["OPENSANCTIONS_UA_WS_API_BASE_URL"]
 
 BR_RE = re.compile(r"<br\s*/?>", re.IGNORECASE)
 SPLITS = [" / ", "\r\n", "/"]
@@ -464,8 +464,8 @@ def crawl_rostec_structure(context: Context, structure_data):
 
 def check_updates(context: Context):
     # NOTE: When debugging, uncomment the logging below ONLY in local development.
-    # Do not enable in production or commit uncommented to avoid leaking credentials
-    # or sensitive data in public logs. For production debugging, review logs locally.
+    # Do not enable in production or commit uncommented to avoid leaking
+    # the API docs key in the logs.
     try:
         doc = context.fetch_html(WS_API_DOCS_URL)
     except Exception:  #  as e:
@@ -548,12 +548,9 @@ def crawl(context: Context):
         headers = {"Authorization": token}
 
         url = f"{WS_API_BASE_URL}{link.endpoint}"
-        response = context.fetch_json(url, headers=headers, cache_days=1)
-        # NOTE: When debugging, uncomment the logging below ONLY in local development.
-        # Do not enable in production or commit uncommented to avoid leaking credentials
-        # or sensitive data in public logs. For production debugging, review logs locally.
+        response = context.fetch_json(url, headers=headers)
         if not response or response.get("code") != 0:
-            context.log.error("No valid data to parse")  # , url=url, response=response)
+            context.log.error("No valid data to parse", url=url, response=response)
             continue
         data = response.get("data")
         for entity_details in data:
