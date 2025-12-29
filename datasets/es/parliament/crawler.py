@@ -35,7 +35,6 @@ def emit_pep_entities(
     end_date: Optional[str],
     is_pep: bool,
     wikidata_id: Optional[str] = None,
-    external: bool = False,
 ) -> bool:
     person.add("position", position_name)
     position = h.make_position(
@@ -56,9 +55,9 @@ def emit_pep_entities(
         categorisation=categorisation,
     )
     if occupancy:
-        context.emit(occupancy, external=external)
-        context.emit(position, external=external)
-        context.emit(person, external=external)
+        context.emit(occupancy)
+        context.emit(position)
+        context.emit(person)
         return True
     return False
 
@@ -156,56 +155,48 @@ def crawl_senator(context: Context, senator_url: str) -> bool:
     full_first_name = h.element_text(
         h.xpath_elements(datos, "nombre", expect_exactly=1)[0]
     )
-    split_first_name = full_first_name.split(" ", 1)
     last_name = datos.findtext("apellidos")
 
-    old_id = context.make_id(web_id, split_first_name, last_name)
-    new_id = context.make_id(web_id, full_first_name, last_name)
-
     emitted = False
-    # TODO: remove old_id after the migration is complete
-    for person_id, external in [(old_id, False), (new_id, True)]:
-        person = context.make("Person")
-        person.id = person_id
-        h.apply_name(
-            person,
-            first_name=full_first_name,
-            last_name=last_name,
-        )
-        h.apply_date(person, "birthDate", datos.findtext("fechaNacimiento"))
-        h.apply_date(person, "deathDate", datos.findtext("fechaFallecimiento"))
-        person.add("birthPlace", datos.findtext("lugarNacimiento"))
-        person.add("notes", datos.findtext("biografia"))
-        person.add("sourceUrl", senator_url)
+    person = context.make("Person")
+    person.id = context.make_id(web_id, full_first_name, last_name)
+    h.apply_name(
+        person,
+        first_name=full_first_name,
+        last_name=last_name,
+    )
+    h.apply_date(person, "birthDate", datos.findtext("fechaNacimiento"))
+    h.apply_date(person, "deathDate", datos.findtext("fechaFallecimiento"))
+    person.add("birthPlace", datos.findtext("lugarNacimiento"))
+    person.add("notes", datos.findtext("biografia"))
+    person.add("sourceUrl", senator_url)
 
-        for legislatura in doc_xml.findall(".//legislatura"):
-            # Additional parliamentary roles (cargos)
-            for cargo in legislatura.findall(".//cargo"):
-                role_title = cargo.findtext("cargoNombre")
-                role_body = cargo.findtext("cargoOrganoNombre")
-                emitted |= emit_pep_entities(
-                    context,
-                    person=person,
-                    position_name=f"{role_title}, {role_body}",
-                    lang="spa",
-                    start_date=cargo.findtext("cargoAltaFec"),
-                    end_date=cargo.findtext("cargoBajaFec"),
-                    is_pep=True,
-                    external=external,
-                )
+    for legislatura in doc_xml.findall(".//legislatura"):
+        # Additional parliamentary roles (cargos)
+        for cargo in legislatura.findall(".//cargo"):
+            role_title = cargo.findtext("cargoNombre")
+            role_body = cargo.findtext("cargoOrganoNombre")
+            emitted |= emit_pep_entities(
+                context,
+                person=person,
+                position_name=f"{role_title}, {role_body}",
+                lang="spa",
+                start_date=cargo.findtext("cargoAltaFec"),
+                end_date=cargo.findtext("cargoBajaFec"),
+                is_pep=True,
+            )
 
-            if legislatura.findtext("legislaturaActual") == "SI":
-                emitted |= emit_pep_entities(
-                    context,
-                    person=person,
-                    position_name="Member of the Senate of Spain",
-                    lang="eng",
-                    start_date=None,
-                    end_date=None,
-                    is_pep=True,
-                    wikidata_id="Q19323171",
-                    external=external,
-                )
+        if legislatura.findtext("legislaturaActual") == "SI":
+            emitted |= emit_pep_entities(
+                context,
+                person=person,
+                position_name="Member of the Senate of Spain",
+                lang="eng",
+                start_date=None,
+                end_date=None,
+                is_pep=True,
+                wikidata_id="Q19323171",
+            )
     return emitted
 
 
@@ -226,9 +217,7 @@ def crawl(context: Context) -> None:
     current_leg_option = h.xpath_elements(
         leg_select, "//option[@selected='']", expect_exactly=1
     )[0]
-    current_leg_decimal = h.xpath_strings(
-        current_leg_option, "@value", expect_exactly=1
-    )[0]
+    current_leg_decimal = h.xpath_string(current_leg_option, "@value")
     current_leg_roman = h.element_text(current_leg_option).split(" ")[0].strip()
     form_data = {
         "_diputadomodule_idLegislatura": current_leg_decimal,
