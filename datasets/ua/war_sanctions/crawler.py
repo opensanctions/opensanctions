@@ -3,9 +3,9 @@ import hashlib
 import random
 import re
 import string
+from time import sleep
 
 from dataclasses import dataclass
-from datetime import datetime, timezone
 from enum import Enum
 from normality import squash_spaces
 from os import environ as env
@@ -20,6 +20,7 @@ WS_API_KEY = env["OPENSANCTIONS_UA_WS_API_KEY"]
 # We keep these two secret because they were shared with us confidentially
 WS_API_DOCS_URL = env["OPENSANCTIONS_UA_WS_API_DOCS_URL"]
 WS_API_BASE_URL = env["OPENSANCTIONS_UA_WS_API_BASE_URL"]
+SLEEP = 10
 
 BR_RE = re.compile(r"<br\s*/?>", re.IGNORECASE)
 SPLITS = [" / ", "\r\n", "/"]
@@ -151,9 +152,10 @@ LINKS: List[WSAPILink] = [
 ]
 
 
-def generate_token(cid: str, pkey: str) -> str:
-    # 1. Create timestamp in ISO8601 (UTC)
-    timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+def generate_token(context: Context, cid: str, pkey: str) -> str:
+    # Request with a timestamp that is more than 15 seconds off
+    # from the our server time will not be processed.
+    timestamp = context.fetch_json(f"{WS_API_BASE_URL}/time")["server_time"]
     # 2. Generate server instance ID (exactly 2 characters)
     sid = "".join(random.choices(string.ascii_letters + string.digits, k=2))
     # 3. Create signature = sha256(cid + sid + timestamp + pkey), lowercase hex
@@ -544,10 +546,11 @@ def crawl(context: Context):
     check_updates(context)
 
     for link in LINKS:
-        token = generate_token(WS_API_CLIENT_ID, WS_API_KEY)
+        sleep(SLEEP)
+        token = generate_token(context, WS_API_CLIENT_ID, WS_API_KEY)
         headers = {"Authorization": token}
 
-        url = f"{WS_API_BASE_URL}{link.endpoint}"
+        url = f"{WS_API_BASE_URL}/v1/{link.endpoint}"
         response = context.fetch_json(url, headers=headers)
         if not response or response.get("code") != 0:
             context.log.error("No valid data to parse", url=url, response=response)
