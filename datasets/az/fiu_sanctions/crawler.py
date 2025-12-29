@@ -5,19 +5,10 @@ from zavod import Context
 from zavod import helpers as h
 
 
-def get_xml_url(context: Context) -> str:
-    doc = context.fetch_html(context.data_url)
-    for link in doc.findall(".//a"):
-        href = link.get("href")
-        if href is None:
-            continue
-        if "domestic" in href.lower():
-            return href
-    raise ValueError("No XML link found")
-
-
 def crawl(context: Context) -> None:
-    path = context.fetch_resource("source.xml", get_xml_url(context))
+    html_doc = context.fetch_html(context.data_url)
+    xml_url = h.xpath_string(html_doc, ".//a[contains(text(), 'XML')]/@href")
+    path = context.fetch_resource("source.xml", xml_url)
     context.export_resource(path, XML, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
         doc = etree.parse(fh)
