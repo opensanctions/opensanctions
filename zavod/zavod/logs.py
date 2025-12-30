@@ -4,7 +4,7 @@ import re
 import sys
 from rigour.env import TZ_NAME
 from pathlib import Path
-from typing import Any, Callable, Dict, List, MutableMapping, Optional
+from typing import Any, Callable, Dict, List, Optional
 
 import structlog
 from followthemoney.schema import Schema
@@ -12,11 +12,9 @@ from lxml.etree import _Element, tostring
 from lxml.html import HtmlElement
 from structlog.contextvars import merge_contextvars
 from structlog.stdlib import get_logger as get_raw_logger
-from structlog.types import Processor
+from structlog.types import Processor, EventDict
 
 from zavod import settings
-
-Event = MutableMapping[str, str]
 
 
 REDACT_IGNORE_LIST = {
@@ -56,10 +54,12 @@ class RedactingProcessor:
     def __init__(self, replace_patterns: Dict[str, str | Callable[[str], str]]) -> None:
         self.repl_regexes = {re.compile(p): r for p, r in replace_patterns.items()}
 
-    def __call__(self, logger: Any, method_name: str, event_dict: Event) -> Event:
+    def __call__(
+        self, logger: Any, method_name: str, event_dict: EventDict
+    ) -> EventDict:
         return self.redact_dict(event_dict)
 
-    def redact_dict(self, dict_: Event) -> Event:
+    def redact_dict(self, dict_: EventDict) -> EventDict:
         copy = {}
         for key, value in dict_.items():
             if isinstance(value, str):
@@ -68,6 +68,8 @@ class RedactingProcessor:
                 value = self.redact_dict(value)
             elif isinstance(value, list):
                 value = self.redact_list(value)
+            else:
+                value = self.redact_str(stringify(value))
             copy[key] = value
         return copy
 
@@ -76,10 +78,12 @@ class RedactingProcessor:
         for value in list_:
             if isinstance(value, dict):
                 value = self.redact_dict(value)
-            if isinstance(value, str):
+            elif isinstance(value, str):
                 value = self.redact_str(value)
-            if isinstance(value, list):
+            elif isinstance(value, list):
                 value = self.redact_list(value)
+            else:
+                value = self.redact_str(stringify(value))
             copy.append(value)
         return copy
 
@@ -97,7 +101,7 @@ def redact_uri_credentials(uri: str) -> str:
     return REGEX_URI_WITH_CREDENTIALS.sub(r"\1://***:***@", uri)
 
 
-def configure_redactor() -> Callable[[Any, str, Event], Event]:
+def configure_redactor() -> Callable[[Any, str, EventDict], EventDict]:
     """
     Configure a redacting processor redacting env var values with some variable
     that contained that value.
@@ -199,7 +203,7 @@ def get_logger(name: str) -> structlog.stdlib.BoundLogger:
     return get_raw_logger(name)
 
 
-def format_json(_: Any, __: str, ed: Event) -> Event:
+def format_json(_: Any, __: str, ed: EventDict) -> EventDict:
     """Stackdriver uses `message` and `severity` keys to display logs"""
     ed["message"] = ed.pop("event")
     ed["severity"] = ed.pop("level", "info").upper()
@@ -211,27 +215,21 @@ def stringify(value: Any) -> Any:
 
     if isinstance(value, (_Element, HtmlElement)):
         return tostring(value, pretty_print=False, encoding=str).strip()
-    if isinstance(value, Path):
+    elif isinstance(value, Path):
         try:
             value = value.relative_to(settings.DATA_PATH)
         except ValueError:
             pass
         return str(value)
-    if isinstance(value, Schema):
+    elif isinstance(value, Schema):
         return value.name
-    if isinstance(value, list):
-        return [stringify(v) for v in value]
-    if isinstance(value, dict):
-        for key, value_ in value.items():
-            value[key] = stringify(value_)
-    return value
+    return str(value)
 
 
-def log_issue(_: Any, __: str, ed: Event) -> Event:
-    data: Dict[str, Any] = stringify(dict(ed))
-
-    context = data.pop("context", None)
-    level: Optional[str] = data.get("level")
+def log_issue(_: Any, __: str, event_dict: EventDict) -> EventDict:
+    print(event_dict)
+    context = event_dict.pop("context", None)
+    level: Optional[str] = event_dict.get("level")
     if level is not None:
         level_num = getattr(logging, level.upper(), logging.ERROR)
         if level_num > logging.INFO and context is not None:
@@ -239,5 +237,5 @@ def log_issue(_: Any, __: str, ed: Event) -> Event:
 
             if isinstance(context, Context):
                 if not context.dry_run:
-                    context.issues.write(data)
-    return data
+                    context.issues.write(event_dict)
+    return event_dict
