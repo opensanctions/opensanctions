@@ -45,9 +45,12 @@ REGEX_URI_WITH_CREDENTIALS = re.compile(URI_WITH_CREDENTIALS)
 
 class RedactingProcessor:
     """
-    A structlog processor that redact sensitive information from log messages.
+    A structlog processor that redacts sensitive information from log messages.
 
     Patterns must be ordered such that longer/more specific patterns come first.
+
+    While structlog copies the initial event_dict, this class also copies it because
+    it needs to recurse into nested structures and structlog's copy is shallow.
     """
 
     def __init__(self, replace_patterns: Dict[str, str | Callable[[str], str]]) -> None:
@@ -57,6 +60,7 @@ class RedactingProcessor:
         return self.redact_dict(event_dict)
 
     def redact_dict(self, dict_: Event) -> Event:
+        copy = {}
         for key, value in dict_.items():
             if isinstance(value, str):
                 value = self.redact_str(value)
@@ -64,19 +68,20 @@ class RedactingProcessor:
                 value = self.redact_dict(value)
             elif isinstance(value, list):
                 value = self.redact_list(value)
-            dict_[key] = value
-        return dict_
+            copy[key] = value
+        return copy
 
     def redact_list(self, list_: List[Any]) -> List[Any]:
-        for ix, value in enumerate(list_):
+        copy = []
+        for value in list_:
             if isinstance(value, dict):
                 value = self.redact_dict(value)
             if isinstance(value, str):
                 value = self.redact_str(value)
             if isinstance(value, list):
                 value = self.redact_list(value)
-            list_[ix] = value
-        return list_
+            copy.append(value)
+        return copy
 
     def redact_str(self, string: str) -> str:
         for regex, replacement in self.repl_regexes.items():
