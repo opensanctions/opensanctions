@@ -53,3 +53,16 @@ data:
 #       Security: 460
 #       Person: 160
 #       Company: 50
+
+lookups:
+  type.country:
+    options:
+      - match:
+          - Gulf
+          - Central America
+          - South America
+        value: null
+      - match: Egyptian-Maltese
+        values:
+          - eg
+          - mt
