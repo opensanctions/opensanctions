@@ -1,5 +1,6 @@
 "use client";
 
+import React from 'react';
 import { markdown } from "@codemirror/lang-markdown";
 import CodeMirror, { ReactCodeMirrorRef } from "@uiw/react-codemirror";
 import { yaml } from "@codemirror/lang-yaml";
@@ -16,8 +17,9 @@ type SourceViewProps = {
   sourceValue: string,
   sourceMimeType: string,
   sourceLabel: string,
-  searchQuery: string,
-  relatedEntities: ReviewEntity[]
+  sourceSearchQuery: string,
+  relatedEntities: ReviewEntity[],
+  onTextSelect?: (text: string) => void
 };
 
 function createHighlighter(searchQuery: string) {
@@ -63,33 +65,45 @@ function makeCodeMirror(title: string, value: string, extensions: any[], searchQ
   />
 }
 
-export default function SourceView({ sourceValue, sourceMimeType, sourceLabel, searchQuery, relatedEntities }: SourceViewProps) {
+function SourceView({ sourceValue, sourceMimeType, sourceLabel, sourceSearchQuery, relatedEntities, onTextSelect }: SourceViewProps) {
+
+  const handleTextSelection = () => {
+    if (!onTextSelect) return;
+
+    const selection = window.getSelection();
+    const selectedText = selection?.toString().trim();
+
+    if (selectedText && selectedText.length > 0) {
+      onTextSelect(selectedText);
+    }
+  };
 
   const tabs: React.ReactNode[] = [];
   const tab = (title: string, content: React.ReactNode | null = null) => {
     return <Tab key={title} eventKey={title} title={title} >
-      {content ? content : makeCodeMirror(title, sourceValue, [], searchQuery)}
+      {content ? content : makeCodeMirror(title, sourceValue, [], sourceSearchQuery)}
     </Tab>
   }
 
   if (sourceMimeType === 'text/html') {
     let highlighted: string;
-    if (!!searchQuery) {
-      highlighted = sourceValue.replace(new RegExp(searchQuery, 'gi'), (match) => `<mark>${match}</mark>`);
+    if (!!sourceSearchQuery) {
+      highlighted = sourceValue.replace(new RegExp(sourceSearchQuery, 'gi'), (match) => `<mark>${match}</mark>`);
     } else {
       highlighted = sourceValue;
     }
     tabs.push(tab("As web page",
       <div
         style={{ height: '100%', width: '100%', overflow: 'auto', backgroundColor: '#fff', padding: '10px' }}
-        dangerouslySetInnerHTML={{ __html: highlighted }} />
+        dangerouslySetInnerHTML={{ __html: highlighted }}
+        onMouseUp={handleTextSelection} />
     ))
 
     const turndownService = new TurndownService();
     tabs.push(
       tab(
         "As Markdown",
-        makeCodeMirror("As Markdown", turndownService.turndown(sourceValue), [markdown()], searchQuery)
+        makeCodeMirror("As Markdown", turndownService.turndown(sourceValue), [markdown()], sourceSearchQuery)
       )
     );
 
@@ -98,7 +112,7 @@ export default function SourceView({ sourceValue, sourceMimeType, sourceLabel, s
     tabs.push(
       tab(
         "Original JSON as YAML",
-        makeCodeMirror("Original JSON as YAML", stringifyToYaml(JSON.parse(sourceValue)), [yaml()], searchQuery)
+        makeCodeMirror("Original JSON as YAML", stringifyToYaml(JSON.parse(sourceValue)), [yaml()], sourceSearchQuery)
       )
     );
   } else if (sourceMimeType === 'text/plain') {
@@ -134,3 +148,5 @@ export default function SourceView({ sourceValue, sourceMimeType, sourceLabel, s
     </div>
   )
 }
+
+export default React.memo(SourceView);

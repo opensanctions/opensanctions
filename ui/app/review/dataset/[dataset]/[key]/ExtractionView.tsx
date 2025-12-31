@@ -2,7 +2,7 @@
 
 import { json } from "@codemirror/lang-json";
 import { syntaxTree } from "@codemirror/language";
-import { keymap } from '@codemirror/view';
+import { Decoration, DecorationSet, MatchDecorator, ViewPlugin, ViewUpdate, keymap } from '@codemirror/view';
 import CodeMirror, { EditorView } from '@uiw/react-codemirror';
 import { yamlSchema } from "codemirror-json-schema/yaml";
 import { Draft04, JsonSchema } from 'json-schema-library';
@@ -83,6 +83,29 @@ function searchSelectedValue(state: EditorView["state"], search: (query: string)
   search(nodeText.replace(/(^"|"$)/g, ""));
 }
 
+function createHighlighter(highlightQuery: string) {
+  if (!highlightQuery) return [];
+
+  const decorator = new MatchDecorator({
+    regexp: new RegExp(highlightQuery, 'gi'),
+    decoration: Decoration.mark({ class: 'cm-searchMatch' })
+  });
+
+  return ViewPlugin.fromClass(class {
+    decorations: DecorationSet;
+
+    constructor(view: EditorView) {
+      this.decorations = decorator.createDeco(view);
+    }
+
+    update(update: ViewUpdate) {
+      this.decorations = decorator.updateDeco(update, this.decorations);
+    }
+  }, {
+    decorations: v => v.decorations
+  });
+}
+
 interface ExtractionViewProps {
   rawData: unknown;
   extractedData: unknown;
@@ -91,9 +114,10 @@ interface ExtractionViewProps {
   entryKey: string;
   dataset: string;
   search: (query: string) => void;
+  highlightQuery?: string;
 }
 
-export default function ExtractionView({ rawData, extractedData, schema, accepted: initialAccepted, entryKey, dataset, search }: ExtractionViewProps) {
+export default function ExtractionView({ rawData, extractedData, schema, accepted: initialAccepted, entryKey, dataset, search, highlightQuery }: ExtractionViewProps) {
   const [accepted, setAccepted] = useState(initialAccepted);
   const [editorExtracted, setEditorExtracted] = useState(stringifyToYaml(extractedData, null, 2));
   const [flashInvalid, setFlashInvalid] = useState(false);
@@ -186,6 +210,8 @@ export default function ExtractionView({ rawData, extractedData, schema, accepte
     },
   ]);
 
+  const highlighter = createHighlighter(highlightQuery || '');
+
   return (
     <div className="entry-tabs flex-grow-1 d-flex flex-column" style={{ height: '100%' }}>
       <div className="d-flex flex-column" style={{ minHeight: 0, height: '100%' }}>
@@ -194,7 +220,11 @@ export default function ExtractionView({ rawData, extractedData, schema, accepte
             <div style={{ height: '100%' }}>
               <CodeMirror
                 value={stringifyToYaml(rawData, null, 2)}
-                extensions={[yamlSchema(schema), EditorView.lineWrapping]}
+                extensions={[
+                  yamlSchema(schema),
+                  EditorView.lineWrapping,
+                  ...(highlighter ? [highlighter] : [])
+                ]}
                 editable={false}
                 height="100%"
                 style={{ height: '100%', width: '100%' }}
@@ -207,7 +237,12 @@ export default function ExtractionView({ rawData, extractedData, schema, accepte
               <CodeMirror
                 ref={editorRef}
                 value={editorExtracted}
-                extensions={[yamlSchema(schema), EditorView.lineWrapping, escapeBlurKeymap]}
+                extensions={[
+                  yamlSchema(schema),
+                  EditorView.lineWrapping,
+                  escapeBlurKeymap,
+                  ...(highlighter ? [highlighter] : [])
+                ]}
                 height="100%"
                 style={{ height: '100%' }}
                 width="100%"
