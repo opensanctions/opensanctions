@@ -11,7 +11,9 @@ from zavod import helpers as h
 TYPES = {"C": "HE", "P": "S", "O": "AE", "N": "BN", "B": "B"}
 
 
-def company_id(org_type: str, reg_nr: str) -> Optional[str]:
+def company_id(org_type: str, reg_nr: Optional[str]) -> Optional[str]:
+    if reg_nr is None:
+        return None
     org_type_oc = TYPES.get(org_type)
     if org_type_oc is None:
         return None
