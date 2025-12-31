@@ -41,6 +41,7 @@ class Entity(StatementEntity):
         lang: Optional[str] = None,
         original_value: Optional[str] = None,
         origin: Optional[str] = None,
+        external: Optional[bool] = None,
     ) -> None:
         """Add a statement to the entity, possibly the value."""
         if value is None or len(value) == 0:
@@ -59,6 +60,9 @@ class Entity(StatementEntity):
         if lang is not None:
             lang = registry.language.clean_text(lang)
 
+        if external is None:
+            external = self._external
+
         for prop_, clean in value_clean(
             self, prop, value, cleaned=cleaned, fuzzy=fuzzy, format=format
         ):
@@ -75,6 +79,7 @@ class Entity(StatementEntity):
                 origin=origin,
                 original_value=original_value,
                 first_seen=seen,
+                external=external,
             )
             self.add_statement(stmt)
 

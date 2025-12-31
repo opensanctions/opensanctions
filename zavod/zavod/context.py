@@ -566,26 +566,14 @@ class Context:
             self.flush()
         stamps = {} if self.dry_run else self.timestamps.get(entity.id)
         for stmt in entity.statements:
-            should_compute_id = stmt.id is None
-            if stmt.lang is None:
-                stmt.lang = self.lang
-                should_compute_id = True
-            if stmt.origin is None:
-                stmt.origin = origin
-            if stmt.dataset != self.dataset.name:
-                stmt.dataset = self.dataset.name
-                should_compute_id = True
-            if stmt.entity_id != entity.id:
-                stmt.entity_id = entity.id
-                should_compute_id = True
-            if external:
-                stmt.external = external
-                should_compute_id = True
-            if stmt.schema != entity.schema.name:
-                stmt.schema = entity.schema.name
-                should_compute_id = True
-            if should_compute_id:
-                stmt.id = stmt.generate_key()
+            stmt = stmt.clone(
+                lang=stmt._lang or self.lang,
+                origin=stmt.origin or origin,
+                external=external,
+                dataset=self.dataset.name,
+                entity_id=entity.id,
+                schema=entity.schema.name,
+            )
             if stmt.id is None:
                 raise ValueError("Statement has no ID: %r", stmt)
             stmt.first_seen = stamps.get(stmt.id, settings.RUN_TIME_ISO)
