@@ -8,6 +8,7 @@ coverage:
 deploy:
   memory: "2000Mi"
   memory_limit: "3000Mi"
+resolve: false
 load_statements: false
 summary: >
   US OFAC press releases that provide context and details related to sanctioned entities.
