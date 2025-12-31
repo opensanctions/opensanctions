@@ -93,6 +93,7 @@ lookups:
           - "VICEPRESIDENTE"
           - "VICEPRESIDENTE EJECUTIVO"
           - "ALMIRANTE"
+          - "ENCARGADO DE FINANZAS"
 
       - is_pep: false
         contains:
