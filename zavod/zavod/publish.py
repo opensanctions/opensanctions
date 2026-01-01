@@ -1,5 +1,6 @@
 from rigour.mime.types import JSON
 
+from zavod.exporters.metadata import DatasetVersionResult
 from zavod.meta import Dataset
 from zavod.logs import get_logger
 from zavod.archive import publish_resource, dataset_resource_path
@@ -87,7 +88,7 @@ def publish_failure(dataset: Dataset, latest: bool = True) -> None:
     dataset_resource_path(dataset.name, DELTA_EXPORT_FILE).unlink(missing_ok=True)
     dataset_resource_path(dataset.name, DELTA_INDEX_FILE).unlink(missing_ok=True)
 
-    write_dataset_index(dataset)
+    write_dataset_index(dataset, DatasetVersionResult.FAILURE)
     path = dataset_resource_path(dataset.name, INDEX_FILE)
     if not path.is_file():
         log.error("Metadata file not found: %s" % path, dataset=dataset.name)
