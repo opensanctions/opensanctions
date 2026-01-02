@@ -13,7 +13,7 @@ export default function DataView({ entry, dataset, entryKey, relatedEntities }: 
   const [sourceSearchQuery, setSourceSearchQuery] = React.useState('');
   const [extractionSearchQuery, setExtractionSearchQuery] = React.useState('');
 
-  // Memoize the callback to prevent SourceView from re-rendering unnecessarily
+  // Memoize the callback to prevent SourceView from re-rendering and de-selecting the selection
   const handleTextSelect = React.useCallback((text: string) => {
     setExtractionSearchQuery(text);
   }, []);
