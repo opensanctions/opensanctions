@@ -2,15 +2,16 @@
 
 import React from 'react';
 import { markdown } from "@codemirror/lang-markdown";
-import CodeMirror, { ReactCodeMirrorRef } from "@uiw/react-codemirror";
+import CodeMirror from "@uiw/react-codemirror";
 import { yaml } from "@codemirror/lang-yaml";
-import { Decoration, DecorationSet, EditorView, MatchDecorator, ViewPlugin, ViewUpdate } from "@codemirror/view";
+import { EditorView } from "@codemirror/view";
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
 import TurndownService from 'turndown';
 import { stringify as stringifyToYaml } from 'yaml';
 
 import { ReviewEntity } from '@/lib/db';
+import { createHighlighter } from '@/lib/codemirror';
 import styles from "@/styles/Review.module.scss";
 
 type SourceViewProps = {
@@ -21,29 +22,6 @@ type SourceViewProps = {
   relatedEntities: ReviewEntity[],
   onTextSelect?: (text: string) => void
 };
-
-function createHighlighter(searchQuery: string) {
-  if (!searchQuery) return [];
-
-  const decorator = new MatchDecorator({
-    regexp: new RegExp(searchQuery, 'gi'),
-    decoration: Decoration.mark({ class: 'cm-searchMatch' })
-  });
-
-  return ViewPlugin.fromClass(class {
-    decorations: DecorationSet;
-
-    constructor(view: EditorView) {
-      this.decorations = decorator.createDeco(view);
-    }
-
-    update(update: ViewUpdate) {
-      this.decorations = decorator.updateDeco(update, this.decorations);
-    }
-  }, {
-    decorations: v => v.decorations
-  });
-}
 
 function makeCodeMirror(title: string, value: string, extensions: any[], searchQuery: string) {
   const highlighter = createHighlighter(searchQuery);

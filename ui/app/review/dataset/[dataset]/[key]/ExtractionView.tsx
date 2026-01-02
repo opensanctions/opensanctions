@@ -2,8 +2,9 @@
 
 import { json } from "@codemirror/lang-json";
 import { syntaxTree } from "@codemirror/language";
-import { Decoration, DecorationSet, MatchDecorator, ViewPlugin, ViewUpdate, keymap } from '@codemirror/view';
+import { keymap } from '@codemirror/view';
 import CodeMirror, { EditorView } from '@uiw/react-codemirror';
+import { createHighlighter } from '@/lib/codemirror';
 import { yamlSchema } from "codemirror-json-schema/yaml";
 import { Draft04, JsonSchema } from 'json-schema-library';
 import { parse as parseYaml, stringify as stringifyToYaml } from 'yaml';
@@ -81,29 +82,6 @@ function searchSelectedValue(state: EditorView["state"], search: (query: string)
   }
   const nodeText = state.doc.sliceString(node.from, node.to);
   search(nodeText.replace(/(^"|"$)/g, ""));
-}
-
-function createHighlighter(highlightQuery: string) {
-  if (!highlightQuery) return [];
-
-  const decorator = new MatchDecorator({
-    regexp: new RegExp(highlightQuery, 'gi'),
-    decoration: Decoration.mark({ class: 'cm-searchMatch' })
-  });
-
-  return ViewPlugin.fromClass(class {
-    decorations: DecorationSet;
-
-    constructor(view: EditorView) {
-      this.decorations = decorator.createDeco(view);
-    }
-
-    update(update: ViewUpdate) {
-      this.decorations = decorator.updateDeco(update, this.decorations);
-    }
-  }, {
-    decorations: v => v.decorations
-  });
 }
 
 interface ExtractionViewProps {
