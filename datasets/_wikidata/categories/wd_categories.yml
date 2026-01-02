@@ -157,6 +157,8 @@ lookups:
         value: 2023-11
       - match: "2016-06-31"
         value: 2016-06
+      - match: "2014-02-30"
+        value: 2014-02
 
 config:
   seeds:
