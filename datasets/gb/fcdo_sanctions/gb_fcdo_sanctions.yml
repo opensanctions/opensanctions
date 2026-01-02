@@ -8,14 +8,14 @@ coverage:
   start: 2024-05-09
 load_statements: true
 summary: >-
-  Official register of individuals, entities, and vessel subject to UK sanctions 
+  Official register of individuals, entities, and vessel subject to UK sanctions
   under regulations made pursuant to the Sanctions and Anti-Money Laundering Act 2018.
 description: |
-  The UK Sanctions List provides information on all current UK sanctions designations made 
-  under the 2018 Act. It covers individuals, companies, and vessels subject to financial restrictions, 
-  travel bans, and trade or transport controls, and is updated whenever a designation is created, 
-  changed, or revoked. Each entry shows the sanctions measures that apply, and for UK designations includes 
-  a statement of reasons. From 28 January 2026 the UK Sanctions List will be the [single official source](https://www.gov.uk/guidance/moving-to-a-single-list-for-uk-sanctions-designations-28-january-2026) 
+  The UK Sanctions List provides information on all current UK sanctions designations made
+  under the 2018 Act. It covers individuals, companies, and vessels subject to financial restrictions,
+  travel bans, and trade or transport controls, and is updated whenever a designation is created,
+  changed, or revoked. Each entry shows the sanctions measures that apply, and for UK designations includes
+  a statement of reasons. From 28 January 2026 the UK Sanctions List will be the [single official source](https://www.gov.uk/guidance/moving-to-a-single-list-for-uk-sanctions-designations-28-january-2026)
   for all UK sanctions designations.
 url: https://www.gov.uk/government/publications/the-uk-sanctions-list
 publisher:
@@ -54,40 +54,68 @@ assertions:
 lookups:
   sanction.program:
     options:
-      - match:
-          - "The Afghanistan (Sanctions) (EU Exit) Regulations 2020"
-          - "Isil (Da'esh) and Al-Qaeda (United Nations Sanctions) (EU Exit) Regulations 2019"
-          - "The Republic of Belarus (Sanctions) (EU Exit) Regulations 2019"
-          - "The Bosnia and Herzegovina (Sanctions) (EU Exit) Regulations 2020"
-          - "The Central African Republic (Sanctions) (EU Exit) Regulations 2020"
-          - "The Chemical Weapons (Sanctions) (EU Exit) Regulations 2019"
-          - "The Counter-Terrorism (Sanctions) (EU Exit) Regulations 2019"
-          - "The Counter-Terrorism (International Sanctions) (EU Exit) Regulations 2019"
-          - "The Cyber (Sanctions) (EU Exit) Regulations 2020"
-          - "The Democratic People's Republic of Korea (Sanctions) (EU Exit) Regulations 2019"
-          - "The Global Anti-Corruption Sanctions Regulations 2021"
-          - "The Global Human Rights Sanctions Regulations 2020"
-          - "The Republic of Guinea-Bissau (Sanctions) (EU Exit) Regulations 2019"
-          - "The Guinea (Sanctions) (EU Exit) Regulations 2019"
-          - "The Haiti (Sanctions) Regulations 2022"
-          - "The Iran (Sanctions) (Nuclear) (EU Exit) Regulations 2019"
-          - "The Iran (Sanctions) Regulations 2023"
-          - "The Libya (Sanctions) (EU Exit) Regulations 2020"
-          - "The Mali (Sanctions) (EU Exit) Regulations 2020"
-          - "The Myanmar (Sanctions) Regulations 2021"
-          - "The Russia (Sanctions) (EU Exit) Regulations 2019"
-          - "The Syria (Sanctions) (EU Exit) Regulations 2019"
-          - "The Venezuela (Sanctions) (EU Exit) Regulations 2019"
-          - "The Yemen (Sanctions) (EU Exit) Regulations 2020"
-          - "The Zimbabwe (Sanctions) (EU Exit) Regulations 2019"
-          - "The Sudan (Sanctions) (EU Exit) Regulations 2020"
-          - "The South Sudan (Sanctions) (EU Exit) Regulations 2019"
-          - "The Somalia (Sanctions) (EU Exit) Regulations 2020"
-          - "The Nicaragua (Sanctions) (EU Exit) Regulations 2020"
-          - "The Iraq (Sanctions) (EU Exit) Regulations 2020"
-          - "The Democratic Republic of the Congo (Sanctions) (EU Exit) Regulations 2019"
-          - "The Global Irregular Migration and Trafficking in Persons Sanctions Regulations 2025"
+      - match: The Global Irregular Migration and Trafficking in Persons Sanctions Regulations 2025
         value: GB-SAMLA
+      - match: The Global Human Rights Sanctions Regulations 2020
+        value: GB-HR
+      - match: The Global Anti-Corruption Sanctions Regulations 2021
+        value: GB-AC
+      - match: The Democratic Republic of the Congo (Sanctions) (EU Exit) Regulations 2019
+        value: GB-DRC
+      - match: The Afghanistan (Sanctions) (EU Exit) Regulations 2020
+        value: GB-AFG
+      - match: The Republic of Belarus (Sanctions) (EU Exit) Regulations 2019
+        value: GB-BLR
+      - match: The Bosnia and Herzegovina (Sanctions) (EU Exit) Regulations 2020
+        value: GB-BH
+      - match: The Central African Republic (Sanctions) (EU Exit) Regulations 2020
+        value: GB-CAR
+      - match: The Chemical Weapons (Sanctions) (EU Exit) Regulations 2019
+        value: GB-CW
+      - match: The Cyber (Sanctions) (EU Exit) Regulations 2020
+        value: GB-CYB
+      - match: The Republic of Guinea-Bissau (Sanctions) (EU Exit) Regulations 2019
+        value: GB-GNB
+      - match: The Libya (Sanctions) (EU Exit) Regulations 2020
+        value: GB-LBY
+      - match: The Mali (Sanctions) (EU Exit) Regulations 2020
+        value: GB-MLI
+      - match: The Myanmar (Sanctions) Regulations 2021
+        value: GB-MMR
+      - match: The Russia (Sanctions) (EU Exit) Regulations 2019
+        value: GB-RUS
+      - match: The Syria (Sanctions) (EU Exit) Regulations 2019
+        value: GB-SYR
+      - match: The Iraq (Sanctions) (EU Exit) Regulations 2020
+        value: GB-IRQ
+      - match: The Nicaragua (Sanctions) (EU Exit) Regulations 2020
+        value: GB-NIC
+      - match: The Somalia (Sanctions) (EU Exit) Regulations 2020
+        value: GB-SOM
+      - match: The South Sudan (Sanctions) (EU Exit) Regulations 2019
+        value: GB-SSD
+      - match: The Sudan (Sanctions) (EU Exit) Regulations 2020
+        value: GB-SDN
+      - match: The Yemen (Sanctions) (EU Exit) Regulations 2020
+        value: GB-YEM
+      - match: The Venezuela (Sanctions) (EU Exit) Regulations 2019
+        value: GB-VEN
+      - match: The Haiti (Sanctions) Regulations 2022
+        value: GB-HT
+      - match: The Guinea (Sanctions) (EU Exit) Regulations 2019
+        value: GB-GU
+      - match: The Counter-Terrorism (International Sanctions) (EU Exit) Regulations 2019
+        value: GB-ICT
+      - match: The Counter-Terrorism (Sanctions) (EU Exit) Regulations 2019
+        value: GB-CT
+      - match: The Iran (Sanctions) Regulations 2023
+        value: GB-IRAN
+      - match: The Iran (Sanctions) (Nuclear) (EU Exit) Regulations 2019
+        value: GB-IRAN-NW
+      - match: The Democratic People's Republic of Korea (Sanctions) (EU Exit) Regulations 2019
+        value: GB-DPRK
+      - match: Isil (Da'esh) and Al-Qaeda (United Nations Sanctions) (EU Exit) Regulations 2019
+        value: GB-ISIL
   languages:
     options:
       - match: Arabic
