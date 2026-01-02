@@ -34,6 +34,23 @@ class TimeStampIndex(object):
                 continue
             key = f"{stmt.entity_id}:{stmt.id}"
             batch.put(key.encode(E), stmt.first_seen.encode(E))
+
+            # FIXME: Handle the migration of statement IDs from not including lang
+            # to including lang. This is needed to read timestamps for statements
+            # created before followthemoney 4.5.0. Once all timestamps have been
+            # migrated, this block can be removed (est: March 2026).
+            if stmt._lang is not None:
+                legacy_id = Statement.make_key(
+                    stmt._dataset,
+                    stmt._entity_id,
+                    stmt._prop,
+                    stmt._value,
+                    stmt._external,
+                    lang=None,
+                )
+                key = f"{stmt.entity_id}:{legacy_id}"
+                batch.put(key.encode(E), stmt.first_seen.encode(E))
+
             if idx > 0 and idx % 500_000 == 0:
                 batch.write()
                 batch.clear()
