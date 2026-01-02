@@ -3,7 +3,7 @@ import hashlib
 import random
 import re
 import string
-from time import sleep
+import json
 
 from dataclasses import dataclass
 from enum import Enum
@@ -12,6 +12,7 @@ from os import environ as env
 from typing import Optional, List
 
 from zavod import Context, helpers as h
+from zavod.extract.zyte_api import fetch_json, fetch, fetch_html, ZyteAPIRequest
 
 # Note: These contain special characters, in testing use single quotes
 # to make sure variables don't get interpolated by the shell.
@@ -155,7 +156,9 @@ LINKS: List[WSAPILink] = [
 def generate_token(context: Context, cid: str, pkey: str) -> str:
     # Request with a timestamp that is more than 15 seconds off
     # from the our server time will not be processed.
-    timestamp = context.fetch_json(f"{WS_API_BASE_URL}/time")["server_time"]
+    # Zyte because cloudflare is blocking us possibly based on IP reputation
+    # - I can't reproduce the block from our GCP jump host.
+    timestamp = fetch_json(context, f"{WS_API_BASE_URL}/time")["server_time"]
     # 2. Generate server instance ID (exactly 2 characters)
     sid = "".join(random.choices(string.ascii_letters + string.digits, k=2))
     # 3. Create signature = sha256(cid + sid + timestamp + pkey), lowercase hex
@@ -469,7 +472,7 @@ def check_updates(context: Context):
     # Do not enable in production or commit uncommented to avoid leaking
     # the API docs key in the logs.
     try:
-        doc = context.fetch_html(WS_API_DOCS_URL)
+        doc = fetch_html(context, WS_API_DOCS_URL, ".//h1[text() = 'Changelog']")
     except Exception:  #  as e:
         context.log.warn(
             "Failed to fetch API documentation",
@@ -546,12 +549,22 @@ def crawl(context: Context):
     check_updates(context)
 
     for link in LINKS:
-        sleep(SLEEP)
         token = generate_token(context, WS_API_CLIENT_ID, WS_API_KEY)
-        headers = {"Authorization": token}
-
         url = f"{WS_API_BASE_URL}/v1/{link.endpoint}"
-        response = context.fetch_json(url, headers=headers)
+        # Zyte because cloudflare is blocking us possibly based on IP reputation
+        # - I can't reproduce the block from our GCP jump host.
+        zyte_result = fetch(
+            context,
+            ZyteAPIRequest(
+                url=url,
+                headers={
+                    "Accept": "application/json",
+                    "Authorization": token,
+                },
+            ),
+            cache_days=1,
+        )
+        response = json.loads(zyte_result.response_text)
         if not response or response.get("code") != 0:
             context.log.error("No valid data to parse", url=url, response=response)
             continue

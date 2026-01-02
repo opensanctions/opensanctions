@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any, Callable, Dict, List, MutableMapping, Optional
 
 import structlog
+from followthemoney.proxy import EntityProxy
 from followthemoney.schema import Schema
 from lxml.etree import _Element, tostring
 from lxml.html import HtmlElement
@@ -17,7 +18,6 @@ from structlog.types import Processor
 from zavod import settings
 
 Event = MutableMapping[str, str]
-
 
 REDACT_IGNORE_LIST = {
     "OLDPWD",
@@ -45,38 +45,56 @@ REGEX_URI_WITH_CREDENTIALS = re.compile(URI_WITH_CREDENTIALS)
 
 class RedactingProcessor:
     """
-    A structlog processor that redact sensitive information from log messages.
+    A structlog processor that redacts sensitive information from log messages.
 
     Patterns must be ordered such that longer/more specific patterns come first.
+
+    While structlog copies the initial event_dict, this class also copies it because
+    it needs to recurse into nested structures and structlog's copy is shallow.
     """
 
     def __init__(self, replace_patterns: Dict[str, str | Callable[[str], str]]) -> None:
         self.repl_regexes = {re.compile(p): r for p, r in replace_patterns.items()}
 
     def __call__(self, logger: Any, method_name: str, event_dict: Event) -> Event:
-        return self.redact_dict(event_dict)
+        event_dict = self.redact_dict(event_dict)
+        return event_dict
 
     def redact_dict(self, dict_: Event) -> Event:
+        from zavod.context import Context
+
+        copy = {}
         for key, value in dict_.items():
+            if key == "context" and isinstance(value, Context):
+                # The issue writer needs the instance and will pop it.
+                copy[key] = value
+                continue
+            value = make_redactable(value)
             if isinstance(value, str):
                 value = self.redact_str(value)
             elif isinstance(value, dict):
                 value = self.redact_dict(value)
             elif isinstance(value, list):
                 value = self.redact_list(value)
-            dict_[key] = value
-        return dict_
+            else:
+                value = self.redact_str(value)
+            copy[key] = value
+        return copy
 
     def redact_list(self, list_: List[Any]) -> List[Any]:
-        for ix, value in enumerate(list_):
+        copy = []
+        for value in list_:
+            value = make_redactable(value)
             if isinstance(value, dict):
                 value = self.redact_dict(value)
-            if isinstance(value, str):
+            elif isinstance(value, str):
                 value = self.redact_str(value)
-            if isinstance(value, list):
+            elif isinstance(value, list):
                 value = self.redact_list(value)
-            list_[ix] = value
-        return list_
+            else:
+                value = self.redact_str(value)
+            copy.append(value)
+        return copy
 
     def redact_str(self, string: str) -> str:
         for regex, replacement in self.repl_regexes.items():
@@ -201,9 +219,19 @@ def format_json(_: Any, __: str, ed: Event) -> Event:
     return ed
 
 
-def stringify(value: Any) -> Any:
-    """Stringify the types that aren't already JSON serializable."""
+# This is called from the redactor just because it's already traversing
+# the nested lists/dicts but it strictly ought to be a processor depended
+# on by the redaction and issue writer processors.
+def make_redactable(value: Any) -> Any:
+    """
+    Ensure that all types are JSON-serializable and redactable,
+    converting everything to string, list or dict.
 
+    Assumes it will be called recursively on list and dict values.
+    """
+    if isinstance(value, (str, dict, list)):
+        # The redactor will recurse into these
+        return value
     if isinstance(value, (_Element, HtmlElement)):
         return tostring(value, pretty_print=False, encoding=str).strip()
     if isinstance(value, Path):
@@ -214,17 +242,20 @@ def stringify(value: Any) -> Any:
         return str(value)
     if isinstance(value, Schema):
         return value.name
-    if isinstance(value, list):
-        return [stringify(v) for v in value]
-    if isinstance(value, dict):
-        for key, value_ in value.items():
-            value[key] = stringify(value_)
-    return value
+    if isinstance(value, EntityProxy):
+        value = {
+            "id": value.id,
+            "caption": value.caption,
+            "schema": value.schema.name,
+        }
+    if isinstance(value, set):
+        value = list(value)
+
+    return repr(value)
 
 
-def log_issue(_: Any, __: str, ed: Event) -> Event:
-    data: Dict[str, Any] = stringify(dict(ed))
-
+def log_issue(_: Any, __: str, event_dict: Event) -> Event:
+    data = dict(event_dict)
     context = data.pop("context", None)
     level: Optional[str] = data.get("level")
     if level is not None:
