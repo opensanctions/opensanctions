@@ -97,7 +97,7 @@ interface ExtractionViewProps {
 
 export default function ExtractionView({ rawData, extractedData, schema, accepted: initialAccepted, entryKey, dataset, search, highlightQuery }: ExtractionViewProps) {
   const [accepted, setAccepted] = useState(initialAccepted);
-  const [editorExtracted, setEditorExtracted] = useState(stringifyToYaml(extractedData, null, 2));
+  const [editorExtracted, setEditorExtracted] = useState(stringifyToYaml(extractedData, null, { indent: 2, lineWidth: 0 }));
   const [flashInvalid, setFlashInvalid] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -157,7 +157,7 @@ export default function ExtractionView({ rawData, extractedData, schema, accepte
       }
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 't') {
         e.preventDefault();
-        setEditorExtracted(stringifyToYaml(rawData, null, 2));
+        setEditorExtracted(stringifyToYaml(rawData, null, { indent: 2, lineWidth: 0 }));
       }
     }
     window.addEventListener('keydown', handler);
@@ -197,7 +197,7 @@ export default function ExtractionView({ rawData, extractedData, schema, accepte
           <Tab eventKey="raw" title="Original extraction">
             <div style={{ height: '100%' }}>
               <CodeMirror
-                value={stringifyToYaml(rawData, null, 2)}
+                value={stringifyToYaml(rawData, null, { indent: 2, lineWidth: 0 })}
                 extensions={[
                   yamlSchema(schema),
                   EditorView.lineWrapping,
@@ -261,7 +261,7 @@ export default function ExtractionView({ rawData, extractedData, schema, accepte
               <button
                 type="button"
                 className="btn btn-outline-secondary me-2"
-                onClick={() => setEditorExtracted(stringifyToYaml(rawData, null, 2))}
+                onClick={() => setEditorExtracted(stringifyToYaml(rawData, null, { indent: 2, lineWidth: 0 }))}
               >
                 Reset
               </button>

@@ -108,10 +108,11 @@ function SourceView({ sourceValue, sourceMimeType, sourceLabel, sourceSearchQuer
 
     tabs.push(tab("Original HTML"))
   } else if (sourceMimeType === 'application/json') {
+    const valueYaml = stringifyToYaml(JSON.parse(sourceValue), null, { indent: 2, lineWidth: 0 });
     tabs.push(
       tab(
         "Original JSON as YAML",
-        makeCodeMirror("Original JSON as YAML", stringifyToYaml(JSON.parse(sourceValue)), [yaml()], sourceSearchQuery, onTextSelect)
+        makeCodeMirror("Original JSON as YAML", valueYaml, [yaml()], sourceSearchQuery, onTextSelect)
       )
     );
   } else if (sourceMimeType === 'text/plain') {
