@@ -23,8 +23,27 @@ type SourceViewProps = {
   onTextSelect?: (text: string) => void
 };
 
-function makeCodeMirror(title: string, value: string, extensions: any[], searchQuery: string) {
+function makeCodeMirror(
+  title: string,
+  value: string,
+  extensions: any[],
+  searchQuery: string,
+  onTextSelect?: (text: string) => void
+) {
   const highlighter = createHighlighter(searchQuery);
+
+  const selectionHandler = onTextSelect ? EditorView.domEventHandlers({
+    mouseup: (event, view) => {
+      const selection = view.state.selection.main;
+      if (selection.from !== selection.to) {
+        const selectedText = view.state.doc.sliceString(selection.from, selection.to).trim();
+        if (selectedText.length > 0) {
+          onTextSelect(selectedText);
+        }
+      }
+    }
+  }) : null;
+
   return <CodeMirror
     value={value}
     height="100%"
@@ -34,7 +53,8 @@ function makeCodeMirror(title: string, value: string, extensions: any[], searchQ
     extensions={[
       EditorView.lineWrapping,
       ...extensions,
-      ...(highlighter ? [highlighter] : [])
+      ...(highlighter ? [highlighter] : []),
+      ...(selectionHandler ? [selectionHandler] : [])
     ]}
     title={title}
     basicSetup={{
@@ -45,7 +65,7 @@ function makeCodeMirror(title: string, value: string, extensions: any[], searchQ
 
 function SourceView({ sourceValue, sourceMimeType, sourceLabel, sourceSearchQuery, relatedEntities, onTextSelect }: SourceViewProps) {
 
-  const handleTextSelection = () => {
+  const handleRenderedTextSelection = () => {
     if (!onTextSelect) return;
 
     const selection = window.getSelection();
@@ -59,7 +79,7 @@ function SourceView({ sourceValue, sourceMimeType, sourceLabel, sourceSearchQuer
   const tabs: React.ReactNode[] = [];
   const tab = (title: string, content: React.ReactNode | null = null) => {
     return <Tab key={title} eventKey={title} title={title} >
-      {content ? content : makeCodeMirror(title, sourceValue, [], sourceSearchQuery)}
+      {content ? content : makeCodeMirror(title, sourceValue, [], sourceSearchQuery, onTextSelect)}
     </Tab>
   }
 
@@ -75,14 +95,14 @@ function SourceView({ sourceValue, sourceMimeType, sourceLabel, sourceSearchQuer
       <div
         style={{ height: '100%', width: '100%', overflow: 'auto', backgroundColor: '#fff', padding: '10px' }}
         dangerouslySetInnerHTML={{ __html: highlighted }}
-        onMouseUp={handleTextSelection} />
+        onMouseUp={handleRenderedTextSelection} />
     ))
 
     const turndownService = new TurndownService();
     tabs.push(
       tab(
         "As Markdown",
-        makeCodeMirror("As Markdown", turndownService.turndown(sourceValue), [markdown()], sourceSearchQuery)
+        makeCodeMirror("As Markdown", turndownService.turndown(sourceValue), [markdown()], sourceSearchQuery, onTextSelect)
       )
     );
 
@@ -91,7 +111,7 @@ function SourceView({ sourceValue, sourceMimeType, sourceLabel, sourceSearchQuer
     tabs.push(
       tab(
         "Original JSON as YAML",
-        makeCodeMirror("Original JSON as YAML", stringifyToYaml(JSON.parse(sourceValue)), [yaml()], sourceSearchQuery)
+        makeCodeMirror("Original JSON as YAML", stringifyToYaml(JSON.parse(sourceValue)), [yaml()], sourceSearchQuery, onTextSelect)
       )
     );
   } else if (sourceMimeType === 'text/plain') {
