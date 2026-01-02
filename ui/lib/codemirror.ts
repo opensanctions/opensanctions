@@ -8,9 +8,8 @@ import { Decoration, DecorationSet, EditorView, MatchDecorator, ViewPlugin, View
  */
 export function createHighlighter(searchQuery: string) {
   if (!searchQuery) return [];
-
   const decorator = new MatchDecorator({
-    regexp: new RegExp(searchQuery, 'gi'),
+    regexp: new RegExp(RegExp.escape(searchQuery.toLowerCase()), 'gi'),
     decoration: Decoration.mark({ class: 'cm-searchMatch' })
   });
 

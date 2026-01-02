@@ -66,7 +66,8 @@ function SourceView({ sourceValue, sourceMimeType, sourceLabel, sourceSearchQuer
   if (sourceMimeType === 'text/html') {
     let highlighted: string;
     if (!!sourceSearchQuery) {
-      highlighted = sourceValue.replace(new RegExp(sourceSearchQuery, 'gi'), (match) => `<mark>${match}</mark>`);
+      const regexp = new RegExp(RegExp.escape(sourceSearchQuery), 'gi');
+      highlighted = sourceValue.replace(regexp, (match) => `<mark>${match}</mark>`);
     } else {
       highlighted = sourceValue;
     }
