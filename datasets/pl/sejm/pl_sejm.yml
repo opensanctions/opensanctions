@@ -6,7 +6,7 @@ coverage:
   start: 2025-10-30
 load_statements: true
 entry_point: crawler.py
-ci_test: true
+ci_test: false  # Zyte API key is not available in CI
 summary: >-
   Current Members of the Polish lower chamber, the Sejm.
 description: |
