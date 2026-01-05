@@ -567,17 +567,17 @@ class Context:
         stamps = {} if self.dry_run else self.timestamps.get(entity.id)
         for stmt in entity.statements:
             stmt = stmt.clone(
-                lang=stmt._lang or self.lang,
-                origin=stmt.origin or origin,
-                external=external,
                 dataset=self.dataset.name,
                 entity_id=entity.id,
                 schema=entity.schema.name,
+                lang=stmt._lang or self.lang,
+                origin=stmt.origin or origin,
+                external=external,
             )
             if stmt.id is None:
                 raise ValueError("Statement has no ID: %r", stmt)
             stmt.first_seen = stamps.get(stmt.id, settings.RUN_TIME_ISO)
-            if stmt.first_seen != settings.RUN_TIME_ISO:
+            if stmt.first_seen == settings.RUN_TIME_ISO:
                 self.stats.changed += 1
             stmt.last_seen = settings.RUN_TIME_ISO
             if not self.dry_run:
