@@ -85,10 +85,10 @@ lookups:
           - "1709 NE 27th St # B,McMinnville, OR 97128Phone: 1-669-201-0300Fax: NoneEmail: support@Apexminerhub.comWebsite: https://apexminerhub.com/en/company.html"
           - "1746 W. Horizon Ridge Pkwy,Henderson, NV 89012Phone: NoneFax: NoneEmail: support@beyondstandard.orgWebsite: https://beyondstandard.org/"
           - "No Address IdentifiedPhone: NoneFax: NoneEmail: vip@biya.clubWebsite: https://biyapays.com/"
-          - "15716 N 156th LN,Surprise, AZ 85374Phone: NoneFax: NoneEmail: support@compatibletrading.com Website: https://compatibletrading.com/"
+          - "15716 N 156th LN,Surprise, AZ 85374Phone: NoneFax: NoneEmail: support@compatibletrading.com\xa0Website: https://compatibletrading.com/"
           - "8888 Keystone Crossing BlvdSuite 1300Indianapolis, IN 46240Phone: NoneFax: NoneEmail: NoneWebsite: https://coveredbridgegroup.us/"
           - "10 Exchange Place, 14th FloorJersey City, NJ 07302Phone: NoneFax: NoneEmail: enquiries@dis-us.orgWebsite: https://dis-us.org/"
-          - "169 Madison Ave Suite 2745, New York, NY 10016Phone: 1-213-997-3824Fax: NoneEmail: emceeinvestservice@emcee.net Website: https://www.emcee.net/"
+          - "169 Madison Ave Suite 2745,\xa0New York, NY 10016Phone: 1-213-997-3824Fax: NoneEmail: emceeinvestservice@emcee.net\xa0Website: https://www.emcee.net/"
           - "One Liberty Place1650 Market Street, Suite 650Philadelphia, PA 19103Phone: NoneFax: NoneEmail: support@finwave.vipWebsite: https://finwave.group"
           - "545 Washington BoulevardJersey City, NJ 07310-1686Phone: 1-551-225-8461Fax: NoneEmail: enquiries@fed-us.orgWebsite: https://fed-us.org/"
           - "1111 Summer St., 5th Floor,Stamford, CT 06905Phone: NoneFax: NoneEmail: contact@growthpointlaw.comWebsite: https://www.growthpointlaw.com/"
@@ -99,11 +99,11 @@ lookups:
           - "660 S. Figueroa St.Los Angeles, CA 90017Phone: 1-888-665-8217Fax: NoneEmail: info@keatinglawservices.comWebsite: https://keatinglawservices.com/"
           - "2707 24th Rogers StreetBenton County, AR 72758Phone: 1-479-262-9478Fax: NoneEmail: info@paximumholdings.orgWebsite: https://www.paximumholdings.org/"
           - "111 Congress Avenue Suite 2550Austin, TX 78701Phone: NoneFax: NoneEmail: support@realffxtrade24.comWebsite: https://realffxtrade24.com/"
-          - "11th Floor, 3 Gateway Center100 Mulberry St.Newark, NJ 07102Phone: NoneFax: NoneEmail: enquiries@sca-us.org Website: https://sca-us.org/"
+          - "11th Floor, 3 Gateway Center100 Mulberry St.Newark, NJ 07102Phone: NoneFax: NoneEmail: enquiries@sca-us.org\xa0Website: https://sca-us.org/"
           - "2550 Gore StreetSugar Land, TXPhone: NoneFax: NoneEmail: support@shareite.comWebsite: https://shareite.com/"
           - "No Address IdentifiedPhone: NoneFax: NoneEmail: NoneWebsite: www.stockaccessinc.com"
-          - "600 Pennsylvania Avenue, NWWashington, DC 20580Phone: (202) 326-2222Fax:  NoneEmail:  support@swoopventures.comWebsite:  https://www.swoopventures.com/"
-          - "101 California St, Suite 2710San Francisco, CA 94111Phone: 1-909-285-1520Fax: NoneEmail: support@wavefrontcapital.com Website: https://wavefrontcapital.com/"
+          - "600 Pennsylvania Avenue, NWWashington, DC 20580Phone: (202) 326-2222Fax: \xa0NoneEmail: \xa0support@swoopventures.comWebsite: \xa0https://www.swoopventures.com/"
+          - "101 California St, Suite 2710San Francisco, CA 94111Phone: 1-909-285-1520Fax: NoneEmail: support@wavefrontcapital.com\xa0Website: https://wavefrontcapital.com/"
         prop: notes
   type.email:
     options:
