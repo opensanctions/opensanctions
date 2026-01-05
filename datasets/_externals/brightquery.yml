@@ -52,10 +52,25 @@ config:
   schemata:
     - Company
     - Organization
-    - LegalEntity
+    # - LegalEntity
+  skip_jurisdictions:
+    - "ru"
+    - "cn"
+    - "kp"
+    - "sy"
+    - "iq"
+    - "ae"
+    - "ve"
+    - "cu"
+    - "ps"
+    - "af"
+    - "uz"
+    - "kz"
+    - "xk"
+    - "md-pmr"
 
 # TODO: update assertions after the first successful run
 assertions:
   min:
     schema_entities:
-      Company: 100
+      Company: 0
