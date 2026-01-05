@@ -14,9 +14,10 @@ EMAIL_SPLIT = re.compile(r"[; ]")
 
 def get_xml_link(context: Context) -> str:
     doc = context.fetch_html(context.data_url)
-    xq = ".//section[@id='documents']//a[contains(@href, 'UK-Sanctions-List.xml')]"
-    for el in doc.xpath(xq):
-        return el.get("href")
+    for el in h.xpath_elements(
+        doc, ".//section[@id='documents']//a[contains(@href, 'UK-Sanctions-List.xml')]"
+    ):
+        return h.xpath_string(el, "./@href")
     raise ValueError("XML link not found")
 
 
@@ -471,5 +472,5 @@ def ext_crawl_csv(context: Context):
 
 
 def crawl(context: Context):
-    # crawl_xml(context)
+    crawl_xml(context)
     ext_crawl_csv(context)
