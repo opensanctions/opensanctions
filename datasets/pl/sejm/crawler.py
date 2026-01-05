@@ -31,11 +31,9 @@ def crawl_person(context: Context, url: str) -> None:
     pep_doc = zyte_api.fetch_html(
         context, url, name_xpath, html_source="httpResponseBody", cache_days=1
     )
-    name = h.xpath_strings(pep_doc, name_xpath, expect_exactly=1)[0]
-    start_date = h.xpath_strings(pep_doc, START_DATE_XPATH, expect_exactly=1)[0]
-    dob_pob = h.xpath_strings(pep_doc, ".//p[@id='urodzony']/text()", expect_exactly=1)[
-        0
-    ]
+    name = h.xpath_string(pep_doc, name_xpath)
+    start_date = h.xpath_string(pep_doc, START_DATE_XPATH)
+    dob_pob = h.xpath_string(pep_doc, ".//p[@id='urodzony']/text()")
     dob, pob = split_dob_pob(dob_pob)
 
     entity = context.make("Person")
