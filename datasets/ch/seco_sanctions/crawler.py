@@ -365,6 +365,80 @@ def make_related_entities(
     return [rel, other]
 
 
+def crawl_other_info(context: Context, entity_ssid: str, entity: Entity, node: Element):
+    related_entities = []
+    others = node.findall("./other-information")
+    other_strings = [o.text for o in others if o.text is not None and o.text.strip()]
+    if len(other_strings) == 0:
+        return
+    node_xml = tostring(node, encoding="unicode", pretty_print=True)
+    # We use the full entity XML as source value because the entity name,
+    # type, and other fields make it easier to tell whether text in other-information is
+    # about the entity or about a related entity, e.g. giving context to
+    # the weapons-manufacturing company which the owner or CEO is being
+    # sanctioned for, but not describing the person themselves.
+    source_value = TextSourceValue(
+        key_parts=entity_ssid, label="other-information", text=node_xml
+    )
+    prompt = PROMPT.format(schema=entity.schema.name)
+    extraction = run_typed_text_prompt(
+        context, prompt, source_value.value_string, OtherInfo, model=LLM_VERSION
+    )
+    review = review_extraction(
+        context=context,
+        source_value=source_value,
+        original_extraction=extraction,
+        origin=LLM_VERSION,
+    )
+    review.link_entity(context, entity)
+
+    add_to_notes = False
+    if review.accepted:
+        for simple_val in review.extracted_data.simple_values:
+            prop = entity.schema.get(simple_val.property)
+            if prop is not None:
+                if prop.type == registry.date:
+                    h.apply_date(entity, simple_val.property, simple_val.value)
+                    continue
+                entity.add(
+                    simple_val.property,
+                    simple_val.value,
+                    original_value="\n".join(other_strings),
+                    origin=review.origin,
+                )
+            else:
+                if simple_val.property == "imoNumber":
+                    # If the target wasn't explicitly a vessel, skip the IMO because
+                    # it might be of a vessel related to the company, and not the target's IMO.
+                    # <justification ssid="10301">IRISL front company...
+                    #     It is the registered owner of a vessel owned by IRISL or an IRISL affiliate.
+                    # </justification>
+                    # <relation ssid="21013" target-id="9702" relation-type="related-to"></relation>
+                    # <other-information ssid="10302">No C 38181; IMO number of the vessel: 9387803.</other-information>
+                    add_to_notes = True
+                    continue
+                if simple_val.property == "kppCode":
+                    entity.add_cast("Company", "kppCode", simple_val.value)
+                    continue
+                context.log.warning(
+                    "Unknown property for schema",
+                    property=simple_val.property,
+                    schema=entity.schema.name,
+                    string=node_xml,
+                    id=entity.id,
+                )
+        for relationship in review.extracted_data.related_entities:
+            related_entities.extend(
+                make_related_entities(context, entity, relationship)
+            )
+    if add_to_notes or not review.accepted or review.extracted_data.include_in_notes:
+        for other in others:
+            entity.add("notes", h.clean_note(other.text))
+
+    for related_entity in related_entities:
+        context.emit(related_entity)
+
+
 def parse_entry(context: Context, target: Element, programs, places):
     entity = context.make("LegalEntity")
     entity_ssid = target.get("ssid")
@@ -439,79 +513,7 @@ def parse_entry(context: Context, target: Element, programs, places):
     notes = [n for (s, n) in sorted(justifications)]
     entity.add("notes", h.clean_note("\n\n".join(notes)))
 
-    related_entities = []
-    others = node.findall("./other-information")
-    other_strings = [o.text for o in others if o.text is not None and o.text.strip()]
-    if len(other_strings) > 0:
-        node_xml = tostring(node, encoding="unicode", pretty_print=True)
-        # We use the full entity XML as source value because the entity name
-        # and type makes it easier to tell whether text in other-information is
-        # about the entity or about a related entity, e.g. giving context to
-        # the weapons-manufacturing company which the owner or CEO is being
-        # sanctioned for, but not describing the person themselves.
-        source_value = TextSourceValue(
-            key_parts=entity_ssid, label="other-information", text=node_xml
-        )
-        prompt = PROMPT.format(schema=entity.schema.name)
-        extraction = run_typed_text_prompt(
-            context, prompt, source_value.value_string, OtherInfo, model=LLM_VERSION
-        )
-        review = review_extraction(
-            context=context,
-            source_value=source_value,
-            original_extraction=extraction,
-            origin=LLM_VERSION,
-        )
-        review.link_entity(context, entity)
-
-        add_to_notes = False
-        if review.accepted:
-            for extracted_value in review.extracted_data.simple_values:
-                prop = entity.schema.get(extracted_value.property)
-                if prop is not None:
-                    if prop.type == registry.date:
-                        h.apply_date(
-                            entity, extracted_value.property, extracted_value.value
-                        )
-                        continue
-                    entity.add(
-                        extracted_value.property,
-                        extracted_value.value,
-                        original_value="\n".join(other_strings),
-                        origin=review.origin,
-                    )
-                else:
-                    if extracted_value.property == "imoNumber":
-                        # If the target wasn't explicitly a vessel, skip the IMO because
-                        # it might be of a vessel related to the company, and not the target's IMO.
-                        # <justification ssid="10301">IRISL front company...
-                        #     It is the registered owner of a vessel owned by IRISL or an IRISL affiliate.
-                        # </justification>
-                        # <relation ssid="21013" target-id="9702" relation-type="related-to"></relation>
-                        # <other-information ssid="10302">No C 38181; IMO number of the vessel: 9387803.</other-information>
-                        add_to_notes = True
-                        continue
-                    if extracted_value.property == "kppCode":
-                        entity.add_cast("Company", "kppCode", extracted_value.value)
-                        continue
-                    context.log.warning(
-                        "Unknown property for schema",
-                        property=extracted_value.property,
-                        schema=entity.schema.name,
-                        string=node_xml,
-                        id=entity.id,
-                    )
-            for relationship in review.extracted_data.related_entities:
-                related_entities.extend(
-                    make_related_entities(context, entity, relationship)
-                )
-            if (
-                add_to_notes
-                or not review.accepted
-                or review.extracted_data.include_in_notes
-            ):
-                for other in others:
-                    entity.add("notes", h.clean_note(other.text))
+    crawl_other_info(context, entity_ssid, entity, node)
 
     for relation in node.findall("./relation"):
         rel_type = relation.get("relation-type")
@@ -545,8 +547,6 @@ def parse_entry(context: Context, target: Element, programs, places):
 
     context.emit(entity)
     context.emit(sanction)
-    for related_entity in related_entities:
-        context.emit(related_entity)
 
 
 def crawl(context: Context):
