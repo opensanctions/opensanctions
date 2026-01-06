@@ -270,6 +270,1038 @@ lookups:
     options:
       - match: "Indonesia, number T710219 (issued in Sukoharjo, Central Java, Indonesia)"
         value: "T710219"
+  reg_number:
+    options:
+      - match: "Registration Number: J8AQG9ZH6CA3"
+        props:
+          registrationNumber: "J8AQG9ZH6CA3"
+      - match: "TIN: 03011201710243 "
+        props:
+          taxNumber: "03011201710243"
+      - match: "TIN: 7703436139, Registration number: 5177746148784"
+        props:
+          taxNumber: "7703436139"
+          registrationNumber: "5177746148784"
+      - match: "TIN: 7706725428"
+        props:
+          taxNumber: "7706725428"
+      - match: "INN: 7705380065 "
+        props:
+          innCode: "7705380065"
+      - match: "BIN/OGRN: 5137746009990"
+        props:
+          ogrnCode: "5137746009990"
+      - match: "1024701759565\xa0"
+        props:
+          registrationNumber: "1024701759565"
+      - match: "USREOU code 3482347"
+        props:
+          registrationNumber: "3482347"
+      - match: "INN: 5402077860 "
+        props:
+          innCode: "5402077860"
+      - match: "TIN - 5263000105"
+        props:
+          taxNumber: "5263000105"
+      - match: "INN: 7720891730 / KPP: 772201001"
+        props:
+          innCode: "7720891730"
+          kppCode: "772201001"
+      - match: "INN: 7713226814 OGRN: 1027700285612 "
+        props:
+          innCode: "7713226814"
+          ogrnCode: "1027700285612"
+      - match: "INN: 9723038796 "
+        props:
+          innCode: "9723038796"
+      - match: "INN - 7733753978 OGRN - 5107746026262 "
+        props:
+          innCode: "7733753978"
+          ogrnCode: "5107746026262"
+      - match: "INN: 7802044622 OGRN: 1027801540117 "
+        props:
+          innCode: "7802044622"
+          ogrnCode: "1027801540117"
+      - match: "INN: 1827003592 OGRN: 1021800993752 "
+        props:
+          innCode: "1827003592"
+          ogrnCode: "1021800993752"
+      - match: "OGRN 1027700000151 "
+        props:
+          registrationNumber: "1027700000151"
+      - match: "Trade Register Number: 4891"
+        props:
+          registrationNumber: "4891"
+      - match: "311490-3301-ZAO TIN: 01312202410095 "
+        props:
+          taxNumber: "01312202410095"
+          registrationNumber: "311490-3301-ZAO"
+      - match: "Unified Social Credit Code: 91310113MACPUNUD5T "
+        props:
+          uscCode: "91310113MACPUNUD5T"
+      - match: "Tax Identification Number: INN 4706036197; KPP: 470601001"
+        props:
+          innCode: "4706036197"
+          kppCode: "470601001"
+      - match: "Iran National ID Number - 10861529720 "
+        props:
+          idNumber: "10861529720"
+      - match: "TIN: 7706812159"
+        props:
+          taxNumber: "7706812159"
+      - match: "Tax Identification Number: INN: 5008000788"
+        props:
+          innCode: "5008000788"
+      - match: "OGRN: 1157847282603 TIN: 7840038027"
+        props:
+          ogrnCode: "1157847282603"
+          innCode: "7840038027"
+      - match: "TIN: 5027153451 "
+        props:
+          taxNumber: "5027153451"
+      - match: "OGRN 1037739468084"
+        props:
+          registrationNumber: "1037739468084"
+      - match: "TIN: 5029208152\xa0"
+        props:
+          taxNumber: "5029208152"
+      - match: "TIN: 7708696860"
+        props:
+          taxNumber: "7708696860"
+      - match: "INN: 7707592234 "
+        props:
+          innCode: "7707592234"
+      - match: "OGRN: 1025700827283 INN: 5753018359 "
+        props:
+          ogrnCode: "1025700827283"
+          innCode: "5753018359"
+      - match: "OGRN: 1122901001475"
+        props:
+          registrationNumber: "1122901001475"
+      - match: "INN: 6911002726 OGRN: 1026901729249 "
+        props:
+          innCode: "6911002726"
+          ogrnCode: "1026901729249"
+      - match: "INN: 5251008501 OGRN: 1055214499966 "
+        props:
+          innCode: "5251008501"
+          ogrnCode: "1055214499966"
+      - match: "INN: 7704028206 "
+        props:
+          innCode: "7704028206"
+      - match: "INN: 7719265496 OGRN: 1037719005873 "
+        props:
+          innCode: "7719265496"
+          ogrnCode: "1037719005873"
+      - match: "Tax ID No. 7813491943 (Russia)"
+        props:
+          innCode: "7813491943"
+      - match: "Russia INN: 6665002150 "
+        props:
+          innCode: "6665002150"
+      - match: "TIN: 7801268965 "
+        props:
+          taxNumber: "7801268965"
+      - match: "Iran Registration No.: 145921Acuris Unique ID: C777828"
+        props:
+          registrationNumber: "145921"
+      - match: "BvD ID: IR30193GN ISN Number: IRO1AZAB0006 "
+        props:
+          registrationNumber: ["IR30193GN", "IRO1AZAB0006"]
+      - match: "SPARK code 9027410"
+        props:
+          registrationNumber: "9027410"
+      - match: "TIN: 913307230927997015"
+        props:
+          taxNumber: "913307230927997015"
+      - match: "CR: 2756979"
+        props:
+          registrationNumber: "2756979"
+      - match: "OGRN: 1025901777571"
+        props:
+          ogrnCode: "1025901777571"
+      - match: "Company number 03503060 "
+        props:
+          registrationNumber: "03503060"
+      - match: "KPP - 772201001"
+        props:
+          kppCode: "772201001"
+      - match: "440111000105746 (Company registration number)190748254 (China Organisation code) "
+        props:
+          registrationNumber: ["440111000105746", "190748254"]
+      - match: "Russia OGRN - 1027739582089 Russia INN - 7730059592 "
+        props:
+          ogrnCode: "1027739582089"
+          innCode: "7730059592"
+      - match: "INN: 2225089570"
+        props:
+          innCode: "2225089570"
+      - match: "OGRN: 1026801010994 "
+        props:
+          ogrnCode: "1026801010994"
+      - match: "INN: 7725010010 OGRN: 1027700132195 "
+        props:
+          innCode: "7725010010"
+          ogrnCode: "1027700132195"
+      - match: "INN - 7806016672 OGRN - 1027804853900 "
+        props:
+          innCode: "7806016672"
+          ogrnCode: "1027804853900"
+      - match: "OGRN – 1127746497328"
+        props:
+          ogrnCode: "1127746497328"
+      - match: "OGRN: 1113459005175"
+        props:
+          ogrnCode: "1113459005175"
+      - match: "TIN: 9724042820"
+        props:
+          taxNumber: "9724042820"
+      - match: "9709056472 - Russia INN"
+        props:
+          innCode: "9709056472"
+      - match: "OGRN: 1155190006454 "
+        props:
+          ogrnCode: "1155190006454"
+      - match: "INN: 1656003409 "
+        props:
+          innCode: "1656003409"
+      - match: "Taxpayer ID: 7727214569"
+        props:
+          taxNumber: "7727214569"
+      - match: "INN: 1435001668 "
+        props:
+          innCode: "1435001668"
+      - match: "Russia INN - 7805060301"
+        props:
+          innCode: "7805060301"
+      - match: "INN: 7720603527OGRN: 1077764566373"
+        props:
+          innCode: "7720603527"
+          ogrnCode: "1077764566373"
+      - match: "7813654490 - TIN"
+        props:
+          taxNumber: "7813654490"
+      - match: "OGRN: 1147746889531"
+        props:
+          ogrnCode: "1147746889531"
+      - match: "311479-3301-ООО TIN: 01312202410041 "
+        props:
+          taxNumber: "01312202410041"
+          registrationNumber: "311479-3301-ООО"
+      - match: "INN: 7723103642 "
+        props:
+          innCode: "7723103642"
+      - match: "INN: 1644003838"
+        props:
+          innCode: "1644003838"
+      - match: "Tax Identification Number: INN: 7708698473"
+        props:
+          innCode: "7708698473"
+      - match: "Business registration number: 1115042005638Tax number: 5042120394 "
+        props:
+          registrationNumber: "1115042005638"
+          taxNumber: "5042120394"
+      - match: "BvD ID: IR30177GN"
+        props:
+          registrationNumber: "IR30177GN"
+      - match: "SRN - 1023501236901 "
+        props:
+          registrationNumber: "1023501236901"
+      - match: "UEN ID: 202022772K "
+        props:
+          registrationNumber: "202022772K"
+      - match: "TIN - 770426257"
+        props:
+          taxNumber: "770426257"
+      - match: "Tax Identification Number: INN: 7806496845"
+        props:
+          innCode: "7806496845"
+      - match: "Taxpayer ID: 7706569306"
+        props:
+          taxNumber: "7706569306"
+      - match: "OGRN - 1237700096523 INN - 9718218183 "
+        props:
+          ogrnCode: "1237700096523"
+          innCode: "9718218183"
+      - match: "TIN - 3311001852"
+        props:
+          taxNumber: "3311001852"
+      - match: "SWIFT/BIN KHJBSDKH / 5040942458"
+        props:
+          swiftBic: "KHJBSDKH"
+          bikCode: "5040942458"
+      - match: "Tax ID No. 9710007769 (Russia); Registration Number 1167746154432 (Russia)"
+        props:
+          taxNumber: "9710007769"
+          ogrnCode: "1167746154432"
+      - match: "SWIFT/BIC MINNRUMMBIK (RU) 044525600,Tax ID No. 7725039953 (Russia),Government Gazette Number 09317135 (Russia)"
+        props:
+          swiftBic: "MINNRUMMBIK"
+          bikCode: "044525600"
+          registrationNumber: "09317135"
+          innCode: "7725039953"
+      - match: "INN: 7703010220 BIN: 1027739246490 TIN: 7703010220 SWIFT/ BIC: MECCRUM1 Russian Bank Identification Code: 044525125 "
+        props:
+          innCode: "7703010220"
+          swiftBic: "MECCRUM1"
+          bikCode: "044525125"
+      - match: "SRN: 1027402166835 "
+        props:
+          registrationNumber: "1027402166835"
+      - match: "BIN: 231040025351"
+        props:
+          registrationNumber: "231040025351"
+      - match: "CR No. 3120008 "
+        props:
+          registrationNumber: "3120008"
+      - match: "TIN - 7804002321"
+        props:
+          taxNumber: "7804002321"
+      - match: "INN: 5407175878 "
+        props:
+          innCode: "5407175878"
+      - match: "TIN - 7727059017"
+        props:
+          taxNumber: "7727059017"
+      - match: "(УНН/ИНН): 190950894 (Belarus),  7704734000/770301001 (Russia) "
+        props:
+          innCode: "190950894"
+          taxNumber: ["7704734000", "770301001"]
+      - match: "Registration Number: 1067746348427; Government Gazette Number: 94430936; Tax ID No. :7710619969 "
+        props:
+          registrationNumber: "94430936"
+          ogrnCode: "1067746348427"
+          innCode: "7710619969"
+      - match: "Russia INN – 6167128827 Russia OGRN – 1156196039152 Russia KPP – 616601001 Russia KPP - 930401001 "
+        props:
+          innCode: "6167128827"
+          ogrnCode: "1156196039152"
+          kppCode: ["616601001", "930401001"]
+      - match: "OGRN: 1027802490540 "
+        props:
+          ogrnCode: "1027802490540"
+      - match: "TIN: 7806575286"
+        props:
+          taxNumber: "7806575286"
+      - match: "TIN - 5027030107"
+        props:
+          taxNumber: "5027030107"
+      - match: "Tax Identification Number: INN 7801047839"
+        props:
+          innCode: "7801047839"
+      - match: "INN: 3849055365"
+        props:
+          innCode: "3849055365"
+      - match: "TIN - 7805060220\xa0\xa0"
+        props:
+          taxNumber: "7805060220"
+      - match: "122226 (Turkish Trade Registry)"
+        props:
+          registrationNumber: "122226"
+      - match: "OGRN: 1027800000084"
+        props:
+          ogrnCode: "1027800000084"
+      - match: "TIN: 7715980551"
+        props:
+          taxNumber: "7715980551"
+      - match: "INN: 5452112527 OGRN: 1065471010340 "
+        props:
+          innCode: "5452112527"
+          ogrnCode: "1065471010340"
+      - match: "TIN: 9705215178"
+        props:
+          taxNumber: "9705215178"
+      - match: "OGRN: 1247700291200KPP: 770701001INN: 9707028663"
+        props:
+          ogrnCode: "1247700291200"
+          kppCode: "770701001"
+          innCode: "9707028663"
+      - match: "Tax ID: 7701863782e"
+        props:
+          taxNumber: "7701863782e"
+      - match: "OGRN: 1072225012804"
+        props:
+          ogrnCode: "1072225012804"
+      - match: "BR No. 61471779"
+        props:
+          registrationNumber: "61471779"
+      - match: "INN: 9731124449 OGRN: 1237700793021 "
+        props:
+          innCode: "9731124449"
+          ogrnCode: "1237700793021"
+      - match: "INN: 7704278982"
+        props:
+          innCode: "7704278982"
+      - match: "BIC: 044525769 TIN: 3900001002 KPP: 770401001 SWIFT CODE: BADJRUMM Registered Russian Bank No. 2929 "
+        props:
+          bikCode: "044525769"
+          taxNumber: "3900001002"
+          kppCode: "770401001"
+          swiftBic: "BADJRUMM"
+      - match: "'Taxpayer Identification Number – 7718857267\xa0State Registration Number - 1117746641572'"
+        props:
+          innCode: "7718857267"
+          registrationNumber: "1117746641572"
+      - match: "OGRN: 5147746464256 "
+        props:
+          ogrnCode: "5147746464256"
+      - match: "INN – 7816735115OGRN – 1227800131943"
+        props:
+          innCode: "7816735115"
+          ogrnCode: "1227800131943"
+      - match: "INN: 7706428753 "
+        props:
+          innCode: "7706428753"
+      - match: "CBLS 12452609"
+        props:
+          registrationNumber: "12452609"
+      - match: "Iran National ID Number - 10100665220 "
+        props:
+          idNumber: "10100665220"
+      - match: "BIC: AKILKG22 "
+        props:
+          swiftBic: "AKILKG22"
+      - match: "INN: 3442117699 "
+        props:
+          innCode: "3442117699"
+      - match: "TIN - 5906009273"
+        props:
+          taxNumber: "5906009273"
+      - match: "INN: 7725075060"
+        props:
+          innCode: "7725075060"
+      - match: "IP Identification: 0045050215 "
+        props:
+          registrationNumber: "0045050215"
+      - match: "INN: 1827013914"
+        props:
+          innCode: "1827013914"
+      - match: "TIN 7724032017"
+        props:
+          taxNumber: "7724032017"
+      - match: "TIN - 5408106299"
+        props:
+          taxNumber: "5408106299"
+      - match: "OGRN: 1077757840522"
+        props:
+          ogrnCode: "1077757840522"
+      - match: "OGRN: 1021800992124"
+        props:
+          ogrnCode: "1021800992124"
+      - match: "Tax ID 7802059185"
+        props:
+          taxNumber: "7802059185"
+      - match: "1137711000074 (Russia)"
+        props:
+          registrationNumber: "1137711000074"
+      - match: "Russian TIN number - 6310000160"
+        props:
+          taxNumber: "6310000160"
+      - match: "CRN: 1548836"
+        props:
+          registrationNumber: "1548836"
+      - match: "1037739635890 (Russia)"
+        props:
+          ogrnCode: "1037739635890"
+      - match: "Iran Registration No. - 126785 "
+        props:
+          registrationNumber: "126785"
+      - match: "INN: 7107039003 "
+        props:
+          innCode: "7107039003"
+      - match: "OGRN: 1027807560186 INN: 7814027653\u202f "
+        props:
+          ogrnCode: "1027807560186"
+          innCode: "7814027653"
+      - match: "Russia TIN: 5504036333"
+        props:
+          innCode: "5504036333"
+      - match: "OGRN: 1031624002937 "
+        props:
+          ogrnCode: "1031624002937"
+      - match: "Tax Identification Number: INN 7736053886"
+        props:
+          innCode: "7736053886"
+      - match: "Iran National ID Number - 10861539189 "
+        props:
+          idNumber: "10861539189"
+      - match: "USCC: 91440300MA5HX80Y1Q"
+        props:
+          uscCode: "91440300MA5HX80Y1Q"
+      - match: "BvD ID: IRFEB54525SWIFT/BIC – SINAIRTH"
+        props:
+          registrationNumber: "IRFEB54525"
+          swiftBic: "SINAIRTH"
+      - match: "Tax ID No. 7743141413 (Russia); Registration Number 1167700052618 (Russia)"
+        props:
+          innCode: "7743141413"
+          ogrnCode: "1167700052618"
+      - match: "Russia INN – 7718964660 Russia OGRN – 1147746050935 "
+        props:
+          innCode: "7718964660"
+          ogrnCode: "1147746050935"
+      - match: "'TIN - 6440020175SRN - 1096440000425'"
+        props:
+          taxNumber: "6440020175"
+          ogrnCode: "1096440000425"
+      - match: "OGRN- 1175024024130 INN – 5024177951"
+        props:
+          ogrnCode: "1175024024130"
+          innCode: "5024177951"
+      - match: "TIN: 5614057287 "
+        props:
+          taxNumber: "5614057287"
+      - match: "OGRN: 1027700456024"
+        props:
+          ogrnCode: "1027700456024"
+      - match: "Tax Identification Number: INN: 7804001110"
+        props:
+          innCode: "7804001110"
+      - match: "Russia INN – 7724424381"
+        props:
+          innCode: "7724424381"
+      - match: "Russia INN - 7743444827Russia OGRN - 1247700239270Russia KPP - 772201001"
+        props:
+          innCode: "7743444827"
+          ogrnCode: "1247700239270"
+          kppCode: "772201001"
+      - match: "Tax Identification Number: INN 7706001520 "
+        props:
+          innCode: "7706001520"
+      - match: "TIN: 7811401214"
+        props:
+          taxNumber: "7811401214"
+      - match: "Russian TIN: 7718763393"
+        props:
+          taxNumber: "7718763393"
+      - match: "Company House number: 15109642 "
+        props:
+          registrationNumber: "15109642"
+      - match: "INN: 7708696860"
+        props:
+          innCode: "7708696860"
+      - match: "BIN: 1027800000931INN: 7831001704PPC: 784101001"
+        props:
+          ogrnCode: "1027800000931"
+          innCode: "7831001704"
+          kppCode: "784101001"
+      - match: "OGRN: 1157847407156TIN: 7804552300"
+        props:
+          ogrnCode: "1157847407156"
+          taxNumber: "7804552300"
+      - match: "Registration Number/OGRN: 1056604520499 "
+        props:
+          registrationNumber: "1056604520499"
+      - match: "Tax ID No. 7703226533 (Russia); Registration Number 1157746244017 (Russia)"
+        props:
+          taxNumber: "7703226533"
+          registrationNumber: "1157746244017"
+      - match: "Unified Social Credit Code - 913205007615052498; Company Registration Number -  320500400020269"
+        props:
+          uscCode: "913205007615052498"
+          registrationNumber: "320500400020269"
+      - match: "Russia OGRN - 1028600584540"
+        props:
+          ogrnCode: "1028600584540"
+      - match: "Trade register number:126793"
+        props:
+          registrationNumber: "126793"
+      - match: "TIN - 1841015504"
+        props:
+          taxNumber: "1841015504"
+      - match: "Business Registration Number 14850239 (Estonia)"
+        props:
+          registrationNumber: "14850239"
+      - match: "KPP: 668501001"
+        props:
+          kppCode: "668501001"
+      - match: "OGRN: 1207800103301"
+        props:
+          ogrnCode: "1207800103301"
+      - match: "TIN - 7706441909 "
+        props:
+          taxNumber: "7706441909"
+      - match: "1534407 (BVI)"
+        props:
+          registrationNumber: "1534407"
+      - match: "OGRN 1027700035769INN 7708004767 OKPO 00044434 "
+        props:
+          ogrnCode: "1027700035769"
+          innCode: "7708004767"
+          okpoCode: "00044434"
+      - match: "INN: 7707179242 "
+        props:
+          innCode: "7707179242"
+      - match: "INN – 7736321060OGRN - 1197746175274"
+        props:
+          innCode: "7736321060"
+          ogrnCode: "1197746175274"
+      - match: "OGRN: 1117847138166INN: 7805550962"
+        props:
+          ogrnCode: "1117847138166"
+          innCode: "7805550962"
+      - match: "TIN: 2130094170"
+        props:
+          taxNumber: "2130094170"
+      - match: "BRN: 53568083"
+        props:
+          registrationNumber: "53568083"
+      - match: "TIN: 1656025681"
+        props:
+          taxNumber: "1656025681"
+      - match: "VAT number: BE480224531"
+        props:
+          vatCode: "BE480224531"
+      - match: "INN: 5029129528"
+        props:
+          innCode: "5029129528"
+      - match: "INN: 7807352250OGRN: 1107847197237"
+        props:
+          innCode: "7807352250"
+          ogrnCode: "1107847197237"
+      - match: "INN: 9704039787"
+        props:
+          innCode: "9704039787"
+      - match: "OGRN: 114 237 300 24 30INN: 2373007549KPP: 237301001"
+        props:
+          ogrnCode: "1142373002430"
+          innCode: "2373007549"
+          kppCode: "237301001"
+      - match: "Belarusian tax number: 400085002"
+        props:
+          taxNumber: "400085002"
+      - match: "BIN: 120540008532  "
+        props:
+          registrationNumber: "120540008532"
+      - match: "BIN: 200240041690"
+        props:
+          registrationNumber: "200240041690"
+      - match: "TIN: 5112000907"
+        props:
+          taxNumber: "5112000907"
+      - match: "BRN: 70951102"
+        props:
+          registrationNumber: "70951102"
+      - match: "INN: 2311085466"
+        props:
+          innCode: "2311085466"
+      - match: "TIN: 2539028264 "
+        props:
+          taxNumber: "2539028264"
+      - match: "OGRN: 1025403641900; INN/TIN: 5408100018; KPP: 540801001; "
+        props:
+          ogrnCode: "1025403641900"
+          innCode: "5408100018"
+          kppCode: "540801001"
+      - match: "Unified Social Credit Code: 91310115MA1H9L1M75"
+        props:
+          uscCode: "91310115MA1H9L1M75"
+      - match: "Russia TIN- 3528000597 "
+        props:
+          innCode: "3528000597"
+      - match: "OGRN: 1021603067683\xa0"
+        props:
+          ogrnCode: "1021603067683"
+      - match: "TIN: 9705082619"
+        props:
+          taxNumber: "9705082619"
+      - match: "OKTMO – 08845300"
+        props:
+          registrationNumber: "08845300"
+      - match: "311748-3301-OOO TIN: 02312202410120 "
+        props:
+          taxNumber: "02312202410120"
+          registrationNumber: "311748-3301-OOO"
+      - match: "Russian Tax Identification Number - 4101011782 Russia KPP - 410101001 Russia OGRN - 1024100000121 Legal Entity Identifier - 253400EH37SSJEEJFB05 Russia License No. - 1329 "
+        props:
+          innCode: "4101011782"
+          kppCode: "410101001"
+          ogrnCode: "1024100000121"
+          leiCode: "253400EH37SSJEEJFB05"
+      - match: "OGRN: 1175029001641"
+        props:
+          ogrnCode: "1175029001641"
+      - match: "Iran National ID Number - 10100841160 Iran Registration No. - 38705Acuris Unique ID - C5174938705 USA OFAC UID Number - 25685SWIFT/BIC - BOIMIRTH"
+        props:
+          idNumber: "10100841160"
+          # registrationNumber: "38705"
+          registrationNumber: "C5174938705"
+          swiftBic: "BOIMIRTH"
+      - match: "Tax ID No. 7718989383 (Russia); Registration Number 1147746803049 (Russia)"
+        props:
+          innCode: "7718989383"
+          ogrnCode: "1147746803049"
+      - match: "Company Registration Number: 310115003576587 "
+        props:
+          registrationNumber: "310115003576587"
+      - match: "Russian TIN 2539013067 Russia KPP – 254001001 Central Bank Licence - 2733 "
+        props:
+          innCode: "2539013067"
+          kppCode: "254001001"
+          registrationNumber: "2733"
+      - match: "'0105565109824 "
+        props:
+          registrationNumber: "0105565109824"
+      - match: "INN: 7606044658OGRN: 1027600845546"
+        props:
+          innCode: "7606044658"
+          ogrnCode: "1027600845546"
+      - match: "INN – 7838121341OGRN - 1247800024603"
+        props:
+          innCode: "7838121341"
+          ogrnCode: "1247800024603"
+      - match: "CR No. 3183669 "
+        props:
+          registrationNumber: "3183669"
+      - match: "Kyrgz BIK number: 136001TIN: 02012201010017OKPO: 27231453SWIFT: RINBKG22"
+        props:
+          bikCode: "136001"
+          taxNumber: "02012201010017"
+          okpoCode: "27231453"
+          swiftBic: "RINBKG22"
+      - match: "INN:305134690"
+        props:
+          innCode: "305134690"
+      - match: "Kyrgyzstan INN - 02909202210217 Kyrgyzstan Company Registration Number -  210051-3301-ООО Kyrgyzstan OKPO - 31572977 "
+        props:
+          innCode: "02909202210217"
+          registrationNumber: "210051-3301-ООО"
+          okpoCode: "31572977"
+      - match: "Tax ID No. 7735579027 (Russia); Registration Number 1117746568829 (Russia)"
+        props:
+          innCode: "7735579027"
+          ogrnCode: "1117746568829"
+      - match: "BRN: 53706451"
+        props:
+          registrationNumber: "53706451"
+      - match: "'Business Identification Number: RU07586894 Tax Identification Number: 1657032272 '"
+        props:
+          registrationNumber: "RU07586894"
+          taxNumber: "1657032272"
+      - match: "Commercial register number: 189408"
+        props:
+          registrationNumber: "189408"
+      - match: "TIN - 7703104630"
+        props:
+          taxNumber: "7703104630"
+      - match: "INN: 7825331045BIN: 1037843013812"
+        props:
+          innCode: "7825331045"
+          registrationNumber: "1037843013812"
+      - match: "TIN (Taxpayer Identification Number) 9718168599 / SRN (State registration number) 1217700038710 "
+        props:
+          taxNumber: "9718168599"
+          registrationNumber: "1217700038710"
+      - match: "Switzerland UID Number – CHE-109.711.148 Switzerland CH-ID – CH-550.1.031.089-0 UK Company Number – OE019729 Registration number - W8L5TQA2V3K3 "
+        props:
+          # uidCode: "CHE-109.711.148"
+          # chIdCode: "CH-550.1.031.089-0"
+          # ukCompanyNumber: "OE019729"
+          registrationNumber: "W8L5TQA2V3K"
+      - match: "Legal Entity Identifier: 5299008ONRYZRO61SY92; Trade Register Number: District Court of Würzburg HRB 13359; Tax Number - 257/120/19983; VAT Tax Number - DE 258714047 "
+        props:
+          leiCode: "5299008ONRYZRO61SY92"
+          registrationNumber: "HRB 13359"
+          taxNumber: "257/120/19983"
+          vatCode: "DE 258714047"
+      - match: "Legal Entity Number 2534006SJ05GGKETEY75 (Russia) Registration Number 1027739179160 (Russia) "
+        props:
+          leiCode: "2534006SJ05GGKETEY75"
+          registrationNumber: "1027739179160"
+      # - match: "BvD ID number: IR0000119360 BvD account number: IR0000119360U Commercial register number (Trade register number): 96225 Cedar Rose number (IP identification): 0000119360 "
+      #   props:
+      #     registrationNumber: "96225"
+      #     acurisId: "0000119360"
+      #     bvdId: "IR0000119360"
+      - match: "Germany Commercial Registration Number – K1101R_HRB14604 SWIFT/BIC – EIHBIRTH "
+        props:
+          registrationNumber: "K1101R_HRB14604"
+          swiftBic: "EIHBIRTH"
+      - match: "Tax Identification Number: INN: 7726531639"
+        props:
+          innCode: "7726531639"
+      - match: "Tax ID No. 7735007358 (Russia); Registration Number 1027700073466 (Russia)"
+        props:
+          innCode: "7735007358"
+          registrationNumber: "1027700073466"
+      - match: "INN: 3307011706 OGRN: 1023302153115 "
+        props:
+          innCode: "3307011706"
+          ogrnCode: "1023302153115"
+      - match: "INN - 7801062273 OGRN - 1027800509901 "
+        props:
+          innCode: "7801062273"
+          ogrnCode: "1027800509901"
+      - match: "BIN: 230540019530 "
+        props:
+          registrationNumber: "230540019530"
+      - match: "SWIFT/BIC MINNRUMM,BIK (RU) 044525600,Tax ID No. 7725039953 (Russia),Government Gazette Number 09317135 (Russia)"
+        props:
+          swiftBic: "MINNRUMM"
+          bikCode: "044525600"
+          innCode: "7725039953"
+          registrationNumber: "09317135"
+      - match: "Tax ID: 7705713236"
+        props:
+          taxNumber: "7705713236"
+      - match:
+          - "9703155974"
+          - "DSO-ZZCO-16068"
+          - "'0105566140903"
+          - "3528218586 "
+          - "CR No. 1350711 "
+          - "4218020"
+          - "3327403074"
+          - "7717599630"
+          - "599557"
+          - "7810938831"
+          - "HK0017526777"
+          - "7731339867 "
+          - "156387282"
+          - "'0835566016998"
+          - "6166032022"
+          - "1360/1995-1996"
+          - "5192110268 "
+          - "8602039063"
+          - "1 149 102 007 933"
+          - "91440300MA5H0TP85J "
+          - "5260902190"
+          - "7730253529"
+          - "59058C IOM"
+          - "3128000 "
+          - "33866023 "
+          - "'04218020"
+          - "72500781"
+          - "3128060841"
+          - "7704011964"
+          - "1101828001000"
+          - "14720672"
+          - "11211890964 "
+          - "201821798H"
+          - "1237800075765"
+          - "7731513346"
+          - "TR266002F"
+          - "1026600727713"
+          - "5344160 "
+          - "1027739646164"
+          - "'04152338 "
+          - "101907457"
+          - "1187746040910"
+          - "7706688991"
+          - "2602250073105 "
+          - "606989"
+          - "7842521215 "
+          - "2540047110"
+          - "807000227 · VXZVVA5X4Y95 "
+          - "7703802628"
+          - "U51909RJ2022PTC080897"
+          - "9701173086"
+          - "AE0074948054\xa0"
+          - "1660055801"
+          - "1661/2015-2016(YGN)"
+          - "'0127108975400001 · 371692-5\xa0"
+          - "130457487"
+          - "182733636"
+          - "2005/1996-1997"
+          - "RU56285144"
+          - "1863 4976 EPTDKB2J3TX1 "
+          - "105774659367"
+          - "1147746527279 dated 27/07/1992"
+          - "OGRN - 1167746856738 "
+          - "1037804006811 (Russia)"
+          - "7731530091"
+          - "INN: 7703259850"
+          - "TIN - 4824096058 "
+          - "5137746242937"
+          - "V4Z5EVUNEX55 "
+          - "1025201752982 "
+          - "104355110"
+          - "7736618039"
+          - "7729520219"
+          - "7705110090"
+          - "TIN: 7713122621 OGRN: 1027739267126 "
+          - "Tax Identification Number: INN: 7811550230"
+          - "5087007192"
+          - "INN: 7802005951 OGRN: 1027801526070 "
+          - "SL033858"
+          - "104099424"
+          - "Russia INN - 7706196340"
+          - "NF87X6B14KW3 "
+          - "101544478"
+          - "7708822233"
+          - "'07784342"
+          - "SRN - CA/BG/2019B520"
+          - "382231"
+          - "GZYRFN8ZAFH9"
+          - "107428143"
+          - "OGRN: 1097746786675INN: 7743763446"
+          - "2536288610"
+          - "7449006184"
+          - "INN: 7726050935 "
+          - "OGRN: 1066147003658"
+          - "2196196584065"
+          - "Tax Identification Number: INN 2536210349"
+          - "OGRN: 1027700041830; TIN: 7717043113  "
+          - "CIN: U74999MH2016PTC283169 "
+          - "60 · FC005874 "
+          - "102830199"
+          - "INN: 1901003859 "
+          - "1510484"
+          - "7710198911"
+          - "BY100104937 "
+          - "TIN: 305636913"
+          - "Russia TIN: 7414003633 "
+          - "OGRN: 5177746268530"
+          - "9102157783"
+          - "11132540008732"
+          - "INN: 7708213619 "
+          - "INN: 5029217125"
+          - "Trade Register Number: 82839IP Identification: 0048396626"
+          - "INN: 4217027573 "
+          - "74138237"
+          - "INN: 9731115927 OGRN: 1237700391774"
+          - "UK Company no. 06527449"
+          - "DMCC201071"
+          - "INN: 3821010220 "
+          - "1157746088170"
+          - "INN number- 7708514824"
+          - "632036752"
+          - "INN: 308989789VAT number: 312010174080"
+          - "CRN: 2852068"
+          - "OGRN: 1027739090708 INN: 7731018133"
+          - "1090-2011-2012"
+          - "OGRN – 1125261000040; INN – 5261079332; KPP - 526101001 "
+          - "TIN  6154160069"
+          - "CS46HGHRDRG5 "
+          - "9704154155"
+          - "TIN - 6451116030 "
+          - "Russia OGRN – 5177746230547"
+          - "1033045  "
+          - "394678"
+          - "INN – 7722779734"
+          - "Taxpayer Identification Number – 5008011331\xa0"
+          - "75388473CR No. 3286238"
+          - "102842286"
+          - "INN: 2311144802 "
+          - "Russia TIN - 8602060555"
+          - "Russia - 1027739339715"
+          - "1794877"
+          - "7714184726"
+          - "Ma.Bko.2013.M.1610"
+          - "100789450"
+          - "OGRN: 1027739143717INN: 7723022111 "
+          - "1027809210054"
+          - "OGRN: 1153850042246"
+          - "Russia OGRN - 1027802714444"
+          - "2005504830"
+          - "Unified Social Credit Code: 91441400686355518J"
+          - "1105010000974"
+          - "1121402000213"
+          - "7813067004 "
+          - "OGRN 1057746290469"
+          - "CR No. 1910958"
+          - "CNE100005063"
+          - "5050910652 "
+          - "OGRN: 1097746585452"
+          - "1271681"
+          - "44038924500007"
+          - "INN: 3255517496 OGRN: 1113256022505 "
+          - "19036 9982 (Belarus)"
+          - "OGRN: 1112130013270"
+          - "Company Registration Number: 310113003379268"
+          - "OGRN: 1052306487254"
+          - "INN: 4703142849 OGRN: 1144703004380 "
+          - "OGRN: 5167746407054"
+          - "Tax ID No. 7736588433 (Russia)"
+          - "110178954871 "
+          - "Tax ID Number/INN: 6672197493"
+          - "100720744"
+          - "1217800095248 - OGRN"
+          - "INN: 7704366170"
+          - "TIN 7714447012"
+          - "TIN: 7702077840"
+          - "CR No. 2182045"
+          - "7302040242"
+          - "7705397301"
+          - "7734598490 "
+          - "Trade register number: 512036625"
+          - "ICP 11021902 "
+          - "BvD number: IR0000102447"
+          - "TIN - 2312110549"
+          - "BR: 69987857"
+          - "3017041900"
+          - "Turkey Tax Identifier - 7350759377 "
+          - "TIN: 7750004023"
+          - "QZMGZLP36FE3"
+          - "9721179921"
+          - "145225-5 434486-5 "
+          - "INN:  302358106"
+          - "TIN: 7706191991"
+          - "'0105565079224 "
+          - "7751002460 "
+          - "License number: 328"
+          - "RU07522316 "
+          - " 1149102030770"
+          - "INN: 5913001268"
+          - "INN: 7719898900 OGRN: 5147746464234"
+          - "CRN: 1558509"
+          - "INN - 9717029320 OGRN - 1167746544349 "
+          - "103805"
+          - "Tax ID 7730018980"
+          - "1177847044066 "
+          - "INN: 8605006147 "
+          - "TIN - 5506218498"
+          - "9001011019"
+          - "7702059030"
+          - "INN - 1831117433 OGRN - 1061831040688"
+          - "INN: 7726030449 "
+          - "BIN: 110340017087 "
+          - "Kazakhstan BIN - 170440031562"
+          - "OGRN: 1077328004841 INN: 7328510118"
+          - "1069800001852\xa0"
+          - "7725824287 / 772201001 "
+          - "LL06889 (Malaysia)"
+          - "OC425116"
+          - "INN: 7715159793 "
+          - "SWIFT/BIC - PBIRIRTH "
+          - "11701069"
+          - "OGRN: 1167700061540"
+          - "TIN:  91131181MA07MANB7G "
+          - "TIN 6154082903"
+          - "TIN: 9731001285"
+          - "Iran National ID Number – 10101702747 "
+          - "RU05608657"
+          - "1027700132195"
+          - "INN: 7713269230"
+          - "'0195563000558 "
+          - "5742647"
+          - "7802441926 "
+          - "Tax Identification Number: INN: 7840392660"
+          - "INN: 3302021034 "
+          - "F7KRV5BYR3R3 "
+          - "1067746244026 dated 27/07/1992"
+          - "INN - 0274051744 OGRN - 1020202554558"
+          - "5410043399 "
+          - "INN: 7831000122"
+          - "254900H0TCECGSDJBB65 23665"
+          - "Iran Registration No. 2904  "
+          - "7707177816"
+          - "1077799030847"
+          - "M 354838 D 0001 "
+          - "1146679010818"
+          - "'0105566138623 "
+          - "B191191 "
+          - "9710137165 "
+          - "'02002202310071"
+          - "2971193"
+          - "1156658096143"
+          - "'06679031"
+          - "1127747296918"
+          - "29063984"
+          - "OC400827"
+          - "CR Number: 1020125"
+          - "5610083568"
+        value: SAME
   companies:
     normalize: true
     options:
