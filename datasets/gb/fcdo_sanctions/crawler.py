@@ -12,6 +12,19 @@ from zavod import helpers as h
 EMAIL_SPLIT = re.compile(r"[; ]")
 
 
+PATTERNS = [
+    (r"^INN:?\s*(\d{10}|\d{12})\s*$", "innCode"),
+    (r"^OGRN:?\s*(\d{13}|\d{15})\s*$", "ogrnCode"),
+    (r"^KPP:?\s*(\d{9})\s*$", "kppCode"),
+    (r"^(?:BIC|BIK):?\s*(\d{9})\s*$", "bikCode"),
+    (
+        r"^(?:SWIFT(?:/BIC)?|BIC):?\s*([A-Z]{6}[A-Z0-9]{2}(?:[A-Z0-9]{3})?)\s*$",
+        "swiftBic",
+    ),
+    (r"^TIN:?\s*(\d{10})\s*$", "taxNumber"),
+]
+
+
 def get_xml_link(context: Context) -> str:
     doc = context.fetch_html(context.data_url)
     for el in h.xpath_elements(
@@ -29,6 +42,31 @@ def get_csv_link(context: Context) -> str | None:
             continue
         return el.get("href")
     raise ValueError("CSV link not found")
+
+
+def apply_reg_number(context: Context, entity: Entity, reg_number: str):
+    matched = False
+    for pattern, prop in PATTERNS:
+        match = re.match(pattern, reg_number.strip(), re.IGNORECASE)
+        if match:
+            value = match.group(1)
+            if prop in ("kppCode", "bikCode"):
+                entity.add_cast("Company", prop, value, original_value=reg_number)
+            else:
+                entity.add(prop, value, original_value=reg_number)
+            matched = True
+            break
+    # Fall back to lookup if no regex matched
+    if not matched:
+        result = context.lookup("reg_number", reg_number, warn_unmatched=True)
+        if result is not None and result.props:
+            for prop, value in result.props.items():
+                if prop in ("kppCode", "bikCode"):
+                    entity.add_cast("Company", prop, value, original_value=reg_number)
+                else:
+                    entity.add(prop, value, original_value=reg_number)
+        elif result is not None and result.value == "SAME":
+            entity.add("registrationNumber", reg_number)
 
 
 def parse_companies(context: Context, value: Optional[str]) -> List[str]:
@@ -265,6 +303,10 @@ def ext_make_legal_entity(context: Context, row: dict, entity: Entity):
     # Mix of legal forms and sectors
     entity.add("summary", row.pop("Type of entity"))
 
+    reg_number = row.pop("Business registration number (s)")
+    if reg_number:
+        apply_reg_number(context, entity, reg_number)
+
     postcode, pobox = h.postcode_pobox(row.pop("Address Postal Code"))
     addr = h.make_address(
         context,
@@ -372,9 +414,9 @@ def ext_crawl_csv(context: Context):
             unique_id = row.pop("Unique ID")
             entity.id = context.make_slug(unique_id)
             name_type = row.pop("Name type")
-            name_prop = context.lookup_value("name_type", name_type)
-            if name_prop is None and name_type:
-                context.log.warn("Unknown name type", name_type=name_type)
+            name_prop = context.lookup_value(
+                "name_type", name_type, warn_unmatched=True
+            )
 
             # name1 is always a given name
             # name6 is always a family name
@@ -422,7 +464,12 @@ def ext_crawl_csv(context: Context):
             if entity.schema.label == "Vessel":
                 ext_make_ship(context, row, entity)
 
-            if entity.schema.label not in ["Person", "Organization", "Vessel"]:
+            if entity.schema.label not in [
+                "Person",
+                "Organization",
+                "Vessel",
+                "Company",
+            ]:
                 context.log.warn(
                     "Unknown entity type",
                     id=entity.id,
@@ -464,7 +511,6 @@ def ext_crawl_csv(context: Context):
                 [
                     "National Identifier additional information",
                     "Non-latin script type",
-                    "Business registration number (s)",
                     "Alias strength",
                     "Length of ship",
                 ],
