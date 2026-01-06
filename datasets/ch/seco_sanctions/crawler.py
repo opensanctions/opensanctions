@@ -583,7 +583,12 @@ def crawl(context: Context):
     for place in doc.findall(".//place"):
         places[place.get("ssid")] = parse_address(place)
 
-    for target in doc.findall("./target"):
+    for idx, target in enumerate(doc.findall("./target")):
         parse_entry(context, target, programs, places)
+
+        # Flush more frequently than we normally would to cache LLM queries
+        # before we get restarted (e.g. getting evicted and restarted).
+        if idx > 0 and idx % 100 == 0:
+            context.flush()
 
     assert_all_accepted(context, raise_on_unaccepted=False)
