@@ -45,7 +45,7 @@ def clean_address_part(part: Any) -> Optional[str]:
     if part is None:
         return None
     part = str(part).strip()
-    if len(part) == 0 or part == "-":
+    if len(part) == 0 or part == "-" or part == "XX":
         return None
     return part
 
