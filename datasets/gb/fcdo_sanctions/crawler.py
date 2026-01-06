@@ -10,8 +10,6 @@ from zavod import helpers as h
 
 
 EMAIL_SPLIT = re.compile(r"[; ]")
-
-
 PATTERNS = [
     (r"^INN:?\s*(\d{10}|\d{12})\s*$", "innCode"),
     (r"^OGRN:?\s*(\d{13}|\d{15})\s*$", "ogrnCode"),
@@ -44,29 +42,35 @@ def get_csv_link(context: Context) -> str | None:
     raise ValueError("CSV link not found")
 
 
+def _add_property(entity: Entity, prop: str, value: str, original: str):
+    """Helper to add property with Company cast for specific codes."""
+    if prop in ("kppCode", "bikCode"):
+        entity.add_cast("Company", prop, value, original_value=original)
+    else:
+        entity.add(prop, value, original_value=original)
+
+
 def apply_reg_number(context: Context, entity: Entity, reg_number: str):
-    matched = False
     for pattern, prop in PATTERNS:
-        match = re.match(pattern, reg_number.strip(), re.IGNORECASE)
-        if match:
+        if match := re.match(pattern, reg_number, re.IGNORECASE):
             value = match.group(1)
-            if prop in ("kppCode", "bikCode"):
-                entity.add_cast("Company", prop, value, original_value=reg_number)
-            else:
-                entity.add(prop, value, original_value=reg_number)
-            matched = True
-            break
-    # Fall back to lookup if no regex matched
-    if not matched:
-        result = context.lookup("reg_number", reg_number, warn_unmatched=True)
-        if result is not None and result.props:
-            for prop, value in result.props.items():
-                if prop in ("kppCode", "bikCode"):
-                    entity.add_cast("Company", prop, value, original_value=reg_number)
-                else:
-                    entity.add(prop, value, original_value=reg_number)
-        elif result is not None and result.value == "SAME":
-            entity.add("registrationNumber", reg_number)
+            _add_property(entity, prop, value, reg_number)
+            return
+    # If no pattern matched, try to look it up
+    result = context.lookup("reg_number", reg_number, warn_unmatched=True)
+    if result is None:
+        return
+    if result.props:
+        for prop, value in result.props.items():
+            _add_property(entity, prop, value, reg_number)
+    elif result.value == "SAME":
+        entity.add("registrationNumber", reg_number)
+    else:
+        context.log.warn(
+            "Ambiguous registration number lookup result",
+            reg_number=reg_number,
+            result=result,
+        )
 
 
 def parse_companies(context: Context, value: Optional[str]) -> List[str]:
@@ -414,8 +418,14 @@ def ext_crawl_csv(context: Context):
             unique_id = row.pop("Unique ID")
             entity.id = context.make_slug(unique_id)
             name_type = row.pop("Name type")
-            name_prop = context.lookup_value(
-                "name_type", name_type, warn_unmatched=True
+            name_prop = context.lookup_value("name_type", name_type)
+            if name_prop is None and name_type:
+                context.log.warn("Unknown name type", name_type=name_type)
+            alias_strength = row.pop("Alias strength")
+            is_weak = (
+                context.lookup_value("is_alias_weak", alias_strength)
+                if alias_strength
+                else False
             )
 
             # name1 is always a given name
@@ -440,6 +450,7 @@ def ext_crawl_csv(context: Context):
                 lang="eng",
                 name_prop=name_prop,
                 quiet=True,
+                is_weak=is_weak,
             )
             # if not entity.has("name"):
             #     context.log.info("No names found for entity", id=entity.id)
@@ -511,7 +522,6 @@ def ext_crawl_csv(context: Context):
                 [
                     "National Identifier additional information",
                     "Non-latin script type",
-                    "Alias strength",
                     "Length of ship",
                 ],
             )

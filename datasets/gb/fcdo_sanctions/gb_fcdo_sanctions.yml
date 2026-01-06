@@ -174,6 +174,14 @@ lookups:
         value: name
       - match: "Alias"
         value: alias
+  is_alias_weak:
+    lowercase: true
+    normalize: true
+    options:
+      - match: "good quality a.k.a"
+        value: False
+      - match: "low quality a.k.a"
+        value: True
   type.country:
     normalize: true
     options:
@@ -961,10 +969,10 @@ lookups:
           swiftBic: "RINBKG22"
       - match: "INN:305134690"
         props:
-          innCode: "305134690"
+          taxNumber: "305134690" # remapping to taxNumber because of validation failure
       - match: "Kyrgyzstan INN - 02909202210217 Kyrgyzstan Company Registration Number -  210051-3301-ООО Kyrgyzstan OKPO - 31572977 "
         props:
-          innCode: "02909202210217"
+          taxNumber: "02909202210217" # remapping to taxNumber because of validation failure
           registrationNumber: "210051-3301-ООО"
           okpoCode: "31572977"
       - match: "Tax ID No. 7735579027 (Russia); Registration Number 1117746568829 (Russia)"
@@ -1044,6 +1052,12 @@ lookups:
       - match: "Tax ID: 7705713236"
         props:
           taxNumber: "7705713236"
+      - match: "TIN: 260995972"
+        props:
+          taxNumber: "260995972"
+      - match: "INN: 311080140"
+        props:
+          innCode: "311080140"
       - match:
           - "9703155974"
           - "DSO-ZZCO-16068"
