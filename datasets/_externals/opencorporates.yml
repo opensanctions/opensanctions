@@ -62,6 +62,7 @@ config:
     - "kz"
     - "xk"
     - "md-pmr"
+    - "sd"
 
 lookups:
   type.date:
