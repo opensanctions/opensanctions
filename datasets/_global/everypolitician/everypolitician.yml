@@ -1,4 +1,4 @@
-title: Every Politician
+title: MySociety's EveryPolitician Dataset of National Legislators
 entry_point: crawler.py
 prefix: evpo
 disabled: false
@@ -30,6 +30,15 @@ description: |
 
   Other sources will eventually replace this dataset completely as we continually
   improve PEP coverage through more current sources.
+deprecation: |
+  In June 2019, [MySociety announced](https://www.mysociety.org/2019/06/26/placing-everypolitician-on-hold/) that
+  the EveryPolitician project was being placed on hold and that no further updates would be made to this dataset.
+
+  OpenSanctions imports data from EveryPolitician only for the purpose of maintaining historical coverage of PEPs,
+  and will eventually replace this source with more current datasets.
+
+  We are also working to relaunch the [EveryPolitician website](https://www.everypolitician.org/) as a public data
+  resource in the future.
 publisher:
   name: UK Citizens Online Democracy
   acronym: MySociety
@@ -41,7 +50,7 @@ publisher:
   country: zz
 tags:
   - list.pep
-url: http://everypolitician.org
+url: http://www.everypolitician.org
 data:
   url: https://data.opensanctions.org/contrib/everypolitician/countries.json
   format: JSON
