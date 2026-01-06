@@ -81,6 +81,9 @@ class SimpleValue(BaseModel):
 
 
 class RelatedEntity(BaseModel):
+    # I haven't added Ownership here because getting the directionality
+    # (asset/owner props) right is more important than other relationships
+    # and adds complexity.
     relationship_schema: Literal["Family", "UnknownLink"]
     related_entity_name: List[str]
     relationship: Optional[str] = None
@@ -382,7 +385,12 @@ def crawl_other_info(context: Context, entity_ssid: str, entity: Entity, node: E
     )
     prompt = PROMPT.format(schema=entity.schema.name)
     extraction = run_typed_text_prompt(
-        context, prompt, source_value.value_string, OtherInfo, model=LLM_VERSION
+        context,
+        prompt,
+        source_value.value_string,
+        OtherInfo,
+        model=LLM_VERSION,
+        max_tokens=6000,
     )
     review = review_extraction(
         context=context,
