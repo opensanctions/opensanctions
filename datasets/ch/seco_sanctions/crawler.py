@@ -176,7 +176,7 @@ Other properties:
   Extract related entities and return in the related_entities array.
   This is e.g. for named family members of the subject if the subject is a Person.
   Also for associated companies, e.g. parent/subsidiary companies, or company ownership.
-  Do not use this for employee/employer relationships or any other information.
+  Do not use this for employee/employer relationships, basic shareholders, or any other information.
 
   - relationship_schema should only be Family for familial relationships between people,
     otherwise use UnknownLink.
