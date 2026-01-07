@@ -42,7 +42,7 @@ def get_csv_link(context: Context) -> str | None:
     raise ValueError("CSV link not found")
 
 
-def _add_property(entity: Entity, prop: str, value: str, original: str):
+def add_reg_property(entity: Entity, prop: str, value: str, original: str):
     """Helper to add property with Company cast for specific codes."""
     if prop in ("kppCode", "bikCode"):
         entity.add_cast("Company", prop, value, original_value=original)
@@ -54,7 +54,7 @@ def apply_reg_number(context: Context, entity: Entity, reg_number: str):
     for pattern, prop in PATTERNS:
         if match := re.match(pattern, reg_number, re.IGNORECASE):
             value = match.group(1)
-            _add_property(entity, prop, value, reg_number)
+            add_reg_property(entity, prop, value, reg_number)
             return
     # If no pattern matched, try to look it up
     result = context.lookup("reg_number", reg_number, warn_unmatched=True)
@@ -62,7 +62,7 @@ def apply_reg_number(context: Context, entity: Entity, reg_number: str):
         return
     if result.props:
         for prop, value in result.props.items():
-            _add_property(entity, prop, value, reg_number)
+            add_reg_property(entity, prop, value, reg_number)
     elif result.value == "SAME":
         entity.add("registrationNumber", reg_number)
     else:
@@ -419,14 +419,14 @@ def ext_crawl_csv(context: Context):
             entity.id = context.make_slug(unique_id)
             name_type = row.pop("Name type")
             name_prop = context.lookup_value("name_type", name_type)
-            if name_prop is None and name_type:
-                context.log.warn("Unknown name type", name_type=name_type)
+            if name_prop is None:
+                context.log.warn("Unknown name type", name_type=name_type, id=unique_id)
+                continue
             alias_strength = row.pop("Alias strength")
-            is_weak = (
-                context.lookup_value("is_alias_weak", alias_strength)
-                if alias_strength
-                else False
-            )
+            if context.lookup_value(
+                "is_alias_weak", alias_strength, warn_unmatched=True
+            ):
+                name_prop = "weakAlias"
 
             # name1 is always a given name
             # name6 is always a family name
@@ -434,39 +434,26 @@ def ext_crawl_csv(context: Context):
             # We play it safe here and put into more specific properties only what we're sure of
             given_name = row.pop("Name 1")
             last_name = row.pop("Name 6")
-            h.apply_name(
-                entity,
-                given_name=given_name,
-                last_name=last_name,
-                # We call make_name here to avoid having name2-name5 put into the wrong properties by h.apply_name
-                full=h.make_name(
-                    name1=given_name,
-                    name2=row.pop("Name 2"),
-                    name3=row.pop("Name 3"),
-                    name4=row.pop("Name 4"),
-                    name5=row.pop("Name 5"),
-                    tail_name=last_name,
-                ),
-                lang="eng",
-                name_prop=name_prop,
-                quiet=True,
-                is_weak=is_weak,
+            full_name = h.make_name(
+                name1=given_name,
+                name2=row.pop("Name 2"),
+                name3=row.pop("Name 3"),
+                name4=row.pop("Name 4"),
+                name5=row.pop("Name 5"),
+                tail_name=last_name,
             )
-            # if not entity.has("name"):
-            #     context.log.info("No names found for entity", id=entity.id)
+            entity.add(name_prop, full_name, lang="eng", original_value=full_name)
+            entity.add("firstName", given_name, quiet=True, lang="eng")
+            entity.add("lastName", last_name, quiet=True, lang="eng")
 
             # Add non-latin name
             non_latin_name = row.pop("Name non-latin script")
             non_latin_lang = row.pop("Non-latin script language")
             if non_latin_name:
-                lang_code = context.lookup_value("languages", non_latin_lang)
-                if non_latin_lang and lang_code is None:
-                    context.log.warn(
-                        "Unknown language, please add to languages lookup.",
-                        language=non_latin_lang,
-                    )
-                else:
-                    h.apply_name(entity, non_latin_name, lang=lang_code)
+                lang_code = context.lookup_value(
+                    "languages", non_latin_lang, warn_unmatched=True
+                )
+                h.apply_name(entity, non_latin_name, lang=lang_code)
 
             if entity.schema.label in ["Person", "Organization"]:
                 ext_make_legal_entity(context, row, entity)

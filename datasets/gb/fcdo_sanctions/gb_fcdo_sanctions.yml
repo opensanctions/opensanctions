@@ -171,6 +171,7 @@ lookups:
       - match:
           - "Primary name"
           - "Primary name variation"
+          - ""  # if we have no name type, we assume it is a primary name
         value: name
       - match: "Alias"
         value: alias
@@ -178,7 +179,9 @@ lookups:
     lowercase: true
     normalize: true
     options:
-      - match: "good quality a.k.a"
+      - match:
+          - "good quality a.k.a"
+          - null
         value: False
       - match: "low quality a.k.a"
         value: True
