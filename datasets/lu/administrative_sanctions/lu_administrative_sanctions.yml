@@ -124,6 +124,9 @@ lookups:
       - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-2-mai-2025/
         names:
           - Banque et Caisse d’Epargne de l’Etat, Luxembourg
+      - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-9-octobre-2025/
+        names:
+          - Rakuten Europe Bank S.A.
       # Anonymous:
       - match:
           - https://www.cssf.lu/fr/Document/sanction-administrative-du16-05-2019/
