@@ -32,13 +32,14 @@ def get_xml_link(context: Context) -> str:
     raise ValueError("XML link not found")
 
 
-def get_csv_link(context: Context) -> str | None:
+def get_csv_link(context: Context) -> str:
     doc = context.fetch_html(context.data_url)
     xq = ".//section[@id='documents']//a[contains(@href, 'UK-Sanctions-List.csv')]"
     for el in h.xpath_elements(doc, xq):
-        if el.get("href") is None:
+        href = el.get("href")
+        if href is None:
             continue
-        return el.get("href")
+        return href
     raise ValueError("CSV link not found")
 
 
@@ -251,11 +252,20 @@ def crawl_xml(context: Context):
             if entity.schema.label in ["Person", "Organization"]:
                 make_legal_entity(context, designation, entity)
             # If it is an individual
-            if entity.schema.label == "Person":
+            elif entity.schema.label == "Person":
                 make_person(context, designation, entity)
             # If it is a ship
-            if entity.schema.label == "Vessel":
+            elif entity.schema.label == "Vessel":
                 make_ship(context, designation, entity)
+            else:
+                context.log.warn(
+                    "Unknown entity type",
+                    id=entity.id,
+                    type=entity.schema.label,
+                    doc=designation,
+                )
+                continue
+
             # Extract the sanctions regime
             regime_name = [
                 regime.text.strip()
@@ -423,9 +433,7 @@ def ext_crawl_csv(context: Context):
                 context.log.warn("Unknown name type", name_type=name_type, id=unique_id)
                 continue
             alias_strength = row.pop("Alias strength")
-            if context.lookup_value(
-                "is_alias_weak", alias_strength, warn_unmatched=True
-            ):
+            if context.lookup_value("weak_types", alias_strength, warn_unmatched=True):
                 name_prop = "weakAlias"
 
             # name1 is always a given name
@@ -457,17 +465,11 @@ def ext_crawl_csv(context: Context):
 
             if entity.schema.label in ["Person", "Organization"]:
                 ext_make_legal_entity(context, row, entity)
-            if entity.schema.label == "Person":
+            elif entity.schema.label == "Person":
                 ext_make_person(context, row, entity)
-            if entity.schema.label == "Vessel":
+            elif entity.schema.label == "Vessel":
                 ext_make_ship(context, row, entity)
-
-            if entity.schema.label not in [
-                "Person",
-                "Organization",
-                "Vessel",
-                "Company",
-            ]:
+            else:
                 context.log.warn(
                     "Unknown entity type",
                     id=entity.id,

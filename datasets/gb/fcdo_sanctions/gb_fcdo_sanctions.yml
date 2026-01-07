@@ -164,7 +164,7 @@ lookups:
         value: hrv
       - match: Japanese
         value: jpn
-      - match: ""  # we don't want to warn on empty languages
+      - match: "" # we don't want to warn on empty languages
         value: null
   name_type:
     lowercase: true
@@ -173,11 +173,11 @@ lookups:
       - match:
           - "Primary name"
           - "Primary name variation"
-          - ""  # if we have no name type, we assume it is a primary name
+          - "" # if we have no name type, we assume it is a primary name
         value: name
       - match: "Alias"
         value: alias
-  is_alias_weak:
+  weak_types:
     lowercase: true
     normalize: true
     options:
@@ -195,7 +195,7 @@ lookups:
         # according to 'marinetraffic.com' the vessel is registered in Guinea: https://www.marinetraffic.com/en/ais/details/ships/shipid:214941/mmsi:632001136/imo:9277735/vessel:LUNAR_TIDE
         # what was meant by 'Tazmania' is yet to be figured out
       - match: Tazmania
-        value: null
+        value: Australia
   type.email:
     options:
       - match:
@@ -808,7 +808,8 @@ lookups:
           registrationNumber: "1217700038710"
       - match: "Switzerland UID Number – CHE-109.711.148 Switzerland CH-ID – CH-550.1.031.089-0 UK Company Number – OE019729 Registration number - W8L5TQA2V3K3 "
         props:
-          registrationNumber: ["W8L5TQA2V3K", "OE019729", "CH-550.1.031.089-0", "CHE-109.711.148"]
+          registrationNumber:
+            ["W8L5TQA2V3K", "OE019729", "CH-550.1.031.089-0", "CHE-109.711.148"]
       - match: "Legal Entity Identifier: 5299008ONRYZRO61SY92; Trade Register Number: District Court of Würzburg HRB 13359; Tax Number - 257/120/19983; VAT Tax Number - DE 258714047 "
         props:
           leiCode: "5299008ONRYZRO61SY92"
