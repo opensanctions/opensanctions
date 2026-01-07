@@ -923,6 +923,10 @@ lookups:
       - match: "Lieu d’enregistrement: Viêt Nam"
         props:
           jurisdiction: vn
+      - match: "déclarée le 6 avril 2010 à la préfecture de l'Isère (38): numéro W381009783"
+        props:
+          registrationNumber: W381009783
+          incorporationDate: 2010-04-06
 
 
   ####################################################################################################
