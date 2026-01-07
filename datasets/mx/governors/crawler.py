@@ -71,7 +71,9 @@ def crawl_item(input_html, context: Context):
     # and other with the clean name.
     raw_title = input_html.xpath("./div/div/div/div[2]/h4/a/text()")[0].strip()
     name = re.sub(r"^([A-Z][a-z]*\.)+ ", "", raw_title)
-    state = input_html.xpath(".//div[@class='media-body escudo']/a/text()")[0].strip()
+    state = h.xpath_string(
+        input_html, ".//div[@class='media-body escudo']/a/text()[1]"
+    ).strip()
 
     person = context.make("Person")
     person.id = context.make_id(name)
