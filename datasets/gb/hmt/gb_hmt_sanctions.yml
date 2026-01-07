@@ -5,6 +5,7 @@ coverage:
   schedule: "0 */2 * * *"
   frequency: daily
   start: "2015-12-05"
+  end: "2026-01-28"
 deploy:
   memory: "2Gi"
 load_statements: true
@@ -19,6 +20,15 @@ description: |
 
   The UK sanctions list suffers from very bad data quality as the result of manual
   data processing and inappropriate data structures used by the XML files.
+deprecation:
+  The UK HMT/OFSI Consolidated List of Targets dataset has been consolidated into the
+  FCDO [UK Sanctions List](/datasets/gb_fcdo_sanctions/) as of January 2026. There will
+  be no further updates to this dataset after January 28, 2026. Read our [changelog
+  entry](/changelog/38/) for more details.
+
+  We further plan to remove the `sanction` topic from entries in this dataset after its
+  deprecation, and will eventually remove the dataset entirely to avoid processing stale
+  designations.
 publisher:
   name: Office of Financial Sanctions Implementation
   acronym: OFSI
