@@ -2,22 +2,20 @@ import logging
 import os
 import re
 import sys
+import banal
 from rigour.env import TZ_NAME
 from pathlib import Path
-from typing import Any, Callable, Dict, List, MutableMapping, Optional
+from typing import Any, Callable, Dict, List, Optional
 
 import structlog
 from followthemoney.proxy import EntityProxy
 from followthemoney.schema import Schema
 from lxml.etree import _Element, tostring
-from lxml.html import HtmlElement
 from structlog.contextvars import merge_contextvars
 from structlog.stdlib import get_logger as get_raw_logger
-from structlog.types import Processor
+from structlog.types import Processor, EventDict as Event
 
 from zavod import settings
-
-Event = MutableMapping[str, str]
 
 REDACT_IGNORE_LIST = {
     "OLDPWD",
@@ -50,26 +48,35 @@ class RedactingProcessor:
     Patterns must be ordered such that longer/more specific patterns come first.
 
     While structlog copies the initial event_dict, this class also copies it because
-    it needs to recurse into nested structures and structlog's copy is shallow.
+    it needs to recurse into and modify nested structures and structlog's copy is shallow.
     """
 
     def __init__(self, replace_patterns: Dict[str, str | Callable[[str], str]]) -> None:
         self.repl_regexes = {re.compile(p): r for p, r in replace_patterns.items()}
 
     def __call__(self, logger: Any, method_name: str, event_dict: Event) -> Event:
-        event_dict = self.redact_dict(event_dict)
-        return event_dict
+        # The issue writer needs the context instance to write issues, so we
+        # don't serialize it here, and assume the issue writer will pop it before
+        # trying to write the event dict in the issue log.
+        has_context_instance = False
+        if "context" in event_dict:
+            from zavod import Context
+
+            if isinstance(event_dict["context"], Context):
+                context = event_dict.pop("context")
+                has_context_instance = True
+            # else who knows what it is - redact it as normal.
+
+        event_copy = issue_event_value(event_dict)
+        redacted_event = self.redact_dict(event_copy)
+
+        # Set it if and only if it existed before.
+        if has_context_instance:
+            redacted_event["context"] = context
+        return redacted_event
 
     def redact_dict(self, dict_: Event) -> Event:
-        from zavod.context import Context
-
-        copy = {}
         for key, value in dict_.items():
-            if key == "context" and isinstance(value, Context):
-                # The issue writer needs the instance and will pop it.
-                copy[key] = value
-                continue
-            value = make_redactable(value)
             if isinstance(value, str):
                 value = self.redact_str(value)
             elif isinstance(value, dict):
@@ -78,13 +85,11 @@ class RedactingProcessor:
                 value = self.redact_list(value)
             else:
                 value = self.redact_str(value)
-            copy[key] = value
-        return copy
+            dict_[key] = value
+        return dict_
 
     def redact_list(self, list_: List[Any]) -> List[Any]:
-        copy = []
-        for value in list_:
-            value = make_redactable(value)
+        for ix, value in enumerate(list_):
             if isinstance(value, dict):
                 value = self.redact_dict(value)
             elif isinstance(value, str):
@@ -93,8 +98,8 @@ class RedactingProcessor:
                 value = self.redact_list(value)
             else:
                 value = self.redact_str(value)
-            copy.append(value)
-        return copy
+            list_[ix] = value
+        return list_
 
     def redact_str(self, string: str) -> str:
         for regex, replacement in self.repl_regexes.items():
@@ -150,6 +155,7 @@ def configure_logging(level: int = logging.DEBUG) -> logging.Logger:
     ]
 
     emitting_processors: List[Processor] = [log_issue]
+    formatting_processors: List[Processor]
 
     if settings.LOG_JSON:
         formatting_processors = [
@@ -219,20 +225,19 @@ def format_json(_: Any, __: str, ed: Event) -> Event:
     return ed
 
 
-# This is called from the redactor just because it's already traversing
-# the nested lists/dicts but it strictly ought to be a processor depended
-# on by the redaction and issue writer processors.
-def make_redactable(value: Any) -> Any:
+def issue_event_value(value: Any) -> Any:
     """
     Ensure that all types are JSON-serializable and redactable,
-    converting everything to string, list or dict.
+    recursively converting everything to string, list or dict.
 
-    Assumes it will be called recursively on list and dict values.
+    This makes a deep copy of collections handled by banal.
     """
-    if isinstance(value, (str, dict, list)):
-        # The redactor will recurse into these
+
+    # Do not mutate the original value
+
+    if isinstance(value, str):
         return value
-    if isinstance(value, (_Element, HtmlElement)):
+    if isinstance(value, _Element):
         return tostring(value, pretty_print=False, encoding=str).strip()
     if isinstance(value, Path):
         try:
@@ -243,19 +248,24 @@ def make_redactable(value: Any) -> Any:
     if isinstance(value, Schema):
         return value.name
     if isinstance(value, EntityProxy):
-        value = {
+        return {
             "id": value.id,
             "caption": value.caption,
             "schema": value.schema.name,
         }
-    if isinstance(value, set):
-        value = list(value)
+    if banal.is_listish(value):
+        return [issue_event_value(v) for v in value]
+    if banal.is_mapping(value):
+        dict_ = {}
+        for key, value_ in value.items():
+            dict_[key] = issue_event_value(value_)
+        return dict_
 
     return repr(value)
 
 
 def log_issue(_: Any, __: str, event_dict: Event) -> Event:
-    data = dict(event_dict)
+    data: Dict[str, Any] = dict(event_dict)
     context = data.pop("context", None)
     level: Optional[str] = data.get("level")
     if level is not None:
