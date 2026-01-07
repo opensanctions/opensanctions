@@ -36,29 +36,33 @@ publisher:
   url: https://opencorporates.com/info/about/
 
 inputs:
+  - eu_sanctions
   - ir_uani_business_registry
   - us_sanctions
-  - eu_sanctions
-  # - ext_cy_companies
-  # - ext_cz_business_register
-  # - ext_ee_ariregister
-  # - ext_gb_coh_psc
-  # - ext_gleif
-  # - ext_icij_offshoreleaks
-  # - ext_lv_business_register
-  # - ext_md_companies
-  # - opencorporates
-  # - ext_ru_egrul
-  # - ext_ua_edr
-  # - debarment
 
 config:
   type: nomenklatura.enrich.opencorporates:OpenCorporatesEnricher
-  cache_days: 180
+  cache_days: 60
   schemata:
     - Company
     - Organization
     # - LegalEntity
+  skip_jurisdictions:
+    - "ru"
+    - "cn"
+    - "kp"
+    - "sy"
+    - "iq"
+    - "ae"
+    - "ve"
+    - "cu"
+    - "ps"
+    - "af"
+    - "uz"
+    - "kz"
+    - "xk"
+    - "md-pmr"
+    - "sd"
 
 lookups:
   type.date:

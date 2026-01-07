@@ -4,6 +4,7 @@ prefix: tokyo-mou-psc
 coverage:
   frequency: weekly
   start: "2025-06-26"
+resolve: false
 # We only enrich from this dataset, we load the statements only from the enricher.
 load_statements: false
 # Long-running and needs the cache, so not workable in CI

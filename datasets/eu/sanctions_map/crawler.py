@@ -117,6 +117,8 @@ def crawl_vessels(context):
         name = row.pop("vessel_name")
         imo = row.pop("imo_number")
         order_id = row.pop("column_0")
+        if not any([name, imo, order_id]):
+            continue
         vessel = context.make("Vessel")
         vessel.id = context.make_id(name, imo)
         vessel.add("name", name)

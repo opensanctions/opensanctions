@@ -30,6 +30,8 @@ data:
   url: http://www.cortesgenerales.es/
   format: html
   lang: spa
+http:
+  user_agent: zavod (https://opensanctions.org/)
 dates:
   formats: ["%d/%m/%Y", "%b %d %Y"]
 

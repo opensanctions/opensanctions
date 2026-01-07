@@ -48,14 +48,14 @@ data:
 assertions:
   min:
     schema_entities:
-      Person: 14_000
-      Position: 4000
+      Person: 16000
+      Position: 5700
     country_entities:
       co: 1
   max:
     schema_entities:
-      Person: 19_000
-      Position: 7000
+      Person: 25000
+      Position: 9000
 
 lookups:
   positions:

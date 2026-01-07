@@ -8,8 +8,8 @@ load_statements: true
 summary: >
   Domestic list of natural and legal persons subject to sanctions
 description: |
-  This sanctions list is published by the Government of Azerbaijan. For context, 
-  Azerbaijan is run by an authoritarian regime that is, itself, credibly 
+  This sanctions list is published by the Government of Azerbaijan. For context,
+  Azerbaijan is run by an authoritarian regime that is, itself, credibly
   accused of a large number of financial crimes.
 
   * [More details on Freedom House](https://freedomhouse.org/country/azerbaijan).
@@ -26,7 +26,7 @@ publisher:
   url: http://www.fiu.az/en/info
   official: true
 data:
-  url: "http://hms.gov.az/az/siyahi"
+  url: "http://hms.gov.az/en/olkedaxili-siyahi"
   format: XML
   lang: aze
 tags:

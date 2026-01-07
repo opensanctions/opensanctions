@@ -50,8 +50,20 @@ def parse_address(context: Context, el: Element) -> Optional[Entity]:
     )
 
 
-def parse_sanctions(context: Context, entity: Entity, entry: Element) -> None:
+def parse_sanctions(
+    context: Context,
+    entity: Entity,
+    entry: Element,
+    program_attrib: str = "programme",
+) -> None:
     regulations = entry.findall("./regulation")
+    """
+    Args:
+        program_attrib: Optional XML attribute name to use instead of 'programme'
+                        for extracting the program key. Used when different EU
+                        datasets use different attribute names for the same data.
+                        (e.g. "eu_travel_bans" uses "numberTitle" instead of "programme".)
+    """
     # if len(regulations) == 0:
     #     context.log.warning(
     #         "No regulations on entity",
@@ -62,7 +74,8 @@ def parse_sanctions(context: Context, entity: Entity, entry: Element) -> None:
     for regulation in regulations:
         url = regulation.findtext("./publicationUrl")
         assert url is not None, etree.tostring(regulation)
-        source_program_key = regulation.get("programme")
+        source_program_key = regulation.get(program_attrib)
+
         sanction = h.make_sanction(
             context,
             entity,

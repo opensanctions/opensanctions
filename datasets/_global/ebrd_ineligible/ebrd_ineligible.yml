@@ -44,6 +44,25 @@ http:
 dates:
   formats: ["%d-%m-%Y"]
 lookups:
+  subtitle:
+    options:
+      - match: '(also known as Hangzhou Fuchuan Electric Power Equipment Co., Ltd) '
+        value: Hangzhou Fuchuan Electric Power Equipment Co., Ltd
+      - match: (formerly known as HanoiTC Expert Joint Stock Company)
+        value: HanoiTC Expert Joint Stock Company
+      - match: 'As a successor or assign to Sugdiyon Limited Liability Company '
+        value: Sugdiyon Limited Liability Company
+      - match: 'Общество с ограниченной ответственностью «FERGANA ОМЕGАМЕТ» and  «FERGANA ОМЕGАМЕТ» MChJ'
+        values:
+          - FERGANA ОМЕGАМЕТ MChJ
+          - Общество с ограниченной ответственностью «FERGANA ОМЕGАМЕТ»
+      - match: '(doing business as Groupe Systèmes et Solutions D’entreprise, ESS Group, Enterprise Systems and Solutions Group)'
+        values:
+          - Groupe Systèmes et Solutions D’entreprise
+          - ESS Group
+          - Enterprise Systems and Solutions Group
+      - match: '(now known as International Real Estate Consulting and Investment Joint Stock Company)'
+        value: International Real Estate Consulting and Investment Joint Stock Company
   type.country:
     options:
       - match: Republic of Türkiye

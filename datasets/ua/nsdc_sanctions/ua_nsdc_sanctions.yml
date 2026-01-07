@@ -598,6 +598,19 @@ lookups:
         values:
           - Російська Федерація, 678962, Республіка Саха (Якутія), Нерюнгрінський муніципальний р-н, м. Нерюнгрі, вул. Лужників, буд. 3, к. 2
           - Российская Федерация, 678962, Республика Саха (Якутия), Нерюнгринский муниципальный р-н, г. Нерюнгри, ул. Лужников, д. 3, к. 2
+      - match: "Китайська Народна Республіка, Гонконг, Квун Тонг (China, Hong Kong, Kwun Tong, Shing Yip Street, 27, Sunbeam Centre, Rm 1318), Китайська Народна Республіка, провінція Чжецзян, місто Іу (China, Zhejiang Province, Yiwu City, Futian Street, Qiandian Village 1 area, Block 15, Unit 2, Room 303)"
+        values:
+          - Китайська Народна Республіка, Гонконг, Квун Тонг, Shing Yip Street, 27, Sunbeam Centre, Rm 1318
+          - China, Hong Kong, Kwun Tong, Shing Yip Street, 27, Sunbeam Centre, Rm 1318
+          - Китайська Народна Республіка, провінція Чжецзян, місто Іу, Futian Street, Qiandian Village 1 area, Block 15, Unit 2, Room 303
+          - China, Zhejiang Province, Yiwu City, Futian Street, Qiandian Village 1 area, Block 15, Unit 2, Room 303
+      - match: "Китайська Народна Республіка, Гонконг, Квун Тонг (China, Hong Kong, Kwun Tong, Shing Yip Street, 27, Sunbeam Centre, Rm. 1318), Китай, Гонконг, Коулун Монгкок (China, Hong Kong, Kowloon Mongkok, Nathan Road, Building Nos 721-725, The Belgian Bank, 14/F, Unit 1406A)"
+        values:
+          - Китайська Народна Республіка, Гонконг, Квун Тонг, Shing Yip Street, 27, Sunbeam Centre, Rm. 1318
+          - China, Hong Kong, Kwun Tong, Shing Yip Street, 27, Sunbeam Centre, Rm. 1318
+          - Китай, Гонконг, Коулун Монгкок, Nathan Road, Building Nos 721-725, The Belgian Bank, 14/F, Unit 1406A
+          - China, Hong Kong, Kowloon Mongkok, Nathan Road, Building Nos 721-725, The Belgian Bank, 14/F, Unit 1406A
+
   type.name:
     options:
       - match: Федеральное государственное бюджетное военное образовательное учреждение высшего образования «Академия гражданской защиты Министерства Российской Федерации по делам гражданской обороны чрезвычайных ситуаций и ликвидации последствий стихийных бедствий»

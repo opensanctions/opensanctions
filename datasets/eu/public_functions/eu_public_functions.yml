@@ -2,10 +2,10 @@ title: "EU Prominent Public Functions"
 entry_point: crawler.py
 prefix: eu-pub
 coverage:
-  frequency: daily
+  frequency: never
   start: 2023-11-28
 deploy:
-  schedule: "50 */3 * * *"
+  schedule: "@monthly"
 load_statements: true
 exports:
   - statistics.json

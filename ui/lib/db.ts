@@ -328,6 +328,7 @@ export async function getNextUnacceptedEntryKey(dataset: string): Promise<string
     .as('lv');
 
   // Join review with the subquery on last_seen_version and filter for unaccepted
+  // Use random ordering to reduce likelihood of multiple reviewers working on the same item
   const row = await (await getDb())
     .selectFrom(REVIEW_TABLE_NAME)
     .innerJoin(latestVersionSubquery, 'review.last_seen_version', 'lv.latest_version')
@@ -335,7 +336,7 @@ export async function getNextUnacceptedEntryKey(dataset: string): Promise<string
     .where('review.dataset', '=', dataset)
     .where('review.deleted_at', 'is', null)
     .where('review.accepted', '=', false)
-    .orderBy('review.modified_at', 'desc')
+    .orderBy(sql`RANDOM()`)
     .limit(1)
     .executeTakeFirst();
   return row?.key ?? null;

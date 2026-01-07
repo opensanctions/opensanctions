@@ -327,6 +327,12 @@ lookups:
         value: 1027802490540
       - match: 774376344
         value: 7743763446 # ru_egrul
+      - match:
+          - 308989789
+          - 302358106
+          - 305134690
+          - 311080140
+        prop: taxNumber
   companies:
     normalize: true
     options:
@@ -413,6 +419,7 @@ lookups:
           - PJSC Rosneft
           - Kala Limited
           - National Iranian Oil Company
+          - OOO Mercury Renaissance
         value: SAME
       - match: Subsidiary of the Organisation for Technological Industries (OTI) and therefore the Syrian Ministry of Defence
         values:

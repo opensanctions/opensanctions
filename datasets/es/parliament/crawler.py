@@ -105,12 +105,10 @@ def crawl_deputy(
 
     person = context.make("Person")
     person.id = context.make_id(id, name, party)
-    first_names = item.pop("first_name").split(" ", 1)
     h.apply_name(
         person,
         full=name,
-        first_name=first_names[0],
-        second_name=first_names[1] if len(first_names) > 1 else None,
+        first_name=item.pop("first_name"),
         last_name=item.pop("last_name"),
     )
     birth_date, birth_place = get_birth_date_and_place(context, profile_url)
@@ -154,18 +152,17 @@ def crawl_senator(context: Context, senator_url: str) -> bool:
     datos = doc_xml.find("datosPersonales")
     assert datos is not None
     web_id = datos.findtext("idweb")
-    first_names = h.element_text(
+    full_first_name = h.element_text(
         h.xpath_elements(datos, "nombre", expect_exactly=1)[0]
-    ).split(" ", 1)
+    )
     last_name = datos.findtext("apellidos")
 
+    emitted = False
     person = context.make("Person")
-    # We ignore the type error here because we don't want to rekey
-    person.id = context.make_id(web_id, first_names, last_name)  # type: ignore
+    person.id = context.make_id(web_id, full_first_name, last_name)
     h.apply_name(
         person,
-        first_name=first_names[0],
-        second_name=first_names[1] if len(first_names) > 1 else None,
+        first_name=full_first_name,
         last_name=last_name,
     )
     h.apply_date(person, "birthDate", datos.findtext("fechaNacimiento"))
@@ -173,8 +170,6 @@ def crawl_senator(context: Context, senator_url: str) -> bool:
     person.add("birthPlace", datos.findtext("lugarNacimiento"))
     person.add("notes", datos.findtext("biografia"))
     person.add("sourceUrl", senator_url)
-
-    emitted = False
 
     for legislatura in doc_xml.findall(".//legislatura"):
         # Additional parliamentary roles (cargos)
@@ -222,9 +217,7 @@ def crawl(context: Context) -> None:
     current_leg_option = h.xpath_elements(
         leg_select, "//option[@selected='']", expect_exactly=1
     )[0]
-    current_leg_decimal = h.xpath_strings(
-        current_leg_option, "@value", expect_exactly=1
-    )[0]
+    current_leg_decimal = h.xpath_string(current_leg_option, "@value")
     current_leg_roman = h.element_text(current_leg_option).split(" ")[0].strip()
     form_data = {
         "_diputadomodule_idLegislatura": current_leg_decimal,

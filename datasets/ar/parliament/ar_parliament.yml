@@ -5,9 +5,10 @@ coverage:
   frequency: daily
   start: 2023-12-31
 load_statements: true
+ci_test: false # No Zyte API in CI
 summary: >-
-  Current members of the Argentine Chamber of Deputies, the lower house of the
-  National Congress
+  Current and recent members of the Argentine Chamber of Deputies, the lower
+  house of the National Congress.
 description: |
   National Deputies (Members of the Parliament) - Representatives elected directly
   by the people of the provinces and the city of Buenos Aires of Argentina. The
@@ -22,16 +23,18 @@ publisher:
     The Honorable Chamber of Deputies of Argentina
   country: ar
   url: https://www.hcdn.gob.ar/index.html
-url: https://www.hcdn.gob.ar/diputados/
+url: https://datos.hcdn.gob.ar/dataset/legisladores
 data:
-  url: https://www.hcdn.gob.ar/diputados/
-  format: HTML
+  url: https://datos.hcdn.gob.ar/dataset/a80e0fa7-d73a-4ed1-9dec-80465e368951/resource/16cd699d-83fb-4d5f-afd4-0af9b47b1bd7/download/diputados.json
+  format: JSON
+  lang: spa
 dates:
   formats: ["%d/%m/%Y"]
+
 assertions:
   min:
     schema_entities:
       Person: 245
   max:
     schema_entities:
-      Person: 270
+      Person: 300

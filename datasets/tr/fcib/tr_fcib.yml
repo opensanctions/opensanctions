@@ -375,8 +375,6 @@ lookups:
         value: sequence_no
       - match: MVD YAPTIRIM TÜRÜ
         value: sanction_type
-      - match: DOĞUM TARİHİ/KURULUŞ
-        value: date_of_birth_establishment
       - match: DOĞUM YERİ
         value: birth_place
       - match: Görevi
@@ -418,6 +416,7 @@ lookups:
       - match:
           - DOĞUM TARİHİ
           - Doğum Tarihi
+          - DOĞUM TARİHİ/KURULUŞ
         value: birth_date
       - match:
           - RESMİ GAZETE TARİH-SAYISI

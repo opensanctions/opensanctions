@@ -140,3 +140,5 @@ lookups:
         values: [DK, SO]
       - match: ALGIERIA BELGIA
         values: [DZ, BE]
+      - match: AZERBEJDŻAN UKRAINA
+        values: [AZ, UA]

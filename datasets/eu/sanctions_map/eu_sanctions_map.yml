@@ -6,7 +6,7 @@ coverage:
   frequency: daily
   start: 2022-05-09
 manual_check:
-  last_checked: "2025-09-23"
+  last_checked: "2026-01-01"
   interval: 90
   message: |
     Updating VESSELS_URL:
@@ -80,6 +80,10 @@ lookups:
       - match:
           - 09346732 # Invalid IMO
         prop: registrationNumber
+  type.url:
+    options:
+      - match: Regulation - EU - 2025/2618 - EN - EUR-Lex
+        value: https://eur-lex.europa.eu/legal-content/EN/ALL/?uri=oj:L_202502618
   sanction.program:
     # in accordance with https://sanctionsmap.eu/#/main?search=%7B%22value%22:%22%22,%22searchType%22:%7B%7D%7D
     options:

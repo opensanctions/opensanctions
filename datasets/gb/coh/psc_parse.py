@@ -1,11 +1,11 @@
 import csv
 import json
 from typing import Optional, Generator, Dict, Any
-from lxml import html
 from zipfile import ZipFile
-from functools import cache
+from functools import lru_cache
 from io import TextIOWrapper
 from urllib.parse import urljoin
+from rigour.util import MEMO_MEDIUM
 
 from followthemoney.util import PathLike
 from followthemoney.types import registry
@@ -54,7 +54,7 @@ def company_id(company_nr: str) -> str:
     return f"oc-companies-gb-{nr}"
 
 
-@cache
+@lru_cache(maxsize=MEMO_MEDIUM)
 def parse_country(name: str, default: Optional[str] = None) -> Optional[str]:
     code = registry.country.clean(name)
     if code is None:
@@ -62,7 +62,7 @@ def parse_country(name: str, default: Optional[str] = None) -> Optional[str]:
     return code
 
 
-@cache
+@lru_cache(maxsize=MEMO_MEDIUM)
 def clean_sector(text: str) -> str:
     sectors = text.split(" - ", 1)
     if len(sectors) > 1:
@@ -71,8 +71,7 @@ def clean_sector(text: str) -> str:
 
 
 def get_base_data_url(context: Context) -> str:
-    res = context.http.get(BASE_URL)
-    doc = html.fromstring(res.text)
+    doc = context.fetch_html(BASE_URL)
     for link in doc.findall(".//a"):
         url = urljoin(BASE_URL, link.get("href"))
         if "BasicCompanyDataAsOneFile" in url:
@@ -84,9 +83,9 @@ def read_base_data_csv(path: PathLike) -> Generator[Dict[str, str], None, None]:
     with ZipFile(path, "r") as zip:
         for name in zip.namelist():
             with zip.open(name, "r") as fh:
-                fhtext = TextIOWrapper(fh)
-                for row in csv.DictReader(fhtext):
-                    yield {k.strip(): v for (k, v) in row.items()}
+                with TextIOWrapper(fh) as fhtext:
+                    for row in csv.DictReader(fhtext):
+                        yield {k.strip(): v for (k, v) in row.items()}
 
 
 def parse_base_data(context: Context) -> None:
@@ -96,7 +95,10 @@ def parse_base_data(context: Context) -> None:
     data_path = context.fetch_resource("base_data.zip", base_data_url)
 
     context.log.info("Loading: %s" % data_path)
-    for row in read_base_data_csv(data_path):
+    for idx, row in enumerate(read_base_data_csv(data_path)):
+        if idx > 0 and idx % 100_000 == 0:
+            context.log.info("Base data: %d..." % idx)
+            context.flush()
         company_nr = row.pop("CompanyNumber")
         entity = context.make("Company")
         entity.id = company_id(company_nr)
@@ -145,10 +147,11 @@ def parse_base_data(context: Context) -> None:
         context.audit_data(row, ignore=IGNORE_BASE_COLUMNS)
         context.emit(entity)
 
+    data_path.unlink()
+
 
 def get_psc_data_url(context: Context) -> str:
-    res = context.http.get(PSC_URL)
-    doc = html.fromstring(res.text)
+    doc = context.fetch_html(PSC_URL)
     for link in doc.findall(".//a"):
         url = urljoin(BASE_URL, link.get("href"))
         if "persons-with-significant-control-snapshot" in url:
@@ -160,9 +163,9 @@ def read_psc_data(path: PathLike) -> Generator[Dict[str, Any], None, None]:
     with ZipFile(path, "r") as zip:
         for name in zip.namelist():
             with zip.open(name, "r") as fh:
-                fhtext = TextIOWrapper(fh)
-                while line := fhtext.readline():
-                    yield json.loads(line)
+                with TextIOWrapper(fh) as fhtext:
+                    for line in fhtext:
+                        yield json.loads(line)
 
 
 def parse_psc_data(context: Context) -> None:
@@ -172,8 +175,9 @@ def parse_psc_data(context: Context) -> None:
     data_path = context.fetch_resource("psc_data.zip", psc_data_url)
     context.log.info("Loading: %s" % data_path)
     for idx, row in enumerate(read_psc_data(data_path)):
-        if idx > 0 and idx % 10000 == 0:
+        if idx > 0 and idx % 100_000 == 0:
             context.log.info("PSC statements: %d..." % idx)
+            context.flush()
         # if idx > 0 and idx % 1000000 == 0:
         #     return
         company_nr = row.pop("company_number", None)
@@ -281,11 +285,17 @@ def parse_psc_data(context: Context) -> None:
             psc.add("topics", "sanction")
 
         context.audit_data(
-            data, ignore=["service_address_is_same_as_registered_office_address"]
+            data,
+            ignore=[
+                "service_address_is_same_as_registered_office_address",
+                "identity_verification_details",
+            ],
         )
         context.emit(psc)
         context.emit(link)
         context.emit(asset)
+
+    data_path.unlink()
 
 
 def crawl(context: Context) -> None:

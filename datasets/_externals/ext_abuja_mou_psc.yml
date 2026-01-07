@@ -38,7 +38,7 @@ publisher:
 
 inputs:
   - ann_graph_topics
-  - debarment
+  # - debarment
   - sanctions
   - special_interest
   - maritime
@@ -46,8 +46,6 @@ inputs:
 config:
   index_options:
     memory: 2500
-  threshold: 0.7
-  algorithm: regression-v1
   topics:
     - sanction
     - sanction.linked

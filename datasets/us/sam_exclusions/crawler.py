@@ -41,7 +41,16 @@ def parse_date(date: Optional[str]):
     return date
 
 
-def read_rows(zip_path: Path) -> Generator[Tuple[str, Dict[str, Any]], None, None]:
+def clean_address_part(part: Any) -> Optional[str]:
+    if part is None:
+        return None
+    part = str(part).strip()
+    if len(part) == 0 or part == "-" or part == "XX":
+        return None
+    return part
+
+
+def read_rows(zip_path: Path) -> Generator[Tuple[str, Dict[str, str]], None, None]:
     with ZipFile(zip_path, "r") as zip:
         for file_name in zip.namelist():
             with zip.open(file_name) as zfh:
@@ -121,10 +130,13 @@ def crawl(context: Context) -> None:
 
         creation_date = parse_date(row.pop("Creation_Date", None))
         h.apply_date(entity, "createdAt", creation_date)
-        if agency == "TREAS-OFAC":
-            entity.add("topics", "sanction")
-        else:
-            entity.add("topics", "debarment")
+
+        # All exclusions in this dataset are debarments from US federal programs
+        # This previously used to tag entities as sanctioned when they are on US
+        # OFAC lists, but this is problematic when GSA maintains exclusion records for
+        # entities that have been delisted by OFAC.
+        entity.add("topics", "debarment")
+
         cross_ref = row.pop("Cross-Reference", None)
         # if (
         #     cross_ref is not None
@@ -145,7 +157,7 @@ def crawl(context: Context) -> None:
         # else:
         entity.add("notes", cross_ref, lang="eng")
         uei = row.pop("Unique Entity ID", None)
-        if entity.schema.is_a("LegalEntity"):
+        if "uniqueEntityId" in entity.schema.properties:
             entity.add("uniqueEntityId", uei)
         else:
             entity.add("registrationNumber", uei, quiet=True)
@@ -202,20 +214,23 @@ def crawl(context: Context) -> None:
         entity.add("middleName", row.pop("Middle", None), quiet=True, lang="eng")
         entity.add("lastName", row.pop("Last", None), quiet=True, lang="eng")
 
-        state = row.pop("State / Province", None)
+        state = clean_address_part(row.pop("State / Province", None))
         country = row.pop("Country", None)
+        entity.add("country", country)
         address = h.make_address(
             context,
-            street=row.pop("Address 1", None),
-            street2=row.pop("Address 2", None),
+            street=clean_address_part(row.pop("Address 1", None)),
+            street2=clean_address_part(row.pop("Address 2", None)),
             # street3=row.pop("Address 3", None),
-            city=row.pop("City", None),
-            postal_code=zip_code,
-            country=country,
+            city=clean_address_part(row.pop("City", None)),
+            postal_code=clean_address_part(zip_code),
+            country_code=entity.first("country"),
             state=state,
         )
         h.copy_address(entity, address)
         # h.apply_address(context, entity, address)
+
+        context.emit(entity)
 
         sanction = h.make_sanction(context, entity, key=agency)
         if agency is not None and len(agency):
@@ -228,11 +243,11 @@ def crawl(context: Context) -> None:
         h.apply_date(sanction, "startDate", parse_date(row.pop("Active Date")))
         h.apply_date(sanction, "endDate", parse_date(row.pop("Termination Date")))
         sanction.add("summary", row.pop("Additional Comments", None))
+        context.emit(sanction)
 
         context.audit_data(
             row,
             ignore=["CT Code", "Open Data Flag"],
         )
-        context.emit(sanction)
-        context.emit(entity)
+
     # print(data_url)

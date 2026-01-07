@@ -25,7 +25,6 @@ from zavod.logs import (
 )
 from zavod.meta import load_dataset_from_path, get_multi_dataset, Dataset
 from zavod.publish import publish_dataset, publish_failure
-from zavod.reset import reset_caches
 from zavod.runtime.versions import make_version
 from zavod.stateful.model import create_db
 from zavod.store import get_store
@@ -154,7 +153,6 @@ def run(
     else:
         make_version(dataset, settings.RUN_VERSION, overwrite=True)
 
-    reset_caches()
     linker = get_dataset_linker(dataset)
     store = get_store(dataset, linker)
     # Validate
@@ -171,7 +169,6 @@ def run(
     # Export and Publish
     try:
         export_dataset(dataset, view)
-        reset_caches()
         publish_dataset(dataset, latest=latest)
 
         if not dataset.is_collection and dataset.model.load_statements:

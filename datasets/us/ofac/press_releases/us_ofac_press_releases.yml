@@ -8,6 +8,7 @@ coverage:
 deploy:
   memory: "2000Mi"
   memory_limit: "3000Mi"
+resolve: false
 load_statements: false
 summary: >
   US OFAC press releases that provide context and details related to sanctioned entities.
@@ -52,3 +53,16 @@ data:
 #       Security: 460
 #       Person: 160
 #       Company: 50
+
+lookups:
+  type.country:
+    options:
+      - match:
+          - Gulf
+          - Central America
+          - South America
+        value: null
+      - match: Egyptian-Maltese
+        values:
+          - eg
+          - mt

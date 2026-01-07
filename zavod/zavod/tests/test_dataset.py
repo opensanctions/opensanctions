@@ -1,8 +1,8 @@
 import pytest
 from followthemoney.exc import MetadataException
 from followthemoney.model import Model
+from followthemoney.settings import USER_AGENT
 
-from zavod import settings
 from zavod.meta import Dataset, get_catalog, get_multi_dataset
 from zavod.meta.assertion import Assertion
 from zavod.runtime.urls import make_published_url
@@ -85,7 +85,7 @@ def test_basic():
     assert test_ds.http.retry_statuses == [500]
     assert test_ds.http.retry_methods == ["GET"]
     assert test_ds.http.backoff_factor == 0.5
-    assert test_ds.http.user_agent == settings.HTTP_USER_AGENT
+    assert test_ds.http.user_agent == USER_AGENT
 
     person_schema = Model.instance().get("Person")
     person_spec = test_ds.names.get_spec(person_schema)

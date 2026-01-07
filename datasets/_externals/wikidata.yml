@@ -10,7 +10,7 @@ exports:
   - statistics.json
   - entities.ftm.json
 deploy:
-  schedule: "1 0 * * *"
+  schedule: "1 12 * * *"
   cpu: "2000m"
   memory: "5000Mi"
 load_statements: true
@@ -122,6 +122,8 @@ lookups:
         value: 1885-02
       - match: "2000-02-31"
         value: 2000-02
+      - match: "1931-02-29"
+        value: 1931 # there's a suggested but unreferenced date of 1 match on the wikidata item.
   type.gender:
     lowercase: true
     normalize: true
