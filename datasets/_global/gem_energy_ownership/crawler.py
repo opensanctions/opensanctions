@@ -33,6 +33,7 @@ SKIP_IDS = {
     "E100000126067",  # Non-promoter shareholders
     "E100000125842",  # Co-investment by natural persons
     "E100000123261",  # natural persons
+    "E100002001974",  # member/employee owned
 }
 SELF_OWNED = {"E100000002236"}
 STATIC_URL = "https://globalenergymonitor.org/wp-content/uploads/2025/10/Global-Energy-Ownership-Tracker-October-2025-V1.xlsx"
