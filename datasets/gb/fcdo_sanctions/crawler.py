@@ -97,7 +97,7 @@ def entity_type(type: str) -> str:
             raise ValueError("Unknown entity type")
 
 
-def make_legal_entity(context: Context, designation: ElementOrTree, entity: Entity):
+def xml_make_legal_entity(context: Context, designation: ElementOrTree, entity: Entity):
     # Add phone numbers
     for phone_number in designation.iterfind(".//PhoneNumbers//PhoneNumber"):
         if phone_number.text is not None:
@@ -126,7 +126,7 @@ def make_legal_entity(context: Context, designation: ElementOrTree, entity: Enti
         h.copy_address(entity, addr)
 
 
-def make_person(context: Context, designation: ElementOrTree, entity: Entity):
+def xml_make_person(context: Context, designation: ElementOrTree, entity: Entity):
     for individual in designation.findall(".//IndividualDetails//Individual"):
         # Add the date of birth
         for dob in individual.iterfind(".//DOBs//DOB"):
@@ -150,7 +150,7 @@ def make_person(context: Context, designation: ElementOrTree, entity: Entity):
             entity.add("position", position.text)
 
 
-def make_ship(context: Context, designation: ElementOrTree, entity: Entity):
+def xml_make_ship(context: Context, designation: ElementOrTree, entity: Entity):
     for ship in designation.findall(".//ShipDetails//Ship"):
         # Add the imonumber
         for imo in ship.iterfind(".//IMONumbers//IMONumber"):
@@ -207,29 +207,25 @@ def crawl_xml(context: Context):
                 context.log.warn("Unknown name type", name_type=name_type)
                 continue
 
-            # context.inspect(name_tag)
             # name1 is always a given name
             # name6 is always a family name
             # name2-name5 are sometimes given names, sometimes patro-/matronymic names
             # We play it safe here and put into more specific properties only what we're sure of
-            h.apply_name(
-                entity,
-                given_name=name_tag.findtext("./Name1"),
-                last_name=name_tag.findtext("./Name6"),
-                # We call make_name here to avoid having name2-name5 put into the wrong properties by h.apply_name
-                full=h.make_name(
-                    full=name_tag.findtext("./Name"),
-                    name1=name_tag.findtext("./Name1"),
-                    name2=name_tag.findtext("./Name2"),
-                    name3=name_tag.findtext("./Name3"),
-                    name4=name_tag.findtext("./Name4"),
-                    name5=name_tag.findtext("./Name5"),
-                    tail_name=name_tag.findtext("./Name6"),
-                ),
-                lang="eng",
-                name_prop=name_prop,
-                quiet=True,
+            name1 = name_tag.findtext("./Name1")
+            entity.add("firstName", name1, quiet=True, lang="eng")
+            name6 = name_tag.findtext("./Name6")
+            entity.add("lastName", name6, quiet=True, lang="eng")
+
+            full_name = h.make_name(
+                full=name_tag.findtext("./Name"),
+                name1=name1,
+                name2=name_tag.findtext("./Name2"),
+                name3=name_tag.findtext("./Name3"),
+                name4=name_tag.findtext("./Name4"),
+                name5=name_tag.findtext("./Name5"),
+                tail_name=name6,
             )
+            entity.add(name_prop, full_name, lang="eng")
 
         if not entity.has("name"):
             context.log.info("No names found for entity", id=entity.id)
@@ -245,18 +241,21 @@ def crawl_xml(context: Context):
                 )
                 continue
             h.apply_name(
-                entity, name_tag.findtext("./NameNonLatinScript"), lang=lang_code
+                entity,
+                name_tag.findtext("./NameNonLatinScript"),
+                lang=lang_code,
+                alias=True,
             )
 
         try:
             if entity.schema.label in ["Person", "Organization"]:
-                make_legal_entity(context, designation, entity)
+                xml_make_legal_entity(context, designation, entity)
             # If it is an individual
             elif entity.schema.label == "Person":
-                make_person(context, designation, entity)
+                xml_make_person(context, designation, entity)
             # If it is a ship
             elif entity.schema.label == "Vessel":
-                make_ship(context, designation, entity)
+                xml_make_ship(context, designation, entity)
             else:
                 context.log.warn(
                     "Unknown entity type",
@@ -310,7 +309,7 @@ def crawl_xml(context: Context):
             context.log.error(f"Failed to parse designation with id {unique_id}: {e}")
 
 
-def ext_make_legal_entity(context: Context, row: dict, entity: Entity):
+def csv_make_legal_entity(context: Context, row: dict, entity: Entity):
     entity.add("phone", row.pop("Phone number"))
     entity.add("email", h.multi_split(row.pop("Email address"), [", ", "; "]))
     entity.add("website", row.pop("Website"))
@@ -341,29 +340,29 @@ def ext_make_legal_entity(context: Context, row: dict, entity: Entity):
         parent = context.make("Organization")
         parent.id = context.make_slug("named", name)
         parent.add("name", name)
-        context.emit(parent, external=True)
+        context.emit(parent)
 
         ownership = context.make("Ownership")
         ownership.id = context.make_id(parent.id, "owns", entity.id)
         ownership.add("owner", parent)
         ownership.add("asset", entity)
-        context.emit(ownership, external=True)
+        context.emit(ownership)
 
     for name in parse_companies(context, row.pop("Subsidiaries")):
         subsidiary = context.make("Company")
         subsidiary.id = context.make_slug("named", name)
         subsidiary.add("name", name)
-        context.emit(subsidiary, external=True)
+        context.emit(subsidiary)
 
         ownership = context.make("Ownership")
         ownership.id = context.make_id(entity.id, "owns", subsidiary.id)
         ownership.add("owner", entity)
         ownership.add("asset", subsidiary)
-        context.emit(ownership, external=True)
+        context.emit(ownership)
 
 
-def ext_make_person(context: Context, row: dict, entity: Entity):
-    ext_make_legal_entity(context, row, entity)
+def csv_make_person(context: Context, row: dict, entity: Entity):
+    csv_make_legal_entity(context, row, entity)
     h.apply_date(entity, "birthDate", row.pop("D.O.B"))
     entity.add("title", row.pop("Title"))
     entity.add("gender", row.pop("Gender"))
@@ -379,10 +378,10 @@ def ext_make_person(context: Context, row: dict, entity: Entity):
     passport.add("number", passport_no)
     passport.add("summary", row.pop("Passport additional information"))
     passport.add("holder", entity.id)
-    context.emit(passport, external=True)
+    context.emit(passport)
 
 
-def ext_make_ship(context: Context, row: dict, entity: Entity):
+def csv_make_ship(context: Context, row: dict, entity: Entity):
     entity.add("type", row.pop("Type of ship"))
     entity.add("flag", row.pop("Current believed flag of ship"))
     entity.add("pastFlags", row.pop("Previous flags"))
@@ -395,29 +394,29 @@ def ext_make_ship(context: Context, row: dict, entity: Entity):
         owner_entity = context.make("Organization")
         owner_entity.id = context.make_slug("named", owner)
         owner_entity.add("name", owner)
-        context.emit(owner_entity, external=True)
+        context.emit(owner_entity)
 
         own = context.make("Ownership")
         own.id = context.make_id("ownership", owner_entity.id, entity.id)
         own.add("owner", owner_entity.id)
         own.add("asset", entity.id)
-        context.emit(own, external=True)
+        context.emit(own)
 
     previous_owner = row.pop("Previous owner/operator (s)")
     for previous_owner in parse_companies(context, previous_owner.strip()):
         previous_owner_entity = context.make("Organization")
         previous_owner_entity.id = context.make_slug("named", previous_owner)
         previous_owner_entity.add("name", previous_owner)
-        context.emit(previous_owner_entity, external=True)
+        context.emit(previous_owner_entity)
 
         own = context.make("UnknownLink")
         own.id = context.make_id("ownership", previous_owner_entity.id, entity.id)
         own.add("subject", previous_owner_entity.id)
         own.add("object", entity.id)
-        context.emit(own, external=True)
+        context.emit(own)
 
 
-def ext_crawl_csv(context: Context):
+def crawl_csv(context: Context):
     csv_url = get_csv_link(context)
     path = context.fetch_resource("source.csv", csv_url)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
@@ -463,14 +462,14 @@ def ext_crawl_csv(context: Context):
                 lang_code = context.lookup_value(
                     "languages", non_latin_lang, warn_unmatched=True
                 )
-                h.apply_name(entity, non_latin_name, lang=lang_code)
+                h.apply_name(entity, non_latin_name, lang=lang_code, alias=True)
 
             if entity.schema.label == "Organization":
-                ext_make_legal_entity(context, row, entity)
+                csv_make_legal_entity(context, row, entity)
             elif entity.schema.label == "Person":
-                ext_make_person(context, row, entity)
+                csv_make_person(context, row, entity)
             elif entity.schema.label == "Vessel":
-                ext_make_ship(context, row, entity)
+                csv_make_ship(context, row, entity)
             else:
                 context.log.warn(
                     "Unknown entity type",
@@ -493,7 +492,7 @@ def ext_crawl_csv(context: Context):
             sanction.add("authorityId", unique_id)
             sanction.add("authorityId", row.pop("OFSI Group ID"))
             sanction.add("unscId", row.pop("UN Reference Number"))
-            sanction.add("authority", row.pop("Designation source"))
+            sanction.set("authority", row.pop("Designation source"))
             sanction.add("reason", row.pop("UK Statement of Reasons"))
             h.apply_date(sanction, "modifiedAt", row.pop("Last Updated"))
             h.apply_date(sanction, "startDate", row.pop("Date Designated"))
@@ -505,8 +504,8 @@ def ext_crawl_csv(context: Context):
             if sanctions_imposed:
                 sanction.add("provisions", sanctions_imposed.split("|"))
 
-            context.emit(entity, external=True)
-            context.emit(sanction, external=True)
+            context.emit(entity)
+            context.emit(sanction)
 
             context.audit_data(
                 row,
@@ -520,4 +519,4 @@ def ext_crawl_csv(context: Context):
 
 def crawl(context: Context):
     crawl_xml(context)
-    ext_crawl_csv(context)
+    crawl_csv(context)
