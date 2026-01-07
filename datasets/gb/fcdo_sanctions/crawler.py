@@ -363,6 +363,7 @@ def ext_make_legal_entity(context: Context, row: dict, entity: Entity):
 
 
 def ext_make_person(context: Context, row: dict, entity: Entity):
+    ext_make_legal_entity(context, row, entity)
     h.apply_date(entity, "birthDate", row.pop("D.O.B"))
     entity.add("title", row.pop("Title"))
     entity.add("gender", row.pop("Gender"))
@@ -420,6 +421,7 @@ def ext_crawl_csv(context: Context):
     csv_url = get_csv_link(context)
     path = context.fetch_resource("source.csv", csv_url)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
+
     with open(path, "r", encoding="utf-8") as fh:
         # Skip the first metadata row
         next(fh)
@@ -463,7 +465,7 @@ def ext_crawl_csv(context: Context):
                 )
                 h.apply_name(entity, non_latin_name, lang=lang_code)
 
-            if entity.schema.label in ["Person", "Organization"]:
+            if entity.schema.label == "Organization":
                 ext_make_legal_entity(context, row, entity)
             elif entity.schema.label == "Person":
                 ext_make_person(context, row, entity)
