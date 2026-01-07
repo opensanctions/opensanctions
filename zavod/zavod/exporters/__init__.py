@@ -62,8 +62,7 @@ def export_data(context: Context, view: View) -> None:
         exporters.append(clazz(context))
 
     log.info(
-        "Exporting dataset...",
-        dataset=context.dataset.name,
+        f"Exporting dataset: {context.dataset.name}...",
         exporters=len(exporters),
     )
     for exporter in exporters:
@@ -74,7 +73,7 @@ def export_data(context: Context, view: View) -> None:
         entity = consolidate_entity(view.store.linker, entity)
         fragment = ViewFragment(view, entity)
         if idx > 0 and idx % 10000 == 0:
-            log.info("Exported %s entities..." % idx, dataset=context.dataset.name)
+            log.info("Exported %s entities..." % idx, scope=context.dataset.name)
         for exporter in exporters:
             exporter.feed(entity, fragment)
 
@@ -95,4 +94,4 @@ def export_dataset(dataset: Dataset, view: View) -> None:
     write_delta_index(dataset)
     write_dataset_index(dataset)
     write_catalog(dataset)
-    log.info("Exported dataset: %s" % dataset.name, dataset=dataset.name)
+    log.info("Exported dataset: %s" % dataset.name)
