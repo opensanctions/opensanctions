@@ -2,9 +2,12 @@
 #
 # - Select a value to highlight it in the source.
 # - Scroll to the bottom of the source text where other-information normally is.
-# - Select each of the extracted values in the source text to verify they're all present.
-# - Click outside the extracted value and Ctrl/Cmd+F to search other-information.
-# - Make sure each other-information tag's value is fully extracted.
+# - Select each of the extracted values in the source text to verify they're all present
+#   in the source.
+# - Click outside the extracted value and Ctrl/Cmd+F to search "other-information"
+#   (or just use your eyes).
+# - Make sure each other-information tag's value is fully extracted if it fits the allowed props,
+#   or include_in_notes is true so that the unextracted information is captured in notes.
 
 from itertools import product
 from typing import Dict, List, Literal, Optional, Tuple
