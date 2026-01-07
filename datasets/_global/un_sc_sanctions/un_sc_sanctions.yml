@@ -34,6 +34,7 @@ publisher:
     operations, enacting international sanctions, and authorizing military action.
   url: "https://www.un.org/en/sc/"
   official: true
+  country: zz
 tags:
   - list.sanction
 url: "https://www.un.org/securitycouncil/sanctions/information"
