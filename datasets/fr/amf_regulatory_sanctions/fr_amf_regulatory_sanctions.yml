@@ -1030,3 +1030,8 @@ lookups:
       - match: La société Caceis Bank
         entities:
           - Caceis Bank
+      - match: Capital Partners<br /> M. Rudy Secco<br /> Mme Stéphanie Minissier<br />
+        entities:
+          - Capital Partners
+          - Rudy Secco
+          - Stéphanie Minissier
