@@ -202,5 +202,9 @@ lookups:
         value: female
   type.identifier:
     options:
-      - match: 3232824038
+      - match:
+          - 3232824038
+          - 01805202210181
+          - 21819719
+          - 0000114330
         prop: taxNumber

@@ -14,6 +14,7 @@ deploy:
 exports:
   - statistics.json
 load_statements: true
+ci_test: false
 summary: >
   Information on the chain of ownership for various energy projects. The data maps
   each level of the chain from the direct owner up to their highest-level ultimate parents.
