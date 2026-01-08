@@ -40,15 +40,15 @@ def crawl_holder(
     person_qid: str,
 ) -> Optional[Entity]:
     if not is_qid(person_qid):
-        return
+        return None
     item = client.fetch_item(person_qid)
     if item is None:
-        return
+        return None
     entity = wikidata_basic_human(context, client, item)
     if entity is None:
-        return
+        return None
 
-    occupancy: Optional[Entity] = None
+    has_occupancy = False
     for claim in item.claims:
         if claim.property == "P39" and claim.qid == position.id:
             occupancy = wikidata_occupancy(
@@ -57,11 +57,13 @@ def crawl_holder(
                 position,
                 claim,
             )
+            if occupancy is not None:
+                context.emit(occupancy)
+                has_occupancy = True
 
-    if occupancy is None:
-        return
+    if not has_occupancy:
+        return None
 
-    context.emit(occupancy)
     context.emit(entity)
     return entity
 

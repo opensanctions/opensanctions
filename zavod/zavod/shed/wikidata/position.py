@@ -232,17 +232,19 @@ def wikidata_occupancy(
     for qual in claim.qualifiers.get("P580", []):
         qual_date = qual.text.text
         if qual_date is not None:
-            if start_date is not None:
-                qual_date = min(start_date, qual_date)
-            start_date = qual_date
+            if start_date is None:
+                start_date = qual_date
+            else:
+                start_date = min(start_date, qual_date)
 
     end_date: Optional[str] = None
     for qual in claim.qualifiers.get("P582", []):
         qual_date = qual.text.text
         if qual_date is not None:
-            if end_date is not None:
-                qual_date = max(end_date, qual_date)
-            end_date = qual_date
+            if end_date is None:
+                end_date = qual_date
+            else:
+                end_date = max(end_date, qual_date)
 
     # Diplomatic positions tend to be associated with the receiving country,
     # so we don't want to propagate that to the person.
