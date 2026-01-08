@@ -4,6 +4,7 @@ prefix: lt-pinreg
 coverage:
   frequency: monthly
   start: "2024-08-16"
+  end: "2025-04-03"
 load_statements: true
 summary: |
   Lithuanian PEPs based on official declarations of personal interests.
@@ -15,6 +16,12 @@ description: |
   The [list of roles required to submit declarations](https://vtek.lt/privaciu-interesu-deklaravimas/kas-turi-deklaruoti/)
   includes state politicians, party leadership, public servants, judges, and senior
   leadership or public administrative bodies.
+deprecation: |
+  As of April 2025, the Lithuanian Chief Official Ethics Commission (VTEK) has required
+  API authentication for access to the declarations search page, which prevents
+  automated crawling of the data. We've [reached out to VTEK to request access](https://github.com/opensanctions/opensanctions/issues/2212), but 
+  not received a response yet. The dataset is therefore marked as deprecated and eventually
+  removed in favor of other sources of PEP data for Lithuania.
 publisher:
   name: Lithuanian Chief Official Ethics Commission
   acronym: VTEK

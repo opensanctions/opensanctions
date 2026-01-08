@@ -1,9 +1,9 @@
-from typing import cast
 from urllib.parse import urljoin
 from lxml.html import HtmlElement
 
 from zavod import Context, helpers as h
 from zavod.stateful.positions import categorise
+from zavod.extract import zyte_api
 
 # "Wybrany dnia:" or "Wybrana dnia:" means "Elected on:"
 START_DATE_XPATH = ".//ul[@class='data']/li[p[@class='left']='Wybrany dnia:' or p[@class='left']='Wybrana dnia:']/p[@class='right']/text()"
@@ -27,17 +27,13 @@ def extract_party_name(context, doc: HtmlElement, label_id: str) -> str | None:
 
 
 def crawl_person(context: Context, url: str) -> None:
-    pep_doc = context.fetch_html(url, cache_days=1)
-    name = pep_doc.findtext(".//div[@id='title_content']/h1")
-    if not name:
-        context.log.warning(f"Missing name for: {url}")
-        return
-    start_date = cast(str, pep_doc.xpath(START_DATE_XPATH)[0])
-    if not start_date:
-        context.log.warning(f"Missing start date for: {url}")
-        return
-    dob_pob = pep_doc.findtext(".//p[@id='urodzony']")
-    assert dob_pob is not None, f"Missing date and place of birth for: {url}"
+    name_xpath = ".//div[@id='title_content']/h1/text()"
+    pep_doc = zyte_api.fetch_html(
+        context, url, name_xpath, html_source="httpResponseBody", cache_days=1
+    )
+    name = h.xpath_string(pep_doc, name_xpath)
+    start_date = h.xpath_string(pep_doc, START_DATE_XPATH)
+    dob_pob = h.xpath_string(pep_doc, ".//p[@id='urodzony']/text()")
     dob, pob = split_dob_pob(dob_pob)
 
     entity = context.make("Person")
@@ -78,8 +74,15 @@ def crawl_person(context: Context, url: str) -> None:
 
 
 def crawl(context: Context) -> None:
-    doc = context.fetch_html(context.data_url, cache_days=1)
-    deputies = doc.findall(".//ul[@class='deputies']/li")
+    deputies_xpath = ".//ul[@class='deputies']/li"
+    doc = zyte_api.fetch_html(
+        context,
+        context.data_url,
+        unblock_validator=deputies_xpath,
+        html_source="httpResponseBody",
+        cache_days=1,
+    )
+    deputies = doc.findall(deputies_xpath)
     for deputy in deputies:
         if (link := deputy.find(".//a")) is None:
             continue

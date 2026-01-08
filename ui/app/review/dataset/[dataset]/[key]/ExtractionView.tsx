@@ -4,6 +4,7 @@ import { json } from "@codemirror/lang-json";
 import { syntaxTree } from "@codemirror/language";
 import { keymap } from '@codemirror/view';
 import CodeMirror, { EditorView } from '@uiw/react-codemirror';
+import { createHighlighter } from '@/lib/codemirror';
 import { yamlSchema } from "codemirror-json-schema/yaml";
 import { Draft04, JsonSchema } from 'json-schema-library';
 import { parse as parseYaml, stringify as stringifyToYaml } from 'yaml';
@@ -91,11 +92,12 @@ interface ExtractionViewProps {
   entryKey: string;
   dataset: string;
   search: (query: string) => void;
+  highlightQuery?: string;
 }
 
-export default function ExtractionView({ rawData, extractedData, schema, accepted: initialAccepted, entryKey, dataset, search }: ExtractionViewProps) {
+export default function ExtractionView({ rawData, extractedData, schema, accepted: initialAccepted, entryKey, dataset, search, highlightQuery }: ExtractionViewProps) {
   const [accepted, setAccepted] = useState(initialAccepted);
-  const [editorExtracted, setEditorExtracted] = useState(stringifyToYaml(extractedData, null, 2));
+  const [editorExtracted, setEditorExtracted] = useState(stringifyToYaml(extractedData, null, { indent: 2, lineWidth: 0 }));
   const [flashInvalid, setFlashInvalid] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -155,7 +157,7 @@ export default function ExtractionView({ rawData, extractedData, schema, accepte
       }
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 't') {
         e.preventDefault();
-        setEditorExtracted(stringifyToYaml(rawData, null, 2));
+        setEditorExtracted(stringifyToYaml(rawData, null, { indent: 2, lineWidth: 0 }));
       }
     }
     window.addEventListener('keydown', handler);
@@ -186,6 +188,8 @@ export default function ExtractionView({ rawData, extractedData, schema, accepte
     },
   ]);
 
+  const highlighter = createHighlighter(highlightQuery || '');
+
   return (
     <div className="entry-tabs flex-grow-1 d-flex flex-column" style={{ height: '100%' }}>
       <div className="d-flex flex-column" style={{ minHeight: 0, height: '100%' }}>
@@ -193,8 +197,12 @@ export default function ExtractionView({ rawData, extractedData, schema, accepte
           <Tab eventKey="raw" title="Original extraction">
             <div style={{ height: '100%' }}>
               <CodeMirror
-                value={stringifyToYaml(rawData, null, 2)}
-                extensions={[yamlSchema(schema), EditorView.lineWrapping]}
+                value={stringifyToYaml(rawData, null, { indent: 2, lineWidth: 0 })}
+                extensions={[
+                  yamlSchema(schema),
+                  EditorView.lineWrapping,
+                  ...(highlighter ? [highlighter] : [])
+                ]}
                 editable={false}
                 height="100%"
                 style={{ height: '100%', width: '100%' }}
@@ -207,7 +215,12 @@ export default function ExtractionView({ rawData, extractedData, schema, accepte
               <CodeMirror
                 ref={editorRef}
                 value={editorExtracted}
-                extensions={[yamlSchema(schema), EditorView.lineWrapping, escapeBlurKeymap]}
+                extensions={[
+                  yamlSchema(schema),
+                  EditorView.lineWrapping,
+                  escapeBlurKeymap,
+                  ...(highlighter ? [highlighter] : [])
+                ]}
                 height="100%"
                 style={{ height: '100%' }}
                 width="100%"
@@ -248,7 +261,7 @@ export default function ExtractionView({ rawData, extractedData, schema, accepte
               <button
                 type="button"
                 className="btn btn-outline-secondary me-2"
-                onClick={() => setEditorExtracted(stringifyToYaml(rawData, null, 2))}
+                onClick={() => setEditorExtracted(stringifyToYaml(rawData, null, { indent: 2, lineWidth: 0 }))}
               >
                 Reset
               </button>

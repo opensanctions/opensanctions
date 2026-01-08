@@ -1,9 +1,20 @@
+# Data review tips:
+#
+# - Select a value to highlight it in the source.
+# - Scroll to the bottom of the source text where other-information normally is.
+# - Select each of the extracted values in the source text to verify they're all present
+#   in the source.
+# - Click outside the extracted value and Ctrl/Cmd+F to search "other-information"
+#   (or just use your eyes).
+# - Make sure each other-information tag's value is fully extracted if it fits the allowed props,
+#   or include_in_notes is true so that the unextracted information is captured in notes.
+
 from itertools import product
 from typing import Dict, List, Literal, Optional, Tuple
 
 from followthemoney.types import registry
 from followthemoney.util import join_text
-from lxml.etree import _Element as Element
+from lxml.etree import _Element as Element, tostring
 from prefixdate import parse_parts
 from pydantic import BaseModel, Field
 from zavod.extract.llm import run_typed_text_prompt
@@ -73,6 +84,9 @@ class SimpleValue(BaseModel):
 
 
 class RelatedEntity(BaseModel):
+    # I haven't added Ownership here because getting the directionality
+    # (asset/owner props) right is more important than other relationships
+    # and adds complexity.
     relationship_schema: Literal["Family", "UnknownLink"]
     related_entity_name: List[str]
     relationship: Optional[str] = None
@@ -93,32 +107,34 @@ class OtherInfo(BaseModel):
 # It also keenly creates lots of entries no matter how many ways I tell it not to.
 # gpt-4.1-mini was hallucinating values.
 # gpt-4o-mini was filling in Unknown for props not in the data.
-# gpt-5-mini is super slow as at 2025-09-17 but the quality of values seem very good.
-LLM_VERSION = "gpt-4o-mini"
+# gpt-5 is very slow as at 2026-01-05.
+# gpt-5-mini is a bit slow but it seems to hallucinate less than gpt-4o or gpt-4o-mini.
+LLM_VERSION = "gpt-5-mini"
 PROMPT = """
-The attached text is a string from the other-information field of an international
+The attached text is the XML of an international
 financial sanctions entry about an entity type of {schema}.
 
-We will extract simple values and associated or related persons, companies,
-organisations, or legal entities of unclear type.
+Extract values from ONLY the <other-information> tags in this XML according to the following instructions.
 
-Include ONLY the values that are present in the text.
-NEVER infer, assume, or generate values that are not directly stated in the source text.
+The other tags may be used to make sense of the context of the other-information text and
+associate it with the appropriate part of the extraction schema, and determine whether the
+other-information text is actually relevant to the subject entity.
 
 If we don't extract all the information in the text to structured data, set `include_in_notes` to `true`.
 
-Extract simple values representing the properties described below and return in
-the simple_values array.
-In most cases, a string will correspond to zero or one value for one property,
-but in some cases it may contain more.
-Only include entries for properties applicable to the data.
-NEVER make SimpleValue entries with empty/blank/unknown/not applicable values, or make placeholder entries.
-Include multiple values as distinct entries in the simple_values array rather than
-a single entry with comma-separated values.
+- Extract simple values representing the properties described below and return in
+  the 'simple_values' array.
+- Only include entries for properties applicable to the data.
+- NEVER make SimpleValue entries with empty/blank/unknown/not applicable values, or make placeholder entries.
+- Include multiple values as distinct entries in the simple_values array rather than
+  a single entry with comma-separated values.
+- It's ok to extract nothing and leave the fields empty/null.
+- Include ONLY the values that are present in the other-information text.
+- NEVER infer, assume, or generate values that are not directly stated in the other-information text.
 
 SimpleValue properties:
 
-For dates, include only as much precision as is in the data - just year or YYYY-MM is fine.
+For dates, include only as much precision as is in the data - just YYYY or YYYY-MM is fine.
 
 Only when indicated to be the following kind of identifier:
   - uscCode: Unified Social Credit
@@ -136,7 +152,8 @@ Only when indicated to be this kind of identifier and not one of the above more 
 Other properties:
   - email: For email addresses listed in the text.
   - phone: For phone numbers listed in the text.
-  - website: For website URLs listed in the text.
+  - website: For website URLs listed in the text. Use this for their website, not for
+    additional information links about the subject entity.
   - incorporationDate and dissolutionDate are ONLY for company registration or dissolution.
     Do NOT use these for other dates like travel ban periods.
   - legalForm: e.g. Joint Stock Company - precisely as written in the text.
@@ -149,7 +166,9 @@ Other properties:
     - birthPlace: Place of birth, sometimes written as POB.
     - birthDate: Date of birth of a Person subject, sometimes written as DOB.
       If a range is given, create one entry for the start, and one for the end.
+      Don't add an age like "Approximately 45 years old" as a birthDate.
     - position:
+      - This is for appointed/elected positions only, so skip "shareholder" relationships.
       - Include positions prefixed with "Former", including the prefix.
       - Include positions like rank and committee membership.
       - Don't include detail about the entity where the position is held beyond
@@ -160,14 +179,19 @@ Other properties:
   Extract related entities and return in the related_entities array.
   This is e.g. for named family members of the subject if the subject is a Person.
   Also for associated companies, e.g. parent/subsidiary companies, or company ownership.
-  Do not use this for employee/employer relationships or any other information.
+  Do not use this for employee/employer relationships, basic shareholders, or any other information.
 
   - relationship_schema should only be Family for familial relationships between people,
     otherwise use UnknownLink.
   - related_entity_name is the name or names of one related entity.
     Use distinct RelatedEntity entries for each related entity.
-  - relationship - use the exact string used to describe the relationship in the text,
-    otherwise leave as `null` - e.g. "daughter" or "subsidiary".
+  - relationship - This should be a short string defining the relationship between
+    the sanctioned entity and the named related entity. ONLY provide a value if
+    an exact string from the text can be used to define the relationship, otherwise
+    make this `null`.
+
+  Don't extract notes about the existence of more information like "UN Notice Web Link Available"
+  as the value of any property or related entity.
 """
 
 
@@ -347,6 +371,85 @@ def make_related_entities(
     return [rel, other]
 
 
+def crawl_other_info(context: Context, entity_ssid: str, entity: Entity, node: Element):
+    related_entities = []
+    others = node.findall("./other-information")
+    other_strings = [o.text for o in others if o.text is not None and o.text.strip()]
+    if len(other_strings) == 0:
+        return
+    node_xml = tostring(node, encoding="unicode", pretty_print=True)
+    # We use the full entity XML as source value because the entity name,
+    # type, and other fields make it easier to tell whether text in other-information is
+    # about the entity or about a related entity, e.g. giving context to
+    # the weapons-manufacturing company which the owner or CEO is being
+    # sanctioned for, but not describing the person themselves.
+    source_value = TextSourceValue(
+        key_parts=entity_ssid, label="other-information", text=node_xml
+    )
+    prompt = PROMPT.format(schema=entity.schema.name)
+    extraction = run_typed_text_prompt(
+        context,
+        prompt,
+        source_value.value_string,
+        OtherInfo,
+        model=LLM_VERSION,
+        max_tokens=6000,
+    )
+    review = review_extraction(
+        context=context,
+        source_value=source_value,
+        original_extraction=extraction,
+        origin=LLM_VERSION,
+    )
+    review.link_entity(context, entity)
+
+    add_to_notes = False
+    if review.accepted:
+        for simple_val in review.extracted_data.simple_values:
+            prop = entity.schema.get(simple_val.property)
+            if prop is not None:
+                if prop.type == registry.date:
+                    h.apply_date(entity, simple_val.property, simple_val.value)
+                    continue
+                entity.add(
+                    simple_val.property,
+                    simple_val.value,
+                    original_value="\n".join(other_strings),
+                    origin=review.origin,
+                )
+            else:
+                if simple_val.property == "imoNumber":
+                    # If the target wasn't explicitly a vessel, skip the IMO because
+                    # it might be of a vessel related to the company, and not the target's IMO.
+                    # <justification ssid="10301">IRISL front company...
+                    #     It is the registered owner of a vessel owned by IRISL or an IRISL affiliate.
+                    # </justification>
+                    # <relation ssid="21013" target-id="9702" relation-type="related-to"></relation>
+                    # <other-information ssid="10302">No C 38181; IMO number of the vessel: 9387803.</other-information>
+                    add_to_notes = True
+                    continue
+                if simple_val.property == "kppCode":
+                    entity.add_cast("Company", "kppCode", simple_val.value)
+                    continue
+                context.log.warning(
+                    "Unknown property for schema",
+                    property=simple_val.property,
+                    schema=entity.schema.name,
+                    string=node_xml,
+                    id=entity.id,
+                )
+        for relationship in review.extracted_data.related_entities:
+            related_entities.extend(
+                make_related_entities(context, entity, relationship)
+            )
+    if add_to_notes or not review.accepted or review.extracted_data.include_in_notes:
+        for other in others:
+            entity.add("notes", h.clean_note(other.text))
+
+    for related_entity in related_entities:
+        context.emit(related_entity)
+
+
 def parse_entry(context: Context, target: Element, programs, places):
     entity = context.make("LegalEntity")
     entity_ssid = target.get("ssid")
@@ -421,73 +524,7 @@ def parse_entry(context: Context, target: Element, programs, places):
     notes = [n for (s, n) in sorted(justifications)]
     entity.add("notes", h.clean_note("\n\n".join(notes)))
 
-    related_entities = []
-    for other in node.findall("./other-information"):
-        if other.text is None:
-            continue
-        value = other.text.strip()
-        if not value:
-            continue
-
-        source_value = TextSourceValue(
-            key_parts=value, label="other-information", text=value
-        )
-        prompt = PROMPT.format(schema=entity.schema.name)
-        extraction = run_typed_text_prompt(
-            context, prompt, value, OtherInfo, model=LLM_VERSION
-        )
-        review = review_extraction(
-            context=context,
-            source_value=source_value,
-            original_extraction=extraction,
-            origin=LLM_VERSION,
-        )
-
-        if not review.accepted:
-            entity.add("notes", h.clean_note(value))
-            continue
-
-        for extracted_value in review.extracted_data.simple_values:
-            prop = entity.schema.get(extracted_value.property)
-            if prop is not None:
-                if prop.type == registry.date:
-                    h.apply_date(
-                        entity, extracted_value.property, extracted_value.value
-                    )
-                    continue
-                entity.add(
-                    extracted_value.property,
-                    extracted_value.value,
-                    original_value=value,
-                    origin=review.origin,
-                )
-            else:
-                if extracted_value.property == "imoNumber":
-                    # If the target wasn't explicitly a vessel, skip the IMO because
-                    # it might be of a vessel related to the company, and not the target's IMO.
-                    # <justification ssid="10301">IRISL front company...
-                    #     It is the registered owner of a vessel owned by IRISL or an IRISL affiliate.
-                    # </justification>
-                    # <relation ssid="21013" target-id="9702" relation-type="related-to"></relation>
-                    # <other-information ssid="10302">No C 38181; IMO number of the vessel: 9387803.</other-information>
-                    entity.add("notes", h.clean_note(value))
-                    continue
-                if extracted_value.property == "kppCode":
-                    entity.add_cast("Company", "kppCode", extracted_value.value)
-                    continue
-                context.log.warning(
-                    "Unknown property for schema",
-                    property=extracted_value.property,
-                    schema=entity.schema.name,
-                    string=value,
-                    id=entity.id,
-                )
-        for relationship in review.extracted_data.related_entities:
-            related_entities.extend(
-                make_related_entities(context, entity, relationship)
-            )
-        if review.extracted_data.include_in_notes:
-            entity.add("notes", h.clean_note(value))
+    crawl_other_info(context, entity_ssid, entity, node)
 
     for relation in node.findall("./relation"):
         rel_type = relation.get("relation-type")
@@ -521,8 +558,6 @@ def parse_entry(context: Context, target: Element, programs, places):
 
     context.emit(entity)
     context.emit(sanction)
-    for related_entity in related_entities:
-        context.emit(related_entity)
 
 
 def crawl(context: Context):
@@ -551,7 +586,12 @@ def crawl(context: Context):
     for place in doc.findall(".//place"):
         places[place.get("ssid")] = parse_address(place)
 
-    for target in doc.findall("./target"):
+    for idx, target in enumerate(doc.findall("./target")):
         parse_entry(context, target, programs, places)
+
+        # Flush more frequently than we normally would to cache LLM queries
+        # before we get restarted (e.g. getting evicted and restarted).
+        if idx > 0 and idx % 100 == 0:
+            context.flush()
 
     assert_all_accepted(context, raise_on_unaccepted=False)

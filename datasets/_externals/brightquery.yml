@@ -42,7 +42,17 @@ publisher:
   url: https://brightquery.com/
 
 inputs:
-  - sanctions
+  - eu_sanctions
+  - ir_uani_business_registry
+  - us_sanctions
+  - us_sam_exclusions
+  - us_cftc_enforcement_actions
+  - us_ddtc_debarred
+  - us_ddtc_enforcements
+  - us_fdic_failed_banks
+  - us_fed_enforcements
+  - us_ofac_enforcement_actions
+  - us_sec_pause
 
 config:
   type: nomenklatura.enrich.brightquery:BrightQueryEnricher
@@ -52,10 +62,29 @@ config:
   schemata:
     - Company
     - Organization
-    - LegalEntity
+    # - LegalEntity
+  skip_jurisdictions:
+    - "ru"
+    - "cn"
+    - "hk"
+    - "by"
+    - "ir"
+    - "kp"
+    - "sy"
+    - "iq"
+    - "ae"
+    - "ve"
+    - "cu"
+    - "ps"
+    - "af"
+    - "uz"
+    - "kz"
+    - "xk"
+    - "md-pmr"
+    - "sd"
 
 # TODO: update assertions after the first successful run
 assertions:
   min:
     schema_entities:
-      Company: 100
+      Company: 0

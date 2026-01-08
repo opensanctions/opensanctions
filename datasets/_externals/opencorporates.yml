@@ -47,6 +47,22 @@ config:
     - Company
     - Organization
     # - LegalEntity
+  skip_jurisdictions:
+    - "ru"
+    - "cn"
+    - "kp"
+    - "sy"
+    - "iq"
+    - "ae"
+    - "ve"
+    - "cu"
+    - "ps"
+    - "af"
+    - "uz"
+    - "kz"
+    - "xk"
+    - "md-pmr"
+    - "sd"
 
 lookups:
   type.date:

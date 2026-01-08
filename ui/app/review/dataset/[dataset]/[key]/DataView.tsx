@@ -10,7 +10,13 @@ import ExtractionView from './ExtractionView';
 import SourceView from './SourceView';
 
 export default function DataView({ entry, dataset, entryKey, relatedEntities }: { entry: Review, dataset: string, entryKey: string, relatedEntities: ReviewEntity[] }) {
-  const [searchQuery, setSearchQuery] = React.useState('');
+  const [sourceSearchQuery, setSourceSearchQuery] = React.useState('');
+  const [extractionSearchQuery, setExtractionSearchQuery] = React.useState('');
+
+  // Memoize the callback to prevent SourceView from re-rendering and de-selecting the selection
+  const handleTextSelect = React.useCallback((text: string) => {
+    setExtractionSearchQuery(text);
+  }, []);
 
   return (
     <>
@@ -34,8 +40,9 @@ export default function DataView({ entry, dataset, entryKey, relatedEntities }: 
           sourceValue={entry.source_value}
           sourceMimeType={entry.source_mime_type}
           sourceLabel={entry.source_label}
-          searchQuery={searchQuery}
+          sourceSearchQuery={sourceSearchQuery}
           relatedEntities={relatedEntities}
+          onTextSelect={handleTextSelect}
         />
       </Col>
       <Col className="d-flex flex-column" style={{ height: '100%' }}>
@@ -48,7 +55,8 @@ export default function DataView({ entry, dataset, entryKey, relatedEntities }: 
           accepted={entry.accepted}
           entryKey={entryKey}
           dataset={dataset}
-          search={setSearchQuery}
+          search={setSourceSearchQuery}
+          highlightQuery={extractionSearchQuery}
         />
       </Col>
     </>

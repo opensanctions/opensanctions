@@ -35,10 +35,10 @@ def extract_name_and_title(context, raw_name: str) -> tuple[str, str | None]:
 def emit_person(
     context: Context,
     country: str,
-    source_url: str,
+    source_url: str | None,
     role: str,
     name: str,
-    title: str,
+    title: str | None,
     notes: str,
 ):
     person = context.make("Person")
@@ -66,8 +66,8 @@ def crawl_person(context: Context, item_html: str) -> None:
     if link_el is None:
         return
     url = link_el.get("href")
-    name = link_el.find(".//h2").text_content().strip()
-    role = link_el.find(".//h3").text_content().strip()
+    name = h.xpath_strings(link_el, ".//h2/text()", expect_exactly=1)[0]
+    role = h.xpath_strings(link_el, ".//h3/text()", expect_exactly=1)[0]
 
     name, title = extract_name_and_title(context, name)
     emit_person(context, "us", url, role, name, title=title, notes="")
@@ -134,24 +134,17 @@ def process_page(context: Context, page_number: int) -> ProcessPageResult:
 
 def parse_html(context):
     section_xpath = './/div[contains(@class, "DNNModuleContent") and contains(@class, "ModDNNHTMLC")]'
-    doc = zyte_api.fetch_html(context, context.data_url, section_xpath, cache_days=3)
-    for section in doc.xpath(section_xpath):
-        for row in section.xpath('.//div[@class="row"]'):
+    doc = zyte_api.fetch_html(
+        context, context.data_url, section_xpath, geolocation="us", cache_days=3
+    )
+    for section in h.xpath_elements(doc, section_xpath):
+        for row in h.xpath_elements(section, './/div[@class="row"]'):
             # Extract core HTML elements
-            name_el = row.xpath(".//h1/a")
-            role_el = row.xpath(".//h3/a")
-            notes_el = row.xpath('.//p[contains(@class, "bio-sum")]')
-
-            if not name_el or not role_el:
-                context.log.warning(
-                    f"Skipping incomplete leader entry:{html.tostring(row, pretty_print=True, encoding='unicode')}"
-                )
-                continue
-            # Extract text content
-            raw_name = name_el[0].text_content().strip()
-            role = role_el[0].text_content().strip()
-            notes = notes_el[0].text_content().strip() if notes_el else ""
-            leader_url = urljoin(BASE_URL, name_el[0].get("href"))
+            name_el = h.xpath_elements(row, ".//h1/a", expect_exactly=1)[0]
+            raw_name = h.xpath_strings(row, ".//h1/a/text()", expect_exactly=1)[0]
+            role = h.xpath_strings(row, ".//h3/a/text()", expect_exactly=1)[0]
+            notes = h.xpath_string(row, './/p[contains(@class, "bio-sum")]/text()')
+            leader_url = urljoin(BASE_URL, name_el.get("href"))
 
             name, title = extract_name_and_title(context, raw_name)
             if not name or not role:

@@ -63,7 +63,7 @@ class Store(LevelDBStore[Dataset, Entity]):
                         "Indexing aggregator...",
                         statements=idx,
                         scope=self.dataset.name,
-                        dataset=stmt.dataset,
+                        leaf=stmt.dataset,
                     )
                 writer.add_statement(stmt)
         self.db.put(ds_key, b"1")

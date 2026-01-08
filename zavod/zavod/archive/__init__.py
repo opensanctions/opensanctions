@@ -90,7 +90,7 @@ def get_dataset_artifact(
         if object is not None:
             log.info(
                 "Backfilling dataset artifact...",
-                dataset=dataset_name,
+                current=dataset_name,
                 resource=resource,
                 object=object.name,
             )
@@ -242,7 +242,7 @@ def _iter_scope_statements(dataset: "Dataset", external: bool = True) -> Stateme
     if object is not None:
         log.info(
             "Streaming statements...",
-            dataset=dataset.name,
+            current=dataset.name,
             object=object.name,
         )
         with object.open() as fh:
@@ -261,7 +261,7 @@ def iter_previous_statements(
         if object is not None:
             log.info(
                 "Streaming backfilled statements...",
-                dataset=scope.name,
+                current=scope.name,
                 object=object.name,
             )
             with object.open() as fh:

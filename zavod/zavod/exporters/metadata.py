@@ -143,7 +143,7 @@ def get_catalog_dataset(dataset: Dataset) -> Dict[str, Any]:
     else:
         log.warn(
             "No index file found, dataset likely hasn't run yet",
-            dataset=dataset.name,
+            path=path.as_posix(),
             report_issue=False,
         )
 
@@ -206,7 +206,7 @@ def write_delta_index(
     ]
 
     if len(versions) == 0:
-        log.info("No delta versions found", dataset=dataset.name)
+        log.info(f"No delta versions found: {dataset.name}")
         return
     index_path = dataset_resource_path(dataset.name, DELTA_INDEX_FILE)
     log.info("Writing delta versions index...", path=index_path.as_posix())
