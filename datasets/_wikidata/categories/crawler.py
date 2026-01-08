@@ -82,13 +82,15 @@ def crawl_position(state: CrawlState, person: Entity, claim: Claim) -> None:
         state.context.emit(occupancy)
 
     # TODO: implement support for 'officeholder' (P1308) here
-    for claim in item.claims:
-        if claim.property == "P1308":  # officeholder
-            if claim.qid is None:
+    for officeholder_claim in item.claims:
+        if officeholder_claim.property == "P1308":  # officeholder
+            if officeholder_claim.qid is None:
                 continue
-            holder = crawl_person(state, claim.qid, recurse=False)
+            holder = crawl_person(state, officeholder_claim.qid, recurse=False)
             if holder is not None:
-                occupancy = wikidata_occupancy(state.context, holder, position, claim)
+                occupancy = wikidata_occupancy(
+                    state.context, holder, position, officeholder_claim
+                )
                 if occupancy is not None:
                     state.context.emit(occupancy)
                     state.context.emit(holder)
