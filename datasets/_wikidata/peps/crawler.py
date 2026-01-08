@@ -232,5 +232,4 @@ def crawl(context: Context):
             if has_holders:
                 context.emit(position)
 
-            seen_positions.add(wd_position.qid)
             context.flush()
