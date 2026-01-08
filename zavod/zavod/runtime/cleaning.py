@@ -107,7 +107,17 @@ def value_clean(
             prop_.type == registry.name or prop_ in VALIDATE_AS_NAME_PROPS
         ) and clean is not None:
             clean = unicodedata.normalize("NFC", clean)
-            if entity.schema.is_a("LegalEntity") and not is_name(clean):
+
+            # FIXME: this is a work-around to introduce the abbreviation prop.
+            # It should be ready to go out in Q3/Q4 2026. See:
+            # https://github.com/opensanctions/opensanctions/issues/3297
+            if prop_.name == "abbreviation" and clean is not None:
+                weak_prop = entity.schema.get("weakAlias")
+                if weak_prop is not None:
+                    yield weak_prop, clean
+                # Allow abbreviations that are not valid names
+
+            elif entity.schema.is_a("LegalEntity") and not is_name(clean):
                 if not is_lookup_value(entity, registry.name, item):
                     log.warning(
                         f"Property value {value!r} is not a valid name.",
