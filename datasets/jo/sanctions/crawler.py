@@ -3,13 +3,13 @@ from zavod import Context
 from zavod import helpers as h
 from lxml.html import HtmlElement
 from openpyxl import load_workbook
+from openpyxl.worksheet.worksheet import Worksheet
 from rigour.mime.types import XLSX
 
-AUDIT_FIELDS = [
+IGNORE_FIELDS = [
     "row_no",
     "mother_name",
     "birth_place",
-    "first_and_surname",
     "country",
     "doc_type",
     "doc_no",
@@ -31,11 +31,10 @@ def xlsx_check(doc: HtmlElement) -> bool | str:
     return False
 
 
-def crawl_person(context: Context, path: Path) -> None:
-    wb = load_workbook(path, read_only=True)
+def crawl_person(context: Context, worksheet: Worksheet) -> None:
     for row in h.parse_xlsx_sheet(
         context,
-        wb.worksheets[0],
+        worksheet,
         skiprows=2,
         header_lookup=context.get_lookup("columns"),
     ):
@@ -59,7 +58,8 @@ def crawl_person(context: Context, path: Path) -> None:
         person.add("idNumber", national_id)
         person.add("nationality", row.pop("nationality"))
         h.apply_date(person, "birthDate", birth_date)
-        person.add("sourceUrl", context.data.url)
+        person.add("alias", row.pop("first_and_surname").split("،"))
+        person.add("sourceUrl", context.data_url)
 
         address_ent = h.make_address(
             context,
@@ -76,14 +76,13 @@ def crawl_person(context: Context, path: Path) -> None:
         context.emit(person)
         context.emit(sanction)
 
-        context.audit_data(row, AUDIT_FIELDS)
+        context.audit_data(row, IGNORE_FIELDS)
 
 
-def crawl_legal_entities(context: Context, path: Path) -> None:
-    wb = load_workbook(path, read_only=True)
+def crawl_legal_entities(context: Context, worksheet: Worksheet) -> None:
     for row in h.parse_xlsx_sheet(
         context,
-        wb.worksheets[1],
+        worksheet,
         skiprows=1,
         header_lookup=context.get_lookup("columns"),
     ):
@@ -96,6 +95,7 @@ def crawl_legal_entities(context: Context, path: Path) -> None:
         legalent.add("name", row.pop("full_name_ar"), lang="ara")
         legalent.add("name", full_name_en, lang="eng")
         legalent.add("classification", row.pop("classification"), lang="ara")
+        legalent.add("sourceUrl", context.data_url)
 
         sanction = h.make_sanction(context, legalent)
         h.apply_date(sanction, "startDate", included_date)
@@ -103,19 +103,25 @@ def crawl_legal_entities(context: Context, path: Path) -> None:
         context.emit(legalent)
         context.emit(sanction)
 
-        context.audit_data(row, AUDIT_FIELDS)
+        context.audit_data(row, IGNORE_FIELDS)
 
 
 def crawl(context: Context) -> None:
-    doc = context.fetch_html(context.data_url, cache_days=5)
+    doc = context.fetch_html(context.data_url)
     url = xlsx_check(doc)
     if url is False:
         msg = "XLSX file does not exist!"
         context.log.error(msg)
         raise MissingDataFile(msg)
 
-    path = context.fetch_resource("lists.xlsx", url)
+    path = context.fetch_resource("source.xlsx", url)
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
 
-    crawl_person(context, path)
-    crawl_legal_entities(context, path)
+    wb = load_workbook(path, read_only=True)
+    assert len(wb.worksheets) == 2
+
+    person_worksheet = wb.worksheets[0]
+    legal_entity_worksheet = wb.worksheets[1]
+    
+    crawl_person(context, person_worksheet)
+    crawl_legal_entities(context, legal_entity_worksheet)
