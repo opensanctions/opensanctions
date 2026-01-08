@@ -79,7 +79,7 @@ def validate_dataset(dataset: Dataset, view: View) -> None:
         context.begin(clear=False)
         context.log.info(
             "Validating dataset",
-            dataset=dataset_data_path(dataset.name),
+            path=dataset_data_path(dataset.name),
         )
 
         validators = [validator(context, view) for validator in VALIDATORS]

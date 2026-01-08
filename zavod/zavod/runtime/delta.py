@@ -33,7 +33,6 @@ class HashDelta(object):
             self.prev = version
             log.info(
                 "Loading previous hashes...",
-                dataset=self.dataset.name,
                 version=version.id,
             )
             with obj.open() as fh:
@@ -42,7 +41,7 @@ class HashDelta(object):
                     key = f"{entity_id}:{version.id}".encode("utf-8")
                     self.db.put(key, entity_hash.encode("utf-8"))
             return
-        log.info("No previous hash data found.", dataset=self.dataset.name)
+        log.info("No previous hash data found.")
 
     def feed(self, entity: Entity) -> None:
         if entity.id is None or self.curr is None:
