@@ -1,6 +1,6 @@
 from typing import Dict, List
 from lxml.etree import _Element
-from normality import collapse_spaces
+from normality import squash_spaces
 from rigour.mime.types import XML
 from followthemoney.types import registry
 
@@ -28,14 +28,13 @@ ALIAS_SPLITS = [
 ]
 
 
-def split_name(context: Context, name: str) -> List[str]:
-    name = collapse_spaces(name)
-    if name is None:
-        return []
+def split_name(name: str) -> List[str]:
+    name = squash_spaces(name)
     parts: List[str] = []
     for part in h.multi_split(name, NAME_SPLITS):
         part = part.rstrip(")").rstrip(";")
-        parts.append(part)
+        if len(part):
+            parts.append(part)
     return parts
 
 
@@ -76,7 +75,8 @@ def parse_entry(context: Context, node: _Element):
         entity = context.make("Vessel")
         entity.id = context.make_id(schedule, country_code, entity_name, imo_number)
         entity.add("imoNumber", imo_number)
-        entity.add("name", entity_name)
+        if entity_name is not None:
+            entity.add("name", squash_spaces(entity_name))
         entity.add("type", title)
         h.apply_date(entity, "buildDate", dob)
     elif given_name is not None or last_name is not None or dob is not None:
@@ -85,7 +85,7 @@ def parse_entry(context: Context, node: _Element):
         h.apply_date(entity, "birthDate", dob)
         entity.add("title", title)
     elif entity_name is not None:
-        entity.add("name", split_name(context, entity_name))
+        entity.add("name", split_name(entity_name))
         h.apply_date(entity, "incorporationDate", dob)
         assert dob is None, (dob, entity_name)
 
@@ -104,13 +104,12 @@ def parse_entry(context: Context, node: _Element):
     sanction.add("authorityId", row.pop("Item"))
     h.apply_date(sanction, "listingDate", row.pop("DateOfListing", None))
 
-    names = collapse_spaces(row.pop("Aliases", ""))
-    if names is not None:
-        for name in h.multi_split(names, ALIAS_SPLITS):
-            trim_name = collapse_spaces(name)
-            # if " or " in trim_name:
-            #     print("ALIAS", trim_name)
-            entity.add("alias", trim_name)
+    names = squash_spaces(row.pop("Aliases", ""))
+    for name in h.multi_split(names, ALIAS_SPLITS):
+        trim_name = squash_spaces(name)
+        # if " or " in trim_name:
+        #     print("ALIAS", trim_name)
+        entity.add("alias", trim_name)
 
     context.audit_data(row)
     context.emit(entity)
