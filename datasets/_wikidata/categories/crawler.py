@@ -7,7 +7,7 @@ from urllib.parse import urlencode
 
 from nomenklatura.wikidata import Claim, WikidataClient
 from zavod.shed.wikidata.human import wikidata_basic_human
-from zavod.shed.wikidata.position import wikidata_position
+from zavod.shed.wikidata.position import wikidata_occupancy, wikidata_position
 from zavod.stateful.positions import categorised_position_qids
 
 from zavod import Context, Entity
@@ -50,9 +50,8 @@ class CrawlState(object):
         self.person_topics: Dict[str, Set[str]] = {}
         self.person_positions: Dict[str, Set[Entity]] = {}
         self.emitted_positions: Set[str] = set()
-        self.exclusion_checks: Set[str] = set(
-            context.dataset.config.get("exclusion_checks")
-        )
+        exc = [str(x) for x in context.dataset.config.get("exclusion_checks", [])]
+        self.exclusion_checks: Set[str] = set(exc)
 
 
 def title_name(title: str) -> str:
@@ -70,30 +69,7 @@ def crawl_position(state: CrawlState, person: Entity, claim: Claim) -> None:
         state.ignore_positions.add(item.id)
         return
 
-    start_date: Optional[str] = None
-    for qual in claim.qualifiers.get("P580", []):
-        qual_date = qual.text.text
-        if qual_date is not None:
-            if start_date is not None:
-                qual_date = min(start_date, qual_date)
-            start_date = qual_date
-
-    end_date: Optional[str] = None
-    for qual in claim.qualifiers.get("P582", []):
-        qual_date = qual.text.text
-        if qual_date is not None:
-            if end_date is not None:
-                qual_date = max(end_date, qual_date)
-            end_date = qual_date
-
-    occupancy = h.make_occupancy(
-        state.context,
-        person,
-        position,
-        no_end_implies_current=False,
-        start_date=start_date,
-        end_date=end_date,
-    )
+    occupancy = wikidata_occupancy(state.context, person, position, claim)
     if occupancy is not None:
         state.log.info("  -> %s (%s)" % (position.first("name"), position.id))
         if position.id not in state.emitted_positions:
@@ -102,9 +78,19 @@ def crawl_position(state: CrawlState, person: Entity, claim: Claim) -> None:
         state.context.emit(occupancy)
 
     # TODO: implement support for 'officeholder' (P1308) here
+    for claim in item.claims:
+        if claim.property == "P1308":  # officeholder
+            if claim.qid is None:
+                continue
+            holder = crawl_person(state, claim.qid, recurse=False)
+            if holder is not None:
+                occupancy = wikidata_occupancy(state.context, holder, position, claim)
+                if occupancy is not None:
+                    state.context.emit(occupancy)
+                    state.context.emit(holder)
 
 
-def crawl_person(state: CrawlState, qid: str) -> Optional[Entity]:
+def crawl_person(state: CrawlState, qid: str, recurse: bool = True) -> Optional[Entity]:
     item = state.client.fetch_item(qid)
     if item is None:
         return None
@@ -112,9 +98,10 @@ def crawl_person(state: CrawlState, qid: str) -> Optional[Entity]:
     if entity is None:
         return None
 
-    for claim in item.claims:
-        if claim.property == "P39":
-            crawl_position(state, entity, claim)
+    if recurse:
+        for claim in item.claims:
+            if claim.property == "P39":
+                crawl_position(state, entity, claim)
     return entity
 
 
@@ -164,8 +151,10 @@ def crawl_category(state: CrawlState, category_crawl_spec: Dict[str, Any]) -> No
             state.person_positions[person_qid] = set()
         if position is not None:
             state.person_positions[person_qid].add(position)
-        if row.get("title") is not None:
-            state.person_title[person_qid] = row.get("title")
+
+        person_title = row.get("title")
+        if isinstance(person_title, str):
+            state.person_title[person_qid] = person_title
 
     state.log.info(
         "PETScanning category: %s" % cat,
@@ -259,18 +248,8 @@ def crawl_declarator(state: CrawlState) -> None:
         state.person_countries[person_qid].add("ru")
 
 
-def crawl(context: Context) -> None:
-    state = CrawlState(context)
-    crawl_declarator(state)
-    crawl_position_seeds(state)
-    category_crawl_specs: List[Dict[str, Any]] = context.dataset.config.get(
-        "categories", []
-    )
-    for category_crawl_spec in category_crawl_specs:
-        crawl_category(state, category_crawl_spec)
-        state.context.flush()
-
-    context.log.info("Generated %d persons" % len(state.persons))
+def crawl_persons(state: CrawlState) -> None:
+    state.context.log.info("Generated %d persons" % len(state.persons))
     for idx, (person_qid, found_record) in enumerate(state.persons.items()):
         entity = crawl_person(state, person_qid)
         if entity is None:
@@ -308,9 +287,24 @@ def crawl(context: Context) -> None:
         #      for a single name) doesn't find them. In this case, the xref process will discover the QID for the
         #      cluster (but not actually pull in the statements marked as external).
         #  In both cases, we want to emit the statements as external.
-        state.context.emit(entity, external=(len(entity.get("topics")) == 0))
+        has_topics = len(entity.get("topics")) > 0
+        state.context.emit(entity, external=(not has_topics))
 
         if idx > 0 and idx % 1000 == 0:
             state.context.flush()
 
     # raise RuntimeError("Crawler is in debug mode, do not release results")
+
+
+def crawl(context: Context) -> None:
+    state = CrawlState(context)
+    crawl_declarator(state)
+    crawl_position_seeds(state)
+    category_crawl_specs: List[Dict[str, Any]] = context.dataset.config.get(
+        "categories", []
+    )
+    for category_crawl_spec in category_crawl_specs:
+        crawl_category(state, category_crawl_spec)
+        state.context.flush()
+
+    crawl_persons(state)

@@ -1,9 +1,10 @@
 from typing import Dict, Optional, Set
 
-from nomenklatura.wikidata import Item, WikidataClient
+from nomenklatura.wikidata import Item, WikidataClient, Claim
 from rigour.territories import get_territory_by_qid
 
 from zavod import Context, Entity
+from zavod import helpers as h
 from zavod.stateful.positions import categorise
 from zavod.shed.wikidata.country import is_historical_country, item_countries
 
@@ -202,7 +203,10 @@ def wikidata_position(
 
 
 def position_holders(client: WikidataClient, item: Item) -> Set[str]:
-    """Find persons who have held the position defined by `item`."""
+    """Find persons who have held the position defined by `item`. This performs
+    the inverted lookup on property P39 (position held). Independently, the crawler
+    should check property P1308 (officeholder) on the position item itself.
+    """
     query = f"""
     SELECT ?person WHERE {{
         ?person wdt:P39 wd:{item.id} .
@@ -216,9 +220,42 @@ def position_holders(client: WikidataClient, item: Item) -> Set[str]:
         if person_qid is not None:
             persons.add(person_qid)
 
-    for claim in item.claims:
-        if claim.property == "P1308":  # officeholder
-            if claim.qid is not None:
-                persons.add(claim.qid)
-
     return persons
+
+
+def wikidata_occupancy(
+    context: Context, person: Entity, position: Entity, claim: Claim
+) -> Optional[Entity]:
+    """Create an Occupancy entity for the given person and position based on the claim,
+    which identifies relevant qualifiers."""
+    start_date: Optional[str] = None
+    for qual in claim.qualifiers.get("P580", []):
+        qual_date = qual.text.text
+        if qual_date is not None:
+            if start_date is not None:
+                qual_date = min(start_date, qual_date)
+            start_date = qual_date
+
+    end_date: Optional[str] = None
+    for qual in claim.qualifiers.get("P582", []):
+        qual_date = qual.text.text
+        if qual_date is not None:
+            if end_date is not None:
+                qual_date = max(end_date, qual_date)
+            end_date = qual_date
+
+    # Diplomatic positions tend to be associated with the receiving country,
+    # so we don't want to propagate that to the person.
+    position_topics = position.get("topics")
+    is_diplomat = "role.diplo" in position_topics
+
+    occupancy = h.make_occupancy(
+        context,
+        person,
+        position,
+        no_end_implies_current=False,
+        start_date=start_date,
+        end_date=end_date,
+        propagate_country=not is_diplomat,
+    )
+    return occupancy
