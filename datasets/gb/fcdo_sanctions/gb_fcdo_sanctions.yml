@@ -251,6 +251,8 @@ lookups:
         values:
           - Sikhknowledge@gmail.com
           - Savingpunjab@gmail.com
+      - match: administrator@nitc.co.ir,
+        value: administrator@nitc.co.ir
   type.date:
     options:
       - match:
