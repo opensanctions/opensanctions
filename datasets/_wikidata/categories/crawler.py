@@ -7,7 +7,11 @@ from urllib.parse import urlencode
 
 from nomenklatura.wikidata import Claim, WikidataClient
 from zavod.shed.wikidata.human import wikidata_basic_human
-from zavod.shed.wikidata.position import wikidata_occupancy, wikidata_position
+from zavod.shed.wikidata.position import (
+    position_holders,
+    wikidata_occupancy,
+    wikidata_position,
+)
 from zavod.stateful.positions import categorised_position_qids
 
 from zavod import Context, Entity
@@ -177,18 +181,7 @@ def crawl_position_holder(state: CrawlState, position_qid: str) -> Set[str]:
         state.ignore_positions.add(position_qid)
         return persons
 
-    query = f"""
-    SELECT ?person WHERE {{
-        ?person wdt:P39 wd:{position_qid} .
-        ?person wdt:P31 wd:Q5
-    }}
-    """
-    response = state.client.query(query)
-    for result in response.results:
-        person_qid = result.plain("person")
-        if person_qid is not None:
-            persons.add(person_qid)
-
+    persons = position_holders(state.client, item)
     for claim in item.claims:
         if claim.property == "P1308":  # officeholder
             if claim.qid is not None:
