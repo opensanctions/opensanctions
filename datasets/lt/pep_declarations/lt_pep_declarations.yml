@@ -2,9 +2,10 @@ title: Lithuania PEPs from the register of private interests
 entry_point: crawler.py
 prefix: lt-pinreg
 coverage:
-  frequency: monthly
+  frequency: never
   start: "2024-08-16"
   end: "2025-04-03"
+  schedule: "23 0 1 * *"
 load_statements: true
 summary: |
   Lithuanian PEPs based on official declarations of personal interests.
@@ -19,9 +20,10 @@ description: |
 deprecation: |
   As of April 2025, the Lithuanian Chief Official Ethics Commission (VTEK) has required
   API authentication for access to the declarations search page, which prevents
-  automated crawling of the data. We've [reached out to VTEK to request access](https://github.com/opensanctions/opensanctions/issues/2212), but 
-  not received a response yet. The dataset is therefore marked as deprecated and eventually
-  removed in favor of other sources of PEP data for Lithuania.
+  automated crawling of the data. We've [reached out to VTEK to request access](https://github.com/opensanctions/opensanctions/issues/2212),
+  and no automated access to data updates can currently be provided. The dataset
+  is therefore marked as deprecated and eventually removed in favor of other sources
+  of PEP data for Lithuania.
 publisher:
   name: Lithuanian Chief Official Ethics Commission
   acronym: VTEK
