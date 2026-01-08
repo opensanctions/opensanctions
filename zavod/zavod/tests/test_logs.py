@@ -21,8 +21,8 @@ def test_redact_str():
 def test_redact_list():
     processor = RedactingProcessor({"DEADBEEF": "### Redacted ###"})
     test_list = ["DEADBEEF", "not sensitive", "DEADBEEF"]
-    processor.redact_list(test_list)
-    assert test_list == [
+    redacted_list = processor.redact_list(test_list)
+    assert redacted_list == [
         "### Redacted ###",
         "not sensitive",
         "### Redacted ###",
@@ -33,8 +33,8 @@ def test_redact_dict():
     processor = RedactingProcessor({"DEADBEEF": "### Redacted ###"})
 
     test_dict = {"sensitive": "aaa DEADBEEF zzz", "not_sensitive": "not sensitive"}
-    processor.redact_dict(test_dict)
-    assert test_dict == {
+    redacted_dict = processor.redact_dict(test_dict)
+    assert redacted_dict == {
         "sensitive": "aaa ### Redacted ### zzz",
         "not_sensitive": "not sensitive",
     }
@@ -106,6 +106,9 @@ def test_redacts_issue_logger(testdataset1: Dataset):
         context.log.warn(
             "This is a warning to correcthorsebatterystaple",
             extra="correcthorsebatterystaple",
+            non_json_serializable=Exception(
+                "Error at http://host?key=correcthorsebatterystaple"
+            ),
         )
         # Non-structlog logs take a slightly different path
         logging.warning("This is a python logging warning to correcthorsebatterystaple")
@@ -113,7 +116,7 @@ def test_redacts_issue_logger(testdataset1: Dataset):
 
         assert issues_path.exists()
         assert "This is a warning to" in issues_path.read_text()
-        # assert "This is a python logging warning to" in issues_path.read_text()
+        assert "This is a python logging warning to" in issues_path.read_text()
         assert "correcthorsebatterystaple" not in issues_path.read_text()
     finally:
         zavod.logs.reset_logging(logger)
