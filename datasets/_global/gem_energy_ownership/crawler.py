@@ -202,10 +202,10 @@ def crawl(context: Context):
         STATIC_URL,
         # Sending fewer headers seems to fail sometimes, some sort of browser fingerprinting?
         headers={
-            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:145.0) Gecko/20100101 Firefox/145.0",
+            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.2 Safari/605.1.15",
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-            "Accept-Language": "en-US,en;q=0.5",
-            "Accept-Encoding": "gzip, deflate, br, zstd",
+            "Accept-Language": "en-GB,en;q=0.9",
+            "Accept-Encoding": "gzip, deflate, br",
             "Connection": "keep-alive",
             "Sec-Fetch-Dest": "document",
             "Sec-Fetch-Mode": "navigate",
