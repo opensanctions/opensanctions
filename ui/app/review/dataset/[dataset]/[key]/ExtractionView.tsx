@@ -83,7 +83,6 @@ function searchSelectedValue(state: EditorView["state"], search: (query: string)
   const nodeText = state.doc.sliceString(node.from, node.to);
   // Strip both single and double quotes from the start and end
   const unquotedText = nodeText.replace(/^"|"$/g, "");
-  console.log(nodeText, unquotedText);
   search(unquotedText);
 }
 
