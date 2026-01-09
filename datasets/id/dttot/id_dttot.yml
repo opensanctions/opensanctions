@@ -4,15 +4,23 @@ url: https://www.ppatk.go.id/link/read/23/dttot-proliferasi-wmd.html
 prefix: id-dttot
 entry_point: crawler
 coverage:
-  frequency: daily
+  frequency: never
   start: "2024-05-29"
+  end: "2025-08-05"
+  schedule: "23 0 1 * *"
 load_statements: true
 summary: |
   A list of suspected terrorists and terrorist organizations as determined by the Central Jakarta District Court.
 description: >
-  > In order to implement the provisions as stipulated in Article 28 paragraph (1) of Law Number 9 of 2013 concerning  
-  > Prevention and Eradication of Criminal Acts of Terrorism Financing, the following are the DTTOTs that have received  
+  > In order to implement the provisions as stipulated in Article 28 paragraph (1) of Law Number 9 of 2013 concerning
+  > Prevention and Eradication of Criminal Acts of Terrorism Financing, the following are the DTTOTs that have received
   > determination from the Central Jakarta District Court.
+deprecation: |
+  This data is no longer accessible as structured data from the official source.
+  The Excel file available from the PPATK appears to be corrupted and
+  [correspondence with the PPATK](https://github.com/opensanctions/opensanctions/issues/2642#issuecomment-3718033763)
+  to identify and resolve the issue has not been successful. The dataset is therefore
+  now deprecated. It will be removed on YYYY-MM-DD.
 publisher:
   name: "Indonesian Financial Transaction Reports and Analysis Center"
   acronym: PPATK
@@ -22,10 +30,10 @@ publisher:
     Pusat Pelaporan dan Analisis Transaksi Keuangan) or PPATK is a government
     agency of Indonesia responsible for financial intelligence.
   country: id
-  url: https://www.ppatk.go.id/
+  url: https://www.ppatk.go.id/dalam_negeri/read/1400/daftar-terduga-teroris-dan-organisasi-teroris-dttot.html
 data:
-  url: https://www.ppatk.go.id/link/read/23/dttot-proliferasi-wmd.html
-  format: HTML
+  url: https://www.ppatk.go.id/dalam_negeri/read/1400/daftar-terduga-teroris-dan-organisasi-teroris-dttot.html
+  format: XLS
   lang: ind
 tags:
   - list.sanction
