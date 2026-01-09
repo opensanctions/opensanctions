@@ -1,6 +1,7 @@
 from typing import Dict, Optional, Set
 
 from nomenklatura.wikidata import Item, WikidataClient, Claim
+from nomenklatura.wikidata.value import clean_wikidata_name
 from rigour.territories import get_territory_by_qid
 
 from zavod import Context, Entity
@@ -118,7 +119,7 @@ def wikidata_position(
     position.id = item.id
     position.add("wikidataId", item.id)
     if item.label is not None:
-        item.label.apply(position, "name")
+        item.label.apply(position, "name", clean=clean_wikidata_name)
 
     for claim in item.claims:
         if claim.property in ("P1001", "P17", "P27") and claim.qid is not None:

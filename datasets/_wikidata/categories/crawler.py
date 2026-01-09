@@ -7,6 +7,7 @@ from urllib.parse import urlencode
 
 from nomenklatura.wikidata import Claim, WikidataClient
 from zavod.shed.wikidata.human import wikidata_basic_human
+from nomenklatura.wikidata.value import clean_wikidata_name
 from zavod.shed.wikidata.position import (
     position_holders,
     wikidata_occupancy,
@@ -58,8 +59,8 @@ class CrawlState(object):
         self.exclusion_checks: Set[str] = set(exc)
 
 
-def title_name(title: str) -> str:
-    return title.replace("_", " ")
+def title_name(title: str) -> Optional[str]:
+    return clean_wikidata_name(title.replace("_", " "))
 
 
 def crawl_position(state: CrawlState, person: Entity, claim: Claim) -> None:
