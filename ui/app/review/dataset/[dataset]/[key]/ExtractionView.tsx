@@ -66,7 +66,7 @@ function searchSelectedValue(state: EditorView["state"], search: (query: string)
   const tree = syntaxTree(state)
   const node = tree?.resolveInner(pos);
   // Don't search if we clicked outside a string value
-  if (node?.type.name !== "String" && node?.type.name !== "Literal") {
+  if (!["String", "Literal", "QuotedLiteral"].includes(node?.type.name || "")) {
     console.log("Not a string or literal node", node?.type.name);
     return;
   }
@@ -81,7 +81,10 @@ function searchSelectedValue(state: EditorView["state"], search: (query: string)
     return;
   }
   const nodeText = state.doc.sliceString(node.from, node.to);
-  search(nodeText.replace(/(^"|"$)/g, ""));
+  // Strip both single and double quotes from the start and end
+  const unquotedText = nodeText.replace(/^"|"$/g, "");
+  console.log(nodeText, unquotedText);
+  search(unquotedText);
 }
 
 interface ExtractionViewProps {
