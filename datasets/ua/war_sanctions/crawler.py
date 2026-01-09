@@ -9,9 +9,10 @@ from dataclasses import dataclass
 from enum import Enum
 from normality import squash_spaces
 from os import environ as env
-from typing import Optional, List
+from typing import Dict, Optional, List
 
 from zavod import Context, helpers as h
+from zavod.entity import Entity
 from zavod.extract.zyte_api import fetch_json, fetch, fetch_html, ZyteAPIRequest
 
 # Note: These contain special characters, in testing use single quotes
@@ -171,24 +172,19 @@ def generate_token(context: Context, cid: str, pkey: str) -> str:
     return token
 
 
-def apply_names(context, person, person_data):
+def apply_names(context: Context, person: Entity, person_data: Dict[str, str]):
     # TODO: Switch to LLM-backed name splitting helper #2656, once we have it
     # https://github.com/opensanctions/opensanctions/issues/2656
     for key, lang in NAMES_LANG_MAP.items():
         raw_name = person_data.pop(key)
         if "/" in raw_name:
-            res = context.lookup("names", raw_name)
+            res = context.lookup("names", raw_name, warn_unmatched=True)
             if res:
                 person.add("name", res.name, lang=lang)
                 person.add("alias", res.alias, lang=lang)
-            else:
-                context.log.warning(
-                    "Multiple names in a single field, please check",
-                    field=key,
-                    raw_name=raw_name,
-                )
         else:
             person.add("name", raw_name, lang=lang)
+        h.review_names(context, person, raw_name, enable_llm_cleaning=True)
 
 
 def make_id(context: Context, entity_type: str, raw_id: str):
@@ -402,7 +398,10 @@ def crawl_vessel(context: Context, vessel_data, program_key):
     vessel.add("topics", "poi")
     if vessel_data.pop("is_shadow"):
         vessel.add("topics", "mare.shadow")
-
+    shadow_fleet_groups = vessel_data.pop("shadow_groups")
+    for group in shadow_fleet_groups:
+        if group["title"] != "Other":
+            vessel.add("notes", group["title"])
     sanction = h.make_sanction(
         context, vessel, key=program_key, program_key=program_key
     )
@@ -489,7 +488,7 @@ def check_updates(context: Context):
         )
         return
 
-    h.assert_dom_hash(change_log[0], "99e09c9d3c206a047e7b25083210767918f8dade")
+    h.assert_dom_hash(change_log[0], "e58955c7ef5c543cd4c2ae8975eb326287e09023")
     # Existing sections from the API documentation sidebar
     #
     # Kidnappers:

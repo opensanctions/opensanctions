@@ -429,6 +429,12 @@ lookups:
         name: ["ФЕДОРОВ Кирило", "Alconafter"]
       - match: ["ФЕДОРОВ Кирилл/Alconafter"]
         name: ["ФЕДОРОВ Кирилл", "Alconafter"]
+      - match: "PETROSYANTS/PETROSYAN Evgeny Vaganovich"
+        name: ["PETROSYANTS Evgeny Vaganovich", "PETROSYAN Evgeny Vaganovich"]
+      - match: "ПЕТРОСЯНЦ/ПЕТРОСЯН Євген Ваганович"
+        name: ["ПЕТРОСЯНЦ Євген Ваганович", "ПЕТРОСЯН Євген Ваганович"]
+      - match: "ПЕТРОСЯНЦ/ПЕТРОСЯН Евгений Ваганович"
+        name: ["ПЕТРОСЯНЦ Евгений Ваганович", "ПЕТРОСЯН Евгений Ваганович"]
 
   type.date:
     options:
@@ -534,3 +540,5 @@ lookups:
         value: 0276915630
       - match: Невідомо
         value: null
+      - match: "261013879"
+        value: "02610138790" # ru_egrul and ua_nsdc_sanctions
