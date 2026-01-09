@@ -1,9 +1,11 @@
 import openpyxl
 import re
 from typing import Dict, Set, Tuple
+from rigour.mime.types import XLSX
 
 from zavod import Context
 from zavod import helpers as h
+from zavod.extract import zyte_api
 
 
 # Unique entity types
@@ -197,20 +199,7 @@ def crawl_rel(context: Context, row: Dict[str, str], skipped: Set[str]):
 
 
 def crawl(context: Context):
-    path = context.fetch_resource(
-        "source.xlsx",
-        STATIC_URL,
-        # Sending fewer headers seems to fail sometimes, some sort of browser fingerprinting?
-        headers={
-            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:145.0) Gecko/20100101 Firefox/145.0",
-            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-            "Accept-Language": "en-US,en;q=0.5",
-            "Accept-Encoding": "gzip, deflate, br, zstd",
-            "Connection": "keep-alive",
-            "Sec-Fetch-Dest": "document",
-            "Sec-Fetch-Mode": "navigate",
-        },
-    )
+    _, _, _, path = zyte_api.fetch_resource(context, "source.xlsx", STATIC_URL, XLSX)
     # context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
 
     workbook: openpyxl.Workbook = openpyxl.load_workbook(path, read_only=True)

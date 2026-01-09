@@ -183,4 +183,4 @@ def crawl(context: Context) -> None:
         assert date is not None
         crawl_enforcement_action(context, url, date, action_type)
 
-    assert_all_accepted(context)
+    assert_all_accepted(context, raise_on_unaccepted=False)

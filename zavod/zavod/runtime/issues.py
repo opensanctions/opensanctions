@@ -3,7 +3,6 @@ from pathlib import Path
 from rigour.time import utc_now, datetime_iso
 from banal import is_mapping, hash_data
 from datetime import datetime
-from followthemoney.proxy import EntityProxy
 from typing import Any, Dict, Generator, Optional, TypedDict, BinaryIO, cast
 
 from zavod.meta import Dataset
@@ -35,20 +34,8 @@ class DatasetIssues(object):
         if self.fh is None:
             path = dataset_resource_path(self.dataset.name, ISSUES_LOG)
             self.fh = open(path, "ab")
-        data = dict(event)
-        for key, value in data.items():
-            if key == "dataset" and value == self.dataset.name:
-                continue
-            if isinstance(value, EntityProxy):
-                value = {
-                    "id": value.id,
-                    "caption": value.caption,
-                    "schema": value.schema.name,
-                }
-            if isinstance(value, set):
-                value = list(value)
-            data[key] = value
 
+        data = dict(event)  # copy so we can pop without side effects
         data.pop("_record", None)
         report_issue = data.pop("report_issue", True)
         if not report_issue:
@@ -67,7 +54,10 @@ class DatasetIssues(object):
             record["entity"] = {"id": entity}
         record["data"] = data
         record["id"] = hash_data(record)
-        out = orjson.dumps(record, option=orjson.OPT_APPEND_NEWLINE, default=repr)
+        # No `default` so we crash if something wasn't made JSON-serializable
+        # (and thus redacted) just as another layer of protection.
+        # But serializability and redaction _should_ be guaranteed here.
+        out = orjson.dumps(record, option=orjson.OPT_APPEND_NEWLINE)
         self.fh.write(out)
 
     def clear(self) -> None:

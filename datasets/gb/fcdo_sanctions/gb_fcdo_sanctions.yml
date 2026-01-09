@@ -167,6 +167,7 @@ lookups:
       - match: "" # we don't want to warn on empty languages
         value: null
   name_type:
+    # is_alias tells us whether we should pay attention to "Alias strength"
     lowercase: true
     normalize: true
     options:
@@ -174,16 +175,18 @@ lookups:
           - "Primary name"
           - "Primary name variation"
           - "" # if we have no name type, we assume it is a primary name
-        value: name
+        prop: name
+        is_alias: false
       - match: "Alias"
-        value: alias
+        prop: alias
+        is_alias: true
   weak_types:
     lowercase: true
     normalize: true
     options:
       - match:
           - "good quality a.k.a"
-          - null
+          - null # ONLY if it's an alias and not a primary name!!
         value: False
       - match: "low quality a.k.a"
         value: True
