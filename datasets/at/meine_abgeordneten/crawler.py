@@ -44,15 +44,15 @@ def extract_dates(context: Context, url, el):
         #     <div>? - 2021</div>  ← date range
         #   </div>
         children = list(el)
-        assert (
-            len(children) == 2
-        ), f"Expected funktionseile to have 2 children, got {len(children)}, url: {url}"
+        assert len(children) == 2, (
+            f"Expected funktionseile to have 2 children, got {len(children)}, url: {url}"
+        )
         # take the first child
         first_child = children[0]
         first_child_children = list(first_child)
-        assert (
-            len(first_child_children) == 3
-        ), f"Expected first child to have 3 children, got {len(first_child_children)}, url: {url}"
+        assert len(first_child_children) == 3, (
+            f"Expected first child to have 3 children, got {len(first_child_children)}, url: {url}"
+        )
         # take the third child (this has dates)
         third_child = first_child_children[2]
         date_string = third_child.text_content().strip()
@@ -158,7 +158,9 @@ def crawl_title(context, url, person, el):
     categorisation = categorise(context, position, is_pep=None)
     if not categorisation.is_pep:
         if categorisation.is_pep is None:
-            context.log.warning("Uncategorised position", position=position_name)
+            context.log.warning(
+                "Uncategorised position", position=position_name, url=url
+            )
         return
     occupancy = h.make_occupancy(
         context,
@@ -179,13 +181,11 @@ def crawl_item(url_info_page: str, context: Context):
     try:
         info_page = context.fetch_html(url_info_page, cache_days=1, absolute_links=True)
     except HTTPError as e:
-        if e.response.status_code == 503 and context.lookup(
-            "expected_503", url_info_page
-        ):
+        if e.response.status_code == 503:
+            context.log.info("HTTP 503 error, skipping", url=url_info_page)
+            # Rely on data assertions to prevent export if there are too many of these.
             return
-        raise Exception(
-            f"HTTP 503 error on {url_info_page}. Consider updating expected_503 list."
-        ) from e
+        raise
 
     first_name = info_page.findtext(".//span[@itemprop='http://schema.org/givenName']")
     last_name = info_page.findtext(".//span[@itemprop='http://schema.org/familyName']")
