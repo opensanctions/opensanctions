@@ -17,10 +17,13 @@ export default async function Home() {
 
   return (
     <>
-      <div className="d-flex justify-content-between align-items-center mb-4 ">
-        <h1 className="text-2xl font-bold mb-0">{TITLE}</h1>
-      </div>
-
+      <nav aria-label="breadcrumb" className="mb-3">
+        <ol className="breadcrumb">
+          <li className="breadcrumb-item active" aria-current="page">
+            Reviews
+          </li>
+        </ol>
+      </nav>
       <p className="mb-3">Unaccepted reviews are pending human verification. Only reviews for the latest version of each dataset are shown.</p>
       <table className="table table-bordered w-100">
         <thead>
