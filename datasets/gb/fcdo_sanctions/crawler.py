@@ -202,9 +202,8 @@ def crawl_xml(context: Context):
         # Get each name in the designation
         for name_tag in designation.iterfind(".//Names//Name"):
             name_type = name_tag.findtext(".//NameType")
-            name_prop = context.lookup_value("name_type", name_type)
-            if name_prop is None:
-                context.log.warn("Unknown name type", name_type=name_type)
+            name_res = context.lookup("name_type", name_type, warn_unmatched=True)
+            if name_res is None:
                 continue
 
             # name1 is always a given name
@@ -225,7 +224,7 @@ def crawl_xml(context: Context):
                 name5=name_tag.findtext("./Name5"),
                 tail_name=name6,
             )
-            entity.add(name_prop, full_name, lang="eng")
+            entity.add(name_res.prop, full_name, lang="eng")
 
         if not entity.has("name"):
             context.log.info("No names found for entity", id=entity.id)
@@ -429,12 +428,15 @@ def crawl_csv(context: Context):
             unique_id = row.pop("Unique ID")
             entity.id = context.make_slug(unique_id)
             name_type = row.pop("Name type")
-            name_prop = context.lookup_value("name_type", name_type)
-            if name_prop is None:
+            name_res = context.lookup("name_type", name_type)
+            if name_res is None:
                 context.log.warn("Unknown name type", name_type=name_type, id=unique_id)
                 continue
+            name_prop = name_res.prop
             alias_strength = row.pop("Alias strength")
-            if context.lookup_value("weak_types", alias_strength, warn_unmatched=True):
+            if name_res.is_alias and context.lookup_value(
+                "weak_types", alias_strength, warn_unmatched=True
+            ):
                 name_prop = "weakAlias"
 
             # name1 is always a given name
