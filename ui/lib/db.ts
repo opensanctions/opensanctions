@@ -220,17 +220,19 @@ export async function getDatasetStats(): Promise<IDatasetStats[]> {
   }));
 }
 
-export async function getExtractionEntries(dataset: string) {
+export async function getExtractionEntries(dataset: string, search?: string) {
+  const db = await getDb();
+
   // Subquery to get the latest version for the dataset
-  const latestVersionSubquery = (await getDb())
+  const latestVersionSubquery = db
     .selectFrom(REVIEW_TABLE_NAME)
-    .select((await getDb()).fn.max('last_seen_version').as('latest_version'))
+    .select(db.fn.max('last_seen_version').as('latest_version'))
     .where('dataset', '=', dataset)
     .where('deleted_at', 'is', null)
     .as('lv');
 
-  // Join review with the subquery on last_seen_version
-  const rows = await (await getDb())
+  // Build the main query
+  let query = db
     .selectFrom(REVIEW_TABLE_NAME)
     .innerJoin(latestVersionSubquery, 'review.last_seen_version', 'lv.latest_version')
     .select([
@@ -243,10 +245,33 @@ export async function getExtractionEntries(dataset: string) {
       'review.original_extraction',
     ])
     .where('review.dataset', '=', dataset)
-    .where('review.deleted_at', 'is', null)
+    .where('review.deleted_at', 'is', null);
+
+  // Add search filtering if provided
+  if (search && search.trim()) {
+    const tokens = search.trim().split(/\s+/);
+    query = query.where((eb) => {
+      // For each token, create an OR condition that checks all fields
+      const tokenConditions = tokens.map((token) => {
+        const pattern = `%${token}%`;
+        return eb.or([
+          eb('review.source_value', 'ilike', pattern),
+          eb('review.source_url', 'ilike', pattern),
+          eb('review.modified_by', 'ilike', pattern),
+          sql<boolean>`CAST(review.original_extraction AS text) ILIKE ${pattern}`,
+          sql<boolean>`CAST(review.extracted_data AS text) ILIKE ${pattern}`,
+        ]);
+      });
+      // Combine all token conditions with AND (all tokens must match)
+      return eb.and(tokenConditions);
+    });
+  }
+
+  const rows = await query
     .orderBy('review.accepted', 'asc')
     .orderBy('review.modified_at', 'asc')
     .execute();
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return rows.map((row: any) => ({
     id: row.id,

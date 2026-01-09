@@ -3,11 +3,14 @@ import { notFound } from 'next/navigation';
 
 import { getExtractionEntries } from '@/lib/db';
 import { PageProps } from '@/lib/pageProps';
+import SearchInput from './SearchInput';
 
 
-export default async function DatasetPage({ params }: PageProps) {
+export default async function DatasetPage({ params, searchParams }: PageProps) {
   const awaitedParams = await params;
-  const entries = await getExtractionEntries(awaitedParams.dataset);
+  const awaitedSearchParams = await searchParams;
+  const searchQuery = awaitedSearchParams?.q as string | undefined;
+  const entries = await getExtractionEntries(awaitedParams.dataset, searchQuery);
   if (!entries) return notFound();
 
   return (
@@ -22,7 +25,7 @@ export default async function DatasetPage({ params }: PageProps) {
           </li>
         </ol>
       </nav>
-      <h1 className="text-2xl font-bold mb-4">Reviews</h1>
+      <SearchInput dataset={awaitedParams.dataset} />
       <div className="">
         <table className="table table-bordered ">
           <thead>
