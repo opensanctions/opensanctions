@@ -5,7 +5,7 @@ coverage:
   frequency: weekly
   start: 2025-12-03
 description: >
-  The Kingdom of Jordan's national-level sanctions mechanism. It is part of 
+  The Kingdom of Jordan's national-level sanctions mechanism. It is part of
   Jordan's compliance framework for combating money laundering and terrorist financing
   and is administered by the Anti Money Laundering and Counter Terrorist Financing Unit.
 summary: >
@@ -26,6 +26,8 @@ data:
   url: https://sanctions.amlu.gov.jo/EN/List/National1_List
   format: XLSX
   lang: ara
+
+ci_test: false # 403 from github actions but not Google Cloud
 
 assertions:
   min:

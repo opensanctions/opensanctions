@@ -1,4 +1,4 @@
-from pathlib import Path
+from typing import Optional
 from zavod import Context
 from zavod import helpers as h
 from lxml.html import HtmlElement
@@ -23,12 +23,12 @@ class MissingDataFile(Exception):
     pass
 
 
-def xlsx_check(doc: HtmlElement) -> bool | str:
+def xlsx_url(doc: HtmlElement) -> Optional[str]:
     for link in doc.iterlinks():
         ext = link[2].split(".")[-1]
         if "xlsx" in ext:
             return str(link[2])
-    return False
+    return None
 
 
 def crawl_person(context: Context, worksheet: Worksheet) -> None:
@@ -58,7 +58,9 @@ def crawl_person(context: Context, worksheet: Worksheet) -> None:
         person.add("idNumber", national_id)
         person.add("nationality", row.pop("nationality"))
         h.apply_date(person, "birthDate", birth_date)
-        person.add("alias", row.pop("first_and_surname").split("،"))
+        names = row.pop("first_and_surname")
+        if names:
+            person.add("alias", names.split("،"))
         person.add("sourceUrl", context.data_url)
 
         address_ent = h.make_address(
@@ -108,8 +110,8 @@ def crawl_legal_entities(context: Context, worksheet: Worksheet) -> None:
 
 def crawl(context: Context) -> None:
     doc = context.fetch_html(context.data_url)
-    url = xlsx_check(doc)
-    if url is False:
+    url = xlsx_url(doc)
+    if not url:
         msg = "XLSX file does not exist!"
         context.log.error(msg)
         raise MissingDataFile(msg)
@@ -122,6 +124,6 @@ def crawl(context: Context) -> None:
 
     person_worksheet = wb.worksheets[0]
     legal_entity_worksheet = wb.worksheets[1]
-    
+
     crawl_person(context, person_worksheet)
     crawl_legal_entities(context, legal_entity_worksheet)
