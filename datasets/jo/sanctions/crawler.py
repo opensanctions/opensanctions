@@ -122,8 +122,8 @@ def crawl(context: Context) -> None:
     wb = load_workbook(path, read_only=True)
     assert len(wb.worksheets) == 2
 
-    person_worksheet = wb.worksheets[0]
-    legal_entity_worksheet = wb.worksheets[1]
+    person_worksheet = wb["الأفراد"]  # "Individuals"
+    legal_entity_worksheet = wb["الكيانات"]  # "Entities"
 
     crawl_person(context, person_worksheet)
     crawl_legal_entities(context, legal_entity_worksheet)
