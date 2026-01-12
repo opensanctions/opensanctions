@@ -252,7 +252,12 @@ lookups:
           - role: Vice President
             name: Jane ANSAH
             start_date: 4 October 2025
-
+      # Madagascar
+      # chief of state: Michael RANDRIANIRINA (Col.); note - defacto leader after a military coup on 14 October 2025 suspended most government institutions, except for the lower house of Parliament which impeached former-President Andry RAJOELINA
+      - match: Michael RANDRIANIRINA (Col.)
+        holders:
+          - role: Chief of state
+            name: Michael RANDRIANIRINA
       # Not additional heads, just notes
       - regex:
           # Afghanistan
