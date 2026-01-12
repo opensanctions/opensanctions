@@ -154,7 +154,9 @@ lookups:
         value: EU-IRQ
       - match: 2013/255
         value: EU-SYR
-      - match: 2024/254
+      - match:
+          - 2024/254
+          - 2024/287
         value: EU-GTM
       - match: 1183/2005
         value: EU-COD
