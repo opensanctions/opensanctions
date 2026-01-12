@@ -1,0 +1,112 @@
+title: "Kingdom of Jordan National Sanctions List"
+url: https://sanctions.amlu.gov.jo/EN/List/National1_List
+load_statements: true
+coverage:
+  frequency: weekly
+  start: 2025-12-03
+description: >
+  The Kingdom of Jordan's national-level sanctions mechanism. It is part of
+  Jordan's compliance framework for combating money laundering and terrorist financing
+  and is administered by the Anti Money Laundering and Counter Terrorist Financing Unit.
+summary: >
+  The national sanctions list of the Kingdom Jordan, administered by the
+  Anti Money Laundering and Counter Terrorist Financing Unit.
+entry_point: crawler.py
+prefix: jo-sanc
+publisher:
+  name: Anti Money Laundering and Counter Terrorist Financing Unit
+  url: https://sanctions.amlu.gov.jo/
+  country: jo
+  official: true
+tags:
+  - list.sanction
+  - juris.jo
+
+data:
+  url: https://sanctions.amlu.gov.jo/EN/List/National1_List
+  format: XLSX
+  lang: ara
+
+ci_test: false # 403 from github actions but not Google Cloud
+
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 10
+      Person: 10
+  max:
+    schema_entities:
+      LegalEntity: 50
+      Person: 75
+
+dates:
+  formats:
+    - "%Y-%m-%d"
+    - "%d/%m/%Y"
+    - "%m/%Y"
+
+lookups:
+  columns:
+    options:
+      - match: "#"
+        value: row_no
+      - match: الجنسية
+        value: nationality
+      - match: الرقم الوطني
+        value: national_id
+      - match: اسم الأم
+        value: mother_name
+      - match: تاريخ الميلاد
+        value: birth_date
+      - match: مكان الميلاد
+        value: birth_place
+      - match: الإسم/ اللقب
+        value: first_and_surname
+      - match: المنطقة/ الشارع
+        value: area_and_street
+      - match: المدينة
+        value: city
+      - match: الدولة
+        value: country
+      - match: النوع
+        value: doc_type
+      - match: رقم الوثيقة
+        value: doc_no
+      - match: جهة الإصدار
+        value: doc_issue_auth
+      - match: تاريخ الإصدار
+        value: doc_issue_date
+      - match: column_16
+        value: description
+      - match:
+          - column_17
+          - تاريخ الإدراج
+        value: included_date
+      - match: التصنيف
+        value: classification
+      - match: الإسم الكامل (بالحروف العربية)
+        value: full_name_ar
+      - match: الإسم الكامل (بالحروف اللاتينية)
+        value: full_name_en
+  type.name:
+    options:
+      - match: "/"
+        value: null
+  type.date:
+    options:
+      - match: "/"
+        value: null
+      - match: 32115
+        value: 2008-01-01
+      - match: 37719
+        value: 1987-12-04
+  type.country:
+    options:
+      - match: "/"
+        value: null
+      - match:
+          - الاردن
+          - اردني
+        value: "jo"
+      - match: بوسني
+        value: "ba"
