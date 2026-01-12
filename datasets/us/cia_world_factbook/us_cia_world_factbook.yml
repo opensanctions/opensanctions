@@ -252,6 +252,12 @@ lookups:
           - role: Vice President
             name: Jane ANSAH
             start_date: 4 October 2025
+      # Madagascar
+      - match: Michael RANDRIANIRINA (Col.)
+        holders:
+          - role: Chief of State
+            name: Michael RANDRIANIRINA
+            start_date: 14 October 2025
 
       # Not additional heads, just notes
       - regex:
