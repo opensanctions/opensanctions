@@ -18,7 +18,9 @@ def crawl(context: Context) -> None:
     )
     search_results = doc.xpath(results_xpath)
     assert len(search_results) == 1, "Expected exactly one section in the document"
-    h.assert_dom_hash(search_results[0], "5f25868a51b1486411ab3b92d2015df017e40aed")
+    h.assert_dom_hash(search_results[0], "756b48c2a8a57399c96964c02c18ced39f2ac386")
+    # Jan. 8, 2026
+    # The War Department Strengthens Measures to Protect DOW‑Funded Research
     # Jan. 7, 2025
     # DOD Releases List of Chinese Military Companies in Accordance with Section 1260H of the National Defense Authorization Act for Fiscal Year 2021
     # Jan. 31, 2024

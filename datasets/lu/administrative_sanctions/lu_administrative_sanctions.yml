@@ -127,6 +127,38 @@ lookups:
       - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-9-octobre-2025/
         names:
           - Rakuten Europe Bank S.A.
+      - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-23-juillet-2025/
+        names:
+          - JTC (Luxembourg) S.A.
+      - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-11-septembre-2025/
+        names:
+          - C5 S.à r.l.
+      - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-11-septembre-2025-2/
+        names:
+          - C5 Haven Cyber GP S.à r.l.
+      - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-11-septembre-2025-3/
+        names:
+          - Bedrock I GP S.à r.l.
+      - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-11-septembre-2025-4/
+        names:
+          - Agriland Management S.A.
+      - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-11-septembre-2025-5/
+        names:
+          - Max Gain Capital S.à r.l.
+      - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-11-septembre-2025-6/
+        names:
+          - Lion Management
+      - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-11-septembre-2025-7/
+        names:
+          - Capitalis Premiere Group
+      - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-11-septembre-2025-8/
+        names:
+          - Sunbricks GP S.à r.l.
+      - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-11-septembre-2025-9/
+        names:
+          - Premium Capital Management
+
+
       # Anonymous:
       - match:
           - https://www.cssf.lu/fr/Document/sanction-administrative-du16-05-2019/
