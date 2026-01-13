@@ -188,7 +188,8 @@ def make_occupancy(
     if status is None:
         return None
 
-    occupancy.add("status", status.value)
+    if status != OccupancyStatus.UNKNOWN:
+        occupancy.add("status", status.value)
 
     person.add("topics", "role.pep")
     if propagate_country:
