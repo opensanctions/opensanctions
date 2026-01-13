@@ -12,7 +12,7 @@ from zavod import helpers as h
 
 
 REGEX_BIRTH_PLACE_AND_DATE = re.compile(
-    r"is geboren in (?P<birthplace>.+) op (?P<birthdate>.+\d{4})(\.| en woont in)"
+    r"\((?P<birthyear>\d{4})\) is geboren in (?P<birthplace>.+)(\.| en woont in)"
 )
 
 
@@ -35,7 +35,7 @@ def crawl_person(context: Context, element: _Element, position: Entity):
     assert descr is not None, "Failed to extract description"
     match = REGEX_BIRTH_PLACE_AND_DATE.search(descr)
     assert match is not None, "Failed to extract birth information"
-    birth_date = match.group("birthdate")
+    birth_date = match.group("birthyear")
     name = section.findtext(".//h1")
 
     person = context.make("Person")
