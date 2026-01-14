@@ -133,7 +133,9 @@ lookups:
       # Director's dob provided instead of the company name:
       # https://www.opensanctions.org/entities/gb-coh-named-05-08-1966/
       # https://find-and-update.company-information.service.gov.uk/disqualified-officers/natural/HK0GlB_42rNskR15KNhpZVSFwfE
-      - match: 05/08/1966
+      - match:
+          - 05/08/1966
+          - 31/12/1963
         value: null
   type.string:
     options:

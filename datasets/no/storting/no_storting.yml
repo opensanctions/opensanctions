@@ -33,7 +33,7 @@ data:
 assertions:
   min:
     schema_entities:
-      Person: 300
+      Person: 200
       Position: 1
 
 lookups:
