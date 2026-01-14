@@ -112,7 +112,7 @@ def parse_person(context: Context, data, country, lastmod) -> None:
     for other in data.pop("other_names", []):
         lang = other.get("lang")
         person.add("alias", other.get("name"), lang=lang)
-    person.add("gender", data.pop("gender", None))
+    # person.add("gender", data.pop("gender", None))
     person.add("title", data.pop("honorific_prefix", None))
     person.add("title", data.pop("honorific_suffix", None))
     person.add("firstName", data.pop("given_name", None))
