@@ -415,6 +415,46 @@ def csv_make_ship(context: Context, row: dict, entity: Entity):
         context.emit(own)
 
 
+def get_name_prop(
+    context: Context,
+    entity: Entity,
+    name: Optional[str],
+    name_type: str,
+    alias_strength: str,
+) -> Optional[str]:
+    if name is None:
+        return None
+
+    name_res = context.lookup("name_type", name_type, warn_unmatched=True)
+    if name_res is None:
+        return None
+    name_prop = name_res.prop
+    if not name_res.is_alias:
+        return name_prop
+
+    if alias_strength != "":
+        if context.lookup_value("is_weak_alias", alias_strength, warn_unmatched=True):
+            return "weakAlias"
+        else:
+            return name_prop
+
+    # If alias_strength is blank, consider overriding name_prop from name_type based on heuristics
+
+    if entity.schema.is_a("Person") and " " not in name:
+        return "weakAlias"
+    if (
+        entity.schema.is_a("Organization")
+        and " " not in name
+        and len(name) < 7
+        and name.isupper()
+    ):
+        return "abbreviation"
+    if entity.schema.is_a("Organization") and " " not in name and len(name) < 6:
+        return "weakAlias"
+
+    return name_prop
+
+
 def crawl_csv(context: Context):
     csv_url = get_csv_link(context)
     path = context.fetch_resource("source.csv", csv_url)
@@ -427,20 +467,9 @@ def crawl_csv(context: Context):
             entity = context.make(entity_type(row.pop("Designation Type")))
             unique_id = row.pop("Unique ID")
             entity.id = context.make_slug(unique_id)
-            name_type = row.pop("Name type")
-            name_res = context.lookup("name_type", name_type)
-            if name_res is None:
-                context.log.warn("Unknown name type", name_type=name_type, id=unique_id)
-                continue
-            name_prop = name_res.prop
-            alias_strength = row.pop("Alias strength")
-            if name_res.is_alias and context.lookup_value(
-                "weak_types", alias_strength, warn_unmatched=True
-            ):
-                name_prop = "weakAlias"
 
             # name1 is always a given name
-            # name6 is always a family name
+            # name6 is always a family name or org name
             # name2-name5 are sometimes given names, sometimes patro-/matronymic names
             # We play it safe here and put into more specific properties only what we're sure of
             given_name = row.pop("Name 1")
@@ -453,6 +482,15 @@ def crawl_csv(context: Context):
                 name5=row.pop("Name 5"),
                 tail_name=last_name,
             )
+
+            name_type = row.pop("Name type")
+            alias_strength = row.pop("Alias strength")
+            name_prop = get_name_prop(
+                context, entity, full_name, name_type, alias_strength
+            )
+            if name_prop is None:
+                continue
+
             entity.add(name_prop, full_name, lang="eng", original_value=full_name)
             entity.add("firstName", given_name, quiet=True, lang="eng")
             entity.add("lastName", last_name, quiet=True, lang="eng")
