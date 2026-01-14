@@ -1,9 +1,11 @@
 from typing import Dict, Optional, Set
 
-from nomenklatura.wikidata import Item, WikidataClient
+from nomenklatura.wikidata import Item, WikidataClient, Claim
+from nomenklatura.wikidata.value import clean_wikidata_name
 from rigour.territories import get_territory_by_qid
 
 from zavod import Context, Entity
+from zavod import helpers as h
 from zavod.stateful.positions import categorise
 from zavod.shed.wikidata.country import is_historical_country, item_countries
 
@@ -71,6 +73,38 @@ IGNORE_TYPES: Set[str] = {
     "Q2977",  # cathedral
 }
 
+# TEMP: We're starting to include municipal PEPs for specific countries
+MUNI_COUNTRIES = {
+    "au",
+    "be",
+    "br",
+    "by",
+    "ca",
+    "co",
+    "cz",
+    "es",
+    "fr",
+    "gb",
+    "gt",
+    "hu",
+    "id",
+    "is",
+    "it",
+    "ke",
+    "kr",
+    "mx",
+    "ni",
+    "nl",
+    "pl",
+    "ro",
+    "ru",
+    "sk",
+    "ua",
+    "us",
+    "ve",
+    "za",
+}
+
 
 def wikidata_position(
     context: Context, client: WikidataClient, item: Item
@@ -85,7 +119,7 @@ def wikidata_position(
     position.id = item.id
     position.add("wikidataId", item.id)
     if item.label is not None:
-        item.label.apply(position, "name")
+        item.label.apply(position, "name", clean=clean_wikidata_name)
 
     for claim in item.claims:
         if claim.property in ("P1001", "P17", "P27") and claim.qid is not None:
@@ -162,6 +196,69 @@ def wikidata_position(
     real_topics.discard("role.pep")
     if "gov.muni" in real_topics:
         real_topics.discard("gov.head")
+        if MUNI_COUNTRIES.isdisjoint(position.countries):
+            return None
 
     position.set("topics", real_topics)
     return position
+
+
+def position_holders(client: WikidataClient, item: Item) -> Set[str]:
+    """Find persons who have held the position defined by `item`. This performs
+    the inverted lookup on property P39 (position held). Independently, the crawler
+    should check property P1308 (officeholder) on the position item itself.
+    """
+    query = f"""
+    SELECT ?person WHERE {{
+        ?person wdt:P39 wd:{item.id} .
+        ?person wdt:P31 wd:Q5
+    }}
+    """
+    persons: Set[str] = set()
+    response = client.query(query)
+    for result in response.results:
+        person_qid = result.plain("person")
+        if person_qid is not None:
+            persons.add(person_qid)
+
+    return persons
+
+
+def wikidata_occupancy(
+    context: Context, person: Entity, position: Entity, claim: Claim
+) -> Optional[Entity]:
+    """Create an Occupancy entity for the given person and position based on the claim,
+    which identifies relevant qualifiers."""
+    start_date: Optional[str] = None
+    for qual in claim.qualifiers.get("P580", []):
+        qual_date = qual.text.text
+        if qual_date is not None:
+            if start_date is None:
+                start_date = qual_date
+            else:
+                start_date = min(start_date, qual_date)
+
+    end_date: Optional[str] = None
+    for qual in claim.qualifiers.get("P582", []):
+        qual_date = qual.text.text
+        if qual_date is not None:
+            if end_date is None:
+                end_date = qual_date
+            else:
+                end_date = max(end_date, qual_date)
+
+    # Diplomatic positions tend to be associated with the receiving country,
+    # so we don't want to propagate that to the person.
+    position_topics = position.get("topics")
+    is_diplomat = "role.diplo" in position_topics
+
+    occupancy = h.make_occupancy(
+        context,
+        person,
+        position,
+        no_end_implies_current=False,
+        start_date=start_date,
+        end_date=end_date,
+        propagate_country=not is_diplomat,
+    )
+    return occupancy

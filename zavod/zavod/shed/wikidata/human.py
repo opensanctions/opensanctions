@@ -2,6 +2,7 @@ from typing import Optional
 from datetime import timedelta
 from followthemoney import registry
 from nomenklatura.wikidata import Item, WikidataClient
+from nomenklatura.wikidata.value import clean_wikidata_name
 
 from zavod import settings
 from zavod import Context, Entity
@@ -83,6 +84,6 @@ def wikidata_basic_human(
         return None
 
     if item.label is not None:
-        item.label.apply(entity, "name")
+        item.label.apply(entity, "name", clean=clean_wikidata_name)
 
     return entity

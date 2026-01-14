@@ -1,16 +1,14 @@
 from collections import defaultdict
-from typing import Dict, Optional, Any, List, Generator, NamedTuple, Set
-from rigour.text import remove_bracketed_text
+from typing import Optional, List, Generator, NamedTuple, Set
 from rigour.ids.wikidata import is_qid
 from rigour.territories import get_territories, get_territory_by_qid
-from nomenklatura.wikidata import WikidataClient, SparqlValue
+from nomenklatura.wikidata import WikidataClient, SparqlBinding
 
 from zavod import Context
-from zavod import helpers as h
 from zavod.entity import Entity
-from zavod.stateful.positions import PositionCategorisation, categorise
-
-DECISION_NATIONAL = "national"
+from zavod.shed.wikidata.human import wikidata_basic_human
+from zavod.shed.wikidata.position import wikidata_occupancy, wikidata_position
+from zavod.shed.wikidata.position import position_holders
 
 
 class Country(NamedTuple):
@@ -22,26 +20,13 @@ class Country(NamedTuple):
 class Position(NamedTuple):
     qid: str
     label: Optional[str]
-    country_codes: List[str]
+    country_codes: Set[str]
 
 
-def date_value(value: Any) -> Optional[str]:
-    if value is None:
-        return None
-    text = str(value).strip()
-    if len(text) < 4:
-        return None
-    return text[:10]
-
-
-def truncate_date(text: Optional[str]) -> Optional[str]:
-    if text is None:
-        return None
-    return text[:10]
-
-
-def pick_country(*qids: List[str]) -> Optional[str]:
+def pick_country(*qids: Optional[str]) -> Optional[str]:
     for qid in qids:
+        if qid is None:
+            continue
         territory = get_territory_by_qid(qid)
         if territory is not None and territory.ftm_country is not None:
             return territory.ftm_country
@@ -50,111 +35,37 @@ def pick_country(*qids: List[str]) -> Optional[str]:
 
 def crawl_holder(
     context: Context,
-    categorisation: PositionCategorisation,
+    client: WikidataClient,
     position: Entity,
-    holder: Dict[str, str],
-) -> None:
-    entity = context.make("Person")
-    qid: Optional[str] = holder.get("person_qid")
-    if qid is None or not is_qid(qid) or qid == "Q1045488":
-        return
-    entity.id = qid
-    birth_date = holder.get("person_birth")
-    death_date = holder.get("person_death")
-    start_date = holder.get("start_date")
-    end_date = holder.get("end_date")
-    if any(
-        (d and (d < "1900-01-01"))
-        for d in [start_date, end_date, birth_date, death_date]
-    ):
-        # Avoid constructing a proxy which emits a warning
-        # before we discard it.
-        return
-    if birth_date is not None and birth_date[:10].endswith("-01-01"):
-        birth_date = birth_date[:4]
-    entity.add("birthDate", birth_date, original_value=holder.get("person_birth"))
-    entity.add("deathDate", holder.get("person_death"))
+    person_qid: str,
+) -> Optional[Entity]:
+    if not is_qid(person_qid):
+        return None
+    item = client.fetch_item(person_qid)
+    if item is None:
+        return None
+    entity = wikidata_basic_human(context, client, item)
+    if entity is None:
+        return None
 
-    occupancy = h.make_occupancy(
-        context,
-        entity,
-        position,
-        False,
-        end_date=end_date,
-        start_date=start_date,
-        categorisation=categorisation,
-        propagate_country=("role.diplo" not in categorisation.topics),
-    )
-    if not occupancy:
-        return
+    has_occupancy = False
+    for claim in item.claims:
+        if claim.property == "P39" and claim.qid == position.id:
+            occupancy = wikidata_occupancy(
+                context,
+                entity,
+                position,
+                claim,
+            )
+            if occupancy is not None:
+                context.emit(occupancy)
+                has_occupancy = True
 
-    # TODO: decide all entities with no P39 dates as false?
-    # print(holder.person_qid, death, start_date, end_date)
+    if not has_occupancy:
+        return None
 
-    if holder.get("person_label") != qid:
-        person_label = holder.get("person_label")
-        if person_label is not None:
-            entity.add("name", remove_bracketed_text(person_label).strip())
-
-    context.emit(position)
-    context.emit(occupancy)
     context.emit(entity)
-
-
-def query_position_holders(
-    context: Context, client: WikidataClient, wd_position: Position
-) -> Generator[Dict[str, Any], None, None]:
-    context.log.info(
-        f"Crawling holders of position {wd_position.qid} ({wd_position.label})"
-    )
-    holders_query = f"""
-        SELECT
-        ?person ?personLabel ?ps
-        ?body ?bodyLabel ?bodyInception ?bodyStart ?bodyAbolished ?bodyEnd
-        ?birth ?death ?positionStart ?positionEnd
-        WHERE {{
-            ?ps ps:P39 wd:{wd_position.qid} .
-            ?person p:P39 ?ps .
-            ?person wdt:P31 wd:Q5 .
-            FILTER NOT EXISTS {{ ?ps wikibase:rank wikibase:DeprecatedRank }}
-            OPTIONAL {{ ?person p:P569 [ a wikibase:BestRank ; psv:P569 [ wikibase:timeValue ?birth ] ] }}
-            OPTIONAL {{ ?person p:P570 [ a wikibase:BestRank ; psv:P570 [ wikibase:timeValue ?death ] ] }}
-            OPTIONAL {{ ?ps pqv:P580 [ wikibase:timeValue ?positionStart ] }}
-            OPTIONAL {{ ?ps pqv:P582 [ wikibase:timeValue ?positionEnd ] }}
-
-            OPTIONAL {{
-            ?ps pq:P5054|pq:P2937 ?body .
-            OPTIONAL {{ ?body p:P571 [ a wikibase:BestRank ; psv:P571 [ wikibase:timeValue ?bodyInception ] ] }}
-            OPTIONAL {{ ?body p:P580 [ a wikibase:BestRank ; psv:P580 [ wikibase:timeValue ?bodyStart ] ] }}
-            OPTIONAL {{ ?body p:P576 [ a wikibase:BestRank ; psv:P576 [ wikibase:timeValue ?bodyAbolished ] ] }}
-            OPTIONAL {{ ?body p:P582 [ a wikibase:BestRank ; psv:P582 [ wikibase:timeValue ?bodyEnd ] ] }}
-            }}
-        SERVICE wikibase:label {{ bd:serviceParam wikibase:language "en,de,es,fr". }}
-        }}
-    """
-    response = client.query(holders_query)
-
-    for binding in response.results:
-        if not is_qid(binding.plain("person")):
-            continue
-        start_date = truncate_date(
-            binding.plain("positionStart")
-            or binding.plain("bodyStart")
-            or binding.plain("bodyInception")
-        )
-        end_date = truncate_date(
-            binding.plain("positionEnd")
-            or binding.plain("bodyEnd")
-            or binding.plain("bodyAbolished")
-        )
-        yield {
-            "person_qid": binding.plain("person"),
-            "person_label": binding.plain("personLabel"),
-            "person_birth": truncate_date(binding.plain("birth")),
-            "person_death": truncate_date(binding.plain("death")),
-            "start_date": start_date,
-            "end_date": end_date,
-        }
+    return entity
 
 
 def query_positions(
@@ -167,10 +78,10 @@ def query_positions(
     May return duplicates
     """
     context.log.info(f"Crawling positions for {country.qid} ({country.label})")
-    position_countries: Set[str] = defaultdict(set)
+    position_countries: defaultdict[str, Set[str]] = defaultdict(set)
 
     # a.1) Instances of one or more subclasses of Q4164871 (position) by jurisdiction/country
-    country_results: List[SparqlValue] = []
+    country_results: List[SparqlBinding] = []
     for position_class in position_classes:
         context.log.info(
             f"Querying descendants of {position_class.qid} ({position_class.label!r}) in {country.label!r}"
@@ -182,7 +93,7 @@ def query_positions(
             OPTIONAL {{ ?position wdt:P17 ?country }}
             OPTIONAL {{ ?position wdt:P1001 ?jurisdiction }}
             OPTIONAL {{ ?position p:P576|p:P582 [ a wikibase:BestRank ; psv:P576|psv:P582 [ wikibase:timeValue ?abolished ] ] }}
-            SERVICE wikibase:label {{ bd:serviceParam wikibase:language "en,de,es,fr". }}
+            SERVICE wikibase:label {{ bd:serviceParam wikibase:language "en,de,es,fr,ru,*". }}
         }}
         GROUP BY ?position ?positionLabel ?country ?jurisdiction ?abolished
         """
@@ -198,7 +109,7 @@ def query_positions(
             OPTIONAL {{ ?position wdt:P17 ?country }}
             OPTIONAL {{ ?position wdt:P1001 ?jurisdiction }}
             OPTIONAL {{ ?position p:P576|p:P582 [ a wikibase:BestRank ; psv:P576|psv:P582 [ wikibase:timeValue ?abolished ] ] }}
-            SERVICE wikibase:label {{ bd:serviceParam wikibase:language "en,de,es,fr". }}
+            SERVICE wikibase:label {{ bd:serviceParam wikibase:language "en,de,es,fr,ru,*". }}
         }}
         GROUP BY ?position ?positionLabel ?country ?jurisdiction ?abolished
         """
@@ -211,8 +122,9 @@ def query_positions(
             bind.plain("jurisdiction"),
             country.qid,
         )
-        if picked_country is not None:
-            position_countries[bind.plain("position")].add(picked_country)
+        position = bind.plain("position")
+        if picked_country is not None and position is not None:
+            position_countries[position].add(picked_country)
 
     # b) Positions held by politicans from that country
     # occupation (P106) == politician (Q82955)
@@ -226,7 +138,7 @@ def query_positions(
             OPTIONAL {{ ?position wdt:P1001 ?jurisdiction }}
             OPTIONAL {{ ?position wdt:P17 ?country }}
             OPTIONAL {{ ?position p:P576|p:P582 [ a wikibase:BestRank ; psv:P576|psv:P582 [ wikibase:timeValue ?abolished ] ] }}
-        SERVICE wikibase:label {{ bd:serviceParam wikibase:language "en,de,es,fr". }}
+        SERVICE wikibase:label {{ bd:serviceParam wikibase:language "en,de,es,fr,ru,*". }}
         }}
         GROUP BY ?position ?positionLabel ?jurisdiction ?country ?abolished
     """
@@ -236,20 +148,22 @@ def query_positions(
             bind.plain("country"),
             bind.plain("jurisdiction"),
         )
-        if picked_country is not None:
-            position_countries[bind.plain("position")].add(picked_country)
+        position = bind.plain("position")
+        if picked_country is not None and position is not None:
+            position_countries[position].add(picked_country)
 
     for bind in country_results + politician_response.results:
-        if not is_qid(bind.plain("position")):
+        position = bind.plain("position")
+        if position is None or not is_qid(position):
             continue
         date_abolished = bind.plain("abolished")
         if date_abolished is not None and date_abolished < "2000-01-01":
             context.log.debug(f"Skipping abolished position: {bind.plain('position')}")
             continue
         yield Position(
-            bind.plain("position"),
+            position,
             bind.plain("positionLabel"),
-            position_countries[bind.plain("position")],
+            position_countries[position],
         )
 
 
@@ -267,55 +181,57 @@ def query_position_classes(context: Context, client: WikidataClient) -> List[Pos
     subclasses_query = """
     SELECT ?class ?classLabel WHERE {
         ?class wdt:P279 wd:Q4164871 .
-        SERVICE wikibase:label { bd:serviceParam wikibase:language "en,de,es,fr". }
+        SERVICE wikibase:label { bd:serviceParam wikibase:language "en,de,es,fr,ru,*". }
     }
     """
     response = client.query(subclasses_query)
     classes: List[Position] = []
     for binding in response.results:
         qid = binding.plain("class")
-        if not is_qid(qid):
+        if qid is None or not is_qid(qid):
             continue
         label = binding.plain("classLabel")
         res = context.lookup("position_subclasses", qid)
         if res:
             if res.maybe_pep:
-                classes.append(Position(qid, label, []))
+                classes.append(Position(qid, label, set()))
         else:
             context.log.warning(f"Unknown subclass of position: '{qid}' ({label})")
     return classes
 
 
 def crawl(context: Context):
-    seen_positions = set()
+    seen_positions: Set[str] = set()
     cache_days = context.dataset.config.get("cache_days", 14)
     client = WikidataClient(context.cache, context.http, cache_days=cache_days)
     position_classes = query_position_classes(context, client)
 
     for country in all_countries():
-        include_local = False
         context.log.info(f"Crawling country: {country.qid} ({country.label})")
-
-        if country.code == "us":
-            include_local = True
 
         for wd_position in query_positions(context, client, position_classes, country):
             if wd_position.qid in seen_positions:
                 continue
 
-            position = h.make_position(
-                context,
-                wd_position.label,
-                country=wd_position.country_codes,
-                wikidata_id=wd_position.qid,
-            )
-            categorisation = categorise(context, position, is_pep=None)
-            if not categorisation.is_pep:
-                continue
-            if not include_local and ("gov.muni" in categorisation.topics):
+            seen_positions.add(wd_position.qid)
+
+            pos_item = client.fetch_item(wd_position.qid)
+            if pos_item is None:
                 continue
 
-            for holder in query_position_holders(context, client, wd_position):
-                crawl_holder(context, categorisation, position, holder)
-            seen_positions.add(wd_position.qid)
+            position = wikidata_position(context, client, pos_item)
+            if position is None:
+                continue
+
+            context.log.info("Position [%s]: %s" % (position.id, position.caption))
+
+            has_holders = False
+            for person in position_holders(client, pos_item):
+                holder = crawl_holder(context, client, position, person)
+                if holder is not None:
+                    has_holders = True
+
+            if has_holders:
+                context.emit(position)
+
             context.flush()
