@@ -3,13 +3,14 @@ title: All entities in OpenSanctions
 hidden: true
 coverage:
   start: "2021-09-01"
+  end: "2026-01-31"
   frequency: monthly
 deploy:
   cpu: "1000m"
-  cpu_limit: "1500m"
-  memory: "1500Mi"
-  memory_limit: "2500Mi"
-  disk: "20Gi"
+  cpu_limit: "2000m"
+  memory: "3000Mi"
+  memory_limit: "3000Mi"
+  disk: "50Gi"
   # premium: true
 summary: >
   Entities from all the datasets in OpenSanctions, including sanctions,
@@ -21,6 +22,10 @@ description: |
   instead of this dataset. While this dataset is more comprehensive, it may
   include entities from sources that have not yet passed all quality checks
   or are not directly related to screening tasks.
+deprecation:
+  This collection contains testing/experimental datasets and must under no
+  circumstances be used in production systems. Please use the
+  [default dataset](/datasets/default/) instead.
 children:
   - validation
   - default
