@@ -1,0 +1,78 @@
+title: US BIS Alleged Antiboycott Violations
+entry_point: crawler.py
+prefix: us-bis-aav
+load_statements: true
+coverage:
+  frequency: weekly
+  start: 2026-01-14
+summary: >
+  The Bureau of Industry and Security (BIS) enforces antiboycott policies under the Export
+  Administration Regulations (EAR) to stop U.S. companies from supporting unsanctioned foreign
+  boycotts, primarily targeting the Arab League boycott of Israel.
+description: |
+   BIS has enhanced its antiboycott enforcement efforts to prevent U.S. companies from being used to
+   support unsanctioned foreign boycotts, most notably the Arab League boycott of Israel. In October
+   2022, BIS raised its penalties and instituted a requirement that companies entering into settlement
+   agreements for antiboycott violations admit to a statement of facts outlining their conduct. In July
+   2023, BIS announced a renewed focus on foreign subsidiaries of U.S. companies and noted that it
+   would explore additional ways to deter foreign parties from issuing or making boycott requests.
+   [Source: BIS Official Website](https://www.bis.gov/press-release/bis-imposes-penalty-quantum-corporation-resolve-alleged-violations-antiboycott-regulations)
+publisher:
+  name: Bureau of Industry and Security
+  acronym: BIS
+  official: true
+  description: |
+    BIS, part of the U.S. Department of Commerce, manages the intersection of business and
+    U.S. foreign policy and security interests. The Office of Antiboycott Compliance (OAC)
+    within BIS enforces the Anti-Boycott Act of 2018, which discourages and sometimes
+    prohibits U.S. companies from supporting unsanctioned foreign boycotts.
+  country: us
+  url: https://www.bis.gov
+url: https://www.bis.gov/about-bis/bis-leadership-and-offices/OAC/alleged-antiboycott-violations
+tags:
+  - list.export
+  - juris.us
+data:
+  url: https://www.bis.gov/about-bis/bis-leadership-and-offices/OAC/alleged-antiboycott-violations
+  format: html
+dates:
+  formats: ["%m/%d/%y"]
+
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 30
+  max:
+    schema_entities:
+      LegalEntity: 100
+
+lookups:
+  names:
+    options:
+      - match: Medtronic Mediterrean SAL (Labanon)
+        name: Medtronic Mediterrean SAL
+        country: Lebanon
+      - match: Regal Beloit FZE (Dubai)
+        name: Regal Beloit FZE
+        country: Dubai
+      - match: Meditteranean Shipping Company (USA) Inc. (Chicago)
+        name: Meditteranean Shipping Company Inc.
+        country: us-il
+      - match: Kuwait Airways Corporation (New Jersey)
+        name: Kuwait Airways Corporation
+        country: us-nj
+      - match: Honeywell Middle East FZE (Dubai)
+        name: Honeywell Middle East FZE
+        country: Dubai
+      - match: Whirlpool Europe Srl (Italy)
+        name: Whirlpool Europe Srl
+        country: Italy
+      - match: Carrier Saudi Services Complany Ltd. (Saudi Arabia)
+        name: Carrier Saudi Services Complany Ltd.
+        country: Saudi Arabia
+      - match: Coty Middle East FZCO (UAE)
+        name: Coty Middle East FZCO
+        country: UAE
+      - match: RHDC International, LLC (Houston)
+        name: RHDC International, LLC
+        country: us-tx
