@@ -21,6 +21,10 @@ description: |
   instead of this dataset. While this dataset is more comprehensive, it may
   include entities from sources that have not yet passed all quality checks
   or are not directly related to screening tasks.
+deprecation:
+  This collection contains testing/experimental datasets and must under no
+  circumstances be used in production systems. Please use the
+  [default dataset](/datasets/default/) instead.
 children:
   - validation
   - default
