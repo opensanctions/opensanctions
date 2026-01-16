@@ -10,7 +10,7 @@ deploy:
   cpu_limit: "2000m"
   disk: "80Gi"
   command: /etl/scripts/export-default.sh
-  # premium: true
+  premium: true
 ci_test: false
 exports:
   - statistics.json
