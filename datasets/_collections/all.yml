@@ -3,6 +3,7 @@ title: All entities in OpenSanctions
 hidden: true
 coverage:
   start: "2021-09-01"
+  end: "2026-01-31"
   frequency: monthly
 deploy:
   cpu: "1000m"
