@@ -1,14 +1,14 @@
 from zavod import Context, helpers as h
 
 
-def split_name_country(context: Context, original_name: str):
+def split_name_country(context, original_name: str) -> tuple[str, str | None]:
     res = context.lookup("names", original_name, warn_unmatched=True)
     if res:
         return res.name, res.country
     return original_name, ""
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     doc = context.fetch_html(context.data_url, cache_days=3, absolute_links=True)
     table = h.xpath_elements(
         doc, "//table[@class='mb-4 overflow-auto block']", expect_exactly=1
