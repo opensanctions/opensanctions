@@ -1,7 +1,7 @@
 from zavod import Context, helpers as h
 
 
-def split_name_country(context, original_name: str) -> tuple[str, str | None]:
+def split_name_country(context: Context, original_name: str) -> tuple[str, str | None]:
     res = context.lookup("names", original_name, warn_unmatched=True)
     if res:
         return res.name, res.country
