@@ -107,6 +107,14 @@ lookups:
         value: Member of Parliament
       - match: Member of the Dail Eireann
         value: Member of Dáil Éireann
+  type.date:
+    options:
+      - match:
+          - "2951-08-24"
+          - "2046-08-20"
+          - "2009-01-01"
+        regex: "^201\\d-\\d{2}-\\d{2}$"
+        value: null
   type.url:
     options:
       - contains:
