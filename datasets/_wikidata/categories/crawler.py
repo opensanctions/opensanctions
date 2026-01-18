@@ -54,9 +54,16 @@ class CrawlState(object):
         self.person_countries: Dict[str, Set[str]] = {}
         self.person_topics: Dict[str, Set[str]] = {}
         self.person_positions: Dict[str, Set[Entity]] = {}
-        self.emitted_positions: Set[str] = set()
+        self._emitted_positions: Set[str] = set()
         exc = [str(x) for x in context.dataset.config.get("exclusion_checks", [])]
         self.exclusion_checks: Set[str] = set(exc)
+
+    def emit_position(self, position: Entity) -> None:
+        if position.id is None:
+            return
+        if position.id not in self._emitted_positions:
+            self._emitted_positions.add(position.id)
+            self.context.emit(position)
 
 
 def title_name(title: str) -> Optional[str]:
@@ -77,9 +84,7 @@ def crawl_position(state: CrawlState, person: Entity, claim: Claim) -> None:
     occupancy = wikidata_occupancy(state.context, person, position, claim)
     if occupancy is not None:
         state.log.info("  -> %s (%s)" % (position.first("name"), position.id))
-        if position.id not in state.emitted_positions:
-            state.emitted_positions.add(position.id)
-            state.context.emit(position)
+        state.emit_position(position)
         state.context.emit(occupancy)
 
     # TODO: implement support for 'officeholder' (P1308) here
@@ -93,6 +98,7 @@ def crawl_position(state: CrawlState, person: Entity, claim: Claim) -> None:
                     state.context, holder, position, officeholder_claim
                 )
                 if occupancy is not None:
+                    state.emit_position(position)
                     state.context.emit(occupancy)
                     state.context.emit(holder)
 
@@ -261,14 +267,12 @@ def crawl_persons(state: CrawlState) -> None:
 
         positions = state.person_positions.get(person_qid, [])
         for position in positions:
-            if position.id is None:
+            if position.id is None or position.id in state.ignore_positions:
                 continue
             occupancy = h.make_occupancy(state.context, entity, position)
             if occupancy is not None:
+                state.emit_position(position)
                 state.context.emit(occupancy)
-            if position.id not in state.emitted_positions:
-                state.emitted_positions.add(position.id)
-                state.context.emit(position)
 
         state.log.info(
             f"Crawled person {entity.id} "

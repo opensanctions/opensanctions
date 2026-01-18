@@ -87,7 +87,9 @@ assertions:
 lookups:
   type.name:
     options:
-      - match: "..."
+      - match:
+          - "..."
+          - "-"
         value: null
   type.date:
     options:
