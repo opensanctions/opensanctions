@@ -45,6 +45,15 @@ def analyze_entity(context: Context, view: View, entity: Entity) -> None:
             asch.source_prop if prop.reverse == asch.target_prop else asch.target_prop
         )
 
+        if len(adjacent.get("endDate", quiet=True)) > 0:
+            context.log.info(
+                "Skipping entity with end date",
+                adjacent=adjacent.id,
+                entity=entity.id,
+                end=adjacent.get("endDate"),
+            )
+            continue
+
         # Tag role.rca for family relations of PEPs
         if "role.pep" in topics and adjacent.schema.is_a("Family"):
             for other_id in adjacent.get(other_prop):
@@ -55,13 +64,6 @@ def analyze_entity(context: Context, view: View, entity: Entity) -> None:
                 if other_topics.intersection({"role.rca", "role.pep"}):
                     continue
                 emit_patch(context, entity, other, "role.rca", other_topics)
-
-        # Family is eternal, business is time-bound:
-        if len(adjacent.get("endDate", quiet=True)) > 0:
-            context.log.info(
-                "Skipping entity with end date", adjacent=adjacent.id, entity=entity.id
-            )
-            continue
 
         # Tag sanction.linked for sanction-linked entities
         if "sanction" in topics:
