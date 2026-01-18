@@ -98,6 +98,16 @@ lookups:
           - "20224-12-1"
           - "20260-10-0"
         value: null
+      - match: 1973-09-31
+        value: 1973-09
+      - match: 2011-02-29
+        value: 2011-02
+      - match: "1949-02-29"
+        value: 1949-02
+      - match: "2018-02-29"
+        value: 2018-02
+      - match: "1999-02-31"
+        value: 1999-02
 
   position_subclasses:
     options:
