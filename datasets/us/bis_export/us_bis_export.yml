@@ -1,0 +1,41 @@
+title: US BIS Export Violations
+entry_point: crawler.py
+prefix: us-bis-export
+coverage:
+  frequency: weekly
+  start: "2026-01-19"
+load_statements: true
+summary: >
+  List of violations of export control and antiboycott regulations.
+description: |
+  Export Enforcement protects and promotes U.S. national security by
+  investigating violations of export control and antiboycott regulations and
+  by partnering with industry and academia to facilitate compliance with those regulations.
+publisher:
+  name: Bureau of Industry and Security
+  acronym: BIS
+  description: |
+    BIS is part of the U.S. Department of Commerce, where it manages the intersection between
+    business and the foreign policy and security interests of the U.S.
+  url: https://www.bis.gov # general BIS URL
+  country: us
+  official: true
+tags:
+  - list.export
+  - juris.us
+  - issuer.west
+url: https://www.bis.gov/enforcement # about section URL
+data: # creates DataModel object for context.dataset.data
+  url: https://www.bis.gov/enforcement/export-violations # dataset URL, context.dataset.data.url
+  format: HTML
+  lang: eng
+dates:
+  formats: ["%m/%d/%Y"]
+
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 890
+  max:
+    schema_entities:
+      LegalEntity: 2226
