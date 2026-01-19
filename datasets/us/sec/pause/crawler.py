@@ -1,10 +1,10 @@
-from lxml.etree import _Element
+from itertools import count
 from normality import squash_spaces
 from time import sleep
 
 from zavod import Context
 from zavod import helpers as h
-from zavod.extract.zyte_api import fetch_html
+from zavod.extract import zyte_api
 
 # Ensure never more than 10 requests per second
 # https://www.sec.gov/about/privacy-information#security
@@ -31,7 +31,7 @@ CONTACTS = [
 def crawl_entity(context: Context, *, url: str, name: str, category: str) -> None:
     context.log.info("Crawling entity", url=url)
     validator = ".//h1[contains(@class, 'page-title__heading')]"
-    doc = fetch_html(context, url, validator, cache_days=7)
+    doc = zyte_api.fetch_html(context, url, validator, cache_days=7)
     res = context.lookup("schema", category)
     if res is None or not isinstance(res.schema, str):
         context.log.warning("No schema found for category", category=category)
@@ -85,22 +85,28 @@ def crawl_entity(context: Context, *, url: str, name: str, category: str) -> Non
     context.emit(sanction)
 
 
-def index_unblock_validator(doc: _Element) -> bool:
-    return len(doc.xpath(".//table[contains(@class, 'usa-table')]")) > 0
-
-
 def crawl(context: Context) -> None:
     table_xpath = ".//table[contains(@class, 'usa-table')]"
-    doc = fetch_html(
-        context, context.data_url, table_xpath, cache_days=1, absolute_links=True
-    )
 
-    table = doc.xpath(table_xpath)[0]
-    for row in h.parse_html_table(table):
-        sleep(SLEEP)
-        name_a_el = row.pop("name").find(".//a")
-        name, url = name_a_el.text_content(), name_a_el.get("href")
-        category = squash_spaces(row.pop("category").text_content())
+    for page in count(0):
+        doc = zyte_api.fetch_html(
+            context,
+            context.data_url + f"?page={page}",
+            table_xpath,
+            cache_days=1,
+            absolute_links=True,
+        )
 
-        crawl_entity(context, url=url, name=name, category=category)
-        context.audit_data(row)
+        table = h.xpath_elements(doc, table_xpath, expect_exactly=1)[0]
+        # TODO: Still need to implement this
+        # if "No results." in table.text_content():
+        #     break
+
+        for row in h.parse_html_table(table):
+            sleep(SLEEP)
+            name_a_el = row.pop("name").find(".//a")
+            name, url = name_a_el.text_content(), name_a_el.get("href")
+            category = squash_spaces(row.pop("category").text_content())
+
+            crawl_entity(context, url=url, name=name, category=category)
+            context.audit_data(row)
