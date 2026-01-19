@@ -5,8 +5,8 @@ coverage:
   frequency: daily
   start: "2024-03-19"
 deploy:
-  memory: 1500GB
-  memory_limit: 3000GB
+  memory: 1500Mi
+  memory_limit: 3000Mi
 load_statements: true
 summary: >
   People and companies excluded from Federally funded health care programs
