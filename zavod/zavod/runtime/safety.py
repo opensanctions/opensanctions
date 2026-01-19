@@ -1,10 +1,14 @@
 import re
+from typing import TYPE_CHECKING
 
 from followthemoney import Property
 
 from zavod.logs import get_logger
-from zavod.entity import Entity
 from zavod.runtime.lookups import is_lookup_value
+
+if TYPE_CHECKING:
+    from zavod.entity import Entity
+
 
 log = get_logger(__name__)
 
