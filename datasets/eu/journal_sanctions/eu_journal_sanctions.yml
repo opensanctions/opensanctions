@@ -129,6 +129,7 @@ lookups:
           - 2011/235
           - 359/2011
           - 267/2012
+          - 2010/413
         value: EU-IRN
       - match:
           - 2014/145
@@ -164,6 +165,5 @@ lookups:
         value: EU-PRK
       - match: 2017/2063
         value: EU-VEN
-      # TODO: Remap once it's in the eu_fsf
-      - match: 2010/413
-        value: null
+      - match: 2024/386
+        value: EU-HAM
