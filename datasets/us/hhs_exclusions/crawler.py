@@ -12,7 +12,7 @@ def is_zero(value: str) -> bool:
     return all(c == "0" for c in value)
 
 
-def crawl_item(context: Context, row: Dict[str, Any]):
+def crawl_item(context: Context, row: Dict[str, Any]) -> None:
     city = row.pop("CITY")
     zip_code = row.pop("ZIP")
     first_name = row.pop("FIRSTNAME")
