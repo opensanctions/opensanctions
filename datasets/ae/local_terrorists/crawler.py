@@ -137,7 +137,6 @@ def parse_excel(context: Context, path: Path):
             if "#" in row[0]:
                 headers = []
                 for header_text_ara in row:
-
                     # Finish when we hit the first empty cell in the header row
                     if header_text_ara is None:
                         break
