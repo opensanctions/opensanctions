@@ -29,7 +29,7 @@ XSS_SUSPECT_PATTERN = re.compile(
 )
 
 
-def check_xss(entity: Entity, prop: Property, value: str) -> str | None:
+def check_xss(entity: "Entity", prop: Property, value: str) -> str | None:
     """A very basic HTML entity and XSS check to prevent script injections."""
     # This is very .... rustic. The reason for that design is that there's a lot of things
     # here we do not want to do, which normal XSS filters would do, like stripping tags
