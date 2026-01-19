@@ -3,12 +3,14 @@ from zavod import Context, helpers as h
 
 def crawl(context: Context) -> None:
     # context.data_url with validation <== context.dataset.data.url without validation
-    doc = context.fetch_html(context.data_url, cache_days=1)
+    doc = context.fetch_html(context.data_url, cache_days=1, absolute_links=True)
     table = h.xpath_elements(doc, ".//table", expect_exactly=1)
 
     for row in h.parse_html_table(table[0]):
         str_row = h.cells_to_str(row)
-        url = h.xpath_elements(row.get("case_id"), ".//a")[0].get("href")
+        case_id = row.get("case_id")
+        assert case_id is not None
+        url = h.xpath_elements(case_id, ".//a")[0].get("href")
 
         for name in h.multi_split(
             str_row.pop("case_name"), ";"
@@ -22,7 +24,7 @@ def crawl(context: Context) -> None:
             entity.add("alias", [alias.strip().replace(",", "") for alias in aliases])
             entity.add("name", entity.get("alias")[0])
             entity.add("topics", "reg.warn")  # or export.control
-            entity.add("sourceUrl", context.data_url + url)
+            entity.add("sourceUrl", url)
 
             sanction = h.make_sanction(context, entity)
             h.apply_date(
