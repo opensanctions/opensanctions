@@ -49,6 +49,8 @@ data:
   format: HTML
 dates:
   formats: ["%d/%m/%Y", "%Y"]
+http:
+  user_agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.2 Safari/605.1.15
 
 assertions:
   min:
@@ -90,6 +92,18 @@ lookups:
     options:
       - match: ae-lt-4b28aec2925637dfe72b2f5130eb6d17eb6f7777
         value: Vessel
+  is_passport:
+    options:
+      - match:
+          - جواز سفر # Passport
+          - جواز السفر # Passport
+          - جواز سفر يمني #  Yemeni passport
+          - جواز سفر سعودي # Saudi passport
+        value: True
+      - match:
+          - الرقم الموحد # Unified number
+          - تأشيرة سياحية  # Tourist visa
+        value: null
   headers:
     options:
       - match: "#"
@@ -122,8 +136,8 @@ lookups:
         value: city
         lang: ara
       - match: النوع
-        # looks like: type of ban
-        value: provisions
+        # type of document (e.g. passport)
+        value: is_passport
         lang: ara
       - match: رقم الوثيقة
         # document number
@@ -192,3 +206,15 @@ lookups:
         values:
           - Sweden
           - Liberia
+      - match: تركيا و الإمارات
+        values:
+          - Turkey
+          - United Arab Emirates
+      - match: الإمارات و بريطانيا
+        values:
+          - United Arab Emirates
+          - Britain
+      - match: السويد و الامارات
+        values:
+          - Sweden
+          - United Arab Emirates
