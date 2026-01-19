@@ -37,13 +37,14 @@ def parse_row(
         entity.add("topics", "sanction")
     sanction = h.make_sanction(context, entity, program_key=PROGRAM_KEY)
     address = {}
+    identification = {}
     for header, value_ in zip(headers, row):
         value = collapse_spaces(value_)
         if value is None or value == "-":
             continue
 
         match header.name:
-            case "index" | "issuer":
+            case "index":
                 continue
             case "category":
                 schema = context.lookup_value("categories", value)
@@ -61,13 +62,35 @@ def parse_row(
                 address[header.name] = value
             case "birthDate":
                 h.apply_date(entity, header.name, value)
+            case "issuer" | "passportNumber" | "is_passport":
+                identification[header.name] = value
             case _:
                 entity.add(header.name, value, lang=header.lang)
 
     if len(address):
+        # Build address entity with detailed breakdown of components (street, city, country).
+        # We use apply_address() instead of copy_address() because we want to emit
+        # a separate Address entity with the full structured data, not just copy
+        # the address string to the entity.
         addr = h.make_address(context, **address)
-        h.copy_address(entity, addr)
+        h.apply_address(context, entity, addr)
 
+    if len(identification):
+        # Determine document type from lookup (a boolean value)
+        is_passport = bool(
+            context.lookup_value(
+                "is_passport", identification.get("is_passport"), warn_unmatched=True
+            )
+        )
+        ident = h.make_identification(
+            context,
+            entity,
+            number=identification.get("passportNumber"),
+            country=identification.get("issuer"),
+            passport=is_passport,
+        )
+        if ident is not None:
+            context.emit(ident)
     context.emit(sanction)
     context.emit(entity)
 
