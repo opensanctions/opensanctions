@@ -76,7 +76,8 @@ def parse_row(
         h.apply_address(context, entity, addr)
 
     if len(identification):
-        # Determine document type from lookup (a boolean value)
+        # The lookup returns string "True" for passport types or None for non-passport documents.
+        # We convert to boolean: any non-None/non-empty value becomes True.
         is_passport = bool(
             context.lookup_value(
                 "is_passport", identification.get("is_passport"), warn_unmatched=True
@@ -91,6 +92,7 @@ def parse_row(
         )
         if ident is not None:
             context.emit(ident)
+
     context.emit(sanction)
     context.emit(entity)
 
