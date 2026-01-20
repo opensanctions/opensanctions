@@ -8,7 +8,7 @@ from zavod.entity import Entity
 
 log = get_logger(__name__)
 USER = "zavod/logic"
-UNIQUE_DATASETS = {"us_ofac_sdn", "eu_fsf", "un_sc_sanctions"}
+UNIQUE_DATASETS = {"us_ofac_sdn", "eu_fsf", "un_sc_sanctions", "in_mha_banned"}
 
 
 def logic_unique(
