@@ -332,9 +332,13 @@ lookups:
       - match: "Tetralink Taylor & Associates (Tanzania) Limited"
         names:
           - name: Tetralink Taylor & Associates (Tanzania) Limited
-      - match: "Tetralink Taylor & Associates (Rwanda) Limited."
+      - match: "Tetralink Taylor & Associates (Rwanda) Limited"
         names:
           - name: Tetralink Taylor & Associates (Rwanda) Limited
+      - match: "Qi Technologies (formerly known as Sao Bac Dau Technology Service Joint Stock Company)(SBD Service)"
+        names:
+          - name: Qi Technologies
+            previous_name: ["Sao Bac Dau Technology Service Joint Stock Company", "SBD Service"]
   types:
     lowercase: true
     map:
