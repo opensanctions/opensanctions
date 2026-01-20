@@ -108,6 +108,40 @@ lookups:
         value: 2018-02
       - match: "1999-02-31"
         value: 1999-02
+      - match: "1991-02-29"
+        value: 1991-02
+      - match: "2012-02-30"
+        value: 2012-02
+      - match: "1987-02-29"
+        value: 1987-02
+      - match: "2019-11-31"
+        value: 2019-11
+      - match: "2020-04-31"
+        value: 2020-04
+      - match: "1969-04-31"
+        value: 1969-04
+      - match: "2025-06-31"
+        value: 2025-06
+      - match: "2023-02-31"
+        value: 2023-02
+      - match: "2011-02-31"
+        value: 2011-02
+      - match: "1999-06-31"
+        value: 1999-06
+      - match: "2006-09-31"
+        value: 2006-09
+      - match: "2016-06-31"
+        value: 2016-06
+      - match: "2023-11-31"
+        value: 2023-11
+      - match: "2021-06-31"
+        value: 2021-06
+      - match: "1993-11-31"
+        value: 1993-11
+      - match: "2004-04-31"
+        value: 2004-04
+      - match: "1967-04-31"
+        value: 1967-04
 
   position_subclasses:
     options:
