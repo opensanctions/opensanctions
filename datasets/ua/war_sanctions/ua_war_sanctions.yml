@@ -523,7 +523,6 @@ lookups:
           - 384095-5
           - 08S04803
           - 100534485
-          - "02610138790"
         prop: registrationNumber
       - match: 1436594D / 202101036294
         values:
@@ -541,5 +540,3 @@ lookups:
         value: 0276915630
       - match: Невідомо
         value: null
-      - match: "261013879"
-        value: "02610138790" # ru_egrul and ua_nsdc_sanctions
