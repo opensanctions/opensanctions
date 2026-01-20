@@ -18,6 +18,7 @@ NAME_QUALITY = {
     "alta": "alias",  # 'alta'==high
     "alto": "alias",
     "a k a": "alias",
+    "media": "alias",
     "f k a": "previousName",
 }
 ALIAS_SPLITS = ["original script", ";"]
@@ -111,6 +112,7 @@ def crawl_common(context: Context, data: Dict[str, str], part: str, schema: str)
     listed_on = parse_date(data.pop("LISTED_ON"))
     modified_at = parse_date(data.pop("LAST_DAY_UPDATED"))
     ref_num = data.pop("REFERENCE_NUMBER")
+    # TODO: fix it up and update the logic once the unscId validator is merged
     match = REF_REGEX.match(ref_num)
     if match:
         # Overwiting the ref_num and extracting more structured data

@@ -66,6 +66,7 @@ lookups:
           - PRONTUARIO PARAGUAYO
           - ID
           - National ID
+          - ID Nacional
           - ID // SSN
           - RNE
           - Documento de Identidad
@@ -172,6 +173,45 @@ lookups:
         values:
           - HArE.001
           - HArE.002
+      - match: ID 12931 (OFAC)ArP.00241
+        value: ArP.00241
+        prop: recordId
+      - match: OFAC SDN ID 11177ArP.00234
+        value: ArP.00234
+        prop: recordId
+      - match: ID 45921ArP.00237
+        value: ArP.00237
+        prop: recordId
+      - match: ID 12930 OFAC; UK Sanctions List CTI0001ArP.00244
+        value: ArP.00244
+        prop: recordId
+      - match: OFAC SDN ID 13107ArP.00233
+        value: ArP.00233
+        prop: recordId
+      - match: ID 42738ArP.00246
+        value: ArP.00246
+        prop: recordId
+      - match: UID 12788ArP.00245
+        value: ArP.00245
+        prop: recordId
+      - match: ID 28695ArP.00238
+        value: ArP.00238
+        prop: recordId
+      - match: OFAC Details ID 27845ArP.00235
+        value: rP.00235
+        prop: recordId
+      - match: ID 12929 (OFAC)ArP.00243
+        value: ArP.00243
+        prop: recordId
+      - match: ID 4269 (OFAC) - 16351 (UK)ArP.00239
+        value: ArP.00239
+        prop: recordId
+      - match: ID 47704 (OFAC)ArP.00248
+        value: ArP.00248
+        prop: recordId
+      - match: OFAC SDN ID 30182ArP.00236
+        value: ArP.00236
+        prop: recordId
   type.string:
     lowercase: true
     options:
