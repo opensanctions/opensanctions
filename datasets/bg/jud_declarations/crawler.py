@@ -96,6 +96,11 @@ def crawl_row(context: Context, row: Dict[str, HtmlElement], index_url: str):
     # Link is in the same cell as the name
     name_link_elem = HtmlElement(row["name"]).find(".//a")
     declaration_url = name_link_elem.get("href")
+    if not declaration_url:
+        context.log.warning(
+            "No declaration link found", name=name, doc_id_date=doc_id_date
+        )
+        return
     extracted_data = extract_judicial_declaration(
         context,
         name,
@@ -195,7 +200,7 @@ def crawl(context: Context):
     # We want to cover the last 2 years at any time
     for a in alphabet_links[:58]:
         link = a.get("href")
-        doc = context.fetch_html(link, cache_days=1)
+        doc = context.fetch_html(link, cache_days=1, absolute_links=True)
         table = doc.xpath(".//table")
         if len(table) == 0:
             context.log.info("No tables found", url=link)
@@ -203,5 +208,4 @@ def crawl(context: Context):
         assert len(table) == 1
         table = table[0]
         for row in parse_html_table(table, headers=["name", "doc_id_date"]):
-            doc.make_links_absolute(context.data_url)
             crawl_row(context, row, link)
