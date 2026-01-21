@@ -64,9 +64,9 @@ def parse_html_table(
     headers: List[str] = [],
 ) -> Generator[Dict[str, HtmlElement], None, None]:
     first_row = table.find(".//tr[1]")
-    assert len(headers) == len(
-        first_row.findall("./td")
-    ), f"Header length mismatch {len(headers)} != {len(first_row.findall('./td'))}"
+    assert len(headers) == len(first_row.findall("./td")), (
+        f"Header length mismatch {len(headers)} != {len(first_row.findall('./td'))}"
+    )
 
     for rownum, row in enumerate(table.findall(".//tr")):
         cells = row.findall("./td")
