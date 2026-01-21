@@ -149,6 +149,13 @@ def xpath_elements(
     return [cast(Element, r) for r in result]
 
 
+def xpath_element(el: Element, xpath: str) -> Element:
+    """
+    Return the only element that matches the given XPath expression (and complain if there are multiple)
+    """
+    return xpath_elements(el, xpath, expect_exactly=1)[0]
+
+
 def xpath_strings(
     el: Element, xpath: str, *, expect_exactly: Optional[int] = None
 ) -> List[str]:
