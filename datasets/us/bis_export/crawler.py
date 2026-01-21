@@ -12,9 +12,8 @@ def crawl(context: Context) -> None:
         assert case_id is not None
         url = h.xpath_elements(case_id, ".//a")[0].get("href")
 
-        for name in h.multi_split(
-            str_row.pop("case_name"), ";"
-        ):  # case-level names, might contain multiple entities
+        case_name = str_row.pop('case_name')
+        for name in h.multi_split(case_name, ';'):  # case-level names, might contain multiple entities
             aliases = name.split("a/k/a")
 
             entity = context.make("LegalEntity")
@@ -27,9 +26,11 @@ def crawl(context: Context) -> None:
             entity.add("sourceUrl", url)
 
             sanction = h.make_sanction(context, entity)
+            sanction.add("authorityId", case_id)
             h.apply_date(
                 sanction, "listingDate", str_row.get("order_date")
             )  # sanction object schema date
+
             context.emit(entity)
             context.emit(sanction)
-            context.audit_data(str_row, ignore=["case_id", "order_date"])
+            context.audit_data(str_row, ignore="order_date")

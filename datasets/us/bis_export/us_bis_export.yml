@@ -6,11 +6,16 @@ coverage:
   start: "2026-01-19"
 load_statements: true
 summary: >
-  List of violations of export control and antiboycott regulations.
+  A register of enforcement cases where BIS determined export control
+  and related regulatory violations under U.S. export laws.
 description: |
-  Export Enforcement protects and promotes U.S. national security by
-  investigating violations of export control and antiboycott regulations and
-  by partnering with industry and academia to facilitate compliance with those regulations.
+  The *Export Violations* list documents specific enforcement actions taken by
+  the U.S. Department of Commerce’s Bureau of Industry and Security (BIS)
+  against individuals, companies, or organizations for violating the Export
+  Administration Regulations (EAR) and related export control and antiboycott
+  statutes. The list serves as a public record of sanctions and orders imposed for unlawful exports,
+  reexports, transfers, or related conduct subject to U.S. export control
+  jurisdiction.
 publisher:
   name: Bureau of Industry and Security
   acronym: BIS
