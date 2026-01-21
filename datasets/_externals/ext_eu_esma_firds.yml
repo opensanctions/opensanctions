@@ -86,9 +86,9 @@ config:
 assertions:
   min:
     schema_entities:
-      Security: 150500
-      Organization: 100
+      Security: 177000
+      Organization: 220
   max:
     schema_entities:
-      Security: 355000
-      Organization: 250
+      Security: 418000
+      Organization: 520
