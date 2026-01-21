@@ -71,6 +71,7 @@ from zavod.helpers.html import (
     links_to_dict,
     parse_html_table,
     xpath_elements,
+    xpath_element,
     xpath_string,
     xpath_strings,
 )
@@ -148,6 +149,7 @@ __all__ = [
     "make_pdf_page_images",
     "parse_pdf_table",
     "xpath_elements",
+    "xpath_element",
     "xpath_strings",
     "xpath_string",
 ]
