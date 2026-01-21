@@ -8,11 +8,14 @@ def crawl(context: Context) -> None:
 
     for row in h.parse_html_table(table[0]):
         str_row = h.cells_to_str(row)
-        case_id = str_row.get("case_id")
-        assert case_id is not None
-        url = h.xpath_elements(row.get("case_id"), ".//a")[0].get("href")
+
+        case_id_string = str_row.pop("case_id")
+        case_id_element = row.get("case_id")
+        assert case_id_element is not None
+        url = h.xpath_elements(case_id_element, ".//a")[0].get("href")
 
         case_name = str_row.pop("case_name")
+        order_date = str_row.pop("order_date")
         for name in h.multi_split(
             case_name, ";"
         ):  # case-level names, might contain multiple entities
@@ -20,7 +23,7 @@ def crawl(context: Context) -> None:
 
             entity = context.make("LegalEntity")
             entity.id = context.make_id(
-                name, case_id
+                name, case_id_string
             )  # use raw name strings to generate IDs
             entity.add("alias", [alias.strip().replace(",", "") for alias in aliases])
             entity.add("name", entity.get("alias")[0])
@@ -28,11 +31,11 @@ def crawl(context: Context) -> None:
             entity.add("sourceUrl", url)
 
             sanction = h.make_sanction(context, entity)
-            sanction.add("authorityId", case_id)
+            sanction.add("authorityId", case_id_string)
             h.apply_date(
-                sanction, "listingDate", str_row.get("order_date")
+                sanction, "listingDate", order_date
             )  # sanction object schema date
 
             context.emit(entity)
             context.emit(sanction)
-            context.audit_data(str_row, ignore=["order_date", "case_id"])
+            context.audit_data(str_row)
