@@ -116,22 +116,20 @@ def crawl(context: Context):
         doc = html.fromstring(fh.read())
     doc.make_links_absolute(context.data_url)
 
-    individual_tables = h.xpath_elements(
-        doc,
-        ".//h6[text() = 'Individual']/following-sibling::table[1]",
-        expect_exactly=1,
+    individual_table = h.xpath_element(
+        doc, ".//h6[text() = 'Individual']/following-sibling::table[1]"
     )
-    for row in h.xpath_elements(individual_tables[0], ".//tr"):
+    for row in h.xpath_elements(individual_table, ".//tr"):
         if row.find(".//th") is not None:
             continue
         url = h.xpath_string(row, ".//a[text() = 'Details']/@href")
         data = parse_page(context, url)
         crawl_individual(context, url, data)
 
-    entity_tables = h.xpath_elements(
-        doc, ".//h6[text() = 'Entity']/following-sibling::table[1]", expect_exactly=1
+    entity_table = h.xpath_element(
+        doc, ".//h6[text() = 'Entity']/following-sibling::table[1]"
     )
-    for row in h.xpath_elements(entity_tables[0], ".//tr"):
+    for row in h.xpath_elements(entity_table, ".//tr"):
         if row.find(".//th") is not None:
             continue
         url = h.xpath_string(row, ".//a[text() = 'Details']/@href")
