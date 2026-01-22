@@ -137,21 +137,21 @@ lookups:
         lang: ara
       - match: النوع
         # type of document (e.g. passport)
-        value: is_passport
+        value: document_type
         lang: ara
       - match: رقم الوثيقة
         # document number
-        value: passportNumber
+        value: document_number
         lang: ara
       - match: جهة الإصدار
         value: issuer
         lang: ara
       - match: تاريخ الإصدار
-        # release date
-        value: listingDate
+        # date of issue (of the document)
+        value: doc_issue_date
       - match: تاريخ الانتهاء
-        # expiry date
-        value: endDate
+        # expiry date (of the document)
+        value: doc_expiry_date
         lang: ara
       - match: الدولة
         value: country
