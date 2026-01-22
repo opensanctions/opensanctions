@@ -41,6 +41,12 @@ publisher:
     information for U.S. organizations.
   url: https://brightquery.com/
 
+# TODO: update assertions after the first successful run
+# assertions:
+#   min:
+#     schema_entities:
+#       Company: 0
+
 inputs:
   - eu_sanctions
   - ir_uani_business_registry
@@ -82,9 +88,3 @@ config:
     - "xk"
     - "md-pmr"
     - "sd"
-
-# TODO: update assertions after the first successful run
-assertions:
-  min:
-    schema_entities:
-      Company: 0

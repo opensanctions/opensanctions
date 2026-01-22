@@ -43,6 +43,7 @@ def crawl_row(context: Context, row: Dict[str, Any]) -> None:
         email_clean = registry.email.clean(email)
         if email_clean is not None:
             entity.add("email", email)
+
     context.emit(entity)
 
     if director:
@@ -88,9 +89,14 @@ def emit_rel(
     person = context.make("Person")
     person.id = context.make_id(name, id)
     person.add("name", name)
+
+    if not entity.has("name"):
+        return None
+
     if citizenship != "NULL":
         for citizenship in h.multi_split(citizenship, [","]):
             person.add("citizenship", citizenship)
+
     context.emit(person)
 
     relationship = context.make(schema_name)
