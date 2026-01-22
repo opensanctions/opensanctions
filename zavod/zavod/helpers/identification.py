@@ -3,6 +3,7 @@ from typing import Optional
 from zavod.logs import get_logger
 from zavod.entity import Entity
 from zavod.context import Context
+from zavod.helpers.dates import apply_date
 
 log = get_logger(__name__)
 
@@ -61,8 +62,8 @@ def make_identification(
     proxy.add("country", country)
     proxy.add("authority", authority)
     proxy.add("summary", summary)
-    proxy.add("startDate", start_date)
-    proxy.add("endDate", end_date)
+    apply_date(proxy, "startDate", start_date)
+    apply_date(proxy, "endDate", end_date)
     # context.inspect(proxy.to_dict())
     if passport:
         entity.add("passportNumber", number)
