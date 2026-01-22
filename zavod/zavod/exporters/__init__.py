@@ -85,7 +85,7 @@ def export_dataset(dataset: Dataset, view: View) -> None:
     """Dump the contents of the dataset to the output directory."""
     context = Context(dataset)
     try:
-        context.begin(clear=False)
+        context.begin()
         export_data(context, view)
     finally:
         context.close()

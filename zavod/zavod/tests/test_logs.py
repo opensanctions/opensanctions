@@ -100,7 +100,7 @@ def test_redacts_issue_logger(testdataset1: Dataset):
     try:
         issues_path = dataset_resource_path(testdataset1.name, ISSUES_FILE)
         context = Context(testdataset1)
-        context.begin(clear=True)
+        context.begin()
         assert not issues_path.exists()
 
         context.log.warn(
