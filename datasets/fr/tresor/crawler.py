@@ -11,9 +11,10 @@ from rigour.mime.types import JSON
 from zavod import Context, Entity
 from zavod import helpers as h
 
+# Since January 21, 2025, it is requested to fill in a User-Agent in the header when calling the API.
 HEADERS = {
     "Accept": "application/json",
-    "User-Agent": "custom-agent",
+    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.2 Safari/605.1.15 (zavod; opensanctions.org)",
 }
 
 SCHEMATA = {
