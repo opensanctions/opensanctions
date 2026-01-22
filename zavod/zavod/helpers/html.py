@@ -149,6 +149,13 @@ def xpath_elements(
     return [cast(Element, r) for r in result]
 
 
+def xpath_element(el: Element, xpath: str) -> Element:
+    """
+    Return the only element that matches the given XPath expression (and complain if there are multiple)
+    """
+    return xpath_elements(el, xpath, expect_exactly=1)[0]
+
+
 def xpath_strings(
     el: Element, xpath: str, *, expect_exactly: Optional[int] = None
 ) -> List[str]:
@@ -167,19 +174,3 @@ def xpath_strings(
 
 def xpath_string(el: Element, xpath: str) -> str:
     return xpath_strings(el, xpath, expect_exactly=1)[0]
-
-
-def xpath_href(el: Element, xpath: str) -> str:
-    """
-    Return the href attribute of an element matched by the given XPath expression.
-
-    Args:
-        el: The HTML element to search within.
-        xpath: The XPath expression to match the element.
-    """
-
-    elements = xpath_elements(el, xpath, expect_exactly=1)
-    href = elements[0].get("href")
-    if href is None:
-        raise ValueError(f"Element matched by {xpath!r} has no href attribute")
-    return href

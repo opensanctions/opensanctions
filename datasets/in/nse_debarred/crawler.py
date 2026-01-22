@@ -151,7 +151,7 @@ def parse_xls_or_xlsx_sheet_from_url(context: Context, url: str, filename: str):
             filepath_tmp, context.get_resource_path(f"{filename}.xls")
         )
         mimetype = XLS
-        items = h.parse_xls_sheet(context, xlrd.open_workbook(filepath)["Sheet1"])
+        items = h.parse_xls_sheet(context, xlrd.open_workbook(filepath)["Working"])
 
     context.export_resource(filepath, mimetype, title=context.SOURCE_TITLE)
     return items
