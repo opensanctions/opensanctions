@@ -127,7 +127,9 @@ def test_xref_dataset(testdataset1: Dataset):
     assert len(resolver.edges) == 0
     resolver.rollback()
 
-    result = runner.invoke(cli, ["xref", "--clear", DATASET_1_YML.as_posix()], env=env)
+    result = runner.invoke(
+        cli, ["xref", "--clear_store", DATASET_1_YML.as_posix()], env=env
+    )
     assert result.exit_code == 0, result.output
 
     resolver = get_resolver()
