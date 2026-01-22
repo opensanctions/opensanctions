@@ -8,8 +8,8 @@ from followthemoney import registry, Property, model
 from followthemoney.statement.util import NON_LANG_TYPE_NAMES
 
 from zavod.logs import get_logger
-from zavod.runtime.lookups import is_lookup_value, prop_lookup
-from zavod.runtime.safety import check_xss
+from zavod.runtime.lookups import is_type_lookup_value, prop_lookup
+from zavod.runtime.safety import check_xss_html_smell
 
 
 if TYPE_CHECKING:
@@ -93,7 +93,7 @@ def value_clean(
 
         # Do not check non-text properties
         if clean is not None and prop.type not in NON_LANG_TYPE_NAMES:
-            clean = check_xss(entity, prop_, clean)
+            clean = check_xss_html_smell(entity, prop_, clean)
 
         # We validate Person:*Name properties as names cause they're strings
         # in the FtM model.
@@ -114,7 +114,7 @@ def value_clean(
                 # Allow abbreviations that are not valid names
 
             elif entity.schema.is_a("LegalEntity") and not is_name(clean):
-                if not is_lookup_value(entity, registry.name, item):
+                if not is_type_lookup_value(entity, registry.name, item):
                     log.warning(
                         f"Property value {value!r} is not a valid name.",
                         entity_id=entity.id,
