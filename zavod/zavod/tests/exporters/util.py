@@ -6,7 +6,7 @@ from zavod.integration import get_dataset_linker
 
 def harnessed_export(exporter_class, dataset, linker=None) -> None:
     context = Context(dataset)
-    context.begin(clear=False)
+    context.begin()
     if linker is None:
         linker = get_dataset_linker(dataset)
     store = get_store(dataset, linker)

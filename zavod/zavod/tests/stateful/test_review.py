@@ -65,7 +65,7 @@ def test_no_change_updates_last_seen_version(testdataset1, monkeypatch):
     #     - last_seen_version updated
     monkeypatch.setattr(settings, "RUN_VERSION", "20240101010101-aaa")
     context1 = Context(testdataset1)
-    context1.begin(clear=True)
+    context1.begin()
     context1_version = context1.version.id
     source_value = mock_source_value("key2")
     extracted_data = DummyModel(foo="bar")
@@ -80,7 +80,7 @@ def test_no_change_updates_last_seen_version(testdataset1, monkeypatch):
     assert row and row["last_seen_version"] == context1_version
     monkeypatch.setattr(settings, "RUN_VERSION", "20240101010102-aaa")
     context2 = Context(testdataset1)
-    context2.begin(clear=True)
+    context2.begin()
     context2_version = context2.version.id
     review2 = review_extraction(
         context2,

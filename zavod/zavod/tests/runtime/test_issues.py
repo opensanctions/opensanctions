@@ -9,7 +9,7 @@ from zavod.meta import Dataset
 def test_issue_logger(testdataset1: Dataset, logger: logging.Logger):
     issues_path = dataset_resource_path(testdataset1.name, ISSUES_FILE)
     context = Context(testdataset1)
-    context.begin(clear=True)
+    context.begin()
     assert not issues_path.exists()
     entity = context.make("Person")
     entity.id = "guy"
@@ -46,6 +46,6 @@ def test_issue_logger(testdataset1: Dataset, logger: logging.Logger):
             assert issue["dataset"] == testdataset1.name
 
     context = Context(testdataset1)
-    context.begin(clear=True)
+    context.begin()
     assert len(list(context.issues.all())) == 0
     context.close()

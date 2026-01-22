@@ -104,20 +104,13 @@ class Context:
             raise ValueError("Dataset has no data URL: %r" % self.dataset)
         return self.dataset.data.url
 
-    def begin(self, clear: bool = False) -> None:
-        """Prepare the context for running the exporter.
-
-        Args:
-            clear: Remove the existing resources and issues from the dataset.
-        """
+    def begin(self) -> None:
+        """Prepare the context for running the exporter."""
         self._structlog_contextvars_tokens = bind_contextvars(
             dataset=self.dataset.name,
             context=self,
         )
-        make_version(self.dataset, settings.RUN_VERSION, overwrite=clear)
-        if clear and not self.dry_run:
-            self.resources.clear()
-            self.issues.clear()
+        make_version(self.dataset, settings.RUN_VERSION)
         self.stats.reset()
 
     def flush(self) -> None:
