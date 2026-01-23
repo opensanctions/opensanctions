@@ -407,16 +407,16 @@ def parse_id_reg_document(
             proxy.add(conf.prop, number)
 
     if proxy.schema.is_a("Person") and (conf.identification or conf.passport):
-        issue_date = None
-        expire_date = None
+        issue_date: Optional[str] = None
+        expire_date: Optional[str] = None
         for date in reg_doc.findall("./DocumentDate"):
             period = parse_date_period(date.find("./DatePeriod"))
             date_type_id = date.get("IDRegDocDateTypeID")
             date_type = get_ref_element(refs, "IDRegDocDateType", date_type_id)
             if date_type.text == "Issue Date":
-                issue_date = period
+                issue_date = min(period)
             elif date_type.text == "Expiration Date":
-                expire_date = period
+                expire_date = max(period)
             else:
                 context.log.warning(
                     "Unknown document date type", date_type=date_type.text
