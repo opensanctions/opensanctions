@@ -28,7 +28,6 @@ class DatasetIssues(object):
     def __init__(self, dataset: Dataset) -> None:
         self.dataset = dataset
         self.fh: Optional[BinaryIO] = None
-        get_dataset_artifact(self.dataset.name, ISSUES_LOG)
 
     def write(self, event: Dict[str, Any]) -> None:
         if self.fh is None:
