@@ -4,7 +4,7 @@ Crawler for members of the French National Assembly.
 
 import json
 import re
-from typing import Any, Dict, Iterator, List
+from typing import Any, Iterator
 from zipfile import ZipFile
 
 from zavod import Context, Entity
@@ -29,7 +29,7 @@ def is_not_nil(value: Any) -> bool:
 
 
 def crawl_collabos(
-    context: Context, person: Entity, uid: str, mandat: Dict[str, Any]
+    context: Context, person: Entity, uid: str, mandat: dict[str, Any]
 ) -> Iterator[Entity]:
     """Add staff (parliamentry collaborators) as associates."""
     collabos = mandat.pop("collaborateurs")
@@ -77,7 +77,7 @@ def crawl_collabos(
         context.audit_data(c)
 
 
-def crawl_acteur(context, data: Dict[str, Any]):
+def crawl_acteur(context: Context, data: dict[str, Any]) -> None:
     """Extract MNA information from JSON."""
     acteur = data.pop("acteur")
     context.audit_data(data, ["@xmlns", "profession"])
@@ -150,7 +150,7 @@ def crawl_acteur(context, data: Dict[str, Any]):
         context.log.warning(f"No mandats found for {uid_text}")
     if not isinstance(mandats, list):
         mandats = [mandats]
-    entities: List[Entity] = []
+    entities: list[Entity] = []
     for mandat in mandats:
         if mandat.pop("typeOrgane") == "ASSEMBLEE":
             start_date = mandat.pop("dateDebut")
@@ -176,7 +176,7 @@ def crawl_acteur(context, data: Dict[str, Any]):
             context.emit(entity)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     """Download the database of MNAs and create PEP entities."""
     path = context.fetch_resource("deputes.zip", context.data_url)
     with ZipFile(path) as archive:

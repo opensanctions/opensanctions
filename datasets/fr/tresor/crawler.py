@@ -88,7 +88,7 @@ def clean_key(key: str) -> Optional[str]:
     return slugify(key)
 
 
-def parse_split(full: str):
+def parse_split(full: str) -> list[str]:
     full = full.replace("’", "'")
 
     # We try to find any of the keys in TEXT_KEYS and split on them. The basic idea is to not split on separators,
@@ -168,7 +168,8 @@ def parse_identification(
     context: Context,
     entity: Entity,
     value: Dict[str, str],
-):
+) -> None:
+    """Parse the identification field and add the appropriate properties to the entity."""
     comment = value.pop("Commentaire")
     content = value.pop("Identification")
     full = f"{comment}: {content}".strip(SEPARATORS)
@@ -189,14 +190,14 @@ def parse_identification(
 
         for key, propname in TEXT_KEYS.items():
             if segment.lower().startswith(key.lower()) and propname is not None:
-                value = segment[len(key) :].strip(SEPARATORS)
+                prop_value = segment[len(key) :].strip(SEPARATORS)
 
-                if not identifier_value_is_single_value(context, value):
+                if not identifier_value_is_single_value(context, prop_value):
                     # Likely multiple values, which we don't auto-parse.
                     # Add an override to identification_segment (or identification_full if the splitting doesn't make sense) or a type.country datapatch.
                     context.log.warning(
                         "Cannot reliably parse value.",
-                        value=value,
+                        value=prop_value,
                         segment=segment,
                         full=full,
                     )
@@ -204,13 +205,17 @@ def parse_identification(
 
                 if propname == "kppCode":
                     entity.add_cast(
-                        "Company", propname, value, lang="fra", original_value=segment
+                        "Company",
+                        propname,
+                        prop_value,
+                        lang="fra",
+                        original_value=segment,
                     )
                 elif propname == "incorporationDate":
-                    h.apply_date(entity, propname, value)
+                    h.apply_date(entity, propname, prop_value)
 
                 else:
-                    entity.add(propname, value, lang="fra", original_value=segment)
+                    entity.add(propname, prop_value, lang="fra", original_value=segment)
 
                 # We found what this key means, no need to try other keys.
                 break
@@ -227,7 +232,13 @@ def parse_identification(
             )
 
 
-def apply_prop(context: Context, entity: Entity, sanction: Entity, field: str, value):
+def apply_prop(
+    context: Context,
+    entity: Entity,
+    sanction: Entity,
+    field: str,
+    value: Dict[str, Any],
+) -> None:
     if field == "ALIAS":
         entity.add("alias", value.pop("Alias"), lang="fra")
     elif field == "SEXE":
@@ -287,7 +298,7 @@ def apply_prop(context: Context, entity: Entity, sanction: Entity, field: str, v
         )
 
 
-def crawl_entity(context: Context, data: Dict[str, Any]):
+def crawl_entity(context: Context, data: Dict[str, Any]) -> None:
     # context.inspect(data)
     nature = data.pop("Nature")
     reg_id = data.pop("IdRegistre")
@@ -347,7 +358,7 @@ def crawl_entity(context: Context, data: Dict[str, Any]):
     context.emit(sanction)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     path = context.fetch_resource("source.json", context.data_url, headers=HEADERS)
     context.export_resource(path, JSON, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
