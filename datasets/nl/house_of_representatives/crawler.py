@@ -34,6 +34,10 @@ def crawl_person(context: Context, element: _Element, position: Entity):
     descr = section.findtext(".//p")
     assert descr is not None, "Failed to extract description"
     match = REGEX_BIRTH_PLACE_AND_DATE.search(descr)
+    # TODO: remove 38-40 once debugged
+    if not match:
+        context.log.warn("Failed to extract birth information", source_url=source_url)
+        return
     assert match is not None, "Failed to extract birth information"
     birth_date = match.group("birthyear")
     name = section.findtext(".//h1")
