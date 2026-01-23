@@ -62,9 +62,9 @@ lookups:
         value: null
   type.name:
     options:
-      - match: 
-          - '-'
-          - '.'
+      - match:
+          - "-"
+          - "."
         value: null
   type.country:
     options:
@@ -116,3 +116,5 @@ lookups:
         value: XK
       - match: MON # Monaco
         value: MC
+      - match: ROM # Romania
+        value: RO
