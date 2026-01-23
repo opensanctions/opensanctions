@@ -206,7 +206,7 @@ def crawl_ship_relation(
 ):
     company_id_raw = party_info.pop("id")
     start_date = party_info.pop("date")
-    care_of_id_raw = party_info.pop("co_id", None)
+    _care_of_id_raw = party_info.pop("co_id", None)
 
     if rel_role == "owner":
         rel_schema, from_prop, to_prop = "Ownership", "owner", "asset"
@@ -230,16 +230,17 @@ def crawl_ship_relation(
     #     "security_manager": {"id": "512", "date": "22.11.2024", "co_id": None},
     # }
     # Company 511 (subject) → "c/o" → Company 512 (object)
-    if care_of_id_raw is not None:
-        emit_relation(
-            context,
-            subject_id=make_id(context, WSAPIDataType.MANAGER, company_id_raw),
-            object_id=make_id(context, WSAPIDataType.MANAGER, care_of_id_raw),
-            rel_schema=rel_schema,
-            rel_role="c/o",
-            from_prop=from_prop,
-            to_prop=to_prop,
-        )
+    # if care_of_id_raw is not None:
+    #     context.log.info("it's okay to skip the c/o")
+    # emit_relation(
+    #     context,
+    #     subject_id=make_id(context, WSAPIDataType.MANAGER, company_id_raw),
+    #     object_id=make_id(context, WSAPIDataType.MANAGER, care_of_id_raw),
+    #     rel_schema=rel_schema,
+    #     rel_role="c/o",
+    #     from_prop=from_prop,
+    #     to_prop=to_prop,
+    # )
 
     context.audit_data(party_info)
 
@@ -383,7 +384,8 @@ def crawl_vessel(context: Context, vessel_data, program_key):
     vessel.id = make_id(context, WSAPIDataType.VESSEL, vessel_data.pop("id"))
     vessel.add("name", vessel_data.pop("name"))
     vessel.add("imoNumber", vessel_data.pop("imo"))
-    vessel.add("type", vessel_data.pop("type"))
+    vessel_type = vessel_data.pop("type")
+    vessel.add("type", vessel_type.get("name"))
     vessel.add("description", squash_spaces(BR_RE.sub(" ", vessel_data.pop("info"))))
     vessel.add("callSign", vessel_data.pop("callsign"))
     vessel.add("flag", vessel_data.pop("flag"))
