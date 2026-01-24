@@ -2,7 +2,7 @@
 # https://home.treasury.gov/system/files/126/sdn_advanced_notes.pdf
 import re
 from pathlib import Path
-from functools import cache
+from functools import cache, lru_cache
 from banal import first, as_bool
 from collections import defaultdict
 from typing import Optional, Dict, Union, List, Tuple, Set
@@ -164,9 +164,8 @@ def parse_date_period(date: Element) -> Tuple[str, ...]:
     return tuple([d for d in (start, end) if d is not None])
 
 
-def parse_location(
-    context: Context, refs: Element, location: Element
-) -> Optional[Entity]:
+@lru_cache(maxsize=2000)
+def parse_location(context: Context, refs: Element, location: Element) -> FeatureValue:
     countries: Set[Optional[str]] = set()
     for area in location.findall("./LocationAreaCode"):
         area_code = get_ref_element(refs, "AreaCode", area.get("AreaCodeID"))
@@ -179,23 +178,31 @@ def parse_location(
     country_names = [c for c in countries if c not in ("undetermined", None)]
     if len(country_names) > 1:
         context.log.warn("Multiple countries", countries=country_names)
+    country_name = first(country_names)
 
     parts: Dict[Optional[str], Optional[str]] = {}
     for part in location.findall("./LocationPart"):
         part_type = get_ref_text(refs, "LocPartType", part.get("LocPartTypeID"))
         parts[part_type] = part.findtext("./LocationPartValue/Value")
 
-    country_name = first(country_names)
     unknown = parts.pop("Unknown", None)
-    if registry.country.clean(unknown, fuzzy=True):
+    if country_name is None and registry.country.clean(unknown):
         country_name = unknown
 
     if country_name is None and unknown is not None:
         context.log.warning("Unknown country, but have text", unknown=unknown)
 
+    country_code = registry.country.clean(country_name)
+    if country_name is not None and country_code is None:
+        context.log.warning(
+            "Cannot parse country for location",
+            country=country_name,
+            parts=parts,
+        )
+
     address = h.make_address(
         context,
-        full=unknown,
+        # full=unknown,
         street=parts.pop("ADDRESS1", None),
         street2=parts.pop("ADDRESS2", None),
         street3=parts.pop("ADDRESS3", None),
@@ -203,10 +210,12 @@ def parse_location(
         postal_code=parts.pop("POSTAL CODE", None),
         region=parts.pop("REGION", None),
         state=parts.pop("STATE/PROVINCE", None),
-        country_code=country_name,
+        country_code=country_code,
         key=location.get("ID"),
     )
     context.audit_data(parts)
+    if address is None:
+        return country_name
     return address
 
 
@@ -620,9 +629,6 @@ def parse_feature(
     if version_loc is not None:
         location_id = version_loc.get("LocationID")
         location = doc.find(f"Locations/Location[@ID='{location_id}']")
-        # if feature_label in ("Citizenship Country", "Nationality Country"):
-        #     print("XXX", feature_label, location_id, tostring(location) if location is not None else None)
-
         if location is not None:
             values.append(parse_location(context, refs, location))
 
@@ -698,6 +704,10 @@ def apply_feature(
         if result.prop == "jurisdiction" and proxy.schema.is_a("Vehicle"):
             prop = proxy.schema.get("country")
 
+        # Handle locations which only specify a country:
+        if result.prop == "addressEntity" and isinstance(value, str):
+            prop = proxy.schema.get("country")
+
         if prop is None:
             context.log.warn(
                 "Property not found: %s" % result.prop,
@@ -707,7 +717,7 @@ def apply_feature(
             )
             return
 
-        if prop.name == "dunsCode":
+        if prop.name == "dunsCode" and value is not None:
             value = value.strip().replace("-", "")
 
         values = [value]
