@@ -221,7 +221,7 @@ def parse_location(context: Context, refs: Element, location: Element) -> Featur
 
 def parse_relation(
     context: Context, refs: Element, el: Element, parties: Dict[str, Schema]
-):
+) -> None:
     type_id = el.get("RelationTypeID")
     type_ = get_ref_text(refs, "RelationType", type_id)
     from_id = context.make_slug(el.get("From-ProfileID"))
@@ -669,7 +669,7 @@ def apply_feature(
     proxy: Entity,
     feature: str,
     value: FeatureValue,
-):
+) -> None:
     result = lookup("features", feature)
     if result is None:
         context.log.warning(
@@ -789,7 +789,7 @@ def apply_feature(
         context.emit(adj)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     path = context.fetch_resource("source.xml", context.data_url)
     context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)
     doc_ = context.parse_resource_xml(path)
