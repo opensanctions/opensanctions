@@ -131,12 +131,12 @@ def parse_date(el: Optional[Element]) -> Optional[str]:
 
 def date_prefix(*dates: Optional[str]) -> Optional[str]:
     dates_ = [d for d in dates if d is not None]
-    prefix = commonprefix(dates_)[:10]
-    if len(prefix) < 10:
+    prefix: Optional[str] = commonprefix(dates_)[:10]
+    if prefix is not None and len(prefix) < 10:
         prefix = prefix[:7]
-    if len(prefix) < 7:
+    if prefix is not None and len(prefix) < 7:
         prefix = prefix[:4]
-    if len(prefix) < 4:
+    if prefix is not None and len(prefix) < 4:
         prefix = None
     return prefix
 
@@ -395,7 +395,7 @@ def parse_alias(
         raise ValueError("Unknown alias type: %s" % alias_type.text)
     name_prop = ALIAS_TYPES[alias_type.text]
     for name in alias.findall("DocumentedName"):
-        names = defaultdict(lambda: "")
+        names: Dict[str, str] = defaultdict(lambda: "")
         lang = "eng"
         for value in name.findall("DocumentedNamePart/NamePartValue"):
             script_id = value.get("ScriptID")
@@ -403,7 +403,7 @@ def parse_alias(
                 script = get_ref_element(refs, "Script", script_id)
                 script_code = script.get("ScriptCode")
                 script_lang = context.lookup_value("script.lang", script_code)
-                if lang == "eng":
+                if lang == "eng" and script_lang is not None:
                     lang = script_lang
                 elif lang != script_lang:
                     context.log.warning(
@@ -417,6 +417,13 @@ def parse_alias(
                 context.log.warning("Missing name part group ID", value=tostring(value))
                 continue
             type_ = parts.get(name_part_group_id)
+            if type_ is None:
+                context.log.warning(
+                    "Unknown name part type",
+                    name_part_group_id=name_part_group_id,
+                    value=tostring(value),
+                )
+                continue
             values = [v for v in (names[type_], value.text) if v is not None]
             names[type_] = " ".join(values).strip()
 
@@ -696,6 +703,15 @@ def apply_feature(
             return
         value = value.first("country")
 
+    if value is None:
+        context.log.warning(
+            "Feature value is None after processing",
+            entity=proxy,
+            schema=proxy.schema,
+            feature=feature,
+        )
+        return
+
     if result.prop is not None:
         # Set a property directly on the entity.
         prop = proxy.schema.get(result.prop)
@@ -717,7 +733,7 @@ def apply_feature(
             )
             return
 
-        if prop.name == "dunsCode" and value is not None:
+        if prop.name == "dunsCode":
             value = value.strip().replace("-", "")
 
         values = [value]
@@ -776,8 +792,8 @@ def apply_feature(
 def crawl(context: Context):
     path = context.fetch_resource("source.xml", context.data_url)
     context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)
-    doc = context.parse_resource_xml(path)
-    doc = h.remove_namespace(doc)
+    doc_ = context.parse_resource_xml(path)
+    doc = h.remove_namespace(doc_)
     refs = doc.find("ReferenceValueSets")
     assert refs is not None, "ReferenceValueSets not found"
 
