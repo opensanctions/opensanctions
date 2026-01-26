@@ -24,6 +24,11 @@ ALLOW_LIST = {
     ("Марина Евгениева Гюрова", "Марина Евгениева Гюрова-Димитрова"),
 }
 DENY_LIST = set()
+# TODO: clean up 'BROKEN_LINKS' once the links are accessible on the website again
+# 404 Client Error
+BROKEN_LINKS = set(
+    "http://62.176.124.194/images/declaracii/2025/ZornitzaAleksandrovaShtyrbeva240420251105godishna.pdf"
+)
 
 
 def extract_judicial_declaration(
@@ -96,7 +101,7 @@ def crawl_row(context: Context, row: Dict[str, HtmlElement], index_url: str):
     # Link is in the same cell as the name
     name_link_elem = HtmlElement(row["name"]).find(".//a")
     declaration_url = name_link_elem.get("href")
-    if not declaration_url:
+    if not declaration_url or declaration_url in BROKEN_LINKS:
         context.log.warning(
             "No declaration link found", name=name, doc_id_date=doc_id_date
         )
