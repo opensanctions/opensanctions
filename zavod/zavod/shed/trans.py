@@ -1,10 +1,35 @@
-from typing import Dict, Optional, Tuple
+from typing import Optional, NamedTuple, List
 
 from zavod.context import Context
 from zavod.entity import Entity
 from zavod.exc import ConfigurationException
 from zavod.extract.llm import run_text_prompt, DEFAULT_MODEL
 from zavod import helpers as h
+
+
+class TransliterationLanguageSpec(NamedTuple):
+    """Specification for a transliteration output language."""
+
+    language_code: str
+    """The ISO 639-2 language code (e.g., "eng", "rus", "ara")."""
+
+    script: str
+    """The writing system/script name (e.g., "Latin", "Cyrillic", "Arabic")."""
+
+    language_name: str
+    """The language name for pronunciation (e.g., "English", "Russian", "Arabic")."""
+
+
+ENGLISH = TransliterationLanguageSpec(
+    language_code="eng", script="Latin", language_name="English"
+)
+RUSSIAN = TransliterationLanguageSpec(
+    language_code="rus", script="Cyrillic", language_name="Russian"
+)
+ARABIC = TransliterationLanguageSpec(
+    language_code="ara", script="Arabic", language_name="Arabic"
+)
+
 
 NAME_TRANSLIT_PROMPT = """
 Transliterate the following name from the language denoted by the ISO 639-2 Code {code},
@@ -24,12 +49,12 @@ Translate the following public office position label from the language denoted b
 
 
 def make_name_translit_prompt(
-    input_code: str, output: Dict[str, Tuple[str, str]]
+    input_code: str, output_specs: List[TransliterationLanguageSpec]
 ) -> str:
     output_items = []
-    for code, (script, lang) in output.items():
+    for spec in output_specs:
         output_items.append(
-            f"- the key '{code}' has the value in {script} script for {lang} pronunciation"
+            f"- the key '{spec.language_code}' has the value in {spec.script} script for {spec.language_name} pronunciation"
         )
     return NAME_TRANSLIT_PROMPT.format(
         code=input_code, output_bullets="\n".join(output_items)
@@ -43,10 +68,11 @@ def make_position_translation_prompt(input_code: str) -> str:
 def apply_translit_names(
     context: Context,
     entity: Entity,
+    *,
     input_code: str,
     first_name: str,
     last_name: str,
-    output: Dict[str, Tuple[str, str]] = {"eng": ("Latin", "English")},
+    output_spec: List[TransliterationLanguageSpec] = [ENGLISH],
     model: str = DEFAULT_MODEL,
 ) -> None:
     """
@@ -58,17 +84,37 @@ def apply_translit_names(
         input_code: The ISO 639-2 code for the language of the input names.
         first_name: The first name to transliterate.
         last_name: The last name to transliterate.
-        output: A dictionary mapping ISO 639-2 codes to tuples of script and language
+        output_spec: A list of language specifications for the output names.
     """
     try:
-        prompt = make_name_translit_prompt(input_code, output)
-        first_response = run_text_prompt(context, prompt, first_name, model=model)
-        last_response = run_text_prompt(context, prompt, last_name, model=model)
-        for lang in first_response.keys():
+        prompt = make_name_translit_prompt(input_code, output_spec)
+        first_name_response = run_text_prompt(context, prompt, first_name, model=model)
+        last_name_response = run_text_prompt(context, prompt, last_name, model=model)
+        for spec in output_spec:
+            lang = spec.language_code
+            if lang not in first_name_response.keys():
+                context.log.warning(
+                    f"Transliteration for name did not return a value for {lang}. Will skip applying the transliterated name.",
+                    prompt=prompt,
+                    first_name=first_name,
+                    model=model,
+                    response=repr(first_name_response),
+                )
+                continue
+            if lang not in last_name_response.keys():
+                context.log.warning(
+                    f"Transliteration for {last_name} did not return a value for {lang}. Will skip applying the transliterated name.",
+                    prompt=prompt,
+                    last_name=last_name,
+                    model=model,
+                    response=repr(last_name_response),
+                )
+                continue
+
             h.apply_name(
                 entity,
-                first_name=first_response[lang],
-                last_name=last_response[lang],
+                first_name=first_name_response[lang],
+                last_name=last_name_response[lang],
                 lang=lang,
                 origin=model,
             )
@@ -81,7 +127,7 @@ def apply_translit_full_name(
     entity: Entity,
     input_code: str,
     name: str,
-    output: Dict[str, Tuple[str, str]] = {"eng": ("Latin", "English")},
+    output: List[TransliterationLanguageSpec] = [ENGLISH],
     prompt: Optional[str] = None,
     alias: bool = False,
     model: str = DEFAULT_MODEL,
@@ -93,15 +139,16 @@ def apply_translit_full_name(
         context: The context for the operation.
         entity: The entity to which to apply the names.
         input_code: The ISO 639-2 code for the language of the input names.
-        name: The first name to transliterate.
-        output: A dictionary mapping ISO 639-2 codes to tuples of script and language
+        name: The name to transliterate.
+        output: A list of language specifications for the output names.
         model: GPT model used to translate/transliterate the name.
     """
     try:
         if prompt is None:
             prompt = make_name_translit_prompt(input_code, output)
         response = run_text_prompt(context, prompt, name, model=model)
-        if not set(response.keys()).issubset(set(output.keys())):
+        output_codes = {spec.language_code for spec in output}
+        if not set(response.keys()).issubset(output_codes):
             context.log.warning(
                 f"Transliteration for {name} returned unexpected keys. Will skip applying the transliterated name.",
                 prompt=prompt,
