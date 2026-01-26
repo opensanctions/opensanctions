@@ -44,3 +44,26 @@ assertions:
   max:
     schema_entities:
       LegalEntity: 2226
+
+lookups: 
+  comma_names:
+    options:
+      - match: "Siberian Airlines d/b/a S& Airlines" 
+        name: "Siberian Airlines"
+        alias: 
+          - "S& Airlines"
+      - match: "Pejman Mahmood Kosarayanifard, a/k/aKosarian Fard"
+        name: "Pejman Mahmood Kosarayanifard"
+        alias: 
+          - "Kosarian Fard"
+      - match: "Al Naser Airlines, a/k/a Al-Naser Airlines, a/k/a Alnaser Airlines and Air Freight Ltd."
+        name: "Al Naser Airlines"
+        alias: 
+          - "Al-Naser Airlines"
+          - "Alnaser Airlines"
+          - "Air Freight Ltd."
+      - match: "and Issam Shammout, a/k/a Muhammad Isam Muhammad Anwar Nur Shammout, a/k/a Issam Anwar Shammout"
+        name: "Issam Shammout"
+        alias:
+          - "Muhammad Isam Muhammad Anwar Nur Shammout"
+          - "Issam Anwar Shammout"
