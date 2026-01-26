@@ -43,10 +43,11 @@ def make_position_translation_prompt(input_code: str) -> str:
 def apply_translit_names(
     context: Context,
     entity: Entity,
+    *,
     input_code: str,
     first_name: str,
     last_name: str,
-    output: Dict[str, Tuple[str, str]] = {"eng": ("Latin", "English")},
+    output_spec: Dict[str, Tuple[str, str]] = {"eng": ("Latin", "English")},
     model: str = DEFAULT_MODEL,
 ) -> None:
     """
@@ -61,14 +62,33 @@ def apply_translit_names(
         output: A dictionary mapping ISO 639-2 codes to tuples of script and language
     """
     try:
-        prompt = make_name_translit_prompt(input_code, output)
-        first_response = run_text_prompt(context, prompt, first_name, model=model)
-        last_response = run_text_prompt(context, prompt, last_name, model=model)
-        for lang in first_response.keys():
+        prompt = make_name_translit_prompt(input_code, output_spec)
+        first_name_response = run_text_prompt(context, prompt, first_name, model=model)
+        last_name_response = run_text_prompt(context, prompt, last_name, model=model)
+        for lang in output_spec.keys():
+            if lang not in first_name_response.keys():
+                context.log.warning(
+                    f"Transliteration for name did not return a value for {lang}. Will skip applying the transliterated name.",
+                    prompt=prompt,
+                    first_name=first_name,
+                    model=model,
+                    response=repr(first_name_response),
+                )
+                continue
+            if lang not in last_name_response.keys():
+                context.log.warning(
+                    f"Transliteration for {last_name} did not return a value for {lang}. Will skip applying the transliterated name.",
+                    prompt=prompt,
+                    last_name=last_name,
+                    model=model,
+                    response=repr(last_name_response),
+                )
+                continue
+
             h.apply_name(
                 entity,
-                first_name=first_response[lang],
-                last_name=last_response[lang],
+                first_name=first_name_response[lang],
+                last_name=last_name_response[lang],
                 lang=lang,
                 origin=model,
             )
