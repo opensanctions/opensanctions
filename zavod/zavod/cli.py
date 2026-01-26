@@ -66,11 +66,10 @@ def cli(debug: bool = False) -> None:
 @cli.command("crawl", help="Crawl a specific dataset")
 @click.argument("dataset_path", type=InPath)
 @click.option("-d", "--dry-run", is_flag=True, default=False)
-@click.option("-c", "--clear", is_flag=True, default=False)
-def crawl(dataset_path: Path, dry_run: bool = False, clear: bool = False) -> None:
+def crawl(dataset_path: Path, dry_run: bool = False) -> None:
     dataset = _load_dataset(dataset_path)
-    if clear:
-        clear_data_path(dataset.name)
+    clear_data_path(dataset.name)
+
     try:
         crawl_dataset(dataset, dry_run=dry_run)
     except RunFailedException:
@@ -79,8 +78,8 @@ def crawl(dataset_path: Path, dry_run: bool = False, clear: bool = False) -> Non
 
 @cli.command("validate", help="Check the integrity of a dataset")
 @click.argument("dataset_path", type=InPath)
-@click.option("-c", "--clear", is_flag=True, default=False)
-def validate(dataset_path: Path, clear: bool = False) -> None:
+@click.option("-c", "--clear_store", is_flag=True, default=False)
+def validate(dataset_path: Path, clear_store: bool = False) -> None:
     dataset = _load_dataset(dataset_path)
     if dataset.model.disabled:
         log.info("Dataset is disabled, skipping: %s" % dataset.name)
@@ -88,7 +87,7 @@ def validate(dataset_path: Path, clear: bool = False) -> None:
     linker = get_dataset_linker(dataset)
     store = get_store(dataset, linker)
     try:
-        store.sync(clear=clear)
+        store.sync(clear=clear_store)
         validate_dataset(dataset, store.view(dataset, external=False))
     except Exception:
         log.exception("Validation failed for %r" % dataset_path)
@@ -98,8 +97,8 @@ def validate(dataset_path: Path, clear: bool = False) -> None:
 
 @cli.command("export", help="Export data from a specific dataset")
 @click.argument("dataset_path", type=InPath)
-@click.option("-c", "--clear", is_flag=True, default=False)
-def export(dataset_path: Path, clear: bool = False) -> None:
+@click.option("-c", "--clear_store", is_flag=True, default=False)
+def export(dataset_path: Path, clear_store: bool = False) -> None:
     dataset = _load_dataset(dataset_path)
     if dataset.model.disabled:
         log.info("Dataset is disabled, skipping: %s" % dataset.name)
@@ -107,7 +106,7 @@ def export(dataset_path: Path, clear: bool = False) -> None:
     linker = get_dataset_linker(dataset)
     store = get_store(dataset, linker)
     try:
-        store.sync(clear=clear)
+        store.sync(clear=clear_store)
         export_dataset(dataset, store.view(dataset, external=False))
     except Exception:
         log.exception("Failed to export: %s" % dataset_path)
@@ -119,7 +118,7 @@ def export(dataset_path: Path, clear: bool = False) -> None:
 @click.option("-l", "--latest", is_flag=True, default=False)
 def publish(dataset_path: Path, latest: bool = False) -> None:
     dataset = _load_dataset(dataset_path)
-    make_version(dataset, settings.RUN_VERSION, overwrite=False)
+    make_version(dataset, settings.RUN_VERSION)
     try:
         publish_dataset(dataset, latest=latest)
     except Exception:
@@ -130,15 +129,15 @@ def publish(dataset_path: Path, latest: bool = False) -> None:
 @cli.command("run", help="Crawl, export and then publish a specific dataset")
 @click.argument("dataset_path", type=InPath)
 @click.option("-l", "--latest", is_flag=True, default=False)
-@click.option("-c", "--clear", is_flag=True, default=False)
+@click.option("-c", "--clear_store", is_flag=True, default=False)
 def run(
     dataset_path: Path,
     latest: bool = False,
-    clear: bool = False,
+    clear_store: bool = False,
 ) -> None:
     dataset = _load_dataset(dataset_path)
-    if clear:
-        clear_data_path(dataset.name)
+    clear_data_path(dataset.name)
+
     if dataset.model.disabled:
         log.info("Dataset is disabled, skipping: %s" % dataset.name)
         publish_failure(dataset, latest=latest)
@@ -151,13 +150,13 @@ def run(
             publish_failure(dataset, latest=latest)
             sys.exit(1)
     else:
-        make_version(dataset, settings.RUN_VERSION, overwrite=True)
+        make_version(dataset, settings.RUN_VERSION)
 
     linker = get_dataset_linker(dataset)
     store = get_store(dataset, linker)
     # Validate
     try:
-        store.sync(clear=True)
+        store.sync(clear=clear_store)
         view = store.view(dataset, external=False)
         if not dataset.is_collection:
             validate_dataset(dataset, view)
@@ -228,7 +227,7 @@ def dump_file(
 
 @cli.command("xref", help="Generate dedupe candidates from the given dataset")
 @click.argument("dataset_paths", type=InPath, nargs=-1)
-@click.option("-c", "--clear", is_flag=True, default=False)
+@click.option("-c", "--clear_store", is_flag=True, default=False)
 @click.option("-l", "--limit", type=int, default=10000)
 @click.option("-f", "--focus-dataset", type=str, default=None)
 @click.option("-s", "--schema", type=str, default=None)
@@ -237,7 +236,7 @@ def dump_file(
 @click.option("-d", "--discount-internal", "discount_internal", type=float, default=1.0)
 def xref(
     dataset_paths: List[Path],
-    clear: bool,
+    clear_store: bool,
     limit: int,
     threshold: Optional[float],
     algorithm: str,
@@ -249,7 +248,7 @@ def xref(
     resolver = get_resolver()
     resolver.begin()
     store = get_store(dataset, resolver)
-    store.sync(clear=clear)
+    store.sync(clear=clear_store)
     blocking_xref(
         resolver,
         store,
@@ -278,13 +277,13 @@ def xref_prune() -> None:
 
 @cli.command("dedupe", help="Interactively decide xref candidates")
 @click.argument("dataset_paths", type=InPath, nargs=-1)
-@click.option("-c", "--clear", is_flag=True, default=False)
-def dedupe(dataset_paths: List[Path], clear: bool = False) -> None:
+@click.option("-c", "--clear_store", is_flag=True, default=False)
+def dedupe(dataset_paths: List[Path], clear_store: bool = False) -> None:
     dataset = _load_datasets(dataset_paths)
     resolver = get_resolver()
     resolver.begin()
     store = get_store(dataset, resolver)
-    store.sync(clear=clear)
+    store.sync(clear=clear_store)
     resolver.commit()
     dedupe_ui(resolver, store, url_base="https://opensanctions.org/entities/%s/")
 
@@ -314,14 +313,14 @@ def merge(entity_ids: List[str], force: bool = False) -> None:
 
 @cli.command("dedupe-edges", help="Merge edge entities that are effectively duplicates")
 @click.argument("dataset_paths", type=InPath, nargs=-1)
-@click.option("-c", "--clear", is_flag=True, default=False)
-def dedupe_edges(dataset_paths: List[Path], clear: bool = False) -> None:
+@click.option("-c", "--clear_store", is_flag=True, default=False)
+def dedupe_edges(dataset_paths: List[Path], clear_store: bool = False) -> None:
     dataset = _load_datasets(dataset_paths)
     resolver = get_resolver()
     try:
         resolver.begin()
         store = get_store(dataset, resolver)
-        store.sync(clear=clear)
+        store.sync(clear=clear_store)
         edges.dedupe_edges(resolver, store.view(dataset, external=True))
         resolver.commit()
     except Exception:
@@ -343,7 +342,7 @@ def clear(dataset_path: Path) -> None:
 
 @cli.command("summarize")
 @click.argument("dataset_path", type=InPath)
-@click.option("-c", "--clear", is_flag=True, default=False)
+@click.option("-c", "--clear_store", is_flag=True, default=False)
 @click.option("-s", "--schema", type=str, default=None)
 @click.option(
     "-f",
@@ -377,7 +376,7 @@ def clear(dataset_path: Path) -> None:
 )
 def summarize(
     dataset_path: Path,
-    clear: bool = False,
+    clear_store: bool = False,
     schema: Optional[str] = None,
     from_prop: Optional[str] = None,
     link_props: List[str] = [],
@@ -401,7 +400,7 @@ def summarize(
         dataset = _load_dataset(dataset_path)
         linker = get_dataset_linker(dataset)
         store = get_store(dataset, linker)
-        store.sync(clear=clear)
+        store.sync(clear=clear_store)
         view = store.view(dataset, external=False)
         _summarize(view, schema, from_prop, link_props, to_prop, to_props)
     except Exception:
@@ -411,13 +410,13 @@ def summarize(
 
 @cli.command("wd-up")
 @click.argument("dataset_paths", type=InPath, nargs=-1)
-@click.option("-c", "--clear", is_flag=True, default=False)
+@click.option("-c", "--clear_store", is_flag=True, default=False)
 @click.option("-a", "--country-adjective", type=str, required=True)
 @click.option("-d", "--country-code", type=str, required=True)
 @click.option("-f", "--focus-dataset", type=str, default=None)
 def wd_up(
     dataset_paths: List[Path],
-    clear: bool,
+    clear_store: bool,
     country_code: str,
     country_adjective: str,
     focus_dataset: Optional[str] = None,
@@ -428,7 +427,7 @@ def wd_up(
 
     \b
     zavod wd-up \\
-        --clear \\
+        --clear_store \\
         datasets/de/abgeordnetenwatch/de_abgeordnetenwatch.yml \\
         datasets/_analysis/ann_pep_positions/ann_pep_positions.yml \\
         --country-adjective German \\
@@ -438,7 +437,7 @@ def wd_up(
     resolver = get_resolver()
     resolver.begin()
     store = get_store(dataset, resolver)
-    store.sync(clear=clear)
+    store.sync(clear=clear_store)
     run_app(
         resolver,
         store,

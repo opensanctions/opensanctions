@@ -25,7 +25,7 @@ def crawl_dataset(dataset: Dataset, dry_run: bool = False) -> ContextStats:
         return context.stats
 
     try:
-        context.begin(clear=True)
+        context.begin()
         context.log.info(
             "Running dataset",
             data_path=dataset_data_path(dataset.name),

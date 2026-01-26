@@ -76,7 +76,7 @@ def validate_dataset(dataset: Dataset, view: View) -> None:
     """
     context = Context(dataset)
     try:
-        context.begin(clear=False)
+        context.begin()
         context.log.info(
             "Validating dataset",
             path=dataset_data_path(dataset.name),

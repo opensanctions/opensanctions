@@ -76,7 +76,7 @@ def test_context_helpers(testdataset1: Dataset):
 def test_context_dry_run(testdataset1: Dataset):
     context = Context(testdataset1, dry_run=True)
     assert context.dataset == testdataset1
-    context.begin(clear=True)
+    context.begin()
     assert context.dry_run
     context.log.error("Test error")
     context.close()
@@ -250,7 +250,7 @@ def test_crawl_dataset(testdataset1: Dataset):
         path.unlink()
     assert len(list(iter_dataset_statements(testdataset1))) == 0
     context = Context(testdataset1)
-    context.begin(clear=True)
+    context.begin()
     assert len(context.resources.all()) == 0
     func = load_entry_point(testdataset1)
     func(context)
