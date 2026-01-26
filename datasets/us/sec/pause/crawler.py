@@ -1,5 +1,4 @@
 from itertools import count
-from normality import squash_spaces
 from time import sleep
 
 from zavod import Context
@@ -45,17 +44,22 @@ def crawl_entity(context: Context, *, url: str, name: str, category: str) -> Non
     sanction = h.make_sanction(context, entity, key=category)
     sanction.add("program", category)
 
-    body_els = doc.xpath(".//div[contains(@class, 'field--name-body')]")
-    if body_els:
-        body = body_els[0].text_content().strip()
+    body_els = h.xpath_elements(doc, ".//div[contains(@class, 'field--name-body')]")
+    for body_el in body_els:
+        body = h.element_text(body_el)
         entity.add("notes", body)
 
-    contacts_containers = doc.xpath(
-        ".//div[contains(@class, 'field--name-field-public-alerts-contact')]"
+    contacts_containers = h.xpath_elements(
+        doc, ".//div[contains(@class, 'field--name-field-public-alerts-contact')]"
     )
-    if contacts_containers:
-        contacts_container = contacts_containers[0]
-        contacts = contacts_container.text_content()
+    if len(contacts_containers) > 1:
+        context.log.warning(
+            "Multiple contacts containers found for entity, don't know how to parse that",
+            entity=entity,
+        )
+
+    if len(contacts_containers) == 1:
+        contacts = h.element_text(contacts_containers[0])
         contacts = contacts.replace(" :", ":")
         address = []
         for row in contacts.split("\n"):
@@ -88,7 +92,7 @@ def crawl_entity(context: Context, *, url: str, name: str, category: str) -> Non
 def crawl(context: Context) -> None:
     table_xpath = ".//table[contains(@class, 'usa-table')]"
 
-    for page in count(17):
+    for page in count(0):
         doc = zyte_api.fetch_html(
             context,
             context.data_url + f"?page={page}",
@@ -109,9 +113,10 @@ def crawl(context: Context) -> None:
 
         for row in h.parse_html_table(table):
             sleep(SLEEP)
-            name_a_el = row.pop("name").find(".//a")
-            name, url = name_a_el.text_content(), name_a_el.get("href")
-            category = squash_spaces(row.pop("category").text_content())
+            name_a_el = h.xpath_element(row.pop("name"), ".//a")
+            name, url = h.element_text(name_a_el), name_a_el.get("href")
+            assert url is not None, "No URL found for name: %s" % name
+            category = h.element_text(row.pop("category"))
 
             crawl_entity(context, url=url, name=name, category=category)
             context.audit_data(row)
