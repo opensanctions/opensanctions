@@ -500,6 +500,16 @@ def parse_id_reg_document(
             period = parse_date_period(period_el)
             date_type_id = date.get("IDRegDocDateTypeID")
             date_type = get_ref_element(refs, "IDRegDocDateType", date_type_id)
+
+            # Identity issue dates are expressed in the data as time periods with equal start and end dates.
+            # If that assumption breaks, let's warn to have someone investigate.
+            if len(set(period)) != 1:
+                context.log.warning(
+                    "Identity issue/expiration date has multiple different dates, that's unexpected, please investigate.",
+                    entity=proxy.id,
+                    period=period,
+                )
+
             if date_type.text == "Issue Date":
                 issue_date = min(period)
             elif date_type.text == "Expiration Date":
