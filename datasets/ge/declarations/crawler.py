@@ -13,6 +13,9 @@ from zavod.shed.trans import (
     apply_translit_full_name,
     apply_translit_names,
     make_position_translation_prompt,
+    ENGLISH,
+    RUSSIAN,
+    ARABIC,
 )
 from zavod.stateful.positions import OccupancyStatus, categorise
 
@@ -22,11 +25,7 @@ DECLARATION_LIST_URL = "https://declaration.acb.gov.ge/Home/DeclarationList"
 REGEX_CHANGE_PAGE = re.compile(r"changePage\((\d+), \d+\)")
 REGEX_FORMER = re.compile(r"\(ყოფილი\)", re.IGNORECASE)
 _18_YEARS_AGO = (datetime.now() - timedelta(days=18 * 365)).isoformat()
-TRANSLIT_OUTPUT = {
-    "eng": ("Latin", "English"),
-    "rus": ("Cyrillic", "Russian"),
-    "ara": ("Arabic", "Arabic"),
-}
+TRANSLIT_OUTPUT = [ENGLISH, RUSSIAN, ARABIC]
 POSITION_PROMPT = prompt = make_position_translation_prompt("kat")
 
 

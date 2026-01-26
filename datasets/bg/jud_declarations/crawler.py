@@ -8,10 +8,14 @@ from typing import Dict, Generator, List, Optional
 
 from zavod import Context, helpers as h
 from zavod.stateful.positions import categorise, OccupancyStatus
-from zavod.shed.trans import apply_translit_full_name, make_position_translation_prompt
+from zavod.shed.trans import (
+    apply_translit_full_name,
+    make_position_translation_prompt,
+    ENGLISH,
+)
 
 
-TRANSLIT_OUTPUT = {"eng": ("Latin", "English")}
+TRANSLIT_OUTPUT = [ENGLISH]
 POSITION_PROMPT = prompt = make_position_translation_prompt("bul")
 # e.g. (name_html, name_pdf)
 # {
