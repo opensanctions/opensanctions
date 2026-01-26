@@ -48,6 +48,9 @@ assertions:
 lookups: 
   comma_names:
     options:
+      - match: 'Pejman Mahmood Kosarayanifard, a/k/a Kosarian Fard'
+        name: Pejman Mahmood Kosarayanifard
+        alias: Kosarian Fard
       - match: "Siberian Airlines d/b/a S& Airlines" 
         name: "Siberian Airlines"
         alias: 
@@ -62,8 +65,254 @@ lookups:
           - "Al-Naser Airlines"
           - "Alnaser Airlines"
           - "Air Freight Ltd."
-      - match: "and Issam Shammout, a/k/a Muhammad Isam Muhammad Anwar Nur Shammout, a/k/a Issam Anwar Shammout"
-        name: "Issam Shammout"
-        alias:
-          - "Muhammad Isam Muhammad Anwar Nur Shammout"
-          - "Issam Anwar Shammout"
+      - match: 'Al Naser Airlines, a/k/aAl-Naser Airlines, a/k/a Alnaser Airlines and Air Freight Ltd.'
+        name: Al Naser Airlines
+        alias: 
+          - Al-Naser Airlines
+          - Alnaser Airlines
+          - Air Freight Ltd.
+      - match: 'Al Naser Airlines, a/k/a Al-Naser Airlines,a/k/a Alnaser Airlines and Air Freight Ltd.'
+        name: Al Naser Airlines
+        alias: 
+          - Al-Naser Airlines
+          - Alnaser Airlines
+          - Air Freight Ltd.
+#
+      - match: "Nikolay Goltsev, a/k/a Nick Stevens, a/k/a Gio Ross, Salimdzhon Nasriddinov, Kristina Puzyreva, Vladimir Bochkarev, Pavel Chernikov, Yekaterina Vetoshkina, Oleg Zenchenko, SH Brothers Group, Inc., SN Electronics, Inc. and Suntronic F.Z.E."
+        name: Nikolay Goltsev
+        alias: 
+          - "Nick Stevens"
+          - "Gio Ross"
+        name: Salimdzhon Nasriddinov
+        name: Kristina Puzyreva
+        name: Vladimir Bochkarev
+        name: Pavel Chernikov
+        name: Yekaterina Vetoshkina
+        name: Oleg Zenchenko
+        name: SH Brothers Group, Inc.
+        name: SN Electronics, Inc. 
+        name: Suntronic F.Z.E.
+      - match: 'Arthur Petrov aka Artur Petrov, Astrafteros Technokosmos LTD, Zhanna Soldatenkova, Ultra Trade Service LLC, Ruslan Almetov, Juzhoi Electronic LLC and LLC Electrocom VPK VPK/OOO/LLC/SPB'
+        name: Arthur Petrov
+        alias: 
+          - Artur Petrov
+        name: Astrafteros Technokosmos Ltd
+        name: Zhanna Soldatenkova
+        name: Ultra Trade Service LLC
+        name: Ruslan Almetov
+        name: Juzhoi Electronic LLC
+        name: LLC Electrocom VPK VPK/OOO/LLC/SPB'
+        alias: 
+          - Electrocom
+      - match: 'Ilya Balakaev and Radiotester OOO a/k/a Radiotester LLC'
+        name: Ilya Balakaev
+        name: Radiotester OOO
+        alias: 
+          - Radiotester LLC
+      - match: 'Pejman Mahmood Kosarayanifard, a/k/a 11/08/2022 Kosarian Fard'
+        name: Pejman Mahmood Kosarayanifard
+        alias: Kosarian Fard
+      - match: 'Hans De Geetere and Knokke-Heist Support Corporation Management a/k/a Hasa-Invest'
+        name: Hans De Geetere
+        name: Knokke-Heist Support Corporation Management
+        alias: Hasa-Invest
+      - match: 'Kerman Aviation, a/k/aGIE Kerman Aviation'
+      # 'Kerman Aviation, a/k/a GIE Kerman Aviation'
+        name: Kerman Aviation
+        alias: GIE Kerman Aviation
+      - match: 'and Issam Shammout, a/k/a Muhammad Isam Muhammad Anwar Nur Shammout, a/k/a Issam Anwar'
+      # 'and Issam Shammout,a/k/a Muhammad Isam Muhammad Anwar Nur Shammout,a/k/a Issam Anwar'
+        name: Issam Shammout
+        alias: 
+          - Muhammad Isam Muhammad Anwar Nur Shammout
+          - Issam Anwar
+      - match: 'Winter Aircraft/Ana Belen Diaz Sanchez'
+        name: Winter Aircraft
+        name: Ana Belen Diaz Sanchez
+      - match: 'Winter Aircraft/Iberair Lines'
+        name: Winter Aircraft
+        name: Iberair Lines
+      # - match: 'Sayegh Group Aviation, Aban AirSam Air Corporation LimitedAviation Legacy (Gambia) LimitedAbdullah Khaled Ramadan, Ali Mahdavi, Mahmoud Khali Hamze (a/k/a Mahmoud Khalila/k/a Mahmoud Hamza Khalil)Everex Global Cargo and Courier'
+      #   name: Sayegh Group Aviation
+      #   name: 
+      # tf going on there w /n ^
+      - match: 'SP Industries, Inc. (d/b/a SP Scientific)'
+        name: SP Industries, Inc.
+        alias: SP Scientific
+      - match: 'Sky Blue Bird Group, a/k/a Sky Blue Bird Aviation, a/k/a Sky Blue Bird Ltd., a/k/a Sky Blue Bird FZC'
+        name: Sky Blue Bird Group
+        alias: 
+          - Sky Blue Bird Aviation
+          - Sky Blue Bird Ltd.
+          - Sky Blue Bird FZC
+      - match: 'Pavel Semenovich Flider, a/k/a Pavel Flider and Gennadiy Semenovich Flider, a/k/a Gennadiy Flider (Amended Order)'
+# also add ^ 'Pavel Semenovich Flider, a/k/a Pavel Flider and Gennadiy Semenovich Flider, a/k/a Gennadiy Flider'
+        name: Pavel Semenovich Flider
+        alias: 
+          - Pavel Flider
+        name: Gennadiy Semenovich Flider
+        alias: 
+          - Gennadiy Flider
+      - match: 'Davoud Baniameri, a/k/a Davoud Baniamery,a/k/a David Baniameri and a/k/a David Baniamery'
+        name: Davoud Baniameri
+        alias: 
+          - Davoud Baniamery
+          - David Baniameri
+          - David Baniamery
+      - match: 'Ali Abdullah Alhay,a/k/a Ali Alhay, a/k/a Ali Abdullah Ahmed Alhay'
+        name: Ali Abdullah Alhay
+        alias: 
+          - Ali Alhay
+          - Ali Abdullah Ahmed Alhay
+      - match: 'Flider Electronics, LLC, a/k/a Flider Electronics, d/b/a Trident International Corporation, d/b/a Trident International, d/b/a Trident International Corporation, LLC'
+        name: Flider Electronics, LLC
+        alias: 
+          - Flider Electronics
+          - Trident International Corporation
+          - Trident International
+          - Trident International Corporation, LLC
+      - match: 'Borna Faizy, a/ka/ Brad Faizy'
+        name: Borna Faizy
+        alias: Brad Faizy
+####
+      - match: '3K Aviation Consulting & Logistics a/k/a3K Havacilik Ve Danismanlik SAN. TIC. LTD. ST., HuseyinEngin Borluca, Pouya Airline a/k/a Pouya Air,Evans Meridians Ltd.'
+        name: 3K Aviation Consulting & Logistics
+        alias: 
+          - 3K Havacilik Ve Denismanlik SAN. TIC. LTD. ST.
+        name: Huseyin Engin Borluca
+        name: Pouya Airline
+        alias: 
+          - Pouya Air
+        name: Evans Meridians Ltd.
+      - match: '3K Aviation Consulting & Logistics, a/k/a 3K Havacilik Ve Denismanlik SAN. TIC. LTD. ST., Huseyin Engin Borluca, Adaero International Trade, LLC, Recep Sadettin Ilgin and Pouya Airline a/k/a Pouya Air, Evans Meridians Ltd.'
+        name: 3K Aviation Consulting & Logistics
+        alias: 
+          - 3K Havacilik Ve Denismanlik SAN. TIC. LTD. ST.
+        name: Huseyin Engin Borluca
+        name: Adaero International Trade, LLC
+        name: Recep Sadettin Ilgin
+        name: Pouya Airline
+        alias: 
+          - Pouya Air
+        name: Evans Meridians Ltd.
+      - match: '3K Aviation Consulting & Logistics a/k/a 3K Havacilik Ve Danismanlik SAN. TIC. LTD. ST., Huseyin Engin Borluca, Adaero International Trade, LLC, Recep Sadettin Ilgin and Pouya Airline a/k/a Pouya Air'
+        name: 3K Aviation Consulting & Logistics
+        alias: 
+          - 3K Havacilik Ve Denismanlik SAN. TIC. LTD. ST.
+        name: Huseyin Engin Borluca
+        name: Adaero International Trade, LLC
+        name: Recep Sadettin Ilgin
+        name: Pouya Airline
+        alias: 
+          - Pouya Air
+##########
+#
+      - match: 'RH International, LLC and Mohammad Reza (A/K/A Ray Hajian)'
+        name: RH International, LLC
+        name: Mohammad Reza
+        alias: 
+          - Ray Hajian
+      - match: 'Advanced Tech Solutions, a/k/a Advanced Technology Solutions and iT Wave FZCO, a/k/a iT-Wave, a/k/a ITEX-Wave FZCO'
+        name: Advanced Tech Solutions
+        alias: 
+          - Advanced Technology Solutions
+        name: iT Wave FZCO
+        alias: 
+          - iT-Wave
+          - ITEX-Wave FZCO
+      - match: 'Ribway Airlines Company Limited, John Edward Meadows, Jeffrey John James Ashfield, and AC AVIATIE UK Limited, f/k/a Bin Vali Aviation Limited'
+        name: Ribway Airlines Company Limited
+        name: John Edward Meadows
+        name: Jeffrey John James Ashfield
+        name: AC AVIATIE UK Limited
+        alias: 
+          - Bin Vali Aviation Limited
+      - match: 'Ribway Airlines Company Limited, John Edward Meadows, Jeffrey John James Ashfield, moreJet Ltd., Stefan Piotr Kondak, a/k/a Stefan Peter Kondak, AC AVIATIE UK Limited, f/k/a Bin Vali Aviation Limited'
+        name: Ribway Airlines Company Limited
+        name: John Edward Meadows
+        name: Jeffrey John James Ashfield
+        name: moreJet Ltd.
+        name: Stefan Piotr Kondak
+        alias: 
+          - Stefan Peter Kondak
+        name: AC AVIATIE UK Limited
+        alias: 
+          - Bin Vali Aviation Limited
+      - match: 'Ali Abdullah Alhay,a/k/a Ali Alhay, a/k/a Ali Abdullah Ahmed Alhay'
+        name: Ali Abdullah Alhay
+        alias: 
+          - Ali Alhay
+          - Ali Abdullah Ahmed Alhay
+      - match: 'Muhammad Kamran Wali, Muhammad Ahsan Wali, Haji Wali Muhammad Sheikh, Ahmed Waheed, Ashraf Khan Muhammad, Business World (of Pakistan), Buziness World (of Canada), Business World (of Hong Kong), Industria Hong Kong Ltd, d/b/a Transcool Auto Air Conditioning Products, d/b/a Electro-Power Solutions and Product Engineering'
+        name: Muhammad Kamran Wali
+        name: Muhammad Ahsan Wali
+        name: Haji Wali Muhammad Sheikh
+        name: Ahmed Waheed
+        name: Ashraf Khan Muhammad
+        name: Business World (of Pakistan)
+        name: Buziness World (of Canada)
+        name: Business World (of Hong Kong)
+        name: Industria Hong Kong Ltd
+        alias: 
+          - Transcool Auto Air Conditioning Products
+          - Electro-Power Solutions 
+        name: Product Engineering
+      - match: 'Jirair Avanessian, a/k/a Jirair Hijiabadi Avanessiana/k/a Jirair H. Avanessian, a/k/a Jerry Avanessiana/k/a Jerry Avanes'
+        name: Jirair Avanessian
+        alias: 
+          - Jirair Hijiabadi Avanessian
+          - Jirair H. Avanessian
+          - Jerry Avanessian
+          - Jerry Avanes
+# 'Silicon Space Technology Corporation, d/b/a Vorago Technologies, Inc'
+# 'Matteo Taerri, a/k/a Majid Taheri'
+# 'Alsima Middle East General Trading LLC, also known as Al Sima Middle East General Trading LLC.'
+# 'Mahin Mojtahedzadeh, a.k.a. Mahin Toussi Mojtahedzadeh, a.k.a. Mahin Mojtahedzadeh Toussi'
+
+# 'Arash Sepehri, a/k/a William Anderson, a/k/a Aresh Sepheri Eshtajran'
+# 'Si Chen, a/k/a Cathy Chen, a/k/a Celia Chen, a/k/a Chunping Ji'
+# 'Michael Shapovalov, a/k/a Mikhail Shapovalov'
+# 'Pouran Aazad, a/k/a Pouran Azad, a/k/a Pourandokt Aazad, a/k/a Pourandokt Azad'
+# 'Sadr Emad-Vaez, a/k/a Seid Sadredin Emad Vaez and Ghareh Sabz Co., a/k/a Ghare Sabz Co., a/k/a GHS Technology'
+# 'Shai Gear LLC, d/b/a Spider Camera Holster, d/b/a Spider Camera'
+# 'Valery Kosmachov a/k/a Valeri Kosmachov, a/k/a Valery Kosmatsov, a/k/a Valery Kosmatshov, a/k/a Valery Kosmachev'
+# 'Mohawk Global Logistics Corp, f/k/a Mohawk Customs and Shipping Corp.'
+# 'Fuyi Sun, a/k/a Frank Sun'
+# 'Merit Aerospace, Inc. and Yanhong Zhou a/k/a Joe Zhou'
+# 'Weiming Zhang, a.k.a John Zhang and Seasia Enterprises (USA), Inc.'
+# 'Federal Express Corportation, d/b/a FedEx Express'
+# 'Shantia Hassanshahi, a/k/a Shantia Hassan Shahi, a/k/a Shahi, a/k/a Shantia Haas, a/k/a Sean Haas'
+# 'Pilot Air Freight LLC, a/k/a Pilot Air Freight Corp.'
+# 'Jimmy Rojas, a/k/a Jim Rojas'
+# 'Shantia Hassanshahi, a/k/a Shantia Hassan Shahi, a/k/a Shahi, a/k/a Shantia Haas, a/k/a Sean Haas'
+# 'Mark Henry, a/k/a Weida Zheng, a/k/a Scott Russel, a/k/a Bob Wilson, a/k/a Joanna Zhong'
+# 'Alexey Krutilin, a/k/a David Powell'
+# 'Dmitrii Karpenko, a/k/a Simon Fox'
+# 'Mansour Moghtaderi Zadeh, a/k/a Mansour Zadeh, a/k/a Mita Zarek, a/k/a Mita Zadeh'
+# 'Wenxia Man, a/k/a Wency Man'
+# 'Harold Rinko d/b/a Global Parts Supply, a/k/a Global Parts Supply and Equip'
+# 'Hassan Zafari, a/k/a Sam Zafari'
+# 'Song II Kim, a/k/a Kim Song II'
+# 'Sihai Cheng, a/k/a Alex Cheng, a/k/a Chun Hai Cheng'
+# 'Amin Al-Baroudi, a/k/a Abu al-Jud'
+# 'Access USA Shipping, LLC, d/b/a MyUS.com'
+# 'R&A International Trading, Inc. , d/b/a R&A International Logistics and Rukhsana Kadri, a/k/a Roxanne Kadri'
+# 'Paweena Pechner, a/k/a Paweena Montasood'
+# 'Qiang Hu, a/k/a Johnson Hu'
+# 'Aiman Ammar, a/k/a Ayman Ammar'
+# 'Wei Jiun Chu, a/k/a Jim Chu'
+# 'Lisong Ma, a/k/a Ma Li'
+# 'Touraj Ghavidel, a/k/a Brent Dell and Signal Micro Systems, Inc., d/b/a Techonweb'
+# 'Ernest Chornoletskyy, a/k/a Erik Chornoletskyy'
+# 'Mostafa Saberi Tehrani, a/k/a Mostafa Saberi, a/k/a Mike Saberi'
+# 'Mohammad Soroush Mahalaty, a/k/a Mohammad Soroush, a/k/a Mike Soroush'
+# 'Liem Duc Huynh, a/k/a Duc Huynh'
+# 'Andro Telemi, a/k/a Andre Telimi, a/k/a Andre Telemi'
+# 'York Yuan Chang, a.k.a. York Chang, a.k.a. David Zhang, a.k.a. Yuan Zhang'
+# 'Leping Huang, a.k.a. Nicole Huang'
+# 'Chitron ElectronicsCompany Limited, a/k/a Chi-Chuang ElectronicsCompany Limited, a/k/a Shenzhen ChitronElectronics Company Limited and Chitron (HK)Electronics Company Limited, a/k/a C.I.C.Electronics (HK) Limited'
+# 'Jeng Shih, a/k/a Jay Shih'
+# 'Sunrise Technologies and Trading Corporation, a/k/a Sunrise, a/k/a ST&T'
+# 'Security 20/20, Inc.'
+# 'Hui-Fen Chen, A.K.A. Angela Chen'
+# 'Reson A/S'
