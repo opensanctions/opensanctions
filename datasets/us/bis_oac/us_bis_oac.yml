@@ -13,12 +13,12 @@ description: |
   foreign boycotts. They have  the effect of preventing U.S. persons from advancing foreign
   policies of other  nations that run counter to U.S. policy.
 
-  These entities have been reported to the BIS for making boycott-related requests in U.S. transactions. 
+  These entities have been reported to the BIS for making boycott-related requests in U.S. transactions.
   The list is updated quarterly and is not exhaustive.
 
-  Related dataset: [US BIS Alleged Antiboycott Violations](https://www.opensanctions.org/datasets/us_bis_antiboycott/) contains U.S. companies alleged to have 
-  violated antiboycott regulations by complying with such requests (the violators), 
-  while this dataset contains the foreign entities that made the requests 
+  Related dataset: [US BIS Alleged Antiboycott Violations](https://www.opensanctions.org/datasets/us_bis_antiboycott/) contains U.S. companies alleged to have
+  violated antiboycott regulations by complying with such requests (the violators),
+  while this dataset contains the foreign entities that made the requests
   (the requesters).
 publisher:
   name: Bureau of Industry and Security
