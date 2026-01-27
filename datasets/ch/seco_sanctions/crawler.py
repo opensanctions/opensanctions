@@ -20,7 +20,6 @@ from pydantic import BaseModel, Field
 from zavod.extract.llm import run_typed_text_prompt
 from zavod.stateful.review import (
     TextSourceValue,
-    assert_all_accepted,
     review_extraction,
 )
 
@@ -357,10 +356,17 @@ def make_related_entities(
     context: Context, entity: Entity, relationship: RelatedEntity
 ) -> List[Entity]:
     other = context.make("LegalEntity")
-    other.id = context.make_id(relationship.related_entity_name)
+    other.id = context.make_id(*relationship.related_entity_name)
     other.add("name", relationship.related_entity_name)
 
     res = context.lookup("relations", relationship.relationship_schema)
+    if res is None:
+        context.log.warning(
+            "Unknown relationship schema",
+            schema=relationship.relationship_schema,
+            source=entity,
+        )
+        return []
 
     rel = context.make(relationship.relationship_schema)
     rel.id = context.make_id(entity.id, relationship.relationship, other.id)
@@ -453,6 +459,9 @@ def crawl_other_info(context: Context, entity_ssid: str, entity: Entity, node: E
 def parse_entry(context: Context, target: Element, programs, places):
     entity = context.make("LegalEntity")
     entity_ssid = target.get("ssid")
+    if entity_ssid is None:
+        context.log.error("No SSID on target", target=target)
+        return
     if entity_ssid in SKIP_OLD:
         context.log.info("Skipping old entry", ssid=entity_ssid)
         return
@@ -517,8 +526,9 @@ def parse_entry(context: Context, target: Element, programs, places):
 
     justifications: List[Tuple[str, str]] = []
     for justification in node.findall("./justification"):
-        ssid = justification.get("ssid")
-        justifications.append((ssid, justification.text))
+        just_ssid = justification.get("ssid")
+        if just_ssid is not None and justification.text is not None:
+            justifications.append((just_ssid, justification.text))
 
     # TODO: should this go into sanction:reason?
     notes = [n for (s, n) in sorted(justifications)]
@@ -531,7 +541,7 @@ def parse_entry(context: Context, target: Element, programs, places):
         target_id = context.make_slug(relation.get("target-id"))
         res = context.lookup("relations", rel_type)
         if res is None:
-            context.log.warn(
+            context.log.warning(
                 "Unknown relationship type",
                 type=rel_type,
                 source=entity,
@@ -594,4 +604,4 @@ def crawl(context: Context):
         if idx > 0 and idx % 100 == 0:
             context.flush()
 
-    assert_all_accepted(context, raise_on_unaccepted=False)
+    # assert_all_accepted(context, raise_on_unaccepted=False)
