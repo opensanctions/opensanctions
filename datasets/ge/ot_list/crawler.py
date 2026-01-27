@@ -9,7 +9,7 @@ from lxml.html import HtmlElement
 
 from zavod import Context, Entity
 from zavod import helpers as h
-from zavod.shed.trans import apply_translit_full_name
+from zavod.shed.trans import ENGLISH, apply_translit_full_name
 
 TARGET = "ბრალდებული/ მსჯავრდებული"
 DEMOGRAPHICS = "დემოგრაფიული მონაცემები"
@@ -22,7 +22,7 @@ UNUSED_FIELDS = [
     "შენიშვნა",
 ]
 PATROYNMIC = re.compile(r"\b(\S+)\s+ძე\s+")
-TRANSLIT_OUTPUT = {"eng": ("Latin", "English")}
+TRANSLIT_OUTPUT = [ENGLISH]
 
 
 def extract_name(context: Context, person: Entity, name: str):
