@@ -4,6 +4,7 @@ from nomenklatura.resolver import Linker
 from nomenklatura.publish.dates import simplify_dates
 from nomenklatura.publish.edges import simplify_undirected
 
+from zavod import settings
 from zavod.entity import Entity
 
 
@@ -30,6 +31,8 @@ def simplify_names(entity: Entity) -> Entity:
     # 15 characters is arbitrary, but should filter for "noms de guerre" but leave more detailed names
     # marked as weakAlias. Let's make this longer after we've done a bit of data remediation on the source data
     # to make sure all weakAlias are actually weak.
+    # We do this to mitigate bad data from watchlists where source data format is not very expressive
+    # or the data quality management is poor.
     weak_aliases = entity.get("weakAlias", quiet=True)
     weak_aliases = [a.casefold() for a in weak_aliases if len(a) < 15 or WS not in a]
 
@@ -40,7 +43,7 @@ def simplify_names(entity: Entity) -> Entity:
         names = entity.get(prop)
         names_original = len(names)
 
-        # Remove names which are marked at weakAlias by at least one other source
+        # Remove names which are marked at weakAlias by at least one other source.
         if prop.name in FULL_NAMES and len(weak_aliases):
             strong_names = [n for n in names if n.casefold() not in weak_aliases]
             if len(strong_names) > 0 or prop.name == "alias":
@@ -50,6 +53,11 @@ def simplify_names(entity: Entity) -> Entity:
         if len(reduced) < names_original:
             stmts = list(entity._statements.get(prop_, set()))
             for stmt in stmts:
+                # We never want to downgrade names that are marked full names in
+                # the core sanctions lists from name/alias to weakAlias.
+                if stmt.dataset in settings.AUTHORITATIVE_DATASETS:
+                    continue
+
                 if stmt.value not in reduced:
                     entity._statements[prop_].remove(stmt)
 
