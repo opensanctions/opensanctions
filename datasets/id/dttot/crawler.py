@@ -86,12 +86,9 @@ def crawl(context: Context):
     # Check if the source file has been updated on the website
     # If the hash changes and the file is not corrupt anymore,
     # we should switch back to fetching directly from the URL
-    try:
-        html = context.fetch_html(context.data_url)
-        last_link = find_last_link(context, html)
-        h.assert_url_hash(context, last_link, "jnvkd")
-    except Exception as e:
-        context.log.error(f"Failed to check for file updates: {e}", exc_info=True)
+    html = context.fetch_html(context.data_url)
+    last_link = find_last_link(context, html)
+    h.assert_url_hash(context, last_link, "jnvkd")
 
     # Using file from internal bucket due to corruption in the live source
     path = context.get_resource_path("source.xls")
