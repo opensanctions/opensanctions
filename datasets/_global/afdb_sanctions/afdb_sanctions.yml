@@ -339,6 +339,9 @@ lookups:
         names:
           - name: Qi Technologies
             previous_name: ["Sao Bac Dau Technology Service Joint Stock Company", "SBD Service"]
+      - match: "EFACEC Arabia Co., Ltd. (Unified Number 7037412538) : Affiliate of LEECE"
+        names:
+          - name: EFACEC Arabia Co., Ltd.
   types:
     lowercase: true
     map:
