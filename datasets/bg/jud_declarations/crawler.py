@@ -101,11 +101,17 @@ def crawl_row(context: Context, row: Dict[str, HtmlElement], index_url: str):
     # Link is in the same cell as the name
     name_link_elem = HtmlElement(row["name"]).find(".//a")
     declaration_url = name_link_elem.get("href")
-    if not declaration_url or declaration_url in BROKEN_LINKS:
+    if not declaration_url:
         context.log.warning(
             "No declaration link found", name=name, doc_id_date=doc_id_date
         )
         return
+
+    # TODO: https://github.com/opensanctions/opensanctions/issues/3388
+    if declaration_url in BROKEN_LINKS:
+        context.log.warning(f"Known broken URL: {declaration_url}")
+        return
+
     extracted_data = extract_judicial_declaration(
         context,
         name,
