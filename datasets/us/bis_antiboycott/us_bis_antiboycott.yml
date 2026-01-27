@@ -6,17 +6,22 @@ coverage:
   frequency: weekly
   start: 2026-01-14
 summary: >
-  The Bureau of Industry and Security (BIS) enforces antiboycott policies under the Export
-  Administration Regulations (EAR) to stop U.S. companies from supporting unsanctioned foreign
-  boycotts, primarily targeting the Arab League boycott of Israel.
+  U.S. companies alleged to have violated antiboycott regulations by supporting
+  unsanctioned foreign boycotts, primarily the Arab League boycott of Israel.
 description: |
-   BIS has enhanced its antiboycott enforcement efforts to prevent U.S. companies from being used to
-   support unsanctioned foreign boycotts, most notably the Arab League boycott of Israel. In October
-   2022, BIS raised its penalties and instituted a requirement that companies entering into settlement
-   agreements for antiboycott violations admit to a statement of facts outlining their conduct. In July
-   2023, BIS announced a renewed focus on foreign subsidiaries of U.S. companies and noted that it
-   would explore additional ways to deter foreign parties from issuing or making boycott requests.
-   [Source: BIS Official Website](https://www.bis.gov/press-release/bis-imposes-penalty-quantum-corporation-resolve-alleged-violations-antiboycott-regulations)
+  The Bureau of Industry and Security (BIS) enforces antiboycott policies under
+  the Export Administration Regulations (EAR) to prevent U.S. companies from
+  participating in or supporting unsanctioned foreign boycotts. The primary focus
+  is on the Arab League boycott of Israel.
+
+  This dataset lists U.S. companies that have allegedly violated antiboycott
+  regulations and have been subject to enforcement actions. These violations
+  typically involve responding to boycott-related requests, providing prohibited
+  information, or agreeing to discriminatory terms in international transactions.
+
+  Related dataset: [US Office of Antiboycott Compliance Requester List](https://www.opensanctions.org/datasets/us_bis_oac/) contains
+  entities that requested U.S. companies to participate in unsanctioned boycotts (the requesters),
+  while this dataset contains U.S. companies alleged to have complied with such requests (the violators).
 publisher:
   name: Bureau of Industry and Security
   acronym: BIS
