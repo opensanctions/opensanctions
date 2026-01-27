@@ -193,7 +193,12 @@ def crawl_assets_for_family(
         person.id = context.make_id(first_name, last_name, relationship, pep.id)
         h.apply_name(person, first_name=first_name, last_name=last_name, lang="kat")
         apply_translit_names(
-            context, person, "kat", first_name, last_name, TRANSLIT_OUTPUT
+            context,
+            person,
+            input_code="kat",
+            first_name=first_name,
+            last_name=last_name,
+            output_spec=TRANSLIT_OUTPUT,
         )
         person.add("topics", "role.rca")
 
