@@ -498,22 +498,23 @@ def parse_id_reg_document(
             period_el = date.find("./DatePeriod")
             assert period_el is not None
             period = parse_date_period(period_el)
+            date_value = date_prefix(*period)
+            # Some periods are actually multi-year periods. We could emit these as a range of years,
+            # but that's just too messy. Instead, we're returning None and logging an info.
+            if date_value is None and len(period) > 1:
+                context.log.info(
+                    "Could not parse date period",
+                    period=period,
+                    doc_type=doc_type.text,
+                    number=number,
+                )
             date_type_id = date.get("IDRegDocDateTypeID")
             date_type = get_ref_element(refs, "IDRegDocDateType", date_type_id)
 
-            # Identity issue dates are expressed in the data as time periods with equal start and end dates.
-            # If that assumption breaks, let's warn to have someone investigate.
-            if len(set(period)) != 1:
-                context.log.warning(
-                    "Identity issue/expiration date has multiple different dates, that's unexpected, please investigate.",
-                    entity=proxy.id,
-                    period=period,
-                )
-
             if date_type.text == "Issue Date":
-                issue_date = min(period)
+                issue_date = date_value
             elif date_type.text == "Expiration Date":
-                expire_date = max(period)
+                expire_date = date_value
             else:
                 context.log.warning(
                     "Unknown document date type", date_type=date_type.text
