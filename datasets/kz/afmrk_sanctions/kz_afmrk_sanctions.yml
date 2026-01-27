@@ -1,6 +1,7 @@
 title: Kazakh Terrorist and Terror Financing lists
 entry_point: crawler.py
 prefix: kzafm
+ci_test: false
 coverage:
   frequency: never
   start: 2021-12-13
