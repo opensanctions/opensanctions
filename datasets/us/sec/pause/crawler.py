@@ -59,7 +59,8 @@ def crawl_entity(context: Context, *, url: str, name: str, category: str) -> Non
         )
 
     if len(contacts_containers) == 1:
-        contacts = h.element_text(contacts_containers[0])
+        # Splitting relies on the newlines, so we don't want to squash them.
+        contacts = h.element_text(contacts_containers[0], squash=False)
         contacts = contacts.replace(" :", ":")
         address = []
         for row in contacts.split("\n"):
