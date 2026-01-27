@@ -16,6 +16,7 @@ jobs:
   python:
     env:
       OPENSSL_CONF: "contrib/openssl.cnf"
+      FTM_USER_AGENT: "Mozilla/5.0 (compatible; github-actions-zavod/0.8; tech@opensanctions.org)"
 
     runs-on: ubuntu-latest
     steps:
@@ -109,8 +110,6 @@ jobs:
         run: echo "BUILD_DATE=$(date +%Y%m%d)" >> $GITHUB_ENV
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-        with:
-          install: true
       - name: Login to Github Container Registry
         uses: docker/login-action@v3
         with:

@@ -33,6 +33,7 @@ _Body = Union[
 def make_session(http_conf: HTTP) -> Session:
     session = Session()
     session.headers["User-Agent"] = http_conf.user_agent
+    # Too many of our target sites have invalid SSL certificates:
     session.verify = False
     session.request = partial(  # type: ignore
         session.request,

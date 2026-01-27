@@ -31,4 +31,4 @@ class HTTP(object):
             data.get("retry_methods", list(Retry.DEFAULT_ALLOWED_METHODS))
         )
         self.retry_methods: List[str] = retry_methods
-        self.user_agent: str = data.get("user_agent", USER_AGENT)
+        self.user_agent: str = data.get("user_agent") or USER_AGENT
