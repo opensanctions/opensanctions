@@ -2,8 +2,10 @@ title: Kazakh Terrorist and Terror Financing lists
 entry_point: crawler.py
 prefix: kzafm
 coverage:
-  frequency: daily
+  frequency: never
   start: 2021-12-13
+  end: 2025-09-11
+  schedule: "32 0 1 * *"
 load_statements: true
 summary: >
   A combination of two lists of sanctioned individuals and entities published by the
@@ -15,6 +17,12 @@ description: |
   with the financing of terrorism and extremism is published.
 
   Some, if not all persons listed for participation in terrorism are by request of other countries.
+deprecation: |
+  This data is no longer accessible from the official source. An API key is now required for
+  access, which is only available to organisations registered in Kazakhstan.
+  [Correspondence with the Financial Monitoring Agency of the Republic of Kazakhstan](https://github.com/opensanctions/opensanctions/issues/2825#issuecomment-3718456164)
+  for broader access to this data has not been successful. The dataset is therefore
+  now deprecated. It will be removed on 2026-03-31.
 publisher:
   name: Қазақстан Республикасының Қаржылық мониторинг агенттігі
   acronym: AFM
