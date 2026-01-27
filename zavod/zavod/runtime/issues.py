@@ -77,7 +77,10 @@ class DatasetIssues(object):
     def all(self) -> Generator[Issue, None, None]:
         """Iterate over all issues in the log."""
         self.close()
-        path = get_dataset_artifact(self.dataset.name, ISSUES_LOG)
+        # Don't backfill the issues log, otherwise we'll get issues from a previous run for collections.
+        # For data sources (that run crawl), that's not the case because they run clear() at the beginning
+        # of the crawl stage.
+        path = get_dataset_artifact(self.dataset.name, ISSUES_LOG, backfill=False)
         if not path.is_file():
             return
         with open(path, "rb") as fh:
