@@ -40,7 +40,7 @@ data:
   format: XML
 dates:
   formats: ["%d.%m.%Y", "%Y", "%b %Y", "%d %B %Y", "%d %b %Y", "%b, %Y"]
-ci_test: false  # No GPT key available in CI
+ci_test: false # No GPT key available in CI
 
 assertions:
   min:
@@ -127,8 +127,8 @@ lookups:
     lowercase: true
     options:
       - match:
-          - related-to  # for relationships explicit in the xml
-          - UnknownLink  # For LLM-extracted relationships
+          - related-to # for relationships explicit in the xml
+          - UnknownLink # For LLM-extracted relationships
         schema: UnknownLink
         source: subject
         target: object
@@ -145,6 +145,10 @@ lookups:
         value: null
       - match: Moscow
         value: Moscow
+  type.email:
+    options:
+      - match: "mss@korund_m.ru"
+        value: "mss@korund-m.ru"
   type.date:
     options:
       - match: 1.2.1994/6.3.2000
