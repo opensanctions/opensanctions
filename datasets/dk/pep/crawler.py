@@ -1,5 +1,3 @@
-from urllib.parse import quote
-
 from openpyxl import load_workbook
 from rigour.mime.types import XLSX
 
@@ -113,8 +111,6 @@ def crawl(context: Context) -> None:
             doc,
             f'//h2[strong[contains(text(), "PEP-liste ")]]/following-sibling::*//a[contains(@href, "{file_pattern}")]/@href',
         )
-        # Handle encoding screw ups like /PEP_listen grÃ¸nland.xlsx which don't bother the CDN.
-        link = quote(link, safe=":/")
         path = context.fetch_resource(name, link)
         context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
 
