@@ -1,10 +1,10 @@
 import csv
-from typing import Optional, Dict, Any, Generator
+from typing import Iterator, Optional, Dict
 
-from zavod import Context
+from zavod import Context, Entity
 from zavod import helpers as h
 
-Item = Dict[str, Any]
+Item = Dict[str, str]
 
 TYPES = {
     "FOREIGN_ENTITY": "LegalEntity",
@@ -51,7 +51,7 @@ def oc_url(reg_nr: str) -> str:
 #     return account
 
 
-def parse_register(context: Context, row: Item):
+def parse_register(context: Context, row: Item) -> None:
     reg_nr = row["regcode"]
     company = context.make("Company")
     company.id = company_id(context, reg_nr, name=row["name"])
@@ -79,7 +79,7 @@ def parse_register(context: Context, row: Item):
     context.emit(company)
 
 
-def parse_old_names(context: Context, row: Item):
+def parse_old_names(context: Context, row: Item) -> None:
     company = context.make("Company")
     company.id = company_id(context, row["regcode"])
     company.add("previousName", row["name"])
@@ -87,8 +87,10 @@ def parse_old_names(context: Context, row: Item):
         context.emit(company)
 
 
-def make_officer(context: Context, row: Item):
-    officer_type = TYPES.get(row.get("entity_type"), "Person")
+def make_officer(context: Context, row: Item) -> Entity:
+    entity_type = row.get("entity_type")
+    assert entity_type is not None
+    officer_type = TYPES.get(entity_type, "Person")
     is_person = officer_type == "Person"
     officer = context.make(officer_type)
     if is_person:
@@ -108,7 +110,7 @@ def make_officer(context: Context, row: Item):
     return officer
 
 
-def parse_officers(context: Context, row: Item):
+def parse_officers(context: Context, row: Item) -> None:
     rel_type = TYPES.get(row["position"], "Directorship")
     is_ownership = rel_type == "Ownership"
     officer = make_officer(context, row)
@@ -129,7 +131,7 @@ def parse_officers(context: Context, row: Item):
     context.emit(rel)
 
 
-def parse_beneficial_owners(context: Context, row: Item):
+def parse_beneficial_owners(context: Context, row: Item) -> None:
     officer = make_officer(context, row)
     officer.add("nationality", row["nationality"])
     officer.add("country", row["residence"])
@@ -144,7 +146,7 @@ def parse_beneficial_owners(context: Context, row: Item):
     context.emit(rel)
 
 
-def parse_members(context: Context, row: Item):
+def parse_members(context: Context, row: Item) -> None:
     cid = company_id(context, row["at_legal_entity_registration_number"])
     rel = context.make("Ownership")
     if row["entity_type"] == "JOINT_OWNERS":
@@ -164,7 +166,7 @@ def parse_members(context: Context, row: Item):
     context.emit(rel)
 
 
-def parse_joint_members(context: Context, row: Item):
+def parse_joint_members(context: Context, row: Item) -> None:
     officer = make_officer(context, row)
     rel = context.make("Ownership")
     rel.id = context.make_slug("OWNER", row["member_id"])
@@ -173,7 +175,7 @@ def parse_joint_members(context: Context, row: Item):
     context.emit(rel)
 
 
-def parse_csv(context: Context, path: str) -> Generator[Item, None, None]:
+def parse_csv(context: Context, path: str) -> Iterator[Item]:
     url = f"https://dati.ur.gov.lv/{path}"
     file_name = path.rsplit("/", 1)[-1]
     data_path = context.fetch_resource(file_name, url)
@@ -183,7 +185,7 @@ def parse_csv(context: Context, path: str) -> Generator[Item, None, None]:
             yield row
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     for row in parse_csv(context, "register/register.csv"):
         parse_register(context, row)
     for row in parse_csv(context, "register/register_name_history.csv"):

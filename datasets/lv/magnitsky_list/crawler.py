@@ -4,7 +4,7 @@ import zavod.helpers as h
 from zavod import Context
 
 
-def crawl_row(context: Context, row: Dict[str, str]):
+def crawl_row(context: Context, row: Dict[str, str]) -> None:
     original_name = row.get("Original Name")
     name_in_brackets = row.get("Name in Brackets")
     country = row.get("Country")
@@ -32,7 +32,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     context.emit(sanction)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     path = context.fetch_resource("source.csv", context.data_url)
     with open(path, "r", encoding="utf-8") as fh:
         reader = csv.DictReader(fh)
