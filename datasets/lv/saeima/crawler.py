@@ -1,17 +1,21 @@
-from datetime import datetime
 import re
 
 from zavod import Context, helpers as h
 from zavod.stateful.positions import categorise
 
+DATA_BASE_URL = "https://titania.saeima.lv/personal/deputati/saeima14_depweb_public.nsf"
+DEPUTIES_LIST_URL = f"{DATA_BASE_URL}/deputies?OpenView&lang=EN&count=1000"
 
-def crawl_item(unid: str, context: Context):
-    member_url = f"https://titania.saeima.lv/personal/deputati/saeima14_depweb_public.nsf/0/{unid}?OpenDocument&lang=EN"
 
-    response = context.fetch_html(member_url)
+def crawl_item(context: Context, unid: str) -> None:
+    member_url = f"{DATA_BASE_URL}/0/{unid}?OpenDocument&lang=EN"
+
+    member_doc = context.fetch_html(member_url)
 
     # The title string is starting with two \xa0 characters, which are blank spaces, we will remove them
-    full_name = response.find('.//*[@id="ViewBlockTitle"]').text.replace("\xa0", "")
+    full_name = h.xpath_string(member_doc, './/*[@id="ViewBlockTitle"]/text()').replace(
+        "\xa0", ""
+    )
 
     entity = context.make("Person")
     entity.id = context.make_slug(full_name)
@@ -19,22 +23,23 @@ def crawl_item(unid: str, context: Context):
 
     entity.add("sourceUrl", member_url)
 
-    year = response.xpath(
-        "//div/span[normalize-space(text()) and not(@class)]/text()[1]"
+    detail_strs = h.xpath_strings(
+        member_doc, "//div/span[normalize-space(text()) and not(@class)]/text()[1]"
     )
-    if len(year) == 1:
-        h.apply_date(entity, "birthDate", year[0])
-    elif len(year) == 2:
+    if len(detail_strs) == 1:
+        h.apply_date(entity, "birthDate", detail_strs[0])
+    elif len(detail_strs) == 2:
         # The year is in the second element, the first one is the previous name
         # e.g. '09.12.2019. Name (Previous) Surname'
-        h.apply_date(entity, "birthDate", year[1])
+        h.apply_date(entity, "birthDate", detail_strs[1])
     else:
         context.log.warning(f"Could not find birth date for {full_name}")
 
-    email_el = response.xpath(
-        './/*[text()=\'writeJsTrArr("form_email","E-pasta adrese")\']/../../span/a'
+    email_el = h.xpath_element(
+        member_doc,
+        './/*[text()=\'writeJsTrArr("form_email","E-pasta adrese")\']/../../span/a',
     )
-    entity.add("email", email_el[0].text_content() if email_el else None)
+    entity.add("email", h.element_text(email_el))
 
     position = h.make_position(context, "deputy of Saeima", country="lv")
     categorisation = categorise(context, position, is_pep=True)
@@ -55,26 +60,32 @@ def crawl_item(unid: str, context: Context):
     context.emit(occupancy)
 
 
-def crawl(context: Context):
-    # check if it's time for the end of the term
-    if datetime.now().isoformat() > "2025-12-31T23:59:59":
+def crawl(context: Context) -> None:
+    assert context.dataset.url is not None
+    overview_page = context.fetch_html(context.dataset.url)
+    # Check if the overview page still lists the 14th Saeima in the main menu.
+    if (
+        len(
+            h.xpath_elements(
+                overview_page, ".//*[@class='menu']//a[@text()='14th Saeima']"
+            )
+        )
+        == 0
+    ):
         context.log.warning(
-            "The 14th Saeima term is nearly over. These occupants will soon not be current."
+            "Hardcoded term is no longer current on the overview page, they probably elected a new Saeima.",
         )
 
-    response = context.fetch_html(context.data_url)
+    deputies_list_page = context.fetch_html(DEPUTIES_LIST_URL)
+    # The links are generated using JS, so we parse the ID from some embedded javascript
+    # Using a a regex and build the URL from that.
+    members_data = h.xpath_string(
+        deputies_list_page, './/*[@class="viewHolderText"]/text()'
+    )
 
-    # We will first find the link to the page of each member
-    # The links are generated using javascript, so we are going
-    # to find the id of each member and build the URL from there.
-
-    members_data = response.find('.//*[@class="viewHolderText"]').text
-
-    # The data is in the format:
+    # The lines in the JS code are in this format:
     # drawDep({sname:"Circene",name:"Ingrīda",shortStr:"JV",lst:"THE NEW UNITY parliamentary group",unid:"60440B76C204D1CFC22588E0002AE03F"});
-    # we are goind to use a regular expression to extract the data
-
+    # we use a regular expression to extract the data
     matches = re.findall(r"unid:\"(?P<unid>[^\"]+)\"", members_data)
-
     for unid in matches:
-        crawl_item(unid, context)
+        crawl_item(context, unid)
