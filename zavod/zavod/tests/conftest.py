@@ -17,10 +17,10 @@ from zavod.integration import get_resolver
 from zavod.stateful.model import create_db
 
 nk_settings.TESTING = True
+nk_settings.DB_URL = "sqlite:///:memory:"
 settings.DATA_PATH = Path(mkdtemp()).resolve()
 settings.ARCHIVE_BACKEND = "FileSystemBackend"
 settings.ARCHIVE_PATH = settings.DATA_PATH / "test_archive"
-settings.DATABASE_URI = "sqlite:///:memory:"
 settings.ZYTE_API_KEY = "zyte-test-key"
 FIXTURES_PATH = Path(__file__).parent / "fixtures"
 DATASET_1_YML = FIXTURES_PATH / "testdataset1" / "testdataset1.yml"
