@@ -6,11 +6,12 @@ from tempfile import NamedTemporaryFile, mkdtemp
 import os
 import logging
 from nomenklatura import Resolver, settings as nk_settings
+from nomenklatura.db import close_db
 
 from zavod import settings
 from zavod.context import Context
 from zavod.entity import Entity
-from zavod.db import get_engine, meta
+from zavod.db import meta
 from zavod.logs import configure_logging, reset_logging
 from zavod.meta import get_catalog, load_dataset_from_path, Dataset
 from zavod.integration import get_resolver
@@ -21,8 +22,6 @@ settings.DATA_PATH = Path(mkdtemp()).resolve()
 settings.ARCHIVE_BACKEND = "FileSystemBackend"
 settings.ARCHIVE_PATH = settings.DATA_PATH / "test_archive"
 settings.DATABASE_URI = "sqlite:///:memory:"
-settings.OPENSANCTIONS_API_KEY = "testkey"
-settings.SYNC_POSITIONS = True
 settings.ZYTE_API_KEY = "zyte-test-key"
 FIXTURES_PATH = Path(__file__).parent / "fixtures"
 DATASET_1_YML = FIXTURES_PATH / "testdataset1" / "testdataset1.yml"
@@ -47,7 +46,7 @@ def wrap_test():
     create_db()
     yield
     get_catalog.cache_clear()
-    get_engine.cache_clear()
+    close_db()
     meta.clear()
 
 
