@@ -42,10 +42,10 @@ publisher:
   url: https://brightquery.com/
 
 # TODO: update assertions after the first successful run
-# assertions:
-#   min:
-#     schema_entities:
-#       Company: 0
+assertions:
+  max:
+    schema_entities:
+      Company: 1000000
 
 inputs:
   - eu_sanctions
@@ -59,6 +59,8 @@ inputs:
   - us_fed_enforcements
   - us_ofac_enforcement_actions
   - us_sec_pause
+  # - regulatory
+  # - enforcement
 
 config:
   type: nomenklatura.enrich.brightquery:BrightQueryEnricher
