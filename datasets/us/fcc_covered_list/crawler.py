@@ -72,7 +72,7 @@ def crawl(context: Context):
     )[0]
     h.assert_dom_hash(
         table,
-        "964c2ad2036c92380cfeb4eb8254e281666a4dbe",
+        "24f595a55a19c321a6f420127a7aaa2fb4336fd3",
     )
 
     path = context.fetch_resource("source.csv", context.data_url)
