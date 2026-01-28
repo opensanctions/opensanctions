@@ -17,6 +17,17 @@ NA_VALUE = re.compile(r"^=?[\"\-\/]+$")
 END_TAG = re.compile(r"בוטל ביום", re.U)
 SPLITS = ["; ", "Id Number", "a) ", "b) ", "c) ", " :", "\n"]
 DATE_SPLITS = ["OR", ";", " - ", "a) ", "b) ", "c) "]
+# HEADERS = {
+#     "Referer": "https://nbctf.mod.gov.il/",
+#     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 ()",
+#     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+#     "Accept-Encoding": "gzip, deflate, br",
+#     "Connection": "keep-alive",
+#     "Upgrade-Insecure-Requests": "1",
+#     "Sec-Fetch-Dest": "document",
+#     "Sec-Fetch-Mode": "navigate",
+#     "Sec-Fetch-Site": "same-origin",
+# }
 
 
 def parse_interval(sanction: Entity, date: Optional[str]) -> None:
@@ -85,7 +96,7 @@ def crawl(context: Context) -> None:
 
 
 def crawl_individuals(context: Context) -> None:
-    path = context.fetch_resource("individuals.xlsx", PEOPLE_URL)
+    path = context.fetch_resource("individuals.xlsx", PEOPLE_URL)  # headers=HEADERS
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
     for record in excel_records(context, path):
         seq_id = record.pop("internal_seq_id", None)
@@ -134,7 +145,7 @@ def crawl_individuals(context: Context) -> None:
 
 
 def crawl_organizations(context: Context) -> None:
-    path = context.fetch_resource("organizations.xlsx", ORG_URL)
+    path = context.fetch_resource("organizations.xlsx", ORG_URL)  # headers=HEADERS
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
     seq_ids = {}
     links: list[tuple[str, str]] = []
@@ -192,18 +203,68 @@ def crawl_organizations(context: Context) -> None:
             if seq_id is not None:
                 links.append((max(link, seq_id), min(link, seq_id)))
 
-        street = lang_pick(record, "street")
-        city = lang_pick(record, "city_village")
-        street = street.replace('="---"', "") if street else None
-        city = city.replace('="---"', "") if city else None
+        street_raw = lang_pick(record, "street")
+        city_raw = lang_pick(record, "city_village")
+        street_raw = (
+            street_raw.replace('="---"', "").replace("• ", "").replace("- ", "")
+            if street_raw
+            else None
+        )
+        city_raw = (
+            city_raw.replace('="---"', "").replace("• ", "") if city_raw else None
+        )
+        street: list[str] | None = street_raw.split("\n") if street_raw else None
+        city: list[str] | None = city_raw.split("\n") if city_raw else None
+
+        NON_ADDRESS_LITERALS = ("Branches:",)
+        NON_ADDRESS_RE = re.compile(
+            r"Address\s*\d+:", re.I
+        )  # put a re in case they add more "Address <digit>:", could be replace with a literal ("Address 1:", "Address 2:")
+        if street:
+            street = [
+                s
+                for s in street
+                if isinstance(s, str)
+                and not (
+                    any(
+                        tok in s
+                        for tok in NON_ADDRESS_LITERALS or NON_ADDRESS_RE.search(s)
+                    )
+                )
+            ]
+
+        # if street or city:
+        #     address = h.make_address(
+        #         context,
+        #         street=street,
+        #         city=city,
+        #         country_code=entity.first("country"),
+        #     )
+        #     h.apply_address(context, entity, address)
+
         if street or city:
-            address = h.make_address(
-                context,
-                street=street,
-                city=city,
-                country_code=entity.first("country"),
-            )
-            h.apply_address(context, entity, address)
+            street = street or []
+            city = city or []
+            if len(street) > 1 or len(city) > 1:
+                # create address combination
+                for c in city if city else [None]:
+                    for s in street if street else [None]:
+                        address = h.make_address(
+                            context,
+                            street=s,
+                            city=c,
+                            country_code=entity.first("country"),
+                        )
+                        h.apply_address(context, entity, address)
+            else:
+                # single address
+                address = h.make_address(
+                    context,
+                    street=street[0] if street else None,
+                    city=city[0] if city else None,
+                    country_code=entity.first("country"),
+                )
+                h.apply_address(context, entity, address)
 
         for field in (
             "date_of_temporary_designation",

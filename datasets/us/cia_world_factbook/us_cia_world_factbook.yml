@@ -262,6 +262,7 @@ lookups:
       - regex:
           # Afghanistan
           - 'overall Taliban Leader HAYBATULLAH Akhundzada is the \[so-called\] Amir-ul Momineen of the Taliban and is seen by them as a head of government'
+          - 'overall Taliban Leader HAYBATULLAH Akhundzada is the \[so-called\] Amir-ul Momineen of the Taliban and is effectively the head of government'
           - "^note [-–] "
           - "the prime minister's official title is"
           - "[Pp]resident \\(vacant"
