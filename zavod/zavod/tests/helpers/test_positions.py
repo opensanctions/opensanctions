@@ -17,6 +17,7 @@ def test_make_position(testdataset1: Dataset):
     assert de.id != de_with_date.id
     assert de.id != uk.id
     assert de.get("name") == uk.get("name")
+    context.close()
 
 
 def test_make_position_full(testdataset1: Dataset):
@@ -54,6 +55,7 @@ def test_make_position_full(testdataset1: Dataset):
     assert one_with_everything.get("numberOfSeats") == ["5"]
     assert one_with_everything.get("wikidataId") == ["Q123"]
     assert one_with_everything.get("sourceUrl") == ["http://example.com/"]
+    context.close()
 
 
 def test_make_occupancy(testdataset1: Dataset):
@@ -83,6 +85,7 @@ def test_make_occupancy(testdataset1: Dataset):
 
     assert person.get("country") == ["ls"]
     assert person.get("topics") == ["role.pep"]
+    context.close()
 
 
 def test_occupancy_not_same_start_end_id(testdataset1: Dataset):
@@ -109,6 +112,7 @@ def test_occupancy_not_same_start_end_id(testdataset1: Dataset):
     assert ended_no_start.get("status") == ["ended"]
 
     assert ended_no_start.id != current_no_end.id
+    context.close()
 
 
 def test_occupancy_dataset_coverage():
@@ -162,3 +166,5 @@ def test_occupancy_dataset_coverage():
     )
     assert occupancy2 is not None
     assert occupancy2.get("endDate") == ["2021-01-05"]
+    context1.close()
+    context2.close()

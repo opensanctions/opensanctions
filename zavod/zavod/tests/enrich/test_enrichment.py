@@ -29,7 +29,7 @@ class StubEnricher(Enricher):
         yield match
 
 
-def test_enrich_process(testdataset1: Dataset, enricher: Dataset, disk_db_uri: str):
+def test_enrich_process(testdataset1: Dataset, enricher: Dataset):
     resolver = get_resolver()
 
     resolver.begin()

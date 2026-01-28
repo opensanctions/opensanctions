@@ -2,6 +2,7 @@ from os import environ as env
 from pathlib import Path
 
 from banal import as_bool
+from nomenklatura import settings as nk
 from nomenklatura.versions import Version
 from rigour.env import env_str
 
@@ -56,9 +57,9 @@ HTTP_RETRY_BACKOFF_FACTOR = float(env.get("ZAVOD_HTTP_RETRY_BACKOFF_FACTOR", 1.0
 HTTP_RETRY_BACKOFF_MAX = int(env.get("ZAVOD_HTTP_RETRY_BACKOFF_MAX", 120))
 
 # Database-backed cache settings
-DATABASE_URI = f"sqlite:///{DATA_PATH.joinpath('zavod.sqlite3').as_posix()}"
-DATABASE_URI = env.get("ZAVOD_DATABASE_URI", DATABASE_URI)
-DATABASE_URI = env_str("OPENSANCTIONS_DATABASE_URI", DATABASE_URI)
+nk.DB_URL = f"sqlite:///{DATA_PATH.joinpath('zavod.sqlite3').as_posix()}"
+nk.DB_URL = env.get("ZAVOD_DATABASE_URI", nk.DB_URL)
+nk.DB_URL = env.get("OPENSANCTIONS_DATABASE_URI", nk.DB_URL)
 
 # pywikibot settings for editing Wikidata
 WD_CONSUMER_TOKEN = env.get("ZAVOD_WD_CONSUMER_TOKEN")

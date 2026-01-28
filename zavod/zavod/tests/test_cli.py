@@ -40,8 +40,7 @@ def test_validate_dataset():
     result = runner.invoke(cli, ["validate", "/dev/null"])
     assert result.exit_code != 0, result.output
     result = runner.invoke(cli, ["validate", DATASET_1_YML.as_posix()])
-    assert result.exit_code != 0
-    assert "Validation caused abort" in result.output
+    assert result.exit_code == 0, result.output
     shutil.rmtree(settings.DATA_PATH)
 
 
@@ -116,9 +115,9 @@ def test_run_validation_failed(testdataset3: Dataset):
     shutil.rmtree(settings.DATA_PATH)
 
 
-def test_xref_dataset(testdataset1: Dataset, disk_db_uri: str):
+def test_xref_dataset(testdataset1: Dataset):
     runner = CliRunner()
-    env = {"ZAVOD_DATABASE_URI": disk_db_uri}
+    env = {}
 
     result = runner.invoke(cli, ["crawl", DATASET_1_YML.as_posix()], env=env)
     assert result.exit_code == 0, result.output

@@ -31,7 +31,6 @@ from zavod.store import get_store
 from zavod.tools.dump_file import dump_dataset_to_file
 from zavod.tools.load_db import load_dataset_to_db
 from zavod.tools.summarize import summarize as _summarize
-from zavod.tools.wikidata import run_app
 from zavod.validators import validate_dataset
 
 log = get_logger(__name__)
@@ -434,6 +433,8 @@ def wd_up(
         --country-adjective German \\
         --country-code de
     """
+    from zavod.tools.wikidata import run_app
+
     dataset = _load_datasets(dataset_paths)
     resolver = get_resolver()
     resolver.begin()

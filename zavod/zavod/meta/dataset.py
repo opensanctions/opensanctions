@@ -13,7 +13,7 @@ from followthemoney.dataset.resource import DataResource
 from zavod import settings
 from zavod.archive import dataset_data_path
 from zavod.logs import get_logger
-from zavod.meta.assertion import Assertion, Comparison, Metric, parse_assertions
+from zavod.meta.assertion import Assertion, parse_assertions
 from zavod.meta.dates import DatesSpec
 from zavod.meta.http import HTTP
 from zavod.meta.model import DataModel, ZavodDatasetModel
@@ -73,11 +73,6 @@ class Dataset(FollowTheMoneyDataset):
               Person: 180000
         ```
         """
-
-        self.assertions.append(
-            # At least one entity in dataset
-            Assertion(Metric.ENTITY_COUNT, Comparison.GTE, 1, None, None)
-        )
 
         self.http: HTTP = HTTP(data.get("http", {}))
         """HTTP configuration for this dataset."""

@@ -113,6 +113,7 @@ def test_occupancy_status(testdataset1: Dataset):
     assert status(True, "2020-01-01", None, "1910-01-01") is None
     assert status(True, "1950-01-01", "2021-01-02", "1910-01-01") is None
     assert status(True, "1950-01-01", "2020-12-31", "1910-01-01") is None
+    context.close()
 
 
 def test_categorise_flow(testdataset1: Dataset):
@@ -148,3 +149,4 @@ def test_categorise_flow(testdataset1: Dataset):
     categorisation = categorise(context, position2, is_pep=True)
     assert categorisation.is_pep is True
     assert categorisation.topics == ["gov.igo"]
+    context.close()
