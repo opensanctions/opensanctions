@@ -1,0 +1,30 @@
+title: Lithuania PEPs from the register of the Central Electoral Commission
+entry_point: crawler.py
+prefix: lt-vrk
+coverage:
+  frequency: monthly
+  start: "2026-01-28"
+load_statements: true
+summary: |
+  Lithuanian PEPs based on official election and mandate records.
+description: |
+  The information system of the Central Electoral Commission shall collect information on the current composition of 
+  the President of the Republic of Lithuania, the Seimas, members of the European Parliament, municipal councils and municipal mayors. 
+publisher:
+  name: The Central Electoral Commission of the Republic of Lithuania
+  acronym: VRK
+  url: https://www.vrk.lt/
+  official: true
+  country: "lt"
+  description: >
+    The Central Electoral Commission is the permanent supreme state institution for the organization and conduct of elections and referendums provided for 
+    in the Constitution of the Republic of Lithuania, which, in accordance with the procedure established by the Electoral Code, conducts and organizes elections of the Seimas, 
+    the President of the Republic, municipal councils and mayors of the Republic of Lithuania, elections to the European Parliament and referendums.
+
+tags:
+  - list.pep
+url: https://data.gov.lt/datasets/2015/
+data:
+  url: https://atviriduomenys.vrk.lt/datasets/gov/vrk/Isrinkti/:format/json
+  format: JSON
+ci_test: false
