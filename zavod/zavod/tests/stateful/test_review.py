@@ -53,6 +53,7 @@ def test_new_key_saved_and_accepted_false(testdataset1: Dataset):
     row = get_row(context.conn, "key1")
     assert row is not None
     assert row["accepted"] is False
+    context.close()
 
 
 def test_no_change_updates_last_seen_version(testdataset1, monkeypatch):
@@ -95,6 +96,8 @@ def test_no_change_updates_last_seen_version(testdataset1, monkeypatch):
     assert len(get_all_rows(context2.conn, "key2")) == 1
     # Returned review is up to date
     assert review2.last_seen_version == context2_version
+    context1.close()
+    context2.close()
 
 
 def test_source_changed_resets_review(testdataset1: Dataset):
@@ -153,6 +156,8 @@ def test_source_changed_resets_review(testdataset1: Dataset):
     assert new["modified_by"] == "zavod"
     assert review.accepted is False
     assert len(get_all_rows(context2.conn, "key3")) == 3  # original, edit, reset
+    context1.close()
+    context2.close()
 
 
 def test_unaccepted_updates_original_extraction(testdataset1: Dataset):
@@ -196,6 +201,8 @@ def test_unaccepted_updates_original_extraction(testdataset1: Dataset):
     assert row2["modified_by"] == "zavod"
     # Expect this to be updated in-place because it's unaccepted.
     assert len(get_all_rows(context2.conn, "key4")) == 1
+    context1.close()
+    context2.close()
 
 
 def test_crawler_version_bump_resets_review(testdataset1: Dataset):
@@ -239,6 +246,8 @@ def test_crawler_version_bump_resets_review(testdataset1: Dataset):
     assert new["modified_by"] == "zavod"
     assert review.accepted is False
     assert len(get_all_rows(context2.conn, "key5")) == 3  # original, edit, reset
+    context1.close()
+    context2.close()
 
 
 def test_html_source_comparison(testdataset1: Dataset):

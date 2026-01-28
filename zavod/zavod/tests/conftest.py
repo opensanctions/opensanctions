@@ -2,8 +2,7 @@ from typing import Generator
 import pytest
 import shutil
 from pathlib import Path
-from tempfile import NamedTemporaryFile, mkdtemp
-import os
+from tempfile import mkdtemp
 import logging
 from nomenklatura import Resolver, settings as nk_settings
 from nomenklatura.db import close_db
@@ -11,9 +10,9 @@ from nomenklatura.db import close_db
 from zavod import settings
 from zavod.context import Context
 from zavod.entity import Entity
-from zavod.db import meta
 from zavod.logs import configure_logging, reset_logging
 from zavod.meta import get_catalog, load_dataset_from_path, Dataset
+from zavod.db import meta
 from zavod.integration import get_resolver
 from zavod.stateful.model import create_db
 
@@ -111,8 +110,10 @@ def testdataset_dedupe() -> Dataset:
 
 
 @pytest.fixture(scope="function")
-def vcontext(testdataset1) -> Context:
-    return Context(testdataset1)
+def vcontext(testdataset1) -> Generator[Context, None, None]:
+    context = Context(testdataset1)
+    yield context
+    context.close()
 
 
 @pytest.fixture(scope="function")
@@ -147,14 +148,14 @@ def resolver() -> Generator[Resolver[Entity], None, None]:
     resolver.rollback()
 
 
-@pytest.fixture(scope="function")
-def disk_db_uri(monkeypatch) -> Generator[str, None, None]:
-    """Modifies settings.DATABASE_URI to a temporary file for the duration of the test"""
-    db_file = NamedTemporaryFile(delete=False)
-    db_uri = f"sqlite:///{db_file.name}"
-    monkeypatch.setattr(settings, "DATABASE_URI", db_uri)
-    yield db_uri
-    os.unlink(db_file.name)
+# @pytest.fixture(scope="function")
+# def disk_db_uri(monkeypatch) -> Generator[str, None, None]:
+#     """Modifies settings.DATABASE_URI to a temporary file for the duration of the test"""
+#     db_file = NamedTemporaryFile(delete=False)
+#     db_uri = f"sqlite:///{db_file.name}"
+#     monkeypatch.setattr(settings, "DATABASE_URI", db_uri)
+#     yield db_uri
+#     os.unlink(db_file.name)
 
 
 @pytest.fixture(scope="function")

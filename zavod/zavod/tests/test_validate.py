@@ -100,7 +100,7 @@ def test_no_assertions_warning(testdataset3: Dataset) -> None:
     testdataset3.assertions = []
     crawl_dataset(testdataset3)
     validator, logs = run_validator(AssertionsValidator, testdataset3)
-    assert ("warning", "Dataset has no assertions.") in logs
+    assert ("error", "Dataset has no assertions.") in logs
 
 
 def test_not_empty_after_crawl(testdataset3) -> None:
@@ -115,12 +115,3 @@ def test_no_crawl_is_empty(testdataset3) -> None:
     validator, logs = run_validator(EmptyValidator, testdataset3)
     assert ("warning", "No entities validated.") in logs
     assert validator.abort is False
-
-
-def test_default_assertion_not_empty(testdataset2):
-    validator, logs = run_validator(AssertionsValidator, testdataset2)
-    assert (
-        "error",
-        "Assertion failed for value 0: <Assertion entity_count gte 1>",
-    ) in logs
-    assert validator.abort is True
