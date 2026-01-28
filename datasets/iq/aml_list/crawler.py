@@ -6,7 +6,6 @@ from openpyxl import load_workbook
 from rigour.mime.types import XLSX
 from zavod.shed.trans import (
     apply_translit_full_name,
-    ENGLISH,
 )
 from zavod.extract.zyte_api import fetch_html, fetch_resource
 from zavod import Context
@@ -28,8 +27,6 @@ NAME_SPLITS = [
 YEAR_PATTERN = re.compile(r"\b\d{4}\b")
 # To mediate in the sale and purchase of foreign currencies
 ENTITY_NAME_REASON = re.compile(r"\s*للتوسط ببيع وشراء العملات الاجنبية$")
-
-TRANSLIT_OUTPUT = [ENGLISH]
 
 
 def clean_entity_name(entity_name: Optional[str]) -> Optional[str]:
@@ -68,9 +65,8 @@ def crawl_row(row: Dict[str, str | None], context: Context) -> None:
         entity.add("name", entity_name, lang="ara")
         entity.add("sector", extract_sector(raw_entity_name), lang="ara")
         if entity_name != latinize_text(entity_name):
-            print(entity_name)
             apply_translit_full_name(
-                context, entity, "ara", entity_name, TRANSLIT_OUTPUT
+                context, entity, input_language="ar-IQ", name=entity_name
             )
     else:
         raw_person_name = row.pop("name", row.pop("person_name"))
@@ -90,11 +86,11 @@ def crawl_row(row: Dict[str, str | None], context: Context) -> None:
         )
         entity.add("alias", aliases, lang="ara")
         if name != latinize_text(name):
-            apply_translit_full_name(context, entity, "ara", name, TRANSLIT_OUTPUT)
+            apply_translit_full_name(context, entity, input_language="ar-IQ", name=name)
         for alias in aliases:
             if alias != latinize_text(alias):
                 apply_translit_full_name(
-                    context, entity, "ara", alias, TRANSLIT_OUTPUT, alias=True
+                    context, entity, input_language="ar-IQ", name=alias, alias=True
                 )
 
     entity.add("topics", "sanction")

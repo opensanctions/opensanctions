@@ -45,6 +45,7 @@ dependencies = [
     "xlrd == 2.0.2",
     "cryptography",
     "duckdb == 1.4.4",
+    "google-cloud-translate>=3.24.0",
 ]
 
 [project.urls]

@@ -137,6 +137,13 @@ def crawl_enterprise(context: Context, pep: Entity, item: dict, source: str) -> 
         partner = context.make("LegalEntity")
         partner.id = context.make_id(company.id, partner_name, address)
         partner.add("name", partner_name, lang="kat")
+        for output_language in TRANSLIT_OUTPUT:
+            translated_name = google_translate_romanize_if_supported(
+                context,
+                text=partner_name,
+                source_language="kat",
+                target_language=output_language,
+            )
         apply_translit_full_name(
             context,
             entity=partner,
