@@ -66,9 +66,7 @@ def crawl(context: Context) -> None:
     # Check if the overview page still lists the 14th Saeima in the main menu.
     if (
         len(
-            h.xpath_elements(
-                overview_page, ".//*[@class='menu']//a[@text()='14th Saeima']"
-            )
+            h.xpath_elements(overview_page, ".//*[@id='menu']//a[text()='14th Saeima']")
         )
         == 0
     ):
