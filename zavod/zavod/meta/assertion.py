@@ -1,113 +1,66 @@
+from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Dict, Generator, Optional
-
-from followthemoney import model
+from typing import Any, Dict, Generator
 
 
 class Metric(Enum):
     ENTITY_COUNT = "entity_count"
-    """Number of entities matching the filter in the dataset."""
-    COUNTRY_COUNT = "country_count"
+
+    SCHEMA_ENTITIES = "schema_entities"
+    """Number of entities with of a given schema in the dataset."""
+
+    COUNTRY_ENTITIES = "country_entities"
+    """Number of entities with a given country in the dataset."""
+
+    COUNTRY_COUNT = "countries"
     """Number of distinct countries occurring in the dataset."""
-    ENTITIES_WITH_PROP_COUNT = "entities_with_prop_count"
+
+    ENTITIES_WITH_PROP_COUNT = "entities_with_prop"
     """Number of entities with property values matching the filter in the dataset."""
+
+    def __str__(self) -> str:
+        return self.value
 
 
 class Comparison(Enum):
     GTE = "gte"
     LTE = "lte"
 
+    def __str__(self) -> str:
+        match self:
+            case Comparison.GTE:
+                return ">="
+            case Comparison.LTE:
+                return "<="
+            case _:
+                raise ValueError(f"Unknown comparison: {self}")
 
-class Assertion(object):
-    """Data assertion specification."""
 
-    filter_attribute: Optional[str]
-    filter_value: Optional[Any]
-    abort: bool
-    """Whether this assertion should cause validation to fail. If False, it merely warns."""
+@dataclass
+class Assertion:
+    """Assertions that fail or warn on dataset exports.
 
-    def __init__(
-        self,
-        metric: Metric,
-        comparison: Comparison,
-        threshold: int,
-        filter_attribute: Optional[str],
-        filter_value: Optional[Any],
-    ) -> None:
-        self.metric = metric
-        self.comparison = comparison
-        self.threshold = threshold
-        self.filter_attribute = filter_attribute
-        self.filter_value = filter_value
-        # Only abort for at-least-n assertions, warn for at-most-n
-        self.abort = comparison == Comparison.GTE
+    This is only a dataclass that holds the configuration. The heavy lifting is done in the AssertionsValidator.
+    """
+
+    # gte (i.e. at minimum X entities present) fails the export,
+    # lte just warns. This behaivor is implemented in the assertions validator.
+    comparison: Comparison
+
+    metric: Metric
+
+    # Configuration is read in the validator.
+    # For some metrics, it's just a single value, for others it's a more complex dictionary.
+    config: Any
 
     def __repr__(self) -> str:
-        string = (
-            f"<Assertion {self.metric.value} {self.comparison.value} {self.threshold}"
+        return (
+            f"<Assertion {self.metric.value} {self.comparison.value} {self.config!r}>"
         )
-        if self.filter_attribute is not None:
-            string += f" filter: {self.filter_attribute}={self.filter_value}"
-        string += ">"
-        return string
-
-
-def parse_filters(
-    metric: Metric,
-    comparison: Comparison,
-    filter_attribute: str,
-    config: Dict[str, Any],
-) -> Generator[Assertion, None, None]:
-    for key, value in config.items():
-        threshold = int(value)
-        yield Assertion(metric, comparison, threshold, filter_attribute, key)
-
-
-def parse_metrics(
-    comparison: Comparison, config: Dict[str, Any]
-) -> Generator[Assertion, None, None]:
-    for key, value in config.items():
-        match key:
-            case "schema_entities":
-                yield from parse_filters(
-                    Metric.ENTITY_COUNT, comparison, "schema", value
-                )
-            case "country_entities":
-                yield from parse_filters(
-                    Metric.ENTITY_COUNT, comparison, "country", value
-                )
-            case "entities_with_prop" if isinstance(value, dict) and value != {}:
-                for schema_name, props in value.items():
-                    for prop_name, threshold_value in props.items():
-                        schema = model.get(schema_name)
-                        if schema is None:
-                            raise ValueError(
-                                f"Entities with prop assertion on unknown schema: {schema_name}:{prop_name}"
-                            )
-                        prop = schema.get(prop_name)
-                        if prop is None:
-                            raise ValueError(
-                                f"Entities with prop assertion on unknown property: {schema_name}:{prop_name}"
-                            )
-                        yield Assertion(
-                            Metric.ENTITIES_WITH_PROP_COUNT,
-                            comparison,
-                            threshold_value,
-                            "entities_with_prop",
-                            # We don't just put a Property.qname in the shape of "Schema:name" here because we want to
-                            # assert not on qnames, which are the canonical name of a property (e.g. Thing.country), but
-                            # on property values in entities of a specific type, like Company.country.
-                            (schema_name, prop_name),
-                        )
-            case "countries":
-                threshold = int(value)
-                yield Assertion(Metric.COUNTRY_COUNT, comparison, threshold, None, None)
-            case _:
-                raise ValueError(f"Unknown metric: {key}")
 
 
 def parse_assertions(config: Dict[str, Any]) -> Generator[Assertion, None, None]:
-    for key, value in config.items():
+    for key, metrics_config in config.items():
         match key:
             case "min":
                 comparison = Comparison.GTE
@@ -115,4 +68,6 @@ def parse_assertions(config: Dict[str, Any]) -> Generator[Assertion, None, None]
                 comparison = Comparison.LTE
             case _:
                 raise ValueError(f"Unknown assertion: {key}")
-        yield from parse_metrics(comparison, value)
+
+        for metric, config in metrics_config.items():
+            yield Assertion(comparison=comparison, metric=Metric(metric), config=config)
