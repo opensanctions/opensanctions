@@ -6,6 +6,7 @@ from datetime import datetime
 
 from zavod import Context, Entity
 from zavod import helpers as h
+from zavod.shed.internal_data import fetch_internal_data
 
 
 DATETIME_FORMAT = "%Y%m%d%H%M%S"
@@ -82,10 +83,17 @@ def apply_date(entity: Entity, prop: str, value: str) -> None:
 
 
 def crawl(context: Context):
+    # Check if the source file has been updated on the website
+    # If the hash changes and the file is not corrupt anymore,
+    # we should switch back to fetching directly from the URL
     html = context.fetch_html(context.data_url)
     last_link = find_last_link(context, html)
-    xls = context.fetch_resource("source.xls", last_link)
-    wb = xlrd.open_workbook(xls)  # This will break loudly once they switch to XLSX
+    h.assert_url_hash(context, last_link, "jnvkd")
+
+    # Using file from internal bucket due to corruption in the live source
+    path = context.get_resource_path("source.xls")
+    fetch_internal_data("id_dttot/20251208091237.xls", path)
+    wb = xlrd.open_workbook(str(path))
     sh = wb.sheet_by_index(0)
     in_header = sh.row(0)
     headers = {}

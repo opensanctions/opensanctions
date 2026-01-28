@@ -1181,6 +1181,7 @@ config:
     - category: Presidents_of_Colombia
       country: co
       topic: role.pep
+      depth: 0
       position:
         name: President of Colombia
         country: co

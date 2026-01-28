@@ -3,7 +3,7 @@ Crawler for active French senators.
 """
 
 import csv
-from typing import Dict, Iterator, List, Tuple, Optional
+from typing import Optional, Iterator
 from urllib.parse import urljoin
 
 from zavod import Context, Entity
@@ -37,9 +37,9 @@ UNUSED_MANDATE_FIELDS = [
 
 def crawl_row(
     context: Context,
-    row: Dict[str, str],
-    mandate_dict: Dict[str, List[Tuple[Optional[str], Optional[str]]]],
-):
+    row: dict[str, str],
+    mandate_dict: dict[str, list[tuple[Optional[str], Optional[str]]]],
+) -> None:
     """Process one row of the CSV data"""
     # Unique senator ID (note: *not* a national ID number)
     senid = row.pop("Matricule")
@@ -90,7 +90,7 @@ def crawl_row(
     mandates = mandate_dict.get(senid, [])
     if status == "ACTIF":
         mandates.append((None, None))
-    entities: List[Entity] = []
+    entities: list[Entity] = []
     for start_date, end_date in mandates:
         context.log.debug(f"Mandate for {senid}: {start_date} - {end_date}")
         occupancy = h.make_occupancy(
@@ -113,8 +113,8 @@ def crawl_row(
 
 
 def crawl_mandates(
-    context: Context, reader: Iterator[Dict[str, str]]
-) -> Iterator[Tuple[str, Tuple[Optional[str], Optional[str]]]]:
+    context: Context, reader: Iterator[dict[str, str]]
+) -> Iterator[tuple[str, tuple[Optional[str], Optional[str]]]]:
     """Get mandates for senators by ID."""
     for row in reader:
         senid = row.pop("Matricule")
@@ -128,14 +128,14 @@ def crawl_mandates(
         yield senid, (start_date, end_date)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     """Retrieve list of senators as CSV and emit PEP entities for
     currently serving senators."""
     # Get start dates from auxiliary CSV
     path = context.fetch_resource(
         "mandates.csv", urljoin(context.data_url, "/data/senateurs/ODSEN_ELUSEN.csv")
     )
-    mandates: Dict[str, List[Tuple[Optional[str], Optional[str]]]] = {}
+    mandates: dict[str, list[tuple[Optional[str], Optional[str]]]] = {}
     with open(path, "rt", encoding="cp1252") as infh:
         decomment = (spam for spam in infh if spam[0] != "%")
         for senid, dates in crawl_mandates(context, csv.DictReader(decomment)):

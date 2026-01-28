@@ -132,6 +132,11 @@ class Entity(StatementEntity):
         topics = self.get("topics", quiet=True)
         return len(registry.topic.RISKS.intersection(topics)) > 0
 
+    @property
+    def has_statements(self) -> bool:
+        """Return whether the entity has any statements."""
+        return len(self._statements) > 0
+
     def _to_nested_dict(
         self: Self, view: "View[Dataset, Entity]", depth: int, path: List[str]
     ) -> Dict[str, Any]:

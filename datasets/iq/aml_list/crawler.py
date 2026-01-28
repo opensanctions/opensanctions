@@ -6,6 +6,7 @@ from openpyxl import load_workbook
 from rigour.mime.types import XLSX
 from zavod.shed.trans import (
     apply_translit_full_name,
+    ENGLISH,
 )
 from zavod.extract.zyte_api import fetch_html, fetch_resource
 from zavod import Context
@@ -28,7 +29,7 @@ YEAR_PATTERN = re.compile(r"\b\d{4}\b")
 # To mediate in the sale and purchase of foreign currencies
 ENTITY_NAME_REASON = re.compile(r"\s*للتوسط ببيع وشراء العملات الاجنبية$")
 
-TRANSLIT_OUTPUT = {"eng": ("Latin", "English")}
+TRANSLIT_OUTPUT = [ENGLISH]
 
 
 def clean_entity_name(entity_name: Optional[str]) -> Optional[str]:

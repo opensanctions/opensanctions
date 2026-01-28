@@ -13,6 +13,9 @@ from zavod.shed.trans import (
     apply_translit_full_name,
     apply_translit_names,
     make_position_translation_prompt,
+    ENGLISH,
+    RUSSIAN,
+    ARABIC,
 )
 from zavod.stateful.positions import OccupancyStatus, categorise
 
@@ -22,11 +25,7 @@ DECLARATION_LIST_URL = "https://declaration.acb.gov.ge/Home/DeclarationList"
 REGEX_CHANGE_PAGE = re.compile(r"changePage\((\d+), \d+\)")
 REGEX_FORMER = re.compile(r"\(ყოფილი\)", re.IGNORECASE)
 _18_YEARS_AGO = (datetime.now() - timedelta(days=18 * 365)).isoformat()
-TRANSLIT_OUTPUT = {
-    "eng": ("Latin", "English"),
-    "rus": ("Cyrillic", "Russian"),
-    "ara": ("Arabic", "Arabic"),
-}
+TRANSLIT_OUTPUT = [ENGLISH, RUSSIAN, ARABIC]
 POSITION_PROMPT = prompt = make_position_translation_prompt("kat")
 
 
@@ -194,7 +193,12 @@ def crawl_assets_for_family(
         person.id = context.make_id(first_name, last_name, relationship, pep.id)
         h.apply_name(person, first_name=first_name, last_name=last_name, lang="kat")
         apply_translit_names(
-            context, person, "kat", first_name, last_name, TRANSLIT_OUTPUT
+            context,
+            person,
+            input_code="kat",
+            first_name=first_name,
+            last_name=last_name,
+            output_spec=TRANSLIT_OUTPUT,
         )
         person.add("topics", "role.rca")
 
@@ -223,7 +227,14 @@ def crawl_family(
     person = context.make("Person")
     person.id = context.make_id(first_name, last_name, birth_date, birth_place)
     h.apply_name(person, first_name=first_name, last_name=last_name, lang="kat")
-    apply_translit_names(context, person, "kat", first_name, last_name, TRANSLIT_OUTPUT)
+    apply_translit_names(
+        context,
+        person,
+        input_code="kat",
+        first_name=first_name,
+        last_name=last_name,
+        output_spec=TRANSLIT_OUTPUT,
+    )
     person.add("birthDate", birth_date)
     person.add("birthPlace", birth_place, lang="kat")
     person.add("topics", "role.rca")
@@ -251,7 +262,14 @@ def crawl_declaration(context: Context, item: dict, is_current_year) -> None:
     person = context.make("Person")
     person.id = context.make_id(first_name, last_name, birth_date, birth_place)
     h.apply_name(person, first_name=first_name, last_name=last_name, lang="kat")
-    apply_translit_names(context, person, "kat", first_name, last_name, TRANSLIT_OUTPUT)
+    apply_translit_names(
+        context,
+        person,
+        input_code="kat",
+        first_name=first_name,
+        last_name=last_name,
+        output_spec=TRANSLIT_OUTPUT,
+    )
     person.add("birthDate", birth_date)
     person.add("birthPlace", birth_place, lang="kat")
     declaration_url = (

@@ -67,7 +67,9 @@ def crawl_item(input_dict: dict, context: Context):
 
 def crawl(context: Context):
     doc = context.fetch_html(context.dataset.url, headers=HEADERS)
-    table = doc.xpath('.//div[contains(@class, "page-body")]//table')[0]
+    table = h.xpath_elements(
+        doc, './/div[contains(@class, "page-body")]//table', expect_exactly=1
+    )[0]
     h.assert_dom_hash(
         table,
         "964c2ad2036c92380cfeb4eb8254e281666a4dbe",

@@ -206,7 +206,18 @@ def crawl_ship_relation(
 ):
     company_id_raw = party_info.pop("id")
     start_date = party_info.pop("date")
-    care_of_id_raw = party_info.pop("co_id", None)
+    # Note: We intentionally skip "c/o" (care of) relationships between companies.
+    # The co_id field indicates a mailing/administrative address relationship rather than
+    # a substantive corporate or ownership link. For example, Company 511 receiving mail
+    # "c/o" Company 512 is not meaningful enough to create an entity relationship.
+    _care_of_id_raw = party_info.pop("co_id", None)
+
+    # e.g.
+    # {
+    #     "owner": {"id": "511", "date": "18.09.2023", "co_id": "512"},
+    #     "commerce_manager": {"id": "512", "date": "22.11.2024", "co_id": None},
+    #     "security_manager": {"id": "512", "date": "22.11.2024", "co_id": None},
+    # }
 
     if rel_role == "owner":
         rel_schema, from_prop, to_prop = "Ownership", "owner", "asset"
@@ -223,24 +234,6 @@ def crawl_ship_relation(
         to_prop=to_prop,
         start_date=start_date,
     )
-    # e.g.
-    # {
-    #     "owner": {"id": "511", "date": "18.09.2023", "co_id": "512"},
-    #     "commerce_manager": {"id": "512", "date": "22.11.2024", "co_id": None},
-    #     "security_manager": {"id": "512", "date": "22.11.2024", "co_id": None},
-    # }
-    # Company 511 (subject) → "c/o" → Company 512 (object)
-    if care_of_id_raw is not None:
-        emit_relation(
-            context,
-            subject_id=make_id(context, WSAPIDataType.MANAGER, company_id_raw),
-            object_id=make_id(context, WSAPIDataType.MANAGER, care_of_id_raw),
-            rel_schema=rel_schema,
-            rel_role="c/o",
-            from_prop=from_prop,
-            to_prop=to_prop,
-        )
-
     context.audit_data(party_info)
 
 
@@ -383,7 +376,8 @@ def crawl_vessel(context: Context, vessel_data, program_key):
     vessel.id = make_id(context, WSAPIDataType.VESSEL, vessel_data.pop("id"))
     vessel.add("name", vessel_data.pop("name"))
     vessel.add("imoNumber", vessel_data.pop("imo"))
-    vessel.add("type", vessel_data.pop("type"))
+    vessel_type = vessel_data.pop("type")
+    vessel.add("type", vessel_type.get("name"))
     vessel.add("description", squash_spaces(BR_RE.sub(" ", vessel_data.pop("info"))))
     vessel.add("callSign", vessel_data.pop("callsign"))
     vessel.add("flag", vessel_data.pop("flag"))

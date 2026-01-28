@@ -554,7 +554,7 @@ class Context:
         """
         if entity.id is None:
             raise ValueError("Entity has no ID: %r", entity)
-        if len(entity.properties) == 0:
+        if not entity.has_statements:
             self.log.error("Entity has no properties", entity_id=entity.id)
             return
         self.stats.entities += 1

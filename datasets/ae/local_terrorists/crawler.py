@@ -37,13 +37,14 @@ def parse_row(
         entity.add("topics", "sanction")
     sanction = h.make_sanction(context, entity, program_key=PROGRAM_KEY)
     address = {}
+    identification = {}
     for header, value_ in zip(headers, row):
         value = collapse_spaces(value_)
         if value is None or value == "-":
             continue
 
         match header.name:
-            case "index" | "issuer":
+            case "index":
                 continue
             case "category":
                 schema = context.lookup_value("categories", value)
@@ -61,12 +62,56 @@ def parse_row(
                 address[header.name] = value
             case "birthDate":
                 h.apply_date(entity, header.name, value)
+            case (
+                "issuer"
+                | "document_number"
+                | "document_type"
+                | "doc_issue_date"
+                | "doc_expiry_date"
+            ):
+                identification[header.name] = value
             case _:
                 entity.add(header.name, value, lang=header.lang)
 
     if len(address):
+        # Build address entity with detailed breakdown of components (street, city, country).
+        # We use apply_address() instead of copy_address() because we want to emit
+        # a separate Address entity with the full structured data, not just copy
+        # the address string to the entity.
         addr = h.make_address(context, **address)
-        h.copy_address(entity, addr)
+        h.apply_address(context, entity, addr)
+
+    # h.make_identification creates an Entity only if the number is there
+    if identification and identification.get("document_number"):
+        # The lookup returns string "True" for passport types or None for non-passport documents.
+        # We convert to boolean: any non-None/non-empty value becomes True.
+        is_passport = bool(
+            context.lookup_value(
+                "is_passport",
+                identification.get("document_type"),
+                warn_unmatched=True,
+            )
+        )
+        start_date = identification.get("doc_issue_date")
+        end_date = identification.get("doc_expiry_date")
+
+        for pattern in DATES:
+            if start_date:
+                start_date = re.sub(pattern, "", start_date)
+            if end_date:
+                end_date = re.sub(pattern, "", end_date)
+
+        ident = h.make_identification(
+            context,
+            entity,
+            number=identification.get("document_number"),
+            country=identification.get("issuer"),
+            start_date=start_date,
+            end_date=end_date,
+            passport=is_passport,
+        )
+        assert ident is not None, ident
+        context.emit(ident)
 
     context.emit(sanction)
     context.emit(entity)
@@ -112,7 +157,6 @@ def parse_excel(context: Context, path: Path):
             if "#" in row[0]:
                 headers = []
                 for header_text_ara in row:
-
                     # Finish when we hit the first empty cell in the header row
                     if header_text_ara is None:
                         break
@@ -132,10 +176,12 @@ def parse_excel(context: Context, path: Path):
 
 def crawl(context: Context):
     doc = context.fetch_html(context.data_url, absolute_links=True)
-    section = doc.xpath(".//h5[text()='Local Terrorist List']")[0].getparent()
-    link = section.xpath(
-        ".//p[text()='Download Excel File']/ancestor::*[contains(@class,'download-file')]//a"
-    )[0]
+    section = h.xpath_element(doc, ".//h5[text()='Local Terrorist List']").getparent()
+    assert section is not None, section
+    link = h.xpath_element(
+        section,
+        ".//p[text()='Download Excel File']/ancestor::*[contains(@class,'download-file')]//a",
+    )
     url = link.get("href")
     path = context.fetch_resource("source.xls", url)
     context.export_resource(path, XLS, title=context.SOURCE_TITLE)

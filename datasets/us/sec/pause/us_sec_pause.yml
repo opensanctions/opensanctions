@@ -36,9 +36,9 @@ publisher:
   country: us
   url: https://www.sec.gov/
   official: true
-url: https://www.sec.gov/enforce/public-alerts
+url: https://www.sec.gov/enforcement-litigation/public-alerts-unregistered-soliciting-entities
 data:
-  url: https://www.sec.gov/enforce/public-alerts
+  url: https://www.sec.gov/enforcement-litigation/public-alerts-unregistered-soliciting-entities
   format: HTML
   lang: eng
 ci_test: false

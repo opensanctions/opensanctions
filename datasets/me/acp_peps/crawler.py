@@ -2,11 +2,11 @@ import io
 import re
 from csv import DictReader
 from pathlib import Path
-from typing import Dict, List, Optional, Set, Tuple
+from typing import Dict, List, Optional, Tuple
 from zipfile import BadZipFile, ZipFile
 
-from click.core import F
 from zavod.shed.trans import (
+    ENGLISH,
     apply_translit_full_name,
     make_position_translation_prompt,
 )
@@ -15,9 +15,7 @@ from zavod.stateful.positions import OccupancyStatus, categorise
 from zavod import Context, Entity
 from zavod import helpers as h
 
-TRANSLIT_OUTPUT = {
-    "eng": ("Latin", "English"),
-}
+TRANSLIT_OUTPUT = [ENGLISH]
 POSITION_PROMPT = prompt = make_position_translation_prompt("cnr")
 
 

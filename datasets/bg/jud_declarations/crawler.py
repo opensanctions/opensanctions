@@ -8,10 +8,14 @@ from typing import Dict, Generator, List, Optional
 
 from zavod import Context, helpers as h
 from zavod.stateful.positions import categorise, OccupancyStatus
-from zavod.shed.trans import apply_translit_full_name, make_position_translation_prompt
+from zavod.shed.trans import (
+    apply_translit_full_name,
+    make_position_translation_prompt,
+    ENGLISH,
+)
 
 
-TRANSLIT_OUTPUT = {"eng": ("Latin", "English")}
+TRANSLIT_OUTPUT = [ENGLISH]
 POSITION_PROMPT = prompt = make_position_translation_prompt("bul")
 # e.g. (name_html, name_pdf)
 # {
@@ -24,6 +28,11 @@ ALLOW_LIST = {
     ("Марина Евгениева Гюрова", "Марина Евгениева Гюрова-Димитрова"),
 }
 DENY_LIST = set()
+# TODO: clean up 'BROKEN_LINKS' once the links are accessible on the website again
+# 404 Client Error
+BROKEN_LINKS = set(
+    "http://62.176.124.194/images/declaracii/2025/ZornitzaAleksandrovaShtyrbeva240420251105godishna.pdf"
+)
 
 
 def extract_judicial_declaration(
@@ -64,9 +73,9 @@ def parse_html_table(
     headers: List[str] = [],
 ) -> Generator[Dict[str, HtmlElement], None, None]:
     first_row = table.find(".//tr[1]")
-    assert len(headers) == len(
-        first_row.findall("./td")
-    ), f"Header length mismatch {len(headers)} != {len(first_row.findall('./td'))}"
+    assert len(headers) == len(first_row.findall("./td")), (
+        f"Header length mismatch {len(headers)} != {len(first_row.findall('./td'))}"
+    )
 
     for rownum, row in enumerate(table.findall(".//tr")):
         cells = row.findall("./td")
@@ -96,6 +105,17 @@ def crawl_row(context: Context, row: Dict[str, HtmlElement], index_url: str):
     # Link is in the same cell as the name
     name_link_elem = HtmlElement(row["name"]).find(".//a")
     declaration_url = name_link_elem.get("href")
+    if not declaration_url:
+        context.log.warning(
+            "No declaration link found", name=name, doc_id_date=doc_id_date
+        )
+        return
+
+    # TODO: https://github.com/opensanctions/opensanctions/issues/3388
+    if declaration_url in BROKEN_LINKS:
+        context.log.warning(f"Known broken URL: {declaration_url}")
+        return
+
     extracted_data = extract_judicial_declaration(
         context,
         name,
@@ -195,7 +215,7 @@ def crawl(context: Context):
     # We want to cover the last 2 years at any time
     for a in alphabet_links[:58]:
         link = a.get("href")
-        doc = context.fetch_html(link, cache_days=1)
+        doc = context.fetch_html(link, cache_days=1, absolute_links=True)
         table = doc.xpath(".//table")
         if len(table) == 0:
             context.log.info("No tables found", url=link)
@@ -203,5 +223,4 @@ def crawl(context: Context):
         assert len(table) == 1
         table = table[0]
         for row in parse_html_table(table, headers=["name", "doc_id_date"]):
-            doc.make_links_absolute(context.data_url)
             crawl_row(context, row, link)

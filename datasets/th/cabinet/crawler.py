@@ -1,7 +1,11 @@
 import re
 
 from normality import collapse_spaces
-from zavod.shed.trans import apply_translit_full_name, make_position_translation_prompt
+from zavod.shed.trans import (
+    apply_translit_full_name,
+    make_position_translation_prompt,
+    ENGLISH,
+)
 from zavod.extract.zyte_api import fetch_html
 from zavod.stateful.positions import categorise
 
@@ -17,7 +21,7 @@ REGEX_TITLES = re.compile(
     r"^(นางสาว|นาง|นาย|พลตำรวจเอก|พันตำรวจเอก|พลเอก|พลตำรวจตรี|ร้อยเอก|พลโท|จ่าเอก|พลตำรวจโท|-)"
 )
 POSITION_PROMPT = prompt = make_position_translation_prompt("tha")
-TRANSLIT_OUTPUT = {"eng": ("Latin", "English")}
+TRANSLIT_OUTPUT = [ENGLISH]
 # For lack of anything more semantic, we select persons based on sizing of their containers
 # The prime minister section can be slightly bigger than the others
 PRIME_MINISTER_XPATH = ".//div[contains(@style, 'min-height: 480; max-height: 600')]"

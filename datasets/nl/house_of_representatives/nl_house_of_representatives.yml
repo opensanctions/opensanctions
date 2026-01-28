@@ -54,3 +54,10 @@ assertions:
   max:
     schema_entities:
       Person: 170
+
+lookups:
+  birth_place_and_date:
+    options:
+      - match: 'Geert Wilders (1963) was born in Venlo. Hij is in total 9954 days active in the House of Representatives.'
+        birth_date: 1963
+        birth_place: Venlo

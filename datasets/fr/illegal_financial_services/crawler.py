@@ -1,5 +1,4 @@
 import csv
-from typing import Dict
 from rigour.mime.types import CSV
 from normality import slugify
 
@@ -7,7 +6,7 @@ from zavod import Context, helpers as h
 from followthemoney.types import registry
 
 
-def crawl_item(row: Dict[str, str], context: Context):
+def crawl_item(row: dict[str, str], context: Context) -> None:
     name = row.pop("nom")
     entity = context.make("LegalEntity")
     entity.id = context.make_id(name)
@@ -32,9 +31,11 @@ def crawl_item(row: Dict[str, str], context: Context):
     context.audit_data(row)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     response = context.fetch_html(context.data_url)
-    csv_url = response.find('.//*[@title="Télécharger le fichier en csv"]').get("href")
+    csv_url = h.xpath_string(
+        response, './/*[@title="Télécharger le fichier en csv"]/@href'
+    )
     path = context.fetch_resource("source.csv", csv_url)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
 

@@ -1035,3 +1035,7 @@ lookups:
           - Capital Partners
           - Rudy Secco
           - Stéphanie Minissier
+      - match: La société Makor Securities Paris<br /> M. Yankel Hassan
+        entities:
+          - Makor Securities Paris
+          - Yankel Hassan
