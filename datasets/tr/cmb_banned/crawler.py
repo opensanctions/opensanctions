@@ -25,10 +25,6 @@ def crawl_item(row: Dict[str, str], context: Context):
     # They seem to randomise mask length so let's trim that to avoid daily modifications
     if mkk_number:
         mkk_number = REGEX_MASK.sub(r"\1***", mkk_number)
-    else:
-        context.log.warn(
-            "MKK Registration Number is not found", name=name, mkk_number=mkk_number
-        )
 
     entity = context.make("Person")
     entity.id = context.make_id(name, mkk_number)
