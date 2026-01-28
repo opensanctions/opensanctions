@@ -4,7 +4,7 @@ import shutil
 from pathlib import Path
 from tempfile import mkdtemp
 import logging
-from nomenklatura import Resolver, settings as nk_settings
+from nomenklatura import Resolver
 from nomenklatura.db import close_db
 
 from zavod import settings
@@ -16,8 +16,8 @@ from zavod.db import meta
 from zavod.integration import get_resolver
 from zavod.stateful.model import create_db
 
-nk_settings.TESTING = True
-nk_settings.DB_URL = "sqlite:///:memory:"
+settings.nk.TESTING = True
+settings.nk.DB_URL = "sqlite:///:memory:"
 settings.DATA_PATH = Path(mkdtemp()).resolve()
 settings.ARCHIVE_BACKEND = "FileSystemBackend"
 settings.ARCHIVE_PATH = settings.DATA_PATH / "test_archive"
@@ -146,16 +146,6 @@ def resolver() -> Generator[Resolver[Entity], None, None]:
     resolver.begin()
     yield resolver
     resolver.rollback()
-
-
-# @pytest.fixture(scope="function")
-# def disk_db_uri(monkeypatch) -> Generator[str, None, None]:
-#     """Modifies settings.DATABASE_URI to a temporary file for the duration of the test"""
-#     db_file = NamedTemporaryFile(delete=False)
-#     db_uri = f"sqlite:///{db_file.name}"
-#     monkeypatch.setattr(settings, "DATABASE_URI", db_uri)
-#     yield db_uri
-#     os.unlink(db_file.name)
 
 
 @pytest.fixture(scope="function")
