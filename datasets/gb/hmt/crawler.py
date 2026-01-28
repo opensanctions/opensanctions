@@ -349,13 +349,11 @@ def parse_row(context: Context, row: Dict[str, Any]) -> None:
             wallet.id = context.make_slug(curr, key)
             wallet.add("currency", curr)
             wallet.add("publicKey", key)
-            wallet.add("topics", "sanction")
             wallet.add("holder", entity.id)
             context.emit(wallet)
 
     context.audit_data(row, ignore=["NonLatinScriptLanguage", "NonLatinScriptType"])
 
-    entity.add("topics", "sanction")
     context.emit(entity)
     context.emit(sanction)
 
