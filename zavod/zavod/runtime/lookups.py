@@ -17,6 +17,19 @@ def get_type_lookup(dataset: Dataset, type_: PropertyType) -> Optional[Lookup]:
     return dataset.lookups.get(f"type.{type_.name}")
 
 
+def is_type_lookup_value(entity: "Entity", type_: PropertyType, value: str) -> bool:
+    """Check if a given value is the result of a type-based lookup.
+
+    Used to skip validation for looked-up values, because we've added them manually
+    we deem them to be safe.
+    """
+    lookup = get_type_lookup(entity.dataset, type_)
+    if lookup is None:
+        return False
+    # True if the value is the result of any of the lookup's options.
+    return any(option.result.value == value for option in lookup.options)
+
+
 def type_lookup(
     dataset: Dataset, type_: PropertyType, value: Optional[str]
 ) -> List[str]:
