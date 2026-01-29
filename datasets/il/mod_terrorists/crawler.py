@@ -1,5 +1,6 @@
 import re
 from datetime import datetime
+from itertools import zip_longest
 from pathlib import Path
 from typing import Any, Iterator, Optional
 
@@ -15,8 +16,48 @@ ORG_URL = "https://nbctf.mod.gov.il/he/Announcements/Documents/NBCTFIsrael%20-%2
 PEOPLE_URL = "https://nbctf.mod.gov.il/he/Announcements/Documents/NBCTF%20Israel%20designation%20Individuals_XL.xlsx"
 NA_VALUE = re.compile(r"^=?[\"\-\/]+$")
 END_TAG = re.compile(r"בוטל ביום", re.U)
-SPLITS = ["; ", "Id Number", "a) ", "b) ", "c) ", " :", "\n"]
+SPLITS = ["; ", "Id Number", "a) ", "b) ", "c) ", " :", "\n", "• "]
 DATE_SPLITS = ["OR", ";", " - ", "a) ", "b) ", "c) "]
+NON_ADDRESS_PATTERN = re.compile(
+    r"^(?:Branches:|Address\s*\d+:)\s*", re.IGNORECASE | re.MULTILINE
+)
+
+
+def clean_address(raw_value: str | None) -> list[str]:
+    """Clean and split address field into components."""
+    if not raw_value:
+        return []
+    # Remove unwanted patterns
+    cleaned = raw_value.replace('="---"', "").replace("• ", "").replace("- ", "")
+    cleaned = NON_ADDRESS_PATTERN.sub("", cleaned)
+    # Split and filter empty lines
+    components = [s.strip() for s in cleaned.split("\n") if s.strip()]
+    return components
+
+
+def apply_addresses(
+    context: Context,
+    entity: Entity,
+    streets: list[str],
+    cities: list[str],
+) -> None:
+    """Create and apply address(es) from parallel street/city lists.
+
+    Pairs street and city components by index position rather than creating a Cartesian
+    product. For example, given:
+        streets = ["Ferdowsi Avenue", "43 Avenue Montaigne"]
+        cities = ["Tehran", "Paris"]
+
+    This creates two addresses:
+        - Ferdowsi Avenue, Tehran (index 0)
+        - 43 Avenue Montaigne, Paris (index 1)
+    """
+    if not streets and not cities:
+        return
+    # Pair up components at the same index, using None for missing values
+    for street, city in zip_longest(streets, cities):
+        address = h.make_address(context, street=street, city=city)
+        h.apply_address(context, entity, address)
 
 
 def parse_interval(sanction: Entity, date: Optional[str]) -> None:
@@ -192,18 +233,13 @@ def crawl_organizations(context: Context) -> None:
             if seq_id is not None:
                 links.append((max(link, seq_id), min(link, seq_id)))
 
-        street = lang_pick(record, "street")
-        city = lang_pick(record, "city_village")
-        street = street.replace('="---"', "") if street else None
-        city = city.replace('="---"', "") if city else None
-        if street or city:
-            address = h.make_address(
-                context,
-                street=street,
-                city=city,
-                country_code=entity.first("country"),
-            )
-            h.apply_address(context, entity, address)
+        street_raw = lang_pick(record, "street")
+        city_raw = lang_pick(record, "city_village")
+
+        streets = clean_address(street_raw)
+        cities = clean_address(city_raw)
+
+        apply_addresses(context, entity, streets, cities)
 
         for field in (
             "date_of_temporary_designation",
