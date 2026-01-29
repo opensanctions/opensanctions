@@ -22,7 +22,7 @@ NON_ADDRESS_PATTERN = re.compile(
 )
 
 
-def clean_address_field(raw_value: str | None) -> list[str]:
+def clean_address(raw_value: str | None) -> list[str]:
     """Clean and split address field into components."""
     if not raw_value:
         return []
@@ -39,7 +39,6 @@ def apply_addresses(
     entity: Entity,
     streets: list[str],
     cities: list[str],
-    country_code: str | None,
 ) -> None:
     """Create and apply address(es) from parallel street/city lists.
 
@@ -60,12 +59,7 @@ def apply_addresses(
     for i in range(max_len):
         street = streets[i] if i < len(streets) else None
         city = cities[i] if i < len(cities) else None
-        address = h.make_address(
-            context,
-            street=street,
-            city=city,
-            country_code=country_code,
-        )
+        address = h.make_address(context, street=street, city=city)
         h.apply_address(context, entity, address)
 
 
@@ -245,10 +239,10 @@ def crawl_organizations(context: Context) -> None:
         street_raw = lang_pick(record, "street")
         city_raw = lang_pick(record, "city_village")
 
-        streets = clean_address_field(street_raw)
-        cities = clean_address_field(city_raw)
+        streets = clean_address(street_raw)
+        cities = clean_address(city_raw)
 
-        apply_addresses(context, entity, streets, cities, entity.first("country"))
+        apply_addresses(context, entity, streets, cities)
 
         for field in (
             "date_of_temporary_designation",
