@@ -59,12 +59,21 @@ config:
     - Company
     - Organization
     - LegalEntity
-# assertions:
-#   min:
-#     schema_entities:
-#       Vessel: 10
-#       Organization: 1
-#   max:
-#     schema_entities:
-#       Vessel: 100
-#       Organization: 50
+
+assertions:
+  min:
+    schema_entities:
+      Company: 1500
+      Person: 1500
+      Article: 560
+      Organization: 400
+      Vessel: 230
+      LegalEntity: 15
+  max:
+    schema_entities:
+      Company: 3700
+      Person: 3400
+      Article: 1330
+      Organization: 930
+      Vessel: 540
+      LegalEntity: 35
