@@ -51,13 +51,13 @@ assertions:
       Person: 375
       Organization: 345
       LegalEntity: 30
-      Address: 20
+      Address: 40
   max:
     schema_entities:
       Person: 885
       Organization: 800
       LegalEntity: 140
-      Address: 55
+      Address: 80
 
 lookups:
   type.name:
