@@ -17,17 +17,6 @@ NA_VALUE = re.compile(r"^=?[\"\-\/]+$")
 END_TAG = re.compile(r"בוטל ביום", re.U)
 SPLITS = ["; ", "Id Number", "a) ", "b) ", "c) ", " :", "\n"]
 DATE_SPLITS = ["OR", ";", " - ", "a) ", "b) ", "c) "]
-# HEADERS = {
-#     "Referer": "https://nbctf.mod.gov.il/",
-#     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 ()",
-#     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
-#     "Accept-Encoding": "gzip, deflate, br",
-#     "Connection": "keep-alive",
-#     "Upgrade-Insecure-Requests": "1",
-#     "Sec-Fetch-Dest": "document",
-#     "Sec-Fetch-Mode": "navigate",
-#     "Sec-Fetch-Site": "same-origin",
-# }
 
 
 def parse_interval(sanction: Entity, date: Optional[str]) -> None:
@@ -96,7 +85,7 @@ def crawl(context: Context) -> None:
 
 
 def crawl_individuals(context: Context) -> None:
-    path = context.fetch_resource("individuals.xlsx", PEOPLE_URL)  # headers=HEADERS
+    path = context.fetch_resource("individuals.xlsx", PEOPLE_URL)
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
     for record in excel_records(context, path):
         seq_id = record.pop("internal_seq_id", None)
@@ -145,7 +134,7 @@ def crawl_individuals(context: Context) -> None:
 
 
 def crawl_organizations(context: Context) -> None:
-    path = context.fetch_resource("organizations.xlsx", ORG_URL)  # headers=HEADERS
+    path = context.fetch_resource("organizations.xlsx", ORG_URL)
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
     seq_ids = {}
     links: list[tuple[str, str]] = []
