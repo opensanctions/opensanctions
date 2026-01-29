@@ -2,6 +2,7 @@ import json
 import re
 from typing import Any, Dict, Optional
 
+from banal import ensure_list
 from datapatch import Lookup
 from followthemoney.types import registry
 from normality import slugify
@@ -265,10 +266,12 @@ def apply_prop(
         country = value.pop("Pays")
         if ";" in full_address:
             res = context.lookup("addresses", full_address, warn_unmatched=True)
-            addresses = res.addresses if res else [full_address]
-            assert isinstance(addresses, (list, str)), full_address
+            # Sometimes the lookup returns a single string, not a list.
+            addresses = ensure_list(res.addresses) if res else [full_address]
+            assert isinstance(addresses, list), full_address
         else:
             addresses = [full_address]
+
         for full_address in addresses:
             address = h.make_address(context, full=full_address, country=country)
             h.copy_address(entity, address)
