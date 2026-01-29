@@ -1,5 +1,6 @@
 import re
 from datetime import datetime
+from itertools import zip_longest
 from pathlib import Path
 from typing import Any, Iterator, Optional
 
@@ -53,12 +54,8 @@ def apply_addresses(
     """
     if not streets and not cities:
         return
-    # Determine how many addresses we have
-    max_len = max(len(streets), len(cities))
-    # Create addresses by pairing up components at the same index
-    for i in range(max_len):
-        street = streets[i] if i < len(streets) else None
-        city = cities[i] if i < len(cities) else None
+    # Pair up components at the same index, using None for missing values
+    for street, city in zip_longest(streets, cities):
         address = h.make_address(context, street=street, city=city)
         h.apply_address(context, entity, address)
 
