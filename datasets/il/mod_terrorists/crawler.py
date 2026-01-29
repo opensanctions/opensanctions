@@ -35,8 +35,12 @@ def clean_address_field(raw_value: str | None) -> list[str]:
 
 
 def apply_addresses(
-    context, entity, streets: list[str], cities: list[str], country_code: str | None
-):
+    context: Context,
+    entity: Entity,
+    streets: list[str],
+    cities: list[str],
+    country_code: str | None,
+) -> None:
     """Create and apply address(es) from parallel street/city lists.
 
     Pairs street and city components by index position rather than creating a Cartesian
