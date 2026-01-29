@@ -73,3 +73,13 @@ config:
     - Company
     - Organization
     - LegalEntity
+
+assertions:
+  min:
+    schema_entities:
+      Security: 166700
+      Organization: 125
+  max:
+    schema_entities:
+      Security: 392000
+      Organization: 290
