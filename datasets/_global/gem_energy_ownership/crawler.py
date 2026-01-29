@@ -199,7 +199,9 @@ def crawl_rel(context: Context, row: Dict[str, str], skipped: Set[str]):
 
 
 def crawl(context: Context):
-    _, _, _, path = zyte_api.fetch_resource(context, "source.xlsx", STATIC_URL, XLSX)
+    _, _, _, path = zyte_api.fetch_resource(
+        context, "source.xlsx", STATIC_URL, XLSX, geolocation="us"
+    )
     # context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
 
     workbook: openpyxl.Workbook = openpyxl.load_workbook(path, read_only=True)
