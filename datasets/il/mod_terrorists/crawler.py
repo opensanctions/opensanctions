@@ -15,8 +15,54 @@ ORG_URL = "https://nbctf.mod.gov.il/he/Announcements/Documents/NBCTFIsrael%20-%2
 PEOPLE_URL = "https://nbctf.mod.gov.il/he/Announcements/Documents/NBCTF%20Israel%20designation%20Individuals_XL.xlsx"
 NA_VALUE = re.compile(r"^=?[\"\-\/]+$")
 END_TAG = re.compile(r"בוטל ביום", re.U)
-SPLITS = ["; ", "Id Number", "a) ", "b) ", "c) ", " :", "\n"]
+SPLITS = ["; ", "Id Number", "a) ", "b) ", "c) ", " :", "\n", "• "]
 DATE_SPLITS = ["OR", ";", " - ", "a) ", "b) ", "c) "]
+NON_ADDRESS_PATTERN = re.compile(
+    r"^(?:Branches:|Address\s*\d+:)\s*", re.IGNORECASE | re.MULTILINE
+)
+
+
+def clean_address_field(raw_value: str | None) -> list[str]:
+    """Clean and split address field into components."""
+    if not raw_value:
+        return []
+    # Remove unwanted patterns
+    cleaned = raw_value.replace('="---"', "").replace("• ", "").replace("- ", "")
+    cleaned = NON_ADDRESS_PATTERN.sub("", cleaned)
+    # Split and filter empty lines
+    components = [s.strip() for s in cleaned.split("\n") if s.strip()]
+    return components
+
+
+def apply_addresses(
+    context, entity, streets: list[str], cities: list[str], country_code: str | None
+):
+    """Create and apply address(es) from parallel street/city lists.
+
+    Pairs street and city components by index position rather than creating a Cartesian
+    product. For example, given:
+        streets = ["Ferdowsi Avenue", "43 Avenue Montaigne"]
+        cities = ["Tehran", "Paris"]
+
+    This creates two addresses:
+        - Ferdowsi Avenue, Tehran (index 0)
+        - 43 Avenue Montaigne, Paris (index 1)
+    """
+    if not streets and not cities:
+        return
+    # Determine how many addresses we have
+    max_len = max(len(streets), len(cities))
+    # Create addresses by pairing up components at the same index
+    for i in range(max_len):
+        street = streets[i] if i < len(streets) else None
+        city = cities[i] if i < len(cities) else None
+        address = h.make_address(
+            context,
+            street=street,
+            city=city,
+            country_code=country_code,
+        )
+        h.apply_address(context, entity, address)
 
 
 def parse_interval(sanction: Entity, date: Optional[str]) -> None:
@@ -194,66 +240,11 @@ def crawl_organizations(context: Context) -> None:
 
         street_raw = lang_pick(record, "street")
         city_raw = lang_pick(record, "city_village")
-        street_raw = (
-            street_raw.replace('="---"', "").replace("• ", "").replace("- ", "")
-            if street_raw
-            else None
-        )
-        city_raw = (
-            city_raw.replace('="---"', "").replace("• ", "") if city_raw else None
-        )
-        street: list[str] | None = street_raw.split("\n") if street_raw else None
-        city: list[str] | None = city_raw.split("\n") if city_raw else None
 
-        NON_ADDRESS_LITERALS = ("Branches:",)
-        NON_ADDRESS_RE = re.compile(
-            r"Address\s*\d+:", re.I
-        )  # put a re in case they add more "Address <digit>:", could be replace with a literal ("Address 1:", "Address 2:")
-        if street:
-            street = [
-                s
-                for s in street
-                if isinstance(s, str)
-                and not (
-                    any(
-                        tok in s
-                        for tok in NON_ADDRESS_LITERALS or NON_ADDRESS_RE.search(s)
-                    )
-                )
-            ]
+        streets = clean_address_field(street_raw)
+        cities = clean_address_field(city_raw)
 
-        # if street or city:
-        #     address = h.make_address(
-        #         context,
-        #         street=street,
-        #         city=city,
-        #         country_code=entity.first("country"),
-        #     )
-        #     h.apply_address(context, entity, address)
-
-        if street or city:
-            street = street or []
-            city = city or []
-            if len(street) > 1 or len(city) > 1:
-                # create address combination
-                for c in city if city else [None]:
-                    for s in street if street else [None]:
-                        address = h.make_address(
-                            context,
-                            street=s,
-                            city=c,
-                            country_code=entity.first("country"),
-                        )
-                        h.apply_address(context, entity, address)
-            else:
-                # single address
-                address = h.make_address(
-                    context,
-                    street=street[0] if street else None,
-                    city=city[0] if city else None,
-                    country_code=entity.first("country"),
-                )
-                h.apply_address(context, entity, address)
+        apply_addresses(context, entity, streets, cities, entity.first("country"))
 
         for field in (
             "date_of_temporary_designation",
