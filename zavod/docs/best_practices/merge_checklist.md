@@ -7,7 +7,7 @@ Some things that are easy to forget but critical for new crawlers
         - `coverage`
             - `frequency` (normally `daily`, but `weekly` for zyte and gpt crawlers, and `monthly` for company registers)
             - `start` (updated to the current day when releasing)
-        - `load_db_uri: ${OPENSANCTIONS_DATABASE_URI}` for everything except company registers
+        - `load_statements`: `true` for normal crawlers, `false` for KYB data.
         - `assertions` - see [Data Assertions](../metadata.md#data-assertions)
     - dataset `name` is clear and conforms to convention. It's fine if it's just the yaml file name and not included in the file.
     - dataset `title` is concise and meaningful

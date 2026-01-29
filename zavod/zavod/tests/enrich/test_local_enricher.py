@@ -53,9 +53,7 @@ def load_enricher(context: Context, dataset_data, target_dataset: str):
     return LocalEnricher(dataset, context.cache, dataset.config)
 
 
-def test_enrich_process(
-    testdataset1: Dataset, testdataset_enrich_subject: Dataset, disk_db_uri: str
-):
+def test_enrich_process(testdataset1: Dataset, testdataset_enrich_subject: Dataset):
     """We match and expand an entity with a similar name"""
 
     resolver = get_resolver()

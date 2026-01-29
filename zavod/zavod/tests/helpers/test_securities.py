@@ -15,3 +15,4 @@ def test_make_security(testdataset1: Dataset):
     assert entity.id == "isin-DE1234567890"
     assert entity.schema.name == "Security"
     assert entity.first("country") == "de"
+    context.close()

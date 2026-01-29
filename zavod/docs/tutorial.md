@@ -41,7 +41,7 @@ The contents of the new metadata file should look something like this. This is a
 name: eu_fsf_demo
 title: "Financial Sanctions Files (FSF)"
 url: https://eeas.europa.eu/
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+load_statements: true
 coverage:
     frequency: daily
     start: 2024-03-19
