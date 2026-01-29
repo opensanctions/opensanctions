@@ -1,11 +1,10 @@
 import openpyxl
 import re
 from typing import Dict, Set, Tuple
-from rigour.mime.types import XLSX
 
 from zavod import Context
 from zavod import helpers as h
-from zavod.extract import zyte_api
+from zavod.shed.internal_data import fetch_internal_data
 
 
 # Unique entity types
@@ -199,11 +198,13 @@ def crawl_rel(context: Context, row: Dict[str, str], skipped: Set[str]):
 
 
 def crawl(context: Context):
-    _, _, _, path = zyte_api.fetch_resource(
-        context, "source.xlsx", STATIC_URL, XLSX, geolocation="us"
-    )
-    # context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
+    # _, _, _, path = zyte_api.fetch_resource(context, "source.xlsx", STATIC_URL, XLSX)
 
+    path = context.get_resource_path("source.xlsx")
+    fetch_internal_data(
+        "gem_energy_ownership/Global-Energy-Ownership-Tracker-October-2025-V1.xlsx",
+        path,
+    )
     workbook: openpyxl.Workbook = openpyxl.load_workbook(path, read_only=True)
     skipped: Set[str] = set()
 
