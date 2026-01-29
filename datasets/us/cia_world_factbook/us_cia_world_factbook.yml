@@ -190,6 +190,10 @@ lookups:
           - role: Taliban Leader
             name: HAYBATULLAH Akhundzada
             start_date: 15 August 2021
+      - match: "overall Taliban Leader HAYBATULLAH Akhundzada is the [so-called] Amir-ul Momineen of the Taliban and is effectively the head of government"
+        holders:
+          - role: Amir-ul Momineen of the Taliban
+            name: HAYBATULLAH Akhundzada
       # Thailand
       - match:
           - King WACHIRALONGKON
@@ -261,8 +265,6 @@ lookups:
       # Not additional heads, just notes
       - regex:
           # Afghanistan
-          - 'overall Taliban Leader HAYBATULLAH Akhundzada is the \[so-called\] Amir-ul Momineen of the Taliban and is seen by them as a head of government'
-          - 'overall Taliban Leader HAYBATULLAH Akhundzada is the \[so-called\] Amir-ul Momineen of the Taliban and is effectively the head of government'
           - "^note [-–] "
           - "the prime minister's official title is"
           - "[Pp]resident \\(vacant"
