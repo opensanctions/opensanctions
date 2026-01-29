@@ -37,7 +37,7 @@ Use the `.yml` extension.
 ### Exports
 
 - `exports` - An array of strings matching the [export formats](https://www.opensanctions.org/docs/bulk/), e.g. `"targets.nested.json"`. The default is best for most cases.
-- `load_db_uri` - Should be `${OPENSANCTIONS_DATABASE_URI}` in most datasets. Used to define the database into which statements will be loaded to be accessed from the statements API. It is not set for datasets including other datasets, or whose data isn't included in full in the main data products.
+- `load_statements` - Whether the statements should be loaded to a SQL table after the run..
 
 ### Tags
 
