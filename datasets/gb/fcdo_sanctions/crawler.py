@@ -157,17 +157,19 @@ def xml_make_ship(context: Context, designation: ElementOrTree, entity: Entity):
             entity.add("imoNumber", imo.text)
 
         # Add the owners
-        for owner in ship.iterfind(".//CurrentOwnerOperators//CurrentOwnerOperator"):
-            owner_entity = context.make("Organization")
-            owner_entity.id = context.make_slug("named", owner.text)
-            owner_entity.add("name", owner.text)
-            context.emit(owner_entity)
+        for owner_el in ship.iterfind(".//CurrentOwnerOperators//CurrentOwnerOperator"):
+            if owner_text := owner_el.text:
+                for owner in parse_companies(context, owner_text.strip()):
+                    owner_entity = context.make("Organization")
+                    owner_entity.id = context.make_slug("named", owner)
+                    owner_entity.add("name", owner)
+                    context.emit(owner_entity)
 
-            own = context.make("Ownership")
-            own.id = context.make_id("ownership", owner_entity.id, entity.id)
-            own.add("owner", owner_entity.id)
-            own.add("asset", entity.id)
-            context.emit(own)
+                    own = context.make("Ownership")
+                    own.id = context.make_id("ownership", owner_entity.id, entity.id)
+                    own.add("owner", owner_entity.id)
+                    own.add("asset", entity.id)
+                    context.emit(own)
 
         # Add the registration number
         # Add the type
