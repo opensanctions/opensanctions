@@ -327,4 +327,10 @@ lookups:
           - name: Mangalore Ganesh Beedi Works
       - match: "Firemount Group Ltd."
         entities:
-          - name: Firemount Group Ltd."
+          - name: Firemount Group Ltd.
+      - match: "Linglong International Europe D.O.O. Zrenjanin"
+        entities:
+          - name: Linglong International Europe D.O.O. Zrenjanin
+      - match: "Finca Monte Grande"
+        entities:
+          - name: Finca Monte Grande

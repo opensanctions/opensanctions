@@ -59,6 +59,6 @@ def crawl(context: Context):
     _, _, _, path = fetch_resource(context, "source.csv", csv_url, CSV)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
 
-    with open(path, "r", encoding="utf-8-sig") as fh:
+    with open(path, "r", encoding="latin-1") as fh:
         for row in csv.DictReader(fh):
             crawl_row(context, row)

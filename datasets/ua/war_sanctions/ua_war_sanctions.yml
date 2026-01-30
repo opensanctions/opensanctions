@@ -435,6 +435,18 @@ lookups:
         name: ["ПЕТРОСЯНЦ Євген Ваганович", "ПЕТРОСЯН Євген Ваганович"]
       - match: "ПЕТРОСЯНЦ/ПЕТРОСЯН Евгений Ваганович"
         name: ["ПЕТРОСЯНЦ Евгений Ваганович", "ПЕТРОСЯН Евгений Ваганович"]
+      - match: "SERGEY Vitalyevich Glushko/Tarzan"
+        name: ["SERGEY Vitalyevich Glushko", "Tarzan"]
+      - match: "ГЛУШКО Сергій Віталійович/Тарзан"
+        name: ["ГЛУШКО Сергій Віталійович", "Тарзан"]
+      - match: "ГЛУШКО Сергей Витальевич/Тарзан"
+        name: ["ГЛУШКО Сергей Витальевич", "Тарзан"]
+      - match: "REZNIK Ilya Rakhmielevich / Izraelzon Ilya Leopoldovich"
+        name: ["REZNIK Ilya Rakhmielevich", "Izraelzon Ilya Leopoldovich"]
+      - match: "РЄЗНІК Ілля Рахмієльович / Ізраельсон Ілля Леопольдович"
+        name: ["РЄЗНІК Ілля Рахмієльович", "Ізраельсон Ілля Леопольдович"]
+      - match: "РЕЗНИК Илья Рахмиэлевич / Израэльсон Илья Леопольдович"
+        name: ["РЕЗНИК Илья Рахмиэлевич", "Израэльсон Илья Леопольдович"]
 
   type.date:
     options:

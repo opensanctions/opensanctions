@@ -31,7 +31,8 @@ DENY_LIST = set()
 # TODO: clean up 'BROKEN_LINKS' once the links are accessible on the website again
 # 404 Client Error
 BROKEN_LINKS = {
-    "http://62.176.124.194/images/declaracii/2025/ZornitzaAleksandrovaShtyrbeva240420251105godishna.pdf"
+    "http://62.176.124.194/images/declaracii/2025/ZornitzaAleksandrovaShtyrbeva240420251105godishna.pdf",
+    "http://62.176.124.194/images/declaracii/2025/ZornitzaAleksandrovaShtyrbeva240420251037promjananaobstojatelstva.pdf",
 }
 
 

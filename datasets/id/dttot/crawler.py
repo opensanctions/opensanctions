@@ -3,6 +3,7 @@ from typing import Any, Dict
 import xlrd  # type: ignore
 from lxml import etree
 from datetime import datetime
+from normality import squash_spaces
 
 from zavod import Context, Entity
 from zavod import helpers as h
@@ -11,7 +12,9 @@ from zavod.extract import zyte_api
 
 
 DATETIME_FORMAT = "%Y%m%d%H%M%S"
-addr_delim = re.compile(r"[\W][a-zA-Z]\)|;")
+ADDR_DELIM = re.compile(r"[\W][a-zA-Z]\)|;")
+# eng: 'Branch office 4:'
+BRANCH_PATTERN = re.compile(r"^kantor cabang \d+[,:]\s*", re.IGNORECASE)
 
 
 def is_sanctions_xlsx(a: etree._Element) -> bool:
@@ -26,6 +29,19 @@ def is_sanctions_xlsx(a: etree._Element) -> bool:
 
 def parse_link(a: etree._Element) -> str:
     return a.get("href", "").split("/")[-1]
+
+
+def clean_addresses(raw_addresses: str) -> list[str]:
+    """Split and clean a multi-address string into individual addresses."""
+    cleaned = []
+    for address_block in h.multi_split(
+        raw_addresses, ["\n-\t", "\n- ", ", - ", ", -,"]
+    ):
+        for address in ADDR_DELIM.split(address_block):
+            address = squash_spaces(BRANCH_PATTERN.sub("", address).strip("-"))
+            if address and not BRANCH_PATTERN.match(address):
+                cleaned.append(address)
+    return cleaned
 
 
 def find_last_link(context: Context, html: etree._Element) -> str:
@@ -119,10 +135,9 @@ def crawl(context: Context):
         entity.add("topics", "sanction")
         entity.add("name", names[0])
         entity.add("alias", names[1:])
-        if addr := drow.pop("address", None):
-            addr = str(addr).strip("-").strip()
-            for addr in addr_delim.split(addr):
-                entity.add("address", addr, lang="ind")
+        if raw_addresses := drow.pop("address", None):
+            for address in clean_addresses(raw_addresses):
+                entity.add("address", address)
         entity.add("country", drow.pop("country", None))
         entity.add("notes", drow.pop("description", None), lang="ind")
         if not entity.schema.is_a("Organization"):

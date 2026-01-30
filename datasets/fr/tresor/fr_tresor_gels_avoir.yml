@@ -927,6 +927,48 @@ lookups:
         props:
           registrationNumber: W381009783
           incorporationDate: 2010-04-06
+      - match: "Date d’enregistrement: juin 2011"
+        props:
+          incorporationDate: 2011-06
+      - match: "Type d'entité: Entreprise privée"
+        props:
+          legalForm: Entreprise privée
+      - match: "Numéro d'identification national: 10102884046"
+        props:
+          idNumber: 10102884046
+      - match: "Numéro d'entreprise: 247799"
+        props:
+          registrationNumber: 247799
+      - match: "Lieu d'enregistrement: Sure-Esrafil St, Téhéran, Iran"
+        props:
+          address: Sure-Esrafil St, Téhéran, Iran
+          jurisdiction: ir
+      - match: "Numéro d’identification national: 10101382714"
+        props:
+          idNumber: 10101382714
+      - match: "Numéro à la chambre de commerce: 131454"
+        props:
+          registrationNumber: 131454
+      - match: "Type d'entité: Société privée à responsabilité limitée"
+        props:
+          legalForm: Société privée à responsabilité limitée
+      - match: "Numéro d’identification national: 10103503385"
+        props:
+          idNumber: 10103503385
+      - match: "Numéro d'identification national: 10102527140"
+        props:
+          idNumber: 10102527140
+      - match: "Numéro d’identification national: 10320862133"
+        props:
+          idNumber: 10320862133
+      - match: "Lieu d’enregistrement: Fars, Iran"
+        props:
+          address: "Fars, Iran"
+          jurisdiction: ir
+      - match: "Lieu: Province de Téhéran (Iran)"
+        props:
+          address: "Province de Téhéran (Iran)"
+          jurisdiction: ir
 
 
   ####################################################################################################
