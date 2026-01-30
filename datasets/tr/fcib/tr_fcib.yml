@@ -93,12 +93,16 @@ lookups:
     lowercase: true
     normalize: true
     options:
-      - match: IRAK
-        value: Irak
+      - match:
+          - IRAK
+          - IIRAK
+        value: Iraq
       - match:
           - BİRLEŞİK KRALLIK
           - İNGİLTERE
         value: United Kingdom
+      - match: FİLİSTİN
+        value: ps
       - match: TİRİNİDAD VE TOBAGO
         value: Trinidad and Tobago
       - match: MARSHALL ADALARI
