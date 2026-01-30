@@ -37,7 +37,7 @@ dependencies = [
     "psycopg2-binary",
     "pyicu == 2.16",
     "pywikibot==9.6.3",
-    "openai >= 1.33.0, < 2.0.0",
+    "openai >= 1.33.0, < 3.0.0",
     "requests[security]",
     "requests_oauthlib",
     "sqlalchemy[mypy]",
