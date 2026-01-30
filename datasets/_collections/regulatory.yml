@@ -36,6 +36,7 @@ children:
   - sg_mas_enforcement_actions
   - tr_cmb_banned
   - us_bis_oac
+  - us_bis_antiboycott
   - us_ddtc_debarred
   - us_ddtc_enforcements
   - us_dod_chinese_milcorps

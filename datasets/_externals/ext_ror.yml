@@ -38,6 +38,7 @@ inputs:
   - no_nbim_exclusions
   - special_interest
   - us_bis_oac
+  - us_bis_antiboycott
   - us_ddtc_debarred
   - us_ddtc_enforcements
   - us_fcc_covered_list
