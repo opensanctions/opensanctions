@@ -1,4 +1,5 @@
 from typing import Optional, NamedTuple, List
+import orjson
 
 from zavod.context import Context
 from zavod.entity import Entity
@@ -90,9 +91,28 @@ def apply_translit_names(
         prompt = make_name_translit_prompt(input_code, output_spec)
         first_name_response = run_text_prompt(context, prompt, first_name, model=model)
         last_name_response = run_text_prompt(context, prompt, last_name, model=model)
+
+        try:
+            first_name_trans_by_lang = orjson.loads(first_name_response.content)
+            last_name_trans_by_lang = orjson.loads(last_name_response.content)
+        except orjson.JSONDecodeError:
+            context.cache.delete(first_name_response.cache_key)
+            context.cache.delete(last_name_response.cache_key)
+
+            context.log.error(
+                "Transliteration failed, returned invalid JSON",
+                prompt=prompt,
+                first_name=first_name,
+                last_name=last_name,
+                model=model,
+                first_name_response_content=first_name_response.content,
+                last_name_response_content=last_name_response.content,
+            )
+            return
+
         for spec in output_spec:
             lang = spec.language_code
-            if lang not in first_name_response.keys():
+            if lang not in first_name_trans_by_lang.keys():
                 context.log.warning(
                     f"Transliteration for name did not return a value for {lang}. Will skip applying the transliterated name.",
                     prompt=prompt,
@@ -100,8 +120,9 @@ def apply_translit_names(
                     model=model,
                     response=repr(first_name_response),
                 )
+                context.cache.delete(first_name_response.cache_key)
                 continue
-            if lang not in last_name_response.keys():
+            if lang not in last_name_trans_by_lang.keys():
                 context.log.warning(
                     f"Transliteration for {last_name} did not return a value for {lang}. Will skip applying the transliterated name.",
                     prompt=prompt,
@@ -109,12 +130,13 @@ def apply_translit_names(
                     model=model,
                     response=repr(last_name_response),
                 )
+                context.cache.delete(last_name_response.cache_key)
                 continue
 
             h.apply_name(
                 entity,
-                first_name=first_name_response[lang],
-                last_name=last_name_response[lang],
+                first_name=first_name_trans_by_lang[lang],
+                last_name=last_name_trans_by_lang[lang],
                 lang=lang,
                 origin=model,
             )
@@ -147,8 +169,21 @@ def apply_translit_full_name(
         if prompt is None:
             prompt = make_name_translit_prompt(input_code, output)
         response = run_text_prompt(context, prompt, name, model=model)
+        try:
+            trans_by_lang = orjson.loads(response.content)
+        except orjson.JSONDecodeError:
+            context.cache.delete(response.cache_key)
+            context.log.error(
+                "Transliteration failed, returned invalid JSON",
+                prompt=prompt,
+                name=name,
+                model=model,
+                response_content=response.content,
+            )
+            return
+
         output_codes = {spec.language_code for spec in output}
-        if not set(response.keys()).issubset(output_codes):
+        if not set(trans_by_lang.keys()).issubset(output_codes):
             context.log.warning(
                 f"Transliteration for {name} returned unexpected keys. Will skip applying the transliterated name.",
                 prompt=prompt,
@@ -157,12 +192,13 @@ def apply_translit_full_name(
                 response=repr(response),
                 output=repr(output),
             )
+            context.cache.delete(response.cache_key)
             return
 
-        for lang in response.keys():
+        for lang, transliteration in trans_by_lang.items():
             h.apply_name(
                 entity,
-                full=response[lang],
+                full=transliteration,
                 lang=lang,
                 alias=alias,
                 origin=model,
