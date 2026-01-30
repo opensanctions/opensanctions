@@ -20,15 +20,18 @@ def check_value(
             raise ValueError(f"Unknown comparison: {comparison}")
 
 
+def is_assertion_fatal(assertion: Assertion) -> bool:
+    return assertion.comparison == Comparison.GTE
+
+
 def check_assertion(
     context: Context,
     stats: Dict[str, Any],
     assertion: Assertion,
-    log_error: bool = True,
 ) -> bool:
     """Returns true if the assertion is valid, false otherwise."""
 
-    log_fn = context.log.error if log_error else context.log.warning
+    log_fn = context.log.error if is_assertion_fatal(assertion) else context.log.warning
     results_valid: list[bool] = []
 
     if assertion.metric == Metric.ENTITY_COUNT:
@@ -113,6 +116,10 @@ def check_assertion(
                     )
                 results_valid.append(valid)
 
+    elif assertion.metric == Metric.PROPERTY_FILL_RATE:
+        # We handle that in a separate validator below because it's a special cookie
+        # that doesn't just want the Statistics
+        pass
     else:
         raise ValueError(f"Unknown metric: {assertion.metric}")
 
@@ -135,10 +142,69 @@ class StatisticsAssertionsValidator(BaseValidator):
             self.context.log.error("Dataset has no assertions.")
 
         for assertion in self.context.dataset.assertions:
-            is_fatal = assertion.comparison == Comparison.GTE
-            valid = check_assertion(
-                self.context, self.stats.as_dict(), assertion, log_error=is_fatal
-            )
+            valid = check_assertion(self.context, self.stats.as_dict(), assertion)
             # Only min assertions should abort the dataset.
-            if not valid and is_fatal:
+            if not valid and is_assertion_fatal(assertion):
                 self.abort = True
+
+
+class PropertyFillRateAssertionsValidator(BaseValidator):
+    """Warns if the fill rate of a property is below a threshold.
+
+    The reason this is implemented as a separate validator is that it doesn't just want the Statistics,
+    but the actual entities to compute the fill rate. Putting it in the AssertionsValidator would have
+    made it too complex, so instead I chose to spread the assertions functionality across multiple validators.
+    """
+
+    # schema, property -> (total, with_prop_set)
+    # In the end, we do fill_rate = with_prop_set / total
+    _counts_by_filter: dict[tuple[str, str], tuple[int, int]] = {}
+
+    # For convenience, store property_fill_rate assertions in a list.
+    # This should only be up to two (one for min, one for max)
+    _assertions: list[Assertion] = []
+
+    def __init__(self, context: Context, view: View) -> None:
+        super().__init__(context, view)
+
+        self._assertions = [
+            assertion
+            for assertion in self.context.dataset.assertions
+            if assertion.metric == Metric.PROPERTY_FILL_RATE
+        ]
+
+        for assertion in self._assertions:
+            for schema, properties in assertion.config.items():
+                for property, threshold in properties.items():
+                    self._counts_by_filter[(schema, property)] = (0, 0)
+
+    def feed(self, entity: Entity) -> None:
+        for (schema, prop), (total, with_prop_set) in self._counts_by_filter.items():
+            if entity.schema.is_a(schema):
+                self._counts_by_filter[(schema, prop)] = (
+                    total + 1,
+                    with_prop_set + (1 if entity.has(prop) else 0),
+                )
+
+    def finish(self) -> None:
+        for assertion in self._assertions:
+            log_fn = (
+                self.context.log.error
+                if is_assertion_fatal(assertion)
+                else self.context.log.warning
+            )
+
+            for schema, properties in assertion.config.items():
+                for property, threshold in properties.items():
+                    key = (schema, property)
+                    total, with_prop_set = self._counts_by_filter[key]
+                    # Avoid division by zero
+                    fill_rate = with_prop_set / (total or 1)
+                    valid = check_value(fill_rate, assertion.comparison, threshold)
+                    if not valid:
+                        log_fn(
+                            f"Assertion {assertion.metric} failed for {schema}.{property}: {fill_rate} is not {assertion.comparison} threshold {threshold}"
+                        )
+                        # Only fatal assertions should abort the dataset.
+                        if is_assertion_fatal(assertion):
+                            self.abort = True
