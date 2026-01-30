@@ -56,7 +56,6 @@ assertions:
       Company: 12000
       LegalEntity: 30
       Organization: 900
-      Person: 1
     country_entities:
       cn: 6400
       us: 1500
@@ -70,7 +69,6 @@ assertions:
       Company: 27000
       LegalEntity: 150
       Organization: 2000
-      Person: 50
 
 lookups:
   associates:

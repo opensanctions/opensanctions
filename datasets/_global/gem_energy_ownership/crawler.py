@@ -79,8 +79,10 @@ def crawl_company(context: Context, row: Dict[str, str], skipped: Set[str]):
         topics = "gov.soe"
     elif entity_type == "person":
         schema = "Person"
+    elif entity_type is None or entity_type == "unknown entity":
+        schema = "LegalEntity"
     else:
-        schema = "Company"
+        context.log.warning("Unknown entity type", entity_type=entity_type)
 
     entity = context.make(schema)
     entity.id = context.make_slug(id_)
