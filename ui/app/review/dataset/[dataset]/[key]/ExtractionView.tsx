@@ -6,7 +6,7 @@ import { keymap } from '@codemirror/view';
 import CodeMirror, { EditorView } from '@uiw/react-codemirror';
 import { createHighlighter } from '@/lib/codemirror';
 import { yamlSchema } from "codemirror-json-schema/yaml";
-import { Draft04, JsonSchema } from 'json-schema-library';
+import { compileSchema, draft04, JsonSchema } from 'json-schema-library';
 import { parse as parseYaml, stringify as stringifyToYaml } from 'yaml';
 import React, { useState, useEffect, useRef } from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
@@ -112,21 +112,12 @@ export default function ExtractionView({ rawData, extractedData, schema, accepte
     setTimeout(() => setFlashInvalid(false), 450);
   }
 
-  const schemaNode = new Draft04(schema);  // version selected to match that used in codemirror-json-schema
+  const schemaNode = compileSchema(schema, { drafts: [draft04] });  // version selected to match that used in codemirror-json-schema
 
-  let errors: string[];
-  try {
-    const editorExtractedParsed = parseYaml(editorExtracted)
-    errors = schemaNode.validate(editorExtractedParsed).map(e => e.message);
-  } catch (e) {
-    if (e instanceof SyntaxError) {
-      errors = [e.toString()];
-    } else {
-      errors = ['Unknown validation error'];
-    }
-  }
 
-  const valid = errors.length === 0;
+  const editorExtractedParsed = parseYaml(editorExtracted)
+  const result = schemaNode.validate(editorExtractedParsed)
+  const errors = result.errors.map(err => err.message);
   const errorSummary = errors.length === 0 ? null : `${errors.length} error(s) in Extracted YAML: ${errors.join('; ')}`;
 
   // Keyboard shortcuts
@@ -139,7 +130,7 @@ export default function ExtractionView({ rawData, extractedData, schema, accepte
       }
       if ((e.ctrlKey || e.metaKey) && e.key === 's') {
         e.preventDefault();
-        if (valid) {
+        if (result.valid) {
           formRef.current?.requestSubmit();
         } else {
           triggerFlash();
@@ -147,7 +138,7 @@ export default function ExtractionView({ rawData, extractedData, schema, accepte
       }
       if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
         e.preventDefault();
-        if (valid) {
+        if (result.valid) {
           if (formRef.current) {
             (formRef.current.accepted as HTMLInputElement).value = 'true';
             (formRef.current.accept_and_continue as HTMLInputElement).value = 'true';
@@ -164,7 +155,7 @@ export default function ExtractionView({ rawData, extractedData, schema, accepte
     }
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, [valid, rawData]);
+  }, [result.valid, rawData]);
   useEffect(() => {
     const element = editorRef.current?.editor;
     function handler() {
@@ -282,8 +273,8 @@ export default function ExtractionView({ rawData, extractedData, schema, accepte
               Accepted
             </label>
           </div>
-          <SaveButton isValid={valid} help={errorSummary} />
-          <AcceptAndContinueButton isValid={valid} help={errorSummary} />
+          <SaveButton isValid={result.valid} help={errorSummary} />
+          <AcceptAndContinueButton isValid={result.valid} help={errorSummary} />
         </form>
       </div>
     </div>
