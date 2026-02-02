@@ -98,6 +98,22 @@ config:
     - LegalEntity
     - Person
 
+assertions:
+  min:
+    schema_entities:
+      Company: 118700
+      Person: 87980
+      Organization: 2040
+      PublicBody: 150
+      LegalEntity: 2
+  max:
+    schema_entities:
+      Company: 279300
+      Person: 207000
+      Organization: 4800
+      PublicBody: 350
+      LegalEntity: 10
+
 lookups:
   type.address:
     lowercase: true

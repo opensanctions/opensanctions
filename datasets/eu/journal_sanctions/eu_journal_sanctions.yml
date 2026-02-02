@@ -167,3 +167,5 @@ lookups:
         value: EU-VEN
       - match: 2024/386
         value: EU-HAM
+      - match: 101/2011
+        value: EU-TUN

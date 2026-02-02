@@ -39,6 +39,17 @@ data:
 
 dates:
   formats: ["%d.%m.%Y"]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 4500
+      Position: 1570
+  max:
+    schema_entities:
+      Person: 10700
+      Position: 3700
+
 lookups:
   doc_id_date:
     options:
@@ -56,6 +67,8 @@ lookups:
         value: 16.05.2025
       - match: 7747/15/05/2025
         value: 15.05.2025
+      - match: 12887/22/07.2025
+        value: 22.07.2025
   type.date:
     options:
       - match: 15.50.2024
