@@ -74,7 +74,7 @@ def apply_reg_number(context: Context, entity: Entity, reg_number: str):
         )
 
 
-def parse_companies(context: Context, value: Optional[str]) -> List[str]:
+def parse_company_names(context: Context, value: Optional[str]) -> List[str]:
     if not value:
         return []
     result = context.lookup("companies", value, warn_unmatched=True)
@@ -159,10 +159,10 @@ def xml_make_ship(context: Context, designation: ElementOrTree, entity: Entity):
         # Add the owners
         for owner_el in ship.iterfind(".//CurrentOwnerOperators//CurrentOwnerOperator"):
             if owner_text := owner_el.text:
-                for owner in parse_companies(context, owner_text.strip()):
+                for owner_name in parse_company_names(context, owner_text.strip()):
                     owner_entity = context.make("Organization")
-                    owner_entity.id = context.make_slug("named", owner)
-                    owner_entity.add("name", owner)
+                    owner_entity.id = context.make_slug("named", owner_name)
+                    owner_entity.add("name", owner_name)
                     context.emit(owner_entity)
 
                     own = context.make("Ownership")
@@ -337,7 +337,7 @@ def csv_make_legal_entity(context: Context, row: dict, entity: Entity):
     h.copy_address(entity, addr)
 
     parent_names = row.pop("Parent company")
-    for name in parse_companies(context, parent_names):
+    for name in parse_company_names(context, parent_names):
         parent = context.make("Organization")
         parent.id = context.make_slug("named", name)
         parent.add("name", name)
@@ -349,7 +349,7 @@ def csv_make_legal_entity(context: Context, row: dict, entity: Entity):
         ownership.add("asset", entity)
         context.emit(ownership)
 
-    for name in parse_companies(context, row.pop("Subsidiaries")):
+    for name in parse_company_names(context, row.pop("Subsidiaries")):
         subsidiary = context.make("Company")
         subsidiary.id = context.make_slug("named", name)
         subsidiary.add("name", name)
@@ -391,7 +391,7 @@ def csv_make_ship(context: Context, row: dict, entity: Entity):
     entity.add("registrationNumber", row.pop("Hull identification number (HIN)"))
     entity.add("imoNumber", row.pop("IMO number"))
     owner = row.pop("Current owner/operator (s)")
-    for owner in parse_companies(context, owner.strip()):
+    for owner in parse_company_names(context, owner.strip()):
         owner_entity = context.make("Organization")
         owner_entity.id = context.make_slug("named", owner)
         owner_entity.add("name", owner)
@@ -404,7 +404,7 @@ def csv_make_ship(context: Context, row: dict, entity: Entity):
         context.emit(own)
 
     previous_owner = row.pop("Previous owner/operator (s)")
-    for previous_owner in parse_companies(context, previous_owner.strip()):
+    for previous_owner in parse_company_names(context, previous_owner.strip()):
         previous_owner_entity = context.make("Organization")
         previous_owner_entity.id = context.make_slug("named", previous_owner)
         previous_owner_entity.add("name", previous_owner)
