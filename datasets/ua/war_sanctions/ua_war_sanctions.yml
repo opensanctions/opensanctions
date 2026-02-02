@@ -436,11 +436,14 @@ lookups:
       - match: "ПЕТРОСЯНЦ/ПЕТРОСЯН Евгений Ваганович"
         name: ["ПЕТРОСЯНЦ Евгений Ваганович", "ПЕТРОСЯН Евгений Ваганович"]
       - match: "SERGEY Vitalyevich Glushko/Tarzan"
-        name: ["SERGEY Vitalyevich Glushko", "Tarzan"]
+        name: SERGEY Vitalyevich Glushko
+        alias: Tarzan
       - match: "ГЛУШКО Сергій Віталійович/Тарзан"
-        name: ["ГЛУШКО Сергій Віталійович", "Тарзан"]
+        name: ГЛУШКО Сергій Віталійович
+        alias: Тарзан
       - match: "ГЛУШКО Сергей Витальевич/Тарзан"
-        name: ["ГЛУШКО Сергей Витальевич", "Тарзан"]
+        name: ГЛУШКО Сергей Витальевич
+        alias: Тарзан
       - match: "REZNIK Ilya Rakhmielevich / Izraelzon Ilya Leopoldovich"
         name: ["REZNIK Ilya Rakhmielevich", "Izraelzon Ilya Leopoldovich"]
       - match: "РЄЗНІК Ілля Рахмієльович / Ізраельсон Ілля Леопольдович"
