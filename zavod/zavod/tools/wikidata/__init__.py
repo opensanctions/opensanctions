@@ -482,9 +482,9 @@ class EditSession(Generic[DS, SE]):
             claim = cast(Claim, claim_)
             starts = [cast(Claim, q) for q in claim.qualifiers.get("P580", [])]
             ends = [cast(Claim, q) for q in claim.qualifiers.get("P582", [])]
-            if len(starts) > 0:
+            if len(starts) > 0 and starts[0].target is not None:
                 wd_pos_start_years[claim.target.getID()].add(str(starts[0].target.year))
-            if len(ends) > 0:
+            if len(ends) > 0 and ends[0].target is not None:
                 wd_pos_end_years[claim.target.getID()].add(str(ends[0].target.year))
             if not starts and not ends:
                 unqualified_pos_ids.add(claim.target.getID())
