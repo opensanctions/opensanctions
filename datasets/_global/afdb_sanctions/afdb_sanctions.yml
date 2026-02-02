@@ -342,6 +342,46 @@ lookups:
       - match: "EFACEC Arabia Co., Ltd. (Unified Number 7037412538) : Affiliate of LEECE"
         names:
           - name: EFACEC Arabia Co., Ltd.
+      - match: "MR. PHAM HONG HA(formerly MC Consulting Ltda.)"
+        names:
+          - name: Pham Hong Ha
+            previous_name: "MC Consulting Ltda."
+      - match: "SUNAULA KHIMTI PVT. CONSTRUCTION LTD.(AKA M/S SUNAULA KHIMTI)"
+        names:
+          - name: Sunaula Khimti Pvt. Construction Ltd.
+            alias: "M/S Sunaula Khimti"
+      - match: "DESARROLLO CON INGENIERÍA CONTRATISTAS GENERALES S.A. (DISA-CGSA)(江西恒剑路桥工程有限公司)"
+        names:
+          - name: Desarrollo Con Ingeniería Contratistas Generales S.A.
+            alias: ["DISA-CGSA", "江西恒剑路桥工程有限公司"]
+      - match: "ECOGRAPH LLC AKA ECOGRAPHY COMPANY"
+        names:
+          - name: Ecograph Llc
+            alias: "Ecography Company"
+      - match: "XINJINZHU MUNICIPAL LANDSCAPING ENGINEERING CO., LTD.f/k/a Henan Xinjinzhu Landscaping Engineering Co., Ltd."
+        names:
+          - name: Xinjinzhu Municipal Landscaping Engineering Co., Ltd.
+            previous_name: "Henan Xinjinzhu Landscaping Engineering Co., Ltd."
+      - match: "ELMCREST GROUP LIMITED, FORMERLY KNOWN AS LANDMARC LIMITED"
+        names:
+          - name: Elmcrest Group Limited
+            previous_name: "Landmarc Limited"
+      - match: "LAXMINARAYAN CONSTRUCTION(also doing business as LAXMI NARAYAN CONSTRUCTION and LAXMINARAYAN MALLICK)"
+        names:
+          - name: Laxminarayan Construction
+            alias: ["Laxmi Narayan Construction", "Laxminarayan Mallick"]
+      - match: "J.M. Comercio De Equipamentos Ltda (Currently D/B/A Pick Up Car Auto PECAS)"
+        names:
+          - name: J.M. Comercio De Equipamentos Ltda
+            alias: "Pick Up Car Auto Pecas"
+      - match: "Intreprinderea Mixta Moldo-Irlandeza (Romany Gaz Group) S.R.L."
+        names:
+          - name: Intreprinderea Mixta Moldo-Irlandeza S.R.L.
+            alias: "Romany Gaz Group"
+      - match: "Roth, Mr. Li Moni (also Ly Moni Roth"
+        names:
+          - name: Li Moni Roth
+            alias: "Ly Moni Roth"
   types:
     lowercase: true
     map:
