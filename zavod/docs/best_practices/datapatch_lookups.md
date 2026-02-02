@@ -6,7 +6,7 @@ clean up the data, as well as to map between data values and OpenSanctions conce
 Lookups are sets of matching options which can be defined under the `lookups` key in the metadata.
 They can then be used via [`context.lookup_value`][zavod.context.Context.lookup_value].
 
-Lookups named after [FollowTheMoney](https://followthemoney.tech/explorer/#types)
+Lookups named after [FollowTheMoney](https://followthemoney.tech/explorer/types/)
 types are also automatically invoked for each value when adding/setting an entity
 property of that type. See below.
 
@@ -145,7 +145,7 @@ lookups:
         value: alias
 ```
 
-## Regex mappings: 
+## Regex mappings:
 If you're working with date formats or specific patterns, using a lookup like this allows you to map certain patterns to a value, such as `null` for when no further processing is needed.
 
 ```yaml
