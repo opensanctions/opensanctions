@@ -25,6 +25,8 @@ tags:
   - list.pep
 url: https://www.shugiin.go.jp/internet/index.nsf/html/index_e.htm
 data:
+  # If they don't have members starting with this letter, this just looks like a broken page.
+  # If so, try the index page for a different letter, where the crawler will find links to the rest.
   url: https://www.shugiin.go.jp/Internet/itdb_english.nsf/html/statics/member/mem_b.htm
 
 dates:
