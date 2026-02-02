@@ -1,0 +1,55 @@
+title: US Texas HHSC OIG Exclusions
+entry_point: crawler.py
+prefix: us-tx-med  # unsure, should it mirror folder name?
+coverage:
+  schedule: "@monthly"  # unsure if good pick
+  start: "2026-01-29"
+load_statements: true  # unsure what it does
+ci_test: false  # unsure what it does
+summary: >
+  List of excluded individuals and entities for Texas Medicaid and other HHS programs by Texas HHSC OIG
+description: |
+    > The Texas Health & Human Services Commission Office of Inspector General (OIG) maintains
+    a “List of Excluded Individuals/Entities” to help protect program beneficiaries by preventing
+    excluded individuals and businesses from participating in Texas Medicaid and other HHS programs.
+
+    Bases for exclusion include convictions for program-related fraud and patient abuse, licensing board actions,
+    U.S. Health & Human Services OIG (Medicare) exclusion actions, and "Permissive" exclusions as allowed by various
+    legal authorities.
+tags:
+  - sector.medical
+  - sector.usmed.debarment
+publisher:
+  name: The Texas Health & Human Services Commissions (Commission) Office of Inspector General (OIG)
+  description: >
+    > The Texas Health & Human Services Commissions (Commission) Office of Inspector General (OIG)
+    works to protect the health and welfare of Texas Medicaid and other HHS programs beneficiaries by
+    preventing the participation of certain individuals and businesses, and maintains the List of
+    Excluded Individuals/Entities.
+  acronym: OIG
+  url: "https://oig.hhsc.state.tx.us/oigportal2/Exclusions/ctl/ABO/mid/384"
+  official: true
+  country: "us"
+url: "https://oig.hhsc.state.tx.us/oigportal2/Exclusions/ctl/DOW/mid/384"
+data:
+  url: "https://oig.hhsc.state.tx.us/oigportal2/Exclusions/ctl/DOW/mid/384"
+  format: XLSX
+  lang: eng
+dates:
+  formats: ["%m/%d/%Y"]  # datetime
+
+assertions:
+  min:
+    schema_entities:
+      Person: 9300  # 11710 count
+      Company: 370  # 473 count
+  max:
+    schema_entities:
+      Person: 23500
+      Company: 1000
+
+# lookups:
+#   headers:
+#     options:
+#       - match: companyname
+#         value: companyname
