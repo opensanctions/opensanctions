@@ -678,6 +678,9 @@ class WikidataApp(App[int], Generic[DS, SE]):
         yield self.search_display
         self.log_display = Log()
         yield self.log_display
+
+    def on_mount(self) -> None:
+        """Called after the app is mounted and ready."""
         self.action_next()
 
     def action_next(self) -> None:
