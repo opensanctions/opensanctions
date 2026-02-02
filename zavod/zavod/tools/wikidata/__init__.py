@@ -204,6 +204,8 @@ class EditSession(Generic[DS, SE]):
             if self.entity.id is not None and is_qid(self.entity.id):
                 self.qid = self.entity.id
             if self.qid is None:
+                if not entity.get("name"):
+                    continue
                 self._search_items()
             else:
                 self._fetch_item()
