@@ -104,14 +104,14 @@ lookups:
       - match: 'Mahan Airways, Pejman Mahmood Kosarayanifard, Mahmoud Amini, Kerman Aviation, Sirjanco Trading LLC, Ali Eslamian, Mahan Air General Trading Llc, Skyco (Uk) Ltd., Equipco (Uk) Ltd., And Mehdi Bahrami'
         entities:
           - Mahan Airways
-          - ["Pejman Mahmood Kosarayanifard", "Kosarian Fard"]
+          - Pejman Mahmood Kosarayanifard
           - Mahmoud Amini
-          - ["Kerman Aviation", "GIE Kerman Aviation"]
+          - Kerman Aviation
           - Sirjanco Trading LLC
           - Ali Eslamian
           - Mahan Air General Trading LLC
-          - Skyco (UK) Ltd # move country to?
-          - Equipco (UK) Ltd # move country to?
+          - Skyco (UK) Ltd
+          - Equipco (UK) Ltd
           - Mehdi Bahrami
       - match: 'Zarand Aviation, aka GIE Zarand Aviation'
         entities:
@@ -121,28 +121,28 @@ lookups:
           - Mahan Airways
           - Zarand Aviation
           - Gatewick LLC
-          - ["Pejman Mahmood Kosarayanifard", "Kosarian Fard"]
+          - Pejman Mahmood Kosarayanifard
           - Mahmoud Amini
           - Derman Aviation
           - Sirjanco Trading LLC
           - Ali Eslamian
           - Mahan Air General Trading LLC
-          - Skyco (UK) Ltd # move country to?
-          - Equipco (UK) Ltd # move country to?
+          - Skyco (UK) Ltd
+          - Equipco (UK) Ltd
           - Mehdi Bahrami
       - match: 'Mahan Airways, Zarand Aviation, Gatewick LLC., PejMan Mahmood Kosarayanifard, Mahoud Amini, Kerman Aviation, Sirjanco Trading LLC, Ali Eslamian, Mahan Air General Trading LLC, Skyco (UK) LTD. and Equipco (UK) LTD. and Mehdi Bahrami'
         entities:
           - Mahan Airways
           - Zarand Aviation
           - Gatewick LLC
-          - ["Pejman Mahmood Kosarayanifard", "Kosarian Fard"]
+          - Pejman Mahmood Kosarayanifard
           - Mahmoud Amini
-          - ["Kerman Aviation", "GIE Kerman Aviation"]
+          - Kerman Aviation
           - Sirjanco Trading LLC
           - Ali Eslamian
           - Mahan Air General Trading LLC
-          - Skyco (UK) Ltd # move country to?
-          - Equipco (UK) Ltd # move country to?
+          - Skyco (UK) Ltd
+          - Equipco (UK) Ltd
           - Mehdi Bahrami
       - match:
           - 'Mahan Airways, Zarand Aviation, Gatewick LLC.,Pejman Mahmood Kosarayanifard, Mahoud Amini,Kerman Aviation, Sirjanco Trading LLC,Ali Eslamian, Mahan Air General Trading,Skyco (UK) Ltd. and Equipco (UK) LTD.'
@@ -152,54 +152,51 @@ lookups:
           - Mahan Airways
           - Zarand Aviation
           - Gatewick LLC
-          - ["Pejman Mahmood Kosarayanifard", "Kosarian Fard"]
+          - Pejman Mahmood Kosarayanifard
           - Mahmoud Amini
-          - ["Kerman Aviation", "GIE Kerman Aviation"]
+          - Kerman Aviation
           - Sirjanco Trading LLC
           - Ali Eslamian
           - Mahan Air General Trading LLC
-          - Skyco (UK) Ltd # move country to?
-          - Equipco (UK) Ltd # move country to?
+          - Skyco (UK) Ltd
+          - Equipco (UK) Ltd
       - match: 'Mahan Airways, Zarand Aviation, Gatewick LLC.,Pejman Mahmood Kosarayanifard,Mahoud Amini, Kerman Aviation,Sirjanco Trading LLC, andAli Eslamian'
         entities:
           - Mahan Airways
           - Zarand Aviation
           - Gatewick LLC
-          - ["Pejman Mahmood Kosarayanifard", "Kosarian Fard"]
+          - Pejman Mahmood Kosarayanifard
           - Mahmoud Amini
-          - ["Kerman Aviation", "GIE Kerman Aviation"]
+          - Kerman Aviation
           - Sirjanco Trading LLC
           - Ali Eslamian
       - match: 'Mahan Airways; Gatewick LLC; Pejman Mahmood Kosarayanifard; Mahmoud Amini; Kerman Aviation; Sirjanco Trading and Ali Eslamian'
         entities:
           - Mahan Airways
           - Gatewick LLC
-          - ["Pejman Mahmood Kosarayanifard", "Kosarian Fard"]
+          - Pejman Mahmood Kosarayanifard
           - Mahmoud Amini
-          - ["Kerman Aviation", "GIE Kerman Aviation"]
+          - Kerman Aviation
           - Sirjanco Trading LLC
           - Ali Eslamian
-        ## below not matching
       - match: 'Mahan Airways, Pejman Mahmood Kosarayanifard, Mahmoud Amini, Kerman Aviation, Sirjanco Trading LLC, Ali Eslamian, Mahan Air General Trading LLC, Skyco (Uk) Ltd., Equipco (Uk) Ltd., Mehdi Bahrami; Al Naser Airlines, Ali Abdullah Alhay, and Bahar Safwa General Trading'
         entities:
           - Mahan Airways
-          - ["Pejman Mahmood Kosarayanifard", "Kosarian Fard"]
+          - Pejman Mahmood Kosarayanifard
           - Mahmoud Amini
-          - ["Kerman Aviation", "GIE Kerman Aviation"]
+          - Kerman Aviation
           - Sirjanco Trading LLC
           - Ali Eslamian
           - Mahan Air General Trading LLC
-          - Skyco (UK) Ltd # move country to?
-          - Equipco (UK) Ltd # move country to?
+          - Skyco (UK) Ltd
+          - Equipco (UK) Ltd
           - Mehdi Bahrami
-          - ["Al Naser Airlines", "Al-Naser Airlines", "Alnaser Airlines and Air Freight Ltd"]
-          - ["Ali Abdullah Alhay", "Ali Alhay", "Ali Abdullah Ahmed Alhay"]
+          - Al Naser Airlines
+          - Ali Abdullah Alhay
           - Bahar Safwa General Trading
-      - match:
+      - match:           
           - 'Mahan Airways; Pejman Mahmood Kosarayanifard, a/k/a Kosarian Fard; Mahmoud Amini; Kerman Aviation, a/k/a GIE Kerman Aviation; Sirjanco Trading LLC; Ali Eslamian; Mahan Air General Trading LLC; Skyco (Uk) Ltd.; Equipco (UK) Ltd.; Mehdi Bahrami; Al Naser Airlines, a/k/a Al-Naser Airlines, a/k/a Alnaser Airlines and Air Freight Ltd.; Ali Abdullah Alhay,a/k/a Ali Alhay, a/k/a Ali Abdullah Ahmed Alhay; Bahar Safwa General Trading; Sky Blue Bird Group, a/k/a Sky Blue Bird Aviation, a/k/a Sky Blue Bird Ltd., a/k/a Sky Blue Bird FZC; and Issam Shammout, a/k/a Muhammad Isam Muhammad Anwar Nur Shammout, a/k/a Issam Anwar'
-          - 'Mahan Airways, Pejman Mahmood Kosarayanifard, Mahmoud Amini, Kerman Aviation, Sirjanco Trading LLC, Ali Eslamian, Mahan Air General Trading LLC, Skyco (Uk) Ltd., Equipco (Uk) Ltd., Mehdi Bahrami; Al Naser Airlines, Ali Abdullah Alhay, Bahar Safwa General Trading, Sky Blue Bird Group, and Issam Muhammad'
-          - 'Mahan Airways, Pejman Mahmood Kosrayanifard, Mahmoud Amini, Kerman Aviation, Sirjanco Trading LLC, Ali Eslamian, Mahan Air General Trading LLC, Skyco (Uk) Ltd., Equipco (Uk) Ltd., Mehdi Bahrami; Al Naser Airlines, Ali Abdullah Alhay, Bahar Safwa General Trading, Sky Blue Bird Group and Issam Muhammad'
-        entities:
+        entities: 
           - Mahan Airways
           - ["Pejman Mahmood Kosarayanifard", "Kosarian Fard"]
           - Mahmoud Amini
@@ -207,14 +204,33 @@ lookups:
           - Sirjanco Trading LLC
           - Ali Eslamian
           - Mahan Air General Trading LLC
-          - Skyco (UK) Ltd # move country to?
-          - Equipco (UK) Ltd # move country to?
+          - Skyco (UK) Ltd
+          - Equipco (UK) Ltd
           - Mehdi Bahrami
           - ["Al Naser Airlines", "Al-Naser Airlines", "Alnaser Airlines and Air Freight Ltd"]
           - ["Ali Abdullah Alhay", "Ali Alhay", "Ali Abdullah Ahmed Alhay"]
           - Bahar Safwa General Trading
           - ["Sky Blue Bird Group", "Sky Blue Bird Aviation", "Sky Blue Bird Ltd", "Sky Blue Bird FZC"]
           - ["Issam Shammout", "Muhammad Isam Muhammad Anwar Nur Shammout", "Issam Anwar"]
+      - match:
+          - 'Mahan Airways, Pejman Mahmood Kosarayanifard, Mahmoud Amini, Kerman Aviation, Sirjanco Trading LLC, Ali Eslamian, Mahan Air General Trading LLC, Skyco (Uk) Ltd., Equipco (Uk) Ltd., Mehdi Bahrami; Al Naser Airlines, Ali Abdullah Alhay, Bahar Safwa General Trading, Sky Blue Bird Group, and Issam Muhammad'
+          - 'Mahan Airways, Pejman Mahmood Kosrayanifard, Mahmoud Amini, Kerman Aviation, Sirjanco Trading LLC, Ali Eslamian, Mahan Air General Trading LLC, Skyco (Uk) Ltd., Equipco (Uk) Ltd., Mehdi Bahrami; Al Naser Airlines, Ali Abdullah Alhay, Bahar Safwa General Trading, Sky Blue Bird Group and Issam Muhammad'
+        entities:
+          - Mahan Airways
+          - Pejman Mahmood Kosarayanifard
+          - Mahmoud Amini
+          - Kerman Aviation
+          - Sirjanco Trading LLC
+          - Ali Eslamian
+          - Mahan Air General Trading LLC
+          - Skyco (UK) Ltd
+          - Equipco (UK) Ltd
+          - Mehdi Bahrami
+          - Al Naser Airlines
+          - Ali Abdullah Alhay
+          - Bahar Safwa General Trading
+          - Sky Blue Bird Group
+          - Issam Muhammad
       - match:
           - 'Mahan Airways; Pejman Mahmood Kosarayanifard, a/k/a Kosarian Fard; Mahmoud Amini; Kerman Aviation, a/k/a GIE Kerman Aviation; Sirjanco Trading LLC; Mahan Air General Trading LLC; Mehdi Bahrami; Al Naser Airlines, a/k/a Al-Naser Airlines, a/k/a Alnaser Airlines and Air Freight Ltd.; Ali Abdullah Alhay,a/k/a Ali Alhay, a/k/a Ali Abdullah Ahmed Alhay; Bahar Safwa General Trading; Sky Blue Bird Group, a/k/a Sky Blue Bird Aviation, a/k/a Sky Blue Bird Ltd., a/k/a Sky Blue Bird FZC; and Issam Shammout, a/k/a Muhammad Isam Muhammad Anwar Nur Shammout, a/k/a Issam Anwar'
           - 'Mahan Airways; Pejman Mahmood Kosarayanifard, a/k/aKosarian Fard; Mahmoud Amini; Kerman Aviation, a/k/aGIE Kerman Aviation; Sirjanco Trading LLC; Mahan Air General Trading LLC; Mehdi Bahrami; Al Naser Airlines, a/k/a Al-Naser Airlines, a/k/a Alnaser Airlines and Air Freight Ltd.; Ali Abdullah Alhay,a/k/a Ali Alhay, a/k/a Ali Abdullah Ahmed Alhay; Bahar Safwa General Trading; Sky Blue Bird Group, a/k/a Sky Blue Bird Aviation, a/k/a Sky Blue Bird Ltd., a/k/a Sky Blue Bird FZC; and Issam Shammout, a/k/a Muhammad Isam Muhammad Anwar Nur Shammout, a/k/a Issam Anwar'
@@ -235,36 +251,35 @@ lookups:
           - Bahar Safwa General Trading
           - ["Sky Blue Bird Group", "Sky Blue Bird Aviation", "Sky Blue Bird Ltd", "Sky Blue Bird FZC"]
           - ["Issam Shammout", "Muhammad Isam Muhammad Anwar Nur Shammout", "Issam Anwar"]
-        ### below isnt matching
       - match: 'Mahan Airways, Zarand Aviation, Gatewick LLC.,Pejman Mahmood Dosarayanifard, Mahoud Amini,Kerman Aviation, Sirjanco Trading LLC,Skyco (UK) LTD. and Equipco (UK) LTD. and Mehdi Bahrami'
         entities:
           - Mahan Airways
           - Zarand Aviation
           - Gatewick LLC
-          - ["Pejman Mahmood Kosarayanifard", "Kosarian Fard"]
+          - Pejman Mahmood Kosarayanifard  # typo in input name (checked against .pdf)
           - Mahmoud Amini
-          - ["Kerman Aviation", "GIE Kerman Aviation"]
+          - Kerman Aviation
           - Sirjanco Trading LLC
-          - Skyco (UK) Ltd # move country to?
-          - Equipco (UK) Ltd # move country to?
+          - Skyco (UK) Ltd
+          - Equipco (UK) Ltd
           - Mehdi Bahrami
       - match: 'Mahan Airways; Gatewick LLC; Pejman Mahmood Kosarayanifard and Mahmoud Amini'
         entities:
           - Mahan Airways
           - Gatewick LLC
-          - ["Pejman Mahmood Kosarayanifard", "Kosarian Fard"]
+          - Pejman Mahmood Kosarayanifard
           - Mahmoud Amini
       - match: 'Mahan Airways, Gatewick LLC., Pejman Mahmood Kosarayanifard, Mahoud Amini, Kerman Aviation, Sirjanco Trading LLC, Ali Eslamian, Mahan Air General Trading LLC, Skyco (UK) Ltd. and Mehdi Bahrami'
         entities:
           - Mahan Airways
           - Gatewick LLC
-          - ["Pejman Mahmood Kosarayanifard", "Kosarian Fard"]
+          - Pejman Mahmood Kosarayanifard
           - Mahmoud Amini
-          - ["Kerman Aviation", "GIE Kerman Aviation"]
+          - Kerman Aviation
           - Sirjanco Trading LLC
           - Ali Eslamian
           - Mahan Air General Trading LLC
-          - Skyco (UK) Ltd # move country to?
+          - Skyco (UK) Ltd
           - Mehdi Bahrami
       - match: 'SkyTechnic, Skywind International Limited, Hong Fan Limited, Lufeng Limited, Unical dis Ticaret Ve Lojistik JSC, Izzi Cup DOO, Alexey Sumchenko, Anna Shumakova, Branimir Salevic, Danijela Salevic'
         entities:
@@ -347,7 +362,7 @@ lookups:
           - Svetlana Skvortsova
           - Aleksey Ippolitov
           - Advanced Web Services
-          - ['Strandway, LCC', 'Strandway']
+          - Strandway, LCC
           - Nikolaos Bogonikolos
           - Aratos Group
       - match: 'Boris Livshits, Svetlana Skvortsova, Aleksey Ippolitov, Advanced Web Services, and Strandway, LCC (“Strandway”)'
