@@ -48,8 +48,15 @@ assertions:
       Person: 23500
       Company: 1000
 
-# lookups:
-#   headers:
-#     options:
-#       - match: companyname
-#         value: companyname
+lookups:
+  type.identifier:
+    options:
+      - match: 
+          - 1265563261
+          - 167904359
+          - 15199
+          - 1452320558
+          - 1885136769
+          - 1225533057
+          - 118771347
+        prop: registrationNumber
