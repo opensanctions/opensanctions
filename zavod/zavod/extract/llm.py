@@ -1,4 +1,5 @@
 import base64
+from dataclasses import dataclass
 import json
 import logging
 import mimetypes
@@ -134,6 +135,18 @@ def run_typed_image_prompt(
     return structured_data
 
 
+@dataclass
+class TextPromptResponse:
+    content: str
+    cache_key: str
+    """The cache key for the response.
+
+    This is returned regardless of whether the response was cached or not.
+    It can be used by callers to invalidate the cache when the response turns out to
+    be dumb and needs to be retried on a day with better weather.
+    """
+
+
 def run_text_prompt(
     context: Context,
     prompt: str,
@@ -141,16 +154,16 @@ def run_text_prompt(
     max_tokens: int = 3000,
     cache_days: int = 100,
     model: str = DEFAULT_MODEL,
-) -> Any:
+) -> TextPromptResponse:
     """Run a text prompt."""
     client = get_client()
     cache_hash = sha1(string.encode("utf-8"))
     cache_hash.update(prompt.encode("utf-8"))
     cache_key = cache_hash.hexdigest()
-    cached_data = context.cache.get_json(cache_key, max_age=cache_days)
+    cached_data = context.cache.get(cache_key, max_age=cache_days)
     if cached_data is not None:
         log.info("GPT cache hit: %s" % string[:50])
-        return cached_data
+        return TextPromptResponse(content=cached_data, cache_key=cache_key)
     log.info("Prompting %r for: %s" % (model, string[:50]))
     response = client.chat.completions.create(
         model=model,
@@ -168,10 +181,11 @@ def run_text_prompt(
     )
     assert len(response.choices) > 0
     assert response.choices[0].message is not None
-    assert response.choices[0].message.content is not None
-    data = json.loads(response.choices[0].message.content)
-    context.cache.set_json(cache_key, data)
-    return data
+
+    content = response.choices[0].message.content
+    assert content is not None
+    context.cache.set_json(cache_key, content)
+    return TextPromptResponse(content=content, cache_key=cache_key)
 
 
 def run_typed_text_prompt(
