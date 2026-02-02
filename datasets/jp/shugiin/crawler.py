@@ -64,7 +64,9 @@ def crawl(context: Context) -> None:
 
     doc = context.fetch_html(context.data_url)
     urls = [context.data_url]
-    for a in doc.findall('.//div[@id="LnaviArea"]//table//a'):
+    nav_links = doc.findall('.//div[@id="LnaviArea"]//table//a')
+    assert nav_links, nav_links
+    for a in nav_links:
         href = a.get("href")
         if href is None:
             continue
