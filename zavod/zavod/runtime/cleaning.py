@@ -141,6 +141,17 @@ def value_clean(
                 )
                 # clean = clean[: prop.type.max_length]
 
+            # This is not a general restriction on addresses that should be in FtM,
+            # but rather a smell that can indicate a crawler bug.
+            if prop_.type == registry.address and len(clean) <= 3:
+                log.warning(
+                    f"Property for {prop_.name} looks too short for an address: {value}",
+                    entity_id=entity.id,
+                    prop=prop.name,
+                    value=value,
+                    clean=clean,
+                )
+
             yield prop_, clean
             continue
         if prop_.type == registry.phone:
