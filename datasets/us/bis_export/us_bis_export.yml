@@ -40,10 +40,10 @@ dates:
 assertions:
   min:
     schema_entities:
-      LegalEntity: 890
+      LegalEntity: 1200
   max:
     schema_entities:
-      LegalEntity: 2226
+      LegalEntity: 2200
 
 lookups:
   comma_names:
@@ -213,6 +213,7 @@ lookups:
           - ["Sky Blue Bird Group", "Sky Blue Bird Aviation", "Sky Blue Bird Ltd", "Sky Blue Bird FZC"]
           - ["Issam Shammout", "Muhammad Isam Muhammad Anwar Nur Shammout", "Issam Anwar"]
       - match:
+          - 'Mahan Airways, Pejman Mahmood Kosarayanifard, Mahmoud Amini, Kerman Aviation, Sirjanco Trading LLC, Ali Eslamian, Mahan Air General Trading LLC, Skyco (Uk) Ltd., Equipco (UK) Ltd., Mehdi Bahrami; Al Naser Airlines, Ali Abdullah Alhay, Bahar Safwa General Trading, Sky Blue Bird Group, and Issam Muhammad'
           - 'Mahan Airways, Pejman Mahmood Kosarayanifard, Mahmoud Amini, Kerman Aviation, Sirjanco Trading LLC, Ali Eslamian, Mahan Air General Trading LLC, Skyco (Uk) Ltd., Equipco (Uk) Ltd., Mehdi Bahrami; Al Naser Airlines, Ali Abdullah Alhay, Bahar Safwa General Trading, Sky Blue Bird Group, and Issam Muhammad'
           - 'Mahan Airways, Pejman Mahmood Kosrayanifard, Mahmoud Amini, Kerman Aviation, Sirjanco Trading LLC, Ali Eslamian, Mahan Air General Trading LLC, Skyco (Uk) Ltd., Equipco (Uk) Ltd., Mehdi Bahrami; Al Naser Airlines, Ali Abdullah Alhay, Bahar Safwa General Trading, Sky Blue Bird Group and Issam Muhammad'
         entities:
@@ -624,9 +625,6 @@ lookups:
         entities:
           - Ma Labs, Inc
           - IT Express Corporation
-      - match: 'Billy L. Powell, SR.'
-        entities:
-          - Billy L. Powell, SR
       - match: 'Liem Duc Huynh, a/k/a Duc Huynh'
         entities:
           - ['Liem Duc Huynh', 'Duc Huynh']

@@ -1,38 +1,61 @@
-from zavod import Context, helpers as h
 from rigour.data.names.data import STOPPHRASES
+
+from zavod import Context, helpers as h
 
 CUSTOM_STOPPHRASES = STOPPHRASES + (",", ";", "\n")
 SUFFIXES = [
+    ", III.",
     ", Inc.",
+    ", L.L.C.",
+    ", LLC.",
     ", LLC",
+    " LLC",
+    " LLC.",
     ", Jr.",
+    ", SR.",
     ", Sr.",
     ", INC.",
+    ", Inc",
     ", LTD.",
+    " LTD.",
     ", Ltd.",
+    " Ltd.",
     ", BV",
     ", et al.",
     ", S.A.",
+    " Co., SAL",
+    " Corp.",
+    ", SAL",
+    ", S.L.",
     ", LP",
+    " F.Z.E.",
 ]
 
 
 def crawl_entity(
-    context: Context, str_row: dict, name: str, url, case_id_string, order_date
+    context: Context,
+    str_row: dict,
+    name: str | list[str],
+    url,
+    case_id_string,
+    order_date,
 ) -> None:
+    # Lookup returns [primary_name, alias1, alias2, ...] or single string
+    primary_name = name[0] if isinstance(name, list) else name
+    aliases = name[1:] if isinstance(name, list) else []
+
     entity = context.make("LegalEntity")
-    entity.id = context.make_id(name, case_id_string)
-    if isinstance(name, list):
-        entity.add("name", name[0])
-        entity.add("alias", name[1:])
-    else:
-        entity.add("name", name)
+    entity.id = context.make_id(primary_name, case_id_string)
+    entity.add("name", primary_name)
+    for alias in aliases:
+        entity.add("alias", alias)
+
     entity.add("topics", "reg.warn")
     entity.add("sourceUrl", url)
 
     sanction = h.make_sanction(context, entity)
     sanction.add("authorityId", case_id_string)
-    h.apply_date(sanction, "listingDate", order_date)  # sanction object schema date
+    h.apply_date(sanction, "listingDate", order_date)
 
     context.emit(entity)
     context.emit(sanction)
@@ -41,13 +64,13 @@ def crawl_entity(
 
 def crawl(context: Context) -> None:
     doc = context.fetch_html(context.data_url, cache_days=1, absolute_links=True)
-    table = h.xpath_elements(doc, ".//table", expect_exactly=1)
+    table = h.xpath_element(doc, ".//table")
 
-    for row in h.parse_html_table(table[0]):
+    for row in h.parse_html_table(table):
         str_row = h.cells_to_str(row)
         case_id_element = row.get("case_id")
         assert case_id_element is not None
-        url = h.xpath_elements(case_id_element, ".//a")[0].get("href")
+        url = h.xpath_string(case_id_element, ".//a/@href")
 
         case_name = str_row.pop("case_name")
         assert case_name is not None, case_name
@@ -55,19 +78,21 @@ def crawl(context: Context) -> None:
         case_id_string = str_row.pop("case_id")
         order_date = str_row.pop("order_date")
 
-        name = None
         cleaned_name = case_name
+        # Remove common suffixes (Inc., LLC, etc.) to check for delimiters
         for suffix in SUFFIXES:
-            cleaned_name = cleaned_name.rstrip(suffix)
+            cleaned_name = cleaned_name.removesuffix(suffix)
+        # Check if the name contains delimiters indicating multiple entities (commas, semicolons, "and", etc.)
         if any(char in cleaned_name for char in CUSTOM_STOPPHRASES):
             res = context.lookup("comma_names", case_name, warn_unmatched=True)
             if res and res.entities:
+                # When parsing comma-separated strings with multiple entities, the lookup
+                # returns each entity as either a string or a list [primary_name, ...aliases]
+                # if that entity has multiple name variants (e.g., "Company A a/k/a Company A2")
                 for entity_name in res.entities:
-                    name = entity_name
                     crawl_entity(
-                        context, str_row, name, url, case_id_string, order_date
+                        context, str_row, entity_name, url, case_id_string, order_date
                     )
         else:
-            name = case_name
-            assert name is not None
-            crawl_entity(context, str_row, name, url, case_id_string, order_date)
+            # Simple case: single entity name with no delimiters
+            crawl_entity(context, str_row, case_name, url, case_id_string, order_date)
