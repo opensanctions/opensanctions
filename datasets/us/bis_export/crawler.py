@@ -34,7 +34,6 @@ SUFFIXES = [
 
 def crawl_entity(
     context: Context,
-    str_row: dict[str, str],
     name: str | list[str],
     url: str,
     case_id_string: str,
@@ -59,7 +58,6 @@ def crawl_entity(
 
     context.emit(entity)
     context.emit(sanction)
-    context.audit_data(str_row)
 
 
 def crawl(context: Context) -> None:
@@ -91,9 +89,9 @@ def crawl(context: Context) -> None:
                 # returns each entity as either a string or a list [primary_name, ...aliases]
                 # if that entity has multiple name variants (e.g., "Company A a/k/a Company A2")
                 for entity_name in res.entities:
-                    crawl_entity(
-                        context, str_row, entity_name, url, case_id_string, order_date
-                    )
+                    crawl_entity(context, entity_name, url, case_id_string, order_date)
         else:
             # Simple case: single entity name with no delimiters
-            crawl_entity(context, str_row, case_name, url, case_id_string, order_date)
+            crawl_entity(context, case_name, url, case_id_string, order_date)
+
+        context.audit_data(str_row)
