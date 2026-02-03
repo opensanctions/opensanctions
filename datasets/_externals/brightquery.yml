@@ -61,6 +61,8 @@ inputs:
   - us_sec_pause
   - regulatory
   - enforcement
+  - debarment
+  - ext_us_cms_npi
 
 config:
   type: nomenklatura.enrich.brightquery:BrightQueryEnricher

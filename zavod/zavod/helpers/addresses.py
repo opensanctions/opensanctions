@@ -56,6 +56,8 @@ def format_address(
         A single-line string with the formatted address."""
     if country_code is None and country is not None:
         country_code = registry.country.clean_text(country)
+    if country_code is not None:
+        country_code = country_code.lower().strip()
     street = join_text(street, street2, street3, sep=", ")
     data = {
         "attention": summary,

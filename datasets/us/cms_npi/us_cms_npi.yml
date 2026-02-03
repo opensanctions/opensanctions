@@ -1,0 +1,65 @@
+title: "US National Provider Identifier Registry"
+prefix: us-npi
+entry_point: crawler.py
+resolve: false
+load_statements: false
+ci_test: false
+coverage:
+  frequency: monthly
+  start: 2026-02-03
+exports:
+  - statistics.json
+  - entities.delta.json
+  - entities.ftm.json
+  - senzing.json
+summary: >
+  The National Provider Identifier (NPI) Registry contains information about health care
+  providers in the United States, including individual practitioners and organizational providers.
+description: |
+  The National Provider Identifier (NPI) is a unique 10-digit identification number issued to
+  health care providers in the United States by the Centers for Medicare and Medicaid Services (CMS).
+  The NPI Registry contains FOIA-disclosable data about both individual health care providers
+  (such as physicians, nurses, and dentists) and organizational providers (such as hospitals,
+  clinics, and nursing homes).
+
+  The registry includes provider names, practice locations, taxonomy codes, contact information,
+  and other identifying information. Both active and deactivated NPIs are included in the dataset.
+
+  Note: An NPI does not ensure or validate that the health care provider is licensed or credentialed.
+tags:
+  - sector.health
+publisher:
+  name: Centers for Medicare & Medicaid Services
+  acronym: CMS
+  official: true
+  description: |
+    The Centers for Medicare & Medicaid Services (CMS) is a federal agency within the United States
+    Department of Health and Human Services that administers the Medicare program and works in
+    partnership with state governments to administer Medicaid and other programs.
+  country: us
+  url: https://www.cms.gov
+url: https://www.cms.gov/medicare/regulations-guidance/administrative-simplification/data-dissemination
+data:
+  url: https://download.cms.gov/nppes/NPI_Files.html
+  format: CSV
+  encoding: utf-8
+
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 100000
+
+lookups:
+  type.name:
+    options:
+      - match:
+          - N/A
+          - NONE
+          - UNKNOWN
+          - ""
+          # binary doctors:
+          - "1"
+          - "0"
+          - "07"
+        regex: "-+"
+        value: null
