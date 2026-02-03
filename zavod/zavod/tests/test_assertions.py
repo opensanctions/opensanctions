@@ -13,51 +13,26 @@ CONFIG = {
 
 
 def test_parse_assertions():
+    """Test assertions parsing. This doesn't actually test whether they work, that happens in test_validate."""
+
     assertions = list(parse_assertions(CONFIG))
     entity_count = assertions[0]
-    assert entity_count.metric == Metric.ENTITY_COUNT
-    assert entity_count.filter_attribute == "schema"
+    assert entity_count.metric == Metric.SCHEMA_ENTITIES
+    assert entity_count.config == {"Person": 1}
     assert entity_count.comparison == Comparison.GTE
 
     property_values_count = assertions[1]
     assert property_values_count.metric == Metric.ENTITIES_WITH_PROP_COUNT
-    assert property_values_count.filter_attribute == "entities_with_prop"
-    assert property_values_count.filter_value == ("Person", "name")
+    assert property_values_count.config == {"Person": {"name": 1}}
     assert property_values_count.comparison == Comparison.GTE
 
     country_count = assertions[2]
     assert country_count.metric == Metric.COUNTRY_COUNT
-    assert country_count.filter_attribute is None
+    assert country_count.config == 1
     assert country_count.comparison == Comparison.LTE
 
     config = deepcopy(CONFIG)
+    # Should fail because "foo" is not a valid metric
     config["min"]["foo"] = config["min"].pop("schema_entities")
-    with pytest.raises(ValueError):
-        list(parse_assertions(config))
-
-    config = deepcopy(CONFIG)
-    config["min"]["schema_entities"] = 1
-    with pytest.raises(Exception):
-        list(parse_assertions(config))
-
-    config = deepcopy(CONFIG)
-    config["min"]["schema_entities"]["Person"] = "foo"
-    with pytest.raises(Exception):
-        list(parse_assertions(config))
-
-    config = deepcopy(CONFIG)
-    config["whatever"] = config.pop("min")
-    with pytest.raises(ValueError):
-        list(parse_assertions(config))
-
-
-def test_parse_entities_with_prop_count_unknown_property_name_or_schema():
-    config = deepcopy(CONFIG)
-
-    config["min"]["entities_with_prop"] = {"Person": {"bogusProperty": 1}}
-    with pytest.raises(ValueError):
-        list(parse_assertions(config))
-
-    config["min"]["entities_with_prop"] = {"bogusSchema": {"name": 1}}
     with pytest.raises(ValueError):
         list(parse_assertions(config))
