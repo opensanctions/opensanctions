@@ -72,6 +72,10 @@ assertions:
       Person: 7000
       Organization: 3000
 lookups:
+  type.address:
+    options:
+      - match: ou
+        value: null
   schemata:
     options:
       - match: Personne physique
