@@ -45,7 +45,7 @@ def run_validator(clazz: Type[BaseValidator], dataset: Dataset):
     return validator, set(cap_logs)
 
 
-def e(ds: Dataset, schema: str, properties: dict[str, list[str]]) -> Entity:
+def emit_entity(ds: Dataset, schema: str, properties: dict[str, list[str]]) -> Entity:
     context = Context(ds)
     context.begin()
 
@@ -133,7 +133,7 @@ def test_countries_count_assertion(testdataset3) -> None:
     validator, _ = run_validator(StatisticsAssertionsValidator, ds)
     assert validator.abort is True
 
-    e(ds, "Person", {"name": ["Vladimir Putin"], "country": ["ru"]})
+    emit_entity(ds, "Person", {"name": ["Vladimir Putin"], "country": ["ru"]})
 
     validator, _ = run_validator(StatisticsAssertionsValidator, ds)
     assert validator.abort is False
@@ -152,7 +152,7 @@ def test_no_entities_warning() -> None:
     assert "No entities validated" in str(logs)
     assert validator.abort is False
 
-    e(ds, "Person", {"name": ["Vladimir Putin"]})
+    emit_entity(ds, "Person", {"name": ["Vladimir Putin"]})
     validator, logs = run_validator(EmptyValidator, ds)
     assert "No entities validated" not in str(logs)
     assert validator.abort is False
