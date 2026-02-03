@@ -1135,6 +1135,9 @@ lookups:
       - match: "SWIFT: ILSIKPPY"
         props:
           swiftBic: ILSIKPPY
+      - match: "Code SWIFT succursale de Kish Island: SCERIRTHKSH"
+        props:
+          swiftBic: SCERIRTHKSH
       - match: "(IOM): 59058C"
         props:
           imoNumber: 59058C
