@@ -61,10 +61,11 @@ lookups:
           - Nov-21
           - Aug-19
         value: null
-  normalize_name:
+  override_name:
     lowercase: true
     normalize: true
     options:
       - match:
           - none
+          - "No Prime Minister"
         value: null

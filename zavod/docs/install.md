@@ -79,3 +79,4 @@ For development, you may want to use our [prek](https://github.com/j178/prek) co
 * `ZAVOD_ARCHIVE_BACKEND` default `FileSystemBackend`.
     - `GoogleCloudBackend` uses the data lake as archive. Google Cloud credentials are required. Crawler team members configure configure read-access to the bucket, e.g. with the environment variable `GOOGLE_APPLICATION_CREDENTIALS=~/.etl-crawlerteam-sa-key.json`
 * `ZAVOD_ARCHIVE_BUCKET` - e.g. `data.opensanctions.org`
+* `FTM_USER_AGENT` - fill in your address in e.g. `opensanctions-dev/1.0 (+https://opensanctions.org; you@opensanctions.org)`
