@@ -38,7 +38,7 @@ jobs:
       - name: Install python linting dependencies
         working-directory: zavod
         run: |
-          pip install -q -e ".[dev]"
+          pip install -q --group dev -e "."
       - name: Lint modified dataset python
         if: ${{ steps.changed-python.outputs.all_changed_files != '' }}
         run: |

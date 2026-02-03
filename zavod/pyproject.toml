@@ -52,7 +52,7 @@ Documentation = "https://github.com/opensanctions/opensanctions/"
 Repository = "https://github.com/opensanctions/opensanctions.git"
 Issues = "https://github.com/opensanctions/opensanctions/issues"
 
-[project.optional-dependencies]
+[dependency-groups]
 dev = [
     "isort >= 6.0.1",
     "wheel >= 0.29.0",
@@ -84,6 +84,9 @@ docs = [
 dspy = [
     "dspy == 3.1.2",
 ]
+
+[tool.uv]
+default-groups = ["dev", "docs"]
 
 [project.scripts]
 zavod = "zavod.cli:cli"

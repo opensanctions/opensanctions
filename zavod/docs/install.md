@@ -44,7 +44,7 @@ The application is a fairly stand-alone Python application, albeit with a large 
 
 ```bash
 # Inside the opensanctions repository path:
-$ pushd zavod; uv sync --extra dev; popd
+$ pushd zavod; uv sync; popd
 # Activate the virtualenv
 $ source zavod/.venv/bin/activate
 # You can check if the application has been installed successfully by
