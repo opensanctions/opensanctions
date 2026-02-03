@@ -3,35 +3,35 @@ entry_point: crawler.py
 prefix: us-bis-export
 coverage:
   frequency: weekly
-  start: "2026-01-19"
+  start: "2026-02-03"
 load_statements: true
 summary: >
-  A register of enforcement cases where BIS determined export control
-  and related regulatory violations under U.S. export laws.
+  Companies and individuals penalized for breaking U.S. export control rules,
+  such as illegal exports, reexports, or transfers of restricted items.
 description: |
-  The *Export Violations* list documents specific enforcement actions taken by
-  the U.S. Department of Commerce’s Bureau of Industry and Security (BIS)
-  against individuals, companies, or organizations for violating the Export
-  Administration Regulations (EAR) and related export control and antiboycott
-  statutes. The list serves as a public record of sanctions and orders imposed for unlawful exports,
-  reexports, transfers, or related conduct subject to U.S. export control
-  jurisdiction.
+  This dataset covers enforcement actions taken by the U.S. Department of Commerce’s Bureau
+  of Industry and Security (BIS) against companies and individuals that violated U.S. export
+  control laws.
+
+  These cases often involve shipping restricted technology without authorization, ignoring trade
+  restrictions, or violating antiboycott rules. The dataset serves as a public record of BIS
+  enforcement outcomes.
 publisher:
   name: Bureau of Industry and Security
   acronym: BIS
   description: |
     BIS is part of the U.S. Department of Commerce, where it manages the intersection between
     business and the foreign policy and security interests of the U.S.
-  url: https://www.bis.gov # general BIS URL
+  url: https://www.bis.gov
   country: us
   official: true
 tags:
   - list.export
   - juris.us
   - issuer.west
-url: https://www.bis.gov/enforcement # about section URL
-data: # creates DataModel object for context.dataset.data
-  url: https://www.bis.gov/enforcement/export-violations # dataset URL, context.dataset.data.url
+url: https://www.bis.gov/enforcement/export-violations
+data:
+  url: https://www.bis.gov/enforcement/export-violations
   format: HTML
   lang: eng
 dates:
@@ -194,9 +194,9 @@ lookups:
           - Al Naser Airlines
           - Ali Abdullah Alhay
           - Bahar Safwa General Trading
-      - match:           
+      - match:
           - 'Mahan Airways; Pejman Mahmood Kosarayanifard, a/k/a Kosarian Fard; Mahmoud Amini; Kerman Aviation, a/k/a GIE Kerman Aviation; Sirjanco Trading LLC; Ali Eslamian; Mahan Air General Trading LLC; Skyco (Uk) Ltd.; Equipco (UK) Ltd.; Mehdi Bahrami; Al Naser Airlines, a/k/a Al-Naser Airlines, a/k/a Alnaser Airlines and Air Freight Ltd.; Ali Abdullah Alhay,a/k/a Ali Alhay, a/k/a Ali Abdullah Ahmed Alhay; Bahar Safwa General Trading; Sky Blue Bird Group, a/k/a Sky Blue Bird Aviation, a/k/a Sky Blue Bird Ltd., a/k/a Sky Blue Bird FZC; and Issam Shammout, a/k/a Muhammad Isam Muhammad Anwar Nur Shammout, a/k/a Issam Anwar'
-        entities: 
+        entities:
           - Mahan Airways
           - ["Pejman Mahmood Kosarayanifard", "Kosarian Fard"]
           - Mahmoud Amini
