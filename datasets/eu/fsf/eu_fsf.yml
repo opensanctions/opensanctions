@@ -344,6 +344,10 @@ lookups:
           - mbbmos@mbbru.com
           - Mellimos@BMIRU.com
           - Mellimos@Rex400.ru
+      - match: info@sctbankers.com zanjani@sctbankers.com
+        values:
+          - info@sctbankers.com
+          - zanjani@sctbankers.com
   type.gender:
     lowercase: true
     normalize: true
