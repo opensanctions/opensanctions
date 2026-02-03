@@ -269,6 +269,12 @@ lookups:
   type.identifier:
     options:
       - match:
+          - 8904075357
+          - 10942092
+          - 6500004766
+          - 7802942672
+        prop: registrationNumber
+      - match:
           - 4205070630
           - 7722515837
           - 4223713450
