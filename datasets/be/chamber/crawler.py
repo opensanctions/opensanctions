@@ -10,7 +10,7 @@ POSITION_TOPICS = ["gov.legislative", "gov.national"]
 CUTOFF_DATE = (datetime.now() - get_after_office(POSITION_TOPICS)).year
 
 
-def get_terms(context: Context, term: str) -> tuple[int | None, int | None]:
+def get_term_dates(context: Context, term: str) -> tuple[int | None, int | None]:
     res = context.lookup("term_years", term, warn_unmatched=True)
     if res:
         return res.start_date, res.end_date
@@ -95,7 +95,10 @@ def crawl(context: Context) -> None:
         cache_days=4,
     )
     # Extract and process legislature terms from menu
-    for idx, link in enumerate(doc.findall('.//div[@class="menu"]//a')):
+    legislature_menu = h.xpath_element(
+        doc, './/b[text() = "Actuels"]/ancestor::div[@class="menu"]'
+    )
+    for link in legislature_menu.findall(".//a"):
         url = link.get("href")
         text = h.element_text(link).strip()
         assert url is not None, url
@@ -107,15 +110,27 @@ def crawl(context: Context) -> None:
         # actual service periods. Members may join/leave mid-term. We use explicit status
         # (CURRENT/ENDED) instead of dates to avoid misrepresenting when someone held office.
         # Term dates are only used to filter out old legislatures before the cutoff.
-        is_current = idx == 0
-        status = OccupancyStatus.CURRENT if is_current else OccupancyStatus.ENDED
+
+        status = None
+        if "Actuels" in h.element_text(link):
+            status = OccupancyStatus.CURRENT
 
         # For historical terms, check if they ended before cutoff
-        if not is_current and "(" in text and ")" in text:
-            _, end_date = get_terms(context, text)
+        if status is None and "(" in text and ")" in text:
+            _, end_date = get_term_dates(context, text)
             if end_date is not None and end_date < CUTOFF_DATE:
                 context.log.info(f"Skipping old term {text} (ended {end_date})")
                 continue
+            if end_date is not None:
+                if end_date >= datetime.now().year:
+                    status = OccupancyStatus.CURRENT
+                elif end_date >= datetime.now().year - 1:
+                    # Recent term, status unknown
+                    # It's 2026. The latest term says 2024-2025.
+                    # They're not planning an early election.
+                    status = None
+                else:
+                    status = OccupancyStatus.ENDED
 
         context.log.info(f"Processing term: {text} (status={status})")
         # Fetch the member list page for this term
