@@ -36,9 +36,9 @@ def crawl_entity(
     context: Context,
     str_row: dict,
     name: str | list[str],
-    url,
-    case_id_string,
-    order_date,
+    url: str,
+    case_id_string: str,
+    order_date: str,
 ) -> None:
     # Lookup returns [primary_name, alias1, alias2, ...] or single string
     primary_name = name[0] if isinstance(name, list) else name
@@ -77,6 +77,7 @@ def crawl(context: Context) -> None:
 
         case_id_string = str_row.pop("case_id")
         order_date = str_row.pop("order_date")
+        assert case_id_string and order_date
 
         cleaned_name = case_name
         # Remove common suffixes (Inc., LLC, etc.) to check for delimiters
