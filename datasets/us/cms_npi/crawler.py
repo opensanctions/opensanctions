@@ -131,5 +131,5 @@ def crawl(context: Context) -> None:
                 textfh = TextIOWrapper(fbin, encoding="utf-8")
                 if name.startswith("npidata_"):
                     crawl_npidata(context, textfh)
-                # if name.startswith("othername_"):
-                #     crawl_othernames(context, textfh)
+                if name.startswith("othername_"):
+                    crawl_othernames(context, textfh)
