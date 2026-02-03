@@ -1,7 +1,12 @@
-from zavod.extract.names.dspy.optimise import metric_with_feedback_dict
+import pytest
+from zavod.tests.conftest import has_package
 
 
+@pytest.mark.skipif(not has_package("dspy"), reason="dspy not installed")
 def test_metric_with_feedback_partial():
+    # Late import to avoid importing dspy if it's not installed
+    from zavod.extract.names.dspy.optimise import metric_with_feedback_dict
+
     example = {
         "string": "Jonathan (Jonno) Doe",
         "full_name": ["Jonathan Doe"],
@@ -25,7 +30,11 @@ def test_metric_with_feedback_partial():
     assert "incorrectly added 'Jonno'" in evaluation.feedback
 
 
+@pytest.mark.skipif(not has_package("dspy"), reason="dspy not installed")
 def test_metric_with_feedback_perfect():
+    # Late import to avoid importing dspy if it's not installed
+    from zavod.extract.names.dspy.optimise import metric_with_feedback_dict
+
     example = {
         "string": "Jonathan (Jonno) Doe",
         "full_name": ["Jonathan Doe"],

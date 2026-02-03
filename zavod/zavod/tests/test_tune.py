@@ -9,13 +9,13 @@ from pathlib import Path
 from tempfile import NamedTemporaryFile, mkdtemp
 from unittest.mock import MagicMock, patch
 
+import pytest
 import yaml
 from click.testing import CliRunner
-from dspy import Prediction
+from zavod.tests.conftest import has_package
+
 
 from zavod.extract.names.clean import CleanNames
-from zavod.extract.names.dspy.clean import load_optimised_module
-from zavod.tune import cli
 
 example = {
     "entity_schema": "Person",
@@ -29,9 +29,13 @@ example = {
 examples = [example, example, example]
 
 
+@pytest.mark.skipif(not has_package("dspy"), reason="dspy not installed")
 @patch("zavod.extract.names.dspy.optimise.dspy.GEPA")
 def test_optimise(mock_gepa: MagicMock) -> None:
     """Very rough integration test of the optimise command."""
+    # Late import to avoid importing dspy if it's not installed
+    from zavod.extract.names.dspy.clean import load_optimised_module
+    from zavod.tune import cli
 
     mock_optimizer = MagicMock()
     # Actually return a previously-optimised module
@@ -64,9 +68,14 @@ def test_optimise(mock_gepa: MagicMock) -> None:
         assert "instructions" in program_data
 
 
+@pytest.mark.skipif(not has_package("dspy"), reason="dspy not installed")
 @patch("zavod.extract.names.dspy.compare.load_optimised_module")
 @patch("zavod.extract.names.clean.run_typed_text_prompt")
 def test_compare(run_typed_text_prompt: MagicMock, mock_dspy_load: MagicMock):
+    # Late import to avoid importing dspy if it's not installed
+    from zavod.tune import cli
+    from dspy import Prediction
+
     # Mock DSPy module prediction
     mock_optimised_module = MagicMock()
     mock_dspy_load.return_value = mock_optimised_module

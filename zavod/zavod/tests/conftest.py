@@ -1,3 +1,4 @@
+import importlib
 from typing import Generator
 import pytest
 import shutil
@@ -35,6 +36,10 @@ DATASET_MARITIME_YML = (
 )
 COLLECTION_YML = FIXTURES_PATH / "collection.yml"
 XML_DOC = FIXTURES_PATH / "doc.xml"
+
+
+def has_package(package_name):
+    return importlib.util.find_spec(package_name) is not None
 
 
 @pytest.fixture(autouse=True)
