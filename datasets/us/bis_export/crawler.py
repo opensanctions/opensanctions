@@ -34,7 +34,7 @@ SUFFIXES = [
 
 def crawl_entity(
     context: Context,
-    str_row: dict,
+    str_row: dict[str, str],
     name: str | list[str],
     url: str,
     case_id_string: str,
