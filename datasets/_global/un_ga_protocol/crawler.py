@@ -33,9 +33,9 @@ def crawl(context: Context):
         assert "holders" in data, data
         for holder in data.get("holders", []):
             person_name = holder.get("person_name")
-            person_name = remove_person_prefixes(holder.get("person_name"))
+            person_name = remove_person_prefixes(person_name)
             person_name = context.lookup_value(
-                "normalize_name", person_name, person_name
+                "override_name", person_name, person_name
             )
             if h.is_empty(person_name):
                 continue
