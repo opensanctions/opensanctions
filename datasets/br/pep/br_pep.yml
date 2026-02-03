@@ -38,12 +38,12 @@ dates:
 assertions:
   min:
     schema_entities:
-      Person: 54000  # 67429 unique persons in df
-      Position: 800  # 1021 unique positions in df
+      Person: 63000 # 65501 unique taxNumbers
+      Position: 12000  # 13365 unique positions
   max:
     schema_entities:
-      Person: 220000
-      Position: 48700
+      Person: 120000
+      Position: 25000
 
 lookups:
   type.date:
