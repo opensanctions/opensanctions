@@ -39,6 +39,9 @@ url: https://www.finma.ch/en/finma-public/warnungen/warning-list/
 data:
   url: https://www.finma.ch/en/api/search/getresult
   format: JSON
+dates:
+  formats: ["%d.%m.%Y"]
+
 assertions:
   min:
     schema_entities:
@@ -50,6 +53,12 @@ assertions:
       LegalEntity: 2500
 
 lookups:
+  type.address:
+    options:
+      - match:
+          - "---"
+          - "--"
+        value: null
   type.url:
     options:
       - match:
@@ -61,5 +70,3 @@ lookups:
         value: http://goldos.co2g.de
       - match: "www.http://swiss-wealth.com"
         value: http://swiss-wealth.com
-dates:
-  formats: ["%d.%m.%Y"]

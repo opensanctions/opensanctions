@@ -41,6 +41,18 @@ dates:
     Mar: de marzo de
     Apr: de Abril de
     Jul: de julio de
+
+# 285 seats in total
+assertions:
+  min:
+    schema_entities:
+      Person: 265
+      Position: 1
+  max:
+    schema_entities:
+      Person: 300
+      Position: 2
+
 lookups:
   type.date:
     options:

@@ -85,6 +85,7 @@ lookups:
       - match:
           - null
           - "reg:edrpou"
+          - "reg:edr"
           - "reg:r_n"
           - "reg:regon"
           - "reg:unzr"

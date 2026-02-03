@@ -32,9 +32,19 @@ tags:
 data:
   url: https://www.un.org/dgacm/en/content/protocol/hshgnfa
   format: PDF
-
 dates:
   formats: ["%d-%b-%y"]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 450
+      Position: 450
+  max:
+    schema_entities:
+      Person: 1000
+      Position: 1000
+
 lookups:
   names:
     options:
