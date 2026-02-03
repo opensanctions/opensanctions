@@ -6,7 +6,7 @@ coverage:
   start: 2024-09-23
   end: 2024-06-30
 manual_check:
-  last_checked: "2025-11-01"
+  last_checked: "2026-02-01"
   interval: 90
   message: |
     Check with Global Energy Monitor for new data in the Global Energy Ownership Tracker.
@@ -268,6 +268,12 @@ lookups:
         value: https://www.brownsgroup.lk/
   type.identifier:
     options:
+      - match:
+          - 8904075357
+          - 10942092
+          - 6500004766
+          - 7802942672
+        prop: registrationNumber
       - match:
           - 4205070630
           - 7722515837

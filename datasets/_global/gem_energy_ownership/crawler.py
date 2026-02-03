@@ -37,7 +37,7 @@ SKIP_IDS = {
     "E100002001974",  # member/employee owned
 }
 SELF_OWNED = {"E100000002236"}
-STATIC_URL = "https://globalenergymonitor.org/wp-content/uploads/2025/10/Global-Energy-Ownership-Tracker-October-2025-V1.xlsx"
+STATIC_URL = "https://globalenergymonitor.org/wp-content/uploads/2026/02/Global-Energy-Ownership-Tracker-February-2026-V1.xlsx"
 REGEX_URL_SPLIT = re.compile(r",\s*http")
 REGEX_POSSIBLE_ASSOCIATES = re.compile(r"（[^（）]*、[^（）]*）| \(\s*[^()]*,[^()]*\)")
 
@@ -195,7 +195,9 @@ def crawl_rel(context: Context, row: Dict[str, str], skipped: Set[str]):
     if source_urls is not None:
         ownership.add("sourceUrl", split_urls(source_urls))
 
-    context.audit_data(row, ignore=["subject_entity_name", "interested_party_name"])
+    context.audit_data(
+        row, ignore=["subject_entity_name", "interested_party_name", "share_imputed"]
+    )
     context.emit(ownership)
 
 
@@ -204,7 +206,7 @@ def crawl(context: Context):
 
     path = context.get_resource_path("source.xlsx")
     fetch_internal_data(
-        "gem_energy_ownership/Global-Energy-Ownership-Tracker-October-2025-V1.xlsx",
+        "gem_energy_ownership/Global-Energy-Ownership-Tracker-February-2026-V1.xlsx",
         path,
     )
     workbook: openpyxl.Workbook = openpyxl.load_workbook(path, read_only=True)
