@@ -92,3 +92,15 @@ config:
     - "xk"
     - "md-pmr"
     - "sd"
+
+lookups:
+  type.address:
+    options:
+      - match:
+          - "US"
+          - "SC"
+          - "IN"
+          - "OK"
+          - "PA"
+          - "CA"
+        value: null
