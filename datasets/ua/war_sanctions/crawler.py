@@ -250,11 +250,8 @@ def crawl_ship_relation(
 
     # Convert to string to match the string keys in managers_lookup
     company_id_str = str(company_id_raw)
-    # This ensures each manager is emitted exactly once, even if multiple vessels reference it,
-    # while still creating all the vessel-manager relationships below.
-    if company_id_str in managers_lookup and company_id_str not in emitted_managers:
+    if company_id_str in managers_lookup:
         emit_manager(context, managers_lookup[company_id_str], program_key)
-        emitted_managers.add(company_id_str)
 
     # e.g.
     # {
@@ -422,7 +419,6 @@ def crawl_vessel(
     vessel_data,
     program_key,
     managers_lookup: Dict[str, Dict],
-    emitted_managers,
 ):
     raw_vessel_id = vessel_data.pop("id")
     vessel = context.make("Vessel")
@@ -472,7 +468,6 @@ def crawl_vessel(
             vessel.id,
             managers_lookup,
             program_key,
-            emitted_managers,
             role,
         )
 
@@ -609,9 +604,6 @@ def crawl(context: Context):
     # Load all managers once upfront from the /transport/management endpoint
     # to avoid duplicate API calls and enable lookup during vessel processing
     managers_lookup = load_managers(context, "UA-WS-MARE")
-    # Track which managers we've already emitted to avoid duplicates
-    # (same manager may be referenced by multiple vessels)
-    emitted_managers: set[str] = set()
 
     for link in LINKS:
         token = generate_token(context, WS_API_CLIENT_ID, WS_API_KEY)
@@ -645,7 +637,6 @@ def crawl(context: Context):
                     entity_details,
                     link.program_key,
                     managers_lookup,
-                    emitted_managers,
                 )
             elif link.type is WSAPIDataType.MANAGER:
                 continue
