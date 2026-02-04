@@ -50,19 +50,6 @@ def crawl_person(context: Context, worksheet: Worksheet) -> None:
         person.add("country", country)
         person.add("idNumber", national_id)
         person.add("nationality", row.pop("nationality"))
-        doc_type = row.pop("doc_type")
-        is_passport = (
-            context.lookup_value("is_passport", doc_type, warn_unmatched=True) == "true"
-        )
-        identification = h.make_identification(
-            context,
-            entity=person,
-            number=row.pop("doc_no"),
-            doc_type=doc_type,
-            start_date=row.pop("doc_issue_date"),
-            authority=row.pop("doc_issue_auth"),
-            passport=is_passport,
-        )
         h.apply_date(person, "birthDate", birth_date)
         person.add("birthPlace", row.pop("birth_place"))
         person.add("description", row.pop("description"))
@@ -80,6 +67,21 @@ def crawl_person(context: Context, worksheet: Worksheet) -> None:
         )
         h.copy_address(person, address_ent)
 
+        doc_type = row.pop("doc_type")
+        doc_number = row.pop("doc_no")
+        is_passport = (
+            context.lookup_value("is_passport", doc_type, warn_unmatched=True) == "true"
+        )
+        identification = h.make_identification(
+            context,
+            entity=person,
+            number=doc_number,
+            doc_type=doc_type,
+            start_date=row.pop("doc_issue_date"),
+            authority=row.pop("doc_issue_auth"),
+            passport=is_passport,
+        )
+
         sanction = h.make_sanction(context, person)
         h.apply_date(sanction, "startDate", included_date)
         if h.is_active(sanction):
@@ -87,7 +89,7 @@ def crawl_person(context: Context, worksheet: Worksheet) -> None:
 
         context.emit(person)
         context.emit(sanction)
-        if identification is not None:
+        if identification is not None and doc_number is not None and doc_number != "/":
             context.emit(identification)
 
         context.audit_data(row, IGNORE_FIELDS)

@@ -96,7 +96,15 @@ lookups:
           - "بطاقة شخصية" # ID Card
           - "/"
         value: "false"
+  type.string:
+    options:
+      - match: "/"
+        value: null
   type.name:
+    options:
+      - match: "/"
+        value: null
+  type.identifier:
     options:
       - match: "/"
         value: null
