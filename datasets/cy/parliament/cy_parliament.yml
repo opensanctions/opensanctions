@@ -35,5 +35,11 @@ data:
   format: HTML
   lang: eng
 
+assertions:
+  min:
+    schema_entities:
+      Person: 50
+      Position: 1
+
 dates:
   formats: ["%d %B %Y."]
