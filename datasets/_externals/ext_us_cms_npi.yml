@@ -46,6 +46,12 @@ publisher:
   url: https://www.cms.gov
 url: https://www.cms.gov/medicare/regulations-guidance/administrative-simplification/data-dissemination
 
+assertions:
+  min:
+    schema_entities:
+      Organization: 100
+      Person: 100
+
 inputs:
   - debarment
 
