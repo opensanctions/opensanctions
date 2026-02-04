@@ -77,7 +77,12 @@ dates:
 assertions:
   min:
     schema_entities:
-      Company: 40
+      Person: 140
+      Company: 125
+  max:
+    schema_entities:
+      Person: 330
+      Company: 290
 
 lookups:
   sanction.program:

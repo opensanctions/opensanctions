@@ -63,6 +63,12 @@ lookups:
           - Enterprise Systems and Solutions Group
       - match: '(now known as International Real Estate Consulting and Investment Joint Stock Company)'
         value: International Real Estate Consulting and Investment Joint Stock Company
+      - match: Also known as Dzhamshed Abdulamidovich Sharifov
+        value: Dzhamshed Abdulamidovich Sharifov
+      - match: (formerly known as Sao Bac Dau Technology Service Joint Stock Company (SBD Service))
+        values:
+          - Sao Bac Dau Technology Service Joint Stock Company
+          - SBD Service
   type.country:
     options:
       - match: Republic of Türkiye

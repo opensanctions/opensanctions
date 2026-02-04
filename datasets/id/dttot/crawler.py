@@ -1,34 +1,16 @@
 import re
-from typing import Any, Dict
-import xlrd  # type: ignore
-from lxml import etree
-from datetime import datetime
+import openpyxl
+from typing import Dict
 from normality import squash_spaces
+from rigour.mime.types import XLSX
 
-from zavod import Context, Entity
-from zavod import helpers as h
-from zavod.shed.internal_data import fetch_internal_data
-from zavod.extract import zyte_api
+from zavod import Context, helpers as h
 
-
-DATETIME_FORMAT = "%Y%m%d%H%M%S"
+# Date range like "00/00/1970-1973"
+DATE_RANGE_RE = re.compile(r"00/00/(\d{4})-(\d{4})")
 ADDR_DELIM = re.compile(r"[\W][a-zA-Z]\)|;")
 # eng: 'Branch office 4:'
 BRANCH_PATTERN = re.compile(r"^kantor cabang \d+[,:]\s*", re.IGNORECASE)
-
-
-def is_sanctions_xlsx(a: etree._Element) -> bool:
-    if (
-        a.text is not None
-        and a.text.strip().lower().find("dttot") > -1
-        and (parse_link(a).endswith(".xls") or parse_link(a).endswith(".xlsx"))
-    ):
-        return True
-    return False
-
-
-def parse_link(a: etree._Element) -> str:
-    return a.get("href", "").split("/")[-1]
 
 
 def clean_addresses(raw_addresses: str) -> list[str]:
@@ -44,109 +26,55 @@ def clean_addresses(raw_addresses: str) -> list[str]:
     return cleaned
 
 
-def find_last_link(context: Context, html: etree._Element) -> str:
-    last_time = datetime.strptime("19700101000000", DATETIME_FORMAT)
-    last_link = None
-    for link in html.findall(".//a"):
-        if not is_sanctions_xlsx(link):
-            continue
-        try:
-            ts_ = parse_link(link).split(".")[0]
-            ts = datetime.strptime(ts_, DATETIME_FORMAT)
-        except Exception:
-            context.log.error(f"Could not parse timestamp from {link.get('href')}")
-            continue
-        if ts > last_time:
-            last_time = ts
-            last_link = link
-    if last_link is None:
-        raise ValueError("No link found")
-    last_href = last_link.get("href")
-    if last_href is None:
-        raise ValueError("No href found")
-    # Fix backend URL pasted in instead of public URL or something
-    last_href = last_href.replace("https://be.ppatk.go.id/", "https://www.ppatk.go.id/")
-    return last_href
+def crawl_row(context: Context, row: Dict[str, str | None]):
+    item_id = row.pop("id")
+    res = context.lookup("type", row.pop("type"), warn_unmatched=True)
+    assert res and res.value
+    entity = context.make(res.value)
+    names = h.multi_split(row.pop("name"), ["alias", "ALIAS"])
+    entity.id = context.make_id(item_id, *names)
+    entity.add("name", names[0])
+    entity.add("alias", names[1:])
+    entity.add("topics", "sanction")
+    for c in h.multi_split(row.pop("country"), ["\n"]):
+        entity.add("country", c.strip("-"))
+    if notes := row.pop("description"):
+        entity.add("notes", squash_spaces(notes))
+    if raw_addresses := row.pop("address"):
+        for address in clean_addresses(raw_addresses):
+            entity.add("address", address)
 
+    dob_raw = row.pop("birth_date")
+    birth_place = row.pop("birth_place")
+    if entity.schema.is_a("Person"):
+        entity.add("birthPlace", birth_place)
+        for dob in h.multi_split(dob_raw, [" atau ", "\n", "- ", " / "]):
+            if match := DATE_RANGE_RE.match(dob):
+                # Date range like "00/00/1970-1973" - add both years
+                h.apply_dates(entity, "birthDate", list(match.groups()))
+            else:
+                h.apply_date(entity, "birthDate", dob)
 
-def row_to_dict(row, headers: Dict[str, str]) -> dict:
-    out: Dict[str, Any] = {}
-    for norm, col in headers.items():
-        value = row[col].value
-        if isinstance(value, str):
-            value = value.strip()
-        if value is None or value == "-" or value == "":
-            continue
-        out[norm] = value
-    return out
+    sanction = h.make_sanction(context, entity)
+    sanction.add("authorityId", item_id)
 
+    context.emit(entity)
+    context.emit(sanction)
 
-def apply_date(entity: Entity, prop: str, value: str) -> None:
-    """Dates come in arbitrary formats, but the most common ones seem to be
-    01/04/1983 and 01 apr 1983. Sometimes there are multiple dates in the same cell.
-    """
-    if value is None or value == "00/00/0000":
-        return None
-    if isinstance(value, list):
-        for v in value:
-            apply_date(entity, prop, v)
-    elif isinstance(value, (float, int)):
-        entity.add(prop, h.convert_excel_date(value), original_value=str(value))
-    elif isinstance(value, str):
-        for value in h.multi_split(value, ["atau", "dan"]):
-            h.apply_date(entity, prop, value)
-    else:
-        raise ValueError(f"Unexpected value type {type(value)}")
+    context.audit_data(row)
 
 
 def crawl(context: Context):
-    # Website parsing is unreliable. Catch exceptions to ensure we still process
-    # the internal data bucket even when the website fails.
-    try:
-        # Check if the source file has been updated on the website
-        # If the hash changes and the file is not corrupt anymore,
-        # we should switch back to fetching directly from the URL
-        html = zyte_api.fetch_html(context, context.data_url, ".//a", geolocation="id")
-        last_link = find_last_link(context, html)
-        h.assert_url_hash(context, last_link, "jnvkd")
-    except Exception as e:
-        context.log.error(f"Failed to check for file updates: {e}", exc_info=True)
-
-    # Using file from internal bucket due to corruption in the live source
-    path = context.get_resource_path("source.xls")
-    fetch_internal_data("id_dttot/20251208091237.xls", path)
-    wb = xlrd.open_workbook(str(path))
-    sh = wb.sheet_by_index(0)
-    in_header = sh.row(0)
-    headers = {}
-    for col_idx in range(sh.ncols):
-        try:
-            val = in_header[col_idx].value.strip().lower()
-        except Exception:
-            continue
-        headers[context.lookup_value("headers", val, val)] = col_idx
-    for rx in range(1, sh.nrows):
-        drow = row_to_dict(sh.row(rx), headers)
-        item_id = drow.pop("id")
-        schema = context.lookup_value("type", drow.pop("type"), "LegalEntity")
-        entity = context.make(schema)
-        names = h.multi_split(drow.pop("name"), ["alias", "ALIAS"])
-        entity.id = context.make_id(item_id, *names)
-        entity.add("topics", "sanction")
-        entity.add("name", names[0])
-        entity.add("alias", names[1:])
-        if raw_addresses := drow.pop("address", None):
-            for address in clean_addresses(raw_addresses):
-                entity.add("address", address)
-        entity.add("country", drow.pop("country", None))
-        entity.add("notes", drow.pop("description", None), lang="ind")
-        if not entity.schema.is_a("Organization"):
-            entity.add_cast("Person", "birthPlace", drow.pop("birth_place", None))
-            dob_raw = drow.pop("birth_date", [])
-            if dob_raw and dob_raw != "00/00/0000":
-                entity.add_schema("Person")
-                apply_date(entity, "birthDate", dob_raw)
-        sanction = h.make_sanction(context, entity)
-        sanction.add("authorityId", item_id)
-        context.emit(entity)
-        context.emit(sanction)
+    doc = context.fetch_html(context.data_url)
+    xlsx_link = h.xpath_string(
+        doc,
+        ".//p[contains(., 'Daftar Terduga Teroris')]//a[contains(@href, '.xlsx')]/@href",
+    )
+    path = context.fetch_resource("source.xlsx", xlsx_link)
+    context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
+    wb: openpyxl.Workbook = openpyxl.load_workbook(path, read_only=True)
+    assert len(wb.sheetnames) == 1, wb.sheetnames
+    for row in h.parse_xlsx_sheet(
+        context, wb["Export"], header_lookup=context.get_lookup("headers")
+    ):
+        crawl_row(context, row)
