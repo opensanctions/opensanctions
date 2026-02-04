@@ -400,9 +400,11 @@ def emit_manager(context: Context, management_data: Dict, program_key):
     manager = context.make("Company")
     manager.id = make_id(context, WSAPIDataType.MANAGER, management_data.pop("id"))
     manager.add("name", management_data.pop("name"))
-    # We null falsy names via the lookups and skip processing (e.g. Unknown)
+    # We null falsy names via the lookups and set the topic once again here
+    # not to emit empty entities and avoid missing references
     if not manager.get("name"):
-        return
+        manager.add("topics", "poi")
+        context.emit(manager)
     manager.add("country", management_data.pop("country"))
     manager.add("imoNumber", management_data.pop("imo"))
     manager.add("topics", "poi")
