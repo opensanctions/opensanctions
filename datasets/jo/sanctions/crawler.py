@@ -9,13 +9,6 @@ from rigour.mime.types import XLSX
 IGNORE_FIELDS = [
     "row_no",
     "mother_name",
-    "birth_place",
-    "country",
-    "doc_type",
-    "doc_no",
-    "doc_issue_auth",
-    "doc_issue_date",
-    "description",
 ]
 
 
@@ -57,7 +50,22 @@ def crawl_person(context: Context, worksheet: Worksheet) -> None:
         person.add("country", country)
         person.add("idNumber", national_id)
         person.add("nationality", row.pop("nationality"))
+        doc_type = row.pop("doc_type")
+        is_passport = (
+            context.lookup_value("is_passport", doc_type, warn_unmatched=True) == "true"
+        )
+        identification = h.make_identification(
+            context,
+            entity=person,
+            number=row.pop("doc_no"),
+            doc_type=doc_type,
+            start_date=row.pop("doc_issue_date"),
+            authority=row.pop("doc_issue_auth"),
+            passport=is_passport,
+        )
         h.apply_date(person, "birthDate", birth_date)
+        person.add("birthPlace", row.pop("birth_place"))
+        person.add("description", row.pop("description"))
         names = row.pop("first_and_surname")
         if names:
             person.add("alias", names.split("،"))
@@ -74,9 +82,13 @@ def crawl_person(context: Context, worksheet: Worksheet) -> None:
 
         sanction = h.make_sanction(context, person)
         h.apply_date(sanction, "startDate", included_date)
+        if h.is_active(sanction):
+            person.add("topics", "sanction")
 
         context.emit(person)
         context.emit(sanction)
+        if identification is not None:
+            context.emit(identification)
 
         context.audit_data(row, IGNORE_FIELDS)
 

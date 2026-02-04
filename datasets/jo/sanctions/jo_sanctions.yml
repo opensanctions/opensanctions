@@ -88,6 +88,14 @@ lookups:
         value: full_name_ar
       - match: الإسم الكامل (بالحروف اللاتينية)
         value: full_name_en
+  is_passport:
+    options:
+      - match: "جواز سفر" # Travel document
+        value: "true"
+      - match:
+          - "بطاقة شخصية" # ID Card
+          - "/"
+        value: "false"
   type.name:
     options:
       - match: "/"
