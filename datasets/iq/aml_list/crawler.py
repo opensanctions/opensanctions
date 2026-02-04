@@ -123,7 +123,7 @@ def process_xlsx(
         '//article[contains(@id, "post-")]//a[contains(@href, "xlsx")]/@href'
     )
     doc = fetch_html(context, url, excel_link_xpath, cache_days=1, geolocation="IQ")
-    file_url = h.xpath_strings(doc, excel_link_xpath, expect_exactly=1)[0]
+    file_url = h.xpath_string(doc, excel_link_xpath)
 
     assert file_url.endswith(".xlsx"), file_url
     assert any(title in file_url for title in titles), file_url
