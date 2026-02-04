@@ -80,7 +80,9 @@ lookups:
   type.address:
     lowercase: true
     options:
-      - match: Unknown
+      - match:
+          - Unknown
+          - Nfa
         value: null
   type.country:
     lowercase: true
