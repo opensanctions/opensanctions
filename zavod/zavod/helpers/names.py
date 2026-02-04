@@ -280,6 +280,12 @@ def check_name_regularity(entity: Entity, string: Optional[str]) -> Regularity:
             print("suggesting abbreviation:", string)
             return Regularity(is_irregular=True, suggested_prop="abbreviation")
 
+    # LegalEntity name shorter than 5 letters, all uppercase -> abbreviation
+    if entity.schema.is_a("LegalEntity"):
+        if len(string) < 5 and string.isupper():
+            print("suggesting abbreviation:", string)
+            return Regularity(is_irregular=True, suggested_prop="abbreviation")
+
     spec = entity.dataset.names.get_spec(entity.schema)
     if spec:
         for char in spec.reject_chars_consolidated:
