@@ -2,6 +2,7 @@ from typing import Any, Dict
 import xlrd
 
 from zavod import Context, helpers as h
+from zavod.extract import zyte_api
 from rigour.mime.types import XLS
 
 
@@ -61,14 +62,13 @@ def crawl(context: Context) -> None:
     Website is geofenced (U.S.). Connection from a US server is required.
     """
     # fetch the XLS file via ASP.NET postback like in datasets/sk/public_officials
-    doc = context.fetch_html(context.data_url)
-    ### from zavod.extract import zyte_api
-    # doc = zyte_api.fetch_html(
-    #     context,
-    #     context.data_url,
-    #     unblock_validator=".//a[@id='dnn_ctr384_DownloadExclusionsFile_lb_DLoad_ExcFile_XLS']",
-    #     geolocation="us",
-    # )
+    # doc = context.fetch_html(context.data_url)
+    doc = zyte_api.fetch_html(
+        context,
+        context.data_url,
+        unblock_validator=".//a[@id='dnn_ctr384_DownloadExclusionsFile_lb_DLoad_ExcFile_XLS']",
+        geolocation="us",
+    )
     viewstate = h.xpath_strings(
         doc, '//input[@name="__VIEWSTATE"]/@value', expect_exactly=1
     )[0]
