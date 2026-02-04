@@ -5674,7 +5674,9 @@ lookups:
           address: Fédération de Russie
         associates:
           - Pavel Gennadievich Tochilin
-      - match: "SWIFT: REFAIRTH"
+      - match:
+          - "SWIFT: REFAIRTH"
+          - "BIC: REFAIRTH"
         props:
           swiftBic: REFAIRTH
       - match: "Autre dénomination: KEPCO"
