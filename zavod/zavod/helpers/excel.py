@@ -175,4 +175,7 @@ def parse_xlsx_sheet(
             continue
         if all(v is None for v in record.values()):
             continue
+        for header in headers:
+            if header not in record:
+                record[header] = None
         yield record
