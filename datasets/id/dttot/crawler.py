@@ -51,8 +51,7 @@ def crawl_row(context: Context, row: Dict[str, str | None]):
         for dob in h.multi_split(dob_raw, [" atau ", "\n", "- ", " / "]):
             if match := DATE_RANGE_RE.match(dob):
                 # Date range like "00/00/1970-1973" - add both years
-                for dob in list(match.groups()):
-                    h.apply_date(entity, "birthDate", dob)
+                h.apply_dates(entity, "birthDate", list(match.groups()))
             h.apply_date(entity, "birthDate", dob)
 
     sanction = h.make_sanction(context, entity)
