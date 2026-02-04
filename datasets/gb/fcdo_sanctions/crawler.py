@@ -74,6 +74,13 @@ def apply_reg_number(context: Context, entity: Entity, reg_number: str):
         )
 
 
+# convert "na" strings found in Address lines to None
+def norm_addr(v: str | None) -> str | None:
+    if v is None:
+        return None
+    return None if v.strip().lower() == "na" else v.strip()
+
+
 def parse_company_names(context: Context, value: Optional[str]) -> List[str]:
     if not value:
         return []
@@ -113,15 +120,15 @@ def xml_make_legal_entity(context: Context, designation: ElementOrTree, entity: 
         postcode, pobox = h.postcode_pobox(address.findtext("./AddressPostalCode"))
         addr = h.make_address(
             context,
-            street=address.findtext("./AddressLine1"),
-            street2=address.findtext("./AddressLine2"),
-            street3=address.findtext("./AddressLine3"),
-            place=address.findtext("./AddressLine4"),
-            region=address.findtext("./AddressLine5"),
-            city=address.findtext("./AddressLine6"),
+            street=norm_addr(address.findtext("./AddressLine1")),
+            street2=norm_addr(address.findtext("./AddressLine2")),
+            street3=norm_addr(address.findtext("./AddressLine3")),
+            place=norm_addr(address.findtext("./AddressLine4")),
+            region=norm_addr(address.findtext("./AddressLine5")),
+            city=norm_addr(address.findtext("./AddressLine6")),
             postal_code=postcode,
             po_box=pobox,
-            country=address.findtext("./AddressCountry"),
+            country=norm_addr(address.findtext("./AddressCountry")),
         )
         h.copy_address(entity, addr)
 
@@ -324,15 +331,15 @@ def csv_make_legal_entity(context: Context, row: dict, entity: Entity):
     postcode, pobox = h.postcode_pobox(row.pop("Address Postal Code"))
     addr = h.make_address(
         context,
-        street=row.pop("Address Line 1"),
-        street2=row.pop("Address Line 2"),
-        street3=row.pop("Address Line 3"),
-        place=row.pop("Address Line 4"),
-        region=row.pop("Address Line 5"),
-        city=row.pop("Address Line 6"),
+        street=norm_addr(row.pop("Address Line 1")),
+        street2=norm_addr(row.pop("Address Line 2")),
+        street3=norm_addr(row.pop("Address Line 3")),
+        place=norm_addr(row.pop("Address Line 4")),
+        region=norm_addr(row.pop("Address Line 5")),
+        city=norm_addr(row.pop("Address Line 6")),
         postal_code=postcode,
         po_box=pobox,
-        country=row.pop("Address Country"),
+        country=norm_addr(row.pop("Address Country")),
     )
     h.copy_address(entity, addr)
 
