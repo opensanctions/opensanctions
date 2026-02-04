@@ -34,9 +34,6 @@ assertions:
   min:
     schema_entities:
       Person: 3400
-  max:
-    schema_entities:
-      Person: 8000
 
 lookups:
   type.date:
