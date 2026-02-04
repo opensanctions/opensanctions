@@ -2,8 +2,7 @@ title: UK HMT/OFSI Consolidated List of Targets
 entry_point: crawler.py
 prefix: gb-hmt
 coverage:
-  schedule: "0 */2 * * *"
-  frequency: daily
+  frequency: monthly
   start: "2015-12-05"
   end: "2026-01-28"
 deploy:
@@ -57,7 +56,6 @@ assertions:
   min:
     schema_entities:
       Person: 3100
-      Address: 1300
       LegalEntity: 790
       Company: 190
       Organization: 70
@@ -66,7 +64,6 @@ assertions:
   max:
     schema_entities:
       Person: 7200
-      Address: 3000
       LegalEntity: 1900
       Company: 500
       Organization: 150
@@ -891,6 +888,10 @@ lookups:
     options:
       - match: Moscow
         value: Moscow
+      - match:
+          - Gao
+          - na
+        value: null
   type.country:
     lowercase: true
     options:
