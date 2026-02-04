@@ -136,7 +136,7 @@ def parse_xlsx_sheet(
         header_lookup: The lookup key for translating headers.
         extract_links: Whether to extract hyperlinks. Only works when read_only=False
     """
-    headers = None
+    headers: Optional[List[str]] = None
     row_counter = 0
 
     for row in sheet.iter_rows():
@@ -155,7 +155,10 @@ def parse_xlsx_sheet(
                     header = f"column_{idx}"
                 if header_lookup:
                     header = header_lookup.get_value(header) or header
-                headers.append(slugify_text(header, sep="_"))
+                header_slug = slugify_text(header, sep="_")
+                if header_slug is None and header is not None:
+                    header_slug = f"column_{idx}"
+                headers.append(header_slug)
             continue
 
         record: dict[str, str | None] = {}
