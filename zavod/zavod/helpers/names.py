@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 import re
 from typing import List, Optional, cast
 
@@ -11,6 +12,7 @@ from zavod.context import Context
 from zavod.entity import Entity
 from zavod.extract.names.clean import (
     LLM_MODEL_VERSION,
+    PROP_TO_FIELD,
     CleanNames,
     RawNames,
 )
@@ -247,40 +249,46 @@ def split_comma_names(context: Context, text: str) -> List[str]:
             return [text]
 
 
-def is_name_irregular(entity: Entity, string: Optional[str]) -> bool:
+@dataclass
+class Regularity:
+    is_irregular: bool
+    suggested_prop: Optional[str] = None
+
+
+def check_regularity(entity: Entity, string: Optional[str]) -> Regularity:
     """Determine whether a name string potentially needs cleaning."""
     string = squash_spaces(string or "")
 
     if not string:
-        return False
+        return Regularity(is_irregular=False)
 
     spec = entity.dataset.names.get_spec(entity.schema)
     if spec:
         for char in spec.reject_chars_consolidated:
             if char in string:
-                return True
+                return Regularity(is_irregular=True)
 
         # is nullword
         if not spec.allow_nullwords and is_nullword(string, normalize=True):
-            return True
+            return Regularity(is_irregular=True)
 
         # min length
         if len(string) < spec.min_chars:
-            return True
+            return Regularity(is_irregular=True)
 
         # single token min length
         if " " not in string and len(string) < spec.single_token_min_length:
-            return True
+            return Regularity(is_irregular=True)
 
         # requires space
         if spec.require_space and " " not in string:
-            return True
+            return Regularity(is_irregular=True)
 
     # contains a known-as phrase
     if contains_split_phrase(string):
-        return True
+        return Regularity(is_irregular=True)
 
-    return False
+    return Regularity(is_irregular=False)
 
 
 def apply_names(
@@ -290,6 +298,7 @@ def apply_names(
     alias: bool = False,
     lang: Optional[str] = None,
 ) -> None:
+    # TODO: consolidate with PROP_TO_FIELD in clean.py
     field_props = [
         ("full_name", "alias" if alias else "name"),
         ("alias", "alias"),
@@ -312,7 +321,11 @@ def apply_names(
 
 
 def _review_names(
-    context: Context, entity: Entity, string: str, enable_llm_cleaning: bool
+    context: Context,
+    entity: Entity,
+    string: str,
+    enable_llm_cleaning: bool,
+    suggested_prop: Optional[str] = None,
 ) -> Review[CleanNames]:
     strings = [string]
     raw_names = RawNames(entity_schema=entity.schema.name, strings=strings)
@@ -320,7 +333,8 @@ def _review_names(
         names = clean_names(context, raw_names)
         origin = LLM_MODEL_VERSION
     else:
-        names = CleanNames(full_name=strings)
+        field = PROP_TO_FIELD[suggested_prop] if suggested_prop else "full_name"
+        names = CleanNames(**{field: strings})
         origin = "analyst"
 
     source_value = JSONSourceValue(
@@ -356,10 +370,17 @@ def review_names(
     if not string or not string.strip():
         return None
 
-    if settings.CI or not is_name_irregular(entity, string):
+    name_regularity = check_regularity(entity, string)
+    if settings.CI or not name_regularity.is_irregular:
         return None
 
-    return _review_names(context, entity, string, enable_llm_cleaning)
+    return _review_names(
+        context,
+        entity,
+        string,
+        enable_llm_cleaning,
+        name_regularity.suggested_prop,
+    )
 
 
 def apply_reviewed_names(
@@ -389,12 +410,17 @@ def apply_reviewed_names(
     if not string or not string.strip():
         return None
 
-    if settings.CI or not is_name_irregular(entity, string):
+    name_regularity = check_regularity(entity, string)
+    if settings.CI or not name_regularity.is_irregular:
         apply_name(entity, full=string, alias=alias, lang=lang)
         return None
 
     review = _review_names(
-        context, entity, string, enable_llm_cleaning=enable_llm_cleaning
+        context,
+        entity,
+        string,
+        enable_llm_cleaning=enable_llm_cleaning,
+        suggested_prop=name_regularity.suggested_prop,
     )
 
     apply_names(entity, string, review, alias=alias, lang=lang)
