@@ -2,7 +2,6 @@ from typing import Any, Dict
 import xlrd
 
 from zavod import Context, helpers as h
-from zavod.extract import zyte_api
 from rigour.mime.types import XLS
 
 
@@ -33,9 +32,7 @@ def crawl_row(drow: Dict[str, Any], context: Context, wb: xlrd.book.Book) -> Non
 
     else:
         entity = context.make("Company")
-        entity.id = context.make_id(
-            company_name
-        )  # note that npi/licenseNumber isnt listed for all companies though so not including in ID
+        entity.id = context.make_id(company_name, npi)
         entity.add("name", company_name)
         entity.add("description", occupation)
 
@@ -61,16 +58,17 @@ def crawl_row(drow: Dict[str, Any], context: Context, wb: xlrd.book.Book) -> Non
 
 def crawl(context: Context) -> None:
     """
-    Website is geofenced (U.S.). Connection to a US server is required.
+    Website is geofenced (U.S.). Connection from a US server is required.
     """
     # fetch the XLS file via ASP.NET postback like in datasets/sk/public_officials
-    # doc = context.fetch_html(context.data_url)
-    doc = zyte_api.fetch_html(
-        context,
-        context.data_url,
-        unblock_validator=".//a[@id='dnn_ctr384_DownloadExclusionsFile_lb_DLoad_ExcFile_XLS']",
-        geolocation="us",
-    )
+    doc = context.fetch_html(context.data_url)
+    ### from zavod.extract import zyte_api
+    # doc = zyte_api.fetch_html(
+    #     context,
+    #     context.data_url,
+    #     unblock_validator=".//a[@id='dnn_ctr384_DownloadExclusionsFile_lb_DLoad_ExcFile_XLS']",
+    #     geolocation="us",
+    # )
     viewstate = h.xpath_strings(
         doc, '//input[@name="__VIEWSTATE"]/@value', expect_exactly=1
     )[0]
@@ -89,11 +87,12 @@ def crawl(context: Context) -> None:
         context.data_url,
         method="POST",
         data=form_params,
-    )  # really need to remember to delete files in datasets/us_tx_oig_exclusions in case of a bad first download...
+    )
 
     context.export_resource(path, XLS, title=context.SOURCE_TITLE)
 
     wb = xlrd.open_workbook(str(path))  # old .xls version not supported by openpyxl
-    sh = wb.sheet_by_index(0)
+    assert len(wb.sheets()) == 1
+    sh = wb.sheet_by_name("EXCEL_Destination")
     for row in h.parse_xls_sheet(context, sh):
         crawl_row(row, context, wb)
