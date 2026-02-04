@@ -37,3 +37,4 @@ children:
   - openfigi
   - permid
   - wikidata
+  - brightquery

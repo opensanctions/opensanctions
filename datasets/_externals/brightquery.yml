@@ -5,7 +5,7 @@ disabled: false
 hidden: false
 coverage:
   frequency: weekly
-  start: 2025-11-07
+  start: 2026-02-05
 exports:
   - statistics.json
 deploy:
