@@ -52,7 +52,8 @@ def crawl_row(context: Context, row: Dict[str, str | None]):
             if match := DATE_RANGE_RE.match(dob):
                 # Date range like "00/00/1970-1973" - add both years
                 h.apply_dates(entity, "birthDate", list(match.groups()))
-            h.apply_date(entity, "birthDate", dob)
+            else:
+                h.apply_date(entity, "birthDate", dob)
 
     sanction = h.make_sanction(context, entity)
     sanction.add("authorityId", item_id)
@@ -71,8 +72,9 @@ def crawl(context: Context):
     )
     path = context.fetch_resource("source.xlsx", xlsx_link)
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
-    workbook: openpyxl.Workbook = openpyxl.load_workbook(path, read_only=True)
+    wb: openpyxl.Workbook = openpyxl.load_workbook(path, read_only=True)
+    assert len(wb.sheetnames) == 1, wb.sheetnames
     for row in h.parse_xlsx_sheet(
-        context, workbook["Export"], header_lookup=context.get_lookup("headers")
+        context, wb["Export"], header_lookup=context.get_lookup("headers")
     ):
         crawl_row(context, row)
