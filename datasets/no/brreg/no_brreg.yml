@@ -1,0 +1,286 @@
+title: Main Entities from The Central Coordinating Register for Legal Entities and The Register of Business Enterprises
+entry_point: crawler.py
+prefix: no-nbim
+coverage:
+  frequency: weekly  # how often shall we crawl it?
+  start: 2026-02-02
+load_statements: true
+summary: >-
+  Complete official registry of Norwegian legal entities with organisation details, addresses,
+  industry codes, employee data, and registration statuses from Brønnøysund Register Centre.
+description: |
+  The dataset contains information about all registered main entities in Norway,
+  sourced from two primary registers managed by the Brønnøysund Register Centre:
+      1. The Central Coordinating Register for Legal Entities (CCR / Enhetsregisteret):
+       A central registry of basic data about legal persons and other entities in Norway.
+       The CCR assigns unique nine-digit organisation numbers for identification of entities.
+       It serves as a "master register" coordinating data with other Norwegian registers.
+
+      2. The Register of Business Enterprises (Foretaksregisteret):
+       Contains detailed information about businesses registered in Norway, including
+       company structure, management, ownership, and legal obligations.
+
+url: https://www.brreg.no/en/use-of-data-from-the-bronnoysund-register-centre/datasets-and-api/data-about-organisations/
+publisher:
+  name: Brønnøysund Register Centre
+  acronym: BRREG
+  description: |
+    Brønnøysund Register Centre is a Norwegian government agency that is responsible for the management of numerous
+    public registers for Norway, and governmental systems for digital exchange of information.
+  country: "no"
+  url: https://www.brreg.no/en/
+  official: true
+data:
+  url: https://www.brreg.no/en/use-of-data-from-the-bronnoysund-register-centre/datasets-and-api/data-about-organisations/
+  format: ZIP
+dates:
+  formats: ["%Y-%m-%d"]
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 918000  # row count: 1148082
+  max:
+    schema_entities:
+      LegalEntity: 2000000
+
+### dict for header: https://data.brreg.no/enhetsregisteret/api/dokumentasjon/en/index.html#section/Dictionary
+lookups:
+  headers:
+    options:
+      - match: organisasjonsnummer
+        value: id
+      - match: navn
+        value: name
+#
+      - match: organisasjonsform.kode  # types of organisations (str)
+        value: org_form_code
+      - match: organisasjonsform.beskrivelse
+        value: org_form_description
+      - match: naeringskode1.kode
+        value: industry_code1_code
+      - match: naeringskode1.beskrivelse
+        value: industry_code1_description
+      - match: naeringskode2.kode
+        value: industry_code2_code
+      - match: naeringskode2.beskrivelse
+        value: industry_code2_description
+      - match: naeringskode3.kode
+        value: industry_code3_code
+      - match: naeringskode3.beskrivelse
+        value: industry_code3_description
+      - match: hjelpeenhetskode.kode
+        value: support_unit_code
+      - match: hjelpeenhetskode.beskrivelse
+        value: support_unit_code_description
+#
+      - match: harRegistrertAntallAnsatte
+        value: has_registered_employee_count
+      - match: antallAnsatte
+        value: employee_count
+      - match: registreringsdatoAntallAnsatteEnhetsregisteret
+        value: registration_date_employee_count_entity_register  # Enhetsregisteret is the Norwegian Register of Legal Entities
+      - match: registreringsdatoantallansatteNAVAaregisteret
+        value: registration_date_employee_count_nav_employment_register  # NAV Aa-registeret is the Norwegian Labour and Welfare Administration's Employment Register
+#
+      - match: hjemmeside
+        value: website
+      - match: epostadresse
+        value: email
+      - match: telefon
+        value: phone
+      - match: mobil
+        value: phone_mobile
+#
+      - match: postadresse.adresse
+        value: postal_address_street
+      - match: postadresse.poststed
+        value: postal_address_city
+      - match: postadresse.postnummer
+        value: postal_address_postal_code
+      - match: postadresse.kommune
+        value: postal_address_municipality
+      - match: postadresse.kommunenummer
+        value: postal_address_municipality_code
+      - match: postadresse.land
+        value: postal_address_country
+      - match: postadresse.landkode
+        value: postal_address_country_code
+#
+      - match: forretningsadresse.adresse
+        value: business_address_street
+      - match: forretningsadresse.poststed
+        value: business_address_city
+      - match: forretningsadresse.postnummer
+        value: business_address_postal_code
+      - match: forretningsadresse.kommune
+        value: business_address_municipality
+      - match: forretningsadresse.kommunenummer
+        value: business_address_municipality_code
+      - match: forretningsadresse.land
+        value: business_address_country
+      - match: forretningsadresse.landkode
+        value: business_address_country_code
+#
+      - match: institusjonellSektorkode.kode
+        value: institutional_sector_code
+      - match: institusjonellSektorkode.beskrivelse
+        value: institutional_sector_description
+      - match: sisteInnsendteAarsregnskap
+        value: last_submitted_annual_accounts
+      - match: registreringsdatoenhetsregisteret
+        value: registration_date_entity_register
+      - match: stiftelsesdato
+        value: foundation_date
+# VAT Register:
+      - match: registrertIMvaRegisteret
+        value: registered_in_vat_register
+      - match: registreringsdatoMerverdiavgiftsregisteret
+        value: registration_date_vat_register
+      - match: registreringsdatoMerverdiavgiftsregisteretEnhetsregisteret
+        value: registration_date_vat_register_entity_register
+# Voluntarily registered in the VAT Register:
+      - match: frivilligMvaRegistrertBeskrivelser
+        value: voluntary_vat_registered_description
+      - match: registreringsdatoFrivilligMerverdiavgiftsregisteret
+        value: registration_date_voluntary_vat_register
+# Register of Non-Profit Organisations:
+      - match: registrertIFrivillighetsregisteret
+        value: registered_in_voluntary_org_register
+      - match: registreringsdatoFrivillighetsregisteret
+        value: registration_date_voluntary_org_register
+# Register of Business Enterprises:
+      - match: registrertIForetaksregisteret
+        value: registered_in_business_register
+      - match: registreringsdatoForetaksregisteret
+        value: registration_date_business_register
+# Foundation Register:
+      - match: registrertIStiftelsesregisteret
+        value: registered_in_foundation_register
+# Register of Political Parties:
+      - match: registrertIPartiregisteret
+        value: registered_in_party_register
+      - match: registreringsdatoPartiregisteret
+        value: registration_date_party_register
+#
+      - match: konkurs
+        value: bankruptcy
+      - match: konkursdato
+        value: bankruptcy_date
+      - match: underAvvikling
+        value: under_liquidation
+      - match: underAvviklingDato
+        value: under_liquidation_date
+      - match: underTvangsavviklingEllerTvangsopplosning
+        value: under_forced_liquidation_or_dissolution
+      - match: tvangsopplostPgaManglendeDagligLederDato
+        value: forced_dissolution_missing_ceo_date
+      - match: tvangsopplostPgaManglendeRevisorDato
+        value: forced_dissolution_missing_auditor_date
+      - match: tvangsopplostPgaManglendeRegnskapDato
+        value: forced_dissolution_missing_accounts_date
+      - match: tvangsopplostPgaMangelfulltStyreDato
+        value: forced_dissolution_deficient_board_date
+      - match: tvangsavvikletPgaManglendeSlettingDato
+        value: forced_liquidation_missing_deletion_date
+#
+      - match: overordnetEnhet
+        value: parent_entity
+      - match: maalform
+        value: language_form
+      - match: vedtektsdato
+        value: articles_of_association_date
+      - match: vedtektsfestetFormaal
+        value: statutory_purpose
+      - match: aktivitet
+        value: activity
+      - match: paategninger
+        value: endorsements
+      - match: underUtenlandskInsolvensbehandlingDato
+        value: under_foreign_insolvency_proceedings_date
+      - match: underRekonstruksjonsforhandlingDato
+        value: under_reconstruction_negotiations_date
+      - match: fravalgRevisjonDato
+        value: opt_out_audit_date
+      - match: fravalgRevisjonBeslutningsDato
+        value: opt_out_audit_decision_date
+      - match: erIKonsern
+        value: is_in_corporate_group
+#
+      - match: kapital.belop
+        value: capital_amount
+      - match: kapital.antallAksjer
+        value: capital_share_count
+      - match: kapital.type
+        value: capital_type
+      - match: kapital.bundet
+        value: capital_restricted
+      - match: kapital.valuta
+        value: capital_currency
+      - match: kapital.innbetalt
+        value: capital_paid_in
+      - match: kapital.fulltInnbetalt
+        value: capital_fully_paid_in
+      - match: kapital.innfortDato
+        value: capital_introduced_date
+#
+      - match: registreringsnummerIHjemlandet
+        value: registration_number_home_country
+#
+      - match: utenlandskRegisterNavn
+        value: foreign_register_name
+      - match: utenlandskRegisterAdresse.land
+        value: foreign_register_address_country
+      - match: utenlandskRegisterAdresse.poststed
+        value: foreign_register_address_city
+      - match: utenlandskRegisterAdresse.adresse
+        value: foreign_register_address_street
+#
+      - match: underlagtLovgivningLand
+        value: subject_to_legislation_country
+      - match: underlagtLovgivningLandKode
+        value: subject_to_legislation_country_code
+      - match: foretaksformIHjemlandet.kode
+        value: company_form_home_country_code
+      - match: foretaksformIHjemlandet.beskrivelse
+        value: company_form_home_country_description
+      - match: foretaksformIHjemlandet.beskrivelseBokmaal
+        value: company_form_home_country_description_bokmaal  # Bokmål is one of the two official written standards of the Norwegian language
+#
+  type.name:
+    options:
+      - match: '+41552505320'
+        value: 'Systron EMV GmbH'
+      - match:
+        - '50 +'
+        - '1532-186/468'
+        - '24'
+        - '2025'
+        value: null
+  email:
+    options:
+      - match: 'tarudtransport@gmail.com@gmail.com'
+        value: 'tarudtransport@gmail.com'
+      - match: 'olehelmersen@outlook.com;viggohaug73@gmail.com'
+        values:
+          - 'olehelmersen@outlook.com'
+          - 'viggohaug73@gmail.com'
+      - match: 'fadigeorgesaad[@gmail.com'
+        value: 'fadigeorgesaad@gmail.com'
+      - match: 'holmenbetong@holmenbetong. no'
+        value: 'holmenbetong@holmenbetong.no'
+  website:
+    options:
+      - match:
+          - 'harubayoga'
+          - 'valhallaoslovikinglag'
+          - '91812020'
+          - '97796058'
+          - 'Ubonthaimassasje'
+          - '91708719'
+          - '91581052'
+          - 'facebook'
+        value: null
+  country_code:
+      options:
+      - match: cd
+        value: cg
