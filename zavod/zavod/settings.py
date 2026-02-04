@@ -34,19 +34,6 @@ ENRICH_TOPICS = {
     "gov.soe",
 }
 
-# Tier one sanctions lists:
-AUTHORITATIVE_DATASETS = {
-    "us_ofac_sdn",
-    "us_ofac_cons",
-    "us_trade_csl",
-    "eu_journal_sanctions",
-    "eu_fsf",
-    "eu_sanctions_map",
-    "gb_fcdo_sanctions",
-    "ca_dfatd_sema_sanctions",
-    "au_dfat_sanctions",
-}
-
 # Release version
 RELEASE = env_str("ZAVOD_RELEASE", RUN_TIME.strftime("%Y%m%d"))
 

@@ -1,13 +1,15 @@
 from csv import DictReader
+from typing import Optional
+import uuid
 from followthemoney.cli.util import path_entities
-from followthemoney import EntityProxy, ValueEntity, Statement
+from followthemoney import EntityProxy, Statement
 from followthemoney.statement import CSV, read_path_statements
 from json import load, loads
 from nomenklatura import Resolver
 from nomenklatura.judgement import Judgement
 from datetime import datetime
 
-from zavod import settings
+from zavod import Context, settings
 from zavod.entity import Entity
 from zavod.integration.dedupe import get_dataset_linker
 from zavod.store import get_store
@@ -17,7 +19,7 @@ from zavod.exporters.ftm import FtMExporter
 from zavod.exporters.names import NamesExporter
 from zavod.exporters.simplecsv import SimpleCSVExporter
 from zavod.exporters.statements import StatementsCSVExporter
-from zavod.meta import Dataset, load_dataset_from_path
+from zavod.meta import Dataset, get_catalog, load_dataset_from_path
 from zavod.crawl import crawl_dataset
 from zavod.tests.conftest import DATASET_2_YML, COLLECTION_YML
 from zavod.tests.exporters.util import harnessed_export
@@ -35,12 +37,36 @@ default_exports = {
 }
 
 
+def emit_entity(
+    ds: Dataset,
+    schema: str,
+    id_: Optional[str] = None,
+    properties: dict[str, list[str]] = {},
+) -> Entity:
+    context = Context(ds)
+    context.begin()
+
+    entity = Entity.from_data(
+        context.dataset,
+        {"schema": schema, "id": id_ or uuid.uuid4(), "properties": properties},
+    )
+    context.emit(entity)
+
+    context.close()
+    return entity
+
+
 def export(dataset: Dataset) -> None:
     linker = get_dataset_linker(dataset)
     store = get_store(dataset, linker)
     store.sync(clear=True)
     view = store.view(dataset)
     export_dataset(dataset, view)
+
+
+def read_exported_entities(dataset: Dataset) -> list[EntityProxy]:
+    dataset_path = settings.DATA_PATH / DATASETS / dataset.name
+    return list(path_entities(dataset_path / "entities.ftm.json", EntityProxy))
 
 
 def test_export(testdataset1: Dataset):
@@ -51,9 +77,7 @@ def test_export(testdataset1: Dataset):
     export(testdataset1)
 
     # it parses and finds expected number of entities
-    assert (
-        len(list(path_entities(dataset_path / "entities.ftm.json", EntityProxy))) == 12
-    )
+    assert len(read_exported_entities(testdataset1)) == 12
 
     with open(dataset_path / "index.json") as index_file:
         index = load(index_file)
@@ -148,13 +172,12 @@ def test_custom_export_config(testdataset2_export: Dataset):
 
 
 def test_ftm(testdataset1: Dataset):
-    dataset_path = settings.DATA_PATH / "datasets" / testdataset1.name
     clear_data_path(testdataset1.name)
 
     crawl_dataset(testdataset1)
     harnessed_export(FtMExporter, testdataset1)
 
-    entities = list(path_entities(dataset_path / "entities.ftm.json", ValueEntity))
+    entities = read_exported_entities(testdataset1)
     for entity in entities:
         # Fail if incorrect format
         assert entity.first_seen is not None
@@ -175,7 +198,6 @@ def test_ftm(testdataset1: Dataset):
 
 
 def test_ftm_referents(testdataset1: Dataset, resolver: Resolver[Entity]):
-    dataset_path = settings.DATA_PATH / "datasets" / testdataset1.name
     clear_data_path(testdataset1.name)
 
     identifier = resolver.decide(
@@ -185,7 +207,7 @@ def test_ftm_referents(testdataset1: Dataset, resolver: Resolver[Entity]):
     crawl_dataset(testdataset1)
     harnessed_export(FtMExporter, testdataset1, linker=resolver)
 
-    entities = list(path_entities(dataset_path / "entities.ftm.json", EntityProxy))
+    entities = read_exported_entities(testdataset1)
     assert len(entities) == 11
 
     john = [e for e in entities if e.id == identifier][0]
@@ -204,17 +226,16 @@ def test_ftm_referents(testdataset1: Dataset, resolver: Resolver[Entity]):
     assert dataset2 is not None
     collection = load_dataset_from_path(COLLECTION_YML)
     assert collection is not None
-    collection_path = settings.DATA_PATH / "datasets" / collection.name
     crawl_dataset(dataset2)
     other_dataset_id = "td2-freddie-bloggs"
     harnessed_export(FtMExporter, collection, linker=resolver)
-    entities = list(path_entities(collection_path / "entities.ftm.json", EntityProxy))
+    entities = read_exported_entities(collection)
     assert len(entities) == 29
 
     resolver.decide("osv-john-doe", other_dataset_id, Judgement.POSITIVE, user="test")
     clear_data_path(collection.name)
     harnessed_export(FtMExporter, collection, linker=resolver)
-    entities = list(path_entities(collection_path / "entities.ftm.json", EntityProxy))
+    entities = read_exported_entities(collection)
     assert len(entities) == 28  # After deduplication there's one less entity
     assert [] == [e for e in entities if e.id == other_dataset_id]
 
@@ -308,3 +329,40 @@ def test_statements(testdataset1: Dataset):
     statements = list(read_path_statements(path, CSV))
     entities = [s.canonical_id for s in statements if s.prop == Statement.BASE]
     assert len(entities) == 12
+
+
+def test_consolidate_names_never_remove_ofac_names():
+    ds_high_quality = Dataset({"name": "us_ofac_sdn"})
+    ds_low_quality = Dataset({"name": "xx_garbage"})
+    collection = Dataset(
+        {"name": "sanctions", "children": [ds_high_quality.name, ds_low_quality.name]}
+    )
+    # Need to do the catalog dance, otherwise iterating the children will not work.
+    catalog = get_catalog()
+    catalog.add(ds_high_quality)
+    catalog.add(ds_low_quality)
+    catalog.add(collection)
+
+    emit_entity(
+        ds_high_quality, "Person", id_="john-doe", properties={"name": ["The Tiger"]}
+    )
+    # We need at least one "strong" name ("John Doe" in this case) for the name -> weakAlias demotion to trigger
+    emit_entity(
+        ds_low_quality,
+        "Person",
+        id_="john-doe",
+        properties={
+            "name": ["John Doe", "Tigger"],
+            "weakAlias": ["Tigger", "The Tiger"],
+        },
+    )
+
+    export(collection)
+    entities = read_exported_entities(collection)
+
+    assert len(entities) == 1
+    assert entities[0].id == "john-doe"
+    # "The Tiger" is not demoted because it's a name in us_ofac_sdn
+    assert set(entities[0].get("name")) == {"John Doe", "The Tiger"}
+    # "Tigger" is demoted (even though it's a name in xx_garbage) because it's a weakAlias in xx_garbage
+    assert set(entities[0].get("weakAlias")) == {"Tigger", "The Tiger"}
