@@ -1,11 +1,11 @@
-title: US Texas HHSC OIG Exclusions
+title: US Texas Medicaid Provider Exclusions
 entry_point: crawler.py
-prefix: us-tx-med  # unsure, should it mirror folder name?
+prefix: us-medtx
 coverage:
-  schedule: "@monthly"  # unsure if good pick
+  schedule: "20 4 1,15 * *"
   start: "2026-01-29"
-load_statements: true  # unsure what it does
-ci_test: false  # unsure what it does
+load_statements: true
+ci_test: false
 summary: >
   List of excluded individuals and entities for Texas Medicaid and other HHS programs by Texas HHSC OIG
 description: |
@@ -51,7 +51,7 @@ assertions:
 lookups:
   type.identifier:
     options:
-      - match: 
+      - match:
           - 1265563261
           - 167904359
           - 15199
