@@ -5,7 +5,7 @@ disabled: false
 hidden: false
 coverage:
   frequency: weekly
-  start: 2025-11-07
+  start: 2026-02-05
 exports:
   - statistics.json
 deploy:
@@ -42,10 +42,10 @@ publisher:
   url: https://brightquery.com/
 
 # TODO: update assertions after the first successful run
-# assertions:
-#   max:
-#     schema_entities:
-#       Company: 1000000
+assertions:
+  min:
+    schema_entities:
+      Company: 10
 
 inputs:
   - eu_sanctions

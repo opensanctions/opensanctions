@@ -74,6 +74,11 @@ data:
 dates:
   formats: ["%Y", "%B %Y", "%B %d, %Y"]
 
+assertions:
+  min:
+    schema_entities:
+      Company: 40
+
 lookups:
   sanction.program:
     options:
