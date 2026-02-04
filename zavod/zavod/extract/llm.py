@@ -184,7 +184,7 @@ def run_text_prompt(
 
     content = response.choices[0].message.content
     assert content is not None
-    context.cache.set_json(cache_key, content)
+    context.cache.set(cache_key, content)
     return TextPromptResponse(content=content, cache_key=cache_key)
 
 
