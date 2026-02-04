@@ -80,6 +80,12 @@ def crawl_position(state: CrawlState, person: Entity, claim: Claim) -> None:
     if position is None or position.id is None:
         state.ignore_positions.add(item.id)
         return
+    if item.id != claim.qid:
+        state.context.log.warning(
+            "Redirected position QID",
+            original=claim.qid,
+            redirected=item.id,
+        )
 
     occupancy = wikidata_occupancy(state.context, person, position, claim)
     if occupancy is not None:
@@ -107,6 +113,12 @@ def crawl_person(state: CrawlState, qid: str, recurse: bool = True) -> Optional[
     item = state.client.fetch_item(qid)
     if item is None:
         return None
+    if item.id != qid:
+        state.context.log.warning(
+            "Redirected person QID",
+            original=qid,
+            redirected=item.id,
+        )
     entity = wikidata_basic_human(state.context, state.client, item, strict=True)
     if entity is None:
         return None

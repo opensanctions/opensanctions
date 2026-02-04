@@ -53,6 +53,28 @@ lookups:
           - 7
           - 40
         value: null
+  type.address:
+    options:
+      - match: Ifo
+        value: Ifo
+      - match: Osu
+        value: Osu
+      - match: Awo
+        value: Awo
+      - match: Iwo
+        value: Iwo
+      - match: Ake
+        value: Ake
+      - match: Ota
+        value: Ota
+      - match: Udi
+        value: Udi
+      - match: Aba
+        value: Aba
+      - match: Isu
+        value: Isu
+      - match: Itu
+        value: Itu
   type.date:
     options:
       match: 16-Oct-60

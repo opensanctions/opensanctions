@@ -44,6 +44,12 @@ def crawl_holder(
     item = client.fetch_item(person_qid)
     if item is None:
         return None
+    if item.id != person_qid:
+        context.log.warning(
+            "Redirected person QID",
+            original=person_qid,
+            redirected=item.id,
+        )
     entity = wikidata_basic_human(context, client, item)
     if entity is None:
         return None
@@ -218,6 +224,12 @@ def crawl(context: Context):
             pos_item = client.fetch_item(wd_position.qid)
             if pos_item is None:
                 continue
+            if pos_item.id != wd_position.qid:
+                context.log.warning(
+                    "Redirected position QID",
+                    original=wd_position.qid,
+                    redirected=pos_item.id,
+                )
 
             position = wikidata_position(context, client, pos_item)
             if position is None:

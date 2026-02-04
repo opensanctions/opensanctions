@@ -10,8 +10,12 @@ entry_point: crawler.py
 summary: >-
   Current and recent members of the Belgian Chamber of Representatives, the lower chamber of Parliament.
 description: |
-  This dataset provides information about the current and recent members of the Belgian Chamber of Representatives,
-  including their names, political affiliations, parliamentary terms, and other relevant information.
+  This dataset contains persons who serve or have served as members of the Belgian Chamber
+  of Representatives, the lower house of the federal Parliament. The Chamber is composed of 150 members
+  and plays a key role in Belgium's legislative process.
+
+  For each member, the dataset includes their full name, date of birth,
+  political group affiliation, and parliamentary terms.
 tags:
   - list.pep
 publisher:
