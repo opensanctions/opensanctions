@@ -88,7 +88,7 @@ def crawl_npidata(context: Context, fh: TextIO) -> None:
             ),
             country_code=practice_country.lower() or "us",
         )
-        h.apply_address(context, entity, practice_addr)
+        h.copy_address(entity, practice_addr)
 
         # context.audit_data(row)
         context.emit(entity)
