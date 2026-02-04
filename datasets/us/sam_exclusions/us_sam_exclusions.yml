@@ -140,7 +140,20 @@ lookups:
           - XX
           - XX, XX, USA
           - XX, USA
+          - "325"
         value: null
+      - match: OSH
+        value: OSH
+      - match: GAO
+        value: GAO
+      - match: QOM
+        value: QOM
+      - match: ZUG
+        value: ZUG
+      - match: EYL
+        value: EYL
+      - match: PEC
+        value: PEC
   type.identifier:
     lowercase: true
     options:
