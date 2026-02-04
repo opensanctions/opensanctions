@@ -59,6 +59,8 @@ lookups:
           - "---"
           - "--"
         value: null
+      - match: Zug
+        value: Zug
   type.url:
     options:
       - match:
