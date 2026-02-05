@@ -41,7 +41,7 @@ def deref_wikidata_id(
         target = entity.get("redirected", {}).get("to")
         if target is not None:
             context.log.info(f"Wikidata ID {qid} is a redirect to {target}")
-            return target
+            return str(target)
     except RequestException as exc:
         context.log.warning(f"Failed to dereference Wikidata ID {qid}: {exc}")
     return qid
