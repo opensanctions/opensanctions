@@ -238,7 +238,7 @@ def crawl_ship_relation(
     vessel_id_slug,
     managers_lookup: Dict[str, Dict],
     program_key: str,
-    ship_url: str,
+    source_url: str,
     rel_role: Optional[str] = None,
 ):
     company_id_raw = party_info.pop("id")
@@ -252,7 +252,7 @@ def crawl_ship_relation(
     # Convert to string to match the string keys in managers_lookup
     company_id_str = str(company_id_raw)
     if company_id_str in managers_lookup:
-        emit_manager(context, managers_lookup[company_id_str], program_key, ship_url)
+        emit_manager(context, managers_lookup[company_id_str], program_key, source_url)
     else:
         context.log.warn(
             "company_id not found in the managers_lookup", company_id=company_id_str
@@ -305,7 +305,7 @@ def emit_relation(
     context.emit(relation)
 
 
-def crawl_person(context: Context, person_data, program_key, endpoint):
+def crawl_person(context: Context, person_data, program_key, endpoint, source_url):
     birth_date = person_data.pop("date_bd")
     death_date = person_data.pop("date_death", None)
     if "- " in birth_date:
@@ -324,10 +324,12 @@ def crawl_person(context: Context, person_data, program_key, endpoint):
     h.apply_date(person, "deathDate", death_date)
     person.add("topics", "poi")
     person.add("birthPlace", person_data.pop("city_bd", None))
+    person.add("sourceUrl", source_url)
 
     sanction = h.make_sanction(
         context, person, key=program_key, program_key=program_key
     )
+    sanction.set("programUrl", source_url)
     sanction.add("reason", person_data.pop("reason", None))
     sanction.add("sourceUrl", person_data.pop("links", None))
 
@@ -351,7 +353,12 @@ def crawl_person(context: Context, person_data, program_key, endpoint):
     )
 
 
-def crawl_legal_entity(context: Context, company_data, program_key):
+def crawl_legal_entity(
+    context: Context,
+    company_data: Dict[str, str],
+    program_key: str,
+    source_url: str,
+):
     legal_entity = context.make("LegalEntity")
     legal_entity.id = make_id(context, WSAPIDataType.ENTITY, company_data.pop("id"))
     legal_entity.add("name", h.multi_split(company_data.pop("name"), [" / "]))
@@ -367,6 +374,7 @@ def crawl_legal_entity(context: Context, company_data, program_key):
     legal_entity.add("country", company_data.pop("country"))
     legal_entity.add("innCode", company_data.pop("itn"))
     legal_entity.add("topics", "poi")
+    legal_entity.add("sourceUrl", source_url)
     imo = company_data.pop("imo", None)
     if imo:
         legal_entity.add_cast("Company", "imoNumber", imo)
@@ -375,6 +383,7 @@ def crawl_legal_entity(context: Context, company_data, program_key):
         context, legal_entity, key=program_key, program_key=program_key
     )
     sanction.add("reason", company_data.pop("reason"))
+    sanction.set("programUrl", source_url)
     sanction.add("sourceUrl", company_data.pop("links"))
     sanction.add("sourceUrl", company_data.pop("documents", None))
 
@@ -401,7 +410,7 @@ def emit_manager(
     context: Context,
     management_data: Dict,
     program_key: str,
-    ship_url: str,
+    source_url: str,
 ):
     """Emit a manager entity. Call only when manager is referenced by a ship."""
     # Make a copy to avoid mutating the cached lookup dict
@@ -419,11 +428,12 @@ def emit_manager(
     manager.add("imoNumber", management_data.pop("imo"))
     manager.add("topics", "poi")
     # Managers are only listed on ship pages, since they don't have their own dedicated pages
-    manager.add("sourceUrl", ship_url)
+    manager.add("sourceUrl", source_url)
     context.emit(manager)
     sanction = h.make_sanction(
         context, manager, key=program_key, program_key=program_key
     )
+    sanction.set("programUrl", source_url)
     context.emit(sanction)
     context.audit_data(management_data)
 
@@ -433,11 +443,9 @@ def crawl_vessel(
     vessel_data,
     program_key,
     managers_lookup: Dict[str, Dict],
-    endpoint: str,
+    source_url: str,
 ):
     raw_vessel_id = vessel_data.pop("id")
-    # Construct ship page URL: {base_url}/{endpoint}/{vessel_id}
-    ship_url = urljoin(context.data_url, f"{endpoint}/{raw_vessel_id}")
     vessel = context.make("Vessel")
     vessel.id = make_id(context, WSAPIDataType.VESSEL, raw_vessel_id)
     vessel.add("name", vessel_data.pop("name"))
@@ -448,7 +456,7 @@ def crawl_vessel(
     vessel.add("callSign", vessel_data.pop("callsign"))
     vessel.add("flag", vessel_data.pop("flag"))
     vessel.add("mmsi", vessel_data.pop("mmsi"))
-    vessel.add("sourceUrl", ship_url)
+    vessel.add("sourceUrl", source_url)
     h.apply_date(vessel, "buildDate", vessel_data.pop("year"))
     vessel.add("grossRegisteredTonnage", vessel_data.pop("weight"))
     vessel.add("deadweightTonnage", vessel_data.pop("dwt"))
@@ -466,6 +474,7 @@ def crawl_vessel(
     sanction = h.make_sanction(
         context, vessel, key=program_key, program_key=program_key
     )
+    sanction.set("programUrl", source_url)
     sanction.add("sourceUrl", vessel_data.pop("links"))
 
     context.emit(vessel)
@@ -482,7 +491,7 @@ def crawl_vessel(
             vessel.id,
             managers_lookup,
             program_key,
-            ship_url,
+            source_url,
             role,
         )
 
@@ -635,17 +644,32 @@ def crawl(context: Context):
             continue
         data = response.get("data")
         for entity_details in data:
+            # Construct entity specific page URL: {base_url}/{endpoint}/{entity_id}
+            entity_id = entity_details.get("id")
+            source_url = urljoin(context.data_url, f"{link.endpoint}/{entity_id}")
+
             if link.type is WSAPIDataType.PERSON:
-                crawl_person(context, entity_details, link.program_key, link.endpoint)
+                crawl_person(
+                    context,
+                    entity_details,
+                    link.program_key,
+                    link.endpoint,
+                    source_url,
+                )
             elif link.type is WSAPIDataType.ENTITY:
-                crawl_legal_entity(context, entity_details, link.program_key)
+                crawl_legal_entity(
+                    context,
+                    entity_details,
+                    link.program_key,
+                    source_url,
+                )
             elif link.type is WSAPIDataType.VESSEL:
                 crawl_vessel(
                     context,
                     entity_details,
                     link.program_key,
                     managers_lookup,
-                    link.endpoint,
+                    source_url,
                 )
             elif link.type is WSAPIDataType.MANAGER:
                 continue
