@@ -29,6 +29,7 @@ def crawl_person(context: Context, row: Dict[str, str]) -> str:
     person.add("name", row.pop("name"))
     person.add("birthDate", row.pop("year"))
     person.add("gender", row.pop("gender"))
+    person.add("citizenship", "si")
     person.add("sourceUrl", row.pop("zvezoskop_link"))
     person.add("political", row.pop("party_si") or None, lang="slv")
     person.add("political", row.pop("party_en") or None, lang="eng")
