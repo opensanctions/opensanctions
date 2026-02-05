@@ -4,7 +4,8 @@ prefix: si-zvezo
 coverage:
   frequency: never
   start: 2024-02-01
-  schedule: "45 5 * * *"
+deploy:
+  schedule: "@monthly"
 load_statements: true
 summary: >
   Political office holders and their political career based on data presented
