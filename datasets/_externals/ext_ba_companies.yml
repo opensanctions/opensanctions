@@ -89,3 +89,15 @@ config:
     - Company
     - Organization
     # - LegalEntity
+
+assertions:
+  min:
+    schema_entities:
+      Company: 4
+      LegalEntity: 4
+      Person: 3
+  max:
+    schema_entities:
+      Company: 10
+      LegalEntity: 10
+      Person: 8
