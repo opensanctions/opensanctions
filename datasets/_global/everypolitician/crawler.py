@@ -102,11 +102,10 @@ def parse_person(context: Context, data, country, lastmod) -> None:
     person_id = data.pop("id", None)
     person = context.make("Person")
     person.id = person_entity_id(context, person_id)
-    person.add("nationality", country)
     name = data.get("name")
     if name is None or name.lower().strip() in ("unknown",):
         return
-    person.add("modifiedAt", lastmod.date())
+    # person.add("modifiedAt", lastmod.date())
     person.add("name", data.pop("name", None))
     person.add("alias", data.pop("sort_name", None))
     for other in data.pop("other_names", []):
@@ -122,6 +121,7 @@ def parse_person(context: Context, data, country, lastmod) -> None:
     person.add("deathDate", data.pop("death_date", None))
     person.add("email", clean_emails(data.pop("email", None)))
     person.add("notes", data.pop("summary", None))
+    person.add("citizenship", country)
     person.add("topics", "role.pep")
 
     for link in data.pop("links", []):
@@ -138,8 +138,9 @@ def parse_person(context: Context, data, country, lastmod) -> None:
     for ident in data.pop("identifiers", []):
         identifier = ident.get("identifier")
         scheme = ident.get("scheme")
-        if scheme == "wikidata" and identifier.startswith("Q"):
-            person.add("wikidataId", identifier)
+        if scheme == "wikidata":
+            qid = h.deref_wikidata_id(context, identifier)
+            person.add("wikidataId", qid)
 
     for contact_detail in data.pop("contact_details", []):
         value = contact_detail.get("value")

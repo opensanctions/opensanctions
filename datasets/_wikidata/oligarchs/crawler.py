@@ -1,19 +1,18 @@
 import csv
 from typing import Dict
 from rigour.mime.types import CSV
-from rigour.ids.wikidata import is_qid
 
 from zavod import Context
+from zavod import helpers as h
 
 CAATSA_URL = "https://prod-upp-image-read.ft.com/40911a30-057c-11e8-9650-9c0ad2d7c5b5"
 
 
 def crawl_row(context: Context, row: Dict[str, str]):
-    qid = row.get("qid", "").strip()
-    if not len(qid):
-        return
-    if not is_qid(qid):
-        context.log.warning("No valid QID", qid=qid)
+    qid_raw = row.get("qid", "").strip()
+    qid = h.deref_wikidata_id(context, qid_raw)
+    if qid is None:
+        context.log.warning("No valid QID", qid=qid_raw)
         return
     if row.get("left_russia") == "yes":
         return
