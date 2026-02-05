@@ -2,7 +2,7 @@ from csv import DictReader
 from typing import Optional
 import uuid
 from followthemoney.cli.util import path_entities
-from followthemoney import EntityProxy, Statement
+from followthemoney import Statement, ValueEntity
 from followthemoney.statement import CSV, read_path_statements
 from json import load, loads
 from nomenklatura import Resolver
@@ -64,9 +64,9 @@ def export(dataset: Dataset) -> None:
     export_dataset(dataset, view)
 
 
-def read_exported_entities(dataset: Dataset) -> list[EntityProxy]:
+def read_exported_entities(dataset: Dataset) -> list[ValueEntity]:
     dataset_path = settings.DATA_PATH / DATASETS / dataset.name
-    return list(path_entities(dataset_path / "entities.ftm.json", EntityProxy))
+    return list(path_entities(dataset_path / "entities.ftm.json", ValueEntity))
 
 
 def test_export(testdataset1: Dataset):

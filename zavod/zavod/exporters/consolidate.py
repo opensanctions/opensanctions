@@ -26,9 +26,13 @@ FULL_NAME_PROPS = {"name", "alias"}
 NEVER_REMOVE_NAMES_DATASETS = {
     "us_ofac_sdn",
     "us_ofac_cons",
-    "us_trade_csl",
-    "eu_journal_sanctions",
-    "eu_fsf",
+    # Has every name from us_ofac IN ALL UPPER CASE JUST TO MAKE SURE
+    # so even though it's somewhat important, we don't want to make it holy for now.
+    # "us_trade_csl",
+    # The names suck sometimes and customer's don't have as high expectations for
+    # these to be reproduced verbatim.
+    # "eu_journal_sanctions",
+    # "eu_fsf",
     "eu_sanctions_map",
     "gb_fcdo_sanctions",
     "ca_dfatd_sema_sanctions",
