@@ -70,14 +70,15 @@ def crawl_person(context: Context, person_data: dict, organizations):
 
     person = context.make("Person")
     if person_qid:
-        person.id = person_qid
-    else:
+        person.id = h.deref_wikidata_id(context, person_qid)
+    if person.id is None:
         assert person_id
         person.id = context.make_id(person_id)
 
     person.add("name", person_data.get("name"))
     person.add("alias", [o.get("name") for o in person_data.get("other_names", [])])
     person.add("gender", person_data.get("gender"))
+    person.add("citizenship", "za")
     person.add("firstName", person_data.get("given_name"))
     person.add("lastName", person_data.get("family_name"))
     person.add("birthDate", person_data.get("birth_date"))
@@ -111,7 +112,13 @@ def crawl_membership(
     context: Context, entity: Entity, membership: dict, organizations: Dict[str, str]
 ) -> Optional[str]:
     org_id = membership.get("organization_id")
+    if org_id is None:
+        context.log.info("Membership without organization", membership=membership)
+        return None
     org_name = organizations.get(org_id)
+    if org_name is None:
+        context.log.warning("Un-named organization", org_id=org_id)
+        return None
     role = membership.get("role")
     if role is None:
         return None

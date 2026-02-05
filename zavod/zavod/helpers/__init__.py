@@ -96,6 +96,7 @@ from zavod.helpers.sanctions import (
 from zavod.helpers.securities import make_security
 from zavod.helpers.text import clean_note, is_empty, multi_split, remove_bracketed
 from zavod.helpers.xml import remove_namespace
+from zavod.helpers.wikidata import deref_wikidata_id
 
 __all__ = [
     "clean_note",
@@ -152,4 +153,5 @@ __all__ = [
     "xpath_elements",
     "xpath_strings",
     "xpath_string",
+    "deref_wikidata_id",
 ]
