@@ -1,5 +1,5 @@
 type: external
-title: BrightQuery Business Identity API
+title: BrightQuery OpenData.org
 entry_point: zavod.runner.enrich:enrich
 disabled: false
 hidden: false
@@ -19,8 +19,8 @@ http:
 load_statements: true
 ci_test: false
 summary: >-
-  The BrightQuery Business Identity API provides firmographic and legal entity level
-  information for millions of US organizations, enabling enriched organization profiles.
+  BrightQuery OpenData.org provides firmographic and legal entity level information for
+  millions of US organizations, enabling enriched organization profiles.
 description: |
   BrightQuery (BQ) provides company and legal entity data for approximately 74 million
   U.S. organizations. It includes corporate family structures, legal status, firmographics,
@@ -32,7 +32,7 @@ description: |
   OpenSanctions to corresponding companies in the BrightQuery directory. This enables richer
   profiles, more detailed context, and deeper analysis when combining sanctions data with
   corporate information.
-url: https://docs.brightquery.com/business_identity_api.html
+url: https://opendata.org/
 publisher:
   name: BrightQuery
   acronym: BQ
@@ -40,6 +40,7 @@ publisher:
     BrightQuery is a data provider specializing in business identity and firmographic
     information for U.S. organizations.
   url: https://brightquery.com/
+  official: false
 
 # TODO: update assertions after the first successful run
 assertions:
