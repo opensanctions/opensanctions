@@ -1,4 +1,6 @@
 from typing import Any, Dict
+from urllib.parse import urlencode
+
 import xlrd
 
 from zavod import Context, helpers as h
@@ -82,11 +84,13 @@ def crawl(context: Context) -> None:
         "__EVENTTARGET": "dnn$ctr384$DownloadExclusionsFile$lb_DLoad_ExcFile_XLS",
     }
 
-    path = context.fetch_resource(
+    _, _, _, path = zyte_api.fetch_resource(
+        context,
         "source.xls",
         context.data_url,
         method="POST",
-        data=form_params,
+        headers={"Content-Type": "application/x-www-form-urlencoded"},
+        body=urlencode(form_params).encode("utf-8"),
     )
 
     context.export_resource(path, XLS, title=context.SOURCE_TITLE)
