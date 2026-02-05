@@ -549,15 +549,8 @@ def check_updates(context: Context):
         )
         return
     # Have any new sections been added?
-    change_log = doc.xpath(".//main[@class='relative']")
-    if len(change_log) != 1:
-        context.log.warn(
-            "Unexpected number of change log sections, unable to check updates",
-            change_log=change_log,
-        )
-        return
-
-    h.assert_dom_hash(change_log[0], "e58955c7ef5c543cd4c2ae8975eb326287e09023")
+    change_log = h.xpath_element(doc, ".//main[@class='relative']")
+    h.assert_dom_hash(change_log, "e58955c7ef5c543cd4c2ae8975eb326287e09023")
     # Existing sections from the API documentation sidebar
     #
     # Kidnappers:
