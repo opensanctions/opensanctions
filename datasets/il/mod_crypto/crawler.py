@@ -148,6 +148,9 @@ def crawl_csv_row(context: Context, row: Dict[str, str]):
     wallet_address = row.pop("wallet_address")
     account_id = row.pop("account_id")
     # Use wallet_id if present, otherwise fall back to account_id
+    # These are mutually exclusive in source data - we get either:
+    # - wallet_address: On-chain address tied to a specific blockchain
+    # - account_id: Platform account number tied to an exchange (e.g., Binance)
     identifier = wallet_address or account_id
     if identifier:
         identifier = normalize_address(identifier)
