@@ -237,7 +237,6 @@ def crawl_ship_relation(
     vessel_id_slug,
     managers_lookup: Dict[str, Dict],
     program_key: str,
-    emitted_managers,
     rel_role: Optional[str] = None,
 ):
     company_id_raw = party_info.pop("id")
