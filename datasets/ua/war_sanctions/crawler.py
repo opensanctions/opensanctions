@@ -10,6 +10,7 @@ from enum import Enum
 from normality import squash_spaces
 from os import environ as env
 from typing import Dict, Optional, List
+from urllib.parse import urljoin
 
 from zavod import Context, helpers as h
 from zavod.entity import Entity
@@ -237,6 +238,7 @@ def crawl_ship_relation(
     vessel_id_slug,
     managers_lookup: Dict[str, Dict],
     program_key: str,
+    ship_url: str,
     rel_role: Optional[str] = None,
 ):
     company_id_raw = party_info.pop("id")
@@ -250,7 +252,11 @@ def crawl_ship_relation(
     # Convert to string to match the string keys in managers_lookup
     company_id_str = str(company_id_raw)
     if company_id_str in managers_lookup:
-        emit_manager(context, managers_lookup[company_id_str], program_key)
+        emit_manager(context, managers_lookup[company_id_str], program_key, ship_url)
+    else:
+        context.log.warn(
+            "company_id not found in the managers_lookup", company_id=company_id_str
+        )
 
     # e.g.
     # {
@@ -391,7 +397,12 @@ def crawl_legal_entity(context: Context, company_data, program_key):
     )
 
 
-def emit_manager(context: Context, management_data: Dict, program_key):
+def emit_manager(
+    context: Context,
+    management_data: Dict,
+    program_key: str,
+    ship_url: str,
+):
     """Emit a manager entity. Call only when manager is referenced by a ship."""
     # Make a copy to avoid mutating the cached lookup dict
     management_data = management_data.copy()
@@ -407,6 +418,8 @@ def emit_manager(context: Context, management_data: Dict, program_key):
     manager.add("country", management_data.pop("country"))
     manager.add("imoNumber", management_data.pop("imo"))
     manager.add("topics", "poi")
+    # Managers are only listed on ship pages, since they don't have their own dedicated pages
+    manager.add("sourceUrl", ship_url)
     context.emit(manager)
     sanction = h.make_sanction(
         context, manager, key=program_key, program_key=program_key
@@ -420,8 +433,11 @@ def crawl_vessel(
     vessel_data,
     program_key,
     managers_lookup: Dict[str, Dict],
+    endpoint: str,
 ):
     raw_vessel_id = vessel_data.pop("id")
+    # Construct ship page URL: {base_url}/{endpoint}/{vessel_id}
+    ship_url = urljoin(context.data_url, f"{endpoint}/{raw_vessel_id}")
     vessel = context.make("Vessel")
     vessel.id = make_id(context, WSAPIDataType.VESSEL, raw_vessel_id)
     vessel.add("name", vessel_data.pop("name"))
@@ -432,10 +448,7 @@ def crawl_vessel(
     vessel.add("callSign", vessel_data.pop("callsign"))
     vessel.add("flag", vessel_data.pop("flag"))
     vessel.add("mmsi", vessel_data.pop("mmsi"))
-    vessel.add(
-        "sourceUrl",
-        f"https://war-sanctions.gur.gov.ua/en/transport/ships/{raw_vessel_id}",
-    )
+    vessel.add("sourceUrl", ship_url)
     h.apply_date(vessel, "buildDate", vessel_data.pop("year"))
     vessel.add("grossRegisteredTonnage", vessel_data.pop("weight"))
     vessel.add("deadweightTonnage", vessel_data.pop("dwt"))
@@ -469,6 +482,7 @@ def crawl_vessel(
             vessel.id,
             managers_lookup,
             program_key,
+            ship_url,
             role,
         )
 
@@ -638,6 +652,7 @@ def crawl(context: Context):
                     entity_details,
                     link.program_key,
                     managers_lookup,
+                    link.endpoint,
                 )
             elif link.type is WSAPIDataType.MANAGER:
                 continue
