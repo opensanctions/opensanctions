@@ -105,7 +105,7 @@ def parse_person(context: Context, data, country, lastmod) -> None:
     name = data.get("name")
     if name is None or name.lower().strip() in ("unknown",):
         return
-    # person.add("modifiedAt", lastmod.date())
+    person.add("modifiedAt", lastmod.date())
     person.add("name", data.pop("name", None))
     person.add("alias", data.pop("sort_name", None))
     for other in data.pop("other_names", []):
@@ -121,7 +121,7 @@ def parse_person(context: Context, data, country, lastmod) -> None:
     person.add("deathDate", data.pop("death_date", None))
     person.add("email", clean_emails(data.pop("email", None)))
     person.add("notes", data.pop("summary", None))
-    person.add("citizenship", country)
+    person.add("nationality", country)
     person.add("topics", "role.pep")
 
     for link in data.pop("links", []):
