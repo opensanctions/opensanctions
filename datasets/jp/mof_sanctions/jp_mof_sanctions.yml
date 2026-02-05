@@ -276,10 +276,11 @@ lookups:
           - 米国
           - トルコ
           - シリア
-          - 支部：
           - ロシア
           - ケニア
         prop: country
+      - match: 支部： # branch:
+        value: null
   type.country:
     lowercase: true
     normalize: true
