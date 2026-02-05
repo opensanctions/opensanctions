@@ -9,8 +9,8 @@ from zavod.helpers import (
     apply_name,
     apply_reviewed_names,
     make_name,
-    is_name_irregular,
     split_comma_names,
+    is_name_irregular,
 )
 from zavod.meta.dataset import Dataset
 from zavod.stateful.review import Review, review_key
@@ -142,11 +142,11 @@ def test_is_name_irregular(testdataset1: Dataset):
     # Nullwords
     assert is_name_irregular(org, "Unknown")
     # min_chars
-    assert is_name_irregular(org, "A")  # too short
-    assert not is_name_irregular(org, "A A")  # long enough
+    assert is_name_irregular(org, "a")  # too short
+    assert not is_name_irregular(org, "A a")  # long enough
     # single_token_min_length
-    assert is_name_irregular(org, "AAA")  # too short
-    assert not is_name_irregular(org, "AAAA")  # long enough
+    assert is_name_irregular(org, "Aaa")  # too short
+    assert not is_name_irregular(org, "Aaaa")  # long enough
     # Require space
     assert is_name_irregular(person, "Johnson")
     assert not is_name_irregular(org, "Johnson")

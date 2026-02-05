@@ -271,19 +271,16 @@ def check_name_regularity(entity: Entity, string: Optional[str]) -> Regularity:
     if entity.schema.is_a("Person"):
         deprefixed = remove_person_prefixes(string)
         if " " not in deprefixed:
-            print("suggesting weakAlias:", string)
             return Regularity(is_irregular=True, suggested_prop="weakAlias")
 
     # Organization name shorter than 8 letters, all uppercase -> abbreviation
     if entity.schema.is_a("Organization"):
         if len(string) < 8 and string.isupper():
-            print("suggesting abbreviation:", string)
             return Regularity(is_irregular=True, suggested_prop="abbreviation")
 
     # LegalEntity name shorter than 5 letters, all uppercase -> abbreviation
     if entity.schema.is_a("LegalEntity"):
         if len(string) < 5 and string.isupper():
-            print("suggesting abbreviation:", string)
             return Regularity(is_irregular=True, suggested_prop="abbreviation")
 
     spec = entity.dataset.names.get_spec(entity.schema)
@@ -315,6 +312,11 @@ def check_name_regularity(entity: Entity, string: Optional[str]) -> Regularity:
     return Regularity(is_irregular=False)
 
 
+def is_name_irregular(entity: Entity, string: Optional[str]) -> bool:
+    """Determine whether a name string is irregular and needs cleaning."""
+    return check_name_regularity(entity, string).is_irregular
+
+
 def apply_names(
     entity: Entity,
     string: str,
@@ -322,6 +324,18 @@ def apply_names(
     alias: bool = False,
     lang: Optional[str] = None,
 ) -> None:
+    """
+    Apply a names string to an entity.
+
+    If the review is accepted, the properties in the reviewed extraction are used.
+    Otherwise the string is added as-is to the 'name' property by default.
+
+    Args:
+        entity: The entity to apply names to.
+        string: The raw name(s) string.
+        review: The data review containing the cleaned name(s).
+        alias: If true, puts names destined for the name property in 'alias' instead. This is useful e.g. when the source dataset indicates that the field is an alias.
+    """
     # TODO: consolidate with PROP_TO_FIELD in clean.py
     field_props = [
         ("full_name", "alias" if alias else "name"),
@@ -446,5 +460,9 @@ def apply_reviewed_names(
         enable_llm_cleaning=enable_llm_cleaning,
         suggested_prop=name_regularity.suggested_prop,
     )
+
+    if review.extracted_data.full_name and alias:
+        print("crawler says alias but review says full_name: ", string)
+        print(review.extracted_data)
 
     apply_names(entity, string, review, alias=alias, lang=lang)

@@ -8,6 +8,7 @@ from zavod.extract.llm import run_typed_text_prompt
 
 LLM_MODEL_VERSION = "gpt-4o"
 SINGLE_ENTITY_PROGRAM_PATH = Path(__file__).parent / "dspy/single_entity_program.json"
+# TODO: try and improve on this
 # The idea was that these are fields, because the crawler can decide whether full_name
 # goes to the `name` or the `alias` property based on whether the value comes from a
 # full name or an alias field. But maybe that's as much a suggestion as the irregularity

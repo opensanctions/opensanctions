@@ -82,7 +82,7 @@ from zavod.helpers.names import (
     review_names,
     clean_names,
     make_name,
-    check_name_regularity,
+    is_name_irregular,
     split_comma_names,
 )
 from zavod.helpers.numbers import apply_number
@@ -143,7 +143,7 @@ __all__ = [
     "assert_file_hash",
     "assert_html_url_hash",
     "split_comma_names",
-    "check_name_regularity",
+    "is_name_irregular",
     "apply_reviewed_names",
     "review_names",
     "clean_names",
