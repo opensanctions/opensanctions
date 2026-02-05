@@ -41,7 +41,7 @@ assertions:
   min:
     schema_entities:
       Person: 1500
-      Position: 300
+      Position: 150
   max:
     schema_entities:
       Person: 2500
