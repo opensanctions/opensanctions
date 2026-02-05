@@ -13,9 +13,8 @@ from zavod.context import Context
 from zavod.entity import Entity
 from zavod.extract.names.clean import (
     LLM_MODEL_VERSION,
-    PROP_TO_FIELD,
-    CleanNames,
     RawNames,
+    Names,
 )
 
 # alias clean_names so that it could be imported from here
@@ -320,7 +319,7 @@ def is_name_irregular(entity: Entity, string: Optional[str]) -> bool:
 def apply_names(
     entity: Entity,
     string: str,
-    review: Review[CleanNames],
+    review: Review[Names],
     alias: bool = False,
     lang: Optional[str] = None,
 ) -> None:
@@ -361,18 +360,20 @@ def apply_names(
 def _review_names(
     context: Context,
     entity: Entity,
-    string: str,
+    suggested: Names,
     enable_llm_cleaning: bool,
-    suggested_prop: Optional[str] = None,
-) -> Review[CleanNames]:
-    strings = [string]
+) -> Review[Names]:
+    strings = []
+    for _prop, strings in suggested.item_lists():
+        for string in strings:
+            if string not in strings:
+                strings.append(string)
+
     raw_names = RawNames(entity_schema=entity.schema.name, strings=strings)
     if enable_llm_cleaning:
-        names = clean_names(context, raw_names)
+        suggested = clean_names(context, raw_names)
         origin = LLM_MODEL_VERSION
     else:
-        field = PROP_TO_FIELD[suggested_prop] if suggested_prop else "full_name"
-        names = CleanNames(**{field: strings})
         origin = "analyst"
 
     source_value = JSONSourceValue(
@@ -383,7 +384,7 @@ def _review_names(
     review = review_extraction(
         context,
         source_value=source_value,
-        original_extraction=names,
+        original_extraction=suggested,
         origin=origin,
     )
     review.link_entity(context, entity)
@@ -393,31 +394,44 @@ def _review_names(
 def review_names(
     context: Context,
     entity: Entity,
-    string: Optional[str],
+    original: Names,
+    suggested: Names,
     enable_llm_cleaning: bool = False,
-) -> Optional[Review[CleanNames]]:
+) -> Optional[Review[Names]]:
     """
     Clean names if needed, then post them for review.
 
     Args:
         context: The current context.
         entity: The entity to apply names to.
-        string: The raw name(s) string.
+        original: The original categorisation of names. This is to convey to the
+            analyst how the source data categorised the name string(s).
+        suggested: The suggested categorisation of names. This contains an initial
+            categorisation where the source dataset might have adjusted the categorisation
+            based on heuristics specific to that dataset.
         enable_llm_cleaning: Whether to use LLM-based name cleaning.
     """
-    if not string or not string.strip():
+    if suggested.is_empty():
         return None
 
-    name_regularity = check_name_regularity(entity, string)
-    if settings.CI or not name_regularity.is_irregular:
+    is_irregular = False
+    new_suggested = Names()
+    for key, strings in suggested.item_lists():
+        for string in strings:
+            regularity = check_name_regularity(entity, string)
+            if regularity.is_irregular:
+                is_irregular = True
+            if regularity.suggested_prop is not None:
+                new_suggested.__setattr__(regularity.suggested_prop, string)
+
+    if settings.CI or not is_irregular:
         return None
 
     return _review_names(
         context,
         entity,
-        string,
+        new_suggested,
         enable_llm_cleaning,
-        name_regularity.suggested_prop,
     )
 
 

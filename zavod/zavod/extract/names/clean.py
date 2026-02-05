@@ -1,6 +1,6 @@
 from functools import cache
 from pathlib import Path
-from typing import List
+from typing import Generator, List, Optional, Tuple
 
 from pydantic import BaseModel
 from zavod.context import Context
@@ -21,6 +21,8 @@ PROP_TO_FIELD = {
     "abbreviation": "abbreviation",
 }
 
+NamesValue = str | List[str] | None
+
 
 class RawNames(BaseModel):
     """Name strings and schema supplied to the LLM for cleaning and categorisation"""
@@ -29,14 +31,51 @@ class RawNames(BaseModel):
     strings: List[str]
 
 
-class CleanNames(BaseModel):
+def is_empty_string(text: Optional[str]) -> bool:
+    if text is None:
+        return True
+    if isinstance(text, str):
+        text = text.strip()
+        return len(text) == 0
+    return False
+
+
+class Names(BaseModel):
     """Names categorised and cleaned of non-name characters."""
 
-    full_name: List[str] = []
-    alias: List[str] = []
-    weak_alias: List[str] = []
-    previous_name: List[str] = []
-    abbreviation: List[str] = []
+    name: NamesValue = None
+    alias: NamesValue = None
+    weakAlias: NamesValue = None
+    previousName: NamesValue = None
+    abbreviation: NamesValue = None
+    firstName: NamesValue = None
+    middleName: NamesValue = None
+    lastName: NamesValue = None
+
+    def is_empty(self) -> bool:
+        return all(
+            (
+                value is None
+                or (isinstance(value, str) and is_empty_string(value))
+                or (isinstance(value, list) and all(is_empty_string(v) for v in value))
+            )
+            for value in self.model_dump().values()
+        )
+
+    def item_lists(self) -> Generator[Tuple[str, List[str]], None, None]:
+        for key, value in self.model_dump().items():
+            if value is None:
+                continue
+            if isinstance(value, str):
+                yield key, [value]
+            if isinstance(value, list):
+                yield key, value
+
+    def simplify(self) -> "Names":
+        """Simplify the names by converting single-item lists to strings."""
+        for key, value in self.model_dump().items():
+            if isinstance(value, list) and len(value) == 1:
+                self.__setattr__(key, value[0])
 
 
 class DSPySignature(BaseModel):
@@ -55,7 +94,7 @@ def load_single_entity_prompt() -> str:
     return prompt
 
 
-def clean_names(context: Context, raw_names: RawNames) -> CleanNames:
+def clean_names(context: Context, raw_names: RawNames) -> Names:
     """Use an LLM to clean and categorise names."""
     prompt = load_single_entity_prompt()
     return run_typed_text_prompt(
@@ -63,6 +102,6 @@ def clean_names(context: Context, raw_names: RawNames) -> CleanNames:
         prompt=prompt,
         string="The entity schema and name strings as JSON:\n\n"
         + raw_names.model_dump_json(),
-        response_type=CleanNames,
+        response_type=Names,
         model=LLM_MODEL_VERSION,
     )
