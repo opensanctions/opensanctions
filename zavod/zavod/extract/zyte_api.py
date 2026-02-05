@@ -64,6 +64,9 @@ def fetch_resource(
     expected_media_type: Optional[str] = None,
     expected_charset: Optional[str] = None,
     geolocation: Optional[str] = None,
+    method: Optional[str] = None,
+    body: Optional[bytes] = None,
+    headers: Optional[Dict[str, str]] = None,
 ) -> Tuple[bool, str | None, str | None, Path]:
     """
     Fetch a resource using Zyte API and save to filesystem.
@@ -100,10 +103,22 @@ def fetch_resource(
         raise RuntimeError("OPENSANCTIONS_ZYTE_API_KEY is not set")
 
     context.log.info("Fetching file", url=url)
+    # This repeats a lot of what's in fetch(), but fetch() focuses on decoding either
+    # a text response or a base64-encoded response to text, whereas here we want to
+    # save the raw bytes to a file. Letting fetch cover both cases seems more complex than
+    # just constructing the right request here.
     zyte_data: Dict[str, Any] = {
         "httpResponseBody": True,
         "httpResponseHeaders": True,
     }
+    if method is not None:
+        zyte_data["httpRequestMethod"] = method
+    if body is not None:
+        zyte_data["httpRequestBody"] = b64encode(body).decode("utf-8")
+    if headers is not None:
+        zyte_data["customHttpRequestHeaders"] = [
+            {"name": k, "value": v} for k, v in headers.items()
+        ]
     if geolocation is not None:
         zyte_data["geolocation"] = geolocation
     context.log.debug(f"Zyte API request: {url}", data=zyte_data)
