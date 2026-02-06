@@ -52,7 +52,7 @@ def crawl_person(context: Context, worksheet: Worksheet) -> None:
         person.add("nationality", row.pop("nationality"))
         h.apply_date(person, "birthDate", birth_date)
         person.add("birthPlace", row.pop("birth_place"))
-        person.add("description", row.pop("description"))
+        person.add("notes", row.pop("description"))
         names = row.pop("first_and_surname")
         if names:
             person.add("alias", names.split("،"))
