@@ -1,6 +1,6 @@
 from functools import cache
 from pathlib import Path
-from typing import Generator, List, Optional, Tuple
+from typing import Any, Generator, List, Optional, Tuple
 
 from pydantic import BaseModel, JsonValue
 from zavod.context import Context
@@ -8,7 +8,10 @@ from zavod.extract.llm import run_typed_text_prompt
 
 LLM_MODEL_VERSION = "gpt-4o"
 SINGLE_ENTITY_PROGRAM_PATH = Path(__file__).parent / "dspy/single_entity_program.json"
-
+# Properties that shouldn't be shown to the reviewer if they are empty,
+# so that they aren't tempted into populating them unless they had a value in the
+# original extraction.
+EXCLUDE_IF_EMPTY = {"previousName", "firstName", "middleName", "lastName"}
 
 NamesValue = str | List[str] | None
 
@@ -34,6 +37,24 @@ class Names(BaseModel):
     middleName: NamesValue = None
     lastName: NamesValue = None
 
+    def _is_blank_value(self, value: NamesValue) -> bool:
+        """Check if a value is blank (None, empty string, or empty list)."""
+        if value is None:
+            return True
+        if isinstance(value, str):
+            return is_empty_string(value)
+        if isinstance(value, list):
+            return len(value) == 0 or all(is_empty_string(v) for v in value)
+        return False
+
+    def model_dump(self, **kwargs: Any) -> dict[str, Any]:
+        result = super().model_dump(**kwargs)
+        return {
+            key: value
+            for key, value in result.items()
+            if key not in EXCLUDE_IF_EMPTY or not self._is_blank_value(value)
+        }
+
     def is_empty(self) -> bool:
         for prop, names in self.nonempty_item_lists():
             return False
@@ -52,11 +73,15 @@ class Names(BaseModel):
                     yield key, nonempty_values
 
     def simplify(self) -> "Names":
-        """Simplify the names by converting single-item lists to strings.
+        """Get a copy where single-item lists are replaced by just the single item.
         This is useful for formatting for human editing in reviews."""
-        for key, value in self.model_dump().items():
+        data = {}
+        for key, value in self.model_copy(deep=True).model_dump().items():
             if isinstance(value, list) and len(value) == 1:
-                self.__setattr__(key, value[0])
+                data[key] = value[0]
+            else:
+                data[key] = value
+        return Names(**data)
 
 
 class SourceNames(BaseModel):
