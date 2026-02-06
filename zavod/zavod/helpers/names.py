@@ -4,7 +4,7 @@ from typing import List, Optional, cast
 from followthemoney.util import join_text
 from normality import squash_spaces
 from rigour.data.names.data import NAME_SPLITTERS
-from rigour.names.check import is_nullword
+from rigour.text.stopwords import is_nullword
 
 from zavod import settings
 from zavod.context import Context
