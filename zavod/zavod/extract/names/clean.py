@@ -2,33 +2,15 @@ from functools import cache
 from pathlib import Path
 from typing import Generator, List, Optional, Tuple
 
-from pydantic import BaseModel
+from pydantic import BaseModel, JsonValue
 from zavod.context import Context
 from zavod.extract.llm import run_typed_text_prompt
 
 LLM_MODEL_VERSION = "gpt-4o"
 SINGLE_ENTITY_PROGRAM_PATH = Path(__file__).parent / "dspy/single_entity_program.json"
-# TODO: try and improve on this
-# The idea was that these are fields, because the crawler can decide whether full_name
-# goes to the `name` or the `alias` property based on whether the value comes from a
-# full name or an alias field. But maybe that's as much a suggestion as the irregularity
-# check is.
-PROP_TO_FIELD = {
-    "name": "full_name",
-    "alias": "alias",
-    "weakAlias": "weak_alias",
-    "previousName": "previous_name",
-    "abbreviation": "abbreviation",
-}
+
 
 NamesValue = str | List[str] | None
-
-
-class RawNames(BaseModel):
-    """Name strings and schema supplied to the LLM for cleaning and categorisation"""
-
-    entity_schema: str
-    strings: List[str]
 
 
 def is_empty_string(text: Optional[str]) -> bool:
@@ -53,29 +35,50 @@ class Names(BaseModel):
     lastName: NamesValue = None
 
     def is_empty(self) -> bool:
-        return all(
-            (
-                value is None
-                or (isinstance(value, str) and is_empty_string(value))
-                or (isinstance(value, list) and all(is_empty_string(v) for v in value))
-            )
-            for value in self.model_dump().values()
-        )
+        for prop, names in self.nonempty_item_lists():
+            return False
+        return True
 
-    def item_lists(self) -> Generator[Tuple[str, List[str]], None, None]:
+    def nonempty_item_lists(self) -> Generator[Tuple[str, List[str]], None, None]:
         for key, value in self.model_dump().items():
             if value is None:
                 continue
             if isinstance(value, str):
-                yield key, [value]
+                if not is_empty_string(value):
+                    yield key, [value]
             if isinstance(value, list):
-                yield key, value
+                nonempty_values = [v for v in value if not is_empty_string(v)]
+                if nonempty_values:
+                    yield key, nonempty_values
 
     def simplify(self) -> "Names":
-        """Simplify the names by converting single-item lists to strings."""
+        """Simplify the names by converting single-item lists to strings.
+        This is useful for formatting for human editing in reviews."""
         for key, value in self.model_dump().items():
             if isinstance(value, list) and len(value) == 1:
                 self.__setattr__(key, value[0])
+
+
+class SourceNames(BaseModel):
+    """Name strings and schema supplied to the LLM for cleaning and categorisation"""
+
+    entity_schema: str
+    original: Names
+    suggested: Optional[Names] = None
+
+    def nonempty_values_dict(self) -> JsonValue:
+        """Return a dictionary of non-empty name values."""
+        result = {"entity_schema": self.entity_schema}
+        for prop, names in self.original.nonempty_item_lists():
+            nonempty_names = [name for name in names if not is_empty_string(name)]
+            if nonempty_names:
+                result[prop] = nonempty_names
+        if self.suggested is not None:
+            for prop, names in self.suggested.nonempty_item_lists():
+                nonempty_names = [name for name in names if not is_empty_string(name)]
+                if nonempty_names:
+                    result[prop] = nonempty_names
+        return result
 
 
 class DSPySignature(BaseModel):
@@ -94,7 +97,7 @@ def load_single_entity_prompt() -> str:
     return prompt
 
 
-def clean_names(context: Context, raw_names: RawNames) -> Names:
+def clean_names(context: Context, raw_names: SourceNames) -> Names:
     """Use an LLM to clean and categorise names."""
     prompt = load_single_entity_prompt()
     return run_typed_text_prompt(

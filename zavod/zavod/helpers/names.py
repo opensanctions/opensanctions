@@ -1,6 +1,7 @@
+from collections import defaultdict
 from dataclasses import dataclass
 import re
-from typing import List, Optional, cast
+from typing import Dict, List, Optional, cast
 
 from followthemoney.util import join_text
 from normality import squash_spaces
@@ -13,8 +14,9 @@ from zavod.context import Context
 from zavod.entity import Entity
 from zavod.extract.names.clean import (
     LLM_MODEL_VERSION,
-    RawNames,
+    SourceNames,
     Names,
+    is_empty_string,
 )
 
 # alias clean_names so that it could be imported from here
@@ -316,6 +318,25 @@ def is_name_irregular(entity: Entity, string: Optional[str]) -> bool:
     return check_name_regularity(entity, string).is_irregular
 
 
+def check_names_regularity(entity: Entity, names: Names) -> Optional[Names]:
+    is_irregular = False
+    updated_suggested_data = defaultdict(list)
+    for key, strings in names.nonempty_item_lists():
+        for string in strings:
+            regularity = check_name_regularity(entity, string)
+            if regularity.is_irregular:
+                is_irregular = True
+            if regularity.suggested_prop is not None:
+                updated_suggested_data[regularity.suggested_prop].append(string)
+            else:
+                updated_suggested_data[key].append(string)
+    updated_suggested = Names(**updated_suggested_data)
+    if is_irregular:
+        return updated_suggested
+    else:
+        return None
+
+
 def apply_names(
     entity: Entity,
     string: str,
@@ -360,42 +381,83 @@ def apply_names(
 def _review_names(
     context: Context,
     entity: Entity,
-    suggested: Names,
-    enable_llm_cleaning: bool,
+    original: Names,
+    suggested: Optional[Names] = None,
+    enable_llm_cleaning: bool = False,
 ) -> Review[Names]:
-    strings = []
-    for _prop, strings in suggested.item_lists():
-        for string in strings:
-            if string not in strings:
-                strings.append(string)
-
-    raw_names = RawNames(entity_schema=entity.schema.name, strings=strings)
+    source_names = SourceNames(
+        entity_schema=entity.schema.name, original=original, suggested=suggested
+    )
     if enable_llm_cleaning:
-        suggested = clean_names(context, raw_names)
+        suggested = clean_names(context, source_names)
         origin = LLM_MODEL_VERSION
     else:
         origin = "analyst"
 
+    # Only use the nonempty Names and props so that adding props in future
+    # doesn't change the key unless they're actually populated.
+    key_parts = [entity.schema.name]
+    for prop, strings in original.nonempty_item_lists():
+        key_parts.append(prop)
+        key_parts.extend(strings)
+    if suggested is not None:
+        key_parts.append("suggested")
+        for prop, strings in suggested.nonempty_item_lists():
+            key_parts.append(prop)
+            key_parts.extend(strings)
+
     source_value = JSONSourceValue(
-        key_parts=[entity.schema.name] + strings,
+        key_parts=key_parts,
         label="names",
-        data=raw_names.model_dump(),
+        data=source_names.nonempty_values_dict(),
     )
     review = review_extraction(
         context,
         source_value=source_value,
-        original_extraction=suggested,
+        original_extraction=suggested or original,
         origin=origin,
     )
     review.link_entity(context, entity)
     return review
 
 
+PROPS_TO_APPLY_ARGS = {
+    "name": "full",
+    "alias": "alias",
+}
+
+
+def names_to_apply_args(names: Names) -> Dict[str, List[str]]:
+    args = {}
+    for prop, names in names.nonempty_item_lists():
+        args[prop] = names
+    return args
+
+
+# This is for the general case where a crawler will rely on zavod cleaning, and
+# this is the round of reviews before it's all accepted and we start calling
+# apply_reviewed_name_string
+def review_name_string(
+    context: Context,
+    entity: Entity,
+    string: Optional[str],
+    original_prop: Optional[str] = "name",
+    enable_llm_cleaning: bool = False,
+) -> Optional[Review[Names]]:
+    original = Names(**{original_prop: string})
+    return review_names(
+        context,
+        entity,
+        original,
+        enable_llm_cleaning=enable_llm_cleaning,
+    )
+
+
 def review_names(
     context: Context,
     entity: Entity,
     original: Names,
-    suggested: Names,
+    suggested: Optional[Names] = None,
     enable_llm_cleaning: bool = False,
 ) -> Optional[Review[Names]]:
     """
@@ -410,27 +472,30 @@ def review_names(
             categorisation where the source dataset might have adjusted the categorisation
             based on heuristics specific to that dataset.
         enable_llm_cleaning: Whether to use LLM-based name cleaning.
+        apply: Whether to apply the names to the entity.
     """
-    if suggested.is_empty():
+    if original.is_empty():
         return None
 
-    is_irregular = False
-    new_suggested = Names()
-    for key, strings in suggested.item_lists():
-        for string in strings:
-            regularity = check_name_regularity(entity, string)
-            if regularity.is_irregular:
-                is_irregular = True
-            if regularity.suggested_prop is not None:
-                new_suggested.__setattr__(regularity.suggested_prop, string)
+    # heuristic-based review
+    _suggested = original if suggested is None else suggested
+    updated_suggested = check_names_regularity(entity, _suggested)
+    is_irregular = updated_suggested is not None
+
+    if updated_suggested == original:
+        suggested = None
+    else:
+        suggested = updated_suggested
 
     if settings.CI or not is_irregular:
         return None
 
+    # human and optionally LLM-based review
     return _review_names(
         context,
         entity,
-        new_suggested,
+        original,
+        suggested,
         enable_llm_cleaning,
     )
 
@@ -440,7 +505,7 @@ def apply_reviewed_names(
     entity: Entity,
     string: Optional[str],
     lang: Optional[str] = None,
-    alias: bool = False,
+    suggested_prop: str = "name",
     enable_llm_cleaning: bool = False,
 ) -> None:
     """
@@ -456,15 +521,15 @@ def apply_reviewed_names(
         entity: The entity to apply names to.
         string: The raw name(s) string.
         lang: The language of the name, if known.
-        alias: If this is known to be an alias and not a primary name.
+        suggested_prop: The suggested property for the name.
         enable_llm_cleaning: Whether to use LLM-based name cleaning.
     """
-    if not string or not string.strip():
+    if is_empty_string(string):
         return None
 
     name_regularity = check_name_regularity(entity, string)
     if settings.CI or not name_regularity.is_irregular:
-        apply_name(entity, full=string, alias=alias, lang=lang)
+        apply_name(entity, full=string, lang=lang, **{suggested_prop: string})
         return None
 
     review = _review_names(
@@ -474,9 +539,5 @@ def apply_reviewed_names(
         enable_llm_cleaning=enable_llm_cleaning,
         suggested_prop=name_regularity.suggested_prop,
     )
-
-    if review.extracted_data.full_name and alias:
-        print("crawler says alias but review says full_name: ", string)
-        print(review.extracted_data)
 
     apply_names(entity, string, review, alias=alias, lang=lang)
