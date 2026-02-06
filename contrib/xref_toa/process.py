@@ -37,6 +37,7 @@ Consider the following guidelines when making your decision:
 
 * Two entities occurring in the same data source make a match less likely. Some sources have many duplicates, e.g. 
   `ua_nsdc_sanctions` (Person only), `us_cia_world_leaders` (Person only), `us_sam_exclusions` (poor quality overall).
+  `ann_pep_positions` and `ann_graph_topics` are not subject to this rule.
 * Name properties like `name`, `alias`, `previousName` can cross-match.
 * Country properties like `country`, `jurisdiction`, `citizenship`, `nationality` can cross-match.
 * Precise properties (eg. `ogrnCode`, `innCode`) can match more generic properties (eg. `registrationNumber`, 'taxNumber`).
@@ -53,9 +54,10 @@ Consider the following guidelines when making your decision:
 * Data entry is often inconsistent, so minor differences in names or other properties do not necessarily indicate
   different entities. Birth dates can get severely mangled.
 * Consider name frequency in the population (or in the context of the countries identified).
-* Political positions from different countries MUST NOT be merged, even if they have the same title.
+* Political positions from different countries MUST NOT be merged, even if they have the same title. If a Position has
+  no country property, only merge it with other positions if the name is specific (e.g. "President of the United States").
 * Politicial positions where one is a bundle of posts ("Prime Minister and Minister of Foreign Affairs") and the
-  other is a single post ("Prime Minister") MUST NOT be merged.
+  other is a single post ("Prime Minister") MUST NOT be merged. Be precise when matching political positions.
 * In contested territories (e.g. Crimea, Donetsk, Luhansk), country properties are less reliable.
 * Many profiles in Wikidata (IDs starting with Q) describe people not linked to politics and sanctions. Wikidata profiles
   mentioning "research" are bulk-uploaded authors of scientific papers.
@@ -100,6 +102,7 @@ def decide_pair(resolver: Resolver, left: Entity, right: Entity, score: float) -
     print("\n\n=== DECIDING PAIR ===")
     print(f"Left entity [{left.id}]: {left.caption} {left.datasets!r}")
     print(f"Right entity [{right.id}]: {right.caption} {right.datasets!r}")
+    print(f"Score: {score}")
 
     response = client.messages.create(
         model="claude-opus-4-6",
@@ -143,8 +146,8 @@ def auto_resolve(dataset: Dataset) -> None:
             log.info(f"Processed {decisions} decisions...")
             resolver.commit()
             resolver.begin()
-        if score is not None and score > 0.3:
-            continue
+        # if score is not None and score > 0.3:
+        #     continue
         try:
             log.info(f"Resolving pair: {left_id} - {right_id} (score: {score})")
             left_id = resolver.get_canonical(left_id)
@@ -178,6 +181,6 @@ def auto_resolve(dataset: Dataset) -> None:
 if __name__ == "__main__":
     configure_logging()
     page = client.models.list()
-    sources = ["sanctions"]
+    sources = ["peps"]
     dataset = get_multi_dataset(sources)
     auto_resolve(dataset)
