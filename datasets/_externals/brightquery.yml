@@ -69,7 +69,7 @@ config:
   type: nomenklatura.enrich.brightquery:BrightQueryEnricher
   username: ${BRIGHTQUERY_USERNAME}
   password: ${BRIGHTQUERY_PASSWORD}
-  cache_days: 60
+  cache_days: 100
   schemata:
     - Company
     - Organization
