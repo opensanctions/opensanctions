@@ -53,7 +53,7 @@ def clean_date(date: str) -> list[str]:
         " ,",
         ",\xa0",
         "\xa0",
-        " ",
+        # " ",
     ]
     dates = []
     date_str = str(date).lower()
