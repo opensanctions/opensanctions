@@ -411,10 +411,13 @@ def _review_names(
         label="names",
         data=source_names.nonempty_values_dict(),
     )
+    original_extraction = suggested or original
+    original_extraction = original_extraction.model_copy(deep=True)
+    original_extraction.simplify()
     review = review_extraction(
         context,
         source_value=source_value,
-        original_extraction=suggested or original,
+        original_extraction=original_extraction,
         origin=origin,
     )
     review.link_entity(context, entity)
