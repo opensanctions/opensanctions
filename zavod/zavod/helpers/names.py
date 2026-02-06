@@ -3,7 +3,7 @@ from typing import List, Optional, cast
 
 from followthemoney.util import join_text
 from normality import squash_spaces
-from rigour.data.names.data import STOPPHRASES
+from rigour.data.names.data import NAME_SPLITTERS
 from rigour.names.check import is_nullword
 
 from zavod import settings
@@ -29,7 +29,7 @@ REGEX_CLEAN_COMMA = re.compile(
     r", \b(LLC|L\.L\.C|Inc|Jr|INC|L\.P|LP|Sr|III|II|IV|S\.A|LTD|USA INC|\(?A/K/A|\(?N\.K\.A|\(?N/K/A|\(?F\.K\.A|formerly known as|INCORPORATED)\b",  # noqa
     re.I,
 )
-KNOWN_AS_PATTERNS = [re.escape(phrase) for phrase in STOPPHRASES]
+KNOWN_AS_PATTERNS = [re.escape(phrase) for phrase in NAME_SPLITTERS]
 PATTERN_KNOWN_AS = rf"(\b({'|'.join(KNOWN_AS_PATTERNS)})\b)"
 REGEX_KNOWN_AS = re.compile(PATTERN_KNOWN_AS, re.I)
 
