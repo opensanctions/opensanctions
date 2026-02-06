@@ -326,10 +326,10 @@ def check_names_regularity(entity: Entity, names: Names) -> Optional[Names]:
             regularity = check_name_regularity(entity, string)
             if regularity.is_irregular:
                 is_irregular = True
-            if regularity.suggested_prop is not None:
-                updated_suggested_data[regularity.suggested_prop].append(string)
-            else:
+            if regularity.suggested_prop is None:
                 updated_suggested_data[key].append(string)
+            else:
+                updated_suggested_data[regularity.suggested_prop].append(string)
     updated_suggested = Names(**updated_suggested_data)
     if is_irregular:
         return updated_suggested

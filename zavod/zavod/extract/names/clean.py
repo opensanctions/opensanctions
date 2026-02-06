@@ -72,12 +72,16 @@ class SourceNames(BaseModel):
         for prop, names in self.original.nonempty_item_lists():
             nonempty_names = [name for name in names if not is_empty_string(name)]
             if nonempty_names:
-                result[prop] = nonempty_names
+                if "original" not in result:
+                    result["original"] = {}
+                result["original"][prop] = nonempty_names
         if self.suggested is not None:
             for prop, names in self.suggested.nonempty_item_lists():
                 nonempty_names = [name for name in names if not is_empty_string(name)]
                 if nonempty_names:
-                    result[prop] = nonempty_names
+                    if "suggested" not in result:
+                        result["suggested"] = {}
+                    result["suggested"][prop] = nonempty_names
         return result
 
 
