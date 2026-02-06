@@ -56,7 +56,9 @@ lookups:
         value: null
   type.address:
     options:
-      - match: "'"
+      - match:
+          - "'"
+          - "."
         value: null
   type.string:
     options:
