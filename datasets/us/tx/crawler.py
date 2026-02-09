@@ -6,6 +6,7 @@ import xlrd
 from zavod import Context, helpers as h
 from zavod.extract import zyte_api
 from rigour.mime.types import XLS
+from rigour.data.names.data import STOPPHRASES
 
 
 def crawl_row(drow: Dict[str, Any], context: Context, wb: xlrd.book.Book) -> None:
@@ -38,6 +39,11 @@ def crawl_row(drow: Dict[str, Any], context: Context, wb: xlrd.book.Book) -> Non
         entity.id = context.make_id(company_name, npi)
         entity.add("name", company_name)
         entity.add("description", occupation)
+
+        if any(phrase in company_name for phrase in STOPPHRASES):
+            res = context.lookup("aliases", company_name, warn_unmatched=True)
+            aliases = res.aliases if res else []
+            entity.add("alias", aliases)
 
     entity.add("idNumber", license_number)
     entity.add("npiCode", npi)

@@ -60,3 +60,68 @@ lookups:
           - 1225533057
           - 118771347
         prop: registrationNumber
+  aliases:
+    options:
+      - match: Pro Medic EMS, LLC dba Pro Medic EMS, LLC
+        aliases:
+          - Pro Medic EMS, LLC
+      - match: Executive Healthcare, LLC d/b/a The Apothecary Sho
+        aliases:
+          - Executive Healthcare, LLC
+          - The Apothecary Sho
+      - match: ERX Consultants LLC, dba Zoetic Pharmacy
+        aliases:
+          - ERX Consultants LLC
+          - Zoetic Pharmacy
+      - match: Ukie Emergency Medical Services, Inc. d/b/a Ukie E
+        aliases:
+          - Ukie Emergency Medical Services, Inc
+          - Ukie E
+      - match: Maxim Mossman PLLC dba Amigos Dental
+        aliases:
+          - Maxim Mossman PLLC
+          - Amigos Dental
+      - match: Sechanz Enterprises Inc. d/b/a Hovic Pharmacy and
+        aliases:
+          - Sechanz Enterprises Inc
+          - Hovic Pharmacy
+      - match: MossPrime Dental PLLC dba North Arlington Smiles
+        aliases:
+          - MossPrime Dental PLLC
+          - North Arlington Smiles
+      - match: RightChoice Dental, PLLC dba The Dental House
+        aliases:
+          - RightChoice Dental, PLLC
+          - The Dental House
+      - match: Mossman Dental, PLLC dba The Dental  Park
+        aliases:
+          - Mossman Dental, PLLC
+          - The Dental Park
+      - match: Pharmplex LTD III dba Penitas Family Pharmacy
+        aliases:
+          - Pharmplex LTD III
+          - Penitas Family Pharmacy
+      - match: Western Dental dba West Texas Dental
+        aliases:
+          - Western Dental
+          - West Texas Dental
+      - match: M Ayman Ghraowi, MD PA dba South Texas Comprehensi
+        aliases:
+          - M Ayman Ghraowi, MD PA
+          - South Texas Comprehensi
+      - match: Southwest Medical Consultants Inc. d/b/a Los Ninos
+        aliases:
+          - Southwest Medical Consultants Inc
+          - Los Ninos
+      - match: Acosta Medical Supply, Inc. dba Affordab
+        aliases:
+          - Acosta Medical Supply, Inc
+          - Affordab
+      - match: Family Healthcare, Inc d/b/a Unique Medical & Reha
+        alises:
+          - Family Healthcare, Inc
+          - Unique Medical & Reha
+      - match: SCZ Investments, LLC d/b/a Rotunda Pharmacy
+        aliases:
+          - SCZ Investments, LLC
+          - Rotunda Pharmacy
