@@ -2,7 +2,7 @@ from rigour.data.names.data import STOPPHRASES
 
 from zavod import Context, helpers as h
 
-CUSTOM_STOPPHRASES = STOPPHRASES + (",", ";", "\n")
+CUSTOM_STOPPHRASES = [phrase.casefold() for phrase in STOPPHRASES + (",", ";", "\n")]
 SUFFIXES = [
     ", III.",
     ", Inc.",
@@ -82,7 +82,7 @@ def crawl(context: Context) -> None:
         for suffix in SUFFIXES:
             cleaned_name = cleaned_name.removesuffix(suffix)
         # Check if the name contains delimiters indicating multiple entities (commas, semicolons, "and", etc.)
-        if any(char in cleaned_name for char in CUSTOM_STOPPHRASES):
+        if any(phrase in cleaned_name for phrase in CUSTOM_STOPPHRASES):
             res = context.lookup("comma_names", case_name, warn_unmatched=True)
             if res and res.entities:
                 # When parsing comma-separated strings with multiple entities, the lookup
