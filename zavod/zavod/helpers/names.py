@@ -380,8 +380,8 @@ def _review_names(
     else:
         origin = "analyst"
 
-    # Only use the non-empty Names and props so that adding props in future
-    # doesn't change the key unless they're actually populated.
+    # Only use the non-empty Names and props in the key so that adding props in
+    # future doesn't change the key unless they're actually populated.
     key_parts = [entity.schema.name]
     for prop, strings in original.nonempty_item_lists():
         key_parts.append(prop)
@@ -436,14 +436,17 @@ def review_names(
     # heuristic-based review
     _suggested = original if suggested is None else suggested
     updated_suggested = check_names_regularity(entity, _suggested)
-    is_irregular = updated_suggested is not None
+    is_irregular = original != _suggested or updated_suggested is not None
 
     if updated_suggested == original:
         suggested = None
     else:
         suggested = updated_suggested
 
-    if settings.CI or not is_irregular:
+    if settings.CI:
+        return None
+    # If some name is irregular, or suggested differs from original, then review.
+    if not is_irregular and original == suggested:
         return None
 
     # human and optionally LLM-based review
@@ -456,46 +459,6 @@ def review_names(
     )
 
 
-def apply_reviewed_name_string(
-    context: Context,
-    entity: Entity,
-    string: Optional[str],
-    original_prop: str = "name",
-    lang: Optional[str] = None,
-    enable_llm_cleaning: bool = False,
-) -> None:
-    """
-    Clean names if needed, then post them for review.
-    Cleaned names are applied to an entity if accepted, falling back
-    to applying the original string as the name or alias if not.
-
-    Also falls back to applying the original string if the CI environment
-    variable is truthy, so that crawlers using this can run in CI.
-
-    Args:
-        context: The current context.
-        entity: The entity to apply names to.
-        string: The raw name(s) string.
-        original_prop: The original property for the name according to the data source.
-        lang: The language of the name, if known.
-        enable_llm_cleaning: Whether to use LLM-based name cleaning.
-    """
-    if is_empty_string(string):
-        return None
-
-    original = Names(**{original_prop: string})
-
-    apply_reviewed_names(
-        context,
-        entity,
-        original,
-        suggested=None,
-        lang=lang,
-        enable_llm_cleaning=enable_llm_cleaning,
-        original_value=string,
-    )
-
-
 def apply_reviewed_names(
     context: Context,
     entity: Entity,
@@ -505,6 +468,25 @@ def apply_reviewed_names(
     enable_llm_cleaning: bool = False,
     original_value: Optional[str] = None,
 ) -> None:
+    """
+    Clean the name(s) in the provided Names instance, then post them for review.
+    Cleaned names are applied to an entity if accepted, potentially to a different
+    properties from those used in 'original' if cleaning proposed an alternative
+    and accepted or modified in review.
+    
+    Unaccepted reviews result in the name being applied as per 'original'.
+
+    Also falls back to 'original_prop' with a warning if enable_llm_cleaning is True
+    but the LLM service is not configured.
+
+    Args:
+        context: The current context.
+        entity: The entity to apply names to.
+        original: The original string(s) and their categorisation according to the data source.
+        suggested: Optional suggestion of different categorisation of names.
+        lang: The language of the name, if known.
+        enable_llm_cleaning: Whether to use LLM-based name cleaning.
+    """
     review = review_names(
         context,
         entity,
@@ -527,4 +509,47 @@ def apply_reviewed_names(
         lang=lang,
         origin=review.origin,
         original_value=original_value,
+    )
+
+
+def apply_reviewed_name_string(
+    context: Context,
+    entity: Entity,
+    string: Optional[str],
+    original_prop: str = "name",
+    lang: Optional[str] = None,
+    enable_llm_cleaning: bool = False,
+) -> None:
+    """
+    Clean the name(s) in the provided string if needed, then post them for review.
+    Cleaned names are applied to an entity if accepted, potentially to a different
+    property from 'original_prop' if cleaning proposed an alternative and accepted
+    or modified in review.
+    
+    Unaccepted reviews result in the name being applied to 'original_prop'.
+
+    Also falls back to 'original_prop' with a warning if enable_llm_cleaning is True
+    but the LLM service is not configured.
+
+    Args:
+        context: The current context.
+        entity: The entity to apply names to.
+        string: The raw name(s) string.
+        original_prop: The original property for the name according to the data source.
+        lang: The language of the name, if known.
+        enable_llm_cleaning: Whether to use LLM-based name cleaning.
+    """
+    if is_empty_string(string):
+        return None
+
+    original = Names(**{original_prop: string})
+
+    apply_reviewed_names(
+        context,
+        entity,
+        original,
+        suggested=None,
+        lang=lang,
+        enable_llm_cleaning=enable_llm_cleaning,
+        original_value=string,
     )

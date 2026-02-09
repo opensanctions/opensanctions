@@ -78,6 +78,7 @@ from zavod.helpers.html import (
 from zavod.helpers.identification import make_identification
 from zavod.helpers.names import (
     apply_name,
+    apply_names,
     apply_reviewed_names,
     apply_reviewed_name_string,
     review_names,
@@ -131,6 +132,7 @@ __all__ = [
     "remove_namespace",
     "make_name",
     "apply_name",
+    "apply_names",
     "make_position",
     "make_occupancy",
     "element_text",
