@@ -33,9 +33,11 @@ class Names(BaseModel):
     weakAlias: NamesValue = None
     previousName: NamesValue = None
     abbreviation: NamesValue = None
-    firstName: NamesValue = None
-    middleName: NamesValue = None
-    lastName: NamesValue = None
+    # TODO: Before adding name parts, we should consider whether we should
+    # add them directly or construct a full name with them via h.apply_name.
+    # firstName: NamesValue = None
+    # middleName: NamesValue = None
+    # lastName: NamesValue = None
 
     def _is_blank_value(self, value: NamesValue) -> bool:
         """Check if a value is blank (None, empty string, or empty list)."""

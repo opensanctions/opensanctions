@@ -339,10 +339,9 @@ def check_names_regularity(entity: Entity, names: Names) -> Optional[Names]:
 
 def apply_names(
     entity: Entity,
-    string: str,
-    review: Review[Names],
-    alias: bool = False,
+    names: Names,
     lang: Optional[str] = None,
+    original_value: Optional[str] = None,
 ) -> None:
     """
     Apply a names string to an entity.
@@ -352,30 +351,19 @@ def apply_names(
 
     Args:
         entity: The entity to apply names to.
-        string: The raw name(s) string.
+        original: The fallback names to use if the review is not accepted.
         review: The data review containing the cleaned name(s).
-        alias: If true, puts names destined for the name property in 'alias' instead. This is useful e.g. when the source dataset indicates that the field is an alias.
     """
-    # TODO: consolidate with PROP_TO_FIELD in clean.py
-    field_props = [
-        ("full_name", "alias" if alias else "name"),
-        ("alias", "alias"),
-        ("weak_alias", "weakAlias"),
-        ("previous_name", "previousName"),
-    ]
-    if not review.accepted:
-        apply_name(entity, full=string, alias=alias, lang=lang)
-        return
 
-    for field_name, prop in field_props:
-        for name in getattr(review.extracted_data, field_name):
-            entity.add(
-                prop,
-                name,
-                lang=lang,
-                origin=review.origin,
-                original_value=string,
-            )
+    names_data = names.nonempty_item_lists()
+    for prop, name_values in names_data:
+        entity.add(
+            prop,
+            name_values,
+            lang=lang,
+            origin=names,
+            original_value=original_value,
+        )
 
 
 def _review_names(
@@ -394,7 +382,7 @@ def _review_names(
     else:
         origin = "analyst"
 
-    # Only use the nonempty Names and props so that adding props in future
+    # Only use the non-empty Names and props so that adding props in future
     # doesn't change the key unless they're actually populated.
     key_parts = [entity.schema.name]
     for prop, strings in original.nonempty_item_lists():
@@ -421,38 +409,6 @@ def _review_names(
     )
     review.link_entity(context, entity)
     return review
-
-
-PROPS_TO_APPLY_ARGS = {
-    "name": "full",
-    "alias": "alias",
-}
-
-
-def names_to_apply_args(names: Names) -> Dict[str, List[str]]:
-    args = {}
-    for prop, names in names.nonempty_item_lists():
-        args[prop] = names
-    return args
-
-
-# This is for the general case where a crawler will rely on zavod cleaning, and
-# this is the round of reviews before it's all accepted and we start calling
-# apply_reviewed_name_string
-def review_name_string(
-    context: Context,
-    entity: Entity,
-    string: Optional[str],
-    original_prop: Optional[str] = "name",
-    enable_llm_cleaning: bool = False,
-) -> Optional[Review[Names]]:
-    original = Names(**{original_prop: string})
-    return review_names(
-        context,
-        entity,
-        original,
-        enable_llm_cleaning=enable_llm_cleaning,
-    )
 
 
 def review_names(
@@ -502,12 +458,12 @@ def review_names(
     )
 
 
-def apply_reviewed_names(
+def apply_reviewed_name_string(
     context: Context,
     entity: Entity,
     string: Optional[str],
+    original_prop: str = "name",
     lang: Optional[str] = None,
-    suggested_prop: str = "name",
     enable_llm_cleaning: bool = False,
 ) -> None:
     """
@@ -522,24 +478,49 @@ def apply_reviewed_names(
         context: The current context.
         entity: The entity to apply names to.
         string: The raw name(s) string.
+        original_prop: The original property for the name according to the data source.
         lang: The language of the name, if known.
-        suggested_prop: The suggested property for the name.
         enable_llm_cleaning: Whether to use LLM-based name cleaning.
     """
     if is_empty_string(string):
         return None
 
-    name_regularity = check_name_regularity(entity, string)
-    if settings.CI or not name_regularity.is_irregular:
-        apply_name(entity, full=string, lang=lang, **{suggested_prop: string})
-        return None
+    original = Names(**{original_prop: string})
 
-    review = _review_names(
+    apply_reviewed_names(
         context,
         entity,
-        string,
+        original,
+        suggested=None,
+        lang=lang,
         enable_llm_cleaning=enable_llm_cleaning,
-        suggested_prop=name_regularity.suggested_prop,
+        original_value=string,
     )
 
-    apply_names(entity, string, review, alias=alias, lang=lang)
+
+def apply_reviewed_names(
+    context: Context,
+    entity: Entity,
+    original: Names,
+    suggested: Optional[Names] = None,
+    lang: Optional[str] = None,
+    enable_llm_cleaning: bool = False,
+    original_value: Optional[str] = None,
+) -> None:
+    review = review_names(
+        context,
+        entity,
+        original,
+        suggested,
+        enable_llm_cleaning=enable_llm_cleaning,
+    )
+
+    if review is None or not review.accepted:
+        apply_names(entity, names=original, lang=lang)
+        return
+
+    # TODO: What should we supply as original_value?
+    # The input to apply_reviewed_name_string is a simple string so it's easy.
+    # One dodgy option is review.extracted_data.model_dump_json().
+    # Perhaps we can do that only if original != review.extracted_data.
+    apply_names(entity, names=review.extracted_data, lang=lang, original_value=original_value)

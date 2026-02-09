@@ -79,7 +79,7 @@ from zavod.helpers.identification import make_identification
 from zavod.helpers.names import (
     apply_name,
     apply_reviewed_names,
-    review_name_string,
+    apply_reviewed_name_string,
     review_names,
     clean_names,
     make_name,
@@ -146,7 +146,7 @@ __all__ = [
     "split_comma_names",
     "is_name_irregular",
     "apply_reviewed_names",
-    "review_name_string",
+    "apply_reviewed_name_string",
     "review_names",
     "clean_names",
     "make_pdf_page_images",
