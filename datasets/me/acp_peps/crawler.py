@@ -2,7 +2,7 @@ import io
 import re
 from csv import DictReader
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 from zipfile import BadZipFile, ZipFile
 
 from zavod.shed.trans import (
@@ -21,7 +21,7 @@ POSITION_PROMPT = prompt = make_position_translation_prompt("cnr")
 
 def fetch_latest_filing(
     context: Context,
-    dates: List[Dict[str, object]],
+    dates: List[Dict[str, Any]],
 ) -> Tuple[Optional[str], Optional[Path]]:
     if not dates:
         return None, None
@@ -29,7 +29,9 @@ def fetch_latest_filing(
     # Iterate over all entries in reverse order
     for entry in reversed(dates):
         report_id = entry.get("stariIzvjestaj")
-        if report_id != -1:  # Check for the first valid report
+        if (
+            report_id is not None and report_id != -1
+        ):  # Check for the first valid report
             url = f"https://portal.antikorupcija.me:9343/acamPublic/izvestajDetailsCSV.json?izvestajId={report_id}"
             # Ensure ID is an int and not a path traversal attack
             filename = f"{int(report_id)}.zip"
@@ -151,7 +153,7 @@ def emit_affiliated_position(
     position = h.make_position(
         context,
         position_name,
-        country="ME",
+        country="me",
     )
     apply_translit_full_name(
         context, position, "cnr", position_name, TRANSLIT_OUTPUT, POSITION_PROMPT
@@ -219,8 +221,10 @@ def crawl_person(context: Context, person_data) -> bool:
         person = context.make("Person")
         # TODO(Leon Handreke): I think we should be passing *function_labels here,
         # but that would mean a re-key.
-        person.id = context.make_id(full_name, sorted(function_labels))
+        person.id = context.make_id(full_name, *sorted(function_labels))
         h.apply_name(person, full_name)
+
+    person.add("citizenship", "me")
 
     if function_rows:
         assert filing_date is not None
@@ -235,7 +239,7 @@ def crawl_person(context: Context, person_data) -> bool:
             )
     else:
         for label in function_labels:
-            position = h.make_position(context, label, country="ME")
+            position = h.make_position(context, label, country="me")
             categorisation = categorise(context, position, is_pep=True)
             if not categorisation.is_pep:
                 continue

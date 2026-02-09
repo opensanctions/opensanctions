@@ -20,7 +20,7 @@ publisher:
   name_en: Agency for Prevention of Corruption
   acronym: ACK
   description: |
-    Montenegro's Agency for Prevention of Corruption, tasked with preventing conflicts 
+    Montenegro's Agency for Prevention of Corruption, tasked with preventing conflicts
     of interest, monitoring integrity, and ensuring transparency in governance.
   url: https://www.antikorupcija.me/en/
   country: "me"
@@ -66,11 +66,20 @@ lookups:
         country: us
       - match: Makedonsko
         country: mk
+  type.address:
+    options:
+      # Map short address strings to bypass short address warnings
+      - match: Bar
+        value: Bar
+      - match: Bor
+        value: Bor
+      - match: Šas
+        value: Šas
   type.string:
     options:
       - match: "%"
         value: null
   type.date:
     options:
-      - match: '.'
+      - match: "."
         value: null
