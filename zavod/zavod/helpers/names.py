@@ -1,7 +1,7 @@
 from collections import defaultdict
 from dataclasses import dataclass
 import re
-from typing import Dict, List, Optional, cast
+from typing import List, Optional, cast
 
 from followthemoney.util import join_text
 from normality import squash_spaces
@@ -341,13 +341,11 @@ def apply_names(
     entity: Entity,
     names: Names,
     lang: Optional[str] = None,
+    origin: Optional[str] = None,
     original_value: Optional[str] = None,
 ) -> None:
     """
-    Apply a names string to an entity.
-
-    If the review is accepted, the properties in the reviewed extraction are used.
-    Otherwise the string is added as-is to the 'name' property by default.
+    Apply the given names to the entity in the indicated props.
 
     Args:
         entity: The entity to apply names to.
@@ -361,7 +359,7 @@ def apply_names(
             prop,
             name_values,
             lang=lang,
-            origin=names,
+            origin=origin,
             original_value=original_value,
         )
 
@@ -523,4 +521,10 @@ def apply_reviewed_names(
     # The input to apply_reviewed_name_string is a simple string so it's easy.
     # One dodgy option is review.extracted_data.model_dump_json().
     # Perhaps we can do that only if original != review.extracted_data.
-    apply_names(entity, names=review.extracted_data, lang=lang, original_value=original_value)
+    apply_names(
+        entity,
+        names=review.extracted_data,
+        lang=lang,
+        origin=review.origin,
+        original_value=original_value,
+    )
