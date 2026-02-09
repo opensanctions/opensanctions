@@ -23,77 +23,63 @@ DISSOLV_DATES = [
 # should we put this there ^: under_foreign_insolvency_proceedings_date ?
 
 
-def row_to_dict(row: List[str], headers: Dict[str, int]) -> Dict[str, Any]:
-    out: Dict[str, Any] = {}
-
-    for norm, col in headers.items():
-        value = row[col].strip()
-        if value is None or value == "":
-            continue
-        out[norm] = value
-    return out
-
-
 def get_oldest_date(dict_row: Dict[str, Any], keys_to_check: List[str]) -> str | None:
     """
     Get the oldest date value from keys to check, delete the rest.
     """
-    present = [k for k in keys_to_check if k in dict_row]
-    if not present:
-        return None
-
-    oldest = min(dict_row[k] for k in present)
-    for k in present:
-        del dict_row[k]
-    return str(oldest)
+    values = []
+    for k in keys_to_check:
+        v = dict_row.pop(k, None)
+        values.append(v)
+    return min(values) if values else None
 
 
 def crawl_row(context: Context, dict_row: Dict[Any, Any]) -> None:
     name = dict_row.pop("name")  # what about foreign_register_name?
-    id = dict_row.pop("id")
+    org_number = dict_row.pop("org_number")
 
     entity = context.make("LegalEntity")
-    entity.id = context.make_id(name, id)
+    entity.id = context.make_id(name, org_number)
     entity.add("name", name)
     entity.add(
-        "jurisdiction", "no"
-    )  # note there is also subject_to_legislation_country_code in input source, maybe use it too?
-    entity.add("description", dict_row.pop("org_form_description", None))
-    entity.add("summary", dict_row.pop("statutory_purpose", None))
-    # entity.add("notes", dict_row.pop("activity", None))  # not sure if we need it but can potentially include?
+        "jurisdiction",
+        ["no", dict_row.pop("subject_to_legislation_country_code", None)],
+    )
+    entity.add("legalForm", dict_row.pop("org_form_description", None))
+    # entity.add("description", dict_row.pop("statutory_purpose", None))
+    # entity.add("notes", dict_row.pop("activity", None))
 
-    # --- not sure about these --- :
-    is_bankrupt = dict_row.pop("bankruptcy") == "true"
-    is_liquidated = dict_row.pop("under_forced_liquidation_or_dissolution") == "true"
-
-    if is_bankrupt and is_liquidated:
-        entity.add("status", "bankrupt and under forced liquidation or dissolution")
-    elif is_bankrupt:
-        entity.add("status", "bankrupt")
-    elif is_liquidated:
-        entity.add("status", "under forced liquidation or dissolution")
+    # bankrupcy or liquidation bools
+    is_bankrupt = dict_row.pop("bankruptcy", None) == "true"
+    is_liquidated = (
+        dict_row.pop("under_forced_liquidation_or_dissolution", None) == "true"
+    )
+    if is_bankrupt:
+        entity.add("status", "konkurs")
+    if is_liquidated:
+        entity.add("status", "underTvangsavviklingEllerTvangsopplosning")
 
     # registrationNumber
     entity.add(
         "registrationNumber", dict_row.pop("registration_number_home_country", None)
     )
+    # about industry codes: https://www.brreg.no/bedrift/naeringskoder/
     industry_codes = {
         k: v
         for k, v in dict_row.items()
         if k.startswith("industry_code") and k.endswith("code")
-    }  # about industry codes: https://www.brreg.no/bedrift/naeringskoder/
+    }
     for k, v in industry_codes.items():
-        entity.add("registrationNumber", v)
+        entity.add("sector", v)
         dict_row.pop(k)
 
-    # contacts and addresses
-    email = context.lookup("email", dict_row.pop("email", None))
-    if email is not None and email.values:
-        entity.add("email", email.values)
-    else:
-        entity.add("email", email)
-
-    website = context.lookup_value("website", dict_row.pop("website", None))
+    entity.add("email", dict_row.pop("email"))
+    website = dict_row.pop("website", None)
+    if website and (
+        website.isdigit()
+        or any(word in website.lower() for word in ("instagram", "facebook", "google"))
+    ):
+        website = None
     entity.add("website", website)
     entity.add("phone", dict_row.pop("phone", None))
     entity.add("phone", dict_row.pop("phone_mobile", None))
@@ -103,7 +89,14 @@ def crawl_row(context: Context, dict_row: Dict[Any, Any]) -> None:
     country_code_business = (
         dict_row.pop("business_address_country_code", None) or ""
     ).lower() or None
-    country_code_business = context.lookup_value("country_code", country_code_business)
+    # country_code_business = context.lookup_value("country_code", country_code_business)
+    # business_country = dict_row.get("business_address_country", None)
+    # j = 0
+    # if business_country == "Kongo" or (business_country and "kongo" in business_country.lower()):
+    #     j += 1
+    #     breakpoint()
+    # if j > 1:
+    #     breakpoint()
     business_address = h.make_address(
         context,
         street=dict_row.pop("business_address_street", None),
@@ -117,7 +110,7 @@ def crawl_row(context: Context, dict_row: Dict[Any, Any]) -> None:
     country_code_postal = (
         dict_row.pop("postal_address_country_code", None) or ""
     ).lower() or None
-    country_code_postal = context.lookup_value("country_code", country_code_postal)
+    # country_code_postal = context.lookup_value("country_code", country_code_postal)
     postal_address = h.make_address(
         context,
         street=dict_row.pop("postal_address_street", None),
@@ -162,6 +155,7 @@ def crawl_row(context: Context, dict_row: Dict[Any, Any]) -> None:
             "under_liquidation",
             "language_form",
             "articles_of_association_date",
+            "statutory_purpose",
             "activity",
             "endorsements",
             "under_foreign_insolvency_proceedings_date",
@@ -209,5 +203,5 @@ def crawl(context: Context) -> None:
         # iterate over the rows with english field names
         dict_reader = csv.DictReader(f, fieldnames=eng_header_row)
         for row in dict_reader:
-            row = {k: v.strip() for k, v in row.items()}
+            row = {k: v.strip() for k, v in row.items() if k is not None}
             crawl_row(context, row)
