@@ -35,7 +35,7 @@ REGEX_POSITIONISH = re.compile(
 )
 REGEX_NAME = re.compile(r"^[\w\.“”’-]+( [\w\.“”’-]+){1,3}$")
 HONORIFICS = ["Hon. ", "Hon ", "Ms. ", "Mr. ", "Mrs. ", "Sir ", "Dr. "]
-ALLOW_LIST = ["A. Royston (Roy) Tatum"]
+NAMES_ALLOW_LIST = ["A. Royston (Roy) Tatum", "Johany S. (Jay) Ebanks"]
 
 
 def crawl_card_2025(context: Context, position: str, el: ElementOrTree):
@@ -44,7 +44,7 @@ def crawl_card_2025(context: Context, position: str, el: ElementOrTree):
     name = re.sub(r",.+", "", name)
     for honorific in HONORIFICS:
         name = name.replace(honorific, "")
-    if not REGEX_NAME.match(name) and name not in ALLOW_LIST:
+    if not REGEX_NAME.match(name) and name not in NAMES_ALLOW_LIST:
         context.log.warning("Name doesn't look like a name", name=name)
 
     entity = context.make("Person")

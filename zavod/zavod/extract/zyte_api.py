@@ -357,12 +357,20 @@ def fetch_json(
         ),
         cache_days=cache_days,
     )
-    if expected_media_type and zyte_result.media_type:
-        assert zyte_result.media_type == expected_media_type, (
-            zyte_result.media_type,
-            zyte_result.charset,
-            url,
+    if (
+        expected_media_type
+        and zyte_result.media_type
+        and zyte_result.media_type != expected_media_type
+    ):
+        msg = f"Expected media type {expected_media_type} but got {zyte_result.media_type} for {url}"
+        context.log.error(
+            msg,
+            expected_media_type=expected_media_type,
+            media_type=zyte_result.media_type,
+            charset=zyte_result.charset,
+            response_text=zyte_result.response_text,
         )
+        raise AssertionError(msg)
 
     doc = json.loads(zyte_result.response_text)
 
