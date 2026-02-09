@@ -4,7 +4,7 @@ from typing import Any, Optional, TextIO
 from urllib.parse import urljoin
 import zipfile
 from rigour.mime.types import ZIP
-from rigour.names.check import is_nullword
+from rigour.text.stopwords import is_nullword
 
 from zavod import Context
 from zavod import helpers as h

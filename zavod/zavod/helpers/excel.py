@@ -27,7 +27,7 @@ def convert_excel_cell(book: Book, cell: Cell) -> Optional[str]:
     elif cell.ctype in (0, 5, 6):
         return None
     if cell.ctype == 3:
-        dt: datetime = xldate_as_datetime(cell.value, book.datemode)
+        dt = xldate_as_datetime(cell.value, book.datemode)
         return datetime_iso(dt)
     else:
         if cell.value is None:
