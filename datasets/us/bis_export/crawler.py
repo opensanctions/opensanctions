@@ -39,9 +39,9 @@ def crawl_entity(
     case_id_string: str,
     order_date: str,
 ) -> None:
-    # Lookup returns [primary_name, alias1, alias2, ...] or single string
-    primary_name = name[0] if isinstance(name, list) else name
-    aliases = name[1:] if isinstance(name, list) else []
+    # Lookup returns [primary_name, alias1, alias2, ...], otherwise [primary_name]
+    primary_name = name[0]
+    aliases = name[1:] if len(name) > 1 else []
 
     entity = context.make("LegalEntity")
     entity.id = context.make_id(primary_name, case_id_string)
@@ -92,6 +92,7 @@ def crawl(context: Context) -> None:
                     crawl_entity(context, entity_name, url, case_id_string, order_date)
         else:
             # Simple case: single entity name with no delimiters
-            crawl_entity(context, case_name, url, case_id_string, order_date)
+            # Wrap single name in list [primary_name] to match lookup that returns [primary_name, alias1, alias2, ...]
+            crawl_entity(context, [case_name], url, case_id_string, order_date)
 
         context.audit_data(str_row)

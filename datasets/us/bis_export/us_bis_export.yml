@@ -50,29 +50,29 @@ lookups:
     options:
       - match: 'ExHigh Air Space Ltd., Geoffrey Chune Omariba, Nader Ali Saboori Haghighi'
         entities:
-          - ExHigh Air Space Ltd
-          - Geoffrey Chune Omariba
-          - Nader Ali Saboori Haghighi
+          - ['ExHigh Air Space Ltd']
+          - ['Geoffrey Chune Omariba']
+          - ['Nader Ali Saboori Haghighi']
       - match: 'Kirill Gordei, Apelsin Logistics Inc., FC Marakanda 7777 LLC, Alinda Chemical Trade Company LTD, Element Uluslararasi Nakliyat Ve Lojistick Tic. LTD, Astec Astronomy FZCO, and AvioChem'
         entities:
-          - Kirill Gordei
-          - Apelsin Logistics Inc
-          - FC Marakanda 7777 LLC
-          - Alinda Chemical Trade Company LTD
-          - Element Uluslararasi Nakliyat Ve Lojistick Tic. LTD
-          - Astec Astronomy FZCO
-          - AvioChem
+          - ['Kirill Gordei']
+          - ['Apelsin Logistics Inc']
+          - ['FC Marakanda 7777 LLC']
+          - ['Alinda Chemical Trade Company LTD']
+          - ['Element Uluslararasi Nakliyat Ve Lojistick Tic. LTD']
+          - ['Astec Astronomy FZCO']
+          - ['AvioChem']
       - match: 'M&M Wireless, Inc., Moheef Latif, Hamza Latif and Abdu Latif Chaudhry'
         entities:
-          - M&M Wireless, Inc.
-          - Moheef Latif
-          - Hamza Latif
-          - Abdu Latif Chaudhry
+          - ['M&M Wireless, Inc.']
+          - ['Moheef Latif']
+          - ['Hamza Latif']
+          - ['Abdu Latif Chaudhry']
       - match: 'Eleview International Inc., Oleg Nayandin and Vitaliy Borisenko'
         entities:
-          - "Eleview International Inc."
-          - Oleg Nayandin
-          - Vitaliy Borisenko
+          - ['Eleview International Inc']
+          - ['Oleg Nayandin']
+          - ['Vitaliy Borisenko']
       - match:
           - 'Flider Electronics, LLC, a/k/a Flider Electronics, d/b/a Trident International Corporation, d/b/a Trident International, d/b/a Trident International Corporation, LLC; Pavel Semenovich Flider, a/k/a Pavel Flider and Gennadiy Semenovich Flider, a/k/a Gennadiy Flider (Amended Order)'
           - 'Flider Electronics, LLC, a/k/a Flider Electronics, d/b/a Trident International Corporation, d/b/a Trident International, d/b/a Trident International Corporation, LLC; Pavel Semenovich Flider, a/k/a Pavel Flider and Gennadiy Semenovich Flider, a/k/a Gennadiy Flider'
@@ -89,127 +89,127 @@ lookups:
           - 'Mahan Airways; Pejman Mahmood Kosarayanifard, a/k/aKosarian Fard; Mahmoud Amini; Kerman Aviation, a/k/a GIE Kerman Aviation; Sirjanco Trading LLC; Mahan Air General Trading LLC; Mehdi Bahrami; Al Naser Airlines, a/k/a Al-Naser Airlines, a/k/a Alnaser Airlines and Air Freight Ltd.; Ali Abdullah Alhay,a/k/a Ali Alhay, a/k/a Ali Abdullah Ahmed Alhay; Bahar Safwa General Trading; Sky Blue Bird Group, a/k/a Sky Blue Bird Aviation, a/k/a Sky Blue Bird Ltd., a/k/a Sky Blue Bird FZC; and Issam Shammout, a/k/a Muhammad Isam Muhammad Anwar Nur Shammout, a/k/a Issam Anwar'
           - 'Mahan Airways; Pejman Mahmood Kosarayanifard, a/k/aKosarian Fard; Mahmoud Amini; Kerman Aviation, a/k/a GIE Kerman Aviation; Sirjanco Trading LLC; Mahan Air General Trading LLC; Mehdi Bahrami; Al Naser Airlines, a/k/a Al-Naser Airlines, a/k/a Alnaser Airlines and Air Freight Ltd.; Ali Abdullah Alhay,a/k/a Ali Alhay, a/k/a Ali Abdullah Ahmed Alhay; Bahar Safwa General Trading; Sky Blue Bird Group, a/k/a Sky Blue Bird Aviation, a/k/a Sky Blue Bird Ltd., a/k/a Sky Blue Bird FZC; and Issam Shammout, a/k/a Muhammad Isam Muhammad Anwar Nur Shammout, a/k/a Issam Anwar'
         entities:
-          - Mahan Airways
+          - ['Mahan Airways']
           - ["Pejman Mahmood Kosarayanifard", "Kosarian Fard"]
-          - Mahmoud Amini
+          - ['Mahmoud Amini']
           - ["Kerman Aviation", "GIE Kerman Aviation"]
-          - Sirjanco Trading LLC
-          - Mahan Air General Trading LLC
-          - Mehdi Bahrami
+          - ['Sirjanco Trading LLC']
+          - ['Mahan Air General Trading LLC']
+          - ['Mehdi Bahrami']
           - ["Al Naser Airlines", "Al-Naser Airlines", "Alnaser Airlines and Air Freight Ltd"]
           - ["Ali Abdullah Alhay", "Ali Alhay", "Ali Abdullah Ahmed Alhay"]
-          - Bahar Safwa General Trading
+          - ['Bahar Safwa General Trading']
           - ["Sky Blue Bird Group", "Sky Blue Bird Aviation", "Sky Blue Bird Ltd", "Sky Blue Bird FZC"]
           - ["Issam Shammout", "Muhammad Isam Muhammad Anwar Nur Shammout", "Issam Anwar"]
       - match: 'Mahan Airways, Pejman Mahmood Kosarayanifard, Mahmoud Amini, Kerman Aviation, Sirjanco Trading LLC, Ali Eslamian, Mahan Air General Trading Llc, Skyco (Uk) Ltd., Equipco (Uk) Ltd., And Mehdi Bahrami'
         entities:
-          - Mahan Airways
-          - Pejman Mahmood Kosarayanifard
-          - Mahmoud Amini
-          - Kerman Aviation
-          - Sirjanco Trading LLC
-          - Ali Eslamian
-          - Mahan Air General Trading LLC
-          - Skyco (UK) Ltd
-          - Equipco (UK) Ltd
-          - Mehdi Bahrami
+          - ['Mahan Airways']
+          - ['Pejman Mahmood Kosarayanifard']
+          - ['Mahmoud Amini']
+          - ['Kerman Aviation']
+          - ['Sirjanco Trading LLC']
+          - ['Ali Eslamian']
+          - ['Mahan Air General Trading LLC']
+          - ['Skyco (UK) Ltd']
+          - ['Equipco (UK) Ltd']
+          - ['Mehdi Bahrami']
       - match: 'Zarand Aviation, aka GIE Zarand Aviation'
         entities:
           - ['Zarand Aviation', 'GIE Zarand Aviation']
       - match: 'Mahan Airways, Zarand Aviation, Gatewick LLC., Pejman Mahmood Kosarayanifard, Mahoud Amini, Derman Aviation, Sirjanco Trading LLC, Ali Eslamian, Mahan Air General Trading LLC, Skyco (UK) LTD. And Equipco (UK) LTD. and Mehdi Bahrami'
         entities:
-          - Mahan Airways
-          - Zarand Aviation
-          - Gatewick LLC
-          - Pejman Mahmood Kosarayanifard
-          - Mahmoud Amini
-          - Derman Aviation
-          - Sirjanco Trading LLC
-          - Ali Eslamian
-          - Mahan Air General Trading LLC
-          - Skyco (UK) Ltd
-          - Equipco (UK) Ltd
-          - Mehdi Bahrami
+          - ['Mahan Airways']
+          - ['Zarand Aviation']
+          - ['Gatewick LLC']
+          - ['Pejman Mahmood Kosarayanifard']
+          - ['Mahmoud Amini']
+          - ['Derman Aviation']
+          - ['Sirjanco Trading LLC']
+          - ['Ali Eslamian']
+          - ['Mahan Air General Trading LLC']
+          - ['Skyco (UK) Ltd']
+          - ['Equipco (UK) Ltd']
+          - ['Mehdi Bahrami']
       - match: 'Mahan Airways, Zarand Aviation, Gatewick LLC., PejMan Mahmood Kosarayanifard, Mahoud Amini, Kerman Aviation, Sirjanco Trading LLC, Ali Eslamian, Mahan Air General Trading LLC, Skyco (UK) LTD. and Equipco (UK) LTD. and Mehdi Bahrami'
         entities:
-          - Mahan Airways
-          - Zarand Aviation
-          - Gatewick LLC
-          - Pejman Mahmood Kosarayanifard
-          - Mahmoud Amini
-          - Kerman Aviation
-          - Sirjanco Trading LLC
-          - Ali Eslamian
-          - Mahan Air General Trading LLC
-          - Skyco (UK) Ltd
-          - Equipco (UK) Ltd
-          - Mehdi Bahrami
+          - ['Mahan Airways']
+          - ['Zarand Aviation']
+          - ['Gatewick LLC']
+          - ['Pejman Mahmood Kosarayanifard']
+          - ['Mahmoud Amini']
+          - ['Kerman Aviation']
+          - ['Sirjanco Trading LLC']
+          - ['Ali Eslamian']
+          - ['Mahan Air General Trading LLC']
+          - ['Skyco (UK) Ltd']
+          - ['Equipco (UK) Ltd']
+          - ['Mehdi Bahrami']
       - match:
           - 'Mahan Airways, Zarand Aviation, Gatewick LLC.,Pejman Mahmood Kosarayanifard, Mahoud Amini,Kerman Aviation, Sirjanco Trading LLC,Ali Eslamian, Mahan Air General Trading,Skyco (UK) Ltd. and Equipco (UK) LTD.'
           - 'Mahan Airways, Zarand Aviation, Gatewick LLC,Pejman Mahmood Kosarayanifard, Mahoud Amini,Kerman Aviation, Sirjanco Trading LLC, Ali Eslamian,Mahan Air General Trading LLC, Skyco (UK) Ltd. andEquipco (UK) Ltd.'
           - 'Mahan Airways, Zarand Aviation, Gatewick LLC.,Pejman Mahmood Kosarayanifard, Mahoud Amini,Kerman Aviation, Sirjanco Trading LLC,Ali Eslamian, Mahan Air General Trading,Skyco (UK) Ltd. and Equipco (UK) LTD.'
         entities:
-          - Mahan Airways
-          - Zarand Aviation
-          - Gatewick LLC
-          - Pejman Mahmood Kosarayanifard
-          - Mahmoud Amini
-          - Kerman Aviation
-          - Sirjanco Trading LLC
-          - Ali Eslamian
-          - Mahan Air General Trading LLC
-          - Skyco (UK) Ltd
-          - Equipco (UK) Ltd
+          - ['Mahan Airways']
+          - ['Zarand Aviation']
+          - ['Gatewick LLC']
+          - ['Pejman Mahmood Kosarayanifard']
+          - ['Mahmoud Amini']
+          - ['Kerman Aviation']
+          - ['Sirjanco Trading LLC']
+          - ['Ali Eslamian']
+          - ['Mahan Air General Trading LLC']
+          - ['Skyco (UK) Ltd']
+          - ['Equipco (UK) Ltd']
       - match: 'Mahan Airways, Zarand Aviation, Gatewick LLC.,Pejman Mahmood Kosarayanifard,Mahoud Amini, Kerman Aviation,Sirjanco Trading LLC, andAli Eslamian'
         entities:
-          - Mahan Airways
-          - Zarand Aviation
-          - Gatewick LLC
-          - Pejman Mahmood Kosarayanifard
-          - Mahmoud Amini
-          - Kerman Aviation
-          - Sirjanco Trading LLC
-          - Ali Eslamian
+          - ['Mahan Airways']
+          - ['Zarand Aviation']
+          - ['Gatewick LLC']
+          - ['Pejman Mahmood Kosarayanifard']
+          - ['Mahmoud Amini']
+          - ['Kerman Aviation']
+          - ['Sirjanco Trading LLC']
+          - ['Ali Eslamian']
       - match: 'Mahan Airways; Gatewick LLC; Pejman Mahmood Kosarayanifard; Mahmoud Amini; Kerman Aviation; Sirjanco Trading and Ali Eslamian'
         entities:
-          - Mahan Airways
-          - Gatewick LLC
-          - Pejman Mahmood Kosarayanifard
-          - Mahmoud Amini
-          - Kerman Aviation
-          - Sirjanco Trading LLC
-          - Ali Eslamian
+          - ['Mahan Airways']
+          - ['Gatewick LLC']
+          - ['Pejman Mahmood Kosarayanifard']
+          - ['Mahmoud Amini']
+          - ['Kerman Aviation']
+          - ['Sirjanco Trading LLC']
+          - ['Ali Eslamian']
       - match: 'Mahan Airways, Pejman Mahmood Kosarayanifard, Mahmoud Amini, Kerman Aviation, Sirjanco Trading LLC, Ali Eslamian, Mahan Air General Trading LLC, Skyco (Uk) Ltd., Equipco (Uk) Ltd., Mehdi Bahrami; Al Naser Airlines, Ali Abdullah Alhay, and Bahar Safwa General Trading'
         entities:
-          - Mahan Airways
-          - Pejman Mahmood Kosarayanifard
-          - Mahmoud Amini
-          - Kerman Aviation
-          - Sirjanco Trading LLC
-          - Ali Eslamian
-          - Mahan Air General Trading LLC
-          - Skyco (UK) Ltd
-          - Equipco (UK) Ltd
-          - Mehdi Bahrami
-          - Al Naser Airlines
-          - Ali Abdullah Alhay
-          - Bahar Safwa General Trading
+          - ['Mahan Airways']
+          - ['Pejman Mahmood Kosarayanifard']
+          - ['Mahmoud Amini']
+          - ['Kerman Aviation']
+          - ['Sirjanco Trading LLC']
+          - ['Ali Eslamian']
+          - ['Mahan Air General Trading LLC']
+          - ['Skyco (UK) Ltd']
+          - ['Equipco (UK) Ltd']
+          - ['Mehdi Bahrami']
+          - ['Al Naser Airlines']
+          - ['Ali Abdullah Alhay']
+          - ['Bahar Safwa General Trading']
       - match:
           - 'Mahan Airways; Pejman Mahmood Kosarayanifard, a/k/a Kosarian Fard; Mahmoud Amini; Kerman Aviation, a/k/a GIE Kerman Aviation; Sirjanco Trading LLC; Ali Eslamian; Mahan Air General Trading LLC; Skyco (Uk) Ltd.; Equipco (UK) Ltd.; Mehdi Bahrami; Al Naser Airlines, a/k/a Al-Naser Airlines, a/k/a Alnaser Airlines and Air Freight Ltd.; Ali Abdullah Alhay,a/k/a Ali Alhay, a/k/a Ali Abdullah Ahmed Alhay; Bahar Safwa General Trading; Sky Blue Bird Group, a/k/a Sky Blue Bird Aviation, a/k/a Sky Blue Bird Ltd., a/k/a Sky Blue Bird FZC; and Issam Shammout, a/k/a Muhammad Isam Muhammad Anwar Nur Shammout, a/k/a Issam Anwar'
         entities:
-          - Mahan Airways
+          - ['Mahan Airways']
           - ["Pejman Mahmood Kosarayanifard", "Kosarian Fard"]
-          - Mahmoud Amini
+          - ['Mahmoud Amini']
           - ["Kerman Aviation", "GIE Kerman Aviation"]
-          - Sirjanco Trading LLC
-          - Ali Eslamian
-          - Mahan Air General Trading LLC
-          - Skyco (UK) Ltd
-          - Equipco (UK) Ltd
-          - Mehdi Bahrami
+          - ['Sirjanco Trading LLC']
+          - ['Ali Eslamian']
+          - ['Mahan Air General Trading LLC']
+          - ['Skyco (UK) Ltd']
+          - ['Equipco (UK) Ltd']
+          - ['Mehdi Bahrami']
           - ["Al Naser Airlines", "Al-Naser Airlines", "Alnaser Airlines and Air Freight Ltd"]
           - ["Ali Abdullah Alhay", "Ali Alhay", "Ali Abdullah Ahmed Alhay"]
-          - Bahar Safwa General Trading
+          - ['Bahar Safwa General Trading']
           - ["Sky Blue Bird Group", "Sky Blue Bird Aviation", "Sky Blue Bird Ltd", "Sky Blue Bird FZC"]
           - ["Issam Shammout", "Muhammad Isam Muhammad Anwar Nur Shammout", "Issam Anwar"]
       - match:
@@ -217,21 +217,21 @@ lookups:
           - 'Mahan Airways, Pejman Mahmood Kosarayanifard, Mahmoud Amini, Kerman Aviation, Sirjanco Trading LLC, Ali Eslamian, Mahan Air General Trading LLC, Skyco (Uk) Ltd., Equipco (Uk) Ltd., Mehdi Bahrami; Al Naser Airlines, Ali Abdullah Alhay, Bahar Safwa General Trading, Sky Blue Bird Group, and Issam Muhammad'
           - 'Mahan Airways, Pejman Mahmood Kosrayanifard, Mahmoud Amini, Kerman Aviation, Sirjanco Trading LLC, Ali Eslamian, Mahan Air General Trading LLC, Skyco (Uk) Ltd., Equipco (Uk) Ltd., Mehdi Bahrami; Al Naser Airlines, Ali Abdullah Alhay, Bahar Safwa General Trading, Sky Blue Bird Group and Issam Muhammad'
         entities:
-          - Mahan Airways
-          - Pejman Mahmood Kosarayanifard
-          - Mahmoud Amini
-          - Kerman Aviation
-          - Sirjanco Trading LLC
-          - Ali Eslamian
-          - Mahan Air General Trading LLC
-          - Skyco (UK) Ltd
-          - Equipco (UK) Ltd
-          - Mehdi Bahrami
-          - Al Naser Airlines
-          - Ali Abdullah Alhay
-          - Bahar Safwa General Trading
-          - Sky Blue Bird Group
-          - Issam Muhammad
+          - ['Mahan Airways']
+          - ['Pejman Mahmood Kosarayanifard']
+          - ['Mahmoud Amini']
+          - ['Kerman Aviation']
+          - ['Sirjanco Trading LLC']
+          - ['Ali Eslamian']
+          - ['Mahan Air General Trading LLC']
+          - ['Skyco (UK) Ltd']
+          - ['Equipco (UK) Ltd']
+          - ['Mehdi Bahrami']
+          - ['Al Naser Airlines']
+          - ['Ali Abdullah Alhay']
+          - ['Bahar Safwa General Trading']
+          - ['Sky Blue Bird Group']
+          - ['Issam Muhammad']
       - match:
           - 'Mahan Airways; Pejman Mahmood Kosarayanifard, a/k/a Kosarian Fard; Mahmoud Amini; Kerman Aviation, a/k/a GIE Kerman Aviation; Sirjanco Trading LLC; Mahan Air General Trading LLC; Mehdi Bahrami; Al Naser Airlines, a/k/a Al-Naser Airlines, a/k/a Alnaser Airlines and Air Freight Ltd.; Ali Abdullah Alhay,a/k/a Ali Alhay, a/k/a Ali Abdullah Ahmed Alhay; Bahar Safwa General Trading; Sky Blue Bird Group, a/k/a Sky Blue Bird Aviation, a/k/a Sky Blue Bird Ltd., a/k/a Sky Blue Bird FZC; and Issam Shammout, a/k/a Muhammad Isam Muhammad Anwar Nur Shammout, a/k/a Issam Anwar'
           - 'Mahan Airways; Pejman Mahmood Kosarayanifard, a/k/aKosarian Fard; Mahmoud Amini; Kerman Aviation, a/k/aGIE Kerman Aviation; Sirjanco Trading LLC; Mahan Air General Trading LLC; Mehdi Bahrami; Al Naser Airlines, a/k/a Al-Naser Airlines, a/k/a Alnaser Airlines and Air Freight Ltd.; Ali Abdullah Alhay,a/k/a Ali Alhay, a/k/a Ali Abdullah Ahmed Alhay; Bahar Safwa General Trading; Sky Blue Bird Group, a/k/a Sky Blue Bird Aviation, a/k/a Sky Blue Bird Ltd., a/k/a Sky Blue Bird FZC; and Issam Shammout, a/k/a Muhammad Isam Muhammad Anwar Nur Shammout, a/k/a Issam Anwar'
@@ -240,178 +240,178 @@ lookups:
           - 'Mahan Airways; Pejman Mahmood Kosarayanifard, a/k/aKosarian Fard; Mahmoud Amini; Kerman Aviation, a/k/aGIE Kerman Aviation; Sirjanco Trading LLC; Mahan Air General Trading LLC; Mehdi Bahrami; Al Naser Airlines, a/k/aAl-Naser Airlines, a/k/a Alnaser Airlines and Air Freight Ltd.; Ali Abdullah Alhay,a/k/a Ali Alhay, a/k/a Ali Abdullah Ahmed Alhay; Bahar Safwa General Trading; Sky Blue Bird Group, a/k/a Sky Blue Bird Aviation, a/k/a Sky Blue Bird Ltd., a/k/a Sky Blue Bird FZC; and Issam Shammout, a/k/a Muhammad Isam Muhammad Anwar Nur Shammout, a/k/a Issam Anwar'
           - 'Mahan Airways; Pejman Mahmood Kosarayanifard, a/k/a 11/08/2022 Kosarian Fard; Mahmoud Amini; Kerman Aviation, a/k/a GIE Kerman Aviation; Sirjanco Trading LLC; Mahan Air General Trading LLC; Mehdi Bahrami; Al Naser Airlines, a/k/a Al-Naser Airlines, a/k/a Alnaser Airlines and Air Freight Ltd.; Ali Abdullah Alhay,a/k/a Ali Alhay, a/k/a Ali Abdullah Ahmed Alhay; Bahar Safwa General Trading; Sky Blue Bird Group, a/k/a Sky Blue Bird Aviation, a/k/a Sky Blue Bird Ltd., a/k/a Sky Blue Bird FZC; and Issam Shammout, a/k/a Muhammad Isam Muhammad Anwar Nur Shammout, a/k/a Issam Anwar'
         entities:
-          - Mahan Airways
+          - ['Mahan Airways']
           - ["Pejman Mahmood Kosarayanifard", "Kosarian Fard"]
-          - Mahmoud Amini
+          - ['Mahmoud Amini']
           - ["Kerman Aviation", "GIE Kerman Aviation"]
-          - Sirjanco Trading LLC
-          - Mahan Air General Trading LLC
-          - Mehdi Bahrami
+          - ['Sirjanco Trading LLC']
+          - ['Mahan Air General Trading LLC']
+          - ['Mehdi Bahrami']
           - ["Al Naser Airlines", "Al-Naser Airlines", "Alnaser Airlines and Air Freight Ltd"]
           - ["Ali Abdullah Alhay", "Ali Alhay", "Ali Abdullah Ahmed Alhay"]
-          - Bahar Safwa General Trading
+          - ['Bahar Safwa General Trading']
           - ["Sky Blue Bird Group", "Sky Blue Bird Aviation", "Sky Blue Bird Ltd", "Sky Blue Bird FZC"]
           - ["Issam Shammout", "Muhammad Isam Muhammad Anwar Nur Shammout", "Issam Anwar"]
       - match: 'Mahan Airways, Zarand Aviation, Gatewick LLC.,Pejman Mahmood Dosarayanifard, Mahoud Amini,Kerman Aviation, Sirjanco Trading LLC,Skyco (UK) LTD. and Equipco (UK) LTD. and Mehdi Bahrami'
         entities:
-          - Mahan Airways
-          - Zarand Aviation
-          - Gatewick LLC
-          - Pejman Mahmood Kosarayanifard  # typo in input name (checked against .pdf)
-          - Mahmoud Amini
-          - Kerman Aviation
-          - Sirjanco Trading LLC
-          - Skyco (UK) Ltd
-          - Equipco (UK) Ltd
-          - Mehdi Bahrami
+          - ['Mahan Airways']
+          - ['Zarand Aviation']
+          - ['Gatewick LLC']
+          - ['Pejman Mahmood Kosarayanifard']  # typo in input name (checked against .pdf)
+          - ['Mahmoud Amini']
+          - ['Kerman Aviation']
+          - ['Sirjanco Trading LLC']
+          - ['Skyco (UK) Ltd']
+          - ['Equipco (UK) Ltd']
+          - ['Mehdi Bahrami']
       - match: 'Mahan Airways; Gatewick LLC; Pejman Mahmood Kosarayanifard and Mahmoud Amini'
         entities:
-          - Mahan Airways
-          - Gatewick LLC
-          - Pejman Mahmood Kosarayanifard
-          - Mahmoud Amini
+          - ['Mahan Airways']
+          - ['Gatewick LLC']
+          - ['Pejman Mahmood Kosarayanifard']
+          - ['Mahmoud Amini']
       - match: 'Mahan Airways, Gatewick LLC., Pejman Mahmood Kosarayanifard, Mahoud Amini, Kerman Aviation, Sirjanco Trading LLC, Ali Eslamian, Mahan Air General Trading LLC, Skyco (UK) Ltd. and Mehdi Bahrami'
         entities:
-          - Mahan Airways
-          - Gatewick LLC
-          - Pejman Mahmood Kosarayanifard
-          - Mahmoud Amini
-          - Kerman Aviation
-          - Sirjanco Trading LLC
-          - Ali Eslamian
-          - Mahan Air General Trading LLC
-          - Skyco (UK) Ltd
-          - Mehdi Bahrami
+          - ['Mahan Airways']
+          - ['Gatewick LLC']
+          - ['Pejman Mahmood Kosarayanifard']
+          - ['Mahmoud Amini']
+          - ['Kerman Aviation']
+          - ['Sirjanco Trading LLC']
+          - ['Ali Eslamian']
+          - ['Mahan Air General Trading LLC']
+          - ['Skyco (UK) Ltd']
+          - ['Mehdi Bahrami']
       - match: 'SkyTechnic, Skywind International Limited, Hong Fan Limited, Lufeng Limited, Unical dis Ticaret Ve Lojistik JSC, Izzi Cup DOO, Alexey Sumchenko, Anna Shumakova, Branimir Salevic, Danijela Salevic'
         entities:
-          - SkyTechnic
-          - Skywind International Limited
-          - Hong Fan Limited
-          - Lufeng Limited
-          - Unical dis Ticaret Ve Lojistik JSC
-          - Izzi Cup DOO
-          - Alexey Sumchenko
-          - Anna Shumakova
-          - Branimir Salevic
-          - Danijela Salevic
+          - ['SkyTechnic']
+          - ['Skywind International Limited']
+          - ['Hong Fan Limited']
+          - ['Lufeng Limited']
+          - ['Unical dis Ticaret Ve Lojistik JSC']
+          - ['Izzi Cup DOO']
+          - ['Alexey Sumchenko']
+          - ['Anna Shumakova']
+          - ['Branimir Salevic']
+          - ['Danijela Salevic']
       - match: '3K Aviation Consulting & Logistics, a/k/a 3K Havacilik Ve Denismanlik SAN. TIC. LTD. ST., Huseyin Engin Borluca, Adaero International Trade, LLC, Recep Sadettin Ilgin and Pouya Airline a/k/a Pouya Air, Evans Meridians Ltd.'
         entities:
           - ["3K Aviation Consulting & Logistics", "3K Havacilik Ve Danismanlik SAN. TIC. LTD. ST."]
-          - Huseyin Engin Borluca
-          - Adaero International Trade, LLC
-          - Recep Sadettin Ilgin
+          - ['Huseyin Engin Borluca']
+          - ['Adaero International Trade, LLC']
+          - ['Recep Sadettin Ilgin']
           - ["Pouya Airline", "Pouya Air"]
-          - Evans Meridians Ltd
+          - ['Evans Meridians Ltd']
       - match: '3K Aviation Consulting & Logistics a/k/a 3K Havacilik Ve Danismanlik SAN. TIC. LTD. ST., Huseyin Engin Borluca, Adaero International Trade, LLC, Recep Sadettin Ilgin and Pouya Airline a/k/a Pouya Air'
         entities:
           - ["3K Aviation Consulting & Logistics", "3K Havacilik Ve Danismanlik SAN. TIC. LTD. ST."]
-          - Huseyin Engin Borluca
-          - Adaero International Trade, LLC
-          - Recep Sadettin Ilgin
+          - ['Huseyin Engin Borluca']
+          - ['Adaero International Trade, LLC']
+          - ['Recep Sadettin Ilgin']
           - ["Pouya Airline", "Pouya Air"]
       - match: '3K Aviation Consulting & Logistics a/k/a3K Havacilik Ve Danismanlik SAN. TIC. LTD. ST., HuseyinEngin Borluca, Pouya Airline a/k/a Pouya Air,Evans Meridians Ltd.'
         entities:
           - ["3K Aviation Consulting & Logistics", "3K Havacilik Ve Danismanlik SAN. TIC. LTD. ST."]
-          - Huseyin Engin Borluca
+          - ['Huseyin Engin Borluca']
           - ["Pouya Airline", "Pouya Air"]
-          - Evans Meridians Ltd
+          - ['Evans Meridians Ltd']
       - match: 'Orion Air, S.L. and Syrian Pearl Airlines'
         entities:
-          - Orion Air, S.L.
-          - Syrian Pearl Airlines
+          - ['Orion Air, S.L.']
+          - ['Syrian Pearl Airlines']
       - match: 'Zhenyu Wang, aka Bill Wang'
         entities:
           - ['Zhenyu Wang', 'Bill Wang']
       - match: 'Turboshaft FZE, Treetops Aviation, Black Metal FZE, Timur Badr, Elaine Balingit'
         entities:
-          - Turboshaft FZE
-          - Treetops Aviation
-          - Black Metal FZE
-          - Timur Badr
-          - Elaine Balingit
+          - ['Turboshaft FZE']
+          - ['Treetops Aviation']
+          - ['Black Metal FZE']
+          - ['Timur Badr']
+          - ['Elaine Balingit']
       - match: 'Empresa de Transporte Aéreocargo del Sur, S.A. a/k/a Aerocargo del Sur Transportation Company a/k/a EMTRASUR'
         entities:
           - ['Empresa de Transporte Aéreocargo del Sur, S.A.', 'Aerocargo del Sur Transportation Company', 'EMTRASUR']
       - match: 'Nikolay Goltsev, a/k/a Nick Stevens, a/k/a Gio Ross, Salimdzhon Nasriddinov, Kristina Puzyreva, Vladimir Bochkarev, Pavel Chernikov, Yekaterina Vetoshkina, Oleg Zenchenko, SH Brothers Group, Inc., SN Electronics, Inc. and Suntronic F.Z.E.'
         entities:
           - ['Nikolay Goltsev', 'Nick Stevens', 'Gio Ross']
-          - Salimdzhon Nasriddinov
-          - Kristina Puzyreva
-          - Vladimir Bochkarev
-          - Pavel Chernikov
-          - Yekaterina Vetoshkina
-          - Oleg Zenchenko
-          - SH Brothers Group, Inc
-          - SN Electronics, Inc
-          - Suntronic F.Z.E.
+          - ['Salimdzhon Nasriddinov']
+          - ['Kristina Puzyreva']
+          - ['Vladimir Bochkarev']
+          - ['Pavel Chernikov']
+          - ['Yekaterina Vetoshkina']
+          - ['Oleg Zenchenko']
+          - ['SH Brothers Group, Inc']
+          - ['SN Electronics, Inc']
+          - ['Suntronic F.Z.E.']
       - match: 'Arthur Petrov aka Artur Petrov, Astrafteros Technokosmos LTD, Zhanna Soldatenkova, Ultra Trade Service LLC, Ruslan Almetov, Juzhoi Electronic LLC and LLC Electrocom VPK VPK/OOO/LLC/SPB'
         entities:
           - ['Arthur Petrov', 'Artur Petrov']
-          - Astrafteros Technokosmos LTD
-          - Zhanna Soldatenkova
-          - Ultra Trade Service LLC
-          - Ruslan Almetov
-          - Juzhoi Electronic LLC
-          - LLC Electrocom VPK VPK/OOO/LLC/SPB
+          - ['Astrafteros Technokosmos LTD']
+          - ['Zhanna Soldatenkova']
+          - ['Ultra Trade Service LLC']
+          - ['Ruslan Almetov']
+          - ['Juzhoi Electronic LLC']
+          - ['LLC Electrocom VPK VPK/OOO/LLC/SPB']
       - match: 'Ilya Balakaev and Radiotester OOO a/k/a Radiotester LLC'
         entities:
-          - 'Ilya Balakaev'
+          - ['Ilya Balakaev']
           - ['Radiotester OOO', 'Radiotester LLC']
       - match: 'Boris Livshits, Svetlana Skvortsova, Aleksey Ippolitov, Advance Web Services, Strandway, LLC, Nikolaos Bogonikolos, and Aratos Group'
         entities:
-          - Boris Livshits
-          - Svetlana Skvortsova
-          - Aleksey Ippolitov
-          - Advanced Web Services
-          - Strandway, LCC
-          - Nikolaos Bogonikolos
-          - Aratos Group
+          - ['Boris Livshits']
+          - ['Svetlana Skvortsova']
+          - ['Aleksey Ippolitov']
+          - ['Advanced Web Services']
+          - ['Strandway, LCC']
+          - ['Nikolaos Bogonikolos']
+          - ['Aratos Group']
       - match: 'Boris Livshits, Svetlana Skvortsova, Aleksey Ippolitov, Advanced Web Services, and Strandway, LCC (“Strandway”)'
         entities:
-          - Boris Livshits
-          - Svetlana Skvortsova
-          - Aleksey Ippolitov
-          - Advanced Web Services
+          - ['Boris Livshits']
+          - ['Svetlana Skvortsova']
+          - ['Aleksey Ippolitov']
+          - ['Advanced Web Services']
           - ['Strandway, LCC', 'Strandway']
       - match:
           - 'Quicksilver Manufacturing, Inc., Rapid Cut LLC And US Prototype, Inc.'
           - 'Quicksilver Manufacturing, Inc., Rapid Cut LLC, and US Prototype, Inc.'
         entities:
-          - Quicksilver Manufacturing, Inc
-          - Rapid Cut LLC
-          - US Prototype, Inc
+          - ['Quicksilver Manufacturing, Inc']
+          - ['Rapid Cut LLC']
+          - ['US Prototype, Inc']
       - match: 'Ribway Airlines Company Limited, John Edward Meadows, Jeffrey John James Ashfield, and AC AVIATIE UK Limited, f/k/a Bin Vali Aviation Limited'
         entities:
-          - Ribway Airlines Company Limited
-          - John Edward Meadows
-          - Jeffrey John James Ashfield
+          - ['Ribway Airlines Company Limited']
+          - ['John Edward Meadows']
+          - ['Jeffrey John James Ashfield']
           - ['AC AVIATIE UK Limited', 'Bin Vali Aviation Limited']
       - match: 'Ribway Airlines Company Limited, John Edward Meadows, Jeffrey John James Ashfield, moreJet Ltd., Stefan Piotr Kondak, a/k/a Stefan Peter Kondak, AC AVIATIE UK Limited, f/k/a Bin Vali Aviation Limited'
         entities:
-          - Ribway Airlines Company Limited
-          - John Edward Meadows
-          - Jeffrey John James Ashfield
-          - moreJet Ltd
+          - ['Ribway Airlines Company Limited']
+          - ['John Edward Meadows']
+          - ['Jeffrey John James Ashfield']
+          - ['moreJet Ltd']
           - ['Stefan Piotr Kondak', 'Stefan Peter Kondak']
           - ['AC AVIATIE UK Limited', 'Bin Vali Aviation Limited']
       - match: 'Ribway Airlines Company Limited, AF-Aviation Limited, Andy Farmer John Edward Meadows, Jeffrey John James Ashfield'
         entities:
-          - Ribway Airlines Company Limited
-          - AF-Aviation Limited
-          - Andy Farmer John Edward Meadows
-          - Jeffrey John James Ashfield
+          - ['Ribway Airlines Company Limited']
+          - ['AF-Aviation Limited']
+          - ['Andy Farmer John Edward Meadows']
+          - ['Jeffrey John James Ashfield']
       - match: 'Oleg Sergeyevich Patsulva, Vasilii Sergeyevich Besedin, MIC P&I, LLC, Intermodal Maldives, JSC Smartavia Airlines'
         entities:
-          - Oleg Sergeyevich Patsulva
-          - Vasilii Sergeyevich Besedin
-          - MIC P&I, LLC
-          - Intermodal Maldives
-          - JSC Smartavia Airlines
+          - ['Oleg Sergeyevich Patsulva']
+          - ['Vasilii Sergeyevich Besedin']
+          - ['MIC P&I, LLC']
+          - ['Intermodal Maldives']
+          - ['JSC Smartavia Airlines']
       - match: 'Scott Communications, Inc., Mission Communications, LLC. and Kenneth Peter Scott'
         entities:
-          - Scott Communications, Inc
-          - Mission Communications, LLC
-          - Kenneth Peter Scott
+          - ['Scott Communications, Inc']
+          - ['Mission Communications, LLC']
+          - ['Kenneth Peter Scott']
       - match: 'Aiden Davidson, a/k/a Hamed Aliabadi'
         entities:
           - ['Aiden Davidson', 'Hamed Aliabadi']
@@ -420,7 +420,7 @@ lookups:
           - ['Mehdi Hashemi', 'Eddie Hashemi']
       - match: 'Hans De Geetere and Knokke-Heist Support Corporation Management a/k/a Hasa-Invest'
         entities:
-          - Hans De Geetere
+          - ['Hans De Geetere']
           - ['Knokke-Heist Support Corporation Management', 'Hasa-Invest']
       - match: 'SP Industries, Inc. (d/b/a SP Scientific)'
         entities:
@@ -436,24 +436,24 @@ lookups:
           - ['Alsima Middle East General Trading LLC', 'Al Sima Middle East General Trading LLC']
       - match: 'PT MS Aero Support, PT Antasena Kreasi, PT Kandiyasa Energi Utama, Sunarko Kuntjoro, Triadi Senna Kuntjoro, Satrio Wiharjo Sasmito'
         entities:
-          - PT MS Aero Support
-          - PT Antasena Kreasi
-          - PT Kandiyasa Energi Utama
-          - Sunarko Kuntjoro
-          - Triadi Senna Kuntjoro
-          - Satrio Wiharjo Sasmito
+          - ['PT MS Aero Support']
+          - ['PT Antasena Kreasi']
+          - ['PT Kandiyasa Energi Utama']
+          - ['Sunarko Kuntjoro']
+          - ['Triadi Senna Kuntjoro']
+          - ['Satrio Wiharjo Sasmito']
       - match: 'Muhammad Kamran Wali, Muhammad Ahsan Wali, Haji Wali Muhammad Sheikh, Ahmed Waheed, Ashraf Khan Muhammad, Business World (of Pakistan), Buziness World (of Canada), Business World (of Hong Kong), Industria Hong Kong Ltd, d/b/a Transcool Auto Air Conditioning Products, d/b/a Electro-Power Solutions and Product Engineering'
         entities:
-          - Muhammad Kamran Wali
-          - Muhammad Ahsan Wali
-          - Haji Wali Muhammad Sheikh
-          - Ahmed Waheed
-          - Ashraf Khan Muhammad
-          - Business World (of Pakistan)
-          - Buziness World (of Canada)
-          - Business World (of Hong Kong)
+          - ['Muhammad Kamran Wali']
+          - ['Muhammad Ahsan Wali']
+          - ['Haji Wali Muhammad Sheikh']
+          - ['Ahmed Waheed']
+          - ['Ashraf Khan Muhammad']
+          - ['Business World (of Pakistan)']
+          - ['Buziness World (of Canada)']
+          - ['Business World (of Hong Kong)']
           - ['Industria Hong Kong Ltd', 'Transcool Auto Air Conditioning Products', 'Electro-Power Solutions']
-          - Product Engineering
+          - ['Product Engineering']
       - match: 'Mahin Mojtahedzadeh, a.k.a. Mahin Toussi Mojtahedzadeh, a.k.a. Mahin Mojtahedzadeh Toussi'
         entities:
           - ['Mahin Mojtahedzadeh', 'Mahin Toussi Mojtahedzadeh', 'Mahin Mojtahedzadeh Toussi']
@@ -485,35 +485,35 @@ lookups:
           - ['Ghareh Sabz Co', 'Ghare Sabz Co', 'GHS Technology']
       - match: 'EastLine Technologies OU; Adimir OU; Valery Kosmachov a/k/a Valeri Kosmachov, a/k/a Valery Kosmatsov, a/k/a Valery Kosmatshov, a/k/a Valery Kosmachev; Sergey Vetrov and Real Components Ltd.'
         entities:
-          - 'EastLine Technologies OU'
-          - Adimir OU
+          - ['EastLine Technologies OU']
+          - ['Adimir OU']
           - ['Valery Kosmachov', 'Valeri Kosmachov', 'Valery Kosmatsov', 'Valery Kosmatshov', 'Valery Kosmachev']
-          - Sergey Vetrov
-          - Real Components Ltd
+          - ['Sergey Vetrov']
+          - ['Real Components Ltd']
       - match: 'Mohawk Global Logistics Corp, f/k/a Mohawk Customs and Shipping Corp.'
         entities:
           - ['Mohawk Global Logistics Corp', 'Mohawk Customs and Shipping Corp']
       - match: 'Merit Aerospace, Inc. and Yanhong Zhou a/k/a Joe Zhou'
         entities:
-          - Merit Aerospace, Inc
+          - ['Merit Aerospace, Inc']
           - ['Yanhong Zhou', 'Joe Zhou']
       - match: 'Weiming Zhang, a.k.a John Zhang and Seasia Enterprises (USA), Inc.'
         entities:
           - ['Weiming Zhang', 'John Zhang']
-          - Seasia Enterprises (USA), Inc
+          - ['Seasia Enterprises (USA), Inc']
       - match: 'Federal Express Corportation, d/b/a FedEx Express'
         entities:
           - ['Federal Express Corportation', 'FedEx Express']
       - match: 'Trilogy International Associates, Inc. and William Michael Johnson'
         entities:
-          - Trilogy International Associates, Inc
-          - William Michael Johnson
+          - ['Trilogy International Associates, Inc']
+          - ['William Michael Johnson']
       - match: 'Gulnihal Yegane, Trigron Lojistik Kargo Limited Sirketi, Ufuk Avia Lojistik Limited Sirketi and RA Havacilik Lojistik Ve Tasimacilik Ticaret Limited Sirketi'
         entities:
-          - Gulnihal Yegane
-          - Trigron Lojistik Kargo Limited Sirketi
-          - Ufuk Avia Lojistik Limited Sirketi
-          - RA Havacilik Lojistik Ve Tasimacilik Ticaret Limited Sirketi
+          - ['Gulnihal Yegane']
+          - ['Trigron Lojistik Kargo Limited Sirketi']
+          - ['Ufuk Avia Lojistik Limited Sirketi']
+          - ['RA Havacilik Lojistik Ve Tasimacilik Ticaret Limited Sirketi']
       - match: 'Shantia Hassanshahi, a/k/a Shantia Hassan Shahi, a/k/a Shahi, a/k/a Shantia Haas, a/k/a Sean Haas'
         entities:
           - ['Shantia Hassanshahi', 'Shantia Hassan Shahi', 'Shahi', 'Shantia Haas', 'Sean Haas']
@@ -541,7 +541,7 @@ lookups:
       - match: 'Harold Rinko d/b/a Global Parts Supply, a/k/a Global Parts Supply and Equip'
         entities:
           - ['Harold Rinko', 'Global Parts Supply', 'Global Parts Supply']
-          - Equip
+          - ['Equip']
       - match: 'Hassan Zafari, a/k/a Sam Zafari'
         entities:
           - ['Hassan Zafari', 'Sam Zafari']
@@ -563,8 +563,8 @@ lookups:
           - ['Rukhsana Kadri', 'Roxanne Kadri']
       - match: 'Worthington Products, Inc. and Paul Meeks'
         entities:
-          - Worthington Products, Inc
-          - Paul Meeks
+          - ['Worthington Products, Inc']
+          - ['Paul Meeks']
       - match: 'Qiang Hu, a/k/a Johnson Hu'
         entities:
           - ['Qiang Hu', 'Johnson Hu']
@@ -573,30 +573,30 @@ lookups:
           - ['Paweena Pechner', 'Paweena Montasood']
       - match: 'Barracuda Network, Inc. and Barracuda Networks, Ltd.'
         entities:
-          - Barracuda Network, Inc
-          - Barracuda Networks, Ltd
+          - ['Barracuda Network, Inc']
+          - ['Barracuda Networks, Ltd']
       - match: 'Aiman Ammar, a/k/a Ayman Ammar; Rashid Albuni; Engineering Construction & Contracting Co.; Advanced Tech Solutions, a/k/a Advanced Technology Solutions and iT Wave FZCO, a/k/a iT-Wave, a/k/a ITEX-Wave FZCO'
         entities:
           - ['Aiman Ammar', 'Ayman Ammar']
-          - Rashid Albuni
-          - Engineering Construction & Contracting Co
+          - ['Rashid Albuni']
+          - ['Engineering Construction & Contracting Co']
           - ['Advanced Tech Solutions', 'Advanced Technology Solutions']
           - ['iT Wave FZCO', 'iT-Wave', 'ITEX-Wave FZCO']
       - match: 'Peter Gromacki, and related persons JEN Fibers, LLC and Performance Engineered Nonwovens, LLC'
         entities:
-          - Peter Gromacki
-          - JEN Fibers, LLC
-          - Performance Engineered Nonwovens, LLC
+          - ['Peter Gromacki']
+          - ['JEN Fibers, LLC']
+          - ['Performance Engineered Nonwovens, LLC']
       - match: 'Wei Jiun Chu, a/k/a Jim Chu'
         entities:
           - ['Wei Jiun Chu', 'Jim Chu']
       - match: 'X-TREME Motors LLC, XTREME Outdoor Store, Tyson Preece, Corey Justin Preece and Toby Green'
         entities:
-          - X-TREME Motors LLC
-          - XTREME Outdoor Store
-          - Tyson Preece
-          - Corey Justin Preece
-          - Toby Green
+          - ['X-TREME Motors LLC']
+          - ['XTREME Outdoor Store']
+          - ['Tyson Preece']
+          - ['Corey Justin Preece']
+          - ['Toby Green']
       - match: 'Lisong Ma, a/k/a Ma Li'
         entities:
           - ['Lisong Ma', 'Ma Li']
@@ -616,15 +616,15 @@ lookups:
           - ['Mohammad Soroush Mahalaty', 'Mohammad Soroush', 'Mike Soroush']
       - match: 'Weatherford International LTD., Weatherford Oil Tool Middle East LTD., Weatherford Production Optimisation (UK) LTD., Precision Energy Services ULC and Precision Energy Services Colombia LTD.'
         entities:
-          - Weatherford International LTD
-          - Weatherford Oil Tool Middle East LTD
-          - Weatherford Production Optimisation (UK) LTD
-          - Precision Energy Services ULC
-          - Precision Energy Services Colombia LTD
+          - ['Weatherford International LTD']
+          - ['Weatherford Oil Tool Middle East LTD']
+          - ['Weatherford Production Optimisation (UK) LTD']
+          - ['Precision Energy Services ULC']
+          - ['Precision Energy Services Colombia LTD']
       - match: 'Ma Labs, Inc. and IT Express Corporation'
         entities:
-          - Ma Labs, Inc
-          - IT Express Corporation
+          - ['Ma Labs, Inc']
+          - ['IT Express Corporation']
       - match: 'Liem Duc Huynh, a/k/a Duc Huynh'
         entities:
           - ['Liem Duc Huynh', 'Duc Huynh']
@@ -633,11 +633,11 @@ lookups:
           - ['Andro Telemi', 'Andre Telimi', 'Andre Telemi']
       - match: 'RH International, LLC and Mohammad Reza (A/K/A Ray Hajian)'
         entities:
-          - RH International, LLC
+          - ['RH International, LLC']
           - ['Mohammad Reza', 'Ray Hajian']
       - match: 'Cargo-Partner Network, B.V'
         entities:
-          - 'Cargo-Partner Network, B.V'
+          - ['Cargo-Partner Network, B.V']
       - match: 'Jirair Avanessian, a/k/a Jirair Hijiabadi Avanessiana/k/a Jirair H. Avanessian, a/k/a Jerry Avanessiana/k/a Jerry Avanes'
         entities:
           - ['Jirair Avanessian', 'Jirair Hijiabadi Avanessian', 'Jirair H. Avanessian', 'Jerry Avanessian', 'Jerry Avanes']
@@ -652,7 +652,7 @@ lookups:
           - ['Yufeng Wei', 'Annie Wei']
       - match: 'Chitron Electronics, Inc.; Chitron ElectronicsCompany Limited, a/k/a Chi-Chuang ElectronicsCompany Limited, a/k/a Shenzhen ChitronElectronics Company Limited and Chitron (HK)Electronics Company Limited, a/k/a C.I.C.Electronics (HK) Limited'
         entities:
-          - Chitron Electronics, Inc
+          - ['Chitron Electronics, Inc']
           - ['Chitron Electronics Company Limited', 'Chi-Chuang Electronics Company Limited', 'Shenzhen Chitron Electronics Company Limited']
           - ['Chitron (HK) Electronics Company Limited', 'C.I.C. Electronics (HK) Limited']
       - match: 'Davoud Baniameri, a/k/a Davoud Baniamery,a/k/a David Baniameri and a/k/a David Baniamery'
@@ -660,21 +660,21 @@ lookups:
           - ['Davoud Baniameri', 'Davoud Baniamery', 'David Baniameri', 'David Baniamery']
       - match: 'Sayegh Group Aviation, Aban AirSam Air Corporation LimitedAviation Legacy (Gambia) LimitedAbdullah Khaled Ramadan, Ali Mahdavi, Mahmoud Khali Hamze (a/k/a Mahmoud Khalila/k/a Mahmoud Hamza Khalil)Everex Global Cargo and Courier'
         entities:
-          - Sayegh Group Aviation
-          - Aban AirSam Air Corporation Limited
-          - Aviation Legacy (Gambia) Limited
-          - Abdullah Khaled Ramadan
-          - Ali Mahdavi
+          - ['Sayegh Group Aviation']
+          - ['Aban AirSam Air Corporation Limited']
+          - ['Aviation Legacy (Gambia) Limited']
+          - ['Abdullah Khaled Ramadan']
+          - ['Ali Mahdavi']
           - ['Mahmoud Khali Hamze', 'Mahmoud Khalil', 'Mahmoud Hamza Khalil']
-          - Everex Global Cargo
-          - Courier
+          - ['Everex Global Cargo']
+          - ['Courier']
       - match: 'Delfin Group USA LLC, Marcos Baghdasarian, Bagdel Corporation, Naren Sachanandani, Do-It FZC'
         entities:
-          - Delfin Group USA LLC
-          - Marcos Baghdasarian
-          - Bagdel Corporation
-          - Naren Sachanandani
-          - Do-It FZC
+          - ['Delfin Group USA LLC']
+          - ['Marcos Baghdasarian']
+          - ['Bagdel Corporation']
+          - ['Naren Sachanandani']
+          - ['Do-It FZC']
       - match: 'Jeng Shih, a/k/a Jay Shih'
         entities:
           - ['Jeng Shih', 'Jay Shih']
@@ -683,21 +683,21 @@ lookups:
           - ['Sunrise Technologies and Trading Corporation', 'Sunrise', 'ST&T']
       - match: 'Flowserve S.A.S. France (Thiers, France)'
         entities:
-          - 'Flowserve S.A.S. France (Thiers, France)'
+          - ['Flowserve S.A.S. France (Thiers, France)']
       - match: 'Flowserve Pompes S.A.S. (Arnage, France)'
         entities:
-          - 'Flowserve Pompes S.A.S. (Arnage, France)'
+          - ['Flowserve Pompes S.A.S. (Arnage, France)']
       - match: 'Aqua-Loop Cooling Towers, Co.'
         entities:
-          - 'Aqua-Loop Cooling Towers, Co.'
+          - ['Aqua-Loop Cooling Towers, Co.']
       - match: 'Corezing International, Et Al.'
         entities:
-          - 'Corezing International, Et Al.'
+          - ['Corezing International, Et Al.']
       - match: 'Islamic Republic of Iran Shipping Lines, Tadbir Sanaat Sharif Technology Development Center, & Icarus Marine (PTY) Ltd.'
         entities:
-          - Islamic Republic of Iran Shipping Lines
-          - Tadbir Sanaat Sharif Technology Development Center
-          - Icarus Marine (PTY) Ltd
+          - ['Islamic Republic of Iran Shipping Lines']
+          - ['Tadbir Sanaat Sharif Technology Development Center']
+          - ['Icarus Marine (PTY) Ltd']
       - match: 'Hui-Fen Chen, A.K.A. Angela Chen'
         entities:
           - ['Hui-Fen Chen', 'Angela Chen']
@@ -706,22 +706,22 @@ lookups:
           - ['Kabba & Amir Investments, Inc', 'International Freight Forwarders']
       - match: 'Xu Weibo, Hao Li Chen, Xiu Ling Cheng and Kwan Chun Chan'
         entities:
-          - Xu Weibo
-          - Hao Li Chen
-          - Xiu Ling Cheng
-          - Kwan Chun Chan
+          - ['Xu Weibo']
+          - ['Hao Li Chen']
+          - ['Xiu Ling Cheng']
+          - ['Kwan Chun Chan']
       - match: 'Ihsan Elashi, Tetrabal Corporation, Al Kayali Corporation, Mynet.Net Corporation, Infocom Corporation, Synaptix.Net, Maysoon Al Kayali, Hazim Elashi, Bayan Elashi, Ghassan Elashi, Basman Elashi, Majida Salem, and Fadwa Elafrangi'
         entities:
-          - Ihsan Elashi
-          - Tetrabal Corporation
-          - Al Kayali Corporation
-          - Mynet.Net Corporation
-          - Infocom Corporation
-          - Synaptix.Net
-          - Maysoon Al Kayali
-          - Hazim Elashi
-          - Bayan Elashi
-          - Ghassan Elashi
-          - Basman Elashi
-          - Majida Salem
-          - Fadwa Elafrangi
+          - ['Ihsan Elashi']
+          - ['Tetrabal Corporation']
+          - ['Al Kayali Corporation']
+          - ['Mynet.Net Corporation']
+          - ['Infocom Corporation']
+          - ['Synaptix.Net']
+          - ['Maysoon Al Kayali']
+          - ['Hazim Elashi']
+          - ['Bayan Elashi']
+          - ['Ghassan Elashi']
+          - ['Basman Elashi']
+          - ['Majida Salem']
+          - ['Fadwa Elafrangi']
