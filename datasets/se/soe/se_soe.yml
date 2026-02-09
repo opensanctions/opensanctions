@@ -1,0 +1,33 @@
+title: Sweden State-Owned Enterprises Leadership
+prefix: se-soe
+url: https://bolagsverket.se/apierochoppnadata/hamtaforetagsinformation/vardefulladatamangder/apiforvardefulladatamangder.5513.html
+coverage:
+  frequency: weekly
+  start: 2026-02-04
+load_statements: true
+entry_point: crawler.py
+summary: >-
+  Leadership positions in Swedish state-owned enterprises, including board chairs,
+  board members, and C-level executives.
+description: |
+  This dataset contains information about politically exposed persons (PEPs) in leadership
+  roles at Swedish state-owned enterprises (SOEs). It includes chairs of the board, board
+  members, and C-level executives such as CEOs and CFOs. These individuals hold significant
+  positions in companies where the Swedish state is a major or controlling shareholder.
+tags:
+  - list.pep
+publisher:
+  name: Bolagsverket
+  name_en: Swedish Companies Registration Office
+  description: |
+    Bolagsverket is the official government agency responsible for registering businesses,
+    processing annual reports, and maintaining the corporate register in Sweden.
+  country: "se"
+  url: https://bolagsverket.se/en/1.html
+  official: true
+data:
+  # API docs: https://bolagsverket.se/apierochoppnadata/hamtaforetagsinformation/vardefulladatamangder/apiforvardefulladatamangder.5513.html
+  # API console: https://portal.api.bolagsverket.se/devportal/apis/ff8f9a91-1fdd-4705-8836-c1906581162f/api-console
+  url: https://gw.api.bolagsverket.se/vardefulla-datamangder/v1/organisationer
+  format: JSON
+  lang: swe
