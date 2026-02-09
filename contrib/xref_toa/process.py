@@ -35,6 +35,8 @@ real-world entity or not. Your decisions are conservative and based on the entit
 and contextual knowledge. Choose for `unsure` if there is not enough information to make a confident decision.
 Consider the following guidelines when making your decision:
 
+* Data entry is often inconsistent, so minor differences in names or other properties do not necessarily indicate
+  different entities. Birth dates can get severely mangled.
 * Two entities occurring in the same data source make a match less likely. Some sources have many duplicates, e.g. 
   `ua_nsdc_sanctions` (Person only), `us_cia_world_leaders` (Person only), `us_sam_exclusions` (poor quality overall).
   `ann_pep_positions` and `ann_graph_topics` are not subject to this rule.
@@ -47,28 +49,39 @@ Consider the following guidelines when making your decision:
   matches across these lists are likely.
 * The lists `us_trade_csl`, `us_bis_denied`, `us_ddtc_debarred`, `us_special_leg`, `us_chinese_milcorps` contain the
   same entities, so matches across these lists are likely. Do not merge different subsidiaries of large concerns.
+* The following lists rarely have internal matches: `pk_proscribed_persons`, `iq_aml_list`, `us_ofac_cons`, `id_dttot`. 
 * Sanctions lists like `gb_fcdo_sanctions` and `ch_seco_sanctions` sometimes contain textual references, where only
   a name is given to identify another entity on the same list or other major sanctions lists. These can be merged.
 * The lists `us_cia_world_leaders`, `us_cia_world_factbook` and `un_ga_protocol` describe senior national figures, so
   matches across these lists are very likely. One individual often holds multiple ministerial positions.
-* Data entry is often inconsistent, so minor differences in names or other properties do not necessarily indicate
-  different entities. Birth dates can get severely mangled.
+* American medical professionals on exclusion lists often move or operate several clinics, so their address is not a
+  good disambiguating signal for them.
 * Consider name frequency in the population (or in the context of the countries identified).
-* Political positions from different countries MUST NOT be merged, even if they have the same title. If a Position has
-  no country property, only merge it with other positions if the name is specific (e.g. "President of the United States").
-* Politicial positions where one is a bundle of posts ("Prime Minister and Minister of Foreign Affairs") and the
-  other is a single post ("Prime Minister") MUST NOT be merged. Be precise when matching political positions.
+* Arabic, Burmese and other non-Western names have often been listed by Western officials that have limited familiarity
+  with the language and culture, so they are often mangled and important parts left out or mis-ordered (BIN LADIN, Usama). 
+* Political positions from different countries MUST NOT be merged, even if they have the same title. 
+* If a Position has no country property, only merge it with other positions if the name is specific (e.g. "President
+  of the United States").
+* Be precise when matching political positions. Positions that name multiple mandates ("Minister of Finance and Economy"
+  and "Minister of Finance, the Economy and Industry") can be merged, but position names that identify wholly separate
+  offices ("Prime Minister and Minister of Finance") MUST be kept separate.
 * In contested territories (e.g. Crimea, Donetsk, Luhansk), country properties are less reliable.
 * Many profiles in Wikidata (IDs starting with Q) describe people not linked to politics and sanctions. Wikidata profiles
   mentioning "research" are bulk-uploaded authors of scientific papers.
+* Company incorporation dates and dissolution dates are often wrong. They are a weak disambiguating signal, but useful
+  for positive matches.
+* Vessels should be merged if they have the same IMO or MMSI number, but names and flags change often so they are weak signals.
+
+Aim for ~10%% unsure rate - don't force decisions on ambiguous cases.
 """
 
 
-def get_system_prompt() -> str:
+def get_system_prompt(datasets: set[str]) -> str:
     prompt = SYSTEM_PROMPT
     prompt += "\n\nHere are all of the datasets included in the database:\n"
     for dataset in catalog.datasets:
-        prompt += f"\n\t\t - {dataset.name}: {dataset.model.title}"
+        if dataset.name in datasets:
+            prompt += f"\n\t\t - {dataset.name}: {dataset.model.title}"
     return prompt
 
 
@@ -97,6 +110,7 @@ def decide_pair(resolver: Resolver, left: Entity, right: Entity, score: float) -
     # prompt the team of analysts
     left_str = entity_to_text(left)
     right_str = entity_to_text(right)
+    datasets = left.datasets.union(right.datasets)
     message = f"<left_entity>{left_str}</left_entity>\n\n<right_entity>{right_str}</right_entity>\n\n<score>{score}</score>"
     # print(message)
     print("\n\n=== DECIDING PAIR ===")
@@ -110,7 +124,7 @@ def decide_pair(resolver: Resolver, left: Entity, right: Entity, score: float) -
         system=[
             {
                 "type": "text",
-                "text": get_system_prompt(),
+                "text": get_system_prompt(datasets),
                 "cache_control": {"type": "ephemeral"},
             }
         ],
@@ -181,6 +195,11 @@ def auto_resolve(dataset: Dataset) -> None:
 if __name__ == "__main__":
     configure_logging()
     page = client.models.list()
-    sources = ["peps"]
+    # sources = ["peps"]
+    sources = [
+        "us_cia_world_leaders",
+        "us_cia_world_factbook",
+        "un_ga_protocol",
+    ]
     dataset = get_multi_dataset(sources)
     auto_resolve(dataset)
