@@ -88,20 +88,24 @@ def crawl_details(context: Context, bic: str, entity: Entity, short_name: str | 
     if co_data is None:
         # This is all caps ugliness - let's only use it when we're not getting nice names
         # from the detailed info.
-        h.apply_reviewed_names(context, entity, short_name, enable_llm_cleaning=True)
+        h.apply_reviewed_name_string(
+            context, entity, short_name, enable_llm_cleaning=True
+        )
     else:
         ssv_date = co_data.findtext("SSV_Date")
         reg_date = co_data.findtext("MainDateReg")
 
         en_names = co_data.findtext("encname")
-        h.review_names(context, entity, en_names, enable_llm_cleaning=True)
-        h.review_names(
+        h.apply_reviewed_name_string(
+            context, entity, en_names, enable_llm_cleaning=True
+        )
+        h.apply_reviewed_name_string(
             context, entity, co_data.findtext("OrgName"), enable_llm_cleaning=True
         )
-        h.review_names(
+        h.apply_reviewed_name_string(
             context, entity, co_data.findtext("OrgFullName"), enable_llm_cleaning=True
         )
-        h.review_names(
+        h.apply_reviewed_name_string(
             context, entity, co_data.findtext("csname"), enable_llm_cleaning=True
         )
 

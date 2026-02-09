@@ -22,6 +22,7 @@ from rigour.mime.types import ZIP
 
 from zavod import Context
 from zavod import helpers as h
+from zavod.extract.names.clean import Names
 
 
 DOWNLOAD_URL = "https://sam.gov/api/prod/fileextractservices/v1/api/download/"
@@ -204,7 +205,8 @@ def crawl(context: Context) -> None:
 
         # The low quality names tend to come from OFAC so check those.
         if agency == "TREAS-OFAC":
-            h.review_name_string(context, entity, name)
+            # TODO: Did we want to move the heuristic-based suggestions here for now?
+            review = h.apply_reviewed_name_string(context, entity, name)
         # TODO: Once we're done with reviews and change the OFAC clause to apply_reviewed_names,
         # and remove the heuristic-based cleaning/adding above, add the rest normally:
         # else:

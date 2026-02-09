@@ -206,7 +206,7 @@ def parse_entry(context: Context, entry: Element) -> None:
                     middle_name=middle_name,
                     last_name=last_name,
                 )
-            h.review_name_string(
+            h.apply_reviewed_name_string(
                 context,
                 entity,
                 full_name,
