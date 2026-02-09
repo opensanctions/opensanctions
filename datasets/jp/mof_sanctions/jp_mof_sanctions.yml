@@ -74,14 +74,14 @@ assertions:
       Address: 870
       LegalEntity: 520
       Organization: 130
-      CryptoWallet: 30
+      CryptoWallet: 25
   max:
     schema_entities:
       Person: 3700
       Address: 2040
       LegalEntity: 1200
       Organization: 300
-      CryptoWallet: 80
+      CryptoWallet: 70
 
 lookups:
   schema:
