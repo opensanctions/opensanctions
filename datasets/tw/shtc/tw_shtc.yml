@@ -33,6 +33,11 @@ tags:
   - list.regulatory
   - list.risk
 
+names:
+  LegalEntity:
+    reject_chars: "()（）"
+    single_token_min_length: 6
+
 assertions:
   min:
     schema_entities:

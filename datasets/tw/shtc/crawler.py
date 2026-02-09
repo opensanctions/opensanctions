@@ -5,6 +5,7 @@ from typing import List, Set
 import datapatch
 from pydantic import BaseModel
 from rigour.mime.types import CSV
+from zavod.extract.names.clean import Names
 from zavod.extract.zyte_api import fetch_html
 from zavod.stateful.review import (
     TextSourceValue,
@@ -50,12 +51,6 @@ PERMANENT_ID_RE = re.compile(r"^(?P<name>.+?)（永久參考號：(?P<unsc_num>.
 SUSPECT_CHAR_RE = re.compile(r"[()（）]")
 
 
-class Names(BaseModel):
-    primary_name: str
-    aliases: List[str] = []
-    weak_aliases: List[str] = []
-
-
 def contains_part(part: str, name: str) -> bool:
     return re.search(r"\b" + re.escape(part) + r"\b", name) is not None
 
@@ -97,7 +92,6 @@ def parse_names(
     aliases_str = aliases_raw.replace("<span   id='alias'>", "")
     aliases_str = aliases_str.replace("；", ";")  # Chinese semicolon
     primary_name = primary_name.replace("；", ";")  # Chinese semicolon
-    needs_review = False
 
     if " alias:" in primary_name:
         primary_name, aliases_in_names_str = primary_name.split(" alias:", 1)
@@ -116,6 +110,11 @@ def parse_names(
             primary_name, chinese_name = primary_name.split(split, 1)
             entity.add("alias", chinese_name.strip(), lang="zho")
 
+    # TODO: Adding aliases_str to original_names but adding the chinese names
+    # directly to the entity means the original and suggested will be inconsistent
+    # in those cases. Maybe time to add LangStr to the Names model already
+    # so that those names can also be represented in the review.
+    original_names = Names(name=primary_name, alias=aliases_str)
     aliases: Set[str] = set()
     weak_aliases: Set[str] = set()
     for alias in aliases_str.split(";"):
@@ -130,14 +129,9 @@ def parse_names(
                 break
         else:
             if len(alias) < 8:
-                needs_review = True
                 weak_aliases.add(alias)
                 continue
 
-            if " " not in alias:
-                needs_review = True
-            if SUSPECT_CHAR_RE.search(alias):
-                needs_review = True
             aliases.add(alias)
 
     primary_name = primary_name.strip()
@@ -154,34 +148,16 @@ def parse_names(
                 prev_name=prev_name,
             )
 
-    names = Names(
-        primary_name=primary_name,
-        aliases=list(aliases),
-        weak_aliases=list(weak_aliases),
+    suggested_names = Names(
+        name=primary_name,
+        alias=list(aliases),
+        weakAlias=list(weak_aliases),
     )
-    source_text = f"names: {names_raw}\naliases: {aliases_raw}"
-    source_value = TextSourceValue(
-        key_parts=[names_raw, aliases_raw],
-        label="Sanction item",
-        text=source_text,
+    # TODO: Replace with h.apply_reviewed_names once the reviews are done.
+    review = h.review_names(
+        context, entity, original=original_names, suggested=suggested_names
     )
-    if needs_review:
-        review = review_extraction(
-            context,
-            source_value=source_value,
-            original_extraction=names,
-            origin="SHTCEntityList.csv",
-        )
-        if review.accepted:
-            names = review.extracted_data
-
-    entity.add("name", names.primary_name)
-
-    for alias in names.aliases:
-        if alias != names.primary_name:
-            entity.add("alias", alias)
-    for weak_alias in names.weak_aliases:
-        entity.add("weakAlias", weak_alias)
+    h.apply_names(entity, suggested_names, origin="SHTCEntityList.csv")
 
 
 def crawl_row(context: Context, row):
