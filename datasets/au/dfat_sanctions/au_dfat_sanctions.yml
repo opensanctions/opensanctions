@@ -177,6 +177,7 @@ lookups:
           - Turkey
           - n/a
           - na
+          - "i"
         value: null
       - match: "Branch Office 6: Shop number 237, Shah Zada Market (also known as Sarai Shahzada), Puli Khishti area, Police District 1, Kabul, Afghanistan, Telephone: +93-202-103386, +93-202-101714, 0202-104748, Mobile: +93-797-059059, +93-702-222222, e-mail: helmand_exchange_msp@yahoo.com"
         value: Shop number 237, Shah Zada Market (also known as Sarai Shahzada), Puli Khishti area, Police District 1, Kabul, Afghanistan
@@ -224,6 +225,28 @@ lookups:
           - 1966
           - 1967
           - 1968
+      - match: 20/12/1961 21/12/1961
+        values:
+          - 1961-12-20
+          - 1961-12-21
+      - match: 06/10/1956 20/06/1956
+        values:
+          - 1956-10-06
+          - 1956-06-20
+      - match: 19/12/1962 30/12/1965
+        values:
+          - 1962-12-19
+          - 1965-12-30
+      - match: "7/02/1950/11/1950 08/08/1945"
+        values:
+          - 1950-02-07
+          - 1950-11-08
+          - 1945-08-08
+      - match: "27/05/1973 01/01/1975"
+        values:
+          - 1973-05-27
+          - 1975-01-01
+
       - match:
           - 196719611973
           - 2/05/196
