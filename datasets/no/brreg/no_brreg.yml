@@ -1,16 +1,16 @@
-title: Main Entities from The Central Coordinating Register for Legal Entities and The Register of Business Enterprises
+title: Norway Register of Business Enterprises Main Entities
 entry_point: crawler.py
 prefix: no-nbim
 coverage:
-  frequency: weekly  # how often shall we crawl it?
+  frequency: monthly
   start: 2026-02-02
-load_statements: true
+load_statements: false  # we'll add a second crawler that enriches against this data that will get added to the default collection (via enrichers)
 summary: >-
-  Complete official registry of Norwegian legal entities with organisation details, addresses,
-  industry codes, employee data, and registration statuses from Brønnøysund Register Centre.
+  Official registry of Norwegian legal entities with organisation details, addresses,
+  industry codes, and registration statuses from Brønnøysund Register Centre.
 description: |
-  The dataset contains information about all registered main entities in Norway,
-  sourced from two primary registers managed by the Brønnøysund Register Centre:
+  The dataset contains information about all registered legal entities in Norway,
+  sourced from two registers managed by the Brønnøysund Register Centre:
       1. The Central Coordinating Register for Legal Entities (CCR / Enhetsregisteret):
        A central registry of basic data about legal persons and other entities in Norway.
        The CCR assigns unique nine-digit organisation numbers for identification of entities.
@@ -23,6 +23,7 @@ description: |
 url: https://www.brreg.no/en/use-of-data-from-the-bronnoysund-register-centre/datasets-and-api/data-about-organisations/
 publisher:
   name: Brønnøysund Register Centre
+  name_en: Bronnoysund Register Centre
   acronym: BRREG
   description: |
     Brønnøysund Register Centre is a Norwegian government agency that is responsible for the management of numerous
@@ -48,7 +49,7 @@ lookups:
   headers:
     options:
       - match: organisasjonsnummer
-        value: id
+        value: org_number
       - match: navn
         value: name
 #
@@ -256,7 +257,7 @@ lookups:
         - '24'
         - '2025'
         value: null
-  email:
+  type.email:
     options:
       - match: 'tarudtransport@gmail.com@gmail.com'
         value: 'tarudtransport@gmail.com'
@@ -268,19 +269,400 @@ lookups:
         value: 'fadigeorgesaad@gmail.com'
       - match: 'holmenbetong@holmenbetong. no'
         value: 'holmenbetong@holmenbetong.no'
-  website:
+      - match: egil@cork.priv.no'
+        value: egil@cork.priv.no
+      - match: vidar@-asrorlegger.no
+        value: vidar@asrorlegger.no
+      - match: tomartto@online. no
+        value: tomartto@online.no
+      - match: arne@sos.as/erik@sos.as
+        values:
+          - arne@sos.as
+          - erik@sos.as
+      - match: meilee.marshall@alfamoving.com/no/
+        value: meilee.marshall@alfamoving.com
+      - match: post@tapetogmaling. no
+        value: post@tapetogmaling.no
+      - match: aashenrik@|hotmail.com
+        value: aashenrik@hotmail.com
+      - match: rolf.hagen.rh@gmail.com*
+        value: rolf.hagen.rh@gmail.com
+      - match: Company-mail@mas. no
+        value: company-mail@mas.no
+      - match: knutinge@betongvarer.noknutinge@betongvarer.no
+        value: knutinge@betongvarer.no
+      - match: info.no@afconsult.com/no
+        value: info.no@afconsult.com
+      - match: scherger@rime.no;mail@rime.no
+        values:
+          - scherger@rime.no
+          - mail@rime.no
+      - match: tmegaard@start..no
+        value: tmegaard@start.no
+      - match: toredybvik@yahoo. no
+        value: toredybvik@yahoo.no
+      - match: girts@keroc. no
+        value: girts@keroc.no
+      - match: post@hoyerbok. no
+        value: post@hoyerbok.no
+      - match: hallmo@online. no
+        value: hallmo@online.no
+      - match: johannes@nermo..no
+        value: johannes@nermo.no
+      - match: "post@billy´sbumbleandbumble.no"
+        value: post@billysbumbleandbumble.no
+      - match: mikase@bodo.kommune.no/
+        value: mikase@bodo.kommune.no
+      - match: karlfredrik@@reidarsolheim.no
+        value: karlfredrik@reidarsolheim.no
+      - match: sorliebass@gmail..com
+        value: sorliebass@gmail.com
+      - match: ellenstai@icloud.com'
+        value: ellenstai@icloud.com
+      - match: eop@raeder.no;post@raeder.no
+        values:
+          - eop@raeder.no
+          - post@raeder.no
+      - match: ivy(@)feastas.no
+        value: ivy@feastas.no
+      - match: tho@haakull.no|
+        value: tho@haakull.no
+      - match: alfebbe@kleivacamping. no
+        value: alfebbe@kleivacamping.no
+      - match: usbl@usbl..no
+        value: usbl@usbl.no
+      - match: grieghallen @grieghallen.no
+        value: grieghallen@grieghallen.no
+      - match: "'jojinagra@yahoo.com'"
+        value: jojinagra@yahoo.com
+      - match: info@seo.domains/
+        value: info@seo.domains
+      - match: legal.europe@misterbandb.com/
+        value: legal.europe@misterbandb.com
+      - match: roy@loisjeans.com/
+        value: roy@loisjeans.com
+      - match: biuro@tatra-house.com/
+        value: biuro@tatra-house.com
+      - match: jani.korpela@terveydenhuolto.com/
+        value: jani.korpela@terveydenhuolto.com
+      - match: 'salg@huhtamaki. com'
+        value: salg@huhtamaki.com
+      - match: info@andiretro.eu/
+        value: info@andiretro.eu
+      - match: post@slatsveenelektro. no
+        value: post@slatsveenelektro.no
+      - match: post@autoteam. no
+        value: post@autoteam.no
+      - match: adv@rye- Holmboe. no
+        value: adv@rye-holmboe.no
+      - match: _post@dropsfabrikken.no_
+        value: post@dropsfabrikken.no
+      - match: firmapost@menerga.no <firmapost@menerga.no>
+        value: firmapost@menerga.no
+      - match: post@korgfjellet. no
+        value: post@korgfjellet.no
+      - match: post@christiania- belysning.no
+        value: post@christiania-belysning.no
+      - match: bartos@microsoft. com
+        value: bartos@microsoft.com
+      - match: kamben@kamben. no
+        value: kamben@kamben.no
+      - match: torstein.selvik@munckgrab.no||
+        value: torstein.selvik@munckgrab.no
+      - match: post@skjelfoss- korn. no
+        value: post@skjelfoss-korn.no
+      - match: service@norlandia.no,
+        value: service@norlandia.no
+      - match: firmapost@micasa. no
+        value: firmapost@micasa.no
+      - match: mail@ramex. no
+        value: mail@ramex.no
+      - match: blt@blt. no
+        value: blt@blt.no
+      - match: post@fyllingen_elinst.no
+        value: post@fyllingen-elinst.no
+      - match: post@fluktenfraflammene.no/
+        value: post@fluktenfraflammene.no
+      - match: harald. gether@gether. no
+        value: harald.gether@gether.no
+      - match: "'trkve@c2i.net'"
+        value: trkve@c2i.net
+      - match: thor@nordvent. no
+        value: thor@nordvent.no
+      - match: mammutnorway@mammut. com
+        value: mammutnorway@mammut.com
+      - match: kirkevergen @kirken-hurum.no
+        value: kirkevergen@kirken-hurum.no
+      - match: vadso.r@online. no
+        value: vadso.r@online.no
+      - match: briolagunen@gmail. com
+        value: briolagunen@gmail.com
+      - match: skogsvag@rema. no
+        value: skogsvag@rema.no
+      - match: firmapost@bjorn- jorgensen. no
+        value: firmapost@bjorn-jorgensen.no
+      - match: post@isaltdal. no
+        value: post@isaltdal.no
+      - match: saltencruise@live. no
+        value: saltencruise@live.no
+      - match: hakrbj@online. no
+        value: hakrbj@online.no
+      - match: post@kpsonner. no
+        value: post@kpsonner.no
+      - match: design@vard. com
+        value: design@vard.com
+      - match: th@onoffbemanning. no
+        value: th@onoffbemanning.no
+      - match: wimik@online.no/
+        value: wimik@online.no
+      - match: verdalinderoy.nt(@)revmatiker.org
+        value: verdalinderoy.nt@revmatiker.org
+      - match: post@geiranger- nordfjord. no
+        value: post@geiranger-nordfjord.no
+      - match: viggo@svalastog- bygg. no
+        value: viggo@svalastog-bygg.no
+      - match: atle.o.larsen@orkla_shipping.no
+        value: atle@orkla-shipping.no
+      - match: riktig epost er lgn@online. no
+        value: riktigeposterlgn@online.no
+      - match: post(@)kokkeogserveringstjenester.no
+        value: post@kokkeogserveringstjenester.no
+      - match: kongsberg@aktiv. no
+        value: kongsberg@aktiv.no
+      - match: hikolas.goryczka@katolsk..no
+        value: hikolas.goryczka@katolsk.no
+      - match: post@bonord..no
+        value: post@bonord.no
+      - match: post@oae..no
+        value: post@oae.no
+      - match: post@|vestbo.no
+        value: post@vestbo.no
+      - match: post@salomon- johansen.no
+        value: post@salomon-johansen.no
+      - match: booking@sult..no
+        value: booking@sult.no
+      - match: secretary@]lipidforum.info
+        value: secretary@lipidforum.info
+      - match: lillestrom@naturvernforbundet.no/lillestrom/
+        value: lillestrom@naturvernforbundet.no
+      - match: kjerstiwith@hotmail. com
+        value: kjerstiwith@hotmail.com
+      - match: anders@edgead..no
+        value: anders@edgead.no
+      - match: "e- postadresse: post@isushi. no"
+        value: post@isushi.no
+      - match: lmh@iris-salten. no
+        value: lmh@iris-salten.no
+      - match: post@petrolia. eu
+        value: post@petrolia.eu
+      - match: klunde@skovly.no|
+        value: klunde@skovly.no
+      - match: caratfosnavaag@gmail. com
+        value: caratfosnavaag@gmail.com
+      - match: post@kringe.no;post@hydraulikkbutikken.no
+        values:
+          - post@kringe.no
+          - post@hydraulikkbutikken.no
+      - match: espen@restaurant-smak.no;evalinda@restaurant-smak.no
+        values:
+          - espen@restaurant-smak.no
+          - evalinda@restaurant-smak.no
+      - match: t_emanuelsen@hotmail.com/solveigballo@spray.no
+        values:
+          - t_emanuelsen@hotmail.com
+          - solveigballo@spray.no
+      - match: Bjarte55@hotmail.com/geirgaut@start.no
+        values:
+          - bjarte55@hotmail.com
+          - geirgaut@start.no
+      - match: tokv@online.no/le.ha@online.no
+        values:
+          - tokv@online.no
+          - le.ha@online.no
+      - match: postmaster@holondaauto.no;bergauto@bergauto.no
+        values:
+          - postmaster@holondaauto.no
+          - bergauto@bergauto.no
+      - match:
+        values:
+          - t_emanuelsen@hotmail.com
+          - solveigballo@spray.no
+      - match: hw@rosom.no;mail@rosom.no
+        values:
+          - hw@rosom.no
+          - mail@rosom.no
+      - match: kmr@rime.no;mail@rime.no
+        values:
+          - kmr@rime.no
+          - mail@rime.no
+      - match: ham@kvale.no;post@kvale.no
+        values:
+          - ham@kvale.no
+          - post@kvale.no
+      - match: tho@kvale.no;post@kvale.no
+        values:
+          - tho@kvale.no
+          - post@kvale.no
+      - match: kmr@rime.no;mail@rime.no
+        values:
+          - kmr@rime.no
+          - mail@rime.no
+      - match:
+         - aj@karlsen@c2i.net
+         - ah@bbl.no;jik@kollstrom.no
+         - post@aqua/kompetanse.no
+         - firmapost@drammen@rikstoto.no
+         - neil@hardie@bluemanta.com
+         - sor@skeivungdom.no/sor
+         - gudbjorg.gudmundsdottir@-group.com
+         - abj@shield_soft.com
+         - terje@haavik@ostereng.no
+         - svein@grodal@svorka.net
+         - jarle@refsnes@tele2.no
+         - thomas@-venture.com
+         - c_r:hansen82@msn.com
+         - support@t+3lshop.dk
+         - geir.vala@borgestad_asa.com
+         - obr@06215. no
+         - post@vikekino-.no
+         - ala@-g.no
+         - prrland@|online.no
+         - fure@natt&dag.no
+         - inger.lise@-r.no
+         - firmapost[fjernklammer.og.det.mellom]@oppsikt.com
+         - frode@fitjar@haugnett.no
+         - rodmar@formidabel/prod.no
+         - oyvind@sorvik@haugnett.no
+         - km@vitalrorvik. no tildligere jp@vitalrorvik. no
+         - post@arendal@bbl.no
+         - steinar@lindberg_lund.no
+         - hallo@my&mo.no
+        value: null
+  type.url:
     options:
       - match:
-          - 'harubayoga'
-          - 'valhallaoslovikinglag'
-          - '91812020'
-          - '97796058'
-          - 'Ubonthaimassasje'
-          - '91708719'
-          - '91581052'
-          - 'facebook'
+          - harubayoga
+          - valhallaoslovikinglag
+          - Ubonthaimassasje
+          - "Jonlijas’gallery"
+          - Operasjonssykepleier
+          - Ingen
+          - ingen
+          - Balanz
+          - Aurskog-HølandGammeltekniskForening
+          - Facebook-gruppe
+          - austevollhytteutleie
+          - VikingVigra
+          - gallerif15momentum
+          - RotaryiOrkdal
+          - Roalinna32
+          - NORWAY
+          - terapeutiskesamtaler
+          - EkkilsøyVelforening
+          - kommer
+          - hudpleienTGL
+          - Juoigalasat
+          - HINNØYARENHOLDAS
+          - Viharingennettside
+          - askerquiltelag
+          - FBGokstadNMU
+          - holmetennis
+          - SalgsvognenSNACKS&SÅNT
+          - risbergetturforening
+          - kontonr86019045422
+          - The-A-Team
+          - hoslisecoaching
+          - Komheimattlaerdal
+          - nationalparks-norway
+          - Aroosaglamourholic
+          - SpotifyAugustCancino
+          - FBBambleSV
+          - SenjaIslandAdventure
+          - AmsFoto
+          - Lofotenadventures
+          - Yasfashion
+          - nn-MargrethesMassasjeogTerapirom
+          - LeRossPermanentMakeUp
+          - Tineskunstgalleri
+          - IngridsSnurrepiperierogPakkeri
+          - Fosslibygg&anlegg
+          - vandrepsykologen
+          - Interiørtunet
+          - playmusikkskoleArendal
+          - Hjernetrimarbeider
+          - allsangiullensaker
+          - Victoriavettu
+          - Hokuspokuskreftifokus
+          - Skjeggklokkevegenvelforening
+          - imi-stolen
+          - Kalesjerep
+          - dickhenriksensangstudio
+          - M&Mdesign
+          - krakeroytrafikkskole/tabs
+          - GalleriMadsM
+          - Selsvikgård
+          - kunstparktranoy
+          - NANANNA
+          - satefo
+          - Seniorklubben
+          - legeforeningen/Fagmed/Norsk-barnelegeforening/Interessegrupper/norsk-barnenevrologisk-forening-nbnf/
+          - DNTTelemark
+          - Mikkel
+          - amcartromsø
+          - NBF-Telemark/Skien-BK
+          - grimstadbygdekvinnelag
+          - vestopplandenestraverselskap
+          - Utgårdskilenvelforening
+          - alstahaugsangkor
+          - RandøyIL
+          - lørenskogvestrotaryklubb
+          - Seljavenner
+          - notavailable
+          - NFUHaugesund
+          - Nordlysbuen
+          - FossekallenFiskeklubb
+          - wwwrekdaltransport
+          - Utgår
+          - medtankeforskog
+          - Kjells-Blomstertelt
+          - NoSweat
+          - bruktbilutleie
+          - Omegaklinikken
+          - Rudsmoen
+          - FalkeklubbenLister
+          - Kvardagsterk
+          - Lillehusetinr8
+          - nkvelvære
+          - FSE-Fossland
+          - NLG-Norway
+          - HUNDVINGUIDING
+          - ManiRoom
+          - RenByggserviceas
+          - _beautybyandersen
+          - negleservice_alver_bergen
+          - Markisekameratene
+          - Taximax
+          - Fresh&Well
+          - Auto4U
+          - Pågående
+          - loisjeanstorecon/
+          - Diana_Foto
+          - lse-as
+          - osthaugAMS
+          - Stavanger
+          - 24-m-com
+          - ms_malerier
+          - Nordheimikt
+          - Freyerjus
+          - allskintherapy
+          - irenelanoruega
+          - nailsbyleahelida
         value: null
-  country_code:
-      options:
-      - match: cd
-        value: cg
+      - match: amalietillung-com
+        value: amalietillung.com
+      - match: /www.balticyachts.no
+        value: www.balticyachts.no
+  # country_code:
+  #   options:
+  #     - match: cd
+  #       value: cg
