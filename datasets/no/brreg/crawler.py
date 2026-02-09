@@ -48,7 +48,7 @@ def get_oldest_date(dict_row: Dict[str, Any], keys_to_check: List[str]) -> str |
     return str(oldest)
 
 
-def crawl_row(dict_row: Dict[str, Any], context: Context) -> None:
+def crawl_row(context: Context, dict_row: Dict[Any, Any]) -> None:
     name = dict_row.pop("name")  # what about foreign_register_name?
     id = dict_row.pop("id")
 
@@ -195,20 +195,19 @@ def crawl(context: Context) -> None:
     path = context.fetch_resource("source.csv.gz", url)
     context.export_resource(path, GZIP, title=context.SOURCE_TITLE)
 
+    # read the norwegian header
     with gzip.open(path, "rt") as f:
-        reader = csv.reader(f)  # single-pass iterator
+        reader = csv.reader(f)
+        nok_header_row = next(reader)
 
-        headers: Dict[str, int] = {}
-        for col_idx, cell in enumerate(next(reader)):
-            val = cell.strip()
-            headers[context.lookup_value("headers", val, val)] = col_idx
+        # translate to english headers
+        eng_header_row = [
+            context.lookup_value("headers", header, warn_unmatched=True)
+            for header in nok_header_row
+        ]
 
-        # k = 0
-        for row in reader:
-            # k += 1
-            dict_row = row_to_dict(row, headers)
-            crawl_row(dict_row, context)
-            # if k == 50000:
-            #     breakpoint()
-        # print(k)
-        # breakpoint()
+        # iterate over the rows with english field names
+        dict_reader = csv.DictReader(f, fieldnames=eng_header_row)
+        for row in dict_reader:
+            row = {k: v.strip() for k, v in row.items()}
+            crawl_row(context, row)
