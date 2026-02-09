@@ -1093,3 +1093,8 @@ lookups:
           - One Thousand & One Voices Management LLC
           - Family Legacy Capital Credit Management LLC
           - Hedrik F. Jordaan
+      - match: "Ownzones Media Network Inc., Daniel Goman, and Joseph Goman"
+        names:
+          - Ownzones Media Network Inc.
+          - Daniel Goman
+          - Joseph Goman
