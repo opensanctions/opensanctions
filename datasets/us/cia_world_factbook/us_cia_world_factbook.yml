@@ -2,8 +2,9 @@ title: US CIA World Factbook Heads of State and Government
 entry_point: crawler.py
 prefix: us-cia
 coverage:
-  frequency: weekly
+  frequency: never
   start: "2023-09-21"
+  end: "2026-02-04"
 load_statements: true
 summary: >
   An index of most national-level heads of state and heads of government
@@ -22,6 +23,9 @@ description: |
   > government, economy, energy, geography, environment, communications,
   > transportation, military, terrorism, and transnational issues for 266 world
   > entities.
+deprecation: |
+  This dataset is no longer available. On February 4, 2026, the CIA announced it would
+  discontinue the World Factbook after decades of publication. Read their farewell message [here](https://www.cia.gov/stories/story/spotlighting-the-world-factbook-as-we-bid-a-fond-farewell/).
 url: https://www.cia.gov/the-world-factbook/
 tags:
   - list.pep
