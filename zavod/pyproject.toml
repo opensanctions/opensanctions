@@ -68,6 +68,7 @@ dev = [
     "requests-mock",
     "types-requests",
     "types-openpyxl",
+    "types-xlrd",
     "types-google-cloud-ndb",
     "types-redis",
     "types-PyYAML",
