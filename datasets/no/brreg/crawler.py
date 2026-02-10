@@ -35,7 +35,7 @@ def get_oldest_date(dict_row: Dict[str, Any], keys_to_check: List[str]) -> str |
 
 
 def crawl_row(context: Context, dict_row: Dict[Any, Any]) -> None:
-    name = dict_row.pop("name")  # what about foreign_register_name?
+    name = dict_row.pop("name")  # what about foreign_register_name? -> alias
     org_number = dict_row.pop("org_number")
 
     entity = context.make("LegalEntity")
@@ -43,7 +43,7 @@ def crawl_row(context: Context, dict_row: Dict[Any, Any]) -> None:
     entity.add("name", name)
     entity.add(
         "jurisdiction",
-        ["no", dict_row.pop("subject_to_legislation_country_code", None)],
+        dict_row.pop("subject_to_legislation_country_code", None),
     )
     entity.add("legalForm", dict_row.pop("org_form_description", None))
     # entity.add("description", dict_row.pop("statutory_purpose", None))
@@ -73,6 +73,7 @@ def crawl_row(context: Context, dict_row: Dict[Any, Any]) -> None:
         entity.add("sector", v)
         dict_row.pop(k)
 
+    # === contacts === #
     entity.add("email", dict_row.pop("email"))
     website = dict_row.pop("website", None)
     if website and (
@@ -86,37 +87,31 @@ def crawl_row(context: Context, dict_row: Dict[Any, Any]) -> None:
     h.apply_date(entity, "incorporationDate", get_oldest_date(dict_row, INC_DATES))
     h.apply_date(entity, "dissolutionDate", get_oldest_date(dict_row, DISSOLV_DATES))
 
-    country_code_business = (
-        dict_row.pop("business_address_country_code", None) or ""
-    ).lower() or None
-    # country_code_business = context.lookup_value("country_code", country_code_business)
-    # business_country = dict_row.get("business_address_country", None)
-    # j = 0
-    # if business_country == "Kongo" or (business_country and "kongo" in business_country.lower()):
-    #     j += 1
-    #     breakpoint()
-    # if j > 1:
-    #     breakpoint()
+    # === addresses === #
+    ba_country = dict_row.pop("business_address_country_code", None) or ""
+    country_code_business = ba_country.lower()
+    if country_code_business not in entity.countries:
+        entity.add("country", country_code_business)
     business_address = h.make_address(
         context,
         street=dict_row.pop("business_address_street", None),
         city=dict_row.pop("business_address_city", None),
         postal_code=dict_row.pop("business_address_postal_code", None),
-        country=dict_row.pop("business_address_country", None),
+        # country=dict_row.pop("business_address_country", None),
         country_code=country_code_business,
     )
     h.copy_address(entity, business_address)
 
-    country_code_postal = (
-        dict_row.pop("postal_address_country_code", None) or ""
-    ).lower() or None
-    # country_code_postal = context.lookup_value("country_code", country_code_postal)
+    pa_country = dict_row.pop("postal_address_country_code", None) or ""
+    country_code_postal = pa_country.lower()
+    if country_code_postal not in entity.countries:
+        entity.add("country", country_code_postal)
     postal_address = h.make_address(
         context,
         street=dict_row.pop("postal_address_street", None),
         city=dict_row.pop("postal_address_city", None),
         postal_code=dict_row.pop("postal_address_postal_code", None),
-        country=dict_row.pop("postal_address_country", None),
+        # country=dict_row.pop("postal_address_country", None),
         country_code=country_code_postal,
     )
     h.copy_address(entity, postal_address)
@@ -163,6 +158,8 @@ def crawl_row(context: Context, dict_row: Dict[Any, Any]) -> None:
             "is_in_corporate_group",
             "foreign_register_name",  # maybe we need it? as an alias maybe? it is tied to foreign address
             "parent_entity",  # do we need to add it?
+            "business_address_country",  # use postal codes instead
+            "postal_address_country",  # use postal codes instead
         ]
         + [
             k

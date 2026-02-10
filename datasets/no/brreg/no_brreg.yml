@@ -252,10 +252,10 @@ lookups:
       - match: '+41552505320'
         value: 'Systron EMV GmbH'
       - match:
-        - '50 +'
-        - '1532-186/468'
-        - '24'
-        - '2025'
+          - '50 +'
+          - '1532-186/468'
+          - '24'
+          - '2025'
         value: null
   type.email:
     options:
@@ -508,35 +508,35 @@ lookups:
           - kmr@rime.no
           - mail@rime.no
       - match:
-         - aj@karlsen@c2i.net
-         - ah@bbl.no;jik@kollstrom.no
-         - post@aqua/kompetanse.no
-         - firmapost@drammen@rikstoto.no
-         - neil@hardie@bluemanta.com
-         - sor@skeivungdom.no/sor
-         - gudbjorg.gudmundsdottir@-group.com
-         - abj@shield_soft.com
-         - terje@haavik@ostereng.no
-         - svein@grodal@svorka.net
-         - jarle@refsnes@tele2.no
-         - thomas@-venture.com
-         - c_r:hansen82@msn.com
-         - support@t+3lshop.dk
-         - geir.vala@borgestad_asa.com
-         - obr@06215. no
-         - post@vikekino-.no
-         - ala@-g.no
-         - prrland@|online.no
-         - fure@natt&dag.no
-         - inger.lise@-r.no
-         - firmapost[fjernklammer.og.det.mellom]@oppsikt.com
-         - frode@fitjar@haugnett.no
-         - rodmar@formidabel/prod.no
-         - oyvind@sorvik@haugnett.no
-         - km@vitalrorvik. no tildligere jp@vitalrorvik. no
-         - post@arendal@bbl.no
-         - steinar@lindberg_lund.no
-         - hallo@my&mo.no
+          - aj@karlsen@c2i.net
+          - ah@bbl.no;jik@kollstrom.no
+          - post@aqua/kompetanse.no
+          - firmapost@drammen@rikstoto.no
+          - neil@hardie@bluemanta.com
+          - sor@skeivungdom.no/sor
+          - gudbjorg.gudmundsdottir@-group.com
+          - abj@shield_soft.com
+          - terje@haavik@ostereng.no
+          - svein@grodal@svorka.net
+          - jarle@refsnes@tele2.no
+          - thomas@-venture.com
+          - c_r:hansen82@msn.com
+          - support@t+3lshop.dk
+          - geir.vala@borgestad_asa.com
+          - obr@06215. no
+          - post@vikekino-.no
+          - ala@-g.no
+          - prrland@|online.no
+          - fure@natt&dag.no
+          - inger.lise@-r.no
+          - firmapost[fjernklammer.og.det.mellom]@oppsikt.com
+          - frode@fitjar@haugnett.no
+          - rodmar@formidabel/prod.no
+          - oyvind@sorvik@haugnett.no
+          - km@vitalrorvik. no tildligere jp@vitalrorvik. no
+          - post@arendal@bbl.no
+          - steinar@lindberg_lund.no
+          - hallo@my&mo.no
         value: null
   type.url:
     options:
@@ -581,7 +581,7 @@ lookups:
           - AmsFoto
           - Lofotenadventures
           - Yasfashion
-          - nn-MargrethesMassasjeogTerapirom
+          - Ann-MargrethesMassasjeogTerapirom
           - LeRossPermanentMakeUp
           - Tineskunstgalleri
           - IngridsSnurrepiperierogPakkeri
@@ -651,7 +651,7 @@ lookups:
           - osthaugAMS
           - Stavanger
           - 24-m-com
-          - ms_malerier
+          - rms_malerier
           - Nordheimikt
           - Freyerjus
           - allskintherapy
