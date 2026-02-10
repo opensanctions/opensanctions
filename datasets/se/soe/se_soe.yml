@@ -1,6 +1,6 @@
 title: Sweden State-Owned Enterprises Leadership
 prefix: se-soe
-url: https://bolagsverket.se/apierochoppnadata/hamtaforetagsinformation/vardefulladatamangder/apiforvardefulladatamangder.5513.html
+url: https://www.regeringen.se/rapporter/2025/06/verksamhetsberattelse-for-bolag-med-statligt-agande-2024/
 coverage:
   frequency: weekly
   start: 2026-02-04
@@ -17,17 +17,98 @@ description: |
 tags:
   - list.pep
 publisher:
-  name: Bolagsverket
-  name_en: Swedish Companies Registration Office
+  name: Regeringskansliet
+  name_en: Government Offices of Sweden
   description: |
-    Bolagsverket is the official government agency responsible for registering businesses,
-    processing annual reports, and maintaining the corporate register in Sweden.
+    Regeringskansliet (the Swedish Government Offices) is a government agency that supports the Swedish
+    government in governing the country and implementing its policies. It acts as the central administrative
+    body, comprising the Prime Minister's Office, ten ministries, and the Government Offices' Office for
+    Administrative Affairs.
   country: "se"
-  url: https://bolagsverket.se/en/1.html
+  url: https://www.government.se/
   official: true
 data:
-  # API docs: https://bolagsverket.se/apierochoppnadata/hamtaforetagsinformation/vardefulladatamangder/apiforvardefulladatamangder.5513.html
-  # API console: https://portal.api.bolagsverket.se/devportal/apis/ff8f9a91-1fdd-4705-8836-c1906581162f/api-console
-  url: https://gw.api.bolagsverket.se/vardefulla-datamangder/v1/organisationer
+  url: https://www.regeringen.se/contentassets/a2be3c80b3384f3eadc64530f6a2ff23/verksamhetsberattelse--for-bolag-med-statligt-agande-2024.pdf
   format: JSON
   lang: swe
+
+
+lookups:
+  company_names:
+    options:
+      - match: 'Akademiska Hus Aktiebolag äger, utvecklar och förv'
+        name: Akademiska Hus Aktiebolag
+      - match: 'Almi AB ska, som ett komplement till den privata m'
+        name: Almi AB
+      - match: 'Apotek Produktion & Laboratorier AB (APL) utveckla'
+        name: Apotek Produktion & Laboratorier AB
+      - match: 'Apoteket AB erbjuder läkemedel, apoteksprodukter o'
+        name: Apoteket AB
+      - match: 'Arlandabanan Infrastructure AB (AIAB) äger och för'
+        name: Arlandabanan Infrastructure AB
+      - match: 'Green Cargo AB är Sveriges största aktör inom håll'
+        name: Green Cargo AB
+      - match: 'AB Göta kanalbolag driver och förvaltar Göta kanal'
+        name: AB Göta
+      - match: 'Infranord AB är det ledande järnvägsentreprenadbol'
+        name: Infranord AB
+      - match: 'Jernhusen AB äger, utvecklar och förvaltar station'
+        name: Jernhusen AB
+      - match: 'Kungliga Dramatiska teatern Aktiebolag (Dramaten)'
+        name: Kungliga Dramatiska teatern Aktiebolag
+      - match: 'Kungliga Operan Aktiebolag (Operan) är Sveriges na'
+        name: Kungliga Operan Aktiebolag
+      - match: 'LuossavaaraKiirunavaara Aktiebolag (LKAB) är mode'
+        name: Luossavaara-Kiirunavaara Aktiebolag
+      - match: 'Miljömärkning Sverige AB förvaltar på regeringens'
+        name: Miljömärkning Sverige AB
+      - match: 'PostNord AB är ledande inom paket och logistiktjä'
+        name: PostNord AB
+      - match: 'RISE Research Institutes of Sweden AB (RISE) är et'
+        name: RISE Research Institutes of Sweden AB
+      - match: 'Samhall Aktiebolag ska, som en del av den svenska'
+        name: Samhall Aktiebolag
+      - match: 'Saminvest AB är ett riskkapitalbolag med uppdrag a'
+        name: Saminvest AB
+      - match: 'SBAB Bank AB (publ) (SBAB) erbjuder lån, sparande'
+        name: SBAB Bank AB
+      - match: 'SJ AB är den största operatören av persontrafik på'
+        name: SJ AB
+      - match: 'SOS Alarm Sverige AB ska på uppdrag av staten ansv'
+        name: SOS Alarm Sverige AB
+      - match: 'Specialfastigheter Sverige Aktiebolag äger, utveck'
+        name: Specialfastigheter Sverige Aktiebolag
+      - match: 'Statens Bostadsomvandling AB förvärvar, utvecklar,'
+        name: Statens Bostadsomvandling AB
+      - match: 'Sveaskog AB är Sveriges största skogsägare och för'
+        name: Sveaskog AB
+      - match: 'Aktiebolaget Svensk Exportkredit (SEK) ska på komm'
+        name: Aktiebolaget Svensk Exportkredit
+      - match: 'SvenskDanska Broförbindelsen SVEDAB AB (Svedab) ä'
+        name: Svensk-Danska Broförbindelsen SVEDAB AB
+      - match: 'Svenska rymdaktiebolaget (SSC) är en global levera'
+        name: Svenska rymdaktiebolaget
+      - match: 'Svenska skeppshypotekskassan (Skeppshypotek) under'
+        name: Svenska skeppshypotekskassan
+      - match: 'AB Svenska Spel med dotterbolag är verksamt inom f'
+        name: AB Svenska Spel
+      - match: 'Svevia AB (publ) bildades 2009 när Vägverkets enhe'
+        name: Svevia AB
+      - match: 'Swedavia AB driver och utvecklar tio flygplatser i'
+        name: Swedavia AB
+      - match: 'Sweden House är ett ryskt aktiebolag som ägs av La'
+        name: Sweden House
+      - match: 'Swedfund International AB (Swedfund) är en utveckl'
+        name: Swedfund International AB
+      - match: 'Systembolaget Aktiebolag bedriver, med ensamrätt,'
+        name: Systembolaget Aktiebolag
+      - match: 'Telia Company AB (Telia) är nordisk och baltisk le'
+        name: Telia Company AB
+      - match: 'Teracom Group AB bedriver utsändning och överförin'
+        name: Teracom Group AB
+      - match: 'Vattenfall AB är en av Europas största producenter'
+        name: Vattenfall AB
+      - match: 'V.S. VisitSweden AB:s (VisitSweden:s) uppdrag är a'
+        name: V.S. VisitSweden AB
+      - match: 'Voksenåsen AS är ett norskt aktiebolag, helägt av'
+        name: Voksenåsen AS
