@@ -45,33 +45,6 @@ For development, you want to use our [prek](https://github.com/j178/prek) config
 - To run these hooks automatically when running `git commit`, install them with `prek install`. You can always skip them by using `git commit --no-verify`.
 - If you prefer to run these hooks manually, just run `prek run`
 
-## Using Docker
-
-If you have [Docker installed on your computer](https://docs.docker.com/get-docker/), you can use the supplied `Makefile` and `docker-compose` configuration to build and run a container that hosts the application:
-
-```bash
-$ make build
-# This runs a single command which you can also execute directly:
-$ docker-compose build --pull
-```
-
-Once the container images have been built, you can run the `zavod` command-line
-tool within the container:
-
-```bash
-$ docker-compose run --rm app zavod --help
-# Or, run a specific subcommand:
-$ docker-compose run --rm app zavod crawl datasets/ua/edr/ua_edr.yml
-# You can also just run a shell inside the container, and then execute multiple
-# commands in sequence:
-$ docker-compose run --rm app bash
-container$ zavod crawl datasets/ua/edr/ua_edr.yml
-# The above command to spawn an interactive shell is also available as:
-$ make shell
-```
-
-The docker environment will provide the commands inside the container with access to the `data/` directory in the current working directory, i.e. the repository root. You can find any generated outputs and the copy of the processing database in that directory.
-
 ## Configuration
 
 `zavod` is inspired by the [twelve factor model](https://12factor.net/) and uses
