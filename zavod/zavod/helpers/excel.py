@@ -2,10 +2,16 @@ from typing import Dict, Generator, Iterator, List, Optional, Union
 from datetime import datetime
 from datapatch import Lookup
 from normality import slugify_text, stringify
-from xlrd import XL_CELL_DATE  # type: ignore
-from xlrd.book import Book  # type: ignore
-from xlrd.sheet import Cell, Sheet  # type: ignore
-from xlrd.xldate import xldate_as_datetime  # type: ignore
+from xlrd import (
+    XL_CELL_DATE,
+    XL_CELL_EMPTY,
+    XL_CELL_ERROR,
+    XL_CELL_BLANK,
+    XL_CELL_NUMBER,
+)
+from xlrd.book import Book
+from xlrd.sheet import Cell, Sheet
+from xlrd.xldate import xldate_as_datetime
 from rigour.time import datetime_iso
 from openpyxl.worksheet.worksheet import Worksheet
 
@@ -22,11 +28,13 @@ def convert_excel_cell(book: Book, cell: Cell) -> Optional[str]:
     Returns:
         The cell value as a string, or `None` if the cell is empty.
     """
-    if cell.ctype == 2:
+    # https://xlrd.readthedocs.io/en/latest/api.html#xlrd.sheet.Cell
+    if cell.ctype == XL_CELL_NUMBER:
         return str(int(cell.value))
-    elif cell.ctype in (0, 5, 6):
+    elif cell.ctype in (XL_CELL_EMPTY, XL_CELL_ERROR, XL_CELL_BLANK):
         return None
-    if cell.ctype == 3:
+    if cell.ctype == XL_CELL_DATE:
+        assert isinstance(cell.value, float)
         dt = xldate_as_datetime(cell.value, book.datemode)
         return datetime_iso(dt)
     else:
@@ -76,15 +84,17 @@ def parse_xls_sheet(
     for row_ix, row in enumerate(sheet):
         if row_ix < skiprows:
             continue
-        cells = []
+        cells: List[Optional[str]] = []
         record: Dict[str, str | None] = {}
-        for cell_ix, cell in enumerate(row):
-            if cell.ctype == XL_CELL_DATE:
+        for cell_ix, xl_cell in enumerate(row):
+            if xl_cell.ctype == XL_CELL_DATE:
                 # Convert Excel date format to zavod date
-                date_value = xldate_as_datetime(cell.value, sheet.book.datemode)
+                assert isinstance(xl_cell.value, float)
+                assert sheet.book is not None
+                date_value = xldate_as_datetime(xl_cell.value, sheet.book.datemode)
                 cells.append(date_value.date().isoformat())
             else:
-                cells.append(cell.value)
+                cells.append(stringify(xl_cell.value))
 
             # Add link to key ..._url
             if url := sheet.hyperlink_map.get((row_ix, cell_ix)):
