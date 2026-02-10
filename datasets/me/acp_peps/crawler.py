@@ -221,7 +221,7 @@ def crawl_person(context: Context, person_data) -> bool:
         person = context.make("Person")
         # TODO(Leon Handreke): I think we should be passing *function_labels here,
         # but that would mean a re-key.
-        person.id = context.make_id(full_name, *sorted(function_labels))
+        person.id = context.make_id(full_name, sorted(function_labels))  # pyright: ignore[reportArgumentType]
         h.apply_name(person, full_name)
 
     person.add("citizenship", "me")
