@@ -11,7 +11,6 @@ $ cd opensanctions
 
 The steps below assume you're working within a checkout of that repository.
 
-
 ## Python virtual environment
 
 The application is a fairly stand-alone Python application, albeit with a large number of library dependencies. To set up a local development environment using `uv`:
@@ -37,6 +36,18 @@ If you encounter any errors during the installation, please consider googling er
 
 
   For more information on this painpoint, see the related GitHub [issue](https://github.com/wbolster/plyvel/issues/114)
+
+## Running a database
+
+Some (actually, most) crawlers in zavod use the cache and some other things that get read from the database.
+
+To bring a database up for local development:
+
+```bash
+docker compose -f ../docker-compose.yml up -d db # Bring up a dev database
+# Your probably want to put this in your .envrc
+export ZAVOD_DATABASE_URI=postgresql://postgres:password@localhost:5432/dev
+```
 
 ## pre-commit checks
 
