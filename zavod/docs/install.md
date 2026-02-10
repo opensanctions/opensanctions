@@ -27,7 +27,7 @@ $ zavod --help
 
 If you encounter any errors during the installation, please consider googling errors related to libraries used by `zavod` (e.g.: SQLAlchemy, Python-Levenshtein, click, etc.).
 
-!!! info Installing `plyvel` on macOS
+!!! info "Installing `plyvel` on macOS"
     To make Plyvel install on macOS, set the following environment variables before running `uv sync`.
 
     ```sh
