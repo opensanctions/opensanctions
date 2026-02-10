@@ -3,8 +3,8 @@ from typing import List, Optional, cast
 
 from followthemoney.util import join_text
 from normality import squash_spaces
-from rigour.data.names.data import NAME_SPLITTERS
-from rigour.text.stopwords import is_nullword
+from rigour.names import contains_split_phrase
+from rigour.names.check import is_nullword
 
 from zavod import settings
 from zavod.context import Context
@@ -29,9 +29,6 @@ REGEX_CLEAN_COMMA = re.compile(
     r", \b(LLC|L\.L\.C|Inc|Jr|INC|L\.P|LP|Sr|III|II|IV|S\.A|LTD|USA INC|\(?A/K/A|\(?N\.K\.A|\(?N/K/A|\(?F\.K\.A|formerly known as|INCORPORATED)\b",  # noqa
     re.I,
 )
-KNOWN_AS_PATTERNS = [re.escape(phrase) for phrase in NAME_SPLITTERS]
-PATTERN_KNOWN_AS = rf"(\b({'|'.join(KNOWN_AS_PATTERNS)})\b)"
-REGEX_KNOWN_AS = re.compile(PATTERN_KNOWN_AS, re.I)
 
 
 def make_name(
@@ -280,7 +277,7 @@ def is_name_irregular(entity: Entity, string: Optional[str]) -> bool:
             return True
 
     # contains a known-as phrase
-    if REGEX_KNOWN_AS.search(string):
+    if contains_split_phrase(string):
         return True
 
     return False
