@@ -2,7 +2,7 @@ from functools import cache
 from pathlib import Path
 from typing import Any, Generator, List, Optional, Tuple
 
-from pydantic import BaseModel, JsonValue
+from pydantic import BaseModel
 from zavod.context import Context
 from zavod.extract.llm import run_typed_text_prompt
 
@@ -91,15 +91,6 @@ class SourceNames(BaseModel):
 
     entity_schema: str
     original: Names
-
-    def nonempty_values_dict(self) -> JsonValue:
-        """Return a dictionary of non-empty name values."""
-        result = {"entity_schema": self.entity_schema}
-        for prop, names in self.original.nonempty_item_lists():
-            nonempty_names = [name for name in names if not is_empty_string(name)]
-            if nonempty_names:
-                result[prop] = nonempty_names
-        return result
 
 
 class DSPySignature(BaseModel):

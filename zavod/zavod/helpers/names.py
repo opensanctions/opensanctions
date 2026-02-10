@@ -1,7 +1,7 @@
 from collections import defaultdict
 from dataclasses import dataclass
 import re
-from typing import List, Optional, cast
+from typing import Dict, List, Optional, cast
 
 from followthemoney.util import join_text
 from normality import squash_spaces
@@ -392,10 +392,13 @@ def _review_names(
             key_parts.append(prop)
             key_parts.extend(strings)
 
+    source_data: Dict[str, List[str] | str] = {"entity_schema": entity.schema.name}
+    for prop, strings in source_names.original.nonempty_item_lists():
+        source_data[prop] = strings
     source_value = JSONSourceValue(
         key_parts=key_parts,
         label="names",
-        data=source_names.nonempty_values_dict(),
+        data=source_data,
     )
     original_extraction = suggested or original
     original_extraction.simplify()
@@ -419,6 +422,8 @@ def review_names(
     """
     Clean names if needed, then post them for review.
 
+    Returns None if no review is needed and the original can be applied as-is.
+
     Args:
         context: The current context.
         entity: The entity to apply names to.
@@ -433,20 +438,19 @@ def review_names(
     if original.is_empty():
         return None
 
-    # heuristic-based review
-    _suggested = original if suggested is None else suggested
-    updated_suggested = check_names_regularity(entity, _suggested)
-    is_irregular = original != _suggested or updated_suggested is not None
+    # heuristic-based review unless suggestion was supplied
+    if suggested is None:
+        suggested = check_names_regularity(entity, original)
 
-    if updated_suggested == original:
-        suggested = None
-    else:
-        suggested = updated_suggested
+    is_irregular = suggested is not None
 
+    # TODO: change to if enable_llm_cleaning and not settings.OPENAI_KEY
     if settings.CI:
         return None
-    # If some name is irregular, or suggested differs from original, then review.
-    if not is_irregular and original == suggested:
+
+    if not is_irregular:
+        return None
+    if suggested == original:
         return None
 
     # human and optionally LLM-based review
@@ -473,7 +477,7 @@ def apply_reviewed_names(
     Cleaned names are applied to an entity if accepted, potentially to a different
     properties from those used in 'original' if cleaning proposed an alternative
     and accepted or modified in review.
-    
+
     Unaccepted reviews result in the name being applied as per 'original'.
 
     Also falls back to 'original_prop' with a warning if enable_llm_cleaning is True
@@ -490,8 +494,8 @@ def apply_reviewed_names(
     review = review_names(
         context,
         entity,
-        original,
-        suggested,
+        original=original,
+        suggested=suggested,
         enable_llm_cleaning=enable_llm_cleaning,
     )
 
@@ -525,7 +529,7 @@ def apply_reviewed_name_string(
     Cleaned names are applied to an entity if accepted, potentially to a different
     property from 'original_prop' if cleaning proposed an alternative and accepted
     or modified in review.
-    
+
     Unaccepted reviews result in the name being applied to 'original_prop'.
 
     Also falls back to 'original_prop' with a warning if enable_llm_cleaning is True
