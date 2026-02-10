@@ -84,7 +84,7 @@ def parse_xls_sheet(
     for row_ix, row in enumerate(sheet):
         if row_ix < skiprows:
             continue
-        cells = []
+        cells: List[Optional[str]] = []
         record: Dict[str, str | None] = {}
         for cell_ix, xl_cell in enumerate(row):
             if xl_cell.ctype == XL_CELL_DATE:
