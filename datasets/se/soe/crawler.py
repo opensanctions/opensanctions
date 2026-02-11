@@ -7,7 +7,7 @@ from zavod.stateful.positions import categorise, OccupancyStatus
 SOE_REPORT_URL = "https://www.regeringen.se/contentassets/a2be3c80b3384f3eadc64530f6a2ff23/verksamhetsberattelse--for-bolag-med-statligt-agande-2024.pdf"
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     # One-time CSV extraction from PDF (2025-02-11)
     # Used once to extract board members from the source PDF into se_soe.csv
     # Now commented out as we read from the published Google Sheet instead
@@ -33,6 +33,7 @@ def crawl(context: Context):
             pep = context.make("Person")
             pep.id = context.make_id(pep_name)
             pep.add("name", pep_name)
+            # Using 'country' rather than 'citizenship' as board members may be non-Swedish citizens
             pep.add("country", "se")
             pep.add("sourceUrl", row.pop("source_url"))
 
