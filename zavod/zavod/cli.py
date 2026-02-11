@@ -65,11 +65,12 @@ def cli(debug: bool = False) -> None:
 @cli.command("crawl", help="Crawl a specific dataset")
 @click.argument("dataset_path", type=InPath)
 @click.option("-d", "--dry-run", is_flag=True, default=False)
-@click.option("-c", "--clear", is_flag=True, default=False)
-def crawl(dataset_path: Path, dry_run: bool = False, clear: bool = False) -> None:
+@click.option("--clear-data/--keep-data", is_flag=True, default=True)
+def crawl(dataset_path: Path, dry_run: bool = False, clear_data: bool = False) -> None:
     dataset = _load_dataset(dataset_path)
-    if clear:
+    if clear_data:
         clear_data_path(dataset.name)
+
     try:
         crawl_dataset(dataset, dry_run=dry_run)
     except RunFailedException:
@@ -129,15 +130,16 @@ def publish(dataset_path: Path, latest: bool = False) -> None:
 @cli.command("run", help="Crawl, export and then publish a specific dataset")
 @click.argument("dataset_path", type=InPath)
 @click.option("-l", "--latest", is_flag=True, default=False)
-@click.option("-c", "--clear", is_flag=True, default=False)
+@click.option("--clear-data/--keep-data", is_flag=True, default=True)
 def run(
     dataset_path: Path,
     latest: bool = False,
-    clear: bool = False,
+    clear_data: bool = False,
 ) -> None:
     dataset = _load_dataset(dataset_path)
-    if clear:
+    if clear_data:
         clear_data_path(dataset.name)
+
     if dataset.model.disabled:
         log.info("Dataset is disabled, skipping: %s" % dataset.name)
         publish_failure(dataset, latest=latest)
