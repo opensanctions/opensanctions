@@ -5,6 +5,8 @@ coverage:
   frequency: never
   start: "2023-09-21"
   end: "2026-02-04"
+deploy:
+  schedule: "@monthly"
 load_statements: true
 summary: >
   An index of most national-level heads of state and heads of government
