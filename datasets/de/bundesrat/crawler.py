@@ -27,7 +27,9 @@ def extract_dob(context: Context, lookup: Lookup, text: str) -> Optional[str]:
     res = lookup.match(text)
     if res:
         return res.value
-    context.log.warning(f"No {lookup} found for biography.", biography=text)
+    context.log.warning(
+        f"No result found in {lookup} found for biography.", biography=text
+    )
     return None
 
 
