@@ -1,7 +1,7 @@
 from collections import defaultdict
 from dataclasses import dataclass
 import re
-from typing import Dict, List, Optional, Tuple, cast
+from typing import List, Optional, Tuple, cast
 
 from followthemoney.util import join_text
 from normality import squash_spaces
@@ -382,7 +382,10 @@ def _review_names(
 
     Assumes that if suggested is supplied, it differs from original.
     """
-    source_names = SourceNames(entity_schema=entity.schema.name, original=original)
+    source_names = SourceNames(
+        entity_schema=entity.schema.name, original=original, suggested=suggested
+    )
+
     if enable_llm_cleaning:
         if settings.OPENAI_API_KEY is None:
             context.log.warning(
@@ -390,7 +393,6 @@ def _review_names(
             )
             origin = "analyst"
         else:
-            source_names.suggested = suggested
             suggested = clean_names(context, source_names)
             origin = LLM_MODEL_VERSION
     else:
@@ -408,16 +410,13 @@ def _review_names(
             key_parts.append(prop)
             key_parts.extend(strings)
 
-    source_data: Dict[str, List[str] | str] = {"entity_schema": entity.schema.name}
-    for prop, strings in source_names.original.nonempty_item_lists():
-        source_data[prop] = strings
     source_value = JSONSourceValue(
         key_parts=key_parts,
         label="names",
-        data=source_data,
+        data=source_names.model_dump(),
     )
     original_extraction = suggested or original
-    original_extraction.simplify()
+    original_extraction = original_extraction.simplify()
     review = review_extraction(
         context,
         source_value=source_value,
@@ -446,6 +445,8 @@ def review_names(
 
     If enable_llm_cleaning is True, an LLM-based cleaning step is additionally done
     on 'suggested' if provided, otherwise on 'original', before posting for review.
+    Any categorisation in 'original' and 'suggested' is disregarded and left to the LLM
+    to determine.
 
     Returns None if no cleaning/review is needed and the original can be applied as-is.
 

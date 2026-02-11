@@ -4,7 +4,7 @@ from pathlib import Path
 from followthemoney import Model
 
 from zavod.context import Context
-from zavod.extract.names.clean import SourceNames, clean_names
+from zavod.extract.names.clean import Names, SourceNames, clean_names
 from zavod.extract.names.dspy.clean import load_optimised_module
 from zavod.extract.names.dspy.example_data import FIELDS, load_data
 from zavod.extract.names.dspy.optimise import (
@@ -35,7 +35,8 @@ def compare_single_entity(examples_path: Path, output_path: Path) -> None:
 
         schema = Model.instance().get(example.entity_schema)
         assert schema is not None, example.entity_schema
-        raw_names = SourceNames(entity_schema=schema.name, strings=example.strings)
+        original = Names(name=example.strings)
+        raw_names = SourceNames(entity_schema=schema.name, original=original)
         direct_gpt_result = clean_names(context, raw_names)
         direct_gpt_eval = metric_with_feedback_dict(
             example.toDict(), direct_gpt_result.model_dump()

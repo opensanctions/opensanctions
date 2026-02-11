@@ -1,6 +1,7 @@
 from functools import cache
 from pathlib import Path
 from typing import Any, Generator, List, Optional, Tuple
+import json
 
 from pydantic import BaseModel
 from zavod.context import Context
@@ -94,13 +95,10 @@ class SourceNames(BaseModel):
     suggested: Optional[Names] = None
 
     def model_dump(self, **kwargs: Any) -> dict[str, Any]:
-        result = {
-            "entity_schema": self.entity_schema,
-            "original": self.original.model_dump(**kwargs),
-        }
+        result = super().model_dump(**kwargs)
         # Only include suggested if it's provided and differs from the original
-        if self.suggested is not None or self.suggested != self.original:
-            result["suggested"] = self.suggested.model_dump(**kwargs)
+        if self.suggested is None or self.suggested == self.original:
+            del result["suggested"]
         return result
 
 
@@ -123,11 +121,24 @@ def load_single_entity_prompt() -> str:
 def clean_names(context: Context, raw_names: SourceNames) -> Names:
     """Use an LLM to clean and categorise names."""
     prompt = load_single_entity_prompt()
+
+    strings = []
+    for _prop, names in raw_names.original.nonempty_item_lists():
+        strings.extend(names)
+    if raw_names.suggested is not None:
+        for _prop, names in raw_names.suggested.nonempty_item_lists():
+            for name in names:
+                if name not in strings:
+                    strings.append(name)
+
+    input_data = {"strings": strings}
+    input_string = "The entity schema and name strings as JSON:\n\n"
+    input_string += json.dumps(input_data, indent=2)
+
     return run_typed_text_prompt(
         context=context,
         prompt=prompt,
-        string="The entity schema and name strings as JSON:\n\n"
-        + raw_names.model_dump_json(),
+        string=input_string,
         response_type=Names,
         model=LLM_MODEL_VERSION,
     )
