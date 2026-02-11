@@ -1,5 +1,5 @@
-from typing import Dict
-from normality import collapse_spaces
+from dataclasses import dataclass
+from typing import Dict, Iterator
 from lxml import etree
 import re
 from zavod import Context, helpers as h
@@ -11,8 +11,20 @@ REGEX_DETAILS = re.compile(
 )
 
 
-def parse_html(doc: etree.ElementTree, context: Context):
-    items = doc.xpath('.//details[contains(@class, "helix-item-accordion")]')
+@dataclass
+class ProhibitionDetails:
+    name: str
+    birth_date: str
+    address: str
+    prohibition_details: str
+
+
+def parse_prohibition_from_html(
+    context: Context, doc: etree._Element
+) -> Iterator[ProhibitionDetails]:
+    items = h.xpath_elements(
+        doc, './/details[contains(@class, "helix-item-accordion")]'
+    )
     if not items:
         raise Exception("Cannot find any details")
 
@@ -22,7 +34,7 @@ def parse_html(doc: etree.ElementTree, context: Context):
         content = item.find('.//div[@class="generic-content field--name-copy"]')
 
         # Extract name, DOB, and address
-        name_info = summary.text.strip()
+        name_info = h.element_text(summary)
         title_match = re.search(REGEX_DETAILS, name_info)
         if not title_match:
             context.log.warning(
@@ -35,32 +47,17 @@ def parse_html(doc: etree.ElementTree, context: Context):
         address = title_match.group("address").strip()
 
         # Extract prohibition details
-        prohibition_info = content.xpath(".//text()")
+        prohibition_details = h.element_text(content)
 
-        # Join all text within the given div element and normalize whitespace
-        if prohibition_info:
-            joined_text = " ".join(prohibition_info)
-            prohibition_details = collapse_spaces(joined_text)
-        else:
-            prohibition_details = ""
-
-        if "," in prohibition_details:
-            prohibition_details = f'"{prohibition_details}"'
-
-        yield {
-            "name": name,
-            "birth_date": birth_date,
-            "address": address,
-            "prohibition_details": prohibition_details,
-        }
+        yield ProhibitionDetails(name, birth_date, address, prohibition_details)
 
 
-def crawl_prohibitions(item: Dict[str, str], context: Context):
-    name = item.pop("name")
+def crawl_prohibition(context: Context, item: ProhibitionDetails) -> None:
+    name = item.name
 
     # Check for title and set gender
     title_match = re.match(r"(Mr|Mrs|Ms)\s+(?P<name>.+)", name)
-    address = item.pop("address")
+    address = item.address
     gender = None
     if title_match:
         title = title_match.group(1)
@@ -76,11 +73,11 @@ def crawl_prohibitions(item: Dict[str, str], context: Context):
     # Add gender if detected
     if gender:
         person.add("gender", gender)
-    h.apply_date(person, "birthDate", item.pop("birth_date"))
+    h.apply_date(person, "birthDate", item.birth_date)
     person.add("address", address)
     if "Guernsey" in address:
         person.add("country", "gg")
-    person.add("notes", item.pop("prohibition_details"))
+    person.add("notes", item.prohibition_details)
     person.add(
         "program", "Prohibition Orders by the Guernsey Financial Services Commission"
     )
@@ -88,7 +85,7 @@ def crawl_prohibitions(item: Dict[str, str], context: Context):
     context.emit(person)
 
 
-def crawl_item(item: Dict[str, str | None], context: Context):
+def crawl_item(context: Context, item: Dict[str, str | None]) -> None:
     name = item.pop("name_of_disqualified_director")
 
     person = context.make("Person")
@@ -119,10 +116,10 @@ def crawl_item(item: Dict[str, str | None], context: Context):
 def crawl(context: Context) -> None:
     # Fetch and process the HTML from the main data URL
     response = context.fetch_html(context.data_url)
-    for item in h.parse_html_table(response.find(".//table")):
-        crawl_item(h.cells_to_str(item), context)
+    for item in h.parse_html_table(h.xpath_element(response, ".//table")):
+        crawl_item(context, h.cells_to_str(item))
 
     # Fetch and process the HTML for prohibitions
     prohibitions = context.fetch_html(PROHIBITIONS_URL)
-    for item in parse_html(prohibitions, context):
-        crawl_prohibitions(item, context)
+    for prohibition_item in parse_prohibition_from_html(context, prohibitions):
+        crawl_prohibition(context, prohibition_item)
