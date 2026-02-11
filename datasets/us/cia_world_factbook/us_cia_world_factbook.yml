@@ -5,6 +5,7 @@ coverage:
   frequency: never
   start: "2023-09-21"
   end: "2026-02-04"
+disabled: true
 deploy:
   schedule: "@monthly"
 load_statements: true
