@@ -6,7 +6,8 @@ const nextConfig: NextConfig = {
       {
         source: '/',
         destination: '/review',
-        permanent: true,
+        // We might want to introduce a homepage later, and in dev this conflicts with any other site locally
+        permanent: false,
       },
     ];
   },

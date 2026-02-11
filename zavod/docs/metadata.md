@@ -37,7 +37,7 @@ Use the `.yml` extension.
 ### Exports
 
 - `exports` - An array of strings matching the [export formats](https://www.opensanctions.org/docs/bulk/), e.g. `"targets.nested.json"`. The default is best for most cases.
-- `load_statements` - Whether the statements should be loaded to a SQL table after the run..
+- `load_statements` - Whether the statements should be loaded to a SQL table after the run. Usually `false` for collections and enrichment targets like company registries, and true for normal datasets and enrichers.
 
 ### Tags
 
