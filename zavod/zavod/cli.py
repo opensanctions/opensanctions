@@ -118,7 +118,7 @@ def export(dataset_path: Path, clear: bool = False) -> None:
 @click.option("-l", "--latest", is_flag=True, default=False)
 def publish(dataset_path: Path, latest: bool = False) -> None:
     dataset = _load_dataset(dataset_path)
-    make_version(dataset, settings.RUN_VERSION, overwrite=False)
+    make_version(dataset, settings.RUN_VERSION, append_new_version_to_history=False)
     try:
         publish_dataset(dataset, latest=latest)
     except Exception:
@@ -142,7 +142,7 @@ def run(
         log.info("Dataset is disabled, skipping: %s" % dataset.name)
         publish_failure(dataset, latest=latest)
         sys.exit(0)
-    # Crawl
+    # crawl if it's a dataset, just create a new version if it's a collection
     if dataset.model.entry_point is not None and not dataset.is_collection:
         try:
             crawl_dataset(dataset, dry_run=False)
@@ -150,7 +150,8 @@ def run(
             publish_failure(dataset, latest=latest)
             sys.exit(1)
     else:
-        make_version(dataset, settings.RUN_VERSION, overwrite=True)
+        # crawl_dataset -> Context.begin does this in the case above
+        make_version(dataset, settings.RUN_VERSION, append_new_version_to_history=True)
 
     linker = get_dataset_linker(dataset)
     store = get_store(dataset, linker)
