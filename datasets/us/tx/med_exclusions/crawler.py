@@ -25,10 +25,6 @@ def crawl_row(drow: Dict[str, Any], context: Context, wb: xlrd.book.Book) -> Non
     if not last_name and not company_name:
         return
 
-    first_name = drow.get("firstname")
-    if last_name and not first_name:
-        breakpoint()
-
     if last_name:
         entity = context.make("Person")
         entity.id = context.make_id(first_name, middle_name, last_name, license_number)
