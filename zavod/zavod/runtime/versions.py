@@ -12,10 +12,17 @@ def _versions_path(dataset_name: str) -> Path:
     return dataset_resource_path(dataset_name, VERSIONS_FILE)
 
 
-def make_version(dataset: Dataset, version: Version, overwrite: bool = False) -> None:
-    """Add a new version to the dataset history."""
+def make_version(
+    dataset: Dataset, version: Version, append_new_version_to_history: bool = False
+) -> None:
+    """Add a new version to the dataset history.
+
+    Args:
+        append_new_version_to_history: If True, a new version will be appended to the existing version history.
+            If False, a new version will only be created if no versions exist yet.
+    """
     path = _versions_path(dataset.name)
-    if path.exists() and not overwrite:
+    if path.exists() and not append_new_version_to_history:
         return
     data = get_versions_data(dataset.name)
     history = VersionHistory.from_json(data or "{}")
