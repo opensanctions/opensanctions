@@ -6,7 +6,7 @@ import xlrd
 from zavod import Context, helpers as h
 from zavod.extract import zyte_api
 from rigour.mime.types import XLS
-from rigour.data.names.data import STOPPHRASES
+from rigour.names.split_phrases import contains_split_phrase
 
 
 def crawl_row(drow: Dict[str, Any], context: Context, wb: xlrd.book.Book) -> None:
@@ -15,6 +15,8 @@ def crawl_row(drow: Dict[str, Any], context: Context, wb: xlrd.book.Book) -> Non
             drow[k] = None
 
     last_name = drow.pop("lastname")
+    first_name = drow.pop("firstname")
+    middle_name = drow.pop("midinitial")
     company_name = drow.pop("companyname")
     npi = drow.pop("npi")
     license_number = drow.pop("licensenumber")
@@ -23,14 +25,18 @@ def crawl_row(drow: Dict[str, Any], context: Context, wb: xlrd.book.Book) -> Non
     if not last_name and not company_name:
         return
 
+    first_name = drow.get("firstname")
+    if last_name and not first_name:
+        breakpoint()
+
     if last_name:
         entity = context.make("Person")
-        entity.id = context.make_id(last_name, license_number)
+        entity.id = context.make_id(first_name, middle_name, last_name, license_number)
         h.apply_name(
             entity,
-            first_name=drow.pop("firstname"),
+            first_name=first_name,
             last_name=last_name,
-            middle_name=drow.pop("midinitial"),
+            middle_name=middle_name,
         )
         entity.add("position", occupation)
 
@@ -40,7 +46,7 @@ def crawl_row(drow: Dict[str, Any], context: Context, wb: xlrd.book.Book) -> Non
         entity.add("name", company_name)
         entity.add("description", occupation)
 
-        if any(phrase in company_name for phrase in STOPPHRASES):
+        if contains_split_phrase(company_name):
             res = context.lookup("aliases", company_name, warn_unmatched=True)
             aliases = res.aliases if res else []
             entity.add("alias", aliases)
@@ -70,7 +76,6 @@ def crawl(context: Context) -> None:
     Website is geofenced (U.S.). Connection from a US server is required.
     """
     # fetch the XLS file via ASP.NET postback like in datasets/sk/public_officials
-    # doc = context.fetch_html(context.data_url)
     doc = zyte_api.fetch_html(
         context,
         context.data_url,

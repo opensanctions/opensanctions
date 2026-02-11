@@ -5,7 +5,7 @@ coverage:
   schedule: "20 4 1,15 * *"
   start: "2026-01-29"
 load_statements: true
-ci_test: false
+ci_test: false  # zyte not available in CI
 summary: >
   List of excluded individuals and entities for Texas Medicaid and other HHS programs by Texas HHSC OIG
 description: |
@@ -68,7 +68,7 @@ lookups:
       - match: Executive Healthcare, LLC d/b/a The Apothecary Sho
         aliases:
           - Executive Healthcare, LLC
-          - The Apothecary Sho
+          - The Apothecary Shop
       - match: ERX Consultants LLC, dba Zoetic Pharmacy
         aliases:
           - ERX Consultants LLC
@@ -76,7 +76,7 @@ lookups:
       - match: Ukie Emergency Medical Services, Inc. d/b/a Ukie E
         aliases:
           - Ukie Emergency Medical Services, Inc
-          - Ukie E
+          - Ukie EMS
       - match: Maxim Mossman PLLC dba Amigos Dental
         aliases:
           - Maxim Mossman PLLC
@@ -108,7 +108,7 @@ lookups:
       - match: M Ayman Ghraowi, MD PA dba South Texas Comprehensi
         aliases:
           - M Ayman Ghraowi, MD PA
-          - South Texas Comprehensi
+          - South Texas Comprehensive Cancer Centers PLLC (STCCC)
       - match: Southwest Medical Consultants Inc. d/b/a Los Ninos
         aliases:
           - Southwest Medical Consultants Inc
@@ -116,11 +116,11 @@ lookups:
       - match: Acosta Medical Supply, Inc. dba Affordab
         aliases:
           - Acosta Medical Supply, Inc
-          - Affordab
+          - Affordable Medical Supply
       - match: Family Healthcare, Inc d/b/a Unique Medical & Reha
         alises:
           - Family Healthcare, Inc
-          - Unique Medical & Reha
+          - Unique Medical & Reha  # could be Rehab or Rehabilitation, i was able to find them in the registry but without the alias: https://comptroller.texas.gov/taxes/franchise/account-status/search/18707535466
       - match: SCZ Investments, LLC d/b/a Rotunda Pharmacy
         aliases:
           - SCZ Investments, LLC
