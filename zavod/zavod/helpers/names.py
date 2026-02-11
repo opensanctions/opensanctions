@@ -6,6 +6,7 @@ from followthemoney.util import join_text
 from normality import squash_spaces
 from rigour.names import contains_split_phrase
 from rigour.names.check import is_nullword
+from rigour.names import remove_person_prefixes
 
 from zavod import settings
 from zavod.context import Context
@@ -255,12 +256,29 @@ class Regularity:
     suggested_prop: Optional[str] = None
 
 
-def check_regularity(entity: Entity, string: Optional[str]) -> Regularity:
+def check_name_regularity(entity: Entity, string: Optional[str]) -> Regularity:
     """Determine whether a name string potentially needs cleaning."""
     string = squash_spaces(string or "")
 
     if not string:
         return Regularity(is_irregular=False)
+
+    # Do the prop-suggesting checks first so that we hit them before
+    # the less specific checks which are less helpful when they don't
+    # suggest a prop.
+
+    # Single token Person name (after stripping prefixes) -> weakAlias
+    if entity.schema.is_a("Person"):
+        deprefixed = remove_person_prefixes(string)
+        if " " not in deprefixed:
+            print("suggesting weakAlias:", string)
+            return Regularity(is_irregular=True, suggested_prop="weakAlias")
+
+    # Organization name shorter than 8 letters, all uppercase -> abbreviation
+    if entity.schema.is_a("Organization"):
+        if len(string) < 8 and string.isupper():
+            print("suggesting abbreviation:", string)
+            return Regularity(is_irregular=True, suggested_prop="abbreviation")
 
     spec = entity.dataset.names.get_spec(entity.schema)
     if spec:
@@ -370,7 +388,7 @@ def review_names(
     if not string or not string.strip():
         return None
 
-    name_regularity = check_regularity(entity, string)
+    name_regularity = check_name_regularity(entity, string)
     if settings.CI or not name_regularity.is_irregular:
         return None
 
@@ -410,7 +428,7 @@ def apply_reviewed_names(
     if not string or not string.strip():
         return None
 
-    name_regularity = check_regularity(entity, string)
+    name_regularity = check_name_regularity(entity, string)
     if settings.CI or not name_regularity.is_irregular:
         apply_name(entity, full=string, alias=alias, lang=lang)
         return None

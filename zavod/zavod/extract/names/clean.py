@@ -17,6 +17,7 @@ PROP_TO_FIELD = {
     "alias": "alias",
     "weakAlias": "weak_alias",
     "previousName": "previous_name",
+    "abbreviation": "abbreviation",
 }
 
 
@@ -34,6 +35,7 @@ class CleanNames(BaseModel):
     alias: List[str] = []
     weak_alias: List[str] = []
     previous_name: List[str] = []
+    abbreviation: List[str] = []
 
 
 class DSPySignature(BaseModel):
