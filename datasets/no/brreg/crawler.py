@@ -13,6 +13,7 @@ INC_DATES = [
     "registration_date_business_register",
 ]
 DISSOLV_DATES = [
+    "bankruptcy_date",
     "under_liquidation_date",
     "forced_dissolution_missing_ceo_date",
     "forced_dissolution_missing_auditor_date",
@@ -35,7 +36,7 @@ def get_oldest_date(dict_row: Dict[str, Any], keys_to_check: List[str]) -> str |
 
 
 def crawl_row(context: Context, dict_row: Dict[Any, Any]) -> None:
-    name = dict_row.pop("name")  # what about foreign_register_name? -> alias
+    name = dict_row.pop("name")
     org_number = dict_row.pop("org_number")
 
     entity = context.make("LegalEntity")
@@ -48,6 +49,10 @@ def crawl_row(context: Context, dict_row: Dict[Any, Any]) -> None:
     entity.add("legalForm", dict_row.pop("org_form_description", None))
     # entity.add("description", dict_row.pop("statutory_purpose", None))
     # entity.add("notes", dict_row.pop("activity", None))
+
+    foreign_register_name = dict_row.pop("foreign_register_name", None)
+    if foreign_register_name is not None:
+        entity.add("alias", foreign_register_name)
 
     # bankrupcy or liquidation bools
     is_bankrupt = dict_row.pop("bankruptcy", None) == "true"
@@ -125,6 +130,17 @@ def crawl_row(context: Context, dict_row: Dict[Any, Any]) -> None:
 
     context.emit(entity)
 
+    parent_id = dict_row.pop("parent_entity_org_number")
+    if parent_id is not None and parent_id != "":
+        owner = context.make("LegalEntity")
+        owner.id = context.make_id(parent_id)
+
+        ownership = context.make("Ownership")
+        ownership.id = context.make_id("ownership", entity.id, owner.id)
+        ownership.add("owner", owner)
+        ownership.add("asset", entity)
+        context.emit(ownership)
+
     COLS_NOT_IN_USE_SUBSTR = (
         "employee_count",
         "municipality",
@@ -138,35 +154,35 @@ def crawl_row(context: Context, dict_row: Dict[Any, Any]) -> None:
         "subject_to_legislation",
         "company_form_home",
     )
+    cols_matched_by_substr = [
+        k for k in dict_row if any(substr in k for substr in COLS_NOT_IN_USE_SUBSTR)
+    ]
+    cols_industry_code_descriptions = [
+        k
+        for k in dict_row
+        if k.startswith("industry_code") and k.endswith("description")
+    ]
+    cols_not_in_use_exact = [
+        "org_form_code",
+        "support_unit_code",
+        "support_unit_code_description",
+        "institutional_sector_code",
+        "institutional_sector_description",
+        "last_submitted_annual_accounts",
+        "under_liquidation",
+        "language_form",
+        "articles_of_association_date",
+        "statutory_purpose",
+        "activity",
+        "endorsements",
+        "under_foreign_insolvency_proceedings_date",
+        "under_reconstruction_negotiations_date",
+        "is_in_corporate_group",
+        "business_address_country",  # use postal codes instead
+        "postal_address_country",  # use postal codes instead
+    ]
     COLS_NOT_IN_USE = (
-        [
-            "org_form_code",
-            "support_unit_code",
-            "support_unit_code_description",
-            "institutional_sector_code",
-            "institutional_sector_description",
-            "last_submitted_annual_accounts",
-            "bankruptcy_date",
-            "under_liquidation",
-            "language_form",
-            "articles_of_association_date",
-            "statutory_purpose",
-            "activity",
-            "endorsements",
-            "under_foreign_insolvency_proceedings_date",
-            "under_reconstruction_negotiations_date",
-            "is_in_corporate_group",
-            "foreign_register_name",  # maybe we need it? as an alias maybe? it is tied to foreign address
-            "parent_entity",  # do we need to add it?
-            "business_address_country",  # use postal codes instead
-            "postal_address_country",  # use postal codes instead
-        ]
-        + [
-            k
-            for k in dict_row
-            if k.startswith("industry_code") and k.endswith("description")
-        ]
-        + [k for k in dict_row if any(substr in k for substr in COLS_NOT_IN_USE_SUBSTR)]
+        cols_matched_by_substr + cols_industry_code_descriptions + cols_not_in_use_exact
     )
     context.audit_data(dict_row, ignore=COLS_NOT_IN_USE)
 

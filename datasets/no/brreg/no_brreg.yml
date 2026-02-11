@@ -185,7 +185,7 @@ lookups:
         value: forced_liquidation_missing_deletion_date
 #
       - match: overordnetEnhet
-        value: parent_entity
+        value: parent_entity_org_number  # Organisation number of superior entity in public sector. String of 9 digits
       - match: maalform
         value: language_form
       - match: vedtektsdato
