@@ -91,6 +91,17 @@ class SourceNames(BaseModel):
 
     entity_schema: str
     original: Names
+    suggested: Optional[Names] = None
+
+    def model_dump(self, **kwargs: Any) -> dict[str, Any]:
+        result = {
+            "entity_schema": self.entity_schema,
+            "original": self.original.model_dump(**kwargs),
+        }
+        # Only include suggested if it's provided and differs from the original
+        if self.suggested is not None or self.suggested != self.original:
+            result["suggested"] = self.suggested.model_dump(**kwargs)
+        return result
 
 
 class DSPySignature(BaseModel):
