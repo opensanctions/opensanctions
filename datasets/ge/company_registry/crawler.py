@@ -128,8 +128,9 @@ def crawl(context: Context) -> None:
         original_headers = next(reader)
 
         # Translate headers to English
-        header_mapping = [
-            context.lookup_value("columns", collapse_spaces(cell))
+        header_mapping: list[str] = [
+            context.lookup_value("columns", collapse_spaces(cell), warn_unmatched=True)
+            or cell
             for cell in original_headers
         ]
         if any(header is None for header in header_mapping):
@@ -145,6 +146,7 @@ def crawl(context: Context) -> None:
         for index, row in enumerate(dict_reader):
             if index > 0 and index % 10000 == 0:
                 context.log.info("Processed rows", rows=index)
+            assert row is not None
             crawl_row(context, row)
             # if index >= 100:
             #     break
