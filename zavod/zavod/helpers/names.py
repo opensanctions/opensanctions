@@ -6,7 +6,7 @@ from typing import List, Optional, Tuple, cast
 from followthemoney.util import join_text
 from normality import squash_spaces
 from rigour.names import contains_split_phrase
-from rigour.names.check import is_nullword
+from rigour.text import is_nullword
 from rigour.names import remove_person_prefixes
 
 from zavod import settings
@@ -370,6 +370,21 @@ def apply_names(
         )
 
 
+def review_key_parts(
+    entity: Entity, original: Names, suggested: Optional[Names] = None
+) -> List[str]:
+    key_parts = [entity.schema.name]
+    for prop, strings in original.nonempty_item_lists():
+        key_parts.append(prop)
+        key_parts.extend(strings)
+    if suggested is not None:
+        key_parts.append("suggested")
+        for prop, strings in suggested.nonempty_item_lists():
+            key_parts.append(prop)
+            key_parts.extend(strings)
+    return key_parts
+
+
 def _review_names(
     context: Context,
     entity: Entity,
@@ -400,15 +415,7 @@ def _review_names(
 
     # Only use the non-empty props in the key so that adding props in
     # future doesn't change the key unless they're actually populated.
-    key_parts = [entity.schema.name]
-    for prop, strings in original.nonempty_item_lists():
-        key_parts.append(prop)
-        key_parts.extend(strings)
-    if suggested is not None:
-        key_parts.append("suggested")
-        for prop, strings in suggested.nonempty_item_lists():
-            key_parts.append(prop)
-            key_parts.extend(strings)
+    key_parts = review_key_parts(entity, original, suggested)
 
     source_value = JSONSourceValue(
         key_parts=key_parts,
@@ -526,6 +533,8 @@ def apply_reviewed_names(
     if review is None or not review.accepted:
         apply_names(entity, names=original, lang=lang)
         return
+
+    print("accepted", review.extracted_data)
 
     # TODO: What should we supply as original_value?
     # The input to apply_reviewed_name_string is a simple string so it's easy.
