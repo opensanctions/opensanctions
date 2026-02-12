@@ -471,7 +471,7 @@ def crawl(context: Context) -> None:
             cache_days = 7 if year == current_year else 30
 
             for row in doc.findall(".//div[@class='declaration1']"):
-                name = h.element_text(h.xpath_element(row, ".//h3"))
+                name = h.element_text(h.xpath_elements(row, ".//h3")[0])
                 declarations = fetch_declarations(
                     context, year=year, name=name, cache_days=cache_days
                 )
