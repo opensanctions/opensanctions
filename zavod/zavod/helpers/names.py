@@ -474,16 +474,20 @@ def review_names(
     """
     Determines whether names need cleaning and if so, posts them for review.
 
-    Names are considered to have been pre-determined to need cleaning if
-    'is_irregular' is passed as True, or if 'suggested'
-    is supplied and differs from 'original'. Otherwise a heuristic check is done
-    to determine whether cleaning is needed. The heuristic check might also propose
-    a suggested categorisation of the names which differs from 'original'.
+    If 'suggested' is not supplied, 'check_names_regularity' is used to determine
+    if cleaning or review is needed, and potentially suggest categorisation.
 
-    If enable_llm_cleaning is True, an LLM-based cleaning step is additionally done
+    Names are considered to have been pre-determined to need cleaning/review if
+    'is_irregular' is passed as True, or if 'suggested'
+    is supplied and differs from 'original'. Crawlers that do their own suggestions
+    should normally do those on the result of check_names_regularity, so that
+    its suggestions don't override the crawler's suggestions.
+
+    If 'enable_llm_cleaning' is True, an LLM-based cleaning step is additionally done
     on 'suggested' if provided, otherwise on 'original', before posting for review.
     Any categorisation in 'original' and 'suggested' is disregarded and left to the LLM
-    to determine.
+    to determine. This can not be used with crawler-supplied suggestions and,
+    and heuristic suggestions are not passed to the LLM.
 
     Returns None if no cleaning/review is needed and the original can be applied as-is.
 
@@ -498,8 +502,14 @@ def review_names(
         enable_llm_cleaning: Whether to use LLM-based name cleaning.
         apply: Whether to apply the names to the entity.
     """
+
     if original.is_empty():
         return None
+
+    if enable_llm_cleaning:
+        assert suggested is None, (
+            "Suggested names can't be supplied if LLM cleaning is enabled"
+        )
 
     # heuristic-based review unless suggestion was supplied
     if suggested is None:
@@ -510,8 +520,6 @@ def review_names(
     # re-categorisation, there's nothing to review.
     if not is_irregular and suggested == original:
         return None
-
-    print("creating review", is_irregular, suggested == original)
 
     # human and optionally LLM-based review
     return _review_names(
@@ -529,20 +537,27 @@ def apply_reviewed_names(
     *,
     original: Names,
     suggested: Optional[Names] = None,
+    is_irregular: bool = False,
     lang: Optional[str] = None,
     enable_llm_cleaning: bool = False,
 ) -> None:
     """
-    Clean the name(s) in the provided Names instance, then post them for review.
+    Determines whether names need cleaning and if so, posts them for review.
 
-    Cleaned names are applied to an entity if accepted, potentially to a different
-    properties from those used in 'original' if cleaning proposed an alternative
-    and accepted or modified in review.
+    If 'suggested' is not supplied, 'check_names_regularity' is used to determine
+    if cleaning or review is needed, and potentially suggest categorisation.
 
-    Unaccepted reviews result in the name being applied as per 'original'.
+    Names are considered to have been pre-determined to need cleaning/review if
+    'is_irregular' is passed as True, or if 'suggested'
+    is supplied and differs from 'original'. Crawlers that do their own suggestions
+    should normally do those on the result of check_names_regularity, so that
+    its suggestions don't override the crawler's suggestions.
 
-    Also falls back to 'original_prop' with a warning if enable_llm_cleaning is True
-    but the LLM service is not configured.
+    If 'enable_llm_cleaning' is True, an LLM-based cleaning step is additionally done
+    on 'suggested' if provided, otherwise on 'original', before posting for review.
+    Any categorisation in 'original' and 'suggested' is disregarded and left to the LLM
+    to determine. This can not be used with crawler-supplied suggestions and,
+    and heuristic suggestions are not passed to the LLM.
 
     Args:
         context: The current context.
@@ -557,6 +572,7 @@ def apply_reviewed_names(
         entity,
         original=original,
         suggested=suggested,
+        is_irregular=is_irregular,
         enable_llm_cleaning=enable_llm_cleaning,
     )
 

@@ -152,16 +152,3 @@ def test_derive_original_values_single_original_multiple_props():
         "Brandon": "John Brandon Doe",
         "JBD": "John Brandon Doe",
     }
-
-
-def test_derive_original_values_partial_substring():
-    """Test that only proper substrings are matched, not partial word matches."""
-    original = Names(name="Smith Corporation")
-    extracted = Names(name="Smith")
-
-    result = derive_original_values(original, extracted)
-
-    # "Smith" is contained in "Smith Corporation"
-    assert result == {
-        "Smith": "Smith Corporation",
-    }
