@@ -54,14 +54,19 @@ def blocking_xref(
     review. Candidates above the given threshold score will be merged automatically.
     """
     # resolver.prune()
-    log.info(
-        "Xref running, algorithm: %r" % algorithm,
-        auto_threshold=auto_threshold,
-    )
+
     algorithm_type = get_algorithm(algorithm)
     if algorithm_type is None:
         raise ValueError("Invalid algorithm: %s" % algorithm)
     range = model.get(schema_range) if schema_range is not None else None
+    log.info(
+        "Xref running, algorithm: %r" % algorithm,
+        auto_threshold=auto_threshold,
+        range=range,
+        focus_dataset=focus_dataset,
+        discount_internal=discount_internal,
+        min_threshold=min_threshold,
+    )
     index_dir = state_path / "dedupe-index"
 
     xref(
