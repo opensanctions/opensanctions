@@ -223,11 +223,7 @@ def test_apply_reviewed_name_string_llm(
 
     # simulate accepting the review.
     names = Names(name=[raw_name])
-    key = review_key(review_key_parts(entity, names, names))
-
-    # TODO: Should the key include suggested names?
-    # When should a different extraction result imply a re-review?
-    # What's the current logic again for the same key, same source value but different extracted value?
+    key = review_key(review_key_parts(entity, names))
 
     review = Review.by_key(vcontext.conn, Names, vcontext.dataset.name, key)
     review.accepted = True
@@ -268,7 +264,7 @@ def test_apply_reviewed_name_string_manual(
 
     # simulate manually editing and accepting the review.
     names = Names(name=[raw_name])
-    key = review_key(review_key_parts(entity, names, names))
+    key = review_key(review_key_parts(entity, names))
 
     review = Review.by_key(vcontext.conn, Names, vcontext.dataset.name, key)
     review.accepted = True

@@ -370,18 +370,13 @@ def apply_names(
         )
 
 
-def review_key_parts(
-    entity: Entity, original: Names, suggested: Optional[Names] = None
-) -> List[str]:
+def review_key_parts(entity: Entity, original: Names) -> List[str]:
+    # Only use the non-empty props in the key so that adding props in
+    # future doesn't change the key unless they're actually populated.
     key_parts = [entity.schema.name]
     for prop, strings in original.nonempty_item_lists():
         key_parts.append(prop)
         key_parts.extend(strings)
-    if suggested is not None:
-        key_parts.append("suggested")
-        for prop, strings in suggested.nonempty_item_lists():
-            key_parts.append(prop)
-            key_parts.extend(strings)
     return key_parts
 
 
@@ -413,9 +408,9 @@ def _review_names(
     else:
         origin = "analyst"
 
-    # Only use the non-empty props in the key so that adding props in
-    # future doesn't change the key unless they're actually populated.
-    key_parts = review_key_parts(entity, original, suggested)
+    # We don't include suggested in the key so that we don't automatically invalidate
+    # the reviews just by changing heuristic or LLM suggestions.
+    key_parts = review_key_parts(entity, original)
 
     source_value = JSONSourceValue(
         key_parts=key_parts,
