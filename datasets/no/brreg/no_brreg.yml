@@ -662,7 +662,3 @@ lookups:
         value: amalietillung.com
       - match: /www.balticyachts.no
         value: www.balticyachts.no
-  # country_code:
-  #   options:
-  #     - match: cd
-  #       value: cg
