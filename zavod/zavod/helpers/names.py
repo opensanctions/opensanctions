@@ -1,7 +1,7 @@
 from collections import defaultdict
 from dataclasses import dataclass
 import re
-from typing import List, Optional, Tuple, cast
+from typing import Dict, List, Optional, Tuple, cast
 
 from followthemoney.util import join_text
 from normality import squash_spaces
@@ -343,31 +343,69 @@ def check_names_regularity(entity: Entity, names: Names) -> Tuple[bool, Names]:
     return is_irregular, updated_suggested
 
 
+def derive_original_values(
+    original: Names, extracted: Names
+) -> Dict[str, Optional[str]]:
+    """
+    Derive an original_value for each value in extracted based on the values in original.
+
+    For each value in extracted:
+        If there's exactly one value in original, use that for all names.
+        If some value in original matches it exactly, leave blank - no original_value needed.
+        If some value in original contains it, we can use that the value from original as original_value.
+        Otherwise leave blank - this is best-effort only.
+    """
+    original_values: List[str] = []
+    for _prop, values in original.nonempty_item_lists():
+        original_values.extend(values)
+
+    derived_originals: Dict[str, Optional[str]] = {}
+    for _prop, extracted_values in extracted.nonempty_item_lists():
+        for extracted_value in extracted_values:
+            if len(original_values) == 1:
+                derived_originals[extracted_value] = original_values[0]
+            else:
+                for value in original_values:
+                    if value == extracted_value:
+                        continue
+                    elif extracted_value in value:
+                        derived_originals[extracted_value] = value
+                        break
+    return derived_originals
+
+
 def apply_names(
     entity: Entity,
+    *,
+    original: Names,
     names: Names,
     lang: Optional[str] = None,
     origin: Optional[str] = None,
-    original_value: Optional[str] = None,
 ) -> None:
     """
     Apply the given names to the entity in the indicated props.
 
+    If original contains more than one value, an original value is derived on
+    best-effort a basis from the original names.
+
     Args:
         entity: The entity to apply names to.
-        original: The fallback names to use if the review is not accepted.
-        review: The data review containing the cleaned name(s).
+        original: Original names, used if original_value needs to be derived.
+        names: The names to apply to the entity, potentially altered or re-categorised from original.
+        lang: The language all names, if known.
+        origin: The origin of apply_names (e.g. a GPT model name)
     """
+    derived_originals = derive_original_values(original, names)
 
-    names_data = names.nonempty_item_lists()
-    for prop, name_values in names_data:
-        entity.add(
-            prop,
-            name_values,
-            lang=lang,
-            origin=origin,
-            original_value=original_value,
-        )
+    for prop, name_values in names.nonempty_item_lists():
+        for name in name_values:
+            entity.add(
+                prop,
+                name,
+                lang=lang,
+                origin=origin,
+                original_value=derived_originals.get(name),
+            )
 
 
 def review_key_parts(entity: Entity, original: Names) -> List[str]:
@@ -495,7 +533,6 @@ def apply_reviewed_names(
     suggested: Optional[Names] = None,
     lang: Optional[str] = None,
     enable_llm_cleaning: bool = False,
-    original_value: Optional[str] = None,
 ) -> None:
     """
     Clean the name(s) in the provided Names instance, then post them for review.
@@ -526,21 +563,15 @@ def apply_reviewed_names(
     )
 
     if review is None or not review.accepted:
-        apply_names(entity, names=original, lang=lang)
+        apply_names(entity, original=original, names=original, lang=lang)
         return
 
-    print("accepted", review.extracted_data)
-
-    # TODO: What should we supply as original_value?
-    # The input to apply_reviewed_name_string is a simple string so it's easy.
-    # One dodgy option is review.extracted_data.model_dump_json().
-    # Perhaps we can do that only if original != review.extracted_data.
     apply_names(
         entity,
+        original=original,
         names=review.extracted_data,
         lang=lang,
         origin=review.origin,
-        original_value=original_value,
     )
 
 
@@ -585,5 +616,4 @@ def apply_reviewed_name_string(
         suggested=None,
         lang=lang,
         enable_llm_cleaning=enable_llm_cleaning,
-        original_value=string,
     )
