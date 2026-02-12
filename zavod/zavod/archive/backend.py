@@ -122,7 +122,7 @@ class GoogleCloudBackend(ArchiveBackend):
 
         credentials = self.client._credentials
         log.info(
-            f"Initialized Google Cloud archive backend"
+            f"Initialized Google Cloud archive backend "
             f"acting as {getattr(credentials, 'signer_email', None)}",
         )
         self.bucket = self.client.get_bucket(settings.ARCHIVE_BUCKET)
