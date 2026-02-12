@@ -64,6 +64,11 @@ class Names(BaseModel):
         return True
 
     def nonempty_item_lists(self) -> Generator[Tuple[str, List[str]], None, None]:
+        """
+        Generator yielding each property and a list of any associated non-empty name values.
+
+        Useful when iterating over values in a Names instance.
+        """
         for key, value in self.model_dump().items():
             if value is None:
                 continue
@@ -79,6 +84,7 @@ class Names(BaseModel):
         """Get a copy where single-item lists are replaced by just the single item.
         This is useful for formatting for human editing in reviews."""
         data = {}
+
         for key, value in self.model_copy(deep=True).model_dump().items():
             if isinstance(value, list) and len(value) == 1:
                 data[key] = value[0]
@@ -86,20 +92,33 @@ class Names(BaseModel):
                 data[key] = value
         return Names(**data)
 
+    def __eq__(self, value: object) -> bool:
+        assert isinstance(value, Names), type(value)
+
+        # we care about prop order
+        # we don't care about value order
+        # we don't care about value repetition within a prop
+        # we do care about value repetition across props
+        # single values and single-item lists are considered equal
+        for prop in self.__class__.model_fields:
+            self_values = getattr(self, prop)
+            other_values = getattr(value, prop)
+            self_values_set = (
+                set(self_values) if isinstance(self_values, list) else {self_values}
+            )
+            other_values_set = (
+                set(other_values) if isinstance(other_values, list) else {other_values}
+            )
+            if self_values_set != other_values_set:
+                return False
+        return True
+
 
 class SourceNames(BaseModel):
     """Name strings and schema supplied to the LLM for cleaning and categorisation"""
 
     entity_schema: str
     original: Names
-    suggested: Optional[Names] = None
-
-    def model_dump(self, **kwargs: Any) -> dict[str, Any]:
-        result = super().model_dump(**kwargs)
-        # Only include suggested if it's provided and differs from the original
-        if self.suggested is None or self.suggested == self.original:
-            del result["suggested"]
-        return result
 
 
 class DSPySignature(BaseModel):
@@ -124,12 +143,9 @@ def clean_names(context: Context, raw_names: SourceNames) -> Names:
 
     strings = []
     for _prop, names in raw_names.original.nonempty_item_lists():
-        strings.extend(names)
-    if raw_names.suggested is not None:
-        for _prop, names in raw_names.suggested.nonempty_item_lists():
-            for name in names:
-                if name not in strings:
-                    strings.append(name)
+        for name in names:
+            if name not in strings:
+                strings.append(name)
 
     input_data = {"strings": strings}
     input_string = "The entity schema and name strings as JSON:\n\n"

@@ -7,7 +7,6 @@ from followthemoney.util import join_text
 from normality import squash_spaces
 from rigour.names import contains_split_phrase
 from rigour.text import is_nullword
-from rigour.names import remove_person_prefixes
 
 from zavod import settings
 from zavod.context import Context
@@ -268,21 +267,19 @@ def check_name_regularity(entity: Entity, string: Optional[str]) -> Regularity:
     # the less specific checks which are less helpful when they don't
     # suggest a prop.
 
-    # Single token Person name (after stripping prefixes) -> weakAlias
-    if entity.schema.is_a("Person"):
-        deprefixed = remove_person_prefixes(string)
-        if " " not in deprefixed:
-            return Regularity(is_irregular=True, suggested_prop="weakAlias")
-
-    # Organization name shorter than 8 letters, all uppercase -> abbreviation
-    if entity.schema.is_a("Organization"):
-        if len(string) < 8 and string.isupper():
-            return Regularity(is_irregular=True, suggested_prop="abbreviation")
-
-    # LegalEntity name shorter than 5 letters, all uppercase -> abbreviation
-    if entity.schema.is_a("LegalEntity"):
-        if len(string) < 5 and string.isupper():
-            return Regularity(is_irregular=True, suggested_prop="abbreviation")
+    # This is where we'll move the heuristic checks which can suggest better
+    # categorisation of names:
+    #
+    ## Single token Person name (after stripping prefixes) -> weakAlias
+    # if entity.schema.is_a("Person"):
+    #    deprefixed = remove_person_prefixes(string)
+    #    if " " not in deprefixed:
+    #        return Regularity(is_irregular=True, suggested_prop="weakAlias")
+    #
+    ## Organization name shorter than 8 letters, all uppercase -> abbreviation
+    # if entity.schema.is_a("Organization"):
+    #    if len(string) < 8 and string.isupper():
+    #        return Regularity(is_irregular=True, suggested_prop="abbreviation")
 
     spec = entity.dataset.names.get_spec(entity.schema)
     if spec:
@@ -430,9 +427,7 @@ def _review_names(
 
     Assumes that if suggested is supplied, it differs from original.
     """
-    source_names = SourceNames(
-        entity_schema=entity.schema.name, original=original, suggested=suggested
-    )
+    source_names = SourceNames(entity_schema=entity.schema.name, original=original)
 
     if enable_llm_cleaning:
         if settings.OPENAI_API_KEY is None:
@@ -473,13 +468,15 @@ def review_names(
     *,
     original: Names,
     suggested: Optional[Names] = None,
+    is_irregular: bool = False,
     enable_llm_cleaning: bool = False,
 ) -> Optional[Review[Names]]:
     """
     Determines whether names need cleaning and if so, posts them for review.
 
-    Names are considered to have been pre-determined to need cleaning if 'suggested'
-    is supplied and differs from 'original', otherwise a heuristic check is done
+    Names are considered to have been pre-determined to need cleaning if
+    'is_irregular' is passed as True, or if 'suggested'
+    is supplied and differs from 'original'. Otherwise a heuristic check is done
     to determine whether cleaning is needed. The heuristic check might also propose
     a suggested categorisation of the names which differs from 'original'.
 
@@ -504,16 +501,17 @@ def review_names(
     if original.is_empty():
         return None
 
-    is_irregular = False
-
     # heuristic-based review unless suggestion was supplied
     if suggested is None:
-        is_irregular, suggested = check_names_regularity(entity, original)
+        is_irregular_, suggested = check_names_regularity(entity, original)
+        is_irregular = is_irregular or is_irregular_
 
     # heuristics didn't identify irregularity, and the crawler didn't suggest
     # re-categorisation, there's nothing to review.
     if not is_irregular and suggested == original:
         return None
+
+    print("creating review", is_irregular, suggested == original)
 
     # human and optionally LLM-based review
     return _review_names(

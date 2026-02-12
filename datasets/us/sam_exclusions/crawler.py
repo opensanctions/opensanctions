@@ -19,6 +19,7 @@ from zipfile import ZipFile
 from urllib.parse import urljoin
 from pydantic import BaseModel
 from rigour.mime.types import ZIP
+from rigour.names import remove_person_prefixes
 
 from zavod import Context
 from zavod import helpers as h
@@ -78,7 +79,7 @@ def crawl(context: Context) -> None:
     path = context.fetch_resource("source.zip", data_url)
     context.export_resource(path, ZIP, title=context.SOURCE_TITLE)
     schemata: Dict[str, str] = {}
-    for filename, row in read_rows(path):
+    for row_ids, (filename, row) in enumerate(read_rows(path)):
         classification = row.pop("Classification")
         schema = context.lookup_value("classifications", classification)
         if schema is None:
@@ -205,8 +206,51 @@ def crawl(context: Context) -> None:
 
         # The low quality names tend to come from OFAC so check those.
         if agency == "TREAS-OFAC":
-            # TODO: Did we want to move the heuristic-based suggestions here for now?
-            review = h.apply_reviewed_name_string(context, entity, name)
+            original = Names(name=name)
+            is_irregular, suggested = h.check_names_regularity(entity, original)
+
+            custom_suggested = Names()
+            # Work from suggested in-case any standard heuristics have already re-categorised anything.
+            for prop, names in suggested.nonempty_item_lists():
+                assert len(names) == 1  # We know this to be true in this crawler
+
+                # Single token Person name (after stripping prefixes) -> weakAlias
+                if entity.schema.is_a("Person"):
+                    deprefixed = remove_person_prefixes(names[0])
+                    if " " not in deprefixed:
+                        prop = "weakAlias"
+
+                # Organization name shorter than 8 letters, all uppercase -> abbreviation
+                if entity.schema.is_a("Organization"):
+                    if len(names[0]) < 8 and names[0].isupper():
+                        prop = "abbreviation"
+
+                # LegalEntity name shorter than 5 letters, all uppercase -> abbreviation
+                if (
+                    entity.schema.is_a("LegalEntity")
+                    and not entity.schema.is_a("Person")
+                    and not entity.schema.is_a("Organization")
+                ):
+                    if len(names[0]) < 5 and names[0].isupper():
+                        prop = "abbreviation"
+
+                setattr(custom_suggested, prop, names)
+
+            # print(row_ids, "is_irregular", is_irregular, "suggested equals:", original == custom_suggested, name)
+            if custom_suggested != original:
+                print("original", original)
+                print("custom_suggested", custom_suggested)
+
+            # A review will be created if standard heuristics suggest the name is irregular,
+            # or if there is a custom suggestion that differs from the original categorisation.
+            h.review_names(
+                context,
+                entity,
+                original=original,
+                suggested=custom_suggested,
+                is_irregular=is_irregular,
+            )
+
         # TODO: Once we're done with reviews and change the OFAC clause to apply_reviewed_names,
         # and remove the heuristic-based cleaning/adding above, add the rest normally:
         # else:

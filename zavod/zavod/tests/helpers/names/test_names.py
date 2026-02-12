@@ -274,3 +274,28 @@ def test_apply_reviewed_name_string_manual(
     apply_reviewed_name_string(vcontext, entity, string=raw_name)
     assert entity.get("name") == ["James Doe"]
     assert entity.get("alias") == ["Jim Doe"]
+
+
+# Test that if no suggested is passed, it checks regularity.
+
+# Test that if suggested is passed, and it matches original, it doesn't create a review.
+# unless is_irregular is passed as True.
+
+# Test that if suggested is passed, different from original, and neither original nor suggested are irregular, it still creates a review (but doesn't check regularity or get any regularity suggestions applied).
+
+# Test that left had side looks like
+#
+# entity_schema: Person
+# original:
+#   abbreviation: null
+#   alias: null
+#   name: '""FOOPIE""'
+#   previousName: null
+#   weakAlias: null
+#
+# and right hand side looks like
+#
+# name: null
+# alias: null
+# weakAlias: '""FOOPIE""'
+# abbreviation: null
