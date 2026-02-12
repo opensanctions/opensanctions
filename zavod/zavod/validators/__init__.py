@@ -45,6 +45,22 @@ class SelfReferenceValidator(BaseValidator):
                     )
 
 
+class OneGenderValidator(BaseValidator):
+    """Warn if an entity has more than one gender.
+
+    (please file under "we're building a government watchlist database, not a reflection of social reality")
+    """
+
+    def feed(self, entity: Entity) -> None:
+        for prop in entity.iterprops():
+            if prop.type != registry.gender:
+                continue
+            if len(entity.get(prop)) > 1:
+                self.context.log.warning(
+                    f"{entity.id} has more than one gender: {entity.get(prop)}"
+                )
+
+
 class EmptyValidator(BaseValidator):
     """Warn if no entities are validated."""
 
