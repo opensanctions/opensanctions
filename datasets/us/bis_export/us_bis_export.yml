@@ -46,8 +46,24 @@ assertions:
       LegalEntity: 2200
 
 lookups:
+  # exempt legitimate company names containing "&" from HTML/XSS false positives
+  type.name:
+    options:
+      - match: "M&M Wireless, Inc."
+      - match: "MIC P&I, LLC"
+      - match: "R&A International Trading, Inc"
+      - match: "R&A International Logistics"
+      - match: "B&H Foto & Electronics Corp."
+      - match: "P&P Computers"
+      - match: "ST&T"
+      - match: "G&W International Forwarders"
+      - match: "B&S Aircraft Alloys, Inc."
   comma_names:
     options:
+      - match: 'Applied Materials, Inc. and Applied Materials Korea'
+        entities:
+          - ['Applied Materials, Inc']
+          - ['Applied Materials Korea']
       - match: 'ExHigh Air Space Ltd., Geoffrey Chune Omariba, Nader Ali Saboori Haghighi'
         entities:
           - ['ExHigh Air Space Ltd']
