@@ -18,6 +18,10 @@ from zavod.extract.zyte_api import fetch_json, fetch, fetch_html, ZyteAPIRequest
 
 # Note: These contain special characters, in testing use single quotes
 # to make sure variables don't get interpolated by the shell.
+# export OPENSANCTIONS_UA_WS_API_CLIENT_ID=$(op read op://$OS_ENGINEERING_VAULT_ID/os_env/ua_ws_api_client_id)
+# export OPENSANCTIONS_UA_WS_API_KEY=$(op read op://$OS_ENGINEERING_VAULT_ID/os_env/ua_ws_api_key)
+# export OPENSANCTIONS_UA_WS_API_DOCS_URL=$(op read op://$OS_ENGINEERING_VAULT_ID/os_env/ua_ws_api_docs_url)
+# export OPENSANCTIONS_UA_WS_API_BASE_URL=$(op read op://$OS_ENGINEERING_VAULT_ID/os_env/ua_ws_api_base_url)
 WS_API_CLIENT_ID = env["OPENSANCTIONS_UA_WS_API_CLIENT_ID"]
 WS_API_KEY = env["OPENSANCTIONS_UA_WS_API_KEY"]
 # We keep these two secret because they were shared with us confidentially
