@@ -78,7 +78,7 @@ def crawl(dataset_path: Path, dry_run: bool = False, clear: bool = False) -> Non
 
 @cli.command("validate", help="Check the integrity of a dataset")
 @click.argument("dataset_path", type=InPath)
-@click.option("--rebuild-store", is_flag=True, default=False)
+@click.option("-r", "--rebuild-store", is_flag=True, default=False)
 def validate(dataset_path: Path, rebuild_store: bool = False) -> None:
     dataset = _load_dataset(dataset_path)
     if dataset.model.disabled:
@@ -97,7 +97,7 @@ def validate(dataset_path: Path, rebuild_store: bool = False) -> None:
 
 @cli.command("export", help="Export data from a specific dataset")
 @click.argument("dataset_path", type=InPath)
-@click.option("--rebuild-store", is_flag=True, default=False)
+@click.option("-r", "--rebuild-store", is_flag=True, default=False)
 def export(dataset_path: Path, rebuild_store: bool = False) -> None:
     dataset = _load_dataset(dataset_path)
     if dataset.model.disabled:
@@ -227,7 +227,7 @@ def dump_file(
 
 @cli.command("xref", help="Generate dedupe candidates from the given dataset")
 @click.argument("dataset_paths", type=InPath, nargs=-1)
-@click.option("--rebuild-store", is_flag=True, default=False)
+@click.option("-r", "--rebuild-store", is_flag=True, default=False)
 @click.option("-l", "--limit", type=int, default=10000)
 @click.option("-f", "--focus-dataset", type=str, default=None)
 @click.option("-s", "--schema", type=str, default=None)
@@ -277,7 +277,7 @@ def xref_prune() -> None:
 
 @cli.command("dedupe", help="Interactively decide xref candidates")
 @click.argument("dataset_paths", type=InPath, nargs=-1)
-@click.option("--rebuild-store", is_flag=True, default=False)
+@click.option("-r", "--rebuild-store", is_flag=True, default=False)
 def dedupe(dataset_paths: List[Path], rebuild_store: bool = False) -> None:
     dataset = _load_datasets(dataset_paths)
     resolver = get_resolver()
@@ -313,7 +313,7 @@ def merge(entity_ids: List[str], force: bool = False) -> None:
 
 @cli.command("dedupe-edges", help="Merge edge entities that are effectively duplicates")
 @click.argument("dataset_paths", type=InPath, nargs=-1)
-@click.option("--rebuild-store", is_flag=True, default=False)
+@click.option("-r", "--rebuild-store", is_flag=True, default=False)
 def dedupe_edges(dataset_paths: List[Path], rebuild_store: bool = False) -> None:
     dataset = _load_datasets(dataset_paths)
     resolver = get_resolver()
@@ -342,7 +342,7 @@ def clear(dataset_path: Path) -> None:
 
 @cli.command("summarize")
 @click.argument("dataset_path", type=InPath)
-@click.option("--rebuild-store", is_flag=True, default=False)
+@click.option("-r", "--rebuild-store", is_flag=True, default=False)
 @click.option("-s", "--schema", type=str, default=None)
 @click.option(
     "-f",
@@ -410,7 +410,7 @@ def summarize(
 
 @cli.command("wd-up")
 @click.argument("dataset_paths", type=InPath, nargs=-1)
-@click.option("--rebuild-store", is_flag=True, default=False)
+@click.option("-r", "--rebuild-store", is_flag=True, default=False)
 @click.option("-a", "--country-adjective", type=str, required=True)
 @click.option("-d", "--country-code", type=str, required=True)
 @click.option("-f", "--focus-dataset", type=str, default=None)
