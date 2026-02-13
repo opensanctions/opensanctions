@@ -171,7 +171,12 @@ def crawl(context: Context):
             entity.add("country", str_row.pop("nationality"))
             entity.add("sourceUrl", company_link)
             entity.add("ticker", str_row.pop("stock_symbol"))
-            entity.add("topics", "export.risk")
+
+            # FL 2026-02-13 - Legal work-around, do not remove without written approval
+            if company_name is not None and "investment" in company_name.lower():
+                entity.add("topics", "invest.risk")
+            else:
+                entity.add("topics", "export.risk")
             context.emit(entity)
             context.audit_data(str_row)
 
