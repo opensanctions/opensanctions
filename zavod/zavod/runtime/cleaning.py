@@ -5,11 +5,10 @@ from rigour.ids import get_identifier_format
 from rigour.names import is_name
 from prefixdate.precision import Precision
 from followthemoney import registry, Property, model
-from followthemoney.statement.util import NON_LANG_TYPE_NAMES
+from followthemoney.types import PropertyType
 
 from zavod.logs import get_logger
-from zavod.runtime.lookups import is_type_lookup_value, prop_lookup
-from zavod.runtime.safety import check_xss_html_smell
+from zavod.runtime.lookups import prop_lookup, get_type_lookup
 
 
 if TYPE_CHECKING:
@@ -62,6 +61,16 @@ def clean_identifier(prop: Property, value: str) -> Optional[str]:
     return normalized
 
 
+def is_lookup_value(entity: "Entity", type_: PropertyType, value: str) -> bool:
+    """Check if a given value for a certain property type was obtained from
+    a lookup. This is used to skip validation for looked-up values."""
+    lookup = get_type_lookup(entity.dataset, type_)
+    if lookup is None:
+        return False
+    result = lookup.match(value)
+    return result is not None
+
+
 def value_clean(
     entity: "Entity",
     prop: Property,
@@ -90,11 +99,6 @@ def value_clean(
                     fuzzy=fuzzy,
                     format=format,
                 )
-
-        # Do not check non-text properties
-        if clean is not None and prop.type not in NON_LANG_TYPE_NAMES:
-            clean = check_xss_html_smell(entity, prop_, clean)
-
         # We validate Person:*Name properties as names cause they're strings
         # in the FtM model.
         # See https://github.com/opensanctions/followthemoney/issues/71
@@ -114,7 +118,7 @@ def value_clean(
                 # Allow abbreviations that are not valid names
 
             elif entity.schema.is_a("LegalEntity") and not is_name(clean):
-                if not is_type_lookup_value(entity, registry.name, item):
+                if not is_lookup_value(entity, registry.name, item):
                     log.warning(
                         f"Property value {value!r} is not a valid name.",
                         entity_id=entity.id,
