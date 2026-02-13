@@ -23,7 +23,6 @@ from rigour.names import remove_person_prefixes
 
 from zavod import Context
 from zavod import helpers as h
-from zavod.extract.names.clean import Names
 
 
 DOWNLOAD_URL = "https://sam.gov/api/prod/fileextractservices/v1/api/download/"
@@ -206,10 +205,10 @@ def crawl(context: Context) -> None:
 
         # The low quality names tend to come from OFAC so check those.
         if agency == "TREAS-OFAC":
-            original = Names(name=name)
+            original = h.Names(name=name)
             is_irregular, suggested = h.check_names_regularity(entity, original)
 
-            custom_suggested = Names()
+            custom_suggested = h.Names()
             # Work from suggested in-case any standard heuristics have already re-categorised anything.
             for prop, names in suggested.nonempty_item_lists():
                 assert len(names) == 1  # We know this to be true in this crawler
