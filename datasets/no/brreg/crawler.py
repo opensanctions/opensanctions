@@ -1,11 +1,12 @@
 import gzip
 import csv
-from typing import Any, List, Dict
-from itertools import chain
 
-from zavod import Context, helpers as h
-from zavod.stateful.positions import categorise, OccupancyStatus
+from itertools import chain
 from rigour.mime.types import GZIP
+from typing import Any, List, Dict
+
+from zavod import Context, helpers as h, Entity
+from zavod.stateful.positions import categorise, OccupancyStatus
 
 
 BASE_API = "https://data.brreg.no/enhetsregisteret/api"
@@ -28,109 +29,152 @@ DISSOLV_DATES = [
 # should we put this there ^: under_foreign_insolvency_proceedings_date ?
 
 
-def get_oldest_date(dict_row: Dict[str, Any], keys_to_check: List[str]) -> str | None:
+# all positions listed here: https://data.brreg.no/enhetsregisteret/api/roller/rollegruppetyper
+# DAGL: Managing Director / CEO
+# BEST: Managing Shipowner
+# INNH: Sole Proprietor / Owner
+# FFØR: Business Manager
+# Styre: Board of Directors
+# get board and C-level positions
+ROLE_CODES = ["Styre", "DAGL", "BEST", "INNH", "FFØR"]
+IGNORE = [
+    "org_form_code",
+    "industry_code1_description",
+    "industry_code2_description",
+    "industry_code3_description",
+    "employee_count",
+    "has_registered_employee_count",
+    "registration_date_employee_count_entity_register",
+    "registration_date_employee_count_nav_employment_register",
+    "business_address_street",
+    "business_address_municipality",
+    "business_address_municipality_code",
+    "business_address_country",
+    "institutional_sector_code",
+    "last_submitted_annual_accounts",
+    "registration_date_entity_register",
+    "foundation_date",
+    "registered_in_vat_register",
+    "registration_date_vat_register",
+    "registration_date_vat_register_entity_register",
+    "registered_in_voluntary_org_register",
+    "registered_in_business_register",
+    "registration_date_business_register",
+    "registered_in_foundation_register",
+    "registered_in_party_register",
+    "under_liquidation",
+    "language_form",
+    "articles_of_association_date",
+    "statutory_purpose",
+    "activity",
+    "endorsements",
+    "is_in_corporate_group",
+    "capital_amount",
+    "capital_share_count",
+    "capital_type",
+    "capital_currency",
+    "capital_introduced_date",
+    "postal_address_municipality_code",
+    "postal_address_country",
+    "bankruptcy",
+    "under_forced_liquidation_or_dissolution",
+    "voluntary_vat_registered_description",
+    "registration_date_voluntary_vat_register",
+    "under_forced_liquidation_or_dissolution",
+    "opt_out_audit_date",
+    "opt_out_audit_decision_date",
+    "website",
+    "email",
+    "phone",
+    "phone_mobile",
+    "support_unit_code_description",
+    "support_unit_code",
+]
+
+
+def get_oldest_date(row: Dict[str, Any], keys_to_check: List[str]) -> str | None:
     """
     Get the oldest date value from keys to check, delete the rest.
     """
     values = []
     for k in keys_to_check:
-        v = dict_row.pop(k, None)
+        v = row.pop(k, None)
         values.append(v)
     return min(values) if values else None
 
 
-def crawl_row(context: Context, dict_row: Dict[Any, Any]) -> None:
-    # === get state-owned enterpreses details === #
-    company_name = dict_row.pop("name")
-    org_number = dict_row.pop("org_number")
-    company_juris = dict_row.pop("subject_to_legislation_country_code", None)
+def crawl_address(context: Context, row: Dict[str, Any], entity: Entity) -> None:
+    # Business address
+    ba_country = row.pop("business_address_country_code")
+    country_code_business = ba_country.lower()
+    if country_code_business not in entity.countries:
+        entity.add("country", country_code_business)
+    business_address = h.make_address(
+        context,
+        street=row.pop("business_address_street"),
+        city=row.pop("business_address_city"),
+        postal_code=row.pop("business_address_postal_code"),
+        country_code=country_code_business,
+    )
+    h.copy_address(entity, business_address)
+    # Postal address
+    pa_country = row.pop("postal_address_country_code")
+    country_code_postal = pa_country.lower()
+    if country_code_postal not in entity.countries:
+        entity.add("country", country_code_postal)
+    postal_address = h.make_address(
+        context,
+        street=row.pop("postal_address_street"),
+        city=row.pop("postal_address_city"),
+        postal_code=row.pop("postal_address_postal_code"),
+        country_code=country_code_postal,
+    )
+    h.copy_address(entity, postal_address)
+    # Foreign address
+    foreign_address = h.make_address(
+        context,
+        street=row.pop("foreign_register_address_street"),
+        city=row.pop("foreign_register_address_city"),
+        place=row.pop("postal_address_municipality"),
+        country=row.pop("foreign_register_address_country"),
+    )
+    h.copy_address(entity, foreign_address)
+
+
+def crawl_company(
+    context: Context,
+    row: Dict[Any, Any],
+    company_name: str,
+    org_number: str,
+    company_juris: str,
+) -> Entity:
+    company_name = row.pop("name")
+    org_number = row.pop("org_number")
+    company_juris = row.pop("subject_to_legislation_country_code")
 
     entity = context.make("LegalEntity")
     entity.id = context.make_id(company_name, org_number)
     entity.add("name", company_name)
+    entity.add("alias", row.pop("foreign_register_name"))
     entity.add("jurisdiction", company_juris)
-    entity.add("legalForm", dict_row.pop("org_form_description"))
-    # entity.add("description", dict_row.pop("statutory_purpose", None))
-    # entity.add("notes", dict_row.pop("activity", None))
-
-    foreign_register_name = dict_row.pop("foreign_register_name", None)
-    if foreign_register_name is not None:
-        entity.add("alias", foreign_register_name)
-
-    # bankrupcy or liquidation bools
-    is_bankrupt = dict_row.pop("bankruptcy", None) == "true"
-    is_liquidated = (
-        dict_row.pop("under_forced_liquidation_or_dissolution", None) == "true"
-    )
-    if is_bankrupt:
-        entity.add("status", "konkurs")
-    if is_liquidated:
-        entity.add("status", "underTvangsavviklingEllerTvangsopplosning")
-
-    # registrationNumber
-    entity.add(
-        "registrationNumber", dict_row.pop("registration_number_home_country", None)
-    )
+    entity.add("legalForm", row.pop("org_form_description"))
+    entity.add("registrationNumber", row.pop("registration_number_home_country"))
     # about industry codes: https://www.brreg.no/bedrift/naeringskoder/
     industry_codes = {
         k: v
-        for k, v in dict_row.items()
+        for k, v in row.items()
         if k.startswith("industry_code") and k.endswith("code")
     }
     for k, v in industry_codes.items():
         entity.add("sector", v)
-        dict_row.pop(k)
+        row.pop(k)
 
-    # # === contacts === #
-    # entity.add("email", dict_row.pop("email"))
-    # website = dict_row.pop("website", None)
-    # if website and (
-    #     website.isdigit()
-    #     or any(word in website.lower() for word in ("instagram", "facebook", "google"))
-    # ):
-    #     website = None
-    # entity.add("website", website)
-    # entity.add("phone", dict_row.pop("phone", None))
-    # entity.add("phone", dict_row.pop("phone_mobile", None))
-    # h.apply_date(entity, "incorporationDate", get_oldest_date(dict_row, INC_DATES))
-    # h.apply_date(entity, "dissolutionDate", get_oldest_date(dict_row, DISSOLV_DATES))
-
-    # # === addresses === #
-    # ba_country = dict_row.pop("business_address_country_code", None) or ""
-    # country_code_business = ba_country.lower()
-    # if country_code_business not in entity.countries:
-    #     entity.add("country", country_code_business)
-    # business_address = h.make_address(
-    #     context,
-    #     street=dict_row.pop("business_address_street", None),
-    #     city=dict_row.pop("business_address_city", None),
-    #     postal_code=dict_row.pop("business_address_postal_code", None),
-    #     country_code=country_code_business,
-    # )
-    # h.copy_address(entity, business_address)
-
-    # pa_country = dict_row.pop("postal_address_country_code", None) or ""
-    # country_code_postal = pa_country.lower()
-    # if country_code_postal not in entity.countries:
-    #     entity.add("country", country_code_postal)
-    # postal_address = h.make_address(
-    #     context,
-    #     street=dict_row.pop("postal_address_street", None),
-    #     city=dict_row.pop("postal_address_city", None),
-    #     postal_code=dict_row.pop("postal_address_postal_code", None),
-    #     country_code=country_code_postal,
-    # )
-    # h.copy_address(entity, postal_address)
-    # foreign_address = h.make_address(
-    #     context,
-    #     street=dict_row.pop("foreign_register_address_street", None),
-    #     city=dict_row.pop("foreign_register_address_city", None),
-    #     country=dict_row.pop("foreign_register_address_country", None),
-    # )
-    # h.copy_address(entity, foreign_address)
+    h.apply_date(entity, "incorporationDate", get_oldest_date(row, INC_DATES))
+    h.apply_date(entity, "dissolutionDate", get_oldest_date(row, DISSOLV_DATES))
+    crawl_address(context, row, entity)
 
     # get legal entity's parent ID
-    parent_id = dict_row.pop("parent_entity_org_number")
+    parent_id = row.pop("parent_entity_org_number")
     if parent_id is not None and parent_id != "":
         owner = context.make("LegalEntity")
         owner.id = context.make_id(parent_id)
@@ -141,15 +185,19 @@ def crawl_row(context: Context, dict_row: Dict[Any, Any]) -> None:
         ownership.add("asset", entity)
         context.emit(ownership)
 
-    # === fetch peps === #
+    context.audit_data(row, IGNORE)
+    return entity
+
+
+def crawl_pep(
+    context: Context,
+    org_number: str,
+    company_name: str,
+    company_juris: str,
+    entity: Entity,
+) -> None:
     API_org_url = f"{BASE_API}/enheter/{org_number}/roller"
     rollegrupper = context.fetch_json(API_org_url)["rollegrupper"]
-    # all positions listed here: https://data.brreg.no/enhetsregisteret/api/roller/rollegruppetyper
-    # DAGL: Managing Director / CEO
-    # BEST: Managing Shipowner
-    # INNH: Sole Proprietor / Owner
-    # FFØR: Business Manager
-    # Styre: Board of Directors
 
     # flatten to iterate over "rollegrupper" that contains a list of roles
     roles = chain.from_iterable(group.get("roller") for group in rollegrupper)
@@ -157,9 +205,7 @@ def crawl_row(context: Context, dict_row: Dict[Any, Any]) -> None:
         role_data = role.get("type")
         role_code = role_data.get("kode")
 
-        # get board and C-level positions
-        role_codes_to_fetch = ["Styre", "DAGL", "BEST", "INNH", "FFØR"]
-        if role_code in role_codes_to_fetch:
+        if role_code in ROLE_CODES:
             role_name = role_data.get("beskrivelse")
 
             person_data = role.get("person")
@@ -180,13 +226,15 @@ def crawl_row(context: Context, dict_row: Dict[Any, Any]) -> None:
                 context,
                 name=f"{role_name}, {company_name}",
                 topics=["gov.soe"],
-                country=[
-                    "no",
-                    company_juris,
-                ],  # adding company's country of jurisdiction, too
+                # adding company's country of jurisdiction, too
+                country=["no", company_juris],
                 organization=entity,
             )
             categorisation = categorise(context, position, is_pep=True)
+
+            if not categorisation.is_pep:
+                return
+
             occupancy = h.make_occupancy(
                 context,
                 pep,
@@ -201,50 +249,6 @@ def crawl_row(context: Context, dict_row: Dict[Any, Any]) -> None:
                 context.emit(entity)
                 context.emit(position)
                 context.emit(occupancy)
-
-    # COLS_NOT_IN_USE_SUBSTR = (
-    #     "employee_count",
-    #     "municipality",
-    #     "vat_register",
-    #     "org_register",
-    #     "business_register",
-    #     "foundation_register",
-    #     "party_register",
-    #     "opt_out",
-    #     "capital",
-    #     "subject_to_legislation",
-    #     "company_form_home",
-    # )
-    # cols_matched_by_substr = [
-    #     k for k in dict_row if any(substr in k for substr in COLS_NOT_IN_USE_SUBSTR)
-    # ]
-    # cols_industry_code_descriptions = [
-    #     k
-    #     for k in dict_row
-    #     if k.startswith("industry_code") and k.endswith("description")
-    # ]
-    # cols_not_in_use_exact = [
-    #     "org_form_code",
-    #     "support_unit_code",
-    #     "support_unit_code_description",
-    #     "institutional_sector_code",
-    #     "last_submitted_annual_accounts",
-    #     "under_liquidation",
-    #     "language_form",
-    #     "articles_of_association_date",
-    #     "statutory_purpose",
-    #     "activity",
-    #     "endorsements",
-    #     "under_foreign_insolvency_proceedings_date",
-    #     "under_reconstruction_negotiations_date",
-    #     "is_in_corporate_group",
-    #     "business_address_country",  # use postal codes instead
-    #     "postal_address_country",  # use postal codes instead
-    # ]
-    # COLS_NOT_IN_USE = (
-    #     cols_matched_by_substr + cols_industry_code_descriptions + cols_not_in_use_exact
-    # )
-    # context.audit_data(dict_row, ignore=COLS_NOT_IN_USE)
 
 
 def crawl(context: Context) -> None:
@@ -280,10 +284,17 @@ def crawl(context: Context) -> None:
 
             # collect only state-owned enterprises
             institutional_sector_description = row.pop(
-                "institutional_sector_description", None
+                "institutional_sector_description"
             )
             if (
                 institutional_sector_description is not None
                 and "Statlig eide" in institutional_sector_description
             ):
-                crawl_row(context, row)
+                company_name = row.pop("name")
+                org_number = row.pop("org_number")
+                company_juris = row.pop("subject_to_legislation_country_code")
+
+                entity = crawl_company(
+                    context, row, company_name, org_number, company_juris
+                )
+                crawl_pep(context, org_number, company_name, company_juris, entity)
