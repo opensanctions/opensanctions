@@ -1,4 +1,4 @@
-title: MySociety's EveryPolitician Dataset of National Legislators
+title: MySociety's EveryPolitician Legislators
 entry_point: crawler.py
 prefix: evpo
 disabled: false
@@ -19,17 +19,11 @@ description: |
   of the project, EveryPolitician operated a large fleet of crawlers which read the web
   sites of parliaments around the world.
 
-  The project was [shut down in June 2019](https://www.mysociety.org/2019/06/26/placing-everypolitician-on-hold/)
-  ceasing updates to this dataset.
-
-  OpenSanctions continues to include members from this dataset which meet our standard
-  criteria of PEP classification: national legislature members are included for 20 years
-  after they held a position if an end date is known, otherwise for 40 years after they
+  OpenSanctions only includes persons from this dataset which meet our standard criteria
+  of PEP classification: national legislature members are included for 20 years after
+  they held a position if an end date is known, otherwise for 40 years after they
   entered the position. They are excluded 5 years after their death, or 120 years
   after their birth.
-
-  Other sources will eventually replace this dataset completely as we continually
-  improve PEP coverage through more current sources.
 deprecation: |
   In June 2019, [MySociety announced](https://www.mysociety.org/2019/06/26/placing-everypolitician-on-hold/) that
   the EveryPolitician project was being placed on hold and that no further updates would be made to this dataset.

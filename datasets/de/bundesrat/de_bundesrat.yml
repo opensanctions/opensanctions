@@ -70,3 +70,5 @@ lookups:
         value: 1982-06-08
       - contains: "Geboren am 13. November 1986 in Warschau"
         value: 1986-11-13
+      - contains: "Geboren am 22. November 1986 in Frankfurt am Main"
+        value: 1986-11-22

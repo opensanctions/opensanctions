@@ -1,4 +1,5 @@
 data/
+contrib/delta/data
 docs/
 dist/
 build/
@@ -13,6 +14,8 @@ Dockerfile
 .github/
 .gitignore
 venv
+env
+ui
 *.pyc
 *.egg-info
 nomenklatura.db

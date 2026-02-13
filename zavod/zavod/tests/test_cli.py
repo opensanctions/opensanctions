@@ -109,9 +109,9 @@ def test_run_validation_failed(testdataset3: Dataset):
     result = runner.invoke(cli, ["run", "--latest", DATASET_3_YML.as_posix()])
     assert result.exit_code != 0, result.output
     # Validation issues in an aborted run are published
-    assert "Assertion failed for value" in result.output, result.output
+    assert "Assertion countries failed" in result.output, result.output
     with open(artifacts_path / "issues.json", "r") as f:
-        assert "Assertion failed for value" in f.read()
+        assert "Assertion countries failed" in f.read()
     shutil.rmtree(settings.DATA_PATH)
 
 
@@ -127,7 +127,9 @@ def test_xref_dataset(testdataset1: Dataset):
     assert len(resolver.edges) == 0
     resolver.rollback()
 
-    result = runner.invoke(cli, ["xref", "--clear", DATASET_1_YML.as_posix()], env=env)
+    result = runner.invoke(
+        cli, ["xref", "--rebuild-store", DATASET_1_YML.as_posix()], env=env
+    )
     assert result.exit_code == 0, result.output
 
     resolver = get_resolver()

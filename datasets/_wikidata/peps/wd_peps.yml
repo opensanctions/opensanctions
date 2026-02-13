@@ -142,6 +142,8 @@ lookups:
         value: 2004-04
       - match: "1967-04-31"
         value: 1967-04
+      - match: "2022-09-31"
+        value: 2022-09
 
   position_subclasses:
     options:

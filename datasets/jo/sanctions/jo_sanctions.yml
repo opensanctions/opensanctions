@@ -3,18 +3,23 @@ url: https://sanctions.amlu.gov.jo/EN/List/National1_List
 load_statements: true
 coverage:
   frequency: weekly
-  start: 2025-12-03
+  start: 2026-02-06
 description: >
   The Kingdom of Jordan's national-level sanctions mechanism. It is part of
   Jordan's compliance framework for combating money laundering and terrorist financing
   and is administered by the Anti Money Laundering and Counter Terrorist Financing Unit.
+
+
+  Jordan also implements a number of [UN sanctions regimes](https://sanctions.amlu.gov.jo/EN/List/Sanctions3_List).
+  This dataset includes only the National List; UN sanctions are not included here.
 summary: >
   The national sanctions list of the Kingdom Jordan, administered by the
   Anti Money Laundering and Counter Terrorist Financing Unit.
 entry_point: crawler.py
 prefix: jo-sanc
 publisher:
-  name: Anti Money Laundering and Counter Terrorist Financing Unit
+  name: وحدة مكافحة غسل الأموال وتمويل الإرهاب
+  name_en: Anti Money Laundering and Counter Terrorist Financing Unit
   url: https://sanctions.amlu.gov.jo/
   country: jo
   official: true
@@ -88,7 +93,23 @@ lookups:
         value: full_name_ar
       - match: الإسم الكامل (بالحروف اللاتينية)
         value: full_name_en
+  is_passport:
+    options:
+      - match: "جواز سفر" # Travel document
+        value: "true"
+      - match:
+          - "بطاقة شخصية" # ID Card
+          - "/"
+        value: "false"
+  type.string:
+    options:
+      - match: "/"
+        value: null
   type.name:
+    options:
+      - match: "/"
+        value: null
+  type.identifier:
     options:
       - match: "/"
         value: null

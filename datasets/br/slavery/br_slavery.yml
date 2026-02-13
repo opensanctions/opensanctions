@@ -56,3 +56,25 @@ assertions:
     schema_entities:
       Person: 700
       Company: 300
+
+lookups:
+  type.address:
+    options:
+      - match:
+          - BA
+          - SP
+          - SC
+          - DF
+          - MG
+          - RJ
+          - RS
+          - DF
+          - PE
+          - SC
+          - RR
+          - PB
+          - PI
+          - AM
+          - CE
+          - PR
+        value: null

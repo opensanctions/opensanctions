@@ -188,7 +188,7 @@ def crawl(context):
     context.emit(entity)
 ```
 
-The [entity object][zavod.entity.Entity] is based on the [entity proxy in FollowTheMoney](https://followthemoney.tech/reference/python/followthemoney/proxy.html#EntityProxy), so we suggest you also check out the [FtM documentation](https://followthemoney.tech/docs/api/) on entity construction. Some additional utility methods are added in the [`Entity`][zavod.entity.Entity] class in `zavod`.
+The [entity object][zavod.entity.Entity] is based on the [entity proxy in FollowTheMoney](https://followthemoney.tech/python/entity/#followthemoney.proxy.EntityProxy), so we suggest you also check out the [FtM documentation](https://followthemoney.tech/docs/api/) on entity construction. Some additional utility methods are added in the [`Entity`][zavod.entity.Entity] class in `zavod`.
 
 ### Verifying your output
 

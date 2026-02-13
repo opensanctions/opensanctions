@@ -176,11 +176,10 @@ def parse_excel(context: Context, path: Path):
 
 def crawl(context: Context):
     doc = context.fetch_html(context.data_url, absolute_links=True)
-    section = h.xpath_element(doc, ".//h5[text()='Local Terrorist List']").getparent()
-    assert section is not None, section
+    xpath = ".//div[@class='local-list']//div[@class='file'][.//em[@class='icon-xlsx-file-extension-interface-symbol']]//a[contains(@href, 'DownloadFile')]"
     link = h.xpath_element(
-        section,
-        ".//p[text()='Download Excel File']/ancestor::*[contains(@class,'download-file')]//a",
+        doc,
+        xpath,
     )
     url = link.get("href")
     path = context.fetch_resource("source.xls", url)

@@ -30,6 +30,11 @@ data:
   url: https://myrotvorets.news/wp-content/uploads/2021/12/vagner4000.zip
   format: CSV
 
+assertions:
+  min:
+    schema_entities:
+      Person: 3400
+
 lookups:
   type.date:
     options:

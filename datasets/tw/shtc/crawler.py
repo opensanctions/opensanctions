@@ -199,6 +199,9 @@ def crawl_row(context: Context, row):
     parse_names(context, item_num, entity, names_str, aliases_str)
 
     for address in h.multi_split(row.pop("地址address"), ADDRESS_SPLITS):
+        if len(address) == 2:
+            entity.add("country", address)
+            continue
         # Generic override to map more details in the address field
         details_lookup_result = context.lookup("details", address)
         if details_lookup_result is not None:

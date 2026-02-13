@@ -17,7 +17,7 @@ description: |
   the Ministry of Economy, the Office of the Comptroller General (CGU),
   and other relevant entities.
   It lists public agents who currently hold or
-  have held significant public offices, jobs, 
+  have held significant public offices, jobs,
   or functions within the last five years.
 publisher:
   name: General Control Office of the Union
@@ -38,12 +38,12 @@ dates:
 assertions:
   min:
     schema_entities:
-      Person: 95000
-      Position: 20700
+      Person: 63000 # 65501 unique taxNumbers
+      Position: 12000  # 13365 unique positions
   max:
     schema_entities:
-      Person: 220000
-      Position: 48700
+      Person: 120000
+      Position: 25000
 
 lookups:
   type.date:

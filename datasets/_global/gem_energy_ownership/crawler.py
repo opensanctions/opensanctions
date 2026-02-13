@@ -1,6 +1,6 @@
 import openpyxl
 import re
-from typing import Dict, Set, Tuple
+from typing import Dict, List, Set, Tuple
 
 from zavod import Context
 from zavod import helpers as h
@@ -37,16 +37,18 @@ SKIP_IDS = {
     "E100002001974",  # member/employee owned
 }
 SELF_OWNED = {"E100000002236"}
-STATIC_URL = "https://globalenergymonitor.org/wp-content/uploads/2025/10/Global-Energy-Ownership-Tracker-October-2025-V1.xlsx"
+STATIC_URL = "https://globalenergymonitor.org/wp-content/uploads/2026/02/Global-Energy-Ownership-Tracker-February-2026-V1.xlsx"
 REGEX_URL_SPLIT = re.compile(r",\s*http")
 REGEX_POSSIBLE_ASSOCIATES = re.compile(r"（[^（）]*、[^（）]*）| \(\s*[^()]*,[^()]*\)")
 
 
-def split_urls(value: str):
+def split_urls(value: str) -> List[str]:
     return REGEX_URL_SPLIT.sub("\nhttp", value).split("\n")
 
 
-def split_associates(context: Context, name):
+def split_associates(
+    context: Context, name: str
+) -> Tuple[str, str, Set[Tuple[str, str]]]:
     if REGEX_POSSIBLE_ASSOCIATES.search(name):
         result = context.lookup("associates", name)
         if result is None:
@@ -59,8 +61,11 @@ def split_associates(context: Context, name):
     return name, name, set()
 
 
-def crawl_company(context: Context, row: Dict[str, str], skipped: Set[str]):
+def crawl_company(context: Context, row: Dict[str, str | None], skipped: Set[str]):
     id_ = row.pop("entity_id")
+    if id_ is None:
+        context.log.warning("Missing entity ID", row=row)
+        return
     # Skip entities
     if id_ in SKIP_IDS:
         skipped.add(id_)
@@ -83,6 +88,7 @@ def crawl_company(context: Context, row: Dict[str, str], skipped: Set[str]):
         schema = "LegalEntity"
     else:
         context.log.warning("Unknown entity type", entity_type=entity_type)
+        return
 
     entity = context.make(schema)
     entity.id = context.make_slug(id_)
@@ -92,8 +98,6 @@ def crawl_company(context: Context, row: Dict[str, str], skipped: Set[str]):
         row.pop("full_name"),
         row.pop("name_local"),
     ]
-    if not any(original_names):
-        names = [id_]
     # (potentially trimmed name, original string)
     associates: Set[Tuple[str, str]] = set()
     names: Set[Tuple[str, str]] = set()
@@ -136,21 +140,21 @@ def crawl_company(context: Context, row: Dict[str, str], skipped: Set[str]):
     if homepage:
         entity.add("website", split_urls(homepage))
     if not entity.schema.is_a("Person"):
-        if perm_id != "not found":
-            entity.add_cast("Company", "permId", perm_id)
-        ru_id = row.pop(
-            "russia_uniform_state_register_of_legal_entities_of_russian_federation"
-        )
-        entity.add("ogrnCode", ru_id)
         br_id = row.pop(
             "brazil_national_registry_of_legal_entities_federal_revenue_service"
         )
         entity.add("registrationNumber", br_id)
-        entity.add("registrationNumber", row.pop("uk_companies_house"))
         in_id = row.pop(
-            "india_corporate_identification_number_ministry_of_corporate_affairs"
+            "india_corporate_identification_number_ministry_of_corporate_affairs",
         )
         entity.add("registrationNumber", in_id)
+        if perm_id != "not found":
+            entity.add_cast("Company", "permId", perm_id)
+        ru_id = row.pop(
+            "russia_uniform_state_register_of_legal_entities_of_russian_federation",
+        )
+        entity.add("ogrnCode", ru_id)
+        entity.add("registrationNumber", row.pop("uk_companies_house"))
         entity.add("registrationNumber", row.pop("us_eia"))
         entity.add("registrationNumber", row.pop("s_p_capital_iq"))
         if entity.schema.is_a("Organization") and topics is not None:
@@ -172,7 +176,7 @@ def crawl_company(context: Context, row: Dict[str, str], skipped: Set[str]):
     )
 
 
-def crawl_rel(context: Context, row: Dict[str, str], skipped: Set[str]):
+def crawl_rel(context: Context, row: Dict[str, str | None], skipped: Set[str]):
     subject_entity_id = row.pop("subject_entity_id")
     interested_party_id = row.pop("interested_party_id")
 
@@ -195,7 +199,9 @@ def crawl_rel(context: Context, row: Dict[str, str], skipped: Set[str]):
     if source_urls is not None:
         ownership.add("sourceUrl", split_urls(source_urls))
 
-    context.audit_data(row, ignore=["subject_entity_name", "interested_party_name"])
+    context.audit_data(
+        row, ignore=["subject_entity_name", "interested_party_name", "share_imputed"]
+    )
     context.emit(ownership)
 
 
@@ -204,7 +210,7 @@ def crawl(context: Context):
 
     path = context.get_resource_path("source.xlsx")
     fetch_internal_data(
-        "gem_energy_ownership/Global-Energy-Ownership-Tracker-October-2025-V1.xlsx",
+        "gem_energy_ownership/Global-Energy-Ownership-Tracker-February-2026-V1.xlsx",
         path,
     )
     workbook: openpyxl.Workbook = openpyxl.load_workbook(path, read_only=True)

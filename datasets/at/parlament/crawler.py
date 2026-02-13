@@ -9,14 +9,16 @@ def crawl(context: Context) -> None:
     rows = res.pop("rows", [])
     for row in rows:
         person = context.make("Person")
-        name, gremium, gender, period, parties, attr, akgr, klub, district, bio = row
+        name = row[0]
+        attr = row[7]
+        akgr = row[11]
         person.id = context.make_slug(attr["uri"])
         person.add("name", name)
         person.add("name", attr["zit"])
         person.add("citizenship", "at")
         person.add("title", akgr)  # akgr: Akademischer Grad
-        person.add("gender", gender)
-        url = urljoin(context.data_url, bio)
+        person.add("gender", attr["geschlecht"])
+        url = urljoin(context.data_url, attr["uri"])
         person.add("sourceUrl", url)
 
         for mand in attr["mandate_kompakt"]["mandate"]:

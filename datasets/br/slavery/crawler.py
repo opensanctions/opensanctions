@@ -41,20 +41,19 @@ def crawl_row(context: Context, row: Dict[str, str]):
     entity.add("topics", "forced.labor")
 
     # Sometimes the listing date looks like this "05/10/2022 a 13/01/2023, 11/11/2024", indicating that the
-    # company was removed and re-added to the list.
+    # company was removed and re-added to the list. We create separate sanction objects for each period.
     for listing_interval in row.pop("Inclusão no Cadastro de Empregadores").split(", "):
-        sanction = h.make_sanction(context, entity)
-
         listing_interval_match = LISTING_INTERVAL_RE.match(listing_interval)
         if listing_interval_match:
-            h.apply_date(
-                sanction, "startDate", listing_interval_match.groupdict()["start_date"]
-            )
-            h.apply_date(
-                sanction, "endDate", listing_interval_match.groupdict()["end_date"]
-            )
+            # Period with start and end date (company was removed)
+            start_date = listing_interval_match.groupdict()["start_date"]
+            end_date = listing_interval_match.groupdict()["end_date"]
+            sanction = h.make_sanction(context, entity, key=start_date)
+            h.apply_date(sanction, "startDate", start_date)
+            h.apply_date(sanction, "endDate", end_date)
         else:
-            # This is just a normal date string, indicating an ongoing listing
+            # Ongoing listing (no end date)
+            sanction = h.make_sanction(context, entity, key=listing_interval)
             h.apply_date(sanction, "startDate", listing_interval)
 
         context.emit(sanction)

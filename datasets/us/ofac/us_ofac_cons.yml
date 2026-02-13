@@ -113,6 +113,8 @@ lookups:
         value: null
       - match: Moscow
         value: Moscow
+      - match: Oja
+        value: Oja
   type.email:
     options:
       - match: PRIYEMNAYA@YGDU

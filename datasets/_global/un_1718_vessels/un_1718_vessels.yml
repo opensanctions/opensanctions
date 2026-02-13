@@ -52,6 +52,16 @@ tags:
   - list.sanction
   - sector.maritime
 
+assertions:
+  min:
+    schema_entities:
+      Vessel: 50
+      LegalEntity: 1
+  max:
+    schema_entities:
+      Vessel: 120
+      LegalEntity: 4
+
 lookups:
   type.date:
     options:

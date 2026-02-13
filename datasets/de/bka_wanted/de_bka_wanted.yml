@@ -80,7 +80,9 @@ lookups:
         value: rs
   type.date:
     options:
-      - match: "16.05. / Geburtsjahr unbekannt"
+      - match:
+          - "16.05. / Geburtsjahr unbekannt"
+          - "15.05. / Geburtsjahr unbekannt"
         value: null
 
 assertions:

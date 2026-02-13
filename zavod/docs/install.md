@@ -11,41 +11,14 @@ $ cd opensanctions
 
 The steps below assume you're working within a checkout of that repository.
 
-## Using Docker
-
-If you have [Docker installed on your computer](https://docs.docker.com/get-docker/), you can use the supplied `Makefile` and `docker-compose` configuration to build and run a container that hosts the application:
-
-```bash
-$ make build
-# This runs a single command which you can also execute directly:
-$ docker-compose build --pull
-```
-
-Once the container images have been built, you can run the `zavod` command-line
-tool within the container:
-
-```bash
-$ docker-compose run --rm app zavod --help
-# Or, run a specific subcommand:
-$ docker-compose run --rm app zavod crawl datasets/ua/edr/ua_edr.yml
-# You can also just run a shell inside the container, and then execute multiple
-# commands in sequence:
-$ docker-compose run --rm app bash
-container$ zavod crawl datasets/ua/edr/ua_edr.yml
-# The above command to spawn an interactive shell is also available as:
-$ make shell
-```
-
-The docker environment will provide the commands inside the container with access to the `data/` directory in the current working directory, i.e. the repository root. You can find any generated outputs and the copy of the processing database in that directory.
-
 ## Python virtual environment
 
 The application is a fairly stand-alone Python application, albeit with a large number of library dependencies. To set up a local development environment using `uv`:
 
 ```bash
 # Inside the opensanctions repository path:
-$ pushd zavod; uv sync --extra dev; popd
-# Activate the virtualenv
+$ pushd zavod; uv sync --extra dev --extra docs; popd
+# Activate the virtualenv. You probably want to put this in your .envrc
 $ source zavod/.venv/bin/activate
 # You can check if the application has been installed successfully by
 # invoking the command-line tool:
@@ -54,18 +27,34 @@ $ zavod --help
 
 If you encounter any errors during the installation, please consider googling errors related to libraries used by `zavod` (e.g.: SQLAlchemy, Python-Levenshtein, click, etc.).
 
-!!! info "Please note"
-    `zavod` has dependecies on PyICU - a library related to the transliteration of names in other alphabets to the latin character set - and Plyvel - a fast and feature-rich Python interface to LevelDB. The installation and configuration of both libraries can be complex due to system dependencies. Consider following the [PyICU](https://pypi.org/project/PyICU/) and [Plyvel](https://plyvel.readthedocs.io/en/latest/installation.html) documentation for the installation of both libraries.
+!!! info "Installing `plyvel` on macOS"
+    To make Plyvel install on macOS, set the following environment variables before running `uv sync`.
 
-  To make Plyvel install on macOS, set the following environment variables before running `uv sync`.
+    ```sh
+    export CPPFLAGS="-I$(brew --prefix leveldb)/include/ -L$(brew --prefix leveldb)/lib/ -fno-rtti"
+    ```
 
-  ```sh
-  export CPPFLAGS="-I$(brew --prefix leveldb)/include/ -L$(brew --prefix leveldb)/lib/ -fno-rtti"
-  ```
 
   For more information on this painpoint, see the related GitHub [issue](https://github.com/wbolster/plyvel/issues/114)
 
-For development, you may want to use our [prek](https://github.com/j178/prek) configuration to automatically lint and typecheck your contributions. Just run `brew install prek && prek install` and the hooks will automatically run the next time you `git commit`. If you're hacking away and just want to make an intermediate commit without the tool getting in your way, you can always temporarily disable these checks by using `git commit --no-verify`.
+## Running a database
+
+Some (actually, most) crawlers in zavod use the cache and some other things that get read from the database.
+
+To bring a database up for local development:
+
+```bash
+docker compose -f ../docker-compose.yml up -d db # Bring up a dev database
+# Your probably want to put this in your .envrc
+export ZAVOD_DATABASE_URI=postgresql://postgres:password@localhost:5432/dev
+```
+
+## pre-commit checks
+
+For development, you want to use our [prek](https://github.com/j178/prek) configuration to automatically lint and typecheck your contributions.
+
+- To run these hooks automatically when running `git commit`, install them with `prek install`. You can always skip them by using `git commit --no-verify`.
+- If you prefer to run these hooks manually, just run `prek run`
 
 ## Configuration
 
@@ -77,5 +66,6 @@ For development, you may want to use our [prek](https://github.com/j178/prek) co
   defaults to the `data/` subdirectory of the current working directory when the
   `zavod` command is invoked.
 * `ZAVOD_ARCHIVE_BACKEND` default `FileSystemBackend`.
-    - `GoogleCloudBackend` uses the data lake as archive. Google Cloud credentials are required. Crawler team members configure configure read-access to the bucket, e.g. with the environment variable `GOOGLE_APPLICATION_CREDENTIALS=~/.etl-crawlerteam-sa-key.json`
+    - `GoogleCloudBackend` uses the data lake as an archive to backfill from. Google Cloud credentials are required.
 * `ZAVOD_ARCHIVE_BUCKET` - e.g. `data.opensanctions.org`
+* `FTM_USER_AGENT` - fill in your address in e.g. `opensanctions-dev/1.0 (+https://opensanctions.org; you@opensanctions.org)`

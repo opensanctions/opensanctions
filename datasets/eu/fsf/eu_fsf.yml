@@ -274,7 +274,7 @@ lookups:
         prop: vatCode
   type.name:
     options:
-      - match: 
+      - match:
           - "-"
           - "общество с ограниченной ответственностью"
           - "открытое акционерное общество"
@@ -344,6 +344,10 @@ lookups:
           - mbbmos@mbbru.com
           - Mellimos@BMIRU.com
           - Mellimos@Rex400.ru
+      - match: info@sctbankers.com zanjani@sctbankers.com
+        values:
+          - info@sctbankers.com
+          - zanjani@sctbankers.com
   type.gender:
     lowercase: true
     normalize: true
