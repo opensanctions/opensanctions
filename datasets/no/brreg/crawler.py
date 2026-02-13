@@ -68,6 +68,7 @@ IGNORE = [
     "opt_out_audit_date",
     "opt_out_audit_decision_date",
     "org_form_code",
+    "parent_entity_org_number",
     "phone_mobile",
     "phone",
     "postal_address_country",
@@ -145,18 +146,6 @@ def crawl_company(
             country_code=country.lower() if country else None,
         )
         h.copy_address(entity, address)
-
-    # get legal entity's parent ID
-    parent_id = row.pop("parent_entity_org_number")
-    if parent_id is not None and parent_id != "":
-        owner = context.make("LegalEntity")
-        owner.id = context.make_id(parent_id)
-
-        ownership = context.make("Ownership")
-        ownership.id = context.make_id("ownership", entity.id, owner.id)
-        ownership.add("owner", owner)
-        ownership.add("asset", entity)
-        context.emit(ownership)
 
     context.audit_data(row, IGNORE)
     return entity
