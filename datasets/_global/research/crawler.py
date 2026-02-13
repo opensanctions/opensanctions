@@ -7,6 +7,7 @@ from followthemoney import model
 from zavod import Context, Entity
 
 SECURITIES_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTtQD9wiHuyl23NmrIeAACET4OohOXhmuxQv817FHHas8uO4k8VBzex25nIOPqsG9300aXJIqCZzo--/pub?gid=0&single=true&output=csv"
+BIDZINA_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTtQD9wiHuyl23NmrIeAACET4OohOXhmuxQv817FHHas8uO4k8VBzex25nIOPqsG9300aXJIqCZzo--/pub?gid=351241481&single=true&output=csv"
 
 
 def crawl_sec_row(context: Context, row: Dict[str, str]):
@@ -28,8 +29,8 @@ def crawl_sec_row(context: Context, row: Dict[str, str]):
     context.audit_data(row)
 
 
-def crawl(context: Context):
-    path = context.fetch_resource("source.csv", context.data_url)
+def crawl_sec(context: Context):
+    path = context.fetch_resource("source.csv", SECURITIES_CSV)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
         entity: Optional[Entity] = None
@@ -63,3 +64,55 @@ def crawl(context: Context):
     with open(path, "r") as fh:
         for row in csv.DictReader(fh):
             crawl_sec_row(context, row)
+
+
+def crawl_bidzina_row(context: Context, row: Dict):
+    ult_owner = stringify(row.pop("UBO name"))
+    ult_owner_id = stringify(row.pop("ID Number"))
+    dir_owner = stringify(row.pop("Direct owner name (ENG)"))
+    dir_owner_id = stringify(row.pop("Direct Owner ID"))
+    percent = stringify(row.pop("Percentage"))
+    company_name = stringify(row.pop("Company name (ENG)"))
+    company_id = stringify(row.pop("Company ID"))
+    company_jurisdiction = stringify(row.pop("Jurisdiction"))
+
+    ult_owner_ent = context.make("Person")
+    ult_owner_ent.id = context.make_id(ult_owner, ult_owner_id)
+
+    company = context.make("Company")
+    company.id = context.make_id(company_name, company_id)
+    company.add("jurisdiction", company_jurisdiction)
+
+    if ult_owner != dir_owner and ult_owner is not None:
+        dir_company = context.make("Company")
+        dir_company.id = context.make_id(dir_owner, dir_owner_id)
+        ubo_ownership = context.make("Ownership")
+        ubo_ownership.id = context.make_id(
+            ult_owner, ult_owner_id, dir_owner, dir_owner_id
+        )
+        ubo_ownership.add("owner", ult_owner_ent.id)
+        ubo_ownership.add("asset", dir_company.id)
+    else:
+        dir_company = context.make("Person")
+        dir_company.id = context.make_id(dir_owner, dir_owner_id)
+
+    dir_ownership = context.make("Ownership")
+    dir_ownership.id = context.make_id(
+        company_name, company_id, company_name, company_id
+    )
+    dir_ownership.add("owner", dir_company.id)
+    dir_ownership.add("asset", company.id)
+    dir_ownership.add("percent", percent)
+
+
+def crawl_bidzina(context: Context):
+    path = context.fetch_resource("source.csv", BIDZINA_CSV)
+    context.export_resource(path, CSV, title=context.SOURCE_TITLE)
+    with open(path, "r") as fh:
+        for row in csv.DictReader(fh):
+            crawl_bidzina_row(context, row)
+
+
+def crawl(context: Context):
+    # crawl_sec(context)
+    crawl_bidzina(context)
