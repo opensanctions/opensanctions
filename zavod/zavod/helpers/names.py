@@ -5,6 +5,7 @@ from typing import Dict, List, Optional, Tuple, cast
 
 from followthemoney.util import join_text
 from normality import squash_spaces
+from pydantic import JsonValue
 from rigour.names import contains_split_phrase
 from rigour.text import is_nullword
 
@@ -444,10 +445,17 @@ def _review_names(
     # the reviews just by changing heuristic or LLM suggestions.
     key_parts = review_key_parts(entity, original)
 
+    # Only include the populated props in the source value for human readability
+    source_value_data: Dict[str, str | Dict[str, List[str]]] = {
+        "entity_schema": entity.schema.name
+    }
+    populated_props = dict(source_names.original.nonempty_item_lists())
+    source_value_data["original"] = populated_props
+
     source_value = JSONSourceValue(
         key_parts=key_parts,
         label="names",
-        data=source_names.model_dump(),
+        data=cast(JsonValue, source_value_data),
     )
     original_extraction = suggested or original
     original_extraction = original_extraction.simplify()

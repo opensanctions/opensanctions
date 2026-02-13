@@ -1,3 +1,4 @@
+import json
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -13,7 +14,7 @@ from zavod.helpers import (
     make_name,
     split_comma_names,
 )
-from zavod.helpers.names import review_key_parts
+from zavod.helpers.names import review_key_parts, review_names
 from zavod.stateful.review import Review, review_key
 
 
@@ -139,7 +140,7 @@ def test_split_comma_names(vcontext: Context, caplog):
 
 
 @patch("zavod.helpers.names.settings.OPENAI_API_KEY", None)  # For validity
-def test_apply_reviewed_name_string_no_cleaning_needed(vcontext: Context):
+def test_apply_reviewed_names_no_cleaning_needed(vcontext: Context):
     """The original name is used."""
 
     entity = vcontext.make("Person")
@@ -154,7 +155,7 @@ def test_apply_reviewed_name_string_no_cleaning_needed(vcontext: Context):
 
 @patch("zavod.helpers.names.settings.OPENAI_API_KEY", None)
 @patch("zavod.extract.names.clean.run_typed_text_prompt")
-def test_apply_reviewed_name_string_llm_service_fallback(
+def test_apply_reviewed_names_llm_service_fallback(
     run_typed_text_prompt: MagicMock, vcontext: Context
 ):
     """
@@ -175,9 +176,7 @@ def test_apply_reviewed_name_string_llm_service_fallback(
 
 @patch("zavod.helpers.names.settings.OPENAI_API_KEY", "AAABBBCCC")  # For validity
 @patch("zavod.extract.names.clean.run_typed_text_prompt")
-def test_apply_reviewed_name_string_llm(
-    run_typed_text_prompt: MagicMock, vcontext: Context
-):
+def test_apply_reviewed_names_llm(run_typed_text_prompt: MagicMock, vcontext: Context):
     """
     The original name is used.
     A review is created but the automatically extracted names are not applied until accepted.
@@ -214,11 +213,10 @@ def test_apply_reviewed_name_string_llm(
 
 
 @patch("zavod.extract.names.clean.run_typed_text_prompt")
-def test_apply_reviewed_name_string_manual(
+def test_apply_reviewed_names_manual_irregular(
     run_typed_text_prompt: MagicMock, vcontext: Context
 ):
     """
-    The original name is used.
     A review is created but the manually extracted names are not applied until accepted.
     LLM-based cleaning is not used.
     """
@@ -232,7 +230,13 @@ def test_apply_reviewed_name_string_manual(
     original = Names(name=raw_name)
     apply_reviewed_names(vcontext, entity, original=original)
 
+    # LLM cleaning wasn't invoked
     assert not run_typed_text_prompt.called, run_typed_text_prompt.call_args_list
+
+    # Original extraction is original names
+    key = review_key(review_key_parts(entity, original))
+    review = Review.by_key(vcontext.conn, Names, vcontext.dataset.name, key)
+    assert review.extracted_data == original
 
     # Until it's accepted, the original string is applied.
     assert entity.get("name") == [raw_name]
@@ -240,9 +244,6 @@ def test_apply_reviewed_name_string_manual(
     entity.set("name", [])  # clear to test after accept
 
     # simulate manually editing and accepting the review.
-    names = Names(name=raw_name)
-    key = review_key(review_key_parts(entity, names))
-
     review = Review.by_key(vcontext.conn, Names, vcontext.dataset.name, key)
     review.accepted = True
     review.extracted_data = Names(name=["James Doe"], alias=["Jim Doe"])
@@ -270,26 +271,56 @@ def test_apply_reviewed_names_suggested_with_llm_cleaning_raises(vcontext: Conte
         )
 
 
-# Test that if no suggested is passed, it checks regularity.
+def test_apply_reviewed_names_suggested_no_llm(vcontext: Context):
+    """
+    A review is created if suggested different from original is passed.
+    Neither original nor suggested needs to be irregular.
 
-# Test that if suggested is passed, and it matches original, it doesn't create a review.
-# unless is_irregular is passed as True.
+    original names are applied until it's accepted.
+    """
 
-# Test that if suggested is passed, different from original, and neither original nor suggested are irregular, it still creates a review (but doesn't check regularity or get any regularity suggestions applied).
+    entity = vcontext.make("Person")
+    entity.id = "bla"
+    raw_name = "Jim Doe"  # Not irregular
 
-# Test that left had side looks like
-#
-# entity_schema: Person
-# original:
-#   abbreviation: null
-#   alias: null
-#   name: '""FOOPIE""'
-#   previousName: null
-#   weakAlias: null
-#
-# and right hand side looks like
-#
-# name: null
-# alias: null
-# weakAlias: '""FOOPIE""'
-# abbreviation: null
+    original = Names(name=raw_name)
+    suggested = Names(alias=raw_name)
+    apply_reviewed_names(vcontext, entity, original=original, suggested=suggested)
+
+    # Original extraction is suggested names
+    key = review_key(review_key_parts(entity, original))
+    review = Review.by_key(vcontext.conn, Names, vcontext.dataset.name, key)
+    assert review.extracted_data == suggested
+
+    # Source value is based on original without blanks and, not suggested.
+    assert review.source_value == json.dumps(
+        {"entity_schema": "Person", "original": {"name": ["Jim Doe"]}}, indent=2
+    )
+
+    # Until it's accepted, the suggestions are not applied.
+    assert entity.get("name") == [raw_name]
+    assert entity.get("alias") == []
+
+
+def test_apply_reviewed_names_suggested_original(vcontext: Context):
+    """
+    If suggested equals original, no review is created unless is_irregular is True.
+
+    Test that the crawler can have its own notion of irregular even if
+    it doesn't suggest a re-categorisation.
+    """
+
+    entity = vcontext.make("Person")
+    entity.id = "bla"
+    raw_name = "Jim Doe"  # Not irregular
+
+    original = Names(name=raw_name)
+    suggested = Names(name=raw_name)
+    review_names(vcontext, entity, original=original, suggested=suggested)
+    key = review_key(review_key_parts(entity, original))
+    assert count_review_rows(vcontext.conn, key) == 0
+
+    review_names(
+        vcontext, entity, original=original, suggested=suggested, is_irregular=True
+    )
+    assert count_review_rows(vcontext.conn, key) == 1
