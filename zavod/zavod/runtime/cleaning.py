@@ -140,7 +140,7 @@ def value_clean(
             # This is not a general restriction on addresses that should be in FtM,
             # but rather a smell that can indicate a crawler bug.
             if prop_.type == registry.address and len(clean) <= 3:
-                if not is_lookup_value(entity, registry.address, item):
+                if not is_type_lookup_value(entity, registry.address, item):
                     log.warning(
                         f"Property for {prop_.name} looks too short for an address: {value}",
                         entity_id=entity.id,
