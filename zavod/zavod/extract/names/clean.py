@@ -14,7 +14,7 @@ SINGLE_ENTITY_PROGRAM_PATH = Path(__file__).parent / "dspy/single_entity_program
 # original extraction.
 EXCLUDE_IF_EMPTY = {"previousName", "firstName", "middleName", "lastName"}
 
-NamesValue = str | List[str] | None
+NamesValue = str | List[str | None] | None
 
 
 def is_empty_string(text: Optional[str]) -> bool:
@@ -36,9 +36,13 @@ class Names(BaseModel):
     abbreviation: NamesValue = None
     # TODO: Before adding name parts, we should consider whether we should
     # add them directly or construct a full name with them via h.apply_name.
+    #
+    # Also make sure the LLM and users aren't tempted to infer them.
+    #
     # firstName: NamesValue = None
     # middleName: NamesValue = None
     # lastName: NamesValue = None
+
 
     def _is_blank_value(self, value: NamesValue) -> bool:
         """Check if a value is blank (None, empty string, or empty list)."""
@@ -109,6 +113,8 @@ class Names(BaseModel):
             other_values_set = (
                 set(other_values) if isinstance(other_values, list) else {other_values}
             )
+            self_values_set.discard(None)
+            other_values_set.discard(None)
             if self_values_set != other_values_set:
                 return False
         return True
