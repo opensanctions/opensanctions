@@ -236,11 +236,6 @@ def crawl(context: Context) -> None:
 
                 setattr(custom_suggested, prop, names)
 
-            # print(row_ids, "is_irregular", is_irregular, "suggested equals:", original == custom_suggested, name)
-            if custom_suggested != original:
-                print("original", original)
-                print("custom_suggested", custom_suggested)
-
             # A review will be created if standard heuristics suggest the name is irregular,
             # or if there is a custom suggestion that differs from the original categorisation.
             h.review_names(

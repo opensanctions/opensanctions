@@ -15,7 +15,6 @@ from zavod.extract.names.clean import (
     LLM_MODEL_VERSION,
     SourceNames,
     Names,
-    is_empty_string,
 )
 
 # alias clean_names so that it could be imported from here
@@ -420,7 +419,7 @@ def _review_names(
     entity: Entity,
     original: Names,
     suggested: Optional[Names] = None,
-    enable_llm_cleaning: bool = False,
+    llm_cleaning: bool = False,
 ) -> Review[Names]:
     """
     Post the given names for review, optionally after LLM-based cleaning, and return the review.
@@ -429,7 +428,7 @@ def _review_names(
     """
     source_names = SourceNames(entity_schema=entity.schema.name, original=original)
 
-    if enable_llm_cleaning:
+    if llm_cleaning:
         if settings.OPENAI_API_KEY is None:
             context.log.warning(
                 "LLM cleaning enabled but OPENAI_API_KEY not configured, falling back to non-LLM review."
@@ -469,7 +468,7 @@ def review_names(
     original: Names,
     suggested: Optional[Names] = None,
     is_irregular: bool = False,
-    enable_llm_cleaning: bool = False,
+    llm_cleaning: bool = False,
 ) -> Optional[Review[Names]]:
     """
     Determines whether names need cleaning and if so, posts them for review.
@@ -483,7 +482,7 @@ def review_names(
     should normally do those on the result of check_names_regularity, so that
     its suggestions don't override the crawler's suggestions.
 
-    If 'enable_llm_cleaning' is True, an LLM-based cleaning step is additionally done
+    If 'llm_cleaning' is True, an LLM-based cleaning step is additionally done
     on 'suggested' if provided, otherwise on 'original', before posting for review.
     Any categorisation in 'original' and 'suggested' is disregarded and left to the LLM
     to determine. This can not be used with crawler-supplied suggestions and,
@@ -499,14 +498,14 @@ def review_names(
         suggested: The suggested categorisation of names. This contains an initial
             categorisation where the source dataset might have adjusted the categorisation
             based on heuristics specific to that dataset.
-        enable_llm_cleaning: Whether to use LLM-based name cleaning.
+        llm_cleaning: Whether to use LLM-based name cleaning.
         apply: Whether to apply the names to the entity.
     """
 
     if original.is_empty():
         return None
 
-    if enable_llm_cleaning:
+    if llm_cleaning:
         assert suggested is None, (
             "Suggested names can't be supplied if LLM cleaning is enabled"
         )
@@ -527,7 +526,7 @@ def review_names(
         entity,
         original=original,
         suggested=suggested,
-        enable_llm_cleaning=enable_llm_cleaning,
+        llm_cleaning=llm_cleaning,
     )
 
 
@@ -539,7 +538,7 @@ def apply_reviewed_names(
     suggested: Optional[Names] = None,
     is_irregular: bool = False,
     lang: Optional[str] = None,
-    enable_llm_cleaning: bool = False,
+    llm_cleaning: bool = False,
 ) -> None:
     """
     Determines whether names need cleaning and if so, posts them for review.
@@ -553,7 +552,7 @@ def apply_reviewed_names(
     should normally do those on the result of check_names_regularity, so that
     its suggestions don't override the crawler's suggestions.
 
-    If 'enable_llm_cleaning' is True, an LLM-based cleaning step is additionally done
+    If 'llm_cleaning' is True, an LLM-based cleaning step is additionally done
     on 'suggested' if provided, otherwise on 'original', before posting for review.
     Any categorisation in 'original' and 'suggested' is disregarded and left to the LLM
     to determine. This can not be used with crawler-supplied suggestions and,
@@ -565,7 +564,7 @@ def apply_reviewed_names(
         original: The original string(s) and their categorisation according to the data source.
         suggested: Optional suggestion of different categorisation of names.
         lang: The language of the name, if known.
-        enable_llm_cleaning: Whether to use LLM-based name cleaning.
+        llm_cleaning: Whether to use LLM-based name cleaning.
     """
     review = review_names(
         context,
@@ -573,7 +572,7 @@ def apply_reviewed_names(
         original=original,
         suggested=suggested,
         is_irregular=is_irregular,
-        enable_llm_cleaning=enable_llm_cleaning,
+        llm_cleaning=llm_cleaning,
     )
 
     if review is None or not review.accepted:
@@ -596,7 +595,7 @@ def apply_reviewed_name_string(
     string: Optional[str],
     original_prop: str = "name",
     lang: Optional[str] = None,
-    enable_llm_cleaning: bool = False,
+    llm_cleaning: bool = False,
 ) -> None:
     """
     Clean the name(s) in the provided string if needed, then post them for review.
@@ -607,7 +606,7 @@ def apply_reviewed_name_string(
 
     Unaccepted reviews result in the name being applied to 'original_prop'.
 
-    Also falls back to 'original_prop' with a warning if enable_llm_cleaning is True
+    Also falls back to 'original_prop' with a warning if llm_cleaning is True
     but the LLM service is not configured.
 
     Args:
@@ -616,11 +615,8 @@ def apply_reviewed_name_string(
         string: The raw name(s) string.
         original_prop: The original property for the name according to the data source.
         lang: The language of the name, if known.
-        enable_llm_cleaning: Whether to use LLM-based name cleaning.
+        llm_cleaning: Whether to use LLM-based name cleaning.
     """
-    if is_empty_string(string):
-        return None
-
     original = Names(**{original_prop: string})
 
     apply_reviewed_names(
@@ -629,5 +625,5 @@ def apply_reviewed_name_string(
         original=original,
         suggested=None,
         lang=lang,
-        enable_llm_cleaning=enable_llm_cleaning,
+        llm_cleaning=llm_cleaning,
     )
