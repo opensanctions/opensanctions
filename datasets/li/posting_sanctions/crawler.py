@@ -1,5 +1,5 @@
 import re
-from typing import Dict, Optional, Tuple
+from typing import Any, Optional
 from pdfplumber.page import Page
 
 from zavod import Context, Entity
@@ -28,7 +28,7 @@ PROGRAM_KEY = "LI-ENTSG"
 
 def parse_address(context: Context, addr: str) -> Optional[Entity]:
     addr = addr.replace("‐", "-")
-    addr = context.lookup_value("address_override", addr, default=addr)
+    addr = context.lookup_value("address_override", addr) or addr
     parts = [p.strip() for p in addr.split(",")]
     street = parts[0]
     country_code, postal_code, city = None, None, None
@@ -102,9 +102,9 @@ def crawl_named(
     return company
 
 
-def page_settings(page: Page) -> Tuple[Page, Dict]:
+def page_settings(page: Page) -> tuple[Page, dict[str, Any]]:
     cropped = page.crop((0, 50, page.width, page.height - 10))
-    settings = {
+    settings: dict[str, Any] = {
         "vertical_strategy": "lines",
         "horizontal_strategy": "lines",
         "text_tolerance": 1,
@@ -117,10 +117,13 @@ def crawl_debarments(context: Context) -> None:
     for row in h.parse_pdf_table(context, path, page_settings=page_settings):
         if len(row) != 5:
             continue
-        address = parse_address(context, row.pop("adresse"))
+        address_raw = row.pop("addresse")
+        assert address_raw is not None
+        address = parse_address(context, address_raw)
         name = row.pop("betrieb")
         effective = row.pop("in_rechtskraft")
         end = row.pop("ende_der_sperre")
+        assert name is not None and effective is not None
         entity = crawl_named(
             context, name, address, effective, DEBARMENT_URL, "Debarment"
         )
@@ -151,9 +154,12 @@ def crawl_infractions(context: Context) -> None:
         if len(row) != 4:
             context.log.warn(f"Cannot split row: {row}")
             continue
-        address = parse_address(context, row.pop("adresse"))
+        address_raw = row.pop("adresse")
+        assert address_raw is not None
+        address = parse_address(context, address_raw)
         effective = row.pop("in_rechtskraft")
         name = row.pop("betrieb_verantwortliche_naturliche_person")
+        assert name is not None and effective is not None
         entity = crawl_named(
             context, name, address, effective, INFRACTION_URL, "Infraction"
         )
