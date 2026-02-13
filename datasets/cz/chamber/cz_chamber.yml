@@ -1,0 +1,42 @@
+title: Czech Republic Members of the Chamber of Deputies
+prefix: cz-chamber
+url: https://pspen.psp.cz
+coverage:
+  frequency: monthly
+  start: 2026-02-12
+load_statements: true
+entry_point: crawler.py
+summary: >-
+  Current and recent members of the Chamber of Deputies of the Parliament of the Czech Republic.
+description: |
+  This dataset provides information about current and recent members of the Chamber of Deputies
+  (Poslanecká sněmovna), the lower chamber of the Parliament of the Czech Republic. It includes
+  details about each member of parliament, such as name, date and place of birth, parliamentary
+  terms, and other relevant biographical data.
+tags:
+  - list.pep
+publisher:
+  name: Poslanecká sněmovna Parlamentu České republiky
+  name_en: Chamber of Deputies of the Parliament of the Czech Republic
+  description: |
+    The Chamber of Deputies (Poslanecká sněmovna) is the lower house of the Parliament of the
+    Czech Republic. Together with the Senate, it forms the bicameral legislative body of the
+    Czech Republic. The Chamber of Deputies consists of 200 members who are elected for four-year
+    terms through proportional representation. The Chamber holds primary legislative power,
+    including the exclusive right to pass a vote of no confidence in the government and to
+    approve the state budget.
+  country: cz
+  url: https://pspen.psp.cz
+  official: true
+data:
+  url: https://www.psp.cz/eknih/cdrom/opendata/poslanci.zip
+dates:
+  formats: ["%d.%m.%Y"]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 800
+      Position: 1
+    country_entities:
+      cz: 1
