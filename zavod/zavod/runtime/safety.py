@@ -15,8 +15,9 @@ log = get_logger(__name__)
 HTML_ENTITY_PATTERN = re.compile(
     r"&(?:"
     r"#[0-9]{1,7};|"  # Decimal: &#65;
-    r"#[xX][0-9a-fA-F]{1,6};|"  # Hex: &#x41; &#X41;
-    r"[a-zA-Z][a-zA-Z0-9]*;?"  # Named: &amp; &lt (HTML5 allows no semicolon for some)
+    r"#[xX][0-9a-fA-F]{1,6};"  # Hex: &#x41; &#X41;
+    # Disabled for now because it produces too many false positives
+    # r"|[a-zA-Z][a-zA-Z0-9]*;?"  # Named: &amp; &lt (HTML5 allows no semicolon for some)
     r")"
 )
 
@@ -24,7 +25,9 @@ XSS_SUSPECT_PATTERN = re.compile(
     r"<[^>]*>|"  # Tags
     r"javascript:|data:|vbscript:|"  # URI schemes
     r"on\w+\s*=|"  # Event handlers
-    r"&#|&[a-zA-Z]",  # Entity references
+    # Disabled for now because it produces too many false positives
+    # r"&#|&[a-zA-Z]",  # Entity references
+    r"&#[a-zA-Z]",  # Entity references
     re.IGNORECASE,
 )
 
