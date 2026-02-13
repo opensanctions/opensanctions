@@ -189,7 +189,7 @@ def apply_names(context: Context, person: Entity, person_data: Dict[str, str]):
                 person.add("alias", res.alias, lang=lang)
         else:
             person.add("name", raw_name, lang=lang)
-        h.review_names(context, person, raw_name, enable_llm_cleaning=True)
+        h.review_names(context, person, raw_name, llm_cleaning=True)
 
 
 def make_id(context: Context, entity_type: str, raw_id: str):

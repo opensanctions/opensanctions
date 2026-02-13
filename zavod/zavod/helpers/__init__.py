@@ -76,13 +76,17 @@ from zavod.helpers.html import (
     xpath_strings,
 )
 from zavod.helpers.identification import make_identification
+from zavod.extract.names.clean import Names
 from zavod.helpers.names import (
     apply_name,
+    apply_names,
     apply_reviewed_names,
+    apply_reviewed_name_string,
     review_names,
     clean_names,
     make_name,
     is_name_irregular,
+    check_names_regularity,
     split_comma_names,
 )
 from zavod.helpers.numbers import apply_number
@@ -130,6 +134,7 @@ __all__ = [
     "remove_namespace",
     "make_name",
     "apply_name",
+    "apply_names",
     "make_position",
     "make_occupancy",
     "element_text",
@@ -143,8 +148,11 @@ __all__ = [
     "assert_file_hash",
     "assert_html_url_hash",
     "split_comma_names",
+    "Names",
     "is_name_irregular",
+    "check_names_regularity",
     "apply_reviewed_names",
+    "apply_reviewed_name_string",
     "review_names",
     "clean_names",
     "make_pdf_page_images",

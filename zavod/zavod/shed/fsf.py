@@ -206,8 +206,11 @@ def parse_entry(context: Context, entry: Element) -> None:
                     middle_name=middle_name,
                     last_name=last_name,
                 )
-            h.apply_reviewed_names(
-                context, entity, full_name, lang=lang, alias=treat_as_alias
+            h.apply_reviewed_name_string(
+                context,
+                entity,
+                string=full_name,
+                original_prop="alias" if treat_as_alias else "name",
             )
             entity.add("firstName", first_name, quiet=True, lang=lang)
             entity.add("middleName", middle_name, quiet=True, lang=lang)
