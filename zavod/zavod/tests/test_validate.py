@@ -15,6 +15,7 @@ from zavod.validators import (
     EmptyValidator,
 )
 from zavod.validators.assertions import (
+    PropertyFillRateAssertionsValidator,
     StatisticsAssertionsValidator,
 )
 from zavod.validators.common import BaseValidator
@@ -155,4 +156,31 @@ def test_no_entities_warning() -> None:
     emit_entity(ds, "Person", {"name": ["Vladimir Putin"]})
     validator, logs = run_validator(EmptyValidator, ds)
     assert "No entities validated" not in str(logs)
+    assert validator.abort is False
+
+
+def test_validate_assertion_property_fill_rate():
+    ds = Dataset(
+        {
+            **BASE_DATASET_CONFIG,
+            "assertions": {
+                "min": {
+                    "property_fill_rate": {
+                        "Company": {"name": 0.5},
+                    }
+                }
+            },
+        }
+    )
+    emit_entity(ds, "Company", {"country": ["ru"]})
+
+    validator, logs = run_validator(PropertyFillRateAssertionsValidator, ds)
+    assert (
+        "error",
+        "Assertion property_fill_rate failed for Company.name: 0.0 is not >= threshold 0.5",
+    ) in logs
+    assert validator.abort is True
+
+    emit_entity(ds, "Company", {"name": ["Kalashnikov"]})
+    validator, logs = run_validator(PropertyFillRateAssertionsValidator, ds)
     assert validator.abort is False
