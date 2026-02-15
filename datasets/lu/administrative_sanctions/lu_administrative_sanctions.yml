@@ -58,6 +58,10 @@ assertions:
       LegalEntity: 280
 
 lookups:
+  type.url:
+    options:
+      - match: https://www.cssf.lu/fr/publications-donnees/?content_type=1387%2C623%2C625
+        value: https://www.cssf.lu/fr/publications-donnees/?content_type=1387%2C623%2C625
   type.date:
     options:
       - match: Mesure administrative
