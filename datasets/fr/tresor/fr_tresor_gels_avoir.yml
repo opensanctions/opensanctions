@@ -61,6 +61,7 @@ lookups:
       - contains:
           - art L. 562-3 du code monétaire et financier
           - art L. 562-2 du code monétaire et financier
+          - art L. 562-2-1 du code monétaire et financier
         value: "FR-CMF-562"
       - contains: "ONU République démocratique du Congo - RCSNU 1533 (2004) et R (CE) 1183/2005"
         value: UN-SC1533
