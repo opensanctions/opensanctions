@@ -72,3 +72,23 @@ lookups:
         value: 2024-11-02
       - match: 3024-03-09T00:00:00
         value: 2024-03-09
+  type.name:
+    options:
+      - contains: "&#39;"
+        value:
+          replace:
+            - ["&#39;", "'"]
+      - contains: "&#039;"
+        value:
+          replace:
+            - ["&#039;", "'"]
+  position:
+    options:
+      - contains: "&#39;"
+        value:
+          replace:
+            - ["&#39;", "'"]
+      - contains: "&#039;"
+        value:
+          replace:
+            - ["&#039;", "'"]
