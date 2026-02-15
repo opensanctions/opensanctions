@@ -91,3 +91,9 @@ lookups:
           - 00A400333
           - 00A400334
           - 1770766750
+  type.address:
+    options:
+      - match:
+        - N/A
+        - CA
+        value: null
