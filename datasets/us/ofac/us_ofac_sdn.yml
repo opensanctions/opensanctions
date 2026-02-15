@@ -722,6 +722,10 @@ lookups:
         value: female
       - match: MALE
         value: male
+  type.text:
+    options:
+      - match: <Head Office>;
+        value: Head Office
   type.string:
     lowercase: true
     normalize: true
