@@ -48,6 +48,10 @@ lookups:
           - all pages relating to Futurebarrel on facebook
           - Potential clone entity – ASNB (Amanah Saham Nasional Berhad) Telegram Group / ASNB Investment Malaysia
         value: null
+      - contains: hatpinjcutwater.live
+        value: null
+      - contains: dresswisdom.com
+        value: null
   type.address:
     options:
       - match: ","
