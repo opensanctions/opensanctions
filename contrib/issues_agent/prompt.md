@@ -44,10 +44,11 @@ Your task is ONLY to address issues that can be fixed by adding one or more look
 execute the zavod system, or to modify the codebase or crawler code. NEVER define new YAML options or structures.
 
 Always begin by fetching the issues URL, parsing the line-based JSON in it, and grouping the issue descriptions (e.g.
-using the `message` field)
+using the `message` field).
 
-The resulting PR must be named "[{NAME}] {headline}" and modify only the specified YAML file. DO NOT open a PR if
-no changes are needed. It's good practice to open a PR that addresses only some of the warnings existing for a file.
+Fixes should be committed to a branch with a name derived from `issues/{NAME}-...` with `...` as a slug for the issues addressed.
+
+The resulting PR must be created via the `mcp__github__create_pull_request` tool and named "[{NAME}] {headline}" and modify only the specified YAML file. DO NOT open a PR if no changes are needed. It's good practice to open a PR that addresses only some of the warnings existing for a file.
 
 For example, some suitable warnings would be:
 
