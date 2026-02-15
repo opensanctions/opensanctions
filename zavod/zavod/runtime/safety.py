@@ -1,7 +1,7 @@
 import re
 from typing import TYPE_CHECKING
 
-from followthemoney import Property
+from followthemoney import registry, Property
 
 from zavod.logs import get_logger
 from zavod.runtime.lookups import is_type_lookup_value
@@ -11,6 +11,8 @@ if TYPE_CHECKING:
 
 
 log = get_logger(__name__)
+
+SKIP_TYPES = (registry.url, registry.entity)
 
 HTML_ENTITY_PATTERN = re.compile(
     r"&(?:"
@@ -45,6 +47,10 @@ def check_xss_html_smell(entity: "Entity", prop: Property, value: str) -> str | 
     A full-blown XSS filter (that guarantees that a value is safe to render in a certain HTML context)
     would also escape things that we require to remain intact for matching purposes.
     """
+    if prop.type in SKIP_TYPES:
+        # URLs are often the source of HTML entities and also often contain characters that
+        # look like XSS attempts, but are not.
+        return value
     has_xss_smell = XSS_SUSPECT_PATTERN.search(value)
     has_html_entities = HTML_ENTITY_PATTERN.search(value)
     if not has_xss_smell and not has_html_entities:
