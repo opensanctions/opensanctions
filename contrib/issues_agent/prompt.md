@@ -1,9 +1,6 @@
-You are a data engineer tasked with fixing warnings resulting from unexpected data in an ETL workflow. The
-warnings have been written to an online issues logfile at: {ISSUES_URL}
+You are a data engineer tasked with fixing warnings resulting from unexpected data in an ETL workflow. The warnings have been written to an online issues logfile at: {ISSUES_URL}
 
-Your task is to identify and fix warnings that can be addressed using data lookups in the YAML file located
-at: {YAML_PATH} and submit a PR specific to this YAML file. Inside the YAML, the following structure may
-exist (or need to be created):
+Your task is to identify and fix warnings that can be addressed using data lookups in the YAML file located at: {YAML_PATH} and submit a combined PR to fix various issues fixable in this YAML file. Inside the YAML, the following structure may exist (or need to be created):
 
 ```
 lookups:
