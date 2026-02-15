@@ -218,3 +218,9 @@ lookups:
         values:
           - Sweden
           - United Arab Emirates
+
+  type.name:
+    options:
+      # Remove angle brackets that trigger HTML/XSS warnings
+      - match: عبدالعزيز <حاجي عزيز شاه زماني>
+        value: عبدالعزيز حاجي عزيز شاه زماني
