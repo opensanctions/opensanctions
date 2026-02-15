@@ -161,12 +161,12 @@ lookups:
         prop: sector
       - match: "10\n93379521"
         value: 1093379521
-      - match: "OS024306/\nOT021627"
+      - match: "OS024306/ \nOT021627"
         values:
           - OS024306
           - OT021627
         prop: registrationNumber
-      - match: "RN757358/\nPN270730"
+      - match: "RN757358/ \nPN270730"
         values:
           - RN757358
           - PN270730
@@ -247,6 +247,8 @@ lookups:
           - 0001-282341
       - match: "RN741306\n(PA)"
         values: ["RN741306"]
+      - match: "OK\nO000003(PA)"
+        values: ["OKO000003"]
       - match: "O\nKO000003(PA)"
         values: ["OKO000003"]
       - match: "442\n94(HI)R149156(MD)"
