@@ -6,6 +6,7 @@ from followthemoney import registry, Property
 from zavod.logs import get_logger
 from zavod.runtime.lookups import is_type_lookup_value
 
+
 if TYPE_CHECKING:
     from zavod.entity import Entity
 
@@ -62,7 +63,9 @@ def check_xss_html_smell(entity: "Entity", prop: Property, value: str) -> str | 
 
     log.warning(
         f"HTML/XSS suspicion in property value: {value}",
+        entity_id=entity.id,
         prop=prop.name,
+        prop_type=prop.type.name,
         value=value,
     )
     # FIXME: I want to run this in warning mode first, later we need to enable this:
