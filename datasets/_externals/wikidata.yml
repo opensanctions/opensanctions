@@ -204,11 +204,11 @@ lookups:
           - Iqbal Bhatkal
       # Remove book titles that were incorrectly used as names
       - match: "Sanjay Seth . Subject Lessons: The Western Education of Colonial India.<i> </i>Durham, N.C. : Duke University Press . 2007 . Pp. x, 264. Cloth $84.95, paper $23.95."
-        value: null
+        value: Sanjay Seth
       - match: "Aaron David Miller. <italic>Search for Security: Saudi Arabian Oil and American Foreign Policy, 1939–1949</italic>. Chapel Hill: University of North Carolina Press. 1980. Pp. xviii, 320. $19.00"
-        value: null
+        value: Aaron David Miller
       - match: "Nwankwo Chukwuemeka, <i>African Dependencies: A Challenge to Western Democracy</i>"
-        value: null
+        value: Nwankwo Chukwuemeka
   type.date:
     options:
       - match:
