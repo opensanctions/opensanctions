@@ -166,7 +166,17 @@ lookups:
           - OS024306
           - OT021627
         prop: registrationNumber
+      - match: "OS024306/ OT021627"
+        values:
+          - OS024306
+          - OT021627
+        prop: registrationNumber
       - match: "RN757358/\nPN270730"
+        values:
+          - RN757358
+          - PN270730
+        prop: registrationNumber
+      - match: "RN757358/ PN270730"
         values:
           - RN757358
           - PN270730
@@ -255,3 +265,5 @@ lookups:
         values: ["RN348987L"]
       - match: "PN3\n05385"
         values: ["PN305385"]
+      - match: "OK\nO000003(PA)"
+        values: ["OKO000003"]
