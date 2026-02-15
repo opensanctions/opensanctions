@@ -20,12 +20,13 @@ jobs:
       - name: Generate sub-tasks
         id: gen
         run: |
-          MATRIX=$(python scripts/issues_agent/tasks.py)
+          MATRIX=$(python contrib/issues_agent/tasks.py)
           echo "matrix=$MATRIX" >> "$GITHUB_OUTPUT"
 
   run-tasks:
     needs: generate-matrix
     runs-on: ubuntu-latest
+    name: ${{ matrix.task.name }}
     strategy:
       matrix:
         task: ${{ fromJson(needs.generate-matrix.outputs.matrix) }}
