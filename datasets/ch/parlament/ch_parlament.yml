@@ -70,3 +70,9 @@ lookups:
         value: "Uri"
       - match: "Lü" # Lü is a village in the Val Müstair municipality in the district of Inn in the Swiss canton of Graubünden.
         value: "Lü"
+      - match: "Lax"
+        value: "Lax"
+      - match: "Elm"
+        value: "Elm"
+      - match: "Bex"
+        value: "Bex"
