@@ -34,6 +34,48 @@ ci_test: false
 
 dates:
   formats: ["%B %d, %Y"]
+lookups:
+  type.address:
+    options:
+      - match: "Stanis&#322;aw&oacute;w, Poland"
+        value: "Stanisławów, Poland"
+      - match: "Mi&#324;sk Mazowiecki, Poland"
+        value: "Mińsk Mazowiecki, Poland"
+      - match: "B&#281;dzin, Poland"
+        value: "Będzin, Poland"
+      - match: "Mih&#259;ileni, Romania"
+        value: "Mihăileni, Romania"
+      - match: "Re&#351;i&#355;a, Austro-Hungarian Empire"
+        value: "Reșița, Austro-Hungarian Empire"
+      - match: "F&#259;le&#351;ti, Bessarabia, Russia"
+        value: "Fălești, Bessarabia, Russia"
+      - match: "Soko&#322;&oacute;w Podlaski, Poland"
+        value: "Sokołów Podlaski, Poland"
+      - match: "Bia&#322;ystok, Poland"
+        value: "Białystok, Poland"
+      - match: "B&#259;l&#355;i, Besserabia"
+        value: "Bălți, Besserabia"
+      - match: "Przemy&#347;l, Galicia"
+        value: "Przemyśl, Galicia"
+      - match: "M&#259;rcule&#351;ti, Bessarabia, Russia"
+        value: "Mărculeşti, Bessarabia, Russia"
+      - match: "M&#259;rcule&#351;ti, Besserabia"
+        value: "Mărculeşti, Besserabia"
+      - match: "Smarho&#324;, Russia"
+        value: "Smarhon̦, Russia"
+      - match: "Suwa&#322;ki, Poland"
+        value: "Suwałki, Poland"
+      - match: "Radzy&#324;, Poland"
+        value: "Radzyń, Poland"
+      - match: "T&#322;uste, Galicia, Poland"
+        value: "Tłuste, Galicia, Poland"
+      - match: "Foc&#351;ani, Romania"
+        value: "Focșani, Romania"
+      - match: "Ka&#324;czuga, Galicia"
+        value: "Kańczuga, Galicia"
+      - match: "&#379;elech&oacute;w, Poland"
+        value: "Żelechów, Poland"
+
 assertions:
   min:
     schema_entities:
