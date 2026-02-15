@@ -11,6 +11,7 @@ repo_path_ = os.environ.get("GITHUB_WORKSPACE", ".")
 datasets_path = Path(repo_path_) / "datasets"
 
 INDEX_URL = "https://data.opensanctions.org/datasets/latest/index.json"
+MAX_ISSUES = 1000
 PROMPT = open(Path(__file__).parent / "prompt.md", "r").read()
 
 
@@ -40,11 +41,13 @@ def index_jobs():
     for dataset in index_data.get("datasets", []):
         levels = dataset.get("issue_levels", [])
         warnings = levels.get("warning", 0)
+        errors = levels.get("error", 0)
         if warnings == 0:
+            continue
+        if (warnings + errors) > MAX_ISSUES:
             continue
         name = dataset.get("name")
         if not name:
-            # print("Dataset entry missing 'name' field.")
             continue
 
         path = get_path_from_name(name)
@@ -53,7 +56,7 @@ def index_jobs():
         prompt = str(PROMPT)
         prompt = prompt.replace("{NAME}", name)
         prompt = prompt.replace("{ISSUES_URL}", dataset.get("issues_url"))
-        prompt = prompt.replace("{PATH}", path)
+        prompt = prompt.replace("{YAML_PATH}", path)
         tasks.append({"prompt": prompt})
 
     print(json.dumps(tasks))

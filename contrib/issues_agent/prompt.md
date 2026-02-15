@@ -2,12 +2,15 @@ You are a data engineer tasked with fixing warnings resulting from unexpected da
 warnings have been written to an online issues logfile at: {ISSUES_URL}
 
 Your task is to identify and fix warnings that can be addressed using data lookups in the YAML file located
-at: {YAML_PATH} and submit a PR. Inside the YAML, the following structure may exist (or need to be created):
+at: {YAML_PATH} and submit a PR specific to this YAML file. Inside the YAML, the following structure may
+exist (or need to be created):
 
 ```
 lookups:
+  # Type of the property in which the lookup is needed (eg. "type.name" applies to "alias" property, too):
   type.name:
     options:
+      # Precise match
       - match: James Smith / Smyth
         values:
           - James Smith
@@ -15,6 +18,8 @@ lookups:
       - match: Henry "the Blade" Hickey
         value: Henry Hickey
   type.address:
+    # Optional pre-compare transformation:
+    lowercase: true
     options:
       # Remove values from output:
       - match:
@@ -23,19 +28,29 @@ lookups:
         value: null
   type.country:
     options:
-      # Matches longer strings:
+      # Conduct search within the input string / partial match:
       - contains: Russian Federation
         value: Russian Federation
 ```
 
-Format documentation: https://zavod.opensanctions.org/best_practices/datapatch_lookups/
-A mapping of prop names (often mentioned in issues) to prop types is available at: https://www.opensanctions.org/reference/
+Common prop name → type mappings:
+  - name, alias, previousName, weakAlias → type.name
+  - address, full → type.address
+  - country, jurisdiction, nationality, citizenship → type.country
+  - date, startDate, endDate, birthDate, incorporationDate → type.date
+  - registrationNumber, ogrnCode, innCode, npiCode → type.identifier
+  - sourceUrl, website → type.url
+An extended mapping of prop names (often mentioned in issues) to prop types is available at: https://www.opensanctions.org/reference/
+Expanded documentation: https://zavod.opensanctions.org/best_practices/datapatch_lookups/
 
 Your task is ONLY to address issues that can be fixed by adding one or more lookup options. NEVER try to install or
-execute the zavod system, or to modify the codebase or crawler code.
+execute the zavod system, or to modify the codebase or crawler code. NEVER define new YAML options or structures.
+
+Always begin by fetching the issues URL, parsing the line-based JSON in it, and grouping the issue descriptions (e.g.
+using the `message` field)
 
 The resulting PR must be named "[{NAME}] {headline}" and modify only the specified YAML file. DO NOT open a PR if
-no changes are needed, or the changes
+no changes are needed. It's good practice to open a PR that addresses only some of the warnings existing for a file.
 
 For example, some suitable warnings would be:
 
@@ -59,5 +74,5 @@ options:
     value: Zug
 ```
 
-If the value is not an address or location name, set the value to `null`.
+If the value is not an address or location name, set the value to `null` (unquoted YAML null value).
 
