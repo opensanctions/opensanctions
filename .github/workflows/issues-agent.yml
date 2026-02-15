@@ -43,5 +43,6 @@ jobs:
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           prompt: ${{ matrix.task.prompt }}
-          claude_args: "--max-turns 25 --allowed-tools \"Bash(git:*),Bash(curl:*),View,Edit,Write,GlobTool,GrepTool,WebFetch\""
+          claude_args: "--max-turns 50 --allowed-tools \"Bash(git:*),Bash(curl:*),View,Edit,Write,GlobTool,GrepTool,WebFetch,mcp__github__create_pull_request\""
+          show_full_output: true
 
