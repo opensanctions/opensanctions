@@ -72,6 +72,12 @@ config:
   api_token: ${PERMID_API_TOKEN}
   cache_days: 60
 
+lookups:
+  type.url:
+    options:
+      - match: "https://www.bred.fr/trouver-agence?post_form=1&active_oc=&max_dist_oc=20&mode_affichage=standard&max_agencies=5&longitude=-61.537132&latitude=16.2367954&directionid=36+rue+achille+rene&kind_agency=agence#selection_agence"
+        value: "https://www.bred.fr/trouver-agence?post_form=1&active_oc=&max_dist_oc=20&mode_affichage=standard&max_agencies=5&longitude=-61.537132&latitude=16.2367954&directionid=36+rue+achille+rene&kind_agency=agence"
+
 assertions:
   min:
     schema_entities:
