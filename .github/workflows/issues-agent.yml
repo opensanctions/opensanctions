@@ -35,9 +35,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v6
-        with:
-          cache: 'npm'
+      # - uses: actions/setup-node@v6
+      #   with:
+      #     cache: 'npm'
 
       - uses: anthropics/claude-code-action@v1
         with:
