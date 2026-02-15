@@ -65,3 +65,6 @@ lookups:
     # Nulling empty notes
       - match: "--"
         value: null
+      # Remove HTML comment artifacts from copy-paste
+      - match: "<!--td {border: 1px solid #ccc;}br {mso-data-placement:same-cell;}-->"
+        value: null
