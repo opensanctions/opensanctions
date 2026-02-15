@@ -84,7 +84,7 @@ lookups:
       - match: N/A
         value: null
       - match: CA
-        value: null
+        value: California
   type.identifier:
     options:
       - match: N/A
