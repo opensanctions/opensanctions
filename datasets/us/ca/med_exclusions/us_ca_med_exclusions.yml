@@ -79,6 +79,12 @@ assertions:
       Person: 23000
 
 lookups:
+  type.address:
+    options:
+      - match: N/A
+        value: null
+      - match: CA
+        value: null
   type.identifier:
     options:
       - match: N/A
