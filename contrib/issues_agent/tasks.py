@@ -57,7 +57,8 @@ def index_jobs():
         prompt = prompt.replace("{NAME}", name)
         prompt = prompt.replace("{ISSUES_URL}", dataset.get("issues_url"))
         prompt = prompt.replace("{YAML_PATH}", path)
-        tasks.append({"prompt": prompt})
+        title = f"[{name}]: {warnings} warnings"
+        tasks.append({"prompt": prompt, "name": title})
 
     print(json.dumps(tasks))
 
