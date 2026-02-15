@@ -199,6 +199,10 @@ lookups:
         value: 2016-12-21
       - match: 02/06/20025
         value: 2025-02-06
+  type.address:
+    options:
+      - match: MI
+        value: MI
   type.identifier:
     options:
       - match: 136776577
