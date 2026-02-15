@@ -72,3 +72,19 @@ lookups:
         value: http://goldos.co2g.de
       - match: "www.http://swiss-wealth.com"
         value: http://swiss-wealth.com
+  type.text:
+    options:
+      - match: "La société a des liens avec la société Alpen Asset Management Trust Sàrl (http://zh.powernet.ch/webservices/inet/HRG/HRG.asmx/getHRGHTML?chnr=3503002565&amt=020&toBeModified=0&validOnly=0&lang=2&sort=0). La société n'a pas de présence physique à son adresse officielle. La société est cependant liée à des bureaux, sis à la Rue Adrien Lachenal 20, à Genève."
+        value: "La société a des liens avec la société Alpen Asset Management Trust Sàrl. La société n'a pas de présence physique à son adresse officielle. La société est cependant liée à des bureaux, sis à la Rue Adrien Lachenal 20, à Genève."
+      - match: "La société a des liens avec la société API Premiere Swiss Trust AG (ancien-nement Premiere Swiss Trust AG) (http://zh.powernet.ch/webservices/inet/HRG/HRG.asmx/getHRGHTML?chnr=3503002565&amt=020&toBeModified=0&validOnly=0&lang=2&sort=0). La société n'a pas de présence physique à son adresse officielle. La société est cependant liée à des bureaux, sis à la Rue Adrien Lachenal 20, à Genève."
+        value: "La société a des liens avec la société API Premiere Swiss Trust AG (ancien-nement Premiere Swiss Trust AG). La société n'a pas de présence physique à son adresse officielle. La société est cependant liée à des bureaux, sis à la Rue Adrien Lachenal 20, à Genève."
+      - match: "Handelsregistereintrag unter: http://www.hrazg.ch/webservices/inet/HRG/HRG.asmx/getHRGHTML?chnr=1703030742&amt=170&toBeModified=0&validOnly=0&lang=1&sort=0"
+        value: null
+      - match: "Handelsregistereintrag unter: http://www.hrazg.ch/webservices/inet/HRG/HRG.asmx/getHRGHTML?chnr=1703032003&amt=170&toBeModified=0&validOnly=0&lang=1&sort=0"
+        value: null
+      - match: "Flavio Guadalupi (amministratore unico); http://ti.powernet.ch/webservices/inet/HRG/HRG.asmx/getHRGHTML?chnr=5014011159&amt=501&toBeModified=0&validOnly=0&lang=3&sort=0"
+        value: "Flavio Guadalupi (amministratore unico)"
+      - match: "Link zum Eintrag im HR: http://www.hrazg.ch/webservices/inet/HRG/HRG.asmx/getHRGHTML?chnr=1703030747&amt=170&toBeModified=0&validOnly=0&lang=1&sort=0"
+        value: null
+      - match: "Handelsregistereintrag unter: http://www.hrazg.ch/webservices/inet/HRG/HRG.asmx/getHRGHTML?chnr=0353004137&amt=170&toBeModified=0&validOnly=0&lang=1&sort=0"
+        value: null
