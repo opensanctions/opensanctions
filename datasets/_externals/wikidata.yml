@@ -91,6 +91,83 @@ lookups:
           - "..."
           - "-"
         value: null
+      # Remove HTML line breaks and keep first part (usually Latin/English transliteration)
+      - match: "Rami Makhlouf <br>رامي مخلوف"
+        value: Rami Makhlouf
+      - match: "Ahmed Ismail Samatar <br> أحمد إسماعيل سمتر"
+        value: Ahmed Ismail Samatar
+      - match: "Pir Sabir Shah<br>پير صابر شاہ"
+        value: Pir Sabir Shah
+      - match: "Fatemeh Karroubi<br />فاطمه کروبی"
+        value: Fatemeh Karroubi
+      - match: "Meng Xuenong<br />孟学农"
+        value: Meng Xuenong
+      - match: "Mian Yousuf Salahuddin <br /> میاں یوسف صلاح الدین"
+        value: Mian Yousuf Salahuddin
+      - match: "Oksana Volodymyrivna Bilozir<br>Оксана Володимирівна Білозір"
+        value: Oksana Volodymyrivna Bilozir
+      - match: "Suborna Mustafa<br>সুবর্ণা মুস্তাফা"
+        value: Suborna Mustafa
+      - match: "Swapan Dasgupta<br/>স্বপন দাশগুপ্ত"
+        value: Swapan Dasgupta
+      - match: "Tamara Martinović<br>Тамара Мартиновић"
+        value: Tamara Martinović
+      - match: "Vadim Yakovlevich Pisarev<br /> Вадим Яковлевич Писарев"
+        value: Vadim Yakovlevich Pisarev
+      - match: "Yarlagadda Lakshmi Prasad<br>యార్లగడ్డ లక్ష్మీప్రసాద్"
+        value: Yarlagadda Lakshmi Prasad
+      - match: "Yiaway Yeh<br>葉亞威"
+        value: Yiaway Yeh
+      - match: "Chen Yu-hui<br>陳宇慧"
+        value: Chen Yu-hui
+      - match: "Božo Koprivica<br>Божо Копривица"
+        value: Božo Koprivica
+      - match: "Jewel Aich <br> জুয়েল আইচ"
+        value: Jewel Aich
+      - match: "Chhatradhar Mahato<br/>ছত্রধর মাহাতো"
+        value: Chhatradhar Mahato
+      - match: "Mahfouz Ould al-Walid<br/>محفوظ ولد الوليد"
+        value: Mahfouz Ould al-Walid
+      - match: "ZHANG Yin <br> 张茵 <br> CHEUNG Yan"
+        value: ZHANG Yin
+      - match: "Zhang Zhixiang <br> 张志祥 <br> 張志祥"
+        value: Zhang Zhixiang
+      - match: "Grigoris Arnaoutoglou<br />''Γρηγόρης Αρναούτογλου''"
+        value: Grigoris Arnaoutoglou
+      - match: "Yosra El Lozy <Br />"
+        value: Yosra El Lozy
+      # Remove trailing HTML tags
+      - match: "Ahmed Seada <br>"
+        value: Ahmed Seada
+      - match: "Hossam el-Hamalawy <br>"
+        value: Hossam el-Hamalawy
+      # Remove HTML entities and special markup
+      - match: "Andrew «&#160;Andy&#160;» Murray Burnham"
+        value: Andrew Murray Burnham
+      - match: "Kakubu Alidor K&#39;Ilaka"
+        value: "Kakubu Alidor K'Ilaka"
+      # Remove wiki-style markup
+      - match: "Muḥammad <<al->>Ġazali"
+        value: Muḥammad al-Ġazali
+      - match: "Ṭalāl <<al->>Ḥasan"
+        value: Ṭalāl al-Ḥasan
+      - match: "<<ال>>عناني، جواد أحمد"
+        value: "عناني، جواد أحمد"
+      # Remove HTML comments from Japanese entries
+      - match: "ピイ<!-- [ ] とリンク -->"
+        value: ピイ
+      - match: "ピーター・クック<!-- リダイレクト先の「[ ]」は、[ ] とリンク -->"
+        value: ピーター・クック
+      # Remove book citations with HTML formatting (not person names)
+      - match: "Aaron David Miller. <italic>Search for Security: Saudi Arabian Oil and American Foreign Policy, 1939–1949</italic>. Chapel Hill: University of North Carolina Press. 1980. Pp. xviii, 320. $19.00"
+        value: null
+      - match: "Sanjay Seth . Subject Lessons: The Western Education of Colonial India.<i> </i>Durham, N.C. : Duke University Press . 2007 . Pp. x, 264. Cloth $84.95, paper $23.95."
+        value: null
+      - match: "Nwankwo Chukwuemeka, <i>African Dependencies: A Challenge to Western Democracy</i>"
+        value: null
+      # Handle aka notation
+      - match: "Iqbal Shahbandri <br/>aka Iqbal Bhatkal"
+        value: Iqbal Shahbandri
   type.date:
     options:
       - match:
