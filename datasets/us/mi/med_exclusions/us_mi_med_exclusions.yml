@@ -54,6 +54,10 @@ assertions:
       Company: 900
 
 lookups:
+  type.address:
+    options:
+      - match: MI
+        value: null
   type.date:
     lowercase: true
     options:
