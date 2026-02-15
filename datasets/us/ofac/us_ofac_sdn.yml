@@ -726,6 +726,8 @@ lookups:
     lowercase: true
     normalize: true
     options:
+      - match: <Head Office>;
+        value: Head Office
       - match: Codigo Postal 80000
         value: 80000
       - match: Codigo Postal 21297
