@@ -62,7 +62,8 @@ def crawl(context: Context):
                 )
             entity.add("name", norm_name)
             entity.add("title", holder.get("honorary_prefix"))
-            entity.add("country", country)
+            entity.add("citizenship", country)
+            entity.add("position", full_title)
 
             position = h.make_position(
                 context,

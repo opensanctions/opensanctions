@@ -2,10 +2,11 @@ type: collection
 title: Debarred Companies and Individuals
 coverage:
   start: "2023-08-09"
-  schedule: "0 */4 * * *"
+  schedule: "0 */12 * * *"
   frequency: daily
 deploy:
-  memory: "1000Mi"
+  memory: "2000Mi"
+  memory_limit: "3000Mi"
 ci_test: false
 summary: >
   Entities banned from participating in procurment tenders in
