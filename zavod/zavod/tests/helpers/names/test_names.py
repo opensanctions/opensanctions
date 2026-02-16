@@ -6,7 +6,7 @@ from sqlalchemy import func, select
 from structlog.testing import capture_logs
 
 from zavod.context import Context
-from zavod.extract.names.clean import Names
+from zavod.extract.names.clean import Names, LangText
 from zavod.stateful.model import review_table
 from zavod.helpers import (
     apply_name,
@@ -14,7 +14,7 @@ from zavod.helpers import (
     make_name,
     split_comma_names,
 )
-from zavod.helpers.names import review_key_parts, review_names
+from zavod.helpers.names import apply_names, review_key_parts, review_names
 from zavod.stateful.review import Review, review_key
 
 
@@ -324,3 +324,66 @@ def test_apply_reviewed_names_suggested_original(vcontext: Context):
         vcontext, entity, original=original, suggested=suggested, is_irregular=True
     )
     assert count_review_rows(vcontext.conn, key) == 1
+
+
+def test_apply_names_with_lang_argument(vcontext: Context):
+    """When lang argument is supplied, it should be used for str values."""
+    entity = vcontext.make("Person")
+    entity.id = "test"
+
+    original = Names(name="John Doe")
+    names = Names(name="John Doe", alias="Johnny")
+
+    apply_names(entity, original=original, names=names, lang="eng")
+
+    # Check that lang is applied to all str values
+    for stmt in entity.get_statements("name"):
+        assert stmt.lang == "eng"
+    for stmt in entity.get_statements("alias"):
+        assert stmt.lang == "eng"
+
+
+def test_apply_names_with_langtext(vcontext: Context):
+    """When value is LangText, its lang should be used, overriding the lang argument."""
+    entity = vcontext.make("Person")
+    entity.id = "test"
+
+    original = Names(name="John Doe")
+    names = Names(
+        name=LangText(text="John Doe", lang="eng"),
+        alias=LangText(text="جون دو", lang="ara"),
+    )
+
+    # Even though we pass lang="fr", LangText's own lang should be used
+    apply_names(entity, original=original, names=names, lang="fra")
+
+    # Check that LangText's lang is used
+    name_stmts = list(entity.get_statements("name"))
+    assert len(name_stmts) == 1
+    assert name_stmts[0].value == "John Doe"
+    assert name_stmts[0].lang == "eng"
+
+    alias_stmts = list(entity.get_statements("alias"))
+    assert len(alias_stmts) == 1
+    assert alias_stmts[0].value == "جون دو"
+    assert alias_stmts[0].lang == "ara"
+
+
+def test_apply_names_langtext_with_none_lang(vcontext: Context):
+    """When LangText has lang=None, None should be used even if lang argument is supplied."""
+    entity = vcontext.make("Person")
+    entity.id = "test"
+
+    original = Names(name="John Doe")
+    names = Names(
+        name=LangText(text="John Doe", lang=None),
+    )
+
+    # Even though we pass lang="eng", LangText's None should override it
+    apply_names(entity, original=original, names=names, lang="eng")
+
+    # Check that lang is None
+    name_stmts = list(entity.get_statements("name"))
+    assert len(name_stmts) == 1
+    assert name_stmts[0].value == "John Doe"
+    assert name_stmts[0].lang is None

@@ -19,21 +19,22 @@ class LangText(BaseModel):
     text: str
     lang: Optional[str] = None
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash((self.text, self.lang))
 
 
-NamesValue = str | List[str | LangText | None] | LangText | None
+NamesValue = str | LangText | None
+NamesValues = NamesValue | List[NamesValue]
 
 
 class Names(BaseModel):
     """Names categorised and cleaned of non-name characters."""
 
-    name: NamesValue = None
-    alias: NamesValue = None
-    weakAlias: NamesValue = None
-    previousName: NamesValue = None
-    abbreviation: NamesValue = None
+    name: NamesValues = None
+    alias: NamesValues = None
+    weakAlias: NamesValues = None
+    previousName: NamesValues = None
+    abbreviation: NamesValues = None
     # TODO: Before adding name parts, we should consider whether we should
     # add them directly or construct a full name with them via h.apply_name.
     #
@@ -43,7 +44,7 @@ class Names(BaseModel):
     # middleName: NamesValue = None
     # lastName: NamesValue = None
 
-    def _is_blank_value(self, value: NamesValue) -> bool:
+    def _is_blank_value(self, value: NamesValues) -> bool:
         """Check if a value is blank (None, empty string, or empty list)."""
         if value is None:
             return True
@@ -66,19 +67,22 @@ class Names(BaseModel):
             return False
         return True
 
-    def nonempty_item_lists(self) -> Generator[Tuple[str, List[str]], None, None]:
+    def nonempty_item_lists(
+        self,
+    ) -> Generator[Tuple[str, List[str | LangText]], None, None]:
         """
         Generator yielding each property and a list of any associated non-empty name values.
 
         Useful when iterating over values in a Names instance.
         """
-        for key, value in self.model_dump().items():
+        for key in self.__class__.model_fields:
+            value = getattr(self, key)
             if value is None:
                 continue
-            if isinstance(value, str):
+            if isinstance(value, (str, LangText)):
                 if not is_empty_string(value):
                     yield key, [value]
-            if isinstance(value, list):
+            elif isinstance(value, list):
                 nonempty_values = [v for v in value if not is_empty_string(v)]
                 if nonempty_values:
                     yield key, nonempty_values
@@ -140,13 +144,21 @@ class PredictProgramData(BaseModel):
     signature: DSPySignature
 
 
-def is_empty_string(text: Optional[str]) -> bool:
+def is_empty_string(text: Optional[str | LangText]) -> bool:
     if text is None:
         return True
+    if isinstance(text, LangText):
+        return is_empty_string(text.text)
     if isinstance(text, str):
         text = text.strip()
         return len(text) == 0
     return False
+
+
+def name_val_str(name_val: NamesValue) -> str | None:
+    if isinstance(name_val, LangText):
+        return name_val.text
+    return name_val
 
 
 @cache
