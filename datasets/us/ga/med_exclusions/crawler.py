@@ -7,6 +7,7 @@ from zavod import Context, helpers as h
 
 
 def crawl_item(row: Dict[str, str], context: Context):
+
     first_name = row.pop("first_name")
     last_name = row.pop("last_name")
     business_name = row.pop("business_name")
@@ -18,10 +19,6 @@ def crawl_item(row: Dict[str, str], context: Context):
         entity = context.make("Company")
         entity.id = context.make_id(business_name, row.get("npi"))
         entity.add("name", business_name)
-
-        # the latest file update includes a middle name for a business entity, rm it
-        if row.pop("middle_name") is not None:
-            return
     else:
         entity = context.make("Person")
         entity.id = context.make_id(first_name, last_name, row.get("npi"))
