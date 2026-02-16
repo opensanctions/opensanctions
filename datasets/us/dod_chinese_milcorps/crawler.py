@@ -16,9 +16,8 @@ def crawl(context: Context) -> None:
         results_xpath,
         cache_days=1,
     )
-    search_results = doc.xpath(results_xpath)
-    assert len(search_results) == 1, "Expected exactly one section in the document"
-    h.assert_dom_hash(search_results[0], "756b48c2a8a57399c96964c02c18ced39f2ac386")
+    search_result = h.xpath_element(doc, results_xpath)
+    h.assert_dom_hash(search_result, "756b48c2a8a57399c96964c02c18ced39f2ac386")
     # Jan. 8, 2026
     # The War Department Strengthens Measures to Protect DOW‑Funded Research
     # Jan. 7, 2025
@@ -35,28 +34,32 @@ def crawl(context: Context) -> None:
         reader = csv.DictReader(f)
         for row in reader:
             entity = context.make("Company")
-            name = row.pop("Clean Name")
-            entity.id = context.make_id(name)
-            entity.add("name", name)
-            entity.add("alias", row.pop("Name", None))
-            entity.add("alias", row.pop("Alias", None))
-            entity.add("notes", row.pop("Note", None))
-            parent_name = row.pop("Parent Name", None)
-            if parent_name != "" and parent_name != name:
+            clean_name = row.pop("Clean Name")
+            raw_name = row.pop("Name")
+            alias = row.pop("Alias")
+            entity.id = context.make_id(clean_name)
+            entity.add("name", clean_name, original_value=raw_name)
+            alias_prop = "weakAlias" if len(alias) <= 5 and alias.isupper() else "alias"
+            entity.add(alias_prop, alias, original_value=raw_name)
+            entity.add("previousName", row.pop("Previous Name"))
+            entity.add("sourceUrl", row.pop("Source Url"))
+            entity.add("notes", row.pop("Note"))
+            entity.add("topics", "debarment")
+            parent_name = row.pop("Parent Name")
+            if parent_name and parent_name != clean_name:
                 parent = context.make("Company")
                 parent.id = context.make_id(parent_name)
                 parent.add("name", parent_name)
                 context.emit(parent)
 
                 own = context.make("Ownership")
-                own.id = context.make_id("ownership", name, parent_name)
+                own.id = context.make_id("ownership", clean_name, parent_name)
                 own.add("owner", parent)
                 own.add("asset", entity)
                 context.emit(own)
-            entity.add("topics", "debarment")
             sanction = h.make_sanction(context, entity, program_key=PROGRAM_KEY)
-            sanction.add("startDate", row.pop("Start date", None))
-            sanction.add("endDate", row.pop("End date", None))
+            sanction.add("startDate", row.pop("Start date"))
+            sanction.add("endDate", row.pop("End date"))
             context.emit(sanction)
             context.emit(entity)
             context.audit_data(row)
