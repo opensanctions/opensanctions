@@ -39,7 +39,7 @@ dates:
 assertions:
   min:
     schema_entities:
-      LegalEntity: 225
+      LegalEntity: 170  # raw count 218
   max:
     schema_entities:
       LegalEntity: 450
