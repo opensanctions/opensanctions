@@ -11,7 +11,7 @@ from zavod.util import Element
 log = get_logger(__name__)
 
 
-BR_RE = re.compile(r"<br\s*/?>", re.IGNORECASE)
+BR_RE = re.compile(r"<(br|p)\s*/?>", re.IGNORECASE)
 
 
 def element_text(el: Element | None, squash: bool = True) -> str:
