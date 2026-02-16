@@ -19,6 +19,9 @@ manual_check:
        may split/merge names incorrectly or miss people entirely
 
     The final dataset requires manual quality control before publishing.
+
+    NOTE: Check if the data has become available in machine-readable format
+    (e.g., structured data, API, or database).
 deploy:
   schedule: "@monthly"
 entry_point: crawler.py
