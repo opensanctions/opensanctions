@@ -78,9 +78,13 @@ def crawl_bidzina_row(context: Context, row: Dict):
 
     ult_owner_ent = context.make("Person")
     ult_owner_ent.id = context.make_id(ult_owner, ult_owner_id)
+    ult_owner_ent.add("name", ult_owner)
+    ult_owner_ent.add("idNumber", ult_owner_id)
 
     company = context.make("Company")
     company.id = context.make_id(company_name, company_id)
+    company.add("name", company_name)
+    company.add("registrationNumber", company_id)
     company.add("jurisdiction", company_jurisdiction)
 
     # if the ult_owner is different, then the dir_company is a company
@@ -89,6 +93,8 @@ def crawl_bidzina_row(context: Context, row: Dict):
     if ult_owner != dir_owner and ult_owner is not None:
         dir_company = context.make("Company")
         dir_company.id = context.make_id(dir_owner, dir_owner_id)
+        dir_company.add("name", dir_owner)
+        dir_company.add("registrationNumber", dir_owner_id)
         ubo_ownership = context.make("Ownership")
         ubo_ownership.id = context.make_id(
             ult_owner, ult_owner_id, dir_owner, dir_owner_id
@@ -102,6 +108,8 @@ def crawl_bidzina_row(context: Context, row: Dict):
     else:
         dir_company = context.make("Person")
         dir_company.id = context.make_id(dir_owner, dir_owner_id)
+        dir_company.add("name", dir_company)
+        dir_company.add("registrationNumber", dir_owner_id)
 
     dir_ownership = context.make("Ownership")
     dir_ownership.id = context.make_id(
@@ -111,6 +119,7 @@ def crawl_bidzina_row(context: Context, row: Dict):
     dir_ownership.add("asset", company.id)
     dir_ownership.add("percentage", percent)
 
+    print(dir_company.to_dict())
     context.emit(dir_company)
     context.emit(company)
     context.emit(dir_ownership)
