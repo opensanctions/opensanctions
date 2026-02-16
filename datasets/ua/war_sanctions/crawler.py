@@ -177,8 +177,8 @@ def generate_token(context: Context, cid: str, pkey: str) -> str:
 
 
 def apply_names(context: Context, person: Entity, person_data: Dict[str, str]):
-    # TODO: Switch to LLM-backed name splitting helper #2656, once we have it
-    # https://github.com/opensanctions/opensanctions/issues/2656
+    # TODO: Switch to LLM-backed name splitting helper #3561, once we have it
+    # https://github.com/opensanctions/opensanctions/issues/3561
     for key, lang in NAMES_LANG_MAP.items():
         raw_name = person_data.pop(key)
         if "/" in raw_name:
@@ -188,7 +188,6 @@ def apply_names(context: Context, person: Entity, person_data: Dict[str, str]):
                 person.add("alias", res.alias, lang=lang)
         else:
             person.add("name", raw_name, lang=lang)
-        h.review_names(context, person, raw_name, llm_cleaning=True)
 
 
 def make_id(context: Context, entity_type: str, raw_id: str):
