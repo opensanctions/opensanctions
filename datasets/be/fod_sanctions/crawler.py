@@ -9,6 +9,7 @@ from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
 from zavod.shed.fsf import parse_entry
+from zavod.stateful.review import assert_all_accepted
 
 OLD_DATA_URL = (
     "https://financien.belgium.be/sites/default/files/thesaurie/Consolidated%20list.zip"
@@ -57,8 +58,9 @@ def crawl_row(context: Context, entity_id: str | None, row: Dict[str, List[str]]
 
     whole_names = row.pop("Wholename")
     assert whole_names, row
-    for name in whole_names:
-        h.apply_reviewed_names(context, entity, name)
+    original = h.Names(name=whole_names)
+    h.apply_reviewed_names(context, entity, original=original)
+
     for id_number_line in row.pop("Number"):
         apply_identifier(context, entity, id_number_line)
     entity.add("notes", row.pop("Remark"))
@@ -136,3 +138,6 @@ def crawl_old_xml(context: Context):
 def crawl(context: Context):
     crawl_old_xml(context)
     crawl_csv(context)
+
+    # TODO: Stop raising once we're through the initial bunch of reviews.
+    assert_all_accepted(context, raise_on_unaccepted=True)
