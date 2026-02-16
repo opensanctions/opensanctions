@@ -117,7 +117,7 @@ def crawl_debarments(context: Context) -> None:
     for row in h.parse_pdf_table(context, path, page_settings=page_settings):
         if len(row) != 5:
             continue
-        address_raw = row.pop("addresse")
+        address_raw = row.pop("adresse")
         assert address_raw is not None
         address = parse_address(context, address_raw)
         name = row.pop("betrieb")
