@@ -1,16 +1,20 @@
+# How to review data reviews from this crawler:
+# =============================================
+#
+# The prefix 簡體中文： indicates that the name is in Simplified Chinese.
+# This will be stripped from the suggested data. Accept as is - we don't
+# support language annotations in the result data yet.
+
 import csv
 import re
-from typing import List, Set
+from typing import Set
 
 import datapatch
-from pydantic import BaseModel
 from rigour.mime.types import CSV
 from zavod.extract.names.clean import Names
 from zavod.extract.zyte_api import fetch_html
 from zavod.stateful.review import (
-    TextSourceValue,
     assert_all_accepted,
-    review_extraction,
 )
 
 from zavod import Context, Entity
@@ -48,7 +52,6 @@ NAME_CHINESE = [
     "簡體中文：",  # Simplified Chinese:
 ]
 PERMANENT_ID_RE = re.compile(r"^(?P<name>.+?)（永久參考號：(?P<unsc_num>.+?)）$")
-SUSPECT_CHAR_RE = re.compile(r"[()（）]")
 
 
 def contains_part(part: str, name: str) -> bool:
@@ -92,6 +95,7 @@ def parse_names(
     aliases_str = aliases_raw.replace("<span   id='alias'>", "")
     aliases_str = aliases_str.replace("；", ";")  # Chinese semicolon
     primary_name = primary_name.replace("；", ";")  # Chinese semicolon
+    needs_review = False
 
     if " alias:" in primary_name:
         primary_name, aliases_in_names_str = primary_name.split(" alias:", 1)
@@ -104,17 +108,22 @@ def parse_names(
                 aliases_str=aliases_str,
             )
 
+    original_names = Names(name=primary_name, alias=aliases_str)
+    suggested_names = Names(alias=[])
+    # TODO (JD Bothma): Add Chinese names as LangText.
+    # We're adding names indicated to be Chinese (zho) to the suggested names
+    # without language information until we add LangText support to the Names structure.
+    # There are about 170 items with this annotation.
+    # In the meantime, if the same property is used by an accepted review, the
+    # statement with lang=zho persists.
+
     for split in NAME_CHINESE:
         split = f"; {split}"
         if split in primary_name:
             primary_name, chinese_name = primary_name.split(split, 1)
             entity.add("alias", chinese_name.strip(), lang="zho")
+            suggested_names.alias.append(chinese_name.strip())
 
-    # TODO: Adding aliases_str to original_names but adding the chinese names
-    # directly to the entity means the original and suggested will be inconsistent
-    # in those cases. Maybe time to add LangStr to the Names model already
-    # so that those names can also be represented in the review.
-    original_names = Names(name=primary_name, alias=aliases_str)
     aliases: Set[str] = set()
     weak_aliases: Set[str] = set()
     for alias in aliases_str.split(";"):
@@ -126,14 +135,28 @@ def parse_names(
             if len(splitted) > 1:
                 _, chinese_alias = splitted
                 entity.add("alias", chinese_alias.strip(), lang="zho")
+                suggested_names.alias.append(chinese_alias.strip())
                 break
         else:
             if len(alias) < 8:
+                # Demote alias to weakAlias
+                needs_review = True
                 weak_aliases.add(alias)
                 continue
 
+            if " " not in alias:
+                needs_review = True
+
+            spec = context.dataset.names.get_spec(entity.schema)
+            reject_chars = spec.reject_chars_consolidated
+            if reject_chars.intersection(set(alias)):
+                needs_review = True
+
             aliases.add(alias)
 
+    # Promote the longest alias to primary name if
+    # - it doesn't contain spaces,
+    # - and it contains the current primary name.
     primary_name = primary_name.strip()
     if " " not in primary_name and len(aliases):
         prev_name = primary_name
@@ -147,17 +170,19 @@ def parse_names(
                 name=primary_name,
                 prev_name=prev_name,
             )
+            needs_review = True
 
-    suggested_names = Names(
-        name=primary_name,
-        alias=list(aliases),
-        weakAlias=list(weak_aliases),
+    suggested_names.name = primary_name
+    suggested_names.alias.extend(aliases)
+    suggested_names.weakAlias = list(weak_aliases)
+
+    h.apply_reviewed_names(
+        context,
+        entity,
+        original=original_names,
+        suggested=suggested_names,
+        default_accepted=not needs_review,
     )
-    # TODO: Replace with h.apply_reviewed_names once the reviews are done.
-    review = h.review_names(
-        context, entity, original=original_names, suggested=suggested_names
-    )
-    h.apply_names(entity, suggested_names, origin="SHTCEntityList.csv")
 
 
 def crawl_row(context: Context, row):
