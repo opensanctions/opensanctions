@@ -39,24 +39,30 @@ def crawl_row(drow: Dict[str, Any], context: Context, wb: xlrd.book.Book) -> Non
     else:
         entity = context.make("Company")
         entity.id = context.make_id(company_name, npi)
-        entity.add("name", company_name)
         entity.add("description", occupation)
 
         if contains_split_phrase(company_name):
             res = context.lookup("aliases", company_name, warn_unmatched=True)
-            aliases = res.aliases if res else []
-            entity.add("alias", aliases)
+            if res is not None and res.aliases:
+                cleaned_company_name = res.aliases[0]
+                aliases = res.aliases[1:]
+                entity.add("name", cleaned_company_name)
+                entity.add("alias", aliases)
+        else:
+            entity.add("name", company_name)
 
     entity.add("idNumber", license_number)
     entity.add("npiCode", npi)
     entity.add("country", "us")
-    entity.add("topics", "debarment")
 
     sanction = h.make_sanction(context, entity)
+    sanction.add("description", drow.pop("webcomments"))
+
     h.apply_date(sanction, "startDate", drow.pop("startdate"))
     h.apply_date(sanction, "listingDate", drow.pop("adddate"))
     h.apply_date(sanction, "endDate", drow.pop("reinstateddate"))
-    sanction.add("description", drow.pop("webcomments"))
+    if h.is_active(sanction):
+        entity.add("topics", "debarment")
 
     context.emit(entity)
     context.emit(sanction)
