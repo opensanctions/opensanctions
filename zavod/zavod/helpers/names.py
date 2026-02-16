@@ -326,7 +326,7 @@ def check_names_regularity(entity: Entity, names: Names) -> Tuple[bool, Names]:
     from "name" to "alias" or "weakAlias").
     """
     is_irregular = False
-    updated_suggested_data = defaultdict(list)
+    updated_suggested_data: Dict[str, List[str | None]] = defaultdict(list)
     for key, strings in names.nonempty_item_lists():
         for string in strings:
             regularity = check_name_regularity(entity, string)
