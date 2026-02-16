@@ -34,10 +34,3 @@ assertions:
   max:
     schema_entities:
       Company: 1300
-
-lookups:
-  type.text:
-    options:
-      # Strip all HTML tags while preserving text content
-      - regex: "<[^>]+>"
-        value: ""
