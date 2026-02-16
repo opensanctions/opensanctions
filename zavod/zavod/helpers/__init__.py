@@ -76,13 +76,13 @@ from zavod.helpers.html import (
     xpath_strings,
 )
 from zavod.helpers.identification import make_identification
-from zavod.extract.names.clean import Names
+from zavod.extract.names.clean import Names, LangText
 from zavod.helpers.names import (
     apply_name,
     apply_reviewed_names,
     apply_reviewed_name_string,
     review_names,
-    clean_names,
+    apply_names,
     make_name,
     is_name_irregular,
     check_names_regularity,
@@ -147,11 +147,13 @@ __all__ = [
     "assert_html_url_hash",
     "split_comma_names",
     "Names",
+    "LangText",
     "is_name_irregular",
     "check_names_regularity",
     "apply_reviewed_names",
     "apply_reviewed_name_string",
     "review_names",
+    "apply_names",
     "clean_names",
     "make_pdf_page_images",
     "parse_pdf_table",

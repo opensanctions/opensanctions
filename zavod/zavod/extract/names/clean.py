@@ -14,16 +14,16 @@ SINGLE_ENTITY_PROGRAM_PATH = Path(__file__).parent / "dspy/single_entity_program
 # original extraction.
 EXCLUDE_IF_EMPTY = {"previousName", "firstName", "middleName", "lastName"}
 
-NamesValue = str | List[str | None] | None
+
+class LangText(BaseModel):
+    text: str
+    lang: Optional[str] = None
+
+    def __hash__(self):
+        return hash((self.text, self.lang))
 
 
-def is_empty_string(text: Optional[str]) -> bool:
-    if text is None:
-        return True
-    if isinstance(text, str):
-        text = text.strip()
-        return len(text) == 0
-    return False
+NamesValue = str | List[str | LangText | None] | LangText | None
 
 
 class Names(BaseModel):
@@ -42,7 +42,6 @@ class Names(BaseModel):
     # firstName: NamesValue = None
     # middleName: NamesValue = None
     # lastName: NamesValue = None
-
 
     def _is_blank_value(self, value: NamesValue) -> bool:
         """Check if a value is blank (None, empty string, or empty list)."""
@@ -127,12 +126,27 @@ class SourceNames(BaseModel):
     original: Names
 
 
+class DSPyField(BaseModel):
+    prefix: str
+    description: str
+
+
 class DSPySignature(BaseModel):
     instructions: str
+    fields: List[DSPyField]
 
 
 class PredictProgramData(BaseModel):
     signature: DSPySignature
+
+
+def is_empty_string(text: Optional[str]) -> bool:
+    if text is None:
+        return True
+    if isinstance(text, str):
+        text = text.strip()
+        return len(text) == 0
+    return False
 
 
 @cache
@@ -140,6 +154,16 @@ def load_single_entity_prompt() -> str:
     with open(SINGLE_ENTITY_PROGRAM_PATH) as program_file:
         program = PredictProgramData.model_validate_json(program_file.read())
         prompt = program.signature.instructions
+        prompt += "\nThe input and output fields are defined as follows:\n"
+        for field in program.signature.fields:
+            prompt += f"\n{field.prefix}: {field.description}\n"
+        # Add the non-DSPy instructions about the expected output format.
+        prompt += (
+            "\nWhile the output schema can accommodate name values with associated language string, "
+            "NEVER infer language of a name string. ONLY indicate language in the language field "
+            "if the original input string explicitly indicates the language."
+        )
+
     return prompt
 
 

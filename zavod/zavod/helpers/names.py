@@ -421,6 +421,7 @@ def _review_names(
     original: Names,
     suggested: Optional[Names] = None,
     llm_cleaning: bool = False,
+    default_accepted: bool = False,
 ) -> Review[Names]:
     """
     Post the given names for review, optionally after LLM-based cleaning, and return the review.
@@ -464,6 +465,7 @@ def _review_names(
         source_value=source_value,
         original_extraction=original_extraction,
         origin=origin,
+        default_accepted=default_accepted,
     )
     review.link_entity(context, entity)
     return review
@@ -477,6 +479,7 @@ def review_names(
     suggested: Optional[Names] = None,
     is_irregular: bool = False,
     llm_cleaning: bool = False,
+    default_accepted: bool = False,
 ) -> Optional[Review[Names]]:
     """
     Determines whether names need cleaning and if so, posts them for review.
@@ -535,6 +538,7 @@ def review_names(
         original=original,
         suggested=suggested,
         llm_cleaning=llm_cleaning,
+        default_accepted=default_accepted,
     )
 
 
@@ -547,6 +551,7 @@ def apply_reviewed_names(
     is_irregular: bool = False,
     lang: Optional[str] = None,
     llm_cleaning: bool = False,
+    default_accepted: bool = False,
 ) -> None:
     """
     Determines whether names need cleaning and if so, posts them for review.
@@ -573,6 +578,7 @@ def apply_reviewed_names(
         suggested: Optional suggestion of different categorisation of names.
         lang: The language of the name, if known.
         llm_cleaning: Whether to use LLM-based name cleaning.
+        default_accepted: Whether to default to accepted if review is needed.
     """
     review = review_names(
         context,
@@ -581,6 +587,7 @@ def apply_reviewed_names(
         suggested=suggested,
         is_irregular=is_irregular,
         llm_cleaning=llm_cleaning,
+        default_accepted=default_accepted,
     )
 
     if review is None or not review.accepted:

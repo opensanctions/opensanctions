@@ -88,7 +88,9 @@ def crawl_details(context: Context, bic: str, entity: Entity, short_name: str | 
     if co_data is None:
         # This is all caps ugliness - let's only use it when we're not getting nice names
         # from the detailed info.
-        h.apply_reviewed_name_string(context, entity, short_name, llm_cleaning=True)
+        h.apply_reviewed_name_string(
+            context, entity, string=short_name, llm_cleaning=True
+        )
     else:
         ssv_date = co_data.findtext("SSV_Date")
         reg_date = co_data.findtext("MainDateReg")
