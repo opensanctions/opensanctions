@@ -74,6 +74,7 @@ from zavod.helpers.html import (
     xpath_elements,
     xpath_string,
     xpath_strings,
+    split_html_newline_tags,
 )
 from zavod.helpers.identification import make_identification
 from zavod.extract.names.clean import Names
@@ -159,5 +160,6 @@ __all__ = [
     "xpath_elements",
     "xpath_strings",
     "xpath_string",
+    "split_html_newline_tags",
     "deref_wikidata_id",
 ]
