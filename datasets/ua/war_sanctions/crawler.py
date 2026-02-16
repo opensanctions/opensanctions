@@ -1,7 +1,6 @@
 import base64
 import hashlib
 import random
-import re
 import string
 import json
 
@@ -13,6 +12,7 @@ from typing import Dict, Optional, List
 from urllib.parse import urljoin
 
 from zavod import Context, helpers as h
+from zavod.helpers.html import split_html_newline_tags
 from zavod.entity import Entity
 from zavod.extract.zyte_api import fetch_json, fetch, fetch_html, ZyteAPIRequest
 
@@ -29,7 +29,6 @@ WS_API_DOCS_URL = env["OPENSANCTIONS_UA_WS_API_DOCS_URL"]
 WS_API_BASE_URL = env["OPENSANCTIONS_UA_WS_API_BASE_URL"]
 SLEEP = 10
 
-BR_RE = re.compile(r"<br\s*/?>", re.IGNORECASE)
 SPLITS = [" / ", "\r\n", "/"]
 NAMES_LANG_MAP = {
     "name_en": "eng",
@@ -456,7 +455,10 @@ def crawl_vessel(
     vessel.add("imoNumber", vessel_data.pop("imo"))
     vessel_type = vessel_data.pop("type")
     vessel.add("type", vessel_type.get("name"))
-    vessel.add("description", squash_spaces(BR_RE.sub(" ", vessel_data.pop("info"))))
+    vessel.add(
+        "description",
+        squash_spaces(" ".join(split_html_newline_tags(vessel_data.pop("info")))),
+    )
     vessel.add("callSign", vessel_data.pop("callsign"))
     vessel.add("flag", vessel_data.pop("flag"))
     vessel.add("mmsi", vessel_data.pop("mmsi"))
