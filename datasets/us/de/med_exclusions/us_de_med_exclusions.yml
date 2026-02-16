@@ -110,7 +110,6 @@ lookups:
       - match:
           - N/A
           - A000000123
-          - n N/A
         value: null
       - match:
           - D000045167
@@ -159,14 +158,14 @@ lookups:
         value: 1073778361
       - match: 3336C0003X
         prop: sector
-      - match: "10\n93379521"
-        value: 1093379521
-      - match: "OS024306/ \nOT021627"
+      - match:
+          - "OS024306/ OT021627"
         values:
           - OS024306
           - OT021627
         prop: registrationNumber
-      - match: "RN757358/ \nPN270730"
+      - match:
+          - "RN757358/ PN270730"
         values:
           - RN757358
           - PN270730
@@ -248,8 +247,6 @@ lookups:
       - match: "RN741306\n(PA)"
         values: ["RN741306"]
       - match: "OK\nO000003(PA)"
-        values: ["OKO000003"]
-      - match: "O\nKO000003(PA)"
         values: ["OKO000003"]
       - match: "442\n94(HI)R149156(MD)"
         values: ["44294", "R149156"]

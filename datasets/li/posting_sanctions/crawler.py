@@ -7,8 +7,13 @@ from zavod import helpers as h
 
 DEBARMENT_URL = "https://www.llv.li/serviceportal2/amtsstellen/amt-fuer-volkswirtschaft/wirtschaft/entsendegesetz/sperren.pdf"
 INFRACTION_URL = "https://www.llv.li/serviceportal2/amtsstellen/amt-fuer-volkswirtschaft/wirtschaft/entsendegesetz/uebertretungen.pdf"
-
-
+HEADERS = {
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    "Sec-Fetch-Dest": "document",
+    "Sec-Fetch-Mode": "navigate",
+    "Sec-Fetch-Site": "same-origin",
+    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.2 Safari/605.1.15",
+}
 COUNTRY_CODES = {
     "A": "at",  # Austria
     "D": "de",  # Germany
@@ -113,11 +118,11 @@ def page_settings(page: Page) -> tuple[Page, dict[str, Any]]:
 
 
 def crawl_debarments(context: Context) -> None:
-    path = context.fetch_resource("sperren.pdf", DEBARMENT_URL)
+    path = context.fetch_resource("sperren.pdf", DEBARMENT_URL, headers=HEADERS)
     for row in h.parse_pdf_table(context, path, page_settings=page_settings):
         if len(row) != 5:
             continue
-        address_raw = row.pop("addresse")
+        address_raw = row.pop("adresse")
         assert address_raw is not None
         address = parse_address(context, address_raw)
         name = row.pop("betrieb")
@@ -149,7 +154,7 @@ def crawl_debarments(context: Context) -> None:
 
 
 def crawl_infractions(context: Context) -> None:
-    path = context.fetch_resource("uebertretungen.pdf", INFRACTION_URL)
+    path = context.fetch_resource("uebertretungen.pdf", INFRACTION_URL, headers=HEADERS)
     for row in h.parse_pdf_table(context, path, page_settings=page_settings):
         if len(row) != 4:
             context.log.warn(f"Cannot split row: {row}")
