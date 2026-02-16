@@ -1,4 +1,4 @@
-from zavod.helpers.names import derive_original_values, Names
+from zavod.helpers.names import derive_original_values, Names, LangText
 
 
 def test_derive_original_values_single_original():
@@ -151,4 +151,33 @@ def test_derive_original_values_single_original_multiple_props():
         "John Doe": "John Brandon Doe",
         "Brandon": "John Brandon Doe",
         "JBD": "John Brandon Doe",
+    }
+
+
+def test_derive_original_values_with_langtext():
+    """LangText values should work the same as str values."""
+    # LangText in original, str in extracted
+    original = Names(name=LangText(text="John/Jon Doe", lang="en"))
+    extracted = Names(name="John Doe", alias="Jon Doe")
+    result = derive_original_values(original, extracted)
+    assert result == {
+        "John Doe": "John/Jon Doe",
+        "Jon Doe": "John/Jon Doe",
+    }
+
+    # str in original, LangText in extracted
+    original = Names(name="John Doe; Brandon Doe")
+    extracted = Names(alias=LangText(text="Brandon Doe", lang="en"))
+    result = derive_original_values(original, extracted)
+    assert result == {
+        "Brandon Doe": "John Doe; Brandon Doe",
+    }
+
+    # Mixed str and LangText in original
+    original = Names(name=[LangText(text="John Doe", lang="en"), "Jane Smith"])
+    extracted = Names(name="John", alias="Jane")
+    result = derive_original_values(original, extracted)
+    assert result == {
+        "John": "John Doe",
+        "Jane": "Jane Smith",
     }
