@@ -4,7 +4,7 @@ from typing import Any, Optional, TextIO
 from urllib.parse import urljoin
 import zipfile
 from rigour.mime.types import ZIP
-from rigour.names.check import is_nullword
+from rigour.text.stopwords import is_nullword
 
 from zavod import Context
 from zavod import helpers as h
@@ -88,7 +88,7 @@ def crawl_npidata(context: Context, fh: TextIO) -> None:
             ),
             country_code=practice_country.lower() or "us",
         )
-        h.apply_address(context, entity, practice_addr)
+        h.copy_address(entity, practice_addr)
 
         # context.audit_data(row)
         context.emit(entity)

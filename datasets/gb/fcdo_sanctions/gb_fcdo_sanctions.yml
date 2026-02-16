@@ -198,6 +198,11 @@ lookups:
         # what was meant by 'Tazmania' is yet to be figured out
       - match: Tazmania
         value: Australia
+  type.address:
+    options:
+      - match:
+          - na
+        value: null
   type.email:
     options:
       - match:

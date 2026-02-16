@@ -60,3 +60,13 @@ lookups:
     options:
       - match: rm
         value: null
+
+  type.address:
+    options:
+      # Short addresses that we want to bypass the warnings for
+      - match: "Egg"
+        value: "Egg"
+      - match: "Uri"
+        value: "Uri"
+      - match: "Lü" # Lü is a village in the Val Müstair municipality in the district of Inn in the Swiss canton of Graubünden.
+        value: "Lü"

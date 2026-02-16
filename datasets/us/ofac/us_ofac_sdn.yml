@@ -679,6 +679,26 @@ lookups:
         value: null
       - match: Moscow
         value: Moscow
+      - match: Qom
+        value: Qom
+      - match: Eyl
+        value: Eyl
+      - match: Gao
+        value: Gao
+      - match: Pec
+        value: Pec
+      - match: Wau
+        value: Wau
+      - match: Aru
+        value: Aru
+      - match: Ibb
+        value: Ibb
+      - match: Osh
+        value: Osh
+      - match: KPK
+        value: Khyber Pakhtunkhwa
+      - match: Zug
+        value: Zug
   type.country:
     lowercase: true
     normalize: true

@@ -2,7 +2,6 @@ from datetime import datetime
 from normality import slugify, stringify
 from openpyxl import load_workbook
 from typing import Dict
-from rigour.ids.wikidata import is_qid
 
 from zavod import Context
 from zavod import helpers as h
@@ -20,9 +19,8 @@ def crawl_person(context: Context, row: Dict[str, str]) -> str:
     if not zvezo_id:
         return
     wikidata_id = row.pop("wikidata_id")
-    if wikidata_id:
-        wikidata_id = wikidata_id.strip()
-    if wikidata_id and is_qid(wikidata_id):
+    wikidata_id = h.deref_wikidata_id(context, wikidata_id)
+    if wikidata_id is not None:
         person.id = wikidata_id
         person.add("wikidataId", wikidata_id)
     else:
@@ -31,6 +29,7 @@ def crawl_person(context: Context, row: Dict[str, str]) -> str:
     person.add("name", row.pop("name"))
     person.add("birthDate", row.pop("year"))
     person.add("gender", row.pop("gender"))
+    person.add("citizenship", "si")
     person.add("sourceUrl", row.pop("zvezoskop_link"))
     person.add("political", row.pop("party_si") or None, lang="slv")
     person.add("political", row.pop("party_en") or None, lang="eng")

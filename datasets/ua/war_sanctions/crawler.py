@@ -10,6 +10,7 @@ from enum import Enum
 from normality import squash_spaces
 from os import environ as env
 from typing import Dict, Optional, List
+from urllib.parse import urljoin
 
 from zavod import Context, helpers as h
 from zavod.entity import Entity
@@ -17,6 +18,10 @@ from zavod.extract.zyte_api import fetch_json, fetch, fetch_html, ZyteAPIRequest
 
 # Note: These contain special characters, in testing use single quotes
 # to make sure variables don't get interpolated by the shell.
+# export OPENSANCTIONS_UA_WS_API_CLIENT_ID=$(op read op://$OS_ENGINEERING_VAULT_ID/os_env/ua_ws_api_client_id)
+# export OPENSANCTIONS_UA_WS_API_KEY=$(op read op://$OS_ENGINEERING_VAULT_ID/os_env/ua_ws_api_key)
+# export OPENSANCTIONS_UA_WS_API_DOCS_URL=$(op read op://$OS_ENGINEERING_VAULT_ID/os_env/ua_ws_api_docs_url)
+# export OPENSANCTIONS_UA_WS_API_BASE_URL=$(op read op://$OS_ENGINEERING_VAULT_ID/os_env/ua_ws_api_base_url)
 WS_API_CLIENT_ID = env["OPENSANCTIONS_UA_WS_API_CLIENT_ID"]
 WS_API_KEY = env["OPENSANCTIONS_UA_WS_API_KEY"]
 # We keep these two secret because they were shared with us confidentially
@@ -198,10 +203,46 @@ def split_dob_dod(raw_date):
     return dob, dod
 
 
+def load_managers(context: Context, program_key: str) -> Dict[str, Dict]:
+    """Load all manager data from API into a dictionary keyed by raw ID."""
+    token = generate_token(context, WS_API_CLIENT_ID, WS_API_KEY)
+    url = f"{WS_API_BASE_URL}/v1/transport/management"
+
+    zyte_result = fetch(
+        context,
+        ZyteAPIRequest(
+            url=url,
+            headers={
+                "Accept": "application/json",
+                "Authorization": token,
+            },
+        ),
+        cache_days=1,
+    )
+    response = json.loads(zyte_result.response_text)
+
+    if not response or response.get("code") != 0:
+        context.log.error("Failed to load managers", url=url, response=response)
+        return {}
+
+    # Build lookup: raw_id -> manager_data
+    # Convert IDs to strings to match the string IDs in vessel payloads
+    managers = {}
+    for manager_data in response.get("data", []):
+        manager_id = manager_data.get("id")
+        if manager_id:
+            managers[str(manager_id)] = manager_data
+
+    return managers
+
+
 def crawl_ship_relation(
     context: Context,
     party_info,
     vessel_id_slug,
+    managers_lookup: Dict[str, Dict],
+    program_key: str,
+    source_url: str,
     rel_role: Optional[str] = None,
 ):
     company_id_raw = party_info.pop("id")
@@ -211,6 +252,15 @@ def crawl_ship_relation(
     # a substantive corporate or ownership link. For example, Company 511 receiving mail
     # "c/o" Company 512 is not meaningful enough to create an entity relationship.
     _care_of_id_raw = party_info.pop("co_id", None)
+
+    # Convert to string to match the string keys in managers_lookup
+    company_id_str = str(company_id_raw)
+    if company_id_str in managers_lookup:
+        emit_manager(context, managers_lookup[company_id_str], program_key, source_url)
+    else:
+        context.log.warn(
+            "company_id not found in the managers_lookup", company_id=company_id_str
+        )
 
     # e.g.
     # {
@@ -259,7 +309,7 @@ def emit_relation(
     context.emit(relation)
 
 
-def crawl_person(context: Context, person_data, program_key, endpoint):
+def crawl_person(context: Context, person_data, program_key, endpoint, source_url):
     birth_date = person_data.pop("date_bd")
     death_date = person_data.pop("date_death", None)
     if "- " in birth_date:
@@ -278,10 +328,12 @@ def crawl_person(context: Context, person_data, program_key, endpoint):
     h.apply_date(person, "deathDate", death_date)
     person.add("topics", "poi")
     person.add("birthPlace", person_data.pop("city_bd", None))
+    person.add("sourceUrl", source_url)
 
     sanction = h.make_sanction(
         context, person, key=program_key, program_key=program_key
     )
+    sanction.set("programUrl", source_url)
     sanction.add("reason", person_data.pop("reason", None))
     sanction.add("sourceUrl", person_data.pop("links", None))
 
@@ -305,7 +357,12 @@ def crawl_person(context: Context, person_data, program_key, endpoint):
     )
 
 
-def crawl_legal_entity(context: Context, company_data, program_key):
+def crawl_legal_entity(
+    context: Context,
+    company_data: Dict[str, str],
+    program_key: str,
+    source_url: str,
+):
     legal_entity = context.make("LegalEntity")
     legal_entity.id = make_id(context, WSAPIDataType.ENTITY, company_data.pop("id"))
     legal_entity.add("name", h.multi_split(company_data.pop("name"), [" / "]))
@@ -321,6 +378,7 @@ def crawl_legal_entity(context: Context, company_data, program_key):
     legal_entity.add("country", company_data.pop("country"))
     legal_entity.add("innCode", company_data.pop("itn"))
     legal_entity.add("topics", "poi")
+    legal_entity.add("sourceUrl", source_url)
     imo = company_data.pop("imo", None)
     if imo:
         legal_entity.add_cast("Company", "imoNumber", imo)
@@ -329,6 +387,7 @@ def crawl_legal_entity(context: Context, company_data, program_key):
         context, legal_entity, key=program_key, program_key=program_key
     )
     sanction.add("reason", company_data.pop("reason"))
+    sanction.set("programUrl", source_url)
     sanction.add("sourceUrl", company_data.pop("links"))
     sanction.add("sourceUrl", company_data.pop("documents", None))
 
@@ -351,29 +410,48 @@ def crawl_legal_entity(context: Context, company_data, program_key):
     )
 
 
-def crawl_manager(context: Context, management_data, program_key):
+def emit_manager(
+    context: Context,
+    management_data: Dict,
+    program_key: str,
+    source_url: str,
+):
+    """Emit a manager entity. Call only when manager is referenced by a ship."""
+    # Make a copy to avoid mutating the cached lookup dict
+    management_data = management_data.copy()
+
     manager = context.make("Company")
     manager.id = make_id(context, WSAPIDataType.MANAGER, management_data.pop("id"))
     manager.add("name", management_data.pop("name"))
     # We null falsy names via the lookups and set the topic once again here
-    # not to emit empty entities
+    # not to emit empty entities and avoid missing references
     if not manager.get("name"):
         manager.add("topics", "poi")
         context.emit(manager)
     manager.add("country", management_data.pop("country"))
     manager.add("imoNumber", management_data.pop("imo"))
     manager.add("topics", "poi")
+    # Managers are only listed on ship pages, since they don't have their own dedicated pages
+    manager.add("sourceUrl", source_url)
     context.emit(manager)
     sanction = h.make_sanction(
         context, manager, key=program_key, program_key=program_key
     )
+    sanction.set("programUrl", source_url)
     context.emit(sanction)
     context.audit_data(management_data)
 
 
-def crawl_vessel(context: Context, vessel_data, program_key):
+def crawl_vessel(
+    context: Context,
+    vessel_data,
+    program_key,
+    managers_lookup: Dict[str, Dict],
+    source_url: str,
+):
+    raw_vessel_id = vessel_data.pop("id")
     vessel = context.make("Vessel")
-    vessel.id = make_id(context, WSAPIDataType.VESSEL, vessel_data.pop("id"))
+    vessel.id = make_id(context, WSAPIDataType.VESSEL, raw_vessel_id)
     vessel.add("name", vessel_data.pop("name"))
     vessel.add("imoNumber", vessel_data.pop("imo"))
     vessel_type = vessel_data.pop("type")
@@ -382,6 +460,7 @@ def crawl_vessel(context: Context, vessel_data, program_key):
     vessel.add("callSign", vessel_data.pop("callsign"))
     vessel.add("flag", vessel_data.pop("flag"))
     vessel.add("mmsi", vessel_data.pop("mmsi"))
+    vessel.add("sourceUrl", source_url)
     h.apply_date(vessel, "buildDate", vessel_data.pop("year"))
     vessel.add("grossRegisteredTonnage", vessel_data.pop("weight"))
     vessel.add("deadweightTonnage", vessel_data.pop("dwt"))
@@ -399,6 +478,7 @@ def crawl_vessel(context: Context, vessel_data, program_key):
     sanction = h.make_sanction(
         context, vessel, key=program_key, program_key=program_key
     )
+    sanction.set("programUrl", source_url)
     sanction.add("sourceUrl", vessel_data.pop("links"))
 
     context.emit(vessel)
@@ -409,7 +489,15 @@ def crawl_vessel(context: Context, vessel_data, program_key):
         party_info = vessel_data.pop(role, None)
         if not party_info:
             continue
-        crawl_ship_relation(context, party_info, vessel.id, role)
+        crawl_ship_relation(
+            context,
+            party_info,
+            vessel.id,
+            managers_lookup,
+            program_key,
+            source_url,
+            role,
+        )
 
     pi_club_info = vessel_data.pop("pi_club", None)
     if pi_club_info:
@@ -474,15 +562,8 @@ def check_updates(context: Context):
         )
         return
     # Have any new sections been added?
-    change_log = doc.xpath(".//main[@class='relative']")
-    if len(change_log) != 1:
-        context.log.warn(
-            "Unexpected number of change log sections, unable to check updates",
-            change_log=change_log,
-        )
-        return
-
-    h.assert_dom_hash(change_log[0], "e58955c7ef5c543cd4c2ae8975eb326287e09023")
+    change_log = h.xpath_element(doc, ".//main[@class='relative']")
+    h.assert_dom_hash(change_log, "e58955c7ef5c543cd4c2ae8975eb326287e09023")
     # Existing sections from the API documentation sidebar
     #
     # Kidnappers:
@@ -541,6 +622,10 @@ def check_updates(context: Context):
 def crawl(context: Context):
     check_updates(context)
 
+    # Load all managers once upfront from the /transport/management endpoint
+    # to avoid duplicate API calls and enable lookup during vessel processing
+    managers_lookup = load_managers(context, "UA-WS-MARE")
+
     for link in LINKS:
         token = generate_token(context, WS_API_CLIENT_ID, WS_API_KEY)
         url = f"{WS_API_BASE_URL}/v1/{link.endpoint}"
@@ -563,14 +648,36 @@ def crawl(context: Context):
             continue
         data = response.get("data")
         for entity_details in data:
+            # Construct entity specific page URL: {base_url}/{endpoint}/{entity_id}
+            entity_id = entity_details.get("id")
+            source_url = urljoin(context.data_url, f"{link.endpoint}/{entity_id}")
+
             if link.type is WSAPIDataType.PERSON:
-                crawl_person(context, entity_details, link.program_key, link.endpoint)
+                crawl_person(
+                    context,
+                    entity_details,
+                    link.program_key,
+                    link.endpoint,
+                    source_url,
+                )
             elif link.type is WSAPIDataType.ENTITY:
-                crawl_legal_entity(context, entity_details, link.program_key)
+                crawl_legal_entity(
+                    context,
+                    entity_details,
+                    link.program_key,
+                    source_url,
+                )
             elif link.type is WSAPIDataType.VESSEL:
-                crawl_vessel(context, entity_details, link.program_key)
+                crawl_vessel(
+                    context,
+                    entity_details,
+                    link.program_key,
+                    managers_lookup,
+                    source_url,
+                )
             elif link.type is WSAPIDataType.MANAGER:
-                crawl_manager(context, entity_details, link.program_key)
+                continue
+                # crawl_manager(context, entity_details, link.program_key)
             elif link.type is WSAPIDataType.ROSTEC_STRUCTURE:
                 crawl_rostec_structure(context, entity_details)
             else:

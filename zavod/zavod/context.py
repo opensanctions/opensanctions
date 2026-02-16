@@ -114,7 +114,9 @@ class Context:
             dataset=self.dataset.name,
             context=self,
         )
-        make_version(self.dataset, settings.RUN_VERSION, overwrite=clear)
+        make_version(
+            self.dataset, settings.RUN_VERSION, append_new_version_to_history=clear
+        )
         if clear and not self.dry_run:
             self.resources.clear()
             self.issues.clear()

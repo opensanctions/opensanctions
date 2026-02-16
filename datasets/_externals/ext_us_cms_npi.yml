@@ -9,10 +9,11 @@ coverage:
   frequency: weekly
   start: "2026-02-03"
 deploy:
-  cpu: "2000m"
-  memory: "6000Mi"
-  memory_limit: "8000Mi"
-  disk: "50Gi"
+  cpu: "1000m"
+  cpu_limit: "2000m"
+  memory: "10000Mi"
+  memory_limit: "12000Mi"
+  disk: "100Gi"
 exports:
   - statistics.json
   - entities.delta.json
@@ -45,6 +46,12 @@ publisher:
   country: us
   url: https://www.cms.gov
 url: https://www.cms.gov/medicare/regulations-guidance/administrative-simplification/data-dissemination
+
+assertions:
+  min:
+    schema_entities:
+      Organization: 100
+      Person: 100
 
 inputs:
   - debarment
