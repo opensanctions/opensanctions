@@ -7,7 +7,6 @@ from zavod import Context, helpers as h
 
 
 def crawl_item(row: Dict[str, str], context: Context):
-
     first_name = row.pop("first_name")
     last_name = row.pop("last_name")
     business_name = row.pop("business_name")
