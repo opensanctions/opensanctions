@@ -6,7 +6,7 @@ from zavod.stateful.positions import categorise, OccupancyStatus
 # from extract_csv_from_report_pdf_2024 import csv_from_pdf
 
 
-def check_updates(context: Context):
+def check_updates(context: Context) -> None:
     """
     Verify that the source report URL hasn't changed.
 

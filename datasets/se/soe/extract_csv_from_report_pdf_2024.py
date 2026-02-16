@@ -3,6 +3,7 @@ import pdfplumber
 
 from normality import squash_spaces
 from pathlib import Path
+from pdfplumber.page import Page
 
 from zavod import Context
 
@@ -39,7 +40,7 @@ SOE_REPORT_URL = "https://www.regeringen.se/contentassets/a2be3c80b3384f3eadc645
 SOE_REPORT_URL_INTERNAL = "https://storage.googleapis.com/internal-data.opensanctions.org/se_soe/verksamhetsberattelse--for-bolag-med-statligt-agande-2024.pdf"
 
 
-def csv_from_pdf(context, filename: str):
+def csv_from_pdf(context: Context, filename: str) -> None:
     pdf_path = context.fetch_resource("source.pdf", SOE_REPORT_URL)
     soe_leadrship = []
     with pdfplumber.open(pdf_path) as pdf:
@@ -63,7 +64,9 @@ def csv_from_pdf(context, filename: str):
         writer.writerows(soe_leadrship)
 
 
-def extract_board_member(page, width: float, company_name: str) -> list[dict]:
+def extract_board_member(
+    page: Page, width: float, company_name: str
+) -> list[dict[str, str]]:
     """Extract board member names with positions from right column of page."""
     # Crop from the right and skip the header
     # x: 65% to 100% of width
@@ -150,7 +153,7 @@ def clean_names(section_text: str) -> list[str]:
     return names
 
 
-def get_entity_name(context: Context, page, width) -> str:
+def get_entity_name(context: Context, page: Page, width: float) -> str:
     # Extract left 65% of page, starting below header
     # This is where the company description is
     # bbox = (0, 110, width * 0.65, 300)
