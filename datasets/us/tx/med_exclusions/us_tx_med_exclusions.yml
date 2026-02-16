@@ -112,7 +112,7 @@ lookups:
       - match: Southwest Medical Consultants Inc. d/b/a Los Ninos
         aliases:
           - Southwest Medical Consultants Inc
-          - Los Ninos
+          - Los Ninos Pediatric Rehab
       - match: Acosta Medical Supply, Inc. dba Affordab
         aliases:
           - Acosta Medical Supply, Inc
