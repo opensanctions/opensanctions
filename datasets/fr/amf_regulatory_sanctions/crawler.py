@@ -7,7 +7,6 @@ from html import unescape
 from urllib.parse import urljoin
 
 
-CLEAN_ENTITY = re.compile(r"(<br />\r\n| et |;)", re.IGNORECASE)
 # Base URL for sourceUrl links
 BASE_URL = "https://www.amf-france.org"
 PREFIXES = [
