@@ -166,7 +166,7 @@ def get_entity_name(context: Context, page: Page, width: float) -> str:
     res = context.lookup(
         "company_names", squash_spaces(first_chars), warn_unmatched=True
     )
-    entity_name = None
+    entity_name: str | None = None
     if res and res.name:
         entity_name = res.name
     assert entity_name
