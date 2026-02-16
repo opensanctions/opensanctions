@@ -1,3 +1,4 @@
+import re
 from typing import Dict, Generator, List, Optional, Set, cast
 
 from lxml.html import HtmlElement
@@ -8,6 +9,9 @@ from zavod.logs import get_logger
 from zavod.util import Element
 
 log = get_logger(__name__)
+
+
+BR_RE = re.compile(r"<br\s*/?>", re.IGNORECASE)
 
 
 def element_text(el: Element | None, squash: bool = True) -> str:
@@ -174,3 +178,12 @@ def xpath_strings(
 
 def xpath_string(el: Element, xpath: str) -> str:
     return xpath_strings(el, xpath, expect_exactly=1)[0]
+
+
+def split_html_newline_tags(string: str) -> List[str]:
+    """
+    Split a string on HTML <br> tags, returning a list of strings.
+
+    Non-empty strings will not be returned.
+    """
+    return [s for s in BR_RE.split(string) if s.strip()]
