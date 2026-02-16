@@ -41,7 +41,7 @@ def is_500_page(doc: etree._Element) -> bool:
     )
 
 
-def crawl_subpage(context: Context, url: str, entity: Entity, entity_id):
+def crawl_subpage(context: Context, url: str, entity: Entity, entity_id: str):
     context.log.debug(f"Starting to crawl company page: {url}")
     validator_xpath = (
         './/div[@class="c-full-node__info"] | '
@@ -68,6 +68,9 @@ def crawl_subpage(context: Context, url: str, entity: Entity, entity_id):
 
     for sources in facts.pop("sources", []):
         for source in sources.xpath(".//p"):
+            # Sometimes, the tree contains some weird CSS elements
+            # with something that looks like an HTML comment - get rid of those.
+            etree.strip_elements(source, "style", "script")
             source_text = source.text_content()
             if "initWindowFocus" in source_text:
                 continue
