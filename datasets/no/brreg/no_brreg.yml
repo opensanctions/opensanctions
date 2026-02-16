@@ -1,4 +1,4 @@
-title: Norway Register of Business Enterprises Main Entities
+title: Norway State-Owned Enterprises Leadership
 entry_point: crawler.py
 prefix: no-nbim
 coverage:
@@ -6,10 +6,11 @@ coverage:
   start: 2026-02-02
 load_statements: false  # we'll add a second crawler that enriches against this data that will get added to the default collection (via enrichers)
 summary: >-
-  Official registry of Norwegian legal entities with organisation details, addresses,
+  C-level execitives and board members of state-owned companies from the official registry
+  of Norwegian legal entities with organisation details, addresses,
   industry codes, and registration statuses from Brønnøysund Register Centre.
 description: |
-  The dataset contains information about all registered legal entities in Norway,
+  The dataset contains information about c-level executives from all registered state-owned legal entities in Norway,
   sourced from two registers managed by the Brønnøysund Register Centre:
       1. The Central Coordinating Register for Legal Entities (CCR / Enhetsregisteret):
        A central registry of basic data about legal persons and other entities in Norway.
@@ -19,6 +20,8 @@ description: |
       2. The Register of Business Enterprises (Foretaksregisteret):
        Contains detailed information about businesses registered in Norway, including
        company structure, management, ownership, and legal obligations.
+
+  The dataset identifies politically exposed persons across Norwegian state-owned business enterprises.
 
 url: https://www.brreg.no/en/use-of-data-from-the-bronnoysund-register-centre/datasets-and-api/data-about-organisations/
 publisher:
@@ -33,16 +36,16 @@ publisher:
   official: true
 data:
   url: https://www.brreg.no/en/use-of-data-from-the-bronnoysund-register-centre/datasets-and-api/data-about-organisations/
-  format: ZIP
+  format: CSV+GZIP
 dates:
   formats: ["%Y-%m-%d"]
 assertions:
   min:
     schema_entities:
-      LegalEntity: 918000  # row count: 1148082
+      Person: 240  # raw count: 301 PEPs
   max:
     schema_entities:
-      LegalEntity: 2000000
+      Person: 650
 
 ### dict for header: https://data.brreg.no/enhetsregisteret/api/dokumentasjon/en/index.html#section/Dictionary
 lookups:
