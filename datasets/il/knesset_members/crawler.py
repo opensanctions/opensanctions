@@ -1,3 +1,4 @@
+import html
 from typing import Any
 from rigour.langs import iso_639_alpha3
 
@@ -139,7 +140,8 @@ def crawl_item(
         f"https://main.knesset.gov.il/{lang_iso_639_1}/MK/APPS/mk/mk-personal-details/{member_id}",
     )
     if content:
-        person.add("birthPlace", content.pop("PlaceOfBirth"), lang=lang_iso_639_2)
+        birth_place = html.unescape(content.pop("PlaceOfBirth", None))
+        person.add("birthPlace", birth_place, lang=lang_iso_639_2)
 
     if lang_iso_639_1 == "en":
         if content:
