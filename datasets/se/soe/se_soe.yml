@@ -2,9 +2,25 @@ title: Sweden State-Owned Enterprises Leadership
 prefix: se-soe
 url: https://www.regeringen.se/rapporter/2025/06/verksamhetsberattelse-for-bolag-med-statligt-agande-2024/
 coverage:
-  frequency: weekly
-  start: 2026-02-04
+  frequency: never
+  start: 2026-02-16
 load_statements: true
+manual_check:
+  last_checked: "2026-02-16"
+  interval: 182
+  message: |
+    Check if a new Swedish SOE report is available and update if needed.
+    The current report is from 2024.
+
+    IMPORTANT: This crawler requires manual setup for new reports:
+    1. Update the 'company_names' lookup table in this YAML with mappings from
+       PDF text snippets to official company names (run once to identify missing entries)
+    2. After extraction, manually review and correct the output CSV - name parsing
+       may split/merge names incorrectly or miss people entirely
+
+    The final dataset requires manual quality control before publishing.
+deploy:
+  schedule: "@monthly"
 entry_point: crawler.py
 summary: >-
   Leadership positions in Swedish state-owned enterprises, including board chairs,
@@ -49,7 +65,7 @@ lookups:
       - match: 'Green Cargo AB är Sveriges största aktör inom håll'
         name: Green Cargo AB
       - match: 'AB Göta kanalbolag driver och förvaltar Göta kanal'
-        name: AB Göta
+        name: AB Göta kanalbolag
       - match: 'Infranord AB är det ledande järnvägsentreprenadbol'
         name: Infranord AB
       - match: 'Jernhusen AB äger, utvecklar och förvaltar station'
