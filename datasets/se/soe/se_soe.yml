@@ -1,6 +1,7 @@
 title: Sweden State-Owned Enterprises Leadership
 prefix: se-soe
-url: https://www.regeringen.se/rapporter/2025/06/verksamhetsberattelse-for-bolag-med-statligt-agande-2024/
+# https://www.regeringen.se/rapporter/2025/06/verksamhetsberattelse-for-bolag-med-statligt-agande-2024/
+url: https://www.regeringen.se/regeringens-politik/bolag-med-statligt-agande/
 coverage:
   frequency: never
   start: 2026-02-16
