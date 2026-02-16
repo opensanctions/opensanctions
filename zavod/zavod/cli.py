@@ -4,8 +4,9 @@ from pathlib import Path
 from typing import Optional, List
 
 import click
+from click.shell_completion import CompletionItem
 
-from followthemoney.cli.util import InPath, OutPath
+from followthemoney.cli.util import OutPath
 from followthemoney.statement import CSV, FORMATS
 from nomenklatura.matching import DefaultAlgorithm
 from nomenklatura.settings import STATEMENT_BATCH
@@ -37,6 +38,29 @@ log = get_logger(__name__)
 STMT_FORMATS = click.Choice(FORMATS, case_sensitive=False)
 
 
+# Activate shell completions by putting the following in your zsh direnv .envrc
+# This will cache the completion function for 30 days to now slow shell startup down
+# (){ [[ $# -gt 0 ]] || _ZAVOD_COMPLETE=zsh_source zavod > .zavod-complete.zsh; source .zavod-complete.zsh; } .zavod-complete.zsh(Nm-30)
+# Alternatively, the slow way that does not cache is
+# eval "$(_ZAVOD_COMPLETE=zsh_source zavod)"
+class DatasetPath(click.Path):
+    """Custom Click parameter type for dataset paths that provides shell completion."""
+
+    def shell_complete(
+        self, ctx: click.Context, param: click.Parameter, incomplete: str
+    ) -> List[CompletionItem]:
+        completions: list[CompletionItem] = []
+        for path in sorted(Path("datasets").glob("**/*.yml")):
+            if incomplete in path.name:
+                completions.append(CompletionItem(str(path)))
+        return completions
+
+
+DatasetInPath = DatasetPath(
+    dir_okay=False, readable=True, path_type=Path, allow_dash=True
+)
+
+
 def _load_dataset(path: Path) -> Dataset:
     dataset = load_dataset_from_path(path)
     if dataset is None:
@@ -63,7 +87,7 @@ def cli(debug: bool = False) -> None:
 
 
 @cli.command("crawl", help="Crawl a specific dataset")
-@click.argument("dataset_path", type=InPath)
+@click.argument("dataset_path", type=DatasetInPath)
 @click.option("-d", "--dry-run", is_flag=True, default=False)
 @click.option("--clear-data/--keep-data", is_flag=True, default=True)
 def crawl(dataset_path: Path, dry_run: bool = False, clear_data: bool = False) -> None:
@@ -78,7 +102,7 @@ def crawl(dataset_path: Path, dry_run: bool = False, clear_data: bool = False) -
 
 
 @cli.command("validate", help="Check the integrity of a dataset")
-@click.argument("dataset_path", type=InPath)
+@click.argument("dataset_path", type=DatasetInPath)
 @click.option("-r", "--rebuild-store", is_flag=True, default=False)
 def validate(dataset_path: Path, rebuild_store: bool = False) -> None:
     dataset = _load_dataset(dataset_path)
@@ -97,7 +121,7 @@ def validate(dataset_path: Path, rebuild_store: bool = False) -> None:
 
 
 @cli.command("export", help="Export data from a specific dataset")
-@click.argument("dataset_path", type=InPath)
+@click.argument("dataset_path", type=DatasetInPath)
 @click.option("-r", "--rebuild-store", is_flag=True, default=False)
 def export(dataset_path: Path, rebuild_store: bool = False) -> None:
     dataset = _load_dataset(dataset_path)
@@ -115,7 +139,7 @@ def export(dataset_path: Path, rebuild_store: bool = False) -> None:
 
 
 @cli.command("publish", help="Publish data from a specific dataset")
-@click.argument("dataset_path", type=InPath)
+@click.argument("dataset_path", type=DatasetInPath)
 @click.option("-l", "--latest", is_flag=True, default=False)
 def publish(dataset_path: Path, latest: bool = False) -> None:
     dataset = _load_dataset(dataset_path)
@@ -128,7 +152,7 @@ def publish(dataset_path: Path, latest: bool = False) -> None:
 
 
 @cli.command("run", help="Crawl, export and then publish a specific dataset")
-@click.argument("dataset_path", type=InPath)
+@click.argument("dataset_path", type=DatasetInPath)
 @click.option("-l", "--latest", is_flag=True, default=False)
 @click.option("--clear-data/--keep-data", is_flag=True, default=True)
 def run(
@@ -183,7 +207,7 @@ def run(
 
 
 @cli.command("load-db", help="Load dataset statements from the archive into a database")
-@click.argument("dataset_path", type=InPath)
+@click.argument("dataset_path", type=DatasetInPath)
 @click.option("--batch-size", type=int, default=STATEMENT_BATCH)
 @click.option("-x", "--external", is_flag=True, default=False)
 def load_db(
@@ -206,7 +230,7 @@ def load_db(
 
 
 @cli.command("dump-file", help="Dump dataset statements from the archive to a file")
-@click.argument("dataset_path", type=InPath)
+@click.argument("dataset_path", type=DatasetInPath)
 @click.argument("out_path", type=OutPath)
 @click.option("-f", "--format", type=STMT_FORMATS, default=CSV)
 @click.option("-x", "--external", is_flag=True, default=False)
@@ -229,7 +253,7 @@ def dump_file(
 
 
 @cli.command("xref", help="Generate dedupe candidates from the given dataset")
-@click.argument("dataset_paths", type=InPath, nargs=-1)
+@click.argument("dataset_paths", type=DatasetInPath, nargs=-1)
 @click.option("-r", "--rebuild-store", is_flag=True, default=False)
 @click.option("-l", "--limit", type=int, default=10000)
 @click.option("-f", "--focus-dataset", type=str, default=None)
@@ -279,7 +303,7 @@ def xref_prune() -> None:
 
 
 @cli.command("dedupe", help="Interactively decide xref candidates")
-@click.argument("dataset_paths", type=InPath, nargs=-1)
+@click.argument("dataset_paths", type=DatasetInPath, nargs=-1)
 @click.option("-r", "--rebuild-store", is_flag=True, default=False)
 def dedupe(dataset_paths: List[Path], rebuild_store: bool = False) -> None:
     dataset = _load_datasets(dataset_paths)
@@ -315,7 +339,7 @@ def merge(entity_ids: List[str], force: bool = False) -> None:
 
 
 @cli.command("dedupe-edges", help="Merge edge entities that are effectively duplicates")
-@click.argument("dataset_paths", type=InPath, nargs=-1)
+@click.argument("dataset_paths", type=DatasetInPath, nargs=-1)
 @click.option("-r", "--rebuild-store", is_flag=True, default=False)
 def dedupe_edges(dataset_paths: List[Path], rebuild_store: bool = False) -> None:
     dataset = _load_datasets(dataset_paths)
@@ -333,7 +357,7 @@ def dedupe_edges(dataset_paths: List[Path], rebuild_store: bool = False) -> None
 
 
 @cli.command("clear", help="Delete the data and state paths for a dataset")
-@click.argument("dataset_path", type=InPath)
+@click.argument("dataset_path", type=DatasetInPath)
 def clear(dataset_path: Path) -> None:
     try:
         dataset = _load_dataset(dataset_path)
@@ -344,7 +368,7 @@ def clear(dataset_path: Path) -> None:
 
 
 @cli.command("summarize")
-@click.argument("dataset_path", type=InPath)
+@click.argument("dataset_path", type=DatasetInPath)
 @click.option("-r", "--rebuild-store", is_flag=True, default=False)
 @click.option("-s", "--schema", type=str, default=None)
 @click.option(
@@ -412,7 +436,7 @@ def summarize(
 
 
 @cli.command("wd-up")
-@click.argument("dataset_paths", type=InPath, nargs=-1)
+@click.argument("dataset_paths", type=DatasetInPath, nargs=-1)
 @click.option("-r", "--rebuild-store", is_flag=True, default=False)
 @click.option("-a", "--country-adjective", type=str, required=True)
 @click.option("-d", "--country-code", type=str, required=True)

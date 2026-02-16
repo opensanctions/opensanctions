@@ -33,6 +33,12 @@ tags:
   - list.regulatory
   - list.risk
 
+names:
+  LegalEntity:
+    reject_chars: "()（）"
+    allow_chars: ";" # We're splitting on semicolons so don't bother requiring review by default
+    single_token_min_length: 6
+
 assertions:
   min:
     schema_entities:

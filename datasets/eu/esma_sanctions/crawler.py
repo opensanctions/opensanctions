@@ -1,3 +1,4 @@
+import re
 from typing import Optional, Dict, Any, Generator
 from rigour.ids import LEI
 from lxml import html
@@ -66,7 +67,12 @@ def crawl(context: Context) -> None:
         sanction.add("program", row.pop("sn_sanctionLegalFrameworkName", None))
         sanction.add("startDate", row.pop("sn_date", None))
         sanction.add("endDate", row.pop("sn_expirationDate", None))
-        sanction.add("reason", row.pop("sn_text", None))
+        # Sometimes, the reason has some HTML tags in it, like so
+        # <a href='http://www.fi.se/Tillsyn/Sanktioner/Finansiella'>http://www.fi.se/Tillsyn/Sanktioner/Finansiella</a>-foretag/Listan/Anmarkning-och-straffavgift-for-Larsson--Partners/
+        # but the relevant URL is always also included as text outside the tags.
+        reason_raw = row.pop("sn_text", "")
+        reason_cleaned = re.sub(r"<[^>]+>", "", reason_raw)
+        sanction.add("reason", reason_cleaned)
         sanction.add("provisions", row.pop("sn_natureFullName", None))
         sanction.set("authority", row.pop("sn_ncaCodeFullName", None))
         sanction.set("country", row.pop("sn_countryName", None))

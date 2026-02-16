@@ -1,19 +1,28 @@
+import json
 from unittest.mock import MagicMock, patch
 
+import pytest
+from sqlalchemy import func, select
 from structlog.testing import capture_logs
 
 from zavod.context import Context
-from zavod.entity import Entity
-from zavod.extract.names.clean import CleanNames
+from zavod.extract.names.clean import Names
+from zavod.stateful.model import review_table
 from zavod.helpers import (
     apply_name,
     apply_reviewed_names,
     make_name,
-    is_name_irregular,
     split_comma_names,
 )
-from zavod.meta.dataset import Dataset
+from zavod.helpers.names import review_key_parts, review_names
 from zavod.stateful.review import Review, review_key
+
+
+def count_review_rows(conn, key: str) -> int:
+    sel = (
+        select(func.count()).select_from(review_table).where(review_table.c.key == key)
+    )
+    return conn.execute(sel).scalar()
 
 
 def test_make_name():
@@ -130,70 +139,42 @@ def test_split_comma_names(vcontext: Context, caplog):
     assert "warning: Not sure how to split on comma or and." in logs
 
 
-def test_is_name_irregular(testdataset1: Dataset):
-    org_data = {"id": "doe", "schema": "Organization", "properties": {}}
-    org = Entity(testdataset1, org_data)
-    person_data = {"id": "jon", "schema": "Person", "properties": {}}
-    person = Entity(testdataset1, person_data)
-
-    assert not is_name_irregular(org, "Org NPO")
-    # Rejected chars
-    assert is_name_irregular(org, "Org NPO, Org Charitable")
-    # Nullwords
-    assert is_name_irregular(org, "Unknown")
-    # min_chars
-    assert is_name_irregular(org, "A")  # too short
-    assert not is_name_irregular(org, "A A")  # long enough
-    # single_token_min_length
-    assert is_name_irregular(org, "AAA")  # too short
-    assert not is_name_irregular(org, "AAAA")  # long enough
-    # Require space
-    assert is_name_irregular(person, "Johnson")
-    assert not is_name_irregular(org, "Johnson")
-
-
-@patch("zavod.helpers.names.settings.CI", False)  # For validity
+@patch("zavod.helpers.names.settings.OPENAI_API_KEY", None)  # For validity
 def test_apply_reviewed_names_no_cleaning_needed(vcontext: Context):
     """The original name is used."""
 
     entity = vcontext.make("Person")
     entity.id = "bla"
-    apply_reviewed_names(vcontext, entity, "Jim Doe")
+    original = Names(name="Jim Doe")
+    apply_reviewed_names(vcontext, entity, original=original)
     assert entity.get("name") == ["Jim Doe"]
     assert entity.get("alias") == []
-    entity.set("name", [])  # clear to test alias
-
-    apply_reviewed_names(vcontext, entity, "Jim Doe", alias=True)
-    assert entity.get("name") == []
-    assert entity.get("alias") == ["Jim Doe"]
+    key = review_key(review_key_parts(entity, original))
+    assert count_review_rows(vcontext.conn, key) == 0
 
 
-@patch("zavod.helpers.names.settings.CI", True)
+@patch("zavod.helpers.names.settings.OPENAI_API_KEY", None)
 @patch("zavod.extract.names.clean.run_typed_text_prompt")
-def test_apply_reviewed_names_ci_fallback(
+def test_apply_reviewed_names_llm_service_fallback(
     run_typed_text_prompt: MagicMock, vcontext: Context
 ):
     """
-    Verify that when env var CI is set, we fall back to original name.
-    Mocking to verify that outside CI (on our laptops)
+    Verify that when env var OPENAI_API_KEY is set, we don't call OpenAPI,
+    and we fall back to original name.
     """
     entity = vcontext.make("Person")
     entity.id = "bla"
     raw_name = "Jim Doe; James Doe"
 
-    run_typed_text_prompt.return_value = CleanNames(
-        full_name=["Jim Doe", "James Doe"],
-        alias=[],
-        weak_alias=[],
-        previous_name=[],
-    )
+    run_typed_text_prompt.return_value = Names(name=["Jim Doe", "James Doe"])
 
-    apply_reviewed_names(vcontext, entity, raw_name, enable_llm_cleaning=True)
+    original = Names(name=raw_name)
+    apply_reviewed_names(vcontext, entity, original=original, llm_cleaning=True)
 
     assert not run_typed_text_prompt.called, run_typed_text_prompt.call_args_list
 
 
-@patch("zavod.helpers.names.settings.CI", False)
+@patch("zavod.helpers.names.settings.OPENAI_API_KEY", "AAABBBCCC")  # For validity
 @patch("zavod.extract.names.clean.run_typed_text_prompt")
 def test_apply_reviewed_names_llm(run_typed_text_prompt: MagicMock, vcontext: Context):
     """
@@ -206,53 +187,36 @@ def test_apply_reviewed_names_llm(run_typed_text_prompt: MagicMock, vcontext: Co
     entity.id = "bla"
     raw_name = "Jim Doe; James Doe"
 
-    run_typed_text_prompt.return_value = CleanNames(
-        full_name=["Jim Doe", "James Doe"],
-        alias=[],
-        weak_alias=[],
-        previous_name=[],
-    )
+    run_typed_text_prompt.return_value = Names(name="James Doe", alias="Jim Doe")
 
-    apply_reviewed_names(vcontext, entity, raw_name, enable_llm_cleaning=True)
+    original = Names(name=raw_name)
+    apply_reviewed_names(vcontext, entity, original=original, llm_cleaning=True)
 
     assert run_typed_text_prompt.called, run_typed_text_prompt.call_args_list
 
     # Until it's accepted, the original string is applied.
     assert entity.get("name") == [raw_name]
     assert entity.get("alias") == []
-    entity.set("name", [])  # clear to test alias
-    apply_reviewed_names(
-        vcontext, entity, raw_name, alias=True, enable_llm_cleaning=True
-    )
-    assert entity.get("alias") == [raw_name]
-    assert entity.get("name") == []
-    entity.set("alias", [])  # clear to test after accept
+    entity.set("name", [])  # clear to test after accept
 
     # simulate accepting the review.
-    key = review_key(["Person", raw_name])
-    review = Review.by_key(vcontext.conn, CleanNames, vcontext.dataset.name, key)
+    names = Names(name=raw_name)
+    key = review_key(review_key_parts(entity, names))
+
+    review = Review.by_key(vcontext.conn, Names, vcontext.dataset.name, key)
     review.accepted = True
     review.save(vcontext.conn, new_revision=True)
 
-    apply_reviewed_names(vcontext, entity, raw_name, enable_llm_cleaning=True)
-    assert set(entity.get("name")) == {"Jim Doe", "James Doe"}
-    assert entity.get("alias") == []
-    entity.set("name", [])  # clear to test alias
-
-    apply_reviewed_names(
-        vcontext, entity, raw_name, alias=True, enable_llm_cleaning=True
-    )
-    assert entity.get("name") == []
-    assert set(entity.get("alias")) == {"Jim Doe", "James Doe"}
+    apply_reviewed_names(vcontext, entity, original=original, llm_cleaning=True)
+    assert entity.get("name") == ["James Doe"]
+    assert entity.get("alias") == ["Jim Doe"]
 
 
-@patch("zavod.helpers.names.settings.CI", False)
 @patch("zavod.extract.names.clean.run_typed_text_prompt")
-def test_apply_reviewed_names_manual(
+def test_apply_reviewed_names_manual_irregular(
     run_typed_text_prompt: MagicMock, vcontext: Context
 ):
     """
-    The original name is used.
     A review is created but the manually extracted names are not applied until accepted.
     LLM-based cleaning is not used.
     """
@@ -261,13 +225,18 @@ def test_apply_reviewed_names_manual(
     entity.id = "bla"
     raw_name = "Jim Doe; James Doe"
 
-    run_typed_text_prompt.return_value = CleanNames(
-        alias=["SHOULD NOT END UP IN ENTITY"]
-    )
+    run_typed_text_prompt.return_value = Names(alias=["SHOULD NOT END UP IN ENTITY"])
 
-    apply_reviewed_names(vcontext, entity, raw_name)
+    original = Names(name=raw_name)
+    apply_reviewed_names(vcontext, entity, original=original)
 
+    # LLM cleaning wasn't invoked
     assert not run_typed_text_prompt.called, run_typed_text_prompt.call_args_list
+
+    # Original extraction is original names
+    key = review_key(review_key_parts(entity, original))
+    review = Review.by_key(vcontext.conn, Names, vcontext.dataset.name, key)
+    assert review.extracted_data == original
 
     # Until it's accepted, the original string is applied.
     assert entity.get("name") == [raw_name]
@@ -275,12 +244,83 @@ def test_apply_reviewed_names_manual(
     entity.set("name", [])  # clear to test after accept
 
     # simulate manually editing and accepting the review.
-    key = review_key(["Person", raw_name])
-    review = Review.by_key(vcontext.conn, CleanNames, vcontext.dataset.name, key)
+    review = Review.by_key(vcontext.conn, Names, vcontext.dataset.name, key)
     review.accepted = True
-    review.extracted_data = CleanNames(full_name=["James Doe"], alias=["Jim Doe"])
+    review.extracted_data = Names(name=["James Doe"], alias=["Jim Doe"])
     review.save(vcontext.conn, new_revision=True)
 
-    apply_reviewed_names(vcontext, entity, raw_name)
+    apply_reviewed_names(vcontext, entity, original=original)
     assert entity.get("name") == ["James Doe"]
     assert entity.get("alias") == ["Jim Doe"]
+
+
+def test_apply_reviewed_names_suggested_with_llm_cleaning_raises(vcontext: Context):
+    """
+    Verify that when both suggested and llm_cleaning are provided,
+    an AssertionError is raised.
+    """
+    entity = vcontext.make("Person")
+    entity.id = "bla"
+
+    original = Names(name="Jim Doe")
+    suggested = Names(name="James Doe")
+
+    with pytest.raises(AssertionError, match="LLM cleaning is enabled"):
+        apply_reviewed_names(
+            vcontext, entity, original=original, suggested=suggested, llm_cleaning=True
+        )
+
+
+def test_apply_reviewed_names_suggested_no_llm(vcontext: Context):
+    """
+    A review is created if suggested different from original is passed.
+    Neither original nor suggested needs to be irregular.
+
+    original names are applied until it's accepted.
+    """
+
+    entity = vcontext.make("Person")
+    entity.id = "bla"
+    raw_name = "Jim Doe"  # Not irregular
+
+    original = Names(name=raw_name)
+    suggested = Names(alias=raw_name)
+    apply_reviewed_names(vcontext, entity, original=original, suggested=suggested)
+
+    # Original extraction is suggested names
+    key = review_key(review_key_parts(entity, original))
+    review = Review.by_key(vcontext.conn, Names, vcontext.dataset.name, key)
+    assert review.extracted_data == suggested
+
+    # Source value is based on original without blanks and, not suggested.
+    assert review.source_value == json.dumps(
+        {"entity_schema": "Person", "original": {"name": ["Jim Doe"]}}, indent=2
+    )
+
+    # Until it's accepted, the suggestions are not applied.
+    assert entity.get("name") == [raw_name]
+    assert entity.get("alias") == []
+
+
+def test_apply_reviewed_names_suggested_original(vcontext: Context):
+    """
+    If suggested equals original, no review is created unless is_irregular is True.
+
+    Test that the crawler can have its own notion of irregular even if
+    it doesn't suggest a re-categorisation.
+    """
+
+    entity = vcontext.make("Person")
+    entity.id = "bla"
+    raw_name = "Jim Doe"  # Not irregular
+
+    original = Names(name=raw_name)
+    suggested = Names(name=raw_name)
+    review_names(vcontext, entity, original=original, suggested=suggested)
+    key = review_key(review_key_parts(entity, original))
+    assert count_review_rows(vcontext.conn, key) == 0
+
+    review_names(
+        vcontext, entity, original=original, suggested=suggested, is_irregular=True
+    )
+    assert count_review_rows(vcontext.conn, key) == 1
