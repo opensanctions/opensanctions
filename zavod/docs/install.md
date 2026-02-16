@@ -56,6 +56,18 @@ For development, you want to use our [prek](https://github.com/j178/prek) config
 - To run these hooks automatically when running `git commit`, install them with `prek install`. You can always skip them by using `git commit --no-verify`.
 - If you prefer to run these hooks manually, just run `prek run`
 
+## Shell completions
+
+To make `zavod crawl fr_amf<TAB>` magically work, you can install the shell completions. Instructions below of zsh, which is the default shell on macOS.
+
+Loading the completions is a bit complicated, since `zavod` needs to be in your `PATH` at the time when you're loading the completions. You probably want to use something like [direnv](https://direnv.net/) and put the following in your .envrc in your zavod directory:
+
+```zsh
+source zavod/.venv/bin/activate
+# Cache completions to only slow down shell startup once every 30 days.
+(){ [[ $# -gt 0 ]] || _ZAVOD_COMPLETE=zsh_source zavod > .zavod-complete.zsh; source .zavod-complete.zsh; } .zavod-complete.zsh(Nm-30)
+```
+
 ## Configuration
 
 `zavod` is inspired by the [twelve factor model](https://12factor.net/) and uses

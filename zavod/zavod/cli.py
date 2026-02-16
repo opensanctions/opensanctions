@@ -38,8 +38,11 @@ log = get_logger(__name__)
 STMT_FORMATS = click.Choice(FORMATS, case_sensitive=False)
 
 
-# Activate shell completions by putting the following in your zsh .envrc
-# (){ [[ $# -gt 0 ]] || _ZAVOD_COMPLETE=zsh_source zavod > .zavod-complete.zsh; source .zavod-complete.zsh; } .zavod-complete.zsh(Nm-14)
+# Activate shell completions by putting the following in your zsh direnv .envrc
+# This will cache the completion function for 30 days to now slow shell startup down
+# (){ [[ $# -gt 0 ]] || _ZAVOD_COMPLETE=zsh_source zavod > .zavod-complete.zsh; source .zavod-complete.zsh; } .zavod-complete.zsh(Nm-30)
+# Alternatively, the slow way that does not cache is
+# eval "$(_ZAVOD_COMPLETE=zsh_source zavod)"
 class DatasetPath(click.Path):
     """Custom Click parameter type for dataset paths that provides shell completion."""
 
