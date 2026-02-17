@@ -9,6 +9,13 @@ from zavod import Context, Entity
 SECURITIES_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTtQD9wiHuyl23NmrIeAACET4OohOXhmuxQv817FHHas8uO4k8VBzex25nIOPqsG9300aXJIqCZzo--/pub?gid=0&single=true&output=csv"
 BIDZINA_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTtQD9wiHuyl23NmrIeAACET4OohOXhmuxQv817FHHas8uO4k8VBzex25nIOPqsG9300aXJIqCZzo--/pub?gid=351241481&single=true&output=csv"
 
+IGNORE_FIELDS: list[str] = [
+    "Direct owner name (GEO)",
+    "As of",
+    "Company name (GEO)",
+    "Source Link",
+]
+
 
 def crawl_sec_row(context: Context, row: Dict[str, str]):
     entity = context.make("Company")
@@ -67,9 +74,9 @@ def crawl_sec(context: Context):
 
 
 def crawl_bidzina_row(context: Context, row: Dict):
-    ult_owner = stringify(row.pop("UBO name"))
+    ult_owner_name = stringify(row.pop("UBO name"))
     ult_owner_id = stringify(row.pop("ID Number"))
-    dir_owner = stringify(row.pop("Direct owner name (ENG)"))
+    dir_owner_name = stringify(row.pop("Direct owner name (ENG)"))
     dir_owner_id = stringify(row.pop("Direct Owner ID"))
     percent = stringify(row.pop("Percentage"))
     company_name = stringify(row.pop("Company name (ENG)"))
@@ -77,52 +84,52 @@ def crawl_bidzina_row(context: Context, row: Dict):
     company_jurisdiction = stringify(row.pop("Jurisdiction"))
 
     ult_owner_ent = context.make("Person")
-    ult_owner_ent.id = context.make_id(ult_owner, ult_owner_id)
-    ult_owner_ent.add("name", ult_owner)
+    ult_owner_ent.id = context.make_id(ult_owner_name, ult_owner_id)
+    ult_owner_ent.add("name", ult_owner_name)
     ult_owner_ent.add("idNumber", ult_owner_id)
 
-    company = context.make("Company")
-    company.id = context.make_id(company_name, company_id)
-    company.add("name", company_name)
-    company.add("registrationNumber", company_id)
-    company.add("jurisdiction", company_jurisdiction)
+    company_ent = context.make("Company")
+    company_ent.id = context.make_id(company_name, company_id)
+    company_ent.add("name", company_name)
+    company_ent.add("registrationNumber", company_id)
+    company_ent.add("jurisdiction", company_jurisdiction)
 
     # if the ult_owner is different, then the dir_company is a company
     # otherwise, the dir_company is the ubo (a person) and directly owns
     # main company
-    if ult_owner != dir_owner and ult_owner is not None:
-        dir_company = context.make("Company")
-        dir_company.id = context.make_id(dir_owner, dir_owner_id)
-        dir_company.add("name", dir_owner)
-        dir_company.add("registrationNumber", dir_owner_id)
-        ubo_ownership = context.make("Ownership")
-        ubo_ownership.id = context.make_id(
-            ult_owner, ult_owner_id, dir_owner, dir_owner_id
+    if ult_owner_name != dir_owner_name and ult_owner_name is not None:
+        dir_owner_ent = context.make("Company")
+        dir_owner_ent.id = context.make_id(dir_owner_name, dir_owner_id)
+        dir_owner_ent.add("name", dir_owner_name)
+        dir_owner_ent.add("registrationNumber", dir_owner_id)
+        ult_ownership = context.make("Ownership")
+        ult_ownership.id = context.make_id(
+            ult_owner_name, ult_owner_id, dir_owner_name, dir_owner_id
         )
-        ubo_ownership.add("owner", ult_owner_ent.id)
-        ubo_ownership.add("asset", dir_company.id)
+        ult_ownership.add("owner", ult_owner_ent.id)
+        ult_ownership.add("asset", dir_owner_ent.id)
 
         context.emit(ult_owner_ent)
-        context.emit(dir_company)
-        context.emit(ubo_ownership)
+        context.emit(dir_owner_ent)
+        context.emit(ult_ownership)
     else:
-        dir_company = context.make("Person")
-        dir_company.id = context.make_id(dir_owner, dir_owner_id)
-        dir_company.add("name", dir_company)
-        dir_company.add("registrationNumber", dir_owner_id)
+        dir_owner_ent = context.make("Person")
+        dir_owner_ent.id = context.make_id(dir_owner_name, dir_owner_id)
+        dir_owner_ent.add("name", dir_owner_name)
+        dir_owner_ent.add("registrationNumber", dir_owner_id)
 
     dir_ownership = context.make("Ownership")
     dir_ownership.id = context.make_id(
-        company_name, company_id, company_name, company_id
+        company_name, company_id, dir_owner_name, dir_owner_id
     )
-    dir_ownership.add("owner", dir_company.id)
-    dir_ownership.add("asset", company.id)
+    dir_ownership.add("owner", dir_owner_ent.id)
+    dir_ownership.add("asset", company_ent.id)
     dir_ownership.add("percentage", percent)
 
-    print(dir_company.to_dict())
-    context.emit(dir_company)
-    context.emit(company)
+    context.emit(dir_owner_ent)
+    context.emit(company_ent)
     context.emit(dir_ownership)
+    context.audit_data(row, IGNORE_FIELDS)
 
 
 def crawl_bidzina(context: Context):
