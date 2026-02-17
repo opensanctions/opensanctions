@@ -43,7 +43,6 @@ class Names(BaseModel):
     # middleName: NamesValue = None
     # lastName: NamesValue = None
 
-
     def _is_blank_value(self, value: NamesValue) -> bool:
         """Check if a value is blank (None, empty string, or empty list)."""
         if value is None:
@@ -153,9 +152,14 @@ def clean_names(context: Context, raw_names: SourceNames) -> Names:
             if name not in strings:
                 strings.append(name)
 
-    input_data = {"strings": strings}
+    input_data = {"entity_schema": raw_names.entity_schema, "strings": strings}
     input_string = "The entity schema and name strings as JSON:\n\n"
-    input_string += json.dumps(input_data, indent=2)
+    # ensure_ascii=False so that non-ASCII like Алтайкапиталбанк
+    # doesn't get escaped like \u0410\u043b\u0442\u0430\u0439\u043a\u0430\u...
+    # which then results in a name in the response like \x041\x041\x041 \x041\x041 \x041
+    # probably because gpt4o isn't trained on escape sequences, and we only
+    # need it to be JSON-ish embedded in the input string to give it some structure.
+    input_string += json.dumps(input_data, indent=2, ensure_ascii=False)
 
     return run_typed_text_prompt(
         context=context,
