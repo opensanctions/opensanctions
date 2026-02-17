@@ -11,7 +11,7 @@ summary: These sanctions target individuals and entities involved in North Korea
   nuclear weapons program. The measures include asset freezes, travel bans, and restrictions
   on trade and financial transactions to pressure North Korea to denuclearize and
   comply with international norms.
-issuer: unknown_unsc
+issuer: zz_unsc
 dataset: un_sc_sanctions
 status: published
 aliases:

@@ -10,7 +10,7 @@ url: https://www.un.org/securitycouncil/sanctions/1970
 summary: These sanctions target individuals and entities involved in the conflict
   and human rights abuses in Libya. The measures include asset freezes, travel bans,
   and arms embargoes to promote peace, security, and democratic governance in Libya.
-issuer: unknown_unsc
+issuer: zz_unsc
 dataset: un_sc_sanctions
 status: published
 aliases:

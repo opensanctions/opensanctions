@@ -10,7 +10,7 @@ url: https://www.un.org/securitycouncil/sanctions/2653
 summary: These sanctions target individuals and entities involved in activities undermining
   the peace, security, and stability of Haiti. The measures include asset freezes,
   travel bans, and arms embargoes to support Haiti's stability and democratic governance.
-issuer: unknown_unsc
+issuer: zz_unsc
 dataset: un_sc_sanctions
 status: published
 aliases:

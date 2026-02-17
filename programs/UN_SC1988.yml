@@ -10,7 +10,7 @@ url: https://www.un.org/securitycouncil/sanctions/1988
 summary: These sanctions target individuals and entities associated with the Taliban.
   The measures include asset freezes, travel bans, and arms embargoes to disrupt the
   group's activities and support peace and stability in Afghanistan.
-issuer: unknown_unsc
+issuer: zz_unsc
 dataset: un_sc_sanctions
 status: published
 aliases:

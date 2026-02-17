@@ -11,7 +11,7 @@ summary: These sanctions target individuals and entities associated with Al-Shab
   a terrorist organization operating in Somalia. The measures include asset freezes,
   travel bans, and arms embargoes to disrupt the group's activities and weaken its
   operational capabilities, thereby enhancing regional security and stability.
-issuer: unknown_unsc
+issuer: zz_unsc
 dataset: un_sc_sanctions
 status: published
 aliases:
