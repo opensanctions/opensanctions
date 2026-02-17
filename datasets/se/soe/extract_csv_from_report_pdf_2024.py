@@ -1,4 +1,6 @@
-# pyright: basic
+# This file does not run in prod, it's a one-time script to extract data from a PDF report,
+# so our requirements are relaxed.
+# mypy: ignore-errors
 
 import csv
 import sys
