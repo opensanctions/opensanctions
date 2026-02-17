@@ -41,13 +41,13 @@ assertions:
 
 
 lookups:
-  - type.address:
-      options:
-        - match: "Av Paseo de la Reforma No. 135, Hemiciclo Piso 5, Oficina 22, Col. Tabacalera, Alcaldía Cuauhtémoc, Cd. de México, C. P. 06030. , <p>Secretario Particular: Lic. Gerardo Alcántara.</p>"
-          value: "Av Paseo de la Reforma No. 135, Hemiciclo Piso 5, Oficina 22, Col. Tabacalera, Alcaldía Cuauhtémoc, Cd. de México, C. P. 06030"
-        - match: "Av Paseo de la Reforma No. 135, Hemiciclo Piso 6, Oficina 26, Col. Tabacalera, Alcaldía Cuauhtémoc, Cd. de México, C. P. 06030. <br>, Secretario particular: Mtra. Andrea Vega García. E-mail: andrea.vega@senado.gob.mx"
-          value: "Av Paseo de la Reforma No. 135, Hemiciclo Piso 6, Oficina 26, Col. Tabacalera, Alcaldía Cuauhtémoc, Cd. de México, C. P. 06030"
-        - match: "Av Paseo de la Reforma No. 135, Hemiciclo Piso 4, Oficina 12, Col. Tabacalera, Alcaldía Cuauhtémoc, Cd. de México, C. P. 06030. , <p>Secretario particular: Gerson Castillo Frias.</p>"
-          value: "Av Paseo de la Reforma No. 135, Hemiciclo Piso 4, Oficina 12, Col. Tabacalera, Alcaldía Cuauhtémoc, Cd. de México, C. P. 06030"
-        - match: "Av Paseo de la Reforma No. 135, Hemiciclo Piso 5, Oficina 25, Col. Tabacalera, Alcaldía Cuauhtémoc, Cd. de México, C. P. 06030. , <p>Secretaria particular: Lic. Rubi Reyes Rivas.</p>"
-          value: "Av Paseo de la Reforma No. 135, Hemiciclo Piso 5, Oficina 25, Col. Tabacalera, Alcaldía Cuauhtémoc, Cd. de México, C. P. 06030"
+  type.address:
+    options:
+      - match: "Av Paseo de la Reforma No. 135, Hemiciclo Piso 5, Oficina 22, Col. Tabacalera, Alcaldía Cuauhtémoc, Cd. de México, C. P. 06030. \r\n<p>Secretario Particular: Lic. Gerardo Alcántara.</p>"
+        value: "Av Paseo de la Reforma No. 135, Hemiciclo Piso 5, Oficina 22, Col. Tabacalera, Alcaldía Cuauhtémoc, Cd. de México, C. P. 06030"
+      - match: "Av Paseo de la Reforma No. 135, Hemiciclo Piso 6, Oficina 26, Col. Tabacalera, Alcaldía Cuauhtémoc, Cd. de México, C. P. 06030. <br>\r\nSecretario particular: Mtra. Andrea Vega García. E-mail: andrea.vega@senado.gob.mx"
+        value: "Av Paseo de la Reforma No. 135, Hemiciclo Piso 6, Oficina 26, Col. Tabacalera, Alcaldía Cuauhtémoc, Cd. de México, C. P. 06030"
+      - match: "Av Paseo de la Reforma No. 135, Hemiciclo Piso 4, Oficina 12, Col. Tabacalera, Alcaldía Cuauhtémoc, Cd. de México, C. P. 06030. \r\n<p>Secretario particular: Gerson Castillo Frias.</p>"
+        value: "Av Paseo de la Reforma No. 135, Hemiciclo Piso 4, Oficina 12, Col. Tabacalera, Alcaldía Cuauhtémoc, Cd. de México, C. P. 06030"
+      - match: "Av Paseo de la Reforma No. 135, Hemiciclo Piso 5, Oficina 25, Col. Tabacalera, Alcaldía Cuauhtémoc, Cd. de México, C. P. 06030. \r\n<p>Secretaria particular: Lic. Rubi Reyes Rivas.</p>"
+        value: "Av Paseo de la Reforma No. 135, Hemiciclo Piso 5, Oficina 25, Col. Tabacalera, Alcaldía Cuauhtémoc, Cd. de México, C. P. 06030"
