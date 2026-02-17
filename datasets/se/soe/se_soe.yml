@@ -1,0 +1,134 @@
+title: Sweden State-Owned Enterprises Leadership
+prefix: se-soe
+# https://www.regeringen.se/rapporter/2025/06/verksamhetsberattelse-for-bolag-med-statligt-agande-2024/
+url: https://www.regeringen.se/regeringens-politik/bolag-med-statligt-agande/
+coverage:
+  frequency: never
+  start: 2026-02-16
+load_statements: true
+manual_check:
+  last_checked: "2026-02-16"
+  interval: 182
+  message: |
+    Check if a new Swedish SOE report is available and update if needed.
+    The current report is from 2024.
+
+    IMPORTANT: This crawler requires manual setup for new reports:
+    1. Update the 'company_names' lookup table in this YAML with mappings from
+       PDF text snippets to official company names (run once to identify missing entries)
+    2. After extraction, manually review and correct the output CSV - name parsing
+       may split/merge names incorrectly or miss people entirely
+
+    The final dataset requires manual quality control before publishing.
+
+    NOTE: Check if the data has become available in machine-readable format
+    (e.g., structured data, API, or database).
+deploy:
+  schedule: "@monthly"
+entry_point: crawler.py
+summary: >-
+  Leadership positions in Swedish state-owned enterprises, including board chairs,
+  board members, and CEOs.
+description: |
+  This dataset contains information about politically exposed persons (PEPs) in leadership
+  roles at Swedish state-owned enterprises (SOEs). It includes chairs of the board, board
+  members, and CEOs. These individuals hold significant positions in companies where
+  the Swedish state is a major or controlling shareholder.
+tags:
+  - list.pep
+publisher:
+  name: Regeringskansliet
+  name_en: Government Offices of Sweden
+  description: |
+    Regeringskansliet (the Swedish Government Offices) is a government agency that supports the Swedish
+    government in governing the country and implementing its policies. It acts as the central administrative
+    body, comprising the Prime Minister's Office, ten ministries, and the Government Offices' Office for
+    Administrative Affairs.
+  country: "se"
+  url: https://www.government.se/
+  official: true
+data:
+  url: https://docs.google.com/spreadsheets/d/e/2PACX-1vRh228yjuPs99Gvj5ckWt96Mi7Ze0g1r9iy3pjQDL2GAnbL8cQAT0iyFTYj_yXPfOfP63ktSnr2ePoA/pub?gid=0&single=true&output=csv
+  format: CSV
+  lang: swe
+
+
+lookups:
+  company_names:
+    options:
+      - match: 'Akademiska Hus Aktiebolag äger, utvecklar och förv'
+        name: Akademiska Hus Aktiebolag
+      - match: 'Almi AB ska, som ett komplement till den privata m'
+        name: Almi AB
+      - match: 'Apotek Produktion & Laboratorier AB (APL) utveckla'
+        name: Apotek Produktion & Laboratorier AB
+      - match: 'Apoteket AB erbjuder läkemedel, apoteksprodukter o'
+        name: Apoteket AB
+      - match: 'Arlandabanan Infrastructure AB (AIAB) äger och för'
+        name: Arlandabanan Infrastructure AB
+      - match: 'Green Cargo AB är Sveriges största aktör inom håll'
+        name: Green Cargo AB
+      - match: 'AB Göta kanalbolag driver och förvaltar Göta kanal'
+        name: AB Göta kanalbolag
+      - match: 'Infranord AB är det ledande järnvägsentreprenadbol'
+        name: Infranord AB
+      - match: 'Jernhusen AB äger, utvecklar och förvaltar station'
+        name: Jernhusen AB
+      - match: 'Kungliga Dramatiska teatern Aktiebolag (Dramaten)'
+        name: Kungliga Dramatiska teatern Aktiebolag
+      - match: 'Kungliga Operan Aktiebolag (Operan) är Sveriges na'
+        name: Kungliga Operan Aktiebolag
+      - match: 'LuossavaaraKiirunavaara Aktiebolag (LKAB) är mode'
+        name: Luossavaara-Kiirunavaara Aktiebolag
+      - match: 'Miljömärkning Sverige AB förvaltar på regeringens'
+        name: Miljömärkning Sverige AB
+      - match: 'PostNord AB är ledande inom paket och logistiktjä'
+        name: PostNord AB
+      - match: 'RISE Research Institutes of Sweden AB (RISE) är et'
+        name: RISE Research Institutes of Sweden AB
+      - match: 'Samhall Aktiebolag ska, som en del av den svenska'
+        name: Samhall Aktiebolag
+      - match: 'Saminvest AB är ett riskkapitalbolag med uppdrag a'
+        name: Saminvest AB
+      - match: 'SBAB Bank AB (publ) (SBAB) erbjuder lån, sparande'
+        name: SBAB Bank AB
+      - match: 'SJ AB är den största operatören av persontrafik på'
+        name: SJ AB
+      - match: 'SOS Alarm Sverige AB ska på uppdrag av staten ansv'
+        name: SOS Alarm Sverige AB
+      - match: 'Specialfastigheter Sverige Aktiebolag äger, utveck'
+        name: Specialfastigheter Sverige Aktiebolag
+      - match: 'Statens Bostadsomvandling AB förvärvar, utvecklar,'
+        name: Statens Bostadsomvandling AB
+      - match: 'Sveaskog AB är Sveriges största skogsägare och för'
+        name: Sveaskog AB
+      - match: 'Aktiebolaget Svensk Exportkredit (SEK) ska på komm'
+        name: Aktiebolaget Svensk Exportkredit
+      - match: 'SvenskDanska Broförbindelsen SVEDAB AB (Svedab) ä'
+        name: Svensk-Danska Broförbindelsen SVEDAB AB
+      - match: 'Svenska rymdaktiebolaget (SSC) är en global levera'
+        name: Svenska rymdaktiebolaget
+      - match: 'Svenska skeppshypotekskassan (Skeppshypotek) under'
+        name: Svenska skeppshypotekskassan
+      - match: 'AB Svenska Spel med dotterbolag är verksamt inom f'
+        name: AB Svenska Spel
+      - match: 'Svevia AB (publ) bildades 2009 när Vägverkets enhe'
+        name: Svevia AB
+      - match: 'Swedavia AB driver och utvecklar tio flygplatser i'
+        name: Swedavia AB
+      - match: 'Sweden House är ett ryskt aktiebolag som ägs av La'
+        name: Sweden House
+      - match: 'Swedfund International AB (Swedfund) är en utveckl'
+        name: Swedfund International AB
+      - match: 'Systembolaget Aktiebolag bedriver, med ensamrätt,'
+        name: Systembolaget Aktiebolag
+      - match: 'Telia Company AB (Telia) är nordisk och baltisk le'
+        name: Telia Company AB
+      - match: 'Teracom Group AB bedriver utsändning och överförin'
+        name: Teracom Group AB
+      - match: 'Vattenfall AB är en av Europas största producenter'
+        name: Vattenfall AB
+      - match: 'V.S. VisitSweden AB:s (VisitSweden:s) uppdrag är a'
+        name: V.S. VisitSweden AB
+      - match: 'Voksenåsen AS är ett norskt aktiebolag, helägt av'
+        name: Voksenåsen AS
