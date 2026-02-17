@@ -1,5 +1,5 @@
 import re
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from followthemoney import registry, Property
 
@@ -35,7 +35,9 @@ XSS_SUSPECT_PATTERN = re.compile(
 )
 
 
-def check_xss_html_smell(entity: "Entity", prop: Property, value: str) -> str | None:
+def check_xss_html_smell(
+    entity: "Entity", prop: Property, *, raw_value: Optional[str], cleaned_value: str
+) -> str | None:
     """A very basic HTML entity and XSS check.
 
     This validator does not guarantee that the value is "safe" to render in any context,
@@ -51,25 +53,26 @@ def check_xss_html_smell(entity: "Entity", prop: Property, value: str) -> str | 
     if prop.type in SKIP_TYPES:
         # URLs are often the source of HTML entities and also often contain characters that
         # look like XSS attempts, but are not.
-        return value
-    has_xss_smell = XSS_SUSPECT_PATTERN.search(value)
-    has_html_entities = HTML_ENTITY_PATTERN.search(value)
+        return cleaned_value
+    has_xss_smell = XSS_SUSPECT_PATTERN.search(cleaned_value)
+    has_html_entities = HTML_ENTITY_PATTERN.search(cleaned_value)
     if not has_xss_smell and not has_html_entities:
-        return value
+        return cleaned_value
 
     # Values that came out of a lookup (i.e. that we manually reviewed) are exempt from this check.
-    if is_type_lookup_value(entity, prop.type, value):
-        return value
+    if is_type_lookup_value(entity, prop.type, cleaned_value):
+        return cleaned_value
 
     log.warning(
-        f"HTML/XSS suspicion in property value: {value}",
+        f"HTML/XSS suspicion in property value: {cleaned_value}",
         entity_id=entity.id,
         prop=prop.name,
         prop_type=prop.type.name,
-        value=value,
+        raw_value=raw_value,
+        cleaned_value=cleaned_value,
     )
     # FIXME: I want to run this in warning mode first, later we need to enable this:
     # Remove for safety unless it's set
     # return None
 
-    return value
+    return cleaned_value

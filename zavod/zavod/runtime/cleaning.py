@@ -92,8 +92,12 @@ def value_clean(
                 )
 
         # Do not check non-text properties
+        # We use NON_LANG_TYPE_NAMES as a proxy for "non-freetext" properties
+        # That's not beautiful, but it works.
         if clean is not None and prop.type not in NON_LANG_TYPE_NAMES:
-            clean = check_xss_html_smell(entity, prop_, clean)
+            clean = check_xss_html_smell(
+                entity, prop_, raw_value=value, cleaned_value=clean
+            )
 
         # We validate Person:*Name properties as names cause they're strings
         # in the FtM model.
