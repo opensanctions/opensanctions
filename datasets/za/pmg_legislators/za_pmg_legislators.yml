@@ -77,7 +77,7 @@ lookups:
           - 30 March 1988
           - 10th October 1979
         value: null
-  type.text:
+  type.string:
     options:
       - match: "DA Constituency Area: Victor Khanye < Delmas > (Constituency Contact, 2014-2019)"
         value: "DA Constituency Area: Victor Khanye (Delmas) (Constituency Contact, 2014-2019)"
