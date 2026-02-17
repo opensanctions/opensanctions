@@ -10,7 +10,7 @@ url: https://www.un.org/securitycouncil/sanctions/1518
 summary: These sanctions target individuals and entities contributing to the conflict
   in Iraq. The measures include asset freezes and arms embargoes to promote peace,
   security, and stability in the region.
-issuer: 2
+issuer: unknown_unsc
 dataset: un_sc_sanctions
 status: published
 aliases:

@@ -10,6 +10,6 @@ url: https://war-sanctions.gur.gov.ua/en/rostec
 summary: Enterprises within the three military holdings of the Russian state corporation
   Rostec, responsible for developing and producing missiles, combat aircraft, and
   engines used in Russia’s war against Ukraine.
-issuer: 60
+issuer: ua_gur
 dataset: ua_war_sanctions
 status: published

@@ -29,7 +29,7 @@ summary: 'The EU has imposed sanctions against Iran in response to its human rig
   Military Support to Russia and Armed Groups: In 2023, the EU imposed sanctions on
   Iran for supplying UAVs to Russia and supporting armed groups, including travel
   bans, asset freezes, and export restrictions.'
-issuer: 46
+issuer: eu_council
 dataset: eu_fsf
 status: published
 aliases:

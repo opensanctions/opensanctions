@@ -12,7 +12,7 @@ summary: These sanctions target individuals and entities involved in Russia's ac
   human rights abuses and destabilizing activities. The comprehensive measures include
   asset freezes, prohibitions on transactions, and restrictions on trade to pressure
   Russia to comply with international norms and support Ukraine's sovereignty.
-issuer: 1
+issuer: us_ofac
 dataset: us_ofac_sdn
 status: published
 aliases:

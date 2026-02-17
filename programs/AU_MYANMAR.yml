@@ -11,6 +11,6 @@ summary: Australia imposes autonomous sanctions in relation to Myanmar in respon
   to the military's actions undermining democracy and committing human rights abuses.
   These sanctions were first imposed in 2018 and have been extended in subsequent
   years to include asset freezes, travel bans, and restrictions on financial services.
-issuer: 12
+issuer: au_dfat
 dataset: au_dfat_sanctions
 status: published

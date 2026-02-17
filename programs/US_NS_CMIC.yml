@@ -11,7 +11,7 @@ summary: This list includes Chinese companies involved in the military-industria
   complex that are not listed as Specially Designated Nationals (SDNs). The measures
   include prohibitions on U.S. investments in these companies to counteract their
   role in enhancing China's military capabilities and ensure U.S. national security.
-issuer: 1
+issuer: us_ofac
 dataset: us_ofac_cons
 status: published
 aliases:

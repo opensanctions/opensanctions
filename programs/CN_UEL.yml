@@ -11,6 +11,6 @@ summary: This list includes foreign entities and individuals deemed unreliable b
   the Chinese government for actions that violate market rules or contractual obligations.
   The measures include restrictions on trade, investment, and other commercial activities
   to protect China's economic interests and ensure fair market practices.
-issuer: 16
+issuer: cn_npc
 dataset: cn_sanctions
 status: published

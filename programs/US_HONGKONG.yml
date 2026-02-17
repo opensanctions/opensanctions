@@ -11,7 +11,7 @@ summary: These sanctions target individuals and entities responsible for undermi
   Hong Kong's autonomy and democratic processes. The measures include asset freezes
   and transaction prohibitions to pressure China to uphold its commitments under the
   Sino-British Joint Declaration and protect Hong Kong's freedoms.
-issuer: 1
+issuer: us_ofac
 dataset: us_ofac_sdn
 status: published
 aliases:

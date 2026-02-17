@@ -11,7 +11,7 @@ summary: These sanctions target major transnational criminal organizations and t
   supporters. The measures include asset freezes and prohibitions on transactions
   to disrupt the financial networks of these organizations and combat their involvement
   in drug trafficking, human trafficking, money laundering, and other illicit activities.
-issuer: 1
+issuer: us_ofac
 dataset: us_ofac_sdn
 status: published
 aliases:

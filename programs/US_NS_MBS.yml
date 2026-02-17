@@ -13,7 +13,7 @@ summary: The Non-SDN Menu-Based Sanctions List (NS-MBS List) identifies individu
   as CAATSA. NS-MBS designations are included in OFAC’s Consolidated Sanctions List
   and marked with the list type “Non-SDN” and program tags like “CAATSA - RUSSIA.”
   Each entry specifies the applicable sanctions and legal basis.
-issuer: 1
+issuer: us_ofac
 dataset: us_ofac_cons
 status: published
 aliases:

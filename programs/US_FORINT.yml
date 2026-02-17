@@ -11,7 +11,7 @@ summary: These sanctions target foreign individuals and entities that have engag
   in, sponsored, concealed, or otherwise been complicit in foreign interference in
   U.S. elections. The measures include asset freezes and prohibitions on transactions
   to safeguard U.S. electoral processes and democratic institutions.
-issuer: 1
+issuer: us_ofac
 dataset: us_ofac_sdn
 status: published
 aliases:

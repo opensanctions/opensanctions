@@ -11,6 +11,6 @@ summary: This list includes individuals and entities designated by Thailand for 
   involvement in terrorism, money laundering, and other illicit activities. The measures
   include asset freezes, travel bans, and prohibitions on transactions to enhance
   national security and prevent financial crimes.
-issuer: 39
+issuer: th_amlo
 dataset: th_designated_person
 status: published

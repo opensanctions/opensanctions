@@ -11,7 +11,7 @@ summary: The CAPTA List contains identifying information of FFIs for which the o
   or maintaining of a correspondent account or a payable-through account is prohibited
   or is subject to one or more strict conditions pursuant to the authorities listed
   below.
-issuer: 8
+issuer: us_state
 dataset: us_ofac_cons
 status: published
 aliases:

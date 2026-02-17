@@ -12,7 +12,7 @@ summary: "These sanctions target individuals and entities involved in destabiliz
   \ The measures include asset freezes and prohibitions on transactions to promote\
   \ peace, security, and democracy in Iraq.\n\n (EO 13668, EO 13438, EO 13364, EO\
   \ 13350, EO 13315, EO 13303, EO 13290)"
-issuer: 1
+issuer: us_ofac
 dataset: us_ofac_sdn
 status: published
 aliases:

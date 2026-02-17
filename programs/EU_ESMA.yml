@@ -19,6 +19,6 @@ summary: 'The MiFID II Suspensions and Removals Register is established under Ar
   interests. Inclusion in this register indicates that specific financial instruments
   are either temporarily suspended from trading or permanently removed from regulated
   markets across the EU.'
-issuer: 54
+issuer: eu_esma
 dataset: eu_esma_saris
 status: published

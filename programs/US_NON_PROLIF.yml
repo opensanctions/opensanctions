@@ -12,7 +12,7 @@ summary: "These sanctions target individuals and entities involved in the prolif
   \ asset freezes and prohibitions on transactions to prevent the spread of nuclear,\
   \ biological, and chemical weapons and maintain international security.\n\n (EO\
   \ 13883, EO 13608, EO 13382, EO 13094, EO 12938)"
-issuer: 1
+issuer: us_ofac
 dataset: us_ofac_sdn
 status: published
 aliases:

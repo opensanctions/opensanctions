@@ -12,6 +12,6 @@ summary: This list is maintained by the Bureau of Industry and Security (BIS). I
   of end-users in export transactions. The inclusion on this list indicates that further
   due diligence is required before engaging in transactions with these entities to
   prevent diversion to unauthorized end uses or users.
-issuer: 5
+issuer: us_bis
 dataset: us_trade_csl
 status: published

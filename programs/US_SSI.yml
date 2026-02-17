@@ -10,6 +10,6 @@ url: https://ofac.treasury.gov/consolidated-sanctions-list-non-sdn-lists/sectora
 summary: This Sectoral Sanctions Identifications List includes persons determined
   by OFAC to be operating in sectors of the Russian economy identified by the Secretary
   of the Treasury pursuant to Executive Order 13662.
-issuer: 1
+issuer: us_ofac
 dataset: us_ofac_cons
 status: published

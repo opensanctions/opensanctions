@@ -14,6 +14,6 @@ summary: The US Department of State's Directorate of Defense Trade Controls (DDT
   to violate the AECA, resulting in automatic statutory debarment that prohibits them
   from participating directly or indirectly in the export of defense articles, technical
   data, and defense services.
-issuer: 8
+issuer: us_state
 dataset: us_ddtc_debarred
 status: published

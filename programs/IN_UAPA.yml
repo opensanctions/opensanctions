@@ -11,6 +11,6 @@ summary: This act lists organizations banned in India for their involvement in u
   activities, including terrorism. The measures include asset freezes, prohibitions
   on activities, and other restrictions to prevent these groups from operating and
   to maintain national security.
-issuer: 20
+issuer: in_india
 dataset: in_mha_banned
 status: published

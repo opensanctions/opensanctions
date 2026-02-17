@@ -15,6 +15,6 @@ summary: A list of properties in Cuba owned or controlled by the Cuban governmen
   Party.  For information regarding the restrictions on transactions with these properties,
   please see 31 CFR 515.210.  All properties were listed effective September 28, 2020,
   unless otherwise indicated.
-issuer: 8
+issuer: us_state
 dataset: us_cuba_sanctions
 status: published

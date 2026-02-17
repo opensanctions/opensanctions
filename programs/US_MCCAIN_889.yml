@@ -12,7 +12,7 @@ summary: This act includes a list of entities subject to sanctions for their inv
   in activities that threaten U.S. national security, including those related to defense,
   cyber threats, and foreign influence operations. The measures include restrictions
   on defense-related transactions and other actions to safeguard U.S. interests.
-issuer: 10
+issuer: us_congress
 dataset: us_special_leg
 status: published
 aliases:

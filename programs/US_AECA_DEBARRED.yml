@@ -12,6 +12,6 @@ summary: This list, maintained by the U.S. Department of State under the Arms Ex
   in defense exports and services. Debarment is imposed for violations of the AECA
   and the International Traffic in Arms Regulations (ITAR), aiming to enforce compliance
   and safeguard U.S. national security interests.
-issuer: 8
+issuer: us_state
 dataset: us_trade_csl
 status: published

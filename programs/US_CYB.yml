@@ -11,7 +11,7 @@ summary: These sanctions target individuals and entities responsible for signifi
   malicious cyber-enabled activities. The measures include asset freezes and transaction
   prohibitions to deter cyber attacks and protect U.S. national security, economic
   stability, and critical infrastructure.
-issuer: 1
+issuer: us_ofac
 dataset: us_ofac_sdn
 status: published
 aliases:

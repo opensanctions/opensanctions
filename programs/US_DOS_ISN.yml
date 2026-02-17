@@ -10,6 +10,6 @@ url: https://www.state.gov/bureau-of-international-security-and-nonproliferation
 summary: The United States imposes sanctions under various legal authorities against
   foreign individuals, private entities, and governments that engage in proliferation
   activities.
-issuer: 8
+issuer: us_state
 dataset: us_trade_csl
 status: published

@@ -21,7 +21,7 @@ summary: 'On August 2, 2017, the President signed into law the "Countering Ameri
 
 
   [Source: U.S. DEPARTMENT OF THE TREASURY](https://ofac.treasury.gov/sanctions-programs-and-country-information/countering-americas-adversaries-through-sanctions-act-related-sanctions)'
-issuer: 48
+issuer: us_treasury
 dataset: wd_oligarchs
 status: published
 aliases:

@@ -11,7 +11,7 @@ summary: This list includes individuals and entities subject to UK sanctions imp
   by the Foreign, Commonwealth & Development Office (FCDO). The measures include asset
   freezes, travel bans, and trade restrictions to address issues such as human rights
   violations, terrorism, and international conflicts.
-issuer: 41
+issuer: gb_fcdo
 dataset: gb_fcdo_sanctions
 status: published
 aliases:

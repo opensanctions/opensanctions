@@ -17,6 +17,6 @@ summary: 'The National Register of Disreputable and Suspended Companies (Cadastr
   Designation under CEIS results in an entity’s inability to enter into contracts
   or participate in bidding processes with public authorities at the federal, state,
   and municipal levels.'
-issuer: 53
+issuer: br_cgu
 dataset: br_ceis
 status: published

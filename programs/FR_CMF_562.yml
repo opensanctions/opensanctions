@@ -11,7 +11,7 @@ summary: This program involves the freezing of assets of individuals and entitie
   involved in terrorism, its financing, and other serious crimes. The measures include
   prohibitions on transactions and asset freezes to prevent the use of funds for illicit
   activities and enhance national security.
-issuer: 18
+issuer: fr_dgt
 dataset: fr_tresor_gels_avoir
 status: published
 aliases:

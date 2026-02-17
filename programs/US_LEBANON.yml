@@ -11,7 +11,7 @@ summary: These sanctions target individuals and entities contributing to politic
   and security instability in Lebanon, including those involved in terrorism, corruption,
   and human rights abuses. The measures include asset freezes and prohibitions on
   transactions to support Lebanon's sovereignty and stability.
-issuer: 1
+issuer: us_ofac
 dataset: us_ofac_sdn
 status: published
 aliases:

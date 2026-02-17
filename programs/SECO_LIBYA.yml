@@ -10,6 +10,6 @@ url: https://www.seco.admin.ch/seco/de/home/Aussenwirtschaftspolitik_Wirtschaftl
 summary: These sanctions target individuals and entities involved in the ongoing conflict
   and human rights abuses in Libya. The measures include asset freezes and prohibitions
   on transactions to promote peace, security, and democratic governance in Libya.
-issuer: 4
+issuer: ch_seco
 dataset: ch_seco_sanctions
 status: published

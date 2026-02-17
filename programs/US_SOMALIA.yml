@@ -10,7 +10,7 @@ url: https://ofac.treasury.gov/sanctions-programs-and-country-information/somali
 summary: These sanctions target individuals and entities contributing to the conflict,
   piracy, and terrorism in Somalia. The measures include asset freezes and prohibitions
   on transactions to promote peace, security, and stability in the region.
-issuer: 1
+issuer: us_ofac
 dataset: us_ofac_sdn
 status: published
 aliases:

@@ -22,6 +22,6 @@ summary: 'The [Human Rights Council (HRC)](https://www.ohchr.org/en/hr-bodies/hr
   settlements on the civil, political, economic, social and cultural rights of the
   Palestinian people throughout the Occupied Palestinian Territory, including East
   Jerusalem (A/HRC/22/63).'
-issuer: 59
+issuer: un_ohchr
 dataset: ps_ohchr_settlement
 status: published

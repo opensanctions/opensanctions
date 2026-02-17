@@ -13,6 +13,6 @@ summary: The US Department of State's Directorate of Defense Trade Controls (DDT
   to administrative debarment. Unlike statutory debarments which result from criminal
   convictions, administrative debarments are civil enforcement actions that prohibit
   designated persons from participating in defense trade activities.
-issuer: 8
+issuer: us_state
 dataset: US-DDTC-AD
 status: published

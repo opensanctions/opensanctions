@@ -9,7 +9,7 @@ key: CA-FACFOA-UKR
 url: https://laws-lois.justice.gc.ca/eng/regulations/SOR-2014-44/index.html
 summary: The Canadian governments maintains a small, Magnitsky-style list of government
   officials that it alleges to be involved in corruption.
-issuer: 6
+issuer: ca_mfa
 dataset: ca_facfoa
 status: published
 aliases:

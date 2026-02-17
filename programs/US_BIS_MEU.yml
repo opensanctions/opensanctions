@@ -12,6 +12,6 @@ summary: This list is maintained by BIS and includes entities that are deemed to
   to prevent the diversion of U.S. goods and technologies for military use in ways
   that could undermine U.S. national security. The list ensures that exports to these
   entities are carefully monitored and controlled.
-issuer: 5
+issuer: us_bis
 dataset: us_trade_csl
 status: published

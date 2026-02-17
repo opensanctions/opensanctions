@@ -11,7 +11,7 @@ summary: These sanctions target individuals and entities involved in actions tha
   threaten the peace, security, and stability of South Sudan. The measures include
   asset freezes and prohibitions on transactions to support the resolution of the
   conflict and promote democratic governance in South Sudan.
-issuer: 1
+issuer: us_ofac
 dataset: us_ofac_sdn
 status: published
 aliases:

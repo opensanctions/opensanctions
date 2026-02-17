@@ -12,6 +12,6 @@ summary: These sanctions target individuals and entities responsible for cyber-a
   that threaten the security of the European Union or its member states. The measures
   include asset freezes and prohibitions on transactions to deter and respond to malicious
   cyber activities.
-issuer: 46
+issuer: eu_council
 dataset: eu_fsf
 status: published

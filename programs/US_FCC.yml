@@ -19,7 +19,7 @@ summary: Section 1.50002 of the US Federal Communications Commission’s rules d
   to the Commission’s rules, the Public Safety and Homeland Security Bureau will maintain
   this list on the Commission’s website, and will monitor the status of any determinations
   in order to update the Covered List.
-issuer: 7
+issuer: us_fcc
 dataset: us_fcc_covered_list
 status: published
 aliases:

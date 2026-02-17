@@ -12,7 +12,7 @@ summary: These sanctions aim to address threats to international stability and s
   that undermine democratic processes, obstruct the implementation of peace agreements,
   or are involved in significant corruption. The measures include asset freezes and
   travel bans to promote peace and stability in the region.
-issuer: 1
+issuer: us_ofac
 dataset: us_ofac_sdn
 status: published
 aliases:

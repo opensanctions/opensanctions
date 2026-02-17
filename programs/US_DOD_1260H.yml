@@ -12,7 +12,7 @@ summary: This list, maintained by the U.S. Department of Defense, identifies Chi
   include restrictions on investments and transactions to prevent these companies
   from supporting China's military modernisation efforts and to protect U.S. national
   security.
-issuer: 9
+issuer: us_dod
 dataset: us_dod_chinese_milcorps
 status: published
 aliases:

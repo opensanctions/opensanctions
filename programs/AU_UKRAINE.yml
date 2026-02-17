@@ -19,6 +19,6 @@ summary: 'Australia imposes autonomous sanctions in relation to Ukraine in respo
   in our database.
 
   '
-issuer: 12
+issuer: au_dfat
 dataset: au_dfat_sanctions
 status: published

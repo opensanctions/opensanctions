@@ -12,6 +12,6 @@ summary: This list is maintained by BIS, includes includes individuals and entit
   The denial of export privileges means these parties are prohibited from participating
   in transactions involving items subject to the Export Administration Regulations
   (EAR), helping to enforce compliance with export control regulations.
-issuer: 5
+issuer: us_bis
 dataset: us_trade_csl
 status: published

@@ -11,6 +11,6 @@ summary: These sanctions target individuals and entities involved in terrorism f
   and other serious crimes in Singapore. The measures include asset freezes, prohibitions
   on transactions, and other financial restrictions to prevent the misuse of funds
   for illicit purposes and enhance national security.
-issuer: 38
+issuer: sg_mas
 dataset: sg_terrorists
 status: published

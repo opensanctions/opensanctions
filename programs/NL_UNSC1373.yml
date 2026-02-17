@@ -12,6 +12,6 @@ summary: The Netherlands implements UN Security Council Resolution 1373 (2001) t
   activities. The regime imposes asset freezes on designated persons and entities,
   preventing them from accessing bank accounts, using credit cards, or engaging in
   financial transactions.
-issuer: 32
+issuer: nl_mfa
 dataset: nl_terrorism_list
 status: published

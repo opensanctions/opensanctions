@@ -19,6 +19,6 @@ summary: 'Pursuant to Section 219 of the INA, the Secretary of State is authoriz
   212(a)(3)(B) of the INA (8 U.S.C. §1182(a)(3)(B)) and the definition of "terrorism"
   in Section 140(d)(2) of the Foreign Relations Authorization Act, Fiscal Years 1988
   and 1989 (FRAA, P.L. 100-204, as amended; 22 U.S.C. §2656f(d)(2)).'
-issuer: 8
+issuer: us_state
 dataset: us_state_terrorist_orgs
 status: published

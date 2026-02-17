@@ -13,6 +13,6 @@ summary: OIG has the authority to exclude individuals and entities from Federall
   Act) and maintains a list of all currently excluded individuals and entities called
   the List of Excluded Individuals/Entities (LEIE). Anyone who hires an individual
   or entity on the LEIE may be subject to civil monetary penalties (CMP).
-issuer: 57
+issuer: us_hhs_oig
 dataset: us_hhs_exclusions
 status: published

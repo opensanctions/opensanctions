@@ -15,7 +15,7 @@ summary: These sanctions target the Iranian government and entities involved in 
   EO 13599, EO 13553, EO 13059, EO 12595, EO 12957, EO 12613, EO 12294, EO 12284,
   EO 12283, EO 12281, EO 12280, EO 12279, EO 12278, EO 12277, EO 12276, EO 12211,
   EO 12205, EO 12170)
-issuer: 1
+issuer: us_ofac
 dataset: us_ofac_sdn
 status: published
 aliases:

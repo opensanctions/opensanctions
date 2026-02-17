@@ -15,7 +15,7 @@ summary: The Export Administration Regulations (EAR) contain a list of names of 
   No. 4 to Part 744 of the EAR. On an individual basis, the persons on the Entity
   List are subject to licensing requirements and policies supplemental to those found
   elsewhere in the EAR.
-issuer: 5
+issuer: us_bis
 dataset: us_trade_csl
 status: published
 aliases:

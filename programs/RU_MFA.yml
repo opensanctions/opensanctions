@@ -15,6 +15,6 @@ summary: US citizens targeted by the Russian Federation with personal sanctions,
   in support of democratic values, accountability, and human rights. By naming these
   individuals, the Russian government aims to silence dissent and deter criticism
   of its actions on the global stage.
-issuer: 51
+issuer: ru_mfa
 dataset: ru_mfa_sanctions
 status: published

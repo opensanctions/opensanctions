@@ -12,6 +12,6 @@ summary: This list includes enforcement actions taken by the U.S. Federal Reserv
   The measures can include fines, restrictions, or bans on certain activities to ensure
   compliance with financial laws and regulations and maintain the stability and integrity
   of the U.S. banking system.
-issuer: 11
+issuer: us_frb
 dataset: us_fed_enforcements
 status: published

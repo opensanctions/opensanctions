@@ -10,7 +10,7 @@ url: https://science.gc.ca/site/science/en/safeguarding-your-research/guidelines
 summary: A list of universities, research institutes and/or laboratories connected
   to military, national defence, or state security entities that could pose a risk
   to Canada’s national security.
-issuer: 6
+issuer: ca_mfa
 dataset: ca_named_research_orgs
 status: published
 aliases:

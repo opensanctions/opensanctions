@@ -11,7 +11,7 @@ summary: This list, maintained by OFAC, includes individuals and entities that h
   engaged in activities to evade U.S. sanctions. The measures include asset freezes
   and prohibitions on transactions to enforce U.S. sanctions programs and prevent
   these actors from undermining U.S. foreign policy objectives.
-issuer: 1
+issuer: us_ofac
 dataset: us_ofac_cons
 status: published
 aliases:

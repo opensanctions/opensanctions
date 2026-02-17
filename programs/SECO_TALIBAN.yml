@@ -9,6 +9,6 @@ key: SECO-TALIBAN
 url: https://www.seco.admin.ch/seco/de/home/Aussenwirtschaftspolitik_Wirtschaftliche_Zusammenarbeit/Wirtschaftsbeziehungen/exportkontrollen-und-sanktionen/sanktionen-embargos/sanktionsmassnahmen/massnahmen-gegenueber-personen-und-organisationen-mit-verbindung1
 summary: These measures target individuals and groups associated with the Taliban
   who pose a threat to the peace, stability and security of Afghanistan.
-issuer: 4
+issuer: ch_seco
 dataset: ch_seco_sanctions
 status: published

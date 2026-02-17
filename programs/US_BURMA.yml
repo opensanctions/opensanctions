@@ -11,7 +11,7 @@ summary: These sanctions target the Burmese military and entities connected to i
   in response to the coup and subsequent human rights abuses. The measures include
   asset freezes and prohibitions on transactions with designated individuals and entities,
   aiming to restore democratic governance and protect human rights in Burma.
-issuer: 1
+issuer: us_ofac
 dataset: us_ofac_cons
 status: published
 aliases:

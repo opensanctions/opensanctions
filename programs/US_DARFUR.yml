@@ -11,7 +11,7 @@ summary: These sanctions target individuals and entities responsible for human r
   abuses and obstructing peace processes in Sudan and Darfur. The measures include
   asset freezes and prohibitions on transactions to pressure the Sudanese government
   and other actors to respect human rights and engage in peaceful negotiations.
-issuer: 1
+issuer: us_ofac
 dataset: us_ofac_sdn
 status: published
 aliases:

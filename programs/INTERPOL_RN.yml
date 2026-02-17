@@ -22,6 +22,6 @@ summary: 'INTERPOL Red Notices are established under the INTERPOL Constitution (
   member country''s judicial authorities for serious criminal offenses, subject to
   review by INTERPOL''s Notices and Diffusions Task Force for constitutional and legal
   compliance.'
-issuer: 55
+issuer: zz_icpo_interpol
 dataset: interpol_red_notices
 status: published
