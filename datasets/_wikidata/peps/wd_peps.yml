@@ -100,6 +100,8 @@ lookups:
         value: null
       - match: "1973-09-31"
         value: 1973-09
+      - match: "2024-09-31"
+        value: 2024-09
       - match: "2011-02-29"
         value: 2011-02
       - match: "1949-02-29"
