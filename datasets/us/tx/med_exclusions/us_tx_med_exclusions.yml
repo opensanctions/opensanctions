@@ -60,68 +60,68 @@ lookups:
           - 1225533057
           - 118771347
         prop: registrationNumber
-  aliases:
+  names:
     options:
       - match: Pro Medic EMS, LLC dba Pro Medic EMS, LLC
-        aliases:
+        names:
           - Pro Medic EMS, LLC
       - match: Executive Healthcare, LLC d/b/a The Apothecary Sho
-        aliases:
+        names:
           - Executive Healthcare, LLC
           - The Apothecary Shop
       - match: ERX Consultants LLC, dba Zoetic Pharmacy
-        aliases:
+        names:
           - ERX Consultants LLC
           - Zoetic Pharmacy
       - match: Ukie Emergency Medical Services, Inc. d/b/a Ukie E
-        aliases:
+        names:
           - Ukie Emergency Medical Services, Inc
           - Ukie EMS
       - match: Maxim Mossman PLLC dba Amigos Dental
-        aliases:
+        names:
           - Maxim Mossman PLLC
           - Amigos Dental
       - match: Sechanz Enterprises Inc. d/b/a Hovic Pharmacy and
-        aliases:
+        names:
           - Sechanz Enterprises Inc
           - Hovic Pharmacy
       - match: MossPrime Dental PLLC dba North Arlington Smiles
-        aliases:
+        names:
           - MossPrime Dental PLLC
           - North Arlington Smiles
       - match: RightChoice Dental, PLLC dba The Dental House
-        aliases:
+        names:
           - RightChoice Dental, PLLC
           - The Dental House
       - match: Mossman Dental, PLLC dba The Dental  Park
-        aliases:
+        names:
           - Mossman Dental, PLLC
           - The Dental Park
       - match: Pharmplex LTD III dba Penitas Family Pharmacy
-        aliases:
+        names:
           - Pharmplex LTD III
           - Penitas Family Pharmacy
       - match: Western Dental dba West Texas Dental
-        aliases:
+        names:
           - Western Dental
           - West Texas Dental
       - match: M Ayman Ghraowi, MD PA dba South Texas Comprehensi
-        aliases:
+        names:
           - M Ayman Ghraowi, MD PA
           - South Texas Comprehensive Cancer Centers PLLC (STCCC)
       - match: Southwest Medical Consultants Inc. d/b/a Los Ninos
-        aliases:
+        names:
           - Southwest Medical Consultants Inc
           - Los Ninos Pediatric Rehab
       - match: Acosta Medical Supply, Inc. dba Affordab
-        aliases:
+        names:
           - Acosta Medical Supply, Inc
           - Affordable Medical Supply
       - match: Family Healthcare, Inc d/b/a Unique Medical & Reha
-        alises:
+        names:
           - Family Healthcare, Inc
           - Unique Medical & Reha  # could be Rehab or Rehabilitation, i was able to find them in the registry but without the alias: https://comptroller.texas.gov/taxes/franchise/account-status/search/18707535466
       - match: SCZ Investments, LLC d/b/a Rotunda Pharmacy
-        aliases:
+        names:
           - SCZ Investments, LLC
           - Rotunda Pharmacy

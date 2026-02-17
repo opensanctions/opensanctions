@@ -42,12 +42,12 @@ def crawl_row(drow: Dict[str, Any], context: Context, wb: xlrd.book.Book) -> Non
         entity.add("description", occupation)
 
         if contains_split_phrase(company_name):
-            res = context.lookup("aliases", company_name, warn_unmatched=True)
-            if res is not None and res.aliases:
-                cleaned_company_name = res.aliases[0]
-                aliases = res.aliases[1:]
-                entity.add("name", cleaned_company_name)
-                entity.add("alias", aliases)
+            res = context.lookup("names", company_name, warn_unmatched=True)
+            if res is not None:
+                entity.add("name", res.names[0], original_value=company_name)
+                entity.add("alias", res.names[1:], original_value=company_name)
+            else:
+                entity.add("name", company_name)
         else:
             entity.add("name", company_name)
 
