@@ -170,12 +170,10 @@ def crawl_membership(
         status=override_status,
     )
 
-    if not occupancy:
-        return
-
-    context.emit(entity)
-    context.emit(position)
-    context.emit(occupancy)
+    if occupancy is not None:
+        context.emit(entity)
+        context.emit(position)
+        context.emit(occupancy)
 
 
 def crawl(context: Context):
