@@ -73,16 +73,12 @@ lookups:
         value: null
       - match: 09-Jan-0721
         value:
-          - 09-Jan-07
-          - 21-Nov-24
-      - match: 09-Sep-2227
+          - 2007-01-09
+      - match:
+          - 09-Sep-2227
+          - 09-Sep-2221
         value:
-          - 09-Sep-22
-          - 27-May-21
-      - match: 09-Sep-2221
-        value:
-          - 09-Sep-22
-          - 21-Oct-21
+          - 2022-09-22
   override_name:
     lowercase: true
     normalize: true
