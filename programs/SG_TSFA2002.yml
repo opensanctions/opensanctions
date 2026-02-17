@@ -1,0 +1,16 @@
+id: 178
+sort: 107
+user_created: b5d15d63-f9b3-43bf-922d-2578139a949c
+date_created: '2024-06-04T14:50:25.086Z'
+user_updated: adaf0b89-bde0-47c2-9dc1-b64fedce7810
+date_updated: '2024-06-24T12:32:51.913Z'
+title: Terrorism (Suppression of Financing) Act 2002
+key: SG-TSFA2002
+url: https://sso.agc.gov.sg/Act/TSFA2002?ProvIds=Sc1-#Sc1-
+summary: These sanctions target individuals and entities involved in terrorism financing
+  and other serious crimes in Singapore. The measures include asset freezes, prohibitions
+  on transactions, and other financial restrictions to prevent the misuse of funds
+  for illicit purposes and enhance national security.
+issuer: 38
+dataset: sg_terrorists
+status: published

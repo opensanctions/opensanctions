@@ -1,0 +1,24 @@
+id: 41
+sort: 184
+user_created: b5d15d63-f9b3-43bf-922d-2578139a949c
+date_created: '2024-05-30T13:43:27.337Z'
+user_updated: f83b9691-33ac-41af-8675-9d94707d4312
+date_updated: '2024-06-23T19:10:56.247Z'
+title: List of Equipment and Services Covered By Section 2 of The Secure Networks
+  Act
+key: US-FCC
+url: https://www.fcc.gov/supplychain/coveredlist
+summary: Section 1.50002 of the US Federal Communications Commission’s rules directs
+  the Public Safety and Homeland Security Bureau to publish a list of communications
+  equipment and services (Covered List) that are deemed to pose an unacceptable risk
+  to the national security of the United States or the security and safety of United
+  States persons, based exclusively on any of four sources for such a determination
+  and that such equipment or services possess certain capabilities as enumerated in
+  section 2(a) of the Secure and Trusted Communications Networks Act of 2019, Pub.
+  L. No. 116-124, 133 Stat. 158 (2020) (codified as amended at 47 U.S.C. §§ 1601–1609).  Pursuant
+  to the Commission’s rules, the Public Safety and Homeland Security Bureau will maintain
+  this list on the Commission’s website, and will monitor the status of any determinations
+  in order to update the Covered List.
+issuer: 7
+dataset: us_fcc_covered_list
+status: published

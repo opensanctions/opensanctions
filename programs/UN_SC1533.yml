@@ -1,0 +1,17 @@
+id: 105
+sort: 158
+user_created: b5d15d63-f9b3-43bf-922d-2578139a949c
+date_created: '2024-05-31T09:31:45.613Z'
+user_updated: b4617b0d-fb2e-49db-b63c-138b9263cae0
+date_updated: '2025-02-07T16:15:53.774Z'
+title: Democratic Republic Of Congo Sanctions
+key: UN-SC1533
+url: https://www.un.org/securitycouncil/sanctions/1533
+summary: These sanctions target individuals and groups responsible for instability
+  and violence in the Democratic Republic of the Congo (DRC). This includes political
+  and military leaders obstructing disarmament, those recruiting child soldiers, individuals
+  violating international law, and those financing illegal armed groups through the
+  illicit trade of natural resources.
+issuer: 2
+dataset: un_sc_sanctions
+status: published

@@ -1,0 +1,15 @@
+id: 50
+sort: 119
+user_created: b5d15d63-f9b3-43bf-922d-2578139a949c
+date_created: '2024-05-30T13:56:10.736Z'
+user_updated: f83b9691-33ac-41af-8675-9d94707d4312
+date_updated: '2024-06-05T14:37:05.981Z'
+title: Sectoral Sanctions Identifications (SSI) List
+key: US-SSI
+url: https://ofac.treasury.gov/consolidated-sanctions-list-non-sdn-lists/sectoral-sanctions-identifications-ssi-list
+summary: This Sectoral Sanctions Identifications List includes persons determined
+  by OFAC to be operating in sectors of the Russian economy identified by the Secretary
+  of the Treasury pursuant to Executive Order 13662.
+issuer: 1
+dataset: us_ofac_cons
+status: published

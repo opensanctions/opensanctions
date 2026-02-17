@@ -1,0 +1,16 @@
+id: 179
+sort: 126
+user_created: b5d15d63-f9b3-43bf-922d-2578139a949c
+date_created: '2024-06-04T14:51:22.367Z'
+user_updated: f83b9691-33ac-41af-8675-9d94707d4312
+date_updated: '2024-06-24T09:42:56.836Z'
+title: List of designated persons under Section 7
+key: TH-SEC-7
+url: https://aps.amlo.go.th/aps/public/thailandlist/search?un_name=&un_registration_number=&passport_no=&un_id=
+summary: This list includes individuals and entities designated by Thailand for their
+  involvement in terrorism, money laundering, and other illicit activities. The measures
+  include asset freezes, travel bans, and prohibitions on transactions to enhance
+  national security and prevent financial crimes.
+issuer: 39
+dataset: th_designated_person
+status: published

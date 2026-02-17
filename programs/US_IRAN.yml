@@ -1,0 +1,20 @@
+id: 21
+sort: 16
+user_created: b5d15d63-f9b3-43bf-922d-2578139a949c
+date_created: '2024-05-30T13:13:47.460Z'
+user_updated: adaf0b89-bde0-47c2-9dc1-b64fedce7810
+date_updated: '2024-06-24T12:17:18.330Z'
+title: 'Iran Sanctions '
+key: US-IRAN
+url: https://ofac.treasury.gov/sanctions-programs-and-country-information/iran-sanctions
+summary: These sanctions target the Iranian government and entities involved in nuclear
+  proliferation, terrorism, human rights abuses, and other destabilizing activities.
+  The comprehensive measures include asset freezes, prohibitions on transactions,
+  and restrictions on trade to pressure Iran to comply with international norms and
+  agreements. (EO 13949, EO 13902, EO 13876, EO 13871, EO 13846, EO 13608, EO 13606,
+  EO 13599, EO 13553, EO 13059, EO 12595, EO 12957, EO 12613, EO 12294, EO 12284,
+  EO 12283, EO 12281, EO 12280, EO 12279, EO 12278, EO 12277, EO 12276, EO 12211,
+  EO 12205, EO 12170)
+issuer: 1
+dataset: us_ofac_sdn
+status: published

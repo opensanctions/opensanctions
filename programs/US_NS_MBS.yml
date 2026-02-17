@@ -1,0 +1,18 @@
+id: 277
+sort: null
+user_created: b4617b0d-fb2e-49db-b63c-138b9263cae0
+date_created: '2025-05-19T19:55:04.575Z'
+user_updated: b4617b0d-fb2e-49db-b63c-138b9263cae0
+date_updated: '2025-05-23T14:55:11.481Z'
+title: Non-SDN Menu-Based Sanctions List (NS-MBS List)
+key: US-NS-MBS
+url: https://www.treasury.gov/ofac/downloads/mbs/mbslist.pdf
+summary: The Non-SDN Menu-Based Sanctions List (NS-MBS List) identifies individuals
+  and entities subject to sanctions that fall short of full blocking. These may include
+  prohibitions on specific transactions or imports, imposed under authorities such
+  as CAATSA. NS-MBS designations are included in OFAC’s Consolidated Sanctions List
+  and marked with the list type “Non-SDN” and program tags like “CAATSA - RUSSIA.”
+  Each entry specifies the applicable sanctions and legal basis.
+issuer: 1
+dataset: us_ofac_cons
+status: published

@@ -1,0 +1,19 @@
+id: 290
+sort: null
+user_created: b4617b0d-fb2e-49db-b63c-138b9263cae0
+date_created: '2025-09-11T10:11:21.884Z'
+user_updated: null
+date_updated: null
+title: US DDTC Penalties & Oversight Agreements
+key: US-DDTC-ENFORCEMENT
+url: https://www.pmddtc.state.gov/ddtc_public?id=ddtc_kb_article_page&sys_id=384b968adb3cd30044f9ff621f961941
+summary: Under the International Traffic in Arms Regulations (ITAR) §127.10, the Assistant
+  Secretary for Political-Military Affairs is empowered to impose civil penalties
+  for violations of the Arms Export Control Act (AECA) and the ITAR. Such penalties
+  typically involve monetary fines paid to the U.S. Treasury and the conclusion of
+  a Consent Agreement. Through this agreement, the company commits to implementing
+  strengthened compliance measures, with specific requirements set out to ensure improvements
+  in its compliance program.
+issuer: 8
+dataset: us_ddtc_enforcements
+status: published

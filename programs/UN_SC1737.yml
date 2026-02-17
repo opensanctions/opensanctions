@@ -1,0 +1,16 @@
+id: 301
+sort: null
+user_created: 9dc0d629-520b-4c06-a6c7-7edd82079bb9
+date_created: '2025-09-29T14:59:42.538Z'
+user_updated: 9dc0d629-520b-4c06-a6c7-7edd82079bb9
+date_updated: '2025-09-29T15:02:23.780Z'
+title: Sanctions on Iran for continued Uranian Enrichment
+key: UN-SC1737
+url: https://main.un.org/securitycouncil/en/s/res/1737-%282006%29
+summary: UN Security Council resolution 1737 (2006) imposes sanctions on Iran for
+  failing to stop its uranium enrichment programme following resolution 1696 (2006);  imposes
+  a ban the supply of nuclear-related technology and materials and imposes assets
+  freeze on key individuals and companies related to the enrichment programme.
+issuer: 2
+dataset: un_sc_sanctions,fr_tresor_gels_avoir
+status: published

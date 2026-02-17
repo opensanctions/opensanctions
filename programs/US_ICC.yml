@@ -1,0 +1,22 @@
+id: 282
+sort: null
+user_created: 9dc0d629-520b-4c06-a6c7-7edd82079bb9
+date_created: '2025-06-04T10:14:27.423Z'
+user_updated: 9dc0d629-520b-4c06-a6c7-7edd82079bb9
+date_updated: '2025-06-05T14:22:24.103Z'
+title: International Criminal Court-Related Sanctions
+key: US-ICC
+url: https://ofac.treasury.gov/sanctions-programs-and-country-information/international-criminal-court-related-sanctions
+summary: 'This sanctions program targets anyone involved with any process of the ICC
+  to investigate or prosecute a protected person without the consent of that person''s
+  country of nationality. Protected persons, as defined in [Executive Order 14203](https://ofac.treasury.gov/media/933981/download?inline),
+  include any US person, unless the US consents to ICC jurisdiction over this person
+  or becomes party to the Rome Statute.
+
+
+  It was established in the context of the ICC issuing warrants for arrest of Israeli
+  Prime Minister Benjamin Netanyahu and Former Minister of Defense Yoav Gallant for
+  alleged crimes against humanity and war crimes.'
+issuer: 1
+dataset: us_ofac_sdn
+status: published

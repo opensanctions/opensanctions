@@ -1,0 +1,22 @@
+id: 291
+sort: null
+user_created: b4617b0d-fb2e-49db-b63c-138b9263cae0
+date_created: '2025-09-12T09:15:28.244Z'
+user_updated: b4617b0d-fb2e-49db-b63c-138b9263cae0
+date_updated: '2025-09-12T09:17:50.155Z'
+title: Brazil National Register of Disreputable and Suspended Companies
+key: BR-CEIS
+url: https://portaldatransparencia.gov.br/download-de-dados/ceis
+summary: 'The National Register of Disreputable and Suspended Companies (Cadastro
+  Nacional de Empresas Inidôneas e Suspensas – CEIS) is maintained under the mandate
+  of Brazil’s Anti-Corruption Law (Law No. 12.846/2013).
+
+
+  Sanctions recorded in the CEIS include temporary suspensions, declarations of ineligibility,
+  and related penalties under the Anti-Corruption Law, and other applicable statutes.
+  Designation under CEIS results in an entity’s inability to enter into contracts
+  or participate in bidding processes with public authorities at the federal, state,
+  and municipal levels.'
+issuer: 53
+dataset: br_ceis
+status: published

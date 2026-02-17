@@ -1,0 +1,31 @@
+id: 268
+sort: 152
+user_created: b4617b0d-fb2e-49db-b63c-138b9263cae0
+date_created: '2024-12-17T16:10:20.811Z'
+user_updated: bb09db79-2b20-4f44-b1ce-62a1492faa26
+date_updated: '2025-04-22T12:33:24.015Z'
+title: EU sanctions related to Ukraine
+key: EU-UKR
+url: https://sanctionsmap.eu/#/main/details/35,36/
+summary: 'Entities listed under these programs may be subject to only one of them.
+  This regime covers the European Union''s sanctions related to Ukraine under two
+  main frameworks:
+
+
+  * **Misappropriation of State Funds**: In response to the violence and political
+  instability in Ukraine, the EU adopted measures targeting individuals identified
+  as responsible for the misappropriation of Ukrainian state funds and human rights
+  violations. These measures aim to support the rule of law and respect for human
+  rights. Sanctions include asset freezes and prohibitions on making funds available.
+
+
+  * **Territorial Integrity of Ukraine**: The EU imposed asset freezes and travel
+  bans on individuals and entities responsible for actions undermining Ukraine''s
+  territorial integrity, sovereignty, and independence. This followed Russia’s illegal
+  annexation of Crimea and the invasion of Ukraine in 2022. Sanctions were progressively
+  expanded to target those supporting the Russian government, providing substantial
+  revenue, and benefitting from its actions. These measures also address the involvement
+  of Belarus in the aggression. Derogations allow for humanitarian aid delivery.'
+issuer: 46
+dataset: eu_fsf
+status: published

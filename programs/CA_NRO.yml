@@ -1,0 +1,15 @@
+id: 147
+sort: 182
+user_created: b5d15d63-f9b3-43bf-922d-2578139a949c
+date_created: '2024-05-31T11:35:11.747Z'
+user_updated: adaf0b89-bde0-47c2-9dc1-b64fedce7810
+date_updated: '2024-06-19T11:42:56.155Z'
+title: Policy On Sensitive Technology Research And Affiliations Of Concern
+key: CA-NRO
+url: https://science.gc.ca/site/science/en/safeguarding-your-research/guidelines-and-tools-implement-research-security/sensitive-technology-research-and-affiliations-concern/named-research-organizations
+summary: A list of universities, research institutes and/or laboratories connected
+  to military, national defence, or state security entities that could pose a risk
+  to Canada’s national security.
+issuer: 6
+dataset: ca_named_research_orgs
+status: published

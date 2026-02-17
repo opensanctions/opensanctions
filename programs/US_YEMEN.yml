@@ -1,0 +1,16 @@
+id: 40
+sort: 56
+user_created: b5d15d63-f9b3-43bf-922d-2578139a949c
+date_created: '2024-05-30T13:40:15.773Z'
+user_updated: adaf0b89-bde0-47c2-9dc1-b64fedce7810
+date_updated: '2024-06-24T12:18:58.948Z'
+title: Yemen-Related Sanctions (EO 13611)
+key: US-YEMEN
+url: https://ofac.treasury.gov/sanctions-programs-and-country-information/yemen-related-sanctions
+summary: These sanctions target major transnational criminal organizations and their
+  supporters. The measures include asset freezes and prohibitions on transactions
+  to disrupt the financial networks of these organizations and combat their involvement
+  in drug trafficking, human trafficking, money laundering, and other illicit activities.
+issuer: 1
+dataset: us_ofac_sdn
+status: published

@@ -1,0 +1,24 @@
+id: 297
+sort: null
+user_created: b4617b0d-fb2e-49db-b63c-138b9263cae0
+date_created: '2025-09-12T13:10:24.264Z'
+user_updated: null
+date_updated: null
+title: US Immigration and Nationality Act Section 219
+key: US-FTO219
+url: https://www.congress.gov/crs-product/IF10613#
+summary: 'Pursuant to Section 219 of the INA, the Secretary of State is authorized
+  to designate an organization as an FTO if such an entity meets three criteria: the
+  suspected terrorist group must (1) be a foreign organization; (2) engage in "terrorist
+  activity," "terrorism," or retain the capability and intent to engage in terrorist
+  activity or terrorism; and (3) threaten the security of U.S. nationals or the national
+  defense, foreign relations, or economic interests of the United States.
+
+
+  Section 219 of the INA relies on the definition of "terrorist activity" in Section
+  212(a)(3)(B) of the INA (8 U.S.C. §1182(a)(3)(B)) and the definition of "terrorism"
+  in Section 140(d)(2) of the Foreign Relations Authorization Act, Fiscal Years 1988
+  and 1989 (FRAA, P.L. 100-204, as amended; 22 U.S.C. §2656f(d)(2)).'
+issuer: 8
+dataset: us_state_terrorist_orgs
+status: published

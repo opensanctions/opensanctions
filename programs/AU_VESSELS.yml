@@ -1,0 +1,16 @@
+id: 318
+sort: null
+user_created: b4617b0d-fb2e-49db-b63c-138b9263cae0
+date_created: '2025-11-06T13:57:11.012Z'
+user_updated: b4617b0d-fb2e-49db-b63c-138b9263cae0
+date_updated: '2025-11-06T13:58:33.559Z'
+title: Sanctioned Vessels Regime
+key: AU-VESSELS
+url: https://www.dfat.gov.au/international-relations/security/sanctions/sanctioned-vessels-framework
+summary: Australia has imposed sanctions on vessels in response to situations of international
+  concern, including in response to Russia's invasion of Ukraine and to increase pressure
+  on the Democratic People's Republic of Korea (DPRK) to comply with its nonproliferation
+  obligations.
+issuer: 12
+dataset: au_dfat_sanctions
+status: published

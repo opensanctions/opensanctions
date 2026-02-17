@@ -1,0 +1,27 @@
+id: 283
+sort: null
+user_created: 9dc0d629-520b-4c06-a6c7-7edd82079bb9
+date_created: '2025-07-14T08:31:56.147Z'
+user_updated: null
+date_updated: null
+title: New EU listings of designations by the United Nations (UN)
+key: EU-UNLI
+url: https://data.europa.eu/data/datasets/consolidated-list-of-persons-groups-and-entities-subject-to-eu-financial-sanctions?locale=en
+summary: 'New listings of entities or individuals by the United Nations (UN) Security
+  Council under Chapter VII of the Charter of the United Nations may be associatd
+  with a program code `UNLI` when listed in the EU Consolidated Sanctions list.
+
+
+  The European Union transposes all UN designations into the EU framework of restrictive
+  measures (sanctions). The "UNLI" designation serves as a provisional marker within
+  the [Consolidated list of persons, groups and entities subject to EU financial sanction](https://data.europa.eu/data/datasets/consolidated-list-of-persons-groups-and-entities-subject-to-eu-financial-sanctions?locale=en)s,
+  acting as a preliminary alert for operators during the interim period before the
+  adoption and publication of the relevant EU legal acts in the [Official Journal](https://eur-lex.europa.eu/oj/direct-access.html)
+  (OJ).
+
+
+  Once the legal acts are published on the OJ, the "UNLI" designation will be appropriately
+  reclassified under the relevant EU legal base within the Consolidated list.'
+issuer: 50
+dataset: eu_fsf
+status: published

@@ -1,0 +1,16 @@
+id: 37
+sort: 61
+user_created: b5d15d63-f9b3-43bf-922d-2578139a949c
+date_created: '2024-05-30T13:36:33.646Z'
+user_updated: f83b9691-33ac-41af-8675-9d94707d4312
+date_updated: '2024-06-21T12:01:22.581Z'
+title: Transnational Criminal Organizations
+key: US-TCO
+url: https://ofac.treasury.gov/sanctions-programs-and-country-information/transnational-criminal-organizations
+summary: These sanctions target major transnational criminal organizations and their
+  supporters. The measures include asset freezes and prohibitions on transactions
+  to disrupt the financial networks of these organizations and combat their involvement
+  in drug trafficking, human trafficking, money laundering, and other illicit activities.
+issuer: 1
+dataset: us_ofac_sdn
+status: published

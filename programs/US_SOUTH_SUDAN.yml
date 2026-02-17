@@ -1,0 +1,16 @@
+id: 33
+sort: 46
+user_created: b5d15d63-f9b3-43bf-922d-2578139a949c
+date_created: '2024-05-30T13:32:19.646Z'
+user_updated: adaf0b89-bde0-47c2-9dc1-b64fedce7810
+date_updated: '2024-06-24T12:18:18.878Z'
+title: South Sudan-Related Sanctions (EO 13664)
+key: US-SOUTH-SUDAN
+url: https://ofac.treasury.gov/sanctions-programs-and-country-information/south-sudan-related-sanctions
+summary: These sanctions target individuals and entities involved in actions that
+  threaten the peace, security, and stability of South Sudan. The measures include
+  asset freezes and prohibitions on transactions to support the resolution of the
+  conflict and promote democratic governance in South Sudan.
+issuer: 1
+dataset: us_ofac_sdn
+status: published

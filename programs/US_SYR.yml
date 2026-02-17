@@ -1,0 +1,16 @@
+id: 35
+sort: 11
+user_created: b5d15d63-f9b3-43bf-922d-2578139a949c
+date_created: '2024-05-30T13:34:33.945Z'
+user_updated: f83b9691-33ac-41af-8675-9d94707d4312
+date_updated: '2024-06-26T07:42:22.829Z'
+title: Syria Sanctions (EO 13608 et al.)
+key: US-SYR
+url: https://ofac.treasury.gov/sanctions-programs-and-country-information/syria-sanctions
+summary: These sanctions target the Syrian government and entities involved in human
+  rights abuses, terrorism, and other destabilizing activities. The measures include
+  asset freezes, prohibitions on transactions, and restrictions on trade to pressure
+  Syria to comply with international norms and cease its destabilizing actions.
+issuer: 1
+dataset: us_ofac_sdn
+status: published

@@ -1,0 +1,15 @@
+id: 106
+sort: 132
+user_created: b5d15d63-f9b3-43bf-922d-2578139a949c
+date_created: '2024-05-31T09:33:53.758Z'
+user_updated: b4617b0d-fb2e-49db-b63c-138b9263cae0
+date_updated: '2025-02-07T12:58:17.236Z'
+title: Sudan Sanctions
+key: UN-SC1591
+url: https://www.un.org/securitycouncil/sanctions/1591
+summary: These sanctions target individuals and entities involved in the conflict
+  and human rights abuses in Sudan, particularly in Darfur. The measures include asset
+  freezes, travel bans, and arms embargoes to promote peace and stability in Sudan.
+issuer: 2
+dataset: un_sc_sanctions
+status: published

@@ -1,0 +1,17 @@
+id: 29
+sort: 51
+user_created: b5d15d63-f9b3-43bf-922d-2578139a949c
+date_created: '2024-05-30T13:23:46.419Z'
+user_updated: adaf0b89-bde0-47c2-9dc1-b64fedce7810
+date_updated: '2024-06-24T12:18:03.701Z'
+title: Non-Proliferation Sanctions
+key: US-NON-PROLIF
+url: https://ofac.treasury.gov/sanctions-programs-and-country-information/non-proliferation-sanctions
+summary: "These sanctions target individuals and entities involved in the proliferation\
+  \ of weapons of mass destruction and their delivery systems. The measures include\
+  \ asset freezes and prohibitions on transactions to prevent the spread of nuclear,\
+  \ biological, and chemical weapons and maintain international security.\n\n (EO\
+  \ 13883, EO 13608, EO 13382, EO 13094, EO 12938)"
+issuer: 1
+dataset: us_ofac_sdn
+status: published

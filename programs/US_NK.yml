@@ -1,0 +1,18 @@
+id: 30
+sort: 43
+user_created: b5d15d63-f9b3-43bf-922d-2578139a949c
+date_created: '2024-05-30T13:25:01.329Z'
+user_updated: f83b9691-33ac-41af-8675-9d94707d4312
+date_updated: '2024-06-18T15:28:50.626Z'
+title: North Korea Sanctions
+key: US-NK
+url: https://ofac.treasury.gov/sanctions-programs-and-country-information/north-korea-sanctions
+summary: "These sanctions target the North Korean government and entities involved\
+  \ in nuclear proliferation, human rights abuses, and other destabilizing activities.\
+  \ The comprehensive measures include asset freezes, prohibitions on transactions,\
+  \ and restrictions on trade to pressure North Korea to comply with international\
+  \ norms and agreement.\n\n (EO 13810, EO 13722, EO 13687, EO 13570, EO 13551, EO\
+  \ 13466)"
+issuer: 1
+dataset: us_ofac_sdn
+status: published

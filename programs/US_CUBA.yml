@@ -1,0 +1,15 @@
+id: 13
+sort: 123
+user_created: b5d15d63-f9b3-43bf-922d-2578139a949c
+date_created: '2024-05-30T13:02:35.124Z'
+user_updated: adaf0b89-bde0-47c2-9dc1-b64fedce7810
+date_updated: '2024-06-26T11:18:30.539Z'
+title: 'Cuba Sanctions '
+key: US-CUBA
+url: https://ofac.treasury.gov/sanctions-programs-and-country-information/cuba-sanctions
+summary: These sanctions target the government of Cuba and certain Cuban nationals.
+  The measures restrict travel, trade, and financial transactions to pressure the
+  Cuban government to make democratic reforms and respect human rights.
+issuer: 1
+dataset: us_ofac_sdn
+status: published

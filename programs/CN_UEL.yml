@@ -1,0 +1,16 @@
+id: 154
+sort: 63
+user_created: b5d15d63-f9b3-43bf-922d-2578139a949c
+date_created: '2024-06-04T13:50:48.327Z'
+user_updated: adaf0b89-bde0-47c2-9dc1-b64fedce7810
+date_updated: '2024-06-05T11:12:48.904Z'
+title: Chinese Unreliable Entities List (UEL)
+key: CN-UEL
+url: https://docs.google.com/spreadsheets/d/1DhQqlm2MHv3VpVjEJGstbBWlHV0eBJo-omMwn26TQw4/edit#gid=1070466538
+summary: This list includes foreign entities and individuals deemed unreliable by
+  the Chinese government for actions that violate market rules or contractual obligations.
+  The measures include restrictions on trade, investment, and other commercial activities
+  to protect China's economic interests and ensure fair market practices.
+issuer: 16
+dataset: cn_sanctions
+status: published

@@ -1,0 +1,15 @@
+id: 32
+sort: 139
+user_created: b5d15d63-f9b3-43bf-922d-2578139a949c
+date_created: '2024-05-30T13:27:41.309Z'
+user_updated: f83b9691-33ac-41af-8675-9d94707d4312
+date_updated: '2024-06-25T14:32:09.645Z'
+title: Somalia Sanctions (EO 13620, EO 13536)
+key: US-SOMALIA
+url: https://ofac.treasury.gov/sanctions-programs-and-country-information/somalia-sanctions
+summary: These sanctions target individuals and entities contributing to the conflict,
+  piracy, and terrorism in Somalia. The measures include asset freezes and prohibitions
+  on transactions to promote peace, security, and stability in the region.
+issuer: 1
+dataset: us_ofac_sdn
+status: published

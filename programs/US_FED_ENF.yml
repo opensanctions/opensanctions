@@ -1,0 +1,17 @@
+id: 56
+sort: 69
+user_created: b5d15d63-f9b3-43bf-922d-2578139a949c
+date_created: '2024-05-30T14:08:18.594Z'
+user_updated: f83b9691-33ac-41af-8675-9d94707d4312
+date_updated: '2024-06-17T13:41:07.474Z'
+title: US Federal Reserve Enforcement Actions
+key: US-FED-ENF
+url: https://www.federalreserve.gov/supervisionreg/enforcement-actions-about.htm
+summary: This list includes enforcement actions taken by the U.S. Federal Reserve
+  against financial institutions and individuals for violations of banking regulations.
+  The measures can include fines, restrictions, or bans on certain activities to ensure
+  compliance with financial laws and regulations and maintain the stability and integrity
+  of the U.S. banking system.
+issuer: 11
+dataset: us_fed_enforcements
+status: published

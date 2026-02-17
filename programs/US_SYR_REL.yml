@@ -1,0 +1,24 @@
+id: 36
+sort: 44
+user_created: b5d15d63-f9b3-43bf-922d-2578139a949c
+date_created: '2024-05-30T13:35:41.043Z'
+user_updated: b4617b0d-fb2e-49db-b63c-138b9263cae0
+date_updated: '2025-07-02T14:38:17.709Z'
+title: Syria-Related Sanctions (EO 13894)
+key: US-SYR-REL
+url: https://ofac.treasury.gov/sanctions-programs-and-country-information/syria-related-sanctions
+summary: 'These sanctions target individuals and entities involved in obstructing
+  a political solution to the conflict in Syria, committing human rights abuses, or
+  supporting the Assad regime. The measures include asset freezes and prohibitions
+  on transactions to pressure the Syrian government and other actors to engage in
+  peace negotiations and respect human rights.
+
+
+  On June 30, 2025, President Trump issued an Executive Order (E.O. of June 30, 2025)
+  that removes U.S. sanctions on Syria, effective July 1, 2025. Sanctions will remain
+  on Bashar al-Assad and his associates, human rights abusers, Captagon traffickers,
+  persons linked to Syria''s past proliferation activities, ISIS and Al-Qa''ida affiliates,
+  and Iran and its proxies. [Source: Official Website](https://ofac.treasury.gov/sanctions-programs-and-country-information/paarss)'
+issuer: 1
+dataset: us_ofac_sdn
+status: published

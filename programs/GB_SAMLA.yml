@@ -1,0 +1,16 @@
+id: 180
+sort: 1
+user_created: b5d15d63-f9b3-43bf-922d-2578139a949c
+date_created: '2024-06-04T14:52:13.686Z'
+user_updated: adaf0b89-bde0-47c2-9dc1-b64fedce7810
+date_updated: '2024-07-04T14:59:10.228Z'
+title: Sanctions and Anti-Money Laundering Act 2018
+key: GB-SAMLA
+url: https://www.gov.uk/government/publications/the-uk-sanctions-list
+summary: This list includes individuals and entities subject to UK sanctions imposed
+  by the Foreign, Commonwealth & Development Office (FCDO). The measures include asset
+  freezes, travel bans, and trade restrictions to address issues such as human rights
+  violations, terrorism, and international conflicts.
+issuer: 41
+dataset: gb_fcdo_sanctions
+status: published

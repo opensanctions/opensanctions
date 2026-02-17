@@ -1,0 +1,15 @@
+id: 112
+sort: 85
+user_created: b5d15d63-f9b3-43bf-922d-2578139a949c
+date_created: '2024-05-31T09:46:25.735Z'
+user_updated: b4617b0d-fb2e-49db-b63c-138b9263cae0
+date_updated: '2025-02-06T19:17:57.413Z'
+title: Central African Republic Sanctions
+key: UN-SC2127
+url: https://www.un.org/securitycouncil/sanctions/2127
+summary: These sanctions target individuals and entities contributing to the conflict
+  and instability in the Central African Republic. The measures include asset freezes,
+  travel bans, and arms embargoes to promote peace and security in the region.
+issuer: 2
+dataset: un_sc_sanctions
+status: published

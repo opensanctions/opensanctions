@@ -1,0 +1,15 @@
+id: 272
+sort: 146
+user_created: f83b9691-33ac-41af-8675-9d94707d4312
+date_created: '2025-03-01T12:39:11.467Z'
+user_updated: null
+date_updated: null
+title: Nonproliferation Sanctions (ISN)
+key: US-DOS-ISN
+url: https://www.state.gov/bureau-of-international-security-and-nonproliferation/nonproliferation-sanctions
+summary: The United States imposes sanctions under various legal authorities against
+  foreign individuals, private entities, and governments that engage in proliferation
+  activities.
+issuer: 8
+dataset: us_trade_csl
+status: published

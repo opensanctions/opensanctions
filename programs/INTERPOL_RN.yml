@@ -1,0 +1,27 @@
+id: 293
+sort: null
+user_created: b4617b0d-fb2e-49db-b63c-138b9263cae0
+date_created: '2025-09-12T12:19:17.597Z'
+user_updated: null
+date_updated: null
+title: INTERPOL Red Notices
+key: INTERPOL-RN
+url: https://www.interpol.int/en/How-we-work/Notices/Red-Notices
+summary: 'INTERPOL Red Notices are established under the INTERPOL Constitution (1956)
+  and governed by the Rules on the Processing of Data (RPD), particularly Articles
+  82-87. The legal framework empowers INTERPOL member countries to request international
+  alerts for persons wanted for prosecution or to serve sentences for serious ordinary-law
+  crimes, subject to constitutional safeguards under Articles 2 and 3 prohibiting
+  political, military, religious, or racial interventions.
+
+
+  Red Notices serve as requests to law enforcement worldwide to locate and provisionally
+  arrest persons pending extradition or surrender, but do not constitute international
+  arrest warrants and require compliance with each member country''s domestic laws.
+  Inclusion on a Red Notice indicates that a person is internationally wanted by a
+  member country''s judicial authorities for serious criminal offenses, subject to
+  review by INTERPOL''s Notices and Diffusions Task Force for constitutional and legal
+  compliance.'
+issuer: 55
+dataset: interpol_red_notices
+status: published

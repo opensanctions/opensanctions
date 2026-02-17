@@ -1,0 +1,27 @@
+id: 302
+sort: null
+user_created: b4617b0d-fb2e-49db-b63c-138b9263cae0
+date_created: '2025-10-01T11:20:02.068Z'
+user_updated: b4617b0d-fb2e-49db-b63c-138b9263cae0
+date_updated: '2025-10-01T11:23:38.080Z'
+title: Database of Business Enterprises Pursuant to Human Rights Council Resolutions
+  31/36 and 53/25
+key: OHCHR-BHR
+url: https://www.ohchr.org/en/business/bhr-database
+summary: 'The [Human Rights Council (HRC)](https://www.ohchr.org/en/hr-bodies/hrc/about-council)
+  is an intergovernmental body, made up of 47 Member States. Resolutions are voted
+  on and adopted by these Member States. On 24 March 2016, the HRC adopted [resolution
+  31/36](http://ap.ohchr.org/documents/dpage_e.aspx?si=A/HRC/RES/31/36), entitled
+  “*Israeli settlements in the Occupied Palestinian Territory, including East Jerusalem,
+  and in the occupied Syrian Golan*”.
+
+
+  As specified in resolution 31/36, the database should contain business enterprises
+  involved in the activities detailed in paragraph 96 of the report of the independent
+  international fact-finding mission to investigate the implications of the Israeli
+  settlements on the civil, political, economic, social and cultural rights of the
+  Palestinian people throughout the Occupied Palestinian Territory, including East
+  Jerusalem (A/HRC/22/63).'
+issuer: 59
+dataset: ps_ohchr_settlement
+status: published
