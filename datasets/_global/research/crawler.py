@@ -6,8 +6,9 @@ from followthemoney import model
 
 from zavod import Context, Entity
 
-SECURITIES_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTtQD9wiHuyl23NmrIeAACET4OohOXhmuxQv817FHHas8uO4k8VBzex25nIOPqsG9300aXJIqCZzo--/pub?gid=0&single=true&output=csv"
-BIDZINA_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTtQD9wiHuyl23NmrIeAACET4OohOXhmuxQv817FHHas8uO4k8VBzex25nIOPqsG9300aXJIqCZzo--/pub?gid=351241481&single=true&output=csv"
+SECURITIES_STATEMENTS_CSV = "https://docs.google.com/spreadsheets/d/1Mi5HzeUuWpQ4XrNk8JS7KF0-JKTaUjiNEnDpT0om4mc/pub?gid=1612308021&single=true&output=csv"
+SECURITIES_CUSTOM_CSV = "https://docs.google.com/spreadsheets/d/1Mi5HzeUuWpQ4XrNk8JS7KF0-JKTaUjiNEnDpT0om4mc/pub?gid=0&single=true&output=csv"
+BIDZINA_CSV = "https://docs.google.com/spreadsheets/d/1Mi5HzeUuWpQ4XrNk8JS7KF0-JKTaUjiNEnDpT0om4mc/pub?gid=351241481&single=true&output=csv"
 
 IGNORE_FIELDS: list[str] = [
     "Direct owner name (GEO)",
@@ -37,7 +38,7 @@ def crawl_sec_row(context: Context, row: Dict[str, str]):
 
 
 def crawl_sec(context: Context):
-    path = context.fetch_resource("source.csv", SECURITIES_CSV)
+    path = context.fetch_resource("sec-source.csv", SECURITIES_STATEMENTS_CSV)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
         entity: Optional[Entity] = None
@@ -66,7 +67,7 @@ def crawl_sec(context: Context):
         if entity is not None:
             context.emit(entity)
 
-    path = context.fetch_resource("securities.csv", SECURITIES_CSV)
+    path = context.fetch_resource("securities.csv", SECURITIES_CUSTOM_CSV)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
         for row in csv.DictReader(fh):
@@ -133,7 +134,7 @@ def crawl_bidzina_row(context: Context, row: Dict):
 
 
 def crawl_bidzina(context: Context):
-    path = context.fetch_resource("source.csv", BIDZINA_CSV)
+    path = context.fetch_resource("bi-source.csv", BIDZINA_CSV)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
         for row in csv.DictReader(fh):
@@ -141,5 +142,5 @@ def crawl_bidzina(context: Context):
 
 
 def crawl(context: Context):
-    # crawl_sec(context)
+    crawl_sec(context)
     crawl_bidzina(context)
