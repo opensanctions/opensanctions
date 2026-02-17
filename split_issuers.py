@@ -53,7 +53,7 @@ def split_issuers():
         issuer_dir.mkdir(parents=True, exist_ok=True)
 
         # Create filename
-        filename = f"{slugified_name}.yml"
+        filename = f"{territory}_{slugified_name}.yml"
         output_path = issuer_dir / filename
 
         # Write the issuer to its own file
