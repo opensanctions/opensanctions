@@ -152,7 +152,7 @@ def clean_names(context: Context, raw_names: SourceNames) -> Names:
             if name not in strings:
                 strings.append(name)
 
-    input_data = {"strings": strings}
+    input_data = {"entity_schema": raw_names.entity_schema, "strings": strings}
     input_string = "The entity schema and name strings as JSON:\n\n"
     # ensure_ascii=False so that non-ASCII like Алтайкапиталбанк
     # doesn't get escaped like \u0410\u043b\u0442\u0430\u0439\u043a\u0430\u...
