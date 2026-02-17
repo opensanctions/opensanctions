@@ -62,7 +62,7 @@ jobs:
         with:
           files: "datasets/**"
       - name: Crawl modified datasets
-        if: ${{ steps.changed-files.outputs.all_changed_files != '' }}
+        if: ${{ steps.changed-files.outputs.all_changed_files != '' && github.ref != 'refs/heads/main'}}
         run: |
           set -euo pipefail
           datasets=$(python contrib/ci_datasets.py ${{ steps.changed-files.outputs.all_changed_files }})
@@ -73,7 +73,7 @@ jobs:
               zavod crawl --clear-data $dataset
           done
       - name: Validate modified datasets
-        if: ${{ steps.changed-files.outputs.all_changed_files != '' }}
+        if: ${{ steps.changed-files.outputs.all_changed_files != '' && github.ref != 'refs/heads/main'}}
         run: |
           set -euo pipefail
           datasets=$(python contrib/ci_datasets.py ${{ steps.changed-files.outputs.all_changed_files }})
@@ -83,7 +83,7 @@ jobs:
               zavod validate --rebuild-store $dataset
           done
       - name: Export modified datasets
-        if: ${{ steps.changed-files.outputs.all_changed_files != '' }}
+        if: ${{ steps.changed-files.outputs.all_changed_files != '' && github.ref != 'refs/heads/main'}}
         run: |
           set -euo pipefail
           datasets=$(python contrib/ci_datasets.py ${{ steps.changed-files.outputs.all_changed_files }})
