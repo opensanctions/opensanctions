@@ -47,7 +47,7 @@ def crawl_person(context: Context, item: Dict[str, Any]) -> None:
     )
     if occupancy is not None:
         for member_status in item.pop("memberStatuses", []):
-            status = STATUS.get(member_status["value"])
+            status = STATUS.get(member_status)
             if status is not None:
                 occupancy.set("status", status.value)
         context.emit(position)
