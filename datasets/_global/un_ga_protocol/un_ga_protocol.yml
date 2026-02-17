@@ -54,31 +54,36 @@ lookups:
         value: ""
   type.date:
     options:
+      - match: Jul-21
+        value: 2021-07
+      - match: Jul-19
+        value: 2019-07
+      - match: Jul-24
+        value: 2024-07
+      - match: Feb-17
+        value: 2017-02
+      - match: Feb-23
+        value: 2023-02
+      - match: Nov-21
+        value: 2021-11
+      - match: Aug-19
+        value: 2019-08
+      - match: Feb-23
+        value: 2023-02
+      - match: Nov-21
+        value: 2021-11
+      - match: May-21
+        value: 2021-05
+      - match: 09-Jan-0721
+        value: 2007-01-09
       - match:
-          - Jul-21
-          - Jul-19
-          - Jul-24
-          - Feb-17
-          - Feb-23
-          - Nov-21
-          - Aug-19
+          - 09-Sep-2227
+          - 09-Sep-2221
           - 09-Sep-2207
           - 09-Sep-2201
           - 09-Sep-2228
           - 09-Sep-220
-          - Feb-23
-          - Nov-21
-          - Aug-19
-          - May-21
-        value: null
-      - match: 09-Jan-0721
-        value:
-          - 2007-01-09
-      - match:
-          - 09-Sep-2227
-          - 09-Sep-2221
-        value:
-          - 2022-09-22
+        value: 2022-09-09
   override_name:
     lowercase: true
     normalize: true
