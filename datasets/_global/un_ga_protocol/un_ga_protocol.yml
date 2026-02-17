@@ -65,13 +65,24 @@ lookups:
           - 09-Sep-2207
           - 09-Sep-2201
           - 09-Sep-2228
-          - 09-Jan-0721
-          - 09-Sep-2221
           - 09-Sep-220
           - Feb-23
           - Nov-21
           - Aug-19
+          - May-21
         value: null
+      - match: 09-Jan-0721
+        value:
+          - 09-Jan-07
+          - 21-Nov-24
+      - match: 09-Sep-2227
+        value:
+          - 09-Sep-22
+          - 27-May-21
+      - match: 09-Sep-2221
+        value:
+          - 09-Sep-22
+          - 21-Oct-21
   override_name:
     lowercase: true
     normalize: true
