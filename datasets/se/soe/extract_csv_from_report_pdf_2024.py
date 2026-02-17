@@ -1,4 +1,8 @@
+# pyright: basic
+
 import csv
+import sys
+import click
 import pdfplumber
 
 from normality import squash_spaces
@@ -6,6 +10,7 @@ from pathlib import Path
 from pdfplumber.page import Page
 
 from zavod import Context
+from zavod.meta import load_dataset_from_path
 
 
 # Swedish State-Owned Enterprises (SOE) Board Member Extractor
@@ -36,12 +41,12 @@ POSITION_NAMES = {
     "Arb rep:": "Employee Representative",
     "Rev:": "Auditor",
 }
+# If this file is no longer available, there should also be a copy at
+# gs://internal-data.opensanctions.org/se_soe/
 SOE_REPORT_URL = "https://www.regeringen.se/contentassets/a2be3c80b3384f3eadc64530f6a2ff23/verksamhetsberattelse--for-bolag-med-statligt-agande-2024.pdf"
-SOE_REPORT_URL_INTERNAL = "https://storage.googleapis.com/internal-data.opensanctions.org/se_soe/verksamhetsberattelse--for-bolag-med-statligt-agande-2024.pdf"
 
 
-def csv_from_pdf(context: Context, filename: str) -> None:
-    pdf_path = context.fetch_resource("source.pdf", SOE_REPORT_URL)
+def csv_from_pdf(context: Context, pdf_path: Path) -> None:
     soe_leadrship = []
     with pdfplumber.open(pdf_path) as pdf:
         for page_num in range(34, 75):
@@ -54,14 +59,13 @@ def csv_from_pdf(context: Context, filename: str) -> None:
             entity_name = get_entity_name(context, page, width)
             peps = extract_board_member(page, width, entity_name)
             soe_leadrship.extend(peps)
-    # Write everything at once
-    filepath = Path(__file__).parent / filename
-    with open(filepath, "w", encoding="utf-8", newline="") as f:
-        writer = csv.DictWriter(
-            f, fieldnames=["name", "position", "company", "raw_input", "source_url"]
-        )
-        writer.writeheader()
-        writer.writerows(soe_leadrship)
+    # Write to stdout
+    writer = csv.DictWriter(
+        sys.stdout,
+        fieldnames=["name", "position", "company", "raw_input", "source_url"],
+    )
+    writer.writeheader()
+    writer.writerows(soe_leadrship)
 
 
 def extract_board_member(
@@ -171,3 +175,17 @@ def get_entity_name(context: Context, page: Page, width: float) -> str:
         entity_name = res.name
     assert entity_name
     return entity_name
+
+
+@click.command()
+@click.argument("pdf_path", type=click.Path(exists=True, path_type=Path))
+def main(pdf_path: Path) -> None:
+    """Extract board member information from Swedish SOE report PDF to CSV."""
+    dataset = load_dataset_from_path(Path("datasets/se/soe/se_soe.yml"))
+    assert dataset is not None
+    context = Context(dataset)
+    csv_from_pdf(context, pdf_path)
+
+
+if __name__ == "__main__":
+    main()
