@@ -14,3 +14,10 @@ summary: These sanctions target individuals and entities involved in terrorism a
 issuer: 1
 dataset: us_ofac_sdn
 status: published
+aliases:
+- EO 13886
+- EO 13372
+- EO 13268
+- EO 13224
+- EO 13099
+- EO 12947

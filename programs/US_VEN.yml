@@ -17,3 +17,5 @@ summary: 'These sanctions target the Venezuelan government and entities involved
 issuer: 1
 dataset: us_ofac_sdn
 status: published
+aliases:
+- EO 13884 et al.

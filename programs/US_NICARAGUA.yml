@@ -14,3 +14,5 @@ summary: These sanctions target individuals and entities involved in human right
 issuer: 1
 dataset: us_ofac_sdn
 status: published
+aliases:
+- EO 14088, EO 13851

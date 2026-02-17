@@ -14,3 +14,6 @@ summary: These sanctions target major transnational criminal organizations and t
 issuer: 1
 dataset: us_ofac_sdn
 status: published
+aliases:
+- EO 13863
+- EO 13581

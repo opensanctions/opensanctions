@@ -15,3 +15,5 @@ summary: "These sanctions target individuals and entities involved in destabiliz
 issuer: 1
 dataset: us_ofac_sdn
 status: published
+aliases:
+- EO 13668

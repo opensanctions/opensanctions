@@ -13,3 +13,5 @@ summary: A list of universities, research institutes and/or laboratories connect
 issuer: 6
 dataset: ca_named_research_orgs
 status: published
+aliases:
+- Named Research Organizations

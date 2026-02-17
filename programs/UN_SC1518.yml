@@ -13,3 +13,5 @@ summary: These sanctions target individuals and entities contributing to the con
 issuer: 2
 dataset: un_sc_sanctions
 status: published
+aliases:
+- Resolution 1518

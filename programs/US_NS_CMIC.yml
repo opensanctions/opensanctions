@@ -14,3 +14,5 @@ summary: This list includes Chinese companies involved in the military-industria
 issuer: 1
 dataset: us_ofac_cons
 status: published
+aliases:
+- ' NS-CMIC'

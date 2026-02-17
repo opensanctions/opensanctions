@@ -12,3 +12,5 @@ summary: The Canadian governments maintains a small, Magnitsky-style list of gov
 issuer: 6
 dataset: ca_facfoa
 status: published
+aliases:
+- FAAE

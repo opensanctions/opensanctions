@@ -22,3 +22,5 @@ summary: Section 1.50002 of the US Federal Communications Commission’s rules d
 issuer: 7
 dataset: us_fcc_covered_list
 status: published
+aliases:
+- FCC list

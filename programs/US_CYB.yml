@@ -14,3 +14,5 @@ summary: These sanctions target individuals and entities responsible for signifi
 issuer: 1
 dataset: us_ofac_sdn
 status: published
+aliases:
+- EO 13575, EO 13694, EO 14067, EO 14144

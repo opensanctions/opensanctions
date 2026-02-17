@@ -20,3 +20,5 @@ summary: 'This sanctions program targets anyone involved with any process of the
 issuer: 1
 dataset: us_ofac_sdn
 status: published
+aliases:
+- EO 14203

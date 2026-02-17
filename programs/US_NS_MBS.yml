@@ -16,3 +16,5 @@ summary: The Non-SDN Menu-Based Sanctions List (NS-MBS List) identifies individu
 issuer: 1
 dataset: us_ofac_cons
 status: published
+aliases:
+- NS-MBS

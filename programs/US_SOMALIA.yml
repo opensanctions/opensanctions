@@ -13,3 +13,6 @@ summary: These sanctions target individuals and entities contributing to the con
 issuer: 1
 dataset: us_ofac_sdn
 status: published
+aliases:
+- EO 13620
+- EO 13536

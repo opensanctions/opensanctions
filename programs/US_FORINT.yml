@@ -14,3 +14,5 @@ summary: These sanctions target foreign individuals and entities that have engag
 issuer: 1
 dataset: us_ofac_sdn
 status: published
+aliases:
+- EO 13848

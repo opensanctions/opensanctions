@@ -22,3 +22,5 @@ summary: 'These sanctions target individuals and entities involved in obstructin
 issuer: 1
 dataset: us_ofac_sdn
 status: published
+aliases:
+- PAARSS

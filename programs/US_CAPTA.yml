@@ -14,3 +14,5 @@ summary: The CAPTA List contains identifying information of FFIs for which the o
 issuer: 8
 dataset: us_ofac_cons
 status: published
+aliases:
+- CAPTA List

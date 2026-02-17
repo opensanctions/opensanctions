@@ -15,3 +15,5 @@ summary: This list, maintained by the U.S. Department of Defense, identifies Chi
 issuer: 9
 dataset: us_dod_chinese_milcorps
 status: published
+aliases:
+- 1260H

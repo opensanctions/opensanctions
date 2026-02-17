@@ -14,3 +14,5 @@ summary: These sanctions target individuals and entities responsible for human r
 issuer: 1
 dataset: us_ofac_sdn
 status: published
+aliases:
+- EO 14098, EO 13400

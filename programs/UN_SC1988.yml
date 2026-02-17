@@ -13,3 +13,5 @@ summary: These sanctions target individuals and entities associated with the Tal
 issuer: 2
 dataset: un_sc_sanctions
 status: published
+aliases:
+- Resolution 1988

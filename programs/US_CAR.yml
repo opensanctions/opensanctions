@@ -14,3 +14,5 @@ summary: These sanctions are imposed on individuals and entities contributing to
 issuer: 1
 dataset: us_ofac_sdn
 status: published
+aliases:
+- EO 13667

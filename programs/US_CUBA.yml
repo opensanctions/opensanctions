@@ -13,3 +13,5 @@ summary: These sanctions target the government of Cuba and certain Cuban nationa
 issuer: 1
 dataset: us_ofac_sdn
 status: published
+aliases:
+- EO 12845

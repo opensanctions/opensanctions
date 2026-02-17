@@ -14,3 +14,5 @@ summary: These sanctions target foreign individuals and entities responsible for
 issuer: 1
 dataset: us_ofac_sdn
 status: published
+aliases:
+- EO 14078

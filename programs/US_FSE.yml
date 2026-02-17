@@ -14,3 +14,5 @@ summary: This list, maintained by OFAC, includes individuals and entities that h
 issuer: 1
 dataset: us_ofac_cons
 status: published
+aliases:
+- EO 13608

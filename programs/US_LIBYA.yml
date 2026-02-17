@@ -13,3 +13,5 @@ summary: These sanctions target individuals and entities involved in the ongoing
 issuer: 1
 dataset: us_ofac_sdn
 status: published
+aliases:
+- EO 13726, EO 13566

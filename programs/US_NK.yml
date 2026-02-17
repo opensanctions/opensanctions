@@ -16,3 +16,5 @@ summary: "These sanctions target the North Korean government and entities involv
 issuer: 1
 dataset: us_ofac_sdn
 status: published
+aliases:
+- EO 13810 et al.

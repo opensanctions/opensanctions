@@ -14,3 +14,5 @@ summary: These sanctions target individuals and entities involved in actions tha
 issuer: 2
 dataset: un_sc_sanctions
 status: published
+aliases:
+- Resolution 2206

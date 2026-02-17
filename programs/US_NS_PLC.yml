@@ -14,3 +14,5 @@ summary: This list, maintained by OFAC, includes members of the Palestinian Legi
 issuer: 1
 dataset: us_ofac_cons
 status: published
+aliases:
+- NS-PLC

@@ -12,3 +12,5 @@ summary: This United States sanctions program is designed to fight terrorism rel
 issuer: 1
 dataset: us_ofac_sdn
 status: published
+aliases:
+- EO 14064, EO 13268, EO 13224

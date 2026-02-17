@@ -14,3 +14,5 @@ summary: These sanctions target the Burmese military and entities connected to i
 issuer: 1
 dataset: us_ofac_cons
 status: published
+aliases:
+- EO 14014
