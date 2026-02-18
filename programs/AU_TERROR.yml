@@ -1,9 +1,4 @@
 id: 286
-sort: null
-user_created: b4617b0d-fb2e-49db-b63c-138b9263cae0
-date_created: '2025-09-10T15:16:05.270Z'
-user_updated: null
-date_updated: null
 title: Listed Terrorist Organisations
 key: AU-TERROR
 url: https://www.nationalsecurity.gov.au/what-australia-is-doing/terrorist-organisations/protocol-for-listing
@@ -15,4 +10,3 @@ summary: Established under the Criminal Code Act 1995, Australia's regime design
   Hate Symbols and Other Measures) Act 2023.
 issuer: au_home_affairs
 dataset: au_listed_terrorist_orgs
-status: published

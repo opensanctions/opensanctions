@@ -1,9 +1,4 @@
 id: 260
-sort: 169
-user_created: b4617b0d-fb2e-49db-b63c-138b9263cae0
-date_created: '2024-12-13T15:41:02.907Z'
-user_updated: null
-date_updated: null
 title: Restrictive measures in view of the situation in the Central African Republic
 key: EU-CAF
 url: https://sanctionsmap.eu/#/main/details/9/
@@ -19,4 +14,3 @@ summary: 'On 5 December 2013, the UN Security Council adopted Resolution 2127 (2
   purposes.'
 issuer: eu_council
 dataset: eu_fsf
-status: published

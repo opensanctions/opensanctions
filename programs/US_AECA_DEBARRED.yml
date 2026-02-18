@@ -1,9 +1,4 @@
 id: 46
-sort: 76
-user_created: b5d15d63-f9b3-43bf-922d-2578139a949c
-date_created: '2024-05-30T13:51:20.252Z'
-user_updated: f83b9691-33ac-41af-8675-9d94707d4312
-date_updated: '2024-06-21T11:59:41.302Z'
 title: AECA Debarred List
 key: US-AECA-DEBARRED
 url: https://www.pmddtc.state.gov/ddtc_public?id=ddtc_kb_article_page&sys_id=c22d1833dbb8d300d0a370131f9619f0
@@ -14,4 +9,3 @@ summary: This list, maintained by the U.S. Department of State under the Arms Ex
   and safeguard U.S. national security interests.
 issuer: us_state
 dataset: us_trade_csl
-status: published

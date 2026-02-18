@@ -4,53 +4,76 @@ from pathlib import Path
 from typing import Optional
 from pydantic import BaseModel, Field
 
+PROGRAMS_RESOURCE_PATH = Path(__file__).parent.parent.parent.parent / "programs"
+
 
 class Issuer(BaseModel):
-    id: int
-    name: str
-    acronym: Optional[str] = None
-    organisation: Optional[str] = None
-    territory: Optional[str] = None
-    status: str
-    date_created: Optional[str] = None
-    date_updated: Optional[str] = None
+    """An organization or governmental body that issues sanctions programs."""
+
+    id: int  # from Directus, drop after migration
+    name: str = Field(
+        description="Name of the organization (e.g., 'UN Security Council', 'Office of Foreign Asset Control')"
+    )
+    acronym: Optional[str] = Field(
+        default=None, description="Abbreviation (e.g., 'DFAT', 'UNSC', 'OFAC')"
+    )
+    organisation: Optional[str] = Field(
+        default=None,
+        description="Parent organization (e.g., 'United Nations', 'Government of Australia')",
+    )
+    territory: Optional[str] = Field(
+        default=None,
+        description="ISO alpha-2 country code (e.g., 'au', 'us', 'ae'), null for international bodies",
+    )
 
 
 class Program(BaseModel):
-    id: int
-    key: str
-    title: str
-    url: Optional[str] = None
-    summary: Optional[str] = None
-    dataset: Optional[str] = None
-    status: str
-    issuer: Optional[Issuer] = None
-    aliases: list[str] = Field(default_factory=list)
-    sort: Optional[int] = None
-    user_created: Optional[str] = None
-    date_created: Optional[str] = None
-    user_updated: Optional[str] = None
-    date_updated: Optional[str] = None
+    """A sanctions regime."""
+
+    id: int  # from Directus, drop after migration
+    key: str = Field(
+        description="Hyphenated reference key (e.g., 'AU-AFGHANISTAN', 'AE-UNSC1373', 'US-AFGH')"
+    )
+    title: str = Field(
+        description="Title of the regime (e.g., 'Afghanistan Sanctions Framework', 'Serious Corruption Sanctions Regime')"
+    )
+    url: Optional[str] = Field(
+        default=None,
+        description="URL to program documentation or designated persons list",
+    )
+    summary: Optional[str] = Field(
+        default=None,
+        description="Purpose, legal basis, and scope of the program",
+    )
+    dataset: Optional[str] = Field(
+        default=None,
+        description="Dataset with entities from this program (e.g., 'au_dfat_sanctions', 'ae_local_terrorists')",
+    )
+    issuer: Optional[Issuer] = Field(
+        default=None, description="Organization that administers this program"
+    )
+    aliases: list[str] = Field(
+        default_factory=list,
+        description="Alternative names or references (e.g., 'Resolution 1373', 'EO 13818')",
+    )
 
 
 @functools.cache
 def _load_issuers() -> dict[str, Issuer]:
     """Load all issuers from YAML files, indexed by filename (without extension)."""
-    root = Path(__file__).parent.parent.parent.parent
     return {
         path.stem: Issuer(**yaml.safe_load(path.read_text()))
-        for path in (root / "programs" / "issuers").glob("*.yml")
+        for path in (PROGRAMS_RESOURCE_PATH / "issuers").glob("*.yml")
     }
 
 
 # Since we'll only ever have a few programs, it's cheaper to just read them all once.
 @functools.cache
 def get_all_programs_by_key() -> dict[str, Program]:
-    root = Path(__file__).parent.parent.parent.parent
     issuers = _load_issuers()
 
     programs: list[Program] = []
-    for path in (root / "programs").glob("*.yml"):
+    for path in PROGRAMS_RESOURCE_PATH.glob("*.yml"):
         data = yaml.safe_load(path.read_text())
         if not data:
             continue
@@ -64,7 +87,9 @@ def get_all_programs_by_key() -> dict[str, Program]:
 
         programs.append(Program(**data))
 
-    return {p.key: p for p in programs}
+    by_key = {p.key: p for p in programs}
+    assert len(by_key) == len(programs), "Duplicate program keys detected"
+    return by_key
 
 
 def get_program_by_key(program_key: str) -> Optional[Program]:

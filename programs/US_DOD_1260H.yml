@@ -1,9 +1,4 @@
 id: 54
-sort: 47
-user_created: b5d15d63-f9b3-43bf-922d-2578139a949c
-date_created: '2024-05-30T14:04:38.241Z'
-user_updated: f83b9691-33ac-41af-8675-9d94707d4312
-date_updated: '2024-06-21T12:00:01.472Z'
 title: Chinese Military Companies Sanctions (1260H)
 key: US-DOD-1260H
 url: https://media.defense.gov/2024/Jan/31/2003384819/-1/-1/0/1260H-LIST.PDF
@@ -14,6 +9,5 @@ summary: This list, maintained by the U.S. Department of Defense, identifies Chi
   security.
 issuer: us_dod
 dataset: us_dod_chinese_milcorps
-status: published
 aliases:
 - 1260H

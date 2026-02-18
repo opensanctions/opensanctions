@@ -1,9 +1,4 @@
 id: 42
-sort: 70
-user_created: b5d15d63-f9b3-43bf-922d-2578139a949c
-date_created: '2024-05-30T13:45:08.215Z'
-user_updated: f83b9691-33ac-41af-8675-9d94707d4312
-date_updated: '2024-06-19T13:42:23.291Z'
 title: BIS Unverified List
 key: US-BIS-UVL
 url: https://www.bis.doc.gov/index.php/policy-guidance/lists-of-parties-of-concern/unverified-list
@@ -14,4 +9,3 @@ summary: This list is maintained by the Bureau of Industry and Security (BIS). I
   prevent diversion to unauthorized end uses or users.
 issuer: us_bis
 dataset: us_trade_csl
-status: published

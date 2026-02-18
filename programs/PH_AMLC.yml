@@ -1,9 +1,4 @@
 id: 296
-sort: null
-user_created: b4617b0d-fb2e-49db-b63c-138b9263cae0
-date_created: '2025-09-12T13:03:18.990Z'
-user_updated: null
-date_updated: null
 title: The Terrorism Financing Prevention and Suppression Act of 2012
 key: PH-AMLC
 url: http://www.amlc.gov.ph/laws/terrorism-financing/2015-10-16-02-51-58
@@ -16,4 +11,3 @@ summary: The Philippines AMLC Terrorism Financing Sanctions program is establish
   Council (ATC) under Republic Act No. 11479, "The Anti-Terrorism Act of 2020."
 issuer: ph_ph
 dataset: ph_amlc_sanctions
-status: published

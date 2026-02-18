@@ -1,9 +1,4 @@
 id: 265
-sort: 207
-user_created: b4617b0d-fb2e-49db-b63c-138b9263cae0
-date_created: '2024-12-13T17:17:33.118Z'
-user_updated: b4617b0d-fb2e-49db-b63c-138b9263cae0
-date_updated: '2024-12-13T17:18:08.708Z'
 title: EU Restrictive measures in view of the situation in Yemen
 key: EU-YEM
 url: https://sanctionsmap.eu/#/main/details/39/
@@ -21,4 +16,3 @@ summary: 'On 26 February 2014, in view of the ongoing violence, terrorist activi
   purposes.'
 issuer: eu_council
 dataset: eu_fsf
-status: published

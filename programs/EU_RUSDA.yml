@@ -1,9 +1,4 @@
 id: 269
-sort: 18
-user_created: b4617b0d-fb2e-49db-b63c-138b9263cae0
-date_created: '2024-12-18T15:43:17.353Z'
-user_updated: null
-date_updated: null
 title: EU Restrictive measures in view of Russia's destabilising activities
 key: EU-RUSDA
 url: https://sanctionsmap.eu/#/main/details/63/
@@ -28,4 +23,3 @@ summary: 'In several of its Conclusions in 2022 and 2023 the Council strongly co
   available to those listed, either directly or indirectly.'
 issuer: eu_council
 dataset: eu_fsf
-status: published

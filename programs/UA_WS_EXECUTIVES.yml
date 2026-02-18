@@ -1,9 +1,4 @@
 id: 310
-sort: null
-user_created: b4617b0d-fb2e-49db-b63c-138b9263cae0
-date_created: '2025-10-14T11:46:46.269Z'
-user_updated: b4617b0d-fb2e-49db-b63c-138b9263cae0
-date_updated: '2025-10-14T12:08:36.659Z'
 title: Officials, security agencies, and defense industry representatives shaping
   Russia’s military-industrial policy, defense orders, and wartime economy
 key: UA-WS-EXECUTIVES
@@ -11,4 +6,3 @@ url: https://war-sanctions.gur.gov.ua/en/executives
 summary: ''
 issuer: ua_gur
 dataset: ua_war_sanctions
-status: published

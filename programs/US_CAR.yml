@@ -1,9 +1,4 @@
 id: 9
-sort: 124
-user_created: b5d15d63-f9b3-43bf-922d-2578139a949c
-date_created: '2024-05-30T12:54:34.349Z'
-user_updated: adaf0b89-bde0-47c2-9dc1-b64fedce7810
-date_updated: '2024-06-24T12:16:31.509Z'
 title: Central African Republic Sanctions
 key: US-CAR
 url: https://ofac.treasury.gov/sanctions-programs-and-country-information/central-african-republic-sanctions
@@ -13,6 +8,5 @@ summary: These sanctions are imposed on individuals and entities contributing to
   freezes and travel bans to promote peace, security, and stability in the region.
 issuer: us_ofac
 dataset: us_ofac_sdn
-status: published
 aliases:
 - EO 13667

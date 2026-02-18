@@ -1,9 +1,4 @@
 id: 2
-sort: 179
-user_created: f83b9691-33ac-41af-8675-9d94707d4312
-date_created: '2024-04-20T20:03:18.204Z'
-user_updated: f83b9691-33ac-41af-8675-9d94707d4312
-date_updated: '2024-06-24T08:13:06.169Z'
 title: BIS Entity List (EL)
 key: US-BIS-EL
 url: https://www.bis.doc.gov/index.php/policy-guidance/lists-of-parties-of-concern/entity-list
@@ -17,6 +12,5 @@ summary: The Export Administration Regulations (EAR) contain a list of names of 
   elsewhere in the EAR.
 issuer: us_bis
 dataset: us_trade_csl
-status: published
 aliases:
 - Supplement No. 4 to Part 744 of the EAR

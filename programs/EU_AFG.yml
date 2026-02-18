@@ -1,9 +1,4 @@
 id: 259
-sort: 153
-user_created: b4617b0d-fb2e-49db-b63c-138b9263cae0
-date_created: '2024-12-13T15:19:56.474Z'
-user_updated: b4617b0d-fb2e-49db-b63c-138b9263cae0
-date_updated: '2024-12-13T15:44:14.057Z'
 title: EU Restrictive measures imposed with respect to the Taliban
 key: EU-AFG
 url: https://sanctionsmap.eu/#/main/details/1/
@@ -22,4 +17,3 @@ summary: 'The measures were initially imposed on 15 October 1999. On 17 June 201
   purposes.'
 issuer: eu_council
 dataset: eu_fsf
-status: published

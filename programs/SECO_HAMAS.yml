@@ -1,9 +1,4 @@
 id: 276
-sort: null
-user_created: b4617b0d-fb2e-49db-b63c-138b9263cae0
-date_created: '2025-05-19T15:46:34.278Z'
-user_updated: b4617b0d-fb2e-49db-b63c-138b9263cae0
-date_updated: '2025-05-19T15:51:57.953Z'
 title: Measures Against Persons and Organisations Supporting Hamas or the Palestinian
   Islamic Jihad
 key: SECO-HAMAS
@@ -13,4 +8,3 @@ summary: The measures were adopted in response to the acts of violence of Hamas 
   international human rights standards.
 issuer: ch_seco
 dataset: ch_seco_sanctions
-status: published

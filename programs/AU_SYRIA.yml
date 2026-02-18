@@ -1,9 +1,4 @@
 id: 194
-sort: 13
-user_created: b5d15d63-f9b3-43bf-922d-2578139a949c
-date_created: '2024-06-14T11:16:48.728Z'
-user_updated: adaf0b89-bde0-47c2-9dc1-b64fedce7810
-date_updated: '2024-06-26T09:43:29.355Z'
 title: Syria Sanctions Regime
 key: AU-SYRIA
 url: https://www.dfat.gov.au/international-relations/security/sanctions/sanctions-regimes/syria-sanctions-regime
@@ -14,4 +9,3 @@ summary: Since 2011, Australia has imposed autonomous sanctions in relation to S
   in cultural property that has been illegally removed from Syria.
 issuer: au_dfat
 dataset: au_dfat_sanctions
-status: published

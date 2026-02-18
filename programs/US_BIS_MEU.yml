@@ -1,9 +1,4 @@
 id: 45
-sort: 62
-user_created: b5d15d63-f9b3-43bf-922d-2578139a949c
-date_created: '2024-05-30T13:49:14.902Z'
-user_updated: adaf0b89-bde0-47c2-9dc1-b64fedce7810
-date_updated: '2024-06-05T11:12:49.542Z'
 title: BIS Military End-Users (MEU) List
 key: US-BIS-MEU
 url: https://www.bis.doc.gov/index.php/policy-guidance/lists-of-parties-of-concern
@@ -14,4 +9,3 @@ summary: This list is maintained by BIS and includes entities that are deemed to
   entities are carefully monitored and controlled.
 issuer: us_bis
 dataset: us_trade_csl
-status: published

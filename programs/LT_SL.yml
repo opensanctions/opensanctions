@@ -1,9 +1,4 @@
 id: 287
-sort: null
-user_created: b4617b0d-fb2e-49db-b63c-138b9263cae0
-date_created: '2025-09-10T15:56:49.620Z'
-user_updated: null
-date_updated: null
 title: Lithuanian Entities Owned or Controlled by Sanctioned Parties
 key: LT-SL
 url: https://fntt.lrv.lt/lt/tarptautines-finansines-sankcijos/sankcionuotu-asmenu-sarasas/
@@ -15,4 +10,3 @@ summary: The Financial Crimes Investigation Service (FNTT) under Lithuania's Min
   as a complement to the main international sanctions lists from the UN and EU.
 issuer: lt_lt
 dataset: lt_fiu_freezes
-status: published

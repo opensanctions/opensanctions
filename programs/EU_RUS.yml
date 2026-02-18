@@ -1,9 +1,4 @@
 id: 263
-sort: 110
-user_created: b4617b0d-fb2e-49db-b63c-138b9263cae0
-date_created: '2024-12-13T16:41:53.443Z'
-user_updated: b4617b0d-fb2e-49db-b63c-138b9263cae0
-date_updated: '2024-12-17T16:42:25.201Z'
 title: EU Sanctions against Russia
 key: EU-RUS
 url: https://sanctionsmap.eu/#/main/details/61,26/
@@ -32,7 +27,6 @@ summary: 'Entities listed under these programs may be subject to only one of the
   of sanctions.'
 issuer: eu_council
 dataset: eu_fsf
-status: published
 aliases:
 - Restrictive measures in view of the situation in Russia
 - Restrictive measures in view of Russia's actions destabilising the situation in

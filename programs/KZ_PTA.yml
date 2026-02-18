@@ -1,9 +1,4 @@
 id: 295
-sort: null
-user_created: b4617b0d-fb2e-49db-b63c-138b9263cae0
-date_created: '2025-09-12T12:48:14.242Z'
-user_updated: null
-date_updated: null
 title: Participants in Terrorist Activities List
 key: KZ-PTA
 url: https://adilet.zan.kz/eng/docs/Z090000191_
@@ -15,4 +10,3 @@ summary: The Kazakhstan Participants in Terrorist Activities List is established
   and entities directly involved in terrorist activities.
 issuer: kz_kaz
 dataset: kz_afmrk_sanctions
-status: published

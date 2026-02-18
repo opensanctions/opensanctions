@@ -1,9 +1,4 @@
 id: 292
-sort: null
-user_created: b4617b0d-fb2e-49db-b63c-138b9263cae0
-date_created: '2025-09-12T11:06:23.595Z'
-user_updated: b4617b0d-fb2e-49db-b63c-138b9263cae0
-date_updated: '2025-09-12T13:45:45.396Z'
 title: Markets in Financial Instruments Directive II
 key: EU-ESMA
 url: https://www.esma.europa.eu/publications-and-data/interactive-single-rulebook/mifid-ii
@@ -21,4 +16,3 @@ summary: 'The MiFID II Suspensions and Removals Register is established under Ar
   markets across the EU.'
 issuer: eu_esma
 dataset: eu_esma_saris
-status: published

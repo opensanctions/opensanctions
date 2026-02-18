@@ -1,9 +1,4 @@
 id: 109
-sort: 219
-user_created: b5d15d63-f9b3-43bf-922d-2578139a949c
-date_created: '2024-05-31T09:39:07.340Z'
-user_updated: b4617b0d-fb2e-49db-b63c-138b9263cae0
-date_updated: '2025-02-06T19:22:31.097Z'
 title: Libya Sanctions
 key: UN-SC1970
 url: https://www.un.org/securitycouncil/sanctions/1970
@@ -12,6 +7,5 @@ summary: These sanctions target individuals and entities involved in the conflic
   and arms embargoes to promote peace, security, and democratic governance in Libya.
 issuer: zz_unsc
 dataset: un_sc_sanctions
-status: published
 aliases:
 - Resolution 1970

@@ -1,9 +1,4 @@
 id: 27
-sort: 140
-user_created: b5d15d63-f9b3-43bf-922d-2578139a949c
-date_created: '2024-05-30T13:20:51.856Z'
-user_updated: adaf0b89-bde0-47c2-9dc1-b64fedce7810
-date_updated: '2024-06-24T12:17:54.677Z'
 title: Mali-Related Sanctions
 key: US-MALI
 url: https://ofac.treasury.gov/sanctions-programs-and-country-information/mali-related-sanctions
@@ -13,6 +8,5 @@ summary: These sanctions target individuals and entities involved in the conflic
   security, and governance in Mali.
 issuer: us_ofac
 dataset: us_ofac_sdn
-status: published
 aliases:
 - EO 13882

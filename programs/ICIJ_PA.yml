@@ -1,13 +1,7 @@
 id: 212
-sort: 143
-user_created: f83b9691-33ac-41af-8675-9d94707d4312
-date_created: '2024-06-24T16:48:24.862Z'
-user_updated: null
-date_updated: null
 title: Panama Papers (2016)
 key: ICIJ-PA
 url: https://www.icij.org/investigations/panama-papers/
 summary: null
 issuer: zz_icij
 dataset: ext_icij_offshoreleaks
-status: published

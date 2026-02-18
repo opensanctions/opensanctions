@@ -1,9 +1,4 @@
 id: 58
-sort: 36
-user_created: b5d15d63-f9b3-43bf-922d-2578139a949c
-date_created: '2024-05-30T14:42:06.974Z'
-user_updated: b4617b0d-fb2e-49db-b63c-138b9263cae0
-date_updated: '2024-12-13T15:44:03.853Z'
 title: EU Restrictive measures in view of the situation in Belarus and the involvement
   of Belarus in the Russian aggression against Ukraine
 key: EU-BLR
@@ -14,4 +9,3 @@ summary: These sanctions target individuals and entities in Belarus involved in 
   to pressure Belarus to respect international norms and support Ukraine's sovereignty.
 issuer: eu_council
 dataset: eu_fsf
-status: published

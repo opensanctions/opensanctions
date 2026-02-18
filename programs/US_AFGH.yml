@@ -1,9 +1,4 @@
 id: 5
-sort: 9
-user_created: b5d15d63-f9b3-43bf-922d-2578139a949c
-date_created: '2024-05-30T12:35:55.105Z'
-user_updated: f83b9691-33ac-41af-8675-9d94707d4312
-date_updated: '2024-06-21T12:02:00.433Z'
 title: Afghanistan-Related Sanctions
 key: US-AFGH
 url: https://ofac.treasury.gov/sanctions-programs-and-country-information/afghanistan-related-sanctions
@@ -11,6 +6,5 @@ summary: This United States sanctions program is designed to fight terrorism rel
   to Afghanistan and the Taliban.
 issuer: us_ofac
 dataset: us_ofac_sdn
-status: published
 aliases:
 - EO 14064, EO 13268, EO 13224

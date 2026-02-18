@@ -1,9 +1,4 @@
 id: 293
-sort: null
-user_created: b4617b0d-fb2e-49db-b63c-138b9263cae0
-date_created: '2025-09-12T12:19:17.597Z'
-user_updated: null
-date_updated: null
 title: INTERPOL Red Notices
 key: INTERPOL-RN
 url: https://www.interpol.int/en/How-we-work/Notices/Red-Notices
@@ -24,4 +19,3 @@ summary: 'INTERPOL Red Notices are established under the INTERPOL Constitution (
   compliance.'
 issuer: zz_icpo_interpol
 dataset: interpol_red_notices
-status: published

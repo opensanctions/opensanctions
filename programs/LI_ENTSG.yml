@@ -1,9 +1,4 @@
 id: 299
-sort: null
-user_created: b4617b0d-fb2e-49db-b63c-138b9263cae0
-date_created: '2025-09-18T15:43:38.555Z'
-user_updated: null
-date_updated: null
 title: Articles 7 and 9 of the Liechtenstein Posted Workers Act
 key: LI-ENTSG
 url: https://www.llv.li/de/landesverwaltung/amt-fuer-volkswirtschaft/grenzueberschreitende-dienstleistungen/entsendung-von-arbeitnehmern/sanktionsliste-gemaess-art.-7-abs.-4-entsg
@@ -16,4 +11,3 @@ summary: Articles 7 and 9 of the Liechtenstein Posted Workers Act create a two-t
   sanctions.
 issuer: li_avw
 dataset: li_entsg
-status: published

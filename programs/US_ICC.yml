@@ -1,9 +1,4 @@
 id: 282
-sort: null
-user_created: 9dc0d629-520b-4c06-a6c7-7edd82079bb9
-date_created: '2025-06-04T10:14:27.423Z'
-user_updated: 9dc0d629-520b-4c06-a6c7-7edd82079bb9
-date_updated: '2025-06-05T14:22:24.103Z'
 title: International Criminal Court-Related Sanctions
 key: US-ICC
 url: https://ofac.treasury.gov/sanctions-programs-and-country-information/international-criminal-court-related-sanctions
@@ -19,6 +14,5 @@ summary: 'This sanctions program targets anyone involved with any process of the
   alleged crimes against humanity and war crimes.'
 issuer: us_ofac
 dataset: us_ofac_sdn
-status: published
 aliases:
 - EO 14203

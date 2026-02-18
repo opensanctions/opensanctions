@@ -1,9 +1,4 @@
 id: 3
-sort: 188
-user_created: f83b9691-33ac-41af-8675-9d94707d4312
-date_created: '2024-05-24T13:19:02.134Z'
-user_updated: adaf0b89-bde0-47c2-9dc1-b64fedce7810
-date_updated: '2024-06-19T11:28:42.062Z'
 title: ' Justice For Victims Of Corrupt Foreign Officials Act'
 key: CA-JVCFOA
 url: https://www.international.gc.ca/world-monde/international_relations-relations_internationales/sanctions/victims_corrupt-victimes_corrompus.aspx?lang=eng
@@ -14,4 +9,3 @@ summary: Pursuant to the Justice for Victims of Corrupt Foreign Officials Act, C
   responsible for or complicit in acts of significant corruption.
 issuer: ca_mfa
 dataset: ca_dfatd_sema_sanctions
-status: published

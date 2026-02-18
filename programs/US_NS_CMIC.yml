@@ -1,9 +1,4 @@
 id: 51
-sort: 129
-user_created: b5d15d63-f9b3-43bf-922d-2578139a949c
-date_created: '2024-05-30T13:57:36.037Z'
-user_updated: b4617b0d-fb2e-49db-b63c-138b9263cae0
-date_updated: '2025-02-06T19:30:49.849Z'
 title: Non-SDN Chinese Military-Industrial Complex Companies
 key: US-NS-CMIC
 url: https://ofac.treasury.gov/other-ofac-sanctions-lists
@@ -13,6 +8,5 @@ summary: This list includes Chinese companies involved in the military-industria
   role in enhancing China's military capabilities and ensure U.S. national security.
 issuer: us_ofac
 dataset: us_ofac_cons
-status: published
 aliases:
 - ' NS-CMIC'

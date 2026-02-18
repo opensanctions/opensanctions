@@ -1,9 +1,4 @@
 id: 84
-sort: 83
-user_created: b5d15d63-f9b3-43bf-922d-2578139a949c
-date_created: '2024-05-31T08:46:13.749Z'
-user_updated: b4617b0d-fb2e-49db-b63c-138b9263cae0
-date_updated: '2024-12-13T16:46:29.765Z'
 title: EU Restrictive Measures In View Of The Situation In South Sudan
 key: EU-SSD
 url: https://sanctionsmap.eu/#/main/details/30/
@@ -13,4 +8,3 @@ summary: These sanctions target individuals and entities involved in actions tha
   in South Sudan.
 issuer: eu_council
 dataset: eu_fsf
-status: published

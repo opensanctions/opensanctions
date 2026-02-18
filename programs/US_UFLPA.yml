@@ -1,9 +1,4 @@
 id: 188
-sort: 34
-user_created: b5d15d63-f9b3-43bf-922d-2578139a949c
-date_created: '2024-06-04T15:04:05.486Z'
-user_updated: f83b9691-33ac-41af-8675-9d94707d4312
-date_updated: '2024-06-24T09:02:47.102Z'
 title: Uyghur Forced Labor Prevention Act (Public Law No. 117-78)
 key: US-UFLPA
 url: https://www.dhs.gov/uflpa
@@ -13,6 +8,5 @@ summary: This list includes entities involved in the use of forced labor in Xinj
   the U.S. market and to promote human rights.
 issuer: us_dhs
 dataset: us_dhs_uflpa
-status: published
 aliases:
 - UFLPA

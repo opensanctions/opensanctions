@@ -1,9 +1,4 @@
 id: 266
-sort: 208
-user_created: b4617b0d-fb2e-49db-b63c-138b9263cae0
-date_created: '2024-12-13T17:25:23.143Z'
-user_updated: null
-date_updated: null
 title: EU Restrictive measures in view of the situation in Zimbabwe
 key: EU-ZWE
 url: https://sanctionsmap.eu/#/main/details/40/
@@ -38,4 +33,3 @@ summary: 'Restrictive measures were first introduced on 18 February 2002 in rela
   the measures remains in force for the listed entity.'
 issuer: eu_council
 dataset: eu_fsf
-status: published

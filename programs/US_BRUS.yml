@@ -1,9 +1,4 @@
 id: 7
-sort: 98
-user_created: b5d15d63-f9b3-43bf-922d-2578139a949c
-date_created: '2024-05-30T12:46:21.346Z'
-user_updated: f83b9691-33ac-41af-8675-9d94707d4312
-date_updated: '2024-06-18T14:45:36.536Z'
 title: Belarus Sanctions
 key: US-BRUS
 url: https://ofac.treasury.gov/sanctions-programs-and-country-information/belarus-sanctions
@@ -13,6 +8,5 @@ summary: These sanctions target the Belarusian government and individuals respon
   government to respect democratic norms and human rights.
 issuer: us_ofac
 dataset: us_ofac_sdn
-status: published
 aliases:
 - EO 14038, EO 13405

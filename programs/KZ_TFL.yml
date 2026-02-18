@@ -1,9 +1,4 @@
 id: 294
-sort: null
-user_created: b4617b0d-fb2e-49db-b63c-138b9263cae0
-date_created: '2025-09-12T12:45:19.806Z'
-user_updated: null
-date_updated: null
 title: Terror Financing List
 key: KZ-TFL
 url: https://adilet.zan.kz/eng/docs/Z090000191_
@@ -17,4 +12,3 @@ summary: The Kazakhstan Terror Financing List is established under Article 12 of
   designated entities.
 issuer: kz_kaz
 dataset: kz_afmrk_sanctions
-status: published

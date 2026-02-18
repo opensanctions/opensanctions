@@ -1,9 +1,4 @@
 id: 281
-sort: null
-user_created: b4617b0d-fb2e-49db-b63c-138b9263cae0
-date_created: '2025-05-26T16:03:28.848Z'
-user_updated: b4617b0d-fb2e-49db-b63c-138b9263cae0
-date_updated: '2025-10-17T17:15:05.778Z'
 title: Australia's Counter-Terrorism (UNSCR 1373) Sanctions Regime
 key: AU-UNSC1373
 url: https://www.dfat.gov.au/international-relations/security/sanctions/sanctions-regimes/counter-terrorism-unsc-1373-sanctions-regime
@@ -15,6 +10,5 @@ summary: The United Nations Security Council adopted Resolution 1373 on 28 Septe
   Australian law.
 issuer: au_dfat
 dataset: au_dfat_sanctions
-status: published
 aliases:
 - Resolution 1373

@@ -1,9 +1,4 @@
 id: 103
-sort: 19
-user_created: b5d15d63-f9b3-43bf-922d-2578139a949c
-date_created: '2024-05-31T09:23:30.440Z'
-user_updated: b4617b0d-fb2e-49db-b63c-138b9263cae0
-date_updated: '2025-02-07T13:23:16.233Z'
 title: ISIL & Al-Qaida Sanctions
 key: UN-SCISIL
 url: https://www.un.org/securitycouncil/sanctions/1267
@@ -19,6 +14,5 @@ summary: 'Security Council Committee pursuant to resolutions 1267 (1999), 1989 (
   & Al-Qaida Sanctions List”).'
 issuer: zz_unsc
 dataset: un_sc_sanctions
-status: published
 aliases:
 - Resolutions 1267, 1989, 2253

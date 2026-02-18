@@ -1,9 +1,4 @@
 id: 53
-sort: 68
-user_created: b5d15d63-f9b3-43bf-922d-2578139a949c
-date_created: '2024-05-30T14:03:03.990Z'
-user_updated: f83b9691-33ac-41af-8675-9d94707d4312
-date_updated: '2024-11-25T11:36:12.550Z'
 title: John S. McCain National Defense Authorization Act for Fiscal Year 2019 (889
   List)
 key: US-MCCAIN-889
@@ -14,6 +9,5 @@ summary: This act includes a list of entities subject to sanctions for their inv
   on defense-related transactions and other actions to safeguard U.S. interests.
 issuer: us_congress
 dataset: us_special_leg
-status: published
 aliases:
 - 889 List

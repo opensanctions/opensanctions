@@ -1,9 +1,4 @@
 id: 278
-sort: null
-user_created: b4617b0d-fb2e-49db-b63c-138b9263cae0
-date_created: '2025-05-20T21:58:47.901Z'
-user_updated: null
-date_updated: null
 title: Section 154 of the United States National Defense Authorization Act for Fiscal
   Year 2024
 key: US-NDAA-154
@@ -14,4 +9,3 @@ summary: Section 154 of the National Defense Authorization Act (NDAA) for Fiscal
   in military applications.
 issuer: us_congress
 dataset: us_special_leg
-status: published

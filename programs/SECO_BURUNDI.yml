@@ -1,9 +1,4 @@
 id: 134
-sort: 187
-user_created: b5d15d63-f9b3-43bf-922d-2578139a949c
-date_created: '2024-05-31T11:00:41.516Z'
-user_updated: adaf0b89-bde0-47c2-9dc1-b64fedce7810
-date_updated: '2024-06-19T11:24:39.299Z'
 title: Measures Against Burundi
 key: SECO-BURUNDI
 url: https://www.seco.admin.ch/seco/de/home/Aussenwirtschaftspolitik_Wirtschaftliche_Zusammenarbeit/Wirtschaftsbeziehungen/exportkontrollen-und-sanktionen/sanktionen-embargos/sanktionsmassnahmen/massnahmen-gegenueber-burundi.html
@@ -13,4 +8,3 @@ summary: These sanctions target individuals and entities in Burundi involved in 
   and respect for human rights in Burundi.
 issuer: ch_seco
 dataset: ch_seco_sanctions
-status: published

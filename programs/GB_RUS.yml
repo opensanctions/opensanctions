@@ -1,13 +1,7 @@
 id: 249
-sort: 175
-user_created: adaf0b89-bde0-47c2-9dc1-b64fedce7810
-date_created: '2024-07-04T14:34:24.046Z'
-user_updated: b4617b0d-fb2e-49db-b63c-138b9263cae0
-date_updated: '2025-07-28T14:51:35.187Z'
 title: UK sanctions relating to Russia
 key: GB-RUS
 url: https://www.gov.uk/government/collections/uk-sanctions-on-russia
 summary: Sanctions against entities and individuals in Russia.
 issuer: gb_ofsi
 dataset: gb_hmt_sanctions
-status: published

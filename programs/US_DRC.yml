@@ -1,9 +1,4 @@
 id: 15
-sort: 118
-user_created: b5d15d63-f9b3-43bf-922d-2578139a949c
-date_created: '2024-05-30T13:04:32.099Z'
-user_updated: adaf0b89-bde0-47c2-9dc1-b64fedce7810
-date_updated: '2024-06-26T11:13:14.646Z'
 title: Democratic Republic Of The Congo-Related Sanctions
 key: US-DRC
 url: https://ofac.treasury.gov/sanctions-programs-and-country-information/democratic-republic-of-the-congo-related-sanctions
@@ -13,6 +8,5 @@ summary: These sanctions target individuals and entities contributing to the con
   freezes and travel bans to promote peace, security, and stability in the region.
 issuer: us_ofac
 dataset: us_ofac_sdn
-status: published
 aliases:
 - EO 13671, EO 13413

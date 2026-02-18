@@ -1,9 +1,4 @@
 id: 140
-sort: 202
-user_created: b5d15d63-f9b3-43bf-922d-2578139a949c
-date_created: '2024-05-31T11:14:17.637Z'
-user_updated: adaf0b89-bde0-47c2-9dc1-b64fedce7810
-date_updated: '2024-06-19T11:40:04.870Z'
 title: Measures In relation To Moldova
 key: SECO-MOLDOVA
 url: https://www.seco.admin.ch/seco/de/home/Aussenwirtschaftspolitik_Wirtschaftliche_Zusammenarbeit/Wirtschaftsbeziehungen/exportkontrollen-und-sanktionen/sanktionen-embargos/sanktionsmassnahmen/massnahmen-gegenueber-moldau.html
@@ -13,4 +8,3 @@ summary: These sanctions target individuals and entities in Moldova involved in 
   for human rights in Moldova.
 issuer: ch_seco
 dataset: ch_seco_sanctions
-status: published

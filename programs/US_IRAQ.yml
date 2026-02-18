@@ -1,9 +1,4 @@
 id: 22
-sort: 28
-user_created: b5d15d63-f9b3-43bf-922d-2578139a949c
-date_created: '2024-05-30T13:14:58.592Z'
-user_updated: adaf0b89-bde0-47c2-9dc1-b64fedce7810
-date_updated: '2024-06-24T12:17:33.107Z'
 title: Iraq-Related Sanctions
 key: US-IRAQ
 url: https://ofac.treasury.gov/sanctions-programs-and-country-information/iraq-related-sanctions
@@ -14,6 +9,5 @@ summary: "These sanctions target individuals and entities involved in destabiliz
   \ 13350, EO 13315, EO 13303, EO 13290)"
 issuer: us_ofac
 dataset: us_ofac_sdn
-status: published
 aliases:
 - EO 13668

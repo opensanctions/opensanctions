@@ -1,9 +1,4 @@
 id: 317
-sort: null
-user_created: b4617b0d-fb2e-49db-b63c-138b9263cae0
-date_created: '2025-10-17T17:27:14.912Z'
-user_updated: null
-date_updated: null
 title: United Arab Emirates Counter-Terrorism (UNSCR 1373) Sanctions Regime
 key: AE-UNSC1373
 url: https://www.uaeiec.gov.ae/en-us/un-page?p=1#
@@ -14,4 +9,3 @@ summary: The UAE implements UN Security Council Resolution 1373 (2001) through a
   made without prior notice and independent of criminal proceedings.
 issuer: ae_ae
 dataset: ae_local_terrorists
-status: published

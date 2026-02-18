@@ -1,13 +1,7 @@
 id: 245
-sort: 100
-user_created: adaf0b89-bde0-47c2-9dc1-b64fedce7810
-date_created: '2024-07-04T14:34:24.019Z'
-user_updated: b4617b0d-fb2e-49db-b63c-138b9263cae0
-date_updated: '2025-07-28T14:48:50.262Z'
 title: UK sanctions relating to Libya
 key: GB-LBY
 url: https://www.gov.uk/government/collections/uk-sanctions-relating-to-libya
 summary: Targeting entities and individuals in Libya.
 issuer: gb_ofsi
 dataset: gb_hmt_sanctions
-status: published

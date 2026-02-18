@@ -1,9 +1,4 @@
 id: 198
-sort: 25
-user_created: b5d15d63-f9b3-43bf-922d-2578139a949c
-date_created: '2024-06-14T11:36:54.967Z'
-user_updated: 9dc0d629-520b-4c06-a6c7-7edd82079bb9
-date_updated: '2024-12-09T15:36:19.912Z'
 title: Iran Sanctions Regime
 key: AU-IRAN
 url: https://www.dfat.gov.au/international-relations/security/sanctions/sanctions-regimes/iran-sanctions-regime
@@ -12,4 +7,3 @@ summary: Australia imposes autonomous sanctions in relation to Iran, which compl
   local law.
 issuer: au_dfat
 dataset: au_dfat_sanctions
-status: published

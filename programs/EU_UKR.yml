@@ -1,9 +1,4 @@
 id: 268
-sort: 152
-user_created: b4617b0d-fb2e-49db-b63c-138b9263cae0
-date_created: '2024-12-17T16:10:20.811Z'
-user_updated: bb09db79-2b20-4f44-b1ce-62a1492faa26
-date_updated: '2025-04-22T12:33:24.015Z'
 title: EU sanctions related to Ukraine
 key: EU-UKR
 url: https://sanctionsmap.eu/#/main/details/35,36/
@@ -28,7 +23,6 @@ summary: 'Entities listed under these programs may be subject to only one of the
   of Belarus in the aggression. Derogations allow for humanitarian aid delivery.'
 issuer: eu_council
 dataset: eu_fsf
-status: published
 aliases:
 - Misappropriation of state funds of Ukraine
 - Restrictive measures in respect of actions undermining or threatening the territorial

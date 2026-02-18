@@ -1,9 +1,4 @@
 id: 196
-sort: 23
-user_created: b5d15d63-f9b3-43bf-922d-2578139a949c
-date_created: '2024-06-14T11:24:39.102Z'
-user_updated: f83b9691-33ac-41af-8675-9d94707d4312
-date_updated: '2024-06-25T15:46:49.773Z'
 title: Democratic People's Republic Of Korea (North Korea) Sanctions Regime
 key: AU-DPRK
 url: https://www.dfat.gov.au/international-relations/security/sanctions/sanctions-regimes/democratic-peoples-republic-korea-sanctions-regime
@@ -15,4 +10,3 @@ summary: Australia implements the United Nations Security Council (UNSC) related
   weapons of mass destruction (WMD) and proliferation programs.
 issuer: au_dfat
 dataset: au_dfat_sanctions
-status: published

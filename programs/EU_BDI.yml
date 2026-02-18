@@ -1,9 +1,4 @@
 id: 60
-sort: 181
-user_created: b5d15d63-f9b3-43bf-922d-2578139a949c
-date_created: '2024-05-30T14:44:50.102Z'
-user_updated: b4617b0d-fb2e-49db-b63c-138b9263cae0
-date_updated: '2024-12-13T15:38:24.608Z'
 title: EU Restrictive Measures In View Of The Situation In Burundi
 key: EU-BDI
 url: https://sanctionsmap.eu/#/main/details/7/
@@ -13,4 +8,3 @@ summary: These sanctions target individuals and entities in Burundi involved in 
   and respect for human rights in Burundi.
 issuer: eu_council
 dataset: eu_fsf
-status: published

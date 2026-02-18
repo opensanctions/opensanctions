@@ -1,9 +1,4 @@
 id: 11
-sort: 130
-user_created: b5d15d63-f9b3-43bf-922d-2578139a949c
-date_created: '2024-05-30T13:00:40.732Z'
-user_updated: adaf0b89-bde0-47c2-9dc1-b64fedce7810
-date_updated: '2024-06-24T12:16:56.214Z'
 title: Counter Narcotics Trafficking Sanctions
 key: US-NARCO
 url: https://ofac.treasury.gov/sanctions-programs-and-country-information/counter-narcotics-trafficking-sanctions
@@ -13,6 +8,5 @@ summary: These sanctions target individuals and entities involved in internation
   and dismantle their operations.
 issuer: us_ofac
 dataset: us_ofac_sdn
-status: published
 aliases:
 - ' EO 12978, EO 14059'

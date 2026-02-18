@@ -1,9 +1,4 @@
 id: 26
-sort: 6
-user_created: b5d15d63-f9b3-43bf-922d-2578139a949c
-date_created: '2024-05-30T13:19:30.233Z'
-user_updated: f83b9691-33ac-41af-8675-9d94707d4312
-date_updated: '2024-11-25T09:08:46.104Z'
 title: Magnitsky Sanctions
 key: US-MAGNITSKY
 url: https://ofac.treasury.gov/sanctions-programs-and-country-information/the-magnitsky-sanctions
@@ -14,7 +9,6 @@ summary: These sanctions target individuals and entities responsible for human r
   treasury and the eventual killing of tax lawyer Sergei Magnitsky.
 issuer: us_ofac
 dataset: us_ofac_sdn
-status: published
 aliases:
 - EO 13818
 - Russia and Moldova Jackson–Vanik Repeal and Sergei Magnitsky Rule of Law Accountability

@@ -1,9 +1,4 @@
 id: 31
-sort: 5
-user_created: b5d15d63-f9b3-43bf-922d-2578139a949c
-date_created: '2024-05-30T13:26:07.923Z'
-user_updated: adaf0b89-bde0-47c2-9dc1-b64fedce7810
-date_updated: '2024-06-24T12:18:14.000Z'
 title: Russian Harmful Foreign Activities Sanctions
 key: US-RUSHAR
 url: https://ofac.treasury.gov/sanctions-programs-and-country-information/russian-harmful-foreign-activities-sanctions
@@ -17,6 +12,5 @@ summary: 'These sanctions target individuals and entities involved in activities
   (EO 14114, EO 14071, EO 14068, EO 14066, EO 14039, EO 14024)'
 issuer: us_ofac
 dataset: us_ofac_sdn
-status: published
 aliases:
 - EO 14114 et al.

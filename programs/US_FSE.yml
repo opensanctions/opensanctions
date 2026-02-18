@@ -1,9 +1,4 @@
 id: 49
-sort: 41
-user_created: b5d15d63-f9b3-43bf-922d-2578139a949c
-date_created: '2024-05-30T13:54:45.667Z'
-user_updated: b4617b0d-fb2e-49db-b63c-138b9263cae0
-date_updated: '2025-02-06T19:28:43.903Z'
 title: Foreign Sanctions Evaders (FSE) List
 key: US-FSE
 url: https://ofac.treasury.gov/other-ofac-sanctions-lists
@@ -13,6 +8,5 @@ summary: This list, maintained by OFAC, includes individuals and entities that h
   these actors from undermining U.S. foreign policy objectives.
 issuer: us_ofac
 dataset: us_ofac_cons
-status: published
 aliases:
 - EO 13608

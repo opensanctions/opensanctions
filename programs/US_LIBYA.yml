@@ -1,9 +1,4 @@
 id: 24
-sort: 137
-user_created: b5d15d63-f9b3-43bf-922d-2578139a949c
-date_created: '2024-05-30T13:17:40.766Z'
-user_updated: adaf0b89-bde0-47c2-9dc1-b64fedce7810
-date_updated: '2024-06-24T12:17:49.004Z'
 title: Libya Sanctions
 key: US-LIBYA
 url: https://ofac.treasury.gov/sanctions-programs-and-country-information/libya-sanctions
@@ -12,6 +7,5 @@ summary: These sanctions target individuals and entities involved in the ongoing
   on transactions to promote peace, security, and democratic governance in Libya.
 issuer: us_ofac
 dataset: us_ofac_sdn
-status: published
 aliases:
 - EO 13726, EO 13566

@@ -1,9 +1,4 @@
 id: 288
-sort: null
-user_created: b4617b0d-fb2e-49db-b63c-138b9263cae0
-date_created: '2025-09-10T16:12:17.045Z'
-user_updated: null
-date_updated: null
 title: US DDTC Statutory Debarment List
 key: US-DDTC-SD
 url: https://www.pmddtc.state.gov/ddtc_public?id=ddtc_kb_article_page&sys_id=7188dac6db3cd30044f9ff621f961914
@@ -16,4 +11,3 @@ summary: The US Department of State's Directorate of Defense Trade Controls (DDT
   data, and defense services.
 issuer: us_state
 dataset: us_ddtc_debarred
-status: published

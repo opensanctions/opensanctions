@@ -1,9 +1,4 @@
 id: 8
-sort: 127
-user_created: b5d15d63-f9b3-43bf-922d-2578139a949c
-date_created: '2024-05-30T12:48:25.524Z'
-user_updated: f83b9691-33ac-41af-8675-9d94707d4312
-date_updated: '2024-06-21T12:02:08.382Z'
 title: Burma-Related Sanctions
 key: US-BURMA
 url: https://ofac.treasury.gov/sanctions-programs-and-country-information/burma
@@ -13,6 +8,5 @@ summary: These sanctions target the Burmese military and entities connected to i
   aiming to restore democratic governance and protect human rights in Burma.
 issuer: us_ofac
 dataset: us_ofac_cons
-status: published
 aliases:
 - EO 14014

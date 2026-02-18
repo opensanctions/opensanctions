@@ -1,9 +1,4 @@
 id: 297
-sort: null
-user_created: b4617b0d-fb2e-49db-b63c-138b9263cae0
-date_created: '2025-09-12T13:10:24.264Z'
-user_updated: null
-date_updated: null
 title: US Immigration and Nationality Act Section 219
 key: US-FTO219
 url: https://www.congress.gov/crs-product/IF10613#
@@ -21,4 +16,3 @@ summary: 'Pursuant to Section 219 of the INA, the Secretary of State is authoriz
   and 1989 (FRAA, P.L. 100-204, as amended; 22 U.S.C. §2656f(d)(2)).'
 issuer: us_state
 dataset: us_state_terrorist_orgs
-status: published

@@ -1,9 +1,4 @@
 id: 312
-sort: null
-user_created: b4617b0d-fb2e-49db-b63c-138b9263cae0
-date_created: '2025-10-14T11:53:23.873Z'
-user_updated: b4617b0d-fb2e-49db-b63c-138b9263cae0
-date_updated: '2025-10-14T12:11:02.574Z'
 title: Russian military-industrial complex
 key: UA-WS-MILIND
 url: https://war-sanctions.gur.gov.ua/en/rostec
@@ -12,4 +7,3 @@ summary: Enterprises within the three military holdings of the Russian state cor
   engines used in Russia’s war against Ukraine.
 issuer: ua_gur
 dataset: ua_war_sanctions
-status: published

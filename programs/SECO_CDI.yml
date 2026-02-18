@@ -1,9 +1,4 @@
 id: 143
-sort: 191
-user_created: b5d15d63-f9b3-43bf-922d-2578139a949c
-date_created: '2024-05-31T11:17:21.254Z'
-user_updated: adaf0b89-bde0-47c2-9dc1-b64fedce7810
-date_updated: '2024-06-19T11:32:19.694Z'
 title: Former Measures Against Ivory Coast
 key: SECO-CDI
 url: https://www.seco.admin.ch/seco/de/home/Aussenwirtschaftspolitik_Wirtschaftliche_Zusammenarbeit/Wirtschaftsbeziehungen/exportkontrollen-und-sanktionen/sanktionen-embargos/sanktionsmassnahmen/massnahmen-gegenueber-cote-d-ivoire.html
@@ -13,4 +8,3 @@ summary: These sanctions targeted individuals and entities in Cote d'Ivoire invo
   the resolution of conflict and promote human rights and stability.
 issuer: ch_seco
 dataset: ch_seco_sanctions
-status: published

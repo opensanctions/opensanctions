@@ -1,9 +1,4 @@
 id: 209
-sort: 7
-user_created: f83b9691-33ac-41af-8675-9d94707d4312
-date_created: '2024-06-21T11:26:08.007Z'
-user_updated: null
-date_updated: null
 title: National list of terrorist suspects whose assets have been frozen
 key: BE-FOD-NAT
 url: https://finance.belgium.be/en/about_fps/structure_and_services/general_administrations/treasury/financial-sanctions/national
@@ -14,4 +9,3 @@ summary: The National Security Council establishes and changes the national list
   Ministers and published in the Belgian Official Journal by Royal Decree.
 issuer: be_nsc
 dataset: be_fod_sanctions
-status: published

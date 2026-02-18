@@ -1,9 +1,4 @@
 id: 279
-sort: null
-user_created: b4617b0d-fb2e-49db-b63c-138b9263cae0
-date_created: '2025-05-26T14:06:24.539Z'
-user_updated: b4617b0d-fb2e-49db-b63c-138b9263cae0
-date_updated: '2025-05-26T14:07:07.334Z'
 title: Measures Against Persons, Groups, Undertakings and Entities Associated with
   ISIL (Da'esh) and Al-Qaida
 key: SECO-ISIL
@@ -13,4 +8,3 @@ summary: These measures target individuals, groups, companies and organisations 
   of international terrorism.
 issuer: ch_seco
 dataset: ch_seco_sanctions
-status: published

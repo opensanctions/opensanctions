@@ -1,9 +1,4 @@
 id: 320
-sort: null
-user_created: b4617b0d-fb2e-49db-b63c-138b9263cae0
-date_created: '2025-12-09T16:52:49.720Z'
-user_updated: b4617b0d-fb2e-49db-b63c-138b9263cae0
-date_updated: '2025-12-09T16:53:40.694Z'
 title: Afghanistan Sanctions Framework
 key: AU-AFGHANISTAN
 url: https://www.dfat.gov.au/international-relations/security/sanctions/sanctions-regimes/afghanistan-sanctions-framework
@@ -14,4 +9,3 @@ summary: Australia introduced an autonomous sanctions framework in relation to A
   authority over the country in August 2021.
 issuer: au_dfat
 dataset: au_dfat_sanctions
-status: published

@@ -1,9 +1,4 @@
 id: 315
-sort: null
-user_created: b4617b0d-fb2e-49db-b63c-138b9263cae0
-date_created: '2025-10-17T17:14:49.141Z'
-user_updated: null
-date_updated: null
 title: Netherlands Counter-Terrorism (UNSCR 1373) Sanctions Regime
 key: NL-UNSC1373
 url: https://www.government.nl/documents/reports/2016/01/15/national-terrorism-list
@@ -14,4 +9,3 @@ summary: The Netherlands implements UN Security Council Resolution 1373 (2001) t
   financial transactions.
 issuer: nl_mfa
 dataset: nl_terrorism_list
-status: published

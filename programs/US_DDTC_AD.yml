@@ -1,9 +1,4 @@
 id: 289
-sort: null
-user_created: b4617b0d-fb2e-49db-b63c-138b9263cae0
-date_created: '2025-09-10T16:22:31.413Z'
-user_updated: null
-date_updated: null
 title: US DDTC Administrative Debarment List
 key: US-DDTC-AD
 url: https://www.pmddtc.state.gov/ddtc_public?id=ddtc_kb_article_page&sys_id=8a89528adb3cd30044f9ff621f961931
@@ -15,4 +10,3 @@ summary: The US Department of State's Directorate of Defense Trade Controls (DDT
   designated persons from participating in defense trade activities.
 issuer: us_state
 dataset: US-DDTC-AD
-status: published

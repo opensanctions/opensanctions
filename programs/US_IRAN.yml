@@ -1,9 +1,4 @@
 id: 21
-sort: 16
-user_created: b5d15d63-f9b3-43bf-922d-2578139a949c
-date_created: '2024-05-30T13:13:47.460Z'
-user_updated: adaf0b89-bde0-47c2-9dc1-b64fedce7810
-date_updated: '2024-06-24T12:17:18.330Z'
 title: 'Iran Sanctions '
 key: US-IRAN
 url: https://ofac.treasury.gov/sanctions-programs-and-country-information/iran-sanctions
@@ -17,6 +12,5 @@ summary: These sanctions target the Iranian government and entities involved in 
   EO 12205, EO 12170)
 issuer: us_ofac
 dataset: us_ofac_sdn
-status: published
 aliases:
 - EO 13949

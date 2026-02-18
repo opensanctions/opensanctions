@@ -1,13 +1,7 @@
 id: 222
-sort: 163
-user_created: adaf0b89-bde0-47c2-9dc1-b64fedce7810
-date_created: '2024-07-04T14:34:23.877Z'
-user_updated: b4617b0d-fb2e-49db-b63c-138b9263cae0
-date_updated: '2025-07-28T14:50:56.153Z'
 title: UK sanctions relating to cyber activity
 key: GB-CYB
 url: https://www.gov.uk/government/collections/uk-cyber-sanctions
 summary: Sanctions addressing malicious cyber activities.
 issuer: gb_ofsi
 dataset: gb_hmt_sanctions
-status: published

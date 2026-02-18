@@ -1,9 +1,4 @@
 id: 12
-sort: 121
-user_created: b5d15d63-f9b3-43bf-922d-2578139a949c
-date_created: '2024-05-30T13:01:51.831Z'
-user_updated: f83b9691-33ac-41af-8675-9d94707d4312
-date_updated: '2024-06-24T15:27:40.429Z'
 title: Counter Terrorism
 key: US-TERR
 url: https://ofac.treasury.gov/sanctions-programs-and-country-information/counter-terrorism-sanctions
@@ -13,7 +8,6 @@ summary: These sanctions target individuals and entities involved in terrorism a
   and disrupt terrorist activities and funding.
 issuer: us_ofac
 dataset: us_ofac_sdn
-status: published
 aliases:
 - EO 13886
 - EO 13372

@@ -1,9 +1,4 @@
 id: 264
-sort: 213
-user_created: b4617b0d-fb2e-49db-b63c-138b9263cae0
-date_created: '2024-12-13T16:44:31.823Z'
-user_updated: null
-date_updated: null
 title: EU Restrictive measures in view of the situation in Somalia
 key: EU-SOM
 url: https://sanctionsmap.eu/#/main/details/29/
@@ -24,4 +19,3 @@ summary: 'Measures imposed at UN level since UN Security Council Resolution 733 
   purposes.'
 issuer: eu_council
 dataset: eu_fsf
-status: published

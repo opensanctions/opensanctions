@@ -1,9 +1,4 @@
 id: 16
-sort: 136
-user_created: b5d15d63-f9b3-43bf-922d-2578139a949c
-date_created: '2024-05-30T13:06:00.319Z'
-user_updated: b4617b0d-fb2e-49db-b63c-138b9263cae0
-date_updated: '2025-02-06T19:38:23.673Z'
 title: 'Ethiopia-Related Sanctions '
 key: US-ETHIOPIA
 url: https://ofac.treasury.gov/sanctions-programs-and-country-information/ethiopia
@@ -13,6 +8,5 @@ summary: These sanctions target individuals and entities responsible for prolong
   and engage in peace negotiations.
 issuer: us_ofac
 dataset: us_ofac_sdn
-status: published
 aliases:
 - EO 14046

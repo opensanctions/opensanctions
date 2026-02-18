@@ -1,9 +1,4 @@
 id: 314
-sort: null
-user_created: b4617b0d-fb2e-49db-b63c-138b9263cae0
-date_created: '2025-10-17T17:10:41.386Z'
-user_updated: null
-date_updated: null
 title: Egypt Counter-Terrorism (UNSCR 1373) Sanctions Regime
 key: EG-UNSC1373
 url: https://mlcu.org.eg/ar/3125/قوائم-ادراج-الكيانات-الارهابية-والارهابيين-المحلية-عملا-بقرار-مجلس-الامن-1373
@@ -12,4 +7,3 @@ summary: Egypt maintains a list of terrorist entities and individuals under dome
   adopted in response to the September 11, 2001 terrorist attacks.
 issuer: eg_mlcu
 dataset: eg_terrorists
-status: published

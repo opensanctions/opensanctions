@@ -1,9 +1,4 @@
 id: 156
-sort: 95
-user_created: b5d15d63-f9b3-43bf-922d-2578139a949c
-date_created: '2024-06-04T13:52:42.218Z'
-user_updated: f83b9691-33ac-41af-8675-9d94707d4312
-date_updated: '2024-06-23T18:55:52.302Z'
 title: Art L. 562-2 And 562-3 Of The Monetary And Financial Code
 key: FR-CMF-562
 url: https://www.tresor.economie.gouv.fr/services-aux-entreprises/sanctions-economiques/registre-national-des-gels-foire-aux-questions
@@ -13,6 +8,5 @@ summary: This program involves the freezing of assets of individuals and entitie
   activities and enhance national security.
 issuer: fr_dgt
 dataset: fr_tresor_gels_avoir
-status: published
 aliases:
 - Dispositif national de gel des avoirs - art L. 562-2 du code monétaire et financier

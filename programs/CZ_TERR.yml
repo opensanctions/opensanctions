@@ -1,9 +1,4 @@
 id: 285
-sort: null
-user_created: b4617b0d-fb2e-49db-b63c-138b9263cae0
-date_created: '2025-09-08T12:32:08.937Z'
-user_updated: null
-date_updated: null
 title: Designated Terrorist Entities under Czech Government Regulation 210/2008
 key: CZ-TERR
 url: https://www.e-sbirka.cz/sb/2008/210?zalozka=text
@@ -15,4 +10,3 @@ summary: This regulation was issued by the government of the Czech Republic on M
   international peace and security, protect fundamental human rights, and combat terrorism.
 issuer: cz_mzv
 dataset: cz_terrorists
-status: published

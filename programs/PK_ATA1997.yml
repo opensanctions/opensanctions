@@ -1,9 +1,4 @@
 id: 319
-sort: null
-user_created: b4617b0d-fb2e-49db-b63c-138b9263cae0
-date_created: '2025-11-20T10:49:59.163Z'
-user_updated: null
-date_updated: null
 title: Pakistan Anti Terrorism Act 1997
 key: PK-ATA1997
 url: https://nacta.gov.pk/wp-content/uploads/2017/08/Anti-Terrorism-Act-1997.pdf
@@ -16,4 +11,3 @@ summary: The Anti-Terrorism Act, 1997 is a Pakistani law enacted to provide a le
   standards.
 issuer: pk_nacta
 dataset: pk_proscribed_persons
-status: published

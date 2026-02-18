@@ -1,9 +1,4 @@
 id: 302
-sort: null
-user_created: b4617b0d-fb2e-49db-b63c-138b9263cae0
-date_created: '2025-10-01T11:20:02.068Z'
-user_updated: b4617b0d-fb2e-49db-b63c-138b9263cae0
-date_updated: '2025-10-01T11:23:38.080Z'
 title: Database of Business Enterprises Pursuant to Human Rights Council Resolutions
   31/36 and 53/25
 key: OHCHR-BHR
@@ -24,4 +19,3 @@ summary: 'The [Human Rights Council (HRC)](https://www.ohchr.org/en/hr-bodies/hr
   Jerusalem (A/HRC/22/63).'
 issuer: un_ohchr
 dataset: ps_ohchr_settlement
-status: published

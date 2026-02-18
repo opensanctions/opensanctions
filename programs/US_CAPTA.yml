@@ -1,9 +1,4 @@
 id: 271
-sort: 159
-user_created: f83b9691-33ac-41af-8675-9d94707d4312
-date_created: '2025-03-01T12:34:47.993Z'
-user_updated: null
-date_updated: null
 title: Correspondent Account or Payable-Through Account Sanctions List
 key: US-CAPTA
 url: https://ofac.treasury.gov/other-ofac-sanctions-lists
@@ -13,6 +8,5 @@ summary: The CAPTA List contains identifying information of FFIs for which the o
   below.
 issuer: us_state
 dataset: us_ofac_cons
-status: published
 aliases:
 - CAPTA List

@@ -1,9 +1,4 @@
 id: 298
-sort: null
-user_created: b4617b0d-fb2e-49db-b63c-138b9263cae0
-date_created: '2025-09-12T13:41:01.901Z'
-user_updated: null
-date_updated: null
 title: List of Excluded Individuals/Entities (LEIE)
 key: US-HHS-OIG
 url: https://oig.hhs.gov/exclusions/background.asp
@@ -15,4 +10,3 @@ summary: OIG has the authority to exclude individuals and entities from Federall
   or entity on the LEIE may be subject to civil monetary penalties (CMP).
 issuer: us_hhs_oig
 dataset: us_hhs_exclusions
-status: published

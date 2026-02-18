@@ -1,9 +1,4 @@
 id: 261
-sort: 170
-user_created: b4617b0d-fb2e-49db-b63c-138b9263cae0
-date_created: '2024-12-13T16:18:16.263Z'
-user_updated: null
-date_updated: null
 title: EU Restrictive measures in view of the situation in Guinea-Bissau
 key: EU-GNB
 url: https://sanctionsmap.eu/#/main/details/15/
@@ -27,4 +22,3 @@ summary: 'EU restrictive measures against Guinea-Bissau were introduced on 3 May
   purposes.'
 issuer: eu_council
 dataset: eu_fsf
-status: published

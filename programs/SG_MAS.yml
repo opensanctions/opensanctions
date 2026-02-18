@@ -1,9 +1,4 @@
 id: 303
-sort: null
-user_created: 9dc0d629-520b-4c06-a6c7-7edd82079bb9
-date_created: '2025-10-07T11:14:34.112Z'
-user_updated: bb09db79-2b20-4f44-b1ce-62a1492faa26
-date_updated: '2025-11-21T14:49:02.828Z'
 title: Singapore MAS financial measures
 key: SG-MAS
 url: https://www.mas.gov.sg/regulation/anti-money-laundering/targeted-financial-sanctions
@@ -25,4 +20,3 @@ summary: 'Aside from the targeted financial sanctions under UN Security Council 
   '
 issuer: sg_mas
 dataset: null
-status: published

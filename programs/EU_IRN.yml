@@ -1,9 +1,4 @@
 id: 267
-sort: 204
-user_created: b4617b0d-fb2e-49db-b63c-138b9263cae0
-date_created: '2024-12-17T15:34:04.907Z'
-user_updated: null
-date_updated: null
 title: EU sanctions against Iran
 key: EU-IRN
 url: https://sanctionsmap.eu/#/main/details/17,18,56/
@@ -31,7 +26,6 @@ summary: 'The EU has imposed sanctions against Iran in response to its human rig
   bans, asset freezes, and export restrictions.'
 issuer: eu_council
 dataset: eu_fsf
-status: published
 aliases:
 - Restrictive measures in relation to serious human rights violations in Iran
 - Restrictive measures in relation to the non-proliferation of weapons of mass destruction

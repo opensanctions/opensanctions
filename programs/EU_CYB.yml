@@ -1,9 +1,4 @@
 id: 63
-sort: 167
-user_created: b5d15d63-f9b3-43bf-922d-2578139a949c
-date_created: '2024-05-30T14:52:57.236Z'
-user_updated: f83b9691-33ac-41af-8675-9d94707d4312
-date_updated: '2024-08-07T12:44:24.228Z'
 title: EU Restrictive Measures Against Cyber-Attacks Threatening The Union Or Its
   Member States
 key: EU-CYB
@@ -14,4 +9,3 @@ summary: These sanctions target individuals and entities responsible for cyber-a
   cyber activities.
 issuer: eu_council
 dataset: eu_fsf
-status: published

@@ -1,9 +1,4 @@
 id: 47
-sort: 29
-user_created: b5d15d63-f9b3-43bf-922d-2578139a949c
-date_created: '2024-05-30T13:52:45.458Z'
-user_updated: b4617b0d-fb2e-49db-b63c-138b9263cae0
-date_updated: '2025-02-06T19:44:29.630Z'
 title: Cuba Prohibited Accommodations List
 key: US-DOS-CU-PAL
 url: https://www.state.gov/cuba-prohibited-accommodations-list-initial-publication/
@@ -17,4 +12,3 @@ summary: A list of properties in Cuba owned or controlled by the Cuban governmen
   unless otherwise indicated.
 issuer: us_state
 dataset: us_cuba_sanctions
-status: published

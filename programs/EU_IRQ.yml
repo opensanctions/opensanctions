@@ -1,9 +1,4 @@
 id: 262
-sort: 178
-user_created: b4617b0d-fb2e-49db-b63c-138b9263cae0
-date_created: '2024-12-13T16:27:46.585Z'
-user_updated: null
-date_updated: null
 title: EU Restrictive measures on Iraq
 key: EU-IRQ
 url: https://sanctionsmap.eu/#/main/details/19/
@@ -21,4 +16,3 @@ summary: 'A financial and trade embargo was adopted by the UN Security Council i
   family, and senior officials of his regime.'
 issuer: eu_council
 dataset: eu_fsf
-status: published

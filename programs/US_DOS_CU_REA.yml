@@ -1,9 +1,4 @@
 id: 218
-sort: 8
-user_created: f83b9691-33ac-41af-8675-9d94707d4312
-date_created: '2024-06-26T07:53:03.631Z'
-user_updated: b4617b0d-fb2e-49db-b63c-138b9263cae0
-date_updated: '2025-02-06T19:46:40.230Z'
 title: List of Restricted Entities and Subentities Associated With Cuba
 key: US-DOS-CU-REA
 url: https://www.state.gov/division-for-counter-threat-finance-and-sanctions/cuba-restricted-list
@@ -16,4 +11,3 @@ summary: List of entities and subentities under the control of, or acting for or
   November 9, 2017, unless otherwise indicated.
 issuer: us_state
 dataset: us_cuba_sanctions
-status: published

@@ -1,9 +1,4 @@
 id: 275
-sort: null
-user_created: b4617b0d-fb2e-49db-b63c-138b9263cae0
-date_created: '2025-05-19T15:37:45.179Z'
-user_updated: b4617b0d-fb2e-49db-b63c-138b9263cae0
-date_updated: '2025-05-19T15:51:41.196Z'
 title: Measures Against Guatemala
 key: SECO-GUATEMALA
 url: https://www.seco.admin.ch/seco/de/home/Aussenwirtschaftspolitik_Wirtschaftliche_Zusammenarbeit/Wirtschaftsbeziehungen/exportkontrollen-und-sanktionen/sanktionen-embargos/sanktionsmassnahmen/massnahmen-gegenueber-guatemala.html
@@ -13,4 +8,3 @@ summary: These measures were taken in response to attempts by high-ranking Guate
   of the 2023 presidential election.
 issuer: ch_seco
 dataset: ch_seco_sanctions
-status: published

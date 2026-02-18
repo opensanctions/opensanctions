@@ -1,9 +1,4 @@
 id: 152
-sort: 50
-user_created: b5d15d63-f9b3-43bf-922d-2578139a949c
-date_created: '2024-06-04T13:49:06.169Z'
-user_updated: f83b9691-33ac-41af-8675-9d94707d4312
-date_updated: '2024-06-05T14:30:48.032Z'
 title: Chinese Anti-Foreign Sanctions Law (AFSL)
 key: CN-AFSL
 url: https://docs.google.com/spreadsheets/d/1DhQqlm2MHv3VpVjEJGstbBWlHV0eBJo-omMwn26TQw4/edit#gid=1070466538
@@ -13,6 +8,5 @@ summary: This list includes individuals and entities subject to China's Anti-For
   and travel bans to counter foreign sanctions and protect national interests.
 issuer: cn_npc
 dataset: cn_sanctions
-status: published
 aliases:
 - AFSL
