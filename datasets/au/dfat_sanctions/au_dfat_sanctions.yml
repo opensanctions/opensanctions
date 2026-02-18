@@ -153,6 +153,9 @@ lookups:
         value: Vessel
       - match: 8402
         value: Vessel
+      # Resolve conflicting entity types
+      - match: 8580
+        value: Person
   name_type:
     options:
       - match:
