@@ -1,9 +1,21 @@
 import functools
 import yaml
-from typing import Optional
+from typing import Literal, Optional
 from pydantic import BaseModel, Field
 
 from zavod import settings
+
+Measure = Literal[
+    "Arms embargo",
+    "Arms export restrictions",
+    "Asset freeze",
+    "Export control",
+    "Financial block",
+    "Investment ban",
+    "Prohibition to satisfy claims",
+    "Restrictions on goods",
+    "Travel ban",
+]
 
 
 class Issuer(BaseModel):
@@ -59,7 +71,7 @@ class Program(BaseModel):
         default_factory=list,
         description="Territory codes targeted by this program (e.g., 'af', 'ru', 'by')",
     )
-    measures: list[str] = Field(
+    measures: list[Measure] = Field(
         default_factory=list,
         description="Types of sanctions imposed (e.g., 'Asset freeze', 'Travel ban', 'Arms embargo')",
     )
