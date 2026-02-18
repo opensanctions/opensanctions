@@ -107,7 +107,7 @@ lookups:
         value: Platz vor dem Neuen Tor 2, 10115 Berlin
       - match: WA
         value: Washington
-  type.text:
+  type.string:
     options:
       - match: <UNKNOWN>
         value: null
