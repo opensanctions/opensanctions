@@ -61,6 +61,18 @@ lookups:
           - desmond_choo@ntuc.org.sg
       - match: Ng_huck_hui@hq.a-star. edu.sg
         value: Ng_huck_hui@hq.a-star.edu.sg
+  type.name:
+    options:
+      - match: Director<br> (South East CDD)
+        value: Director (South East CDD)
+      - match: Director<br> (South East CDD), SOUTH EAST CDD, (GRASSROOTS, PA, MCCY)
+        value: Director (South East CDD), SOUTH EAST CDD, (GRASSROOTS, PA, MCCY)
+      - match: Deputy Director<br>(Emergency Preparedness)
+        value: Deputy Director (Emergency Preparedness)
+      - match: Deputy Director<br>(Emergency Preparedness), EMERGENCY PREPAREDNESS, (ENGAGEMENT, PA, MCCY)
+        value: Deputy Director (Emergency Preparedness), EMERGENCY PREPAREDNESS, (ENGAGEMENT, PA, MCCY)
+      - match: Yehoshua GLEITMAN<br>BBM
+        value: Yehoshua GLEITMAN BBM
 
   # Determine a default assumed PEP status based just on "rank", e.g. "Deputy Director"
   # used for new positions. This can be overridden in the position categorisation database.
