@@ -10,3 +10,5 @@ issuer: us_ofac
 dataset: us_ofac_sdn
 aliases:
 - EO 14088, EO 13851
+target_territories:
+- ni

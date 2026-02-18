@@ -8,3 +8,8 @@ summary: These sanctions target individuals and entities in Guatemala involved i
   governance and respect for human rights in Guatemala.
 issuer: eu_council
 dataset: eu_fsf
+target_territories:
+- gt
+measures:
+- Asset freeze
+- Travel ban

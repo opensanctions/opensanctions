@@ -16,3 +16,5 @@ summary: 'On 26 February 2014, in view of the ongoing violence, terrorist activi
   purposes.'
 issuer: eu_council
 dataset: eu_fsf
+target_territories:
+- ye

@@ -8,3 +8,8 @@ summary: These sanctions target individuals and entities in Nicaragua involved i
   governance and respect for human rights in Nicaragua.
 issuer: eu_council
 dataset: eu_fsf
+target_territories:
+- ni
+measures:
+- Asset freeze
+- Travel ban

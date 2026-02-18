@@ -10,3 +10,9 @@ issuer: zz_unsc
 dataset: un_sc_sanctions
 aliases:
 - Resolution 2140
+target_territories:
+- ye
+measures:
+- Arms embargo
+- Asset freeze
+- Travel ban

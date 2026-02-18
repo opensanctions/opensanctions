@@ -9,3 +9,5 @@ summary: These measures aim to protect EU individuals and entities from the effe
   imposed by US legislation that affects international trade and investment.
 issuer: eu_council
 dataset: eu_fsf
+target_territories:
+- us

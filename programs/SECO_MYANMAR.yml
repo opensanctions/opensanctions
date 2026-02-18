@@ -8,3 +8,8 @@ summary: These sanctions target individuals and entities in Myanmar involved in 
   the Myanmar government to respect human rights and restore democracy.
 issuer: ch_seco
 dataset: ch_seco_sanctions
+target_territories:
+- mm
+measures:
+- Financial block
+- Restrictions on goods

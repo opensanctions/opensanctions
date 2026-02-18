@@ -10,3 +10,5 @@ issuer: gb_fcdo
 dataset: gb_fcdo_sanctions
 aliases:
 - Sanctions Act
+target_territories:
+- zz

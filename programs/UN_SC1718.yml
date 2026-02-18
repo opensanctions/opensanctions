@@ -10,3 +10,7 @@ issuer: zz_unsc
 dataset: un_sc_sanctions
 aliases:
 - Resolution 1718
+target_territories:
+- kp
+measures:
+- Arms embargo

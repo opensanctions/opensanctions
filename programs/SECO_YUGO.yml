@@ -8,3 +8,5 @@ summary: These sanctions targeted individuals and entities in the former Yugosla
   peace processes and promote human rights and stability in the region.
 issuer: ch_seco
 dataset: ch_seco_sanctions
+target_territories:
+- yucs

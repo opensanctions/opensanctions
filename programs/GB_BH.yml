@@ -5,3 +5,5 @@ url: https://www.gov.uk/government/collections/uk-sanctions-on-bosnia-and-herzeg
 summary: Measures addressing issues in Bosnia and Herzegovina.
 issuer: gb_ofsi
 dataset: gb_hmt_sanctions
+target_territories:
+- ba

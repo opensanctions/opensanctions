@@ -20,3 +20,9 @@ summary: 'Aside from the targeted financial sanctions under UN Security Council 
   '
 issuer: sg_mas
 dataset: null
+target_territories:
+- il
+- ps
+- ru
+- ua-dpr
+- ua-lpr

@@ -8,3 +8,5 @@ summary: These sanctions targeted individuals and entities in Liberia involved i
   security, and respect for human rights in Liberia.
 issuer: ch_seco
 dataset: ch_seco_sanctions
+target_territories:
+- lr

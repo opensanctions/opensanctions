@@ -9,3 +9,9 @@ issuer: zz_unsc
 dataset: un_sc_sanctions
 aliases:
 - Resolution 1591
+target_territories:
+- sd
+measures:
+- Arms embargo
+- Asset freeze
+- Travel ban

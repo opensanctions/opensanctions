@@ -10,3 +10,9 @@ issuer: zz_unsc
 dataset: un_sc_sanctions
 aliases:
 - Resolution 2206
+target_territories:
+- ss
+measures:
+- Arms embargo
+- Arms export restrictions
+- Travel ban

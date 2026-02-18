@@ -9,3 +9,6 @@ summary: These sanctions target individuals and entities that support, facilitat
   prevent the financing and support of terrorist activities by these groups.
 issuer: eu_council
 dataset: eu_fsf
+measures:
+- Asset freeze
+- Restrictions on goods

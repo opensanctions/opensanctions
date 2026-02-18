@@ -17,3 +17,5 @@ summary: 'The measures were initially imposed on 15 October 1999. On 17 June 201
   purposes.'
 issuer: eu_council
 dataset: eu_fsf
+target_territories:
+- af

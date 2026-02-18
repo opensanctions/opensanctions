@@ -5,3 +5,6 @@ url: https://www.gov.uk/government/collections/uk-sanctions-on-armenia-and-azerb
 summary: Measures addressing conflict and issues between Armenia and Azerbaijan.
 issuer: gb_ofsi
 dataset: gb_hmt_sanctions
+target_territories:
+- am
+- az

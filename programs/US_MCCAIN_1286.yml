@@ -12,3 +12,6 @@ issuer: us_congress
 dataset: us_special_leg
 aliases:
 - FY22 Lists Published in Response to Section 1286
+target_territories:
+- cn
+- ru

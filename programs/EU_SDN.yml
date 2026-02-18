@@ -8,3 +8,9 @@ summary: These sanctions target individuals and entities in Sudan involved in hu
   government to engage in peaceful negotiations and respect human rights.
 issuer: eu_council
 dataset: eu_fsf
+target_territories:
+- sd
+measures:
+- Arms export restrictions
+- Asset freeze
+- Restrictions on goods

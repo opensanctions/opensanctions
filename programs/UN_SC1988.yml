@@ -9,3 +9,9 @@ issuer: zz_unsc
 dataset: un_sc_sanctions
 aliases:
 - Resolution 1988
+target_territories:
+- af
+measures:
+- Arms embargo
+- Asset freeze
+- Travel ban

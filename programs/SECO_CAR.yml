@@ -8,3 +8,9 @@ summary: These sanctions target individuals and entities contributing to the con
   and travel bans to promote peace, security, and stability in the region.
 issuer: ch_seco
 dataset: ch_seco_sanctions
+target_territories:
+- cf
+measures:
+- Financial block
+- Restrictions on goods
+- Travel ban

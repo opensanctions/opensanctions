@@ -16,3 +16,9 @@ issuer: zz_unsc
 dataset: un_sc_sanctions
 aliases:
 - Resolutions 1267, 1989, 2253
+target_territories:
+- zz
+measures:
+- Arms embargo
+- Asset freeze
+- Travel ban

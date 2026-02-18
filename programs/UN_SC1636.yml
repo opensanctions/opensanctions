@@ -10,3 +10,6 @@ issuer: zz_unsc
 dataset: un_sc_sanctions
 aliases:
 - Resolution 1636
+measures:
+- Asset freeze
+- Travel ban

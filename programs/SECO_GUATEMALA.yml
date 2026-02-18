@@ -8,3 +8,8 @@ summary: These measures were taken in response to attempts by high-ranking Guate
   of the 2023 presidential election.
 issuer: ch_seco
 dataset: ch_seco_sanctions
+target_territories:
+- gt
+measures:
+- Financial block
+- Travel ban

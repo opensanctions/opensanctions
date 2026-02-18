@@ -9,3 +9,8 @@ summary: These sanctions target individuals and entities responsible for cyber-a
   cyber activities.
 issuer: eu_council
 dataset: eu_fsf
+target_territories:
+- ip
+measures:
+- Asset freeze
+- Travel ban

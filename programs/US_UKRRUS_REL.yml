@@ -17,3 +17,5 @@ aliases:
 - EO 13662
 - EO 13661
 - EO 13660
+target_territories:
+- ru

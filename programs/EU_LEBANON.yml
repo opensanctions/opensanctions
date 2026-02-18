@@ -8,3 +8,8 @@ summary: These sanctions target individuals and entities in Lebanon involved in 
   stability in the region.
 issuer: eu_council
 dataset: eu_fsf
+target_territories:
+- lb
+measures:
+- Asset freeze
+- Travel ban

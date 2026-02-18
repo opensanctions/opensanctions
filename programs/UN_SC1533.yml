@@ -11,3 +11,10 @@ issuer: zz_unsc
 dataset: un_sc_sanctions
 aliases:
 - Resolution 1533
+target_territories:
+- cg
+measures:
+- Arms embargo
+- Asset freeze
+- Restrictions on goods
+- Travel ban

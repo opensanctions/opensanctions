@@ -9,3 +9,10 @@ summary: This list includes individuals and entities sanctioned by Iran for vari
   and international security.
 issuer: ir_mfa
 dataset: ir_sanctions
+target_territories:
+- gb
+- us
+measures:
+- Asset freeze
+- Financial block
+- Travel ban

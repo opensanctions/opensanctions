@@ -10,3 +10,5 @@ issuer: us_state
 dataset: us_ofac_cons
 aliases:
 - CAPTA List
+measures:
+- Financial block

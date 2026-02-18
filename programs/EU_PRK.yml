@@ -9,3 +9,5 @@ summary: These sanctions target individuals and entities in North Korea involved
   advancing its WMD programs.
 issuer: eu_council
 dataset: eu_fsf
+target_territories:
+- kp

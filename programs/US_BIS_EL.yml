@@ -14,3 +14,5 @@ issuer: us_bis
 dataset: us_trade_csl
 aliases:
 - Supplement No. 4 to Part 744 of the EAR
+measures:
+- Export control

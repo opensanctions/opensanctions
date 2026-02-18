@@ -12,3 +12,5 @@ summary: A list of properties in Cuba owned or controlled by the Cuban governmen
   unless otherwise indicated.
 issuer: us_state
 dataset: us_cuba_sanctions
+target_territories:
+- cu

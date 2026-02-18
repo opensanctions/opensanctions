@@ -8,3 +8,8 @@ summary: The measures were adopted in response to the acts of violence of Hamas 
   international human rights standards.
 issuer: ch_seco
 dataset: ch_seco_sanctions
+target_territories:
+- ps
+measures:
+- Financial block
+- Travel ban

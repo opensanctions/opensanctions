@@ -6,3 +6,8 @@ url: https://war-sanctions.gur.gov.ua/en/executives
 summary: ''
 issuer: ua_gur
 dataset: ua_war_sanctions
+target_territories:
+- ru
+- ua-cri
+- ua-dpr
+- ua-lpr

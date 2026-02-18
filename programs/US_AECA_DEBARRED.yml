@@ -9,3 +9,5 @@ summary: This list, maintained by the U.S. Department of State under the Arms Ex
   and safeguard U.S. national security interests.
 issuer: us_state
 dataset: us_trade_csl
+measures:
+- Export control

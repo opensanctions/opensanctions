@@ -8,3 +8,9 @@ summary: These sanctions target individuals and entities involved in actions tha
   in South Sudan.
 issuer: eu_council
 dataset: eu_fsf
+target_territories:
+- ss
+measures:
+- Arms export restrictions
+- Asset freeze
+- Travel ban

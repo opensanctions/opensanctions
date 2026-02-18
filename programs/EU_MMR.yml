@@ -8,3 +8,5 @@ summary: These sanctions target individuals and entities in Myanmar involved in 
   government to respect human rights and restore democracy.
 issuer: eu_council
 dataset: eu_fsf
+target_territories:
+- mm

@@ -8,3 +8,5 @@ summary: Australia established a thematic autonomous sanctions regime in relatio
   conduct wherever it occurs in the world.
 issuer: au_dfat
 dataset: au_dfat_sanctions
+target_territories:
+- ip

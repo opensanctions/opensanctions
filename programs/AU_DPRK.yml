@@ -10,3 +10,5 @@ summary: Australia implements the United Nations Security Council (UNSC) related
   weapons of mass destruction (WMD) and proliferation programs.
 issuer: au_dfat
 dataset: au_dfat_sanctions
+target_territories:
+- kp

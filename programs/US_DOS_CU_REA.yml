@@ -11,3 +11,5 @@ summary: List of entities and subentities under the control of, or acting for or
   November 9, 2017, unless otherwise indicated.
 issuer: us_state
 dataset: us_cuba_sanctions
+target_territories:
+- cu

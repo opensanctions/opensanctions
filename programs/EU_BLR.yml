@@ -9,3 +9,5 @@ summary: These sanctions target individuals and entities in Belarus involved in 
   to pressure Belarus to respect international norms and support Ukraine's sovereignty.
 issuer: eu_council
 dataset: eu_fsf
+target_territories:
+- by

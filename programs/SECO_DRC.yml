@@ -8,3 +8,9 @@ summary: These sanctions target individuals and entities in the Democratic Repub
   peace, security, and stability in the region.
 issuer: ch_seco
 dataset: ch_seco_sanctions
+target_territories:
+- cd
+measures:
+- Financial block
+- Restrictions on goods
+- Travel ban

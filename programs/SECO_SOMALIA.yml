@@ -7,3 +7,9 @@ summary: These sanctions target individuals and entities contributing to the con
   on transactions to promote peace, security, and stability in the region.
 issuer: ch_seco
 dataset: ch_seco_sanctions
+target_territories:
+- so
+measures:
+- Financial block
+- Restrictions on goods
+- Travel ban

@@ -8,3 +8,9 @@ summary: These measures target individuals and entities involved in North Korea'
   and comply with international norms.
 issuer: ch_seco
 dataset: ch_seco_sanctions
+target_territories:
+- kp
+measures:
+- Financial block
+- Restrictions on goods
+- Travel ban

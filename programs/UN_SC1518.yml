@@ -9,3 +9,8 @@ issuer: zz_unsc
 dataset: un_sc_sanctions
 aliases:
 - Resolution 1518
+target_territories:
+- iq
+measures:
+- Asset freeze
+- Travel ban

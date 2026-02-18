@@ -9,3 +9,8 @@ summary: These sanctions target individuals and entities involved in Turkey's un
   respect the sovereignty and territorial integrity of neighboring countries.
 issuer: eu_council
 dataset: eu_fsf
+target_territories:
+- tr
+measures:
+- Asset freeze
+- Travel ban

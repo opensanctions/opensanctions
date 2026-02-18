@@ -8,3 +8,9 @@ summary: These sanctions target the Venezuelan government and entities involved 
   pressure the Venezuelan government to restore democracy and respect human rights.
 issuer: ch_seco
 dataset: ch_seco_sanctions
+target_territories:
+- ve
+measures:
+- Financial block
+- Restrictions on goods
+- Travel ban

@@ -11,3 +11,11 @@ issuer: us_ofac
 dataset: us_ofac_sdn
 aliases:
 - EO 14033, EO 13304, EO 13219
+target_territories:
+- al
+- ba
+- csxx
+- me
+- mk
+- rs
+- xk

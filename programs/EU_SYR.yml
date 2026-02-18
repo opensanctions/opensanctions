@@ -8,3 +8,5 @@ summary: These sanctions target the Syrian government and entities involved in h
   Syria to comply with international norms and cease its destabilizing actions.
 issuer: eu_council
 dataset: eu_fsf
+target_territories:
+- sy

@@ -7,3 +7,5 @@ summary: Resolutions of the NSDC of Ukraine, enacted by decrees of the President
   Rada of Ukraine.
 issuer: ua_nsdc
 dataset: ua_nsdc_sanctions
+target_territories:
+- ru

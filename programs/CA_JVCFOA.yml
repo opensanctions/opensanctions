@@ -9,3 +9,6 @@ summary: Pursuant to the Justice for Victims of Corrupt Foreign Officials Act, C
   responsible for or complicit in acts of significant corruption.
 issuer: ca_mfa
 dataset: ca_dfatd_sema_sanctions
+measures:
+- Financial block
+- Investment ban

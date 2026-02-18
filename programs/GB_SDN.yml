@@ -5,3 +5,5 @@ url: https://www.gov.uk/government/collections/uk-sanctions-on-sudan
 summary: Sanctions against entities and individuals in Sudan.
 issuer: gb_ofsi
 dataset: gb_hmt_sanctions
+target_territories:
+- sd

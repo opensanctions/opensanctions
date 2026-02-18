@@ -8,3 +8,8 @@ summary: These sanctions target individuals and entities in Burundi involved in 
   and respect for human rights in Burundi.
 issuer: eu_council
 dataset: eu_fsf
+target_territories:
+- bi
+measures:
+- Asset freeze
+- Travel ban

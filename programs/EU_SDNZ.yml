@@ -9,3 +9,8 @@ summary: These sanctions target individuals and entities in Sudan involved in ac
   a stable and democratic governance.
 issuer: eu_council
 dataset: eu_fsf
+target_territories:
+- sd
+measures:
+- Asset freeze
+- Travel ban

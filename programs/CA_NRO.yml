@@ -9,3 +9,6 @@ issuer: ca_mfa
 dataset: ca_named_research_orgs
 aliases:
 - Named Research Organizations
+target_territories:
+- cn
+- ir

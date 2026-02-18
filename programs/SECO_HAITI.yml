@@ -8,3 +8,9 @@ summary: These sanctions target individuals and entities in Haiti involved in hu
   governance and respect for human rights in Haiti.
 issuer: ch_seco
 dataset: ch_seco_sanctions
+target_territories:
+- ht
+measures:
+- Financial block
+- Restrictions on goods
+- Travel ban

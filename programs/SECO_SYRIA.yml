@@ -8,3 +8,9 @@ summary: These sanctions target the Syrian government and entities involved in h
   Syria to comply with international norms and cease its destabilizing actions.
 issuer: ch_seco
 dataset: ch_seco_sanctions
+target_territories:
+- sy
+measures:
+- Financial block
+- Restrictions on goods
+- Travel ban

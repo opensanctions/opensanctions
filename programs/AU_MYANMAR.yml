@@ -8,3 +8,5 @@ summary: Australia imposes autonomous sanctions in relation to Myanmar in respon
   years to include asset freezes, travel bans, and restrictions on financial services.
 issuer: au_dfat
 dataset: au_dfat_sanctions
+target_territories:
+- mm

@@ -8,3 +8,5 @@ issuer: ca_mfa
 dataset: ca_facfoa
 aliases:
 - FAAE
+target_territories:
+- ua

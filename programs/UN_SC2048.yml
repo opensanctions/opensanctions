@@ -10,3 +10,7 @@ issuer: zz_unsc
 dataset: un_sc_sanctions
 aliases:
 - Resolution 2048
+target_territories:
+- gw
+measures:
+- Travel ban

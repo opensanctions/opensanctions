@@ -5,3 +5,5 @@ url: https://www.gov.uk/government/collections/uk-sanctions-on-isil-daesh-and-al
 summary: Targeting ISIL and Al-Qaida terrorist organizations.
 issuer: gb_ofsi
 dataset: gb_hmt_sanctions
+target_territories:
+- zz

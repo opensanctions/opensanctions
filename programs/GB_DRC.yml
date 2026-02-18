@@ -6,3 +6,5 @@ summary: Measures addressing conflict and issues in the Democratic Republic of t
   Congo.
 issuer: gb_ofsi
 dataset: gb_hmt_sanctions
+target_territories:
+- cd

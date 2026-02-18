@@ -5,3 +5,5 @@ url: https://www.gov.uk/government/collections/uk-sanctions-on-syria
 summary: Measures addressing conflict and issues in Syria.
 issuer: gb_ofsi
 dataset: gb_hmt_sanctions
+target_territories:
+- sy

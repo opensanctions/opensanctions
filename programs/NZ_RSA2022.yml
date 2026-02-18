@@ -8,3 +8,5 @@ summary: These sanctions target individuals and entities involved in Russia's in
   territorial integrity.
 issuer: nz_mfat
 dataset: nz_russia_sanctions
+target_territories:
+- ru

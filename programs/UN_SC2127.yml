@@ -9,3 +9,9 @@ issuer: zz_unsc
 dataset: un_sc_sanctions
 aliases:
 - Resolution 2127
+target_territories:
+- cf
+measures:
+- Arms embargo
+- Asset freeze
+- Travel ban

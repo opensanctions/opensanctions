@@ -8,3 +8,8 @@ summary: These sanctions target individuals and entities in Moldova involved in 
   for human rights in Moldova.
 issuer: ch_seco
 dataset: ch_seco_sanctions
+target_territories:
+- md
+measures:
+- Financial block
+- Travel ban

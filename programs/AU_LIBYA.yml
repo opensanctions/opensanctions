@@ -7,3 +7,5 @@ summary: Australia imposes autonomous sanctions in relation to Libya, which comp
   local law.
 issuer: au_dfat
 dataset: au_dfat_sanctions
+target_territories:
+- ly

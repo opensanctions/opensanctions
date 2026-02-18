@@ -7,3 +7,8 @@ summary: Companies involved in the production of unmanned aerial vehicles, which
   applications.
 issuer: ua_gur
 dataset: ua_war_sanctions
+target_territories:
+- ru
+- ua-cri
+- ua-dpr
+- ua-lpr

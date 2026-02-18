@@ -7,3 +7,8 @@ summary: Enterprises within the three military holdings of the Russian state cor
   engines used in Russia’s war against Ukraine.
 issuer: ua_gur
 dataset: ua_war_sanctions
+target_territories:
+- ru
+- ua-cri
+- ua-dpr
+- ua-lpr

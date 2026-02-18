@@ -10,3 +10,5 @@ summary: The Financial Crimes Investigation Service (FNTT) under Lithuania's Min
   as a complement to the main international sanctions lists from the UN and EU.
 issuer: lt_lt
 dataset: lt_fiu_freezes
+measures:
+- Asset freeze

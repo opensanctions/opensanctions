@@ -8,3 +8,8 @@ summary: These sanctions target individuals and entities involved in the conflic
   security, and governance in Mali.
 issuer: eu_council
 dataset: eu_fsf
+target_territories:
+- ml
+measures:
+- Asset freeze
+- Travel ban

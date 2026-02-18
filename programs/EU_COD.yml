@@ -9,3 +9,9 @@ summary: These sanctions target individuals and entities involved in the conflic
   trade to promote peace and stability in the region.
 issuer: eu_council
 dataset: eu_fsf
+target_territories:
+- cd
+measures:
+- Arms export restrictions
+- Asset freeze
+- Travel ban

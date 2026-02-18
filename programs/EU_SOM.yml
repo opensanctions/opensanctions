@@ -19,3 +19,5 @@ summary: 'Measures imposed at UN level since UN Security Council Resolution 733 
   purposes.'
 issuer: eu_council
 dataset: eu_fsf
+target_territories:
+- so

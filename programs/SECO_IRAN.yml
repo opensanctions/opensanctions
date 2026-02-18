@@ -9,3 +9,9 @@ summary: These sanctions target the Iranian government and entities involved in 
   agreements.
 issuer: ch_seco
 dataset: ch_seco_sanctions
+target_territories:
+- ir
+measures:
+- Financial block
+- Restrictions on goods
+- Travel ban

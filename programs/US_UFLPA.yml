@@ -10,3 +10,7 @@ issuer: us_dhs
 dataset: us_dhs_uflpa
 aliases:
 - UFLPA
+target_territories:
+- cn
+measures:
+- Restrictions on goods

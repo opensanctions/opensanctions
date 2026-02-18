@@ -11,3 +11,9 @@ issuer: us_congress
 dataset: us_special_leg
 aliases:
 - 5949 List
+target_territories:
+- cn
+measures:
+- Arms export restrictions
+- Export control
+- Financial block

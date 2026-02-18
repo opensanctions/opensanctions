@@ -10,3 +10,6 @@ issuer: cn_npc
 dataset: cn_sanctions
 aliases:
 - AFSL
+target_territories:
+- eu
+- us

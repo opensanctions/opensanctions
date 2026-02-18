@@ -8,3 +8,9 @@ summary: These sanctions target individuals and entities in Belarus involved in 
   democratic norms and human rights.
 issuer: ch_seco
 dataset: ch_seco_sanctions
+target_territories:
+- by
+measures:
+- Financial block
+- Restrictions on goods
+- Travel ban

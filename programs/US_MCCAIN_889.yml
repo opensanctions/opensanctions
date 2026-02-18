@@ -11,3 +11,5 @@ issuer: us_congress
 dataset: us_special_leg
 aliases:
 - 889 List
+target_territories:
+- cn

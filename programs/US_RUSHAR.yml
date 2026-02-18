@@ -14,3 +14,5 @@ issuer: us_ofac
 dataset: us_ofac_sdn
 aliases:
 - EO 14114 et al.
+target_territories:
+- ru

@@ -8,3 +8,8 @@ summary: These sanctions target individuals and entities in Guinea involved in h
   and respect for human rights in Guinea.
 issuer: eu_council
 dataset: eu_fsf
+target_territories:
+- gn
+measures:
+- Asset freeze
+- Travel ban

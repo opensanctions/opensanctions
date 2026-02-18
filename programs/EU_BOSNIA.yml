@@ -8,3 +8,8 @@ summary: These sanctions target individuals and entities in Bosnia and Herzegovi
   peace and stability in Bosnia and Herzegovina.
 issuer: eu_council
 dataset: eu_fsf
+target_territories:
+- ba
+measures:
+- Asset freeze
+- Travel ban

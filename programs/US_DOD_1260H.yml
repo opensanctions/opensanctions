@@ -11,3 +11,5 @@ issuer: us_dod
 dataset: us_dod_chinese_milcorps
 aliases:
 - 1260H
+target_territories:
+- cn

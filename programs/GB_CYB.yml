@@ -5,3 +5,5 @@ url: https://www.gov.uk/government/collections/uk-cyber-sanctions
 summary: Sanctions addressing malicious cyber activities.
 issuer: gb_ofsi
 dataset: gb_hmt_sanctions
+target_territories:
+- zz

@@ -8,3 +8,9 @@ summary: These sanctions target individuals and entities in Sudan involved in hu
   government to engage in peaceful negotiations and respect human rights.
 issuer: ch_seco
 dataset: ch_seco_sanctions
+target_territories:
+- sd
+measures:
+- Financial block
+- Restrictions on goods
+- Travel ban

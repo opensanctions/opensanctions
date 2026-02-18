@@ -8,3 +8,8 @@ summary: These sanctions target individuals and entities involved in the conflic
   security, and governance in Mali.
 issuer: ch_seco
 dataset: ch_seco_sanctions
+target_territories:
+- ml
+measures:
+- Financial block
+- Travel ban

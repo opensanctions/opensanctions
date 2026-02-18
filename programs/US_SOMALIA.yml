@@ -10,3 +10,5 @@ dataset: us_ofac_sdn
 aliases:
 - EO 13620
 - EO 13536
+target_territories:
+- so

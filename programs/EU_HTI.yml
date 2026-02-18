@@ -8,3 +8,9 @@ summary: These sanctions target individuals and entities in Haiti involved in hu
   and respect for human rights in Haiti.
 issuer: eu_council
 dataset: eu_fsf
+target_territories:
+- ht
+measures:
+- Arms export restrictions
+- Asset freeze
+- Travel ban

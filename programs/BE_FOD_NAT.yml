@@ -9,3 +9,5 @@ summary: The National Security Council establishes and changes the national list
   Ministers and published in the Belgian Official Journal by Royal Decree.
 issuer: be_nsc
 dataset: be_fod_sanctions
+measures:
+- Asset freeze

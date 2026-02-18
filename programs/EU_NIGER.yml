@@ -7,3 +7,8 @@ summary: These sanctions target individuals and entities in Niger involved in ac
   travel bans, and restrictions on trade to promote stability and security in Niger.
 issuer: eu_council
 dataset: eu_fsf
+target_territories:
+- ne
+measures:
+- Asset freeze
+- Travel ban

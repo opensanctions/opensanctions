@@ -16,3 +16,6 @@ summary: 'A financial and trade embargo was adopted by the UN Security Council i
   family, and senior officials of his regime.'
 issuer: eu_council
 dataset: eu_fsf
+measures:
+- Arms embargo
+- Asset freeze

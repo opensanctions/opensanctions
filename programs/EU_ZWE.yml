@@ -33,3 +33,5 @@ summary: 'Restrictive measures were first introduced on 18 February 2002 in rela
   the measures remains in force for the listed entity.'
 issuer: eu_council
 dataset: eu_fsf
+target_territories:
+- zw

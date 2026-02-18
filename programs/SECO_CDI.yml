@@ -8,3 +8,5 @@ summary: These sanctions targeted individuals and entities in Cote d'Ivoire invo
   the resolution of conflict and promote human rights and stability.
 issuer: ch_seco
 dataset: ch_seco_sanctions
+target_territories:
+- ci

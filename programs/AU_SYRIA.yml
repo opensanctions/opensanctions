@@ -9,3 +9,5 @@ summary: Since 2011, Australia has imposed autonomous sanctions in relation to S
   in cultural property that has been illegally removed from Syria.
 issuer: au_dfat
 dataset: au_dfat_sanctions
+target_territories:
+- sy

@@ -10,3 +10,5 @@ summary: This regulation was issued by the government of the Czech Republic on M
   international peace and security, protect fundamental human rights, and combat terrorism.
 issuer: cz_mzv
 dataset: cz_terrorists
+measures:
+- Restrictions on goods

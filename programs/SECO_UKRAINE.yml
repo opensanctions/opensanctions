@@ -9,3 +9,9 @@ summary: These sanctions target individuals and entities involved in actions und
   activities.
 issuer: ch_seco
 dataset: ch_seco_sanctions
+target_territories:
+- ru
+measures:
+- Export control
+- Financial block
+- Travel ban

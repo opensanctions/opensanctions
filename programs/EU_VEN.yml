@@ -8,3 +8,10 @@ summary: These sanctions target individuals and entities in Venezuela involved i
   government to restore democracy and respect human rights.
 issuer: eu_council
 dataset: eu_fsf
+target_territories:
+- ve
+measures:
+- Arms export restrictions
+- Asset freeze
+- Export control
+- Restrictions on goods

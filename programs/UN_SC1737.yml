@@ -8,3 +8,5 @@ summary: UN Security Council resolution 1737 (2006) imposes sanctions on Iran fo
   freeze on key individuals and companies related to the enrichment programme.
 issuer: zz_unsc
 dataset: un_sc_sanctions,fr_tresor_gels_avoir
+target_territories:
+- ir

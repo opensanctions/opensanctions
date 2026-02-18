@@ -7,3 +7,9 @@ summary: These sanctions target individuals and entities involved in the ongoing
   on transactions to promote peace, security, and democratic governance in Libya.
 issuer: ch_seco
 dataset: ch_seco_sanctions
+target_territories:
+- ly
+measures:
+- Financial block
+- Restrictions on goods
+- Travel ban

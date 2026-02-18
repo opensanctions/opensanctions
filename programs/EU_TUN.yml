@@ -7,3 +7,7 @@ summary: These sanctions target individuals and entities involved in the misappr
   recover stolen assets and promote accountability and transparency in governance.
 issuer: eu_council
 dataset: eu_fsf
+target_territories:
+- tn
+measures:
+- Asset freeze

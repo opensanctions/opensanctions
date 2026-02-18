@@ -22,3 +22,5 @@ summary: 'EU restrictive measures against Guinea-Bissau were introduced on 3 May
   purposes.'
 issuer: eu_council
 dataset: eu_fsf
+target_territories:
+- gw

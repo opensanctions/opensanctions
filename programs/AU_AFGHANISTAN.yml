@@ -9,3 +9,7 @@ summary: Australia introduced an autonomous sanctions framework in relation to A
   authority over the country in August 2021.
 issuer: au_dfat
 dataset: au_dfat_sanctions
+measures:
+- Arms embargo
+- Financial block
+- Travel ban

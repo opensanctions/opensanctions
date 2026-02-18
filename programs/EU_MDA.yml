@@ -7,3 +7,8 @@ summary: These sanctions target individuals and entities involved in actions des
   to promote stability, democracy, and the rule of law in Moldova.
 issuer: eu_council
 dataset: eu_fsf
+target_territories:
+- md
+measures:
+- Asset freeze
+- Travel ban

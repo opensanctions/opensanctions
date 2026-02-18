@@ -23,3 +23,5 @@ summary: 'In several of its Conclusions in 2022 and 2023 the Council strongly co
   available to those listed, either directly or indirectly.'
 issuer: eu_council
 dataset: eu_fsf
+target_territories:
+- ru

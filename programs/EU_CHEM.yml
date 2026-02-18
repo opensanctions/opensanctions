@@ -8,3 +8,6 @@ summary: These sanctions target individuals and entities involved in the prolife
   accountable those responsible for their use.
 issuer: eu_council
 dataset: eu_fsf
+measures:
+- Asset freeze
+- Travel ban

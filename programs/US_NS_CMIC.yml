@@ -10,3 +10,5 @@ issuer: us_ofac
 dataset: us_ofac_cons
 aliases:
 - ' NS-CMIC'
+target_territories:
+- cn

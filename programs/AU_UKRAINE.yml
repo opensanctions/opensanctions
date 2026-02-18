@@ -16,3 +16,14 @@ summary: 'Australia imposes autonomous sanctions in relation to Ukraine in respo
   '
 issuer: au_dfat
 dataset: au_dfat_sanctions
+target_territories:
+- ru
+- ua-cri
+- ua-dpr
+- ua-lpr
+measures:
+- Asset freeze
+- Export control
+- Financial block
+- Restrictions on goods
+- Travel ban

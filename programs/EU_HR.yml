@@ -7,3 +7,6 @@ summary: These sanctions target individuals and entities responsible for serious
   bans to hold perpetrators accountable and deter further abuses.
 issuer: eu_council
 dataset: eu_fsf
+measures:
+- Asset freeze
+- Travel ban

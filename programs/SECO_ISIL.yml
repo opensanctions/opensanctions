@@ -8,3 +8,6 @@ summary: These measures target individuals, groups, companies and organisations 
   of international terrorism.
 issuer: ch_seco
 dataset: ch_seco_sanctions
+measures:
+- Arms embargo
+- Travel ban

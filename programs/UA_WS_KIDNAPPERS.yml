@@ -5,3 +5,8 @@ url: https://war-sanctions.gur.gov.ua/en/kidnappers/persons
 summary: null
 issuer: ua_gur
 dataset: ua_war_sanctions
+target_territories:
+- ru
+- ua-cri
+- ua-dpr
+- ua-lpr

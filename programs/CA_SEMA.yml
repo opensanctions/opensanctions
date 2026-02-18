@@ -11,3 +11,8 @@ summary: The purpose of this Act is to enable the Government of Canada to take e
   committed.
 issuer: ca_mfa
 dataset: ca_dfatd_sema_sanctions
+measures:
+- Export control
+- Financial block
+- Investment ban
+- Restrictions on goods

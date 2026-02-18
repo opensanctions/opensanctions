@@ -20,3 +20,6 @@ issuer: us_treasury
 dataset: wd_oligarchs
 aliases:
 - CAATSA
+target_territories:
+- ir
+- ru

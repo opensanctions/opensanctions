@@ -10,3 +10,9 @@ issuer: ch_seco
 dataset: ch_seco_sanctions
 aliases:
 - SR 946.209.2
+target_territories:
+- zw
+measures:
+- Asset freeze
+- Restrictions on goods
+- Travel ban

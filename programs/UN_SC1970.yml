@@ -9,3 +9,10 @@ issuer: zz_unsc
 dataset: un_sc_sanctions
 aliases:
 - Resolution 1970
+target_territories:
+- ly
+measures:
+- Arms embargo
+- Asset freeze
+- Restrictions on goods
+- Travel ban
