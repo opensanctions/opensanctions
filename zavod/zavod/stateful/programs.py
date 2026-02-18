@@ -99,14 +99,11 @@ def get_all_programs_by_key() -> dict[str, Program]:
         if not data:
             continue
 
-        # Derive the program key from the filename stem to ensure they always match.
-        key_from_stem = path.stem
-        if "key" in data:
-            assert data["key"] == key_from_stem, (
-                f"Program key '{data['key']}' in {path.name} does not match "
-                f"the expected key '{key_from_stem}' derived from the filename"
-            )
-        data["key"] = key_from_stem
+        # Ensure the program key in the YAML matches the filename.
+        assert data.get("key") == path.stem, (
+            f"Program key '{data.get('key')}' in {path.name} does not match "
+            f"the expected key '{path.stem}' derived from the filename"
+        )
 
         # Replace issuer reference with actual Issuer object
         issuer_key = data.get("issuer")
