@@ -42,10 +42,10 @@ dates:
 assertions:
   min:
     schema_entities:
-      Person: 240  # raw count: 301 PEPs
+      Person: 1600  # raw count: 2021 PEPs
   max:
     schema_entities:
-      Person: 650
+      Person: 4050
 
 ### dict for header: https://data.brreg.no/enhetsregisteret/api/dokumentasjon/en/index.html#section/Dictionary
 lookups:
