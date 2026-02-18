@@ -13,10 +13,13 @@ from followthemoney import Statement
 from followthemoney.statement.serialize import read_pack_statements_decoded
 
 from zavod.archive import (
+    ARTIFACTS,
     STATEMENTS_FILE,
     dataset_resource_path,
+    iter_dataset_versions,
     iter_previous_statements,
 )
+from zavod.archive.backend import ArchiveObject, get_archive_backend
 from zavod.exc import ConfigurationException
 from zavod.logs import configure_logging
 from zavod.meta import load_dataset_from_path
@@ -191,6 +194,25 @@ def _run_diff(
     _display_in_pager(lines, wrap)
 
 
+def _get_production_pack(dataset_name: str) -> tuple[str, ArchiveObject]:
+    """Return (version_id, archive_object) for the latest production statements.pack."""
+    try:
+        backend = get_archive_backend()
+        for version in iter_dataset_versions(dataset_name):
+            name = f"{ARTIFACTS}/{dataset_name}/{version.id}/{STATEMENTS_FILE}"
+            obj = backend.get_object(name)
+            if obj.exists():
+                return version.id, obj
+    except ConfigurationException as exc:
+        raise click.ClickException(
+            f"Cannot connect to archive: {exc}\n"
+            "Ensure ZAVOD_ARCHIVE_BUCKET or ZAVOD_ARCHIVE_PATH is configured."
+        ) from exc
+    raise click.ClickException(
+        f"No production statements found in archive for: {dataset_name}"
+    )
+
+
 @click.group(help="Utilities for working with statements pack files.")
 def cli() -> None:
     configure_logging(level=logging.WARNING)
@@ -227,6 +249,30 @@ def cp_cmd(dataset_path: Path, dest_dir: Path) -> None:
     shutil.copy2(src, dest)
     click.echo(f"Copied: {src}")
     click.echo(f"    to: {dest}")
+
+
+@cli.command(
+    "fetch",
+    help="Download the latest production statements pack for a dataset.",
+)
+@click.argument(
+    "dataset_path", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.argument("dest_dir", type=click.Path(file_okay=False, path_type=Path))
+def fetch_cmd(dataset_path: Path, dest_dir: Path) -> None:
+    """Download statements.pack from production to <dest_dir>/<dataset_name>-<version_id>-archive.pack."""
+    dataset = load_dataset_from_path(dataset_path)
+    if dataset is None:
+        raise click.BadParameter(f"Invalid dataset path: {dataset_path}")
+
+    click.echo(f"Finding latest production version for {dataset.name}...", err=True)
+    version_id, obj = _get_production_pack(dataset.name)
+
+    dest_dir.mkdir(parents=True, exist_ok=True)
+    dest = dest_dir / f"{dataset.name}-{version_id}-archive.pack"
+    click.echo(f"Downloading {obj.name}...", err=True)
+    obj.backfill(dest)
+    click.echo(f"Saved to: {dest}")
 
 
 @cli.command("diff", help="Show a diff of two statement sets in a pager.")
