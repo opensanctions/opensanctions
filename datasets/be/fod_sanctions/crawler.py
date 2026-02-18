@@ -44,8 +44,8 @@ def crawl_row(context: Context, entity_id: str | None, row: Dict[str, List[str]]
         default="LegalEntity",
         warn_unmatched=True,
     )
-    if schema is None:
-        return  # The lookup warns
+    schema = context.lookup_value("schema_override", entity_id, default=schema)
+    assert schema is not None
     entity = context.make(schema)
     entity.id = entity_id
 
