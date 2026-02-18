@@ -1,0 +1,14 @@
+id: 307
+title: Russian UAVs manufacturers
+key: UA-WS-UAVS
+url: https://war-sanctions.gur.gov.ua/en/uav/companies
+summary: Companies involved in the production of unmanned aerial vehicles, which are
+  systematically used to target Ukraine's civilian population, alongside their military
+  applications.
+issuer: ua_gur
+dataset: ua_war_sanctions
+target_territories:
+- ru
+- ua-cri
+- ua-dpr
+- ua-lpr

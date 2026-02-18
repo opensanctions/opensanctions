@@ -1,0 +1,15 @@
+id: 276
+title: Measures Against Persons and Organisations Supporting Hamas or the Palestinian
+  Islamic Jihad
+key: SECO-HAMAS
+url: https://www.seco.admin.ch/seco/de/home/Aussenwirtschaftspolitik_Wirtschaftliche_Zusammenarbeit/Wirtschaftsbeziehungen/exportkontrollen-und-sanktionen/sanktionen-embargos/sanktionsmassnahmen/massnahmen-gegenueber-hamas.html
+summary: The measures were adopted in response to the acts of violence of Hamas and
+  the PIJ, which constitute serious violations of international humanitarian law and
+  international human rights standards.
+issuer: ch_seco
+dataset: ch_seco_sanctions
+target_territories:
+- ps
+measures:
+- Financial block
+- Travel ban

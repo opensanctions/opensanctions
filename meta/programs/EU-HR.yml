@@ -1,0 +1,12 @@
+id: 69
+title: EU Restrictive Measures Against Serious Human Rights Violations And Abuses
+key: EU-HR
+url: https://sanctionsmap.eu/#/main/details/50/
+summary: These sanctions target individuals and entities responsible for serious human
+  rights violations and abuses worldwide. The measures include asset freezes and travel
+  bans to hold perpetrators accountable and deter further abuses.
+issuer: eu_council
+dataset: eu_fsf
+measures:
+- Asset freeze
+- Travel ban

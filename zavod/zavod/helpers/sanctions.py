@@ -63,7 +63,7 @@ def make_sanction(
     sanction.set("program", program_name)
 
     if program_key is not None:
-        program = programs.get_program_by_key(context, program_key)
+        program = programs.get_program_by_key(program_key)
         if program:
             sanction.set("programId", program_key, original_value=source_program_key)
             entity.add("programId", program_key)

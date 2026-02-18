@@ -1,0 +1,12 @@
+id: 197
+title: Former Federal Republic Of Yugoslavia Sanctions Regime
+key: AU-YUGO
+url: https://www.dfat.gov.au/international-relations/security/sanctions/sanctions-regimes/former-federal-republic-yugoslavia-sanctions-regime
+summary: Australia imposes autonomous sanctions in relation to the Former Federal
+  Republic of Yugoslavia (FFRY) which target persons associated with the former Milosevic
+  regime, and persons indicted for or suspected of committing war crimes during the
+  Balkan wars in the early 1990s. Sanctions have been in place since 1992.
+issuer: au_dfat
+dataset: au_dfat_sanctions
+target_territories:
+- yucs

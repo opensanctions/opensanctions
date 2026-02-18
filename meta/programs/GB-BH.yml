@@ -1,0 +1,9 @@
+id: 232
+title: UK sanctions relating to Bosnia and Herzegovina
+key: GB-BH
+url: https://www.gov.uk/government/collections/uk-sanctions-on-bosnia-and-herzegovina
+summary: Measures addressing issues in Bosnia and Herzegovina.
+issuer: gb_ofsi
+dataset: gb_hmt_sanctions
+target_territories:
+- ba

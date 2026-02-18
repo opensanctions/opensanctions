@@ -1,0 +1,29 @@
+id: 207
+title: Ukraine Sanctions Regime
+key: AU-UKRAINE
+url: https://www.dfat.gov.au/international-relations/security/sanctions/sanctions-regimes/ukraine-sanctions-regime
+summary: 'Australia imposes autonomous sanctions in relation to Ukraine in response
+  to the Russian threat to the sovereignty and territorial integrity of Ukraine.
+
+
+  Sanctions listed under this regime may be part of two different regimes: The [Ukraine
+  sanctions regime](https://www.dfat.gov.au/international-relations/security/sanctions/sanctions-regimes/ukraine-sanctions-regime)
+  or the [Specified Ukraine regions sanctions regime](https://www.dfat.gov.au/international-relations/security/sanctions/sanctions-regimes/specified-ukraine-regions-sanctions-regime).
+  While these are technically different programs, they are not disambiguated in the
+  data provided by the issuer. For this reason, we also consolidate these programs
+  in our database.
+
+  '
+issuer: au_dfat
+dataset: au_dfat_sanctions
+target_territories:
+- ru
+- ua-cri
+- ua-dpr
+- ua-lpr
+measures:
+- Asset freeze
+- Export control
+- Financial block
+- Restrictions on goods
+- Travel ban

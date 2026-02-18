@@ -1,0 +1,15 @@
+id: 128
+title: Measures Against Libya
+key: SECO-LIBYA
+url: https://www.seco.admin.ch/seco/de/home/Aussenwirtschaftspolitik_Wirtschaftliche_Zusammenarbeit/Wirtschaftsbeziehungen/exportkontrollen-und-sanktionen/sanktionen-embargos/sanktionsmassnahmen/massnahmen-gegenueber-libyen.html
+summary: These sanctions target individuals and entities involved in the ongoing conflict
+  and human rights abuses in Libya. The measures include asset freezes and prohibitions
+  on transactions to promote peace, security, and democratic governance in Libya.
+issuer: ch_seco
+dataset: ch_seco_sanctions
+target_territories:
+- ly
+measures:
+- Financial block
+- Restrictions on goods
+- Travel ban

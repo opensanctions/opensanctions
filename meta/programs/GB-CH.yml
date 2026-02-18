@@ -1,0 +1,10 @@
+id: 234
+title: UK arms embargo on mainland China and Hong Kong
+key: GB-CH
+url: https://www.gov.uk/government/collections/uk-arms-embargo-on-mainland-china-and-hong-kong
+summary: Embargo on arms sales to China and Hong Kong.
+issuer: gb_ofsi
+dataset: gb_hmt_sanctions
+target_territories:
+- cn
+- hk

@@ -1,0 +1,13 @@
+id: 311
+title: Individuals and entities involved in the theft and destruction of Ukrainian
+  cultural heritage
+key: UA-WS-STEALERS
+url: https://war-sanctions.gur.gov.ua/en/stolen/persons
+summary: null
+issuer: ua_gur
+dataset: ua_war_sanctions
+target_territories:
+- ru
+- ua-cri
+- ua-dpr
+- ua-lpr

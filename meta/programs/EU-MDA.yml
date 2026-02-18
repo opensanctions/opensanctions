@@ -1,0 +1,14 @@
+id: 77
+title: EU Restrictive Measures In View Of Actions Destabilising The Republic Of Moldova
+key: EU-MDA
+url: https://sanctionsmap.eu/#/main/details/55/
+summary: These sanctions target individuals and entities involved in actions destabilizing
+  Moldova. The measures include asset freezes, travel bans, and trade restrictions
+  to promote stability, democracy, and the rule of law in Moldova.
+issuer: eu_council
+dataset: eu_fsf
+target_territories:
+- md
+measures:
+- Asset freeze
+- Travel ban

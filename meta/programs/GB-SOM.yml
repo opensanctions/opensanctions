@@ -1,0 +1,9 @@
+id: 250
+title: UK sanctions relating to Somalia
+key: GB-SOM
+url: https://www.gov.uk/government/collections/uk-sanctions-on-somalia
+summary: Measures addressing conflict and issues in Somalia.
+issuer: gb_ofsi
+dataset: gb_hmt_sanctions
+target_territories:
+- so

@@ -1,0 +1,9 @@
+id: 244
+title: UK sanctions relating to Lebanon (Assassination of Rafiq Hariri and others)
+key: GB-LEB-RH
+url: https://www.gov.uk/government/collections/uk-sanctions-on-lebanon-assassination-of-rafiq-hariri-and-others
+summary: Measures related to the assassination of Rafiq Hariri.
+issuer: gb_ofsi
+dataset: gb_hmt_sanctions
+target_territories:
+- lb

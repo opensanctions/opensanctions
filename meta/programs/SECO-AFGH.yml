@@ -1,0 +1,18 @@
+id: 57
+title: Measures Against Persons And Organizations With Links To Usama Bin Laden, Al-Qaeda
+  Or The Taliban
+key: SECO-AFGH
+url: https://www.seco.admin.ch/seco/de/home/Aussenwirtschaftspolitik_Wirtschaftliche_Zusammenarbeit/Wirtschaftsbeziehungen/exportkontrollen-und-sanktionen/sanktionen-embargos/sanktionsmassnahmen/massnahmen-gegenueber-personen-und-organisationen-mit-verbindung.
+summary: These sanctions target individuals and organizations linked to Usama bin
+  Laden, Al-Qaeda, or the Taliban. The measures include asset freezes, travel bans,
+  and prohibitions on transactions to prevent the financing and support of terrorist
+  activities. The sanctions aim to disrupt the operations of these groups, enhance
+  international security, and promote global efforts to combat terrorism.
+issuer: ch_seco
+dataset: ch_seco_sanctions
+target_territories:
+- af
+measures:
+- Financial block
+- Restrictions on goods
+- Travel ban

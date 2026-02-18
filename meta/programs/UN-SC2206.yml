@@ -1,0 +1,18 @@
+id: 114
+title: 'South Sudan Sanctions '
+key: UN-SC2206
+url: https://www.un.org/securitycouncil/sanctions/2206
+summary: These sanctions target individuals and entities involved in actions that
+  threaten the peace, security, and stability of South Sudan. The measures include
+  asset freezes, travel bans, and arms embargoes to promote peace and stability in
+  South Sudan.
+issuer: zz_unsc
+dataset: un_sc_sanctions
+aliases:
+- Resolution 2206
+target_territories:
+- ss
+measures:
+- Arms embargo
+- Arms export restrictions
+- Travel ban

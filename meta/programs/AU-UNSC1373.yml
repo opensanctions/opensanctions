@@ -1,0 +1,16 @@
+id: 281
+title: Australia's Counter-Terrorism (UNSCR 1373) Sanctions Regime
+key: AU-UNSC1373
+url: https://www.dfat.gov.au/international-relations/security/sanctions/sanctions-regimes/counter-terrorism-unsc-1373-sanctions-regime
+summary: The United Nations Security Council adopted Resolution 1373 on 28 September
+  2001 in response to the 11 September 2001 terrorist attacks in the United States.
+  The resolution requires Australia, as a UN Member State, to suppress terrorism by
+  implementing targeted financial sanctions against entities involved in terrorist
+  activities. Australia implements these UNSC obligations by incorporating them into
+  Australian law.
+issuer: au_dfat
+dataset: au_dfat_sanctions
+aliases:
+- Resolution 1373
+measures:
+- Restrictions on goods

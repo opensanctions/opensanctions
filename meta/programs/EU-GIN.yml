@@ -1,0 +1,15 @@
+id: 67
+title: EU Restrictive Measures In View Of The Situation In Guinea
+key: EU-GIN
+url: https://sanctionsmap.eu/#/main/details/14/
+summary: These sanctions target individuals and entities in Guinea involved in human
+  rights abuses, corruption, and actions undermining democracy. The measures include
+  asset freezes, travel bans, and restrictions on trade to promote democratic governance
+  and respect for human rights in Guinea.
+issuer: eu_council
+dataset: eu_fsf
+target_territories:
+- gn
+measures:
+- Asset freeze
+- Travel ban

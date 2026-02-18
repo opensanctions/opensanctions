@@ -1,0 +1,9 @@
+id: 235
+title: UK sanctions relating to the Democratic People’s Republic of Korea
+key: GB-DPRK
+url: https://www.gov.uk/government/collections/uk-sanctions-on-the-democratic-peoples-republic-of-korea
+summary: Targeting entities and individuals in North Korea.
+issuer: gb_ofsi
+dataset: gb_hmt_sanctions
+target_territories:
+- kp

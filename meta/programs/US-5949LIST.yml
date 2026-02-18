@@ -1,0 +1,19 @@
+id: 55
+title: James M. Inhofe National Defense Authorization Act (5949 List)
+key: US-5949LIST
+url: https://www.congress.gov/117/bills/hr7776/BILLS-117hr7776enr.pdf
+summary: This act includes provisions for identifying and sanctioning entities that
+  pose threats to U.S. national security. The list associated with this act targets
+  individuals and entities involved in activities such as cyber threats, foreign interference,
+  and other actions that compromise U.S. defense capabilities. The measures include
+  prohibitions on transactions and other restrictions to enhance national security.
+issuer: us_congress
+dataset: us_special_leg
+aliases:
+- 5949 List
+target_territories:
+- cn
+measures:
+- Arms export restrictions
+- Export control
+- Financial block

@@ -1,0 +1,9 @@
+id: 227
+title: UK sanctions relating to unauthorized drilling activities
+key: GB-DRILL
+url: https://www.gov.uk/government/collections/uk-sanctions-relating-to-unauthorised-drilling-activities
+summary: Measures against unauthorized drilling activities.
+issuer: gb_ofsi
+dataset: gb_hmt_sanctions
+target_territories:
+- cy

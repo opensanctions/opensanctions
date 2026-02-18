@@ -1,0 +1,17 @@
+id: 125
+title: Measures Against The Islamic Republic Of Iran
+key: SECO-IRAN
+url: https://www.seco.admin.ch/seco/de/home/Aussenwirtschaftspolitik_Wirtschaftliche_Zusammenarbeit/Wirtschaftsbeziehungen/exportkontrollen-und-sanktionen/sanktionen-embargos/sanktionsmassnahmen/massnahmen-gegenueber-der-islamischen-republik-iran.html
+summary: These sanctions target the Iranian government and entities involved in nuclear
+  proliferation, terrorism, human rights abuses, and other destabilizing activities.
+  The comprehensive measures include asset freezes, prohibitions on transactions,
+  and restrictions on trade to pressure Iran to comply with international norms and
+  agreements.
+issuer: ch_seco
+dataset: ch_seco_sanctions
+target_territories:
+- ir
+measures:
+- Financial block
+- Restrictions on goods
+- Travel ban

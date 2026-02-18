@@ -1,0 +1,15 @@
+id: 66
+title: EU Restrictive Measures In View Of The Situation In Guatemala
+key: EU-GTM
+url: https://sanctionsmap.eu/#/main/details/59/
+summary: These sanctions target individuals and entities in Guatemala involved in
+  human rights abuses, corruption, and undermining democratic processes. The measures
+  include asset freezes, travel bans, and restrictions on trade to promote democratic
+  governance and respect for human rights in Guatemala.
+issuer: eu_council
+dataset: eu_fsf
+target_territories:
+- gt
+measures:
+- Asset freeze
+- Travel ban

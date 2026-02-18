@@ -1,0 +1,9 @@
+id: 241
+title: UK sanctions relating to Iran (nuclear weapons)
+key: GB-IRAN-NW
+url: https://www.gov.uk/government/collections/uk-sanctions-on-iran-relating-to-nuclear-weapons
+summary: Sanctions related to Iran's nuclear weapons program.
+issuer: gb_ofsi
+dataset: gb_hmt_sanctions
+target_territories:
+- ir

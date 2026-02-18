@@ -1,0 +1,14 @@
+id: 8
+title: Burma-Related Sanctions
+key: US-BURMA
+url: https://ofac.treasury.gov/sanctions-programs-and-country-information/burma
+summary: These sanctions target the Burmese military and entities connected to it,
+  in response to the coup and subsequent human rights abuses. The measures include
+  asset freezes and prohibitions on transactions with designated individuals and entities,
+  aiming to restore democratic governance and protect human rights in Burma.
+issuer: us_ofac
+dataset: us_ofac_cons
+aliases:
+- EO 14014
+target_territories:
+- mm

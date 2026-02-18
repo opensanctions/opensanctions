@@ -1,0 +1,14 @@
+id: 285
+title: Designated Terrorist Entities under Czech Government Regulation 210/2008
+key: CZ-TERR
+url: https://www.e-sbirka.cz/sb/2008/210?zalozka=text
+summary: This regulation was issued by the government of the Czech Republic on May
+  28, 2008, and came into force on June 17, 2008, under the authority of Section 4(1)
+  and (3) of Act No. 69/2006 Coll. on the implementation of international sanctions.
+  It transposes the Common Position 2001/931/CFSP of the European Council, as amended,
+  to apply targeted counter-terrorism measures. The regime aims to uphold or restore
+  international peace and security, protect fundamental human rights, and combat terrorism.
+issuer: cz_mzv
+dataset: cz_terrorists
+measures:
+- Restrictions on goods

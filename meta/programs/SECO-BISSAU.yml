@@ -1,0 +1,15 @@
+id: 130
+title: Measures Against Guinea Bissau
+key: SECO-BISSAU
+url: https://www.seco.admin.ch/seco/de/home/Aussenwirtschaftspolitik_Wirtschaftliche_Zusammenarbeit/Wirtschaftsbeziehungen/exportkontrollen-und-sanktionen/sanktionen-embargos/sanktionsmassnahmen/massnahmen-gegenueber-guinea-bissau.html
+summary: These sanctions target individuals and entities in Guinea-Bissau involved
+  in undermining peace, security, and stability. The measures include asset freezes,
+  travel bans, and restrictions on trade to support democratic governance and respect
+  for human rights in Guinea-Bissau.
+issuer: ch_seco
+dataset: ch_seco_sanctions
+target_territories:
+- gw
+measures:
+- Financial block
+- Travel ban

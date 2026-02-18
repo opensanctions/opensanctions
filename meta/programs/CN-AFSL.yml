@@ -1,0 +1,15 @@
+id: 152
+title: Chinese Anti-Foreign Sanctions Law (AFSL)
+key: CN-AFSL
+url: https://docs.google.com/spreadsheets/d/1DhQqlm2MHv3VpVjEJGstbBWlHV0eBJo-omMwn26TQw4/edit#gid=1070466538
+summary: This list includes individuals and entities subject to China's Anti-Foreign
+  Sanctions Law, which targets those involved in actions deemed harmful to China's
+  sovereignty and interests. The measures include asset freezes, prohibitions on transactions,
+  and travel bans to counter foreign sanctions and protect national interests.
+issuer: cn_npc
+dataset: cn_sanctions
+aliases:
+- AFSL
+target_territories:
+- eu
+- us

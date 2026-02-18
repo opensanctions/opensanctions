@@ -1,0 +1,9 @@
+id: 229
+title: UK sanctions relating to Afghanistan
+key: GB-AFG
+url: https://www.gov.uk/government/collections/uk-sanctions-on-afghanistan
+summary: Sanctions against individuals and entities in Afghanistan.
+issuer: gb_ofsi
+dataset: gb_hmt_sanctions
+target_territories:
+- af

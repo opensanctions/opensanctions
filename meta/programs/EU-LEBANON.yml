@@ -1,0 +1,15 @@
+id: 73
+title: EU Restrictive Measures In View Of The Situation In Lebanon
+key: EU-LEBANON
+url: https://sanctionsmap.eu/#/main/details/51/
+summary: These sanctions target individuals and entities in Lebanon involved in activities
+  undermining peace, security, and stability. The measures include asset freezes,
+  travel bans, and trade restrictions to support Lebanon's sovereignty and promote
+  stability in the region.
+issuer: eu_council
+dataset: eu_fsf
+target_territories:
+- lb
+measures:
+- Asset freeze
+- Travel ban

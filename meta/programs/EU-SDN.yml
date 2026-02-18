@@ -1,0 +1,16 @@
+id: 86
+title: EU Restrictive Measures In View Of The Situation In Sudan
+key: EU-SDN
+url: https://sanctionsmap.eu/#/main/details/31/
+summary: These sanctions target individuals and entities in Sudan involved in human
+  rights abuses, conflict, and actions that undermine peace and security. The measures
+  include asset freezes, travel bans, and trade restrictions to pressure the Sudanese
+  government to engage in peaceful negotiations and respect human rights.
+issuer: eu_council
+dataset: eu_fsf
+target_territories:
+- sd
+measures:
+- Arms export restrictions
+- Asset freeze
+- Restrictions on goods

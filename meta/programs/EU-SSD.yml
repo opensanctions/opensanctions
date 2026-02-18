@@ -1,0 +1,16 @@
+id: 84
+title: EU Restrictive Measures In View Of The Situation In South Sudan
+key: EU-SSD
+url: https://sanctionsmap.eu/#/main/details/30/
+summary: These sanctions target individuals and entities involved in actions that
+  threaten the peace, security, and stability of South Sudan. The measures include
+  asset freezes, travel bans, and trade restrictions to promote peace and stability
+  in South Sudan.
+issuer: eu_council
+dataset: eu_fsf
+target_territories:
+- ss
+measures:
+- Arms export restrictions
+- Asset freeze
+- Travel ban

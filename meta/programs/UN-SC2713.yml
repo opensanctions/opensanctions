@@ -1,0 +1,17 @@
+id: 102
+title: 'Al-Shabaab Sanctions '
+key: UN-SC2713
+url: https://www.un.org/securitycouncil/sanctions/2713
+summary: These sanctions target individuals and entities associated with Al-Shabaab,
+  a terrorist organization operating in Somalia. The measures include asset freezes,
+  travel bans, and arms embargoes to disrupt the group's activities and weaken its
+  operational capabilities, thereby enhancing regional security and stability.
+issuer: zz_unsc
+dataset: un_sc_sanctions
+aliases:
+- Resolution 2713
+measures:
+- Arms export restrictions
+- Asset freeze
+- Restrictions on goods
+- Travel ban
