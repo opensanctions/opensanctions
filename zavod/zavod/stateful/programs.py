@@ -96,8 +96,7 @@ def get_all_programs_by_key() -> dict[str, Program]:
     programs: list[Program] = []
     for path in (settings.META_RESOURCE_PATH / "programs").glob("*.yml"):
         data = yaml.safe_load(path.read_text())
-        if not data:
-            continue
+        assert data, f"Empty or invalid YAML in {path.name}"
 
         # Ensure the program key in the YAML matches the filename.
         assert data.get("key") == path.stem, (
