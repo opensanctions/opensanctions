@@ -1,7 +1,6 @@
 import gzip
 import csv
 
-from itertools import chain
 from rigour.mime.types import GZIP
 from typing import Any, List, Dict
 
@@ -26,17 +25,15 @@ DISSOLV_DATES = [
     "forced_dissolution_deficient_board_date",
     "forced_liquidation_missing_deletion_date",
 ]
-# should we put this there ^: under_foreign_insolvency_proceedings_date ?
-
 
 # all positions listed here: https://data.brreg.no/enhetsregisteret/api/roller/rollegruppetyper
 # DAGL: Managing Director / CEO
 # BEST: Managing Shipowner
 # INNH: Sole Proprietor / Owner
 # FFØR: Business Manager
-# Styre: Board of Directors
+# STYRE: Board of Directors
 # get board and C-level positions
-ROLE_CODES = ["Styre", "DAGL", "BEST", "INNH", "FFØR"]
+GROUP_CODES = ["STYR", "DAGL", "BEST", "INNH", "FFØR"]
 IGNORE = [
     "activity",
     "articles_of_association_date",
@@ -91,6 +88,7 @@ IGNORE = [
     "under_liquidation",
     "voluntary_vat_registered_description",
     "website",
+    "under_foreign_insolvency_proceedings_date",
 ]
 
 
@@ -151,7 +149,7 @@ def crawl_company(
     return entity
 
 
-def crawl_pep(
+def crawl_soe_peps(
     context: Context,
     org_number: str,
     company_name: str,
@@ -162,56 +160,80 @@ def crawl_pep(
     rollegrupper = context.fetch_json(api_org_url)["rollegrupper"]
 
     # flatten to iterate over "rollegrupper" that contains a list of roles
-    roles = chain.from_iterable(group.get("roller") for group in rollegrupper)
-    for role in roles:
-        role_data = role.get("type")
-        role_code = role_data.get("kode")
+    # roles = chain.from_iterable(group.get("roller") for group in rollegrupper)
+    # for role in roles:
+    #     role_data = role.get("type")
+    #     role_code = role_data.get("kode")
 
-        if role_code not in ROLE_CODES:
+    #     if role_code not in GROUP_CODES:
+    #         continue
+    #     role_name = role_data.get("beskrivelse")
+
+    for group in rollegrupper:
+        group_type = group.get("type")
+        group_code = group_type.get("kode")
+
+        if group_code not in GROUP_CODES:
+            # for role in group.get("roller"):
+            #     role_data = role.get("type")
+            #     if role_data.get("kode") in GROUP_CODES:
+            #         print(group_code, role_data.get("kode"))
             continue
-        role_name = role_data.get("beskrivelse")
 
-        person_data = role.get("person")
-        if person_data is None:
-            continue
-        names = person_data.get("navn")
-        first_name = names.pop("fornavn")
-        last_name = names.pop("etternavn")
+        for role in group.get("roller"):
+            role_data = role.get("type")
 
-        pep = context.make("Person")
-        pep.id = context.make_id(first_name, last_name)
-        pep.add("birthDate", person_data.pop("fodselsdato"))
-        pep.add("firstName", first_name)
-        pep.add("lastName", last_name)
-        pep.add("country", "no")
+            # print(group_code, role_data.get("kode"))
 
-        position = h.make_position(
-            context,
-            name=f"{role_name}, {company_name}",
-            topics=["gov.soe"],
-            # adding company's country of jurisdiction, too
-            country=["no", company_juris],
-            organization=entity,
-        )
-        categorisation = categorise(context, position, is_pep=True)
+            # if role_data.get("kode") not in GROUP_CODES:
+            #     breakpoint()
+            role_name = role_data.get("beskrivelse")
 
-        if not categorisation.is_pep:
-            return
+            person_data = role.get("person")
+            if person_data is None:
+                continue
+            names = person_data.get("navn")
+            first_name = names.pop("fornavn")
+            last_name = names.pop("etternavn")
+            birth_date = person_data.pop("fodselsdato")
 
-        occupancy = h.make_occupancy(
-            context,
-            pep,
-            position,
-            False,
-            categorisation=categorisation,
-            status=OccupancyStatus.UNKNOWN,
-        )
+            pep = context.make("Person")
+            if birth_date:
+                pep.id = context.make_id(first_name, last_name, birth_date)
+            else:
+                pep.id = context.make_id(first_name, last_name, company_name)
 
-        if occupancy is not None:
-            context.emit(pep)
-            context.emit(entity)
-            context.emit(position)
-            context.emit(occupancy)
+            h.apply_name(pep, first_name=first_name, last_name=last_name)
+            pep.add("birthDate", birth_date)
+            pep.add("country", "no")
+
+            position = h.make_position(
+                context,
+                name=f"{role_name}, {company_name}",
+                topics=["gov.soe"],
+                # adding company's country of jurisdiction, too
+                country=["no", company_juris],
+                organization=entity,
+            )
+            categorisation = categorise(context, position, is_pep=True)
+
+            if not categorisation.is_pep:
+                continue
+
+            occupancy = h.make_occupancy(
+                context,
+                pep,
+                position,
+                False,
+                categorisation=categorisation,
+                status=OccupancyStatus.UNKNOWN,
+            )
+
+            if occupancy is not None:
+                context.emit(pep)
+                context.emit(entity)
+                context.emit(position)
+                context.emit(occupancy)
 
 
 def crawl(context: Context) -> None:
@@ -254,7 +276,7 @@ def crawl(context: Context) -> None:
                 org_number,
                 company_juris,
             )
-            crawl_pep(
+            crawl_soe_peps(
                 context,
                 org_number,
                 company_name,
