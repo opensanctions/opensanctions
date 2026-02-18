@@ -15,7 +15,7 @@ description: |
   This dataset is used to implement corrections where they're needed on top of
   the source data. It also includes ISINs for specific securities subject to sanctions.
 data:
-  url: https://docs.google.com/spreadsheets/d/e/2PACX-1vTtQD9wiHuyl23NmrIeAACET4OohOXhmuxQv817FHHas8uO4k8VBzex25nIOPqsG9300aXJIqCZzo--/pub?gid=1612308021&single=true&output=csv
+  url: https://docs.google.com/spreadsheets/d/e/2PACX-1vTtQD9wiHuyl23NmrIeAACET4OohOXhmuxQv817FHHas8uO4k8VBzex25nIOPqsG9300aXJIqCZzo--/pub
   format: csv
 publisher:
   name: OpenSanctions
@@ -28,9 +28,11 @@ publisher:
 assertions:
   min:
     schema_entities:
-      Company: 20
+      Company: 170
       Security: 10
+      Person: 4
   max:
     schema_entities:
-      Company: 70
+      Company: 175
       Security: 50
+      Person: 5
