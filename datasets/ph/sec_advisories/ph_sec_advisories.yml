@@ -475,3 +475,10 @@ lookups:
         name: "BMJ DATA PROCESSING SERVICES"
       - match: GAINEXPRESS
         name: "GAINEXPRESS"
+      - match: "UMETA CREDIT LENDING CORP. doing business under the name/s and style/s of More Pautang Lending, MetaPeso Lending, MoreJuan Lending and MetaCash Lending"
+        name:
+          - UMETA CREDIT LENDING CORP.
+          - More Pautang Lending
+          - MetaPeso Lending
+          - MoreJuan Lending
+          - MetaCash Lending
