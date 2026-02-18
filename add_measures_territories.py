@@ -78,7 +78,9 @@ def add_measures_territories():
         n_terr = len(resolved["target_territories"])
         n_meas = len(resolved["measures"])
         if n_terr or n_meas:
-            print(f"  Updated {program_file.name}: {n_terr} territories, {n_meas} measures")
+            print(
+                f"  Updated {program_file.name}: {n_terr} territories, {n_meas} measures"
+            )
             updated += 1
 
     print(f"\nUpdated {updated} program files with measures/territories")

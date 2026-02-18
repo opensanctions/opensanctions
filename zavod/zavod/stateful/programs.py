@@ -56,6 +56,14 @@ class Program(BaseModel):
         default_factory=list,
         description="Alternative names or references (e.g., 'Resolution 1373', 'EO 13818')",
     )
+    target_territories: list[str] = Field(
+        default_factory=list,
+        description="Territory codes targeted by this program (e.g., 'af', 'ru', 'by')",
+    )
+    measures: list[str] = Field(
+        default_factory=list,
+        description="Types of sanctions imposed (e.g., 'Asset freeze', 'Travel ban', 'Arms embargo')",
+    )
 
 
 @functools.cache
@@ -70,6 +78,8 @@ def _load_issuers() -> dict[str, Issuer]:
 # Since we'll only ever have a few programs, it's cheaper to just read them all once.
 @functools.cache
 def get_all_programs_by_key() -> dict[str, Program]:
+    import rigour.territories
+
     issuers = _load_issuers()
 
     programs: list[Program] = []
@@ -85,7 +95,22 @@ def get_all_programs_by_key() -> dict[str, Program]:
         else:
             data["issuer"] = None
 
-        programs.append(Program(**data))
+        program = Program(**data)
+
+        # Validate all territory codes against rigour
+        # This will make the unit test fail if any don't validate
+        for code in program.target_territories:
+            assert rigour.territories.get_territory(code) is not None, (
+                f"Unknown territory code '{code}' in program '{program.key}'"
+            )
+        if program.issuer and program.issuer.territory:
+            assert (
+                rigour.territories.get_territory(program.issuer.territory) is not None
+            ), (
+                f"Unknown issuer territory '{program.issuer.territory}' in program '{program.key}'"
+            )
+
+        programs.append(program)
 
     by_key = {p.key: p for p in programs}
     assert len(by_key) == len(programs), "Duplicate program keys detected"
