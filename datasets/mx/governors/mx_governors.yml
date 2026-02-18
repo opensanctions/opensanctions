@@ -41,3 +41,11 @@ data:
 
 dates:
   formats: ["%d/%m/%Y"]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 140
+  max:
+    schema_entities:
+      Person: 355
