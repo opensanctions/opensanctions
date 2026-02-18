@@ -15,6 +15,7 @@
 
 
 from lxml import etree
+import re
 
 from zavod import Context, helpers as h
 from zavod.stateful.positions import categorise
@@ -35,6 +36,26 @@ UNBLOCK_ACTIONS = [
 ]
 
 
+def crawl_birth_year(context: Context, url: str) -> int | None:
+    doc = fetch_html(
+        context,
+        url,
+        '//*[@id="milletvekili-detay-holder-desktop"]',
+        actions=UNBLOCK_ACTIONS,
+        javascript=True,
+        absolute_links=True,
+    )
+
+    birth_string = h.xpath_strings(
+        doc,
+        '//*[@id="milletvekili-detay-holder-desktop"]//div[contains(@class, "profile-ozgecmis-div")]/span//*[normalize-space()][1]/text()',
+    )
+    year_match = re.search(r"\b\d+\b", birth_string[0])
+    year = int(year_match.group()) if year_match else None
+
+    return year
+
+
 def crawl_item(context: Context, item: etree):
     anchor = item.find(".//a")
     if anchor is None:
@@ -50,6 +71,9 @@ def crawl_item(context: Context, item: etree):
     entity.add("name", name)
     entity.add("sourceUrl", deputy_url)
     entity.add("political", party)
+
+    birth_year = crawl_birth_year(context, deputy_url)
+    entity.add("birthDate", birth_year)
 
     position = h.make_position(
         context, "Member of the Grand National Assembly", country="tr"
