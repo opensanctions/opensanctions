@@ -28,9 +28,11 @@ publisher:
 assertions:
   min:
     schema_entities:
-      Company: 20
+      Company: 170
       Security: 10
+      Person: 4
   max:
     schema_entities:
-      Company: 70
+      Company: 175
       Security: 50
+      Person: 5

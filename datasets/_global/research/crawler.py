@@ -8,7 +8,7 @@ from zavod import Context, Entity
 
 SECURITIES_STATEMENTS_CSV = "https://docs.google.com/spreadsheets/d/1Mi5HzeUuWpQ4XrNk8JS7KF0-JKTaUjiNEnDpT0om4mc/pub?gid=1612308021&single=true&output=csv"
 SECURITIES_CUSTOM_CSV = "https://docs.google.com/spreadsheets/d/1Mi5HzeUuWpQ4XrNk8JS7KF0-JKTaUjiNEnDpT0om4mc/pub?gid=0&single=true&output=csv"
-BIDZINA_CSV = "https://docs.google.com/spreadsheets/d/1Mi5HzeUuWpQ4XrNk8JS7KF0-JKTaUjiNEnDpT0om4mc/pub?gid=351241481&single=true&output=csv"
+IVANISHVILI_CSV = "https://docs.google.com/spreadsheets/d/1Mi5HzeUuWpQ4XrNk8JS7KF0-JKTaUjiNEnDpT0om4mc/pub?gid=351241481&single=true&output=csv"
 
 IGNORE_FIELDS: list[str] = [
     "Direct owner name (GEO)",
@@ -74,7 +74,7 @@ def crawl_sec(context: Context):
             crawl_sec_row(context, row)
 
 
-def crawl_bidzina_row(context: Context, row: Dict):
+def crawl_ivanishvili_row(context: Context, row: Dict):
     ult_owner_name = stringify(row.pop("UBO name"))
     ult_owner_id = stringify(row.pop("ID Number"))
     dir_owner_name = stringify(row.pop("Direct owner name (ENG)"))
@@ -98,7 +98,12 @@ def crawl_bidzina_row(context: Context, row: Dict):
     # if the ult_owner is different, then the dir_company is a company
     # otherwise, the dir_company is the ubo (a person) and directly owns
     # main company
-    if ult_owner_name != dir_owner_name and ult_owner_name is not None:
+    if ult_owner_name is None:
+        dir_owner_ent = context.make("Company")
+        dir_owner_ent.id = context.make_id(dir_owner_name, dir_owner_id)
+        dir_owner_ent.add("name", dir_owner_name)
+        dir_owner_ent.add("registrationNumber", dir_owner_id)
+    elif ult_owner_name != dir_owner_name and ult_owner_name is not None:
         dir_owner_ent = context.make("Company")
         dir_owner_ent.id = context.make_id(dir_owner_name, dir_owner_id)
         dir_owner_ent.add("name", dir_owner_name)
@@ -133,14 +138,14 @@ def crawl_bidzina_row(context: Context, row: Dict):
     context.audit_data(row, IGNORE_FIELDS)
 
 
-def crawl_bidzina(context: Context):
-    path = context.fetch_resource("bi-source.csv", BIDZINA_CSV)
+def crawl_ivanisvhili(context: Context):
+    path = context.fetch_resource("bi-source.csv", IVANISHVILI_CSV)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
         for row in csv.DictReader(fh):
-            crawl_bidzina_row(context, row)
+            crawl_ivanishvili_row(context, row)
 
 
 def crawl(context: Context):
     crawl_sec(context)
-    crawl_bidzina(context)
+    crawl_ivanisvhili(context)
