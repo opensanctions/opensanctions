@@ -51,8 +51,7 @@ lookups:
         value: null
   type.address:
     options:
-      - match:
-          - "-"
+      - match: "-"
         value: null
       - match: 阿拉尔
         value: 阿拉尔
