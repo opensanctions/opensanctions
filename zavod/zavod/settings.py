@@ -13,7 +13,8 @@ LOG_JSON = as_bool(env_str("ZAVOD_LOG_JSON", "false"))
 DEBUG = as_bool(env_str("ZAVOD_DEBUG", "false"))
 
 # Default paths
-META_RESOURCE_PATH = Path(env_str("ZAVOD_META_RESOURCE_PATH", "meta")).resolve()
+_META_RESOURCE_DEFAULT = Path(__file__).parent.parent.parent / "meta"
+META_RESOURCE_PATH = Path(env.get("ZAVOD_META_RESOURCE_PATH") or _META_RESOURCE_DEFAULT).resolve()
 DATA_PATH_ = env_str("ZAVOD_DATA_PATH", "data")
 DATA_PATH = Path(env_str("OPENSANCTIONS_DATA_PATH", DATA_PATH_)).resolve()
 DATA_PATH.mkdir(parents=True, exist_ok=True)
