@@ -51,5 +51,4 @@ def crawl(context: Context) -> None:
         context.audit_data(row, ignore=["branch_address"])
         context.emit(entity)
 
-    # TODO: Stop raising once we're through the initial bunch of reviews.
-    assert_all_accepted(context, raise_on_unaccepted=True)
+    assert_all_accepted(context, raise_on_unaccepted=False)
