@@ -155,38 +155,24 @@ def crawl_soe_peps(
     company_name: str,
     company_juris: str,
     entity: Entity,
-) -> None:
+) -> int:
     api_org_url = f"{BASE_API}/enheter/{org_number}/roller"
     rollegrupper = context.fetch_json(api_org_url)["rollegrupper"]
 
-    # flatten to iterate over "rollegrupper" that contains a list of roles
-    # roles = chain.from_iterable(group.get("roller") for group in rollegrupper)
-    # for role in roles:
-    #     role_data = role.get("type")
-    #     role_code = role_data.get("kode")
-
-    #     if role_code not in GROUP_CODES:
-    #         continue
-    #     role_name = role_data.get("beskrivelse")
-
+    pos_in_company = 0
     for group in rollegrupper:
         group_type = group.get("type")
         group_code = group_type.get("kode")
 
         if group_code not in GROUP_CODES:
-            # for role in group.get("roller"):
-            #     role_data = role.get("type")
-            #     if role_data.get("kode") in GROUP_CODES:
-            #         print(group_code, role_data.get("kode"))
+            for role in group.get("roller"):
+                role_data = role.get("type")
+                # assert that we don't omit any target roles
+                assert role_data.get("kode") not in GROUP_CODES
             continue
 
         for role in group.get("roller"):
             role_data = role.get("type")
-
-            # print(group_code, role_data.get("kode"))
-
-            # if role_data.get("kode") not in GROUP_CODES:
-            #     breakpoint()
             role_name = role_data.get("beskrivelse")
 
             person_data = role.get("person")
@@ -235,8 +221,19 @@ def crawl_soe_peps(
                 context.emit(position)
                 context.emit(occupancy)
 
+            pos_in_company += 1
+
+    assert 1 <= pos_in_company <= 40, (
+        f"{company_name} (org_number: {org_number}) emitted {pos_in_company} positions; "
+        "expected not more than 40 positions for board and c-level executives"
+    )
+    return pos_in_company
+
 
 def crawl(context: Context) -> None:
+    total_positions = 0
+    n_companies = 0
+
     page = context.fetch_html(
         context.data_url, method="GET", absolute_links=True, cache_days=3
     )
@@ -268,6 +265,7 @@ def crawl(context: Context) -> None:
             company_name = row.pop("name")
             org_number = row.pop("org_number")
             company_juris = row.pop("subject_to_legislation_country_code")
+            n_companies += 1
 
             entity = crawl_company(
                 context,
@@ -276,10 +274,15 @@ def crawl(context: Context) -> None:
                 org_number,
                 company_juris,
             )
-            crawl_soe_peps(
+            total_positions += crawl_soe_peps(
                 context,
                 org_number,
                 company_name,
                 company_juris,
                 entity,
             )
+
+        assert n_companies <= total_positions, (
+            f"Sanity check failed: extracted {total_positions} positions from {n_companies} SOEs, "
+            "expected at least one position per company"
+        )
