@@ -85,6 +85,7 @@ docs = [
 
 [project.scripts]
 zavod = "zavod.cli:cli"
+zavod-stmt = "zavod.stmt_cli:cli"
 zavod-tune = "zavod.tune:cli"
 
 [tool.hatch.build.targets.sdist]
