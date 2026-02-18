@@ -66,4 +66,5 @@ lookups:
           - Totally Restricted
           - Disqualified
           - Restricted
+          - NIDPOE Issued
         is_debarred: true
