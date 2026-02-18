@@ -1,10 +1,9 @@
 import functools
 import yaml
-from pathlib import Path
 from typing import Optional
 from pydantic import BaseModel, Field
 
-META_PATH = Path(__file__).parent.parent.parent.parent / "meta"
+from zavod import settings
 
 
 class Issuer(BaseModel):
@@ -71,7 +70,7 @@ def _load_issuers() -> dict[str, Issuer]:
     """Load all issuers from YAML files, indexed by filename (without extension)."""
     return {
         path.stem: Issuer(**yaml.safe_load(path.read_text()))
-        for path in (META_PATH / "issuers").glob("*.yml")
+        for path in (settings.META_PATH / "issuers").glob("*.yml")
     }
 
 
@@ -83,7 +82,7 @@ def get_all_programs_by_key() -> dict[str, Program]:
     issuers = _load_issuers()
 
     programs: list[Program] = []
-    for path in (META_PATH / "programs").glob("*.yml"):
+    for path in (settings.META_PATH / "programs").glob("*.yml"):
         data = yaml.safe_load(path.read_text())
         if not data:
             continue
