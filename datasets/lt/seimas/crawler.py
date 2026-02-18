@@ -1,9 +1,17 @@
+from datetime import datetime
+import re
 from normality import collapse_spaces
 from xml.etree import ElementTree
 
 from zavod import Context
 from zavod import helpers as h
-from zavod.stateful.positions import categorise
+from zavod.stateful.positions import categorise, get_after_office
+
+POSITION_TOPICS = ["gov.legislative", "gov.national"]
+CUTOFF_DATE = (datetime.now() - get_after_office(POSITION_TOPICS)).year
+
+
+URL_PREV_SEIMAS = "https://www.lrs.lt/sip/portal.show?p_r=35357&p_k=2"
 
 
 def get_element_text(doc: ElementTree, xpath_value: str, to_remove=[], position=0):
@@ -80,6 +88,7 @@ def crawl_member_bio(context: Context, url: str):
 
 
 def crawl(context: Context):
+    ### === crawl current legislature === ###
     doc = context.fetch_html(context.data_url, cache_days=1)
 
     for anchor in doc.xpath(
@@ -87,3 +96,41 @@ def crawl(context: Context):
     ):
         anchor_url = anchor.get("href")
         crawl_member_bio(context, anchor_url)
+
+    ### === crawl older legislatures === ###
+    doc_all_older_seimas = context.fetch_html(URL_PREV_SEIMAS, cache_days=1)
+    older_seimas_table = h.xpath_elements(
+        doc_all_older_seimas, '//div[contains(@class, "rubrika-kvadratai-item")]'
+    )
+    assert older_seimas_table is not None
+
+    for seimas in older_seimas_table:
+        seimas_el = h.xpath_element(seimas, ".//a")
+        seimas_dates_match = re.search(r"\(\d{4}[–-]\d{4}\)", h.element_text(seimas_el))
+
+        assert seimas_dates_match is not None
+        seimas_dates = seimas_dates_match.group(0).strip("()")
+        start_year, end_year = seimas_dates.split("–")
+
+        # don't collect seimas data beyond the CUTOFF_DATE
+        if int(end_year) < CUTOFF_DATE:
+            continue
+
+        seimas_url = seimas_el.get("href")
+        assert seimas_url is not None, "Coundn't fetch URL for the legislature"
+
+        # visit the url of an older legislature landing page
+        doc_seimas_overview = context.fetch_html(seimas_url, cache_days=1)
+        # get the URL to the list of Members of the Seimas
+        members_url = h.xpath_string(
+            doc_seimas_overview,
+            '//div[contains(@class,"rubrika-kvadratai-item")]//a[@title="Members of the Seimas"]/@href',
+        )
+        # visit the older legislature page listing its members
+        doc_seimas = context.fetch_html(members_url, cache_days=1)
+
+        for anchor in doc_seimas.xpath(
+            '//div[contains(@class,"list-member")]//a[contains(@class, "smn-name")]'
+        ):
+            anchor_url = anchor.get("href")
+            crawl_member_bio(context, anchor_url)
