@@ -108,5 +108,4 @@ def crawl(context: Context):
             split_row = {k: h.multi_split(v, ["\n"]) for k, v in row.items()}
             crawl_row(context, entity_id, split_row)
 
-    # TODO: Stop raising once we're through the initial bunch of reviews.
-    assert_all_accepted(context, raise_on_unaccepted=True)
+    assert_all_accepted(context, raise_on_unaccepted=False)

@@ -37,5 +37,4 @@ def crawl(context: Context):
                 continue
             parse_entry(context, entry)
 
-    # TODO: Stop raising once we're through the initial bunch of reviews.
-    assert_all_accepted(context, raise_on_unaccepted=True)
+    assert_all_accepted(context, raise_on_unaccepted=False)
