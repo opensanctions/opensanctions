@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Optional
 from pydantic import BaseModel, Field
 
-PROGRAMS_RESOURCE_PATH = Path(__file__).parent.parent.parent.parent / "programs"
+META_PATH = Path(__file__).parent.parent.parent.parent / "meta"
 
 
 class Issuer(BaseModel):
@@ -71,7 +71,7 @@ def _load_issuers() -> dict[str, Issuer]:
     """Load all issuers from YAML files, indexed by filename (without extension)."""
     return {
         path.stem: Issuer(**yaml.safe_load(path.read_text()))
-        for path in (PROGRAMS_RESOURCE_PATH / "issuers").glob("*.yml")
+        for path in (META_PATH / "issuers").glob("*.yml")
     }
 
 
@@ -83,10 +83,19 @@ def get_all_programs_by_key() -> dict[str, Program]:
     issuers = _load_issuers()
 
     programs: list[Program] = []
-    for path in PROGRAMS_RESOURCE_PATH.glob("*.yml"):
+    for path in (META_PATH / "programs").glob("*.yml"):
         data = yaml.safe_load(path.read_text())
         if not data:
             continue
+
+        # Derive the program key from the filename stem to ensure they always match.
+        key_from_stem = path.stem
+        if "key" in data:
+            assert data["key"] == key_from_stem, (
+                f"Program key '{data['key']}' in {path.name} does not match "
+                f"the expected key '{key_from_stem}' derived from the filename"
+            )
+        data["key"] = key_from_stem
 
         # Replace issuer reference with actual Issuer object
         issuer_key = data.get("issuer")
