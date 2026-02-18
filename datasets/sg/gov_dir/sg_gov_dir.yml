@@ -45,6 +45,18 @@ assertions:
       Person: 40_000
 
 lookups:
+  type.name:
+    options:
+      - match: Yehoshua GLEITMAN<br>BBM
+        value: Yehoshua GLEITMAN BBM
+
+  type.position:
+    options:
+      - match: Director<br> (South East CDD)
+        value: Director (South East CDD)
+      - match: Deputy Director<br>(Emergency Preparedness)
+        value: Deputy Director (Emergency Preparedness)
+
   type.email:
     lowercase: true
     normalize: true
