@@ -65,6 +65,11 @@ config:
     - "sd"
 
 lookups:
+  type.string:
+    options:
+      - match:
+          - <UNKNOWN>
+        value: null
   type.date:
     options:
       - match:
