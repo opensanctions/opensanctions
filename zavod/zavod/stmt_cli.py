@@ -10,7 +10,12 @@ import click
 from colorama import Fore, Style  # type: ignore[import-untyped]
 from colorama import init as colorama_init
 from followthemoney import Statement
-from followthemoney.statement.serialize import read_pack_statements_decoded
+from followthemoney.statement.serialize import (
+    CSV,
+    PACK,
+    read_pack_statements_decoded,
+    read_path_statements,
+)
 
 from zavod.archive import (
     ARTIFACTS,
@@ -115,14 +120,28 @@ def _read_production_statements(dataset: Dataset) -> dict[str, Statement]:
     return stmts
 
 
+def _read_stmts_file(path: Path) -> dict[str, Statement]:
+    """Read a statements file, detecting format from the extension (.csv or pack)."""
+    fmt = CSV if path.suffix.lower() == ".csv" else PACK
+    stmts: dict[str, Statement] = {}
+    for stmt in read_path_statements(path, fmt):
+        if stmt.id is not None:
+            stmts[stmt.id] = stmt
+    return stmts
+
+
 def _load_stmts_with_label(path: Path) -> tuple[dict[str, Statement], str]:
-    """Load statements from a .yml dataset path or a .pack file, with a display label."""
-    if path.suffix == ".yml":
+    """Load statements from a path.
+
+    If the path is a .yml file that loads as a dataset, returns local statements
+    for that dataset.  Otherwise reads the file directly as a statements file
+    (pack format by default, CSV if the extension is .csv).
+    """
+    if path.suffix.lower() == ".yml":
         dataset = load_dataset_from_path(path)
-        if dataset is None:
-            raise click.BadParameter(f"Invalid dataset path: {path}")
-        return _read_local_statements(dataset), f"local ({dataset.name})"
-    return _read_pack_file(path), str(path)
+        if dataset is not None:
+            return _read_local_statements(dataset), f"local ({dataset.name})"
+    return _read_stmts_file(path), str(path)
 
 
 def _display_in_pager(lines: list[str], wrap: bool) -> None:
