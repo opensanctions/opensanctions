@@ -4,7 +4,7 @@ name: Issues agent
 "on":
   workflow_dispatch: {}
   schedule:
-    - cron: "45 6 * * *"
+    - cron: "45 6 * * 1-5"
 
 permissions:
   contents: write
