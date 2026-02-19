@@ -36,7 +36,7 @@ UNBLOCK_ACTIONS = [
 ]
 
 
-def crawl_birth_year(context: Context, url: str) -> int | None:
+def crawl_birth_year_place(context: Context, url: str) -> tuple[int | None, str | None]:
     doc = fetch_html(
         context,
         url,
@@ -46,14 +46,14 @@ def crawl_birth_year(context: Context, url: str) -> int | None:
         absolute_links=True,
     )
 
-    birth_string = h.xpath_strings(
-        doc,
-        '//*[@id="milletvekili-detay-holder-desktop"]//div[contains(@class, "profile-ozgecmis-div")]/span//*[normalize-space()][1]/text()',
-    )
-    year_match = re.search(r"\b\d+\b", birth_string[0])
-    year = int(year_match.group()) if year_match else None
+    xpath = '//*[@id="milletvekili-detay-holder-desktop"]//div[contains(@class, "profile-ozgecmis-div")]/span//*[1]/text()'
 
-    return year
+    birth_string = h.xpath_strings(doc, xpath)
+    match = re.match(r"^([\w\s/]+?)\s*–\s*(\d{4})", birth_string[0])
+    year = int(match.group(2)) if match else None
+    birth_place = match.group(1).strip() if match else None
+
+    return year, birth_place
 
 
 def crawl_item(context: Context, item: etree):
@@ -72,8 +72,9 @@ def crawl_item(context: Context, item: etree):
     entity.add("sourceUrl", deputy_url)
     entity.add("political", party)
 
-    birth_year = crawl_birth_year(context, deputy_url)
+    birth_year, birth_place = crawl_birth_year_place(context, deputy_url)
     entity.add("birthDate", birth_year)
+    entity.add("birthPlace", birth_place)
 
     position = h.make_position(
         context, "Member of the Grand National Assembly", country="tr"
@@ -88,10 +89,21 @@ def crawl_item(context: Context, item: etree):
         categorisation=categorisation,
     )
 
+    ### creating a temp entity to test the id rekey ###
+    entity_temp = context.make("Person")
+    if birth_year is not None:
+        entity_temp.id = context.make_id(name, str(birth_year), birth_place)
+    entity_temp.add("name", name)
+    entity_temp.add("birthDate", birth_year)
+    entity_temp.add("birthPlace", birth_place)
+    entity_temp.add("political", party)
+    ### === ### === ### === ### === ### === ### === ###
+
     if occupancy:
         context.emit(entity)
         context.emit(position)
         context.emit(occupancy)
+        context.emit(entity_temp, external=True)  # emit temp entity to test the rekey
 
 
 def crawl(context: Context):
