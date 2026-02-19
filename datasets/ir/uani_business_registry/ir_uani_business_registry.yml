@@ -65,3 +65,16 @@ lookups:
     # Nulling empty notes
       - match: "--"
         value: null
+    # HTML/XSS: remove stray <> fragments from source text
+      - match: |-
+          The Company has also recently received information that Bondstrand Ltd. (a foreign company of which the Company indirectly – through a wholly-owned foreign subsidiary – owns 40%) had sales of approximately $13,936.98 of adhesive to an Iranian company."   (CORRESP for AMERON INTERNATIONAL CORP, <>9.14.2009) (https://www.sec.gov/Archives/edgar/data/790730/000079073009000020/filename1.htm','AMERON%20INTERNATIONAL%20CORP',''))
+        value: |-
+          The Company has also recently received information that Bondstrand Ltd. (a foreign company of which the Company indirectly – through a wholly-owned foreign subsidiary – owns 40%) had sales of approximately $13,936.98 of adhesive to an Iranian company."   (CORRESP for AMERON INTERNATIONAL CORP, 9.14.2009) (https://www.sec.gov/Archives/edgar/data/790730/000079073009000020/filename1.htm','AMERON%20INTERNATIONAL%20CORP',''))
+      - match: |-
+          "A security group is threatening to boycott the Hilton hotel chain for planning to host Iranian President Mahmoud Ahmadinejad<><> during next month's UN General Assembly meeting, The Post has learned. United Against Nuclear Iran said the Hilton Manhattan East should not be accepting 'blood money' from Ahmadinejad and the Iranian delegation.
+        value: |-
+          "A security group is threatening to boycott the Hilton hotel chain for planning to host Iranian President Mahmoud Ahmadinejad during next month's UN General Assembly meeting, The Post has learned. United Against Nuclear Iran said the Hilton Manhattan East should not be accepting 'blood money' from Ahmadinejad and the Iranian delegation.
+      - match: |-
+          "UBNT believes its products have been sold into Iran by third parties." (Seeking Alpha, "<>IPO Preview: Ubiquiti Networks," 10/7/2011) (http://seekingalpha.com/article/298357-ipo-preview-ubiquiti-networks)
+        value: |-
+          "UBNT believes its products have been sold into Iran by third parties." (Seeking Alpha, "IPO Preview: Ubiquiti Networks," 10/7/2011) (http://seekingalpha.com/article/298357-ipo-preview-ubiquiti-networks)
