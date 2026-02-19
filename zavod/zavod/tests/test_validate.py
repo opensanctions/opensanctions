@@ -11,6 +11,7 @@ from zavod.meta.dataset import Dataset
 from zavod.store import get_store
 from zavod.validators import (
     DanglingReferencesValidator,
+    OneGenderValidator,
     SelfReferenceValidator,
     EmptyValidator,
 )
@@ -90,6 +91,23 @@ def test_self_references(testdataset3) -> None:
             "td3-owner-of-self-co references itself via ownershipAsset -> td3-owner-of-self-co-ownership-owner-of-self-co -> owner",
         ),
     }
+    assert validator.abort is False
+
+
+def test_one_gender(testdataset3) -> None:
+    ds = Dataset(BASE_DATASET_CONFIG)
+
+    emit_entity(ds, "Person", {"name": ["Vladimir Putin"], "gender": ["male"]})
+    validator, logs = run_validator(OneGenderValidator, ds)
+    assert len(logs) == 0
+    assert validator.abort is False
+
+    emit_entity(
+        ds, "Person", {"name": ["Vladimir Putin"], "gender": ["male", "female"]}
+    )
+
+    validator, logs = run_validator(OneGenderValidator, ds)
+    assert "has more than one gender" in str(logs)
     assert validator.abort is False
 
 
