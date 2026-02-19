@@ -2,13 +2,11 @@
 
 import logging
 import shutil
-import subprocess
+import textwrap
 from pathlib import Path
 from typing import Optional
 
 import click
-from colorama import Fore, Style  # type: ignore[import-untyped]
-from colorama import init as colorama_init
 from followthemoney import Statement
 from followthemoney.statement.serialize import (
     CSV,
@@ -16,6 +14,10 @@ from followthemoney.statement.serialize import (
     read_pack_statements_decoded,
     read_path_statements,
 )
+from rich.text import Text
+from textual.app import App, ComposeResult
+from textual.binding import Binding
+from textual.widgets import DataTable, Footer, Static
 
 from zavod.archive import (
     ARTIFACTS,
@@ -31,53 +33,128 @@ from zavod.meta import load_dataset_from_path
 from zavod.meta.dataset import Dataset
 from zavod.runtime.versions import get_latest
 
-colorama_init()
-
-# Column widths for the tabular diff display
-COL_ENTITY = 42
-COL_PROP = 32
-COL_VALUE = 52
-COL_DATASET = 22
-COL_SEEN = 10
-
-_SEP_WIDTH = (
-    2 + COL_ENTITY + 2 + COL_PROP + 2 + COL_VALUE + 2 + COL_DATASET + 2 + COL_SEEN
-)
+# Default column widths for truncation mode
+_COL_ENTITY = 50
+_COL_PROP = 32
+_COL_VALUE = 52
+_COL_DATASET = 22
+_COL_SEEN = 12
 
 
 def _trunc(s: str, width: int) -> str:
-    """Truncate a string to a fixed width, padding with spaces on the right."""
+    """Truncate a string to at most `width` characters, appending an ellipsis if cut."""
     if len(s) > width:
         return s[: width - 1] + "\u2026"
-    return s.ljust(width)
+    return s
 
 
-def _format_header() -> str:
-    cols = [
-        _trunc("ENTITY_ID", COL_ENTITY),
-        _trunc("SCHEMA:PROP", COL_PROP),
-        _trunc("VALUE", COL_VALUE),
-        _trunc("DATASET", COL_DATASET),
-        _trunc("FIRST_SEEN", COL_SEEN),
+class _DiffApp(App[None]):
+    """Textual TUI for browsing a statement diff."""
+
+    BINDINGS = [
+        Binding("q", "quit", "Quit"),
+        Binding("escape", "quit", "Quit"),
+        Binding("t", "toggle_truncate", "Toggle truncation"),
+        Binding("w", "toggle_wrap", "Toggle wrap"),
     ]
-    return str(Style.BRIGHT + "  " + "  ".join(cols) + Style.RESET_ALL)
 
+    CSS = """
+    #summary {
+        height: auto;
+        padding: 0 1;
+    }
+    DataTable {
+        height: 1fr;
+    }
+    """
 
-def _format_separator() -> str:
-    return str(Style.DIM + ("\u2500" * _SEP_WIDTH) + Style.RESET_ALL)
+    def __init__(
+        self,
+        left_label: str,
+        right_label: str,
+        diff_rows: list[tuple[str, Statement]],
+        removed_count: int,
+        added_count: int,
+        common_count: int,
+    ) -> None:
+        super().__init__()
+        self._left_label = left_label
+        self._right_label = right_label
+        self._diff_rows = diff_rows
+        self._removed_count = removed_count
+        self._added_count = added_count
+        self._common_count = common_count
+        self._truncate = True
+        self._wrap = False
 
+    def compose(self) -> ComposeResult:
+        summary = Text()
+        summary.append(f"LEFT:  {self._left_label}\n", style="bold")
+        summary.append(f"RIGHT: {self._right_label}\n", style="bold")
+        summary.append(f"  {self._removed_count:,} removed", style="red")
+        summary.append("  ")
+        summary.append(f"{self._added_count:,} added", style="green")
+        summary.append("  ")
+        summary.append(f"{self._common_count:,} unchanged", style="dim")
+        yield Static(summary, id="summary")
+        yield DataTable()
+        yield Footer()
 
-def _format_row(marker: str, stmt: Statement) -> str:
-    color = Fore.RED if marker == "-" else Fore.GREEN
-    prop_col = f"{stmt.schema}:{stmt.prop}"
-    cols = [
-        _trunc(stmt.entity_id, COL_ENTITY),
-        _trunc(prop_col, COL_PROP),
-        _trunc(stmt.value, COL_VALUE),
-        _trunc(stmt.dataset, COL_DATASET),
-        _trunc(stmt.first_seen or "", COL_SEEN),
-    ]
-    return str(color + marker + " " + "  ".join(cols) + Style.RESET_ALL)
+    def on_mount(self) -> None:
+        self._populate_table()
+
+    def _populate_table(self) -> None:
+        table = self.query_one(DataTable)
+        table.clear(columns=True)
+        table.cursor_type = "row"
+        table.add_columns(
+            "", "ENTITY_ID", "SCHEMA:PROP", "VALUE", "DATASET", "FIRST_SEEN"
+        )
+        if not self._diff_rows:
+            table.add_row("", Text("(no differences)", style="dim"), "", "", "", "")
+            return
+        for marker, stmt in self._diff_rows:
+            style = "red" if marker == "-" else "green"
+            prop_col = f"{stmt.schema}:{stmt.prop}"
+            if self._wrap:
+                value_lines = textwrap.wrap(stmt.value, _COL_VALUE) or [""]
+                value_cell = Text("\n".join(value_lines), style=style)
+                table.add_row(
+                    Text(marker, style=style),
+                    Text(_trunc(stmt.entity_id, _COL_ENTITY), style=style),
+                    Text(_trunc(prop_col, _COL_PROP), style=style),
+                    value_cell,
+                    Text(_trunc(stmt.dataset, _COL_DATASET), style=style),
+                    Text(_trunc(stmt.first_seen or "", _COL_SEEN), style=style),
+                    height=len(value_lines),
+                )
+            elif self._truncate:
+                table.add_row(
+                    Text(marker, style=style),
+                    Text(_trunc(stmt.entity_id, _COL_ENTITY), style=style),
+                    Text(_trunc(prop_col, _COL_PROP), style=style),
+                    Text(_trunc(stmt.value, _COL_VALUE), style=style),
+                    Text(_trunc(stmt.dataset, _COL_DATASET), style=style),
+                    Text(_trunc(stmt.first_seen or "", _COL_SEEN), style=style),
+                )
+            else:
+                table.add_row(
+                    Text(marker, style=style),
+                    Text(stmt.entity_id, style=style),
+                    Text(prop_col, style=style),
+                    Text(stmt.value, style=style),
+                    Text(stmt.dataset, style=style),
+                    Text(stmt.first_seen or "", style=style),
+                )
+
+    def action_toggle_truncate(self) -> None:
+        if not self._wrap:
+            self._truncate = not self._truncate
+            self._populate_table()
+
+    def action_toggle_wrap(self) -> None:
+        self._wrap = not self._wrap
+        self._populate_table()
 
 
 def _stmt_sort_key(stmt: Statement) -> tuple[str, str, str, str]:
@@ -144,33 +221,13 @@ def _load_stmts_with_label(path: Path) -> tuple[dict[str, Statement], str]:
     return _read_stmts_file(path), str(path)
 
 
-def _display_in_pager(lines: list[str], wrap: bool) -> None:
-    """Write lines to a pager. Horizontal scrolling is on by default; --wrap enables wrapping."""
-    content = "\n".join(lines) + "\n"
-    # -R: render ANSI colour codes. -S: chop long lines (enables horizontal scrolling).
-    pager_args = ["less", "-R"] if wrap else ["less", "-RS"]
-    try:
-        proc = subprocess.Popen(
-            pager_args,
-            stdin=subprocess.PIPE,
-            encoding="utf-8",
-        )
-        proc.communicate(content)
-    except (BrokenPipeError, KeyboardInterrupt):
-        pass
-    except FileNotFoundError:
-        # less is not available; fall back to stdout
-        click.echo(content)
-
-
 def _run_diff(
     left: dict[str, Statement],
     right: dict[str, Statement],
     left_label: str,
     right_label: str,
-    wrap: bool,
 ) -> None:
-    """Compute and display the diff between two statement sets in a pager."""
+    """Compute and display the diff between two statement sets in a TUI."""
     left_ids = set(left.keys())
     right_ids = set(right.keys())
     removed_ids = left_ids - right_ids
@@ -183,34 +240,15 @@ def _run_diff(
     # Sort by content, with "-" (removed) before "+" (added) for the same statement key
     all_diffs.sort(key=lambda x: (_stmt_sort_key(x[1]), x[0]))
 
-    lines: list[str] = []
-    lines.append(Style.BRIGHT + f"LEFT:  {left_label}" + Style.RESET_ALL)
-    lines.append(Style.BRIGHT + f"RIGHT: {right_label}" + Style.RESET_ALL)
-    lines.append(
-        Fore.RED
-        + f"  {len(removed_ids):,} removed"
-        + Style.RESET_ALL
-        + "  "
-        + Fore.GREEN
-        + f"{len(added_ids):,} added"
-        + Style.RESET_ALL
-        + "  "
-        + Style.DIM
-        + f"{common_count:,} unchanged"
-        + Style.RESET_ALL
+    app = _DiffApp(
+        left_label=left_label,
+        right_label=right_label,
+        diff_rows=all_diffs,
+        removed_count=len(removed_ids),
+        added_count=len(added_ids),
+        common_count=common_count,
     )
-    lines.append(_format_separator())
-    lines.append(_format_header())
-    lines.append(_format_separator())
-
-    if not all_diffs:
-        lines.append(Style.DIM + "  (no differences)" + Style.RESET_ALL)
-    else:
-        for marker, stmt in all_diffs:
-            lines.append(_format_row(marker, stmt))
-
-    lines.append(_format_separator())
-    _display_in_pager(lines, wrap)
+    app.run()
 
 
 def _get_production_pack(dataset_name: str) -> tuple[str, ArchiveObject]:
@@ -294,7 +332,9 @@ def fetch_cmd(dataset_path: Path, dest_dir: Path) -> None:
     click.echo(f"Saved to: {dest}")
 
 
-@cli.command("diff", help="Show a diff of two statement sets in a pager.")
+@cli.command(
+    "diff", help="Show a diff of two statement sets in a scrollable TUI table."
+)
 @click.argument(
     "left_path", type=click.Path(exists=True, dir_okay=False, path_type=Path)
 )
@@ -304,17 +344,9 @@ def fetch_cmd(dataset_path: Path, dest_dir: Path) -> None:
     required=False,
     default=None,
 )
-@click.option(
-    "-w",
-    "--wrap",
-    is_flag=True,
-    default=False,
-    help="Enable line wrapping (default: disabled, with horizontal scrolling).",
-)
 def diff_cmd(
     left_path: Path,
     right_path: Optional[Path],
-    wrap: bool,
 ) -> None:
     """Diff two statement sets. Arguments can be .yml dataset paths or .pack files.
 
@@ -346,7 +378,7 @@ def diff_cmd(
         click.echo(f"Loading {right_path}...", err=True)
         right_stmts, right_label = _load_stmts_with_label(right_path)
 
-    _run_diff(left_stmts, right_stmts, left_label, right_label, wrap)
+    _run_diff(left_stmts, right_stmts, left_label, right_label)
 
 
 if __name__ == "__main__":
