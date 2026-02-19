@@ -57,6 +57,7 @@ def multi_split(
     if text is None:
         return []
     fragments = ensure_list(text)
+    splitters = sorted(splitters, key=len, reverse=True)
     for splitter in splitters:
         out: List[Optional[str]] = []
         for fragment in fragments:
