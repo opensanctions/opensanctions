@@ -4,12 +4,7 @@ from typing import Dict, Any
 from zavod import Context, helpers as h
 from zavod.stateful.positions import categorise, get_after_office
 
-POSITION_TOPICS = ["gov.legislative", "gov.national"]
-CUTOFF_DATE = datetime.now() - get_after_office(POSITION_TOPICS)
-
-
-link = "https://cro.justice.cz/verejnost/api/funkcionari/68219d51-998d-49bf-9fb3-77563880e196"
-ovmId = "https://cro.justice.cz/verejnost/api/funkcionari/af9a98a7-ac7a-4c8a-922d-7c169328a897"
+JUDGE_OVM_ID = "a6b0a81a-cf8a-4319-8fd1-5d509d5ce1df"
 
 
 def crawl_person(context: Context, item: Dict[str, Any]) -> None:
@@ -32,21 +27,27 @@ def crawl_person(context: Context, item: Dict[str, Any]) -> None:
     entity.add("citizenship", "cz")
 
     for wp in item.get("workingPositions", []):
-        # deputyAndOthers / senatorAndOthers mean the person holds one of the
-        # primary roles PLUS additional roles — still qualifies.
-        wp_data = wp.get("workingPosition")
-        is_deputy = wp_data.get("deputy")  # or item.get("deputyAndOthers")
-        is_senator = wp_data.get("senator")  # or item.get("senatorAndOthers")
-        is_judge = item.get("judge")
-        # ovmID is a unique identifier for a specific position
-        ovm_id = wp.get("ovmId")
+        # position_full_name = wp.get("name")
+        # org_name = wp.get("organization")
 
-        # if ovm_id in [
-        #     "77b50542-2b9f-4c6d-b614-ce3ef681d377",
-        #     "b4c51556-393d-4a79-8967-351e86c2735b",
-        #     "1da3b9fa-fcb7-4799-bf73-408813a7344b",
-        # ]:
-        #     continue
+        wp_data = wp.get("workingPosition")
+        # Some persons hold a deputy or senator role alongside other roles.
+        # The API flags this with deputyAndOthers / senatorAndOthers at the
+        # person level. We only look at the position-level deputy/senator flags
+        # here, since the deputy/senator position will be emitted on its own
+        # working position entry anyway.
+        is_deputy = wp_data.get("deputy")
+        is_senator = wp_data.get("senator")
+        is_judge = item.get("judge")
+        # ovmId identifies the type of position, shared across all holders of that role
+        ovm_id = wp.get("ovmId")
+        # position_name = wp_data.get("name")
+
+        # judge is a person-level flag, not position-level, so a judge person
+        # will have it set on ALL their working positions, including non-judicial
+        # ones. We narrow to the single ovm_id that represents the judge role.
+        if is_judge and ovm_id != JUDGE_OVM_ID:
+            continue
 
         if not (is_deputy or is_senator or is_judge):
             continue
@@ -68,12 +69,19 @@ def crawl_person(context: Context, item: Dict[str, Any]) -> None:
         if not categorisation.is_pep:
             continue
 
+        end_date = wp.get("end")  # alternative key: writtenDateOfEnd
+        if end_date is not None:
+            cutoff_date = datetime.now() - get_after_office(position.get("topics"))
+            if datetime.strptime(end_date, "%Y-%m-%d") < cutoff_date:
+                context.log.info(f"Skipping old term (ended {end_date})")
+                continue
+
         occupancy = h.make_occupancy(
             context,
             person=entity,
             position=position,
             start_date=wp.get("start"),
-            end_date=wp.get("end"),
+            end_date=end_date,
             categorisation=categorisation,
         )
         if occupancy is not None:
@@ -86,7 +94,6 @@ def crawl(context: Context) -> None:
     page = 0
     while True:
         url = f"{context.data_url}?sort=created&order=DESC&page={page}&pageSize=100"
-        # url = "https://cro.justice.cz/verejnost/api/funkcionari/68219d51-998d-49bf-9fb3-77563880e196"
         data = context.fetch_json(url, cache_days=7)
         if data is None:
             context.log.error("Empty response", url=url)

@@ -52,7 +52,7 @@ lookups:
           name: Member of the Senate of the Parliament of the Czech Republic
           qid: Q18941264
           topics: ["gov.legislative", "gov.national"]
-      - contains: a6b0a81a-cf8a-4319-8fd1-5d509d5ce1df
+      - match: a6b0a81a-cf8a-4319-8fd1-5d509d5ce1df
         items:
           name: Judge
           qid: null
