@@ -61,6 +61,13 @@ lookups:
           - desmond_choo@ntuc.org.sg
       - match: Ng_huck_hui@hq.a-star. edu.sg
         value: Ng_huck_hui@hq.a-star.edu.sg
+  type.string:
+    options:
+      - match: Director<br> (South East CDD)
+        value: Director (South East CDD)
+      - match: Deputy Director<br>(Emergency Preparedness)
+        value: Deputy Director (Emergency Preparedness)
+
   type.name:
     options:
       - match: Director<br> (South East CDD)
