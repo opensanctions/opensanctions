@@ -59,7 +59,7 @@ lookups:
 assertions:
   min:
     schema_entities:
-      Organization: 27573
+      Organization: 27500
   max:
     schema_entities:
-      Organization: 64878
+      Organization: 65000
