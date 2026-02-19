@@ -47,15 +47,13 @@ lookups:
           name: Member of the Chamber of Deputies of the Parliament of the Czech Republic
           qid: Q19803234
           topics: ["gov.legislative", "gov.national"]
-      # - contains:
-      #     - soudce Okresní soud
-      #   items:
-      #     name: Judge of a district court in the Czech Republic
-      #     qid: Q19803234
-      #     topics: ["gov.judicial", "gov.state"]
-      # - contains: náměstek hejtmana Kraj Vysočina 04.11.2024
-      #   items:
-      #     name: Deputy Governor
-      #     qid: Q1234566
-      #     topics: ["gov.executive", "gov.state"]
-      # - contains: člen vlády Úřad vlády České republiky
+      - match: 5625551a-6397-4e17-9bb3-d43e821fbb90
+        items:
+          name: Member of the Senate of the Parliament of the Czech Republic
+          qid: Q18941264
+          topics: ["gov.legislative", "gov.national"]
+      - contains: a6b0a81a-cf8a-4319-8fd1-5d509d5ce1df
+        items:
+          name: Judge
+          qid: null
+          topics: ["gov.judicial", "gov.state"]

@@ -11,10 +11,6 @@ CUTOFF_DATE = datetime.now() - get_after_office(POSITION_TOPICS)
 link = "https://cro.justice.cz/verejnost/api/funkcionari/68219d51-998d-49bf-9fb3-77563880e196"
 ovmId = "https://cro.justice.cz/verejnost/api/funkcionari/af9a98a7-ac7a-4c8a-922d-7c169328a897"
 
-jud_topics = ["gov.judicial", "gov.national"]
-leg_topics = ["gov.legislative", "gov.national"]
-exe_topics = ["gov.executive", "gov.national"]
-
 
 def crawl_person(context: Context, item: Dict[str, Any]) -> None:
     person_id = item.get("id")
@@ -36,33 +32,35 @@ def crawl_person(context: Context, item: Dict[str, Any]) -> None:
     entity.add("citizenship", "cz")
 
     for wp in item.get("workingPositions", []):
-        # position = h.make_position(context, wp.get("name"))
         # deputyAndOthers / senatorAndOthers mean the person holds one of the
         # primary roles PLUS additional roles — still qualifies.
         wp_data = wp.get("workingPosition")
-        is_deputy = wp_data.get("deputy") or wp_data.get("deputyAndOthers")
-        # is_senator = wp.get("senator") or item.get("senatorAndOthers")
-        # is_judge = wp.get("judge")
+        is_deputy = wp_data.get("deputy")  # or item.get("deputyAndOthers")
+        is_senator = wp_data.get("senator")  # or item.get("senatorAndOthers")
+        is_judge = item.get("judge")
         # ovmID is a unique identifier for a specific position
-        ovmId = wp.get("ovmId")
+        ovm_id = wp.get("ovmId")
 
-        if not is_deputy:  #  or is_senator or is_judge):
-            return
-        print(wp.get("name"))
-        # uni
-        print(ovmId)
-        res = context.lookup("position_details", ovmId, warn_unmatched=True)
-        if res and res.items:
-            name = res.items["name"]
-            qid = res.items["qid"]
-            topics = res.items["topics"]
+        # if ovm_id in [
+        #     "77b50542-2b9f-4c6d-b614-ce3ef681d377",
+        #     "b4c51556-393d-4a79-8967-351e86c2735b",
+        #     "1da3b9fa-fcb7-4799-bf73-408813a7344b",
+        # ]:
+        #     continue
+
+        if not (is_deputy or is_senator or is_judge):
+            continue
+
+        res = context.lookup("position_details", ovm_id, warn_unmatched=True)
+        if not res or not res.items:
+            continue
 
         position = h.make_position(
             context,
-            name=name,
-            wikidata_id=qid,
+            name=res.items["name"],
+            wikidata_id=res.items["qid"],
             country="cz",
-            topics=topics,
+            topics=res.items["topics"],
             lang="eng",
         )
 
