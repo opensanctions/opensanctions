@@ -328,6 +328,10 @@ lookups:
         items:
           - prop: taxNumber
             value: 300898378
+      - match: "Reg. No. 1859937"
+        items:
+          - prop: registrationNumber
+            value: 1859937
       - match: "Reg. No. 0205556035570"
         items:
           - prop: registrationNumber
