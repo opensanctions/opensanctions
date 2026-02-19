@@ -55,3 +55,11 @@ lookups:
     options:
       - match: UT
         value: null
+
+assertions:
+  min:
+    schema_entities:
+      Organization: 27500
+  max:
+    schema_entities:
+      Organization: 65000
