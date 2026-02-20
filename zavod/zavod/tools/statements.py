@@ -3,6 +3,7 @@
 import logging
 import math
 import shutil
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 
@@ -40,7 +41,7 @@ _COL_SCHEMA = 20
 _COL_PROP = 20
 _COL_VALUE = 52
 _COL_DATASET = 22
-_COL_SEEN = 12  # first_seen and last_seen share this width
+_COL_SEEN = 20  # first_seen and last_seen share this width
 _COL_LANG = 5
 _COL_ORIG_VALUE = 32
 _COL_EXTERNAL = 3
@@ -76,6 +77,56 @@ _COLUMN_WIDTHS = (
 )
 
 
+@dataclass
+class DiffResult:
+    """Result of comparing two statement sets."""
+
+    rows: list[tuple[str, Statement]]
+    """Sorted (marker, stmt) pairs: marker is '-' for removed, '+' for added."""
+    removed_count: int
+    added_count: int
+    unchanged_count: int
+
+
+def compute_diff(
+    left: dict[str, Statement],
+    right: dict[str, Statement],
+) -> DiffResult:
+    """Compare two statement sets keyed by statement ID.
+
+    Statements present only in `left` are marked as removed ('-'); those only in
+    `right` are marked as added ('+').  Statements present in both are counted as
+    unchanged and do not appear in `rows`.
+
+    The rows are sorted by (entity_id, schema, prop, value) then by marker so that
+    a removed and re-added statement appear as a '-'/'+' pair.
+    """
+    left_ids = set(left.keys())
+    right_ids = set(right.keys())
+    removed_ids = left_ids - right_ids
+    added_ids = right_ids - left_ids
+
+    rows: list[tuple[str, Statement]] = [("-", left[sid]) for sid in removed_ids] + [
+        ("+", right[sid]) for sid in added_ids
+    ]
+    rows.sort(
+        key=lambda x: (
+            x[1].entity_id,
+            x[1].schema,
+            x[1].prop,
+            x[1].value,
+            0 if x[0] == "-" else 1,
+        )
+    )
+
+    return DiffResult(
+        rows=rows,
+        removed_count=len(removed_ids),
+        added_count=len(added_ids),
+        unchanged_count=len(left_ids & right_ids),
+    )
+
+
 class _DiffApp(App[None]):
     """Textual TUI for browsing a statement diff."""
 
@@ -100,18 +151,12 @@ class _DiffApp(App[None]):
         self,
         left_label: str,
         right_label: str,
-        diff_rows: list[tuple[str, Statement]],
-        removed_count: int,
-        added_count: int,
-        unchanged_count: int,
+        result: DiffResult,
     ) -> None:
         super().__init__()
         self._left_label = left_label
         self._right_label = right_label
-        self._diff_rows = diff_rows
-        self._removed_count = removed_count
-        self._added_count = added_count
-        self._unchanged_count = unchanged_count
+        self._result = result
         self._truncate = True
         self._wrap = False
 
@@ -119,11 +164,11 @@ class _DiffApp(App[None]):
         summary = Text()
         summary.append(f"LEFT:  {self._left_label}\n", style="bold")
         summary.append(f"RIGHT: {self._right_label}\n", style="bold")
-        summary.append(f"  {self._removed_count:,} removed", style="red")
+        summary.append(f"  {self._result.removed_count:,} removed", style="red")
         summary.append("  ")
-        summary.append(f"{self._added_count:,} added", style="green")
+        summary.append(f"{self._result.added_count:,} added", style="green")
         summary.append("  ")
-        summary.append(f"{self._unchanged_count:,} unchanged", style="dim")
+        summary.append(f"{self._result.unchanged_count:,} unchanged", style="dim")
         yield Static(summary, id="summary")
         yield DataTable()
         yield Footer()
@@ -141,7 +186,7 @@ class _DiffApp(App[None]):
                 table.add_column(label, width=width)
         else:
             table.add_columns(*_COLUMN_LABELS)
-        if not self._diff_rows:
+        if not self._result.rows:
             table.add_row(
                 "",
                 Text("(no differences)", style="dim"),
@@ -157,7 +202,7 @@ class _DiffApp(App[None]):
                 return Text(s, style=style, no_wrap=True, overflow="ellipsis")
             return Text(s, style=style)
 
-        for marker, stmt in self._diff_rows:
+        for marker, stmt in self._result.rows:
             style = "red" if marker == "-" else "green"
             if self._wrap:
                 value_cell = Text(stmt.value, style=style, overflow="fold")
@@ -189,10 +234,6 @@ class _DiffApp(App[None]):
     def action_toggle_wrap(self) -> None:
         self._wrap = not self._wrap
         self._populate_table()
-
-
-def _stmt_sort_key(stmt: Statement) -> tuple[str, str, str, str]:
-    return (stmt.entity_id, stmt.schema, stmt.prop, stmt.value)
 
 
 def _read_pack_file(path: Path) -> dict[str, Statement]:
@@ -262,26 +303,8 @@ def _run_diff(
     right_label: str,
 ) -> None:
     """Compute and display the diff between two statement sets in a TUI."""
-    left_ids = set(left.keys())
-    right_ids = set(right.keys())
-    removed_ids = left_ids - right_ids
-    added_ids = right_ids - left_ids
-    common_ids = left_ids & right_ids
-
-    all_diffs: list[tuple[str, Statement]] = [
-        ("-", left[sid]) for sid in removed_ids
-    ] + [("+", right[sid]) for sid in added_ids]
-    # Sort by content, with "-" (removed) before "+" (added) for the same statement key
-    all_diffs.sort(key=lambda x: (_stmt_sort_key(x[1]), x[0]))
-
-    app = _DiffApp(
-        left_label=left_label,
-        right_label=right_label,
-        diff_rows=all_diffs,
-        removed_count=len(removed_ids),
-        added_count=len(added_ids),
-        unchanged_count=len(common_ids),
-    )
+    result = compute_diff(left, right)
+    app = _DiffApp(left_label=left_label, right_label=right_label, result=result)
     app.run()
 
 
@@ -331,6 +354,7 @@ def cp_cmd(dataset_path: Path, dest_dir: Path) -> None:
     """
     Copy statements.pack for a dataset to <dest_dir>/<dataset_name>-<version_id>.pack
 
+    \b
     Example:
         zavod-stmt cp datasets/tw/shtc/tw_shtc.yml ../data
     """
@@ -369,6 +393,7 @@ def fetch_cmd(dataset_path: Path, dest_dir: Path) -> None:
 
     Saves to <dest_dir>/<dataset_name>-<version_id>-archive.pack.
 
+    \b
     Example:
         zavod-stmt fetch datasets/tw/shtc/tw_shtc.yml ../data
     """
@@ -401,7 +426,6 @@ def diff_cmd(
     right_path: Optional[Path],
 ) -> None:
     """Diff two statement sets. Arguments can be .yml dataset paths or .pack files.
-
 
     With one argument (must be a .yml),
     diffs local statements against the latest production version.
