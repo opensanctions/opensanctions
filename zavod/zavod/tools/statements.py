@@ -521,7 +521,8 @@ def diff_cmd(
     """Diff two statement sets. Arguments can be .yml dataset paths or .pack files.
 
     With one argument (must be a .yml),
-    diffs local statements against the latest production version.
+    diffs local statements against the latest production version, treating
+    production statements as left side and local statements as right side.
 
     With two arguments (each can be a dataset .yml or a statements.pack file),
     diffs the left statement set against the right.
@@ -541,12 +542,12 @@ def diff_cmd(
         dataset = load_dataset_from_path(left_path)
         if dataset is None:
             raise click.BadParameter(f"Invalid dataset path: {left_path}")
-        click.echo(f"Loading local statements for {dataset.name}...", err=True)
-        left_stmts = _read_local_statements(dataset)
         click.echo(f"Loading production statements for {dataset.name}...", err=True)
-        right_stmts = _read_production_statements(dataset)
-        left_label = f"local ({dataset.name})"
-        right_label = f"production ({dataset.name})"
+        left_stmts = _read_production_statements(dataset)
+        click.echo(f"Loading local statements for {dataset.name}...", err=True)
+        right_stmts = _read_local_statements(dataset)
+        left_label = f"production ({dataset.name})"
+        right_label = f"local ({dataset.name})"
     else:
         click.echo(f"Loading {left_path}...", err=True)
         left_stmts, left_label = _load_stmts_with_label(left_path)
