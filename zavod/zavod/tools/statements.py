@@ -18,7 +18,8 @@ from followthemoney.statement.serialize import (
 from rich.text import Text
 from textual.app import App, ComposeResult
 from textual.binding import Binding
-from textual.widgets import DataTable, Footer, Static
+from textual.screen import ModalScreen
+from textual.widgets import DataTable, Footer, Input, Static
 
 from zavod.archive import (
     ARTIFACTS,
@@ -127,14 +128,49 @@ def compute_diff(
     )
 
 
+class _SearchScreen(ModalScreen[Optional[str]]):
+    """Transparent modal overlay for entering a search query."""
+
+    CSS = """
+    _SearchScreen {
+        background: transparent;
+        align: left bottom;
+    }
+    _SearchScreen > Input {
+        dock: bottom;
+        border: tall $accent;
+        background: $surface;
+        color: $text;
+        width: 1fr;
+    }
+    """
+
+    BINDINGS = [Binding("escape", "cancel", "Cancel", show=False)]
+
+    def compose(self) -> ComposeResult:
+        yield Input(placeholder="/search…")
+
+    def on_mount(self) -> None:
+        self.query_one(Input).focus()
+
+    def on_input_submitted(self, event: Input.Submitted) -> None:
+        self.dismiss(event.value.strip() or None)
+
+    def action_cancel(self) -> None:
+        self.dismiss(None)
+
+
 class _DiffApp(App[None]):
     """Textual TUI for browsing a statement diff."""
 
     BINDINGS = [
         Binding("q", "quit", "Quit"),
-        Binding("escape", "quit", "Quit"),
-        Binding("t", "toggle_truncate", "Toggle truncation"),
-        Binding("w", "toggle_wrap", "Toggle wrap"),
+        Binding("escape", "quit", "Quit", show=False),
+        Binding("t", "toggle_truncate", "Truncation"),
+        Binding("w", "toggle_wrap", "Wrap"),
+        Binding("/", "search", "Search"),
+        Binding("n", "next_match", "Next match"),
+        Binding("N", "prev_match", "Prev match"),
     ]
 
     CSS = """
@@ -159,6 +195,9 @@ class _DiffApp(App[None]):
         self._result = result
         self._truncate = True
         self._wrap = False
+        self._query = ""
+        self._match_indices: list[int] = []
+        self._match_pos = -1
 
     def compose(self) -> ComposeResult:
         summary = Text()
@@ -175,6 +214,60 @@ class _DiffApp(App[None]):
 
     def on_mount(self) -> None:
         self._populate_table()
+
+    # ------------------------------------------------------------------
+    # Search
+    # ------------------------------------------------------------------
+
+    def _stmt_matches(self, stmt: Statement, query: str) -> bool:
+        q = query.lower()
+        return any(
+            q in field.lower()
+            for field in (
+                stmt.entity_id,
+                stmt.schema,
+                stmt.prop,
+                stmt.value,
+                stmt.dataset,
+                stmt.first_seen or "",
+                stmt.last_seen or "",
+                stmt.lang or "",
+                stmt.original_value or "",
+                stmt.origin or "",
+            )
+        )
+
+    def _build_match_indices(self) -> None:
+        self._match_indices = [
+            i
+            for i, (_, stmt) in enumerate(self._result.rows)
+            if self._stmt_matches(stmt, self._query)
+        ]
+        self._match_pos = -1
+
+    def _jump_to_match(self, pos: int) -> None:
+        if not self._match_indices:
+            self.notify("No matches", severity="warning")
+            return
+        self._match_pos = pos % len(self._match_indices)
+        self.query_one(DataTable).move_cursor(row=self._match_indices[self._match_pos])
+
+    def action_search(self) -> None:
+        def _on_dismiss(query: Optional[str]) -> None:
+            if query:
+                self._query = query
+                self._build_match_indices()
+                self._jump_to_match(0)
+
+        self.push_screen(_SearchScreen(), _on_dismiss)
+
+    def action_next_match(self) -> None:
+        if self._match_indices:
+            self._jump_to_match(self._match_pos + 1)
+
+    def action_prev_match(self) -> None:
+        if self._match_indices:
+            self._jump_to_match(self._match_pos - 1)
 
     def _populate_table(self) -> None:
         table = self.query_one(DataTable)
