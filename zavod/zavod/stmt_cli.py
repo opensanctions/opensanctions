@@ -1,8 +1,8 @@
 """Command-line utilities for working with statements pack files."""
 
 import logging
+import math
 import shutil
-import textwrap
 from pathlib import Path
 from typing import Optional
 
@@ -33,19 +33,47 @@ from zavod.meta import load_dataset_from_path
 from zavod.meta.dataset import Dataset
 from zavod.runtime.versions import get_latest
 
-# Default column widths for truncation mode
+# Column widths used when truncation or wrap mode is active
+_COL_MARKER = 1
 _COL_ENTITY = 50
-_COL_PROP = 32
+_COL_SCHEMA = 20
+_COL_PROP = 20
 _COL_VALUE = 52
 _COL_DATASET = 22
-_COL_SEEN = 12
+_COL_SEEN = 12  # first_seen and last_seen share this width
+_COL_LANG = 5
+_COL_ORIG_VALUE = 32
+_COL_EXTERNAL = 3
+_COL_ORIGIN = 20
 
-
-def _trunc(s: str, width: int) -> str:
-    """Truncate a string to at most `width` characters, appending an ellipsis if cut."""
-    if len(s) > width:
-        return s[: width - 1] + "\u2026"
-    return s
+_COLUMN_LABELS = (
+    "",
+    "ENTITY_ID",
+    "SCHEMA",
+    "PROP",
+    "VALUE",
+    "DATASET",
+    "FIRST_SEEN",
+    "LAST_SEEN",
+    "LANG",
+    "ORIG_VALUE",
+    "EXTERNAL",
+    "ORIGIN",
+)
+_COLUMN_WIDTHS = (
+    _COL_MARKER,
+    _COL_ENTITY,
+    _COL_SCHEMA,
+    _COL_PROP,
+    _COL_VALUE,
+    _COL_DATASET,
+    _COL_SEEN,
+    _COL_SEEN,
+    _COL_LANG,
+    _COL_ORIG_VALUE,
+    _COL_EXTERNAL,
+    _COL_ORIGIN,
+)
 
 
 class _DiffApp(App[None]):
@@ -75,7 +103,7 @@ class _DiffApp(App[None]):
         diff_rows: list[tuple[str, Statement]],
         removed_count: int,
         added_count: int,
-        common_count: int,
+        unchanged_count: int,
     ) -> None:
         super().__init__()
         self._left_label = left_label
@@ -83,7 +111,7 @@ class _DiffApp(App[None]):
         self._diff_rows = diff_rows
         self._removed_count = removed_count
         self._added_count = added_count
-        self._common_count = common_count
+        self._unchanged_count = unchanged_count
         self._truncate = True
         self._wrap = False
 
@@ -95,7 +123,7 @@ class _DiffApp(App[None]):
         summary.append("  ")
         summary.append(f"{self._added_count:,} added", style="green")
         summary.append("  ")
-        summary.append(f"{self._common_count:,} unchanged", style="dim")
+        summary.append(f"{self._unchanged_count:,} unchanged", style="dim")
         yield Static(summary, id="summary")
         yield DataTable()
         yield Footer()
@@ -107,45 +135,51 @@ class _DiffApp(App[None]):
         table = self.query_one(DataTable)
         table.clear(columns=True)
         table.cursor_type = "row"
-        table.add_columns(
-            "", "ENTITY_ID", "SCHEMA:PROP", "VALUE", "DATASET", "FIRST_SEEN"
-        )
+        # Fixed column widths in truncate/wrap modes; auto-size in full mode.
+        if self._truncate or self._wrap:
+            for label, width in zip(_COLUMN_LABELS, _COLUMN_WIDTHS):
+                table.add_column(label, width=width)
+        else:
+            table.add_columns(*_COLUMN_LABELS)
         if not self._diff_rows:
-            table.add_row("", Text("(no differences)", style="dim"), "", "", "", "")
+            table.add_row(
+                "",
+                Text("(no differences)", style="dim"),
+                *("",) * (len(_COLUMN_LABELS) - 2),
+            )
             return
+        # In truncate/wrap modes non-value cells use ellipsis overflow on the fixed
+        # column width; in full mode they expand freely.
+        trunc = self._truncate or self._wrap
+
+        def cell(s: str, style: str) -> Text:
+            if trunc:
+                return Text(s, style=style, no_wrap=True, overflow="ellipsis")
+            return Text(s, style=style)
+
         for marker, stmt in self._diff_rows:
             style = "red" if marker == "-" else "green"
-            prop_col = f"{stmt.schema}:{stmt.prop}"
             if self._wrap:
-                value_lines = textwrap.wrap(stmt.value, _COL_VALUE) or [""]
-                value_cell = Text("\n".join(value_lines), style=style)
-                table.add_row(
-                    Text(marker, style=style),
-                    Text(_trunc(stmt.entity_id, _COL_ENTITY), style=style),
-                    Text(_trunc(prop_col, _COL_PROP), style=style),
-                    value_cell,
-                    Text(_trunc(stmt.dataset, _COL_DATASET), style=style),
-                    Text(_trunc(stmt.first_seen or "", _COL_SEEN), style=style),
-                    height=len(value_lines),
-                )
-            elif self._truncate:
-                table.add_row(
-                    Text(marker, style=style),
-                    Text(_trunc(stmt.entity_id, _COL_ENTITY), style=style),
-                    Text(_trunc(prop_col, _COL_PROP), style=style),
-                    Text(_trunc(stmt.value, _COL_VALUE), style=style),
-                    Text(_trunc(stmt.dataset, _COL_DATASET), style=style),
-                    Text(_trunc(stmt.first_seen or "", _COL_SEEN), style=style),
-                )
+                value_cell = Text(stmt.value, style=style, overflow="fold")
+                height = max(1, math.ceil(len(stmt.value) / _COL_VALUE))
             else:
-                table.add_row(
-                    Text(marker, style=style),
-                    Text(stmt.entity_id, style=style),
-                    Text(prop_col, style=style),
-                    Text(stmt.value, style=style),
-                    Text(stmt.dataset, style=style),
-                    Text(stmt.first_seen or "", style=style),
-                )
+                value_cell = cell(stmt.value, style)
+                height = 1
+            table.add_row(
+                cell(marker, style),
+                cell(stmt.entity_id, style),
+                cell(stmt.schema, style),
+                cell(stmt.prop, style),
+                value_cell,
+                cell(stmt.dataset, style),
+                cell(stmt.first_seen or "", style),
+                cell(stmt.last_seen or "", style),
+                cell(stmt.lang or "", style),
+                cell(stmt.original_value or "", style),
+                cell("T" if stmt.external else "", style),
+                cell(stmt.origin or "", style),
+                height=height,
+            )
 
     def action_toggle_truncate(self) -> None:
         if not self._wrap:
@@ -232,11 +266,11 @@ def _run_diff(
     right_ids = set(right.keys())
     removed_ids = left_ids - right_ids
     added_ids = right_ids - left_ids
-    common_count = len(left_ids & right_ids)
+    common_ids = left_ids & right_ids
 
-    removed: list[tuple[str, Statement]] = [("-", left[sid]) for sid in removed_ids]
-    added: list[tuple[str, Statement]] = [("+", right[sid]) for sid in added_ids]
-    all_diffs = removed + added
+    all_diffs: list[tuple[str, Statement]] = [
+        ("-", left[sid]) for sid in removed_ids
+    ] + [("+", right[sid]) for sid in added_ids]
     # Sort by content, with "-" (removed) before "+" (added) for the same statement key
     all_diffs.sort(key=lambda x: (_stmt_sort_key(x[1]), x[0]))
 
@@ -246,7 +280,7 @@ def _run_diff(
         diff_rows=all_diffs,
         removed_count=len(removed_ids),
         added_count=len(added_ids),
-        common_count=common_count,
+        unchanged_count=len(common_ids),
     )
     app.run()
 
@@ -270,20 +304,36 @@ def _get_production_pack(dataset_name: str) -> tuple[str, ArchiveObject]:
     )
 
 
-@click.group(help="Utilities for working with statements pack files.")
+@click.group()
 def cli() -> None:
+    """
+    Utilities for working with statements.pack files.
+
+    For example:
+
+    - Compare a local statements.pack against the latest production version
+
+    - Fetch a production statements.pack for quick local comparison
+
+    - Copy your last local run's .pack to compare with subsequent runs
+
+    - Compare two local statements.pack files against each other
+    """
     configure_logging(level=logging.WARNING)
 
 
-@cli.command(
-    "cp", help="Copy the local statements pack file for a dataset, named by version."
-)
+@cli.command("cp")
 @click.argument(
     "dataset_path", type=click.Path(exists=True, dir_okay=False, path_type=Path)
 )
 @click.argument("dest_dir", type=click.Path(file_okay=False, path_type=Path))
 def cp_cmd(dataset_path: Path, dest_dir: Path) -> None:
-    """Copy statements.pack to <dest_dir>/<dataset_name>-<version_id>.pack."""
+    """
+    Copy statements.pack for a dataset to <dest_dir>/<dataset_name>-<version_id>.pack
+
+    Example:
+        zavod-stmt cp datasets/tw/shtc/tw_shtc.yml ../data
+    """
     dataset = load_dataset_from_path(dataset_path)
     if dataset is None:
         raise click.BadParameter(f"Invalid dataset path: {dataset_path}")
@@ -308,16 +358,20 @@ def cp_cmd(dataset_path: Path, dest_dir: Path) -> None:
     click.echo(f"    to: {dest}")
 
 
-@cli.command(
-    "fetch",
-    help="Download the latest production statements pack for a dataset.",
-)
+@cli.command("fetch")
 @click.argument(
     "dataset_path", type=click.Path(exists=True, dir_okay=False, path_type=Path)
 )
 @click.argument("dest_dir", type=click.Path(file_okay=False, path_type=Path))
 def fetch_cmd(dataset_path: Path, dest_dir: Path) -> None:
-    """Download statements.pack from production to <dest_dir>/<dataset_name>-<version_id>-archive.pack."""
+    """
+    Download the latest production statements pack for a dataset.
+
+    Saves to <dest_dir>/<dataset_name>-<version_id>-archive.pack.
+
+    Example:
+        zavod-stmt fetch datasets/tw/shtc/tw_shtc.yml ../data
+    """
     dataset = load_dataset_from_path(dataset_path)
     if dataset is None:
         raise click.BadParameter(f"Invalid dataset path: {dataset_path}")
@@ -332,9 +386,7 @@ def fetch_cmd(dataset_path: Path, dest_dir: Path) -> None:
     click.echo(f"Saved to: {dest}")
 
 
-@cli.command(
-    "diff", help="Show a diff of two statement sets in a scrollable TUI table."
-)
+@cli.command("diff")
 @click.argument(
     "left_path", type=click.Path(exists=True, dir_okay=False, path_type=Path)
 )
@@ -350,12 +402,18 @@ def diff_cmd(
 ) -> None:
     """Diff two statement sets. Arguments can be .yml dataset paths or .pack files.
 
-    \b
-    With one argument (must be a .yml):
-        Diffs local statements against the latest production version.
 
-    With two arguments (each can be a .yml or a .pack file):
-        Diffs the left statement set against the right.
+    With one argument (must be a .yml),
+    diffs local statements against the latest production version.
+
+    With two arguments (each can be a dataset .yml or a statements.pack file),
+    diffs the left statement set against the right.
+
+    \b
+    Examples:
+        zavod-stmt diff datasets/tw/shtc/tw_shtc.yml
+        zavod-stmt diff ../data/tw_shtc-20240101.pack datasets/tw/shtc/tw_shtc.yml
+        zavod-stmt diff ../data/tw_shtc-20231201-archive.pack ../data/tw_shtc-20240101.pack
     """
     if right_path is None:
         if left_path.suffix != ".yml":
