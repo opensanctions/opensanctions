@@ -165,6 +165,8 @@ lookups:
         value: 2022-09
       - match: "2024-09-31"
         value: 2024-09
+      - match: "2020-09-31"
+        value: 2020-09
 
 config:
   seeds:
