@@ -102,6 +102,8 @@ def compute_diff(
     The rows are sorted by (entity_id, schema, prop, value) then by marker so that
     a removed and re-added statement appear as a '-'/'+' pair.
     """
+    left = {sid: stmt for sid, stmt in left.items() if stmt.prop != "id"}
+    right = {sid: stmt for sid, stmt in right.items() if stmt.prop != "id"}
     left_ids = set(left.keys())
     right_ids = set(right.keys())
     removed_ids = left_ids - right_ids
