@@ -146,6 +146,8 @@ lookups:
         value: 1967-04
       - match: "2022-09-31"
         value: 2022-09
+      - match: "2020-09-31"
+        value: 2020-09
 
   position_subclasses:
     options:
@@ -481,6 +483,7 @@ lookups:
           - "Q15726407" # President of the World Esperanto Youth Organization
           - "Q19816651" # Order of Cardinals
           - "Q21114371" # episcopal title
+          - "Q138024519" # roman catholic episcopal title
           - "Q23685787" # working student
           - "Q28689677" # honorary secretary
           - "Q29982545" # function in the Evangelical Church of Czech Brethren
