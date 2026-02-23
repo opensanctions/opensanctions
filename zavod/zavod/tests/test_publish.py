@@ -92,4 +92,7 @@ def test_publish_failure(testdataset1: Dataset):
     assert not latest_path.joinpath("issues.json").exists()
     assert artifact_path.joinpath("issues.json").exists()
     assert artifact_path.joinpath("index.json").exists()
-    assert latest_path.joinpath("index.json").exists()
+
+    # We don't want failed runs to end up in /datasets
+    assert not latest_path.joinpath("index.json").exists()
+    assert len(list(latest_path.glob("*"))) == 0
