@@ -15,7 +15,6 @@ from zavod.validators import (
     EmptyValidator,
 )
 from zavod.validators.assertions import (
-    PropertyFillRateAssertionsValidator,
     StatisticsAssertionsValidator,
 )
 from zavod.validators.common import BaseValidator
@@ -174,7 +173,7 @@ def test_validate_assertion_property_fill_rate():
     )
     emit_entity(ds, "Company", {"country": ["ru"]})
 
-    validator, logs = run_validator(PropertyFillRateAssertionsValidator, ds)
+    validator, logs = run_validator(StatisticsAssertionsValidator, ds)
     assert (
         "error",
         "Assertion property_fill_rate failed for Company.name: 0.0 is not >= threshold 0.5",
@@ -182,5 +181,5 @@ def test_validate_assertion_property_fill_rate():
     assert validator.abort is True
 
     emit_entity(ds, "Company", {"name": ["Kalashnikov"]})
-    validator, logs = run_validator(PropertyFillRateAssertionsValidator, ds)
+    validator, logs = run_validator(StatisticsAssertionsValidator, ds)
     assert validator.abort is False

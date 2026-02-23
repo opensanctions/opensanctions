@@ -51,13 +51,20 @@ def get_sanctions_programs_facets(sanctions_programs: Dict[str, int]) -> List[An
 SchemaProperty = namedtuple("SchemaProperty", ["schema", "property"])
 
 
-def get_entities_with_prop_facets(properties: Dict[SchemaProperty, int]) -> List[Any]:
+def get_entities_with_prop_facets(
+    properties: Dict[SchemaProperty, int],
+    schema_counts: Dict[str, int],
+) -> List[Any]:
     facets: List[Any] = []
     for prop, count in sorted(properties.items()):
+        total = schema_counts.get(prop.schema, 0)
+        fill_rate = count / total if total > 0 else 0.0
         facet = {
             "schema": prop.schema,
             "property": prop.property,
             "count": count,
+            "total": total,
+            "fill_rate": fill_rate,
         }
         facets.append(facet)
     return facets
@@ -69,6 +76,8 @@ class Statistics(object):
         self.last_change: Optional[str] = None
         self.schemata: Set[str] = set()
         self.qnames: Set[str] = set()
+
+        self.entity_count_by_schema: Dict[str, int] = defaultdict(int)
 
         self.thing_count = 0
         self.thing_countries: Dict[str, int] = defaultdict(int)
@@ -83,6 +92,7 @@ class Statistics(object):
 
     def observe(self, entity: Entity) -> None:
         self.entity_count += 1
+        self.entity_count_by_schema[entity.schema.name] += 1
         self.schemata.add(entity.schema.name)
         for prop in entity.iterprops():
             self.qnames.add(prop.qname)
@@ -135,7 +145,8 @@ class Statistics(object):
                 "countries": get_country_facets(self.thing_countries),
                 "schemata": get_schema_facets(self.thing_schemata),
                 "entities_with_prop": get_entities_with_prop_facets(
-                    self.entities_with_prop_count
+                    self.entities_with_prop_count,
+                    self.entity_count_by_schema,
                 ),
             },
         }
