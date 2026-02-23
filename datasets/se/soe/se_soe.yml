@@ -4,7 +4,7 @@ prefix: se-soe
 url: https://www.regeringen.se/regeringens-politik/bolag-med-statligt-agande/
 coverage:
   frequency: never
-  start: 2026-02-16
+  start: 2026-02-23
 load_statements: true
 manual_check:
   last_checked: "2026-02-16"
@@ -51,6 +51,18 @@ data:
   url: https://docs.google.com/spreadsheets/d/e/2PACX-1vRh228yjuPs99Gvj5ckWt96Mi7Ze0g1r9iy3pjQDL2GAnbL8cQAT0iyFTYj_yXPfOfP63ktSnr2ePoA/pub?gid=0&single=true&output=csv
   format: CSV
   lang: swe
+
+assertions:
+  min:
+    schema_entities:
+      Company: 35 # "Statens bolagsportfölj består av 38 bolag"
+      Position: 105 # 35 * 3 (Chair, Board Member, CEO)
+      Person: 250 # 281 Occupancies in 2024 but some people hold multiple positions
+  max:
+    schema_entities:
+      Company: 42
+      Position: 180
+      Person: 380
 
 
 lookups:
