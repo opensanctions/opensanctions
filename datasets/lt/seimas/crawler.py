@@ -58,6 +58,7 @@ def crawl_member_bio(context: Context, url: str):
     person.id = context.make_slug(person_name)
     person.add("name", person_name)
     person.add("sourceUrl", url)
+    person.add("citizenship", "lt")
 
     if date_of_birth:
         h.apply_date(person, "birthDate", date_of_birth)
@@ -87,6 +88,93 @@ def crawl_member_bio(context: Context, url: str):
     context.emit(occupancy)
 
 
+def xpath_match(doc, xpaths):
+    for xpath in xpaths:
+        try:
+            return h.xpath_string(doc, xpath)
+        except ValueError:
+            continue
+        return None
+
+
+def crawl_old_member_bio(context: Context, url: str) -> None:
+    doc = context.fetch_html(url, cache_days=1)
+
+    person_name = h.xpath_string(
+        doc, '//table[contains(@summary, "Kadencijos")]//font[@size="4"]/text()'
+    )  # TODO: more robust name fetch method
+    # person_name = person_name.encode("latin1").decode("utf-8")  # correct encoding
+    assert person_name is not None
+
+    date_of_birth = None
+    place_of_birth = None
+
+    try:
+        date_of_birth = h.xpath_string(
+            doc,
+            '//div[@class="par"][contains(text(),"Biography")]/following-sibling::div[@align="justify"][1]//table//tr[1]/td[last()]/p[1]/text()',
+        )
+
+        # OLD place_of_birth_xpaths = ['//div[@class="par"][contains(text(),"Biography")]/following-sibling::div[@align="justify"][1]//table//tr[2]/td[last()]/p[1]/text()',
+        #                             '//div[@class="par"][contains(text(),"Biography")]/following-sibling::div[@align="justify"][1]//table//tr[1]/td[last()]/p[2]/text()']
+
+        place_of_birth_xpaths = [
+            '//div[@class="par"][contains(text(),"Biography")]/following-sibling::div[@align="justify"][1]//table//tr[1]/td[last()]/p[1]//strong',
+            '//div[@class="par"][contains(text(),"Biography")]/following-sibling::div[@align="justify"][1]//table//tr[1]/td[last()]/p[1]',
+        ]
+        place_of_birth = xpath_match(doc, place_of_birth_xpaths)
+
+    except ValueError:
+        print(person_name, date_of_birth, place_of_birth)
+        return None
+
+    person = context.make("Person")
+    # print(person_name)
+    person.id = context.make_slug(person_name)
+    person.add("name", person_name)
+    person.add("birthPlace", place_of_birth)
+    h.apply_date(person, "birthDate", date_of_birth)
+
+    party_affiliation = h.xpath_strings(
+        doc,
+        '//b[contains(text(), "Political Groups of the Seimas")]/following-sibling::ul[1]//li/a/text()',
+    )
+    person.add("political", party_affiliation)
+
+    person.add("sourceUrl", url)
+    person.add("citizenship", "lt")
+
+    seimas_position_dates = h.xpath_strings(
+        doc, '//table[contains(@summary, "Kadencijos")]//b/text()'
+    )
+    position = h.make_position(
+        context,
+        name="Member of the Seimas",
+        wikidata_id="Q18507240",
+        country="lt",
+        topics=["gov.legislative", "gov.national"],
+        lang="eng",
+    )
+
+    categorisation = categorise(context, position, is_pep=True)
+    if not categorisation.is_pep:
+        return
+
+    occupancy = h.make_occupancy(
+        context,
+        person=person,
+        position=position,
+        start_date=seimas_position_dates[1],
+        end_date=seimas_position_dates[2],
+        categorisation=categorisation,
+    )
+
+    if occupancy is not None:
+        context.emit(occupancy)
+        context.emit(position)
+        context.emit(person)
+
+
 def crawl(context: Context):
     ### === crawl current legislature === ###
     doc = context.fetch_html(context.data_url, cache_days=1)
@@ -98,9 +186,10 @@ def crawl(context: Context):
         crawl_member_bio(context, anchor_url)
 
     ### === crawl older legislatures === ###
-    doc_all_older_seimas = context.fetch_html(URL_PREV_SEIMAS, cache_days=1)
+    # navigate the landing page that contains a table with older seimas
+    doc_landing_older_seimas = context.fetch_html(URL_PREV_SEIMAS, cache_days=1)
     older_seimas_table = h.xpath_elements(
-        doc_all_older_seimas, '//div[contains(@class, "rubrika-kvadratai-item")]'
+        doc_landing_older_seimas, '//div[contains(@class, "rubrika-kvadratai-item")]'
     )
     assert older_seimas_table is not None
 
@@ -116,21 +205,44 @@ def crawl(context: Context):
         if int(end_year) < CUTOFF_DATE:
             continue
 
+        # visit the url of an older legislature landing page
         seimas_url = seimas_el.get("href")
         assert seimas_url is not None, "Coundn't fetch URL for the legislature"
-
-        # visit the url of an older legislature landing page
-        doc_seimas_overview = context.fetch_html(seimas_url, cache_days=1)
-        # get the URL to the list of Members of the Seimas
-        members_url = h.xpath_string(
-            doc_seimas_overview,
-            '//div[contains(@class,"rubrika-kvadratai-item")]//a[@title="Members of the Seimas"]/@href',
+        doc_seimas_overview = context.fetch_html(
+            seimas_url, cache_days=1, absolute_links=True
         )
-        # visit the older legislature page listing its members
-        doc_seimas = context.fetch_html(members_url, cache_days=1)
 
-        for anchor in doc_seimas.xpath(
-            '//div[contains(@class,"list-member")]//a[contains(@class, "smn-name")]'
-        ):
-            anchor_url = anchor.get("href")
-            crawl_member_bio(context, anchor_url)
+        # the seimas webpage is similar to the current seimas for years starting with 2016, recycle the function:
+        if int(start_year) >= 2016:
+            # get the URL to the list of Members of the Seimas
+            members_url = h.xpath_string(
+                doc_seimas_overview,
+                '//div[contains(@class,"rubrika-kvadratai-item")]//a[@title="Members of the Seimas"]/@href',
+            )
+            # visit the older legislature page listing its members
+            doc_seimas = context.fetch_html(members_url, cache_days=1)
+
+            for anchor in doc_seimas.xpath(
+                '//div[contains(@class,"list-member")]//a[contains(@class, "smn-name")]'
+            ):
+                anchor_url = anchor.get("href")
+                crawl_member_bio(context, anchor_url)
+
+        # older seimas webpages require a bit more love
+        else:
+            # get the URL to the list of Members of the Seimas
+            members_url = h.xpath_string(
+                doc_seimas_overview,
+                '//*[@id="td_kaire"]//a[@class="medis" and text()="Members of the Seimas"]/@href',
+            )
+            doc_seimas = context.fetch_html(
+                members_url, cache_days=1, absolute_links=True
+            )
+
+            for anchor in h.xpath_elements(
+                doc_seimas, '//div[contains(@id, "divDesContent")]//table//a[@href]'
+            ):
+                anchor_url = anchor.get("href")
+                assert anchor_url is not None
+
+                crawl_old_member_bio(context, anchor_url)
