@@ -16,7 +16,8 @@ from zavod.exporters import write_dataset_index
 log = get_logger(__name__)
 
 
-def _publish_artifacts(dataset: Dataset) -> None:
+def _archive_artifacts(dataset: Dataset) -> None:
+    """Archive artifacts to the /artifacts/ path on the data bucket."""
     version = get_latest(dataset.name, backfill=False)
     if version is None:
         raise ValueError(f"No working version found for dataset: {dataset.name}")
@@ -34,7 +35,7 @@ def _publish_artifacts(dataset: Dataset) -> None:
 
 
 def publish_dataset(dataset: Dataset, latest: bool = True) -> None:
-    """Upload a dataset to the archive."""
+    """Publish a dataset to the archive, i.e. to /datasets."""
     resources = DatasetResources(dataset)
     for resource in resources.all():
         if resource.name in ARTIFACT_FILES:
@@ -64,7 +65,7 @@ def publish_dataset(dataset: Dataset, latest: bool = True) -> None:
             continue
         mime_type = JSON if meta.endswith(".json") else None
         publish_resource(path, dataset.name, meta, latest=latest, mime_type=mime_type)
-    _publish_artifacts(dataset)
+    _archive_artifacts(dataset)
 
 
 def publish_failure(dataset: Dataset, latest: bool = True) -> None:
@@ -94,6 +95,6 @@ def publish_failure(dataset: Dataset, latest: bool = True) -> None:
         log.error("Metadata file not found: %s" % path, dataset=dataset.name)
         return
     publish_resource(path, dataset.name, INDEX_FILE, latest=latest, mime_type=JSON)
-    _publish_artifacts(dataset)
+    _archive_artifacts(dataset)
     dataset_resource_path(dataset.name, RESOURCES_FILE).unlink(missing_ok=True)
     dataset_resource_path(dataset.name, VERSIONS_FILE).unlink(missing_ok=True)
