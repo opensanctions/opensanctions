@@ -4,7 +4,7 @@ prefix: no-nbim
 coverage:
   frequency: monthly
   start: 2026-02-02
-load_statements: false  # we'll add a second crawler that enriches against this data that will get added to the default collection (via enrichers)
+load_statements: false # we'll add a second crawler that enriches against this data that will get added to the default collection (via enrichers)
 summary: >-
   C-level execitives and board members of state-owned companies from the official registry
   of Norwegian legal entities with organisation details, addresses,
@@ -42,7 +42,7 @@ dates:
 assertions:
   min:
     schema_entities:
-      Person: 1600  # raw count: 2021 PEPs
+      Person: 1600 # raw count: 2021 PEPs
   max:
     schema_entities:
       Person: 4050
@@ -55,8 +55,8 @@ lookups:
         value: org_number
       - match: navn
         value: name
-#
-      - match: organisasjonsform.kode  # types of organisations (str)
+      #
+      - match: organisasjonsform.kode # types of organisations (str)
         value: org_form_code
       - match: organisasjonsform.beskrivelse
         value: org_form_description
@@ -76,16 +76,16 @@ lookups:
         value: support_unit_code
       - match: hjelpeenhetskode.beskrivelse
         value: support_unit_code_description
-#
+      #
       - match: harRegistrertAntallAnsatte
         value: has_registered_employee_count
       - match: antallAnsatte
         value: employee_count
       - match: registreringsdatoAntallAnsatteEnhetsregisteret
-        value: registration_date_employee_count_entity_register  # Enhetsregisteret is the Norwegian Register of Legal Entities
+        value: registration_date_employee_count_entity_register # Enhetsregisteret is the Norwegian Register of Legal Entities
       - match: registreringsdatoantallansatteNAVAaregisteret
-        value: registration_date_employee_count_nav_employment_register  # NAV Aa-registeret is the Norwegian Labour and Welfare Administration's Employment Register
-#
+        value: registration_date_employee_count_nav_employment_register # NAV Aa-registeret is the Norwegian Labour and Welfare Administration's Employment Register
+      #
       - match: hjemmeside
         value: website
       - match: epostadresse
@@ -94,7 +94,7 @@ lookups:
         value: phone
       - match: mobil
         value: phone_mobile
-#
+      #
       - match: postadresse.adresse
         value: postal_address_street
       - match: postadresse.poststed
@@ -109,7 +109,7 @@ lookups:
         value: postal_address_country
       - match: postadresse.landkode
         value: postal_address_country_code
-#
+      #
       - match: forretningsadresse.adresse
         value: business_address_street
       - match: forretningsadresse.poststed
@@ -124,7 +124,7 @@ lookups:
         value: business_address_country
       - match: forretningsadresse.landkode
         value: business_address_country_code
-#
+      #
       - match: institusjonellSektorkode.kode
         value: institutional_sector_code
       - match: institusjonellSektorkode.beskrivelse
@@ -135,37 +135,37 @@ lookups:
         value: registration_date_entity_register
       - match: stiftelsesdato
         value: foundation_date
-# VAT Register:
+      # VAT Register:
       - match: registrertIMvaRegisteret
         value: registered_in_vat_register
       - match: registreringsdatoMerverdiavgiftsregisteret
         value: registration_date_vat_register
       - match: registreringsdatoMerverdiavgiftsregisteretEnhetsregisteret
         value: registration_date_vat_register_entity_register
-# Voluntarily registered in the VAT Register:
+      # Voluntarily registered in the VAT Register:
       - match: frivilligMvaRegistrertBeskrivelser
         value: voluntary_vat_registered_description
       - match: registreringsdatoFrivilligMerverdiavgiftsregisteret
         value: registration_date_voluntary_vat_register
-# Register of Non-Profit Organisations:
+      # Register of Non-Profit Organisations:
       - match: registrertIFrivillighetsregisteret
         value: registered_in_voluntary_org_register
       - match: registreringsdatoFrivillighetsregisteret
         value: registration_date_voluntary_org_register
-# Register of Business Enterprises:
+      # Register of Business Enterprises:
       - match: registrertIForetaksregisteret
         value: registered_in_business_register
       - match: registreringsdatoForetaksregisteret
         value: registration_date_business_register
-# Foundation Register:
+      # Foundation Register:
       - match: registrertIStiftelsesregisteret
         value: registered_in_foundation_register
-# Register of Political Parties:
+      # Register of Political Parties:
       - match: registrertIPartiregisteret
         value: registered_in_party_register
       - match: registreringsdatoPartiregisteret
         value: registration_date_party_register
-#
+      #
       - match: konkurs
         value: bankruptcy
       - match: konkursdato
@@ -186,9 +186,9 @@ lookups:
         value: forced_dissolution_deficient_board_date
       - match: tvangsavvikletPgaManglendeSlettingDato
         value: forced_liquidation_missing_deletion_date
-#
+      #
       - match: overordnetEnhet
-        value: parent_entity_org_number  # Organisation number of superior entity in public sector. String of 9 digits
+        value: parent_entity_org_number # Organisation number of superior entity in public sector. String of 9 digits
       - match: maalform
         value: language_form
       - match: vedtektsdato
@@ -209,7 +209,7 @@ lookups:
         value: opt_out_audit_decision_date
       - match: erIKonsern
         value: is_in_corporate_group
-#
+      #
       - match: kapital.belop
         value: capital_amount
       - match: kapital.antallAksjer
@@ -226,10 +226,10 @@ lookups:
         value: capital_fully_paid_in
       - match: kapital.innfortDato
         value: capital_introduced_date
-#
+      #
       - match: registreringsnummerIHjemlandet
         value: registration_number_home_country
-#
+      #
       - match: utenlandskRegisterNavn
         value: foreign_register_name
       - match: utenlandskRegisterAdresse.land
@@ -238,7 +238,7 @@ lookups:
         value: foreign_register_address_city
       - match: utenlandskRegisterAdresse.adresse
         value: foreign_register_address_street
-#
+      #
       - match: underlagtLovgivningLand
         value: subject_to_legislation_country
       - match: underlagtLovgivningLandKode
@@ -248,30 +248,49 @@ lookups:
       - match: foretaksformIHjemlandet.beskrivelse
         value: company_form_home_country_description
       - match: foretaksformIHjemlandet.beskrivelseBokmaal
-        value: company_form_home_country_description_bokmaal  # Bokmål is one of the two official written standards of the Norwegian language
-#
+        value: company_form_home_country_description_bokmaal # Bokmål is one of the two official written standards of the Norwegian language
+
+  # all positions listed here: https://data.brreg.no/enhetsregisteret/api/roller/rollegruppetyper
+  is_pep_role:
+    options:
+      - match:
+          - STYR_LEDE # Board of Directors
+          - STYR_MEDL # Board Member
+          - STYR_NEST # Nestmedlem - Deputy member
+          - STYR_VARA # # Varamedlem - Deputy member¡
+          - DAGL_DAGL # Managing Director / CEO
+          - FFØR_FFØR # Forretningsfører - Business Manager
+          - KOMP_KOMP # Komplementar - Complementary board member?
+        value: "true"
+      - match:
+          - REVI_REVI # Revisor - Auditor
+          - REGN_REGN # Regnskapsfører - Accountant
+          - DELT_DTPR # Deltaker med delt ansvar - Participant with shared responsibility
+          - DELT_DTSO # Deltaker med fullt ansvar - Participant with full responsibility
+        value: "false"
+
   type.name:
     options:
-      - match: '+41552505320'
-        value: 'Systron EMV GmbH'
+      - match: "+41552505320"
+        value: "Systron EMV GmbH"
       - match:
-          - '50 +'
-          - '1532-186/468'
-          - '24'
-          - '2025'
+          - "50 +"
+          - "1532-186/468"
+          - "24"
+          - "2025"
         value: null
   type.email:
     options:
-      - match: 'tarudtransport@gmail.com@gmail.com'
-        value: 'tarudtransport@gmail.com'
-      - match: 'olehelmersen@outlook.com;viggohaug73@gmail.com'
+      - match: "tarudtransport@gmail.com@gmail.com"
+        value: "tarudtransport@gmail.com"
+      - match: "olehelmersen@outlook.com;viggohaug73@gmail.com"
         values:
-          - 'olehelmersen@outlook.com'
-          - 'viggohaug73@gmail.com'
-      - match: 'fadigeorgesaad[@gmail.com'
-        value: 'fadigeorgesaad@gmail.com'
-      - match: 'holmenbetong@holmenbetong. no'
-        value: 'holmenbetong@holmenbetong.no'
+          - "olehelmersen@outlook.com"
+          - "viggohaug73@gmail.com"
+      - match: "fadigeorgesaad[@gmail.com"
+        value: "fadigeorgesaad@gmail.com"
+      - match: "holmenbetong@holmenbetong. no"
+        value: "holmenbetong@holmenbetong.no"
       - match: egil@cork.priv.no'
         value: egil@cork.priv.no
       - match: vidar@-asrorlegger.no
@@ -348,7 +367,7 @@ lookups:
         value: biuro@tatra-house.com
       - match: jani.korpela@terveydenhuolto.com/
         value: jani.korpela@terveydenhuolto.com
-      - match: 'salg@huhtamaki. com'
+      - match: "salg@huhtamaki. com"
         value: salg@huhtamaki.com
       - match: info@andiretro.eu/
         value: info@andiretro.eu

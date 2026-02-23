@@ -25,15 +25,6 @@ DISSOLV_DATES = [
     "forced_dissolution_deficient_board_date",
     "forced_liquidation_missing_deletion_date",
 ]
-
-# all positions listed here: https://data.brreg.no/enhetsregisteret/api/roller/rollegruppetyper
-# DAGL: Managing Director / CEO
-# BEST: Managing Shipowner
-# INNH: Sole Proprietor / Owner
-# FFØR: Business Manager
-# STYRE: Board of Directors
-# get board and C-level positions
-GROUP_CODES = ["STYR", "DAGL", "BEST", "INNH", "FFØR"]
 IGNORE = [
     "activity",
     "articles_of_association_date",
@@ -164,17 +155,27 @@ def crawl_soe_peps(
         group_type = group.get("type")
         group_code = group_type.get("kode")
 
-        if group_code not in GROUP_CODES:
-            for role in group.get("roller"):
-                role_data = role.get("type")
-                # assert that we don't omit any target roles
-                assert role_data.get("kode") not in GROUP_CODES
-            continue
-
         for role in group.get("roller"):
             role_data = role.get("type")
-            role_name = role_data.get("beskrivelse")
+            role_code = role_data.get("kode")
+            role_desc = role_data.get("beskrivelse")
 
+            role_code_full = f"{group_code}_{role_code}"
+            is_pep_role = context.lookup_value("is_pep_role", role_code_full)
+            if is_pep_role is None:
+                context.log.warning(
+                    "Unknown role code, skipping.",
+                    org_number=org_number,
+                    company_name=company_name,
+                    role_code_full=role_code_full,
+                    group_desc=group_type.get("beskrivelse"),
+                    role_desc=role_desc,
+                )
+                continue
+            if is_pep_role != "true":
+                continue
+
+            # We don't care about roles held by companies, only by persons
             person_data = role.get("person")
             if person_data is None:
                 continue
@@ -195,7 +196,7 @@ def crawl_soe_peps(
 
             position = h.make_position(
                 context,
-                name=f"{role_name}, {company_name}",
+                name=f"{role_desc}, {company_name}",
                 topics=["gov.soe"],
                 # adding company's country of jurisdiction, too
                 country=["no", company_juris],
@@ -221,12 +222,15 @@ def crawl_soe_peps(
                 context.emit(position)
                 context.emit(occupancy)
 
-            pos_in_company += 1
+                pos_in_company += 1
 
-    assert 1 <= pos_in_company <= 40, (
-        f"{company_name} (org_number: {org_number}) emitted {pos_in_company} positions; "
-        "expected not more than 40 positions for board and c-level executives"
-    )
+    if pos_in_company < 1 or pos_in_company > 40:
+        context.log.warning(
+            "Expected between 1 and 40 positions per company.",
+            company_name=company_name,
+            org_number=org_number,
+            emitted_positions=pos_in_company,
+        )
     return pos_in_company
 
 
