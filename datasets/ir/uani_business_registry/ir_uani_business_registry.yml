@@ -6,15 +6,15 @@ coverage:
   frequency: daily
   start: 2024-09-24
 summary: >
-  List of companies involved in international business with or in Iran, including their 
-  withdrawal status from Iranian business ties, maintained by United Against Nuclear Iran 
+  List of companies involved in international business with or in Iran, including their
+  withdrawal status from Iranian business ties, maintained by United Against Nuclear Iran
   (UANI).
 description: |
-  The Iran Business Registry (IBR) tracks companies and entities engaged in business with 
-  or within Iran. The database relies on credible media, academic sources, and reports to 
-  document international trade and business operations involving Iran. The registry spans 
-  multiple sectors, including energy, logistics, healthcare, and more. Each entity is 
-  documented with information such as nationality, stock symbol, and whether the company 
+  The Iran Business Registry (IBR) tracks companies and entities engaged in business with
+  or within Iran. The database relies on credible media, academic sources, and reports to
+  document international trade and business operations involving Iran. The registry spans
+  multiple sectors, including energy, logistics, healthcare, and more. Each entity is
+  documented with information such as nationality, stock symbol, and whether the company
   has ceased business operations in Iran.
 entry_point: crawler.py
 prefix: ir-br
@@ -23,8 +23,8 @@ publisher:
   acronym: UANI
   official: false
   description: |
-    United Against Nuclear Iran (“UANI”) is a nonprofit and non-partisan policy organization formed 
-    to combat the threats posed by the Islamic Republic of Iran. UANI's diverse Advisory Board includes 
+    United Against Nuclear Iran (“UANI”) is a nonprofit and non-partisan policy organization formed
+    to combat the threats posed by the Islamic Republic of Iran. UANI's diverse Advisory Board includes
     policy experts and distinguished former government officials.
   country: us
   url: https://www.unitedagainstnucleariran.com
@@ -66,14 +66,10 @@ lookups:
       - match: "--"
         value: null
     # HTML/XSS: remove stray <> fragments from source text
-      - match: |-
-          The Company has also recently received information that Bondstrand Ltd. (a foreign company of which the Company indirectly – through a wholly-owned foreign subsidiary – owns 40%) had sales of approximately $13,936.98 of adhesive to an Iranian company."   (CORRESP for AMERON INTERNATIONAL CORP, <>9.14.2009) (https://www.sec.gov/Archives/edgar/data/790730/000079073009000020/filename1.htm','AMERON%20INTERNATIONAL%20CORP',''))
-        value: |-
-          The Company has also recently received information that Bondstrand Ltd. (a foreign company of which the Company indirectly – through a wholly-owned foreign subsidiary – owns 40%) had sales of approximately $13,936.98 of adhesive to an Iranian company."   (CORRESP for AMERON INTERNATIONAL CORP, 9.14.2009) (https://www.sec.gov/Archives/edgar/data/790730/000079073009000020/filename1.htm','AMERON%20INTERNATIONAL%20CORP',''))
-      - match: |-
-          "A security group is threatening to boycott the Hilton hotel chain for planning to host Iranian President Mahmoud Ahmadinejad<><> during next month's UN General Assembly meeting, The Post has learned. United Against Nuclear Iran said the Hilton Manhattan East should not be accepting 'blood money' from Ahmadinejad and the Iranian delegation.
-        value: |-
-          "A security group is threatening to boycott the Hilton hotel chain for planning to host Iranian President Mahmoud Ahmadinejad during next month's UN General Assembly meeting, The Post has learned. United Against Nuclear Iran said the Hilton Manhattan East should not be accepting 'blood money' from Ahmadinejad and the Iranian delegation.
+      - match: "The Company has also recently received information that Bondstrand Ltd. (a foreign company of which the Company indirectly – through a wholly-owned foreign subsidiary – owns 40%) had sales of approximately $13,936.98 of adhesive to an Iranian company.\"   (CORRESP for AMERON INTERNATIONAL CORP, <>9.14.2009) (https://www.sec.gov/Archives/edgar/data/790730/000079073009000020/filename1.htm','AMERON%20INTERNATIONAL%20CORP',''))"
+        value: "The Company has also recently received information that Bondstrand Ltd. (a foreign company of which the Company indirectly – through a wholly-owned foreign subsidiary – owns 40%) had sales of approximately $13,936.98 of adhesive to an Iranian company.\"   (CORRESP for AMERON INTERNATIONAL CORP, 9.14.2009) (https://www.sec.gov/Archives/edgar/data/790730/000079073009000020/filename1.htm','AMERON%20INTERNATIONAL%20CORP',''))"
+      - match: "\"A security group is threatening to boycott the Hilton hotel chain for planning to host Iranian President Mahmoud Ahmadinejad<><> during next month's UN General Assembly meeting, The Post has learned. United Against Nuclear Iran said the Hilton Manhattan East should not be accepting 'blood money' from Ahmadinejad and the Iranian delegation."
+        value: "\"A security group is threatening to boycott the Hilton hotel chain for planning to host Iranian President Mahmoud Ahmadinejad during next month's UN General Assembly meeting, The Post has learned. United Against Nuclear Iran said the Hilton Manhattan East should not be accepting 'blood money' from Ahmadinejad and the Iranian delegation."
       - match: |-
           "UBNT believes its products have been sold into Iran by third parties." (Seeking Alpha, "<>IPO Preview: Ubiquiti Networks," 10/7/2011) (http://seekingalpha.com/article/298357-ipo-preview-ubiquiti-networks)
         value: |-
