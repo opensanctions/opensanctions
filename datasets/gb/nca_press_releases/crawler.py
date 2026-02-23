@@ -121,8 +121,15 @@ def crawl_enforcement_action(context: Context, url: str) -> None:
             entity.add("topics", topic)
 
         raw_date = get_date(context, url, article_doc)
-        if raw_date and not enforcements.within_max_age(context, raw_date):
-            continue
+        try:
+            if raw_date and not enforcements.within_max_age(context, raw_date):
+                continue
+        except ValueError:
+            context.log.info(
+                "Invalid date format, skipping date filtering",
+                url=url,
+                raw_date=raw_date,
+            )
 
         # We use the date as a key to make sure notices about separate actions are separate sanction entities
         sanction = h.make_sanction(context, entity, raw_date)
