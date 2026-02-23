@@ -193,13 +193,18 @@ def parse_reference(
     context.emit(sanction)
 
 
+def hash_row(row: dict[str, Any]) -> int:
+    """Hash a row to detect duplicates."""
+    return hash(tuple((k, v) for k, v in sorted(row.items())))
+
+
 def crawl(context: Context) -> None:
     path = context.fetch_resource("source.xlsx", context.data_url)
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
 
     workbook: openpyxl.Workbook = openpyxl.load_workbook(path, read_only=True)
     references = defaultdict(list)
-    raw_references: set[str] = set()
+    raw_references: dict[str, dict[str, Any]] = dict()
     reference_blocks_seen_count: dict[str, int] = dict()
     last_clean_ref = None
     for sheet in workbook.worksheets:
@@ -258,9 +263,10 @@ def crawl(context: Context) -> None:
                 raw_ref = f"{raw_ref}-{reference_seen_count}"
 
             # Sanity check that this raw reference isn't duplicated within its clean ref block.
-            if raw_ref in raw_references:
+            seen_row = raw_references.get(raw_ref)
+            if seen_row is not None and hash_row(row) != hash_row(seen_row):
                 context.log.warning("Duplicate reference", raw_ref=raw_ref)
-            raw_references.add(raw_ref)
+            raw_references[raw_ref] = row
 
             references[reference].append(row)
 
