@@ -7,6 +7,11 @@ from zavod.stateful.positions import categorise, get_after_office
 JUDGE_OVM_ID = "a6b0a81a-cf8a-4319-8fd1-5d509d5ce1df"
 # JUDGE_POSITION_ID = "f2a7d68f-d38f-4c3d-a820-919ec5924f4a"
 
+MINISTER_ID = "8c7d612b-dabd-4c20-89a6-6c6a5d26e87e"
+MINISTER_OVM_ID = "f2986792-0539-44d8-ae4a-30faba776b36"
+# 98450ad9-576a-4f35-a511-dbe06f3f5db4 reditel odboru
+# a23ba8b7-06ca-42a5-afef-c04fc45897e7 namestek clean vlady
+
 
 def crawl_person(context: Context, item: Dict[str, Any]) -> None:
     person_id = item.get("id")
@@ -54,7 +59,7 @@ def crawl_person(context: Context, item: Dict[str, Any]) -> None:
 
         if not (is_deputy or is_senator or is_judge):
             continue
-        # Judge ovm_id also includes prosecutors, so we categorize tham using the
+        # Judge ovm_id also includes prosecutors, so we categorize them using the
         # position_name lookup instead.
         lookup = "judicial_details" if is_judge else "position_details"
         lookup_value = position_name if is_judge else ovm_id
