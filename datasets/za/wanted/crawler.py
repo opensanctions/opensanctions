@@ -117,7 +117,7 @@ def crawl(context):
         context.data_url,
         "//table",
         geolocation="za",
-        cache_days=1,
+        # cache_days=1, Don't cache index pages. Cached links to deleted listings break the crawler.
         absolute_links=True,
     )
     tables = doc.xpath("//table")
