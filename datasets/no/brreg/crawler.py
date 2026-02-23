@@ -99,14 +99,14 @@ def crawl_company(
     row: Dict[Any, Any],
     company_name: str,
     org_number: str,
-    company_juris: str,
 ) -> Entity:
-    entity = context.make("LegalEntity")
-    entity.id = context.make_id(company_name, org_number)
+    entity = context.make("Organization")
+    entity.id = context.make_id(org_number)
     entity.add("name", company_name)
     entity.add("alias", row.pop("foreign_register_name"))
-    entity.add("jurisdiction", company_juris)
+    entity.add("jurisdiction", row.pop("subject_to_legislation_country_code"))
     entity.add("legalForm", row.pop("org_form_description"))
+    entity.add("registrationNumber", org_number)
     entity.add("registrationNumber", row.pop("registration_number_home_country"))
     # about industry codes: https://www.brreg.no/bedrift/naeringskoder/
     industry_codes = {
@@ -144,13 +144,12 @@ def crawl_soe_peps(
     context: Context,
     org_number: str,
     company_name: str,
-    company_juris: str,
     entity: Entity,
-) -> int:
+) -> None:
     api_org_url = f"{BASE_API}/enheter/{org_number}/roller"
     rollegrupper = context.fetch_json(api_org_url)["rollegrupper"]
 
-    pos_in_company = 0
+    num_positions = 0
     for group in rollegrupper:
         group_type = group.get("type")
         group_code = group_type.get("kode")
@@ -185,10 +184,7 @@ def crawl_soe_peps(
             birth_date = person_data.pop("fodselsdato")
 
             pep = context.make("Person")
-            if birth_date:
-                pep.id = context.make_id(first_name, last_name, birth_date)
-            else:
-                pep.id = context.make_id(first_name, last_name, company_name)
+            pep.id = context.make_id(first_name, last_name, birth_date, company_name)
 
             h.apply_name(pep, first_name=first_name, last_name=last_name)
             pep.add("birthDate", birth_date)
@@ -198,8 +194,7 @@ def crawl_soe_peps(
                 context,
                 name=f"{role_desc}, {company_name}",
                 topics=["gov.soe"],
-                # adding company's country of jurisdiction, too
-                country=["no", company_juris],
+                country=["no"],
                 organization=entity,
             )
             categorisation = categorise(context, position, is_pep=True)
@@ -222,22 +217,18 @@ def crawl_soe_peps(
                 context.emit(position)
                 context.emit(occupancy)
 
-                pos_in_company += 1
+                num_positions += 1
 
-    if pos_in_company < 1 or pos_in_company > 40:
+    if num_positions < 1 or num_positions > 40:
         context.log.warning(
             "Expected between 1 and 40 positions per company.",
             company_name=company_name,
             org_number=org_number,
-            emitted_positions=pos_in_company,
+            emitted_positions=num_positions,
         )
-    return pos_in_company
 
 
 def crawl(context: Context) -> None:
-    total_positions = 0
-    n_companies = 0
-
     page = context.fetch_html(
         context.data_url, method="GET", absolute_links=True, cache_days=3
     )
@@ -256,8 +247,10 @@ def crawl(context: Context) -> None:
             for header in nok_header_row
         ]
 
+    with gzip.open(path, "rt") as f:
         # iterate over the rows with english field names
         dict_reader = csv.DictReader(f, fieldnames=eng_header_row)
+        next(dict_reader)  # skip header row
         for row in dict_reader:
             row = {k: v.strip() for k, v in row.items() if k is not None}
 
@@ -268,25 +261,16 @@ def crawl(context: Context) -> None:
 
             company_name = row.pop("name")
             org_number = row.pop("org_number")
-            company_juris = row.pop("subject_to_legislation_country_code")
-            n_companies += 1
 
             entity = crawl_company(
                 context,
                 row,
                 company_name,
                 org_number,
-                company_juris,
             )
-            total_positions += crawl_soe_peps(
+            crawl_soe_peps(
                 context,
                 org_number,
                 company_name,
-                company_juris,
                 entity,
             )
-
-        assert n_companies <= total_positions, (
-            f"Sanity check failed: extracted {total_positions} positions from {n_companies} SOEs, "
-            "expected at least one position per company"
-        )
