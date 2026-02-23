@@ -20,8 +20,15 @@ def crawl_item(context: Context, row: Dict[str, str]) -> None:
     entity.add("description", description, lang="spa")
     entity.add("topics", "wanted")
 
-    doc = context.fetch_html(sourceUrl)  # Fetch the page
-    details_section = doc.find('.//dl[@class="row"]')  # Find the <dl> section
+    data_list_xpath = './/dl[@class="row"]'
+    # Zyte because the connection times out from production
+    doc = zyte_api.fetch_html(
+        context,
+        sourceUrl,
+        unblock_validator=data_list_xpath,
+        cache_days=1,
+    )
+    details_section = doc.find(data_list_xpath)
 
     # Initialize facts to collect key-value pairs
     facts = {}
