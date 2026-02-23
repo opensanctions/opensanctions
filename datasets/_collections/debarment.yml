@@ -70,6 +70,7 @@ children:
   - us_sc_med_exclusions
   - us_special_leg
   - us_tn_med_exclusions
+  - us_tx_med_exclusions
   - us_wa_med_exclusions
   - us_wv_med_exclusions
   - us_wy_med_exclusions
