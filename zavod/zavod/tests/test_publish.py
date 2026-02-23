@@ -11,7 +11,7 @@ from zavod.crawl import crawl_dataset
 from zavod.store import get_store
 from zavod.exporters import export_dataset
 from zavod.integration import get_dataset_linker
-from zavod.publish import publish_dataset, publish_failure
+from zavod.publish import publish_dataset, archive_failure
 from zavod.exc import RunFailedException
 
 
@@ -79,7 +79,7 @@ def test_publish_failure(testdataset1: Dataset):
     try:
         crawl_dataset(testdataset1)
     except RunFailedException:
-        publish_failure(testdataset1, latest=True)
+        archive_failure(testdataset1, latest=True)
     clear_data_path(testdataset1.name)
 
     history = _read_history(testdataset1.name)
