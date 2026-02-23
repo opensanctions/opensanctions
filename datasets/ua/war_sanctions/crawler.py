@@ -35,6 +35,18 @@ NAMES_LANG_MAP = {
     "name_uk": "ukr",
     "name_ru": "rus",
 }
+RESPONSE_CODES = {
+    0: "successful request",
+    1: "missing Authorization header",
+    2: "base64 string decoding error",
+    3: "invalid Client ID",
+    4: "digital signature verification error",
+    5: "invalid or expired timestamp",
+    6: "token reuse",
+    7: "invalid URL",
+    8: "access denied for IP address",
+    255: "internal error",
+}
 
 
 class WSAPIDataType(str, Enum):
@@ -645,8 +657,14 @@ def crawl(context: Context):
         )
         response = json.loads(zyte_result.response_text)
         if not response or response.get("code") != 0:
-            context.log.error("No valid data to parse", url=url, response=response)
-            continue
+            if response and "code" in response:
+                error = RESPONSE_CODES.get(response["code"])
+            # Clear cache for failed request and exit to retry job later.
+            context.cache.clear(zyte_result.cache_fingerprint)
+            raise Exception(
+                f"Failed to fetch data for {url} error={error} response={response}"
+            )
+
         data = response.get("data")
         for entity_details in data:
             # Construct entity specific page URL: {base_url}/{endpoint}/{entity_id}
