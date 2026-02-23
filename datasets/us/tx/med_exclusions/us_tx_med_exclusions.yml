@@ -3,11 +3,11 @@ entry_point: crawler.py
 prefix: us-medtx
 coverage:
   schedule: "20 4 1,15 * *"
-  start: "2026-01-29"
+  start: "2026-02-23"
 load_statements: true
 ci_test: false  # zyte not available in CI
 summary: >
-  List of excluded individuals and entities for Texas Medicaid and other HHS programs by Texas HHSC OIG
+  List of excluded individuals and entities for Texas Medicaid and other HHS programs
 description: |
     > The Texas Health & Human Services Commission Office of Inspector General (OIG) maintains
     a “List of Excluded Individuals/Entities” to help protect program beneficiaries by preventing
