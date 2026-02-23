@@ -1,0 +1,15 @@
+id: 320
+title: Afghanistan Sanctions Framework
+key: AU-AFGHANISTAN
+url: https://www.dfat.gov.au/international-relations/security/sanctions/sanctions-regimes/afghanistan-sanctions-framework
+summary: Australia introduced an autonomous sanctions framework in relation to Afghanistan
+  in December 2025. This framework was developed in response to the ongoing oppression
+  of women and girls, minority groups, and the general population in Afghanistan,
+  and the undermining of good governance or the rule of law, since the Taliban claimed
+  authority over the country in August 2021.
+issuer: au_dfat
+dataset: au_dfat_sanctions
+measures:
+- Arms embargo
+- Financial block
+- Travel ban

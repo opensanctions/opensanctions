@@ -1,0 +1,16 @@
+id: 131
+title: Measures Against The Central African Republic
+key: SECO-CAR
+url: https://www.seco.admin.ch/seco/de/home/Aussenwirtschaftspolitik_Wirtschaftliche_Zusammenarbeit/Wirtschaftsbeziehungen/exportkontrollen-und-sanktionen/sanktionen-embargos/sanktionsmassnahmen/massnahmen-gegenueber-der-zentralafrikanischen-republik.html
+summary: These sanctions target individuals and entities contributing to the conflict
+  in the Central African Republic, including those involved in armed groups, illicit
+  resource exploitation, and human rights abuses. The measures include asset freezes
+  and travel bans to promote peace, security, and stability in the region.
+issuer: ch_seco
+dataset: ch_seco_sanctions
+target_territories:
+- cf
+measures:
+- Financial block
+- Restrictions on goods
+- Travel ban

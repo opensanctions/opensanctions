@@ -1,0 +1,17 @@
+id: 98
+title: EU Restrictive Measures In View Of The Situation In Venezuela
+key: EU-VEN
+url: https://sanctionsmap.eu/#/main/details/44/
+summary: These sanctions target individuals and entities in Venezuela involved in
+  corruption, human rights abuses, and undermining democratic processes. The measures
+  include asset freezes, travel bans, and restrictions on trade to pressure the Venezuelan
+  government to restore democracy and respect human rights.
+issuer: eu_council
+dataset: eu_fsf
+target_territories:
+- ve
+measures:
+- Arms export restrictions
+- Asset freeze
+- Export control
+- Restrictions on goods

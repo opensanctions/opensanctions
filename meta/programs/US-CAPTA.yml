@@ -1,0 +1,14 @@
+id: 271
+title: Correspondent Account or Payable-Through Account Sanctions List
+key: US-CAPTA
+url: https://ofac.treasury.gov/other-ofac-sanctions-lists
+summary: The CAPTA List contains identifying information of FFIs for which the opening
+  or maintaining of a correspondent account or a payable-through account is prohibited
+  or is subject to one or more strict conditions pursuant to the authorities listed
+  below.
+issuer: us_state
+dataset: us_ofac_cons
+aliases:
+- CAPTA List
+measures:
+- Financial block

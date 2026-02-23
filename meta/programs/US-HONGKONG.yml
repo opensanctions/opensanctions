@@ -1,0 +1,14 @@
+id: 19
+title: Hong Kong-Related Sanctions
+key: US-HONGKONG
+url: https://ofac.treasury.gov/sanctions-programs-and-country-information/hong-kong-related-sanctions
+summary: These sanctions target individuals and entities responsible for undermining
+  Hong Kong's autonomy and democratic processes. The measures include asset freezes
+  and transaction prohibitions to pressure China to uphold its commitments under the
+  Sino-British Joint Declaration and protect Hong Kong's freedoms.
+issuer: us_ofac
+dataset: us_ofac_sdn
+aliases:
+- EO 13936
+target_territories:
+- hk

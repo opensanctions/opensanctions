@@ -1,0 +1,9 @@
+id: 221
+title: UK sanctions relating to domestic counter-terrorism
+key: GB-CT
+url: https://www.gov.uk/government/collections/uk-international-counter-terrorism-sanctions
+summary: Measures targeting domestic terrorist activities.
+issuer: gb_ofsi
+dataset: gb_hmt_sanctions
+target_territories:
+- gb

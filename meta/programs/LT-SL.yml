@@ -1,0 +1,14 @@
+id: 287
+title: Lithuanian Entities Owned or Controlled by Sanctioned Parties
+key: LT-SL
+url: https://fntt.lrv.lt/lt/tarptautines-finansines-sankcijos/sankcionuotu-asmenu-sarasas/
+summary: The Financial Crimes Investigation Service (FNTT) under Lithuania's Ministry
+  of the Interior maintains a separate list of legal entities or other organizations
+  that have been determined by the FNTT to be owned or controlled by sanctioned entities.
+  This list identifies Lithuanian-based entities whose property is legally owned or
+  controlled by a sanctioned entity and are therefore subject to asset freezes, operating
+  as a complement to the main international sanctions lists from the UN and EU.
+issuer: lt_lt
+dataset: lt_fiu_freezes
+measures:
+- Asset freeze

@@ -1,0 +1,15 @@
+id: 80
+title: EU Restrictive Measures In View Of The Situation In Nicaragua
+key: EU-NIC
+url: https://sanctionsmap.eu/#/main/details/48/
+summary: These sanctions target individuals and entities in Nicaragua involved in
+  human rights abuses, corruption, and actions undermining democracy. The measures
+  include asset freezes, travel bans, and trade restrictions to promote democratic
+  governance and respect for human rights in Nicaragua.
+issuer: eu_council
+dataset: eu_fsf
+target_territories:
+- ni
+measures:
+- Asset freeze
+- Travel ban

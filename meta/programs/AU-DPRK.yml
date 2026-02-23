@@ -1,0 +1,14 @@
+id: 196
+title: Democratic People's Republic Of Korea (North Korea) Sanctions Regime
+key: AU-DPRK
+url: https://www.dfat.gov.au/international-relations/security/sanctions/sanctions-regimes/democratic-peoples-republic-korea-sanctions-regime
+summary: Australia implements the United Nations Security Council (UNSC) related to
+  the Democratic People’s Republic of Korea (DPRK) by incorporating them into Australian
+  law. In addition, since 2006 Australia has imposed autonomous sanctions in relation
+  to the DPRK, which complement the UNSC sanctions. The autonomous sanctions were
+  imposed in response to Australia’s concerns about the nature of the DPRK’s nuclear,
+  weapons of mass destruction (WMD) and proliferation programs.
+issuer: au_dfat
+dataset: au_dfat_sanctions
+target_territories:
+- kp

@@ -1,0 +1,13 @@
+id: 209
+title: National list of terrorist suspects whose assets have been frozen
+key: BE-FOD-NAT
+url: https://finance.belgium.be/en/about_fps/structure_and_services/general_administrations/treasury/financial-sanctions/national
+summary: The National Security Council establishes and changes the national list.
+  It is based on the assessment made by the Coordination Unit for Threat Analysis
+  (CUTA), after consultation with the relevant support services and judicial authorities.
+  The national list and any amendments to the list are approved by the Council of
+  Ministers and published in the Belgian Official Journal by Royal Decree.
+issuer: be_nsc
+dataset: be_fod_sanctions
+measures:
+- Asset freeze

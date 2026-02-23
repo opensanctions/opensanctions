@@ -1,0 +1,17 @@
+id: 65
+title: EU Restrictive Measures In View Of The Situation In The Democratic Republic
+  Of The Congo
+key: EU-COD
+url: https://sanctionsmap.eu/#/main/details/11/
+summary: These sanctions target individuals and entities involved in the conflict,
+  human rights abuses, and destabilizing activities in the Democratic Republic of
+  the Congo. The measures include asset freezes, travel bans, and restrictions on
+  trade to promote peace and stability in the region.
+issuer: eu_council
+dataset: eu_fsf
+target_territories:
+- cd
+measures:
+- Arms export restrictions
+- Asset freeze
+- Travel ban

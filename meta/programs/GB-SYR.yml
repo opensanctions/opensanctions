@@ -1,0 +1,9 @@
+id: 253
+title: UK sanctions relating to Syria
+key: GB-SYR
+url: https://www.gov.uk/government/collections/uk-sanctions-on-syria
+summary: Measures addressing conflict and issues in Syria.
+issuer: gb_ofsi
+dataset: gb_hmt_sanctions
+target_territories:
+- sy

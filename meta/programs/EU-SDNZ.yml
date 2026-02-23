@@ -1,0 +1,16 @@
+id: 85
+title: EU Restrictive Measures In View Of Activities Undermining The Stability And
+  The Political Transition Of Sudan
+key: EU-SDNZ
+url: https://sanctionsmap.eu/#/main/details/57/
+summary: These sanctions target individuals and entities in Sudan involved in actions
+  that undermine stability and the political transition. The measures include asset
+  freezes, travel bans, and restrictions on trade to support Sudan's transition to
+  a stable and democratic governance.
+issuer: eu_council
+dataset: eu_fsf
+target_territories:
+- sd
+measures:
+- Asset freeze
+- Travel ban

@@ -1,0 +1,15 @@
+id: 53
+title: John S. McCain National Defense Authorization Act for Fiscal Year 2019 (889
+  List)
+key: US-MCCAIN-889
+url: https://www.congress.gov/115/plaws/publ232/PLAW-115publ232.pdf
+summary: This act includes a list of entities subject to sanctions for their involvement
+  in activities that threaten U.S. national security, including those related to defense,
+  cyber threats, and foreign influence operations. The measures include restrictions
+  on defense-related transactions and other actions to safeguard U.S. interests.
+issuer: us_congress
+dataset: us_special_leg
+aliases:
+- 889 List
+target_territories:
+- cn

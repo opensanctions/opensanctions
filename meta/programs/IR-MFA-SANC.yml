@@ -1,0 +1,18 @@
+id: 160
+title: Individuals And Entities In The Sanction’s List Of The Islamic Republic Of
+  Iran
+key: IR-MFA-SANC
+url: https://sanctionlist.mfa.ir/
+summary: This list includes individuals and entities sanctioned by Iran for various
+  reasons, including terrorism, human rights abuses, and other illicit activities.
+  The measures include asset freezes and prohibitions on transactions to enforce national
+  and international security.
+issuer: ir_mfa
+dataset: ir_sanctions
+target_territories:
+- gb
+- us
+measures:
+- Asset freeze
+- Financial block
+- Travel ban
