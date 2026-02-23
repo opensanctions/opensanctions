@@ -52,8 +52,75 @@ lookups:
           name: Member of the Senate of the Parliament of the Czech Republic
           qid: Q18941264
           topics: ["gov.legislative", "gov.national"]
-      - match: a6b0a81a-cf8a-4319-8fd1-5d509d5ce1df
+  judicial_details:
+    options:
+    # Judges are identified by their position name, not the ovmId, because the same ovmId is used
+    # for both judges and prosecutors, and the position name is more specific about the type of judicial role
+
+        # Constituitional Court
+      - contains: soudce Ústavní soud
         items:
-          name: Judge
+          name: Judge of the Constitutional Court of the Czech Republic
+          qid: null
+          topics: ["gov.judicial", "gov.national"]
+        # Supreme Court
+      - contains:
+          - soudce Nejvyšší soud
+          - soudce Nejvyšší správní
+        items:
+          name: Judge of the Supreme Court of the Czech Republic
+          qid: null
+          topics: ["gov.judicial", "gov.national"]
+        # High courts
+      - contains:
+          - soudce Vrchní soud
+          - soudce Vrchni soud
+        items:
+          name: Judge of a High Court in the Czech Republic
+          qid: null
+          topics: ["gov.judicial", "gov.national"]
+      - contains: státní zástupce Vrchní
+        items:
+          name: Prosecutor of the High Court
+          qid: null
+          topics: ["gov.judicial", "gov.national"]
+        # Regional courts
+      - contains: soudce Krajský soud
+        items:
+          name: Judge of a Regional Court in the Czech Republic
+          qid: null
+          topics: ["gov.judicial", "gov.state"]
+      - contains: státní zástupce Krajské
+        items:
+          name: Prosecutor of the Regional Court
+          qid: null
+          topics: ["gov.judicial", "gov.state"]
+        # Municipal courts
+      - contains: soudce Městský soud
+        items:
+          name: Judge of the Municipal Court
+          qid: null
+          topics: ["gov.judicial", "gov.state"]
+      - contains: státní zástupce Městské
+        items:
+          name: Prosecutor of the Municipal Court
+          qid: null
+          topics: ["gov.judicial", "gov.state"]
+        # District courts
+      - contains:
+          - soudce Okresní soud
+          - soudce  Okresní soud
+          - soudce Okresní souv
+          - soudce OOkresní soud
+          - soudce Obvodní soud
+        items:
+          name: Judge of a District Court in the Czech Republic
+          qid: null
+          topics: ["gov.judicial", "gov.state"]
+      - contains:
+          - státní zástupce Obvodní
+          - státní zástupce Okresní
+        items:
+          name: Prosecutor of the District Court
           qid: null
           topics: ["gov.judicial", "gov.state"]

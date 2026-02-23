@@ -5,6 +5,7 @@ from zavod import Context, helpers as h
 from zavod.stateful.positions import categorise, get_after_office
 
 JUDGE_OVM_ID = "a6b0a81a-cf8a-4319-8fd1-5d509d5ce1df"
+# JUDGE_POSITION_ID = "f2a7d68f-d38f-4c3d-a820-919ec5924f4a"
 
 
 def crawl_person(context: Context, item: Dict[str, Any]) -> None:
@@ -41,18 +42,23 @@ def crawl_person(context: Context, item: Dict[str, Any]) -> None:
         is_judge = item.get("judge")
         # ovmId identifies the type of position, shared across all holders of that role
         ovm_id = wp.get("ovmId")
+        # position_id = wp_data.get("id")
+        position_name = wp.get("name")
         # position_name = wp_data.get("name")
 
         # judge is a person-level flag, not position-level, so a judge person
         # will have it set on ALL their working positions, including non-judicial
-        # ones. We narrow to the single ovm_id that represents the judge role.
+        # ones. We narrow to the single position_id that represents the judge role.
         if is_judge and ovm_id != JUDGE_OVM_ID:
             continue
 
         if not (is_deputy or is_senator or is_judge):
             continue
-
-        res = context.lookup("position_details", ovm_id, warn_unmatched=True)
+        # Judge ovm_id also includes prosecutors, so we categorize tham using the
+        # position_name lookup instead.
+        lookup = "judicial_details" if is_judge else "position_details"
+        lookup_value = position_name if is_judge else ovm_id
+        res = context.lookup(lookup, lookup_value, warn_unmatched=True)
         if not res or not res.items:
             continue
 
@@ -107,6 +113,3 @@ def crawl(context: Context) -> None:
             crawl_person(context, item)
 
         page += 1
-        if page > 200:
-            context.log.info("hit max pages")
-            break
