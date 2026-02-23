@@ -153,6 +153,8 @@ lookups:
         value: Vessel
       - match: 8402
         value: Vessel
+      - match: 8580
+        value: Person
   name_type:
     options:
       - match:
