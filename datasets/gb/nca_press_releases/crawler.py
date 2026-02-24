@@ -81,7 +81,7 @@ def crawl_enforcement_action(context: Context, url: str) -> None:
     raw_topics: List[str] = article_doc.xpath("//li[@itemprop='keywords']/a/text()")
     topics: List[str] = []
     for topic in raw_topics:
-        res = context.lookup("topics", topic, warn_unmatched=True)
+        res = context.lookup("topics", topic.strip(), warn_unmatched=True)
         if res is not None:
             topics.append(res.value)
 
