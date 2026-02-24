@@ -170,7 +170,9 @@ def parse_reference(
             h.apply_date(entity, "createdAt", listing_info)
             sanction.add("listingDate", listing_info)
         else:
-            sanction.add("summary", listing_info.replace("_x000D_", ""))
+            sanction.add(
+                "summary", listing_info.replace("_x000D_", "") if listing_info else None
+            )
         designation_instrument = row.pop("instrument_of_designation")
         # designation instrument is very often the same as listing info
         if designation_instrument and designation_instrument != listing_info:
