@@ -155,6 +155,8 @@ lookups:
         value: Vessel
       - match: 8580
         value: Person
+      - match: 3621
+        value: LegalEntity
   name_type:
     options:
       - match:
@@ -261,6 +263,8 @@ lookups:
         value: null
       - match: 9422547
         value: 9422457
+      - match: 9434980
+        value: 9434890
   type.country:
     options:
       - match: Guinea-Bisau
