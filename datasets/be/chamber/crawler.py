@@ -105,11 +105,8 @@ def crawl(context: Context) -> None:
     links = legislature_menu.findall(".//a")
     # The menu lists the current term twice: once under "Actuels" and once
     # as a dated term (e.g. "56 (2024-2025)"). Confirm and strip the duplicate.
-    if links[0].get("href")[:-1] != links[1].get("href")[:-1]:
-        context.log.warning(
-            "Legislature menu structure has changed",
-            urls=[l.get("href") for l in links[:2]],
-        )
+    if links[0].attrib["href"][:-1] != links[1].attrib["href"][:-1]:
+        context.log.warning("Legislature menu structure has changed")
         return
     current_url, links = links[0].get("href"), links[1:]
 
@@ -128,6 +125,7 @@ def crawl(context: Context) -> None:
             OccupancyStatus.CURRENT if url == current_url else OccupancyStatus.ENDED
         )
         assert status is not None, f"Could not determine status for term {text}"
+        assert url is not None, f"Term link missing URL for term {text}"
 
         context.log.info(f"Processing term: {text} (status={status})")
         # Fetch the member list page for this term
