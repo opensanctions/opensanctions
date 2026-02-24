@@ -63,7 +63,7 @@ config:
 assertions:
   min:
     schema_entities:
-      Company: 1500
+      Company: 3200
       Person: 1500
       Article: 560
       Organization: 400
@@ -71,7 +71,7 @@ assertions:
       LegalEntity: 15
   max:
     schema_entities:
-      Company: 3700
+      Company: 6000
       Person: 3400
       Article: 1330
       Organization: 930
