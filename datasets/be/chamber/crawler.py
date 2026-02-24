@@ -18,7 +18,7 @@ def get_term_dates(context: Context, term: str) -> tuple[int | None, int | None]
         return None, None
 
 
-def get_dob(context: Context, profile_url: str) -> str:
+def get_dob(context: Context, profile_url: str) -> str | None:
     pep_doc = zyte_api.fetch_html(
         context,
         profile_url,
@@ -26,14 +26,17 @@ def get_dob(context: Context, profile_url: str) -> str:
         absolute_links=True,
         cache_days=4,
     )
-    bio_text = h.xpath_strings(
-        pep_doc,
-        './/td/p[contains(., "| Né")]/text()',
-        expect_exactly=1,
-    )[0]
-    # Split on | and find the part with "Né"
+    bio_text_list = h.xpath_strings(
+        pep_doc, './/td/p[contains(., "| Né") or contains(., "| Ne")]/text()'
+    )
+    if bio_text_list:
+        bio_text = bio_text_list[0]
+    else:
+        context.log.warn(f"Could not find bio text for {profile_url}")
+        return None
+    # Split on | and find the part with "Né" or "Ne"
     parts = [part.strip() for part in bio_text.split("|")]
-    birth_info = next(part for part in parts if part.startswith("Né"))
+    birth_info = next(part for part in parts if part.startswith((("Né", "Ne"))))
     date_str = birth_info.split(" le ")[-1].rstrip(".")
     return date_str
 
@@ -44,8 +47,8 @@ def crawl_persons(
     status: OccupancyStatus,
 ) -> None:
     cells = h.xpath_elements(row, ".//td[@class='td1' or @class='td0']")
-    name = h.xpath_strings(cells[0], ".//b/text()", expect_exactly=1)[0].strip()
-    profile_url = h.xpath_strings(cells[0], ".//a/@href", expect_exactly=1)[0]
+    name = h.xpath_string(cells[0], ".//b/text()")
+    profile_url = h.xpath_string(cells[0], ".//a/@href")
 
     group_texts = h.xpath_strings(cells[1], ".//a/text()")
     political_group = group_texts[0].strip() if group_texts else ""
@@ -98,39 +101,33 @@ def crawl(context: Context) -> None:
     legislature_menu = h.xpath_element(
         doc, './/b[text() = "Actuels"]/ancestor::div[@class="menu"]'
     )
-    for link in legislature_menu.findall(".//a"):
-        url = link.get("href")
-        text = h.element_text(link).strip()
-        assert url is not None, url
 
-        if not text:
-            continue
+    links = legislature_menu.findall(".//a")
+    # The menu lists the current term twice: once under "Actuels" and once
+    # as a dated term (e.g. "56 (2024-2025)"). Confirm and strip the duplicate.
+    if links[0].get("href")[:-1] != links[1].get("href")[:-1]:
+        context.log.warning(
+            "Legislature menu structure has changed",
+            urls=[l.get("href") for l in links[:2]],
+        )
+        return
+    current_url, links = links[0].get("href"), links[1:]
 
+    for link in links:
         # Legislative term dates (e.g., "55 (2019-2024)") don't reflect individual members'
         # actual service periods. Members may join/leave mid-term. We use explicit status
         # (CURRENT/ENDED) instead of dates to avoid misrepresenting when someone held office.
         # Term dates are only used to filter out old legislatures before the cutoff.
-
-        status = None
-        if "Actuels" in h.element_text(link):
-            status = OccupancyStatus.CURRENT
-
-        # For historical terms, check if they ended before cutoff
-        if status is None and "(" in text and ")" in text:
-            _, end_date = get_term_dates(context, text)
-            if end_date is not None and end_date < CUTOFF_DATE:
-                context.log.info(f"Skipping old term {text} (ended {end_date})")
-                continue
-            if end_date is not None:
-                if end_date >= datetime.now().year:
-                    status = OccupancyStatus.CURRENT
-                elif end_date >= datetime.now().year - 1:
-                    # Recent term, status unknown
-                    # It's 2026. The latest term says 2024-2025.
-                    # They're not planning an early election.
-                    status = None
-                else:
-                    status = OccupancyStatus.ENDED
+        text = h.element_text(link).strip()
+        _, end_date = get_term_dates(context, text)
+        if end_date is not None and end_date < CUTOFF_DATE:
+            context.log.info(f"Skipping old term: {text}")
+            continue
+        url = link.get("href")
+        status = (
+            OccupancyStatus.CURRENT if url == current_url else OccupancyStatus.ENDED
+        )
+        assert status is not None, f"Could not determine status for term {text}"
 
         context.log.info(f"Processing term: {text} (status={status})")
         # Fetch the member list page for this term
@@ -142,8 +139,6 @@ def crawl(context: Context) -> None:
             cache_days=4,
         )
         # Extract and process all members from the table
-        table = h.xpath_elements(term_doc, "//table[@width='100%']", expect_exactly=1)[
-            0
-        ]
+        table = h.xpath_element(term_doc, "//table[@width='100%']")
         for row in h.xpath_elements(table, ".//tr[td[@class='td1' or @class='td0']]"):
             crawl_persons(context, row, status)
