@@ -105,5 +105,5 @@ lookups:
         value: null
   type.date:
     options:
-      - match: 23 January 2025.
+      - match: 23 Janaury 2025. # january typo!
         value: "2025-01-23"

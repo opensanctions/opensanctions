@@ -206,6 +206,8 @@ lookups:
   type.email:
     options:
       - match:
+          - https://www.pochtabank.ru
+          - apzrotor.ru
           - www.140zavod.by
           - and
           - request@mehr
@@ -1072,6 +1074,178 @@ lookups:
       - match: "INN number- 7708514824"
         props:
           innCode: "7708514824"
+      - match: "7706061801 (INN) "
+        props:
+          innCode: "7706061801"
+      - match: "HK0008017584U "
+        props:
+          registrationNumber: "HK0008017584U"
+      - match: "India LLPIN Number – AAJ-2354India PAN – AABFZ8670J"
+        props:
+          registrationNumber: "AAJ-2354"
+          taxNumber: "AABFZ8670J"
+      - match: "INN – 2225008370 "
+        props:
+          innCode: "2225008370"
+      - match: "INN – 6673105167"
+        props:
+          innCode: "6673105167"
+      - match: "INN – 7802931751 "
+        props:
+          innCode: "7802931751"
+      - match: "INN – 7805349407"
+        props:
+          innCode: "7805349407"
+      - match: "INN – 7806121490"
+        props:
+          innCode: "7806121490"
+      - match: "INN - 2539008807"
+        props:
+          innCode: "2539008807"
+      - match: "INN - 2635001120 "
+        props:
+          innCode: "2635001120"
+      - match: "INN - 5045023416"
+        props:
+          innCode: "5045023416"
+      - match: "INN - 5259077666"
+        props:
+          innCode: "5259077666"
+      - match: "INN - 7809000430"
+        props:
+          innCode: "7809000430"
+      - match: "INN - 7826059466"
+        props:
+          innCode: "7826059466"
+      - match: "INN - 9704064230"
+        props:
+          innCode: "9704064230"
+      - match: "INN: 3232005484OGRN: 1023200000010"
+        props:
+          innCode: "3232005484"
+          ogrnCode: "1023200000010"
+      - match: "INN: 6608003052OGRN: 1026600000460"
+        props:
+          innCode: "6608003052"
+          ogrnCode: "1026600000460"
+      - match: "INN: 7704113772 OGRN: 1027739553764 Russia Licence No. – 1885 BIC: 044525341"
+        props:
+          innCode: "7704113772"
+          ogrnCode: "1027739553764"
+          bikCode: "044525341"
+      - match: "INN: 7705260427OGRN: 1037739042912"
+        props:
+          innCode: "7705260427"
+          ogrnCode: "1037739042912"
+      - match: "INN: 770991634 "
+        props:
+          registrationNumber: "770991634"
+      - match: "INN: 9721194461OGRN: 1237700005157"
+        props:
+          innCode: "9721194461"
+          ogrnCode: "1237700005157"
+      - match: "NIP: 7010994804"
+        props:
+          taxNumber: "7010994804"
+      - match: "OGRN - 1022502117505"
+        props:
+          ogrnCode: "1022502117505"
+      - match: "OGRN - 1026403046702 "
+        props:
+          ogrnCode: "1026403046702"
+      - match: "OGRN - 1027810229996"
+        props:
+          ogrnCode: "1027810229996"
+      - match: "OGRN - 1036604818887"
+        props:
+          ogrnCode: "1036604818887"
+      - match: "OGRN - 1037816019713"
+        props:
+          ogrnCode: "1037816019713"
+      - match: "OGRN - 1085259006117"
+        props:
+          ogrnCode: "1085259006117"
+      - match: "OGRN - 1167847135059"
+        props:
+          ogrnCode: "1167847135059"
+      - match: "OGRN - 1227800139071 "
+        props:
+          ogrnCode: "1227800139071"
+      - match: "OGRN - 1231600067654 INN - 1655500084 Russia License No. - 415 "
+        props:
+          ogrnCode: "1231600067654"
+          innCode: "1655500084"
+          registrationNumber: "415"
+      - match: "Russia INN - 7728863750 "
+        props:
+          innCode: "7728863750"
+      - match: "Russia OGRN - 1027700024560 Russia INN - 7736046991 SWIFT/BIC – ABSLRUMM Russia License No. - 2306 "
+        props:
+          ogrnCode: "1027700024560"
+          innCode: "7736046991"
+          registrationNumber: "2306"
+          swiftBic: "ABSLRUMM"
+      - match: "Russian INN -7725413350 "
+        props:
+          innCode: "7725413350"
+      - match: "Thai business register number: 0105566050386 "
+        props:
+          registrationNumber: "0105566050386"
+      - match: "Thai business registry number: 0135560009520"
+        props:
+          registrationNumber: "0135560009520"
+      - match: "Thailand Company Registration Number: 0105566093417 "
+        props:
+          registrationNumber: "0105566093417"
+      - match: "TIN - 1653001805 OGRN - 1021600000124 Registration number - 2590 "
+        props:
+          taxNumber: "1653001805"
+          ogrnCode: "1021600000124"
+          registrationNumber: "2590"
+      - match: "TIN: 7709129705 OGRN: 1027739186970 BIC: 044525388 "
+        props:
+          taxNumber: "7709129705"
+          ogrnCode: "1027739186970"
+          bikCode: "044525388"
+      - match: "Trade register number: 37624249 "
+        props:
+          registrationNumber: "37624249"
+      - match: "Unified Social Credit Code - 91320505MA1WT5KL9D"
+        props:
+          uscCode: "91320505MA1WT5KL9D"
+      - match: "Unified Social Credit Code: 91110105MACQWR1U2C "
+        props:
+          uscCode: "91110105MACQWR1U2C"
+      - match: "Unified Social Credit Code: 91210242MACN44NL0X"
+        props:
+          uscCode: "91210242MACN44NL0X"
+      - match: "Unified Social Credit Code: 91210283MAC567EQ70"
+        props:
+          uscCode: "91210283MAC567EQ70"
+      - match: "Unified Social Credit Code: 91371000MA3BYNP77R"
+        props:
+          uscCode: "91371000MA3BYNP77R"
+      - match: "Unified Social Credit Code: 91511500MAD7QX3R97 "
+        props:
+          uscCode: "91511500MAD7QX3R97"
+      - match: "USCC: 91110108MA00GUD41A"
+        props:
+          uscCode: "91110108MA00GUD41A"
+      - match: "USCC: 91210242MA0QCRAE8W"
+        props:
+          uscCode: "91210242MA0QCRAE8W"
+      - match: "USCC: 913208300881397199"
+        props:
+          uscCode: "913208300881397199"
+      - match: "USCC: 913302817251365704"
+        props:
+          uscCode: "913302817251365704"
+      - match: "USCC: 91410105554232989X"
+        props:
+          uscCode: "91410105554232989X"
+      - match: "USCC: 91440300555437169C"
+        props:
+          uscCode: "91440300555437169C"
       - match:
           - "9703155974"
           - "DSO-ZZCO-16068"
@@ -1236,6 +1410,8 @@ lookups:
           - "29063984"
           - "OC400827"
           - "5610083568"
+          - "1521418"
+          - "97947 "
         value: SAME
   companies:
     normalize: true
@@ -1850,6 +2026,44 @@ lookups:
           - Zenith Shipping Inc
           - Zest Chartering Ltd
           - Zhao Yao Shipping Ltd
+          - Algae Ship Charter FZCO
+          - AS Calcutta Shipping Co Lt
+          - Bolu Group Ltd
+          - Centauri Services LLC
+          - Dava Shipping Ltd
+          - Eco Max FZE
+          - Evergreen Embrace Corp
+          - Gazprom Flot LLC
+          - Hathaway Co Ltd
+          - Jalyan Ship Management
+          - Jinhui Shipping Ltd
+          - Jizan Maritime Inc
+          - Kalinga Shipmanagement OPC Pvt
+          - Kollam Krew Shipping Pvt Ltd
+          - Maluga Shipping Ltd
+          - Meuse Shipping Inc
+          - "Novatek "
+          - Ocean Quest Marine Inc
+          - Omi Lines Inc
+          - Pergamon Denizcilik Isletmeler
+          - Rang Shipping Ltd
+          - Reveka Marine Limited
+          - Samos Group Ltd
+          - SC Perspective Ltd
+          - Sea Cherisher Co Ltd
+          - Seafaring Savants LLC
+          - Seagull Shipping Co Ltd
+          - Seasky Marine Co Ltd
+          - Silver Tetra Marine Co
+          - Simona Marine Services Ltd
+          - Skadi Ltd
+          - Triviality Shipping LLC
+          - Tru Marine Ltd
+          - Veyronda Seaborne Ltd
+          - Villar Shipmanagement Ltd
+          - Wei Hai Yuan Jing Ship
+          - Zale Shipping Inc
+          - Zulu Ships Management
         value: SAME
       - match: Subsidiary of the Organisation for Technological Industries (OTI) and therefore the Syrian Ministry of Defence
         values:
