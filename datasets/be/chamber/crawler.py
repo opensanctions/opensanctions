@@ -1,3 +1,4 @@
+import itertools
 from datetime import datetime
 from lxml.html import HtmlElement
 from normality import squash_spaces
@@ -54,7 +55,7 @@ def get_dob_bio(
     return None, squash_spaces(plain_text)
 
 
-def crawl_persons(
+def crawl_person(
     context: Context,
     row: HtmlElement,
     status: OccupancyStatus,
@@ -101,6 +102,45 @@ def crawl_persons(
         context.emit(occupancy)
 
 
+def crawl_term(
+    context,
+    link: HtmlElement,
+    unblock_validator: str,
+    links: list[HtmlElement],
+) -> None:
+    # Legislative term dates (e.g., "55 (2019-2024)") don't reflect individual members'
+    # actual service periods. Members may join/leave mid-term. We use explicit status
+    # (CURRENT/ENDED) instead of dates to avoid misrepresenting when someone held office.
+    # Term dates are only used to filter out old legislatures before the cutoff.
+    text = h.element_text(link).strip()
+    _, end_date = get_term_dates(context, text)
+    if end_date is not None and end_date < CUTOFF_DATE:
+        context.log.info(f"Skipping old term: {text}")
+        return
+    url = link.get("href")
+    assert url is not None, f"Term link missing URL for term {text}"
+    # Since we skip the duplicate of the current term in crawl(), we expect the first link to always be the current term.
+    # We strip the last character from the URL since that's the only difference between the duplicate current term links.
+    status = (
+        OccupancyStatus.CURRENT
+        if url[:-1] == links[0].attrib["href"][:-1]
+        else OccupancyStatus.ENDED
+    )
+    context.log.info(f"Processing term: {text} (status={status})")
+    # Fetch the member list page for this term
+    term_doc = zyte_api.fetch_html(
+        context,
+        url,
+        unblock_validator=unblock_validator,
+        absolute_links=True,
+        cache_days=4,
+    )
+    # Extract and process all members from the table
+    table = h.xpath_element(term_doc, "//table[@width='100%']")
+    for row in h.xpath_elements(table, ".//tr[td[@class='td1' or @class='td0']]"):
+        crawl_person(context, row, status)
+
+
 def crawl(context: Context) -> None:
     unblock_validator = "//table[@width='100%']"
     # Fetch the main page with all legislature terms
@@ -118,39 +158,11 @@ def crawl(context: Context) -> None:
 
     links = legislature_menu.findall(".//a")
     # The menu lists the current term twice: once under "Actuels" and once
-    # as a dated term (e.g. "56 (2024-2025)"). Confirm and strip the duplicate.
+    # as a dated term (e.g. "56 (2024-2025)"). If you see this warning, it means
+    # the menu structure has changed and the current term is no longer listed twice.
+    # We strip the last character here since that's the only difference between the first two links.
     if links[0].attrib["href"][:-1] != links[1].attrib["href"][:-1]:
         context.log.warning("Legislature menu structure has changed")
         return
-    current_url, links = links[0].get("href"), links[1:]
-
-    for link in links:
-        # Legislative term dates (e.g., "55 (2019-2024)") don't reflect individual members'
-        # actual service periods. Members may join/leave mid-term. We use explicit status
-        # (CURRENT/ENDED) instead of dates to avoid misrepresenting when someone held office.
-        # Term dates are only used to filter out old legislatures before the cutoff.
-        text = h.element_text(link).strip()
-        _, end_date = get_term_dates(context, text)
-        if end_date is not None and end_date < CUTOFF_DATE:
-            context.log.info(f"Skipping old term: {text}")
-            continue
-        url = link.get("href")
-        status = (
-            OccupancyStatus.CURRENT if url == current_url else OccupancyStatus.ENDED
-        )
-        assert status is not None, f"Could not determine status for term {text}"
-        assert url is not None, f"Term link missing URL for term {text}"
-
-        context.log.info(f"Processing term: {text} (status={status})")
-        # Fetch the member list page for this term
-        term_doc = zyte_api.fetch_html(
-            context,
-            url,
-            unblock_validator=unblock_validator,
-            absolute_links=True,
-            cache_days=4,
-        )
-        # Extract and process all members from the table
-        table = h.xpath_element(term_doc, "//table[@width='100%']")
-        for row in h.xpath_elements(table, ".//tr[td[@class='td1' or @class='td0']]"):
-            crawl_persons(context, row, status)
+    for link in itertools.chain(links[:1], links[2:]):
+        crawl_term(context, link, unblock_validator, links)
