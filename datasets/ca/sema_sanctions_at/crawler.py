@@ -1,8 +1,8 @@
 from lxml.etree import _Element
 from datetime import datetime
+import re
 
 from zavod import Context, helpers as h
-from rigour.names.split_phrases import contains_split_phrase
 
 
 def parse_entities_persons(context: Context, row: _Element) -> None:
@@ -29,12 +29,31 @@ def parse_entities_persons(context: Context, row: _Element) -> None:
         entity.id = context.make_id(name)  # TODO: add country, date?
 
         assert name is not None
+        if "(born " in name.lower():
+            name_cleaned = name.split("(born")[0].strip()
+            entity.add("name", name_cleaned)
+
+            dirty_dob = name.split("(born")[1].strip()
+
+            match_full_date = re.search(r"[A-Z][a-z]+ \d{1,2}, \d{4}", dirty_dob)
+            if match_full_date:
+                dob = datetime.strptime(match_full_date.group(), "%B %d, %Y")
+                entity.add("birthDate", dob)
+            match_year = re.search(r"\d{4}", dirty_dob)
+            if match_year:
+                dob = datetime.strptime(match_year.group(), "%Y")
+                entity.add("birthDate", dob)
+
         original = h.Names(name=name)
-        if contains_split_phrase(name):
-            # send to manual name cleaning
-            h.apply_reviewed_names(
-                context, entity, original=original, is_irregular=True
-            )
+        is_irregular, suggested = h.check_names_regularity(entity, original)
+        h.review_names(
+            context,
+            entity,
+            original=original,
+            suggested=suggested,
+            is_irregular=is_irregular,
+        )
+        # use h.apply_reviewed_names() once the reviews are done?
 
         entity.add("name", name)
         # entity.add("country", country)  # not sure if correct to add here bc country is for sanctions
@@ -50,6 +69,9 @@ def parse_entities_persons(context: Context, row: _Element) -> None:
         )
         sanction.add("program", country)
         h.apply_date(sanction, "listingDate", date)
+
+        context.emit(entity)
+        context.emit(sanction)
 
 
 def parse_ships(context: Context, row: _Element) -> None:
@@ -74,6 +96,9 @@ def parse_ships(context: Context, row: _Element) -> None:
     h.apply_date(
         sanction, "Date", date
     )  # not coding it as listingDate but still want to include a timestamp
+
+    context.emit(entity)
+    context.emit(sanction)
 
 
 def crawl(context: Context) -> None:
