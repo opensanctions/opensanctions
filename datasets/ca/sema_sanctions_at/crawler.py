@@ -25,15 +25,17 @@ def parse_entities_persons(context: Context, row: _Element) -> None:
 
     for li in lis:
         name = li.text
-        entity = context.make(schema)
-        entity.id = context.make_id(name)  # TODO: add country, date?
-
         assert name is not None
-        if "(born " in name.lower():
-            name_cleaned = name.split("(born")[0].strip()
-            entity.add("name", name_cleaned)
+        name = name.strip()
 
+        entity = context.make(schema)
+        entity.id = context.make_id(name)
+
+        # --- clean the name + extract DOB if present
+        if "(born " in name.lower():
             dirty_dob = name.split("(born")[1].strip()
+            name = name.split("(born")[0].strip()
+            entity.add("name", name)
 
             match_full_date = re.search(r"[A-Z][a-z]+ \d{1,2}, \d{4}", dirty_dob)
             if match_full_date:
@@ -44,8 +46,19 @@ def parse_entities_persons(context: Context, row: _Element) -> None:
                 dob = datetime.strptime(match_year.group(), "%Y")
                 entity.add("birthDate", dob)
 
+        # --- clean up aliases with Russian names
+        if "(russian:" in name.lower():
+            alias = name.split("(Russian:")[1].strip().replace(")", "")
+            name = name.split("(Russian:")[0].strip()
+            entity.add("name", name)
+            entity.add("alias", alias)
+
+        # send the rest of the irregular names into review
         original = h.Names(name=name)
         is_irregular, suggested = h.check_names_regularity(entity, original)
+        if is_irregular:
+            print(name)
+
         h.review_names(
             context,
             entity,
@@ -93,9 +106,10 @@ def parse_ships(context: Context, row: _Element) -> None:
     )
     # sanction.add("program", country)
     date = datetime.today().strftime("%B %d, %Y")
+
     h.apply_date(
-        sanction, "Date", date
-    )  # not coding it as listingDate but still want to include a timestamp
+        sanction, "listingDate", date
+    )  # double check which property i should put the today() date into for ships (temp date for ships)
 
     context.emit(entity)
     context.emit(sanction)
