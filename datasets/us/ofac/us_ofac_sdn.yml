@@ -462,6 +462,7 @@ lookups:
           - "Additional Sanctions Information -"
           - "Secondary sanctions risk:"
           - "Transactions Prohibited For Persons Owned or Controlled By U.S. Financial Institutions:"
+          - "PAIPA Section 2 Information:"
           - Effective Date (CMIC)
           - Purchase/Sales For Divestment Date (CMIC)
           - "Effective Date (EO 14024 Directive 1a):"
