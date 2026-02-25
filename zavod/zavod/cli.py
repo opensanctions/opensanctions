@@ -1,7 +1,7 @@
 import logging
 import sys
 from pathlib import Path
-from typing import Optional, List
+from typing import Optional, List, Tuple
 
 import click
 from click.shell_completion import CompletionItem
@@ -256,7 +256,7 @@ def dump_file(
 @click.argument("dataset_paths", type=DatasetInPath, nargs=-1)
 @click.option("-r", "--rebuild-store", is_flag=True, default=False)
 @click.option("-l", "--limit", type=int, default=10000)
-@click.option("-f", "--focus-dataset", type=str, default=None)
+@click.option("-f", "--focus", type=str, multiple=True)
 @click.option("-s", "--schema", type=str, default=None)
 @click.option("-a", "--algorithm", type=str, default=DefaultAlgorithm.NAME)
 @click.option("-t", "--threshold", type=float, default=None)
@@ -267,7 +267,7 @@ def xref(
     limit: int,
     threshold: Optional[float],
     algorithm: str,
-    focus_dataset: Optional[str] = None,
+    focus: Tuple[str, ...] = tuple(),
     schema: Optional[str] = None,
     discount_internal: float = 1.0,
 ) -> None:
@@ -283,7 +283,7 @@ def xref(
         limit=limit,
         auto_threshold=threshold,
         algorithm=algorithm,
-        focus_dataset=focus_dataset,
+        focus_datasets=set(focus),
         schema_range=schema,
         discount_internal=discount_internal,
     )
