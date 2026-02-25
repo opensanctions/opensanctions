@@ -1,9 +1,11 @@
 import csv
 
-from zavod import Context, helpers as h
-from zavod.shed import zyte_api
+from zavod.extract import zyte_api
 
-US_DOD_1260H = "US-DOD-1260H"
+from zavod import Context
+from zavod import helpers as h
+
+PROGRAM_KEY = "US-DOD-1260H"
 
 
 def crawl(context: Context) -> None:
@@ -16,7 +18,9 @@ def crawl(context: Context) -> None:
     )
     search_results = doc.xpath(results_xpath)
     assert len(search_results) == 1, "Expected exactly one section in the document"
-    h.assert_dom_hash(search_results[0], "9e1ebd76404cc93000201c78155b5d75ed1d676b")
+    h.assert_dom_hash(search_results[0], "756b48c2a8a57399c96964c02c18ced39f2ac386")
+    # Jan. 8, 2026
+    # The War Department Strengthens Measures to Protect DOW‑Funded Research
     # Jan. 7, 2025
     # DOD Releases List of Chinese Military Companies in Accordance with Section 1260H of the National Defense Authorization Act for Fiscal Year 2021
     # Jan. 31, 2024
@@ -50,7 +54,7 @@ def crawl(context: Context) -> None:
                 own.add("asset", entity)
                 context.emit(own)
             entity.add("topics", "debarment")
-            sanction = h.make_sanction(context, entity, program_key=US_DOD_1260H)
+            sanction = h.make_sanction(context, entity, program_key=PROGRAM_KEY)
             sanction.add("startDate", row.pop("Start date", None))
             sanction.add("endDate", row.pop("End date", None))
             context.emit(sanction)

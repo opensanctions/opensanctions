@@ -16,7 +16,7 @@ log = get_logger(__name__)
 class Entity(StatementEntity):
     """Entity for sanctions list entries and adjacent objects.
 
-    Add utility methods to the [EntityProxy](https://followthemoney.tech/reference/python/followthemoney/proxy.html#EntityProxy) for
+    Add utility methods to the [EntityProxy](https://followthemoney.tech/python/entity/#followthemoney.proxy.EntityProxy) for
     extracting data from sanctions lists and for auditing parsing errors to structured logging.
     """  # noqa
 
@@ -131,6 +131,11 @@ class Entity(StatementEntity):
     def target(self) -> bool:
         topics = self.get("topics", quiet=True)
         return len(registry.topic.RISKS.intersection(topics)) > 0
+
+    @property
+    def has_statements(self) -> bool:
+        """Return whether the entity has any statements."""
+        return len(self._statements) > 0
 
     def _to_nested_dict(
         self: Self, view: "View[Dataset, Entity]", depth: int, path: List[str]

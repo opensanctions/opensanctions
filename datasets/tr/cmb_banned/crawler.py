@@ -23,7 +23,8 @@ def crawl_item(row: Dict[str, str], context: Context):
     # dematerialization* of capital market instruments
     mkk_number = row.pop("mkkSicilNo")
     # They seem to randomise mask length so let's trim that to avoid daily modifications
-    mkk_number = REGEX_MASK.sub(r"\1***", mkk_number)
+    if mkk_number:
+        mkk_number = REGEX_MASK.sub(r"\1***", mkk_number)
 
     entity = context.make("Person")
     entity.id = context.make_id(name, mkk_number)

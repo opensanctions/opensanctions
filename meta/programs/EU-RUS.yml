@@ -1,0 +1,35 @@
+id: 263
+title: EU Sanctions against Russia
+key: EU-RUS
+url: https://sanctionsmap.eu/#/main/details/61,26/
+summary: 'Entities listed under these programs may be subject to only one of them.
+
+  This regime covers the European Union''s sanctions imposed on Russia under two main
+  frameworks:
+
+
+  Restrictive measures in view of the situation in Russia:
+
+  In response to the accelerating repression, deteriorating human rights situation,
+  and the death of opposition politician Alexei Navalny, the EU adopted a framework
+  targeting individuals and entities responsible for serious human rights violations,
+  repression of civil society, and undermining democracy and the rule of law. Measures
+  include asset freezes, travel bans, and restrictions on equipment for internal repression.
+
+
+  Restrictive measures in view of Russia''s actions destabilising the situation in
+  Ukraine:
+
+  Adopted progressively since 2014, and expanded following Russia’s 2022 military
+  aggression, these measures target Russia’s economic and military capabilities. Sanctions
+  include restrictions on dual-use goods, financial transactions, oil imports, trade
+  in Russian diamonds, and advanced technologies, alongside measures to prevent circumvention
+  of sanctions.'
+issuer: eu_council
+dataset: eu_fsf
+aliases:
+- Restrictive measures in view of the situation in Russia
+- Restrictive measures in view of Russia's actions destabilising the situation in
+  Ukraine (sectoral restrictive measures)
+target_territories:
+- ru

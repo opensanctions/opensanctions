@@ -1,0 +1,15 @@
+id: 140
+title: Measures In relation To Moldova
+key: SECO-MOLDOVA
+url: https://www.seco.admin.ch/seco/de/home/Aussenwirtschaftspolitik_Wirtschaftliche_Zusammenarbeit/Wirtschaftsbeziehungen/exportkontrollen-und-sanktionen/sanktionen-embargos/sanktionsmassnahmen/massnahmen-gegenueber-moldau.html
+summary: These sanctions target individuals and entities in Moldova involved in actions
+  undermining democracy, human rights, and security. The measures include asset freezes,
+  travel bans, and trade restrictions to promote democratic governance and respect
+  for human rights in Moldova.
+issuer: ch_seco
+dataset: ch_seco_sanctions
+target_territories:
+- md
+measures:
+- Financial block
+- Travel ban

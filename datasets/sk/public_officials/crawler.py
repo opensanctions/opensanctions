@@ -1,21 +1,31 @@
 import re
+from lxml import etree
+from lxml.etree import _Element as Element
+from typing import Any, Dict, List
 
-from zavod import Context, helpers as h
-from zavod.stateful.positions import categorise, OccupancyStatus
 from zavod.shed.trans import (
     apply_translit_full_name,
     make_position_translation_prompt,
+    ENGLISH,
 )
+from zavod.stateful.positions import OccupancyStatus, categorise
 
-TRANSLIT_OUTPUT = {
-    "eng": ("Latin", "English"),
-}
+from zavod import Context
+from zavod import helpers as h
+
+TRANSLIT_OUTPUT = [ENGLISH]
 POSITION_PROMPT = prompt = make_position_translation_prompt("slk")
 
 
-def parse_details(context: Context, link_el):
+def parse_details(context: Context, link_el: Element) -> None:
     href = link_el.get("href")
-    name_raw = link_el.text_content().strip()
+    if href is None:
+        context.log.error(
+            "No href found on link element", link_el=etree.tostring(link_el)
+        )
+        return
+
+    name_raw = h.element_text(link_el)
     # Filter out non-personal links
     if re.search(r"#section_[A-Za-z]+$", href) or href.endswith("ViewType=2#top"):
         return
@@ -26,12 +36,13 @@ def parse_details(context: Context, link_el):
         context.log.info(f"Table not found for {name_raw}")
         return
 
-    data = {}
+    data: Dict[str, str | List[str]] = {}
 
+    label: str | None = None
     for row in table.findall(".//tr"):
         label_cell = row.find(".//td[@class='label']")
         if label_cell is not None:
-            label = label_cell.text_content().strip().strip(":")
+            label = h.element_text(label_cell).strip(":")
             continue  # Move to the next row for the corresponding value
 
         assert label is not None
@@ -43,19 +54,24 @@ def parse_details(context: Context, link_el):
                 # Extract position from each <div>
                 values = []
                 for div in divs:
-                    text = div.text_content().strip()
+                    text = h.element_text(div)
                     values.append(text)
+                data[label] = values
             else:
                 # Extract text directly from the cell for single values
-                values = value_cell.text_content().strip()
-            data[label] = values
+                data[label] = h.element_text(value_cell)
+
         label = None  # Reset the label for the next row
     crawl_person(context, data, href, name_raw)
 
 
-def crawl_person(context: Context, data, href, name_raw):
+def crawl_person(
+    context: Context, data: Dict[str, Any], href: str, name_raw: str
+) -> None:
     year = data.pop("oznámenie za rok")
-    position_slk = data.pop("vykonávaná verejná funkcia")
+    position_slk: List[str] = data.pop(
+        "vykonávaná verejná funkcia"
+    )  # "Public office held"
     int_id = data.pop("Interné číslo")
 
     person = context.make("Person")
@@ -66,10 +82,15 @@ def crawl_person(context: Context, data, href, name_raw):
     person.add("sourceUrl", href)
     for pos in position_slk:
         if "verejný funkcionár, ktorý nie je uvedený v písmenách a) až zo)" in pos:
-            pos_looked_up = context.lookup_value("position", pos)
-            if pos_looked_up is None:
-                context.log.warning(f"Position match not found for {pos}")
-            pos = pos_looked_up
+            cleaned_pos = context.lookup_value("position", pos)
+            if cleaned_pos is None:
+                context.log.warning(
+                    "No lookup found for non-standard position title {pos!r}, skipping",
+                    pos=pos,
+                )
+                continue
+            pos = cleaned_pos
+
         position = h.make_position(
             context,
             pos,
@@ -94,6 +115,9 @@ def crawl_person(context: Context, data, href, name_raw):
             categorisation=categorisation,
             status=OccupancyStatus.UNKNOWN,
         )
+        if occupancy is None:
+            continue
+
         occupancy.add("declarationDate", year)
 
         context.emit(position)
@@ -101,11 +125,15 @@ def crawl_person(context: Context, data, href, name_raw):
     context.emit(person)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     doc = context.fetch_html(context.data_url, cache_days=2)
     # Get necessary form fields
-    viewstate = doc.xpath('//input[@name="__VIEWSTATE"]/@value')[0]
-    eventvalidation = doc.xpath('//input[@name="__EVENTVALIDATION"]/@value')[0]
+    viewstate = h.xpath_strings(
+        doc, '//input[@name="__VIEWSTATE"]/@value', expect_exactly=1
+    )[0]
+    eventvalidation = h.xpath_strings(
+        doc, '//input[@name="__EVENTVALIDATION"]/@value', expect_exactly=1
+    )[0]
 
     # Prepare form data for POST request
     form_data = {
@@ -120,8 +148,8 @@ def crawl(context: Context):
         cache_days=2,
         absolute_links=True,
     )
-    link_elements = results_doc.xpath(
-        '//div[@id="_sectionLayoutContainer__panelContent"]//a[@href]'
+    link_elements = h.xpath_elements(
+        results_doc, '//div[@id="_sectionLayoutContainer__panelContent"]//a[@href]'
     )
     for link_el in link_elements:
         parse_details(context, link_el)

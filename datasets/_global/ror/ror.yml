@@ -6,6 +6,7 @@ coverage:
   start: "2024-10-14"
 deploy:
   memory: 1000Mi
+resolve: false
 ci_test: false
 summary: >
   Identifiers for research organizations, maintained by the Research Organization Registry.
@@ -24,35 +25,40 @@ url: "https://ror.org/registry/"
 data:
   url: https://doi.org/10.5281/zenodo.6347574
   format: ZIP
+  lang: eng
 
 lookups:
   relationship:
     options:
-      - match: Parent
+      - match: parent
         schema: Ownership
         local: asset
         remote: owner
         description: role
-      - match: Child
+      - match: child
         schema: Ownership
         local: owner
         remote: asset
         description: role
-      - match: Related
+      - match: related
         schema: UnknownLink
         local: subject
         remote: object
         description: role
-      - match: Successor
+      - match: successor
         schema: Succession
         local: successor
         remote: predecessor
         description: role
-      - match: Predecessor
+      - match: predecessor
         schema: Succession
         local: predecessor
         remote: successor
         description: role
+  type.country:
+    options:
+      - match: Congo Republic
+        value: cg
   type.date:
     options:
       - match:

@@ -9,23 +9,23 @@ from lxml.html import HtmlElement
 
 from zavod import Context, Entity
 from zavod import helpers as h
-from zavod.shed.trans import apply_translit_full_name
+from zavod.shed.trans import ENGLISH, apply_translit_full_name
 
-TARGET = "ბრალდებული/ მსჯავრდებული"
+NAME_FIELD = "ბრალდებული/ მსჯავრდებული"
 DEMOGRAPHICS = "დემოგრაფიული მონაცემები"
 STATUS = "სტატუსი"
 UNKNOWN = "უცნობია"
 UNUSED_FIELDS = [
-    "საქმის მდგომარეობა",
-    "დანაშაულის ჩადენის ადგილი",
-    "მოკლე ფაბულა",
-    "შენიშვნა",
+    "საქმის მდგომარეობა",  # Status
+    "დანაშაულის ჩადენის ადგილი",  # Place of conviction
+    "მოკლე ფაბულა",  # Short biography
+    "შენიშვნა",  # Note
 ]
 PATROYNMIC = re.compile(r"\b(\S+)\s+ძე\s+")
-TRANSLIT_OUTPUT = {"eng": ("Latin", "English")}
+TRANSLIT_OUTPUT = [ENGLISH]
 
 
-def extract_name(context: Context, person: Entity, name: str):
+def apply_translit_name(context: Context, person: Entity, name: str) -> None:
     """Parse a Georgian name slightly and transliterate."""
     patronym = None
     m = PATROYNMIC.search(name)
@@ -37,12 +37,12 @@ def extract_name(context: Context, person: Entity, name: str):
     apply_translit_full_name(context, person, "kat", name, TRANSLIT_OUTPUT)
 
 
-def crawl_row(context: Context, row: Dict[str, str]):
+def crawl_row(context: Context, row: Dict[str, str]) -> None:
     """Process a row of the table in the OT list."""
-    name = row.pop(TARGET)
-    context.log.debug(f"Adding person: {name}")
+    name = row.pop(NAME_FIELD)
     birth_date = row.pop(DEMOGRAPHICS).split(maxsplit=1)[0]
     status = row.pop(STATUS)
+
     person = context.make("Person")
     person.id = context.make_id(row.pop("index"), name, status)
     context.log.debug(f"Unique ID {person.id}")
@@ -50,16 +50,19 @@ def crawl_row(context: Context, row: Dict[str, str]):
         h.apply_date(person, "birthDate", birth_date)
     person.add("topics", "sanction")
     person.add("country", "ge")
-    extract_name(context, person, name)
+    apply_translit_name(context, person, name)
+
     context.audit_data(row, UNUSED_FIELDS)
+
     sanction = h.make_sanction(context, person)
     sanction.set("authority", "Georgian Ministry of Justice")
     sanction.add("sourceUrl", context.data_url)
+
     context.emit(person)
     context.emit(sanction)
 
 
-def crawl_page(context: Context, page: HtmlElement):
+def crawl_page(context: Context, page: HtmlElement) -> None:
     """Process the HTML format of the OT list."""
     maindoc = page.get_element_by_id("maindoc")
     table = maindoc.get_element_by_id("DOCUMENT:1;ENCLOSURE:1;POINT:1;_Content")
@@ -79,7 +82,7 @@ def crawl_page(context: Context, page: HtmlElement):
         crawl_row(context, row)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     """Retrieve the text of the Otkhozoria-Tatunashvili List and
     extract entities."""
     page = context.fetch_html(context.data_url, cache_days=1)

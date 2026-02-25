@@ -8,6 +8,7 @@ coverage:
 deploy:
   memory: "1500Mi"
   memory_limit: "2500Mi"
+  schedule: "0 0 * * 2,4,6"
 load_statements: true
 exports:
   - entities.ftm.json
@@ -46,6 +47,7 @@ publisher:
     sister projects including Wikipedia, Wikivoyage, Wiktionary, Wikisource, and others.
   url: https://www.wikidata.org
   official: false
+  country: zz
 tags:
   - list.pep
 url: https://www.opensanctions.org/pep/
@@ -94,7 +96,58 @@ lookups:
           - "3004-03-14"
           - "20117-09-0"
           - "20224-12-1"
+          - "20260-10-0"
         value: null
+      - match: "1973-09-31"
+        value: 1973-09
+      - match: "2024-09-31"
+        value: 2024-09
+      - match: "2011-02-29"
+        value: 2011-02
+      - match: "1949-02-29"
+        value: 1949-02
+      - match: "2018-02-29"
+        value: 2018-02
+      - match: "1999-02-31"
+        value: 1999-02
+      - match: "1991-02-29"
+        value: 1991-02
+      - match: "2012-02-30"
+        value: 2012-02
+      - match: "1987-02-29"
+        value: 1987-02
+      - match: "2019-11-31"
+        value: 2019-11
+      - match: "2020-04-31"
+        value: 2020-04
+      - match: "1969-04-31"
+        value: 1969-04
+      - match: "2025-06-31"
+        value: 2025-06
+      - match: "2023-02-31"
+        value: 2023-02
+      - match: "2011-02-31"
+        value: 2011-02
+      - match: "1999-06-31"
+        value: 1999-06
+      - match: "2006-09-31"
+        value: 2006-09
+      - match: "2016-06-31"
+        value: 2016-06
+      - match: "2023-11-31"
+        value: 2023-11
+      - match: "2021-06-31"
+        value: 2021-06
+      - match: "1993-11-31"
+        value: 1993-11
+      - match: "2004-04-31"
+        value: 2004-04
+      - match: "1967-04-31"
+        value: 1967-04
+      - match: "2022-09-31"
+        value: 2022-09
+      - match: "2020-09-31"
+        value: 2020-09
 
   position_subclasses:
     options:
@@ -382,6 +435,8 @@ lookups:
           - "Q65238772" # intendant
           - "Q480319" # title of authority
           - "Q135842653" # directeur de cabinet du ministre des Outre-mer
+          - "Q8349973" # insular council
+          - "Q108466181" # judicial position
       - maybe_pep: false
         match:
           - "Q8191099" # affiliate
@@ -465,6 +520,7 @@ lookups:
           - "Q122915673" # Clockmaker to the king
           - "Q124467322" # historical religious function
           - "Q124515690" # anglican episcopal title
+          - "Q138024519" # roman catholic episcopal title
           - "Q124662819" # Office dissolved
           - "Q57895872" # Chief Clerk of the Cortes Generales
           - "Q59312380" # Knight of the Order of Alcántara

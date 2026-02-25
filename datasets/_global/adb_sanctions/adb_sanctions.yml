@@ -332,6 +332,10 @@ lookups:
         items:
           - prop: registrationNumber
             value: 0205556035570
+      - match: "Reg. No. 1859937"
+        items:
+          - prop: registrationNumber
+            value: 1859937
       - match: "Reg. No. 0205556005875"
         items:
           - prop: registrationNumber
@@ -466,3 +470,19 @@ lookups:
             value: 0210015117
           - prop: incorporationDate
             value: 2012-03
+      - match: "Lic. Series XT-8 #0003127. Tax ID No. 300001499."
+        items:
+          - prop: idNumber
+            value: "XT-8 #0003127"
+          - prop: taxNumber
+            value: 300001499
+      - match: "National ID No. 1911872730979"
+        items:
+          - prop: idNumber
+            value: 1911872730979
+      - match: "Incorporation number: 2081024224. eTIN 137517739557."
+        items:
+          - prop: registrationNumber
+            value: 2081024224
+          - prop: taxNumber
+            value: 137517739557

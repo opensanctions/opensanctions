@@ -36,7 +36,7 @@ data:
   lang: eng
 
 dates:
-  formats: ["%d %B %Y", "%d %b %Y"]
+  formats: ["%d %B %Y", "%d %b %Y", "%m/%d/%Y"]
 assertions:
   min:
     schema_entities:

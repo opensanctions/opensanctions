@@ -1084,3 +1084,17 @@ lookups:
           - Rimar Capital LLC
           - Itai Royi Liptz
           - Clifford Todd Boro
+      - match: north east asset management group inc. and gregory a. zandlo
+        names:
+          - North East Asset Management Group Inc.
+          - Gregory A. Zandlo
+      - match: "One Thousand & One Voices Management LLC, Family Legacy Capital Credit Management LLC, and Hedrik F. Jordaan"
+        names:
+          - One Thousand & One Voices Management LLC
+          - Family Legacy Capital Credit Management LLC
+          - Hedrik F. Jordaan
+      - match: "Ownzones Media Network Inc., Daniel Goman, and Joseph Goman"
+        names:
+          - Ownzones Media Network Inc.
+          - Daniel Goman
+          - Joseph Goman

@@ -4,6 +4,9 @@ prefix: us-fed-excl
 coverage:
   frequency: daily
   start: "2024-03-19"
+deploy:
+  memory: 1500Mi
+  memory_limit: 3000Mi
 load_statements: true
 summary: >
   People and companies excluded from Federally funded health care programs
@@ -53,3 +56,9 @@ assertions:
     schema_entities:
       Person: 92000
       Company: 4000
+
+lookups:
+  type.name:
+    options:
+      - match: "INNOVATIVE MEDICAL PRODUCTS IN"
+        value: "INNOVATIVE MEDICAL PRODUCTS INC"

@@ -4,6 +4,7 @@ from typing import Optional
 from datetime import datetime, timedelta
 
 from zavod import Context, helpers as h
+from zavod.stateful.positions import YEAR_DAYS
 
 TODAY = datetime.today()
 HEADERS = {
@@ -20,8 +21,8 @@ SEARCH_DATA = {
     "compimo": "",
     "compname": "",
     # Go back ~1 year (approximate as 365 days)
-    "From": f"{(TODAY - timedelta(days=365)).strftime("%d.%m.%Y")}",
-    "Till": f"{TODAY.strftime("%d.%m.%Y")}",
+    "From": f"{(TODAY - timedelta(days=YEAR_DAYS)).strftime('%d.%m.%Y')}",
+    "Till": f"{TODAY.strftime('%d.%m.%Y')}",
     "authority": "0",
     "flag": "0",
     "class": "0",

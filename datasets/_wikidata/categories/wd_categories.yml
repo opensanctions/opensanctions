@@ -1,14 +1,55 @@
+# This discovers entities in three ways:
+#
+# - wikidata items with a Declarator.org ID
+# - wikidata items holding one of the "seed" positions defined below
+# - wikidata items in specific Wikipedia categories defined below, using https://petscan.wmcloud.org
+#
+# # Categories
+#
+# People in categories with a topic defined are emitted with that topic.
+# Otherwise those people are merely exported as external entities.
+#
+# So to add PEPs for a category sufficiently specific to only include PEPs,
+# add the category with the role.pep topic.
+#
+# ## False positives from categories
+#
+# As of 2025-10-08 petscan can't tell you which categories fall between the category
+# queried and the categories containing the wikipedia pages it returns.
+# https://github.com/magnusmanske/petscan_rs/issues/182
+#
+# To understand why someone is included, see if it's obvious from the categories listed on
+# on their wikipedia page, otherwise run contrib/wd_categories_path.py to find the path(s)
+# between the categories we query and the person's page.
+# e.g.
+# python contrib/wd_categories_paths.py Category:Political_office-holders_in_North_America Q5234712
+#
+# You can see the top level categories containing them with something like:
+# SELECT key, timestamp FROM cache WHERE key LIKE 'https://petscan.wmcloud.org/%' AND text ILIKE '%"Q5234712"%';
+# in the etl db.
+#
+# If it's truly a mistake in wikipedia, fix the mistake there. The person will drop from
+# the dataset once the page cache expires (see cache_days in this crawler).
+#
+# If the wikipedia category hierarchy is reasonable, identify one or more categories that
+# are under the top level categories, which are causing non-PEPs to be included,
+# and add them one per line to a `negcats` entry in the category config.
+# Consider also adding the person's QID to `exclusion_checks` to detect if other
+# categories cause them to be included that aren't covered by the negcats arguments.
+
 title: Wikidata Persons in Relevant Categories
 entry_point: crawler.py
 prefix: wd
 coverage:
   frequency: daily
   start: 2024-09-10
-  schedule: "0 22 * * *"
 deploy:
   cpu: "800m"
-  memory: "1500Mi"
-  memory_limit: "2500Mi"
+  memory: "2300Mi"
+  memory_limit: "3000Mi"
+  schedule: "0 0 * * 0,1,3,5"
+  # This job takes 7 hours. Restarting it for scale-down is probably not worth it.
+  premium: true
 load_statements: true
 ci_test: false
 exports:
@@ -33,6 +74,7 @@ publisher:
     sister projects including Wikipedia, Wikivoyage, Wiktionary, Wikisource, and others.
   url: https://www.wikidata.org
   official: false
+  country: zz
 tags:
   - list.pep
 url: https://meta.wikimedia.org/wiki/PetScan/en
@@ -113,6 +155,18 @@ lookups:
         value: 2025-06
       - match: "2023-11-31"
         value: 2023-11
+      - match: "2016-06-31"
+        value: 2016-06
+      - match: "2014-02-30"
+        value: 2014-02
+      - match: "20215-01-0"
+        value: 2021-01
+      - match: "2022-09-31"
+        value: 2022-09
+      - match: "2024-09-31"
+        value: 2024-09
+      - match: "2020-09-31"
+        value: 2020-09
 
 config:
   seeds:
@@ -171,7 +225,7 @@ config:
     # - "Q30185" # mayor
     # Heads of international organisations for which Wikidata Q codes were found
     - "Q24558593" # Administrator of the United Nations Development Programme
-    - "Q65782205" # Director General of the International Atomic Energy Agency 
+    - "Q65782205" # Director General of the International Atomic Energy Agency
     - "Q66566041" # Director-General of the Food and Agriculture Organization
     - "Q111363853" # Director-General of the International Labour Organization
     - "Q108603609" # Director-General of the World Intellectual Property Organization
@@ -182,10 +236,14 @@ config:
     - "Q29511440" # President of the United Nations Economic and Social Council
     - "Q4352360" # President of the United Nations Security Council
     - "Q110970831" # President of the World Meteorological Organization
-    - "Q42591216" # Secretary-General of the International Maritime Organization 
+    - "Q42591216" # Secretary-General of the International Maritime Organization
     - "Q17389566" # Secretary-General of the International Telecommunication Union
     - "Q27832358" # United Nations High Commissioner for Refugees
     - "Q112963010" # UNRWA Commissioner-General
+  # These are person QIDs that shouldn't be found. If they are, we're probably including
+  # categories that are by definition generally not PEPs.
+  exclusion_checks:
+    - Q5234712 # Came in via Dallas categories under Category:George_M._Dallas
   categories:
     # Mega collections:
     - category: Political_office-holders_in_Asia
@@ -194,6 +252,10 @@ config:
       depth: 8
     - category: Political_office-holders_in_North_America
       depth: 8
+      negcats: |
+        Polk_administration_cabinet_members
+        19th-century_presidents_of_the_United_States
+        George_M._Dallas
     # - category: Political_office-holders_in_Europe
     #   topic: role.pep
     #   depth: 8
@@ -759,6 +821,138 @@ config:
       topic: role.pep
     - category: Members_of_the_Cabinet_of_the_United_States
       topic: role.pep
+      negcats: |
+        George_M._Dallas
+        Polk_administration_cabinet_members
+
+    # Canada
+    - category: 21st-century_Canadian_federal_ministers
+      topic: role.pep
+    - category: 21st-century_members_of_the_House_of_Commons_of_Canada
+      topic: role.pep
+      position:
+        name: Member of Parliament of Canada
+        wikidata_id: Q15964890
+        country: ca
+        topics:
+          - gov.legislative
+          - gov.national
+    - category: 21st-century_members_of_the_Senate_of_Canada
+      topic: role.pep
+      position:
+        name: Senator of Canada
+        wikidata_id: Q18524027
+        country: ca
+        topics:
+          - gov.legislative
+          - gov.national
+    - category: 21st-century_members_of_the_Legislative_Assembly_of_Ontario
+      topic: role.pep
+      position:
+        name: Member of the Legislative Assembly of Ontario
+        wikidata_id: Q3305347
+        country: ca
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: 21st-century_members_of_the_National_Assembly_of_Quebec
+      topic: role.pep
+      position:
+        name: Member of the National Assembly of Quebec
+        wikidata_id: Q3305338
+        country: ca
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: 21st-century_members_of_the_Nova_Scotia_House_of_Assembly
+      topic: role.pep
+      position:
+        name: Member of the Nova Scotia House of Assembly
+        wikidata_id: Q18239264
+        country: ca
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: 21st-century_members_of_the_Legislative_Assembly_of_New_Brunswick
+      topic: role.pep
+      position:
+        name: Member of the Legislative Assembly of New Brunswick
+        wikidata_id: Q18984329
+        country: ca
+        topics:
+          - gov.legislative
+    - category: 21st-century_members_of_the_Legislative_Assembly_of_Manitoba
+      topic: role.pep
+      position:
+        name: Member of the Legislative Assembly of Manitoba
+        wikidata_id: Q19007867
+        country: ca
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: 21st-century_members_of_the_Legislative_Assembly_of_British_Columbia
+      topic: role.pep
+      position:
+        name: Member of the Legislative Assembly of British Columbia
+        wikidata_id: Q19004821
+        country: ca
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: 21st-century_members_of_the_Legislative_Assembly_of_Alberta
+      topic: role.pep
+      position:
+        name: Member of the Legislative Assembly of Alberta
+        wikidata_id: Q15964815
+        country: ca
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: 21st-century_members_of_the_Legislative_Assembly_of_Saskatchewan
+      topic: role.pep
+      position:
+        name: Member of the Legislative Assembly of Saskatchewan
+        wikidata_id: Q18675661
+        country: ca
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: 21st-century_members_of_the_Newfoundland_and_Labrador_House_of_Assembly
+      topic: role.pep
+      position:
+        name: Member of the Newfoundland and Labrador House of Assembly
+        wikidata_id: Q19403853
+        country: ca
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: 21st-century_members_of_the_Legislative_Assembly_of_Prince_Edward_Island
+      topic: role.pep
+      position:
+        name: Member of the Legislative Assembly of Prince Edward Island
+        wikidata_id: Q21010685
+        country: ca
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: 21st-century_members_of_the_Legislative_Assembly_of_the_Northwest_Territories
+      topic: role.pep
+      position:
+        name: Member of the Legislative Assembly of the Northwest Territories
+        wikidata_id: Q45308871
+        country: ca
+        topics:
+          - gov.legislative
+          - gov.state
+    - category: 21st-century_members_of_the_Yukon_Legislative_Assembly
+      topic: role.pep
+      position:
+        name: Member of the Yukon Legislative Assembly
+        wikidata_id: Q18608478
+        country: ca
+        topics:
+          - gov.legislative
+          - gov.state
 
     # Europe
     - category: Presidents_of_the_European_Commission
@@ -839,7 +1033,7 @@ config:
       country: br
       topic: role.pep
       language: pt
-    - categories: Funcionários_do_governo_do_Brasil
+    - category: Funcionários_do_governo_do_Brasil
       country: br
       language: pt
     - category: Diputados_del_Congreso_de_la_Nación_Argentina_por_provincia
@@ -993,6 +1187,7 @@ config:
     - category: Presidents_of_Colombia
       country: co
       topic: role.pep
+      depth: 0
       position:
         name: President of Colombia
         country: co
@@ -1032,6 +1227,7 @@ config:
       country: co
       language: es
       topic: role.pep
+      depth: 0
       position:
         name: President of Colombia
         country: co
@@ -1055,6 +1251,8 @@ config:
     # Venezuela
     - category: Members_of_the_National_Assembly_(Venezuela)
       country: ve
+      negcats: |
+        Nicolás_Maduro
       topic: role.pep
       position:
         name: Member of the National Assembly
@@ -1064,6 +1262,8 @@ config:
           - gov.national
     - category: Members_of_the_Senate_of_Venezuela
       country: ve
+      negcats: |
+        Nicolás_Maduro
       topic: role.pep
       position:
         name: Member of the Senate of Venezuela
@@ -1073,6 +1273,8 @@ config:
           - gov.national
     - category: Presidents_of_Venezuela
       country: ve
+      negcats: |
+        Nicolás_Maduro
       topic: role.pep
       position:
         name: President of Venezuela
@@ -1082,6 +1284,8 @@ config:
           - gov.national
     - category: Vice_presidents_of_Venezuela
       country: ve
+      negcats: |
+        Nicolás_Maduro
       topic: role.pep
       position:
         name: Vice President of Venezuela
@@ -1091,12 +1295,18 @@ config:
           - gov.national
     - category: Government_ministers_of_Venezuela
       country: ve
+      negcats: |
+        Nicolás_Maduro
       topic: role.pep
     - category: Venezuelan_politicians
       country: ve
+      negcats: |
+        Nicolás_Maduro
     - category: Diputados_de_Venezuela
       country: ve
       language: es
+      negcats: |
+        Nicolás_Maduro
       topic: role.pep
       position:
         name: Deputy of Venezuela
@@ -1107,6 +1317,8 @@ config:
     - category: Presidentes_de_Venezuela
       country: ve
       language: es
+      negcats: |
+        Nicolás_Maduro
       topic: role.pep
       position:
         name: President of Venezuela
@@ -1117,6 +1329,8 @@ config:
     - category: Ministros_por_presidente_de_Venezuela
       country: ve
       language: es
+      negcats: |
+        Nicolás_Maduro
       topic: role.pep
     - category: Alcaldes_de_Venezuela
       country: ve
@@ -1131,6 +1345,8 @@ config:
     - category: Políticos_de_Venezuela
       country: ve
       language: es
+      negcats: |
+        Nicolás_Maduro
 
     # Nicaragua
     - category: Members_of_the_National_Assembly_(Nicaragua)
@@ -1761,6 +1977,52 @@ config:
       country: es
       topic: role.pep
 
+    # country: Netherlands
+    - category: Political_office-holders_in_the_Netherlands
+      country: nl
+      topic: role.pep
+    - category: Members_of_the_Senate_(Netherlands)
+      country: nl
+      topic: role.pep
+      position:
+        name: Member of the Senate
+        country: nl
+        topics:
+          - gov.legislative
+          - gov.national
+    - category: Members_of_the_House_of_Representatives_(Netherlands)
+      country: nl
+      topic: role.pep
+      position:
+        name: Member of the House of Representatives
+        country: nl
+        topics:
+          - gov.legislative
+          - gov.national
+
+    # country: Germany
+    - category: Political_office-holders_in_Germany
+      country: de
+      topic: role.pep
+    - category: Members_of_the_Bundestag
+      country: de
+      topic: role.pep
+      position:
+        name: Member of the Bundestag
+        country: de
+        topics:
+          - gov.legislative
+          - gov.national
+    - category: Members_of_the_German_Bundesrat
+      country: de
+      topic: role.pep
+      position:
+        name: Member of the Bundesrat
+        country: de
+        topics:
+          - gov.legislative
+          - gov.national
+
     # country: Sweden
     - category: Political_office-holders_in_Sweden
       country: se
@@ -2225,6 +2487,18 @@ config:
       topic: role.pep
     - category: 21st-century_Greek_politicians
       country: gr
+    - category: Political_office-holders_in_Greece
+      country: gr
+      topic: role.pep
+    - category: Members_of_the_Hellenic_Parliament
+      country: gr
+      topic: role.pep
+      position:
+        name: Member of the Hellenic Parliament
+        country: gr
+        topics:
+          - gov.legislative
+          - gov.national
 
     # other territories
     # Taiwan
@@ -2321,6 +2595,7 @@ config:
       language: ru
       position:
         name: Minister of the Russian Federation
+        wikidata_id: Q15620328
         country: ru
         topics:
           - gov.executive
@@ -2331,6 +2606,7 @@ config:
       language: ru
       position:
         name: Minister of the Russian Federation
+        wikidata_id: Q15620328
         country: ru
         topics:
           - gov.executive
@@ -2572,20 +2848,14 @@ config:
       language: ru
       position:
         name: Member of the Security Council of Russia
+        wikidata_id: Q38715670
         country: ru
         topics:
           - gov.national
           - gov.security
     - category: Действительные государственные советники Российской Федерации 1-го класса # 1st class Active State Councillor of the Russian Federation
-      topic: role.pep
       country: ru
       language: ru
-      position:
-        name: 1st class Active State Councillor of the Russian Federation
-        country: ru
-        topics:
-          - gov.national
-          - gov.executive
     - category: Государственные_деятели_Российской_Федерации # Statesmen of the Russian Federation
       country: ru
       language: ru

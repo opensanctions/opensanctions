@@ -1,12 +1,11 @@
 import mimetypes
+from functools import cached_property
 from hashlib import sha1
 from pathlib import Path
-from functools import cached_property
-from typing import TYPE_CHECKING, Dict, Any, Optional, List
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
-from banal import ensure_list, ensure_dict
-from datapatch import get_lookups, Lookup
-
+from banal import ensure_dict, ensure_list
+from datapatch import Lookup, get_lookups
 from followthemoney.dataset import Dataset as FollowTheMoneyDataset
 from followthemoney.dataset.coverage import DataCoverage
 from followthemoney.dataset.resource import DataResource
@@ -14,10 +13,12 @@ from followthemoney.dataset.resource import DataResource
 from zavod import settings
 from zavod.archive import dataset_data_path
 from zavod.logs import get_logger
-from zavod.meta.assertion import Assertion, parse_assertions, Comparison, Metric
-from zavod.meta.model import DataModel, ZavodDatasetModel
+from zavod.meta.assertion import Assertion, parse_assertions
 from zavod.meta.dates import DatesSpec
 from zavod.meta.http import HTTP
+from zavod.meta.model import DataModel, ZavodDatasetModel
+from zavod.meta.names import NamesSpec
+from zavod.meta.numbers import NumbersSpec
 from zavod.runtime.urls import make_published_url
 
 if TYPE_CHECKING:
@@ -73,16 +74,17 @@ class Dataset(FollowTheMoneyDataset):
         ```
         """
 
-        self.assertions.append(
-            # At least one entity in dataset
-            Assertion(Metric.ENTITY_COUNT, Comparison.GTE, 1, None, None)
-        )
-
         self.http: HTTP = HTTP(data.get("http", {}))
         """HTTP configuration for this dataset."""
 
-        self.dates: DatesSpec = DatesSpec(data.get("dates", {}))
+        self.dates: DatesSpec = DatesSpec.model_validate(data.get("dates", {}))
         """Date parsing configuration for this dataset."""
+
+        self.names: NamesSpec = NamesSpec.model_validate(data.get("names", {}))
+        """Name cleaning configuration for this dataset."""
+
+        self.numbers: NumbersSpec = NumbersSpec.model_validate(data.get("numbers", {}))
+        """Number parsing configuration for this dataset."""
 
     @cached_property
     def lookups(self) -> Dict[str, Lookup]:

@@ -8,15 +8,15 @@ coverage:
   start: 2024-05-09
 load_statements: true
 summary: >-
-  UK sanctions collated by the Foreign, Commonwealth & Development Office
+  Official register of individuals, entities, and vessel subject to UK sanctions
+  under regulations made pursuant to the Sanctions and Anti-Money Laundering Act 2018.
 description: |
-  As described by the [FCDO](https://www.gov.uk/government/publications/the-uk-sanctions-list):
-
-  > The UK government publishes the UK Sanctions List, which provides
-  > details of those designated under regulations made under the Sanctions
-  > Act. The list also details which sanctions measures apply to these
-  > persons or ships, and in the case of UK designations, provides a
-  > statement of reasons for the designation.
+  The UK Sanctions List provides information on all current UK sanctions designations made
+  under the 2018 Act. It covers individuals, companies, and vessels subject to financial restrictions,
+  travel bans, and trade or transport controls, and is updated whenever a designation is created,
+  changed, or revoked. Each entry shows the sanctions measures that apply, and for UK designations includes
+  a statement of reasons. From 28 January 2026 the UK Sanctions List will be the [single official source](https://www.gov.uk/guidance/moving-to-a-single-list-for-uk-sanctions-designations-28-january-2026)
+  for all UK sanctions designations.
 url: https://www.gov.uk/government/publications/the-uk-sanctions-list
 publisher:
   name: Foreign, Commonwealth & Development Office
@@ -54,40 +54,68 @@ assertions:
 lookups:
   sanction.program:
     options:
-      - match:
-          - "The Afghanistan (Sanctions) (EU Exit) Regulations 2020"
-          - "Isil (Da'esh) and Al-Qaeda (United Nations Sanctions) (EU Exit) Regulations 2019"
-          - "The Republic of Belarus (Sanctions) (EU Exit) Regulations 2019"
-          - "The Bosnia and Herzegovina (Sanctions) (EU Exit) Regulations 2020"
-          - "The Central African Republic (Sanctions) (EU Exit) Regulations 2020"
-          - "The Chemical Weapons (Sanctions) (EU Exit) Regulations 2019"
-          - "The Counter-Terrorism (Sanctions) (EU Exit) Regulations 2019"
-          - "The Counter-Terrorism (International Sanctions) (EU Exit) Regulations 2019"
-          - "The Cyber (Sanctions) (EU Exit) Regulations 2020"
-          - "The Democratic People's Republic of Korea (Sanctions) (EU Exit) Regulations 2019"
-          - "The Global Anti-Corruption Sanctions Regulations 2021"
-          - "The Global Human Rights Sanctions Regulations 2020"
-          - "The Republic of Guinea-Bissau (Sanctions) (EU Exit) Regulations 2019"
-          - "The Guinea (Sanctions) (EU Exit) Regulations 2019"
-          - "The Haiti (Sanctions) Regulations 2022"
-          - "The Iran (Sanctions) (Nuclear) (EU Exit) Regulations 2019"
-          - "The Iran (Sanctions) Regulations 2023"
-          - "The Libya (Sanctions) (EU Exit) Regulations 2020"
-          - "The Mali (Sanctions) (EU Exit) Regulations 2020"
-          - "The Myanmar (Sanctions) Regulations 2021"
-          - "The Russia (Sanctions) (EU Exit) Regulations 2019"
-          - "The Syria (Sanctions) (EU Exit) Regulations 2019"
-          - "The Venezuela (Sanctions) (EU Exit) Regulations 2019"
-          - "The Yemen (Sanctions) (EU Exit) Regulations 2020"
-          - "The Zimbabwe (Sanctions) (EU Exit) Regulations 2019"
-          - "The Sudan (Sanctions) (EU Exit) Regulations 2020"
-          - "The South Sudan (Sanctions) (EU Exit) Regulations 2019"
-          - "The Somalia (Sanctions) (EU Exit) Regulations 2020"
-          - "The Nicaragua (Sanctions) (EU Exit) Regulations 2020"
-          - "The Iraq (Sanctions) (EU Exit) Regulations 2020"
-          - "The Democratic Republic of the Congo (Sanctions) (EU Exit) Regulations 2019"
-          - "The Global Irregular Migration and Trafficking in Persons Sanctions Regulations 2025"
+      - match: The Global Irregular Migration and Trafficking in Persons Sanctions Regulations 2025
         value: GB-SAMLA
+      - match: The Global Human Rights Sanctions Regulations 2020
+        value: GB-HR
+      - match: The Global Anti-Corruption Sanctions Regulations 2021
+        value: GB-AC
+      - match: The Democratic Republic of the Congo (Sanctions) (EU Exit) Regulations 2019
+        value: GB-DRC
+      - match: The Afghanistan (Sanctions) (EU Exit) Regulations 2020
+        value: GB-AFG
+      - match: The Republic of Belarus (Sanctions) (EU Exit) Regulations 2019
+        value: GB-BLR
+      - match: The Bosnia and Herzegovina (Sanctions) (EU Exit) Regulations 2020
+        value: GB-BH
+      - match: The Central African Republic (Sanctions) (EU Exit) Regulations 2020
+        value: GB-CAR
+      - match: The Chemical Weapons (Sanctions) (EU Exit) Regulations 2019
+        value: GB-CW
+      - match: The Cyber (Sanctions) (EU Exit) Regulations 2020
+        value: GB-CYB
+      - match: The Republic of Guinea-Bissau (Sanctions) (EU Exit) Regulations 2019
+        value: GB-GNB
+      - match: The Libya (Sanctions) (EU Exit) Regulations 2020
+        value: GB-LBY
+      - match: The Mali (Sanctions) (EU Exit) Regulations 2020
+        value: GB-MLI
+      - match: The Myanmar (Sanctions) Regulations 2021
+        value: GB-MMR
+      - match: The Russia (Sanctions) (EU Exit) Regulations 2019
+        value: GB-RUS
+      - match: The Syria (Sanctions) (EU Exit) Regulations 2019
+        value: GB-SYR
+      - match: The Iraq (Sanctions) (EU Exit) Regulations 2020
+        value: GB-IRQ
+      - match: The Nicaragua (Sanctions) (EU Exit) Regulations 2020
+        value: GB-NIC
+      - match: The Somalia (Sanctions) (EU Exit) Regulations 2020
+        value: GB-SOM
+      - match: The South Sudan (Sanctions) (EU Exit) Regulations 2019
+        value: GB-SSD
+      - match: The Sudan (Sanctions) (EU Exit) Regulations 2020
+        value: GB-SDN
+      - match: The Yemen (Sanctions) (EU Exit) Regulations 2020
+        value: GB-YEM
+      - match: The Venezuela (Sanctions) (EU Exit) Regulations 2019
+        value: GB-VEN
+      - match: The Haiti (Sanctions) Regulations 2022
+        value: GB-HT
+      - match: The Guinea (Sanctions) (EU Exit) Regulations 2019
+        value: GB-GU
+      - match: The Counter-Terrorism (International Sanctions) (EU Exit) Regulations 2019
+        value: GB-ICT
+      - match: The Counter-Terrorism (Sanctions) (EU Exit) Regulations 2019
+        value: GB-CT
+      - match: The Iran (Sanctions) Regulations 2023
+        value: GB-IRAN
+      - match: The Iran (Sanctions) (Nuclear) (EU Exit) Regulations 2019
+        value: GB-IRAN-NW
+      - match: The Democratic People's Republic of Korea (Sanctions) (EU Exit) Regulations 2019
+        value: GB-DPRK
+      - match: Isil (Da'esh) and Al-Qaeda (United Nations Sanctions) (EU Exit) Regulations 2019
+        value: GB-ISIL
   languages:
     options:
       - match: Arabic
@@ -132,16 +160,35 @@ lookups:
         value: ces
       - match: Kirghiz; Kyrgyz
         value: kir
+      - match: Croatian
+        value: hrv
+      - match: Japanese
+        value: jpn
+      - match: "" # we don't want to warn on empty languages
+        value: null
   name_type:
+    # is_alias tells us whether we should pay attention to "Alias strength"
     lowercase: true
     normalize: true
     options:
       - match:
           - "Primary name"
           - "Primary name variation"
-        value: name
+          - "" # if we have no name type, we assume it is a primary name
+        prop: name
+        is_alias: false
       - match: "Alias"
-        value: alias
+        prop: alias
+        is_alias: true
+  is_weak_alias:
+    lowercase: true
+    normalize: true
+    options:
+      # blanks in CSV is handled in crawler because it depends on a number of factors
+      - match: "good quality a.k.a"
+        value: False
+      - match: "low quality a.k.a"
+        value: True
   type.country:
     normalize: true
     options:
@@ -150,11 +197,17 @@ lookups:
         # according to 'marinetraffic.com' the vessel is registered in Guinea: https://www.marinetraffic.com/en/ais/details/ships/shipid:214941/mmsi:632001136/imo:9277735/vessel:LUNAR_TIDE
         # what was meant by 'Tazmania' is yet to be figured out
       - match: Tazmania
+        value: Australia
+  type.address:
+    options:
+      - match:
+          - na
         value: null
   type.email:
     options:
       - match:
-          - "Email:"
+          - https://www.pochtabank.ru
+          - apzrotor.ru
           - www.140zavod.by
           - and
           - request@mehr
@@ -168,6 +221,7 @@ lookups:
           - indoc@SIBANTHRACITE
           - GROUP.ru
           - S@synesis.y
+          - elko.ru
         value: null
       - match: www.bloodandhonour.co.uk
         prop: website
@@ -183,9 +237,2186 @@ lookups:
         value: "gen@zrekond.ru"
       - match: "info@npo-poisk.ru,"
         value: "info@npo-poisk.ru"
+      - match: ravabet.eogpc.ir
+        value: ravabet@eogpc.ir
+      - match: http://www.petropars.com/fa/petroparsgroup/pre-شرکت-پتروپارس-ریسورسز-انجینیرینگ-PRE
+        prop: website
+      - match: and millim@silibank.com
+        value: millim@silibank.com
+      - match: request@mehr fci.ir
+        value: request@mehrfci.ir
+      - match: info@etemad mobin.com
+        value: info@etemadmobin.com
+      - match: www.surena gc.com
+        prop: website
+        value: www.surenagc.com
+      - match: info@zala.aero 20shrhrabota@gmail.com
+        values:
+          - info@zala.aero
+          - 20shrhrabota@gmail.com
+      - match: indoc@SIBANTHRACITE GROUP.ru
+        value: indoc@SIBANTHRACITEGROUP.ru
+      - match: Sikhknowledge@gmail.com and Savingpunjab@gmail.com
+        values:
+          - Sikhknowledge@gmail.com
+          - Savingpunjab@gmail.com
+      - match: administrator@nitc.co.ir,
+        value: administrator@nitc.co.ir
   type.date:
     options:
-      - match: 00/00/1975
+      - match:
+          - "'00/00/1975"
+          - "00/00/1975"
         value: 1975
       - match: 15/08/19yy
         value: null # We don't have a way to represent day-month birthdays
+  type.string:
+    options:
+      - match: P.O. Box 1863 and 2501
+        prop: postOfficeBox
+        value:
+          - 1863
+          - 2501
+      - match: "P.O Box 11365-171"
+        prop: postOfficeBox
+        value: "11365-171"
+      - match: "P.O.Box 14155-6569"
+        prop: postOfficeBox
+        value: "14155-6569"
+      - match: "P.O. Box 11365-8486"
+        prop: postOfficeBox
+        value: "11365-8486"
+  type.url:
+    options:
+      - match: "Unknown"
+        value: null
+  type.identifier:
+    options:
+      - match: "Indonesia, number T710219 (issued in Sukoharjo, Central Java, Indonesia)"
+        value: "T710219"
+  reg_number:
+    options:
+      - match: "Registration Number: J8AQG9ZH6CA3"
+        props:
+          registrationNumber: "J8AQG9ZH6CA3"
+      - match: "TIN: 03011201710243 "
+        props:
+          taxNumber: "03011201710243"
+      - match: "TIN: 7703436139, Registration number: 5177746148784"
+        props:
+          taxNumber: "7703436139"
+          registrationNumber: "5177746148784"
+      - match: "BIN/OGRN: 5137746009990"
+        props:
+          ogrnCode: "5137746009990"
+      - match: "1024701759565\xa0"
+        props:
+          registrationNumber: "1024701759565"
+      - match: "USREOU code 3482347"
+        props:
+          registrationNumber: "3482347"
+      - match: "TIN - 5263000105"
+        props:
+          taxNumber: "5263000105"
+      - match: "INN: 7720891730 / KPP: 772201001"
+        props:
+          innCode: "7720891730"
+          kppCode: "772201001"
+      - match: "INN: 7713226814 OGRN: 1027700285612 "
+        props:
+          innCode: "7713226814"
+          ogrnCode: "1027700285612"
+      - match: "INN - 7733753978 OGRN - 5107746026262 "
+        props:
+          innCode: "7733753978"
+          ogrnCode: "5107746026262"
+      - match: "INN: 7802044622 OGRN: 1027801540117 "
+        props:
+          innCode: "7802044622"
+          ogrnCode: "1027801540117"
+      - match: "INN: 1827003592 OGRN: 1021800993752 "
+        props:
+          innCode: "1827003592"
+          ogrnCode: "1021800993752"
+      - match: "Trade Register Number: 4891"
+        props:
+          registrationNumber: "4891"
+      - match: "311490-3301-ZAO TIN: 01312202410095 "
+        props:
+          taxNumber: "01312202410095"
+          registrationNumber: "311490-3301-ZAO"
+      - match: "Unified Social Credit Code: 91310113MACPUNUD5T "
+        props:
+          uscCode: "91310113MACPUNUD5T"
+      - match: "Tax Identification Number: INN 4706036197; KPP: 470601001"
+        props:
+          innCode: "4706036197"
+          kppCode: "470601001"
+      - match: "Iran National ID Number - 10861529720 "
+        props:
+          idNumber: "10861529720"
+      - match: "Tax Identification Number: INN: 5008000788"
+        props:
+          innCode: "5008000788"
+      - match: "OGRN: 1157847282603 TIN: 7840038027"
+        props:
+          ogrnCode: "1157847282603"
+          innCode: "7840038027"
+      - match: "OGRN: 1025700827283 INN: 5753018359 "
+        props:
+          ogrnCode: "1025700827283"
+          innCode: "5753018359"
+      - match: "INN: 6911002726 OGRN: 1026901729249 "
+        props:
+          innCode: "6911002726"
+          ogrnCode: "1026901729249"
+      - match: "INN: 5251008501 OGRN: 1055214499966 "
+        props:
+          innCode: "5251008501"
+          ogrnCode: "1055214499966"
+      - match: "INN: 7719265496 OGRN: 1037719005873 "
+        props:
+          innCode: "7719265496"
+          ogrnCode: "1037719005873"
+      - match: "Tax ID No. 7813491943 (Russia)"
+        props:
+          innCode: "7813491943"
+      - match: "Russia INN: 6665002150 "
+        props:
+          innCode: "6665002150"
+      - match: "Iran Registration No.: 145921Acuris Unique ID: C777828"
+        props:
+          registrationNumber: "145921"
+      - match: "BvD ID: IR30193GN ISN Number: IRO1AZAB0006 "
+        props:
+          registrationNumber: ["IR30193GN", "IRO1AZAB0006"]
+      - match: "SPARK code 9027410"
+        props:
+          registrationNumber: "9027410"
+      - match: "TIN: 913307230927997015"
+        props:
+          taxNumber: "913307230927997015"
+      - match: "CR: 2756979"
+        props:
+          registrationNumber: "2756979"
+      - match: "Company number 03503060 "
+        props:
+          registrationNumber: "03503060"
+      - match: "KPP - 772201001"
+        props:
+          kppCode: "772201001"
+      - match: "440111000105746 (Company registration number)190748254 (China Organisation code) "
+        props:
+          registrationNumber: ["440111000105746", "190748254"]
+      - match: "Russia OGRN - 1027739582089 Russia INN - 7730059592 "
+        props:
+          ogrnCode: "1027739582089"
+          innCode: "7730059592"
+      - match: "INN - 7806016672 OGRN - 1027804853900 "
+        props:
+          innCode: "7806016672"
+          ogrnCode: "1027804853900"
+      - match: "OGRN – 1127746497328"
+        props:
+          ogrnCode: "1127746497328"
+      - match: "9709056472 - Russia INN"
+        props:
+          innCode: "9709056472"
+      - match: "Taxpayer ID: 7727214569"
+        props:
+          taxNumber: "7727214569"
+      - match: "Russia INN - 7805060301"
+        props:
+          innCode: "7805060301"
+      - match: "INN: 7720603527OGRN: 1077764566373"
+        props:
+          innCode: "7720603527"
+          ogrnCode: "1077764566373"
+      - match: "7813654490 - TIN"
+        props:
+          taxNumber: "7813654490"
+      - match: "311479-3301-ООО TIN: 01312202410041 "
+        props:
+          taxNumber: "01312202410041"
+          registrationNumber: "311479-3301-ООО"
+      - match: "Tax Identification Number: INN: 7708698473"
+        props:
+          innCode: "7708698473"
+      - match: "Business registration number: 1115042005638Tax number: 5042120394 "
+        props:
+          registrationNumber: "1115042005638"
+          taxNumber: "5042120394"
+      - match: "BvD ID: IR30177GN"
+        props:
+          registrationNumber: "IR30177GN"
+      - match: "SRN - 1023501236901 "
+        props:
+          registrationNumber: "1023501236901"
+      - match: "UEN ID: 202022772K "
+        props:
+          registrationNumber: "202022772K"
+      - match: "TIN - 770426257"
+        props:
+          taxNumber: "770426257"
+      - match: "Tax Identification Number: INN: 7806496845"
+        props:
+          innCode: "7806496845"
+      - match: "Taxpayer ID: 7706569306"
+        props:
+          taxNumber: "7706569306"
+      - match: "OGRN - 1237700096523 INN - 9718218183 "
+        props:
+          ogrnCode: "1237700096523"
+          innCode: "9718218183"
+      - match: "TIN - 3311001852"
+        props:
+          taxNumber: "3311001852"
+      - match: "SWIFT/BIN KHJBSDKH / 5040942458"
+        props:
+          swiftBic: "KHJBSDKH"
+          bikCode: "5040942458"
+      - match: "Tax ID No. 9710007769 (Russia); Registration Number 1167746154432 (Russia)"
+        props:
+          taxNumber: "9710007769"
+          ogrnCode: "1167746154432"
+      - match: "INN: 7703010220 BIN: 1027739246490 TIN: 7703010220 SWIFT/ BIC: MECCRUM1 Russian Bank Identification Code: 044525125 "
+        props:
+          innCode: "7703010220"
+          swiftBic: "MECCRUM1"
+          bikCode: "044525125"
+      - match: "SRN: 1027402166835 "
+        props:
+          registrationNumber: "1027402166835"
+      - match: "BIN: 231040025351"
+        props:
+          registrationNumber: "231040025351"
+      - match: "CR No. 3120008 "
+        props:
+          registrationNumber: "3120008"
+      - match: "TIN - 7804002321"
+        props:
+          taxNumber: "7804002321"
+      - match: "TIN - 7727059017"
+        props:
+          taxNumber: "7727059017"
+      - match: "(УНН/ИНН): 190950894 (Belarus),  7704734000/770301001 (Russia) "
+        props:
+          taxNumber: ["190950894", "770301001"]
+          innCode: "7704734000"
+      - match: "Registration Number: 1067746348427; Government Gazette Number: 94430936; Tax ID No. :7710619969 "
+        props:
+          registrationNumber: "94430936"
+          ogrnCode: "1067746348427"
+          innCode: "7710619969"
+      - match: "Russia INN – 6167128827 Russia OGRN – 1156196039152 Russia KPP – 616601001 Russia KPP - 930401001 "
+        props:
+          innCode: "6167128827"
+          ogrnCode: "1156196039152"
+          kppCode: ["616601001", "930401001"]
+      - match: "TIN - 5027030107"
+        props:
+          taxNumber: "5027030107"
+      - match: "Tax Identification Number: INN 7801047839"
+        props:
+          innCode: "7801047839"
+      - match: "TIN - 7805060220\xa0\xa0"
+        props:
+          taxNumber: "7805060220"
+      - match: "122226 (Turkish Trade Registry)"
+        props:
+          registrationNumber: "122226"
+      - match: "INN: 5452112527 OGRN: 1065471010340 "
+        props:
+          innCode: "5452112527"
+          ogrnCode: "1065471010340"
+      - match: "OGRN: 1247700291200KPP: 770701001INN: 9707028663"
+        props:
+          ogrnCode: "1247700291200"
+          kppCode: "770701001"
+          innCode: "9707028663"
+      - match: "Tax ID: 7701863782e"
+        props:
+          taxNumber: "7701863782e"
+      - match: "BR No. 61471779"
+        props:
+          registrationNumber: "61471779"
+      - match: "INN: 9731124449 OGRN: 1237700793021 "
+        props:
+          innCode: "9731124449"
+          ogrnCode: "1237700793021"
+      - match: "BIC: 044525769 TIN: 3900001002 KPP: 770401001 SWIFT CODE: BADJRUMM Registered Russian Bank No. 2929 "
+        props:
+          bikCode: "044525769"
+          taxNumber: "3900001002"
+          kppCode: "770401001"
+          swiftBic: "BADJRUMM"
+      - match: "'Taxpayer Identification Number – 7718857267\xa0State Registration Number - 1117746641572'"
+        props:
+          innCode: "7718857267"
+          registrationNumber: "1117746641572"
+      - match: "INN – 7816735115OGRN – 1227800131943"
+        props:
+          innCode: "7816735115"
+          ogrnCode: "1227800131943"
+      - match: "CBLS 12452609"
+        props:
+          registrationNumber: "12452609"
+      - match: "Iran National ID Number - 10100665220 "
+        props:
+          idNumber: "10100665220"
+      - match: "TIN - 5906009273"
+        props:
+          taxNumber: "5906009273"
+      - match: "IP Identification: 0045050215 "
+        props:
+          registrationNumber: "0045050215"
+      - match: "TIN - 5408106299"
+        props:
+          taxNumber: "5408106299"
+      - match: "Tax ID 7802059185"
+        props:
+          taxNumber: "7802059185"
+      - match: "1137711000074 (Russia)"
+        props:
+          registrationNumber: "1137711000074"
+      - match: "Russian TIN number - 6310000160"
+        props:
+          taxNumber: "6310000160"
+      - match: "CRN: 1548836"
+        props:
+          registrationNumber: "1548836"
+      - match: "1037739635890 (Russia)"
+        props:
+          ogrnCode: "1037739635890"
+      - match: "Iran Registration No. - 126785 "
+        props:
+          registrationNumber: "126785"
+      - match: "OGRN: 1027807560186 INN: 7814027653\u202f "
+        props:
+          ogrnCode: "1027807560186"
+          innCode: "7814027653"
+      - match: "Russia TIN: 5504036333"
+        props:
+          innCode: "5504036333"
+      - match: "Tax Identification Number: INN 7736053886"
+        props:
+          innCode: "7736053886"
+      - match: "Iran National ID Number - 10861539189 "
+        props:
+          idNumber: "10861539189"
+      - match: "USCC: 91440300MA5HX80Y1Q"
+        props:
+          uscCode: "91440300MA5HX80Y1Q"
+      - match: "BvD ID: IRFEB54525SWIFT/BIC – SINAIRTH"
+        props:
+          registrationNumber: "IRFEB54525"
+          swiftBic: "SINAIRTH"
+      - match: "Tax ID No. 7743141413 (Russia); Registration Number 1167700052618 (Russia)"
+        props:
+          innCode: "7743141413"
+          ogrnCode: "1167700052618"
+      - match: "Russia INN – 7718964660 Russia OGRN – 1147746050935 "
+        props:
+          innCode: "7718964660"
+          ogrnCode: "1147746050935"
+      - match: "'TIN - 6440020175SRN - 1096440000425'"
+        props:
+          taxNumber: "6440020175"
+          ogrnCode: "1096440000425"
+      - match: "OGRN- 1175024024130 INN – 5024177951"
+        props:
+          ogrnCode: "1175024024130"
+          innCode: "5024177951"
+      - match: "Tax Identification Number: INN: 7804001110"
+        props:
+          innCode: "7804001110"
+      - match: "Russia INN – 7724424381"
+        props:
+          innCode: "7724424381"
+      - match: "Russia INN - 7743444827Russia OGRN - 1247700239270Russia KPP - 772201001"
+        props:
+          innCode: "7743444827"
+          ogrnCode: "1247700239270"
+          kppCode: "772201001"
+      - match: "Tax Identification Number: INN 7706001520 "
+        props:
+          innCode: "7706001520"
+      - match: "Company House number: 15109642 "
+        props:
+          registrationNumber: "15109642"
+      - match: "BIN: 1027800000931INN: 7831001704PPC: 784101001"
+        props:
+          ogrnCode: "1027800000931"
+          innCode: "7831001704"
+          kppCode: "784101001"
+      - match: "OGRN: 1157847407156TIN: 7804552300"
+        props:
+          ogrnCode: "1157847407156"
+          taxNumber: "7804552300"
+      - match: "Registration Number/OGRN: 1056604520499 "
+        props:
+          registrationNumber: "1056604520499"
+      - match: "Tax ID No. 7703226533 (Russia); Registration Number 1157746244017 (Russia)"
+        props:
+          taxNumber: "7703226533"
+          registrationNumber: "1157746244017"
+      - match: "Unified Social Credit Code - 913205007615052498; Company Registration Number -  320500400020269"
+        props:
+          uscCode: "913205007615052498"
+          registrationNumber: "320500400020269"
+      - match: "Russia OGRN - 1028600584540"
+        props:
+          ogrnCode: "1028600584540"
+      - match: "Trade register number:126793"
+        props:
+          registrationNumber: "126793"
+      - match: "TIN - 1841015504"
+        props:
+          taxNumber: "1841015504"
+      - match: "Business Registration Number 14850239 (Estonia)"
+        props:
+          registrationNumber: "14850239"
+      - match: "TIN - 7706441909 "
+        props:
+          taxNumber: "7706441909"
+      - match: "1534407 (BVI)"
+        props:
+          registrationNumber: "1534407"
+      - match: "OGRN 1027700035769INN 7708004767 OKPO 00044434 "
+        props:
+          ogrnCode: "1027700035769"
+          innCode: "7708004767"
+          okpoCode: "00044434"
+      - match: "INN – 7736321060OGRN - 1197746175274"
+        props:
+          innCode: "7736321060"
+          ogrnCode: "1197746175274"
+      - match: "OGRN: 1117847138166INN: 7805550962"
+        props:
+          ogrnCode: "1117847138166"
+          innCode: "7805550962"
+      - match: "BRN: 53568083"
+        props:
+          registrationNumber: "53568083"
+      - match: "VAT number: BE480224531"
+        props:
+          vatCode: "BE480224531"
+      - match: "INN: 7807352250OGRN: 1107847197237"
+        props:
+          innCode: "7807352250"
+          ogrnCode: "1107847197237"
+      - match: "OGRN: 114 237 300 24 30INN: 2373007549KPP: 237301001"
+        props:
+          ogrnCode: "1142373002430"
+          innCode: "2373007549"
+          kppCode: "237301001"
+      - match: "Belarusian tax number: 400085002"
+        props:
+          taxNumber: "400085002"
+      - match: "BIN: 120540008532  "
+        props:
+          registrationNumber: "120540008532"
+      - match: "BIN: 200240041690"
+        props:
+          registrationNumber: "200240041690"
+      - match: "BRN: 70951102"
+        props:
+          registrationNumber: "70951102"
+      - match: "OGRN: 1025403641900; INN/TIN: 5408100018; KPP: 540801001; "
+        props:
+          ogrnCode: "1025403641900"
+          innCode: "5408100018"
+          kppCode: "540801001"
+      - match: "Unified Social Credit Code: 91310115MA1H9L1M75"
+        props:
+          uscCode: "91310115MA1H9L1M75"
+      - match: "Russia TIN- 3528000597 "
+        props:
+          innCode: "3528000597"
+      - match: "OKTMO – 08845300"
+        props:
+          registrationNumber: "08845300"
+      - match: "311748-3301-OOO TIN: 02312202410120 "
+        props:
+          taxNumber: "02312202410120"
+          registrationNumber: "311748-3301-OOO"
+      - match: "Russian Tax Identification Number - 4101011782 Russia KPP - 410101001 Russia OGRN - 1024100000121 Legal Entity Identifier - 253400EH37SSJEEJFB05 Russia License No. - 1329 "
+        props:
+          innCode: "4101011782"
+          kppCode: "410101001"
+          ogrnCode: "1024100000121"
+          leiCode: "253400EH37SSJEEJFB05"
+      - match: "Iran National ID Number - 10100841160 Iran Registration No. - 38705Acuris Unique ID - C5174938705 USA OFAC UID Number - 25685SWIFT/BIC - BOIMIRTH"
+        props:
+          idNumber: "10100841160"
+          # registrationNumber: "38705"
+          registrationNumber: "C5174938705"
+          swiftBic: "BOIMIRTH"
+      - match: "Tax ID No. 7718989383 (Russia); Registration Number 1147746803049 (Russia)"
+        props:
+          innCode: "7718989383"
+          ogrnCode: "1147746803049"
+      - match: "Company Registration Number: 310115003576587 "
+        props:
+          registrationNumber: "310115003576587"
+      - match: "Russian TIN 2539013067 Russia KPP – 254001001 Central Bank Licence - 2733 "
+        props:
+          innCode: "2539013067"
+          kppCode: "254001001"
+          registrationNumber: "2733"
+      - match: "'0105565109824 "
+        props:
+          registrationNumber: "0105565109824"
+      - match: "INN: 7606044658OGRN: 1027600845546"
+        props:
+          innCode: "7606044658"
+          ogrnCode: "1027600845546"
+      - match: "INN – 7838121341OGRN - 1247800024603"
+        props:
+          innCode: "7838121341"
+          ogrnCode: "1247800024603"
+      - match: "CR No. 3183669 "
+        props:
+          registrationNumber: "3183669"
+      - match: "Kyrgz BIK number: 136001TIN: 02012201010017OKPO: 27231453SWIFT: RINBKG22"
+        props:
+          bikCode: "136001"
+          taxNumber: "02012201010017"
+          okpoCode: "27231453"
+          swiftBic: "RINBKG22"
+      - match: "INN:305134690"
+        props:
+          taxNumber: "305134690" # remapping to taxNumber because of validation failure
+      - match: "Kyrgyzstan INN - 02909202210217 Kyrgyzstan Company Registration Number -  210051-3301-ООО Kyrgyzstan OKPO - 31572977 "
+        props:
+          taxNumber: "02909202210217" # remapping to taxNumber because of validation failure
+          registrationNumber: "210051-3301-ООО"
+          okpoCode: "31572977"
+      - match: "Tax ID No. 7735579027 (Russia); Registration Number 1117746568829 (Russia)"
+        props:
+          innCode: "7735579027"
+          ogrnCode: "1117746568829"
+      - match: "BRN: 53706451"
+        props:
+          registrationNumber: "53706451"
+      - match: "'Business Identification Number: RU07586894 Tax Identification Number: 1657032272 '"
+        props:
+          registrationNumber: "RU07586894"
+          taxNumber: "1657032272"
+      - match: "Commercial register number: 189408"
+        props:
+          registrationNumber: "189408"
+      - match: "TIN - 7703104630"
+        props:
+          taxNumber: "7703104630"
+      - match: "INN: 7825331045BIN: 1037843013812"
+        props:
+          innCode: "7825331045"
+          registrationNumber: "1037843013812"
+      - match: "TIN (Taxpayer Identification Number) 9718168599 / SRN (State registration number) 1217700038710 "
+        props:
+          taxNumber: "9718168599"
+          registrationNumber: "1217700038710"
+      - match: "Switzerland UID Number – CHE-109.711.148 Switzerland CH-ID – CH-550.1.031.089-0 UK Company Number – OE019729 Registration number - W8L5TQA2V3K3 "
+        props:
+          registrationNumber:
+            ["W8L5TQA2V3K", "OE019729", "CH-550.1.031.089-0", "CHE-109.711.148"]
+      - match: "Legal Entity Identifier: 5299008ONRYZRO61SY92; Trade Register Number: District Court of Würzburg HRB 13359; Tax Number - 257/120/19983; VAT Tax Number - DE 258714047 "
+        props:
+          leiCode: "5299008ONRYZRO61SY92"
+          registrationNumber: "HRB 13359"
+          taxNumber: "257/120/19983"
+          vatCode: "DE 258714047"
+      - match: "Legal Entity Number 2534006SJ05GGKETEY75 (Russia) Registration Number 1027739179160 (Russia) "
+        props:
+          leiCode: "2534006SJ05GGKETEY75"
+          registrationNumber: "1027739179160"
+      - match: "BvD ID number: IR0000119360 BvD account number: IR0000119360U Commercial register number (Trade register number): 96225 Cedar Rose number (IP identification): 0000119360 "
+        props:
+          registrationNumber: ["96225", "0000119360", "IR0000119360"]
+      - match: "Germany Commercial Registration Number – K1101R_HRB14604 SWIFT/BIC – EIHBIRTH "
+        props:
+          registrationNumber: "K1101R_HRB14604"
+          swiftBic: "EIHBIRTH"
+      - match: "Tax Identification Number: INN: 7726531639"
+        props:
+          innCode: "7726531639"
+      - match: "Tax ID No. 7735007358 (Russia); Registration Number 1027700073466 (Russia)"
+        props:
+          innCode: "7735007358"
+          registrationNumber: "1027700073466"
+      - match: "INN: 3307011706 OGRN: 1023302153115 "
+        props:
+          innCode: "3307011706"
+          ogrnCode: "1023302153115"
+      - match: "INN - 7801062273 OGRN - 1027800509901 "
+        props:
+          innCode: "7801062273"
+          ogrnCode: "1027800509901"
+      - match: "BIN: 230540019530 "
+        props:
+          registrationNumber: "230540019530"
+      - match: "SWIFT/BIC MINNRUMM,BIK (RU) 044525600,Tax ID No. 7725039953 (Russia),Government Gazette Number 09317135 (Russia)"
+        props:
+          swiftBic: "MINNRUMM"
+          bikCode: "044525600"
+          innCode: "7725039953"
+          registrationNumber: "09317135"
+      - match: "Tax ID: 7705713236"
+        props:
+          taxNumber: "7705713236"
+      - match: "807000227 · VXZVVA5X4Y95 "
+        props:
+          registrationNumber: ["807000227", "VXZVVA5X4Y95"]
+      - match: "AE0074948054\xa0"
+        props:
+          registrationNumber: "AE0074948054"
+      - match: "'0127108975400001 · 371692-5\xa0"
+        props:
+          registrationNumber: ["0127108975400001", "371692-5"]
+      - match: "1147746527279 dated 27/07/1992"
+        props:
+          registrationNumber: "1147746527279"
+      - match: "OGRN - 1167746856738 "
+        props:
+          ogrnCode: "1167746856738"
+      - match: "1037804006811 (Russia)"
+        props:
+          ogrnCode: "1037804006811"
+      - match: "TIN - 4824096058 "
+        props:
+          taxNumber: "4824096058"
+      - match: "TIN: 7713122621 OGRN: 1027739267126 "
+        props:
+          innCode: "7713122621"
+          ogrnCode: "1027739267126"
+      - match: "Tax Identification Number: INN 2536210349"
+        props:
+          innCode: "2536210349"
+      - match: "Tax Identification Number: INN: 7811550230"
+        props:
+          innCode: "7811550230"
+      - match: "INN: 7802005951 OGRN: 1027801526070 "
+        props:
+          innCode: "7802005951"
+          ogrnCode: "1027801526070"
+      - match: "OGRN: 1097746786675INN: 7743763446"
+        props:
+          ogrnCode: "1097746786675"
+          innCode: "7743763446"
+      - match: "OGRN: 1027700041830; TIN: 7717043113  "
+        props:
+          ogrnCode: "1027700041830"
+          taxNumber: "7717043113"
+      - match: "CIN: U74999MH2016PTC283169 "
+        props:
+          registrationNumber: "U74999MH2016PTC283169"
+      - match: "Trade Register Number: 82839IP Identification: 0048396626"
+        props:
+          registrationNumber: ["82839", "0048396626"]
+      - match: "INN: 9731115927 OGRN: 1237700391774"
+        props:
+          innCode: "9731115927"
+          ogrnCode: "1237700391774"
+      - match: "INN: 308989789VAT number: 312010174080"
+        props:
+          taxNumber: "308989789"
+          vatCode: "312010174080"
+      - match: "CRN: 2852068"
+        props:
+          registrationNumber: "2852068"
+      - match: "OGRN: 1027739090708 INN: 7731018133"
+        props:
+          ogrnCode: "1027739090708"
+          innCode: "7731018133"
+      - match: "OGRN – 1125261000040; INN – 5261079332; KPP - 526101001 "
+        props:
+          ogrnCode: "1125261000040"
+          innCode: "5261079332"
+          kppCode: "526101001"
+      - match: "OGRN: 1027739143717INN: 7723022111 "
+        props:
+          ogrnCode: "1027739143717"
+          innCode: "7723022111"
+      - match: "Unified Social Credit Code: 91441400686355518J"
+        props:
+          uscCode: "91441400686355518J"
+      - match: "INN: 3255517496 OGRN: 1113256022505 "
+        props:
+          innCode: "3255517496"
+          ogrnCode: "1113256022505"
+      - match: "INN: 4703142849 OGRN: 1144703004380 "
+        props:
+          innCode: "4703142849"
+          ogrnCode: "1144703004380"
+      - match: "INN - 0274051744 OGRN - 1020202554558"
+        props:
+          innCode: "0274051744"
+          ogrnCode: "1020202554558"
+      - match: "Russia OGRN - 1027802714444"
+        props:
+          ogrnCode: "1027802714444"
+      - match: "INN:  302358106"
+        props:
+          taxNumber: "302358106"
+      - match: "INN: 311080140"
+        props:
+          taxNumber: "311080140"
+      - match: "Russia TIN: 7414003633 "
+        props:
+          innCode: "7414003633"
+      - match: "TIN: 305636913"
+        props:
+          taxNumber: "305636913"
+      - match: "TIN: 260995972"
+        props:
+          taxNumber: "260995972"
+      - match: "Russian TIN: 7718763393"
+        props:
+          innCode: "7718763393"
+      - match: "TIN - 6451116030 "
+        props:
+          taxNumber: "6451116030"
+      - match: "Russia OGRN – 5177746230547"
+        props:
+          ogrnCode: "5177746230547"
+      - match: "Russia INN - 7706196340"
+        props:
+          innCode: "7706196340"
+      - match: "Company Registration Number: 310113003379268"
+        props:
+          registrationNumber: "310113003379268"
+      - match: "Tax ID No. 7736588433 (Russia)"
+        props:
+          innCode: "7736588433"
+      - match: "Taxpayer Identification Number – 5008011331\xa0"
+        props:
+          taxNumber: "5008011331"
+      - match: "Russia TIN - 8602060555"
+        props:
+          innCode: "8602060555"
+      - match: "Russia - 1027739339715"
+        props:
+          ogrnCode: "1027739339715"
+      - match: "Tax ID Number/INN: 6672197493"
+        props:
+          innCode: "6672197493"
+      - match: "INN: 7719898900 OGRN: 5147746464234"
+        props:
+          innCode: "7719898900"
+          ogrnCode: "5147746464234"
+      - match: "CRN: 1558509"
+        props:
+          registrationNumber: "1558509"
+      - match: "INN - 9717029320 OGRN - 1167746544349 "
+        props:
+          innCode: "9717029320"
+          ogrnCode: "1167746544349"
+      - match: "Turkey Tax Identifier - 7350759377 "
+        props:
+          taxNumber: "7350759377"
+      - match: "Tax Identification Number: INN: 7840392660"
+        props:
+          innCode: "7840392660"
+      - match: "INN – 7722779734"
+        props:
+          innCode: "7722779734"
+      - match: "Trade register number: 512036625"
+        props:
+          registrationNumber: "512036625"
+      - match: "INN - 1831117433 OGRN - 1061831040688"
+        props:
+          innCode: "1831117433"
+          ogrnCode: "1061831040688"
+      - match: "BIN: 110340017087 "
+        props:
+          registrationNumber: "110340017087"
+      - match: "Kazakhstan BIN - 170440031562"
+        props:
+          registrationNumber: "170440031562"
+      - match: "OGRN: 1077328004841 INN: 7328510118"
+        props:
+          ogrnCode: "1077328004841"
+          innCode: "7328510118"
+      - match: "SRN - CA/BG/2019B520"
+        props:
+          registrationNumber: "CA/BG/2019B520"
+      - match: "TIN:  91131181MA07MANB7G "
+        props:
+          taxNumber: "91131181MA07MANB7G"
+      - match: "Iran National ID Number – 10101702747 "
+        props:
+          idNumber: "10101702747"
+      - match: "1067746244026 dated 27/07/1992"
+        props:
+          registrationNumber: "1067746244026"
+      - match: "BvD number: IR0000102447"
+        props:
+          registrationNumber: "IR0000102447"
+      - match: "TIN - 2312110549"
+        props:
+          taxNumber: "2312110549"
+      - match: "SWIFT/BIC - PBIRIRTH "
+        props:
+          swiftBic: "PBIRIRTH"
+      - match: "CR Number: 1020125"
+        props:
+          registrationNumber: "1020125"
+      - match: "Tax ID 7730018980"
+        props:
+          taxNumber: "7730018980"
+      - match: "TIN - 5506218498"
+        props:
+          taxNumber: "5506218498"
+      - match: "1217800095248 - OGRN"
+        props:
+          ogrnCode: "1217800095248"
+      - match: "INN number- 7708514824"
+        props:
+          innCode: "7708514824"
+      - match: "7706061801 (INN) "
+        props:
+          innCode: "7706061801"
+      - match: "HK0008017584U "
+        props:
+          registrationNumber: "HK0008017584U"
+      - match: "India LLPIN Number – AAJ-2354India PAN – AABFZ8670J"
+        props:
+          registrationNumber: "AAJ-2354"
+          taxNumber: "AABFZ8670J"
+      - match: "INN – 2225008370 "
+        props:
+          innCode: "2225008370"
+      - match: "INN – 6673105167"
+        props:
+          innCode: "6673105167"
+      - match: "INN – 7802931751 "
+        props:
+          innCode: "7802931751"
+      - match: "INN – 7805349407"
+        props:
+          innCode: "7805349407"
+      - match: "INN – 7806121490"
+        props:
+          innCode: "7806121490"
+      - match: "INN - 2539008807"
+        props:
+          innCode: "2539008807"
+      - match: "INN - 2635001120 "
+        props:
+          innCode: "2635001120"
+      - match: "INN - 5045023416"
+        props:
+          innCode: "5045023416"
+      - match: "INN - 5259077666"
+        props:
+          innCode: "5259077666"
+      - match: "INN - 7809000430"
+        props:
+          innCode: "7809000430"
+      - match: "INN - 7826059466"
+        props:
+          innCode: "7826059466"
+      - match: "INN - 9704064230"
+        props:
+          innCode: "9704064230"
+      - match: "INN: 3232005484OGRN: 1023200000010"
+        props:
+          innCode: "3232005484"
+          ogrnCode: "1023200000010"
+      - match: "INN: 6608003052OGRN: 1026600000460"
+        props:
+          innCode: "6608003052"
+          ogrnCode: "1026600000460"
+      - match: "INN: 7704113772 OGRN: 1027739553764 Russia Licence No. – 1885 BIC: 044525341"
+        props:
+          innCode: "7704113772"
+          ogrnCode: "1027739553764"
+          bikCode: "044525341"
+      - match: "INN: 7705260427OGRN: 1037739042912"
+        props:
+          innCode: "7705260427"
+          ogrnCode: "1037739042912"
+      - match: "INN: 770991634 "
+        props:
+          registrationNumber: "770991634"
+      - match: "INN: 9721194461OGRN: 1237700005157"
+        props:
+          innCode: "9721194461"
+          ogrnCode: "1237700005157"
+      - match: "NIP: 7010994804"
+        props:
+          taxNumber: "7010994804"
+      - match: "OGRN - 1022502117505"
+        props:
+          ogrnCode: "1022502117505"
+      - match: "OGRN - 1026403046702 "
+        props:
+          ogrnCode: "1026403046702"
+      - match: "OGRN - 1027810229996"
+        props:
+          ogrnCode: "1027810229996"
+      - match: "OGRN - 1036604818887"
+        props:
+          ogrnCode: "1036604818887"
+      - match: "OGRN - 1037816019713"
+        props:
+          ogrnCode: "1037816019713"
+      - match: "OGRN - 1085259006117"
+        props:
+          ogrnCode: "1085259006117"
+      - match: "OGRN - 1167847135059"
+        props:
+          ogrnCode: "1167847135059"
+      - match: "OGRN - 1227800139071 "
+        props:
+          ogrnCode: "1227800139071"
+      - match: "OGRN - 1231600067654 INN - 1655500084 Russia License No. - 415 "
+        props:
+          ogrnCode: "1231600067654"
+          innCode: "1655500084"
+          registrationNumber: "415"
+      - match: "Russia INN - 7728863750 "
+        props:
+          innCode: "7728863750"
+      - match: "Russia OGRN - 1027700024560 Russia INN - 7736046991 SWIFT/BIC – ABSLRUMM Russia License No. - 2306 "
+        props:
+          ogrnCode: "1027700024560"
+          innCode: "7736046991"
+          registrationNumber: "2306"
+          swiftBic: "ABSLRUMM"
+      - match: "Russian INN -7725413350 "
+        props:
+          innCode: "7725413350"
+      - match: "Thai business register number: 0105566050386 "
+        props:
+          registrationNumber: "0105566050386"
+      - match: "Thai business registry number: 0135560009520"
+        props:
+          registrationNumber: "0135560009520"
+      - match: "Thailand Company Registration Number: 0105566093417 "
+        props:
+          registrationNumber: "0105566093417"
+      - match: "TIN - 1653001805 OGRN - 1021600000124 Registration number - 2590 "
+        props:
+          taxNumber: "1653001805"
+          ogrnCode: "1021600000124"
+          registrationNumber: "2590"
+      - match: "TIN: 7709129705 OGRN: 1027739186970 BIC: 044525388 "
+        props:
+          taxNumber: "7709129705"
+          ogrnCode: "1027739186970"
+          bikCode: "044525388"
+      - match: "Trade register number: 37624249 "
+        props:
+          registrationNumber: "37624249"
+      - match: "Unified Social Credit Code - 91320505MA1WT5KL9D"
+        props:
+          uscCode: "91320505MA1WT5KL9D"
+      - match: "Unified Social Credit Code: 91110105MACQWR1U2C "
+        props:
+          uscCode: "91110105MACQWR1U2C"
+      - match: "Unified Social Credit Code: 91210242MACN44NL0X"
+        props:
+          uscCode: "91210242MACN44NL0X"
+      - match: "Unified Social Credit Code: 91210283MAC567EQ70"
+        props:
+          uscCode: "91210283MAC567EQ70"
+      - match: "Unified Social Credit Code: 91371000MA3BYNP77R"
+        props:
+          uscCode: "91371000MA3BYNP77R"
+      - match: "Unified Social Credit Code: 91511500MAD7QX3R97 "
+        props:
+          uscCode: "91511500MAD7QX3R97"
+      - match: "USCC: 91110108MA00GUD41A"
+        props:
+          uscCode: "91110108MA00GUD41A"
+      - match: "USCC: 91210242MA0QCRAE8W"
+        props:
+          uscCode: "91210242MA0QCRAE8W"
+      - match: "USCC: 913208300881397199"
+        props:
+          uscCode: "913208300881397199"
+      - match: "USCC: 913302817251365704"
+        props:
+          uscCode: "913302817251365704"
+      - match: "USCC: 91410105554232989X"
+        props:
+          uscCode: "91410105554232989X"
+      - match: "USCC: 91440300555437169C"
+        props:
+          uscCode: "91440300555437169C"
+      - match:
+          - "9703155974"
+          - "DSO-ZZCO-16068"
+          - "'0105566140903"
+          - "3528218586 "
+          - "CR No. 1350711 "
+          - "4218020"
+          - "3327403074"
+          - "7717599630"
+          - "599557"
+          - "7810938831"
+          - "HK0017526777"
+          - "7731339867 "
+          - "156387282"
+          - "'0835566016998"
+          - "6166032022"
+          - "1360/1995-1996"
+          - "5192110268 "
+          - "8602039063"
+          - "1 149 102 007 933"
+          - "91440300MA5H0TP85J "
+          - "5260902190"
+          - "7730253529"
+          - "59058C IOM"
+          - "3128000 "
+          - "33866023 "
+          - "'04218020"
+          - "72500781"
+          - "3128060841"
+          - "7704011964"
+          - "1101828001000"
+          - "14720672"
+          - "11211890964 "
+          - "201821798H"
+          - "1237800075765"
+          - "7731513346"
+          - "TR266002F"
+          - "1026600727713"
+          - "5344160 "
+          - "1027739646164"
+          - "'04152338 "
+          - "101907457"
+          - "1187746040910"
+          - "7706688991"
+          - "2602250073105 "
+          - "606989"
+          - "7842521215 "
+          - "2540047110"
+          - "7703802628"
+          - "U51909RJ2022PTC080897"
+          - "9701173086"
+          - "1660055801"
+          - "1661/2015-2016(YGN)"
+          - "130457487"
+          - "182733636"
+          - "2005/1996-1997"
+          - "RU56285144"
+          - "1863 4976 EPTDKB2J3TX1 "
+          - "105774659367"
+          - "7731530091"
+          - "5137746242937"
+          - "V4Z5EVUNEX55 "
+          - "1025201752982 "
+          - "104355110"
+          - "7736618039"
+          - "7729520219"
+          - "7705110090"
+          - "5087007192"
+          - "SL033858"
+          - "104099424"
+          - "NF87X6B14KW3 "
+          - "101544478"
+          - "7708822233"
+          - "'07784342"
+          - "382231"
+          - "GZYRFN8ZAFH9"
+          - "107428143"
+          - "2536288610"
+          - "7449006184"
+          - "2196196584065"
+          - "60 · FC005874 "
+          - "102830199"
+          - "1510484"
+          - "7710198911"
+          - "BY100104937 "
+          - "9102157783"
+          - "11132540008732"
+          - "74138237"
+          - "UK Company no. 06527449"
+          - "DMCC201071"
+          - "1157746088170"
+          - "632036752"
+          - "1090-2011-2012"
+          - "CS46HGHRDRG5 "
+          - "9704154155"
+          - "1033045  "
+          - "394678"
+          - "75388473CR No. 3286238"
+          - "102842286"
+          - "1794877"
+          - "7714184726"
+          - "Ma.Bko.2013.M.1610"
+          - "100789450"
+          - "1027809210054"
+          - "2005504830"
+          - "1105010000974"
+          - "1121402000213"
+          - "7813067004 "
+          - "CR No. 1910958"
+          - "CNE100005063"
+          - "5050910652 "
+          - "1271681"
+          - "44038924500007"
+          - "19036 9982 (Belarus)"
+          - "110178954871 "
+          - "100720744"
+          - "CR No. 2182045"
+          - "7302040242"
+          - "7705397301"
+          - "7734598490 "
+          - "ICP 11021902 "
+          - "BR: 69987857"
+          - "3017041900"
+          - "QZMGZLP36FE3"
+          - "9721179921"
+          - "145225-5 434486-5 "
+          - "'0105565079224 "
+          - "7751002460 "
+          - "License number: 328"
+          - "RU07522316 "
+          - " 1149102030770"
+          - "103805"
+          - "1177847044066 "
+          - "9001011019"
+          - "7702059030"
+          - "1069800001852\xa0"
+          - "7725824287 / 772201001 "
+          - "LL06889 (Malaysia)"
+          - "OC425116"
+          - "11701069"
+          - "RU05608657"
+          - "1027700132195"
+          - "'0195563000558 "
+          - "5742647"
+          - "7802441926 "
+          - "F7KRV5BYR3R3 "
+          - "254900H0TCECGSDJBB65 23665"
+          - "Iran Registration No. 2904  "
+          - "5410043399 "
+          - "7707177816"
+          - "1077799030847"
+          - "M 354838 D 0001 "
+          - "1146679010818"
+          - "'0105566138623 "
+          - "B191191 "
+          - "9710137165 "
+          - "'02002202310071"
+          - "2971193"
+          - "1156658096143"
+          - "'06679031"
+          - "1127747296918"
+          - "29063984"
+          - "OC400827"
+          - "5610083568"
+          - "1521418"
+          - "97947 "
+        value: SAME
+  companies:
+    normalize: true
+    options:
+      - match:
+          - Is the Parent company
+          - Parent and branches
+          - State Owned Enterprise (SOE)
+          - ORGANIZATSIYA DOPOLNITELNOGO
+          - Machinery
+          - GSM Mobil Phone (438,000) Allocation (Ayeyarwadi Division)
+        values: []
+      - match:
+          - Htoo Group of Companies
+          - Aerospace Industries Organisation (AIO)
+          - Aerospace Industries Organization (AIO)
+          - Defence Industries Organisation (DIO)
+          - Daedong Credit Bank (DCB)
+          - Russian Ministry of Defence
+          - Russia Ministry of Defence
+          - Tangun Trading Corporation
+          - Korea Ryonbong General Corporation
+          - Korea Ryongbong General Corporation
+          - The Korea Ryongbong General Corporation
+          - Green Pine Associated Corporation
+          - DPRK's Second Academy of Natural Sciences
+          - Sairan Medical Equipment Industry
+          - Shahid Hemmat Industrial Group (SHIG)
+          - Shahid Bagheri Industrial Group (SBIG)
+          - General Bureau of Atomic Energy (GBAE)
+          - Shiraz Electronics Research Centre
+          - Ministry of Defence and Armed Force Logistics (MODAFL)
+          - Reconnaissance General Bureau
+          - The Nuclear Weapons Institute
+          - The Korea Mining Development Corporation (KOMID)
+          - Research Centre for Explosion and Impact
+          - Syrian Ministry of Defence
+          - Strela
+          - Rostech
+          - Ghorb Nooh
+          - Gidrostroimos-Riga
+          - PJSC KIROVSKY PLANT
+          - Ministry of Defence of the Russian Federation
+          - Government of the Russian Federation
+          - Roscosmos
+          - Federal Agency FOR State Property Management
+          - The Gorev Foundation
+          - JSC Military Industrial Corporation NPO Mashinostroyenia
+          - Rosatom
+          - rosatom
+          - Rostec
+          - JSC INTEGRAL
+          - Convoy Africa SARL
+          - Hoda Trading
+          - Russian Academy of Science’s Institute of Oriental Studies
+          - Russian Federation Federal Agency for State Property Management
+          - JSC Concern Morinformsystem-Agat
+          - Saratov Aviation Plant CJSC
+          - M-Finans
+          - Sewa Security Services
+          - M-Invest
+          - Megaline, JSC Delta
+          - Meroe Gold
+          - Paramount Energy & Commodities SA
+          - Central Bank of Russia
+          - Petrostroi-SPB Aktsionernoe Obshchestvo ATTK-NN
+          - Moscow Institute of Thermal Technology
+          - PARAMOUNT ENERGY & COMMODITIES DMCC
+          - AKTSIONERNOE OBSHCHESTVO ALYUMINIEVYE PRODUKTY - KHOLDING
+          - Sudan Master Technology
+          - Ministerstvo Promyshlennosti I Torgovli Rossiiskoi Federatsiikii
+          - PJSC Novatek
+          - STANEX GROUP LIMITED LIABILITY PARTNERSHIP
+          - PJSC Zenit Bank
+          - STANEX GROUP LLP
+          - Ningbo Haitian Precision Machinery Co. Ltd
+          - MR TAIQIONG CHEN
+          - HK Kongsing Co., Limited
+          - Joint Stock Company Ruschem
+          - LLC MC FORTIS-INVEST
+          - PJSC Rosneft
+          - Kala Limited
+          - National Iranian Oil Company
+          - OOO Mercury Renaissance
+          - Hypercore Ltd
+          - Fajr Aviation Composite Industries
+          - Ghods/Qods Aviation Industry
+          - Iran Helicopter Support and Renewal(IHSRC)/PANHA
+          - AIS Iran Co
+          - Electronic Component Industries (ECI)
+          - Iran Electronics Industries Co (Saga)
+          - Iranian Electronic Science & Research Institute
+          - Isfahan Optics Industry (SAPA)
+          - Shiraz Electronics Industries (Sara Shiraz)
+          - The Institute of Isayran Co
+          - Telecommunication Industries of Iran (SAMA)
+          - Electronic Component Industries (ECI)
+          - Security Industry Information Space (SASTOBA)
+          - KAZSTANEX LLP
+          - UZSTANEX LLC
+          - Kalashnikov Concern JSC
+          - Belneftekhim
+          - Belorusneft
+          - CJSC Belarusian Oil Company
+          - Brest branch
+          - Gomel branch
+          - Grodno branch
+          - Mogilev branch
+          - Vitsebsk branch
+          - Adipati Agricultural Produce Trading Ltd
+          - ROSTANEX
+          - KAZSTANEX LLP
+          - UZSTANEX LLC
+          - HUSTLE SHIFT LLC
+          - EMKO-RUS
+          - AVTONOMNAYA NEKOMMERCHESKAYA
+          - OBRAZOVANIYA UCHEBNYI TSENTR UNIMATIK
+          - TSENTR MOLODEZHNOGO INNOVATSIONNOGO TVORCHESTVA
+          - UNIMATIK-MSK
+          - ALTEGRITY LLC
+          - Islamic Revolutionary Guards Corps
+          - Mehr Bank
+          - Aeza International Ltd
+          - Ahlone International Port Terminal 1
+          - Amber International Company Ltd.
+          - Ammunition Industries Group (AMIG)
+          - Ammunition and Metallurgy Group
+          - Anhydrous Ethanol Plant (Taungzinaye)
+          - Ansar Bank
+          - Aung Myint Moh Min Insurance Company Ltd.
+          - Aung Thitsa Oo General Insurance Company Limited
+          - Aung Thitsa Oo Life Insurance Company Limited
+          - Aung Zayya Oo Co., Ltd.
+          - BIC Bank
+          - Bagwa Gone Company Ltd.
+          - Bagwa Gone Gems Company Ltd.
+          - Bandoola Transportation Company Inc
+          - Berger Paints Manufacturing Limited
+          - Bo Aung Kyaw Terminal
+          - Cannery
+          - Cargo Link Petroleum Logistics Company Limited
+          - Cement plant (Myaingglay)
+          - Coal Mine (Maw Taung)
+          - Coal Mine and Power Plant (Mai Khot)
+          - Dagon Beverages Company Ltd.
+          - Dagon FC Company Ltd.;
+          - Dagon Rum Factory (Shwe Pyi Thar)
+          - Defense Industries Organisation (DIO)
+          - Disposable Syringe Factory (Hwambi)
+          - Electro Sanam Company
+          - Ettehad Technical Group
+          - Fajr Industrial Group
+          - Feodosia Trade Port
+          - Galvanized Iron Sheet Factory (Than Hlyin)
+          - Gas plant (Botahthaung)
+          - Gas plant (Mandalay)
+          - Gems Extraction Mine (Mine Shu – Loi Saung Htauk)
+          - Glass Factory (Than Hlyin)
+          - Golden Majestic Star Mobile Company Limited
+          - Gosgidrographia and Port-Terminal
+          - Granite Mine and Processing Plant (Balin)
+          - Gypsum Mine and Transportation Plant (Htone Bo)
+          - High Tension Steel Bolts, Nuts and Washers Manufacturing Plant (Ywama)
+          - Hlaing Inland Terminal and Logistics Co., Ltd.
+          - Hteedan Port (Kyeemyindine)
+          - IST Ltd TRADE DEVELOPMENT
+          - Indoor Skydiving
+          - Indsutrial Factories of Precision (IFP)
+          - Innwa Bank Ltd
+          - Jade Extraction Mine (Lone Khin – Hpakan)
+          - Joza Industrial Co
+          - Kan Thar Yar International Specialist Hospital
+          - Kayah State Mineral Production Company Ltd
+          - Kerch Ferry Crossing
+          - Kerch Fish Port
+          - Kerch Trade Port
+          - LLC UNIMATICENVERSION
+          - Marble mine and processing plant (Mandalay)
+          - Myanmar Economic Corporation Telecommunication (MECTel)
+          - Myanmar Imperial Jade (Gems & Jewellery) Co., Ltd.
+          - Myanmar Land and Development Ltd
+          - Myanmar Mobile Money Services Company Ltd.
+          - Myanmar Rubber Wood Co., Ltd.
+          - Myanmar Ruby Enterprise (Gems & Jewellery) Co., Ltd.
+          - Myanmar Tharkaung Finance Co., Ltd.
+          - Myawaddy Agricultural Services Col, Ltd
+          - Myawaddy Bank Ltd.
+          - Myawaddy Clean Drinking Water Service
+          - Myawady Football Club
+          - Mytel Wallet International Myanmar Company
+          - Nawadae Hotel and Tourism Ltd.
+          - Nay Pyi Taw Ye Pyar Drinking Water Plant (Naypyitaw)
+          - Ngwe Pin Lei Livestock Breedings and Fisheries Co., Ltd.
+          - Ngwe Pin Lei Premium Marine Products Co., Ltd.
+          - Ngwe Pinlae Industrial Zone
+          - Oxygen Plant (Mindama)
+          - Paper Factory (Myainggalay)
+          - Printing Factory (Yangon)
+          - Pyinmabin Industrial Zone
+          - Refractory Plant (Aung Lan)
+          - Rice Mills and Rice Storage (Hteedan Port)
+          - Safety Equipment Procurement (SEP)
+          - Sanam Industrial Group
+          - Sandaku Myint Mo Co., Ltd.
+          - Shahid Basir Industry
+          - Ship Breaking Yard (Thilawa)
+          - Shwe Gandamar International Trading Ltd
+          - Shwe Innwa Gems
+          - Star High Co., Ltd.
+          - Star High Group Company Ltd
+          - Sugar Mill (Du Yin Gabo)
+          - Sugar mill (Kanbalu)
+          - Sugar Mill (Kanhla)
+          - Tea factory (Kan Yeik Thar)
+          - Tea powder and tea mix factory (Pyinmabin)
+          - Tristar Tyre Manufacturing Company Ltd
+          - Tyre Retreading Plant (Ywama)
+          - Virgin Coconut Oil Factory (Pathein)
+          - Wolfram Mine (Dawei)
+          - Ya Mahdi Industries Group
+          - Yalta Trade Port
+          - Yevpatoria Trade Port
+          - Zheng Heng (Cambodia) Co., Ltd
+          - ZhengHeng Development Group
+          - Remote sensing ground station
+          - ALMUHIT ALHADI MARINE SERVICES
+          - ALVIDO CHARTERING LTD
+          - ANAHITA SHIPPING LTD
+          - ARAR MARITIME INC
+          - ATBARA MARITIME CORP
+          - ATOS REMOTE SOLUTIONS
+          - AVISION SHIPPING SERVICES PVT
+          - Acceronix Ltd
+          - Aether Craft Co Ltd
+          - Aklan Shipping Inc
+          - Amber Shipping Inc-SEY
+          - Ancora Voyage Ltd
+          - Andor Marine Ltd
+          - Anemone Marine Inc
+          - Angat Shipping Inc
+          - AquaQuasar Holding Ltd
+          - ArcticTransit Maritime Ltd
+          - Argo Tanker Group LLC
+          - Aristo Tankers Ltd
+          - Arzu Express Inc
+          - Ascon Tankercilik AS
+          - Auburn Shipmanagement Pt Ltd
+          - Avision Shipping Services Pvt
+          - BENGO AQUATIC INC
+          - BM Flot LLC
+          - BOLOGNIA MARINE CO
+          - BREATH SHIPPING SERVICES LLC
+          - Bagsak Shipping Inc
+          - Black Pearl Marine Ltd
+          - Blue Sea Navigation Ltd
+          - Boribo Shipping Corp
+          - Brizo Services Corp
+          - Bubble Marine Inc
+          - CDB Financial Leasing Co Ltd
+          - CHENG SHIPPING & TRADER LTD
+          - CONFIDENT APEX LTD
+          - CUBE VENTURES SHIPPING SA
+          - Campana Shipping Inc
+          - Can Day Shipmanagement Co Ltd
+          - Cang Long Shipping Inc
+          - Cape Gemi Isletmeciligi AS
+          - Cape Gemi Isletmeciligi AS (Turkey)
+          - Caravella LLCFZ
+          - Cascade Collective Corp
+          - Celestial Star Corp
+          - Chang An Shipping & Technology
+          - Chang Bai Shan Shipmanagement
+          - Changtai Shipping Ltd
+          - Charai Sea Shipping Pvt Ltd
+          - Charai Sea shipping Pvt. Ltd.
+          - China Merchants Bank
+          - Chiwei International Group Limited
+          - Chonmyong Shipping Co
+          - Citrine Shipping Inc
+          - Clariton Shipping Ltd
+          - Clyde Chartering Inc
+          - CoastalCrest Shipping Ltd
+          - Conaro Shipping (Russia)
+          - Conaro Shipping JSC (Russia)
+          - Coureage Co Ltd
+          - Crestwave Maritime Ltd
+          - DOUBLE HARMONY MARINE CORP
+          - DREAM WAVE CORP
+          - Da Flying Navigation
+          - Davao Shipping Inc
+          - Deamar Voyage Corp
+          - Degonia Co Ltd
+          - Deniz Maritime Ltd
+          - Doris Voyage Ltd
+          - Dory Maritime Co
+          - Dream Islands Shipping LLC
+          - Drimas Chartering Ltd
+          - Duport Marine Services Inc
+          - ELMENTEITA SHIPPIN INC
+          - ETHEREAL HARBOR CORP
+          - East Ocean Shipping Ltd-MAI
+          - Eastern Euro Ship Management
+          - Eastern Shipping Inc
+          - Egemen Shipping Corp
+          - Elite Marine Ship Management
+          - Elizario Shipping Inc
+          - Elysian Horizon Corp
+          - Enchanted Echo Corp
+          - Eneya LLC
+          - Erika Freight Ltd
+          - Erst Group Ltd
+          - Estrella Co Ltd
+          - Eurus Shipping Co Ltd-HKG
+          - Everest Sea Navigation SA
+          - FRINA EXPRESS CORP
+          - FU MAN SHIPPING LTD
+          - Fafana Ltd
+          - Faleola Nexus Ltd
+          - First Light Marine Corp
+          - Fornax Ship Management
+          - Fortune Maker International
+          - Fuga Shipmanagement SA
+          - GESSI MARITIME CORP
+          - GOLDEN GATE SHIP MANAGEMENT
+          - Gama Link Tech Services Co
+          - Gauri Shipping Inc
+          - Gazpromneft Marine Bunker Ltd
+          - Gazpromneft Shipping LLC
+          - Global Tankers Ltd-ABB
+          - Global United Shipping India
+          - Glory Shipping HK Ltd
+          - Golden Fleece Ship Mgmt & Op
+          - Grannus Shipholding Ltd
+          - Great Wind Ltd
+          - Greetee Co Ltd
+          - Gui Zhou Fa Zhan Ship
+          - HAIMA SHIPPING LTD
+          - HARMONY GROVE CORP
+          - HCC Shipmanagement Inc
+          - HEMSWORTH LOGISTICS FZE
+          - HENNESEA HOLDINGS LTD
+          - HERVEX SHIPPING CORP
+          - HONG HU SHIPPING LTD
+          - HONG KONG HANYUAN SHIPPING CO
+          - HS ESBERG LTD
+          - HS Glory Ltd
+          - HS Hai II Ltd
+          - HS Legend Ltd
+          - HS Mona Ltd
+          - HS Nellis Ltd
+          - HS Sara II Ltd
+          - HS Sensus Ltd
+          - HS Star Ltd
+          - HUIHAI HONG KONG SHIPPING CO
+          - HUNG PHAT MARITIME TRADING
+          - Hajrah Maritime Inc
+          - Hapjanggang Shipping Corp
+          - Hei Long Jiang Shipmanagement
+          - Hengrong Shipping Limited
+          - Hengtai Shipping Ltd
+          - Hera Gam Ltd
+          - Hong Kong Rong Da Shipping Ltd
+          - HongKong Eastern Shipping Ltd
+          - Huaxin Shipping Hongkong Ltd
+          - Hung Phat Maritime Trading
+          - INVEST FLEET LTD
+          - INVESTNEFTETRADE LLC
+          - Infinite Tide Corp
+          - Insist Line Ltd
+          - Invest Fleet Ltd
+          - JERMEX MARINE INC
+          - JUBILEE WAVES CORP
+          - JUST MARINE LTD
+          - Jamuna Shipping Ltd-SEY
+          - Jeeva Shipping Ltd
+          - Jetee Co Ltd
+          - Julius Capital LLC
+          - KASAI AQUATIC INC
+          - KINGS & QUEENS MARITIME CORP
+          - KONTUR SPB
+          - Kangen Maritime Corp
+          - Karika Marine Inc
+          - Kario Maritime Inc
+          - Katarina Shipping Inc-SEY
+          - Key Marvel Ltd
+          - Kipper Marine Solutions FZ-LLC
+          - Kontur-SPB OOO
+          - Kord-Bunker Co Ltd
+          - Korea Achim Shipping Co
+          - Korea Myongdok Shipping Co
+          - Korea Samjong Shipping
+          - Korea Samma Shipping
+          - Korea Yujong Shipping
+          - Korean Ansan Shipping
+          - Kostana Offshore Ltd
+          - Koti Corp
+          - Kroeger Tankers FZE
+          - Kylo Shipping Inc
+          - LEORA SHIPPING LLC
+          - LNG Beta Shipping Pte Ltd
+          - LUKOIL BUNKER
+          - Lafafa Shipping Ltd
+          - Lagoon Shipping Inc
+          - Lai Jing Shipping Ltd
+          - Lambda Transport Consultancy
+          - Lan Dung Sea Freight Service
+          - Layla Maritime Inc
+          - Ledri Shipping Co ltd
+          - Liaoning Foreign Trade
+          - Lidoil DMCC
+          - Light Maritime Ltd
+          - Linnet Marguerite Ltd
+          - Loengo Shipping & Trader Ltd
+          - Longren Navigation Ltd
+          - Lucky Union Marine Ltd
+          - Luena Aquatic Inc
+          - MAZK MANAGEMENT LLC
+          - MERLUZA GROUP LTD
+          - MG-FLOT LLC
+          - MORSEVLOGISTIC LTD
+          - Magic Shipping Ltd
+          - Mariam Ship Management Service
+          - Marine Link Co Ltd
+          - Marine Trans Shipping LLC
+          - MarineQuest Corp
+          - Maritime Ship Trade Co
+          - Matias Ship Management LLC-FZ
+          - Maxcon Marine Services
+          - Maxcon Marine Services Inc
+          - Maxcon Marine Services Inc (UAE)
+          - Menkab LLC
+          - Metis Co Ltd
+          - Moonlight Shipmanagement LLC
+          - Morong Shipping Inc
+          - Morskoy Standart-Bunker LLC
+          - Munai Invest LLC
+          - Munne Co Ltd, Columba Ltd
+          - My Fallen Ltd
+          - Myohyang Shipping Co
+          - NS Antarctic Shipping Inc
+          - NS Laguna Shipping Inc
+          - Nafta-Invest LLC (Russia)
+          - Naga Shipping Inc
+          - Namas Maritime Inc
+          - Nangle Jilli Ltd
+          - Narus Maritime Corp
+          - NautiCraft Ventures Ltd
+          - Nayada Co Ltd
+          - New Dawn Marine Corp (Seychelles)
+          - New Star Marine Limited
+          - Ningyang International Shipmanagement
+          - Nissho Lines Inc
+          - Noble Sphere Corp
+          - Noblefu Co Ltd
+          - Nova Shipmanagement LLC-FZ
+          - OCEAN SHIPPING & MARINE INC
+          - ONE MOON MARINE SERVICES L.L.C.
+          - OPULENT HAVEN CORP
+          - OST SHIPMANAGEMENT SRL
+          - OZEEVO SHIPPING IFSC PVT LTD
+          - Oasis Bloom Corp
+          - Obsidian Shipping Inc-SEY (Seychelles)
+          - Ocean Grow International Shipmanagement
+          - Ocean Speedstar Solutions OPC PVT LTD
+          - Ocean Voyage Corp
+          - Ocean Waters Maritime Corp
+          - OceanElite Innovations FZE
+          - Oceanlink Maritime DMCC
+          - Oceanpack Ship management Pvt
+          - Octans Dorne Ltd
+          - Omni Torrent Ltd
+          - Orchid Ship management LLC-FZ
+          - Orchid Shipmanagement LLC-FZ
+          - PEARL CASCADE CORP
+          - PERSPEKTIVA JSC
+          - PILOT SHIP MANAGEMENT OPC PVT
+          - PISHA INTERNATIONAL SHIPPING
+          - Pacific Logistic & Maritime
+          - Pacific Ocean Shipping Ltd
+          - Pacific Star Management Ltd
+          - Peace Shipmanagement Co Ltd
+          - Peninsula Energy FZE
+          - Pertmarine Shipping Co Ltd
+          - Petropavlovsk-Kamchatskiy
+          - Petrotanker Ltd (Russia)
+          - Phyongchon Shipping & Marine
+          - Polaris Shipmanagement Ltd
+          - Polo Maritime & Trading Inc
+          - Prime Choice navigation ltd
+          - Prime Shipping LLC-RUS
+          - Prominent Shipmanagement Ltd
+          - QATIF MARITIME INC
+          - QINGDAO HUITONG SHIPPING CO
+          - ROSNEFTEFLOT JSC
+          - RP-SHIPPING LLC
+          - Raffles Technical Services
+          - Ragang Shipping Inc
+          - Rahad Maritime Corp
+          - Red Lantern Ltd
+          - Reef Marine Group Corp
+          - Region Express Tanker LLC
+          - Rodnie Polya LLC
+          - Rong Yu Shipping Ltd
+          - Rosewood Shipping LLC
+          - Rosnefteflot JSC
+          - Rptd Sold Russia
+          - Rui Lin Shipping Ltd
+          - S&F Marine Ltd
+          - SA Maritime AFEZCO
+          - SAKHOYLSERVIS OOO
+          - SAPANG SHIPPING INC
+          - SCF Management Services Dubai
+          - SCF TM Ltd
+          - SEAFOAM MARINE LTD
+          - SEASAILOR HOLDINGS LTD
+          - SOFT BREEZE NAVIGATION CORP
+          - SOLSTICE CORP
+          - SOUTH FLEET LTD
+          - SOVCOMFLOT
+          - STREAM SHIP MANAGEMENT FCZO
+          - STREAM SHIP MANAGEMENT FZCO
+          - Sand Gemi Isletmeciligi AS
+          - Sao Viet Petrol Transportation
+          - SeaSerenity Shipping Ltd
+          - Seabound Shipping Consultants
+          - Selena Lively Ltd
+          - Serene Holdings Corp
+          - Shan Hei Shipping Ltd
+          - Shang Shipping Ltd
+          - Shanghai Future Ship Mgmt Co
+          - Shanghai Legendary Ship Mgmt
+          - Shanghai VIII Maritime Co
+          - Shanghai YuAn Shipping Co Ltd
+          - She Shan Shipmanagement Co Ltd
+          - Shen Zhong International Shipping
+          - Shipping Imperial
+          - Shiva Shipping Ltd
+          - Sino Ship Management Co Ltd
+          - Sobat Maritime Corp
+          - South Fleet Ltd
+          - Sovcomflot
+          - Sovcomflot/Sterling Ship Management
+          - Spikoil DMCC
+          - Staksel Co Ltd
+          - Star Ocean Shipmanage Ltd
+          - Stellar Ocean Ltd
+          - Sterling Ship Management
+          - Stravax Shipping Co Ltd
+          - Stream Ship Management FZCO
+          - Streymoy Shipping Ltd
+          - Sunflower Marine Inc
+          - Sunne Co Ltd
+          - Sunor ILLC
+          - Symi Shipping Ltd
+          - TAGABO MARITIME CORP
+          - THEA STEWART LTD
+          - THUNDER SHIPMANAGEMENT LLC-FZ
+          - TIGWA SHIPPING INC
+          - TK NORD PROJECT LLC
+          - TK Nord Project LLC
+          - Tai Shan Yong Heng Shipmgmt
+          - Talihong Shipping Ltd
+          - TechNav Ship Mgmt Corp
+          - Tetris Associates LLC
+          - Thanda Aye Shipping Ltd
+          - Themis Ltd-MAI
+          - Tokyo Gemi Isletmeciligi
+          - Tokyo Gemi Isletmeciligi AS
+          - Tranquil Meadow Corp
+          - Trans See Inc
+          - TransStroy LLC
+          - Traveler Shipping Ltd
+          - Trinity Shipping LLC-RUS
+          - Tunasan Shipping Inc (Mauritius)
+          - Twister Shipmanagement LLC-FZ
+          - ULISS CO LTD
+          - UNITED CARGO FLEET LTD
+          - UVA ALBILLA GROUP LTD
+          - Umbra Navi Shipmanagement
+          - United Fuel Trading UFT Pte
+          - VERT PROJECT LTD
+          - VOLGOTRANS
+          - Vaigai Lines Inc
+          - Vanship Maritime Pvt Ltd
+          - Victory Shipping & Marine Inc
+          - Vigor Marine Services LLP
+          - Vindhya Shipping Pvt Ltd
+          - Virgo Inc
+          - Vogue Tide Corp
+          - Voyage Craft Inc
+          - Voyage Guard Shipmanagement
+          - Vroom Marine Ventures FZE
+          - WAVEVOYAGE VENTURES LTD
+          - WEALTHY CARRIER LTD
+          - WEST MARITIME SERVICES AND TRADING INC
+          - WU HU SHIPMANAGEMENT CO LTD
+          - Wavewhisper Shipping Ltd
+          - Weihai World-Shipping Freight
+          - Westanker Denizcilik ve Tic
+          - Whispering Willow Corp
+          - White Fox Ship Management FZCO
+          - Winocean Management Ltd
+          - Winter Wind Navigation Ltd
+          - Worthaliance Ltd
+          - XINGFU HAI SHIPPING LTD
+          - XINGJUN INTERNATIONAL GROUP
+          - YO SHUI MARINE LTD
+          - YUGUAN SHIP MANAGEMENT
+          - Yitong Shipping Ltd
+          - Yuk Tung Energy PTE Ltd
+          - Yuva Shipping Ltd
+          - Zenith Shipping Inc
+          - Zest Chartering Ltd
+          - Zhao Yao Shipping Ltd
+          - Algae Ship Charter FZCO
+          - AS Calcutta Shipping Co Lt
+          - Bolu Group Ltd
+          - Centauri Services LLC
+          - Dava Shipping Ltd
+          - Eco Max FZE
+          - Evergreen Embrace Corp
+          - Gazprom Flot LLC
+          - Hathaway Co Ltd
+          - Jalyan Ship Management
+          - Jinhui Shipping Ltd
+          - Jizan Maritime Inc
+          - Kalinga Shipmanagement OPC Pvt
+          - Kollam Krew Shipping Pvt Ltd
+          - Maluga Shipping Ltd
+          - Meuse Shipping Inc
+          - "Novatek "
+          - Ocean Quest Marine Inc
+          - Omi Lines Inc
+          - Pergamon Denizcilik Isletmeler
+          - Rang Shipping Ltd
+          - Reveka Marine Limited
+          - Samos Group Ltd
+          - SC Perspective Ltd
+          - Sea Cherisher Co Ltd
+          - Seafaring Savants LLC
+          - Seagull Shipping Co Ltd
+          - Seasky Marine Co Ltd
+          - Silver Tetra Marine Co
+          - Simona Marine Services Ltd
+          - Skadi Ltd
+          - Triviality Shipping LLC
+          - Tru Marine Ltd
+          - Veyronda Seaborne Ltd
+          - Villar Shipmanagement Ltd
+          - Wei Hai Yuan Jing Ship
+          - Zale Shipping Inc
+          - Zulu Ships Management
+        value: SAME
+      - match: Subsidiary of the Organisation for Technological Industries (OTI) and therefore the Syrian Ministry of Defence
+        values:
+          - Organisation for Technological Industries (OTI)
+          - Syrian Ministry of Defence
+      - match: "Carrier Tanker Inc, Fornax Ship Management"
+        values:
+          - Carrier Tanker Inc
+          - Fornax Ship Management
+      - match: "UNKNOWN/ ELGON MARITIME CORP"
+        value: ELGON MARITIME CORP
+      - match: SOVCOMFLOT/STERLING SHIP MANAGEMENT
+        values:
+          - SOVCOMFLOT
+          - STERLING SHIP MANAGEMENT
+      - match: Kurow Shipping Ltd/Prominent Shipmanagement Ltd
+        values:
+          - Kurow Shipping Ltd
+          - Prominent Shipmanagement Ltd
+      - match: Blossom Bridge Corp / Seafaring Savants LLC
+        values:
+          - Blossom Bridge Corp
+          - Seafaring Savants LLC
+      - match: National Maritime Inc, Beks Tanker Isletmeciligi AS
+        values:
+          - National Maritime Inc
+          - Beks Tanker Isletmeciligi AS
+      - match: Lumen Ship Management - FZCO
+        value: Lumen Ship Management FZCO
+      - match: Star Sapphire Company Limited - 114680249Star Sapphire Dragon Company Limited - 114596299Star Sapphire Hotel Company Limited - 114669458Star Sapphire Phoenix Company Limited - 114674281Star Sapphire Trading Company Limited - 114620785
+        values:
+          - Star Sapphire Company Limited
+          - Star Sapphire Dragon Company Limited
+          - Star Sapphire Hotel Company Limited
+          - Star Sapphire Phoenix Company Limited
+          - Star Sapphire Trading Company Limited
+      - match: JSC 'Krasnodargastroy'
+        value: JSC “Krasnodargastroy”
+      - match: JSC 'Lengazpetstroy'
+        value: JSC “Lengazpetstroy”
+      - match: JSC 'Volgogaz'
+        value: JSC “Volgogaz”
+      - match: LLC'NGKM'
+        value: LLC ”NGKM”
+      - match: Yuzhny Proyect (Southern Project),  affiliated with the Saint Petersburg-based Rossiya bank, which is co-owned by oligarch Yury KOVALCHUK (RUS0007)
+        values:
+          - Yuzhny Proyect
+          - Rossiya bank
+      - match: Limited Liability Company <<STROYGAZMONTAZH>>
+        value: Limited Liability Company STROYGAZMONTAZH
+      - match: M Babaei Indsutries
+        value: M Babaei Industries
+      - match: "ASHOK (Gems and Jewellery) Co., Ltd. (alternate spelling: Thawka)"
+        values:
+          - ASHOK (Gems and Jewellery) Co., Ltd
+          - Thawka
+      - match: "Cancri (Gems and Jewellery) Co., Ltd. (alternate spelling: Phu Sha Star)"
+        values:
+          - Cancri (Gems and Jewellery) Co., Ltd
+          - Phu Sha Star
+      - match: "Da Na Theiddi Kyal (Jewellery) Co., Ltd. (alternate spelling: Da Na Theiddihi Star and Danatheidi Star (Gems and Jewellery) Co., Ltd)"
+        values:
+          - Da Na Theiddi Kyal (Jewellery) Co., Ltd
+          - Da Na Theiddihi Star
+          - Danatheidi Star (Gems and Jewellery) Co., Ltd
+      - match: "Du Won Kyal (Jewellery) Co., Ltd. (alternate spelling: Du Won Star and Du Won Star (Gems & Jewellery) Co., Ltd.)"
+        values:
+          - Du Won Kyal (Jewellery) Co., Ltd
+          - Du Won Star
+          - Du Won Star (Gems & Jewellery) Co., Ltd
+      - match: "Hawk Star (Gems and Jewellery) Co., Ltd. (alternate spellings: Thine Ngat Kyal (Jewellery) Co., Ltd. and Thein Nget Star)"
+        values:
+          - Hawk Star (Gems and Jewellery) Co., Ltd
+          - Thine Ngat Kyal (Jewellery) Co., Ltd
+          - Thein Nget Star
+      - match: "Inndagaw Industrial Complex; Kanpauk Oil Palm Estate and Palm Oil Mill Project (KOPP)"
+        values:
+          - "Inndagaw Industrial Complex"
+          - "Kanpauk Oil Palm Estate and Palm Oil Mill Project (KOPP)"
+      - match: "Iran Aircraft Industries (ACI)/SAHA/SIA"
+        values:
+          - Iran Aircraft Industries (ACI)
+      - match: Iran Aircraft Manufacturing Company/HESA/HASA
+        values:
+          - Iran Aircraft Manufacturing Company
+      - match: "Kone Yar Thi Star (alternate spelling: Aquarii (Gems & Jewellery) Co., Ltd."
+        values:
+          - Kone Yar Thi Star
+          - Aquarii (Gems & Jewellery) Co., Ltd
+      - match: "Lann Pyi Marine Company Ltd; Larbathakedi Micro Finance Service Association Inc."
+        values:
+          - "Lann Pyi Marine Company Ltd"
+          - "Larbathakedi Micro Finance Service Association Inc."
+      - match: "Lyrae (Gems and Jewellery) Co., Ltd. (alternate spelling: Saung Tar Yar Star)"
+        values:
+          - Lyrae (Gems and Jewellery) Co., Ltd
+          - Saung Tar Yar Star
+      - match: "Mon Hsu Jewellery Co., Ltd. (alternate spelling: Mine Shu)"
+        values:
+          - Mon Hsu Jewellery Co., Ltd
+          - Mine Shu
+      - match: "Myawaddy Trading Ltd; Myawaddy Travels and Tours Co., Ltd."
+        values:
+          - "Myawaddy Trading Ltd"
+          - "Myawaddy Travels and Tours Co., Ltd."
+      - match: "Pone Nyet (Gems and Jewellery) Co., Ltd. (alternate spelling: Pone Nyat and One Nyat (Jewellery) Co., Ltd.)"
+        values:
+          - Pone Nyet (Gems and Jewellery) Co., Ltd
+          - Pone Nyat
+          - One Nyat (Jewellery) Co., Ltd
+      - match: "Sabai (Jewellery) Co., Ltd. (alternate spellings: Sabae (Gems and Jewellery) Co., Ltd., and Jasmine)"
+        values:
+          - Sabai (Jewellery) Co., Ltd
+          - Sabae (Gems and Jewellery) Co., Ltd
+          - Jasmine
+      - match: "Seik Ta Ya Kyal (Jewellery) Co., Ltd. (alternate spellings: Si Tra Star, Seik Tra Star and Seiktra Star (Gems and Jewellery) Co., Ltd.)"
+        values:
+          - Seik Ta Ya Kyal (Jewellery) Co., Ltd
+          - Si Tra Star
+          - Seik Tra Star
+          - Seiktra Star (Gems and Jewellery) Co., Ltd
+      - match: Agro Pack Co., Ltd.; Aung Myint Mo Min Securities
+        values:
+          - Agro Pack Co., Ltd.
+          - Aung Myint Mo Min Securities
+      - match: Container Transport and Port Clearance Yard (Ywama) Cotton Ginning Factory (Myitthar)
+        values:
+          - Container Transport and Port Clearance Yard (Ywama)
+          - Cotton Ginning Factory (Myitthar)
+      - match: Dagon Dairy Farm, Dairy Factory and Cannery (Pyinmabin)
+        values:
+          - Dagon Dairy Farm
+          - Dairy Factory and Cannery (Pyinmabin)
+      - match: Myanmar Sigma Cable Wire Factory (Hlaing Thar Yar);
+        values:
+          - Myanmar Sigma Cable Wire Factory (Hlaing Thar Yar)
+      - match: Nan Myaing Coffee (Pyin Oo Lwin); Okkala Golf Resort
+        values:
+          - Nan Myaing Coffee (Pyin Oo Lwin)
+          - Okkala Golf Resort
+      - match: No. 1 Steel Rolling Mill in Kyauk Swae Kyowe on site of Pinpet Iron Ore Mine
+        values:
+          - No. 1 Steel Rolling Mill in Kyauk Swae Kyowe
+          - Pinpet Iron Ore Mine
+      - match: No. 2 Steel Mill and Fabrication Shop (Myaungdagar)
+        values:
+          - No. 2 Steel Mill and Fabrication Shop (Myaungdagar)
+      - match: No. 3 Steel Mill 3 (Ywama)
+        values:
+          - No. 3 Steel Mill 3 (Ywama)
+      - match: Arvada/Arfada Petroleum Company JSC
+        values:
+          - Arvada Petroleum Company JSC
+          - Arfada Petroleum Company JSC
+      - match: SSRC, Barzeh Street, PO Box 4470
+        value: SCIENTIFIC STUDIES AND RESEARCH CENTER
+      - match:
+          - Libyan Investment Authority, designated in UNSCR 1970.
+          - Subsidiary of the Libyan Investment Authority
+        value: Libyan Investment Authority
+      - match: Libyan subsidiary of the Central Bank of Libya.
+        value: Central Bank of Libya
+      - match: Basij Cooperative Foundation (BCF)Bank Sepah
+        values:
+          - Basij Cooperative Foundation (BCF)
+          - Bank Sepah
+      - match: Established by Bonyad Taavon Sepah (aka IRGC Cooperative Foundation)
+        value: Bonyad Taavon Sepah
+      - match:
+          - Iranian Revolutionary Guard Corps
+          - Islamic Revolutionary Guard Corps
+        value: Islamic Revolutionary Guard Corps (IRGC)
+      - match:
+          - Iran Aviation Industries Organisation (IAIO) (a subsidiary of MODAFL)
+        values:
+          - Iran Aviation Industries Organisation (IAIO)
+      - match:
+          - Atomic Energy Organisation of Iran (AEOI)
+        values:
+          - Atomic Energy Organisation of Iran (AEOI)
+      - match: MODAFL
+        values:
+          - Ministry of Defence and Armed Forces Logistics
+      - match:
+          - Defence Industries Organisation (DIO), Ministry of Defence Armed Forces Logistics (MODAFL)
+        values:
+          - Defence Industries Organisation (DIO)
+          - Ministry of Defence Armed Forces Logistics (MODAFL)
+      - match:
+          - Owned/controlled by Khatam al Anbiya Construction Headquarters
+          - Khatam-al Anbiya Construction Headquarters
+          - KHATAM AL-ANBIYA CONSTRUCTION HEADQUARTERS (KAA)
+        value: Khatam al Anbiya Construction Headquarters
+      - match: Shahid Ahmad Kazemi Industries Group, Aerospace Industries Organisation (AIO)
+        values:
+          - Shahid Ahmad Kazemi Industries Group
+          - Areospace Industries Organisation (AIO)
+      - match: Hamsho International, Baghdad Street, PO Box 8254 Damascus
+        value: Hamsho International
+      - match: CHEAZ Group;  TsUP CHEAZ; ChEAZ-ELPRY; CHEAZ-Siberia; ERA Engineering ; IZVA
+        values:
+          - CHEAZ Group
+          - TsUP CHEAZ
+          - ChEAZ-ELPRY
+          - CHEAZ-Siberia
+          - ERA Engineering
+          - IZVA
+      - match:
+          - Cham Holding
+          - Cham Holdings
+        contains:
+          - Cham Holding (parent)
+          - Cham Holdings (parent)
+        value: Cham Holdings
+      - match: Kurort Livadiia; OOO Analitichesky Tsentr Katekhon; OOO TSARGRAD Media; OOO Imenie TSARGRAD
+        values:
+          - Kurort Livadiia
+          - OOO Analitichesky Tsentr Katekhon
+          - OOO TSARGRAD Media
+          - OOO Imenie TSARGRAD
+      - match: DTRSC. Ministry of Defence and Armed Force Logistics (MODAFL)
+        values:
+          - Ministry of Defence and Armed Forces Logistics (MODAFL)
+      - match: Iran Electronic Industries (a MODAFL subsidiary)
+        values:
+          - Iran Electronic Industries
+          - Ministry of Defence and Armed Forces Logistics (MODAFL)
+      - match: Chernomorneftegaz (also subject to Sanctions)
+        values:
+          - Chernomorneftegaz
+      - match: Agropromyshlenny Kompleks Voronezhski OOO, Anninskii Elevator OOO, Auditkonsalt OOO, Belinveststroi OOO, Dve Stolitsy OOO, Kontrakt OOO, Ladoga OOO, Nekommercheskaya Organizatsiya Fond Khimicheskoe Razoruzhenie I Konversiya
+        values:
+          - Agropromyshlenny Kompleks Voronezhski OOO
+          - Anninskii Elevator OOO
+          - Auditkonsalt OOO
+          - Belinveststroi OOO
+          - Dve Stolitsy OOO
+          - Kontrakt OOO
+          - Ladoga OOO
+          - Nekommercheskaya Organizatsiya Fond Khimicheskoe Razoruzhenie I Konversiya
+      - match: Azovskaya Zernovaya Kompaniya OOO Ekspluatiruyushchaya Kompaniya Tsentr OOO
+        values:
+          - Azovskaya Zernovaya Kompaniya OOO
+          - Ekspluatiruyushchaya Kompaniya Tsentr OOO
+      - match: OOO SCF Arctic; SCF Management Services (Cyprus) Ltd; PAO Novoship; SCF management Services (St. Petersburg) Ltd; Sovcomflot (UK) Ltd; SCF Management Services (St. Petersburg) Ltd  subdivision in Yuzhno-Sakhalinsk;
+        values:
+          - OOO SCF Arctic
+          - SCF Management Services (Cyprus) Ltd
+          - PAO Novoship
+          - SCF management Services (St. Petersburg) Ltd
+          - Sovcomflot (UK) Ltd
+          - SCF Management Services (St. Petersburg) Ltd subdivision in Yuzhno-Sakhalinsk
+      - match: Sovcomflot (Cyprus) Ltd; SCF Management Services (Novorossiysk) Ltd; SCF GEO
+        values:
+          - Sovcomflot (Cyprus) Ltd
+          - SCF Management Services (Novorossiysk) Ltd
+          - SCF GEO
+      - match: Kolmar Prodazhi I Logistika LLC Kolmar-Tour LLC SibProektGrupp LLC Kolmar Administration Company LLC JSC Mining and Processing Complex Inaglinsky JSC Mining and Processing Complex Denisovsky
+        values:
+          - Kolmar Prodazhi I Logistika LLC
+          - Kolmar-Tour LLC
+          - SibProektGrupp LLC
+          - Kolmar Administration Company LLC
+          - JSC Mining and Processing Complex Inaglinsky
+          - JSC Mining and Processing Complex Denisovsky
+      - match: Bena Properties (subsidiary), Cham Holding Building, Daraa Highway, Ashrafiyat Sahnaya Rif Dimashq, Syria, P.O. Box 9525
+        values:
+          - Bena Properties
+      - match: Novin Energy, TAMAS
+        values:
+          - Novin Energy
+          - TAMAS
+      - match: Lobaye Invest SARLU, owned by M-Finans
+        values:
+          - Lobaye Invest SARLU
+          - M-Finans
+      - match: "Joint-Stock Company 'Russian Electronics' Ruselectronics"
+        values:
+          - Joint-Stock Company 'Russian Electronics'
+          - Ruselectronics
+      - match: AKTSIONERNOE OBSHCHESTVO NAUCHNO-PROIZVODSTVENNOE PREDPRIYATIE SALYUT-27; ZAKRYTOE AKTSIONERNOE OBSHCHESTVO GOSTINICHNYI KOMPLEKS KRONA
+        values:
+          - AKTSIONERNOE OBSHCHESTVO NAUCHNO-PROIZVODSTVENNOE PREDPRIYATIE SALYUT-27
+          - ZAKRYTOE AKTSIONERNOE OBSHCHESTVO GOSTINICHNYI KOMPLEKS KRONA
+      - match: ZAKRYTOE AKTSIONERNOE OBSHCHESTVO NAUCHNO-PROIZVODSTVENNOE PREDPRIYATIE SALYUT-MIKRO; AKTSIONERNOE OBSHCHESTVO NAUCHNO-PROIZVODSTVENNOE PREDPRIYATIE SALYUT-25;
+        values:
+          - ZAKRYTOE AKTSIONERNOE OBSHCHESTVO NAUCHNO-PROIZVODSTVENNOE PREDPRIYATIE SALYUT-MIKRO
+          - AKTSIONERNOE OBSHCHESTVO NAUCHNO-PROIZVODSTVENNOE PREDPRIYATIE SALYUT-25
+      - match: P & P HOLDING GMBH
+        value: P & P Holding GmbH
+      - match: EKC AG USA Corporation; EKC AG Turkey Madencilik Anonim Sirketi;
+        values:
+          - EKC AG USA Corporation
+          - EKC AG Turkey Madencilik Anonim Sirketi
+      - match: Ministry of Science and Higher Education of the Russian Federation
+        value: Ministry of Science and Higher Education of the Russian Federation
+      - match: CLOSED JOINT-STOCK COMPANY SCIENTIFIC AND PRODUCTION LASER-TECHNOLOGICAL CENTER; ASSOCIATION FOR PROMOTING IMPROVEMENT OF HOUSING CONDITIONS OF EMPLOYEES OF THE ORGANIZATION OF THE NOVOSIBIRSK SCIENTIFIC CENTER "AKADEMZHILSTROY-1";
+        values:
+          - CLOSED JOINT-STOCK COMPANY SCIENTIFIC AND PRODUCTION LASER-TECHNOLOGICAL CENTER
+          - ASSOCIATION FOR PROMOTING IMPROVEMENT OF HOUSING CONDITIONS OF EMPLOYEES OF THE ORGANIZATION OF THE NOVOSIBIRSK SCIENTIFIC CENTER "AKADEMZHILSTROY-1"
+      - match: NEKOMMERCHESKAYA ORGANIZATSIYA SOYUZ ROSSIISKIKH ORUZHEINIKOV IMENI M.T. KALASHNIKOVA
+        value: NEKOMMERCHESKAYA ORGANIZATSIYA SOYUZ ROSSIISKIKH ORUZHEINIKOV IMENI M.T. KALASHNIKOVA
+      - match: Vorkutaugol JSC
+        value: Vorkutaugol JSC
+      - match: AVILON KHOLDINGRUS
+        value: AVILON KHOLDINGRUS
+      - match: Suzhou Neway Machine Tool Design and Research Institute Co., Ltd.; Neway Cnc (USA), Inc.
+        values:
+          - Suzhou Neway Machine Tool Design and Research Institute Co., Ltd.
+          - Neway Cnc (USA), Inc.
+      - match: "SUZHOU SHUNYI INVESTMENT CO., LTD"
+        value: SUZHOU SHUNYI INVESTMENT CO., LTD
+      - match: "苏州百胜动力科技有限公司 – SUZHOU YUM POWER TECHNOLOGY CO., LTD.; 苏州佰昇国际贸易有限公司 - SUZHOU BAISHENG INTERNATIONAL TRADE CO., LTD."
+        values:
+          - 苏州百胜动力科技有限公司 – SUZHOU YUM POWER TECHNOLOGY CO., LTD
+          - 苏州佰昇国际贸易有限公司 - SUZHOU BAISHENG INTERNATIONAL TRADE CO., LTD
+      - match: INITSIAVIVA-23
+        value: INITSIAVIVA-23
+      - match: "ALTAIR F III S.A R.LSH INVEST LIMITEDGALACKTIKA LIMITED LIABILITY COMPANY"
+        values:
+          - ALTAIR F III S.A R.L
+          - SH INVEST LIMITED
+          - GALACKTIKA LIMITED LIABILITY COMPANY
+      - match: "MASTEL MAKINA ITHALAT IHRACAT LIMITED SIRKETI CARSI SUBESI"
+        value: MASTEL MAKINA ITHALAT IHRACAT LIMITED SIRKETI CARSI SUBESI
+      - match: Ahdaf Investment Company has majority ownership (51.53%)1. AHDAF INVESTMENT COMPANY 2. GHADR INVESTMENT DEVELOPMENT CO. 3. SABA KARUN OIL AND GAS DEVELOPMENT COMPANY 4. SABA NAFT SUPPORT SERVICES COMPANY5. TOSSEE HAMI GHADR CO.
+        values:
+          - Ahdaf Investment Company
+          - GHADR INVESTMENT DEVELOPMENT CO.
+          - SABA KARUN OIL AND GAS DEVELOPMENT COMPANY
+          - SABA NAFT SUPPORT SERVICES COMPANY
+          - TOSSEE HAMI GHADR CO.
+      - match: "(1) Sokan Arvand Ship Management Company (2) Persia Telecom Co. (3) Nilsun Kish (4) IOEC E&P"
+        values:
+          - Sokan Arvand Ship Management Company
+          - Persia Telecom Co.
+          - Nilsun Kish
+          - IOEC E&P
+      - match: ELKO RITEIL LLC
+        value: ELKO RITEIL LLC
+      - match: LEASING PROFI LLC
+        value: LEASING PROFI LLC
+      - match: Prince Group Holdings Limited
+        value: Prince Group Holdings Limited
+      - match: Prince Group
+        value: Prince Group
+      - match: LIMITED LIABILITY COMPANY 'SIBERIAN SCIENTIFIC AND INDUSTRIAL CORPORATION'; NP 'NPK 'Siberian Ceramics'
+        values:
+          - LIMITED LIABILITY COMPANY 'SIBERIAN SCIENTIFIC AND INDUSTRIAL CORPORATION'
+          - NP 'NPK 'Siberian Ceramics'
+      - match: "Public Joint Stock Company 'BINBANK'; ASSOCIATION 'CTT 'ACADEMNOVOTECH'; NON-COMMERCIAL PARTNERSHIP INNOVATION-IMPLEMENTATION CENTER; ASSOCIATION TECHNOLOGICAL PLATFORM AIR MOBILITY AND AVIATION TECHNOLOGIES;"
+        values:
+          - Public Joint Stock Company 'BINBANK'
+          - ASSOCIATION 'CTT 'ACADEMNOVOTECH'
+          - NON-COMMERCIAL PARTNERSHIP INNOVATION-IMPLEMENTATION CENTER
+          - ASSOCIATION TECHNOLOGICAL PLATFORM AIR MOBILITY AND AVIATION TECHNOLOGIES

@@ -4,6 +4,7 @@ from normality.cleaning import collapse_spaces
 from followthemoney.types import registry
 
 from zavod import Context, helpers as h
+from zavod.entity import Entity
 from zavod.shed.internal_data import fetch_internal_data
 
 
@@ -43,6 +44,11 @@ def crawl_row(context: Context, row: Dict[str, Any]) -> None:
         email_clean = registry.email.clean(email)
         if email_clean is not None:
             entity.add("email", email)
+
+    if not entity.has_statements:
+        context.log.info("No statements for entity, skipping.", entity_id=entity.id)
+        return None
+
     context.emit(entity)
 
     if director:
@@ -76,31 +82,36 @@ def emit_rel(
     schema_name: str,
     row: Dict[str, Any],
     name: str,
-    entity,
+    entity: Entity,
     id: str,
     citizenship: str,
     start_date: str,
     partner_share: str,
-):
+) -> None:
     """Generalized function to process a director or partner."""
     if name == "NULL":
-        return None
+        return
     person = context.make("Person")
     person.id = context.make_id(name, id)
     person.add("name", name)
+
     if citizenship != "NULL":
         for citizenship in h.multi_split(citizenship, [","]):
             person.add("citizenship", citizenship)
+
+    if not person.has_statements:
+        return
+
     context.emit(person)
 
     relationship = context.make(schema_name)
     relationship.id = context.make_id(person.id, schema_name, entity.id)
     if start_date != "NULL":
         h.apply_date(relationship, "startDate", start_date)
-    relationship.add("director" if schema_name == "Directorship" else "owner", person)
-    relationship.add(
-        "organization" if schema_name == "Directorship" else "asset", entity
-    )
+    person_prop = "director" if schema_name == "Directorship" else "owner"
+    relationship.add(person_prop, person)
+    org_prop = "organization" if schema_name == "Directorship" else "asset"
+    relationship.add(org_prop, entity)
 
     if schema_name == "Ownership" and partner_share != "NULL":
         relationship.add("percentage", partner_share)
@@ -117,8 +128,9 @@ def crawl(context: Context) -> None:
         original_headers = next(reader)
 
         # Translate headers to English
-        header_mapping = [
-            context.lookup_value("columns", collapse_spaces(cell))
+        header_mapping: list[str] = [
+            context.lookup_value("columns", collapse_spaces(cell), warn_unmatched=True)
+            or cell
             for cell in original_headers
         ]
         if any(header is None for header in header_mapping):
@@ -134,6 +146,7 @@ def crawl(context: Context) -> None:
         for index, row in enumerate(dict_reader):
             if index > 0 and index % 10000 == 0:
                 context.log.info("Processed rows", rows=index)
+            assert row is not None
             crawl_row(context, row)
             # if index >= 100:
             #     break

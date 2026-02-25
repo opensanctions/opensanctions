@@ -3,12 +3,11 @@ from rigour.mime.types import XLSX
 from openpyxl import load_workbook
 
 from zavod import Context
-from zavod.shed.zyte_api import fetch_html, fetch_resource
+from zavod.extract.zyte_api import fetch_html, fetch_resource
 from zavod import helpers as h
 
 
 def crawl_item(row: Dict[str, str], context: Context):
-
     entity = context.make("LegalEntity")
     entity.id = context.make_id(row.get("provider_name"), row.get("npi"))
     entity.add("name", row.pop("provider_name"))
@@ -36,11 +35,16 @@ def crawl_item(row: Dict[str, str], context: Context):
 
 
 def crawl_excel_url(context: Context):
-    file_xpath = "//a[starts-with(@href, 'https://mmac.mo.gov/')][contains(@href, 'sanction-list') or contains(@href, 'Sanction-List')]"
-    doc = fetch_html(context, context.data_url, file_xpath)
-    links = doc.xpath(file_xpath)
-    assert len(links) == 1, links
-    return links[0].get("href")
+    excel_xpath = (
+        ".//li//a[contains(@href, 'Sanction-List') and contains(@href, '.xlsx')]/@href"
+    )
+    exclusions_page = fetch_html(
+        context,
+        context.data_url,
+        excel_xpath,
+    )
+    excel_url = h.xpath_string(exclusions_page, excel_xpath)
+    return excel_url
 
 
 def crawl(context: Context) -> None:

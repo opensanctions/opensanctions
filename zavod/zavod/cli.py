@@ -4,8 +4,9 @@ from pathlib import Path
 from typing import Optional, List
 
 import click
+from click.shell_completion import CompletionItem
 
-from followthemoney.cli.util import InPath, OutPath
+from followthemoney.cli.util import OutPath
 from followthemoney.statement import CSV, FORMATS
 from nomenklatura.matching import DefaultAlgorithm
 from nomenklatura.settings import STATEMENT_BATCH
@@ -25,18 +26,39 @@ from zavod.logs import (
 )
 from zavod.meta import load_dataset_from_path, get_multi_dataset, Dataset
 from zavod.publish import publish_dataset, publish_failure
-from zavod.reset import reset_caches
 from zavod.runtime.versions import make_version
 from zavod.stateful.model import create_db
 from zavod.store import get_store
 from zavod.tools.dump_file import dump_dataset_to_file
 from zavod.tools.load_db import load_dataset_to_db
 from zavod.tools.summarize import summarize as _summarize
-from zavod.tools.wikidata import run_app
 from zavod.validators import validate_dataset
 
 log = get_logger(__name__)
 STMT_FORMATS = click.Choice(FORMATS, case_sensitive=False)
+
+
+# Activate shell completions by putting the following in your zsh direnv .envrc
+# This will cache the completion function for 30 days to now slow shell startup down
+# (){ [[ $# -gt 0 ]] || _ZAVOD_COMPLETE=zsh_source zavod > .zavod-complete.zsh; source .zavod-complete.zsh; } .zavod-complete.zsh(Nm-30)
+# Alternatively, the slow way that does not cache is
+# eval "$(_ZAVOD_COMPLETE=zsh_source zavod)"
+class DatasetPath(click.Path):
+    """Custom Click parameter type for dataset paths that provides shell completion."""
+
+    def shell_complete(
+        self, ctx: click.Context, param: click.Parameter, incomplete: str
+    ) -> List[CompletionItem]:
+        completions: list[CompletionItem] = []
+        for path in sorted(Path("datasets").glob("**/*.yml")):
+            if incomplete in path.name:
+                completions.append(CompletionItem(str(path)))
+        return completions
+
+
+DatasetInPath = DatasetPath(
+    dir_okay=False, readable=True, path_type=Path, allow_dash=True
+)
 
 
 def _load_dataset(path: Path) -> Dataset:
@@ -65,13 +87,14 @@ def cli(debug: bool = False) -> None:
 
 
 @cli.command("crawl", help="Crawl a specific dataset")
-@click.argument("dataset_path", type=InPath)
+@click.argument("dataset_path", type=DatasetInPath)
 @click.option("-d", "--dry-run", is_flag=True, default=False)
-@click.option("-c", "--clear", is_flag=True, default=False)
-def crawl(dataset_path: Path, dry_run: bool = False, clear: bool = False) -> None:
+@click.option("--clear-data/--keep-data", is_flag=True, default=True)
+def crawl(dataset_path: Path, dry_run: bool = False, clear_data: bool = False) -> None:
     dataset = _load_dataset(dataset_path)
-    if clear:
+    if clear_data:
         clear_data_path(dataset.name)
+
     try:
         crawl_dataset(dataset, dry_run=dry_run)
     except RunFailedException:
@@ -79,9 +102,9 @@ def crawl(dataset_path: Path, dry_run: bool = False, clear: bool = False) -> Non
 
 
 @cli.command("validate", help="Check the integrity of a dataset")
-@click.argument("dataset_path", type=InPath)
-@click.option("-c", "--clear", is_flag=True, default=False)
-def validate(dataset_path: Path, clear: bool = False) -> None:
+@click.argument("dataset_path", type=DatasetInPath)
+@click.option("-r", "--rebuild-store", is_flag=True, default=False)
+def validate(dataset_path: Path, rebuild_store: bool = False) -> None:
     dataset = _load_dataset(dataset_path)
     if dataset.model.disabled:
         log.info("Dataset is disabled, skipping: %s" % dataset.name)
@@ -89,7 +112,7 @@ def validate(dataset_path: Path, clear: bool = False) -> None:
     linker = get_dataset_linker(dataset)
     store = get_store(dataset, linker)
     try:
-        store.sync(clear=clear)
+        store.sync(clear=rebuild_store)
         validate_dataset(dataset, store.view(dataset, external=False))
     except Exception:
         log.exception("Validation failed for %r" % dataset_path)
@@ -98,9 +121,9 @@ def validate(dataset_path: Path, clear: bool = False) -> None:
 
 
 @cli.command("export", help="Export data from a specific dataset")
-@click.argument("dataset_path", type=InPath)
-@click.option("-c", "--clear", is_flag=True, default=False)
-def export(dataset_path: Path, clear: bool = False) -> None:
+@click.argument("dataset_path", type=DatasetInPath)
+@click.option("-r", "--rebuild-store", is_flag=True, default=False)
+def export(dataset_path: Path, rebuild_store: bool = False) -> None:
     dataset = _load_dataset(dataset_path)
     if dataset.model.disabled:
         log.info("Dataset is disabled, skipping: %s" % dataset.name)
@@ -108,7 +131,7 @@ def export(dataset_path: Path, clear: bool = False) -> None:
     linker = get_dataset_linker(dataset)
     store = get_store(dataset, linker)
     try:
-        store.sync(clear=clear)
+        store.sync(clear=rebuild_store)
         export_dataset(dataset, store.view(dataset, external=False))
     except Exception:
         log.exception("Failed to export: %s" % dataset_path)
@@ -116,11 +139,11 @@ def export(dataset_path: Path, clear: bool = False) -> None:
 
 
 @cli.command("publish", help="Publish data from a specific dataset")
-@click.argument("dataset_path", type=InPath)
+@click.argument("dataset_path", type=DatasetInPath)
 @click.option("-l", "--latest", is_flag=True, default=False)
 def publish(dataset_path: Path, latest: bool = False) -> None:
     dataset = _load_dataset(dataset_path)
-    make_version(dataset, settings.RUN_VERSION, overwrite=False)
+    make_version(dataset, settings.RUN_VERSION, append_new_version_to_history=False)
     try:
         publish_dataset(dataset, latest=latest)
     except Exception:
@@ -129,22 +152,23 @@ def publish(dataset_path: Path, latest: bool = False) -> None:
 
 
 @cli.command("run", help="Crawl, export and then publish a specific dataset")
-@click.argument("dataset_path", type=InPath)
+@click.argument("dataset_path", type=DatasetInPath)
 @click.option("-l", "--latest", is_flag=True, default=False)
-@click.option("-c", "--clear", is_flag=True, default=False)
+@click.option("--clear-data/--keep-data", is_flag=True, default=True)
 def run(
     dataset_path: Path,
     latest: bool = False,
-    clear: bool = False,
+    clear_data: bool = False,
 ) -> None:
     dataset = _load_dataset(dataset_path)
-    if clear:
+    if clear_data:
         clear_data_path(dataset.name)
+
     if dataset.model.disabled:
         log.info("Dataset is disabled, skipping: %s" % dataset.name)
         publish_failure(dataset, latest=latest)
         sys.exit(0)
-    # Crawl
+    # crawl if it's a dataset, just create a new version if it's a collection
     if dataset.model.entry_point is not None and not dataset.is_collection:
         try:
             crawl_dataset(dataset, dry_run=False)
@@ -152,9 +176,9 @@ def run(
             publish_failure(dataset, latest=latest)
             sys.exit(1)
     else:
-        make_version(dataset, settings.RUN_VERSION, overwrite=True)
+        # crawl_dataset -> Context.begin does this in the case above
+        make_version(dataset, settings.RUN_VERSION, append_new_version_to_history=True)
 
-    reset_caches()
     linker = get_dataset_linker(dataset)
     store = get_store(dataset, linker)
     # Validate
@@ -171,7 +195,6 @@ def run(
     # Export and Publish
     try:
         export_dataset(dataset, view)
-        reset_caches()
         publish_dataset(dataset, latest=latest)
 
         if not dataset.is_collection and dataset.model.load_statements:
@@ -184,7 +207,7 @@ def run(
 
 
 @cli.command("load-db", help="Load dataset statements from the archive into a database")
-@click.argument("dataset_path", type=InPath)
+@click.argument("dataset_path", type=DatasetInPath)
 @click.option("--batch-size", type=int, default=STATEMENT_BATCH)
 @click.option("-x", "--external", is_flag=True, default=False)
 def load_db(
@@ -207,7 +230,7 @@ def load_db(
 
 
 @cli.command("dump-file", help="Dump dataset statements from the archive to a file")
-@click.argument("dataset_path", type=InPath)
+@click.argument("dataset_path", type=DatasetInPath)
 @click.argument("out_path", type=OutPath)
 @click.option("-f", "--format", type=STMT_FORMATS, default=CSV)
 @click.option("-x", "--external", is_flag=True, default=False)
@@ -230,37 +253,29 @@ def dump_file(
 
 
 @cli.command("xref", help="Generate dedupe candidates from the given dataset")
-@click.argument("dataset_paths", type=InPath, nargs=-1)
-@click.option("-c", "--clear", is_flag=True, default=False)
+@click.argument("dataset_paths", type=DatasetInPath, nargs=-1)
+@click.option("-r", "--rebuild-store", is_flag=True, default=False)
 @click.option("-l", "--limit", type=int, default=10000)
 @click.option("-f", "--focus-dataset", type=str, default=None)
 @click.option("-s", "--schema", type=str, default=None)
 @click.option("-a", "--algorithm", type=str, default=DefaultAlgorithm.NAME)
 @click.option("-t", "--threshold", type=float, default=None)
 @click.option("-d", "--discount-internal", "discount_internal", type=float, default=1.0)
-@click.option(
-    "-m",
-    "--conflicting-match-threshold",
-    type=float,
-    default=None,
-    help="Threshold for conflicting match reporting",
-)
 def xref(
     dataset_paths: List[Path],
-    clear: bool,
+    rebuild_store: bool,
     limit: int,
     threshold: Optional[float],
     algorithm: str,
     focus_dataset: Optional[str] = None,
     schema: Optional[str] = None,
-    conflicting_match_threshold: Optional[float] = None,
     discount_internal: float = 1.0,
 ) -> None:
     dataset = _load_datasets(dataset_paths)
     resolver = get_resolver()
     resolver.begin()
     store = get_store(dataset, resolver)
-    store.sync(clear=clear)
+    store.sync(clear=rebuild_store)
     blocking_xref(
         resolver,
         store,
@@ -270,7 +285,6 @@ def xref(
         algorithm=algorithm,
         focus_dataset=focus_dataset,
         schema_range=schema,
-        conflicting_match_threshold=conflicting_match_threshold,
         discount_internal=discount_internal,
     )
     resolver.commit()
@@ -289,14 +303,14 @@ def xref_prune() -> None:
 
 
 @cli.command("dedupe", help="Interactively decide xref candidates")
-@click.argument("dataset_paths", type=InPath, nargs=-1)
-@click.option("-c", "--clear", is_flag=True, default=False)
-def dedupe(dataset_paths: List[Path], clear: bool = False) -> None:
+@click.argument("dataset_paths", type=DatasetInPath, nargs=-1)
+@click.option("-r", "--rebuild-store", is_flag=True, default=False)
+def dedupe(dataset_paths: List[Path], rebuild_store: bool = False) -> None:
     dataset = _load_datasets(dataset_paths)
     resolver = get_resolver()
     resolver.begin()
     store = get_store(dataset, resolver)
-    store.sync(clear=clear)
+    store.sync(clear=rebuild_store)
     resolver.commit()
     dedupe_ui(resolver, store, url_base="https://opensanctions.org/entities/%s/")
 
@@ -325,15 +339,15 @@ def merge(entity_ids: List[str], force: bool = False) -> None:
 
 
 @cli.command("dedupe-edges", help="Merge edge entities that are effectively duplicates")
-@click.argument("dataset_paths", type=InPath, nargs=-1)
-@click.option("-c", "--clear", is_flag=True, default=False)
-def dedupe_edges(dataset_paths: List[Path], clear: bool = False) -> None:
+@click.argument("dataset_paths", type=DatasetInPath, nargs=-1)
+@click.option("-r", "--rebuild-store", is_flag=True, default=False)
+def dedupe_edges(dataset_paths: List[Path], rebuild_store: bool = False) -> None:
     dataset = _load_datasets(dataset_paths)
     resolver = get_resolver()
     try:
         resolver.begin()
         store = get_store(dataset, resolver)
-        store.sync(clear=clear)
+        store.sync(clear=rebuild_store)
         edges.dedupe_edges(resolver, store.view(dataset, external=True))
         resolver.commit()
     except Exception:
@@ -343,7 +357,7 @@ def dedupe_edges(dataset_paths: List[Path], clear: bool = False) -> None:
 
 
 @cli.command("clear", help="Delete the data and state paths for a dataset")
-@click.argument("dataset_path", type=InPath)
+@click.argument("dataset_path", type=DatasetInPath)
 def clear(dataset_path: Path) -> None:
     try:
         dataset = _load_dataset(dataset_path)
@@ -354,8 +368,8 @@ def clear(dataset_path: Path) -> None:
 
 
 @cli.command("summarize")
-@click.argument("dataset_path", type=InPath)
-@click.option("-c", "--clear", is_flag=True, default=False)
+@click.argument("dataset_path", type=DatasetInPath)
+@click.option("-r", "--rebuild-store", is_flag=True, default=False)
 @click.option("-s", "--schema", type=str, default=None)
 @click.option(
     "-f",
@@ -389,14 +403,14 @@ def clear(dataset_path: Path) -> None:
 )
 def summarize(
     dataset_path: Path,
-    clear: bool = False,
+    rebuild_store: bool = False,
     schema: Optional[str] = None,
     from_prop: Optional[str] = None,
     link_props: List[str] = [],
     to_prop: Optional[str] = None,
     to_props: List[str] = [],
 ) -> None:
-    """Sumamrise entities and links in a dataset
+    """Summarise entities and links in a dataset
 
     Example to summarise the positions held by people in a dataset of political entities:
 
@@ -413,7 +427,7 @@ def summarize(
         dataset = _load_dataset(dataset_path)
         linker = get_dataset_linker(dataset)
         store = get_store(dataset, linker)
-        store.sync(clear=clear)
+        store.sync(clear=rebuild_store)
         view = store.view(dataset, external=False)
         _summarize(view, schema, from_prop, link_props, to_prop, to_props)
     except Exception:
@@ -422,14 +436,14 @@ def summarize(
 
 
 @cli.command("wd-up")
-@click.argument("dataset_paths", type=InPath, nargs=-1)
-@click.option("-c", "--clear", is_flag=True, default=False)
+@click.argument("dataset_paths", type=DatasetInPath, nargs=-1)
+@click.option("-r", "--rebuild-store", is_flag=True, default=False)
 @click.option("-a", "--country-adjective", type=str, required=True)
 @click.option("-d", "--country-code", type=str, required=True)
 @click.option("-f", "--focus-dataset", type=str, default=None)
 def wd_up(
     dataset_paths: List[Path],
-    clear: bool,
+    rebuild_store: bool,
     country_code: str,
     country_adjective: str,
     focus_dataset: Optional[str] = None,
@@ -440,17 +454,19 @@ def wd_up(
 
     \b
     zavod wd-up \\
-        --clear \\
+        --rebuild-store \\
         datasets/de/abgeordnetenwatch/de_abgeordnetenwatch.yml \\
         datasets/_analysis/ann_pep_positions/ann_pep_positions.yml \\
         --country-adjective German \\
         --country-code de
     """
+    from zavod.tools.wikidata import run_app
+
     dataset = _load_datasets(dataset_paths)
     resolver = get_resolver()
     resolver.begin()
     store = get_store(dataset, resolver)
-    store.sync(clear=clear)
+    store.sync(clear=rebuild_store)
     run_app(
         resolver,
         store,

@@ -1,11 +1,11 @@
-from typing import List
+from typing import Any, List
 
 from normality import collapse_spaces
 from openpyxl import load_workbook
 from rigour.mime.types import XLSX
 
 from zavod import Context, helpers as h
-from zavod.shed.zyte_api import fetch_html, fetch_resource
+from zavod.extract import zyte_api
 
 
 DATE_SPLITS = [
@@ -20,9 +20,10 @@ DATE_SPLITS = [
     "إدراج في",  # insert
     "الإدراج",  # inclusion
 ]
+PROGRAM_KEY = "EG-UNSC1373"
 
 
-def arabic_to_latin(arabic_date):
+def arabic_to_latin(arabic_date: str) -> str:
     arabic_numerals = "٠١٢٣٤٥٦٧٨٩"
     latin_numerals = "0123456789"
     transtable = str.maketrans(arabic_numerals, latin_numerals)
@@ -36,7 +37,7 @@ def clean_date(date_str: str) -> List[str]:
     return h.multi_split(collapse_spaces(latin_date), DATE_SPLITS)
 
 
-def crawl_terrorist(input_dict: dict, context: Context):
+def crawl_terrorist(context: Context, input_dict: dict[str, Any]) -> None:
     name = input_dict.pop("name")
     case_number = input_dict.pop("case_number")
 
@@ -66,7 +67,7 @@ def crawl_terrorist(input_dict: dict, context: Context):
     context.audit_data(input_dict)
 
 
-def crawl_terrorist_entities(input_dict: dict, context: Context):
+def crawl_terrorist_entities(context: Context, input_dict: dict[str, Any]) -> None:
     name = input_dict.pop("name")
     case_number = input_dict.pop("case_number")
 
@@ -80,7 +81,9 @@ def crawl_terrorist_entities(input_dict: dict, context: Context):
     entity.add("topics", "sanction.counter")
 
     gazette_issue = input_dict.pop("issue_in_official_gazette")
-    sanction = h.make_sanction(context, entity, case_number + gazette_issue)
+    sanction = h.make_sanction(
+        context, entity, case_number + gazette_issue, program_key=PROGRAM_KEY
+    )
     sanction.add("description", f"Case number: {case_number}")
     sanction.add("description", f"Issue in official gazette: {gazette_issue}")
     sanction.add("summary", input_dict.pop("updates"), lang="ara")
@@ -90,7 +93,7 @@ def crawl_terrorist_entities(input_dict: dict, context: Context):
     context.audit_data(input_dict, ignore=["series"])
 
 
-def crawl_legal_persons(input_dict: dict, context: Context):
+def crawl_legal_persons(context: Context, input_dict: dict[str, Any]) -> None:
     name = input_dict.pop("name")
     case_number = input_dict.pop("case_number")
 
@@ -117,8 +120,8 @@ def crawl_legal_persons(input_dict: dict, context: Context):
     context.audit_data(input_dict, ignore=["series"])
 
 
-def crawl(context: Context):
-    response = fetch_html(
+def crawl(context: Context) -> None:
+    response = zyte_api.fetch_html(
         context,
         context.data_url,
         ".//*[@class='LinkStyle AutoDownload']",
@@ -126,9 +129,11 @@ def crawl(context: Context):
         absolute_links=True,
     )
 
-    excel_link = response.find(".//*[@class='LinkStyle AutoDownload']").get("href")
-
-    _, _, _, path = fetch_resource(
+    excel_link = h.xpath_elements(
+        response, ".//*[@class='LinkStyle AutoDownload']", expect_exactly=1
+    )[0].get("href")
+    assert excel_link is not None, "No Excel link found"
+    _, _, _, path = zyte_api.fetch_resource(
         context, "list.xlsx", excel_link, XLSX, geolocation="eg"
     )
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
@@ -138,7 +143,7 @@ def crawl(context: Context):
     for item in h.parse_xlsx_sheet(
         context, wb["الإرهابيين"], header_lookup=context.get_lookup("columns")
     ):
-        crawl_terrorist(item, context)
+        crawl_terrorist(context, item)
 
     for item in h.parse_xlsx_sheet(
         context,
@@ -146,7 +151,7 @@ def crawl(context: Context):
         skiprows=1,
         header_lookup=context.get_lookup("columns"),
     ):
-        crawl_terrorist_entities(item, context)
+        crawl_terrorist_entities(context, item)
 
     for item in h.parse_xlsx_sheet(
         context,
@@ -154,6 +159,6 @@ def crawl(context: Context):
         skiprows=1,
         header_lookup=context.get_lookup("columns"),
     ):
-        crawl_legal_persons(item, context)
+        crawl_legal_persons(context, item)
 
     assert len(wb.sheetnames) == 3, wb.sheetnames

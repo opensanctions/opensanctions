@@ -80,7 +80,9 @@ lookups:
   type.address:
     lowercase: true
     options:
-      - match: Unknown
+      - match:
+          - Unknown
+          - Nfa
         value: null
   type.country:
     lowercase: true
@@ -130,8 +132,15 @@ lookups:
       - match: "09818186"
         # previous name according to https://find-and-update.company-information.service.gov.uk/company/09818186
         value: "FARROW & BALL ORANGERIES LTD"
-      # Director's dob provided instead of the company name: 
+      # Director's dob provided instead of the company name:
       # https://www.opensanctions.org/entities/gb-coh-named-05-08-1966/
       # https://find-and-update.company-information.service.gov.uk/disqualified-officers/natural/HK0GlB_42rNskR15KNhpZVSFwfE
-      - match: 05/08/1966
+      - match:
+          - 05/08/1966
+          - 31/12/1963
         value: null
+  type.string:
+    options:
+      - match: P.O.BOX 14155-6569
+        prop: postOfficeBox
+        value: "14155-6569"

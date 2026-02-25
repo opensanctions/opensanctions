@@ -52,110 +52,129 @@ lookups:
           - VEREINIGUNG FÜR MÖGLICHERWEISE DIE BARMHERZIGSTEN PRODUKTE DER WIRTSCHAFT
           - ASSOCIAZIONE PER I PRODOTTI POSSIBILMENTE PIÙ MISERICORDIOSI DI ECONOMIA
           - HAAGUDA LAMUTSARIM ULAY HARAKHUMIM BEYOTER SHEL HAKALKALA
+      - match: 'Spolek přátel a příležitostných kamarádů pro výlovy býkovických rybníků "Korálek", "Na Ohrazdě", "Prostřední" a dalších býkovických rybníků a rybníku "Na firmě"a dalších rybníků na území Kunštátska, Lysicka a Boskovicka a také spolek přátel a příležitostných kamarádů pro pořádání různých společenských, kulturních, sportovních, vzdělávacích a ducha rozvíjejících prospěšných aktivit z. s.'
+        value: 'Spolek přátel a příležitostných kamarádů pro výlovy býkovických rybníků "Korálek", "Na Ohrazdě", "Prostřední" a dalších býkovických rybníků a rybníku "Na firmě"a dalších rybníků na území Kunštátska, Lysicka a Boskovicka'
       - match:
           - "."
           - 300755
           - ---
           - 0
-          - 00000000000000000000000
+          - '00000000000000000000000'
           - 580118/0451
-          - " 99 "
+          - '" 99 "'
           - 99
           - "1.2.3."
-          - 04
+          - '04'
           - 580118/0451
           - 695106/1491
           - 300755
           - "-"
           - 1.9.1984
         value: null
+  type.string:
+    options:
+      - match:
+          - "."
+          - 580118/0451
+          - 1.9.1984
+          - "-"
+          - 0
+          - 695106/1491
+          - 300755
+        value: null
+  type.address:
+    options:
+      - match: Zelená voda II. 3080/95, 91501 Nové Mesto nad Váhom, Slovensko, číslo SR štátnej úradnej ES E0007207504, el. adresa pre zákonné úradné doručovanie do ES a do e-schránky:urad@odbory.org, EKVITA@odbory.org. Spolok má od 01.03.21 regionálnu kanceláriu na adr"
+        value: Zelená voda II. 3080/95, 91501 Nové Mesto nad Váhom, Slovensko, číslo SR štátnej úradnej ES E0007207504
+      - match: "Zelená voda II. 3080/95, 91501 Nové Mesto nad Váhom, Slovensko, číslo SR štátnej ES E000720505, el. adresa pre zákonné úradné doručovanie do ES a do e-schránky: urad@odbory.org, EKVITA@odbory.org. Spolok má od 01.03.21 regionálnu kanceláriu na adrese Dvor"
+        value: Zelená voda II. 3080/95, 91501 Nové Mesto nad Váhom, Slovensko, číslo SR štátnej ES E000720505
   type.date:
     options:
-      - match: 
-        - 0213-04-15
-        - 5014-05-31
-        - 0013-02-10
-        - 0212-03-27
-        - 0214-08-11
-        - 0211-10-26
-        - 0203-02-21
-        - 0212-09-11
-        - 0214-10-13
-        - 0199-02-23
-        - 0013-06-03
-        - 0212-09-21
-        - 0012-03-21
-        - 0212-04-23
-        - 0204-06-26
-        - 0212-10-05
-        - 0212-07-09
-        - 0214-09-22
-        - 0213-03-13
-        - 0200-03-27
-        - 0213-01-17
-        - 0212-06-28
-        - 0202-12-19
-        - 0212-11-16
-        - 0204-05-14
-        - 0201-03-31
-        - 3013-09-10
-        - 0013-12-22
-        - 0204-01-06
-        - 0203-03-06
-        - 3001-10-30
-        - 0207-05-29
-        - 0201-02-10
-        - 0092-12-08
-        - 0013-11-14
-        - 0213-03-27
-        - 0201-05-15
-        - 0113-06-03
-        - 0204-03-06
-        - 0212-05-28
-        - 3015-03-03
-        - 0214-03-21
-        - 0996-11-14
-        - 0112-10-29
-        - 3013-03-08
-        - 0213-01-09
-        - 3013-06-27
-        - 0200-12-04
-        - 0212-12-31
-        - 0214-05-15
-        - 0213-09-26
-        - 0202-05-30
-        - 3013-10-31
-        - 0012-12-25
-        - 0994-12-17
-        - 0213-05-27
-        - 0012-04-17
-        - 0204-04-23
-        - 0201-06-27
-        - 0212-05-11
-        - 0214-05-14
-        - 0214-08-26
-        - 9018-09-07
-        - 0213-03-05
-        - 0213-06-27
-        - 0204-09-08
-        - 0011-12-19
-        - 0013-06-12
-        - 0213-11-06
-        - 0012-05-30
-        - 0213-10-03
-        - 0214-03-28
-        - 0201-06-11
-        - 0201-10-01
-        - 0201-06-06
-        - 0201-04-11
-        - 0213-10-02
-        - 0210-05-14
-        - 0994-12-22
-        - 0113-07-19
-        - 0203-08-30
-        - 0212-10-23
-        - 0012-03-06
-        - 0214-07-28
-        - 0213-01-25
-        - 0203-11-08
+      - match:
+          - 0213-04-15
+          - 5014-05-31
+          - 0013-02-10
+          - 0212-03-27
+          - 0214-08-11
+          - 0211-10-26
+          - 0203-02-21
+          - 0212-09-11
+          - 0214-10-13
+          - 0199-02-23
+          - 0013-06-03
+          - 0212-09-21
+          - 0012-03-21
+          - 0212-04-23
+          - 0204-06-26
+          - 0212-10-05
+          - 0212-07-09
+          - 0214-09-22
+          - 0213-03-13
+          - 0200-03-27
+          - 0213-01-17
+          - 0212-06-28
+          - 0202-12-19
+          - 0212-11-16
+          - 0204-05-14
+          - 0201-03-31
+          - 3013-09-10
+          - 0013-12-22
+          - 0204-01-06
+          - 0203-03-06
+          - 3001-10-30
+          - 0207-05-29
+          - 0201-02-10
+          - 0092-12-08
+          - 0013-11-14
+          - 0213-03-27
+          - 0201-05-15
+          - 0113-06-03
+          - 0204-03-06
+          - 0212-05-28
+          - 3015-03-03
+          - 0214-03-21
+          - 0996-11-14
+          - 0112-10-29
+          - 3013-03-08
+          - 0213-01-09
+          - 3013-06-27
+          - 0200-12-04
+          - 0212-12-31
+          - 0214-05-15
+          - 0213-09-26
+          - 0202-05-30
+          - 3013-10-31
+          - 0012-12-25
+          - 0994-12-17
+          - 0213-05-27
+          - 0012-04-17
+          - 0204-04-23
+          - 0201-06-27
+          - 0212-05-11
+          - 0214-05-14
+          - 0214-08-26
+          - 9018-09-07
+          - 0213-03-05
+          - 0213-06-27
+          - 0204-09-08
+          - 0011-12-19
+          - 0013-06-12
+          - 0213-11-06
+          - 0012-05-30
+          - 0213-10-03
+          - 0214-03-28
+          - 0201-06-11
+          - 0201-10-01
+          - 0201-06-06
+          - 0201-04-11
+          - 0213-10-02
+          - 0210-05-14
+          - 0994-12-22
+          - 0113-07-19
+          - 0203-08-30
+          - 0212-10-23
+          - 0012-03-06
+          - 0214-07-28
+          - 0213-01-25
+          - 0203-11-08
         value: null

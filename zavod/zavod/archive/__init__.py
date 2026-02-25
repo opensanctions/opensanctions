@@ -90,7 +90,7 @@ def get_dataset_artifact(
         if object is not None:
             log.info(
                 "Backfilling dataset artifact...",
-                dataset=dataset_name,
+                current=dataset_name,
                 resource=resource,
                 object=object.name,
             )
@@ -223,7 +223,8 @@ def iter_local_statements(dataset: "Dataset", external: bool = True) -> Statemen
     """Create a generator that yields all statements in the given dataset."""
     assert not dataset.is_collection
     path = dataset_resource_path(dataset.name, STATEMENTS_FILE)
-    # get_dataset_artifact(dataset.name, STATEMENTS_FILE)
+    if settings.ARCHIVE_BACKFILL_STATEMENTS:
+        get_dataset_artifact(dataset.name, STATEMENTS_FILE)
     if not path.exists():
         raise FileNotFoundError(f"Statements not found: {dataset.name}")
     with open(path, "r") as fh:
@@ -241,7 +242,7 @@ def _iter_scope_statements(dataset: "Dataset", external: bool = True) -> Stateme
     if object is not None:
         log.info(
             "Streaming statements...",
-            dataset=dataset.name,
+            current=dataset.name,
             object=object.name,
         )
         with object.open() as fh:
@@ -260,7 +261,7 @@ def iter_previous_statements(
         if object is not None:
             log.info(
                 "Streaming backfilled statements...",
-                dataset=scope.name,
+                current=scope.name,
                 object=object.name,
             )
             with object.open() as fh:

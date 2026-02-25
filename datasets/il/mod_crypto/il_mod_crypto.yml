@@ -37,7 +37,7 @@ data:
   format: CSV
 ci_test: false # No Zyte key in CI
 dates:
-  formats: ["%d/%m/%Y", "%m/%d/%Y", "%d.%m.%Y", "%m.%d.%Y"]
+  formats: ["%d/%m/%Y", "%m/%d/%Y", "%d.%m.%Y", "%m.%d.%Y", "%m.%d.%y"]
 tags:
   - list.sanction
   - sector.crypto

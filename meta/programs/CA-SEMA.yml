@@ -1,0 +1,18 @@
+id: 4
+title: Special Economic Measures Act
+key: CA-SEMA
+url: https://www.international.gc.ca/world-monde/international_relations-relations_internationales/sanctions/legislation-lois.aspx?lang=eng
+summary: The purpose of this Act is to enable the Government of Canada to take economic
+  measures against certain persons in circumstances where an international organization
+  of states or association of states of which Canada is a member calls on its members
+  to do so, a grave breach of international peace and security has occurred, gross
+  and systematic human rights violations have been committed in a foreign state or
+  acts of significant corruption involving a national of a foreign state have been
+  committed.
+issuer: ca_mfa
+dataset: ca_dfatd_sema_sanctions
+measures:
+- Export control
+- Financial block
+- Investment ban
+- Restrictions on goods

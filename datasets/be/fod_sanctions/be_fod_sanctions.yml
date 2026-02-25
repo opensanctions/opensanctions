@@ -37,38 +37,60 @@ publisher:
   description: |
     The Federale Overheidsdienst Financien (FOD) is the finance ministry of Belgium.
   country: be
-  url: https://financien.belgium.be/nl/over_de_fod
+  url: https://finance.belgium.be/en/control-financial-instruments-and-institutions/compliance/financial-sanctions
   official: true
 data:
-  url: "https://financien.belgium.be/sites/default/files/thesaurie/Consolidated%20list.zip"
-  format: ZIP/XML
+  url: "https://sifi.minfin.fgov.be/public/api/consolidated-list"
+  format: CSV
+
+dates:
+  formats: ["%d-%m-%y"]
 
 assertions:
   min:
     schema_entities:
-      Person: 3500
-      Organization: 950
+      Person: 4000
+      Organization: 1300
       Vessel: 1
   max:
     schema_entities:
-      Person: 8300
-      Organization: 2234
+      Person: 9400
+      Organization: 3000
       Vessel: 4
 lookups:
   subject_type:
+    lowercase: true
     options:
-      - match: person
+      - match:
+          - P
         value: Person
-      - match: enterprise
+      - match:
+          - E
         value: Organization
   schema_override:
     options:
-      - match: eu-fsf-eu-11935-5
-        value: Organization
       - match:
-          - eu-fsf-eu-9442-82 # Unica
-          - eu-fsf-eu-9443-81 # New Konk
+          - be-fod-1466e18fc1e237298e4f20761990fd017d0a9f3e # Unica
+          - be-fod-a3f9b33940d9a6301f5d997f5afc951cfc3396a5 # New Konk
         value: Vessel
+  identifier_prop:
+    options:
+      - match:
+          - "id-National identification card"
+          - "other-Other identification number"
+          - "birthcert-Birth certificate"
+          - "drivinglicence-Driving licence) [known to be false]"
+        value: idNumber
+      - match: "passport-National passport"
+        value: passportNumber
+      - match: "regnumber-Registration Number"
+        value: registrationNumber
+      - match:
+          - "taxid-Tax identification number"
+          - "fiscalcode-National Fiscal Code"
+        value: taxNumber
+      - match: "swiftbic-SWIFT BIC"
+        value: swiftBic
   sanction.program:
     # in accordance with https://sanctionsmap.eu/#/main?search=%7B%22value%22:%22%22,%22searchType%22:%7B%7D%7D
     options:
@@ -289,4 +311,8 @@ lookups:
       - match: PO Box 1406 - 60455
         value: 60455
       - match: "-"
+        value: null
+  type.date:
+    options:
+      - match: "N/A"
         value: null

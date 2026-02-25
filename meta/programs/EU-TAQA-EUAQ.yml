@@ -1,0 +1,16 @@
+id: 89
+title: EU Restrictive Measures With Respect To ISIL (Da'esh) And Al-Qaida (ISIL/Daesh
+  & Al-Qaida)
+key: EU-TAQA-EUAQ
+url: https://sanctionsmap.eu/#/main/details/5/
+summary: These sanctions target individuals and entities associated with ISIL (Da'esh)
+  and Al-Qaida. The measures include asset freezes, travel bans, and restrictions
+  on financial transactions to disrupt the operations and funding of these terrorist
+  organizations and enhance global security.
+issuer: eu_council
+dataset: eu_fsf
+measures:
+- Arms export restrictions
+- Asset freeze
+- Prohibition to satisfy claims
+- Travel ban

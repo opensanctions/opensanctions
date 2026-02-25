@@ -1,13 +1,13 @@
 import time
-from banal import first
 from typing import Dict, List
 from urllib.parse import urljoin
+
+from banal import first
 from requests.exceptions import RequestException
 from rigour.ids import INN
 
-from zavod import Context
+from zavod import Context, settings
 from zavod import helpers as h
-
 
 NO_DATES = ["Без срока погашения", "не установлена"]
 
@@ -69,7 +69,7 @@ def crawl_item(context: Context, url: str):
 
     issuer = context.make("LegalEntity")
     inn_code = first(values["issuer"].get("innCode", []))
-    is_inn_code = INN.is_valid(inn_code)
+    is_inn_code = INN.is_valid(inn_code) if inn_code is not None else False
     if inn_code is not None and is_inn_code:
         issuer.id = f"ru-inn-{inn_code}"
     else:
@@ -89,7 +89,7 @@ def crawl_item(context: Context, url: str):
 
 
 def crawl(context: Context):
-    to_dt = context.data_time.strftime("%d.%m.%Y")
+    to_dt = settings.RUN_TIME.strftime("%d.%m.%Y")
     for page in range(1, 901):
         context.log.info("Crawl page", page=page)
         params = {

@@ -1,0 +1,52 @@
+title: Canada Members of the House of Commons
+prefix: ca-commons
+url: https://www.ourcommons.ca/Members/en/search
+coverage:
+  frequency: monthly
+  start: 2025-10-10
+load_statements: true
+entry_point: crawler.py
+ci_test: true
+summary: >-
+  Current Members of the Canadian lower chamber, the House of Commons
+description: |
+  The members list is collected from the open data platform provided by the
+  House of Commons of Canada. The House of Commons is the lower chamber
+  of Canada's bicameral Parliament, alongside the Senate.
+
+  The House of Commons consists of 338 members, each representing a
+  single electoral district (also known as a riding or constituency).
+  Members of Parliament (MPs) are elected by plurality in their districts,
+  typically for a term of up to four years, though elections may be called
+  earlier. Electoral boundaries are reviewed and adjusted following each
+  decennial census to reflect population changes.
+
+  The House of Commons is responsible for introducing and passing legislation,
+  holding the government accountable through Question Period and committee work,
+  and representing the interests of Canadians. The Prime Minister and most
+  Cabinet ministers are typically members of the House of Commons.
+tags:
+  - list.pep
+publisher:
+  name: House of Commons of Canada
+  description: |
+    The House of Commons provides open data about current Members of Parliament
+    through its Open Data portal. The data is available in XML format and includes
+    information about each member's honorific title, name, constituency,
+    province/territory, political party affiliation, election date, and mandate
+    end date.
+  country: ca
+  url: https://www.ourcommons.ca/en/open-data
+  official: true
+data:
+  url: https://www.ourcommons.ca/Members/en/search/xml
+  format: XML
+  lang: eng
+
+assertions:
+  min:
+    schema_entities:
+      Person: 300
+      Position: 1
+    country_entities:
+      ca: 1

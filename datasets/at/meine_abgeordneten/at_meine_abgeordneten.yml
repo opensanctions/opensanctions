@@ -79,9 +79,6 @@ lookups:
         value: "2023-03-23"
       - match: "?"
         value: null
-  expected_503:
-    options:
-      - match: https://www.meineabgeordneten.at/Abgeordnete/gunther.baschinger
   position:
     options:
       - match: Mitglied des Bundesrates, ÖVPEingetreten für das am 31.5.2010 ausgeschiedene Mitglied des Bundesrates Dr. Georg Spiegelfeld-Schneeburg.

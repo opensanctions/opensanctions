@@ -1,0 +1,16 @@
+id: 68
+title: EU Restrictive Measures In View Of The Situation In Haiti
+key: EU-HTI
+url: https://sanctionsmap.eu/#/main/details/54/
+summary: These sanctions target individuals and entities in Haiti involved in human
+  rights abuses, corruption, and actions undermining democracy. The measures include
+  asset freezes, travel bans, and restrictions on trade to promote democratic governance
+  and respect for human rights in Haiti.
+issuer: eu_council
+dataset: eu_fsf
+target_territories:
+- ht
+measures:
+- Arms export restrictions
+- Asset freeze
+- Travel ban

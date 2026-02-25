@@ -13,52 +13,30 @@ for a bit longer (2024-07-31)
 """
 
 import re
-from typing import Generator, Dict, Tuple, Optional
+from urllib.parse import urlparse, parse_qs
+from typing import Dict, Optional
+
 from lxml.etree import _Element
-from normality import slugify
+
 from zavod import Context, helpers as h
 
 
-def parse_table(
-    table: _Element,
-) -> Generator[Dict[str, Tuple[str, Optional[str]]], None, None]:
-    headers = None
-    for row in table.findall(".//tr"):
-        if headers is None:
-            headers = []
-            for el in row.findall("./th"):
-                headers.append(slugify(el.text_content()))
-            continue
-
-        cells = []
-        for el in row.findall("./td"):
-            for span in el.findall(".//span"):
-                # add newline to split spans later if we want
-                span.tail = "\n" + span.tail if span.tail else "\n"
-
-            a = el.find(".//a")
-            if a is None:
-                cells.append((el.text_content(), None))
-            else:
-                cells.append((el.text_content(), a.get("href")))
-
-        assert len(headers) == len(cells)
-        yield {hdr: c for hdr, c in zip(headers, cells)}
-
-
-def crawl_item(input_dict: dict, context: Context):
-    schema = "LegalEntity"
+def crawl_item(context: Context, row: Dict[str, _Element]) -> None:
     names = []
-    for dirty_name in input_dict.pop("firms-individuals")[0].split("\n"):
+    name_els = row.pop("firms_individuals")
+    assert name_els is not None
+    for dirty_name_el in name_els.findall(".//span"):
         # for one known instance of ,1 at the end of the name
-        dirty_name = re.sub(r",1$", "", dirty_name)
+        dirty_name = re.sub(r",1$", "", h.element_text(dirty_name_el))
         names.extend(h.split_comma_names(context, dirty_name))
-    case_summary = input_dict.pop("case-summary")[0].strip()
-    case_id, source_url = input_dict.pop("case-id")
-    date = input_dict.pop("action-date-sort-ascending")[0].strip()
+    case_summary = h.element_text(row.pop("case_summary"))
+    case_id_el = row.pop("case_id")
+    case_id = h.element_text(case_id_el)
+    source_url = case_id_el.get("href")
+    date = h.element_text(row.pop("action_date_sort_ascending"))
 
     for name in names:
-        entity = context.make(schema)
+        entity = context.make("LegalEntity")
         entity.id = context.make_slug(name)
         entity.add("name", name)
         entity.add("topics", "reg.action")
@@ -68,36 +46,56 @@ def crawl_item(input_dict: dict, context: Context):
         sanction = h.make_sanction(context, entity, key=case_id)
         description = f"{date}: {case_summary}"
         sanction.add("description", description)
-        sanction.add("authorityId", case_id.strip())
+        sanction.add("authorityId", case_id)
         sanction.add("sourceUrl", source_url)
         h.apply_date(sanction, "date", date)
         context.emit(sanction)
 
-    context.audit_data(input_dict, ignore=["document-type"])
+    context.audit_data(row, ignore=["document_type"])
 
 
-def crawl(context: Context):
-    # Each page only displays 15 rows at a time, so we need to loop until we find an empty table
+def get_max_page(response: _Element) -> Optional[int]:
+    links = h.xpath_elements(response, ".//a[contains(@title, 'Go to last page')]")
+    if len(links) == 0:
+        # Intermediate result pages incorrectly showing "No Results Found" have
+        # no pagination links.
+        return None
+    assert len(links) == 1, len(links)
+    href = links[0].get("href", "")
+    params = parse_qs(urlparse(href).query)
+    return int(params["page"][0])
+
+
+def crawl(context: Context) -> None:
+    # Each page only displays 15 rows at a time. We determine the last page from
+    # the pagination buttons because intermediate pages may report no results even
+    # when later pages still have data.
     page_num = 0
-    while True:
-        context.log.info(f"Crawling page {page_num}")
+    max_page = None
+    while max_page is None or page_num <= max_page:
+        context.log.info(f"Crawling page {page_num} of {max_page}")
         url = context.data_url + "?page=" + str(page_num)
         # Caching for longer than 1 day can easily lead to missing entries as
-        # the new stuff show up on the first page, and cached pages pages won't
+        # the new stuff show up on the first page, and cached pages won't
         # include the stuff that were shifted off the previous uncached page.
         response = context.fetch_html(url, cache_days=1, absolute_links=True)
+
+        # Update max_page each iteration in case pagination changes.
+        new_max = get_max_page(response)
+        if new_max is not None:
+            max_page = new_max
+
         table = response.find(".//table")
-
         if table is None:
-            context.log.info("No table found")
-            break
+            context.log.info("No table found. Skipping page.", page_num=page_num)
+            page_num += 1
+            continue
         if response.find(".//div[@class='view-empty']") is not None:
-            context.log.info("Reached empty state")
-            break
+            context.log.info("No results found. Skipping page.", page_num=page_num)
+            page_num += 1
+            continue
 
-        for item in parse_table(table):
-            crawl_item(item, context)
+        for row in h.parse_html_table(table):
+            crawl_item(context, row)
 
         page_num += 1
-        if page_num > 3000:
-            raise Exception("Too many pages")

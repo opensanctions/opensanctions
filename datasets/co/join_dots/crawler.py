@@ -1,3 +1,4 @@
+from followthemoney.util import join_text
 from normality import collapse_spaces, slugify
 from rigour.mime.types import CSV
 from typing import Dict
@@ -32,28 +33,32 @@ from zavod.stateful.positions import OccupancyStatus, categorise
 GRAPH_URL = "https://peps.directoriolegislativo.org/json/graph.json"
 
 
-def crawl_row(context: Context, row: Dict[str, str]):
+def crawl_row(context: Context, row: Dict[str, str]) -> tuple[str, Entity]:
     entity = context.make("Person")
     id_number = row.pop("ID / CC")
     entity.id = context.make_slug(id_number, prefix="co-cedula")
     h.apply_name(
         entity,
-        first_name=row.pop("Primer Nombre"),
-        second_name=row.pop("Segundo Nombre"),
-        patronymic=row.pop("Primer Apellido"),
-        matronymic=row.pop("Segundo Apellido"),
+        given_name=join_text(
+            row.pop("Primer Nombre"),
+            row.pop("Segundo Nombre"),
+        ),
+        last_name=join_text(
+            row.pop("Primer Apellido"),
+            row.pop("Segundo Apellido"),
+        ),
     )
     entity.add("idNumber", id_number)
     return slugify(entity.get("name")), entity
 
 
-def parse_node(context: Context, node: str) -> Dict[str, str]:
+def parse_node(context: Context, node: dict[str, str]) -> dict[str, str] | None:
     description = node["Description"]
     if description.strip() == "":
         return None
     doc = html.fromstring(description)
     text: str = doc.text_content()
-    data = {}
+    data: dict[str, str] = {}
     for row in text.split("\n"):
         if row:
             key, value = row.split(":", 1)
@@ -69,47 +74,50 @@ def parse_node(context: Context, node: str) -> Dict[str, str]:
     return data
 
 
-def crawl_node(context: Context, peps: Dict[str, Entity], node: Dict[str, str]):
+def crawl_node(context: Context, peps: dict[str, Entity], node: dict[str, str]) -> None:
     data = parse_node(context, node)
-    if data:
-        name = data["politically_exposed_person"]
-        name_slug = slugify(name)
-        entity = peps.get(name_slug, None)
-        if entity:
-            position_slug = slugify(data.pop("position"))
-            res = context.lookup("position", position_slug)
-            if res:
-                notes = ""
-                red_flags = data.pop("red_flags_found", None)
-                if red_flags is not None:
-                    notes += f"Potential red flags: {red_flags}."
-                ownership = data.get("corporation_shares", None)
-                if ownership and ownership != "null":
-                    notes += f" Corporation shares: {ownership}"
-                if notes:
-                    entity.add("notes", notes)
-                entity.add("sourceUrl", data.pop("link"))
+    if data is None:
+        return
 
-                position = h.make_position(
-                    context, res.name, country="co", topics=res.topics
+    name = data["politically_exposed_person"]
+    name_slug = slugify(name)
+    entity = peps.get(name_slug, None)
+    if entity:
+        position_slug = slugify(data.pop("position"))
+        res = context.lookup("position", position_slug)
+        if res:
+            notes = ""
+            red_flags = data.pop("red_flags_found", None)
+            if red_flags is not None:
+                notes += f"Potential red flags: {red_flags}."
+            ownership = data.get("corporation_shares", None)
+            if ownership and ownership != "null":
+                notes += f" Corporation shares: {ownership}"
+            if notes:
+                entity.add("notes", notes)
+            entity.add("sourceUrl", data.pop("link"))
+
+            position = h.make_position(
+                context, res.name, country="co", topics=res.topics
+            )
+            categorisation = categorise(context, position, True)
+            if categorisation.is_pep:
+                occupancy = h.make_occupancy(
+                    context, entity, position, status=OccupancyStatus.UNKNOWN
                 )
-                categorisation = categorise(context, position, True)
-                if categorisation.is_pep:
-                    occupancy = h.make_occupancy(
-                        context, entity, position, status=OccupancyStatus.UNKNOWN
-                    )
+                if occupancy:
                     context.emit(occupancy)
                     context.emit(position)
                     context.emit(entity)
-        else:
-            context.log.info("PEP not found", name=name)
+    else:
+        context.log.info("PEP not found", name=name)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     path = context.fetch_resource("source.csv", context.data_url)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
 
-    peps = {}
+    peps: dict[str, Entity] = {}
     dupes = set()
 
     with open(path, "r") as fh:

@@ -1,32 +1,22 @@
 from lxml import etree
 from rigour.mime.types import XML
-from datetime import datetime
 
 from zavod import Context
 from zavod import helpers as h
 
 
-def get_xml_url(context: Context) -> str:
-    doc = context.fetch_html(context.data_url)
-    for link in doc.findall(".//a"):
-        href = link.get("href")
-        if href is None:
-            continue
-        if "domestic" in href.lower():
-            return href
-    raise ValueError("No XML link found")
-
-
-def crawl(context: Context):
-    path = context.fetch_resource("source.xml", get_xml_url(context))
+def crawl(context: Context) -> None:
+    html_doc = context.fetch_html(context.data_url)
+    xml_url = h.xpath_string(html_doc, ".//a[contains(text(), 'XML')]/@href")
+    path = context.fetch_resource("source.xml", xml_url)
     context.export_resource(path, XML, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
         doc = etree.parse(fh)
-    date = doc.getroot().get("dateGenerated")
-    if date is None:
-        context.log.error("No date found in XML file")
-        return
-    context.data_time = datetime.strptime(date, "%Y-%m-%dT%H:%M:%S")
+    # date = doc.getroot().get("dateGenerated")
+    # if date is None:
+    #     context.log.error("No date found in XML file")
+    #     return
+    # datetime.strptime(date, "%Y-%m-%dT%H:%M:%S")
     entities = doc.find("./ENTITIES")
     assert entities is not None
     if len(list(entities.iterchildren())) > 0:
@@ -38,11 +28,21 @@ def crawl(context: Context):
         name_original = ind.findtext("NAME_ORIGINAL_SCRIPT")
         entity.id = context.make_id(data_id, name_original)
         entity.add("name", name_original, lang="aze")
-        h.apply_name(
-            entity,
-            first_name=ind.findtext("FIRST_NAME"),
-            second_name=ind.findtext("SECOND_NAME"),
-            last_name=ind.findtext("THIRD_NAME"),
+        # SECOND NAME and THIRD NAME are murky.
+        # For Azeri names, SECOND_NAME is the family name, THIRD_NAME is a patronymic
+        # (the part suffixed by "oğlu" in NAME_ORIGINAL_SCRIPT).
+        # For Arabic name, SECOND_NAME is a patronymic, THIRD_NAME is the family name.
+        #
+        # Who knows how else they'll use it, so I'm only confidnent about FIRST_NAME,
+        # the rest we just join and stuff in `name`.
+        entity.add("firstName", ind.findtext("FIRST_NAME"), lang="eng")
+        entity.add(
+            "name",
+            h.make_name(
+                first_name=ind.findtext("FIRST_NAME"),
+                second_name=ind.findtext("SECOND_NAME"),
+                last_name=ind.findtext("THIRD_NAME"),
+            ),
             lang="eng",
         )
         if ind.findtext("FOURTH_NAME"):

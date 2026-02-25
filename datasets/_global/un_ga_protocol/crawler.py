@@ -4,7 +4,7 @@ from rigour.names import remove_person_prefixes
 
 from zavod import Context
 from zavod import helpers as h
-from zavod.shed.gpt import run_image_prompt
+from zavod.extract.llm import run_image_prompt
 
 prompt = """
 Extract structured data from the following page of a PDF document. Return
@@ -33,9 +33,9 @@ def crawl(context: Context):
         assert "holders" in data, data
         for holder in data.get("holders", []):
             person_name = holder.get("person_name")
-            person_name = remove_person_prefixes(holder.get("person_name"))
+            person_name = remove_person_prefixes(person_name)
             person_name = context.lookup_value(
-                "normalize_name", person_name, person_name
+                "override_name", person_name, person_name
             )
             if h.is_empty(person_name):
                 continue
@@ -62,7 +62,8 @@ def crawl(context: Context):
                 )
             entity.add("name", norm_name)
             entity.add("title", holder.get("honorary_prefix"))
-            entity.add("country", country)
+            entity.add("citizenship", country)
+            entity.add("position", full_title)
 
             position = h.make_position(
                 context,

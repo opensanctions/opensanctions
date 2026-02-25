@@ -1,0 +1,16 @@
+id: 139
+title: Measures In Relation To Haiti
+key: SECO-HAITI
+url: https://www.seco.admin.ch/seco/de/home/Aussenwirtschaftspolitik_Wirtschaftliche_Zusammenarbeit/Wirtschaftsbeziehungen/exportkontrollen-und-sanktionen/sanktionen-embargos/sanktionsmassnahmen/massnahmen-gegenueber-haiti.html
+summary: These sanctions target individuals and entities in Haiti involved in human
+  rights abuses, corruption, and actions undermining democratic processes. The measures
+  include asset freezes, travel bans, and trade restrictions to promote democratic
+  governance and respect for human rights in Haiti.
+issuer: ch_seco
+dataset: ch_seco_sanctions
+target_territories:
+- ht
+measures:
+- Financial block
+- Restrictions on goods
+- Travel ban

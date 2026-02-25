@@ -2,22 +2,20 @@ import logging
 import os
 import re
 import sys
+import banal
+from rigour.env import TZ_NAME
 from pathlib import Path
-from typing import Callable, Optional
-from typing import Dict, List, Any, MutableMapping
+from typing import Any, Callable, Dict, List, Optional
 
 import structlog
+from followthemoney.proxy import EntityProxy
+from followthemoney.schema import Schema
 from lxml.etree import _Element, tostring
-from lxml.html import HtmlElement
 from structlog.contextvars import merge_contextvars
 from structlog.stdlib import get_logger as get_raw_logger
-from structlog.types import Processor
+from structlog.types import Processor, EventDict as Event
 
-from followthemoney.schema import Schema
 from zavod import settings
-
-Event = MutableMapping[str, str]
-
 
 REDACT_IGNORE_LIST = {
     "OLDPWD",
@@ -27,19 +25,17 @@ REDACT_IGNORE_LIST = {
     "CLOUDSDK_CONTAINER_CLUSTER",
     "EU_JOURNAL_SEEN_PATH",
     "ZAVOD_DATA_PATH",
-    "ZAVOD_RESOLVER_PATH",
-    "ZAVOD_SYNC_POSITIONS",
     "ZAVOD_OPENSANCTIONS_API_URL",
-    "OPENSANCTIONS_RESOLVER_PATH",
+    "GITHUB_JOB",
     # The URL redaction will handle these
     "ZAVOD_DATABASE_URI",
     "OPENSANCTIONS_DATABASE_URI",
     "ZAVOD_HTTP_RETRY_TOTAL",
     "ZAVOD_HTTP_RETRY_BACKOFF_FACTOR",
     "ZAVOD_HTTP_RETRY_BACKOFF_MAX",
-    "ZAVOD_XREF_MEMORY",
-    "ZAVOD_XREF_THREADS",
     "NOMENKLATURA_DB_STMT_TIMEOUT",
+    "NOMENKLATURA_DUCKDB_MEMORY",
+    "NOMENKLATURA_DUCKDB_THREADS",
 }
 REDACT_MIN_LENGTH = 5
 URI_WITH_CREDENTIALS = r"(\w+)://[^:]+:[^@]+@"
@@ -47,13 +43,38 @@ REGEX_URI_WITH_CREDENTIALS = re.compile(URI_WITH_CREDENTIALS)
 
 
 class RedactingProcessor:
-    """A structlog processor that redact sensitive information from log messages."""
+    """
+    A structlog processor that redacts sensitive information from log messages.
 
-    def __init__(self, repl_pattrns: Dict[str, str | Callable[[str], str]]) -> None:
-        self.repl_regexes = {re.compile(p): r for p, r in repl_pattrns.items()}
+    Patterns must be ordered such that longer/more specific patterns come first.
+
+    While structlog copies the initial event_dict, this class also copies it because
+    it needs to recurse into and modify nested structures and structlog's copy is shallow.
+    """
+
+    def __init__(self, replace_patterns: Dict[str, str | Callable[[str], str]]) -> None:
+        self.repl_regexes = {re.compile(p): r for p, r in replace_patterns.items()}
 
     def __call__(self, logger: Any, method_name: str, event_dict: Event) -> Event:
-        return self.redact_dict(event_dict)
+        # The issue writer needs the context instance to write issues, so we
+        # don't serialize it here, and assume the issue writer will pop it before
+        # trying to write the event dict in the issue log.
+        has_context_instance = False
+        if "context" in event_dict:
+            from zavod import Context
+
+            if isinstance(event_dict["context"], Context):
+                context = event_dict.pop("context")
+                has_context_instance = True
+            # else who knows what it is - redact it as normal.
+
+        event_copy = issue_event_value(event_dict)
+        redacted_event = self.redact_dict(event_copy)
+
+        # Set it if and only if it existed before.
+        if has_context_instance:
+            redacted_event["context"] = context
+        return redacted_event
 
     def redact_dict(self, dict_: Event) -> Event:
         for key, value in dict_.items():
@@ -63,6 +84,8 @@ class RedactingProcessor:
                 value = self.redact_dict(value)
             elif isinstance(value, list):
                 value = self.redact_list(value)
+            else:
+                value = self.redact_str(value)
             dict_[key] = value
         return dict_
 
@@ -70,10 +93,12 @@ class RedactingProcessor:
         for ix, value in enumerate(list_):
             if isinstance(value, dict):
                 value = self.redact_dict(value)
-            if isinstance(value, str):
+            elif isinstance(value, str):
                 value = self.redact_str(value)
-            if isinstance(value, list):
+            elif isinstance(value, list):
                 value = self.redact_list(value)
+            else:
+                value = self.redact_str(value)
             list_[ix] = value
         return list_
 
@@ -97,7 +122,12 @@ def configure_redactor() -> Callable[[Any, str, Event], Event]:
     that contained that value.
     """
     pattern_map: Dict[str, str | Callable[[str], str]] = dict()
-    for key, value in os.environ.items():
+    env_vars_longest_first = sorted(
+        os.environ.items(),
+        key=lambda kv: len(kv[1]),
+        reverse=True,
+    )
+    for key, value in env_vars_longest_first:
         if key in REDACT_IGNORE_LIST:
             continue
         if len(value) < REDACT_MIN_LENGTH:
@@ -112,7 +142,7 @@ def set_logging_context_dataset_name(dataset_name: str) -> None:
     structlog.contextvars.bind_contextvars(dataset=dataset_name)
 
 
-def configure_logging(level: int = logging.DEBUG) -> None:
+def configure_logging(level: int = logging.DEBUG) -> logging.Logger:
     """Configure log levels and structured logging."""
 
     base_processors: List[Processor] = [
@@ -126,6 +156,7 @@ def configure_logging(level: int = logging.DEBUG) -> None:
     ]
 
     emitting_processors: List[Processor] = [log_issue]
+    formatting_processors: List[Processor]
 
     if settings.LOG_JSON:
         formatting_processors = [
@@ -135,7 +166,7 @@ def configure_logging(level: int = logging.DEBUG) -> None:
     else:
         formatting_processors = [
             structlog.processors.TimeStamper(
-                fmt="%Y-%m-%d %H:%M:%S", utc=settings.TIME_ZONE == "UTC"
+                fmt="%Y-%m-%d %H:%M:%S", utc=TZ_NAME == "UTC"
             )
         ]
 
@@ -177,6 +208,11 @@ def configure_logging(level: int = logging.DEBUG) -> None:
     logger.setLevel(level)
     logger.handlers.clear()
     logger.addHandler(handler)
+    return logger
+
+
+def reset_logging(logger: logging.Logger) -> None:
+    logger.handlers.clear()
 
 
 def get_logger(name: str) -> structlog.stdlib.BoundLogger:
@@ -190,10 +226,19 @@ def format_json(_: Any, __: str, ed: Event) -> Event:
     return ed
 
 
-def stringify(value: Any) -> Any:
-    """Stringify the types that aren't already JSON serializable."""
+def issue_event_value(value: Any) -> Any:
+    """
+    Ensure that all types are JSON-serializable and redactable,
+    recursively converting everything to string, list or dict.
 
-    if isinstance(value, (_Element, HtmlElement)):
+    This makes a deep copy of collections handled by banal.
+    """
+
+    # Do not mutate the original value
+
+    if isinstance(value, str):
+        return value
+    if isinstance(value, _Element):
         return tostring(value, pretty_print=False, encoding=str).strip()
     if isinstance(value, Path):
         try:
@@ -203,17 +248,25 @@ def stringify(value: Any) -> Any:
         return str(value)
     if isinstance(value, Schema):
         return value.name
-    if isinstance(value, list):
-        return [stringify(v) for v in value]
-    if isinstance(value, dict):
+    if isinstance(value, EntityProxy):
+        return {
+            "id": value.id,
+            "caption": value.caption,
+            "schema": value.schema.name,
+        }
+    if banal.is_listish(value):
+        return [issue_event_value(v) for v in value]
+    if banal.is_mapping(value):
+        dict_ = {}
         for key, value_ in value.items():
-            value[key] = stringify(value_)
-    return value
+            dict_[key] = issue_event_value(value_)
+        return dict_
+
+    return repr(value)
 
 
-def log_issue(_: Any, __: str, ed: Event) -> Event:
-    data: Dict[str, Any] = stringify(dict(ed))
-
+def log_issue(_: Any, __: str, event_dict: Event) -> Event:
+    data: Dict[str, Any] = dict(event_dict)
     context = data.pop("context", None)
     level: Optional[str] = data.get("level")
     if level is not None:

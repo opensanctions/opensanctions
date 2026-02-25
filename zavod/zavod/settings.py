@@ -1,10 +1,10 @@
 from os import environ as env
-
 from pathlib import Path
-from banal import as_bool
-from rigour.env import env_str
-from nomenklatura.versions import Version
 
+from banal import as_bool
+from nomenklatura import settings as nk
+from nomenklatura.versions import Version
+from rigour.env import env_str
 
 # Logging configuration
 LOG_JSON = as_bool(env_str("ZAVOD_LOG_JSON", "false"))
@@ -13,12 +13,13 @@ LOG_JSON = as_bool(env_str("ZAVOD_LOG_JSON", "false"))
 DEBUG = as_bool(env_str("ZAVOD_DEBUG", "false"))
 
 # Default paths
+_META_RESOURCE_DEFAULT = Path(__file__).parent.parent.parent / "meta"
+META_RESOURCE_PATH = Path(env.get("ZAVOD_META_RESOURCE_PATH") or _META_RESOURCE_DEFAULT).resolve()
 DATA_PATH_ = env_str("ZAVOD_DATA_PATH", "data")
 DATA_PATH = Path(env_str("OPENSANCTIONS_DATA_PATH", DATA_PATH_)).resolve()
 DATA_PATH.mkdir(parents=True, exist_ok=True)
 
 # Per-run timestamp
-TIME_ZONE = env_str("TZ", "UTC")
 RUN_VERSION = Version.from_env("ZAVOD_VERSION")
 RUN_TIME = RUN_VERSION.dt
 RUN_TIME_ISO = RUN_VERSION.dt.isoformat(sep="T", timespec="seconds")
@@ -35,10 +36,6 @@ ENRICH_TOPICS = {
     "gov.soe",
 }
 
-
-# Store configuration
-STORE_RETAIN_DAYS = int(env_str("ZAVOD_STORE_RETAIN_DAYS", "3"))
-
 # Release version
 RELEASE = env_str("ZAVOD_RELEASE", RUN_TIME.strftime("%Y%m%d"))
 
@@ -51,24 +48,20 @@ ARCHIVE_BACKEND = env.get("ZAVOD_ARCHIVE_BACKEND", "FileSystemBackend")
 ARCHIVE_BUCKET = env.get("ZAVOD_ARCHIVE_BUCKET", None)
 ARCHIVE_BUCKET = env.get("OPENSANCTIONS_BACKFILL_BUCKET", ARCHIVE_BUCKET)
 ARCHIVE_PATH = Path(env.get("ZAVOD_ARCHIVE_PATH", DATA_PATH.joinpath("archive")))
+ARCHIVE_BACKFILL_STATEMENTS = as_bool(env_str("ARCHIVE_BACKFILL_STATEMENTS", "false"))
 BACKFILL_RELEASE = env_str("ZAVOD_BACKFILL_RELEASE", "latest")
 
 # HTTP settings
 HTTP_TIMEOUT = 1200
-HTTP_USER_AGENT = "Mozilla/5.0 (zavod)"
-HTTP_USER_AGENT = env_str("ZAVOD_HTTP_USER_AGENT", HTTP_USER_AGENT)
 HTTP_RETRY_TOTAL = int(env.get("ZAVOD_HTTP_RETRY_TOTAL", 3))
 HTTP_RETRY_BACKOFF_FACTOR = float(env.get("ZAVOD_HTTP_RETRY_BACKOFF_FACTOR", 1.0))
 # urllib.util.Retry.DEFAULT_BACKOFF_MAX is 120
 HTTP_RETRY_BACKOFF_MAX = int(env.get("ZAVOD_HTTP_RETRY_BACKOFF_MAX", 120))
 
 # Database-backed cache settings
-DATABASE_URI = f"sqlite:///{DATA_PATH.joinpath('zavod.sqlite3').as_posix()}"
-DATABASE_URI = env.get("ZAVOD_DATABASE_URI", DATABASE_URI)
-DATABASE_URI = env_str("OPENSANCTIONS_DATABASE_URI", DATABASE_URI)
-
-# Load DB batch size
-DB_BATCH_SIZE = int(env_str("ZAVOD_DB_BATCH_SIZE", "1000"))
+nk.DB_URL = f"sqlite:///{DATA_PATH.joinpath('zavod.sqlite3').as_posix()}"
+nk.DB_URL = env.get("ZAVOD_DATABASE_URI", nk.DB_URL)
+nk.DB_URL = env.get("OPENSANCTIONS_DATABASE_URI", nk.DB_URL)
 
 # pywikibot settings for editing Wikidata
 WD_CONSUMER_TOKEN = env.get("ZAVOD_WD_CONSUMER_TOKEN")
@@ -81,4 +74,8 @@ ZYTE_API_KEY = env.get("OPENSANCTIONS_ZYTE_API_KEY", None)
 OPENAI_API_KEY = env.get("OPENSANCTIONS_OPENAI_API_KEY", None)
 AZURE_OPENAI_ENDPOINT = env.get("OPENSANCTIONS_AZURE_OPENAI_ENDPOINT", None)
 
-DUCKDB_MEMORY = int(env_str("ZAVOD_DUCKDB_MEMORY", "2000"))
+# Test code in prod code is generally a Bad Idea.
+# This is here to allow for fallbacks to skip some external service usage
+# which allows us to run more crawlers in CI without introducing mocking for those runs.
+# Test code impacted by this should mock settings.CI to False to verify normal operation.
+CI = as_bool(env_str("CI", "false"))

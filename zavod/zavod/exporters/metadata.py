@@ -1,3 +1,4 @@
+from enum import StrEnum
 import json
 from typing import Any, Dict, List, Optional
 from nomenklatura.versions import Version
@@ -17,6 +18,11 @@ from zavod.runtime.versions import get_latest
 from zavod.util import write_json
 
 log = get_logger(__name__)
+
+
+class DatasetVersionResult(StrEnum):
+    SUCCESS = "success"
+    FAILURE = "failure"
 
 
 def get_base_dataset_metadata(
@@ -69,7 +75,7 @@ def get_base_dataset_metadata(
     return meta
 
 
-def write_dataset_index(dataset: Dataset) -> None:
+def write_dataset_index(dataset: Dataset, result: DatasetVersionResult) -> None:
     """Export dataset metadata to index.json."""
     catalog = get_catalog()
     version = get_latest(dataset.name, backfill=True)
@@ -96,6 +102,7 @@ def write_dataset_index(dataset: Dataset) -> None:
         meta["issue_levels"] = issues.by_level()
         meta["issue_count"] = sum(meta["issue_levels"].values())
     meta["last_export"] = settings.RUN_TIME_ISO
+    meta["result"] = result.value
     # NOTE: when adding a another URL here, make sure to update Delivery Service,
     # it has a static list of URLs to rewrite
     meta["issues_url"] = make_artifact_url(dataset.name, version.id, ISSUES_FILE)
@@ -143,7 +150,7 @@ def get_catalog_dataset(dataset: Dataset) -> Dict[str, Any]:
     else:
         log.warn(
             "No index file found, dataset likely hasn't run yet",
-            dataset=dataset.name,
+            path=path.as_posix(),
             report_issue=False,
         )
 
@@ -206,7 +213,7 @@ def write_delta_index(
     ]
 
     if len(versions) == 0:
-        log.info("No delta versions found", dataset=dataset.name)
+        log.info(f"No delta versions found: {dataset.name}")
         return
     index_path = dataset_resource_path(dataset.name, DELTA_INDEX_FILE)
     log.info("Writing delta versions index...", path=index_path.as_posix())

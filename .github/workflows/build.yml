@@ -15,13 +15,12 @@ permissions:
 jobs:
   python:
     env:
-      OPENSANCTIONS_RESOLVER_PATH: /dev/null
-      ZAVOD_SYNC_POSITIONS: false
       OPENSSL_CONF: "contrib/openssl.cnf"
+      FTM_USER_AGENT: "Mozilla/5.0 (compatible; github-actions-zavod/0.8; tech@opensanctions.org)"
 
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
@@ -59,11 +58,11 @@ jobs:
           python3 -m build --wheel
       - name: Get any modified dataset files
         id: changed-files
-        uses: tj-actions/changed-files@24d32ffd492484c1d75e0c0b894501ddb9d30d62  # v47.0.0
+        uses: tj-actions/changed-files@7dee1b0c1557f278e5c7dc244927139d78c0e22a  # v47.0.4
         with:
           files: "datasets/**"
       - name: Crawl modified datasets
-        if: ${{ steps.changed-files.outputs.all_changed_files != '' }}
+        if: ${{ steps.changed-files.outputs.all_changed_files != '' && github.ref != 'refs/heads/main'}}
         run: |
           set -euo pipefail
           datasets=$(python contrib/ci_datasets.py ${{ steps.changed-files.outputs.all_changed_files }})
@@ -71,27 +70,27 @@ jobs:
           for dataset in $datasets
           do
               echo Crawling $dataset
-              zavod crawl -c $dataset
+              zavod crawl --clear-data $dataset
           done
       - name: Validate modified datasets
-        if: ${{ steps.changed-files.outputs.all_changed_files != '' }}
+        if: ${{ steps.changed-files.outputs.all_changed_files != '' && github.ref != 'refs/heads/main'}}
         run: |
           set -euo pipefail
           datasets=$(python contrib/ci_datasets.py ${{ steps.changed-files.outputs.all_changed_files }})
           for dataset in $datasets
           do
               echo Validating $dataset
-              zavod validate -c $dataset
+              zavod validate --rebuild-store $dataset
           done
       - name: Export modified datasets
-        if: ${{ steps.changed-files.outputs.all_changed_files != '' }}
+        if: ${{ steps.changed-files.outputs.all_changed_files != '' && github.ref != 'refs/heads/main'}}
         run: |
           set -euo pipefail
           datasets=$(python contrib/ci_datasets.py ${{ steps.changed-files.outputs.all_changed_files }})
           for dataset in $datasets
           do
               echo Exporting $dataset
-              zavod export -c $dataset
+              zavod export --rebuild-store $dataset
           done
       - name: Publish a Python distribution to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
@@ -106,13 +105,11 @@ jobs:
     runs-on: ubuntu-latest
     needs: [python]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Set build date
         run: echo "BUILD_DATE=$(date +%Y%m%d)" >> $GITHUB_ENV
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-        with:
-          install: true
       - name: Login to Github Container Registry
         uses: docker/login-action@v3
         with:
@@ -139,7 +136,7 @@ jobs:
     needs: [docker, python]
     steps:
       - name: Dispatch add-on build
-        uses: peter-evans/repository-dispatch@ff45666b9427631e3450c54a1bcbee4d9ff4d7c0  # v3
+        uses: peter-evans/repository-dispatch@28959ce8df70de7be546dd1250a005dd32156697  # v3
         with:
           token: ${{ secrets.OPERATIONS_PAT }}
           repository: opensanctions/operations

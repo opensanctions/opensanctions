@@ -55,6 +55,13 @@ data:
   format: XML
 
 lookups:
+  type.name:
+    lowercase: true
+    options:
+      - match: 
+          - "общество с ограниченной ответственностью"
+          - "открытое акционерное общество"
+        value: null
   type.country:
     lowercase: true
     options:

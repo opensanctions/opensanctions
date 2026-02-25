@@ -22,7 +22,7 @@ description: |
   > transliteration systems generally agreed upon by US Government agencies,
   > except in the cases in which officials have stated a preference for alternate
   > spellings of their names.
-  > 
+  >
   > NOTE: Although the head of the central bank is listed for each country,
   > in most cases he or she is not a Cabinet member. Ambassadors to the United
   > States and Permanent Representatives to the UN, New York, have also been
@@ -118,11 +118,3 @@ lookups:
         topics:
           - gov.national
           - gov.security
-  normalize_name:
-    lowercase: true
-    normalize: true
-    options:
-      - match:
-          - (VACANT)
-          - vacant
-        value: null

@@ -1,3 +1,5 @@
+# Check in every month for updates
+# https://sanctionlist.mfa.ir/portal/catalogsearch/139
 title: Iran Sanctions List
 entry_point: crawler.py
 prefix: ir-san
@@ -6,7 +8,7 @@ coverage:
   start: "2024-05-02"
   end: "2025-05-23"
 manual_check:
-  last_checked: "2025-09-01"
+  last_checked: "2026-02-01"
   interval: 30
   message: Please check the website for any updates to the sanctions list. Navigate to "Full List" near the bottom of the home page. Each of the four sections should have a "Last updated" date for the list.
 deploy:

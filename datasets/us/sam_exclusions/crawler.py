@@ -1,16 +1,39 @@
+# How to review names in this dataset:
+#
+# - The standard rules in https://zavod.opensanctions.org/extract/names/#whats-a-clean-name apply
+# - See the single_token_min_length settings in the metadata.
+#   If it looks like a name was selected for review because it doesn't contain
+#   a space (it's a single token) and is shorter than the threshold, follow the
+#   link(s) to related entities.
+#     - Acronyms or shortened forms of more complete names seen in the entity should generally be
+#       added as alias unless they're really vague and likely to cause false matches.
+#     - Non-person names that might match a person first/last name should usually be added as alias
+#       rather than a primary name.
+
 import io
 import csv
 import time
 from pathlib import Path
-from typing import Optional, Dict, Any, Generator
+from typing import Literal, Optional, Dict, Any, Generator, Tuple
 from zipfile import ZipFile
 from urllib.parse import urljoin
+from pydantic import BaseModel
 from rigour.mime.types import ZIP
+from rigour.names import remove_person_prefixes
 
 from zavod import Context
 from zavod import helpers as h
 
+
 DOWNLOAD_URL = "https://sam.gov/api/prod/fileextractservices/v1/api/download/"
+
+
+NameProp = Literal["name", "alias", "weakAlias"]
+
+
+class FullName(BaseModel):
+    name: str
+    property_name: NameProp
 
 
 def parse_date(date: Optional[str]):
@@ -19,14 +42,23 @@ def parse_date(date: Optional[str]):
     return date
 
 
-def read_rows(zip_path: Path) -> Generator[Dict[str, Any], None, None]:
+def clean_address_part(part: Any) -> Optional[str]:
+    if part is None:
+        return None
+    part = str(part).strip()
+    if len(part) == 0 or part == "-" or part == "XX":
+        return None
+    return part
+
+
+def read_rows(zip_path: Path) -> Generator[Tuple[str, Dict[str, str]], None, None]:
     with ZipFile(zip_path, "r") as zip:
         for file_name in zip.namelist():
             with zip.open(file_name) as zfh:
                 fh = io.TextIOWrapper(zfh)
                 reader = csv.DictReader(fh, delimiter=",", quotechar='"')
                 for row in reader:
-                    yield row
+                    yield file_name, row
 
 
 def crawl_data_url(context: Context) -> str:
@@ -46,7 +78,7 @@ def crawl(context: Context) -> None:
     path = context.fetch_resource("source.zip", data_url)
     context.export_resource(path, ZIP, title=context.SOURCE_TITLE)
     schemata: Dict[str, str] = {}
-    for row in read_rows(path):
+    for row_ids, (filename, row) in enumerate(read_rows(path)):
         classification = row.pop("Classification")
         schema = context.lookup_value("classifications", classification)
         if schema is None:
@@ -99,10 +131,13 @@ def crawl(context: Context) -> None:
 
         creation_date = parse_date(row.pop("Creation_Date", None))
         h.apply_date(entity, "createdAt", creation_date)
-        if agency == "TREAS-OFAC":
-            entity.add("topics", "sanction")
-        else:
-            entity.add("topics", "debarment")
+
+        # All exclusions in this dataset are debarments from US federal programs
+        # This previously used to tag entities as sanctioned when they are on US
+        # OFAC lists, but this is problematic when GSA maintains exclusion records for
+        # entities that have been delisted by OFAC.
+        entity.add("topics", "debarment")
+
         cross_ref = row.pop("Cross-Reference", None)
         # if (
         #     cross_ref is not None
@@ -123,7 +158,7 @@ def crawl(context: Context) -> None:
         # else:
         entity.add("notes", cross_ref, lang="eng")
         uei = row.pop("Unique Entity ID", None)
-        if entity.schema.is_a("LegalEntity"):
+        if "uniqueEntityId" in entity.schema.properties:
             entity.add("uniqueEntityId", uei)
         else:
             entity.add("registrationNumber", uei, quiet=True)
@@ -136,32 +171,106 @@ def crawl(context: Context) -> None:
         if npi is not None and len(npi):
             entity.add("npiCode", npi)
 
-        h.apply_name(
-            entity,
+        name = h.make_name(
             full=row.pop("Name", None),
-            first_name=row.pop("First", None),
-            middle_name=row.pop("Middle", None),
-            last_name=row.pop("Last", None),
+            first_name=row.get("First", None),
+            middle_name=row.get("Middle", None),
+            last_name=row.get("Last", None),
             prefix=row.pop("Prefix", None),
             suffix=row.pop("Suffix", None),
-            lang="eng",
-            quiet=True,
         )
 
-        state = row.pop("State / Province", None)
+        if not name:
+            return
+        full_name_prop = "name"
+        # Not vessels
+        if len(name) < 5 and entity.schema.is_a("LegalEntity"):
+            full_name_prop = "weakAlias"
+        elif len(name) < 10 and " " not in name and entity.schema.is_a("Person"):
+            full_name_prop = "weakAlias"
+        # Treat longer single word entity names as iffy for now
+        # len("Sebastiano") == 10
+        elif len(name) < 11 and " " not in name and entity.schema.is_a("LegalEntity"):
+            full_name_prop = "alias"
+
+        extraction = FullName(name=name, property_name=full_name_prop)
+        origin = filename
+
+        entity.add(
+            extraction.property_name,
+            extraction.name,
+            lang="eng",
+            origin=origin,
+        )
+
+        # The low quality names tend to come from OFAC so check those.
+        if agency == "TREAS-OFAC":
+            original = h.Names(name=name)
+            is_irregular, suggested = h.check_names_regularity(entity, original)
+
+            custom_suggested = h.Names()
+            # Work from suggested in-case any standard heuristics have already re-categorised anything.
+            for prop, names in suggested.nonempty_item_lists():
+                assert len(names) == 1  # We know this to be true in this crawler
+
+                # Single token Person name (after stripping prefixes) -> weakAlias
+                if entity.schema.is_a("Person"):
+                    deprefixed = remove_person_prefixes(names[0])
+                    if " " not in deprefixed:
+                        prop = "weakAlias"
+
+                # Organization name shorter than 8 letters, all uppercase -> abbreviation
+                if entity.schema.is_a("Organization"):
+                    if len(names[0]) < 8 and names[0].isupper():
+                        prop = "abbreviation"
+
+                # LegalEntity name shorter than 5 letters, all uppercase -> abbreviation
+                if (
+                    entity.schema.is_a("LegalEntity")
+                    and not entity.schema.is_a("Person")
+                    and not entity.schema.is_a("Organization")
+                ):
+                    if len(names[0]) < 5 and names[0].isupper():
+                        prop = "abbreviation"
+
+                setattr(custom_suggested, prop, names)
+
+            # A review will be created if standard heuristics suggest the name is irregular,
+            # or if there is a custom suggestion that differs from the original categorisation.
+            h.review_names(
+                context,
+                entity,
+                original=original,
+                suggested=custom_suggested,
+                is_irregular=is_irregular,
+            )
+
+        # TODO: Once we're done with reviews and change the OFAC clause to apply_reviewed_names,
+        # and remove the heuristic-based cleaning/adding above, add the rest normally:
+        # else:
+        #     entity.add("name", name, lang="eng")
+
+        entity.add("firstName", row.pop("First", None), quiet=True, lang="eng")
+        entity.add("middleName", row.pop("Middle", None), quiet=True, lang="eng")
+        entity.add("lastName", row.pop("Last", None), quiet=True, lang="eng")
+
+        state = clean_address_part(row.pop("State / Province", None))
         country = row.pop("Country", None)
+        entity.add("country", country)
         address = h.make_address(
             context,
-            street=row.pop("Address 1", None),
-            street2=row.pop("Address 2", None),
+            street=clean_address_part(row.pop("Address 1", None)),
+            street2=clean_address_part(row.pop("Address 2", None)),
             # street3=row.pop("Address 3", None),
-            city=row.pop("City", None),
-            postal_code=zip_code,
-            country=country,
+            city=clean_address_part(row.pop("City", None)),
+            postal_code=clean_address_part(zip_code),
+            country_code=entity.first("country"),
             state=state,
         )
         h.copy_address(entity, address)
         # h.apply_address(context, entity, address)
+
+        context.emit(entity)
 
         sanction = h.make_sanction(context, entity, key=agency)
         if agency is not None and len(agency):
@@ -174,11 +283,11 @@ def crawl(context: Context) -> None:
         h.apply_date(sanction, "startDate", parse_date(row.pop("Active Date")))
         h.apply_date(sanction, "endDate", parse_date(row.pop("Termination Date")))
         sanction.add("summary", row.pop("Additional Comments", None))
+        context.emit(sanction)
 
         context.audit_data(
             row,
             ignore=["CT Code", "Open Data Flag"],
         )
-        context.emit(sanction)
-        context.emit(entity)
+
     # print(data_url)

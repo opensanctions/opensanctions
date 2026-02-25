@@ -3,7 +3,7 @@ from rigour.mime.types import CSV
 
 from zavod import Context, helpers as h
 
-US_FCC = "US-FCC"
+PROGRAM_KEY = "US-FCC"
 HEADERS = {
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
     "Accept-Encoding": "gzip, deflate, br",
@@ -51,7 +51,7 @@ def crawl_item(input_dict: dict, context: Context):
         context.emit(ownership)
         context.emit(subsidiary_sanction)
 
-    sanction = h.make_sanction(context, entity, program_key=US_FCC)
+    sanction = h.make_sanction(context, entity, program_key=PROGRAM_KEY)
     sanction.add("description", description)
     sanction.add("description", input_dict.pop("Notes 1"))
     sanction.add("description", input_dict.pop("Notes 2"))
@@ -67,10 +67,12 @@ def crawl_item(input_dict: dict, context: Context):
 
 def crawl(context: Context):
     doc = context.fetch_html(context.dataset.url, headers=HEADERS)
-    table = doc.xpath('.//div[contains(@class, "page-body")]//table')[0]
+    table = h.xpath_elements(
+        doc, './/div[contains(@class, "page-body")]//table', expect_exactly=1
+    )[0]
     h.assert_dom_hash(
         table,
-        "964c2ad2036c92380cfeb4eb8254e281666a4dbe",
+        "24f595a55a19c321a6f420127a7aaa2fb4336fd3",
     )
 
     path = context.fetch_resource("source.csv", context.data_url)

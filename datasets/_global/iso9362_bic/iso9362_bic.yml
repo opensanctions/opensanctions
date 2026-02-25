@@ -18,7 +18,7 @@ description: |
   > BIC is the International Standard ISO 9362:2014. This standard specifies
   > the elements and structure of a universal identifier code, the business
   > identifier code (BIC), for financial and non-financial institutions, for
-  > which such an international identifier is required to facilitate 
+  > which such an international identifier is required to facilitate
   > automated processing of information for financial services.
 
   This dataset contains the reference data for the Business Identifier Code.
@@ -37,6 +37,7 @@ publisher:
     and offers comprehensive reference data for the financial industry.
   url: https://www.swift.com/
   official: true
+  country: zz
 url: https://www.iso9362.org/isobic/overview.html
 data:
   url: https://www.iso9362.org/bicservice/public/v1/bicdata/_pdf
@@ -44,9 +45,21 @@ data:
   lang: eng
 http:
   user_agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36
+names:
+  LegalEntity:
+    # Skip / because of 2913 A/S (company type) instances vs 1 C/O instance
+    allow_chars: "/"
 
 lookups:
   type.country:
     options:
       - match: UT
         value: null
+
+assertions:
+  min:
+    schema_entities:
+      Organization: 27500
+  max:
+    schema_entities:
+      Organization: 65000

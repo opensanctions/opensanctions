@@ -1,30 +1,28 @@
-import contextvars
-from datetime import datetime
-from functools import cached_property
-from pathlib import Path
-from typing import Any, Dict, List, Mapping, Optional, Union
-
 import orjson
+import contextvars
+from pathlib import Path
+from typing import Any, Dict, List, Mapping, Optional, Union, cast
 from datapatch import Lookup, LookupException, Result
+from followthemoney.dataset import DataResource
 from followthemoney.schema import Schema
 from followthemoney.util import PathLike, make_entity_id
-from followthemoney.dataset import DataResource
+from followthemoney.statement.serialize import PackStatementWriter
 from lxml import etree, html
 from nomenklatura.cache import Cache
 from nomenklatura.versions import Version
-from prefixdate import DatePrefix
 from requests import Response
+from rigour.env import ENCODING
 from rigour.urls import ParamsType, build_url
 from sqlalchemy.engine import Connection
 from structlog.contextvars import bind_contextvars, reset_contextvars
 
 from zavod import settings
-from zavod.archive import dataset_data_path, dataset_resource_path
+from zavod.archive import STATEMENTS_FILE, dataset_data_path, dataset_resource_path
 from zavod.audit import inspect
-from zavod.meta import Dataset
-from zavod.entity import Entity
 from zavod.db import get_engine, meta
+from zavod.entity import Entity
 from zavod.logs import get_logger
+from zavod.meta import Dataset
 from zavod.runtime.http_ import (
     _Auth,
     _Body,
@@ -35,11 +33,10 @@ from zavod.runtime.http_ import (
 )
 from zavod.runtime.issues import DatasetIssues
 from zavod.runtime.resources import DatasetResources
-from zavod.runtime.sink import DatasetSink
 from zavod.runtime.stats import ContextStats
 from zavod.runtime.timestamps import TimeStampIndex
 from zavod.runtime.versions import get_latest, make_version
-from zavod.util import join_slug, prefixed_hash_id, Element
+from zavod.util import Element, join_slug, prefixed_hash_id
 
 
 class Context:
@@ -57,7 +54,6 @@ class Context:
         self.dataset = dataset
         self.dry_run = dry_run
         self.stats = ContextStats()
-        self.sink = DatasetSink(dataset)
         self.issues = DatasetIssues(dataset)
         self.resources = DatasetResources(dataset)
         self.log = get_logger(dataset.name)
@@ -67,17 +63,8 @@ class Context:
         self._structlog_contextvars_tokens: Optional[
             Mapping[str, contextvars.Token[Any]]
         ] = None
-
-        self._data_time: datetime = settings.RUN_TIME
-        # If the dataset has a fixed end time which is in the past,
-        # use that as the data time:
-        if (
-            dataset.model.coverage is not None
-            and dataset.model.coverage.end is not None
-        ):
-            if dataset.model.coverage.end < settings.RUN_TIME_ISO:
-                prefix = DatePrefix(dataset.model.coverage.end)
-                self._data_time = prefix.dt or self._data_time
+        self._writer_path = dataset_resource_path(dataset.name, STATEMENTS_FILE)
+        self._writer: Optional[PackStatementWriter] = None
 
         self.lang: Optional[str] = None
         """Default language for statements emitted from this dataset"""
@@ -117,29 +104,6 @@ class Context:
             raise ValueError("Dataset has no data URL: %r" % self.dataset)
         return self.dataset.data.url
 
-    @property
-    def data_time(self) -> datetime:
-        """The data provenance time to be used for the emitted statements. This is
-        used to set the first_seen and last_seen properties of statements to a time
-        that may be different than the real run time of the crawler, e.g. when a
-        coverage end is defined, or the data source itself states an update time.
-
-        Returns:
-            The time to be used for the emitted statements."""
-        return self._data_time
-
-    @data_time.setter
-    def data_time(self, value: datetime) -> None:
-        """Modify the data time."""
-        self._data_time = value
-        if hasattr(self, "data_time_iso"):
-            del self.data_time_iso
-
-    @cached_property
-    def data_time_iso(self) -> str:
-        """String representation of `data_time` in ISO format."""
-        return self.data_time.isoformat(sep="T", timespec="seconds")
-
     def begin(self, clear: bool = False) -> None:
         """Prepare the context for running the exporter.
 
@@ -150,7 +114,9 @@ class Context:
             dataset=self.dataset.name,
             context=self,
         )
-        make_version(self.dataset, settings.RUN_VERSION, overwrite=clear)
+        make_version(
+            self.dataset, settings.RUN_VERSION, append_new_version_to_history=clear
+        )
         if clear and not self.dry_run:
             self.resources.clear()
             self.issues.clear()
@@ -168,7 +134,8 @@ class Context:
             self._cache.close()
         if self._timestamps is not None:
             self._timestamps.close()
-        self.sink.close()
+        if self._writer is not None:
+            self._writer.close()
         reset_contextvars(**(self._structlog_contextvars_tokens or {}))
         self.issues.close()
         if not self.dry_run:
@@ -416,7 +383,7 @@ class Context:
                 raise ValueError("Invalid HTML document: %s" % url)
             doc = html.fromstring(text)
             if absolute_links and isinstance(doc, html.HtmlElement):
-                doc.make_links_absolute(url, params)
+                cast(html.HtmlElement, doc).make_links_absolute(url, params)
             return doc
         except Exception as exc:
             cache_url = build_url(url, params)
@@ -488,26 +455,47 @@ class Context:
         return prefixed_hash_id(prefix, hashed)
 
     def lookup_value(
-        self, lookup: str, value: Optional[str], default: Optional[str] = None
+        self,
+        lookup: str,
+        value: Optional[str],
+        default: Optional[str] = None,
+        *,
+        warn_unmatched: bool = False,
     ) -> Optional[str]:
-        """Invoke a datapatch lookup defined in the dataset metadata.
+        """Invoke a datapatch lookup defined in the dataset metadata, returning the `value` attribute.
 
         Args:
             lookup: The name of the lookup. The key under the dataset lookups property.
             value: The data value to look up.
             default: The default value to use if the lookup doesn't match the value.
+            warn_unmatched: Whether to log a warning if no match is found.
         """
         try:
-            lookup_obj = self.get_lookup(lookup)
-            return lookup_obj.get_value(value, default=default)
+            res = self.lookup(lookup, value, warn_unmatched=warn_unmatched)
+            if res is None or res.value is None:
+                return default
+            else:
+                return res.value
         except LookupException:
             return default
 
     def get_lookup(self, lookup: str) -> Lookup:
         return self.dataset.lookups[lookup]
 
-    def lookup(self, lookup: str, value: Optional[str]) -> Optional[Result]:
-        return self.get_lookup(lookup).match(value)
+    def lookup(
+        self, lookup: str, value: Optional[str], *, warn_unmatched: bool = False
+    ) -> Optional[Result]:
+        """Invoke a datapatch lookup defined in the dataset metadata.
+
+        Args:
+            lookup: The name of the lookup. The key under the dataset lookups property.
+            value: The data value to look up.
+            warn_unmatched: Whether to log a warning if no match is found.
+        """
+        res = self.get_lookup(lookup).match(value)
+        if res is None and warn_unmatched:
+            self.log.warn("No matching lookup found.", lookup=lookup, value=value)
+        return res
 
     def debug_lookups(self) -> None:
         """Output a list of unused lookup options."""
@@ -546,7 +534,7 @@ class Context:
         for key, value in data.items():
             if key in ignore:
                 continue
-            if value is None or value == "":
+            if value is None or value == "" or value == []:
                 continue
             cleaned[key] = value
         if len(cleaned):
@@ -568,7 +556,7 @@ class Context:
         """
         if entity.id is None:
             raise ValueError("Entity has no ID: %r", entity)
-        if len(entity.properties) == 0:
+        if not entity.has_statements:
             self.log.error("Entity has no properties", entity_id=entity.id)
             return
         self.stats.entities += 1
@@ -580,23 +568,25 @@ class Context:
             self.flush()
         stamps = {} if self.dry_run else self.timestamps.get(entity.id)
         for stmt in entity.statements:
+            stmt = stmt.clone(
+                dataset=self.dataset.name,
+                entity_id=entity.id,
+                schema=entity.schema.name,
+                lang=stmt._lang or self.lang,
+                origin=stmt.origin or origin,
+                external=external,
+            )
             if stmt.id is None:
-                self.log.warn("Statement has no ID", stmt=stmt.to_dict())
-                continue
-            if stmt.lang is None:
-                stmt.lang = self.lang
-            if stmt.origin is None:
-                stmt.origin = origin
-            stmt.dataset = self.dataset.name
-            stmt.entity_id = entity.id
-            stmt.external = external
-            stmt.schema = entity.schema.name
-            stmt.first_seen = stamps.get(stmt.id, self.data_time_iso)
-            if stmt.first_seen != self.data_time_iso:
+                raise ValueError("Statement has no ID: %r", stmt)
+            stmt.first_seen = stamps.get(stmt.id, settings.RUN_TIME_ISO)
+            if stmt.first_seen == settings.RUN_TIME_ISO:
                 self.stats.changed += 1
-            stmt.last_seen = self.data_time_iso
+            stmt.last_seen = settings.RUN_TIME_ISO
             if not self.dry_run:
-                self.sink.emit(stmt)
+                if self._writer is None:
+                    fh = self._writer_path.open("w", encoding=ENCODING)
+                    self._writer = PackStatementWriter(fh)
+                self._writer.write(stmt)
             self.stats.statements += 1
 
     def __hash__(self) -> int:

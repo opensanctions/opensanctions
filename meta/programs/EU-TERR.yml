@@ -1,0 +1,12 @@
+id: 88
+title: EU Specific Measures To Combat Terrorism
+key: EU-TERR
+url: https://sanctionsmap.eu/#/main/details/6
+summary: These sanctions target individuals and entities involved in terrorism and
+  related activities. The measures include asset freezes, travel bans, and restrictions
+  on trade and financial transactions to prevent the financing and support of terrorist
+  activities, aiming to enhance international security and combat global terrorism.
+issuer: eu_council
+dataset: eu_fsf
+measures:
+- Financial block

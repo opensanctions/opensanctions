@@ -37,9 +37,12 @@ publisher:
   url: http://dfat.gov.au/
   official: true
 data:
-  url: "https://www.dfat.gov.au/sites/default/files/regulation8_consolidated.xlsx"
+  url: "https://www.dfat.gov.au/sites/default/files/Australian_Sanctions_Consolidated_List.xlsx"
   # url: "https://data.opensanctions.org/datasets/20231015/au_dfat_sanctions/source.xlsx"
   format: XLSX
+
+http:
+  user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
 
 assertions:
   min:
@@ -53,23 +56,15 @@ assertions:
 
 dates:
   formats:
-    - "%Y-%m-%d"
     - "%d/%m/%Y"
-    - "%d/%m /%Y"
-    - "%d %b. %Y"
-    - "%d %b.%Y"
-    - "%d %b %Y"
-    - "%d %B %Y"
-    - "%b. %Y"
-    - "%d %B. %Y"
-    - "%Y"
     - "%m/%Y"
+    - "%d/%m/%y"
+    - "(/%m/%Y)"
+    - "/%m/%Y"
+    - "/%m/%d%Y"
+    - "%d %B %Y"
     - "%B %Y"
-    - "%d-%b-%Y"
-    - "%b %Y"
-    - "%d. %b %Y"
-    - "c. %Y"
-    - "%B, %Y"
+
 lookups:
   sanction.program:
     options:
@@ -83,6 +78,8 @@ lookups:
         value: AU-LIBYA
       - match: "Autonomous (Myanmar)"
         value: AU-MYANMAR
+      - match: "Autonomous (Afghanistan)"
+        value: AU-AFGHANISTAN
       - match: "Autonomous (Russia)"
         value: AU-RUSSIA
       - match: "Autonomous (Thematic – Corruption)"
@@ -97,17 +94,23 @@ lookups:
         value: AU-SYRIA
       - match: "Autonomous (Zimbabwe)"
         value: AU-ZIM
-      - match: "1267/1989/2253 (ISIL (Da'esh) and Al-Qaida)"
+      - match: "Autonomous (Vessels)"
+        value: AU-VESSELS
+      - match:
+          - "1267/1989/2253 (ISIL (Da'esh) and Al-Qaida)"
+          - "1267 Committee (ISIL & Al-Qaida)"
         value: UN-SCISIL
       - match: "1373 (2001)"
-        value: UN-SC1373
+        value: AU-UNSC1373
       - match: "1518 (Iraq)"
         value: UN-SC1518
       - match: "1533 (Democratic Republic of the Congo)"
         value: UN-SC1533
       - match: "1591 (Sudan)"
         value: UN-SC1591
-      - match: "1718 (DPRK)"
+      - match:
+          - "1718 Committee (DPRK)"
+          - "1718 (DPRK)"
         value: UN-SC1718
       - match:
           - "1970 (Libya) 1973 (Libya)"
@@ -128,45 +131,44 @@ lookups:
           - "2093 (2013)"
           - "751 (Somalia and Eritrea)"
         value: null
+      - match:
+          - 2048 (Guinea-Bissau)
+          - Guinea-Bissau (2048)
+        value: UN-SC2048
+      - match:
+          - 2653 (Haiti)
+          - (2653) Haiti
+        value: UN-SC2653
+      - match:
+          - 1737 (Iran)
+          - 1737 Iran)
+          - 1737 (ran)
+        value: UN-SC1737
   type:
-    normalize: true
-    lowercase: true
     options:
-      - match:
-          - Individual
-          - Person
-          - Aka
+      - match: Individual
         value: Person
-      - match:
-          - Entity
+      - match: Entity
         value: LegalEntity
-      - match: "3590"
+      - match: Vessel
+        value: Vessel
+      # Override blank types
+      - match: 8401
+        value: Vessel
+      - match: 8402
+        value: Vessel
+      - match: 8580
         value: Person
-      - match:
-          - "275" # empty type cell
-          - "288"  # empty type cell
-          - "3198" # one of the rows inexplicably has type "Individual"
+      - match: 3621
         value: LegalEntity
-
-
   name_type:
-    normalize: true
-    lowercase: true
     options:
       - match:
-          - aka
-          - a
+          - Aka
+          - Alias
           - Original Script
         value: alias
-      - match:
-          - Formerly known as
-          - Previously listed as
-        value: previousName
-      - match:
-          - Primary name
-          - Primay Name
-          - Primary
-          - null
+      - match: Primary Name
         value: name
 
   type.address:
@@ -183,137 +185,103 @@ lookups:
           - Turkey
           - n/a
           - na
+          - "i"
         value: null
       - match: "Branch Office 6: Shop number 237, Shah Zada Market (also known as Sarai Shahzada), Puli Khishti area, Police District 1, Kabul, Afghanistan, Telephone: +93-202-103386, +93-202-101714, 0202-104748, Mobile: +93-797-059059, +93-702-222222, e-mail: helmand_exchange_msp@yahoo.com"
         value: Shop number 237, Shah Zada Market (also known as Sarai Shahzada), Puli Khishti area, Police District 1, Kabul, Afghanistan
-
-  type.country:
-    lowercase: true
-    normalize: true
-    options:
-      - contains: Syrian Arab Republic
-        value: Syria
-      - match: Malian / Mauritanian
+      - match: "a) 3rd Km of Khalaj Road, Seyyedi Street, Mashad, 91638, Iran (Islamic Republic of) _x000D_\nb) Km 4 of Khalaj Road, End of Seyedi Street, Mashad, Iran (Islamic Republic of) _x000D_\nc) P.O. Box 91735-549, Mashad, Iran (Islamic Republic of) _x000D_\nd) Khalaj Rd., End of Seyyedi Alley, Mashad, Iran (Islamic Republic of) _x000D_\ne) Moqan St., Pasdaran St., Pasdaran Cross Rd., Tehran, Iran (Islamic Republic of)"
         values:
-          - Mauritania
-          - Mali
-      - match: Türkiyish
-        value: Turkey
-      - match:
-          - Turkish/Jordanian
+          - "3rd Km of Khalaj Road, Seyyedi Street, Mashad, 91638, Iran (Islamic Republic of)"
+          - "Km 4 of Khalaj Road, End of Seyedi Street, Mashad, Iran (Islamic Republic of)"
+          - "P.O. Box 91735-549, Mashad, Iran (Islamic Republic of)"
+          - "Khalaj Rd., End of Seyyedi Alley, Mashad, Iran (Islamic Republic of)"
+          - "Moqan St., Pasdaran St., Pasdaran Cross Rd., Tehran, Iran (Islamic Republic of)"
+      - match: "a) Next To Nirou Battery Mfg. Co, Shahid Babaii Expressway, Nobonyad Square, Tehran, Iran (Islamic Republic of) _x000D_\nb) Pasdaran St., P.O. Box 16765, Tehran, 1835, Iran (Islamic Republic of) _x000D_\nc) Babaei Highway - Next to Niru M.F.G, Tehran, Iran (Islamic Republic of)"
         values:
-          - Turkey
-          - Jordan
-      - match: Indonesian (as at Dec. 2003)
-        value: Indonesia
-      - match: Ukranian
-        value: UA
-      - match: Belarussian
-        value: BY
-      - match: Tobago
-        value: Trinidad
-      - match: Herzegovina
-        value: Bosnia
-      - match: "France (alt. citizen: Syri"
-        value: France
-      - contains: Fiji (Prakash’s Australian
-        value: Fiji
-      - contains:
-          - as a result of being in the service of declared terrorist organisation
-          - with effect from
-        match: Kuwaiti citizenship withdrawn in 2002
-        value: null
-      - match: Saudi Arabian (this aka only
-        value: Saudi Arabia
-      - match: Possibly Ethiopian
-        value: Ethiopia
-      - match: alt Citizenship Yemeni)
-        value: YE
-      - match: USSR (until 1991)
-        value: SUHH
+          - "Next To Nirou Battery Mfg. Co, Shahid Babaii Expressway, Nobonyad Square, Tehran, Iran (Islamic Republic of)"
+          - "Pasdaran St., P.O. Box 16765, Tehran, 1835, Iran (Islamic Republic of)"
+          - "Babaei Highway - Next to Niru M.F.G, Tehran, Iran (Islamic Republic of)"
   type.date:
     options:
-      - match:
-          - na
-          - Aug.
-        value: null
-      - match: 07/04/62
-        value: "1962-04-07"
-      - match: 05.09.1990
-        value: "1990-09-05"
-      - match: March 16, 1972
-        value: "1972-03-16"
-      - match: 01/10/1983,15/10/1983, 01/01/1980
+      - match: 01/10/1983,15/10/1983
         values:
           - 1983-10-01
           - 1983-10-15
-          - 1980-01-01
-      - match: 09/11/ 1954
-        value: "1954-11-09"
-      - match: 3 March 1979 (from false passport)
-        value: "1979-03-03"
-      - match: 5/06/1953   15/06/1953
+      - match: 7/02/1950/11/1950
         values:
-          - 1953-06-05
-          - 1953-06-15
-      - match: 11/10/1953  10/11/1953
+          - 1950-02-07
+          - 1950-11
+      - match: 21/03/1962 to 20/04/1962
         values:
-          - 1953-10-11
-          - 1953-11-10
-      - match: April 1, 1978
-        value: "1987-04-01"
-      - match:
-          - 5 Feb. 1970 (this aka only, alt born 5 Feb. 1969
-          - 5 Feb. 1970 (this aka only, born 5 Feb. 1969
+          - 1962-03-21
+          - 1962-04-20
+      - match: 19/12/1980,19/01/1980
         values:
-          - 1969-02-05
-          - 1970-02-05
+          - 1980-12-19
+          - 1980-01-19
+      - match: 24/01/,1973
+        value: 1973-01-24
+      - match: 195,7
+        value: 1957
       - match: 10/061962
+        value: 1962-06-10
+      - match: between 1963 and 1968
         values:
-          - 1962-06-10
-      - match: 29-Aprl-1967
-        value: "1967-04-29"
-      - match: 23-Apr-68
-        value: "1968-04-23"
-      - match: 1970-1973
-        values:
-          - 1970
-          - 1971
-          - 1972
-          - 1973
-      - match: 1979-1982
-        values:
-          - 1979
-          - 1980
-          - 1981
-          - 1982
-      - match: 1954-1955
-        values:
-          - 1954
-          - 1955
-      - match: 1966-1967
-        values:
+          - 1963
+          - 1964
+          - 1965
           - 1966
           - 1967
-      - match: 1962-1963
+          - 1968
+      - match: 20/12/1961 21/12/1961
         values:
-          - 1962
-          - 1963
-      - match: 1940-1941
+          - 1961-12-20
+          - 1961-12-21
+      - match: 06/10/1956 20/06/1956
         values:
-          - 1940
-          - 1941
-      - match: 1956-1957
+          - 1956-10-06
+          - 1956-06-20
+      - match: 19/12/1962 30/12/1965
         values:
-          - 1956
-          - 1957
-      - match: 1945-1950
+          - 1962-12-19
+          - 1965-12-30
+      - match: "7/02/1950/11/1950 08/08/1945"
         values:
-          - 1945
-          - 1946
-          - 1947
-          - 1948
-          - 1949
-          - 1950
-      - match: "3 March 1979 (from false passport)"
-        value: "1979-03-03"
+          - 1950-02-07
+          - 1950-11-08
+          - 1945-08-08
+      - match: "27/05/1973 01/01/1975"
+        values:
+          - 1973-05-27
+          - 1975-01-01
+
+      - match:
+          - 196719611973
+          - 2/05/196
+        value: null
+  type.identifier:
+    options:
+      - match: 9222650
+        prop: registrationNumber
+      - match: V8
+        value: null
+      - match: 9422547
+        value: 9422457
+      - match: 9434980
+        value: 9434890
+  type.country:
+    options:
+      - match: Guinea-Bisau
+        value: GW
+      - match: Isfahan
+        value: IR
+      - match: a) Sudan b) South Sudan
+        values:
+          - Sudan
+          - South Sudan
+      - match:
+          - "Somalia; Sweden"
+          - "Somalia: Sweden"
+        values:
+          - Somalia
+          - Sweden

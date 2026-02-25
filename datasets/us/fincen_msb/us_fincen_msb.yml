@@ -2,6 +2,7 @@ title: "US Money Services Business Registrant List"
 prefix: us-msb
 entry_point: crawler.py
 resolve: false
+load_statements: false
 ci_test: false
 coverage:
   frequency: weekly
@@ -46,7 +47,7 @@ assertions:
 lookups:
   type.name:
     options:
-      - match: 
+      - match:
           - 31000195963940
           - 31000229195772
           - 883644604

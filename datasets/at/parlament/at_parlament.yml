@@ -1,0 +1,64 @@
+title: Austrian Members of Parliament
+prefix: at-parl
+coverage:
+  frequency: monthly
+  start: 2025-10-11
+load_statements: true
+entry_point: crawler.py
+ci_test: true
+summary: >-
+  Current and historical Members of the Austrian National Council and Federal Council
+description: |
+  Members of the Austrian Parliament (German: Österreichisches Parlament), consisting
+  of the National Council (Nationalrat) and the Federal Council (Bundesrat).
+
+  The National Council is the primary legislative body with 183 members elected by
+  proportional representation for a five-year term. The Federal Council represents
+  the nine federal states (Bundesländer) with members appointed by state legislatures.
+
+  The data is sourced from the official open data provided by the Austrian Parliament,
+  containing comprehensive biographical and mandate information dating back to 1918,
+  including name, gender, political party, electoral district, and legislative periods
+  of service.
+url: https://www.parlament.gv.at/recherchieren/open-data/daten-und-lizenz/parlamentarierinnen
+tags:
+  - list.pep
+publisher:
+  name: Austrian Parliament
+  description: |
+    The Austrian Parliament provides open data about its members through its official
+    website and API. The parliament exercises legislative power, with the National Council
+    serving as the primary legislative chamber and the Federal Council representing
+    the federal states.
+  country: at
+  url: https://www.parlament.gv.at/
+  official: true
+data:
+  url: https://www.parlament.gv.at/Filter/api/filter/data/409?1=1&showAll=true&export=true
+  format: JSON
+  lang: deu
+
+dates:
+  formats: ["%d.%m.%Y", "0.%m.%Y", "%m/%Y"]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 100
+      Position: 1
+    country_entities:
+      at: 1
+
+lookups:
+  type.gender:
+    options:
+      - match: W
+        value: female
+  type.date:
+    options:
+      - match:
+          - "nicht feststellbar"
+          - "Wien"
+        value: null
+      - match: "05.10.1952 (Wien)"
+        value: "1952-10-05"

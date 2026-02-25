@@ -5,13 +5,12 @@ from rigour.mime.types import PDF
 from zavod import Context, helpers as h
 from normality import squash_spaces
 
-from zavod.shed.zyte_api import fetch_html, fetch_resource
+from zavod.extract.zyte_api import fetch_html, fetch_resource
 
 AKA_SPLIT = r"\baka\b|\ba\.k\.a\b|\bAKA\b|\bor\b"
 
 
 def crawl_item(row: Dict[str, str], context: Context):
-
     if raw_first_name := row.pop("first_name"):
         entity = context.make("Person")
 

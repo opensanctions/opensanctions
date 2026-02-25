@@ -3,11 +3,7 @@ from normality import slugify
 
 from zavod import Context
 from zavod import helpers as h
-from zavod.shed.zyte_api import fetch_html
-
-
-LT_SL = "LT-SL"
-LT_UNSCR1373 = "LT-UNSCR1373"
+from zavod.extract.zyte_api import fetch_html
 
 
 def crawl_page(
@@ -103,13 +99,13 @@ def crawl(context: Context):
         context,
         "https://fntt.lrv.lt/lt/tarptautines-finansines-sankcijos/sankcionuotu-asmenu-sarasas/",
         ".//*[contains(text(), 'Fizinio ar juridinio asmens, kurio turtas įšaldytas')]",
-        program_key=LT_SL,
+        program_key="LT-SL",
     )
     unsc_1373_doc = crawl_page(
         context,
         "https://fntt.lrv.lt/lt/tarptautines-finansines-sankcijos/JT-STR-1373-sarasas/",
         ".//*[contains(text(), 'JT ST rezoliucijoje 1373 (2001)')]",
-        program_key=LT_UNSCR1373,
+        program_key="LT-UNSCR1373",
         required=False,
     )
     unsc_1373_main = unsc_1373_doc.xpath(".//main")

@@ -47,7 +47,7 @@ data:
   url: https://nigsac.gov.ng/IndSancList
   format: HTML
 dates:
-  formats: "%m/%d/%Y %H:%M:%S %p"
+  formats: ["%m/%d/%Y %H:%M:%S %p"]
 
 assertions:
   min:

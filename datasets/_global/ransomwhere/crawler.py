@@ -1,15 +1,10 @@
 import json
 from rigour.mime.types import JSON
 
-from zavod import Context
+from zavod import Context, helpers as h
 
 
-def format_number(value):
-    if value is not None:
-        return "%.2f" % float(value)
-
-
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     path = context.fetch_resource("source.json", context.data_url)
     context.export_resource(path, JSON, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
@@ -21,9 +16,10 @@ def crawl(context: Context):
         wallet.add("topics", "crime.theft")
         wallet.add("createdAt", entry.pop("createdAt"))
         wallet.add("modifiedAt", entry.pop("updatedAt"))
-        wallet.add("alias", entry.pop("family"))
-        wallet.add("balance", format_number(entry.pop("balance")))
-        wallet.add("amountUsd", format_number(entry.pop("balanceUSD")))
+        # Family is the category of ransomware that uses this wallet.
+        wallet.add("notes", entry.pop("family"))
+        h.apply_number(wallet, "balance", entry.pop("balance"))
+        h.apply_number(wallet, "amountUsd", entry.pop("balanceUSD"))
         wallet.add("currency", entry.pop("blockchain"))
         context.audit_data(entry, ignore=["transactions"])
         context.emit(wallet)

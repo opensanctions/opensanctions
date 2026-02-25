@@ -2,11 +2,11 @@ type: collection
 title: Know-Your-Business (KYB) Datasets
 hidden: true
 deploy:
-  cpu: "1000m"
-  memory: "2000Mi"
-  memory_limit: "4000Mi"
-  disk: "300Gi"
-  disk_limit: "330Gi"
+  cpu: "2000m"
+  memory: "6000Mi"
+  memory_limit: "6000Mi"
+  disk: "280Gi"
+  disk_limit: "280Gi"
   premium: true
 coverage:
   frequency: monthly
@@ -36,7 +36,7 @@ description: |
   - Banking reference data from the IRS, FinCEN and ISO 9362 (BIC).
   - ICIJ's Offshore Leaks databases.
 
-  While the use of these data sources is covered by the [data license](https://www.opensanctions.org/licensing/), 
+  While the use of these data sources is covered by the [data license](https://www.opensanctions.org/licensing/),
   the degree of manual data cleaning performed on reference datasets is not as exhaustive as on the main dataset.
   The **datasets are not deduplicated**. This means that if a source registry publishes multiple records that
   describe a single person or company, they will be reproduced in this data as-is.
@@ -44,16 +44,19 @@ description: |
   Most reference datasets are **updated once a week**. This doesn't apply to data sources which - by their nature - do not
   change on a regular basis (e.g. the ICIJ OffshoreLeaks database).
 
-  This collection is also the basis for [OpenScreening](https://resources.linkurious.com/openscreening), a proof of 
+  This collection is also the basis for [OpenScreening](https://resources.linkurious.com/openscreening), a proof of
   concept graph service released by Linkurious, Open Ownership and OpenSanctions in 2022.
 datasets:
   - abuja_mou_psc
+  - ba_companies
   - cy_companies
   - cz_business_register
   - de_offeneregister
   - ee_ariregister
   - eu_esma_firds
   - gb_coh_psc
+  - gb_fca_firds
+  - ge_company_registry
   - gleif
   - icij_offshoreleaks
   - iso9362_bic
@@ -69,6 +72,7 @@ datasets:
   - us_corpwatch
   - us_fara_filings
   - us_fincen_msb
+  - us_ofac_press_releases
   - us_irs_ffi
   # - ba_companies
   # - dk_cvr

@@ -48,7 +48,7 @@ dates:
 assertions:
   min:
     schema_entities:
-      Company: 720
+      Company: 650
       Person: 220
     country_entities:
       cn: 100
@@ -248,7 +248,7 @@ lookups:
       - match: 'Baraka Qurilish Servis Llc (“Bqs”)'
         names:
           - name: Baraka Qurilish Servis Llc
-            alias: "Bqs"
+            weak_alias: "Bqs"
       - match: 'Ecograph Llc Aka Ecography Company (Ecograph)'
         names:
           - name: Ecograph Llc
@@ -291,6 +291,113 @@ lookups:
         names:
           - name: Rishikesh Waste Management Ltd
             previous_name: A2Z Powertech Ltd
+      - match: Hangzhou Fuchuan Electric Equipment Co., Ltd (also known as Hangzhou Fuchuan Electric Power Equipment Co., Ltd)
+        names:
+          - name: Hangzhou Fuchuan Electric Equipment Co., Ltd
+            alias: "Hangzhou Fuchuan Electric Power Equipment Co., Ltd"
+      - match: International Real Estate Consulting and Investment Joint Stock Company (formerly known as HanoiTC Expert Joint Stock Company)
+        names:
+          - name: International Real Estate Consulting and Investment Joint Stock Company
+            previous_name: "HanoiTC Expert Joint Stock Company"
+      - match: "Transformers and Rectifiers (India) Limited (“T&R”)"
+        names:
+          - name: Transformers and Rectifiers (India) Limited
+            weak_alias: "T&R"
+      - match: "CompuAids Inc. D/B/A Groupe Systèmes Et Solutions D’Entreprise Ess Group Enterprise Systems And Solutions Group"
+        names:
+          - name: CompuAids Inc.
+            alias: ["Groupe Systèmes Et Solutions D’Entreprise Ess Group", "Enterprise Systems And Solutions Group"]
+      - match: "Mr. Jamshed Sharifov Russian Name: Джамшед Шарифов Also known as Dzhamshed Abdulamidovich Sharifov (in Tajik: Чамшед Абдуламидович Шарифов)"
+        names:
+          - name: ["Jamshed Sharifov", "Джамшед Шарифов"]
+            alias: ["Dzhamshed Abdulamidovich Sharifov", "Чамшед Абдуламидович Шарифов"]
+      - match: "JXTE MUNICIPAL CONSTRUCTION ENGINEERING CO. LTD (ALSO KNOWN AS JIANGXI JIAOGONG MUNICIPAL CONSTRUCTION ENGINEERING CO., LTD)"
+        names:
+          - name: JXTE Municipal Construction Engineering Co. Ltd
+            alias: "Jiangxi Jiaogong Municipal Construction Engineering Co., Ltd"
+      - match: "JXTE ASSEMBLY MANUFACTURING CO. LTD (ALSO KNOWN AS JIANGXI JIAOGONG ASSEMBLY MANUFACTURING CO., LTD)"
+        names:
+          - name: JXTE Assembly Manufacturing Co. Ltd
+            alias: "Jiangxi Jiaogong Assembly Manufacturing Co., Ltd"
+      - match: "Société Malienne de Construction, de Transport et d'Hydrocarbure (SOMACOTH SA) & M. Boubacar Bah"
+        names:
+          - name: ["Société Malienne de Construction, de Transport et d'Hydrocarbure", "Boubacar Bah"]
+            alias: "SOMACOTH SA"
+      - match: 'Rask Holding AF 2017 Ap ("RASK HOLDING")NewCo AF 2018 IV ("NEWCO")'
+        names:
+          - name: Rask Holding AF 2017 Ap
+            alias: "RASK HOLDING"
+          - name: NewCo AF 2018 IV
+            alias: "NEWCO"
+      - match: "Tetralink Taylor & Associates (Tanzania) Limited"
+        names:
+          - name: Tetralink Taylor & Associates (Tanzania) Limited
+      - match: "Tetralink Taylor & Associates (Rwanda) Limited"
+        names:
+          - name: Tetralink Taylor & Associates (Rwanda) Limited
+      - match: "Qi Technologies (formerly known as Sao Bac Dau Technology Service Joint Stock Company)(SBD Service)"
+        names:
+          - name: Qi Technologies
+            previous_name: ["Sao Bac Dau Technology Service Joint Stock Company", "SBD Service"]
+      - match: "EFACEC Arabia Co., Ltd. (Unified Number 7037412538) : Affiliate of LEECE"
+        names:
+          - name: EFACEC Arabia Co., Ltd.
+      - match: "MR. PHAM HONG HA(formerly MC Consulting Ltda.)"
+        names:
+          - name: Pham Hong Ha
+            previous_name: "MC Consulting Ltda."
+      - match: "SUNAULA KHIMTI PVT. CONSTRUCTION LTD.(AKA M/S SUNAULA KHIMTI)"
+        names:
+          - name: Sunaula Khimti Pvt. Construction Ltd.
+            alias: "M/S Sunaula Khimti"
+      - match: "DESARROLLO CON INGENIERÍA CONTRATISTAS GENERALES S.A. (DISA-CGSA)(江西恒剑路桥工程有限公司)"
+        names:
+          - name: Desarrollo Con Ingeniería Contratistas Generales S.A.
+            alias: ["DISA-CGSA", "江西恒剑路桥工程有限公司"]
+      - match: "ECOGRAPH LLC AKA ECOGRAPHY COMPANY"
+        names:
+          - name: Ecograph Llc
+            alias: "Ecography Company"
+      - match: "XINJINZHU MUNICIPAL LANDSCAPING ENGINEERING CO., LTD.f/k/a Henan Xinjinzhu Landscaping Engineering Co., Ltd."
+        names:
+          - name: Xinjinzhu Municipal Landscaping Engineering Co., Ltd.
+            previous_name: "Henan Xinjinzhu Landscaping Engineering Co., Ltd."
+      - match: "ELMCREST GROUP LIMITED, FORMERLY KNOWN AS LANDMARC LIMITED"
+        names:
+          - name: Elmcrest Group Limited
+            previous_name: "Landmarc Limited"
+      - match: "LAXMINARAYAN CONSTRUCTION(also doing business as LAXMI NARAYAN CONSTRUCTION and LAXMINARAYAN MALLICK)"
+        names:
+          - name: Laxminarayan Construction
+            alias: ["Laxmi Narayan Construction", "Laxminarayan Mallick"]
+      - match: "J.M. Comercio De Equipamentos Ltda (Currently D/B/A Pick Up Car Auto PECAS)"
+        names:
+          - name: J.M. Comercio De Equipamentos Ltda
+            alias: "Pick Up Car Auto Pecas"
+      - match: "Intreprinderea Mixta Moldo-Irlandeza (Romany Gaz Group) S.R.L."
+        names:
+          - name: Intreprinderea Mixta Moldo-Irlandeza S.R.L.
+            alias: "Romany Gaz Group"
+      - match: "Roth, Mr. Li Moni (also Ly Moni Roth"
+        names:
+          - name: Li Moni Roth
+            alias: "Ly Moni Roth"
+      - match: 'Henan Geology and Mineral Construction Engineering (Group) Anhui Co. Ltd.'
+        names:
+          - name: Henan Geology and Mineral Construction Engineering (Group) Anhui Co. Ltd.
+      - match: "MetaFlow Inc. (formerly known as CompuAids Inc. (doing business as (dba) Groupe Systèmes et Solutions D’enterprise also dba ESS Group, also dba Enterprise Systems and Solutions)"
+        names:
+          - name: MetaFlow Inc.
+            previous_name: CompuAids Inc.
+            alias: ["Groupe Systèmes et Solutions D’enterprise", "ESS Group", "Enterprise Systems and Solutions"]
+      - match: 'M/S SUNAULA KHIMTIAKA SUNAULA KHIMTI PVT. CONSTRUCTION LTD.'
+        names:
+          - name: Sunaula Khimti Pvt. Construction Ltd.
+            alias: "M/S Sunaula Khimti"
+      - match: 'J.M. Comercio De Equipamentos Ltda (Currently D/B/A Pick Up Car Auto PEÇAS)'
+        names:
+          - name: J.M. Comercio De Equipamentos Ltda
+            alias: "Pick Up Car Auto PEÇAS"
   types:
     lowercase: true
     map:

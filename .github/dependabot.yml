@@ -5,6 +5,26 @@ updates:
     open-pull-requests-limit: 99
     schedule:
       interval: "daily"
+  - package-ecosystem: "npm"
+    directory: "/ui"
+    open-pull-requests-limit: 99
+    versioning-strategy: increase-if-necessary
+    schedule:
+      interval: "weekly"
+    groups:
+      # Batch all patch/minor dev dependencies together
+      dev-dependencies:
+        dependency-type: "development"
+        update-types:
+          - "minor"
+          - "patch"
+
+      # Batch all patch runtime dependencies together
+      production-dependencies:
+        dependency-type: "production"
+        update-types:
+          - "patch"
+
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:

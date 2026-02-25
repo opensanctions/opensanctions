@@ -5,6 +5,18 @@ coverage:
   schedule: "0 */8 * * *"
   frequency: daily
   start: 2022-05-09
+manual_check:
+  last_checked: "2026-01-01"
+  interval: 90
+  message: |
+    Updating VESSELS_URL:
+    1. Go to https://www.sanctionsmap.eu/ and click the download button for the "Consolidated list of designated vessels" Excel file.
+    2. A new tab opens and the file dowloads. Right click in your download list and select "Copy Download Link". (Alternatively, search the active JS bundles for `cloudfront.net` to find the `.xlsx` URL.)
+    3. If it was updated, replace VESSELS_URL with the new link.
+
+    Alternative fallback: Danish Maritime Authority list
+    https://www.dma.dk/growth-and-framework-conditions/maritime-sanctions/sanctions-against-russia-and-belarus/eu-vessel-designations
+    (no Official Journal links included)
 load_statements: true
 summary: >
   The EU Sanctions Map is a visualisation of EU sanctions policy. It includes a broader
@@ -47,17 +59,19 @@ tags:
   - list.sanction.eu
   - issuer.west
   - sector.maritime
+dates:
+  formats: ["%d.%m.%Y", "%d.%m.%Y’"]
 
 assertions:
   min:
     schema_entities:
       LegalEntity: 570
-      Vessel: 100
+      Vessel: 500
       Person: 15
   max:
     schema_entities:
       LegalEntity: 1340
-      Vessel: 230
+      Vessel: 900
       Person: 50
 
 lookups:
@@ -66,6 +80,10 @@ lookups:
       - match:
           - 09346732 # Invalid IMO
         prop: registrationNumber
+  type.url:
+    options:
+      - match: Regulation - EU - 2025/2618 - EN - EUR-Lex
+        value: https://eur-lex.europa.eu/legal-content/EN/ALL/?uri=oj:L_202502618
   sanction.program:
     # in accordance with https://sanctionsmap.eu/#/main?search=%7B%22value%22:%22%22,%22searchType%22:%7B%7D%7D
     options:

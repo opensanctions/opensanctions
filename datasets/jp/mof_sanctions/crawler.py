@@ -1,17 +1,18 @@
 import re
-import xlrd  # type: ignore
 import string
-from datetime import datetime, date
-from openpyxl import load_workbook
-from openpyxl.cell import Cell
-from rigour.mime.types import XLSX, XLS
-from urllib.parse import urljoin
+from datetime import date, datetime
 from typing import Dict, List, Optional
+from urllib.parse import urljoin
+
+import xlrd  # type: ignore
+from followthemoney.types.identifier import IdentifierType
 from normality import squash_spaces, stringify
 from normality.cleaning import decompose_nfkd
-from followthemoney.types.identifier import IdentifierType
+from openpyxl import load_workbook
+from openpyxl.cell import Cell
+from rigour.mime.types import XLS, XLSX
 
-from zavod import Context, Entity
+from zavod import Context, Entity, settings
 from zavod import helpers as h
 
 # Match non-brackets inside an opening and closing pair of brackets
@@ -25,7 +26,7 @@ SPLITS = SPLITS + ["(i)", "(ii)", "(iii)", "(iv)", "(v)", "(vi)", "(vii)", "(vii
 SPLITS = SPLITS + ["; a.k.a.", "; a.k.a ", ", a.k.a.", ", f.k.a."]
 
 ALIAS_SPLITS = SPLITS + ["; "]
-
+ADDR_SPLITS = ["; and ", ";"]
 DATE_SPLITS = SPLITS + [
     "、",
     "；",
@@ -43,7 +44,7 @@ DATE_SPLITS = SPLITS + [
 DATE_CLEAN = re.compile(r"(\(|\)|（|）| |改訂日|改訂|まれ)")
 
 
-def note_long_ids(entity, identifiers: List[str]):
+def note_long_ids(entity: Entity, identifiers: List[str]) -> None:
     for identifier in identifiers:
         if len(identifier) > IdentifierType.max_length:
             entity.add("notes", identifier)
@@ -128,7 +129,7 @@ def parse_notes(context: Context, entity: Entity, notes: List[str]) -> None:
 
 
 def fetch_excel_url(context: Context) -> str:
-    params = {"_": context.data_time.date().isoformat()}
+    params = {"_": settings.RUN_TIME.date().isoformat()}
     doc = context.fetch_html(context.data_url, params=params)
     for link in doc.findall('.//div[@class="unique-block"]//a'):
         href = urljoin(context.data_url, link.get("href"))
@@ -137,10 +138,11 @@ def fetch_excel_url(context: Context) -> str:
     raise ValueError("Could not find XLS file on MoF web site")
 
 
-def emit_row(context: Context, sheet: str, section: str, row: Dict[str, List[str]]):
-    schema = context.lookup_value("schema", section)
+def emit_row(
+    context: Context, sheet: str, section: str, row: Dict[str, List[str]]
+) -> None:
+    schema = context.lookup_value("schema", section, warn_unmatched=True)
     if schema is None:
-        context.log.warning("No schema for section", section=section, sheet=sheet)
         return
     entity = context.make(schema)
     name_english = row.pop("name_english")
@@ -157,12 +159,13 @@ def emit_row(context: Context, sheet: str, section: str, row: Dict[str, List[str
     entity.add("name", parse_names(name_japanese))
     entity.add("alias", parse_names(h.multi_split(row.pop("alias", []), ALIAS_SPLITS)))
     entity.add("alias", parse_names(row.pop("known_alias", [])))
-    entity.add(
-        "weakAlias", parse_names(h.multi_split(row.pop("weak_alias", []), ALIAS_SPLITS))
-    )
-    entity.add(
-        "weakAlias", parse_names(h.multi_split(row.pop("nickname", []), ALIAS_SPLITS))
-    )
+    # FIXME: https://github.com/opensanctions/opensanctions/issues/2928
+    # entity.add(
+    #     "weakAlias", parse_names(h.multi_split(row.pop("weak_alias", []), ALIAS_SPLITS))
+    # )
+    # entity.add(
+    #     "weakAlias", parse_names(h.multi_split(row.pop("nickname", []), ALIAS_SPLITS))
+    # )
     entity.add("previousName", parse_names(row.pop("past_alias", [])))
     entity.add("previousName", parse_names(row.pop("old_name", [])))
     entity.add_cast("Person", "position", row.pop("position", []), lang="eng")
@@ -193,7 +196,7 @@ def emit_row(context: Context, sheet: str, section: str, row: Dict[str, List[str
     entity.add("phone", row.pop("phone", []))
     entity.add("phone", row.pop("fax", []))
 
-    for address_full in row.pop("address", []):
+    for address_full in h.multi_split(row.pop("address", []), ADDR_SPLITS):
         address = h.make_address(context, full=address_full)
         h.apply_address(context, entity, address)
 
@@ -224,10 +227,35 @@ def emit_row(context: Context, sheet: str, section: str, row: Dict[str, List[str
     entity.add("topics", "sanction")
     context.emit(entity)
     context.emit(sanction)
-    context.audit_data(row)
+    # TODO: remove IGNORE columns after https://github.com/opensanctions/opensanctions/issues/2928 is fixed
+    context.audit_data(row, ignore=["nickname", "weak_alias"])
 
 
-def crawl_xlsx(context: Context, url: str):
+def trim_rightmost_blank(values: List[str], keep: int = 0) -> List[str]:
+    """
+    Remove rightmost contiguous falsy values from a list, keeping at least `keep` values.
+
+    Args:
+        values: List of values to trim
+        keep: Minimum number of values to keep
+
+    Returns:
+        List with rightmost contiguous falsy values removed
+    """
+    assert len(values) >= keep, len(values)
+
+    # Find the last index with a truthy value
+    last_truthy_idx = -1
+    for i in range(len(values) - 1, -1, -1):
+        if values[i]:
+            last_truthy_idx = i
+            break
+
+    end_idx = max(keep, last_truthy_idx + 1)
+    return values[:end_idx]
+
+
+def crawl_xlsx(context: Context, url: str) -> None:
     path = context.fetch_resource("source.xlsx", url)
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
 
@@ -242,9 +270,14 @@ def crawl_xlsx(context: Context, url: str):
         headers = None
         for cells in sheet.iter_rows(1):
             row = [str_cell(c) for c in cells]
+            # If they've formatted cells beyond the headers, we get them in the
+            # row for the whole sheet. We want to drop those columns unless they
+            # contain data.
+            row = trim_rightmost_blank(row, keep=len(headers) if headers else 0)
 
             # after a header is found, read normal data:
             if headers is not None:
+                assert len(row) == len(headers), (len(row), len(headers), row)
                 data: Dict[str, List[str]] = {}
                 for header, cell in zip(headers, row):
                     if header is None:
@@ -269,10 +302,10 @@ def crawl_xlsx(context: Context, url: str):
             if "告示日付" in teaser:  # jp: Notice date
                 if headers is not None:
                     context.log.error("Found double header?", row=row)
-                # print("SHEET", sheet, row)
+
                 headers = []
                 for cell in row:
-                    cell = squash_spaces(cell)
+                    cell = squash_spaces(stringify(cell) or "")
                     header = context.lookup_value("columns", cell)
                     if header is None:
                         context.log.warning(
@@ -281,11 +314,11 @@ def crawl_xlsx(context: Context, url: str):
                     headers.append(header)
 
 
-def crawl_xls(context: Context, url: str):
+def crawl_xls(context: Context, url: str) -> None:
     path = context.fetch_resource("source.xls", url)
     context.export_resource(path, XLS, title=context.SOURCE_TITLE)
 
-    xls = xlrd.open_workbook(path)
+    xls = xlrd.open_workbook(str(path))
     for sheet in xls.sheets():
         headers = None
         row0 = [h.convert_excel_cell(xls, c) for c in sheet.row(0)]
@@ -326,6 +359,7 @@ def crawl_xls(context: Context, url: str):
                 # print("SHEET", sheet, row)
                 headers = []
                 for cell in row:
+                    assert cell is not None
                     cell = squash_spaces(cell)
                     header = context.lookup_value("columns", cell)
                     if header is None:
@@ -335,7 +369,7 @@ def crawl_xls(context: Context, url: str):
                     headers.append(header)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     url = fetch_excel_url(context)
     if url.endswith(".xlsx"):
         crawl_xlsx(context, url)

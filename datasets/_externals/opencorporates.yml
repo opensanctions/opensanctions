@@ -8,6 +8,7 @@ coverage:
 exports:
   - statistics.json
 deploy:
+  cpu: "1000m"
   memory: "4000Mi"
 load_statements: true
 ci_test: false
@@ -35,29 +36,33 @@ publisher:
   url: https://opencorporates.com/info/about/
 
 inputs:
+  - eu_sanctions
   - ir_uani_business_registry
   - us_sanctions
-  - eu_sanctions
-  # - ext_cy_companies
-  # - ext_cz_business_register
-  # - ext_ee_ariregister
-  # - ext_gb_coh_psc
-  # - ext_gleif
-  # - ext_icij_offshoreleaks
-  # - ext_lv_business_register
-  # - ext_md_companies
-  # - opencorporates
-  # - ext_ru_egrul
-  # - ext_ua_edr
-  # - debarment
 
 config:
   type: nomenklatura.enrich.opencorporates:OpenCorporatesEnricher
-  cache_days: 180
+  cache_days: 60
   schemata:
     - Company
     - Organization
     # - LegalEntity
+  skip_jurisdictions:
+    - "ru"
+    - "cn"
+    - "kp"
+    - "sy"
+    - "iq"
+    - "ae"
+    - "ve"
+    - "cu"
+    - "ps"
+    - "af"
+    - "uz"
+    - "kz"
+    - "xk"
+    - "md-pmr"
+    - "sd"
 
 lookups:
   type.date:
@@ -76,6 +81,9 @@ lookups:
           - Channel Islands
           - YYY
           - VIRGIN ISLANDS # which???!?
+          - "AS"
+          - "DE"
+          - "PA"
         value: null
       - match: "PROVINCIA PANAMÁ, OBSERVACIONES EN ATENCIÓN A LO ESTABLECIDO EN LOS ARTÍCULOS 1, 2 Y 3 DEL DECRETO EJECUTIVO 905 DE 20 SEPTIEMBRE DE 2019 Y LA LEY 52 DE 27 DE FEBRERO DE 2016, EL REGISTRO PÚBLICO PROCEDE A CAMBIAR AL ?ESTATUS SUSPENDIDO? EL PRESENTE FOLIO MERCANTIL; LO ANTERIOR DANDO CUMPLIMIENTO Y DEJANDO CONSTANCIA DE LOS EFECTOS JURÍDICOS QUE ELLO IMPLICA, SEGÚN LO ESTIPULADO EN EL PARÁGRAFO 3 DEL ARTÍCULO 9 DE LA LEY 52 DE 2016, QUE MODIFICÓ EL ARTÍCULO 318-A DEL CÓDIGO FISCAL. A SABER LOS EFECTOS JURÍDICOS DE LA ANOTACIÓN DE ESTATUS SUSPENDIDO EN EL PRESENTE FOLIO, IMPLICAN: 1. IMPOSIBILIDAD PARA INICIAR PROCESOS LEGALES, REALIZAR NEGOCIOS O DISPONER DE SUS ACTIVOS. 2. IMPOSIBILIDAD PARA HACER RECLAMOS O EJERCER ALGÚN DERECHO. 3. IMPOSIBILIDAD PARA REALIZAR NINGUNA ACCIÓN CORPORATIVA QUE RESULTE OBLIGANTE PARA LA PERSONA JURÍDICA. NO OBSTANTE, CUANDO LOS DERECHOS CORPORATIVOS DE UNA PERSONA JURÍDICA HAYAN SIDO SUSPENDIDOS, ESTA PODRÁ: 1. HACER UNA SOLICITUD DE REACTIVACIÓN. 2. GESTIONAR LA DEFENSA DE CUALQUIER PROCESO INICIADO EN SU CONTRA. 3. CONTINUAR CON PROCESOS LEGALES INSTITUIDOS EN SU NOMBRE ANTES DE LA FECHA DE SUSPENSIÓN."
         value: Panama
@@ -97,6 +105,12 @@ lookups:
           - 72379 Hechingen, Kirchplatz 2
       - match: "Platz vor dem Neuen Tor 2, 10115 Berlin Gegenstand: Erbringung persönlicher und sachlicher Leistungen im Zusammenhang mit der Durchführung von Ausbildungsprogrammen und Zertifizierungsvorbereitungen, insbesondere im Bereich der Projekt- und Programmorganisation Stamm- bzw. Grundkapital:33)400,00 EUR Vertretungsregelung: Ist ein Geschäftsführer bestellt, so vertritt er die Gesellschaft allein."
         value: Platz vor dem Neuen Tor 2, 10115 Berlin
+      - match: WA
+        value: Washington
+  type.string:
+    options:
+      - match: <UNKNOWN>
+        value: null
   type.country:
     lowercase: true
     options:
@@ -142,6 +156,10 @@ lookups:
         value: NL
       - match: FÉROÉ, ÎLES
         value: FO
+      - match: Sør-Korea
+        value: KR
+      - match: Sør-Afrika
+        value: ZA
   type.name:
     options:
       - match: "CÔNG TY CỔ PHẦN SẢN XUẤT KINH DOANH TỔNG HỢP VĨNH HƯNG (DOANH NGHIỆP ĐÃ GIẢI THỂ THEO THÔNG BÁO SỐ: 27/TB-ĐKKD NGÀY 16/05/2006 CỦA PHÒNG ĐĂNG KÝ KINH DOANH - SỞ KẾ HOẠCH VÀ ĐẦU TƯ HÀ NỘI). (THÔNG BÁO ĐÓNG MÃ SỐ THUẾ, NGỪNG HOẠT ĐỘNG, THÔNG BÁO SÓ: 1051 C"

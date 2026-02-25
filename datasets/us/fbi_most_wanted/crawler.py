@@ -5,7 +5,7 @@ from typing import Optional
 
 from zavod import Context
 from zavod import helpers as h
-from zavod.shed.zyte_api import fetch_html
+from zavod.extract.zyte_api import fetch_html
 
 FBI_URL = "https://www.fbi.gov/wanted/%s/@@castle.cms.querylisting/%s?page=%s"
 IGNORE_FIELDS = (

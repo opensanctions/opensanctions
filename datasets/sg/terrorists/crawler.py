@@ -1,18 +1,26 @@
 import re
+from csv import DictReader
+
 from lxml import html
 from rigour.mime.types import HTML
+from zavod.extract import zyte_api
 
 from zavod import Context
 from zavod import helpers as h
-from zavod.shed import zyte_api
 
 IN_BRACKETS = re.compile(r"\(([^\)]*)\)")
-SG_TSFA2002 = "SG-TSFA2002"
+PROGRAM_KEY = "SG-TSFA2002"
 DOB = "Date of Birth:"
 PASSPORT = "Passport No."
+ADDITIONAL_LISTS_PAGE_URL = "https://www.mas.gov.sg/regulation/anti-money-laundering/targeted-financial-sanctions"
+ADDITIONAL_LISTS_DATA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRb11upZ07FLqPyMrglwkgBFfnBUaRgzmSS6m4l7jKRzvsEcYfikz7tdZb-NmeA-1Eh4p1-Ls2-lc-D/pub?gid=0&single=true&output=csv"
+OTHER_MEASURES_HASHES = {
+    "https://www.mas.gov.sg/regulation/notices/notice-snr-n01-1": "47dc095d36ee1564061b7a889b23e0b6f10e8a84",
+    "https://www.mas.gov.sg/regulation/notices/notice-snr-n03": "8ec3fa32ad46afb0abaa34a03e8737c1fe0828d9",
+}
 
 
-def crawl(context: Context):
+def crawl_terrorism_act(context: Context) -> None:
     _, _, _, html_source = zyte_api.fetch_text(context, context.data_url)
     doc = html.fromstring(html_source)
 
@@ -21,11 +29,11 @@ def crawl(context: Context):
     context.export_resource(html_resource_path, HTML, title=context.SOURCE_TITLE)
 
     for node in doc.findall(".//td[@class='tailSTxt']"):
-        if not node.text_content().startswith("2."):
+        if not h.element_text(node).startswith("2."):
             continue
         for item in node.findall(".//tr"):
-            number = item.find(".//td[@class='sProvP1No']").text_content()
-            text = item.find(".//td[@class='sProvP1']").text_content()
+            number = h.element_text(item.find(".//td[@class='sProvP1No']"))
+            text = h.element_text(item.find(".//td[@class='sProvP1']"))
             if text.startswith("[Deleted"):
                 continue
             text = text.strip().rstrip(";").rstrip(".")
@@ -40,7 +48,7 @@ def crawl(context: Context):
             sanction = h.make_sanction(
                 context,
                 entity,
-                program_key=SG_TSFA2002,
+                program_key=PROGRAM_KEY,
             )
 
             for match in IN_BRACKETS.findall(text):
@@ -66,3 +74,75 @@ def crawl(context: Context):
 
             context.emit(entity)
             context.emit(sanction)
+
+
+def crawl_additional_lists(context: Context) -> None:
+    # Check if they've added any measures/regimes and update
+    # https://docs.google.com/spreadsheets/d/1aDFamdLabhba67A-TGSqlMdB5j4zV7h96DRKAUPkbvI/edit?gid=0#gid=0
+    # At the time of writing there's an "Other Financial Measures" section
+    # with link to a page on "Financial measures in relation to Russia".
+    validator = ".//*[contains(text(), 'Targeted Financial Sanctions')]"
+    doc = zyte_api.fetch_html(
+        context, ADDITIONAL_LISTS_PAGE_URL, validator, absolute_links=True
+    )
+    container = h.xpath_elements(doc, ".//main", expect_exactly=1)
+    h.assert_dom_hash(
+        node=container[0],
+        hash="e1493b2569df16edd621d0afa7eaa65e9a44901e",
+        raise_exc=False,
+        text_only=True,
+    )
+    # Check if the specific other measures pages have changed e.g. with new amendments.
+    for other_link in h.xpath_strings(
+        doc, ".//*[@id='_other-financial-measures']//a/@href"
+    ):
+        other_doc = zyte_api.fetch_html(
+            context,
+            other_link,
+            ".//div[contains(@class, 'as-section__banner-item')]",
+            absolute_links=True,
+        )
+        expected_hash = OTHER_MEASURES_HASHES.pop(other_link, None)
+        if expected_hash is None:
+            context.log.warn("Add hash for unknown other measures link", url=other_link)
+        else:
+            other_container = h.xpath_elements(other_doc, ".//main", expect_exactly=1)
+            h.assert_dom_hash(
+                node=other_container[0], hash=expected_hash, raise_exc=False
+            )
+    # Check if we found all the expected other measures links
+    assert len(OTHER_MEASURES_HASHES) == 0, OTHER_MEASURES_HASHES.keys()
+
+    path = context.fetch_resource("source.csv", ADDITIONAL_LISTS_DATA_URL)
+    with open(path, "r") as f:
+        for row in DictReader(f):
+            name = row.pop("name")
+            country = row.pop("country")
+            entity = context.make(row.pop("schema"))
+            entity.id = context.make_id(name, country)
+            entity.add("name", name)
+            entity.add("country", country)
+            entity.add(
+                "citizenship", h.multi_split(row.pop("citizenship"), [";"]), quiet=True
+            )
+            entity.add("birthDate", h.multi_split(row.pop("dob"), [";"]), quiet=True)
+            entity.add("idNumber", row.pop("idNumber"), quiet=True)
+            entity.add("gender", row.pop("gender"), quiet=True)
+
+            sanction = h.make_sanction(
+                context, entity, program_key=row.pop("program_key")
+            )
+            h.apply_date(sanction, "startDate", row.pop("start_date"))
+            h.apply_date(sanction, "endDate", row.pop("end_date"))
+            sanction.add("sourceUrl", row.pop("source_url"))
+            if h.is_active(sanction):
+                entity.add("topics", "sanction")
+
+            context.emit(entity)
+            context.emit(sanction)
+            context.audit_data(row)
+
+
+def crawl(context: Context) -> None:
+    crawl_terrorism_act(context)
+    crawl_additional_lists(context)

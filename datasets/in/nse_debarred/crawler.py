@@ -8,7 +8,7 @@ import openpyxl
 
 from zavod import Context, helpers as h
 from zavod.entity import Entity
-from zavod.shed import zyte_api
+from zavod.extract import zyte_api
 
 SEBI_DEBARRMENT_URL = "https://nsearchives.nseindia.com/content/press/prs_ra_sebi.xls"
 OTHER_DEBARRMENT_URL = (
@@ -151,7 +151,7 @@ def parse_xls_or_xlsx_sheet_from_url(context: Context, url: str, filename: str):
             filepath_tmp, context.get_resource_path(f"{filename}.xls")
         )
         mimetype = XLS
-        items = h.parse_xls_sheet(context, xlrd.open_workbook(filepath)["Sheet1"])
+        items = h.parse_xls_sheet(context, xlrd.open_workbook(filepath)["Working"])
 
     context.export_resource(filepath, mimetype, title=context.SOURCE_TITLE)
     return items

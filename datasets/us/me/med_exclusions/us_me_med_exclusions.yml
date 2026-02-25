@@ -3,7 +3,9 @@ entry_point: crawler.py
 prefix: us-medme
 coverage:
   start: "2024-12-13"
-  schedule: "17 4 1,15 * *"
+  # Run at 10:00 EST because the portal is only available 07:00-19:00 EST
+  # https://www.maine.gov/dhhs/oms/providers/provider-bulletins/health-pas-online-portal-down-time-update-november-2025-2025-11-20
+  schedule: "17 15 1,15 * *"
 load_statements: true
 ci_test: false  # Zyte is not available in CI
 summary: >

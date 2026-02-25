@@ -1,0 +1,14 @@
+id: 51
+title: Non-SDN Chinese Military-Industrial Complex Companies
+key: US-NS-CMIC
+url: https://ofac.treasury.gov/other-ofac-sanctions-lists
+summary: This list includes Chinese companies involved in the military-industrial
+  complex that are not listed as Specially Designated Nationals (SDNs). The measures
+  include prohibitions on U.S. investments in these companies to counteract their
+  role in enhancing China's military capabilities and ensure U.S. national security.
+issuer: us_ofac
+dataset: us_ofac_cons
+aliases:
+- ' NS-CMIC'
+target_territories:
+- cn

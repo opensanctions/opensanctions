@@ -52,12 +52,10 @@ lookups:
   entities:
     options:
       - match:
-          - "A...B..."
           - "."
           - ","
           - "et de"
           - "Demande de relèvement de de l’interdiction à titre définitif d’exercer l’activité de gestion pour le compte de tiers prononcée à son encontre par décision de la COB du 12 février 2002"
-          - "'et Mmes B"
           - "-"
           - "Société X1, anciennement dénommée X et de"
           - "Société FIVAL SA D"
@@ -83,13 +81,6 @@ lookups:
           - "(venant aux droits et obligations de )"
           - "venant au droits et obligations de"
         entities: []
-      - match: MM. Gérard Monnet, Michael Aubourg, Davide Blei, Cyril de Bournet et Marco Perelli-Cippo
-        entities:
-          - Gérard Monnet
-          - Michael Aubourg
-          - Davide Blei
-          - Cyril de Bournet
-          - Marco Perelli-Cippo
       - match: La société Traditia<br /> Monsieur Philippe Le Gouz de Saint Seine
         entities:
           - Traditia
@@ -164,80 +155,22 @@ lookups:
             to_prop: successor
             to: la Caisse d'Epargne de Rhone-Alpes
             role: venant aux droits
-      - match: "la société Skylar France et M. Cédric Chaboud"
-        entities:
-          - Skylar France
-          - Cédric Chaboud
-      - match: "la société DIGNE CONSEILS & GESTION . Patrice DIGNE"
-        entities:
-          - Digne Conseils & Gestion
-          - Patrice Digne
-      - match: la Société de gestion des fonds d'investissement de Bretagne . Florent de Kersauson
-        entities:
-          - Société de Gestion des Fonds d'Investissement de Bretagne
-          - Florent de Kersauson
-      - match: La société Electricité de France S.A. et Henri Proglio
-        entities:
-          - Electricité de France S.A.
-          - Henri Proglio
-      - match: "La société Tec Assurances . Eric Taiclet"
-        entities:
-          - Tec Assurances
-          - Eric Taiclet
-      - match: "La société Groupe CGFI . Jacques Defemme"
-        entities:
-          - Groupe CGFI
-          - Jacques Defemme
-      - match: "La société CERES FINANCE . Patrick Thierry"
-        entities:
-          - Ceres Finance
-          - Patrick Thierry
       - match: "les sociétés Elliott Advisors UK Limited et Elliott Capital Advisors L.P."
         entities:
           - Elliott Advisors UK Limited
           - Elliott Capital Advisors L.P.
-      - match: "la société Forever Winner International Development Ltd. Guoliang Yao et Mme Yan Lin"
-        entities:
-          - Forever Winner International Development Ltd.
-          - Guoliang Yao
-          - Yan Lin
       - match: la société Forever Winner International Development Ltd
         entities:
           - Forever Winner International Development Ltd
       - match: "BRED Banque Populaire"
         entities:
           - BRED Banque Populaire
-      - match: "Sociétés Prologue et Le Quotidien de Paris Editions . Nicolas Miguet"
-        entities:
-          - Prologue
-          - Le Quotidien de Paris Editions
-          - Nicolas Miguet
-      - match: "GSD Gestion et MM. Thierry et Jacques Gautier"
-        entities:
-          - GSD Gestion
-          - Thierry Gautier
-          - Jacques Gautier
       - match: "Société Bloomberg LP"
         entities:
           - Bloomberg LP
       - match: "Société Morgan Stanley & Co International Plc"
         entities:
           - Morgan Stanley & Co International Plc
-      - match: "Sociétés Novaxia Investissement, Novaxia Développement, Novaxia Gestion, Novaxia . Joachim Azan"
-        entities:
-          - Novaxia Investissement
-          - Novaxia Développement
-          - Novaxia Gestion
-          - Novaxia
-          - Joachim Azan
-      - match: "Société Financière Henry IV Société Nouvelle .Tony Csordas"
-        entities:
-          - Financière Henry IV Société Nouvelle
-          - Tony Csordas
-      - match: "Société Biophytis . Stanislas Veillet"
-        entities:
-          - Biophytis
-          - Stanislas Veillet
       - match: Société Biophytis
         entities:
           - Biophytis
@@ -245,25 +178,11 @@ lookups:
         entities:
           - Natixis Asset Management Finance
           - Natixis Investment Managers International
-      - match: "Société Forest Invest. Olivier Segouin"
-        entities:
-          - Forest Invest
-          - Olivier Segouin
-      - match: "Sociétés Invest Securities, Portal Conseil, Exec Finance. Louis Carlotta"
-        entities:
-          - Invest Securities
-          - Portal Conseil
-          - Exec Finance
-          - Louis Carlotta
       - match: "Sociétés Invest Securities, Portal Conseil, Exec Finance"
         entities:
           - Invest Securities
           - Portal Conseil
           - Exec Finance
-      - match: "Société Prado Paradis Patrimoine; Mme Solange Dahan"
-        entities:
-          - Prado Paradis Patrimoine
-          - Solange Dahan
       - match: "Société Prado Paradis Patrimoine;"
         entities:
           - Prado Paradis Patrimoine
@@ -382,7 +301,7 @@ lookups:
       - match: "Société Aviva Investors France"
         entities:
           - Aviva Investors France
-      - match: "la société Skylar France . Cédric Chaboud"
+      - match: "La société Skylar France . Cédric Chaboud"
         entities:
           - Skylar France
           - Cédric Chaboud
@@ -767,11 +686,6 @@ lookups:
         entities:
           - Rallye
           - Franck Hattab
-      - match: "La société Horizon Asset Management<br /> M. Mehdi Gaiji<br /> M. Arnaud Monnet"
-        entities:
-          - Horizon Asset Management
-          - Mehdi Gaiji
-          - Arnaud Monnet
       - match: L'Association Nationale des Conseillers Financiers-CIF<br /> M. Patrick Galtier
         entities:
           - Association Nationale des Conseillers Financiers-CIF
@@ -882,7 +796,7 @@ lookups:
         entities:
           - Acadian Advisors & Associates
           - Didier Hoffelt
-      - match: "La -Trade Brokers Dom Maklerski S.A."
+      - match: "-Trade Brokers Dom Maklerski S.A."
         entities:
           - Trade Brokers Dom Maklerski S.A.
       - match: "La société Fidoma<br /> La société Banque Sainte Olive<br /> M. Didier Domange"
@@ -933,11 +847,6 @@ lookups:
         entities:
           - Gestys SA
           - Jean-Laurent Bruel
-      - match: "la société Efigest Conseil<br /> M. Jean-Noël Vignon<br /> M. Sylvain Bruley"
-        entities:
-          - Efigest Conseil
-          - Jean-Noël Vignon
-          - Sylvain Bruley
       - match: "La société Financière de Diane"
         entities:
           - Financière de Diane
@@ -1043,18 +952,6 @@ lookups:
           - Adriana Marglewska
           - Frédéric Marty
           - Olivier Blin
-      - match: "La société Skylar France . Cédric Chaboud"
-        entities:
-          - Skylar France
-          - Cédric Chaboud
-      - match: "La société DIGNE CONSEILS & GESTION . Patrice DIGNE"
-        entities:
-          - DIGNE CONSEILS & GESTION
-          - Patrice DIGNE
-      - match: "La Société de gestion des fonds d'investissement de Bretagne . Florent de Kersauson"
-        entities:
-          - Société de gestion des fonds d'investissement de Bretagne
-          - Florent de Kersauson
       - match: "La société Efigest Conseil<br /> M. Jean-Noël Vignon<br /> M. Sylvain Bruley"
         entities:
           - Efigest Conseil
@@ -1118,3 +1015,27 @@ lookups:
           - ["Altaroc Partners", "Amboise Partners SA"]
           - Maurice Tchenio
           - Patrick de Giovanni
+      - match: "La Société de gestion des fonds d'investissement de Bretagne"
+        entities:
+          - La Société de gestion des fonds d'investissement de Bretagne
+      - match: La société Carat GP<br /> M. Jimmy Guinet<br /> M. Sébastien Renaud
+        entities:
+          - Carat GP
+          - Jimmy Guinet
+          - Sébastien Renaud
+      - match: La société Novaxia Investissement<br /> M. Joachim Azan
+        entities:
+          - Novaxia Investissement
+          - Joachim Azan
+      - match: La société Caceis Bank
+        entities:
+          - Caceis Bank
+      - match: Capital Partners<br /> M. Rudy Secco<br /> Mme Stéphanie Minissier<br />
+        entities:
+          - Capital Partners
+          - Rudy Secco
+          - Stéphanie Minissier
+      - match: La société Makor Securities Paris<br /> M. Yankel Hassan
+        entities:
+          - Makor Securities Paris
+          - Yankel Hassan

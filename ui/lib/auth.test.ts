@@ -7,6 +7,7 @@ describe('verify', () => {
         'whatever': '-----BEGIN PUBLIC KEY-----\nwhatever\n-----END PUBLIC KEY-----\n'
       })
     });
+    process.env.ZAVOD_ALLOW_UNAUTHENTICATED = 'false';
   });
 
   it('returns email for valid token', async () => {

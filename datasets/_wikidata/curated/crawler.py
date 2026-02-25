@@ -1,17 +1,16 @@
 import csv
 from typing import Dict
 from rigour.mime.types import CSV
-from rigour.ids.wikidata import is_qid
 
 from zavod import Context
+from zavod import helpers as h
 
 
-def crawl_row(context: Context, row: Dict[str, str]):
-    qid = row.get("qid", "").strip()
-    if not len(qid):
-        return
-    if not is_qid(qid):
-        context.log.warning("No valid QID", qid=qid)
+def crawl_row(context: Context, row: Dict[str, str]) -> None:
+    qid_raw = row.get("qid", "").strip()
+    qid = h.deref_wikidata_id(context, qid_raw)
+    if qid is None:
+        context.log.warning("No valid QID", qid=qid_raw)
         return
     schema = row.get("schema") or "Person"
     entity = context.make(schema)
@@ -23,7 +22,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     context.emit(entity)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     path = context.fetch_resource("source.csv", context.data_url)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:

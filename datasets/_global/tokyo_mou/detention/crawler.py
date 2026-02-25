@@ -46,7 +46,7 @@ def crawl_row(context: Context, row: dict, reasons_cell: HtmlElement):
     vessel.add("imoNumber", imo)
     vessel.add("flag", row.pop("Ship Flag"))
     vessel.add("buildDate", row.pop("Year of build"))
-    vessel.add("grossRegisteredTonnage", row.pop("Gross Tonnage"))
+    h.apply_number(vessel, "grossRegisteredTonnage", row.pop("Gross Tonnage"))
     vessel.add("type", row.pop("Ship Type"))
     vessel.add("topics", "mare.detained")
 
@@ -124,9 +124,7 @@ def crawl(context: Context):
         doc = context.fetch_html(
             context.data_url, data=data, method="POST", cache_days=1
         )
-        table = doc.xpath("//table[@cellspacing=1]")
-        assert len(table) == 1, "Expected one table in the document"
-        table = table[0]
+        table = h.xpath_element(doc, "//table[@cellspacing=1]")
         for row in h.parse_html_table(
             table, header_tag="td", skiprows=1, slugify_headers=False
         ):

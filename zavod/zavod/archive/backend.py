@@ -1,14 +1,14 @@
 import shutil
 import warnings
-from pathlib import Path
 from functools import cache
-from typing import cast, Dict, Optional, Type, TextIO
-from google.cloud.storage import Client, Blob  # type: ignore
+from pathlib import Path
+from typing import Dict, Optional, TextIO, Type, cast
+
+from google.cloud.storage import Blob, Client  # type: ignore
 
 from zavod import settings
-from zavod.logs import get_logger
 from zavod.exc import ConfigurationException
-
+from zavod.logs import get_logger
 
 log = get_logger(__name__)
 BLOB_CHUNK = 40 * 1024 * 1024
@@ -119,18 +119,16 @@ class GoogleCloudBackend(ArchiveBackend):
         if settings.ARCHIVE_BUCKET is None:
             raise ConfigurationException("No backfill bucket configured")
         self.client = Client()
+
+        credentials = self.client._credentials
+        log.info(
+            f"Initialized Google Cloud archive backend "
+            f"acting as {getattr(credentials, 'signer_email', None)}",
+        )
         self.bucket = self.client.get_bucket(settings.ARCHIVE_BUCKET)
 
     def get_object(self, name: str) -> GoogleCloudObject:
         return GoogleCloudObject(self, name)
-
-
-class AnonymousGoogleCloudBackend(GoogleCloudBackend):
-    def __init__(self) -> None:
-        if settings.ARCHIVE_BUCKET is None:
-            raise ConfigurationException("No backfill bucket configured")
-        self.client = Client.create_anonymous_client()
-        self.bucket = self.client.get_bucket(settings.ARCHIVE_BUCKET)
 
 
 class FileSystemObject(ArchiveObject):
@@ -190,7 +188,6 @@ class FileSystemBackend(ArchiveBackend):
 
 backends: Dict[str, Type[ArchiveBackend]] = {
     "GoogleCloudBackend": GoogleCloudBackend,
-    "AnonymousGoogleCloudBackend": AnonymousGoogleCloudBackend,
     "FileSystemBackend": FileSystemBackend,
 }
 

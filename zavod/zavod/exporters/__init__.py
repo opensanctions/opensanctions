@@ -18,7 +18,7 @@ from zavod.exporters.maritime import MaritimeExporter
 from zavod.exporters.delta import DeltaExporter
 
 from zavod.exporters.fragment import ViewFragment
-from zavod.exporters.metadata import write_dataset_index
+from zavod.exporters.metadata import DatasetVersionResult, write_dataset_index
 from zavod.exporters.metadata import write_catalog, write_delta_index
 
 log = get_logger(__name__)
@@ -62,19 +62,23 @@ def export_data(context: Context, view: View) -> None:
         exporters.append(clazz(context))
 
     log.info(
-        "Exporting dataset...",
-        dataset=context.dataset.name,
+        f"Exporting dataset: {context.dataset.name}...",
         exporters=len(exporters),
     )
     for exporter in exporters:
         exporter.setup()
 
     for idx, entity in enumerate(view.entities()):
-        # Use it once we figure memory explosion out
+        if idx > 0 and idx % 10000 == 0:
+            log.info("Exported %s entities..." % idx, scope=context.dataset.name)
+
+        # feed_unconsolidated must be called before consolidate_entity, because
+        # consolidate_entity mutates the entity in place.
+        for exporter in exporters:
+            exporter.feed_unconsolidated(entity)
+
         entity = consolidate_entity(view.store.linker, entity)
         fragment = ViewFragment(view, entity)
-        if idx > 0 and idx % 10000 == 0:
-            log.info("Exported %s entities..." % idx, dataset=context.dataset.name)
         for exporter in exporters:
             exporter.feed(entity, fragment)
 
@@ -93,6 +97,6 @@ def export_dataset(dataset: Dataset, view: View) -> None:
 
     # Export metadata and issues (after the context is closed & flushed)
     write_delta_index(dataset)
-    write_dataset_index(dataset)
+    write_dataset_index(dataset, DatasetVersionResult.SUCCESS)
     write_catalog(dataset)
-    log.info("Exported dataset: %s" % dataset.name, dataset=dataset.name)
+    log.info("Exported dataset: %s" % dataset.name)

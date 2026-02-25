@@ -17,6 +17,7 @@ def test_make_position(testdataset1: Dataset):
     assert de.id != de_with_date.id
     assert de.id != uk.id
     assert de.get("name") == uk.get("name")
+    context.close()
 
 
 def test_make_position_full(testdataset1: Dataset):
@@ -54,6 +55,7 @@ def test_make_position_full(testdataset1: Dataset):
     assert one_with_everything.get("numberOfSeats") == ["5"]
     assert one_with_everything.get("wikidataId") == ["Q123"]
     assert one_with_everything.get("sourceUrl") == ["http://example.com/"]
+    context.close()
 
 
 def test_make_occupancy(testdataset1: Dataset):
@@ -73,6 +75,7 @@ def test_make_occupancy(testdataset1: Dataset):
         end_date="2. Jan 2021",
     )
 
+    assert occupancy is not None
     assert occupancy.id == "osv-45f94082953295c5fe58c51dfca41103375b01bf"
     assert occupancy.get("holder") == ["thabo"]
     assert occupancy.get("post") == ["osv-40a302b7f09ea065880a3c840855681b18ead5a4"]
@@ -82,6 +85,7 @@ def test_make_occupancy(testdataset1: Dataset):
 
     assert person.get("country") == ["ls"]
     assert person.get("topics") == ["role.pep"]
+    context.close()
 
 
 def test_occupancy_not_same_start_end_id(testdataset1: Dataset):
@@ -100,12 +104,15 @@ def test_occupancy_not_same_start_end_id(testdataset1: Dataset):
         )
 
     current_no_end = make(True, "2020-01-01", None)
+    assert current_no_end is not None
     assert current_no_end.get("status") == ["current"]
 
     ended_no_start = make(True, None, "2020-01-01")
+    assert ended_no_start is not None
     assert ended_no_start.get("status") == ["ended"]
 
     assert ended_no_start.id != current_no_end.id
+    context.close()
 
 
 def test_occupancy_dataset_coverage():
@@ -131,6 +138,7 @@ def test_occupancy_dataset_coverage():
         start_date="2021-01-01",
         end_date="2021-01-05",
     )
+    assert occupancy1 is not None
     assert occupancy1.get("status") == ["current"]
 
     # If coverage end date has passed, we don't trust the future end date
@@ -156,4 +164,7 @@ def test_occupancy_dataset_coverage():
         start_date="2021-01-01",
         end_date="2021-01-05",
     )
-    assert occupancy2.get("status") == ["unknown"]
+    assert occupancy2 is not None
+    assert occupancy2.get("endDate") == ["2021-01-05"]
+    context1.close()
+    context2.close()

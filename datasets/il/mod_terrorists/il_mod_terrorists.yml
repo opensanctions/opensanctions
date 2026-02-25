@@ -44,6 +44,8 @@ dates:
     "05": "May"
 tags:
   - list.sanction
+http:
+  user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 (zavod; opensanctions.org)"
 
 assertions:
   min:
@@ -51,15 +53,20 @@ assertions:
       Person: 375
       Organization: 345
       LegalEntity: 30
-      Address: 20
+      Address: 40
   max:
     schema_entities:
       Person: 885
       Organization: 800
       LegalEntity: 140
-      Address: 55
+      Address: 80
 
 lookups:
+  type.name:
+    options:
+      # https://www.opensanctions.org/entities/Q4172252/
+      - match: LIONEL DUMONT NA NA
+        value: LIONEL DUMONT
   type.country:
     lowercase: true
     normalize: true
@@ -81,6 +88,11 @@ lookups:
       - match:
           - Ramallah
           - Khan Younis, Gaza
+          - Balata Refugee Camp, Nablus
+          - Qalqilya
+          - Tulkarm
+          - Nur a-Shams Refugee Camp Tulkarm
+          - Jenin Refugee Camp
           - אזרחות פלסטינית
           - Gaza
           - עזה
@@ -121,6 +133,10 @@ lookups:
           - Iraq
       - match: Saada, Yemen
         value: Yemen
+      - match: Gaza, Turkey
+        values:
+          - PS
+          - Turkey
   type.date:
     options:
       - match:

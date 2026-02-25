@@ -1,0 +1,18 @@
+id: 26
+title: Magnitsky Sanctions
+key: US-MAGNITSKY
+url: https://ofac.treasury.gov/sanctions-programs-and-country-information/the-magnitsky-sanctions
+summary: These sanctions target individuals and entities responsible for human rights
+  abuses and corruption under the Russia and Moldova Jackson–Vanik Repeal and Sergei
+  Magnitsky Rule of Law Accountability Act of 2012. The act targets a specific organized
+  crime group within Russia that was responsible for a fraud perpetrated on the Russian
+  treasury and the eventual killing of tax lawyer Sergei Magnitsky.
+issuer: us_ofac
+dataset: us_ofac_sdn
+aliases:
+- EO 13818
+- Russia and Moldova Jackson–Vanik Repeal and Sergei Magnitsky Rule of Law Accountability
+  Act of 2012
+measures:
+- Financial block
+- Travel ban

@@ -44,3 +44,9 @@ assertions:
   max:
     schema_entities:
       LegalEntity: 350
+
+lookups:
+  type.identifier:
+    options:
+      - match: NONE
+        value: null

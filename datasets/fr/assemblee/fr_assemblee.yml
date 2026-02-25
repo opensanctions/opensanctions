@@ -64,6 +64,8 @@ lookups:
         value: France
       - match: Polynésie Francaise
         value: French Polynesia
+      - match: Grande Bretagne
+        value: United Kingdom
   type.url:
     options:
       - match: "/tribun/resources/html/defautDeclarationActeur.html"

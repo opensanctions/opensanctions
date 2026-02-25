@@ -1,16 +1,22 @@
 import csv
 from collections import defaultdict
-from dataclasses import field, dataclass
+from dataclasses import dataclass, field
 from io import StringIO
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, List, Optional, Set
 from urllib.parse import urlencode
-from nomenklatura.wikidata import WikidataClient, Claim
+
+from nomenklatura.wikidata import Claim, WikidataClient
+from zavod.shed.wikidata.human import wikidata_basic_human
+from nomenklatura.wikidata.value import clean_wikidata_name
+from zavod.shed.wikidata.position import (
+    position_holders,
+    wikidata_occupancy,
+    wikidata_position,
+)
+from zavod.stateful.positions import categorised_position_qids
 
 from zavod import Context, Entity
 from zavod import helpers as h
-from zavod.shed.wikidata.human import wikidata_basic_human
-from zavod.shed.wikidata.position import wikidata_position
-from zavod.stateful.positions import categorised_position_qids
 
 URL = "https://petscan.wmcloud.org/"
 QUERY = {
@@ -22,37 +28,6 @@ QUERY = {
     "wikidata_prop_item_use": "Q5",
     "search_max_results": 1000,
     "sortorder": "ascending",
-}
-# TEMP: We're starting to include municipal PEPs for specific countries
-MUNI_COUNTRIES = {
-    "au",
-    "be",
-    "br",
-    "by",
-    "ca",
-    "co",
-    "cz",
-    "es",
-    "fr",
-    "gb",
-    "gt",
-    "hu",
-    "id",
-    "is",
-    "it",
-    "ke",
-    "kr",
-    "mx",
-    "ni",
-    "nl",
-    "pl",
-    "ro",
-    "ru",
-    "sk",
-    "ua",
-    "us",
-    "ve",
-    "za",
 }
 # That one time a PEP customer asked to be included....
 ALWAYS_PERSONS = ["Q21258544"]
@@ -79,11 +54,20 @@ class CrawlState(object):
         self.person_countries: Dict[str, Set[str]] = {}
         self.person_topics: Dict[str, Set[str]] = {}
         self.person_positions: Dict[str, Set[Entity]] = {}
-        self.emitted_positions: Set[str] = set()
+        self._emitted_positions: Set[str] = set()
+        exc = [str(x) for x in context.dataset.config.get("exclusion_checks", [])]
+        self.exclusion_checks: Set[str] = set(exc)
+
+    def emit_position(self, position: Entity) -> None:
+        if position.id is None:
+            return
+        if position.id not in self._emitted_positions:
+            self._emitted_positions.add(position.id)
+            self.context.emit(position)
 
 
-def title_name(title: str) -> str:
-    return title.replace("_", " ")
+def title_name(title: str) -> Optional[str]:
+    return clean_wikidata_name(title.replace("_", " "))
 
 
 def crawl_position(state: CrawlState, person: Entity, claim: Claim) -> None:
@@ -96,118 +80,54 @@ def crawl_position(state: CrawlState, person: Entity, claim: Claim) -> None:
     if position is None or position.id is None:
         state.ignore_positions.add(item.id)
         return
+    if item.id != claim.qid:
+        state.context.log.warning(
+            "Redirected position QID",
+            original=claim.qid,
+            redirected=item.id,
+        )
 
-    start_date: Optional[str] = None
-    for qual in claim.qualifiers.get("P580", []):
-        qual_date = qual.text.text
-        if qual_date is not None:
-            if start_date is not None:
-                qual_date = min(start_date, qual_date)
-            start_date = qual_date
-
-    end_date: Optional[str] = None
-    for qual in claim.qualifiers.get("P582", []):
-        qual_date = qual.text.text
-        if qual_date is not None:
-            if end_date is not None:
-                qual_date = max(end_date, qual_date)
-            end_date = qual_date
-
-    occupancy = h.make_occupancy(
-        state.context,
-        person,
-        position,
-        no_end_implies_current=False,
-        start_date=start_date,
-        end_date=end_date,
-    )
+    occupancy = wikidata_occupancy(state.context, person, position, claim)
     if occupancy is not None:
         state.log.info("  -> %s (%s)" % (position.first("name"), position.id))
-        if position.id not in state.emitted_positions:
-            state.emitted_positions.add(position.id)
-            state.context.emit(position)
+        state.emit_position(position)
         state.context.emit(occupancy)
 
     # TODO: implement support for 'officeholder' (P1308) here
+    for officeholder_claim in item.claims:
+        if officeholder_claim.property == "P1308":  # officeholder
+            if officeholder_claim.qid is None:
+                continue
+            holder = crawl_person(state, officeholder_claim.qid, recurse=False)
+            if holder is not None:
+                occupancy = wikidata_occupancy(
+                    state.context, holder, position, officeholder_claim
+                )
+                if occupancy is not None:
+                    state.emit_position(position)
+                    state.context.emit(occupancy)
+                    state.context.emit(holder)
 
 
-def crawl_person(state: CrawlState, qid: str) -> Optional[Entity]:
+def crawl_person(state: CrawlState, qid: str, recurse: bool = True) -> Optional[Entity]:
     item = state.client.fetch_item(qid)
     if item is None:
         return None
+    if item.id != qid:
+        state.context.log.warning(
+            "Redirected person QID",
+            original=qid,
+            redirected=item.id,
+        )
     entity = wikidata_basic_human(state.context, state.client, item, strict=True)
     if entity is None:
         return None
 
-    for claim in item.claims:
-        if claim.property == "P39":
-            crawl_position(state, entity, claim)
+    if recurse:
+        for claim in item.claims:
+            if claim.property == "P39":
+                crawl_position(state, entity, claim)
     return entity
-
-
-def find_paths(
-    context: Context,
-    category_title: str,
-    page_title: str,
-    path: Tuple[str],
-    max_depth: int,
-    cursor: Any = None,
-) -> Set[str]:
-    """
-    Find all the paths between the page with `page_title` and the category with `category_title`.
-
-    `category_title` must have `Category:` prefix.
-
-    This is SLOWWWW - use for debugging.
-    Better would be if this could be fetched using petscan
-    https://github.com/magnusmanske/petscan_rs/issues/182
-    """
-    paths = set()
-    if len(path) > max_depth:
-        return paths
-    query = {
-        "action": "query",
-        "format": "json",
-        "prop": "categories",
-        "titles": page_title,
-    }
-    if cursor is not None:
-        query["clcontinue"] = cursor
-    url = f"https://en.wikipedia.org/w/api.php?{urlencode(query)}"
-    data = context.fetch_json(url, cache_days=7)
-    pageids = list(data["query"]["pages"].keys())
-    assert len(pageids) == 1
-    categories = data["query"]["pages"][pageids[0]]["categories"]
-
-    for category in categories:
-        if category_title == category["title"]:
-            paths.add(path + (category_title,))
-        if category["title"] == "Category:Contents":
-            continue
-        else:
-            paths.update(
-                find_paths(
-                    context,
-                    category_title,
-                    category["title"],
-                    path + (category["title"],),
-                    max_depth,
-                )
-            )
-    # Paginate
-    if "continue" in data:
-        paths.update(
-            find_paths(
-                context,
-                category_title,
-                page_title,
-                path,
-                max_depth,
-                cursor=data["continue"]["clcontinue"],
-            )
-        )
-
-    return paths
 
 
 def crawl_category(state: CrawlState, category_crawl_spec: Dict[str, Any]) -> None:
@@ -240,6 +160,9 @@ def crawl_category(state: CrawlState, category_crawl_spec: Dict[str, Any]) -> No
         person_qid = row["Wikidata"]
         if person_qid is None:
             continue
+        if person_qid in state.exclusion_checks:
+            state.context.log.warning("Regression on exclusion found", qid=person_qid)
+            continue
         state.persons[person_qid].from_categories.add(cat)
 
         if person_qid not in state.person_topics:
@@ -253,8 +176,10 @@ def crawl_category(state: CrawlState, category_crawl_spec: Dict[str, Any]) -> No
             state.person_positions[person_qid] = set()
         if position is not None:
             state.person_positions[person_qid].add(position)
-        if row.get("title") is not None:
-            state.person_title[person_qid] = row.get("title")
+
+        person_title = row.get("title")
+        if isinstance(person_title, str):
+            state.person_title[person_qid] = person_title
 
     state.log.info(
         "PETScanning category: %s" % cat,
@@ -277,23 +202,7 @@ def crawl_position_holder(state: CrawlState, position_qid: str) -> Set[str]:
         state.ignore_positions.add(position_qid)
         return persons
 
-    # TEMP: skip municipal governments
-    topics = position.get("topics")
-    if "gov.muni" in topics and MUNI_COUNTRIES.isdisjoint(position.countries):
-        return persons
-
-    query = f"""
-    SELECT ?person WHERE {{
-        ?person wdt:P39 wd:{position_qid} .
-        ?person wdt:P31 wd:Q5
-    }}
-    """
-    response = state.client.query(query)
-    for result in response.results:
-        person_qid = result.plain("person")
-        if person_qid is not None:
-            persons.add(person_qid)
-
+    persons = position_holders(state.client, item)
     for claim in item.claims:
         if claim.property == "P1308":  # officeholder
             if claim.qid is not None:
@@ -353,18 +262,8 @@ def crawl_declarator(state: CrawlState) -> None:
         state.person_countries[person_qid].add("ru")
 
 
-def crawl(context: Context) -> None:
-    state = CrawlState(context)
-    crawl_declarator(state)
-    crawl_position_seeds(state)
-    category_crawl_specs: List[Dict[str, Any]] = context.dataset.config.get(
-        "categories", []
-    )
-    for category_crawl_spec in category_crawl_specs:
-        crawl_category(state, category_crawl_spec)
-        state.context.flush()
-
-    context.log.info("Generated %d persons" % len(state.persons))
+def crawl_persons(state: CrawlState) -> None:
+    state.context.log.info("Generated %d persons" % len(state.persons))
     for idx, (person_qid, found_record) in enumerate(state.persons.items()):
         entity = crawl_person(state, person_qid)
         if entity is None:
@@ -380,14 +279,12 @@ def crawl(context: Context) -> None:
 
         positions = state.person_positions.get(person_qid, [])
         for position in positions:
-            if position.id is None:
+            if position.id is None or position.id in state.ignore_positions:
                 continue
             occupancy = h.make_occupancy(state.context, entity, position)
             if occupancy is not None:
+                state.emit_position(position)
                 state.context.emit(occupancy)
-            if position.id not in state.emitted_positions:
-                state.emitted_positions.add(position.id)
-                state.context.emit(position)
 
         state.log.info(
             f"Crawled person {entity.id} "
@@ -402,9 +299,24 @@ def crawl(context: Context) -> None:
         #      for a single name) doesn't find them. In this case, the xref process will discover the QID for the
         #      cluster (but not actually pull in the statements marked as external).
         #  In both cases, we want to emit the statements as external.
-        state.context.emit(entity, external=(len(entity.get("topics")) == 0))
+        has_topics = len(entity.get("topics")) > 0
+        state.context.emit(entity, external=(not has_topics))
 
         if idx > 0 and idx % 1000 == 0:
             state.context.flush()
 
     # raise RuntimeError("Crawler is in debug mode, do not release results")
+
+
+def crawl(context: Context) -> None:
+    state = CrawlState(context)
+    crawl_declarator(state)
+    crawl_position_seeds(state)
+    category_crawl_specs: List[Dict[str, Any]] = context.dataset.config.get(
+        "categories", []
+    )
+    for category_crawl_spec in category_crawl_specs:
+        crawl_category(state, category_crawl_spec)
+        state.context.flush()
+
+    crawl_persons(state)

@@ -80,10 +80,12 @@ lookups:
           - "reg:person_il"
           - "reg:cz_person"
           - "reg:chiop" # https://en.wikipedia.org/wiki/SNILS_(Russia)
+          - "reg:reg_snils" # https://en.wikipedia.org/wiki/SNILS_(Russia)
         prop: idNumber
       - match:
           - null
           - "reg:edrpou"
+          - "reg:edr"
           - "reg:r_n"
           - "reg:regon"
           - "reg:unzr"
@@ -110,6 +112,9 @@ lookups:
           - "reg:cn_tr"
           - "reg:cn_tr_hk"
           - "reg:number_nin"
+          - "reg:oae_crn"
+          - "reg:lu"
+          - "tax:uci" # Possibly Unique Consignment Identifier?
         prop: registrationNumber
       - match:
           - "doc:passport"
@@ -121,6 +126,8 @@ lookups:
           - "doc:sm_passport"
           - "doc:f_passports_ru"
           - "doc:passport_ru"
+          - "doc:passport_il"
+          - "reg:ro_passport"
         identification:
           is_passport: true
       - match: "doc:residence"
@@ -567,6 +574,53 @@ lookups:
         values:
           - Російська Федерація, 121205, м. Москва, б-р Великий (інноваційного центру Сколково тер), буд. 30, будівля 1, пов. 3, прим. 33, РБ 33-1
           - Российская Федерация, 121205, г. Москва, б-р Большой (инновационного центра Сколково тер), дом 30, стр. 1, эт. 3, пом. 33, РБ 33-1
+      - match: "People’s Republic of China, Zhejiang, Yiwu, Dongzhen Street, Zone 1 Zongtan, Building 76, Office 401), Китайська Народна Республіка, Чжецзян, м. Іу, Цзян Дун Сінь Цунь, буд. 38, блок 1, кімната 301 (People’s Republic of China, Zhejiang, Yiwu, Jiang Dong Xin Cun, Building 38, Block 1, Room 301"
+        values:
+          - People’s Republic of China, Zhejiang, Yiwu, Dongzhen Street, Zone 1 Zongtan, Building 76, Office 401
+          - Китайська Народна Республіка, Чжецзян, м. Іу, Цзян Дун Сінь Цунь, буд. 38, блок 1, кімната 301
+          - People’s Republic of China, Zhejiang, Yiwu, Jiang Dong Xin Cun, Building 38, Block 1, Room 301
+      - match: "India, 110075, Dwarka, Sector 19, Amberhai Village, Shop No. 104, 1st Floor, New Delhi), Республіка Індія, 110078, Нью-Делі, південно-західний Делі, Дварка, секція 12, вежа Крішни, ділянка № 8, блок № 301, поверх 3 (India, 110078, NSIT Dwarka, Sector 12, Krishna Tower, Plot No. 8, Block No. 301, 3rd Floor, South-West Delhi, New Delhi"
+        values:
+          - India, 110075, Dwarka, Sector 19, Amberhai Village, Shop No. 104, 1st Floor, New Delhi
+          - Республіка Індія, 110078, Нью-Делі, південно-західний Делі, Дварка, секція 12, вежа Крішни, ділянка № 8, блок № 301, поверх 3
+          - India, 110078, NSIT Dwarka, Sector 12, Krishna Tower, Plot No. 8, Block No. 301, 3rd Floor, South-West Delhi, New Delhi
+      - match: "People’s Republic of China, Hong Kong Special Administrative Region, 35 Tai Yau Street, Yee Fat Industrial Building, 5th Floor, Room A516, San Po Kong, Kowloon), Китайська Народна Республіка, особливий адміністративний район Гонконг, 300, Локхарт Роуд, комерційний корпус Куі Фу, 20-й поверх, квартира/кімната A (People’s Republic of China, Hong Kong Special Administrative Region, 300 Lockhart Road, Kui Fu Commercial Building, 20th Floor, Apartment/Room A"
+        values:
+          - People’s Republic of China, Hong Kong Special Administrative Region, 35 Tai Yau Street, Yee Fat Industrial Building, 5th Floor, Room A516, San Po Kong, Kowloon
+          - Китайська Народна Республіка, особливий адміністративний район Гонконг, 300, Локхарт Роуд, комерційний корпус Куі Фу, 20-й поверх, квартира/кімната A
+          - People’s Republic of China, Hong Kong Special Administrative Region, 300 Lockhart Road, Kui Fu Commercial Building, 20th Floor, Apartment/Room A
+      - match: "United States of America, Beverly Hills CA 90212, 9350 Wilshire Blvd), Нідерландські Антильські острови, Сеінт-Мартен, Біллі Фоллі Роуд № 37 (Netherlands Antilles, Sint Maarten, St Maarten, Billy Folly Road № 37), Беліз, Бельмопан,Кохун Вок, 3 Лайм Стріт (Belize, Belmopan, Cohune Walk, 3 Lime St"
+        values:
+          - United States of America, Beverly Hills CA 90212, 9350 Wilshire Blvd
+          - Нідерландські Антильські острови, Сеінт-Мартен, Біллі Фоллі Роуд № 37
+          - Netherlands Antilles, Sint Maarten, St Maarten, Billy Folly Road № 37
+          - Беліз, Бельмопан,Кохун Вок, 3 Лайм Стріт
+          - Belize, Belmopan, Cohune Walk, 3 Lime St
+      - match: "Російська Федерація, 678962, Республіка Саха (Якутія), Нерюнгрінський муніципальний р-н, м. Нерюнгрі, вул. Лужників, буд. 3, к. 2 (Российская Федерация, 678962, Республика Саха (Якутия), Нерюнгринский муниципальный р-н, г. Нерюнгри, ул. Лужников, д. 3, к. 2)"
+        values:
+          - Російська Федерація, 678962, Республіка Саха (Якутія), Нерюнгрінський муніципальний р-н, м. Нерюнгрі, вул. Лужників, буд. 3, к. 2
+          - Российская Федерация, 678962, Республика Саха (Якутия), Нерюнгринский муниципальный р-н, г. Нерюнгри, ул. Лужников, д. 3, к. 2
+      - match: "Китайська Народна Республіка, Гонконг, Квун Тонг (China, Hong Kong, Kwun Tong, Shing Yip Street, 27, Sunbeam Centre, Rm 1318), Китайська Народна Республіка, провінція Чжецзян, місто Іу (China, Zhejiang Province, Yiwu City, Futian Street, Qiandian Village 1 area, Block 15, Unit 2, Room 303)"
+        values:
+          - Китайська Народна Республіка, Гонконг, Квун Тонг, Shing Yip Street, 27, Sunbeam Centre, Rm 1318
+          - China, Hong Kong, Kwun Tong, Shing Yip Street, 27, Sunbeam Centre, Rm 1318
+          - Китайська Народна Республіка, провінція Чжецзян, місто Іу, Futian Street, Qiandian Village 1 area, Block 15, Unit 2, Room 303
+          - China, Zhejiang Province, Yiwu City, Futian Street, Qiandian Village 1 area, Block 15, Unit 2, Room 303
+      - match: "Китайська Народна Республіка, Гонконг, Квун Тонг (China, Hong Kong, Kwun Tong, Shing Yip Street, 27, Sunbeam Centre, Rm. 1318), Китай, Гонконг, Коулун Монгкок (China, Hong Kong, Kowloon Mongkok, Nathan Road, Building Nos 721-725, The Belgian Bank, 14/F, Unit 1406A)"
+        values:
+          - Китайська Народна Республіка, Гонконг, Квун Тонг, Shing Yip Street, 27, Sunbeam Centre, Rm. 1318
+          - China, Hong Kong, Kwun Tong, Shing Yip Street, 27, Sunbeam Centre, Rm. 1318
+          - Китай, Гонконг, Коулун Монгкок, Nathan Road, Building Nos 721-725, The Belgian Bank, 14/F, Unit 1406A
+          - China, Hong Kong, Kowloon Mongkok, Nathan Road, Building Nos 721-725, The Belgian Bank, 14/F, Unit 1406A
+      - match: "(Російська Федерація, 183038, Мурманська область, м.о. місто Мурманськ, м. Мурманськ, вул. Домобудівна, б. 2, к. 4, офіс 301 (Российская Федерация, 183038, Мурманская область, г.о. город Мурманськ, г. Мурманск, ул. Домостроительная, д. 2, к. 4, офис 301)"
+        values:
+          - Російська Федерація, 183038, Мурманська область, м.о. місто Мурманськ, м. Мурманськ, вул. Домобудівна, б. 2, к. 4, офіс 301
+          - Российская Федерация, 183038, Мурманская область, г.о. город Мурманськ, г. Мурманск, ул. Домостроительная, д. 2, к. 4, офис 301
+      - match: "Російська Федерація, 420015, Республіка Татарстан (Татарстан), м.о. Місто Казань, м. Казань, вул. Пушкіна, будівля 46, прим. 1021 (Российская Федерация, 420015, Республика Татарстан (Татарстан), г.о. Город Казань, г. Казань, ул. Пушкина, здание 46, пом. 1021)"
+        values:
+          - Російська Федерація, 420015, Республіка Татарстан (Татарстан), м.о. Місто Казань, м. Казань, вул. Пушкіна, будівля 46, прим. 1021
+          - Российская Федерация, 420015, Республика Татарстан (Татарстан), г.о. Город Казань, г. Казань, ул. Пушкина, здание 46, пом. 1021
+
   type.name:
     options:
       - match: Федеральное государственное бюджетное военное образовательное учреждение высшего образования «Академия гражданской защиты Министерства Российской Федерации по делам гражданской обороны чрезвычайных ситуаций и ликвидации последствий стихийных бедствий»
@@ -627,7 +681,12 @@ lookups:
           - "5402692"
           - "5740562"
         prop: registrationNumber
-      - match: 9102012001
+      - match:
+          - 9102012001
+          - 673000396800
+          - 381109210543
+          - 773013244155
+          - 025901405163
         prop: innCode
       - match: 1328910
         prop: idNumber
@@ -665,6 +724,7 @@ lookups:
           - Місце проживання
 
           - Уродженка
+          - уродженець
           - Фізична адреса
           - Юридична адреса
           - Місцезнаходження офісу
@@ -738,9 +798,8 @@ lookups:
         prop: ogrnCode
       - match:
           - Особистий номер офіцера
-        prop: idNumber
-      - match:
           - Permanent residence permit - посвідка на постійне проживання
+          - СНІОР
         prop: idNumber
       - contains:
           - Сайт так званого

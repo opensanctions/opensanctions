@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from enum import Enum
 from functools import lru_cache
 from typing import List, Optional
@@ -6,7 +6,6 @@ from typing import List, Optional
 from rigour.ids.wikidata import is_qid
 from sqlalchemy import select
 
-from zavod import helpers as h
 from zavod import settings
 from zavod.context import Context
 from zavod.entity import Entity
@@ -14,13 +13,14 @@ from zavod.stateful.model import position_table
 
 NOTIFIED_SYNC_POSITIONS = False
 
-YEAR = 365  # days
-DEFAULT_AFTER_OFFICE = 5 * YEAR
-EXTENDED_AFTER_OFFICE = 20 * YEAR
-NO_EXPIRATION = 50 * YEAR
-AFTER_DEATH = 5 * YEAR
-MAX_AGE = 110 * YEAR
-MAX_OFFICE = 40 * YEAR
+YEAR_DAYS = 365  # days
+DEFAULT_AFTER_OFFICE = timedelta(days=5 * YEAR_DAYS)
+EXTENDED_AFTER_OFFICE_YEARS = 20
+EXTENDED_AFTER_OFFICE = timedelta(days=EXTENDED_AFTER_OFFICE_YEARS * YEAR_DAYS)
+NO_EXPIRATION = timedelta(days=50 * YEAR_DAYS)
+AFTER_DEATH = timedelta(days=5 * YEAR_DAYS)
+MAX_AGE = timedelta(days=110 * YEAR_DAYS)
+MAX_OFFICE = timedelta(days=40 * YEAR_DAYS)
 
 
 class OccupancyStatus(Enum):
@@ -124,7 +124,7 @@ def categorised_position_qids(context: Context) -> List[str]:
     return qids
 
 
-def get_after_office(topics: List[str]) -> int:
+def get_after_office(topics: List[str]) -> timedelta:
     if "gov.national" in topics:
         if "gov.head" in topics:
             return NO_EXPIRATION
@@ -150,6 +150,8 @@ def occupancy_status(
 
     If the person should not be considered a PEP, return None.
     """
+    from zavod import helpers as h
+
     current_iso = current_time.isoformat()
     if death_date is not None and death_date < h.backdate(current_time, AFTER_DEATH):
         # If they died longer ago than AFTER_DEATH threshold, don't consider a PEP.

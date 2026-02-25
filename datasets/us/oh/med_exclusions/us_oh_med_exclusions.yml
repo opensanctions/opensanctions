@@ -39,7 +39,7 @@ data:
 ci_test: false
 
 dates:
-  formats: ["%m/%d/%Y"]
+  formats: ["%m/%d/%Y", "%m/%d/%y"]
 assertions:
   min:
     schema_entities:
@@ -67,3 +67,5 @@ lookups:
     options:
       - match: "11/202/2024"
         value: 2024
+      - match: "5/8/"
+        value: null

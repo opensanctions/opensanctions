@@ -80,14 +80,13 @@ def build_consolidated_influence_labels(
 
 def analyze_position(context: Context, entity: Entity) -> Set[str]:
     """Analyze a position entity and emit the categorisation."""
+    topics: Set[str] = set()
 
     # Skip if this is the only dataset containing this Position. This should be implicit
     # from other conditions, but let's be sure this dataset doesn't feed itself
     # removed Positions.
     if entity.datasets == {context.dataset.name}:
-        return
-
-    topics = set()
+        return topics
 
     assert entity.id is not None
     entity_ids = set(entity.referents)
@@ -118,7 +117,6 @@ def crawl(context: Context) -> None:
     pep_count = 0
 
     for entity_idx, entity in enumerate(view.entities()):
-
         if entity_idx > 0 and entity_idx % 10000 == 0:
             context.log.info("Processed %s entities" % entity_idx)
 

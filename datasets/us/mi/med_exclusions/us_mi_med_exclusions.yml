@@ -43,13 +43,33 @@ dates:
 http:
   user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.2 Safari/605.1.15 (zavod; opensanctions.org)"
 
+assertions:
+  min:
+    schema_entities:
+      Person: 3000
+      Company: 420
+  max:
+    schema_entities:
+      Person: 5000
+      Company: 900
+
 lookups:
+  type.address:
+    options:
+      - match: MI
+        value: Michigan
   type.date:
     lowercase: true
     options:
       - match:
           - 05817/2023
           - 07/30/202
+          - 915/2025
+          - MDHHS
+          - MI-Licensing
+          - and
+          - Regulatory
+          - Affairs
         value: null
       - match: 111/14/2022
         value: 2022-11-14
@@ -87,12 +107,6 @@ lookups:
         values:
           - 2023-05-31
           - 2024-04-19
-      - match:
-          - MI-Licensing
-          - and
-          - Regulatory
-          - Affairs
-        value: null
       - match: 5/21/18
         value: 2018-05-21
       - match: 9/20/18
@@ -119,16 +133,12 @@ lookups:
         values:
           - 2014-12-18
           - 2015-04-10
-      - match: MDHHS
-        value: null
       - match: 0816/2022
         value: 2022-08-16
       - match: 3/22/18
         value: 2018-03-22
       - match: 6/8/18
         value: 2018-06-08
-      - match: 05/06/20143/30/2015
-        value: null
       - match: 6/20/18
         value: 2018-06-20
       - match: 05/06/20143/30/2015
@@ -217,13 +227,3 @@ lookups:
           - +
           - Home Help
         value: null
-
-assertions:
-  min:
-    schema_entities:
-      Company: 400
-      Person: 3000
-  max:
-    schema_entities:
-      Company: 550
-      Person: 3500

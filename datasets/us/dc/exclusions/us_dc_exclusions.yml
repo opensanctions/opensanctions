@@ -88,6 +88,8 @@ lookups:
           - 2009-05-28
           - 2010-05-10
           - 2010-08-18
+      - match: Pending final decision by CPO
+        value: null
   type.name:
     options:
       - match: 'James, Akiuber Ndoromo: aka "Akube Wuromori Ndoromo"'

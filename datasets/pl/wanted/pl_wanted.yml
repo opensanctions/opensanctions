@@ -78,6 +78,8 @@ lookups:
         values: [FR, CM]
       - match: FRANCJA LIBAN
         values: [FR, LB]
+      - match: GRUZJA ARMENIA
+        values: [GE, AM]
       - match: GRUZJA ROSJA
         values: [GE, RU]
       - match: KAZACHSTAN NIEMCY
@@ -138,3 +140,7 @@ lookups:
         values: [UG, RW]
       - match: DANIA SOMALIA
         values: [DK, SO]
+      - match: ALGIERIA BELGIA
+        values: [DZ, BE]
+      - match: AZERBEJDŻAN UKRAINA
+        values: [AZ, UA]

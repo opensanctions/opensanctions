@@ -45,7 +45,6 @@ class DeltaExporter(Exporter):
         self.context.log.info(
             "Delta export complete",
             version=str(self.context.version),
-            dataset=self.dataset.name,
             metric="delta_counts",
             added=self.counts["ADD"],
             modified=self.counts["MOD"],

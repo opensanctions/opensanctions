@@ -74,14 +74,14 @@ assertions:
       Address: 870
       LegalEntity: 520
       Organization: 130
-      CryptoWallet: 30
+      CryptoWallet: 25
   max:
     schema_entities:
       Person: 3700
       Address: 2040
       LegalEntity: 1200
       Organization: 300
-      CryptoWallet: 80
+      CryptoWallet: 70
 
 lookups:
   schema:
@@ -176,6 +176,8 @@ lookups:
           - 住所・所在地
           - 住 所 ・ 所 在 地
           - 住 所・所在地
+          - 住所等  # residence, etc.
+          - 住所  # residence
           # activity area - residence:
           - 活 動 地 域 ・ 住 所
           - 所在地・住所 登録された事務所の住所
@@ -212,7 +214,9 @@ lookups:
           - 国 籍
           - 国籍
         value: citizenship
-      - match: 旅 券 番 号
+      - match:
+          - 旅 券 番 号
+          - 旅券番号
         # wtf? travel_voucher_number
         value: passport_number
       - match:
@@ -260,9 +264,23 @@ lookups:
       - match:
           - Philippines
           - Russia
+          - 住所
         value: null
       - match: "Branch Office 6: Shop number 237, Shah Zada Market (also known as Sarai Shahzada), Puli Khishti area, Police District 1, Kabul, Afghanistan, Telephone: +93-202-103386, +93-202-101714, 0202-104748, Mobile: +93-797-059059, +93-702-222222, e-mail: helmand_exchange_msp@yahoo.com"
         value: Shop number 237, Shah Zada Market (also known as Sarai Shahzada), Puli Khishti area, Police District 1, Kabul, Afghanistan
+      - match:
+          - イラン
+          - 北朝鮮
+          - マリ
+          - リビア
+          - 米国
+          - トルコ
+          - シリア
+          - ロシア
+          - ケニア
+        prop: country
+      - match: 支部： # branch:
+        value: null
   type.country:
     lowercase: true
     normalize: true
@@ -304,6 +322,12 @@ lookups:
         value: Tunisia
       - match: リビア Libya
         value: Libya
+      - match: エジプトEgypt
+        value: Egypt
+      - match: インドネシア Indonesia
+        value: Indonesia
+      - match: シリアSyrian Arab Republic
+        value: Syria
   type.date:
     options:
       - match:
@@ -649,7 +673,7 @@ lookups:
       - match: イラク国民ＩＤカード番号00813602、2011年9月18日発行（氏名のアラビア語表記：سالم مصطفى محمد ال منصور）
         value: 00813602
       - match: リビア旅券203037（リビア、トリポリにて発行）； （リビア旅券347834、Ibrahim Ali Tantoushの名で発行、２０１４年２月２１日失効）
-        values: 
+        values:
           - 203037
           - 347834
   type.name:

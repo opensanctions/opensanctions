@@ -3,7 +3,7 @@ url: https://efile.fara.gov/ords/fara/f?p=107:21
 entry_point: crawler.py
 prefix: us-fara
 ci_test: false
-load_statements: true
+load_statements: false
 exports:
   - statistics.json
   - entities.delta.json

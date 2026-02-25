@@ -1,0 +1,15 @@
+id: 107
+title: Rafiq Hariri Killing Sanctions
+key: UN-SC1636
+url: https://www.un.org/securitycouncil/sanctions/1636
+summary: These sanctions target individuals suspected of involvement in the assassination
+  of former Lebanese Prime Minister Rafiq Hariri. The measures include asset freezes
+  and travel bans to ensure accountability and support international efforts to investigate
+  and prosecute those responsible.
+issuer: zz_unsc
+dataset: un_sc_sanctions
+aliases:
+- Resolution 1636
+measures:
+- Asset freeze
+- Travel ban

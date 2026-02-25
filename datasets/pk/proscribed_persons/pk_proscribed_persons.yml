@@ -5,8 +5,17 @@ entry_point: crawler.py
 prefix: pk-proscribed
 summary: List of Proscribed Persons in Pakistan under the Anti Terrorism Act, 1997
 coverage:
-  frequency: daily
+  # Both monthly and yearly would be a lie, it's roughly every 90 days.
+  # never shows "not automated" in the UI, so that's the best value for now.
+  frequency: never
   start: 2024-03-14
+deploy:
+  # We only update the data manually ever 90 days, so weekly is enough.
+  schedule: "@weekly"
+manual_check:
+  last_checked: "2025-11-18"
+  interval: 90
+  message: Go to the data URL, click the "Export JSON" button at the top right. Put the JSON in the dataset folder as source.json.
 load_statements: true
 ci_test: false
 description: |
@@ -23,6 +32,10 @@ description: |
   Restrictions imposed on persons listed here include passport embargo, freezing
   of bank accounts, ban on financial support and credit, arms license embargo, and
   employment clearance restrictions.
+
+  Note that the technical implementation of the publisher's website currently makes it
+  impossible to update the data in a fully automated way. For this reason, the data is
+  only updated roughly every 90 days.
 publisher:
   name: National Counter Terrorism Authority
   acronym: NACTA
@@ -35,7 +48,7 @@ publisher:
   country: pk
   official: true
 data:
-  url: https://nfs.punjab.gov.pk/Home/GetJosn?filter=
+  url: https://nfs.nacta.gov.pk/
   format: JSON
 
 assertions:

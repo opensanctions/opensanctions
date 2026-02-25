@@ -1,4 +1,4 @@
-title: Every Politician
+title: MySociety's EveryPolitician Legislators
 entry_point: crawler.py
 prefix: evpo
 disabled: false
@@ -19,17 +19,20 @@ description: |
   of the project, EveryPolitician operated a large fleet of crawlers which read the web
   sites of parliaments around the world.
 
-  The project was [shut down in June 2019](https://www.mysociety.org/2019/06/26/placing-everypolitician-on-hold/)
-  ceasing updates to this dataset.
-
-  OpenSanctions continues to include members from this dataset which meet our standard
-  criteria of PEP classification: national legislature members are included for 20 years
-  after they held a position if an end date is known, otherwise for 40 years after they
+  OpenSanctions only includes persons from this dataset which meet our standard criteria
+  of PEP classification: national legislature members are included for 20 years after
+  they held a position if an end date is known, otherwise for 40 years after they
   entered the position. They are excluded 5 years after their death, or 120 years
   after their birth.
+deprecation: |
+  In June 2019, [MySociety announced](https://www.mysociety.org/2019/06/26/placing-everypolitician-on-hold/) that
+  the EveryPolitician project was being placed on hold and that no further updates would be made to this dataset.
 
-  Other sources will eventually replace this dataset completely as we continually
-  improve PEP coverage through more current sources.
+  OpenSanctions imports data from EveryPolitician only for the purpose of maintaining historical coverage of PEPs,
+  and will eventually replace this source with more current datasets.
+
+  We are also working to relaunch the [EveryPolitician website](https://www.everypolitician.org/) as a public data
+  resource in the future.
 publisher:
   name: UK Citizens Online Democracy
   acronym: MySociety
@@ -38,15 +41,30 @@ publisher:
     to participate in politics and civic life.
   url: https://www.mysociety.org/
   official: false
+  country: zz
 tags:
   - list.pep
-url: http://everypolitician.org
+url: http://www.everypolitician.org
 data:
   url: https://data.opensanctions.org/contrib/everypolitician/countries.json
   format: JSON
 ci_test: false
 
 lookups:
+  type.name:
+    options:
+      - match: "Ali Motahari<br />علی مطهری"
+        values:
+          - Ali Motahari
+          - علی مطهری
+      - match: "Ahmed Ismail Samatar <br> أحمد إسماعيل سمتر"
+        values:
+          - Ahmed Ismail Samatar
+          - أحمد إسماعيل سمتر
+      - match: "Oksana Volodymyrivna Bilozir<br>Оксана Володимирівна Білозір"
+        values:
+          - Oksana Volodymyrivna Bilozir
+          - Оксана Володимирівна Білозір
   org_id:
     # normalize: true
     lowercase: true
@@ -97,6 +115,14 @@ lookups:
         value: Member of Parliament
       - match: Member of the Dail Eireann
         value: Member of Dáil Éireann
+  type.date:
+    options:
+      - match:
+          - "2951-08-24"
+          - "2046-08-20"
+          - "2009-01-01"
+        regex: "^201\\d-\\d{2}-\\d{2}$"
+        value: null
   type.url:
     options:
       - contains:

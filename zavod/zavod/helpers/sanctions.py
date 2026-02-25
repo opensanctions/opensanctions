@@ -1,9 +1,9 @@
 from typing import Optional
 
-from zavod.context import Context
-from zavod.entity import Entity
 from zavod import helpers as h
 from zavod import settings
+from zavod.context import Context
+from zavod.entity import Entity
 from zavod.stateful import programs
 
 ALWAYS_FORMATS = ["%Y-%m-%d", "%Y-%m", "%Y"]
@@ -15,7 +15,7 @@ def lookup_sanction_program_key(
     """Lookup the sanction program key based on the source key."""
     res = context.lookup("sanction.program", source_key)
     if res is None:
-        context.log.warn(f"Program key for {source_key!r} not found.")
+        context.log.warn(f"Program key for source key {source_key!r} not found.")
         return None
     return res.value
 
@@ -63,7 +63,7 @@ def make_sanction(
     sanction.set("program", program_name)
 
     if program_key is not None:
-        program = programs.get_program_by_key(context, program_key)
+        program = programs.get_program_by_key(program_key)
         if program:
             sanction.set("programId", program_key, original_value=source_program_key)
             entity.add("programId", program_key)

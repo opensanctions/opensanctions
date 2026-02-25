@@ -1,7 +1,7 @@
+import re
 from typing import Optional
 from urllib.parse import urljoin
-from normality import slugify, collapse_spaces
-import re
+from normality import slugify, squash_spaces
 from lxml import html
 
 from zavod import Context
@@ -124,6 +124,7 @@ def emit_person(
     person.id = context.make_slug(country, name, role)
     person.add("name", name)
     person.add("position", role)
+    person.add("citizenship", country)
     person.add("sourceUrl", source_url)
 
     position_topics = ["gov.national", "gov.head"]
@@ -147,8 +148,9 @@ def emit_person(
         )
 
         context.emit(person)
-        context.emit(position)
-        context.emit(occupancy)
+        if occupancy is not None:
+            context.emit(position)
+            context.emit(occupancy)
 
 
 def get(items, key, value):
@@ -188,7 +190,7 @@ def crawl_country(context: Context, country: str) -> None:
         if label_text in ["chief of state:", "head of government:"]:
             category_text = category_els.text_content()
             category_text = REGEX_RELEVANT_CATEGORY.sub("", category_text)
-            for segment in collapse_spaces(category_text).split("; "):
+            for segment in squash_spaces(category_text).split("; "):
                 match = REGEX_HOLDER.match(segment)
                 if match is None:
                     res = context.lookup("unparsed_holders", segment)
@@ -230,7 +232,7 @@ def crawl_country(context: Context, country: str) -> None:
 
 def crawl(context: Context) -> None:
     page_data = context.fetch_json(context.data_url, cache_days=1)
-    countries = None
+    countries = []
     for hash in page_data["staticQueryHashes"]:
         url = urljoin(
             context.data_url, f"/the-world-factbook/page-data/sq/d/{hash}.json"
@@ -239,6 +241,7 @@ def crawl(context: Context) -> None:
         if "countries" in data:
             countries = data["countries"]["nodes"]
             break
+    assert len(countries) > 0, "No countries found"
     for c in countries:
         redirect = c["redirect"]
         name = c["name"] if redirect is None else redirect["name"]

@@ -1,23 +1,28 @@
+from typing import List, Literal
+
 from lxml.html import tostring
 from pydantic import BaseModel, Field
-from rigour.mime.types import HTML
-from typing import List, Literal
+from zavod.extract.llm import DEFAULT_MODEL, run_typed_text_prompt
+from zavod.stateful.review import (
+    HtmlSourceValue,
+    assert_all_accepted,
+    review_extraction,
+)
 
 from zavod import Context
 from zavod import helpers as h
-from zavod.shed.gpt import DEFAULT_MODEL, run_typed_text_prompt
-from zavod.stateful.review import Review, request_review, get_review
 
-Schema = Literal["Person", "Organization", "Company", "LegalEntity", "Vessel"]
+Schema = Literal[
+    "Person", "Organization", "Company", "LegalEntity", "Vessel", "Airplane"
+]
 
-MODEL_VERSION = 1
-MIN_MODEL_VERSION = 1
 MAX_TOKENS = 16384  # gpt-4o supports at most 16384 completion tokens
 
 schema_field = Field(
     description=(
         "- 'Person', if the name refers to an individual human."
         "- 'Vessel', if the name refers to a ship or vessel."
+        "- 'Airplane', if the name refers to an aircraft."
         "- 'Company', for entities with a clear legal form (e.g., Inc, LLC, SA de CV)."
         "- 'Organization', for groups like terrorist groups, cartels or government bodies."
         "- 'LegalEntity', when it is unclear if the entity is a person, company or organization."
@@ -42,7 +47,7 @@ class Designees(BaseModel):
 
 PROMPT = f"""
 <task>
-Extract sanctions designees, linked entities, and vessels from the OFAC press release in the attached article.
+Extract sanctions designees, linked entities, vessels and aircraft from this OFAC press release.
 </task>
 
 <strict_requirements>
@@ -64,34 +69,52 @@ When determining entity_schema:
 - Available options: {schema_field.description}
 </entity_classification>
 
+<name_references>
+IMPORTANT: When an entity is introduced with their full name and then referred to by a shortened
+version throughout the text, the shortened version is NOT an alias—it's simply a narrative reference.
+
+Example: If the text introduces "Sadiq Abbas Habib Sayyed" and then refers to him as "Sayyed"
+throughout, "Sayyed" is just a reference, not an alias.
+</name_references>
+
 <extraction_fields>
 For each entity found, extract these fields:
 
-1. **name**: The exact name as written in the article.
-    - If the name is followed by an acronym or alias in brackets, DO NOT include this in the name.
-   
+1. **name**: The exact and full legal name as written in the article.
+    - If the name is followed by an acronym or reference in brackets, DO NOT include this in the name.
+
 2. **entity_schema**: Select from available schema types: {schema_field.description}
-   
-3. **aliases**: Alternative names ONLY if they meet these criteria:
-   - Must be explicitly stated as "also known as", "alias", "formerly", "aka", "fka", or similar. Include ONLY the alias, not the "aka" prefix.
-   - An alias MUST NOT be a simple abbreviation, only consisting of the last name, first name, family name of a person.
-     <example>John Smith (Smith)</example> <error>Smith</error>
-   - An alias MUST NOT be just the name of a company without the legal form.
-     <example>Acme Corporation (Acme)</example> <error>Acme</error>
-     <example>Acme, Ltd (Acme)</example> <error>Acme</error>
+
+3. **aliases**: Alternative names or business names ONLY if they meet ALL these criteria:
+   - Must be explicitly marked with alias indicators: "also known as", "a.k.a.", "aka", "formerly
+     known as", "fka", "doing business as", "d/b/a", or similar explicit markers
+   - Must represent a genuinely different name, not just a shortened reference
+   - Extract ONLY the alternative name itself, not the indicator phrase
+
+   NEVER extract as aliases:
+   - Parenthetical abbreviations or shortened forms of the main name
+     Example: "Sadiq Abbas Habib Sayyed (Sayyed)" → "Sayyed" is NOT an alias
+   - Subsequent narrative references using partial names
+     Example: After introducing "John Smith", later references to "Smith" are NOT aliases
+   - Company names without legal suffixes when the full name includes them
+     Example: "Acme Corporation" referred to as "Acme" is NOT an alias
+   - Pronouns or descriptive references ("the defendant", "the company", etc.)
+
+   Valid alias example:
+   - "KS International Traders (a.k.a. 'KS Pharmacy')" → "KS Pharmacy" IS an alias
 
 4. **nationality**: For individuals ONLY - their stated nationality
    - Leave empty if not explicitly mentioned or if entity is not a Person
-   
+
 5. **imo**: International Maritime Organization number
    - For vessels ONLY when explicitly stated
-   
+
 6. **country**: Countries mentioned as:
    - Residence location
-   - Registration location  
+   - Registration location
    - Operation location
    - MUST be explicitly stated, not inferred
-   
+
 7. **related_url**: URLs specifically associated with the entity
    - Link each URL only to its associated entity
    - Leave empty if no URL is provided
@@ -100,38 +123,19 @@ For each entity found, extract these fields:
 """
 
 
-def get_or_request_review(context, html_part, article_key, url) -> Review:
-    review = get_review(context, Designees, article_key, MIN_MODEL_VERSION)
-    if review is None:
-        prompt_result = run_typed_text_prompt(
-            context, PROMPT, html_part, Designees, MAX_TOKENS
-        )
-        review = request_review(
-            context,
-            article_key,
-            html_part,
-            HTML,
-            "Press Release",
-            url,
-            prompt_result,
-            MODEL_VERSION,
-        )
-    return review
-
-
-def crawl_item(context, item, date, url, article_name):
+def crawl_item(context, item, date, url, article_name, origin):
     entity = context.make(item.entity_schema)
     entity.id = context.make_id(item.name, item.country)
-    entity.add("name", item.name, origin=DEFAULT_MODEL)
+    entity.add("name", item.name, origin=origin)
     nationality_prop = "nationality"
     if item.entity_schema != "Person":
         nationality_prop = "country"
-    entity.add(nationality_prop, item.nationality, origin=DEFAULT_MODEL)
+    entity.add(nationality_prop, item.nationality, origin=origin)
     if entity.schema == "Vessel":
-        entity.add("imoNumber", item.imo, origin=DEFAULT_MODEL)
-    entity.add("country", item.country, origin=DEFAULT_MODEL)
-    entity.add("alias", item.aliases, origin=DEFAULT_MODEL)
-    entity.add("sourceUrl", item.related_url, origin=DEFAULT_MODEL)
+        entity.add("imoNumber", item.imo, origin=origin)
+    entity.add("country", item.country, origin=origin)
+    entity.add("alias", item.aliases, origin=origin)
+    entity.add("sourceUrl", item.related_url, origin=origin)
     entity.add("sourceUrl", url)
 
     article = h.make_article(context, url, title=article_name, published_at=date)
@@ -160,13 +164,26 @@ def crawl_press_release(context: Context, url: str) -> None:
     article_html = tostring(article_element, pretty_print=True, encoding="unicode")
     assert all([article_name, article_html, date]), "One or more fields are empty"
 
-    review = get_or_request_review(context, article_html, article_key=url, url=url)
-
-    if review is None or not review.accepted:
+    source_value = HtmlSourceValue(
+        key_parts=url,
+        label="Press Release",
+        element=article_element,
+        url=url,
+    )
+    prompt_result = run_typed_text_prompt(
+        context, PROMPT, source_value.value_string, Designees, MAX_TOKENS
+    )
+    review = review_extraction(
+        context,
+        source_value=source_value,
+        original_extraction=prompt_result,
+        origin=DEFAULT_MODEL,
+    )
+    if not review.accepted:
         return
 
     for item in review.extracted_data.designees:
-        crawl_item(context, item, date, url, article_name)
+        crawl_item(context, item, date, url, article_name, review.origin)
 
 
 def crawl(context: Context):
@@ -198,7 +215,4 @@ def crawl(context: Context):
     # information; so it might be more OK to allow partial emit. Turning this on to create
     # something to enrich on. - FL Sep 3, 2025
 
-    # assert_all_accepted(context)
-    # global something_changed
-    # msg = "See what changed to determine whether to trigger re-review."
-    # assert not something_changed, msg
+    assert_all_accepted(context, raise_on_unaccepted=False)

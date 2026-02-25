@@ -3,7 +3,7 @@ from typing import Dict
 import re
 
 from zavod import Context, helpers as h
-from zavod.shed.zyte_api import fetch_html, fetch_resource
+from zavod.extract.zyte_api import fetch_html, fetch_resource
 
 
 AKA_PATTERN = r"\ba\.?k\.?a[\. -]*"
@@ -80,9 +80,11 @@ def crawl_item(row: Dict[str, str], context: Context):
 
 
 def crawl_excel_url(context: Context):
-    file_xpath = ".//a[text()='Wyoming Provider Exclusion List ']"
+    file_xpath = (
+        ".//a[contains(text(), 'Wyoming Medicaid Provider Exclusion List')]/@href"
+    )
     doc = fetch_html(context, context.data_url, file_xpath, geolocation="us")
-    return doc.xpath(file_xpath)[0].get("href")
+    return h.xpath_string(doc, file_xpath)
 
 
 def crawl(context: Context) -> None:

@@ -1,0 +1,16 @@
+id: 63
+title: EU Restrictive Measures Against Cyber-Attacks Threatening The Union Or Its
+  Member States
+key: EU-CYB
+url: https://sanctionsmap.eu/#/main/details/47/
+summary: These sanctions target individuals and entities responsible for cyber-attacks
+  that threaten the security of the European Union or its member states. The measures
+  include asset freezes and prohibitions on transactions to deter and respond to malicious
+  cyber activities.
+issuer: eu_council
+dataset: eu_fsf
+target_territories:
+- ip
+measures:
+- Asset freeze
+- Travel ban

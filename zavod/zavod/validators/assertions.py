@@ -1,4 +1,4 @@
-from typing import Dict, Any, Optional, cast
+from typing import Dict, Any
 
 from zavod.context import Context
 from zavod.entity import Entity
@@ -8,7 +8,9 @@ from zavod.store import View
 from zavod.validators.common import BaseValidator
 
 
-def compare_threshold(value: int, comparison: Comparison, threshold: int) -> bool:
+def check_value(
+    value: int | float, comparison: Comparison, threshold: int | float
+) -> bool:
     match comparison:
         case Comparison.GTE:
             return value >= threshold
@@ -18,64 +20,107 @@ def compare_threshold(value: int, comparison: Comparison, threshold: int) -> boo
             raise ValueError(f"Unknown comparison: {comparison}")
 
 
-def get_value(stats: Dict[str, Any], assertion: Assertion) -> Optional[int]:
-    match assertion.metric:
-        case Metric.ENTITY_COUNT:
-            match assertion.filter_attribute:
-                case "schema":
-                    items = stats["things"]["schemata"]
-                    filter_key = "name"
-                case "country":
-                    items = stats["things"]["countries"]
-                    filter_key = "code"
-                case None:
-                    assert assertion.filter_value is None
-                    return cast(int, stats["things"]["total"])
-                case _:
-                    raise ValueError(
-                        f"Unknown filter attribute: {assertion.filter_attribute}"
-                    )
-            items = [i for i in items if i[filter_key] == assertion.filter_value]
-            if len(items) != 1:
-                return None
-            return cast(int, items[0]["count"])
-
-        case Metric.ENTITIES_WITH_PROP_COUNT:
-            items = stats["things"]["entities_with_prop"]
-            items = [
-                i
-                for i in items
-                # Filter value is a (schema_name, prop_name) tuple
-                if assertion.filter_value
-                and i["schema"] == assertion.filter_value[0]
-                and i["property"] == assertion.filter_value[1]
-            ]
-            return cast(int, items[0]["count"]) if len(items) == 1 else None
-
-        case Metric.COUNTRY_COUNT:
-            return len(stats["things"]["countries"])
-
-        case _:
-            raise ValueError(f"Unknown metric: {assertion.metric}")
-
-
 def check_assertion(
-    context: Context, stats: Dict[str, Any], assertion: Assertion
+    context: Context,
+    stats: Dict[str, Any],
+    assertion: Assertion,
+    log_error: bool = True,
 ) -> bool:
     """Returns true if the assertion is valid, false otherwise."""
-    value = get_value(stats, assertion)
-    log_fn = context.log.error if assertion.abort else context.log.warning
-    if value is None:
-        log_fn(f"Value not found for assertion {assertion}")
-        return False
-    if not compare_threshold(value, assertion.comparison, assertion.threshold):
-        log_fn(f"Assertion failed for value {value}: {assertion}")
-        return False
-    return True
+
+    log_fn = context.log.error if log_error else context.log.warning
+    results_valid: list[bool] = []
+
+    if assertion.metric == Metric.ENTITY_COUNT:
+        threshold = int(assertion.config)
+        value = stats["things"]["total"]
+        valid = check_value(value, assertion.comparison, threshold)
+        if not valid:
+            log_fn(
+                f"Assertion {assertion.metric} failed: {value} is not {assertion.comparison} threshold {threshold}"
+            )
+        results_valid.append(valid)
+
+    elif assertion.metric == Metric.COUNTRY_COUNT:
+        threshold = int(assertion.config)
+        # stats["things"]["countries"] is a list of dictionaries that look like
+        # [
+        #   { "code": "us", "count": 100, label: "United States"},
+        # ]
+        # Here, we only care about the total count
+        value = len(stats["things"]["countries"])
+        valid = check_value(value, assertion.comparison, threshold)
+        if not valid:
+            log_fn(
+                f"Assertion {assertion.metric} failed: {value} is not {assertion.comparison} threshold {threshold}"
+            )
+        results_valid.append(valid)
+
+    elif assertion.metric == Metric.SCHEMA_ENTITIES:
+        # stats["things"]["schemata"] is a list of dictionaries that look like
+        # [
+        #   { "name": "Person", "count": 100 },
+        # ]
+        stats_schema_to_count = {
+            item["name"]: item["count"] for item in stats["things"]["schemata"]
+        }
+
+        for schema, threshold in assertion.config.items():
+            value = stats_schema_to_count.get(schema, 0)
+            valid = check_value(value, assertion.comparison, threshold)
+            if not valid:
+                log_fn(
+                    f"Assertion {assertion.metric} failed for {schema}: {value} is not {assertion.comparison} threshold {threshold}"
+                )
+            results_valid.append(valid)
+
+    elif assertion.metric == Metric.COUNTRY_ENTITIES:
+        # stats["things"]["countries"] is a list of dictionaries that look like
+        # [
+        #   { "code": "us", "count": 100, label: "United States"},
+        # ]
+        stats_country_to_count = {
+            item["code"]: item["count"] for item in stats["things"]["countries"]
+        }
+
+        for country, threshold in assertion.config.items():
+            value = stats_country_to_count.get(country, 0)
+            valid = check_value(value, assertion.comparison, threshold)
+            if not valid:
+                log_fn(
+                    f"Assertion {assertion.metric} failed for {country}: {value} is not {assertion.comparison} threshold {threshold}"
+                )
+            results_valid.append(valid)
+
+    elif assertion.metric == Metric.ENTITIES_WITH_PROP_COUNT:
+        # stats["things"]["entities_with_prop"] is a list of dictionaries that look like
+        # [
+        #   { "schema": "Person", "property": "firstName", "count": 100 },
+        # ]
+        stats_entity_with_prop_to_count = {
+            (item["schema"], item["property"]): item["count"]
+            for item in stats["things"]["entities_with_prop"]
+        }
+
+        for schema, properties in assertion.config.items():
+            for property, threshold in properties.items():
+                key = (schema, property)
+                value = stats_entity_with_prop_to_count.get(key, 0)
+                valid = check_value(value, assertion.comparison, threshold)
+                if not valid:
+                    log_fn(
+                        f"Assertion {assertion.metric} failed for {schema}.{property}: {value} is not {assertion.comparison} threshold {threshold}"
+                    )
+                results_valid.append(valid)
+
+    else:
+        raise ValueError(f"Unknown metric: {assertion.metric}")
+
+    return all(results_valid)
 
 
-class AssertionsValidator(BaseValidator):
-    """Aborts if any dataset assertion fails."""
+class StatisticsAssertionsValidator(BaseValidator):
+    """Validator that checks various asssertions that are based on dataset statistics."""
 
     def __init__(self, context: Context, view: View) -> None:
         super().__init__(context, view)
@@ -87,8 +132,13 @@ class AssertionsValidator(BaseValidator):
 
     def finish(self) -> None:
         if len(self.context.dataset.assertions) == 0:
-            self.context.log.warn("Dataset has no assertions.")
+            self.context.log.error("Dataset has no assertions.")
 
         for assertion in self.context.dataset.assertions:
-            if not check_assertion(self.context, self.stats.as_dict(), assertion):
-                self.abort = self.abort or assertion.abort
+            is_fatal = assertion.comparison == Comparison.GTE
+            valid = check_assertion(
+                self.context, self.stats.as_dict(), assertion, log_error=is_fatal
+            )
+            # Only min assertions should abort the dataset.
+            if not valid and is_fatal:
+                self.abort = True

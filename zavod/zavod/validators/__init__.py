@@ -7,7 +7,7 @@ from zavod.exc import RunFailedException
 from zavod.meta.dataset import Dataset
 from zavod.store import View
 from zavod.entity import Entity
-from zavod.validators.assertions import AssertionsValidator
+from zavod.validators.assertions import StatisticsAssertionsValidator
 from zavod.validators.common import BaseValidator
 
 
@@ -63,7 +63,7 @@ class EmptyValidator(BaseValidator):
 VALIDATORS: List[Type[BaseValidator]] = [
     DanglingReferencesValidator,
     SelfReferenceValidator,
-    AssertionsValidator,
+    StatisticsAssertionsValidator,
     EmptyValidator,
 ]
 
@@ -79,7 +79,7 @@ def validate_dataset(dataset: Dataset, view: View) -> None:
         context.begin(clear=False)
         context.log.info(
             "Validating dataset",
-            dataset=dataset_data_path(dataset.name),
+            path=dataset_data_path(dataset.name),
         )
 
         validators = [validator(context, view) for validator in VALIDATORS]

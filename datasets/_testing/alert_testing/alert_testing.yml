@@ -5,6 +5,7 @@ hidden: true
 coverage:
   frequency: daily
   start: 2023-12-05
+load_statements: false
 summary: >
   This dataset is used for alerting tests. It is not intended for screening real entities.
 description: |

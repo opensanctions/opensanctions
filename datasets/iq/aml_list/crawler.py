@@ -1,17 +1,19 @@
 import re
+from typing import Optional, Set, Dict, List
+
 from normality import latinize_text
 from openpyxl import load_workbook
 from rigour.mime.types import XLSX
-from typing import Optional
-
-from zavod import Context, helpers as h
-from zavod.shed.zyte_api import fetch_html, fetch_resource
 from zavod.shed.trans import (
     apply_translit_full_name,
+    ENGLISH,
 )
+from zavod.extract.zyte_api import fetch_html, fetch_resource
+from zavod import Context
+from zavod import helpers as h
 
 # These sheets do not contain actual data but serve as reference sheets
-LOC_IGNORE_LIST = [
+LOCAL_FILE_IGNORE_SHEETS = [
     "الافراد",  # Individuals
     "القوائم المحلية ",  # Local lists
 ]
@@ -27,23 +29,23 @@ YEAR_PATTERN = re.compile(r"\b\d{4}\b")
 # To mediate in the sale and purchase of foreign currencies
 ENTITY_NAME_REASON = re.compile(r"\s*للتوسط ببيع وشراء العملات الاجنبية$")
 
-TRANSLIT_OUTPUT = {"eng": ("Latin", "English")}
+TRANSLIT_OUTPUT = [ENGLISH]
 
 
-def clean_entity_name(entity_name: str) -> Optional[str]:
+def clean_entity_name(entity_name: Optional[str]) -> Optional[str]:
     if entity_name is None:
         return None
     return ENTITY_NAME_REASON.sub("", entity_name).strip()
 
 
-def extract_sector(entity_name: str) -> Optional[str]:
+def extract_sector(entity_name: Optional[str]) -> Optional[str]:
     if entity_name is None:
         return None
     match = ENTITY_NAME_REASON.search(entity_name)
     return match.group().strip() if match else None
 
 
-def extract_listing_date(decision_number: str) -> Optional[str]:
+def extract_listing_date(decision_number: Optional[str]) -> Optional[str]:
     """Extracts the listing year from the decision number."""
     if decision_number is None:
         return None
@@ -51,7 +53,7 @@ def extract_listing_date(decision_number: str) -> Optional[str]:
     return match.group(0) if match else None
 
 
-def crawl_row(row: dict, context: Context):
+def crawl_row(row: Dict[str, str | None], context: Context) -> None:
     row.pop("id", None)
     # Skip empty rows
     if not any(row.values()):
@@ -109,23 +111,22 @@ def crawl_row(row: dict, context: Context):
 
 
 def process_xlsx(
-    context,
+    context: Context,
+    *,
     url: str,
     filename: str,
-    title: str,
-    ignore_sheets: list = [],
-):
+    titles: Set[str],
+    ignore_sheets: List[str] = [],
+) -> None:
     context.log.info(f"Processing {filename} from {url}")
     excel_link_xpath = (
         '//article[contains(@id, "post-")]//a[contains(@href, "xlsx")]/@href'
     )
     doc = fetch_html(context, url, excel_link_xpath, cache_days=1, geolocation="IQ")
-    link = doc.xpath(excel_link_xpath)
+    file_url = h.xpath_string(doc, excel_link_xpath)
 
-    assert len(link) == 1, link
-    file_url = link[0]
     assert file_url.endswith(".xlsx"), file_url
-    assert title in file_url, file_url
+    assert any(title in file_url for title in titles), file_url
 
     _, _, _, path = fetch_resource(context, filename, file_url, XLSX, geolocation="IQ")
     context.export_resource(path, XLSX)
@@ -145,17 +146,20 @@ def process_xlsx(
     assert set(wb.sheetnames) == processed_sheets | set(ignore_sheets)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     process_xlsx(
         context,
-        "https://aml.iq/?page_id=2169",
-        "international.xlsx",
-        "القائمة-الدولية",  # International List
+        url="https://aml.iq/?page_id=2169",
+        filename="international.xlsx",
+        titles={"القائمة-الدولية"},  # International List
     )
     process_xlsx(
         context,
-        "https://aml.iq/?page_id=2171",
-        "local.xlsx",
-        "القوائم-المحلية",  # Local Lists
-        LOC_IGNORE_LIST,
+        url="https://aml.iq/?page_id=2171",
+        filename="local.xlsx",
+        titles={
+            "القوائم-المحلية",  # Local Lists
+            "القائمة-المحلية",  # Local List
+        },
+        ignore_sheets=LOCAL_FILE_IGNORE_SHEETS,
     )

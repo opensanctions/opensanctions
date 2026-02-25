@@ -16,7 +16,7 @@ from zavod.store import get_store
 DATASET_DATA = {
     "name": "test_enricher",
     "title": "An enrichment dataset",
-    "config": {"cutoff": 0.5},
+    "config": {"cutoff": 0.5, "algorithm": "logic-v1"},
     "entry_point": "zavod.runner.local_enricher:enrich",
     "inputs": ["testdataset_enrich_subject"],
 }
@@ -44,7 +44,7 @@ AAA_BANK = {
 
 def make_enricher_dataset(dataset_data, target_dataset):
     dataset_data_copy = deepcopy(dataset_data)
-    dataset_data_copy["config"]["dataset"] = target_dataset
+    dataset_data_copy["full_dataset"] = target_dataset
     return Dataset.make(dataset_data_copy)
 
 
@@ -53,9 +53,7 @@ def load_enricher(context: Context, dataset_data, target_dataset: str):
     return LocalEnricher(dataset, context.cache, dataset.config)
 
 
-def test_enrich_process(
-    testdataset1: Dataset, testdataset_enrich_subject: Dataset, disk_db_uri: str
-):
+def test_enrich_process(testdataset1: Dataset, testdataset_enrich_subject: Dataset):
     """We match and expand an entity with a similar name"""
 
     resolver = get_resolver()

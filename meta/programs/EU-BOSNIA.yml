@@ -1,0 +1,15 @@
+id: 59
+title: EU Restrictive Measures In View Of The Situation In Bosnia And Herzegovina
+key: EU-BOSNIA
+url: https://sanctionsmap.eu/#/main/details/4/
+summary: These sanctions target individuals and entities in Bosnia and Herzegovina
+  involved in activities undermining the peace, security, and stability of the country.
+  The measures include asset freezes, travel bans, and trade restrictions to promote
+  peace and stability in Bosnia and Herzegovina.
+issuer: eu_council
+dataset: eu_fsf
+target_territories:
+- ba
+measures:
+- Asset freeze
+- Travel ban

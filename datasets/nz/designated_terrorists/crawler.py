@@ -16,6 +16,7 @@ ALIAS_SPLITS = [
     "; and",
     ";",
 ]
+PROGRAM_KEY = "NZ-UNSC1373"
 
 
 def parse_table(
@@ -59,7 +60,7 @@ def crawl_item(input_dict: dict, context: Context):
     organization.add("name", name)
     organization.add("alias", aliases)
 
-    sanction = h.make_sanction(context, organization)
+    sanction = h.make_sanction(context, organization, program_key=PROGRAM_KEY)
 
     raw_initial_sanction_date, initial_statement_url = input_dict.pop(
         "date-of-designation-as-a-terrorist-entity-in-new-zealand-including-and-statement-of-case-for-designation"

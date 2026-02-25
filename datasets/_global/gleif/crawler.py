@@ -192,9 +192,7 @@ def parse_lei_record(
 
     status = entity.findtext("EntityStatus")
     match status:
-        case "NULL":
-            return
-        case "INACTIVE":
+        case "INACTIVE" | "NULL":
             # We still crawl them because they might be referenced as owners of other entities.
             proxy.add("status", status)
         case "ACTIVE":
@@ -328,7 +326,10 @@ def parse_relationship_record(context: Context, el: etree._Element):
     proxy.add(start_prop, lei_id(start_lei))
     proxy.add(end_prop, lei_id(end_lei))
     proxy.add("role", rel_type.replace("_", " "))
-    proxy.add("status", rel.findtext("RelationshipStatus"))
+    status = rel.findtext("RelationshipStatus")
+    if status == "INACTIVE":
+        return
+    proxy.add("status", status)
 
     if rel_schema == "Ownership":
         # Organization entities cannot be assets, so we re-emit the asset entity as a Company

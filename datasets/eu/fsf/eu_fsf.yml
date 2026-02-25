@@ -274,7 +274,10 @@ lookups:
         prop: vatCode
   type.name:
     options:
-      - match: "-"
+      - match:
+          - "-"
+          - "общество с ограниченной ответственностью"
+          - "открытое акционерное общество"
         value: null
   type.address:
     lowercase: true
@@ -326,6 +329,7 @@ lookups:
       - match:
           - "cannon49(a)mail"
           - "ru"
+          - "all offices worldwide"
         value: null
       - match: "alarm@pzsignal. ru"
         value: alarm@pzsignal.ru
@@ -333,6 +337,17 @@ lookups:
         value: "info@chersonesos-sev.ru"
       - match: "https://moscow.rtrs.ru/"
         prop: website
+      - match: "registration@ama ocr.org"
+        value: registration@amaocr.org
+      - match: mbbmos@mbbru.com  Mellimos@BMIRU.com  Mellimos@Rex400.ru
+        values:
+          - mbbmos@mbbru.com
+          - Mellimos@BMIRU.com
+          - Mellimos@Rex400.ru
+      - match: info@sctbankers.com zanjani@sctbankers.com
+        values:
+          - info@sctbankers.com
+          - zanjani@sctbankers.com
   type.gender:
     lowercase: true
     normalize: true

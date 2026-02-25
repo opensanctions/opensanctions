@@ -6,13 +6,14 @@ import re
 
 from zavod import Context, helpers as h
 from zavod.stateful.positions import categorise
-from zavod.shed.trans import apply_translit_full_name
+from zavod.shed.trans import ENGLISH, apply_translit_full_name
 
 
 REGEX_DELEGATION_HEADING = re.compile(r"(\w+)（\d+名）$")
 REGEX_BRACKETS = re.compile(r"\[.*?\]")
 CHANGES_IN_REPRESENTATION = [
-    "补选",  # by-election
+    # Skip because rowspan isn't supported yet
+    # "补选",  # by-election
     "辞职",  # resignation
     # Not supporting this for now because of we don't yet support HTML rowspan
     # "罢免",  # dismissal
@@ -35,7 +36,7 @@ IGNORE_DUPES = {
     # https://zh.wikipedia.org/wiki/%E7%8E%8B%E6%B0%B8%E7%BA%A2
     "cn-npc-wik-86fc6c8c076a7e4ed86efaec46620d13ea327908",
 }
-TRANSLIT_OUTPUT = {"eng": ("Latin", "English")}
+TRANSLIT_OUTPUT = [ENGLISH]
 
 
 def clean_text(text: str) -> str:

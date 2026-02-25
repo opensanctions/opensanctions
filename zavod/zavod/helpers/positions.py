@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import Iterable, List, Optional
 
 from banal import ensure_list
+from followthemoney import registry
 
 from zavod import helpers as h
 from zavod import settings
@@ -187,10 +188,15 @@ def make_occupancy(
     if status is None:
         return None
 
-    occupancy.add("status", status.value)
+    if status != OccupancyStatus.UNKNOWN:
+        occupancy.add("status", status.value)
 
     person.add("topics", "role.pep")
     if propagate_country:
-        person.add("country", position.get("country"))
+        for country in position.get("country"):
+            # Only propagate to Person.country it isn't already set
+            # in another field (such as citizenship).
+            if country not in person.get_type_values(registry.country, matchable=True):
+                person.add("country", country)
 
     return occupancy

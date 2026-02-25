@@ -1,0 +1,26 @@
+type: collection
+title: Mini-set of Western Sanctions
+coverage:
+  start: "2025-10-19"
+  schedule: "0 */3 * * *"
+deploy:
+  memory: "1500Mi"
+ci_test: false
+hidden: true
+exports:
+  - statistics.json
+  - entities.ftm.json
+  - entities.delta.json
+summary: >
+  Custom data scope of key sanctioned entities from Western jurisdictions
+description: |
+  Please don't depend on this dataset without prior arrangement.
+children:
+  - eu_fsf
+  - eu_journal_sanctions
+  - eu_sanctions_map
+  - gb_fcdo_sanctions
+  - gb_hmt_sanctions
+  - un_sc_sanctions
+  - us_ofac_cons
+  - us_ofac_sdn

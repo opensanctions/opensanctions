@@ -1,0 +1,16 @@
+id: 108
+title: North Korea Sanctions
+key: UN-SC1718
+url: https://www.un.org/securitycouncil/sanctions/1718
+summary: These sanctions target individuals and entities involved in North Korea's
+  nuclear weapons program. The measures include asset freezes, travel bans, and restrictions
+  on trade and financial transactions to pressure North Korea to denuclearize and
+  comply with international norms.
+issuer: zz_unsc
+dataset: un_sc_sanctions
+aliases:
+- Resolution 1718
+target_territories:
+- kp
+measures:
+- Arms embargo

@@ -58,12 +58,10 @@ review_table = Table(
     Column("source_label", Unicode(VALUE_LEN), nullable=True),
     Column("source_url", Unicode(VALUE_LEN), nullable=True),
     Column("accepted", Boolean, nullable=False, index=True),
-    Column("model_version", Integer, nullable=False),
-    # only to be edited by the crawler
-    Column("orig_extraction_data", JSON, nullable=False),
-    # editable by the reviewer
+    Column("crawler_version", Integer, nullable=False),
+    Column("original_extraction", JSON, nullable=False),
+    Column("origin", Unicode(VALUE_LEN), nullable=False),
     Column("extracted_data", JSON, nullable=False),
-    # The crawl version that last saw this review key
     Column("last_seen_version", Unicode(KEY_LEN), nullable=False, index=True),
     Column("modified_at", DateTime, nullable=False),
     Column("modified_by", Unicode(KEY_LEN), nullable=False),
@@ -81,6 +79,25 @@ Index(
 )
 
 
+review_entity_table = Table(
+    "review_entity",
+    meta,
+    # If this was review.id, versioned updates of reviews would need to update these entries.
+    Column("dataset", Unicode(KEY_LEN), nullable=False, index=True),
+    Column("review_key", Unicode(KEY_LEN), nullable=False, index=True),
+    Column("entity_id", Unicode(KEY_LEN), nullable=False),
+    Column("last_seen_version", Unicode(KEY_LEN), nullable=False, index=True),
+    # There should only ever be one link per (review, entity, dataset).
+    Index(
+        "ix_review_entity_unique_review_key_entity_id_dataset",
+        "review_key",
+        "entity_id",
+        "dataset",
+        unique=True,
+    ),
+)
+
+
 def create_db() -> None:
     """Create all stateful database tables."""
     engine = get_engine()
@@ -92,5 +109,6 @@ def create_db() -> None:
             statement_table,
             program_table,
             review_table,
+            review_entity_table,
         ],
     )

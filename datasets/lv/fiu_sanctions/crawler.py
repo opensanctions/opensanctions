@@ -127,7 +127,7 @@ def crawl_organization(context: Context, node: _Element) -> Optional[Entity]:
     return entity
 
 
-def crawl_sanctions_xml(context: Context):
+def crawl_sanctions_xml(context: Context) -> None:
     path = context.fetch_resource("source.xml", context.data_url)
     context.export_resource(path, XML, title=context.SOURCE_TITLE)
     doc = context.parse_resource_xml(path)
@@ -163,10 +163,11 @@ def crawl_sanctions_xml(context: Context):
 
 def crawl_listed_names(
     context: Context,
+    *,
     frozen_asset: Entity,
     frozen_assets_type: str,
     listed_names: str,
-):
+) -> None:
     for listed_name in h.multi_split(listed_names, ["\n", ";"]):
         entity = context.make("LegalEntity")
         entity.id = context.make_id(listed_name)
@@ -182,7 +183,7 @@ def crawl_listed_names(
         context.emit(link)
 
 
-def crawl_assets_xlsx(context: Context):
+def crawl_assets_xlsx(context: Context) -> None:
     path = context.fetch_resource("source.xlsx", FROZEN_ASSETS_URL)
     context.export_resource(path, XLSX, title="Assets of listed entities")
     wb = load_workbook(path, read_only=True)
@@ -194,7 +195,9 @@ def crawl_assets_xlsx(context: Context):
         name = row.pop("freeze_subject_name")
         birth_date_or_id = row.pop("birth_date_or_id")
         id_values = [name, birth_date_or_id]
-        countries = row.pop("nationality").split(",")
+        nationalities_str = row.pop("nationality")
+        assert nationalities_str is not None
+        countries = nationalities_str.split(",")
 
         if birth_date_or_id and registry.date.clean_text(birth_date_or_id):
             entity = context.make("Person")
@@ -223,7 +226,14 @@ def crawl_assets_xlsx(context: Context):
         else:
             # We're primarily listing identified assets of this entity
             entity.add("topics", "asset.frozen")
-            crawl_listed_names(context, entity, frozen_assets_type, listed_names_str)
+            assert frozen_assets_type is not None
+            assert listed_names_str is not None
+            crawl_listed_names(
+                context,
+                frozen_asset=entity,
+                frozen_assets_type=frozen_assets_type,
+                listed_names=listed_names_str,
+            )
 
         context.emit(entity)
         context.emit(sanction)
@@ -231,6 +241,6 @@ def crawl_assets_xlsx(context: Context):
         context.audit_data(row, ["start_dates", "fiu_verified"])
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     crawl_sanctions_xml(context)
     crawl_assets_xlsx(context)

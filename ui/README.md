@@ -18,18 +18,11 @@ See [Data Reviews](../zavod/docs/data_reviews.md)
 
 ## Getting Started
 
-For local development, start a postgres db, and configure the site for local development. E.g.
-
-Run
-
-```bash
-docker compose -f ../docker-compose.yml up -d db # Bring up a dev database
-```
+See [the documentation on how to install `zavod`](../zavod/docs/install.md) to bring up a local database.
 
 Set environment variables, e.g. via .env.local file
 
 ```
-ZAVOD_DATABASE_URI=postgresql://postgres:password@localhost:5432/dev
 ZAVOD_ALLOW_UNAUTHENTICATED=true  # Unsafe if an untrusted network can reach this
 NEXT_PUBLIC_BASE_URL=http://localhost:3000
 ```

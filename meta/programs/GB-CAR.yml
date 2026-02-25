@@ -1,0 +1,9 @@
+id: 233
+title: UK sanctions relating to the Central African Republic
+key: GB-CAR
+url: https://www.gov.uk/government/collections/uk-sanctions-on-the-central-african-republic
+summary: Sanctions against entities and individuals in the Central African Republic.
+issuer: gb_ofsi
+dataset: gb_hmt_sanctions
+target_territories:
+- cf

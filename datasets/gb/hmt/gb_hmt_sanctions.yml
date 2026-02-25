@@ -2,9 +2,9 @@ title: UK HMT/OFSI Consolidated List of Targets
 entry_point: crawler.py
 prefix: gb-hmt
 coverage:
-  schedule: "0 */2 * * *"
-  frequency: daily
+  frequency: monthly
   start: "2015-12-05"
+  end: "2026-01-28"
 deploy:
   memory: "2Gi"
 load_statements: true
@@ -19,6 +19,15 @@ description: |
 
   The UK sanctions list suffers from very bad data quality as the result of manual
   data processing and inappropriate data structures used by the XML files.
+deprecation:
+  The UK HMT/OFSI Consolidated List of Targets dataset has been consolidated into the
+  FCDO [UK Sanctions List](/datasets/gb_fcdo_sanctions/) as of January 2026. There will
+  be no further updates to this dataset after January 28, 2026. Read our [changelog
+  entry](/changelog/38/) for more details.
+
+  We further plan to remove the `sanction` topic from entries in this dataset after its
+  deprecation, and will eventually remove the dataset entirely to avoid processing stale
+  designations.
 publisher:
   name: Office of Financial Sanctions Implementation
   acronym: OFSI
@@ -47,7 +56,6 @@ assertions:
   min:
     schema_entities:
       Person: 3100
-      Address: 1300
       LegalEntity: 790
       Company: 190
       Organization: 70
@@ -56,7 +64,6 @@ assertions:
   max:
     schema_entities:
       Person: 7200
-      Address: 3000
       LegalEntity: 1900
       Company: 500
       Organization: 150
@@ -326,7 +333,13 @@ lookups:
         prop: ogrnCode
         value: 1027802490540
       - match: 774376344
-        value: 7743763446  # ru_egrul
+        value: 7743763446 # ru_egrul
+      - match:
+          - 308989789
+          - 302358106
+          - 305134690
+          - 311080140
+        prop: taxNumber
   companies:
     normalize: true
     options:
@@ -411,6 +424,9 @@ lookups:
           - Joint Stock Company Ruschem
           - LLC MC FORTIS-INVEST
           - PJSC Rosneft
+          - Kala Limited
+          - National Iranian Oil Company
+          - OOO Mercury Renaissance
         value: SAME
       - match: Subsidiary of the Organisation for Technological Industries (OTI) and therefore the Syrian Ministry of Defence
         values:
@@ -802,11 +818,7 @@ lookups:
           - Suzhou Neway Machine Tool Design and Research Institute Co., Ltd.
           - Neway Cnc (USA), Inc.
       - match: "(1) BIC: 136001 (2) TIN: 02012201010017 (3) OKPO: 27231453 (4) SWIFT: RINBKG22"
-        values:
-          - "BIC: 136001"
-          - "TIN: 02012201010017"
-          - "OKPO: 27231453"
-          - "SWIFT: RINBKG22"
+        values: []
       - match: "SUZHOU SHUNYI INVESTMENT CO., LTD"
         value: SUZHOU SHUNYI INVESTMENT CO., LTD
       - match: "(1) 苏州百胜动力科技有限公司 – SUZHOU YUM POWER TECHNOLOGY CO., LTD. (2)  苏州佰昇国际贸易有限公司 - SUZHOU BAISHENG INTERNATIONAL TRADE CO., LTD."
@@ -821,11 +833,7 @@ lookups:
       # TIN, OKPO via https://record.minjust.gov.kg/view/02012201010017
       # SWIFT via https://wise.com/gb/swift-codes/bic-swift-code-checker?code=RINBKG22
       - match: "(1) Kyrgz BIK number: 136001 (2) TIN: 02012201010017 (3) OKPO: 27231453 (4) SWIFT: RINBKG22"
-        values:
-          - "Kyrgz BIK number: 136001"
-          - "TIN: 02012201010017"
-          - "OKPO: 27231453"
-          - "SWIFT: RINBKG22"
+        values: []
       - match: "(1) ALTAIR F III S.A R.L (2) SH INVEST LIMITED (3) GALACKTIKA LIMITED LIABILITY COMPANY"
         values:
           - ALTAIR F III S.A R.L
@@ -833,6 +841,31 @@ lookups:
           - GALACKTIKA LIMITED LIABILITY COMPANY
       - match: "MASTEL MAKINA ITHALAT IHRACAT LIMITED SIRKETI CARSI SUBESI"
         value: MASTEL MAKINA ITHALAT IHRACAT LIMITED SIRKETI CARSI SUBESI
+      - match: "Ahdaf Investment Company has majority ownership (51.53%)\n1. AHDAF INVESTMENT COMPANY \n2. GHADR INVESTMENT DEVELOPMENT CO. \n3. SABA KARUN OIL AND GAS DEVELOPMENT COMPANY \n4. SABA NAFT SUPPORT SERVICES COMPANY\n5. TOSSEE HAMI GHADR CO."
+        values:
+          - Ahdaf Investment Company
+          - GHADR INVESTMENT DEVELOPMENT CO.
+          - SABA KARUN OIL AND GAS DEVELOPMENT COMPANY
+          - SABA NAFT SUPPORT SERVICES COMPANY
+          - TOSSEE HAMI GHADR CO.
+      - match: "(1) Sokan Arvand Ship Management Company (2) Persia Telecom Co. (3) Nilsun Kish (4) IOEC E&P"
+        values:
+          - Sokan Arvand Ship Management Company
+          - Persia Telecom Co.
+          - Nilsun Kish
+          - IOEC E&P
+      - match: ELKO RITEIL LLC
+        value: ELKO RITEIL LLC
+      - match: LEASING PROFI LLC
+        value: LEASING PROFI LLC
+      - match: Prince Group Holdings Limited
+        value: Prince Group Holdings Limited
+      - match: Prince Group
+        value: Prince Group
+      - match: "(1) Aeza International Ltd (2) Hypercore Ltd"
+        values:
+          - Aeza International Ltd
+          - Hypercore Ltd
   type.name:
     options:
       - match: "BIC: 136001"
@@ -855,6 +888,10 @@ lookups:
     options:
       - match: Moscow
         value: Moscow
+      - match:
+          - Gao
+          - na
+        value: null
   type.country:
     lowercase: true
     options:
@@ -992,6 +1029,14 @@ lookups:
         value: indoc@SIBANTHRACITEGROUP.ru
       - match: satpro1974@gmail.com.
         value: satpro1974@gmail.com
+      - match: ir info@macco.ir
+        value: info@macco.ir
+      - match: ravabet.eogpc.ir
+        value: ravabet@eogpc.ir
+      - match:
+          - elko.ru
+          - sales@macco
+        value: null
 
   type.gender:
     lowercase: true

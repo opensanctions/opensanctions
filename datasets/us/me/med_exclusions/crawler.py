@@ -1,14 +1,15 @@
-from typing import Dict
 import json
-from rigour.mime.types import XLSX
-from openpyxl import load_workbook
+from typing import Dict
 
-from zavod import Context, helpers as h
-from zavod.shed import zyte_api
+from openpyxl import load_workbook
+from rigour.mime.types import XLSX
+from zavod.extract import zyte_api
+
+from zavod import Context
+from zavod import helpers as h
 
 
 def crawl_item(row: Dict[str, str], context: Context):
-
     if first_name := row.pop("provider_first_name"):
         last_name = row.pop("provider_last_name")
         middle_initial = row.pop("provider_mi")
@@ -31,7 +32,6 @@ def crawl_item(row: Dict[str, str], context: Context):
 
     # Number of alias
     for i in [1, 2, 3, 4]:
-
         alias_first_name = row.pop(f"alias_first_name_{i}")
         alias_last_name = row.pop(f"alias_last_name_{i}")
 
@@ -75,7 +75,7 @@ def crawl_item(row: Dict[str, str], context: Context):
 
 
 def crawl_excel_url(context: Context):
-    _, _, _, txt = zyte_api.fetch_text(context, context.data_url)
+    _, _, _, txt = zyte_api.fetch_text(context, context.data_url, geolocation="us")
     # Parse out the table data JSON embedded in the HTML
     table_json = txt[txt.find("WPQ2ListData") + 15 : txt.find("WPQ2SchemaData") - 5]
     context.log.debug("table json", json=table_json)
@@ -95,7 +95,7 @@ def crawl(context: Context) -> None:
     # First we find the link to the excel file
     excel_url = crawl_excel_url(context)
     _, _, _, path = zyte_api.fetch_resource(
-        context, filename="list.xlsx", url=excel_url
+        context, filename="list.xlsx", url=excel_url, geolocation="us"
     )
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
 

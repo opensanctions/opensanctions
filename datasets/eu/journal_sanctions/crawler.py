@@ -1,14 +1,15 @@
 import csv
 import re
-from functools import cache
-from functools import lru_cache
-from nomenklatura.resolver import Linker
-from normality import squash_spaces
+from functools import cache, lru_cache
 from typing import Dict
+from normality import squash_spaces
 
-from zavod import Context, Entity
+from nomenklatura.resolver import Linker
+from rigour.ids.ogrn import OGRN
+
+from zavod.extract.zyte_api import fetch_html
 from zavod.integration import get_dataset_linker
-import zavod.helpers as h
+from zavod import Context, Entity, helpers as h
 
 # Some entities come from the full text of the consolidated COUNCIL REGULATION (EU) No 833/2014.
 #  This consolidated document is treated differently from standard EUR-Lex lookups.
@@ -33,10 +34,9 @@ def extract_program_code(context, source_url):
     """Fetch EU act code from a EUR-Lex page."""
     if SPECIAL_CASE_URL in source_url:
         return "833/2014"
-    doc = context.fetch_html(source_url, cache_days=365)
-    program_nodes = doc.xpath(
-        "//div[@class='eli-main-title']/p[@class='oj-doc-ti']/text()"
-    )
+    program_xpath = "//div[@class='eli-main-title']/p[@class='oj-doc-ti']/text()"
+    doc = fetch_html(context, source_url, program_xpath, cache_days=365)
+    program_nodes = doc.xpath(program_xpath)
     if not program_nodes:
         context.log.warning(f"Could not find program for {source_url}")
         return
@@ -92,7 +92,7 @@ def crawl_unconsolidated_row(
     source_url = row.pop("Source URL").strip()
     program_code = extract_program_code(context, source_url)
 
-    context.log.info(f"Processing row #{row_idx}: {name}")
+    context.log.debug(f"Processing row #{row_idx}: {name}")
     entity = context.make(entity_type)
     entity.id = context.make_id(row_id, name, country)
     context.log.debug(f"Unique ID {entity.id}")
@@ -110,7 +110,7 @@ def crawl_unconsolidated_row(
     for other_id in linker.get_referents(canonical_id):
         if other_id.startswith("eu-fsf-"):
             context.log.warning(
-                f"Row {row_idx} is also present in FSF XML: {other_id}, can be moved to context sheet",
+                f"Row {row_idx} is also present in FSF XML: {other_id}",
                 row_id=row_id,
                 other_id=other_id,
                 name=name,
@@ -121,7 +121,7 @@ def crawl_unconsolidated_row(
             break
         if other_id.startswith("eu-sancmap-"):
             context.log.warning(
-                f"Row {row_idx} is also present in EU Sanctions map: {other_id}, can be moved to context",
+                f"Row {row_idx} is also present in EU Sanctions map: {other_id}",
                 row_id=row_id,
                 other_id=other_id,
                 name=name,
@@ -132,7 +132,7 @@ def crawl_unconsolidated_row(
             break
         if other_id.startswith("eu-tb-"):
             context.log.warning(
-                f"Row {row_idx} is also present in EU Travel Bans: {other_id}, can be removed from sheet",
+                f"Row {row_idx} is also present in EU Travel Bans: {other_id}",
                 row_id=row_id,
                 other_id=other_id,
                 name=name,
@@ -162,10 +162,11 @@ def crawl_unconsolidated_row(
     entity.add("website", h.multi_split(row.pop("website"), ";"), quiet=True)
     entity.add("gender", row.pop("Gender", None), quiet=True)
     entity.add("sourceUrl", h.multi_split(source_url, ";"))
-    if "ru" in entity.get("country"):
-        entity.add("ogrnCode", h.multi_split(reg_number, ";"))
-    else:
-        entity.add("registrationNumber", h.multi_split(reg_number, ";"))
+    for reg_num in h.multi_split(reg_number, ";"):
+        if "ru" in entity.get("country") and OGRN.is_valid(reg_num):
+            entity.add("ogrnCode", reg_num)
+        else:
+            entity.add("registrationNumber", reg_num)
 
     for related_name in h.multi_split(row.pop("related"), ";"):
         related = context.make("LegalEntity")
@@ -222,7 +223,7 @@ def crawl_context_row(context: Context, row_idx: int, row: Dict[str, str]) -> No
     reg_number = row.pop("registrationNumber").strip()
     source_url = row.pop("Source URL").strip()
 
-    context.log.info(f"Processing row #{row_idx}: {name}")
+    context.log.debug(f"Processing row #{row_idx}: {name}")
     entity = context.make(entity_type)
     entity.id = context.make_id(row_id, name, country)
     context.log.debug(f"Unique ID {entity.id}")
@@ -254,7 +255,15 @@ def crawl_context_row(context: Context, row_idx: int, row: Dict[str, str]) -> No
     context.emit(entity)
     context.audit_data(
         row,
-        ignore=["related", "startDate", "Address", "Notes", "previousName", "Position"],
+        ignore=[
+            "related",
+            "startDate",
+            "Address",
+            "Notes",
+            "previousName",
+            "Position",
+            "crypto wallet",
+        ],
     )
 
 
@@ -280,9 +289,9 @@ def crawl(context: Context):
     for row_idx in sorted(set(GC_ROWS)):
         if row_idx != seq_max + 1:
             if seq_start != 0:
-                context.log.warn(f"Row {seq_start}..{seq_max} is in other datasets")
+                context.log.warn(f"Row {seq_start}:{seq_max} is in other datasets")
             seq_start = row_idx
         seq_max = row_idx
 
     if seq_start != 0:
-        context.log.warn(f"Row {seq_start}..{seq_max} is in other datasets")
+        context.log.warn(f"Row {seq_start}:{seq_max} is in other datasets")

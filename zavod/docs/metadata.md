@@ -20,10 +20,11 @@ Use the `.yml` extension.
 ### Data Coverage
 
 - `coverage`
-    - `frequency` - e.g. `daily`, `weekly`, `monthly`, `never`. This represents how often it is expected that this dataset will be updated. It conveys to users how often to expect updates, and will also be used to generate a crawling schedule unless a specific schedule is defined. Data sources that don't receive updates are marked `never` and are usually crawled monthly (e.g. `coverage.schedule: @monthly`) just to keep consistent with FTM updates.
+    - `frequency` - e.g. `daily`, `weekly`, `monthly`, `never`. This represents how often it is expected that this dataset will be updated. It conveys to users how often to expect updates, and will also be used to generate a crawling schedule unless a specific schedule is defined.
     - `start` - The start date of a dataset which covers only a specific period in time, e.g. for a dataset specific to a data dump or parliamentary term. A string in the format `YYYY-MM-DD`.
     - `end` - The end date of a dataset which covers only a specific period in time, e.g. for a dataset specific to a data dump or parliamentary term. A string in the format `YYYY-MM-DD`. Future dates imply an expected end to the maintenance and coverage period of the dataset. Past end dates result in the datasets last_change date being fixed to that date, while its last_exported date remains unchanged.
     - `schedule` - `string` - a cron style schedule defining what time and frequency a crawler should run, e.g `30 */6 * * *`
+    - Data sources that don't receive updates are marked `never` and must have their schedule defined otherwise (e.g. usually `coverage.schedule: @monthly` just to keep consistent with FTM updates). You may want to set `disabled: true` for sources that are not available any more so that the metadata can get published without attempting to crawl the source.
 
 ### Deployment
 
@@ -37,7 +38,7 @@ Use the `.yml` extension.
 ### Exports
 
 - `exports` - An array of strings matching the [export formats](https://www.opensanctions.org/docs/bulk/), e.g. `"targets.nested.json"`. The default is best for most cases.
-- `load_db_uri` - Should be `${OPENSANCTIONS_DATABASE_URI}` in most datasets. Used to define the database into which statements will be loaded to be accessed from the statements API. It is not set for datasets including other datasets, or whose data isn't included in full in the main data products.
+- `load_statements` - Whether the statements should be loaded to a SQL table after the run. Usually `false` for collections and enrichment targets like company registries, and true for normal datasets and enrichers.
 
 ### Tags
 
@@ -80,7 +81,7 @@ You can find a full overview of available tags [here](https://www.opensanctions.
 HTTP requests for GET requests are automatically retried for connection and HTTP errors. Some of this retry behaviour can be configured from the dataset metadata if needed.
 
 - `http`
-    - `user_agent`: string, defaults to the value of the HTTP_USER_AGENT setting. Set a custom value for the `User-Agent` header if needed.
+    - `user_agent`: string, defaults to the value of the FTM_USER_AGENT setting. Set a custom value for the `User-Agent` header if needed.
     - `backoff_factor`: float, default `1`. [Scales the exponential backoff](https://urllib3.readthedocs.io/en/stable/reference/urllib3.util.html#urllib3.util.Retry.DEFAULT_ALLOWED_METHODS:~:text=with%20None.-,backoff_factor,-(float)%20%E2%80%93).
     - `max_retries`: integer in seconds, default `3`
     - `retry_methods`: List of strings, [default](https://urllib3.readthedocs.io/en/stable/reference/urllib3.util.html#urllib3.util.Retry.DEFAULT_ALLOWED_METHODS) `['DELETE', 'GET', 'HEAD', 'OPTIONS', 'PUT', 'TRACE']`

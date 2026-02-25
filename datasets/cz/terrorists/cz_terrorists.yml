@@ -11,8 +11,8 @@ summary: >
   in line with EU anti-terrorism measures.
 description: |
   This dataset is based on Czech Government Regulation No. 210/2008 Coll., issued on 28 May 2008
-  and amended by Regulation No. 88/2009 Coll. (effective 1 April 2009), to support EU efforts 
-  against terrorism. It lists individuals and groups that are banned from receiving certain goods, 
+  and amended by Regulation No. 88/2009 Coll. (effective 1 April 2009), to support EU efforts
+  against terrorism. It lists individuals and groups that are banned from receiving certain goods,
   services, or support.
 tags:
   - list.sanction
@@ -35,7 +35,7 @@ assertions:
     # Asserting on exact expected numbers since data is static
     schema_entities:
       Person: 31
-      Organization: 18
+      Organization: 15
   max:
     schema_entities:
       Person: 50

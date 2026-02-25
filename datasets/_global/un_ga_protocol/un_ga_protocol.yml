@@ -32,9 +32,19 @@ tags:
 data:
   url: https://www.un.org/dgacm/en/content/protocol/hshgnfa
   format: PDF
-
 dates:
   formats: ["%d-%b-%y"]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 450
+      Position: 450
+  max:
+    schema_entities:
+      Person: 1000
+      Position: 1000
+
 lookups:
   names:
     options:
@@ -44,21 +54,41 @@ lookups:
         value: ""
   type.date:
     options:
+      - match: Jul-21
+        value: 2021-07
+      - match: Jul-19
+        value: 2019-07
+      - match: Jul-24
+        value: 2024-07
+      - match: Feb-17
+        value: 2017-02
+      - match: Feb-23
+        value: 2023-02
+      - match: Nov-21
+        value: 2021-11
+      - match: Aug-19
+        value: 2019-08
+      - match: Feb-23
+        value: 2023-02
+      - match: Nov-21
+        value: 2021-11
+      - match: May-21
+        value: 2021-05
+      - match: 09-Jan-0721
+        value: 2007-01-09
       - match:
-          - Jul-21
-          - Jul-19
-          - Feb-17
-          - May-13
+          - 09-Sep-2227
+          - 09-Sep-2221
           - 09-Sep-2207
           - 09-Sep-2201
           - 09-Sep-2228
-          - 09-Jan-0721
-          - 09-Sep-2221
-        value: null
-  normalize_name:
+          - 09-Sep-220
+        value: 2022-09-09
+  override_name:
     lowercase: true
     normalize: true
     options:
       - match:
           - none
+          - "No Prime Minister"
         value: null

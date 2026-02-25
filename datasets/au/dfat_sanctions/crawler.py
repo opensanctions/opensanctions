@@ -1,7 +1,7 @@
 import string
 from collections import defaultdict
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any, Optional
 
 import openpyxl
 from normality import slugify
@@ -11,7 +11,24 @@ from zavod import Context
 from zavod import helpers as h
 
 SPLITS = [" %s)" % char for char in string.ascii_lowercase]
-ADDRESS_SPLITS = [";", "ii) ", "iii) "]
+ADDRESS_SPLITS = [
+    ";",
+    "ii) ",
+    "iii) ",
+    "a) ",
+    "b) ",
+    "c) ",
+    "d) ",
+    "_x000D_,",
+    "_x000D_\n",
+    "_x000D_",
+]
+PROVISION_FIELDS = [
+    "travel_ban",
+    "arms_embargo",
+    "maritime_restriction",
+    "targeted_financial_sanction",
+]
 
 # Each entry carries a reference and other names are listed as references with a letter attached
 # e.g. 101 for the primary name and 101a for the alias.
@@ -19,37 +36,33 @@ ADDRESS_SPLITS = [";", "ii) ", "iii) "]
 # (they're interrupted by other entries).
 
 
-def clean_date(date):
+def clean_date(date: str) -> list[str]:
     splits = [
-        "a)",
-        "b)",
-        "c)",
-        "d)",
-        "e)",
-        "f)",
-        "g)",
-        "h)",
-        "i)",
-        " or ",
-        " and ",
-        " to ",
-        "alt DOB:",
-        "alt DOB",
-        ";",
-        ">>",
         "Approximately",
-        "approximately",
-        "Approx",
-        "Between",
-        "circa",
-        "Circa",
+        ", and,",
+        " and ",
+        "g), ",
+        "h), ",
+        "i), ",
+        "j), ",
+        "g) ",
+        "h) ",
+        "i) ",
+        "j) ",
+        ", ",
+        " ,",
+        ",\xa0",
+        "\xa0",
+        # " ",
     ]
     dates = []
+    date_str = str(date).lower()
+    if " to " in date_str or "between" in date_str:
+        return [date_str]
     if isinstance(date, datetime):
         date = date.date().isoformat()
     if isinstance(date, int):
         date = str(date)
-    date = h.remove_bracketed(date)
     if date is None:
         return dates
     date = date.replace("\n", " ")
@@ -72,19 +85,15 @@ def clean_reference(ref: str) -> Optional[str]:
     raise ValueError()
 
 
-def clean_country(country: str) -> List[str]:
-    return h.multi_split(country, ["a)", "b)", "c)", "d)", ";", ",", " and "])
-
-
 def parse_reference(
-    context: Context, reference: int, rows: List[Dict[str, Any]]
+    context: Context, reference: str, rows: list[dict[str, Any]]
 ) -> None:
     schemata = set()
     for row in rows:
         type_ = row.pop("type")
         # Lookup by reference first to allow an override for references where there
         # are two conflicting type specs.
-        schema = context.lookup_value("type", str(reference))
+        schema = context.lookup_value("type", reference)
         if schema is None:
             schema = context.lookup_value("type", type_)
         if schema is None:
@@ -102,11 +111,13 @@ def parse_reference(
     entity = context.make(schemata.pop())
 
     primary_name: Optional[str] = None
-    names: List[Tuple[str, str]] = []
+    names: list[tuple[str, str]] = []
     for row in rows:
-        name = row.pop("name_of_individual_or_entity", None)
+        name = row.pop("name_of_individual_or_entity")
         name_type = row.pop("name_type")
         name_prop = context.lookup_value("name_type", name_type)
+        if row.pop("alias_strength") == "Weak":
+            name_prop = "weakAlias"
         if name_prop is None:
             context.log.warning("Unknown name type", name_type=name_type)
             return
@@ -134,53 +145,76 @@ def parse_reference(
             key=source_program,
             program_name=source_program,
             source_program_key=source_program,
-            program_key=h.lookup_sanction_program_key(context, source_program)
-            if source_program
-            else None,
+            program_key=(
+                h.lookup_sanction_program_key(context, source_program)
+                if source_program
+                else None
+            ),
         )
-        country = clean_country(row.pop("citizenship"))
+        country = h.multi_split(row.pop("citizenship"), [","])
         if entity.schema.is_a("Person"):
-            entity.add("nationality", country)
+            entity.add("citizenship", country)
         else:
             entity.add("country", country)
+        if entity.schema.properties.get("imoNumber"):
+            entity.add("imoNumber", row.pop("imo_number"))
         dates = clean_date(row.pop("date_of_birth"))
-        if dates != ["na"]:
-            h.apply_dates(entity, "birthDate", dates)
-        entity.add("birthPlace", row.pop("place_of_birth"), quiet=True)
-        entity.add("notes", h.clean_note(row.pop("additional_information")))
+        h.apply_dates(entity, "birthDate", dates)
+        pob = row.pop("place_of_birth")
+        entity.add("birthPlace", h.multi_split(pob, SPLITS + ["a) "]), quiet=True)
+        notes = h.clean_note(row.pop("additional_information"))
+        if notes:
+            entity.add("notes", (note.replace("_x000D_", "") for note in notes))
         listing_info = row.pop("listing_information")
         if isinstance(listing_info, datetime):
-            entity.add("createdAt", listing_info)
+            h.apply_date(entity, "createdAt", listing_info)
             sanction.add("listingDate", listing_info)
         else:
-            sanction.add("summary", listing_info)
+            sanction.add(
+                "summary", listing_info.replace("_x000D_", "") if listing_info else None
+            )
+        designation_instrument = row.pop("instrument_of_designation")
+        # designation instrument is very often the same as listing info
+        if designation_instrument and designation_instrument != listing_info:
+            sanction.add("summary", designation_instrument)
         # TODO: consider parsing if it's not a datetime?
-
+        for field in PROVISION_FIELDS:
+            if row.pop(field):  # Boolean field indicating if the sanction applies
+                # Convert the field name into a readable label, e.g. "arms_embargo" → "Arms embargo"
+                sanction.add("provisions", field.replace("_", " ").capitalize())
         control_date = row.pop("control_date")
-        sanction.add("startDate", control_date)
-        entity.add("createdAt", control_date)
-        context.audit_data(row, ignore=["reference"])
+        h.apply_date(sanction, "startDate", control_date)
+        h.apply_date(entity, "createdAt", control_date)
+        context.audit_data(
+            row,
+            ignore=["reference"],
+        )
 
     entity.add("topics", "sanction")
     context.emit(entity)
     context.emit(sanction)
 
 
-def crawl(context: Context):
+def hash_row(row: dict[str, Any]) -> int:
+    """Hash a row to detect duplicates."""
+    return hash(tuple((k, v) for k, v in sorted(row.items())))
+
+
+def crawl(context: Context) -> None:
     path = context.fetch_resource("source.xlsx", context.data_url)
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
 
     workbook: openpyxl.Workbook = openpyxl.load_workbook(path, read_only=True)
     references = defaultdict(list)
-    raw_references: Set[str] = set()
-    reference_blocks_seen_count: Dict[str, int] = dict()
+    raw_references: dict[str, dict[str, Any]] = dict()
+    reference_blocks_seen_count: dict[str, int] = dict()
     last_clean_ref = None
     for sheet in workbook.worksheets:
-        headers: Optional[List[str]] = None
-        for row_num, row in enumerate(sheet.rows):
-            cells = [c.value for c in row]
+        headers: Optional[list[str]] = None
+        for row_num, raw_row in enumerate(sheet.rows):
+            cells = [c.value for c in raw_row]
             if headers is None:
-                headers = [slugify(h, sep="_") for h in cells]
+                headers = [slugify(h, sep="_") or "" for h in cells]
                 continue
             row = dict(zip(headers, cells))
 
@@ -188,7 +222,9 @@ def crawl(context: Context):
             raw_ref = row.get("reference")
             context.log.debug("Parsing row", row_num=row, raw_ref=raw_ref)
             if raw_ref is None:
-                row_values = {v.strip() or None for v in row.values() if v is not None}
+                row_values = {
+                    str(v).strip() or None for v in row.values() if v is not None
+                }
                 if row_values and row_values != {None}:
                     context.log.warning("No reference", row=row)
                 continue
@@ -229,9 +265,10 @@ def crawl(context: Context):
                 raw_ref = f"{raw_ref}-{reference_seen_count}"
 
             # Sanity check that this raw reference isn't duplicated within its clean ref block.
-            if raw_ref in raw_references:
-                raise ValueError("Duplicate reference: %s" % raw_ref)
-            raw_references.add(raw_ref)
+            seen_row = raw_references.get(raw_ref)
+            if seen_row is not None and hash_row(row) != hash_row(seen_row):
+                context.log.warning("Duplicate reference", raw_ref=raw_ref)
+            raw_references[raw_ref] = row
 
             references[reference].append(row)
 

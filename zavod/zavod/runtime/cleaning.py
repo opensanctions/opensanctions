@@ -5,9 +5,12 @@ from rigour.ids import get_identifier_format
 from rigour.names import is_name
 from prefixdate.precision import Precision
 from followthemoney import registry, Property, model
+from followthemoney.statement.util import NON_LANG_TYPE_NAMES
 
 from zavod.logs import get_logger
-from zavod.runtime.lookups import prop_lookup
+from zavod.runtime.lookups import is_type_lookup_value, prop_lookup
+from zavod.runtime.safety import check_xss_html_smell
+
 
 if TYPE_CHECKING:
     from zavod.entity import Entity
@@ -46,7 +49,8 @@ def clean_identifier(prop: Property, value: str) -> Optional[str]:
     normalized: Optional[str] = value
     if prop.format in VALIDATE_FORMATS:
         format_ = get_identifier_format(prop.format)
-        normalized = format_.normalize(value)
+        if format_ is not None:
+            normalized = format_.normalize(value)
     if normalized is None:
         log.warning(
             f"Failed to validate {prop.format} identifier: {value}",
@@ -66,6 +70,14 @@ def value_clean(
     fuzzy: bool = False,
     format: Optional[str] = None,
 ) -> Generator[Tuple[Property, str], None, None]:
+    if prop.deprecated:
+        log.warning(
+            "Deprecated property used: %s" % prop.name,
+            entity_id=entity.id,
+            schema=entity.schema.name,
+            prop=prop.name,
+        )
+
     for prop_, item in prop_lookup(entity, prop, value):
         clean: Optional[str] = item
         if not cleaned:
@@ -78,6 +90,15 @@ def value_clean(
                     fuzzy=fuzzy,
                     format=format,
                 )
+
+        # Do not check non-text properties
+        # We use NON_LANG_TYPE_NAMES as a proxy for "non-freetext" properties
+        # That's not beautiful, but it works.
+        if clean is not None and prop.type not in NON_LANG_TYPE_NAMES:
+            clean = check_xss_html_smell(
+                entity, prop_, raw_value=value, cleaned_value=clean
+            )
+
         # We validate Person:*Name properties as names cause they're strings
         # in the FtM model.
         # See https://github.com/opensanctions/followthemoney/issues/71
@@ -86,14 +107,26 @@ def value_clean(
             prop_.type == registry.name or prop_ in VALIDATE_AS_NAME_PROPS
         ) and clean is not None:
             clean = unicodedata.normalize("NFC", clean)
-            if entity.schema.is_a("LegalEntity") and not is_name(clean):
-                log.warning(
-                    f"Property value {prop_.name!r} is not a valid name: {value}",
-                    entity_id=entity.id,
-                    value=value,
-                    clean=clean,
-                )
-                continue
+
+            # FIXME: this is a work-around to introduce the abbreviation prop.
+            # It should be ready to go out in Q3/Q4 2026. See:
+            # https://github.com/opensanctions/opensanctions/issues/3297
+            if prop_.name == "abbreviation" and clean is not None:
+                weak_prop = entity.schema.get("weakAlias")
+                if weak_prop is not None:
+                    yield weak_prop, clean
+                # Allow abbreviations that are not valid names
+
+            elif entity.schema.is_a("LegalEntity") and not is_name(clean):
+                if not is_type_lookup_value(entity, registry.name, item):
+                    log.warning(
+                        f"Property value {value!r} is not a valid name.",
+                        entity_id=entity.id,
+                        value=value,
+                        clean=clean,
+                        prop=prop_.name,
+                    )
+                    continue
         if prop_.type == registry.date and clean is not None:
             # none of the information in OpenSanctions is time-critical
             clean = clean[: Precision.DAY.value]
@@ -108,14 +141,17 @@ def value_clean(
                 )
                 # clean = clean[: prop.type.max_length]
 
-            # FIXME at 2025-12-01: We're emitting USCC codes *both* in the usccCode
-            # and registrationNumber props (where they used to live). See
-            # https://github.com/opensanctions/opensanctions/issues/2542 to track
-            # removal of this.
-            if prop_.format == "uscc":
-                fallback_prop = entity.schema.get("registrationNumber")
-                if fallback_prop is not None:
-                    yield fallback_prop, clean
+            # This is not a general restriction on addresses that should be in FtM,
+            # but rather a smell that can indicate a crawler bug.
+            if prop_.type == registry.address and len(clean) <= 3:
+                if not is_type_lookup_value(entity, registry.address, item):
+                    log.warning(
+                        f"Property for {prop_.name} looks too short for an address: {value}",
+                        entity_id=entity.id,
+                        prop=prop.name,
+                        value=value,
+                        clean=clean,
+                    )
 
             yield prop_, clean
             continue

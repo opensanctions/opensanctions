@@ -59,13 +59,6 @@ data:
   format: HTML
   lang: eng
 
-exports:
-  - statistics.json
-  - entities.delta.json
-  - entities.ftm.json
-  - names.txt
-  - senzing.json
-
 assertions:
   min:
     schema_entities:

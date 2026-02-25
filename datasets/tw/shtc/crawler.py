@@ -1,11 +1,24 @@
+# How to review data reviews from this crawler:
+# =============================================
+#
+# The prefix 簡體中文： indicates that the name is in Simplified Chinese.
+# This will be stripped from the suggested data. Accept as is - we don't
+# support language annotations in the result data yet.
+
 import csv
 import re
-from typing import List, Optional, Tuple
+from typing import Set
+
 import datapatch
 from rigour.mime.types import CSV
+from zavod.extract.names.clean import Names
+from zavod.extract.zyte_api import fetch_html
+from zavod.stateful.review import (
+    assert_all_accepted,
+)
 
-from zavod import Context, helpers as h, Entity
-from zavod.shed.zyte_api import fetch_html
+from zavod import Context, Entity
+from zavod import helpers as h
 
 ADDRESS_SPLITS = [
     ";",
@@ -34,14 +47,11 @@ ADDRESS_SPLITS = [
     "Branch Office 15:",
     "Branch Office 16:",
 ]
-NAME_SPLITS = [
-    ";",
+NAME_CHINESE = [
     "繁體中文：",  # Traditional Chinese:
     "簡體中文：",  # Simplified Chinese:
 ]
 PERMANENT_ID_RE = re.compile(r"^(?P<name>.+?)（永久參考號：(?P<unsc_num>.+?)）$")
-# This is not trying to be secure against XSS, it's just basic cleaning of html from a CSV string
-HTML_RE = re.compile(r"<[^>]+>")
 
 
 def contains_part(part: str, name: str) -> bool:
@@ -63,71 +73,136 @@ def apply_details_override(
     entity.add("phone", details.get("telephone"))
 
 
-def clean_names(
-    context: Context, names_str: str, aliases_str: str
-) -> Tuple[List[str], List[str], List[str], Optional[str]]:
-    names = []
-    aliases = []
-    unsc_num = None
-
+def parse_names(
+    context: Context, item_num: str, entity: Entity, names_raw: str, aliases_raw: str
+):
+    primary_name = names_raw.strip()
     # Deal with UNSC numbers in names
-    perm_id_match = PERMANENT_ID_RE.match(names_str)
+    perm_id_match = PERMANENT_ID_RE.match(primary_name)
     if perm_id_match:
-        names_str = perm_id_match.group("name")
+        primary_name = perm_id_match.group("name").strip()
         unsc_num = perm_id_match.group("unsc_num")
-    if "永久參考號" in names_str:
+        if unsc_num is not None and len(unsc_num) > 3:
+            sanction = h.make_sanction(context, entity)
+            sanction.add("unscId", unsc_num)
+            context.emit(sanction)
+
+    if "永久參考號" in primary_name:
         context.log.warning(
-            "Failed to separate name and UNSC number", names_str=names_str
+            "Failed to separate name and UNSC number", names_raw=names_raw
         )
 
-    names_str = HTML_RE.sub("", names_str)
-    aliases_str = HTML_RE.sub("", aliases_str)
+    aliases_str = aliases_raw.replace("<span   id='alias'>", "")
+    aliases_str = aliases_str.replace("；", ";")  # Chinese semicolon
+    primary_name = primary_name.replace("；", ";")  # Chinese semicolon
+    needs_review = False
 
-    split_names = h.multi_split(names_str, NAME_SPLITS)
-    # initially just add multipart names
-    names.extend([name for name in split_names if len(name.split()) > 1])
-    single_part_names = [name for name in split_names if len(name.split()) == 1]
+    if " alias:" in primary_name:
+        primary_name, aliases_in_names_str = primary_name.split(" alias:", 1)
+        aliases_in_names_str = aliases_in_names_str.strip()
+        if aliases_in_names_str != aliases_str:
+            context.log.warning(
+                "Found aliases in names string, but they are not the same as the aliases in the aliases string. "
+                "Please check if we need to re-work the crawler to also add aliases from the names string.",
+                aliases_in_names_str=aliases_in_names_str,
+                aliases_str=aliases_str,
+            )
 
-    split_aliases = h.multi_split(aliases_str, NAME_SPLITS)
-    # initially just add multipart aliases
-    aliases.extend([alias for alias in split_aliases if len(alias.split()) > 1])
-    single_part_aliases = [alias for alias in split_aliases if len(alias.split()) == 1]
+    original_names = Names(name=primary_name, alias=aliases_str)
+    suggested_names = Names(alias=[])
+    # TODO (JD Bothma): Add Chinese names as LangText.
+    # We're adding names indicated to be Chinese (zho) to the suggested names
+    # without language information until we add LangText support to the Names structure.
+    # There are about 170 items with this annotation.
+    # In the meantime, if the same property is used by an accepted review, the
+    # statement with lang=zho persists.
 
-    for name in single_part_names:
-        # Skip single part names that are already in multipart names,
-        # e.g. Abdul in Abdul Kader
-        if any(contains_part(name, added) for added in names):
+    for split in NAME_CHINESE:
+        split = f"; {split}"
+        if split in primary_name:
+            primary_name, chinese_name = primary_name.split(split, 1)
+            entity.add("alias", chinese_name.strip(), lang="zho")
+            suggested_names.alias.append(chinese_name.strip())
+
+    aliases: Set[str] = set()
+    weak_aliases: Set[str] = set()
+    for alias in aliases_str.split(";"):
+        alias = alias.strip()
+        if len(alias) == 0:
             continue
-        # Prefer putting single-part names that also occur in aliases into aliases
-        if name in single_part_aliases:
-            continue
-        names.append(name)
+        for split in NAME_CHINESE:
+            splitted = alias.split(split, 1)
+            if len(splitted) > 1:
+                _, chinese_alias = splitted
+                entity.add("alias", chinese_alias.strip(), lang="zho")
+                suggested_names.alias.append(chinese_alias.strip())
+                break
+        else:
+            if len(alias) < 8:
+                # Demote alias to weakAlias
+                needs_review = True
+                weak_aliases.add(alias)
+                continue
 
-    for alias in single_part_aliases:
-        # Skip single part alises that are already in a multipart name or alias
-        if any(contains_part(alias, added) for added in names):
-            continue
-        if any(contains_part(alias, added) for added in aliases):
-            continue
-        aliases.append(alias)
+            if " " not in alias:
+                needs_review = True
 
-    return names, aliases, unsc_num
+            spec = context.dataset.names.get_spec(entity.schema)
+            reject_chars = spec.reject_chars_consolidated
+            if reject_chars.intersection(set(alias)):
+                needs_review = True
+
+            aliases.add(alias)
+
+    # Promote the longest alias to primary name if
+    # - it doesn't contain spaces,
+    # - and it contains the current primary name.
+    primary_name = primary_name.strip()
+    if " " not in primary_name and len(aliases):
+        prev_name = primary_name
+        longest_alias = max(aliases, key=len)
+        if len(longest_alias) > len(primary_name):
+            if primary_name not in longest_alias:
+                aliases.add(primary_name)
+            primary_name = longest_alias
+            context.log.info(
+                "Promoting longest alias to name",
+                name=primary_name,
+                prev_name=prev_name,
+            )
+            needs_review = True
+
+    suggested_names.name = primary_name
+    suggested_names.alias.extend(aliases)
+    suggested_names.weakAlias = list(weak_aliases)
+
+    h.apply_reviewed_names(
+        context,
+        entity,
+        original=original_names,
+        suggested=suggested_names,
+        default_accepted=not needs_review,
+    )
 
 
 def crawl_row(context: Context, row):
-    names_str = row.pop("名稱name")
-    aliases_str = row.pop("別名alias")
-    if not any([names_str, aliases_str]):
+    # Running number, too unstable to build and ID from.
+    item_num = row.pop("項次item", None)
+    assert item_num is not None, "Missing item number"
+    names_str = row.pop("名稱name").strip()
+    aliases_str = row.pop("別名alias").strip()
+    if len(names_str) == 0 and len(aliases_str) == 0:
         return
 
     entity = context.make("LegalEntity")
     entity.id = context.make_id(names_str, aliases_str)
 
-    names, aliases, unsc_num = clean_names(context, names_str, aliases_str)
-    entity.add("name", names)
-    entity.add("alias", aliases)
+    parse_names(context, item_num, entity, names_str, aliases_str)
 
     for address in h.multi_split(row.pop("地址address"), ADDRESS_SPLITS):
+        if len(address) == 2:
+            entity.add("country", address)
+            continue
         # Generic override to map more details in the address field
         details_lookup_result = context.lookup("details", address)
         if details_lookup_result is not None:
@@ -147,19 +222,8 @@ def crawl_row(context: Context, row):
         entity.add("country", country)
     entity.add("topics", "export.control")
 
-    if unsc_num:
-        sanction = h.make_sanction(context, entity)
-        sanction.add("unscId", unsc_num)
-        context.emit(sanction)
-
     context.emit(entity)
-    context.audit_data(
-        row,
-        [
-            # Running number, too unstable to build and ID from.
-            "項次item"
-        ],
-    )
+    context.audit_data(row)
 
 
 def crawl(context: Context):
@@ -184,3 +248,6 @@ def crawl(context: Context):
     with open(path, "rt", encoding="utf-8-sig") as infh:
         for row in csv.DictReader(infh):
             crawl_row(context, row)
+
+    # TODO: Stop raising once we're through the initial bunch of reviews.
+    assert_all_accepted(context, raise_on_unaccepted=True)

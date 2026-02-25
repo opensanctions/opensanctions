@@ -7,11 +7,12 @@ coverage:
   end: 2024-08-13
 deploy:
   schedule: "@monthly"
+resolve: false
 ci_test: false
 summary: >-
   List of companies registered in Georgia, sourced from the official Georgian Company Registry.
 description: |
-  This dataset contains detailed information about companies registered in Georgia. It includes 
+  This dataset contains detailed information about companies registered in Georgia. It includes
   the company name, registration date, legal address, legal form, director, and partner details.
 
   **Note:** It is a snapshot of the official Georgian Company Registry.
@@ -98,6 +99,42 @@ lookups:
       - match:
           - 16. პარტნიორის კომპანიასთან კავშირის საწყისი თარიღი
         value: partner_start_date
+
+  type.name:
+    options:
+      - match:
+          - .%
+          # - ".."
+          - "// .."
+          - "/ .."
+          - "//"
+          - "///82."
+          - "№)"
+          - "// (/)"
+          - ";"
+          - ")"
+          # - ". .."
+          # - "."
+          - "&"
+          - "№1"
+          - "№"
+          - "///16."
+        regex:
+          - "\\*\\*+"
+          - "[\\.\\s/]+"
+        value: null
+      - match: "696"
+        value: "696"
+      - match: "3.7.9."
+        value: "3.7.9."
+      - match: "555"
+        value: "555"
+      - match: "929"
+        value: "929"
+      - match: "2010"
+        value: "2010"
+      - match: "7777777"
+        value: "7777777"
 
   type.address:
     options:
@@ -220,6 +257,8 @@ lookups:
       - match:
           - "ლიბიის არაბთა ჯამაჰირია" # Libya's Arab Jamahiriya
         value: Libya
+      - match: ლიეტუვა
+        value: Lithuania
       - match:
           - "კრიტიკული" # Critical
           - "ღოლამრეზა შიროუჟან"

@@ -17,14 +17,14 @@ def crawl_sec_row(context: Context, row: Dict[str, str]):
     entity.add("leiCode", row.pop("lei"))
     entity.add("permId", row.pop("perm_id"))
 
-    security = context.make("Security")
-    isin = row.pop("isin")
-    security.id = f"isin-{isin}"
-    security.add("isin", isin)
-    security.add("issuer", entity)
+    if isin := row.pop("isin", None):
+        security = context.make("Security")
+        security.id = f"isin-{isin}"
+        security.add("isin", isin)
+        security.add("issuer", entity)
+        context.emit(security)
 
     context.emit(entity)
-    context.emit(security)
     context.audit_data(row)
 
 

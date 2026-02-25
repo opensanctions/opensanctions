@@ -44,16 +44,16 @@ assertions:
     schema_entities:
       Person: 3430
       Organization: 950
-      LegalEntity: 40
+      LegalEntity: 28
       Vessel: 35
-      Company: 50
+      Company: 100
   max:
     schema_entities:
       Person: 8070
       Organization: 2240
-      LegalEntity: 120
+      LegalEntity: 80
       Vessel: 80
-      Company: 120
+      Company: 150
 
 lookups:
   sanction.program:
@@ -61,6 +61,7 @@ lookups:
       - contains:
           - art L. 562-3 du code monétaire et financier
           - art L. 562-2 du code monétaire et financier
+          - art L. 562-2-1 du code monétaire et financier
         value: "FR-CMF-562"
       - contains: "ONU République démocratique du Congo - RCSNU 1533 (2004) et R (CE) 1183/2005"
         value: UN-SC1533
@@ -78,6 +79,8 @@ lookups:
         value: UN-SC1970
       - contains: "ONU Irak - RCSNU 1518 (2003) et R (CE) 1210/2003"
         value: UN-SC1518
+      - contains: "ONU Iran prolifération - RCSNU 1737 (2006) et suivantes"
+        value: UN-SC1737
       - contains: "ONU République centrafricaine - RCSNU 2127 (2013) et R (UE) 224/2014"
         value: UN-SC2127
       - contains: "ONU Soudan du sud - RCSNU 2206 (2015)  et R (UE) 2015/735"
@@ -156,12 +159,26 @@ lookups:
           - fr-ga-5143
           - fr-ga-5142
         value: Vessel
+      - match:
+          - fr-ga-8393
+        value: Organization
   type.address:
     lowercase: true
     options:
       - match:
           - Qatar
         value: null
+      - match:
+          - "3rd Km of Khalaj Road, Seyyedi Street, Mashad 91638, Iran, Km 4 of Khalaj Road, End of Seyedi Street, Mashad, Iran, P.O. Box 91735-549, Mashad, Iran, Khalaj Rd., End of Seyyedi Alley, Mashad, Iran, Moqan St., Pasdaran St., Pasdaran Cross Rd., Téhéran, Iran."
+          - "3rd Km of Khalaj Road, Seyyedi Street, Mashad 91638, Iran; Km 4 of Khalaj Road, End of Seyedi Street, Mashad, Iran; P.O. Box 91735-549, Mashad, Iran; Khalaj Rd., End of Seyyedi Alley, Mashad, Iran; Moqan St., Pasdaran St., Pasdaran Cross Rd., Téhéran, Iran."
+        values:
+          - 3rd Km of Khalaj Road, Seyyedi Street, Mashad 91638, Iran
+          - Km 4 of Khalaj Road, End of Seyedi Street, Mashad, Iran
+          - P.O. Box 91735-549, Mashad, Iran
+          - Khalaj Rd., End of Seyyedi Alley, Mashad, Iran
+          - Moqan St., Pasdaran St., Pasdaran Cross Rd., Téhéran, Iran.
+      - match: Gao
+        value: Gao
   type.email:
     options:
       - contains: hotelminsk@udp.gov.by
@@ -186,8 +203,12 @@ lookups:
         value: RU
   type.identifier:
     options:
-      match: 644101001  # listed as INN, is actually a KPP
-      value: null
+      - match: "BMJIIRT"
+        value: BMJIIRTH # BANK MARKAZI JOMHOURI ISLAMI IRAN
+      - match:
+          - 5878431
+          - 644101001
+        prop: registrationNumber
   identification_segment:
     lowercase: true
     normalize: true
@@ -197,6 +218,7 @@ lookups:
           - "Numero"
           - "n°"
           - "No"
+          - "numéro d'identification fiscale)"
         value: null
       # Sometimes leftover from "NIF/INN"
       - match: "NIF"
@@ -541,6 +563,9 @@ lookups:
       - match: "Lieu d'enregistrement: Biélorussie"
         props:
           jurisdiction: by
+      - match: "Lieu d'enregistrement: Crimée"
+        props:
+          jurisdiction: ua-cri
       - match: "Date de création: 1989"
         props:
           incorporationDate: 1989
@@ -581,7 +606,11 @@ lookups:
         props:
           jurisdiction: tr
           address: "Istanbul"
-      - match: ["Lieu d'enregistrement: Dubaï, Émirats arabes unis", "Lieu d'enregistrement: Émirats arabes unis"]
+      - match:
+          [
+            "Lieu d'enregistrement: Dubaï, Émirats arabes unis",
+            "Lieu d'enregistrement: Émirats arabes unis",
+          ]
         props:
           jurisdiction: ae
       - match: "Numéro de licence locale: 2420576.01"
@@ -712,7 +741,240 @@ lookups:
         props:
           jurisdiction: ru
           address: "Saint-Pétersbourg, Fédération de Russie"
-
+      - match: "Entités associées: PAO Sovcomflot (société mère)"
+        associates:
+          - PAO Sovcomflot (société mère)
+      - match: "Lieu d'enregistrement: Fédération de Russie, région de Tula, Tula"
+        props:
+          jurisdiction: ru
+          address: "Fédération de Russie, région de Tula, Tula"
+      - match: "Type d'entité: société par actions cotée"
+        props:
+          legalForm: société par actions cotée
+      - match: "Lieu d'enregistrement: Tula, Russie"
+        props:
+          jurisdiction: ru
+          address: "Tula, Russie"
+      - match: "Principal établissement: Russie: Numéro d'enregistrement: 1027100592210"
+        props:
+          jurisdiction: ru
+          registrationNumber: 1027100592210
+      - match: "Lieu d'enregistrement: 428903, Fédération de Russie, république de Tchouvachie, Cheboksary, pr. I.Yakovleva, 4"
+        props:
+          jurisdiction: ru
+          address: "428903, Fédération de Russie, république de Tchouvachie, Cheboksary, pr. I.Yakovleva, 4"
+      - match: "Numéro d'enregistrement: 1112130013270: Numéro d'enregistrement: 1112130013270"
+        props:
+          registrationNumber: 1112130013270
+      - match: "Principal établissement: régions de Zaporijjia et de Kherson occupées par la Russie"
+        props:
+          jurisdiction: ru
+      - match: "NIF: 504501388297)"
+        props:
+          innCode: 504501388297
+      - match: "Type d'entité: entreprise fédérale d'État"
+        props:
+          legalForm: entreprise fédérale d'État
+      - match: "Lieu d'enregistrement: Perm, région de Perm, Fédération de Russie"
+        props:
+          jurisdiction: ru
+          address: "Perm, région de Perm, Fédération de Russie"
+      - match: "KPP: 590801001 - Télécopieur: +7 (342) 255-77-43 - Site internet: www.bloki-perm.ru: 1025901604156"
+        schema: Company
+        props:
+          ogrnCode: 1025901604156
+          kppCode: 590801001
+      - match: "Principal établissement: Fédération de Russie - Télécopieur: +7 (492) 243-25-36"
+        props:
+          jurisdiction: ru
+      - match: "Lieu d'enregistrement: Caracas, Venezuela"
+        props:
+          jurisdiction: ve
+          address: "Caracas, Venezuela"
+      - match: "Type d'entité: société d'État chargée de la promotion du développement, de la production et de l'exportation de produits industriels de haute technologie “Rostec”"
+        props:
+          legalForm: société d'État
+          notes: société d'État chargée de la promotion du développement, de la production et de l'exportation de produits industriels de haute technologie “Rostec”
+      - match: "Numéro d'enregistrement: SRN: 1127746541427"
+        props:
+          registrationNumber: 1127746541427
+      - match: "KPP: 772601001 - Télécopieur: +7 (495) 311-01-91: 7726700943"
+        schema: Company
+        props:
+          kppCode: 772601001
+          innCode: 7726700943
+      - match: "Lieu d'enregistrement: Fédération de Russie, 620091, région de Sverdlovsk, Yekaterinburg, Kosmonavtov Ave., building 18"
+        props:
+          jurisdiction: ru
+          address: "Fédération de Russie, 620091, région de Sverdlovsk, Yekaterinburg, Kosmonavtov Ave., building 18"
+      - match: "Lieu d'enregistrement: Iran"
+        props:
+          jurisdiction: ir
+      - match: "Lieu d'enregistrement: Fédération de Russie, 125284, Moscou, Leningradskiy Prospekt, d. 31a, str. 1"
+        props:
+          jurisdiction: ru
+          address: "Fédération de Russie, 125284, Moscou, Leningradskiy Prospekt, d. 31a, str. 1"
+      - match: "Type d'entité: entreprise fédérale d'État"
+        props:
+          legalForm: entreprise fédérale d'État
+      - match: "Lieu d'enregistrement: Kuibyshev, région de Novosibirsk, Fédération de Russie"
+        props:
+          jurisdiction: ru
+          address: "Kuibyshev, région de Novosibirsk, Fédération de Russie"
+      - match: "Principal établissement: Kuibyshev, Fédération de Russie"
+        props:
+          jurisdiction: ru
+          address: "Kuibyshev, Fédération de Russie"
+      - match: "KPP: 545201001 - Télécopieur: +7 (383) 622-12-08"
+        schema: Company
+        props:
+          kppCode: 545201001
+      - match: "Industrial Zone, Ahwaz, Khouzistan, Iran"
+        props:
+          jurisdiction: ir
+          address: "Industrial Zone, Ahwaz, Khouzistan, Iran"
+      - match: "Lieu d'enregistrement: Saint-Pétersbourg et Moscou, Fédération de Russie"
+        props:
+          jurisdiction: ru
+          address: "Saint-Pétersbourg et Moscou, Fédération de Russie"
+      - match: "Date d'enregistrement: 31/07/2002: 1027739028712"
+        props:
+          incorporationDate: 2002-07-31
+          registrationNumber: 1027739028712
+      - match: "Lieu d'enregistrement: 630004, Ulitsa Lenina d. 52, Novossibirsk, Fédération de Russie"
+        props:
+          jurisdiction: ru
+          address: "630004, Ulitsa Lenina d. 52, Novossibirsk, Fédération de Russie"
+      - match: "Numéro d'enregistrement: IR30068GN / 10101920830"
+        props:
+          registrationNumber:
+            - IR30068GN
+            - 10101920830
+      - match: "Date d'enregistrement: 1999 (privatisée en 2009)"
+        props:
+          incorporationDate: 1999
+          notes: privatisée en 2009
+      - match: "Lieu d'enregistrement: Fédération de Russie, 105120, Moscou, Syromyatnichesky pr-d, 6 k.1"
+        props:
+          jurisdiction: ru
+          address: "Fédération de Russie, 105120, Moscou, Syromyatnichesky pr-d, 6 k.1"
+      - match: "CH-550.1.031.089-Numéro d’enregistrement"
+        props:
+          registrationNumber: CH-550.1.031.089
+      - match: "Lieu d'enregistrement: Fédération de Russie, 432030, région d'Ulyanovsk, ville d'Ulyanovsk, Narimanov Ave., 75"
+        props:
+          jurisdiction: ru
+          address: "Fédération de Russie, 432030, région d'Ulyanovsk, ville d'Ulyanovsk, Narimanov Ave., 75"
+      - match: "Lieu d'enregistrement: Fédération de Russie, région de Nizhny Novgorod, Nizhny Novgorod, st. Nartova, d. 6 k. 6, room 25 cab. 96"
+        props:
+          jurisdiction: ru
+          address: "Fédération de Russie, région de Nizhny Novgorod, Nizhny Novgorod, st. Nartova, d. 6 k. 6, room 25 cab. 96"
+      - match: "Principal établissement: Fédération de Russie, région de Nizhny Novgorod, Nizhny Novgorod"
+        props:
+          jurisdiction: ru
+          address: "Fédération de Russie, région de Nizhny Novgorod, Nizhny Novgorod"
+      - match: "Lieu d'enregistrement: Fédération de Russie, 129226, Moscou, Mira Avenue, 125"
+        props:
+          jurisdiction: ru
+          address: "Fédération de Russie, 129226, Moscou, Mira Avenue, 125"
+      - match: "Principal établissement: Fédération de Russie, Yekaterinburg"
+        props:
+          jurisdiction: ru
+          address: "Fédération de Russie, Yekaterinburg"
+      - match: "Lieu d'enregistrement: 300002, Fédération de Russie, Tula, Mosina str., 2"
+        props:
+          jurisdiction: ru
+          address: "300002, Fédération de Russie, Tula, Mosina str., 2"
+      - match: "Type d'entité: société par actions: 5087746137023"
+        props:
+          legalForm: société par actions
+          registrationNumber: 5087746137023
+      - match: "Lieu d'enregistrement: Fédération de Russie, région d'Omsk, Omsk, Karl Marx Avenue, 41"
+        props:
+          jurisdiction: ru
+          address: "Fédération de Russie, région d'Omsk, Omsk, Karl Marx Avenue, 41"
+      - match: "Lieu d'enregistrement: Fédération de Russie (Kraï de Krasnoyarsk., Zheleznogorsk, ul. Lenina, d. ZD. 52)"
+        props:
+          jurisdiction: ru
+          address: "Fédération de Russie (Kraï de Krasnoyarsk., Zheleznogorsk, ul. Lenina, d. ZD. 52)"
+      - match: "Lieu d'enregistrement: Fédération de Russie (115068, Moscou, Velozavodskaya st.,5)"
+        props:
+          jurisdiction: ru
+          address: "Fédération de Russie (115068, Moscou, Velozavodskaya st.,5)"
+      - match: "Lieu d'enregistrement: Moscou, Fédération de Russie (107450, Moscou, Myasnitskaya ul., 39/1)"
+        props:
+          jurisdiction: ru
+          address: "Moscou, Fédération de Russie (107450, Moscou, Myasnitskaya ul., 39/1)"
+      - match: "Lieu d'enregistrement: Moscou, Fédération de Russie (117525, Moscou, ul. Dnepropetrovskaya, D. 3, K. 5)"
+        props:
+          jurisdiction: ru
+          address: "Moscou, Fédération de Russie (117525, Moscou, ul. Dnepropetrovskaya, D. 3, K. 5)"
+      - match: "Numéro d'enregistrement: 7701005930 ("
+        props:
+          innCode: 7701005930
+      - match: "KPP: 773501001: 1157746406971"
+        props:
+          kppCode: 773501001
+          registrationNumber: 1157746406971
+      - match: "Entités associées: PSB Bank"
+        associates:
+          - PSB Bank
+      - match: "Type de société: Société à responsabilité limitée"
+        props:
+          legalForm: Société à responsabilité limitée
+      - match: "Gang haïtien basé dans le quartier de Village-de-Dieu, à Port-au-Prince"
+        props:
+          jurisdiction: ht
+          address: "Village-de-Dieu, Port-au-Prince, Haïti"
+      - match: "Lieu d’enregistrement: Viêt Nam"
+        props:
+          jurisdiction: vn
+      - match: "déclarée le 6 avril 2010 à la préfecture de l'Isère (38): numéro W381009783"
+        props:
+          registrationNumber: W381009783
+          incorporationDate: 2010-04-06
+      - match: "Date d’enregistrement: juin 2011"
+        props:
+          incorporationDate: 2011-06
+      - match: "Type d'entité: Entreprise privée"
+        props:
+          legalForm: Entreprise privée
+      - match: "Numéro d'identification national: 10102884046"
+        props:
+          idNumber: 10102884046
+      - match: "Numéro d'entreprise: 247799"
+        props:
+          registrationNumber: 247799
+      - match: "Lieu d'enregistrement: Sure-Esrafil St, Téhéran, Iran"
+        props:
+          address: Sure-Esrafil St, Téhéran, Iran
+          jurisdiction: ir
+      - match: "Numéro d’identification national: 10101382714"
+        props:
+          idNumber: 10101382714
+      - match: "Numéro à la chambre de commerce: 131454"
+        props:
+          registrationNumber: 131454
+      - match: "Type d'entité: Société privée à responsabilité limitée"
+        props:
+          legalForm: Société privée à responsabilité limitée
+      - match: "Numéro d’identification national: 10103503385"
+        props:
+          idNumber: 10103503385
+      - match: "Numéro d'identification national: 10102527140"
+        props:
+          idNumber: 10102527140
+      - match: "Numéro d’identification national: 10320862133"
+        props:
+          idNumber: 10320862133
+      - match: "Lieu d’enregistrement: Fars, Iran"
+        props:
+          address: "Fars, Iran"
+          jurisdiction: ir
+      - match: "Lieu: Province de Téhéran (Iran)"
+        props:
+          address: "Province de Téhéran (Iran)"
+          jurisdiction: ir
 
   ####################################################################################################
   ####################################################################################################
@@ -878,6 +1140,9 @@ lookups:
       - match: "SWIFT: ILSIKPPY"
         props:
           swiftBic: ILSIKPPY
+      - match: "Code SWIFT succursale de Kish Island: SCERIRTHKSH"
+        props:
+          swiftBic: SCERIRTHKSH
       - match: "(IOM): 59058C"
         props:
           imoNumber: 59058C
@@ -5184,3 +5449,632 @@ lookups:
           incorporationDate: 2023-07-16
         associates:
           - SODELIM
+      - match: "Autre dénomination: PEDEC. Numéro d’enregistrement: IR0000054377. Date d’enregistrement: 27.8.1980"
+        props:
+          registrationNumber: IR0000054377
+          incorporationDate: 1980-08-27
+        aliases:
+          - PEDEC
+      - match: "1368932 - Numéro d’identification fiscale (États-Unis)"
+        props:
+          taxNumber: 1368932
+          jurisdiction: us
+      - match: "4000000128233- Numéro d’enregistrement"
+        props:
+          registrationNumber: 4000000128233
+      - match: "Lieu d’enregistrement: Région de Volgograd, Volgograd, Fédération de Russie"
+        props:
+          address: "Région de Volgograd, Volgograd, Fédération de Russie"
+          jurisdiction: ru
+      - match: "IRL0000000024809 - Numéro d’enregistrement"
+        props:
+          registrationNumber: IRL0000000024809
+      - match: "IR915378784 - Numéro d’enregistrement"
+        props:
+          registrationNumber: IR915378784
+      - match: "Type d’entité: société par actions - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 14.10.2002 - Numéro d’enregistrement: 1027301482603 - Principal établissement: Fédération de Russie - Autres informations: INN/KPP 7303026762 / 732701001"
+        schema: Company
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          incorporationDate: 2002-10-14
+          ogrnCode: 1027301482603
+          innCode: 7303026762
+          kppCode: 732701001
+          address: Fédération de Russie
+      - match: "IR916378778 (Numéro d’enregistrement)"
+        props:
+          registrationNumber: IR916378778
+      - match: "Lieu d'enregistrement: Fédération de Russie, 420036, Republic of Tatarstan, Kazan, Dementyeva st., 1 - Type d'entité: société par actions - Date d'enregistrement: 26.11.2002 Principal établissement: Fédération de Russie: Numéro d'identification fiscale: 1661008339"
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          incorporationDate: 2002-11-26
+          innCode: 1661008339
+          address: "Fédération de Russie, 420036, Republic of Tatarstan, Kazan, Dementyeva st., 1"
+      - match: "Lieu d’enregistrement: Région de Bryansk, Bryansk, Fédération de Russie"
+        props:
+          address: "Région de Bryansk, Bryansk, Fédération de Russie"
+          jurisdiction: ru
+      - match: "Certificat d’inscription au registre du commerce, délivré en mars 2009: 5478431"
+        props:
+          registrationNumber: 5478431
+          incorporationDate: 2009-03
+      - match: "Numéro OMI attribué en 2009: 5878431"
+        props:
+          imoNumber: 5878431
+      - match: "02772297 - Numéro d’entreprise (Royaume Uni)"
+        props:
+          registrationNumber: 02772297
+          jurisdiction: gb
+      - match: "Autorisation commerciale (Bahreïn): 13388"
+        props:
+          registrationNumber: 13388
+          jurisdiction: bh
+      - match: "IR0000365670 - Numéro d’enregistrement"
+        props:
+          registrationNumber: IR0000365670
+      - match: "Autres dénominations: Maroun Oil and Gas Operations ou Maround Oil and Gas Production Co. ou MOGPC. Numéro d'enregistrement: IR0052586388. Date d'enregistrement: 2.12.1998"
+        props:
+          registrationNumber: IR0052586388
+          incorporationDate: 1998-12-02
+        aliases:
+          - Maroun Oil and Gas Operations
+          - Maround Oil and Gas Production Co.
+          - MOGPC
+      - match: "Lieu d'enregistrement: Fédération de Russie, 620024, Ekaterinburg, ulitsa Simkaya, d. 2 - Type d'entité: société par actions - Date d'enregistrement: 18.5.2009 - Principal établissement: Fédération de Russie - Numéro d’enregistrement: 1096674009332: Numéro d'identification fiscale: 6674331056"
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          incorporationDate: 2009-05-18
+          ogrnCode: 1096674009332
+          innCode: 6674331056
+          address: "Fédération de Russie, 620024, Ekaterinburg, ulitsa Simkaya, d. 2"
+      - match: "Type d'entité: société par actions - Lieu d'enregistrement: Fédération de Russie, Saint-Pétersbourg - Date d'enregistrement: 14.10.1993 Principal établissement: Fédération de Russie - Numéro d'identification fiscale: 7814027653 : Numéro d'enregistrement: 1027807560186"
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          incorporationDate: 1993-10-14
+          ogrnCode: 1027807560186
+          innCode: 7814027653
+          address: "Fédération de Russie, Saint-Pétersbourg"
+      - match: "382231 (Numéro d’enregistrement)"
+        props:
+          registrationNumber: 382231
+      - match: "Lieu d’enregistrement: Fédération de Russie (450022, République du Bashkortostan, Oufa, Mendeleev street, 134) - Date d’enregistrement: 12.8.2002 - Principal établissement: Fédération de Russie - Numéro d’enregistrement: 1020202551423: Numéro d'identification fiscale: 00274068924"
+        props:
+          jurisdiction: ru
+          incorporationDate: 2002-08-12
+          ogrnCode: 1020202551423
+          innCode: 0274068924
+          address: "Fédération de Russie (450022, République du Bashkortostan, Oufa, Mendeleev street, 134)"
+      - match: "Lieu d'enregistrement: 676811 oblast d’Amurskaya, Belogorskiy Rayon, Vozhaevka, Fédération de Russie - Date d’enregistrement: 25.5.2009 - Principal établissement: Fédération de Russie - Numéro d’enregistrement: 1092804000255: Numéro d'identification fiscale: 2811005250"
+        props:
+          jurisdiction: ru
+          incorporationDate: 2009-05-25
+          ogrnCode: 1092804000255
+          innCode: 2811005250
+          address: "676811 oblast d’Amurskaya, Belogorskiy Rayon, Vozhaevka, Fédération de Russie"
+      - match: "Type d’entité: société par actions - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 17.1.2003 - Principal établissement: Fédération de Russie - Autres informations: INN/KPP 5008011331/771701001 - Télécopieur: +7 (495) 909-83-73"
+        schema: Company
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          incorporationDate: 2003-01-17
+          innCode: 5008011331
+          kppCode: 771701001
+          address: Fédération de Russie
+      - match: "Type d’entité: société par actions - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 17.1.2003 - Principal établissement: Fédération de Russie - Autres informations: INN/KPP 5008011331/771701001 - Télécopieur: +7 (495) 909-83-73"
+        schema: Company
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          incorporationDate: 2003-01-17
+          innCode: 5008011331
+          kppCode: 771701001
+          address: Fédération de Russie
+      - match: "Type d’entité: entreprise unitaire publique fédérale - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 17.12.1992 - Numéro d’enregistrement: 1027401350932 - Principal établissement: Fédération de Russie - Autres informations: INN/KPP 7423000572 / 745901001 - Télécopieur: +8 (351) 465-22-33, +8 (351) 465-55-66"
+        schema: Company
+        props:
+          jurisdiction: ru
+          legalForm: entreprise unitaire publique fédérale
+          incorporationDate: 1992-12-17
+          ogrnCode: 1027401350932
+          innCode: 7423000572
+          kppCode: 745901001
+          address: Fédération de Russie
+      - match: "Type d’entité: société par actions non publique, propriété privée - Lieu d’enregistrement: Fédération de Russie, oblast de Vologda - Date d’enregistrement: 14.4.1994 - Numéro d’enregistrement: 1023500882437 - Principal établissement: Fédération de Russie - Autres informations: INN: 3525023010 OKPO: 07500548 KPP: 352501001"
+        schema: Company
+        props:
+          jurisdiction: ru
+          legalForm: société par actions non publique, propriété privée
+          incorporationDate: 1994-04-14
+          ogrnCode: 1023500882437
+          innCode: 3525023010
+          okpoCode: 07500548
+          kppCode: 352501001
+          address: "Fédération de Russie, oblast de Vologda"
+      - match: "Numéro d’enregistrement: HRB 81573"
+        props:
+          registrationNumber: HRB 81573
+      - match: "Numéro d’enregistrement - Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Moscou, Fédération de Russie - Date d’enregistrement: 18.8.2011 - Principal établissement: Fédération de Russie - Télécopieur: +7 (499) 608-90-03 - Numéro d’identification fiscale: 7718857267 - KPP: 770501001: 1117746641572"
+        schema: Company
+        props:
+          ogrnCode: 1117746641572
+          jurisdiction: ru
+          legalForm: société à responsabilité limitée
+          incorporationDate: 2011-08-18
+          innCode: 7718857267
+          kppCode: 770501001
+          address: "Moscou, Fédération de Russie"
+      - match: "Type d’entité: société par actions - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 17.11.2003 - Numéro d’enregistrement: 1037825058732 - Principal établissement: Fédération de Russie - Autres informations: INN/KPP 7811144648 / 781101001"
+        schema: Company
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          incorporationDate: 2003-11-17
+          ogrnCode: 1037825058732
+          innCode: 7811144648
+          kppCode: 781101001
+          address: Fédération de Russie
+      - match: "Numéros d'enregistrement: OGRN - Type d’entité: société par actions - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 27.9.2002 - Principal établissement: Fédération de Russie - Télécopieur: 742-35-87: 1025001627012"
+        schema: Company
+        props:
+          ogrnCode: 1025001627012
+          jurisdiction: ru
+          legalForm: société par actions
+          incorporationDate: 2002-09-27
+          address: Fédération de Russie
+      - match: "Type d'entité: société par actions. Lieu d'enregistrement: Oblast de Tcheliabinsk, Fédération de Russie. Date d'enregistrement: 22.6.2000. Numéro d'enregistrement: 1027400870826. Principal établissement: Russie. Numéro d’identification fiscale: 7415029289: Numéro d'enregistrement: 1027400870826"
+        schema: Company
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          incorporationDate: 2000-06-22
+          ogrnCode: 1027400870826
+          innCode: 7415029289
+          address: Oblast de Tcheliabinsk, Fédération de Russie
+      - match: "Lieu d'enregistrement: Fédération de Russie, 123298, Moscou, ulitsa Narodnogo Opolcheniya, d. 40, k. 2- Type d'entité: société à responsabilité limitée - Date d'enregistrement: 25.11.2002 - Principal établissement: Fédération de Russie - Numéro d’enregistrement: 1028601443034: Numéro d'identification fiscale: 8608049090"
+        schema: Company
+        props:
+          jurisdiction: ru
+          legalForm: société à responsabilité limitée
+          incorporationDate: 2002-11-25
+          ogrnCode: 1028601443034
+          innCode: 8608049090
+          address: "Fédération de Russie, 123298, Moscou, ulitsa Narodnogo Opolcheniya, d. 40, k. 2"
+      - match: "Lieu d'enregistrement: Fédération de Russie, 424003, République des Maris, Yoshkar-Ola, st. Suvorova, 15 - Date d'enregistrement: 18.4.2002 - Numéro d’enregistrement: 1021200757808 - Principal établissement: Fédération de Russie: Numéro d'identification fiscale: 1200001885"
+        schema: Company
+        props:
+          jurisdiction: ru
+          incorporationDate: 2002-04-18
+          ogrnCode: 1021200757808
+          innCode: 1200001885
+          address: "Fédération de Russie, 424003, République des Maris, Yoshkar-Ola, st. Suvorova, 15"
+      - match: "Numéro d’enregistrement: 1047422507736 ou 1127746188536"
+        props:
+          ogrnCode:
+            - 1047422507736
+            - 1127746188536
+      - match: "Numéro d’identification fiscale: 7449044990 ou 7715909132"
+        props:
+          innCode:
+            - 7449044990
+            - 7715909132
+      - match: "IR0000102447 - Numéro d’enregistrement"
+        props:
+          registrationNumber: IR0000102447
+      - match: "Type d'entité: société par actions - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 22.1.1993 (date d'enregistrement national: 16.6.2000) - Personne associée: Pavel Gennadievich Tochilin (directeur général) (NIF: 504501388297): Numéro d'enregistrement: 1025005917023"
+        schema: Company
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          incorporationDate: ["1993-01-22", "2000-06-16"]
+          ogrnCode: 1025005917023
+          innCode: 504501388297
+          address: Fédération de Russie
+        associates:
+          - Pavel Gennadievich Tochilin
+      - match:
+          - "SWIFT: REFAIRTH"
+          - "BIC: REFAIRTH"
+        props:
+          swiftBic: REFAIRTH
+      - match: "Autre dénomination: KEPCO"
+        props:
+          alias: KEPCO
+      - match: "Autre dénomination: Gacharsan Oil Gas Co"
+        props:
+          alias: Gacharsan Oil Gas Co
+      - match: "Autre dénomination: AOGC"
+        props:
+          alias: AOGC
+      - match: "Type d’entité: société par actions non publique - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 11.10.2002 - Numéro d’enregistrement: 1025001627859 - Principal établissement: Fédération de Russie - Autres informations: Numéro d’identification: 13185231 INN: 5013045054 KPP: 504001001 OGRN: 1025001627859"
+        schema: Company
+        props:
+          jurisdiction: ru
+          legalForm: société par actions non publique
+          incorporationDate: 2002-10-11
+          ogrnCode: 1025001627859
+          innCode: 5013045054
+          kppCode: 504001001
+          address: Fédération de Russie
+      - match: "Type d'entité: société par actions cotée. Lieu d'enregistrement: Fédération de Russie. Date d'enregistrement: 1992. Numéro d'enregistrement: 1027739555282. Numéro d’identification fiscale: 7734202860. Principal établissement: Fédération de Russie: Numéro d'enregistrement: 1027739555282"
+        schema: Company
+        props:
+          jurisdiction: ru
+          legalForm: société par actions cotée
+          incorporationDate: 1992
+          ogrnCode: 1027739555282
+          innCode: 7734202860
+          address: Fédération de Russie
+      - match: "IR0000047087 - Numéro d’enregistrement"
+        props:
+          registrationNumber: IR0000047087
+      - match: "SG199004388C - Numéro d’enregistrement: (Singapour)"
+        props:
+          registrationNumber: SG199004388C
+          jurisdiction: sg
+      - match: "Date d’enregistrement: 5.9.1990 (Singapour)"
+        props:
+          incorporationDate: 1990-09-05
+          jurisdiction: sg
+      - match: "Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 7.7.2005 - Numéro d’enregistrement: 1057747407398 - Principal établissement: Crimée - Télécopieur: +7 (495) 363-44-43 - Numéro d’identification fiscale: 7721533826 - KPP: 910201001"
+        schema: Company
+        props:
+          jurisdiction: ru
+          legalForm: société à responsabilité limitée
+          incorporationDate: 2005-07-07
+          ogrnCode: 1057747407398
+          innCode: 7721533826
+          kppCode: 910201001
+          address: Crimée
+      - match: "IR0000368792 - Numéro d’enregistrement"
+        props:
+          registrationNumber: IR0000368792
+      - match: "IR0052586382 - Numéro d’enregistrement"
+        props:
+          registrationNumber: IR0052586382
+      - match: "Code SWIFT succursale de Kish Island: SCERIRTH KSH"
+        props:
+          swiftBic: SCERIRTH KSH
+      - match: "Code SWIFT succursale de Dubaï: SCTSAEA1"
+        props:
+          swiftBic: SCTSAEA1
+      - match: "Code SWIFT succursale de Téhéran: SCERIRTH"
+        props:
+          swiftBic: SCERIRTH
+      - match: "IR0052586388 - Numéro d’enregistrement"
+        props:
+          registrationNumber: IR0052586388
+      - match: "03503060 - Numéro d’enregistrement (Royaume Uni)"
+        props:
+          registrationNumber: 03503060
+          jurisdiction: gb
+      - match: "CH-550.1.031.089-Numéro d’enregistrement"
+        props:
+          registrationNumber: CH-550.1.031.089
+      - match: "CHE-109.711.148 - Numéro de TVA"
+        props:
+          taxNumber: CHE-109.711.148
+      - match: "Fondée en 1995"
+        props:
+          incorporationDate: 1995
+      - match: "IR0022770444 - Numéro d’enregistrement"
+        props:
+          registrationNumber: IR0022770444
+      - match: "IR0000047088 - Numéro d’enregistrement"
+        props:
+          registrationNumber: IR0000047088
+      - match: "Numéro d'enregistrement - Type d’entité: société par actions - Lieu d’enregistrement: Fédération de Russie, région de Sverdlovsk, Yekaterinburg - Date d’enregistrement: 15.5.2009 - Principal établissement: Fédération de Russie, Yekaterinburg - Numéro d’identification fiscale: 6659190900 - KPP: 668601001 - Télécopieur: +7 (343) 352-46-32, +7 (343) 334-46-42, +7 (343) 336-71-20, +7 (343) 329-77-00 - Site internet: www.uraltransmash.com: 1096659005200"
+        schema: Company
+        props:
+          ogrnCode: 1096659005200
+          jurisdiction: ru
+          legalForm: société par actions
+          incorporationDate: 2009-05-15
+          innCode: 6659190900
+          kppCode: 668601001
+          address: "Fédération de Russie, région de Sverdlovsk, Yekaterinburg"
+      - match: "Type d'entité: établissement financier - SWIFT/BIC code: KHJBSDKH et 5040942458 - Principal établissement: Khartoum, Soudan"
+        props:
+          legalForm: établissement financier
+          swiftBic:
+            - KHJBSDKH
+          registrationNumber:
+            - 5040942458
+          address: Khartoum, Soudan
+      - match: "Télécopieur : +7 (495) 660-40-99; +7 (812) 385-94-49"
+        props:
+          phone:
+            - +7 (495) 660-40-99
+            - +7 (812) 385-94-49
+      - match: "Télécopieur: +7 (495) 785-08-88"
+        props:
+          phone: +7 (495) 785-08-88
+      - match: "Fax: 8890028"
+        props: []
+      - match: "Numéro d'enregistrement ; Type d'entité: société à responsabilité limitée ; Lieu d'enregistrement: Émirats arabes unis ; Date d'enregistrement: 1.4.2008 ; CBLS: 11395424: 5002444"
+        schema: Company
+        props:
+          registrationNumber: [5002444, 11395424]
+          legalForm: société à responsabilité limitée
+          jurisdiction: ae
+          incorporationDate: 2008-04-01
+      - match: "Numéro d'enregistrement ; Type d'entité: société par actions ; Lieu d'enregistrement: Sarapul, Fédération de Russie ; Date d'enregistrement: 10.2.1993 ; Numéro d'identification fiscale: 1827001683: 1021800992190"
+        schema: Company
+        props:
+          ogrnCode: 1021800992190
+          legalForm: société par actions
+          jurisdiction: ru
+          incorporationDate: 1993-02-10
+          innCode: 1827001683
+          address: Sarapul, Fédération de Russie
+      - match: "Numéro de licence commerciale:: 211000004009999"
+        props:
+          registrationNumber: 211000004009999
+      - match: "OGRN ; Type d'entité: société par actions ; Lieu d'enregistrement: Fédération de Russie ; Date d'enregistrement: 29.12.2010 ; Numéro d'identification fiscale: 6441019849: 1106441000951"
+        schema: Company
+        props:
+          ogrnCode: 1106441000951
+          legalForm: société par actions
+          jurisdiction: ru
+          incorporationDate: 2010-12-29
+          innCode: 6441019849
+          address: Fédération de Russie
+      - match: "Numéro d'enregistrement ; Type d'entité: société publique par actions ; Lieu d'enregistrement: Fédération de Russie ; Date d'enregistrement: 16.7.2002 ; Numéro d'identification fiscale: 2540047110 ; KPP: 770501001 ; Télécopieur: +7 495 780 6003 ; Site internet: www.fesco.com/en: 1022502256127"
+        schema: Company
+        props:
+          ogrnCode: 1022502256127
+          legalForm: société publique par actions
+          jurisdiction: ru
+          incorporationDate: 2002-07-16
+          innCode: 2540047110
+          kppCode: 770501001
+      - match: "PPC: 770501001"
+        props:
+          kppCode: 770501001
+      - match: "Principal lieu d'activité: Soi-disant “République populaire de Lougansk”"
+        props:
+          address: "Soi-disant “République populaire de Lougansk”"
+      - match: "Date d'enregistrement: 31.8.1995, 7.9.2002"
+        props:
+          incorporationDate: ["1995-08-31", "2002-09-07"]
+      - match: "Numéro OMI ; Type d'entité: société par actions ; Lieu d'enregistrement: Fédération de Russie ; Date d'enregistrement: 1937: 4032815"
+        schema: Company
+        props:
+          imoNumber: 4032815
+          legalForm: société par actions
+          jurisdiction: ru
+          incorporationDate: 1937
+      - match: "PPC: 771301001"
+        props:
+          kppCode: 771301001
+      - match: "Fax: +7 (495) 485-43-95; (495) 485-43-95"
+        props: []
+      - match: "Entités associées: Kalashnikov Concern"
+        associates:
+          - Kalashnikov Concern
+      - match: "Numéro d'enregistrement ; Type d'entité: société par actions ; Date d'enregistrement: 8.11.2011: 1112130014325"
+        schema: Company
+        props:
+          ogrnCode: 1112130014325
+          legalForm: société par actions
+          incorporationDate: 2011-11-08
+      - match: "Lieu d'enregistrement: Izhevsk, Fédération de Russie"
+        props:
+          address: Izhevsk, Fédération de Russie
+      - match: "Numéro d'enregistrement ; Type d'entité: société publique par actions ; Lieu d'enregistrement: Vladivostok, Fédération de Russie ; Date d'enregistrement: 1.8.2002 ; Numéro d'identification fiscale: 253900880: 1022502117505"
+        schema: Company
+        props:
+          ogrnCode: 1022502117505
+          legalForm: société publique par actions
+          jurisdiction: ru
+          incorporationDate: 2002-08-01
+          taxNumber: 253900880
+          address: Vladivostok, Fédération de Russie
+      - match: "Principal lieu d'activité: Soi-disant “République populaire de Donetsk”"
+        props:
+          address: "Soi-disant “République populaire de Donetsk”"
+      - match: "Principal établissement: République populaire de Chine"
+        props:
+          address: "République populaire de Chine"
+      - match: "Lieu d'enregistrement: Royaume-Uni"
+        props:
+          jurisdiction: gb
+      - match: "OGRN ; Type d'entité: société par actions ; Lieu d'enregistrement: Fédération de Russie ; Date d'enregistrement: 1.7.1998 ; Numéro d'identification fiscale: 1827013914: 1021800992124"
+        schema: Company
+        props:
+          ogrnCode: 1021800992124
+          legalForm: société par actions
+          jurisdiction: ru
+          incorporationDate: 1998-07-01
+          innCode: 1827013914
+          address: Fédération de Russie
+      - match: "Entités associées: PSB Bank; VEB.RF"
+        associates:
+          - PSB Bank
+          - VEB.RF
+      - match: "Lieu d'enregistrement: Kirghizstan"
+        props:
+          jurisdiction: kg
+      - match: "Numéro d'enregistrement: 311479-3301-ООО"
+        props:
+          registrationNumber: 311479-3301-ООО
+      - match: "Entité associée : PSB Bank"
+        associates:
+          - PSB Bank
+      - match: "Lieu d'enregistrement: Bichkek, Kirghizstan"
+        props:
+          address: Bichkek, Kirghizstan
+      - match: "Numéro d'enregistrement: 311748-3301-OOO"
+        props:
+          registrationNumber: 311748-3301-OOO
+      - match: "Adresses de portefeuille de chaîne de blocs connues: TNZxGWCwvsHr6JxQxzoeDXV597Yf7Zb7nV; TC8axQvzJEVR3NKN6mZnJtGy7537GEmh38; TEcuHDQthTmULe8fFLUccBPpjfXaTmJuuD"
+        wallets:
+          - currency: null
+            publicKey: TNZxGWCwvsHr6JxQxzoeDXV597Yf7Zb7nV
+          - currency: null
+            publicKey: TC8axQvzJEVR3NKN6mZnJtGy7537GEmh38
+          - currency: null
+            publicKey: TEcuHDQthTmULe8fFLUccBPpjfXaTmJuuD
+      - match: "Lieu d'enregistrement: Antilles néerlandaises; Belize; États-Unis d'Amérique"
+        props:
+          jurisdiction:
+            - an
+            - bz
+            - us
+      - match: "Numéro d'enregistrement ; Type d'entité: société à responsabilité limitée ; Lieu d'enregistrement: Fédération de Russie ; Date d'enregistrement: 19.2.2008: 1089847079630"
+        schema: Company
+        props:
+          registrationNumber: 1089847079630
+          legalForm: société à responsabilité limitée
+          jurisdiction: ru
+          incorporationDate: 2008-02-19
+      - match: "Numéro de TVA: GB202537249"
+        props:
+          taxNumber: GB202537249
+      - match: "Lieu d'enregistrement: États-Unis d'Amérique"
+        props:
+          jurisdiction: us
+      - match: "NIF, numéro d'identification fiscale - Lieu d'enregistrement: Bangui (République centrafricaine) - Date d'enregistrement: 24.10.2017 - Principal établissement: République centrafricaine - : succursale de M-Finans: M 354838 D 0001"
+        props:
+          registrationNumber: M 354838 D 0001
+          jurisdiction: Central African Republic
+          incorporationDate: 2017-10-24
+          address: Bangui (République centrafricaine)
+      - match: "personnes  et entités associées: Yevgeny Prigozhin (décédé), groupe  Wagner, Dimitri Sytii, Valery  Zakharov, Perfilev, Svetlana  Troitskaya, Lobaye Invest"
+        associates:
+          - Yevgeny Prigozhin
+          - groupe Wagner
+          - Dimitri Sytii
+          - Valery Zakharov
+          - Perfilev
+          - Svetlana Troitskaya
+          - Lobaye Invest
+      - match: "Lieu d’enregistrement: 106 Guangming Road, Urumqi, région autonome ouïgoure du Xinjiang (XUAR), Chine - Date d’enregistrement: avril 1984b- Principal établissement: Urumqi, région autonome ouïgoure du Xinjiang (XUAR), Chine: Type d’entité: agence gouvernementale"
+        schema: Company
+        props:
+          jurisdiction: cn
+          legalForm: agence gouvernementale
+          incorporationDate: 1984-04
+          address:
+            [
+              "106 Guangming Road, Urumqi, région autonome ouïgoure du Xinjiang (XUAR), Chine",
+              "Urumqi, région autonome ouïgoure du Xinjiang (XUAR), Chine",
+            ]
+      - match: "Personnes associées: Guangqiu YANG 杨光秋  (2.2017-2.2023)"
+        associates:
+          - Guangqiu YANG
+          - 杨光秋
+      - match: "Personne associée : Zhiyong GONG 龚志勇 (depuis  2.2023-); secrétaire du Parti communiste  chinois (PCC)/chef de la  polic publique du XPCC/inspecteur en chef du Bureau  de sécurité"
+        associates:
+          - Zhiyong GONG
+          - 龚志勇
+  addresses:
+    # Sometimes we can split on ; but sometimes it's just part of the address.
+    options:
+      - match: "Apt. No 7, 3rd Floor, No 2, 4th Alley, Gandi Ave., Téhéran (Iran); Qaem Magham Farahani St., Téhéran (Iran)"
+        addresses:
+          - Apt. No 7, 3rd Floor, No 2, 4th Alley, Gandi Ave., Téhéran (Iran)
+          - Qaem Magham Farahani St., Téhéran (Iran)
+      - match: "Adresse: 125212, Fédération de Russie, Moscou, Leningradskoye Shosse, 58;"
+        addresses:
+          - "125212, Fédération de Russie, Moscou, Leningradskoye Shosse, 58"
+      - match: "Kosmodamianskaya Naberezhnaya 24, Moscou, Russie 115035; bâtiment 1."
+        addresses:
+          - "Kosmodamianskaya Naberezhnaya 24, Moscou, Russie 115035; bâtiment 1."
+      - match: "1K Zavodzkaya St., bureau 36 Bolbasovo 211004 Biélorussie; 40 Nemiga St., bureau 304 Minsk 220004 Biélorussie"
+        addresses:
+          - "1K Zavodzkaya St., bureau 36 Bolbasovo 211004 Biélorussie"
+          - "40 Nemiga St., bureau 304 Minsk 220004 Biélorussie"
+      - match: "St. Dobroslobodskaya, 19; 105066, Moscou, Fédération de Russie"
+        addresses: "St. Dobroslobodskaya, 19, 105066, Moscou, Fédération de Russie"
+      - match: "No.1, Téhéran, Iranshahr Ave.Shadab. St, P.O.Box: 79145/3184; Iran"
+        addresses: "No.1, Téhéran, Iranshahr Ave.Shadab. St, P.O.Box: 79145/3184; Iran"
+      - match: "Sepah Islam Road, Karaj Special Road Km 10, Iran; Pasdaran Ave., P.O. Box 19585/777, Téhéran (Iran)"
+        addresses:
+          - "Sepah Islam Road, Karaj Special Road Km 10, Iran"
+          - "Pasdaran Ave., P.O. Box 19585/777, Téhéran (Iran)"
+      - match: "Adresse: Siège: Depenau 2, D-20095 Hambourg; Kish branch, Sanaee Avenue, PO Box 79415/148, Kish Island 79415"
+        addresses:
+          - "Siège: Depenau 2, D-20095 Hambourg"
+          - "Kish branch, Sanaee Avenue, PO Box 79415/148, Kish Island 79415"
+      - match: "Opp 7th Alley, Zarafshan St, Eivanak St, Qods Township; HTTS GmbH, Iran"
+        addresses: "Opp 7th Alley, Zarafshan St, Eivanak St, Qods Township; HTTS GmbH, Iran"
+      - match: "Unit 17, Fifth Floor, Yas Building, Number 116, Sheikh Fazlollah Highway, Teimuri Blvd, before Sharif University Metro Station, Téhéran, Iran;"
+        addresses: "Unit 17, Fifth Floor, Yas Building, Number 116, Sheikh Fazlollah Highway, Teimuri Blvd, before Sharif University Metro Station, Téhéran, Iran"
+      - match: "Unit 18, Fifth Floor, Yas Building, Number 116, Sheikh Fazlollah Highway, Teimuri Blvd, before Sharif University Metro Station, Téhéran, Iran;"
+        addresses: "Unit 18, Fifth Floor, Yas Building, Number 116, Sheikh Fazlollah Highway, Teimuri Blvd, before Sharif University Metro Station, Téhéran, Iran"
+      - match: "Unit 19, Fifth Floor, Yas Building, Number 116, Sheikh Fazlollah Highway, Teimuri Blvd, before Sharif University Metro Station, Téhéran 1459994450, Iran;"
+        addresses: "Unit 19, Fifth Floor, Yas Building, Number 116, Sheikh Fazlollah Highway, Teimuri Blvd, before Sharif University Metro Station, Téhéran 1459994450, Iran"
+      - match: "No. 47, East 18th Street, Farhang Boulevard, Sa'adat Abad, Téhéran 1997857976, Iran;"
+        addresses: "No. 47, East 18th Street, Farhang Boulevard, Sa'adat Abad, Téhéran 1997857976, Iran"
+      - match: "Unit 2, First Floor, EX35, Number 2, Exhibition Industrial Town, Kish Island 7941659854, Iran;"
+        addresses: "Unit 2, First Floor, EX35, Number 2, Exhibition Industrial Town, Kish Island 7941659854, Iran"
+      - match: "Kosmodamianskaya Naberezhnaya 24, Moscou, Russie 115035; bâtiment 1"
+        addresses: "Kosmodamianskaya Naberezhnaya 24, Moscou, Russie 115035; bâtiment 1"
+      - match: "18 Mehrshad Street, Sadaghat Street, en face du parc Mellat, Vali-e-Asr Ave., Téhéran (Iran); 265, à côté de Mehrshad, Sedaghat St., en face du parc Mellat, Vali-e-Asr Ave., Téhéran 1A001 (Iran)"
+        addresses:
+          - "18 Mehrshad Street, Sadaghat Street, en face du parc Mellat, Vali-e-Asr Ave., Téhéran (Iran)"
+          - "265, à côté de Mehrshad, Sedaghat St., en face du parc Mellat, Vali-e-Asr Ave., Téhéran 1A001 (Iran)"
+      - match: "Langare Street; Nobonyad Square, Téhéran"
+        addresses: "Langare Street; Nobonyad Square, Téhéran"
+      - match: "P.O. Box 91735-549, Mashad (Iran); Amin Industrial Estate, Khalage Rd., Seyedi District, Mashad (Iran); Kaveh Complex, Khalaj Rd., Seyedi St., Mashad (Iran)"
+        addresses:
+          - "P.O. Box 91735-549, Mashad (Iran)"
+          - "Amin Industrial Estate, Khalage Rd., Seyedi District, Mashad (Iran)"
+          - "Kaveh Complex, Khalaj Rd., Seyedi St., Mashad (Iran)"
+      - match: "Bobruysk, rue Kovzana 60, apt. 42;"
+        addresses: "Bobruysk, rue Kovzana 60, apt. 42"
+      - match: "3a Moyka River Embankment, Saint-Pétersbourg, 191186 Fédération de Russie; 6 Gasheka Street, Moscou, 125047 Fédération de Russie"
+        addresses:
+          - "3a Moyka River Embankment, Saint-Pétersbourg, 191186 Fédération de Russie"
+          - "6 Gasheka Street, Moscou, 125047 Fédération de Russie"
+      - match: "Next To Nirou Battery Mfg. Co, Shahid Babaii Expressway, Nobonyad Square, Téhéran, Iran; Pasdaran St., P.O. Box 16765, Téhéran 1835, Iran; Babaei Highway — Next to Niru M.F.G, Téhéran, Iran"
+        addresses:
+          - "Next To Nirou Battery Mfg. Co, Shahid Babaii Expressway, Nobonyad Square, Téhéran, Iran"
+          - "Pasdaran St., P.O. Box 16765, Téhéran 1835, Iran"
+          - "Babaei Highway —  Next to Niru M.F.G, Téhéran, Iran"
+      - match: "Noorderlaan 139, B-2030, Anvers, Belgique; numéro TVA : BE480224531 (Belgique)"
+        addresses: "Noorderlaan 139, B-2030, Anvers, Belgique"
+      - match: "Minsk, rue Yankee Brylya 21, apt. 224;"
+        addresses: "Minsk, rue Yankee Brylya 21, apt. 224"
+      - match: "1st Street, 6th Side Street, No. 81, Jey Industrial Park, Ispahan 8376100000, Iran;"
+        addresses: "1st Street, 6th Side Street, No. 81, Jey Industrial Park, Ispahan 8376100000, Iran"
+      - match: "Sepah Islam Road, Karaj Special Road Km 10, Iran;"
+        addresses: "Sepah Islam Road, Karaj Special Road Km 10, Iran"
+      - match: "Adresse du NRC: AEOI-NRC P.O.Box: 11365-8486, Téhéran/Iran; Fax: (+9821) 8021412"
+        addresses: "AEOI-NRC P.O.Box: 11365-8486, Téhéran/Iran"
+      - match: "Head Office Building, 327 Takeghani (Taleghani) Avenue, Téhéran 15817, Iran; P.O. Box 11365-5964, Téhéran, 15817"
+        addresses:
+          - "Head Office Building, 327 Takeghani (Taleghani) Avenue, Téhéran 15817, Iran"
+          - "P.O. Box 11365-5964, Téhéran, 15817"
+      - match: "3rd Km of Khalaj Road, Seyyedi Street, Mashad 91638, Iran; Km 4 of Khalaj Road, End of Seyedi Street, Mashad, Iran; P.O. Box 91735-549, Mashad, Iran; Khalaj Rd., End of Seyyedi Alley, Mashad, Iran; Moqan St., Pasdaran St., Pasdaran Cross Rd., Téhéran, Iran."
+        addresses:
+          - "3rd Km of Khalaj Road, Seyyedi Street, Mashad 91638, Iran"
+          - "Km 4 of Khalaj Road, End of Seyedi Street, Mashad, Iran"
+          - "P.O. Box 91735-549, Mashad, Iran"
+          - "Khalaj Rd., End of Seyyedi Alley, Mashad, Iran"
+          - "Moqan St., Pasdaran St., Pasdaran Cross Rd., Téhéran, Iran."
+      - match: "Tose’e Tower, corner of 15th St., Ahmad Qasir Ave.; Argentine Square, Téhéran"
+        addresses: "Tose’e Tower, corner of 15th St., Ahmad Qasir Ave. Argentine Square, Téhéran"
+      - match: "Unit Level 10 (B1), Main Office Tower, Financial Park Labuan, Jalan Merdeka, 87000 WP Labuan (Malaisie); registre du commerce no LL06889 (Malaisie)"
+        addresses: "Unit Level 10 (B1), Main Office Tower, Financial Park Labuan, Jalan Merdeka, 87000 WP Labuan (Malaisie)"
+      - match: "Pasdaran Avenue, à côté de la Telecommunication Industry, Téhéran 16588 (Iran); boîte postale 89195/878, Yazd (Iran); P.O. Box 89195-678, Yazd (Iran); au kilomètre 5 de la Taft Road, Yazd (Iran)"
+        addresses:
+          - "Pasdaran Avenue, à côté de la Telecommunication Industry, Téhéran 16588 (Iran)"
+          - "boîte postale 89195/878, Yazd (Iran)"
+          - "P.O. Box 89195-678, Yazd (Iran)"
+          - "au kilomètre 5 de la Taft Road, Yazd (Iran)"
+      - match: "No. 129, 21 Khaled Eslamboli, No.1 Building, Téhéran; C.R. No. 86936"
+        addresses: "No. 129, 21 Khaled Eslamboli, No.1 Building, Téhéran"
+      - match: "P.O. Box 16315-189, Téhéran (Iran); situé sur le côté ouest de Dabestan Street, Abbas Abad District, Téhéran (Iran)"
+        addresses:
+          - "P.O. Box 16315-189, Téhéran (Iran)"
+          - "situé sur le côté ouest de Dabestan Street, Abbas Abad District, Téhéran (Iran)"
+      - match: "St Maarten, Billy Folly Road #37, Sint-Maarten, Antilles néerlandaises; Cohune Walk, 3 Lime St, Belmopan, Belize; 9350 Wilshire Blvd, Beverly Hills CA 90212, États-Unis d'Amérique"
+        addresses:
+          - "St Maarten, Billy Folly Road #37, Sint-Maarten, Antilles néerlandaises"
+          - "Cohune Walk, 3 Lime St, Belmopan, Belize"
+          - "9350 Wilshire Blvd, Beverly Hills CA 90212, États-Unis d'Amérique"

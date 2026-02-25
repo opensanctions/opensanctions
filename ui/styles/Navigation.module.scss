@@ -1,0 +1,43 @@
+@import './variables.scss';
+@import "~bootstrap/scss/_navbar";
+@import "~bootstrap/scss/mixins/_breakpoints";
+
+.navBar {
+    margin-top: 0.4 * $spacer;
+    margin-bottom: $spacer;
+    @media print {
+        // margin-top: 3em;
+        margin-bottom: 1em;
+    }
+}
+
+.nav {
+    @include media-breakpoint-down(lg) {
+        margin-top: 1em;
+    }
+}
+
+.navItem {
+    @extend .nav-link;
+    font-family: $font-family-heading;
+    margin-left: $spacer * 1 !important;
+    // font-size: 1.1em;
+    font-weight: $heading-weight !important;
+    color: $theme-blue-logo !important;
+    letter-spacing: 0.01rem;
+
+    @include media-breakpoint-down(lg) {
+        padding-left: 1em;
+    }
+
+    &:hover {
+        // color: $theme-blue-logo;
+        background-color: $gray-200;
+        color: shift-color($primary, 50%) !important;
+    }
+
+    &:focus {
+        // color: $theme-blue-logo;
+        color: shift-color($primary, 50%);
+    }
+}

@@ -1,16 +1,20 @@
-from typing import Dict, Generator, Optional, Set, cast
+import re
+from typing import Dict, Generator, List, Optional, Set, cast
+
+from lxml.html import HtmlElement
 from normality import slugify, squash_spaces
 from rigour.text import text_hash
-from lxml.html import HtmlElement
 
 from zavod.logs import get_logger
 from zavod.util import Element
 
-
 log = get_logger(__name__)
 
 
-def element_text(el: Element, squash: bool = True) -> str:
+BR_RE = re.compile(r"<(br|p)\s*/?>", re.IGNORECASE)
+
+
+def element_text(el: Element | None, squash: bool = True) -> str:
     """
     Return the text content of an HtmlElement, or an empty string if empty.
 
@@ -23,6 +27,8 @@ def element_text(el: Element, squash: bool = True) -> str:
     """
     # Workaround because lxml-stubs doesn't yet support HtmlElement
     # https://github.com/lxml/lxml-stubs/pull/71
+    if el is None:
+        return ""
     try:
         text = str(cast(HtmlElement, el).text_content())
     except AttributeError:
@@ -54,6 +60,7 @@ def parse_html_table(
     skiprows: int = 0,
     ignore_colspan: Optional[Set[str]] = None,
     slugify_headers: bool = True,
+    index_empty_headers: bool = False,
 ) -> Generator[Dict[str, Element], None, None]:
     """
     Parse an HTML table into a generator yielding a dict for each row.
@@ -79,10 +86,12 @@ def parse_html_table(
 
         if headers is None:
             headers = []
-            for el in row.findall(f"./{header_tag}"):
+            for colnum, el in enumerate(row.findall(f"./{header_tag}")):
                 header_text: Optional[str] = element_text(el)
                 if slugify_headers:
                     header_text = slugify(header_text, sep="_")
+                if index_empty_headers and not header_text:
+                    header_text = f"column_{colnum}"
                 assert header_text is not None, "No table header text"
                 headers.append(header_text)
             continue
@@ -124,3 +133,57 @@ def links_to_dict(el: Element) -> Dict[str | None, str | None]:
     return {
         slugify(element_text(a), sep="_"): a.get("href") for a in el.findall(".//a")
     }
+
+
+def xpath_elements(
+    el: Element, xpath: str, *, expect_exactly: Optional[int] = None
+) -> List[Element]:
+    """
+    Return a list of HtmlElement objects that match the given XPath expression.
+    """
+    result = el.xpath(xpath)
+    if not isinstance(result, list) or not all(isinstance(r, Element) for r in result):
+        raise ValueError(
+            f"Expected list[Element] as result of xpath, got {type(result)}"
+        )
+    if expect_exactly is not None and len(result) != expect_exactly:
+        raise ValueError(
+            f"Expected {expect_exactly} elements, got {len(result)} for xpath {xpath!r}"
+        )
+    return [cast(Element, r) for r in result]
+
+
+def xpath_element(el: Element, xpath: str) -> Element:
+    """
+    Return the only element that matches the given XPath expression (and complain if there are multiple)
+    """
+    return xpath_elements(el, xpath, expect_exactly=1)[0]
+
+
+def xpath_strings(
+    el: Element, xpath: str, *, expect_exactly: Optional[int] = None
+) -> List[str]:
+    """
+    Return a list of strings that match the given XPath expression.
+    """
+    result = el.xpath(xpath)
+    if not isinstance(result, list) or not all(isinstance(r, str) for r in result):
+        raise ValueError(f"Expected list[str] as result of xpath, got {type(result)}")
+    if expect_exactly is not None and len(result) != expect_exactly:
+        raise ValueError(
+            f"Expected {expect_exactly} elements, got {len(result)} for xpath {xpath!r}"
+        )
+    return [cast(str, r) for r in result]
+
+
+def xpath_string(el: Element, xpath: str) -> str:
+    return xpath_strings(el, xpath, expect_exactly=1)[0]
+
+
+def split_html_newline_tags(string: str) -> List[str]:
+    """
+    Split a string on HTML <br> tags, returning a list of strings.
+
+    Non-empty strings will not be returned.
+    """
+    return [s for s in BR_RE.split(string) if s.strip()]

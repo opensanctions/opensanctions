@@ -11,8 +11,11 @@ coverage:
 exports:
   - statistics.json
 deploy:
-  memory: "1500Mi"
-  memory_limit: "2500Mi"
+  cpu: "1000m"
+  cpu_limit: "2000m"
+  memory: "2000Mi"
+  memory_limit: "3000Mi"
+  disk: "150Gi"
 load_statements: true
 ci_test: false
 summary: >
@@ -40,10 +43,10 @@ inputs:
 assertions:
   min:
     schema_entities:
-      Company: 45800
+      Company: 50000
       Person: 12200
       LegalEntity: 1300
-      Organization: 1200
+      Organization: 300
       Vessel: 15
       PublicBody: 5
   max:

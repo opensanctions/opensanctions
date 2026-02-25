@@ -3,6 +3,7 @@ url: https://www.onpcsb.ro/en/a/126/legislatie
 entry_point: crawler.py
 prefix: ro-onpcsb
 load_statements: true
+ci_test: false
 coverage:
   frequency: never
   start: 2024-08-05

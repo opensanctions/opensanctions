@@ -1,9 +1,10 @@
 from typing import Optional
 from datetime import timedelta
-# from fingerprints import clean_brackets
-
+from followthemoney import registry
 from nomenklatura.wikidata import Item, WikidataClient
+from nomenklatura.wikidata.value import clean_wikidata_name
 
+from zavod import settings
 from zavod import Context, Entity
 from zavod.shed.wikidata.country import is_historical_country, item_countries
 
@@ -31,13 +32,13 @@ def wikidata_basic_human(
     for claim in item.claims:
         # P569 - birth date
         if claim.property == "P569":
-            too_young = context.data_time - timedelta(days=365 * 18)
-            too_old = context.data_time - timedelta(days=365 * 110)
+            too_young = settings.RUN_TIME - timedelta(days=365 * 18)
+            too_old = settings.RUN_TIME - timedelta(days=365 * 110)
             date = claim.text
             if date.text is None:
                 continue
             # Skip people from too far ago
-            if date.text < "1900-01-01":
+            if date.text < registry.date.RELEVANCE_MIN:
                 return None
             if strict and date.text > too_young.isoformat():
                 # context.log.warning("Person is too young", qid=item.id, date=date.text)
@@ -83,6 +84,6 @@ def wikidata_basic_human(
         return None
 
     if item.label is not None:
-        item.label.apply(entity, "name")
+        item.label.apply(entity, "name", clean=clean_wikidata_name)
 
     return entity

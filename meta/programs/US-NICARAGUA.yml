@@ -1,0 +1,14 @@
+id: 28
+title: Nicaragua-Related Sanctions
+key: US-NICARAGUA
+url: https://ofac.treasury.gov/sanctions-programs-and-country-information/nicaragua-related-sanctions
+summary: These sanctions target individuals and entities involved in human rights
+  abuses, corruption, and undermining democratic processes in Nicaragua. The measures
+  include asset freezes and prohibitions on transactions to pressure the Nicaraguan
+  government to respect democratic norms and human rights.
+issuer: us_ofac
+dataset: us_ofac_sdn
+aliases:
+- EO 14088, EO 13851
+target_territories:
+- ni

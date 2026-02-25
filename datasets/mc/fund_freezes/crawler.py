@@ -111,7 +111,9 @@ def crawl_entity(context: Context, data: Dict[str, Any]):
 
     sanction = h.make_sanction(context, entity)
     sanction.add("reason", details.pop("motifs"))
-    sanction.add("provisions", details.pop("fondementJuridique"))
+    sanction.add(
+        "provisions", h.multi_split(details.pop("fondementJuridique"), [";", ","])
+    )
     sanction.add("program", details.pop("regimeSanction"))
     exp_date = details.pop("dateExpiration")
     h.apply_date(sanction, "endDate", exp_date)

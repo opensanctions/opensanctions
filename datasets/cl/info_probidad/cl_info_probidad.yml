@@ -93,6 +93,7 @@ lookups:
           - "VICEPRESIDENTE"
           - "VICEPRESIDENTE EJECUTIVO"
           - "ALMIRANTE"
+          - "ENCARGADO DE FINANZAS"
 
       - is_pep: false
         contains:
@@ -107,10 +108,12 @@ lookups:
           - "INGENIER.*"
           - "ASISTENT.*"
           - "ANALIST.*"
+          - "TECNICO.*"
       - is_pep: false
         match:
           - BODEGUERO
           - CONSEJERO TECNICO
+          - CONSEJERO TRIBUTARIO
           - DEFENSOR(A) NACIONAL
           - ENCARGADO DE BODEGA
           - ENCARGADO DE MANTENIMIENTO
@@ -123,6 +126,8 @@ lookups:
           - SUBADMINISTRADOR ZONAL
           - SUBJEFE DEPTO. DE RECURSOS HUMANOS
           - CAPITAN DE NAVIO
+          - PROFESIONALES UNIVERSITARIOS
+          - TECNOLOGO MEDICO
 
       - is_pep: null # haven't looked closely yet
         regex:
@@ -307,6 +312,7 @@ lookups:
           - "NOTARIO CONSERVADOR ARCHIVERO"
           - "NOTARIO Y ARCHIVERO"
           - "NOTARIO"
+          - "NOTIFICADOR"
           - "NUTRICIONISTA DESAM"
           - "ODONTÓLOGO DIRECCIÓN DE SALUD MUNICIPAL"
           - "OFICIAL 1º"
@@ -444,21 +450,18 @@ lookups:
           - "SUBSECRETARIA/O"
           - "SUBSECRETARIO DE RELACIONES EXTERIORES"
           - "SUBSECRETARIO"
+          - "SUBSECRETARIO(A) DEL PATRIMONIO CULTURAL"
           - "SUBSECRETARIO(A)"
           - "SUBSECRETARIO/A "
           - "SUBSECRETARIO/A DE AGRICULTURA"
           - "SUBSECRETARIO/A DE TURISMO"
           - "SUPERINTENDENTE"
+          - "SUPERINTENDENTE SEGURIDAD SOCIAL"
+          - "SUPERVISOR DE CONTRATOS"
           - "SUPERVISOR DE PROGRAMAS, DIRECCIÓN REGIONAL"
           - "SUPLENTE DE MINISTRO"
           - "TEC. EN ENFERMERIA"
-          - "TECNICO A HONORARIOS"
-          - "TECNICO INFORMATICA"
-          - "TECNICO PARAMEDICO"
-          - "TECNICO SOCIAL"
-          - "TECNICO"
           - "TÉCNICO"
-          - "TECNOLOGO MEDICO "
           - "TENIENTE CORONEL"
           - "TERCER NIVEL JERARQUICO"
           - ABOGADO ASESOR

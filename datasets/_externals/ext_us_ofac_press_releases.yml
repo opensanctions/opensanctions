@@ -5,14 +5,14 @@ full_dataset: us_ofac_press_releases
 disabled: false
 hidden: false
 coverage:
-  schedule: "@daily"
+  frequency: daily
   start: 2025-09-17
 deploy:
-  memory: "2000Mi"
-  memory_limit: "3000Mi"
+  cpu: "2000m"
+  memory: "3000Mi"
+  memory_limit: "5000Mi"
 exports:
   - statistics.json
-  - entities.delta.json
 load_statements: true
 ci_test: false
 summary: >
@@ -41,17 +41,14 @@ tags:
 url: https://ofac.treasury.gov/press-releases
 
 inputs:
-  - ann_graph_topics
-  - debarment
-  - sanctions
-  - special_interest
-  - maritime
+  # - ann_graph_topics
+  - us_sanctions
+  # - special_interest
+  # - maritime
 
 config:
-  dataset: us_ofac_press_releases
-  strip_namespace: true
-  threshold: 0.7
-  algorithm: regression-v1
+  index_options:
+    memory: 2000
   topics:
     - sanction
     - sanction.linked
@@ -63,12 +60,20 @@ config:
     - Organization
     - LegalEntity
 
-# assertions:
-#   min:
-#     schema_entities:
-#       Vessel: 10
-#       Organization: 1
-#   max:
-#     schema_entities:
-#       Vessel: 100
-#       Organization: 50
+assertions:
+  min:
+    schema_entities:
+      Company: 3200
+      Person: 1500
+      Article: 560
+      Organization: 400
+      Vessel: 230
+      LegalEntity: 15
+  max:
+    schema_entities:
+      Company: 6000
+      Person: 3400
+      Article: 1330
+      Organization: 930
+      Vessel: 540
+      LegalEntity: 35

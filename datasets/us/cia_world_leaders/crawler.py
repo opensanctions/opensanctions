@@ -1,16 +1,17 @@
-from typing import Dict, Any, Optional
-from normality import slugify, collapse_spaces
+from typing import Any, Dict, Optional
+
+from normality import slugify, squash_spaces
+from zavod.stateful.positions import categorise
 
 from zavod import Context
 from zavod import helpers as h
-from zavod.stateful.positions import categorise
 
 WEB_URL = "https://www.cia.gov/resources/world-leaders/foreign-governments/%s"
 DATA_URL = "https://www.cia.gov/resources/world-leaders/page-data/foreign-governments/%s/page-data.json"
 SECTIONS = ["leaders", "leaders_2", "leaders_3", "leaders_4"]
 
 
-def clean_position(position: str):
+def clean_position(position: str) -> str:
     replacements = [
         ("Dep.", "Deputy"),
         ("Min.", "Minister"),
@@ -35,16 +36,20 @@ def crawl_leader(
     section: Optional[str],
     leader: Dict[str, Any],
 ) -> None:
-    name = leader["name"]
+    name = squash_spaces(leader["name"])
     name = name.replace("(Acting)", "")
-    name = collapse_spaces(name)
-    name = context.lookup_value("normalize_name", name, name)
-    if h.is_empty(name):
+    if name.lower() in {"(vacant)", "vacant"} or h.is_empty(name):
         return
     if "vacant" in name.lower():
-        context.log.warning("Double-check vacant position", name=name)
+        context.log.warning(
+            "Name contains 'vacant', but it didn't exactly match "
+            "one of our vacant values. Please check the logic, is this a value that "
+            "means the position is vacant or maybe just a weird name?",
+            name=name,
+        )
+
     function = clean_position(leader["title"])
-    gov = collapse_spaces(section)
+    gov = squash_spaces(section) if section else None
     if gov:
         function = f"{function} - {gov}"
         # print(function)
@@ -59,6 +64,7 @@ def crawl_leader(
     person.id = context.make_slug(country, name, function)
     person.add("name", name)
     person.add("position", function)
+    person.add("citizenship", country)
     person.add("sourceUrl", source_url)
 
     res = context.lookup("position_topics", function)
@@ -84,8 +90,9 @@ def crawl_leader(
         )
 
         context.emit(person)
-        context.emit(position)
-        context.emit(occupancy)
+        if occupancy is not None:
+            context.emit(position)
+            context.emit(occupancy)
 
 
 def crawl_country(context: Context, country: str) -> None:

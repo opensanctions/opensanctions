@@ -9,6 +9,7 @@ from zavod.archive import dataset_data_path
 from zavod.runtime.stats import ContextStats
 from zavod.runtime.loader import load_entry_point
 from zavod.runner.enrich import enrich
+from zavod.reset import reset_caches
 
 # HACK: Importing the enrich module in the test avoids a segfault otherwise happening
 # on OS X, probably related to the nested use of import_module.
@@ -20,7 +21,7 @@ def crawl_dataset(dataset: Dataset, dry_run: bool = False) -> ContextStats:
     point; finally disband the context."""
     context = Context(dataset, dry_run=dry_run)
     if dataset.model.disabled:
-        context.log.info("Source is disabled", dataset=dataset.name)
+        context.log.info("Source is disabled", source=dataset.name)
         return context.stats
 
     try:
@@ -28,7 +29,7 @@ def crawl_dataset(dataset: Dataset, dry_run: bool = False) -> ContextStats:
         context.log.info(
             "Running dataset",
             data_path=dataset_data_path(dataset.name),
-            data_time=context.data_time_iso,
+            data_time=settings.RUN_TIME_ISO,
             version=context.version.id,
         )
         entry_point = load_entry_point(dataset)
@@ -71,3 +72,4 @@ def crawl_dataset(dataset: Dataset, dry_run: bool = False) -> ContextStats:
         raise RunFailedException() from exc
     finally:
         context.close()
+        reset_caches()

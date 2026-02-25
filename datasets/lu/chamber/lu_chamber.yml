@@ -1,0 +1,49 @@
+title: Luxembourg Members of the Chamber of Deputies
+prefix: lu-chamber
+url: https://data.public.lu/en/datasets/la-liste-des-deputes-actifs-a-la-chambre-des-deputes-du-luxembourg/
+coverage:
+  frequency: monthly
+  start: 2025-11-26
+load_statements: true
+entry_point: crawler.py
+summary: >-
+  Current and recent members of the Chamber of Deputies, the unicameral national
+  legislature of Luxembourg.
+description: |
+  This dataset provides information about the current and recent MPs, collected from
+  the official website of the Chamber of Deputies (Luxembourg). It includes details
+  about each senator, such as name, date of birth, political affiliation, term, and
+  other relevant information.
+tags:
+  - list.pep
+publisher:
+  name: Chamber vun den Deputéierten
+  name_en: Chamber of Deputies
+  description: |
+    The Chamber of Deputies is the unicameral parliament of Luxembourg, responsible
+    for making laws and overseeing the government. Deputies are elected by universal
+    suffrage and serve a five-year term. The Chamber consist of 60 members.
+  country: lu
+  url: https://data.public.lu/fr/organizations/chambre-des-deputes-du-grand-duche-de-luxembourg/
+  official: true
+data:
+  url: https://data.public.lu/api/1/datasets/
+  format: CSV
+dates:
+  formats: ["%d/%m/%Y"]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 60  # The Chamber is made up of 60 seats. Some previous members may be included.
+      Position: 1
+    country_entities:
+      lu: 1
+
+lookups:
+  type.gender:
+    options:
+      - match: Monsieur
+        value: male
+      - match: Madame
+        value: female

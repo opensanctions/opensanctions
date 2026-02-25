@@ -2,25 +2,25 @@ from typing import Generator
 import pytest
 import shutil
 from pathlib import Path
-from tempfile import NamedTemporaryFile, mkdtemp
-import os
-from nomenklatura import Resolver, settings as nk_settings
+from tempfile import mkdtemp
+import logging
+from nomenklatura import Resolver
+from nomenklatura.db import close_db
 
 from zavod import settings
 from zavod.context import Context
 from zavod.entity import Entity
-from zavod.db import get_engine, meta
+from zavod.logs import configure_logging, reset_logging
 from zavod.meta import get_catalog, load_dataset_from_path, Dataset
+from zavod.db import meta
 from zavod.integration import get_resolver
 from zavod.stateful.model import create_db
 
-nk_settings.TESTING = True
+settings.nk.TESTING = True
+settings.nk.DB_URL = "sqlite:///:memory:"
 settings.DATA_PATH = Path(mkdtemp()).resolve()
 settings.ARCHIVE_BACKEND = "FileSystemBackend"
 settings.ARCHIVE_PATH = settings.DATA_PATH / "test_archive"
-settings.DATABASE_URI = "sqlite:///:memory:"
-settings.OPENSANCTIONS_API_KEY = "testkey"
-settings.SYNC_POSITIONS = True
 settings.ZYTE_API_KEY = "zyte-test-key"
 FIXTURES_PATH = Path(__file__).parent / "fixtures"
 DATASET_1_YML = FIXTURES_PATH / "testdataset1" / "testdataset1.yml"
@@ -45,7 +45,7 @@ def wrap_test():
     create_db()
     yield
     get_catalog.cache_clear()
-    get_engine.cache_clear()
+    close_db()
     meta.clear()
 
 
@@ -110,8 +110,10 @@ def testdataset_dedupe() -> Dataset:
 
 
 @pytest.fixture(scope="function")
-def vcontext(testdataset1) -> Context:
-    return Context(testdataset1)
+def vcontext(testdataset1) -> Generator[Context, None, None]:
+    context = Context(testdataset1)
+    yield context
+    context.close()
 
 
 @pytest.fixture(scope="function")
@@ -147,10 +149,8 @@ def resolver() -> Generator[Resolver[Entity], None, None]:
 
 
 @pytest.fixture(scope="function")
-def disk_db_uri(monkeypatch) -> Generator[str, None, None]:
-    """Modifies settings.DATABASE_URI to a temporary file for the duration of the test"""
-    db_file = NamedTemporaryFile(delete=False)
-    db_uri = f"sqlite:///{db_file.name}"
-    monkeypatch.setattr(settings, "DATABASE_URI", db_uri)
-    yield db_uri
-    os.unlink(db_file.name)
+def logger() -> Generator[logging.Logger, None, None]:
+    """Configure logging, and reset after test."""
+    logger = configure_logging()
+    yield logger
+    reset_logging(logger)

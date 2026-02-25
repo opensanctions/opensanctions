@@ -1,8 +1,12 @@
 import re
 
 from normality import collapse_spaces
-from zavod.shed.trans import apply_translit_full_name, make_position_translation_prompt
-from zavod.shed.zyte_api import fetch_html
+from zavod.shed.trans import (
+    apply_translit_full_name,
+    make_position_translation_prompt,
+    ENGLISH,
+)
+from zavod.extract.zyte_api import fetch_html
 from zavod.stateful.positions import categorise
 
 from zavod import Context
@@ -14,19 +18,34 @@ ROLE_PATTERNS = re.compile(
 # Pattern specifically for "นายกรัฐมนตรี" (Prime Minister)
 PRIME_MINISTER_PATTERN = re.compile(r"(?P<role>นายกรัฐมนตรี)\s*(?P<name>.*)")
 REGEX_TITLES = re.compile(
-    r"^(นางสาว|นาง|นาย|พลตำรวจเอก|พันตำรวจเอก|พลเอก|พลตำรวจตรี|ร้อยเอก|พลโท|จ่าเอก|-)"
+    r"^(นางสาว|นาง|นาย|พลตำรวจเอก|พันตำรวจเอก|พลเอก|พลตำรวจตรี|ร้อยเอก|พลโท|จ่าเอก|พลตำรวจโท|-)"
 )
 POSITION_PROMPT = prompt = make_position_translation_prompt("tha")
-TRANSLIT_OUTPUT = {"eng": ("Latin", "English")}
+TRANSLIT_OUTPUT = [ENGLISH]
+# For lack of anything more semantic, we select persons based on sizing of their containers
+# The prime minister section can be slightly bigger than the others
+PRIME_MINISTER_XPATH = ".//div[contains(@style, 'min-height: 480; max-height: 600')]"
+UNBLOCK_ACTIONS = [
+    {
+        "action": "waitForSelector",
+        "selector": {
+            "type": "xpath",
+            "value": PRIME_MINISTER_XPATH,
+            "state": "visible",
+        },
+        "timeout": 15,
+        "onError": "return",
+    },
+]
 
 
 def crawl(context: Context):
-    prime_min_xpath = ".//div[contains(@style, 'min-height: 480; max-height: 600')]"
-    doc = fetch_html(context, context.data_url, prime_min_xpath)
+    doc = fetch_html(
+        context, context.data_url, PRIME_MINISTER_XPATH, actions=UNBLOCK_ACTIONS
+    )
     main_container = doc.find(".//div[@class='wonderplugintabs-panel-inner']")
 
-    # For lack of anything more semantic, we select persons based on sizing of their containers
-    prime_minister_containers = main_container.xpath(prime_min_xpath)
+    prime_minister_containers = main_container.xpath(PRIME_MINISTER_XPATH)
     assert len(prime_minister_containers) == 1, prime_minister_containers
     prime_minister = prime_minister_containers[0]
     persons = main_container.findall(

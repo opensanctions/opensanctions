@@ -7,14 +7,24 @@ from normality import collapse_spaces
 from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
+from zavod.extract.zyte_api import fetch_html
 
 
 UNKNOWNS = {"unknown", "uknown"}
+# Cache detail pages for a day because it's useful for retries, but they also seem to
+# list pages before they're fully populated which can break a crawl one day and not the next.
+CACHE_DAYS = 1
 
 
 def crawl_detail_page(context: Context, person: Entity, source_url: str):
     """Fetch and parse detailed information from a person's detail page."""
-    doc = context.fetch_html(source_url, cache_days=7)
+    doc = fetch_html(
+        context,
+        source_url,
+        "//td[b[contains(text(), 'Crime:')]]",
+        geolocation="za",
+        cache_days=CACHE_DAYS,
+    )
 
     # Extract details using XPath based on the provided HTML structure
     details = {
@@ -56,7 +66,7 @@ def crawl_detail_page(context: Context, person: Entity, source_url: str):
     person.add("height", info.get("height"))
     person.add("weight", info.get("weight"))
 
-    person.add("notes", f"{status} - {info["crime"]}")
+    person.add("notes", f"{status} - {info['crime']}")
 
     context.emit(person)
 
@@ -86,11 +96,12 @@ def crawl_person(context: Context, row: Dict[str, html.HtmlElement]):
     id = parse_qs(urlparse(detail_url).query)["bid"][0]
     person.id = context.make_slug(id)
 
+    # name3 handles additional middle names
     h.apply_name(
         person,
         first_name=forename_list[0],
-        second_name=forename_list[1] if len(forename_list) > 1 else None,
-        middle_name=forename_list[2] if len(forename_list) > 2 else None,
+        middle_name=forename_list[1] if len(forename_list) > 1 else None,
+        name3=forename_list[2] if len(forename_list) > 2 else None,
         last_name=last_name,
     )
     assert len(forename_list) <= 3, len(forename_list)
@@ -104,7 +115,14 @@ def crawl_person(context: Context, row: Dict[str, html.HtmlElement]):
 
 
 def crawl(context):
-    doc = context.fetch_html(context.data_url, cache_days=1, absolute_links=True)
+    doc = fetch_html(
+        context,
+        context.data_url,
+        "//table",
+        geolocation="za",
+        # cache_days=1, Don't cache index pages. Cached links to deleted listings break the crawler.
+        absolute_links=True,
+    )
     tables = doc.xpath("//table")
     assert len(tables) == 1, len(tables)
     trs = tables[0].xpath(".//tr")

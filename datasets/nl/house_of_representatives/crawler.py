@@ -2,8 +2,9 @@ import re
 from urllib.parse import urlencode, urljoin
 from lxml.etree import _Element
 from lxml.html import document_fromstring
+from normality import squash_spaces
 
-from zavod.shed.zyte_api import fetch_html, fetch_json
+from zavod.extract.zyte_api import fetch_html, fetch_json
 from zavod import Context
 from zavod.entity import Entity
 from zavod.helpers import make_position, make_occupancy
@@ -12,7 +13,7 @@ from zavod import helpers as h
 
 
 REGEX_BIRTH_PLACE_AND_DATE = re.compile(
-    r"is geboren in (?P<birthplace>.+) op (?P<birthdate>.+\d{4})(\.| en woont in)"
+    r"\((?P<birthyear>\d{4})\) is geboren in (?P<birthplace>.+)(\.| en woont in)"
 )
 
 
@@ -34,15 +35,25 @@ def crawl_person(context: Context, element: _Element, position: Entity):
     descr = section.findtext(".//p")
     assert descr is not None, "Failed to extract description"
     match = REGEX_BIRTH_PLACE_AND_DATE.search(descr)
-    assert match is not None, "Failed to extract birth information"
-    birth_date = match.group("birthdate")
+    if match:
+        birth_date = match.group("birthyear")
+        birth_place = match.group("birthplace")
+    else:
+        # Fall back to lookup
+        res = context.lookup(
+            "birth_place_and_date", squash_spaces(descr), warn_unmatched=True
+        )
+        birth_date = res.birth_date if res else None
+        birth_place = res.birth_place if res else None
+    assert birth_place and birth_date
+
     name = section.findtext(".//h1")
 
     person = context.make("Person")
     person.id = context.make_id(name, birth_date)
     person.add("name", name)
 
-    person.add("birthPlace", match.group("birthplace"))
+    person.add("birthPlace", birth_place)
     h.apply_date(person, "birthDate", birth_date)
     person.add("topics", "role.pep")
     person.add("sourceUrl", source_url)

@@ -1,11 +1,8 @@
 import { Geist, Geist_Mono } from "next/font/google";
 
-import version from '../version.json';
+import Navigation from "@/components/layout/Navigation";
 
 import "./globals.css";
-
-// TODO: CSS should come last but eslint is complaining
-import type { Metadata } from "next";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -17,11 +14,6 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "Zavod Reviews",
-  description: "Review, correct and accept automated data extraction results.",
-};
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -29,13 +21,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head />
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-light`}
       >
-        {children}
-        <footer className="p-3" style={{ fontSize: '0.9em', height: '50px' }}>
-          Zavod UI vsn {version.git} ALPHA (built {version.buildTime})
-        </footer>
+        <div className="container-fluid d-flex flex-column pl-4 pr-4" style={{ height: '100vh' }}>
+          <Navigation />
+          <div className="flex-grow-1 d-flex flex-column" style={{ minHeight: 0 }}>
+            {children}
+          </div>
+        </div>
       </body>
     </html>
   );

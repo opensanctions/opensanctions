@@ -44,11 +44,11 @@ data:
 assertions:
   min:
     schema_entities:
-      LegalEntity: 175
+      LegalEntity: 220
       Person: 650
   max:
     schema_entities:
-      LegalEntity: 230
+      LegalEntity: 500
       Person: 900
 dates:
   formats: ["%d-%m-%Y"]
@@ -143,6 +143,13 @@ lookups:
           - Changwang Street, Pyongyang Democratic Peoples Republic of Korea
           - Chung-Guyok (Central District), Sosong Street, Kyongrim-Dong, Pyongyang Democratic Peoples Republic of Korea
           - Second KWP Government Building (Korean - Chongsa, Urban Town (Korean-Dong), Chung Ward, Pyongyang Democratic Peoples Republic of Korea
+      - match: "3rd Km of Khalaj Road, Seyyedi Street Mashad, 91638 Iran (Islamic Republic of), Khalaj Rd., End of Seyyedi Alley Mashad Iran (Islamic Republic of), Km 4 of Khalaj Road, End of Seyedi Street Mashad Iran (Islamic Republic of), Moqan St., Pasdaran St., Pasdaran Cross Rd. Tehran Iran (Islamic Republic of), P.O. Box 91735-549 Mashad Iran (Islamic Republic of)"
+        values:
+          - 3rd Km of Khalaj Road, Seyyedi Street Mashad, 91638 Iran (Islamic Republic of)
+          - Khalaj Rd., End of Seyyedi Alley Mashad Iran (Islamic Republic of)
+          - Km 4 of Khalaj Road, End of Seyedi Street Mashad Iran (Islamic Republic of)
+          - Moqan St., Pasdaran St., Pasdaran Cross Rd. Tehran Iran (Islamic Republic of)
+          - P.O. Box 91735-549 Mashad Iran (Islamic Republic of)
   type.country:
     lowercase: true
     normalize: true

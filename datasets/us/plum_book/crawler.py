@@ -1,4 +1,5 @@
 import csv
+import html
 
 from zavod import Context, helpers as h
 from zavod.stateful.positions import categorise
@@ -12,7 +13,7 @@ IGNORE = [
 ]
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     path = context.fetch_resource("source.csv", context.data_url)
     with open(path, "r", encoding="utf-8-sig") as fh:
         reader = csv.DictReader(fh)
@@ -36,6 +37,12 @@ def crawl(context: Context):
             person.id = context.make_id(
                 incumbent_first_name, incumbent_last_name, position_name
             )
+
+            # Cleaning after make_id
+            incumbent_first_name = html.unescape(incumbent_first_name)
+            incumbent_last_name = html.unescape(incumbent_last_name)
+            position_name = html.unescape(position_name)
+
             h.apply_name(
                 person, first_name=incumbent_first_name, last_name=incumbent_last_name
             )

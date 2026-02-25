@@ -1,0 +1,15 @@
+id: 138
+title: Measures Against Nicaragua
+key: SECO-NICARAGUA
+url: https://www.seco.admin.ch/seco/de/home/Aussenwirtschaftspolitik_Wirtschaftliche_Zusammenarbeit/Wirtschaftsbeziehungen/exportkontrollen-und-sanktionen/sanktionen-embargos/sanktionsmassnahmen/massnahmen-nicaragua.html
+summary: These sanctions target individuals and entities involved in human rights
+  abuses, corruption, and undermining democratic processes in Nicaragua. The measures
+  include asset freezes and prohibitions on transactions to pressure the Nicaraguan
+  government to respect democratic norms and human rights.
+issuer: ch_seco
+dataset: ch_seco_sanctions
+target_territories:
+- ni
+measures:
+- Financial block
+- Travel ban

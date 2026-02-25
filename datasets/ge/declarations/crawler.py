@@ -1,11 +1,12 @@
+from enum import Enum
 import re
 from copy import deepcopy
 from datetime import datetime, timedelta
-from typing import List, Set
+from typing import Any, Set, cast
 from urllib.parse import urlencode
 
 from followthemoney.types import registry
-from normality import collapse_spaces, slugify, squash_spaces
+from normality import squash_spaces
 from requests.exceptions import RetryError
 from zavod.context import Context
 from zavod.entity import Entity
@@ -13,6 +14,9 @@ from zavod.shed.trans import (
     apply_translit_full_name,
     apply_translit_names,
     make_position_translation_prompt,
+    ENGLISH,
+    RUSSIAN,
+    ARABIC,
 )
 from zavod.stateful.positions import OccupancyStatus, categorise
 
@@ -22,16 +26,13 @@ DECLARATION_LIST_URL = "https://declaration.acb.gov.ge/Home/DeclarationList"
 REGEX_CHANGE_PAGE = re.compile(r"changePage\((\d+), \d+\)")
 REGEX_FORMER = re.compile(r"\(ყოფილი\)", re.IGNORECASE)
 _18_YEARS_AGO = (datetime.now() - timedelta(days=18 * 365)).isoformat()
-TRANSLIT_OUTPUT = {
-    "eng": ("Latin", "English"),
-    "rus": ("Cyrillic", "Russian"),
-    "ara": ("Arabic", "Arabic"),
-}
+TRANSLIT_OUTPUT = [ENGLISH, RUSSIAN, ARABIC]
 POSITION_PROMPT = prompt = make_position_translation_prompt("kat")
 
 
-def name_slug(first_name, last_name):
-    return slugify(first_name, last_name)
+class FamilyMemberStatus(Enum):
+    DEFAULT = 0
+    MINOR = 1
 
 
 # This seems a bit too distant to put time into verifying properly right now.
@@ -96,7 +97,9 @@ def name_slug(first_name, last_name):
 #         context.emit(rel)
 
 
-def crawl_enterprise(context: Context, pep: Entity, item: dict, source: str) -> None:
+def crawl_enterprise(
+    context: Context, *, pep: Entity, item: dict[str, Any], source_url: str
+) -> None:
     first_name = item.pop("OwnerFirstName")
     last_name = item.pop("OwnerLatsName")
     name = item.pop("Name")
@@ -117,7 +120,7 @@ def crawl_enterprise(context: Context, pep: Entity, item: dict, source: str) -> 
     company.add("address", item.pop("EnterpriseAddress"), lang="kat")
     h.apply_date(company, "incorporationDate", item.pop("RegisterDate"))
     company.add("legalForm", legal_form, lang="kat")
-    company.add("sourceUrl", source)
+    company.add("sourceUrl", source_url)
     context.emit(company)
 
     ownership = context.make("Ownership")
@@ -146,7 +149,7 @@ def crawl_enterprise(context: Context, pep: Entity, item: dict, source: str) -> 
             output=TRANSLIT_OUTPUT,
         )
         partner.add("address", address, lang="kat")
-        partner.add("sourceUrl", source)
+        partner.add("sourceUrl", source_url)
         context.emit(partner)
 
         rel = context.make("UnknownLink")
@@ -174,16 +177,27 @@ def crawl_enterprise(context: Context, pep: Entity, item: dict, source: str) -> 
 
 
 def crawl_assets_for_family(
-    context: Context, minors: Set[str], item: dict, key: str, pep: Entity, source: str
-):
+    context: Context,
+    *,
+    minors: Set[tuple[str, str]],
+    item: dict[str, Any],
+    key: str,
+    pep: Entity,
+    source_url: str,
+) -> None:
+    """Crawl assets for a family member, skipping minors."""
     rels = item.pop(key)
     for rel in rels:
         first_name = rel.pop("OwnerFirstName")
         last_name = rel.pop("OwnerLatsName")
-        slug = name_slug(first_name, last_name)
-        if slug in minors:
-            context.log.debug("Skipping minor with asset", source=source)
+
+        # Skip minors
+        if (first_name.casefold(), last_name.casefold()) in [
+            (m[0].casefold(), m[1].casefold()) for m in minors
+        ]:
+            context.log.debug("Skipping minor with asset", source=source_url)
             return
+
         relationship = rel.pop("RelationName")
         # skip themselves, just care about family
         if first_name in pep.get("firstName") and last_name in pep.get("lastName"):
@@ -194,7 +208,12 @@ def crawl_assets_for_family(
         person.id = context.make_id(first_name, last_name, relationship, pep.id)
         h.apply_name(person, first_name=first_name, last_name=last_name, lang="kat")
         apply_translit_names(
-            context, person, "kat", first_name, last_name, TRANSLIT_OUTPUT
+            context,
+            person,
+            input_code="kat",
+            first_name=first_name,
+            last_name=last_name,
+            output_spec=TRANSLIT_OUTPUT,
         )
         person.add("topics", "role.rca")
 
@@ -203,46 +222,63 @@ def crawl_assets_for_family(
         rel_entity.add("person", pep)
         rel_entity.add("relative", person)
         rel_entity.add("relationship", relationship, lang="kat")
-        rel_entity.add("sourceUrl", source)
+        rel_entity.add("sourceUrl", source_url)
 
         context.emit(person)
         context.emit(rel_entity)
 
 
-def crawl_family(
-    context: Context, pep: Entity, rel: dict, declaration_url: str
-) -> str | None:
-    """Returns slug of family member if they're a minor"""
-    first_name = rel.pop("FirstName")
-    last_name = rel.pop("LastName")
-    birth_date = h.extract_date(context.dataset, rel.pop("BirthDate"))
+def crawl_family_member(
+    context: Context, *, pep: Entity, relative: dict[str, Any], declaration_url: str
+) -> tuple[str, str, FamilyMemberStatus]:
+    """Crawl a family member, skip if they're a minor.
+
+    Returns a tuple of first name, last name, and FamilyMemberStatus to determine if they're a minor."""
+    first_name = relative.pop("FirstName")
+    last_name = relative.pop("LastName")
+    birth_date = h.extract_date(context.dataset, relative.pop("BirthDate"))
+
     if birth_date[0] > _18_YEARS_AGO:
         context.log.debug("Skipping minor", birth_date=birth_date)
-        return name_slug(first_name, last_name)
-    birth_place = rel.pop("BirthPlace")
+        return first_name, last_name, FamilyMemberStatus.MINOR
+
+    birth_place = relative.pop("BirthPlace")
     person = context.make("Person")
-    person.id = context.make_id(first_name, last_name, birth_date, birth_place)
+    # TODO(Leon Handreke): birth_date is a list, not a string,
+    # but fixing thigs would mean a re-key, so avoid for now.
+    person.id = context.make_id(first_name, last_name, birth_date, birth_place)  # type: ignore[arg-type]
     h.apply_name(person, first_name=first_name, last_name=last_name, lang="kat")
-    apply_translit_names(context, person, "kat", first_name, last_name, TRANSLIT_OUTPUT)
+    apply_translit_names(
+        context,
+        person,
+        input_code="kat",
+        first_name=first_name,
+        last_name=last_name,
+        output_spec=TRANSLIT_OUTPUT,
+    )
     person.add("birthDate", birth_date)
     person.add("birthPlace", birth_place, lang="kat")
     person.add("topics", "role.rca")
 
-    relationship = rel.pop("Relationship")
+    relationship = relative.pop("Relationship")
     rel_entity = context.make("Family")
     rel_entity.id = context.make_id(pep.id, relationship, person.id)
     rel_entity.add("person", pep)
     rel_entity.add("relative", person)
     rel_entity.add("relationship", relationship, lang="kat")
-    rel_entity.add("description", rel.pop("Comment"), lang="kat")
+    rel_entity.add("description", relative.pop("Comment"), lang="kat")
     rel_entity.add("sourceUrl", declaration_url)
 
     context.emit(person)
     context.emit(rel_entity)
-    context.audit_data(rel)
+    context.audit_data(relative)
+
+    return first_name, last_name, FamilyMemberStatus.DEFAULT
 
 
-def crawl_declaration(context: Context, item: dict, is_current_year) -> None:
+def crawl_declaration(
+    context: Context, *, item: dict[str, Any], is_current_year: bool
+) -> None:
     declaration_id = item.pop("Id")
     first_name = item.pop("FirstName")
     last_name = item.pop("LastName")
@@ -251,7 +287,14 @@ def crawl_declaration(context: Context, item: dict, is_current_year) -> None:
     person = context.make("Person")
     person.id = context.make_id(first_name, last_name, birth_date, birth_place)
     h.apply_name(person, first_name=first_name, last_name=last_name, lang="kat")
-    apply_translit_names(context, person, "kat", first_name, last_name, TRANSLIT_OUTPUT)
+    apply_translit_names(
+        context,
+        person,
+        input_code="kat",
+        first_name=first_name,
+        last_name=last_name,
+        output_spec=TRANSLIT_OUTPUT,
+    )
     person.add("birthDate", birth_date)
     person.add("birthPlace", birth_place, lang="kat")
     declaration_url = (
@@ -304,31 +347,65 @@ def crawl_declaration(context: Context, item: dict, is_current_year) -> None:
     context.emit(occupancy)
     context.emit(person)
 
-    minor_family = set()
+    minor_family_member_names: Set[tuple[str, str]] = set()
     for rel in item.pop("FamilyMembers"):
-        minor = crawl_family(context, person, rel, declaration_url)
-        if minor:
-            minor_family.add(minor)
+        first_name, last_name, status = crawl_family_member(
+            context, pep=person, relative=rel, declaration_url=declaration_url
+        )
+        if status == FamilyMemberStatus.MINOR:
+            minor_family_member_names.add((first_name, last_name))
 
     crawl_assets_for_family(
-        context, minor_family, item, "Properties", person, declaration_url
+        context,
+        minors=minor_family_member_names,
+        item=item,
+        key="Properties",
+        pep=person,
+        source_url=declaration_url,
     )
     crawl_assets_for_family(
-        context, minor_family, item, "MovableProperties", person, declaration_url
+        context,
+        minors=minor_family_member_names,
+        item=item,
+        key="MovableProperties",
+        pep=person,
+        source_url=declaration_url,
     )
     crawl_assets_for_family(
-        context, minor_family, item, "Securities", person, declaration_url
+        context,
+        minors=minor_family_member_names,
+        item=item,
+        key="Securities",
+        pep=person,
+        source_url=declaration_url,
     )
     crawl_assets_for_family(
-        context, minor_family, item, "BankAccounts", person, declaration_url
+        context,
+        minors=minor_family_member_names,
+        item=item,
+        key="BankAccounts",
+        pep=person,
+        source_url=declaration_url,
     )
     crawl_assets_for_family(
-        context, minor_family, item, "Cashes", person, declaration_url
+        context,
+        minors=minor_family_member_names,
+        item=item,
+        key="Cashes",
+        pep=person,
+        source_url=declaration_url,
     )
-    for enterprise in item.get("Enterprice"):
-        crawl_enterprise(context, person, deepcopy(enterprise), declaration_url)
+    for enterprise in item.get("Enterprice", []):
+        crawl_enterprise(
+            context, pep=person, item=deepcopy(enterprise), source_url=declaration_url
+        )
     crawl_assets_for_family(
-        context, minor_family, item, "Enterprice", person, declaration_url
+        context,
+        minors=minor_family_member_names,
+        item=item,
+        key="Enterprice",
+        pep=person,
+        source_url=declaration_url,
     )
 
     # for enterprise in item.pop("LinkedEnterprice"):
@@ -351,9 +428,9 @@ def crawl_declaration(context: Context, item: dict, is_current_year) -> None:
     )
 
 
-def query_declaration(
-    context: Context, year: int, name: str, cache_days: int
-) -> List[dict]:
+def fetch_declarations(
+    context: Context, *, year: int, name: str, cache_days: int
+) -> list[dict[str, Any]]:
     query = {
         "Key": name,
         "YearSelectedValues": year,
@@ -361,7 +438,7 @@ def query_declaration(
     url = f"{context.data_url}?{urlencode(query)}"
     try:
         declarations = context.fetch_json(url, cache_days=cache_days)
-        return declarations
+        return cast(list[dict[str, Any]], declarations)
     except RetryError as e:
         if context.lookup("known_errors", name):
             context.log.info(
@@ -385,15 +462,24 @@ def crawl(context: Context) -> None:
             url = f"{DECLARATION_LIST_URL}?yearSelectedValues={year}&page={page}"
             cache_days = 1 if year == current_year else 30
             doc = context.fetch_html(url, cache_days=cache_days)
-            page_count_el = doc.find(".//li[@class='PagedList-skipToLast']/a")
-            page_count_match = REGEX_CHANGE_PAGE.match(page_count_el.get("onclick"))
-            max_page = int(page_count_match.group(1))
+            page_count_el = h.xpath_element(
+                doc, ".//li[@class='PagedList-skipToLast']/a"
+            )
+            page_count_match = REGEX_CHANGE_PAGE.match(page_count_el.get("onclick", ""))
+            max_page = int(page_count_match.group(1)) if page_count_match else None
+
             cache_days = 7 if year == current_year else 30
 
             for row in doc.findall(".//div[@class='declaration1']"):
-                name = row.find(".//h3").text_content()
-                declarations = query_declaration(context, year, name, cache_days)
+                name = h.element_text(h.xpath_elements(row, ".//h3")[0])
+                declarations = fetch_declarations(
+                    context, year=year, name=name, cache_days=cache_days
+                )
                 for declaration in declarations:
-                    crawl_declaration(context, declaration, year == current_year)
+                    crawl_declaration(
+                        context,
+                        item=declaration,
+                        is_current_year=(year == current_year),
+                    )
 
             page += 1

@@ -1,17 +1,35 @@
-from typing import Dict
-from collections import defaultdict
+import html
+from typing import Any
 from rigour.langs import iso_639_alpha3
 
+from urllib3 import Retry
 from zavod import Context, helpers as h
 from zavod.entity import Entity
+from zavod.extract import zyte_api
 from zavod.stateful.positions import OccupancyStatus, categorise
-from zavod.shed.zyte_api import fetch_json
+
 
 CACHE_SHORT = 1
 CACHE_LONG = 30
-STATUSES: Dict[int, int] = defaultdict(int)
-HEADERS = [{"name": "Accept", "value": "application/json"}]
 PEPS = set()
+
+
+def fetch_json_with_retry(context: Context, url: str, *, cache_days: int) -> Any:
+    """Get JSON from the picky knesset API.
+
+    Sometimes we get 200 "access denied" responses (yeah, great) with invalid JSON, retry those."""
+
+    retry = Retry(total=3, backoff_factor=3)
+    while not retry.is_exhausted():
+        try:
+            return zyte_api.fetch_json(
+                context, url, cache_days=cache_days, geolocation="IL"
+            )
+        except Exception as err:
+            context.log.warning("HTTP request error", url=url, err=str(err))
+            # retry.increment will throw if we exhaused our retries
+            retry = retry.increment()
+            continue
 
 
 def crawl_position(
@@ -86,25 +104,18 @@ def crawl_positions(context: Context, person: Entity, member_id, is_current: boo
     context.emit(position)
 
     url = f"https://knesset.gov.il/WebSiteApi/knessetapi/MKs/GetMkPositions?mkId={member_id}&languageKey=en"
-    try:
-        response = fetch_json(context, url, cache_days=CACHE_LONG, geolocation="IL")
-    except Exception as err:
-        context.log.exception("HTTP request error", url=url, err=str(err))
-        STATUSES[str(err)] += 1
-        return
+    response = fetch_json_with_retry(context, url, cache_days=CACHE_LONG)
+
     if response is None:
         # The GetMkPositions endpoint returns null for everyone at the moment but it's still
         # used by the website.
         url = f"https://knesset.gov.il/WebSiteApi/knessetapi/MKs/GetMkKnassot?mkId={member_id}"
-        try:
-            response = fetch_json(context, url, cache_days=CACHE_LONG, geolocation="IL")
-        except Exception as err:
-            context.log.exception("HTTP request error", url=url, err=str(err))
-            STATUSES[str(err)] += 1
-            return
+        response = fetch_json_with_retry(context, url, cache_days=CACHE_LONG)
+
         for knesset in response:
             crawl_position_no_tenure(context, person, position, knesset, is_current)
         return
+
     for row in response:
         for tenure in row.pop("Tenure"):
             crawl_position(context, person, position, tenure)
@@ -119,12 +130,7 @@ def crawl_item(
 ):
     lang_iso_639_2 = iso_639_alpha3(lang_iso_639_1)
     url = f"https://knesset.gov.il/WebSiteApi/knessetapi/MKs/GetMkDetailsContent?mkId={member_id}&languageKey={lang_iso_639_1}"
-    try:
-        content = fetch_json(context, url, cache_days=CACHE_LONG, geolocation="IL")
-    except Exception as err:
-        context.log.exception("HTTP request error", url=url, err=str(err))
-        STATUSES[str(err)] += 1
-        return
+    content = fetch_json_with_retry(context, url, cache_days=CACHE_LONG)
 
     person = context.make("Person")
     person.id = context.make_slug(str(member_id))
@@ -134,7 +140,8 @@ def crawl_item(
         f"https://main.knesset.gov.il/{lang_iso_639_1}/MK/APPS/mk/mk-personal-details/{member_id}",
     )
     if content:
-        person.add("birthPlace", content.pop("PlaceOfBirth"), lang=lang_iso_639_2)
+        birth_place = html.unescape(content.pop("PlaceOfBirth", None))
+        person.add("birthPlace", birth_place, lang=lang_iso_639_2)
 
     if lang_iso_639_1 == "en":
         if content:
@@ -148,16 +155,11 @@ def crawl_item(
 
 
 def crawl(context: Context):
-    members = fetch_json(
-        context, context.data_url, cache_days=CACHE_SHORT, geolocation="IL"
-    )
+    members = fetch_json_with_retry(context, context.data_url, cache_days=CACHE_SHORT)
     for member in members:
         crawl_item(context, member["ID"], member["Name"], member["IsCurrent"], "en")
 
     url_heb = context.data_url.replace("languageKey=en", "languageKey=he")
-    members_heb = fetch_json(context, url_heb, cache_days=CACHE_SHORT, geolocation="IL")
+    members_heb = fetch_json_with_retry(context, url_heb, cache_days=CACHE_SHORT)
     for member in members_heb:
         crawl_item(context, member["ID"], member["Name"], member["IsCurrent"], "he")
-
-    if STATUSES:
-        raise RuntimeError("Error counts: %r" % STATUSES)

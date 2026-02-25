@@ -1,0 +1,16 @@
+id: 123
+title: Measures Against North Korea
+key: SECO-NORTHKOREA
+url: https://www.seco.admin.ch/seco/de/home/Aussenwirtschaftspolitik_Wirtschaftliche_Zusammenarbeit/Wirtschaftsbeziehungen/exportkontrollen-und-sanktionen/sanktionen-embargos/sanktionsmassnahmen/massnahmen-gegenueber-der-demokratischen-volksrepublik-korea--no.
+summary: These measures target individuals and entities involved in North Korea's
+  nuclear weapons program and other illicit activities. The sanctions include asset
+  freezes, travel bans, and trade restrictions to pressure North Korea to denuclearize
+  and comply with international norms.
+issuer: ch_seco
+dataset: ch_seco_sanctions
+target_territories:
+- kp
+measures:
+- Financial block
+- Restrictions on goods
+- Travel ban

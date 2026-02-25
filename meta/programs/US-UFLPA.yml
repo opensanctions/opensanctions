@@ -1,0 +1,16 @@
+id: 188
+title: Uyghur Forced Labor Prevention Act (Public Law No. 117-78)
+key: US-UFLPA
+url: https://www.dhs.gov/uflpa
+summary: This list includes entities involved in the use of forced labor in Xinjiang,
+  China, particularly targeting the Uyghur population. The measures include import
+  bans and trade restrictions to prevent goods produced with forced labor from entering
+  the U.S. market and to promote human rights.
+issuer: us_dhs
+dataset: us_dhs_uflpa
+aliases:
+- UFLPA
+target_territories:
+- cn
+measures:
+- Restrictions on goods

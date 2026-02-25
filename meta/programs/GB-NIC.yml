@@ -1,0 +1,9 @@
+id: 248
+title: UK sanctions relating to Nicaragua
+key: GB-NIC
+url: https://www.gov.uk/government/collections/uk-sanctions-on-nicaragua
+summary: Targeting entities and individuals in Nicaragua.
+issuer: gb_ofsi
+dataset: gb_hmt_sanctions
+target_territories:
+- ni

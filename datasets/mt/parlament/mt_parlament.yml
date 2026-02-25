@@ -1,0 +1,45 @@
+title: Malta Members of Parliament
+prefix: mt-parl
+url: https://parlament.mt/en/
+coverage:
+  frequency: monthly
+  start: 2025-10-10
+load_statements: true
+entry_point: crawler.py
+ci_test: false
+summary: >-
+  Current and recent Members of the Parliament of Malta
+description: |
+  Members of the Parliament of Malta (Maltese: Parlament ta' Malta), the constitutional
+  legislative body of Malta.
+
+  The Parliament is unicameral, consisting of the House of Representatives with a minimum
+  of 65 members elected by proportional representation through the single transferable
+  vote system. Members are elected from 13 electoral districts for a five-year term,
+  though elections may be called earlier.
+
+  The data includes members from recent legislative periods (legislatures), capturing
+  current and recent parliamentarians across different political groups.
+tags:
+  - list.pep
+publisher:
+  name: Parliament of Malta
+  description: |
+    The Parliament of Malta provides information about members of parliament
+    through its official website, organized by legislative period and political
+    groups. The site includes biographical information and political affiliations
+    for parliamentarians.
+  country: mt
+  url: https://parlament.mt/en/
+  official: true
+data:
+  url: https://parlament.mt/en/14th-leg/political-groups/
+  format: HTML
+
+assertions:
+  min:
+    schema_entities:
+      Person: 60
+      Position: 1
+    country_entities:
+      mt: 1

@@ -60,8 +60,7 @@ def crawl_item(input_html, context: Context):
     if match is None:
         context.log.warning("Unable to extract information from HTML element")
 
-    state, start_date, end_date = (  # noqa: F841
-        match.group(1),
+    start_date, end_date = (  # noqa: F841
         match.group(2),
         match.group(3),
     )
@@ -72,6 +71,9 @@ def crawl_item(input_html, context: Context):
     # and other with the clean name.
     raw_title = input_html.xpath("./div/div/div/div[2]/h4/a/text()")[0].strip()
     name = re.sub(r"^([A-Z][a-z]*\.)+ ", "", raw_title)
+    state = h.xpath_string(
+        input_html, ".//div[@class='media-body escudo']/a/text()[1]"
+    ).strip()
 
     person = context.make("Person")
     person.id = context.make_id(name)
@@ -124,5 +126,5 @@ def crawl(context: Context):
         return
 
     path_to_cards = '//*[@class="containerMixitup"]/div/div'
-    for item in response.xpath(path_to_cards):
+    for item in h.xpath_elements(response, path_to_cards):
         crawl_item(item, context)

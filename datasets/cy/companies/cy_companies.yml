@@ -37,3 +37,13 @@ http:
 
 dates:
   formats: ["%d/%m/%Y"]
+
+assertions:
+  min:
+    schema_entities:
+      Company: 400_000
+      LegalEntity: 500_000
+  max:
+    schema_entities:
+      Company: 1000_000
+      LegalEntity: 1200_000

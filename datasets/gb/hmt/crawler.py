@@ -1,4 +1,5 @@
-from typing import Optional, Dict, Any, List
+from typing import Optional, Dict, Any, List, Tuple
+from lxml.etree import _Element as Element
 from banal import first
 
 from rigour.mime.types import XML
@@ -63,7 +64,7 @@ def parse_countries(text: Any) -> List[str]:
     return countries
 
 
-def parse_companies(context: Context, value: Optional[str]):
+def parse_companies(context: Context, value: Optional[str]) -> List[str]:
     if value is None:
         return []
     result = context.lookup("companies", value)
@@ -75,7 +76,7 @@ def parse_companies(context: Context, value: Optional[str]):
     return result.values
 
 
-def split_reg_no(text: str):
+def split_reg_no(text: str) -> List[str]:
     text = text.replace("Tax Identification Number: INN", "; INN")
     text = text.replace("INN:", "; INN:")
     text = text.replace("TIN:", "; TIN:")
@@ -93,7 +94,7 @@ def split_reg_no(text: str):
     return h.multi_split(text, NUMBER_SPLITS + [";", " / "])
 
 
-def id_reg_no(value: str):
+def id_reg_no(value: str) -> Tuple[str, str, str]:
     match = REGEX_REG_NO_TYPES.match(value)
     if match is None:
         return "LegalEntity", "registrationNumber", value
@@ -101,7 +102,7 @@ def id_reg_no(value: str):
     return schema, prop, match.group("value")
 
 
-def split_phone(text: str):
+def split_phone(text: str) -> List[str]:
     # Splits on (1) ... (2) ... if there's more than one index to avoid splitting
     # when it's just an optional part of the number in parens.
     values = REGEX_PHONE_SPLIT.split(text)
@@ -115,7 +116,7 @@ def filter_unknown(value: List[str]) -> List[str]:
     return [v for v in value if v.strip() not in ["-"]]
 
 
-def parse_row(context: Context, row: Dict[str, Any]):
+def parse_row(context: Context, row: Dict[str, Any]) -> None:
     group_type = row.pop("GroupTypeDescription")
     listing_date = row.pop("DateListed")
     designated_date = row.pop("DateDesignated", None)
@@ -206,9 +207,8 @@ def parse_row(context: Context, row: Dict[str, Any]):
     entity.add_cast("Person", "nationality", nationalities)
 
     positions = h.multi_split(row.pop("Individual_Position", None), NUMBER_SPLITS)
-    entity.add_cast("Person", "position", positions)
-
-    entity.add_cast("Person", "gender", row.pop("Individual_Gender", None))
+    entity.add("position", positions, quiet=True)
+    entity.add("gender", row.pop("Individual_Gender", None), quiet=True)
 
     name_type = row.pop("AliasType", None)
     name_prop = NAME_TYPES.get(name_type)
@@ -221,14 +221,29 @@ def parse_row(context: Context, row: Dict[str, Any]):
         context.log.warning("Unknown name quality", quality=name_quality)
         return
 
+    # name1 is always a given name
+    # name6 is always a family name
+    # name2-name5 are sometimes given names, sometimes patro-/matronymic names
+    # We play it safe here and put into more specific properties only what we're sure of
+    name1 = row.pop("name1", None)
+    name2 = row.pop("name2", None)
+    name3 = row.pop("name3", None)
+    name4 = row.pop("name4", None)
+    name5 = row.pop("name5", None)
+    name6 = row.pop("Name6", None)
     h.apply_name(
         entity,
-        name1=row.pop("name1", None),
-        name2=row.pop("name2", None),
-        name3=row.pop("name3", None),
-        name4=row.pop("name4", None),
-        name5=row.pop("name5", None),
-        tail_name=row.pop("Name6", None),
+        given_name=name1,
+        last_name=name6,
+        # We call make_name here to avoid having name2-name5 put into the wrong properties by h.apply_name
+        full=h.make_name(
+            name1=name1,
+            name2=name2,
+            name3=name3,
+            name4=name4,
+            name5=name5,
+            tail_name=name6,
+        ),
         name_prop=name_prop,
         is_weak=is_weak,
         quiet=True,
@@ -334,20 +349,18 @@ def parse_row(context: Context, row: Dict[str, Any]):
             wallet.id = context.make_slug(curr, key)
             wallet.add("currency", curr)
             wallet.add("publicKey", key)
-            wallet.add("topics", "sanction")
             wallet.add("holder", entity.id)
             context.emit(wallet)
 
     context.audit_data(row, ignore=["NonLatinScriptLanguage", "NonLatinScriptType"])
 
-    entity.add("topics", "sanction")
     context.emit(entity)
     context.emit(sanction)
 
 
-def make_row(el):
+def make_row(el: Element) -> Dict[str, str]:
     row = {}
-    for cell in el.getchildren():
+    for cell in el:
         nil = cell.get("{http://www.w3.org/2001/XMLSchema-instance}nil")
         if cell.text is None or nil == "true":
             continue
@@ -359,7 +372,7 @@ def make_row(el):
     return row
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     path = context.fetch_resource("source.xml", context.data_url)
     context.export_resource(path, XML, title=context.SOURCE_TITLE)
     doc = context.parse_resource_xml(path)

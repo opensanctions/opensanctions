@@ -1,0 +1,1863 @@
+# HTML entities
+- strings: ["HOLLEY O&#039;BRIEN"]
+  entity_schema: Person
+  name: [HOLLEY O'BRIEN]
+- strings: ["O&#039;Dell"]
+  entity_schema: LegalEntity
+  name: [O'Dell]
+- strings: ["Caitlin O&#039;Dell"]
+  entity_schema: Person
+  name: [Caitlin O'Dell]
+- strings: ["O&#39;KANE"]
+  entity_schema: LegalEntity
+  name: [O'KANE]
+- strings: ["PATRICIA O&#39;KANE"]
+  entity_schema: Person
+  name: [PATRICIA O'KANE]
+- strings: ["Kakubu Alidor K&#39;Ilaka"]
+  entity_schema: LegalEntity
+  name: [Kakubu Alidor K'Ilaka]
+- strings: ["ADE&#39;LEAKA"]
+  entity_schema: LegalEntity
+  weakAlias: [ADE'LEAKA]
+- strings: ["ADE&#39;LEAKA GORE"]
+  entity_schema: LegalEntity
+  name: [ADE'LEAKA GORE]
+- strings: ["KASEY O&#39;CONNOR"]
+  entity_schema: Person
+  name: [KASEY O'CONNOR]
+- strings: ["DEPUTY DIRECTOR FOR OFFICE OF WORKERS&#039; COMPENSATION PROGRAMS, DEPARTMENT OF LABOR"]
+  entity_schema: Organization
+  name: ["DEPUTY DIRECTOR FOR OFFICE OF WORKERS' COMPENSATION PROGRAMS, DEPARTMENT OF LABOR"]
+- strings: ["DIRECTOR, ENERGY EMPLOYEES&#039; OCCUPATIONAL ILLNESS COMPENATION, DEPARTMENT OF LABOR"]
+  entity_schema: LegalEntity
+  name: ["DIRECTOR, ENERGY EMPLOYEES' OCCUPATIONAL ILLNESS COMPENATION, DEPARTMENT OF LABOR"]
+- strings: ["DEPUTY DIRECTOR, WOMEN&#039;S BUREAU, DEPARTMENT OF LABOR"]
+  entity_schema: Organization
+  name: ["DEPUTY DIRECTOR, WOMEN'S BUREAU, DEPARTMENT OF LABOR"]
+- strings: ["HAPPY SAILING INT&#39"]
+  entity_schema: LegalEntity
+  name: ["HAPPY SAILING INT'"]
+- strings: ["YANTAI EVER GROWING INT&#39"]
+  entity_schema: Organization
+  name: ["YANTAI EVER GROWING INT'"]
+# Semicolons
+## ru_cbr_banks
+- strings: ["Joint-stock Company Universal commercial bank of social development & reconstruction \"BELGORODSOCBANK\"; JSC \"Belgorodsocbank\""]
+  entity_schema: LegalEntity
+  name:
+    - Joint-stock Company Universal commercial bank of social development & reconstruction "BELGORODSOCBANK"
+    - JSC "Belgorodsocbank"
+- strings: ["Non-bank credit organization \"Taidon\" Limited liability company; NCO \"Taidon\" LLC"]
+  entity_schema: Organization
+  name:
+    - Non-bank credit organization "Taidon" Limited liability company
+    - NCO "Taidon" LLC
+- strings: ["Joint stock company \"GENBANK\"; JSC \"GENBANK\""]
+  entity_schema: LegalEntity
+  name:
+    - Joint stock company "GENBANK"
+    - JSC "GENBANK"
+- strings: ["Bank Paygine Limited; Bank Paygine Ltd"]
+  entity_schema: Organization
+  name:
+    - Bank Paygine Limited
+    - Bank Paygine Ltd
+- strings: ["Central counterparty \"LCC\" (joint-stock company); LCC (JSC)"]
+  entity_schema: LegalEntity
+  name:
+    - Central counterparty "LCC" (joint-stock company)
+    - LCC (JSC)
+- strings: ["Joint-stock bank \"City Invest Bank\"; AO \"City Invest Bank\""]
+  entity_schema: Company
+  name:
+    - Joint-stock bank "City Invest Bank"
+    - AO "City Invest Bank"
+## ch_finma_warnings
+- strings: ["Its-DeCrypted; It's DeCrypted"]
+  entity_schema: LegalEntity
+  name:
+    - Its-DeCrypted
+    - It's DeCrypted
+- strings: ["JP Finance; Jean Pierre Technologies LTD"]
+  entity_schema: LegalEntity
+  name:
+    - JP Finance
+    - Jean Pierre Technologies LTD
+- strings: ["NOVA INVESTMENT; Novainvests"]
+  entity_schema: Company
+  name:
+    - NOVA INVESTMENT
+    - Novainvests
+- strings: ["Paraiba World; Unique Private Bank Ltd"]
+  entity_schema: LegalEntity
+  name:
+    - Paraiba World
+    - Unique Private Bank Ltd
+- strings: ["Royal C Bank; Royal Bank"]
+  entity_schema: LegalEntity
+  name:
+    - Royal C Bank
+    - Royal Bank
+- strings: ["StainWayFinancials; Stainway Financials"]
+  entity_schema: Company
+  name:
+    - StainWayFinancials
+    - Stainway Financials
+- strings: ["Swiss Prime; Swiss Prime Limited"]
+  entity_schema: LegalEntity
+  name:
+    - Swiss Prime
+    - Swiss Prime Limited
+- strings: ["TBL Trade Block London; Dalipi Holding Co"]
+  entity_schema: LegalEntity
+  name:
+    - TBL Trade Block London
+    - Dalipi Holding Co
+- strings: ["TheKryptoBank; KryptoBank (AG)"]
+  entity_schema: LegalEntity
+  name:
+    - TheKryptoBank
+    - KryptoBank (AG)
+- strings: ["Trust Capital Investment; Trust Holding Funds Ltd"]
+  entity_schema: LegalEntity
+  name:
+    - Trust Capital Investment
+    - Trust Holding Funds Ltd
+- strings: ["UNIQUE Exchange; UNIQUE Crypto LLC"]
+  entity_schema: LegalEntity
+  name:
+    - UNIQUE Exchange
+    - UNIQUE Crypto LLC
+- strings: ["Pitoyo, Joko ; Pintono, Joko ; Dulmatin ; Dul Matin ; Abdul Martin ; Abdul Matin ; Amar Umar ; Amar Usman ; Anar Usman ; Djoko Supriyanto ; Jak Imron ; Muktamar ; Novarianto ; Topel"]
+  entity_schema: Person
+  name:
+    - Pitoyo, Joko
+  alias:
+    - Pintono, Joko
+    - Dulmatin # Contraction of Abdul Martin?
+    - Dul Matin
+    - Abdul Martin
+    - Abdul Matin
+    - Amar Umar
+    - Amar Usman
+    - Anar Usman
+    - Djoko Supriyanto
+    - Jak Imron
+  weakAlias:
+    - Topel
+    - Muktamar
+    - Novarianto
+
+## other datasets
+- strings: ["Société par actions \"Shvabe\"; \"Shvabe\" S.A."]
+  entity_schema: LegalEntity
+  name:
+    - Société par actions "Shvabe"
+    - \"Shvabe\" S.A.
+- strings: ["Force aérospatiale du Corps des gardiens de la révolution islamique; (IRGC ASF)"]
+  entity_schema: LegalEntity
+  name: [Force aérospatiale du Corps des gardiens de la révolution islamique]
+  weakAlias: [IRGC ASF]
+- strings: ["Fondation coopérative Basij; (également connue sous le nom de Bonyad-eh Ta’avon-eh Basij)"]
+  entity_schema: LegalEntity
+  name: [Fondation coopérative Basij]
+  alias: [Bonyad-eh Ta’avon-eh Basij]
+- strings: ["Al-Sayyad Company for; Guarding and Protection Services; Ltd"]
+  entity_schema: LegalEntity
+  name: [Al-Sayyad Company for Guarding and Protection Services Ltd]
+          # ???
+- strings: ["MUSIC MAR-CO; MUSIC SERVIS, IZOBRAŽEVANJE, MARKETING MARKO KAVTIČNIK S.P."]
+  entity_schema: LegalEntity
+- strings: ["Cho Yan Nathan; a.k.a Nathan Man Man"]
+  entity_schema: LegalEntity
+  name: [Cho Yan Nathan]
+  alias: [Nathan Man Man]
+- strings: ["Kreig; a.k.a. Cow Craig; a.k.a. Hall Jermaine; a.k.a. Hall Jermaine Craig; a.k.a. Rhooms Jermain; a.k.a. Rhoomas Jermaine Craig; a.k.a. Rhoomas Rhoomes"]
+  entity_schema: LegalEntity
+  alias:
+    - Cow Craig
+    - Hall Jermaine
+    - Hall Jermaine Craig
+    - Rhooms Jermain
+    - Rhoomas Jermaine Craig
+    - Rhoomas Rhoomes
+  weakAlias: [Kreig]
+- strings: [INTERMONTE PARTNERS SIM S.P.A. SIGLABILE ANCHE INTERMONTE PARTNERS - SOCIETA' DI INTERMEDIAZIONE MOBILIARE S.P.A. INTERMONTE PARTERS - SOCIETA' DI INTERMEDIAZIONE MOBILIARE P.A. INTERMONTE PARTNERS- SIM P.A.; INTERMONTE PARTNERS SIM; INTERMONTE P SIM; IP SIM"]
+  entity_schema: LegalEntity
+  name: [INTERMONTE PARTNERS SIM S.P.A.]
+  alias:
+    - INTERMONTE PARTNERS - SOCIETA' DI INTERMEDIAZIONE MOBILIARE S.P.A.
+    - INTERMONTE PARTERS - SOCIETA' DI INTERMEDIAZIONE MOBILIARE P.A.
+    - INTERMONTE PARTNERS- SIM P.A.
+    - INTERMONTE PARTNERS SIM
+    - INTERMONTE P SIM
+  weakAlias: [IP SIM]
+- strings: ["UNIFAST FINANCE &amp; INVESTMENTS PUBLIC COMPANY LIMITED"]
+  entity_schema: LegalEntity
+  name: [UNIFAST FINANCE & INVESTMENTS PUBLIC COMPANY LIMITED]
+- strings: ["BORGES AGRICULTURAL &amp; INDUSTRIAL NUTS SA"]
+  entity_schema: LegalEntity
+  name: [BORGES AGRICULTURAL & INDUSTRIAL NUTS SA]
+- strings: ["Nuveen Preferred Securities &amp; Income Opportunities Fund"]
+  entity_schema: LegalEntity
+  name: [Nuveen Preferred Securities & Income Opportunities Fund]
+- strings: ["MINOR HOTELS EUROPE &amp; AMERICAS SA"]
+  entity_schema: LegalEntity
+  name: [MINOR HOTELS EUROPE & AMERICAS SA]
+  # ????? clearly multiple entities
+- strings: ["Sheikh Mohammed Bin Rashid Al Maktoum, Prime Minister and Vice Pres. of the UAE; Sheikh Hamdan Bin Rashid Al Maktoum, Minister of Finance and Industry of the UAE; and The Executive Office (Dubai)"]
+  entity_schema: LegalEntity
+  # ????? clearly multiple entities
+- strings: ["President of the Republic of Bulgaria, Zhelyo Zhelev; Director, Agency for IntNatl. Assistance, Petko Simeonov"]
+  entity_schema: LegalEntity
+  # ????? clearly multiple entities
+- strings: ["Coordinador de Organismos Empresariales de Comerio Exterior (COECE); Consejo Coordinador Empresarial (CCE)"]
+  entity_schema: LegalEntity
+- strings: ["Vitro, S.A.; Anchor Glass Container Corporation"]
+  entity_schema: LegalEntity
+- strings: ["Шеньчжень Юнісон Біо Тек Ко Лтд; Шеньчжень Лянлішен Байотекнолоджи Ко Лтд; Шеньчжень Юнісон Байосен Біо Тек Ко Лтд"]
+  entity_schema: LegalEntity
+- strings: ["Шеньчжень Байосен Біо Тек Ко Лтд; Шеньчжень Байоусен Байотекнолоджи Ко Лтд; Шеньчжень Боусен Байолоджикал Текнолоджи Ко Лтд"]
+  entity_schema: LegalEntity
+- strings: ["Товариство з обмеженою відповідальністю \"Центральний депозитарій фондів\"; Товариство з обмеженою відповідальністю \"ЦДФ\""]
+  entity_schema: Company
+- strings: ["COMPAGNIE AERIENNE DES GRANDS LACS (CAGL) ; GREAT LAKES BUSINESS COMPANY (GLBC)"]
+  entity_schema: LegalEntity
+- strings: ["Zijin Mining Group Northwest Co., Ltd.; Former name: Xinjiang Zijin Mining Co., Ltd."]
+  entity_schema: LegalEntity
+- strings: ["紫金矿业集团西北有限公司; 曾用名：新疆紫金矿业有限责任公司"]
+  entity_schema: LegalEntity
+  # ?????? blank it cos it's not the subject's name?!
+- strings: ["Subrata Banerjee Father's name: KALI BANERJEE; Date of Birth: 19/11/1960; Address: 40/4,BANERJEE PARA ROAD, KOLKATA, 700041"]
+  entity_schema: LegalEntity
+  name: []
+  # ?????? blank it cos it's not the subject's name?!
+- strings: ["Amit Agarwal-Father's name: Matadeen Agarwal; Date of Birth: 28/01/1982; Address: 29A, Weston Street, 3rd Floor, Kolkata, 700012"]
+  entity_schema: LegalEntity
+  name: []
+- strings: ["Nimbus Industries Ltd.Listed at BSE; Address: A/203, Bhoomi Utsav, M.G. Road, Near Kala Hanuman Mandir, Kandivali (West), Mumbai 400067"]
+  entity_schema: LegalEntity
+  name: [Nimbus Industries Ltd.]
+- strings: ["Prraneta Industries Ltd.Listed at BSE; Address: S-574/577, 5th Floor, Belgium Square,Ring Road, Surat - 395002"]
+  entity_schema: LegalEntity
+  name: [Prraneta Industries Ltd.]
+## translit or translation variants
+- strings: ["Биргит Дизел / Birgit Dizel"]
+  entity_schema: LegalEntity
+  name:
+    - Биргит Дизел
+    - Birgit Dizel
+- strings: ["Бернд Бусеманн / Bernd Busemann"]
+  entity_schema: LegalEntity
+  name:
+    - Бернд Бусеманн
+    - Bernd Busemann
+- strings: ["Курт Бецк / Kurt Beck"]
+  entity_schema: LegalEntity
+- strings: ["Диетер Алтхаус / Dieter Althaus"]
+  entity_schema: LegalEntity
+- strings: ["Ханс Ајхел / Hans Ajhel"]
+  entity_schema: LegalEntity
+- strings: ["Тилл Бацкхаус / Till Backhaus"]
+  entity_schema: LegalEntity
+# Singapore son or daughter of
+# Seen a lot on sg_gov_dir
+- strings: ["Amir S/O AHAMED"]
+  entity_schema: Person
+  name: [Amir S/O AHAMED]
+- strings: ["Panirselvam s/o KASINATHAN"]
+  entity_schema: LegalEntity
+  name: [Panirselvam s/o KASINATHAN]
+- strings: ["NAZEERA BEGAM d/o Maideen"]
+  entity_schema: Person
+  name: [NAZEERA BEGAM d/o Maideen]
+- strings: ["Sree Gaithiri d/o KUNNASEGARAN"]
+  entity_schema: LegalEntity
+  name: [Sree Gaithiri d/o KUNNASEGARAN]
+- strings: ["Santhakumari D/O V SERANJEEVI"]
+  entity_schema: Person
+  name: [Santhakumari D/O V SERANJEEVI]
+- strings: ["Mohamed Rizal s/o ALI Barkat"]
+  entity_schema: LegalEntity
+  name: [Mohamed Rizal s/o ALI Barkat]
+- strings: ["Manimegalai d/o VELLASAMY"]
+  entity_schema: Person
+  name: [Manimegalai d/o VELLASAMY]
+- strings: ["Adjunct A/Prof Png Gek Kheng"]
+  entity_schema: LegalEntity
+  name: [Png Gek Kheng]
+- strings: ["Kristin Geetha D/O Samivelu"]
+  entity_schema: Person
+  name: [Kristin Geetha D/O Samivelu]
+- strings: ["Narasimma s/o TIVASIHA MANI"]
+  entity_schema: LegalEntity
+  name: [Narasimma s/o TIVASIHA MANI]
+- strings: ["Afrah D/O MOHAMED YASEEN"]
+  entity_schema: Person
+  name: [Afrah D/O MOHAMED YASEEN]
+- strings: ["Hari Kishen S/O BALAKRISHNAN"]
+  entity_schema: LegalEntity
+  name: [Hari Kishen S/O BALAKRISHNAN]
+- strings: ["Sabitri Devi d/o Narpat Panday"]
+  entity_schema: Person
+  name: [Sabitri Devi d/o Narpat Panday]
+- strings: ["Saravenan S/O Tanapal"]
+  entity_schema: LegalEntity
+  name: [Saravenan S/O Tanapal]
+- strings: ["Sivakumar s/o VISWANATHAN"]
+  entity_schema: Person
+  name: [Sivakumar s/o VISWANATHAN]
+- strings: ["VENUGOBAL s/o M Thangaraju"]
+  entity_schema: LegalEntity
+  name: [VENUGOBAL s/o M Thangaraju]
+- strings: ["Mohan s/o SUPPIAH"]
+  entity_schema: Person
+  name: [Mohan s/o SUPPIAH]
+- strings: ["Mdm Malar Vizhi d/o Anjappan"]
+  entity_schema: LegalEntity
+  name: [Malar Vizhi d/o Anjappan]
+# a/l is malay for son of
+- strings: ["Gunasekaren A/L Palasamy"]
+  entity_schema: Person
+  name: [Gunasekaren A/L Palasamy]
+- strings: ["Kumar A/L Rajagopal"]
+  entity_schema: LegalEntity
+  name: [Kumar A/L Rajagopal]
+- strings: ["Sivasubramaniam a/l Athinarayanan"]
+  entity_schema: Person
+  name: [Sivasubramaniam a/l Athinarayanan]
+- strings: ["Sanisvara Nethaji Rayer A/L Rajaji"]
+  entity_schema: LegalEntity
+  name: [Sanisvara Nethaji Rayer A/L Rajaji]
+- strings: ["Manoharan A/L Malayalam"]
+  entity_schema: Person
+  name: [Manoharan A/L Malayalam]
+- strings: ["Kesavan a/l Subramaniam"]
+  entity_schema: LegalEntity
+  name: [Kesavan a/l Subramaniam]
+# variants in parentheses
+## org
+- strings: ["Jaish-i-Mohammed (Mohammad, Muhammad, Muhammed)"]
+  entity_schema: Organization
+  name: [Jaish-i-Mohammed]
+  alias:
+    - Jaish-i-Mohammad
+    - Jaish-i-Muhammad
+    - Jaish-i-Muhammed
+## person
+- strings: ["Aleksandr(Alexander/Oleksandr) KARAMAN"]
+  entity_schema: LegalEntity
+  name: [Aleksandr KARAMAN]
+  alias:
+    - Alexander KARAMAN
+    - Oleksandr KARAMAN
+- strings: ["Aleksandr(Alexander/Oleksandr) KOFMAN"]
+  entity_schema: Person
+  name: [Aleksandr KOFMAN]
+  alias:
+    - Alexander KOFMAN
+    - Oleksandr KOFMAN
+- strings: ["Aleksandr(Alexander/Oleksandr) ZAKHARCHENKO"]
+  entity_schema: LegalEntity
+  name: [Aleksandr ZAKHARCHENKO]
+  alias:
+    - Alexander ZAKHARCHENKO
+    - Oleksandr ZAKHARCHENKO
+- strings: ["Aleksandr(Oleksandr) KALYUSSKY(KALIUSKY/KALYUSKII/KALIUSKYY/KALYUSKYY)"]
+  entity_schema: Person
+  name: [Aleksandr KALYUSSKY]
+  alias:
+    - Oleksandr KALYUSSKY
+    - Aleksandr KALIUSKY
+    - Oleksandr KALIUSKY
+    - Aleksandr KALYUSKII
+    - Oleksandr KALYUSKII
+    - Aleksandr KALIUSKYY
+    - Oleksandr KALIUSKYY
+    - Aleksandr KALYUSKYY
+    - Oleksandr KALYUSKYY
+- strings: ["Aleksandr(Oleksandr) KHODAKOVSKY(KHODAKOVSKYY/KHODAKOVSKII)"]
+  entity_schema: LegalEntity
+  name: [Aleksandr KHODAKOVSKY]
+  alias:
+    - Oleksandr KHODAKOVSKY
+    - Aleksandr KHODAKOVSKYY
+    - Oleksandr KHODAKOVSKYY
+    - Aleksandr KHODAKOVSKII
+    - Oleksandr KHODAKOVSKII
+- strings: ["Aleksei(Oleksiy) MOZGOVOY(MOZGOVOI/MOZGOVY/MOZHOVY/MOZHOVYY)"]
+  entity_schema: Person
+  name: [Aleksei MOZGOVOY]
+  alias:
+    - Oleksiy MOZGOVOY
+    - Aleksei MOZGOVOI
+    - Oleksiy MOZGOVOI
+    - Aleksei MOZGOVY
+    - Oleksiy MOZGOVY
+    - Aleksei MOZHOVY
+    - Oleksiy MOZHOVY
+    - Aleksei MOZHOVYY
+    - Oleksiy MOZHOVYY
+- strings: ["Aleksey(Aleksei/Oleksiy) KARYAKIN(KARIAKIN)"]
+  entity_schema: Person
+  name: [Aleksey KARYAKIN]
+  alias:
+    - Aleksey KARIAKIN
+    - Aleksei KARYAKIN
+    - Oleksiy KARYAKIN
+    - Aleksei KARIAKIN
+    - Oleksiy KARIAKIN
+- strings: ["Andriy(Andrei/Andrey) PURGIN(PURHIN)"]
+  entity_schema: LegalEntity
+  name: [Andriy PURGIN]
+  alias:
+    - Andrei PURGIN
+    - Andrey PURGIN
+    - Andriy PURHIN
+    - Andrei PURHIN
+    - Andrey PURHIN
+- strings: ["Denis (Denys) BEREZOVSKIY(BEREZOVSKY/BEREZOVSKII)"]
+  entity_schema: LegalEntity
+  name: [Denis BEREZOVSKIY]
+  alias:
+    - Denys BEREZOVSKIY
+    - Denis BEREZOVSKY
+    - Denys BEREZOVSKY
+    - Denis BEREZOVSKII
+    - Denys BEREZOVSKII
+- strings: ["Dmitry(Dmitriy/Dmytro) SEMYONOV"]
+  entity_schema: Person
+  name: [Dmitry SEMYONOV]
+  alias:
+    - Dmitriy SEMYONOV
+    - Dmytro SEMYONOV
+### Japanese wide parentheses
+- strings: ["Ekaterina(Kateryna) GUBAREVA（HUBARIEVA/HUBAREVA）"]
+  entity_schema: LegalEntity
+  name: [Ekaterina GUBAREVA]
+  alias:
+    - Kateryna GUBAREVA
+    - Ekaterina HUBARIEVA
+    - Kateryna HUBARIEVA
+    - Ekaterina HUBAREVA
+    - Kateryna HUBAREVA
+- strings: ["Elmira Khaimourzina（Khaimurzina/Haimurzyna）"]
+  entity_schema: LegalEntity
+  name: [Elmira Khaimourzina]
+  alias:
+    - Elmira Khaimurzina
+    - Elmira Haimurzyna
+- strings: ["Igor(Ihor) KAKIDZYANOV(KAKIZYANOV/KAKIDZHANOV)"]
+  entity_schema: Person
+  name: [Igor KAKIDZYANOV]
+  alias:
+    - Ihor KAKIDZYANOV
+    - Igor KAKIZYANOV
+    - Ihor KAKIZYANOV
+    - Igor KAKIDZHANOV
+    - Ihor KAKIDZHANOV
+- strings: ["Igor(Ihor) PLOTNITSKY(PLOTNYTSKY/PLOTNYTSKYY/PLOTNITSKII)"]
+  entity_schema: Person
+  name: [Igor PLOTNITSKY]
+  alias:
+    - Ihor PLOTNITSKY
+    - Igor PLOTNYTSKY
+    - Ihor PLOTNYTSKY
+    - Igor PLOTNYTSKYY
+    - Ihor PLOTNYTSKYY
+    - Igor PLOTNITSKII
+    - Ihor PLOTNITSKII
+- strings: ["MIKI (aka Myoungsik) KIM (aka Cepeda)"]
+  entity_schema: Person
+  name: [MIKI KIM]
+  alias:
+    - Myoungsik KIM
+    - MIKI Cepeda
+    - Myoungsik Cepeda
+- strings: ["Ричард/Рэйчел ЛЕВИН"]
+  entity_schema: LegalEntity
+  name:
+    - Ричард ЛЕВИН
+    - Рэйчел ЛЕВИН
+# former names
+- strings: ["GELOR (formerly ARTARA)"]
+  entity_schema: LegalEntity
+  name: [GELOR]
+  previousName: [ARTARA]
+- strings: ["PERMANENT TSB PLC. (FORMERLY IRISH LIFE AND PERMANENT PLC)"]
+  entity_schema: LegalEntity
+  name: [PERMANENT TSB PLC.]
+  previousName: [IRISH LIFE AND PERMANENT PLC]
+- strings: ["ATTIJARIWAFA BANK (FORMERLY BANQUE COMMERCIALE DU MAROC)"]
+  entity_schema: Company
+  name: [ATTIJARIWAFA BANK]
+  previousName: [BANQUE COMMERCIALE DU MAROC]
+- strings: ["SUMITOMO MITSUI BANKING CORPORATION (FORMERLY SUMITOMO BANK)"]
+  entity_schema: Company
+  name: [SUMITOMO MITSUI BANKING CORPORATION]
+  previousName: [SUMITOMO BANK]
+- strings: ["BANK OF CHONGQING CO., LTD. ( FORMERLY CHONGQING COMMERCIAL BANK)"]
+  entity_schema: Company
+  name: ["BANK OF CHONGQING CO., LTD."]
+  previousName: [CHONGQING COMMERCIAL BANK]
+- strings: ["STATE STREET BANK AND TRUST COMPANY (FORMERLY INVESTORS BANK AND TRUST)"]
+  entity_schema: Organization
+  name: [STATE STREET BANK AND TRUST COMPANY]
+  previousName: [INVESTORS BANK AND TRUST]
+- strings: ["REGION TRADE BANK FOR INVESTMENT AND FINANCE (FORMERLY EMERALD BANK)"]
+  entity_schema: Company
+  name: [REGION TRADE BANK FOR INVESTMENT AND FINANCE]
+  previousName: [EMERALD BANK]
+- strings: ["BANK OF SHAOXING CO.,LTD (FORMERLY SHAOXING CITY COMMERCIAL BANK)"]
+  entity_schema: Company
+  name: ["BANK OF SHAOXING CO.,LTD"]
+  previousName: [SHAOXING CITY COMMERCIAL BANK]
+- strings: ["SANTANDER CONSUMER BANK (FORMERLY AKB BANK AG)"]
+  entity_schema: LegalEntity
+  name: [SANTANDER CONSUMER BANK]
+  previousName: [AKB BANK AG]
+- strings: ["BANK OF ANSHAN CO., LTD. (FORMERLY ANSHAN CITY COMMERCIAL BANK)"]
+  entity_schema: LegalEntity
+  name: ["BANK OF ANSHAN CO., LTD."]
+  previousName: [ANSHAN CITY COMMERCIAL BANK]
+# aliases with additional demographics
+- strings: [BABIC Josip geb. 06.02.1979 in Deutschland; GOJKOVIC Dragan geb. 08.09.1977 in Berane/Montenegro; GREPO David geb. 02.03.1983; KAROLY Ferenc geb. 31.03.1975; und weitere]
+  entity_schema: LegalEntity
+  name: [BABIC Josip]
+  alias:
+    - GOJKOVIC Dragan
+    - GREPO David
+    - KAROLY Ferenc
+- strings: ["Stuever, Michael geb. 18.01.1970, Müller, Carsten"]
+  entity_schema: LegalEntity
+  name: ["Stuever, Michael"]
+  alias: ["Müller, Carsten"]
+- strings: ["The Ministry of Defence of the Republic of Belarus, including the Armed Forces of Belarus and all operating units wherever located. This includes the national armed services (army and air force), as well as the national guard and national police, government intelligence or reconnaissance organizations of the Republic of Belarus. All addresses located in Belarus."]
+  entity_schema: LegalEntity
+  name: [The Ministry of Defence of the Republic of Belarus]
+- strings: ["Department of Atomic Energy facilities: Nuclear reactors (including power plants) not under International Atomic Energy Agency (IAEA) safeguards (excluding Kundankulam 1 and 2)"]
+  entity_schema: LegalEntity
+  name: [Department of Atomic Energy facilities (including power plants) not under International Atomic Energy Agency (IAEA) safeguards (excluding Kundankulam 1 and 2)]
+# aka, fka, dba
+- strings: ["Universal Enterprise Limited [aka General Technology Limited, aka Beijing Luo Luo Tech Development Limited, aka Tiger Force Electronics, aka Foshan Nanhai Winhope Trade Company] (Hong Kong Entity), and its sub-units and successors"]
+  entity_schema: LegalEntity
+  name: [Universal Enterprise Limited]
+  alias:
+    - General Technology Limited
+    - Beijing Luo Luo Tech Development Limited
+    - Tiger Force Electronics
+    - Foshan Nanhai Winhope Trade Company
+- strings: ["Russian Aerospace Forces (aka VKS);"]
+  entity_schema: LegalEntity
+  name: [Russian Aerospace Forces]
+  weakAlias: [VKS]
+- strings: ["Elena; a.k.a. Elena Leonidovna Shifrin Lena; a.k.a Gohkman Alexander; a.k.a Ivanov Elena; a.k.a Belov Shifrin"]
+  entity_schema: Person
+  alias:
+    - Elena Leonidovna Shifrin Lena
+    - Gohkman Alexander
+    - Ivanov Elena
+    - Belov Shifrin
+  weakAlias: [Elena]
+- strings: ["Yichang Testing Technology Research Institute a.k.a. Yichang Institute of Testing Technology"]
+  entity_schema: Organization
+  name: [Yichang Testing Technology Research Institute]
+  alias: [Yichang Institute of Testing Technology]
+- strings: ["Ch'oe Ch'o'l-min (a.k.a Choe Chol Min) (DPRK individual)"]
+  entity_schema: LegalEntity
+  name: [Ch'oe Ch'o'l-min]
+  alias: [Choe Chol Min]
+- strings: ["Cho Yan Nathan; a.k.a Nathan Man Man"]
+  entity_schema: LegalEntity
+  name: [Cho Yan Nathan]
+  alias: [Nathan Man Man]
+- strings: ["Eric Fru Eric Fru a/k/a Ngi Nji"]
+  entity_schema: LegalEntity
+  name: [Eric Fru]
+  alias: [Ngi Nji]
+- strings: ["ACory (a.k.a Jason Cory Wilson) Wilson"]
+  entity_schema: LegalEntity
+  name: [ACory Wilson]
+  alias: [Jason Cory Wilson]
+- strings: ["Chitron Electronics Company Ltd., a.k.a. Chi-Chung Electronics Company Ltd. (Chitron-Shenzhen)"]
+  entity_schema: LegalEntity
+  name: [Chitron Electronics Company Ltd.]
+  alias: [Chi-Chung Electronics Company Ltd. (Chitron-Shenzhen)]
+- strings: ["AO Institute Stroyproekt (f.k.a., Institut Stroiproekt Zakrytoe Aktsionernoe Obshchestvo)"]
+  entity_schema: LegalEntity
+  name: [AO Institute Stroyproekt]
+  previousName: [Institut Stroiproekt Zakrytoe Aktsionernoe Obshchestvo]
+- strings: ["Zakrytoe Aktsionernoe Obshchestvo 'IFD Kapital' (f.k.a., Zakrytoe Aktsionernoe Obshchestvo IFD Karital)"]
+  entity_schema: LegalEntity
+  name: [Zakrytoe Aktsionernoe Obshchestvo 'IFD Kapital']
+  previousName: [Zakrytoe Aktsionernoe Obshchestvo IFD Karital]
+- strings: ["JSC 'Almaz-Antey' MSDB, f.k.a., Otkrytoe Aktsionernoe Obshchestvo Nauchno Proizvodstvennoe Obedinenie Almaz Imeni Akademika A.A. Raspletina"]
+  entity_schema: LegalEntity
+  name: [JSC 'Almaz-Antey' MSDB]
+  previousName: [Otkrytoe Aktsionernoe Obshchestvo Nauchno Proizvodstvennoe Obedinenie Almaz Imeni Akademika A.A. Raspletina]
+- strings: ["Obshchestvo S Ogranichennoi Otvetstvennostyu 'Molot-Oruzhie' (f.k.a., Obshchestvo S Ogranichennoi Otvetstvennostyu Proizvodstvenno Instrument Kachestvo)"]
+  entity_schema: LegalEntity
+  name: [Obshchestvo S Ogranichennoi Otvetstvennostyu 'Molot-Oruzhie']
+  previousName: [Obshchestvo S Ogranichennoi Otvetstvennostyu Proizvodstvenno Instrument Kachestvo]
+- strings: ["JSC NIIP, f.k.a., Otkrytoe Aktsionernoe Obshchestvo Nauchno Issledovatelski Institute Priborostroeniya Imeni V.V. Tikhomirova"]
+  entity_schema: LegalEntity
+  weakAlias: [JSC NIIP]
+  previousName: [Otkrytoe Aktsionernoe Obshchestvo Nauchno Issledovatelski Institute Priborostroeniya Imeni V.V. Tikhomirova]
+- strings: ["SIBERIAN AIRLINES D/B/A S7 AIRLINES"]
+  entity_schema: LegalEntity
+  name: [SIBERIAN AIRLINES]
+  alias: [S7 AIRLINES]
+- strings: ["PEARL (A.K.A. NEI-CHIEN CHU) LI"]
+  entity_schema: LegalEntity
+  name: [PEARL LI]
+  alias: [NEI-CHIEN CHU LI]
+- strings: ["Southwest Institute of Nuclear Physics and Chemistry (a.k.a., China Academy of Engineering Physics (CAEP)'s 902 Institute)"]
+  entity_schema: LegalEntity
+  name: [Southwest Institute of Nuclear Physics and Chemistry]
+  alias: [China Academy of Engineering Physics (CAEP)'s 902 Institute]
+- strings: ["FERDIE (A.K.A. FERNANDO SERO) RESADA"]
+  entity_schema: LegalEntity
+  name: [FERDIE RESADA]
+  alias: [FERNANDO SERO RESADA]
+- strings: ["Александар Добриндт / Aleksandar Dobrindt"]
+  entity_schema: LegalEntity
+  name:
+    - Александар Добриндт
+    - Aleksandar Dobrindt
+- strings: ["Александар Мајер / Aleksandar Majer"]
+  entity_schema: Person
+  name:
+    - Александар Мајер
+    - Aleksandar Majer
+- strings: ["Андре Брие / Andre Brie"]
+  entity_schema: LegalEntity
+  name:
+    - Андре Брие
+    - Andre Brie
+- strings: ["Анналена Баербоцк / Annalena Baerbock"]
+  entity_schema: Person
+  name:
+    - Анналена Баербоцк
+    - Annalena Baerbock
+- strings: ["Барбел Бас / Barbel Bas"]
+  entity_schema: LegalEntity
+  name:
+    - Барбел Бас
+    - Barbel Bas
+- strings: ["Барбел Диецкманн / Barbel Dieckmann"]
+  entity_schema: Person
+  name:
+    - Барбел Диецкманн
+    - Barbel Dieckmann
+- strings: ["Sergei (Sergi) Ivanovich Tomchani"]
+  entity_schema: LegalEntity
+  name: [Sergei Ivanovich Tomchani]
+  alias: [Sergi Ivanovich Tomchani]
+# Examples where parens don't mean variants
+- strings: ["China Aerospace Science and Technology Corporation (CASC) 8th Academy 811 Research Institute"]
+  entity_schema: LegalEntity
+  name: [China Aerospace Science and Technology Corporation (CASC) 8th Academy 811 Research Institute]
+  weakAlias: [CASC]
+- strings: ["VTB BANK (AUSTRIA) AG"]
+  entity_schema: Company
+  name: [VTB BANK (AUSTRIA) AG]
+- strings: ["CSSC OFFSHORE & MARINE ENGINEERING (GROUP) COMPANY LIMITED"]
+  entity_schema: LegalEntity
+  name: [CSSC OFFSHORE & MARINE ENGINEERING (GROUP) COMPANY LIMITED]
+- strings: ["Quantum Logix (Private)"]
+  entity_schema: LegalEntity
+  name: [Quantum Logix (Private)]
+- strings: ["Quantum Logix (Pvt) Ltd."]
+  entity_schema: LegalEntity
+  name: [Quantum Logix (Pvt) Ltd.]
+- strings: ["SMIC Northern Integrated Circuit Manufacturing (Beijing) Co., Ltd."]
+  entity_schema: LegalEntity
+  name: ["SMIC Northern Integrated Circuit Manufacturing (Beijing) Co., Ltd."]
+- strings: ["Semiconductor Manufacturing North China (Beijing) Corporation"]
+  entity_schema: Company
+  name: [Semiconductor Manufacturing North China (Beijing) Corporation]
+- strings: ["Centre d'Etudes et de Recherches Scientifiques (CERS)"]
+  entity_schema: LegalEntity
+  name: [Centre d'Etudes et de Recherches Scientifiques]
+  weakAlias: [CERS]
+- strings: ["Scientific Studies Research Centre (SSRC)"]
+  entity_schema: Organization
+  name: [Scientific Studies Research Centre]
+  weakAlias: [SSRC]
+- strings: ["Scientific Studies and Research Center (SSRC)"]
+  entity_schema: Company
+  name: [Scientific Studies and Research Center]
+  weakAlias: [SSRC]
+- strings: ["Bearings on Lipetsk LLC (Russian entity);"]
+  entity_schema: LegalEntity
+  name: [Bearings on Lipetsk LLC]
+- strings: ["ABU-YUNUS"]
+  entity_schema: Person
+  weakAlias: [ABU-YUNUS]
+- strings: ["CHATO"]
+  entity_schema: Person
+  weakAlias: [CHATO]
+- strings: ["CHATO", "CHAPARRO", "NICANDRO BARRERA MEDRANO"]
+  entity_schema: Person
+  name: ["NICANDRO BARRERA MEDRANO"]
+  weakAlias:
+    - CHATO
+    - CHAPARRO
+- strings: ["FLACO", "JOSE ARNOLDO RUEDA MEDINA", "EL FLACO", "MODELO", "ARNOLDO LOPEZ HUERTA", "LA MINSA"]
+  entity_schema: Person
+  name: ["JOSE ARNOLDO RUEDA MEDINA", "ARNOLDO LOPEZ HUERTA"]
+  weakAlias:
+    - FLACO
+    - EL FLACO
+    - MODELO
+    - LA MINSA
+- strings: ["Kevin James Smith", "Kevin Smith a.k.a. Smittie", "Smittie", "Kev"]
+  entity_schema: Person
+  name: ["Kevin James Smith", "Kevin Smith"]
+  weakAlias:
+    - Smittie
+    - Kev
+- strings: ["Kevin James Smith a.k.a. Kevin Smith a.k.a. Smittie", "Smittie", "Kev"]
+  entity_schema: Person
+  name: ["Kevin James Smith"]
+  alias: ["Kevin Smith"]
+  weakAlias:
+    - Smittie
+    - Kev
+- strings: ["A. AHMED", "ABU BAKR", "ABU KHABAR", "AHMAD AL TANZANI", "AHMAD KHALAFAN GHILANI", "AHMED KHALFAN AHMED"]
+  entity_schema: Person
+  name: ["A. AHMED", "AHMED KHALFAN AHMED", "AHMAD KHALAFAN GHILANI", "AHMAD AL TANZANI"]
+  weakAlias: [A. AHMED]
+- strings: ["A. AHMED"]
+  entity_schema: Person
+  weakAlias: [A. AHMED]
+- entity_schema: Organization
+  strings:
+    - "Al Qa\u2019ida/Armata islamic\u0103"
+  name:
+    - Al Qa'ida
+    - "Armata islamic\u0103"
+- entity_schema: Organization
+  strings:
+    - "Al Qa\u2019ida/ Islamic Army"
+  name:
+    - "Al Qa\u2019ida"
+    - Islamic Army
+- entity_schema: Organization
+  strings:
+    - "Al Qaida/Ex\xE9rcito isl\xE2mico"
+  name:
+    - Al Qaida
+    - "Ex\xE9rcito isl\xE2mico"
+- entity_schema: Person
+  strings:
+    - Allahdad
+  weakAlias:
+    - Allahdad
+- entity_schema: Person
+  strings:
+    - Akhund
+  weakAlias:
+    - Akhund
+- entity_schema: Person
+  strings:
+    - Shahidwror
+  weakAlias:
+    - Shahidwror
+- entity_schema: Person
+  strings:
+    - Ahmed
+  weakAlias:
+    - Ahmed
+- entity_schema: Person
+  strings:
+    - Al-Libi
+  weakAlias:
+    - Al-Libi
+- entity_schema: Person
+  strings:
+    - Atiqullah
+  weakAlias:
+    - Atiqullah
+- entity_schema: Person
+  strings:
+    - Qerman
+  weakAlias:
+    - Qerman
+- entity_schema: Person
+  strings:
+    - Muhelisi
+  weakAlias:
+    - Muhelisi
+- entity_schema: Person
+  strings:
+    - Saifuding
+  weakAlias:
+    - Saifuding
+- entity_schema: Person
+  strings:
+    - Zakir
+  weakAlias:
+    - Zakir
+- entity_schema: Person
+  strings:
+    - Shamsuddin
+  weakAlias:
+    - Shamsuddin
+- entity_schema: Person
+  strings:
+    - Rashid Al-Maghribi (the Moroccan)
+  name:
+    - Rashid Al-Maghribi
+- entity_schema: Person
+  strings:
+    - Abu-Ahmad Al-Amriki (the American)
+  name:
+    - Abu-Ahmad Al-Amriki
+- entity_schema: Person
+  strings:
+    - Rehmatullah
+  weakAlias:
+    - Rehmatullah
+- entity_schema: Person
+  strings:
+    - Abu-Khalil
+  weakAlias:
+    - Abu-Khalil
+- entity_schema: Person
+  strings:
+    - Saber
+  weakAlias:
+    - Saber
+- entity_schema: Person
+  strings:
+    - Zakariya
+  weakAlias:
+    - Zakariya
+- entity_schema: Person
+  strings:
+    - Salmane
+  weakAlias:
+    - Salmane
+- entity_schema: Person
+  strings:
+    - Saleh
+  weakAlias:
+    - Saleh
+- entity_schema: Person
+  strings:
+    - Foopie
+  weakAlias:
+    - Foopie
+- entity_schema: Person
+  strings:
+    - Fupi
+  weakAlias:
+    - Fupi
+- entity_schema: Organization
+  strings:
+    - "Al Qa\u2019ida / Islamska vojska"
+  name:
+    - "Al Qa\u2019ida"
+    - Islamska vojska
+- entity_schema: Organization
+  strings:
+    - "\u0391\u03BB \u039A\u03AC\u03B9\u03BD\u03C4\u03B1/\u0399\u03C3\u03BB\u03B1\u03BC\
+    \u03B9\u03BA\u03CC\u03C2 \u03C3\u03C4\u03C1\u03B1\u03C4\u03CC\u03C2"
+  name:
+    - "\u0391\u03BB \u039A\u03AC\u03B9\u03BD\u03C4\u03B1"
+    - "\u0399\u03C3\u03BB\u03B1\u03BC\u03B9\u03BA\u03CC\u03C2 \u03C3\u03C4\u03C1\u03B1\
+    \u03C4\u03CC\u03C2"
+- entity_schema: Person
+  strings:
+    - "Sa\u2019id"
+  weakAlias:
+    - Sa'id
+- entity_schema: Person
+  strings:
+    - Faiz
+  weakAlias:
+    - Faiz
+- entity_schema: Person
+  strings:
+    - Hidayatullah
+  weakAlias:
+    - Hidayatullah
+- entity_schema: Person
+  strings:
+    - Al-Kimawi
+  weakAlias:
+    - Al-Kimawi
+- entity_schema: Person
+  strings:
+    - Walijan
+  weakAlias:
+    - Walijan
+- entity_schema: Person
+  strings:
+    - Mahmud
+  weakAlias:
+    - Mahmud
+- entity_schema: Person
+  strings:
+    - Bilal
+  weakAlias:
+    - Bilal
+- entity_schema: Organization
+  strings:
+    - The Organization Base of Jihad/Country of the Two Rivers
+  name:
+    - The Organization Base of Jihad/Country of the Two Rivers
+- entity_schema: Person
+  strings:
+    - Hizrat
+  weakAlias:
+    - Hizrat
+- entity_schema: Person
+  strings:
+    - Mucchad
+  weakAlias:
+    - Mucchad
+- entity_schema: Person
+  strings:
+    - Lazhar
+  weakAlias:
+    - Lazhar
+- entity_schema: Person
+  strings:
+    - Hassan
+  weakAlias:
+    - Hassan
+- entity_schema: Person
+  strings:
+    - Kakazada
+  weakAlias:
+    - Kakazada
+- entity_schema: Person
+  strings:
+    - Matiullah
+  weakAlias:
+    - Matiullah
+- entity_schema: Person
+  strings:
+    - al-Hammad
+  weakAlias:
+    - al-Hammad
+- entity_schema: Person
+  strings:
+    - Baryaly
+  weakAlias:
+    - Baryaly
+- entity_schema: Person
+  strings:
+    - Baryalai
+  weakAlias:
+    - Baryalai
+- entity_schema: Person
+  strings:
+    - Gurg
+  weakAlias:
+    - Gurg
+- entity_schema: Person
+  strings:
+    - Sanani
+  weakAlias:
+    - Sanani
+- entity_schema: Person
+  strings:
+    - Sadruddin
+  name:
+    - Sadruddin
+  weakAlias:
+    - Sadruddin
+- entity_schema: Person
+  strings:
+    - Shams-u-Rahman
+  name:
+    - Shams-u-Rahman
+- entity_schema: Person
+  strings:
+    - Shamsurrahman
+  weakAlias:
+    - Shamsurrahman
+- entity_schema: Person
+  strings:
+    - Jalloul
+  weakAlias:
+    - Jalloul
+- entity_schema: Person
+  strings:
+    - Encep Nurjaman (birth name)
+  name:
+    - Encep Nurjaman
+- entity_schema: Person
+  strings:
+    - Hambali
+  weakAlias:
+    - Hambali
+- entity_schema: Person
+  strings:
+    - Nurjaman
+  weakAlias:
+    - Nurjaman
+- entity_schema: Person
+  strings:
+    - Mubarok
+  weakAlias:
+    - Mubarok
+- entity_schema: Person
+  strings:
+    - Mustafa
+  weakAlias:
+    - Mustafa
+- entity_schema: Person
+  strings:
+    - "Mera\u2019i"
+  weakAlias:
+    - "Mera\u2019i"
+- entity_schema: Person
+  strings:
+    - Abdalarak
+  weakAlias:
+    - Abdalarak
+- entity_schema: Person
+  strings:
+    - Chadian
+  weakAlias:
+    - Chadian
+- entity_schema: Person
+  strings:
+    - Fodhil
+  weakAlias:
+    - Fodhil
+- entity_schema: Person
+  strings:
+    - Adel
+  weakAlias:
+    - Adel
+- entity_schema: LegalEntity
+  strings:
+    - ZYFRA
+  weakAlias:
+    - ZYFRA
+- entity_schema: LegalEntity
+  strings:
+    - ZUKM OOO
+  weakAlias:
+    - ZUKM OOO
+- entity_schema: LegalEntity
+  strings:
+    - ZSERVERS
+  name:
+    - ZSERVERS
+- entity_schema: LegalEntity
+  strings:
+    - ZAO AKUTA
+  weakAlias:
+    - ZAO AKUTA
+- entity_schema: LegalEntity
+  strings:
+    - ZALOG OOO
+  weakAlias:
+    - ZALOG OOO
+- entity_schema: LegalEntity
+  strings:
+    - YMV KREYN
+  name:
+    - YMV KREYN
+- entity_schema: LegalEntity
+  strings:
+    - YASA PART
+  weakAlias:
+    - YASA PART
+- entity_schema: LegalEntity
+  strings:
+    - YAS AIR
+  weakAlias:
+    - YAS AIR
+- entity_schema: Company
+  strings:
+    - WTC2, INC.
+  weakAlias:
+    - WTC2, INC.
+- entity_schema: Company
+  strings:
+    - WMC NWH PA
+  weakAlias:
+    - WMC NWH PA
+- entity_schema: Company
+  strings:
+    - WJM, INC.
+  weakAlias:
+    - WJM, INC.
+- entity_schema: Company
+  strings:
+    - WINKY INC
+  weakAlias:
+    - WINKY INC
+- entity_schema: Company
+  strings:
+    - WILKES PAC
+  name:
+    - WILKES PAC
+- entity_schema: LegalEntity
+  strings:
+    - VEB.RF
+  weakAlias:
+    - VEB.RF
+- entity_schema: LegalEntity
+  strings:
+    - UDS NEFT
+  weakAlias:
+    - UDS NEFT
+- entity_schema: LegalEntity
+  strings:
+    - UCPMB
+  weakAlias:
+    - UCPMB
+- entity_schema: LegalEntity
+  strings:
+    - UCON LLC
+  weakAlias:
+    - UCON LLC
+- entity_schema: LegalEntity
+  strings:
+    - UCK
+  weakAlias:
+    - UCK
+- entity_schema: LegalEntity
+  strings:
+    - UBRIR PAO
+  weakAlias:
+    - UBRIR PAO
+- entity_schema: LegalEntity
+  strings:
+    - TRUSTINFO
+  weakAlias:
+    - TRUSTINFO
+- entity_schema: LegalEntity
+  strings:
+    - TRIBIT
+  name:
+    - TRIBIT
+- entity_schema: LegalEntity
+  strings:
+    - TNG GRUPP
+  weakAlias:
+    - TNG GRUPP
+- entity_schema: Company
+  strings:
+    - TIN INC.
+  weakAlias:
+    - TIN INC.
+- entity_schema: LegalEntity
+  strings:
+    - ZDRAVO
+  weakAlias:
+    - ZDRAVO
+- entity_schema: LegalEntity
+  strings:
+    - ZD.RU
+  weakAlias:
+    - ZD.RU
+- entity_schema: LegalEntity
+  strings:
+    - ZAT NNK
+  weakAlias:
+    - ZAT NNK
+- entity_schema: LegalEntity
+  strings:
+    - ZARECHYE-OKA
+  name:
+    - ZARECHYE-OKA
+- entity_schema: Person
+  strings:
+    - ABU-YUNUS
+  weakAlias:
+    - ABU-YUNUS
+- entity_schema: LegalEntity
+  strings:
+    - ZOTOGRANDE
+  name:
+    - ZOTOGRANDE
+- entity_schema: LegalEntity
+  strings:
+    - ZORSECURITY
+  name:
+    - ZORSECURITY
+- entity_schema: LegalEntity
+  strings:
+    - ZINCUM LLC
+  name:
+    - ZINCUM LLC
+- entity_schema: LegalEntity
+  strings:
+    - ZIL-M LLC
+  name:
+    - ZIL-M LLC
+- entity_schema: LegalEntity
+  strings:
+    - ZEYNABIYYUN
+  name:
+    - ZEYNABIYYUN
+- entity_schema: LegalEntity
+  strings:
+    - ZET AKSIS
+  name:
+    - ZET AKSIS
+- entity_schema: LegalEntity
+  strings:
+    - ZENIT 3D
+  name:
+    - ZENIT 3D
+- entity_schema: LegalEntity
+  strings:
+    - ZAPSIBCOMBANK
+  name:
+    - ZAPSIBCOMBANK
+- entity_schema: LegalEntity
+  strings:
+    - ZAO TSFT
+  weakAlias:
+    - ZAO TSFT
+- entity_schema: LegalEntity
+  strings:
+    - ZAO SNGB
+  weakAlias:
+    - ZAO SNGB
+- entity_schema: LegalEntity
+  strings:
+    - ZAO RTSLT
+  weakAlias:
+    - ZAO RTSLT
+- entity_schema: LegalEntity
+  strings:
+    - ZAO REESTR
+  weakAlias:
+    - ZAO REESTR
+- entity_schema: LegalEntity
+  strings:
+    - ZAO PRSD
+  weakAlias:
+    - ZAO PRSD
+- entity_schema: LegalEntity
+  strings:
+    - ZAO NNK
+  weakAlias:
+    - ZAO NNK
+- entity_schema: LegalEntity
+  strings:
+    - Z AXIS LLC
+  weakAlias:
+    - Z AXIS LLC
+- entity_schema: LegalEntity
+  strings:
+    - YUVENTA
+  weakAlias:
+    - YUVENTA
+- entity_schema: LegalEntity
+  strings:
+    - YURR
+  weakAlias:
+    - YURR
+- entity_schema: LegalEntity
+  strings:
+    - YUNIK LEB
+  name:
+    - YUNIK LEB
+- entity_schema: LegalEntity
+  strings:
+    - YUGANSKNEFTEGAZ
+  name:
+    - YUGANSKNEFTEGAZ
+- entity_schema: LegalEntity
+  strings:
+    - YUESEM
+  weakAlias:
+    - YUESEM
+- entity_schema: LegalEntity
+  strings:
+    - YONA STAR
+  name:
+    - YONA STAR
+- entity_schema: LegalEntity
+  strings:
+    - YAMALGAZINVEST
+  name:
+    - YAMALGAZINVEST
+- entity_schema: LegalEntity
+  strings:
+    - YAMAKEN-GUMI
+  name:
+    - YAMAKEN-GUMI
+- entity_schema: LegalEntity
+  strings:
+    - YAMAGUCHI-GUMI
+  name:
+    - YAMAGUCHI-GUMI
+- entity_schema: LegalEntity
+  strings:
+    - YAKUZA
+  name:
+    - YAKUZA
+- entity_schema: LegalEntity
+  strings:
+    - YAKT SOKOL
+  name:
+    - YAKT SOKOL
+- entity_schema: LegalEntity
+  strings:
+    - XINGTAC
+  name:
+    - XINGTAC
+- entity_schema: LegalEntity
+  strings:
+    - XAKI
+  weakAlias:
+    - XAKI
+- entity_schema: Company
+  strings:
+    - WWWPRESTONZONE.COM
+  name:
+    - WWWPRESTONZONE.COM
+- entity_schema: LegalEntity
+  strings:
+    - WWW.SERCUBA.COM
+  name:
+    - WWW.SERCUBA.COM
+- entity_schema: LegalEntity
+  strings:
+    - WWW.NUEVOCONTINENTE.COM.PE
+  name:
+    - WWW.NUEVOCONTINENTE.COM.PE
+- entity_schema: LegalEntity
+  strings:
+    - WWW.CUBA-SHOP.NET
+  name:
+    - WWW.CUBA-SHOP.NET
+- entity_schema: LegalEntity
+  strings:
+    - WWW.BNTDTORG.BY
+  name:
+    - WWW.BNTDTORG.BY
+- entity_schema: LegalEntity
+  strings:
+    - WWW.BNTD.BY
+  name:
+    - WWW.BNTD.BY
+- entity_schema: LegalEntity
+  strings:
+    - WWW.AEROCONTINENTE.COM.PE
+  name:
+    - WWW.AEROCONTINENTE.COM.PE
+- entity_schema: LegalEntity
+  strings:
+    - WWW.AEROCONTINENTE.COM
+  name:
+    - WWW.AEROCONTINENTE.COM
+- entity_schema: LegalEntity
+  strings:
+    - WHITEPIGEON
+  name:
+    - WHITEPIGEON
+- entity_schema: LegalEntity
+  strings:
+    - WESKEL LLC
+  name:
+    - WESKEL LLC
+- entity_schema: Company
+  strings:
+    - WEDO, LLC
+  weakAlias:
+    - WEDO, LLC
+- entity_schema: LegalEntity
+  strings:
+    - WEAR FARMS
+  name:
+    - WEAR FARMS
+- entity_schema: LegalEntity
+  strings:
+    - WALNUTHILL
+  name:
+    - WALNUTHILL
+- entity_schema: LegalEntity
+  strings:
+    - WAED
+  weakAlias:
+    - WAED
+- entity_schema: LegalEntity
+  strings:
+    - WAAD
+  weakAlias:
+    - WAAD
+- entity_schema: LegalEntity
+  strings:
+    - VZPP-S AO
+  weakAlias:
+    - VZPP-S AO
+- entity_schema: LegalEntity
+  strings:
+    - VYMPEL-SODEISTVIE
+  name:
+    - VYMPEL-SODEISTVIE
+- entity_schema: LegalEntity
+  strings:
+    - VVB, PAO
+  weakAlias:
+    - VVB, PAO
+- entity_schema: LegalEntity
+  strings:
+    - VTB FOREKS
+  weakAlias:
+    - VTB FOREKS
+- entity_schema: LegalEntity
+  strings:
+    - VTB DC LTD
+  weakAlias:
+    - VTB DC LTD
+- entity_schema: LegalEntity
+  strings:
+    - VTB BANK
+  weakAlias:
+    - VTB BANK
+- entity_schema: LegalEntity
+  strings:
+    - VTB AFRICA
+  weakAlias:
+    - VTB AFRICA
+- entity_schema: LegalEntity
+  strings:
+    - VTB 24 PAO
+  weakAlias:
+    - VTB 24 PAO
+- entity_schema: LegalEntity
+  strings:
+    - VTB 24 JSC
+  weakAlias:
+    - VTB 24 JSC
+- entity_schema: LegalEntity
+  strings:
+    - VSP KIROV
+  weakAlias:
+    - VSP KIROV
+- entity_schema: LegalEntity
+  strings:
+    - VOSTOKGAZPROM
+  name:
+    - VOSTOKGAZPROM
+- entity_schema: LegalEntity
+  strings:
+    - VOLTAG LLC
+  name:
+    - VOLTAG LLC
+- entity_schema: LegalEntity
+  strings:
+    - VNIGRI PAO
+  name:
+    - VNIGRI PAO
+- entity_schema: LegalEntity
+  strings:
+    - VNIGRI JSC
+  name:
+    - VNIGRI JSC
+- entity_schema: LegalEntity
+  strings:
+    - VNESHTORGBANK
+  name:
+    - VNESHTORGBANK
+- entity_schema: LegalEntity
+  strings:
+    - VNESHECONOMBANK
+  name:
+    - VNESHECONOMBANK
+- entity_schema: LegalEntity
+  strings:
+    - VIV ANSANM
+  name:
+    - VIV ANSANM
+- entity_schema: LegalEntity
+  strings:
+    - VINSAVER
+  name:
+    - VINSAVER
+- entity_schema: LegalEntity
+  strings:
+    - VIN7 LLC
+  weakAlias:
+    - VIN7 LLC
+- entity_schema: Company
+  strings:
+    - VIEW, INC.
+  weakAlias:
+    - VIEW, INC.
+- entity_schema: LegalEntity
+  strings:
+    - VEZIR
+  weakAlias:
+    - VEZIR
+- entity_schema: LegalEntity
+  strings:
+    - VETERAN
+  weakAlias:
+    - VETERAN
+- entity_schema: LegalEntity
+  strings:
+    - VERKHNECHONSKNEFTEGAZ
+  name:
+    - VERKHNECHONSKNEFTEGAZ
+- entity_schema: LegalEntity
+  strings:
+    - VEGACY
+  weakAlias:
+    - VEGACY
+- entity_schema: LegalEntity
+  strings:
+    - VEB SERVIS
+  weakAlias:
+    - VEB SERVIS
+- entity_schema: LegalEntity
+  strings:
+    - VAZIR
+  weakAlias:
+    - VAZIR
+- entity_schema: LegalEntity
+  strings:
+    - VAWARC
+  weakAlias:
+    - VAWARC
+- entity_schema: LegalEntity
+  strings:
+    - VANKORNEFT
+  name:
+    - VANKORNEFT
+- entity_schema: LegalEntity
+  strings:
+    - VALKOM
+  weakAlias:
+    - VALKOM
+- entity_schema: LegalEntity
+  strings:
+    - VAIBOS
+  name:
+    - VAIBOS
+- entity_schema: LegalEntity
+  strings:
+    - VAD, AO
+  weakAlias:
+    - VAD, AO
+- entity_schema: LegalEntity
+  strings:
+    - VACUUMKARAN
+  name:
+    - VACUUMKARAN
+- entity_schema: LegalEntity
+  strings:
+    - VABO 2012
+  name:
+    - VABO 2012
+- entity_schema: Company
+  strings:
+    - VA HOTLINE
+  weakAlias:
+    - VA HOTLINE
+- entity_schema: LegalEntity
+  strings:
+    - UWSP
+  weakAlias:
+    - UWSP
+- entity_schema: LegalEntity
+  strings:
+    - UWSA
+  weakAlias:
+    - UWSA
+- entity_schema: LegalEntity
+  strings:
+    - UVIKOM OOO
+  weakAlias:
+    - UVIKOM OOO
+- entity_schema: LegalEntity
+  strings:
+    - UVICOM LTD
+  weakAlias:
+    - UVICOM LTD
+- entity_schema: LegalEntity
+  strings:
+    - USA REALLY
+  weakAlias:
+    - USA REALLY
+- entity_schema: LegalEntity
+  strings:
+    - URANGEO AO
+  weakAlias:
+    - URANGEO AO
+- entity_schema: LegalEntity
+  strings:
+    - URALOIL
+  name:
+    - URALOIL
+- entity_schema: LegalEntity
+  strings:
+    - URALMASHPLANT
+  name:
+    - URALMASHPLANT
+- entity_schema: LegalEntity
+  strings:
+    - UPEL
+  weakAlias:
+    - UPEL
+- entity_schema: Company
+  strings:
+    - UNY, LLC
+  weakAlias:
+    - UNY, LLC
+- entity_schema: LegalEntity
+  strings:
+    - UNIJET
+  weakAlias:
+    - UNIJET
+- entity_schema: LegalEntity
+  strings:
+    - UNIIKM AO
+  weakAlias:
+    - UNIIKM AO
+- entity_schema: Company
+  strings:
+    - UMOJA, P C
+  weakAlias:
+    - UMOJA, P C
+- entity_schema: LegalEntity
+  strings:
+    - UMATEX JSC
+  weakAlias:
+    - UMATEX JSC
+- entity_schema: LegalEntity
+  strings:
+    - UMAC LLC
+  weakAlias:
+    - UMAC LLC
+- entity_schema: LegalEntity
+  strings:
+    - UM AIR
+  weakAlias:
+    - UM AIR
+- entity_schema: Company
+  strings:
+    - ULTRASONICS
+  name:
+    - ULTRASONICS
+- entity_schema: LegalEntity
+  strings:
+    - ULNAMMO
+  weakAlias:
+    - ULNAMMO
+- entity_schema: LegalEntity
+  strings:
+    - UIY INC
+  weakAlias:
+    - UIY INC
+- entity_schema: LegalEntity
+  strings:
+    - UGLEMETBANK
+  name:
+    - UGLEMETBANK
+- entity_schema: LegalEntity
+  strings:
+    - UEC-SATURN
+  name:
+    - UEC-SATURN
+- entity_schema: LegalEntity
+  strings:
+    - TWIRWANEHO
+  name:
+    - TWIRWANEHO
+- entity_schema: LegalEntity
+  strings:
+    - TUREYA OOO
+  weakAlias:
+    - TUREYA OOO
+- entity_schema: LegalEntity
+  strings:
+    - TULAMMO
+  weakAlias:
+    - TULAMMO
+- entity_schema: LegalEntity
+  strings:
+    - TSRT SOFT
+  weakAlias:
+    - TSRT SOFT
+- entity_schema: LegalEntity
+  strings:
+    - TSNIIAG
+  weakAlias:
+    - TSNIIAG
+- entity_schema: LegalEntity
+  strings:
+    - TSENTRKURORT
+  name:
+    - TSENTRKURORT
+- entity_schema: LegalEntity
+  strings:
+    - TSENTRIZBIRKOM
+  name:
+    - TSENTRIZBIRKOM
+- entity_schema: LegalEntity
+  strings:
+    - TSB ZHCHK
+  weakAlias:
+    - TSB ZHCHK
+- entity_schema: LegalEntity
+  strings:
+    - TRUST LIFE
+  name:
+    - TRUST LIFE
+- entity_schema: LegalEntity
+  strings:
+    - TRUCLEAN
+  weakAlias:
+    - TRUCLEAN
+- entity_schema: LegalEntity
+  strings:
+    - TRO YA LLC
+  weakAlias:
+    - TRO YA LLC
+- entity_schema: LegalEntity
+  strings:
+    - TRO NORGE
+  weakAlias:
+    - TRO NORGE
+- entity_schema: LegalEntity
+  strings:
+    - TRO ITALIA
+  weakAlias:
+    - TRO ITALIA
+- entity_schema: LegalEntity
+  strings:
+    - TRO
+  weakAlias:
+    - TRO
+- entity_schema: LegalEntity
+  strings:
+    - TRIZROBOTICS
+  name:
+    - TRIZROBOTICS
+- entity_schema: LegalEntity
+  strings:
+    - TRIBIT OOO
+  name:
+    - TRIBIT OOO
+- entity_schema: LegalEntity
+  strings:
+    - TRIANGULYATIKA
+  name:
+    - TRIANGULYATIKA
+- entity_schema: LegalEntity
+  strings:
+    - TRIANGULATICA
+  name:
+    - TRIANGULATICA
+- entity_schema: LegalEntity
+  strings:
+    - TREND GYO
+  weakAlias:
+    - TREND GYO
+- entity_schema: LegalEntity
+  strings:
+    - TREIDSTORI
+  name:
+    - TREIDSTORI
+- entity_schema: LegalEntity
+  strings:
+    - TRAPSA
+  weakAlias:
+    - TRAPSA
+- entity_schema: LegalEntity
+  strings:
+    - TRANSSTROYMEKHANIZATSIYA
+  name:
+    - TRANSSTROYMEKHANIZATSIYA
+- entity_schema: LegalEntity
+  strings:
+    - TRANSOIL
+  name:
+    - TRANSOIL
+- entity_schema: LegalEntity
+  strings:
+    - TRANSNEFT
+  name:
+    - TRANSNEFT
+- entity_schema: LegalEntity
+  strings:
+    - TRANSKAPITALBANK
+  name:
+    - TRANSKAPITALBANK
+- entity_schema: LegalEntity
+  strings:
+    - TRANSGAZELLE
+  name:
+    - TRANSGAZELLE
+- entity_schema: LegalEntity
+  strings:
+    - TRANSCIBA
+  name:
+    - TRANSCIBA
+- entity_schema: LegalEntity
+  strings:
+    - TRADING
+  weakAlias:
+    - TRADING
+- entity_schema: LegalEntity
+  strings:
+    - TRADEX CO
+  weakAlias:
+    - TRADEX CO
+- entity_schema: LegalEntity
+  strings:
+    - TOTAL RX
+  weakAlias:
+    - TOTAL RX
+- entity_schema: LegalEntity
+  strings:
+    - TOTAL LOOK
+  weakAlias:
+    - TOTAL LOOK
+- entity_schema: LegalEntity
+  strings:
+    - TN ALABUGA
+  name:
+    - TN ALABUGA
+- entity_schema: LegalEntity
+  strings:
+    - TMR LTD
+  weakAlias:
+    - TMR LTD
+- entity_schema: LegalEntity
+  strings:
+    - TK BANK
+  weakAlias:
+    - TK BANK
+- entity_schema: LegalEntity
+  strings:
+    - TIVA GROUP
+  weakAlias:
+    - TIVA GROUP
+- entity_schema: LegalEntity
+  strings:
+    - TIVA DARYA
+  name:
+    - TIVA DARYA
+- entity_schema: LegalEntity
+  strings:
+    - TITAN-MIKRO
+  name:
+    - TITAN-MIKRO
+- entity_schema: LegalEntity
+  strings:
+    - TISA KISH
+  name:
+    - TISA KISH
+- entity_schema: Company
+  strings:
+    - TIP FARMS
+  weakAlias:
+    - TIP FARMS
