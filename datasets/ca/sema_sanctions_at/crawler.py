@@ -56,8 +56,6 @@ def parse_entities_persons(context: Context, row: _Element) -> None:
         # send the rest of the irregular names into review
         original = h.Names(name=name)
         is_irregular, suggested = h.check_names_regularity(entity, original)
-        if is_irregular:
-            print(name)
 
         h.review_names(
             context,
