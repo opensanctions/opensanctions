@@ -1,0 +1,9 @@
+id: 224
+title: UK sanctions relating to global human rights
+key: GB-HR
+url: https://www.gov.uk/government/collections/uk-global-human-rights-sanctions
+summary: Measures addressing serious human rights abuses worldwide.
+issuer: gb_ofsi
+dataset: gb_hmt_sanctions
+target_territories:
+- zz

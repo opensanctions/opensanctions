@@ -1,0 +1,50 @@
+# yamllint disable
+name: Issues agent
+
+"on":
+  workflow_dispatch: {}
+  schedule:
+    - cron: "45 6 * * 1-5"
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+  id-token: write
+
+jobs:
+  generate-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.gen.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Generate sub-tasks
+        id: gen
+        run: |
+          MATRIX=$(python contrib/issues_agent/tasks.py)
+          echo "matrix=$MATRIX" >> "$GITHUB_OUTPUT"
+
+  run-tasks:
+    needs: generate-matrix
+    runs-on: ubuntu-latest
+    name: ${{ matrix.task.name }}
+    strategy:
+      matrix:
+        task: ${{ fromJson(needs.generate-matrix.outputs.matrix) }}
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v6
+
+      # - uses: actions/setup-node@v6
+      #   with:
+      #     cache: 'npm'
+
+      - uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: ${{ matrix.task.prompt }}
+          claude_args: "--max-turns 50 --allowed-tools \"Bash(git:*),Bash(curl:*),View,Edit,Write,GlobTool,GrepTool,WebFetch,mcp__github__create_pull_request\""
+          show_full_output: true
+

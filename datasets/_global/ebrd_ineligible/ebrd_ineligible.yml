@@ -69,6 +69,8 @@ lookups:
         values:
           - Sao Bac Dau Technology Service Joint Stock Company
           - SBD Service
+      - match: "(now known as Qi Technologies)"
+        value: Qi Technologies
   type.country:
     options:
       - match: Republic of Türkiye

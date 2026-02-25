@@ -1,0 +1,15 @@
+id: 116
+title: Measures Against The Republic Of Iraq
+key: SECO-IRAQ
+url: https://www.seco.admin.ch/seco/de/home/Aussenwirtschaftspolitik_Wirtschaftliche_Zusammenarbeit/Wirtschaftsbeziehungen/exportkontrollen-und-sanktionen/sanktionen-embargos/sanktionsmassnahmen/wirtschaftsmassnahmen-gegenueber-der-republik-irak.html
+summary: These sanctions target individuals and entities in the Republic of Iraq involved
+  in activities that threaten peace, security, and stability. The measures include
+  asset freezes, travel bans, and trade restrictions to promote compliance with international
+  norms and support the reconstruction and stabilization of Iraq.
+issuer: ch_seco
+dataset: ch_seco_sanctions
+target_territories:
+- iq
+measures:
+- Financial block
+- Restrictions on goods

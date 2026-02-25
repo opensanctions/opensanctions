@@ -1,0 +1,18 @@
+id: 113
+title: Yemen Sanctions
+key: UN-SC2140
+url: https://www.un.org/securitycouncil/sanctions/2140
+summary: These sanctions target individuals and entities involved in the conflict
+  and humanitarian crisis in Yemen. The measures include asset freezes, travel bans,
+  and arms embargoes to pressure parties to cease hostilities and engage in peace
+  negotiations.
+issuer: zz_unsc
+dataset: un_sc_sanctions
+aliases:
+- Resolution 2140
+target_territories:
+- ye
+measures:
+- Arms embargo
+- Asset freeze
+- Travel ban

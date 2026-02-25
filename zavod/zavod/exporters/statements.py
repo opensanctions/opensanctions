@@ -16,6 +16,9 @@ class StatementsCSVExporter(Exporter):
         self.writer = CSVStatementWriter(self.fh)
 
     def feed(self, entity: Entity, view: ExportView) -> None:
+        pass
+
+    def feed_unconsolidated(self, entity: Entity) -> None:
         for stmt in entity.statements:
             self.writer.write(stmt)
 

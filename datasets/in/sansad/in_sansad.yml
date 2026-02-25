@@ -44,10 +44,21 @@ data:
 dates:
   formats: ["%d/%m/%Y", "%d-%m-%Y", "%d-%b-%Y", "%d-%B-%Y"]
 
+assertions:
+  min:
+    schema_entities:
+      Person: 700
+
 lookups:
   type.name:
     options:
       - match: "."
+        value: null
+  type.address:
+    options:
+      - match:
+          - "'"
+          - "."
         value: null
   type.string:
     options:

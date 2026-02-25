@@ -26,6 +26,9 @@ class Exporter(object):
     def feed(self, entity: Entity, view: ExportView) -> None:
         raise NotImplementedError()
 
+    def feed_unconsolidated(self, entity: Entity) -> None:
+        pass
+
     def finish(self, view: ExportView) -> None:
         try:
             resource = self.context.export_resource(

@@ -1,0 +1,12 @@
+id: 308
+title: Athletes whom Russia uses to propagate its agenda
+key: UA-WS-ATHLETES
+url: https://war-sanctions.gur.gov.ua/en/sport/persons
+summary: null
+issuer: ua_gur
+dataset: ua_war_sanctions
+target_territories:
+- ru
+- ua-cri
+- ua-dpr
+- ua-lpr

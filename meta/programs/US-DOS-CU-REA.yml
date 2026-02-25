@@ -1,0 +1,15 @@
+id: 218
+title: List of Restricted Entities and Subentities Associated With Cuba
+key: US-DOS-CU-REA
+url: https://www.state.gov/division-for-counter-threat-finance-and-sanctions/cuba-restricted-list
+summary: List of entities and subentities under the control of, or acting for or on
+  behalf of, the Cuban military, intelligence, or security services or personnel with
+  which direct financial transactions would disproportionately benefit such services
+  or personnel at the expense of the Cuban people or private enterprise in Cuba.  For
+  information regarding the prohibition on direct financial transactions with these
+  entities, please see 31 CFR 515.209.  All entities and subentities were listed effective
+  November 9, 2017, unless otherwise indicated.
+issuer: us_state
+dataset: us_cuba_sanctions
+target_territories:
+- cu

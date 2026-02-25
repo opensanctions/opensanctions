@@ -1,0 +1,14 @@
+id: 16
+title: 'Ethiopia-Related Sanctions '
+key: US-ETHIOPIA
+url: https://ofac.treasury.gov/sanctions-programs-and-country-information/ethiopia
+summary: These sanctions target individuals and entities responsible for prolonging
+  the conflict and humanitarian crisis in Ethiopia. The measures include asset freezes
+  and transaction prohibitions to pressure the parties involved to cease hostilities
+  and engage in peace negotiations.
+issuer: us_ofac
+dataset: us_ofac_sdn
+aliases:
+- EO 14046
+target_territories:
+- et

@@ -78,6 +78,7 @@ children:
   - in_mha_banned
   - iq_aml_list
   - ir_sanctions
+  - jo_sanctions
   - jp_meti_eul
   - jp_meti_ru
   - jp_mof_sanctions

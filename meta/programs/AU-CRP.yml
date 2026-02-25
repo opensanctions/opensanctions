@@ -1,0 +1,12 @@
+id: 203
+title: Serious Corruption Sanctions Regime
+key: AU-CRP
+url: https://www.dfat.gov.au/international-relations/security/sanctions/sanctions-regimes/serious-corruption-sanctions-regime
+summary: Australia established a thematic autonomous sanctions regime in relation
+  to serious corruption on 21 December 2021. Unlike a country-specific autonomous
+  sanctions regime, a thematic autonomous sanctions regime applies to sanctionable
+  conduct wherever it occurs in the world.
+issuer: au_dfat
+dataset: au_dfat_sanctions
+target_territories:
+- zz

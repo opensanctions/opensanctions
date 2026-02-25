@@ -1,0 +1,14 @@
+id: 90
+title: EU Restrictive Measures Against Supporters Of Hamas And The Palestinian Islamic
+  Jihad
+key: EU-HAM
+url: https://sanctionsmap.eu/#/main/details/60/
+summary: These sanctions target individuals and entities that support, facilitate,
+  or enable violent actions by Hamas and the Palestinian Islamic Jihad. The measures
+  include asset freezes, travel bans, and restrictions on financial transactions to
+  prevent the financing and support of terrorist activities by these groups.
+issuer: eu_council
+dataset: eu_fsf
+measures:
+- Asset freeze
+- Restrictions on goods

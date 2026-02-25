@@ -1,4 +1,3 @@
-import dataclasses
 from datetime import timedelta
 
 import pytest
@@ -7,8 +6,6 @@ import structlog
 from zavod import Entity, settings
 from zavod.context import Context
 from zavod.helpers.sanctions import make_sanction, is_active
-from zavod.stateful.model import program_table
-from zavod.stateful.programs import Program
 
 
 def test_sanctions_helper(vcontext: Context):
@@ -29,28 +26,17 @@ def test_sanctions_helper(vcontext: Context):
 
 
 def test_sanctions_helper_with_program(vcontext: Context):
-    vcontext.conn.execute(
-        program_table.insert().values(
-            dataclasses.asdict(
-                Program(
-                    id=1,
-                    key="OS-TEST",
-                    title="Blabla",
-                    url="http://important.authority/test",
-                )
-            )
-        )
-    )
-
     person = vcontext.make("Person")
     person.id = "jeff"
     sanction = make_sanction(
-        vcontext, person, program_name="Test Program", program_key="OS-TEST"
+        vcontext, person, program_name="Test Program", program_key="US-BIS-DPL"
     )
 
     assert sanction.get("program")[0] == "Test Program"
-    assert sanction.get("programUrl") == ["http://important.authority/test"]
-    assert sanction.get("programId")[0] == "OS-TEST"
+    assert sanction.get("programUrl") == [
+        "https://www.bis.gov/licensing/end-user-guidance/denied-persons-list-dpl"
+    ]
+    assert sanction.get("programId")[0] == "US-BIS-DPL"
 
 
 def test_sanctions_helper_with_unknown_program(vcontext: Context):

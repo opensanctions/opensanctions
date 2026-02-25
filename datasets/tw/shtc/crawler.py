@@ -1,15 +1,20 @@
+# How to review data reviews from this crawler:
+# =============================================
+#
+# The prefix 簡體中文： indicates that the name is in Simplified Chinese.
+# This will be stripped from the suggested data. Accept as is - we don't
+# support language annotations in the result data yet.
+
 import csv
 import re
-from typing import List, Set
+from typing import Set
 
 import datapatch
-from pydantic import BaseModel
 from rigour.mime.types import CSV
+from zavod.extract.names.clean import Names
 from zavod.extract.zyte_api import fetch_html
 from zavod.stateful.review import (
-    TextSourceValue,
     assert_all_accepted,
-    review_extraction,
 )
 
 from zavod import Context, Entity
@@ -47,13 +52,6 @@ NAME_CHINESE = [
     "簡體中文：",  # Simplified Chinese:
 ]
 PERMANENT_ID_RE = re.compile(r"^(?P<name>.+?)（永久參考號：(?P<unsc_num>.+?)）$")
-SUSPECT_CHAR_RE = re.compile(r"[()（）]")
-
-
-class Names(BaseModel):
-    primary_name: str
-    aliases: List[str] = []
-    weak_aliases: List[str] = []
 
 
 def contains_part(part: str, name: str) -> bool:
@@ -110,11 +108,21 @@ def parse_names(
                 aliases_str=aliases_str,
             )
 
+    original_names = Names(name=primary_name, alias=aliases_str)
+    suggested_names = Names(alias=[])
+    # TODO (JD Bothma): Add Chinese names as LangText.
+    # We're adding names indicated to be Chinese (zho) to the suggested names
+    # without language information until we add LangText support to the Names structure.
+    # There are about 170 items with this annotation.
+    # In the meantime, if the same property is used by an accepted review, the
+    # statement with lang=zho persists.
+
     for split in NAME_CHINESE:
         split = f"; {split}"
         if split in primary_name:
             primary_name, chinese_name = primary_name.split(split, 1)
             entity.add("alias", chinese_name.strip(), lang="zho")
+            suggested_names.alias.append(chinese_name.strip())
 
     aliases: Set[str] = set()
     weak_aliases: Set[str] = set()
@@ -127,19 +135,28 @@ def parse_names(
             if len(splitted) > 1:
                 _, chinese_alias = splitted
                 entity.add("alias", chinese_alias.strip(), lang="zho")
+                suggested_names.alias.append(chinese_alias.strip())
                 break
         else:
             if len(alias) < 8:
+                # Demote alias to weakAlias
                 needs_review = True
                 weak_aliases.add(alias)
                 continue
 
             if " " not in alias:
                 needs_review = True
-            if SUSPECT_CHAR_RE.search(alias):
+
+            spec = context.dataset.names.get_spec(entity.schema)
+            reject_chars = spec.reject_chars_consolidated
+            if reject_chars.intersection(set(alias)):
                 needs_review = True
+
             aliases.add(alias)
 
+    # Promote the longest alias to primary name if
+    # - it doesn't contain spaces,
+    # - and it contains the current primary name.
     primary_name = primary_name.strip()
     if " " not in primary_name and len(aliases):
         prev_name = primary_name
@@ -153,35 +170,19 @@ def parse_names(
                 name=primary_name,
                 prev_name=prev_name,
             )
+            needs_review = True
 
-    names = Names(
-        primary_name=primary_name,
-        aliases=list(aliases),
-        weak_aliases=list(weak_aliases),
+    suggested_names.name = primary_name
+    suggested_names.alias.extend(aliases)
+    suggested_names.weakAlias = list(weak_aliases)
+
+    h.apply_reviewed_names(
+        context,
+        entity,
+        original=original_names,
+        suggested=suggested_names,
+        default_accepted=not needs_review,
     )
-    source_text = f"names: {names_raw}\naliases: {aliases_raw}"
-    source_value = TextSourceValue(
-        key_parts=[names_raw, aliases_raw],
-        label="Sanction item",
-        text=source_text,
-    )
-    if needs_review:
-        review = review_extraction(
-            context,
-            source_value=source_value,
-            original_extraction=names,
-            origin="SHTCEntityList.csv",
-        )
-        if review.accepted:
-            names = review.extracted_data
-
-    entity.add("name", names.primary_name)
-
-    for alias in names.aliases:
-        if alias != names.primary_name:
-            entity.add("alias", alias)
-    for weak_alias in names.weak_aliases:
-        entity.add("weakAlias", weak_alias)
 
 
 def crawl_row(context: Context, row):
@@ -248,4 +249,5 @@ def crawl(context: Context):
         for row in csv.DictReader(infh):
             crawl_row(context, row)
 
-    assert_all_accepted(context, raise_on_unaccepted=False)
+    # TODO: Stop raising once we're through the initial bunch of reviews.
+    assert_all_accepted(context, raise_on_unaccepted=True)

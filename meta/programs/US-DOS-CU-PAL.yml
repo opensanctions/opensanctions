@@ -1,0 +1,16 @@
+id: 47
+title: Cuba Prohibited Accommodations List
+key: US-DOS-CU-PAL
+url: https://www.state.gov/cuba-prohibited-accommodations-list-initial-publication/
+summary: A list of properties in Cuba owned or controlled by the Cuban government,
+  a prohibited official of the Government of Cuba, as defined in 31 CFR § 515.337,
+  a prohibited member of the Cuban Communist Party, as defined in 31 CFR § 515.338,
+  a close relative, as defined in 31 CFR § 515.339, of a prohibited official of the
+  Government of Cuba, or a close relative of a prohibited member of the Cuban Communist
+  Party.  For information regarding the restrictions on transactions with these properties,
+  please see 31 CFR 515.210.  All properties were listed effective September 28, 2020,
+  unless otherwise indicated.
+issuer: us_state
+dataset: us_cuba_sanctions
+target_territories:
+- cu

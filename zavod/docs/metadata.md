@@ -20,10 +20,11 @@ Use the `.yml` extension.
 ### Data Coverage
 
 - `coverage`
-    - `frequency` - e.g. `daily`, `weekly`, `monthly`, `never`. This represents how often it is expected that this dataset will be updated. It conveys to users how often to expect updates, and will also be used to generate a crawling schedule unless a specific schedule is defined. Data sources that don't receive updates are marked `never` and are usually crawled monthly (e.g. `coverage.schedule: @monthly`) just to keep consistent with FTM updates.
+    - `frequency` - e.g. `daily`, `weekly`, `monthly`, `never`. This represents how often it is expected that this dataset will be updated. It conveys to users how often to expect updates, and will also be used to generate a crawling schedule unless a specific schedule is defined.
     - `start` - The start date of a dataset which covers only a specific period in time, e.g. for a dataset specific to a data dump or parliamentary term. A string in the format `YYYY-MM-DD`.
     - `end` - The end date of a dataset which covers only a specific period in time, e.g. for a dataset specific to a data dump or parliamentary term. A string in the format `YYYY-MM-DD`. Future dates imply an expected end to the maintenance and coverage period of the dataset. Past end dates result in the datasets last_change date being fixed to that date, while its last_exported date remains unchanged.
     - `schedule` - `string` - a cron style schedule defining what time and frequency a crawler should run, e.g `30 */6 * * *`
+    - Data sources that don't receive updates are marked `never` and must have their schedule defined otherwise (e.g. usually `coverage.schedule: @monthly` just to keep consistent with FTM updates). You may want to set `disabled: true` for sources that are not available any more so that the metadata can get published without attempting to crawl the source.
 
 ### Deployment
 
@@ -37,7 +38,7 @@ Use the `.yml` extension.
 ### Exports
 
 - `exports` - An array of strings matching the [export formats](https://www.opensanctions.org/docs/bulk/), e.g. `"targets.nested.json"`. The default is best for most cases.
-- `load_statements` - Whether the statements should be loaded to a SQL table after the run..
+- `load_statements` - Whether the statements should be loaded to a SQL table after the run. Usually `false` for collections and enrichment targets like company registries, and true for normal datasets and enrichers.
 
 ### Tags
 

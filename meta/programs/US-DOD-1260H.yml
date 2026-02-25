@@ -1,0 +1,15 @@
+id: 54
+title: Chinese Military Companies Sanctions (1260H)
+key: US-DOD-1260H
+url: https://media.defense.gov/2024/Jan/31/2003384819/-1/-1/0/1260H-LIST.PDF
+summary: This list, maintained by the U.S. Department of Defense, identifies Chinese
+  military companies operating directly or indirectly in the United States. The sanctions
+  include restrictions on investments and transactions to prevent these companies
+  from supporting China's military modernisation efforts and to protect U.S. national
+  security.
+issuer: us_dod
+dataset: us_dod_chinese_milcorps
+aliases:
+- 1260H
+target_territories:
+- cn

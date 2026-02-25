@@ -1,0 +1,28 @@
+id: 303
+title: Singapore MAS financial measures
+key: SG-MAS
+url: https://www.mas.gov.sg/regulation/anti-money-laundering/targeted-financial-sanctions
+summary: 'Aside from the targeted financial sanctions under UN Security Council Resolutions
+  (UNSCRs), the Singapore Government imposes financial measures that apply to all
+  financial institutions in Singapore, including banks, finance companies, insurers,
+  capital markets intermediaries, securities exchanges, and payment service providers.
+  These are issued pursuant to Section 3(1) of the Financial Services and Markets
+  Act 2022.
+
+
+  These include:
+
+
+  -  Financial Measures in Relation to Russia
+
+  -  Financial Measures in Relation to Violent Israeli Settlers
+
+  '
+issuer: sg_mas
+dataset: null
+target_territories:
+- il
+- ps
+- ru
+- ua-dpr
+- ua-lpr

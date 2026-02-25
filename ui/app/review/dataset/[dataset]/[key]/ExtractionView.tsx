@@ -7,7 +7,7 @@ import CodeMirror, { EditorView } from '@uiw/react-codemirror';
 import { createHighlighter } from '@/lib/codemirror';
 import { yamlSchema } from "codemirror-json-schema/yaml";
 import { compileSchema, draft04, JsonSchema } from 'json-schema-library';
-import { parse as parseYaml, stringify as stringifyToYaml } from 'yaml';
+import { parse as parseYaml, stringify as stringifyToYaml, YAMLParseError } from 'yaml';
 import React, { useState, useEffect, useRef } from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tab from 'react-bootstrap/Tab';
@@ -114,11 +114,23 @@ export default function ExtractionView({ rawData, extractedData, schema, accepte
 
   const schemaNode = compileSchema(schema, { drafts: [draft04] });  // version selected to match that used in codemirror-json-schema
 
+  let result: { valid: boolean };
+  let errorSummary: string | null = null;
 
-  const editorExtractedParsed = parseYaml(editorExtracted)
-  const result = schemaNode.validate(editorExtractedParsed)
-  const errors = result.errors.map(err => err.message);
-  const errorSummary = errors.length === 0 ? null : `${errors.length} error(s) in Extracted YAML: ${errors.join('; ')}`;
+  try {
+    const editorExtractedParsed = parseYaml(editorExtracted);
+    const validationResult = schemaNode.validate(editorExtractedParsed);
+    result = validationResult;
+    const errors = validationResult.errors.map(err => err.message);
+    errorSummary = errors.length === 0 ? null : `${errors.length} error(s) in Extracted YAML: ${errors.join('; ')}`;
+  } catch (e) {
+    if (e instanceof YAMLParseError) {
+      result = { valid: false };
+      errorSummary = `YAML Parse Error: ${e.message}`;
+    } else {
+      throw e;
+    }
+  }
 
   // Keyboard shortcuts
   useEffect(() => {

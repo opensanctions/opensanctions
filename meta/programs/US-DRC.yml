@@ -1,0 +1,14 @@
+id: 15
+title: Democratic Republic Of The Congo-Related Sanctions
+key: US-DRC
+url: https://ofac.treasury.gov/sanctions-programs-and-country-information/democratic-republic-of-the-congo-related-sanctions
+summary: These sanctions target individuals and entities contributing to the conflict
+  in the Democratic Republic of the Congo, including those involved in violence, human
+  rights abuses, and the exploitation of natural resources. The measures include asset
+  freezes and travel bans to promote peace, security, and stability in the region.
+issuer: us_ofac
+dataset: us_ofac_sdn
+aliases:
+- EO 13671, EO 13413
+target_territories:
+- cd

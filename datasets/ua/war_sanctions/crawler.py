@@ -1,7 +1,6 @@
 import base64
 import hashlib
 import random
-import re
 import string
 import json
 
@@ -13,11 +12,16 @@ from typing import Dict, Optional, List
 from urllib.parse import urljoin
 
 from zavod import Context, helpers as h
+from zavod.helpers.html import split_html_newline_tags
 from zavod.entity import Entity
 from zavod.extract.zyte_api import fetch_json, fetch, fetch_html, ZyteAPIRequest
 
 # Note: These contain special characters, in testing use single quotes
 # to make sure variables don't get interpolated by the shell.
+# export OPENSANCTIONS_UA_WS_API_CLIENT_ID=$(op read op://$OS_ENGINEERING_VAULT_ID/os_env/ua_ws_api_client_id)
+# export OPENSANCTIONS_UA_WS_API_KEY=$(op read op://$OS_ENGINEERING_VAULT_ID/os_env/ua_ws_api_key)
+# export OPENSANCTIONS_UA_WS_API_DOCS_URL=$(op read op://$OS_ENGINEERING_VAULT_ID/os_env/ua_ws_api_docs_url)
+# export OPENSANCTIONS_UA_WS_API_BASE_URL=$(op read op://$OS_ENGINEERING_VAULT_ID/os_env/ua_ws_api_base_url)
 WS_API_CLIENT_ID = env["OPENSANCTIONS_UA_WS_API_CLIENT_ID"]
 WS_API_KEY = env["OPENSANCTIONS_UA_WS_API_KEY"]
 # We keep these two secret because they were shared with us confidentially
@@ -25,12 +29,23 @@ WS_API_DOCS_URL = env["OPENSANCTIONS_UA_WS_API_DOCS_URL"]
 WS_API_BASE_URL = env["OPENSANCTIONS_UA_WS_API_BASE_URL"]
 SLEEP = 10
 
-BR_RE = re.compile(r"<br\s*/?>", re.IGNORECASE)
 SPLITS = [" / ", "\r\n", "/"]
 NAMES_LANG_MAP = {
     "name_en": "eng",
     "name_uk": "ukr",
     "name_ru": "rus",
+}
+RESPONSE_CODES = {
+    0: "successful request",
+    1: "missing Authorization header",
+    2: "base64 string decoding error",
+    3: "invalid Client ID",
+    4: "digital signature verification error",
+    5: "invalid or expired timestamp",
+    6: "token reuse",
+    7: "invalid URL",
+    8: "access denied for IP address",
+    255: "internal error",
 }
 
 
@@ -174,8 +189,8 @@ def generate_token(context: Context, cid: str, pkey: str) -> str:
 
 
 def apply_names(context: Context, person: Entity, person_data: Dict[str, str]):
-    # TODO: Switch to LLM-backed name splitting helper #2656, once we have it
-    # https://github.com/opensanctions/opensanctions/issues/2656
+    # TODO: Switch to LLM-backed name splitting helper #3561, once we have it
+    # https://github.com/opensanctions/opensanctions/issues/3561
     for key, lang in NAMES_LANG_MAP.items():
         raw_name = person_data.pop(key)
         if "/" in raw_name:
@@ -185,7 +200,6 @@ def apply_names(context: Context, person: Entity, person_data: Dict[str, str]):
                 person.add("alias", res.alias, lang=lang)
         else:
             person.add("name", raw_name, lang=lang)
-        h.review_names(context, person, raw_name, enable_llm_cleaning=True)
 
 
 def make_id(context: Context, entity_type: str, raw_id: str):
@@ -452,7 +466,10 @@ def crawl_vessel(
     vessel.add("imoNumber", vessel_data.pop("imo"))
     vessel_type = vessel_data.pop("type")
     vessel.add("type", vessel_type.get("name"))
-    vessel.add("description", squash_spaces(BR_RE.sub(" ", vessel_data.pop("info"))))
+    vessel.add(
+        "description",
+        squash_spaces(" ".join(split_html_newline_tags(vessel_data.pop("info")))),
+    )
     vessel.add("callSign", vessel_data.pop("callsign"))
     vessel.add("flag", vessel_data.pop("flag"))
     vessel.add("mmsi", vessel_data.pop("mmsi"))
@@ -640,8 +657,14 @@ def crawl(context: Context):
         )
         response = json.loads(zyte_result.response_text)
         if not response or response.get("code") != 0:
-            context.log.error("No valid data to parse", url=url, response=response)
-            continue
+            if response and "code" in response:
+                error = RESPONSE_CODES.get(response["code"])
+            # Clear cache for failed request and exit to retry job later.
+            context.cache.clear(zyte_result.cache_fingerprint)
+            raise Exception(
+                f"Failed to fetch data for {url} error={error} response={response}"
+            )
+
         data = response.get("data")
         for entity_details in data:
             # Construct entity specific page URL: {base_url}/{endpoint}/{entity_id}

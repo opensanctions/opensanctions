@@ -1,0 +1,21 @@
+id: 6
+title: Balkans-Related Sanctions
+key: US-BALKANS
+url: https://ofac.treasury.gov/sanctions-programs-and-country-information/balkans-related-sanctions
+summary: These sanctions aim to address threats to international stability and security
+  in the Western Balkans. They target individuals and entities involved in actions
+  that undermine democratic processes, obstruct the implementation of peace agreements,
+  or are involved in significant corruption. The measures include asset freezes and
+  travel bans to promote peace and stability in the region.
+issuer: us_ofac
+dataset: us_ofac_sdn
+aliases:
+- EO 14033, EO 13304, EO 13219
+target_territories:
+- al
+- ba
+- csxx
+- me
+- mk
+- rs
+- xk

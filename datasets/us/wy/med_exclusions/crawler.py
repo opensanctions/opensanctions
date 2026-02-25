@@ -81,7 +81,7 @@ def crawl_item(row: Dict[str, str], context: Context):
 
 def crawl_excel_url(context: Context):
     file_xpath = (
-        ".//a[text()='Wyoming Medicaid Provider Exclusion List (01/01/2026)']/@href"
+        ".//a[contains(text(), 'Wyoming Medicaid Provider Exclusion List')]/@href"
     )
     doc = fetch_html(context, context.data_url, file_xpath, geolocation="us")
     return h.xpath_string(doc, file_xpath)

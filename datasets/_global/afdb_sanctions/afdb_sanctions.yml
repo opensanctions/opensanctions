@@ -382,6 +382,22 @@ lookups:
         names:
           - name: Li Moni Roth
             alias: "Ly Moni Roth"
+      - match: 'Henan Geology and Mineral Construction Engineering (Group) Anhui Co. Ltd.'
+        names:
+          - name: Henan Geology and Mineral Construction Engineering (Group) Anhui Co. Ltd.
+      - match: "MetaFlow Inc. (formerly known as CompuAids Inc. (doing business as (dba) Groupe Systèmes et Solutions D’enterprise also dba ESS Group, also dba Enterprise Systems and Solutions)"
+        names:
+          - name: MetaFlow Inc.
+            previous_name: CompuAids Inc.
+            alias: ["Groupe Systèmes et Solutions D’enterprise", "ESS Group", "Enterprise Systems and Solutions"]
+      - match: 'M/S SUNAULA KHIMTIAKA SUNAULA KHIMTI PVT. CONSTRUCTION LTD.'
+        names:
+          - name: Sunaula Khimti Pvt. Construction Ltd.
+            alias: "M/S Sunaula Khimti"
+      - match: 'J.M. Comercio De Equipamentos Ltda (Currently D/B/A Pick Up Car Auto PEÇAS)'
+        names:
+          - name: J.M. Comercio De Equipamentos Ltda
+            alias: "Pick Up Car Auto PEÇAS"
   types:
     lowercase: true
     map:

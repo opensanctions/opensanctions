@@ -76,8 +76,6 @@ repos:
           datasets/gb/fcdo_sanctions|
           datasets/gb/nca_most_wanted|
           datasets/gb/nca_press_releases|
-          datasets/ge|
-          datasets/gg|
           datasets/hk|
           datasets/id|
           datasets/il/knesset_members|
@@ -89,7 +87,6 @@ repos:
           datasets/kp|
           datasets/ky|
           datasets/kz|
-          datasets/li|
           datasets/lt|
           datasets/lu|
           datasets/mc|
