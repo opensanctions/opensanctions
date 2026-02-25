@@ -1,0 +1,171 @@
+title: "US Enforcement Actions List"
+prefix: us-fincen
+entry_point: crawler.py
+resolve: false
+load_statements: false
+ci_test: false
+coverage:
+  frequency: weekly
+  start: 2026-02-25
+summary: >
+  Other enforcement actions taken against financial institutions in the US.
+description: |
+  Under the Bank Secrecy Act (BSA), FinCEN may bring an enforcement action for violations of the reporting, recordkeeping, or other requirements of the BSA.
+  FinCEN's Office of Enforcement evaluates enforcement matters that may result in a variety of remedies, including the assessment of civil money penalties.
+tags:
+  - sector.banking
+  - list.enforcement
+publisher:
+  name: Financial Crimes Enforcement Network
+  acronym: FinCEN
+  official: true
+  description: |
+    The Financial Crimes Enforcement Network (FinCEN) is a bureau of the U.S. Department of
+    the Treasury that collects and analyzes information about financial transactions to
+    combat domestic and international money laundering, terrorist financing, and other
+    financial crimes.
+  country: us
+  url: https://www.fincen.gov
+url: https://www.fincen.gov/news/enforcement-actions
+data:
+  url: https://www.fincen.gov/news/enforcement-actions
+  format: HTML
+  lang: eng
+dates:
+  formats: ["%m/%d/%Y"]
+
+lookups:
+  comma_names:
+    options:
+      - match: 'Paxful, Inc. and Paxful USA, Inc.'
+        entities:
+          - ['Paxful, Inc']
+          - ['Paxful USA, Inc']
+      - match: 'Sahara Dunes Casino, LP d/b/a Lake Elsinore Hotel and Casino'
+        entities:
+          - ['Sahara Dunes Casino, LP', 'Lake Elsinore Hotel and Casino']
+      - match: 'TD Bank, N.A. and TD Bank USA, N.A.'
+        entities:
+          - ['TD Bank, N.A.']
+          - ['TD Bank USA, N.A.']
+      - match: 'Binance Holdings Limited, et. al. d/b/a Binance and Binance.com'
+        entities:
+          - ['Binance Holdings Limited', 'Binance', 'Binance.com']
+      - match: 'HDR Global Trading Limited, 100x Holdings Limited, ABS Global Trading Limited, Shine Effort Inc. Limited, HDR Global Services (Bermuda) Limited, d/b/a BITMEX'
+        entities:
+          - ['HDR Global Trading Limited']
+          - ['100x Holdings Limited']
+          - ['ABS Global Trading Limited']
+          - ['Shine Effort Inc. Limited']
+          - ['HDR Global Services (Bermuda) Limited', 'BITMEX']
+      - match: 'Larry Dean Harmon d/b/a Helix'
+        entities:
+          - ['Larry Dean Harmon', 'Helix']
+      - match: "Artichoke Joe’s, a California Corporation d/b/a Artichoke Joe’s Casino"
+        entities:
+          - ["Artichoke Joe’s, a California Corporation", "Artichoke Joe’s Casino"]
+      - match: "Artichoke Joe’s Casino [UPDATED, See #2018-02]"
+        entities:
+          - ["Artichoke Joe’s Casino"]
+      - match: "BTC-E a/k/a Canton Business Corporation and Alexander Vinnik"
+        entities:
+          - ["BTC-E", "Canton Business Corporation"]
+          - ["Alexander Vinnik"]
+      - match: "CG Technology, L.P. f/k/a Cantor G&W (Nevada), L.P. d/b/a Cantor Gaming"
+        entities:
+          - ["CG Technology, L.P.", "Cantor G&W (Nevada), L.P.", "Cantor Gaming"]
+      - match: "Hawaiian Gardens Casino, Inc. d/b/a The Gardens Casino"
+        entities:
+          - ["Hawaiian Gardens Casino, Inc", "The Gardens Casino"]
+      - match: "Sparks Nugget, Inc., d/b/a John Ascuaga’s Nugget"
+        entities:
+          - ["Sparks Nugget, Inc.", "John Ascuaga’s Nugget"]
+      - match: Kustandy Rayyan D/B/A Thriftway Food Mart
+        entities:
+          - ["Kustandy Rayyan", "Thriftway Food Mart"]
+      - match: "Oaks Card Club d/b/a Oaks Club"
+        entities:
+          - ["Oaks Card Club", "Oaks Club"]
+      - match: "Desert Palace, Inc. d/b/a Caesars Palace"
+        entities:
+          - ["Desert Palace, Inc", "Caesars Palace"]
+      - match: "Lee’s Snack Shop, Inc. and Hong Ki Yi"
+        entities:
+          - ["Lee’s Snack Shop, Inc"]
+          - ["Hong Ki Yi"]
+      - match: "Hong Kong Entertainment (Overseas) Investments, Ltd., d/b/a Tinian Dynasty Hotel & Casino"
+        entities:
+          - ["Hong Kong Entertainment (Overseas) Investments, Ltd", "Tinian Dynasty Hotel & Casino"]
+      - match: "King Mail & Wireless Inc., and Ali Al Duais"
+        entities:
+          - ["King Mail & Wireless Inc"]
+          - ["Ali Al Duais"]
+      - match: "Ripple Labs, Inc. XRP Fund II, LLC Attachment A: Statement of Facts and Violations Attachment B: Remedial Framework"
+        entities:
+          - ["Ripple Labs, Inc"]
+          - ["XRP Fund II, LLC"]
+      - match: "Aurora Sunmart Inc. and Jamal Awad"
+        entities:
+          - ["Aurora Sunmart Inc"]
+          - ["Jamal Awad"]
+      - match: "Mian, Inc. d/b/a Tower Package Store"
+        entities:
+          - ["Mian, Inc.", "Tower Package Store"]
+      - match: "New Milenium Cash Exchange, Inc. and Flor Angella Lopez"
+        entities:
+          - ["New Milenium Cash Exchange, Inc"]
+          - ["Flor Angella Lopez"]
+      - match: "Saleh H. Adam dba Adam Service"
+        entities:
+          - ["Saleh H. Adam", "Adam Service"]
+      - match: "the Lower Sioux Indian Community d/b/a Jackpot Junction Casino Hotel"
+        entities:
+          - ["the Lower Sioux Indian Community", "Jackpot Junction Casino Hotel"]
+      - match: "Mohamed Abukar Sufi d/b/a Halal Depot"
+        entities:
+          - ["Mohamed Abukar Sufi", "Halal Depot"]
+      - match: "Omar Abukar Sufi d/b/a Halal Depot"
+        entities:
+          - ["Omar Abukar Sufi", "Halal Depot"]
+      - match: "American Express Bank International and American Express Travel Related Services Company, Inc"
+        entities:
+          - ["American Express Bank International"]
+          - ["American Express Travel Related Services Company, Inc"]
+      - match: "Banco de Chile-New York and Banco de Chile-Miami"
+        entities:
+          - ["Banco de Chile-New York"]
+          - ["Banco de Chile-Miami"]
+      - match: "Greenville Riverboat, LLC d/b/a Lighthouse Point Casino"
+        entities:
+          - ["Greenville Riverboat, LLC", "Lighthouse Point Casino"]
+      - match: "D & S Check Cashing, Inc. and Michael Rose"
+        entities:
+          - ["D & S Check Cashing, Inc"]
+          - ["Michael Rose"]
+      - match: "Riverboat Corporation of Mississippi, d/b/a Isle of Capri Casino-Biloxi"
+        entities:
+          - ["Riverboat Corporation of Mississippi", "Isle of Capri Casino-Biloxi"]
+      - match: "Riverboat Corporation of Mississippi-Vicksburg, d/b/a Isle of Capri-Vicksburg"
+        entities:
+          - ["Riverboat Corporation of Mississippi-Vicksburg", "Isle of Capri-Vicksburg"]
+      - match: "Biloxi Casino Corp., d/b/a/ Casino Magic-Biloxi"
+        entities:
+          - ["Biloxi Casino Corp", "Casino Magic-Biloxi"]
+      - match: "Gulfside Casino Partnership, d/b/a Copa Casino"
+        entities:
+          - ["Gulfside Casino Partnership", "Copa Casino"]
+      - match: "Lady Luck Mississippi, Inc., d/b/a Lady Luck Natchez"
+        entities:
+          - ["Lady Luck Mississippi, Inc", "Lady Luck Natchez"]
+      - match: "the Tonkawa Tribe of Oklahoma and Edward E. Street"
+        entities:
+          - ["the Tonkawa Tribe of Oklahoma"]
+          - ["Edward E. Street"]
+
+# assertions:
+#   min:
+#     schema_entities:
+#       LegalEntity: 10000
+#   max:
+#     schema_entities:
+#       LegalEntity: 100000
