@@ -66,6 +66,7 @@ SANCTION_FEATURES = {
     "Transactions Prohibited For Persons Owned or Controlled By U.S. Financial Institutions:": "summary",  # noqa
     "IFCA Determination -": "summary",
     "PEESA Information:": "summary",
+    "PAIPA Section 2 Information:": "summary",  # e.g. "BLOCKING OF PROPERTY (entity). ..."
     "Effective Date (CMIC)": "startDate",
     "Purchase/Sales For Divestment Date (CMIC)": "startDate",
     "Effective Date (EO 14024 Directive 1a):": "startDate",

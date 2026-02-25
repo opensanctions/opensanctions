@@ -8,6 +8,7 @@ from rigour.mime.types import XLSX
 
 from zavod import Context, Entity
 from zavod import helpers as h
+from zavod.extract.zyte_api import ZyteAPIRequest, ZyteScrapeType, fetch as zyte_fetch
 
 SCOPES = [
     "Aircraft Ban",
@@ -26,6 +27,7 @@ TYPES = {
 ASSOCIATE = ("associate", "close associate")
 FAMILY = ("relative", "wife", "son", "daughter", "nephew")
 PROGRAM_KEY = "NZ-RSA2022"
+PAGE_URL = "https://www.mfat.govt.nz/en/countries-and-regions/europe/ukraine/russian-invasion-of-ukraine/sanctions/russia-sanctions-register"
 
 
 def clean_date(value: Any) -> Any:
@@ -131,6 +133,26 @@ def crawl_entity(context: Context, data: Dict[str, Any]) -> None:
 
 
 def crawl(context: Context):
+    # The XLSX is behind Incapsula protection.
+    # Simply fetching the linking HTML page with context.fetch doesn't
+    # set the right cookies so there might be a javascript challenge
+    # or something checking for a more realistic browser for the cookies
+    # to be set.
+    #
+    # Use a Zyte browser request to visit the page and collect the cookies
+    # it sets, then inject them into the session so that
+    # context.fetch_resource can use them.
+    page_result = zyte_fetch(
+        context,
+        ZyteAPIRequest(
+            url=PAGE_URL,
+            scrape_type=ZyteScrapeType.BROWSER_HTML,
+            response_cookies=True,
+        ),
+    )
+    for cookie in page_result.cookies or []:
+        context.http.cookies.set(cookie["name"], cookie["value"])
+
     path = context.fetch_resource("source.xlsx", context.data_url)
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
     workbook: Workbook = openpyxl.load_workbook(path, read_only=True)
