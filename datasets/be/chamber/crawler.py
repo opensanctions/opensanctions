@@ -1,5 +1,6 @@
 from datetime import datetime
 from lxml.html import HtmlElement
+from normality import squash_spaces
 
 from zavod import Context, helpers as h
 from zavod.extract import zyte_api
@@ -18,7 +19,17 @@ def get_term_dates(context: Context, term: str) -> tuple[int | None, int | None]
         return None, None
 
 
-def get_dob(context: Context, profile_url: str) -> str | None:
+def get_dob_bio(
+    context: Context, profile_url: str
+) -> tuple[str, str] | tuple[None, str]:
+    """Extract the date of birth and bio text from a member's profile page.
+
+    Returns a tuple of (date_of_birth, bio_text) where:
+    - date_of_birth is a string like "22 mai 1963", or None if not found
+    - bio_text is the raw biography string, kept even when no DOB is found
+      so that we don't lose the information when DOB is embedded in a plain
+      sentence without a pipe separator.
+    """
     pep_doc = zyte_api.fetch_html(
         context,
         profile_url,
@@ -26,19 +37,21 @@ def get_dob(context: Context, profile_url: str) -> str | None:
         absolute_links=True,
         cache_days=4,
     )
-    bio_text_list = h.xpath_strings(
+    # First try: pipe-separated bio format e.g. "... | Né le 22 mai 1963 | ..."
+    pipe_texts = h.xpath_strings(
         pep_doc, './/td/p[contains(., "| Né") or contains(., "| Ne")]/text()'
     )
-    if bio_text_list:
-        bio_text = bio_text_list[0]
-    else:
-        context.log.warn(f"Could not find bio text for {profile_url}")
-        return None
-    # Split on | and find the part with "Né" or "Ne"
-    parts = [part.strip() for part in bio_text.split("|")]
-    birth_info = next(part for part in parts if part.startswith((("Né", "Ne"))))
-    date_str = birth_info.split(" le ")[-1].rstrip(".")
-    return date_str
+    if pipe_texts:
+        parts = [part.strip() for part in pipe_texts[0].split("|")]
+        birth_part = next(part for part in parts if part.startswith((("Né", "Ne"))))
+        date_str = birth_part.split(" le ")[-1].rstrip(".")
+        return date_str, squash_spaces(pipe_texts[0])
+    # Fallback: DOB embedded in plain sentence e.g. "Née à Tournai le 22 mai 1963."
+    plain_text = h.xpath_string(
+        pep_doc,
+        './/td/p[contains(., "Né") or contains(., "Ne") or contains(., "né")]/text()',
+    )
+    return None, squash_spaces(plain_text)
 
 
 def crawl_persons(
@@ -52,7 +65,7 @@ def crawl_persons(
 
     group_texts = h.xpath_strings(cells[1], ".//a/text()")
     political_group = group_texts[0].strip() if group_texts else ""
-    dob = get_dob(context, profile_url)
+    dob, bio = get_dob_bio(context, profile_url)
 
     entity = context.make("Person")
     entity.id = context.make_id(name, dob)
@@ -60,6 +73,7 @@ def crawl_persons(
     entity.add("political", political_group)
     entity.add("sourceUrl", profile_url)
     entity.add("citizenship", "be")
+    entity.add("notes", bio)
     h.apply_date(entity, "birthDate", dob)
 
     position = h.make_position(
