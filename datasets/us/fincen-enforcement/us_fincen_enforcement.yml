@@ -161,6 +161,19 @@ lookups:
         entities:
           - ["the Tonkawa Tribe of Oklahoma"]
           - ["Edward E. Street"]
+        # assign the following to themselves
+      - match: "Bancrédito International Bank and Trust Corporation"
+        entities:
+          - ["Bancrédito International Bank and Trust Corporation"]
+      - match: "Gibraltar Private Bank and Trust Company"
+        entities:
+          - ["Gibraltar Private Bank and Trust Company"]
+      - match: "Sigue Corporation and Sigue, LLC"
+        entities:
+          - ["Sigue Corporation and Sigue, LLC"]
+      - match: "Deprez’s Quality Jewelry and Loans, Inc."
+        entities:
+          - ["Deprez’s Quality Jewelry and Loans, Inc."]
 
 # assertions:
 #   min:
