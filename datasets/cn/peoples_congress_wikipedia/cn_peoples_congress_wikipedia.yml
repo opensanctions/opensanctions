@@ -47,9 +47,13 @@ lookups:
         value: male
       - match: 女
         value: female
+      - match: 汉族
+        value: null
   type.date:
     options:
       - match: 鹤壁市豫剧团团长
+        value: null
+      - match: 中共山西省委副书记山西省人民政府省长
         value: null
   type.name:
     options:
