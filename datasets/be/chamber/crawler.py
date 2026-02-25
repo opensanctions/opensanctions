@@ -106,24 +106,23 @@ def crawl_term(
     context,
     link: HtmlElement,
     unblock_validator: str,
-    links: list[HtmlElement],
+    current_link: HtmlElement,
 ) -> None:
-    # Legislative term dates (e.g., "55 (2019-2024)") don't reflect individual members'
-    # actual service periods. Members may join/leave mid-term. We use explicit status
-    # (CURRENT/ENDED) instead of dates to avoid misrepresenting when someone held office.
-    # Term dates are only used to filter out old legislatures before the cutoff.
+    # Term dates are only used to skip legislatures outside our coverage window.
+    # We don't use them to set occupancy dates — members may join/leave mid-term.
     text = h.element_text(link).strip()
     _, end_date = get_term_dates(context, text)
     if end_date is not None and end_date < CUTOFF_DATE:
         context.log.info(f"Skipping old term: {text}")
         return
-    url = link.get("href")
+
+    url = link.attrib["href"]
     assert url is not None, f"Term link missing URL for term {text}"
-    # Since we skip the duplicate of the current term in crawl(), we expect the first link to always be the current term.
-    # We strip the last character from the URL since that's the only difference between the duplicate current term links.
+    # "Actuels" (links[0]) is the current term; everything else is ended.
+    # Compare without the trailing character since the duplicate URLs differ only there.
     status = (
         OccupancyStatus.CURRENT
-        if url[:-1] == links[0].attrib["href"][:-1]
+        if url[:-1] == current_link.attrib["href"][:-1]
         else OccupancyStatus.ENDED
     )
     context.log.info(f"Processing term: {text} (status={status})")
@@ -135,7 +134,6 @@ def crawl_term(
         absolute_links=True,
         cache_days=4,
     )
-    # Extract and process all members from the table
     table = h.xpath_element(term_doc, "//table[@width='100%']")
     for row in h.xpath_elements(table, ".//tr[td[@class='td1' or @class='td0']]"):
         crawl_person(context, row, status)
@@ -157,12 +155,15 @@ def crawl(context: Context) -> None:
     )
 
     links = legislature_menu.findall(".//a")
-    # The menu lists the current term twice: once under "Actuels" and once
-    # as a dated term (e.g. "56 (2024-2025)"). If you see this warning, it means
-    # the menu structure has changed and the current term is no longer listed twice.
-    # We strip the last character here since that's the only difference between the first two links.
+    assert len(links) > 1, f"Expected at least 2 links, got {len(links)}"
+    # The menu lists the current term twice: first as "Actuels", then as a dated
+    # entry (e.g. "56 (2024-2025)"). "Actuels" contains richer member data, so we
+    # process it and skip the dated duplicate. URLs are compared without the last character
+    # since they differ only by a trailing character.
     if links[0].attrib["href"][:-1] != links[1].attrib["href"][:-1]:
         context.log.warning("Legislature menu structure has changed")
         return
+    # Process links[0] ("Actuels") as current term, skip links[1] (dated duplicate),
+    # then process links[2:] (historical terms)
     for link in itertools.chain(links[:1], links[2:]):
-        crawl_term(context, link, unblock_validator, links)
+        crawl_term(context, link, unblock_validator, links[0])
