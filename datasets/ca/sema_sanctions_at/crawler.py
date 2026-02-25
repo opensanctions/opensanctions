@@ -1,5 +1,8 @@
 from lxml.etree import _Element
+from datetime import datetime
+
 from zavod import Context, helpers as h
+from rigour.names.split_phrases import contains_split_phrase
 
 
 def parse_entities_persons(context: Context, row: _Element) -> None:
@@ -24,6 +27,15 @@ def parse_entities_persons(context: Context, row: _Element) -> None:
         name = li.text
         entity = context.make(schema)
         entity.id = context.make_id(name)  # TODO: add country, date?
+
+        assert name is not None
+        original = h.Names(name=name)
+        if contains_split_phrase(name):
+            # send to manual name cleaning
+            h.apply_reviewed_names(
+                context, entity, original=original, is_irregular=True
+            )
+
         entity.add("name", name)
         # entity.add("country", country)  # not sure if correct to add here bc country is for sanctions
         entity.add("notes", notes)
@@ -40,7 +52,7 @@ def parse_entities_persons(context: Context, row: _Element) -> None:
         h.apply_date(sanction, "listingDate", date)
 
 
-def parse_ships(context: Context, row: _Element, country: str, date: str) -> None:
+def parse_ships(context: Context, row: _Element) -> None:
     imo_number = h.xpath_string(row, ".//td[2]//text()").strip()
     name = h.xpath_string(row, ".//td[1]//text()").strip()
 
@@ -55,39 +67,31 @@ def parse_ships(context: Context, row: _Element, country: str, date: str) -> Non
     sanction = h.make_sanction(
         context,
         entity,
-        program_name=country,
-        source_program_key=country,
         program_key="CA-SEMA",
     )
-    sanction.add("program", country)
-    h.apply_date(sanction, "listingDate", date)
+    # sanction.add("program", country)
+    date = datetime.today().strftime("%B %d, %Y")
+    h.apply_date(
+        sanction, "Date", date
+    )  # not coding it as listingDate but still want to include a timestamp
 
 
 def crawl(context: Context) -> None:
     doc = context.fetch_html(context.data_url, cache_days=1)
 
+    # --- crawl people and entities ---
     rows_entities_persons = h.xpath_elements(
         doc, '//table[contains(@id, "dataset-filter1")]/tbody/tr'
     )
     for row in rows_entities_persons:
         parse_entities_persons(context, row)
 
-    country_ships = h.xpath_string(
-        doc,
-        '//h2[contains(., "Regulations against ships")]/following::p[contains(., "Country")]/text()',
-    ).strip()
-    date_ships = h.xpath_string(
-        doc,
-        '//h2[contains(., "Regulations against ships")]/following::p[contains(., "Entered into force")]/text()',
-    ).strip()
+    # --- crawl ships ---
+    # country_ships = h.xpath_strings(doc, '//h2[contains(., "Regulations against ships")]/following::p[contains(., "Country")]/text()')
+    # date_ships = h.xpath_strings(doc, '//h2[contains(., "Regulations against ships")]/following::p[contains(., "Entered into force")]/text()')
 
     rows_ships = h.xpath_elements(
         doc, '//table[contains(@class, "table wb-tables")]/tbody/tr'
     )
     for row in rows_ships:
-        parse_ships(context, row, country=country_ships, date=date_ships)
-
-
-# TODO:
-# - split by AKAs (rigour) + alias lookups
-# - Rejected property value [listingDate]: February 21 2025
+        parse_ships(context, row)
