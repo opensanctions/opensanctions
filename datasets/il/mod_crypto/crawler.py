@@ -144,22 +144,25 @@ def crawl_csv_row(context: Context, row: Dict[str, str]):
         context.emit(entity)
 
     # --- Wallets --- are always created if wallet data is present
-    account_id = row.pop("account/wallet_id")
-    if account_id:
-        account_id = normalize_address(account_id)
-        if not is_latin(account_id):
-            context.log.warning(f"Non-latin account ID: {account_id}")
+    # account_id = row.pop("account/wallet_id")
+    wallet_address = row.pop("wallet_address")
+    account_id = row.pop("account_id")
+    # Use wallet_id if present, otherwise fall back to account_id
+    # These are mutually exclusive in source data - we get either:
+    # - wallet_address: On-chain address tied to a specific blockchain
+    # - account_id: Platform account number tied to an exchange (e.g., Binance)
+    identifier = wallet_address or account_id
+    if identifier:
+        identifier = normalize_address(identifier)
+        if not is_latin(identifier):
+            context.log.warning(f"Non-latin identifier: {identifier}")
         wallet = context.make("CryptoWallet")
-        wallet.id = context.make_id(account_id)
-        wallet.set("publicKey", account_id)
-        platform = row.pop("platform")
-        if platform:
-            wallet.set("managingExchange", platform)
-        currency = row.pop("currency")
-        if currency:
-            wallet.set("currency", currency)
-        if person or entity:
-            wallet.set("holder", person or entity)
+        wallet.id = context.make_id(identifier)
+        wallet.set("publicKey", wallet_address)
+        wallet.set("accountId", account_id)
+        wallet.set("managingExchange", row.pop("platform"))
+        wallet.set("currency", row.pop("currency"))
+        wallet.set("holder", person or entity)
         wallets.append(wallet)
 
     # --- Sanction & Linking ---
