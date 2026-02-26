@@ -5,6 +5,8 @@ import click
 import requests
 from typing import List
 
+from rigour.ids.wikidata import is_qid
+from nomenklatura import settings as nk_settings
 from zavod.logs import configure_logging, get_logger
 from zavod.db import get_engine, meta
 from sqlalchemy import delete, update, or_
@@ -37,6 +39,7 @@ def map_qid(qid: str) -> str:
 
 def rewrite_qids(qids: List[str]):
     """Process the provided QIDs."""
+    nk_settings.DB_STMT_TIMEOUT = 84600 * 1000
     engine = get_engine()
     meta.reflect(bind=engine)
     resolver_table = meta.tables.get("resolver")
@@ -81,9 +84,11 @@ def rewrite_qids(qids: List[str]):
     # Build the DELETE query with filters
     # Filter 1: dataset column is one of the DATASETS
     # Filter 2: text column contains any of the qids (using LIKE)
-    like_conditions = [cache_table.c.text.like(f"%{qid}%") for qid in qids]
+    good_qids = [q for q in qids if is_qid(q) and len(q) > 4]
+    like_conditions = [cache_table.c.text.like(f"%{qid}%") for qid in good_qids]
     stmt = delete(cache_table).where(
-        cache_table.c.dataset.in_(DATASETS), or_(*like_conditions)
+        cache_table.c.dataset.in_(DATASETS),
+        or_(*like_conditions),
     )
 
     with engine.connect() as conn:
