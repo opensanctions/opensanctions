@@ -34,14 +34,14 @@ tags:
   - sector.maritime
 url: https://bsmou.org/database/inspections/
 data:
-  url: https://bsis.bsmou.org/public/?button=Agree
+  url: https://bsis.bsmou.org/public/
   format: HTML
   lang: eng
-# http:
-#   additional_retry_statuses: [443, 500]
-#   total_retries: 5
-#   backoff_factor: 3
-#   retry_methods: [POST, GET]
+http:
+  additional_retry_statuses: [443, 500]
+  total_retries: 5
+  backoff_factor: 3
+  retry_methods: [POST, GET]
 
 dates:
   formats: ["%d.%m.%Y"]
