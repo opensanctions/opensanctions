@@ -1,0 +1,44 @@
+title: France HATVP Declarations and Assessments
+prefix: fr-hatvp
+url: https://www.hatvp.fr/open-data/
+coverage:
+  frequency: daily  # unsure
+  start: 2026-02-26
+load_statements: true
+entry_point: crawler.py
+summary: >-
+  Declarations of interests and assets, and associated assessments,
+  published by the French High Authority for Transparency in Public Life (HATVP).
+description: |
+  This dataset lists the declarations and assessments published by the
+  Haute Autorité pour la Transparence de la vie Publique (HATVP). French
+  public officials are required to declare their interests and assets to
+  the HATVP, which reviews and publishes them to promote transparency and
+  prevent conflicts of interest.
+publisher:
+  name: Haute Autorité pour la Transparence de la vie Publique
+  name_en: High Authority for Transparency in Public Life
+  acronym: HATVP
+  description: |
+    La Haute Autorité pour la Transparence de la vie Publique (HATVP) is an independent administrative authority, responsible for ascertaining and
+    preventing potential conflicts of interest among French public servants and officials.
+    HATVP promotes the integrity and exemplarity of public officials,
+    monitors the ethics of civil servants, oversees lobbying and disseminates a cuture of integrity. Its independence is guaranteed
+    by the functioning of its executive board and its financial and administrative autonomy.
+  country: fr
+  url: https://www.hatvp.fr/
+  official: true
+data:
+  url: https://www.hatvp.fr/open-data/
+  format: CSV
+tags:
+  - list.pep
+  - target.fr
+
+# assertions:
+#   min:
+#     schema_entities:
+#       LegalEntity: 375
+#   max:
+#     schema_entities:
+#       LegalEntity: 450
