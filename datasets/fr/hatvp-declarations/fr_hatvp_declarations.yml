@@ -35,6 +35,57 @@ tags:
   - list.pep
   - target.fr
 
+lookups:
+  positions:
+    options:
+      - match: europe
+        topics:
+          - gov.igo
+          - gov.legislative
+      - match: president
+        topics:
+          - gov.national
+          - gov.head
+      - match: senateur
+        topics:
+          - gov.national
+          - gov.legislative
+      - match: depute
+        topics:
+          - gov.national
+          - gov.legislative
+      - match: gouvernement
+        topics:
+          - gov.national
+          - gov.executive
+      - match: region
+        topics:
+          - gov.state
+          - gov.legislative
+      - match: departement
+        topics:
+          - gov.state
+          - gov.legislative
+      - match: commune
+        topics:
+          - gov.muni
+          - gov.executive
+      # domestic intercommunal bodies:
+      - match: epci
+        topics:
+          - gov.muni
+          - gov.executive
+      # overseas and special-status territories:
+      - match: ctsp
+        topics:
+          - gov.state
+          - gov.legislative
+      # HATVP leadership:
+      - match: autre
+        topics:
+          - gov.soe
+
+
 assertions:
   min:
     schema_entities:
