@@ -17,18 +17,14 @@ def crawl(context: Context) -> None:
     path = context.fetch_resource("source.csv", url)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
 
-    # then export resource then open
     with open(path, "r") as f:
         dict_reader = csv.DictReader(f, delimiter=";")
-        # next(dict_reader)  # skip header row
 
         for row in dict_reader:
             title = row.pop("civilite")
             first_name = row.pop("prenom")
             last_name = row.pop("nom")
             role = row.pop("qualite")
-
-            # mandate = row.pop("type_mandat") # row.get("url_dossier")
 
             person = context.make("Person")
             person.id = context.make_id(first_name, last_name, role)
@@ -46,9 +42,14 @@ def crawl(context: Context) -> None:
             person.add("topics", "role.pep")
             person.add("country", "fr")
 
+            mandate_type = row.pop("type_mandat")
+            res = context.lookup("positions", mandate_type)
+            topics = res.topics if res else None
+
             position = h.make_position(
                 context,
                 name=role,
+                topics=topics,
                 country="fr",
             )
             position.add(
@@ -65,7 +66,6 @@ def crawl(context: Context) -> None:
             if occupancy is None:
                 return
             h.apply_date(occupancy, "declarationDate", row.pop("date_depot"))
-            # type_mandat -> where to?
 
             url_declaration_pdf = "http://www.hatvp.fr/livraison/dossiers/" + row.pop(
                 "nom_fichier"
@@ -76,6 +76,14 @@ def crawl(context: Context) -> None:
             context.emit(position)
             context.emit(occupancy)
 
-            # context.audit_data(row, ignore=["classement", "open_data", "date_publication", "url_photo", "statut_publication", "type_document"])
-            # type_document is a decalration type
-            # statut_publication is a publication status (e.g. published)
+            context.audit_data(
+                row,
+                ignore=[
+                    "classement",
+                    "open_data",
+                    "date_publication",
+                    "url_photo",
+                    "statut_publication",
+                    "type_document",
+                ],
+            )
