@@ -1,6 +1,6 @@
 from typing import Dict, Optional, Set
 
-from nomenklatura.wikidata import Item, WikidataClient, Claim
+from nomenklatura.wikidata import Item, LangText, WikidataClient, Claim
 from nomenklatura.wikidata.value import clean_wikidata_name
 from rigour.territories import get_territory_by_qid
 
@@ -247,6 +247,11 @@ def wikidata_occupancy(
             else:
                 end_date = max(end_date, qual_date)
 
+    source_urls: Set[LangText] = set()
+    for qual in claim.qualifiers.get("P854", []):
+        if qual.text is not None and qual.text.text is not None:
+            source_urls.add(qual.text)
+
     # Diplomatic positions tend to be associated with the receiving country,
     # so we don't want to propagate that to the person.
     position_topics = position.get("topics")
@@ -261,4 +266,7 @@ def wikidata_occupancy(
         end_date=end_date,
         propagate_country=not is_diplomat,
     )
+    if occupancy is not None:
+        for url in source_urls:
+            url.apply(occupancy, "sourceUrl")
     return occupancy
