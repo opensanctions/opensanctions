@@ -34,15 +34,14 @@ data:
 dates:
   formats: ["%Y", "%B %d, %Y", "%B %d %Y"]
 
-# assertions:
-#   min:
-#     schema_entities:
-#       Person:
-#       LegalEntity:
-#     entities_with_prop:
-#       Sanction:
-#         listingDate:
-#   max:
-#     schema_entities:
-#       Person: 6500
-#       LegalEntity:
+assertions:
+  min:
+    schema_entities:
+      Person: 1500  # 1927 raw count
+      LegalEntity: 600  # 770 raw count
+      Vessel: 80 # 109 raw count
+  max:
+    schema_entities:
+      Person: 4000
+      LegalEntity: 1500
+      Vessel: 1600
