@@ -468,6 +468,21 @@ lookups:
         name: ["РЄЗНІК Ілля Рахмієльович", "Ізраельсон Ілля Леопольдович"]
       - match: "РЕЗНИК Илья Рахмиэлевич / Израэльсон Илья Леопольдович"
         name: ["РЕЗНИК Илья Рахмиэлевич", "Израэльсон Илья Леопольдович"]
+      - match: KOSOLAPOV Andrey Kirillovich / Macan
+        name: KOSOLAPOV Andrey Kirillovich
+        alias: Macan
+      - match: КОСОЛАПОВ Андрій Кирилович / Macan
+        name: КОСОЛАПОВ Андрій Кирилович
+        alias: Macan
+      - match: КОСОЛАПОВ Андрей Кириллович / Macan
+        name: КОСОЛАПОВ Андрей Кириллович
+        alias: Macan
+      - match: KUCHERENKO Vladimir Aleksandrovich / Kalashnikov Vladimir Aleksandrovich
+        name: ["KUCHERENKO Vladimir Aleksandrovich", "Kalashnikov Vladimir Aleksandrovich"]
+      - match: КУЧЕРЕНКО Володимир Олександрович / Калашников Максим Олександрович
+        name: ["КУЧЕРЕНКО Володимир Олександрович", "Калашников Максим Олександрович"]
+      - match: КУЧЕРЕНКО Владимир Александрович / Калашников Максим Александрович
+        name: ["КУЧЕРЕНКО Владимир Александрович", "Калашников Максим Александрович"]
 
   type.date:
     options:
@@ -475,6 +490,10 @@ lookups:
         values:
           - 1974-06-23
           - 1973-06-23
+      - match: "12.01.1967 / 21.12.1966"
+        values:
+          - 1967-01-12
+          - 1966-12-21
       - match:
           - 10.09.20224
           - 04.01.20205
@@ -556,7 +575,6 @@ lookups:
           - 384095-5
           - 08S04803
           - 100534485
-          - 262016287
           - 323018510
         prop: registrationNumber
       - match: 1436594D / 202101036294
@@ -577,6 +595,7 @@ lookups:
         value: 0261013879
       - match: 262016287
         value: 0262016287
+        prop: registrationNumber
       - match: 323018510
         value: 0323018510
       - match: Невідомо
