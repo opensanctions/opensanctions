@@ -22,7 +22,7 @@ def crawl(context: Context) -> None:
             entity.add("country", row.pop("Country", None))
             entity.add("notes", row.pop("Summary", None), lang="eng")
             entity.add("notes", row.pop("Chinese summary", None), lang="zho")
-            entity.add("topics", "sanction.counter")
+            entity.add("topics", row.pop("Topics").split(";"))
             program = row.pop("List", None)
             sanction = h.make_sanction(
                 context,
