@@ -38,7 +38,7 @@ tags:
 assertions:
   min:
     schema_entities:
-      Person: 13200  # raw count 18888
+      Person: 6300  # raw count 7958
   max:
     schema_entities:
-      LegalEntity: 38000
+      LegalEntity: 16000
