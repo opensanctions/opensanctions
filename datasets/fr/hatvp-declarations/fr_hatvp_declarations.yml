@@ -35,10 +35,10 @@ tags:
   - list.pep
   - target.fr
 
-# assertions:
-#   min:
-#     schema_entities:
-#       LegalEntity: 375
-#   max:
-#     schema_entities:
-#       LegalEntity: 450
+assertions:
+  min:
+    schema_entities:
+      Person: 13200  # raw count 18888
+  max:
+    schema_entities:
+      LegalEntity: 38000
