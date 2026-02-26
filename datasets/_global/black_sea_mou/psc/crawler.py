@@ -1,16 +1,17 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
+from urllib.parse import urljoin
 
 from zavod import Context, helpers as h
 from zavod.extract.llm import run_image_prompt
-from zavod.stateful.positions import YEAR_DAYS
 
 TODAY = datetime.today()
 HEADERS = {
+    "Accept": "*/*",
     "Accept-Encoding": "gzip, deflate, br",
     "Accept-Language": "en-GB,en;q=0.9",
     "Content-Type": "application/x-www-form-urlencoded",
-    "Referer": "https://bsis.bsmou.org/public/?button=Agree",
+    "Referer": "https://bsis.bsmou.org/public/?action=login",
     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.2 Safari/605.1.15",
     "X-Requested-With": "XMLHttpRequest",
     "Origin": "https://bsis.bsmou.org",
@@ -62,14 +63,10 @@ def crawl_list_page(context: Context, page: int):
 
 
 def crawl(context: Context):
-    login_page = context.fetch_html(context.data_url, cache_days=1, absolute_links=True)
-    # image = h.xpath_element(login_page, '//img[@src="captcha.php"]')
-    # captcha_url = image.get("src")
-    # print(f"Captcha URL: {captcha_url}")
-    # assert captcha_url is not None
-    image_path: Path = context.fetch_resource(
-        "captcha.png", "https://bsis.bsmou.org/public/captcha.php"
-    )
+    login_page = context.fetch_html(context.data_url)
+    image = h.xpath_element(login_page, './/img[contains(@src, "captcha.php")]')
+    captcha_url = urljoin(context.data_url, image.get("src"))
+    image_path: Path = context.fetch_resource("captcha.png", captcha_url)
     result = run_image_prompt(
         context,
         prompt=PROMPT,
@@ -78,7 +75,7 @@ def crawl(context: Context):
         model=LLM_VERSION,
     )
     login_data = {"captcha": result["code"]}
-    login_url = "https://bsis.bsmou.org/public/?action=login"
+    login_url = urljoin(context.data_url, "?action=login")
     login_resp = context.fetch_html(
         login_url, data=login_data, headers=HEADERS, method="POST"
     )
