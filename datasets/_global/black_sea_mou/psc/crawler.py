@@ -1,13 +1,14 @@
 import re
 
+from datetime import datetime, timedelta
 from lxml import html
-from typing import Optional
-from datetime import datetime
 from pathlib import Path
+from typing import Optional
 from urllib.parse import urljoin
 
 from zavod import Context, helpers as h
 from zavod.extract.llm import run_image_prompt
+from zavod.stateful.positions import YEAR_DAYS
 
 TODAY = datetime.today()
 HEADERS = {
@@ -20,8 +21,9 @@ SEARCH_DATA = {
     "imo": "",
     "callsign": "",
     "name": "",
-    "From": "26.01.2026",  # f"{(TODAY - timedelta(days=YEAR_DAYS)).strftime('%d.%m.%Y')}",
-    "Till": "26.02.2026",  # f"{TODAY.strftime('%d.%m.%Y')}",
+    # Go back ~1 year
+    "From": f"{(TODAY - timedelta(days=YEAR_DAYS)).strftime('%d.%m.%Y')}",
+    "Till": f"{TODAY.strftime('%d.%m.%Y')}",
     "authority": "0",
     "flag": "0",
     "class": "0",
