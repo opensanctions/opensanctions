@@ -100,13 +100,13 @@ lookups:
     options:
       - match: NOVIKOV Igor Vladimirovich / Buga
         name: NOVIKOV Igor Vladimirovich
-        alias: Buga
+        weakAlias: Buga
       - match: НОВІКОВ Ігор Володимирович / Буга
         name: НОВІКОВ Ігор Володимирович
-        alias: Буга
+        weakAlias: Буга
       - match: НОВИКОВ Игорь Владимирович / Буга
         name: НОВИКОВ Игорь Владимирович
-        alias: Буга
+        weakAlias: Буга
       - match: UTENKOV / Utyonkov Andrey Anatolievich
         name: ["UTENKOV Andrey Anatolievich", "Utyonkov Andrey Anatolievich"]
       - match: УТЄНКОВ / Утьонков Андрій Анатолійович
@@ -239,67 +239,67 @@ lookups:
         name: ["ХАЛИЛИ Анастасия Алексеевна", "ГОРЕЕВА Анастасия Алексеевна"]
       - match: KUZNETSOV Yaroslav Vladimirovich / NS
         name: KUZNETSOV Yaroslav Vladimirovich
-        alias: NS
+        weakAlias: NS
       - match: КУЗНЄЦОВ Ярослав Володимирович / NS
         name: КУЗНЄЦОВ Ярослав Володимирович
-        alias: NS
+        weakAlias: NS
       - match: КУЗНЕЦОВ Ярослав Владимирович / NS
         name: КУЗНЕЦОВ Ярослав Владимирович
-        alias: NS
+        weakAlias: NS
       - match: MOSKALENKO Ivan Aleksandrovich / Pure
         name: MOSKALENKO Ivan Aleksandrovich
-        alias: Pure
+        weakAlias: Pure
       - match: МОСКАЛЕНКО  Іван Олександрович / Pure
         name: МОСКАЛЕНКО Іван Олександрович
-        alias: Pure
+        weakAlias: Pure
       - match: МОСКАЛЕНКО Иван Александрович / Pure
         name: МОСКАЛЕНКО Иван Александрович
-        alias: Pure
+        weakAlias: Pure
       - match: ABDULIN Rinat Kamilevych / KingR
         name: ABDULIN Rinat Kamilevych
-        alias: KingR
+        weakAlias: KingR
       - match: АБДУЛІН Рінат Камілевич / KingR
         name: АБДУЛІН Рінат Камілевич
-        alias: KingR
+        weakAlias: KingR
       - match: АБДУЛИН Ринат Камилевич / KingR
         name: АБДУЛИН Ринат Камилевич
-        alias: KingR
+        weakAlias: KingR
       - match: ABDULLIN Rinat Kamilievich / KingR
         name: ABDULLIN Rinat Kamilievich
-        alias: KingR
+        weakAlias: KingR
       - match: АБДУЛЛІН Рінат Камільєвич / KingR
         name: АБДУЛЛІН Рінат Камільєвич
-        alias: KingR
+        weakAlias: KingR
       - match: АБДУЛЛИН Ринат Камильевич / KingR
         name: АБДУЛЛИН Ринат Камильевич
-        alias: KingR
+        weakAlias: KingR
       - match: VASILIEV Alexey Yuryevich/ Nongrata
         name: VASILIEV Alexey Yuryevich
-        alias: Nongrata
+        weakAlias: Nongrata
       - match: ВАСИЛЬЕВ Алексей Юрьевич/ Nongrata
         name: ВАСИЛЬЕВ Алексей Юрьевич
-        alias: Nongrata
+        weakAlias: Nongrata
       - match: ВАСИЛЬЄВ Олексій Юрійович/ Nongrata
         name: ВАСИЛЬЄВ Олексій Юрійович
-        alias: Nongrata
+        weakAlias: Nongrata
       - match: VASILIEV Alexey / Nongrata
         name: VASILIEV Alexey
-        alias: Nongrata
+        weakAlias: Nongrata
       - match: ВАСИЛЬЄВ Олексій / Nongrata
         name: ВАСИЛЬЄВ Олексій
-        alias: Nongrata
+        weakAlias: Nongrata
       - match: ВАСИЛЬЕВ Алексей / Nongrata
         name: ВАСИЛЬЕВ Алексей
-        alias: Nongrata
+        weakAlias: Nongrata
       - match: ROSHCHIN Vitaly / Couguar
         name: ROSHCHIN Vitaly
-        alias: Couguar
+        aweakAliass: Couguar
       - match: РОЩИН Віталій / Couguar
         name: РОЩИН Віталій
-        alias: Couguar
+        weakAlias: Couguar
       - match: РОЩИН Виталий / Couguar
         name: РОЩИН Виталий
-        alias: Couguar
+        weakAlias: Couguar
       - match: SATYBALDIN Adlet / Lightweight
         name: SATYBALDIN Adlet
         alias: Lightweight
@@ -320,13 +320,13 @@ lookups:
         alias: Захар Николаевич
       - match: YUNUSOV Timur Ildarovich / Timati
         name: YUNUSOV Timur Ildarovich
-        alias: Timati
+        weakAlias: Timati
       - match: ЮНУСОВ Тимур Ільдарович / Тіматі
         name: ЮНУСОВ Тимур Ільдарович
-        alias: Тіматі
+        weakAlias: Тіматі
       - match: ЮНУСОВ Тимур Ильдарович / Тимати
         name: ЮНУСОВ Тимур Ильдарович
-        alias: Тимати
+        weakAlias: Тимати
       - match: KEDMI/KAZAKOV Yakov Iosifovich
         name: ["KEDMI Yakov Iosifovich", "KAZAKOV Yakov Iosifovich"]
       - match: КЕДМІ/КАЗАКОВ Яків Йосипович
@@ -386,13 +386,13 @@ lookups:
         alias: Дима Билан
       - match: DRONOV Yaroslav Yurievich / Shaman
         name: DRONOV Yaroslav Yurievich
-        alias: Shaman
+        weakAlias: Shaman
       - match: ДРОНОВ Ярослав Юрійович / Shaman
         name: ДРОНОВ Ярослав Юрійович
-        alias: Shaman
+        weakAlias: Shaman
       - match: ДРОНОВ Ярослав Юрьевич / Shaman
         name: ДРОНОВ Ярослав Юрьевич
-        alias: Shaman
+        weakAlias: Shaman
       - match: VASILIEV/VI Timofey Vladimirovich
         name: ["VASILIEV Timofey Vladimirovich", "VI Timofey Vladimirovich"]
       - match: ВАСИЛЬЄВ/ВІ Тимофій Володимирович
@@ -455,19 +455,34 @@ lookups:
         name: ["ПЕТРОСЯНЦ Евгений Ваганович", "ПЕТРОСЯН Евгений Ваганович"]
       - match: "SERGEY Vitalyevich Glushko/Tarzan"
         name: "SERGEY Vitalyevich Glushko"
-        alias: "Tarzan"
+        weakAlias: "Tarzan"
       - match: "ГЛУШКО Сергій Віталійович/Тарзан"
         name: "ГЛУШКО Сергій Віталійович"
-        alias: "Тарзан"
+        weakAlias: "Тарзан"
       - match: "ГЛУШКО Сергей Витальевич/Тарзан"
         name: "ГЛУШКО Сергей Витальевич"
-        alias: "Тарзан"
+        weakAlias: "Тарзан"
       - match: "REZNIK Ilya Rakhmielevich / Izraelzon Ilya Leopoldovich"
         name: ["REZNIK Ilya Rakhmielevich", "Izraelzon Ilya Leopoldovich"]
       - match: "РЄЗНІК Ілля Рахмієльович / Ізраельсон Ілля Леопольдович"
         name: ["РЄЗНІК Ілля Рахмієльович", "Ізраельсон Ілля Леопольдович"]
       - match: "РЕЗНИК Илья Рахмиэлевич / Израэльсон Илья Леопольдович"
         name: ["РЕЗНИК Илья Рахмиэлевич", "Израэльсон Илья Леопольдович"]
+      - match: KOSOLAPOV Andrey Kirillovich / Macan
+        name: KOSOLAPOV Andrey Kirillovich
+        weakAlias: Macan
+      - match: КОСОЛАПОВ Андрій Кирилович / Macan
+        name: КОСОЛАПОВ Андрій Кирилович
+        weakAlias: Macan
+      - match: КОСОЛАПОВ Андрей Кириллович / Macan
+        name: КОСОЛАПОВ Андрей Кириллович
+        weakAlias: Macan
+      - match: KUCHERENKO Vladimir Aleksandrovich / Kalashnikov Vladimir Aleksandrovich
+        name: ["KUCHERENKO Vladimir Aleksandrovich", "Kalashnikov Vladimir Aleksandrovich"]
+      - match: КУЧЕРЕНКО Володимир Олександрович / Калашников Максим Олександрович
+        name: ["КУЧЕРЕНКО Володимир Олександрович", "Калашников Максим Олександрович"]
+      - match: КУЧЕРЕНКО Владимир Александрович / Калашников Максим Александрович
+        name: ["КУЧЕРЕНКО Владимир Александрович", "Калашников Максим Александрович"]
 
   type.date:
     options:
@@ -475,6 +490,10 @@ lookups:
         values:
           - 1974-06-23
           - 1973-06-23
+      - match: "12.01.1967 / 21.12.1966"
+        values:
+          - 1967-01-12
+          - 1966-12-21
       - match:
           - 10.09.20224
           - 04.01.20205
@@ -573,5 +592,9 @@ lookups:
         value: 0276915630
       - match: 261013879
         value: 0261013879
+      - match: 262016287
+        value: 0262016287
+      - match: 323018510
+        value: 0323018510
       - match: Невідомо
         value: null

@@ -165,6 +165,8 @@ class ZyteAPIRequest:
     geolocation: Optional[str] = None
     # Forces JavaScript execution on a browser request to be enabled
     javascript: Optional[bool] = None
+    # Request that response cookies be included in the ZyteResult
+    response_cookies: bool = False
 
 
 @dataclass
@@ -183,6 +185,8 @@ class ZyteResult:
     # As returned in the Content-Type header
     media_type: Optional[str] = None
     charset: Optional[str] = None
+    # Cookies returned by the server, populated when response_cookies=True
+    cookies: Optional[List[Dict[str, Any]]] = None
 
     def invalidate_cache(self, context: Context) -> None:
         context.cache.delete(self.cache_fingerprint)
@@ -239,6 +243,8 @@ def fetch(
         zyte_data["actions"] = zyte_request.actions
     if zyte_request.javascript is not None:
         zyte_data["javascript"] = zyte_request.javascript
+    if zyte_request.response_cookies:
+        zyte_data["responseCookies"] = True
     zyte_data[zyte_request.scrape_type.value] = True
 
     fingerprint = get_cache_fingerprint(zyte_data)
@@ -275,6 +281,11 @@ def fetch(
         b64_text = b64decode(text)
         text = b64_text.decode(charset) if charset is not None else b64_text.decode()
 
+    cookies = (
+        api_response.json().get("responseCookies")
+        if zyte_request.response_cookies
+        else None
+    )
     return ZyteResult(
         status_code=api_response.json()["statusCode"],
         response_text=text,
@@ -282,6 +293,7 @@ def fetch(
         charset=charset,
         from_cache=False,
         cache_fingerprint=fingerprint,
+        cookies=cookies,
     )
 
 

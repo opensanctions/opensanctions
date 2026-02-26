@@ -50,12 +50,15 @@ def crawl_row(context: Context, row: dict):
     start_date = row.pop("Date of detention")
     if company_name:
         company = context.make("Company")
-        company.id = context.make_id("org", company_name)
+        # We're adding the IMO number to the company ID to help disambiguate companies with the same name
+        # (e.g. https://www.opensanctions.org/entities/bs-mou-0bbe47c69066cbcf4bdad28569acb46252a4b138/)
+        company.id = context.make_id("org", company_name, imo)
         company.add("name", company_name)
         link = context.make("UnknownLink")
         link.id = context.make_id(vessel.id, company.id, "linked")
         link.add("object", vessel.id)
         link.add("subject", company.id)
+        link.add("role", "Associated Company")
         h.apply_date(link, "date", start_date)
         context.emit(company)
         context.emit(link)
