@@ -188,14 +188,15 @@ def crawl_list_page(context: Context, page: int):
         method="POST",
     )
     # Parse the response to find shipuids
-    shipuids = doc.xpath(
-        "//tr[contains(@class, 'even') or contains(@class, 'odd')]//input[@type='hidden']/@value"
+    shipuids = h.xpath_elements(
+        doc,
+        "//tr[contains(@class, 'even') or contains(@class, 'odd')]//input[@type='hidden']/@value",
     )
     context.log.info(f"Found {len(shipuids)} shipuids in the search response")
     if len(shipuids) < 2:
         context.log.warn("Not enough shipuids found, double check the logic.")
     for shipuid in shipuids:
-        crawl_vessel_page(context, shipuid)
+        crawl_vessel_page(context, str(shipuid))
     # Extract and return total pages
     total_pages = parse_total_pages(context, doc)
     assert total_pages is not None, "Failed to parse total pages"
