@@ -175,10 +175,10 @@ lookups:
         entities:
           - ["Deprez’s Quality Jewelry and Loans, Inc."]
 
-# assertions:
-#   min:
-#     schema_entities:
-#       LegalEntity: 10000
-#   max:
-#     schema_entities:
-#       LegalEntity: 100000
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 180  # raw count 232
+  max:
+    schema_entities:
+      LegalEntity: 500
