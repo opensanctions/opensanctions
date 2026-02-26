@@ -81,10 +81,23 @@ def crawl_vessel_row(context: Context, str_row: dict, inspection_date: str):
     vessel.add("grossRegisteredTonnage", str_row.pop("tonnage"))
     vessel.add("deadweightTonnage", str_row.pop("deadweight"))
     vessel.add("flag", str_row.pop("flag"))
+    h.apply_date(vessel, "buildDate", str_row.pop("dateofkeellaid"))
     context.emit(vessel)
 
-    class_soc = str_row.pop("classificationsociety")
-    if class_soc:
+    if captain := str_row.pop("name_of_ship_master"):
+        person = context.make("Person")
+        person.id = context.make_id(captain, imo)
+        person.add("name", captain)
+        context.emit(person)
+        emit_unknown_link(
+            context,
+            object=vessel.id,
+            subject=person.id,
+            role="Master",
+            date=inspection_date,
+        )
+
+    if class_soc := str_row.pop("classificationsociety"):
         org = context.make("Organization")
         org.id = context.make_id("org", class_soc)
         org.add("name", class_soc)
