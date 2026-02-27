@@ -17,9 +17,9 @@ SPECIAL_CASE_URL = (
     "https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:02014R0833-20240625"
 )
 CONSOLIDATED_LATEST = [
-    "http://data.europa.eu/eli/reg/2014/833",
-    "http://data.europa.eu/eli/dec/2014/512",
-    "http://data.europa.eu/eli/reg/2024/2642",
+    "https://eur-lex.europa.eu/eli/reg/2014/833",
+    "https://eur-lex.europa.eu/eli/dec/2014/512",
+    "https://eur-lex.europa.eu/eli/reg/2024/2642",
 ]
 # year/number or number/year with optional suffix
 FIRST_CODE_RE = re.compile(
@@ -52,13 +52,68 @@ def extract_program_code(context, source_url):
     return match.group(1)
 
 
+# SearchResult
+
+
+def wait_for_xpath_actions(xpath: str) -> list[Dict[str, str | int]]:
+    return [
+        {
+            "action": "waitForNavigation",
+            "waitUntil": "networkidle0",
+            "timeout": 31,
+            "onError": "return",
+        },
+        {
+            "action": "waitForSelector",
+            "selector": {
+                "type": "xpath",
+                "value": xpath,
+                "state": "visible",
+            },
+            "timeout": 15,
+            "onError": "return",
+        },
+    ]
+
+
 @lru_cache(maxsize=1)
 def get_regulation_text(context: Context):
     """Fetch and normalize the text content of the full regulations."""
+
+    regulation_xpath = ".//div[@id='PP4Contents']"
+    consolidated_search_xpath = (
+        ".//div[@class='SearchResult']//a[contains(text(), 'Consolidated text')]"
+    )
+    unblock_validator = f"{regulation_xpath} | {consolidated_search_xpath}"
+    unblock_actions = wait_for_xpath_actions(unblock_validator)
+
     all_texts = []
     for link in CONSOLIDATED_LATEST:
-        doc = context.fetch_html(link, cache_days=365)
-        regulation_div = doc.xpath(".//div[@id='PP4Contents']")
+        doc = fetch_html(
+            context,
+            link,
+            unblock_validator,
+            actions=unblock_actions,
+            absolute_links=True,
+        )
+        consolidated_search_results = doc.xpath(consolidated_search_xpath)
+        if consolidated_search_results:
+            if len(consolidated_search_results) > 1:
+                context.log.warning(
+                    "Multiple consolidated search results found, using the first one",
+                    url=link,
+                    count=len(consolidated_search_results),
+                )
+            context.log.info(
+                "Found consolidated search result, following link", url=link
+            )
+            doc = fetch_html(
+                context,
+                consolidated_search_results[0].get("href"),
+                regulation_xpath,
+                actions=wait_for_xpath_actions(regulation_xpath),
+            )
+        regulation_div = doc.xpath(regulation_xpath)
         if not regulation_div:
             context.log.warning("Could not extract regulation text", url=link)
             continue  # skip this link and try the next
@@ -67,7 +122,7 @@ def get_regulation_text(context: Context):
     return " ".join(all_texts)
 
 
-def is_name_in_the_law(context, the_law: str, names: str, row_id: str):
+def is_name_in_the_law(context, the_law: str, names: str, row_id: str, source_url: str):
     for name in h.multi_split(names, ";"):
         name = name.strip()
         if not name:
@@ -77,6 +132,7 @@ def is_name_in_the_law(context, the_law: str, names: str, row_id: str):
                 "Name not found in consolidated regulation text",
                 name=name,
                 row_id=row_id,
+                source_url=source_url,
             )
 
 
@@ -98,7 +154,7 @@ def crawl_unconsolidated_row(
     context.log.debug(f"Unique ID {entity.id}")
     # Validate that the name is in the consolidated regulation text
     the_law = get_regulation_text(context)
-    is_name_in_the_law(context, the_law, name, row_id)
+    is_name_in_the_law(context, the_law, name, row_id, source_url)
 
     # Commented out since the 20 May journal updates added details like IDs and
     # cyrilic names which aren't in the XML yet but the entities are.

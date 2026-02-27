@@ -366,6 +366,7 @@ class Context:
             method: The HTTP method to use for the request.
             data: The data to be sent in the request body.
             absolute_links: Whether to convert relative links to absolute links.
+                Doesn't take redirects into account.
         Returns:
             An lxml-based DOM of the web page that has been returned.
         """

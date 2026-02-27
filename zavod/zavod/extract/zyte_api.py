@@ -431,6 +431,7 @@ def fetch_html(
         retries: The number of times to retry if unblocking fails.
         backoff_factor: Factor to scale the pause between retries.
         absolute_links: Whether to convert relative links to absolute links.
+            Doesn't take redirects into account.
 
     Returns:
         The parsed HTML document serialized from the DOM.
