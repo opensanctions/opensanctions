@@ -15,6 +15,7 @@
 
 
 from lxml import etree
+import re
 
 from zavod import Context, helpers as h
 from zavod.stateful.positions import categorise
@@ -35,6 +36,40 @@ UNBLOCK_ACTIONS = [
 ]
 
 
+def crawl_birth_year_place(context: Context, url: str) -> tuple[str | None, str | None]:
+    doc = fetch_html(
+        context,
+        url,
+        '//*[@id="milletvekili-detay-holder-desktop"]',
+        actions=UNBLOCK_ACTIONS,
+        javascript=True,
+        absolute_links=True,
+        cache_days=1,
+    )
+
+    # Pick the first element under the span in the profile free text section
+    # Usually a p or a div
+    xpath = '//*[@id="milletvekili-detay-holder-desktop"]//div[contains(@class, "profile-ozgecmis-div")]/span/*[1]'
+
+    birth_string = h.element_text(h.xpath_element(doc, xpath))
+
+    # e.g. "Sivas / Koyulhisar – 1959, Dursun, Dudu"
+    match = re.match(r"^([\w\s/]+?)\s*[-–]\s*(\d{4})", birth_string)
+    if match:
+        return match.group(2), match.group(1).strip()
+
+    result = context.lookup("birth_string", birth_string)
+    if result is not None:
+        return result.birth_date, result.birth_place
+
+    context.log.warning(
+        "Failed to parse birth string",
+        birth_string=birth_string,
+        url=url,
+    )
+    return None, None
+
+
 def crawl_item(context: Context, item: etree):
     anchor = item.find(".//a")
     if anchor is None:
@@ -51,6 +86,10 @@ def crawl_item(context: Context, item: etree):
     entity.add("sourceUrl", deputy_url)
     entity.add("political", party)
 
+    birth_year, birth_place = crawl_birth_year_place(context, deputy_url)
+    entity.add("birthDate", birth_year)
+    entity.add("birthPlace", birth_place)
+
     position = h.make_position(
         context, "Member of the Grand National Assembly", country="tr"
     )
@@ -64,10 +103,21 @@ def crawl_item(context: Context, item: etree):
         categorisation=categorisation,
     )
 
+    ### creating a temp entity to merge with old ID for rekey ###
+    entity_temp = context.make("Person")
+    entity_temp.id = context.make_id(name, str(birth_year), birth_place)
+    entity_temp.add("name", name)
+    entity_temp.add("birthDate", birth_year)
+    entity_temp.add("birthPlace", birth_place)
+    entity_temp.add("political", party)
+    ### === ### === ### === ### === ### === ### === ###
+
     if occupancy:
         context.emit(entity)
         context.emit(position)
         context.emit(occupancy)
+        if birth_year is not None and birth_place is not None:
+            context.emit(entity_temp, external=True)
 
 
 def crawl(context: Context):
@@ -79,6 +129,7 @@ def crawl(context: Context):
         actions=UNBLOCK_ACTIONS,
         javascript=True,
         absolute_links=True,
+        cache_days=1,
     )
 
     for item in doc.xpath(items_xpath):
