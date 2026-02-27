@@ -33,6 +33,18 @@ publisher:
     Transparency International movement.
   official: false
 
+assertions:
+  min:
+    schema_entities:
+      Person: 200_000
+      Organization: 2_000
+      Company: 200_000
+  max:
+    schema_entities:
+      Person: 400_000
+      Organization: 4_000
+      Company: 400_000
+
 lookups:
   schema:
     options:

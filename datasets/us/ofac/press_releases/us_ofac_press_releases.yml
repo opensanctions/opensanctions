@@ -38,21 +38,24 @@ data:
   url: https://ofac.treasury.gov/press-releases
   format: HTML
   lang: eng
-# assertions:
-#   min:
-#     schema_entities:
-#       Address: 440
-#       Organization: 300
-#       Security: 200
-#       Person: 70
-#       Company: 4
-#   max:
-#     schema_entities:
-#       Address: 1030
-#       Organization: 720
-#       Security: 460
-#       Person: 160
-#       Company: 50
+
+assertions:
+  min:
+    schema_entities:
+      Airplane: 40
+      Organization: 800
+      Vessel: 700
+      Person: 3500
+      Company: 4000
+      Article: 700
+  max:
+    schema_entities:
+      Airplane: 80
+      Organization: 1600
+      Vessel: 1400
+      Person: 7000
+      Company: 8000
+      Article: 1400
 
 lookups:
   type.country:

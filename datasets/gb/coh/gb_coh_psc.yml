@@ -40,6 +40,18 @@ data:
 dates:
   formats: ["%d/%m/%Y"]
 
+assertions:
+  min:
+    schema_entities:
+      Person: 12_000_000
+      Organization: 17_000
+      Company: 10_000
+  max:
+    schema_entities:
+      Person: 24_000_000
+      Organization: 34_000
+      Company: 20_000
+
 lookups:
   type.country:
     lowercase: true
