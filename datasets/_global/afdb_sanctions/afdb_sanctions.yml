@@ -401,7 +401,7 @@ lookups:
   types:
     lowercase: true
     map:
-      FIRM: Company
+      FIRM: LegalEntity
       INDIVIDUAL: Person
   type.country:
     lowercase: true
