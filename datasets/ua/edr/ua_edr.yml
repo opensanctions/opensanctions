@@ -36,6 +36,18 @@ data:
   url: "https://usr.minjust.gov.ua/content/free-search"
   format: XML
 
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 3_200_000
+      Person: 1_300_000
+      Company: 1_500_000
+  max:
+    schema_entities:
+      LegalEntity: 6_500_000
+      Person: 2_500_000
+      Company: 3_000_000
+
 lookups:
   type.name:
     options:

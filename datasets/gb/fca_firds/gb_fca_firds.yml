@@ -37,3 +37,13 @@ url: https://data.fca.org.uk/#/download
 data:
   url: https://api.data.fca.org.uk/fca_data_firds_files
   format: JSON
+
+assertions:
+  min:
+    schema_entities:
+      Organization: 30_000
+      Security: 5_000_000
+  max:
+    schema_entities:
+      Organization: 70_000
+      Security: 10_000_000

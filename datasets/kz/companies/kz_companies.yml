@@ -47,10 +47,19 @@ data:
   url: "https://data.egov.kz/datasets/getdata"
   format: JSON
 
+assertions:
+  min:
+    schema_entities:
+      Person: 600_000
+      Company: 500_000
+  max:
+    schema_entities:
+      Person: 1_200_000
+      Company: 1_000_000
+
 lookups:
   type.name:
     options:
       # One or more of the following: whitespace, a dot or a dash.
       - regex: ^[\s\.\-]+$
         value: null
- 
