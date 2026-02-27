@@ -36,7 +36,7 @@ UNBLOCK_ACTIONS = [
 ]
 
 
-def crawl_birth_year_place(context: Context, url: str) -> tuple[int | None, str | None]:
+def crawl_birth_year_place(context: Context, url: str) -> tuple[str | None, str | None]:
     doc = fetch_html(
         context,
         url,
@@ -44,16 +44,30 @@ def crawl_birth_year_place(context: Context, url: str) -> tuple[int | None, str 
         actions=UNBLOCK_ACTIONS,
         javascript=True,
         absolute_links=True,
+        cache_days=1,
     )
 
-    xpath = '//*[@id="milletvekili-detay-holder-desktop"]//div[contains(@class, "profile-ozgecmis-div")]/span//*[1]/text()'
+    # Pick the first element under the span in the profile free text section
+    # Usually a p or a div
+    xpath = '//*[@id="milletvekili-detay-holder-desktop"]//div[contains(@class, "profile-ozgecmis-div")]/span/*[1]'
 
-    birth_string = h.xpath_strings(doc, xpath)
-    match = re.match(r"^([\w\s/]+?)\s*–\s*(\d{4})", birth_string[0])
-    year = int(match.group(2)) if match else None
-    birth_place = match.group(1).strip() if match else None
+    birth_string = h.element_text(h.xpath_element(doc, xpath))
 
-    return year, birth_place
+    # e.g. "Sivas / Koyulhisar – 1959, Dursun, Dudu"
+    match = re.match(r"^([\w\s/]+?)\s*[-–]\s*(\d{4})", birth_string)
+    if match:
+        return match.group(2), match.group(1).strip()
+
+    result = context.lookup("birth_string", birth_string)
+    if result is not None:
+        return result.birth_date, result.birth_place
+
+    context.log.warning(
+        "Failed to parse birth string",
+        birth_string=birth_string,
+        url=url,
+    )
+    return None, None
 
 
 def crawl_item(context: Context, item: etree):
@@ -89,10 +103,9 @@ def crawl_item(context: Context, item: etree):
         categorisation=categorisation,
     )
 
-    ### creating a temp entity to test the id rekey ###
+    ### creating a temp entity to merge with old ID for rekey ###
     entity_temp = context.make("Person")
-    if birth_year is not None:
-        entity_temp.id = context.make_id(name, str(birth_year), birth_place)
+    entity_temp.id = context.make_id(name, str(birth_year), birth_place)
     entity_temp.add("name", name)
     entity_temp.add("birthDate", birth_year)
     entity_temp.add("birthPlace", birth_place)
@@ -103,7 +116,8 @@ def crawl_item(context: Context, item: etree):
         context.emit(entity)
         context.emit(position)
         context.emit(occupancy)
-        context.emit(entity_temp, external=True)  # emit temp entity to test the rekey
+        if birth_year is not None and birth_place is not None:
+            context.emit(entity_temp, external=True)
 
 
 def crawl(context: Context):
@@ -115,6 +129,7 @@ def crawl(context: Context):
         actions=UNBLOCK_ACTIONS,
         javascript=True,
         absolute_links=True,
+        cache_days=1,
     )
 
     for item in doc.xpath(items_xpath):

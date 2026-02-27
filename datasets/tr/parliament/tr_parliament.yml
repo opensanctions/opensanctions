@@ -42,3 +42,14 @@ assertions:
   max:
     schema_entities:
       Person: 605
+
+lookups:
+  birth_string:
+    normalize: false
+    options:
+      - match: "Zeynel, Nurten. İş İnsanı; Lise mezunudur."
+        birth_place: null
+        birth_date: null
+      - match: "İstanbul – 12 Ekim 1990, Hüseyin, Lale Tamam."
+        birth_place: İstanbul
+        birth_date: "1990-10-12"
