@@ -1,57 +1,46 @@
+from itertools import chain
 from lxml.etree import _Element
-from datetime import datetime
-import re
+from typing import Dict
 
 from zavod import Context, helpers as h
 
 
-def parse_entities_persons(context: Context, row: _Element) -> None:
-    country = h.xpath_string(row, ".//p[contains(., 'Country')]/text()").strip()
-    date = h.xpath_string(row, ".//p[contains(., 'Entered into force')]/text()").strip()
+PROGRAM_KEY = "CA-SEMA"
 
-    parts = h.xpath_strings(row, ".//p[3]//text()")  # some entries embed <em>s
-    notes = " ".join(parts).strip()
 
-    people_list = list(
-        h.xpath_elements(row, ".//div[contains(., 'List of individuals')]//li")
+def crawl_entity(context: Context, row: Dict[str, _Element]) -> None:
+    str_row = h.cells_to_str(row)
+    country = str_row.pop("country")
+    listing_date = str_row.pop("date")
+    schema_type = str_row.pop("types")
+    res = context.lookup("schema_type", schema_type, warn_unmatched=True)
+    schema = res.value if res else None
+    if not schema:
+        return
+
+    specific_prohibition = row.pop("specific_prohibition")
+    reason = h.xpath_strings(specific_prohibition, ".//p[3]//text()")
+    people = h.xpath_strings(
+        specific_prohibition, ".//div[contains(., 'List of individuals')]//li/text()"
     )
-    entities_list = list(
-        h.xpath_elements(row, ".//div[contains(., 'List of entities')]//li")
+    entities = h.xpath_strings(
+        specific_prohibition, ".//div[contains(., 'List of entities')]//li/text()"
     )
-
-    lis, schema = (
-        (people_list, "Person") if people_list else (entities_list, "LegalEntity")
-    )
-
-    for li in lis:
-        name = li.text
-        assert name is not None
-        name = name.strip()
-
+    for name in chain(people, entities):
         entity = context.make(schema)
         entity.id = context.make_id(name)
 
-        # --- clean the name + extract DOB if present
+        # Clean the name and extract DOB if present
         if "(born " in name.lower():
-            dirty_dob = name.split("(born")[1].strip()
-            name = name.split("(born")[0].strip()
-            entity.add("name", name)
+            name, dirty_dob = name.split("(born", 1)
+            # entity.add("name", name.strip())
+            h.apply_date(entity, "birthDate", dirty_dob)
 
-            match_full_date = re.search(r"[A-Z][a-z]+ \d{1,2}, \d{4}", dirty_dob)
-            if match_full_date:
-                dob = datetime.strptime(match_full_date.group(), "%B %d, %Y")
-                entity.add("birthDate", dob)
-            match_year = re.search(r"\d{4}", dirty_dob)
-            if match_year:
-                dob = datetime.strptime(match_year.group(), "%Y")
-                entity.add("birthDate", dob)
-
-        # --- clean up aliases with Russian names
+        # Clean up aliases with Russian names
         if "(russian:" in name.lower():
-            alias = name.split("(Russian:")[1].strip().replace(")", "")
-            name = name.split("(Russian:")[0].strip()
-            entity.add("name", name)
-            entity.add("alias", alias)
+            name, name_ru = name.split("(Russian:", 1)
+            # entity.add("name", name.strip(), lang="eng")
+            entity.add("name", name_ru.strip().rstrip(")"), lang="rus")
 
         # send the rest of the irregular names into review
         original = h.Names(name=name)
@@ -66,9 +55,7 @@ def parse_entities_persons(context: Context, row: _Element) -> None:
         )
         # use h.apply_reviewed_names() once the reviews are done?
 
-        entity.add("name", name)
-        # entity.add("country", country)  # not sure if correct to add here bc country is for sanctions
-        entity.add("notes", notes)
+        entity.add("name", name, lang="eng")
         entity.add("topics", "sanction")
 
         sanction = h.make_sanction(
@@ -76,59 +63,42 @@ def parse_entities_persons(context: Context, row: _Element) -> None:
             entity,
             program_name=country,
             source_program_key=country,
-            program_key="CA-SEMA",
+            program_key=PROGRAM_KEY,
         )
         sanction.add("program", country)
-        h.apply_date(sanction, "listingDate", date)
+        sanction.add("reason", reason)
+        h.apply_date(sanction, "listingDate", listing_date)
 
         context.emit(entity)
         context.emit(sanction)
 
 
-def parse_ships(context: Context, row: _Element) -> None:
-    imo_number = h.xpath_string(row, ".//td[2]//text()").strip()
-    name = h.xpath_string(row, ".//td[1]//text()").strip()
-
-    entity = context.make("Vessel")
-    entity.id = context.make_id(name, imo_number)
-    entity.add("name", name)
-    entity.add("imoNumber", imo_number)
-    entity.add("type", h.xpath_string(row, ".//td[3]//text()").strip())
-    h.apply_date(entity, "buildDate", h.xpath_string(row, ".//td[4]//text()").strip())
-
-    entity.add("topics", "sanction")
+def crawl_vessel(context: Context, row: Dict[str, str | None]) -> None:
+    imo_number = row.pop("ship_imo_number")
+    name = row.pop("ship_name")
+    vessel = context.make("Vessel")
+    vessel.id = context.make_id(name, imo_number)
+    vessel.add("name", name)
+    vessel.add("imoNumber", imo_number)
+    vessel.add("type", row.pop("ship_type"))
+    h.apply_date(vessel, "buildDate", row.pop("ship_build_date"))
+    vessel.add("topics", "sanction")
     sanction = h.make_sanction(
         context,
-        entity,
-        program_key="CA-SEMA",
+        vessel,
+        program_key=PROGRAM_KEY,
     )
-    # sanction.add("program", country)
-    date = datetime.today().strftime("%B %d, %Y")
-
-    h.apply_date(
-        sanction, "listingDate", date
-    )  # double check which property i should put the today() date into for ships (temp date for ships)
-
-    context.emit(entity)
+    context.emit(vessel)
     context.emit(sanction)
 
 
 def crawl(context: Context) -> None:
     doc = context.fetch_html(context.data_url, cache_days=1)
+    entities_table = h.xpath_element(doc, '//table[contains(@id, "dataset-filter1")]')
+    for row in h.parse_html_table(entities_table):
+        crawl_entity(context, row)
 
-    # --- crawl people and entities ---
-    rows_entities_persons = h.xpath_elements(
-        doc, '//table[contains(@id, "dataset-filter1")]/tbody/tr'
-    )
-    for row in rows_entities_persons:
-        parse_entities_persons(context, row)
-
-    # --- crawl ships ---
-    # country_ships = h.xpath_strings(doc, '//h2[contains(., "Regulations against ships")]/following::p[contains(., "Country")]/text()')
-    # date_ships = h.xpath_strings(doc, '//h2[contains(., "Regulations against ships")]/following::p[contains(., "Entered into force")]/text()')
-
-    rows_ships = h.xpath_elements(
-        doc, '//table[contains(@class, "table wb-tables")]/tbody/tr'
-    )
-    for row in rows_ships:
-        parse_ships(context, row)
+    ship_table = h.xpath_element(doc, '//table[contains(@class, "table wb-tables")]')
+    for row in h.parse_html_table(ship_table):
+        str_row = h.cells_to_str(row)
+        crawl_vessel(context, str_row)
