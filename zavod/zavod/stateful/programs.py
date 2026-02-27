@@ -21,7 +21,7 @@ Measure = Literal[
 class Issuer(BaseModel):
     """An organization or governmental body that issues sanctions programs."""
 
-    id: int  # from Directus, drop after migration
+    id: Optional[int] = None  # from Directus, drop after migration
     name: str = Field(
         description="Name of the organization (e.g., 'UN Security Council', 'Office of Foreign Asset Control')"
     )
@@ -41,7 +41,7 @@ class Issuer(BaseModel):
 class Program(BaseModel):
     """A sanctions regime."""
 
-    id: int  # from Directus, drop after migration
+    id: Optional[int] = None  # from Directus, drop after migration
     key: str = Field(
         description="Hyphenated reference key (e.g., 'AU-AFGHANISTAN', 'AE-UNSC1373', 'US-AFGH')"
     )
