@@ -8,6 +8,22 @@ from zavod import Context, helpers as h
 PROGRAM_KEY = "CA-SEMA"
 
 
+def parse_name_dob(name: str) -> tuple[str, str | None, str | None, list[str]]:
+    name_ru = None
+    dob = None
+    aliases = []
+    if "(born " in name.lower():
+        name, dob = name.split("(born", 1)
+        dob = dob.strip()
+    if "(russian:" in name.lower():
+        name, name_ru = name.split("(Russian:", 1)
+        name_ru = name_ru.strip().rstrip(")")
+    if "(also known as" in name.lower():
+        name, aka = name.split("(also known as", 1)
+        aliases = [a.strip().rstrip(")") for a in aka.split(",")]
+    return name.strip(), dob, name_ru, aliases
+
+
 def crawl_entity(context: Context, row: Dict[str, _Element]) -> None:
     str_row = h.cells_to_str(row)
     country = str_row.pop("country")
@@ -26,43 +42,22 @@ def crawl_entity(context: Context, row: Dict[str, _Element]) -> None:
     entities = h.xpath_strings(
         specific_prohibition, ".//div[contains(., 'List of entities')]//li/text()"
     )
-    for name in chain(people, entities):
+    for entity_name in chain(people, entities):
         entity = context.make(schema)
-        entity.id = context.make_id(name)
-
-        # Clean the name and extract DOB if present
-        if "(born " in name.lower():
-            name, dirty_dob = name.split("(born", 1)
-            # entity.add("name", name.strip())
-            h.apply_date(entity, "birthDate", dirty_dob)
-
-        # Clean up aliases with Russian names
-        if "(russian:" in name.lower():
-            name, name_ru = name.split("(Russian:", 1)
-            # entity.add("name", name.strip(), lang="eng")
-            entity.add("name", name_ru.strip().rstrip(")"), lang="rus")
-
-        # send the rest of the irregular names into review
-        original = h.Names(name=name)
-        is_irregular, suggested = h.check_names_regularity(entity, original)
-
-        h.review_names(
-            context,
-            entity,
-            original=original,
-            suggested=suggested,
-            is_irregular=is_irregular,
-        )
-        # use h.apply_reviewed_names() once the reviews are done?
-
+        entity.id = context.make_id(entity_name)
+        name, dob, name_ru, aliases = parse_name_dob(entity_name)
         entity.add("name", name, lang="eng")
+        entity.add("name", name_ru, lang="rus")
         entity.add("topics", "sanction")
+        for alias in aliases:
+            entity.add("alias", alias, lang="eng")
+        if dob:
+            h.apply_date(entity, "birthDate", dob)
 
         sanction = h.make_sanction(
             context,
             entity,
-            program_name=country,
-            source_program_key=country,
+            key=country,
             program_key=PROGRAM_KEY,
         )
         sanction.add("program", country)
