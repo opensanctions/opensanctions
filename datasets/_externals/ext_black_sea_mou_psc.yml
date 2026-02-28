@@ -1,0 +1,63 @@
+type: external
+title: Black Sea MoU Port State Control Inspections
+entry_point: zavod.runner.local_enricher:enrich
+full_dataset: black_sea_mou_psc
+disabled: false
+hidden: false
+coverage:
+  frequency: weekly
+  start: 2026-02-26
+exports:
+  - statistics.json
+  - entities.delta.json
+deploy:
+  cpu: "1000m"
+  memory: "4000Mi"
+  memory_limit: "5000Mi"
+load_statements: true
+ci_test: false
+summary: >-
+  Vessels inspected by member authorities under the Black Sea MoU.
+description: |
+  This dataset contains ships inspected by port state control while visiting ports under
+  the jurisdiction of Black Sea MoU member authorities. Each record includes, but is not
+  limited to, the ship's identity, flag, and associated company.
+url: https://bsmou.org/database/inspections/
+publisher:
+  name: Black Sea Memorandum of Understanding
+  acronym: Black Sea MoU
+  description: |
+    The Black Sea MoU on Port State Control is an agreement among Black Sea countries to ensure
+    that ships comply with international safety, environmental, and labor standards.
+    > Port State control (PSC) comes into the scene when shipowners, classification societies
+    > and flag State administrations have failed to comply with the requirements of the
+    > international maritime conventions.
+    [Source: Official Website](https://bsmou.org/about/)
+  url: https://bsmou.org
+  official: true
+  country: "zz"
+
+inputs:
+  - ann_graph_topics
+  # - debarment
+  - sanctions
+  - special_interest
+  - maritime
+
+config:
+  index_options:
+    memory: 3000
+  topics:
+    - sanction
+    - sanction.linked
+    - export.control
+    - export.control.linked
+    - debarment
+  schemata:
+    - Company
+    - Organization
+    - LegalEntity
+    - Vessel
+    - Person
+
+# TODO: add assertions after the first successful run
