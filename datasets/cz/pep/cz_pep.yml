@@ -1,0 +1,126 @@
+title: Czech Republic PEPs
+prefix: cz-pep
+url: https://cro.justice.cz/verejnost/funkcionari
+coverage:
+  frequency: monthly
+  start: 2026-02-12
+load_statements: true
+entry_point: crawler.py
+summary: >-
+  Politically exposed persons registered in the Czech Central Register of Declarations,
+  including members of parliament, senators, and judges.
+description: |
+  This dataset covers members of the Chamber of Deputies (Poslanecká sněmovna), senators
+  (Senát), and judges, including both current officeholders and those whose mandates have
+  recently ended.
+tags:
+  - list.pep
+publisher:
+  name: Ministerstvo spravedlnosti České republiky
+  name_en: Ministry of Justice of the Czech Republic
+  description: |
+    The Ministry of Justice of the Czech Republic administers the Central Register of
+    Declarations (CRO), a public register of asset and interest declarations filed by public
+    officials under the Conflict of Interest Act. The register covers approximately 39,000
+    public officials across all branches of government.
+  country: cz
+  url: https://cro.justice.cz
+  official: true
+data:
+  url: https://cro.justice.cz/verejnost/api/funkcionari
+dates:
+  formats: ["%d.%m.%Y"]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 800
+      Position: 1
+    country_entities:
+      cz: 1
+
+lookups:
+  position_details:
+    options:
+      - match: af9a98a7-ac7a-4c8a-922d-7c169328a897
+        items:
+          name: Member of the Chamber of Deputies of the Parliament of the Czech Republic
+          qid: Q19803234
+          topics: ["gov.legislative", "gov.national"]
+      - match: 5625551a-6397-4e17-9bb3-d43e821fbb90
+        items:
+          name: Member of the Senate of the Parliament of the Czech Republic
+          qid: Q18941264
+          topics: ["gov.legislative", "gov.national"]
+  judicial_details:
+    options:
+    # Judges are identified by their position name, not the ovmId, because the same ovmId is used
+    # for both judges and prosecutors, and the position name is more specific about the type of judicial role
+
+        # Constituitional Court
+      - contains: soudce Ústavní soud
+        items:
+          name: Judge of the Constitutional Court of the Czech Republic
+          qid: null
+          topics: ["gov.judicial", "gov.national"]
+        # Supreme Court
+      - contains:
+          - soudce Nejvyšší soud
+          - soudce Nejvyšší správní
+        items:
+          name: Judge of the Supreme Court of the Czech Republic
+          qid: null
+          topics: ["gov.judicial", "gov.national"]
+        # High courts
+      - contains:
+          - soudce Vrchní soud
+          - soudce Vrchni soud
+        items:
+          name: Judge of a High Court in the Czech Republic
+          qid: null
+          topics: ["gov.judicial", "gov.national"]
+      - contains: státní zástupce Vrchní
+        items:
+          name: Prosecutor of the High Court
+          qid: null
+          topics: ["gov.judicial", "gov.national"]
+        # Regional courts
+      - contains: soudce Krajský soud
+        items:
+          name: Judge of a Regional Court in the Czech Republic
+          qid: null
+          topics: ["gov.judicial", "gov.state"]
+      - contains: státní zástupce Krajské
+        items:
+          name: Prosecutor of the Regional Court
+          qid: null
+          topics: ["gov.judicial", "gov.state"]
+        # Municipal courts
+      - contains: soudce Městský soud
+        items:
+          name: Judge of the Municipal Court
+          qid: null
+          topics: ["gov.judicial", "gov.state"]
+      - contains: státní zástupce Městské
+        items:
+          name: Prosecutor of the Municipal Court
+          qid: null
+          topics: ["gov.judicial", "gov.state"]
+        # District courts
+      - contains:
+          - soudce Okresní soud
+          - soudce  Okresní soud
+          - soudce Okresní souv
+          - soudce OOkresní soud
+          - soudce Obvodní soud
+        items:
+          name: Judge of a District Court in the Czech Republic
+          qid: null
+          topics: ["gov.judicial", "gov.state"]
+      - contains:
+          - státní zástupce Obvodní
+          - státní zástupce Okresní
+        items:
+          name: Prosecutor of the District Court
+          qid: null
+          topics: ["gov.judicial", "gov.state"]
