@@ -58,6 +58,14 @@ def format_address(
         country_code = registry.country.clean_text(country)
     if country_code is not None:
         country_code = country_code.lower().strip()
+
+    # Trim extended ZIP+4 codes to 5 digits for ease of comparison:
+    if country_code == "us" and postal_code is not None:
+        if len(postal_code) > 5:
+            zip_code = postal_code[:5]
+            if zip_code.isdigit():
+                postal_code = zip_code
+
     street = join_text(street, street2, street3, sep=", ")
     data = {
         "attention": summary,
