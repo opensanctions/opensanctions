@@ -91,23 +91,13 @@ HTTP requests for GET requests are automatically retried for connection and HTTP
 
 Data assertions are intended to "smoke test" the data. Assertions are checked on export. If assertions aren't met, warnings are emitted.
 
-Data assertions are checked when running `zavod run` (and `zavod validate --clear` is useful when developing a crawler).
+Data assertions are checked when running `zavod run` (and `zavod validate --rebuild-store` is useful when developing a crawler).
 
-Data assertions are useful to communicate our expectations about what's in a dataset, and a soft indication (they don't cause the export to fail) to us that something's wrong in the dataset or crawler and needs attention.
-
-We usually use the minima to set a baseline for what should be in the dataset, and one or more simpler maxima to just identify when the dataset has grown beyond the validity of our earlier baseline, or if something's gone horribly wrong and emitted way more than expected.
+Data assertions are useful to communicate our expectations about what's in a dataset. `min` validations set a baseline for what should be in the dataset and are fatal to the export if they fail. `max` validations emit a warning when the dataset has grown beyond the validity of our earlier baseline (or if something's gone horribly wrong and emitted way more than expected)
 
 It's a good idea to add assertions at the start of writing a crawler, and then see whether those expectations are met when the crawler is complete. A good rule of thumb for datasets that change over time is minima 10% below the expected number to allow normal variation, unless there's a known hard minimum, and a maximum around twice the expected number of entities to leave room to grow.
 
-- `assertions`
-  - `min` violations abort the crawler run.
-  - `max` violations only result in a Warning.
-  - `min` and `max` can each have the following children
-    - `schema_entities` asserts on the number of entities of a given schema
-    - `country_entities` asserts on the number of entities associated with a country in any of its properties. All properties with type `country` are considered (among them the usual suspects such as `country`, `jurisdiction` and `citizenship`). Countries are given as ISO 3166-1 Alpha-2 country codes.
-    - `countries` asserts on number of countries expected to come up in the dataset
-    - `entities_with_prop` asserts on the number of entities of a given schema that have a property set.
-
+A basic assertion block can look like this:
 
 ```yaml
 assertions:
@@ -115,11 +105,6 @@ assertions:
     schema_entities:
       Person: 160  # at least 160 Person entities
       Position: 30  # at least 30 Position entities
-    country_entities:
-      us: 40  # at least 40 entities for the US
-      cn: 30  # at least 30 entities for China
-      bn: 1  # at least one entity for Brunei
-    countries: 6  # at least 6 countries come up
     entities_with_prop:
       Company:
         taxNumber: 10  # at least 10 Companies have a tax number set
@@ -128,3 +113,25 @@ assertions:
       Person: 400  # at most 400 Person entities
       Position: 80  # at most 80 Position entities
 ```
+
+
+#### Assertion types
+
+**`schema_entities`** asserts on the number of entities of a given schema.
+
+**`country_entities`** asserts on the number of entities associated with a country in any of its properties. All properties with type `country` are considered (among them the usual suspects such as `country`, `jurisdiction` and `citizenship`). Countries are given as ISO 3166-1 Alpha-2 country codes.
+
+**`countries`** asserts on the number of distinct countries expected to appear in the dataset.
+
+**`entities_with_prop`** asserts on the number of entities of a given schema that have a given property set.
+
+**`property_fill_rate`** asserts on the proportion of entities of a given schema that have a given property set, expressed as a float between 0 and 1.
+
+```yaml
+assertions:
+  min:
+    property_fill_rate:
+      Person:
+        birthDate: 0.7  # at least 70% of Persons have a birth date
+```
+

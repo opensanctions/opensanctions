@@ -18,6 +18,9 @@ class Metric(Enum):
     ENTITIES_WITH_PROP_COUNT = "entities_with_prop"
     """Number of entities with property values matching the filter in the dataset."""
 
+    PROPERTY_FILL_RATE = "property_fill_rate"
+    """Fill rate of a property for a given schema in the dataset."""
+
     def __str__(self) -> str:
         return self.value
 

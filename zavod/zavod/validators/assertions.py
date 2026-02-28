@@ -20,15 +20,18 @@ def check_value(
             raise ValueError(f"Unknown comparison: {comparison}")
 
 
+def is_assertion_fatal(assertion: Assertion) -> bool:
+    return assertion.comparison == Comparison.GTE
+
+
 def check_assertion(
     context: Context,
     stats: Dict[str, Any],
     assertion: Assertion,
-    log_error: bool = True,
 ) -> bool:
     """Returns true if the assertion is valid, false otherwise."""
 
-    log_fn = context.log.error if log_error else context.log.warning
+    log_fn = context.log.error if is_assertion_fatal(assertion) else context.log.warning
     results_valid: list[bool] = []
 
     if assertion.metric == Metric.ENTITY_COUNT:
@@ -95,7 +98,7 @@ def check_assertion(
     elif assertion.metric == Metric.ENTITIES_WITH_PROP_COUNT:
         # stats["things"]["entities_with_prop"] is a list of dictionaries that look like
         # [
-        #   { "schema": "Person", "property": "firstName", "count": 100 },
+        #   { "schema": "Person", "property": "firstName", "count": 6, "total": 10, "fill_rate": 0.6 },
         # ]
         stats_entity_with_prop_to_count = {
             (item["schema"], item["property"]): item["count"]
@@ -110,6 +113,27 @@ def check_assertion(
                 if not valid:
                     log_fn(
                         f"Assertion {assertion.metric} failed for {schema}.{property}: {value} is not {assertion.comparison} threshold {threshold}"
+                    )
+                results_valid.append(valid)
+
+    elif assertion.metric == Metric.PROPERTY_FILL_RATE:
+        # stats["things"]["entities_with_prop"] is a list of dictionaries that look like
+        # [
+        #   { "schema": "Person", "property": "firstName", "total": 10, "filled": 6, "fill_rate": 0.6 },
+        # ]
+        stats_fill_rate_lookup = {
+            (item["schema"], item["property"]): item["fill_rate"]
+            for item in stats["things"]["entities_with_prop"]
+        }
+
+        for schema, properties in assertion.config.items():
+            for property, threshold in properties.items():
+                key = (schema, property)
+                fill_rate = stats_fill_rate_lookup.get(key, 0.0)
+                valid = check_value(fill_rate, assertion.comparison, threshold)
+                if not valid:
+                    log_fn(
+                        f"Assertion {assertion.metric} failed for {schema}.{property}: {fill_rate} is not {assertion.comparison} threshold {threshold}"
                     )
                 results_valid.append(valid)
 
@@ -135,10 +159,7 @@ class StatisticsAssertionsValidator(BaseValidator):
             self.context.log.error("Dataset has no assertions.")
 
         for assertion in self.context.dataset.assertions:
-            is_fatal = assertion.comparison == Comparison.GTE
-            valid = check_assertion(
-                self.context, self.stats.as_dict(), assertion, log_error=is_fatal
-            )
+            valid = check_assertion(self.context, self.stats.as_dict(), assertion)
             # Only min assertions should abort the dataset.
-            if not valid and is_fatal:
+            if not valid and is_assertion_fatal(assertion):
                 self.abort = True
