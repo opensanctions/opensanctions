@@ -1,0 +1,51 @@
+title: Kenya FRC Domestic Terrorism List
+prefix: ke-frc
+coverage:
+  frequency: daily
+  schedule: "0 6 * * *"
+  start: 2026-03-01
+load_statements: true
+entry_point: crawler.py
+ci_test: true
+summary: >-
+  Persons designated under Kenya's counter-terrorism financial sanctions framework
+  by the Financial Reporting Centre.
+description: |
+  The Financial Reporting Centre (FRC) of Kenya publishes a domestic terrorism list
+  of individuals subject to targeted financial sanctions under the Prevention of
+  Terrorism Act and Proceeds of Crime and Anti-Money Laundering Act. The list
+  implements obligations under UN Security Council Resolution 1373 (2001).
+url: https://www.frc.go.ke/?page_id=193
+publisher:
+  name: Financial Reporting Centre
+  acronym: FRC
+  description: >
+    Kenya's financial intelligence unit, mandated to identify proceeds of crime
+    and combat money laundering and terrorism financing.
+  url: https://www.frc.go.ke/
+  country: ke
+  official: true
+data:
+  url: https://www.frc.go.ke/?page_id=193
+  format: XLSX
+  lang: eng
+tags:
+  - list.sanction
+  - issuer.africa
+assertions:
+  min:
+    schema_entities:
+      Person: 10
+    country_entities:
+      ke: 1
+  max:
+    schema_entities:
+      Person: 200
+lookups:
+  type.gender:
+    normalize: true
+    options:
+      - match: female
+        value: female
+      - match: male
+        value: male
