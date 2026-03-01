@@ -13,7 +13,7 @@ deploy:
   # We only update the data manually ever 90 days, so weekly is enough.
   schedule: "@weekly"
 manual_check:
-  last_checked: "2025-11-18"
+  last_checked: "2026-03-01"
   interval: 90
   message: Go to the data URL, click the "Export JSON" button at the top right. Put the JSON in the dataset folder as source.json.
 load_statements: true
