@@ -19,9 +19,10 @@ This project contains crawlers that import source data, such as sanctions lists 
 
 ## Coding hints
 
+* NEVER try to install new packages or on-board new services without being explicitly promoted to do so.
 * Assume the venv you're running in has `zavod` configured.
 * Write code that is specific (eg `if var is None:`, not `if var:`) and breaks with an erorr when encountering unexpected conditions. Distrust all input, especially from the source files.
 * All zavod code needs to be fully typed, unit tested and thoroughly documented.
 * When adding type hints, use the container types such as `set`, `tuple` or `dict` instead of the now-deprecated `typing.Set`, `typing.Tuple` or `typing.Dict`.
 * All new crawlers should be written using typed Python. Suggest adding types to existing ones.
-* Be extremely conservative in bringing in new dependencies. We use `lxml` for parsing HTML/XML, and `context.fetch_` functions the retrieve online data. Other libraries are listed in `zavod/pyproject.toml`.
+* We use `lxml` for parsing HTML/XML, and `context.fetch_` functions the retrieve online data. Other libraries are listed in `zavod/pyproject.toml`. NEVER use beautifulsoup, or the Python stdlib xml modules.
