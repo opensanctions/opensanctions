@@ -1,0 +1,72 @@
+title: Slovenia Members of the National Assembly
+prefix: si-dzrs
+coverage:
+  frequency: monthly
+  start: 2026-03-01
+load_statements: true
+entry_point: crawler.py
+ci_test: true
+summary: >-
+  Current members of the Slovenian National Assembly (Državni zbor), the
+  country's unicameral parliament.
+description: |
+  Members of the National Assembly of Slovenia (Slovenian: Državni zbor), the
+  unicameral parliament of the Republic of Slovenia consisting of 90 deputies.
+
+  Deputies are elected for four-year terms using proportional representation
+  across eight electoral units. The data is sourced from the official open data
+  published by the National Assembly administration, updated every 24 hours.
+url: https://www.dz-rs.si/wps/portal/en/Home/pos/Deputies/
+publisher:
+  name: National Assembly of Slovenia
+  description: >
+    The National Assembly (Državni zbor) is the supreme legislative body of
+    Slovenia, exercising legislative power, approving the budget, and overseeing
+    the executive branch.
+  url: https://www.dz-rs.si/
+  country: si
+  official: true
+data:
+  url: https://fotogalerija.dz-rs.si/datoteke/opendata/SIF.XML
+  format: XML
+  lang: slv
+
+dates:
+  formats: ["%d. %B %Y", "%d. %m. %Y", "%d.%m.%Y", "%d. %m.%Y"]
+  months:
+    "january": "januarja"
+    "february": "februarja"
+    "march":
+      - "marca"
+      - "marec"
+    "april": "aprila"
+    "may": "maja"
+    "june": "junija"
+    "july": "julija"
+    "august": "avgusta"
+    "september": "septembra"
+    "october": "oktobra"
+    "november": "novembra"
+    "december": "decembra"
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 85
+      Position: 1
+    country_entities:
+      si: 1
+  max:
+    schema_entities:
+      Person: 100
+
+lookups:
+  type.gender:
+    options:
+      - match: M
+        value: male
+      - match: Z
+        value: female
