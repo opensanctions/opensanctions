@@ -1,0 +1,16 @@
+id: 111
+title: Guinea-Bissau Sanctions
+key: UN-SC2048
+url: https://www.un.org/securitycouncil/sanctions/2048
+summary: These sanctions target individuals undermining stability in Guinea-Bissau,
+  particularly those involved in the 2012 coup. The main measure is a travel ban,
+  requiring all states to prevent designated individuals from entering or transiting
+  their territories.
+issuer: zz_unsc
+dataset: un_sc_sanctions
+aliases:
+- Resolution 2048
+target_territories:
+- gw
+measures:
+- Travel ban

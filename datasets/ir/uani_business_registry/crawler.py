@@ -41,8 +41,8 @@ def is_500_page(doc: etree._Element) -> bool:
     )
 
 
-def crawl_subpage(context: Context, url: str, entity: Entity, entity_id):
-    context.log.debug(f"Starting to crawl company page: {url}")
+def crawl_subpage(context: Context, url: str, entity: Entity, entity_id: str):
+    context.log.info(f"Starting to crawl company page: {url}")
     validator_xpath = (
         './/div[@class="c-full-node__info"] | '
         './/*[contains(text(), "The website encountered an unexpected error.")]'
@@ -68,6 +68,9 @@ def crawl_subpage(context: Context, url: str, entity: Entity, entity_id):
 
     for sources in facts.pop("sources", []):
         for source in sources.xpath(".//p"):
+            # Sometimes, the tree contains some weird CSS elements
+            # with something that looks like an HTML comment - get rid of those.
+            etree.strip_elements(source, "style", "script")
             source_text = source.text_content()
             if "initWindowFocus" in source_text:
                 continue
@@ -171,7 +174,12 @@ def crawl(context: Context):
             entity.add("country", str_row.pop("nationality"))
             entity.add("sourceUrl", company_link)
             entity.add("ticker", str_row.pop("stock_symbol"))
-            entity.add("topics", "export.risk")
+
+            # FL 2026-02-13 - Legal work-around, do not remove without written approval
+            if company_name is not None and "investment" in company_name.lower():
+                entity.add("topics", "invest.risk")
+            else:
+                entity.add("topics", "export.risk")
             context.emit(entity)
             context.audit_data(str_row)
 

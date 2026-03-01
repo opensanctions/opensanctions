@@ -1,0 +1,12 @@
+id: 298
+title: List of Excluded Individuals/Entities (LEIE)
+key: US-HHS-OIG
+url: https://oig.hhs.gov/exclusions/background.asp
+summary: OIG has the authority to exclude individuals and entities from Federally
+  funded health care programs pursuant to section 1128 of the Social Security Act
+  (Act) (and from Medicare and State health care programs under section 1156 of the
+  Act) and maintains a list of all currently excluded individuals and entities called
+  the List of Excluded Individuals/Entities (LEIE). Anyone who hires an individual
+  or entity on the LEIE may be subject to civil monetary penalties (CMP).
+issuer: us_hhs_oig
+dataset: us_hhs_exclusions

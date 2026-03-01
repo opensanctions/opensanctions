@@ -95,6 +95,10 @@ config:
     - "sd"
 
 lookups:
+  type.name:
+    options:
+      - match: "FLS INTERNATIONAL LLC A&#X2F;K&#X2F;A UNIVERSAL PLACEMENT PR"
+        value: "FLS INTERNATIONAL LLC A/K/A UNIVERSAL PLACEMENT PR"
   type.address:
     options:
       - match:

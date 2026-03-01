@@ -1,0 +1,15 @@
+id: 22
+title: Iraq-Related Sanctions
+key: US-IRAQ
+url: https://ofac.treasury.gov/sanctions-programs-and-country-information/iraq-related-sanctions
+summary: "These sanctions target individuals and entities involved in destabilizing\
+  \ activities in Iraq, including terrorism, human rights abuses, and corruption.\
+  \ The measures include asset freezes and prohibitions on transactions to promote\
+  \ peace, security, and democracy in Iraq.\n\n (EO 13668, EO 13438, EO 13364, EO\
+  \ 13350, EO 13315, EO 13303, EO 13290)"
+issuer: us_ofac
+dataset: us_ofac_sdn
+aliases:
+- EO 13668
+target_territories:
+- iq

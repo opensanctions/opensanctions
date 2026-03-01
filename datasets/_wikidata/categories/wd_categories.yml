@@ -123,8 +123,6 @@ lookups:
     options:
       - match: "1935-06-31"
         value: 1935-06
-      - match: "1935-06-31"
-        value: 1935-06
       - match: "2019-11-31"
         value: 2019-11
       - match: "2012-02-30"
@@ -163,6 +161,10 @@ lookups:
         value: 2021-01
       - match: "2022-09-31"
         value: 2022-09
+      - match: "2024-09-31"
+        value: 2024-09
+      - match: "2020-09-31"
+        value: 2020-09
 
 config:
   seeds:
@@ -178,7 +180,7 @@ config:
     - "Q7330070" # foreign minister
     - "Q14212" # prime minister
     - "Q877955" # deputy prime minister
-    - "Q15966511" # deputy minister
+    - "Q15966511" # state minister
     - "Q26204040" # deputy minister
     - "Q16163440" # chief minister
     - "Q46403368" # deputy at the national level
@@ -414,10 +416,9 @@ config:
     - category: Government_ministers_of_Turkey
       topic: role.pep
       country: tr
-    - category: Government_ministries_of_Turkey
+    - category: Presidents_of_Turkey
       topic: role.pep
       country: tr
-    - category: Presidents_of_Turkey
 
     # NK
     - category: Leaders_of_the_Workers'_Party_of_Korea_and_its_predecessors
@@ -610,7 +611,7 @@ config:
       topic: role.pep
       position:
         name: Director-General of the World Health Organization
-        country: un
+        country: zz
         topics:
           - gov.igo
     - category: Secretaries_general_of_OPEC
@@ -685,15 +686,15 @@ config:
       topic: role.pep
     - category: United_Nations_High_Commissioner_for_Refugees_officials
       topic: role.pep
-      country: un
+      country: zz
     - category: United_Nations_Development_Programme_officials
       topic: role.pep
-      country: un
+      country: zz
     - category: Presidents_of_the_United_Nations_General_Assembly
       topic: role.pep
       position:
         name: President of the United Nations General Assembly
-        country: un
+        country: zz
         topics:
           - gov.igo
     - category: United_Nations_High_Commissioner_for_Human_Rights_officials
@@ -1170,7 +1171,7 @@ config:
       country: ec
       language: es
 
-    # Columbia
+    # Colombia
     - category: Members_of_the_Congress_of_Colombia
       country: co
       topic: role.pep
@@ -1679,9 +1680,6 @@ config:
     - category: Members_of_the_Scottish_Parliament
       country: gb-sct
       topic: role.pep
-    - category: Members_of_the_Scottish_Parliament
-      country: gb-sct
-      topic: role.pep
     - category: Political_office-holders_in_Gibraltar
       country: gi
       topic: role.pep
@@ -1742,17 +1740,17 @@ config:
     - category: Political_office-holders_in_the_Czech_Republic
       country: cz
       topic: role.pep
-    - match: Lists_of_members_of_the_Chamber_of_Deputies_of_the_Czech_Republic
+    - category: Lists_of_members_of_the_Chamber_of_Deputies_of_the_Czech_Republic
       country: cz
-    - match: Members_of_the_Parliament_of_the_Czech_Republic
+    - category: Members_of_the_Parliament_of_the_Czech_Republic
       country: cz
-    - match: Senát_Parlamentu_České_republiky
-      country: cz
-      language: cs
-    - match: Čeští_politici
+    - category: Senát_Parlamentu_České_republiky
       country: cz
       language: cs
-    - match: Poslanci_Parlamentu_České_republiky_(2021–2025)
+    - category: Čeští_politici
+      country: cz
+      language: cs
+    - category: Poslanci_Parlamentu_České_republiky_(2021–2025)
       country: cz
       topic: role.pep
       position:
@@ -1761,28 +1759,28 @@ config:
         topics:
           - gov.legislative
     # We don't mark these as peps, since some of them have been out of office for more than 20 years
-    - match: Poslanci_Parlamentu_České_republiky
+    - category: Poslanci_Parlamentu_České_republiky
       country: cz
       position:
         name: Member of the Chamber of Deputies
         country: cz
         topics:
           - gov.legislative
-    - match: Senátoři_Parlamentu_České_republiky
+    - category: Senátoři_Parlamentu_České_republiky
       country: cz
       position:
         name: Senator of the Czech Republic
         country: cz
         topics:
           - gov.legislative
-    - match: Prezidenti_České_republiky
+    - category: Prezidenti_České_republiky
       country: cz
       position:
         name: President of the Czech Republic
         country: cz
         topics:
           - gov.head
-    - match: Ministři_vlád_České_republiky
+    - category: Ministři_vlád_České_republiky
       country: cz
       topic: role.pep
       position:
@@ -1790,21 +1788,21 @@ config:
         country: cz
         topics:
           - gov.executive
-    - match: Soudci_Nejvyššího_soudu_České_republiky
+    - category: Soudci_Nejvyššího_soudu_České_republiky
       country: cz
       position:
         name: Judge of the Supreme Court of the Czech Republic
         country: cz
         topics:
           - gov.judicial
-    - match: Soudci_Nejvyššího_správního_soudu_České_republiky
+    - category: Soudci_Nejvyššího_správního_soudu_České_republiky
       country: cz
       position:
         name: Judge of the Supreme Administrative Court of the Czech Republic
         country: cz
         topics:
           - gov.judicial
-    - match: Soudci_Ústavního_soudu_České_republiky
+    - category: Soudci_Ústavního_soudu_České_republiky
       country: cz
       position:
         name: Judge of the Constitutional Court of the Czech Republic
@@ -2024,7 +2022,7 @@ config:
       country: se
       topic: role.pep
     - category: Svenske_politikere
-      language: "no"
+      language: "sv"
     - category: Lists_of_political_office-holders_in_Norway
       country: "no"
       topic: role.pep
@@ -2129,10 +2127,6 @@ config:
       topic: role.pep
 
     - category: Ministru_kabineta_locekļi
-      language: lv
-      country: lv
-      topic: role.pep
-    - category: Latvijas_diplomāti
       language: lv
       country: lv
       topic: role.pep
@@ -4035,7 +4029,7 @@ config:
     #   country: ru
     #   language: ru
     #   position:
-    #     name: TMember of the United Communist Party (UCP)
+    #     name: Member of the United Communist Party (UCP)
     #     topics:
     #       - pol.party
     # - category: Члены ПАРНАС  # Members of the PARNAS Party

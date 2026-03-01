@@ -12,7 +12,8 @@ from zavod.shed.trans import ENGLISH, apply_translit_full_name
 REGEX_DELEGATION_HEADING = re.compile(r"(\w+)（\d+名）$")
 REGEX_BRACKETS = re.compile(r"\[.*?\]")
 CHANGES_IN_REPRESENTATION = [
-    "补选",  # by-election
+    # Skip because rowspan isn't supported yet
+    # "补选",  # by-election
     "辞职",  # resignation
     # Not supporting this for now because of we don't yet support HTML rowspan
     # "罢免",  # dismissal

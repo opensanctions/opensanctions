@@ -35,6 +35,20 @@ data:
 dates:
   formats: ["%d.%m.%Y"]
 
+assertions:
+  min:
+    schema_entities:
+      Person: 500_000
+      Organization: 20_000
+      Company: 250_000
+      PublicBody: 1000
+  max:
+    schema_entities:
+      Person: 1_000_000
+      Organization: 40_000
+      Company: 500_000
+      PublicBody: 2000
+
 lookups:
   type.email:
     options:

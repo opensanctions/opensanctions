@@ -38,6 +38,16 @@ data:
   url: "https://ares.gov.cz/otevrena-data/ares_vreo_all.tar.gz"
   format: XML+TAR+GZIP
 
+assertions:
+  min:
+    schema_entities:
+      Person: 7_000_000
+      Company: 800_000
+  max:
+    schema_entities:
+      Person: 14_000_000
+      Company: 1_600_000
+
 lookups:
   type.name:
     options:

@@ -1,0 +1,12 @@
+id: 309
+title: Individuals involved in the dissemination of Russian propaganda
+key: UA-WS-PROPAGANDISTS
+url: https://war-sanctions.gur.gov.ua/en/propaganda/persons
+summary: null
+issuer: ua_gur
+dataset: ua_war_sanctions
+target_territories:
+- ru
+- ua-cri
+- ua-dpr
+- ua-lpr

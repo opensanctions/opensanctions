@@ -1,0 +1,27 @@
+id: 269
+title: EU Restrictive measures in view of Russia's destabilising activities
+key: EU-RUSDA
+url: https://sanctionsmap.eu/#/main/details/63/
+summary: 'In several of its Conclusions in 2022 and 2023 the Council strongly condemned
+  Russian hybrid attacks threatening democracy, the rule of law, stability or security
+  in the Union, its Member States and its partners, in the context of Russia’s war
+  of aggression against Ukraine.
+
+
+  In view of Russia’s continued hybrid campaign operations on European soil intended
+  to harm, weaken and divide the Member States and its neighbourhood, on 8 October
+  2024, the Council established a new framework of targeted sanctions against Russia-driven
+  persons and entities engaged in destabilising activities. the new sanctions framework
+  covers activities such as, sabotage, foreign information manipulation, electoral
+  interference, disinformation, malicious cyber activities and the instrumentalization
+  of migrants by third countries.
+
+
+  These restrictive measures consist of a travel ban to the EU for designated individuals
+  and an asset freeze applying to both designated individuals and entities. Additionally,
+  EU persons and entities are prohibited from making funds and economic resources
+  available to those listed, either directly or indirectly.'
+issuer: eu_council
+dataset: eu_fsf
+target_territories:
+- ru

@@ -1,0 +1,18 @@
+id: 292
+title: Markets in Financial Instruments Directive II
+key: EU-ESMA
+url: https://www.esma.europa.eu/publications-and-data/interactive-single-rulebook/mifid-ii
+summary: 'The MiFID II Suspensions and Removals Register is established under Articles
+  32 and 52 of Directive 2014/65/EU (Markets in Financial Instruments Directive II),
+  which came into force in January 2018. This regulatory framework empowers national
+  competent authorities and ESMA to suspend or remove financial instruments from trading
+  to maintain market integrity and protect investors.
+
+
+  The regime serves to provide transparency on trading restrictions imposed due to
+  regulatory concerns, market manipulation, or other circumstances that may harm investor
+  interests. Inclusion in this register indicates that specific financial instruments
+  are either temporarily suspended from trading or permanently removed from regulated
+  markets across the EU.'
+issuer: eu_esma
+dataset: eu_esma_saris

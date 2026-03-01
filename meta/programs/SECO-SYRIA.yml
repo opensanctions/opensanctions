@@ -1,0 +1,16 @@
+id: 129
+title: Measures Against Syria
+key: SECO-SYRIA
+url: https://www.seco.admin.ch/seco/de/home/Aussenwirtschaftspolitik_Wirtschaftliche_Zusammenarbeit/Wirtschaftsbeziehungen/exportkontrollen-und-sanktionen/sanktionen-embargos/sanktionsmassnahmen/massnahmen-gegenueber-syrien.html
+summary: These sanctions target the Syrian government and entities involved in human
+  rights abuses, terrorism, and other destabilizing activities. The measures include
+  asset freezes, prohibitions on transactions, and restrictions on trade to pressure
+  Syria to comply with international norms and cease its destabilizing actions.
+issuer: ch_seco
+dataset: ch_seco_sanctions
+target_territories:
+- sy
+measures:
+- Financial block
+- Restrictions on goods
+- Travel ban

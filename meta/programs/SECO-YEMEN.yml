@@ -1,0 +1,16 @@
+id: 133
+title: Measures Against Yemen
+key: SECO-YEMEN
+url: https://www.seco.admin.ch/seco/de/home/Aussenwirtschaftspolitik_Wirtschaftliche_Zusammenarbeit/Wirtschaftsbeziehungen/exportkontrollen-und-sanktionen/sanktionen-embargos/sanktionsmassnahmen/massnahmen-gegenueber-jemen.html
+summary: These sanctions target individuals and entities responsible for prolonging
+  the conflict and humanitarian crisis in Yemen. The measures include asset freezes
+  and transaction prohibitions to pressure the parties involved to cease hostilities
+  and engage in peace negotiations.
+issuer: ch_seco
+dataset: ch_seco_sanctions
+target_territories:
+- ye
+measures:
+- Financial block
+- Restrictions on goods
+- Travel ban

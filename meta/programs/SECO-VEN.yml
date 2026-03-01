@@ -1,0 +1,16 @@
+id: 137
+title: Measures Against Venezuela
+key: SECO-VEN
+url: https://www.seco.admin.ch/seco/de/home/Aussenwirtschaftspolitik_Wirtschaftliche_Zusammenarbeit/Wirtschaftsbeziehungen/exportkontrollen-und-sanktionen/sanktionen-embargos/sanktionsmassnahmen/massnahmen-gegenueber-venezuela.html
+summary: These sanctions target the Venezuelan government and entities involved in
+  corruption, human rights abuses, and undermining democratic processes. The measures
+  include asset freezes, prohibitions on transactions, and restrictions on trade to
+  pressure the Venezuelan government to restore democracy and respect human rights.
+issuer: ch_seco
+dataset: ch_seco_sanctions
+target_territories:
+- ve
+measures:
+- Financial block
+- Restrictions on goods
+- Travel ban

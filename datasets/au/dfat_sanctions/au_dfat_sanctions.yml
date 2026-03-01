@@ -96,7 +96,9 @@ lookups:
         value: AU-ZIM
       - match: "Autonomous (Vessels)"
         value: AU-VESSELS
-      - match: "1267/1989/2253 (ISIL (Da'esh) and Al-Qaida)"
+      - match:
+          - "1267/1989/2253 (ISIL (Da'esh) and Al-Qaida)"
+          - "1267 Committee (ISIL & Al-Qaida)"
         value: UN-SCISIL
       - match: "1373 (2001)"
         value: AU-UNSC1373
@@ -106,7 +108,9 @@ lookups:
         value: UN-SC1533
       - match: "1591 (Sudan)"
         value: UN-SC1591
-      - match: "1718 Committee (DPRK)"
+      - match:
+          - "1718 Committee (DPRK)"
+          - "1718 (DPRK)"
         value: UN-SC1718
       - match:
           - "1970 (Libya) 1973 (Libya)"
@@ -153,6 +157,10 @@ lookups:
         value: Vessel
       - match: 8402
         value: Vessel
+      - match: 8580
+        value: Person
+      - match: 3621
+        value: LegalEntity
   name_type:
     options:
       - match:
@@ -259,6 +267,8 @@ lookups:
         value: null
       - match: 9422547
         value: 9422457
+      - match: 9434980
+        value: 9434890
   type.country:
     options:
       - match: Guinea-Bisau
@@ -269,3 +279,9 @@ lookups:
         values:
           - Sudan
           - South Sudan
+      - match:
+          - "Somalia; Sweden"
+          - "Somalia: Sweden"
+        values:
+          - Somalia
+          - Sweden

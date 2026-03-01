@@ -25,10 +25,10 @@ def _read_history(dataset_name: str) -> Optional[VersionHistory]:
 
 def test_publish_dataset(testdataset1: Dataset):
     linker = get_dataset_linker(testdataset1)
-    art_path = settings.ARCHIVE_PATH / ARTIFACTS
-    arch_path = settings.ARCHIVE_PATH / DATASETS
-    release_path = arch_path / settings.RELEASE / testdataset1.name
-    latest_path = arch_path / "latest" / testdataset1.name
+    artifacts_path = settings.ARCHIVE_PATH / ARTIFACTS
+    published_path = settings.ARCHIVE_PATH / DATASETS
+    release_path = published_path / settings.RELEASE / testdataset1.name
+    latest_path = published_path / "latest" / testdataset1.name
     assert not release_path.joinpath(INDEX_FILE).exists()
     assert not latest_path.joinpath(INDEX_FILE).exists()
     history = _read_history(testdataset1.name)
@@ -44,7 +44,7 @@ def test_publish_dataset(testdataset1: Dataset):
     assert history is not None
     assert history.latest is not None
     assert history.latest.id is not None
-    artifact_path = art_path / testdataset1.name / history.latest.id
+    artifact_path = artifacts_path / testdataset1.name / history.latest.id
     assert artifact_path.exists()
     assert artifact_path.joinpath(STATEMENTS_FILE).exists()
     assert artifact_path.joinpath(STATEMENTS_FILE).exists()
@@ -71,9 +71,9 @@ def test_publish_dataset(testdataset1: Dataset):
 
 
 def test_publish_failure(testdataset1: Dataset):
-    arch_path = settings.ARCHIVE_PATH / DATASETS
-    art_path = settings.ARCHIVE_PATH / ARTIFACTS
-    latest_path = arch_path / "latest" / testdataset1.name
+    published_path = settings.ARCHIVE_PATH / DATASETS
+    artifacts_path = settings.ARCHIVE_PATH / ARTIFACTS
+    latest_path = published_path / "latest" / testdataset1.name
     assert testdataset1.data is not None
     testdataset1.data.format = "FAIL"
     try:
@@ -86,7 +86,7 @@ def test_publish_failure(testdataset1: Dataset):
     assert history is not None
     assert history.latest is not None
     assert history.latest.id is not None
-    artifact_path = art_path / testdataset1.name / history.latest.id
+    artifact_path = artifacts_path / testdataset1.name / history.latest.id
 
     assert not latest_path.joinpath("statements.pack").exists()
     assert not latest_path.joinpath("issues.json").exists()

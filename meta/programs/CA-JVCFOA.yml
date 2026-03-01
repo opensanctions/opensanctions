@@ -1,0 +1,14 @@
+id: 3
+title: ' Justice For Victims Of Corrupt Foreign Officials Act'
+key: CA-JVCFOA
+url: https://www.international.gc.ca/world-monde/international_relations-relations_internationales/sanctions/victims_corrupt-victimes_corrompus.aspx?lang=eng
+summary: Pursuant to the Justice for Victims of Corrupt Foreign Officials Act, Canada
+  has imposed targeted measures against foreign nationals who are, in the opinion
+  of the Governor in Council, responsible for or complicit in gross violations of
+  human rights; or are public officials or an associate of such an official, who are
+  responsible for or complicit in acts of significant corruption.
+issuer: ca_mfa
+dataset: ca_dfatd_sema_sanctions
+measures:
+- Financial block
+- Investment ban

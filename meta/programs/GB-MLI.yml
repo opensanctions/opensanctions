@@ -1,0 +1,9 @@
+id: 246
+title: UK sanctions relating to Mali
+key: GB-MLI
+url: https://www.gov.uk/government/collections/uk-sanctions-on-mali
+summary: Sanctions against entities and individuals in Mali.
+issuer: gb_ofsi
+dataset: gb_hmt_sanctions
+target_territories:
+- ml

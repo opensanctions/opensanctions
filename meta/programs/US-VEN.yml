@@ -1,0 +1,17 @@
+id: 39
+title: Venezuela-Related Sanctions
+key: US-VEN
+url: https://ofac.treasury.gov/sanctions-programs-and-country-information/venezuela-related-sanctions
+summary: 'These sanctions target the Venezuelan government and entities involved in
+  corruption, human rights abuses, and undermining democratic processes. The measures
+  include asset freezes, prohibitions on transactions, and restrictions on trade to
+  pressure the Venezuelan government to restore democracy and respect human rights.
+
+
+  (EO 13884, EO 13857, EO 13850, EO 13835, EO 13827, EO 13808, EO 13692)'
+issuer: us_ofac
+dataset: us_ofac_sdn
+aliases:
+- EO 13884 et al.
+target_territories:
+- ve

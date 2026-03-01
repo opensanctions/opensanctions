@@ -2,6 +2,7 @@ import json
 from datetime import datetime
 from zavod import Context
 from zavod import helpers as h
+from zavod.helpers.html import split_html_newline_tags
 
 
 def convert_date(date_str: str) -> str:
@@ -35,8 +36,8 @@ def crawl(context: Context) -> None:
 
         sanction = h.make_sanction(context, entity)
         if comments:
-            sanction.add("summary", comments.replace("<br>", "\n"))
-        sanction.add("reason", row.pop("grounds").replace("<br>", "\n"))
+            sanction.add("summary", "\n".join(split_html_newline_tags(comments)))
+        sanction.add("reason", "\n".join(split_html_newline_tags(row.pop("grounds"))))
         sanction.add("provisions", row.pop("typeLabel"))
         sanction.add("startDate", convert_date(row.pop("from")))
         sanction.add("endDate", convert_date(row.pop("to")))

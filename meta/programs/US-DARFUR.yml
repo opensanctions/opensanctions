@@ -1,0 +1,14 @@
+id: 34
+title: Sudan and Darfur Sanctions
+key: US-DARFUR
+url: https://ofac.treasury.gov/sanctions-programs-and-country-information/sudan-and-darfur-sanctions
+summary: These sanctions target individuals and entities responsible for human rights
+  abuses and obstructing peace processes in Sudan and Darfur. The measures include
+  asset freezes and prohibitions on transactions to pressure the Sudanese government
+  and other actors to respect human rights and engage in peaceful negotiations.
+issuer: us_ofac
+dataset: us_ofac_sdn
+aliases:
+- EO 14098, EO 13400
+target_territories:
+- sd

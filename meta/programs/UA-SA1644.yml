@@ -1,0 +1,11 @@
+id: 183
+title: Law of Ukraine "On Sanctions" No. 1644-VII dated 14 Aug. 2014
+key: UA-SA1644
+url: https://drs.nsdc.gov.ua/
+summary: Resolutions of the NSDC of Ukraine, enacted by decrees of the President of
+  Ukraine, and in cases provided for by the Law, approved by resolutions of the Verkhovna
+  Rada of Ukraine.
+issuer: ua_nsdc
+dataset: ua_nsdc_sanctions
+target_territories:
+- ru

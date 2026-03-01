@@ -80,16 +80,15 @@ def crawl_personal_page(context: Context, url):
 
     # Extract additional details from the personal page
     profession = _extract_text(doc, './/p[@class="encabezadoProfesion"]/span/text()')
-    birth_date = _extract_text(doc, './/p[@class="encabezadoFecha"]/span/text()')
     email = _extract_text(doc, './/a[starts-with(@href, "mailto:")]/text()')
 
-    return profession, birth_date, email
+    return profession, email
 
 
 def crawl(context: Context):
     # TODO: lower cache after dedupe
     crawl_json(context)
-    table_xpath = ".//table"
+    table_xpath = ".//table[@id='tablaDiputados']"
     doc = zyte_api.fetch_html(
         context,
         HTML_DATA_URL,
@@ -120,9 +119,9 @@ def crawl(context: Context):
         h.apply_name(person, first_name=first_name, last_name=last_name)
         person.add("country", "ar")
         person.add("political", str_row.pop("bloque"))
+        h.apply_date(person, "birthDate", str_row.pop("fecha_nacimiento"))
         if link:
-            profession, birth_date, email = crawl_personal_page(context, link[0])
-            h.apply_date(person, "birthDate", birth_date)
+            profession, email = crawl_personal_page(context, link[0])
             person.add("notes", profession)
             person.add("email", email)
             person.add("sourceUrl", link)

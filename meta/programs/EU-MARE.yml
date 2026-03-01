@@ -1,0 +1,14 @@
+id: 300
+title: EU Designated Vessels (Council Regulation 833/2014)
+key: EU-MARE
+url: http://data.europa.eu/eli/reg/2014/833
+summary: Vessels designated under Annex XLII of Council Regulation (EU) 833/2014 concerning
+  restrictive measures in view of Russia's actions destabilising the situation in
+  Ukraine. These vessels are subject to port access bans and maritime service restrictions
+  for activities including transporting military goods to Russia, carrying Russian
+  oil with irregular shipping practices, supporting Russia's energy sector, or transporting
+  stolen Ukrainian grain. The designation triggers prohibitions on providing port
+  access, technical assistance, financing, insurance, bunkering, and other maritime
+  services to listed vessels throughout the EU.
+issuer: eu_council
+dataset: null

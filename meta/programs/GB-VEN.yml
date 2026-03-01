@@ -1,0 +1,9 @@
+id: 255
+title: UK sanctions relating to Venezuela
+key: GB-VEN
+url: https://www.gov.uk/government/collections/uk-sanctions-on-venezuela
+summary: Targeting entities and individuals in Venezuela.
+issuer: gb_ofsi
+dataset: gb_hmt_sanctions
+target_territories:
+- ve

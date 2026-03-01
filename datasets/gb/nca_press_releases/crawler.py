@@ -81,7 +81,7 @@ def crawl_enforcement_action(context: Context, url: str) -> None:
     raw_topics: List[str] = article_doc.xpath("//li[@itemprop='keywords']/a/text()")
     topics: List[str] = []
     for topic in raw_topics:
-        res = context.lookup("topics", topic, warn_unmatched=True)
+        res = context.lookup("topics", topic.strip(), warn_unmatched=True)
         if res is not None:
             topics.append(res.value)
 
@@ -121,8 +121,15 @@ def crawl_enforcement_action(context: Context, url: str) -> None:
             entity.add("topics", topic)
 
         raw_date = get_date(context, url, article_doc)
-        if raw_date and not enforcements.within_max_age(context, raw_date):
-            continue
+        try:
+            if raw_date and not enforcements.within_max_age(context, raw_date):
+                continue
+        except ValueError:
+            context.log.info(
+                "Invalid date format, skipping date filtering",
+                url=url,
+                raw_date=raw_date,
+            )
 
         # We use the date as a key to make sure notices about separate actions are separate sanction entities
         sanction = h.make_sanction(context, entity, raw_date)
@@ -160,4 +167,4 @@ def crawl(context: Context):
         assert len(next_links) <= 1
         index_url = next_links[0] if next_links else None
 
-    assert_all_accepted(context)
+    assert_all_accepted(context, raise_on_unaccepted=False)

@@ -64,6 +64,9 @@ def fetch_resource(
     expected_media_type: Optional[str] = None,
     expected_charset: Optional[str] = None,
     geolocation: Optional[str] = None,
+    method: Optional[str] = None,
+    body: Optional[bytes] = None,
+    headers: Optional[Dict[str, str]] = None,
 ) -> Tuple[bool, str | None, str | None, Path]:
     """
     Fetch a resource using Zyte API and save to filesystem.
@@ -100,10 +103,22 @@ def fetch_resource(
         raise RuntimeError("OPENSANCTIONS_ZYTE_API_KEY is not set")
 
     context.log.info("Fetching file", url=url)
+    # This repeats a lot of what's in fetch(), but fetch() focuses on decoding either
+    # a text response or a base64-encoded response to text, whereas here we want to
+    # save the raw bytes to a file. Letting fetch cover both cases seems more complex than
+    # just constructing the right request here.
     zyte_data: Dict[str, Any] = {
         "httpResponseBody": True,
         "httpResponseHeaders": True,
     }
+    if method is not None:
+        zyte_data["httpRequestMethod"] = method
+    if body is not None:
+        zyte_data["httpRequestBody"] = b64encode(body).decode("utf-8")
+    if headers is not None:
+        zyte_data["customHttpRequestHeaders"] = [
+            {"name": k, "value": v} for k, v in headers.items()
+        ]
     if geolocation is not None:
         zyte_data["geolocation"] = geolocation
     context.log.debug(f"Zyte API request: {url}", data=zyte_data)
@@ -150,6 +165,8 @@ class ZyteAPIRequest:
     geolocation: Optional[str] = None
     # Forces JavaScript execution on a browser request to be enabled
     javascript: Optional[bool] = None
+    # Request that response cookies be included in the ZyteResult
+    response_cookies: bool = False
 
 
 @dataclass
@@ -168,6 +185,8 @@ class ZyteResult:
     # As returned in the Content-Type header
     media_type: Optional[str] = None
     charset: Optional[str] = None
+    # Cookies returned by the server, populated when response_cookies=True
+    cookies: Optional[List[Dict[str, Any]]] = None
 
     def invalidate_cache(self, context: Context) -> None:
         context.cache.delete(self.cache_fingerprint)
@@ -224,6 +243,8 @@ def fetch(
         zyte_data["actions"] = zyte_request.actions
     if zyte_request.javascript is not None:
         zyte_data["javascript"] = zyte_request.javascript
+    if zyte_request.response_cookies:
+        zyte_data["responseCookies"] = True
     zyte_data[zyte_request.scrape_type.value] = True
 
     fingerprint = get_cache_fingerprint(zyte_data)
@@ -260,6 +281,11 @@ def fetch(
         b64_text = b64decode(text)
         text = b64_text.decode(charset) if charset is not None else b64_text.decode()
 
+    cookies = (
+        api_response.json().get("responseCookies")
+        if zyte_request.response_cookies
+        else None
+    )
     return ZyteResult(
         status_code=api_response.json()["statusCode"],
         response_text=text,
@@ -267,6 +293,7 @@ def fetch(
         charset=charset,
         from_cache=False,
         cache_fingerprint=fingerprint,
+        cookies=cookies,
     )
 
 

@@ -38,7 +38,7 @@ http:
   retry_statuses: [403]
   user_agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.2 Safari/605.1.15 (zavod; opensanctions.org)
 dates:
-  formats: ["%d %B %Y", "%d %B %Y."]
+  formats: ["%d %B %Y", "%d %b %Y"]
 
 # TODO: Update assertions after the first full run
 assertions:
@@ -85,7 +85,6 @@ lookups:
           - Cannabis
           - Child sexual abuse
           - Child sexual exploitation
-          - Corporate
           - County Lines
           - Criminal asset denial
           - CSAE # Child Sexual Abuse and Exploitation
@@ -102,4 +101,9 @@ lookups:
           - Annual Report
           - Brexit
           - Steve Rodhouse
+          - Honours
         value: null
+  type.date:
+    options:
+      - match: 23 Janaury 2025. # january typo!
+        value: "2025-01-23"

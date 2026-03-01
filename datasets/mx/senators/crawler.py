@@ -1,7 +1,9 @@
 import re
+from typing import Any
 
 from zavod import Context, helpers as h
-from zavod.stateful.positions import categorise
+from zavod.entity import Entity
+from zavod.stateful.positions import PositionCategorisation, categorise
 from zavod.extract.zyte_api import fetch_html, fetch_json
 
 SPLITS = [
@@ -34,13 +36,17 @@ def get_json_url(context: Context) -> str:
     match = re.search(url_pattern, main_website)
 
     if match is None:
-        context.log.error("Senators URL not found")
-        return None
+        raise RuntimeError("Senators URL not found")
 
     return f"https://www.senado.gob.mx/{match.group(1)}/datosAbiertos/senadoresDatosAb.json"
 
 
-def crawl_item(input_dict: dict, position, categorisation, context: Context):
+def crawl_item(
+    input_dict: dict[str, Any],
+    position: Entity,
+    categorisation: PositionCategorisation,
+    context: Context,
+) -> None:
     """
     Creates an entity, a position and a occupancy from the raw data.
 
@@ -71,20 +77,11 @@ def crawl_item(input_dict: dict, position, categorisation, context: Context):
     entity.add("gender", gender)
 
     entity.add("email", h.multi_split(input_dict.pop("correo"), SPLITS))
+
     entity.add("address", input_dict.pop("direccion"))
     entity.add("political", input_dict.pop("Fraccion"))
     entity.add("website", input_dict.pop("url_sitio"))
 
-    occupancy = h.make_occupancy(
-        context,
-        entity,
-        position,
-        True,
-        categorisation=categorisation,
-    )
-
-    context.emit(entity)
-    context.emit(occupancy)
     context.audit_data(
         input_dict,
         ignore=[
@@ -105,8 +102,19 @@ def crawl_item(input_dict: dict, position, categorisation, context: Context):
         ],
     )
 
+    occupancy = h.make_occupancy(
+        context,
+        entity,
+        position,
+        True,
+        categorisation=categorisation,
+    )
+    if occupancy is not None:
+        context.emit(entity)
+        context.emit(occupancy)
 
-def crawl(context: Context):
+
+def crawl(context: Context) -> None:
     """
     Entrypoint to the crawler.
 

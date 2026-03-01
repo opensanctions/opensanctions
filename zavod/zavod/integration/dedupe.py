@@ -1,4 +1,4 @@
-from typing import List, Optional, TYPE_CHECKING
+from typing import Any, Dict, List, Optional, TYPE_CHECKING, Set
 
 from pathlib import Path
 from followthemoney import model
@@ -43,9 +43,11 @@ def blocking_xref(
     limit: int = 5000,
     auto_threshold: Optional[float] = None,
     algorithm: str = DefaultAlgorithm.NAME,
-    focus_dataset: Optional[str] = None,
+    focus_datasets: Set[str] = set(),
     schema_range: Optional[str] = None,
     discount_internal: float = 1.0,
+    min_threshold: float = 0.01,
+    blocker_options: Optional[Dict[str, Any]] = None,
 ) -> None:
     """This runs the deduplication process, which compares all entities in the given
     dataset against each other, and stores the highest-scoring candidates for human
@@ -70,10 +72,12 @@ def blocking_xref(
         range=range,
         scored=True,
         auto_threshold=auto_threshold,
-        focus_dataset=focus_dataset,
+        focus_datasets=focus_datasets,
         algorithm=algorithm_type,
+        min_threshold=min_threshold,
         discount_internal=discount_internal,
         heuristic=logic_decide,
+        blocker_options=blocker_options,
         user=AUTO_USER,
     )
 

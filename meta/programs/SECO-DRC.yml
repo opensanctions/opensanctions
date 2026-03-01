@@ -1,0 +1,16 @@
+id: 120
+title: Measures Against The Democratic Republic Of Congo
+key: SECO-DRC
+url: https://www.seco.admin.ch/seco/de/home/Aussenwirtschaftspolitik_Wirtschaftliche_Zusammenarbeit/Wirtschaftsbeziehungen/exportkontrollen-und-sanktionen/sanktionen-embargos/sanktionsmassnahmen/massnahmen-gegenueber-der-demokratischen-republik-kongo.html
+summary: These sanctions target individuals and entities in the Democratic Republic
+  of the Congo involved in human rights abuses, conflict, and destabilizing activities.
+  The measures include asset freezes, travel bans, and trade restrictions to promote
+  peace, security, and stability in the region.
+issuer: ch_seco
+dataset: ch_seco_sanctions
+target_territories:
+- cd
+measures:
+- Financial block
+- Restrictions on goods
+- Travel ban

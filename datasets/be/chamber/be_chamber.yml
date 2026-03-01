@@ -32,7 +32,7 @@ data:
   url: https://www.dekamer.be/kvvcr/showpage.cfm?section=/depute&language=fr&cfm=cvlist54.cfm?legis=56&today=y
   format: HTML
 dates:
-  formats: ["%d %B %Y"]
+  formats: ["%d %B %Y", "%der %B %Y", "%dier %B %Y"]
   months:
     "january": "janvier"
     "february": "février"
@@ -41,7 +41,9 @@ dates:
     "may": "mai"
     "june": "juin"
     "july": "juillet"
-    "august": "aout"
+    "august":
+      - "aout"
+      - "août"
     "september": "septembre"
     "october": "octobre"
     "november": "novembre"
@@ -58,9 +60,9 @@ assertions:
 lookups:
   term_years:
     options:
-      - match: "56 (2024-2025)"
+      - match: Actuels
         start_date: 2024
-        end_date: 2025
+        end_date: null
       - match: "55 (2019-2024)"
         start_date: 2019
         end_date: 2024
@@ -85,3 +87,23 @@ lookups:
       - match: "48 (1991-1995)"
         start_date: 1991
         end_date: 1995
+  type.date:
+    options:
+      - match: Née à Vilvorde
+        value: null
+      - match: Née à Ostende 14 octobre 1983
+        value: 1983-10-14
+      - match: Né à Saint-Nicolas le15 mars 1976
+        value: 1976-03-15
+      - match: Né à Zottegem op 2 octobre 1981
+        value: 1981-10-02
+      - match: Né à Hasselt op 8 novembre 1970
+        value: 1970-11-08
+      - match: 11 juin 1987. Employée
+        value: 1987-06-11
+      - match: 13 février 1963. Régent en électromécanique. Candidat en sciences psychopédagogiques. Licencié en sciences du travail. Certificat européen de formation universitaire en travail social. Inspecteur de l'enseignement secondaire supérieur
+        value: 1963-02-13
+      - match: 9 décembre 1953. Licencié en droit. Avocat
+        value: 1953-12-09
+      - match: 30 janvier 1987. Master en communication politique
+        value: 1987-01-30

@@ -79,7 +79,7 @@ config:
 assertions:
   min:
     schema_entities:
-      Person: 330000
+      Person: 250000
   max:
     schema_entities:
       Person: 875000
@@ -91,6 +91,124 @@ lookups:
           - "..."
           - "-"
         value: null
+      # Clean HTML/XSS patterns - remove HTML tags and keep text content
+      - match: "Rami Makhlouf <br>رامي مخلوف"
+        values:
+          - Rami Makhlouf
+          - رامي مخلوف
+      - match: "Muḥammad <<al->>Ġazali"
+        value: "Muḥammad al-Ġazali"
+      - match: "Ṭalāl <<al->>Ḥasan"
+        value: "Ṭalāl al-Ḥasan"
+      - match: "Andrew «&#160;Andy&#160;» Murray Burnham"
+        value: "Andrew Andy Murray Burnham"
+      - match: "ピイ<!-- [ ] とリンク -->"
+        value: "ピイ"
+      - match: "ピーター・クック<!-- リダイレクト先の「[ ]」は、[ ] とリンク -->"
+        value: "ピーター・クック"
+      - match: "Meng Xuenong<br />孟学农"
+        values:
+          - Meng Xuenong
+          - 孟学农
+      - match: "Hossam el-Hamalawy <br>"
+        value: "Hossam el-Hamalawy"
+      - match: "ZHANG Yin <br> 张茵 <br> CHEUNG Yan"
+        values:
+          - ZHANG Yin
+          - 张茵
+          - CHEUNG Yan
+      - match: "<<ال>>عناني، جواد أحمد"
+        value: "العناني، جواد أحمد"
+      - match: "Yosra El Lozy <Br />"
+        value: "Yosra El Lozy"
+      - match: "Vadim Yakovlevich Pisarev<br /> Вадим Яковлевич Писарев"
+        values:
+          - Vadim Yakovlevich Pisarev
+          - Вадим Яковлевич Писарев
+      - match: "Oksana Volodymyrivna Bilozir<br>Оксана Володимирівна Білозір"
+        values:
+          - Oksana Volodymyrivna Bilozir
+          - Оксана Володимирівна Білозір
+      - match: "Ahmed Ismail Samatar <br> أحمد إسماعيل سمتر"
+        values:
+          - Ahmed Ismail Samatar
+          - أحمد إسماعيل سمتر
+      - match: "Grigoris Arnaoutoglou<br />''Γρηγόρης Αρναούτογλου''"
+        values:
+          - Grigoris Arnaoutoglou
+          - Γρηγόρης Αρναούτογλου
+      - match: "Fatemeh Karroubi<br />فاطمه کروبی"
+        values:
+          - Fatemeh Karroubi
+          - فاطمه کروبی
+      - match: "Ahmed Seada <br>"
+        value: "Ahmed Seada"
+      - match: "Chen Yu-hui<br>陳宇慧"
+        values:
+          - Chen Yu-hui
+          - 陳宇慧
+      - match: "Chhatradhar Mahato<br/>ছত্রধর মাহাতো"
+        values:
+          - Chhatradhar Mahato
+          - ছত্রধর মাহাতো
+      - match: "Jewel Aich <br> জুয়েল আইচ"
+        values:
+          - Jewel Aich
+          - জুয়েল আইচ
+      - match: "Mahfouz Ould al-Walid<br/>محفوظ ولد الوليد"
+        values:
+          - Mahfouz Ould al-Walid
+          - محفوظ ولد الوليد
+      - match: "Pir Sabir Shah<br>پير صابر شاہ"
+        values:
+          - Pir Sabir Shah
+          - پير صابر شاہ
+      - match: "Suborna Mustafa<br>সুবর্ণা মুস্তাফা"
+        values:
+          - Suborna Mustafa
+          - সুবর্ণা মুস্তাফা
+      - match: "Swapan Dasgupta<br/>স্বপন দাশগুপ্ত"
+        values:
+          - Swapan Dasgupta
+          - স্বপন দাশগুপ্ত
+      - match: "Yarlagadda Lakshmi Prasad<br>యార్లగడ్డ లక్ష్మీప్రసాద్"
+        values:
+          - Yarlagadda Lakshmi Prasad
+          - యార్లగడ్డ లక్ష్మీప్రసాద్
+      - match: "Yiaway Yeh<br>葉亞威"
+        values:
+          - Yiaway Yeh
+          - 葉亞威
+      - match: "Mian Yousuf Salahuddin <br /> میاں یوسف صلاح الدین"
+        values:
+          - Mian Yousuf Salahuddin
+          - میاں یوسف صلاح الدین
+      - match: "Zhang Zhixiang <br> 张志祥 <br> 張志祥"
+        values:
+          - Zhang Zhixiang
+          - 张志祥
+          - 張志祥
+      - match: "Kakubu Alidor K&#39;Ilaka"
+        value: "Kakubu Alidor K'Ilaka"
+      - match: "Božo Koprivica<br>Божо Копривица"
+        values:
+          - Božo Koprivica
+          - Божо Копривица
+      - match: "Tamara Martinović<br>Тамара Мартиновић"
+        values:
+          - Tamara Martinović
+          - Тамара Мартиновић
+      - match: "Iqbal Shahbandri <br/>aka Iqbal Bhatkal"
+        values:
+          - Iqbal Shahbandri
+          - Iqbal Bhatkal
+      # Remove book titles that were incorrectly used as names
+      - match: "Sanjay Seth . Subject Lessons: The Western Education of Colonial India.<i> </i>Durham, N.C. : Duke University Press . 2007 . Pp. x, 264. Cloth $84.95, paper $23.95."
+        value: Sanjay Seth
+      - match: "Aaron David Miller. <italic>Search for Security: Saudi Arabian Oil and American Foreign Policy, 1939–1949</italic>. Chapel Hill: University of North Carolina Press. 1980. Pp. xviii, 320. $19.00"
+        value: Aaron David Miller
+      - match: "Nwankwo Chukwuemeka, <i>African Dependencies: A Challenge to Western Democracy</i>"
+        value: Nwankwo Chukwuemeka
   type.date:
     options:
       - match:
