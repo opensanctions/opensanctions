@@ -13,7 +13,6 @@ coverage:
   frequency: never
   schedule: "@weekly"
   start: 2024-05-02
-  end: 2024-07-09
 load_statements: true
 summary: >-
   A list of companies whose products and/or services are excluded from
