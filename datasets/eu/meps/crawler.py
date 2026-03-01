@@ -27,7 +27,7 @@ def crawl_node(
     first_name, last_name = split_name(name)
     person.add("firstName", first_name)
     person.add("lastName", last_name)
-    person.add("nationality", node.findtext(".//country"))
+    person.add("citizenship", node.findtext(".//country"))
     person.add("topics", "role.pep")
 
     occupancy = h.make_occupancy(

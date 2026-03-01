@@ -117,7 +117,7 @@ def crawl(context: Context):
         first_name = h.multi_split(name, [", "])[1]
         last_name = h.multi_split(name, [", "])[0]
         h.apply_name(person, first_name=first_name, last_name=last_name)
-        person.add("country", "ar")
+        person.add("citizenship", "ar")
         person.add("political", str_row.pop("bloque"))
         h.apply_date(person, "birthDate", str_row.pop("fecha_nacimiento"))
         if link:
