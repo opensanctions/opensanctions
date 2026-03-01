@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(pytest *)",
+      "Bash(curl *)",
+      "Bash(wget *)",
+      "Bash(prek *)",
+      "Bash(mypy *)",
+      "Bash(ruff *)",
+      "Bash(find *)",
+      "Bash(grep *)",
+      "Bash(ls *)",
+      "Bash(zavod *)",
+      "Bash(ftm *)",
+      "Bash(qsv *)",
+      "Bash(head *)",
+      "Bash(sort *)",
+      "Bash(comm *)",
+      "Bash(xargs *)",
+      "Bash(yamllint *)",
+      "Bash(gh issue view *)",
+      "Read",
+      "WebSearch",
+      "WebFetch"
+    ],
+    "deny": [
+      "Bash(pip install *)",
+      "Bash(uv pip install *)",
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Read(./.envrc)"
+    ]
+  },
+  "env": {
+    "QSV_SKIP_FORMAT_CHECK": "1"
+  },
+  "companyAnnouncements": [
+  ]
+}
