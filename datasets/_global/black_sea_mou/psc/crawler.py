@@ -169,7 +169,7 @@ def crawl_vessel_page(context: Context, shipuid: str):
     company_data = h.xpath_element(
         detail_doc, "//h2[text()='Company details']/following-sibling::table[1]"
     )
-    for row in h.parse_html_table(company_data[0]):
+    for row in h.parse_html_table(company_data):
         str_row = h.cells_to_str(row)
         company_id = crawl_company_details(context, str_row)
         emit_unknown_link(
