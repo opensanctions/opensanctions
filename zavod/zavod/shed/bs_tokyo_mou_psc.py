@@ -60,7 +60,9 @@ def crawl_vessel_row(context: Context, str_row: dict, inspection_date: str):
             date=inspection_date,
         )
 
-    if class_soc := str_row.pop("classificationsociety"):
+    if (
+        class_soc := str_row.pop("classificationsociety")
+    ) and class_soc.lower() != "other":
         org = context.make("Organization")
         org.id = context.make_id("org", class_soc)
         org.add("name", class_soc)
