@@ -64,7 +64,7 @@ lookups:
   columns_person:
     options:
       - match: 1
-        value: no
+        value: internal_no  # renaming this from 'no' to avoid consfusion with the falsy interpretation by the lookup
       - match: 2
         value: reference_no
       - match: 3
@@ -91,23 +91,37 @@ lookups:
         value: date_listed
   columns_organization:
     options:
-      - match: 1
-        value: no
-      - match: 2
+      - match:
+          - 1
+          - "no"
+        value: internal_no
+      - match:
+          - 2
+          - reference
         value: reference_no
-      - match: 3
+      - match:
+          - 3
+          - name
         value: name
-      - match: 4
+      - match:
+          - 4
+          - alias
         value: alias
-      - match: 5
+      - match:
+          - 5
+          - other_name
         value: other_name
-      - match: 6
+      - match:
+          - 6
+          - address
         value: address
-      - match: 7
+      - match:
+          - 7
+          - date_of_listed
         value: date_listed
   type.country:
     options:
-      - match: Filipina (Pemastautin Tetap di Malaysia)
+      - match: 'Philippines (Permanent Resident in Malaysia)'
         value: Philippines
   type.date:
     options:
