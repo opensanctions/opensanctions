@@ -142,9 +142,13 @@ def xpath_elements(
     Return a list of HtmlElement objects that match the given XPath expression.
     """
     result = el.xpath(xpath)
-    if not isinstance(result, list) or not all(isinstance(r, Element) for r in result):
+    assert isinstance(result, list), (
+        f"Expected list as result of xpath, got {type(result)}"
+    )
+    element_types = [type(r) for r in result]
+    if not all(isinstance(r, Element) for r in result):
         raise ValueError(
-            f"Expected list[Element] as result of xpath, got {type(result)}"
+            f"Expected list[Element] as result of xpath, got {element_types}"
         )
     if expect_exactly is not None and len(result) != expect_exactly:
         raise ValueError(
