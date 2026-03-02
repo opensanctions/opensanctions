@@ -33,9 +33,20 @@ url: "https://atlas.thesentry.org/"
 data:
   url: https://atlas.thesentry.org/wp-content/uploads/2024/10/Aliyev-Empire-Data.zip
   format: ZIP
-
 dates:
   formats: ["%m/%d/%Y"]
+
+assertions:
+  min:
+    schema_entities:
+      Organization: 235
+      Person: 70
+      Asset: 30
+  max:
+    schema_entities:
+      Organization: 550
+      Person: 170
+      Asset: 70
 
 lookups:
   type.date:
