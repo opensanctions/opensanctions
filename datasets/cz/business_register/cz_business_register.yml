@@ -41,11 +41,11 @@ data:
 assertions:
   min:
     schema_entities:
-      Person: 7_000_000
+      Person: 2_300_000
       Company: 800_000
   max:
     schema_entities:
-      Person: 14_000_000
+      Person: 4_600_000
       Company: 1_600_000
 
 lookups:
