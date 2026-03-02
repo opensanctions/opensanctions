@@ -41,7 +41,7 @@ Extract the 5-digit number shown in the image and return it as JSON: {"code": "X
 Preserve leading zeros. The answer is always exactly 5 digits."""
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     login_page = context.fetch_html(context.data_url)
     image = h.xpath_element(login_page, './/img[contains(@src, "captcha.php")]')
     captcha_url = urljoin(context.data_url, image.get("src"))

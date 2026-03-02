@@ -5,11 +5,11 @@ from typing import Optional
 from zavod import Context, helpers as h
 
 
-def make_search_data(page, search_data):
+def make_search_data(page: int, search_data: dict) -> dict:
     return {**search_data, "Page": str(page)}
 
 
-def parse_total_pages(context, tree: html.HtmlElement) -> Optional[int]:
+def parse_total_pages(tree: html.HtmlElement) -> Optional[int]:
     found_li = tree.xpath(
         "//ul[@class='navigate']/li[starts-with(normalize-space(.), 'Found')]"
     )
@@ -20,7 +20,9 @@ def parse_total_pages(context, tree: html.HtmlElement) -> Optional[int]:
     return int(match.group(1)) if match else None
 
 
-def emit_unknown_link(context, object, subject, role, date: str):
+def emit_unknown_link(
+    context: Context, object: str | None, subject: str | None, role: str, date: str
+) -> None:
     link = context.make("UnknownLink")
     link.id = context.make_id(object, subject, role)
     if role:
@@ -31,7 +33,7 @@ def emit_unknown_link(context, object, subject, role, date: str):
     context.emit(link)
 
 
-def crawl_vessel_row(context: Context, str_row: dict, inspection_date: str):
+def crawl_vessel_row(context: Context, str_row: dict, inspection_date: str) -> str:
     ship_name = str_row.pop("ship_name")
     imo = str_row.pop("imo_number")
     vessel = context.make("Vessel")
@@ -77,10 +79,11 @@ def crawl_vessel_row(context: Context, str_row: dict, inspection_date: str):
 
     context.audit_data(str_row, ["date_keel_laid", "deadweight"])
     # Return vessel_id here so it can be processed in emit_unknown_link for company
+    assert vessel.id is not None
     return vessel.id
 
 
-def crawl_company_details(context: Context, str_row: dict):
+def crawl_company_details(context: Context, str_row: dict) -> str:
     company_name = str_row.pop("name")
     company_imo = str_row.pop("imo_number")
     company = context.make("Company")
@@ -94,6 +97,7 @@ def crawl_company_details(context: Context, str_row: dict):
     context.emit(company)
 
     context.audit_data(str_row, ["fax"])
+    assert company.id is not None
     return company.id
 
 
@@ -102,7 +106,7 @@ def crawl_vessel_page(
     shipuid: str,
     headers: dict,
     getships_url: str,
-):
+) -> None:
     context.log.debug(f"Processing shipuid: {shipuid}")
     detail_data = {
         "MIME Type": "application/x-www-form-urlencoded",
@@ -157,7 +161,7 @@ def crawl_psc_record(
     search_data: dict,
     getinspection_url: str,
     getships_url: str,
-):
+) -> int:
     doc = context.fetch_html(
         getinspection_url,
         data=make_search_data(page, search_data),
@@ -173,6 +177,6 @@ def crawl_psc_record(
     for shipuid in shipuids:
         crawl_vessel_page(context, str(shipuid), headers, getships_url)
     # Extract and return total pages
-    total_pages = parse_total_pages(context, doc)
+    total_pages = parse_total_pages(doc)
     assert total_pages is not None, "Failed to parse total pages"
     return total_pages

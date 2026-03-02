@@ -52,7 +52,7 @@ def solve_arithmetic(expression: str) -> str:
     raise ValueError(f"Unknown op: {op}")
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     # Submit login form
     login_page = context.fetch_html("https://apcis.tmou.org/public/")
     # Solve the arithmetic CAPTCHA
