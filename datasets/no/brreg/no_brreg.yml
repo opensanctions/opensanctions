@@ -3,7 +3,7 @@ entry_point: crawler.py
 prefix: no-nbim
 coverage:
   frequency: monthly
-  start: 2026-02-02
+  start: 2026-03-02
 load_statements: true
 summary: >-
   Executives and board members of state-owned companies from the official registry
@@ -12,12 +12,11 @@ description: |
   The dataset contains information about executives from all registered state-owned legal entities in Norway,
   sourced from two registers managed by the Brønnøysund Register Centre:
 
-      1. The Central Coordinating Register for Legal Entities (CCR / Enhetsregisteret):
+  1. The Central Coordinating Register for Legal Entities (CCR / Enhetsregisteret):
        A central registry of basic data about legal persons and other entities in Norway.
        The CCR assigns unique nine-digit organisation numbers for identification of entities.
        It serves as a "master register" coordinating data with other Norwegian registers.
-
-      2. The Register of Business Enterprises (Foretaksregisteret):
+  2. The Register of Business Enterprises (Foretaksregisteret):
        Contains detailed information about businesses registered in Norway, including
        company structure, management, ownership, and legal obligations.
 
