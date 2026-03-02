@@ -412,6 +412,7 @@ context.emit(position)
 # make_occupancy reads them from the entity to determine PEP status; do not pass
 # birth_date or death_date as arguments.
 h.apply_date(person, "birthDate", row.get("dob"))
+person.set('citizenship', country)
 # ...other person props...
 
 occupancy = h.make_occupancy(
@@ -420,7 +421,6 @@ occupancy = h.make_occupancy(
     position,
     start_date=row.get("start"),
     end_date=row.get("end"),
-    propagate_country=True,     # adds position's country to person.country
 )
 if occupancy is not None:           # None means not PEP-qualifying
     context.emit(occupancy)
