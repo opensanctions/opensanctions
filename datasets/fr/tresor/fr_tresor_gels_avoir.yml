@@ -322,6 +322,10 @@ lookups:
         props:
           registrationNumber: 1096659005200
           incorporationDate: 2009-05-15
+      - match: "Date d’enregistrement 23.12.1996: 600122610"
+        props:
+          registrationNumber: 600122610
+          incorporationDate: 1996-12-23
       - match: 'Entités associées: le soi-disant "gouvernement" de la soi-disant "République populaire de Donetsk"'
         associates:
           - le soi-disant gouvernement de la soi-disant République populaire de Donetsk
