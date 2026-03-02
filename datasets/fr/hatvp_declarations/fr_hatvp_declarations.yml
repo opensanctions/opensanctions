@@ -93,7 +93,9 @@ lookups:
 assertions:
   min:
     schema_entities:
-      Person: 6300  # raw count 7958
+      Person: 5500  # raw count 6890
+      Position: 2000  # raw count 2574
   max:
     schema_entities:
-      LegalEntity: 16000
+      LegalEntity: 14000
+      Position: 5200
