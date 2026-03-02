@@ -34,3 +34,12 @@ data:
   format: HTML
 dates:
   formats: ["%d/%m/%Y", "%d/%m/%y"]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 420
+      Position: 1
+  max:
+    schema_entities:
+      Person: 550
