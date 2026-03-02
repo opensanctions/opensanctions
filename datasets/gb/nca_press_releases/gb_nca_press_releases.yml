@@ -4,7 +4,7 @@ prefix: gb-nca-pr
 disabled: false
 coverage:
   frequency: weekly
-  start: 2025-11-06
+  start: 2026-03-02
 load_statements: true
 ci_test: false # GPT key not available in CI
 summary: >
@@ -40,11 +40,15 @@ http:
 dates:
   formats: ["%d %B %Y", "%d %b %Y"]
 
-# TODO: Update assertions after the first full run
 assertions:
   min:
     schema_entities:
-      Person: 100
+      Person: 320
+      Article: 100
+  max:
+    schema_entities:
+      Person: 640
+      Article: 200
 
 lookups:
   topics:
