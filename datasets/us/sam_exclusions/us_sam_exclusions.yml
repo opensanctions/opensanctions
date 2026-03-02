@@ -40,16 +40,20 @@ data:
 dates:
   formats: ["%m/%d/%Y"]
 names:
-  LegalEntity:
-    # Review names shorter than 11 chars, e.g. Sebastiano from G&G INTERNACIONAL S.A.S.
-    # We make Sebastiano an alias because it doesn't seem to be the primary official name of
-    # G&G INTERNACIONAL S.A.S. and as a LegalEntity entry it can cause lots of false
-    # positives on person names.
-    single_token_min_length: 11
-  Person:
-    single_token_min_length: 10
-  Vessel:
-    min_length: 5
+  schema_rules:
+    LegalEntity:
+      # Review names shorter than 11 chars, e.g. Sebastiano from G&G INTERNACIONAL S.A.S.
+      # We make Sebastiano an alias because it doesn't seem to be the primary official name of
+      # G&G INTERNACIONAL S.A.S. and as a LegalEntity entry it can cause lots of false
+      # positives on person names.
+      single_token_min_length: 11
+    Person:
+      single_token_min_length: 10
+    Vessel:
+      min_length: 5
+  suggest_person_single_token: true
+  suggest_uppercase_org_single_token_shorter_than: 8
+  suggest_non_person_single_token_shorter_than: 5
 
 assertions:
   min:

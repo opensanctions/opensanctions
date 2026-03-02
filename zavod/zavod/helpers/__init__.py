@@ -86,6 +86,7 @@ from zavod.helpers.names import (
     clean_names,
     make_name,
     is_name_irregular,
+    check_name_regularity,
     check_names_regularity,
     split_comma_names,
 )
@@ -149,6 +150,7 @@ __all__ = [
     "split_comma_names",
     "Names",
     "is_name_irregular",
+    "check_name_regularity",
     "check_names_regularity",
     "apply_reviewed_names",
     "apply_reviewed_name_string",

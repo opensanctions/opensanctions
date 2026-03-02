@@ -6,7 +6,7 @@ from typing import Dict, List, Optional, Tuple, cast
 from followthemoney.util import join_text
 from normality import squash_spaces
 from pydantic import JsonValue
-from rigour.names import contains_split_phrase
+from rigour.names import contains_split_phrase, remove_person_prefixes
 from rigour.text import is_nullword
 from rigour.text.scripts import is_dense_script
 
@@ -276,23 +276,44 @@ def check_name_regularity(entity: Entity, string: Optional[str]) -> Regularity:
     if not string:
         return Regularity(is_irregular=False)
 
+    names_spec = entity.dataset.names
+
     # Do the prop-suggesting checks first so that we hit them before
     # the less specific checks which are less helpful when they don't
     # suggest a prop.
 
-    # This is where we'll move the heuristic checks which can suggest better
-    # categorisation of names:
-    #
-    ## Single token Person name (after stripping prefixes) -> weakAlias
-    # if entity.schema.is_a("Person"):
-    #    deprefixed = remove_person_prefixes(string)
-    #    if " " not in deprefixed:
-    #        return Regularity(is_irregular=True, suggested_prop="weakAlias")
-    #
-    ## Organization name shorter than 8 letters, all uppercase -> abbreviation
-    # if entity.schema.is_a("Organization"):
-    #    if len(string) < 8 and string.isupper():
-    #        return Regularity(is_irregular=True, suggested_prop="abbreviation")
+    # The flags for datasets to opt into suggesting heuristics are super verbose.
+    # The idea is to rather introduce additional heuristics with different names
+    # than have very general heuristics like 'suggest_person_weak_alias' and make
+    # the logic in it too had to understand. Perhaps at some point it makes more sense
+    # to implement these as a rule engine with rules like
+    # [{  "short_name": "suggest_person_single_token",
+    #     "suggested": "weakAlias",
+    #     "preprocess": ["strip_prefixes"],
+    #     "if": {"schema": "Person", "is_single_token": True}
+    #   }, ...]
+
+    # Single token Person name (after stripping prefixes) -> weakAlias
+    if names_spec.suggest_person_single_token and entity.schema.is_a("Person"):
+        deprefixed = remove_person_prefixes(string)
+        if " " not in deprefixed:
+            return Regularity(is_irregular=True, suggested_prop="weakAlias")
+
+    # Organization name shorter than threshold, all uppercase -> abbreviation
+    threshold = names_spec.suggest_uppercase_org_single_token_shorter_than
+    if threshold is not None and entity.schema.is_a("Organization"):
+        if " " not in string and len(string) < threshold and string.isupper():
+            return Regularity(is_irregular=True, suggested_prop="abbreviation")
+
+    # LegalEntity but not Person name shorter than threshold, all uppercase -> abbreviation
+    threshold = names_spec.suggest_non_person_single_token_shorter_than
+    if (
+        threshold is not None
+        and entity.schema.is_a("LegalEntity")
+        and not entity.schema.is_a("Person")
+    ):
+        if " " not in string and len(string) < threshold and string.isupper():
+            return Regularity(is_irregular=True, suggested_prop="abbreviation")
 
     spec = entity.dataset.names.get_spec(entity.schema)
     if spec:

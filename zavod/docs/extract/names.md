@@ -13,20 +13,25 @@ While we've done this using simple, explainable logic for the most part, this le
 
 The helper [zavod.helpers.is_name_irregular][] returns true if a name potentially needs cleaning.
 
-A dataset can customise what should be considered "in need of cleaning" using options under the `names` key of the dataset metadata. Each field under `names` is a schema type, so that different rules can apply to different entities in the dataset.
+A dataset can customise what should be considered "in need of cleaning" using options under the `names` key of the dataset metadata.
+
+Schema-specific cleaning rules go under `schema_rules`, so that different rules can apply to different entity types in the dataset. Two optional heuristics can also be enabled to automatically suggest better categorisation for certain name patterns.
 
 e.g.
 
 ```yaml
 names:
-  Company:
-    reject_chars: ","
-    allow_chars: "/"
+  schema_rules:
+    Company:
+      reject_chars: ","
+      allow_chars: "/"
+  suggest_person_single_token: true
+  suggest_uppercase_org_single_token_shorter_than: 8
+  suggest_non_person_single_token_shorter_than: 5
 ```
 
 #### ::: zavod.meta.names.NamesSpec
     options:
-      members: []
       show_bases: false
 
 #### ::: zavod.meta.names.CleaningSpec
