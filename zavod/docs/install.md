@@ -11,6 +11,24 @@ $ cd opensanctions
 
 The steps below assume you're working within a checkout of that repository.
 
+## Dependencies on macOS
+
+The two tricky ones are [pyICU](https://pypi.org/project/pyicu/) and [plyvel](https://github.com/wbolster/plyvel). Here are some one-liners to make `uv sync` just work™.
+
+```sh
+brew install pkg-config icu4c
+# Let the compiler that is run somewhere deep inside `uv sync` find the library
+export PATH="$(brew --prefix)/opt/icu4c/bin:$(brew --prefix)/opt/icu4c/sbin:$PATH"
+export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:$(brew --prefix)/opt/icu4c/lib/pkgconfig"
+
+brew install leveldb
+# Let the compiler that is run somewhere deep inside `uv sync` find the library
+# See https://github.com/wbolster/plyvel/issues/114 for more info on this painpoint
+export CPPFLAGS="-I$(brew --prefix leveldb)/include/ -L$(brew --prefix leveldb)/lib/ -fno-rtti"
+```
+
+You might want to put the `export`s in your [`.envrc`](https://direnv.net/) so that updates to these libraries just install and you don't have to go digging for these in the documentation again.
+
 ## Python virtual environment
 
 The application is a fairly stand-alone Python application, albeit with a large number of library dependencies. To set up a local development environment using `uv`:
@@ -25,18 +43,6 @@ $ source zavod/.venv/bin/activate
 $ zavod --help
 ```
 
-If you encounter any errors during the installation, please consider googling errors related to libraries used by `zavod` (e.g.: SQLAlchemy, Python-Levenshtein, click, etc.).
-
-!!! info "Installing `plyvel` on macOS"
-    To make Plyvel install on macOS, set the following environment variables before running `uv sync`.
-
-    ```sh
-    export CPPFLAGS="-I$(brew --prefix leveldb)/include/ -L$(brew --prefix leveldb)/lib/ -fno-rtti"
-    ```
-
-
-  For more information on this painpoint, see the related GitHub [issue](https://github.com/wbolster/plyvel/issues/114)
-
 ## Running a database
 
 Some (actually, most) crawlers in zavod use the cache and some other things that get read from the database.
@@ -47,6 +53,7 @@ To bring a database up for local development:
 docker compose -f ../docker-compose.yml up -d db # Bring up a dev database
 # Your probably want to put this in your .envrc
 export ZAVOD_DATABASE_URI=postgresql://postgres:password@localhost:5432/dev
+export NOMENKLATURA_DB_URL=$ZAVOD_DATABASE_URI
 ```
 
 ## pre-commit checks
