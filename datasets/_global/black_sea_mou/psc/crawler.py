@@ -190,19 +190,16 @@ def crawl_list_page(context: Context, page: int):
         method="POST",
     )
     # Parse the response to find shipuids
-    shipuids = h.xpath_elements(
-        doc,
-        "//tr[contains(@class, 'even') or contains(@class, 'odd')]//input[@type='hidden']/@value",
-    )
+    shipuid_xpath = "//tr[contains(@class, 'even') or contains(@class, 'odd')]//input[@type='hidden']/@value"
+    shipuids = h.xpath_strings(doc, shipuid_xpath)
     context.log.info(f"Found {len(shipuids)} shipuids in the search response")
-    if len(shipuids) < 2:
+    if len(shipuids) < 1:
         context.log.warn("Not enough shipuids found, double check the logic.")
     for shipuid in shipuids:
         crawl_vessel_page(context, str(shipuid))
     # Extract and return total pages
     total_pages = parse_total_pages(context, doc)
     assert total_pages is not None, "Failed to parse total pages"
-    print(f"Processed page {page}, total pages: {total_pages}")
     return total_pages
 
 
@@ -211,6 +208,7 @@ def crawl(context: Context):
     image = h.xpath_element(login_page, './/img[contains(@src, "captcha.php")]')
     captcha_url = urljoin(context.data_url, image.get("src"))
     image_path: Path = context.fetch_resource("captcha.png", captcha_url)
+    context.log.debug(f"Fetched CAPTCHA image from {captcha_url} to {image_path}")
     result = run_image_prompt(
         context,
         prompt=PROMPT,
@@ -219,6 +217,7 @@ def crawl(context: Context):
         model=LLM_VERSION,
     )
     login_data = {"captcha": result["code"]}
+    context.log.debug(f"Extracted CAPTCHA code: {result['code']} from the image")
     login_url = urljoin(context.data_url, "?action=login")
     login_resp = context.fetch_html(
         login_url, data=login_data, headers=HEADERS, method="POST"
@@ -228,5 +227,6 @@ def crawl(context: Context):
     total_pages = None
     page = 0
     while total_pages is None or page < total_pages:
+        context.log.info(f"Crawling page {page} of {total_pages}")
         total_pages = crawl_list_page(context, page)
         page += 1
