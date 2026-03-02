@@ -13,6 +13,7 @@ from rigour.text.scripts import is_dense_script
 from zavod import settings
 from zavod.context import Context
 from zavod.entity import Entity
+from zavod.meta.names import CleaningSpec, NamesSpec
 from zavod.extract.names.clean import (
     LLM_MODEL_VERSION,
     SourceNames,
@@ -269,24 +270,17 @@ def _is_single_token(string: str) -> bool:
     return False
 
 
-def check_name_regularity(entity: Entity, string: Optional[str]) -> Regularity:
-    """Determine whether a name string potentially needs cleaning."""
-    string = squash_spaces(string or "")
-
-    if not string:
-        return Regularity(is_irregular=False)
-
-    names_spec = entity.dataset.names
-
-    # Do the prop-suggesting checks first so that we hit them before
-    # the less specific checks which are less helpful when they don't
-    # suggest a prop.
+def _check_suggesting_heuristics(
+    entity: Entity, string: str, names_spec: NamesSpec
+) -> Optional[Regularity]:
 
     # The flags for datasets to opt into suggesting heuristics are super verbose.
     # The idea is to rather introduce additional heuristics with different names
-    # than have very general heuristics like 'suggest_person_weak_alias' and make
-    # the logic in it too had to understand. Perhaps at some point it makes more sense
-    # to implement these as a rule engine with rules like
+    # than have very general heuristics like 'suggest_person_weak_alias' and keep
+    # adding conditions to them, making the logic in each rule too hard to understand.
+    # If we really do end up with a lot of heuristics, we could consider a rule engine
+    # with rules like:
+    #
     # [{  "short_name": "suggest_person_single_token",
     #     "suggested": "weakAlias",
     #     "preprocess": ["strip_prefixes"],
@@ -295,8 +289,7 @@ def check_name_regularity(entity: Entity, string: Optional[str]) -> Regularity:
 
     # Single token Person name (after stripping prefixes) -> weakAlias
     if names_spec.suggest_person_single_token and entity.schema.is_a("Person"):
-        deprefixed = remove_person_prefixes(string)
-        if " " not in deprefixed:
+        if " " not in remove_person_prefixes(string):
             return Regularity(is_irregular=True, suggested_prop="weakAlias")
 
     # Organization name shorter than threshold, all uppercase -> abbreviation
@@ -315,36 +308,51 @@ def check_name_regularity(entity: Entity, string: Optional[str]) -> Regularity:
         if " " not in string and len(string) < threshold and string.isupper():
             return Regularity(is_irregular=True, suggested_prop="abbreviation")
 
-    spec = entity.dataset.names.get_spec(entity.schema)
-    if spec:
-        for char in spec.reject_chars_consolidated:
-            if char in string:
-                return Regularity(is_irregular=True)
+    return None
 
-        # is nullword
-        if not spec.allow_nullwords and is_nullword(string, normalize=True):
+
+def _check_schema_name_specs(string: str, spec: CleaningSpec) -> Optional[Regularity]:
+    for char in spec.reject_chars_consolidated:
+        if char in string:
             return Regularity(is_irregular=True)
 
-        # min length
-        # Dense scripts e.g. Han (习近平 for Xi Jinping) use much fewer code points
-        # ("characters") than latin, cyrilic etc. min_length is intended to catch
-        # unrealistically short names so dense scripts are exempted to avoid false positives.
-        if not is_dense_script(string) and len(string) < spec.min_length:
-            return Regularity(is_irregular=True)
-
-        # single token min length
-        if _is_single_token(string) and len(string) < spec.single_token_min_length:
-            return Regularity(is_irregular=True)
-
-        # requires space
-        if spec.require_space and _is_single_token(string):
-            return Regularity(is_irregular=True)
-
-    # contains a known-as phrase
-    if contains_split_phrase(string):
+    # spec.allow_nullwords
+    if not spec.allow_nullwords and is_nullword(string, normalize=True):
         return Regularity(is_irregular=True)
 
-    return Regularity(is_irregular=False)
+    # spec.min_length
+    # Dense scripts e.g. Han (习近平 for Xi Jinping) use much fewer code points
+    # ("characters") than latin, cyrilic etc. min_length is intended to catch
+    # unrealistically short names so dense scripts are exempted to avoid false positives.
+    if not is_dense_script(string) and len(string) < spec.min_length:
+        return Regularity(is_irregular=True)
+
+    # spec.single_token_min_length
+    if _is_single_token(string) and len(string) < spec.single_token_min_length:
+        return Regularity(is_irregular=True)
+
+    # spec.require_space
+    if spec.require_space and _is_single_token(string):
+        return Regularity(is_irregular=True)
+
+    return None
+
+
+def check_name_regularity(entity: Entity, string: Optional[str]) -> Regularity:
+    """Determine whether a name string potentially needs cleaning."""
+    string = squash_spaces(string or "")
+    if not string:
+        return Regularity(is_irregular=False)
+
+    names_spec = entity.dataset.names
+    spec = names_spec.get_spec(entity.schema)
+
+    return (
+        _check_suggesting_heuristics(entity, string, names_spec)
+        or (spec is not None and _check_schema_name_specs(string, spec))
+        or (contains_split_phrase(string) and Regularity(is_irregular=True))
+        or Regularity(is_irregular=False)
+    )
 
 
 def is_name_irregular(entity: Entity, string: Optional[str]) -> bool:
