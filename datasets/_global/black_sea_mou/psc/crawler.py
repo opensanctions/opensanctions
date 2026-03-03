@@ -8,8 +8,6 @@ from zavod.stateful.positions import YEAR_DAYS
 from zavod.shed.bs_tokyo_mou_psc import crawl_psc_record
 
 TODAY = datetime.today()
-GETINSPECTIONS_URL = "https://bsis.bsmou.org/public/?action=getinspections"
-GETSHIPS_URL = "https://bsis.bsmou.org/public/?action=getshipinsp"
 HEADERS = {
     "Content-Type": "application/x-www-form-urlencoded",
     "Referer": "https://bsis.bsmou.org/public/?action=login",
@@ -67,6 +65,11 @@ def crawl(context: Context) -> None:
     while total_pages is None or page < total_pages:
         context.log.info(f"Crawling page {page} of {total_pages}")
         total_pages = crawl_psc_record(
-            context, page, HEADERS, SEARCH_DATA, GETINSPECTIONS_URL, GETSHIPS_URL
+            context,
+            page,
+            HEADERS,
+            SEARCH_DATA,
+            urljoin(context.data_url, "?action=getinspections"),
+            urljoin(context.data_url, "?action=getshipinsp"),
         )
         page += 1

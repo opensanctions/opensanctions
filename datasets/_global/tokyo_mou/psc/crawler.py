@@ -1,13 +1,12 @@
 import re
 from datetime import datetime, timedelta
+from urllib.parse import urljoin
 
 from zavod import Context, helpers as h
 from zavod.stateful.positions import YEAR_DAYS
 from zavod.shed.bs_tokyo_mou_psc import crawl_psc_record
 
 TODAY = datetime.today()
-GETSHIPS_URL = "https://apcis.tmou.org/public/?action=getshipinsp"
-GETINSPECTIONS_URL = "https://apcis.tmou.org/public/?action=getinspections"
 HEADERS = {
     "Content-Type": "application/x-www-form-urlencoded",
     "Referer": "https://apcis.tmou.org/public/",
@@ -54,7 +53,7 @@ def solve_arithmetic(expression: str) -> str:
 
 def crawl(context: Context) -> None:
     # Submit login form
-    login_page = context.fetch_html("https://apcis.tmou.org/public/")
+    login_page = context.fetch_html(context.data_url)
     # Solve the arithmetic CAPTCHA
     question = h.xpath_string(login_page, "//span[contains(text(), '=')]/text()").strip(
         " ="
@@ -62,9 +61,11 @@ def crawl(context: Context) -> None:
     answer = solve_arithmetic(question)
 
     login_data = {"captcha": answer}
-    login_url = "https://apcis.tmou.org/public/?action=login"
     login_resp = context.fetch_html(
-        login_url, data=login_data, headers=HEADERS, method="POST"
+        urljoin(context.data_url, "?action=login"),
+        data=login_data,
+        headers=HEADERS,
+        method="POST",
     )
     assert login_resp is not None, "Login failed, response is None"
 
@@ -76,7 +77,7 @@ def crawl(context: Context) -> None:
             page,
             HEADERS,
             SEARCH_DATA,
-            GETINSPECTIONS_URL,
-            GETSHIPS_URL,
+            urljoin(context.data_url, "?action=getinspections"),
+            urljoin(context.data_url, "?action=getshipinsp"),
         )
         page += 1
