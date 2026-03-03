@@ -18,7 +18,6 @@ def crawl_person(context: Context, row: _Element) -> None:
     person.id = context.make_id(name, url)
     person.add("name", name)
     person.add("topics", "debarment")
-    print(name)
 
     sanction = h.make_sanction(context, person)
     h.apply_date(sanction, "listingDate", date)
