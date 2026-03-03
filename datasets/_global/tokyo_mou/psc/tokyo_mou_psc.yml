@@ -34,7 +34,7 @@ tags:
   - sector.maritime
 url: https://www.tokyo-mou.org/inspections-detentions/psc-database/
 data:
-  url: https://www.tokyo-mou.org/inspections-detentions/psc-database/
+  url: https://apcis.tmou.org/public/
   format: HTML
   lang: eng
 http:
