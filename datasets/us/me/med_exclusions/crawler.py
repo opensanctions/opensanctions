@@ -1,4 +1,4 @@
-import json
+from datetime import datetime
 from typing import Dict
 
 from openpyxl import load_workbook
@@ -74,40 +74,44 @@ def crawl_item(row: Dict[str, str], context: Context):
     context.audit_data(row)
 
 
-def crawl_excel_url(context: Context):
-    _, _, _, txt = zyte_api.fetch_text(context, context.data_url, geolocation="us")
-    # Parse out the table data JSON embedded in the HTML
-    table_json = txt[txt.find("WPQ2ListData") + 15 : txt.find("WPQ2SchemaData") - 5]
-    context.log.debug("table json", json=table_json)
-    table_data = json.loads(table_json)
-    # Assert that the table is in descending date order (using ID as proxy for date)
-    last_id = None
-    for row in table_data["Row"]:
-        assert last_id is None or last_id > row["ID"], last_id
-        last_id = row["ID"]
-    # Pick the first item, assuming the table is sorted in descending date order
-    month_year_directory = table_data["Row"][0]["FileLeafRef"]
-    # Construct URL - the filename seems to be the same each month
-    return f"https://mainecare.maine.gov/PrvExclRpt/{month_year_directory}/PI0008-PM%20Monthly%20Exclusion%20Report.xlsx"
-
-
 def crawl(context: Context) -> None:
-    # First we find the link to the excel file
-    excel_url = crawl_excel_url(context)
+    table_xpath = "//table[@summary='Monthly Provider Exclusion Report']"
+    doc = zyte_api.fetch_html(
+        context,
+        context.data_url,
+        table_xpath,
+        geolocation="us",
+        cache_days=3,
+        absolute_links=True,
+    )
+    table = h.xpath_element(doc, table_xpath)
+    rows = list(h.parse_html_table(table, index_empty_headers=True))
+    str_rows = [h.cells_to_str(row) for row in rows]
+    dates = [datetime.strptime(row["name"], "%B %Y") for row in str_rows]
+    assert dates == sorted(dates, reverse=True), "Rows not in descending order"
+    xlsx_page = h.xpath_string(rows[0]["name"], ".//a/@href")
+
+    xlsx_doc = zyte_api.fetch_html(
+        context,
+        xlsx_page,
+        "//table",
+        geolocation="us",
+        cache_days=3,
+        absolute_links=True,
+        javascript=True,
+    )
+    xlsx_url = h.xpath_string(
+        xlsx_doc, ".//a[@class='ms-listlink' and contains(@href, '.xlsx')]/@href"
+    )
     _, _, _, path = zyte_api.fetch_resource(
-        context, filename="list.xlsx", url=excel_url, geolocation="us"
+        context, filename="list.xlsx", url=xlsx_url, geolocation="us"
     )
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
-
     wb = load_workbook(path, read_only=True)
-
     sheet_names = wb.sheetnames
-
     for item in h.parse_xlsx_sheet(context, wb.active, skiprows=26):
         crawl_item(item, context)
-
     sheet_names.remove(wb.active.title)
-
     for sheet_name in sheet_names:
         sheet = wb[sheet_name]
         if not (sheet.max_row == 1 and sheet.max_column == 1 and not sheet["A1"].value):
