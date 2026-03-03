@@ -123,6 +123,10 @@ lookups:
     options:
       - match: 'Philippines (Permanent Resident in Malaysia)'
         value: Philippines
+      - match:
+          - Nationality
+          - Nationalit
+        value: null
   type.date:
     options:
       - match: 20.2.1976 13.2.1975 15.2.1976 7.1.1977
@@ -131,3 +135,8 @@ lookups:
           - 1975-02-13
           - 1976-02-15
           - 1977-01-07
+      - match:
+          - "Date of"
+          - "Date 0f"
+          - "Date of Listed"
+        value: null
