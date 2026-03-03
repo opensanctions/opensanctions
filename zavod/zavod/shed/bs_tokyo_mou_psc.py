@@ -1,11 +1,11 @@
 import re
 from lxml import html
-from typing import Optional
+from typing import Optional, Dict
 
 from zavod import Context, helpers as h
 
 
-def make_search_data(page: int, search_data: dict) -> dict:
+def make_search_data(page: int, search_data: Dict[str, str]) -> Dict[str, str]:
     return {**search_data, "Page": str(page)}
 
 
@@ -33,7 +33,9 @@ def emit_unknown_link(
     context.emit(link)
 
 
-def crawl_vessel_row(context: Context, str_row: dict, inspection_date: str) -> str:
+def crawl_vessel_row(
+    context: Context, str_row: Dict[str, str | None], inspection_date: str
+) -> str:
     ship_name = str_row.pop("ship_name")
     imo = str_row.pop("imo_number")
     vessel = context.make("Vessel")
@@ -83,7 +85,7 @@ def crawl_vessel_row(context: Context, str_row: dict, inspection_date: str) -> s
     return vessel.id
 
 
-def crawl_company_details(context: Context, str_row: dict) -> str:
+def crawl_company_details(context: Context, str_row: Dict[str, str | None]) -> str:
     company_name = str_row.pop("name")
     company_imo = str_row.pop("imo_number")
     company = context.make("Company")
@@ -104,7 +106,7 @@ def crawl_company_details(context: Context, str_row: dict) -> str:
 def crawl_vessel_page(
     context: Context,
     shipuid: str,
-    headers: dict,
+    headers: Dict[str, str],
     getships_url: str,
 ) -> None:
     context.log.debug(f"Processing shipuid: {shipuid}")
@@ -157,8 +159,8 @@ def crawl_vessel_page(
 def crawl_psc_record(
     context: Context,
     page: int,
-    headers: dict,
-    search_data: dict,
+    headers: Dict[str, str],
+    search_data: Dict[str, str],
     getinspection_url: str,
     getships_url: str,
 ) -> int:
