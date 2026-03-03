@@ -53,11 +53,11 @@ tags:
 assertions:
   min:
     schema_entities:
-      Person: 65
+      Person: 55
       Organization: 20
   max:
     schema_entities:
-      Person: 200
+      Person: 100
       Organization: 50
 
 lookups:

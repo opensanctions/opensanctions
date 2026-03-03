@@ -729,3 +729,8 @@ lookups:
           - ['Basman Elashi']
           - ['Majida Salem']
           - ['Fadwa Elafrangi']
+      - match: 'Teledyne FLIR LLC and its affiliates, FLIR Optoelectronic Technology (Shanghai) Co. Ltd. and Teledyne FLIR Commercial Systems Inc.'
+        entities:
+          - ['Teledyne FLIR LLC']
+          - ['FLIR Optoelectronic Technology (Shanghai) Co. Ltd']
+          - ['Teledyne FLIR Commercial Systems Inc']
