@@ -7,6 +7,9 @@ coverage:
   frequency: daily
   start: 2025-02-06
 load_statements: true
+deploy:
+  memory: 1000Mi
+  memory_limit: 2600Mi
 summary: >
   Wanted and suspect persons list of the Police of Poland
 description: |
