@@ -26,3 +26,5 @@ def test_is_name_irregular(testdataset1: Dataset):
     # Require space
     assert is_name_irregular(person, "Johnson")
     assert not is_name_irregular(org, "Johnson")
+    # no spaces but not irregular for this script
+    assert not is_name_irregular(person, "김정은")

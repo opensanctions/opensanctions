@@ -8,6 +8,7 @@ from normality import squash_spaces
 from pydantic import JsonValue
 from rigour.names import contains_split_phrase
 from rigour.text import is_nullword
+from rigour.text.scripts import is_modern_alphabet
 
 from zavod import settings
 from zavod.context import Context
@@ -256,6 +257,12 @@ class Regularity:
     suggested_prop: Optional[str] = None
 
 
+def _is_single_token(string: str) -> bool:
+    if is_modern_alphabet(string):
+        return " " not in string
+    return False
+
+
 def check_name_regularity(entity: Entity, string: Optional[str]) -> Regularity:
     """Determine whether a name string potentially needs cleaning."""
     string = squash_spaces(string or "")
@@ -296,11 +303,11 @@ def check_name_regularity(entity: Entity, string: Optional[str]) -> Regularity:
             return Regularity(is_irregular=True)
 
         # single token min length
-        if " " not in string and len(string) < spec.single_token_min_length:
+        if _is_single_token(string) and len(string) < spec.single_token_min_length:
             return Regularity(is_irregular=True)
 
         # requires space
-        if spec.require_space and " " not in string:
+        if spec.require_space and _is_single_token(string):
             return Regularity(is_irregular=True)
 
     # contains a known-as phrase
