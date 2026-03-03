@@ -273,7 +273,6 @@ def _is_single_token(string: str) -> bool:
 def _check_suggesting_heuristics(
     entity: Entity, string: str, names_spec: NamesSpec
 ) -> Optional[Regularity]:
-
     # The flags for datasets to opt into suggesting heuristics are super verbose.
     # The idea is to rather introduce additional heuristics with different names
     # than have very general heuristics like 'suggest_person_weak_alias' and keep
@@ -289,13 +288,13 @@ def _check_suggesting_heuristics(
 
     # Single token Person name (after stripping prefixes) -> weakAlias
     if names_spec.suggest_person_single_token and entity.schema.is_a("Person"):
-        if " " not in remove_person_prefixes(string):
+        if _is_single_token(remove_person_prefixes(string)):
             return Regularity(is_irregular=True, suggested_prop="weakAlias")
 
     # Organization name shorter than threshold, all uppercase -> abbreviation
     threshold = names_spec.suggest_uppercase_org_single_token_shorter_than
     if threshold is not None and entity.schema.is_a("Organization"):
-        if " " not in string and len(string) < threshold and string.isupper():
+        if _is_single_token(string) and len(string) < threshold and string.isupper():
             return Regularity(is_irregular=True, suggested_prop="abbreviation")
 
     # LegalEntity but not Person name shorter than threshold, all uppercase -> abbreviation
@@ -305,7 +304,7 @@ def _check_suggesting_heuristics(
         and entity.schema.is_a("LegalEntity")
         and not entity.schema.is_a("Person")
     ):
-        if " " not in string and len(string) < threshold and string.isupper():
+        if _is_single_token(string) and len(string) < threshold and string.isupper():
             return Regularity(is_irregular=True, suggested_prop="abbreviation")
 
     return None
