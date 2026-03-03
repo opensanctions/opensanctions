@@ -93,8 +93,11 @@ class NamesSpec(BaseModel):
     def model_validate(cls, obj: Any, **kwargs: Any) -> "NamesSpec":
         """Merge provided schema_rules values with defaults."""
         if isinstance(obj, dict):
-            instance = cls()
-            for schema_name, spec in obj.get("schema_rules", {}).items():
+            schema_rules_dict = obj.pop("schema_rules", {})
+
+            instance = super().model_validate(obj, **kwargs)
+
+            for schema_name, spec in schema_rules_dict.items():
                 if schema_name in instance.schema_rules:
                     schema = Model.instance().get(schema_name)
                     assert schema is not None, schema_name
@@ -106,15 +109,6 @@ class NamesSpec(BaseModel):
                     instance.schema_rules[schema_name] = CleaningSpec.model_validate(
                         spec
                     )
-            instance.suggest_person_single_token = obj.get(
-                "suggest_person_single_token", False
-            )
-            instance.suggest_uppercase_org_single_token_shorter_than = obj.get(
-                "suggest_uppercase_org_single_token_shorter_than", None
-            )
-            instance.suggest_non_person_single_token_shorter_than = obj.get(
-                "suggest_non_person_single_token_shorter_than", None
-            )
             return instance
         raise TypeError(f"object must be a dict, got {type(obj)}")
 
