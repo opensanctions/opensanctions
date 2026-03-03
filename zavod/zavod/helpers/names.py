@@ -299,7 +299,7 @@ def check_name_regularity(entity: Entity, string: Optional[str]) -> Regularity:
             return Regularity(is_irregular=True)
 
         # min length
-        if len(string) < spec.min_length:
+        if is_modern_alphabet(string) and len(string) < spec.min_length:
             return Regularity(is_irregular=True)
 
         # single token min length
