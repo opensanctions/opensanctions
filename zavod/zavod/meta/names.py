@@ -4,13 +4,15 @@ from logging import getLogger
 
 from followthemoney import Model
 from followthemoney.schema import Schema
-from pydantic import BaseModel, RootModel
+from pydantic import BaseModel, ConfigDict, RootModel
 
 
 log = getLogger(__name__)
 
 
 class CleaningSpec(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     reject_chars_baseline: str = ""
     """The standard characters that suggest a name needs cleaning."""
     reject_chars: str = ""
@@ -26,7 +28,7 @@ class CleaningSpec(BaseModel):
 
     Remember that characters defined for other matching schema specs will still apply.
     """
-    min_chars: int = 2
+    min_length: int = 2
     single_token_min_length: int = 2
     """Minimum length for names with no spaces, i.e. a single token."""
     require_space: bool = False
