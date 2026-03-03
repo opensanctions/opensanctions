@@ -171,7 +171,7 @@ def crawl_vessel_page(
         context.audit_data(str_row, ["fax"])
 
 
-def crawl_psc_record(
+def crawl_psc_records(
     context: Context,
     *,
     headers: Dict[str, str],

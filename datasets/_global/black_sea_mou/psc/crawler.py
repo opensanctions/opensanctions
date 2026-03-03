@@ -5,7 +5,7 @@ from urllib.parse import urljoin
 from zavod import Context, helpers as h
 from zavod.extract.llm import run_image_prompt
 from zavod.stateful.positions import YEAR_DAYS
-from zavod.shed.bs_tokyo_mou_psc import crawl_psc_record
+from zavod.shed.bs_tokyo_mou_psc import crawl_psc_records
 
 TODAY = datetime.today()
 HEADERS = {
@@ -60,7 +60,7 @@ def crawl(context: Context) -> None:
     )
     assert login_resp is not None, "Login failed, response is None"
 
-    crawl_psc_record(
+    crawl_psc_records(
         context,
         headers=HEADERS,
         search_data=SEARCH_DATA,
