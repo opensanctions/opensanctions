@@ -1,3 +1,18 @@
+"""
+Shared crawler logic for Port State Control (PSC) inspection databases.
+
+Port State Control is a system of maritime inspection in which authorities of a
+port country inspect foreign ships to verify that the vessel and its crew meet
+international safety, environmental, and labour standards.
+
+A Memorandum of Understanding (MoU) in this context is a regional agreement
+between maritime authorities to coordinate and mutually recognize PSC inspections.
+
+This module is shared between two MoU crawlers:
+- tokyo_mou_psc
+- black_sea_mou_psc
+"""
+
 import re
 from lxml import html
 from typing import Optional, Dict
