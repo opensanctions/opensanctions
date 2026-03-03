@@ -346,12 +346,19 @@ def check_name_regularity(entity: Entity, string: Optional[str]) -> Regularity:
     names_spec = entity.dataset.names
     spec = names_spec.get_spec(entity.schema)
 
-    return (
-        _check_suggesting_heuristics(entity, string, names_spec)
-        or (spec is not None and _check_schema_name_specs(string, spec))
-        or (contains_split_phrase(string) and Regularity(is_irregular=True))
-        or Regularity(is_irregular=False)
-    )
+    result = _check_suggesting_heuristics(entity, string, names_spec)
+    if result is not None:
+        return result
+
+    if spec is not None:
+        result = _check_schema_name_specs(string, spec)
+        if result is not None:
+            return result
+
+    if contains_split_phrase(string):
+        return Regularity(is_irregular=True)
+
+    return Regularity(is_irregular=False)
 
 
 def is_name_irregular(entity: Entity, string: Optional[str]) -> bool:
