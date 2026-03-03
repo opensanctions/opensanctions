@@ -174,27 +174,29 @@ def crawl_vessel_page(
 def crawl_psc_record(
     context: Context,
     *,
-    page: int,
     headers: Dict[str, str],
     search_data: Dict[str, str],
     getinspection_url: str,
     getships_url: str,
-) -> int:
-    doc = context.fetch_html(
-        getinspection_url,
-        data=make_search_data(page, search_data),
-        headers=headers,
-        method="POST",
-    )
-    # Parse the response to find shipuids
-    shipuid_xpath = "//tr[contains(@class, 'even') or contains(@class, 'odd')]//input[@type='hidden']/@value"
-    shipuids = h.xpath_strings(doc, shipuid_xpath)
-    context.log.info(f"Found {len(shipuids)} shipuids in the search response")
-    if len(shipuids) < 1:
-        context.log.warn("Not enough shipuids found, double check the logic.")
-    for shipuid in shipuids:
-        crawl_vessel_page(context, str(shipuid), headers, getships_url)
-    # Extract and return total pages
-    total_pages = parse_total_pages(doc)
-    assert total_pages is not None, "Failed to parse total pages"
-    return total_pages
+) -> None:
+    page = 0
+    total_pages = None
+    while total_pages is None or page < total_pages:
+        doc = context.fetch_html(
+            getinspection_url,
+            data=make_search_data(page, search_data),
+            headers=headers,
+            method="POST",
+        )
+        # Parse the response to find shipuids
+        shipuid_xpath = "//tr[contains(@class, 'even') or contains(@class, 'odd')]//input[@type='hidden']/@value"
+        shipuids = h.xpath_strings(doc, shipuid_xpath)
+        context.log.info(f"Found {len(shipuids)} shipuids on page {page}")
+        if len(shipuids) < 1:
+            context.log.warn("Not enough shipuids found, double check the logic.")
+        for shipuid in shipuids:
+            crawl_vessel_page(context, str(shipuid), headers, getships_url)
+        # Extract total pages
+        total_pages = parse_total_pages(doc)
+        assert total_pages is not None, "Failed to parse total pages"
+        page += 1

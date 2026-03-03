@@ -69,15 +69,10 @@ def crawl(context: Context) -> None:
     )
     assert login_resp is not None, "Login failed, response is None"
 
-    total_pages = None
-    page = 0
-    while total_pages is None or page < total_pages:
-        total_pages = crawl_psc_record(
-            context,
-            page=page,
-            headers=HEADERS,
-            search_data=SEARCH_DATA,
-            getinspection_url=urljoin(context.data_url, "?action=getinspections"),
-            getships_url=urljoin(context.data_url, "?action=getshipinsp"),
-        )
-        page += 1
+    crawl_psc_record(
+        context,
+        headers=HEADERS,
+        search_data=SEARCH_DATA,
+        getinspection_url=urljoin(context.data_url, "?action=getinspections"),
+        getships_url=urljoin(context.data_url, "?action=getshipinsp"),
+    )
