@@ -13,9 +13,14 @@ While we've done this using simple, explainable logic for the most part, this le
 
 The helper [zavod.helpers.is_name_irregular][] returns true if a name potentially needs cleaning.
 
-A dataset can customise what should be considered "in need of cleaning" using options under the `names` key of the dataset metadata.
+A dataset can customise what should be considered "in need of cleaning" using options
+under the `names` key of the dataset metadata.
 
-Schema-specific cleaning rules go under `schema_rules`, so that different rules can apply to different entity types in the dataset. Two optional heuristics can also be enabled to automatically suggest better categorisation for certain name patterns.
+Schema-specific cleaning rules go under `schema_rules`, so that different rules can apply to different
+entity types in the dataset.
+
+`suggest_...` heuristics can be enabled to automatically suggest better categorisation for entity
+types and name patterns.
 
 e.g.
 

@@ -555,7 +555,7 @@ def review_names(
             categorisation where the source dataset might have adjusted the categorisation
             based on heuristics specific to that dataset.
         llm_cleaning: Whether to use LLM-based name cleaning.
-        apply: Whether to apply the names to the entity.
+        default_accepted: Whether to mark the review as accepted from the start, if one is created.
     """
 
     if original.is_empty():
