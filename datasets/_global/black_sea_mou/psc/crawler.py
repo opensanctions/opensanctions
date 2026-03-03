@@ -66,10 +66,10 @@ def crawl(context: Context) -> None:
         context.log.info(f"Crawling page {page} of {total_pages}")
         total_pages = crawl_psc_record(
             context,
-            page,
-            HEADERS,
-            SEARCH_DATA,
-            urljoin(context.data_url, "?action=getinspections"),
-            urljoin(context.data_url, "?action=getshipinsp"),
+            page=page,
+            headers=HEADERS,
+            search_data=SEARCH_DATA,
+            getinspection_url=urljoin(context.data_url, "?action=getinspections"),
+            getships_url=urljoin(context.data_url, "?action=getshipinsp"),
         )
         page += 1

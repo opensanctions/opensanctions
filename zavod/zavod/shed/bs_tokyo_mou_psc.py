@@ -173,6 +173,7 @@ def crawl_vessel_page(
 
 def crawl_psc_record(
     context: Context,
+    *,
     page: int,
     headers: Dict[str, str],
     search_data: Dict[str, str],
