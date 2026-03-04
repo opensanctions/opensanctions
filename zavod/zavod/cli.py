@@ -26,7 +26,7 @@ from zavod.logs import (
 )
 from zavod.meta import load_dataset_from_path, get_multi_dataset, Dataset
 from zavod.publish import publish_dataset, publish_failure
-from zavod.runtime.versions import make_version
+from zavod.runtime.versions import make_version, set_last_successful_version
 from zavod.stateful.model import create_db
 from zavod.store import get_store
 from zavod.tools.dump_file import dump_dataset_to_file
@@ -153,7 +153,13 @@ def publish(dataset_path: Path, latest: bool = False) -> None:
 
 @cli.command("run", help="Crawl, export and then publish a specific dataset")
 @click.argument("dataset_path", type=DatasetInPath)
-@click.option("-l", "--latest", is_flag=True, default=False)
+@click.option(
+    "-l",
+    "--latest",
+    is_flag=True,
+    default=False,
+    help="Whether to re-publish to /datasets/latest/, in addition to the timestamped/versioned prefixes.",
+)
 @click.option("--clear-data/--keep-data", is_flag=True, default=True)
 def run(
     dataset_path: Path,
@@ -195,6 +201,8 @@ def run(
     # Export and Publish
     try:
         export_dataset(dataset, view)
+        # Set the version as successful in the version file, which will be archived by publish_dataset.
+        set_last_successful_version(dataset, settings.RUN_VERSION)
         publish_dataset(dataset, latest=latest)
 
         if not dataset.is_collection and dataset.model.load_statements:
