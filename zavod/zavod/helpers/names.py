@@ -258,6 +258,12 @@ class Regularity:
 
 
 def _is_single_token(string: str) -> bool:
+    """Use is_modern_alphabet as a proxy for "separates name parts using spaces"
+
+    e.g. "ﺭﺿﺎﻋﻠﻲﺧﻤﻴﺲ"(Radaa Ali Khamis) and "김정은"(Kim Jong Un) don't have spaces
+    and what we mean by single token in this context is "John" or "Foopie"
+    """
+
     if is_modern_alphabet(string):
         return " " not in string
     return False
@@ -299,7 +305,7 @@ def check_name_regularity(entity: Entity, string: Optional[str]) -> Regularity:
             return Regularity(is_irregular=True)
 
         # min length
-        if is_modern_alphabet(string) and len(string) < spec.min_length:
+        if len(string) < spec.min_length:
             return Regularity(is_irregular=True)
 
         # single token min length
