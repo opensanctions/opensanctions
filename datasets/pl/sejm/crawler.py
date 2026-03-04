@@ -29,7 +29,12 @@ def extract_party_name(context, doc: HtmlElement, label_id: str) -> str | None:
 def crawl_person(context: Context, url: str) -> None:
     name_xpath = ".//div[@id='title_content']/h1/text()"
     pep_doc = zyte_api.fetch_html(
-        context, url, name_xpath, html_source="httpResponseBody", cache_days=1
+        context,
+        url,
+        name_xpath,
+        html_source="httpResponseBody",
+        cache_days=1,
+        geolocation="pl",
     )
     name = h.xpath_string(pep_doc, name_xpath)
     start_date = h.xpath_string(pep_doc, START_DATE_XPATH)
@@ -81,6 +86,7 @@ def crawl(context: Context) -> None:
         unblock_validator=deputies_xpath,
         html_source="httpResponseBody",
         cache_days=1,
+        geolocation="pl",
     )
     deputies = doc.findall(deputies_xpath)
     for deputy in deputies:
