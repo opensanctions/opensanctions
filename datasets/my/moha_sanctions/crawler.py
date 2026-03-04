@@ -5,20 +5,18 @@ from normality import squash_spaces
 from pdfplumber.page import Page
 from rigour.mime.types import PDF
 from typing import Tuple, Dict, Any
-from urllib.parse import urljoin
 
-from zavod import Context
-from zavod import helpers as h
+from zavod import Context, helpers as h
 from zavod.extract.zyte_api import fetch_html
 
 ID_SPLITS = [f"({c}) " for c in string.ascii_lowercase[:17]]  # a-q
 ALIAS_SPLITS = [f"{c}) " for c in string.ascii_lowercase[:17]]  # a-q
-INVALID_ROWS = "Nama"
+INVALID_ROWS = "Name"
 
 
 def rename_headers(
-    context: Context, row: Dict[str, Any], custom_lookup: Lookup
-) -> Dict[str, str]:
+    context: Context, row: dict[str, str | None], custom_lookup: Lookup
+) -> dict[str, str | None]:
     result = {}
     for old_key, value in row.items():
         new_key = custom_lookup.get_value(old_key)
@@ -36,7 +34,12 @@ def clean_value(v):
     return "" if v == "-" else v
 
 
-def crawl_row(context: Context, row, schema, key) -> None:
+def crawl_row(
+    context: Context,
+    row: dict[str, str | None],
+    schema: str,
+    key: str,
+) -> None:
     names = row.pop("name")
     reference = row.pop("reference_no")
     # Early exits for headers or invalid rows
@@ -70,7 +73,7 @@ def crawl_row(context: Context, row, schema, key) -> None:
 
     context.emit(entity)
     context.emit(sanction)
-    context.audit_data(row, ignore=["no", "False"])
+    context.audit_data(row, ignore=["internal_no"])
 
 
 def page_settings(page: Page) -> Tuple[Page, Dict[str, Any]]:
@@ -86,20 +89,21 @@ def page_settings(page: Page) -> Tuple[Page, Dict[str, Any]]:
 
 def crawl_pdf_url(context: Context) -> str:
     validator = ".//*[contains(text(), 'LIST OF SANCTIONS UNDER THE MINISTRY OF HOME AFFAIRS (MOHA)')]"
-    html = fetch_html(context, context.data_url, validator, cache_days=5)
-    for a in html.findall('.//div[@class="uk-container"]//a'):
-        if "sanctions list" not in a.text_content().lower():
-            continue
-        if ".pdf" in a.get("href", ""):
-            return urljoin(context.data_url, a.get("href"))
-    raise ValueError("No PDF found")
+    html = fetch_html(
+        context, context.data_url, validator, cache_days=5, absolute_links=True
+    )
+    source_url = h.xpath_string(
+        html,
+        ".//div[@class='uk-container']//a[contains(., 'sanctions list') and contains(@href, '.pdf')]/@href",
+    )
+    return source_url
 
 
 def crawl(context: Context):
     pdf_url = crawl_pdf_url(context)
     path = context.fetch_resource("source.pdf", pdf_url)
     # If the PDF file has changed, check if the headers mappings are still on
-    h.assert_file_hash(path, "39579602793184083f2f28bfa5ecc0eaaa08a7af")
+    h.assert_file_hash(path, "552f0197dfbdb04672f78173f0f5fe2ed981504b")
     context.export_resource(path, PDF, title=context.SOURCE_TITLE)
 
     for row in h.parse_pdf_table(
@@ -110,7 +114,11 @@ def crawl(context: Context):
         skiprows=0,
         page_settings=page_settings,
     ):
-        row = {k: clean_value(v) for k, v in row.items()}
+        row = {
+            k.split("\n")[-1].strip().lower(): clean_value(v)
+            for k, v in row.items()
+            if k and k.split("\n")[-1].strip()
+        }
         # Decide schema based on number of columns in header
         num_cols = len(row.keys())
         if num_cols == 13:
@@ -123,4 +131,5 @@ def crawl(context: Context):
             )
         else:
             context.log.warning(f"Unexpected number of columns: {num_cols}")
+            return
         crawl_row(context, row, schema, key)

@@ -69,6 +69,9 @@ lookups:
           - 'čl. 1 odst. 1 písm. d) a e) a čl. 2 odst. 1 písm. f) a g) rozhodnutí Rady 2014/145/SZBP ze dne 17. března 2014 o omezujících opatřeních vzhledem k činnostem narušujícím nebo ohrožujícím územní celistvost, svrchovanost a nezávislost Ukrajiny'
           - 'čl. 1 odst. 1 písm. a) a čl. 2 odst. 1 písm. a) rozhodnutí Rady (SZBP) 2014/145 ze dne 17. března 2014 o omezujících opatřeních vzhledem k činnostem narušujícím nebo ohrožujícím územní celistvost, svrchovanost a nezávislost Ukrajiny, ve znění pozdějších předpisů a tzv. asociační kritérium dle čl. 1 odst. 1 rozhodnutí'
         value: CZ-A1-2023COLL
+      # implementing Article 2(3) of Regulation (EC) No 2580/2001
+      - match: 'čl. 2 odst. 3 bod ii) nařízení Rady (ES) č. 2580/2001 ze dne 27. 12. 2021 o zvláštních omezujících opatřeních namířených proti některým osobám a subjektům s cílem bojovat proti terorismu, ve znění pozdějších předpisů, ve spojení s čl. 1 odst. 3 bodem iii) písm. k) společného postoje Rady 2001/931/SZBP ze dne 27. 12. 2001 o použití zvláštních opatření k boji proti terorismu, ve znění pozdějších předpisů'
+        value: EU-TERR
   type.date:
     normalize: true
     options:
@@ -92,6 +95,8 @@ lookups:
         value: Israel
       - match: "Česká republika"
         value: Czech Republic
+      - match: Libanonská republika
+        value: Lebanon
   type.string:
     options:
       - match: "2036." # lastName
@@ -169,3 +174,6 @@ lookups:
           endDate: "2025-10-23"
           status: zrušen
           summary: Zápis byl zrušen ke dni 23. října 2025 v souladu s § 7 odst. 3 písm. a) zákona č. 1/2023 Sb., o omezujících opatřeních proti některým závažným jednáním uplatňovaných v mezinárodních vztazích (sankční zákon), vzhledem k zařazení subjektu na sankční seznam Evropské unie rozhodnutím Rady (SZBP) 2025/2036.
+      - match: Al-Qard Al-Hassan Association / AQAH / القرض الحسن
+        names: ["Al-Qard Al-Hassan Association", "AQAH", "القرض الحسن"]
+        sanction_props: {}

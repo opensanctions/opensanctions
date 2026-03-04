@@ -149,7 +149,9 @@ lookups:
           - 2023/2135
           - 2023/2147
         value: EU-SDNZ
-      - match: 2001/931
+      - match:
+          - 2001/931
+          - 2580/2001
         value: EU-TERR
       - match: 1210/2003
         value: EU-IRQ

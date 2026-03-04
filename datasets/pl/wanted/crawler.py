@@ -44,7 +44,6 @@ def crawl_person(context: Context, url: str):
     person.add("sourceUrl", url)
     person.add("topics", "crime")
     person.add("topics", "wanted")
-    person.add("country", "pl")
 
     h.apply_name(
         person, full=info.pop("full_name"), middle_name=info.pop("middle_name")
@@ -71,13 +70,16 @@ def crawl_person(context: Context, url: str):
         original_value=citizenship_original_value,
     )
 
+    if not person.has("citizenship"):
+        person.add("country", "pl")
+
     crimes = doc.xpath(
         "//p[contains(text(), 'Podstawy poszukiwań:')]/following-sibling::ul//a/text()"
     )
     if not crimes:
         context.log.warn("No crimes found for person", entity_id=person.id, url=url)
     for crime in crimes:
-        person.add("notes", f"Wanted for: {crime}")
+        person.add("notes", crime)
 
     context.audit_data(info)
 

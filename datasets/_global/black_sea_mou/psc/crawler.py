@@ -1,26 +1,24 @@
-import re
 from datetime import datetime, timedelta
+from pathlib import Path
 from urllib.parse import urljoin
 
 from zavod import Context, helpers as h
+from zavod.extract.llm import run_image_prompt
 from zavod.stateful.positions import YEAR_DAYS
 from zavod.shed.bs_tokyo_mou_psc import crawl_psc_records
 
 TODAY = datetime.today()
 HEADERS = {
     "Content-Type": "application/x-www-form-urlencoded",
-    "Referer": "https://apcis.tmou.org/public/",
+    "Referer": "https://bsis.bsmou.org/public/?action=login",
     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.2 Safari/605.1.15",
-    "X-Requested-With": "XMLHttpRequest",
-    "Origin": "https://apcis.tmou.org",
+    "Origin": "https://bsis.bsmou.org",
 }
 SEARCH_DATA = {
-    "Param": "0",
+    "imo": "",
     "callsign": "",
     "name": "",
-    "compimo": "",
-    "compname": "",
-    # Go back ~1 year (approximate as 365 days)
+    # Go back ~1 year
     "From": f"{(TODAY - timedelta(days=YEAR_DAYS)).strftime('%d.%m.%Y')}",
     "Till": f"{TODAY.strftime('%d.%m.%Y')}",
     "authority": "0",
@@ -35,37 +33,30 @@ SEARCH_DATA = {
     "sort3": "0",
     "sort4": "DESC",
 }
-
-
-def solve_arithmetic(expression: str) -> str:
-    """Parse and solve a simple arithmetic question like '7 + 8'."""
-    match = re.search(r"^(\d+)\s*([+\-*/])\s*(\d+)$", expression)
-    if not match:
-        raise ValueError(f"Invalid CAPTCHA expression: {expression}")
-    a, op, b = match.groups()
-    a, b = int(a), int(b)
-    if op == "+":
-        return str(a + b)
-    if op == "-":
-        return str(a - b)
-    raise ValueError(f"Unknown op: {op}")
+LLM_VERSION = "gpt-4o"
+PROMPT = """This is an image of a numeric CAPTCHA.
+Extract the 5-digit number shown in the image and return it as JSON: {"code": "XXXXX"}.
+Preserve leading zeros. The answer is always exactly 5 digits."""
 
 
 def crawl(context: Context) -> None:
-    # Submit login form
     login_page = context.fetch_html(context.data_url)
-    # Solve the arithmetic CAPTCHA
-    question = h.xpath_string(login_page, "//span[contains(text(), '=')]/text()").strip(
-        " ="
+    image = h.xpath_element(login_page, './/img[contains(@src, "captcha.php")]')
+    captcha_url = urljoin(context.data_url, image.get("src"))
+    image_path: Path = context.fetch_resource("captcha.png", captcha_url)
+    context.log.debug(f"Fetched CAPTCHA image from {captcha_url} to {image_path}")
+    result = run_image_prompt(
+        context,
+        prompt=PROMPT,
+        image_path=image_path,
+        cache_days=0,
+        model=LLM_VERSION,
     )
-    answer = solve_arithmetic(question)
-
-    login_data = {"captcha": answer}
+    login_data = {"captcha": result["code"]}
+    context.log.debug(f"Extracted CAPTCHA code: {result['code']} from the image")
+    login_url = urljoin(context.data_url, "?action=login")
     login_resp = context.fetch_html(
-        urljoin(context.data_url, "?action=login"),
-        data=login_data,
-        headers=HEADERS,
-        method="POST",
+        login_url, data=login_data, headers=HEADERS, method="POST"
     )
     assert login_resp is not None, "Login failed, response is None"
 

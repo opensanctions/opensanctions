@@ -52,6 +52,14 @@ lookups:
         value: Traderfield Securities Inc.
       - match: 2017054848101
         value: Jonathon Hartwig
+      - match: 47263
+        value: Reid & Rudiger LLC
+      - match: 2118724
+        value: Edward Joseph Rudiger Jr.
+      - match: 4701170
+        value: Kelli A. Mezzatesta
+      - match: 1605568
+        value: Marc Harrison
   comma_names:
     lowercase: true
     options:
@@ -835,3 +843,10 @@ lookups:
       - match: Carter, Terry & Company Inc.
         names:
           - Carter, Terry & Company Inc.
+      - match: "reid & rudiger llc 47263, 2118724, 4701170, 1605568"
+        names:
+          - Reid & Rudiger LLC
+          - Edward Joseph Rudiger Jr.
+          - Kelli A. Mezzatesta
+          - Marc Harrison
+          - Clifford R. Reid  # missing from the preview but listed in the Disciplinary Proceeding No. 2019060647601

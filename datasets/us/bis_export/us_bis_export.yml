@@ -3,7 +3,7 @@ entry_point: crawler.py
 prefix: us-bis-export
 coverage:
   frequency: weekly
-  start: "2026-02-03"
+  start: "2026-03-02"
 load_statements: true
 summary: >
   Companies and individuals penalized for breaking U.S. export control rules,
@@ -729,3 +729,8 @@ lookups:
           - ['Basman Elashi']
           - ['Majida Salem']
           - ['Fadwa Elafrangi']
+      - match: 'Teledyne FLIR LLC and its affiliates, FLIR Optoelectronic Technology (Shanghai) Co. Ltd. and Teledyne FLIR Commercial Systems Inc.'
+        entities:
+          - ['Teledyne FLIR LLC']
+          - ['FLIR Optoelectronic Technology (Shanghai) Co. Ltd']
+          - ['Teledyne FLIR Commercial Systems Inc']

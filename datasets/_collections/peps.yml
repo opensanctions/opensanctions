@@ -89,6 +89,7 @@ children:
   - ng_join_dots
   - nl_house_of_representatives
   - nl_senate
+  - no_brreg
   - no_storting
   - pl_sejm
   - pl_senate
