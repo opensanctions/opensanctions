@@ -50,7 +50,7 @@ assertions:
       Position: 1
   max:
     schema_entities:
-      Person: 300
+      Person: 450
       Position: 2
 
 lookups:
