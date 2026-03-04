@@ -70,19 +70,19 @@ class NamesSpec(BaseModel):
     schema_rules: Dict[str, CleaningSpec] = dict(_DEFAULT_SCHEMA_RULES)
     """Name cleaning requirements by schema. All matching schema configurations will apply."""
 
-    suggest_person_single_token: bool = False
+    suggest_weak_alias_person_single_token: bool = False
     """
     If True, single-token Person names (after stripping name prefixes such as "Mr.")
     are suggested as weakAlias rather than name.
     """
 
-    suggest_uppercase_org_single_token_shorter_than: Optional[int] = None
+    suggest_abbreviation_uppercase_org_single_token_shorter_than: Optional[int] = None
     """
     If set, Organization names that are all-uppercase, contain no spaces, and are
     shorter than this threshold are suggested as abbreviation rather than name.
     """
 
-    suggest_non_person_single_token_shorter_than: Optional[int] = None
+    suggest_abbreviation_non_person_single_token_shorter_than: Optional[int] = None
     """
     If set, LegalEntity-but-not-Person names (i.e. companies, organisations, vessels, etc.)
     that are all-uppercase, contain no spaces, and are shorter than this threshold are

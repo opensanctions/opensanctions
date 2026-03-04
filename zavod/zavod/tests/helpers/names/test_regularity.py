@@ -58,8 +58,10 @@ def test_suggest_person_single_token(testdataset1: Dataset):
     assert not reg.is_irregular
 
 
-def test_suggest_uppercase_org_single_token_shorter_than(testdataset1: Dataset):
-    # testdataset1 has suggest_uppercase_org_single_token_shorter_than: 8
+def test_suggest_weak_alias_uppercase_org_single_token_shorter_than(
+    testdataset1: Dataset,
+):
+    # testdataset1 has suggest_abbreviation_uppercase_org_single_token_shorter_than: 8
     org_data = {"id": "doe", "schema": "Organization", "properties": {}}
     org = Entity(testdataset1, org_data)
 
@@ -81,8 +83,10 @@ def test_suggest_uppercase_org_single_token_shorter_than(testdataset1: Dataset):
     assert not reg.is_irregular
 
 
-def test_suggest_non_person_single_token_shorter_than(testdataset1: Dataset):
-    # testdataset1 has suggest_non_person_single_token_shorter_than: 5
+def test_suggest_abbreviation_non_person_single_token_shorter_than(
+    testdataset1: Dataset,
+):
+    # testdataset1 has suggest_abbreviation_non_person_single_token_shorter_than: 5
     # Plain LegalEntity (not Person, not Organization) is the primary target
     legal_data = {"id": "le", "schema": "LegalEntity", "properties": {}}
     legal = Entity(testdataset1, legal_data)
@@ -97,7 +101,8 @@ def test_suggest_non_person_single_token_shorter_than(testdataset1: Dataset):
     # Does NOT apply to Person
     reg = check_name_regularity(person, "ABCD")
     assert reg.is_irregular
-    assert reg.suggested_prop == "weakAlias"  # caught by suggest_person_single_token
+    # caught by suggest_weak_alias_person_single_token
+    assert reg.suggested_prop == "weakAlias"
 
     # At or above threshold -> not caught by this heuristic
     reg = check_name_regularity(legal, "ABCDE")  # len 5, not < 5
@@ -106,4 +111,3 @@ def test_suggest_non_person_single_token_shorter_than(testdataset1: Dataset):
     # Has lowercase -> not caught
     reg = check_name_regularity(legal, "Abcd")
     assert not reg.is_irregular
-    

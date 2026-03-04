@@ -287,18 +287,20 @@ def _check_suggesting_heuristics(
     #   }, ...]
 
     # Single token Person name (after stripping prefixes) -> weakAlias
-    if names_spec.suggest_person_single_token and entity.schema.is_a("Person"):
+    if names_spec.suggest_weak_alias_person_single_token and entity.schema.is_a(
+        "Person"
+    ):
         if _is_single_token(remove_person_prefixes(string)):
             return Regularity(is_irregular=True, suggested_prop="weakAlias")
 
     # Organization name shorter than threshold, all uppercase -> abbreviation
-    threshold = names_spec.suggest_uppercase_org_single_token_shorter_than
+    threshold = names_spec.suggest_abbreviation_uppercase_org_single_token_shorter_than
     if threshold is not None and entity.schema.is_a("Organization"):
         if _is_single_token(string) and len(string) < threshold and string.isupper():
             return Regularity(is_irregular=True, suggested_prop="abbreviation")
 
     # LegalEntity but not Person name shorter than threshold, all uppercase -> abbreviation
-    threshold = names_spec.suggest_non_person_single_token_shorter_than
+    threshold = names_spec.suggest_abbreviation_non_person_single_token_shorter_than
     if (
         threshold is not None
         and entity.schema.is_a("LegalEntity")

@@ -30,9 +30,9 @@ names:
     Company:
       reject_chars: ","
       allow_chars: "/"
-  suggest_person_single_token: true
-  suggest_uppercase_org_single_token_shorter_than: 8
-  suggest_non_person_single_token_shorter_than: 5
+  suggest_weak_alias_person_single_token: true
+  suggest_abbreviation_uppercase_org_single_token_shorter_than: 8
+  suggest_abbreviation_non_person_single_token_shorter_than: 5
 ```
 
 #### ::: zavod.meta.names.NamesSpec
