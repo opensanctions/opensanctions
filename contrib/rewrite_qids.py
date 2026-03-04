@@ -3,7 +3,7 @@ from functools import cache
 
 import click
 import requests
-from typing import List
+from typing import Set
 
 from rigour.ids.wikidata import is_qid
 from nomenklatura import settings as nk_settings
@@ -37,7 +37,7 @@ def map_qid(qid: str) -> str:
     return qid
 
 
-def rewrite_qids(qids: List[str]):
+def rewrite_qids(qids: Set[str]):
     """Process the provided QIDs."""
     nk_settings.DB_STMT_TIMEOUT = 84600 * 1000
     engine = get_engine()
@@ -54,6 +54,9 @@ def rewrite_qids(qids: List[str]):
     with engine.connect() as conn:
         # Update source and target columns in resolver table for each QID
         for qid in qids:
+            if not is_qid(qid):
+                log.warning(f"Skipping invalid QID: {qid}")
+                continue
             new_qid = map_qid(qid)
             if new_qid == qid:
                 log.info(f"No mapping found for {qid}, skipping.")
@@ -102,7 +105,7 @@ def rewrite_qids(qids: List[str]):
 def main(qids):
     """Rewrite QIDs. Accepts one or more QID arguments to process."""
     configure_logging()
-    rewrite_qids(list(qids))
+    rewrite_qids(set(qids))
 
 
 if __name__ == "__main__":
