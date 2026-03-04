@@ -20,7 +20,7 @@ def test_is_name_irregular(testdataset1: Dataset):
     # min_length
     assert is_name_irregular(org, "a")  # too short
     assert not is_name_irregular(org, "A a")  # long enough
-    # not too short because not modern alphabet
+    # not too short because min_length doesn't apply to dense scripts like Hangul for Korean
     assert not is_name_irregular(org, "벡셀")
     # single_token_min_length
     assert is_name_irregular(org, "Aaa")  # too short

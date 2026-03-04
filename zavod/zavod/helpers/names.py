@@ -8,7 +8,7 @@ from normality import squash_spaces
 from pydantic import JsonValue
 from rigour.names import contains_split_phrase
 from rigour.text import is_nullword
-from rigour.text.scripts import is_modern_alphabet
+from rigour.text.scripts import is_dense_script
 
 from zavod import settings
 from zavod.context import Context
@@ -258,13 +258,13 @@ class Regularity:
 
 
 def _is_single_token(string: str) -> bool:
-    """Use is_modern_alphabet as a proxy for "separates name parts using spaces"
+    """Use is_dense_script as a proxy for "separates name parts using spaces"
 
-    e.g. "ﺭﺿﺎﻋﻠﻲﺧﻤﻴﺲ"(Radaa Ali Khamis) and "김정은"(Kim Jong Un) don't have spaces
+    e.g. "김정은"(Kim Jong Un) doesn't have spaces
     and what we mean by single token in this context is "John" or "Foopie"
     """
 
-    if is_modern_alphabet(string):
+    if not is_dense_script(string):
         return " " not in string
     return False
 
@@ -305,7 +305,10 @@ def check_name_regularity(entity: Entity, string: Optional[str]) -> Regularity:
             return Regularity(is_irregular=True)
 
         # min length
-        if len(string) < spec.min_length:
+        # Dense scripts e.g. Han (习近平 for Xi Jinping) use much fewer code points
+        # ("characters") than latin, cyrilic etc. min_length is intended to catch
+        # unrealistically short names so dense scripts are exempted to avoid false positives.
+        if not is_dense_script(string) and len(string) < spec.min_length:
             return Regularity(is_irregular=True)
 
         # single token min length

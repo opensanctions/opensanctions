@@ -29,11 +29,13 @@ class CleaningSpec(BaseModel):
     Remember that characters defined for other matching schema specs will still apply.
     """
     min_length: int = 2
-    """Minimum length for names. Applies only to "modern" alphabets."""
+    """Minimum length for names. Does not apply to "dense" writing systems like Han for Chinese."""
     single_token_min_length: int = 2
-    """Minimum length for names with no spaces, i.e. a single token. Applies only to "modern" alphabets."""
+    """Minimum length for names with no spaces, i.e. a single token.
+    Does not apply to writing systems that don't use spaces to separate name parts, e.g. Han for Chinese"""
     require_space: bool = False
-    """Whether to require a space in the name. Applies only to "modern" alphabets."""
+    """Whether to require a space in the name.
+    Does not apply to writing systems that don't use spaces to separate name parts, e.g. Han for Chinese"""
     allow_nullwords: bool = False
 
     @cached_property
