@@ -2,6 +2,9 @@ import re
 from banal import is_listish, ensure_list
 from typing import Optional, List, Union, Iterable
 from normality import squash_spaces
+from zavod.logs import get_logger
+
+log = get_logger(__name__)
 
 PREFIX_ = r"INTERPOL-UN\s*Security\s*Council\s*Special\s*Notice\s*web\s*link:?"
 PREFIX = re.compile(PREFIX_, re.IGNORECASE)
@@ -57,6 +60,15 @@ def multi_split(
     if text is None:
         return []
     fragments = ensure_list(text)
+
+    # warn if subsequent splitters contain splitter
+    for i, splitter in enumerate(splitters):
+        for subsequent_splitter in list(splitters)[i + 1 :]:
+            if splitter in subsequent_splitter:
+                log.warning(
+                    f"Correct the splitters list for h.multisplit(): '{splitter}' is in a subsequent splitter: '{subsequent_splitter}'"
+                )
+
     for splitter in splitters:
         out: List[Optional[str]] = []
         for fragment in fragments:
