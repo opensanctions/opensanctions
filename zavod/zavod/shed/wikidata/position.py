@@ -261,4 +261,17 @@ def wikidata_occupancy(
         end_date=end_date,
         propagate_country=not is_diplomat,
     )
+
+    if occupancy is None:
+        return None
+
+    # reference URL:
+    for qual in claim.qualifiers.get("P854", []):
+        if qual.text is not None:
+            qual.text.apply(occupancy, "sourceUrl")
+    # electoral district:
+    for qual in claim.qualifiers.get("P768", []):
+        if qual.text is not None:
+            qual.text.apply(occupancy, "constituency")
+
     return occupancy
