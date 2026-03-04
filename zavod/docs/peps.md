@@ -21,6 +21,11 @@ In addition to capturing general information about PEPs, a PEP crawler must
 
 The [Position](https://www.opensanctions.org/reference/#schema.Position) `name` property should ideally capture the position and its jurisdiction, but be no more specific than that.
 
+!!! info "Supplying Wikidata QIDs"
+    Most political positions in the world already exist in Wikidata. If your crawler emits only
+    a small number of positions, it is best practice to look up the Wikidata QIDs for these
+    and supply them to the `h.make_position` helper so that reconciliation is automatic.
+
 ### Selecting a position name
 
 Do
@@ -150,6 +155,7 @@ for role in person_data.pop("roles"):
     position = h.make_position(
         context,
         f"Member of the {province} Legislature",
+        wikidata_id="Q....",
         country="us",
         subnational_area=province
     )
