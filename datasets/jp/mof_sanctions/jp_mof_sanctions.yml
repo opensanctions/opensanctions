@@ -106,7 +106,6 @@ lookups:
           - イラク前政権の機関、高官又はその関係者等 （Ⅱ．決議第1483号23(a)の対象となる団体）
           - コンゴ民主共和国に対する武器禁輸措置等に違反した者等（団体とその他のグループ）
           - イラク前政権の機関、高官又はその関係者等 （Ⅲ．決議第1483号23(b）の対象となる団体）
-          - 資産凍結等の措置の対象となるロシア連邦及びベラルーシ共和国以外の国の団体
           - 資産凍結等の措置の対象となるロシア連邦及びベラルーシ共和国以外の国・地域の団体
           - 資産凍結等の措置の対象となるロシア連邦及びベラルーシ共和国以外の国・地域の特定銀行
         contains:
@@ -139,9 +138,9 @@ lookups:
           - 確定に十分でない別名
         value: weak_alias
       - match:
-          - 日 本 語 表 記
+          - 日本語表記
         value: name_japanese
-      - match: 英 語 表 記
+      - match: 英語表記
         value: name_english
       - match:
           - 告示 番号
@@ -149,8 +148,9 @@ lookups:
         value: notification_number
       - match:
           - 別 名
-          - 別 称 ・ 別 名
+          - 別名・別称
           - 別称・旧称
+          - 別称・別名
           - 別称
           - 別名
         value: alias
@@ -172,14 +172,13 @@ lookups:
           - リ ス ト 掲 載 日
         value: publication_date
       - match:
-          - 住 所
           - 住所・所在地
           - 住 所 ・ 所 在 地
           - 住 所・所在地
           - 住所等  # residence, etc.
           - 住所  # residence
           # activity area - residence:
-          - 活 動 地 域 ・ 住 所
+          - 活動地域・住所
           - 所在地・住所 登録された事務所の住所
           - 所在地
         value: address
@@ -188,12 +187,12 @@ lookups:
         value: where
       - match:
           - 過去の別名
-          - 以 前 の 別 名
+          - 以前の別名
         value: past_alias
       - match:
           - 旧 称
           - 旧称
-          - 旧 称 ・ 以 前 の 呼 称
+          - 旧称・以前の呼称
         value: old_name
       - match:
           - 電話番号
@@ -203,12 +202,12 @@ lookups:
           - 生 年 月 日
           - 生年月日
           # w/ place:
-          - 生 年 月 日・出生地
+          - 生年月日・出生地
         value: birth_date
       - match:
           - 出 生 地
           - 出生地
-          - 出 生 地・出 身 地
+          - 出生地・出身地
         value: birth_place
       - match:
           - 国 籍
@@ -223,19 +222,18 @@ lookups:
           - 身分登録番号
         value: identification_number
       - match:
-          - I D 番 号
+          - ID番号
           - ＩＤ番号
           - 身分証番号
         value: id_number
       - match: 確定可能な別名
         value: known_alias
-      - match: 指 定 の 根 拠
+      - match: 指定の根拠
         # maybe means "reason"?
         value: root_nomination
       - match:
-          - 肩 書
-          - 肩 書 等
-          - 肩 書 等
+          - 肩書
+          - 肩書等
         # literally: shoulder book? facebook?
         value: position
       - match:
@@ -254,7 +252,7 @@ lookups:
         value: unsc_id
       - match: 決議1483上の根拠
         value: reason_res1483
-      - match: 詳 細
+      - match: 詳細
         value: details
       - match: 活 動 地 域
         value: activity_area
@@ -278,6 +276,7 @@ lookups:
           - シリア
           - ロシア
           - ケニア
+          - 英国
         prop: country
       - match: 支部： # branch:
         value: null
@@ -337,14 +336,12 @@ lookups:
           - "31"
           - 6月14
           - 7月10
-          - おおむね30～35歳
-          - ３月13
-          - ９月28
           - "1402-06-24"
           # "From the forged passport"
-          - （偽造旅券より）
+          - 偽造旅券より
           # "Hijiri calendar"
           - "（ヒジュラ暦）"
+          - ヒジュラ暦
           - "の間"
           - "から"
           - "10月17"
@@ -393,8 +390,6 @@ lookups:
           - 、3月24
           - 訂
         value: null
-      - match: Born on 10 July 1942
-        value: "1942-07-10"
       - match: Born at Ravni, Republic of Serbia, on 1 June 1941
         value: "1941-06-01"
       # Ravni, Republic of Serbia
@@ -411,13 +406,9 @@ lookups:
         values:
           - 1977-08
           - 1977-09
-      - match: Born at Bor, Republic of Serbia, on 7 December 1948
-        value: "1948-12-07"
       # Bor, Republic of Serbia
       - match: セルビア共和国ボル
         value: null
-      - match: Born on 2 July 1974
-        value: "1974-07-02"
       - match: 60年
         value: "1960"
       - match: "2007.713"
@@ -426,8 +417,6 @@ lookups:
         values:
           - 1983-02-10
           - 1983-03-10
-      - match: Born at Belgrade, Republic of Serbia, on 19 December 1942
-        value: "1942-12-19"
       # Belgrade, Republic of Serbia
       - match: セルビア共和国ベオグラード
         value: null
@@ -543,10 +532,6 @@ lookups:
         values:
           - 1958
           - 1964
-      - match: "ヒジュラ暦"
-        value: null
-      - match: "偽造旅券より"
-        value: null
       - match: "1968年から1970年の間"
         values:
           - 1968
@@ -611,15 +596,13 @@ lookups:
         value: 4117921
       - match: クウェート国民ID番号（Kuwaiti Civil Identification number） 281020505755 （Said Jan 'Abd al-Salamの名義）
         value: 281020505755
-      - match: =サウジアラビア旅券　F654645（2005年4月30日発行、2010年3月7日失効、ヒジュラ暦では、1426年6月24日発行、1431年3月21日失効）
+      - match: サウジアラビア旅券 F654645（2005年4月30日発行、2010年3月7日失効、ヒジュラ暦では、1426年6月24日発行、1431年3月21日失効）
         value: F654645
       - match: パキスタン旅券 FA0157612（2009年7月23日発行、2014年7月22日失効、2013年時点で公式に失効措置済み。アラー・ムハンマドの名義で発行されている）
         value: FA0157612
-      - match: アフガニスタン国民IDカード（tazkira）番号 57388（Lashkar Gah District, Helmand Province, Afghanistanにて発行
-        value: 57388
       - match: パキスタン旅券 NC5140251 （2009年10月23日発行、2014年10月22日失効、2013年時点で公式に失効措置済み）
         value: NC5140251
-      - match: フランス旅券05AT521433（2005年11月30日Sous-Prefecture of police of Lorient, Franceにより発行)
+      - match: フランス旅券05AT521433（2005年11月30日Sous-Prefecture of police of Lorient, Franceにより発行）
         value: 05AT521433
       - match: フランス国民IDカード番号050456101445（2005年5月19日Sous-Prefecture of police of Lorient, Franceにより発行）
         value: 050456101445
@@ -633,10 +616,6 @@ lookups:
         value: TA959547
       - match: トリニダード・トバゴ旅券番号T1071839、2004年11月8日発行（トリニダード・トバゴ入国管理部門発行、2014年11月7日失効）
         value: T1071839
-      - match: イラク番号 A6489694、2013年9月2日発行（2021年8月31日失効；氏名のアラビア語表記：منصور ال محمد مصطفى سالم）
-        value: A6489694
-      - match: イラク国民ＩＤカード番号00813602、2011年9月18日発行（氏名のアラビア語表記：منصور ال محمد مصطفى سالم）
-        value: 00813602
       - match: イラク国民ＩＤカード番号00405771、2013年5月20日にイラクにて発行（氏名のアラビア語表記：عمر محمود إرحيم الفياض）
         value: 00405771
       - match: 199110092、旅券失効日：2014年3月17日（北朝鮮旅券）；472220503、旅券失効日：2018年6月6日（北朝鮮旅券）；654220197、旅券失効日：2019年5月7日（北朝鮮旅券）
@@ -652,18 +631,10 @@ lookups:
         value: D00002264
       - match: Ｐ04838205（2018年6月10日発行（スーダン共和国バフリで発行。2023年6月9日に失効。旅券番号はモハメド・アダム・ブレマ・アブダラ（Mohamed Adam Brema Abdallah）の名義で発行。）。）
         value: P04838205
-      - match: イエメン旅券17979(Ahmed Ali Abdullah Saleh名義)（下記の外交官身分証明書番号31/2013/20/003140に言及あり。）
-        values:
-          - 17979
-          - 31/2013/20/003140
       - match: アフガニスタン旅券 OR801168 （Said Jan ‘Abd al-Salamの名義で2006年2月28日に発行、2011年2月27日に失効）
         value: OR801168
-      - match: サウジアラビア旅券 F654645（2005年4月30日発行、2010年3月7日失効、ヒジュラ暦では、1426年6月24日発行、1431年3月21日失効）
-        value: F654645
       - match: アフガニスタン国民IDカード（tazkira）番号 57388（Lashkar Gah District, Helmand Province, Afghanistanにて発行）
         value: 57388
-      - match: フランス旅券05AT521433（2005年11月30日Sous-Prefecture of police of Lorient, Franceにより発行）
-        value: 05AT521433
       - match: 旅券番号：927234267；108120258（北朝鮮旅券）、旅券発行日：2018年2月14日、旅券失効日：2023年2月14日
         values:
           - 927234267
