@@ -68,7 +68,7 @@ def publish_dataset(dataset: Dataset, latest: bool = True) -> None:
     _archive_artifacts(dataset)
 
 
-def publish_failure(dataset: Dataset, latest: bool = True) -> None:
+def archive_failure(dataset: Dataset, latest: bool = True) -> None:
     """Upload failure information about a dataset to the archive."""
     # Collections currently should never call publish_failure (as that only gets called for crawl and validate).
     # But if they ever did (for example to publish a failure in the export stage), we should think very well about
@@ -94,7 +94,6 @@ def publish_failure(dataset: Dataset, latest: bool = True) -> None:
     if not path.is_file():
         log.error("Metadata file not found: %s" % path, dataset=dataset.name)
         return
-    publish_resource(path, dataset.name, INDEX_FILE, latest=latest, mime_type=JSON)
     _archive_artifacts(dataset)
     dataset_resource_path(dataset.name, RESOURCES_FILE).unlink(missing_ok=True)
     dataset_resource_path(dataset.name, VERSIONS_FILE).unlink(missing_ok=True)

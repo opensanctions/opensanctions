@@ -25,7 +25,7 @@ from zavod.logs import (
     set_logging_context_dataset_name,
 )
 from zavod.meta import load_dataset_from_path, get_multi_dataset, Dataset
-from zavod.publish import publish_dataset, publish_failure
+from zavod.publish import publish_dataset, archive_failure
 from zavod.runtime.versions import make_version
 from zavod.stateful.model import create_db
 from zavod.store import get_store
@@ -166,14 +166,14 @@ def run(
 
     if dataset.model.disabled:
         log.info("Dataset is disabled, skipping: %s" % dataset.name)
-        publish_failure(dataset, latest=latest)
+        archive_failure(dataset, latest=latest)
         sys.exit(0)
     # crawl if it's a dataset, just create a new version if it's a collection
     if dataset.model.entry_point is not None and not dataset.is_collection:
         try:
             crawl_dataset(dataset, dry_run=False)
         except RunFailedException:
-            publish_failure(dataset, latest=latest)
+            archive_failure(dataset, latest=latest)
             sys.exit(1)
     else:
         # crawl_dataset -> Context.begin does this in the case above
@@ -189,7 +189,7 @@ def run(
             validate_dataset(dataset, view)
     except Exception:
         log.exception("Validation failed for %r" % dataset.name)
-        publish_failure(dataset, latest=latest)
+        archive_failure(dataset, latest=latest)
         store.close()
         sys.exit(1)
     # Export and Publish
