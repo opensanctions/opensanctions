@@ -39,6 +39,7 @@ dependencies = [
     "openai >= 1.33.0, < 3.0.0",
     "requests[security]",
     "requests_oauthlib",
+    "urllib3>=2.0",
     "sqlalchemy[mypy]",
     "structlog",
     "xlrd == 2.0.2",
