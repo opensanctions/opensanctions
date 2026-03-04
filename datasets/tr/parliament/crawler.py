@@ -44,7 +44,9 @@ def crawl_birth_year_place(context: Context, url: str) -> tuple[str | None, str 
         actions=UNBLOCK_ACTIONS,
         javascript=True,
         absolute_links=True,
-        cache_days=1,
+        # Cache disabled because their bot blocking includes regularly-changing UUIDs in the URL
+        # making caching fairly futile.
+        cache_days=None,
     )
 
     # Pick the first element under the span in the profile free text section
@@ -87,8 +89,6 @@ def crawl_item(context: Context, item: etree):
     entity.add("political", party)
 
     birth_year, birth_place = crawl_birth_year_place(context, deputy_url)
-    entity.add("birthDate", birth_year)
-    entity.add("birthPlace", birth_place)
 
     position = h.make_position(
         context, "Member of the Grand National Assembly", country="tr"
@@ -116,8 +116,7 @@ def crawl_item(context: Context, item: etree):
         context.emit(entity)
         context.emit(position)
         context.emit(occupancy)
-        if birth_year is not None and birth_place is not None:
-            context.emit(entity_temp, external=True)
+        context.emit(entity_temp, external=True)
 
 
 def crawl(context: Context):
