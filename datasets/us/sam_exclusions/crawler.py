@@ -279,6 +279,7 @@ def crawl(context: Context) -> None:
         sanction.add("authorityId", sam_number)
         sanction.add("program", row.pop("Exclusion Program"))
         sanction.add("provisions", row.pop("Exclusion Type"))
+        sanction.add("status", row.pop("Record Status"))
         h.apply_date(sanction, "listingDate", creation_date)
         h.apply_date(sanction, "startDate", parse_date(row.pop("Active Date")))
         h.apply_date(sanction, "endDate", parse_date(row.pop("Termination Date")))
