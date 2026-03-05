@@ -20,7 +20,11 @@ SPECIAL_CASE_URL = (
 FIRST_CODE_RE = re.compile(
     r"\b(?:No\s+)?(\d{1,4}/\d{1,4})(?:/[A-Z]{2,5})?\b", re.IGNORECASE
 )
-CHECK_CONSOLIDATED_DATE = h.backdate(datetime.now(), timedelta(days=14))
+# Yesterday 2026-03-05, https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32024D1484
+# still showed https://eur-lex.europa.eu/legal-content/EN/AUTO/?uri=CELEX:02024D1484-20251120
+# as latest instead of https://eur-lex.europa.eu/legal-content/EN/AUTO/?uri=CELEX:02024D1484-20251222
+# (See timestamp at the end of each URL)
+CHECK_CONSOLIDATED_DATE = h.backdate(datetime.now(), timedelta(days=90))
 
 GC_ROWS = []
 
@@ -74,14 +78,7 @@ def wait_for_xpath_actions(xpath: str) -> list[dict[str, str | int]]:
 
 @cache
 def get_consolidated_url(context: Context, source_url: str) -> str | None:
-    """Given a EUR-Lex source URL for an amendment, return the URL of its consolidated version.
-
-    Two-step process:
-    1. Fetch the /ALL/ relations page and find what the amendment modifies via
-       the #relatedDocsTbMS table (same table used by fetch_updates.get_original_celex).
-    2. Fetch the original act's /TXT/ page and follow the
-       "Current consolidated version" link.
-    """
+    """Given a EUR-Lex source URL for an amendment, return the URL of its consolidated version."""
     eurlex_actions = [
         {
             "action": "waitForSelector",
@@ -117,7 +114,8 @@ def get_consolidated_url(context: Context, source_url: str) -> str | None:
         )
         return None
 
-    # Step 2: fetch the original act page and follow "Current consolidated version"
+    # Step 2: fetch the original act page and find the latest consolidated version
+    # from the #consLegVersions nav. The current/latest entry has class "current active".
     original_url = (
         f"https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:{original_celex}"
     )
@@ -125,15 +123,16 @@ def get_consolidated_url(context: Context, source_url: str) -> str | None:
         context,
         original_url,
         eurlex_validator,
-        cache_days=30,
+        cache_days=1,
         actions=eurlex_actions,
         absolute_links=True,
     )
-    for para in orig_doc.xpath(".//p[contains(., 'Current consolidated version')]"):
-        for link in para.findall(".//a"):
-            href = link.get("href")
-            if href:
-                return href
+    for link in orig_doc.xpath(".//div[@id='consLegVersions']//a"):
+        # Just take the first one since they seem to be ordered by descending date
+        # and they don't always have the 'active' class.
+        href = link.get("href")
+        if href:
+            return href
 
     context.log.warning(
         "Could not find consolidated version link on original act page",
