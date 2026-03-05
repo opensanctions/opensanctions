@@ -1,0 +1,114 @@
+title: Tunisia National Counter-Terrorism List
+prefix: tn-cnlct
+entry_point: crawler.py
+coverage:
+  frequency: weekly
+  start: "2026-03-05"
+load_statements: true
+ci_test: false
+summary: >
+  National list of persons, organizations and entities linked to terrorist offences in Tunisia,
+  published by the National Commission for Combating Terrorism (CNLCT).
+description: |
+  The National List of Persons, Organizations and Entities Linked to Terrorist Crimes is
+  published by the National Commission for Combating Terrorism (CNLCT) of Tunisia under
+  Law No. 2015-26 of August 7, 2015 on counter-terrorism and the prevention of money
+  laundering. Listed individuals and entities are subject to asset freezing.
+url: http://www.cnlct.tn/?page_id=2559
+publisher:
+  name: اللجنة الوطنية لمكافحة الإرهاب
+  name_en: National Commission for Combating Terrorism
+  acronym: CNLCT
+  description: >
+    The National Commission for Combating Terrorism (CNLCT) is a Tunisian government
+    body responsible for implementing the national counter-terrorism strategy, including
+    the designation and publication of the national terrorist list.
+  url: http://www.cnlct.tn/
+  country: tn
+  official: true
+data:
+  url: http://www.cnlct.tn/?page_id=2559
+  format: HTML
+  lang: ara
+
+dates:
+  formats:
+    - "%Y/%m/%d"
+    - "%d/%m/%Y"
+    - "%d %B %Y"
+  months:
+    january: جانفي
+    february: فيفري
+    march: مارس
+    april: أفريل
+    may: ماي
+    june: جوان
+    july: جويلية
+    august: أوت
+    september: سبتمبر
+    october: أكتوبر
+    november: نوفمبر
+    december: ديسمبر
+
+tags:
+  - list.sanction
+
+assertions:
+  min:
+    schema_entities:
+      Person: 100
+      Organization: 5
+  max:
+    schema_entities:
+      Person: 400
+      Organization: 60
+
+lookups:
+  columns:
+    options:
+      - match: م/ع
+        value: seq_num
+      - match: الإسم الثلاثي
+        value: full_name
+      - match: اللقب
+        value: surname
+      - match: تاريخ الولادة ومكانها
+        value: dob_place
+      - match: العنوان
+        value: address
+      - match: الجنسية
+        value: nationality
+      - match: مبررات الإدراج
+        value: reason
+      - match: قرار وتاريخ الإدراج
+        value: decision
+      - match: آخر تعديل
+        value: last_modified
+      - match: تاريخ وساعة النشر بموقع اللجنة
+        value: pub_date
+      - match: معطيات إضافية
+        value: extra
+
+  type.country:
+    lowercase: true
+    options:
+      - match: تونسية
+        value: tn
+      - match: تونسي
+        value: tn
+      - match: إيطالية
+        value: it
+      - match: مغربية
+        value: ma
+      - match: تونسية/بلجيكية
+        values:
+          - tn
+          - be
+      - match: تونسية/إيرلندية
+        values:
+          - tn
+          - ie
+      - match: تونسية/فرنسية
+        values:
+          - tn
+          - fr
