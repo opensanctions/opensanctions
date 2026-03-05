@@ -9,10 +9,15 @@ from zavod import Context
 from zavod import helpers as h
 
 
-def crawl_item(row: Dict[str, str], context: Context):
+EXCEL_FILENAME = "PI0008-PM%20Monthly%20Exclusion%20Report.xlsx"
+BASE_URL = "https://mainecare.maine.gov/PrvExclRpt"
+
+
+def crawl_item(row: Dict[str, str | None], context: Context) -> None:
     if first_name := row.pop("provider_first_name"):
         last_name = row.pop("provider_last_name")
         middle_initial = row.pop("provider_mi")
+        position = row.pop("provider_type")
 
         entity = context.make("Person")
         entity.id = context.make_id(first_name, last_name, middle_initial)
@@ -22,7 +27,8 @@ def crawl_item(row: Dict[str, str], context: Context):
             last_name=last_name,
             middle_name=middle_initial,
         )
-        entity.add("position", row.pop("provider_type"))
+        if position and position.lower() != "other":
+            entity.add("position", position)
     else:
         last_name = row.pop("provider_last_name")
         entity = context.make("Company")
@@ -74,21 +80,17 @@ def crawl_item(row: Dict[str, str], context: Context):
     context.audit_data(row)
 
 
-def crawl_excel_url(context: Context):
+def crawl_excel_url(context: Context) -> str:
     _, _, _, txt = zyte_api.fetch_text(context, context.data_url, geolocation="us")
     # Parse out the table data JSON embedded in the HTML
-    table_json = txt[txt.find("WPQ2ListData") + 15 : txt.find("WPQ2SchemaData") - 5]
-    context.log.debug("table json", json=table_json)
-    table_data = json.loads(table_json)
+    start = txt.find("WPQ2ListData") + 15
+    end = txt.find("WPQ2SchemaData") - 5
+    assert 15 < start < end, "Table data markers not found in page"
+    rows = json.loads(txt[start:end])["Row"]
     # Assert that the table is in descending date order (using ID as proxy for date)
-    last_id = None
-    for row in table_data["Row"]:
-        assert last_id is None or last_id > row["ID"], last_id
-        last_id = row["ID"]
+    assert all(a["ID"] > b["ID"] for a, b in zip(rows, rows[1:])), "Not sorted desc"
     # Pick the first item, assuming the table is sorted in descending date order
-    month_year_directory = table_data["Row"][0]["FileLeafRef"]
-    # Construct URL - the filename seems to be the same each month
-    return f"https://mainecare.maine.gov/PrvExclRpt/{month_year_directory}/PI0008-PM%20Monthly%20Exclusion%20Report.xlsx"
+    return f"{BASE_URL}/{rows[0]['FileLeafRef']}/{EXCEL_FILENAME}"
 
 
 def crawl(context: Context) -> None:
@@ -98,16 +100,12 @@ def crawl(context: Context) -> None:
         context, filename="list.xlsx", url=excel_url, geolocation="us"
     )
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
-
     wb = load_workbook(path, read_only=True)
-
     sheet_names = wb.sheetnames
-
+    assert wb.active is not None, "No active sheet found"
     for item in h.parse_xlsx_sheet(context, wb.active, skiprows=26):
         crawl_item(item, context)
-
     sheet_names.remove(wb.active.title)
-
     for sheet_name in sheet_names:
         sheet = wb[sheet_name]
         if not (sheet.max_row == 1 and sheet.max_column == 1 and not sheet["A1"].value):
