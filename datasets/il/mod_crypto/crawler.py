@@ -1,6 +1,7 @@
 import csv
 from pathlib import Path
-from typing import Dict
+from typing import Dict, cast
+from lxml.html import HtmlElement
 
 from normality import squash_spaces
 from rigour.text.scripts import is_latin
@@ -66,31 +67,32 @@ ID_FIELDS = [("id_no", "id_country"), ("residency_no", "residency_country")]
 LOCAL_PATH = Path(__file__).parent
 
 
-def remove_zero_width_space(row):
+def remove_zero_width_space(row: Dict[str, str]) -> Dict[str, str]:
     return {
         k: (v.replace("\u200b", "") if isinstance(v, str) else v)
         for k, v in row.items()
     }
 
 
-def normalize_address(addr):
-    return "".join(HOMOGLYPHS.get(c, c) for c in addr)
+def normalize_address(addr: str) -> str:
+    return "".join(HOMOGLYPHS.get(c) or c for c in addr)
 
 
-def write_csv_for_manual_diff(table, path):
+def write_csv_for_manual_diff(table: HtmlElement, path: Path) -> None:
     with open(path, "w") as f:
         writer = csv.writer(f)
         for row in table.findall(".//tr"):
             cells = [
-                squash_spaces(c.text_content())
-                for c in row.xpath(".//*[self::td or self::th]")
+                squash_spaces(cast(HtmlElement, c).text_content())
+                for c in h.xpath_elements(row, ".//*[self::td or self::th]")
             ]
             writer.writerow(cells)
 
 
-def crawl_csv_row(context: Context, row: Dict[str, str]):
+def crawl_csv_row(context: Context, row: Dict[str, str]) -> None:
     person = None
     entity = None
+    country = None
     wallets = []
 
     # --- Person ---
@@ -193,11 +195,12 @@ def crawl_csv_row(context: Context, row: Dict[str, str]):
     context.audit_data(row)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     # Get a warning when a notice has been issued
     content_xpath = ".//main"
-    doc = fetch_html(context, context.dataset.model.url, content_xpath, cache_days=1)
-    container = doc.xpath(content_xpath)[0]
+    assert context.dataset.url
+    doc = fetch_html(context, context.dataset.url, content_xpath, cache_days=1)
+    container = h.xpath_element(doc, content_xpath)
     # Write a CSV snapshot to check the diff manually (git diff).
     # Review for any new releases or persons/wallets added.
     # The key things to check are
@@ -206,13 +209,12 @@ def crawl(context: Context):
     # If updated, reflect changes in the Google Sheet and commit the new CSV:
     # git add -f datasets/il/mod_crypto/releases.csv
     # git add -f datasets/il/mod_crypto/wallets.csv
-    tables = container.xpath('//table[@class="ms-rteTable-4"]')
-    if len(tables) != 2:
-        context.log.warning(f"Expected 2 tables, found {len(tables)}")
-
+    tables = h.xpath_elements(
+        container, '//table[@class="ms-rteTable-4"]', expect_exactly=2
+    )
     write_csv_for_manual_diff(tables[0], LOCAL_PATH / "releases.csv")
     write_csv_for_manual_diff(tables[1], LOCAL_PATH / "wallets.csv")
-    h.assert_dom_hash(container, "266e555f46e26c8d5ae8efee429ed8657c52be88")
+    h.assert_dom_hash(container, "267b571bc14dbf4e2120121366b6239b03c0eae6")
 
     # At the time of writing, the table on the web page is missing some public keys,
     # so we maintain the data manually in a google sheet, but dump the table to csv
