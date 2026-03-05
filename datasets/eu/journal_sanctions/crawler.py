@@ -1,8 +1,9 @@
 import csv
 import re
 from functools import cache
-from normality import normalize, squash_spaces
+from datetime import timedelta, datetime
 
+from normality import normalize, squash_spaces
 from nomenklatura.resolver import Linker
 from rigour.ids.ogrn import OGRN
 
@@ -19,6 +20,7 @@ SPECIAL_CASE_URL = (
 FIRST_CODE_RE = re.compile(
     r"\b(?:No\s+)?(\d{1,4}/\d{1,4})(?:/[A-Z]{2,5})?\b", re.IGNORECASE
 )
+CHECK_CONSOLIDATED_DATE = h.backdate(datetime.now(), timedelta(days=14))
 
 GC_ROWS = []
 
@@ -94,7 +96,7 @@ def get_consolidated_url(context: Context, source_url: str) -> str | None:
         context,
         all_url,
         eurlex_validator,
-        cache_days=90,
+        cache_days=1,
         actions=eurlex_actions,
         absolute_links=True,
     )
@@ -127,7 +129,7 @@ def get_consolidated_url(context: Context, source_url: str) -> str | None:
         actions=eurlex_actions,
         absolute_links=True,
     )
-    for para in orig_doc.xpath(".//p[contains(., 'consolidated version')]"):
+    for para in orig_doc.xpath(".//p[contains(., 'Current consolidated version')]"):
         for link in para.findall(".//a"):
             href = link.get("href")
             if href:
@@ -154,7 +156,7 @@ def get_consolidated_text(context: Context, consolidated_url: str) -> str | None
         consolidated_url,
         regulation_xpath,
         actions=wait_for_xpath_actions(regulation_xpath),
-        cache_days=30,
+        cache_days=7,
     )
     regulation_div = doc.xpath(regulation_xpath)
     if not regulation_div:
@@ -176,7 +178,7 @@ def _law_ascii(context: Context, consolidated_url: str) -> str | None:
 
 
 def check_in_consolidated_act_text(
-    context: Context, names: list[str], row_id: str, source_url: str
+    context: Context, start_date: str, names: list[str], row_id: str, source_url: str
 ) -> None:
     """Warn if any name in `names` is absent from the consolidated regulation text.
 
@@ -186,6 +188,12 @@ def check_in_consolidated_act_text(
     asciifying (folds visually similar diacritics like Ş/Ș). Logs at info level
     if only the ascii round finds the name, so the source data can be corrected.
     """
+    start_date_parsed = h.extract_date(context.dataset, start_date)
+    if len(start_date_parsed) == 0 or CHECK_CONSOLIDATED_DATE < start_date_parsed[0]:
+        # Don't bother checking recent entries since the consolidated text
+        # may not have been updated yet.
+        return
+
     consolidated_url = get_consolidated_url(context, source_url)
     if consolidated_url is None:
         return
@@ -193,9 +201,7 @@ def check_in_consolidated_act_text(
     if consolidated_act_text is None:
         return
     for name in names:
-        name = name.strip()
-        if not name:
-            continue
+        name = context.lookup_value("garbage_collect_original_name", name, default=name)
         norm_name = normalize(name)
         if norm_name is not None and norm_name in consolidated_act_text:
             continue
@@ -220,6 +226,7 @@ def check_in_consolidated_act_text(
                 row_id=row_id,
                 source_url=source_url,
                 consolidated_url=consolidated_url,
+                start_date=start_date,
             )
 
 
@@ -228,7 +235,8 @@ def crawl_unconsolidated_row(
 ) -> None:
     """Process one row of the CSV data
 
-    Unconsolidated between EU Journal and XML, not in the consolidated legislation sense."""
+    Unconsolidated between EU Journal and XML, not in the consolidated legislation sense.
+    """
     row_id = row.pop("List ID").strip(" \t.")
     entity_type = row.pop("Type").strip()
     name = row.pop("Name").strip()
@@ -242,8 +250,9 @@ def crawl_unconsolidated_row(
     entity.id = context.make_id(row_id, name, country)
     context.log.debug(f"Unique ID {entity.id}")
 
+    start_date = row.pop("startDate")
     names = h.multi_split(name, ";")
-    check_in_consolidated_act_text(context, names, row_id, source_url)
+    check_in_consolidated_act_text(context, start_date, names, row_id, source_url)
 
     canonical_id = linker.get_canonical(entity.id)
     for other_id in linker.get_referents(canonical_id):
@@ -326,7 +335,6 @@ def crawl_unconsolidated_row(
         key=program_code,
         program_key=h.lookup_sanction_program_key(context, program_code),
     )
-    start_date = row.pop("startDate")
     h.apply_date(sanction, "startDate", start_date)
     entity.add("topics", "sanction")
 
