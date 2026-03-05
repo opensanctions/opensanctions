@@ -1,7 +1,7 @@
 import re
 from typing import Any
 
-from normality import collapse_spaces
+from normality import squash_spaces
 from openpyxl import load_workbook
 from rigour.mime.types import XLSX
 
@@ -25,19 +25,17 @@ def crawl_row(context: Context, row: dict[str, Any]) -> None:
     seq_num = row.pop("seq_num")
     if seq_num is None:
         return
-    full_name = collapse_spaces(row.pop("full_name") or "")
-    surname = collapse_spaces(row.pop("surname") or "")
+    full_name = squash_spaces(row.pop("full_name") or "")
+    surname = squash_spaces(row.pop("surname") or "")
     dob_place = row.pop("dob_place")
-    address = collapse_spaces(row.pop("address") or "")
+    address = squash_spaces(row.pop("address") or "")
     nationality = row.pop("nationality")
-    reason = row.pop("reason")
-    decision = collapse_spaces(row.pop("decision") or "")
-    last_modified = collapse_spaces(row.pop("last_modified") or "")
-    row.pop("pub_date")
+
+    last_modified = squash_spaces(row.pop("last_modified") or "")
     row.pop("extra")
 
     # Determine entity type: Person if DOB field is present, Organization otherwise
-    is_person = dob_place is not None
+    is_person = dob_place is not None and len(str(dob_place))
 
     if is_person:
         entity = context.make("Person")
@@ -71,12 +69,14 @@ def crawl_row(context: Context, row: dict[str, Any]) -> None:
     else:
         name = " ".join(p for p in [full_name, surname] if p)
         entity.add("name", name)
+        entity.add("country", nationality)
 
     sanction = h.make_sanction(context, entity)
-    sanction.add("reason", reason)
+    sanction.add("reason", row.pop("reason"))
 
+    decision = squash_spaces(row.pop("decision") or "")
     # Authority IDs from listing decision(s)
-    if decision:
+    if len(decision):
         for m in DECISION_NUM_RE.finditer(decision):
             sanction.add("authorityId", f"{m.group(1)}/{m.group(2)}")
         listing_dates = extract_decision_dates(decision)
@@ -84,14 +84,14 @@ def crawl_row(context: Context, row: dict[str, Any]) -> None:
             h.apply_date(sanction, "listingDate", listing_dates[0])
 
     # Last modification date
-    if last_modified:
+    if len(last_modified):
         mod_dates = extract_decision_dates(last_modified)
         if mod_dates:
             h.apply_date(sanction, "modifiedAt", mod_dates[0])
 
     context.emit(entity)
     context.emit(sanction)
-    context.audit_data(row)
+    context.audit_data(row, ignore=["pub_date", "extra"])
 
 
 def crawl(context: Context) -> None:
@@ -104,6 +104,7 @@ def crawl(context: Context) -> None:
         if not href.lower().endswith(".xlsx"):
             continue
         filename = href.rsplit("/", 1)[-1]
+        # Skip if filename contains "تحيين" (update) or "حذف" (deletion): not full lists
         if "تحيين" in filename or "حذف" in filename:
             continue
         data_url = href
