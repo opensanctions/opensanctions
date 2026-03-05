@@ -15,6 +15,8 @@ description: |
   Law No. 2015-26 of August 7, 2015 on counter-terrorism and the prevention of money
   laundering. Listed individuals and entities are subject to asset freezing.
 url: http://www.cnlct.tn/?page_id=2559
+tags:
+  - list.sanction
 publisher:
   name: اللجنة الوطنية لمكافحة الإرهاب
   name_en: National Commission for Combating Terrorism
@@ -49,9 +51,6 @@ dates:
     october: أكتوبر
     november: نوفمبر
     december: ديسمبر
-
-tags:
-  - list.sanction
 
 assertions:
   min:
