@@ -1,6 +1,7 @@
 import csv
 from pathlib import Path
-from typing import Dict
+from typing import Dict, cast
+from lxml.html import HtmlElement
 
 from normality import squash_spaces
 from rigour.text.scripts import is_latin
@@ -77,13 +78,13 @@ def normalize_address(addr: str) -> str:
     return "".join(HOMOGLYPHS.get(c) or c for c in addr)
 
 
-def write_csv_for_manual_diff(table, path: Path) -> None:
+def write_csv_for_manual_diff(table: HtmlElement, path: Path) -> None:
     with open(path, "w") as f:
         writer = csv.writer(f)
         for row in table.findall(".//tr"):
             cells = [
-                squash_spaces(c.text_content())
-                for c in row.xpath(".//*[self::td or self::th]")
+                squash_spaces(cast(HtmlElement, c).text_content())
+                for c in h.xpath_elements(row, ".//*[self::td or self::th]")
             ]
             writer.writerow(cells)
 
