@@ -1,6 +1,6 @@
 import csv
 import re
-from functools import cache, lru_cache
+from functools import cache
 from typing import Dict
 from normality import squash_spaces
 
@@ -16,11 +16,6 @@ from zavod import Context, Entity, helpers as h
 SPECIAL_CASE_URL = (
     "https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:02014R0833-20240625"
 )
-CONSOLIDATED_LATEST = [
-    "https://eur-lex.europa.eu/eli/reg/2014/833",
-    "https://eur-lex.europa.eu/eli/dec/2014/512",
-    "https://eur-lex.europa.eu/eli/reg/2024/2642",
-]
 # year/number or number/year with optional suffix
 FIRST_CODE_RE = re.compile(
     r"\b(?:No\s+)?(\d{1,4}/\d{1,4})(?:/[A-Z]{2,5})?\b", re.IGNORECASE
@@ -76,53 +71,113 @@ def wait_for_xpath_actions(xpath: str) -> list[Dict[str, str | int]]:
     ]
 
 
-@lru_cache(maxsize=1)
-def get_regulation_text(context: Context):
-    """Fetch and normalize the text content of the full regulations."""
+@cache
+def get_consolidated_url(context: Context, source_url: str) -> str | None:
+    """Given a EUR-Lex source URL for an amendment, return the URL of its consolidated version.
 
-    regulation_xpath = ".//div[@id='PP4Contents']"
-    consolidated_search_xpath = (
-        ".//div[@class='SearchResult']//a[contains(text(), 'Consolidated text')]"
+    Two-step process:
+    1. Fetch the /ALL/ relations page and find what the amendment modifies via
+       the #relatedDocsTbMS table (same table used by fetch_updates.get_original_celex).
+    2. Fetch the original act's /TXT/ page and follow the
+       "Current consolidated version" link.
+    """
+    eurlex_actions = [
+        {
+            "action": "waitForSelector",
+            "selector": {"type": "css", "value": ".EurlexContent"},
+        }
+    ]
+    eurlex_validator = './/div[@class="EurlexContent"]'
+
+    # Step 1: find what this amendment modifies
+    all_url = source_url.replace("/TXT/", "/ALL/")
+    doc = fetch_html(
+        context,
+        all_url,
+        eurlex_validator,
+        cache_days=90,
+        actions=eurlex_actions,
+        absolute_links=True,
     )
-    unblock_validator = f"{regulation_xpath} | {consolidated_search_xpath}"
-    unblock_actions = wait_for_xpath_actions(unblock_validator)
+    original_celex: str | None = None
+    for table in doc.xpath(".//table[@id='relatedDocsTbMS']"):
+        for row in h.parse_html_table(table):
+            row_strs = h.cells_to_str(row)
+            if row_strs.get("relation") in ("Modifies", "Extended validity"):
+                original_celex = row_strs.get("act")
+                break
+        if original_celex:
+            break
 
-    all_texts = []
-    for link in CONSOLIDATED_LATEST:
-        doc = fetch_html(
-            context,
-            link,
-            unblock_validator,
-            actions=unblock_actions,
-            absolute_links=True,
+    if not original_celex:
+        context.log.warning(
+            "Could not find original act in amendment relations table",
+            source_url=source_url,
         )
-        consolidated_search_results = doc.xpath(consolidated_search_xpath)
-        if consolidated_search_results:
-            if len(consolidated_search_results) > 1:
-                context.log.warning(
-                    "Multiple consolidated search results found, using the first one",
-                    url=link,
-                    count=len(consolidated_search_results),
-                )
-            context.log.info(
-                "Found consolidated search result, following link", url=link
-            )
-            doc = fetch_html(
-                context,
-                consolidated_search_results[0].get("href"),
-                regulation_xpath,
-                actions=wait_for_xpath_actions(regulation_xpath),
-            )
-        regulation_div = doc.xpath(regulation_xpath)
-        if not regulation_div:
-            context.log.warning("Could not extract regulation text", url=link)
-            continue  # skip this link and try the next
-        regulation_text = regulation_div[0].text_content()
-        all_texts.append(squash_spaces(regulation_text))
-    return " ".join(all_texts)
+        return None
+
+    # Step 2: fetch the original act page and follow "Current consolidated version"
+    original_url = (
+        f"https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:{original_celex}"
+    )
+    orig_doc = fetch_html(
+        context,
+        original_url,
+        eurlex_validator,
+        cache_days=30,
+        actions=eurlex_actions,
+        absolute_links=True,
+    )
+    for para in orig_doc.xpath(".//p[contains(., 'consolidated version')]"):
+        for link in para.findall(".//a"):
+            href = link.get("href")
+            if href:
+                return href
+
+    context.log.warning(
+        "Could not find consolidated version link on original act page",
+        source_url=source_url,
+        original_celex=original_celex,
+    )
+    return None
 
 
-def is_name_in_the_law(context, the_law: str, names: str, row_id: str, source_url: str):
+@cache
+def get_consolidated_text(context: Context, consolidated_url: str) -> str | None:
+    """Fetch and return the full text of a EUR-Lex consolidated regulation.
+
+    Cached per consolidated URL so that multiple source URLs that amend the same
+    base regulation only trigger one fetch.
+    """
+    regulation_xpath = ".//div[@id='PP4Contents']"
+    doc = fetch_html(
+        context,
+        consolidated_url,
+        regulation_xpath,
+        actions=wait_for_xpath_actions(regulation_xpath),
+        cache_days=30,
+    )
+    regulation_div = doc.xpath(regulation_xpath)
+    if not regulation_div:
+        context.log.warning("Could not extract regulation text", url=consolidated_url)
+        return None
+    return squash_spaces(regulation_div[0].text_content())
+
+
+def is_name_in_the_law(
+    context: Context, names: str, row_id: str, source_url: str
+) -> None:
+    """Warn if any name in `names` is absent from the consolidated regulation text.
+
+    Looks up the consolidated version of whatever regulation `source_url` amends,
+    so the check works for any EU sanctions regime, not just the Russia regulations.
+    """
+    consolidated_url = get_consolidated_url(context, source_url)
+    if consolidated_url is None:
+        return
+    the_law = get_consolidated_text(context, consolidated_url)
+    if the_law is None:
+        return
     for name in h.multi_split(names, ";"):
         name = name.strip()
         if not name:
@@ -133,6 +188,7 @@ def is_name_in_the_law(context, the_law: str, names: str, row_id: str, source_ur
                 name=name,
                 row_id=row_id,
                 source_url=source_url,
+                consolidated_url=consolidated_url,
             )
 
 
@@ -153,8 +209,7 @@ def crawl_unconsolidated_row(
     entity.id = context.make_id(row_id, name, country)
     context.log.debug(f"Unique ID {entity.id}")
     # Validate that the name is in the consolidated regulation text
-    the_law = get_regulation_text(context)
-    is_name_in_the_law(context, the_law, name, row_id, source_url)
+    is_name_in_the_law(context, name, row_id, source_url)
 
     # Commented out since the 20 May journal updates added details like IDs and
     # cyrilic names which aren't in the XML yet but the entities are.
