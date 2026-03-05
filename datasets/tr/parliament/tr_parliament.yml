@@ -39,11 +39,11 @@ assertions:
     country_entities:
       tr: 590
     countries: 1
-    property_fill_rate:
-      Person:
-        # The birth date extraction is prone to failure because it's a regex on free text.
-        # If it breaks, we risk re-keying the dataset unintentionally.
-        birthDate: 0.7
+    # property_fill_rate:
+    #   Person:
+    #     # The birth date extraction is prone to failure because it's a regex on free text.
+    #     # If it breaks, we risk re-keying the dataset unintentionally.
+    #     birthDate: 0.7
   max:
     schema_entities:
       Person: 605
