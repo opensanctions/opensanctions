@@ -1,0 +1,43 @@
+title: Portugal Members of the Parliament
+prefix: pt-parl
+url: https://www.parlamento.pt/Cidadania/Paginas/DadosAbertos.aspx
+coverage:
+  frequency: monthly
+  start: 2026-03-04
+load_statements: true
+entry_point: crawler.py
+ci_test: false  # can be true if lightweight
+summary: >-
+  Current Members of the Portugese Parliament, the Assembleia da República.
+description: |
+  The Assembleia da República of the Republic of Portugal is the lower house of the National Assembly. It is
+  composed of 230 deputies elected for a four-year term. The Assembleia da República is responsible for enacting
+  laws, approving the budget, and overseeing the government. Members of the Assembleia da República are elected
+  through a proportional representation system, with each member representing a specific
+  electoral district.
+tags:
+  - list.pep
+publisher:
+  name: Assembleia da República
+  description: |
+    The Assembleia da República is the lower house of the Portuguese parliament, responsible for
+    legislative functions, including the creation and amendment of laws.
+  country: pt
+  url:
+  official: true
+data:
+  url: https://www.parlamento.pt/Cidadania/Paginas/DadosAbertos.aspx
+  format: JSON
+  lang: por  # or `pt`?
+dates:
+  formats: ["%d-%m-%Y"]
+
+
+# 230 deputies in the current liegislature
+# assertions:
+#   min:
+#     schema_entities:
+#       Person: 440
+#       Position: 1
+#     country_entities:
+#       pl: 1
