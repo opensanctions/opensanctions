@@ -79,7 +79,6 @@ repos:
           datasets/hk|
           datasets/id|
           datasets/il/knesset_members|
-          datasets/il/mod_crypto|
           datasets/in|
           datasets/ir|
           datasets/jp|
@@ -162,7 +161,6 @@ repos:
           datasets/us/dod_chinese_milcorps|
           datasets/us/nd/med_exclusions|
           datasets/us/nj/med_exclusions|
-          datasets/us/me/med_exclusions|
           datasets/us/ar/med_exclusions|
           datasets/us/nv/med_exclusions|
           datasets/us/dc/exclusions|
