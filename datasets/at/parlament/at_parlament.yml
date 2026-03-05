@@ -62,3 +62,17 @@ lookups:
         value: null
       - match: "05.10.1952 (Wien)"
         value: "1952-10-05"
+  type.name:
+    options:
+      - match: "Nussbaum Verena, Mag.<sup>a</sup>"
+        value: "Nussbaum Verena, Mag.ª"
+      - match: "Mag.<sup>a</sup> Verena Nussbaum"
+        value: "Mag.ª Verena Nussbaum"
+      - match: "Oberrauner Petra, Mag.<sup>a</sup> Dr.<sup>in</sup>"
+        value: "Oberrauner Petra, Mag.ª Dr.in"
+      - match: "Mag.<sup>a</sup> Dr.<sup>in</sup> Petra Oberrauner"
+        value: "Mag.ª Dr.in Petra Oberrauner"
+      - match: "Arpa Claudia, Mag.<sup>a</sup>"
+        value: "Arpa Claudia, Mag.ª"
+      - match: "Mag.<sup>a</sup> Claudia Arpa"
+        value: "Mag.ª Claudia Arpa"
