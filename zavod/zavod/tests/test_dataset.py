@@ -24,9 +24,11 @@ TEST_DATASET = {
         "retry_methods": ["GET"],
     },
     "names": {
-        # Person not defined here to test defaults
-        "Organization": {"reject_chars": "+"},
-        "LegalEntity": {"reject_chars": "-", "allow_chars": "/"},
+        "schema_rules": {
+            # Person not defined here to test defaults
+            "Organization": {"reject_chars": "+"},
+            "LegalEntity": {"reject_chars": "-", "allow_chars": "/"},
+        },
     },
 }
 
@@ -109,7 +111,7 @@ def test_basic():
     assert "/" not in legal_entity_spec.reject_chars_consolidated
     assert "/" in legal_entity_spec.reject_chars_baseline
     # Most specific ancestor schema specs apply (PublicBody not directly defined)
-    assert "PublicBody" not in test_ds.names.root
+    assert "PublicBody" not in test_ds.names.schema_rules
     body_schema = Model.instance().get("PublicBody")
     body_spec = test_ds.names.get_spec(body_schema)
     assert "+" in body_spec.reject_chars_consolidated  # Organization
