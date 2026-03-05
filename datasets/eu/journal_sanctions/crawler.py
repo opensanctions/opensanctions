@@ -1,7 +1,6 @@
 import csv
 import re
 from functools import cache
-from typing import Dict
 from normality import normalize, squash_spaces
 
 from nomenklatura.resolver import Linker
@@ -50,7 +49,7 @@ def extract_program_code(context, source_url):
 # SearchResult
 
 
-def wait_for_xpath_actions(xpath: str) -> list[Dict[str, str | int]]:
+def wait_for_xpath_actions(xpath: str) -> list[dict[str, str | int]]:
     return [
         {
             "action": "waitForNavigation",
@@ -176,8 +175,8 @@ def _law_ascii(context: Context, consolidated_url: str) -> str | None:
     return normalize(text, ascii=True) if text is not None else None
 
 
-def is_name_in_the_law(
-    context: Context, names: str, row_id: str, source_url: str
+def check_in_consolidated_act_text(
+    context: Context, names: list[str], row_id: str, source_url: str
 ) -> None:
     """Warn if any name in `names` is absent from the consolidated regulation text.
 
@@ -190,15 +189,15 @@ def is_name_in_the_law(
     consolidated_url = get_consolidated_url(context, source_url)
     if consolidated_url is None:
         return
-    the_law = _law_normalized(context, consolidated_url)
-    if the_law is None:
+    consolidated_act_text = _law_normalized(context, consolidated_url)
+    if consolidated_act_text is None:
         return
-    for name in h.multi_split(names, ";"):
+    for name in names:
         name = name.strip()
         if not name:
             continue
         norm_name = normalize(name)
-        if norm_name is not None and norm_name in the_law:
+        if norm_name is not None and norm_name in consolidated_act_text:
             continue
 
         # Not found without asciifying — try again with diacritics stripped.
@@ -225,7 +224,7 @@ def is_name_in_the_law(
 
 
 def crawl_unconsolidated_row(
-    context: Context, linker: Linker[Entity], row_idx: int, row: Dict[str, str]
+    context: Context, linker: Linker[Entity], row_idx: int, row: dict[str, str]
 ) -> None:
     """Process one row of the CSV data
 
@@ -242,15 +241,10 @@ def crawl_unconsolidated_row(
     entity = context.make(entity_type)
     entity.id = context.make_id(row_id, name, country)
     context.log.debug(f"Unique ID {entity.id}")
-    # Validate that the name is in the consolidated regulation text
-    is_name_in_the_law(context, name, row_id, source_url)
 
-    # Commented out since the 20 May journal updates added details like IDs and
-    # cyrilic names which aren't in the XML yet but the entities are.
-    # Uncomment when the details are added to FSF expected around 6 June
-    # e.g. check whether https://www.opensanctions.org/statements/NK-VwonxcqhDhAzHKWXCdSdXd/?prop=registrationNumber
-    # has 1674003000 from eu_fsf.
-    #
+    names = h.multi_split(name, ";")
+    check_in_consolidated_act_text(context, names, row_id, source_url)
+
     canonical_id = linker.get_canonical(entity.id)
     for other_id in linker.get_referents(canonical_id):
         if other_id.startswith("eu-fsf-"):
@@ -293,7 +287,7 @@ def crawl_unconsolidated_row(
         h.apply_dates(entity, "birthDate", h.multi_split(dob, ";"))
     entity.add("birthPlace", row.pop("POB"), quiet=True)
     entity.add("country", h.multi_split(country, ";"))
-    entity.add("name", h.multi_split(name, ";"))
+    entity.add("name", names)
     entity.add("previousName", h.multi_split(row.pop("previousName"), ";"))
     entity.add("alias", h.multi_split(row.pop("Alias"), ";"))
     entity.add_cast("Person", "passportNumber", h.multi_split(row.pop("passport"), ";"))
@@ -359,7 +353,7 @@ def crawl_unconsolidated_row(
     context.audit_data(row)
 
 
-def crawl_context_row(context: Context, row_idx: int, row: Dict[str, str]) -> None:
+def crawl_context_row(context: Context, row_idx: int, row: dict[str, str]) -> None:
     """Process one row of the contextual CSV data"""
     row_id = row.pop("List ID").strip(" \t.")
     entity_type = row.pop("Type").strip()
