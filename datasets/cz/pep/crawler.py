@@ -30,12 +30,9 @@ def crawl_person(context: Context, item: Dict[str, Any]) -> None:
         f"https://cro.justice.cz/verejnost/api/funkcionari/{person_id}",
     )
     entity.add("title", item.get("titleBefore"))
+    entity.add("title", item.get("titleAfter"))
     entity.add("citizenship", "cz")
-
     for wp in item.get("workingPositions", []):
-        # position_full_name = wp.get("name")
-        # org_name = wp.get("organization")
-
         wp_data = wp.get("workingPosition")
         # Some persons hold a deputy or senator role alongside other roles.
         # The API flags this with deputyAndOthers / senatorAndOthers at the
@@ -45,36 +42,39 @@ def crawl_person(context: Context, item: Dict[str, Any]) -> None:
         is_deputy = wp_data.get("deputy")
         is_senator = wp_data.get("senator")
         is_judge = item.get("judge")
-        # ovmId identifies the type of position, shared across all holders of that role
         ovm_id = wp.get("ovmId")
-        # position_id = wp_data.get("id")
         position_name = wp.get("name")
-        # position_name = wp_data.get("name")
+        res = None
 
         # judge is a person-level flag, not position-level, so a judge person
         # will have it set on ALL their working positions, including non-judicial
         # ones. We narrow to the single position_id that represents the judge role.
-        if is_judge and ovm_id != JUDGE_OVM_ID:
-            continue
+        if is_judge and ovm_id == JUDGE_OVM_ID:
+            res = context.lookup("judicial_details", position_name, warn_unmatched=True)
+        elif is_deputy or is_senator or ovm_id == MINISTER_OVM_ID:
+            res = context.lookup("position_details", ovm_id, warn_unmatched=True)
+        else:
+            res = context.lookup("position_details", position_name)
 
-        if not (is_deputy or is_senator or is_judge):
-            continue
-        # Judge ovm_id also includes prosecutors, so we categorize them using the
-        # position_name lookup instead.
-        lookup = "judicial_details" if is_judge else "position_details"
-        lookup_value = position_name if is_judge else ovm_id
-        res = context.lookup(lookup, lookup_value, warn_unmatched=True)
-        if not res or not res.items:
-            continue
-
-        position = h.make_position(
-            context,
-            name=res.items["name"],
-            wikidata_id=res.items["qid"],
-            country="cz",
-            topics=res.items["topics"],
-            lang="eng",
-        )
+        if res and res.items:
+            position = h.make_position(
+                context,
+                name=res.items["name"],  # fix: index into list
+                wikidata_id=res.items["qid"],
+                country="cz",
+                topics=res.items["topics"],
+                lang="eng",
+            )
+        else:
+            # Fallback: construct position from API fields
+            role_name = wp_data.get("name")
+            org_name = wp.get("organization")
+            position = h.make_position(
+                context,
+                name=f"{role_name}, {org_name}" if org_name else role_name,
+                country="cz",
+                lang="ces",
+            )
 
         categorisation = categorise(context, position, is_pep=True)
         if not categorisation.is_pep:
@@ -82,9 +82,8 @@ def crawl_person(context: Context, item: Dict[str, Any]) -> None:
 
         end_date = wp.get("end")  # alternative key: writtenDateOfEnd
         if end_date is not None:
-            cutoff_date = datetime.now() - get_after_office(position.get("topics"))
-            if datetime.strptime(end_date, "%Y-%m-%d") < cutoff_date:
-                context.log.info(f"Skipping old term (ended {end_date})")
+            cutoff = datetime.now() - get_after_office(position.get("topics"))
+            if datetime.strptime(end_date, "%Y-%m-%d") < cutoff:
                 continue
 
         occupancy = h.make_occupancy(
