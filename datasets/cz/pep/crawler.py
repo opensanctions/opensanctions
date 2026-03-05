@@ -76,13 +76,13 @@ def crawl_person(context: Context, item: Dict[str, Any]) -> None:
                 lang="ces",
             )
 
+        # We mark them all as PEPs by the source definition
         categorisation = categorise(context, position, is_pep=True)
-        if not categorisation.is_pep:
-            continue
 
         end_date = wp.get("end")  # alternative key: writtenDateOfEnd
-        if end_date is not None:
-            cutoff = datetime.now() - get_after_office(position.get("topics"))
+        topics = position.get("topics")
+        if end_date is not None and topics:
+            cutoff = datetime.now() - get_after_office(topics)
             if datetime.strptime(end_date, "%Y-%m-%d") < cutoff:
                 continue
 
