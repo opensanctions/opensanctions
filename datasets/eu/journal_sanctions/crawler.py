@@ -2,7 +2,7 @@ import csv
 import re
 from functools import cache
 from typing import Dict
-from normality import squash_spaces
+from normality import normalize, squash_spaces
 
 from nomenklatura.resolver import Linker
 from rigour.ids.ogrn import OGRN
@@ -164,6 +164,18 @@ def get_consolidated_text(context: Context, consolidated_url: str) -> str | None
     return squash_spaces(regulation_div[0].text_content())
 
 
+@cache
+def _law_normalized(context: Context, consolidated_url: str) -> str | None:
+    text = get_consolidated_text(context, consolidated_url)
+    return normalize(text) if text is not None else None
+
+
+@cache
+def _law_ascii(context: Context, consolidated_url: str) -> str | None:
+    text = get_consolidated_text(context, consolidated_url)
+    return normalize(text, ascii=True) if text is not None else None
+
+
 def is_name_in_the_law(
     context: Context, names: str, row_id: str, source_url: str
 ) -> None:
@@ -171,21 +183,41 @@ def is_name_in_the_law(
 
     Looks up the consolidated version of whatever regulation `source_url` amends,
     so the check works for any EU sanctions regime, not just the Russia regulations.
+    Two rounds: first without asciifying (preserves non-Latin scripts), then with
+    asciifying (folds visually similar diacritics like Ş/Ș). Logs at info level
+    if only the ascii round finds the name, so the source data can be corrected.
     """
     consolidated_url = get_consolidated_url(context, source_url)
     if consolidated_url is None:
         return
-    the_law = get_consolidated_text(context, consolidated_url)
+    the_law = _law_normalized(context, consolidated_url)
     if the_law is None:
         return
     for name in h.multi_split(names, ";"):
         name = name.strip()
         if not name:
             continue
-        if squash_spaces(name.lower()) not in the_law.lower():
-            context.log.warn(
+        norm_name = normalize(name)
+        if norm_name is not None and norm_name in the_law:
+            continue
+
+        # Not found without asciifying — try again with diacritics stripped.
+        ascii_name = normalize(name, ascii=True)
+        ascii_law = _law_ascii(context, consolidated_url)
+        if ascii_name and ascii_law and ascii_name in ascii_law:
+            context.log.info(
+                "Name found in consolidated text only after asciifying",
+                name=name,
+                ascii_name=ascii_name,
+                row_id=row_id,
+                source_url=source_url,
+                consolidated_url=consolidated_url,
+            )
+        else:
+            context.log.warning(
                 "Name not found in consolidated regulation text",
                 name=name,
+                ascii_name=ascii_name,
                 row_id=row_id,
                 source_url=source_url,
                 consolidated_url=consolidated_url,
@@ -195,7 +227,9 @@ def is_name_in_the_law(
 def crawl_unconsolidated_row(
     context: Context, linker: Linker[Entity], row_idx: int, row: Dict[str, str]
 ) -> None:
-    """Process one row of the CSV data"""
+    """Process one row of the CSV data
+
+    Unconsolidated between EU Journal and XML, not in the consolidated legislation sense."""
     row_id = row.pop("List ID").strip(" \t.")
     entity_type = row.pop("Type").strip()
     name = row.pop("Name").strip()
@@ -380,6 +414,7 @@ def crawl_context_row(context: Context, row_idx: int, row: Dict[str, str]) -> No
 
 def crawl(context: Context):
     # Round 1: unconsolidated.csv with the latest journal updates
+    # Unconsolidated between EU Journal and XML, not in the consolidated legislation sense.
     path = context.fetch_resource("unconsolidated.csv", context.data_url)
     linker = get_dataset_linker(context.dataset)
     with open(path, "rt") as infh:
