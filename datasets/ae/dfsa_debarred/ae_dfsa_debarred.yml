@@ -1,16 +1,27 @@
 title: United Arab Emirates Prohibited/Restricted Individuals by the DFSA
-prefix: ae-dfsa-debarred
+prefix: ae-dfsa
 entry_point: crawler.py
 coverage:
-  frequency: daily  # is it good?
+  frequency: daily
   start: 2026-03-03
 load_statements: true
+ci_test: false  # using Zyte
 summary: >-
-  The DFSA maintains a list of individuals and entities that are prohibited or restricted from participating in
+  Individuals and entities that are prohibited or restricted from participating in
   financial services within the Dubai International Financial Centre (DIFC).
 description: |
-  > Under the Rule 9.8.3 of the Markets Rules module of the DFSA Rulebook, Reporting Entities are
-  required to disclose to the Market information through a DFSA approved Regulatory Announcement Service.
+  The individuals and entities listed here are prohibited or restricted from performing
+  any function in connection with financial services in or from the Dubai International
+  Financial Centre (DIFC). The DFSA maintains this list as part of its public register
+  under the Regulatory Law 2004. Under the Rule 9.8.3 of the Markets Rules module of the DFSA Rulebook,
+  Reporting Entities are required to disclose to the Market information through a DFSA
+  approved Regulatory Announcement.
+
+  Prohibitions and restrictions are imposed following enforcement action by the DFSA
+  for misconduct such as failing to act with integrity, misleading or deceiving investors,
+  misappropriating client funds, submitting false or misleading regulatory returns, carrying
+  out unauthorised financial services, or breaching anti-money laundering requirements.
+
 tags:
   - sector.financial
 url: https://www.dfsa.ae/public-register/prohibited-individuals
@@ -33,7 +44,7 @@ data:
   url: https://www.dfsa.ae/public-register/prohibited-individuals
   format: HTML
 dates:
-  formats: ["%d-%m-%Y"]
+  formats: ["%d-%m-%Y", "%d %B %Y"]
 
 assertions:
   min:
