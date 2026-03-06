@@ -1,0 +1,75 @@
+title: Canadian Consolidated Autonomous Sanctions List on the Russian invasion of Ukraine
+entry_point: crawler.py
+prefix: ca-sema-at
+coverage:
+  schedule: "0 */3 * * *" # every 3 hours
+  frequency: daily
+  start: 2026-02-24
+load_statements: true
+summary: >-
+  Sanctions against individuals, entities, and ships imposed by Canada in response to Russia’s
+  unprovoked and unjustified invasion of Ukraine under the Special Economic Measures Act (SEMA).
+  The current announcement table is more regularly maintained.
+description: |
+  Regulations against individuals and entities under the Special Economic Measures Act (SEMA)
+  prohibit persons in Canada and Canadians outside Canada from engaging in any activity related
+  to any property of these listed entities or providing financial or related services to them.
+  Canada is also imposing sanctions against ships, based on their involvement in transporting
+  property and goods for the benefit of Russia or a person in Russia. This is in addition to the
+  existing categories of ships prohibited from docking in or passing through Canada under Regulation 3.04.
+url: https://www.international.gc.ca/world-monde/issues_development-enjeux_developpement/response_conflict-reponse_conflits/crisis-crises/ukraine-sanctions.aspx?lang=eng
+tags:
+  - list.sanction
+  - issuer.west
+  - sector.maritime
+publisher:
+  name: Global Affairs Canada
+  description: |
+    The Canadian government body responsible for trade, travel, foreign affairs and
+    international development.
+  country: ca
+  url: https://www.international.gc.ca/world-monde/issues_development-enjeux_developpement/response_conflict-reponse_conflits/crisis-crises/ukraine-sanctions.aspx?lang=eng
+  official: true
+data:
+  url: https://www.international.gc.ca/world-monde/issues_development-enjeux_developpement/response_conflict-reponse_conflits/crisis-crises/ukraine-sanctions.aspx?lang=eng
+  format: HTML
+dates:
+  formats:
+    - "%B %d, %Y"
+    - "%B %d %Y"
+    - "in %Y)"
+    - "on %B %d, %Y)"
+    - "%B %d, %Y)"
+    - "in %B %Y)"
+
+assertions:
+  min:
+    schema_entities:
+      Person: 1500  # 1927 raw count
+      LegalEntity: 600  # 770 raw count
+      Vessel: 80 # 109 raw count
+  max:
+    schema_entities:
+      Person: 4000
+      LegalEntity: 1500
+      Vessel: 1600
+
+lookups:
+  schema_type:
+    options:
+      - match:
+          - Entities
+          - Russian entities
+        value: LegalEntity
+      - match: Individuals
+        value: Person
+      - match:
+          - Goods and services
+          - Other  # e.g. Canada is prohibiting Russian ships from docking in Canada or passing through Canadian waters
+        value: null
+  type.date:
+    options:
+      - match: 'onOctober 27, 1963)'
+        value: 1963-10-27
+      - match: 'on April19, 1952)'
+        value: 1952-04-19
