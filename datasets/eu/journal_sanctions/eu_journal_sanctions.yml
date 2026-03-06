@@ -145,11 +145,14 @@ lookups:
         value: EU-HTI
       - match: 2023/888
         value: EU-MDA
+      # https://www.sanctionsmap.eu/#/main/details/57
       - match:
-          - 2014/450
           - 2023/2135
           - 2023/2147
         value: EU-SDNZ
+      # https://www.sanctionsmap.eu/#/main/details/31/
+      - match: 2014/450
+        value: EU-SDN
       - match:
           - 2001/931
           - 2580/2001
