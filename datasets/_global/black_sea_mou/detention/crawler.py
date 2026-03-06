@@ -12,7 +12,7 @@ START_MONTH = 1
 HEADERS = {
     "X-Requested-With": "XMLHttpRequest",
     "Content-Type": "application/x-www-form-urlencoded",
-    "Referer": "https://bsis.bsmou.org/public_det/",
+    "Referer": "https://bsis.bsmou.org/public_det/?action=getinspections",
     "Origin": "https://bsis.bsmou.org",
 }
 
@@ -121,9 +121,7 @@ def crawl(context: Context):
                 method="POST",
                 cache_days=1,
             )
-            table = doc.xpath("//table[@id='dvData']")
-            assert len(table) == 1, "Expected one table in the document"
-            table = table[0]
+            table = h.xpath_element(doc, "//table[@id='dvData']")
             for row in h.parse_html_table(table, slugify_headers=False):
                 crawl_row(context, h.cells_to_str(row))
         except RetryError as e:
