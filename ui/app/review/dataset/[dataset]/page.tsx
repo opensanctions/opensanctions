@@ -39,7 +39,7 @@ export default async function DatasetPage({ params, searchParams }: PageProps) {
             </tr>
           </thead>
           <tbody>
-            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+            { }
             {entries.map((entry: any) => (
               <tr key={entry.id}>
                 <td>

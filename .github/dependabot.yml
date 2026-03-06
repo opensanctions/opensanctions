@@ -24,6 +24,10 @@ updates:
         dependency-type: "production"
         update-types:
           - "patch"
+    ignore:
+      - dependency-name: "eslint"
+        update-types:
+          - "version-update:semver-major" # Remove once we safely upgrade to eslint 10
 
   - package-ecosystem: "github-actions"
     directory: "/"
