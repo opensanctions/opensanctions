@@ -731,6 +731,18 @@ lookups:
           - Christophe Mombet
           - Benjamin Pariselle
           - Kilian Heim
+      - match: "La sociétés Terreïs<br /> La société THD<br /> La société Option 7<br /> Mme Ghania Begriche<br /> M. Jacques-Antoine Condat<br /> M. Jean-Roger Condat<br /> M. Pascal Lorenzetti<br /> M. Thierry Decré<br /> M. Christophe Mombet<br /> <br /> M. Kilian Heim"
+        entities:
+          - Terreïs
+          - THD
+          - Option 7
+          - Ghania Begriche
+          - Jacques-Antoine Condat
+          - Jean-Roger Condat
+          - Pascal Lorenzetti
+          - Thierry Decré
+          - Christophe Mombet
+          - Kilian Heim
       - match: "La société H2O AM LLP<br /> M. Bruno Crastes<br /> M. Vincent Chailley"
         entities:
           - H2O AM LLP
