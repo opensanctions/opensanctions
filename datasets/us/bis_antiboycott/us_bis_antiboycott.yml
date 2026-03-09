@@ -52,6 +52,10 @@ assertions:
       LegalEntity: 100
 
 lookups:
+  # The names in the source data often include parenthetical information that should be split into separate fields.
+  # If the information in parentheses references a location, the country field should be populated.
+  # If the information in parentheses references an alternate name or alias, it should be added to the aliases field.
+  # If the inforamation in parentheses indicates that it is a subentity of a larger company (such as a specific branch or division), the information in parentheses should be kept as part of the name.
   names:
     options:
       - match: Medtronic Mediterrean SAL (Labanon)
@@ -92,13 +96,13 @@ lookups:
         name: BAC Florida Bank
         country: us-fl
       - match: Banco Sabadell SA (Miami Branch)
-        name: Banco Sabadell SA
+        name: Banco Sabadell SA (Miami Branch)
         country: us-fl
       - match: JAS Forwarding (USA) Inc. (Los Angeles)
         name: JAS Forwarding USA Inc.
         country: us-ca
       - match: Bank of New York Mellon (Shanghai Branch)
-        name: Bank of New York Mellon
+        name: Bank of New York Mellon (Shanghai Branch)
         country: China
       - match: Lynden Air Freight (Lynden International)
         name: Lynden Air Freight
