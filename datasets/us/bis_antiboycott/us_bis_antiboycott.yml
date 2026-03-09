@@ -52,6 +52,10 @@ assertions:
       LegalEntity: 100
 
 lookups:
+  # The names in the source data often include parenthetical information that should be split into separate fields.
+  # If the information in parentheses references a location, the country field should be populated.
+  # If the information in parentheses references an alternate name or alias, it should be added to the aliases field.
+  # If the inforamation in parentheses indicates that it is a subentity of a larger company (such as a specific branch or division), the information in parentheses should be kept as part of the name.
   names:
     options:
       - match: Medtronic Mediterrean SAL (Labanon)
@@ -81,3 +85,64 @@ lookups:
       - match: RHDC International, LLC (Houston)
         name: RHDC International, LLC
         country: us-tx
+      - match: Laptop Plaza Inc (aka IWEBMASTER.NET INC)
+        name: Laptop Plaza Inc
+        aliases:
+          - IWEBMASTER.NET INC
+      - match: Baker Eastern, SA (Libya)
+        name: Baker Eastern, SA
+        country: Libya
+      - match: BAC Florida Bank (Coral Gables)
+        name: BAC Florida Bank
+        country: us-fl
+      - match: Banco Sabadell SA (Miami Branch)
+        name: Banco Sabadell SA (Miami Branch)
+        country: us-fl
+      - match: JAS Forwarding (USA) Inc. (Los Angeles)
+        name: JAS Forwarding USA Inc.
+        country: us-ca
+      - match: Bank of New York Mellon (Shanghai Branch)
+        name: Bank of New York Mellon (Shanghai Branch)
+        country: China
+      - match: Lynden Air Freight (Lynden International)
+        name: Lynden Air Freight
+        aliases:
+          - Lynden International
+      - match: UPS Supply Chain Solutions (Houston)
+        name: UPS Supply Chain Solutions
+        country: us-tx
+      - match: Thermon (UK) Limited (United Kingdom)
+        name: Thermon UK Limited
+        country: United Kingdom
+      - match: Thermon Europe, BV (Netherlands)
+        name: Thermon Europe, BV
+        country: Netherlands
+      - match: Thermon Far East, Ltd (Japan)
+        name: Thermon Far East, Ltd
+        country: Japan
+      - match: Plane Cargo Inc (Houston)
+        name: Plane Cargo Inc
+        country: us-tx
+      - match: GM Daewoo Auto & Technology Company (Korea)
+        name: GM Daewoo Auto & Technology Company
+        country: South Korea
+      - match: M-I Production Chemicals (ME) FZE
+        name: M-I Production Chemicals ME FZE
+      - match: Gulf International Bank (New York)
+        name: Gulf International Bank
+        country: us-ny
+      - match: American Rice, Inc. (Houston)
+        name: American Rice, Inc.
+        country: us-tx
+      - match: Rohde & Liesenfeld, Inc (Houston)
+        name: Rohde & Liesenfeld, Inc
+        country: us-tx
+      - match: Aviall Pte. Ltd. (Singapore)
+        name: Aviall Pte. Ltd.
+        country: Singapore
+      - match: Colorcon Limited (United Kingdom)
+        name: Colorcon Limited
+        country: United Kingdom
+      - match: National Bank of Egypt (New York)
+        name: National Bank of Egypt
+        country: us-ny
