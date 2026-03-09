@@ -6,58 +6,70 @@ from pydantic import BaseModel, Field
 from zavod import settings
 
 Measure = Literal[
-    # Suspension of foreign aid, development funding, or multilateral
-    # lending to a country.
+    # Suspension or reduction of foreign aid, development funding, or
+    # multilateral lending to a country or territory.
     "Aid suspension",
     # Prohibitions on the supply, sale, transfer, or procurement of arms,
     # ammunition, military equipment, and related services (technical
-    # assistance, training, financing, brokering). Direction (export to
-    # target, procurement from target, or both) and scope (country-wide,
-    # territory, non-state actors, specific entities) are defined by the
-    # sanctions regime. Covers UN-mandated embargoes and autonomous measures.
-    # See SIPRI Arms Embargoes Database; EU Common Military List; US ITAR/EAR.
+    # assistance, training, financing, brokering). Scope and direction
+    # defined by the applicable regime. Covers UN-mandated embargoes and
+    # autonomous measures.
     "Arms restrictions",
-    # Freezing of funds and economic resources of a designated person/entity.
-    # Includes US-style "blocking" (OFAC term for the same mechanism) — treat these as equivalent.
+    # Freezing of funds, financial assets, and economic resources owned or
+    # controlled by a designated person or entity, and the prohibition on
+    # making funds or economic resources available to or for their benefit.
+    # Includes US-style blocking (OFAC SDN). Does not cover broader
+    # financial services or market access restrictions (Financial restrictions).
     "Asset freeze",
-    # Exclusion from government procurement, contracts, or programs
+    # Exclusion from government procurement, contracts, or programmes
     # (Medicaid/Medicare exclusions, World Bank debarment, SAM.gov).
     "Debarment",
-    # Restrictions on export of dual-use goods, technology, military items,
-    # or luxury goods to specific destinations or end-users. Covers both
-    # outright bans and licensing requirements.
+    # Restrictions on the export, re-export, or transfer of dual-use goods,
+    # technology, software, or luxury goods to specified destinations,
+    # end-users, or end-uses. Covers outright bans and licensing
+    # requirements. Military-list items fall under Arms restrictions.
     "Export control",
-    # Restrictions on financial transactions, services, or access. Covers both
-    # systemic measures (SWIFT cutoffs, correspondent banking bans, capital
-    # market access bans, sovereign debt restrictions) and entity-level
-    # prohibitions (transaction processing bans, financing/lending prohibitions,
-    # insurance/reinsurance bans, securities dealing restrictions).
-    # NOT freezing of existing assets — those go under "Asset freeze".
+    # Restrictions on financial transactions, services, or access beyond
+    # a designated-person asset freeze. Systemic: SWIFT disconnection,
+    # correspondent banking bans, capital-market access bans, sovereign
+    # debt restrictions, deposit caps. Entity-level: transaction-processing
+    # bans, financing/lending prohibitions, insurance/reinsurance bans,
+    # securities dealing restrictions.
     "Financial restrictions",
-    # Prohibitions on importing goods originating from a sanctioned country
-    # or sector (oil, coal, gold, diamonds, iron/steel, etc.).
+    # Prohibitions on importing goods originating in or consigned from a
+    # sanctioned country, territory, or sector. Covers commodity-specific
+    # bans (oil, coal, gold, diamonds, charcoal, seafood, textiles, etc.)
+    # and origin-based prohibitions (e.g. forced-labour import bans).
     "Import restrictions",
-    # Prohibition on new investment (equity, JVs, capital contributions) in
-    # a sanctioned country or sector. Targets future capital flows, not
-    # existing assets.
+    # Prohibition on new investment (equity, joint ventures, capital
+    # contributions, acquisition of ownership interests) in a sanctioned
+    # country, territory, sector, or entity. Targets future capital
+    # formation, not existing assets (Asset freeze) or lending (Financial
+    # restrictions).
     "Investment ban",
-    # Prohibition on providing professional services (legal, accounting, IT,
-    # consulting, engineering, advertising, trust formation) to sanctioned
-    # countries or persons. No physical goods involved.
+    # Prohibition on providing professional, technical, or advisory services
+    # (legal, accounting, auditing, IT, consulting, engineering, advertising,
+    # trust/company formation) to sanctioned countries or persons. Where
+    # services are ancillary to a controlled-goods transfer, classify under
+    # the applicable goods category.
     "Services ban",
-    # Bars sanctioned parties from claiming compensation for the effects of
-    # sanctions via litigation or arbitration.
+    # Prohibition on satisfying claims by designated persons or the
+    # government of a sanctioned country, through litigation, arbitration,
+    # or otherwise, in connection with contracts or transactions affected
+    # by sanctions.
     "Prohibition to satisfy claims",
-    # Broad restrictions targeting entire economic sectors (energy, defense,
-    # mining, technology). Use when the measure applies at sector level and
-    # doesn't reduce to a single trade or financial category above.
+    # Restrictions targeting an entire economic sector (energy, defence,
+    # extractives, technology). Use when the measure does not reduce to a
+    # single more specific category above. Prefer the specific category
+    # where applicable.
     "Sectoral sanctions",
-    # Port access bans, airspace closures, ship-to-ship transfer bans,
-    # vessel deflagging, prohibitions on maritime/aviation services
-    # (crewing, classification, insurance).
+    # Port access bans, airspace closures, overflight prohibitions,
+    # ship-to-ship transfer bans, vessel deflagging, aircraft landing
+    # prohibitions, and prohibitions on maritime/aviation services
+    # (crewing, classification, bunkering, insurance of vessels/aircraft).
     "Transportation restrictions",
-    # Prohibition on entry into or transit through the sanctioning
-    # jurisdiction. Natural persons only.
+    # Prohibition on entry into or transit through the territory of the
+    # sanctioning jurisdiction. Designated natural persons only.
     "Travel ban",
 ]
 
@@ -117,7 +129,7 @@ class Program(BaseModel):
     )
     measures: list[Measure] = Field(
         default_factory=list,
-        description="Types of sanctions imposed (e.g., 'Asset freeze', 'Travel ban', 'Arms embargo')",
+        description="Types of sanctions imposed (e.g., 'Asset freeze', 'Travel ban', 'Arms restrictions')",
     )
 
 
