@@ -19,6 +19,8 @@ description: |
   and translate position labels.
 url: https://declaration.acb.gov.ge/
 data:
+  # This API is known to block some VPN exit points. As of 2026 it blocks curl's user agent
+  # but allows normal browsers and the configured FollowTheMoney user agent.
   # Don't fetch this without query parameters - it just selects everything and times out
   url: https://declaration.acb.gov.ge/Api/Declarations
   format: HTML
