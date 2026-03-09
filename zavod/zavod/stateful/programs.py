@@ -9,10 +9,14 @@ Measure = Literal[
     # Suspension of foreign aid, development funding, or multilateral
     # lending to a country.
     "Aid suspension",
-    # Blanket prohibition on arms/military equipment to a country or regime.
-    # Country-wide scope only. If targeted at specific entities, use
-    # "Export control" instead.
-    "Arms embargo",
+    # Prohibitions on the supply, sale, transfer, or procurement of arms,
+    # ammunition, military equipment, and related services (technical
+    # assistance, training, financing, brokering). Direction (export to
+    # target, procurement from target, or both) and scope (country-wide,
+    # territory, non-state actors, specific entities) are defined by the
+    # sanctions regime. Covers UN-mandated embargoes and autonomous measures.
+    # See SIPRI Arms Embargoes Database; EU Common Military List; US ITAR/EAR.
+    "Arms restrictions",
     # Freezing of funds and economic resources of a designated person/entity.
     # Includes US-style "blocking" (OFAC term for the same mechanism) — treat these as equivalent.
     "Asset freeze",
