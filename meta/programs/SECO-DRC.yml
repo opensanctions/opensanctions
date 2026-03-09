@@ -11,6 +11,6 @@ dataset: ch_seco_sanctions
 target_territories:
 - cd
 measures:
-- Financial block
+- Financial restrictions
 - Restrictions on goods
 - Travel ban

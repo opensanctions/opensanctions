@@ -13,6 +13,6 @@ dataset: ch_seco_sanctions
 target_territories:
 - af
 measures:
-- Financial block
+- Financial restrictions
 - Restrictions on goods
 - Travel ban

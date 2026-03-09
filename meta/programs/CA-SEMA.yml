@@ -13,6 +13,6 @@ issuer: ca_mfa
 dataset: ca_dfatd_sema_sanctions
 measures:
 - Export control
-- Financial block
+- Financial restrictions
 - Investment ban
 - Restrictions on goods

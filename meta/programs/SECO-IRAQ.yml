@@ -11,5 +11,5 @@ dataset: ch_seco_sanctions
 target_territories:
 - iq
 measures:
-- Financial block
+- Financial restrictions
 - Restrictions on goods

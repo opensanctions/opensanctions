@@ -11,5 +11,5 @@ dataset: ch_seco_sanctions
 target_territories:
 - mm
 measures:
-- Financial block
+- Financial restrictions
 - Restrictions on goods
