@@ -83,6 +83,8 @@ lookups:
         country: us-tx
       - match: Laptop Plaza Inc (aka IWEBMASTER.NET INC)
         name: Laptop Plaza Inc
+        aliases:
+          - IWEBMASTER.NET INC
       - match: Baker Eastern, SA (Libya)
         name: Baker Eastern, SA
         country: Libya
@@ -100,6 +102,8 @@ lookups:
         country: China
       - match: Lynden Air Freight (Lynden International)
         name: Lynden Air Freight
+        aliases:
+          - Lynden International
       - match: UPS Supply Chain Solutions (Houston)
         name: UPS Supply Chain Solutions
         country: us-tx
