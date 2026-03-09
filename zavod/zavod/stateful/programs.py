@@ -14,7 +14,7 @@ Measure = Literal[
     # "Export control" instead.
     "Arms embargo",
     # Freezing of funds and economic resources of a designated person/entity.
-    # Includes US-style "blocking" — treat these as equivalent.
+    # Includes US-style "blocking" (OFAC term for the same mechanism) — treat these as equivalent.
     "Asset freeze",
     # Exclusion from government procurement, contracts, or programs
     # (Medicaid/Medicare exclusions, World Bank debarment, SAM.gov).
@@ -23,9 +23,12 @@ Measure = Literal[
     # or luxury goods to specific destinations or end-users. Covers both
     # outright bans and licensing requirements.
     "Export control",
-    # Systemic financial measures: correspondent banking bans, SWIFT cutoffs,
-    # capital market access bans, sovereign debt restrictions, insurance bans.
-    # NOT entity-level freezes — those go under "Asset freeze".
+    # Restrictions on financial transactions, services, or access. Covers both
+    # systemic measures (SWIFT cutoffs, correspondent banking bans, capital
+    # market access bans, sovereign debt restrictions) and entity-level
+    # prohibitions (transaction processing bans, financing/lending prohibitions,
+    # insurance/reinsurance bans, securities dealing restrictions).
+    # NOT freezing of existing assets — those go under "Asset freeze".
     "Financial restrictions",
     # Prohibitions on importing goods originating from a sanctioned country
     # or sector (oil, coal, gold, diamonds, iron/steel, etc.).
