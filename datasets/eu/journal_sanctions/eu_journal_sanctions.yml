@@ -58,6 +58,13 @@ assertions:
       Vessel: 10
 
 lookups:
+  garbage_collect_original_name:
+    # Override the string to look for in the consolidated act text
+    # e.g. if we expanded aliases like Lev Anatolyevich Yershov (Ershov)
+    # to Lev Anatolyevich Yershov and Lev Anatolyevich Ershov
+    options:
+      - match: Lev Anatolyevich Ershov
+        value: Lev Anatolyevich
   type.date:
     options:
       - match: 3.1.2003 (founded in 1918)

@@ -1,9 +1,9 @@
 import csv
 import re
-from functools import cache, lru_cache
-from typing import Dict
-from normality import squash_spaces
+from functools import cache
+from datetime import timedelta, datetime
 
+from normality import normalize, squash_spaces
 from nomenklatura.resolver import Linker
 from rigour.ids.ogrn import OGRN
 
@@ -16,15 +16,15 @@ from zavod import Context, Entity, helpers as h
 SPECIAL_CASE_URL = (
     "https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:02014R0833-20240625"
 )
-CONSOLIDATED_LATEST = [
-    "https://eur-lex.europa.eu/eli/reg/2014/833",
-    "https://eur-lex.europa.eu/eli/dec/2014/512",
-    "https://eur-lex.europa.eu/eli/reg/2024/2642",
-]
 # year/number or number/year with optional suffix
 FIRST_CODE_RE = re.compile(
     r"\b(?:No\s+)?(\d{1,4}/\d{1,4})(?:/[A-Z]{2,5})?\b", re.IGNORECASE
 )
+# Yesterday 2026-03-05, https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32024D1484
+# still showed https://eur-lex.europa.eu/legal-content/EN/AUTO/?uri=CELEX:02024D1484-20251120
+# as latest instead of https://eur-lex.europa.eu/legal-content/EN/AUTO/?uri=CELEX:02024D1484-20251222
+# (See timestamp at the end of each URL)
+CHECK_CONSOLIDATED_DATE = h.backdate(datetime.now(), timedelta(days=90))
 
 GC_ROWS = []
 
@@ -55,7 +55,7 @@ def extract_program_code(context, source_url):
 # SearchResult
 
 
-def wait_for_xpath_actions(xpath: str) -> list[Dict[str, str | int]]:
+def wait_for_xpath_actions(xpath: str) -> list[dict[str, str | int]]:
     return [
         {
             "action": "waitForNavigation",
@@ -76,70 +76,166 @@ def wait_for_xpath_actions(xpath: str) -> list[Dict[str, str | int]]:
     ]
 
 
-@lru_cache(maxsize=1)
-def get_regulation_text(context: Context):
-    """Fetch and normalize the text content of the full regulations."""
+@cache
+def get_consolidated_url(context: Context, source_url: str) -> str | None:
+    """Given a EUR-Lex source URL for an amendment, return the URL of its consolidated version."""
+    eurlex_actions = [
+        {
+            "action": "waitForSelector",
+            "selector": {"type": "css", "value": ".EurlexContent"},
+        }
+    ]
+    eurlex_validator = './/div[@class="EurlexContent"]'
 
-    regulation_xpath = ".//div[@id='PP4Contents']"
-    consolidated_search_xpath = (
-        ".//div[@class='SearchResult']//a[contains(text(), 'Consolidated text')]"
+    # Step 1: find what this amendment modifies
+    all_url = source_url.replace("/TXT/", "/ALL/")
+    doc = fetch_html(
+        context,
+        all_url,
+        eurlex_validator,
+        cache_days=1,
+        actions=eurlex_actions,
+        absolute_links=True,
     )
-    unblock_validator = f"{regulation_xpath} | {consolidated_search_xpath}"
-    unblock_actions = wait_for_xpath_actions(unblock_validator)
+    original_celex: str | None = None
+    for table in doc.xpath(".//table[@id='relatedDocsTbMS']"):
+        for row in h.parse_html_table(table):
+            row_strs = h.cells_to_str(row)
+            if row_strs.get("relation") in ("Modifies", "Extended validity"):
+                original_celex = row_strs.get("act")
+                break
+        if original_celex:
+            break
 
-    all_texts = []
-    for link in CONSOLIDATED_LATEST:
-        doc = fetch_html(
-            context,
-            link,
-            unblock_validator,
-            actions=unblock_actions,
-            absolute_links=True,
+    if not original_celex:
+        context.log.warning(
+            "Could not find original act in amendment relations table",
+            source_url=source_url,
         )
-        consolidated_search_results = doc.xpath(consolidated_search_xpath)
-        if consolidated_search_results:
-            if len(consolidated_search_results) > 1:
-                context.log.warning(
-                    "Multiple consolidated search results found, using the first one",
-                    url=link,
-                    count=len(consolidated_search_results),
-                )
-            context.log.info(
-                "Found consolidated search result, following link", url=link
-            )
-            doc = fetch_html(
-                context,
-                consolidated_search_results[0].get("href"),
-                regulation_xpath,
-                actions=wait_for_xpath_actions(regulation_xpath),
-            )
-        regulation_div = doc.xpath(regulation_xpath)
-        if not regulation_div:
-            context.log.warning("Could not extract regulation text", url=link)
-            continue  # skip this link and try the next
-        regulation_text = regulation_div[0].text_content()
-        all_texts.append(squash_spaces(regulation_text))
-    return " ".join(all_texts)
+        return None
+
+    # Step 2: fetch the original act page and find the latest consolidated version
+    # from the #consLegVersions nav. The current/latest entry has class "current active".
+    original_url = (
+        f"https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:{original_celex}"
+    )
+    orig_doc = fetch_html(
+        context,
+        original_url,
+        eurlex_validator,
+        cache_days=1,
+        actions=eurlex_actions,
+        absolute_links=True,
+    )
+    for link in orig_doc.xpath(".//div[@id='consLegVersions']//a"):
+        # Just take the first one since they seem to be ordered by descending date
+        # and they don't always have the 'active' class.
+        href = link.get("href")
+        if href:
+            return href
+
+    context.log.warning(
+        "Could not find consolidated version link on original act page",
+        source_url=source_url,
+        original_celex=original_celex,
+    )
+    return None
 
 
-def is_name_in_the_law(context, the_law: str, names: str, row_id: str, source_url: str):
-    for name in h.multi_split(names, ";"):
-        name = name.strip()
-        if not name:
+@cache
+def get_consolidated_text(context: Context, consolidated_url: str) -> str | None:
+    """Fetch and return the full text of a EUR-Lex consolidated regulation.
+
+    Cached per consolidated URL so that multiple source URLs that amend the same
+    base regulation only trigger one fetch.
+    """
+    regulation_xpath = ".//div[@id='PP4Contents']"
+    doc = fetch_html(
+        context,
+        consolidated_url,
+        regulation_xpath,
+        actions=wait_for_xpath_actions(regulation_xpath),
+        cache_days=7,
+    )
+    regulation_div = doc.xpath(regulation_xpath)
+    if not regulation_div:
+        context.log.warning("Could not extract regulation text", url=consolidated_url)
+        return None
+    return squash_spaces(regulation_div[0].text_content())
+
+
+@cache
+def _law_normalized(context: Context, consolidated_url: str) -> str | None:
+    text = get_consolidated_text(context, consolidated_url)
+    return normalize(text) if text is not None else None
+
+
+@cache
+def _law_ascii(context: Context, consolidated_url: str) -> str | None:
+    text = get_consolidated_text(context, consolidated_url)
+    return normalize(text, ascii=True) if text is not None else None
+
+
+def check_in_consolidated_act_text(
+    context: Context, start_date: str, names: list[str], row_id: str, source_url: str
+) -> None:
+    """Warn if any name in `names` is absent from the consolidated regulation text.
+
+    Looks up the consolidated version of whatever regulation `source_url` amends,
+    so the check works for any EU sanctions regime, not just the Russia regulations.
+    Two rounds: first without asciifying (preserves non-Latin scripts), then with
+    asciifying (folds visually similar diacritics like Ş/Ș). Logs at info level
+    if only the ascii round finds the name, so the source data can be corrected.
+    """
+    start_date_parsed = h.extract_date(context.dataset, start_date)
+    if len(start_date_parsed) == 0 or CHECK_CONSOLIDATED_DATE < start_date_parsed[0]:
+        # Don't bother checking recent entries since the consolidated text
+        # may not have been updated yet.
+        return
+
+    consolidated_url = get_consolidated_url(context, source_url)
+    if consolidated_url is None:
+        return
+    consolidated_act_text = _law_normalized(context, consolidated_url)
+    if consolidated_act_text is None:
+        return
+    for name in names:
+        name = context.lookup_value("garbage_collect_original_name", name, default=name)
+        norm_name = normalize(name)
+        if norm_name is not None and norm_name in consolidated_act_text:
             continue
-        if squash_spaces(name.lower()) not in the_law.lower():
-            context.log.warn(
-                "Name not found in consolidated regulation text",
+
+        # Not found without asciifying — try again with diacritics stripped.
+        ascii_name = normalize(name, ascii=True)
+        ascii_law = _law_ascii(context, consolidated_url)
+        if ascii_name and ascii_law and ascii_name in ascii_law:
+            context.log.info(
+                "Name found in consolidated text only after asciifying",
                 name=name,
+                ascii_name=ascii_name,
                 row_id=row_id,
                 source_url=source_url,
+                consolidated_url=consolidated_url,
+            )
+        else:
+            context.log.warning(
+                "Name not found in consolidated regulation text",
+                name=name,
+                ascii_name=ascii_name,
+                row_id=row_id,
+                source_url=source_url,
+                consolidated_url=consolidated_url,
+                start_date=start_date,
             )
 
 
 def crawl_unconsolidated_row(
-    context: Context, linker: Linker[Entity], row_idx: int, row: Dict[str, str]
+    context: Context, linker: Linker[Entity], row_idx: int, row: dict[str, str]
 ) -> None:
-    """Process one row of the CSV data"""
+    """Process one row of the CSV data
+
+    Unconsolidated between EU Journal and XML, not in the consolidated legislation sense.
+    """
     row_id = row.pop("List ID").strip(" \t.")
     entity_type = row.pop("Type").strip()
     name = row.pop("Name").strip()
@@ -152,16 +248,11 @@ def crawl_unconsolidated_row(
     entity = context.make(entity_type)
     entity.id = context.make_id(row_id, name, country)
     context.log.debug(f"Unique ID {entity.id}")
-    # Validate that the name is in the consolidated regulation text
-    the_law = get_regulation_text(context)
-    is_name_in_the_law(context, the_law, name, row_id, source_url)
 
-    # Commented out since the 20 May journal updates added details like IDs and
-    # cyrilic names which aren't in the XML yet but the entities are.
-    # Uncomment when the details are added to FSF expected around 6 June
-    # e.g. check whether https://www.opensanctions.org/statements/NK-VwonxcqhDhAzHKWXCdSdXd/?prop=registrationNumber
-    # has 1674003000 from eu_fsf.
-    #
+    start_date = row.pop("startDate")
+    names = h.multi_split(name, ";")
+    check_in_consolidated_act_text(context, start_date, names, row_id, source_url)
+
     canonical_id = linker.get_canonical(entity.id)
     for other_id in linker.get_referents(canonical_id):
         if other_id.startswith("eu-fsf-"):
@@ -204,7 +295,7 @@ def crawl_unconsolidated_row(
         h.apply_dates(entity, "birthDate", h.multi_split(dob, ";"))
     entity.add("birthPlace", row.pop("POB"), quiet=True)
     entity.add("country", h.multi_split(country, ";"))
-    entity.add("name", h.multi_split(name, ";"))
+    entity.add("name", names)
     entity.add("previousName", h.multi_split(row.pop("previousName"), ";"))
     entity.add("alias", h.multi_split(row.pop("Alias"), ";"))
     entity.add_cast("Person", "passportNumber", h.multi_split(row.pop("passport"), ";"))
@@ -243,7 +334,6 @@ def crawl_unconsolidated_row(
         key=program_code,
         program_key=h.lookup_sanction_program_key(context, program_code),
     )
-    start_date = row.pop("startDate")
     h.apply_date(sanction, "startDate", start_date)
     entity.add("topics", "sanction")
 
@@ -270,7 +360,7 @@ def crawl_unconsolidated_row(
     context.audit_data(row)
 
 
-def crawl_context_row(context: Context, row_idx: int, row: Dict[str, str]) -> None:
+def crawl_context_row(context: Context, row_idx: int, row: dict[str, str]) -> None:
     """Process one row of the contextual CSV data"""
     row_id = row.pop("List ID").strip(" \t.")
     entity_type = row.pop("Type").strip()
@@ -325,6 +415,7 @@ def crawl_context_row(context: Context, row_idx: int, row: Dict[str, str]) -> No
 
 def crawl(context: Context):
     # Round 1: unconsolidated.csv with the latest journal updates
+    # Unconsolidated between EU Journal and XML, not in the consolidated legislation sense.
     path = context.fetch_resource("unconsolidated.csv", context.data_url)
     linker = get_dataset_linker(context.dataset)
     with open(path, "rt") as infh:
