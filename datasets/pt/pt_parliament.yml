@@ -1,0 +1,45 @@
+title: Portugese Members of the Parliament
+prefix: pt-parl
+url: https://www.parlamento.pt/Cidadania/Paginas/DadosAbertos.aspx
+coverage:
+  frequency: monthly
+  start: 2026-03-04
+load_statements: true
+entry_point: crawler.py
+ci_test: true  # lightweight crawler
+summary: >-
+  Current and Historical Members of the Portugese Parliament.
+description: |
+  The Assembly of the Republic (Portuguese: The Assembleia da República) is the unicameral parliament of Portugal.
+  It is composed of 230 deputies elected by proportional representation for a four-year term,
+  with each deputy representing one of 22 electoral constituencies, including mainland
+  districts, the autonomous regions of Açores and Madeira, and two diaspora constituencies
+  (Europe and Outside Europe).
+
+  The data is sourced from the official open data provided by the Portuguese Parliament, containing comprehensive
+  mandate information, including party affiliations, constituencies, roles, and seat status across legislatures.
+tags:
+  - list.pep
+publisher:
+  name: Assembleia da República
+  description: |
+    The Assembleia da República is the unicameral parliament of Portugal.
+  country: pt
+  url:
+  official: true
+data:
+  # data dictionary: https://app.parlamento.pt/webutils/docs/doc.pdf?path=6148523063446f764c324679626d56304c3239775a57356b595852684c3052685a47397a51574a6c636e5276637939446232317762334e70773666446f32386c4d6a426b5a5355794d4d4f54636d66446f32397a4c306c4a535355794d45786c5a326c7a6247463064584a684c3039795a324676513239746347397a61574e68627935775a47593d&fich=OrgaoComposicao.pdf&Inline=true
+  url: https://www.parlamento.pt/Cidadania/Paginas/DadosAbertos.aspx
+  format: JSON
+  lang: por
+dates:
+  formats: ["%d-%m-%Y"]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 6600  # raw count 8270 (current + historical, incl. temporary MPs)
+      Position: 1
+  max:
+    schema_entities:
+      Person: 16500
