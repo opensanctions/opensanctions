@@ -11,6 +11,6 @@ dataset: eu_fsf
 target_territories:
 - sd
 measures:
-- Arms export restrictions
+- Arms restrictions
 - Asset freeze
 - Restrictions on goods
