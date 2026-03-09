@@ -18,7 +18,7 @@ from zavod.shed.trans import (
     RUSSIAN,
     ARABIC,
 )
-from zavod.stateful.positions import OccupancyStatus, categorise
+from zavod.stateful.positions import categorise, OccupancyStatus
 
 from zavod import helpers as h
 
@@ -233,7 +233,8 @@ def crawl_family_member(
 ) -> tuple[str, str, FamilyMemberStatus]:
     """Crawl a family member, skip if they're a minor.
 
-    Returns a tuple of first name, last name, and FamilyMemberStatus to determine if they're a minor."""
+    Returns a tuple of first name, last name, and FamilyMemberStatus to determine if they're a minor.
+    """
     first_name = relative.pop("FirstName")
     last_name = relative.pop("LastName")
     birth_date = h.extract_date(context.dataset, relative.pop("BirthDate"))
@@ -276,9 +277,7 @@ def crawl_family_member(
     return first_name, last_name, FamilyMemberStatus.DEFAULT
 
 
-def crawl_declaration(
-    context: Context, *, item: dict[str, Any], is_current_year: bool
-) -> None:
+def crawl_declaration(context: Context, *, item: dict[str, Any]) -> None:
     declaration_id = item.pop("Id")
     first_name = item.pop("FirstName")
     last_name = item.pop("LastName")
@@ -338,7 +337,10 @@ def crawl_declaration(
         person,
         position,
         categorisation=categorisation,
-        status=OccupancyStatus.CURRENT if is_current_year else OccupancyStatus.UNKNOWN,
+        no_end_implies_current=False,
+        # Having made the declaration this year doesn't mean they're in that position
+        # still some months later in the same calendar year.
+        status=OccupancyStatus.UNKNOWN,
     )
     if not occupancy:
         return
@@ -476,10 +478,6 @@ def crawl(context: Context) -> None:
                     context, year=year, name=name, cache_days=cache_days
                 )
                 for declaration in declarations:
-                    crawl_declaration(
-                        context,
-                        item=declaration,
-                        is_current_year=(year == current_year),
-                    )
+                    crawl_declaration(context, item=declaration)
 
             page += 1
