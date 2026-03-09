@@ -6,14 +6,51 @@ from pydantic import BaseModel, Field
 from zavod import settings
 
 Measure = Literal[
+    # Suspension of foreign aid, development funding, or multilateral
+    # lending to a country.
+    "Aid suspension",
+    # Blanket prohibition on arms/military equipment to a country or regime.
+    # Country-wide scope only. If targeted at specific entities, use
+    # "Export control" instead.
     "Arms embargo",
-    "Arms export restrictions",
+    # Freezing of funds and economic resources of a designated person/entity.
+    # Includes US-style "blocking" — treat these as equivalent.
     "Asset freeze",
+    # Exclusion from government procurement, contracts, or programs
+    # (Medicaid/Medicare exclusions, World Bank debarment, SAM.gov).
+    "Debarment",
+    # Restrictions on export of dual-use goods, technology, military items,
+    # or luxury goods to specific destinations or end-users. Covers both
+    # outright bans and licensing requirements.
     "Export control",
-    "Financial block",
+    # Systemic financial measures: correspondent banking bans, SWIFT cutoffs,
+    # capital market access bans, sovereign debt restrictions, insurance bans.
+    # NOT entity-level freezes — those go under "Asset freeze".
+    "Financial restrictions",
+    # Prohibitions on importing goods originating from a sanctioned country
+    # or sector (oil, coal, gold, diamonds, iron/steel, etc.).
+    "Import restrictions",
+    # Prohibition on new investment (equity, JVs, capital contributions) in
+    # a sanctioned country or sector. Targets future capital flows, not
+    # existing assets.
     "Investment ban",
+    # Prohibition on providing professional services (legal, accounting, IT,
+    # consulting, engineering, advertising, trust formation) to sanctioned
+    # countries or persons. No physical goods involved.
+    "Services ban",
+    # Bars sanctioned parties from claiming compensation for the effects of
+    # sanctions via litigation or arbitration.
     "Prohibition to satisfy claims",
-    "Restrictions on goods",
+    # Broad restrictions targeting entire economic sectors (energy, defense,
+    # mining, technology). Use when the measure applies at sector level and
+    # doesn't reduce to a single trade or financial category above.
+    "Sectoral sanctions",
+    # Port access bans, airspace closures, ship-to-ship transfer bans,
+    # vessel deflagging, prohibitions on maritime/aviation services
+    # (crewing, classification, insurance).
+    "Transportation restrictions",
+    # Prohibition on entry into or transit through the sanctioning
+    # jurisdiction. Natural persons only.
     "Travel ban",
 ]
 
@@ -116,15 +153,13 @@ def get_all_programs_by_key() -> dict[str, Program]:
         # Validate all territory codes against rigour
         # This will make the unit test fail if any don't validate
         for code in program.target_territories:
-            assert rigour.territories.get_territory(code) is not None, (
-                f"Unknown territory code '{code}' in program '{program.key}'"
-            )
+            assert (
+                rigour.territories.get_territory(code) is not None
+            ), f"Unknown territory code '{code}' in program '{program.key}'"
         if program.issuer and program.issuer.territory:
             assert (
                 rigour.territories.get_territory(program.issuer.territory) is not None
-            ), (
-                f"Unknown issuer territory '{program.issuer.territory}' in program '{program.key}'"
-            )
+            ), f"Unknown issuer territory '{program.issuer.territory}' in program '{program.key}'"
 
         programs.append(program)
 
