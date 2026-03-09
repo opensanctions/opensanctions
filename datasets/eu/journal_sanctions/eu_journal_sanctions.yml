@@ -134,6 +134,7 @@ lookups:
       - match:
           - 2014/145
           - 269/2014
+          - 208/2014
         value: EU-UKR
       - match: 765/2006
         value: EU-BLR
