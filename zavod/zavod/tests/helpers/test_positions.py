@@ -1,8 +1,9 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
+from zavod import settings
 from zavod.context import Context
 from zavod.meta import Dataset
-from zavod.helpers.positions import make_position, make_occupancy
+from zavod.helpers.positions import make_position, make_occupancy, earliest_term_start
 
 
 def test_make_position(testdataset1: Dataset):
@@ -168,3 +169,20 @@ def test_occupancy_dataset_coverage():
     assert occupancy2.get("endDate") == ["2021-01-05"]
     context1.close()
     context2.close()
+
+
+def test_earliest_term_start():
+    def _years_ago(years):
+        return (settings.RUN_TIME - timedelta(days=365 * years)).date().isoformat()
+
+    # For national positions, the earliest term start should be 20 years + after-office threshold ago
+    topics = ["gov.national"]
+    assert earliest_term_start(topics) < _years_ago(1)
+    assert earliest_term_start(topics) < _years_ago(10)
+    assert earliest_term_start(topics) > _years_ago(50)
+
+    # For subnational positions, the earliest term start should be 20 years + after-office threshold ago
+    topics = ["gov.state"]
+    assert earliest_term_start(topics) < _years_ago(1)
+    assert earliest_term_start(topics) < _years_ago(10)
+    assert earliest_term_start(topics) > _years_ago(16)
