@@ -135,3 +135,56 @@ assertions:
         birthDate: 0.7  # at least 70% of Persons have a birth date
 ```
 
+# Sanctions programme metadata
+
+Sanctions programmes are the specific government policies that form the legal basis for designating individuals, companies, vessels, or other entities as sanctioned. Each programme defines a scope and a set of measures that the issuing authority imposes on the sanctioned target. See [What are sanctions programs?](/reference/faq/#sanctions-programs) for background.
+
+Programme metadata is maintained as YAML blocks on collection-level datasets. Individual entities are linked to programmes via the `programId` property. The full set of programme metadata is published as a JSON file at `https://data.opensanctions.org/meta/programs.json`, updated multiple times per day.
+
+### Basics
+
+- `key` - Short unique identifier for code and cross-references, surfaced in the UI as e.g. `[EU-RUS]`. Convention: `{ISSUER}-{TARGET}` or `{ISSUER}-{SHORTNAME}`, e.g. `EU-HAM`, `SECO-IRAN`, `UN-SC1970`. Uppercase, alphanumeric with hyphens only.
+- `title` - Official or near-official English title of the programme. For non-English regimes (e.g. SECO), use a consistent English translation.
+- `url` - Authoritative public-facing page at the issuing authority (SECO programme page, EU sanctions map entry, UN Security Council committee page, etc.).
+- `aliases` - List of strings. Optional. Alternative identifiers, legal citations, or short names, e.g. `Resolution 1970`, `UFLPA`, `SR 946.231.172.7`. Omit if none apply.
+- `summary` - Plain-language description: who the programme targets, why, and what measures it imposes. Two to four sentences. Must be consistent with the `measures` field.
+- `dataset` - Related OpenSanctions dataset that ingests data from this programme, e.g. `eu_fsf`, `ch_seco_sanctions`, `un_sc_sanctions`. Some programmes are covered by multiple datasets but one is chosen here as the primary source.
+- `issuer` - Identifier of the issuing authority from the controlled vocabulary, e.g. `eu_council`, `ch_seco`, `zz_unsc`, `us_ofac`, `us_dhs`, `ca_mfa`, `cz_mzv`.
+- `target_territories` - List of strings. Optional. ISO 3166-1 alpha-2 codes (lowercase) for the targeted territories this programme is linked to. Omit for programmes that target persons regardless of geography (e.g. counter-terrorism lists).
+
+### Measures
+
+- `measures` - List of strings. Required. One or more values from the [sanctions measures taxonomy](measures-taxonomy.md) describing what the programme imposes. Verify against the legal instrument or the issuing authority's programme page. Where a programme transposes another regime (e.g. SECO transposing EU measures), reflect what the transposing authority implements. Valid values:
+  - `Aid suspension`
+  - `Arms restrictions`
+  - `Asset freeze`
+  - `Debarment`
+  - `Export control`
+  - `Financial restrictions`
+  - `Import restrictions`
+  - `Investment ban`
+  - `Services ban`
+  - `Prohibition to satisfy claims`
+  - `Sectoral sanctions`
+  - `Transportation restrictions`
+  - `Travel ban`
+
+## Example
+
+```yaml
+title: EU Restrictive measures in view of the situation in the Democratic Republic of the Congo
+key: EU-COD
+url: https://sanctionsmap.eu/#/main/details/11/
+summary: These sanctions target individuals and entities involved in the conflict,
+  human rights abuses, and destabilizing activities in the Democratic Republic of
+  the Congo. The measures include asset freezes, travel bans, and restrictions on
+  trade to promote peace and stability in the region.
+issuer: eu_council
+dataset: eu_fsf
+target_territories:
+- cd
+measures:
+- Arms export restrictions
+- Asset freeze
+- Travel ban
+```
