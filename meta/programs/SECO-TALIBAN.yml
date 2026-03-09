@@ -9,6 +9,6 @@ dataset: ch_seco_sanctions
 target_territories:
 - af
 measures:
-- Arms embargo
+- Arms restrictions
 - Asset freeze
 - Travel ban
