@@ -330,7 +330,7 @@ def crawl_declaration(
     apply_translit_full_name(
         context, position, "kat", position_name_kat, TRANSLIT_OUTPUT, POSITION_PROMPT
     )
-    categorisation = categorise(context, position, is_pep=True)
+    categorisation = categorise(context, position, is_pep=None)
     if not categorisation.is_pep:
         return
     occupancy = h.make_occupancy(
