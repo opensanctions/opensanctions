@@ -1,16 +1,7 @@
-from datetime import datetime
 from typing import Dict, Any
 
 from zavod import Context, helpers as h
-from zavod.stateful.positions import categorise, get_after_office
-
-JUDGE_OVM_ID = "a6b0a81a-cf8a-4319-8fd1-5d509d5ce1df"
-# JUDGE_POSITION_ID = "f2a7d68f-d38f-4c3d-a820-919ec5924f4a"
-
-MINISTER_ID = "8c7d612b-dabd-4c20-89a6-6c6a5d26e87e"
-MINISTER_OVM_ID = "f2986792-0539-44d8-ae4a-30faba776b36"
-# 98450ad9-576a-4f35-a511-dbe06f3f5db4 reditel odboru
-# a23ba8b7-06ca-42a5-afef-c04fc45897e7 namestek clean vlady
+from zavod.stateful.positions import categorise
 
 
 def crawl_person(context: Context, item: Dict[str, Any]) -> None:
@@ -32,6 +23,8 @@ def crawl_person(context: Context, item: Dict[str, Any]) -> None:
     entity.add("title", item.get("titleBefore"))
     entity.add("title", item.get("titleAfter"))
     entity.add("citizenship", "cz")
+    # is_judge is a person-level flag
+    is_judge = item.get("judge")
     for wp in item.get("workingPositions", []):
         wp_data = wp.get("workingPosition")
         # Some persons hold a deputy or senator role alongside other roles.
@@ -41,50 +34,36 @@ def crawl_person(context: Context, item: Dict[str, Any]) -> None:
         # working position entry anyway.
         is_deputy = wp_data.get("deputy")
         is_senator = wp_data.get("senator")
-        is_judge = item.get("judge")
-        ovm_id = wp.get("ovmId")
-        position_name = wp.get("name")
-        res = None
+        _position_name = wp.get("name")
 
-        # judge is a person-level flag, not position-level, so a judge person
-        # will have it set on ALL their working positions, including non-judicial
-        # ones. We narrow to the single position_id that represents the judge role.
-        if is_judge and ovm_id == JUDGE_OVM_ID:
-            res = context.lookup("judicial_details", position_name, warn_unmatched=True)
-        elif is_deputy or is_senator or ovm_id == MINISTER_OVM_ID:
-            res = context.lookup("position_details", ovm_id, warn_unmatched=True)
+        if is_deputy or is_senator or is_judge:
+            is_pep = True
         else:
-            res = context.lookup("position_details", position_name)
+            is_pep = None
 
-        if res and res.items:
-            position = h.make_position(
-                context,
-                name=res.items["name"],  # fix: index into list
-                wikidata_id=res.items["qid"],
-                country="cz",
-                topics=res.items["topics"],
-                lang="eng",
-            )
-        else:
-            # Fallback: construct position from API fields
-            role_name = wp_data.get("name")
-            org_name = wp.get("organization")
-            position = h.make_position(
-                context,
-                name=f"{role_name}, {org_name}" if org_name else role_name,
-                country="cz",
-                lang="ces",
-            )
+        role_name = wp_data.get("name")
+        org_name = wp.get("organization")
+        position_name = f"{role_name}, {org_name}" if org_name else role_name
+        position = h.make_position(
+            context,
+            # We construct a clean position_name without the date at the end:
+            # e.g. člen statutárního orgánu Kulturní zařízení města Přibyslav 01.02.2026
+            # -> člen statutárního orgánu Kulturní zařízení města Přibyslav
+            name=position_name,
+            country="cz",
+            lang="ces",
+        )
+        entity.add("position", position_name)
 
         # We mark them all as PEPs by the source definition
-        categorisation = categorise(context, position, is_pep=True)
+        categorisation = categorise(context, position, is_pep=is_pep)
+        if not categorisation.is_pep:
+            continue
 
-        end_date = wp.get("end")  # alternative key: writtenDateOfEnd
-        topics = position.get("topics")
-        if end_date is not None and topics:
-            cutoff = datetime.now() - get_after_office(topics)
-            if datetime.strptime(end_date, "%Y-%m-%d") < cutoff:
-                continue
+        # alternative key: writtenDateOfEnd
+        end_date = wp.get("end") or wp.get("writtenDateOfEnd")
+        if wp.get("end") and wp.get("writtenDateOfEnd"):
+            end_date = max(wp.get("end"), wp.get("writtenDateOfEnd"))
 
         occupancy = h.make_occupancy(
             context,
