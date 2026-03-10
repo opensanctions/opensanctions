@@ -44,7 +44,6 @@ def crawl(context: Context) -> None:
                 "senateur",
                 "depute",
                 "europe",
-                "president",
             ) or mandate_type.startswith("Maire"):
                 continue
 
@@ -60,7 +59,7 @@ def crawl(context: Context) -> None:
 
             # int for French departement number
             position.add("subnationalArea", row.pop("departement"))
-            categorisation = categorise(context, position, is_pep=True)
+            categorisation = categorise(context, position)
 
             occupancy = h.make_occupancy(
                 context,
