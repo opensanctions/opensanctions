@@ -23,15 +23,10 @@ def crawl_person(context: Context, item: Dict[str, Any]) -> None:
     is_judge = item.get("judge")
     for wp in item.get("workingPositions", []):
         wp_data = wp.get("workingPosition")
-        # Some persons hold a deputy or senator role alongside other roles.
-        # The API flags this with deputyAndOthers / senatorAndOthers at the
-        # person level. We only look at the position-level deputy/senator flags
-        # here, since the deputy/senator position will be emitted on its own
-        # working position entry anyway.
+        # is_deputy and is_senator are position-level flags
         is_deputy = wp_data.get("deputy")
         is_senator = wp_data.get("senator")
-        _position_name = wp.get("name")
-
+        # Only the main institutions are marked as PEP by default
         if is_deputy or is_senator or is_judge:
             is_pep = True
         else:
@@ -39,24 +34,21 @@ def crawl_person(context: Context, item: Dict[str, Any]) -> None:
 
         role_name = wp_data.get("name")
         org_name = wp.get("organization")
+        # Construct a clean position_name:
+        # e.g. poslanec, Kancelář Poslanecké sněmovny Parlamentu
         position_name = f"{role_name}, {org_name}" if org_name else role_name
         position = h.make_position(
             context,
-            # We construct a clean position_name without the date at the end:
-            # e.g. člen statutárního orgánu Kulturní zařízení města Přibyslav 01.02.2026
-            # -> člen statutárního orgánu Kulturní zařízení města Přibyslav
             name=position_name,
             country="cz",
             lang="ces",
         )
         entity.add("position", position_name)
 
-        # We mark them all as PEPs by the source definition
         categorisation = categorise(context, position, is_pep=is_pep)
         if not categorisation.is_pep:
             continue
 
-        # alternative key: writtenDateOfEnd
         end_date = wp.get("end") or wp.get("writtenDateOfEnd")
         if wp.get("end") and wp.get("writtenDateOfEnd"):
             end_date = max(wp.get("end"), wp.get("writtenDateOfEnd"))
