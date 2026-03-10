@@ -47,19 +47,19 @@ def crawl(context: Context) -> None:
             ) or mandate_type.startswith("Maire"):
                 continue
 
-            res = context.lookup("positions", mandate_type, warn_unmatched=True)
-            topics = res.topics if res else None
-
             position = h.make_position(
                 context,
                 name=role,
-                topics=topics,
                 country="fr",
             )
 
             # int for French departement number
             position.add("subnationalArea", row.pop("departement"))
-            categorisation = categorise(context, position)
+            categorisation = categorise(context, position, is_pep=None)
+
+            if not categorisation.is_pep:
+                continue
+            position.add("topics", categorisation.topics)
 
             occupancy = h.make_occupancy(
                 context,
