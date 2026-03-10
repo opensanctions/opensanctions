@@ -1,7 +1,6 @@
 from zavod import Context, helpers as h
 
-PROGRAM_KEY = "GB-RUS"
-REGIME_NAME = "Russia"
+PROGRAM_KEY = "GB-RUS-INV"
 
 
 def crawl(context: Context) -> None:
@@ -27,13 +26,7 @@ def crawl(context: Context) -> None:
         if url_list:
             entity.add("sourceUrl", url_list[0])
 
-        sanction = h.make_sanction(
-            context,
-            entity,
-            program_name=REGIME_NAME,
-            source_program_key=REGIME_NAME,
-            program_key=PROGRAM_KEY,
-        )
+        sanction = h.make_sanction(context, entity, program_key=PROGRAM_KEY)
 
         context.emit(entity)
         context.emit(sanction)
