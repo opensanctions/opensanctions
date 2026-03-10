@@ -9,8 +9,10 @@ from zavod import settings
 from zavod.context import Context
 from zavod.entity import Entity
 from zavod.stateful.positions import (
+    DEFAULT_AFTER_OFFICE,
     OccupancyStatus,
     PositionCategorisation,
+    get_after_office,
     occupancy_status,
 )
 
@@ -200,3 +202,28 @@ def make_occupancy(
                 person.add("country", country)
 
     return occupancy
+
+
+def earliest_term_start(topics: List[str] = ["gov.national"]) -> str:
+    """Returns a date that can be used as a cut-off date for parliamentary or government terms
+    when crawling historical data. For example, if a dataset is known to include data from the
+    inception of a country, but we only want to consider people as PEPs if they held a position
+    within the last 20 years, we can use this function to determine the earliest term start date
+    to consider when crawling.
+
+    The date is framed as a start date but should include sufficient slack to also be used as a
+    filter on end dates if just those are available.
+
+    Args:
+        topics: A list of topics to determine the earliest term start date for.
+            For example, ["gov.national"] for national-level positions or ["gov.state"] for
+            subnational positions. ["gov.diplo"] for international diplomatic positions.
+            The default is ["gov.national"].
+
+    Returns:
+        A date string in ISO format representing the earliest term start date to consider.
+    """
+    after_office = get_after_office(topics)
+    after_office = after_office + (DEFAULT_AFTER_OFFICE * 2)  # Add extra slack
+    earliest_date = (settings.RUN_TIME - after_office).date().isoformat()
+    return earliest_date
