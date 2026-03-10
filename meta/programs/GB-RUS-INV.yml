@@ -8,3 +8,5 @@ issuer: gb_ofsi
 dataset: gb_hmt_invbans
 target_territories:
 - ru
+measures:
+- Investment ban
