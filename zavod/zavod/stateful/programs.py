@@ -5,6 +5,10 @@ from pydantic import BaseModel, Field
 
 from zavod import settings
 
+# TODO: relatively soon we'll need to turn this into a dict if we want to
+# hotwire a special prop (like Sanctions:measures) to use it.
+# https://github.com/opensanctions/opensanctions/pull/3752#pullrequestreview-3924019716
+
 Measure = Literal[
     # Suspension or reduction of foreign aid, development funding, or
     # multilateral lending to a country or territory.
