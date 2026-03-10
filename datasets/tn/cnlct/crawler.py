@@ -1,5 +1,6 @@
 import re
 from typing import Any
+from urllib.parse import urljoin
 
 from normality import squash_spaces
 from openpyxl import load_workbook
@@ -107,7 +108,7 @@ def crawl(context: Context) -> None:
         # Skip if filename contains "تحيين" (update) or "حذف" (deletion): not full lists
         if "تحيين" in filename or "حذف" in filename:
             continue
-        data_url = href
+        data_url = urljoin(context.data_url, href)
         break
 
     if data_url is None:
