@@ -1,4 +1,4 @@
-title: France HATVP Declarations and Assessments
+title: France HATVP Declarations of Interests and Assessments
 prefix: fr-hatvp
 url: https://www.hatvp.fr/open-data/
 coverage:
@@ -17,7 +17,7 @@ description: |
   prevent conflicts of interest.
 
   This dataset provides the national cabinet, regional council presidents and members,
-  departmental council presidents, executives of large public bodies.
+  departmental council presidents, and executives of large public bodies.
   Members of the national assembly and senate, and mayors, are excluded from this dataset
   since other datasets already cover this data.
 publisher:
@@ -39,55 +39,55 @@ data:
 tags:
   - list.pep
 
-lookups:
-  positions:
-    options:
-      - match: europe
-        topics:
-          - gov.igo
-          - gov.legislative
-      - match: president
-        topics:
-          - gov.national
-          - gov.head
-      - match: senateur
-        topics:
-          - gov.national
-          - gov.legislative
-      - match: depute
-        topics:
-          - gov.national
-          - gov.legislative
-      - match: gouvernement
-        topics:
-          - gov.national
-          - gov.executive
-      - match: region
-        topics:
-          - gov.state
-          - gov.legislative
-      - match: departement
-        topics:
-          - gov.state
-          - gov.legislative
-      - match: commune
-        topics:
-          - gov.muni
-          - gov.executive
-      # domestic intercommunal bodies:
-      - match: epci
-        topics:
-          - gov.muni
-          - gov.executive
-      # overseas and special-status territories:
-      - match: ctsp
-        topics:
-          - gov.state
-          - gov.legislative
-      # HATVP leadership:
-      - match: autre
-        topics:
-          - gov.soe  # ? ...
+# lookups:
+#   positions:
+#     options:
+#       - match: europe
+#         topics:
+#           - gov.igo
+#           - gov.legislative
+#       - match: president
+#         topics:
+#           - gov.national
+#           - gov.head
+#       - match: senateur
+#         topics:
+#           - gov.national
+#           - gov.legislative
+#       - match: depute
+#         topics:
+#           - gov.national
+#           - gov.legislative
+#       - match: gouvernement
+#         topics:
+#           - gov.national
+#           - gov.executive
+#       - match: region
+#         topics:
+#           - gov.state
+#           - gov.legislative
+#       - match: departement
+#         topics:
+#           - gov.state
+#           - gov.legislative
+#       - match: commune
+#         topics:
+#           - gov.muni
+#           - gov.executive
+#       # domestic intercommunal bodies:
+#       - match: epci
+#         topics:
+#           - gov.muni
+#           - gov.executive
+#       # overseas and special-status territories:
+#       - match: ctsp
+#         topics:
+#           - gov.state
+#           - gov.legislative
+#       # HATVP leadership:
+#       - match: autre
+#         topics:
+#           - null
 
 
 assertions:
