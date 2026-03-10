@@ -11,15 +11,19 @@ def crawl(context: Context) -> None:
         str_row = h.cells_to_str(row)
         org_name = str_row.pop("organisation")
         historic_id = str_row.pop("historic_group_id_1")
-        link_el = row.pop(
-            "subject_to_other_sanctions_see_entry_on_the_uk_sanctions_list"
-        )
-        url_list = h.xpath_strings(link_el, ".//a/@href")
+        # Refers to entries that are also included on the UK Sanctions List.
+        current_id = str_row.pop("uk_sanctions_list_unique_id_2")
+        # Prefer UK Sanctions List ID; fall back to historic OFSI group ID.
+        entity_id = current_id if current_id != "-" else historic_id
 
         entity = context.make("LegalEntity")
-        # We preserve historic id for backwards compatibility
-        entity.id = context.make_slug(historic_id)
+        entity.id = context.make_slug(entity_id)
         entity.add("name", org_name)
+        # URL is not there for entities that are not on the UK Sanctions List.
+        url_list = h.xpath_strings(
+            row.pop("subject_to_other_sanctions_see_entry_on_the_uk_sanctions_list"),
+            ".//a/@href",
+        )
         if url_list:
             entity.add("sourceUrl", url_list[0])
 
@@ -35,8 +39,5 @@ def crawl(context: Context) -> None:
 
         context.audit_data(
             str_row,
-            [
-                "uk_sanctions_list_unique_id_2",
-                "subject_to_other_sanctions_see_entry_on_the_uk_sanctions_list",
-            ],
+            ["subject_to_other_sanctions_see_entry_on_the_uk_sanctions_list"],
         )
