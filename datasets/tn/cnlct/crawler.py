@@ -62,9 +62,12 @@ def crawl_row(context: Context, row: dict[str, Any]) -> None:
             # Normalise YYYY-MM-DD → YYYY/MM/DD for h.apply_date format matching
             date_str = dob_m.group(1).replace("-", "/")
             h.apply_date(entity, "birthDate", date_str)
-        # Birth place: remove the date and leading Arabic preposition "ب"
+        # Birth place: remove the date and leading Arabic preposition "ب" (meaning
+        # "in"/"at").  Only the single preposition letter is stripped so that the
+        # definite article "ال" stays attached to place names that carry it
+        # (e.g. "بالمنستير" → "المنستير", not "منستير").
         birth_place = DOB_DATE_RE.sub("", dob_str).strip()
-        birth_place = re.sub(r"^[بال]+", "", birth_place).strip()
+        birth_place = re.sub(r"^ب", "", birth_place).strip()
         if birth_place:
             entity.add("birthPlace", birth_place)
     else:
