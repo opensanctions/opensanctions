@@ -9,11 +9,14 @@ Measure = Literal[
     # Suspension or reduction of foreign aid, development funding, or
     # multilateral lending to a country or territory.
     "Aid suspension",
+    # Blanket prohibition on arms/military equipment to a country or regime.
+    # Country-wide scope only. If targeted at specific entities, use
+    # "Arms restrictions" instead.
+    "Arms embargo",
     # Prohibitions on the supply, sale, transfer, or procurement of arms,
     # ammunition, military equipment, and related services (technical
     # assistance, training, financing, brokering). Scope and direction
-    # defined by the applicable regime. Covers UN-mandated embargoes and
-    # autonomous measures.
+    # defined by the applicable regime.
     "Arms restrictions",
     # Freezing of funds, financial assets, and economic resources owned or
     # controlled by a designated person or entity, and the prohibition on
