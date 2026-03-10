@@ -5,12 +5,10 @@ coverage:
   schedule: "0 */6 * * *"
   frequency: daily
   start: 2023-10-17
-deploy:
-  memory: "1Gi"
 load_statements: true
 summary: >
   Separate from the main sanctions list, this list of persons names entities
-  in relation to financial and investment restrictions
+  in relation to financial and investment restrictions.
 description: |
   > Sectoral financial and investment restrictions are in place in the Russia
   > sanctions regime which restrict specified activities. These include
@@ -23,15 +21,15 @@ publisher:
   name: Office of Financial Sanctions Implementation
   acronym: OFSI
   description: >
-    OFSI is part of Her Majesty's Treasury. It helps to ensure that financial
+    OFSI is part of His Majesty's Treasury. It helps to ensure that financial
     sanctions are properly understood, implemented and enforced in the United Kingdom.
   url: https://www.gov.uk/government/organisations/office-of-financial-sanctions-implementation
   country: gb
   official: true
-url: https://www.gov.uk/government/publications/financial-sanctions-consolidated-list-of-targets
+url: https://www.gov.uk/guidance/russia-list-of-persons-named-in-relation-to-financial-and-investment-restrictions
 data:
-  url: https://ofsistorage.blob.core.windows.net/publishlive/2022format/InvBan.xml
-  format: XML
+  url: https://www.gov.uk/guidance/russia-list-of-persons-named-in-relation-to-financial-and-investment-restrictions
+  format: HTML
   lang: eng
 tags:
   - list.sanction
@@ -41,15 +39,7 @@ tags:
 assertions:
   min:
     schema_entities:
-      LegalEntity: 10
-      Address: 1
+      LegalEntity: 8
   max:
     schema_entities:
-      LegalEntity: 50
-      Address: 10
-
-lookups:
-  sanction.program:
-    options:
-      - match: Russia
-        value: GB-RUS
+      LegalEntity: 15
