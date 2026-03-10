@@ -7,7 +7,7 @@ load_statements: true
 entry_point: crawler.py
 ci_test: true
 summary: >-
-  Current Members of the Irish Parliament (Oireachtas Éireann)
+  Current and Historical Members of the Irish Parliament (Oireachtas Éireann)
 description: |
   Members of the bicameral Irish Parliament (Oireachtas Éireann), consisting
   of the president of Ireland and the two houses of the Oireachtas:
@@ -20,9 +20,8 @@ description: |
   from two university constituencies, or they are nominated by the Taoiseach (head of government).
 
   The data is sourced from the official open data provided by the Irish Parliament,
-  containing comprehensive biographical and mandate information,
-  including name, gender, political party, electoral district, and legislative periods
-  of service.
+  containing comprehensive mandate information, including name, gender, political party, electoral district,
+  and legislative periods of service for all parliamentary members since 1919.
 url: https://api.oireachtas.ie/
 tags:
   - list.pep
@@ -43,10 +42,15 @@ data:
 dates:
   formats: ["%Y-%m-%d"]
 
-# assertions:
-#   min:
-#     schema_entities:
-#       Person: 100
-#       Position: 1
-#     country_entities:
-#       at: 1
+assertions:
+  min:
+    schema_entities:
+      Person: 500  # raw count 638
+      # Position:
+      # Occupancy:
+    country_entities:
+      ie: 1
+  max:
+    schema_entities:
+      Person: 1200
+        # Occupancy:
