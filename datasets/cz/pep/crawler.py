@@ -16,10 +16,6 @@ def crawl_person(context: Context, item: Dict[str, Any]) -> None:
         first_name=first_name,
         last_name=last_name,
     )
-    entity.add(
-        "sourceUrl",
-        f"https://cro.justice.cz/verejnost/api/funkcionari/{person_id}",
-    )
     entity.add("title", item.get("titleBefore"))
     entity.add("title", item.get("titleAfter"))
     entity.add("citizenship", "cz")
@@ -74,7 +70,10 @@ def crawl_person(context: Context, item: Dict[str, Any]) -> None:
             categorisation=categorisation,
         )
         if occupancy is not None:
-            context.emit(entity)
+            context.emit(
+                entity,
+                origin=f"https://cro.justice.cz/verejnost/api/funkcionari/{person_id}",
+            )
             context.emit(position)
             context.emit(occupancy)
 
