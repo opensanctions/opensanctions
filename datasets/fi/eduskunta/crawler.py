@@ -90,7 +90,7 @@ def crawl(context: Context) -> None:
         entity.add("birthPlace", pep_data.pop("birth_place", None))
         entity.add("gender", pep_data.pop("gender"), lang="eng")
         entity.add("position", pep_data.pop("occupation"))
-        entity.add("address", pep_data.pop("current_municipality"))
+        entity.add("address", pep_data.pop("current_municipality", None))
         entity.add("political", get_party(pep_data))
         entity.add(
             "sourceUrl",

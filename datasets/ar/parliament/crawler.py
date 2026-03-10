@@ -29,12 +29,11 @@ def crawl_json(context: Context) -> None:
     with open(path, "r") as fh:
         data = json.load(fh)
     for entry in data:
-        deputy_id = entry.pop("id")
         last_name = entry.pop("apellido")
         first_name = entry.pop("nombre")
 
         person = context.make("Person")
-        person.id = context.make_id(first_name, last_name, deputy_id)
+        person.id = context.make_id(first_name, last_name)
         h.apply_name(person, first_name=first_name, last_name=last_name)
         person.add("citizenship", "ar")
         person.add("gender", entry.pop("genero"))

@@ -1,6 +1,6 @@
 import re
 from banal import is_listish, ensure_list
-from typing import Optional, List, Union, Iterable
+from typing import Optional, List, Sequence, Union, Iterable
 from normality import squash_spaces
 
 PREFIX_ = r"INTERPOL-UN\s*Security\s*Council\s*Special\s*Notice\s*web\s*link:?"
@@ -11,7 +11,7 @@ INTERPOL_URL = re.compile(INTERPOL_URL_, re.IGNORECASE)
 BRACKETED = re.compile(r"\(.*\)")
 
 
-def clean_note(text: Union[Optional[str], List[Optional[str]]]) -> List[str]:
+def clean_note(text: Union[Optional[str], Sequence[Optional[str]]]) -> List[str]:
     """Remove a set of specific text sections from notes supplied by sanctions data
     publishers. These include cross-references to the Security Council web site and
     the Interpol web site.
