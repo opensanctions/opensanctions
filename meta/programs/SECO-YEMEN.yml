@@ -11,6 +11,6 @@ dataset: ch_seco_sanctions
 target_territories:
 - ye
 measures:
-- Financial block
-- Restrictions on goods
+- Arms restrictions
+- Asset freeze
 - Travel ban
