@@ -1,0 +1,10 @@
+title: UK Russia financial and investment restrictions
+key: GB-RUS-INV
+url: https://www.gov.uk/guidance/russia-list-of-persons-named-in-relation-to-financial-and-investment-restrictions
+summary:  Restrictions on dealing in transferable securities, money-market instruments, and
+  granting loans or credit to specified Russian entities, and their non-UK subsidiaries,
+  under Chapter 2 of Part 3 and Schedule 2 of the Russia (Sanctions) (EU Exit) Regulations 2019.
+issuer: gb_ofsi
+dataset: gb_hmt_invbans
+target_territories:
+- ru
