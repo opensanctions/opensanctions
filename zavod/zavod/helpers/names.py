@@ -526,10 +526,13 @@ def _review_names(
     key_parts = review_key_parts(entity, original)
 
     # Only include the populated props in the source value for human readability
-    source_value_data: Dict[str, str | Dict[str, List[str | LangText]]] = {
+    source_value_data: Dict[str, str | Dict[str, List[str | Dict[str, str | None]]]] = {
         "entity_schema": entity.schema.name
     }
-    populated_props = dict(source_names.original.nonempty_item_lists())
+    populated_props: Dict[str, List[str | Dict[str, str | None]]] = {
+        k: [v.model_dump() if isinstance(v, LangText) else v for v in vals]
+        for k, vals in source_names.original.nonempty_item_lists()
+    }
     source_value_data["original"] = populated_props
 
     source_value = JSONSourceValue(
