@@ -32,6 +32,9 @@ data:
 tags:
   - list.sanction
   - issuer.africa
+names:
+  suggest_weak_alias_person_single_token: true
+
 assertions:
   min:
     schema_entities:
@@ -41,8 +44,10 @@ assertions:
   max:
     schema_entities:
       Person: 200
+
 lookups:
   type.gender:
+    # Incl lowercase
     normalize: true
     options:
       - match: female

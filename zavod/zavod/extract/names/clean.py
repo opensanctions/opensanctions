@@ -1,6 +1,6 @@
 from functools import cache
 from pathlib import Path
-from typing import Any, Generator, List, Optional, Tuple
+from typing import Any, Generator, List, Optional, Sequence, Tuple
 import json
 
 from pydantic import BaseModel
@@ -14,7 +14,7 @@ SINGLE_ENTITY_PROGRAM_PATH = Path(__file__).parent / "dspy/single_entity_program
 # original extraction.
 EXCLUDE_IF_EMPTY = {"previousName", "firstName", "middleName", "lastName"}
 
-NamesValue = str | List[str | None] | None
+NamesValue = str | Sequence[str | None] | None
 
 
 def is_empty_string(text: Optional[str]) -> bool:
