@@ -127,7 +127,7 @@ lookups:
         name: GM Daewoo Auto & Technology Company
         country: South Korea
       - match: M-I Production Chemicals (ME) FZE
-        name: M-I Production Chemicals ME FZE
+        name: M-I Production Chemicals (ME) FZE
       - match: Gulf International Bank (New York)
         name: Gulf International Bank
         country: us-ny

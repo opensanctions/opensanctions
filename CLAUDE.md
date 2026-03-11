@@ -26,3 +26,4 @@ This project contains crawlers that import source data, such as sanctions lists 
 * When adding type hints, use the container types such as `set`, `tuple` or `dict` instead of the now-deprecated `typing.Set`, `typing.Tuple` or `typing.Dict`.
 * All new crawlers should be written using typed Python. Suggest adding types to existing ones.
 * We use `lxml` for parsing HTML/XML, and `context.fetch_` functions the retrieve online data. Other libraries are listed in `zavod/pyproject.toml`. NEVER use beautifulsoup, or the Python stdlib xml modules.
+* For crawlers that traverse HTML using XPath expressions, use the sensibly-typed helpers in `zavod.helpers.html` if possible.

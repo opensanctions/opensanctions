@@ -94,7 +94,6 @@ repos:
           datasets/mx|
           datasets/my|
           datasets/ng|
-          datasets/nl|
           datasets/no/nbim_exclusions|
           datasets/np|
           datasets/nz|
@@ -200,11 +199,11 @@ repos:
           datasets/za
           )
         args: ['--strict', '--explicit-package-bases']
-#  - repo: local
-#    hooks:
-#      - id: nextjs-lint
-#        name: ESLint
-#        entry: bash -c "cd ui && npx eslint"
-#        language: system
-#        files: '^ui/'
-#        pass_filenames: false
+  - repo: local
+    hooks:
+      - id: zavod-ui-lint
+        name: ESLint
+        entry: bash -c "cd ui && npx eslint --fix"
+        language: system
+        files: '^ui/'
+        pass_filenames: false

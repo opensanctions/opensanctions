@@ -49,7 +49,9 @@ lookups:
         value: female
   type.date:
     options:
-      - match: 鹤壁市豫剧团团长
+      - match:
+          - 鹤壁市豫剧团团长
+          - 987年1月  # probably a typo for 1987, but let's not assume
         value: null
   type.name:
     options:

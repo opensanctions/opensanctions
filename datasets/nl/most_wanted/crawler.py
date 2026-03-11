@@ -1,3 +1,5 @@
+from itertools import count
+
 from normality import slugify
 
 from zavod import Context
@@ -41,8 +43,10 @@ def crawl_person(context: Context, source_url: str) -> None:
     title_xpath = ".//h1[@test-id='title']"
     doc = fetch_html(context, source_url, title_xpath, cache_days=7)
 
-    facts = {}
-    for fact_text in doc.xpath("//ul[@test-id='dossier-report-list']/li/text()"):
+    facts: dict[str, str] = {}
+    for fact_text in h.xpath_strings(
+        doc, "//ul[@test-id='dossier-report-list']/li/text()"
+    ):
         if ": " not in fact_text:
             context.log.warn(
                 f'Unparseable fact text "{fact_text}"',
@@ -51,6 +55,7 @@ def crawl_person(context: Context, source_url: str) -> None:
             continue
         key_text, value_text = fact_text.split(": ", 1)
         facts_key = slugify(key_text, sep="_")
+        assert facts_key is not None
         facts[facts_key] = value_text
 
     person = context.make("Person")
@@ -68,8 +73,8 @@ def crawl_person(context: Context, source_url: str) -> None:
 
     person.add("name", name)
 
-    intro_desc = doc.xpath("//p[contains(@class, 'p-intro')]/text()")
-    other_descs = doc.xpath("//div[@test-id='html']/p/text()")
+    intro_desc = h.xpath_strings(doc, "//p[contains(@class, 'p-intro')]/text()")
+    other_descs = h.xpath_strings(doc, "//div[@test-id='html']/p/text()")
 
     descs = h.clean_note(intro_desc + other_descs)
     person.add("notes", "\n".join(descs))
@@ -91,22 +96,17 @@ def crawl_person(context: Context, source_url: str) -> None:
 
 
 def crawl(context: Context) -> None:
-    next_page = 1
-
-    while next_page:
+    for next_page in count(1):
         detail_url_xpath = "//a[contains(@test-id, 'wantedmissing-link')]/@href"
         url = f"{context.data_url}?page={next_page}"
-        doc = fetch_html(context, url, detail_url_xpath)
-        doc.make_links_absolute(context.data_url)
-        detail_urls = doc.xpath(detail_url_xpath)
+        doc = fetch_html(context, url, detail_url_xpath, absolute_links=True)
+        detail_urls = h.xpath_strings(doc, detail_url_xpath)
         for detail_url in detail_urls:
             # The website also contains some other search notices that we don't care about
             if detail_url.startswith(FUGITIVES_URL_PREFIX):
                 crawl_person(context, detail_url)
-        next_button = doc.find(".//*[@id='paginator-next-button']")
+        next_button = h.xpath_element(doc, ".//*[@id='paginator-next-button']")
 
         # <button disabled> is '', <button> is None.
         if next_button.get("disabled") == "":
-            next_page = None
-        else:
-            next_page = next_page + 1
+            break
