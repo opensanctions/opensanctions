@@ -154,7 +154,7 @@ Programme metadata is maintained as YAML blocks on collection-level datasets. In
 
 ### Measures
 
-- `measures` - List of strings. Required. One or more values from the [sanctions measures taxonomy](measures-taxonomy.md) describing what the programme imposes. Verify against the legal instrument or the issuing authority's programme page. Where a programme transposes another regime (e.g. SECO transposing EU measures), reflect what the transposing authority implements. Valid values:
+- `measures` - List of strings. Optional. One or more values from the [sanctions measures taxonomy](measures-taxonomy.md) describing what the programme imposes. Verify against the legal instrument or the issuing authority's programme page. Where a programme transposes another regime (e.g. SECO transposing EU measures), reflect what the transposing authority implements. Valid values:
   - `Aid suspension`
   - `Arms embargo`
   - `Arms restrictions`
