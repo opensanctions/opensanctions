@@ -1,6 +1,6 @@
 # Sanctions measures taxonomy
 
-Each sanctions programme in the OpenSanctions database is tagged with one or more **measures** describing the types of restrictive action it imposes. Measures are referenced from [programme metadata](programme-metadata.md) via the `measures` field, and are surfaced in the UI and the [programmes JSON](https://data.opensanctions.org/meta/programs.json).
+Most sanctions programmes in OpenSanctions are tagged with one or more **measures** describing the types of restrictive action they impose. Measures are referenced from [programme metadata](metadata.md) via the `measures` field, and are surfaced in the UI and the [programmes JSON](https://data.opensanctions.org/meta/programs.json).
 
 This page defines each measure and provides guidance on classification edge cases.
 
@@ -10,9 +10,13 @@ This page defines each measure and provides guidance on classification edge case
 
 Suspension or reduction of foreign aid, development funding, or multilateral lending to a country or territory.
 
+### Arms embargo
+
+Blanket prohibition on arms/military equipment to a country or regime. Country-wide scope only. If targeted at specific entities, use [Arms restrictions](#arms-restrictions) instead.
+
 ### Arms restrictions
 
-Prohibitions on the supply, sale, transfer, or procurement of arms, ammunition, military equipment, and related services (technical assistance, training, financing, brokering). Scope and direction defined by the applicable regime. Covers UN-mandated embargoes and autonomous measures.
+Prohibitions on the supply, sale, transfer, or procurement of arms, ammunition, military equipment, and related services (technical assistance, training, financing, brokering). Scope and direction defined by the applicable regime.
 
 ### Asset freeze
 
