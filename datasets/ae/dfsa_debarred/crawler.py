@@ -31,11 +31,10 @@ def crawl_person(context: Context, row: _Element) -> None:
 
     # add endDate if the status is expired & don't add debarment topic
     if "past" in status.lower():
-        try:
-            date_end = status.split("expired ")[1].strip(")")
-            h.apply_date(sanction, "endDate", date_end)
-        except IndexError:
-            pass
+        date_end = status.split("(")[1]
+        date_end = date_end.strip(")")
+        date_end = date_end.replace("expired ", "")
+        h.apply_date(sanction, "endDate", date_end)
     else:
         person.add("topics", "debarment")
 

@@ -1,4 +1,4 @@
-title: United Arab Emirates Prohibited/Restricted Individuals by the DFSA
+title: United Arab Emirates DFSA Prohibited/Restricted Individuals
 prefix: ae-dfsa
 entry_point: crawler.py
 coverage:
@@ -53,3 +53,9 @@ assertions:
   max:
     schema_entities:
       Person: 60
+
+lookups:
+  type.date:
+    options:
+      - match: 'Restriction under Article 58'
+        value: null
