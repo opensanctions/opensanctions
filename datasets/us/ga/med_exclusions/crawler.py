@@ -1,4 +1,5 @@
-from typing import Dict
+import re
+from typing import Dict, List, Optional, Tuple
 
 from openpyxl import load_workbook
 
@@ -6,11 +7,31 @@ from rigour.mime.types import XLSX
 from zavod import Context, helpers as h
 
 
+def split_aka(context: Context, middle_name: str) -> Tuple[Optional[str], List[str]]:
+    """Split a middle_name field on 'AKA', returning (middle_name, aliases)."""
+    parts = re.split(r"(?i)\baka\b", middle_name, maxsplit=1)
+    name = parts[0].strip() or None
+    if len(parts) < 2:
+        return name, []
+    raw_alias = parts[1].strip()
+    if " " not in raw_alias:
+        # One word after AKA means it's a different spelling of the firstName (e.g. "John AKA Johnny")
+        return name, [raw_alias]
+    res = context.lookup("alias", raw_alias, warn_unmatched=True)
+    if res is None:
+        return name, []
+    aliases = res.values or [v for v in [res.value] if v is not None]
+    return name, aliases
+
+
 def crawl_item(row: Dict[str, str | None], context: Context):
     first_name = row.pop("first_name")
     last_name = row.pop("last_name")
-    # TODO: clean up AKAs in middle_name
     middle_name = row.pop("middle_name")
+    aliases = None
+    if middle_name and "aka" in middle_name.lower():
+        middle_name, aliases = split_aka(context, middle_name)
+
     business_name = row.pop("business_name")
     npi = row.pop("npi")
 
@@ -32,7 +53,11 @@ def crawl_item(row: Dict[str, str | None], context: Context):
         )
         if business_name:
             entity.add("alias", business_name)
-
+        if aliases:
+            for alias in aliases:
+                # One word after AKA means it's a different spelling of the firstName
+                prop = "firstName" if " " not in alias else "alias"
+                entity.add(prop, alias)
     entity.add("npiCode", npi)
     entity.add("topics", "debarment")
     entity.add("country", "us")

@@ -44,6 +44,32 @@ assertions:
       # adding about 140 mistaken companies to the roughly 105 real companies.
       Company: 200
 lookups:
+  alias:
+    options:
+      - match: SITARA/RAMAKRISHNA KOTHALANKA
+        values:
+          - Sitara Kothalanka
+          - Ramakrishna Kothalanka
+      - match: JESSICA  KATHERINE   IACOBONI & JESSICA KRISTINE GARCIA
+        values:
+          - Jessica Katherine Iacoboni
+          - Jessica Kristine Garcia
+      - match: BARBARA WALLCACE BYRD & JOYCE PARKS
+        values:
+          - Barbara Wallace Byrd
+          - Joyce Parks
+      - match: NIKKI WRIGHT/CAUGHMAN
+        values:
+          - Nikki Wright
+          - Nikki Caughman
+      - match: LATOYA DARNES
+        value: Latoya Darnes
+      - match: VERONICA RIVERA
+        value: Veronica Rivera
+      - match: (TRACY MCCORQUODALE)
+        value: Tracy McCorquodale
+      - match: (ANTHONTY T. GERDES)
+        value: Anthonty T. Gerdes
   type.identifier:
     options:
       - match: "01/**/1964"
