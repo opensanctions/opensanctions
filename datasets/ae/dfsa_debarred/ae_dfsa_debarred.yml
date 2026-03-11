@@ -49,7 +49,7 @@ dates:
 assertions:
   min:
     schema_entities:
-      Person: 20  # 30 raw count
+      Person: 20  # 27 raw count
   max:
     schema_entities:
       Person: 60
