@@ -19,6 +19,11 @@ def crawl_row(context: Context, row: dict[str, _Element]) -> None:
     # process row
     str_row = h.cells_to_str(row)
     case_name = str_row.pop("enforcement_action")
+    sanction_date = str_row.pop("date_sort_ascending")
+    if sanction_date and not enforcements.within_max_age(
+        context, sanction_date, MAX_AGE_DAYS
+    ):
+        return
 
     assert case_name is not None
     if "in the matter of" in case_name.lower():
@@ -46,12 +51,6 @@ def crawl_row(context: Context, row: dict[str, _Element]) -> None:
     entity.add("country", "us")
 
     sanction = h.make_sanction(context, entity)
-    sanction_date = str_row.pop("date_sort_ascending")
-    if sanction_date and not enforcements.within_max_age(
-        context, sanction_date, MAX_AGE_DAYS
-    ):
-        return
-
     h.apply_date(sanction, "listingDate", sanction_date)
 
     context.emit(entity)
