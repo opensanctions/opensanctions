@@ -1,5 +1,5 @@
 import json
-from typing import Any, cast
+from typing import Any
 
 from zavod import Context, helpers as h
 from zavod.stateful.positions import categorise
@@ -55,12 +55,6 @@ def get_parliamentary_terms(edustajatoimet: dict[str, Any]) -> list[dict[str, An
         return []
 
 
-def get_party(pep: dict[str, Any]) -> str:
-    parliamentary_groups = pep.pop("parties")
-    current_group = parliamentary_groups.pop("current_party")
-    return cast(str, current_group.pop("name"))  # noqa: F821
-
-
 def crawl(context: Context) -> None:
     _, _, _, path = zyte_api.fetch_resource(
         context, "data.json", f"{context.data_url}seating/"
@@ -91,7 +85,10 @@ def crawl(context: Context) -> None:
         entity.add("gender", pep_data.pop("gender"), lang="eng")
         entity.add("position", pep_data.pop("occupation"))
         entity.add("address", pep_data.pop("current_municipality", None))
-        entity.add("political", get_party(pep_data))
+        entity.add(
+            "political",
+            pep_data.pop("parties", {}).get("current_party", {}).get("name", None),
+        )
         entity.add(
             "sourceUrl",
             f"https://www.eduskunta.fi/SV/kansanedustajat/Sidor/{pep_id}.aspx",
