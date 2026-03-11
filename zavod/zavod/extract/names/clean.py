@@ -87,6 +87,24 @@ class Names(BaseModel):
                 if nonempty_values:
                     yield key, nonempty_values
 
+    def add(
+        self, prop: str, value: Optional[str], *, lang: Optional[str] = None
+    ) -> None:
+        """Add a value to a property. If None, sets it; if already set, converts to list.
+        If lang is provided, wraps value in LangText."""
+        if value is None:
+            return
+        item: NamesValue = (
+            LangText(text=value, lang=lang) if lang is not None else value
+        )
+        current = getattr(self, prop)
+        if current is None:
+            setattr(self, prop, item)
+        elif isinstance(current, list):
+            current.append(item)
+        else:
+            setattr(self, prop, [current, item])
+
     def simplify(self) -> "Names":
         """Get a copy where single-item lists are replaced by just the single item.
         This is useful for formatting for human editing in reviews."""
