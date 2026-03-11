@@ -14,7 +14,16 @@ SINGLE_ENTITY_PROGRAM_PATH = Path(__file__).parent / "dspy/single_entity_program
 # original extraction.
 EXCLUDE_IF_EMPTY = {"previousName", "firstName", "middleName", "lastName"}
 
-NamesValue = str | Sequence[str | None] | None
+
+class LangText(BaseModel):
+    text: str
+    lang: Optional[str] = None
+
+    def __hash__(self):
+        return hash((self.text, self.lang))
+
+
+NamesValue = str | Sequence[str | LangText | None] | LangText | None
 
 
 def is_empty_string(text: Optional[str]) -> bool:
