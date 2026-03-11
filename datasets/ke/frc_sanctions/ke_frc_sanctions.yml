@@ -47,6 +47,7 @@ assertions:
 
 lookups:
   type.gender:
+    # Incl lowercase
     normalize: true
     options:
       - match: female
