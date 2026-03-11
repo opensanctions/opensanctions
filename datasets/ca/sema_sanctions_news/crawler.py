@@ -1,6 +1,8 @@
 from itertools import chain
 from lxml.etree import _Element
-from typing import Dict
+from typing import Dict, List, Optional
+from dataclasses import dataclass, field
+import re
 
 from zavod import Context, helpers as h
 
@@ -8,23 +10,49 @@ from zavod import Context, helpers as h
 PROGRAM_KEY = "CA-SEMA"
 
 
-def parse_name_dob(name: str) -> tuple[str, str | None, str | None, list[str]]:
+@dataclass
+class PersonBio:
+    name: str
+    name_ru: Optional[str] = None
+    aliases: List[str] = field(default_factory=list)
+    dob: Optional[str] = None
+
+
+def parse_name_dob(name: str) -> PersonBio:
     name_ru = None
     dob = None
     aliases = []
-    if "(born " in name.lower():
-        name, dob = name.split("(born", 1)
-        dob = dob.strip()
+
+    born_patterns = ["(born ", "(bornon "]
+    for born in born_patterns:
+        if born in name.lower():
+            name, dob = name.split(born, 1)
+            dob = dob.strip(")")
+
     if "(russian:" in name.lower():
         name, name_ru = name.split("(Russian:", 1)
         name_ru = name_ru.strip().rstrip(")")
+
     if "(also known as" in name.lower():
         name, aka = name.split("(also known as", 1)
         aliases = [a.strip().rstrip(")") for a in aka.split(",")]
-    return name.strip(), dob, name_ru, aliases
+
+    if "(également connue sous le nom" in name:
+        name, aka = name.split("(également connue sous le nom de ", 1)
+        aliases = [a.strip().rstrip(")") for a in aka.split(",")]
+
+    # some names contain digits at the beginning of the string
+    name = re.sub(r"^\d+\s*", "", name)
+
+    return PersonBio(
+        name=name.strip(),
+        dob=dob,
+        name_ru=name_ru,
+        aliases=aliases,
+    )
 
 
-def crawl_entity(context: Context, row: Dict[str, _Element]) -> None:
+def crawl_entity_notice(context: Context, row: Dict[str, _Element]) -> None:
     str_row = h.cells_to_str(row)
     country = str_row.pop("country")
     listing_date = str_row.pop("date")
@@ -45,15 +73,29 @@ def crawl_entity(context: Context, row: Dict[str, _Element]) -> None:
     for entity_name in chain(people, entities):
         entity = context.make(schema)
         entity.id = context.make_id(entity_name)
-        name, dob, name_ru, aliases = parse_name_dob(entity_name)
-        entity.add("name", name, lang="eng")
-        entity.add("name", name_ru, lang="rus")
-        entity.add("topics", "sanction")
-        for alias in aliases:
-            entity.add("alias", alias, lang="eng")
-        if dob:
-            h.apply_date(entity, "birthDate", dob)
+        parsed_bio = parse_name_dob(name=entity_name)
 
+        entity.add("name", parsed_bio.name, lang="eng")
+        entity.add("name", parsed_bio.name_ru, lang="rus")
+        for alias in parsed_bio.aliases:
+            entity.add("alias", alias, lang="eng")
+
+            # send the rest of the irregular aliases into review
+            original = h.Names(name=alias)
+            is_irregular, suggested = h.check_names_regularity(entity, original)
+
+            h.review_names(
+                context,
+                entity,
+                original=original,
+                suggested=suggested,
+                is_irregular=is_irregular,
+            )
+
+        if parsed_bio.dob:
+            h.apply_date(entity, "birthDate", parsed_bio.dob)
+
+        entity.add("topics", "sanction")
         sanction = h.make_sanction(
             context,
             entity,
@@ -68,15 +110,16 @@ def crawl_entity(context: Context, row: Dict[str, _Element]) -> None:
         context.emit(sanction)
 
 
-def crawl_vessel(context: Context, row: Dict[str, str | None]) -> None:
-    imo_number = row.pop("ship_imo_number")
-    name = row.pop("ship_name")
+def crawl_vessel(context: Context, row: Dict[str, _Element]) -> None:
+    str_row = h.cells_to_str(row)
+    imo_number = str_row.pop("ship_imo_number")
+    name = str_row.pop("ship_name")
     vessel = context.make("Vessel")
     vessel.id = context.make_id(name, imo_number)
     vessel.add("name", name)
     vessel.add("imoNumber", imo_number)
-    vessel.add("type", row.pop("ship_type"))
-    h.apply_date(vessel, "buildDate", row.pop("ship_build_date"))
+    vessel.add("type", str_row.pop("ship_type"))
+    h.apply_date(vessel, "buildDate", str_row.pop("ship_build_date"))
     vessel.add("topics", "sanction")
     sanction = h.make_sanction(
         context,
@@ -88,12 +131,11 @@ def crawl_vessel(context: Context, row: Dict[str, str | None]) -> None:
 
 
 def crawl(context: Context) -> None:
-    doc = context.fetch_html(context.data_url, cache_days=1)
+    doc = context.fetch_html(context.data_url)
     entities_table = h.xpath_element(doc, '//table[contains(@id, "dataset-filter1")]')
     for row in h.parse_html_table(entities_table):
-        crawl_entity(context, row)
+        crawl_entity_notice(context, row)
 
     ship_table = h.xpath_element(doc, '//table[contains(@class, "table wb-tables")]')
     for row in h.parse_html_table(ship_table):
-        str_row = h.cells_to_str(row)
-        crawl_vessel(context, str_row)
+        crawl_vessel(context, row)
