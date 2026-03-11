@@ -2,6 +2,7 @@ import random
 import time
 from datetime import datetime
 from datetime import timezone
+from typing import Any
 from urllib.parse import urlencode
 
 from lxml import html
@@ -13,7 +14,14 @@ START_YEAR = 2019
 START_MONTH = 1
 
 
-def emit_linked_org(context, vessel_id, names, role, date):
+def emit_linked_org(
+    context: Context,
+    *,
+    vessel_id: str | None,
+    names: str,
+    role: str,
+    date: str | None,
+) -> None:
     for name in h.multi_split(names, ";"):
         org = context.make("Organization")
         org.id = context.make_id("org", name)
@@ -29,7 +37,7 @@ def emit_linked_org(context, vessel_id, names, role, date):
         context.emit(link)
 
 
-def crawl_row(context: Context, row: dict):
+def crawl_row(context: Context, row: dict[str, Any]) -> None:
     ship_name = row.pop("Name")
     imo = row.pop("IMO number")
     company_name = row.pop("Company")
@@ -63,19 +71,19 @@ def crawl_row(context: Context, row: dict):
     if related_ros:
         emit_linked_org(
             context,
-            vessel.id,
-            related_ros,
-            "Related Recognised Organization",
-            start_date,
+            vessel_id=vessel.id,
+            names=related_ros,
+            role="Related Recognised Organization",
+            date=start_date,
         )
     class_soc = row.pop("Class")
     if class_soc:
         emit_linked_org(
             context,
-            vessel.id,
-            class_soc,
-            "Classification society",
-            start_date,
+            vessel_id=vessel.id,
+            names=class_soc,
+            role="Classification society",
+            date=start_date,
         )
 
     end_date = row.pop("Date of release", None)
@@ -85,7 +93,9 @@ def crawl_row(context: Context, row: dict):
         vessel,
         start_date=start_date,
         end_date=end_date,
-        key=[start_date, end_date, reason],
+        # key is a str, but we suppress the warning for now to avoid a delta
+        # we can re-key in the future if desired
+        key=[start_date, end_date, reason],  # type: ignore
     )
     sanction.add("reason", reason)
 
@@ -98,7 +108,7 @@ def crawl_row(context: Context, row: dict):
     context.audit_data(row, ["Place", "#"])
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     headers = {
         "X-Requested-With": "XMLHttpRequest",
         "Content-Type": "application/x-www-form-urlencoded",
