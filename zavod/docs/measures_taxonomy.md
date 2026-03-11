@@ -2,8 +2,6 @@
 
 Most sanctions programmes in OpenSanctions are tagged with one or more **measures** describing the types of restrictive action they impose. Measures are referenced from [programme metadata](metadata.md) via the `measures` field, and are surfaced in the UI and the [programmes JSON](https://data.opensanctions.org/meta/programs.json).
 
-This page defines each measure and provides guidance on classification edge cases.
-
 ## Measures
 
 ### Aid suspension
@@ -66,9 +64,7 @@ Prohibition on entry into or transit through the territory of the sanctioning ju
 
 ### Asset freeze vs Financial restrictions
 
-An asset freeze follows the **person** — it freezes what they own and prohibits making funds available to them. Financial restrictions follow the **activity** — they prohibit categories of transactions regardless of individual designation. If screening requires a name match, it is an asset freeze. If it depends on the type of transaction or instrument, it is a financial restriction.
-
-The "making available" limb (prohibiting provision of funds to a designated person) is part of the asset freeze, not a separate financial restriction.
+An asset freeze follows the **person** — it freezes what they own and prohibits making funds available to them. Financial restrictions follow the **activity** — they prohibit categories of transactions regardless of individual designation. The "making available" limb (prohibiting provision of funds to a designated person) is part of the asset freeze, not a separate financial restriction.
 
 ### Arms restrictions vs Export control
 
