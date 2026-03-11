@@ -6,6 +6,7 @@ from rigour.mime.types import XLSX
 
 from zavod import Context
 from zavod import helpers as h
+from zavod.stateful.review import assert_all_accepted
 
 
 def parse_aliases(raw: str | None) -> list[str]:
@@ -40,10 +41,20 @@ def crawl_row(context: Context, row: Dict[str, str | None]) -> None:
 
     name = row.pop("full_name")
     assert name, f"Missing name for {reference}"
-    person.add("name", name)
+    aliases_string = row.pop("aliases")
+    original = h.Names(name=name, alias=aliases_string)
+    suggested_aliases = parse_aliases(aliases_string)
+    suggested = h.Names(name=name, alias=suggested_aliases)
+    is_irregular, suggested = h.check_names_regularity(person, suggested)
+    h.apply_reviewed_names(
+        context,
+        person,
+        original=original,
+        suggested=suggested,
+        is_irregular=is_irregular,
+    )
+
     person.add("title", stringify(row.pop("title")))
-    for alias in parse_aliases(row.pop("aliases", None)):
-        person.add("alias", alias)
 
     person.add("idNumber", stringify(row.pop("id_number")))
     person.add("passportNumber", stringify(row.pop("passport_number")))
@@ -85,3 +96,5 @@ def crawl(context: Context) -> None:
     assert "Sheet1" in wb.sheetnames, wb.sheetnames
     for row in h.parse_xlsx_sheet(context, wb["Sheet1"]):
         crawl_row(context, row)
+
+    assert_all_accepted(context, raise_on_unaccepted=False)
