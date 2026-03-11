@@ -32,18 +32,12 @@ def crawl_row(context: Context, row: dict[str, _Element]) -> None:
     entity = context.make("LegalEntity")
     entity.id = context.make_id(case_name, str_row.pop("matter_number"))
 
-    # custom lookups to split entities and aliases
+    # send to cleaning if a string contrains split entities and aliases
     if contains_split_phrase(case_name) or " and " in case_name:
-        res = context.lookup("comma_names", case_name, warn_unmatched=True)
-        if res and res.entities:
-            for entity_name in res.entities:
-                primary_name = entity_name[0]
-                entity.add("name", primary_name)
-                aliases = entity_name[1:] if len(entity_name) > 1 else []
-                for alias in aliases:
-                    entity.add("alias", alias)
-        else:
-            entity.add("name", case_name)
+        original = h.Names(name=case_name)
+        h.review_names(context, entity, original=original, llm_cleaning=True)
+    else:
+        entity.add("name", case_name)
 
     entity.add("sourceUrl", url)
     entity.add("sector", str_row.pop("financial_institution"))
