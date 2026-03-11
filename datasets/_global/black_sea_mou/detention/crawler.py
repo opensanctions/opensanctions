@@ -1,20 +1,16 @@
 import random
 import time
 from datetime import datetime
+from datetime import timezone
+from urllib.parse import urlencode
 
-from requests.exceptions import RetryError
+from lxml import html
 
 from zavod import Context, helpers as h
+from zavod.extract import zyte_api
 
 START_YEAR = 2019
 START_MONTH = 1
-
-HEADERS = {
-    "X-Requested-With": "XMLHttpRequest",
-    "Content-Type": "application/x-www-form-urlencoded",
-    "Referer": "https://bsis.bsmou.org/public_det/?action=getinspections",
-    "Origin": "https://bsis.bsmou.org",
-}
 
 
 def emit_linked_org(context, vessel_id, names, role, date):
@@ -103,7 +99,13 @@ def crawl_row(context: Context, row: dict):
 
 
 def crawl(context: Context):
-    now = datetime.utcnow()
+    headers = {
+        "X-Requested-With": "XMLHttpRequest",
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Referer": context.data_url,
+        "Origin": context.data_url,
+    }
+    now = datetime.now(tz=timezone.utc)
     year = START_YEAR
     month = START_MONTH
     while (year, month) <= (now.year, now.month):
@@ -113,19 +115,30 @@ def crawl(context: Context):
             "auth": "0",
             "held": "0",
         }
-        try:
-            doc = context.fetch_html(
-                context.data_url,
-                headers=HEADERS,
-                data=data,
+        zyte_result = zyte_api.fetch(
+            context,
+            zyte_api.ZyteAPIRequest(
+                url=context.data_url,
+                headers=headers,
+                body=urlencode(data).encode("utf-8"),
                 method="POST",
-                cache_days=1,
-            )
+            ),
+            cache_days=1,
+        )
+
+        try:
+            doc = html.fromstring(zyte_result.response_text)
             table = h.xpath_element(doc, "//table[@id='dvData']")
-            for row in h.parse_html_table(table, slugify_headers=False):
-                crawl_row(context, h.cells_to_str(row))
-        except RetryError as e:
-            context.log.error(f"Skipping {year}-{month:02} due to fetch failure: {e}")
+        except Exception:
+            if zyte_result:
+                context.cache.delete(zyte_result.cache_fingerprint)
+            context.log.exception(
+                "Failed to fetch HTML or find table for month", month=month, year=year
+            )
+            continue
+
+        for row in h.parse_html_table(table, slugify_headers=False):
+            crawl_row(context, h.cells_to_str(row))
 
         # Random sleep to avoid overwhelming the server (and hitting 500 Server Error)
         time.sleep(random.uniform(0.5, 2.0))  # sleep for 1.5–3 seconds
