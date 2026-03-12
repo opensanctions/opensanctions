@@ -58,12 +58,11 @@ def _validate_splitters(splitters: Tuple[str, ...]) -> None:
         if not isinstance(splitter, str):
             log.warning("multi_split: not a string: %r", splitter)
             continue
-        splitter = splitter.strip()
-        if len(splitter) == 0:
+        if len(splitter.strip()) == 0:
             log.warning("multi_split: empty: %r", splitter)
             continue
         for prev in previous:
-            if splitter in prev:
+            if prev in splitter:
                 log.warning(
                     "multi_split: %r is a substring of preceding %r",
                     splitter,
