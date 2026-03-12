@@ -23,7 +23,7 @@ def crawl(context: Context):
             pep = context.make("Person")
             pep.id = context.make_id(name)
             pep.add("name", name)
-            pep.add("country", "ro")
+            pep.add("citizenship", "ro")
             pep.add("topics", "role.pep")
             position = h.make_position(
                 context,
