@@ -1,5 +1,5 @@
 import re
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, NamedTuple
 
 from openpyxl import load_workbook
 
@@ -7,30 +7,38 @@ from rigour.mime.types import XLSX
 from zavod import Context, helpers as h
 
 
-def split_aka(context: Context, middle_name: str) -> Tuple[Optional[str], List[str]]:
-    """Split a middle_name field on 'AKA', returning (middle_name, aliases)."""
+class SplitName(NamedTuple):
+    middle_name: Optional[str]
+    aliases: List[str]
+    first_names: List[str]
+
+
+def split_middle_name(context: Context, middle_name: str) -> SplitName:
+    """Split a middle_name field on 'AKA', returning structured name parts."""
     parts = re.split(r"(?i)\baka\b", middle_name, maxsplit=1)
     name = parts[0].strip() or None
     if len(parts) < 2:
-        return name, []
+        return SplitName(name, [], [])
     raw_alias = parts[1].strip()
     if " " not in raw_alias:
         # One word after AKA means it's a different spelling of the firstName (e.g. "John AKA Johnny")
-        return name, [raw_alias]
+        return SplitName(name, [], [raw_alias])
     res = context.lookup("alias", raw_alias, warn_unmatched=True)
     if res is None:
-        return name, []
+        return SplitName(name, [], [])
     aliases = res.values or [v for v in [res.value] if v is not None]
-    return name, aliases
+    return SplitName(name, aliases, [])
 
 
 def crawl_item(row: Dict[str, str | None], context: Context):
     first_name = row.pop("first_name")
     last_name = row.pop("last_name")
     middle_name = row.pop("middle_name")
-    aliases = None
+    first_names: List[str] = []
+    aliases: List[str] = []
     if middle_name and "aka" in middle_name.lower():
-        middle_name, aliases = split_aka(context, middle_name)
+        split = split_middle_name(context, middle_name)
+        middle_name, aliases, first_names = split
 
     business_name = row.pop("business_name")
     npi = row.pop("npi")
@@ -53,11 +61,8 @@ def crawl_item(row: Dict[str, str | None], context: Context):
         )
         if business_name:
             entity.add("alias", business_name)
-        if aliases:
-            for alias in aliases:
-                # One word after AKA means it's a different spelling of the firstName
-                prop = "firstName" if " " not in alias else "alias"
-                entity.add(prop, alias)
+        entity.add("firstName", first_names)
+        entity.add("alias", aliases)
     entity.add("npiCode", npi)
     entity.add("topics", "debarment")
     entity.add("country", "us")
