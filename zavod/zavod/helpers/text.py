@@ -106,12 +106,13 @@ def multi_split(
                     out.append(frag)
         fragments = out
     result = [f for f in fragments if f is not None]
-    sorted_splitters = sorted(lsplitters, key=len, reverse=True)
-    sorted_result = multi_split(original_fragments, sorted_splitters)
-    if sorted_result != result:
-        log.warning(
-            "multi_split: different results when sorted by length: %r", lsplitters
-        )
+    sorted_splitters = tuple(sorted(lsplitters, key=len, reverse=True))
+    if sorted_splitters != lsplitters:
+        sorted_result = multi_split(original_fragments, sorted_splitters)
+        if sorted_result != result:
+            log.warning(
+                "multi_split: different results when sorted by length: %r", lsplitters
+            )
     return result
 
 
