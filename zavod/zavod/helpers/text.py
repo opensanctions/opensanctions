@@ -1,5 +1,6 @@
-from functools import cache
 import re
+from copy import deepcopy
+from functools import cache
 from banal import is_listish, ensure_list
 from typing import Optional, List, Sequence, Tuple, Union, Iterable
 from normality import squash_spaces
@@ -89,6 +90,7 @@ def multi_split(
     if text is None:
         return []
     fragments = ensure_list(text)
+    original_fragments = deepcopy(fragments)
     lsplitters = tuple(splitters)
     # FIXME: this is meant to help us find things that are broken right now. Once we've
     # remediated that, we should remove the check and sort splitters instead.
@@ -103,7 +105,14 @@ def multi_split(
                 if len(frag):
                     out.append(frag)
         fragments = out
-    return [f for f in fragments if f is not None]
+    result = [f for f in fragments if f is not None]
+    sorted_splitters = sorted(lsplitters, key=len, reverse=True)
+    sorted_result = multi_split(original_fragments, sorted_splitters)
+    if sorted_result != result:
+        log.warning(
+            "multi_split: different results when sorted by length: %r", lsplitters
+        )
+    return result
 
 
 def is_empty(text: Optional[str]) -> bool:
