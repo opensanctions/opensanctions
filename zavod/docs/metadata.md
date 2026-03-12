@@ -135,26 +135,26 @@ assertions:
         birthDate: 0.7  # at least 70% of Persons have a birth date
 ```
 
-# Sanctions programme metadata
+# Sanctions program metadata
 
-Sanctions programmes are the specific government policies that form the legal basis for designating individuals, companies, vessels, or other entities as sanctioned. Each programme defines a scope and a set of measures that the issuing authority imposes on the sanctioned target. See [What are sanctions programs?](/reference/faq/#sanctions-programs) for background.
+Sanctions programs are the specific government policies that form the legal basis for designating individuals, companies, vessels, or other entities as sanctioned. Each program defines a scope and a set of measures that the issuing authority imposes on the sanctioned target. See [What are sanctions programs?](/reference/faq/#sanctions-programs) for background.
 
-Individual entities are linked to programmes via the `programId` property. The full set of programme metadata is published as a JSON file at `https://data.opensanctions.org/meta/programs.json`, updated multiple times per day.
+Individual entities are linked to programs via the `programId` property. The full set of program metadata is published as a JSON file at `https://data.opensanctions.org/meta/programs.json`, updated multiple times per day.
 
 ### Basics
 
 - `key` - Short unique identifier for code and cross-references, surfaced in the UI as e.g. `[EU-RUS]`. Convention: `{ISSUER}-{TARGET}` or `{ISSUER}-{SHORTNAME}`, e.g. `EU-HAM`, `SECO-IRAN`, `UN-SC1970`. Uppercase, alphanumeric with hyphens only.
-- `title` - Official or near-official English title of the programme. For non-English regimes (e.g. SECO), use a consistent English translation.
-- `url` - Authoritative public-facing page at the issuing authority (SECO programme page, EU sanctions map entry, UN Security Council committee page, etc.).
+- `title` - Official or near-official English title of the program. For non-English regimes (e.g. SECO), use a consistent English translation.
+- `url` - Authoritative public-facing page at the issuing authority (SECO program page, EU sanctions map entry, UN Security Council committee page, etc.).
 - `aliases` - List of strings. Optional. Alternative identifiers, legal citations, or short names, e.g. `Resolution 1970`, `UFLPA`, `SR 946.231.172.7`. Omit if none apply.
-- `summary` - Plain-language description: who the programme targets, why, and what measures it imposes. Two to four sentences. Must be consistent with the `measures` field.
-- `dataset` - Related OpenSanctions dataset that ingests data from this programme, e.g. `eu_fsf`, `ch_seco_sanctions`, `un_sc_sanctions`. Some programmes are covered by multiple datasets but one is chosen here as the primary source.
+- `summary` - Plain-language description: who the program targets, why, and what measures it imposes. Two to four sentences. Must be consistent with the `measures` field.
+- `dataset` - Related OpenSanctions dataset that ingests data from this program, e.g. `eu_fsf`, `ch_seco_sanctions`, `un_sc_sanctions`. Some programs are covered by multiple datasets but one is chosen here as the primary source.
 - `issuer` - Identifier of the issuing authority from the controlled vocabulary, e.g. `eu_council`, `ch_seco`, `zz_unsc`, `us_ofac`, `us_dhs`, `ca_mfa`, `cz_mzv`.
-- `target_territories` - List of strings. Optional. ISO 3166-1 alpha-2 codes (lowercase) for the targeted territories this programme is linked to. Omit for programmes that target persons regardless of geography (e.g. counter-terrorism lists).
+- `target_territories` - List of strings. Optional. ISO 3166-1 alpha-2 codes (lowercase) for the targeted territories this program is linked to. Omit for programs that target persons regardless of geography (e.g. counter-terrorism lists).
 
 ### Measures
 
-- `measures` - List of strings. Optional. One or more values from the [sanctions measures taxonomy](measures-taxonomy.md) describing what the programme imposes. Verify against the legal instrument or the issuing authority's programme page. Where a programme transposes another regime (e.g. SECO transposing EU measures), reflect what the transposing authority implements. Valid values:
+- `measures` - List of strings. Optional. One or more values from the [sanctions measures taxonomy](measures-taxonomy.md) describing what the program imposes. Verify against the legal instrument or the issuing authority's program page. Where a program transposes another regime (e.g. SECO transposing EU measures), reflect what the transposing authority implements. Valid values:
   - `Aid suspension`
   - `Arms embargo`
   - `Arms restrictions`

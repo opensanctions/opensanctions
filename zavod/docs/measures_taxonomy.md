@@ -1,6 +1,6 @@
 # Sanctions measures taxonomy
 
-Most sanctions programmes in OpenSanctions are tagged with one or more **measures** describing the types of restrictive action they impose. Measures are referenced from [programme metadata](metadata.md) via the `measures` field, and are surfaced in the UI and the [programmes JSON](https://data.opensanctions.org/meta/programs.json).
+Most sanctions programs in OpenSanctions are tagged with one or more **measures** describing the types of restrictive action they impose. Measures are referenced from [program metadata](metadata.md) via the `measures` field, and are surfaced in the UI and the [programs JSON](https://data.opensanctions.org/meta/programs.json).
 
 ## Measures
 
@@ -22,7 +22,7 @@ Freezing of funds, financial assets, and economic resources owned or controlled 
 
 ### Debarment
 
-Exclusion from government procurement, contracts, or programmes (e.g. Medicaid/Medicare exclusions, World Bank debarment, SAM.gov).
+Exclusion from government procurement, contracts, or programs (e.g. Medicaid/Medicare exclusions, World Bank debarment, SAM.gov).
 
 ### Export control
 
