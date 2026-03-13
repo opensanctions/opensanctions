@@ -7,16 +7,24 @@ from zavod import helpers as h
 
 REGEX_PASSPORT = re.compile(r"^[A-Z0-9-]{6,20}$")
 ALIAS_SPLITS = [
+    "Formerly known as,",
+    "Formerly Known As,",
     "a.k.a.,",
     "f.k.a.,",
-    "; ",
-    "f.k.a,",
     "f.n.a.,",
-    "Formerly known as,",
+    "f.k.a,",
     " Good,",
-    "Formerly Known As,",
+    "; ",
 ]
 ADDRESS_SPLITS = [
+    "(Formerly located at)",
+    "Branch Office 10:",
+    "Branch Office 11:",
+    "Branch Office 12:",
+    "Branch Office 13:",
+    "Branch Office 14:",
+    "Branch Office 15:",
+    "Branch Office 16:",
     "Branch Office 1:",
     "Branch Office 2:",
     "Branch Office 3:",
@@ -26,19 +34,11 @@ ADDRESS_SPLITS = [
     "Branch Office 7:",
     "Branch Office 8:",
     "Branch Office 9:",
-    "Branch Office 10:",
-    "Branch Office 11:",
-    "Branch Office 12:",
-    "Branch Office 13:",
-    "Branch Office 14:",
-    "Branch Office 15:",
-    "Branch Office 16:",
-    "v)",
-    "iv)",
     "iii)",
+    "iv)",
     "ii)",
+    "v)",
     "i)",
-    "(Formerly located at)",
 ]
 
 
