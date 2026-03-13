@@ -56,18 +56,12 @@ def _validate_splitters(splitters: Tuple[str, ...]) -> None:
     previous: List[str] = []
     for splitter in splitters:
         if not isinstance(splitter, str):
-            log.warning("multi_split: not a string: %r", splitter)
-            continue
-        if len(splitter.strip()) == 0:
-            log.warning("multi_split: empty: %r", splitter)
+            log.warning(f"multi_split: not a string: {splitter!r}")
             continue
         for prev in previous:
             if prev in splitter:
-                log.warning(
-                    "multi_split: %r is a substring of preceding %r",
-                    splitter,
-                    prev,
-                )
+                msg = f"multi_split: {splitter!r} is a substring of preceding {prev!r}"
+                log.warning(msg)
         previous.append(splitter)
 
 
@@ -110,7 +104,10 @@ def multi_split(
         sorted_result = multi_split(original_fragments, sorted_splitters)
         if sorted_result != result:
             log.warning(
-                "multi_split: different results when sorted by length: %r", lsplitters
+                f"multi_split: different when sorted by length: {lsplitters!r}",
+                fragments=original_fragments,
+                result=result,
+                sorted_result=sorted_result,
             )
     return result
 
