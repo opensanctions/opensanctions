@@ -260,6 +260,7 @@ def wikidata_occupancy(
         start_date=start_date,
         end_date=end_date,
         propagate_country=not is_diplomat,
+        key_prefix="wd_peps",
     )
 
     if occupancy is None:
