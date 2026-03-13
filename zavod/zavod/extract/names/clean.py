@@ -17,7 +17,8 @@ EXCLUDE_IF_EMPTY = {"previousName", "firstName", "middleName", "lastName"}
 
 class LangText(BaseModel):
     text: str
-    lang: Optional[str] = None
+    lang: str
+    """ISO 639-2 (3-letter) language code"""
 
     def __hash__(self) -> int:
         return hash((self.text, self.lang))
@@ -90,13 +91,19 @@ class Names(BaseModel):
     def add(
         self, prop: str, value: Optional[str], *, lang: Optional[str] = None
     ) -> None:
-        """Add a value to a property. If None, sets it; if already set, converts to list.
-        If lang is provided, wraps value in LangText."""
+        """
+        Add a value to a property. If set as a single value, the values are added to a list.
+        Value is wrapped in LangText if lang is provided.
+
+        Args:
+            prop: The property name to add the value to.
+            value: The name value to add.
+            lang: Optional ISO 639-2 language code for the name value.
+        """
+
         if value is None:
             return
-        item: NamesValue = (
-            LangText(text=value, lang=lang) if lang is not None else value
-        )
+        item = LangText(text=value, lang=lang) if lang is not None else value
         current = getattr(self, prop)
         if current is None:
             setattr(self, prop, item)
