@@ -58,7 +58,7 @@ def _validate_splitters(splitters: Tuple[str, ...]) -> None:
         if not isinstance(splitter, str):
             log.warning("multi_split: not a string: %r", splitter)
             continue
-        if len(splitter.strip()) == 0:
+        if len(splitter.strip()) == 0 and splitter != "\n":
             log.warning("multi_split: empty: %r", splitter)
             continue
         for prev in previous:
