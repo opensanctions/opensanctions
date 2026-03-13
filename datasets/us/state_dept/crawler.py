@@ -48,7 +48,7 @@ def crawl_bio_page(context: Context, url: str):
     # Service position for which you qualify, even if you have other
     # nationalities.
     # https://careers.state.gov/faqs/
-    entity.add("nationality", "us")
+    entity.add("citizenship", "us")
 
     description = doc.find(".//meta[@property='og:description']").get("content")
     description = description.replace("[…]", "[...More on linked State Dept page]")

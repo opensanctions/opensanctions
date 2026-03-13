@@ -1,5 +1,4 @@
 import re
-from datetime import datetime
 from urllib.parse import urljoin, unquote
 from typing import Dict, Optional, Set
 from followthemoney.helpers import post_summary
@@ -44,9 +43,6 @@ def crawl(context: Context):
 
 
 def crawl_legislature(context: Context, country: str, legislature):
-    lastmod_ = int(legislature.get("lastmod"))
-    lastmod = datetime.utcfromtimestamp(lastmod_)
-
     url = urljoin(context.data_url, legislature.get("popolo"))
     # print(url)
     # this isn't being updated, hence long interval:
@@ -91,21 +87,21 @@ def crawl_legislature(context: Context, country: str, legislature):
 
     for person in data.get("persons"):
         if person.get("id") in peps:
-            parse_person(context, person, country, lastmod)
+            parse_person(context, person, country)
 
 
 def person_entity_id(context, person_id: str) -> str:
     return context.make_slug(person_id)
 
 
-def parse_person(context: Context, data, country, lastmod) -> None:
+def parse_person(context: Context, data, country) -> None:
     person_id = data.pop("id", None)
     person = context.make("Person")
     person.id = person_entity_id(context, person_id)
     name = data.get("name")
     if name is None or name.lower().strip() in ("unknown",):
         return
-    person.add("modifiedAt", lastmod.date())
+    # person.add("modifiedAt", lastmod.date())
     person.add("name", data.pop("name", None))
     person.add("alias", data.pop("sort_name", None))
     for other in data.pop("other_names", []):
@@ -121,7 +117,7 @@ def parse_person(context: Context, data, country, lastmod) -> None:
     person.add("deathDate", data.pop("death_date", None))
     person.add("email", clean_emails(data.pop("email", None)))
     person.add("notes", data.pop("summary", None))
-    person.add("nationality", country)
+    person.add("citizenship", country)
     person.add("topics", "role.pep")
 
     for link in data.pop("links", []):
@@ -186,6 +182,10 @@ def parse_membership(
         if res:
             position_label = res.value
 
+        if position_label is None:
+            context.log.warning("Missing position label", role=role, org_name=org_name)
+            return None
+
         position = h.make_position(
             context,
             position_label,
@@ -198,6 +198,8 @@ def parse_membership(
         person = context.make("Person")
         person.id = person_entity_id(context, person_id)
         person.add("position", position_property)
+        person.add("birthDate", birth_dates.get(person_id, None))
+        person.add("deathDate", death_dates.get(person_id, None))
 
         if categorisation.is_pep:
             occupancy = h.make_occupancy(
@@ -207,11 +209,6 @@ def parse_membership(
                 no_end_implies_current=False,
                 start_date=data.get("start_date") or period.get("start_date"),
                 end_date=data.get("end_date") or period.get("end_date"),
-                birth_date=birth_dates.get(person_id, None),
-                death_date=death_dates.get(
-                    person_id,
-                    None,
-                ),
                 categorisation=categorisation,
             )
             if occupancy:
