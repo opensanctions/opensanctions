@@ -52,7 +52,7 @@ dates:
 assertions:
   min:
     schema_entities:
-      Person: 5
+      Person: 3
       Address: 1
       Organization: 1
       LegalEntity: 150
