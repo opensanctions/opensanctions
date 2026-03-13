@@ -367,23 +367,3 @@ def test_apply_names_with_langtext(vcontext: Context):
     assert len(alias_stmts) == 1
     assert alias_stmts[0].value == "جون دو"
     assert alias_stmts[0].lang == "ara"
-
-
-def test_apply_names_langtext_with_none_lang(vcontext: Context):
-    """When LangText has lang=None, None should be used even if lang argument is supplied."""
-    entity = vcontext.make("Person")
-    entity.id = "test"
-
-    original = Names(name="John Doe")
-    names = Names(
-        name=LangText(text="John Doe", lang=None),
-    )
-
-    # Even though we pass lang="eng", LangText's None should override it
-    apply_names(entity, original=original, names=names, lang="eng")
-
-    # Check that lang is None
-    name_stmts = list(entity.get_statements("name"))
-    assert len(name_stmts) == 1
-    assert name_stmts[0].value == "John Doe"
-    assert name_stmts[0].lang is None

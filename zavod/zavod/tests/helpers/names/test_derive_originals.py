@@ -157,7 +157,7 @@ def test_derive_original_values_single_original_multiple_props():
 def test_derive_original_values_with_langtext():
     """LangText values should work the same as str values."""
     # LangText in original, str in extracted
-    original = Names(name=LangText(text="John/Jon Doe", lang="en"))
+    original = Names(name=LangText(text="John/Jon Doe", lang="eng"))
     extracted = Names(name="John Doe", alias="Jon Doe")
     result = derive_original_values(original, extracted)
     assert result == {
@@ -167,14 +167,14 @@ def test_derive_original_values_with_langtext():
 
     # str in original, LangText in extracted
     original = Names(name="John Doe; Brandon Doe")
-    extracted = Names(alias=LangText(text="Brandon Doe", lang="en"))
+    extracted = Names(alias=LangText(text="Brandon Doe", lang="eng"))
     result = derive_original_values(original, extracted)
     assert result == {
         "Brandon Doe": "John Doe; Brandon Doe",
     }
 
     # Mixed str and LangText in original
-    original = Names(name=[LangText(text="John Doe", lang="en"), "Jane Smith"])
+    original = Names(name=[LangText(text="John Doe", lang="eng"), "Jane Smith"])
     extracted = Names(name="John", alias="Jane")
     result = derive_original_values(original, extracted)
     assert result == {
