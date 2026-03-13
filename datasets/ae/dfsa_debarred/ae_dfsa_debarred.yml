@@ -1,0 +1,61 @@
+title: United Arab Emirates DFSA Prohibited/Restricted Individuals
+prefix: ae-dfsa
+entry_point: crawler.py
+coverage:
+  frequency: daily
+  start: 2026-03-03
+load_statements: true
+ci_test: false  # using Zyte
+summary: >-
+  Individuals and entities that are prohibited or restricted from participating in
+  financial services within the Dubai International Financial Centre (DIFC).
+description: |
+  The individuals and entities listed here are prohibited or restricted from performing
+  any function in connection with financial services in or from the Dubai International
+  Financial Centre (DIFC). The DFSA maintains this list as part of its public register
+  under the Regulatory Law 2004. Under the Rule 9.8.3 of the Markets Rules module of the DFSA Rulebook,
+  Reporting Entities are required to disclose to the Market information through a DFSA
+  approved Regulatory Announcement.
+
+  Prohibitions and restrictions are imposed following enforcement action by the DFSA
+  for misconduct such as failing to act with integrity, misleading or deceiving investors,
+  misappropriating client funds, submitting false or misleading regulatory returns, carrying
+  out unauthorised financial services, or breaching anti-money laundering requirements.
+
+tags:
+  - sector.financial
+url: https://www.dfsa.ae/public-register/prohibited-individuals
+publisher:
+  name: Dubai Financial Services Authority
+  acronym: DFSA
+  description: |
+    The DFSA is the independent regulator of financial services conducted in or from the Dubai International Financial Centre (DIFC),
+    a purpose-built financial free zone in Dubai, UAE. The DFSA’s regulatory mandate includes asset management,
+    banking and credit services, dealing in investments, investment advice, collective investment funds,
+    custody and trust services, Islamic finance, insurance, financial technology, crypto and investment tokens,
+    money services, capital markets, crowdfunding, an international equities exchange, and an international commodities
+    derivatives exchange. In addition to regulating financial and ancillary services (such as auditors) in the DIFC,
+    the DFSA is responsible for supervising and enforcing anti-money laundering (AML) and counter-terrorist financing (CTF)
+    requirements applicable in the DIFC to its regulated community.
+  country: ae
+  url: https://www.dfsa.ae/about-dfsa
+  official: true
+data:
+  url: https://www.dfsa.ae/public-register/prohibited-individuals
+  format: HTML
+dates:
+  formats: ["%d-%m-%Y", "%d %B %Y"]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 20  # 27 raw count
+  max:
+    schema_entities:
+      Person: 60
+
+lookups:
+  type.date:
+    options:
+      - match: 'Restriction under Article 58'
+        value: null
