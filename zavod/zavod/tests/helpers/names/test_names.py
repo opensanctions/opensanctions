@@ -367,3 +367,24 @@ def test_apply_names_with_langtext(vcontext: Context):
     assert len(alias_stmts) == 1
     assert alias_stmts[0].value == "جون دو"
     assert alias_stmts[0].lang == "ara"
+
+
+def test_apply_names_sets_original_value(vcontext: Context):
+    """apply_names sets original_value on statements when a derived original is found."""
+    entity = vcontext.make("Person")
+    entity.id = "test"
+
+    original = Names(name="Mr. John Doe", alias="Mr. Johnny Doe")
+    names = Names(name="John Doe", alias="Johnny Doe")
+
+    apply_names(entity, original=original, names=names)
+
+    name_stmts = list(entity.get_statements("name"))
+    assert len(name_stmts) == 1
+    assert name_stmts[0].value == "John Doe"
+    assert name_stmts[0].original_value == "Mr. John Doe"
+
+    alias_stmts = list(entity.get_statements("alias"))
+    assert len(alias_stmts) == 1
+    assert alias_stmts[0].value == "Johnny Doe"
+    assert alias_stmts[0].original_value == "Mr. Johnny Doe"
