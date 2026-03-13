@@ -56,7 +56,7 @@ def crawl_councillor(context: Context, councillor_id: int) -> None:
     entity.add("gender", data.pop("gender", None))
     entity.add("title", data.pop("title", None))
     entity.add("title", data.pop("salutationTitle", None))
-    entity.add("nationality", "ch")
+    entity.add("citizenship", "ch")
     entity.add("spokenLanguage", data.pop("language", None))
     entity.add("spokenLanguage", data.pop("workLanguage", None))
     entity.add("political", data.pop("partyName", None))

@@ -25,7 +25,7 @@ def crawl_person(context: Context, item: Dict[str, Any]) -> None:
     )
 
     country: Dict[str, str] = item.pop("country", {})
-    person.add("country", country.pop("value"))
+    person.add("citizenship", country.pop("value"))
 
     function: Dict[str, str] = item.pop("memberFunction")
     function_name = function.pop("value")
