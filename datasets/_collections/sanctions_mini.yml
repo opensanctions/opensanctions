@@ -20,7 +20,6 @@ children:
   - eu_journal_sanctions
   - eu_sanctions_map
   - gb_fcdo_sanctions
-  - gb_hmt_sanctions
   - un_sc_sanctions
   - us_ofac_cons
   - us_ofac_sdn
