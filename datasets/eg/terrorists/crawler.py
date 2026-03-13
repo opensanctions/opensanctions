@@ -9,16 +9,16 @@ from zavod.extract import zyte_api
 
 
 DATE_SPLITS = [
-    " arab ",
-    " مد القرار",  # Decision extended
-    " إعادة النشر في",  # Republished in
-    "المد في ",  # extended in
-    "إعادة المد في",  # re-extend in
-    "إعادة",  # re-
+    " إعادة النشر في",  # republished in
     "إعادة إدراج في",  # re-insert in
-    "نشر",  # publish
+    "إعادة المد في",  # re-extend in
+    " مد القرار",  # decision extended
+    "المد في ",  # extended in
     "إدراج في",  # insert
     "الإدراج",  # inclusion
+    " arab ",
+    "إعادة",  # re-
+    "نشر",  # publish
 ]
 PROGRAM_KEY = "EG-UNSC1373"
 
