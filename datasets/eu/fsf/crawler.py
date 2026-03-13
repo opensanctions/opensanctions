@@ -12,4 +12,4 @@ def crawl(context: Context) -> None:
     for entry in doc_.findall(".//sanctionEntity"):
         parse_entry(context, entry)
 
-    assert_all_accepted(context, raise_on_unaccepted=False)
+    assert_all_accepted(context, raise_on_unaccepted=True)
