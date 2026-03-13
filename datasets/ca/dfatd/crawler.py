@@ -8,23 +8,23 @@ from zavod import Context
 from zavod import helpers as h
 
 NAME_SPLITS = [
-    " (a.k.a.",
     " (also known as",
+    " (a.k.a.",
     "/",
 ]
 ALIAS_SPLITS = [
-    ", ",
-    "; ",
-    " (a.k.a.",
     " (also known as",
+    "Belarussian:",
+    "Belarusian:",
+    "Ukrainian:",
     "; a.k.a. ",
-    "ALIAS: ",
+    " (a.k.a.",
     "Hebrew: ",
     "Arabic: ",
-    "Belarusian:",
-    "Belarussian:",
     "Russian:",
-    "Ukrainian:",
+    "ALIAS: ",
+    ", ",
+    "; ",
 ]
 
 
