@@ -1,11 +1,17 @@
+from collections import defaultdict
 import json
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict
 
 from followthemoney import Model
 
 from zavod.context import Context
-from zavod.extract.names.clean import Names, SourceNames, clean_names, name_val_str
+from zavod.extract.names.clean import (
+    LangText,
+    Names,
+    SourceNames,
+    clean_names,
+)
 from zavod.extract.names.dspy.clean import load_optimised_module
 from zavod.extract.names.dspy.example_data import FIELDS, load_data
 from zavod.extract.names.dspy.optimise import (
@@ -15,16 +21,15 @@ from zavod.extract.names.dspy.optimise import (
 from zavod.meta.dataset import Dataset
 
 
-def comparable_dict(names: Names) -> Dict[str, list[str]]:
-    """Convert a Names object to a comparable dict of lists of strings."""
-    result: Dict[str, list[str]] = {}
+def comparable_dict(names: Names) -> dict[str, list[str]]:
+    """
+    Convert a Names object to a dict of lists of strings comparable to our DSPy examples.
+    """
+    result: Dict[str, list[str]] = defaultdict(list)
     for field, names_values in names.nonempty_item_lists():
-        values: List[str] = []
         for name_val in names_values:
-            name_str = name_val_str(name_val)
-            if name_str is not None:
-                values.append(name_str)
-        result[field] = values
+            assert not isinstance(name_val, LangText), "LangText isn't supported yet."
+            result[field].append(name_val)
     return result
 
 
