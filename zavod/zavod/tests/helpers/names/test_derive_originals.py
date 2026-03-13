@@ -157,16 +157,15 @@ def test_derive_original_values_single_original_multiple_props():
 def test_derive_original_values_with_langtext():
     """LangText values should work the same as str values."""
     # LangText in original, str in extracted
-    original = Names(name=LangText(text="John/Jon Doe", lang="eng"))
+    # Jon is just here so that the single original shortcut doesn't kick in.
+    original = Names(name=LangText(text="John/Jon Doe", lang="eng"), weakAlias="Jon")
     extracted = Names(name="John Doe", alias="Jon Doe")
     result = derive_original_values(original, extracted)
-    assert result == {
-        "John Doe": "John/Jon Doe",
-        "Jon Doe": "John/Jon Doe",
-    }
+    # John Doe isn't exactly contained so doesn't get an original_value.
+    assert result == {"Jon Doe": "John/Jon Doe"}
 
     # str in original, LangText in extracted
-    original = Names(name="John Doe; Brandon Doe")
+    original = Names(name="John Doe; Brandon Doe", weakAlias="Jon")
     extracted = Names(alias=LangText(text="Brandon Doe", lang="eng"))
     result = derive_original_values(original, extracted)
     assert result == {
@@ -174,10 +173,10 @@ def test_derive_original_values_with_langtext():
     }
 
     # Mixed str and LangText in original
-    original = Names(name=[LangText(text="John Doe", lang="eng"), "Jane Smith"])
-    extracted = Names(name="John", alias="Jane")
+    original = Names(name=[LangText(text="2. Jane Doe", lang="eng"), "1. Jane Smith"])
+    extracted = Names(name="Jane Doe", alias="Jane Smith")
     result = derive_original_values(original, extracted)
     assert result == {
-        "John": "John Doe",
-        "Jane": "Jane Smith",
+        "Jane Doe": "2. Jane Doe",
+        "Jane Smith": "1. Jane Smith",
     }
