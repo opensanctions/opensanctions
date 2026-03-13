@@ -36,7 +36,9 @@ def crawl_person(context: Context, item: Dict[str, Any]) -> None:
         org_name = wp.get("organization")
         # Construct a clean position_name:
         # e.g. poslanec, Kancelář Poslanecké sněmovny Parlamentu
-        position_name = f"{role_name}, {org_name}" if org_name else role_name
+        position_name = (
+            f"{role_name.capitalize()}, {org_name}" if org_name else role_name
+        )
         position = h.make_position(
             context,
             name=position_name,

@@ -14,7 +14,8 @@ description: |
   The Central Register of Declarations (CRO) publishes asset and interest
   declarations filed by public officials under the Czech Conflict of Interest
   Act (No. 159/2006 Coll.), covering MPs, senators, judges, and senior
-  managers of state institutions.
+  managers of state institutions. Each declaration includes the declarant's
+  current position and recent roles, which are used to determine PEP status.
 tags:
   - list.pep
 publisher:
