@@ -149,6 +149,7 @@ def parse_entry(context: Context, entry: Element) -> None:
 
         name_el_to_lang[name_el] = lang
 
+    original = h.Names()
     for name, lang in name_el_to_lang.items():
         is_weak = not as_bool(name.get("strong"))
         remark = name.findtext("./remark")
@@ -188,16 +189,7 @@ def parse_entry(context: Context, entry: Element) -> None:
         middle_name = name.get("middleName")
         last_name = name.get("lastName")
         if is_weak:
-            h.apply_name(
-                entity,
-                full=full_name,
-                first_name=first_name,
-                middle_name=middle_name,
-                last_name=last_name,
-                is_weak=True,
-                quiet=True,
-                lang=lang,
-            )
+            original.add("weakAlias", full_name, lang=lang)
         else:
             if not full_name and (first_name and last_name):
                 # Currently full_name always exists with first and last, but just make sure.
@@ -206,12 +198,7 @@ def parse_entry(context: Context, entry: Element) -> None:
                     middle_name=middle_name,
                     last_name=last_name,
                 )
-            h.apply_reviewed_name_string(
-                context,
-                entity,
-                string=full_name,
-                original_prop="alias" if treat_as_alias else "name",
-            )
+            original.add("alias" if treat_as_alias else "name", full_name, lang=lang)
             entity.add("firstName", first_name, quiet=True, lang=lang)
             entity.add("middleName", middle_name, quiet=True, lang=lang)
             entity.add("lastName", last_name, quiet=True, lang=lang)
@@ -231,6 +218,8 @@ def parse_entry(context: Context, entry: Element) -> None:
             # Notes will also have LETTER_SPLITS, but there isn't really any value in splitting them
             entity.add("notes", name.get("function"), lang=lang)
         entity.add("gender", name.get("gender"), quiet=True, lang=lang)
+
+    h.apply_reviewed_names(context, entity, original=original)
 
     for node in entry.findall("./identification"):
         doc_type = node.get("identificationTypeCode")

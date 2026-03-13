@@ -14,26 +14,37 @@ SINGLE_ENTITY_PROGRAM_PATH = Path(__file__).parent / "dspy/single_entity_program
 # original extraction.
 EXCLUDE_IF_EMPTY = {"previousName", "firstName", "middleName", "lastName"}
 
-NamesValue = str | Sequence[str | None] | None
+
+class LangText(BaseModel):
+    text: str
+    lang: str
+    """ISO 639-2 (3-letter) language code"""
+
+    def __hash__(self) -> int:
+        return hash((self.text, self.lang))
 
 
-def is_empty_string(text: Optional[str]) -> bool:
-    if text is None:
-        return True
-    if isinstance(text, str):
-        text = text.strip()
-        return len(text) == 0
-    return False
+NamesValue = str | LangText | None
+NamesValues = NamesValue | Sequence[NamesValue]
 
 
 class Names(BaseModel):
-    """Names categorised and cleaned of non-name characters."""
+    """
+    Names of a single entity.
 
-    name: NamesValue = None
-    alias: NamesValue = None
-    weakAlias: NamesValue = None
-    previousName: NamesValue = None
-    abbreviation: NamesValue = None
+    This is used both to represent how strings containing one or more names have been
+    extracted from source data, as categorised by the source, and also to capture a
+    proposed and eventually analyst-reviewed and accepted cleaned version of those names.
+
+    Cleaning might include splitting or re-combining parts, and stripping punctuation
+    which does not form part of the name.
+    """
+
+    name: NamesValues = None
+    alias: NamesValues = None
+    weakAlias: NamesValues = None
+    previousName: NamesValues = None
+    abbreviation: NamesValues = None
     # TODO: Before adding name parts, we should consider whether we should
     # add them directly or construct a full name with them via h.apply_name.
     #
@@ -43,7 +54,7 @@ class Names(BaseModel):
     # middleName: NamesValue = None
     # lastName: NamesValue = None
 
-    def _is_blank_value(self, value: NamesValue) -> bool:
+    def _is_blank_value(self, value: NamesValues) -> bool:
         """Check if a value is blank (None, empty string, or empty list)."""
         if value is None:
             return True
@@ -66,22 +77,49 @@ class Names(BaseModel):
             return False
         return True
 
-    def nonempty_item_lists(self) -> Generator[Tuple[str, List[str]], None, None]:
+    def nonempty_item_lists(
+        self,
+    ) -> Generator[Tuple[str, List[str | LangText]], None, None]:
         """
         Generator yielding each property and a list of any associated non-empty name values.
 
         Useful when iterating over values in a Names instance.
         """
-        for key, value in self.model_dump().items():
+        for key in self.__class__.model_fields:
+            value = getattr(self, key)
             if value is None:
                 continue
-            if isinstance(value, str):
+            if isinstance(value, (str, LangText)):
                 if not is_empty_string(value):
                     yield key, [value]
-            if isinstance(value, list):
+            elif isinstance(value, list):
                 nonempty_values = [v for v in value if not is_empty_string(v)]
                 if nonempty_values:
                     yield key, nonempty_values
+
+    def add(
+        self, prop: str, value: Optional[str], *, lang: Optional[str] = None
+    ) -> None:
+        """
+        Add a value to a property. If set as a single value, the values are added to a list.
+        Value is wrapped in LangText if lang is provided.
+
+        Args:
+            prop: The property name to add the value to.
+            value: The name value to add.
+            lang: Optional ISO 639-2 language code for the name value.
+        """
+
+        if value is None:
+            return
+        item = LangText(text=value, lang=lang) if lang is not None else value
+        current = getattr(self, prop)
+        if current is None:
+            setattr(self, prop, item)
+        elif isinstance(current, list):
+            current.append(item)
+        else:
+            setattr(self, prop, [current, item])
 
     def simplify(self) -> "Names":
         """Get a copy where single-item lists are replaced by just the single item.
@@ -132,6 +170,23 @@ class DSPySignature(BaseModel):
 
 class PredictProgramData(BaseModel):
     signature: DSPySignature
+
+
+def is_empty_string(text: Optional[str | LangText]) -> bool:
+    if text is None:
+        return True
+    if isinstance(text, LangText):
+        return is_empty_string(text.text)
+    if isinstance(text, str):
+        text = text.strip()
+        return len(text) == 0
+    return False
+
+
+def name_val_str(name_val: NamesValue) -> str | None:
+    if isinstance(name_val, LangText):
+        return name_val.text
+    return name_val
 
 
 @cache

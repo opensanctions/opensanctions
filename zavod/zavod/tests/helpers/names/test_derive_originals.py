@@ -1,4 +1,4 @@
-from zavod.helpers.names import derive_original_values, Names
+from zavod.helpers.names import derive_original_values, Names, LangText
 
 
 def test_derive_original_values_single_original():
@@ -151,4 +151,32 @@ def test_derive_original_values_single_original_multiple_props():
         "John Doe": "John Brandon Doe",
         "Brandon": "John Brandon Doe",
         "JBD": "John Brandon Doe",
+    }
+
+
+def test_derive_original_values_with_langtext():
+    """LangText values should work the same as str values."""
+    # LangText in original, str in extracted
+    # Jon is just here so that the single original shortcut doesn't kick in.
+    original = Names(name=LangText(text="John/Jon Doe", lang="eng"), weakAlias="Jon")
+    extracted = Names(name="John Doe", alias="Jon Doe")
+    result = derive_original_values(original, extracted)
+    # John Doe isn't exactly contained so doesn't get an original_value.
+    assert result == {"Jon Doe": "John/Jon Doe"}
+
+    # str in original, LangText in extracted
+    original = Names(name="John Doe; Brandon Doe", weakAlias="Jon")
+    extracted = Names(alias=LangText(text="Brandon Doe", lang="eng"))
+    result = derive_original_values(original, extracted)
+    assert result == {
+        "Brandon Doe": "John Doe; Brandon Doe",
+    }
+
+    # Mixed str and LangText in original
+    original = Names(name=[LangText(text="2. Jane Doe", lang="eng"), "1. Jane Smith"])
+    extracted = Names(name="Jane Doe", alias="Jane Smith")
+    result = derive_original_values(original, extracted)
+    assert result == {
+        "Jane Doe": "2. Jane Doe",
+        "Jane Smith": "1. Jane Smith",
     }

@@ -1,10 +1,17 @@
+from collections import defaultdict
 import json
 from pathlib import Path
+from typing import Dict
 
 from followthemoney import Model
 
 from zavod.context import Context
-from zavod.extract.names.clean import Names, SourceNames, clean_names
+from zavod.extract.names.clean import (
+    LangText,
+    Names,
+    SourceNames,
+    clean_names,
+)
 from zavod.extract.names.dspy.clean import load_optimised_module
 from zavod.extract.names.dspy.example_data import FIELDS, load_data
 from zavod.extract.names.dspy.optimise import (
@@ -12,6 +19,18 @@ from zavod.extract.names.dspy.optimise import (
     metric_with_feedback_dict,
 )
 from zavod.meta.dataset import Dataset
+
+
+def comparable_dict(names: Names) -> dict[str, list[str]]:
+    """
+    Convert a Names object to a dict of lists of strings comparable to our DSPy examples.
+    """
+    result: Dict[str, list[str]] = defaultdict(list)
+    for field, names_values in names.nonempty_item_lists():
+        for name_val in names_values:
+            assert not isinstance(name_val, LangText), "LangText isn't supported yet."
+            result[field].append(name_val)
+    return result
 
 
 def compare_single_entity(examples_path: Path, output_path: Path) -> None:
@@ -37,15 +56,13 @@ def compare_single_entity(examples_path: Path, output_path: Path) -> None:
         assert schema is not None, example.entity_schema
         original = Names(name=example.strings)
         raw_names = SourceNames(entity_schema=schema.name, original=original)
-        direct_gpt_result = clean_names(context, raw_names)
-        direct_gpt_eval = metric_with_feedback_dict(
-            example.toDict(), dict(direct_gpt_result.nonempty_item_lists())
-        )
+        direct_gpt_result = comparable_dict(clean_names(context, raw_names))
+        direct_gpt_eval = metric_with_feedback_dict(example.toDict(), direct_gpt_result)
 
         agree = True
         for field in FIELDS:
             if set(dspy_result.toDict()[field]) != set(
-                dict(direct_gpt_result.nonempty_item_lists()).get(field, [])
+                direct_gpt_result.get(field, [])
             ):
                 agree = False
         result = {
@@ -57,7 +74,7 @@ def compare_single_entity(examples_path: Path, output_path: Path) -> None:
                 "score": dspy_eval.score,
             },
             "direct_gpt_result": {
-                "output": direct_gpt_result.model_dump(),
+                "output": direct_gpt_result,
                 "score": direct_gpt_eval.score,
             },
             "results_agree": agree,

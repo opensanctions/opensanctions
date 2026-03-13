@@ -72,6 +72,11 @@ data:
   url: https://webgate.ec.europa.eu/fsd/fsf/public/files/xmlFullSanctionsList_1_1/content?token=dG9rZW4tMjAxNw
   format: XML
 
+names:
+  suggest_weak_alias_person_single_token: true
+  suggest_abbreviation_uppercase_org_single_token_shorter_than: 8
+  suggest_abbreviation_non_person_single_token_shorter_than: 5
+
 assertions:
   min:
     schema_entities:
