@@ -1,4 +1,4 @@
-title: Czech Republic PEPs
+title: Czech Republic PEPs from the Central Register of Declarations
 prefix: cz-pep
 url: https://cro.justice.cz/verejnost/funkcionari
 coverage:
@@ -12,9 +12,9 @@ summary: >-
   government.
 description: |
   The Central Register of Declarations (CRO) publishes asset and interest
-  declarations filed by around 39,000 public officials under the Czech Conflict
-  of Interest Act (No. 159/2006 Coll.), spanning all branches and levels of
-  government, from MPs and senators to mayors, judges, and state institution managers.
+  declarations filed by public officials under the Czech Conflict of Interest
+  Act (No. 159/2006 Coll.), covering MPs, senators, judges, and senior
+  managers of state institutions.
 tags:
   - list.pep
 publisher:

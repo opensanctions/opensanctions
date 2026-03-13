@@ -49,9 +49,10 @@ def crawl_person(context: Context, item: Dict[str, Any]) -> None:
         if not categorisation.is_pep:
             continue
 
-        end_date = wp.get("end") or wp.get("writtenDateOfEnd")
-        if wp.get("end") and wp.get("writtenDateOfEnd"):
-            end_date = max(wp.get("end"), wp.get("writtenDateOfEnd"))
+        # Pick the latest available
+        end_date = max(
+            filter(None, [wp.get("end"), wp.get("writtenDateOfEnd")]), default=None
+        )
 
         occupancy = h.make_occupancy(
             context,
