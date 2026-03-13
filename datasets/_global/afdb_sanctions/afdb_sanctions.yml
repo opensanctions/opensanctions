@@ -398,6 +398,104 @@ lookups:
         names:
           - name: J.M. Comercio De Equipamentos Ltda
             alias: "Pick Up Car Auto PEÇAS"
+      - match: 'Aktif Elektroteknik San ve Tic A. S. ("Aktif") also doing business as AKTİF ELEKTROTEKNIK SANAYII VE TICARET'
+        names:
+          - name: Aktif Elektroteknik San ve Tic A. S.
+            alias: ["Aktif", "AKTİF ELEKTROTEKNIK SANAYII VE TICARET"]
+      - match: 'JXTE ASSEMBLY MANUFACTURING CO LTD (ALSO KNOWN AS JIANGXI JIAOGONG ASSEMBLY MANUFACTURING CO LTD)'
+        names:
+          - name: JXTE Assembly Manufacturing Co. Ltd
+            alias: "Jiangxi Jiaogong Assembly Manufacturing Co., Ltd"
+      - match: 'JXTE MUNICIPAL CONSTRUCTION ENGINEERING CO LTD (ALSO KNOWN AS JIANGXI JIAOGONG MUNICIPAL CONSTRUCTION ENGINEERING CO LTD)'
+        names:
+          - name: JXTE Municipal Construction Engineering Co. Ltd
+            alias: "Jiangxi Jiaogong Municipal Construction Engineering Co., Ltd"
+      - match: 'Rask Holding AF 2017 Ap (RASK HOLDING) NewCo AF 2018 IV (NEWCO)'
+        names:
+          - name: Rask Holding AF 2017 Ap
+            alias: "RASK HOLDING"
+          - name: NewCo AF 2018 IV
+            alias: "NEWCO"
+      - match: 'Hangzhou Fuchuan Electric Equipment Co Ltd (also known as Hangzhou Fuchuan Electric Power Equipment Co Ltd)'
+        names:
+          - name: Hangzhou Fuchuan Electric Equipment Co., Ltd
+            alias: "Hangzhou Fuchuan Electric Power Equipment Co., Ltd"
+      - match: 'Nishan Engineers (Pvt) Limited (Nishan)'
+        names:
+          - name: Nishan Engineers (Pvt) Limited
+            alias: "Nishan"
+      - match: 'Hebei Construction Group (Ningbo) Supply Chain Management Co Ltd'
+        names:
+          - name: Hebei Construction Group (Ningbo) Supply Chain Management Co., Ltd.
+      - match: 'Construcciones Del Siglo 21 S.A.S. (Siglo 21Formerly constructora Fajardo Nieto Ltda )'
+        names:
+          - name: Construcciones Del Siglo 21 S.A.S.
+            alias: "Siglo 21"
+            previous_name: "constructora Fajardo Nieto Ltda."
+      - match: 'Taihan Electric Wire Co. Ltd. (Also Known As Taihan Cable & Solution Co td.)'
+        names:
+          - name: Taihan Electric Wire Co., Ltd.
+            alias: "Taihan Cable & Solution Co., Ltd."
+      - match: 'Solutions For Development Support (Pvt.) Ltd'
+        names:
+          - name: Solutions For Development Support (Pvt.) Ltd.
+      - match: 'Baraka Qurilish Servis Llc (Bqs)'
+        names:
+          - name: Baraka Qurilish Servis Llc
+            weak_alias: "Bqs"
+      - match: 'Xinjiang Jiaotong Logistics Co. Ltd. (Also Known As Xccg Logistics Co. Ltd.新疆交建物流有限公司'
+        names:
+          - name: Xinjiang Jiaotong Logistics Co. Ltd.
+            alias: ["Xccg Logistics Co. Ltd.", "新疆交建物流有限公司"]
+      - match: 'Xinjiang Communication Construction Municipal Engineering Co. Ltd (Also Known As Xccg Municipal Works Construction Co. Ltd 新疆交建市政工程有限责任公司)'
+        names:
+          - name: Xinjiang Communication Construction Municipal Engineering Co. Ltd.
+            alias: ["Xccg Municipal Works Construction Co. Ltd.", "新疆交建市政工程有限责任公司"]
+      - match: 'Henan Geology and Mineral Construction Engineering (Group) Anhui Co Ltd'
+        names:
+          - name: Henan Geology And Mineral Construction Engineering (Group) Anhui Co. Ltd.
+            alias: "河南省地矿建设工程(集团)安徽有"
+      - match: 'Henan Geology And Mineral Construction Engineering (Group) Dalian Municipal Engineering Co. Ltd 河南省地矿建设工程(集团)大连市政工程有限公司'
+        names:
+          - name: Henan Geology And Mineral Construction Engineering (Group) Dalian Municipal Engineering Co. Ltd.
+            alias: "河南省地矿建设工程(集团)大连市政工程有限公司"
+      - match: 'Gesaworld S.A. Or Gesaworld Group S.A'
+        names:
+          - name: Gesaworld S.A.
+            alias: "Gesaworld Group S.A."
+      - match: 'Allonward Hydro-Generating Equipment (Hongkong) Co Ltd'
+        names:
+          - name: Allonward Hydro-Generating Equipment (Hongkong) Co.Ltd.
+      - match: 'A2Z Infra Engineering Limited (Previously Known As A2Z Maintenance & Engineering Services Limited) (A2Z Infra)'
+        names:
+          - name: A2Z Infra Engineering Limited
+            previous_name: "A2Z Maintenance & Engineering Services Limited"
+            alias: "A2Z Infra"
+      - match: 'Founder International (Beijing) Co. Ltd'
+        names:
+          - name: Founder International (Beijing) Co. Ltd.
+      - match: 'Flowbird Société Par Actions Simplifiée (Formerly Operating As: Parkeon Société Par Actions Simplifiée) (Flowbird Sas)'
+        names:
+          - name: Flowbird Société Par Actions Simplifiée
+            alias: "Flowbird Sas"
+            previous_name: "Parkeon Société Par Actions Simplifiée"
+      - match: 'Flowbird Transport Limited (Formerly Operating As: Parkeon Transit Limited) (Flowbird Transport)'
+        names:
+          - name: Flowbird Transport Limited
+            alias: "Flowbird Transport"
+            previous_name: "Parkeon Transit Limited"
+      - match: 'Zhongchen Road & Bridge Construction (Beijing) Co. Ltd. (Zhongchen Road & Bridge)'
+        names:
+          - name: Zhongchen Road & Bridge Construction (Beijing) Co. Ltd.
+            alias: "Zhongchen Road & Bridge"
+      - match: 'Kenoster (Nigeria) Limited (Kenoster)'
+        names:
+          - name: Kenoster (Nigeria) Limited
+            alias: "Kenoster"
+      - match: 'XINJINZHU MUNICIPAL LANDSCAPING ENGINEERING CO LTD (formerly Henan Xinjinzhu Landscaping Engineering Co Ltd)'
+        names:
+          - name: Xinjinzhu Municipal Landscaping Engineering Co., Ltd.
+            previous_name: "Henan Xinjinzhu Landscaping Engineering Co., Ltd."
   types:
     lowercase: true
     map:

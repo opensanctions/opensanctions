@@ -1,7 +1,13 @@
 import re
+from copy import deepcopy
+from functools import cache
 from banal import is_listish, ensure_list
-from typing import Optional, List, Sequence, Union, Iterable
+from typing import Optional, List, Sequence, Tuple, Union, Iterable
 from normality import squash_spaces
+
+from zavod.logs import get_logger
+
+log = get_logger(__name__)
 
 PREFIX_ = r"INTERPOL-UN\s*Security\s*Council\s*Special\s*Notice\s*web\s*link:?"
 PREFIX = re.compile(PREFIX_, re.IGNORECASE)
@@ -39,6 +45,32 @@ def clean_note(text: Union[Optional[str], Sequence[Optional[str]]]) -> List[str]
     return out
 
 
+@cache
+def _validate_splitters(splitters: Tuple[str, ...]) -> None:
+    """Check that the splitters supplied to the multi_split function are sequenced such that
+    later splitters are not substrings of earlier splitters.
+    """
+    # The risk here is something like splitting on `i)` first, and then on `ii)` later, which
+    # would cause the `ii)` splitter to never be applied, and create a dangling `i` in the output.
+
+    previous: List[str] = []
+    for splitter in splitters:
+        if not isinstance(splitter, str):
+            log.warning("multi_split: not a string: %r", splitter)
+            continue
+        if len(splitter.strip()) == 0:
+            log.warning("multi_split: empty: %r", splitter)
+            continue
+        for prev in previous:
+            if prev in splitter:
+                log.warning(
+                    "multi_split: %r is a substring of preceding %r",
+                    splitter,
+                    prev,
+                )
+        previous.append(splitter)
+
+
 def multi_split(
     text: Optional[Union[str, Iterable[Optional[str]]]], splitters: Iterable[str]
 ) -> List[str]:
@@ -57,7 +89,12 @@ def multi_split(
     if text is None:
         return []
     fragments = ensure_list(text)
-    for splitter in splitters:
+    original_fragments = deepcopy(fragments)
+    lsplitters = tuple(splitters)
+    # FIXME: this is meant to help us find things that are broken right now. Once we've
+    # remediated that, we should remove the check and sort splitters instead.
+    _validate_splitters(lsplitters)
+    for splitter in lsplitters:
         out: List[Optional[str]] = []
         for fragment in fragments:
             if fragment is None:
@@ -67,7 +104,15 @@ def multi_split(
                 if len(frag):
                     out.append(frag)
         fragments = out
-    return [f for f in fragments if f is not None]
+    result = [f for f in fragments if f is not None]
+    sorted_splitters = tuple(sorted(lsplitters, key=len, reverse=True))
+    if sorted_splitters != lsplitters:
+        sorted_result = multi_split(original_fragments, sorted_splitters)
+        if sorted_result != result:
+            log.warning(
+                "multi_split: different results when sorted by length: %r", lsplitters
+            )
+    return result
 
 
 def is_empty(text: Optional[str]) -> bool:
