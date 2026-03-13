@@ -248,7 +248,7 @@ lookups:
       - match: 'Baraka Qurilish Servis Llc (“Bqs”)'
         names:
           - name: Baraka Qurilish Servis Llc
-            weak_alias: "Bqs"
+            abbreviation: "Bqs"
       - match: 'Ecograph Llc Aka Ecography Company (Ecograph)'
         names:
           - name: Ecograph Llc
@@ -442,7 +442,7 @@ lookups:
       - match: 'Baraka Qurilish Servis Llc (Bqs)'
         names:
           - name: Baraka Qurilish Servis Llc
-            weak_alias: "Bqs"
+            abbreviation: "Bqs"
       - match: 'Xinjiang Jiaotong Logistics Co. Ltd. (Also Known As Xccg Logistics Co. Ltd.新疆交建物流有限公司'
         names:
           - name: Xinjiang Jiaotong Logistics Co. Ltd.
