@@ -37,4 +37,4 @@ def crawl(context: Context):
                 continue
             parse_entry(context, entry)
 
-    assert_all_accepted(context, raise_on_unaccepted=False)
+    assert_all_accepted(context, raise_on_unaccepted=True)
