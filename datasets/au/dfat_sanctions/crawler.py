@@ -12,16 +12,16 @@ from zavod import helpers as h
 
 SPLITS = [" %s)" % char for char in string.ascii_lowercase]
 ADDRESS_SPLITS = [
-    ";",
-    "ii) ",
+    "_x000D_,",
+    "_x000D_\n",
+    "_x000D_",
     "iii) ",
+    "ii) ",
     "a) ",
     "b) ",
     "c) ",
     "d) ",
-    "_x000D_,",
-    "_x000D_\n",
-    "_x000D_",
+    ";",
 ]
 PROVISION_FIELDS = [
     "travel_ban",
