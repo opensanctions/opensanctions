@@ -17,28 +17,27 @@ from zavod import helpers as h
 
 # Match non-brackets inside an opening and closing pair of brackets
 BRACKETED = re.compile(r"([(（][^\(\)]*[)）]|\[[^\[\]]*\])")
-
+# Already covers "（a）", "(a)", "(i)" etc
 SPLITS = ["(%s)" % char for char in string.ascii_lowercase]
 SPLITS = SPLITS + ["（%s）" % char for char in string.ascii_lowercase]
-# WTF full-width brackets!
-SPLITS = SPLITS + ["（a）", "（b）", "（c）", "\n"]
-SPLITS = SPLITS + ["(i)", "(ii)", "(iii)", "(iv)", "(v)", "(vi)", "(vii)", "(viii)"]
-SPLITS = SPLITS + ["; a.k.a.", "; a.k.a ", ", a.k.a.", ", f.k.a."]
+SPLITS = SPLITS + ["(ii)", "(iii)", "(iv)", "(vi)", "(vii)", "(viii)", "\n"]
+SPLITS = sorted(
+    SPLITS + ["; a.k.a.", "; a.k.a ", ", a.k.a.", ", f.k.a."], key=len, reverse=True
+)
 
 ALIAS_SPLITS = SPLITS + ["; "]
 ADDR_SPLITS = ["; and ", ";"]
 DATE_SPLITS = SPLITS + [
-    "、",
-    "；",
-    "又は",  # or
-    "又は",  # or
     "または",  # or
-    "生",  # living
     "に改訂",  # revised to
+    "又は",  # or
     "改訂",  # revised
-    "日",  # date
     "及び",  # and
     "修正",  # fix
+    "、",
+    "；",
+    "生",  # living
+    "日",  # date
 ]
 # Date of revision | revision | part of an OR phrase
 DATE_CLEAN = re.compile(r"(\(|\)|（|）| |改訂日|改訂|まれ)")
