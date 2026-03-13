@@ -29,7 +29,16 @@ NamesValues = NamesValue | Sequence[NamesValue]
 
 
 class Names(BaseModel):
-    """Names categorised and cleaned of non-name characters."""
+    """
+    Names of a single entity.
+
+    This is used both to represent how strings containing one or more names have been
+    extracted from source data, as categorised by the source, and also to capture a
+    proposed and eventually analyst-reviewed and accepted cleaned version of those names.
+
+    Cleaning might include splitting or re-combining parts, and stripping punctuation
+    which does not form part of the name.
+    """
 
     name: NamesValues = None
     alias: NamesValues = None
