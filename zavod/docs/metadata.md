@@ -139,7 +139,7 @@ assertions:
 
 Sanctions programs are the specific government policies that form the legal basis for designating individuals, companies, vessels, or other entities as sanctioned. Each program defines a scope and a set of measures that the issuing authority imposes on the sanctioned target. See [What are sanctions programs?](/reference/faq/#sanctions-programs) for background.
 
-Individual entities are linked to programs via the `programId` property. The full set of program metadata is published as a JSON file at `https://data.opensanctions.org/meta/programs.json`, updated multiple times per day.
+Sanctioned entities are linked to programmes via the `programId` property on their [`Sanction`](/reference/#schema.Sanction) records. The full set of program metadata is published as a JSON file at `https://data.opensanctions.org/meta/programs.json`, updated multiple times per day.
 
 ### Basics
 

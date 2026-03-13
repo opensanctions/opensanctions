@@ -42,7 +42,8 @@ Prohibition on new investment (equity, joint ventures, capital contributions, ac
 
 ### Services ban
 
-Prohibition on providing professional, technical, or advisory services (legal, accounting, auditing, IT, consulting, engineering, advertising, trust/company formation) to sanctioned countries or persons. Where services are ancillary to a controlled-goods transfer, classify under the applicable goods category.
+Prohibition on providing professional, technical, or advisory services (legal, accounting, auditing, IT, consulting, engineering, advertising, trust/company formation) to sanctioned countries or persons. Where services are ancillary to a controlled-goods transfer, classify under the applicable goods category. Where a services prohibition exists only as a component of a goods restriction (e.g. technical assistance for arms as part of the arms embargo), classify under the goods category. Use Services ban for standalone prohibitions on professional/advisory services with no physical-goods component.
+
 
 ### Prohibition to satisfy claims
 
@@ -50,7 +51,8 @@ Prohibition on satisfying claims by designated persons or the government of a sa
 
 ### Sectoral sanctions
 
-Restrictions targeting an entire economic sector (energy, defence, extractives, technology). Use when the measure does not reduce to a single more specific category above. Prefer the specific category where applicable.
+Restrictions targeting an entire economic sector (energy, defence, extractives, technology). Use when the measure does not reduce to a single more specific category above. Prefer the specific category where applicable. If a sectoral measure can be fully described as an export control, import restriction, investment ban, or financial restriction, use the specific category. Sectoral sanctions is for measures defined at sector level that cannot be decomposed without loss of meaning.
+
 
 ### Transportation restrictions
 
@@ -70,14 +72,6 @@ An asset freeze follows the **person** — it freezes what they own and prohibit
 
 Arms restrictions cover items on military lists (munitions, weapons systems, military equipment). Export control covers dual-use goods, technology, and luxury goods. Where a regime restricts both, tag both. Internal repression equipment (surveillance tech, crowd control gear) is Export control, not Arms restrictions.
 
-### Services ancillary to goods
-
-Where a services prohibition exists only as a component of a goods restriction (e.g. technical assistance for arms as part of the arms embargo), classify under the goods category. Use Services ban for standalone prohibitions on professional/advisory services with no physical-goods component.
-
-### Sectoral sanctions as residual
-
-If a sectoral measure can be fully described as an export control, import restriction, investment ban, or financial restriction, use the specific category. Sectoral sanctions is for measures defined at sector level that cannot be decomposed without loss of meaning.
-
 ### Import restrictions scope
 
-Import restrictions covers any prohibition on bringing goods into the sanctioning jurisdiction from a target. This includes commodity embargoes (e.g. EU oil import ban on Russia), resource-origin bans (Kimberley Process), and forced-labour import prohibitions (US UFLPA, Section 307 Tariff Act).
+Import restrictions covers any prohibition on bringing goods into the sanctioning jurisdiction from a target. This includes commodity embargoes (e.g. EU oil import ban on Russia), resource-origin bans ([Kimberley Process](https://en.wikipedia.org/wiki/Kimberley_Process_Certification_Scheme)), and forced-labour import prohibitions (US UFLPA, Section 307 Tariff Act).
