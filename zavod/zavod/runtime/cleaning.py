@@ -7,7 +7,7 @@ from prefixdate.precision import Precision
 from followthemoney import registry, Property, model
 from followthemoney.statement.util import NON_LANG_TYPE_NAMES
 
-from zavod.constants import ORIGIN_LOOKUP
+from zavod.constants import ORIGIN_INFERRED, ORIGIN_LOOKUP
 from zavod.logs import get_logger
 from zavod.runtime.lookups import is_type_lookup_value, prop_lookup
 from zavod.runtime.safety import check_xss_html_smell
@@ -156,6 +156,11 @@ def value_clean(
                         value=value,
                         clean=clean,
                     )
+
+            # Topics are intrinsically inferred so saying it each time feels redundant. But
+            # it is making this aspect explicit in the data.
+            if prop_.type == registry.topic and origin is None:
+                origin = ORIGIN_INFERRED
 
             yield prop_, clean, origin
             continue
