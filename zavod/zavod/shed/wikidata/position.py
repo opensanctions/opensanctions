@@ -252,6 +252,9 @@ def wikidata_occupancy(
     position_topics = position.get("topics")
     is_diplomat = "role.diplo" in position_topics
 
+    # Set the key prefix in order to avoid duplicating occupancies for the same
+    # position held by the same person across multiple datasets. The choice is
+    # somewhat arbitrary, but it avoids a larger delta if we chose "wikidata".
     occupancy = h.make_occupancy(
         context,
         person,
