@@ -103,6 +103,7 @@ def make_occupancy(
     categorisation: Optional[PositionCategorisation] = None,
     status: Optional[OccupancyStatus] = None,
     propagate_country: bool = True,
+    key_prefix: Optional[str] = None,
 ) -> Optional[Entity]:
     """Creates and returns an Occupancy entity if the arguments meet our criteria
     for PEP position occupancy, otherwise returns None. Also adds the position countries
@@ -153,7 +154,7 @@ def make_occupancy(
         "ended",
         end_date or "unknown",
     ]
-    occupancy.id = context.make_id(*parts)
+    occupancy.id = context.make_id(*parts, hash_prefix=key_prefix)
     occupancy.add("holder", person)
     occupancy.add("post", position)
 
