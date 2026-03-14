@@ -11,6 +11,7 @@ from rigour.text import is_nullword
 from rigour.text.scripts import is_dense_script
 
 from zavod import settings
+from zavod.constants import ORIGIN_INFERRED
 from zavod.context import Context
 from zavod.entity import Entity
 from zavod.meta.names import CleaningSpec, NamesSpec
@@ -194,6 +195,11 @@ def apply_name(
         name_prop = "alias"
     if is_weak:
         name_prop = "weakAlias"
+
+    # Flag up full names created by
+    if full is None or len(full) == 0:
+        if origin is None:
+            origin = ORIGIN_INFERRED
     full = make_name(
         full=full,
         name1=name1,

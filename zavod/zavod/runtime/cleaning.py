@@ -7,6 +7,7 @@ from prefixdate.precision import Precision
 from followthemoney import registry, Property, model
 from followthemoney.statement.util import NON_LANG_TYPE_NAMES
 
+from zavod.constants import ORIGIN_LOOKUP
 from zavod.logs import get_logger
 from zavod.runtime.lookups import is_type_lookup_value, prop_lookup
 from zavod.runtime.safety import check_xss_html_smell
@@ -69,7 +70,8 @@ def value_clean(
     cleaned: bool = False,
     fuzzy: bool = False,
     format: Optional[str] = None,
-) -> Generator[Tuple[Property, str], None, None]:
+    origin: Optional[str] = None,
+) -> Generator[Tuple[Property, str, Optional[str]], None, None]:
     if prop.deprecated:
         log.warning(
             "Deprecated property used: %s" % prop.name,
@@ -80,6 +82,8 @@ def value_clean(
 
     for prop_, item in prop_lookup(entity, prop, value):
         clean: Optional[str] = item
+        if origin is None and item != value:
+            origin = ORIGIN_LOOKUP
         if not cleaned:
             if prop_.type == registry.identifier:
                 clean = clean_identifier(prop_, item)
@@ -114,7 +118,7 @@ def value_clean(
             if prop_.name == "abbreviation" and clean is not None:
                 weak_prop = entity.schema.get("weakAlias")
                 if weak_prop is not None:
-                    yield weak_prop, clean
+                    yield weak_prop, clean, origin
                 # Allow abbreviations that are not valid names
 
             elif entity.schema.is_a("LegalEntity") and not is_name(clean):
@@ -153,11 +157,11 @@ def value_clean(
                         clean=clean,
                     )
 
-            yield prop_, clean
+            yield prop_, clean, origin
             continue
         if prop_.type == registry.phone:
             # Do not have capacity to clean all phone numbers, allow broken ones
-            yield prop_, item
+            yield prop_, item, origin
             continue
         log.warning(
             f"Rejected property value [{prop_.name}]: {value}",
