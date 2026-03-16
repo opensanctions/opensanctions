@@ -151,3 +151,13 @@ lookups:
         value: null
       - match: Ywama
         value: null
+      - match: "Russian : Андрей Сергеевич Пальчик"
+        value: "Андрей Сергеевич Пальчик"
+      - match: "Russian : Геннадий Иванович Кудласевич"
+        value: "Геннадий Иванович Кудласевич"
+      - match: ООО
+        value: null
+      - match: "Muhammad Hamdan Dagalo,Mohamed Hamdan Daglo Mousa"
+        values:
+          - "Muhammad Hamdan Dagalo"
+          - "Mohamed Hamdan Daglo Mousa"
