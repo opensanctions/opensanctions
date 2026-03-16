@@ -203,12 +203,15 @@ def crawl_assets_xlsx(context: Context) -> None:
             birth_date = dates.extract_date(
                 context.dataset, birth_date_or_id, fallback_to_original=False
             )
+        except ValueError:
+            birth_date = None
 
+        if birth_date:  # birth_date can be None or []
             entity = context.make("Person")
             entity.id = context.make_id(*id_values)
             entity.add("birthDate", birth_date)
             entity.add("nationality", countries)
-        except ValueError:
+        else:
             entity = context.make("LegalEntity")
             entity.id = context.make_id(*id_values)
             entity.add("registrationNumber", birth_date_or_id)
