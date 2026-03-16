@@ -201,6 +201,15 @@ lookups:
           - "Next To Nirou Battery Mfg. Co, Shahid Babaii Expressway, Nobonyad Square, Tehran, Iran (Islamic Republic of)"
           - "Pasdaran St., P.O. Box 16765, Tehran, 1835, Iran (Islamic Republic of)"
           - "Babaei Highway - Next to Niru M.F.G, Tehran, Iran (Islamic Republic of)"
+      # Fix broken address fragments produced by multi_split treating "iii) " as "ii) " + "i"
+      - match: "New Sarafi Market, 2nd Floor, Kandahar City, Kandahar Province, Afghanistan, i"
+        value: "New Sarafi Market, 2nd Floor, Kandahar City, Kandahar Province, Afghanistan"
+      - match: "Flat number 4, Furaqn Center, Jamaluddin Afghani Road, Quetta, Baluchistan Province, Pakistan, i"
+        value: "Flat number 4, Furaqn Center, Jamaluddin Afghani Road, Quetta, Baluchistan Province, Pakistan"
+      - match: "Money Exchange Market, Lashkar Gah, Helmand Province, Afghanistan, i"
+        value: "Money Exchange Market, Lashkar Gah, Helmand Province, Afghanistan"
+      - match: "Haji Mohammed Plaza, Tol Aram Road, near Jamaluddin Afghani Road, Quetta, Pakistan i"
+        value: "Haji Mohammed Plaza, Tol Aram Road, near Jamaluddin Afghani Road, Quetta, Pakistan"
   type.date:
     options:
       - match: 01/10/1983,15/10/1983
