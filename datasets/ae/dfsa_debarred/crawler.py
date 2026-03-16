@@ -1,7 +1,8 @@
-from lxml.etree import _Element
+from lxml.etree import _Element, ParserError
+from lxml.html import document_fromstring
 
 from zavod import Context, helpers as h
-from zavod.extract.zyte_api import fetch_html, UnblockFailedException
+from zavod.extract.zyte_api import fetch_text
 
 
 def crawl_person(context: Context, row: _Element) -> None:
@@ -38,31 +39,27 @@ def crawl_person(context: Context, row: _Element) -> None:
 
 
 def crawl(context: Context) -> None:
-    xpath_el = ".//a[@class='table-row']"
     page_num = 1
 
     # using Zyte to bypass the 403 status response
     # paginate over the AJAX endpoint until an empty reponse
-
-    # xpath_el is used as a Zyte unblocking validator
-    # it raises UnblockFailedException on empty pages, which is used as the pagination stop condition
     while True:
         try:
-            doc = fetch_html(
+            html_text = fetch_text(
                 context,
                 f"{context.data_url}?page={page_num}&status=&keywords=&isAjax=true",
-                xpath_el,
+                expected_media_type="text/html",
+                expected_charset="utf-8",
             )
-        except UnblockFailedException:
-            # if UnblockFailedException past the fist page, stop paginating
-            # (we've likely hit an empty page)
+            doc = document_fromstring(html_text[3])
+
+            for row in h.xpath_elements(doc, ".//a[@class='table-row']"):
+                crawl_person(context, row)
+        except ParserError:
+            # break on empty page if past page 1
             if page_num > 1:
                 break
             # loudly raise an error if we fail at page 1
             raise
-
-        assert doc is not None
-        for row in h.xpath_elements(doc, xpath_el):
-            crawl_person(context, row)
 
         page_num += 1
