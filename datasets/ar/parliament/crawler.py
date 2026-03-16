@@ -29,16 +29,21 @@ def crawl_json(context: Context) -> None:
     with open(path, "r") as fh:
         data = json.load(fh)
     for entry in data:
-        deputy_id = entry.pop("id")
-        last_name = entry.pop("apellido")
-        first_name = entry.pop("nombre")
+        # deputy_id = entry.pop("id")  # source data does not have this field anymore
+        last_name = entry.pop("APELLIDO")
+        first_name = entry.pop("NOMBRE")
+        party = entry.pop("BLOQUE")
+
+        mandate_dates = entry.pop("MANDATO")
+        mandate_dates_end = mandate_dates.split("-")[1]
 
         person = context.make("Person")
-        person.id = context.make_id(first_name, last_name, deputy_id)
+        # creating id on party instead of deputy_id bc source data does not have the id field anymore
+        person.id = context.make_id(first_name, last_name, party)
         h.apply_name(person, first_name=first_name, last_name=last_name)
         person.add("citizenship", "ar")
-        person.add("gender", entry.pop("genero"))
-        person.add("political", entry.pop("bloque"))
+        person.add("gender", entry.pop("SEXO"))
+        person.add("political", party)
 
         position = h.make_position(
             context,
@@ -48,6 +53,7 @@ def crawl_json(context: Context) -> None:
             topics=["gov.legislative", "gov.national"],
             lang="eng",
         )
+        position.add("subnationalArea", entry.pop("DISTRITO"))
         categorisation = categorise(context, position, is_pep=True)
 
         occupancy = h.make_occupancy(
@@ -55,8 +61,8 @@ def crawl_json(context: Context) -> None:
             person,
             position,
             False,  # every tenure should have an end date (even if it is in the future)
-            start_date=entry.pop("inicio"),
-            end_date=entry.pop("fin"),
+            start_date=entry.pop("FECHA_DE_INICIO"),
+            end_date=mandate_dates_end,
             categorisation=categorisation,
         )
         if occupancy is not None:
@@ -64,9 +70,7 @@ def crawl_json(context: Context) -> None:
             context.emit(position, external=True)
             context.emit(person, external=True)
 
-            context.audit_data(
-                entry, ["distrito", "juramento", "cese", "bloque_inicio", "bloque_fin"]
-            )
+            context.audit_data(entry, ["FECHA_DE_JURA"])
 
 
 def _extract_text(element, xpath_query):
