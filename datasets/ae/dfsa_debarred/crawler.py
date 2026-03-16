@@ -20,7 +20,7 @@ def crawl_person(context: Context, row: _Element) -> None:
     person.add("name", name)
 
     sanction = h.make_sanction(context, person)
-    h.apply_date(sanction, "listingDate", date)
+    h.apply_date(sanction, "startDate", date)
     sanction.add("sourceUrl", url)
     sanction.add("country", "ae")
     sanction.add("status", status)
@@ -31,8 +31,10 @@ def crawl_person(context: Context, row: _Element) -> None:
         date_end = date_end.strip(")")
         date_end = date_end.replace("expired ", "")
         h.apply_date(sanction, "endDate", date_end)
-    else:
+    if "ongoing" in status.lower():
         person.add("topics", "debarment")
+    else:
+        context.log.warning(f"Unexpected case status: {status}")
 
     context.emit(person)
     context.emit(sanction)
