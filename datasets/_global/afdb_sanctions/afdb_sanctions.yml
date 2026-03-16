@@ -63,6 +63,10 @@ assertions:
 lookups:
   names:
     options:
+      - match: 'Aktif Elektroteknik San ve Tic A. S. (“Aktif”) also doing business as AKTİF ELEKTROTEKNIK SANAYII VE TICARET'
+        names:
+          - name: 'Aktif Elektroteknik San ve Tic A. S. (“Aktif”)'
+          - alias: 'AKTİF ELEKTROTEKNIK SANAYII VE TICARET'
       - match: 'Hebei Construction Group (Ningbo) Supply Chain Management Co., Ltd.'
         names:
           - name: Hebei Construction Group (Ningbo) Supply Chain Management Co., Ltd.
