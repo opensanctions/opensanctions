@@ -91,7 +91,7 @@ def crawl_row(context: Context, data: Dict[str, str]):
         h.apply_date(entity, "birthDate", dob)
 
         aliases = data.pop("IndividualAlias", None)
-        for alias in h.multi_split(aliases, [", ", "Good", "Low"]):
+        for alias in h.multi_split(aliases, ["Good", "Low", ","]):
             if all(c in {"?", " "} for c in alias):
                 continue
             entity.add("alias", alias)
