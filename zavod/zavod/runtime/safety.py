@@ -38,7 +38,7 @@ XSS_SUSPECT_PATTERN = re.compile(
 #   type.text:
 #     options:
 #       - match:
-#         - "goes by the alias <gg> and <kurva>"
+#         - "goes by the alias <gg>"
 #       - silence_warnings: [xss-html-smell]
 SILENCE_WARNING_TYPE = "xss-html-smell"
 
