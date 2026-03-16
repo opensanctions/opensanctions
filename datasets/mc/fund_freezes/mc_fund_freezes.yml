@@ -218,6 +218,35 @@ lookups:
       - match: "adena Mohammad né le 01/01/1969"
         aliases:
           - adena Mohammad
+      - match: "JSC \u201cVolsk Mechanical Plant\u201d; ou JSC \u201cVMP\u201d ou \u0410\u041e \u201c\u0412\u041c\u0417\u201d"
+        aliases:
+          - "JSC \u201cVolsk Mechanical Plant\u201d"
+          - "JSC \u201cVMP\u201d"
+          - "\u0410\u041e \u201c\u0412\u041c\u0417\u201d"
+      - match: "Horizon Holding; ou OJSC N Holding; ou The Horizon Group of Companies"
+        aliases:
+          - Horizon Holding
+          - OJSC N Holding
+          - The Horizon Group of Companies
+      - match: "Research Unitary Enterprise \u201cINSTITUTE OF DIGITAL TELEVISION HORIZONT\u201d; ou DIGITAL TELEVISION INSTITUTE HORIZONT; ou UE \u201cInstitute of Digital Television Horizon\u201d; ou Chelyabinsk Institute of Digital television \u201cHorizont\u201d"
+        aliases:
+          - "Research Unitary Enterprise \u201cINSTITUTE OF DIGITAL TELEVISION HORIZONT\u201d"
+          - DIGITAL TELEVISION INSTITUTE HORIZONT
+          - "UE \u201cInstitute of Digital Television Horizon\u201d"
+          - "Chelyabinsk Institute of Digital television \u201cHorizont\u201d"
+      - match: "Razdolie; Razdole; VC Razdolye; ou VC Razdolie; ou VC Razdole"
+        aliases:
+          - Razdolie
+          - Razdole
+          - VC Razdolye
+          - VC Razdolie
+          - VC Razdole
+      - match: "JSC \u201cCorporation Moscow Institute of Heat Technology\u201d; JSC Corporation MIHT; JSC \u201cCorporation 'MIT'\u201d; ou AO Korporatsiya Moskovskiy Institut Teplotekhniki"
+        aliases:
+          - "JSC \u201cCorporation Moscow Institute of Heat Technology\u201d"
+          - JSC Corporation MIHT
+          - "JSC \u201cCorporation 'MIT'\u201d"
+          - AO Korporatsiya Moskovskiy Institut Teplotekhniki
   type.date:
     options:
       - match: 24/06/1402 (calendrier hégirien)
