@@ -114,6 +114,7 @@ lookups:
           - "reg:number_nin"
           - "reg:oae_crn"
           - "reg:lu"
+          - "reg:ir" # Iranian company registration number
           - "tax:uci" # Possibly Unique Consignment Identifier?
         prop: registrationNumber
       - match:
@@ -345,6 +346,48 @@ lookups:
           - Российская Федерация, 195027, г. Санкт-Петербург, проспект Шаумяна, д. 4, корпус 1, литера А, офис 414
           - Російська Федерація, 119571, м. Москва, проспект Вернадського, 119, квартира 104
           - Российская Федерация, 119571, г. Москва, проспект Вернадского, 119, квартира 104
+      - match: "Ісламська Республіка Іран, м. Тегеран (Ісламська Республіка Іран, острів Кіш; Ісламська Республіка Іран, м. Бандар-Ленге; 2nd and 3rd Floor, No. 10, Banisi St., Between Mirdamad Blvd. and Zafar Ave., Nelson Mandela Blvd., Tehran, 7941963355, Iran; Pasargad Helicopter Hanger, Airside Area, Kish International Airport, Kish Island, 1968874511, Iran; Unit 17, 4th Floor, Mona Tower, Kish Island, Iran; Ground Floor, Kish International Exhibition Building, No. 0, Imam Khomeini Square, Airport Boulevard, Kish Airport)"
+        values:
+          - Ісламська Республіка Іран, м. Тегеран
+          - Ісламська Республіка Іран, острів Кіш
+          - Ісламська Республіка Іран, м. Бандар-Ленге
+          - 2nd and 3rd Floor, No. 10, Banisi St., Between Mirdamad Blvd. and Zafar Ave., Nelson Mandela Blvd., Tehran, 7941963355, Iran
+          - Pasargad Helicopter Hanger, Airside Area, Kish International Airport, Kish Island, 1968874511, Iran
+          - Unit 17, 4th Floor, Mona Tower, Kish Island, Iran
+          - Ground Floor, Kish International Exhibition Building, No. 0, Imam Khomeini Square, Airport Boulevard, Kish Airport
+      - match: "Ісламська Республіка Іран, м. Тегеран (Ісламська Республіка Іран, м. Ісфахан; Ісламська Республіка Іран, м. Парчін; P.O. Box 19585/311, Tehran, Iran; Pasdaran Street, Tehran, 19585311, Iran; Khavarah Road Km 35, Parchin, Iran; Zarrin Shah, P.O. Box 81465-363, Esfahan, Iran; P.O. Box 16765-368, Department 146-42, Parchin, Iran)"
+        values:
+          - Ісламська Республіка Іран, м. Тегеран
+          - Ісламська Республіка Іран, м. Ісфахан
+          - Ісламська Республіка Іран, м. Парчін
+          - P.O. Box 19585/311, Tehran, Iran
+          - Pasdaran Street, Tehran, 19585311, Iran
+          - Khavarah Road Km 35, Parchin, Iran
+          - Zarrin Shah, P.O. Box 81465-363, Esfahan, Iran
+          - P.O. Box 16765-368, Department 146-42, Parchin, Iran
+      - match: "Ісламська Республіка Іран, м. Тегеран (Боліваріанська Республіка Венесуела, м. Каракас; 3rd Floor Aftab Building, No. 3 Shafagh Street, Dadman Blvd, Phase 7, Tehran, Iran; Shahrak Ghods, Tehran, Iran; P.O. Box 14665-495, Tehran, Iran; Office E-43 Torre E- Piso 4, Centrao Commercial Lido Av., Francisco de Miranda, Caracas, Venezuela)"
+        values:
+          - Ісламська Республіка Іран, м. Тегеран
+          - Боліваріанська Республіка Венесуела, м. Каракас
+          - 3rd Floor Aftab Building, No. 3 Shafagh Street, Dadman Blvd, Phase 7, Tehran, Iran
+          - Shahrak Ghods, Tehran, Iran
+          - P.O. Box 14665-495, Tehran, Iran
+          - Office E-43 Torre E- Piso 4, Centrao Commercial Lido Av., Francisco de Miranda, Caracas, Venezuela
+      - match: "Ісламська Республіка Іран, м. Тегеран (Ісламська Республіка Іран, м. Ісфахан; Afra Complex, Unit 503, Fourth Floor, No. 432, Ayatollah Kashani Highway, North Shahid Ebrahimi Purbasa'i Street, Ferdows Neighborhood, Central District, Tehran County, Region 14, Tehran, 1481816668, Iran; Unit 502, Ayatollah Kashani Street, Tehran, Iran; Unit 5, 1st Floor, Surna Building. Sheikh Mofid Street, Isfahan, Iran)"
+        values:
+          - Ісламська Республіка Іран, м. Тегеран
+          - Ісламська Республіка Іран, м. Ісфахан
+          - Afra Complex, Unit 503, Fourth Floor, No. 432, Ayatollah Kashani Highway, North Shahid Ebrahimi Purbasa'i Street, Ferdows Neighborhood, Central District, Tehran County, Region 14, Tehran, 1481816668, Iran
+          - Unit 502, Ayatollah Kashani Street, Tehran, Iran
+          - Unit 5, 1st Floor, Surna Building. Sheikh Mofid Street, Isfahan, Iran
+      - match: "Ісламська Республіка Іран, м. Тегеран (Damavand Tehran Highway, Tehran, Iran; P.O. Box 16595-159, Tehran, Iran; No. 5, Eslami St., Golestane Sevvom St., Pasdaran St. Tehran, Iran; Damavand Road 2, Abali Road, Tehran, Iran; Damavand Road, Azmayesh Trisection, Above Mechanical Industries, Facing Valfajr Boulevard (Hakimiyeh), Tehran, Iran)"
+        values:
+          - Ісламська Республіка Іран, м. Тегеран
+          - Damavand Tehran Highway, Tehran, Iran
+          - P.O. Box 16595-159, Tehran, Iran
+          - No. 5, Eslami St., Golestane Sevvom St., Pasdaran St. Tehran, Iran
+          - Damavand Road 2, Abali Road, Tehran, Iran
+          - Damavand Road, Azmayesh Trisection, Above Mechanical Industries, Facing Valfajr Boulevard (Hakimiyeh), Tehran, Iran
       - match: Российская Федерация, 191124, г. Санкт-Петербург, Синопская набережная, 64, литера А); Російська Федерація, 197183, м. Санкт-Петербург, Липова алея, буд. 9, літера А, кімната 27Н (Российская Федерация, 197183, г. Санкт-Петербург, Липовая аллея, д. 9, литера А, комната 27Н); Російська Федерація, 197046, м. Санкт-Петербург, Петроградська набережна, 36, бізнес-центр "Лінкор" (Российская Федерация, 197046, г. Санкт-Петербург, Петроградская набережная, 36, бизнес-центр "Линкор"); Російська Федерація, 191144, м. Санкт-Петербург, вул. Мойсеєнка, буд. 24, літера А, приміщення 1-Н, офіс 101 (Российская Федерация, 191144, г. Санкт-Петербург, ул. Мойсеенко, д. 24, литера А, помещение 1-Н, офис 101); Російська Федерація, 119017, м. Москва, вул. Новокузнецька, буд. 4/12, корпус 1, бізнес-центр "Матрікс Офіс" (Российская Федерация, 119017, г. Москва, ул. Новокузнецкая, д. 4/12, корпус 1, бизнес-центр "Матрикс Офис"
         values:
           - Российская Федерация, 191124, г. Санкт-Петербург, Синопская набережная, 64, литера А
