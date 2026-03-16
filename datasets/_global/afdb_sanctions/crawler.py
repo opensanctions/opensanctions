@@ -32,6 +32,7 @@ def apply_clean_name(context: Context, entity, name):
         entity.add("alias", details.get("alias"))
         entity.add("weakAlias", details.get("weak_alias"))
         entity.add("previousName", details.get("previous_name"))
+        entity.add("abbreviation", details.get("abbreviation"))
     # Only allow the normal "Name (Alias)" format if no alias-y terms were found
     elif NAME_REGEX.match(name) and not DETECT_ALIAS_RE.search(name):
         match = NAME_REGEX.match(name)
