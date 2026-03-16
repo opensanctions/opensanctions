@@ -82,13 +82,15 @@ def crawl_item(context: Context, item: etree):
     assert len(party_els) == 1
     party = party_els[0].text_content().strip()
 
+    birth_year, birth_place = crawl_birth_year_place(context, deputy_url)
+
     entity = context.make("Person")
-    entity.id = context.make_slug(name, party)
+    entity.id = context.make_id(name, str(birth_year), birth_place)
     entity.add("name", name)
+    entity.add("birthDate", birth_year)
+    entity.add("birthPlace", birth_place)
     entity.add("sourceUrl", deputy_url)
     entity.add("political", party)
-
-    birth_year, birth_place = crawl_birth_year_place(context, deputy_url)
 
     position = h.make_position(
         context, "Member of the Grand National Assembly", country="tr"
@@ -103,20 +105,10 @@ def crawl_item(context: Context, item: etree):
         categorisation=categorisation,
     )
 
-    ### creating a temp entity to merge with old ID for rekey ###
-    entity_temp = context.make("Person")
-    entity_temp.id = context.make_id(name, str(birth_year), birth_place)
-    entity_temp.add("name", name)
-    entity_temp.add("birthDate", birth_year)
-    entity_temp.add("birthPlace", birth_place)
-    entity_temp.add("political", party)
-    ### === ### === ### === ### === ### === ### === ###
-
     if occupancy:
         context.emit(entity)
         context.emit(position)
         context.emit(occupancy)
-        context.emit(entity_temp, external=True)
 
 
 def crawl(context: Context):

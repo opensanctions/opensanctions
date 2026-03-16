@@ -5,6 +5,6 @@ url: https://www.gov.uk/government/collections/uk-sanctions-on-the-democratic-re
 summary: Measures addressing conflict and issues in the Democratic Republic of the
   Congo.
 issuer: gb_ofsi
-dataset: gb_hmt_sanctions
+dataset: gb_fcdo_sanctions
 target_territories:
 - cd
