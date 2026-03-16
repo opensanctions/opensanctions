@@ -1,4 +1,5 @@
 from typing import TYPE_CHECKING, List, Optional, Tuple
+from datapatch import Result
 from datapatch.lookup import Lookup
 from followthemoney import Property
 from followthemoney.types.common import PropertyType
@@ -28,6 +29,13 @@ def is_type_lookup_value(entity: "Entity", type_: PropertyType, value: str) -> b
         return False
     # True if the value is the result of any of the lookup's options.
     return any(option.result.value == value for option in lookup.options)
+
+
+def match_type_lookup(
+    entity: "Entity", type_: PropertyType, value: Optional[str]
+) -> Result | None:
+    lookup = get_type_lookup(entity.dataset, type_)
+    return lookup.match(value) if lookup is not None else None
 
 
 def type_lookup(

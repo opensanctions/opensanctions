@@ -84,6 +84,29 @@ lookups:
           - "16.05. / Geburtsjahr unbekannt"
           - "15.05. / Geburtsjahr unbekannt"
         value: null
+  type.text:
+    options:
+      - contains:
+          - "Pseudonymen <tramp>"
+          - "Pseudonym <van>"
+          - "Pseudonym <naned>"
+          - "Pseudonymen <mango>"
+          - "Pseudonymen <stern>"
+          - "Pseudonym <baget>"
+          - "Pseudonymen <mushroom>"
+          - "Pseudonymen <neo>"
+          - "Pseudonymen <mentos>"
+          - "Pseudonym <elvira>"
+          - "Pseudonym <carterj>"
+          - "Pseudonym <dancho>"
+          - "Pseudonymen <alik>"
+          - "Pseudonymen <gunz>"
+          - "Pseudonymen <strix>"
+          - "Pseudonym <carrol>"
+          - "Pseudonymen <frog>"
+          - "Pseudonym <allen>"
+          - "Pseudonymen <bentley>"
+        silence_warnings: [xss-html-smell]
 
 assertions:
   min:
