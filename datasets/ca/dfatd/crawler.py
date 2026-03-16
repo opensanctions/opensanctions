@@ -13,18 +13,22 @@ NAME_SPLITS = [
     "/",
 ]
 ALIAS_SPLITS = [
-    ", ",
-    "; ",
+    ",",
+    ";",
     " (a.k.a.",
     " (also known as",
-    "; a.k.a. ",
-    "ALIAS: ",
-    "Hebrew: ",
-    "Arabic: ",
+    "; a.k.a.",
+    "ALIAS:",
+    "Hebrew:",
+    "Hebrew :",
+    "Arabic:",
+    "Arabic :",
     "Belarusian:",
-    "Belarussian:",
+    "Belarussian :",
     "Russian:",
+    "Russian :",
     "Ukrainian:",
+    "Ukrainian :",
 ]
 
 
