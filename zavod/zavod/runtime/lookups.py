@@ -38,6 +38,18 @@ def match_type_lookup(
     return lookup.match(value) if lookup is not None else None
 
 
+def get_type_lookup_silence_warnings(
+    entity: "Entity", type_: PropertyType, value: Optional[str]
+) -> set[str]:
+    """Get the set of warnings that should be silenced for a given value based on a type lookup."""
+    lookup_result = match_type_lookup(entity, type_, value)
+    return (
+        set(lookup_result.silence_warnings or [])
+        if lookup_result is not None
+        else set()
+    )
+
+
 def type_lookup(
     dataset: Dataset, type_: PropertyType, value: Optional[str]
 ) -> List[str]:
