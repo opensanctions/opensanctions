@@ -1,4 +1,4 @@
-from lxml.etree import _Element, ParserError
+from lxml.etree import _Element
 from lxml.html import document_fromstring
 
 from zavod import Context, helpers as h
@@ -31,10 +31,10 @@ def crawl_person(context: Context, row: _Element) -> None:
         date_end = date_end.strip(")")
         date_end = date_end.replace("expired ", "")
         h.apply_date(sanction, "endDate", date_end)
-    if "ongoing" in status.lower():
+    elif "ongoing" in status.lower():
         person.add("topics", "debarment")
-    else:
-        context.log.warning(f"Unexpected case status: {status}")
+    elif status.strip():
+        context.log.warning(f"Unexpected case status, status={status}")
 
     context.emit(person)
     context.emit(sanction)
@@ -46,22 +46,18 @@ def crawl(context: Context) -> None:
     # using Zyte to bypass the 403 status response
     # paginate over the AJAX endpoint until an empty reponse
     while True:
-        try:
-            html_text = fetch_text(
-                context,
-                f"{context.data_url}?page={page_num}&status=&keywords=&isAjax=true",
-                expected_media_type="text/html",
-                expected_charset="utf-8",
-            )
-            doc = document_fromstring(html_text[3])
+        html_text = fetch_text(
+            context,
+            f"{context.data_url}?page={page_num}&status=&keywords=&isAjax=true",
+            expected_media_type="text/html",
+            expected_charset="utf-8",
+        )
+        # pagination gives empty response after last page
+        if html_text[3] == "":
+            break
 
-            for row in h.xpath_elements(doc, ".//a[@class='table-row']"):
-                crawl_person(context, row)
-        except ParserError:
-            # break on empty page if past page 1
-            if page_num > 1:
-                break
-            # loudly raise an error if we fail at page 1
-            raise
+        doc = document_fromstring(html_text[3])
+        for row in h.xpath_elements(doc, ".//a[@class='table-row']"):
+            crawl_person(context, row)
 
         page_num += 1
