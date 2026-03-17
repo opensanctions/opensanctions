@@ -25,6 +25,9 @@ def crawl_parliament(context: Context, url: str) -> None:
         person.add("alias", member.pop("DepNomeParlamentar"))
         person.add("citizenship", "pt")
 
+        constituency_name = member.pop("DepCPDes")
+        constituency_id = member.pop("DepCPId")
+
         for party_history in member.pop("DepGP") or []:
             person.add("political", party_history.pop("gpSigla"))  # party abbreviation
         ### each member also has:
@@ -37,8 +40,6 @@ def crawl_parliament(context: Context, url: str) -> None:
             topics=["gov.national", "gov.legislative"],
             country=["pt"],
         )
-        position.add("constituency", member.pop("DepCPDes"))  # constituency name
-        position.add("constituency", member.pop("DepCPId"))  # constituency ID
         categorisation = categorise(context, position, is_pep=True)
 
         if not categorisation.is_pep:
@@ -58,6 +59,8 @@ def crawl_parliament(context: Context, url: str) -> None:
             seatstatus = seat_occupancy.pop("sioDes")
 
             if occupancy is not None:
+                occupancy.add("constituency", constituency_name)
+                occupancy.add("constituency", constituency_id)
                 occupancy.add("summary", seatstatus)
                 context.emit(person)
                 context.emit(occupancy)
