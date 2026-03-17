@@ -11,7 +11,7 @@ from rigour.text import is_nullword
 from rigour.text.scripts import is_dense_script
 
 from zavod import settings
-from zavod.constants import ORIGIN_INFERRED
+from zavod.constants import ORIGIN_INFERRED, ORIGIN_ANALYST
 from zavod.context import Context
 from zavod.entity import Entity
 from zavod.meta.names import CleaningSpec, NamesSpec
@@ -494,12 +494,12 @@ def _review_names(
             context.log.warning(
                 "LLM cleaning enabled but OPENAI_API_KEY not configured, falling back to non-LLM review."
             )
-            origin = "analyst"
+            origin = ORIGIN_ANALYST
         else:
             suggested = clean_names(context, source_names)
             origin = LLM_MODEL_VERSION
     else:
-        origin = "analyst"
+        origin = ORIGIN_ANALYST
 
     # We don't include suggested in the key so that we don't automatically invalidate
     # the reviews just by changing heuristic or LLM suggestions.
