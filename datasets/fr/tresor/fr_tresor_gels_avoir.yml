@@ -975,6 +975,105 @@ lookups:
         props:
           address: "Province de Téhéran (Iran)"
           jurisdiction: ir
+      - match: "Type d'entité: Joint Stock Company (société par actions)"
+        props:
+          legalForm: Joint Stock Company
+      - match: "Type d'entité: société de transport"
+        props:
+          legalForm: société de transport
+      - match: "Principal établissement: Petrovsk, Fédération de Russie"
+        props:
+          jurisdiction: ru
+          address: "Petrovsk, Fédération de Russie"
+      - match: "Principal établissement: Fédération de Russie, Tarusa"
+        props:
+          jurisdiction: ru
+          address: "Fédération de Russie, Tarusa"
+      - match: "Principal établissement: Kaspiysk, République du Daghestan, Fédération de Russie"
+        props:
+          jurisdiction: ru
+          address: "Kaspiysk, République du Daghestan, Fédération de Russie"
+      - match: "Principal établissement: Fédération de Russie - Télécopieur: +7 (499) 608-90-03"
+        props:
+          jurisdiction: ru
+      - match: "Lieu d'enregistrement: Fédération de Russie, Saint-Pétersbourg"
+        props:
+          jurisdiction: ru
+          address: "Saint-Pétersbourg, Fédération de Russie"
+      - match: "Lieu d'enregistrement: Mourmansk, Fédération de Russie (région de Mourmansk, ville de Mourmansk, ter. Mourmansk-17, 1)"
+        props:
+          jurisdiction: ru
+          address: "Mourmansk, Fédération de Russie (région de Mourmansk, ville de Mourmansk, ter. Mourmansk-17, 1)"
+      - match: "Lieu d'enregistrement: 676811 oblast d'Amurskaya, Belogorskiy Rayon, Vozhaevka, Fédération de Russie"
+        props:
+          jurisdiction: ru
+          address: "676811 oblast d'Amurskaya, Belogorskiy Rayon, Vozhaevka, Fédération de Russie"
+      - match: "Lieu d'enregistrement: Pékin, Chine"
+        props:
+          jurisdiction: cn
+          address: "Pékin, Chine"
+      - match: "Lieu d'enregistrement: Fédération de Russie, 424003, République des Maris, Yoshkar-Ola, st. Suvorova, 15"
+        props:
+          jurisdiction: ru
+          address: "424003, République des Maris, Yoshkar-Ola, st. Suvorova, 15, Fédération de Russie"
+      - match: "Site internet : i-soon.net, isoon.net, i-soon.com.cn, isoonren.com, isoon.win"
+        props:
+          website:
+            - i-soon.net
+            - isoon.net
+            - i-soon.com.cn
+            - isoonren.com
+            - isoon.win
+      - match: "Entités associées:  Tatneft;  Trading House KAMA  Management Company Tatneft-Neftekhim  Nizhnekamsk All-Steel Tyre Plant"
+        associates:
+          - Tatneft
+          - Trading House KAMA
+          - Management Company Tatneft-Neftekhim
+          - Nizhnekamsk All-Steel Tyre Plant
+      - match: "Date d'enregistrement:10.12.1992: Numéro d'enregistrement: 1027802749061"
+        props:
+          incorporationDate: 1992-12-10
+          registrationNumber: 1027802749061
+      - match: "No d'identification fiscale: 5192110268 ("
+        props:
+          taxNumber: "5192110268"
+      - match: "Date d'enregistrement: 1937: 4032815"
+        props:
+          incorporationDate: "1937"
+          registrationNumber: "4032815"
+      - match: "Date d'enregistrement: 6.3.2019 - Date d'enregistrement: 7.4.2025"
+        props:
+          incorporationDate:
+            - 2019-03-06
+            - 2025-04-07
+      - match: "Numéro d'identification fiscale: 7816691806 - Numéro d'identification fiscale: 7816756010: 1197847052963"
+        props:
+          taxNumber:
+            - "7816691806"
+            - "7816756010"
+          registrationNumber: "1197847052963"
+      - match: "KPP: 770501001 ; Numéro"
+        props:
+          kppCode: "770501001"
+      - match: "OMI: 0555567;  Télécopieur: +7 495 780 6003 ; Site internet: www.fesco.com/en: 1022502256127"
+        props:
+          imoNumber: "0555567"
+          registrationNumber: "1022502256127"
+      - match: "KPP: 770501001 Numéro"
+        props:
+          kppCode: "770501001"
+      - match: "OMI: 5906931: 1117746641572"
+        props:
+          imoNumber: "5906931"
+          registrationNumber: "1117746641572"
+      - match: "Numéro d'enregistrement: 11440513. Numéro"
+        props:
+          registrationNumber: "11440513"
+      - match: "Code de crédit social unifié: 91310116561906136G (branche de Shanghaï)    /: Code de crédit social unifié: 91510105332025597A (branche du Sichuan)"
+        props:
+          uscCode:
+            - "91310116561906136G"
+            - "91510105332025597A"
 
   ####################################################################################################
   ####################################################################################################
@@ -6082,3 +6181,11 @@ lookups:
           - "St Maarten, Billy Folly Road #37, Sint-Maarten, Antilles néerlandaises"
           - "Cohune Walk, 3 Lime St, Belmopan, Belize"
           - "9350 Wilshire Blvd, Beverly Hills CA 90212, États-Unis d'Amérique"
+      - match: "Fédération de Russie, Moscou, Smolnaya street, 14 ; 11 floor 24 office; Aeroportovskaya St., Office 210-2, 141580, Solnechnogorsk, Moscow Region, Fédération de Russie"
+        addresses:
+          - "Fédération de Russie, Moscou, Smolnaya street, 14"
+          - "Aeroportovskaya St., Office 210-2, 141580, Solnechnogorsk, Moscow Region, Fédération de Russie"
+      - match: "249100, région de Kalouga, district de Tarusa, Tarusa, 18, rue R. Luxemburg; 142181, région de Moscou, Podolsk, quartier de Klimovsk, rue Zavodskaya 2."
+        addresses:
+          - "249100, région de Kalouga, district de Tarusa, Tarusa, 18, rue R. Luxemburg"
+          - "142181, région de Moscou, Podolsk, quartier de Klimovsk, rue Zavodskaya 2."
