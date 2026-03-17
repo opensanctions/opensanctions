@@ -2,7 +2,7 @@ from collections import defaultdict
 from typing import Dict, Set, Optional
 
 from zavod import Context, Entity
-from zavod.constants import ORIGIN_INFERRED
+from zavod.constants import ORIGIN_INFERRED, ORIGIN_ANALYST
 from zavod.integration import get_dataset_linker
 from zavod.meta import get_multi_dataset
 from zavod.stateful.positions import OccupancyStatus, categorise_many
@@ -100,7 +100,7 @@ def analyze_position(context: Context, entity: Entity) -> Set[str]:
         proxy = context.make("Position")
         proxy.id = entity.id
         # emit the topics for each referent under that ID
-        proxy.add("topics", categorisation.topics)
+        proxy.add("topics", categorisation.topics, origin=ORIGIN_ANALYST)
         if proxy.get("topics"):
             context.emit(proxy)
 
