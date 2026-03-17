@@ -209,6 +209,12 @@ lookups:
         value: Aaron David Miller
       - match: "Nwankwo Chukwuemeka, <i>African Dependencies: A Challenge to Western Democracy</i>"
         value: Nwankwo Chukwuemeka
+      - match: "Imdadul Haq Milon <br> ইমদাদুল হক মিলন"
+        values:
+          - Imdadul Haq Milon
+          - ইমদাদুল হক মিলন
+      - match: "Hayatullah Khan Durrani <br />"
+        value: "Hayatullah Khan Durrani"
   type.date:
     options:
       - match:
