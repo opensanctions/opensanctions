@@ -44,14 +44,14 @@ assertions:
     schema_entities:
       Person: 3430
       Organization: 950
-      LegalEntity: 28
+      LegalEntity: 90
       Vessel: 35
       Company: 100
   max:
     schema_entities:
       Person: 8070
       Organization: 2240
-      LegalEntity: 80
+      LegalEntity: 250
       Vessel: 80
       Company: 150
 
@@ -168,6 +168,14 @@ lookups:
       - match:
           - Qatar
         value: null
+      - match: "249100, région de Kalouga, district de Tarusa, Tarusa, 18, rue R. Luxemburg; 142181, région de Moscou, Podolsk, quartier de Klimovsk, rue Zavodskaya 2."
+        values:
+          - "249100, région de Kalouga, district de Tarusa, Tarusa, 18, rue R. Luxemburg"
+          - "142181, région de Moscou, Podolsk, quartier de Klimovsk, rue Zavodskaya 2"
+      - match: "Fédération de Russie, Moscou, Smolnaya street, 14 ; 11 floor 24 office; Aeroportovskaya St., Office 210-2, 141580, Solnechnogorsk, Moscow Region, Fédération de Russie"
+        values:
+          - "Fédération de Russie, Moscou, Smolnaya street, 14"
+          - "Aeroportovskaya St., Office 210-2, 141580, Solnechnogorsk, Moscow Region, Fédération de Russie"
       - match:
           - "3rd Km of Khalaj Road, Seyyedi Street, Mashad 91638, Iran, Km 4 of Khalaj Road, End of Seyedi Street, Mashad, Iran, P.O. Box 91735-549, Mashad, Iran, Khalaj Rd., End of Seyyedi Alley, Mashad, Iran, Moqan St., Pasdaran St., Pasdaran Cross Rd., Téhéran, Iran."
           - "3rd Km of Khalaj Road, Seyyedi Street, Mashad 91638, Iran; Km 4 of Khalaj Road, End of Seyedi Street, Mashad, Iran; P.O. Box 91735-549, Mashad, Iran; Khalaj Rd., End of Seyyedi Alley, Mashad, Iran; Moqan St., Pasdaran St., Pasdaran Cross Rd., Téhéran, Iran."
@@ -224,6 +232,13 @@ lookups:
       - match: "NIF"
       - match: "Numéro d'enregistrement"
       - match: "Code"
+      - match: "Principal établissement: Fédération de Russie, Tarusa"
+        props:
+          jurisdiction: ru
+      - match: "Principal établissement: Fédération de Russie - Télécopieur: +7 (499) 608-90-03"
+        props:
+          jurisdiction: ru
+          phone: "+7 (499) 608-90-03"
       - match:
           - "Principal établissement: Moscou, Fédération de Russie"
           - "Lieu d'enregistrement: Moscou, Fédération de Russie"
@@ -314,6 +329,9 @@ lookups:
         props:
           registrationNumber: 1027802749061
           incorporationDate: 1992-12-10
+      - match: "Date d'enregistrement: 6.3.2019 - Date d'enregistrement: 7.4.2025"
+        props:
+          incorporationDate: ["2019-03-06", "2025-04-07"]
       - match: "Date d'enregistrement : 04/01/1996: 600390798"
         props:
           registrationNumber: 600390798
@@ -397,6 +415,39 @@ lookups:
       - match: "Type d'entité: Organisation autonome à but non lucratif"
         props:
           legalForm: Organisation autonome à but non lucratif
+      - match: "Numéro d'identification fiscale: 7816691806 - Numéro d'identification fiscale: 7816756010: 1197847052963"
+        props:
+          innCode: ["7816691806", "7816756010"]
+      - match: "Numéro d'enregistrement: 1092804000255: Numéro d'identification fiscale: 2811005250"
+        props:
+          registrationNumber: 1092804000255
+          innCode: 2811005250
+      - match: "No d'identification fiscale: 5192110268 ("
+        props:
+          innCode: 5192110268
+      - match: "Type d'entité: société de transport"
+        props:
+          legalForm: société de transport
+      - match: "Lieu d'enregistrement: 676811 oblast d'Amurskaya, Belogorskiy Rayon, Vozhaevka, Fédération de Russie"
+        props:
+          jurisdiction: ru
+          address: "Lieu d'enregistrement: 676811 oblast d'Amurskaya, Belogorskiy Rayon, Vozhaevka, Fédération de Russie"
+      - match: "Lieu d'enregistrement: Pékin, Chine"
+        props:
+          jurisdiction: cn
+          address: "Lieu d'enregistrement: Pékin, Chine"
+      - match: "Lieu d'enregistrement: Fédération de Russie, 424003, République des Maris, Yoshkar-Ola, st. Suvorova, 15"
+        props:
+          jurisdiction: ru
+          address: "Lieu d'enregistrement: Fédération de Russie, 424003, République des Maris, Yoshkar-Ola, st. Suvorova, 15"
+      - match: "Lieu d'enregistrement: Fédération de Russie, Saint-Pétersbourg"
+        props:
+          jurisdiction: ru
+          address: "Lieu d'enregistrement: Fédération de Russie, Saint-Pétersbourg"
+      - match: "Lieu d'enregistrement: Mourmansk, Fédération de Russie (région de Mourmansk, ville de Mourmansk, ter. Mourmansk-17, 1)"
+        props:
+          jurisdiction: ru
+          address: "Lieu d'enregistrement: Mourmansk, Fédération de Russie (région de Mourmansk, ville de Mourmansk, ter. Mourmansk-17, 1)"
       - match: "Lieu d'enregistrement: Fédération de Russie (197046, Saint-Pétersbourg, ul. Malaia Posadskaia, 30)"
         props:
           jurisdiction: ru
@@ -518,6 +569,12 @@ lookups:
           jurisdiction:
             - ua
             - ru
+      - match: "Principal établissement: Kaspiysk, République du Daghestan, Fédération de Russie"
+        props:
+          jurisdiction: ru
+      - match: "Principal établissement: Petrovsk, Fédération de Russie"
+        props:
+          jurisdiction: ru
       - match: "Principal établissement: Fédération de Russie, Pays-Bas"
         props:
           jurisdiction:
@@ -526,6 +583,9 @@ lookups:
       - match: "Lieu d'enregistrement: Russie"
         props:
           jurisdiction: ru
+      - match: "Type d'entité: Joint Stock Company (société par actions)"
+        props:
+          legalForm: "Joint Stock Company (société par actions)"
       - match: "Type d'entité: société à responsabilité limitée (SARL) (LLC)"
         props:
           legalForm: société à responsabilité limitée (SARL) (LLC)
@@ -573,6 +633,12 @@ lookups:
         props:
           jurisdiction: ir
           address: "Shiraz, province de Fars, Iran"
+      - match: "Entités associées:  Tatneft;  Trading House KAMA  Management Company Tatneft-Neftekhim  Nizhnekamsk All-Steel Tyre Plant"
+        associates:
+          - Tatneft
+          - Trading House KAMA
+          - Management Company Tatneft-Neftekhim
+          - Nizhnekamsk All-Steel Tyre Plant
       - match: "Entités associées: LLC “Intervesp Company”"
         associates:
           - LLC “Intervesp Company”
@@ -595,6 +661,14 @@ lookups:
           jurisdiction: ru
           legalForm: société à responsabilité limitée
           address: "Mourmansk"
+      - match: "Site internet : i-soon.net, isoon.net, i-soon.com.cn, isoonren.com, isoon.win"
+        props:
+          website:
+            - i-soon.net
+            - isoon.net
+            - i-soon.com.cn
+            - isoonren.com
+            - isoon.win
       - match: "Site internet://nvgushkuynik.ru"
         props:
           website: "nvgushkuynik.ru"
@@ -630,6 +704,13 @@ lookups:
       - match: "Date d'enregistrement: 24.3.1993, 31.12.2002"
         props:
           incorporationDate: [1993-03-24, 2002-12-31]
+      - match: "Date d'enregistrement: 1937: 4032815"
+        props:
+          incorporationDate: 1937
+      - match: "Date d'enregistrement:10.12.1992: Numéro d'enregistrement: 1027802749061"
+        props:
+          registrationNumber: 1027802749061
+          incorporationDate: 1992-12-10
       - match: "Numéro d'enregistrement de l'entreprise: 7452016"
         props:
           registrationNumber: 7452016
@@ -779,6 +860,23 @@ lookups:
         props:
           jurisdiction: ru
           address: "Perm, région de Perm, Fédération de Russie"
+      - match: "Numéro d'enregistrement: 11440513. Numéro"
+        props:
+          registrationNumber: 11440513
+      - match: "KPP: 770501001 Numéro"
+        props:
+          kppCode: 770501001
+      - match: "KPP: 770501001 ; Numéro"
+        props:
+          kppCode: 770501001
+      - match: "OMI: 0555567;  Télécopieur: +7 495 780 6003 ; Site internet: www.fesco.com/en: 1022502256127"
+        props:
+          website: www.fesco.com/en
+          imoNumber: 0555567
+          phone: "+7 495 780 6003"
+      - match: "OMI: 5906931: 1117746641572"
+        props:
+          imoNumber: 5906931
       - match: "KPP: 590801001 - Télécopieur: +7 (342) 255-77-43 - Site internet: www.bloki-perm.ru: 1025901604156"
         schema: Company
         props:
@@ -4800,6 +4898,11 @@ lookups:
         props:
           incorporationDate: 2010-07-22
           registrationNumber: 1107746582052
+      - match: "Code de crédit social unifié: 91310116561906136G (branche de Shanghaï)    /: Code de crédit social unifié: 91510105332025597A (branche du Sichuan)"
+        props:
+          uscCode:
+            - 91510105332025597A
+            - 91310116561906136G
       - match: "Numéro d'enregistrement: 110108010146888 Code de crédit social unifié: 91110108661572276L"
         props:
           registrationNumber: 110108010146888
