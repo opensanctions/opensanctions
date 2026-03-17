@@ -2,6 +2,7 @@ from collections import defaultdict
 from typing import Dict, Set, Optional
 
 from zavod import Context, Entity
+from zavod.constants import ORIGIN_INFERRED
 from zavod.integration import get_dataset_linker
 from zavod.meta import get_multi_dataset
 from zavod.stateful.positions import OccupancyStatus, categorise_many
@@ -161,5 +162,5 @@ def crawl(context: Context) -> None:
             continue
         person_proxy = context.make("Person")
         person_proxy.id = entity.id
-        person_proxy.add("classification", influence_labels)
+        person_proxy.add("classification", influence_labels, origin=ORIGIN_INFERRED)
         context.emit(person_proxy)
