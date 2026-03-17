@@ -9,19 +9,6 @@ IGNORE = [
 ]
 
 
-def roman_to_int(s: str) -> int:
-    roman = {"I": 1, "V": 5, "X": 10, "L": 50, "C": 100, "D": 500, "M": 1000}
-    sum = 0
-    prevValue = roman[s[0]]
-
-    for i in range(1, len(s)):
-        currentValue = roman[s[i]]
-        sum += -prevValue if (currentValue > prevValue) else prevValue
-        prevValue = currentValue
-    sum += prevValue
-    return sum
-
-
 def crawl_parliament(context: Context, url: str) -> None:
     plenary_chamber = context.fetch_json(url)["Plenario"]["Composicao"]
 
@@ -36,7 +23,7 @@ def crawl_parliament(context: Context, url: str) -> None:
         person.add("idNumber", id)
         # shorter parliamentary name
         person.add("alias", member.pop("DepNomeParlamentar"))
-        person.add("country", "pt")
+        person.add("citizenship", "pt")
 
         for party_history in member.pop("DepGP") or []:
             person.add("political", party_history.pop("gpSigla"))  # party abbreviation
@@ -46,7 +33,7 @@ def crawl_parliament(context: Context, url: str) -> None:
 
         position = h.make_position(
             context,
-            name="Member of the Portuguese Parliament",
+            name="Member of the Assembly of the Portuguese Republic",
             topics=["gov.national", "gov.legislative"],
             country=["pt"],
         )
@@ -69,9 +56,9 @@ def crawl_parliament(context: Context, url: str) -> None:
 
             # MP seat occupancy status, e.g. Effective, Retired, Suspended, Disqulified, etc:
             seatstatus = seat_occupancy.pop("sioDes")
-            position.add("notes", seatstatus)
 
             if occupancy is not None:
+                occupancy.add("summary", seatstatus)
                 context.emit(person)
                 context.emit(occupancy)
                 context.emit(position)
@@ -107,20 +94,17 @@ def crawl(context: Context) -> None:
     doc_parliament_list = context.fetch_html(url_parliament_list, absolute_links=True)
     parliament_urls = h.xpath_strings(
         doc_parliament_list,
-        "//div[@id='ctl00_ctl51_g_48ce9bb1_53ac_4c68_b897_c5870f269772_ctl00_pnlPastas']//a/@href",
+        "//div[@class='archive-item']//a/@href",
     )
     parliament_names = h.xpath_strings(
         doc_parliament_list,
-        "//div[@id='ctl00_ctl51_g_48ce9bb1_53ac_4c68_b897_c5870f269772_ctl00_pnlPastas']//a/text()",
+        "//div[@class='archive-item']//a/text()",
     )
 
     for name, u in zip(parliament_names, parliament_urls):
         # skip 'Constituinte' and parliaments older than the 10th (ran from 10 March 2005 to 14 October 2009)
-        if name == "Constituinte":
-            continue
-        roman = name.split()[0]
-        if roman_to_int(roman) < 10:
-            continue
+        if name == "IX Legislatura":
+            break
 
         # retrieve JSON for the parliament
         doc = context.fetch_html(u, absolute_links=True)
