@@ -75,6 +75,14 @@ lookups:
         value: 1977
       - match: "Between Aug. and Sep. 1977"
         value: 1977-08
+      - match: "10.2.1983 (or 10.3.1983)"
+        values:
+          - 1983-02-10
+          - 1983-03-10
+      - match: "7.4.1980 or 7.4.1979"
+        values:
+          - 1980-04-07
+          - 1979-04-07
   type.identifier:
     options:
       - match:
@@ -95,20 +103,60 @@ lookups:
     options:
       - match: Crimea, Ukraine
         value: ua-cri
-      - match: "so-called “Luhansk People’s Republic”"
+      - match: “so-called “Luhansk People’s Republic””
         value: ua-lpr
-      - match: "so-called “Donetsk People’s Republic”"
+      - match: “so-called “Donetsk People’s Republic””
         value: ua-dpr
       - match:
-          - "Russian-occupied regions of Zaporizhzhia and Kherson"
+          - “Russian-occupied regions of Zaporizhzhia and Kherson”
           - Moscow, Russian Federation
+          - “St. Petersburg, Russian Federation”
+          - “Khimki, Russian Federation”
+          - “Kaspiysk, Republic of Dagestan, Russian Federation”
+          - “Russian Federation, Nizhny Novgorod region, Nizhny Novgorod”
+          - “Russian Federation, Tarusa”
+          - “Petrovsk, Russian Federation”
         value: ru
+      - match: “Ukrainian, Russian”
+        values:
+          - ua
+          - ru
+      - match: “Belarusian, Russian”
+        values:
+          - by
+          - ru
+      - match: “Russian, Cypriot”
+        values:
+          - ru
+          - cy
+      - match: “Russian, United Arab Emirates”
+        values:
+          - ru
+          - ae
   type.email:
     options:
       - match: "general@angstrem.r"
         value: "general@angstrem.ru"
       - match: "mss@korund_m.ru"
         value: "mss@korund-m.ru"
+      - match: "info@scf-group.ru, spbinfo@scf-group.ru"
+        values:
+          - info@scf-group.ru
+          - spbinfo@scf-group.ru
+      - match: "mirtelecom@ro.ru, tdi@mir-telecom.ru, info@mir-telecom.ru"
+        values:
+          - mirtelecom@ro.ru
+          - tdi@mir-telecom.ru
+          - info@mir-telecom.ru
+      - match: "msk@compel.ru, spb@compel.ru"
+        values:
+          - msk@compel.ru
+          - spb@compel.ru
+      - match: "press@zalivkerch.com, sess@zalivkerch.com, uzis@zalivkerch.com"
+        values:
+          - press@zalivkerch.com
+          - sess@zalivkerch.com
+          - uzis@zalivkerch.com
   # This lookup maps the original legislation number to our internal program key.
   # When we add new legislation to eu_journal_sanctions, they are usually amendments
   # to existing legislation, and we extract that original legislation number.
