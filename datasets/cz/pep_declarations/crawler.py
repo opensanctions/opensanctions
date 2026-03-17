@@ -52,9 +52,8 @@ def crawl_person(context: Context, item: Dict[str, Any]) -> None:
             continue
 
         # Pick the latest available
-        end_date = max(
-            filter(None, [wp.get("end"), wp.get("writtenDateOfEnd")]), default=None
-        )
+        end_dates = [wp.get("end"), wp.get("writtenDateOfEnd")]
+        end_date = max(filter(None, end_dates), default=None)
 
         occupancy = h.make_occupancy(
             context,
