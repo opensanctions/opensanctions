@@ -1,29 +1,33 @@
 from normality import collapse_spaces
-from xml.etree import ElementTree
-
 from zavod import Context
 from zavod import helpers as h
 from zavod.stateful.positions import categorise
+from zavod.util import Element
 
 
-def get_element_text(doc: ElementTree, xpath_value: str, to_remove=[], position=0):
-    element_tag = doc.xpath(xpath_value)
-    element_text = element_tag[position].text_content() if element_tag else ""
+def get_element_text(
+    doc: Element,
+    xpath_value: str,
+    to_remove: list[str] | None = None,
+    position: int = 0,
+) -> str:
+    elements = h.xpath_elements(doc, xpath_value)
+    element_text = h.element_text(elements[position]) if elements else ""
 
-    for string in to_remove:
+    for string in to_remove or []:
         element_text = element_text.replace(string, "")
 
-    return collapse_spaces(element_text.strip())
+    return collapse_spaces(element_text.strip()) or ""
 
 
-def get_occupany_dates(tenure: str):
+def get_occupany_dates(tenure: str) -> tuple[str, str]:
     tenure_year = tenure.split()[-1]
     start_year, end_year = tenure_year.split("-")
 
     return start_year, end_year
 
 
-def crawl_member_bio(context: Context, url: str):
+def crawl_member_bio(context: Context, url: str) -> None:
     doc = context.fetch_html(url, cache_days=1)
 
     person_name = get_element_text(doc, '//div[@class="sn_narys_vardas_title"]')
@@ -73,17 +77,18 @@ def crawl_member_bio(context: Context, url: str):
         end_date=end_year,
         categorisation=categorisation,
     )
+    assert occupancy is not None
 
     context.emit(person)
     context.emit(position)
     context.emit(occupancy)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     doc = context.fetch_html(context.data_url, cache_days=1)
 
-    for anchor in doc.xpath(
-        '//div[contains(@class,"list-member")]//a[contains(@class, "smn-name")]'
+    for anchor_url in h.xpath_strings(
+        doc,
+        '//div[contains(@class,"list-member")]//a[contains(@class, "smn-name")]/@href',
     ):
-        anchor_url = anchor.get("href")
         crawl_member_bio(context, anchor_url)
