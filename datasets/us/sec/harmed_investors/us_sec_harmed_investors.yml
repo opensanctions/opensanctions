@@ -1098,3 +1098,11 @@ lookups:
           - Ownzones Media Network Inc.
           - Daniel Goman
           - Joseph Goman
+      - match: western international securities inc., nancy cole, patrick egan, andy gitipityapon, steven graham, and thomas swan
+        names:
+          - Western International Securities Inc.
+          - Nancy Cole
+          - Patrick Egan
+          - Andy Gitipityapon
+          - Steven Graham
+          - Thomas Swan
