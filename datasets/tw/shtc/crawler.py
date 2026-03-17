@@ -21,15 +21,6 @@ from zavod import Context, Entity
 from zavod import helpers as h
 
 ADDRESS_SPLITS = [
-    ";",
-    "iii)",
-    "ii)",
-    "i)",
-    "iv)",
-    "v)",
-    "vi)",
-    "viii)",
-    "vii)",
     "Branch Office 1:",
     "Branch Office 2:",
     "Branch Office 3:",
@@ -46,6 +37,15 @@ ADDRESS_SPLITS = [
     "Branch Office 14:",
     "Branch Office 15:",
     "Branch Office 16:",
+    "viii)",
+    "iii)",
+    "vii)",
+    "iv)",
+    "vi)",
+    "ii)",
+    "i)",
+    "v)",
+    ";",
 ]
 NAME_CHINESE = [
     "繁體中文：",  # Traditional Chinese:
