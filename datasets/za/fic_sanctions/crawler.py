@@ -33,10 +33,10 @@ ADDRESS_SPLITS = [
     "Branch Office 14:",
     "Branch Office 15:",
     "Branch Office 16:",
-    "v)",
-    "iv)",
     "iii)",
+    "iv)",
     "ii)",
+    "v)",
     "i)",
     "(Formerly located at)",
 ]
