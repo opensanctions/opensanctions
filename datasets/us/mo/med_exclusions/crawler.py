@@ -34,13 +34,13 @@ def crawl_item(row: Dict[str, str], context: Context):
     context.audit_data(row)
 
 
-def crawl_excel_url(context: Context):
+def crawl_excel_url(context: Context, sp_url: str):
     excel_xpath = (
-        ".//li//a[contains(@href, 'Sanction-List') and contains(@href, '.xlsx')]/@href"
+        ".//a[contains(@href, 'Sanction-List') and contains(@href, '.xlsx')]/@href"
     )
     exclusions_page = fetch_html(
         context,
-        context.data_url,
+        sp_url,
         excel_xpath,
     )
     excel_url = h.xpath_string(exclusions_page, excel_xpath)
@@ -48,8 +48,17 @@ def crawl_excel_url(context: Context):
 
 
 def crawl(context: Context) -> None:
-    # First we find the link to the excel file
-    excel_url = crawl_excel_url(context)
+    # Locate the Sanctions page
+    sp_xpath = ".//a[contains(@href, 'sanction-list')]/@href"
+    landing_page = fetch_html(
+        context,
+        context.data_url,
+        sp_xpath,
+    )
+    sp_url = h.xpath_string(landing_page, sp_xpath)
+
+    # Find the link to the excel file on the Sanctions page
+    excel_url = crawl_excel_url(context, sp_url)
     _, _, _, path = fetch_resource(
         context, "source.xlsx", excel_url, expected_media_type=XLSX, geolocation="US"
     )
