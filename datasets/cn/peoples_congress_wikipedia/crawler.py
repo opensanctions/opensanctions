@@ -162,7 +162,7 @@ def parse_table(
         if row.find("./th") is not None:
             subheader = row.text_content().strip()
             if subheader not in SKIP_SUBHEADERS:
-                context.log.warning("Unexpected subheader {subheader}")
+                context.log.warning(f"Unexpected subheader {subheader}")
             continue
         # populate cells
         cells = row.findall("./td")

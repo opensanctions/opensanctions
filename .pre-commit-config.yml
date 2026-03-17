@@ -120,7 +120,6 @@ repos:
           datasets/us/ga/med_exclusions|
           datasets/us/ms/med_exclusions|
           datasets/us/mt/med_exclusions|
-          datasets/us/mo/med_exclusions|
           datasets/us/state_terrorist_exclusion|
           datasets/us/ma/med_exclusions|
           datasets/us/ak/med_exclusions|

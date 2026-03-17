@@ -23,6 +23,7 @@ IGNORE = [
     "work_history",
     "government_memberships",
     "person_id",
+    "parliament_end_date",
 ]
 
 
