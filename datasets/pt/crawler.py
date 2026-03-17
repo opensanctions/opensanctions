@@ -37,8 +37,8 @@ def crawl_parliament(context: Context, url: str) -> None:
             topics=["gov.national", "gov.legislative"],
             country=["pt"],
         )
-        position.add("subnationalArea", member.pop("DepCPDes"))  # constituency name
-        position.add("subnationalArea", member.pop("DepCPId"))  # constituency ID
+        position.add("constituency", member.pop("DepCPDes"))  # constituency name
+        position.add("constituency", member.pop("DepCPId"))  # constituency ID
         categorisation = categorise(context, position, is_pep=True)
 
         if not categorisation.is_pep:
@@ -65,19 +65,24 @@ def crawl_parliament(context: Context, url: str) -> None:
 
         # --- fetch leadership roles in the plenary ---
         for leadership_role in member.pop("DepCargo") or []:
-            occupancy = h.make_occupancy(
+            position_leadership = h.make_position(
+                context,
+                name=f"{leadership_role['carDes']}, Assembleia da República",
+                topics=["gov.national", "gov.legislative"],
+                country=["pt"],
+            )
+
+            occupancy_leadership = h.make_occupancy(
                 context,
                 person,
-                position,
+                position_leadership,
                 start_date=leadership_role.pop("carDtInicio"),
                 end_date=leadership_role.pop("carDtFim"),
             )
-            if occupancy is not None:
-                occupancy.add("recordId", leadership_role.pop("carId"))
-                occupancy.add("description", leadership_role.pop("carDes"))
+            if occupancy_leadership is not None:
                 context.emit(person)
-                context.emit(occupancy)
-                context.emit(position)
+                context.emit(occupancy_leadership)
+                context.emit(position_leadership)
 
         context.audit_data(member, IGNORE)
 
