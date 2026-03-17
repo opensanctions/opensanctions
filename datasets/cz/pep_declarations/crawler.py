@@ -16,6 +16,7 @@ IGNORE = [
     "senatorAndOthers",
     "workingFrom",
     "workingTo",
+    "judge",
 ]
 
 
@@ -36,15 +37,13 @@ def crawl_person(context: Context, item: Dict[str, Any]) -> None:
     entity.add("title", item.pop("titleBefore", None))
     entity.add("nameSuffix", item.pop("titleAfter", None))
     entity.add("citizenship", "cz")
-    # is_judge is a person-level flag
-    is_judge = item.pop("judge")
     for wp in item.pop("workingPositions", []):
         wp_data = wp.pop("workingPosition")
         # is_deputy and is_senator are position-level flags
         is_deputy = wp_data.pop("deputy")
         is_senator = wp_data.pop("senator")
-        # Only the main institutions are marked as PEP by default
-        if is_deputy or is_senator or is_judge:
+        # Only deputies and senators are marked as PEP by default
+        if is_deputy or is_senator:
             is_pep = True
         else:
             is_pep = None
