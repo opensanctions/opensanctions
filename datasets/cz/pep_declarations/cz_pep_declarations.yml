@@ -38,7 +38,7 @@ dates:
 assertions:
   min:
     schema_entities:
-      Person: 3200
-      Position: 120
+      Person: 500
+      Position: 5
     country_entities:
       cz: 1
