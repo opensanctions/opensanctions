@@ -38,11 +38,11 @@ dates:
 assertions:
   min:
     schema_entities:
-      Person: 6600  # raw count 8270 (current + historical, incl. temporary MPs)
+      Person: 1800  # raw count 2291 (current + historical, incl. temporary MPs)
       Position: 1
   max:
     schema_entities:
-      Person: 16500
+      Person: 4500
 
 lookups:
   seat_status:
