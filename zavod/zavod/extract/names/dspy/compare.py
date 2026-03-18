@@ -54,7 +54,7 @@ def compare_single_entity(examples_path: Path, output_path: Path) -> None:
         agree = True
         for field in FIELDS:
             if set(dspy_result.toDict()[field]) != set(
-                direct_gpt_result_dict.get(field) or []
+                direct_gpt_result_dict.get(field, [])
             ):
                 agree = False
         result = {
