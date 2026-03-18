@@ -3,6 +3,8 @@
   "permissions": {
     "allow": [
       "Bash(pytest *)",
+      "Bash(python -m pytest *)",
+      "Bash(python3 -m pytest *)",
       "Bash(curl *)",
       "Bash(wget *)",
       "Bash(prek *)",
