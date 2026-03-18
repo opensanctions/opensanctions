@@ -1,10 +1,9 @@
 import json
 from typing import Any, Dict, List, Optional, Generator
 from banal import ensure_list
-from rigour.mime.types import CSV, JSON
+from rigour.mime.types import JSON
 from followthemoney.types import registry
 import re
-import csv
 
 from zavod import Context, Entity
 from zavod import helpers as h
@@ -33,15 +32,6 @@ from zavod import helpers as h
 #     "Sectoral Sanctions Identifications List (SSI) - Treasury Department",
 
 REGEX_AUTHORITY_ID_SEP = re.compile(r"(\d+ F\.?R\.?)")
-# FR_API_URL = "https://www.federalregister.gov/api/v1/documents.json?conditions[agencies][]=state-department&conditions[term]=nonproliferation+measures&order=newest&per_page=5"
-FR_API_URL = "https://www.federalregister.gov/api/v1/documents.json?conditions[agencies][]=state-department&conditions[type][]=NOTICE&conditions[term]='Imposition+of+Nonproliferation+Measures+Against+Foreign+Persons'&order=newest&per_page=5"
-# The most recent INKSNA notice document number. Update this whenever a new
-# notice is published and the Google Sheet has been updated accordingly.
-FR_LAST_INKSNA_DOC = "2026-01593"
-INKSNA_TITLE = "Imposition of Nonproliferation Measures Against Foreign Persons"
-INKSNA_SHEET_URL = (
-    "https://docs.google.com/spreadsheets/d/1Xo9n8sQGqj3kKJYlHh2r7c5Zt0vLh6e/"
-)
 
 
 def lookup_topic(context: Context, program_name: Optional[str]) -> Optional[str]:
@@ -311,54 +301,3 @@ def crawl(context: Context):
         data = json.load(file)
         for list_entry in data.get("results"):
             parse_list_entry(context, list_entry)
-
-    crawl_fr_notices(context)
-
-
-def crawl_fr_notices(context: Context) -> None:
-    # The ISN component of the US Trade Consolidated Screening List (CSL) is
-    # fed from the State Department's nonproliferation sanctions page, which is
-    # updated manually and with no guaranteed cadence. In practice, new INKSNA
-    # designations published in the Federal Register can take weeks or months
-    # to appear in the CSL. This function monitors the FR API directly so that
-    # any new notice triggers a warning, prompting a manual update of the
-    # Google Sheet that serves as the authoritative source for this crawler.
-    res = context.fetch_json(FR_API_URL)
-    for doc in res.get("results", []):
-        if INKSNA_TITLE not in doc.get("title", ""):
-            continue
-        doc_number = doc.get("document_number")
-        if doc_number == FR_LAST_INKSNA_DOC:
-            break
-        context.log.warning(
-            "New INKSNA notice detected: update the Google Sheet and bump FR_LAST_INKSNA_DOC",
-            document_number=doc_number,
-            publication_date=doc.get("publication_date"),
-            url=doc.get("html_url"),
-        )
-
-    path = context.fetch_resource("inksna_sheet.csv", INKSNA_SHEET_URL)
-    context.export_resource(path, CSV, title=context.SOURCE_TITLE)
-    with open(path, "r") as fh:
-        for row in csv.DictReader(fh):
-            name = row.pop("name")
-            fr_citation = row.pop("fr_citation")
-            schema = row.pop("schema")
-
-            entity = context.make(schema)
-            entity.id = context.make_id(name, fr_citation)
-            entity.add("name", name)
-            for alias in h.multi_split(row.pop("aliases"), ";"):
-                entity.add("alias", alias)
-
-            make_and_emit_sanction(
-                context,
-                entity,
-                source_program=row.pop("source_program"),
-                list_entry={
-                    "start_date": row.pop("date"),
-                    "federal_register_notice": fr_citation,
-                    "country": row.pop("country"),
-                },
-            )
-            context.emit(entity)
