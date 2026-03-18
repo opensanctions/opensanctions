@@ -56,7 +56,7 @@ def compare_single_entity(examples_path: Path, output_path: Path) -> None:
         assert schema is not None, example.entity_schema
         original = Names(name=example.strings)
         raw_names = SourceNames(entity_schema=schema.name, original=original)
-        direct_gpt_result = comparable_dict(clean_names(context, raw_names))
+        direct_gpt_result = clean_names(context, raw_names).model_dump()
         direct_gpt_eval = metric_with_feedback_dict(example.toDict(), direct_gpt_result)
 
         agree = True
