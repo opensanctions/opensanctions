@@ -189,6 +189,16 @@ def parse_entry(context: Context, entry: Element) -> None:
         middle_name = name.get("middleName")
         last_name = name.get("lastName")
         if is_weak:
+            h.apply_name(
+                entity,
+                full=full_name,
+                first_name=first_name,
+                middle_name=middle_name,
+                last_name=last_name,
+                is_weak=True,
+                quiet=True,
+                lang=lang,
+            )
             original.add("weakAlias", full_name, lang=lang)
         else:
             if not full_name and (first_name and last_name):
@@ -198,6 +208,12 @@ def parse_entry(context: Context, entry: Element) -> None:
                     middle_name=middle_name,
                     last_name=last_name,
                 )
+            h.apply_reviewed_name_string(
+                context,
+                entity,
+                string=full_name,
+                original_prop="alias" if treat_as_alias else "name",
+            )
             original.add("alias" if treat_as_alias else "name", full_name, lang=lang)
             entity.add("firstName", first_name, quiet=True, lang=lang)
             entity.add("middleName", middle_name, quiet=True, lang=lang)
@@ -219,7 +235,7 @@ def parse_entry(context: Context, entry: Element) -> None:
             entity.add("notes", name.get("function"), lang=lang)
         entity.add("gender", name.get("gender"), quiet=True, lang=lang)
 
-    h.apply_reviewed_names(context, entity, original=original)
+    h.review_names(context, entity, original=original)
 
     for node in entry.findall("./identification"):
         doc_type = node.get("identificationTypeCode")
