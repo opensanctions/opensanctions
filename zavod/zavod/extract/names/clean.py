@@ -15,6 +15,8 @@ SINGLE_ENTITY_PROGRAM_PATH = Path(__file__).parent / "dspy/single_entity_program
 EXCLUDE_IF_EMPTY = {"previousName", "firstName", "middleName", "lastName"}
 
 
+
+
 class LangText(BaseModel):
     text: str
     lang: str
@@ -24,8 +26,9 @@ class LangText(BaseModel):
         return hash((self.text, self.lang))
 
 
-NamesValue = str | LangText | None
-NamesValues = NamesValue | Sequence[NamesValue]
+SimpleNamesValues = Sequence[str]
+NamesValues = None | str | Sequence[str | LangText]
+
 
 
 class Names(BaseModel):
@@ -157,6 +160,15 @@ class Names(BaseModel):
         return True
 
 
+class SimpleNames(Names):
+    """Simplified type options to keep potential output format for LLMs simpler."""
+    name: SimpleNamesValues = []
+    alias: SimpleNamesValues = []
+    weakAlias: SimpleNamesValues = []
+    previousName: SimpleNamesValues = []
+    abbreviation: SimpleNamesValues = []
+
+
 class SourceNames(BaseModel):
     """Name strings and schema supplied to the LLM for cleaning and categorisation"""
 
@@ -183,7 +195,7 @@ def is_empty_string(text: Optional[str | LangText]) -> bool:
     return False
 
 
-def name_val_str(name_val: NamesValue) -> str | None:
+def name_val_str(name_val: None | str | LangText) -> str | None:
     if isinstance(name_val, LangText):
         return name_val.text
     return name_val
@@ -197,7 +209,7 @@ def load_single_entity_prompt() -> str:
     return prompt
 
 
-def clean_names(context: Context, raw_names: SourceNames) -> Names:
+def clean_names(context: Context, raw_names: SourceNames) -> SimpleNames:
     """Use an LLM to clean and categorise names."""
     prompt = load_single_entity_prompt()
 
@@ -220,6 +232,6 @@ def clean_names(context: Context, raw_names: SourceNames) -> Names:
         context=context,
         prompt=prompt,
         string=input_string,
-        response_type=Names,
+        response_type=SimpleNames,
         model=LLM_MODEL_VERSION,
     )
