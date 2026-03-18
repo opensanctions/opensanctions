@@ -212,12 +212,38 @@ lookups:
         aliases:
           - RFNC-VNIITF
           - VNIITF
+      - match: RFNC-VNIITF/VNITTF
+        aliases:
+          - RFNC-VNIITF
+          - VNITTF
       - match: "Khirullah Said Wali Khairkhwa, né en Kandahar, le 01/01/1967"
         aliases:
           - Khirullah Said Wali Khairkhwa
       - match: "adena Mohammad né le 01/01/1969"
         aliases:
           - adena Mohammad
+      - match: "JSC \"Volsk Mechanical Plant\"; ou JSC \"VMP\" ou АО \"ВМЗ\""
+        aliases:
+          - JSC "Volsk Mechanical Plant"
+          - JSC "VMP"
+          - АО "ВМЗ"
+      - match: "Horizon Holding; ou OJSC N Holding; ou The Horizon Group of Companies"
+        aliases:
+          - Horizon Holding
+          - OJSC N Holding
+          - The Horizon Group of Companies
+      - match: "Research Unitary Enterprise \"INSTITUTE OF DIGITAL TELEVISION HORIZONT\"; ou DIGITAL TELEVISION INSTITUTE HORIZONT; ou UE \"Institute of Digital Television Horizon\"; ou Chelyabinsk Institute of Digital television \"Horizont\""
+        aliases:
+          - Research Unitary Enterprise "INSTITUTE OF DIGITAL TELEVISION HORIZONT"
+          - DIGITAL TELEVISION INSTITUTE HORIZONT
+          - UE "Institute of Digital Television Horizon"
+          - Chelyabinsk Institute of Digital television "Horizont"
+      - match: "JSC \"Corporation Moscow Institute of Heat Technology\"; JSC Corporation MIHT; JSC \"Corporation 'MIT'\"; ou AO Korporatsiya Moskovskiy Institut Teplotekhniki"
+        aliases:
+          - JSC "Corporation Moscow Institute of Heat Technology"
+          - JSC Corporation MIHT
+          - JSC "Corporation 'MIT'"
+          - AO Korporatsiya Moskovskiy Institut Teplotekhniki
   type.date:
     options:
       - match: 24/06/1402 (calendrier hégirien)
@@ -320,6 +346,8 @@ lookups:
         value: 1977
       - match: probablement 1973
         value: 1973
+      - match: 08/11/21985
+        value: 1985-11-08
       - match: 08/07//1988
         value: 1988-07-08
       - match: 1987-1988
