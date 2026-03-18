@@ -44,13 +44,8 @@ def crawl_row(context: Context, row: Dict[str, str]):
 
 
 def crawl_fr_notices(context: Context) -> None:
-    # The ISN component of the US Trade Consolidated Screening List (CSL) is
-    # fed from the State Department's nonproliferation sanctions page, which is
-    # updated manually and with no guaranteed cadence. In practice, new INKSNA
-    # designations published in the Federal Register can take weeks or months
-    # to appear in the CSL. This function monitors the FR API directly so that
-    # any new notice triggers a warning, prompting a manual update of the
-    # Google Sheet.
+    # If the hash changes, review the updated fr_notices.csv
+    # for new entries and update the us_special_leg Google Sheet accordingly.
     h.assert_url_hash(context, FR_API_URL, "59f3eec13dbb3e2319784f767b8ca0b84bdecd16")
     rows, url = [], FR_API_URL
     while url:
@@ -78,5 +73,10 @@ def crawl(context: Context):
         reader = csv.DictReader(fh)
         for row in reader:
             crawl_row(context, row)
-
+    # The ISN component of the US Trade Consolidated Screening List (CSL) is
+    # fed from the State Department's nonproliferation sanctions page, which is
+    # updated manually and with no guaranteed cadence. In practice, new INKSNA
+    # designations published in the Federal Register can take weeks or months
+    # to appear in the CSL. This function monitors the FR API directly so that
+    # any new notice triggers a warning.
     crawl_fr_notices(context)
