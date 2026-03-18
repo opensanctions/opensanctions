@@ -6185,3 +6185,11 @@ lookups:
           - "St Maarten, Billy Folly Road #37, Sint-Maarten, Antilles néerlandaises"
           - "Cohune Walk, 3 Lime St, Belmopan, Belize"
           - "9350 Wilshire Blvd, Beverly Hills CA 90212, États-Unis d'Amérique"
+      - match: "Fédération de Russie, Moscou, Smolnaya street, 14 ; 11 floor 24 office; Aeroportovskaya St., Office 210-2, 141580, Solnechnogorsk, Moscow Region, Fédération de Russie"
+        addresses:
+          - "Fédération de Russie, Moscou, Smolnaya street, 14, 11 floor, 24 office"
+          - "Aeroportovskaya St., Office 210-2, 141580, Solnechnogorsk, Moscow Region, Fédération de Russie"
+      - match: "249100, région de Kalouga, district de Tarusa, Tarusa, 18, rue R. Luxemburg; 142181, région de Moscou, Podolsk, quartier de Klimovsk, rue Zavodskaya 2."
+        addresses:
+          - "249100, région de Kalouga, district de Tarusa, Tarusa, 18, rue R. Luxemburg"
+          - "142181, région de Moscou, Podolsk, quartier de Klimovsk, rue Zavodskaya 2."
