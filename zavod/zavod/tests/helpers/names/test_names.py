@@ -350,8 +350,8 @@ def test_apply_names_with_langtext(vcontext: Context):
 
     original = Names(name="John Doe")
     names = Names(
-        name=LangText(text="John Doe", lang="eng"),
-        alias=LangText(text="جون دو", lang="ara"),
+        name=[LangText(text="John Doe", lang="eng")],
+        alias=[LangText(text="جون دو", lang="ara")],
     )
 
     # Even though we pass lang="fr", LangText's own lang should be used

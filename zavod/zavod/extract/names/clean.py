@@ -1,6 +1,6 @@
 from functools import cache
 from pathlib import Path
-from typing import Any, Generator, List, Optional, Sequence, Tuple
+from typing import Any, Generator, Optional, Sequence, Tuple
 import json
 
 from pydantic import BaseModel
@@ -15,20 +15,18 @@ SINGLE_ENTITY_PROGRAM_PATH = Path(__file__).parent / "dspy/single_entity_program
 EXCLUDE_IF_EMPTY = {"previousName", "firstName", "middleName", "lastName"}
 
 
-
-
 class LangText(BaseModel):
     text: str
-    lang: str
-    """ISO 639-2 (3-letter) language code"""
+    lang: Optional[str]
+    """ISO 639-2 (3-letter) language code, or None if not known"""
 
     def __hash__(self) -> int:
         return hash((self.text, self.lang))
 
 
-SimpleNamesValues = Sequence[str]
+# A fairly broad set of types to reduce boilerplate editing in reviews.
+# See SimplifiedNames and LangNames for more specific types for specific use cases.
 NamesValues = None | str | Sequence[str | LangText]
-
 
 
 class Names(BaseModel):
@@ -76,15 +74,17 @@ class Names(BaseModel):
         }
 
     def is_empty(self) -> bool:
-        for prop, names in self.nonempty_item_lists():
+        for prop, names in self.as_langtexts():
             return False
         return True
 
-    def nonempty_item_lists(
+    def as_langtexts(
         self,
-    ) -> Generator[Tuple[str, List[str | LangText]], None, None]:
+    ) -> Generator[Tuple[str, list[LangText]], None, None]:
         """
         Generator yielding each property and a list of any associated non-empty name values.
+
+        Plain str values are wrapped as LangText with lang=None.
 
         Useful when iterating over values in a Names instance.
         """
@@ -94,9 +94,11 @@ class Names(BaseModel):
                 continue
             if isinstance(value, (str, LangText)):
                 if not is_empty_string(value):
-                    yield key, [value]
+                    yield key, [_to_lang_text(value)]
             elif isinstance(value, list):
-                nonempty_values = [v for v in value if not is_empty_string(v)]
+                nonempty_values = [
+                    _to_lang_text(v) for v in value if not is_empty_string(v)
+                ]
                 if nonempty_values:
                     yield key, nonempty_values
 
@@ -124,14 +126,31 @@ class Names(BaseModel):
         else:
             setattr(self, prop, [current, item])
 
-    def simplify(self) -> "Names":
-        """Get a copy where single-item lists are replaced by just the single item.
+    def simplified(self) -> "Names":
+        """Get a copy where single-item lists are replaced by just the single item,
+        and LangText values with lang=None are simplified to plain strings.
         This is useful for formatting for human editing in reviews."""
-        data = {}
 
-        for key, value in self.model_copy(deep=True).model_dump().items():
-            if isinstance(value, list) and len(value) == 1:
-                data[key] = value[0]
+        def simplify_val(v: str | LangText) -> str | LangText:
+            if isinstance(v, LangText) and v.lang is None:
+                return v.text
+            return v
+
+        data: dict[str, str | list[str | LangText] | None] = {}
+        for key in self.__class__.model_fields:
+            value = getattr(self, key)
+            if isinstance(value, (str, LangText)):
+                sv = simplify_val(value)
+                wrapped: list[str | LangText] = [sv]
+                data[key] = sv if isinstance(sv, str) else wrapped
+            elif isinstance(value, list):
+                simplified = [simplify_val(v) for v in value]
+                if not simplified:
+                    data[key] = None
+                elif len(simplified) == 1 and isinstance(simplified[0], str):
+                    data[key] = simplified[0]
+                else:
+                    data[key] = simplified
             else:
                 data[key] = value
         return Names(**data)
@@ -139,34 +158,35 @@ class Names(BaseModel):
     def __eq__(self, value: object) -> bool:
         assert isinstance(value, Names), type(value)
 
-        # we care about prop order
-        # we don't care about value order
+        # we don't care about value order within a prop
         # we don't care about value repetition within a prop
         # we do care about value repetition across props
         # single values and single-item lists are considered equal
-        for prop in self.__class__.model_fields:
-            self_values = getattr(self, prop)
-            other_values = getattr(value, prop)
-            self_values_set = (
-                set(self_values) if isinstance(self_values, list) else {self_values}
-            )
-            other_values_set = (
-                set(other_values) if isinstance(other_values, list) else {other_values}
-            )
-            self_values_set.discard(None)
-            other_values_set.discard(None)
-            if self_values_set != other_values_set:
-                return False
-        return True
+        # str and LangText(text=str, lang=None) are considered equal
+        def to_dict(names: "Names") -> dict[str, frozenset[LangText]]:
+            return {prop: frozenset(vals) for prop, vals in names.as_langtexts()}
+
+        return to_dict(self) == to_dict(value)
 
 
 class SimpleNames(Names):
     """Simplified type options to keep potential output format for LLMs simpler."""
-    name: SimpleNamesValues = []
-    alias: SimpleNamesValues = []
-    weakAlias: SimpleNamesValues = []
-    previousName: SimpleNamesValues = []
-    abbreviation: SimpleNamesValues = []
+
+    name: Sequence[str] = []
+    alias: Sequence[str] = []
+    weakAlias: Sequence[str] = []
+    previousName: Sequence[str] = []
+    abbreviation: Sequence[str] = []
+
+
+class LangNames(Names):
+    """Simplified Names where all values are LangText to make processing simpler."""
+
+    name: Sequence[LangText] = []
+    alias: Sequence[LangText] = []
+    weakAlias: Sequence[LangText] = []
+    previousName: Sequence[LangText] = []
+    abbreviation: Sequence[LangText] = []
 
 
 class SourceNames(BaseModel):
@@ -182,6 +202,12 @@ class DSPySignature(BaseModel):
 
 class PredictProgramData(BaseModel):
     signature: DSPySignature
+
+
+def _to_lang_text(value: str | LangText) -> LangText:
+    if isinstance(value, str):
+        return LangText(text=value, lang=None)
+    return value
 
 
 def is_empty_string(text: Optional[str | LangText]) -> bool:
@@ -213,11 +239,11 @@ def clean_names(context: Context, raw_names: SourceNames) -> SimpleNames:
     """Use an LLM to clean and categorise names."""
     prompt = load_single_entity_prompt()
 
-    strings = []
-    for _prop, names in raw_names.original.nonempty_item_lists():
+    strings: list[str] = []
+    for _prop, names in raw_names.original.as_langtexts():
         for name in names:
-            if name not in strings:
-                strings.append(name)
+            if name.text not in strings:
+                strings.append(name.text)
 
     input_data = {"entity_schema": raw_names.entity_schema, "strings": strings}
     input_string = "The entity schema and name strings as JSON:\n\n"

@@ -16,11 +16,10 @@ from zavod.entity import Entity
 from zavod.meta.names import CleaningSpec, NamesSpec
 from zavod.extract.names.clean import (
     LLM_MODEL_VERSION,
-    NamesValue,
+    LangNames,
     SourceNames,
     Names,
     LangText,
-    name_val_str,
 )
 
 # alias clean_names so that it could be imported from here
@@ -347,9 +346,9 @@ def _check_schema_name_specs(string: str, spec: CleaningSpec) -> Optional[Regula
     return None
 
 
-def check_name_regularity(entity: Entity, names_value: NamesValue) -> Regularity:
+def check_name_regularity(entity: Entity, string: Optional[str]) -> Regularity:
     """Determine whether a name string potentially needs cleaning."""
-    string = squash_spaces(name_val_str(names_value) or "")
+    string = squash_spaces(string or "")
 
     if not string:
         return Regularity(is_irregular=False)
@@ -372,12 +371,12 @@ def check_name_regularity(entity: Entity, names_value: NamesValue) -> Regularity
     return Regularity(is_irregular=False)
 
 
-def is_name_irregular(entity: Entity, names_value: NamesValue) -> bool:
+def is_name_irregular(entity: Entity, string: Optional[str]) -> bool:
     """Determine whether a name string is irregular and needs cleaning."""
-    return check_name_regularity(entity, names_value).is_irregular
+    return check_name_regularity(entity, string).is_irregular
 
 
-def check_names_regularity(entity: Entity, names: Names) -> Tuple[bool, Names]:
+def check_names_regularity(entity: Entity, names: Names) -> Tuple[bool, LangNames]:
     """
     Determine whether any name string in the given Names instance is irregular
     and needs cleaning.
@@ -388,17 +387,17 @@ def check_names_regularity(entity: Entity, names: Names) -> Tuple[bool, Names]:
     from "name" to "alias" or "weakAlias").
     """
     is_irregular = False
-    updated_suggested_data: Dict[str, List[NamesValue]] = defaultdict(list)
-    for key, names_values in names.nonempty_item_lists():
+    updated_suggested_data: Dict[str, List[LangText]] = defaultdict(list)
+    for key, names_values in names.as_langtexts():
         for name_val in names_values:
-            regularity = check_name_regularity(entity, name_val)
+            regularity = check_name_regularity(entity, name_val.text)
             if regularity.is_irregular:
                 is_irregular = True
             if regularity.suggested_prop is None:
                 updated_suggested_data[key].append(name_val)
             else:
                 updated_suggested_data[regularity.suggested_prop].append(name_val)
-    updated_suggested = Names(**updated_suggested_data)
+    updated_suggested = LangNames(**updated_suggested_data)
     return is_irregular, updated_suggested
 
 
@@ -413,17 +412,14 @@ def derive_original_values(original: Names, extracted: Names) -> Dict[str, str]:
         Otherwise leave blank - this is best-effort only.
     """
     original_strings: List[str] = []
-    for _prop, values in original.nonempty_item_lists():
+    for _prop, values in original.as_langtexts():
         for value in values:
-            string = name_val_str(value)
-            if string is not None:  # Not expected. Just type safety.
-                original_strings.append(string)
+            original_strings.append(value.text)
 
     derived_originals: dict[str, str] = {}
-    for _prop, extracted_values in extracted.nonempty_item_lists():
+    for _prop, extracted_values in extracted.as_langtexts():
         for extracted_value in extracted_values:
-            extracted_string = name_val_str(extracted_value)
-            assert extracted_string is not None  # Not expected. Just type safety.
+            extracted_string = extracted_value.text
 
             if len(original_strings) == 1:
                 # (1) If there's exactly one value in original, use that for all names.
@@ -463,22 +459,14 @@ def apply_names(
     """
     derived_originals = derive_original_values(original, names)
 
-    for prop, name_values in names.nonempty_item_lists():
+    for prop, name_values in names.as_langtexts():
         for name in name_values:
-            name_lang: Optional[str]
-            if isinstance(name, LangText):
-                name_string = name.text
-                name_lang = name.lang
-            else:
-                name_string = name
-                name_lang = lang
-
             entity.add(
                 prop,
-                name_string,
-                lang=name_lang,
+                name.text,
+                lang=name.lang if name.lang is not None else lang,
                 origin=origin,
-                original_value=derived_originals.get(name_string),
+                original_value=derived_originals.get(name.text),
             )
 
 
@@ -486,14 +474,12 @@ def review_key_parts(entity: Entity, original: Names) -> List[str]:
     # Only use the non-empty props in the key so that adding props in
     # future doesn't change the key unless they're actually populated.
     key_parts = [entity.schema.name]
-    for prop, names_values in original.nonempty_item_lists():
+    for prop, names_values in original.as_langtexts():
         key_parts.append(prop)
         for names_value in names_values:
-            if isinstance(names_value, LangText):
+            if names_value.lang is not None:
                 key_parts.append(names_value.lang)
-                key_parts.append(names_value.text)
-            else:
-                key_parts.append(names_value)
+            key_parts.append(names_value.text)
     return key_parts
 
 
@@ -529,12 +515,12 @@ def _review_names(
     key_parts = review_key_parts(entity, original)
 
     # Only include the populated props in the source value for human readability
-    source_value_data: Dict[str, str | Dict[str, List[str | Dict[str, str]]]] = {
+    source_value_data: Dict[str, str | Dict[str, List[str | Dict[str, str | None]]]] = {
         "entity_schema": entity.schema.name
     }
-    populated_props: Dict[str, List[str | Dict[str, str]]] = {
-        k: [v.model_dump() if isinstance(v, LangText) else v for v in vals]
-        for k, vals in source_names.original.nonempty_item_lists()
+    populated_props: Dict[str, List[str | Dict[str, str | None]]] = {
+        k: [v.text if v.lang is None else v.model_dump() for v in vals]
+        for k, vals in source_names.original.as_langtexts()
     }
     source_value_data["original"] = populated_props
 
@@ -544,7 +530,7 @@ def _review_names(
         data=cast(JsonValue, source_value_data),
     )
     original_extraction = suggested or original
-    original_extraction = original_extraction.simplify()
+    original_extraction = original_extraction.simplified()
     review = review_extraction(
         context,
         source_value=source_value,
