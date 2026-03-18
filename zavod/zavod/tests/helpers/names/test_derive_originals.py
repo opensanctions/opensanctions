@@ -158,7 +158,7 @@ def test_derive_original_values_with_langtext():
     """LangText values should work the same as str values."""
     # LangText in original, str in extracted
     # Jon is just here so that the single original shortcut doesn't kick in.
-    original = Names(name=LangText(text="John/Jon Doe", lang="eng"), weakAlias="Jon")
+    original = Names(name=[LangText(text="John/Jon Doe", lang="eng")], weakAlias="Jon")
     extracted = Names(name="John Doe", alias="Jon Doe")
     result = derive_original_values(original, extracted)
     # John Doe isn't exactly contained so doesn't get an original_value.
@@ -166,7 +166,7 @@ def test_derive_original_values_with_langtext():
 
     # str in original, LangText in extracted
     original = Names(name="John Doe; Brandon Doe", weakAlias="Jon")
-    extracted = Names(alias=LangText(text="Brandon Doe", lang="eng"))
+    extracted = Names(alias=[LangText(text="Brandon Doe", lang="eng")])
     result = derive_original_values(original, extracted)
     assert result == {
         "Brandon Doe": "John Doe; Brandon Doe",
