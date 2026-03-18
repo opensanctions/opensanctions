@@ -28,8 +28,11 @@ def crawl_parliament(context: Context, url: str) -> None:
         constituency_name = member.pop("DepCPDes")
         constituency_id = member.pop("DepCPId")
 
-        for party_history in member.pop("DepGP") or []:
-            person.add("political", party_history.pop("gpSigla"))  # party abbreviation
+        party_history = member.pop("DepGP") or []
+        if party_history:
+            # record only the most recent party affiliation
+            latest_party = max(party_history, key=lambda party: party["gpDtInicio"])
+            person.add("political", latest_party["gpSigla"])
         ### each member also has:
         # gpId -- party group ID
         # gpDtFim and gpDtInicio -- dates of party affiliation
@@ -47,6 +50,13 @@ def crawl_parliament(context: Context, url: str) -> None:
 
         # --- fetch non-leadership seat occupancy in the plenary ---
         for seat_occupancy in member.pop("DepSituacao") or []:
+            # sioDes describes the status change type; only proceed for active periods
+            # sioDtInicio/sioDtFim are dates of the status change, not the MP seat itself
+            seatstatus = seat_occupancy.pop("sioDes")
+            is_active = context.lookup_value("seat_status", seatstatus)
+            if not is_active:
+                continue
+
             occupancy = h.make_occupancy(
                 context,
                 person,
@@ -55,13 +65,9 @@ def crawl_parliament(context: Context, url: str) -> None:
                 end_date=seat_occupancy.pop("sioDtFim"),
             )
 
-            # MP seat occupancy status, e.g. Effective, Retired, Suspended, Disqulified, etc:
-            seatstatus = seat_occupancy.pop("sioDes")
-
             if occupancy is not None:
                 occupancy.add("constituency", constituency_name)
                 occupancy.add("constituency", constituency_id)
-                occupancy.add("summary", seatstatus)
                 context.emit(person)
                 context.emit(occupancy)
                 context.emit(position)

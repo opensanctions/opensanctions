@@ -43,3 +43,17 @@ assertions:
   max:
     schema_entities:
       Person: 16500
+
+lookups:
+  seat_status:
+    # sioDes describes the type of occupancy status change. Only Efetivo (effective/active)
+    # represents an active period we want to represent. Renunciou means the MP resigned.
+    # Anything not listed here is not yet categorised and should be skipped.
+    options:
+      - match:
+          - "Efetivo"
+          - "Efetivo Definitivo"
+          - "Efetivo Temporário"
+        value: true
+      - match: "Renunciou"
+        value: false
