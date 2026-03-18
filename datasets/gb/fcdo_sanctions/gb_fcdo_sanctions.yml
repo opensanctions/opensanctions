@@ -1246,6 +1246,24 @@ lookups:
       - match: "USCC: 91440300555437169C"
         props:
           uscCode: "91440300555437169C"
+      - match: "BIK (RU): 044525769 "
+        props:
+          bikCode: "044525769"
+      - match: "BIK (RU): 044525388 "
+        props:
+          bikCode: "044525388"
+      - match: "BIK (RU): 044525341"
+        props:
+          bikCode: "044525341"
+      - match: "SWIFT CODE: BADJRUMM "
+        props:
+          swiftBic: "BADJRUMM"
+      - match: "Registered Russian Bank No. 2929 "
+        props:
+          registrationNumber: "2929"
+      - match: "Russia Licence No. \u2013 1885 "
+        props:
+          registrationNumber: "1885"
       - match:
           - "9703155974"
           - "DSO-ZZCO-16068"
