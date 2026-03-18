@@ -104,3 +104,5 @@ lookups:
         value: US-MCCAIN-1286
       - match: "Section 5949 of the James M. Inhofe National Defense Authorization Act for Fiscal Year 2023 (Public Law 117-263)"
         value: US-5949LIST
+      - match: Nonproliferation Sanctions (ISN) - State Department
+        value: US-DOS-ISN
