@@ -221,12 +221,6 @@ def is_empty_string(text: Optional[str | LangText]) -> bool:
     return False
 
 
-def name_val_str(name_val: None | str | LangText) -> str | None:
-    if isinstance(name_val, LangText):
-        return name_val.text
-    return name_val
-
-
 @cache
 def load_single_entity_prompt() -> str:
     with open(SINGLE_ENTITY_PROGRAM_PATH) as program_file:
