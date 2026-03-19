@@ -6,6 +6,7 @@ from followthemoney import registry
 from followthemoney.util import join_text, make_entity_id
 from rigour.addresses import format_address_line
 
+from zavod.constants import ORIGIN_INFERRED
 from zavod.entity import Entity
 from zavod.context import Context
 from zavod.runtime.lookups import type_lookup
@@ -122,6 +123,7 @@ def make_address(
     country_code: Optional[str] = None,
     key: Optional[str] = None,
     lang: Optional[str] = None,
+    origin: Optional[str] = None,
 ) -> Optional[Entity]:
     """Generate an address schema object adjacent to the main entity.
 
@@ -149,6 +151,7 @@ def make_address(
     city = join_text(place, city, sep=", ")
     street = join_text(street, street2, street3, sep=", ")
 
+    original_country_code = country_code
     # This is meant to handle cases where the country field contains a country code
     # in a subset of the given records:
     if country is not None and len(country.strip()) == 2:
@@ -175,6 +178,7 @@ def make_address(
     if country_code is None:
         country_code = registry.country.clean(full)
 
+    full_origin = origin
     if not full:
         full = format_address(
             summary=summary,
@@ -187,6 +191,7 @@ def make_address(
             country=country,
             country_code=country_code,
         )
+        full_origin = ORIGIN_INFERRED
 
     if full == country:
         full = None
@@ -196,16 +201,17 @@ def make_address(
     if address.id is None:
         return None
 
-    address.add("full", full, lang=lang)
-    address.add("remarks", remarks, lang=lang)
-    address.add("summary", summary, lang=lang)
-    address.add("postOfficeBox", po_box, lang=lang)
-    address.add("street", street, lang=lang)
-    address.add("city", city, lang=lang)
-    address.add("postalCode", postal_code, lang=lang)
-    address.add("region", region, lang=lang)
-    address.add("state", state, quiet=True, lang=lang)
-    address.add("country", country_code, lang=lang, original_value=country)
+    address.add("full", full, lang=lang, origin=full_origin)
+    address.add("remarks", remarks, lang=lang, origin=origin)
+    address.add("summary", summary, lang=lang, origin=origin)
+    address.add("postOfficeBox", po_box, lang=lang, origin=origin)
+    address.add("street", street, lang=lang, origin=origin)
+    address.add("city", city, lang=lang, origin=origin)
+    address.add("postalCode", postal_code, lang=lang, origin=origin)
+    address.add("region", region, lang=lang, origin=origin)
+    address.add("state", state, quiet=True, lang=lang, origin=origin)
+    cov = country if original_country_code is None else original_country_code
+    address.add("country", country_code, lang=lang, original_value=cov, origin=origin)
     return address
 
 
@@ -241,10 +247,26 @@ def copy_address(entity: Entity, address: Optional[Entity]) -> None:
         address: The address entity to be copied into the entity.
     """
     if address is not None:
-        entity.add("address", address.get("full"))
+        for stmt in address.get_statements("full"):
+            entity.add(
+                "address",
+                stmt.value,
+                lang=stmt.lang,
+                origin=stmt.origin,
+                original_value=stmt.original_value,
+                cleaned=True,
+            )
         for country in address.get("country"):
             if country not in entity.countries:
-                entity.add("country", country)
+                for stmt in address.get_statements("country"):
+                    entity.add(
+                        "country",
+                        stmt.value,
+                        lang=stmt.lang,
+                        origin=stmt.origin,
+                        original_value=stmt.original_value,
+                        cleaned=True,
+                    )
 
 
 def postcode_pobox(text: Optional[str]) -> Tuple[Optional[str], Optional[str]]:
