@@ -47,9 +47,7 @@ def crawl_entity(
     entity.id = context.make_id(primary_name, case_id_string)
     entity.add("name", primary_name)
     for alias in aliases:
-        # Folowing tw_shtc logic, we move very short aliases (e.g., acronyms) to weakAlias
-        prop = "weakAlias" if len(alias) < 8 else "alias"
-        entity.add(prop, alias)
+        entity.add("alias", alias)
 
     entity.add("topics", "reg.warn")
     entity.add("sourceUrl", url)
