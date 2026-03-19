@@ -4,11 +4,7 @@ from pathlib import Path
 from followthemoney import Model
 
 from zavod.context import Context
-from zavod.extract.names.clean import (
-    Names,
-    SourceNames,
-    clean_names,
-)
+from zavod.extract.names.clean import Names, SourceNames, clean_names
 from zavod.extract.names.dspy.clean import load_optimised_module
 from zavod.extract.names.dspy.example_data import FIELDS, load_data
 from zavod.extract.names.dspy.optimise import (
@@ -43,18 +39,15 @@ def compare_single_entity(examples_path: Path, output_path: Path) -> None:
         raw_names = SourceNames(entity_schema=schema.name, original=original)
 
         direct_gpt_result = clean_names(context, raw_names)
-        direct_gpt_result_dict: dict[str, list[str]] = {}
-        for key, values in direct_gpt_result.as_langtexts():
-            direct_gpt_result_dict[key] = [v.text for v in values]
 
         direct_gpt_eval = metric_with_feedback_dict(
-            example.toDict(), direct_gpt_result_dict
+            example.toDict(), direct_gpt_result.model_dump()
         )
 
         agree = True
         for field in FIELDS:
             if set(dspy_result.toDict()[field]) != set(
-                direct_gpt_result_dict.get(field, [])
+                direct_gpt_result.model_dump().get(field, [])
             ):
                 agree = False
         result = {
@@ -66,7 +59,7 @@ def compare_single_entity(examples_path: Path, output_path: Path) -> None:
                 "score": dspy_eval.score,
             },
             "direct_gpt_result": {
-                "output": direct_gpt_result_dict,
+                "output": direct_gpt_result.model_dump(),
                 "score": direct_gpt_eval.score,
             },
             "results_agree": agree,

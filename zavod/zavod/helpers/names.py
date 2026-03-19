@@ -406,21 +406,21 @@ def derive_original_values(original: Names, extracted: Names) -> Dict[str, str]:
         (3) If some value in original contains it, we can use that the value from original as original_value.
         Otherwise leave blank - this is best-effort only.
     """
-    original_strings: List[str] = []
+    original_values: List[str] = []
     for _prop, values in original.as_langtexts():
         for value in values:
-            original_strings.append(value.text)
+            original_values.append(value.text)
 
     derived_originals: dict[str, str] = {}
     for _prop, extracted_values in extracted.as_langtexts():
         for extracted_value in extracted_values:
             extracted_string = extracted_value.text
 
-            if len(original_strings) == 1:
+            if len(original_values) == 1:
                 # (1) If there's exactly one value in original, use that for all names.
-                derived_originals[extracted_string] = original_strings[0]
+                derived_originals[extracted_string] = original_values[0]
             else:
-                for original_string in original_strings:
+                for original_string in original_values:
                     if original_string == extracted_string:
                         # (2) Exact match, no original_value needed.
                         continue
@@ -449,7 +449,7 @@ def apply_names(
         entity: The entity to apply names to.
         original: Original names, used if original_value needs to be derived.
         names: The names to apply to the entity, potentially altered or re-categorised from original.
-        lang: The language for str values. Ignored for LangText values, which use their own lang.
+        lang: The language for str values. Ignored for LangText values if they have lang set.
         origin: The origin of apply_names (e.g. a GPT model name)
     """
     derived_originals = derive_original_values(original, names)
