@@ -1106,3 +1106,9 @@ lookups:
           - Ownzones Media Network Inc.
           - Daniel Goman
           - Joseph Goman
+      - match: ability computer & software industries ltd., ability inc., alexander aurovsky, and anatoly hurgin
+        names:
+          - Ability Computer & Software Industries Ltd.
+          - Ability Inc.
+          - Alexander Aurovsky
+          - Anatoly Hurgin
