@@ -68,3 +68,4 @@ from zavod.cli import etl as _etl  # noqa: E402, F401
 from zavod.cli import dedupe as _dedupe  # noqa: E402, F401
 from zavod.cli import util as _util  # noqa: E402, F401
 from zavod.cli import wd_up as _wd_up  # noqa: E402, F401
+from zavod.cli import archive as _archive  # noqa: E402, F401
