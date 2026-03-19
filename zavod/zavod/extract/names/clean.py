@@ -67,6 +67,8 @@ class Names(BaseModel):
 
     def model_dump(self, **kwargs: Any) -> dict[str, Any]:
         result = super().model_dump(**kwargs)
+        # Leave out uncommon fields when dumping if they are empty
+        # to keep the extracted value in Data Reviews simpler for review.
         return {
             key: value
             for key, value in result.items()
@@ -78,9 +80,7 @@ class Names(BaseModel):
             return False
         return True
 
-    def as_langtexts(
-        self,
-    ) -> Generator[Tuple[str, list[LangText]], None, None]:
+    def as_langtexts(self) -> Generator[Tuple[str, list[LangText]], None, None]:
         """
         Generator yielding each property and a list of any associated non-empty name values.
 
