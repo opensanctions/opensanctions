@@ -41,7 +41,7 @@ tags:
 assertions:
   min:
     schema_entities:
-      Organization: 190
+      Organization: 150  # 103 entities in source + we emit their aliases as Orgs - dedupes
   max:
     schema_entities:
       Organization: 250
