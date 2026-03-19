@@ -235,6 +235,9 @@ def parse_entry(context: Context, entry: Element) -> None:
             entity.add("notes", name.get("function"), lang=lang)
         entity.add("gender", name.get("gender"), quiet=True, lang=lang)
 
+    # TODO: Change to apply_reviewed_names and remove the per-name
+    # apply_reviewed_name_string and apply_name calls above.
+    # https://github.com/opensanctions/opensanctions/issues/3603
     h.review_names(context, entity, original=original)
 
     for node in entry.findall("./identification"):
