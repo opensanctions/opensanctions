@@ -7,7 +7,7 @@ from pydantic import BaseModel
 from zavod.context import Context
 from zavod.extract.llm import run_typed_text_prompt
 
-LLM_MODEL_VERSION = "gpt-4o"
+LLM_MODEL_VERSION = "gpt-5.4"
 SINGLE_ENTITY_PROGRAM_PATH = Path(__file__).parent / "dspy/single_entity_program.json"
 # Properties that shouldn't be shown to the reviewer if they are empty,
 # so that they aren't tempted into populating them unless they had a value in the
