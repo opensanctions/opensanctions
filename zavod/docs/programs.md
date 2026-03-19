@@ -27,7 +27,7 @@ The full set of programme metadata is published at `https://data.opensanctions.o
 
 ### Measures
 
-- `measures` - List of strings. Optional. One or more values from the [sanctions measures taxonomy](measures-taxonomy.md) describing what the program imposes. Verify against the legal instrument or the issuing authority's program page. Where a program transposes another regime (e.g. SECO transposing EU measures), reflect what the transposing authority implements. Valid values:
+- `measures` are values from the [sanctions measures taxonomy](measures-taxonomy.md) describing what the program imposes. Use the legal instrument or the issuing authority's program page as your source of truth. For programs that transpose another regime (e.g. SECO transposing EU measures), reflect what the transposing authority implements rather than the original. Valid values:
   - `Aid suspension`
   - `Arms embargo`
   - `Arms restrictions`
