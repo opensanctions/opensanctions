@@ -7,7 +7,7 @@ from nomenklatura.matching import DefaultAlgorithm
 from nomenklatura.tui import dedupe_ui
 
 from zavod.archive import dataset_state_path
-from zavod.cli import cli, DatasetInPath, _load_datasets, log
+from zavod.cli import cli, DatasetInPath, load_datasets, log
 from zavod.integration import get_resolver
 from zavod.integration.dedupe import blocking_xref, merge_entities, explode_cluster
 from zavod.store import get_store
@@ -32,7 +32,7 @@ def xref(
     schema: Optional[str] = None,
     discount_internal: float = 1.0,
 ) -> None:
-    dataset = _load_datasets(dataset_paths)
+    dataset = load_datasets(dataset_paths)
     resolver = get_resolver()
     resolver.begin()
     store = get_store(dataset, resolver)
@@ -67,7 +67,7 @@ def xref_prune() -> None:
 @click.argument("dataset_paths", type=DatasetInPath, nargs=-1)
 @click.option("-r", "--rebuild-store", is_flag=True, default=False)
 def dedupe(dataset_paths: List[Path], rebuild_store: bool = False) -> None:
-    dataset = _load_datasets(dataset_paths)
+    dataset = load_datasets(dataset_paths)
     resolver = get_resolver()
     resolver.begin()
     store = get_store(dataset, resolver)
@@ -105,7 +105,7 @@ def merge(entity_ids: List[str], force: bool = False) -> None:
 def dedupe_edges(dataset_paths: List[Path], rebuild_store: bool = False) -> None:
     from zavod.integration import edges
 
-    dataset = _load_datasets(dataset_paths)
+    dataset = load_datasets(dataset_paths)
     resolver = get_resolver()
     try:
         resolver.begin()

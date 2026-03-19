@@ -3,7 +3,7 @@ from typing import Optional, List
 
 import click
 
-from zavod.cli import cli, DatasetInPath, _load_datasets
+from zavod.cli import cli, DatasetInPath, load_datasets
 from zavod.integration import get_resolver
 from zavod.store import get_store
 
@@ -35,7 +35,7 @@ def wd_up(
     """
     from zavod.tools.wikidata import run_app
 
-    dataset = _load_datasets(dataset_paths)
+    dataset = load_datasets(dataset_paths)
     resolver = get_resolver()
     resolver.begin()
     store = get_store(dataset, resolver)

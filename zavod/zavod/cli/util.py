@@ -8,7 +8,7 @@ from followthemoney.statement import CSV
 from nomenklatura.settings import STATEMENT_BATCH
 
 from zavod.archive import clear_data_path
-from zavod.cli import cli, DatasetInPath, STMT_FORMATS, _load_dataset, log
+from zavod.cli import cli, DatasetInPath, STMT_FORMATS, load_dataset, log
 from zavod.integration import get_dataset_linker
 from zavod.store import get_store
 from zavod.tools.dump_file import dump_dataset_to_file
@@ -26,7 +26,7 @@ def load_db(
     external: bool = False,
 ) -> None:
     try:
-        dataset = _load_dataset(dataset_path)
+        dataset = load_dataset(dataset_path)
         linker = get_dataset_linker(dataset)
         load_dataset_to_db(
             dataset,
@@ -48,7 +48,7 @@ def dump_file(
     dataset_path: Path, out_path: Path, format: str, external: bool = False
 ) -> None:
     try:
-        dataset = _load_dataset(dataset_path)
+        dataset = load_dataset(dataset_path)
         linker = get_dataset_linker(dataset)
         dump_dataset_to_file(
             dataset,
@@ -66,7 +66,7 @@ def dump_file(
 @click.argument("dataset_path", type=DatasetInPath)
 def clear(dataset_path: Path) -> None:
     try:
-        dataset = _load_dataset(dataset_path)
+        dataset = load_dataset(dataset_path)
         clear_data_path(dataset.name)
     except Exception:
         log.exception("Failed to clear dataset: %s" % dataset_path)
@@ -130,7 +130,7 @@ def summarize(
         datasets/ng/join_dots/ng_join_dots.yml
     """
     try:
-        dataset = _load_dataset(dataset_path)
+        dataset = load_dataset(dataset_path)
         linker = get_dataset_linker(dataset)
         store = get_store(dataset, linker)
         store.sync(clear=rebuild_store)

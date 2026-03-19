@@ -5,7 +5,7 @@ import click
 
 from zavod import settings
 from zavod.archive import clear_data_path
-from zavod.cli import cli, DatasetInPath, _load_dataset, log
+from zavod.cli import cli, DatasetInPath, load_dataset, log
 from zavod.crawl import crawl_dataset
 from zavod.exc import RunFailedException
 from zavod.exporters import export_dataset
@@ -22,7 +22,7 @@ from zavod.validators import validate_dataset
 @click.option("-d", "--dry-run", is_flag=True, default=False)
 @click.option("--clear-data/--keep-data", is_flag=True, default=True)
 def crawl(dataset_path: Path, dry_run: bool = False, clear_data: bool = False) -> None:
-    dataset = _load_dataset(dataset_path)
+    dataset = load_dataset(dataset_path)
     if clear_data:
         clear_data_path(dataset.name)
 
@@ -36,7 +36,7 @@ def crawl(dataset_path: Path, dry_run: bool = False, clear_data: bool = False) -
 @click.argument("dataset_path", type=DatasetInPath)
 @click.option("-r", "--rebuild-store", is_flag=True, default=False)
 def validate(dataset_path: Path, rebuild_store: bool = False) -> None:
-    dataset = _load_dataset(dataset_path)
+    dataset = load_dataset(dataset_path)
     if dataset.model.disabled:
         log.info("Dataset is disabled, skipping: %s" % dataset.name)
         sys.exit(0)
@@ -55,7 +55,7 @@ def validate(dataset_path: Path, rebuild_store: bool = False) -> None:
 @click.argument("dataset_path", type=DatasetInPath)
 @click.option("-r", "--rebuild-store", is_flag=True, default=False)
 def export(dataset_path: Path, rebuild_store: bool = False) -> None:
-    dataset = _load_dataset(dataset_path)
+    dataset = load_dataset(dataset_path)
     if dataset.model.disabled:
         log.info("Dataset is disabled, skipping: %s" % dataset.name)
         sys.exit(0)
@@ -73,7 +73,7 @@ def export(dataset_path: Path, rebuild_store: bool = False) -> None:
 @click.argument("dataset_path", type=DatasetInPath)
 @click.option("-l", "--latest", is_flag=True, default=False)
 def publish(dataset_path: Path, latest: bool = False) -> None:
-    dataset = _load_dataset(dataset_path)
+    dataset = load_dataset(dataset_path)
     make_version(dataset, settings.RUN_VERSION, append_new_version_to_history=False)
     try:
         publish_dataset(dataset, latest=latest)
@@ -97,7 +97,7 @@ def run(
     latest: bool = False,
     clear_data: bool = False,
 ) -> None:
-    dataset = _load_dataset(dataset_path)
+    dataset = load_dataset(dataset_path)
     if clear_data:
         clear_data_path(dataset.name)
 

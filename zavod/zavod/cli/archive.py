@@ -4,7 +4,7 @@ import click
 
 from zavod import settings
 from zavod.archive import ARTIFACTS, STATEMENTS_FILE
-from zavod.cli import cli, DatasetInPath, _load_dataset
+from zavod.cli import cli, DatasetInPath, load_dataset
 from zavod.runtime.versions import get_latest
 
 RESOURCE_TYPES = {
@@ -27,7 +27,7 @@ def archive() -> None:
     help="Resolve the latest version from versions.json",
 )
 def url(resource_type: str, dataset_path: Path, latest: bool = False) -> None:
-    dataset = _load_dataset(dataset_path)
+    dataset = load_dataset(dataset_path)
     filename = RESOURCE_TYPES[resource_type]
 
     if not latest:

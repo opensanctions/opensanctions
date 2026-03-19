@@ -38,7 +38,7 @@ DatasetInPath = DatasetPath(
 )
 
 
-def _load_dataset(path: Path) -> Dataset:
+def load_dataset(path: Path) -> Dataset:
     dataset = load_dataset_from_path(path)
     if dataset is None:
         raise click.BadParameter("Invalid dataset path: %s" % path)
@@ -46,10 +46,10 @@ def _load_dataset(path: Path) -> Dataset:
     return dataset
 
 
-def _load_datasets(paths: List[Path]) -> Dataset:
+def load_datasets(paths: List[Path]) -> Dataset:
     inputs: List[str] = []
     for path in paths:
-        inputs.append(_load_dataset(path).name)
+        inputs.append(load_dataset(path).name)
     return get_multi_dataset(inputs)
 
 
