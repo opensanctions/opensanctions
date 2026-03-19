@@ -3,13 +3,13 @@
 import logging
 import math
 import tempfile
-from dataclasses import dataclass
+import time
 from pathlib import Path
-from typing import IO, cast
+from typing import IO, Any, cast
 
 import click
 import fsspec
-from followthemoney import Statement
+import pandas as pd
 from followthemoney.statement.serialize import (
     CSV,
     PACK,
@@ -29,6 +29,8 @@ from textual.app import App, ComposeResult
 from textual.binding import Binding
 from textual.screen import ModalScreen
 from textual.widgets import DataTable, Footer, Input, Static
+
+log = logging.getLogger(__name__)
 
 
 # Column widths used when truncation or wrap mode is active
@@ -74,55 +76,102 @@ _COLUMN_WIDTHS = (
 )
 
 
-@dataclass
+# DataFrame columns used for display/search (excludes the internal _stmt column)
+_DF_TEXT_COLS = [
+    "entity_id",
+    "schema",
+    "prop",
+    "value",
+    "dataset",
+    "first_seen",
+    "last_seen",
+    "lang",
+    "original_value",
+    "origin",
+]
+
+
 class DiffResult:
-    """Result of comparing two statement sets."""
+    """Result of comparing two statement sets.
 
-    rows: list[tuple[str, Statement]]
-    """Sorted (marker, stmt) pairs: marker is '-' for removed, '+' for added."""
-    removed_count: int
-    added_count: int
-    unchanged_count: int
-
-
-def compute_diff(
-    left: dict[str, Statement],
-    right: dict[str, Statement],
-) -> DiffResult:
-    """Compare two statement sets keyed by statement ID.
-
-    Statements present only in `left` are marked as removed ('-'); those only in
-    `right` are marked as added ('+').  Statements present in both are counted as
-    unchanged and do not appear in `rows`.
-
-    The rows are sorted by (entity_id, schema, prop, value) then by marker so that
-    a removed and re-added statement appear as a '-'/'+' pair.
+    Internally backed by a pandas DataFrame for fast sorting and searching.
+    The ``rows`` property exposes the data as a list of ``(marker, row)``
+    named-tuple pairs for backward compatibility.
     """
-    left = {sid: stmt for sid, stmt in left.items() if stmt.prop != "id"}
-    right = {sid: stmt for sid, stmt in right.items() if stmt.prop != "id"}
-    left_ids = set(left.keys())
-    right_ids = set(right.keys())
-    removed_ids = left_ids - right_ids
-    added_ids = right_ids - left_ids
 
-    rows: list[tuple[str, Statement]] = [("-", left[sid]) for sid in removed_ids] + [
-        ("+", right[sid]) for sid in added_ids
-    ]
-    rows.sort(
-        key=lambda x: (
-            x[1].entity_id,
-            x[1].schema,
-            x[1].prop,
-            x[1].value,
-            0 if x[0] == "-" else 1,
-        )
+    def __init__(
+        self,
+        df: pd.DataFrame,
+        removed_count: int,
+        added_count: int,
+        unchanged_count: int,
+    ) -> None:
+        self.df = df
+        self.removed_count = removed_count
+        self.added_count = added_count
+        self.unchanged_count = unchanged_count
+
+    @property
+    def rows(self) -> list[tuple[str, Any]]:
+        """Sorted (marker, row) pairs: marker is '-' for removed, '+' for added.
+
+        Each row is a named tuple with fields matching ``_DF_TEXT_COLS`` plus
+        ``external`` and ``marker``, supporting attribute access (e.g. row.value).
+        """
+        if self.df.empty:
+            return []
+        return [(r.marker, r) for r in self.df.itertuples(index=False)]
+
+
+def compute_diff(left: pd.DataFrame, right: pd.DataFrame) -> DiffResult:
+    """Compare two statement DataFrames indexed by statement ID.
+
+    Statements present only in ``left`` are marked as removed ('-'); those only
+    in ``right`` are marked as added ('+').  Statements present in both are
+    counted as unchanged and do not appear in ``rows``.
+
+    The rows are sorted by (entity_id, schema, prop, value) then by marker so
+    that a removed and re-added statement appear as a '-'/'+' pair.
+    """
+    left = left[left["prop"] != "id"]
+    right = right[right["prop"] != "id"]
+
+    t0 = time.perf_counter()
+    removed = left[~left.index.isin(right.index)].copy()
+    added = right[~right.index.isin(left.index)].copy()
+    unchanged_count = int(left.index.isin(right.index).sum())
+    log.info(
+        "diff set ops: %d removed, %d added, %d unchanged in %.3fs",
+        len(removed),
+        len(added),
+        unchanged_count,
+        time.perf_counter() - t0,
     )
 
+    removed["marker"] = "-"
+    added["marker"] = "+"
+
+    if len(removed) + len(added) > 0:
+        t1 = time.perf_counter()
+        df = pd.concat([removed, added], ignore_index=True)
+        df["_marker_ord"] = (df["marker"] == "+").astype("int8")
+        df.sort_values(
+            ["entity_id", "schema", "prop", "value", "_marker_ord"],
+            inplace=True,
+            ignore_index=True,
+        )
+        df.drop(columns=["_marker_ord"], inplace=True)
+        # Ensure marker column comes first for readability
+        df = df[["marker", *_DF_TEXT_COLS, "external"]]
+        log.info("diff sort+concat: %.3fs", time.perf_counter() - t1)
+    else:
+        df = pd.DataFrame(columns=["marker", *_DF_TEXT_COLS, "external"])
+
     return DiffResult(
-        rows=rows,
-        removed_count=len(removed_ids),
-        added_count=len(added_ids),
-        unchanged_count=len(left_ids & right_ids),
+        df=df,
+        removed_count=len(removed),
+        added_count=len(added),
+        unchanged_count=unchanged_count,
     )
 
 
@@ -217,30 +266,13 @@ class _DiffApp(App[None]):
     # Search
     # ------------------------------------------------------------------
 
-    def _stmt_matches(self, stmt: Statement, query: str) -> bool:
-        q = query.lower()
-        return any(
-            q in field.lower()
-            for field in (
-                stmt.entity_id,
-                stmt.schema,
-                stmt.prop,
-                stmt.value,
-                stmt.dataset,
-                stmt.first_seen or "",
-                stmt.last_seen or "",
-                stmt.lang or "",
-                stmt.original_value or "",
-                stmt.origin or "",
-            )
-        )
-
     def _build_match_indices(self) -> None:
-        self._match_indices = [
-            i
-            for i, (_, stmt) in enumerate(self._result.rows)
-            if self._stmt_matches(stmt, self._query)
-        ]
+        q = self._query.lower()
+        df = self._result.df
+        mask = pd.Series(False, index=df.index)
+        for col in _DF_TEXT_COLS:
+            mask |= df[col].str.lower().str.contains(q, regex=False, na=False)
+        self._match_indices = df.index[mask].tolist()
         self._match_pos = -1
 
     def _jump_to_match(self, pos: int) -> None:
@@ -277,7 +309,7 @@ class _DiffApp(App[None]):
                 table.add_column(label, width=width)
         else:
             table.add_columns(*_COLUMN_LABELS)
-        if not self._result.rows:
+        if self._result.df.empty:
             table.add_row(
                 "",
                 Text("(no differences)", style="dim"),
@@ -293,29 +325,37 @@ class _DiffApp(App[None]):
                 return Text(s, style=style, no_wrap=True, overflow="ellipsis")
             return Text(s, style=style)
 
-        for marker, stmt in self._result.rows:
+        t0 = time.perf_counter()
+        for row in self._result.df.itertuples(index=False):
+            marker: str = row.marker
             style = "red" if marker == "-" else "green"
+            value: str = row.value
             if self._wrap:
-                value_cell = Text(stmt.value, style=style, overflow="fold")
-                height = max(1, math.ceil(len(stmt.value) / _COL_VALUE))
+                value_cell = Text(value, style=style, overflow="fold")
+                height = max(1, math.ceil(len(value) / _COL_VALUE))
             else:
-                value_cell = cell(stmt.value, style)
+                value_cell = cell(value, style)
                 height = 1
             table.add_row(
                 cell(marker, style),
-                cell(stmt.entity_id, style),
-                cell(stmt.schema, style),
-                cell(stmt.prop, style),
+                cell(row.entity_id, style),
+                cell(row.schema, style),
+                cell(row.prop, style),
                 value_cell,
-                cell(stmt.dataset, style),
-                cell(stmt.first_seen or "", style),
-                cell(stmt.last_seen or "", style),
-                cell(stmt.lang or "", style),
-                cell(stmt.original_value or "", style),
-                cell("T" if stmt.external else "", style),
-                cell(stmt.origin or "", style),
+                cell(row.dataset, style),
+                cell(row.first_seen, style),
+                cell(row.last_seen, style),
+                cell(row.lang, style),
+                cell(row.original_value, style),
+                cell("T" if row.external else "", style),
+                cell(row.origin, style),
                 height=height,
             )
+        log.info(
+            "built table (%d rows) in %.3fs",
+            len(self._result.df),
+            time.perf_counter() - t0,
+        )
 
     def action_toggle_truncate(self) -> None:
         if not self._wrap:
@@ -327,15 +367,46 @@ class _DiffApp(App[None]):
         self._populate_table()
 
 
-def _read_stmts_file(url: str) -> dict[str, Statement]:
+def _stmts_to_df(path: Path, fmt: object) -> pd.DataFrame:
+    """Read statements from a path and return a DataFrame indexed by statement ID."""
+    t0 = time.perf_counter()
+    records = []
+    for stmt in read_path_statements(path, fmt):
+        if stmt.id is not None:
+            records.append(
+                (
+                    stmt.id,
+                    stmt.entity_id,
+                    stmt.schema,
+                    stmt.prop,
+                    stmt.value,
+                    stmt.dataset,
+                    stmt.first_seen or "",
+                    stmt.last_seen or "",
+                    stmt.lang or "",
+                    stmt.original_value or "",
+                    stmt.origin or "",
+                    stmt.external,
+                )
+            )
+    log.info("parsed %d statements in %.3fs", len(records), time.perf_counter() - t0)
+    t1 = time.perf_counter()
+    df = pd.DataFrame(
+        records,
+        columns=["stmt_id", *_DF_TEXT_COLS, "external"],
+    )
+    df.set_index("stmt_id", inplace=True)
+    # Keep only the last statement seen per ID (mirrors original dict behaviour)
+    df = df[~df.index.duplicated(keep="last")]
+    log.info("built DataFrame (%d rows) in %.3fs", len(df), time.perf_counter() - t1)
+    return df
+
+
+def _read_stmts_file(url: str) -> pd.DataFrame:
     """Read statements from a local path or remote URL (.pack or .csv)."""
     fmt = CSV if url.lower().endswith(".csv") else PACK
     if "://" not in url:
-        stmts: dict[str, Statement] = {}
-        for stmt in read_path_statements(Path(url), fmt):
-            if stmt.id is not None:
-                stmts[stmt.id] = stmt
-        return stmts
+        return _stmts_to_df(Path(url), fmt)
     suffix = ".csv" if fmt == CSV else ".pack"
     # block_size=0 enables streaming for servers that don't support range requests
     with fsspec.open(url, "rb", block_size=0) as f:
@@ -359,18 +430,14 @@ def _read_stmts_file(url: str) -> dict[str, Statement]:
                 tmp.write(chunk)
                 progress.advance(task, len(chunk))
     try:
-        stmts = {}
-        for stmt in read_path_statements(tmp_path, fmt):
-            if stmt.id is not None:
-                stmts[stmt.id] = stmt
-        return stmts
+        return _stmts_to_df(tmp_path, fmt)
     finally:
         tmp_path.unlink(missing_ok=True)
 
 
 def _run_diff(
-    left: dict[str, Statement],
-    right: dict[str, Statement],
+    left: pd.DataFrame,
+    right: pd.DataFrame,
     left_label: str,
     right_label: str,
 ) -> None:
@@ -383,7 +450,7 @@ def _run_diff(
 @click.group()
 def cli() -> None:
     """Utilities for working with statements.pack files."""
-    logging.basicConfig(level=logging.WARNING)
+    logging.basicConfig(level=logging.INFO, format="%(name)s %(levelname)s %(message)s")
 
 
 @cli.command("diff")
