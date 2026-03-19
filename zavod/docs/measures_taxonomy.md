@@ -2,6 +2,20 @@
 
 Most sanctions programs in OpenSanctions are tagged with one or more **measures** describing the types of restrictive action they impose. Measures are referenced from [program metadata](metadata.md) via the `measures` field, and are surfaced in the UI and the [programs JSON](https://data.opensanctions.org/meta/programs.json).
 
+## Categories
+
+Measures are grouped into three broad categories based on what they restrict.
+
+**Trade & goods** — restrictions on the movement, transfer, or supply of physical goods and equipment:
+[Arms embargo](#arms-embargo), [Arms restrictions](#arms-restrictions), [Export control](#export-control), [Import restrictions](#import-restrictions), [Transportation restrictions](#transportation-restrictions)
+
+**Financial & economic** — restrictions on financial assets, transactions, capital flows, and funding:
+[Asset freeze](#asset-freeze), [Financial restrictions](#financial-restrictions), [Investment ban](#investment-ban), [Aid suspension](#aid-suspension), [Prohibition to satisfy claims](#prohibition-to-satisfy-claims)
+
+**Services & access** — restrictions on the provision of services or access to programs and jurisdictions:
+[Services ban](#services-ban), [Travel ban](#travel-ban), [Debarment](#debarment)
+
+
 ## Measures
 
 ### Aid suspension
@@ -66,7 +80,7 @@ Prohibition on entry into or transit through the territory of the sanctioning ju
 
 ### Asset freeze vs Financial restrictions
 
-An asset freeze follows the **person** — it freezes what they own and prohibits making funds available to them. Financial restrictions follow the **activity** — they prohibit categories of transactions regardless of individual designation. The "making available" limb (prohibiting provision of funds to a designated person) is part of the asset freeze, not a separate financial restriction.
+An asset freeze follows the **person** — it freezes their existing assets and prohibits making funds available to them. Financial restrictions follow the **activity** — they prohibit categories of transactions regardless of individual designation.
 
 ### Arms restrictions vs Export control
 
