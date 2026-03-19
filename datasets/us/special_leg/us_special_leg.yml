@@ -92,6 +92,10 @@ assertions:
       Company: 290
 
 lookups:
+  type.country:
+    options:
+      - match: ROK
+        value: KR
   sanction.program:
     options:
       - match: "Section 889 of the John S. McCain National Defense Authorization Act for Fiscal Year 2019 (Public Law 115 - 232)"
