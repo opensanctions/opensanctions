@@ -2,9 +2,19 @@
 
 Sanctions programs are the specific government policies that form the legal basis for designating individuals, companies, vessels, or other entities as sanctioned. Each program defines a scope and a set of measures that the issuing authority imposes on the sanctioned target. See [What are sanctions programs?](/reference/faq/#sanctions-programs) for background.
 
-Sanctioned entities are linked to programmes via the `programId` property on their [`Sanction`](/reference/#schema.Sanction) records. The full set of program metadata is published as a JSON file at `https://data.opensanctions.org/meta/programs.json`, updated multiple times per day.
+Programs originate from the nature of the underlying policy mecahnism. They explain the legal and political basis for designations. While dataset metadata (see [metadata.md](metadata.md)) is data-centred and describes what the dataset contains and its limitations, program description is law-centred and provides more context on the mechanism behind designated entities.
 
-### Basics
+In large consolidated lists such as `EU Financial Sanctions Files (FSF)`, `UN Security Council Consolidated Sanctions`, or `US OFAC Specially Designated Nationals (SDN) List`, a single dataset bundles multiple designation regimes. Programs distinguish between them, typically by geographical or thematic scope (counter-terrorism, cyber, etc.). In country-specific or subnational datasets, a single program covers the full legal instrument.
+
+### Linking a programme to an entity
+
+Sanctioned entities are linked to programmes via the `programId` property on their [`Sanction`](/reference/#schema.Sanction) records. This is handled through the `h.make_sanction()` helper (see [helpers.md](helpers.md)).
+
+For datasets with a single programme, `h.make_sanction()` resolves the `programId` automatically from the hardcoded vaue (e.g. `PROGRAM_KEY = "US-BIS-DPL"`). For datasets covering multiple programmes (e.g. OFAC, EU FSF), pass the source's own programme key via `source_program_key`; the helper will resolve it to the canonical OpenSanctions key via `h.lookup_sanction_program_key()`.
+
+The full set of programme metadata is published at `https://data.opensanctions.org/meta/programs.json`, updated multiple times per day.
+
+### Program Metadata Basics
 
 - `key` - Short unique identifier for code and cross-references, surfaced in the UI as e.g. `[EU-RUS]`. Convention: `{ISSUER}-{TARGET}` or `{ISSUER}-{SHORTNAME}`, e.g. `EU-HAM`, `SECO-IRAN`, `UN-SC1970`. Uppercase, alphanumeric with hyphens only.
 - `title` - Official or near-official English title of the program. For non-English regimes (e.g. SECO), use a consistent English translation.
