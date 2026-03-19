@@ -1,6 +1,6 @@
 from followthemoney import Statement
 
-from zavod.tools.statements import DiffResult, compute_diff
+from statement_diff import DiffResult, compute_diff
 
 
 def _stmt(
