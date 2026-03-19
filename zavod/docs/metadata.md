@@ -185,7 +185,7 @@ dataset: eu_fsf
 target_territories:
 - cd
 measures:
-- Arms export restrictions
+- Arms restrictions
 - Asset freeze
 - Travel ban
 ```
