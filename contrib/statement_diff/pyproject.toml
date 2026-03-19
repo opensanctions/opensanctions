@@ -8,15 +8,13 @@ version = "0.1.0"
 description = "TUI diff tool for zavod statements.pack files."
 requires-python = ">= 3.12"
 dependencies = [
-    "zavod",
+    "followthemoney",
     "textual",
+    "click",
 ]
 
 [project.scripts]
-zavod-stmt = "statement_diff:cli"
-
-[tool.uv.sources]
-zavod = { path = "../../zavod", editable = true }
+ftm-stmt = "statement_diff:cli"
 
 [tool.hatch.build.targets.wheel]
 packages = ["statement_diff"]
