@@ -86,7 +86,9 @@ def crawl_entity(context: Context, data: Dict[str, Any]):
     # TODO: #2656
     # Aliases splitting is a good candidate for LLM-backed name splitting helper
     # https://github.com/opensanctions/opensanctions/issues/2656
-    for alias in h.multi_split(aliases, ALIAS_SPLITS):
+    for alias in h.multi_split(
+        aliases, splitters=sorted(ALIAS_SPLITS, key=len, reverse=True)
+    ):
         alias = alias.strip()
         if not alias:
             continue
