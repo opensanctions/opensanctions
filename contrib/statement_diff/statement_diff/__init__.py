@@ -435,18 +435,6 @@ def _read_stmts_file(url: str) -> pd.DataFrame:
         tmp_path.unlink(missing_ok=True)
 
 
-def _run_diff(
-    left: pd.DataFrame,
-    right: pd.DataFrame,
-    left_label: str,
-    right_label: str,
-) -> None:
-    """Compute and display the diff between two statement sets in a TUI."""
-    result = compute_diff(left, right)
-    app = _DiffApp(left_label=left_label, right_label=right_label, result=result)
-    app.run()
-
-
 @click.group()
 def cli() -> None:
     """Utilities for working with statements.pack files."""
@@ -456,19 +444,38 @@ def cli() -> None:
 @cli.command("diff")
 @click.argument("left_path")
 @click.argument("right_path")
-def diff_cmd(left_path: str, right_path: str) -> None:
+@click.option(
+    "--output",
+    "-o",
+    type=click.Choice(["tui", "csv"]),
+    default="tui",
+    help="Output format: interactive TUI (default) or CSV to stdout.",
+)
+def diff_cmd(left_path: str, right_path: str, output: str) -> None:
     """Diff two statements.pack (or .csv) files. Accepts local paths or https:// URLs.
 
     \b
     Example:
         ftm-stmt diff ../data/tw_shtc-20231201-archive.pack ../data/tw_shtc-20240101.pack
         ftm-stmt diff https://data.opensanctions.org/.../statements.pack ./local.pack
+        ftm-stmt diff -o csv left.pack right.pack | csvlens
     """
     click.echo(f"Loading {left_path}...", err=True)
     left_stmts = _read_stmts_file(left_path)
     click.echo(f"Loading {right_path}...", err=True)
     right_stmts = _read_stmts_file(right_path)
-    _run_diff(left_stmts, right_stmts, str(left_path), str(right_path))
+    result = compute_diff(left_stmts, right_stmts)
+    if output == "csv":
+        import sys
+
+        result.df.to_csv(sys.stdout, index=False)
+    else:
+        app = _DiffApp(
+            left_label=str(left_path),
+            right_label=str(right_path),
+            result=result,
+        )
+        app.run()
 
 
 if __name__ == "__main__":
