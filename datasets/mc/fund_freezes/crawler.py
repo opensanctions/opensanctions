@@ -5,6 +5,15 @@ from zavod import Context
 from zavod import helpers as h
 
 ALIAS_SPLITS = [
+    "Egalement connue sous le nom:",
+    "Egalement connue sous les noms:",
+    "Autrement connu sous le nom de:",
+    "Autrement connue sous le nom de:",
+    "Anciennement connue sous les noms:",
+    "Nom de scène:",
+    "(autre dénomination :",
+    "(autres dénominations :",
+    "autres dénominations:",
     "; a)",
     "; b)",
     "; c)",
@@ -25,19 +34,10 @@ ALIAS_SPLITS = [
     "  b) ",
     "  c) ",
     "  d) ",
+    " ou ",
     ";;",
     ",;",
     ";",
-    " ou ",
-    "Egalement connue sous le nom:",
-    "Egalement connue sous les noms:",
-    "Autrement connu sous le nom de:",
-    "Autrement connue sous le nom de:",
-    "Anciennement connue sous les noms:",
-    "Nom de scène:",
-    "(autre dénomination :",
-    "(autres dénominations :",
-    "autres dénominations:",
 ]
 
 
