@@ -2,7 +2,7 @@ from rigour.names.split_phrases import contains_split_phrase
 
 from zavod import Context, helpers as h
 
-CUSTOM_STOPPHRASES = (",", ";", "\n")
+CUSTOM_STOPPHRASES = (",", ";", "\n", " and ")
 SUFFIXES = [
     ", III.",
     ", Inc.",
