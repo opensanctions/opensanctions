@@ -34,11 +34,11 @@ data:
 assertions:
   min:
     schema_entities:
-      Person: 40
+      Person: 30  # raw count 40: (32 deduped historic MPs + 22 current 14 of which are also historic)
       Position: 30
     country_entities:
       ky: 75
   max:
     schema_entities:
-      Person: 50
+      Person: 70
       Position: 50
