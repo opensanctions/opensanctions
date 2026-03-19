@@ -9,6 +9,7 @@ description = "TUI diff tool for zavod statements.pack files."
 requires-python = ">= 3.12"
 dependencies = [
     "followthemoney",
+    "fsspec[http]",
     "textual",
     "click",
 ]

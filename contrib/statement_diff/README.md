@@ -1,23 +1,21 @@
 # ftm-stmt
 
-TUI diff tool for zavod `statements.pack` files. Lets you:
+TUI diff tool for zavod `statements.pack` files. Lets you diff two arbitrary `.pack` files against each other
 
-- Diff local statements against the latest production version
-- Diff two arbitrary `.pack` files against each other
-
-## Running with uvx
+## Running
 
 From the `opensanctions/` root:
 
 ```bash
-uvx --from ./contrib/statement_diff ftm-stmt --help
+uv run --project contrib/statement_diff --active ftm-stmt diff LEFT RIGHT
 ```
 
 ### Example
 
 ```bash
-uvx --from ./contrib/statement_diff \
-    ftm-stmt diff ../data/tw_shtc-20231201-archive.pack ../data/tw_shtc-20240101.pack
+uv run --project contrib/statement_diff --active \
+    ftm-stmt diff https://data.opensanctions.org/datasets/latest/us_ofac_sdn/statements.pack \
+                  data/datasets/us_ofac_sdn/statements.pack
 ```
 
 ## TUI keybindings

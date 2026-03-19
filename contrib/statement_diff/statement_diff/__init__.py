@@ -2,14 +2,27 @@
 
 import logging
 import math
+import tempfile
 from dataclasses import dataclass
 from pathlib import Path
+from typing import IO, cast
+
 import click
+import fsspec
 from followthemoney import Statement
 from followthemoney.statement.serialize import (
     CSV,
     PACK,
     read_path_statements,
+)
+from rich.console import Console
+from rich.progress import (
+    BarColumn,
+    DownloadColumn,
+    Progress,
+    SpinnerColumn,
+    TextColumn,
+    TimeRemainingColumn,
 )
 from rich.text import Text
 from textual.app import App, ComposeResult
@@ -314,14 +327,45 @@ class _DiffApp(App[None]):
         self._populate_table()
 
 
-def _read_stmts_file(path: Path) -> dict[str, Statement]:
-    """Read a statements file, detecting format from the extension (.csv or pack)."""
-    fmt = CSV if path.suffix.lower() == ".csv" else PACK
-    stmts: dict[str, Statement] = {}
-    for stmt in read_path_statements(path, fmt):
-        if stmt.id is not None:
-            stmts[stmt.id] = stmt
-    return stmts
+def _read_stmts_file(url: str) -> dict[str, Statement]:
+    """Read statements from a local path or remote URL (.pack or .csv)."""
+    fmt = CSV if url.lower().endswith(".csv") else PACK
+    if "://" not in url:
+        stmts: dict[str, Statement] = {}
+        for stmt in read_path_statements(Path(url), fmt):
+            if stmt.id is not None:
+                stmts[stmt.id] = stmt
+        return stmts
+    suffix = ".csv" if fmt == CSV else ".pack"
+    # block_size=0 enables streaming for servers that don't support range requests
+    with fsspec.open(url, "rb", block_size=0) as f:
+        f = cast(IO[bytes], f)
+        size = getattr(f, "size", None)
+        with (
+            tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as tmp,
+            Progress(
+                SpinnerColumn(),
+                TextColumn("[progress.description]{task.description}"),
+                BarColumn(),
+                DownloadColumn(),
+                TimeRemainingColumn(),
+                console=Console(stderr=True),
+                transient=True,
+            ) as progress,
+        ):
+            tmp_path = Path(tmp.name)
+            task = progress.add_task(url, total=size)
+            while chunk := f.read(65536):
+                tmp.write(chunk)
+                progress.advance(task, len(chunk))
+    try:
+        stmts = {}
+        for stmt in read_path_statements(tmp_path, fmt):
+            if stmt.id is not None:
+                stmts[stmt.id] = stmt
+        return stmts
+    finally:
+        tmp_path.unlink(missing_ok=True)
 
 
 def _run_diff(
@@ -343,18 +387,15 @@ def cli() -> None:
 
 
 @cli.command("diff")
-@click.argument(
-    "left_path", type=click.Path(exists=True, dir_okay=False, path_type=Path)
-)
-@click.argument(
-    "right_path", type=click.Path(exists=True, dir_okay=False, path_type=Path)
-)
-def diff_cmd(left_path: Path, right_path: Path) -> None:
-    """Diff two statements.pack (or .csv) files.
+@click.argument("left_path")
+@click.argument("right_path")
+def diff_cmd(left_path: str, right_path: str) -> None:
+    """Diff two statements.pack (or .csv) files. Accepts local paths or https:// URLs.
 
     \b
     Example:
         ftm-stmt diff ../data/tw_shtc-20231201-archive.pack ../data/tw_shtc-20240101.pack
+        ftm-stmt diff https://data.opensanctions.org/.../statements.pack ./local.pack
     """
     click.echo(f"Loading {left_path}...", err=True)
     left_stmts = _read_stmts_file(left_path)
