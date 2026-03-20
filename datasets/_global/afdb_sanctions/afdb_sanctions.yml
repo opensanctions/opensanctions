@@ -500,6 +500,10 @@ lookups:
         names:
           - name: Xinjinzhu Municipal Landscaping Engineering Co., Ltd.
             previous_name: "Henan Xinjinzhu Landscaping Engineering Co., Ltd."
+      - match: Aktif Elektroteknik San ve Tic A. S. or Aktif or AKTİF ELEKTROTEKNIK SANAYII VE TICARET-AKTIF ELEKTROTEKNIK SANAYII VE TICARET A.Ş or Aktif Elektroteknik A.Ş. Or Aktif Elektroteknik Sanayi ve Ticaret Anonim Şirketi
+        names:
+          - name: Aktif Elektroteknik San ve Tic A. S.
+            alias: ["Aktif", "AKTİF ELEKTROTEKNIK SANAYII VE TICARET", "AKTIF ELEKTROTEKNIK SANAYII VE TICARET A.Ş", "Aktif Elektroteknik A.Ş.", "Aktif Elektroteknik Sanayi ve Ticaret Anonim Şirketi"]
   types:
     lowercase: true
     map:
