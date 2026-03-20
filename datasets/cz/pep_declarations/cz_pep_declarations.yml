@@ -9,7 +9,7 @@ entry_point: crawler.py
 summary: >-
   Czech public officials registered in the Central Register of Declarations
   (Centrální registr oznámení), covering parliament, judiciary, and local
-  government.
+  governments.
 description: |
   The Central Register of Declarations (CRO) publishes asset and interest
   declarations filed by public officials under the Czech Conflict of Interest
@@ -42,3 +42,11 @@ assertions:
       Position: 5
     country_entities:
       cz: 1
+
+lookups:
+  type.name:
+    options:
+      - match:
+          - '-'
+          - ';'
+        value: null
