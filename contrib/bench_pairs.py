@@ -33,7 +33,7 @@ from pathlib import Path
 from nomenklatura.resolver import Linker
 from nomenklatura.resolver.identifier import Identifier
 
-from zavod.cli import _load_datasets
+from zavod.cli import load_datasets
 from zavod.entity import Entity
 from zavod.integration.dedupe import get_resolver
 from zavod.integration.duckdb_index import DuckDBIndex
@@ -47,7 +47,7 @@ from zavod.store import get_store
 def main(dataset_paths: List[Path], clear: bool) -> None:
     configure_logging(level=logging.INFO)
 
-    dataset = _load_datasets(dataset_paths)
+    dataset = load_datasets(dataset_paths)
     store = get_store(dataset, Linker[Entity]({}))
     store.sync(clear=clear)
     view = store.default_view()

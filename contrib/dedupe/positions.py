@@ -11,7 +11,7 @@ from rigour.text.distance import levenshtein_similarity
 from zavod.meta import Dataset
 from zavod.integration import get_resolver
 from zavod.store import get_view, clear_store
-from zavod.cli import _load_datasets
+from zavod.cli import load_datasets
 
 STOPWORDS = re.compile(r"[\W](of|and|&|for|in|the|a|an|at|on|by|with|from)[\W$]", re.U)
 
@@ -62,5 +62,5 @@ def crossref_positions(dataset: Dataset) -> None:
 
 
 if __name__ == "__main__":
-    dataset = _load_datasets([Path(p) for p in sys.argv[1:]])
+    dataset = load_datasets([Path(p) for p in sys.argv[1:]])
     crossref_positions(dataset)
