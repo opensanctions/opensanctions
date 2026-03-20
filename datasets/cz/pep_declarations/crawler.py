@@ -17,6 +17,8 @@ IGNORE = [
     "workingFrom",
     "workingTo",
     "judge",
+    "visibility",
+    "government",
 ]
 
 

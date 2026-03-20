@@ -3,13 +3,13 @@ prefix: cz-pep
 url: https://cro.justice.cz/verejnost/funkcionari
 coverage:
   frequency: monthly
-  start: 2026-02-12
+  start: 2026-03-17
 load_statements: true
 entry_point: crawler.py
 summary: >-
   Czech public officials registered in the Central Register of Declarations
   (Centrální registr oznámení), covering parliament, judiciary, and local
-  government.
+  governments.
 description: |
   The Central Register of Declarations (CRO) publishes asset and interest
   declarations filed by public officials under the Czech Conflict of Interest
@@ -33,6 +33,10 @@ data:
 dates:
   formats: ["%d.%m.%Y"]
   lang: ces
+http:
+  total_retries: 5
+  backoff_factor: 2
+  retry_statuses: [443, 503]
 
 # TODO: update after full classification of positions
 assertions:
@@ -42,3 +46,11 @@ assertions:
       Position: 5
     country_entities:
       cz: 1
+
+lookups:
+  type.name:
+    options:
+      - match:
+          - '-'
+          - ';'
+        value: null
