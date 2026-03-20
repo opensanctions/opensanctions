@@ -123,6 +123,9 @@ def make_occupancy(
     current_time: datetime = settings.RUN_TIME,
     start_date: Optional[str] = None,
     end_date: Optional[str] = None,
+    period_start: Optional[str] = None,
+    period_end: Optional[str] = None,
+    election_date: Optional[str] = None,
     birth_date: Optional[str] = None,
     death_date: Optional[str] = None,
     categorisation: Optional[PositionCategorisation] = None,
@@ -188,7 +191,12 @@ def make_occupancy(
 
     h.apply_date(occupancy, "startDate", start_date)
     h.apply_date(occupancy, "endDate", end_date)
+    h.apply_date(occupancy, "periodStart", period_start)
+    h.apply_date(occupancy, "periodEnd", period_end)
+    h.apply_date(occupancy, "electionDate", election_date)
 
+    # FIXME: delete birth_date and death_date args in favor of setting
+    # these directly on the Person before calling make_occupancy
     if birth_date not in person.get("birthDate"):
         h.apply_date(person, "birthDate", birth_date)
     if death_date not in person.get("deathDate"):
@@ -204,14 +212,25 @@ def make_occupancy(
         return None
 
     if status is None:
+        # TODO: should this live in `occupancy_status` instead? We want to make this
+        # simplification as late as possible to avoid collapsing the semantics in any
+        # of the data we export.
+        effective_start_date = max(occupancy.get("startDate"), default=None)
+        if effective_start_date is None:
+            effective_start_date = max(occupancy.get("periodStart"), default=None)
+        if effective_start_date is None:
+            effective_start_date = max(occupancy.get("electionDate"), default=None)
+        effective_end_date = max(occupancy.get("endDate"), default=None)
+        if effective_end_date is None:
+            effective_end_date = max(occupancy.get("periodEnd"), default=None)
         status = occupancy_status(
             context,
             person,
             position,
             no_end_implies_current,
             current_time,
-            max(occupancy.get("startDate"), default=None),
-            max(occupancy.get("endDate"), default=None),
+            effective_start_date,
+            effective_end_date,
             max(person.get("birthDate"), default=None),
             max(person.get("deathDate"), default=None),
             categorisation,
