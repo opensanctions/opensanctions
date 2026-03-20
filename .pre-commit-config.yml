@@ -178,7 +178,6 @@ repos:
           datasets/us/or/med_exclusions|
           datasets/us/corpwatch|
           datasets/us/cbp_forced_labor|
-          datasets/us/fcc_covered_list|
           datasets/us/dhs_uflpa|
           datasets/us/fda_restricted|
           datasets/us/la/med_exclusions|

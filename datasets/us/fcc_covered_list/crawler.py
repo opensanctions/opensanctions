@@ -1,21 +1,14 @@
 import csv
 from rigour.mime.types import CSV
+from typing import Dict
 
 from zavod import Context, helpers as h
+from zavod.extract import zyte_api
 
 PROGRAM_KEY = "US-FCC"
-HEADERS = {
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-    "Accept-Encoding": "gzip, deflate, br",
-    "Accept-Language": "en-GB,en;q=0.9",
-    "Priority": "u=0, i",
-    "Sec-Fetch-Dest": "document",
-    "Sec-Fetch-Mode": "navigate",
-    "Sec-Fetch-Site": "same-origin",
-}
 
 
-def crawl_item(input_dict: dict, context: Context):
+def crawl_item(context: Context, input_dict: Dict[str, str]) -> None:
     name = input_dict.pop("Entity Name")
     description = input_dict.pop("Covered Equipment or Services")
 
@@ -65,19 +58,16 @@ def crawl_item(input_dict: dict, context: Context):
     context.audit_data(input_dict)
 
 
-def crawl(context: Context):
-    doc = context.fetch_html(context.dataset.url, headers=HEADERS)
-    table = h.xpath_elements(
-        doc, './/div[contains(@class, "page-body")]//table', expect_exactly=1
-    )[0]
-    h.assert_dom_hash(
-        table,
-        "24f595a55a19c321a6f420127a7aaa2fb4336fd3",
-    )
+def crawl(context: Context) -> None:
+    assert context.dataset.url is not None
+    table_xpath = './/div[@id="covered-list"]//table'
+    doc = zyte_api.fetch_html(context, context.dataset.url, table_xpath)
+    table = h.xpath_element(doc, table_xpath)
+    h.assert_dom_hash(table, "f818ab462954be11c9ec2025878199a1af489e2d")
 
     path = context.fetch_resource("source.csv", context.data_url)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
 
     with open(path) as fh:
         for item in csv.DictReader(fh):
-            crawl_item(item, context)
+            crawl_item(context, item)
