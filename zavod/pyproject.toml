@@ -24,6 +24,7 @@ dependencies = [
     "datapatch >= 1.2.4, < 1.3",
     "certifi",
     "colorama",
+    "textual",
     "google-cloud-storage",
     "jinja2",
     "types-jinja2",

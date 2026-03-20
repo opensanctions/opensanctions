@@ -1,0 +1,22 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "statement-diff"
+version = "0.1.0"
+description = "TUI diff tool for zavod statements.pack files."
+requires-python = ">= 3.12"
+dependencies = [
+    "followthemoney",
+    "fsspec[http]",
+    "pandas",
+    "textual",
+    "click",
+]
+
+[project.scripts]
+ftm-stmt = "statement_diff:cli"
+
+[tool.hatch.build.targets.wheel]
+packages = ["statement_diff"]
