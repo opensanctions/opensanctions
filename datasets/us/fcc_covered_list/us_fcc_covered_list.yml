@@ -7,6 +7,7 @@ coverage:
 deploy:
   schedule: "@monthly"
 load_statements: true
+ci_test: false  # No Zyte in CI
 summary: >
   List of companies that produce equipment and services covered
   by section 2 of the Secure Networks Act
