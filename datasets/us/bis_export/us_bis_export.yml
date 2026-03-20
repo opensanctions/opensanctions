@@ -877,3 +877,7 @@ lookups:
         entities:
           - ['Petrom GmbH International Trade']
           - ['Majid Rahmanifar']
+      - match: 'Zhongxing Telecommunications Equipment Corporation And ZTE Kangxun Telecommunications Ltd.'
+        entities:
+          - ['Zhongxing Telecommunications Equipment Corporation']
+          - ['ZTE Kangxun Telecommunications Ltd.']

@@ -4,31 +4,31 @@ from zavod import Context, helpers as h
 
 CUSTOM_STOPPHRASES = (",", ";", "\n", " and ")
 SUFFIXES = [
-    ", III.",
-    ", Inc.",
-    ", L.L.C.",
-    ", LLC.",
-    ", LLC",
-    " LLC",
-    " LLC.",
-    ", Jr.",
-    ", SR.",
-    ", Sr.",
-    ", INC.",
-    ", Inc",
-    ", LTD.",
-    " LTD.",
-    ", Ltd.",
-    " Ltd.",
-    ", BV",
+    ", iii.",
+    ", inc.",
+    ", l.l.c.",
+    ", llc.",
+    ", llc",
+    " llc",
+    " llc.",
+    ", jr.",
+    ", sr.",
+    ", sr.",
+    ", inc.",
+    ", inc",
+    ", ltd.",
+    " ltd.",
+    ", ltd.",
+    " ltd.",
+    ", bv",
     ", et al.",
-    ", S.A.",
-    " Co., SAL",
-    " Corp.",
-    ", SAL",
-    ", S.L.",
-    ", LP",
-    " F.Z.E.",
+    ", s.a.",
+    " co., sal",
+    " corp.",
+    ", sal",
+    ", s.l.",
+    ", lp",
+    " f.z.e.",
 ]
 
 
@@ -77,7 +77,7 @@ def crawl(context: Context) -> None:
         order_date = str_row.pop("order_date")
         assert case_id_string and order_date
 
-        cleaned_name = case_name
+        cleaned_name = case_name.lower()
         # Remove common suffixes (Inc., LLC, etc.) to check for delimiters
         for suffix in SUFFIXES:
             cleaned_name = cleaned_name.removesuffix(suffix)
