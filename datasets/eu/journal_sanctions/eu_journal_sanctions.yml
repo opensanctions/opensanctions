@@ -183,3 +183,5 @@ lookups:
         value: EU-HAM
       - match: 101/2011
         value: EU-TUN
+      - match: 2019/796
+        value: EU-CYB
