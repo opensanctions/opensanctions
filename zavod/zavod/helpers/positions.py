@@ -1,4 +1,5 @@
 from datetime import datetime
+from functools import cache
 from typing import Iterable, List, Optional
 
 from banal import ensure_list
@@ -6,6 +7,7 @@ from followthemoney import registry
 
 from zavod import helpers as h
 from zavod import settings
+from zavod.logs import get_logger
 from zavod.context import Context
 from zavod.entity import Entity
 from zavod.stateful.positions import (
@@ -15,6 +17,8 @@ from zavod.stateful.positions import (
     get_after_office,
     occupancy_status,
 )
+
+log = get_logger(__name__)
 
 
 def make_position(
@@ -90,6 +94,27 @@ def make_position(
     return position
 
 
+@cache
+def _tmp_warn_person_dates(context: Context) -> None:
+    log.warning(
+        "Passing birth_date and death_date into make_occupancy is deprecated and "
+        "will be removed in a future release. Please set birth/death dates directly on "
+        "Person entities before calling make_occupancy."
+    )
+
+
+@cache
+def _tmp_warn_propagate_country(context: Context) -> None:
+    # Chaos datasets excluded. There's probably more?
+    if context.dataset.name in ("wd_peps", "wd_categories"):
+        return
+    log.warning(
+        "Passing person entities with no country affiliation into make_occupancy is "
+        "deprecated and will be removed in a future release. Please add citizenship "
+        "to Person entities before calling make_occupancy."
+    )
+
+
 def make_occupancy(
     context: Context,
     person: Entity,
@@ -142,6 +167,9 @@ def make_occupancy(
     """
     assert person.schema.is_a("Person")
     assert position.schema.is_a("Position")
+
+    if birth_date is not None or death_date is not None:
+        _tmp_warn_person_dates(context)
 
     occupancy = context.make("Occupancy")
     # Include started and ended strings so that two occupancies, one missing start
@@ -197,6 +225,7 @@ def make_occupancy(
     person.add("topics", "role.pep")
     if propagate_country:
         for country in position.get("country"):
+            _tmp_warn_propagate_country(context)
             # Only propagate to Person.country it isn't already set
             # in another field (such as citizenship).
             if country not in person.get_type_values(registry.country, matchable=True):
