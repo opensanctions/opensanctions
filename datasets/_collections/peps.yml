@@ -46,6 +46,7 @@ children:
   - co_join_dots
   - cu_inventario_legislatura
   - cy_parliament
+  - cz_pep_declarations
   - de_abgeordnetenwatch
   - de_bundesrat
   - de_bundestag
