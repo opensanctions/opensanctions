@@ -4,13 +4,6 @@ from zavod import Context, helpers as h
 from zavod.stateful.positions import categorise
 
 
-IGNORE = [
-    "image",
-    "wikiTitle",
-    "fullName",
-    "pId",
-    "showAs",
-]
 HOUSE_TITLES = {"seanad": "Senator", "dail": "Teachtaí Dála"}
 
 HEAD_GOV_ROLES = ["Taoiseach", "President of the Executive Council"]
@@ -96,7 +89,6 @@ def crawl_member(context: Context, member: Dict[str, Any]) -> None:
                     admin_role in position_other_name.lower()
                     for admin_role in ["director", "secretary"]
                 ):
-                    print(position_other_name)
                     position.add("topics", "gov.admin")
                 elif position_other_name == "Attorney General":
                     # legal adviser to the government
