@@ -25,11 +25,13 @@ publisher:
   name_en: High Authority for Transparency in Public Life
   acronym: HATVP
   description: |
-    La Haute Autorité pour la Transparence de la vie Publique (HATVP) is an independent administrative authority, responsible for ascertaining and
-    preventing potential conflicts of interest among French public servants and officials.
-    HATVP promotes the integrity and exemplarity of public officials,
-    monitors the ethics of civil servants, oversees lobbying and disseminates a culture of integrity. Its independence is guaranteed
-    by the functioning of its executive board and its financial and administrative autonomy.
+    La Haute Autorité pour la Transparence de la vie Publique (HATVP) is an independent administrative
+    authority, responsible for ascertaining and preventing potential conflicts of interest among French 
+    public servants and officials.
+
+    HATVP promotes the integrity and exemplarity of public officials, monitors the ethics of civil servants, 
+    oversees lobbying and disseminates a culture of integrity. Its independence is guaranteed by the functioning 
+    of its executive board and its financial and administrative autonomy.
   country: fr
   url: https://www.hatvp.fr/en/high-authority/institution/
   official: true
@@ -39,62 +41,11 @@ data:
 tags:
   - list.pep
 
-# lookups:
-#   positions:
-#     options:
-#       - match: europe
-#         topics:
-#           - gov.igo
-#           - gov.legislative
-#       - match: president
-#         topics:
-#           - gov.national
-#           - gov.head
-#       - match: senateur
-#         topics:
-#           - gov.national
-#           - gov.legislative
-#       - match: depute
-#         topics:
-#           - gov.national
-#           - gov.legislative
-#       - match: gouvernement
-#         topics:
-#           - gov.national
-#           - gov.executive
-#       - match: region
-#         topics:
-#           - gov.state
-#           - gov.legislative
-#       - match: departement
-#         topics:
-#           - gov.state
-#           - gov.legislative
-#       - match: commune
-#         topics:
-#           - gov.muni
-#           - gov.executive
-#       # domestic intercommunal bodies:
-#       - match: epci
-#         topics:
-#           - gov.muni
-#           - gov.executive
-#       # overseas and special-status territories:
-#       - match: ctsp
-#         topics:
-#           - gov.state
-#           - gov.legislative
-#       # HATVP leadership:
-#       - match: autre
-#         topics:
-#           - null
-
-
 assertions:
   min:
     schema_entities:
-      Person: 5500  # raw count 6890
-      Position: 2000  # raw count 2574
+      Person: 5500
+      Position: 2000
   max:
     schema_entities:
       LegalEntity: 14000
