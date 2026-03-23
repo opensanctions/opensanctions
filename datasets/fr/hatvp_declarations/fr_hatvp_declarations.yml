@@ -50,3 +50,39 @@ assertions:
     schema_entities:
       LegalEntity: 14000
       Position: 5200
+
+lookups:
+  columns:
+    options:
+      - match: civilite
+        value: title
+      - match: prenom
+        value: first_name
+      - match: nom
+        value: last_name
+      - match: classement
+        value: person_slug
+      - match: type_mandat
+        value: position_type
+      - match: qualite
+        value: role
+      - match: type_document
+        value: document_type
+      - match: departement
+        value: department
+      - match: date_publication
+        value: publication_date
+      - match: date_depot
+        value: filing_date
+      - match: nom_fichier
+        value: file_name
+      - match: url_dossier
+        value: dossier_url
+      - match: open_data
+        value: open_data
+      - match: statut_publication
+        value: publication_status
+      - match: id_origine
+        value: source_id
+      - match: url_photo
+        value: photo_url

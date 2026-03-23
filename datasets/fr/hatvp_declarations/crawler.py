@@ -1,37 +1,36 @@
 import csv
+from rigour.mime.types import CSV
 from urllib.parse import urljoin
+from typing import Dict, Optional
 
 from zavod import Context, helpers as h
 from zavod.stateful.positions import categorise, OccupancyStatus
-from rigour.mime.types import CSV
 
 
-def crawl_row(context, row: dict) -> None:
-    first_name = row.pop("prenom")
-    last_name = row.pop("nom")
-    role = row.pop("qualite")
-
+def crawl_row(context: Context, row: Dict[str, Optional[str]]) -> None:
     person = context.make("Person")
-    person.id = context.make_id(first_name, last_name, role)
-    h.apply_name(person, first_name=first_name, last_name=last_name)
-    person.add("title", row.pop("civilite"))
-    person.add("idNumber", row.pop("id_origine"))
+    person.id = context.make_id(row.pop("person_slug"))
+    h.apply_name(
+        person, first_name=row.pop("first_name"), last_name=row.pop("last_name")
+    )
+    person.add("title", row.pop("title"))
 
-    url = urljoin("https://www.hatvp.fr", row.pop("url_dossier"))
+    url = urljoin("https://www.hatvp.fr", row.pop("dossier_url"))
     person.add("sourceUrl", url)  # url to person's dossier
-
+    role = row.pop("role")
+    assert role is not None
     person.add("position", role)
     person.add("citizenship", "fr")
 
-    mandate_type = row.pop("type_mandat")
+    position_type = row.pop("position_type")
 
     # Skip parliamentarians and mayors, as they are covered by other
     # datasets and we don't want to duplicate them here.
-    if mandate_type in (
+    if position_type in (
         "senateur",
         "depute",
         "europe",
-    ) or mandate_type.startswith("Maire"):
+    ) or role.startswith("Maire"):
         return
 
     position = h.make_position(
@@ -54,10 +53,10 @@ def crawl_row(context, row: dict) -> None:
     )
     if occupancy is None:
         return
-    h.apply_date(occupancy, "declarationDate", row.pop("date_depot"))
+    h.apply_date(occupancy, "declarationDate", row.pop("filing_date"))
 
     url_declaration_pdf = urljoin(
-        "http://www.hatvp.fr/livraison/dossiers/", row.pop("nom_fichier")
+        "http://www.hatvp.fr/livraison/dossiers/", row.pop("file_name")
     )
     occupancy.add("sourceUrl", url_declaration_pdf)
 
@@ -69,13 +68,14 @@ def crawl_row(context, row: dict) -> None:
     context.audit_data(
         row,
         ignore=[
-            "classement",
             "open_data",
-            "date_publication",
-            "url_photo",
-            "statut_publication",
-            "type_document",
-            "departement",
+            "publication_date",
+            "photo_url",
+            "publication_status",
+            "document_type",
+            "department",
+            # only available for deputies and senators, which we skip
+            "source_id",
         ],
     )
 
@@ -90,5 +90,10 @@ def crawl(context: Context) -> None:
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
     with open(path, "r") as f:
         dict_reader = csv.DictReader(f, delimiter=";")
+        headers = {}
+        for header in dict_reader.fieldnames or []:
+            res = context.lookup("columns", header, warn_unmatched=True)
+            headers[header] = res.value if res is not None else header
         for row in dict_reader:
-            crawl_row(context, row)
+            translated = {headers[k]: v for k, v in row.items()}
+            crawl_row(context, translated)
