@@ -46,11 +46,10 @@ assertions:
   min:
     schema_entities:
       Person: 500  # raw count 638
-      # Position:
-      # Occupancy:
+      Position: 120  # raw count 154
     country_entities:
       ie: 1
   max:
     schema_entities:
       Person: 1200
-        # Occupancy:
+      Position: 300
