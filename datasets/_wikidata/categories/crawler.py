@@ -31,6 +31,7 @@ QUERY = {
 }
 # That one time a PEP customer asked to be included....
 ALWAYS_PERSONS = ["Q21258544"]
+WIKIDATA_CACHE_DAYS = 24  # TODO: revert to 14 days when wikipedia URLs are fixed
 
 
 @dataclass
@@ -43,7 +44,9 @@ class FoundRecord:
 class CrawlState(object):
     def __init__(self, context: Context):
         self.context = context
-        self.client = WikidataClient(context.cache, session=context.http)
+        self.client = WikidataClient(
+            context.cache, session=context.http, cache_days=WIKIDATA_CACHE_DAYS
+        )
         self.log = context.log
         self.ignore_positions: Set[str] = set()
 

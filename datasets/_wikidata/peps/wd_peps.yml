@@ -77,6 +77,7 @@ assertions:
       Person: 500000
 
 config:
+  cache_days: 24 # TODO: revert to 14 days when wikipedia URLs are fixed
   countries_local:
     - us
     - gb
