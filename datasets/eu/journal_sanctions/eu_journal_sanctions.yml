@@ -103,6 +103,10 @@ lookups:
           - "Russian-occupied regions of Zaporizhzhia and Kherson"
           - Moscow, Russian Federation
         value: ru
+      - match: "Ukrainian, Russian"
+        values:
+          - ua
+          - ru
   type.email:
     options:
       - match: "general@angstrem.r"
