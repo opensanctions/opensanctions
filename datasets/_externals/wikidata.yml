@@ -73,7 +73,7 @@ inputs:
 config:
   type: nomenklatura.enrich.wikidata:WikidataEnricher
   label_cache_days: 90
-  cache_days: 40 # TODO: revert to 14 days when wikipedia URLs are fixed
+  cache_days: 20 # TODO: revert to 14 days when wikipedia URLs are fixed
   schemata:
     - Person
 
