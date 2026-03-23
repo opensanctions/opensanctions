@@ -13,20 +13,27 @@ IGNORE = [
 ]
 HOUSE_TITLES = {"seanad": "Senator", "dail": "Teachtaí Dála"}
 
+HEAD_GOV_ROLES = ["Taoiseach", "President of the Executive Council"]
+LEGISLATIVE_ROLES = [
+    "Ceann Comhairle",
+    "Cathaoirleach",
+    "Leas-Cathaoirleach",
+    "Leas-Cheann Comhairle",
+    "President of Dáil Éireann",
+]
+
 
 def crawl_member(context: Context, member: Dict[str, Any]) -> None:
-    first_name = member.pop("firstName")
-    last_name = member.pop("lastName")
-    id = member.pop("memberCode")
-
     person = context.make("Person")
-    person.id = context.make_id(first_name, last_name, id)
-    h.apply_name(person, first_name=first_name, last_name=last_name)
-    person.add("country", "ie")
+    person.id = context.make_id(member.pop("memberCode"))
+    h.apply_name(
+        person, first_name=member.pop("firstName"), last_name=member.pop("lastName")
+    )
+    h.apply_name(person, member.pop("fullName"))
+    person.add("citizenship", "ie")
 
     person.add("deathDate", member.pop("dateOfDeath", None))
     person.add("gender", member.pop("gender", None))
-    person.add("sourceUrl", member.pop("uri", None))
 
     for membership_meta in member.get("memberships", []):
         membership = membership_meta["membership"]
@@ -41,14 +48,11 @@ def crawl_member(context: Context, member: Dict[str, Any]) -> None:
             country=["ie"],
         )
         title = HOUSE_TITLES.get(membership["house"]["houseCode"].lower())
-        if title:
-            position.add("name", title)
+        position.add("name", title)
         if title == "Teachtaí Dála":
-            # some TDs can represent several constituencies per term
-            for represents in membership["represents"]:
-                position.add("subnationalArea", represents["represent"]["showAs"])
-        # ^ this also features things like "Administrative Panel" or "Labour Panel" for Senators
-        # not sure what to do with these, so skipping for now
+            position.add("wikidataId", "Q654291")
+        else:
+            position.add("wikidataId", "Q18043391")
 
         categorisation = categorise(context, position, is_pep=True)
         if not categorisation.is_pep:
@@ -62,12 +66,18 @@ def crawl_member(context: Context, member: Dict[str, Any]) -> None:
             end_date=membership["dateRange"]["end"],
             categorisation=categorisation,
         )
+
         if occupancy is not None:
+            # some TDs can represent several constituencies per term
+            # for Senators, this reflects a vocational panel, uni constituency, or nomination by Taoiseach
+            for represents in membership["represents"]:
+                occupancy.add("constituency", represents["represent"]["showAs"])
+
             context.emit(person)
             context.emit(position)
             context.emit(occupancy)
 
-        # --- some MPs have also other positions listed (e.g. Minister of Finance): ---
+        # --- some MPs have also other national gov positions listed (e.g. Minister of Finance): ---
         for office in membership["offices"]:
             position_other_name = office["office"]["officeName"]["showAs"]
 
@@ -75,9 +85,26 @@ def crawl_member(context: Context, member: Dict[str, Any]) -> None:
                 position_other = h.make_position(
                     context,
                     name=position_other_name,
-                    topics=["gov.national", "gov.legislative"],
+                    topics=["gov.national"],
                     country=["ie"],
                 )
+                if position_other_name in HEAD_GOV_ROLES:
+                    position.add("topics", "gov.head")
+                elif position_other_name in LEGISLATIVE_ROLES:
+                    position.add("topics", "gov.legislative")
+                elif any(
+                    admin_role in position_other_name.lower()
+                    for admin_role in ["director", "secretary"]
+                ):
+                    print(position_other_name)
+                    position.add("topics", "gov.admin")
+                elif position_other_name == "Attorney General":
+                    # legal adviser to the government
+                    position.add("topics", "gov.judicial")
+                else:
+                    # Tánaiste, Vice-President of Executive Council, all Ministers, Postmaster General
+                    position.add("topics", "gov.executive")
+
                 categorisation = categorise(context, position_other, is_pep=True)
                 if not categorisation.is_pep:
                     continue
@@ -93,45 +120,8 @@ def crawl_member(context: Context, member: Dict[str, Any]) -> None:
                     context.emit(position_other)
                     context.emit(occupancy_other)
 
-        # --- some MPs have committee positions listed: ---
-        if membership.get("committees"):
-            for committee in membership["committees"]:
-                position_committee_name = (
-                    committee["role"]["title"] if committee["role"] else None
-                )
-
-                if position_committee_name is not None:
-                    position_committee = h.make_position(
-                        context,
-                        name=position_committee_name,
-                        topics=["gov.national", "gov.legislative"],
-                        country=["ie"],
-                    )
-                    position_committee.add(
-                        "description", committee["committeeName"][0]["nameEn"]
-                    )
-                    position_committee.add("sourceUrl", committee["uri"])
-
-                    categorisation = categorise(
-                        context, position_committee, is_pep=True
-                    )
-                    if not categorisation.is_pep:
-                        continue
-
-                    occupancy_committee = h.make_occupancy(
-                        context,
-                        person,
-                        position_committee,
-                        start_date=committee["role"]["dateRange"]["start"],
-                        end_date=committee["role"]["dateRange"]["end"],
-                    )
-                    if occupancy_committee is not None:
-                        context.emit(position_committee)
-                        context.emit(occupancy_committee)
-
 
 def crawl(context: Context) -> None:
-    all_members = []
     limit = 1000
     skip = 0
 
@@ -141,12 +131,9 @@ def crawl(context: Context) -> None:
     total = meta["head"]["counts"]["memberCount"]
 
     while skip < total:
-        batch = context.fetch_json(f"{context.data_url}?limit={limit}&skip={skip}")[
-            "results"
-        ]
-        all_members.extend(batch)
+        url = f"{context.data_url}?limit={limit}&skip={skip}"
+        batch = context.fetch_json(url)["results"]
+        for member in batch:
+            member = member["member"]
+            crawl_member(context, member)
         skip += limit
-
-    for member in all_members:
-        member = member["member"]
-        crawl_member(context, member)
