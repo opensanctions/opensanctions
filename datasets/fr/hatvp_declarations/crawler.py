@@ -94,8 +94,7 @@ def crawl(context: Context) -> None:
         headers: dict[str, str] = {}
         for header in dict_reader.fieldnames:
             res = context.lookup("columns", header, warn_unmatched=True)
-            if (value := res.value if res else header) is not None:
-                headers[header] = value
+            headers[header] = res.value if res and res.value else header
         for row in dict_reader:
             translated = {headers[k]: v for k, v in row.items() if k in headers}
             crawl_row(context, translated)
