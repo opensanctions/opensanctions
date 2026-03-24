@@ -7,31 +7,29 @@ coverage:
 load_statements: true
 entry_point: crawler.py
 summary: >-
-  Declarations of interests and assets, and associated assessments,
-  published by the French High Authority for Transparency in Public Life (HATVP).
+  French public officials who are required to declare their interests and assets
+  to the High Authority for Transparency in Public Life (HATVP).
 description: |
-  This dataset lists the declarations and assessments published by the
-  Haute Autorité pour la Transparence de la vie Publique (HATVP). French
-  public officials are required to declare their interests and assets to
-  the HATVP, which reviews and publishes them to promote transparency and
-  prevent conflicts of interest.
+  The Haute Autorité pour la Transparence de la vie Publique (HATVP) requires
+  French public officials to declare their interests and assets, and publishes
+  these declarations along with its assessments.
 
-  This dataset provides the national cabinet, regional council presidents and members,
-  departmental council presidents, and executives of large public bodies.
-  Members of the national assembly and senate, and mayors, are excluded from this dataset
-  since other datasets already cover this data.
+  This dataset covers national cabinet members, regional and departmental
+  presidents, regional council members, and executives of large public
+  bodies.
+
+  Members of the National Assembly, Senate, and mayors are covered by separate datasets:
+  - [fr_assemblee](https://www.opensanctions.org/datasets/fr_assemblee/);
+  - [fr_senat](https://www.opensanctions.org/datasets/fr_senat/);
+  - [fr_maires](https://www.opensanctions.org/datasets/fr_maires/).
 publisher:
   name: Haute Autorité pour la Transparence de la vie Publique
   name_en: High Authority for Transparency in Public Life
   acronym: HATVP
   description: |
-    La Haute Autorité pour la Transparence de la vie Publique (HATVP) is an independent administrative
-    authority, responsible for ascertaining and preventing potential conflicts of interest among French
-    public servants and officials.
-
-    HATVP promotes the integrity and exemplarity of public officials, monitors the ethics of civil servants,
-    oversees lobbying and disseminates a culture of integrity. Its independence is guaranteed by the functioning
-    of its executive board and its financial and administrative autonomy.
+    The HATVP is an independent French administrative authority responsible for collecting and
+    publishing declarations of interests and assets from public officials, and for overseeing
+    lobbying activity. It was established to prevent conflicts of interest in public life.
   country: fr
   url: https://www.hatvp.fr/en/high-authority/institution/
   official: true
