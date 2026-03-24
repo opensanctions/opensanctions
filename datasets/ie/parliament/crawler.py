@@ -4,25 +4,15 @@ from zavod import Context, helpers as h
 from zavod.stateful.positions import categorise
 
 
-HOUSE_TITLES = {"seanad": "Senator", "dail": "Teachtaí Dála"}
-
-HEAD_GOV_ROLES = ["Taoiseach", "President of the Executive Council"]
-LEGISLATIVE_ROLES = [
-    "Ceann Comhairle",
-    "Cathaoirleach",
-    "Leas-Cathaoirleach",
-    "Leas-Cheann Comhairle",
-    "President of Dáil Éireann",
-]
-
-
 def crawl_member(context: Context, member: Dict[str, Any]) -> None:
     person = context.make("Person")
     person.id = context.make_id(member.pop("memberCode"))
     h.apply_name(
-        person, first_name=member.pop("firstName"), last_name=member.pop("lastName")
+        person,
+        full=member.pop("fullName"),
+        first_name=member.pop("firstName"),
+        last_name=member.pop("lastName"),
     )
-    h.apply_name(person, member.pop("fullName"))
     person.add("citizenship", "ie")
 
     person.add("deathDate", member.pop("dateOfDeath", None))
@@ -40,12 +30,6 @@ def crawl_member(context: Context, member: Dict[str, Any]) -> None:
             topics=["gov.national", "gov.legislative"],
             country=["ie"],
         )
-        title = HOUSE_TITLES.get(membership["house"]["houseCode"].lower())
-        position.add("name", title)
-        if title == "Teachtaí Dála":
-            position.add("wikidataId", "Q654291")
-        else:
-            position.add("wikidataId", "Q18043391")
 
         categorisation = categorise(context, position, is_pep=True)
         if not categorisation.is_pep:
@@ -70,7 +54,7 @@ def crawl_member(context: Context, member: Dict[str, Any]) -> None:
             context.emit(position)
             context.emit(occupancy)
 
-        # --- some MPs have also other national gov positions listed (e.g. Minister of Finance): ---
+        # Some MPs have also other national gov positions listed (e.g. Minister of Finance):
         for office in membership["offices"]:
             position_other_name = office["office"]["officeName"]["showAs"]
 
@@ -81,22 +65,6 @@ def crawl_member(context: Context, member: Dict[str, Any]) -> None:
                     topics=["gov.national"],
                     country=["ie"],
                 )
-                if position_other_name in HEAD_GOV_ROLES:
-                    position.add("topics", "gov.head")
-                elif position_other_name in LEGISLATIVE_ROLES:
-                    position.add("topics", "gov.legislative")
-                elif any(
-                    admin_role in position_other_name.lower()
-                    for admin_role in ["director", "secretary"]
-                ):
-                    position.add("topics", "gov.admin")
-                elif position_other_name == "Attorney General":
-                    # legal adviser to the government
-                    position.add("topics", "gov.judicial")
-                else:
-                    # Tánaiste, Vice-President of Executive Council, all Ministers, Postmaster General
-                    position.add("topics", "gov.executive")
-
                 categorisation = categorise(context, position_other, is_pep=True)
                 if not categorisation.is_pep:
                     continue
