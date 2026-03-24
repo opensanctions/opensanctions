@@ -1,13 +1,13 @@
 import csv
 from rigour.mime.types import CSV
+from typing import Dict
 from urllib.parse import urljoin
-from typing import Dict, Optional
 
 from zavod import Context, helpers as h
 from zavod.stateful.positions import categorise, OccupancyStatus
 
 
-def crawl_row(context: Context, row: Dict[str, Optional[str]]) -> None:
+def crawl_row(context: Context, row: Dict[str, str | None]) -> None:
     person = context.make("Person")
     person.id = context.make_id(row.pop("person_slug"))
     h.apply_name(
@@ -90,10 +90,12 @@ def crawl(context: Context) -> None:
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
     with open(path, "r") as f:
         dict_reader = csv.DictReader(f, delimiter=";")
-        headers = {}
-        for header in dict_reader.fieldnames or []:
+        assert dict_reader.fieldnames is not None
+        headers: dict[str, str] = {}
+        for header in dict_reader.fieldnames:
             res = context.lookup("columns", header, warn_unmatched=True)
-            headers[header] = res.value if res is not None else header
+            if (value := res.value if res else header) is not None:
+                headers[header] = value
         for row in dict_reader:
-            translated = {headers[k]: v for k, v in row.items()}
+            translated = {headers[k]: v for k, v in row.items() if k in headers}
             crawl_row(context, translated)
