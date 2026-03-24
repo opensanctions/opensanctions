@@ -7,17 +7,21 @@ coverage:
   start: 2026-02-24
 load_statements: true
 summary: >-
-  Sanctions imposed by Canada in response to Russia’s invasion of Ukraine against certain individuals, entities, and ships under the Special Economic Measures Act (SEMA).
+  Sanctions imposed by Canada in response to Russia’s invasion of Ukraine
+  under the Special Economic Measures Act (SEMA).
 description: |
-  Sanctions imposed by Canada in response to Russia’s unprovoked and unjustified invasion of Ukraine.
-  The data sourced from this announcement table is updated more quickly than the full Canadian Consolidated Autonomous Sanctions List.
+  Canada's sanctions in response to Russia's invasion of Ukraine, imposed under the Special
+  Economic Measures Act (SEMA). Regulations cover individuals and entities designated under
+  four SEMA instruments targeting Russia, Ukraine, Belarus, and Moldova.
 
-  Regulations against individuals and entities under the Special Economic Measures Act (SEMA)
-  prohibit persons in Canada and Canadians outside Canada from engaging in any activity related
-  to any property of these listed entities or providing financial or related services to them.
-  Canada is also imposing sanctions against ships, based on their involvement in transporting
-  property and goods for the benefit of Russia or a person in Russia. This is in addition to the
-  existing categories of ships prohibited from docking in or passing through Canada under Regulation 3.04.
+  Designated individuals include senior officials, oligarchs, military figures, propagandists,
+  and collaborators across these jurisdictions. Entities span Russia's military-industrial
+  complex, financial sector, state media, and paramilitary organizations, as well as Belarusian
+  defence producers and Moldovan political actors. Ships are listed based on their involvement
+  in transporting goods for Russia's benefit.
+
+  **Note:**  This dataset reflects designations as published by Global Affairs Canada and may be
+  updated ahead of the Consolidated Canadian Autonomous Sanctions List.
 url: https://www.international.gc.ca/world-monde/issues_development-enjeux_developpement/response_conflict-reponse_conflits/crisis-crises/ukraine-sanctions.aspx?lang=eng
 tags:
   - list.sanction
@@ -26,8 +30,7 @@ tags:
 publisher:
   name: Global Affairs Canada
   description: |
-    The Canadian government body responsible for trade, travel, foreign affairs and
-    international development.
+    The Canadian government body responsible for trade, travel, foreign affairs and international development.
   country: ca
   url: https://www.international.gc.ca/world-monde/issues_development-enjeux_developpement/response_conflict-reponse_conflits/crisis-crises/ukraine-sanctions.aspx?lang=eng
   official: true
@@ -40,15 +43,14 @@ dates:
     - "%B %d %Y"
     - "in %Y"
     - "on %B %d, %Y"
-    - "%B %d, %Y"
     - "in %B %Y"
 
 assertions:
   min:
     schema_entities:
-      Person: 1500  # 1927 raw count
-      LegalEntity: 600  # 770 raw count
-      Vessel: 80  # 109 raw count
+      Person: 1500
+      LegalEntity: 600
+      Vessel: 80
   max:
     schema_entities:
       Person: 4000

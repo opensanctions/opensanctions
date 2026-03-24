@@ -1,8 +1,9 @@
+import re
+
+from dataclasses import dataclass, field
 from itertools import chain
 from lxml.etree import _Element
 from typing import Dict, List, Optional
-from dataclasses import dataclass, field
-import re
 
 from zavod import Context, helpers as h
 
