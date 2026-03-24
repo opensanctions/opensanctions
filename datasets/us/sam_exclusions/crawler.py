@@ -246,7 +246,7 @@ def crawl_latest_file(context: Context) -> None:
 
         if not name:
             return
-        full_name_prop = "name"
+        full_name_prop: NameProp = "name"
         # Not vessels
         if len(name) < 5 and entity.schema.is_a("LegalEntity"):
             full_name_prop = "weakAlias"
@@ -431,7 +431,7 @@ def crawl_sam_number_file(context: Context) -> None:
 
         if not name:
             return
-        full_name_prop = "name"
+        full_name_prop: NameProp = "name"
         # Not vessels
         if len(name) < 5 and entity.schema.is_a("LegalEntity"):
             full_name_prop = "weakAlias"
@@ -492,3 +492,12 @@ def crawl_sam_number_file(context: Context) -> None:
 def crawl(context: Context) -> None:
     crawl_latest_file(context)
     crawl_sam_number_file(context)
+    context.log.warning(
+        (
+            "Please note that entities with source IDs starting with 'usgsa' are based "
+            "on SAM_Exclusions_Public_Extract_V2_26058.CSV dated 27 February 2026 so "
+            "that new IDs can be generated and de-duplicated against these old entities "
+            "without causing excessive disruption. This data will be brought up to date "
+            "later this week."
+        )
+    )
