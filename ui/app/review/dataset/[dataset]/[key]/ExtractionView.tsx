@@ -102,7 +102,7 @@ export default function ExtractionView({ rawData, extractedData, schema, accepte
   const [editorExtracted, setEditorExtracted] = useState(stringifyToYaml(extractedData, null, { indent: 2, lineWidth: 0 }));
   const [flashInvalid, setFlashInvalid] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   const editorRef = useRef<any>(null);
 
   function triggerFlash() {

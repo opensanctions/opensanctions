@@ -384,6 +384,7 @@ def crawl_context_row(context: Context, row_idx: int, row: dict[str, str]) -> No
     entity.add("alias", h.multi_split(row.pop("Alias"), ";"))
     entity.add_cast("Person", "passportNumber", h.multi_split(row.pop("passport"), ";"))
     entity.add("taxNumber", h.multi_split(row.pop("taxNumber"), ";"), quiet=True)
+    entity.add("kppCode", h.multi_split(row.pop("kppCode"), ";"), quiet=True)
     entity.add("idNumber", h.multi_split(row.pop("idNumber"), ";"), quiet=True)
     entity.add("imoNumber", row.pop("imoNumber"), quiet=True)
     # entity.add("notes", row.pop("Notes").strip())

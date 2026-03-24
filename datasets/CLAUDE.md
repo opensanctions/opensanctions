@@ -152,6 +152,8 @@ h.apply_date(entity, "birthDate", row["dob"])  # never add dates with .add() dir
 context.emit(entity)
 ```
 
+`entity.add()` silently skips `None` and empty strings — never guard it with `if value:`.
+
 **ID generation:**
 - `context.make_slug(*parts)` — stable, human-readable IDs using the dataset prefix.
   Use when the source provides a stable unique identifier (e.g. `gb-fcdo-123456`).
@@ -775,8 +777,15 @@ with ZipFile(path) as zf:
 
 ### Non-Latin script names
 
+`data.lang` in the YAML sets the default language tag for all `entity.add()` calls in that
+crawler. Only specify `lang=` explicitly when the value differs from the source language —
+for example when adding a Latin-script alias to an Arabic-script crawler:
+
 ```python
-# Add primary name with language tag, alias for alternate script
+# data.lang: ara — no lang= needed for Arabic values (it's the default)
+entity.add("name", arabic_name)
+
+# Override only when the value is in a different script/language
 entity.add("name", latin_name, lang="eng")
 h.apply_name(entity, arabic_name, lang="ara", alias=True)
 ```

@@ -62,7 +62,7 @@ def crawl(context: Context) -> None:
         entity.add("education", data.pop("nivel_escolar"))
         entity.add("political", data.pop("ujc_pcc"))
         h.apply_date(entity, "birthDate", data.pop("fecha_de_nacimiento"))
-        entity.add("nationality", "cu")
+        entity.add("citizenship", "cu")
         entity.add("topics", "role.pep")
 
         occupancy = h.make_occupancy(

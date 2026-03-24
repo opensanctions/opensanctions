@@ -11,4 +11,4 @@ dataset: ch_seco_sanctions
 target_territories:
 - bi
 measures:
-- Financial block
+- Financial restrictions

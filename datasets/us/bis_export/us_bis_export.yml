@@ -734,3 +734,150 @@ lookups:
           - ['Teledyne FLIR LLC']
           - ['FLIR Optoelectronic Technology (Shanghai) Co. Ltd']
           - ['Teledyne FLIR Commercial Systems Inc']
+      - match: 'Alpha and Omega Semiconductor Incorporated'
+        entities:
+          - ['Alpha and Omega Semiconductor Incorporated']
+      - match: 'GlobalFoundries U.S. 2 LLC and GlobalFoundries U.S. Inc.'
+        entities:
+          - ['GlobalFoundries U.S. 2 LLC']
+          - ['GlobalFoundries U.S. Inc.']
+      - match: 'TE Connectivity Corporation and TE Connectivity HK Limited (“TE”)'
+        entities:
+          - ['TE Connectivity Corporation']
+          - ['TE Connectivity HK Limited', 'TE']
+      - match: 'Seagate Technology LLC and Seagate International Headquarters PTE. LTD.'
+        entities:
+          - ['Seagate Technology LLC']
+          - ['Seagate International Headquarters PTE. LTD.']
+      - match: 'Alfa Laval Inc. and Alfa Laval Middle East Ltd.'
+        entities:
+          - ['Alfa Laval Inc.']
+          - ['Alfa Laval Middle East Ltd.']
+      - match: 'Harsimran Singh and Panther Trading Company, Inc'
+        entities:
+          - ['Harsimran Singh']
+          - ['Panther Trading Company, Inc']
+      - match: 'Nordic Maritime Pte. Ltd. and Morten Innhaug'
+        entities:
+          - ['Nordic Maritime Pte. Ltd.']
+          - ['Morten Innhaug']
+      - match: 'Narender Sharma and Hydel Engineering Products'
+        entities:
+          - ['Narender Sharma']
+          - ['Hydel Engineering Products']
+      - match: 'Zhongxing Telecommunications Equipment Corporation and ZTE Kangxun Telecommunications Ltd.'
+        entities:
+          - ['Zhongxing Telecommunications Equipment Corporation']
+          - ['ZTE Kangxun Telecommunications Ltd.']
+      - match: 'Saeid Yahya Charkhian and Caspian Industrial Machinery Supply LLC'
+        entities:
+          - ['Saeid Yahya Charkhian']
+          - ['Caspian Industrial Machinery Supply LLC']
+      - match: 'National Oilwell Varco and Dreco Energy Services Ltd.'
+        entities:
+          - ['National Oilwell Varco']
+          - ['Dreco Energy Services Ltd.']
+      - match: 'Walter Anders and Terand, Inc.'
+        entities:
+          - ['Walter Anders']
+          - ['Terand, Inc.']
+      - match: 'Alcon Pharmaceuticals Ltd. and Alcon Laboratories, Inc.'
+        entities:
+          - ['Alcon Pharmaceuticals Ltd.']
+          - ['Alcon Laboratories, Inc.']
+      - match: 'Streit Group FZE and Striet Middle East FZCO'
+        entities:
+          - ['Streit Group FZE']
+          - ['Striet Middle East FZCO']
+      - match: 'Falcon Instrumentation and Machinery FZE'
+        entities:
+          - ['Falcon Instrumentation and Machinery FZE']
+      - match: 'Maple Pacific Corporation and Andrew Hsu'
+        entities:
+          - ['Maple Pacific Corporation']
+          - ['Andrew Hsu']
+      - match: 'Helmut Oertmann and Hetran, Inc.'
+        entities:
+          - ['Helmut Oertmann']
+          - ['Hetran, Inc.']
+      - match: 'Ming Xie and Horizon RX Sytems'
+        entities:
+          - ['Ming Xie']
+          - ['Horizon RX Sytems']
+      - match: 'Chan Heep Loong and Tysonic Enterprises'
+        entities:
+          - ['Chan Heep Loong']
+          - ['Tysonic Enterprises']
+      - match: 'Entersys Corporation and Shekar Babu'
+        entities:
+          - ['Entersys Corporation']
+          - ['Shekar Babu']
+      - match: 'Xiaoming ("Sam") Wang and Qualitech Enviro-Instrument Company'
+        entities:
+          - ['Xiaoming ("Sam") Wang']
+          - ['Qualitech Enviro-Instrument Company']
+      - match: 'Henson Chua and Celltron Marketing Company'
+        entities:
+          - ['Henson Chua']
+          - ['Celltron Marketing Company']
+      - match: 'Kesco Shipping Corporation and Multi-LinkContainer Line, LLC.'
+        entities:
+          - ['Kesco Shipping Corporation']
+          - ['Multi-LinkContainer Line, LLC.']
+      - match: 'Balli Group PLC and Balli Aviation'
+        entities:
+          - ['Balli Group PLC']
+          - ['Balli Aviation']
+      - match: 'Orion Air S.L. and Syrian Pearl Airlines'
+        entities:
+          - ['Orion Air S.L.']
+          - ['Syrian Pearl Airlines']
+      - match: 'Anvik Technologies Sdn. Bhd. and Babak Jafarpour'
+        entities:
+          - ['Anvik Technologies Sdn. Bhd.']
+          - ['Babak Jafarpour']
+      - match: 'Joseph Piquet and Alphatronx, Inc.'
+        entities:
+          - ['Joseph Piquet']
+          - ['Alphatronx, Inc.']
+      - match: 'Rigel Optics and Donald Wayne Hatch'
+        entities:
+          - ['Rigel Optics']
+          - ['Donald Wayne Hatch']
+      - match: 'Mahan Airways and Gatewick LLC'
+        entities:
+          - ['Mahan Airways']
+          - ['Gatewick LLC']
+      - match: 'Balli Aviation Ltd. and Balli Group PLC'
+        entities:
+          - ['Balli Aviation Ltd.']
+          - ['Balli Group PLC']
+      - match: 'Uni-Arab Engineering and Oil Field Services'
+        entities:
+          - ['Uni-Arab Engineering and Oil Field Services']
+      - match: 'Cargoland Air and Ocean Cargo, Inc.'
+        entities:
+          - ['Cargoland Air and Ocean Cargo, Inc.']
+      - match: 'Johnson Trading and Engineering Co., LTD.'
+        entities:
+          - ['Johnson Trading and Engineering Co., LTD.']
+      - match: 'Blue Airways FZE and Blue Airways'
+        entities:
+          - ['Blue Airways FZE']
+          - ['Blue Airways']
+      - match: 'Petrom GmbH International Trade and Koto Commercio Iberica, S.L.'
+        entities:
+          - ['Petrom GmbH International Trade']
+          - ['Koto Commercio Iberica, S.L.']
+      - match: 'Petrom GbmH International Trade and Petrom International Trade, S.L.'
+        entities:
+          - ['Petrom GbmH International Trade']
+          - ['Petrom International Trade, S.L.']
+      - match: 'Petrom GmbH International Trade and Majid Rahmanifar'
+        entities:
+          - ['Petrom GmbH International Trade']
+          - ['Majid Rahmanifar']
+      - match: 'Zhongxing Telecommunications Equipment Corporation And ZTE Kangxun Telecommunications Ltd.'
+        entities:
+          - ['Zhongxing Telecommunications Equipment Corporation']
+          - ['ZTE Kangxun Telecommunications Ltd.']

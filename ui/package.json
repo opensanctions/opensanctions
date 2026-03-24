@@ -6,7 +6,8 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint",
+    "lint-fix": "eslint --fix",
     "test": "jest"
   },
   "dependencies": {
@@ -19,7 +20,7 @@
     "jose": "^6.0.12",
     "json-schema-library": "^10.5.2",
     "kysely": "^0.28.2",
-    "next": "16.1.6",
+    "next": "16.2.0",
     "pg": "^8.16.3",
     "query-string": "^9.1.1",
     "react-bootstrap": "^2.10.10",

@@ -17,7 +17,6 @@ if TYPE_CHECKING:
     from zavod.store import Store
 
 log = get_logger(__name__)
-AUTO_USER = "zavod/xref"
 
 
 def get_resolver() -> Resolver[Entity]:
@@ -45,6 +44,7 @@ def blocking_xref(
     algorithm: str = DefaultAlgorithm.NAME,
     focus_datasets: Set[str] = set(),
     schema_range: Optional[str] = None,
+    user: str = "zavod/xref",
     discount_internal: float = 1.0,
     min_threshold: float = 0.01,
     blocker_options: Optional[Dict[str, Any]] = None,
@@ -78,7 +78,7 @@ def blocking_xref(
         discount_internal=discount_internal,
         heuristic=logic_decide,
         blocker_options=blocker_options,
-        user=AUTO_USER,
+        user=user,
     )
 
 

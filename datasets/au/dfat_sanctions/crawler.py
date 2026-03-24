@@ -13,8 +13,9 @@ from zavod import helpers as h
 SPLITS = [" %s)" % char for char in string.ascii_lowercase]
 ADDRESS_SPLITS = [
     ";",
-    "ii) ",
     "iii) ",
+    "ii) ",
+    "iv) ",
     "a) ",
     "b) ",
     "c) ",

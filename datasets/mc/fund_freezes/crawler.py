@@ -5,6 +5,15 @@ from zavod import Context
 from zavod import helpers as h
 
 ALIAS_SPLITS = [
+    "Egalement connue sous le nom:",
+    "Egalement connue sous les noms:",
+    "Autrement connu sous le nom de:",
+    "Autrement connue sous le nom de:",
+    "Anciennement connue sous les noms:",
+    "Nom de scène:",
+    "(autre dénomination :",
+    "(autres dénominations :",
+    "autres dénominations:",
     "; a)",
     "; b)",
     "; c)",
@@ -25,19 +34,10 @@ ALIAS_SPLITS = [
     "  b) ",
     "  c) ",
     "  d) ",
+    " ou ",
     ";;",
     ",;",
     ";",
-    " ou ",
-    "Egalement connue sous le nom:",
-    "Egalement connue sous les noms:",
-    "Autrement connu sous le nom de:",
-    "Autrement connue sous le nom de:",
-    "Anciennement connue sous les noms:",
-    "Nom de scène:",
-    "(autre dénomination :",
-    "(autres dénominations :",
-    "autres dénominations:",
 ]
 
 
@@ -86,7 +86,9 @@ def crawl_entity(context: Context, data: Dict[str, Any]):
     # TODO: #2656
     # Aliases splitting is a good candidate for LLM-backed name splitting helper
     # https://github.com/opensanctions/opensanctions/issues/2656
-    for alias in h.multi_split(aliases, ALIAS_SPLITS):
+    for alias in h.multi_split(
+        aliases, splitters=sorted(ALIAS_SPLITS, key=len, reverse=True)
+    ):
         alias = alias.strip()
         if not alias:
             continue

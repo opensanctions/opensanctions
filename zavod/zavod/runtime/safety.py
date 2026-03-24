@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Optional
 from followthemoney import registry, Property
 
 from zavod.logs import get_logger
-from zavod.runtime.lookups import is_type_lookup_value
+from zavod.runtime.lookups import is_type_lookup_value, match_type_lookup
 
 
 if TYPE_CHECKING:
@@ -34,6 +34,14 @@ XSS_SUSPECT_PATTERN = re.compile(
     re.IGNORECASE,
 )
 
+# lookups:
+#   type.text:
+#     options:
+#       - match:
+#         - "goes by the alias <gg>"
+#       - silence_warnings: [xss-html-smell]
+SILENCE_WARNING_TYPE = "xss-html-smell"
+
 
 def check_xss_html_smell(
     entity: "Entity", prop: Property, *, raw_value: Optional[str], cleaned_value: str
@@ -59,7 +67,14 @@ def check_xss_html_smell(
     if not has_xss_smell and not has_html_entities:
         return cleaned_value
 
-    # Values that came out of a lookup (i.e. that we manually reviewed) are exempt from this check.
+    # Allow settings silence_warnings: [xss-html-smell] for certain values
+    lookup_result = match_type_lookup(entity, prop.type, cleaned_value)
+    if lookup_result is not None:
+        silence_warnings = lookup_result.silence_warnings or set()
+        if SILENCE_WARNING_TYPE in silence_warnings:
+            return cleaned_value
+
+    # TODO: Phase this out in favor of silence_warnings
     if is_type_lookup_value(entity, prop.type, cleaned_value):
         return cleaned_value
 
