@@ -65,6 +65,15 @@ lookups:
     options:
       - match: Lev Anatolyevich Ershov
         value: Lev Anatolyevich
+      # HUBARIEV is the Ukrainian H-transliteration; consolidated text uses GUBARIEV
+      - match: Pavlo Yuriyovich HUBARIEV
+        value: Pavlo Yuriyovich GUBARIEV
+      # Consolidated text uses Aleksandr (not Alexander) transliteration
+      - match: Alexander Anatolyevich PONOMARENKO
+        value: Aleksandr Anatolyevich PONOMARENKO
+      # BOGUSLAEV is an alternate spelling; consolidated text uses BOGUSLAYEV
+      - match: Vyacheslav Aleksandrovich BOGUSLAEV
+        value: Vyacheslav Aleksandrovich BOGUSLAYEV
   type.date:
     options:
       - match: 3.1.2003 (founded in 1918)
