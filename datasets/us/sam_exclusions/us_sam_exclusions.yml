@@ -128,6 +128,18 @@ lookups:
           - us-fed-excl-saswitz-corp-10547-mohegan-lake
           - us-fed-excl-universal-imaging-inc-48198-ypsilanti
           - us-fed-excl-hernando-anesthesia-associates-34607-weeki-wachee
+          - us-fed-excl-unicare-ambulance-llc-19020-bensalem
+          - us-fed-excl-meridian-medical-resources-in-92410-san-bernardino
+          - us-fed-excl-treating-physician-medical-car-11234-brooklyn
+          - us-fed-excl-pa-paramedics-llc-19020-bensalem
+          - us-fed-excl-medicus-laboratories-llc-75225-dallas
+          - us-fed-excl-first-billing-options-inc-11236-brooklyn
+          - us-fed-excl-foot-specialist-associates-p-12106-kinderhook
+          - us-fed-excl-nyc-podiatry-p-c-11375-foresthills
+          - us-fed-excl-js-atlantic-dental-pc-11229-brooklyn
+          - us-fed-excl-rehab-medical-services-inc-90064-los-angeles
+          - us-fed-excl-indivior-solutions-inc-23235-richmond
+          - us-fed-excl-autumn-health-care-of-zanesvil-43701-zanesville
         value: Company
       - match:
           - usgsa-04e83176f163c3fe722f6b64d07f2e20867b84a9
