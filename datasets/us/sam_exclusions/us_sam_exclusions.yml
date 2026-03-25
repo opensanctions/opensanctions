@@ -140,6 +140,8 @@ lookups:
           - us-fed-excl-rehab-medical-services-inc-90064-los-angeles
           - us-fed-excl-indivior-solutions-inc-23235-richmond
           - us-fed-excl-autumn-health-care-of-zanesvil-43701-zanesville
+          - us-fed-excl-u-s-occupational-health-inc-60305-river-forest
+          - us-fed-excl-exclusive-health-and-beauty-wh-10016-new-york
         value: Company
       - match:
           - usgsa-04e83176f163c3fe722f6b64d07f2e20867b84a9
