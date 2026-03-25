@@ -46,14 +46,20 @@ assertions:
 
 lookups:
   seat_status:
-    # sioDes describes the type of occupancy status change. Only Efetivo (effective/active)
-    # represents an active period we want to represent. Renunciou means the MP resigned.
-    # Anything not listed here is not yet categorised and should be skipped.
+    # sioDes indicates whether a period in the data represents active membership or non-membership.
     options:
       - match:
-          - "Efetivo"
+          - "Efetivo" # Effective (used in current and historical periods)
           - "Efetivo Definitivo"
           - "Efetivo Temporário"
-        value: true
-      - match: "Renunciou"
-        value: false
+          - "Suplente" # Alternate
+        value: "true"
+      - match:
+          - "Renunciou" # Resigned
+          - "Suspenso(Não Eleito)" # Suspended (Not Elected)
+          - "Suspenso(Efet Def)" # Suspended (Effective Definitive)
+          - "Suspenso(Eleito)" # Suspended (Elected)
+          - "Desistência" # Withdrawal
+          - "Impedido" # Disqualified
+          - "Falecido/a" # Deceased
+        value: "false"
