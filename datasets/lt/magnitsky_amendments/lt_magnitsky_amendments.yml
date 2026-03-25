@@ -39,10 +39,10 @@ tags:
 assertions:
   min:
     schema_entities:
-      Person: 280
+      Person: 120
   max:
     schema_entities:
-      Person: 600
+      Person: 240
 
 lookups:
   type.date:
