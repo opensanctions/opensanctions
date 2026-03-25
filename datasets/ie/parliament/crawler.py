@@ -3,7 +3,16 @@ from typing import Dict, Any
 from zavod import Context, helpers as h
 from zavod.stateful.positions import categorise
 
-HOUSE_TITLES = {"seanad": "Senator", "dail": "Teachta Dála"}
+POSITIONS = {
+    "seanad": {
+        "title": "Senator of Ireland",
+        "wikidata_id": "Q18043391",
+    },
+    "dail": {
+        "title": "Teachta Dála",
+        "wikidata_id": "Q654291",
+    },
+}
 
 
 def crawl_member(context: Context, member: Dict[str, Any]) -> None:
@@ -24,10 +33,9 @@ def crawl_member(context: Context, member: Dict[str, Any]) -> None:
         for party in membership["parties"]:
             person.add("political", party["party"]["showAs"])
 
-        title = HOUSE_TITLES.get(membership["house"]["houseCode"].lower())
-        # Dáil and Seanad are modelled as distinct positions in Wikidata
-        wikidata_id = "Q654291" if title == "Teachta Dála" else "Q18043391"
-        assert title is not None
+        house_code = membership["house"]["houseCode"].lower()
+        title = POSITIONS[house_code]["title"]
+        wikidata_id = POSITIONS[house_code]["wikidata_id"]
 
         position = h.make_position(
             context,
