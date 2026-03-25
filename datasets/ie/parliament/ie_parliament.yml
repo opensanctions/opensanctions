@@ -7,26 +7,25 @@ load_statements: true
 entry_point: crawler.py
 ci_test: true
 summary: >-
-  Current and Historical Members of the Irish Parliament (Oireachtas Éireann)
+  Current and recent Members of the Irish Parliament, covering the Dáil Éireann (lower house)
+  and Seanad Éireann (upper house).
 description: |
-  Members of the bicameral Irish Parliament (Oireachtas Éireann), consisting
-  of the president of Ireland and the two houses of the Oireachtas:
-  a lower house called Dáil Éireann and an upper house called Seanad Éireann.
+  The bicameral Irish Parliament (Oireachtas Éireann) consists of the President of Ireland and
+  the two houses of the Oireachtas: Dáil Éireann and Seanad Éireann.
 
-  The lower house, Dáil Éireann, is the primary legislative body with 174 members elected by
-  proportional representation for a five-year term, representing 43 constituencies.
+  - Dáil Éireann, the lower house, is the primary legislative body, comprising 174 members who
+  are elected by proportional representation for a five-year term.
+  - The upper house, the Seanad Éireann, is not directly elected and consists of 60 senators chosen
+  by various methods.
 
-  The upper house, Seanad Éireann, consists of 60 senators that are elected to five vocational panels and
-  from two university constituencies, or they are nominated by the Taoiseach (head of government).
-
-  The data is sourced from the official open data provided by the Irish Parliament,
-  containing comprehensive mandate information, including name, gender, political party, electoral district,
-  and legislative periods of service for all parliamentary members since 1919.
+  The dataset includes comprehensive mandate information for each member, including their name, gender,
+  political affiliation, electoral district and dates of service.
 url: https://api.oireachtas.ie/
 tags:
   - list.pep
 publisher:
-  name: The Houses of the Oireachtas
+  name: Oireachtas Éireann
+  name_en: Houses of the Oireachtas
   description: |
     The Houses of the Oireachtas provides open data about its members through its official
     website and API. The parliament exercises legislative power, with the Dáil Éireann
