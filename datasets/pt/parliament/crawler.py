@@ -4,6 +4,7 @@ from zavod.stateful.positions import categorise
 
 IGNORE = [
     "DepCadId",  # position ID
+    "DepCPId",  # constituency ID
     "LegDes",  # legislature name, e.g. "X Legislatura"
     "Videos",
 ]
