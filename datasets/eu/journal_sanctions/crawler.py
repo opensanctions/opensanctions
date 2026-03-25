@@ -76,7 +76,6 @@ def wait_for_xpath_actions(xpath: str) -> list[dict[str, str | int]]:
     ]
 
 
-@cache
 def get_consolidated_url(context: Context, source_url: str) -> str | None:
     """Given a EUR-Lex source URL for an amendment, return the URL of its consolidated version."""
     eurlex_actions = [
@@ -99,8 +98,17 @@ def get_consolidated_url(context: Context, source_url: str) -> str | None:
     )
     original_celex: str | None = None
     for table in doc.xpath(".//table[@id='relatedDocsTbMS']"):
-        for row in h.parse_html_table(table):
-            row_strs = h.cells_to_str(row)
+        # The <th> header cells embed <select> filter widgets whose text corrupts
+        # parse_html_table's slugified keys (e.g. "relation_all_modifies" instead
+        # of "relation").  Strip them before parsing.
+        for select in table.xpath(".//thead//th/select"):
+            select.getparent().remove(select)
+        rows = [h.cells_to_str(row) for row in h.parse_html_table(table)]
+        act_values = {r.get("act") for r in rows if r.get("act")}
+        assert len(act_values) <= 1, (
+            f"Multiple CELEX numbers in amendments table for {source_url}: {act_values}"
+        )
+        for row_strs in rows:
             if row_strs.get("relation") in ("Modifies", "Extended validity"):
                 original_celex = row_strs.get("act")
                 break
@@ -142,20 +150,15 @@ def get_consolidated_url(context: Context, source_url: str) -> str | None:
     return None
 
 
-@cache
 def get_consolidated_text(context: Context, consolidated_url: str) -> str | None:
-    """Fetch and return the full text of a EUR-Lex consolidated regulation.
-
-    Cached per consolidated URL so that multiple source URLs that amend the same
-    base regulation only trigger one fetch.
-    """
+    """Fetch and return the full text of a EUR-Lex consolidated regulation."""
     regulation_xpath = ".//div[@id='PP4Contents']"
     doc = fetch_html(
         context,
         consolidated_url,
         regulation_xpath,
         actions=wait_for_xpath_actions(regulation_xpath),
-        cache_days=7,
+        cache_days=1,
     )
     regulation_div = doc.xpath(regulation_xpath)
     if not regulation_div:

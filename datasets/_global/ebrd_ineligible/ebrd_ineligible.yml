@@ -71,6 +71,8 @@ lookups:
           - SBD Service
       - match: "(now known as Qi Technologies)"
         value: Qi Technologies
+      - match: "formerly  known as Ocean C&I Co., Ltd."
+        value: Ocean C&I Co., Ltd.
   type.country:
     options:
       - match: Republic of Türkiye
