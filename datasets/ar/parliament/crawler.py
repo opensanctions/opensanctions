@@ -85,7 +85,7 @@ def crawl_personal_page(context: Context, url):
 
 def crawl(context: Context):
     # TODO: lower cache after dedupe
-    # crawl_csv(context)
+    crawl_csv(context)
     table_xpath = ".//table[@id='tablaDiputados']"
     doc = zyte_api.fetch_html(
         context,
