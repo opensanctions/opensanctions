@@ -80,6 +80,10 @@ def crawl_entity_notice(context: Context, row: Dict[str, _Element]) -> None:
         entity.add("name", parsed_bio.name, lang="eng")
         entity.add("name", parsed_bio.name_ru, lang="rus")
         for alias in parsed_bio.aliases:
+            # Aliases containing "or", "and", or "et" are ambiguous: they may be multiple
+            # distinct names ("Helena Shudra or Victoria Pesti") or a single name with a
+            # conjunction ("Radiological Chemical and Biological Defence troops"). Each case
+            # is resolved via the datapatch lookup; unmatched cases are flagged.
             if re.search(r"\b(or|and|et)\b", alias, flags=re.I):
                 res = context.lookup("name_alias", alias, warn_unmatched=True)
                 if res:
