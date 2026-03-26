@@ -1,10 +1,20 @@
+## Note on review classifications:
+# This includes a lot of criminal indictments and announcements which are sometimes within scope of OpenSanctions, but sometimes
+# also more local and non-relevant. We want to focus on importing relevant cases and details, but not petty/individual crimes.
+#
+# Criteria:
+# * If the release is about an individual committing an individual crime, that is not the subject of our database. Examples: 100g
+#   of coke, sexual abuse, burning down a house. In those cases, set the review result to an empty []
+# * If the release indicates members of a serious OC group or there is an international angle, that goes in. Examples: sanctions
+#   violations, human trafficking networks, 5kg of coke.
+
 title: UK National Crime Agency Press Releases
 entry_point: crawler.py
 prefix: gb-nca-pr
 disabled: false
 coverage:
   frequency: weekly
-  start: 2025-11-06
+  start: 2026-03-02
 load_statements: true
 ci_test: false # GPT key not available in CI
 summary: >
@@ -40,11 +50,15 @@ http:
 dates:
   formats: ["%d %B %Y", "%d %b %Y"]
 
-# TODO: Update assertions after the first full run
 assertions:
   min:
     schema_entities:
-      Person: 100
+      Person: 320
+      Article: 100
+  max:
+    schema_entities:
+      Person: 640
+      Article: 200
 
 lookups:
   topics:
@@ -105,5 +119,5 @@ lookups:
         value: null
   type.date:
     options:
-      - match: 23 January 2025.
+      - match: 23 Janaury 2025. # january typo!
         value: "2025-01-23"

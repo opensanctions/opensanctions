@@ -71,7 +71,7 @@ assertions:
   max:
     schema_entities:
       Person: 220
-      Company: 100
+      Company: 160
       Organization: 45
 
 lookups:
@@ -87,5 +87,9 @@ lookups:
           - Decision on countermeasures against U.S. Congressman McGowern
           - List of Targets of Countermeasures
         value: CN-CML
+      - match: List of Export Controls
+        value: CN-ECL
+      - match: Export Control Watch List
+        value: CN-ECWL
       - match: ""
         value: null

@@ -13,15 +13,10 @@ type PositionTaggerTableProps = {
 }
 
 export default function PositionTaggerTable({ countries, positions }: PositionTaggerTableProps) {
-  const [selectedEntityId, setSelectedEntityId] = useState<string | null>(null);
+  const [selectedEntityId, setSelectedEntityId] = useState<string | null>(
+    positions.length > 0 ? positions[0].entity_id : null
+  );
   const rowRefs = useRef<Map<string, HTMLTableRowElement>>(new Map());
-
-  // Select first row by default when positions load
-  useEffect(() => {
-    if (positions.length > 0 && !selectedEntityId) {
-      setSelectedEntityId(positions[0].entity_id);
-    }
-  }, [positions, selectedEntityId]);
 
   const handleRowSelect = (entityId: string) => {
     setSelectedEntityId(prev => prev === entityId ? null : entityId);

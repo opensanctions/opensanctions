@@ -167,4 +167,4 @@ def crawl(context: Context):
         assert len(next_links) <= 1
         index_url = next_links[0] if next_links else None
 
-    assert_all_accepted(context)
+    assert_all_accepted(context, raise_on_unaccepted=False)

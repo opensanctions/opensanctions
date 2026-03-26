@@ -46,6 +46,14 @@ data:
   url: https://archive.org/download/corpwatch_api_data_dumps/corpwatch_api_tables_csv.tar.gz
   format: CSV+TAR+GZIP
 
+assertions:
+  min:
+    schema_entities:
+      Company: 1_200_00
+  max:
+    schema_entities:
+      Company: 2_400_000
+
 lookups:
   type.country:
     options:

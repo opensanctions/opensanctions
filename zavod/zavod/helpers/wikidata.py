@@ -30,7 +30,7 @@ def deref_wikidata_id(
             "format": "json",
             "ids": qid,
             "action": "wbgetentities",
-            "props": "info",
+            # "props": "info",
         }
         res = context.fetch_json(
             WikidataClient.WD_API,
@@ -38,7 +38,7 @@ def deref_wikidata_id(
             cache_days=cache_days,
         )
         entity = res.get("entities", {}).get(qid, {})
-        target = entity.get("redirected", {}).get("to")
+        target = entity.get("redirects", {}).get("to")
         if target is not None:
             context.log.info(f"Wikidata ID {qid} is a redirect to {target}")
             return str(target)

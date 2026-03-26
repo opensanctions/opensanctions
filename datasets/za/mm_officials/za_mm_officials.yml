@@ -47,6 +47,7 @@ lookups:
           - "nompumelelo dywili@gmail.com"
           - te Mphithikezi@merafong.go.za
           - tlm.mayor@tsantsaban
+          - lauretta.vanwykwilliams@matjhabeng
         value: null
       - match: "gustav .bock@namakhoi.gov.za"
         value: gustav.bock@namakhoi.gov.za

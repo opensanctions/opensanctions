@@ -42,7 +42,7 @@ def is_500_page(doc: etree._Element) -> bool:
 
 
 def crawl_subpage(context: Context, url: str, entity: Entity, entity_id: str):
-    context.log.debug(f"Starting to crawl company page: {url}")
+    context.log.info(f"Starting to crawl company page: {url}")
     validator_xpath = (
         './/div[@class="c-full-node__info"] | '
         './/*[contains(text(), "The website encountered an unexpected error.")]'

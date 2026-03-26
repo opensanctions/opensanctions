@@ -77,6 +77,7 @@ assertions:
       Person: 500000
 
 config:
+  cache_days: 40 # TODO: revert to 14 days when wikipedia URLs are fixed
   countries_local:
     - us
     - gb
@@ -635,3 +636,4 @@ lookups:
           - "Q68887" # Mirwaiz
           - "Q133268450" # Miss Loon-Plage
           - "Q1757970" # elder
+          - "Q138412833" # Kurdirektor (spa/health resort director)

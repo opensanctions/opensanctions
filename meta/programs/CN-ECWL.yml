@@ -1,0 +1,8 @@
+title: Chinese Export Control Watch List
+key: CN-ECWL
+url: https://www.mofcom.gov.cn/zwgk/zcfb/art/2026/art_bac18400512d408a8d4c2f964e36ac11.html
+summary: China's Export Control Watch List (关注名单) is maintained by the Ministry of Commerce (MOFCOM) under the Regulations on the Export Control of Dual-Use Items (两用物项出口管制条例), implementing the Export  Control Law of the People's Republic of China. The list designates entities outside China that warrant heightened scrutiny in export transactions, typically due to concerns about end-use in foreign military or dual-use programmes. Entities on the watch list may not use general export licences; exporters must submit a dedicated risk assessment report to MOFCOM before any dual-use item can be shipped to them.
+issuer: cn_mofcom
+dataset: cn_sanctions
+measures:
+  - Export control

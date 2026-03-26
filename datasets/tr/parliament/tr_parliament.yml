@@ -6,7 +6,7 @@ coverage:
   start: "2024-05-02"
 load_statements: true
 summary: >
-  Current military members of the Grand National Assembly of Türkiye
+  Current members of the Grand National Assembly of Türkiye
 description: |
   The Grand National Assembly of Turkey is the unicameral Turkish legislature.
 
@@ -39,6 +39,79 @@ assertions:
     country_entities:
       tr: 590
     countries: 1
+    # property_fill_rate:
+    #   Person:
+    #     # The birth date extraction is prone to failure because it's a regex on free text.
+    #     # If it breaks, we risk re-keying the dataset unintentionally.
+    #     birthDate: 0.7
   max:
     schema_entities:
       Person: 605
+
+lookups:
+  birth_string:
+    normalize: false
+    options:
+      - match: "İstanbul – 12 Ekim 1990, Hüseyin, Lale Tamam."
+        birth_place: İstanbul
+        birth_date: "1990-10-12"
+      - match: "Koray Aydın 1955 yılında Trabzon'da doğdu. Babası Halil İbrahim Aydın, annesi ise Sebahat Aydın'dır."
+        birth_place: Trabzon
+        birth_date: "1955"
+      - match: "1977’de Emirdağ’da doğdu."
+        birth_place: Emirdağ
+        birth_date: "1977"
+      - match: "25 Şubat 1965'te Artvin'de doğdu. Babasının adı Remzi, annesinin adı Yaşar'dır."
+        birth_place: Artvin
+        birth_date: "1965-02-25"
+      - match: "Balıkesir / Manyas, 1978, Asri, Sual."
+        birth_place: Balıkesir / Manyas
+        birth_date: "1978"
+      - match: |
+          Aysu BANKOĞLU, 1989 yılında Bartın’da doğdu. Bartın’da tamamladığı lise öğrenimi ardından Koç Üniversitesi Hukuk Fakültesi’nden mezun oldu. İngiltere’de Cambridge Üniversitesi’nde, Amerika’da Cornell Üniversitesi’nde çeşitli eğitim programlarına katıldı. Koç Üniversitesi Sosyal Bilimler Enstitüsü Kamu Hukuku bölümünde “Yasama Meclislerinde Komisyonlar ve Türkiye Büyük Millet Meclisi Kadın Erkek Fırsat Eşitliği Komisyonu’nun Yasama Sürecindeki Rolü” başlıklı tez çalışması ile yüksek lisans eğitimini tamamladı.
+        birth_place: Bartın
+        birth_date: "1989"
+      - match: "1976 yılında Bayburt’da doğdu.İlkokul ve Ortaokul öğrenimini Bayburt tamamladıktan sonra, 1994 yılında Bayburt Anadolu Öğretmen lisesini 2.bitirdi.1994 yılında Atatürk Üniversitesi Tıp Fakültesini kazandı."
+        birth_place: Bayburt
+        birth_date: "1976"
+      - match: "Aslen Çankırılı olan M. Emin AKBAŞOĞLU 6 Ekim 1968'de İstanbul'da doğdu."
+        birth_place: İstanbul
+        birth_date: "1968-10-06"
+      - match: "Sosyal Politikalar Uzmanı; Sakarya Üniversitesi Dış Ticaret Bölümü, Anadolu Üniversitesi İşletme Fakültesi ve İstanbul Üniversitesi Uluslararası İlişkiler ve Siyaset Bilimi Bölümünü bitirdi. Sakarya Üniversitesi Çalışma Ekonomisi ve Sosyal Siyaset Bilim Dalında yüksek lisansını tamamladı. Almanya’nın Bremen Üniversitesinde misafir öğrenci olarak bulundu. Sakarya Üniversitesi Çalışma Ekonomisi ve Endüstri İlişkileri ana bilim dalında ´´Türkiye´de Suriye Sermayeli İşletmeler ve İşgücü Piyasası´´ konulu tez çalışması ile doktorasını tamamladı."
+        birth_place: null
+        birth_date: null
+      - match: "1967 yılında Düzce’de doğdu. İlk, orta ve lise eğitimini İstanbul’da tamamladı. Lisans eğitimini İstanbul Üniversitesi Basın Yayın Yüksek Okulu Gazetecilik ve Halkla İlişkiler Bölümünde, Yüksek Lisans eğitimini ise Yıldırım Beyazıt Üniversitesi, Sosyal Bilimler Enstitüsü Sosyal Politikalar Anabilim Dalı’nda yaptı."
+        birth_place: Düzce
+        birth_date: "1967"
+      # from source: https://www.tbmm.gov.tr/milletvekili/milletvekilidetay?DonemId=134155f0-c3d6-4d24-893b-f3a2ef695ae7&Id=f72877c2-dc48-037b-e050-007f01005610
+      - match: "HÜSEYİN YAYMAN"
+        birth_place: Hatay
+        birth_date: "1969-01-10"
+      - match: "1996 yılında İstanbul’da doğan Rümeysa Kadak, Marmara Üniversitesi Öğretmenlik bölümünden onur derecesiyle mezun oldu. Ardından SOAS Londra Üniversitesi’nde Küresel Diplomasi alanında yüksek lisansını tamamladı. 2024 yılında Oxford Üniversitesi’nin yöneticilere özel işletme yüksek lisans programından burslu ve program tarihinin en genç öğrencisi olarak mezun oldu. Eğitim sürecinde Yale Üniversitesi ve Berkeley Üniversitesi’nde “Yöneticilik ve Davranış Bilimi” üzerine değişim programlarına katıldı."
+        birth_place: İstanbul
+        birth_date: "1996"
+      - match: "1993, İzmir Konak doğumludur."
+        birth_place: İzmir Konak
+        birth_date: "1993"
+      - match: "Aslen Kahramanmaraş'lı olup 1978 yılında Ankara'da doğmuştur."
+        birth_place: Ankara
+        birth_date: "1978"
+      - match: "Malatya, 1965 Doğumlu"
+        birth_place: Malatya
+        birth_date: "1965"
+      # from source: https://www.tbmm.gov.tr/milletvekili/milletvekilidetay?DonemId=134155f0-c3d6-4d24-893b-f3a2ef695ae7&Id=bfd7f6e4-866c-4741-9c2b-01887111567a
+      - match: "İş insanı, turizmci, sivil toplum gönüllüsü."
+        birth_place: Şanlıurfa
+        birth_date: "1973"
+      - match: "30 Ekim 1973 tarihinde doğdu. Anne adı Gülseren, baba adı Ali Rıza’dır."
+        birth_place: null
+        birth_date: "1973-10-30"
+      - match:
+          - ""
+          - "Öğretim Üyesi; Boğaziçi Üniversitesi İİBF Siyaset Bilimi ve Uluslararası İlişkiler Bölümünü bitirdi. Aynı üniversitede yüksek lisans ve doktora yaptı."
+          - "Sosyal Bilimci, Girişimci; İstanbul Üniversitesi İşletme Fakültesini bitirdi. Boğaziçi Üniversitesinde Bilgisayar Programcılığı sertifika programını tamamladı. İstanbul Üniversitesi Sosyal Bilimler Enstitüsünde sivil toplum kuruluşları ve sosyal sorumluluk yönetimi alanında yüksek lisans yaptı. Avrupa Birliği Proje ve Fon Yönetimi ve Girişimcilik sertifika programlarını tamamladı."
+          - "Lise eğitimini Çamlıca Kız Lisesi’nde tamamlayan M.P. Tuba Durgut, 1995 yılında Marmara Üniversitesi Eczacılık Fakültesi’nden mezun oldu. Ardından Indiana University School of Public Health’te Halk Sağlığı alanında yüksek lisansını, Sağlık Bilimleri Üniversitesi’nde ise Halk Sağlığı doktora programını tamamlayarak doktor unvanını aldı. Tütün kontrolü, stratejik iletişim ve savunuculuk alanlarında Johns Hopkins University Bloomberg School of Public Health’te eğitim gördü."
+          - "Ziraat Mühendisi ve sanayicidir."
+          - "Zeynel, Nurten. İş İnsanı; Lise mezunudur."
+        birth_place: null
+        birth_date: null

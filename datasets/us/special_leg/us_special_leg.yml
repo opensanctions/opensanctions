@@ -13,14 +13,14 @@ coverage:
   frequency: never
   schedule: "@weekly"
   start: 2024-05-02
-  end: 2024-07-09
 load_statements: true
 summary: >-
-  A list of companies whose products and/or services are excluded from
-  procurement by acts of Congress
+  A list of companies whose products and/or services are excluded from procurement by acts of Congress,
+  and foreign persons sanctioned under the Iran, North Korea, and Syria Nonproliferation Act (INKSNA).
 description: |
   This dataset lists entities named in legislation passed by the U.S. Congress to be
-  excluded from procurement in specific circumstances.
+  excluded from procurement in specific circumstances, as well as foreign persons
+  designated by the U.S. Department of State under INKSNA.
 
   Section 889 of the [John S. McCain National Defense Authorization Act for Fiscal
   Year 2019 (Public Law 115 - 232)](https://www.congress.gov/115/plaws/publ232/PLAW-115publ232.pdf)
@@ -51,6 +51,13 @@ description: |
   Section 154 of the [National Defense Authorization Act for Fiscal Year 2024 (Public Law 118-31)](https://www.congress.gov/118/plaws/publ31/PLAW-118publ31.pdf)
   prohibits the Department of Defense, beginning October 1, 2027, from obligating or expending
   funds to procure batteries produced by specified foreign entities or their successors.
+
+  The [Iran, North Korea, and Syria Nonproliferation Act (INKSNA)](https://www.state.gov/bureau-of-arms-control-and-nonproliferation/nonproliferation-sanctions)
+  (Pub. L. 109-353) authorises the U.S. Department of State to sanction foreign persons that
+  have transferred WMD-applicable goods, services, or technology to or from Iran, North Korea,
+  or Syria. Sanctions remain in effect for two years and include a ban on U.S. government
+  procurement, exclusion from assistance programmes, and suspension of export licences.
+  Designations are announced in the Federal Register.
 
   Additional pieces of legislation may be added to this dataset from time to time.
 
@@ -85,6 +92,10 @@ assertions:
       Company: 290
 
 lookups:
+  type.country:
+    options:
+      - match: ROK
+        value: KR
   sanction.program:
     options:
       - match: "Section 889 of the John S. McCain National Defense Authorization Act for Fiscal Year 2019 (Public Law 115 - 232)"
@@ -97,3 +108,5 @@ lookups:
         value: US-MCCAIN-1286
       - match: "Section 5949 of the James M. Inhofe National Defense Authorization Act for Fiscal Year 2023 (Public Law 117-263)"
         value: US-5949LIST
+      - match: Nonproliferation Sanctions (ISN) - State Department
+        value: US-DOS-ISN

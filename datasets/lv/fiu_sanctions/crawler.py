@@ -4,10 +4,10 @@ from lxml.etree import _Element
 from normality import slugify
 from openpyxl import load_workbook
 from rigour.mime.types import XLSX, XML
-from followthemoney.types import registry
 
 from zavod import Context, Entity
 from zavod import helpers as h
+from zavod.helpers import dates
 
 
 FROZEN_ASSETS_URL = "https://sankcijas.fid.gov.lv/uploads/sankciju_subjekti_tabula.xlsx"
@@ -199,10 +199,17 @@ def crawl_assets_xlsx(context: Context) -> None:
         assert nationalities_str is not None
         countries = nationalities_str.split(",")
 
-        if birth_date_or_id and registry.date.clean_text(birth_date_or_id):
+        try:
+            birth_date = dates.extract_date(
+                context.dataset, birth_date_or_id, fallback_to_original=False
+            )
+        except ValueError:
+            birth_date = None
+
+        if birth_date:  # birth_date can be None or []
             entity = context.make("Person")
             entity.id = context.make_id(*id_values)
-            entity.add("birthDate", birth_date_or_id)
+            entity.add("birthDate", birth_date)
             entity.add("nationality", countries)
         else:
             entity = context.make("LegalEntity")

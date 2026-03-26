@@ -79,7 +79,6 @@ repos:
           datasets/hk|
           datasets/id|
           datasets/il/knesset_members|
-          datasets/il/mod_crypto|
           datasets/in|
           datasets/ir|
           datasets/jp|
@@ -95,7 +94,6 @@ repos:
           datasets/mx|
           datasets/my|
           datasets/ng|
-          datasets/nl|
           datasets/no/nbim_exclusions|
           datasets/np|
           datasets/nz|
@@ -122,8 +120,6 @@ repos:
           datasets/us/ga/med_exclusions|
           datasets/us/ms/med_exclusions|
           datasets/us/mt/med_exclusions|
-          datasets/us/plum_book|
-          datasets/us/mo/med_exclusions|
           datasets/us/state_terrorist_exclusion|
           datasets/us/ma/med_exclusions|
           datasets/us/ak/med_exclusions|
@@ -162,7 +158,6 @@ repos:
           datasets/us/dod_chinese_milcorps|
           datasets/us/nd/med_exclusions|
           datasets/us/nj/med_exclusions|
-          datasets/us/me/med_exclusions|
           datasets/us/ar/med_exclusions|
           datasets/us/nv/med_exclusions|
           datasets/us/dc/exclusions|
@@ -183,7 +178,6 @@ repos:
           datasets/us/or/med_exclusions|
           datasets/us/corpwatch|
           datasets/us/cbp_forced_labor|
-          datasets/us/fcc_covered_list|
           datasets/us/dhs_uflpa|
           datasets/us/fda_restricted|
           datasets/us/la/med_exclusions|
@@ -203,11 +197,11 @@ repos:
           datasets/za
           )
         args: ['--strict', '--explicit-package-bases']
-#  - repo: local
-#    hooks:
-#      - id: nextjs-lint
-#        name: ESLint
-#        entry: bash -c "cd ui && npx eslint"
-#        language: system
-#        files: '^ui/'
-#        pass_filenames: false
+  - repo: local
+    hooks:
+      - id: zavod-ui-lint
+        name: ESLint
+        entry: bash -c "cd ui && npx eslint --fix"
+        language: system
+        files: '^ui/'
+        pass_filenames: false

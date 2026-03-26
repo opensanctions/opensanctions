@@ -54,11 +54,27 @@ data:
   url: https://egrul.itsoft.ru/
   format: XML
 
+assertions:
+  min:
+    schema_entities:
+      Person: 10_000_000
+      Organization: 130_000
+      Company: 11_000_000
+      LegalEntity: 5
+      PublicBody: 4_000
+  max:
+    schema_entities:
+      Person: 20_000_000
+      Organization: 260_000
+      Company: 22_000_000
+      LegalEntity: 50
+      PublicBody: 8_000
+
 lookups:
   type.name:
     lowercase: true
     options:
-      - match: 
+      - match:
           - "общество с ограниченной ответственностью"
           - "открытое акционерное общество"
         value: null

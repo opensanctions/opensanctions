@@ -40,16 +40,20 @@ data:
 dates:
   formats: ["%m/%d/%Y"]
 names:
-  LegalEntity:
-    # Review names shorter than 11 chars, e.g. Sebastiano from G&G INTERNACIONAL S.A.S.
-    # We make Sebastiano an alias because it doesn't seem to be the primary official name of
-    # G&G INTERNACIONAL S.A.S. and as a LegalEntity entry it can cause lots of false
-    # positives on person names.
-    single_token_min_length: 11
-  Person:
-    single_token_min_length: 10
-  Vessel:
-    min_length: 5
+  schema_rules:
+    LegalEntity:
+      # Review names shorter than 11 chars, e.g. Sebastiano from G&G INTERNACIONAL S.A.S.
+      # We make Sebastiano an alias because it doesn't seem to be the primary official name of
+      # G&G INTERNACIONAL S.A.S. and as a LegalEntity entry it can cause lots of false
+      # positives on person names.
+      single_token_min_length: 11
+    Person:
+      single_token_min_length: 10
+    Vessel:
+      min_length: 5
+  suggest_weak_alias_person_single_token: true
+  suggest_abbreviation_uppercase_org_single_token_shorter_than: 8
+  suggest_abbreviation_non_person_single_token_shorter_than: 5
 
 assertions:
   min:
@@ -79,56 +83,88 @@ lookups:
   schema.override:
     options:
       - match:
-          - S4MR3P6CX
-          - S4MR3R1J3
-          - S4MR3R3JF
-          - S4MR478NL
-          - S4MR478NR
-          - S4MR497ZT
-          - S4MR49988
-          - S4MR4998D
-          - S4MR4999H
-          - S4MR4JGN1
-          - S4MR52R80
-          - S4MR52SM0
-          - S4MR555HB
-          - S4MR5W235
-          - S4MR5XN55
-          - S4MR5XYCY
-          - S4MR5Y9D6
-          - S4MR64R24
-          - S4MR7WR4R
-          - S4MR95R1F
-          - S4MR95R1G
-          - S4MRB1H8P
-          - S4MRB1H8Y
-          - S4MRB1HC1
-          - S4MRB1HC6
-          - S4MRCPCSH
-          - S4MRDWHP1
-          - S4MRDWHPT
-          - S4MRDWHPY
-          - S4MRG9QY7
-          - S4MRH473N
-          - S4MRHTJFR
-          - S4MRJFY6F
-          - S4MRN6RML
-          - S4MRN6RMN
-          - S4MRN6RMQ
+          - usgsa-0efa2011ebb068e7bf80c87ce2f7321d53584e42
+          - usgsa-15ccadae249bc434cf8751381b773d56df326686
+          - usgsa-1a379cd7d271b347b7dc3a4f4e00dba849c0e1c6
+          - usgsa-2217ee68247cc30b5a82feb15e5a410cb78ce9ae
+          - usgsa-251aa1b9e8fdafaf011ed7f2941bd83e93410ca0
+          - usgsa-255610199a73c4977dd0fafa5c99d3faf2dd3bec
+          - usgsa-258d41d286c5c24be9e0cebe990249933b0e8635
+          - usgsa-2977e82f0703788301c7b4db04461b2153e30c16
+          - usgsa-2ad829474a42cd6a997f3185ec77adf263c52830
+          - usgsa-31d3f8c11b8be0a6ae19fc3f72e0fcfc7092d5df
+          - usgsa-3c85a4b3887347e6704c61d1c80f4c60eaebee78
+          - usgsa-427d385f4b3b9509018edc35524def8b48fa338d
+          - usgsa-46325fedd42ba277ef66212d27d392e9cb8cd7b9
+          - usgsa-48ba1eb50ce377a2c0310608b84ef51b07a823d1
+          - usgsa-557c3b726091a82b58c139920579c1b8ff140e26
+          - usgsa-63f6200f95a6fbd895d74b2cc3b6d1d623942c6b
+          - usgsa-663606a216538a2af49e3f5c9237feb0bb309710
+          - usgsa-6c2924c7608addd823aad32fdab61855aecaad83
+          - usgsa-6cdb800ddc6312569fe964d21c2d95f65ff39985
+          - usgsa-70ab4fcf940b5ce425ec72402a0689709c6b5b04
+          - usgsa-7cbd4da6f60c76ec22a24725a84063985533079b
+          - usgsa-8a7dccbb8fc248223eb59fee0152faa46e0a6def
+          - usgsa-8fe03d08c7f8301ba1ab279bc6444e60ef8fbe63
+          - usgsa-8fe640d126fa2664ff62f52f439296fbd670764d
+          - usgsa-977a92e08a20b9982027f7f73da6dc2d86991c20
+          - usgsa-9e5456660b59726556e50b97ec52776659e9d15b
+          - usgsa-ac853319e148a8e6660d6cf3603b395a6e39c7a7
+          - usgsa-bfc1306c081b23a5a5560dd9ef9c564b81606692
+          - usgsa-cba2696c810af481618fdea6bcca2f4c026ca7cb
+          - usgsa-d9bdae50409a15203a3ad937d8e4ec83fb155808
+          - usgsa-e64387d5d7f52e686a32fd999926062a5c4b5532
+          - usgsa-f58d2be3e995803dd86ef7fc051bd3c9eaa413eb
+          - usgsa-fcb326ccafe214f20e157f39cfb51cd2bace6df3
+          - usgsa-fe04b0a94f78e214fe59b5e804fc4b26c364253a
+          - usgsa-ffe2c566b67f9fdd20812a9cff9f5e8435b4272e
+          - usgsa-14095aa080157ed8debcf2a0b20e377deb101c88 # 'All American Lending, Inc.'
+          - us-fed-excl-an-international-llc-11432-jamaica
+          - us-fed-excl-bridgeway-chiropractic-94116-san-francisco
+          - us-fed-excl-forest-lake-home-care-inc-55025-forest-lake
+          - us-fed-excl-kirpa-llc-63132-saint-louis
+          - us-fed-excl-ma-concord-llc-11415-kew-gardens
+          - us-fed-excl-mb-globus-llc-11432-jamaica
+          - us-fed-excl-saswitz-corp-10547-mohegan-lake
+          - us-fed-excl-universal-imaging-inc-48198-ypsilanti
+          - us-fed-excl-hernando-anesthesia-associates-34607-weeki-wachee
+          - us-fed-excl-unicare-ambulance-llc-19020-bensalem
+          - us-fed-excl-meridian-medical-resources-in-92410-san-bernardino
+          - us-fed-excl-treating-physician-medical-car-11234-brooklyn
+          - us-fed-excl-pa-paramedics-llc-19020-bensalem
+          - us-fed-excl-medicus-laboratories-llc-75225-dallas
+          - us-fed-excl-first-billing-options-inc-11236-brooklyn
+          - us-fed-excl-foot-specialist-associates-p-12106-kinderhook
+          - us-fed-excl-nyc-podiatry-p-c-11375-foresthills
+          - us-fed-excl-js-atlantic-dental-pc-11229-brooklyn
+          - us-fed-excl-rehab-medical-services-inc-90064-los-angeles
+          - us-fed-excl-indivior-solutions-inc-23235-richmond
+          - us-fed-excl-autumn-health-care-of-zanesvil-43701-zanesville
+          - us-fed-excl-u-s-occupational-health-inc-60305-river-forest
+          - us-fed-excl-exclusive-health-and-beauty-wh-10016-new-york
         value: Company
       - match:
-          - S4MRFLWH0
-          - S4MRFLTRS
-          - S4MR47VPQ
-          - S4MR47FRC
-          - S4MR47FDZ
-          - S4MR47MZT
-          - S4MR473KX
-          - S4MR479RJ
+          - usgsa-04e83176f163c3fe722f6b64d07f2e20867b84a9
+          - usgsa-0b96702bf699ec70f2e9389ceb9249db4885cf8a
+          - usgsa-0bce304aa0d69e7cc98afb32c3dab8d16e7a6e7d
+          - usgsa-4ab0dd97b41d4d809bd7350d370974e71cefe2eb
+          - usgsa-5482ad363caf6f9afeb734d631d3e212a338fef3
+          - usgsa-5fbeb7e50bb2c69027fc51ced5f67573a4132319
+          - usgsa-6f42bcc102f27a90a6930292d385ace5c1684fcc
+          - usgsa-6f6874508df2109d7ae980e7f71e933f4c542404
+          - usgsa-8306a8e5b3cd5b736a338d7f36c1e689885bebf8
+          - usgsa-e16b79136e2238570e4f65cca529b8e630f48426
+          - usgsa-f0baf2706e7981af833919bf0444dd0bf3067e68
+          - usgsa-fd8c9cf4c2e35af6eb658f4395ed71001a894a09
+          - us-fed-excl-mark-a-filippone-07057-wallington
+          - us-fed-excl-dr-mark-filippone-07057-wallington
         value: Person
       - match:
-          - S4MR3P8BT
+          - usgsa-b76ad267e29b918dfb67a99063626b75d639dba1
         value: Organization
+      - match:
+          - usgsa-56526dd420c908797dfd72e4b69add5424ca4731 # 'Baikal' (the vessel, not the company alias)
+        value: Vessel
   type.address:
     lowercase: true
     options:
@@ -193,6 +229,8 @@ lookups:
         value: 1679679096
       - match: 1568700039
         value: 1568700391
+      - match: 1043590046
+        value: 1043590466
       - match:
           - 079426694
           - 095470566
@@ -234,4 +272,35 @@ lookups:
           - "S.R.O."
           # "Individual","","","YUKI","","****", (invalid lastName)
           - H # H and H Metalform GmbH
+        value: null
+  type.date:
+    options:
+      - match:
+          - "0999-02-23"
+          - "0200-06-05"
+          - "0200-05-18"
+          - "0198-09-08"
+          - "0999-02-22"
+          - "0199-10-18"
+          - "0199-04-20"
+          - "0001-02-05"
+          - "0999-02-25"
+          - "0200-09-20"
+          - "0001-01-02"
+          - "0200-03-20"
+          - "0001-02-16"
+          - "0001-01-18"
+          - "0999-01-28"
+          - "0001-02-05"
+          - "0199-10-16"
+          - "0002-08-31"
+          - "0001-02-05"
+          - "0001-02-20"
+          - "0197-06-09"
+          - "0199-11-21"
+          - "0997-06-09"
+          - "0198-08-24"
+          - "0001-07-01"
+          - "0200-07-24"
+          - "0197-07-10"
         value: null

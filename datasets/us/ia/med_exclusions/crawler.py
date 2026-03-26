@@ -79,14 +79,9 @@ def crawl_item(row: Dict[str, str], context: Context):
     )
 
 
-def crawl_excel_url(context: Context):
-    doc = context.fetch_html(context.data_url, absolute_links=True)
-    return doc.xpath(".//a[contains(@title, 'Sanctions List')]")[0].get("href")
-
-
 def crawl(context: Context) -> None:
-    # First we find the link to the excel file
-    excel_url = crawl_excel_url(context)
+    doc = context.fetch_html(context.data_url, absolute_links=True)
+    excel_url = h.xpath_string(doc, ".//a[contains(text(), 'Sanction List')]/@href")
     path = context.fetch_resource("list.xlsx", excel_url)
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
 

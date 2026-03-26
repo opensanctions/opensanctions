@@ -4,6 +4,6 @@ key: GB-ICT
 url: https://www.gov.uk/government/collections/uk-international-counter-terrorism-sanctions
 summary: Sanctions focused on international terrorist threats.
 issuer: gb_ofsi
-dataset: gb_hmt_sanctions
+dataset: gb_fcdo_sanctions
 target_territories:
 - zz

@@ -46,7 +46,7 @@ def crawl_position(context: Context, entity: Entity, name: str):
 
     if "candidate" in name_lower:
         entity.add("topics", "poi")
-        entity.add("country", "ng")
+        entity.add("citizenship", "ng")
         entity.add("position", name)
         return
 
@@ -129,7 +129,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
 
     if not present_pos and not previous_pos:
         entity.add("topics", "role.pep")
-        entity.add("country", "ng")
+        entity.add("citizenship", "ng")
 
     context.emit(entity)
 

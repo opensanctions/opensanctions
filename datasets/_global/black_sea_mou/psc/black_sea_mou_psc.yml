@@ -1,0 +1,53 @@
+title: Black Sea MoU Port State Control Inspections
+entry_point: crawler.py
+prefix: bs-mou-psc
+coverage:
+  frequency: weekly
+  start: "2026-02-23"
+resolve: false
+# We only enrich from this dataset, we load the statements only from the enricher.
+load_statements: false
+# Long-running and needs the cache, so not workable in CI
+ci_test: false
+summary: >
+  Vessels inspected by member authorities under the Black Sea MoU.
+description: |
+  This dataset contains ships inspected by port state control while visiting ports under the jurisdiction
+  of Black Sea MoU member authorities. Each record includes, but is not limited to, the ship's
+  identity, flag, and associated company.
+
+  **Note:** We only include the latest year of data from the source.
+publisher:
+  name: Black Sea MoU on Port State Control
+  acronym: BSMOU
+  description: |
+    The Black Sea MoU on Port State Control is an agreement among Black Sea countries to ensure
+    that ships comply with international safety, environmental, and labor standards.
+    > Port State control (PSC) comes into the scene when shipowners, classification societies
+    > and flag State administrations have failed to comply with the requirements of the
+    > international maritime conventions.
+    [Source: Official Website](https://bsmou.org/about/)
+  url: https://bsmou.org
+  official: true
+  country: "zz"
+tags:
+  - sector.maritime
+url: https://bsmou.org/database/inspections/
+data:
+  url: https://bsis.bsmou.org/public/
+  format: HTML
+  lang: eng
+http:
+  additional_retry_statuses: [443, 500]
+  total_retries: 5
+  backoff_factor: 3
+  retry_methods: [POST, GET]
+
+dates:
+  formats: ["%d.%m.%Y"]
+
+assertions:
+  min:
+    schema_entities:
+      Company: 1000
+      Vessel: 1000

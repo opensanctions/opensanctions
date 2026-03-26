@@ -1,23 +1,27 @@
 import random
 import time
 from datetime import datetime
+from datetime import timezone
+from typing import Any
+from urllib.parse import urlencode
 
-from requests.exceptions import RetryError
+from lxml import html
 
 from zavod import Context, helpers as h
+from zavod.extract import zyte_api
 
 START_YEAR = 2019
 START_MONTH = 1
 
-HEADERS = {
-    "X-Requested-With": "XMLHttpRequest",
-    "Content-Type": "application/x-www-form-urlencoded",
-    "Referer": "https://bsis.bsmou.org/public_det/",
-    "Origin": "https://bsis.bsmou.org",
-}
 
-
-def emit_linked_org(context, vessel_id, names, role, date):
+def emit_linked_org(
+    context: Context,
+    *,
+    vessel_id: str | None,
+    names: str,
+    role: str,
+    date: str | None,
+) -> None:
     for name in h.multi_split(names, ";"):
         org = context.make("Organization")
         org.id = context.make_id("org", name)
@@ -33,7 +37,7 @@ def emit_linked_org(context, vessel_id, names, role, date):
         context.emit(link)
 
 
-def crawl_row(context: Context, row: dict):
+def crawl_row(context: Context, row: dict[str, Any]) -> None:
     ship_name = row.pop("Name")
     imo = row.pop("IMO number")
     company_name = row.pop("Company")
@@ -67,19 +71,19 @@ def crawl_row(context: Context, row: dict):
     if related_ros:
         emit_linked_org(
             context,
-            vessel.id,
-            related_ros,
-            "Related Recognised Organization",
-            start_date,
+            vessel_id=vessel.id,
+            names=related_ros,
+            role="Related Recognised Organization",
+            date=start_date,
         )
     class_soc = row.pop("Class")
     if class_soc:
         emit_linked_org(
             context,
-            vessel.id,
-            class_soc,
-            "Classification society",
-            start_date,
+            vessel_id=vessel.id,
+            names=class_soc,
+            role="Classification society",
+            date=start_date,
         )
 
     end_date = row.pop("Date of release", None)
@@ -89,7 +93,9 @@ def crawl_row(context: Context, row: dict):
         vessel,
         start_date=start_date,
         end_date=end_date,
-        key=[start_date, end_date, reason],
+        # key is a str, but we suppress the warning for now to avoid a delta
+        # we can re-key in the future if desired
+        key=[start_date, end_date, reason],  # type: ignore
     )
     sanction.add("reason", reason)
 
@@ -102,8 +108,14 @@ def crawl_row(context: Context, row: dict):
     context.audit_data(row, ["Place", "#"])
 
 
-def crawl(context: Context):
-    now = datetime.utcnow()
+def crawl(context: Context) -> None:
+    headers = {
+        "X-Requested-With": "XMLHttpRequest",
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Referer": context.data_url,
+        "Origin": context.data_url,
+    }
+    now = datetime.now(tz=timezone.utc)
     year = START_YEAR
     month = START_MONTH
     while (year, month) <= (now.year, now.month):
@@ -113,21 +125,30 @@ def crawl(context: Context):
             "auth": "0",
             "held": "0",
         }
-        try:
-            doc = context.fetch_html(
-                context.data_url,
-                headers=HEADERS,
-                data=data,
+        zyte_result = zyte_api.fetch(
+            context,
+            zyte_api.ZyteAPIRequest(
+                url=context.data_url,
+                headers=headers,
+                body=urlencode(data).encode("utf-8"),
                 method="POST",
-                cache_days=1,
+            ),
+            cache_days=1,
+        )
+
+        try:
+            doc = html.fromstring(zyte_result.response_text)
+            table = h.xpath_element(doc, "//table[@id='dvData']")
+        except Exception:
+            if zyte_result:
+                context.cache.delete(zyte_result.cache_fingerprint)
+            context.log.exception(
+                "Failed to fetch HTML or find table for month", month=month, year=year
             )
-            table = doc.xpath("//table[@id='dvData']")
-            assert len(table) == 1, "Expected one table in the document"
-            table = table[0]
-            for row in h.parse_html_table(table, slugify_headers=False):
-                crawl_row(context, h.cells_to_str(row))
-        except RetryError as e:
-            context.log.error(f"Skipping {year}-{month:02} due to fetch failure: {e}")
+            continue
+
+        for row in h.parse_html_table(table, slugify_headers=False):
+            crawl_row(context, h.cells_to_str(row))
 
         # Random sleep to avoid overwhelming the server (and hitting 500 Server Error)
         time.sleep(random.uniform(0.5, 2.0))  # sleep for 1.5–3 seconds

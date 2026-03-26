@@ -50,6 +50,11 @@ data:
   format: JSON
 ci_test: false
 
+assertions:
+  min:
+    schema_entities:
+      Person: 10000
+
 lookups:
   type.name:
     options:

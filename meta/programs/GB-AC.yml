@@ -4,6 +4,6 @@ key: GB-AC
 url: https://www.gov.uk/government/collections/uk-sanctions-relating-to-global-anti-corruption
 summary: Targeting global corruption and related financial crimes.
 issuer: gb_ofsi
-dataset: gb_hmt_sanctions
+dataset: gb_fcdo_sanctions
 target_territories:
 - zz

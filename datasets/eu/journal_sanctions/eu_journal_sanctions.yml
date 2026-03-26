@@ -58,6 +58,13 @@ assertions:
       Vessel: 10
 
 lookups:
+  garbage_collect_original_name:
+    # Override the string to look for in the consolidated act text
+    # e.g. if we expanded aliases like Lev Anatolyevich Yershov (Ershov)
+    # to Lev Anatolyevich Yershov and Lev Anatolyevich Ershov
+    options:
+      - match: Lev Anatolyevich Ershov
+        value: Lev Anatolyevich
   type.date:
     options:
       - match: 3.1.2003 (founded in 1918)
@@ -96,6 +103,10 @@ lookups:
           - "Russian-occupied regions of Zaporizhzhia and Kherson"
           - Moscow, Russian Federation
         value: ru
+      - match: "Ukrainian, Russian"
+        values:
+          - ua
+          - ru
   type.email:
     options:
       - match: "general@angstrem.r"
@@ -134,6 +145,7 @@ lookups:
       - match:
           - 2014/145
           - 269/2014
+          - 208/2014
         value: EU-UKR
       - match: 765/2006
         value: EU-BLR
@@ -145,11 +157,17 @@ lookups:
         value: EU-HTI
       - match: 2023/888
         value: EU-MDA
+      # https://www.sanctionsmap.eu/#/main/details/57
       - match:
           - 2023/2135
           - 2023/2147
         value: EU-SDNZ
-      - match: 2001/931
+      # https://www.sanctionsmap.eu/#/main/details/31/
+      - match: 2014/450
+        value: EU-SDN
+      - match:
+          - 2001/931
+          - 2580/2001
         value: EU-TERR
       - match: 1210/2003
         value: EU-IRQ
@@ -169,3 +187,5 @@ lookups:
         value: EU-HAM
       - match: 101/2011
         value: EU-TUN
+      - match: 2019/796
+        value: EU-CYB

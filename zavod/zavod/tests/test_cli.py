@@ -1,9 +1,10 @@
 import shutil
 
 from click.testing import CliRunner
+from nomenklatura.versions import VersionHistory
 
 from zavod import settings
-from zavod.archive import dataset_state_path
+from zavod.archive import dataset_state_path, dataset_resource_path, VERSIONS_FILE
 from zavod.cli import cli
 from zavod.integration import get_resolver
 from zavod.meta import Dataset
@@ -112,6 +113,28 @@ def test_run_validation_failed(testdataset3: Dataset):
     assert "Assertion countries failed" in result.output, result.output
     with open(artifacts_path / "issues.json", "r") as f:
         assert "Assertion countries failed" in f.read()
+    shutil.rmtree(settings.DATA_PATH)
+
+
+def test_run_update_last_successful_version(
+    testdataset3: Dataset, testdataset1: Dataset
+):
+    runner = CliRunner()
+
+    # testdataset3 has validation errors, so last_successful should NOT be set
+    result = runner.invoke(cli, ["run", "--latest", DATASET_3_YML.as_posix()])
+    assert result.exit_code != 0, result.output
+    versions_path = dataset_resource_path(testdataset3.name, VERSIONS_FILE)
+    assert not versions_path.exists(), "versions.json should not exist after failed run"
+
+    # testdataset1 succeeds, so last_successful should be set
+    result = runner.invoke(cli, ["run", "--latest", DATASET_1_YML.as_posix()])
+    assert result.exit_code == 0, result.output
+    versions_path = dataset_resource_path(testdataset1.name, VERSIONS_FILE)
+    assert versions_path.exists(), "versions.json should exist after run"
+    history = VersionHistory.from_json(versions_path.read_text())
+    assert history.last_successful is not None
+    assert history.last_successful == settings.RUN_VERSION
     shutil.rmtree(settings.DATA_PATH)
 
 

@@ -41,6 +41,14 @@ lookups:
   comma_names:
     lowercase: true
     options:
+      - match: Western International Securities Inc., Nancy Cole, Patrick Egan, Andy Gitipityapon, Steven Graham, and Thomas Swan
+        names:
+          - Western International Securities Inc.
+          - Nancy Cole
+          - Patrick Egan
+          - Andy Gitipityapon
+          - Steven Graham
+          - Thomas Swan
       - match: agfeed industries inc., songyan li, junhong xiong, selina jin, shaobo ouyang, k. ivan gothner and edward pazdro
         names:
           - Agfeed Industries Inc.
@@ -1098,3 +1106,9 @@ lookups:
           - Ownzones Media Network Inc.
           - Daniel Goman
           - Joseph Goman
+      - match: ability computer & software industries ltd., ability inc., alexander aurovsky, and anatoly hurgin
+        names:
+          - Ability Computer & Software Industries Ltd.
+          - Ability Inc.
+          - Alexander Aurovsky
+          - Anatoly Hurgin

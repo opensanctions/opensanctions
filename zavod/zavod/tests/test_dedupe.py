@@ -7,7 +7,7 @@ from zavod.entity import Entity
 from zavod.meta import Dataset
 from zavod.store import get_store
 from zavod.crawl import crawl_dataset
-from zavod.integration.dedupe import blocking_xref, AUTO_USER
+from zavod.integration.dedupe import blocking_xref
 from zavod.integration.dedupe import merge_entities, explode_cluster
 
 
@@ -24,7 +24,7 @@ def test_store_access(testdataset1: Dataset, resolver: Resolver[Entity]):
         assert edge.score is not None
         assert edge.score >= 0.0
         assert edge.judgement == Judgement.NO_JUDGEMENT
-        assert edge.user == AUTO_USER
+        assert edge.user == "zavod/xref"
 
 
 def test_resolve_dedupe(testdataset1: Dataset, resolver: Resolver[Entity]):

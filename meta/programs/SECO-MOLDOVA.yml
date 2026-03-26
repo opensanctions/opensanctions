@@ -11,5 +11,5 @@ dataset: ch_seco_sanctions
 target_territories:
 - md
 measures:
-- Financial block
+- Financial restrictions
 - Travel ban

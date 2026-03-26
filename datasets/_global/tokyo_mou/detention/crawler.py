@@ -8,6 +8,7 @@ from zavod import Context, helpers as h
 START_YEAR = 2019
 START_MONTH = 1
 REGEX_AMPERSAND = re.compile(r"&? ?amp;", re.IGNORECASE)
+UNKNOWN = {"unknown", "unknow"}
 
 
 def clean_name(name: str) -> str:
@@ -52,14 +53,16 @@ def crawl_row(context: Context, row: dict, reasons_cell: HtmlElement):
 
     start_date = row.pop("Date of detention")
     if company_name:
-        emit_linked_org(
-            context,
-            vessel.id,
-            clean_name(company_name),
-            "Company",
-            start_date,
-            "Company",
-        )
+        company_name = company_name.replace("& #44;", ",")
+        if company_name.lower() not in UNKNOWN:
+            emit_linked_org(
+                context,
+                vessel.id,
+                clean_name(company_name),
+                "Company",
+                start_date,
+                "Company",
+            )
 
     related_ros = row.pop("Related ROs")
     if related_ros:

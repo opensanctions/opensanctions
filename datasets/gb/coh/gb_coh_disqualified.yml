@@ -138,6 +138,7 @@ lookups:
       - match:
           - 05/08/1966
           - 31/12/1963
+          - 10/02/2026
         value: null
   type.string:
     options:

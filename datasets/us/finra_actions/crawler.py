@@ -13,8 +13,11 @@ for a bit longer (2024-07-31)
 """
 
 import re
-from typing import Dict
+from urllib.parse import urlparse, parse_qs
+from typing import Dict, Optional
+
 from lxml.etree import _Element
+
 from zavod import Context, helpers as h
 
 
@@ -51,28 +54,48 @@ def crawl_item(context: Context, row: Dict[str, _Element]) -> None:
     context.audit_data(row, ignore=["document_type"])
 
 
+def get_max_page(response: _Element) -> Optional[int]:
+    links = h.xpath_elements(response, ".//a[contains(@title, 'Go to last page')]")
+    if len(links) == 0:
+        # Intermediate result pages incorrectly showing "No Results Found" have
+        # no pagination links.
+        return None
+    assert len(links) == 1, len(links)
+    href = links[0].get("href", "")
+    params = parse_qs(urlparse(href).query)
+    return int(params["page"][0])
+
+
 def crawl(context: Context) -> None:
-    # Each page only displays 15 rows at a time, so we need to loop until we find an empty table
+    # Each page only displays 15 rows at a time. We determine the last page from
+    # the pagination buttons because intermediate pages may report no results even
+    # when later pages still have data.
     page_num = 0
-    while True:
-        context.log.info(f"Crawling page {page_num}")
+    max_page = None
+    while max_page is None or page_num <= max_page:
+        context.log.info(f"Crawling page {page_num} of {max_page}")
         url = context.data_url + "?page=" + str(page_num)
         # Caching for longer than 1 day can easily lead to missing entries as
-        # the new stuff show up on the first page, and cached pages pages won't
+        # the new stuff show up on the first page, and cached pages won't
         # include the stuff that were shifted off the previous uncached page.
         response = context.fetch_html(url, cache_days=1, absolute_links=True)
-        table = response.find(".//table")
 
+        # Update max_page each iteration in case pagination changes.
+        new_max = get_max_page(response)
+        if new_max is not None:
+            max_page = new_max
+
+        table = response.find(".//table")
         if table is None:
-            context.log.info("No table found")
-            break
+            context.log.info("No table found. Skipping page.", page_num=page_num)
+            page_num += 1
+            continue
         if response.find(".//div[@class='view-empty']") is not None:
-            context.log.info("Reached empty state")
-            break
+            context.log.info("No results found. Skipping page.", page_num=page_num)
+            page_num += 1
+            continue
 
         for row in h.parse_html_table(table):
             crawl_item(context, row)
 
         page_num += 1
-        if page_num > 3000:
-            raise Exception("Too many pages")

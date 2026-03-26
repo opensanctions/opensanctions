@@ -41,6 +41,7 @@ class Entity(StatementEntity):
         lang: Optional[str] = None,
         original_value: Optional[str] = None,
         origin: Optional[str] = None,
+        external: bool = False,
     ) -> None:
         """Add a statement to the entity, possibly the value."""
         if value is None or len(value) == 0:
@@ -75,6 +76,7 @@ class Entity(StatementEntity):
                 origin=origin,
                 original_value=original_value,
                 first_seen=seen,
+                external=external,
             )
             self.add_statement(stmt)
 

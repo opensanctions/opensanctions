@@ -4,6 +4,6 @@ key: GB-CW
 url: https://www.gov.uk/government/collections/uk-chemical-weapons-sanctions
 summary: Sanctions aimed at preventing the use and spread of chemical weapons.
 issuer: gb_ofsi
-dataset: gb_hmt_sanctions
+dataset: gb_fcdo_sanctions
 target_territories:
 - zz

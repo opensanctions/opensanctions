@@ -660,7 +660,7 @@ def crawl(context: Context):
             if response and "code" in response:
                 error = RESPONSE_CODES.get(response["code"])
             # Clear cache for failed request and exit to retry job later.
-            context.cache.clear(zyte_result.cache_fingerprint)
+            context.cache.delete(zyte_result.cache_fingerprint)
             raise Exception(
                 f"Failed to fetch data for {url} error={error} response={response}"
             )

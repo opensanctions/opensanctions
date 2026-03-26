@@ -89,6 +89,7 @@ children:
   - ng_join_dots
   - nl_house_of_representatives
   - nl_senate
+  - no_brreg
   - no_storting
   - pl_sejm
   - pl_senate
@@ -100,7 +101,6 @@ children:
   - th_cabinet
   - tr_parliament
   - un_ga_protocol
-  - us_cia_world_factbook
   - us_cia_world_leaders
   - us_congress
   - us_navy

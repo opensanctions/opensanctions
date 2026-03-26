@@ -1,7 +1,7 @@
 import logging
 import sys
 from pathlib import Path
-from typing import Optional, List
+from typing import Optional, List, Tuple
 
 import click
 from click.shell_completion import CompletionItem
@@ -25,8 +25,8 @@ from zavod.logs import (
     set_logging_context_dataset_name,
 )
 from zavod.meta import load_dataset_from_path, get_multi_dataset, Dataset
-from zavod.publish import publish_dataset, publish_failure
-from zavod.runtime.versions import make_version
+from zavod.publish import publish_dataset, archive_failure
+from zavod.runtime.versions import make_version, set_last_successful_version
 from zavod.stateful.model import create_db
 from zavod.store import get_store
 from zavod.tools.dump_file import dump_dataset_to_file
@@ -153,7 +153,13 @@ def publish(dataset_path: Path, latest: bool = False) -> None:
 
 @cli.command("run", help="Crawl, export and then publish a specific dataset")
 @click.argument("dataset_path", type=DatasetInPath)
-@click.option("-l", "--latest", is_flag=True, default=False)
+@click.option(
+    "-l",
+    "--latest",
+    is_flag=True,
+    default=False,
+    help="Whether to re-publish to /datasets/latest/, in addition to the timestamped/versioned prefixes.",
+)
 @click.option("--clear-data/--keep-data", is_flag=True, default=True)
 def run(
     dataset_path: Path,
@@ -166,14 +172,14 @@ def run(
 
     if dataset.model.disabled:
         log.info("Dataset is disabled, skipping: %s" % dataset.name)
-        publish_failure(dataset, latest=latest)
+        archive_failure(dataset, latest=latest)
         sys.exit(0)
     # crawl if it's a dataset, just create a new version if it's a collection
     if dataset.model.entry_point is not None and not dataset.is_collection:
         try:
             crawl_dataset(dataset, dry_run=False)
         except RunFailedException:
-            publish_failure(dataset, latest=latest)
+            archive_failure(dataset, latest=latest)
             sys.exit(1)
     else:
         # crawl_dataset -> Context.begin does this in the case above
@@ -189,12 +195,14 @@ def run(
             validate_dataset(dataset, view)
     except Exception:
         log.exception("Validation failed for %r" % dataset.name)
-        publish_failure(dataset, latest=latest)
+        archive_failure(dataset, latest=latest)
         store.close()
         sys.exit(1)
     # Export and Publish
     try:
         export_dataset(dataset, view)
+        # Set the version as successful in the version file, which will be archived by publish_dataset.
+        set_last_successful_version(dataset, settings.RUN_VERSION)
         publish_dataset(dataset, latest=latest)
 
         if not dataset.is_collection and dataset.model.load_statements:
@@ -256,7 +264,7 @@ def dump_file(
 @click.argument("dataset_paths", type=DatasetInPath, nargs=-1)
 @click.option("-r", "--rebuild-store", is_flag=True, default=False)
 @click.option("-l", "--limit", type=int, default=10000)
-@click.option("-f", "--focus-dataset", type=str, default=None)
+@click.option("-f", "--focus", type=str, multiple=True)
 @click.option("-s", "--schema", type=str, default=None)
 @click.option("-a", "--algorithm", type=str, default=DefaultAlgorithm.NAME)
 @click.option("-t", "--threshold", type=float, default=None)
@@ -267,7 +275,7 @@ def xref(
     limit: int,
     threshold: Optional[float],
     algorithm: str,
-    focus_dataset: Optional[str] = None,
+    focus: Tuple[str, ...] = tuple(),
     schema: Optional[str] = None,
     discount_internal: float = 1.0,
 ) -> None:
@@ -283,7 +291,7 @@ def xref(
         limit=limit,
         auto_threshold=threshold,
         algorithm=algorithm,
-        focus_dataset=focus_dataset,
+        focus_datasets=set(focus),
         schema_range=schema,
         discount_internal=discount_internal,
     )

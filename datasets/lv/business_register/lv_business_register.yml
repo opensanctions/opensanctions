@@ -33,10 +33,22 @@ publisher:
     in the territory of the Republic of Latvia.
   official: true
 
+assertions:
+  min:
+    schema_entities:
+      Person: 300_000
+      LegalEntity: 3_000
+      Company: 400_000
+  max:
+    schema_entities:
+      Person: 600_000
+      LegalEntity: 6_000
+      Company: 800_000
+
 lookups:
   type.name:
     options:
-      - match: 
+      - match:
           - 2017
           - '"2015"'
           - "000000"
@@ -52,4 +64,3 @@ lookups:
     options:
       - match: "-"
         value: null
-

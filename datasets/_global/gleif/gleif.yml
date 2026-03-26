@@ -36,11 +36,23 @@ publisher:
   url: https://www.gleif.org/en/about/this-is-gleif
   official: true
 
+assertions:
+  min:
+    schema_entities:
+      Security: 700_000
+      Organization: 2_000_000
+      Company: 180_000
+  max:
+    schema_entities:
+      Security: 1_400_000
+      Organization: 4_000_000
+      Company: 360_000
+
 lookups:
   type.name:
     lowercase: true
     options:
-      - match: 
+      - match:
           - "общество с ограниченной ответственностью"
           - "открытое акционерное общество"
         value: null
