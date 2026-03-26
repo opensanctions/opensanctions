@@ -44,6 +44,9 @@ dates:
     - "in %Y"
     - "on %B %d, %Y"
     - "in %B %Y"
+names:
+  suggest_abbreviation_non_person_single_token_shorter_than: 5
+  suggest_weak_alias_person_single_token: true
 
 assertions:
   min:
@@ -70,6 +73,12 @@ lookups:
           - Goods and services
           - Other  # e.g. Canada is prohibiting Russian ships from docking in Canada or passing through Canadian waters
         value: null
+  name_alias:
+    options:
+      - match: 'Helena Shudra or Victoria Pesti'
+        values:
+          - Helena Shudra
+          - Victoria Pesti
   type.date:
     options:
       - match: 'onOctober 27, 1963'

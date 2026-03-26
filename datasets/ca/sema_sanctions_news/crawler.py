@@ -2,6 +2,7 @@ import re
 
 from dataclasses import dataclass, field
 from itertools import chain
+from banal import ensure_list
 from lxml.etree import _Element
 from typing import Dict, List, Optional
 
@@ -38,7 +39,7 @@ def parse_name_dob(name: str) -> PersonBio:
         name, aka = name.split("(also known as", 1)
         aliases = [a.strip().rstrip(")") for a in aka.split(",")]
 
-    if "(également connue sous le nom" in name:
+    if "(également connue sous le nom" in name.lower():
         name, aka = name.split("(également connue sous le nom de ", 1)
         aliases = [a.strip().rstrip(")") for a in aka.split(",")]
 
@@ -79,6 +80,12 @@ def crawl_entity_notice(context: Context, row: Dict[str, _Element]) -> None:
         entity.add("name", parsed_bio.name, lang="eng")
         entity.add("name", parsed_bio.name_ru, lang="rus")
         for alias in parsed_bio.aliases:
+            if re.search(r"\b(or|and|et)\b", alias, flags=re.I):
+                res = context.lookup("name_alias", alias, warn_unmatched=True)
+                if res:
+                    for value in ensure_list(res.values):
+                        entity.add("alias", value, lang="eng")
+                    continue
             entity.add("alias", alias, lang="eng")
 
             # send the rest of the irregular aliases into review
