@@ -13,10 +13,9 @@ for a bit longer (2024-07-31)
 """
 
 import re
-from urllib.parse import urlparse, parse_qs
-from typing import Dict, Optional
-
 from lxml.etree import _Element
+from typing import Dict, Optional
+from urllib.parse import urlparse, parse_qs
 
 from zavod import Context, helpers as h
 
@@ -24,11 +23,19 @@ from zavod import Context, helpers as h
 def crawl_item(context: Context, row: Dict[str, _Element]) -> None:
     names = []
     name_els = row.pop("firms_individuals")
-    assert name_els is not None
-    for dirty_name_el in name_els.findall(".//span"):
-        # for one known instance of ,1 at the end of the name
-        dirty_name = re.sub(r",1$", "", h.element_text(dirty_name_el))
-        names.extend(h.split_comma_names(context, dirty_name))
+    for div_row in h.xpath_elements(name_els, ".//div[@class='row']"):
+        # Select the text-bearing span directly, skipping the icon span which has no
+        # text content. This avoids relying on positional span[2] and also prevents
+        # the outer wrapper span from concatenating all descendant text into a single
+        # corrupted string.
+        dirty_name = h.xpath_string(
+            div_row, "./span[normalize-space(text())]/text()"
+        ).strip()
+        if not dirty_name:
+            context.log.warning("No name span found, page structure may have changed")
+            continue
+        name = re.sub(r",1$", "", dirty_name)
+        names.extend(h.split_comma_names(context, name))
     case_summary = h.element_text(row.pop("case_summary"))
     case_id_el = row.pop("case_id")
     case_id = h.element_text(case_id_el)
