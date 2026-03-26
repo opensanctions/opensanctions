@@ -108,4 +108,6 @@ lookups:
           - "OK"
           - "PA"
           - "CA"
+          - "DE"
+          - "WA"
         value: null
