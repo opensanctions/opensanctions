@@ -45,6 +45,17 @@ def crawl_item(context: Context, row: Dict[str, _Element]) -> None:
     for name in names:
         entity = context.make("LegalEntity")
         entity.id = context.make_slug(name)
+
+        original = h.Names(name=name)
+        is_irregular, suggested = h.check_names_regularity(entity, original)
+        h.review_names(
+            context,
+            entity,
+            original=original,
+            suggested=suggested,
+            is_irregular=is_irregular,
+        )
+
         entity.add("name", name)
         entity.add("topics", "reg.action")
         entity.add("country", "us")

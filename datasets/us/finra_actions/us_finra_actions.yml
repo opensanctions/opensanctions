@@ -31,6 +31,11 @@ data:
   format: HTML
   lang: eng
 ci_test: false
+names:
+  schema_rules:
+    LegalEntity:
+      reject_chars: "()/"
+  suggest_abbreviation_non_person_single_token_shorter_than: 5
 
 assertions:
   min:
