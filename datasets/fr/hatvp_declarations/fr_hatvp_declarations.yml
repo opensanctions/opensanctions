@@ -39,16 +39,15 @@ data:
 tags:
   - list.pep
 
-# TODO: add assertions after position classification
-
-#   min:
-#     schema_entities:
-#       Person: 5500
-#       Position: 2000
-#   max:
-#     schema_entities:
-#       LegalEntity: 14000
-#       Position: 5200
+assertions:
+  min:
+    schema_entities:
+      Person: 4700
+      Position: 1600
+  max:
+    schema_entities:
+      Person: 12000
+      Position: 4200
 
 lookups:
   columns:
