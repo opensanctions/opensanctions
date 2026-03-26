@@ -39,7 +39,7 @@ data:
 tags:
   - list.pep
 
-# Wait until we resolve the position taxonomy in the UI and set is_pep=True
+# TODO: Wait until we resolve the position taxonomy in the UI and set is_pep=True
 # assertions:
 #   min:
 #     schema_entities:
