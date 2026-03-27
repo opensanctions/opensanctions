@@ -12,7 +12,6 @@ the time we check the issue, or whether there's a bug. Keeping an eye on this
 for a bit longer (2024-07-31)
 """
 
-import re
 from lxml.etree import _Element
 from typing import Dict, Optional
 from urllib.parse import urlparse, parse_qs
@@ -28,13 +27,10 @@ def crawl_item(context: Context, row: Dict[str, _Element]) -> None:
         # text content. This avoids relying on positional span[2] and also prevents
         # the outer wrapper span from concatenating all descendant text into a single
         # corrupted string.
-        dirty_name = h.xpath_string(
-            div_row, "./span[normalize-space(text())]/text()"
-        ).strip()
-        if not dirty_name:
+        name = h.xpath_string(div_row, "./span[normalize-space(text())]/text()").strip()
+        if not name:
             context.log.warning("No name span found, page structure may have changed")
             continue
-        name = re.sub(r",1$", "", dirty_name)
         names.extend(h.split_comma_names(context, name))
     case_summary = h.element_text(row.pop("case_summary"))
     case_id_el = row.pop("case_id")
@@ -48,6 +44,9 @@ def crawl_item(context: Context, row: Dict[str, _Element]) -> None:
 
         original = h.Names(name=name)
         is_irregular, suggested = h.check_names_regularity(entity, original)
+        # Catches names with embedded alias indicators, e.g.:
+        # "Score Priority Corp. formerly known as Just2Trade Inc."
+        # "CODA Markets Inc. (f/k/a PDQ ATS Inc.)"
         h.review_names(
             context,
             entity,

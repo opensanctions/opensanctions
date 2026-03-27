@@ -34,7 +34,7 @@ ci_test: false
 names:
   schema_rules:
     LegalEntity:
-      reject_chars: "()/"
+      reject_chars: "()/\""
   suggest_abbreviation_non_person_single_token_shorter_than: 5
 
 assertions:
@@ -65,6 +65,8 @@ lookups:
         value: Kelli A. Mezzatesta
       - match: 1605568
         value: Marc Harrison
+      - match: Axos Clearing LLC,1
+        value: Axos Clearing LLC
   comma_names:
     lowercase: true
     options:
