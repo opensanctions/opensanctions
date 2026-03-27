@@ -14,18 +14,19 @@ def crawl_page(
     required: bool = True,
 ):
     doc = fetch_html(context, link, unblock_validator, cache_days=3)
-    for p in doc.xpath(".//p"):
+    for p in h.xpath_elements(doc, ".//p"):
         p.tail = p.tail + "\n" if p.tail else "\n"
-    table = doc.find('.//div[@class="content-block"]//table')
-    if table is None:
+    table = h.xpath_elements(doc, './/div[@class="content-block"]//table')
+    if len(table) == 0:
         if required:
             raise ValueError(f"No table found in {link}")
         else:
             return doc
 
+    assert len(table) == 1, f"Expected exactly one table in {link}"
     headers: Optional[List[str]] = None
-    for row in table.findall(".//tr"):
-        cells = [c.text_content() for c in row.findall(".//td")]
+    for row in h.xpath_elements(table[0], ".//tr"):
+        cells = [c.text_content() for c in h.xpath_elements(row, ".//td")]
         if headers is None:
             headers = [slugify(k, sep="_") for k in cells]
             continue
@@ -84,6 +85,7 @@ def crawl_page(
 
 
 def crawl(context: Context):
+    assert context.dataset.model.url
     # Detect if new sanctions programs are added
     index_doc = fetch_html(
         context,
@@ -91,16 +93,19 @@ def crawl(context: Context):
         ".//*[contains(text(), 'Tarptautinės finansinės sankcijos. Įgyvendinimas')]",
         cache_days=1,
     )
-    index_main = index_doc.xpath(".//main")
-    assert len(index_main) == 1, len(index_main)
-    h.assert_dom_hash(index_main[0], "dcdfba83ce9c8cab447a6eb9fa0ee91b4d2f4df5")
-
+    index_main = h.xpath_element(index_doc, ".//main")
+    h.assert_dom_hash(index_main, "73a409804f5bc0d84cc145859b010bf6a223199e")
+    # LIST OF LEGAL ENTITIES OR OTHER ORGANIZATIONS WITHOUT LEGAL PERSONAL STATUS THAT ARE OWNED
+    # OR CONTROLLED BY A SANCTIONED ENTITY
     crawl_page(
         context,
         "https://fntt.lrv.lt/lt/tarptautines-finansines-sankcijos/sankcionuotu-asmenu-sarasas/",
         ".//*[contains(text(), 'Fizinio ar juridinio asmens, kurio turtas įšaldytas')]",
         program_key="LT-SL",
     )
+    # List of natural or legal persons, groups and entities included in the list of natural or legal persons,
+    # groups and entities associated with terrorist acts, whose funds and other financial assets must be frozen,
+    # established on the basis of UNSCR 1373 (2001) (as amended)
     unsc_1373_doc = crawl_page(
         context,
         "https://fntt.lrv.lt/lt/tarptautines-finansines-sankcijos/JT-STR-1373-sarasas/",
@@ -108,6 +113,5 @@ def crawl(context: Context):
         program_key="LT-UNSCR1373",
         required=False,
     )
-    unsc_1373_main = unsc_1373_doc.xpath(".//main")
-    assert len(unsc_1373_main) == 1, len(unsc_1373_main)
-    h.assert_dom_hash(unsc_1373_main[0], "b4c16e6f4ad7609e736b6971952bf2e79b7ec188")
+    unsc_1373_main = h.xpath_element(unsc_1373_doc, ".//main")
+    h.assert_dom_hash(unsc_1373_main, "cfcb88db7b9d67150bbc114423f64a467a32fbc3")
