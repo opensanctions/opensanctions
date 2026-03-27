@@ -164,6 +164,8 @@ lookups:
         value: hrv
       - match: Japanese
         value: jpn
+      - match: Central Khmer
+        value: khm
       - match: "" # we don't want to warn on empty languages
         value: null
   name_type:
@@ -286,6 +288,8 @@ lookups:
       - match: "P.O. Box 11365-8486"
         prop: postOfficeBox
         value: "11365-8486"
+      - match: Kampong Speu 5301
+        value: "5301"
   type.url:
     options:
       - match: "Unknown"
@@ -1264,6 +1268,15 @@ lookups:
       - match: "Russia Licence No. \u2013 1885 "
         props:
           registrationNumber: "1885"
+      - match: "'00021503 (KH) "
+        props:
+          registrationNumber: "00021503"
+      - match: "'00073994 (KH) "
+        props:
+          registrationNumber: "00073994"
+      - match: "1000334551/00070350/L001-902305069 (Tax identification number) "
+        props:
+          taxNumber: ["1000334551", "00070350", "L001-902305069"]
       - match:
           - "9703155974"
           - "DSO-ZZCO-16068"
@@ -2082,6 +2095,7 @@ lookups:
           - Wei Hai Yuan Jing Ship
           - Zale Shipping Inc
           - Zulu Ships Management
+          - Xinbi Guarantee
         value: SAME
       - match: Subsidiary of the Organisation for Technological Industries (OTI) and therefore the Syrian Ministry of Defence
         values:
