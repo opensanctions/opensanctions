@@ -6,7 +6,11 @@ from zavod import Context, helpers as h
 from rigour.names.split_phrases import contains_split_phrase
 from zavod.shed import enforcements
 from zavod.extract.llm import run_typed_text_prompt, DEFAULT_MODEL
-from zavod.stateful.review import review_extraction, HtmlSourceValue
+from zavod.stateful.review import (
+    review_extraction,
+    HtmlSourceValue,
+    assert_all_accepted,
+)
 
 
 MAX_AGE_DAYS = 365 * 10  # keep 10 years of history
@@ -24,7 +28,9 @@ class Respondents(BaseModel):
 
 PROMPT = """
 Extract the entity name(s) from the string and its aliases if any, following the schema provided.
-ONLY include names mentioned in the input string.
+ONLY include names mentioned in the input string. A string might contain multiple entities,
+record each entity with its data in a separate {Respondent} class, so that if a string contains multiple entities,
+they are listed as separate objects in {Respondents}.
 
 - name: The name of the entity precisely as expressed in the text.
 - aliases: ONLY extract aliases that follow an explicit indication of an _alternative_ name, such as "also known as", "alias", "formerly", "aka", "fka". Otherwise the aliases field should just be an empty array.
@@ -42,6 +48,7 @@ def crawl_row(context: Context, row: dict[str, _Element]) -> None:
     str_row = h.cells_to_str(row)
     case_name = str_row.pop("enforcement_action")
     sanction_date = str_row.pop("date_sort_ascending")
+    matter_number = str_row.pop("matter_number")
     assert sanction_date is not None
     if not enforcements.within_max_age(context, sanction_date, MAX_AGE_DAYS):
         return
@@ -50,12 +57,9 @@ def crawl_row(context: Context, row: dict[str, _Element]) -> None:
     case_name = case_name.replace("In the Matter of", "")
     assert "in the matter of" not in case_name.lower()
 
-    entity = context.make("LegalEntity")
-    matter_number = str_row.pop("matter_number")
-    entity.id = context.make_id(case_name, matter_number)
+    needs_review = contains_split_phrase(case_name) or " and " in case_name
 
-    # send to cleaning if a string contains split entities and aliases
-    if contains_split_phrase(case_name) or " and " in case_name:
+    if needs_review:
         source_value = HtmlSourceValue(
             key_parts=case_name,
             label="Case Name",
@@ -76,24 +80,44 @@ def crawl_row(context: Context, row: dict[str, _Element]) -> None:
         )
         if not review.accepted:
             return
-
-        for item in review.extracted_data.respondents:
-            entity.add("name", item.name, origin=review.origin)
-            entity.add("alias", item.aliases, origin=review.origin)
-            entity.add("previous_name", item.previous_names, origin=review.origin)
+        extrated_data = review.extracted_data
+        origin = review.origin
     else:
-        entity.add("name", case_name)
+        extrated_data = Respondents(respondents=[Respondent(name=case_name)])
+        origin = None
 
-    entity.add("sourceUrl", detail_url)
-    entity.add("sector", str_row.pop("financial_institution"))
-    entity.add("topics", "reg.action")
-    entity.add("country", "us")
+    for item in extrated_data.respondents:
+        entity = context.make("LegalEntity")
+        entity.id = context.make_id(item.name, matter_number)
 
-    sanction = h.make_sanction(context, entity, key=matter_number)
-    h.apply_date(sanction, "listingDate", sanction_date)
+        # check name irregularity (e.g. [UPDATED...]) and send to review
+        original = h.Names(name=item.name)
+        is_irregular, suggested = h.check_names_regularity(entity, original)
 
-    context.emit(entity)
-    context.emit(sanction)
+        # another review will be created if standard heuristics suggest the name is irregular,
+        # or if there is a custom suggestion that differs from the original categorisation.
+        h.review_names(
+            context,
+            entity,
+            original=original,
+            suggested=suggested,
+            is_irregular=is_irregular,
+        )
+        # TODO: once we're done with reviews -- change to apply_reviewed_names()
+
+        entity.add("name", item.name, origin=origin)
+        entity.add("alias", item.aliases, origin=origin)
+        entity.add("previous_name", item.previous_names, origin=origin)
+        entity.add("sourceUrl", detail_url)
+        entity.add("sector", str_row.pop("financial_institution"))
+        entity.add("topics", "reg.action")
+        entity.add("country", "us")
+
+        sanction = h.make_sanction(context, entity, key=matter_number)
+        h.apply_date(sanction, "listingDate", sanction_date)
+
+        context.emit(entity)
+        context.emit(sanction)
     context.audit_data(str_row)
 
 
@@ -104,4 +128,4 @@ def crawl(context: Context) -> None:
     for row in h.parse_html_table(table):
         crawl_row(context, row)
 
-    # assert_all_accepted(context, raise_on_unaccepted=False)
+    assert_all_accepted(context, raise_on_unaccepted=False)
