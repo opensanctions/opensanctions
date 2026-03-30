@@ -12,11 +12,9 @@ the time we check the issue, or whether there's a bug. Keeping an eye on this
 for a bit longer (2024-07-31)
 """
 
-import re
-from urllib.parse import urlparse, parse_qs
-from typing import Dict, Optional
-
 from lxml.etree import _Element
+from typing import Dict, Optional
+from urllib.parse import urlparse, parse_qs
 
 from zavod import Context, helpers as h
 
@@ -24,11 +22,16 @@ from zavod import Context, helpers as h
 def crawl_item(context: Context, row: Dict[str, _Element]) -> None:
     names = []
     name_els = row.pop("firms_individuals")
-    assert name_els is not None
-    for dirty_name_el in name_els.findall(".//span"):
-        # for one known instance of ,1 at the end of the name
-        dirty_name = re.sub(r",1$", "", h.element_text(dirty_name_el))
-        names.extend(h.split_comma_names(context, dirty_name))
+    for div_row in h.xpath_elements(name_els, ".//div[@class='row']"):
+        # Select the text-bearing span directly, skipping the icon span which has no
+        # text content. This avoids relying on positional span[2] and also prevents
+        # the outer wrapper span from concatenating all descendant text into a single
+        # corrupted string.
+        name = h.xpath_string(div_row, "./span[normalize-space(text())]/text()").strip()
+        if not name:
+            context.log.warning("No name span found, page structure may have changed")
+            continue
+        names.extend(h.split_comma_names(context, name))
     case_summary = h.element_text(row.pop("case_summary"))
     case_id_el = row.pop("case_id")
     case_id = h.element_text(case_id_el)
@@ -38,6 +41,17 @@ def crawl_item(context: Context, row: Dict[str, _Element]) -> None:
     for name in names:
         entity = context.make("LegalEntity")
         entity.id = context.make_slug(name)
+
+        # Catches names with embedded alias indicators, e.g.:
+        # "Score Priority Corp. formerly known as Just2Trade Inc."
+        # "CODA Markets Inc. (f/k/a PDQ ATS Inc.)"
+        h.review_names(
+            context,
+            entity,
+            original=h.Names(name=name),
+            llm_cleaning=True,
+        )
+
         entity.add("name", name)
         entity.add("topics", "reg.action")
         entity.add("country", "us")

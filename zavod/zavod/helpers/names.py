@@ -31,7 +31,7 @@ from zavod.stateful.review import (
 REGEX_AND = re.compile(r"(\band\b|&|\+)", re.I)
 REGEX_LNAME_FNAME = re.compile(r"^\w+, \w+$", re.I)
 REGEX_CLEAN_COMMA = re.compile(
-    r", \b(LLC|L\.L\.C|Inc|Jr|INC|L\.P|LP|Sr|III|II|IV|S\.A|LTD|USA INC|\(?A/K/A|\(?N\.K\.A|\(?N/K/A|\(?F\.K\.A|formerly known as|INCORPORATED)\b",  # noqa
+    r", \b(LLC|L\.L\.C|Inc|Jr|INC|LLLP|L\.P|LP|Sr|III|II|IV|S\.A|LTD|USA INC|\(?A/K/A|\(?N\.K\.A|\(?N/K/A|\(?F\.K\.A|formerly known as|INCORPORATED)\b",  # noqa
     re.I,
 )
 
@@ -231,6 +231,11 @@ def split_comma_names(context: Context, text: str) -> List[str]:
     text = squash_spaces(text)
     if len(text) == 0:
         return []
+
+    # Check early for overrides of cases where splitting on comma is a mistake.
+    res = context.lookup("comma_names", text)
+    if res:
+        return cast(List[str], res.names)
 
     text = REGEX_CLEAN_COMMA.sub(r" \1", text)
     # If the string ends in a comma, the last comma is unnecessary (e.g. Goldman Sachs & Co. LLC,)
