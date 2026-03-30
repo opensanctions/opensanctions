@@ -70,6 +70,13 @@ lookups:
   comma_names:
     lowercase: true
     options:
+      # Splitting on this comma is a mistake
+      - match: "Kane, McKenna Capital, Inc."
+        names:
+          - Kane, McKenna Capital, Inc.
+      - match: "KERN, SUSLOW SECURITIES, INC."
+        names:
+          - KERN, SUSLOW SECURITIES, INC.
       - match: "ameriprise advisor services inc., h&r block financial advisors inc."
         names:
           - Ameriprise advisor services inc.

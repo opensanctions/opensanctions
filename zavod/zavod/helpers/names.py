@@ -232,6 +232,11 @@ def split_comma_names(context: Context, text: str) -> List[str]:
     if len(text) == 0:
         return []
 
+    # Check early for overrides of cases where splitting on comma is a mistake.
+    res = context.lookup("comma_names", text)
+    if res:
+        return cast(List[str], res.names)
+
     text = REGEX_CLEAN_COMMA.sub(r" \1", text)
     # If the string ends in a comma, the last comma is unnecessary (e.g. Goldman Sachs & Co. LLC,)
     if text.endswith(","):
