@@ -22,7 +22,6 @@ from rigour.mime.types import ZIP
 
 from zavod import Context
 from zavod import helpers as h
-from zavod.shed.internal_data import fetch_internal_data
 
 
 DOWNLOAD_URL = "https://sam.gov/api/prod/fileextractservices/v1/api/download/"
@@ -123,7 +122,7 @@ def usgsa_id(
     return context.make_id(uei, id_name, id_zip, city, country)
 
 
-def crawl_latest_file(context: Context) -> None:
+def crawl(context: Context) -> None:
     data_url = crawl_data_url(context)
     path = context.fetch_resource("source.zip", data_url)
     context.export_resource(path, ZIP, title=context.SOURCE_TITLE)
@@ -141,7 +140,6 @@ def crawl_latest_file(context: Context) -> None:
         uei = row.pop("Unique Entity ID")
 
         if agency in ("HHS", "OPM"):
-            external = False
             entity_id = us_fed_excl_id(
                 context,
                 full_name=row.get("Name"),
@@ -152,7 +150,6 @@ def crawl_latest_file(context: Context) -> None:
                 city=row.get("City"),
             )
         else:
-            external = True
             entity_id = usgsa_id(
                 context,
                 uei=uei,
@@ -305,178 +302,12 @@ def crawl_latest_file(context: Context) -> None:
         )
         h.copy_address(entity, address)
 
-        context.emit(entity, external=external)
-        if external:
-            continue
-
-        sanction = h.make_sanction(context, entity, key=agency)
-        if agency is not None and len(agency):
-            sanction.set("authority", agency)
-
-        sanction.add("program", row.pop("Exclusion Program"))
-        sanction.add("provisions", row.pop("Exclusion Type"))
-        sanction.add("status", row.pop("Record Status"))
-        h.apply_date(sanction, "listingDate", creation_date)
-        h.apply_date(sanction, "startDate", parse_date(row.pop("Active Date")))
-        h.apply_date(sanction, "endDate", parse_date(row.pop("Termination Date")))
-        sanction.add("summary", row.pop("Additional Comments"))
-        context.emit(sanction)
-
-        context.audit_data(row, ignore=["CT Code", "Open Data Flag"])
-
-
-def crawl_sam_number_file(context: Context) -> None:
-    """
-    Emit entities whose IDs are based on SAM Number from last successfully-handled source file.
-
-    This is the most up to date data we can publish for these entities without a rekey.
-
-    We will dedupe the new IDs for these entities against the old IDs, and once that's
-    sufficiently complete, we'll drop this and emit everyhing from the new source with
-    new IDs (canonicalised against the old).
-    """
-    path = context.get_resource_path("old_sam_numbers.csv.zip")
-    fetch_internal_data(
-        "us_sam_exclusions/datasets_20260228_us_sam_exclusions_source.zip", path
-    )
-
-    schemata: Dict[str, str] = {}
-    for row_ids, (filename, row) in enumerate(read_rows(path)):
-        classification = row.pop("Classification")
-        schema = context.lookup_value("classifications", classification)
-        if schema is None:
-            context.log.warn(
-                "Unknown classification (SAM Number file)",
-                classification=classification,
-            )
-            continue
-        agency = row.pop("Excluding Agency")
-        sam_number = row.pop("SAM Number")
-        country = row.pop("Country")
-
-        zip_code = row.pop("Zip Code")
-        uei = row.pop("Unique Entity ID")
-        new_id = usgsa_id(
-            context,
-            uei=uei,
-            full_name=row.get("Name"),
-            first_name=row.get("First"),
-            middle_name=row.get("Middle"),
-            last_name=row.get("Last"),
-            zip_code=zip_code,
-            city=row.get("City"),
-            country=country,
-        )
-
-        override_schema = context.lookup_value("schema.override", new_id)
-
-        schema = override_schema or schema
-        entity = context.make(schema)
-        entity.id = context.make_slug(sam_number)
-        if agency in ("HHS", "OPM"):
-            continue
-
-        if entity.id is None:
-            context.log.warning(
-                "No id for entity (SAM Number file)",
-                sam_number=sam_number,
-                name=row.get("Name"),
-            )
-            continue
-
-        if entity.id in schemata and not entity.schema.is_a(schemata[entity.id]):
-            context.log.warning(
-                "Schema mismatch (SAM Number file)",
-                entity_id=entity.id,
-                sam_number=sam_number,
-                name=row.get("Name"),
-                schema=entity.schema.name,
-                prev_schema=schemata[entity.id],
-            )
-            continue
-        schemata[entity.id] = entity.schema.name
-
-        creation_date = parse_date(row.pop("Creation_Date"))
-        h.apply_date(entity, "createdAt", creation_date)
-
-        # All exclusions in this dataset are debarments from US federal programs
-        # This previously used to tag entities as sanctioned when they are on US
-        # OFAC lists, but this is problematic when GSA maintains exclusion records for
-        # entities that have been delisted by OFAC.
-        entity.add("topics", "debarment")
-
-        cross_ref = row.pop("Cross-Reference")
-        entity.add("notes", cross_ref, lang="eng")
-        if "uniqueEntityId" in entity.schema.properties:
-            entity.add("uniqueEntityId", uei)
-        else:
-            entity.add("registrationNumber", uei, quiet=True)
-
-        entity.add("cageCode", row.pop("CAGE"), quiet=True)
-        # The NPI (National Provider Identifier) is a unique identification number
-        # for covered health care providers. It is an optional field for exclusion
-        # records.
-        npi = row.pop("NPI")
-        if npi is not None and len(npi):
-            entity.add("npiCode", npi)
-
-        name = h.make_name(
-            full=row.pop("Name"),
-            first_name=row.get("First"),
-            middle_name=row.get("Middle"),
-            last_name=row.get("Last"),
-            prefix=row.pop("Prefix"),
-            suffix=row.pop("Suffix"),
-        )
-
-        if not name:
-            return
-        full_name_prop: NameProp = "name"
-        # Not vessels
-        if len(name) < 5 and entity.schema.is_a("LegalEntity"):
-            full_name_prop = "weakAlias"
-        elif len(name) < 10 and " " not in name and entity.schema.is_a("Person"):
-            full_name_prop = "weakAlias"
-        # Treat longer single word entity names as iffy for now
-        # len("Sebastiano") == 10
-        elif len(name) < 11 and " " not in name and entity.schema.is_a("LegalEntity"):
-            full_name_prop = "alias"
-
-        extraction = FullName(name=name, property_name=full_name_prop)
-        origin = filename
-
-        entity.add(
-            extraction.property_name,
-            extraction.name,
-            lang="eng",
-            origin=origin,
-        )
-
-        entity.add("firstName", row.pop("First"), quiet=True, lang="eng")
-        entity.add("middleName", row.pop("Middle"), quiet=True, lang="eng")
-        entity.add("lastName", row.pop("Last"), quiet=True, lang="eng")
-
-        state = clean_address_part(row.pop("State / Province"))
-        entity.add("country", country)
-        address = h.make_address(
-            context,
-            street=clean_address_part(row.pop("Address 1")),
-            street2=clean_address_part(row.pop("Address 2")),
-            # street3=row.pop("Address 3", None),
-            city=clean_address_part(row.pop("City")),
-            postal_code=clean_address_part(zip_code),
-            country_code=entity.first("country"),
-            state=state,
-        )
-        h.copy_address(entity, address)
-
         context.emit(entity)
 
         sanction = h.make_sanction(context, entity, key=agency)
         if agency is not None and len(agency):
             sanction.set("authority", agency)
-            # entity.set("program", agency)
-        sanction.add("authorityId", sam_number)
+
         sanction.add("program", row.pop("Exclusion Program"))
         sanction.add("provisions", row.pop("Exclusion Type"))
         sanction.add("status", row.pop("Record Status"))
@@ -487,17 +318,3 @@ def crawl_sam_number_file(context: Context) -> None:
         context.emit(sanction)
 
         context.audit_data(row, ignore=["CT Code", "Open Data Flag"])
-
-
-def crawl(context: Context) -> None:
-    crawl_latest_file(context)
-    crawl_sam_number_file(context)
-    context.log.warning(
-        (
-            "Please note that entities with source IDs starting with 'usgsa' are based "
-            "on SAM_Exclusions_Public_Extract_V2_26058.CSV dated 27 February 2026 so "
-            "that new IDs can be generated and de-duplicated against these old entities "
-            "without causing excessive disruption. This data will be brought up to date "
-            "later this week."
-        )
-    )
