@@ -107,7 +107,7 @@ def crawl_row(context: Context, row: dict[str, _Element]) -> None:
 
         entity.add("name", item.name, origin=origin)
         entity.add("alias", item.aliases, origin=origin)
-        entity.add("previous_name", item.previous_names, origin=origin)
+        entity.add("alias", item.previous_names, origin=origin)
         entity.add("sourceUrl", detail_url)
         entity.add("sector", str_row.pop("financial_institution"))
         entity.add("topics", "reg.action")
