@@ -42,17 +42,14 @@ def crawl_item(context: Context, row: Dict[str, _Element]) -> None:
         entity = context.make("LegalEntity")
         entity.id = context.make_slug(name)
 
-        original = h.Names(name=name)
-        is_irregular, suggested = h.check_names_regularity(entity, original)
         # Catches names with embedded alias indicators, e.g.:
         # "Score Priority Corp. formerly known as Just2Trade Inc."
         # "CODA Markets Inc. (f/k/a PDQ ATS Inc.)"
         h.review_names(
             context,
             entity,
-            original=original,
-            suggested=suggested,
-            is_irregular=is_irregular,
+            original=h.Names(name=name),
+            llm_cleaning=True,
         )
 
         entity.add("name", name)
