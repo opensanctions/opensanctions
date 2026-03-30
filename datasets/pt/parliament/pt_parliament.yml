@@ -38,7 +38,8 @@ dates:
 assertions:
   min:
     schema_entities:
-      Person: 1800  # raw count 2291 (current + historical, incl. temporary MPs)
+      # count of Efetivo statuses (not necessarily unique MPs) from source: 2738
+      Person: 1800  # raw count for Efetivo from stats: 2257 (current + historical, incl. temporary MPs)
       Position: 1
   max:
     schema_entities:
@@ -49,17 +50,17 @@ lookups:
     # sioDes indicates whether a period in the data represents active membership or non-membership.
     options:
       - match:
-          - "Efetivo" # Effective (used in current and historical periods)
+          - "Efetivo"  # Effective (used in current and historical periods)
           - "Efetivo Definitivo"
           - "Efetivo Temporário"
-          - "Suplente" # Alternate
         value: "true"
       - match:
-          - "Renunciou" # Resigned
-          - "Suspenso(Não Eleito)" # Suspended (Not Elected)
-          - "Suspenso(Efet Def)" # Suspended (Effective Definitive)
-          - "Suspenso(Eleito)" # Suspended (Elected)
-          - "Desistência" # Withdrawal
-          - "Impedido" # Disqualified
-          - "Falecido/a" # Deceased
+          - "Suplente"  # Substitutes (elected on the party list but are not occupying a seat until they're called up)
+          - "Renunciou"  # Resigned
+          - "Suspenso(Não Eleito)"  # Suspended (Not Elected)
+          - "Suspenso(Efet Def)"  # Suspended (Effective Definitive)
+          - "Suspenso(Eleito)"  # Suspended (Elected)
+          - "Desistência"  # Withdrawal
+          - "Impedido"  # Disqualified
+          - "Falecido/a"  # Deceased
         value: "false"
