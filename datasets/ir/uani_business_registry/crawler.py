@@ -132,7 +132,7 @@ def crawl_subpage(context: Context, url: str, entity: Entity, entity_id: str):
 
 
 def get_end_page(context: Context):
-    url = f"https://www.unitedagainstnucleariran.com/iran-business-registry?page=0"
+    url = "https://www.unitedagainstnucleariran.com/iran-business-registry?page=0"
     doc = fetch_html(
         context,
         url,
