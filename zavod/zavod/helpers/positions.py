@@ -168,7 +168,7 @@ def make_occupancy(
 
     if categorisation is not None and not categorisation.is_pep:
         context.log.warning(
-            "Person is not categorized as a PEP, but was passed to make_occupancy",
+            "Position is not categorized as a PEP, but was passed to make_occupancy",
             person=person.id,
             position=position.id,
             categorisation=categorisation,
