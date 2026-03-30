@@ -65,8 +65,6 @@ lookups:
         value: Kelli A. Mezzatesta
       - match: 1605568
         value: Marc Harrison
-      - match: Axos Clearing LLC,1
-        value: Axos Clearing LLC
   comma_names:
     lowercase: true
     options:
@@ -77,6 +75,9 @@ lookups:
       - match: "KERN, SUSLOW SECURITIES, INC."
         names:
           - KERN, SUSLOW SECURITIES, INC.
+      - match: "Axos Clearing LLC,1"
+        names:
+          - Axos Clearing LLC
       - match: "ameriprise advisor services inc., h&r block financial advisors inc."
         names:
           - Ameriprise advisor services inc.
