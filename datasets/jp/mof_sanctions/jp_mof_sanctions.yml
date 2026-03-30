@@ -327,6 +327,8 @@ lookups:
         value: Indonesia
       - match: シリアSyrian Arab Republic
         value: Syria
+      - match: "イラク_x000D_"
+        value: Iraq
   type.date:
     options:
       - match:
