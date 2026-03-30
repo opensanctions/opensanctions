@@ -66,7 +66,7 @@ lookups:
       - match:
           - Entities
           - Russian entities
-        value: LegalEntity
+        value: Organization
       - match: Individuals
         value: Person
       - match:
