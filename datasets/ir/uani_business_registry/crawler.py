@@ -173,14 +173,11 @@ def crawl(context: Context):
     end_page = None
 
     while True:
-        # Construct the URL for the current page
-        url = f"https://www.unitedagainstnucleariran.com/iran-business-registry?page={page_num}"
-        context.log.info(f"Fetching URL: {url}")
         # Fetch the HTML and get the table
         doc = fetch_html(
             context,
-            url,
-            ".//div[@class='o-grid']",
+            url=f"{context.data_url}?page={page_num}",
+            unblock_validator=".//div[@class='o-grid']",
             geolocation="us",
             absolute_links=True,
         )
