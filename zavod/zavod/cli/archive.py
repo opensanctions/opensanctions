@@ -7,9 +7,7 @@ from zavod.archive import ARTIFACTS, STATEMENTS_FILE, iter_dataset_versions
 from zavod.cli import cli, DatasetInPath, _load_dataset
 from zavod.meta.dataset import Dataset
 
-RESOURCE_TYPES = {
-    "statements": STATEMENTS_FILE,
-}
+RESOURCE_FILENAMES = [STATEMENTS_FILE]
 
 
 def _get_latest_version(dataset: Dataset) -> str:
@@ -27,7 +25,7 @@ def archive() -> None:
 
 
 @archive.command("url", help="Print the public URL for a dataset resource")
-@click.argument("resource_type", type=click.Choice(list(RESOURCE_TYPES)))
+@click.argument("resource_filename", type=click.Choice(RESOURCE_FILENAMES))
 @click.argument("dataset_path", type=DatasetInPath)
 @click.option(
     "--latest",
@@ -35,9 +33,8 @@ def archive() -> None:
     default=False,
     help="Resolve the latest version from versions.json",
 )
-def url(resource_type: str, dataset_path: Path, latest: bool = False) -> None:
+def url(resource_filename: str, dataset_path: Path, latest: bool = False) -> None:
     dataset = _load_dataset(dataset_path)
-    filename = RESOURCE_TYPES[resource_type]
 
     if not latest:
         # No support for finding other versions yet
@@ -46,5 +43,5 @@ def url(resource_type: str, dataset_path: Path, latest: bool = False) -> None:
     if latest:
         version = _get_latest_version(dataset)
         click.echo(
-            f"{settings.ARCHIVE_SITE}/{ARTIFACTS}/{dataset.name}/{version}/{filename}"
+            f"{settings.ARCHIVE_SITE}/{ARTIFACTS}/{dataset.name}/{version}/{resource_filename}"
         )
