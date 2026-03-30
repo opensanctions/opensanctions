@@ -51,7 +51,6 @@ def crawl_subpage(context: Context, url: str, entity: Entity, entity_id: str | N
         context,
         url,
         validator_xpath,
-        cache_days=3,
         geolocation="us",
         absolute_links=True,
     )
@@ -130,29 +129,53 @@ def crawl_subpage(context: Context, url: str, entity: Entity, entity_id: str | N
     )
 
 
-def get_end_page(context: Context):
+def get_end_page(doc):
     last_page_xpath = ".//li[@class='c-pager__item c-pager__last']/a/@href"
-    doc = fetch_html(
-        context,
-        context.data_url,
-        last_page_xpath,
-        geolocation="us",
-        absolute_links=True,
-    )
     last_page_link = h.xpath_string(doc, last_page_xpath)
-    last_page_num = int(last_page_link.split("=")[0])
+    last_page_num = int(last_page_link.split("=")[-1])
     return last_page_num
 
 
-def crawl(context: Context):
-    end_page = get_end_page(context)
+def crawl_row(context: Context, row: Dict[str, HtmlElement]):
+    str_row = h.cells_to_str(row)
 
-    # paginate
-    for page_num in range(0, end_page + 1):
+    # skip entities that have been withdrawn
+    withdrawn_elem = row.pop("withdrawn")
+    is_withdrawn = bool(withdrawn_elem.xpath('.//div[@class="featured"]'))
+    if is_withdrawn is True:
+        return
+
+    company_elem = row.pop("company_sort_descending")
+    company_link = h.xpath_string(company_elem, ".//a/@href")
+    company_name = str_row.pop("company_sort_descending")
+
+    # Create and emit an entity
+    entity = context.make("Company")
+    entity.id = context.make_id(company_name, company_link, prefix="ir-br-co")
+
+    crawl_subpage(context, company_link, entity, entity.id)
+    entity.add("name", company_name)
+    entity.add("country", str_row.pop("nationality"))
+    entity.add("sourceUrl", company_link)
+    entity.add("ticker", str_row.pop("stock_symbol"))
+
+    # FL 2026-02-13 - Legal work-around, do not remove without written approval
+    if company_name is not None and "investment" in company_name.lower():
+        entity.add("topics", "invest.risk")
+    else:
+        entity.add("topics", "export.risk")
+    context.emit(entity)
+    context.audit_data(str_row)
+
+
+def crawl(context: Context):
+    page_num = 0
+    end_page = None
+
+    while True:
         # Construct the URL for the current page
         url = f"https://www.unitedagainstnucleariran.com/iran-business-registry?page={page_num}"
         context.log.info(f"Fetching URL: {url}")
-
         # Fetch the HTML and get the table
         doc = fetch_html(
             context,
@@ -161,42 +184,14 @@ def crawl(context: Context):
             geolocation="us",
             absolute_links=True,
         )
+        if end_page is None:
+            end_page = get_end_page(doc)
 
-        table = doc.find(".//div[@class='view-content']//table")
-        if table is None:
-            # each page should have a table with data
-            # if it is missing we should fail to avoid
-            # an incomplete dataset
-            raise Exception("Table not found.")
-
+        table = h.xpath_element(doc, ".//div[@class='view-content']//table")
         # Iterate through the parsed table
         for row in h.parse_html_table(table, skiprows=1):
-            str_row = h.cells_to_str(row)
+            crawl_row(context, row)
 
-            # skip entities that have been withdrawn
-            withdrawn_elem = row.pop("withdrawn")
-            is_withdrawn = bool(withdrawn_elem.xpath('.//div[@class="featured"]'))
-            if is_withdrawn is True:
-                continue
-
-            company_elem = row.pop("company_sort_descending")
-            company_link = h.xpath_string(company_elem, ".//a/@href")
-            company_name = str_row.pop("company_sort_descending")
-
-            # Create and emit an entity
-            entity = context.make("Company")
-            entity.id = context.make_id(company_name, company_link, prefix="ir-br-co")
-
-            crawl_subpage(context, company_link, entity, entity.id)
-            entity.add("name", company_name)
-            entity.add("country", str_row.pop("nationality"))
-            entity.add("sourceUrl", company_link)
-            entity.add("ticker", str_row.pop("stock_symbol"))
-
-            # FL 2026-02-13 - Legal work-around, do not remove without written approval
-            if company_name is not None and "investment" in company_name.lower():
-                entity.add("topics", "invest.risk")
-            else:
-                entity.add("topics", "export.risk")
-            context.emit(entity)
-            context.audit_data(str_row)
+        if page_num >= end_page:
+            break
+        page_num += 1
