@@ -130,6 +130,10 @@ lookups:
         values:
           - Egypt
           - USA
+      - match: México / Colombia
+        values:
+          - Mexico
+          - Colombia
   type.date:
     options:
       - match: "2"
