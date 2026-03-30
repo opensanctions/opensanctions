@@ -41,7 +41,7 @@ def is_500_page(doc: etree._Element) -> bool:
     )
 
 
-def crawl_subpage(context: Context, url: str, entity: Entity, entity_id: str):
+def crawl_subpage(context: Context, url: str, entity: Entity, entity_id: str | None):
     context.log.info(f"Starting to crawl company page: {url}")
     validator_xpath = (
         './/div[@class="c-full-node__info"] | '
@@ -59,9 +59,8 @@ def crawl_subpage(context: Context, url: str, entity: Entity, entity_id: str):
         context.log.info(f"Broken link detected: {url}")
         return
 
-    facts_lists = doc.xpath('.//div[@class="c-full-node__info"]')
-    assert len(facts_lists) == 1
-    facts = parse_facts_list(facts_lists[0])
+    facts_list = h.xpath_element(doc, './/div[@class="c-full-node__info"]')
+    facts = parse_facts_list(facts_list)
 
     for industry in facts.pop("industry", []):
         entity.add("sector", industry.text_content().strip())
@@ -132,21 +131,16 @@ def crawl_subpage(context: Context, url: str, entity: Entity, entity_id: str):
 
 
 def get_end_page(context: Context):
-    url = "https://www.unitedagainstnucleariran.com/iran-business-registry?page=0"
+    last_page_xpath = ".//li[@class='c-pager__item c-pager__last']/a/@href"
     doc = fetch_html(
         context,
-        url,
-        ".//li[@class='c-pager__item c-pager__last']",
+        context.data_url,
+        last_page_xpath,
         geolocation="us",
         absolute_links=True,
     )
-    atag = doc.find(".//li[@class='c-pager__item c-pager__last']/a")
-    last_page_link = atag.get("href")
-    last_page_num = int(last_page_link.split("=")[-1])
-
-    # fail now if last page cannot be determined
-    # to ensure acquiring the complete dataset
-    assert isinstance(last_page_num, int)
+    last_page_link = h.xpath_string(doc, last_page_xpath)
+    last_page_num = int(last_page_link.split("=")[0])
     return last_page_num
 
 
@@ -186,7 +180,7 @@ def crawl(context: Context):
                 continue
 
             company_elem = row.pop("company_sort_descending")
-            company_link = company_elem.find(".//a").get("href", "").strip()
+            company_link = h.xpath_string(company_elem, ".//a/@href")
             company_name = str_row.pop("company_sort_descending")
 
             # Create and emit an entity
