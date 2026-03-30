@@ -3,13 +3,22 @@ from pathlib import Path
 import click
 
 from zavod import settings
-from zavod.archive import ARTIFACTS, STATEMENTS_FILE
+from zavod.archive import ARTIFACTS, STATEMENTS_FILE, iter_dataset_versions
 from zavod.cli import cli, DatasetInPath, _load_dataset
-from zavod.runtime.versions import get_latest
+from zavod.meta.dataset import Dataset
 
 RESOURCE_TYPES = {
     "statements": STATEMENTS_FILE,
 }
+
+
+def _get_latest_version(dataset: Dataset) -> str:
+    # iter_dataset_versions always reads from the archive, never from the local file system
+    # which is what we want in this case. Otherwise we might end up with a version that's not
+    # actually in the archive but just from a local run.
+    for v in iter_dataset_versions(dataset.name):
+        return v.id
+    raise click.ClickException(f"No version history found for dataset: {dataset.name}")
 
 
 @cli.group("archive", help="Archive-related utilities")
@@ -35,11 +44,7 @@ def url(resource_type: str, dataset_path: Path, latest: bool = False) -> None:
         raise click.ClickException("--latest is required.")
 
     if latest:
-        version = get_latest(dataset.name)
-        if version is None:
-            raise click.ClickException(
-                f"No version history found for dataset: {dataset.name}"
-            )
+        version = _get_latest_version(dataset)
         click.echo(
             f"{settings.ARCHIVE_SITE}/{ARTIFACTS}/{dataset.name}/{version}/{filename}"
         )
