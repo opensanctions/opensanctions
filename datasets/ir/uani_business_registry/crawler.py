@@ -131,12 +131,32 @@ def crawl_subpage(context: Context, url: str, entity: Entity, entity_id: str):
     )
 
 
-def crawl(context: Context):
-    pages_processed = 0
+def get_end_page(context: Context):
+    url = f"https://www.unitedagainstnucleariran.com/iran-business-registry?page=0"
+    doc = fetch_html(
+        context,
+        url,
+        ".//li[@class='c-pager__item c-pager__last']",
+        geolocation="us",
+        absolute_links=True,
+    )
+    atag = doc.find(".//li[@class='c-pager__item c-pager__last']/a")
+    last_page_link = atag.get("href")
+    last_page_num = int(last_page_link.split("=")[-1])
 
-    while True:
+    # fail now if last page cannot be determined
+    # to ensure acquiring the complete dataset
+    assert isinstance(last_page_num, int)
+    return last_page_num
+
+
+def crawl(context: Context):
+    end_page = get_end_page(context)
+
+    # paginate
+    for page_num in range(0, end_page + 1):
         # Construct the URL for the current page
-        url = f"https://www.unitedagainstnucleariran.com/iran-business-registry?page={pages_processed}"
+        url = f"https://www.unitedagainstnucleariran.com/iran-business-registry?page={page_num}"
         context.log.info(f"Fetching URL: {url}")
 
         # Fetch the HTML and get the table
@@ -147,15 +167,19 @@ def crawl(context: Context):
             geolocation="us",
             absolute_links=True,
         )
+
         table = doc.find(".//div[@class='view-content']//table")
         if table is None:
-            context.log.info("No more tables found.")
-            break
+            # each page should have a table with data
+            # if it is missing we should fail to avoid
+            # an incomplete dataset
+            raise Exception("Table not found.")
 
         # Iterate through the parsed table
         for row in h.parse_html_table(table, skiprows=1):
             str_row = h.cells_to_str(row)
 
+            # skip entities that have been withdrawn
             withdrawn_elem = row.pop("withdrawn")
             is_withdrawn = bool(withdrawn_elem.xpath('.//div[@class="featured"]'))
             if is_withdrawn is True:
@@ -182,8 +206,3 @@ def crawl(context: Context):
                 entity.add("topics", "export.risk")
             context.emit(entity)
             context.audit_data(str_row)
-
-        pages_processed += 1
-
-        # Limit the number of pages processed to avoid infinite loops
-        assert pages_processed <= 10, "More pages than expected."
