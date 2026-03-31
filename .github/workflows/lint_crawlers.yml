@@ -49,8 +49,8 @@ jobs:
               ruff check $dataset
               ruff format --check --diff $dataset
           done
-      - name: pre-commit (prek)
+      - name: Run prek pre-commit hooks on modified files
         if: ${{ steps.changed-python.outputs.all_changed_files != '' }}
         run: |
           set -euxo pipefail
-          prek run --files ${{ steps.changed-files.outputs.all_changed_files }} mypy
+          prek run --files ${{ steps.changed-files.outputs.all_changed_files }}
