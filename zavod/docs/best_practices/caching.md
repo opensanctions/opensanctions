@@ -12,7 +12,7 @@
 - We’d like to finish a crawl of a big site with many HTTP errors or hundreds of thousands of pages. Caching helps reduce the number of pages requested each crawl.
 
 !!! info "Please note"
-    It’s critical to discover newly sanctioned persons, and important to discover new 
+    It’s critical to discover newly sanctioned persons, and important to discover new
     high-level PEPs very quickly - hence selectively or never caching index/listing pages.
 
 ## Issue with Pagination and Cached Pages

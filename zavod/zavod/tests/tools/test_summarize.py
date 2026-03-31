@@ -7,9 +7,9 @@ from zavod.crawl import crawl_dataset
 expected = """
 Jakob Maria Mierscheid
 Oswell E. Spencer
-  link: startDate: ['1968'] endDate: ['2003'] 
+  link: startDate: ['1968'] endDate: ['2003']
   Umbrella Corporation
-    name: ['Umbrella Corporation'] 
+    name: ['Umbrella Corporation']
 """
 
 
