@@ -34,19 +34,19 @@ def parse_facts_list(container: HtmlElement) -> Dict[str, List[HtmlElement]]:
     return data
 
 
-def is_500_page(doc: etree._Element) -> bool:
-    return (
-        "The website encountered an unexpected error. Try again later."
-        in doc.text_content()
-    )
-
-
 def crawl_subpage(context: Context, url: str, entity: Entity, entity_id: str):
     context.log.info(f"Starting to crawl company page: {url}")
-    validator_xpath = (
-        './/div[@class="c-full-node__info"] | '
-        './/*[contains(text(), "The website encountered an unexpected error.")]'
-    )
+    # In the past we've gotten an error message
+    # "The website encountered an unexpected error. Try again later."
+    # In that case this validator doesn't match.
+    # If we get UnblockFailedExceptions again, it could be due to that. If that happens,
+    # To confirm that locally, run with --debug.
+    # To confirm in prod, one option is to add
+    # '| .//*[contains(text(), "The website encountered an unexpected error.")]'
+    # to the unblock validator and then invalidate the cache and log the error.
+    # BEWARE skipping pages with this error means intermittent data loss
+    # and we've had complaints about that on this dataset in the past.
+    validator_xpath = './/div[@class="c-full-node__info"]'
     doc = fetch_html(
         context,
         url,
@@ -55,13 +55,9 @@ def crawl_subpage(context: Context, url: str, entity: Entity, entity_id: str):
         geolocation="us",
         absolute_links=True,
     )
-    if is_500_page(doc):
-        context.log.info(f"Broken link detected: {url}")
-        return
 
-    facts_lists = doc.xpath('.//div[@class="c-full-node__info"]')
-    assert len(facts_lists) == 1
-    facts = parse_facts_list(facts_lists[0])
+    facts_list = h.xpath_element(doc, './/div[@class="c-full-node__info"]')
+    facts = parse_facts_list(facts_list)
 
     for industry in facts.pop("industry", []):
         entity.add("sector", industry.text_content().strip())
@@ -131,59 +127,63 @@ def crawl_subpage(context: Context, url: str, entity: Entity, entity_id: str):
     )
 
 
+def get_end_page(doc):
+    last_page_xpath = ".//li[@class='c-pager__item c-pager__last']/a/@href"
+    last_page_link = h.xpath_string(doc, last_page_xpath)
+    last_page_num = int(last_page_link.split("=")[-1])
+    return last_page_num
+
+
+def crawl_row(context: Context, row: Dict[str, HtmlElement]):
+    str_row = h.cells_to_str(row)
+
+    # skip entities that have been withdrawn
+    withdrawn_elem = row.pop("withdrawn")
+    is_withdrawn = bool(withdrawn_elem.xpath('.//div[@class="featured"]'))
+    if is_withdrawn is True:
+        return
+
+    company_elem = row.pop("company_sort_descending")
+    company_link = h.xpath_string(company_elem, ".//a/@href")
+    company_name = str_row.pop("company_sort_descending")
+
+    # Create and emit an entity
+    entity = context.make("Company")
+    entity.id = context.make_id(company_name, company_link, prefix="ir-br-co")
+
+    crawl_subpage(context, company_link, entity, entity.id)
+    entity.add("name", company_name)
+    entity.add("country", str_row.pop("nationality"))
+    entity.add("sourceUrl", company_link)
+    entity.add("ticker", str_row.pop("stock_symbol"))
+
+    # FL 2026-02-13 - Legal work-around, do not remove without written approval
+    if company_name is not None and "investment" in company_name.lower():
+        entity.add("topics", "invest.risk")
+    else:
+        entity.add("topics", "export.risk")
+    context.emit(entity)
+    context.audit_data(str_row)
+
+
 def crawl(context: Context):
-    pages_processed = 0
+    page_num = 0
+    end_page = None
 
-    while True:
-        # Construct the URL for the current page
-        url = f"https://www.unitedagainstnucleariran.com/iran-business-registry?page={pages_processed}"
-        context.log.info(f"Fetching URL: {url}")
-
-        # Fetch the HTML and get the table
+    while end_page is None or page_num <= end_page:
         doc = fetch_html(
             context,
-            url,
-            ".//div[@class='o-grid']",
+            url=f"{context.data_url}?page={page_num}",
+            unblock_validator=".//div[@class='o-grid']",
             geolocation="us",
             absolute_links=True,
         )
-        table = doc.find(".//div[@class='view-content']//table")
-        if table is None:
-            context.log.info("No more tables found.")
-            break
+        if end_page is None:
+            end_page = get_end_page(doc)
 
-        # Iterate through the parsed table
+        table = h.xpath_element(doc, ".//div[@class='view-content']//table")
+
         for row in h.parse_html_table(table, skiprows=1):
-            str_row = h.cells_to_str(row)
+            crawl_row(context, row)
 
-            withdrawn_elem = row.pop("withdrawn")
-            is_withdrawn = bool(withdrawn_elem.xpath('.//div[@class="featured"]'))
-            if is_withdrawn is True:
-                continue
-
-            company_elem = row.pop("company_sort_descending")
-            company_link = company_elem.find(".//a").get("href", "").strip()
-            company_name = str_row.pop("company_sort_descending")
-
-            # Create and emit an entity
-            entity = context.make("Company")
-            entity.id = context.make_id(company_name, company_link, prefix="ir-br-co")
-
-            crawl_subpage(context, company_link, entity, entity.id)
-            entity.add("name", company_name)
-            entity.add("country", str_row.pop("nationality"))
-            entity.add("sourceUrl", company_link)
-            entity.add("ticker", str_row.pop("stock_symbol"))
-
-            # FL 2026-02-13 - Legal work-around, do not remove without written approval
-            if company_name is not None and "investment" in company_name.lower():
-                entity.add("topics", "invest.risk")
-            else:
-                entity.add("topics", "export.risk")
-            context.emit(entity)
-            context.audit_data(str_row)
-
-        pages_processed += 1
-
-        # Limit the number of pages processed to avoid infinite loops
-        assert pages_processed <= 10, "More pages than expected."
+        page_num += 1
