@@ -34,29 +34,27 @@ def parse_facts_list(container: HtmlElement) -> Dict[str, List[HtmlElement]]:
     return data
 
 
-def is_500_page(doc: etree._Element) -> bool:
-    return (
-        "The website encountered an unexpected error. Try again later."
-        in doc.text_content()
-    )
-
-
-def crawl_subpage(context: Context, url: str, entity: Entity, entity_id: str | None):
+def crawl_subpage(context: Context, url: str, entity: Entity, entity_id: str):
     context.log.info(f"Starting to crawl company page: {url}")
-    validator_xpath = (
-        './/div[@class="c-full-node__info"] | '
-        './/*[contains(text(), "The website encountered an unexpected error.")]'
-    )
+    # In the past we've gotten an error message
+    # "The website encountered an unexpected error. Try again later."
+    # In that case this validator doesn't match.
+    # If we get UnblockFailedExceptions again, it could be due to that. If that happens,
+    # To confirm that locally, run with --debug.
+    # To confirm in prod, one option is to add
+    # '| .//*[contains(text(), "The website encountered an unexpected error.")]'
+    # to the unblock validator and then invalidate the cache and log the error.
+    # BEWARE skipping pages with this error means intermittent data loss
+    # and we've had complaints about that on this dataset in the past.
+    validator_xpath = './/div[@class="c-full-node__info"]'
     doc = fetch_html(
         context,
         url,
         validator_xpath,
+        cache_days=3,
         geolocation="us",
         absolute_links=True,
     )
-    if is_500_page(doc):
-        context.log.info(f"Broken link detected: {url}")
-        return
 
     facts_list = h.xpath_element(doc, './/div[@class="c-full-node__info"]')
     facts = parse_facts_list(facts_list)
@@ -172,8 +170,7 @@ def crawl(context: Context):
     page_num = 0
     end_page = None
 
-    while True:
-        # Fetch the HTML and get the table
+    while end_page is None or page_num <= end_page:
         doc = fetch_html(
             context,
             url=f"{context.data_url}?page={page_num}",
@@ -185,10 +182,8 @@ def crawl(context: Context):
             end_page = get_end_page(doc)
 
         table = h.xpath_element(doc, ".//div[@class='view-content']//table")
-        # Iterate through the parsed table
+
         for row in h.parse_html_table(table, skiprows=1):
             crawl_row(context, row)
 
-        if page_num >= end_page:
-            break
         page_num += 1
