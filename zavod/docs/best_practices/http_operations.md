@@ -14,25 +14,25 @@ Many sites employ bot blocking strategies. We believe this is primarily to mitig
 
 Blocking might result in error statuses like 403; redirects to error pages; or 200 status responses but with different content from what you've seen in the browser.
 
-### Header-based restrictions  
+### Header-based restrictions
 
-If a request using `zavod` fails but your browser succeeds, try setting a more browser-like user-agent header.  
+If a request using `zavod` fails but your browser succeeds, try setting a more browser-like user-agent header.
 ```yaml
 http:
   user_agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.90 Safari/537.36 (zavod; opensanctions.org)
 ```
 
-If that doesn't work, try more of the common headers sent by browsers:  
+If that doesn't work, try more of the common headers sent by browsers:
 
-```python  
-HEADERS = {  
-    "origin": "https://www.interpol.int",  
-    "referer": "https://www.interpol.int/",  
-    "sec-fetch-mode": "navigate",  
-    "sec-fetch-site": "none",  
-    "sec-fetch-user": "?1",  
-    "upgrade-insecure-requests": "1",  
-    "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36 (zavod; opensanctions.org)",  
+```python
+HEADERS = {
+    "origin": "https://www.interpol.int",
+    "referer": "https://www.interpol.int/",
+    "sec-fetch-mode": "navigate",
+    "sec-fetch-site": "none",
+    "sec-fetch-user": "?1",
+    "upgrade-insecure-requests": "1",
+    "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36 (zavod; opensanctions.org)",
 }
 context.fetch_...(url, headers=HEADERS)
 ```

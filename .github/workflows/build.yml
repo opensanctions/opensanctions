@@ -40,6 +40,7 @@ jobs:
           pip freeze
       - name: Test crawlers with tests
         run: pytest datasets
+
       - name: Check zavod type annotations (strict)
         working-directory: zavod
         run: |
@@ -48,6 +49,14 @@ jobs:
         working-directory: zavod
         run: |
           make lint
+
+      # TODO: This should eventually replace mypy/ruff, but for now just running both is safe.
+      - name: Run prek pre-commit hooks on zavod/
+        run: |
+          set -euxo pipefail
+          # Use find + xargs to avoid hitting shell argument number limits with zavod/**/*
+          find zavod -type f | xargs -n 30 prek run --files
+
       - name: Run zavod tests
         working-directory: zavod
         run: |

@@ -179,13 +179,15 @@ def get_all_programs_by_key() -> dict[str, Program]:
         # Validate all territory codes against rigour
         # This will make the unit test fail if any don't validate
         for code in program.target_territories:
-            assert (
-                rigour.territories.get_territory(code) is not None
-            ), f"Unknown territory code '{code}' in program '{program.key}'"
+            assert rigour.territories.get_territory(code) is not None, (
+                f"Unknown territory code '{code}' in program '{program.key}'"
+            )
         if program.issuer and program.issuer.territory:
             assert (
                 rigour.territories.get_territory(program.issuer.territory) is not None
-            ), f"Unknown issuer territory '{program.issuer.territory}' in program '{program.key}'"
+            ), (
+                f"Unknown issuer territory '{program.issuer.territory}' in program '{program.key}'"
+            )
 
         programs.append(program)
 

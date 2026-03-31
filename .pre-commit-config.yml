@@ -22,6 +22,10 @@ repos:
     rev: v1.37.1
     hooks:
       - id: yamllint
+        # octal integers are a pitfall to anyone not intimately familiar with YAML, so disallow them
+        # To illustrate the problem: yaml.safe_load('value: 0555567') → {'value': 187255}
+        args: ["-d", "{extends: default, rules: {octal-values: {forbid-implicit-octal: true, forbid-explicit-octal: true}, document-start: disable, line-length: disable}}"]
+
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.18.1
     hooks:
