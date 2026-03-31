@@ -594,6 +594,12 @@ lookups:
           - South Atlantic Regional Center LLC
           - Joseph J. Walsh Sr.
           - Robert V. Matthews
+      - match: palm house hotel lllp, south atlantic regional center llc, joseph j. walsh sr., and robert v. matthews
+        names:
+          - Palm House Hotel LLLP
+          - South Atlantic Regional Center LLC
+          - Joseph J. Walsh Sr.
+          - Robert V. Matthews
       - match: penson financial services inc., penson worldwide inc., philip a. pendergraft, kevin w. mcaleer, cpa, thomas r. johnson, and charles w. yancey
         names:
           - Penson Financial Services Inc.
