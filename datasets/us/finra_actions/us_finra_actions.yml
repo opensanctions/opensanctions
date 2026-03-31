@@ -72,6 +72,9 @@ lookups:
       - match: "Kane, McKenna Capital, Inc."
         names:
           - Kane, McKenna Capital, Inc.
+      - match: STATE STREET GLOBAL MARKETS, LLC(NOW KNOWN IN RELEVANT PART AS STATE STREET GLOBAL MARKETS, LLC, CRD NO. 285852)
+        names:
+          - State Street Global Markets, LLC
       - match: "KERN, SUSLOW SECURITIES, INC."
         names:
           - KERN, SUSLOW SECURITIES, INC.
