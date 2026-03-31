@@ -174,7 +174,7 @@ lookups:
           - prop: incorporationDate
             value: 2015-02-20
           - prop: registrationNumber
-            value: 0007063163500012
+            value: "0007063163500012"
       - match: "អេ ស៊ាន ថេ កនី ខល អឹ ស៊ីស្ទេ នស៍ ឯ.ក, Registration No. 00059944"
         items:
           - prop: alias
@@ -331,7 +331,7 @@ lookups:
       - match: "Reg. No. 0205556035570"
         items:
           - prop: registrationNumber
-            value: 0205556035570
+            value: "0205556035570"
       - match: "Reg. No. 1859937"
         items:
           - prop: registrationNumber
@@ -467,7 +467,7 @@ lookups:
           - prop: alias
             value: OOO иC-4 «ДушанбесоxтMOH»
           - prop: registrationNumber
-            value: 0210015117
+            value: "0210015117"
           - prop: incorporationDate
             value: 2012-03
       - match: "Lic. Series XT-8 #0003127. Tax ID No. 300001499."

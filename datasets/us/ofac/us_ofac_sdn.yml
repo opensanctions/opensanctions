@@ -736,13 +736,13 @@ lookups:
       - match: Codigo Postal 21297
         value: 21297
       - match: Codigo Postal 03300
-        value: 03300
+        value: "03300"
       - match: Codigo Postal 03100
-        value: 03100
+        value: "03100"
       - match: Codigo Postal 06700
-        value: 06700
+        value: "06700"
       - match: Codigo Postal 03020
-        value: 03020
+        value: "03020"
       - match: Codigo Postal 14410
         value: 14410
       - match: Codigo Postal 01480

@@ -715,7 +715,7 @@ lookups:
       - match: フランス旅券05AT521433（2005年11月30日Sous-Prefecture of police of Lorient, Franceにより発行）
         value: 05AT521433
       - match: フランス国民IDカード番号050456101445（2005年5月19日Sous-Prefecture of police of Lorient, Franceにより発行）
-        value: 050456101445
+        value: "050456101445"
       - match: インドネシア旅券番号 W344982（1985年3月4日Jakarta, Indonesia生まれのAngga Dimas Peshadaとして発行）
         value: W344982
       - match: インドネシア旅券番号 A2823222（1975年7月14日Rembang, Jawa Tengah, Indonesia生まれのWiji Joko Santosoとして2012年5月28日発行、2017年5月28日失効）
@@ -727,7 +727,7 @@ lookups:
       - match: トリニダード・トバゴ旅券番号T1071839、2004年11月8日発行（トリニダード・トバゴ入国管理部門発行、2014年11月7日失効）
         value: T1071839
       - match: イラク国民ＩＤカード番号00405771、2013年5月20日にイラクにて発行（氏名のアラビア語表記：عمر محمود إرحيم الفياض）
-        value: 00405771
+        value: "00405771"
       - match: 199110092、旅券失効日：2014年3月17日（北朝鮮旅券）；472220503、旅券失効日：2018年6月6日（北朝鮮旅券）；654220197、旅券失効日：2019年5月7日（北朝鮮旅券）
         values:
           - 199110092
