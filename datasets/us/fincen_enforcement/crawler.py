@@ -1,14 +1,12 @@
 from lxml.etree import _Element
-from typing import List
 from pydantic import BaseModel
 
 from zavod import Context, helpers as h
 from rigour.names.split_phrases import contains_split_phrase
 from zavod.shed import enforcements
-from zavod.extract.llm import run_typed_text_prompt, DEFAULT_MODEL
 from zavod.stateful.review import (
+    TextSourceValue,
     review_extraction,
-    HtmlSourceValue,
     assert_all_accepted,
 )
 
@@ -18,36 +16,24 @@ MAX_AGE_DAYS = 365 * 10  # keep 10 years of history
 
 class Respondent(BaseModel):
     name: str
-    aliases: List[str] = []
-    abbreviations: List[str] = []
-    previous_names: List[str] = []
+    aliases: list[str] = []
+    abbreviations: list[str] = []
+    previous_names: list[str] = []
 
 
 class Respondents(BaseModel):
-    respondents: List[Respondent]
+    respondents: list[Respondent]
 
-
-PROMPT = """
-Extract the entity name(s) from the string and its aliases if any, following the schema provided.
-ONLY include names mentioned in the input string. A string might contain multiple entities,
-record each entity with its data in a separate {Respondent} object, so that if a string contains multiple entities,
-they are listed as separate objects in {Respondents}.
-
-NEVER infer any of the following values. Only extract and categorise names into the most appropriate fields.
-
-- name: The name of the entity precisely as expressed in the text.
-- aliases: ONLY extract aliases that follow an explicit indication of an _alternative_ name, such as "also known as", "alias", "formerly", "aka", "fka". Otherwise the aliases field should just be an empty array.
-- previous_names: ONLY extract previous names that follow an explicit indication of a _former_ name, such as "formerly", "fka". Otherwise the previous_names field should just be an empty array.
-"""
 
 IRREGULARITIES = [" and ", "["]
+SPLITS = ["d/b/a", "a/k/a", "f/k/a", " and "]
 
 
 def crawl_row(context: Context, row: dict[str, _Element]) -> None:
     # fetch case's url
     url_el = row.get("enforcement_action")
     assert url_el is not None
-    detail_url = h.xpath_strings(url_el, ".//a/@href")
+    detail_url = h.xpath_string(url_el, ".//a/@href")
 
     # process row
     str_row = h.cells_to_str(row)
@@ -67,31 +53,30 @@ def crawl_row(context: Context, row: dict[str, _Element]) -> None:
     )
 
     if needs_review:
-        source_value = HtmlSourceValue(
+        source_value = TextSourceValue(
             key_parts=case_name,
             label="Case Name",
-            element=url_el,
+            text=case_name,
             url=context.data_url,
         )
-        prompt_result = run_typed_text_prompt(
-            context,
-            prompt=PROMPT,
-            string=case_name,
-            response_type=Respondents,
-        )
+
+        # There are so few, it isn't worth maintaining a prompt. Just basic splits
+        # and let reviewers split into multiple respondents if needed.
+        name, *aliases = h.multi_split(case_name, SPLITS)
+        respondents = [Respondent(name=name, aliases=aliases)]
+        original_extraction = Respondents(respondents=respondents)
+
         review = review_extraction(
             context,
             source_value=source_value,
-            original_extraction=prompt_result,
-            origin=DEFAULT_MODEL,
+            original_extraction=original_extraction,
+            origin="heuristic",
         )
         if not review.accepted:
             return
         extracted_data = review.extracted_data
-        origin = review.origin
     else:
         extracted_data = Respondents(respondents=[Respondent(name=case_name)])
-        origin = None
 
     financial_institution = str_row.pop("financial_institution")
 
@@ -99,16 +84,17 @@ def crawl_row(context: Context, row: dict[str, _Element]) -> None:
         entity = context.make("LegalEntity")
         entity.id = context.make_id(item.name, matter_number)
 
-        entity.add("name", item.name, origin=origin)
-        entity.add("alias", item.aliases, origin=origin)
-        entity.add("alias", item.previous_names, origin=origin)
-        entity.add("sourceUrl", detail_url)
+        entity.add("name", item.name)
+        entity.add("alias", item.aliases)
+        entity.add("previousName", item.previous_names)
+        entity.add("abbreviation", item.abbreviations)
         entity.add("sector", financial_institution)
         entity.add("topics", "reg.action")
         entity.add("country", "us")
 
         sanction = h.make_sanction(context, entity, key=matter_number)
         sanction.add("authorityId", matter_number)
+        sanction.set("sourceUrl", detail_url)
         h.apply_date(sanction, "listingDate", sanction_date)
 
         context.emit(entity)
