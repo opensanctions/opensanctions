@@ -105,38 +105,58 @@ class Program(BaseModel):
     """A sanctions regime."""
 
     id: Optional[int] = None  # from Directus, drop after migration
+    # Convention: {ISSUER}-{TARGET} or {ISSUER}-{SHORTNAME}. Uppercase,
+    # alphanumeric with hyphens only.
     key: str = Field(
-        description="Hyphenated reference key (e.g., 'AU-AFGHANISTAN', 'AE-UNSC1373', 'US-AFGH')"
+        description="Short unique identifier for code and cross-references, "
+        "surfaced in the UI as e.g. [EU-RUS]."
     )
+    # For non-English regimes (e.g. SECO), use a consistent English translation.
     title: str = Field(
-        description="Title of the regime (e.g., 'Afghanistan Sanctions Framework', 'Serious Corruption Sanctions Regime')"
+        description="Official or near-official English title of the program."
     )
     url: Optional[str] = Field(
         default=None,
-        description="URL to program documentation or designated persons list",
+        description="Authoritative public-facing page at the issuing authority, "
+        "e.g. SECO program page, EU sanctions map entry, UN SC committee page.",
     )
+    # Two to four sentences, consistent with the measures field.
     summary: Optional[str] = Field(
         default=None,
-        description="Purpose, legal basis, and scope of the program",
+        description="Plain-language description: who the program targets, why, "
+        "and what measures it imposes.",
     )
+    # Some programs are covered by multiple datasets; pick one as the primary.
     dataset: Optional[str] = Field(
         default=None,
-        description="Dataset with entities from this program (e.g., 'au_dfat_sanctions', 'ae_local_terrorists')",
+        description="Related OpenSanctions dataset that ingests data from this "
+        "program, e.g. eu_fsf, ch_seco_sanctions.",
     )
     issuer: Optional[Issuer] = Field(
-        default=None, description="Organization that administers this program"
+        default=None,
+        description="Issuing authority from the controlled vocabulary, "
+        "e.g. eu_council, ch_seco, zz_unsc, us_ofac.",
     )
     aliases: list[str] = Field(
         default_factory=list,
-        description="Alternative names or references (e.g., 'Resolution 1373', 'EO 13818')",
+        description="Alternative identifiers, legal citations, or short names, "
+        "e.g. 'Resolution 1970', 'UFLPA'.",
     )
+    # Omit for programs that target persons regardless of geography
+    # (e.g. counter-terrorism lists).
     target_territories: list[str] = Field(
         default_factory=list,
-        description="Territory codes targeted by this program (e.g., 'af', 'ru', 'by')",
+        description="ISO 3166-1 alpha-2 codes (lowercase) for the targeted "
+        "territories this program is linked to, e.g. 'af', 'ru', 'by'.",
     )
+    # Use the legal instrument or the issuing authority's program page as
+    # source of truth. For programs that transpose another regime (e.g. SECO
+    # transposing EU measures), verify against the transposing authority's
+    # own legal instrument.
     measures: list[Measure] = Field(
         default_factory=list,
-        description="Types of sanctions imposed (e.g., 'Asset freeze', 'Travel ban', 'Arms restrictions')",
+        description="Sanctions measures imposed by the program, "
+        "e.g. 'Asset freeze', 'Travel ban', 'Arms restrictions'.",
     )
 
 
@@ -179,13 +199,15 @@ def get_all_programs_by_key() -> dict[str, Program]:
         # Validate all territory codes against rigour
         # This will make the unit test fail if any don't validate
         for code in program.target_territories:
-            assert (
-                rigour.territories.get_territory(code) is not None
-            ), f"Unknown territory code '{code}' in program '{program.key}'"
+            assert rigour.territories.get_territory(code) is not None, (
+                f"Unknown territory code '{code}' in program '{program.key}'"
+            )
         if program.issuer and program.issuer.territory:
             assert (
                 rigour.territories.get_territory(program.issuer.territory) is not None
-            ), f"Unknown issuer territory '{program.issuer.territory}' in program '{program.key}'"
+            ), (
+                f"Unknown issuer territory '{program.issuer.territory}' in program '{program.key}'"
+            )
 
         programs.append(program)
 
