@@ -27,9 +27,9 @@ publisher:
   country: "th"
 tags:
   - list.pep
-url: https://www.soc.go.th/?page_id=182
+url: https://www.thaigov.go.th/en/cabinet/minister
 data:
-  url: https://www.soc.go.th/?page_id=182
+  url: https://www.thaigov.go.th/en/cabinet/minister
   format: HTML
 
 assertions:
