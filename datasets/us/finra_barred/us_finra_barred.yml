@@ -2,18 +2,16 @@ title: US FINRA Barred Individuals
 entry_point: crawler.py
 prefix: us-finra
 coverage:
-  frequency: daily
+  frequency: weekly
   start: "2026-03-25"
 load_statements: true
 summary: >
   Individuals barred by FINRA and permanently prohibited from association with any FINRA member in any capacity.
 description: |
-  This dataset comprises individuals with a FINRA bar in effect, which means they
-  are prohibited from association with any FINRA member in any capacity.
-
-  Individuals who have been barred by FINRA as a result of a disciplinary decision or
-  expedited proceeding will not appear on this list until the decision becomes a final
-  FINRA action and the time period provided for an appeal permitted under the Exchange Act has expired.
+  This dataset comprises individuals who are permanently barred from associating with any FINRA member firm
+  in any capacity, following a final disciplinary decision or expedited proceeding. Entries only appear on the
+  list once the bar is final and the Exchange Act appeal period has expired. For fuller background on individual
+  cases, see the linked FINRA BrokerCheck records.
 tags:
   - sector.financial
 publisher:

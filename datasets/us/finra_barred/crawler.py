@@ -9,7 +9,7 @@ def crawl(context: Context) -> None:
         crd = str_row.pop("crd")
         # skip letter headers
         if crd is None:
-            return
+            continue
         name = str_row.pop("individual_name")
 
         entity = context.make("Person")
