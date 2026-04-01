@@ -28,8 +28,6 @@ data:
   url: https://www.finra.org/rules-guidance/oversight-and-enforcement/individuals-barred-finra
   format: HTML
   lang: eng
-dates:
-  formats: ["as of %B %d, %Y"]
 
 assertions:
   min:
