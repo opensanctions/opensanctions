@@ -1,0 +1,43 @@
+title: "US FinCEN Enforcement Actions"
+prefix: us-fincenenf
+entry_point: crawler.py
+resolve: true
+load_statements: true
+ci_test: false # CI fails assertions without reviewed entity splits
+coverage:
+  frequency: weekly
+  start: 2026-02-25
+summary: >
+  Other enforcement actions taken against financial institutions in the US.
+description: |
+  Under the Bank Secrecy Act (BSA), FinCEN may bring an enforcement action for violations of the reporting, recordkeeping, or other requirements of the BSA.
+  FinCEN's Office of Enforcement evaluates enforcement matters that may result in a variety of remedies, including the assessment of civil money penalties.
+tags:
+  - sector.banking
+  - list.enforcement
+publisher:
+  name: Financial Crimes Enforcement Network
+  acronym: FinCEN
+  official: true
+  description: |
+    The Financial Crimes Enforcement Network (FinCEN) is a bureau of the U.S. Department of
+    the Treasury that collects and analyzes information about financial transactions to
+    combat domestic and international money laundering, terrorist financing, and other
+    financial crimes.
+  country: us
+  url: https://www.fincen.gov
+url: https://www.fincen.gov/news/enforcement-actions
+data:
+  url: https://www.fincen.gov/news/enforcement-actions
+  format: HTML
+  lang: eng
+dates:
+  formats: ["%m/%d/%Y"]
+
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 26  # raw count 32
+  max:
+    schema_entities:
+      LegalEntity: 70
