@@ -30,7 +30,8 @@ data:
   url: https://www.finra.org/rules-guidance/oversight-and-enforcement/individuals-barred-finra
   format: HTML
   lang: eng
-ci_test: false
+dates:
+  formats: ["as of %B %d, %Y"]
 
 assertions:
   min:
@@ -39,6 +40,3 @@ assertions:
   max:
     schema_entities:
       Person: 20000
-
-dates:
-  formats: ["%B %d, %Y"]
