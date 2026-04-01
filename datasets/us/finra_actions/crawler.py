@@ -52,7 +52,6 @@ def crawl_item(context: Context, row: Dict[str, _Element]) -> None:
             llm_cleaning=True,
         )
 
-        entity.add("name", name)
         entity.add("topics", "reg.action")
         entity.add("country", "us")
         context.emit(entity)
