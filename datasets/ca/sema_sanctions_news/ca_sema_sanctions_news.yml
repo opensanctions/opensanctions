@@ -61,6 +61,14 @@ assertions:
       Vessel: 1600
 
 lookups:
+  sanction.program:
+    options:
+      - match:
+          - "Russia"
+          - "Belarus"
+          - "Ukraine"
+          - "Moldova"
+        value: CA-SEMA
   schema_type:
     options:
       - match:

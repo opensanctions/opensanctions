@@ -8,9 +8,6 @@ from zavod import Context, helpers as h
 from zavod.stateful.review import assert_all_accepted
 
 
-PROGRAM_KEY = "CA-SEMA"
-
-
 def split_names(name: str) -> tuple[bool, h.Names]:
     """
     Returns:
@@ -114,10 +111,11 @@ def crawl_entity_notice(context: Context, row: Dict[str, _Element]) -> None:
         )
 
         entity.add("topics", "sanction")
+        program_key = h.lookup_sanction_program_key(context, country)
         sanction = h.make_sanction(
             context,
             entity,
-            program_key=PROGRAM_KEY,
+            program_key=program_key,
         )
         sanction.add("program", country)
         sanction.add("reason", reason)
@@ -141,7 +139,7 @@ def crawl_vessel(context: Context, row: Dict[str, _Element]) -> None:
     sanction = h.make_sanction(
         context,
         vessel,
-        program_key=PROGRAM_KEY,
+        program_key="CA-SEMA",
     )
     context.emit(vessel)
     context.emit(sanction)
