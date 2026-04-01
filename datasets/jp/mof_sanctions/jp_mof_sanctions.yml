@@ -331,6 +331,8 @@ lookups:
         value: Iraq
       - match: アフガニスタン_x000D_
         value: Afghanistan
+      - match: ウガンダ_x000D_
+        value: Uganda
   type.date:
     options:
       - match:

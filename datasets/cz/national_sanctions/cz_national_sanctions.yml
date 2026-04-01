@@ -181,14 +181,12 @@ lookups:
           endDate: "2025-07-15"
           status: zrušen
           summary: Zápis byl zrušen ke dni 15. července 2025 v souladu s § 7 odst. 3 písm. a) zákona č. 1/2023 Sb., o omezujících opatřeních proti některým závažným jednáním uplatňovaných v mezinárodních vztazích (sankční zákon), vzhledem k zařazení subjektu na sankční seznam Evropské unie rozhodnutím Rady (SZBP) 2025/1443
-      - match:
-          - "OSIPOV / OSSIPOV / OSSIPOW / ОСИПОВ Zápis byl zrušen ke dni 23. října 2025 v souladu s § 7 odst. 3 písm. a) zákona č. 1/2023 Sb., o omezujících opatřeních proti některým závažným jednáním uplatňovaných v mezinárodních vztazích (sankční zákon), vzhledem k zařazení subjektu na sankční seznam Evropské unie rozhodnutím Rady (SZBP) 2025/2036."
-          - "OSIPOV / OSSIPOV / OSSIPOW / ОСИПОВ   Zápis byl zrušen ke dni 23. října 2025 v souladu s § 7 odst. 3 písm. a) zákona č. 1/2023 Sb., o omezujících opatřeních proti některým závažným jednáním uplatňovaných v mezinárodních vztazích (sankční zákon), vzhledem k zařazení subjektu na sankční seznam Evropské unie rozhodnutím Rady (SZBP) 2025/2036 ze dne 23. října 2025, kterým se mění rozhodnutí 2014/145/SZBP o omezujících opatřeních vzhledem k činnostem narušujícím nebo ohrožujícím územní celistvost, svrchovanost a nezávislost Ukrajiny"
+      - match: "OSIPOV / OSSIPOV / OSSIPOW / ОСИПОВ  Zápis byl zrušen ke dni 23. října 2025 v souladu s § 7 odst. 3 písm. a) zákona č. 1/2023 Sb., o omezujících opatřeních proti některým závažným jednáním uplatňovaných v mezinárodních vztazích (sankční zákon), vzhledem k zařazení subjektu na sankční seznam Evropské unie rozhodnutím Rady (SZBP) 2025/2036 ze dne 23. října 2025, kterým se mění rozhodnutí 2014/145/SZBP o omezujících opatřeních vzhledem k činnostem narušujícím nebo ohrožujícím územní celistvost, svrchovanost a nezávislost Ukrajiny"
         names: ["OSIPOV", "OSSIPOV", "OSSIPOW", "ОСИПОВ"]
         sanction_props:
           endDate: "2025-10-23"
           status: zrušen
-          summary: Zápis byl zrušen ke dni 23. října 2025 v souladu s § 7 odst. 3 písm. a) zákona č. 1/2023 Sb., o omezujících opatřeních proti některým závažným jednáním uplatňovaných v mezinárodních vztazích (sankční zákon), vzhledem k zařazení subjektu na sankční seznam Evropské unie rozhodnutím Rady (SZBP) 2025/2036.
+          summary: Zápis byl zrušen ke dni 23. října 2025 v souladu s § 7 odst. 3 písm. a) zákona č. 1/2023 Sb., o omezujících opatřeních proti některým závažným jednáním uplatňovaných v mezinárodních vztazích (sankční zákon), vzhledem k zařazení subjektu na sankční seznam Evropské unie rozhodnutím Rady (SZBP) 2025/2036 ze dne 23. října 2025, kterým se mění rozhodnutí 2014/145/SZBP o omezujících opatřeních vzhledem k činnostem narušujícím nebo ohrožujícím územní celistvost, svrchovanost a nezávislost Ukrajiny
       - match: Al-Qard Al-Hassan Association / AQAH / القرض الحسن
         names: ["Al-Qard Al-Hassan Association", "AQAH", "القرض الحسن"]
         sanction_props: {}
