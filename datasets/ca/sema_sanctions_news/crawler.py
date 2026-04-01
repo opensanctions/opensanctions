@@ -11,8 +11,14 @@ from zavod.stateful.review import assert_all_accepted
 PROGRAM_KEY = "CA-SEMA"
 
 
-def split_names(name: str) -> h.Names:
+def split_names(name: str) -> tuple[bool, h.Names]:
+    """
+    Returns:
+    - True if any name or alias contains a conjunction (or, and, et), otherwise False
+    - categorised and cleaned Names instance
+    """
     aliases = []
+    is_irregular = False
 
     if "(also known as" in name.lower():
         name, aka = name.split("(also known as", 1)
@@ -30,9 +36,10 @@ def split_names(name: str) -> h.Names:
     for _prop_name, values in suggested.nonempty_item_lists():
         for value in values:
             if re.search(r"\b(or|and|et)\b", value, flags=re.I):
-                return True, suggested
+                is_irregular = True
+                return is_irregular, suggested
 
-    return False, suggested
+    return is_irregular, suggested
 
 
 def crawl_entity_notice(context: Context, row: Dict[str, _Element]) -> None:
@@ -47,14 +54,27 @@ def crawl_entity_notice(context: Context, row: Dict[str, _Element]) -> None:
 
     specific_prohibition = row.pop("specific_prohibition")
     reason = h.xpath_strings(specific_prohibition, ".//p[3]//text()")
+    # clean up non-breaking HTML spaces
+    reason = [r.replace("\xa0", " ") for r in reason]
 
     # At the time of writing, only one of these appear and on the row with appropriate "types" value.
     persons = h.xpath_strings(
         specific_prohibition, ".//div[contains(., 'List of individuals')]//li/text()"
     )
     oranizations = h.xpath_strings(
-        specific_prohibition, ".//div[contains(., 'List of entities')]//li/text()"
+        specific_prohibition,
+        ".//div[contains(., 'List of entities') or contains(., 'Listed entity')]//li/text()",
     )
+
+    # empty list but entity_type is in individuals or entities => skip explicitly
+    INSURANCE_PROHIBITION = "prohibited from providing insurance, reinsurance, and underwriting services for Russian aviation and aerospace products"
+    if not persons and not oranizations:
+        assert INSURANCE_PROHIBITION in reason[0], (
+            "Unexpected row with no persons or organizations. "
+            f"Country: {country}, listing date: {listing_date}, reason: {reason}",
+        )
+        return
+
     assert sum([bool(persons), bool(oranizations)]) == 1, (
         "Expected exactly one of persons or organizations",
         len(persons),
