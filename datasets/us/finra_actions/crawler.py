@@ -45,14 +45,13 @@ def crawl_item(context: Context, row: Dict[str, _Element]) -> None:
         # Catches names with embedded alias indicators, e.g.:
         # "Score Priority Corp. formerly known as Just2Trade Inc."
         # "CODA Markets Inc. (f/k/a PDQ ATS Inc.)"
-        h.review_names(
+        h.apply_reviewed_name_string(
             context,
             entity,
-            original=h.Names(name=name),
+            string=name,
             llm_cleaning=True,
         )
 
-        entity.add("name", name)
         entity.add("topics", "reg.action")
         entity.add("country", "us")
         context.emit(entity)
