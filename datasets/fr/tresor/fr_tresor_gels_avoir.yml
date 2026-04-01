@@ -1068,6 +1068,15 @@ lookups:
       - match: "Numéro d'identification fiscale: 7720261827   /   Numéro"
         props:
           taxNumber: 7720261827
+      - match: "Type d'entité: Unité militaire du Corps des gardiens de la révolution islamique (IRGC)"
+        props:
+          legalForm: "Unité militaire du Corps des gardiens de la révolution islamique (IRGC)"
+      - match: "Principal lieu d'activité: Iran: /Autres"
+        props:
+          country: ir
+      - match: "entités associées: Corps des gardiens de la révolution islamique (IRGC)"
+        associates:
+          - Corps des gardiens de la révolution islamique (IRGC)
 
   ####################################################################################################
   ####################################################################################################
