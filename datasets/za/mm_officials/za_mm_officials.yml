@@ -6,12 +6,12 @@ coverage:
   frequency: weekly
   start: 2024-08-20
 summary: >
-  Profiles of municipal heads in South Africa, focusing on key political figures 
+  Profiles of municipal heads in South Africa, focusing on key political figures
   such as the Mayor and Municipal Manager.
 description: |
-  The dataset provides information on Politically Exposed Persons (PEPs) across all 
-  municipalities in South Africa. It focuses on individuals holding key positions 
-  of influence, including Mayor/Executive Mayor and Municipal Manager, within each 
+  The dataset provides information on Politically Exposed Persons (PEPs) across all
+  municipalities in South Africa. It focuses on individuals holding key positions
+  of influence, including Mayor/Executive Mayor and Municipal Manager, within each
   municipality.
 
 publisher:

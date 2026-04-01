@@ -1,0 +1,89 @@
+title: Canadian Consolidated Autonomous Sanctions List on the Russian invasion of Ukraine
+entry_point: crawler.py
+prefix: ca-sema-news
+coverage:
+  schedule: "0 */3 * * *"  # every 3 hours
+  frequency: daily
+  start: 2026-02-24
+load_statements: true
+summary: >-
+  Sanctions imposed by Canada in response to Russia’s invasion of Ukraine
+  under the Special Economic Measures Act (SEMA).
+description: |
+  Canada's sanctions in response to Russia's invasion of Ukraine, imposed under the Special
+  Economic Measures Act (SEMA). Regulations cover individuals and entities designated under
+  four SEMA instruments targeting Russia, Ukraine, Belarus, and Moldova.
+
+  Designated individuals include senior officials, oligarchs, military figures, propagandists,
+  and collaborators across these jurisdictions. Entities span Russia's military-industrial
+  complex, financial sector, state media, and paramilitary organizations, as well as Belarusian
+  defence producers and Moldovan political actors. Ships are listed based on their involvement
+  in transporting goods for Russia's benefit.
+
+  **Note:**  This dataset reflects designations as published by Global Affairs Canada and may be
+  updated ahead of the Consolidated Canadian Autonomous Sanctions List.
+url: https://www.international.gc.ca/world-monde/issues_development-enjeux_developpement/response_conflict-reponse_conflits/crisis-crises/ukraine-sanctions.aspx?lang=eng
+tags:
+  - list.sanction
+  - issuer.west
+  - sector.maritime
+publisher:
+  name: Global Affairs Canada
+  description: |
+    The Canadian government body responsible for trade, travel, foreign affairs and international development.
+  country: ca
+  url: https://www.international.gc.ca/world-monde/issues_development-enjeux_developpement/response_conflict-reponse_conflits/crisis-crises/ukraine-sanctions.aspx?lang=eng
+  official: true
+data:
+  url: https://www.international.gc.ca/world-monde/issues_development-enjeux_developpement/response_conflict-reponse_conflits/crisis-crises/ukraine-sanctions.aspx?lang=eng
+  format: HTML
+dates:
+  formats:
+    - "%B %d, %Y"
+    - "%B %d %Y"
+    - "in %Y"
+    - "on %B %d, %Y"
+    - "in %B %Y"
+names:
+  suggest_abbreviation_non_person_single_token_shorter_than: 5
+  suggest_weak_alias_person_single_token: true
+
+assertions:
+  min:
+    schema_entities:
+      Person: 1500
+      Organization: 600
+      Vessel: 80
+  max:
+    schema_entities:
+      Person: 4000
+      Organization: 1500
+      Vessel: 1600
+
+lookups:
+  sanction.program:
+    options:
+      - match:
+          - "Russia"
+          - "Belarus"
+          - "Ukraine"
+          - "Moldova"
+        value: CA-SEMA
+  schema_type:
+    options:
+      - match:
+          - Entities
+          - Russian entities
+        value: Organization
+      - match: Individuals
+        value: Person
+      - match:
+          - Goods and services
+          - Other  # e.g. Canada is prohibiting Russian ships from docking in Canada or passing through Canadian waters
+        value: null
+  type.date:
+    options:
+      - match: 'onOctober 27, 1963'
+        value: 1963-10-27
+      - match: 'on April19, 1952'
+        value: 1952-04-19
