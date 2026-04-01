@@ -134,4 +134,3 @@ assertions:
       Person:
         birthDate: 0.7  # at least 70% of Persons have a birth date
 ```
-
