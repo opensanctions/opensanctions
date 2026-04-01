@@ -48,18 +48,17 @@ names:
   suggest_abbreviation_non_person_single_token_shorter_than: 5
   suggest_weak_alias_person_single_token: true
 
-# TODO once we review the names:
-# assertions:
-#   min:
-#     schema_entities:
-#       Person: 1500
-#       LegalEntity: 600
-#       Vessel: 80
-#   max:
-#     schema_entities:
-#       Person: 4000
-#       LegalEntity: 1500
-#       Vessel: 1600
+assertions:
+  min:
+    schema_entities:
+      Person: 1500
+      Organization: 600
+      Vessel: 80
+  max:
+    schema_entities:
+      Person: 4000
+      Organization: 1500
+      Vessel: 1600
 
 lookups:
   schema_type:
