@@ -81,7 +81,7 @@ lookups:
       - match: "13. října 1979                                                             ."
         value: "1979-10-13"
       - match: "2. března 2026\n30. března 2026"
-        values: 
+        values:
           - "2026-03-02"
           - "2026-03-30"
   type.country:
