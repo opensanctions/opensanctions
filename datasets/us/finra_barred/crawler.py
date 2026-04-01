@@ -16,8 +16,9 @@ def crawl(context: Context) -> None:
         entity.id = context.make_id(crd, name)
         entity.add("name", name)
         entity.add("idNumber", crd)
-        details_url = h.xpath_string(row.get("individual_name"), ".//a/@href")
-        entity.add("sourceUrl", details_url)
+        url_el = row.get("individual_name")
+        assert url_el is not None
+        entity.add("sourceUrl", h.xpath_string(url_el, ".//a/@href"))
         entity.add("topics", "reg.action")
         entity.add("country", "us")
 
