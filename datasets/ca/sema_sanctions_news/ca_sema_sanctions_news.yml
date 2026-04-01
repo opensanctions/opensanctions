@@ -73,12 +73,6 @@ lookups:
           - Goods and services
           - Other  # e.g. Canada is prohibiting Russian ships from docking in Canada or passing through Canadian waters
         value: null
-  name_alias:
-    options:
-      - match: 'Helena Shudra or Victoria Pesti'
-        values:
-          - Helena Shudra
-          - Victoria Pesti
   type.date:
     options:
       - match: 'onOctober 27, 1963'
