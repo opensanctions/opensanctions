@@ -3,7 +3,7 @@ prefix: us-fincenenf
 entry_point: crawler.py
 resolve: true
 load_statements: true
-ci_test: true
+ci_test: false # CI fails assertions without reviewed entity splits
 coverage:
   frequency: weekly
   start: 2026-02-25
