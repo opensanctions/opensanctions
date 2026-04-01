@@ -10,7 +10,7 @@ Program keys are maintained as YAML files in `meta/programs/` in the repository 
 
 ## Linking programs in crawler code
 
-Sanctioned entities are linked to programs via the `programId` property on their [`Sanction`](/reference/#schema.Sanction) records. This is handled through the `h.make_sanction()` helper (see [helpers.md](helpers.md)).
+Sanctioned entities are linked to programs via the `programId` property on their [`Sanction`](https://opensanctions.org/reference/#schema.Sanction) records. This is handled through the `h.make_sanction()` helper (see [helpers.md](helpers.md)).
 
 For datasets with a single program, hardcode the key directly:
 ```python
