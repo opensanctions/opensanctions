@@ -19,6 +19,7 @@ MAX_AGE_DAYS = 365 * 10  # keep 10 years of history
 class Respondent(BaseModel):
     name: str
     aliases: List[str] = []
+    abbreviations: List[str] = []
     previous_names: List[str] = []
 
 
@@ -29,13 +30,17 @@ class Respondents(BaseModel):
 PROMPT = """
 Extract the entity name(s) from the string and its aliases if any, following the schema provided.
 ONLY include names mentioned in the input string. A string might contain multiple entities,
-record each entity with its data in a separate {Respondent} class, so that if a string contains multiple entities,
+record each entity with its data in a separate {Respondent} object, so that if a string contains multiple entities,
 they are listed as separate objects in {Respondents}.
+
+NEVER infer any of the following values. Only extract and categorise names into the most appropriate fields.
 
 - name: The name of the entity precisely as expressed in the text.
 - aliases: ONLY extract aliases that follow an explicit indication of an _alternative_ name, such as "also known as", "alias", "formerly", "aka", "fka". Otherwise the aliases field should just be an empty array.
 - previous_names: ONLY extract previous names that follow an explicit indication of a _former_ name, such as "formerly", "fka". Otherwise the previous_names field should just be an empty array.
 """
+
+IRREGULARITIES = [" and ", "["]
 
 
 def crawl_row(context: Context, row: dict[str, _Element]) -> None:
@@ -57,7 +62,9 @@ def crawl_row(context: Context, row: dict[str, _Element]) -> None:
     case_name = case_name.replace("In the Matter of", "")
     assert "in the matter of" not in case_name.lower()
 
-    needs_review = contains_split_phrase(case_name) or " and " in case_name
+    needs_review = contains_split_phrase(case_name) or any(
+        irregularity in case_name for irregularity in IRREGULARITIES
+    )
 
     if needs_review:
         source_value = HtmlSourceValue(
@@ -80,40 +87,28 @@ def crawl_row(context: Context, row: dict[str, _Element]) -> None:
         )
         if not review.accepted:
             return
-        extrated_data = review.extracted_data
+        extracted_data = review.extracted_data
         origin = review.origin
     else:
-        extrated_data = Respondents(respondents=[Respondent(name=case_name)])
+        extracted_data = Respondents(respondents=[Respondent(name=case_name)])
         origin = None
 
-    for item in extrated_data.respondents:
+    financial_institution = str_row.pop("financial_institution")
+
+    for item in extracted_data.respondents:
         entity = context.make("LegalEntity")
         entity.id = context.make_id(item.name, matter_number)
-
-        # check name irregularity (e.g. [UPDATED...]) and send to review
-        original = h.Names(name=item.name)
-        is_irregular, suggested = h.check_names_regularity(entity, original)
-
-        # another review will be created if standard heuristics suggest the name is irregular,
-        # or if there is a custom suggestion that differs from the original categorisation.
-        h.review_names(
-            context,
-            entity,
-            original=original,
-            suggested=suggested,
-            is_irregular=is_irregular,
-        )
-        # TODO: once we're done with reviews -- change to apply_reviewed_names()
 
         entity.add("name", item.name, origin=origin)
         entity.add("alias", item.aliases, origin=origin)
         entity.add("alias", item.previous_names, origin=origin)
         entity.add("sourceUrl", detail_url)
-        entity.add("sector", str_row.pop("financial_institution"))
+        entity.add("sector", financial_institution)
         entity.add("topics", "reg.action")
         entity.add("country", "us")
 
         sanction = h.make_sanction(context, entity, key=matter_number)
+        sanction.add("authorityId", matter_number)
         h.apply_date(sanction, "listingDate", sanction_date)
 
         context.emit(entity)
