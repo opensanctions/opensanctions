@@ -1,6 +1,6 @@
 title: China Shenzhen Stock Exchange Trading Restrictions
 entry_point: crawler.py
-prefix: cn-szse
+prefix: cn-szse-trade
 coverage:
   frequency: weekly
   start: 2026-03-30
