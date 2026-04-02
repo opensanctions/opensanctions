@@ -71,6 +71,10 @@ assertions:
 lookups:
   type.date:
     options:
+      - match: "01 Septembrie 1970"
+        value: "1970-09-01"
+      - match: "1 iulie 1974"
+        value: "1974-07-01"
       - match:
           - "24/06/1402 (Hijri Calendar)"
           - "Intre Aug."
