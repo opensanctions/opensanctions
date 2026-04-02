@@ -38,18 +38,6 @@ class TimeStampIndex(object):
             batch_size += 1
             total_size += 1
 
-            # FIXME: Handle the migration of statement IDs from not including lang
-            # to including lang. This is needed to read timestamps for statements
-            # created before followthemoney 4.5.0. Once all timestamps have been
-            # migrated, this block can be removed (est: March 2026).
-            if stmt._lang is not None:
-                new_id = stmt.generate_key()
-                if new_id != stmt.id:
-                    key = f"{stmt.entity_id}:{new_id}"
-                    batch.put(key.encode(E), stmt.first_seen.encode(E))
-                    batch_size += 1
-                    total_size += 1
-
             if batch_size > 0 and batch_size % 500_000 == 0:
                 batch.write()
                 batch.clear()
