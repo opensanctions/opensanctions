@@ -7,6 +7,8 @@ from typing import Dict
 from zavod import Context, helpers as h
 from zavod.stateful.review import assert_all_accepted
 
+PROGRAM_KEY = "CA-SEMA"
+
 
 def split_names(name: str) -> tuple[bool, h.Names]:
     """
@@ -109,15 +111,15 @@ def crawl_entity_notice(context: Context, row: Dict[str, _Element]) -> None:
             suggested=suggested,
             is_irregular=crawler_is_irregular or helper_is_irregular,
         )
-
         entity.add("topics", "sanction")
-        program_key = h.lookup_sanction_program_key(context, country)
+
         sanction = h.make_sanction(
             context,
             entity,
-            program_key=program_key,
+            program_key=h.lookup_sanction_program_key(context, country),
+            program_name=country,
+            source_program_key=country,
         )
-        sanction.add("program", country)
         sanction.add("reason", reason)
         h.apply_date(sanction, "listingDate", listing_date)
 
@@ -136,10 +138,12 @@ def crawl_vessel(context: Context, row: Dict[str, _Element]) -> None:
     vessel.add("type", str_row.pop("ship_type"))
     h.apply_date(vessel, "buildDate", str_row.pop("ship_build_date"))
     vessel.add("topics", "sanction")
+    # The program applies to all vessels. Since there is no country column in the
+    # vessel table, we cannot map from the original value.
     sanction = h.make_sanction(
         context,
         vessel,
-        program_key="CA-SEMA",
+        program_key=PROGRAM_KEY,
     )
     context.emit(vessel)
     context.emit(sanction)

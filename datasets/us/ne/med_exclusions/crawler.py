@@ -4,7 +4,11 @@ from rigour.mime.types import PDF
 from zavod import Context, helpers as h
 from zavod.extract.zyte_api import fetch_resource
 
-PAGE_SETTINGS = {"join_y_tolerance": 2}
+PAGE_SETTINGS = {
+    "join_y_tolerance": 2,
+    "vertical_strategy": "explicit",
+    "explicit_vertical_lines": [37, 85, 170, 290, 325, 374, 531, 602, 655, 720],
+}
 
 
 def key_from_prefix(row: Dict[str, str], prefix: str) -> str:
