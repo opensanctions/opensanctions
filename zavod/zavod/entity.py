@@ -60,8 +60,14 @@ class Entity(StatementEntity):
         if lang is not None:
             lang = registry.language.clean_text(lang)
 
-        for prop_, clean in value_clean(
-            self, prop, value, cleaned=cleaned, fuzzy=fuzzy, format=format
+        for prop_, clean, origin_ in value_clean(
+            self,
+            prop,
+            value,
+            cleaned=cleaned,
+            fuzzy=fuzzy,
+            format=format,
+            origin=origin,
         ):
             if original_value is None and clean != value:
                 original_value = value
@@ -73,7 +79,7 @@ class Entity(StatementEntity):
                 value=clean,
                 dataset=dataset or self.dataset.name,
                 lang=lang,
-                origin=origin,
+                origin=origin_,
                 original_value=original_value,
                 first_seen=seen,
                 external=external,
@@ -90,6 +96,7 @@ class Entity(StatementEntity):
         format: Optional[str] = None,
         lang: Optional[str] = None,
         original_value: Optional[str] = None,
+        origin: Optional[str] = None,
     ) -> None:
         """Set a property on an entity. If the entity is of a schema that doesn't
         have the given property, also modify the schema (e.g. if something has a
@@ -106,8 +113,14 @@ class Entity(StatementEntity):
         if prop_ is None:
             raise InvalidModel("Invalid prop: %s" % prop)
         for text in string_list(values):
-            for norm_prop_, clean in value_clean(
-                self, prop_, text, cleaned=cleaned, fuzzy=fuzzy, format=format
+            for norm_prop_, clean, origin_ in value_clean(
+                self,
+                prop_,
+                text,
+                cleaned=cleaned,
+                fuzzy=fuzzy,
+                format=format,
+                origin=origin,
             ):
                 if original_value is None and clean != text:
                     original_value = text
@@ -118,6 +131,7 @@ class Entity(StatementEntity):
                     cleaned=True,
                     lang=lang,
                     original_value=original_value,
+                    origin=origin_,
                 )
 
     def add_schema(self, schema: Union[str, Schema]) -> None:
