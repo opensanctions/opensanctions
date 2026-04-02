@@ -7,6 +7,8 @@ on:
   schedule:
     - cron: "30 0 * * *"
 
+permissions: {} # Default to no permissions. Enable as needed for specific jobs.
+
 jobs:
   python:
     permissions:
@@ -53,12 +55,6 @@ jobs:
         working-directory: zavod
         run: |
           python3 -m build --wheel
-      - name: Upload zavod distribution
-        if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags/zavod')
-        uses: actions/upload-artifact@v4
-        with:
-          name: zavod-dist
-          path: zavod/dist/
       - name: Get any modified dataset files
         id: changed-files
         uses: tj-actions/changed-files@7dee1b0c1557f278e5c7dc244927139d78c0e22a  # v47.0.4
@@ -95,22 +91,6 @@ jobs:
               echo Exporting $dataset
               zavod export --rebuild-store $dataset
           done
-  publish:
-    if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags/zavod')
-    permissions:
-      id-token: write
-    runs-on: ubuntu-latest
-    needs: [python]
-    steps:
-      - name: Download zavod distribution
-        uses: actions/download-artifact@v4
-        with:
-          name: zavod-dist
-          path: dist/
-      - name: Publish a Python distribution to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          skip-existing: true
 
   docker:
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
