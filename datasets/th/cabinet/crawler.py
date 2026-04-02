@@ -9,16 +9,13 @@ NAME_XPATH = ".//div[contains(@class, '__title')]"
 ROLE_XPATH = ".//p[contains(@class, 'fw-normal')]"
 
 
-def crawl_prime_minister(
-    context: Context, main_container: HtmlElement
-) -> tuple[str, str] | None:
+def crawl_prime_minister(context: Context, main_container: HtmlElement) -> None:
     name = h.xpath_string(main_container, ".//div[contains(@class, 'fs-3')]/text()")
     role = h.xpath_string(main_container, ".//p[contains(@class, 'fw-medium')]/text()")
     if not name or not role:
         context.log.warning("Could not extract PM name/role")
-        return None
-    print(name, role)
-    return name, role
+        return
+    crawl_person(context, name, role)
 
 
 def crawl_person(context: Context, name: str, role: str) -> None:
@@ -46,7 +43,7 @@ def crawl_person(context: Context, name: str, role: str) -> None:
         context.emit(occupancy)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     page = 1
     while True:
         url = f"{context.data_url}?page={page}"
@@ -54,16 +51,12 @@ def crawl(context: Context):
         main_container = h.xpath_element(
             doc, ".//div[@class='container']//div[@class='row']"
         )
+        print(f"Page {page}: Found main container: {main_container is not None}")
         # crawl PM only once on the first page
         if page == 1:
-            name, role = crawl_prime_minister(context, main_container)
-            if name and role:
-                crawl_person(context, name, role)
+            crawl_prime_minister(context, main_container)
 
         persons = h.xpath_elements(main_container, ".//div[@class='col']")
-        if page > 7 or not persons:
-            break
-
         for person in persons:
             name = h.xpath_string(person, ".//div[contains(@class, '__title')]/text()")
             role = h.xpath_string(person, ".//p[contains(@class, 'fw-normal')]/text()")
@@ -71,5 +64,12 @@ def crawl(context: Context):
                 context.log.warning("Name or role not found")
                 continue
             crawl_person(context, name, role)
+
+        next_disabled = doc.xpath(
+            ".//span[@class='visually-hidden' and text()='Next']"
+            "/ancestor::li[contains(@class, 'disabled')]"
+        )
+        if next_disabled:
+            break
 
         page += 1
