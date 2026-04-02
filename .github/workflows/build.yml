@@ -7,13 +7,12 @@ on:
   schedule:
     - cron: "30 0 * * *"
 
-permissions:
-  packages: write
-  id-token: write
-
+permissions: {} # Default to no permissions. Enable as needed for specific jobs.
 
 jobs:
   python:
+    permissions:
+      contents: read
     env:
       OPENSSL_CONF: "contrib/openssl.cnf"
       FTM_USER_AGENT: "Mozilla/5.0 (compatible; github-actions-zavod/0.8; tech@opensanctions.org)"
@@ -101,16 +100,12 @@ jobs:
               echo Exporting $dataset
               zavod export --rebuild-store $dataset
           done
-      - name: Publish a Python distribution to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
-        # working-directory: zavod
-        if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags/zavod')
-        with:
-          skip-existing: true
-          packages-dir: zavod/dist
 
   docker:
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    permissions:
+      contents: read
+      packages: write
     runs-on: ubuntu-latest
     needs: [python]
     steps:
@@ -141,6 +136,7 @@ jobs:
 
   dispatch:
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    permissions: {}
     runs-on: ubuntu-latest
     needs: [docker, python]
     steps:
