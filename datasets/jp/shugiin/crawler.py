@@ -23,6 +23,7 @@ def crawl_row(context: Context, position: Entity, row, url: str) -> None:
         context.emit(occupancy)
 
     context.emit(entity)
+    context.audit_data(str_row)
 
 
 def crawl(context: Context) -> None:
