@@ -138,6 +138,8 @@ def crawl_vessel(context: Context, row: Dict[str, _Element]) -> None:
     vessel.add("type", str_row.pop("ship_type"))
     h.apply_date(vessel, "buildDate", str_row.pop("ship_build_date"))
     vessel.add("topics", "sanction")
+    # The program applies to all vessels. Since there is no country column in the
+    # vessel table, we cannot map from the original value.
     sanction = h.make_sanction(
         context,
         vessel,
