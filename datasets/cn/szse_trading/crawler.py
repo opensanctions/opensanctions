@@ -50,9 +50,9 @@ def crawl_targets(context: Context, full_text: str, date: str, url: str) -> None
         entity.add("name", name)
         entity.add("country", "cn")
         entity.add("topics", "financial")
+        entity.add("sourceUrl", url)
 
         sanction = h.make_sanction(context, entity)
-        sanction.add("sourceUrl", url)
         h.apply_date(sanction, "listingDate", date)
 
         context.emit(entity)
