@@ -47,7 +47,7 @@ dependencies = [
     "duckdb == 1.4.4",
     # TODO: remove when requests officially supports chardet 7.0
     # https://github.com/opensanctions/opensanctions/issues/3722
-    "chardet < 6.0",
+    "chardet < 8.0",
 ]
 
 [project.urls]
