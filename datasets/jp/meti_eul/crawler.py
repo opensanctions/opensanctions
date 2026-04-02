@@ -30,11 +30,15 @@ HEADERS = {
 
 def crawl_pdf_url(context: Context) -> str:
     validator = ".//a[contains(text(), 'End User List')]"
-    html = fetch_html(context, context.data_url, validator, geolocation="JP")
+    html = fetch_html(
+        context, context.data_url, validator, geolocation="JP", javascript=True
+    )
     for a in html.findall(".//a"):
         if a.text is not None and "Review of the End User List" in a.text:
             review_url = urljoin(context.data_url, a.get("href"))
-            html = fetch_html(context, review_url, validator, geolocation="JP")
+            html = fetch_html(
+                context, review_url, validator, geolocation="JP", javascript=True
+            )
             for a in html.findall(".//a"):
                 if a.text is None or "End User List" not in a.text:
                     continue
