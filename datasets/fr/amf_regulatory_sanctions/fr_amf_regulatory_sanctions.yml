@@ -1052,3 +1052,8 @@ lookups:
         entities:
           - Makor Securities Paris
           - Yankel Hassan
+      - match: "La société Kerdiz Finance et Conseil<br /> M. Marc Peuvrier<br /> M. Anthony Finck"
+        entities:
+          - Kerdiz Finance et Conseil
+          - Marc Peuvrier
+          - Anthony Finck
