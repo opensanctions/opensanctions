@@ -230,7 +230,7 @@ def wikidata_occupancy(
     """Create an Occupancy entity for the given person and position based on the claim,
     which identifies relevant qualifiers."""
     start_date: Optional[str] = None
-    for qual in claim.qualifiers.get("P580", []):
+    for qual in claim.get_qualifier("P580"):
         qual_date = qual.text.text
         if qual_date is not None:
             if start_date is None:
@@ -239,7 +239,7 @@ def wikidata_occupancy(
                 start_date = min(start_date, qual_date)
 
     end_date: Optional[str] = None
-    for qual in claim.qualifiers.get("P582", []):
+    for qual in claim.get_qualifier("P582"):
         qual_date = qual.text.text
         if qual_date is not None:
             if end_date is None:
@@ -270,11 +270,13 @@ def wikidata_occupancy(
         return None
 
     # reference URL:
-    for qual in claim.qualifiers.get("P854", []):
-        if qual.text is not None:
-            qual.text.apply(occupancy, "sourceUrl")
+    for ref in claim.references:
+        for snak in ref.get("P854"):
+            if snak.text is not None:
+                snak.text.apply(occupancy, "sourceUrl")
+
     # electoral district:
-    for qual in claim.qualifiers.get("P768", []):
+    for qual in claim.get_qualifier("P768"):
         if qual.text is not None:
             qual.text.apply(occupancy, "constituency")
 
