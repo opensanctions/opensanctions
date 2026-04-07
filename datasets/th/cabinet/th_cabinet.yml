@@ -7,12 +7,12 @@ coverage:
 load_statements: true
 ci_test: false
 summary: >
-  List of the current members of the Thai Cabinet of Ministers. 
+  List of the current members of the Thai Cabinet of Ministers.
   It includes the names and official positions of each cabinet member.
 description: |
-  This dataset comprises information about the Thai Cabinet of Ministers. It includes 
-  the names of the ministers, their respective positions, and relevant details about 
-  their roles within the government
+  This dataset comprises information about the Thai Cabinet of Ministers. It includes
+  the names of the ministers, their respective positions, and relevant details about
+  their roles within the government.
 publisher:
   name: Secretariat of the Prime Minister
   acronym: SPM
