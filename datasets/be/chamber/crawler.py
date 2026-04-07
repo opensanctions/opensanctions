@@ -1,23 +1,33 @@
-import itertools
-from datetime import datetime
+from dataclasses import dataclass
 from lxml.html import HtmlElement
 from normality import squash_spaces
 
 from zavod import Context, helpers as h
 from zavod.extract import zyte_api
-from zavod.stateful.positions import categorise, get_after_office, OccupancyStatus
+from zavod.stateful.positions import categorise
 
 
+UNBLOCK_VALIDATOR = "//table[@width='100%']"
 POSITION_TOPICS = ["gov.legislative", "gov.national"]
-CUTOFF_DATE = (datetime.now() - get_after_office(POSITION_TOPICS)).year
 
 
-def get_term_dates(context: Context, term: str) -> tuple[int | None, int | None]:
-    res = context.lookup("term_years", term, warn_unmatched=True)
-    if res:
-        return res.start_date, res.end_date
-    else:
-        return None, None
+@dataclass
+class Legislature:
+    label: str
+    url: str
+    start: str | None
+    end: str | None
+    no_end_implies_current: bool
+
+
+def get_term_dates(term: str) -> tuple[str, str]:
+    _, years = term.split("(", 1)
+    years = years.rstrip(")")
+    start, end = years.split("-", 1)
+    assert len(start) == 4 and len(end) == 4
+    int(start)  # just see if this raises an exception
+    int(end)
+    return start, end
 
 
 def get_dob_bio(
@@ -58,7 +68,7 @@ def get_dob_bio(
 def crawl_person(
     context: Context,
     row: HtmlElement,
-    status: OccupancyStatus,
+    legislature: Legislature,
 ) -> None:
     cells = h.xpath_elements(row, ".//td[@class='td1' or @class='td0']")
     name = h.xpath_string(cells[0], ".//b/text()")
@@ -94,7 +104,9 @@ def crawl_person(
         person=entity,
         position=position,
         categorisation=categorisation,
-        status=status,
+        no_end_implies_current=legislature.no_end_implies_current,
+        period_start=legislature.start,
+        period_end=legislature.end,
     )
     if occupancy is not None:
         context.emit(entity)
@@ -102,50 +114,32 @@ def crawl_person(
         context.emit(occupancy)
 
 
-def crawl_term(
-    context: Context,
-    link: HtmlElement,
-    unblock_validator: str,
-    current_link: HtmlElement,
-) -> None:
-    # Term dates are only used to skip legislatures outside our coverage window.
-    # We don't use them to set occupancy dates — members may join/leave mid-term.
-    text = h.element_text(link).strip()
-    _, end_date = get_term_dates(context, text)
-    if end_date is not None and end_date < CUTOFF_DATE:
-        context.log.info(f"Skipping old term: {text}")
+def crawl_term(context: Context, legislature: Legislature) -> None:
+    if legislature.start and legislature.start < h.earliest_term_start(POSITION_TOPICS):
+        context.log.info(
+            f"Skipping term {legislature.label} with start date {legislature.start} outside coverage window"
+        )
         return
 
-    url = link.attrib["href"]
-    assert url is not None, f"Term link missing URL for term {text}"
-    # "Actuels" (links[0]) is the current term; everything else is ended.
-    # Compare without the trailing character since the duplicate URLs differ only there.
-    status = (
-        OccupancyStatus.CURRENT
-        if url[:-1] == current_link.attrib["href"][:-1]
-        else OccupancyStatus.ENDED
-    )
-    context.log.info(f"Processing term: {text} (status={status})")
     # Fetch the member list page for this term
     term_doc = zyte_api.fetch_html(
         context,
-        url,
-        unblock_validator=unblock_validator,
+        legislature.url,
+        unblock_validator=UNBLOCK_VALIDATOR,
         absolute_links=True,
         cache_days=4,
     )
     table = h.xpath_element(term_doc, "//table[@width='100%']")
     for row in h.xpath_elements(table, ".//tr[td[@class='td1' or @class='td0']]"):
-        crawl_person(context, row, status)
+        crawl_person(context, row, legislature)
 
 
 def crawl(context: Context) -> None:
-    unblock_validator = "//table[@width='100%']"
     # Fetch the main page with all legislature terms
     doc = zyte_api.fetch_html(
         context,
         context.data_url,
-        unblock_validator=unblock_validator,
+        unblock_validator=UNBLOCK_VALIDATOR,
         absolute_links=True,
         cache_days=4,
     )
@@ -155,15 +149,48 @@ def crawl(context: Context) -> None:
     )
 
     links = legislature_menu.findall(".//a")
-    assert len(links) > 1, f"Expected at least 2 links, got {len(links)}"
-    # The menu lists the current term twice: first as "Actuels", then as a dated
-    # entry (e.g. "56 (2024-2025)"). "Actuels" contains richer member data, so we
-    # process it and skip the dated duplicate. URLs are compared without the last character
-    # since they differ only by a trailing character.
-    if links[0].attrib["href"][:-1] != links[1].attrib["href"][:-1]:
-        context.log.warning("Legislature menu structure has changed")
-        return
-    # Process links[0] ("Actuels") as current term, skip links[1] (dated duplicate),
-    # then process links[2:] (historical terms)
-    for link in itertools.chain(links[:1], links[2:]):
-        crawl_term(context, link, unblock_validator, links[0])
+
+    legislatures = []
+    # The menu is a list of parliamentary terms, listing the current term twice:
+    # 1. The current membership of the current parliament labeled "Actuels".
+    #    I'm hesitant to borrow the start date from the second link without
+    #    checking that legis=nn matches between the two.
+    # 2. Seems to be the starting members, including departed, and missing new members.
+    #    Note the end year for this listing is incorrect (2025 as of 2026 when they
+    #    aren't planning an early election), so we'll discard it.
+    label = h.element_text(links[0])
+    assert label == "Actuels", label
+    legislatures.append(
+        Legislature(
+            label=label,
+            url=str(links[0].attrib["href"]),
+            start=None,
+            end=None,
+            no_end_implies_current=True,
+        )
+    )
+    label = h.element_text(links[1])
+    legislatures.append(
+        Legislature(
+            label=label,
+            url=str(links[1].attrib["href"]),
+            start=get_term_dates(label)[0],
+            end=None,  # Discard known incorrect period end date
+            no_end_implies_current=False,
+        )
+    )
+    for link in links[2:]:
+        label = h.element_text(link)
+        start, end = get_term_dates(label)
+        legislatures.append(
+            Legislature(
+                label=label,
+                url=str(link.attrib["href"]),
+                start=start,
+                end=end,
+                no_end_implies_current=False,
+            )
+        )
+
+    for legislature in legislatures:
+        crawl_term(context, legislature)
