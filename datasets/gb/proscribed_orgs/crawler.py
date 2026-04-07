@@ -99,5 +99,7 @@ def crawl(context: Context) -> None:
 
     for entry in ulists[0].find_class("LegListTextStandard"):
         for el in h.xpath_elements(entry, el_xpath):
-            el.getparent().remove(el)
+            parent = el.getparent()
+            if parent is not None:
+                parent.remove(el)
         crawl_group(context, entry.text_content())
