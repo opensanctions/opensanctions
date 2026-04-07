@@ -4,14 +4,30 @@ from zavod import Context
 from zavod import helpers as h
 
 
+# API returns rows as bare lists without field names; mapping inferred from sample data
+FIELDS = [
+    "name",
+    "chamber",
+    "gender",
+    "faction_code",
+    "parties",
+    "attr",
+    "academic_title",
+    "faction",
+    "constituency",
+    "uri",
+]
+
+
 def crawl(context: Context) -> None:
     res = context.fetch_json(context.data_url)  # , method="POST")
     rows = res.pop("rows", [])
     for row in rows:
+        rec = dict(zip(FIELDS, row))
         person = context.make("Person")
-        name = row[0]
-        attr = row[5]
-        akgr = row[6]
+        name = rec["name"]
+        attr = rec["attr"]
+        akgr = rec["academic_title"]
         person.id = context.make_slug(attr["uri"])
         person.add("name", name)
         person.add("name", attr["zit"])
