@@ -10,8 +10,8 @@ def crawl(context: Context) -> None:
     for row in rows:
         person = context.make("Person")
         name = row[0]
-        attr = row[7]
-        akgr = row[11]
+        attr = row[5]
+        akgr = row[6]
         person.id = context.make_slug(attr["uri"])
         person.add("name", name)
         person.add("name", attr["zit"])
