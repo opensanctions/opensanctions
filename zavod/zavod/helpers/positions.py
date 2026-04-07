@@ -212,28 +212,16 @@ def make_occupancy(
         return None
 
     if status is None:
-        # TODO: should this live in `occupancy_status` instead? We want to make this
-        # simplification as late as possible to avoid collapsing the semantics in any
-        # of the data we export.
-        effective_start_date = max(occupancy.get("startDate"), default=None)
-        if effective_start_date is None:
-            effective_start_date = max(occupancy.get("periodStart"), default=None)
-        if effective_start_date is None:
-            effective_start_date = max(occupancy.get("electionDate"), default=None)
-        effective_end_date = max(occupancy.get("endDate"), default=None)
-        if effective_end_date is None:
-            effective_end_date = max(occupancy.get("periodEnd"), default=None)
         status = occupancy_status(
             context,
-            person,
-            position,
-            no_end_implies_current,
-            current_time,
-            effective_start_date,
-            effective_end_date,
-            max(person.get("birthDate"), default=None),
-            max(person.get("deathDate"), default=None),
-            categorisation,
+            person=person,
+            position=position,
+            occupancy=occupancy,
+            no_end_implies_current=no_end_implies_current,
+            current_time=current_time,
+            birth_date=max(person.get("birthDate"), default=None),
+            death_date=max(person.get("deathDate"), default=None),
+            categorisation=categorisation,
         )
     if status is None:
         return None

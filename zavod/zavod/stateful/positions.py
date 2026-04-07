@@ -136,17 +136,25 @@ def get_after_office(topics: List[str]) -> timedelta:
 
 def occupancy_status(
     context: Context,
+    *,
     person: Entity,
     position: Entity,
+    occupancy: Entity,
     no_end_implies_current: bool = True,
     current_time: datetime = settings.RUN_TIME,
-    start_date: Optional[str] = None,
-    end_date: Optional[str] = None,
     birth_date: Optional[str] = None,
     death_date: Optional[str] = None,
     categorisation: Optional[PositionCategorisation] = None,
 ) -> Optional[OccupancyStatus]:
     """Determine the occupancy status of a person in a position given a set of dates.
+
+    Dates are extracted from the occupancy entity. The effective start date is
+    determined by checking startDate, periodStart, and electionDate in that order.
+    End dates are handled with different semantics depending on specificity:
+
+    - ``endDate`` (individual end): past implies ENDED, future implies CURRENT
+    - ``periodEnd`` (term/period end): past implies ENDED, future implies UNKNOWN
+      (e.g. a parliamentary term may still be running but the person may have left)
 
     If the person should not be considered a PEP, return None.
     """
@@ -161,8 +169,23 @@ def occupancy_status(
         # If they're unrealistically old, assume they're not a PEP.
         return None
 
+    # Determine effective start date (most specific first)
+    effective_start_date = max(occupancy.get("startDate"), default=None)
+    if effective_start_date is None:
+        effective_start_date = max(occupancy.get("periodStart"), default=None)
+    if effective_start_date is None:
+        effective_start_date = max(occupancy.get("electionDate"), default=None)
+
+    end_date = max(occupancy.get("endDate"), default=None)
+    period_end = max(occupancy.get("periodEnd"), default=None)
+
     if not (
-        death_date or birth_date or end_date or start_date or no_end_implies_current
+        death_date
+        or birth_date
+        or end_date
+        or period_end
+        or effective_start_date
+        or no_end_implies_current
     ):
         # If we don't have any dates to work with, nor a really well-maintained source,
         # don't consider them a PEP.
@@ -174,7 +197,8 @@ def occupancy_status(
         topics = categorisation.topics
     after_office = get_after_office(topics)
 
-    if end_date:
+    # Individual end date is the most specific signal
+    if end_date is not None:
         if end_date < current_iso:  # end_date is in the past
             if end_date < h.backdate(current_time, after_office):
                 # end_date is beyond after-office threshold
@@ -199,24 +223,35 @@ def occupancy_status(
         else:  # end_date is in the future and coverage is unspecified or active
             return OccupancyStatus.CURRENT
 
-    else:  # No end date
-        dis_date = max(position.get("dissolutionDate"), default=None)
-        # dissolution date is in the past:
-        if dis_date is not None and dis_date < current_iso:
-            if dis_date > h.backdate(current_time, after_office):
-                return OccupancyStatus.ENDED
-            else:
+    # Period end date: less specific — a future period end does not imply the person
+    # is still in office. An MP could leave a term early
+    if period_end is not None:
+        if period_end < current_iso:  # period_end is in the past
+            if period_end < h.backdate(current_time, after_office):
+                # period_end is beyond after-office threshold
                 return None
+            else:
+                return OccupancyStatus.ENDED
+        else:  # period_end is in the future
+            return OccupancyStatus.UNKNOWN
 
-        if start_date is not None and start_date < h.backdate(current_time, MAX_OFFICE):
-            # start_date is older than MAX_OFFICE threshold for assuming they're still
-            # a PEP
+    # No end date of any kind
+    dis_date = max(position.get("dissolutionDate"), default=None)
+    # dissolution date is in the past:
+    if dis_date is not None and dis_date < current_iso:
+        if dis_date > h.backdate(current_time, after_office):
+            return OccupancyStatus.ENDED
+        else:
             return None
 
-        if no_end_implies_current:
-            # This is for sources we are really confident will provide an end date
-            # or totally remove the person soon enough after the person leaves the
-            # position
-            return OccupancyStatus.CURRENT
-        else:
-            return OccupancyStatus.UNKNOWN
+    max_office_threshold = h.backdate(current_time, MAX_OFFICE)
+    if effective_start_date is not None and effective_start_date < max_office_threshold:
+        # start_date is older than MAX_OFFICE threshold - probably not a PEP
+        return None
+
+    if no_end_implies_current:
+        # This is for sources we are really confident will provide an end date or
+        # totally remove the person soon enough after the person leaves the position
+        return OccupancyStatus.CURRENT
+    else:
+        return OccupancyStatus.UNKNOWN
