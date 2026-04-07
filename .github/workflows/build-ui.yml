@@ -78,7 +78,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and push release
         id: build
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         env:
           BUILD_DATE: ${{ env.BUILD_DATE }}
         with:
