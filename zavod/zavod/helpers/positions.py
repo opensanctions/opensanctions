@@ -232,10 +232,10 @@ def make_occupancy(
     person.add("topics", "role.pep")
     if propagate_country:
         for country in position.get("country"):
-            _tmp_warn_propagate_country(context)
             # Only propagate to Person.country it isn't already set
             # in another field (such as citizenship).
             if country not in person.get_type_values(registry.country, matchable=True):
+                _tmp_warn_propagate_country(context)
                 person.add("country", country)
 
     return occupancy
