@@ -8,6 +8,7 @@ from typing import Optional
 
 from zavod import Context
 from zavod import helpers as h
+from zavod.extract import zyte_api
 from lxml.html import HtmlElement
 
 
@@ -86,13 +87,17 @@ def crawl_group(context: Context, text: str) -> None:
 
 def crawl(context: Context) -> None:
     context.log.info(f"Fetching legislation from {context.data_url}")
-    page: HtmlElement = context.fetch_html(context.data_url, cache_days=1)
+    el_xpath = ".//*[contains(@class, 'LegCommentaryLink') or contains(@class, 'LegChangeDelimiter')]"
+    page: HtmlElement = zyte_api.fetch_html(
+        context,
+        context.data_url,
+        el_xpath,
+        cache_days=1,
+    )
     ulists = page.find_class("LegUnorderedList")
     assert len(ulists) == 1, ("Expected exactly one list", len(ulists))
 
     for entry in ulists[0].find_class("LegListTextStandard"):
-        for el in entry.xpath(
-            ".//*[contains(@class, 'LegCommentaryLink') or contains(@class, 'LegChangeDelimiter')]"
-        ):
+        for el in h.xpath_elements(entry, el_xpath):
             el.getparent().remove(el)
         crawl_group(context, entry.text_content())
