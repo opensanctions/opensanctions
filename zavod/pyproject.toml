@@ -45,9 +45,9 @@ dependencies = [
     "xlrd == 2.0.2",
     "cryptography",
     "duckdb == 1.4.4",
-    # TODO: remove when requests officially supports chardet 7.0
-    # https://github.com/opensanctions/opensanctions/issues/3722
-    "chardet < 8.0",
+    # Significant secondary dependencies pinned so we check for
+    # supply chain attacks before upgrading.
+    "chardet == 7.4.1",
 ]
 
 [project.urls]
