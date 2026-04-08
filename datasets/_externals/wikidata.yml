@@ -12,7 +12,7 @@ exports:
 deploy:
   schedule: "1 12 * * *"
   cpu: "2000m"
-  memory: "5000Mi"
+  memory: "7000Mi"
   premium: true # TODO: remove after working down invalid wikipedia URLs.
 load_statements: true
 ci_test: false
