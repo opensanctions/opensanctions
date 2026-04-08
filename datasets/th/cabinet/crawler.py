@@ -1,5 +1,7 @@
 from lxml.html import HtmlElement
 
+from rigour.names import remove_person_prefixes
+
 from zavod.stateful.positions import categorise
 from zavod.extract.zyte_api import fetch_html
 from zavod import Context, helpers as h
@@ -21,7 +23,7 @@ def crawl_prime_minister(context: Context, main_container: HtmlElement) -> None:
 def crawl_person(context: Context, name: str, role: str) -> None:
     person = context.make("Person")
     person.id = context.make_id(name, role)
-    person.add("name", name, lang="eng")
+    person.add("name", remove_person_prefixes(name), lang="eng")
     person.add("topics", "role.pep")
     person.add("citizenship", "th")
 
@@ -51,7 +53,6 @@ def crawl(context: Context) -> None:
         main_container = h.xpath_element(
             doc, ".//div[@class='container']//div[@class='row']"
         )
-        print(f"Page {page}: Found main container: {main_container is not None}")
         # crawl PM only once on the first page
         if page == 1:
             crawl_prime_minister(context, main_container)
@@ -65,11 +66,13 @@ def crawl(context: Context) -> None:
                 continue
             crawl_person(context, name, role)
 
-        next_disabled = doc.xpath(
-            ".//span[@class='visually-hidden' and text()='Next']"
-            "/ancestor::li[contains(@class, 'disabled')]"
+        # Find max page from pagination links
+        page_links = h.xpath_strings(
+            doc, "//ul[contains(@class,'pagination')]//a[@class='page-link']/text()"
         )
-        if next_disabled:
+        max_page = max((int(p) for p in page_links if p.strip().isdigit()))
+        assert max_page is not None
+        if page >= max_page:
             break
 
         page += 1
