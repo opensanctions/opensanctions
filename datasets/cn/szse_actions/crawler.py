@@ -17,9 +17,10 @@ def crawl_actions_item(context: Context, row: Dict[str, Any]) -> None:
     entity.id = context.make_id(id, name)
     entity.add("name", name)
     entity.add("country", "cn")
+    entity.add("topics", "reg.action")
 
     sanction = h.make_sanction(context, entity)
-    h.apply_date(sanction, "startDate", row.pop("date_of_action"))
+    h.apply_date(sanction, "listingDate", row.pop("date_of_action"))
     sanction.add(
         "sourceUrl",
         "https://reportdocs.static.szse.cn/UpFiles/zqjghj/" + row.pop("letter_pdf"),
