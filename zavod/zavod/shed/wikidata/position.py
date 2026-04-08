@@ -71,6 +71,7 @@ IGNORE_TYPES: Set[str] = {
     "Q4240305",  # cross
     "Q120560",  # minor basilica?
     "Q2977",  # cathedral
+    "Q3320743",  # title of honor
 }
 
 # TEMP: We're starting to include municipal PEPs for specific countries
