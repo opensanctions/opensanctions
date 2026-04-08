@@ -2,15 +2,7 @@ from datetime import datetime, timezone
 
 from zavod import Context, helpers as h
 
-
-ID_PATTERNS = [
-    r"统一社会信用证号",  # Unified Social Credit Certificate Number
-    r"社会信用代码",  # Social Credit Code
-    r"身份证号码",  # ID card number
-    r"身份证号",  # ID number
-    r"账户代码",  # Account code
-]
-ID_PATTERN = "|".join(ID_PATTERNS)
+IGNORE = ["docpubjsonurl", "doctype", "chnlcode", "index", "navigation"]
 
 
 def parse_item(context: Context, item: dict) -> None:
@@ -32,12 +24,6 @@ def parse_item(context: Context, item: dict) -> None:
 
         entity.add("name", name)
         entity.add("notes", doc_content)
-
-        result = context.lookup("notes", doc_content, warn_unmatched=True)
-        if result and result.props:
-            for prop, value in result.props.items():
-                entity.add(prop, value)
-
         entity.add("country", "cn")
         entity.add("topics", "reg.action")
         entity.add("sourceUrl", url)
@@ -48,9 +34,7 @@ def parse_item(context: Context, item: dict) -> None:
         context.emit(entity)
         context.emit(sanction)
 
-    context.audit_data(
-        item, ["docpubjsonurl", "doctype", "chnlcode", "index", "navigation"]
-    )
+    context.audit_data(item, IGNORE)
 
 
 def crawl(context: Context) -> None:
