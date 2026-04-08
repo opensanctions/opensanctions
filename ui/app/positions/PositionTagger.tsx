@@ -77,9 +77,9 @@ export default async function PositionTagger({ searchParams }: { searchParams: S
             <li><kbd>Q</kbd> Head</li>
             <li><kbd>W</kbd> Executive</li>
             <li><kbd>E</kbd> Legislative</li>
-            <li><kbd>R</kbd> Judicial</li>
-            <li><kbd>T</kbd> Security</li>
-            <li><kbd>Y</kbd> Financial</li>
+            <li><kbd>R</kbd> Administrative (Civil service)</li>
+            <li><kbd>T</kbd> Judicial</li>
+            <li><kbd>Y</kbd> Security</li>
           </ul>
         </div>
       </div>

@@ -21,6 +21,7 @@ const ROLE_ENTRIES = [
   ["gov.head", "Head"],
   ["gov.executive", "Exec"],
   ["gov.legislative", "Legis"],
+  ["gov.admin", "Admin"],
   ["gov.judicial", "Juris"],
   ["gov.security", "Secur"],
   ["gov.financial", "Fin"],
