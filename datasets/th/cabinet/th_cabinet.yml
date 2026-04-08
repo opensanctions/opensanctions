@@ -7,29 +7,27 @@ coverage:
 load_statements: true
 ci_test: false
 summary: >
-  List of the current members of the Thai Cabinet of Ministers. 
+  List of the current members of the Thai Cabinet of Ministers.
   It includes the names and official positions of each cabinet member.
 description: |
-  This dataset comprises information about the Thai Cabinet of Ministers. It includes 
-  the names of the ministers, their respective positions, and relevant details about 
-  their roles within the government
+  This dataset comprises information about the Thai Cabinet of Ministers. It includes
+  the names of the ministers, their respective positions, and relevant details about
+  their roles within the government.
 publisher:
-  name: สำนักเลขาธิการคณะรัฐมนตรี
-  name_en: Secretariat of the Cabinet (Thailand)
-  acronym: SOC
+  name: Secretariat of the Prime Minister
+  acronym: SPM
   description: >
-    The Secretariat of the Cabinet of Thailand is responsible for coordinating
-    and facilitating the implementation of government policies and actions as
-    directed by the Cabinet. It acts as the main conduit for official
-    communications from the Thai government.
-  url: https://www.soc.go.th/
+    The Secretariat of the Prime Minister (SPM) supports the Prime Minister's
+    political and administrative functions, coordinates executive policy
+    implementation, and manages government protocol.
+  url: https://www.thaigov.go.th/en/home
   official: true
   country: "th"
 tags:
   - list.pep
-url: https://www.soc.go.th/?page_id=182
+url: https://www.thaigov.go.th/en/cabinet/minister
 data:
-  url: https://www.soc.go.th/?page_id=182
+  url: https://www.thaigov.go.th/en/cabinet/minister
   format: HTML
 
 assertions:
