@@ -32,7 +32,8 @@ publisher:
   country: cn
 url: https://www.szse.cn/disclosure/supervision/transaction/restrict/index.html
 data:
-  url: https://www.szse.cn/disclosure/supervision/transaction/restrict/index.html
-  format: HTML
+  url: https://www.szse.cn/api/search/content
+  format: JSON
+  lang: zho
 dates:
   formats: ["%Y-%m-%d"]

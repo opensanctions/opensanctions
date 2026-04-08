@@ -1,55 +1,45 @@
-import re
-from lxml import html
+from datetime import datetime, timezone
 
 from zavod import Context, helpers as h
 
-
+# HEADERS = {
+#     "Referer": "https://www.szse.cn/disclosure/supervision/transaction/restrict/index.html",
+#     "X-Request-Type": "ajax",
+#     "X-Requested-With": "XMLHttpRequest",
+# }
 ID_PATTERNS = [
-    r"统一社会信用证号",
-    r"社会信用代码",
-    r"身份证号码",
-    r"身份证号",
-    r"账户代码",
+    r"统一社会信用证号",  # Unified Social Credit Certificate Number
+    r"社会信用代码",  # Social Credit Code
+    r"身份证号码",  # ID card number
+    r"身份证号",  # ID number
+    r"账户代码",  # Account code
 ]
 
 
-def crawl_targets(context: Context, full_text: str, date: str, url: str) -> None:
-    # extract 当事人 (target) block
-    # end of the block:
-    # 经查明 ("upon investigation")
-    # 根据 ("according to")
-    # \d{4}年: a line starting with a year
-    target_section_match = re.search(
-        r"当事人[：:](.*?)(?=\n经查明|\n根据|\n\d{4}年|$)", full_text, re.DOTALL
+ID_PATTERN = "|".join(ID_PATTERNS)
+
+
+def parse_item(context: Context, item: dict) -> None:
+    date = (
+        datetime.fromtimestamp(item.pop("docpubtime") / 1000, tz=timezone.utc)
+        .date()
+        .isoformat()
     )
-    assert target_section_match is not None, (
-        f"Expected to get a match on name and ID from the notice, received no match for URL: {url}."
-    )
-    target = target_section_match.group(1).strip()
+    doc_title = item.pop("doctitle")
+    doc_id = item.pop("id")
+    doc_content = item.pop("doccontent")
+    url = item.pop("docpuburl")
+    name_part = doc_title.split("（", 1)[1].rsplit("）", 1)[0]
+    names = h.multi_split(name_part, ["、", "，", ","])
 
-    # some notices mention several entities divided by \n or chinese dots
-    id_pattern = "|".join(ID_PATTERNS)
-
-    for line in re.split(r"[\n。]", target):
-        line = line.strip()
-        if not line:
-            continue
-
-        # fetch target name and ID
-        match = re.search(rf"(.+?)\s*[，,]?\s*({id_pattern})[：:]\s*(\S+)", line)
-        assert match is not None
-
-        name = match.group(1).strip()
-        # id_type = match.group(2).strip()
-        # note that id_redacted look like '211002XXXXXXXXXXXX', i.e. redactions applied by SZSE
-        # so im not saving those but using to generate entity IDs only
-        id_redacted = match.group(3).strip("。，,；;）)").strip()
-
+    for name in names:
         entity = context.make("LegalEntity")
-        entity.id = context.make_id(name, id_redacted)
+        entity.id = context.make_id(name, doc_id)
+
         entity.add("name", name)
+        entity.add("notes", doc_content)
         entity.add("country", "cn")
-        entity.add("topics", "financial")
+        entity.add("topics", "reg.action")
         entity.add("sourceUrl", url)
 
         sanction = h.make_sanction(context, entity)
@@ -58,42 +48,33 @@ def crawl_targets(context: Context, full_text: str, date: str, url: str) -> None
         context.emit(entity)
         context.emit(sanction)
 
+    context.audit_data(
+        item, ["docpubjsonurl", "doctype", "chnlcode", "index", "navigation"]
+    )
+
 
 def crawl(context: Context) -> None:
-    doc = context.fetch_html(context.data_url, cache_days=1, absolute_links=True)
-
-    # <a> tags are injected by JavaScript and lxml never sees them
-    # no API endpoint for this data
-    # wacky but working solution: extracting data from <script>
-    for row in h.xpath_elements(doc, ".//ul[contains(@class, 'newslist')]//li"):
-        date = h.xpath_elements(row, ".//span[contains(@class, 'time')]")
-        date = date[0].text_content().strip()
-
-        script = h.xpath_element(row, ".//script")
-
-        # fix encoding for chinese chars
-        text = script.text_content().encode("latin-1").decode("utf-8")
-
-        # get notice url
-        url_match = re.search(r"var curHref = '([^']+)'", text)
-        assert url_match is not None, "Couldn't extract notice URL from script tag"
-        url = context.data_url.replace("index.html", "") + url_match.group(1).replace(
-            "./", ""
+    for page in range(1, 100):
+        data = {
+            "keyword": "",
+            "time": "0",
+            "range": "title",
+            "channelCode[]": "restrict_trading",
+            "currentPage": str(page),
+            "pageSize": "20",
+            "scope": "0",
+        }
+        result = context.fetch_json(
+            context.data_url,
+            data=data,
+            method="POST",
+            # headers=HEADERS,
+            cache_days=1,
         )
-        # notice_title = re.search(r"var curTitle = '([^']+)'", text).group(1).strip()
+        # inspect result structure — likely has a list of hits + total count
+        for item in result.get("data"):
+            parse_item(context, item)
 
-        # fetch detailed notice with a manual decode needed at the fetch level
-        # to prevent garbled text from appearing
-        response = context.fetch_response(url)
-        doc_notice = html.fromstring(response.content.decode("utf-8"))
-        # extract notice text (inconsistent target placement across docs, sometimes in multiple p tags)
-        # target structure: 当事人 ("party involved")：<company name>，身份证号码 ("ID Number")：<ID>
-        lines = []
-        ps = h.xpath_elements(doc_notice, ".//div[contains(@class, 'des-content')]//p")
-        for p in ps:
-            text = p.text_content().strip()
-            lines.append(text)
-        full_text = "\n".join(lines)
-
-        # extract target names and IDs
-        crawl_targets(context, full_text, date, url)
+        total_pages = -(-result["totalSize"] // 20)  # ceil division
+        if page >= total_pages:
+            break
