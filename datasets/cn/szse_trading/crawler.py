@@ -4,6 +4,11 @@ from zavod import Context, helpers as h
 
 IGNORE = ["docpubjsonurl", "doctype", "chnlcode", "index", "navigation"]
 CST = timezone(timedelta(hours=8))
+HEADERS = {
+    "Referer": "https://www.szse.cn/disclosure/supervision/transaction/restrict/index.html",
+    "X-Request-Type": "ajax",
+    "X-Requested-With": "XMLHttpRequest",
+}
 
 
 def parse_item(context: Context, item: dict) -> None:
@@ -58,6 +63,7 @@ def crawl(context: Context) -> None:
             context.data_url,
             data=data,
             method="POST",
+            headers=HEADERS,
             cache_days=1,
         )
         for item in result.get("data"):
