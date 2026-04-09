@@ -148,7 +148,9 @@ def emit_row(
     name_english = row.pop("name_english")
     name_japanese = row.pop("name_japanese")
     passport_number = row.pop("passport_number", [])
+    passport_number = [squash_spaces(p) for p in passport_number]
     id_number = row.pop("id_number", [])
+    id_number = [squash_spaces(i) for i in id_number]
     identification_number = row.pop("identification_number", [])
 
     entity.id = context.make_id(*name_english, *name_japanese)
@@ -174,7 +176,9 @@ def emit_row(
     if birth_date != []:
         entity.add_schema("Person")
         h.apply_dates(entity, "birthDate", birth_date)
-    entity.add_cast("Person", "birthPlace", row.pop("birth_place", []))
+    entity.add_cast(
+        "Person", "birthPlace", [squash_spaces(v) for v in row.pop("birth_place", [])]
+    )
 
     note_long_ids(entity, passport_number)
     entity.add_cast(
