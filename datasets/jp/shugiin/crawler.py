@@ -2,9 +2,12 @@ from urllib.parse import urljoin
 
 from zavod import Context, Entity
 from zavod import helpers as h
+from zavod.util import Element
 
 
-def crawl_row(context: Context, position: Entity, row, url: str) -> None:
+def crawl_row(
+    context: Context, position: Entity, row: dict[str, Element], url: str
+) -> None:
     str_row = h.cells_to_str(row)
     name = str_row.pop("name")
     in_house_group = str_row.pop("in_house_group")

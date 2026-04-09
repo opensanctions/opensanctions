@@ -3,36 +3,52 @@ from urllib.parse import urljoin
 from zavod import Context
 from zavod import helpers as h
 
-
-# API returns rows as bare lists without field names; mapping inferred from sample data
-FIELDS = [
-    "name",
-    "chamber",
-    "gender",
-    "faction_code",
-    "parties",
-    "attr",
-    "academic_title",
-    "faction",
-    "constituency",
-    "uri",
-]
+EXTRA_ACADEMIC_TITLES = ["DDr.", "MMag.", "MMMag.", "MMst."]
 
 
 def crawl(context: Context) -> None:
-    res = context.fetch_json(context.data_url)  # , method="POST")
-    rows = res.pop("rows", [])
+    res = context.fetch_json(context.data_url)
+    header = [h["label"] for h in res.pop("header")]
+    # Header has descriptions of the columns, rows are just lists of values.
+    # We need to zip them together to get a dict for each record.
+    # Strict zip to ensure we have the expected number of columns in each record
+    rows = [dict(zip(header, row, strict=True)) for row in res.pop("rows")]
     for row in rows:
-        rec = dict(zip(FIELDS, row))
         person = context.make("Person")
-        name = rec["name"]
-        attr = rec["attr"]
-        akgr = rec["academic_title"]
+        attr = row["Attribute"]
+        academic_title = row["akgr"]
         person.id = context.make_slug(attr["uri"])
+
+        name = attr["zit"]
+
+        academic_titles = academic_title.split(" ") if academic_title else []
+        # Recursively strip academic titles from the start and end of the name, until we have a clean name to add to the entity.
+        while True:
+            for t in academic_titles + EXTRA_ACADEMIC_TITLES:
+                if name.startswith(f"{t} "):
+                    name = name[len(f"{t} ") :].strip()
+                    break
+                if name.endswith(f", {t}"):
+                    name = name[: -len(f", {t}")].strip()
+                    break
+            # If we didn't break, it means we didn't find any more academic titles to strip,
+            # so we can break out of the top-level while loop.
+            else:
+                break
+
+        # This is only a smell test, sometimes the title in the name is so slightly different from the title in the akgr column.
+        # e.g. MMAg. vs Mag.
         person.add("name", name)
-        person.add("name", attr["zit"])
+        if academic_titles and any(t in name for t in academic_titles):
+            context.log.warning(
+                "Academic title is part of name, please add to type.name lookups",
+                name=person.get("name"),
+                original_name=attr["zit"],
+                academic_title=academic_title,
+            )
+
         person.add("citizenship", "at")
-        person.add("title", akgr)  # akgr: Akademischer Grad
+        person.add("title", academic_title)  # akgr: Akademischer Grad
         person.add("gender", attr["geschlecht"])
         url = urljoin(context.data_url, attr["uri"])
         person.add("sourceUrl", url)

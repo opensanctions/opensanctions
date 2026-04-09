@@ -1,13 +1,13 @@
-from typing import Dict, List
 from lxml import etree
 from lxml.html import HtmlElement
 from normality import slugify
 
 from zavod import Context, Entity, helpers as h
 from zavod.extract.zyte_api import fetch_html
+from zavod.util import Element
 
 
-def parse_facts_list(container: HtmlElement) -> Dict[str, List[HtmlElement]]:
+def parse_facts_list(container: HtmlElement) -> dict[str, list[HtmlElement]]:
     """
     Parse a list of facts into a dictionary.
 
@@ -21,20 +21,20 @@ def parse_facts_list(container: HtmlElement) -> Dict[str, List[HtmlElement]]:
     rows_xpath = './/div[contains(@class, "c-full-node__info--row")]'
     key_xpath = './/label[contains(@class, "field__label")]'
     values_xpath = "./span"
-    data = {}
+    data: dict[str, list[HtmlElement]] = {}
     for row in container.xpath(rows_xpath):
         key_els = row.xpath(key_xpath)
         assert len(key_els) == 1, (key_xpath, row.text_content())
         label = key_els[0].text_content()
         key = slugify(label, sep="_")
-        assert bool(key), (label, key)
+        assert key
         assert key not in data, (key, data)
         value_els = row.xpath(values_xpath)
         data[key] = value_els
     return data
 
 
-def crawl_subpage(context: Context, url: str, entity: Entity, entity_id: str):
+def crawl_subpage(context: Context, url: str, entity: Entity, entity_id: str) -> None:
     context.log.info(f"Starting to crawl company page: {url}")
     # In the past we've gotten an error message
     # "The website encountered an unexpected error. Try again later."
@@ -102,6 +102,7 @@ def crawl_subpage(context: Context, url: str, entity: Entity, entity_id: str):
         subsidiary.id = context.make_id(
             affiliate_name, *affiliates_urls, prefix="ir-br-co"
         )
+        assert subsidiary.id
         subsidiary.add("name", affiliate_name)
         subsidiary.add("sourceUrl", affiliates_urls)
         context.emit(subsidiary)
@@ -127,14 +128,14 @@ def crawl_subpage(context: Context, url: str, entity: Entity, entity_id: str):
     )
 
 
-def get_end_page(doc):
+def get_end_page(doc: Element) -> int:
     last_page_xpath = ".//li[@class='c-pager__item c-pager__last']/a/@href"
     last_page_link = h.xpath_string(doc, last_page_xpath)
     last_page_num = int(last_page_link.split("=")[-1])
     return last_page_num
 
 
-def crawl_row(context: Context, row: Dict[str, HtmlElement]):
+def crawl_row(context: Context, row: dict[str, HtmlElement]) -> None:
     str_row = h.cells_to_str(row)
 
     # skip entities that have been withdrawn
@@ -150,6 +151,7 @@ def crawl_row(context: Context, row: Dict[str, HtmlElement]):
     # Create and emit an entity
     entity = context.make("Company")
     entity.id = context.make_id(company_name, company_link, prefix="ir-br-co")
+    assert entity.id
 
     crawl_subpage(context, company_link, entity, entity.id)
     entity.add("name", company_name)
@@ -166,7 +168,7 @@ def crawl_row(context: Context, row: Dict[str, HtmlElement]):
     context.audit_data(str_row)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     page_num = 0
     end_page = None
 
