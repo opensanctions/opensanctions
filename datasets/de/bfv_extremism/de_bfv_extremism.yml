@@ -1,0 +1,63 @@
+title: Germany's banned organizations involved in foreign-related extremism
+prefix: de-bfv
+coverage:
+  frequency: monthly
+  start: 2026-04-08
+load_statements: true
+entry_point: crawler.py
+summary: >-
+  Organizations from the field of foreign-related extremism banned at the federal level
+  by the Federal Ministry of the Interior (BMI) under Section 3 of the German Associations Act (Vereinsgesetz).
+description: |
+  Under Article 9, Paragraph 2 of the Basic Law (Grundgesetz), associations can be banned if their purpose or activities violate criminal law or are directed against
+  the constitutional order or the principle of international understanding. This list covers
+  bans issued exclusively at the federal level by the Federal Ministry of the Interior (BMI)
+  under §3 of the Associations Act (VereinsG); state-level bans are handled separately by
+  state interior ministries and are not included here.
+
+  The federal and state offices for the protection of the
+  constitution create an essential basis for ban measures in advance, often through extensive evidence gathering.
+  Following a ban order, they continue to monitor whether activities of former members serve
+  the formation of criminal successor or replacement organizations.
+
+  **Note**: The source page also lists symbols and insignia subject to the display prohibition
+  under §9 Abs. 1 VereinsG or criminal penalties under §86a Abs. 1 StGB; these are not
+  captured in this dataset.
+publisher:
+  name: Bundesamt für Verfassungsschutz
+  name_en: Federal Office for the Protection of the Constitution
+  acronym: BfV
+  description: |
+    The Federal Office for the Protection of the Constitution is Germany's federal domestic intelligence agency
+    which ensures the protection of the free democratic basic order.
+  country: de
+  url: https://www.verfassungsschutz.de/DE/home/home_node.html
+  official: true
+url: https://www.verfassungsschutz.de/DE/themen/auslandsbezogener-extremismus/verbotene-organisationen/verbotene-organisationen_node.html
+data:
+  url: https://www.verfassungsschutz.de/DE/themen/auslandsbezogener-extremismus/verbotene-organisationen/verbotene-organisationen_node.html
+  format: HTML
+  lang: deu
+dates:
+  formats: ["%d. %B %Y"]
+  months:
+    january: Januar
+    february: Februar
+    march: März
+    april: April
+    may: Mai
+    june: Juni
+    july: Juli
+    august: August
+    september: September
+    october: Oktober
+    november: November
+    december: Dezember
+
+assertions:
+  min:
+    schema_entities:
+      Organization: 10
+  max:
+    schema_entities:
+      Organization: 30
