@@ -140,10 +140,14 @@ def test_occupancy_status(testdataset1: Dataset):
     )
     # Past period_end beyond after-office threshold disqualifies
     assert status(True, "1950-01-01", None, period_end="2015-01-01") is None
-    # Future period_end implies UNKNOWN (not CURRENT) — person may have left
+    # Future period_end falls back to no_end_implies_current logic
+    assert (
+        status(False, "2018-01-01", None, period_end="2025-01-01")
+        == OccupancyStatus.UNKNOWN
+    )
     assert (
         status(True, "2018-01-01", None, period_end="2025-01-01")
-        == OccupancyStatus.UNKNOWN
+        == OccupancyStatus.CURRENT
     )
     # Individual end_date takes precedence over period_end
     # (end_date falls within the period, period_end is further out)

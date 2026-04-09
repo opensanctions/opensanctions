@@ -232,8 +232,7 @@ def occupancy_status(
                 return None
             else:
                 return OccupancyStatus.ENDED
-        else:  # period_end is in the future
-            return OccupancyStatus.UNKNOWN
+    # If period_end is in the future, leave it to no_end_implies_current to determine status.
 
     # No end date of any kind
     dis_date = max(position.get("dissolutionDate"), default=None)
