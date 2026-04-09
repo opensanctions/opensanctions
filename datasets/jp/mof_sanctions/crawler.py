@@ -1,10 +1,10 @@
 import re
 import string
 from datetime import date, datetime
-from typing import Dict, List, Optional
+from typing import Dict, List
 from urllib.parse import urljoin
 
-import xlrd  # type: ignore
+import xlrd
 from followthemoney.types.identifier import IdentifierType
 from normality import squash_spaces, stringify
 from normality.cleaning import decompose_nfkd
@@ -50,7 +50,7 @@ def note_long_ids(entity: Entity, identifiers: List[str]) -> None:
             entity.add("notes", identifier)
 
 
-def str_cell(cell: Cell) -> Optional[str]:
+def str_cell(cell: Cell) -> str | None:
     value = cell.value
     if value is None:
         return None
@@ -255,25 +255,62 @@ def trim_rightmost_blank(values: List[str], keep: int = 0) -> List[str]:
     return values[:end_idx]
 
 
-def crawl_xlsx(context: Context, url: str) -> None:
+def read_xlsx_sheets(
+    context: Context, url: str
+) -> list[tuple[str, list[list[str | None]]]]:
     path = context.fetch_resource("source.xlsx", url)
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
-
     wb = load_workbook(path, read_only=True)
+    sheets: list[tuple[str, list[list[str | None]]]] = []
     for sheet in wb.worksheets:
-        row0 = [str_cell(c) for c in list(sheet.iter_rows(0, 1))[0]]
-        sections = [str(c) for c in row0 if c is not None]
+        rows: list[list[str | None]] = [
+            [str_cell(c) for c in cells] for cells in sheet.iter_rows()
+        ]
+        sheets.append((sheet.title, rows))
+    return sheets
+
+
+def read_xls_sheets(
+    context: Context, url: str
+) -> list[tuple[str, list[list[str | None]]]]:
+    path = context.fetch_resource("source.xls", url)
+    context.export_resource(path, XLS, title=context.SOURCE_TITLE)
+    xls = xlrd.open_workbook(str(path))
+    sheets: list[tuple[str, list[list[str | None]]]] = []
+    for sheet in xls.sheets():
+        rows: list[list[str | None]] = []
+        for r in range(sheet.nrows):
+            row: list[str | None] = []
+            for c in sheet.row(r):
+                val = h.convert_excel_cell(xls, c)
+                if isinstance(val, datetime):
+                    val = stringify(val.date())
+                row.append(val)
+            rows.append(row)
+        sheets.append((sheet.name, rows))
+    return sheets
+
+
+def crawl_sheets(
+    context: Context, sheets: list[tuple[str, list[list[str | None]]]]
+) -> None:
+    for sheet_name, all_rows in sheets:
+        if not all_rows:
+            continue
+        row0 = all_rows[0]
+        sections = [c for c in row0 if c is not None]
         section = squash_spaces(" / ".join(sections))
         if section is None:
-            context.log.warning("No section found", sheet=sheet.title)
+            context.log.warning("No section found", sheet=sheet_name)
             continue
-        headers = None
-        for cells in sheet.iter_rows(1):
-            row = [str_cell(c) for c in cells]
+        headers: list[str | None] | None = None
+        for row in all_rows[1:]:
             # If they've formatted cells beyond the headers, we get them in the
             # row for the whole sheet. We want to drop those columns unless they
             # contain data.
-            row = trim_rightmost_blank(row, keep=len(headers) if headers else 0)
+            row = trim_rightmost_blank(
+                row, keep=len(headers) if headers is not None else 0
+            )
 
             # after a header is found, read normal data:
             if headers is not None:
@@ -282,18 +319,15 @@ def crawl_xlsx(context: Context, url: str) -> None:
                 for header, cell in zip(headers, row):
                     if header is None:
                         continue
-                    values = []
-                    if isinstance(cell, datetime):
-                        cell = cell.date()
+                    values: list[str] = []
                     for value in h.multi_split(stringify(cell), SPLITS):
                         if value is None:
                             continue
                         if value == "不明":
                             continue
-                        if value is not None:
-                            values.append(value)
+                        values.append(value)
                     data[header] = values
-                emit_row(context, sheet.title, section, data)
+                emit_row(context, sheet_name, section, data)
 
             if not len(row) or row[0] is None:
                 continue
@@ -302,69 +336,13 @@ def crawl_xlsx(context: Context, url: str) -> None:
             if "告示日付" in teaser:  # jp: Notice date
                 if headers is not None:
                     context.log.error("Found double header?", row=row)
-
                 headers = []
                 for cell in row:
-                    cell = squash_spaces(stringify(cell) or "")
-                    header = context.lookup_value("columns", cell)
+                    cell_str = squash_spaces(stringify(cell) or "")
+                    header = context.lookup_value("columns", cell_str)
                     if header is None:
                         context.log.warning(
-                            "Unknown column title", column=cell, sheet=sheet.title
-                        )
-                    headers.append(header)
-
-
-def crawl_xls(context: Context, url: str) -> None:
-    path = context.fetch_resource("source.xls", url)
-    context.export_resource(path, XLS, title=context.SOURCE_TITLE)
-
-    xls = xlrd.open_workbook(str(path))
-    for sheet in xls.sheets():
-        headers = None
-        row0 = [h.convert_excel_cell(xls, c) for c in sheet.row(0)]
-        sections = [c for c in row0 if c is not None]
-        section = squash_spaces(" / ".join(sections))
-        if section is None:
-            context.log.warning("No section found", sheet=sheet.name)
-            continue
-        for r in range(1, sheet.nrows):
-            row = [h.convert_excel_cell(xls, c) for c in sheet.row(r)]
-
-            # after a header is found, read normal data:
-            if headers is not None:
-                data: Dict[str, List[str]] = {}
-                for header, cell in zip(headers, row):
-                    if header is None:
-                        continue
-                    values = []
-                    if isinstance(cell, datetime):
-                        cell = cell.date()
-                    for value in h.multi_split(stringify(cell), SPLITS):
-                        if value is None:
-                            continue
-                        if value == "不明":
-                            continue
-                        if value is not None:
-                            values.append(value)
-                    data[header] = values
-                emit_row(context, sheet.name, section, data)
-
-            if not len(row) or row[0] is None:
-                continue
-            teaser = row[0].strip()
-            # the first column of the common headers:
-            if "告示日付" in teaser:  # jp: Notice date
-                if headers is not None:
-                    context.log.error("Found double header?", row=row)
-                # print("SHEET", sheet, row)
-                headers = []
-                for cell in row:
-                    assert cell is not None
-                    cell = squash_spaces(cell)
-                    header = context.lookup_value("columns", cell)
-                    if header is None:
-                        context.log.warning(
-                            "Unknown column title", column=cell, sheet=sheet.name
+                            "Unknown column title", column=cell_str, sheet=sheet_name
                         )
                     headers.append(header)
 
@@ -372,8 +350,9 @@ def crawl_xls(context: Context, url: str) -> None:
 def crawl(context: Context) -> None:
     url = fetch_excel_url(context)
     if url.endswith(".xlsx"):
-        crawl_xlsx(context, url)
+        sheets = read_xlsx_sheets(context, url)
     elif url.endswith(".xls"):
-        crawl_xls(context, url)
+        sheets = read_xls_sheets(context, url)
     else:
         raise ValueError("Unknown file type: %s" % url)
+    crawl_sheets(context, sheets)
