@@ -109,6 +109,10 @@ lookups:
           - "ASISTENT.*"
           - "ANALIST.*"
           - "TECNICO.*"
+          - "AYUDANTE.*"
+          - "AUDITOR.*"
+          - "MÉDICO.*" # Doctor
+          - "ENFERMER.*" # Nurse
       - is_pep: false
         match:
           - BODEGUERO
@@ -128,6 +132,7 @@ lookups:
           - CAPITAN DE NAVIO
           - PROFESIONALES UNIVERSITARIOS
           - TECNOLOGO MEDICO
+          - "NINGUNO" # None
 
       - is_pep: null # haven't looked closely yet
         regex:
@@ -227,9 +232,6 @@ lookups:
           - "ENCARGADO VIVIENDA"
           - "ENCARGADO ZONAL"
           - "ENCARGADO"
-          - "ENFERMERA (O)"
-          - "ENFERMERA"
-          - "ENFERMERO"
           - "EX ALCALDE"
           - "EX ALCALDESA"
           - "EX CONCEJAL"
@@ -300,17 +302,8 @@ lookups:
           - "MATRONA DIRECCIÓN DE SALUD MUNICIPAL"
           - "MATRONA"
           - "MEDICINA FAMILIAR "
-          - "MEDICO 22/22 HORAS"
-          - "MEDICO 22/28 HORAS"
-          - "MEDICO APS"
-          - "MEDICO CIRUJANO"
-          - "MEDICO DE 28 HORAS"
-          - "MEDICO EDF ART 8"
-          - "MEDICO"
-          - "MEDICOS"
           - "MIEMBRO DEL CONSEJO CONSTITUCIONAL"
           - "MIEMBRO ÓRGANO EJECUTIVO"
-          - "NINGUNO" # None
           - "NOTARIO CONSERVADOR ARCHIVERO"
           - "NOTARIO Y ARCHIVERO"
           - "NOTARIO"
@@ -498,3 +491,4 @@ lookups:
           - SUBJEFE DEPTO. INFORMATICA Y COMPUTACION
           - SUBSECRETARIA DE RELACIONES EXTERIORES
           - SUPERINTEDENTA (S)
+          - "INTEGRANTE COMITE DIRECTIVO LOCAL "
