@@ -1,23 +1,22 @@
 import itertools
-from datetime import datetime
 from lxml.html import HtmlElement
 from normality import squash_spaces
 
 from zavod import Context, helpers as h
 from zavod.extract import zyte_api
-from zavod.stateful.positions import categorise, get_after_office, OccupancyStatus
+from zavod.stateful.positions import categorise
 
 
 POSITION_TOPICS = ["gov.legislative", "gov.national"]
-CUTOFF_DATE = (datetime.now() - get_after_office(POSITION_TOPICS)).year
 
 
 def get_term_dates(context: Context, term: str) -> tuple[int | None, int | None]:
-    res = context.lookup("term_years", term, warn_unmatched=True)
-    if res:
-        return res.start_date, res.end_date
-    else:
-        return None, None
+    _, years = term.split("(", 1)
+    years = years.rstrip(")")
+    start, end = years.split("-", 1)
+    assert len(start) == 4 and len(end) == 4
+    int(start) != end  # just see if this raises an exception
+    return start, end
 
 
 def get_dob_bio(
@@ -58,7 +57,9 @@ def get_dob_bio(
 def crawl_person(
     context: Context,
     row: HtmlElement,
-    status: OccupancyStatus,
+    period_start: str,
+    period_end: str,
+    is_current_term: bool,
 ) -> None:
     cells = h.xpath_elements(row, ".//td[@class='td1' or @class='td0']")
     name = h.xpath_string(cells[0], ".//b/text()")
@@ -94,7 +95,9 @@ def crawl_person(
         person=entity,
         position=position,
         categorisation=categorisation,
-        status=status,
+        no_end_implies_current=is_current_term,
+        period_start=period_start,
+        period_end=period_end,
     )
     if occupancy is not None:
         context.emit(entity)
@@ -106,26 +109,26 @@ def crawl_term(
     context,
     link: HtmlElement,
     unblock_validator: str,
-    current_link: HtmlElement,
 ) -> None:
     # Term dates are only used to skip legislatures outside our coverage window.
     # We don't use them to set occupancy dates — members may join/leave mid-term.
     text = h.element_text(link).strip()
-    _, end_date = get_term_dates(context, text)
-    if end_date is not None and end_date < CUTOFF_DATE:
-        context.log.info(f"Skipping old term: {text}")
+    if text == "Actuels":
+        period_start, period_end = None, None
+        is_current_term = True
+    else:
+        period_start, period_end = get_term_dates(context, text)
+        is_current_term = False
+
+    if not is_current_term and period_start < h.earliest_period_start(POSITION_TOPICS):
+        context.log.info(
+            f"Skipping term {text} with start date {period_start} outside coverage window"
+        )
         return
 
     url = link.attrib["href"]
     assert url is not None, f"Term link missing URL for term {text}"
-    # "Actuels" (links[0]) is the current term; everything else is ended.
-    # Compare without the trailing character since the duplicate URLs differ only there.
-    status = (
-        OccupancyStatus.CURRENT
-        if url[:-1] == current_link.attrib["href"][:-1]
-        else OccupancyStatus.ENDED
-    )
-    context.log.info(f"Processing term: {text} (status={status})")
+
     # Fetch the member list page for this term
     term_doc = zyte_api.fetch_html(
         context,
@@ -136,7 +139,7 @@ def crawl_term(
     )
     table = h.xpath_element(term_doc, "//table[@width='100%']")
     for row in h.xpath_elements(table, ".//tr[td[@class='td1' or @class='td0']]"):
-        crawl_person(context, row, status)
+        crawl_person(context, row, period_start, period_end, is_current_term)
 
 
 def crawl(context: Context) -> None:
@@ -163,7 +166,6 @@ def crawl(context: Context) -> None:
     if links[0].attrib["href"][:-1] != links[1].attrib["href"][:-1]:
         context.log.warning("Legislature menu structure has changed")
         return
-    # Process links[0] ("Actuels") as current term, skip links[1] (dated duplicate),
-    # then process links[2:] (historical terms)
+
     for link in itertools.chain(links[:1], links[2:]):
-        crawl_term(context, link, unblock_validator, links[0])
+        crawl_term(context, link, unblock_validator)
