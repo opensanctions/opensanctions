@@ -9,7 +9,7 @@ from followthemoney.types.identifier import IdentifierType
 from normality import squash_spaces, stringify
 from normality.cleaning import decompose_nfkd
 from openpyxl import load_workbook
-from openpyxl.cell import Cell
+from openpyxl.cell import Cell, MergedCell
 from rigour.mime.types import XLS, XLSX
 
 from zavod import Context, Entity, settings
@@ -50,7 +50,7 @@ def note_long_ids(entity: Entity, identifiers: List[str]) -> None:
             entity.add("notes", identifier)
 
 
-def str_cell(cell: Cell) -> str | None:
+def str_cell(cell: Cell | MergedCell) -> str | None:
     value = cell.value
     if value is None:
         return None
@@ -231,7 +231,7 @@ def emit_row(
     context.audit_data(row, ignore=["nickname", "weak_alias"])
 
 
-def trim_rightmost_blank(values: List[str], keep: int = 0) -> List[str]:
+def trim_rightmost_blank(values: List[str | None], keep: int = 0) -> List[str | None]:
     """
     Remove rightmost contiguous falsy values from a list, keeping at least `keep` values.
 
