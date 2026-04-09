@@ -464,7 +464,7 @@ def apply_names(
             entity.add(
                 prop,
                 name.text,
-                lang=name.lang if name.lang is not None else lang,
+                lang=name.lang or lang,
                 origin=origin,
                 original_value=derived_originals.get(name.text),
             )
