@@ -542,6 +542,15 @@ def _review_names(
     return review
 
 
+def _original_has_lang(original: Names) -> bool:
+    """Check if original names contain any LangText values with a language set."""
+    for _prop, values in original.as_langtexts():
+        for value in values:
+            if value.lang is not None:
+                return True
+    return False
+
+
 def review_names(
     context: Context,
     entity: Entity,
@@ -591,6 +600,14 @@ def review_names(
         assert suggested is None, (
             "Suggested names can't be supplied if LLM cleaning is enabled"
         )
+        if _original_has_lang(original):
+            # LLM cleaning returns plain strings, so per-value language will be dropped.
+            # Use a separate review_names, apply_reviewed_names or apply_reviewed_name_string call
+            # with the lang argument for each language instead.
+            context.log.warning(
+                "Names with LangText language values and llm_cleaning=True are not supported together.",
+                original=original,
+            )
 
     # heuristic-based review unless suggestion was supplied
     if suggested is None:

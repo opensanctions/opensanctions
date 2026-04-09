@@ -109,6 +109,11 @@ class Names(BaseModel):
         Add a value to a property. If set as a single value, the values are added to a list.
         Value is wrapped in LangText if lang is provided.
 
+        Note: Names with LangText language values and llm_cleaning=True are not supported together.
+        If names share the same language, pass ``lang`` to ``apply_reviewed_names`` /
+        ``apply_reviewed_name_string`` instead. If names have different languages, use a
+        separate call per language.
+
         Args:
             prop: The property name to add the value to.
             value: The name value to add.

@@ -96,15 +96,15 @@ def crawl_details(context: Context, bic: str, entity: Entity, short_name: str | 
         reg_date = co_data.findtext("MainDateReg")
 
         en_names = co_data.findtext("encname")
-        names = h.Names(
-            name=[
-                en_names,
-                co_data.findtext("OrgName"),
-                co_data.findtext("OrgFullName"),
-                co_data.findtext("csname"),
-            ]
-        )
+        names = h.Names()
+        names.add("name", co_data.findtext("OrgName"))
+        names.add("name", co_data.findtext("OrgFullName"))
+        names.add("name", co_data.findtext("csname"))
         h.review_names(context, entity, original=names, llm_cleaning=True)
+        # en_names should apply with lang="eng"
+        h.review_names(
+            context, entity, original=h.Names(name=en_names), llm_cleaning=True
+        )
 
         phones = co_data.findtext("phones")
         lic_withd_num = co_data.findtext("licwithdnum")
