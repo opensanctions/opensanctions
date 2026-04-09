@@ -128,6 +128,7 @@ lookups:
           - CAPITAN DE NAVIO
           - PROFESIONALES UNIVERSITARIOS
           - TECNOLOGO MEDICO
+          - AYUDANTE DE SERVICIOS
 
       - is_pep: null # haven't looked closely yet
         regex:
@@ -498,3 +499,6 @@ lookups:
           - SUBJEFE DEPTO. INFORMATICA Y COMPUTACION
           - SUBSECRETARIA DE RELACIONES EXTERIORES
           - SUPERINTEDENTA (S)
+          - AUDITOR DE IA Y TECNOLOGIAS DE INFORMACION
+          - "INTEGRANTE COMITE DIRECTIVO LOCAL "
+          - "MÉDICO CIRUJANO"
