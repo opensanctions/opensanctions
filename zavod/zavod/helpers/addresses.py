@@ -240,25 +240,11 @@ def copy_address(entity: Entity, address: Optional[Entity]) -> None:
     """
     if address is not None:
         for stmt in address.get_statements("full"):
-            entity.add(
-                "address",
-                stmt.value,
-                lang=stmt.lang,
-                origin=stmt.origin,
-                original_value=stmt.original_value,
-                cleaned=True,
-            )
+            entity.adopt_statement(stmt, prop="address")
         for country in address.get("country"):
             if country not in entity.countries:
                 for stmt in address.get_statements("country"):
-                    entity.add(
-                        "country",
-                        stmt.value,
-                        lang=stmt.lang,
-                        origin=stmt.origin,
-                        original_value=stmt.original_value,
-                        cleaned=True,
-                    )
+                    entity.adopt_statement(stmt, prop="country")
 
 
 def postcode_pobox(text: Optional[str]) -> Tuple[Optional[str], Optional[str]]:

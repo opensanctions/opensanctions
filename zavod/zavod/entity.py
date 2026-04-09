@@ -134,6 +134,24 @@ class Entity(StatementEntity):
                     origin=origin_,
                 )
 
+    def adopt_statement(self, stmt: Statement, prop: Optional[str] = None) -> None:
+        """Adopt a statement from another entity, copying it to this entity."""
+        prop = prop or stmt.prop
+        prop_ = self.schema.get(prop)
+        if prop_ is None:
+            raise InvalidModel(
+                f"Cannot adopt statement for {prop} into {self.schema.name}"
+            )
+        self.unsafe_add(
+            prop_,
+            stmt.value,
+            lang=stmt.lang,
+            origin=stmt.origin,
+            original_value=stmt.original_value,
+            external=stmt.external,
+            cleaned=True,
+        )
+
     def add_schema(self, schema: Union[str, Schema]) -> None:
         """Try to apply the given schema to the current entity, making it more
         specific (e.g. turning a `LegalEntity` into a `Company`). This raises an
