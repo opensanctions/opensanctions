@@ -64,12 +64,16 @@ lookups:
         value: "1952-10-05"
   type.name:
     options:
+      - match: "Nussbaum Verena, Mag.<sup>a</sup>"
+        value: "Nussbaum Verena"
       - match: "Mag.<sup>a</sup> Verena Nussbaum"
         value: "Verena Nussbaum"
       - match: "Oberrauner Petra, Mag.<sup>a</sup> Dr.<sup>in</sup>"
         value: "Oberrauner Petra"
       - match: "Mag.<sup>a</sup> Dr.<sup>in</sup> Petra Oberrauner"
         value: "Petra Oberrauner"
+      - match: "Arpa Claudia, Mag.<sup>a</sup>"
+        value: "Arpa Claudia"
       - match: "Mag.<sup>a</sup> Claudia Arpa"
         value: "Claudia Arpa"
       - match: "lic.oec. HSG Irina Schoettel-Delacher"
