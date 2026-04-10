@@ -16,8 +16,10 @@ from zavod.entity import Entity
 from zavod.meta.names import CleaningSpec, NamesSpec
 from zavod.extract.names.clean import (
     LLM_MODEL_VERSION,
+    LangNames,
     SourceNames,
     Names,
+    LangText,
 )
 
 # alias clean_names so that it could be imported from here
@@ -347,6 +349,7 @@ def _check_schema_name_specs(string: str, spec: CleaningSpec) -> Optional[Regula
 def check_name_regularity(entity: Entity, string: Optional[str]) -> Regularity:
     """Determine whether a name string potentially needs cleaning."""
     string = squash_spaces(string or "")
+
     if not string:
         return Regularity(is_irregular=False)
 
@@ -373,7 +376,7 @@ def is_name_irregular(entity: Entity, string: Optional[str]) -> bool:
     return check_name_regularity(entity, string).is_irregular
 
 
-def check_names_regularity(entity: Entity, names: Names) -> Tuple[bool, Names]:
+def check_names_regularity(entity: Entity, names: Names) -> Tuple[bool, LangNames]:
     """
     Determine whether any name string in the given Names instance is irregular
     and needs cleaning.
@@ -384,47 +387,51 @@ def check_names_regularity(entity: Entity, names: Names) -> Tuple[bool, Names]:
     from "name" to "alias" or "weakAlias").
     """
     is_irregular = False
-    updated_suggested_data: Dict[str, List[str | None]] = defaultdict(list)
-    for key, strings in names.nonempty_item_lists():
-        for string in strings:
-            regularity = check_name_regularity(entity, string)
+    updated_suggested_data: Dict[str, List[LangText]] = defaultdict(list)
+    for key, names_values in names.as_langtexts():
+        for name_val in names_values:
+            regularity = check_name_regularity(entity, name_val.text)
             if regularity.is_irregular:
                 is_irregular = True
             if regularity.suggested_prop is None:
-                updated_suggested_data[key].append(string)
+                updated_suggested_data[key].append(name_val)
             else:
-                updated_suggested_data[regularity.suggested_prop].append(string)
-    updated_suggested = Names(**updated_suggested_data)
+                updated_suggested_data[regularity.suggested_prop].append(name_val)
+    updated_suggested = LangNames(**updated_suggested_data)
     return is_irregular, updated_suggested
 
 
-def derive_original_values(
-    original: Names, extracted: Names
-) -> Dict[str, Optional[str]]:
+def derive_original_values(original: Names, extracted: Names) -> Dict[str, str]:
     """
     Derive an original_value for each value in extracted based on the values in original.
 
     For each value in extracted:
-        If there's exactly one value in original, use that for all names.
-        If some value in original matches it exactly, leave blank - no original_value needed.
-        If some value in original contains it, we can use that the value from original as original_value.
+        (1) If there's exactly one value in original, use that for all names.
+        (2) If some value in original matches it exactly, leave blank - no original_value needed.
+        (3) If some value in original contains it, we can use that the value from original as original_value.
         Otherwise leave blank - this is best-effort only.
     """
     original_values: List[str] = []
-    for _prop, values in original.nonempty_item_lists():
-        original_values.extend(values)
+    for _prop, values in original.as_langtexts():
+        for value in values:
+            original_values.append(value.text)
 
-    derived_originals: Dict[str, Optional[str]] = {}
-    for _prop, extracted_values in extracted.nonempty_item_lists():
+    derived_originals: dict[str, str] = {}
+    for _prop, extracted_values in extracted.as_langtexts():
         for extracted_value in extracted_values:
+            extracted_string = extracted_value.text
+
             if len(original_values) == 1:
-                derived_originals[extracted_value] = original_values[0]
+                # (1) If there's exactly one value in original, use that for all names.
+                derived_originals[extracted_string] = original_values[0]
             else:
-                for value in original_values:
-                    if value == extracted_value:
+                for original_string in original_values:
+                    if original_string == extracted_string:
+                        # (2) Exact match, no original_value needed.
                         continue
-                    elif extracted_value in value:
-                        derived_originals[extracted_value] = value
+                    elif extracted_string in original_string:
+                        # (3) Extracted text is contained in original value, use as original_value.
+                        derived_originals[extracted_string] = original_string
                         break
     return derived_originals
 
@@ -447,19 +454,19 @@ def apply_names(
         entity: The entity to apply names to.
         original: Original names, used if original_value needs to be derived.
         names: The names to apply to the entity, potentially altered or re-categorised from original.
-        lang: The language all names, if known.
+        lang: The language for str values. Ignored for LangText values if they have lang set.
         origin: The origin of apply_names (e.g. a GPT model name)
     """
     derived_originals = derive_original_values(original, names)
 
-    for prop, name_values in names.nonempty_item_lists():
+    for prop, name_values in names.as_langtexts():
         for name in name_values:
             entity.add(
                 prop,
-                name,
-                lang=lang,
+                name.text,
+                lang=name.lang or lang,
                 origin=origin,
-                original_value=derived_originals.get(name),
+                original_value=derived_originals.get(name.text),
             )
 
 
@@ -467,9 +474,12 @@ def review_key_parts(entity: Entity, original: Names) -> List[str]:
     # Only use the non-empty props in the key so that adding props in
     # future doesn't change the key unless they're actually populated.
     key_parts = [entity.schema.name]
-    for prop, strings in original.nonempty_item_lists():
+    for prop, names_values in original.as_langtexts():
         key_parts.append(prop)
-        key_parts.extend(strings)
+        for names_value in names_values:
+            if names_value.lang is not None:
+                key_parts.append(names_value.lang)
+            key_parts.append(names_value.text)
     return key_parts
 
 
@@ -505,10 +515,13 @@ def _review_names(
     key_parts = review_key_parts(entity, original)
 
     # Only include the populated props in the source value for human readability
-    source_value_data: Dict[str, str | Dict[str, List[str]]] = {
+    source_value_data: Dict[str, str | Dict[str, List[str | Dict[str, str | None]]]] = {
         "entity_schema": entity.schema.name
     }
-    populated_props = dict(source_names.original.nonempty_item_lists())
+    populated_props: Dict[str, List[str | Dict[str, str | None]]] = {
+        k: [v.text if v.lang is None else v.model_dump() for v in vals]
+        for k, vals in source_names.original.as_langtexts()
+    }
     source_value_data["original"] = populated_props
 
     source_value = JSONSourceValue(
@@ -517,7 +530,7 @@ def _review_names(
         data=cast(JsonValue, source_value_data),
     )
     original_extraction = suggested or original
-    original_extraction = original_extraction.simplify()
+    original_extraction = original_extraction.simplified()
     review = review_extraction(
         context,
         source_value=source_value,
@@ -527,6 +540,15 @@ def _review_names(
     )
     review.link_entity(context, entity)
     return review
+
+
+def _original_has_lang(original: Names) -> bool:
+    """Check if original names contain any LangText values with a language set."""
+    for _prop, values in original.as_langtexts():
+        for value in values:
+            if value.lang is not None:
+                return True
+    return False
 
 
 def review_names(
@@ -578,6 +600,14 @@ def review_names(
         assert suggested is None, (
             "Suggested names can't be supplied if LLM cleaning is enabled"
         )
+        if _original_has_lang(original):
+            # LLM cleaning returns plain strings, so per-value language will be dropped.
+            # Use a separate review_names, apply_reviewed_names or apply_reviewed_name_string call
+            # with the lang argument for each language instead.
+            context.log.warning(
+                "Names with LangText language values and llm_cleaning=True are not supported together.",
+                original=original,
+            )
 
     # heuristic-based review unless suggestion was supplied
     if suggested is None:

@@ -1,5 +1,5 @@
 from csv import DictReader
-from typing import Dict, List, cast
+from typing import Dict, List
 
 from rigour.mime.types import CSV
 
@@ -51,7 +51,9 @@ def crawl_row(context: Context, entity_id: str | None, row: Dict[str, List[str]]
 
     whole_names = row.pop("Wholename")
     assert whole_names, row
-    original = h.Names(name=cast(list[str | None], whole_names))
+    original = h.Names()
+    for whole_name in whole_names:
+        original.add("name", whole_name)
     h.apply_reviewed_names(context, entity, original=original)
 
     for id_number_line in row.pop("Number"):
