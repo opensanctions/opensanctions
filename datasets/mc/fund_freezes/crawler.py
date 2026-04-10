@@ -41,7 +41,7 @@ ALIAS_SPLITS = [
 ]
 
 
-def clean_address(text):
+def clean_address(text: str | None) -> list[str] | None:
     if not text:
         return None
 
@@ -57,7 +57,7 @@ def clean_address(text):
         return text.split("\n")
 
 
-def extract_passport_no(text):
+def extract_passport_no(text: str | None) -> list[str] | None:
     if not text:
         return None
     pattern = r"\b[A-Z0-9]{5,}\b"
@@ -66,7 +66,7 @@ def extract_passport_no(text):
     return matches
 
 
-def crawl_entity(context: Context, data: Dict[str, Any]):
+def crawl_entity(context: Context, data: Dict[str, Any]) -> None:
     entity_id = data.pop("mesureId")
     status = data.pop("state")
     if status == "withdrawal":
@@ -154,7 +154,7 @@ def crawl_entity(context: Context, data: Dict[str, Any]):
     context.audit_data(data)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     data = context.fetch_json(context.data_url, cache_days=1)
     for record in data:
         crawl_entity(context, record)
