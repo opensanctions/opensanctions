@@ -61,7 +61,9 @@ def split_associates(
     return name, name, set()
 
 
-def crawl_company(context: Context, row: Dict[str, str | None], skipped: Set[str]):
+def crawl_company(
+    context: Context, row: Dict[str, str | None], skipped: Set[str]
+) -> None:
     id_ = row.pop("entity_id")
     if id_ is None:
         context.log.warning("Missing entity ID", row=row)
@@ -176,7 +178,7 @@ def crawl_company(context: Context, row: Dict[str, str | None], skipped: Set[str
     )
 
 
-def crawl_rel(context: Context, row: Dict[str, str | None], skipped: Set[str]):
+def crawl_rel(context: Context, row: Dict[str, str | None], skipped: Set[str]) -> None:
     subject_entity_id = row.pop("subject_entity_id")
     interested_party_id = row.pop("interested_party_id")
 
@@ -205,7 +207,7 @@ def crawl_rel(context: Context, row: Dict[str, str | None], skipped: Set[str]):
     context.emit(ownership)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     # _, _, _, path = zyte_api.fetch_resource(context, "source.xlsx", STATIC_URL, XLSX)
 
     path = context.get_resource_path("source.xlsx")
