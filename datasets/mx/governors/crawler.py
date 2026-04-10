@@ -2,6 +2,7 @@ import re
 
 from zavod import Context, helpers as h
 from zavod.stateful.positions import categorise
+from zavod.util import Element
 
 
 # def extract_birth_place_and_date(link_governor_page, context: Context):
@@ -38,7 +39,7 @@ from zavod.stateful.positions import categorise
 #     return None, None
 
 
-def crawl_item(input_html, context: Context):
+def crawl_item(context: Context, input_html: Element) -> None:
     """
     Creates an entity, a position and a occupancy from the raw HTMLElement.
 
@@ -55,12 +56,13 @@ def crawl_item(input_html, context: Context):
 
     regex_pattern = r"\[(.*?)\] (\d{2}/\d{2}/\d{4}) (\d{2}/\d{2}/\d{4})"
 
-    match = re.search(regex_pattern, input_html.get("class"))
+    match = re.search(regex_pattern, input_html.get("class") or "")
 
     if match is None:
-        context.log.warning("Unable to extract information from HTML element")
+        raise RuntimeError("Unable to extract information from HTML element")
 
-    start_date, end_date = (  # noqa: F841
+    # We're no longer using the end date because the source is no longer being updated
+    start_date, _ = (
         match.group(2),
         match.group(3),
     )
@@ -69,7 +71,9 @@ def crawl_item(input_html, context: Context):
     # Ing. Carlos Lozano de la Torre, where Ing. stands for Engineer
     # We will add two name propreties, one with the "full" name
     # and other with the clean name.
-    raw_title = input_html.xpath("./div/div/div/div[2]/h4/a/text()")[0].strip()
+    raw_title = h.xpath_strings(input_html, "./div/div/div/div[2]/h4/a/text()")[
+        0
+    ].strip()
     name = re.sub(r"^([A-Z][a-z]*\.)+ ", "", raw_title)
     state = h.xpath_string(
         input_html, ".//div[@class='media-body escudo']/a/text()[1]"
@@ -108,7 +112,7 @@ def crawl_item(input_html, context: Context):
         context.emit(occupancy)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     """
     Entrypoint to the crawler.
 
@@ -127,4 +131,4 @@ def crawl(context: Context):
 
     path_to_cards = '//*[@class="containerMixitup"]/div/div'
     for item in h.xpath_elements(response, path_to_cards):
-        crawl_item(item, context)
+        crawl_item(context, item)
