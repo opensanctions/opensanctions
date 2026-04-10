@@ -196,10 +196,10 @@ def apply_name(
     if is_weak:
         name_prop = "weakAlias"
 
-    # Flag up full names created by
+    # Provenance for full names created from parts
+    full_origin = origin
     if full is None or len(full) == 0:
-        if origin is None:
-            origin = ORIGIN_INFERRED
+        full_origin = ORIGIN_INFERRED
     full = make_name(
         full=full,
         name1=name1,
@@ -219,7 +219,7 @@ def apply_name(
         suffix=suffix,
     )
     if full is not None and len(full):
-        entity.add(name_prop, full, quiet=quiet, lang=lang, origin=origin)
+        entity.add(name_prop, full, quiet=quiet, lang=lang, origin=full_origin)
 
 
 def split_comma_names(context: Context, text: str) -> List[str]:
