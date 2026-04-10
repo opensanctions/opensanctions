@@ -6,7 +6,7 @@ from followthemoney.util import make_entity_id
 from lxml import etree
 from zavod import Context, Entity
 from zavod import helpers as h
-from zavod.helpers.xml import ElementOrTree
+from zavod.util import ElementOrTree
 
 
 def company_id(
@@ -68,7 +68,7 @@ def make_company(context: Context, tree: ElementOrTree) -> Optional[Entity]:
     return proxy
 
 
-def parse_xml(context: Context, reader: IO[bytes], file_name: str):
+def parse_xml(context: Context, reader: IO[bytes], file_name: str) -> None:
     try:
         tree = etree.parse(reader)
     except etree.XMLSyntaxError:
@@ -107,7 +107,7 @@ def parse_xml(context: Context, reader: IO[bytes], file_name: str):
             context.emit(rel)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     data_path = context.fetch_resource("data.tar.gz", context.data_url)
     idx = 0
     with tarfile.open(data_path, "r:gz") as f:
