@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from zavod import helpers as h
 from zavod import settings
 from zavod.stateful.positions import (
     PositionCategorisation,
@@ -18,6 +19,24 @@ def test_occupancy_status(testdataset1: Dataset):
     person = context.make("Person")
     person.id = "thabo"
 
+    def make_occ(
+        start=None,
+        end=None,
+        period_start=None,
+        period_end=None,
+        election_date=None,
+    ):
+        occupancy = context.make("Occupancy")
+        occupancy.id = context.make_id(
+            "test-occ", start, end, period_start, period_end, election_date
+        )
+        h.apply_date(occupancy, "startDate", start)
+        h.apply_date(occupancy, "endDate", end)
+        h.apply_date(occupancy, "periodStart", period_start)
+        h.apply_date(occupancy, "periodEnd", period_end)
+        h.apply_date(occupancy, "electionDate", election_date)
+        return occupancy
+
     def status(
         implies,
         start,
@@ -26,6 +45,7 @@ def test_occupancy_status(testdataset1: Dataset):
         death=None,
         position_topics=[],
         dissolution_date=None,
+        period_end=None,
     ):
         pos = make_position(
             context,
@@ -36,14 +56,13 @@ def test_occupancy_status(testdataset1: Dataset):
         )
         return occupancy_status(
             context,
-            person,
-            pos,
-            implies,
-            datetime(2021, 1, 1),
-            start,
-            end,
-            birth,
-            death,
+            person=person,
+            position=pos,
+            occupancy=make_occ(start=start, end=end, period_end=period_end),
+            no_end_implies_current=implies,
+            current_time=datetime(2021, 1, 1),
+            birth_date=birth,
+            death_date=death,
         )
 
     # Current when no end implies current
@@ -85,10 +104,9 @@ def test_occupancy_status(testdataset1: Dataset):
 
     categorisation_override = occupancy_status(
         context,
-        person,
-        make_position(context, "Pos", country="ls"),
-        start_date="1950-01-01",
-        end_date="2016-12-31",
+        person=person,
+        position=make_position(context, "Pos", country="ls"),
+        occupancy=make_occ(start="1950-01-01", end="2016-12-31"),
         categorisation=PositionCategorisation(["gov.national"], True),
     )
     # Still a PEP within NATIONAL_AFTER_OFFICE indicated by categorisation topics.
@@ -113,6 +131,35 @@ def test_occupancy_status(testdataset1: Dataset):
     assert status(True, "2020-01-01", None, "1910-01-01") is None
     assert status(True, "1950-01-01", "2021-01-02", "1910-01-01") is None
     assert status(True, "1950-01-01", "2020-12-31", "1910-01-01") is None
+
+    # --- Period end date semantics ---
+    # Past period_end within after-office threshold implies ENDED
+    assert (
+        status(True, "2018-01-01", None, period_end="2020-06-01")
+        == OccupancyStatus.ENDED
+    )
+    # Past period_end beyond after-office threshold disqualifies
+    assert status(True, "1950-01-01", None, period_end="2015-01-01") is None
+    # Future period_end falls back to no_end_implies_current logic
+    assert (
+        status(False, "2018-01-01", None, period_end="2025-01-01")
+        == OccupancyStatus.UNKNOWN
+    )
+    assert (
+        status(True, "2018-01-01", None, period_end="2025-01-01")
+        == OccupancyStatus.CURRENT
+    )
+    # Individual end_date takes precedence over period_end
+    # (end_date falls within the period, period_end is further out)
+    assert (
+        status(True, "2018-01-01", "2020-12-31", period_end="2025-01-01")
+        == OccupancyStatus.ENDED
+    )
+    assert (
+        status(True, "2018-01-01", "2021-01-02", period_end="2025-01-01")
+        == OccupancyStatus.CURRENT
+    )
+
     context.close()
 
 
