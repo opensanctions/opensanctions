@@ -22,7 +22,7 @@ PROGRAMS = [
 PROGRAM_KEY = "UN-SC1718"
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     # Fetch the HTML and assert the hash of the PDF file
     pdf_link_xpath = (
         ".//div[a[contains(text(), '1718 Designated Vessels List (Pdf )')]]//a/@href"

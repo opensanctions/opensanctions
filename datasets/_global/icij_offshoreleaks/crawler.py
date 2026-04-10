@@ -18,7 +18,7 @@ def parse_countries(text):
     return h.multi_split(text, [";"])
 
 
-def emit_entity(context: Context, proxy: Entity):
+def emit_entity(context: Context, proxy: Entity) -> None:
     assert proxy.id is not None, proxy
     if proxy.id in SCHEMATA:
         schemata = [proxy.schema.name, SCHEMATA[proxy.id]]
@@ -49,7 +49,7 @@ def read_rows(
                 #     context.log.info("Read %d rows..." % idx, file_name=file_name)
 
 
-def make_row_entity(context: Context, row: Dict[str, str], schema):
+def make_row_entity(context: Context, row: Dict[str, str], schema) -> None:
     # node_id = row.pop("id", row.pop("_id", row.pop("node_id", None)))
     node_id = row.pop("node_id", None)
     proxy = context.make(schema)
@@ -104,7 +104,7 @@ def make_row_entity(context: Context, row: Dict[str, str], schema):
     emit_entity(context, proxy)
 
 
-def make_row_address(context: Context, row: Dict[str, str]):
+def make_row_address(context: Context, row: Dict[str, str]) -> None:
     node_id = row.pop("node_id", None)
     ADDRESSES_COUNTRIES[node_id] = parse_countries(row.pop("countries"))
     ADDRESSES_FULL[node_id] = [row.pop("address", None), row.pop("name", None)]
@@ -133,7 +133,7 @@ def make_row_address(context: Context, row: Dict[str, str]):
 LINK_SEEN = set()
 
 
-def make_row_relationship(context: Context, row: Dict[str, str]):
+def make_row_relationship(context: Context, row: Dict[str, str]) -> None:
     _type = row.pop("rel_type")
     _start = row.pop("node_id_start")
     _end = row.pop("node_id_end")
@@ -244,7 +244,7 @@ def make_row_relationship(context: Context, row: Dict[str, str]):
     context.audit_data(row)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     zip_path = context.fetch_resource("oldb.zip", context.data_url)
     context.log.info("Loading: nodes-entities.csv...")
     for row in read_rows(context, zip_path, "nodes-entities.csv"):
