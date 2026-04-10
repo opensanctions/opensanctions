@@ -54,7 +54,6 @@ repos:
           datasets/_analysis|
           datasets/_collections|
           datasets/_externals|
-          datasets/_global/adb_sanctions|
           datasets/_global/afdb_sanctions|
           datasets/_global/c4ads_xinjiang|
           datasets/_global/c4ads_xinjiang_mining|
