@@ -4,6 +4,7 @@ from rigour.mime.types import CSV
 from zavod import Context, helpers as h
 from zavod.extract import zyte_api
 from zavod.stateful.positions import categorise
+from zavod.util import Element
 
 HTML_DATA_URL = "https://www.hcdn.gob.ar/diputados/"
 UNBLOCK_ACTIONS = [
@@ -67,12 +68,12 @@ def crawl_csv(context: Context) -> None:
             )
 
 
-def _extract_text(element, xpath_query):
-    result = element.xpath(xpath_query)
+def _extract_text(element: Element, xpath_query: str) -> str | None:
+    result = h.xpath_strings(element, xpath_query)
     return result[0].strip() if result else None
 
 
-def crawl_personal_page(context: Context, url):
+def crawl_personal_page(context: Context, url: str) -> tuple[str | None, str | None]:
     context.log.debug("Starting crawling personal page", url=url)
     doc = context.fetch_html(url, cache_days=30)
 
@@ -83,7 +84,7 @@ def crawl_personal_page(context: Context, url):
     return profession, email
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     # TODO: lower cache after dedupe
     crawl_csv(context)
     table_xpath = ".//table[@id='tablaDiputados']"
