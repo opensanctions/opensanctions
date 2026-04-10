@@ -1,0 +1,62 @@
+title: China Shenzhen Stock Exchange Disciplinary Actions
+entry_point: crawler.py
+prefix: cn-szse
+coverage:
+  frequency: weekly
+  start: 2026-03-30
+load_statements: true
+summary: >
+  Organisations and their senior executives subject to disciplinary sanctions issued by the Shenzhen Stock Exchange (SZSE) for
+  violations of listing rules and information disclosure requirements.
+description: |
+   Disciplinary sanction decisions against listed companies and their directors, supervisors
+   and senior executives issued by The Shenzhen Stock Exchange (SZSE) for violations of SZSE listing rules, primarily relating
+   to information disclosure failures, misleading statements in regulatory filings,
+   and governance irregularities. Sanction types include circulated notices of
+   criticism, public censures, and public identification of
+   individuals as unfit to serve as directors, supervisors or senior executives.
+
+publisher:
+  name: Shenzhen Stock Exchange
+  description: |
+    Shenzhen Stock Exchange (SZSE) is a self-regulated legal entity under the supervision
+    of China Securities Regulatory Commission (CSRC). It also organizes, supervises securities
+    trading and performs duties prescribed by laws, regulations, rules and policies. Its main functions
+    include providing the venue and facilities for securities trading, formulating operational rules,
+    receiving listing applications and arranging securities listing, organizing and supervising securities
+    trading, supervising members; regulating listed companies, managing and disseminating market
+    information and other functions as approved by the CSRC.
+  url: https://www.szse.cn/English/index.html
+  official: true
+  country: cn
+url: https://www.szse.cn/disclosure/supervision/measure/pushish/index.html
+data:
+  url: https://www.szse.cn/api/report/ShowReport?SHOWTYPE=xlsx&CATALOGID=1800_jgxxgk_cf&TABKEY=tab2&selectGsbk=0
+  format: XLSX
+  lang: zho
+dates:
+  formats: ["%Y-%m-%d"]
+
+lookups:
+  columns:
+    options:
+      - match: 公司代码
+        value: company_code
+      - match: 公司简称
+        value: company_name
+      - match: 处分日期
+        value: date_of_action
+      - match: 处分类别
+        value: action_type
+      - match: 标题
+        value: decision_summary
+      - match: 查看全文
+        value: letter_pdf
+
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 830
+  max:
+    schema_entities:
+      LegalEntity: 2100
