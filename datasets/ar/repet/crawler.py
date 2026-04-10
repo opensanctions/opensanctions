@@ -66,13 +66,23 @@ def parse_alias(context: Context, entity: Entity, alias: dict[str, str]) -> None
     """
     quality = alias.pop("QUALITY", None)
     normalized_quality = normalize(quality) if quality else None
-    name_prop = NAME_QUALITY[normalized_quality] if quality else None
-    for name in alias.pop("ALIAS_NAME", None).split(";"):
+
+    name_prop = "alias"  # default to "alias" if quality is missing or unknown
+    if normalized_quality in NAME_QUALITY:
+        name_prop = NAME_QUALITY[normalized_quality]
+    elif normalized_quality is not None:
+        context.log.warning(
+            f"Unknown alias quality '{normalized_quality}', defaulting to '{name_prop}'",
+            quality=quality,
+            normalized_quality=normalized_quality,
+        )
+
+    for name in alias.pop("ALIAS_NAME", "").split(";"):
         h.apply_name(
             entity,
             full=name,
             quiet=True,
-            name_prop=name_prop,  # type: ignore[arg-type]
+            name_prop=name_prop,
         )
     context.audit_data(alias, ignore=["NOTE"])
 
