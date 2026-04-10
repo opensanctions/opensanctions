@@ -1,4 +1,4 @@
-from zavod.util import Element
+from zavod.util import Element, ElementOrTree
 
 from zavod import Context, Entity
 from zavod import helpers as h
@@ -30,7 +30,7 @@ def parse_person(context: Context, node: Element) -> None:
 
 def parse_legal(context: Context, node: Element) -> None:
     entity = context.make("LegalEntity")
-    names = node.findtext("./Name")
+    names = node.findtext("./Name") or ""
     entity.id = context.make_id(node.tag, node.findtext("./DateInclusion"), names)
     entity.add("name", names.split(", "))
     parse_common(context, node, entity)
@@ -48,11 +48,11 @@ def parse_common(context: Context, node: Element, entity: Entity) -> None:
 
 
 def crawl_index(context: Context) -> str | None:
+    assert context.dataset.model.url is not None
     doc = context.fetch_html(context.dataset.model.url, cache_days=1)
-    for link in doc.findall(".//a"):
-        href = link.get("href")
-        if href.endswith(".xml"):
-            return href
+    for link in h.xpath_strings(doc, ".//a/@href"):
+        if link.endswith(".xml"):
+            return link
     return None
 
 
@@ -63,7 +63,7 @@ def crawl(context: Context) -> None:
         return
     path = context.fetch_resource("source.xml", url)
     context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)
-    xml = context.parse_resource_xml(path)
+    xml: ElementOrTree = context.parse_resource_xml(path)
     xml = h.remove_namespace(xml)
 
     for person in xml.findall(".//KyrgyzPhysicPerson"):
