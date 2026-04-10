@@ -7,6 +7,10 @@ disable-model-invocation: true
 
 Migrate name cleaning in $ARGUMENTS to use `h.review_names` in write-only mode.
 
+## Supporting files
+
+- [examples/migrations.md](examples/migrations.md) — three real before/after migrations covering the main pattern variants; read this before touching any crawler
+
 ## Read first (in order)
 
 - `zavod/docs/extract/names.md` — name framework overview, `review_names` usage
