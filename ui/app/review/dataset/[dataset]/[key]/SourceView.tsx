@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { markdown } from "@codemirror/lang-markdown";
 import CodeMirror from "@uiw/react-codemirror";
 import { yaml } from "@codemirror/lang-yaml";
@@ -83,18 +83,27 @@ function SourceView({ sourceValue, sourceMimeType, sourceLabel, sourceSearchQuer
     </Tab>
   }
 
-  if (sourceMimeType === 'text/html') {
-    let highlighted: string;
-    if (!!sourceSearchQuery) {
-      const regexp = new RegExp(RegExp.escape(sourceSearchQuery), 'gi');
-      highlighted = sourceValue.replace(regexp, (match) => `<mark>${match}</mark>`);
-    } else {
-      highlighted = sourceValue;
+  const htmlRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (htmlRef.current && sourceMimeType === 'text/html') {
+      let highlighted: string;
+      if (sourceSearchQuery) {
+        const regexp = new RegExp(RegExp.escape(sourceSearchQuery), 'gi');
+        highlighted = sourceValue.replace(regexp, (match) => `<mark>${match}</mark>`);
+      } else {
+        highlighted = sourceValue;
+      }
+      htmlRef.current.setHTML(highlighted);
     }
+  }, [sourceValue, sourceSearchQuery, sourceMimeType]);
+
+  if (sourceMimeType === 'text/html') {
     tabs.push(tab("As web page",
       <div
+        ref={htmlRef}
+        suppressHydrationWarning
         style={{ height: '100%', width: '100%', overflow: 'auto', backgroundColor: '#fff', padding: '10px' }}
-        dangerouslySetInnerHTML={{ __html: highlighted }}
         onMouseUp={handleRenderedTextSelection} />
     ))
 
