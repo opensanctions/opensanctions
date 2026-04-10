@@ -56,12 +56,13 @@ def crawl_item(context: Context, input_html: Element) -> None:
 
     regex_pattern = r"\[(.*?)\] (\d{2}/\d{2}/\d{4}) (\d{2}/\d{2}/\d{4})"
 
-    match = re.search(regex_pattern, input_html.get("class"))
+    match = re.search(regex_pattern, input_html.get("class") or "")
 
     if match is None:
-        context.log.warning("Unable to extract information from HTML element")
+        raise RuntimeError("Unable to extract information from HTML element")
 
-    start_date, end_date = (  # noqa: F841
+    # We're no longer using the end date because the source is no longer being updated
+    start_date, _ = (
         match.group(2),
         match.group(3),
     )

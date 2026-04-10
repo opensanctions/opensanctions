@@ -13,7 +13,8 @@ def crawl_item(context: Context, input_dict: dict[str, Any]) -> None:
     state = input_dict.pop("Estado")
     if state:
         parts.append(state)
-    id = context.make_slug(parts)
+    # The argument to make_slug should be *parts, but we want to avoid a re-key
+    id = context.make_slug(parts)  # type: ignore
     entity.id = id
     last_name = (
         (input_dict.pop("PrimerApellido") or "")

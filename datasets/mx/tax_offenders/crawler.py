@@ -1,5 +1,5 @@
 import csv
-from typing import Any
+from typing import Any, Iterator
 from rigour.mime.types import CSV
 
 from zavod import Context, helpers as h
@@ -77,14 +77,17 @@ def crawl_item(context: Context, input_dict: dict[str, Any]) -> None:
     context.audit_data(input_dict)
 
 
-def get_files_urls(context: Context):
+def get_files_urls(context: Context) -> Iterator[tuple[str, str]]:
     """Yield (label, url) for each known download link on the data page."""
     response = context.fetch_html(context.data_url)
 
     for a in response.findall(".//a"):
-        if h.element_text(a, squash=False) in ALLOW_FILES:
-            yield h.element_text(a, squash=False), a.get("href")
-        elif h.element_text(a, squash=False) in DENY_FILES:
+        a_text = h.element_text(a, squash=False)
+        a_href = a.get("href")
+        assert a_href
+        if a_text in ALLOW_FILES:
+            yield a_text, a_href
+        elif a_text in DENY_FILES:
             continue
         else:
             context.log.warning(
