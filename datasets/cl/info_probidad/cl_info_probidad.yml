@@ -111,7 +111,8 @@ lookups:
           - "TECNICO.*"
           - "AYUDANTE.*"
           - "AUDITOR.*"
-          - "MÉDICO.*" # Doctor
+          - "MÉDICO.*" # Doctor (accented)
+          - "MEDICO.*" # Doctor (unaccented)
           - "ENFERMER.*" # Nurse
       - is_pep: false
         match:
