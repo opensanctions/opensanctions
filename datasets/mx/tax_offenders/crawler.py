@@ -25,7 +25,7 @@ DENY_FILES = [
 ]
 
 
-def replace_key(d: dict[str, Any], context: Context) -> dict[str, Any]:
+def replace_key(context: Context, d: dict[str, Any]) -> dict[str, Any]:
     """
     This function returns the dictionary d with the keys replaced using the
     column lookup. If there are two matches, then it raises an error
@@ -44,7 +44,7 @@ def replace_key(d: dict[str, Any], context: Context) -> dict[str, Any]:
     return d
 
 
-def crawl_item(input_dict: dict[str, Any], context: Context) -> None:
+def crawl_item(context: Context, input_dict: dict[str, Any]) -> None:
     schema = context.lookup_value("person_type", input_dict.get("person_type"))
 
     if not schema:
@@ -105,5 +105,5 @@ def crawl(context: Context) -> None:
             for item in reader:
                 # Each csv has a slightly different name for each attribute
                 # so we are going to normalize them
-                replace_key(item, context)
-                crawl_item(item, context)
+                replace_key(context, item)
+                crawl_item(context, item)

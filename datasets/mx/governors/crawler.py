@@ -39,7 +39,7 @@ from zavod.util import Element
 #     return None, None
 
 
-def crawl_item(input_html: Element, context: Context) -> None:
+def crawl_item(context: Context, input_html: Element) -> None:
     """
     Creates an entity, a position and a occupancy from the raw HTMLElement.
 
@@ -130,4 +130,4 @@ def crawl(context: Context) -> None:
 
     path_to_cards = '//*[@class="containerMixitup"]/div/div'
     for item in h.xpath_elements(response, path_to_cards):
-        crawl_item(item, context)
+        crawl_item(context, item)

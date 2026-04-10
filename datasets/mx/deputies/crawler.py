@@ -7,7 +7,7 @@ from zavod.extract.zyte_api import ZyteAPIRequest
 from zavod.stateful.positions import categorise
 
 
-def crawl_item(input_dict: dict[str, Any], context: Context) -> None:
+def crawl_item(context: Context, input_dict: dict[str, Any]) -> None:
     entity = context.make("Person")
     parts = [input_dict["NombreCompleto"]]
     state = input_dict.pop("Estado")
@@ -110,4 +110,4 @@ def crawl(context: Context) -> None:
     results = orjson.loads(zyte_result.response_text)
 
     for item in results["data"]["allDiputados"]:
-        crawl_item(item, context)
+        crawl_item(context, item)
