@@ -1,11 +1,10 @@
-from typing import Optional
-from lxml.etree import _Element as Element
+from zavod.util import Element
 
 from zavod import Context, Entity
 from zavod import helpers as h
 
 
-def parse_person(context: Context, node: Element):
+def parse_person(context: Context, node: Element) -> None:
     entity = context.make("Person")
 
     name = node.findtext("./Name")
@@ -29,7 +28,7 @@ def parse_person(context: Context, node: Element):
     parse_common(context, node, entity)
 
 
-def parse_legal(context: Context, node: Element):
+def parse_legal(context: Context, node: Element) -> None:
     entity = context.make("LegalEntity")
     names = node.findtext("./Name")
     entity.id = context.make_id(node.tag, node.findtext("./DateInclusion"), names)
@@ -37,7 +36,7 @@ def parse_legal(context: Context, node: Element):
     parse_common(context, node, entity)
 
 
-def parse_common(context: Context, node: Element, entity: Entity):
+def parse_common(context: Context, node: Element, entity: Entity) -> None:
     sanction = h.make_sanction(context, entity)
     sanction.add("reason", node.findtext("./BasicInclusion"))
     sanction.add("program", node.findtext("./CategoryPerson"))
@@ -48,7 +47,7 @@ def parse_common(context: Context, node: Element, entity: Entity):
     context.emit(sanction)
 
 
-def crawl_index(context: Context) -> Optional[str]:
+def crawl_index(context: Context) -> str | None:
     doc = context.fetch_html(context.dataset.model.url, cache_days=1)
     for link in doc.findall(".//a"):
         href = link.get("href")
@@ -57,7 +56,7 @@ def crawl_index(context: Context) -> Optional[str]:
     return None
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     url = crawl_index(context)
     if url is None:
         context.log.error("Could not locate XML file", url=context.dataset.model.url)
