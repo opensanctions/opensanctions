@@ -1,4 +1,5 @@
 import orjson
+from typing import Any
 
 from zavod import Context, helpers as h
 from zavod.extract import zyte_api
@@ -6,7 +7,7 @@ from zavod.extract.zyte_api import ZyteAPIRequest
 from zavod.stateful.positions import categorise
 
 
-def crawl_item(input_dict: dict, context: Context):
+def crawl_item(input_dict: dict[str, Any], context: Context) -> None:
     entity = context.make("Person")
     parts = [input_dict["NombreCompleto"]]
     state = input_dict.pop("Estado")
@@ -67,8 +68,8 @@ def crawl_item(input_dict: dict, context: Context):
     )
 
 
-def crawl(context: Context):
-    json_data = {
+def crawl(context: Context) -> None:
+    json_data: dict[str, Any] = {
         "operationName": None,
         "variables": {},
         "query": """{ allDiputados

@@ -2,6 +2,7 @@ import re
 
 from zavod import Context, helpers as h
 from zavod.stateful.positions import categorise
+from zavod.util import Element
 
 
 # def extract_birth_place_and_date(link_governor_page, context: Context):
@@ -38,7 +39,7 @@ from zavod.stateful.positions import categorise
 #     return None, None
 
 
-def crawl_item(input_html, context: Context):
+def crawl_item(input_html: Element, context: Context) -> None:
     """
     Creates an entity, a position and a occupancy from the raw HTMLElement.
 
@@ -69,7 +70,9 @@ def crawl_item(input_html, context: Context):
     # Ing. Carlos Lozano de la Torre, where Ing. stands for Engineer
     # We will add two name propreties, one with the "full" name
     # and other with the clean name.
-    raw_title = input_html.xpath("./div/div/div/div[2]/h4/a/text()")[0].strip()
+    raw_title = h.xpath_strings(input_html, "./div/div/div/div[2]/h4/a/text()")[
+        0
+    ].strip()
     name = re.sub(r"^([A-Z][a-z]*\.)+ ", "", raw_title)
     state = h.xpath_string(
         input_html, ".//div[@class='media-body escudo']/a/text()[1]"
@@ -108,7 +111,7 @@ def crawl_item(input_html, context: Context):
         context.emit(occupancy)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     """
     Entrypoint to the crawler.
 
