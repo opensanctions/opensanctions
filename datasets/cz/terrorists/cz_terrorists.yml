@@ -32,10 +32,10 @@ dates:
 
 assertions:
   min:
-    # Asserting on exact expected numbers since data is static
+    # The data is static, but some are merged, so slightly lower than at source
     schema_entities:
       Person: 31
-      Organization: 18
+      Organization: 15
   max:
     schema_entities:
       Person: 50
