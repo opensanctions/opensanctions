@@ -1,4 +1,5 @@
 import csv
+from typing import Any, Iterator
 from rigour.mime.types import CSV
 
 from zavod import Context, helpers as h
@@ -24,7 +25,7 @@ DENY_FILES = [
 ]
 
 
-def replace_key(d: dict, context: Context) -> dict:
+def replace_key(context: Context, d: dict[str, Any]) -> dict[str, Any]:
     """
     This function returns the dictionary d with the keys replaced using the
     column lookup. If there are two matches, then it raises an error
@@ -43,7 +44,7 @@ def replace_key(d: dict, context: Context) -> dict:
     return d
 
 
-def crawl_item(input_dict: dict, context: Context):
+def crawl_item(context: Context, input_dict: dict[str, Any]) -> None:
     schema = context.lookup_value("person_type", input_dict.get("person_type"))
 
     if not schema:
@@ -76,21 +77,27 @@ def crawl_item(input_dict: dict, context: Context):
     context.audit_data(input_dict)
 
 
-def get_files_urls(context: Context):
+def get_files_urls(context: Context) -> Iterator[tuple[str, str]]:
+    """Yield (label, url) for each known download link on the data page."""
     response = context.fetch_html(context.data_url)
 
     for a in response.findall(".//a"):
-        if a.text_content() in ALLOW_FILES:
-            yield a.text_content(), a.get("href")
-        elif a.text_content() in DENY_FILES:
+        a_text = h.element_text(a, squash=False)
+        a_href = a.get("href")
+        assert a_href
+        if a_text in ALLOW_FILES:
+            yield a_text, a_href
+        elif a_text in DENY_FILES:
             continue
         else:
             context.log.warning(
-                "Unkown file found", label=a.text_content(), url=a.get("href")
+                "Unkown file found",
+                label=h.element_text(a, squash=False),
+                url=a.get("href"),
             )
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     for label, url in get_files_urls(context):
         fname = url.split("/")[-1]
         source_file = context.fetch_resource(fname, url)
@@ -101,5 +108,5 @@ def crawl(context: Context):
             for item in reader:
                 # Each csv has a slightly different name for each attribute
                 # so we are going to normalize them
-                replace_key(item, context)
-                crawl_item(item, context)
+                replace_key(context, item)
+                crawl_item(context, item)
