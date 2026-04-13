@@ -64,6 +64,7 @@ def crawl_item(context: Context, item: Dict[str, Any]) -> None:
 
     if occupancy is not None:
         # plenary session mandate type
+        # e.g. "President", "Membre effectif", "Secrétaire"
         occupancy.add("description", item.pop("dep_mandat_seance_pleniere"))
         context.emit(entity)
         context.emit(occupancy)
