@@ -1,0 +1,39 @@
+title: Walloon Parliament
+prefix: be-wal-parl
+url: https://www.parlement-wallonie.be
+coverage:
+  frequency: monthly
+  start: 2026-04-13
+load_statements: true
+entry_point: crawler.py
+summary: >-
+  Current members of the Parliament of Wallonia, the legislative body of the Walloon Region in Belgium.
+description: |
+  This dataset provides information about the current members of the Parliament of Wallonia.
+  It includes details about each member, such as name, position, political affiliation, and
+  other relevant information.
+tags:
+  - list.pep
+publisher:
+  name: Parlement de Wallonie
+  name_en: Parliament of Wallonia
+  description: |
+    The Parliament of Wallonia (Parlement wallon) is the legislative assembly of the Walloon Region,
+    one of Belgium's three federal regions. Its 75 members are directly elected for five-year terms
+    and responsible for enacting laws and overseeing the regional government. 
+  country: be
+  url: https://www.parlement-wallonie.be
+  official: true
+data:
+  url: https://www.parlement-wallonie.be/opendata/composition_dep_od.php?f=json
+  format: JSON
+  lang: fra
+
+# 75 members
+assertions:
+  min:
+    schema_entities:
+      Person: 70
+      Position: 1
+    country_entities:
+      be: 1
