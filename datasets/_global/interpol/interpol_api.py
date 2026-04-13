@@ -2,6 +2,7 @@ from collections import defaultdict
 import time
 from typing import Dict, Any, List, Optional, Set
 from requests.exceptions import HTTPError
+from rigour.text import is_nullword
 
 from zavod import Context
 from zavod import helpers as h
@@ -26,7 +27,8 @@ COUNTRIES_URL = "https://www.interpol.int/en/notices/data/countries"
 GENDERS = ["M", "F", "U"]
 AGE_MIN = 20
 AGE_MAX = 90
-STATUSES = defaultdict(int)
+# TODO(Leon Handreke): Using mutable "constants" as global state is ugly
+STATUSES: defaultdict[int, int] = defaultdict(int)
 HEADERS = {
     # "accept": "*/*",
     # "accept-language": "en-GB,en-US;q=0.9,en;q=0.8",
@@ -72,7 +74,7 @@ def crawl_notice(context: Context, notice: Dict[str, Any]) -> None:
             return
         context.log.warning(
             "HTTP error",
-            url=str(err.request.url),
+            url=str(err.request.url) if err.request else None,
             error=err.response.status_code,
         )
         STATUSES[err.response.status_code] += 1
@@ -84,7 +86,9 @@ def crawl_notice(context: Context, notice: Dict[str, Any]) -> None:
         context.log.warning("Duplicate entity ID", entity_id=entity_id)
     SEEN_IDS.add(entity_id)
     first_name = notice.pop("forename", None)
+    first_name = first_name if not is_nullword(first_name) else None
     last_name = notice.pop("name")
+    last_name = last_name if not is_nullword(last_name) else None
     entity = context.make("Person")
     entity.id = context.make_slug(entity_id)
     h.apply_name(entity, first_name=first_name, last_name=last_name)
@@ -131,7 +135,7 @@ def crawl_query(context: Context, query: Dict[str, Any]) -> int:
             return 0
         context.log.warning(
             "HTTP error",
-            url=str(err.request.url),
+            url=str(err.request.url) if err.request else None,
             error=err.response.status_code,
         )
         STATUSES[err.response.status_code] += 1
