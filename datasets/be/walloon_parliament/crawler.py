@@ -6,25 +6,25 @@ from zavod import Context, helpers as h
 from zavod.stateful.positions import categorise
 
 IGNORE = [
-    "dep_circons",  # electoral constituency
-    "dep_tel",
-    "dep_fax",
-    "dep_province",
-    "dep_presidentgroupe",  # group president (yes/no)
-    "dep_membre_bureau",
-    "dep_fonction_bureau",
-    "dep_ordre_bureau",
-    "dep_membre_bureau_elargi",
-    "dep_fonction_bureau_elargi",
-    "dep_ordre_bureau_elargi",
-    "dep_membre_conf_pres",
-    "dep_fonction_conf_pres",
-    "dep_ordre_conf_pres",
-    "dep_siege",  # seat number
-    "dep_photo",
     "dep_adresse_postale",
-    "dep_social_nt",
+    "dep_circons",  # electoral constituency
     "dep_email",
+    "dep_fax",
+    "dep_fonction_bureau_elargi",
+    "dep_fonction_bureau",
+    "dep_fonction_conf_pres",
+    "dep_membre_bureau_elargi",
+    "dep_membre_bureau",
+    "dep_membre_conf_pres",
+    "dep_ordre_bureau_elargi",
+    "dep_ordre_bureau",
+    "dep_ordre_conf_pres",
+    "dep_photo",
+    "dep_presidentgroupe",  # group president (yes/no)
+    "dep_province",
+    "dep_siege",  # seat number
+    "dep_social_nt",
+    "dep_tel",
 ]
 
 
