@@ -52,6 +52,8 @@ def crawl_item(context: Context, item: Dict[str, Any]) -> None:
         topics=["gov.legislative", "gov.state"],
         lang="eng",
     )
+    # TODO: add "Wallonia" as a subnational area once it's in 'countrynames'
+    # https://github.com/opensanctions/countrynames/issues/55
     position.add("subnationalArea", item.pop("dep_province"))
 
     categorisation = categorise(context, position, is_pep=True)
