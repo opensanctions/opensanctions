@@ -103,7 +103,7 @@ def crawl_person(
 
 
 def crawl_term(
-    context,
+    context: Context,
     link: HtmlElement,
     unblock_validator: str,
     current_link: HtmlElement,
