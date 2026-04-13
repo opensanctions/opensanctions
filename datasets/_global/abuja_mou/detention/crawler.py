@@ -19,7 +19,14 @@ HEADERS = {
 }
 
 
-def emit_linked_org(context, vessel_id, names, role, start_date, schema):
+def emit_linked_org(
+    context: Context,
+    vessel_id: str | None,
+    names: str | None,
+    role: str,
+    start_date: str | None,
+    schema: str,
+) -> None:
     for name in h.multi_split(names, ";"):
         entity = context.make(schema)
         entity.id = context.make_id("entity", name)
@@ -35,7 +42,7 @@ def emit_linked_org(context, vessel_id, names, role, start_date, schema):
         context.emit(link)
 
 
-def crawl_row(context: Context, row: dict):
+def crawl_row(context: Context, row: dict[str, str | None]) -> None:
     ship_name = row.pop("Name")
     imo = row.pop("IMO number")
     company_name = row.pop("Company")
@@ -102,16 +109,14 @@ def crawl_row(context: Context, row: dict):
     context.audit_data(row, ["#", "Place"])
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     doc = context.fetch_html(
         "https://abuja.marinet.ru/public_det/?action=getinspections",
         method="POST",
         data=DATA,
         headers=HEADERS,
     )
-    table = doc.xpath("//table[@id='dvData']")
-    assert len(table) == 1, "Expected exactly one table"
-    table = table[0]
+    table = h.xpath_element(doc, "//table[@id='dvData']")
     for row in h.parse_html_table(table, slugify_headers=False):
         str_row = h.cells_to_str(row)
         cleaned_row = {k: v for k, v in str_row.items() if isinstance(k, str)}

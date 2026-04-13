@@ -74,6 +74,8 @@ repos:
           datasets/_global/un_ga_protocol|
           datasets/_global/un_sc_sanctions|
           datasets/_global/worldbank|
+          datasets/_global/tokyo_mou|
+          datasets/_global/abuja_mou|
           datasets/_testing|
           datasets/_wikidata|
           datasets/ae|

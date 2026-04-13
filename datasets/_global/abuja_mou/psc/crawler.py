@@ -13,8 +13,8 @@ HEADERS = {
 }
 SEARCH_DATA = {
     # Go back ~3 years (approximate as 1095 days)
-    "From": f"{(TODAY - timedelta(days=1095)).strftime("%d.%m.%Y")}",
-    "To": f"{TODAY.strftime("%d.%m.%Y")}",
+    "From": f"{(TODAY - timedelta(days=1095)).strftime('%d.%m.%Y')}",
+    "To": f"{TODAY.strftime('%d.%m.%Y')}",
     "auth": "0",
     "flag": "0",
     "ShipClass": "0",
@@ -25,7 +25,13 @@ SEARCH_DATA = {
 }
 
 
-def emit_unknown_link(context, object, subject, role, date: str):
+def emit_unknown_link(
+    context: Context,
+    object: str | None,
+    subject: str | None,
+    role: str,
+    date: str | None,
+) -> None:
     link = context.make("UnknownLink")
     link.id = context.make_id(object, subject, role)
     if role:
@@ -36,7 +42,9 @@ def emit_unknown_link(context, object, subject, role, date: str):
     context.emit(link)
 
 
-def crawl_vessel_row(context: Context, str_row: dict, inspection_date: str):
+def crawl_vessel_row(
+    context: Context, str_row: dict[str, str | None], inspection_date: str | None
+) -> None:
     ship_name = str_row.pop("ship_name")
     imo = str_row.pop("imo_number")
     vessel = context.make("Vessel")
@@ -69,7 +77,7 @@ def crawl_vessel_row(context: Context, str_row: dict, inspection_date: str):
     context.audit_data(str_row)
 
 
-def crawl_vessel_page(context: Context, shipuid: str):
+def crawl_vessel_page(context: Context, shipuid: str) -> None:
     context.log.debug(f"Processing shipuid: {shipuid}")
     detail_data = {
         "MIME Type": "application/x-www-form-urlencoded",
@@ -85,31 +93,34 @@ def crawl_vessel_page(context: Context, shipuid: str):
         cache_days=182,  # Cache for 6 months
     )
 
-    inspection_table = detail_doc.xpath(
-        "//h2[text()='Inspection data']/following-sibling::table[1]"
-    )[0]
+    inspection_table = h.xpath_element(
+        detail_doc,
+        "//h2[text()='Inspection data']/following-sibling::table[1]",
+    )
     rows = list(h.parse_html_table(inspection_table))
     assert len(rows) == 1, len(rows)
     inspection_data = h.cells_to_str(rows[0])
 
-    ship_data_table = detail_doc.xpath(
-        "//h2[text()='Ship data']/following-sibling::table[1]"
-    )[0]
+    ship_data_table = h.xpath_element(
+        detail_doc,
+        "//h2[text()='Ship data']/following-sibling::table[1]",
+    )
     rows = list(h.parse_html_table(ship_data_table))
     assert len(rows) == 1, len(rows)
     ship_data = h.cells_to_str(rows[0])
     crawl_vessel_row(context, ship_data, inspection_data["date"])
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     doc = context.fetch_html(
         f"{context.data_url}/?{urlencode({'action': 'getinsppublicall'})}",
         data=SEARCH_DATA,
         headers=HEADERS,
         method="POST",
     )
-    shipuids = doc.xpath(
-        "///tr[contains(@class, 'even') or contains(@class, 'odd')]//input[@type='hidden']/@value"
+    shipuids = h.xpath_strings(
+        doc,
+        "///tr[contains(@class, 'even') or contains(@class, 'odd')]//input[@type='hidden']/@value",
     )
     context.log.info(f"Found {len(shipuids)} shipuids in the search response")
     for shipuid in shipuids:

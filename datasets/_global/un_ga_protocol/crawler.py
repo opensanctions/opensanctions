@@ -24,7 +24,7 @@ def crawl_pdf_url(context: Context) -> str:
     raise ValueError("No PDF found")
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     pdf_url = crawl_pdf_url(context)
     path = context.fetch_resource("source.pdf", pdf_url)
     context.export_resource(path, PDF, title=context.SOURCE_TITLE)

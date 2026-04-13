@@ -9,7 +9,7 @@ from zavod import Context, Entity
 SECURITIES_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTtQD9wiHuyl23NmrIeAACET4OohOXhmuxQv817FHHas8uO4k8VBzex25nIOPqsG9300aXJIqCZzo--/pub?gid=0&single=true&output=csv"
 
 
-def crawl_sec_row(context: Context, row: Dict[str, str]):
+def crawl_sec_row(context: Context, row: Dict[str, str]) -> None:
     entity = context.make("Company")
     name = row.pop("name")
     entity.id = context.make_slug(name)
@@ -28,7 +28,7 @@ def crawl_sec_row(context: Context, row: Dict[str, str]):
     context.audit_data(row)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     path = context.fetch_resource("source.csv", context.data_url)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
