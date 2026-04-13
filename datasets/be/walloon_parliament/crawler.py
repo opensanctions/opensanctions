@@ -49,7 +49,6 @@ def crawl_item(context: Context, item: Dict[str, Any]) -> None:
         context,
         name="Member of the Parliament of Wallonia",
         wikidata_id="Q19351455",
-        country="be",
         topics=["gov.legislative", "gov.state"],
         lang="eng",
     )
