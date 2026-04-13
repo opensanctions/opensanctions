@@ -11,6 +11,7 @@ from rigour.text import is_nullword
 from rigour.text.scripts import is_dense_script
 
 from zavod import settings
+from zavod.constants import ORIGIN_INFERRED
 from zavod.context import Context
 from zavod.entity import Entity
 from zavod.meta.names import CleaningSpec, NamesSpec
@@ -196,6 +197,11 @@ def apply_name(
         name_prop = "alias"
     if is_weak:
         name_prop = "weakAlias"
+
+    # Provenance for full names created from parts
+    full_origin = origin
+    if full is None or len(full) == 0:
+        full_origin = ORIGIN_INFERRED
     full = make_name(
         full=full,
         name1=name1,
@@ -215,7 +221,7 @@ def apply_name(
         suffix=suffix,
     )
     if full is not None and len(full):
-        entity.add(name_prop, full, quiet=quiet, lang=lang, origin=origin)
+        entity.add(name_prop, full, quiet=quiet, lang=lang, origin=full_origin)
 
 
 def split_comma_names(context: Context, text: str) -> List[str]:
