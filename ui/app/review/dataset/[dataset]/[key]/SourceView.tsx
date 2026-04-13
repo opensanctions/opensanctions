@@ -134,26 +134,27 @@ function SourceView({ sourceValue, sourceMimeType, sourceLabel, sourceSearchQuer
 
   return (
     <div className="flex-grow-1 d-flex flex-column source-view" style={{ height: '100%' }}>
-      <Tabs className="flex-shrink-0">
-        {tabs}
-      </Tabs>
-      {relatedEntities.length > 0 ? (
-        <div>
-          <h4 className="h6 pt-2">Related entities</h4>
-          <ul className={styles.relatedEntities}>
+      <div className="d-flex flex-column" style={{ flex: 1, minHeight: 0 }}>
+        <Tabs>
+          {tabs}
+        </Tabs>
+      </div>
+      {relatedEntities.length > 0 && (
+        <div className="d-flex flex-column" style={{ flex: 1, minHeight: 0 }}>
+          <h2 className="h6 mt-2 mb-1">Related entities</h2>
+          <Tabs className={styles.entityTabs}>
             {relatedEntities.map((entity) => (
-              <li key={entity.entity_id}>
-                <a
-                  href={`https://opensanctions.org/entities/${entity.entity_id}/`}
-                  target="_blank"
-                >
-                  {entity.entity_id}
-                </a>
-              </li>
+              <Tab key={entity.entity_id} eventKey={entity.entity_id} title={entity.entity_id}>
+                <iframe
+                  src={`https://www.opensanctions.org/entities/preview/${entity.entity_id}/`}
+                  className={styles.entityPreview}
+                  title={entity.entity_id}
+                />
+              </Tab>
             ))}
-          </ul>
+          </Tabs>
         </div>
-      ) : <p className="m-2">No entities linked to this review.</p>}
+      )}
     </div>
   )
 }
