@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Optional
 from followthemoney import registry, Property
 
 from zavod.logs import get_logger
-from zavod.runtime.lookups import is_type_lookup_value, match_type_lookup
+from zavod.runtime.lookups import get_type_lookup_silence_warnings, is_type_lookup_value
 
 
 if TYPE_CHECKING:
@@ -68,11 +68,10 @@ def check_xss_html_smell(
         return cleaned_value
 
     # Allow settings silence_warnings: [xss-html-smell] for certain values
-    lookup_result = match_type_lookup(entity, prop.type, cleaned_value)
-    if lookup_result is not None:
-        silence_warnings = lookup_result.silence_warnings or set()
-        if SILENCE_WARNING_TYPE in silence_warnings:
-            return cleaned_value
+    if SILENCE_WARNING_TYPE in get_type_lookup_silence_warnings(
+        entity, prop.type, cleaned_value
+    ):
+        return cleaned_value
 
     # TODO: Phase this out in favor of silence_warnings
     if is_type_lookup_value(entity, prop.type, cleaned_value):

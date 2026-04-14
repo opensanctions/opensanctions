@@ -9,7 +9,11 @@ from followthemoney.statement.util import NON_LANG_TYPE_NAMES
 
 from zavod.constants import ORIGIN_INFERRED, ORIGIN_LOOKUP
 from zavod.logs import get_logger
-from zavod.runtime.lookups import is_type_lookup_value, prop_lookup
+from zavod.runtime.lookups import (
+    get_type_lookup_silence_warnings,
+    is_type_lookup_value,
+    prop_lookup,
+)
 from zavod.runtime.safety import check_xss_html_smell
 
 
@@ -148,7 +152,17 @@ def value_clean(
             # This is not a general restriction on addresses that should be in FtM,
             # but rather a smell that can indicate a crawler bug.
             if prop_.type == registry.address and len(clean) <= 3:
-                if not is_type_lookup_value(entity, registry.address, item):
+                warn_address_too_short = True
+
+                if "address-too-short" in get_type_lookup_silence_warnings(
+                    entity, registry.address, item
+                ):
+                    warn_address_too_short = False
+                # TODO: Phase this out in favor of silence_warnings
+                if is_type_lookup_value(entity, registry.address, item):
+                    warn_address_too_short = False
+
+                if warn_address_too_short:
                     log.warning(
                         f"Property for {prop_.name} looks too short for an address: {value}",
                         entity_id=entity.id,

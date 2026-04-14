@@ -62,14 +62,23 @@ For merged countries `France / Syria`, make multiple `values` (`France`, `Syria`
 
 Try to remove or substitute the HTML content, leaving any text content in place: `<p>Hello</p>` -> `Hello`.
 
+If the content was erroneously marked as HTML, silence the warning:
+
+```
+  type.text:
+    options:
+      - match: "Also known under the pseudonym <tramp>"
+        silence_warnings: [xss-html-smell]
+```
+
 ### `Property for address looks too short for an address: Zug`
 
-If the string looks like a valid place name or address, introduce a lookup with the same return value:
+If the string looks like a valid place name or address, silence the warning:
 
 ```
 options:
   - match: Zug
-    value: Zug
+    silence_warnings: [address-too-short]
 ```
 
 If the value is not an address or location name, set the value to `null` (unquoted YAML null value).
