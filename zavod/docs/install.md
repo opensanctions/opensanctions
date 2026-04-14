@@ -24,7 +24,7 @@ export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:$(brew --prefix)/opt/icu4c/lib/pkgconfi
 brew install leveldb
 # Let the compiler that is run somewhere deep inside `uv sync` find the library
 # See https://github.com/wbolster/plyvel/issues/114 for more info on this painpoint
-export CPPFLAGS="-I$(brew --prefix leveldb)/include/ -L$(brew --prefix leveldb)/lib/ -fno-rtti"
+export CPPFLAGS="-I$(brew --prefix leveldb)/include/ -L$(brew --prefix leveldb)/lib/"
 ```
 
 You might want to put the `export`s in your [`.envrc`](https://direnv.net/) so that updates to these libraries just install and you don't have to go digging for these in the documentation again.

@@ -8,6 +8,7 @@ from followthemoney import registry
 from zavod import helpers as h
 from zavod import settings
 from zavod.logs import get_logger
+from zavod.constants import ORIGIN_INFERRED
 from zavod.context import Context
 from zavod.entity import Entity
 from zavod.stateful.positions import (
@@ -229,14 +230,15 @@ def make_occupancy(
     if status != OccupancyStatus.UNKNOWN:
         occupancy.add("status", status.value)
 
-    person.add("topics", "role.pep")
+    person.add("topics", "role.pep", origin=ORIGIN_INFERRED)
     if propagate_country:
+        # TODO: Begin to warn here about removing this, then remove it.
         for country in position.get("country"):
             # Only propagate to Person.country it isn't already set
             # in another field (such as citizenship).
             if country not in person.get_type_values(registry.country, matchable=True):
                 _tmp_warn_propagate_country(context)
-                person.add("country", country)
+                person.add("country", country, origin=ORIGIN_INFERRED)
 
     return occupancy
 

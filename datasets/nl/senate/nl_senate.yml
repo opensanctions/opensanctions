@@ -130,6 +130,11 @@ lookups:
           - name: "Robert van Gasteren"
             start_date: "2023-07-11"
             party: "BBB"
+      - match: 'Robert van Gasteren (1959) is sinds 31 maart 2026 lid van de Fractie-Van Gasteren in de Eerste Kamer'
+        details:
+          - name: "Robert van Gasteren"
+            start_date: "2026-03-31"
+            party: "Fractie-Van Gasteren"
       - match: 'Math Goossen (1954) is vanaf 13 juni 2023 lid van de BBB-fractie in de Eerste Kamer'
         details:
           - name: "Math Goossen"

@@ -295,7 +295,9 @@ lookups:
         value: Ethiopia
       - match: インドネシア（2003年12月時点）
         value: Indonesia
-      - match: スーダン人（生まれ）
+      - match:
+          - スーダン人（生まれ）
+          - スーダン_x000D_
         value: Sudan
       - match: ソビエト社会主義共和国連邦（1991年まで）
         value: SUHH

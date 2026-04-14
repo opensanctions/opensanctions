@@ -1,5 +1,5 @@
 from csv import DictReader
-from typing import Dict, List, cast
+from typing import Dict, List
 
 from rigour.mime.types import CSV
 
@@ -20,7 +20,7 @@ from zavod.stateful.review import assert_all_accepted
 # "02810614 (id-National identification card) (ID no)"
 # "03 01  118013 (other-Other identification number) (Passport number,  national ID  number, other numbers of  identity  documents: 03 01  118013)",
 # "0363464 (passport-National passport)  (issued by Palestinian Authority)"
-def apply_identifier(context: Context, entity: Entity, id_number_line: str):
+def apply_identifier(context: Context, entity: Entity, id_number_line: str) -> None:
     parts = id_number_line.split("(")
     prop = None
 
@@ -37,7 +37,9 @@ def apply_identifier(context: Context, entity: Entity, id_number_line: str):
         entity.add("notes", id_number_line)
 
 
-def crawl_row(context: Context, entity_id: str | None, row: Dict[str, List[str]]):
+def crawl_row(
+    context: Context, entity_id: str | None, row: Dict[str, List[str]]
+) -> None:
     schema = context.lookup_value(
         "subject_type",
         row.pop("type")[0],
@@ -51,7 +53,9 @@ def crawl_row(context: Context, entity_id: str | None, row: Dict[str, List[str]]
 
     whole_names = row.pop("Wholename")
     assert whole_names, row
-    original = h.Names(name=cast(list[str | None], whole_names))
+    original = h.Names()
+    for whole_name in whole_names:
+        original.add("name", whole_name)
     h.apply_reviewed_names(context, entity, original=original)
 
     for id_number_line in row.pop("Number"):
@@ -90,7 +94,7 @@ def crawl_row(context: Context, entity_id: str | None, row: Dict[str, List[str]]
     context.audit_data(row)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     path = context.fetch_resource("source.csv", context.data_url)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
     with open(path, "r", encoding="utf-8-sig") as fh:

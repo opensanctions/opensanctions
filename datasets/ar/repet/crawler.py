@@ -1,6 +1,6 @@
 import json
 import re
-from typing import Dict, Optional
+from typing import Any
 from rigour.mime.types import JSON
 from normality import normalize
 
@@ -35,13 +35,13 @@ REF_REGEX = re.compile(
 )
 
 
-def values(data):
+def values(data: list[dict[str, Any]] | None) -> list[Any]:
     if data is None:
         return []
     return [d["VALUE"] for d in data]
 
 
-def parse_date(date):
+def parse_date(date: Any) -> list[str]:
     if isinstance(date, list):
         dates = []
         for d in date:
@@ -54,10 +54,30 @@ def parse_date(date):
     return [date]
 
 
-def parse_alias(context: Context, entity: Entity, alias: Dict[str, str]):
+def parse_alias(context: Context, entity: Entity, alias: dict[str, str]) -> None:
+    """Parse an alias dict and apply its names to the entity.
+
+    Example input:
+        {"QUALITY": "Good", "ALIAS_NAME": "John Smith;J. Smith", "NOTE": "..."}
+
+    QUALITY is mapped via NAME_QUALITY to a name property (e.g. "good" -> "alias",
+    "low" -> "weakAlias"). ALIAS_NAME may be semicolon-separated; each part becomes
+    a separate name.
+    """
     quality = alias.pop("QUALITY", None)
-    name_prop = NAME_QUALITY[normalize(quality)] if quality else None
-    for name in alias.pop("ALIAS_NAME", None).split(";"):
+    normalized_quality = normalize(quality) if quality else None
+
+    name_prop = "alias"  # default to "alias" if quality is missing or unknown
+    if normalized_quality in NAME_QUALITY:
+        name_prop = NAME_QUALITY[normalized_quality]
+    elif normalized_quality is not None:
+        context.log.warning(
+            f"Unknown alias quality '{normalized_quality}', defaulting to '{name_prop}'",
+            quality=quality,
+            normalized_quality=normalized_quality,
+        )
+
+    for name in alias.pop("ALIAS_NAME", "").split(";"):
         h.apply_name(
             entity,
             full=name,
@@ -67,7 +87,7 @@ def parse_alias(context: Context, entity: Entity, alias: Dict[str, str]):
     context.audit_data(alias, ignore=["NOTE"])
 
 
-def parse_address(context: Context, data: Dict[str, str]) -> Optional[Entity]:
+def parse_address(context: Context, data: dict[str, str]) -> Entity | None:
     return h.make_address(
         context,
         remarks=data.pop("NOTE", None),
@@ -79,14 +99,16 @@ def parse_address(context: Context, data: Dict[str, str]) -> Optional[Entity]:
     )
 
 
-def fetch(context: Context, part: str):
+def fetch(context: Context, part: str) -> Any:
     path = context.fetch_resource("%s.json" % part, URL % part)
     context.export_resource(path, JSON, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
         return json.load(fh)
 
 
-def crawl_common(context: Context, data: Dict[str, str], part: str, schema: str):
+def crawl_common(
+    context: Context, data: dict[str, Any], part: str, schema: str
+) -> Entity:
     entity = context.make(schema)
     entity.id = context.make_slug(part, data.pop("DATAID"))
     entity.add("topics", "sanction")
@@ -138,7 +160,7 @@ def crawl_common(context: Context, data: Dict[str, str], part: str, schema: str)
     return entity
 
 
-def crawl_persons(context: Context):
+def crawl_persons(context: Context) -> None:
     for data in fetch(context, "personas"):
         entity = crawl_common(context, data, "personas", "Person")
         entity.add("title", values(data.pop("TITLE", None)))
@@ -218,7 +240,7 @@ def crawl_persons(context: Context):
         context.emit(entity)
 
 
-def crawl_entities(context: Context):
+def crawl_entities(context: Context) -> None:
     for data in fetch(context, "entidades"):
         entity = crawl_common(context, data, "entidades", "Organization")
         entity.add("incorporationDate", data.pop("DATE_OF_BIRTH", None))
@@ -241,6 +263,6 @@ def crawl_entities(context: Context):
         context.emit(entity)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     crawl_persons(context)
     crawl_entities(context)

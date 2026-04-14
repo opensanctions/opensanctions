@@ -20,7 +20,14 @@ def is_future_month(year: int, month: int, now: datetime) -> bool:
     return (year > now.year) or (year == now.year and month > now.month)
 
 
-def emit_linked_org(context, vessel_id, names, role, start_date, schema):
+def emit_linked_org(
+    context: Context,
+    vessel_id: str | None,
+    names: str | None,
+    role: str,
+    start_date: str | None,
+    schema: str,
+) -> None:
     for name in h.multi_split(names, ";"):
         entity = context.make(schema)
         entity.id = context.make_id("entity", name)
@@ -36,7 +43,9 @@ def emit_linked_org(context, vessel_id, names, role, start_date, schema):
         context.emit(link)
 
 
-def crawl_row(context: Context, row: dict, reasons_cell: HtmlElement):
+def crawl_row(
+    context: Context, row: dict[str, str | None], reasons_cell: HtmlElement
+) -> None:
     ship_name = row.pop("Ship Name")
     imo = row.pop("IMO No.")
     company_name = row.pop("Company")
@@ -107,7 +116,7 @@ def crawl_row(context: Context, row: dict, reasons_cell: HtmlElement):
     context.audit_data(row, ["Place of detention", "Nature of deficiencies", "�"])
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     now = datetime.utcnow()
     year = START_YEAR
     month = START_MONTH

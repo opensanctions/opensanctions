@@ -54,15 +54,33 @@ repos:
           datasets/_analysis|
           datasets/_collections|
           datasets/_externals|
-          datasets/_global|
+          datasets/_global/afdb_sanctions|
+          datasets/_global/c4ads_xinjiang|
+          datasets/_global/c4ads_xinjiang_mining|
+          datasets/_global/ebrd_ineligible|
+          datasets/_global/eiti_soe|
+          datasets/_global/everypolitician|
+          datasets/_global/gem_energy_ownership|
+          datasets/_global/iadb_sanctions|
+          datasets/_global/icij_offshoreleaks|
+          datasets/_global/iso9362_bic|
+          datasets/_global/paris_mou_banned|
+          datasets/_global/ransomwhere|
+          datasets/_global/research|
+          datasets/_global/ror|
+          datasets/_global/shu_uyghur_companies|
+          datasets/_global/thesentry_atlas|
+          datasets/_global/un_1718_vessels|
+          datasets/_global/un_ga_protocol|
+          datasets/_global/un_sc_sanctions|
+          datasets/_global/worldbank|
+          datasets/_global/tokyo_mou|
+          datasets/_global/abuja_mou|
           datasets/_testing|
           datasets/_wikidata|
           datasets/ae|
-          datasets/am|
-          datasets/ar|
           datasets/at|
           datasets/ba|
-          datasets/be|
           datasets/bg/jud_declarations|
           datasets/bh|
           datasets/br|
@@ -72,7 +90,6 @@ repos:
           datasets/cn|
           datasets/co|
           datasets/cy|
-          datasets/cz|
           datasets/ee|
           datasets/eu|
           datasets/gb/coh|
@@ -84,18 +101,12 @@ repos:
           datasets/id|
           datasets/il/knesset_members|
           datasets/in|
-          datasets/ir|
-          datasets/jp|
-          datasets/kg|
           datasets/kp|
           datasets/ky|
-          datasets/kz|
           datasets/lt|
           datasets/lu|
-          datasets/mc|
           datasets/md|
           datasets/me|
-          datasets/mx|
           datasets/my|
           datasets/ng|
           datasets/no/nbim_exclusions|
@@ -111,7 +122,7 @@ repos:
           datasets/sg|
           datasets/si|
           datasets/sk/rpvs|
-          datasets/th|
+          datasets/th/designated_person|
           datasets/tj|
           datasets/tr|
           datasets/tw|

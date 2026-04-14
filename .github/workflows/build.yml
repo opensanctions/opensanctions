@@ -67,7 +67,7 @@ jobs:
           python3 -m build --wheel
       - name: Get any modified dataset files
         id: changed-files
-        uses: tj-actions/changed-files@7dee1b0c1557f278e5c7dc244927139d78c0e22a  # v47.0.4
+        uses: tj-actions/changed-files@22103cc46bda19c2b464ffe86db46df6922fd323  # v47.0.5
         with:
           files: "datasets/**"
       - name: Crawl modified datasets
@@ -118,7 +118,7 @@ jobs:
       - name: Set build date
         run: echo "BUILD_DATE=$(date +%Y%m%d)" >> $GITHUB_ENV
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
       - name: Login to Github Container Registry
         uses: docker/login-action@v4
         with:
@@ -126,7 +126,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and push release
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         env:
           BUILD_DATE: ${{ env.BUILD_DATE }}
         with:

@@ -56,7 +56,7 @@ def excel_records(path):
             yield record
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     # The IADB PowerBI report requires a token to access the data, which it luckily readily provides.
     # Zyte because cloudflare
     get_token_response = fetch_json(context, GET_TOKEN_URL)

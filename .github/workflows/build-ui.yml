@@ -57,7 +57,7 @@ jobs:
       - uses: actions/checkout@v6
       - name: Docker meta
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ghcr.io/opensanctions/zavod-ui
           tags: |
@@ -67,7 +67,7 @@ jobs:
       - name: Set build date
         run: echo "BUILD_DATE=$(date +%Y%m%d)" >> $GITHUB_ENV
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
         with:
           install: true
       - name: Login to Github Container Registry
@@ -78,7 +78,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and push release
         id: build
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         env:
           BUILD_DATE: ${{ env.BUILD_DATE }}
         with:

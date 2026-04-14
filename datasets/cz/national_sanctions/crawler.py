@@ -11,7 +11,7 @@ from zavod import Context, helpers as h
 REGEX_LAST_NAME = re.compile(r"^[\w\?]+( ?/\s*[\w\?]+)*$")
 
 
-def crawl_item(context: Context, row: Dict[str, str]):
+def crawl_item(context: Context, row: Dict[str, str | None]) -> None:
     # Jméno fyzické osoby
     # -> First name of the natural person
 
@@ -58,7 +58,7 @@ def crawl_item(context: Context, row: Dict[str, str]):
         entity.id = context.make_id(name_field, first_name_field, countries)
         # There can be multiple names which are separated by /
         entity.add("name", names)
-        entity.add("country", countries.split(", "), lang="ces")
+        entity.add("country", (countries or "").split(", "), lang="ces")
     else:
         entity = context.make("Person")
         entity.id = context.make_id(name_field, first_name_field, countries)
@@ -70,8 +70,8 @@ def crawl_item(context: Context, row: Dict[str, str]):
             first_name=pick_name(first_names),
             last_name=pick_name(names),
         )
-        h.apply_date(entity, "birthDate", birth_date.strip())
-        entity.add("nationality", countries.split(", "), lang="ces")
+        h.apply_date(entity, "birthDate", (birth_date or "").strip())
+        entity.add("nationality", (countries or "").split(", "), lang="ces")
 
     # Další identifikační údaje
     # -> Other identification data
@@ -117,11 +117,13 @@ def crawl_item(context: Context, row: Dict[str, str]):
     context.audit_data(row)
 
 
-def crawl_data_url(context: Context):
+def crawl_data_url(context: Context) -> str:
     doc = context.fetch_html(context.data_url, absolute_links=True)
-    anchor = doc.xpath('//a/span[text()="Vnitrostátní sankční seznam"]/..')
-    assert len(anchor) != 1, len(anchor)
-    return anchor[0].get("href")
+    anchors = h.xpath_strings(
+        doc, '//a/span[text()="Vnitrostátní sankční seznam"]/../@href'
+    )
+    assert len(anchors) > 1
+    return anchors[0]
 
 
 def crawl(context: Context) -> None:

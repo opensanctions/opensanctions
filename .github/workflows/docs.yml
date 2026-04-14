@@ -37,7 +37,7 @@ jobs:
           pip install --no-cache-dir -q -e ".[docs]"
       - name: Setup Pages
         id: pages
-        uses: actions/configure-pages@v5
+        uses: actions/configure-pages@v6
       - name: Build with mkdocs
         working-directory: zavod
         run: mkdocs build -c -d site
@@ -56,4 +56,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
