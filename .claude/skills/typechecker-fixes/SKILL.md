@@ -153,22 +153,6 @@ from zavod.extract import zyte_api
 # then: zyte_api.fetch_html(...), zyte_api.fetch_json(...), zyte_api.fetch_resource(...)
 ```
 
-### 8. Fix mutable default arguments
-
-```python
-# Before
-def get_element_text(doc, xpath_value: str, to_remove=[], position=0):
-
-# After
-def get_element_text(
-    doc: Element,
-    xpath_value: str,
-    to_remove: list[str] | None = None,
-    position: int = 0,
-) -> str:
-    for string in to_remove or []:
-```
-
 ### 11. Use `Iterator` instead of `Generator` when only yielding
 
 ```python
@@ -209,17 +193,10 @@ def emit_linked_org(context: Context, *, vessel_id: str | None, names: str, role
 emit_linked_org(context, vessel_id=vessel.id, names=related_ros, role="Related Recognised Organization", date=start_date)
 ```
 
-### 14. Add type annotations to inline variables when the typechecker can't infer
+### Add a comment to functions that return tuples
 
-```python
-# Before
-data = {}
-header_mapping = [context.lookup_value("columns", cell) for cell in headers]
-
-# After
-data: dict[str, list[HtmlElement]] = {}
-header_mapping: list[str] = [context.lookup_value("columns", cell) or cell for cell in headers]
-```
+If the function returns a tuple, add a docstring comment to briefly
+describe the contents of the tuple. This is not a typechecker fix, but it helps readability since tuples don't have named fields.
 
 ## General principles
 
