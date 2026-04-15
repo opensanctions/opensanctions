@@ -6,7 +6,7 @@ argument-hint: "[crawler.py path]"
 
 # Typechecker Fixes for Crawlers
 
-Fix mypy strict-mode errors in opensanctions crawler files. Run `mypy --strict` on the target file to find errors, then apply the patterns below.
+Fix mypy strict-mode errors in opensanctions crawler files. Run `mypy --strict --explicit-package-bases` on the target directory to find errors, then apply the patterns below.
 
 ## Read first
 
@@ -65,7 +65,7 @@ json_data: dict[str, Any] = { ... }
 
 Use lowercase `dict`, `list`, `set`, `tuple` — not the deprecated `Dict`, `List`, `Set`, `Tuple` from `typing`. While fixing types, also migrate any existing `typing.Dict` etc. to builtins.
 
-### 4. Replace lxml `.xpath()` calls with typed `h.xpath_*` helpers
+### 4. Replace lxml `.xpath()`, `.find()` and `.findall()` calls with typed `h.xpath_*` helpers
 
 The raw lxml `.xpath()` returns `Any`. Use the zavod helpers instead:
 
