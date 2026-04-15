@@ -81,6 +81,7 @@ lookups:
           - "(venant aux droits et obligations de )"
           - "venant au droits et obligations de"
           - "<br />"
+          - "<br /> <br />"
         entities: []
       - match: La société Traditia<br /> Monsieur Philippe Le Gouz de Saint Seine
         entities:
