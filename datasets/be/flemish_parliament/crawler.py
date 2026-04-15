@@ -1,20 +1,32 @@
 import json
 from rigour.mime.types import JSON
+from typing import Any, Dict
 
 from zavod import Context, helpers as h
 from zavod.entity import Entity
 from zavod.stateful.positions import categorise
 
-IGNORE = ["deelstaatsenator", "fotowebpath", "kieskring", "link", "zetel"]
+IGNORE = ["deelstaatsenator", "fotowebpath", "kieskring", "zetel"]
+HEADERS = {"Accept": "application/json;charset=UTF-8"}
 
 
-def crawl_member(
-    context: Context,
-    position: Entity,
-    node: dict,
-) -> None:
+def get_gender_dob(
+    context: Context, link: list[Dict[str, Any]], member_id: str
+) -> tuple[str, str]:
+    detail_url = link[0]["href"]
+    path = context.fetch_resource(
+        f"vv_{member_id}.json",
+        detail_url,
+        headers=HEADERS,
+    )
+    with open(path, "r") as fh:
+        data = json.load(fh)
+    return (data.pop("geslacht"), data.pop("geboortedatum"))
+
+
+def crawl_member(context: Context, position: Entity, node: Dict[str, Any]) -> None:
     member_id = node.pop("id")
-    assert member_id is not None, "Missing id attribute on volksvertegenwoordiger"
+    assert member_id is not None
 
     is_current = node.pop("is-huidige-vv")
     if is_current != "J":
@@ -35,16 +47,9 @@ def crawl_member(
     person.add("citizenship", "be")
     link = node.pop("link")
     if link is not None:
-        detail_url = link[0]["href"]
-        path = context.fetch_resource(
-            f"vv_{member_id}.json",
-            detail_url,
-            headers={"Accept": "application/json;charset=UTF-8"},
-        )
-        with open(path, "r") as fh:
-            data = json.load(fh)
-        h.apply_date(person, "birthDate", data.pop("geboortedatum"))
-        person.add("gender", data.pop("geslacht"))
+        gender, dob = get_gender_dob(context, link, member_id)
+        h.apply_date(person, "birthDate", dob)
+        person.add("gender", gender)
 
     fractie_node = node.pop("fractie")
     if fractie_node is not None:
@@ -71,7 +76,7 @@ def crawl(context: Context) -> None:
     path = context.fetch_resource(
         "source.json",
         context.data_url,
-        headers={"Accept": "application/json;charset=UTF-8"},
+        headers=HEADERS,
     )
     context.export_resource(path, JSON, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
