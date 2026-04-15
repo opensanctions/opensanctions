@@ -116,6 +116,7 @@ lookups:
           - "ENFERMER.*" # Nurse
       - is_pep: false
         match:
+          - AUXILIAR ADMINISTRATIVO
           - BODEGUERO
           - CONSEJERO TECNICO
           - CONSEJERO TRIBUTARIO
