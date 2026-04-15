@@ -12,8 +12,6 @@ Fix mypy strict-mode errors in opensanctions crawler files. Run `mypy --strict -
 
 - `zavod/zavod/helpers/html.py` — typed HTML helpers (`xpath_strings`, `xpath_elements`, `xpath_element`, `element_text`)
 - `zavod/zavod/util.py` — `Element` and `ElementOrTree` type aliases
-- `zavod/zavod/extract/zyte_api.py` — typed Zyte API helpers
-
 ## Workflow
 
 1. Run `mypy --strict <crawler.py>` to see current errors
@@ -158,17 +156,6 @@ def parse_record(context: Context, el: etree._Element):
 # After
 from zavod.util import Element
 def parse_record(context: Context, el: Element) -> None:
-```
-
-### 7. Import zyte_api as a module, not individual functions
-
-```python
-# Before
-from zavod.extract.zyte_api import fetch_html, fetch_json, fetch_resource
-
-# After
-from zavod.extract import zyte_api
-# then: zyte_api.fetch_html(...), zyte_api.fetch_json(...), zyte_api.fetch_resource(...)
 ```
 
 ### 11. Use `Iterator` instead of `Generator` when only yielding
