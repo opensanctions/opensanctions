@@ -81,7 +81,7 @@ def create_entity(raw_entity: Dict[str, Any], context: Context) -> None:
         context.emit(occupancy)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     """
     Entrypoint to the crawler.
 

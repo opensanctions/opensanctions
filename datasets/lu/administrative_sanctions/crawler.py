@@ -27,7 +27,7 @@ SUBTITLE_PATTERN = re.compile(
 )
 
 
-def crawl_item(card, context: Context):
+def crawl_item(card, context: Context) -> None:
     # The title is in the format "Sanction administrative du XX XXXX 20XX"
     title = card.find(".//*[@class='library-element__title']")
     detail_url = title.find(".//a").get("href")
@@ -84,7 +84,7 @@ def crawl_item(card, context: Context):
     context.emit(sanction)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     base_url = "https://www.cssf.lu/fr/publications-donnees/page/{}/?content_type=1387%2C623%2C625"
 
     idx = 1

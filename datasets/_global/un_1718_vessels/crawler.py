@@ -30,7 +30,7 @@ def crawl(context: Context) -> None:
     doc = zyte_api.fetch_html(
         context, URL, unblock_validator=pdf_link_xpath, cache_days=1
     )
-    source_url = str(doc.xpath(pdf_link_xpath)[0])
+    source_url = h.xpath_strings(doc, pdf_link_xpath)[0]
     _, _, _, path = zyte_api.fetch_resource(
         context, filename="source.pdf", url=source_url
     )
