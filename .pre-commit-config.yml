@@ -76,7 +76,6 @@ repos:
           datasets/_global/worldbank|
           datasets/_global/tokyo_mou|
           datasets/_global/abuja_mou|
-          datasets/_testing|
           datasets/_wikidata|
           datasets/ae|
           datasets/at|
