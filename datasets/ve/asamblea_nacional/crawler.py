@@ -124,6 +124,8 @@ def crawl_member(context: Context, member_link=ElementOrTree):
 
     person = context.make("Person")
     person.id = context.make_id(member_name)
+    # https://venezuela.justia.com/federales/constitucion-de-la-republica-bolivariana-de-venezuela/titulo-v/capitulo-i/
+    person.add("citizenship", "ve")
     context.log.debug(f"Unique ID {person.id}")
     h.apply_name(person, full=member_name, lang="esp")
 

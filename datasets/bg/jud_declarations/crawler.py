@@ -166,6 +166,8 @@ def crawl_row(context: Context, row: Dict[str, HtmlElement], index_url: str):
     person = context.make("Person")
     # We want the same person for 2 different years to have the same ID
     person.id = context.make_id(name, role, city)
+    # BG citizenship required to hold all these positions, https://tinyurl.com/3nury6bv
+    person.add("citizenship", "bg")
     person.add("name", name, lang="bul")
     person.add("topics", "role.pep")
     person.add("sourceUrl", declaration_url)

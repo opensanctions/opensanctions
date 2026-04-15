@@ -91,6 +91,7 @@ def crawl_pep(context: Context, row) -> Tuple[Optional[str], Optional[str]]:
 
     entity = context.make("Person")
     entity.id = context.make_slug(name, birth_date, "district", district, strict=False)
+    entity.add("country", "ng")  # multiple roles that don't require citizenship
 
     entity.add("name", name)
     entity.add("birthDate", birth_date)

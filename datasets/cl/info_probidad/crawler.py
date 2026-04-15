@@ -46,6 +46,8 @@ def crawl_row(context: Context, declaration_id: int):
     else:
         person.id = context.make_slug(declarant_hash)
 
+    # citizenship required for all positions listed in Chilean Law N° 20.880
+    person.add("citizenship", "cl")
     h.apply_name(
         person,
         first_name=first_name,

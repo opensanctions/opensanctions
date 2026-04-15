@@ -49,6 +49,8 @@ def crawl_card_2025(context: Context, position: str, el: ElementOrTree):
 
     entity = context.make("Person")
     entity.id = context.make_id(name)
+    # BOTC and Caymanian: https://portal.elections.ky/index.php/candidates-agents/qualifications-for-candidates
+    entity.add("citizenship", "KY")
     entity.add("name", name)
 
     position_el = el.find(".//p")
