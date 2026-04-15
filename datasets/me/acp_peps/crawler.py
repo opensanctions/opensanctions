@@ -50,7 +50,9 @@ def fetch_latest_filing(
     return None, None
 
 
-def read_csv_rows(context: Context, zip_path: Path, file_pattern: str) -> List[Dict]:
+def read_csv_rows(
+    context: Context, zip_path: Path, file_pattern: str
+) -> list[dict[str, Any]]:
     """Generic CSV fetcher to retrieve CSV rows based on the file pattern."""
 
     with ZipFile(zip_path, "r") as zip:
@@ -70,7 +72,7 @@ def read_csv_rows(context: Context, zip_path: Path, file_pattern: str) -> List[D
             return list(reader)
 
 
-def build_person_from_family_row(context: Context, row) -> Entity:
+def build_person_from_family_row(context: Context, row: dict[str, Any]) -> Entity:
     first_name = row.pop("IME_CLANA_PORODICE")
     last_name = row.pop("PREZIME_CLANA_PORODICE")
     # We're dealing with: '-/-'
@@ -101,7 +103,9 @@ def build_person_from_family_row(context: Context, row) -> Entity:
     return entity
 
 
-def crawl_relatives(context, person_entity, relatives):
+def crawl_relatives(
+    context: Context, person_entity: Entity, relatives: list[dict[str, Any]]
+) -> None:
     for row in relatives:
         relationship = row.pop("SRODSTVO")
         relative = build_person_from_family_row(context, row)
@@ -186,7 +190,7 @@ def emit_affiliated_position(
 # FUNKCIONER_IME roughly equals IME_CLANA_PORODICE (first name)
 # and FUNKCIONER_PREZIME roughly equals PREZIME_CLANA_PORODICE (last name)
 def split_official_and_relatives(
-    rows,
+    rows: list[dict[str, Any]],
 ) -> Tuple[Optional[Dict[str, str]], List[Dict[str, str]]]:
     """Split family rows into the relatives and the official."""
     # SRODSTVO contains Funkcioner for the official, else the family relationship.
@@ -196,7 +200,7 @@ def split_official_and_relatives(
     return officials[0] if officials else None, relatives
 
 
-def crawl_person(context: Context, person_data) -> bool:
+def crawl_person(context: Context, person_data: dict[str, Any]) -> bool:
     """Crawl a person from the data.
 
     Returns true if a ZIP was read."""
@@ -221,7 +225,7 @@ def crawl_person(context: Context, person_data) -> bool:
         person = context.make("Person")
         # TODO(Leon Handreke): I think we should be passing *function_labels here,
         # but that would mean a re-key.
-        person.id = context.make_id(full_name, sorted(function_labels))  # pyright: ignore[reportArgumentType]
+        person.id = context.make_id(full_name, sorted(function_labels))  # type: ignore[arg-type]  # pyright: ignore[reportArgumentType]
         h.apply_name(person, full_name)
 
     person.add("citizenship", "me")
@@ -265,7 +269,7 @@ def crawl_person(context: Context, person_data) -> bool:
     return bool(relatives_rows or function_rows)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     valid_zips = 0
     page = 0
     max_pages = 1200
