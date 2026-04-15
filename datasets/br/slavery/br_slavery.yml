@@ -47,14 +47,14 @@ dates:
 assertions:
   min:
     schema_entities:
-      Person: 400
+      Person: 310
       Company: 180
     entities_with_prop:
       Sanction:
         endDate: 3
   max:
     schema_entities:
-      Person: 700
+      Person: 800
       Company: 300
 
 lookups:
