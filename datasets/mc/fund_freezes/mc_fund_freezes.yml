@@ -338,6 +338,14 @@ lookups:
         values:
           - 1977
           - 1978
+      - match: entre 1955 et 1958
+        values:
+          - 1955
+          - 1958
+      - match: entre 1945 et 1950
+        values:
+          - 1945
+          - 1950
       - match:
           - "Environ 1958"
           - "environ 1958"
