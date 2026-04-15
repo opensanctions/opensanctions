@@ -83,6 +83,18 @@ Key rules:
 - Set assertions to ~80% min / ~150% max of expected counts initially. Tighten after
   the crawler has been running in production for a few weeks. Assertions are checked by
   `zavod validate datasets/xx/foo/xx_foo.yml`, not by `zavod crawl`.
+- Write `summary` and `description` to be **time-agnostic and self-renewing** — describe
+  what the source publishes and its update cadence, not the current snapshot. The crawler
+  re-runs on a schedule, so descriptions tied to a specific year, election, or sanctions
+  episode will become stale.
+
+  ```
+  Bad:  "Members of parliament since the 2023 elections."
+  Good: "Members of parliament. Data updated after each communal election (every 6 years)."
+
+  Bad:  "Sanctions imposed in response to the 2022 invasion of Ukraine."
+  Good: "Sanctions maintained by X authority targeting Russian individuals and entities."
+  ```
 
 ## The crawler module
 
