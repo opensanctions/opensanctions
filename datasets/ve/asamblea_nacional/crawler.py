@@ -11,7 +11,7 @@ from zavod import Context, Entity
 from zavod import helpers as h
 from zavod.stateful.positions import categorise
 from zavod.util import Element, ElementOrTree
-from zavod.extract.zyte_api import fetch_html
+from zavod.extract import zyte_api
 from lxml.html import HtmlElement
 
 BIRTHDATE = re.compile(r"fecha de nacimiento\s*:\s*(.*)$", re.I | re.MULTILINE)
@@ -71,7 +71,7 @@ def crawl_member_page(context: Context, person: Entity, name: str, href: str) ->
     context.log.debug(f"Fetching page for {name} from {href}")
     try:
         # using Zyte to bypass 403
-        page = fetch_html(context, href, ".//h3", cache_days=1)
+        page = zyte_api.fetch_html(context, href, ".//h3", cache_days=1)
     except Exception as err:
         if href in KNOWN_ERRORS:
             context.log.info(f"Exception when fetching {href}: {err}")
@@ -164,7 +164,9 @@ def crawl_member_list(context: Context) -> Iterator[ElementOrTree]:
     """Iterate through pages in member list from the website."""
     context.log.info(f"Fetching front page from {context.data_url}")
     page_number = 1
-    page: HtmlElement = fetch_html(context, context.data_url, ".//h3", cache_days=1)
+    page: HtmlElement = zyte_api.fetch_html(
+        context, context.data_url, ".//h3", cache_days=1
+    )
     yield page
     while True:
         next_links = page.find_rel_links("next")
@@ -188,7 +190,7 @@ def crawl_member_list(context: Context) -> Iterator[ElementOrTree]:
             context.log.error(f"Link to {page_number + 1} not found")
         page_number = next_page
         context.log.debug(f"Fetching page {page_number} from {href}")
-        page = fetch_html(context, href, ".//h3", cache_days=1)
+        page = zyte_api.fetch_html(context, href, ".//h3", cache_days=1)
         yield page
 
 
