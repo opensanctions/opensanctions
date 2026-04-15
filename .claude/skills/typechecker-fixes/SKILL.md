@@ -32,9 +32,9 @@ def crawl(context: Context):
 def crawl_row(context: Context, row: dict):
 def apply_identifier(context: Context, entity: Entity, id_number_line: str):
 
-# After
+# After — pick the narrowest value type the row actually contains (see pattern #3)
 def crawl(context: Context) -> None:
-def crawl_row(context: Context, row: dict[str, Any]) -> None:
+def crawl_row(context: Context, row: dict[str, str | None]) -> None:
 def apply_identifier(context: Context, entity: Entity, id_number_line: str) -> None:
 ```
 
@@ -50,18 +50,36 @@ def crawl_item(input_html: Element, context: Context) -> None:
 def crawl_term(context: Context, link: HtmlElement, ...) -> None:
 ```
 
-### 3. Replace bare `dict` with `dict[str, Any]` or a more specific type
+### 3. Replace bare `dict` with the narrowest value type the code actually uses
+
+Pick the value type by looking at every assignment into the dict. Use `Any` only as a last resort. In order of preference:
+
+1. **`dict[str, str]`** — all values are strings (e.g. `h.xpath_strings(...)[0]`, string literals, `city.get("key", "")`).
+2. **`dict[str, str | None]`** — some values can legitimately be `None` (e.g. `element.text`, `element.get("attr")`, `record.get(key)` with no default). At consumer sites that need `str`, narrow with a local + `assert value is not None` or relax the consumer's signature to accept `None`.
+3. **`dict[str, Any]`** — only when values are genuinely heterogeneous (mixed types that can't be expressed as a simple union, e.g. `str`, `int`, nested `list`/`dict`). Prefer a `TypedDict` if the dict has a fixed schema.
 
 ```python
 # Before
 def crawl_item(input_dict: dict, context: Context):
 json_data = { ... }
 
-# After
+# After — values are all strings
+def crawl_item(input_dict: dict[str, str], context: Context) -> None:
+json_data: dict[str, str] = { ... }
+
+# After — values include str | None from element.text
+record: dict[str, str | None] = {}
+record["name"] = row[0].text                       # str | None
+record["url"] = urljoin(base, row[0].get("href"))  # str
+
+# After — truly heterogeneous (resort to Any)
 from typing import Any
-def crawl_item(input_dict: dict[str, Any], context: Context) -> None:
-json_data: dict[str, Any] = { ... }
+item: dict[str, Any] = {"name": "x", "count": 3, "tags": [...]}
 ```
+
+When you tighten to `dict[str, str | None]`, expect two or three follow-up errors at call sites that expect strict `str` (e.g. `context.fetch_html`). Handle each by either:
+- Pulling the value into a local and asserting non-None: `url = record["url"]; assert url is not None`.
+- Widening the consumer's signature if `None` is a semantically valid input (e.g. `is_valid(regno: str | None)` returning `False` for `None`).
 
 Use lowercase `dict`, `list`, `set`, `tuple` — not the deprecated `Dict`, `List`, `Set`, `Tuple` from `typing`. While fixing types, also migrate any existing `typing.Dict` etc. to builtins.
 
@@ -201,6 +219,6 @@ describe the contents of the tuple. This is not a typechecker fix, but it helps 
 ## General principles
 
 - **Never change logic.** These are type-annotation-only fixes. Do not change control flow, data transformations, or output. Each fix must be resolved by exactly and narrowly applying one of the rules above. If a type error cannot be resolved that way without altering behavior, leave the error. It is fine to leave some errors unfixed rather than risk changing what the crawler emits.
-- Prefer the narrowest correct type. `dict[str, str]` is better than `dict[str, Any]` when all values are strings.
+- Prefer the narrowest correct type. For dicts, follow the preference order in pattern #3: `dict[str, str]` > `dict[str, str | None]` > `dict[str, Any]`. Only fall back to `Any` when the values are genuinely heterogeneous.
 - Use `str | None` union syntax, not `Optional[str]`, and lowercase `dict`/`list`/`set` not `Dict`/`List`/`Set` — but only when you're already editing the line for another reason. Do not make cosmetic-only changes to lines that have no type errors.
 - The `context: Context` parameter should always be first in crawler functions.
