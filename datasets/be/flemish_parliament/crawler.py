@@ -1,6 +1,6 @@
 import json
 from rigour.mime.types import JSON
-from typing import Any, Dict
+from typing import Any, Dict, NamedTuple
 
 from zavod import Context, helpers as h
 from zavod.entity import Entity
@@ -10,9 +10,15 @@ IGNORE = ["deelstaatsenator", "fotowebpath", "kieskring", "zetel"]
 HEADERS = {"Accept": "application/json;charset=UTF-8"}
 
 
-def get_gender_dob(
+class MemberDetail(NamedTuple):
+    gender: str
+    birth_date: str
+    start_date: str | None
+
+
+def get_member_detail(
     context: Context, link: list[Dict[str, Any]], member_id: str
-) -> tuple[str, str]:
+) -> MemberDetail:
     detail_url = link[0]["href"]
     path = context.fetch_resource(
         f"vv_{member_id}.json",
@@ -21,7 +27,17 @@ def get_gender_dob(
     )
     with open(path, "r") as fh:
         data = json.load(fh)
-    return (data.pop("geslacht"), data.pop("geboortedatum"))
+    # find the active mandate (no end date) to get occupancy start
+    start_date = None
+    for mandate in data.get("mandaat-vlaams-parlement", []):
+        if not mandate.get("datumtot"):
+            start_date = mandate.get("datumvan")
+            break
+    return MemberDetail(
+        gender=data.pop("geslacht"),
+        birth_date=data.pop("geboortedatum"),
+        start_date=start_date,
+    )
 
 
 def crawl_member(context: Context, position: Entity, node: Dict[str, Any]) -> None:
@@ -30,11 +46,7 @@ def crawl_member(context: Context, position: Entity, node: Dict[str, Any]) -> No
 
     is_current = node.pop("is-huidige-vv")
     if is_current != "J":
-        context.log.warning(
-            "Skipping non-current member",
-            id=member_id,
-            is_huidige_vv=is_current,
-        )
+        context.log.warning("Skipping non-current member", id=member_id)
         return
 
     person = context.make("Person")
@@ -46,10 +58,11 @@ def crawl_member(context: Context, position: Entity, node: Dict[str, Any]) -> No
     )
     person.add("citizenship", "be")
     link = node.pop("link")
+    member_detail = None
     if link is not None:
-        gender, dob = get_gender_dob(context, link, member_id)
-        h.apply_date(person, "birthDate", dob)
-        person.add("gender", gender)
+        member_detail = get_member_detail(context, link, member_id)
+        h.apply_date(person, "birthDate", member_detail.birth_date)
+        person.add("gender", member_detail.gender)
 
     fractie_node = node.pop("fractie")
     if fractie_node is not None:
@@ -64,6 +77,7 @@ def crawl_member(context: Context, position: Entity, node: Dict[str, Any]) -> No
         person=person,
         position=position,
         categorisation=categorisation,
+        start_date=member_detail.start_date if member_detail else None,
     )
     if occupancy is not None:
         context.emit(person)
