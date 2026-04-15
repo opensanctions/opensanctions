@@ -38,7 +38,7 @@ def parse_organisations(
     for row in rows:
         org_type = row.pop("ORGANISATION_TYPE_CODE", None)
         reg_nr = row.pop("REGISTRATION_NO", None)
-        if org_type in (None, "Εμπορική Επωνυμία"):
+        if org_type is None or org_type == "Εμπορική Επωνυμία":
             continue
         if reg_nr is None:
             continue
