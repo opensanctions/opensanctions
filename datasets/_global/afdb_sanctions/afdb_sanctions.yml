@@ -451,6 +451,10 @@ lookups:
         names:
           - name: Xinjiang Jiaotong Logistics Co. Ltd.
             alias: ["Xccg Logistics Co. Ltd.", "新疆交建物流有限公司"]
+      - match: 'Xinjiang Jiaotong Logistics Co. Ltd. (Also Known As Xccg Logistics Co. Ltd.(新疆交建物流有限公司)'
+        names:
+          - name: Xinjiang Jiaotong Logistics Co. Ltd.
+            alias: ["Xccg Logistics Co. Ltd.", "新疆交建物流有限公司"]
       - match: 'Xinjiang Communication Construction Municipal Engineering Co. Ltd (Also Known As Xccg Municipal Works Construction Co. Ltd 新疆交建市政工程有限责任公司)'
         names:
           - name: Xinjiang Communication Construction Municipal Engineering Co. Ltd.
