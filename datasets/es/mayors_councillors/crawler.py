@@ -39,6 +39,9 @@ def crawl_item(context: Context, row: Dict[str, str | None]) -> None:
     pep.id = context.make_id(
         name, province, municipality, first_last_name, second_last_name
     )
+    # municipal elections are open to other nationals
+    # https://www.senado.es/web/conocersenado/normas/constitucion/detalleconstitucioncompleta/index.html?lang=en
+    pep.add("country", "es")
     if first_last_name or second_last_name:
         last_name = f"{first_last_name} {second_last_name}"
         h.apply_name(pep, first_name=name, last_name=last_name)

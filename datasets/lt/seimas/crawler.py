@@ -52,6 +52,7 @@ def crawl_member_bio(context: Context, url: str) -> None:
 
     person = context.make("Person")
     person.id = context.make_slug(person_name)
+    person.add("citizenship", "lt")
     person.add("name", person_name)
     person.add("sourceUrl", url)
 

@@ -87,6 +87,8 @@ def crawl_item(
 
     entity = context.make("Person")
     entity.id = context.make_id(name, ethnicity, gender, birth_date, delegation)
+    # PRC citizenship required even for HK and Macau NPC Delegates: http://en.npc.gov.cn.cdurl.cn/2020-10/17/c_674698.htm
+    entity.add("citizenship", "cn")
 
     entity.add("name", name, lang="chi")
     apply_translit_full_name(context, entity, "chi", name, TRANSLIT_OUTPUT)

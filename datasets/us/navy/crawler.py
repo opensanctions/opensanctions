@@ -43,6 +43,8 @@ def emit_person(
 ):
     person = context.make("Person")
     person.id = context.make_id(country, name, role)
+    # leadership requires citizenship, https://www.govregs.com/uscode/title10_subtitleA_partII_chapter33_section532
+    person.add("citizenship", "us")
     person.add("name", name)
     person.add("position", role)
     person.add("sourceUrl", source_url)

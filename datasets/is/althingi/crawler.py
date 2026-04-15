@@ -39,6 +39,7 @@ def crawl_item(context: Context, *, member_url: str, member_name: str) -> None:
     person = context.make("Person")
     person.id = context.make_id(member_name, birth_date)
 
+    person.add("citizenship", "is")
     person.add("name", member_name)
     # The birth date has a suffix that we need to remove
     h.apply_date(person, "birthDate", re.sub(SUFFIX_PATTERN, "", birth_date))

@@ -63,6 +63,10 @@ assertions:
 lookups:
   names:
     options:
+      - match: 'Xinjiang Jiaotong Logistics Co. Ltd. (Also Known As Xccg Logistics Co. Ltd.(新疆交建物流有限公司)'
+        names:
+          - name: 'Xinjiang Jiaotong Logistics Co. Ltd.'
+          - alias: ['Xccg Logistics Co. Ltd.', '新疆交建物流有限公司']
       - match: 'Aktif Elektroteknik San ve Tic A. S. (“Aktif”) also doing business as AKTİF ELEKTROTEKNIK SANAYII VE TICARET'
         names:
           - name: 'Aktif Elektroteknik San ve Tic A. S. (“Aktif”)'
