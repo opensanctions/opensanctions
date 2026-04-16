@@ -39,7 +39,7 @@ def emit_person(
     role: str,
     name: str,
     title: str | None,
-    notes: str,
+    bio: str,
 ):
     person = context.make("Person")
     person.id = context.make_id(country, name, role)
@@ -49,7 +49,7 @@ def emit_person(
     person.add("position", role)
     person.add("sourceUrl", source_url)
     person.add("title", title)
-    person.add("notes", notes)
+    person.add("biography", bio)
 
     position = h.make_position(context, role, country=country, topics=["gov.security"])
 
@@ -145,14 +145,14 @@ def parse_html(context):
             name_el = h.xpath_elements(row, ".//h1/a", expect_exactly=1)[0]
             raw_name = h.xpath_strings(row, ".//h1/a/text()", expect_exactly=1)[0]
             role = h.xpath_strings(row, ".//h3/a/text()", expect_exactly=1)[0]
-            notes = h.xpath_string(row, './/p[contains(@class, "bio-sum")]/text()')
+            bio = h.xpath_string(row, './/p[contains(@class, "bio-sum")]/text()')
             leader_url = urljoin(BASE_URL, name_el.get("href"))
 
             name, title = extract_name_and_title(context, raw_name)
             if not name or not role:
                 context.log.warning("Missing name or role:", name=name, role=role)
                 continue
-            emit_person(context, "us", leader_url, role, name, title=title, notes=notes)
+            emit_person(context, "us", leader_url, role, name, title=title, bio=bio)
 
 
 def crawl(context: Context):
