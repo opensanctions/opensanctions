@@ -19,7 +19,7 @@ PLACEHOLDER_RE = re.compile(r"\d+$")
 def crawl_row(context: Context, row: dict[str, str], position: Entity) -> None:
     first_name = row.pop("FIRSTNAME")
     last_name = row.pop("NAME")
-    # Skip placeholder entries for historical seats that lack the actual candidate name.
+    # Skip placeholder entries for historical seats that lack the actual member name.
     if "Siège" in first_name and PLACEHOLDER_RE.search(last_name):
         return
     dob = row.pop("BIRTH_DATE")
