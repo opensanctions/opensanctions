@@ -1,4 +1,4 @@
-import json
+import orjson
 from rigour.mime.types import JSON
 from typing import Any, Dict, NamedTuple
 
@@ -17,16 +17,15 @@ class MemberDetail(NamedTuple):
 
 
 def get_member_detail(
-    context: Context, link: list[Dict[str, Any]], member_id: str
+    context: Context, detail_url: str, member_id: str
 ) -> MemberDetail:
-    detail_url = link[0]["href"]
     path = context.fetch_resource(
         f"vv_{member_id}.json",
         detail_url,
         headers=HEADERS,
     )
-    with open(path, "r") as fh:
-        data = json.load(fh)
+    data = orjson.loads(path.read_text())
+
     # find the active mandate (no end date) to get occupancy start
     start_date = None
     for mandate in data.get("mandaat-vlaams-parlement", []):
@@ -44,12 +43,15 @@ def crawl_member(context: Context, position: Entity, node: Dict[str, Any]) -> No
     member_id = node.pop("id")
     assert member_id is not None
 
-    is_current = node.pop("is-huidige-vv")
-    if is_current != "J":
+    # is-huidige-vv = is-current-vv (vv = volksvertegenwoordiger = member of parliament)
+    # J = Ja = Yes
+    is_current = node.pop("is-huidige-vv") == "J"
+    if not is_current:
         context.log.warning("Skipping non-current member", id=member_id)
         return
 
     person = context.make("Person")
+    # vv = volksvertegenwoordiger = member of parliament
     person.id = context.make_slug("vv", member_id)
     h.apply_name(
         person,
@@ -57,10 +59,18 @@ def crawl_member(context: Context, position: Entity, node: Dict[str, Any]) -> No
         last_name=node.pop("naam"),
     )
     person.add("citizenship", "be")
-    link = node.pop("link")
+    links = node.pop("link")
+    detail_url = None
+    if links is None or not len(links) == 1:
+        context.log.error(
+            f"Didn't find exactly one link property for member {member_id}"
+        )
+    else:
+        detail_url = links[0].get("href")
+
     member_detail = None
-    if link is not None:
-        member_detail = get_member_detail(context, link, member_id)
+    if detail_url is not None:
+        member_detail = get_member_detail(context, detail_url, member_id)
         h.apply_date(person, "birthDate", member_detail.birth_date)
         person.add("gender", member_detail.gender)
 
@@ -93,8 +103,7 @@ def crawl(context: Context) -> None:
         headers=HEADERS,
     )
     context.export_resource(path, JSON, title=context.SOURCE_TITLE)
-    with open(path, "r") as fh:
-        data = json.load(fh)
+    data = orjson.loads(path.read_text())
 
     position = h.make_position(
         context,
