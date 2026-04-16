@@ -29,7 +29,7 @@ publisher:
   url: https://www.dekamer.be/
   official: true
 data:
-  url: https://www.dekamer.be/kvvcr/showpage.cfm?section=/depute&language=fr&cfm=cvlist54.cfm?legis=56&today=y
+  url: https://www.dekamer.be/kvvcr/showpage.cfm?section=/depute&language=fr&cfm=cvlist54.cfm
   format: HTML
 dates:
   formats: ["%d %B %Y", "%der %B %Y", "%dier %B %Y"]

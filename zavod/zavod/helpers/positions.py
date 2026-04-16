@@ -185,6 +185,10 @@ def make_occupancy(
         start_date or "unknown",
         "ended",
         end_date or "unknown",
+        "period_start" if period_start else None,
+        period_start,
+        "period_end" if period_end else None,
+        period_end,
     ]
     occupancy.id = context.make_id(*parts, hash_prefix=key_prefix)
     occupancy.add("holder", person)

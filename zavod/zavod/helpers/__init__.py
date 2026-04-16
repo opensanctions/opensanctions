@@ -92,7 +92,7 @@ from zavod.helpers.names import (
 )
 from zavod.helpers.numbers import apply_number
 from zavod.helpers.pdf import make_pdf_page_images, parse_pdf_table
-from zavod.helpers.positions import make_occupancy, make_position
+from zavod.helpers.positions import make_occupancy, make_position, earliest_term_start
 from zavod.helpers.sanctions import (
     is_active,
     lookup_sanction_program_key,
@@ -137,6 +137,7 @@ __all__ = [
     "apply_name",
     "make_position",
     "make_occupancy",
+    "earliest_term_start",
     "element_text",
     "element_text_hash",
     "parse_html_table",
