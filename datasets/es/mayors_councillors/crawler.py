@@ -9,7 +9,6 @@ IGNORE = [
     "column_0",
     "column_1",
     "column_2",
-    "autonomous_community",
     "column_11",
     "column_12",
     "column_13",
@@ -24,6 +23,15 @@ COUNCILLOR_TOPICS = ["gov.muni", "gov.legislative"]
 
 
 def crawl_item(context: Context, row: Dict[str, str | None]) -> None:
+    start_date = row.pop("start_date")
+    end_date = row.pop("end_date")
+    assert start_date is not None
+    if start_date < h.earliest_term_start(DEFAULT_TOPICS):
+        context.log.info(
+            f"Skipping term with start date {start_date} outside coverage window"
+        )
+        return
+
     name = row.pop("name")
     province = row.pop("province")
     municipality = row.pop("municipality")
@@ -47,7 +55,6 @@ def crawl_item(context: Context, row: Dict[str, str | None]) -> None:
         h.apply_name(pep, first_name=name, last_name=last_name)
     else:
         pep.add("name", name)
-    pep.add("political", row.pop("party"))
     pep.add("topics", "role.pep")
     # Positions are available for the current officials; historical data lists only mayors
     if not position_name:
@@ -84,11 +91,20 @@ def crawl_item(context: Context, row: Dict[str, str | None]) -> None:
         context,
         pep,
         position,
-        start_date=row.pop("start_date"),
-        end_date=row.pop("end_date", None),
+        start_date=start_date,
+        end_date=end_date,
         categorisation=categorisation,
     )
+
+    party = row.pop("party")
+    autonomous_community = row.pop("autonomous_community")
     if occupancy:
+        occupancy.add("politicalGroup", party)
+        occupancy.add("constituency", province)
+        occupancy.add("constituency", municipality)
+        occupancy.add("constituency", autonomous_community)
+        occupancy.add("periodStart", start_date)
+        occupancy.add("periodEnd", end_date)
         context.emit(occupancy)
         context.emit(position)
         context.emit(pep)
