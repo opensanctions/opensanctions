@@ -102,9 +102,8 @@ def crawl(context: Context) -> None:
         wikidata_id="Q15105064",
         topics=["gov.state", "gov.legislative"],
         lang="eng",
+        subnational_area="be-vlg",
     )
-    # TODO: add "Flanders" as a subnational area once it's in 'countrynames'
-    # https://github.com/opensanctions/countrynames/issues/55
     context.emit(position)
 
     for item in data["items"]:
