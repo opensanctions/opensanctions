@@ -30,6 +30,29 @@ def get_occupany_dates(tenure: str) -> tuple[str, str]:
 def crawl_member_bio(context: Context, url: str) -> None:
     doc = context.fetch_html(url, cache_days=1)
 
+    tenure = get_element_text(doc, '//div[@class="kadencija"]')
+    start_year, end_year = get_occupany_dates(tenure)
+    position_name = get_element_text(doc, '//div[@class="sn-nuo-iki"]')
+    position_name = position_name.split("from")[0].strip()
+    if start_year < h.earliest_term_start(["gov.national"]):
+        context.log.warn(
+            "Skipping position with start year before earliest term",
+            position=position_name,
+            start_year=start_year,
+        )
+        return
+
+    # some pages do not list party names, hence None check
+    party = h.xpath_strings(
+        doc, '//div[@class="frakcija"]/a[contains(@class, "smn-frakcija link")]/text()'
+    )
+    party = party[0] if party else None
+
+    bio_table = h.xpath_strings(
+        doc, '//div[@id="sn_vidines_biografija"]//table//text()'
+    )
+    bio = collapse_spaces(" ".join(bio_table))
+
     person_name = get_element_text(doc, '//div[@class="sn_narys_vardas_title"]')
     date_of_birth = get_element_text(
         doc,
@@ -44,16 +67,11 @@ def crawl_member_bio(context: Context, url: str) -> None:
         position=-1,
     )
 
-    position_name = get_element_text(doc, '//div[@class="sn-nuo-iki"]')
-    position_name = position_name.split("from")[0].strip()
-
-    tenure = get_element_text(doc, '//div[@class="kadencija"]')
-    start_year, end_year = get_occupany_dates(tenure)
-
     person = context.make("Person")
     person.id = context.make_slug(person_name)
     person.add("citizenship", "lt")
     person.add("name", person_name)
+    person.add("biography", bio)
     person.add("sourceUrl", url)
 
     if date_of_birth:
@@ -79,6 +97,7 @@ def crawl_member_bio(context: Context, url: str) -> None:
         categorisation=categorisation,
     )
     assert occupancy is not None
+    occupancy.add("politicalGroup", party)
 
     context.emit(person)
     context.emit(position)
