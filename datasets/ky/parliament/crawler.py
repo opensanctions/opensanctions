@@ -11,6 +11,7 @@ from zavod.util import ElementOrTree
 
 
 HISTORICAL_DATA_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRM-hl1drkQMn4wHXxHkHXHZb2TkUyIFWxGXwJ_UqZNRpH00DGWrdHk_zDrHUsZ4YCeVYYojqSMmZuX/pub?output=csv"
+TOPICS = ["gov.national"]
 
 IGNORE_HEADINGS = {
     "About",
@@ -67,7 +68,7 @@ def crawl_card_2025(context: Context, position: str, el: ElementOrTree):
     position = h.make_position(
         context,
         position,
-        topics=["gov.national"],
+        topics=TOPICS,
         country="ky",
     )
     categorisation = categorise(context, position, True)
@@ -87,16 +88,24 @@ def crawl_card_2025(context: Context, position: str, el: ElementOrTree):
 
 
 def crawl_row(context: Context, row: Dict[str, str]):
+    start_date = row.pop("Start date", None)
+    if start_date and start_date < h.earliest_term_start(TOPICS):
+        context.log.info(
+            f"Skipping row with start date {start_date} outside coverage window"
+        )
+        return
+
     entity = context.make("Person")
     name = row.pop("Name")
     entity.id = context.make_id(name)
     entity.add("name", name)
+    entity.add("citizenship", "KY")
     entity.add("title", row.pop("Title"))
 
     position = h.make_position(
         context,
         row.pop("Position"),
-        topics=["gov.national"],
+        topics=TOPICS,
         country="ky",
     )
     categorisation = categorise(context, position, True)
@@ -106,7 +115,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
             entity,
             position,
             no_end_implies_current=False,
-            start_date=row.pop("Start date", None),
+            start_date=start_date,
             end_date=row.pop("End date", None),
             categorisation=categorisation,
         )
