@@ -1,10 +1,11 @@
 import os
-from typing import List
+from typing import Any
 from urllib.parse import urlencode, urljoin
 from requests.exceptions import HTTPError
 
 from zavod import helpers as h
 from zavod import Context
+from zavod.entity import Entity
 from zavod.stateful.positions import categorise
 
 API_KEY = os.environ.get("OPENSANCTIONS_US_CONGRESS_API_KEY")
@@ -12,12 +13,9 @@ IGNORE = [
     "addressInformation",
     "cosponsoredLegislation",
     "depiction",
-    "district",
     "invertedOrderName",
     "officialWebsiteUrl",
-    "partyHistory",
     "sponsoredLegislation",
-    "state",
     "updateDate",
     "bioguideId",
     "currentMember",
@@ -27,8 +25,19 @@ IGNORE = [
 ]
 
 
-def crawl_positions(context: Context, member, entity):
-    terms: List[dict] = member.pop("terms")
+def crawl_positions(
+    context: Context,
+    member: dict[str, Any],
+    entity: Entity,
+) -> tuple[dict[str, Any], list[Entity]]:
+    terms: list[dict[str, Any]] = member.pop("terms")
+    party_history = member.pop("partyHistory", None)
+    state = member.pop("state", None)
+    district = member.pop("district", None)
+    party_name = None
+    if party_history is not None:
+        party_name = max(party_history, key=lambda x: x["startYear"]).get("partyName")
+
     entities = []
     for term in terms:
         res = context.lookup("position", term["chamber"])
@@ -48,12 +57,15 @@ def crawl_positions(context: Context, member, entity):
                 categorisation=categorisation,
             )
             if occupancy:
+                occupancy.add("politicalGroup", party_name)
+                occupancy.add("constituency", state)
+                occupancy.add("constituency", district)
                 entities.append(position)
                 entities.append(occupancy)
-    return entities
+    return member, entities
 
 
-def crawl_member(context: Context, bioguide_id: str):
+def crawl_member(context: Context, bioguide_id: str) -> None:
     url = f"{urljoin(context.data_url, bioguide_id)}?{urlencode({'format': 'json'})}"
     assert API_KEY is not None, "No $OPENSANCTIONS_US_CONGRESS_API_KEY key set."
     headers = {"x-api-key": API_KEY}
@@ -79,7 +91,7 @@ def crawl_member(context: Context, bioguide_id: str):
         if is_ended and previous_name not in person.get("name"):
             person.add("previousName", entry["directOrderName"])
 
-    entities = crawl_positions(context, member, person)
+    member, entities = crawl_positions(context, member, person)
 
     context.audit_data(member, ignore=IGNORE)
     if entities:
@@ -88,7 +100,7 @@ def crawl_member(context: Context, bioguide_id: str):
             context.emit(entity)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     if API_KEY is None:
         context.log.error("No API key set, skipping crawl.")
         return
