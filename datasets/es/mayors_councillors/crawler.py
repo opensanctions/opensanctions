@@ -85,8 +85,6 @@ def crawl_item(context: Context, row: Dict[str, str | None]) -> None:
         lang="spa",
         topics=topics,
     )
-    position.add("periodStart", start_date)
-    position.add("periodEnd", end_date)
     categorisation = categorise(context, position, is_pep=True)
 
     occupancy = h.make_occupancy(
@@ -105,6 +103,8 @@ def crawl_item(context: Context, row: Dict[str, str | None]) -> None:
         occupancy.add("constituency", province)
         occupancy.add("constituency", municipality)
         occupancy.add("constituency", autonomous_community)
+        occupancy.add("periodStart", start_date)
+        occupancy.add("periodEnd", end_date)
         context.emit(occupancy)
         context.emit(position)
         context.emit(pep)
