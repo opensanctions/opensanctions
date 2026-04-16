@@ -42,9 +42,12 @@ def crawl_member_bio(context: Context, url: str) -> None:
         )
         return
 
-    party = h.xpath_string(
+    # some pages do not list party names, hence None check
+    party = h.xpath_strings(
         doc, '//div[@class="frakcija"]/a[contains(@class, "smn-frakcija link")]/text()'
     )
+    party = party[0] if party else None
+
     bio_table = h.xpath_strings(
         doc, '//div[@id="sn_vidines_biografija"]//table//text()'
     )
