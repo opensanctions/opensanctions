@@ -155,9 +155,15 @@ def crawl(context: Context) -> None:
     # 1. The current membership of the current parliament labeled "Actuels".
     #    I'm hesitant to borrow the start date from the second link without
     #    checking that legis=nn matches between the two.
-    # 2. Seems to be the starting members, including departed, and missing new members.
+    # 2. All who have been members this term, including departed and new members.
     #    Note the end year for this listing is incorrect (2025 as of 2026 when they
     #    aren't planning an early election), so we'll discard it.
+    #
+    # Emitting an occupancy for both listings of the current term means a duplicate
+    # occupancy for current members, but it means current members all have a "current" status
+    # without incorrectly making known departed members as "current". I think that's
+    # better than marking all from this parliamentary term as "current" or "unkown",
+    # but we could drop the occupancy for the Actuels page if we wanted to avoid duplicates.
     label = h.element_text(links[0])
     assert label == "Actuels", label
     legislatures.append(
