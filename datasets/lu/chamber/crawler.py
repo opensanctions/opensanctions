@@ -70,7 +70,7 @@ def crawl(context: Context) -> None:
         csv_resources = [
             r for r in data.get("resources", []) if r.get("format") == "csv"
         ]
-        assert len(csv_resources) == 1, f"Expected 1 CSV resource at {endpoint}"
+        assert len(csv_resources) == 1, (endpoint, len(csv_resources)
         csv_resource = csv_resources[0]
 
         path = context.fetch_resource(
