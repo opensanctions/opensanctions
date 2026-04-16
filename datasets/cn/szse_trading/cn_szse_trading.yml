@@ -1,0 +1,47 @@
+title: China Shenzhen Stock Exchange Trading Restrictions
+entry_point: crawler.py
+prefix: cn-szse-trade
+coverage:
+  frequency: weekly
+  start: 2026-03-30
+load_statements: true
+summary: >
+  Individuals and organisations subject to trading restrictions and disciplinary actions
+  issued by the Shenzhen Stock Exchange (SZSE).
+description: |
+   Transaction restriction decisions issued by The Shenzhen Stock Exchange (SZSE), which can take disciplinary
+   actions against members, investors and practitioners who violate laws, regulations and self-regulatory rules.
+
+   Transaction restrictions limit the ability of named individuals or entities to trade specified securities for a
+   defined period, and are issued in response to conduct such as price manipulation,
+   coordinated trading, and large-volume orders designed to move prices to their
+   daily limit.
+
+publisher:
+  name: Shenzhen Stock Exchange
+  description: |
+    Shenzhen Stock Exchange (SZSE) is a self-regulated legal entity under the supervision
+    of China Securities Regulatory Commission (CSRC). It also organizes, supervises securities
+    trading and performs duties prescribed by laws, regulations, rules and policies. Its main functions
+    include providing the venue and facilities for securities trading, formulating operational rules,
+    receiving listing applications and arranging securities listing, organizing and supervising securities
+    trading, supervising members; regulating listed companies, managing and disseminating market
+    information and other functions as approved by the CSRC.
+  url: https://www.szse.cn/English/index.html
+  official: true
+  country: cn
+url: https://www.szse.cn/disclosure/supervision/transaction/restrict/index.html
+data:
+  url: https://www.szse.cn/api/search/content
+  format: JSON
+  lang: zho
+dates:
+  formats: ["%Y-%m-%d"]
+
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 20
+  max:
+    schema_entities:
+      LegalEntity: 40
