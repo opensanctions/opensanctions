@@ -206,7 +206,7 @@ def query_position_classes(context: Context, client: WikidataClient) -> List[Pos
     return classes
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     # crawl_test(context)
     # return
     seen_positions: Set[str] = set()

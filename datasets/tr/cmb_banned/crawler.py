@@ -9,7 +9,7 @@ from zavod import Context, helpers as h
 REGEX_MASK = re.compile(r"(\d+)\*+")
 
 
-def crawl_item(row: Dict[str, str], context: Context):
+def crawl_item(row: Dict[str, str], context: Context) -> None:
     name = row.pop("unvan")
     if not name:
         return

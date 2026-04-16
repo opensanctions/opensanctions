@@ -7,7 +7,7 @@ from zavod import Context
 # from zavod import helpers as h
 
 
-def crawl_row(context: Context, row: Dict[str, str]):
+def crawl_row(context: Context, row: Dict[str, str]) -> None:
     entity = context.make("Person")
     entity.id = context.make_slug(row.pop("id"))
     entity.add("name", row.pop("name"))
@@ -18,7 +18,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     context.audit_data(row)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     path = context.fetch_resource("source.csv", context.data_url)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:

@@ -76,7 +76,6 @@ repos:
           datasets/_global/worldbank|
           datasets/_global/tokyo_mou|
           datasets/_global/abuja_mou|
-          datasets/_testing|
           datasets/_wikidata|
           datasets/ae|
           datasets/at|
@@ -89,7 +88,6 @@ repos:
           datasets/cl|
           datasets/cn|
           datasets/co|
-          datasets/cy|
           datasets/ee|
           datasets/eu|
           datasets/gb/coh|
@@ -99,14 +97,11 @@ repos:
           datasets/gb/nca_press_releases|
           datasets/hk|
           datasets/id|
-          datasets/il/knesset_members|
           datasets/in|
-          datasets/kp|
           datasets/ky|
           datasets/lt|
           datasets/lu|
           datasets/md|
-          datasets/me|
           datasets/my|
           datasets/ng|
           datasets/no/nbim_exclusions|
@@ -207,8 +202,6 @@ repos:
           datasets/us/tn/med_exclusions|
           datasets/us/navy|
           datasets/uy|
-          datasets/ve|
-          datasets/xk|
           datasets/za
           )
         args: ['--strict', '--explicit-package-bases']

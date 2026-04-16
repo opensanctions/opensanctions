@@ -36,9 +36,9 @@ def crawl_position(
     context: Context,
     person: Entity,
     position: Entity,
-    tenure,
-    status=None,
-):
+    tenure: dict[str, Any],
+    status: OccupancyStatus | None = None,
+) -> None:
     occupancy = h.make_occupancy(
         context,
         person,
@@ -57,8 +57,12 @@ def crawl_position(
 
 
 def crawl_position_no_tenure(
-    context: Context, person: Entity, position: Entity, knesset, is_current: bool
-):
+    context: Context,
+    person: Entity,
+    position: Entity,
+    knesset: dict[str, Any],
+    is_current: bool,
+) -> None:
     if knesset["KnessetNumber"] < 17:
         return
     if knesset["IsGov"] and not is_current:
@@ -91,7 +95,9 @@ def crawl_position_no_tenure(
     PEPS.add(person.id)
 
 
-def crawl_positions(context: Context, person: Entity, member_id, is_current: bool):
+def crawl_positions(
+    context: Context, person: Entity, member_id: int, is_current: bool
+) -> None:
     position = h.make_position(
         context,
         "Knesset Member",
@@ -127,7 +133,7 @@ def crawl_item(
     name: str,
     is_current: bool,
     lang_iso_639_1: str,
-):
+) -> None:
     lang_iso_639_2 = iso_639_alpha3(lang_iso_639_1)
     url = f"https://knesset.gov.il/WebSiteApi/knessetapi/MKs/GetMkDetailsContent?mkId={member_id}&languageKey={lang_iso_639_1}"
     content = fetch_json_with_retry(context, url, cache_days=CACHE_LONG)
@@ -154,7 +160,7 @@ def crawl_item(
             context.emit(person)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     members = fetch_json_with_retry(context, context.data_url, cache_days=CACHE_SHORT)
     for member in members:
         crawl_item(context, member["ID"], member["Name"], member["IsCurrent"], "en")

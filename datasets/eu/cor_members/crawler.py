@@ -65,7 +65,7 @@ def crawl_person(context: Context, item: Dict[str, Any]) -> None:
     context.emit(person)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     data = context.fetch_json(context.data_url)
 
     for item in data:

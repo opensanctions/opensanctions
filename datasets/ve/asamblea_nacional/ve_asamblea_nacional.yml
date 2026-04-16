@@ -4,6 +4,7 @@ coverage:
   frequency: weekly
   start: 2024-01-18
 load_statements: true
+ci_test: false # No Zyte API in CI
 summary: >-
   Members of the National Assembly of Venezuela, the country's unicameral
   legislature.
