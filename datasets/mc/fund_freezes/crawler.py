@@ -40,21 +40,23 @@ ALIAS_SPLITS = [
     ";",
 ]
 
+# Leading list markers / branch labels to strip from each fragment.
+ADDRESS_PREFIX = re.compile(
+    r"^(?:[a-z]\)|[ivxlc]+\)|(?:Succursale|Filiale|Adresse|Branch)[^:]*:)\s*",
+    re.I,
+)
+
 
 def clean_address(text: str | None) -> list[str] | None:
     if not text:
         return None
-
-    # regex to match entries wih pattern from a) to z)
-    patterns = [
-        r"\b[a-z]\)\s(.*?)(?=\s[a-z]\)|$)",
-    ]
-    for pattern in patterns:
-        matches = re.findall(pattern, text, re.DOTALL | re.VERBOSE)
-        if matches:
-            return [match.strip(", ") for match in matches]
-    else:
-        return text.split("\n")
+    # Primary: newlines separate addresses in the raw source.
+    parts = re.split(r"\r?\n", text)
+    # Fallback: inline a) b) c) list on a single line.
+    if len(parts) == 1:
+        parts = re.split(r"(?<!\w)(?=[a-z]\)\s)", text)
+    cleaned = [ADDRESS_PREFIX.sub("", p).strip(" ,;.") for p in parts]
+    return [p for p in cleaned if p] or None
 
 
 def extract_passport_no(text: str | None) -> list[str] | None:
