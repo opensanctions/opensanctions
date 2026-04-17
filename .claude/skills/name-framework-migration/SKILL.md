@@ -23,12 +23,12 @@ Scan the crawler for any of these before acting:
 
 ```python
 # Delimiter splits
-last_name, name = name_raw.split(",", 1)
+last_name, name = name_raw.split(",", 1)s
 name, *aliases = h.multi_split(raw, SPLITS)
 
 # Bracket/parenthesis stripping
 name = name.replace("(Acting)", "")
-name = name.strip("„"")
+name = name.strip("„")
 
 # Regex substitutions or splits on name content
 parts = re.split(r"(?i)\baka\b", name, maxsplit=1)
@@ -43,8 +43,7 @@ if len(name_split) > 1:
 
 1. Capture the raw name value **before** any split/clean/pop logic runs.
 2. Verify the exact `review_names` signature and `Names` type from `zavod/zavod/helpers/names.py` — do not guess.
-3. Add `h.review_names(context, entity, original=h.Names(name=<raw>), default_accepted=False)` immediately after the existing `entity.add`/`h.apply_name` calls.
-4. Guard with `if <raw> is not None:` if the value can be `None`.
+3. Add `h.review_names(context, entity, original=h.Names(name=<raw>))` immediately after the existing `entity.add`/`h.apply_name` calls.
 
 ### Before
 
@@ -60,19 +59,19 @@ else:
 ### After
 
 ```python
-raw_name = name_raw  # capture before any mutation
+# "Last, First (Acting)" → split parts, drop role marker, submit original for review
 name = name_raw.replace("(Acting)", "").strip()
 parts = name.split(",", 1)
 if len(parts) == 2:
     h.apply_name(entity, first_name=parts[1].strip(), last_name=parts[0].strip())
 else:
     h.apply_name(entity, full=name)
-h.review_names(context, entity, original=h.Names(name=raw_name), default_accepted=False)
+h.review_names(context, entity, original=h.Names(name=name_raw), default_accepted=False)
 ```
 
 ## Do not
 
-- Do not remove the existing hack
+- Do not modify or remove the existing name cleaning logic
 - Do not use `llm_cleaning=True` (sanctions crawler)
 - Do not construct `Names` by guessing — read the source first
 - Do not add explanatory comments beyond what the code requires
