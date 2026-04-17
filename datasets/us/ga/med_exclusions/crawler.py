@@ -30,11 +30,10 @@ def split_middle_name(context: Context, middle_name: str) -> SplitName:
     return SplitName(name, aliases, [])
 
 
-def crawl_item(row: Dict[str, str | None], context: Context):
+def crawl_item(row: Dict[str, str | None], context: Context) -> None:
     first_name = row.pop("first_name")
     last_name = row.pop("last_name")
     middle_name = row.pop("middle_name")
-    raw_middle_name: str | None = middle_name
     first_names: List[str] = []
     aliases: List[str] = []
     if middle_name and "aka" in middle_name.lower():
@@ -60,13 +59,6 @@ def crawl_item(row: Dict[str, str | None], context: Context):
         h.apply_name(
             entity, first_name=first_name, middle_name=middle_name, last_name=last_name
         )
-        if raw_middle_name is not None:
-            h.review_names(
-                context,
-                entity,
-                original=h.Names(name=raw_middle_name),
-                default_accepted=False,
-            )
         if business_name:
             entity.add("alias", business_name)
         entity.add("firstName", first_names)
