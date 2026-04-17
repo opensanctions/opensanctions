@@ -9,4 +9,4 @@ summary: UN Security Council resolution 1737 (2006) imposes sanctions on Iran fo
 issuer: zz_unsc
 dataset: un_sc_sanctions
 target_territories:
-  - ir
+- ir
