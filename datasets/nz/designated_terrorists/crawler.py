@@ -64,7 +64,6 @@ def crawl_item(input_dict: dict, context: Context):
         context,
         organization,
         original=h.Names(name=raw_name),
-        default_accepted=False,
     )
 
     sanction = h.make_sanction(context, organization, program_key=PROGRAM_KEY)
