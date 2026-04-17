@@ -17,6 +17,12 @@ This project contains crawlers that import source data, such as sanctions lists 
 * `ui` contains a NextJS user interface for reviewing and verifying information from crawlers. The contained table structures need to match those in `zavod.stateful`.
 * `docs` contains documentation and best practices, especially with regards to semantic issues like Politically Exposed Persons
 
+## Task-specific guides
+
+* Writing a PEP crawler: use the `/crawler-pep` skill
+* Writing a sanctions crawler: use the `/crawler-sanctions` skill
+* General crawler patterns (helpers, lookups, FTM schemata, qsv analysis): `.claude/docs/crawler-guide.md`
+
 ## Coding hints
 
 * NEVER try to install new packages or on-board new services without being explicitly promoted to do so.

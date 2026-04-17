@@ -1,0 +1,65 @@
+title: Philippines GPPB Consolidated Blacklisting Report
+entry_point: crawler.py
+prefix: ph-gppb
+coverage:
+  frequency: daily
+  start: 2026-04-14
+load_statements: true
+ci_test: true
+summary: >-
+  Companies blacklisted from Philippine government procurement by the
+  Government Procurement Policy Board (GPPB).
+
+description: |
+  The Consolidated Blacklisting Report (CBR) lists entities that have been
+  blacklisted from participating in Philippine government procurement under
+  Republic Act 9184 (Government Procurement Reform Act). Entities are
+  blacklisted for offenses such as failure to comply with contractual
+  obligations, unsatisfactory progress, or submission of falsified documents.
+
+  Blacklisting periods are typically one year (first offense) or two years
+  (second offense).
+
+  Source: [Online Blacklisting Portal](https://onlineblacklistingportal.gppb.gov.ph/)
+
+url: https://www.gppb.gov.ph
+
+publisher:
+  name: Government Procurement Policy Board
+  acronym: GPPB
+  description: >
+    The GPPB is the single policy-making body on public procurement in the
+    Philippines, created under Republic Act 9184. It oversees procurement
+    rules, blacklisting, and compliance.
+  country: ph
+  url: https://www.gppb.gov.ph
+  official: true
+
+data:
+  url: https://onlineblacklistingportal.gppb.gov.ph/obp-backend/cbr/cbr_public/?category=BLACKLISTED_ENTITIES
+  format: JSON
+  lang: eng
+
+dates:
+  formats: ["%Y-%m-%d"]
+
+tags:
+  - list.debarment
+
+assertions:
+  min:
+    schema_entities:
+      Organization: 70
+    country_entities:
+      ph: 70
+  max:
+    schema_entities:
+      Organization: 300
+
+lookups:
+  sanction.program:
+    options:
+      - match:
+          - ONE_YEAR_BLACKLISTING
+          - TWO_YEAR_BLACKLISTING
+        value: PH-GPPB-RA9184
