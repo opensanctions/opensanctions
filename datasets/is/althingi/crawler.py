@@ -62,6 +62,7 @@ def crawl_item(context: Context, *, member_url: str, member_name: str) -> None:
     )
 
     if occupancy:
+        occupancy.add("politicalGroup", party)
         context.emit(person)
         context.emit(position)
         context.emit(occupancy)
