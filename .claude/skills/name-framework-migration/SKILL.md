@@ -1,6 +1,6 @@
 ---
 name: name-framework-migration
-description: Migrate ad-hoc name cleaning in a crawler to h.review_names. Use when a crawler.py contains delimiter splits, regex substitutions, bracket stripping, or conditional logic applied to name strings before h.apply_name.
+description: Migrate ad-hoc name cleaning in a crawler to h.review_names. Use when a crawler.py contains delimiter splits, regex substitutions, bracket stripping, or conditional logic applied to name strings before the name is added or applied.
 argument-hint: "[crawler.py path]"
 disable-model-invocation: true
 ---
