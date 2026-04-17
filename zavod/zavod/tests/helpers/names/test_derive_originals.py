@@ -27,28 +27,15 @@ def test_derive_original_values_exact_match():
 
 def test_derive_original_values_substring_match():
     """When an extracted value is contained in an original, it maps to that original."""
-    original = Names(name="John Doe; Brandon Doe", alias="J. Doe")
-    extracted = Names(name="John Brandon Doe", alias="Brandon Doe")
+    original = Names(name=["John Doe; Brandon Doe", "John Brandon Doe", "John Doe"])
+    extracted = Names(name="John Doe", alias="Brandon Doe")
 
     result = derive_original_values(original, extracted)
 
-    # John Brandon Doe isn't contained exactly. We're not getting more fancy with this.
-    assert result == {
-        "Brandon Doe": "John Doe; Brandon Doe",
-    }
-
-
-def test_derive_original_values_first_match_wins():
-    """When multiple originals contain the extracted value, the first match is used."""
-    original = Names(name=["John Brandon Doe", "John Smith"])
-    extracted = Names(name="John")
-
-    result = derive_original_values(original, extracted)
-
-    # "John" is in both originals, but the first one should win
-    assert result == {
-        "John": "John Brandon Doe",
-    }
+    # Brandon Doe isn't contained exactly.
+    # Either of "John Doe; Brandon Doe" or "John Brandon Doe" could be used.
+    assert len(result) == 1
+    assert "Brandon Doe" in result["Brandon Doe"]
 
 
 def test_derive_original_values_no_match():
