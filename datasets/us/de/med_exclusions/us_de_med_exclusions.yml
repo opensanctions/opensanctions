@@ -170,6 +170,15 @@ lookups:
           - RN757358
           - PN270730
         prop: registrationNumber
+      - match: OS024306/
+        value: OS024306
+        prop: registrationNumber
+      - match: RN757358/
+        value: RN757358
+        prop: registrationNumber
+      - match: "10\n93379521"
+        value: "1093379521"
+
   license_numbers:
     normalize: true
     options:
@@ -248,9 +257,13 @@ lookups:
         values: ["RN741306"]
       - match: "OK\nO000003(PA)"
         values: ["OKO000003"]
-      - match: "442\n94(HI)R149156(MD)"
+      - match: "4429\n4(HI)R149156(MD)"
         values: ["44294", "R149156"]
-      - match: "RN3\n48987L(PA)"
+      - match: "RN348\n987L(PA)"
         values: ["RN348987L"]
       - match: "PN3\n05385"
         values: ["PN305385"]
+      - match: "RN757358/\nPN270730"
+        values: ["RN757358", "PN270730"]
+      - match: "2\n54128(OH)"
+        values: ["254128"]

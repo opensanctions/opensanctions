@@ -34,6 +34,7 @@ def crawl_item(row: Dict[str, str], context: Context):
         return
 
     entity.add("npiCode", npi)
+    entity.add("npiCode", row.pop("affiliated_npi"))
     entity.add("country", "us")
     entity.add("sector", row.pop("specialty"))
 
