@@ -51,10 +51,12 @@ def crawl_debarment(
         schema = "LegalEntity"
 
     entity = context.make(schema)
+    raw_name = row[name_field]
     name, aliases = split_names(row.pop(name_field))
     entity.id = context.make_slug(name, date_of_birth, strict=False)
     entity.add("name", name)
     entity.add("alias", aliases)
+    h.review_names(context, entity, original=h.Names(name=raw_name))
     entity.add("country", "us")
     if schema == "Person":
         h.apply_date(entity, "birthDate", date_of_birth)
