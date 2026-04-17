@@ -575,6 +575,8 @@ lookups:
           - 384095-5
           - 08S04803
           - 100534485
+          - 91441400686355518J
+          - 190562749
         prop: registrationNumber
       - match: 1436594D / 202101036294
         values:
