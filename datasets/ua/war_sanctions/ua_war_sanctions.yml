@@ -598,3 +598,8 @@ lookups:
         value: 0323018510
       - match: Невідомо
         value: null
+      - match:
+          - 91441400686355518J
+          - "190562749"
+        value: null
+        prop: innCode
