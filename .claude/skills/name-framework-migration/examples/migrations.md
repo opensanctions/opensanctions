@@ -1,6 +1,6 @@
 # Real migration examples
 
-Three patterns from production crawlers. Each shows a different variation.
+Two patterns from production crawlers. Each shows a different variation.
 
 ---
 
@@ -21,16 +21,15 @@ entity.add("alias", aliases)
 ```python
 # AFTER
 entity = context.make(schema)
-raw_name = row.pop(name_field) # capture before cleaning
+raw_name = row.pop(name_field)  # capture before cleaning
 name, aliases = split_names(raw_name)
 entity.id = context.make_slug(name, date_of_birth, strict=False)
 entity.add("name", name)
 entity.add("alias", aliases)
-h.review_names(context, entity, original=h.Names(name=raw_name), default_accepted=False)
+h.review_names(context, entity, original=h.Names(name=raw_name))
 ```
 
 ---
-
 
 ## Pattern 2: multi_split + star-unpack + reduce, no apply_name
 
@@ -54,8 +53,8 @@ def crawl_item(input_dict: dict, context: Context):
 ```python
 # AFTER
 def crawl_item(input_dict: dict, context: Context):
-    raw_name: str = input_dict["terrorist-entity"][0]   # capture before pop
-    name, *aliases = h.multi_split(input_dict.pop("terrorist-entity")[0], ALIAS_SPLITS)
+    raw_name = input_dict.pop("terrorist-entity")[0]
+    name, *aliases = h.multi_split(raw_name, ALIAS_SPLITS)
     alias_lists = [h.multi_split(alias, [", and", ","]) for alias in aliases]
     aliases = reduce(concat, alias_lists, [])
 
@@ -68,13 +67,12 @@ def crawl_item(input_dict: dict, context: Context):
         context,
         organization,
         original=h.Names(name=raw_name),
-        default_accepted=False,
     )
 ```
 
 ---
 
-## Key decisions consistent across all three
+## Key decisions consistent across both
 
 - `h.Names(name=<raw>)` — `Names` has no `middleName` field; `name` is the correct prop for unsplit source strings
 - `h.Names` is re-exported via `zavod.helpers.__all__`, no extra import needed
