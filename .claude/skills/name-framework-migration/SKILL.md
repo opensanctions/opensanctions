@@ -13,7 +13,7 @@ Migrate name cleaning in $ARGUMENTS to capture the raw name string and pass it t
 
 ## Supporting files
 
-- [examples/migrations.md](examples/migrations.md) — two real before/after migrations covering the main pattern variants; read this before touching any crawler
+- [examples/migrations.md](examples/migrations.md) — three real before/after migrations covering the main pattern variants; read this before touching any crawler
 
 ## Read first (in order)
 
