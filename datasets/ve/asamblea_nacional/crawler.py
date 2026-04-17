@@ -108,7 +108,9 @@ def crawl_member_page(context: Context, person: Entity, name: str, href: str) ->
     crawl_infobox(context, person, list(switcher)[cv_idx])
 
 
-def crawl_member(context: Context, member_link: Element) -> None:
+def crawl_member(
+    context: Context, member_link: Element, party: str, state: str
+) -> None:
     """Extract member information from individual page."""
     assert member_link.text is not None
     member_name = WS.sub(" ", member_link.text.strip())
@@ -141,6 +143,8 @@ def crawl_member(context: Context, member_link: Element) -> None:
         context, person, position, True, categorisation=categorisation
     )
     if occupancy is not None:
+        occupancy.add("politicalGroup", party)
+        occupancy.add("constituency", state)
         context.emit(person)
         context.emit(position)
         context.emit(occupancy)
@@ -156,10 +160,16 @@ def crawl_members(context: Context, page: ElementOrTree) -> None:
         if "text-diputado-slider" not in classes.split():
             continue
         member_link = el.find(".//a")
+
+        party_el, state_el = h.xpath_elements(el, ".//small")
+        party = h.xpath_string(party_el, ".//b/text()")
+        state = h.xpath_string(state_el, "./text()")
+        state = state.split("Estado: ")[1].strip()
+
         if member_link is None:
             context.log.error(f"No page found in element {el}")
             continue
-        crawl_member(context, member_link)
+        crawl_member(context, member_link, party, state)
 
 
 def crawl_member_list(context: Context) -> Iterator[ElementOrTree]:
