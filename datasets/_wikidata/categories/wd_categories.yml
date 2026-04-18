@@ -242,10 +242,23 @@ config:
   # categories that are by definition generally not PEPs.
   exclusion_checks:
     - Q5234712 # Came in via Dallas categories under Category:George_M._Dallas
+    - Q546195 # Khuit II, Queen Consort of Ancient Egypt
   categories:
     # Mega collections:
     - category: Political_office-holders_in_Asia
       depth: 8
+      negcats: |
+        Ancient_monarchs
+        Ancient_princes
+        Ancient_princesses
+        Ancient_queens_consort
+        Medieval_monarchs
+        Legendary_monarchs
+        Mythological_kings
+        Government_of_the_Achaemenid_Empire
+        Licchavi_kings_of_Nepal
+        Sinhalese-royalty
+        Tamil_monarchs
     - category: Political_office-holders_in_Oceania
       depth: 8
     - category: Political_office-holders_in_North_America
@@ -451,6 +464,12 @@ config:
     - category: Political_office-holders_in_India
       topic: role.pep
       country: in
+      negcats: |
+        Ancient_monarchs
+        Ancient_queens_consort
+        Medieval_monarchs
+        Tamil_monarchs
+        Government_of_the_Achaemenid_Empire
     - category: Legislators_in_India
       topic: role.pep
       country: in
@@ -465,6 +484,8 @@ config:
     - category: Political_office-holders_in_Nepal
       topic: role.pep
       country: np
+      negcats: |
+        Licchavi_kings_of_Nepal
 
     # Malaysia
     - category: Government_ministers_of_Malaysia
@@ -478,6 +499,8 @@ config:
     - category: Political_office-holders_in_Nigeria
       topic: role.pep
       country: ng
+      negcats: |
+        Medieval_monarchs
     - category: Nigerian_politicians
       topic: role.pep
       country: ng
@@ -487,6 +510,17 @@ config:
     - category: Political_office-holders_in_Africa
       topic: role.pep
       depth: 8
+      negcats: |
+        Political_office-holders_in_ancient_Rome
+        Ancient_Egyptian_officials
+        Ancient_monarchs
+        Ancient_princes
+        Ancient_princesses
+        Ancient_queens_consort
+        Medieval_monarchs
+        Legendary_monarchs
+        Mythological_kings
+        
     - category: South_African_political_people
       depth: 6
 
@@ -2038,6 +2072,8 @@ config:
     - category: Political_office-holders_in_Albania
       country: al
       topic: role.pep
+      negcats: |
+        Albanian_monarchs
     - category: 21st-century_Albanian_politicians
       country: al
     - category: Political_office-holders_in_Northern_Cyprus
@@ -2232,6 +2268,8 @@ config:
     - category: Political_office-holders_in_Vietnam
       topic: role.pep
       country: vn
+      negcats: |
+        Legendary_monarchs
     - category: Chính_phủ_Quốc_gia_Việt_Nam
       language: vi
       topic: role.pep
@@ -2357,6 +2395,10 @@ config:
     - category: Political_office-holders_in_Iran
       topic: role.pep
       country: ir
+      negcats: |
+        Ancient_monarchs
+        Ancient_princes
+        Ancient_princesses
 
     # country: Afghanistan
     - category: Political_office-holders_in_Afghanistan
@@ -2370,7 +2412,10 @@ config:
     - category: Political_office-holders_in_Sri_Lanka
       topic: role.pep
       country: lk
-
+      negcats: |
+        Sinhalese-royalty
+        Tamil_monarchs
+        
     # country: Bhutan
     - category: Political_office-holders_in_Bhutan
       topic: role.pep
@@ -2480,6 +2525,8 @@ config:
     - category: Political_office-holders_in_Greece
       country: gr
       topic: role.pep
+      negcats: |
+        Ancient_monarchs
     - category: Members_of_the_Hellenic_Parliament
       country: gr
       topic: role.pep
