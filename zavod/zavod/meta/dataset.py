@@ -144,7 +144,7 @@ class Dataset(FollowTheMoneyDataset):
         for resource in data.get("resources", []):
             resource["path"] = resource["name"]
         if self.is_collection:
-            # HACK backwards compatibility
+            # As of mid-2025, the same is now in `children`, but we keep it in `datasets` for backward compatibility.
             data["datasets"] = [d.name for d in self.datasets]
             data["datasets"].remove(self.name)
         else:
@@ -154,13 +154,16 @@ class Dataset(FollowTheMoneyDataset):
         return data
 
     def to_opensanctions_dict(self, catalog: "ArchiveBackedCatalog") -> Dict[str, Any]:
-        """Generate a backward-compatible metadata export."""
+        """Generate a metadata export in the format expected by the OpenSanctions catalog."""
         data = self.to_dict()
         assert self._type in ("collection", "source", "external"), self._type
         data.pop("resources", None)
         data.pop("version", None)
 
+        # Add the type field: collection, source, or external
         data["type"] = self._type
+
+        # Add the list of collections that this dataset belongs to
         if not self.is_collection:
             collections = [
                 p.name for p in catalog.datasets if self in p.datasets and p != self
