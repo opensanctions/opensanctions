@@ -18,6 +18,17 @@ EXPECTED_HEADERS = [
     ],
 ]
 HEADERS = ["Number", "Name", "Domain", "Contacts", "Court information"]
+NAME_SPLITS = [
+    "“, „",
+    "”, „",  # This really does differ from the one above
+    "“; „",
+    "“ „",
+    "“), „",
+    "“",
+    "”",
+    "(„",
+    "„",
+]
 
 
 def parse_table(
@@ -44,24 +55,20 @@ def parse_table(
 
 
 def crawl_item(item, context: Context):
-    name = item.pop("Name")
+    raw_names = item.pop("Name")
     domain = item.pop("Domain")
     contacts = item.pop("Contacts")
     ruling_information = item.pop("Court information")
 
     # Skip empty row at the end of the table
-    if not any([name, domain, contacts, ruling_information]):
+    if not any([raw_names, domain, contacts, ruling_information]):
         return
 
     entity = context.make("Company")
-    entity.id = context.make_id(name)
+    entity.id = context.make_id(raw_names)
 
-    names = []
-    #                               They differ. Really.
-    for name in h.multi_split(name, ["“, „", "“ „", "“),", "“", "”", "(„", "„"]):
-        if name.strip(","):
-            names.append(name.strip())
-    entity.add("name", names)
+    for name in h.multi_split(raw_names, NAME_SPLITS):
+        entity.add("name", name)
     entity.add("website", domain)
 
     # We find all emails in the contacts field and add them to the entity
