@@ -76,6 +76,10 @@ lookups:
     options:
       - match: ou
         value: null
+      - match: "Boutiques n° 21 et 22, 2e étage, Marché Sarafi de Kandahar, Kandahar, province de Kandahar : AFHGANISTAN \r\nii) Nouveau marché Sarafi, 2e étage, Kandahar, province de Kandahar : AFHGANISTAN \r\niii) Marché Safi, Kandahar, Province de Kandahar : AFHGANISTAN\r\nSuccursale 8 : Ville de Gereshk, district de Nahr-e Saraj, province d'Helmand : AFHGANISTAN\r\nSuccursale 9 :"
+        value: null
+      - match: "Marché Sarafi, district de Saranj, province de Nimroz : AFHGANISTAN\r\nii) Marché Ansari, 2e étage, province de Nimroz : AFHGANISTAN\r\nSuccursale 12 : Marché Sarafi, Wesh, district de Spin Boldak : AFHGANISTAN\r\nSuccursale 13 : Marché Sarafi, Farah : AFHGANISTAN\r\nSuccursale 14 : Dubaï : EMIRATS ARABES UNIS\r\nSuccursale 15 : Zahedan : IRAN\r\nSuccursale 16 : Zabul : IRAN"
+        value: null
   schemata:
     options:
       - match: Personne physique
