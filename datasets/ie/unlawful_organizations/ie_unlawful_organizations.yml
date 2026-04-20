@@ -14,7 +14,7 @@ description: |
   the authority of the Offences Against the State Act 1939, officially declare
   specific organisations as unlawful due to their involvement in activities that
   threaten public safety and order. The 1983 order designates the Irish National
-  Liberation Army (INLA) as an unlawful organisation, while the 1939 order 
+  Liberation Army (INLA) as an unlawful organisation, while the 1939 order
   targets the Irish Republican Army (IRA), also known as Oglaigh na héireann.
   Both orders mandate the suppression of these organisations in the public interest.
 publisher:
@@ -36,7 +36,7 @@ data:
 tags:
   - list.sanction
   - target.ie
-  - jusris.eu
+  - juris.eu
 
 assertions:
   min:
