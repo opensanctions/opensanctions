@@ -25,6 +25,7 @@ Use search (grep/glob/find) to find the most relevant starting document. Once yo
 
 * The documentation for how we want crawlers to be written in `zavod/docs` is authoritative.
 * When best practices are identified or changed, it should be documented in `zavod/docs`, and conflicting documentation should be updated.
+* Refer to the [documentation styleguide for the broader FollowTheMoney ecosystem](https://github.com/opensanctions/followthemoney/blob/main/docs/styleguide.md).
 * Do not assume that existing crawlers are implemented according to current best practices. Only use patterns in existing crawlers to update the documentation when prompted to, and in that case, identify specific patterns and propose specific aspects as separate concepts.
 * Claude skills should reference and search relevant documentation in `zavod/docs`.
   * When writing skills, only the skill-specific procedures and examples should be in the skill directory.
