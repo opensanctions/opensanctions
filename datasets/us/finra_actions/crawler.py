@@ -17,6 +17,7 @@ from typing import Dict, Optional
 from urllib.parse import urlparse, parse_qs
 
 from zavod import Context, helpers as h
+from zavod.extract import zyte_api
 
 
 def crawl_item(context: Context, row: Dict[str, _Element]) -> None:
@@ -88,10 +89,8 @@ def crawl(context: Context) -> None:
     while max_page is None or page_num <= max_page:
         context.log.info(f"Crawling page {page_num} of {max_page}")
         url = context.data_url + "?page=" + str(page_num)
-        # Caching for longer than 1 day can easily lead to missing entries as
-        # the new stuff show up on the first page, and cached pages won't
-        # include the stuff that were shifted off the previous uncached page.
-        response = context.fetch_html(url, cache_days=1, absolute_links=True)
+        # Zyte because occasional cloudflare javascript challenge.
+        response = zyte_api.fetch_html(context, url, ".//table", absolute_links=True)
 
         # Update max_page each iteration in case pagination changes.
         new_max = get_max_page(response)
