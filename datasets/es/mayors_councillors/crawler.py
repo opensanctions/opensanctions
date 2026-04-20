@@ -30,7 +30,7 @@ def crawl_item(
     period_end: Optional[str],
 ) -> None:
     start_date = row.pop("start_date")
-    end_date = row.pop("end_date")
+    end_date = row.pop("end_date", None)
     assert start_date is not None
 
     name = row.pop("name")
@@ -68,7 +68,9 @@ def crawl_item(
             topics = (
                 MAYOR_TOPICS
                 if "Mayor" in translated
-                else COUNCILLOR_TOPICS if "Councillor" in translated else DEFAULT_TOPICS
+                else COUNCILLOR_TOPICS
+                if "Councillor" in translated
+                else DEFAULT_TOPICS
             )
         else:
             context.log.warning("Unknown position", position=position_name.strip())
