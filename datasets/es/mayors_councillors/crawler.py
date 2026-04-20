@@ -1,11 +1,12 @@
 from rigour.mime.types import XLSX
 from openpyxl import load_workbook
-from typing import Dict
+from typing import Dict, Optional
 
 from zavod import Context, helpers as h
 from zavod.stateful.positions import categorise
 
 IGNORE = [
+    "autonomous_community",
     "column_0",
     "column_1",
     "column_2",
@@ -22,15 +23,15 @@ MAYOR_TOPICS = ["gov.muni", "gov.head"]
 COUNCILLOR_TOPICS = ["gov.muni", "gov.legislative"]
 
 
-def crawl_item(context: Context, row: Dict[str, str | None]) -> None:
+def crawl_item(
+    context: Context,
+    row: Dict[str, str | None],
+    period_start: str,
+    period_end: Optional[str],
+) -> None:
     start_date = row.pop("start_date")
     end_date = row.pop("end_date")
     assert start_date is not None
-    if start_date < h.earliest_term_start(DEFAULT_TOPICS):
-        context.log.info(
-            f"Skipping term with start date {start_date} outside coverage window"
-        )
-        return
 
     name = row.pop("name")
     province = row.pop("province")
@@ -55,6 +56,7 @@ def crawl_item(context: Context, row: Dict[str, str | None]) -> None:
         h.apply_name(pep, first_name=name, last_name=last_name)
     else:
         pep.add("name", name)
+    pep.add("political", row.pop("party"))
     pep.add("topics", "role.pep")
     # Positions are available for the current officials; historical data lists only mayors
     if not position_name:
@@ -66,9 +68,7 @@ def crawl_item(context: Context, row: Dict[str, str | None]) -> None:
             topics = (
                 MAYOR_TOPICS
                 if "Mayor" in translated
-                else COUNCILLOR_TOPICS
-                if "Councillor" in translated
-                else DEFAULT_TOPICS
+                else COUNCILLOR_TOPICS if "Councillor" in translated else DEFAULT_TOPICS
             )
         else:
             context.log.warning("Unknown position", position=position_name.strip())
@@ -96,15 +96,10 @@ def crawl_item(context: Context, row: Dict[str, str | None]) -> None:
         categorisation=categorisation,
     )
 
-    party = row.pop("party")
-    autonomous_community = row.pop("autonomous_community")
     if occupancy:
-        occupancy.add("politicalGroup", party)
         occupancy.add("constituency", province)
-        occupancy.add("constituency", municipality)
-        occupancy.add("constituency", autonomous_community)
-        occupancy.add("periodStart", start_date)
-        occupancy.add("periodEnd", end_date)
+        occupancy.add("periodStart", period_start)
+        occupancy.add("periodEnd", period_end)
         context.emit(occupancy)
         context.emit(position)
         context.emit(pep)
@@ -118,6 +113,8 @@ def process_excel(
     url: str,
     title: str,
     skiprows: int,
+    period_start: str,
+    period_end: Optional[str],
 ) -> None:
     path = context.fetch_resource(filename, url)
     context.export_resource(path, XLSX, title=title)
@@ -134,7 +131,7 @@ def process_excel(
         skiprows=skiprows,
         header_lookup=context.get_lookup("columns"),
     ):
-        crawl_item(context, row)
+        crawl_item(context, row, period_start=period_start, period_end=period_end)
 
 
 def crawl(context: Context) -> None:
@@ -144,6 +141,7 @@ def crawl(context: Context) -> None:
     hist_doc = context.fetch_html(
         context.dataset.model.url, cache_days=1, absolute_links=True
     )
+    # Note: Once hist_url xpath fails on 2019_2023, check the dates in the process_excel calls below and update if needed
     hist_url = h.xpath_string(
         hist_doc,
         ".//div[@class='dnt-link-default']/a[contains(@href, 'Alcaldes_Mandato_2019_2023')]/@href",
@@ -154,6 +152,8 @@ def crawl(context: Context) -> None:
         url=hist_url,
         title="Mayors 2019-2023",
         skiprows=7,
+        period_start="2019",
+        period_end="2023",
     )
     # Process current mayors and councillors data
     current_doc = context.fetch_html(
@@ -168,4 +168,6 @@ def crawl(context: Context) -> None:
         url=current_url,
         title=context.SOURCE_TITLE,
         skiprows=5,
+        period_start="2023",
+        period_end="2027",
     )
