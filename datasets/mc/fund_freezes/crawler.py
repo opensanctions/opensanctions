@@ -4,6 +4,15 @@ from typing import Any, Dict
 from zavod import Context
 from zavod import helpers as h
 
+NUMBERING = [f"{chr(ord('a') + i)})" for i in range(16)]
+NUMBERING += ["i)", "ii)", "iii)", "iv)", "v)"]
+# Common non-word prefixes
+SEMI_NUMBERING_SPLITS = [f"; {s}" for s in NUMBERING]
+COMMA_NUMBERING_SPLITS = [f", {s}" for s in NUMBERING]
+NEWLINE_NUMBERING_SPLITS = [f"\n{s}" for s in NUMBERING]
+NUMBERING_SPLITS = (
+    SEMI_NUMBERING_SPLITS + COMMA_NUMBERING_SPLITS + NEWLINE_NUMBERING_SPLITS
+)
 ALIAS_SPLITS = [
     "Egalement connue sous le nom:",
     "Egalement connue sous les noms:",
@@ -14,47 +23,19 @@ ALIAS_SPLITS = [
     "(autre dénomination :",
     "(autres dénominations :",
     "autres dénominations:",
-    "; a)",
-    "; b)",
-    "; c)",
-    "; d)",
-    "; e)",
-    "; f)",
-    "; g)",
-    "; h)",
-    "; i)",
-    "; j)",
-    "; k)",
-    "; l)",
-    "; m)",
-    "; n)",
-    "; o)",
-    "; p)",
-    "  a) ",
-    "  b) ",
-    "  c) ",
-    "  d) ",
     " ou ",
     ";;",
     ",;",
     ";",
-]
+] + NUMBERING_SPLITS
 
 
-def clean_address(text: str | None) -> list[str] | None:
+def clean_address(text: str | None) -> list[str]:
     if not text:
-        return None
-
-    # regex to match entries wih pattern from a) to z)
-    patterns = [
-        r"\b[a-z]\)\s(.*?)(?=\s[a-z]\)|$)",
-    ]
-    for pattern in patterns:
-        matches = re.findall(pattern, text, re.DOTALL | re.VERBOSE)
-        if matches:
-            return [match.strip(", ") for match in matches]
-    else:
-        return text.split("\n")
+        return []
+    if text.startswith("a)"):
+        text = text.replace("a)", "", 1)
+    return h.multi_split(text, NUMBERING_SPLITS + ["\r\n"])
 
 
 def extract_passport_no(text: str | None) -> list[str] | None:
@@ -98,9 +79,8 @@ def crawl_entity(context: Context, data: Dict[str, Any]) -> None:
             continue
 
         if "/" in alias:
-            result = context.lookup("aliases", alias)
+            result = context.lookup("aliases", alias, warn_unmatched=True)
             if not result:
-                context.log.warn(f"Alias not found in the lookups: {alias.strip()}")
                 entity.add(aliasProp, alias)
             else:
                 for a in result.aliases:
