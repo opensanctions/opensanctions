@@ -36,7 +36,7 @@ dependencies = [
     "prefixdate == 0.5.0",
     "psycopg2-binary",
     "pyicu == 2.16.2",
-    "pywikibot==10.7.6",
+    "pywikibot==11.2.0",
     "openai >= 1.33.0, < 3.0.0",
     "requests[security]",
     "requests_oauthlib",
