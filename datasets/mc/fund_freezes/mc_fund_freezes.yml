@@ -72,10 +72,6 @@ assertions:
       Person: 7000
       Organization: 3000
 lookups:
-  type.address:
-    options:
-      - match: ou
-        value: null
   schemata:
     options:
       - match: Personne physique
@@ -222,6 +218,10 @@ lookups:
       - match: "adena Mohammad né le 01/01/1969"
         aliases:
           - adena Mohammad
+  type.address:
+    options:
+      - match: ou
+        value: null
   type.date:
     options:
       - match: 24/06/1402 (calendrier hégirien)

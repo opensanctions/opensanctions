@@ -63,7 +63,7 @@ def crawl(context: Context) -> None:
     table_xpath = './/div[@id="covered-list"]//table'
     doc = zyte_api.fetch_html(context, context.dataset.url, table_xpath)
     table = h.xpath_element(doc, table_xpath)
-    h.assert_dom_hash(table, "f818ab462954be11c9ec2025878199a1af489e2d")
+    h.assert_dom_hash(table, "2659e7273e07d8abbd9b3d9fcfd3701218d48c81")
 
     path = context.fetch_resource("source.csv", context.data_url)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
