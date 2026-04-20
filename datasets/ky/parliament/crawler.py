@@ -104,7 +104,8 @@ def crawl_card_2025(
 
 def crawl_row(context: Context, row: Dict[str, str]) -> None:
     start_date = row.pop("Start date", None)
-    if start_date and start_date < h.earliest_term_start(TOPICS):
+    # Some start dates are just years, so we compare the first 4 characters to the earliest term start year
+    if start_date and start_date[:4] < h.earliest_term_start(TOPICS)[:4]:
         context.log.info(
             f"Skipping row with start date {start_date} outside coverage window"
         )
