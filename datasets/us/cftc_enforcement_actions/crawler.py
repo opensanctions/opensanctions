@@ -16,13 +16,31 @@ from zavod.stateful.review import (
 from zavod import helpers as h
 
 Schema = Literal["Person", "Company", "LegalEntity"]
+# see square brackets or. -> for status in these examples:
+#
+# announced the U.S. District Court for the District of X entered a [consent order]
+# CFTC has [filed] a civil enforcement action
+# CFTC today announced it has [filed] a complaint in the U.S. District Court for X against
+# CFTC today issued an order simultaneously filing and [settling] charges -> settled
+# CFTC announced today that it issued an order suspending the registrations
 Status = Literal[
+    # Leaving "Resolved" out - instead use the latest
+    # e.g. CFTC announced today the X Court for Y has resolved all claims the CFTC filed
+    # ... On July 14, the court entered an [order] against Z requiring her to pay,
+    # -> Order
     "Filed",
     "Dismissed",
     "Settled",
-    "Default judgement",
-    "Final judgement",
+    "Preliminary injunction",
+    "Restraining order",
+    "Consent order",
     "Supplemental consent order",
+    "Order",
+    "Default judgement",
+    "Summary judgement",
+    "Final judgement",
+    "Emergency order",
+    "Added to Red List",
     "Other",
 ]
 
@@ -41,7 +59,14 @@ address_field = Field(
 status_field = Field(
     description=(
         "The status of the enforcement action notice."
-        " If `Other`, add the text used as the status in the source to `notes`."
+        " The status should be the one announced in the source, e.g. if the source says"
+        ' "The CFTC today announced that it has filed'
+        ' a civil enforcement action in the XYZ Court", and later says that on some other date'
+        " the judge signed a restraining order, the status should be `Filed` because that's"
+        " what's being announced in this press release. If the CFTC is both filing and settling,"
+        " the status should be `Settled` because that's the final outcome."
+        " Use `Other` if no exact matching status is found, and add the text used as"
+        " the status in the source to `notes`."
     )
 )
 notes_field = Field(default=None, description=("Only used if `status` is `Other`."))
