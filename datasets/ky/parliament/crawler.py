@@ -104,8 +104,7 @@ def crawl_card_2025(
 
 def crawl_row(context: Context, row: Dict[str, str]) -> None:
     start_date = row.pop("Start date", None)
-    # Some start dates are just years, so we compare the first 4 characters to the earliest term start year
-    if start_date and start_date[:4] < h.earliest_term_start(TOPICS)[:4]:
+    if start_date and start_date < h.earliest_term_start(TOPICS):
         context.log.info(
             f"Skipping row with start date {start_date} outside coverage window"
         )
@@ -133,8 +132,10 @@ def crawl_row(context: Context, row: Dict[str, str]) -> None:
         entity,
         position,
         no_end_implies_current=False,
-        period_start=start_date,
-        period_end=row.pop("End date", None),
+        start_date=start_date,
+        end_date=row.pop("End date"),
+        period_start=row.pop("Period Start"),
+        period_end=row.pop("Period End"),
         categorisation=categorisation,
     )
     if occupancy is not None:
@@ -145,7 +146,8 @@ def crawl_row(context: Context, row: Dict[str, str]) -> None:
 
 def crawl(context: Context) -> None:
     doc = context.fetch_html(context.data_url, cache_days=1)
-    # crawl_card assumes 2021
+    # crawl_card assumes 2025-2029 members are current
+    # update  period_start and period_end in crawl_card if this changes
     assert "2025-2029 Members" in h.xpath_strings(doc, ".//h3/text()")
     expected_current_member_count = 22
     current_member_count = 0
@@ -176,13 +178,13 @@ def crawl(context: Context) -> None:
         context.log.warning(
             f"Expected at least {expected_current_member_count} current members but found {current_member_count}"
         )
-    # Former members were added to the historical Google Sheet
-    # based on https://parliament.ky/members/former-members/.
-    # Since many individuals in Parliament rotate through different roles,
-    # some entries are duplicated to reflect multiple positions held over
-    # time. Where exact dates are provided (e.g., “November 23, 2023–end of term”),
-    # I used 2025 as the assumed end date. For positions without specific timeframes,
-    # the overall parliamentary term (2021–2025) was used.
+    # Former members sourced from https://parliament.ky/members/former-members/ via a
+    # historical Google Sheet. Some individuals appear multiple times to reflect distinct
+    # roles held across different periods.
+    #
+    # Date precision varies: start/end dates are exact where provided; for entries with
+    # only a term reference (2021–2025), period start/end dates are used. Where a role
+    # ended at "end of term", 2025 is assumed as the end year.
     path = context.fetch_resource("historical_data.csv", HISTORICAL_DATA_CSV)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
