@@ -65,7 +65,6 @@ def crawl_item(
     )
 
     if occupancy is not None:
-        occupancy.add("politicalGroup", party)
         context.emit(person)
         context.emit(position)
         context.emit(occupancy)
