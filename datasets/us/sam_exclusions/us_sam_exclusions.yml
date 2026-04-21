@@ -202,6 +202,8 @@ lookups:
           - N0TAPPLICABL
           - "00000"
           - N/A
+          - "0.0"
+          - "0"
         value: null
       - match: 1009398416
         value: 1003938416
@@ -243,6 +245,7 @@ lookups:
           - 1991191597
           - 9090004080
           - 1212034582
+          - 447984000
         prop: registrationNumber
   type.string:
     options:

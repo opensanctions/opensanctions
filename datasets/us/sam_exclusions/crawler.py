@@ -230,6 +230,8 @@ def crawl(context: Context) -> None:
         # records.
         npi = row.pop("NPI")
         if npi is not None and len(npi):
+            if npi.endswith(".0"):
+                npi = npi[:-2]
             entity.add("npiCode", npi)
 
         name = h.make_name(
