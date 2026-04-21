@@ -1,5 +1,6 @@
 from lxml import etree
 from rigour.mime.types import XML
+from time import sleep
 
 from zavod import Context, helpers as h
 from zavod.entity import Entity
@@ -7,13 +8,14 @@ from zavod.extract.zyte_api import fetch_resource
 
 SOAP_URL = "http://www.cbr.ru/CreditInfoWebServ/CreditOrgInfo.asmx"
 SOAP_HEADERS = {"Content-Type": "text/xml; charset=utf-8"}
+SLEEP_SECONDS = 1
 
 
 def send_soap_request(context: Context, action, body, cache_days=None):
     """Sends a SOAP request and returns the parsed XML response."""
     headers = SOAP_HEADERS.copy()
     headers["SOAPAction"] = f"http://web.cbr.ru/{action}"
-
+    sleep(SLEEP_SECONDS)  # avoid hitting rate limits
     response = context.fetch_text(
         SOAP_URL, method="POST", headers=headers, data=body, cache_days=cache_days
     )
@@ -35,7 +37,7 @@ def get_org_info(context: Context, internal_code: str):
             </CreditInfoByIntCodeXML>
         </soap:Body>
     </soap:Envelope>"""
-    return send_soap_request(context, "CreditInfoByIntCodeXML", body)
+    return send_soap_request(context, "CreditInfoByIntCodeXML", body, cache_days=7)
 
 
 def bic_to_int_code(context: Context, bic):
