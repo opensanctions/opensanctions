@@ -42,11 +42,13 @@ publisher:
   url: https://brightquery.com/
   official: false
 
-# TODO: update assertions after the first successful run
 assertions:
   min:
     schema_entities:
-      Company: 10
+      Company: 500
+  max:
+    schema_entities:
+      Company: 1200
 
 inputs:
   - eu_sanctions
@@ -67,8 +69,7 @@ inputs:
 
 config:
   type: nomenklatura.enrich.brightquery:BrightQueryEnricher
-  username: ${BRIGHTQUERY_USERNAME}
-  password: ${BRIGHTQUERY_PASSWORD}
+  api_key: ${BRIGHTQUERY_API_KEY}
   cache_days: 100
   schemata:
     - Company
