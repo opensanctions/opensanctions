@@ -6,9 +6,10 @@ load_statements: true
 ci_test: false # CI fails assertions without reviewed entity splits
 coverage:
   frequency: weekly
-  start: 2026-02-25
+  start: 2026-04-21
 summary: >
-  Other enforcement actions taken against financial institutions in the US.
+  Civil money penalties and enforcement actions by US FinCEN against financial
+  institutions for Bank Secrecy Act violations.
 description: |
   Under the Bank Secrecy Act (BSA), FinCEN may bring an enforcement action for violations of the reporting, recordkeeping, or other requirements of the BSA.
   FinCEN's Office of Enforcement evaluates enforcement matters that may result in a variety of remedies, including the assessment of civil money penalties.
