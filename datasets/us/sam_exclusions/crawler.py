@@ -14,10 +14,9 @@ import io
 import csv
 import time
 from pathlib import Path
-from typing import Literal, Optional, Dict, Any, Generator, Tuple
+from typing import Optional, Dict, Any, Generator, Tuple
 from zipfile import ZipFile
 from urllib.parse import urljoin
-from pydantic import BaseModel
 from rigour.mime.types import ZIP
 
 from zavod import Context
@@ -25,13 +24,6 @@ from zavod import helpers as h
 
 DOWNLOAD_URL = "https://sam.gov/api/prod/fileextractservices/v1/api/download/"
 IGNORE_COLUMNS = ["CT Code", "Open Data Flag", "SAM Number"]
-
-NameProp = Literal["name", "alias", "weakAlias"]
-
-
-class FullName(BaseModel):
-    name: str
-    property_name: NameProp
 
 
 def parse_date(date: Optional[str]):
@@ -260,46 +252,7 @@ def crawl(context: Context) -> None:
         if not name:
             return
 
-        # =========== remove from here for name migration step 3 ===========
-        full_name_prop: NameProp = "name"
-        # Not vessels
-        if len(name) < 5 and entity.schema.is_a("LegalEntity"):
-            full_name_prop = "weakAlias"
-        elif len(name) < 10 and " " not in name and entity.schema.is_a("Person"):
-            full_name_prop = "weakAlias"
-        # Treat longer single word entity names as iffy for now
-        # len("Sebastiano") == 10
-        elif len(name) < 11 and " " not in name and entity.schema.is_a("LegalEntity"):
-            full_name_prop = "alias"
-
-        extraction = FullName(name=name, property_name=full_name_prop)
-        origin = filename
-
-        entity.add(
-            extraction.property_name,
-            extraction.name,
-            lang="eng",
-            origin=origin,
-        )
-        # =========== remove up to here for name migration step 3 ===========
-
-        original = h.Names(name=name)
-        suggested = h.Names()
-        suggested.add(full_name_prop, name)
-        is_irregular, suggested = h.check_names_regularity(entity, suggested)
-
-        # A review will be created if standard heuristics suggest the name is irregular,
-        # or if there is a custom suggestion that differs from the original categorisation.
-        # TODO: Once we're done with reviews and h.review_names to h.apply_reviewed_name_string
-        h.review_names(
-            context,
-            entity,
-            original=original,
-            suggested=suggested,
-            is_irregular=is_irregular,
-            default_accepted=True,
-        )
-
+        h.apply_reviewed_name_string(context, entity, string=name, lang="eng")
         entity.add("firstName", row.pop("First"), quiet=True, lang="eng")
         entity.add("middleName", row.pop("Middle"), quiet=True, lang="eng")
         entity.add("lastName", row.pop("Last"), quiet=True, lang="eng")
