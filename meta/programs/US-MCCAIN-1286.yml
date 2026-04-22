@@ -1,0 +1,17 @@
+id: 258
+title: Section 1286 of the John S. McCain National Defense Authorization Act for Fiscal
+  Year 2019 (Public Law 115 - 232)
+key: US-MCCAIN-1286
+url: https://media.defense.gov/2023/Jun/29/2003251160/-1/-1/1/COUNTERING-UNWANTED-INFLUENCE-IN-DEPARTMENT-FUNDED-RESEARCH-AT-INSTITUTIONS-OF-HIGHER-EDUCATION.PDF
+summary: This document identifies those foreign institutions that have been confirmed
+  as engaging in problematic activity as described in Section 1286(c)(8)(A) of the
+  referenced law. It also identifies the foreign talent programs that have been confirmed
+  as posing a threat to the national security interests of the United States as described
+  in Section 1286(c)(9)(A) of the referenced law.
+issuer: us_congress
+dataset: us_special_leg
+aliases:
+- FY22 Lists Published in Response to Section 1286
+target_territories:
+- cn
+- ru

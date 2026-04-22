@@ -1,0 +1,54 @@
+title: Ireland Members of Parliament
+prefix: ie-parl
+coverage:
+  frequency: monthly
+  start: 2026-04-21
+load_statements: true
+entry_point: crawler.py
+ci_test: true
+summary: >-
+  Current and recent Members of the Irish Parliament, covering the Dáil Éireann (lower house)
+  and Seanad Éireann (upper house).
+description: |
+  The bicameral Irish Parliament (Oireachtas Éireann) consists of the President of Ireland and
+  the two houses of the Oireachtas: Dáil Éireann and Seanad Éireann.
+
+  - Dáil Éireann, the lower house, is the primary legislative body, comprising 174 members who
+  are elected by proportional representation for a five-year term.
+  - The upper house, the Seanad Éireann, is not directly elected and consists of 60 senators chosen
+  by various methods.
+
+  The dataset includes comprehensive mandate information for each member, including their name, gender,
+  political affiliation, electoral district and dates of service.
+url: https://api.oireachtas.ie/
+tags:
+  - list.pep
+publisher:
+  name: Oireachtas Éireann
+  name_en: Houses of the Oireachtas
+  description: |
+    The Houses of the Oireachtas provides open data about its members through its official
+    website and API. The parliament exercises legislative power, with the Dáil Éireann
+    serving as the primary legislative chamber and the Seanad Éireann.
+  country: ie
+  url: https://www.oireachtas.ie/en/
+  official: true
+data:
+  url: https://api.oireachtas.ie/v1/members
+  format: JSON
+  lang: eng
+
+dates:
+  formats: ["%Y-%m-%d"]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 500  # raw count 638
+      Position: 120  # raw count 154
+    country_entities:
+      ie: 1
+  max:
+    schema_entities:
+      Person: 1200
+      Position: 300

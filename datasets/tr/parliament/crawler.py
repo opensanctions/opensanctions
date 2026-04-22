@@ -15,6 +15,7 @@
 
 
 from lxml import etree
+import re
 
 from zavod import Context, helpers as h
 from zavod.stateful.positions import categorise
@@ -35,6 +36,42 @@ UNBLOCK_ACTIONS = [
 ]
 
 
+def crawl_birth_year_place(context: Context, url: str) -> tuple[str | None, str | None]:
+    doc = fetch_html(
+        context,
+        url,
+        '//*[@id="milletvekili-detay-holder-desktop"]',
+        actions=UNBLOCK_ACTIONS,
+        javascript=True,
+        absolute_links=True,
+        # Cache disabled because their bot blocking includes regularly-changing UUIDs in the URL
+        # making caching fairly futile.
+        cache_days=None,
+    )
+
+    # Pick the first element under the span in the profile free text section
+    # Usually a p or a div
+    xpath = '//*[@id="milletvekili-detay-holder-desktop"]//div[contains(@class, "profile-ozgecmis-div")]/span/*[1]'
+
+    birth_string = h.element_text(h.xpath_element(doc, xpath))
+
+    # e.g. "Sivas / Koyulhisar – 1959, Dursun, Dudu"
+    match = re.match(r"^([\w\s/]+?)\s*[-–]\s*(\d{4})", birth_string)
+    if match:
+        return match.group(2), match.group(1).strip()
+
+    result = context.lookup("birth_string", birth_string)
+    if result is not None:
+        return result.birth_date, result.birth_place
+
+    context.log.warning(
+        "Failed to parse birth string",
+        birth_string=birth_string,
+        url=url,
+    )
+    return None, None
+
+
 def crawl_item(context: Context, item: etree):
     anchor = item.find(".//a")
     if anchor is None:
@@ -45,9 +82,17 @@ def crawl_item(context: Context, item: etree):
     assert len(party_els) == 1
     party = party_els[0].text_content().strip()
 
+    birth_year, birth_place = crawl_birth_year_place(context, deputy_url)
+
     entity = context.make("Person")
-    entity.id = context.make_slug(name, party)
+    entity.id = context.make_id(name, str(birth_year), birth_place)
+    # citizenship required:
+    # https://www.celebilegal.com/constitution-of-turkey/
+    # https://www.venice.coe.int/webforms/documents/default.aspx?pdffile=CDL-REF(2017)003-e
+    entity.add("citizenship", "tr")
     entity.add("name", name)
+    entity.add("birthDate", birth_year)
+    entity.add("birthPlace", birth_place)
     entity.add("sourceUrl", deputy_url)
     entity.add("political", party)
 
@@ -79,6 +124,7 @@ def crawl(context: Context):
         actions=UNBLOCK_ACTIONS,
         javascript=True,
         absolute_links=True,
+        cache_days=1,
     )
 
     for item in doc.xpath(items_xpath):

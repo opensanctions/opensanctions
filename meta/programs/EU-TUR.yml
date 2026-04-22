@@ -1,0 +1,16 @@
+id: 92
+title: EU Restrictive Measures In View Of Turkey's Unauthorized Drilling In The Eastern
+  Mediterranean
+key: EU-TUR
+url: https://sanctionsmap.eu/#/main/details/49/
+summary: These sanctions target individuals and entities involved in Turkey's unauthorized
+  drilling activities in the Eastern Mediterranean. The measures include asset freezes
+  and travel bans to pressure Turkey to cease its illegal drilling operations and
+  respect the sovereignty and territorial integrity of neighboring countries.
+issuer: eu_council
+dataset: eu_fsf
+target_territories:
+- tr
+measures:
+- Asset freeze
+- Travel ban

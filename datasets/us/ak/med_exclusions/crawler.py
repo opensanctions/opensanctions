@@ -15,7 +15,7 @@ Return an empty string for unset fields.
 """
 
 
-def crawl_item(row: Dict[str, str], context: Context):
+def crawl_item(row: Dict[str, str], context: Context) -> None:
     if not row.get("last_name"):
         return
 

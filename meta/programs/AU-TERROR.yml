@@ -1,0 +1,12 @@
+id: 286
+title: Listed Terrorist Organisations
+key: AU-TERROR
+url: https://www.nationalsecurity.gov.au/what-australia-is-doing/terrorist-organisations/protocol-for-listing
+summary: Established under the Criminal Code Act 1995, Australia's regime designates
+  organisations as terrorist entities based on their involvement in terrorist activities.
+  Designations are made through court determinations or formal listings in Regulations,
+  following statutory procedures. The listing process now continues indefinitely,
+  reflecting amendments from the Counter-Terrorism Legislation Amendment (Prohibited
+  Hate Symbols and Other Measures) Act 2023.
+issuer: au_home_affairs
+dataset: au_listed_terrorist_orgs

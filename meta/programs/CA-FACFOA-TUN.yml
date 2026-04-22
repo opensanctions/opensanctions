@@ -1,0 +1,12 @@
+id: 145
+title: Freezing Assets of Corrupt Foreign Officials (Tunisia) Regulations (SOR/2011-78)
+key: CA-FACFOA-TUN
+url: https://laws-lois.justice.gc.ca/eng/regulations/SOR-2011-78/index.html
+summary: The Canadian governments maintains a small, Magnitsky-style list of government
+  officials that it alleges to be involved in corruption.
+issuer: ca_mfa
+dataset: ca_facfoa
+aliases:
+- FAAE
+target_territories:
+- tn

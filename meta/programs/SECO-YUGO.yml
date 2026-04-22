@@ -1,0 +1,12 @@
+id: 144
+title: Former Measures Against Yugoslavia
+key: SECO-YUGO
+url: https://www.seco.admin.ch/seco/de/home/Aussenwirtschaftspolitik_Wirtschaftliche_Zusammenarbeit/Wirtschaftsbeziehungen/exportkontrollen-und-sanktionen/sanktionen-embargos/sanktionsmassnahmen/massnahmen-gegenueber-jugoslawien.html
+summary: These sanctions targeted individuals and entities in the former Yugoslavia
+  involved in conflict, human rights abuses, and actions undermining peace and stability.
+  The measures included asset freezes, travel bans, and trade restrictions to support
+  peace processes and promote human rights and stability in the region.
+issuer: ch_seco
+dataset: ch_seco_sanctions
+target_territories:
+- yucs

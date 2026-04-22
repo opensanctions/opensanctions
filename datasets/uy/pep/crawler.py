@@ -13,7 +13,7 @@ def sheet_to_dicts(sheet):
         cells = [c.value for c in row]
 
         if headers is None and all(cells):
-            headers = [slugify(h) for h in cells]
+            headers = [slugify(h) or f"column_{i}" for i, h in enumerate(cells)]
             continue
 
         if headers:
@@ -50,9 +50,10 @@ def parse_sheet_row(context: Context, row: Dict[str, str]):
         categorisation=categorisation,
     )
 
-    context.emit(person)
-    context.emit(position)
-    context.emit(occupancy)
+    if occupancy is not None:
+        context.emit(person)
+        context.emit(position)
+        context.emit(occupancy)
     context.audit_data(row)
 
 

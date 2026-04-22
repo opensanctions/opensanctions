@@ -5,9 +5,9 @@ from zavod import Context, helpers as h
 from zavod.stateful.positions import categorise
 
 RESOURCES = [
-    ("dk", "dan", "dk.xlsx", "PEP_listen.xlsx"),
-    ("fo", "fao", "fo.xlsx", "PEP_listen f"),
-    ("gl", "kal", "gl.xlsx", "PEP_listen g"),
+    ("dk", "dan", "dk.xlsx", "pep_listen.xlsx"),
+    ("fo", "fao", "fo.xlsx", "pep_listen-f"),
+    ("gl", "kal", "gl.xlsx", "pep_listen-g"),
 ]
 
 

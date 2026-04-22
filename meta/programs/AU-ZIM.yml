@@ -1,0 +1,11 @@
+id: 208
+title: Zimbabwe Sanctions Regime
+key: AU-ZIM
+url: https://www.dfat.gov.au/international-relations/security/sanctions/sanctions-regimes/zimbabwe-sanctions-regime
+summary: Australia imposed autonomous sanctions in relation to Zimbabwe in 2002, reflecting
+  concerns about political violence and human rights violations. The sanctions were
+  adjusted in 2012 and 2013 in response to some progress.
+issuer: au_dfat
+dataset: au_dfat_sanctions
+target_territories:
+- zw

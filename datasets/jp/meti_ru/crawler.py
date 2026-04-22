@@ -2,7 +2,7 @@ import csv
 import re
 from pathlib import Path
 from urllib.parse import urlparse
-from typing import Optional
+from typing import Any, Optional
 
 import pdfplumber
 from lxml import html
@@ -10,7 +10,7 @@ from rigour.mime.types import CSV, PDF
 from rigour.text.scripts import get_script
 
 from zavod import Context, helpers as h
-from zavod.extract.zyte_api import fetch_resource, fetch_html
+from zavod.extract import zyte_api
 
 SOURCE_URL = "https://www.meti.go.jp/policy/external_economy/trade_control/02_export/17_russia/russia.html"
 NAMES_PATTERN = re.compile(
@@ -34,7 +34,7 @@ EXPECTED_HASHES = {
 }
 
 
-def detect_script(context, text: str) -> Optional[str]:
+def detect_script(context: Context, text: str) -> Optional[str]:
     """
     Detect script in a string. Return 'jpn' or 'eng' if confident, else None.
     Used primarily not to misclassify Chinese names as Japanese.
@@ -53,8 +53,11 @@ def detect_script(context, text: str) -> Optional[str]:
     return None
 
 
-def split_aliases(context, raw_aliases: str):
-    """Split and detect script for a semicolon-separated string of aliases."""
+def split_aliases(context: Context, raw_aliases: str) -> list[tuple[str, str | None]]:
+    """Split and detect script for a semicolon-separated string of aliases.
+
+    Returns a list of (alias, lang) tuples.
+    """
     result = []
     for alias in re.split(r"、|及び|;", raw_aliases):
         alias = alias.strip()
@@ -63,7 +66,7 @@ def split_aliases(context, raw_aliases: str):
     return result
 
 
-def clean_address(raw_address):
+def clean_address(raw_address: str) -> list[str]:
     # Remove the 'location' "所在地：" from the start of the string
     cleaned = re.sub(r"^所在地[:：]", "", raw_address).strip()
     # Split into parts by common delimiters
@@ -71,7 +74,7 @@ def clean_address(raw_address):
     return [p.strip(" ,;") for p in parts if p.strip()]
 
 
-def clean_name_en(data_string):
+def clean_name_en(data_string: str) -> tuple[str, list[str]]:
     # Split the string to separate the primary name from aliases
     if "a.k.a." in data_string:
         parts = data_string.split("a.k.a.")
@@ -91,7 +94,12 @@ def clean_name_en(data_string):
     return clean_name, aliases
 
 
-def clean_name_raw(context, name_jpn, row):
+def clean_name_raw(
+    context: Context, name_jpn: str, row: dict[str, Any]
+) -> tuple[str, list[tuple[str, str | None]]]:
+    """Clean the raw name field, extracting the main name and any aliases.
+
+    Returns a tuple of (main_name, aliases)."""
     main_name = ""
     aliases = []
 
@@ -126,7 +134,7 @@ def clean_name_raw(context, name_jpn, row):
     return main_name, aliases
 
 
-def crawl_row(context, row):
+def crawl_row(context: Context, row: dict[str, Any]) -> None:
     name_jpn = row.pop("name_raw")
     name_en = row.pop("name_en")
     address = clean_address(row.pop("address"))
@@ -143,8 +151,8 @@ def crawl_row(context, row):
     entity.add("name", name_en_clean, lang="eng")
     for alias in aliases:
         entity.add("alias", alias, lang="eng")
-    for address in h.multi_split(address, [" and "]):
-        entity.add("address", address)
+    for a in h.multi_split(address, [" and "]):
+        entity.add("address", a)
 
     entity.add("sourceUrl", row.pop("source_url"))
     entity.add("topics", "export.control")
@@ -167,29 +175,27 @@ def crawl_row(context, row):
     )
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     divs_xpath = ".//div[@class='wrapper2011']"
-    doc = fetch_html(
+    doc = zyte_api.fetch_html(
         context,
         SOURCE_URL,
-        divs_xpath,
+        unblock_validator=divs_xpath,
         html_source="httpResponseBody",
         geolocation="jp",
         absolute_links=True,
     )
-    divs = doc.xpath(divs_xpath)
-    assert len(divs) == 1, len(divs)
+    content_div = h.xpath_element(doc, divs_xpath)
     # Check hash of the content part of the page
-    h.assert_dom_hash(divs[0], "1c1664fcb9c771b62a2ccdec1d13a0bbbe2722d7")
+    h.assert_dom_hash(content_div, "1c1664fcb9c771b62a2ccdec1d13a0bbbe2722d7")
     pdf_xpath = ".//a[contains(@href, '.pdf') and contains(@href, 'export/17_russia/') and contains(@href, 'tokutei')]/@href"
-    pdf_urls = divs[0].xpath(pdf_xpath)
-    assert len(pdf_urls) == 3, len(pdf_urls)
+    pdf_urls = h.xpath_strings(content_div, pdf_xpath, expect_exactly=3)
 
     # Update local copy of just the content part of the page to diff easily when
     # there are changes. Commit changes once they're handled.
     with open(LOCAL_PATH / "page_content.txt", "w") as fh:
         text = html.tostring(
-            divs[0],
+            content_div,
             pretty_print=True,
             method="text",
             encoding="utf-8",
@@ -199,10 +205,10 @@ def crawl(context: Context):
 
     for pdf_url in pdf_urls:
         pdf_name = Path(urlparse(pdf_url).path).name
-        _, _, _, pdf_path = fetch_resource(
+        _, _, _, pdf_path = zyte_api.fetch_resource(
             context, pdf_name, pdf_url, expected_media_type=PDF, geolocation="jp"
         )
-        h.assert_file_hash(pdf_path, EXPECTED_HASHES.get(pdf_name))
+        h.assert_file_hash(pdf_path, EXPECTED_HASHES.get(pdf_name) or "")
 
         # Save the text of the PDFs linked to from the page for easy diffing.
         # Commit changes once they're handled.

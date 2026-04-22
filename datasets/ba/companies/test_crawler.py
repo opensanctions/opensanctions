@@ -1,7 +1,7 @@
 from .crawler import clean_name
 
 
-def test_clean_name():
+def test_clean_name() -> None:
     # REMOVE_PATTERNS
     assert ["EKONOMSKI FAKULTET SARAJEVO"] == clean_name(
         "(BRISAN USLJED PRIPAJANJA) EKONOMSKI FAKULTET SARAJEVO"

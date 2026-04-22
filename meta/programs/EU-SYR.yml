@@ -1,0 +1,12 @@
+id: 87
+title: EU Restrictive Measures Against Syria
+key: EU-SYR
+url: https://sanctionsmap.eu/#/main/details/32/
+summary: These sanctions target the Syrian government and entities involved in human
+  rights abuses, terrorism, and other destabilizing activities. The measures include
+  asset freezes, prohibitions on transactions, and restrictions on trade to pressure
+  Syria to comply with international norms and cease its destabilizing actions.
+issuer: eu_council
+dataset: eu_fsf
+target_territories:
+- sy

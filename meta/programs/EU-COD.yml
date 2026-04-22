@@ -1,0 +1,18 @@
+id: 65
+title: EU Restrictive measures in view of the situation in the Democratic Republic of the Congo
+key: EU-COD
+url: https://sanctionsmap.eu/#/main/details/11/
+summary: Targets individuals and entities responsible for serious human rights violations,
+  obstruction of the electoral process, and sustaining the armed conflict in the DRC.
+  Designated persons are subject to an asset freeze and travel ban. The regime also
+  implements the UN arms embargo against those supplying or transferring arms in violation
+  of UN Security Council resolutions.
+issuer: eu_council
+dataset: eu_fsf
+target_territories:
+- cd
+measures:
+- Arms restrictions
+- Asset freeze
+- Prohibition to satisfy claims
+- Travel ban

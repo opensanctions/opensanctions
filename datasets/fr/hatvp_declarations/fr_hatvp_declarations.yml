@@ -1,0 +1,87 @@
+title: France HATVP Declarations of Interests and Assessments
+prefix: fr-hatvp
+url: https://www.hatvp.fr/open-data/
+coverage:
+  frequency: weekly
+  start: 2026-02-26
+load_statements: true
+entry_point: crawler.py
+summary: >-
+  French public officials who are required to declare their interests and assets
+  to the High Authority for Transparency in Public Life (HATVP).
+description: |
+  The Haute Autorité pour la Transparence de la vie Publique (HATVP) requires
+  French public officials to declare their interests and assets, and publishes
+  these declarations along with its assessments.
+
+  This dataset covers national cabinet members, regional and departmental
+  presidents, regional council members, and executives of large public
+  bodies.
+
+  Members of the National Assembly, Senate, and mayors are covered by separate datasets:
+  - [fr_assemblee](https://www.opensanctions.org/datasets/fr_assemblee/);
+  - [fr_senat](https://www.opensanctions.org/datasets/fr_senat/);
+  - [fr_maires](https://www.opensanctions.org/datasets/fr_maires/).
+publisher:
+  name: Haute Autorité pour la Transparence de la vie Publique
+  name_en: High Authority for Transparency in Public Life
+  acronym: HATVP
+  description: |
+    The HATVP is an independent French administrative authority responsible for collecting and
+    publishing declarations of interests and assets from public officials, and for overseeing
+    lobbying activity. It was established to prevent conflicts of interest in public life.
+  country: fr
+  url: https://www.hatvp.fr/en/high-authority/institution/
+  official: true
+data:
+  url: https://www.hatvp.fr/open-data/
+  format: CSV
+tags:
+  - list.pep
+
+# TODO: Wait until we resolve the position taxonomy in the UI and set is_pep=True
+# assertions:
+#   min:
+#     schema_entities:
+#       Person: 4700
+#       Position: 1600
+#   max:
+#     schema_entities:
+#       Person: 12000
+#       Position: 4200
+
+lookups:
+  columns:
+    options:
+      - match: civilite
+        value: title
+      - match: prenom
+        value: first_name
+      - match: nom
+        value: last_name
+      - match: classement
+        value: person_slug
+      - match: type_mandat
+        value: position_type
+      - match: qualite
+        value: role
+      - match: type_document
+        value: document_type
+      - match: departement
+        value: department
+      - match: date_publication
+        value: publication_date
+      - match: date_depot
+        value: filing_date
+      - match: nom_fichier
+        value: file_name
+      - match: url_dossier
+        value: dossier_url
+      - match: open_data
+        value: open_data
+      - match: statut_publication
+        value: publication_status
+      - match: id_origine
+        value: source_id
+      - match: url_photo
+        value: photo_url

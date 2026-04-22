@@ -1,4 +1,5 @@
 from datetime import datetime
+from functools import cache
 from typing import Iterable, List, Optional
 
 from banal import ensure_list
@@ -6,13 +7,19 @@ from followthemoney import registry
 
 from zavod import helpers as h
 from zavod import settings
+from zavod.logs import get_logger
+from zavod.constants import ORIGIN_INFERRED
 from zavod.context import Context
 from zavod.entity import Entity
 from zavod.stateful.positions import (
+    DEFAULT_AFTER_OFFICE,
     OccupancyStatus,
     PositionCategorisation,
+    get_after_office,
     occupancy_status,
 )
+
+log = get_logger(__name__)
 
 
 def make_position(
@@ -88,6 +95,27 @@ def make_position(
     return position
 
 
+@cache
+def _tmp_warn_person_dates(context: Context) -> None:
+    log.warning(
+        "Passing birth_date and death_date into make_occupancy is deprecated and "
+        "will be removed in a future release. Please set birth/death dates directly on "
+        "Person entities before calling make_occupancy."
+    )
+
+
+@cache
+def _tmp_warn_propagate_country(context: Context) -> None:
+    # Chaos datasets excluded. There's probably more?
+    if context.dataset.name in ("wd_peps", "wd_categories"):
+        return
+    log.warning(
+        "Passing person entities with no country affiliation into make_occupancy is "
+        "deprecated and will be removed in a future release. Please add citizenship "
+        "to Person entities before calling make_occupancy."
+    )
+
+
 def make_occupancy(
     context: Context,
     person: Entity,
@@ -96,11 +124,15 @@ def make_occupancy(
     current_time: datetime = settings.RUN_TIME,
     start_date: Optional[str] = None,
     end_date: Optional[str] = None,
+    period_start: Optional[str] = None,
+    period_end: Optional[str] = None,
+    election_date: Optional[str] = None,
     birth_date: Optional[str] = None,
     death_date: Optional[str] = None,
     categorisation: Optional[PositionCategorisation] = None,
     status: Optional[OccupancyStatus] = None,
     propagate_country: bool = True,
+    key_prefix: Optional[str] = None,
 ) -> Optional[Entity]:
     """Creates and returns an Occupancy entity if the arguments meet our criteria
     for PEP position occupancy, otherwise returns None. Also adds the position countries
@@ -140,6 +172,9 @@ def make_occupancy(
     assert person.schema.is_a("Person")
     assert position.schema.is_a("Position")
 
+    if birth_date is not None or death_date is not None:
+        _tmp_warn_person_dates(context)
+
     occupancy = context.make("Occupancy")
     # Include started and ended strings so that two occupancies, one missing start
     # and and one missing end, don't get normalisted to the same ID
@@ -150,14 +185,23 @@ def make_occupancy(
         start_date or "unknown",
         "ended",
         end_date or "unknown",
+        "period_start" if period_start else None,
+        period_start,
+        "period_end" if period_end else None,
+        period_end,
     ]
-    occupancy.id = context.make_id(*parts)
+    occupancy.id = context.make_id(*parts, hash_prefix=key_prefix)
     occupancy.add("holder", person)
     occupancy.add("post", position)
 
     h.apply_date(occupancy, "startDate", start_date)
     h.apply_date(occupancy, "endDate", end_date)
+    h.apply_date(occupancy, "periodStart", period_start)
+    h.apply_date(occupancy, "periodEnd", period_end)
+    h.apply_date(occupancy, "electionDate", election_date)
 
+    # FIXME: delete birth_date and death_date args in favor of setting
+    # these directly on the Person before calling make_occupancy
     if birth_date not in person.get("birthDate"):
         h.apply_date(person, "birthDate", birth_date)
     if death_date not in person.get("deathDate"):
@@ -165,7 +209,7 @@ def make_occupancy(
 
     if categorisation is not None and not categorisation.is_pep:
         context.log.warning(
-            "Person is not categorized as a PEP, but was passed to make_occupancy",
+            "Position is not categorized as a PEP, but was passed to make_occupancy",
             person=person.id,
             position=position.id,
             categorisation=categorisation,
@@ -175,15 +219,14 @@ def make_occupancy(
     if status is None:
         status = occupancy_status(
             context,
-            person,
-            position,
-            no_end_implies_current,
-            current_time,
-            max(occupancy.get("startDate"), default=None),
-            max(occupancy.get("endDate"), default=None),
-            max(person.get("birthDate"), default=None),
-            max(person.get("deathDate"), default=None),
-            categorisation,
+            person=person,
+            position=position,
+            occupancy=occupancy,
+            no_end_implies_current=no_end_implies_current,
+            current_time=current_time,
+            birth_date=max(person.get("birthDate"), default=None),
+            death_date=max(person.get("deathDate"), default=None),
+            categorisation=categorisation,
         )
     if status is None:
         return None
@@ -191,12 +234,39 @@ def make_occupancy(
     if status != OccupancyStatus.UNKNOWN:
         occupancy.add("status", status.value)
 
-    person.add("topics", "role.pep")
+    person.add("topics", "role.pep", origin=ORIGIN_INFERRED)
     if propagate_country:
+        # TODO: Begin to warn here about removing this, then remove it.
         for country in position.get("country"):
             # Only propagate to Person.country it isn't already set
             # in another field (such as citizenship).
             if country not in person.get_type_values(registry.country, matchable=True):
-                person.add("country", country)
+                _tmp_warn_propagate_country(context)
+                person.add("country", country, origin=ORIGIN_INFERRED)
 
     return occupancy
+
+
+def earliest_term_start(topics: List[str] = ["gov.national"]) -> str:
+    """Returns a date that can be used as a cut-off date for parliamentary or government terms
+    when crawling historical data. For example, if a dataset is known to include data from the
+    inception of a country, but we only want to consider people as PEPs if they held a position
+    within the last 20 years, we can use this function to determine the earliest term start date
+    to consider when crawling.
+
+    The date is framed as a start date but should include sufficient slack to also be used as a
+    filter on end dates if just those are available.
+
+    Args:
+        topics: A list of topics to determine the earliest term start date for.
+            For example, ["gov.national"] for national-level positions or ["gov.state"] for
+            subnational positions. ["gov.diplo"] for international diplomatic positions.
+            The default is ["gov.national"].
+
+    Returns:
+        A date string in ISO format representing the earliest term start date to consider.
+    """
+    after_office = get_after_office(topics)
+    after_office = after_office + (DEFAULT_AFTER_OFFICE * 2)  # Add extra slack
+    earliest_date = (settings.RUN_TIME - after_office).date().isoformat()
+    return earliest_date

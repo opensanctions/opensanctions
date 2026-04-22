@@ -331,6 +331,48 @@ def test_statements(testdataset1: Dataset):
     assert len(entities) == 12
 
 
+def test_statements_preserves_consolidated_removals() -> None:
+    """Statements export must include all original statements, including name
+    variants removed from the consolidated view (e.g. case-normalised duplicates
+    across two datasets)."""
+    catalog = get_catalog()
+    ds_a = Dataset({"name": "test_stmts_ds_a"})
+    ds_b = Dataset({"name": "test_stmts_ds_b"})
+    collection = Dataset(
+        {
+            "name": "test_stmts_collection",
+            "children": [ds_a.name, ds_b.name],
+            "exports": ["statements.csv", "entities.ftm.json"],
+        }
+    )
+    catalog.add(ds_a)
+    catalog.add(ds_b)
+    catalog.add(collection)
+
+    emit_entity(ds_a, "Person", id_="person-stmts-1", properties={"name": ["John Doe"]})
+    emit_entity(ds_b, "Person", id_="person-stmts-1", properties={"name": ["JOHN DOE"]})
+
+    export(collection)
+
+    dataset_path = settings.DATA_PATH / DATASETS / collection.name
+
+    # Statements export must contain both the original variants, even though
+    # consolidation removes "JOHN DOE" as a case-duplicate of "John Doe".
+    stmts = list(read_path_statements(dataset_path / "statements.csv", CSV))
+    name_values = {
+        s.value
+        for s in stmts
+        if s.prop == "name" and s.canonical_id == "person-stmts-1"
+    }
+    assert "John Doe" in name_values, name_values
+    assert "JOHN DOE" in name_values, name_values
+
+    # FTM export must still show only the consolidated (better-cased) name.
+    entities = read_exported_entities(collection)
+    person = next(e for e in entities if e.id == "person-stmts-1")
+    assert person.get("name") == ["John Doe"]
+
+
 def test_consolidate_names_never_remove_ofac_names():
     ds_high_quality = Dataset({"name": "us_ofac_sdn"})
     ds_low_quality = Dataset({"name": "xx_garbage"})

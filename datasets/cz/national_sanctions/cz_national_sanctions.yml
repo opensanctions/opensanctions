@@ -68,12 +68,22 @@ lookups:
           - 'čl. 2 odst. 1 písm. f) a g) rozhodnutí Rady 2014/145/SZBP ze dne 17. března 2014 o omezujících opatřeních vzhledem k činnostem narušujícím nebo ohrožujícím územní celistvost, svrchovanost a nezávislost Ukrajiny'
           - 'čl. 1 odst. 1 písm. d) a e) a čl. 2 odst. 1 písm. f) a g) rozhodnutí Rady 2014/145/SZBP ze dne 17. března 2014 o omezujících opatřeních vzhledem k činnostem narušujícím nebo ohrožujícím územní celistvost, svrchovanost a nezávislost Ukrajiny'
           - 'čl. 1 odst. 1 písm. a) a čl. 2 odst. 1 písm. a) rozhodnutí Rady (SZBP) 2014/145 ze dne 17. března 2014 o omezujících opatřeních vzhledem k činnostem narušujícím nebo ohrožujícím územní celistvost, svrchovanost a nezávislost Ukrajiny, ve znění pozdějších předpisů a tzv. asociační kritérium dle čl. 1 odst. 1 rozhodnutí'
+          - 'čl. 1, odst. 1 písm. f) a h) a čl. 2 odst. 1 písm. h) a k) rozhodnutí Rady 2014/145/SZBP ze dne 17. března 2014 o omezujících opatřeních vzhledem k činnostem narušujícím nebo ohrožujícím územní celistvost, svrchovanost a nezávislost Ukrajiny, ve znění pozdějších předpisů'
         value: CZ-A1-2023COLL
+      # legal basis under 2580/2001 counter-terrorism framework, citing both pre- and post-amendment (2026/456) implementing acts
+      - match: "čl. 2 odst. 3 bod ii) nařízení Rady (ES) č. 2580/2001 ze dne 27. 12. 2021 o zvláštních omezujících opatřeních namířených proti některým osobám a subjektům s cílem bojovat proti terorismu, ve znění pozdějších předpisů, ve spojení s čl. 1 odst. 3 bodem iii) písm. k) společného postoje Rady 2001/931/SZBP ze dne 27. 12. 2001 o použití zvláštních opatření k boji proti terorismu, ve znění pozdějších předpisů\nčl. 2 odst. 3 ve spojení s čl. 1 písm. i) bod iii) písm. k) nařízení Rady (EU) 2026/456 ze dne 26. února 2026, kterým se mění nařízení (ES) č. 2580/2001 o zvláštních omezujících opatřeních namířených proti některým osobám a subjektům s cílem bojovat proti terorismu a zrušuje prováděcí nařízení (EU) 2025/1578 a (EU) 2026/420, a čl. 2 odst. 1 ve spojení s čl. 1 odst. 1 bod iii) písm. k) rozhodnutí Rady (SZBP) 2026/455 ze dne 26. února 2026 o omezujících opatřeních k boji proti terorismu, o zrušení článků 2, 3 a 3a společného postoje 2001/931/SZBP o uplatnění zvláštních opatření k boji proti terorismu a o zrušení rozhodnutí (SZBP) 2025/1577 a (SZBP) 2026/421"
+        value: EU-TERR
   type.date:
     normalize: true
     options:
       - match: "26. září 1989 ."
         value: "1989-09-26"
+      - match: "13. října 1979                                                             ."
+        value: "1979-10-13"
+      - match: "2. března 2026\n30. března 2026"
+        values:
+          - "2026-03-02"
+          - "2026-03-30"
   type.country:
     lowercase: true
     normalize: true
@@ -92,10 +102,18 @@ lookups:
         value: Israel
       - match: "Česká republika"
         value: Czech Republic
+      - match: Libanonská republika
+        value: Lebanon
   type.string:
     options:
-      - match: "2036." # lastName
-        value: null
+      - match: "omezující opatření v rozsahu čl. 2 a čl. 3 společného postoje Rady 2001/931/SZBP ze dne 27. 12. 2001 o použití zvláštních opatření k boji proti terorismu, ve znění pozdějších předpisů, a čl. 2 odst. 1 písm. a) a b) nařízení Rady (ES) č. 2580/2001 ze dne 27. prosince 2001 o zvláštních omezujících opatřeních namířených proti některým osobám a subjektům s cílem bojovat proti terorismu, ve znění pozdějších předpisů\n\nomezující opatření v rozsahu čl. 2 odst. 1 a 5 \nrozhodnutí Rady (SZBP) 2026/455 ze dne 26. února 2026 o omezujících opatřeních k boji proti terorismu, o zrušení článků 2, 3 a 3a společného postoje 2001/931/SZBP o uplatnění zvláštních opatření k boji proti terorismu a o zrušení rozhodnutí (SZBP) 2025/1577 a (SZBP) 2026/421, a čl. 2 odst. 1 a 2 nařízení Rady (EU) 2026/456 ze dne 26. února 2026, kterým se mění nařízení (ES) č. 2580/2001 o zvláštních omezujících opatřeních namířených proti některým osobám a subjektům s cílem bojovat proti terorismu a zrušuje prováděcí nařízení (EU) 2025/1578 a (EU) 2026/420"
+        values:
+          - omezující opatření v rozsahu čl. 2 a čl. 3 společného postoje Rady 2001/931/SZBP ze dne 27. 12. 2001 o použití zvláštních opatření k boji proti terorismu, ve znění pozdějších předpisů, a čl. 2 odst. 1 písm. a) a b) nařízení Rady (ES) č. 2580/2001 ze dne 27. prosince 2001 o zvláštních omezujících opatřeních namířených proti některým osobám a subjektům s cílem bojovat proti terorismu, ve znění pozdějších předpisů
+          - omezující opatření v rozsahu čl. 2 odst. 1 a 5 rozhodnutí Rady (SZBP) 2026/455 ze dne 26. února 2026 o omezujících opatřeních k boji proti terorismu, o zrušení článků 2, 3 a 3a společného postoje 2001/931/SZBP o uplatnění zvláštních opatření k boji proti terorismu a o zrušení rozhodnutí (SZBP) 2025/1577 a (SZBP) 2026/421, a čl. 2 odst. 1 a 2 nařízení Rady (EU) 2026/456 ze dne 26. února 2026, kterým se mění nařízení (ES) č. 2580/2001 o zvláštních omezujících opatřeních namířených proti některým osobám a subjektům s cílem bojovat proti terorismu a zrušuje prováděcí nařízení (EU) 2025/1578 a (EU) 2026/420
+      - match: "čl. 2 odst. 3 bod ii) nařízení Rady (ES) č. 2580/2001 ze dne 27. 12. 2021 o zvláštních omezujících opatřeních namířených proti některým osobám a subjektům s cílem bojovat proti terorismu, ve znění pozdějších předpisů, ve spojení s čl. 1 odst. 3 bodem iii) písm. k) společného postoje Rady 2001/931/SZBP ze dne 27. 12. 2001 o použití zvláštních opatření k boji proti terorismu, ve znění pozdějších předpisů\nčl. 2 odst. 3 ve spojení s čl. 1 písm. i) bod iii) písm. k) nařízení Rady (EU) 2026/456 ze dne 26. února 2026, kterým se mění nařízení (ES) č. 2580/2001 o zvláštních omezujících opatřeních namířených proti některým osobám a subjektům s cílem bojovat proti terorismu a zrušuje prováděcí nařízení (EU) 2025/1578 a (EU) 2026/420, a čl. 2 odst. 1 ve spojení s čl. 1 odst. 1 bod iii) písm. k) rozhodnutí Rady (SZBP) 2026/455 ze dne 26. února 2026 o omezujících opatřeních k boji proti terorismu, o zrušení článků 2, 3 a 3a společného postoje 2001/931/SZBP o uplatnění zvláštních opatření k boji proti terorismu a o zrušení rozhodnutí (SZBP) 2025/1577 a (SZBP) 2026/421"
+        values:
+          - čl. 2 odst. 3 bod ii) nařízení Rady (ES) č. 2580/2001 ze dne 27. 12. 2021 o zvláštních omezujících opatřeních namířených proti některým osobám a subjektům s cílem bojovat proti terorismu, ve znění pozdějších předpisů, ve spojení s čl. 1 odst. 3 bodem iii) písm. k) společného postoje Rady 2001/931/SZBP ze dne 27. 12. 2001 o použití zvláštních opatření k boji proti terorismu, ve znění pozdějších předpisů
+          - čl. 2 odst. 3 ve spojení s čl. 1 písm. i) bod iii) písm. k) nařízení Rady (EU) 2026/456 ze dne 26. února 2026, kterým se mění nařízení (ES) č. 2580/2001 o zvláštních omezujících opatřeních namířených proti některým osobám a subjektům s cílem bojovat proti terorismu a zrušuje prováděcí nařízení (EU) 2025/1578 a (EU) 2026/420, a čl. 2 odst. 1 ve spojení s čl. 1 odst. 1 bod iii) písm. k) rozhodnutí Rady (SZBP) 2026/455 ze dne 26. února 2026 o omezujících opatřeních k boji proti terorismu, o zrušení článků 2, 3 a 3a společného postoje 2001/931/SZBP o uplatnění zvláštních opatření k boji proti terorismu a o zrušení rozhodnutí (SZBP) 2025/1577 a (SZBP) 2026/421
   name_notes:
     normalize: true
     options:
@@ -163,9 +181,12 @@ lookups:
           endDate: "2025-07-15"
           status: zrušen
           summary: Zápis byl zrušen ke dni 15. července 2025 v souladu s § 7 odst. 3 písm. a) zákona č. 1/2023 Sb., o omezujících opatřeních proti některým závažným jednáním uplatňovaných v mezinárodních vztazích (sankční zákon), vzhledem k zařazení subjektu na sankční seznam Evropské unie rozhodnutím Rady (SZBP) 2025/1443
-      - match: "OSIPOV / OSSIPOV / OSSIPOW / ОСИПОВ Zápis byl zrušen ke dni 23. října 2025 v souladu s § 7 odst. 3 písm. a) zákona č. 1/2023 Sb., o omezujících opatřeních proti některým závažným jednáním uplatňovaných v mezinárodních vztazích (sankční zákon), vzhledem k zařazení subjektu na sankční seznam Evropské unie rozhodnutím Rady (SZBP) 2025/2036."
+      - match: "OSIPOV / OSSIPOV / OSSIPOW / ОСИПОВ  Zápis byl zrušen ke dni 23. října 2025 v souladu s § 7 odst. 3 písm. a) zákona č. 1/2023 Sb., o omezujících opatřeních proti některým závažným jednáním uplatňovaných v mezinárodních vztazích (sankční zákon), vzhledem k zařazení subjektu na sankční seznam Evropské unie rozhodnutím Rady (SZBP) 2025/2036 ze dne 23. října 2025, kterým se mění rozhodnutí 2014/145/SZBP o omezujících opatřeních vzhledem k činnostem narušujícím nebo ohrožujícím územní celistvost, svrchovanost a nezávislost Ukrajiny"
         names: ["OSIPOV", "OSSIPOV", "OSSIPOW", "ОСИПОВ"]
         sanction_props:
           endDate: "2025-10-23"
           status: zrušen
-          summary: Zápis byl zrušen ke dni 23. října 2025 v souladu s § 7 odst. 3 písm. a) zákona č. 1/2023 Sb., o omezujících opatřeních proti některým závažným jednáním uplatňovaných v mezinárodních vztazích (sankční zákon), vzhledem k zařazení subjektu na sankční seznam Evropské unie rozhodnutím Rady (SZBP) 2025/2036.
+          summary: Zápis byl zrušen ke dni 23. října 2025 v souladu s § 7 odst. 3 písm. a) zákona č. 1/2023 Sb., o omezujících opatřeních proti některým závažným jednáním uplatňovaných v mezinárodních vztazích (sankční zákon), vzhledem k zařazení subjektu na sankční seznam Evropské unie rozhodnutím Rady (SZBP) 2025/2036 ze dne 23. října 2025, kterým se mění rozhodnutí 2014/145/SZBP o omezujících opatřeních vzhledem k činnostem narušujícím nebo ohrožujícím územní celistvost, svrchovanost a nezávislost Ukrajiny
+      - match: Al-Qard Al-Hassan Association / AQAH / القرض الحسن
+        names: ["Al-Qard Al-Hassan Association", "AQAH", "القرض الحسن"]
+        sanction_props: {}

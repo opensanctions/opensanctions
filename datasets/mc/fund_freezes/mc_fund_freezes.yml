@@ -72,10 +72,6 @@ assertions:
       Person: 7000
       Organization: 3000
 lookups:
-  type.address:
-    options:
-      - match: ou
-        value: null
   schemata:
     options:
       - match: Personne physique
@@ -212,6 +208,20 @@ lookups:
         aliases:
           - RFNC-VNIITF
           - VNIITF
+      - match: RFNC-VNIITF/VNITTF
+        aliases:
+          - RFNC-VNIITF
+          - VNITTF
+      - match: "Khirullah Said Wali Khairkhwa, né en Kandahar, le 01/01/1967"
+        aliases:
+          - Khirullah Said Wali Khairkhwa
+      - match: "adena Mohammad né le 01/01/1969"
+        aliases:
+          - adena Mohammad
+  type.address:
+    options:
+      - match: ou
+        value: null
   type.date:
     options:
       - match: 24/06/1402 (calendrier hégirien)
@@ -314,6 +324,8 @@ lookups:
         value: 1977
       - match: probablement 1973
         value: 1973
+      - match: 08/11/21985
+        value: 1985-11-08
       - match: 08/07//1988
         value: 1988-07-08
       - match: 1987-1988
@@ -322,6 +334,42 @@ lookups:
           - 1988
       - match: 27/03//1976
         value: 1976-03-27
+      - match: entre 1977 et 1978
+        values:
+          - 1977
+          - 1978
+      - match: entre 1955 et 1958
+        values:
+          - 1955
+          - 1958
+      - match: entre 1945 et 1950
+        values:
+          - 1945
+          - 1950
+      - match:
+          - "Environ 1958"
+          - "environ 1958"
+        value: 1958
+      - match:
+          - "Environ 1963"
+          - "environ 1963"
+        value: 1963
+      - match:
+          - "Environ 1975"
+          - "environ 1975"
+        value: 1975
+      - match:
+          - "Environ 1955"
+          - "environ 1955"
+        value: 1955
+      - match:
+          - "Environ 1968"
+          - "environ 1968"
+        value: 1968
+      - match: entre 1958 et 1964
+        values:
+          - 1958
+          - 1964
       - match:
           - Entre le 01/01/1961 et le 31/12/1963
           - entre 1975 et 1979

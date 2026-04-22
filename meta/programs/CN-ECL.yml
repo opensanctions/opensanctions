@@ -1,0 +1,8 @@
+title: Chinese Export Control List
+key: CN-ECL
+url: https://www.mofcom.gov.cn/zwgk/zcfb/art/2026/art_b5159a773124428a9813884015d1b8b3.html
+summary: China's Export Control List (出口管制管控名单) is maintained by the Ministry of Commerce (MOFCOM) under the Regulations on the Export Control of Dual-Use Items (两用物项出口管制条例), implementing the Export Control Law of the People's Republic of China. The list targets entities outside China that are deemed to pose risks to national security, or that participate in activities contrary to China's foreign policy objectives such as enhancing foreign military capabilities. Entities designated to the list are prohibited from receiving any dual-use items exported from China; any exception requires special approval from MOFCOM.
+issuer: cn_mofcom
+dataset: cn_sanctions
+measures:
+  - Export control

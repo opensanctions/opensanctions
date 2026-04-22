@@ -7,6 +7,7 @@ from openpyxl import load_workbook
 from rigour.mime.types import XLSX
 from zavod import Context
 from zavod import helpers as h
+from zavod.extract.zyte_api import fetch_json
 
 # From inspecting the getNewAccessToken function in the website source, the UUID corresponds to the report ID,
 # so hopefully won't change too quickly.
@@ -55,9 +56,10 @@ def excel_records(path):
             yield record
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     # The IADB PowerBI report requires a token to access the data, which it luckily readily provides.
-    get_token_response = context.fetch_json(GET_TOKEN_URL)
+    # Zyte because cloudflare
+    get_token_response = fetch_json(context, GET_TOKEN_URL)
     token = get_token_response["token"]["token"]
     path = context.fetch_resource(
         "data.xlsx",

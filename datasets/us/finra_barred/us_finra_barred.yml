@@ -1,0 +1,38 @@
+title: US FINRA Barred Individuals
+entry_point: crawler.py
+prefix: us-finra
+coverage:
+  frequency: weekly
+  start: "2026-03-25"
+load_statements: true
+summary: >
+  Individuals barred by FINRA and permanently prohibited from association with any FINRA member in any capacity.
+description: |
+  This dataset comprises individuals who are permanently barred from associating with any FINRA member firm
+  in any capacity, following a final disciplinary decision or expedited proceeding. Entries only appear on the
+  list once the bar is final and the Exchange Act appeal period has expired. For fuller background on individual
+  cases, see the linked FINRA BrokerCheck records.
+tags:
+  - sector.financial
+publisher:
+  name: Financial Industry Regulatory Authority
+  acronym: FINRA
+  description: |
+    FINRA is authorized by Congress to protect America's investors by making sure
+    the broker-dealer industry operates fairly and honestly.
+  url: https://www.finra.org/#/
+  official: true
+  country: us
+url: https://www.finra.org/rules-guidance/oversight-and-enforcement/individuals-barred-finra
+data:
+  url: https://www.finra.org/rules-guidance/oversight-and-enforcement/individuals-barred-finra
+  format: HTML
+  lang: eng
+
+assertions:
+  min:
+    schema_entities:
+      Person: 7500
+  max:
+    schema_entities:
+      Person: 20000

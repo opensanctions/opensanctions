@@ -76,6 +76,7 @@ lookups:
           - cedula de identidad
           - Registro Nacional para
           - CUIL  # Código Único de Identificación Laboral, Argentina
+          - C.U.R.P.  # Clave Única de Registro de Población, Mexico
         document_schema: Identification
 
       - match:
@@ -129,6 +130,10 @@ lookups:
         values:
           - Egypt
           - USA
+      - match: México / Colombia
+        values:
+          - Mexico
+          - Colombia
   type.date:
     options:
       - match: "2"
@@ -211,6 +216,30 @@ lookups:
         prop: recordId
       - match: OFAC SDN ID 30182ArP.00236
         value: ArP.00236
+        prop: recordId
+      - match: MRECIyC - MSGArP.00251
+        value: ArP.00251
+        prop: recordId
+      - match: SDNTK; ILLICIT - DRUGS - EO14059; SDGTArP.00252
+        value: ArP.00252
+        prop: recordId
+      - match: SDNTK; ILLICIT - DRUGS - EO14059; SDGTArP.00253
+        value: ArP.00253
+        prop: recordId
+      - match: SDNTK; ILLICIT - DRUGS - EO14059; SDGTArP.00254
+        value: ArP.00254
+        prop: recordId
+      - match: SDNTK; ILLICIT - DRUGS - EO14059; SDGTArP.00255
+        value: ArP.00255
+        prop: recordId
+      - match: Illicit - Drugs - EO14059ArP.00256
+        value: ArP.00256
+        prop: recordId
+      - match: Illicit - Drugs - EO14059ArP.00257
+        value: ArP.00257
+        prop: recordId
+      - match: Illicit - Drugs - EO14059; SDGT; SDNTKArP.00258
+        value: ArP.00258
         prop: recordId
   type.string:
     lowercase: true

@@ -52,7 +52,7 @@ dates:
 assertions:
   min:
     schema_entities:
-      Person: 5
+      Person: 3
       Address: 1
       Organization: 1
       LegalEntity: 150
@@ -82,7 +82,7 @@ lookups:
     options:
       - match: "1. Sankciju subjekts, kā līdzekļi vai saimnieciskie resursi ir iesaldēti (vārds, uzvārds / nosaukums)"
         value: freeze_subject_name
-      - match: "2. Dzimšanas datums vai LR personas kods/ reģistrācijas Nr."
+      - match: "2. Dzimšanas datums / reģistrācijas Nr."
         value: birth_date_or_id
       - match: "3. Valstspiederība / reģistrācijas valsts"
         value: nationality

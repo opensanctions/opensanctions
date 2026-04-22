@@ -12,7 +12,7 @@ summary: >
   Current and recent members of the United States Senate and House of Representatives
 description: >
   The US Congress is the collection of members of both houses of its
-  legislature - the Senate and the House of Representatives. 
+  legislature - the Senate and the House of Representatives.
 
   Members of the House of Representatives are elected to serve a two-year
   term representing the people of each person's district. Each state,
@@ -42,6 +42,10 @@ publisher:
     government. Among other resources, The Library of Congress publishes
     [congress.gov](https://www.congress.gov/) and the beta [Congress.gov
     Application Programming Interface (API)](https://api.congress.gov/).
+http:
+  total_retries: 5
+  backoff_factor: 2
+  retry_statuses: [520]
 
 assertions:
   min:

@@ -4,7 +4,7 @@ from lxml.etree import _Element
 from lxml.html import document_fromstring
 from normality import squash_spaces
 
-from zavod.extract.zyte_api import fetch_html, fetch_json
+from zavod.extract import zyte_api
 from zavod import Context
 from zavod.entity import Entity
 from zavod.helpers import make_position, make_occupancy
@@ -17,16 +17,12 @@ REGEX_BIRTH_PLACE_AND_DATE = re.compile(
 )
 
 
-def unblock_validator(doc):
-    return doc.find('.//main[@class="o-main"]/article/section[2]') is not None
-
-
-def crawl_person(context: Context, element: _Element, position: Entity):
+def crawl_person(context: Context, element: _Element, position: Entity) -> None:
     anchor = element.find(".//a")
     assert anchor is not None, "Failed to extract anchor"
     source_url = urljoin(context.data_url, anchor.get("href"))
     section_xpath = './/main[@class="o-main"]/article/section[2]'
-    doc = fetch_html(context, source_url, section_xpath, cache_days=1)
+    doc = zyte_api.fetch_html(context, source_url, section_xpath, cache_days=1)
     section = doc.find(section_xpath)
     assert section is not None, "Failed to extract main section"
 
@@ -70,7 +66,7 @@ def crawl_person(context: Context, element: _Element, position: Entity):
     context.emit(person)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     position = make_position(
         context,
         name="Member of the House of Representatives",
@@ -89,7 +85,7 @@ def crawl(context: Context):
     }
 
     url = f"https://www.tweedekamer.nl/views/ajax?{urlencode(params)}"
-    data = fetch_json(context, url)
+    data = zyte_api.fetch_json(context, url)
 
     # This API returns a couple objects to update DOM state, out of which one
     # is a "insert" object containing the HTML we're interested in

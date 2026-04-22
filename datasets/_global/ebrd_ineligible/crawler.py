@@ -21,7 +21,7 @@ NAME_SPLITS = [
 RE_NAME_SPLIT = re.compile("|".join(NAME_SPLITS), re.IGNORECASE)
 
 
-def crawl_entity(context: Context, data: Dict[str, Any]):
+def crawl_entity(context: Context, data: Dict[str, Any]) -> None:
     name_raw = data.pop("title")
     if not name_raw:
         return
@@ -55,7 +55,7 @@ def crawl_entity(context: Context, data: Dict[str, Any]):
     context.audit_data(data, ignore=["projectNoticeType"])
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     currentPage = 1
     data = {
         "parentPath": "/content/dam/ebrd_dxp/content-fragments/occo/ineligible-entities",

@@ -21,7 +21,7 @@ def add_source_link(entity: Entity, link: str) -> None:
         entity.add("sourceUrl", link)
 
 
-def crawl_sec_row(context: Context, row: Dict[str, str]):
+def crawl_sec_row(context: Context, row: Dict[str, str]) -> None:
     entity = context.make("Company")
     name = row.pop("name")
     entity.id = context.make_slug(name)

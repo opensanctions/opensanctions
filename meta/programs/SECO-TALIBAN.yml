@@ -1,0 +1,14 @@
+id: 280
+title: Measures Against Individuals and Groups Associated with the Taliban
+key: SECO-TALIBAN
+url: https://www.seco.admin.ch/seco/de/home/Aussenwirtschaftspolitik_Wirtschaftliche_Zusammenarbeit/Wirtschaftsbeziehungen/exportkontrollen-und-sanktionen/sanktionen-embargos/sanktionsmassnahmen/massnahmen-gegenueber-personen-und-organisationen-mit-verbindung1
+summary: These measures target individuals and groups associated with the Taliban
+  who pose a threat to the peace, stability and security of Afghanistan.
+issuer: ch_seco
+dataset: ch_seco_sanctions
+target_territories:
+- af
+measures:
+- Arms embargo
+- Asset freeze
+- Travel ban

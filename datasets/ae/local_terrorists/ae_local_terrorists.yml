@@ -189,6 +189,12 @@ lookups:
         value: endDate
         lang: ara
 
+  type.name:
+    options:
+      # Remove angle brackets from name (HTML/XSS suspicion)
+      - match: عبدالعزيز <حاجي عزيز شاه زماني>
+        value: عبدالعزيز حاجي عزيز شاه زماني
+
   type.country:
     lowercase: true
     normalize: true

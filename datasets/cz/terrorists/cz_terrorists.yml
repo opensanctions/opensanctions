@@ -23,16 +23,16 @@ publisher:
   url: https://vlada.gov.cz/en/
   official: true
   country: "cz"
-url: "https://www.e-sbirka.cz/sb/2008/210"
+url: "https://e-sbirka.gov.cz/sb/2008/210"
 data:
-  url: https://www.e-sbirka.cz/sb/2008/210
-  format: HTML
+  url: https://opendata.eselpoint.gov.cz/esel-esb/eli/cz/sb/2008/210
+  format: JSON
 dates:
   formats: ["%d.%m.%Y"]
 
 assertions:
   min:
-    # Asserting on exact expected numbers since data is static
+    # The data is static, but some are merged, so slightly lower than at source
     schema_entities:
       Person: 31
       Organization: 15
@@ -379,7 +379,7 @@ lookups:
                 "Buňka proti kapitálu, vězení, vězeňským dozorcům a vězeňským celám",
               ]
             schema: Organization
-      - match: " „Continuity Irish Republican Army“ – „CIRA“ („Pokračující Irská republikánská armádaarmáda“)"
+      - match: " „Continuity Irish Republican Army“ – „CIRA“ („Pokračující Irská republikánská armáda“)"
         details:
           - name: Continuity Irish Republican Army
             alias: ["CIRA", "Pokračující Irská republikánská armáda"]

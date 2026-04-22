@@ -1,0 +1,12 @@
+id: 74
+title: EU Restrictive Measures In View Of The Situation In Libya
+key: EU-LBY
+url: https://sanctionsmap.eu/#/main/details/23/
+summary: These sanctions target individuals and entities involved in the ongoing conflict
+  and human rights abuses in Libya. The measures include asset freezes, travel bans,
+  and restrictions on trade to promote peace, security, and democratic governance
+  in Libya.
+issuer: eu_council
+dataset: eu_fsf
+target_territories:
+- ly

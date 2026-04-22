@@ -2,7 +2,7 @@ title: US FINRA Enforcement Actions
 entry_point: crawler.py
 prefix: us-finra
 coverage:
-  frequency: daily
+  frequency: weekly
   start: "2024-05-09"
 load_statements: true
 summary: >
@@ -31,6 +31,11 @@ data:
   format: HTML
   lang: eng
 ci_test: false
+names:
+  schema_rules:
+    LegalEntity:
+      reject_chars: "()/\""
+  suggest_abbreviation_non_person_single_token_shorter_than: 5
 
 assertions:
   min:
@@ -52,9 +57,30 @@ lookups:
         value: Traderfield Securities Inc.
       - match: 2017054848101
         value: Jonathon Hartwig
+      - match: 47263
+        value: Reid & Rudiger LLC
+      - match: 2118724
+        value: Edward Joseph Rudiger Jr.
+      - match: 4701170
+        value: Kelli A. Mezzatesta
+      - match: 1605568
+        value: Marc Harrison
   comma_names:
     lowercase: true
     options:
+      # Splitting on this comma is a mistake
+      - match: "Kane, McKenna Capital, Inc."
+        names:
+          - Kane, McKenna Capital, Inc.
+      - match: STATE STREET GLOBAL MARKETS, LLC(NOW KNOWN IN RELEVANT PART AS STATE STREET GLOBAL MARKETS, LLC, CRD NO. 285852)
+        names:
+          - State Street Global Markets, LLC
+      - match: "KERN, SUSLOW SECURITIES, INC."
+        names:
+          - KERN, SUSLOW SECURITIES, INC.
+      - match: "Axos Clearing LLC,1"
+        names:
+          - Axos Clearing LLC
       - match: "ameriprise advisor services inc., h&r block financial advisors inc."
         names:
           - Ameriprise advisor services inc.
@@ -835,3 +861,10 @@ lookups:
       - match: Carter, Terry & Company Inc.
         names:
           - Carter, Terry & Company Inc.
+      - match: "reid & rudiger llc 47263, 2118724, 4701170, 1605568"
+        names:
+          - Reid & Rudiger LLC
+          - Edward Joseph Rudiger Jr.
+          - Kelli A. Mezzatesta
+          - Marc Harrison
+          - Clifford R. Reid  # missing from the preview but listed in the Disciplinary Proceeding No. 2019060647601

@@ -1,0 +1,36 @@
+id: 267
+title: EU sanctions against Iran
+key: EU-IRN
+url: https://sanctionsmap.eu/#/main/details/17,18,56/
+summary: 'The EU has imposed sanctions against Iran in response to its human rights
+  abuses, nuclear proliferation activities and military support for Russia''s war
+  of aggression against Ukraine.
+
+
+  Entities may only be sanctioned under one specific program, such as those related
+  to human rights violations or non-proliferation of weapons of mass destruction.
+
+
+  Human Rights Violations: EU sanctions since 2011 target individuals involved in
+  repressing peaceful protests, journalists, and human rights defenders in Iran, with
+  travel bans, asset freezes, and restrictions on repressive equipment.
+
+
+  Non-Proliferation of WMD: Sanctions, aligned with UN measures, restrict Iran’s nuclear
+  and missile activities. Some sanctions were lifted after the 2015 JCPoA but remain
+  in place due to non-compliance.
+
+
+  Military Support to Russia and Armed Groups: In 2023, the EU imposed sanctions on
+  Iran for supplying UAVs to Russia and supporting armed groups, including travel
+  bans, asset freezes, and export restrictions.'
+issuer: eu_council
+dataset: eu_fsf
+aliases:
+- Restrictive measures in relation to serious human rights violations in Iran
+- Restrictive measures in relation to the non-proliferation of weapons of mass destruction
+- Restrictive measures in view of Iran’s military support to Russia’s war of aggression
+  against Ukraine and to armed groups and entities in the Middle East and the Red
+  Sea region
+target_territories:
+- ir

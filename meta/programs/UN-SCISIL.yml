@@ -1,0 +1,24 @@
+id: 103
+title: ISIL & Al-Qaida Sanctions
+key: UN-SCISIL
+url: https://www.un.org/securitycouncil/sanctions/1267
+summary: 'Security Council Committee pursuant to resolutions 1267 (1999), 1989 (2011)
+  and 2253 (2015) concerning ISIL (Da’esh), Al-Qaida, and associated individuals,
+  groups, undertakings and entities (hereafter “the Committee”) oversees the sanctions
+  measures imposed by the Security Council.
+
+
+  States are required to take the measures above with respect to ISIL (Da''esh), Al-Qaida
+  and other individuals, groups, undertakings and entities associated with them, as
+  designated on the ISIL (Da''esh) and Al-Qaida Sanctions List (hereafter “ISIL (Da’esh)
+  & Al-Qaida Sanctions List”).'
+issuer: zz_unsc
+dataset: un_sc_sanctions
+aliases:
+- Resolutions 1267, 1989, 2253
+target_territories:
+- zz
+measures:
+- Arms embargo
+- Asset freeze
+- Travel ban

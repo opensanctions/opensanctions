@@ -22,6 +22,7 @@ def crawl_item(member_url: str, context: Context):
 
     entity = context.make("Person")
     entity.id = context.make_id(name)
+    entity.add("citizenship", "ee")
     context.log.info(f"Full name {name} unique id {entity.id}")
     h.apply_name(entity, full=name)
 

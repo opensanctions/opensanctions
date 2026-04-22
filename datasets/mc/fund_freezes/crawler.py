@@ -4,31 +4,16 @@ from typing import Any, Dict
 from zavod import Context
 from zavod import helpers as h
 
+NUMBERING = [f"{chr(ord('a') + i)})" for i in range(16)]
+NUMBERING += ["i)", "ii)", "iii)", "iv)", "v)"]
+# Common non-word prefixes
+SEMI_NUMBERING_SPLITS = [f"; {s}" for s in NUMBERING]
+COMMA_NUMBERING_SPLITS = [f", {s}" for s in NUMBERING]
+NEWLINE_NUMBERING_SPLITS = [f"\n{s}" for s in NUMBERING]
+NUMBERING_SPLITS = (
+    SEMI_NUMBERING_SPLITS + COMMA_NUMBERING_SPLITS + NEWLINE_NUMBERING_SPLITS
+)
 ALIAS_SPLITS = [
-    "; a)",
-    "; b)",
-    "; c)",
-    "; d)",
-    "; e)",
-    "; f)",
-    "; g)",
-    "; h)",
-    "; i)",
-    "; j)",
-    "; k)",
-    "; l)",
-    "; m)",
-    "; n)",
-    "; o)",
-    "; p)",
-    "  a) ",
-    "  b) ",
-    "  c) ",
-    "  d) ",
-    ";;",
-    ",;",
-    ";",
-    " ou ",
     "Egalement connue sous le nom:",
     "Egalement connue sous les noms:",
     "Autrement connu sous le nom de:",
@@ -38,26 +23,22 @@ ALIAS_SPLITS = [
     "(autre dénomination :",
     "(autres dénominations :",
     "autres dénominations:",
-]
+    " ou ",
+    ";;",
+    ",;",
+    ";",
+] + NUMBERING_SPLITS
 
 
-def clean_address(text):
+def clean_address(text: str | None) -> list[str]:
     if not text:
-        return None
-
-    # regex to match entries wih pattern from a) to z)
-    patterns = [
-        r"\b[a-z]\)\s(.*?)(?=\s[a-z]\)|$)",
-    ]
-    for pattern in patterns:
-        matches = re.findall(pattern, text, re.DOTALL | re.VERBOSE)
-        if matches:
-            return [match.strip(", ") for match in matches]
-    else:
-        return text.split("\n")
+        return []
+    if text.startswith("a)"):
+        text = text.replace("a)", "", 1)
+    return h.multi_split(text, NUMBERING_SPLITS + ["\r\n"])
 
 
-def extract_passport_no(text):
+def extract_passport_no(text: str | None) -> list[str] | None:
     if not text:
         return None
     pattern = r"\b[A-Z0-9]{5,}\b"
@@ -66,7 +47,7 @@ def extract_passport_no(text):
     return matches
 
 
-def crawl_entity(context: Context, data: Dict[str, Any]):
+def crawl_entity(context: Context, data: Dict[str, Any]) -> None:
     entity_id = data.pop("mesureId")
     status = data.pop("state")
     if status == "withdrawal":
@@ -86,7 +67,9 @@ def crawl_entity(context: Context, data: Dict[str, Any]):
     # TODO: #2656
     # Aliases splitting is a good candidate for LLM-backed name splitting helper
     # https://github.com/opensanctions/opensanctions/issues/2656
-    for alias in h.multi_split(aliases, ALIAS_SPLITS):
+    for alias in h.multi_split(
+        aliases, splitters=sorted(ALIAS_SPLITS, key=len, reverse=True)
+    ):
         alias = alias.strip()
         if not alias:
             continue
@@ -96,9 +79,8 @@ def crawl_entity(context: Context, data: Dict[str, Any]):
             continue
 
         if "/" in alias:
-            result = context.lookup("aliases", alias)
+            result = context.lookup("aliases", alias, warn_unmatched=True)
             if not result:
-                context.log.warn(f"Alias not found in the lookups: {alias.strip()}")
                 entity.add(aliasProp, alias)
             else:
                 for a in result.aliases:
@@ -152,7 +134,7 @@ def crawl_entity(context: Context, data: Dict[str, Any]):
     context.audit_data(data)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     data = context.fetch_json(context.data_url, cache_days=1)
     for record in data:
         crawl_entity(context, record)

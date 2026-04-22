@@ -24,7 +24,7 @@ def crawl_pdf_url(context: Context) -> str:
     raise ValueError("No PDF found")
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     pdf_url = crawl_pdf_url(context)
     path = context.fetch_resource("source.pdf", pdf_url)
     context.export_resource(path, PDF, title=context.SOURCE_TITLE)
@@ -62,7 +62,8 @@ def crawl(context: Context):
                 )
             entity.add("name", norm_name)
             entity.add("title", holder.get("honorary_prefix"))
-            entity.add("country", country)
+            entity.add("citizenship", country)
+            entity.add("position", full_title)
 
             position = h.make_position(
                 context,

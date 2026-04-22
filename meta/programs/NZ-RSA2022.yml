@@ -1,0 +1,12 @@
+id: 172
+title: Russia Sanctions Act 2022
+key: NZ-RSA2022
+url: https://www.mfat.govt.nz/en/countries-and-regions/europe/ukraine/russian-invasion-of-ukraine/sanctions/
+summary: These sanctions target individuals and entities involved in Russia's invasion
+  of Ukraine. The measures include asset freezes, travel bans, and trade restrictions
+  to pressure Russia to cease its aggression and support Ukraine's sovereignty and
+  territorial integrity.
+issuer: nz_mfat
+dataset: nz_russia_sanctions
+target_territories:
+- ru

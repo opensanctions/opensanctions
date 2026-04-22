@@ -1,6 +1,7 @@
 import csv
 from pathlib import Path
-from typing import Dict
+from typing import Dict, cast
+from lxml.html import HtmlElement
 
 from normality import squash_spaces
 from rigour.text.scripts import is_latin
@@ -66,31 +67,32 @@ ID_FIELDS = [("id_no", "id_country"), ("residency_no", "residency_country")]
 LOCAL_PATH = Path(__file__).parent
 
 
-def remove_zero_width_space(row):
+def remove_zero_width_space(row: Dict[str, str]) -> Dict[str, str]:
     return {
         k: (v.replace("\u200b", "") if isinstance(v, str) else v)
         for k, v in row.items()
     }
 
 
-def normalize_address(addr):
-    return "".join(HOMOGLYPHS.get(c, c) for c in addr)
+def normalize_address(addr: str) -> str:
+    return "".join(HOMOGLYPHS.get(c) or c for c in addr)
 
 
-def write_csv_for_manual_diff(table, path):
+def write_csv_for_manual_diff(table: HtmlElement, path: Path) -> None:
     with open(path, "w") as f:
         writer = csv.writer(f)
         for row in table.findall(".//tr"):
             cells = [
-                squash_spaces(c.text_content())
-                for c in row.xpath(".//*[self::td or self::th]")
+                squash_spaces(cast(HtmlElement, c).text_content())
+                for c in h.xpath_elements(row, ".//*[self::td or self::th]")
             ]
             writer.writerow(cells)
 
 
-def crawl_csv_row(context: Context, row: Dict[str, str]):
+def crawl_csv_row(context: Context, row: Dict[str, str]) -> None:
     person = None
     entity = None
+    country = None
     wallets = []
 
     # --- Person ---
@@ -144,22 +146,25 @@ def crawl_csv_row(context: Context, row: Dict[str, str]):
         context.emit(entity)
 
     # --- Wallets --- are always created if wallet data is present
-    account_id = row.pop("account/wallet_id")
-    if account_id:
-        account_id = normalize_address(account_id)
-        if not is_latin(account_id):
-            context.log.warning(f"Non-latin account ID: {account_id}")
+    # account_id = row.pop("account/wallet_id")
+    wallet_address = row.pop("wallet_address")
+    account_id = row.pop("account_id")
+    # Use wallet_id if present, otherwise fall back to account_id
+    # These are mutually exclusive in source data - we get either:
+    # - wallet_address: On-chain address tied to a specific blockchain
+    # - account_id: Platform account number tied to an exchange (e.g., Binance)
+    identifier = wallet_address or account_id
+    if identifier:
+        identifier = normalize_address(identifier)
+        if not is_latin(identifier):
+            context.log.warning(f"Non-latin identifier: {identifier}")
         wallet = context.make("CryptoWallet")
-        wallet.id = context.make_id(account_id)
-        wallet.set("publicKey", account_id)
-        platform = row.pop("platform")
-        if platform:
-            wallet.set("managingExchange", platform)
-        currency = row.pop("currency")
-        if currency:
-            wallet.set("currency", currency)
-        if person or entity:
-            wallet.set("holder", person or entity)
+        wallet.id = context.make_id(identifier)
+        wallet.set("publicKey", wallet_address)
+        wallet.set("accountId", account_id)
+        wallet.set("managingExchange", row.pop("platform"))
+        wallet.set("currency", row.pop("currency"))
+        wallet.set("holder", person or entity)
         wallets.append(wallet)
 
     # --- Sanction & Linking ---
@@ -190,11 +195,12 @@ def crawl_csv_row(context: Context, row: Dict[str, str]):
     context.audit_data(row)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     # Get a warning when a notice has been issued
     content_xpath = ".//main"
-    doc = fetch_html(context, context.dataset.model.url, content_xpath, cache_days=1)
-    container = doc.xpath(content_xpath)[0]
+    assert context.dataset.url
+    doc = fetch_html(context, context.dataset.url, content_xpath, cache_days=1)
+    container = h.xpath_element(doc, content_xpath)
     # Write a CSV snapshot to check the diff manually (git diff).
     # Review for any new releases or persons/wallets added.
     # The key things to check are
@@ -203,13 +209,12 @@ def crawl(context: Context):
     # If updated, reflect changes in the Google Sheet and commit the new CSV:
     # git add -f datasets/il/mod_crypto/releases.csv
     # git add -f datasets/il/mod_crypto/wallets.csv
-    tables = container.xpath('//table[@class="ms-rteTable-4"]')
-    if len(tables) != 2:
-        context.log.warning(f"Expected 2 tables, found {len(tables)}")
-
+    tables = h.xpath_elements(
+        container, '//table[@class="ms-rteTable-4"]', expect_exactly=2
+    )
     write_csv_for_manual_diff(tables[0], LOCAL_PATH / "releases.csv")
     write_csv_for_manual_diff(tables[1], LOCAL_PATH / "wallets.csv")
-    h.assert_dom_hash(container, "36f0215ed4ac0e1e8b76df5bf565f72aaac5eaba")
+    h.assert_dom_hash(container, "6940e780ac039c1068508dc1d4acfee4f36d4262")
 
     # At the time of writing, the table on the web page is missing some public keys,
     # so we maintain the data manually in a google sheet, but dump the table to csv

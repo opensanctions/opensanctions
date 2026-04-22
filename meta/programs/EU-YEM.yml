@@ -1,0 +1,20 @@
+id: 265
+title: EU Restrictive measures in view of the situation in Yemen
+key: EU-YEM
+url: https://sanctionsmap.eu/#/main/details/39/
+summary: 'On 26 February 2014, in view of the ongoing violence, terrorist activities
+  and political, security, economic and humanitarian challenges in Yemen, the UN Security
+  Council adopted Resolution 2140 (2014), where it reaffirmed its commitment to the
+  unity, sovereignty, independence and territorial integrity of Yemen, and established
+  travel restrictions and asset freezes to designated persons and entities. On 14
+  April 2015, the UN Security Council adopted Resolution 2216 (2015) which imposed
+  an arms embargo in relation to persons who engaged in acts that threaten the peace,
+  security or stability of Yemen.
+
+
+  Derogations to the restrictive measures are possible as well as exemptions for humanitarian
+  purposes.'
+issuer: eu_council
+dataset: eu_fsf
+target_territories:
+- ye

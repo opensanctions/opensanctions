@@ -1,0 +1,11 @@
+id: 198
+title: Iran Sanctions Regime
+key: AU-IRAN
+url: https://www.dfat.gov.au/international-relations/security/sanctions/sanctions-regimes/iran-sanctions-regime
+summary: Australia imposes autonomous sanctions in relation to Iran, which complement
+  the United Nations Security Council resolutions that Australia incorporates into
+  local law.
+issuer: au_dfat
+dataset: au_dfat_sanctions
+target_territories:
+- ir

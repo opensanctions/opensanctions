@@ -7,7 +7,9 @@ from zavod.exc import RunFailedException
 from zavod.meta.dataset import Dataset
 from zavod.store import View
 from zavod.entity import Entity
-from zavod.validators.assertions import StatisticsAssertionsValidator
+from zavod.validators.assertions import (
+    StatisticsAssertionsValidator,
+)
 from zavod.validators.common import BaseValidator
 
 

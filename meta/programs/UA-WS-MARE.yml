@@ -1,0 +1,13 @@
+id: 305
+title: Vessels involved in the transportation of weapons, stolen Ukrainian products
+  and in the circumvention of sanctions
+key: UA-WS-MARE
+url: https://war-sanctions.gur.gov.ua/en/transport/ships
+summary: Ukraine's intelligence agency's assessment of the Russian shadow fleet.
+issuer: ua_gur
+dataset: ua_war_sanctions
+target_territories:
+- ru
+- ua-cri
+- ua-dpr
+- ua-lpr

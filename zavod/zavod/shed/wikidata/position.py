@@ -71,6 +71,7 @@ IGNORE_TYPES: Set[str] = {
     "Q4240305",  # cross
     "Q120560",  # minor basilica?
     "Q2977",  # cathedral
+    "Q3320743",  # title of honor
 }
 
 # TEMP: We're starting to include municipal PEPs for specific countries
@@ -230,7 +231,7 @@ def wikidata_occupancy(
     """Create an Occupancy entity for the given person and position based on the claim,
     which identifies relevant qualifiers."""
     start_date: Optional[str] = None
-    for qual in claim.qualifiers.get("P580", []):
+    for qual in claim.get_qualifier("P580"):
         qual_date = qual.text.text
         if qual_date is not None:
             if start_date is None:
@@ -239,7 +240,7 @@ def wikidata_occupancy(
                 start_date = min(start_date, qual_date)
 
     end_date: Optional[str] = None
-    for qual in claim.qualifiers.get("P582", []):
+    for qual in claim.get_qualifier("P582"):
         qual_date = qual.text.text
         if qual_date is not None:
             if end_date is None:
@@ -252,6 +253,9 @@ def wikidata_occupancy(
     position_topics = position.get("topics")
     is_diplomat = "role.diplo" in position_topics
 
+    # Set the key prefix in order to avoid duplicating occupancies for the same
+    # position held by the same person across multiple datasets. The choice is
+    # somewhat arbitrary, but it avoids a larger delta if we chose "wikidata".
     occupancy = h.make_occupancy(
         context,
         person,
@@ -260,5 +264,21 @@ def wikidata_occupancy(
         start_date=start_date,
         end_date=end_date,
         propagate_country=not is_diplomat,
+        key_prefix="wd_peps",
     )
+
+    if occupancy is None:
+        return None
+
+    # reference URL:
+    for ref in claim.references:
+        for snak in ref.get("P854"):
+            if snak.text is not None:
+                snak.text.apply(occupancy, "sourceUrl")
+
+    # electoral district:
+    for qual in claim.get_qualifier("P768"):
+        if qual.text is not None:
+            qual.text.apply(occupancy, "constituency")
+
     return occupancy

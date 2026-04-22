@@ -90,6 +90,8 @@ lookups:
         value: parliamentary_status
       - match: Kansanedustajana
         value: as_member_of_parliament
+      - match: KansanedustajuusPaattynytPvm
+        value: parliament_end_date
       # Parliamentary groups (parties)
       - match: Eduskuntaryhmat
         value: parties

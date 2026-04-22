@@ -16,7 +16,7 @@ ORG_URL = "https://nbctf.mod.gov.il/he/Announcements/Documents/NBCTFIsrael%20-%2
 PEOPLE_URL = "https://nbctf.mod.gov.il/he/Announcements/Documents/NBCTF%20Israel%20designation%20Individuals_XL.xlsx"
 NA_VALUE = re.compile(r"^=?[\"\-\/]+$")
 END_TAG = re.compile(r"בוטל ביום", re.U)
-SPLITS = ["; ", "Id Number", "a) ", "b) ", "c) ", " :", "\n", "• "]
+SPLITS = [";", "Id Number", "a) ", "b) ", "c) ", " :", "\n", "• "]
 DATE_SPLITS = ["OR", ";", " - ", "a) ", "b) ", "c) "]
 NON_ADDRESS_PATTERN = re.compile(
     r"^(?:Branches:|Address\s*\d+:)\s*", re.IGNORECASE | re.MULTILINE

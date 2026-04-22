@@ -55,7 +55,7 @@ def parse_sheet(path: Path) -> Generator[Dict[str, CellValue], None, None]:
                         yield dict(zip(headers, row))
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     # this file is ods (open document sheet)
     path = context.fetch_resource("source.ods", context.data_url)
     context.export_resource(path, ODS, title=context.SOURCE_TITLE)
@@ -74,8 +74,11 @@ def crawl(context: Context):
         sanction.add(
             "listingDate", row.pop("Date of ministerial decision (DD/MM/JJJJ)")[1]
         )
-        sanction.add("sourceUrl", row.get("Link official notification")[1])
-        sanction.add("authorityId", row.pop("Link official notification")[2])
+        # link_official_notification looks something like this:
+        # ('link', 'https://www.officielebekendmakingen.nl/stcrt-2017-64067.html', 'Stcrt 64067')
+        link_offical_notification = row.pop("Link official notification")
+        sanction.add("sourceUrl", link_offical_notification[1])
+        sanction.add("authorityId", link_offical_notification[2])
 
         name = "%s %s" % (first_name, surname)
         name = name.strip()

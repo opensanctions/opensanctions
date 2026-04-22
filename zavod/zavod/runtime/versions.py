@@ -24,11 +24,30 @@ def make_version(
     path = _versions_path(dataset.name)
     if path.exists() and not append_new_version_to_history:
         return
+    # get_versions_data always reads from the archive, never from the local file system.
     data = get_versions_data(dataset.name)
     history = VersionHistory.from_json(data or "{}")
     if version not in history.items:
         history = history.append(version)
 
+    with open(path, "w") as fh:
+        fh.write(history.to_json())
+
+
+def set_last_successful_version(dataset: Dataset, version: Version) -> None:
+    """Set the last successful version in the dataset history."""
+    path = _versions_path(dataset.name)
+    if not path.exists():
+        raise RuntimeError(
+            f"Version history file does not exist for dataset {dataset.name}"
+        )
+    with open(path, "r") as fh:
+        history = VersionHistory.from_json(fh.read())
+    if version not in history.items:
+        raise RuntimeError(
+            f"Version {version} is not in the version history for dataset {dataset.name}"
+        )
+    history.last_successful = version
     with open(path, "w") as fh:
         fh.write(history.to_json())
 

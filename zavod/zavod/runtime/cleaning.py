@@ -5,10 +5,12 @@ from rigour.ids import get_identifier_format
 from rigour.names import is_name
 from prefixdate.precision import Precision
 from followthemoney import registry, Property, model
-from followthemoney.types import PropertyType
+from followthemoney.statement.util import NON_LANG_TYPE_NAMES
 
+from zavod.constants import ORIGIN_INFERRED, ORIGIN_LOOKUP
 from zavod.logs import get_logger
-from zavod.runtime.lookups import prop_lookup, get_type_lookup
+from zavod.runtime.lookups import is_type_lookup_value, prop_lookup
+from zavod.runtime.safety import check_xss_html_smell
 
 
 if TYPE_CHECKING:
@@ -61,16 +63,6 @@ def clean_identifier(prop: Property, value: str) -> Optional[str]:
     return normalized
 
 
-def is_lookup_value(entity: "Entity", type_: PropertyType, value: str) -> bool:
-    """Check if a given value for a certain property type was obtained from
-    a lookup. This is used to skip validation for looked-up values."""
-    lookup = get_type_lookup(entity.dataset, type_)
-    if lookup is None:
-        return False
-    result = lookup.match(value)
-    return result is not None
-
-
 def value_clean(
     entity: "Entity",
     prop: Property,
@@ -78,7 +70,8 @@ def value_clean(
     cleaned: bool = False,
     fuzzy: bool = False,
     format: Optional[str] = None,
-) -> Generator[Tuple[Property, str], None, None]:
+    origin: Optional[str] = None,
+) -> Generator[Tuple[Property, str, Optional[str]], None, None]:
     if prop.deprecated:
         log.warning(
             "Deprecated property used: %s" % prop.name,
@@ -89,6 +82,8 @@ def value_clean(
 
     for prop_, item in prop_lookup(entity, prop, value):
         clean: Optional[str] = item
+        if origin is None and item != value:
+            origin = ORIGIN_LOOKUP
         if not cleaned:
             if prop_.type == registry.identifier:
                 clean = clean_identifier(prop_, item)
@@ -99,6 +94,15 @@ def value_clean(
                     fuzzy=fuzzy,
                     format=format,
                 )
+
+        # Do not check non-text properties
+        # We use NON_LANG_TYPE_NAMES as a proxy for "non-freetext" properties
+        # That's not beautiful, but it works.
+        if clean is not None and prop.type not in NON_LANG_TYPE_NAMES:
+            clean = check_xss_html_smell(
+                entity, prop_, raw_value=value, cleaned_value=clean
+            )
+
         # We validate Person:*Name properties as names cause they're strings
         # in the FtM model.
         # See https://github.com/opensanctions/followthemoney/issues/71
@@ -114,11 +118,11 @@ def value_clean(
             if prop_.name == "abbreviation" and clean is not None:
                 weak_prop = entity.schema.get("weakAlias")
                 if weak_prop is not None:
-                    yield weak_prop, clean
+                    yield weak_prop, clean, origin
                 # Allow abbreviations that are not valid names
 
             elif entity.schema.is_a("LegalEntity") and not is_name(clean):
-                if not is_lookup_value(entity, registry.name, item):
+                if not is_type_lookup_value(entity, registry.name, item):
                     log.warning(
                         f"Property value {value!r} is not a valid name.",
                         entity_id=entity.id,
@@ -144,7 +148,7 @@ def value_clean(
             # This is not a general restriction on addresses that should be in FtM,
             # but rather a smell that can indicate a crawler bug.
             if prop_.type == registry.address and len(clean) <= 3:
-                if not is_lookup_value(entity, registry.address, item):
+                if not is_type_lookup_value(entity, registry.address, item):
                     log.warning(
                         f"Property for {prop_.name} looks too short for an address: {value}",
                         entity_id=entity.id,
@@ -153,11 +157,16 @@ def value_clean(
                         clean=clean,
                     )
 
-            yield prop_, clean
+            # Topics are intrinsically inferred so saying it each time feels redundant. But
+            # it is making this aspect explicit in the data.
+            if prop_.type == registry.topic and origin is None:
+                origin = ORIGIN_INFERRED
+
+            yield prop_, clean, origin
             continue
         if prop_.type == registry.phone:
             # Do not have capacity to clean all phone numbers, allow broken ones
-            yield prop_, item
+            yield prop_, item, origin
             continue
         log.warning(
             f"Rejected property value [{prop_.name}]: {value}",

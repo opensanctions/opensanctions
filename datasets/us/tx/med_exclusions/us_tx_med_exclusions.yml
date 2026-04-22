@@ -1,0 +1,127 @@
+title: US Texas Medicaid Provider Exclusions
+entry_point: crawler.py
+prefix: us-medtx
+coverage:
+  schedule: "20 4 1,15 * *"
+  start: "2026-02-23"
+load_statements: true
+ci_test: false  # zyte not available in CI
+summary: >
+  List of excluded individuals and entities for Texas Medicaid and other HHS programs
+description: |
+    > The Texas Health & Human Services Commission Office of Inspector General (OIG) maintains
+    a “List of Excluded Individuals/Entities” to help protect program beneficiaries by preventing
+    excluded individuals and businesses from participating in Texas Medicaid and other HHS programs.
+
+    Bases for exclusion include convictions for program-related fraud and patient abuse, licensing board actions,
+    U.S. Health & Human Services OIG (Medicare) exclusion actions, and "Permissive" exclusions as allowed by various
+    legal authorities.
+tags:
+  - sector.medical
+  - sector.usmed.debarment
+publisher:
+  name: The Texas Health & Human Services Commissions (Commission) Office of Inspector General (OIG)
+  description: >
+    > The Texas Health & Human Services Commissions (Commission) Office of Inspector General (OIG)
+    works to protect the health and welfare of Texas Medicaid and other HHS programs beneficiaries by
+    preventing the participation of certain individuals and businesses, and maintains the List of
+    Excluded Individuals/Entities.
+  acronym: OIG
+  url: "https://oig.hhsc.state.tx.us/oigportal2/Exclusions/ctl/ABO/mid/384"
+  official: true
+  country: "us"
+url: "https://oig.hhsc.state.tx.us/oigportal2/Exclusions/ctl/DOW/mid/384"
+data:
+  url: "https://oig.hhsc.state.tx.us/oigportal2/Exclusions/ctl/DOW/mid/384"
+  format: XLSX
+  lang: eng
+dates:
+  formats: ["%m/%d/%Y"]  # datetime
+
+assertions:
+  min:
+    schema_entities:
+      Person: 9300  # 11710 count
+      Company: 370  # 473 count
+  max:
+    schema_entities:
+      Person: 23500
+      Company: 1000
+
+lookups:
+  type.identifier:
+    options:
+      - match:
+          - 1265563261
+          - 167904359
+          - 15199
+          - 1452320558
+          - 1885136769
+          - 1225533057
+          - 118771347
+        prop: registrationNumber
+  names:
+    options:
+      - match: Pro Medic EMS, LLC dba Pro Medic EMS, LLC
+        names:
+          - Pro Medic EMS, LLC
+      - match: Executive Healthcare, LLC d/b/a The Apothecary Sho
+        names:
+          - Executive Healthcare, LLC
+          - The Apothecary Shop
+      - match: ERX Consultants LLC, dba Zoetic Pharmacy
+        names:
+          - ERX Consultants LLC
+          - Zoetic Pharmacy
+      - match: Ukie Emergency Medical Services, Inc. d/b/a Ukie E
+        names:
+          - Ukie Emergency Medical Services, Inc
+          - Ukie EMS
+      - match: Maxim Mossman PLLC dba Amigos Dental
+        names:
+          - Maxim Mossman PLLC
+          - Amigos Dental
+      - match: Sechanz Enterprises Inc. d/b/a Hovic Pharmacy and
+        names:
+          - Sechanz Enterprises Inc
+          - Hovic Pharmacy
+      - match: MossPrime Dental PLLC dba North Arlington Smiles
+        names:
+          - MossPrime Dental PLLC
+          - North Arlington Smiles
+      - match: RightChoice Dental, PLLC dba The Dental House
+        names:
+          - RightChoice Dental, PLLC
+          - The Dental House
+      - match: Mossman Dental, PLLC dba The Dental  Park
+        names:
+          - Mossman Dental, PLLC
+          - The Dental Park
+      - match: Pharmplex LTD III dba Penitas Family Pharmacy
+        names:
+          - Pharmplex LTD III
+          - Penitas Family Pharmacy
+      - match: Western Dental dba West Texas Dental
+        names:
+          - Western Dental
+          - West Texas Dental
+      - match: M Ayman Ghraowi, MD PA dba South Texas Comprehensi
+        names:
+          - M Ayman Ghraowi, MD PA
+          - South Texas Comprehensive Cancer Centers PLLC (STCCC)
+      - match: Southwest Medical Consultants Inc. d/b/a Los Ninos
+        names:
+          - Southwest Medical Consultants Inc
+          - Los Ninos Pediatric Rehab
+      - match: Acosta Medical Supply, Inc. dba Affordab
+        names:
+          - Acosta Medical Supply, Inc
+          - Affordable Medical Supply
+      - match: Family Healthcare, Inc d/b/a Unique Medical & Reha
+        names:
+          - Family Healthcare, Inc
+          - Unique Medical & Reha  # could be Rehab or Rehabilitation, i was able to find them in the registry but without the alias: https://comptroller.texas.gov/taxes/franchise/account-status/search/18707535466
+      - match: SCZ Investments, LLC d/b/a Rotunda Pharmacy
+        names:
+          - SCZ Investments, LLC
+          - Rotunda Pharmacy

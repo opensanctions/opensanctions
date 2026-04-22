@@ -7,7 +7,7 @@ import CodeMirror, { EditorView } from '@uiw/react-codemirror';
 import { createHighlighter } from '@/lib/codemirror';
 import { yamlSchema } from "codemirror-json-schema/yaml";
 import { compileSchema, draft04, JsonSchema } from 'json-schema-library';
-import { parse as parseYaml, stringify as stringifyToYaml } from 'yaml';
+import { parse as parseYaml, stringify as stringifyToYaml, YAMLParseError } from 'yaml';
 import React, { useState, useEffect, useRef } from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tab from 'react-bootstrap/Tab';
@@ -102,7 +102,7 @@ export default function ExtractionView({ rawData, extractedData, schema, accepte
   const [editorExtracted, setEditorExtracted] = useState(stringifyToYaml(extractedData, null, { indent: 2, lineWidth: 0 }));
   const [flashInvalid, setFlashInvalid] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   const editorRef = useRef<any>(null);
 
   function triggerFlash() {
@@ -114,11 +114,23 @@ export default function ExtractionView({ rawData, extractedData, schema, accepte
 
   const schemaNode = compileSchema(schema, { drafts: [draft04] });  // version selected to match that used in codemirror-json-schema
 
+  let result: { valid: boolean };
+  let errorSummary: string | null = null;
 
-  const editorExtractedParsed = parseYaml(editorExtracted)
-  const result = schemaNode.validate(editorExtractedParsed)
-  const errors = result.errors.map(err => err.message);
-  const errorSummary = errors.length === 0 ? null : `${errors.length} error(s) in Extracted YAML: ${errors.join('; ')}`;
+  try {
+    const editorExtractedParsed = parseYaml(editorExtracted);
+    const validationResult = schemaNode.validate(editorExtractedParsed);
+    result = validationResult;
+    const errors = validationResult.errors.map(err => err.message);
+    errorSummary = errors.length === 0 ? null : `${errors.length} error(s) in Extracted YAML: ${errors.join('; ')}`;
+  } catch (e) {
+    if (e instanceof YAMLParseError) {
+      result = { valid: false };
+      errorSummary = `YAML Parse Error: ${e.message}`;
+    } else {
+      throw e;
+    }
+  }
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -239,7 +251,7 @@ export default function ExtractionView({ rawData, extractedData, schema, accepte
           ref={formRef}
           method="POST"
           action="/api/extraction/save"
-          className="d-flex justify-content-end align-items-center mt-3 gap-3 w-100"
+          className="d-flex justify-content-end align-items-center mt-auto pt-3 gap-3 w-100"
         >
           <input type="hidden" name="dataset" value={dataset} />
           <input type="hidden" name="key" value={entryKey} />

@@ -12,20 +12,27 @@ the time we check the issue, or whether there's a bug. Keeping an eye on this
 for a bit longer (2024-07-31)
 """
 
-import re
-from typing import Dict
 from lxml.etree import _Element
+from typing import Dict, Optional
+from urllib.parse import urlparse, parse_qs
+
 from zavod import Context, helpers as h
+from zavod.extract import zyte_api
 
 
 def crawl_item(context: Context, row: Dict[str, _Element]) -> None:
     names = []
     name_els = row.pop("firms_individuals")
-    assert name_els is not None
-    for dirty_name_el in name_els.findall(".//span"):
-        # for one known instance of ,1 at the end of the name
-        dirty_name = re.sub(r",1$", "", h.element_text(dirty_name_el))
-        names.extend(h.split_comma_names(context, dirty_name))
+    for div_row in h.xpath_elements(name_els, ".//div[@class='row']"):
+        # Select the text-bearing span directly, skipping the icon span which has no
+        # text content. This avoids relying on positional span[2] and also prevents
+        # the outer wrapper span from concatenating all descendant text into a single
+        # corrupted string.
+        name = h.xpath_string(div_row, "./span[normalize-space(text())]/text()").strip()
+        if not name:
+            context.log.warning("No name span found, page structure may have changed")
+            continue
+        names.extend(h.split_comma_names(context, name))
     case_summary = h.element_text(row.pop("case_summary"))
     case_id_el = row.pop("case_id")
     case_id = h.element_text(case_id_el)
@@ -35,7 +42,17 @@ def crawl_item(context: Context, row: Dict[str, _Element]) -> None:
     for name in names:
         entity = context.make("LegalEntity")
         entity.id = context.make_slug(name)
-        entity.add("name", name)
+
+        # Catches names with embedded alias indicators, e.g.:
+        # "Score Priority Corp. formerly known as Just2Trade Inc."
+        # "CODA Markets Inc. (f/k/a PDQ ATS Inc.)"
+        h.apply_reviewed_name_string(
+            context,
+            entity,
+            string=name,
+            llm_cleaning=True,
+        )
+
         entity.add("topics", "reg.action")
         entity.add("country", "us")
         context.emit(entity)
@@ -51,28 +68,46 @@ def crawl_item(context: Context, row: Dict[str, _Element]) -> None:
     context.audit_data(row, ignore=["document_type"])
 
 
-def crawl(context: Context) -> None:
-    # Each page only displays 15 rows at a time, so we need to loop until we find an empty table
-    page_num = 0
-    while True:
-        context.log.info(f"Crawling page {page_num}")
-        url = context.data_url + "?page=" + str(page_num)
-        # Caching for longer than 1 day can easily lead to missing entries as
-        # the new stuff show up on the first page, and cached pages pages won't
-        # include the stuff that were shifted off the previous uncached page.
-        response = context.fetch_html(url, cache_days=1, absolute_links=True)
-        table = response.find(".//table")
+def get_max_page(response: _Element) -> Optional[int]:
+    links = h.xpath_elements(response, ".//a[contains(@title, 'Go to last page')]")
+    if len(links) == 0:
+        # Intermediate result pages incorrectly showing "No Results Found" have
+        # no pagination links.
+        return None
+    assert len(links) == 1, len(links)
+    href = links[0].get("href", "")
+    params = parse_qs(urlparse(href).query)
+    return int(params["page"][0])
 
+
+def crawl(context: Context) -> None:
+    # Each page only displays 15 rows at a time. We determine the last page from
+    # the pagination buttons because intermediate pages may report no results even
+    # when later pages still have data.
+    page_num = 0
+    max_page = None
+    while max_page is None or page_num <= max_page:
+        context.log.info(f"Crawling page {page_num} of {max_page}")
+        url = context.data_url + "?page=" + str(page_num)
+        # Zyte because occasional cloudflare javascript challenge.
+        response = zyte_api.fetch_html(context, url, ".//table", absolute_links=True)
+
+        # Update max_page each iteration in case pagination changes.
+        new_max = get_max_page(response)
+        if new_max is not None:
+            max_page = new_max
+
+        table = response.find(".//table")
         if table is None:
-            context.log.info("No table found")
-            break
+            context.log.info("No table found. Skipping page.", page_num=page_num)
+            page_num += 1
+            continue
         if response.find(".//div[@class='view-empty']") is not None:
-            context.log.info("Reached empty state")
-            break
+            context.log.info("No results found. Skipping page.", page_num=page_num)
+            page_num += 1
+            continue
 
         for row in h.parse_html_table(table):
             crawl_item(context, row)
 
         page_num += 1
-        if page_num > 3000:
-            raise Exception("Too many pages")

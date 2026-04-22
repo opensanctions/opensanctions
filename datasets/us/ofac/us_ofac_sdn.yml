@@ -6,8 +6,8 @@ coverage:
   start: "2015-12-05"
   schedule: "0 */2 * * *"
 deploy:
-  memory: 2000Mi
-  memory_limit: "2500Mi"
+  memory: 2500Mi
+  memory_limit: "3000Mi"
   cpu: "800m"
 load_statements: true
 summary: >
@@ -459,6 +459,7 @@ lookups:
           - "CAATSA Section 235 Information:"
           - "IFCA Determination -"
           - "PEESA Information:"
+          - "PAIPA Section 2 Information:"
           - "Additional Sanctions Information -"
           - "Secondary sanctions risk:"
           - "Transactions Prohibited For Persons Owned or Controlled By U.S. Financial Institutions:"
@@ -722,6 +723,10 @@ lookups:
         value: female
       - match: MALE
         value: male
+  type.text:
+    options:
+      - match: <Head Office>;
+        value: Head Office
   type.string:
     lowercase: true
     normalize: true
@@ -731,13 +736,13 @@ lookups:
       - match: Codigo Postal 21297
         value: 21297
       - match: Codigo Postal 03300
-        value: 03300
+        value: "03300"
       - match: Codigo Postal 03100
-        value: 03100
+        value: "03100"
       - match: Codigo Postal 06700
-        value: 06700
+        value: "06700"
       - match: Codigo Postal 03020
-        value: 03020
+        value: "03020"
       - match: Codigo Postal 14410
         value: 14410
       - match: Codigo Postal 01480

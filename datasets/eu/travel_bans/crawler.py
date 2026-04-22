@@ -1,6 +1,7 @@
 from zavod import Context
 from zavod import helpers as h
 from zavod.shed.fsf import parse_entry, parse_sanctions
+from zavod.stateful.review import assert_all_accepted
 
 URL = "https://www.sanctionsmap.eu/api/v1/travelbans/file/%s"
 
@@ -35,3 +36,5 @@ def crawl(context: Context):
                 salvage_entity(context, entry)
                 continue
             parse_entry(context, entry)
+
+    assert_all_accepted(context, raise_on_unaccepted=False)

@@ -37,6 +37,16 @@ data:
   url: https://registers.esma.europa.eu/publication/searchRegister/doRelativeSearch
   format: JSON
 
+assertions:
+  min:
+    schema_entities:
+      Security: 4_000_000
+      Organization: 30_000
+  max:
+    schema_entities:
+      Security: 8_000_000
+      Organization: 60_000
+
 lookups:
   type.country:
     options:

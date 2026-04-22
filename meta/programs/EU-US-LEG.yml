@@ -1,0 +1,13 @@
+id: 97
+title: EU Measures Protecting Against The Effects Of The Extra-Territorial Application
+  Of Certain US Legislation
+key: EU-US-LEG
+url: https://sanctionsmap.eu/#/main/details/38/
+summary: These measures aim to protect EU individuals and entities from the effects
+  of the extra-territorial application of certain US laws. The measures include blocking
+  statutes and other regulations to shield EU businesses from penalties and restrictions
+  imposed by US legislation that affects international trade and investment.
+issuer: eu_council
+dataset: eu_fsf
+target_territories:
+- us

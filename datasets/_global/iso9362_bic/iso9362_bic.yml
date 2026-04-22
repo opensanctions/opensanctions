@@ -46,12 +46,21 @@ data:
 http:
   user_agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36
 names:
-  LegalEntity:
-    # Skip / because of 2913 A/S (company type) instances vs 1 C/O instance
-    allow_chars: "/"
+  schema_rules:
+    LegalEntity:
+      # Skip / because of 2913 A/S (company type) instances vs 1 C/O instance
+      allow_chars: "/"
 
 lookups:
   type.country:
     options:
       - match: UT
         value: null
+
+assertions:
+  min:
+    schema_entities:
+      Organization: 27500
+  max:
+    schema_entities:
+      Organization: 65000

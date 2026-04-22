@@ -32,9 +32,9 @@ def metric_with_feedback_dict(
     for field in FIELDS:
         gold_set = set([n for n in example[field]])
         gold_set_lower = set([n.lower() for n in example[field]])
-        pred_set = set([n for n in pred[field]])
-        pred_set_lower = set([n.lower() for n in pred[field]])
-        pred_set_slugs = set([slugify(n) for n in pred[field]])
+        pred_set = set([n for n in pred.get(field, [])])
+        pred_set_lower = set([n.lower() for n in pred.get(field, [])])
+        pred_set_slugs = set([slugify(n) for n in pred.get(field, [])])
         extra = pred_set - gold_set
         for name in example[field]:
             if name in pred_set:

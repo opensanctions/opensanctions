@@ -1,0 +1,13 @@
+id: 91
+title: EU Misappropriation of State Funds Of Tunisia (MSF)
+key: EU-TUN
+url: https://sanctionsmap.eu/#/main/details/33/
+summary: These sanctions target individuals and entities involved in the misappropriation
+  of state funds in Tunisia. The measures include asset freezes and travel bans to
+  recover stolen assets and promote accountability and transparency in governance.
+issuer: eu_council
+dataset: eu_fsf
+target_territories:
+- tn
+measures:
+- Asset freeze

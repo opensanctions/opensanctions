@@ -6,7 +6,8 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint",
+    "lint-fix": "eslint --fix",
     "test": "jest"
   },
   "dependencies": {
@@ -17,9 +18,9 @@
     "bootstrap": "^5.3.7",
     "codemirror-json-schema": "^0.8.1",
     "jose": "^6.0.12",
-    "json-schema-library": "^10.5.2",
+    "json-schema-library": "^11.1.0",
     "kysely": "^0.28.2",
-    "next": "16.1.6",
+    "next": "16.2.4",
     "pg": "^8.16.3",
     "query-string": "^9.1.1",
     "react-bootstrap": "^2.10.10",
@@ -38,7 +39,7 @@
     "@types/turndown": "^5.0.5",
     "jest": "^30.0.4",
     "ts-jest": "^29.4.0",
-    "typescript": "^5",
+    "typescript": "^6",
     "eslint": "^9.23.0",
     "eslint-config-next": "^16.0.3",
     "eslint-plugin-import": "^2.32.0"

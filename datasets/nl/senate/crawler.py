@@ -70,9 +70,7 @@ def crawl_member(context: Context, member_el: _Element) -> None:
         return
     url = urljoin(context.data_url, member_link.get("href"))
     doc = context.fetch_html(url, cache_days=1)
-    if doc is None:
-        context.log.warning(f"Failed to fetch member page: {url}")
-        return
+
     # Extract name and start date
     name_clean, start_date, party = get_name_date_party(context, doc)
 

@@ -54,7 +54,7 @@ def crawl_positions(context: Context, member, entity):
 
 
 def crawl_member(context: Context, bioguide_id: str):
-    url = urljoin(context.data_url, bioguide_id)
+    url = f"{urljoin(context.data_url, bioguide_id)}?{urlencode({'format': 'json'})}"
     assert API_KEY is not None, "No $OPENSANCTIONS_US_CONGRESS_API_KEY key set."
     headers = {"x-api-key": API_KEY}
     member = context.fetch_json(url, headers=headers, cache_days=30)["member"]
@@ -62,6 +62,7 @@ def crawl_member(context: Context, bioguide_id: str):
 
     person = context.make("Person")
     person.id = context.make_id(bioguide_id)
+    person.add("citizenship", "us")
     h.apply_date(person, "birthDate", member.pop("birthYear", None))
     h.apply_date(person, "deathDate", member.pop("deathYear", None))
     person.add("name", member.pop("directOrderName"))
@@ -91,9 +92,9 @@ def crawl(context: Context):
     if API_KEY is None:
         context.log.error("No API key set, skipping crawl.")
         return
-    query = {"limit": 250}
+    query = {"limit": 250, "format": "json"}
     url = f"{context.data_url}?{urlencode(query)}"
-    headers = {"x-api-key": API_KEY}
+    headers = {"x-api-key": API_KEY, "accept": "application/json"}
     while url:
         try:
             response = context.fetch_json(url, headers=headers, cache_days=1)

@@ -1,18 +1,26 @@
+from collections import defaultdict
+from dataclasses import dataclass
 import re
-from typing import List, Optional, cast
+from typing import Dict, List, Optional, Tuple, cast
 
 from followthemoney.util import join_text
 from normality import squash_spaces
-from rigour.names import contains_split_phrase
-from rigour.names.check import is_nullword
+from pydantic import JsonValue
+from rigour.names import contains_split_phrase, remove_person_prefixes
+from rigour.text import is_nullword
+from rigour.text.scripts import is_dense_script
 
 from zavod import settings
+from zavod.constants import ORIGIN_INFERRED
 from zavod.context import Context
 from zavod.entity import Entity
+from zavod.meta.names import CleaningSpec, NamesSpec
 from zavod.extract.names.clean import (
     LLM_MODEL_VERSION,
-    CleanNames,
-    RawNames,
+    LangNames,
+    SourceNames,
+    Names,
+    LangText,
 )
 
 # alias clean_names so that it could be imported from here
@@ -26,7 +34,7 @@ from zavod.stateful.review import (
 REGEX_AND = re.compile(r"(\band\b|&|\+)", re.I)
 REGEX_LNAME_FNAME = re.compile(r"^\w+, \w+$", re.I)
 REGEX_CLEAN_COMMA = re.compile(
-    r", \b(LLC|L\.L\.C|Inc|Jr|INC|L\.P|LP|Sr|III|II|IV|S\.A|LTD|USA INC|\(?A/K/A|\(?N\.K\.A|\(?N/K/A|\(?F\.K\.A|formerly known as|INCORPORATED)\b",  # noqa
+    r", \b(LLC|L\.L\.C|Inc|Jr|INC|LLLP|L\.P|LP|Sr|III|II|IV|S\.A|LTD|USA INC|\(?A/K/A|\(?N\.K\.A|\(?N/K/A|\(?F\.K\.A|formerly known as|INCORPORATED)\b",  # noqa
     re.I,
 )
 
@@ -189,6 +197,11 @@ def apply_name(
         name_prop = "alias"
     if is_weak:
         name_prop = "weakAlias"
+
+    # Provenance for full names created from parts
+    full_origin = origin
+    if full is None or len(full) == 0:
+        full_origin = ORIGIN_INFERRED
     full = make_name(
         full=full,
         name1=name1,
@@ -208,7 +221,7 @@ def apply_name(
         suffix=suffix,
     )
     if full is not None and len(full):
-        entity.add(name_prop, full, quiet=quiet, lang=lang, origin=origin)
+        entity.add(name_prop, full, quiet=quiet, lang=lang, origin=full_origin)
 
 
 def split_comma_names(context: Context, text: str) -> List[str]:
@@ -226,6 +239,11 @@ def split_comma_names(context: Context, text: str) -> List[str]:
     text = squash_spaces(text)
     if len(text) == 0:
         return []
+
+    # Check early for overrides of cases where splitting on comma is a mistake.
+    res = context.lookup("comma_names", text)
+    if res:
+        return cast(List[str], res.names)
 
     text = REGEX_CLEAN_COMMA.sub(r" \1", text)
     # If the string ends in a comma, the last comma is unnecessary (e.g. Goldman Sachs & Co. LLC,)
@@ -247,154 +265,474 @@ def split_comma_names(context: Context, text: str) -> List[str]:
             return [text]
 
 
-def is_name_irregular(entity: Entity, string: Optional[str]) -> bool:
+@dataclass
+class Regularity:
+    is_irregular: bool
+    suggested_prop: Optional[str] = None
+
+
+def _is_single_token(string: str) -> bool:
+    """Use is_dense_script as a proxy for "separates name parts using spaces"
+
+    e.g. "김정은"(Kim Jong Un) doesn't have spaces
+    and what we mean by single token in this context is "John" or "Foopie"
+    """
+
+    if not is_dense_script(string):
+        return " " not in string
+    return False
+
+
+def _check_suggesting_heuristics(
+    entity: Entity, string: str, names_spec: NamesSpec
+) -> Optional[Regularity]:
+    # The flags for datasets to opt into suggesting heuristics are super verbose.
+    # The idea is to rather introduce additional heuristics with different names
+    # than have very general heuristics like 'suggest_person_weak_alias' and keep
+    # adding conditions to them, making the logic in each rule too hard to understand.
+    # If we really do end up with a lot of heuristics, we could consider a rule engine
+    # with rules like:
+    #
+    # [{  "short_name": "suggest_person_single_token",
+    #     "suggested": "weakAlias",
+    #     "preprocess": ["strip_prefixes"],
+    #     "if": {"schema": "Person", "is_single_token": True}
+    #   }, ...]
+
+    # Single token Person name (after stripping prefixes) -> weakAlias
+    if names_spec.suggest_weak_alias_person_single_token and entity.schema.is_a(
+        "Person"
+    ):
+        if _is_single_token(remove_person_prefixes(string)):
+            return Regularity(is_irregular=True, suggested_prop="weakAlias")
+
+    # Organization name shorter than threshold, all uppercase -> abbreviation
+    threshold = names_spec.suggest_abbreviation_uppercase_org_single_token_shorter_than
+    if threshold is not None and entity.schema.is_a("Organization"):
+        if _is_single_token(string) and len(string) < threshold and string.isupper():
+            return Regularity(is_irregular=True, suggested_prop="abbreviation")
+
+    # LegalEntity but not Person name shorter than threshold, all uppercase -> abbreviation
+    threshold = names_spec.suggest_abbreviation_non_person_single_token_shorter_than
+    if (
+        threshold is not None
+        and entity.schema.is_a("LegalEntity")
+        and not entity.schema.is_a("Person")
+    ):
+        if _is_single_token(string) and len(string) < threshold and string.isupper():
+            return Regularity(is_irregular=True, suggested_prop="abbreviation")
+
+    return None
+
+
+def _check_schema_name_specs(string: str, spec: CleaningSpec) -> Optional[Regularity]:
+    for char in spec.reject_chars_consolidated:
+        if char in string:
+            return Regularity(is_irregular=True)
+
+    # spec.allow_nullwords
+    if not spec.allow_nullwords and is_nullword(string, normalize=True):
+        return Regularity(is_irregular=True)
+
+    # spec.min_length
+    # Dense scripts e.g. Han (习近平 for Xi Jinping) use much fewer code points
+    # ("characters") than latin, cyrilic etc. min_length is intended to catch
+    # unrealistically short names so dense scripts are exempted to avoid false positives.
+    if not is_dense_script(string) and len(string) < spec.min_length:
+        return Regularity(is_irregular=True)
+
+    # spec.single_token_min_length
+    if _is_single_token(string) and len(string) < spec.single_token_min_length:
+        return Regularity(is_irregular=True)
+
+    # spec.require_space
+    if spec.require_space and _is_single_token(string):
+        return Regularity(is_irregular=True)
+
+    return None
+
+
+def check_name_regularity(entity: Entity, string: Optional[str]) -> Regularity:
     """Determine whether a name string potentially needs cleaning."""
     string = squash_spaces(string or "")
 
     if not string:
-        return False
+        return Regularity(is_irregular=False)
 
-    spec = entity.dataset.names.get_spec(entity.schema)
-    if spec:
-        for char in spec.reject_chars_consolidated:
-            if char in string:
-                return True
+    names_spec = entity.dataset.names
+    spec = names_spec.get_spec(entity.schema)
 
-        # is nullword
-        if not spec.allow_nullwords and is_nullword(string, normalize=True):
-            return True
+    result = _check_suggesting_heuristics(entity, string, names_spec)
+    if result is not None:
+        return result
 
-        # min length
-        if len(string) < spec.min_chars:
-            return True
+    if spec is not None:
+        result = _check_schema_name_specs(string, spec)
+        if result is not None:
+            return result
 
-        # single token min length
-        if " " not in string and len(string) < spec.single_token_min_length:
-            return True
-
-        # requires space
-        if spec.require_space and " " not in string:
-            return True
-
-    # contains a known-as phrase
     if contains_split_phrase(string):
-        return True
+        return Regularity(is_irregular=True)
 
-    return False
+    return Regularity(is_irregular=False)
+
+
+def is_name_irregular(entity: Entity, string: Optional[str]) -> bool:
+    """Determine whether a name string is irregular and needs cleaning."""
+    return check_name_regularity(entity, string).is_irregular
+
+
+def check_names_regularity(entity: Entity, names: Names) -> Tuple[bool, LangNames]:
+    """
+    Determine whether any name string in the given Names instance is irregular
+    and needs cleaning.
+
+    Returns a tuple of a boolean indicating whether any name string is irregular,
+    and a Names instance based on that supplied, with any heuristic-suggested
+    categorisation adjustments applied (e.g. suggesting that a name be moved
+    from "name" to "alias" or "weakAlias").
+    """
+    is_irregular = False
+    updated_suggested_data: Dict[str, List[LangText]] = defaultdict(list)
+    for key, names_values in names.as_langtexts():
+        for name_val in names_values:
+            regularity = check_name_regularity(entity, name_val.text)
+            if regularity.is_irregular:
+                is_irregular = True
+            if regularity.suggested_prop is None:
+                updated_suggested_data[key].append(name_val)
+            else:
+                updated_suggested_data[regularity.suggested_prop].append(name_val)
+    updated_suggested = LangNames(**updated_suggested_data)
+    return is_irregular, updated_suggested
+
+
+def derive_original_values(original: Names, extracted: Names) -> Dict[str, str]:
+    """
+    Derive an original_value for each value in extracted based on the values in original.
+
+    For each value in extracted:
+        (1) If there's exactly one value in original, use that for all names.
+        (2) If some value in original matches it exactly, leave blank - no original_value needed.
+        (3) If some value in original contains it, we can use that the value from original as original_value.
+        Otherwise leave blank - this is best-effort only.
+    """
+    original_values: List[str] = []
+    for _prop, values in original.as_langtexts():
+        for value in values:
+            original_values.append(value.text)
+
+    derived_originals: dict[str, str] = {}
+    for _prop, extracted_values in extracted.as_langtexts():
+        for extracted_value in extracted_values:
+            extracted_string = extracted_value.text
+
+            if len(original_values) == 1:
+                # (1) If there's exactly one value in original, use that for all names.
+                derived_originals[extracted_string] = original_values[0]
+            else:
+                for original_string in original_values:
+                    if original_string == extracted_string:
+                        # (2) Exact match, no original_value needed.
+                        continue
+                    elif extracted_string in original_string:
+                        # (3) Extracted text is contained in original value, use as original_value.
+                        derived_originals[extracted_string] = original_string
+                        break
+    return derived_originals
 
 
 def apply_names(
     entity: Entity,
-    string: str,
-    review: Review[CleanNames],
-    alias: bool = False,
+    *,
+    original: Names,
+    names: Names,
     lang: Optional[str] = None,
+    origin: Optional[str] = None,
 ) -> None:
-    field_props = [
-        ("full_name", "alias" if alias else "name"),
-        ("alias", "alias"),
-        ("weak_alias", "weakAlias"),
-        ("previous_name", "previousName"),
-    ]
-    if not review.accepted:
-        apply_name(entity, full=string, alias=alias, lang=lang)
-        return
+    """
+    Apply the given names to the entity in the indicated props.
 
-    for field_name, prop in field_props:
-        for name in getattr(review.extracted_data, field_name):
+    If original contains more than one value, an original value is derived on
+    best-effort a basis from the original names.
+
+    Args:
+        entity: The entity to apply names to.
+        original: Original names, used if original_value needs to be derived.
+        names: The names to apply to the entity, potentially altered or re-categorised from original.
+        lang: The language for str values. Ignored for LangText values if they have lang set.
+        origin: The origin of apply_names (e.g. a GPT model name)
+    """
+    derived_originals = derive_original_values(original, names)
+
+    for prop, name_values in names.as_langtexts():
+        for name in name_values:
             entity.add(
                 prop,
-                name,
-                lang=lang,
-                origin=review.origin,
-                original_value=string,
+                name.text,
+                lang=name.lang or lang,
+                origin=origin,
+                original_value=derived_originals.get(name.text),
             )
 
 
+def review_key_parts(entity: Entity, original: Names) -> List[str]:
+    # Only use the non-empty props in the key so that adding props in
+    # future doesn't change the key unless they're actually populated.
+    key_parts = [entity.schema.name]
+    for prop, names_values in original.as_langtexts():
+        key_parts.append(prop)
+        for names_value in names_values:
+            if names_value.lang is not None:
+                key_parts.append(names_value.lang)
+            key_parts.append(names_value.text)
+    return key_parts
+
+
 def _review_names(
-    context: Context, entity: Entity, string: str, enable_llm_cleaning: bool
-) -> Review[CleanNames]:
-    strings = [string]
-    raw_names = RawNames(entity_schema=entity.schema.name, strings=strings)
-    if enable_llm_cleaning:
-        names = clean_names(context, raw_names)
-        origin = LLM_MODEL_VERSION
+    context: Context,
+    entity: Entity,
+    original: Names,
+    suggested: Optional[Names] = None,
+    llm_cleaning: bool = False,
+    default_accepted: bool = False,
+) -> Review[Names]:
+    """
+    Post the given names for review, optionally after LLM-based cleaning, and return the review.
+
+    Assumes that if suggested is supplied, it differs from original.
+    """
+    source_names = SourceNames(entity_schema=entity.schema.name, original=original)
+
+    if llm_cleaning:
+        if settings.OPENAI_API_KEY is None:
+            context.log.warning(
+                "LLM cleaning enabled but OPENAI_API_KEY not configured, falling back to non-LLM review."
+            )
+            origin = "analyst"
+        else:
+            suggested = clean_names(context, source_names)
+            origin = LLM_MODEL_VERSION
     else:
-        names = CleanNames(full_name=strings)
         origin = "analyst"
 
+    # We don't include suggested in the key so that we don't automatically invalidate
+    # the reviews just by changing heuristic or LLM suggestions.
+    key_parts = review_key_parts(entity, original)
+
+    # Only include the populated props in the source value for human readability
+    source_value_data: Dict[str, str | Dict[str, List[str | Dict[str, str | None]]]] = {
+        "entity_schema": entity.schema.name
+    }
+    populated_props: Dict[str, List[str | Dict[str, str | None]]] = {
+        k: [v.text if v.lang is None else v.model_dump() for v in vals]
+        for k, vals in source_names.original.as_langtexts()
+    }
+    source_value_data["original"] = populated_props
+
     source_value = JSONSourceValue(
-        key_parts=[entity.schema.name] + strings,
+        key_parts=key_parts,
         label="names",
-        data=raw_names.model_dump(),
+        data=cast(JsonValue, source_value_data),
     )
+    original_extraction = suggested or original
+    original_extraction = original_extraction.simplified()
     review = review_extraction(
         context,
         source_value=source_value,
-        original_extraction=names,
+        original_extraction=original_extraction,
         origin=origin,
+        default_accepted=default_accepted,
     )
     review.link_entity(context, entity)
     return review
 
 
+def _original_has_lang(original: Names) -> bool:
+    """Check if original names contain any LangText values with a language set."""
+    for _prop, values in original.as_langtexts():
+        for value in values:
+            if value.lang is not None:
+                return True
+    return False
+
+
 def review_names(
     context: Context,
     entity: Entity,
-    string: Optional[str],
-    enable_llm_cleaning: bool = False,
-) -> Optional[Review[CleanNames]]:
+    *,
+    original: Names,
+    suggested: Optional[Names] = None,
+    is_irregular: bool = False,
+    llm_cleaning: bool = False,
+    default_accepted: bool = False,
+) -> Optional[Review[Names]]:
     """
-    Clean names if needed, then post them for review.
+    Determines whether names need cleaning and if so, posts them for review.
+
+    If 'suggested' is not supplied, 'check_names_regularity' is used to determine
+    if cleaning or review is needed, and potentially suggest categorisation.
+
+    Names are considered to have been pre-determined to need cleaning/review if
+    'is_irregular' is passed as True, or if 'suggested'
+    is supplied and differs from 'original'. Crawlers that do their own suggestions
+    should normally do those on the result of check_names_regularity, so that
+    its suggestions don't override the crawler's suggestions.
+
+    If 'llm_cleaning' is True, an LLM-based cleaning step is additionally done
+    on 'suggested' if provided, otherwise on 'original', before posting for review.
+    Any categorisation in 'original' and 'suggested' is disregarded and left to the LLM
+    to determine. This can not be used with crawler-supplied suggestions and,
+    and heuristic suggestions are not passed to the LLM.
+
+    Returns None if no cleaning/review is needed and the original can be applied as-is.
 
     Args:
         context: The current context.
         entity: The entity to apply names to.
-        string: The raw name(s) string.
-        enable_llm_cleaning: Whether to use LLM-based name cleaning.
+        original: The original categorisation of names. This is to convey to the
+            analyst how the source data categorised the name string(s).
+        suggested: The suggested categorisation of names. This contains an initial
+            categorisation where the source dataset might have adjusted the categorisation
+            based on heuristics specific to that dataset.
+        llm_cleaning: Whether to use LLM-based name cleaning.
+        default_accepted: Whether to mark the review as accepted from the start, if one is created.
     """
-    if not string or not string.strip():
+
+    if original.is_empty():
         return None
 
-    if settings.CI or not is_name_irregular(entity, string):
+    if llm_cleaning:
+        assert suggested is None, (
+            "Suggested names can't be supplied if LLM cleaning is enabled"
+        )
+        if _original_has_lang(original):
+            # LLM cleaning returns plain strings, so per-value language will be dropped.
+            # Use a separate review_names, apply_reviewed_names or apply_reviewed_name_string call
+            # with the lang argument for each language instead.
+            context.log.warning(
+                "Names with LangText language values and llm_cleaning=True are not supported together.",
+                original=original,
+            )
+
+    # heuristic-based review unless suggestion was supplied
+    if suggested is None:
+        is_irregular_, suggested = check_names_regularity(entity, original)
+        is_irregular = is_irregular or is_irregular_
+
+    # heuristics didn't identify irregularity, and the crawler didn't suggest
+    # re-categorisation, there's nothing to review.
+    if not is_irregular and suggested == original:
         return None
 
-    return _review_names(context, entity, string, enable_llm_cleaning)
+    # human and optionally LLM-based review
+    return _review_names(
+        context,
+        entity,
+        original=original,
+        suggested=suggested,
+        llm_cleaning=llm_cleaning,
+        default_accepted=default_accepted,
+    )
 
 
 def apply_reviewed_names(
     context: Context,
     entity: Entity,
-    string: Optional[str],
+    *,
+    original: Names,
+    suggested: Optional[Names] = None,
+    is_irregular: bool = False,
     lang: Optional[str] = None,
-    alias: bool = False,
-    enable_llm_cleaning: bool = False,
+    llm_cleaning: bool = False,
+    default_accepted: bool = False,
 ) -> None:
     """
-    Clean names if needed, then post them for review.
-    Cleaned names are applied to an entity if accepted, falling back
-    to applying the original string as the name or alias if not.
+    Determines whether names need cleaning and if so, posts them for review.
 
-    Also falls back to applying the original string if the CI environment
-    variable is truthy, so that crawlers using this can run in CI.
+    If 'suggested' is not supplied, 'check_names_regularity' is used to determine
+    if cleaning or review is needed, and potentially suggest categorisation.
+
+    Names are considered to have been pre-determined to need cleaning/review if
+    'is_irregular' is passed as True, or if 'suggested'
+    is supplied and differs from 'original'. Crawlers that do their own suggestions
+    should normally do those on the result of check_names_regularity, so that
+    its suggestions don't override the crawler's suggestions.
+
+    If 'llm_cleaning' is True, an LLM-based cleaning step is additionally done
+    on 'suggested' if provided, otherwise on 'original', before posting for review.
+    Any categorisation in 'original' and 'suggested' is disregarded and left to the LLM
+    to determine. This can not be used with crawler-supplied suggestions and,
+    and heuristic suggestions are not passed to the LLM.
+
+    Args:
+        context: The current context.
+        entity: The entity to apply names to.
+        original: The original string(s) and their categorisation according to the data source.
+        suggested: Optional suggestion of different categorisation of names.
+        lang: The language of the name, if known.
+        llm_cleaning: Whether to use LLM-based name cleaning.
+        default_accepted: Marks the review as accepted from the start, if one is created.
+    """
+    review = review_names(
+        context,
+        entity,
+        original=original,
+        suggested=suggested,
+        is_irregular=is_irregular,
+        llm_cleaning=llm_cleaning,
+        default_accepted=default_accepted,
+    )
+
+    if review is None or not review.accepted:
+        apply_names(entity, original=original, names=original, lang=lang)
+        return
+
+    apply_names(
+        entity,
+        original=original,
+        names=review.extracted_data,
+        lang=lang,
+        origin=review.origin,
+    )
+
+
+def apply_reviewed_name_string(
+    context: Context,
+    entity: Entity,
+    *,
+    string: Optional[str],
+    original_prop: str = "name",
+    lang: Optional[str] = None,
+    llm_cleaning: bool = False,
+) -> None:
+    """
+    Clean the name(s) in the provided string if needed, then post them for review.
+
+    Cleaned names are applied to an entity if accepted, potentially to a different
+    property from 'original_prop' if cleaning proposed an alternative which was accepted
+    or modified in review.
+
+    Unaccepted reviews result in the name being applied to 'original_prop'.
+
+    Also falls back to 'original_prop' with a warning if llm_cleaning is True
+    but the LLM service is not configured.
 
     Args:
         context: The current context.
         entity: The entity to apply names to.
         string: The raw name(s) string.
+        original_prop: The original property for the name according to the data source.
         lang: The language of the name, if known.
-        alias: If this is known to be an alias and not a primary name.
-        enable_llm_cleaning: Whether to use LLM-based name cleaning.
+        llm_cleaning: Whether to use LLM-based name cleaning.
     """
-    if not string or not string.strip():
-        return None
+    original = Names(**{original_prop: string})
 
-    if settings.CI or not is_name_irregular(entity, string):
-        apply_name(entity, full=string, alias=alias, lang=lang)
-        return None
-
-    review = _review_names(
-        context, entity, string, enable_llm_cleaning=enable_llm_cleaning
+    apply_reviewed_names(
+        context,
+        entity,
+        original=original,
+        suggested=None,
+        lang=lang,
+        llm_cleaning=llm_cleaning,
     )
-
-    apply_names(entity, string, review, alias=alias, lang=lang)

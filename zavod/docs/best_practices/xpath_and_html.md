@@ -4,7 +4,7 @@
 Try to make the selectors specific enough to reliably select the correct content (to avoid e.g. the wrong thing being stuffed in a person's `name` property) while making them as semantic, concise, and general as possible to be maintainable and resillient against irrelevant changes in the HTML.
 
 ```python
-# Good: 
+# Good:
 table = doc.xpath('.//div[@id="block-content"]//table')
 
 # Avoid:
@@ -34,7 +34,7 @@ table = doc.xpath(".//table")
 assert len(table) == 1, table
 ```
 
-## Get notified of changes to content  
+## Get notified of changes to content
 
 Use `h.assert_*_hash` to get a warning when the content has changed from when you last hardcoded the hash. We usually use this when we want to be notified of changes to the page - either because we manually extracted the data and need to update it manually, or if we want to be notified when new sections are added to the page.
 

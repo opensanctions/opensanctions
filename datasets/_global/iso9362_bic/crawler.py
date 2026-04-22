@@ -1,5 +1,6 @@
 from zavod import Context
 from zavod import helpers as h
+from zavod.stateful.review import assert_all_accepted
 
 STATIC_URL = "https://data.opensanctions.org/contrib/iso9362_bic/20241021/ISOBIC.pdf"
 EXTRACT_ARGS = {"text_x_tolerance_ratio": 0.6}
@@ -33,7 +34,9 @@ def crawl(context: Context) -> None:
 
         entity = context.make("Organization")
         entity.id = f"bic-{bic}"
-        h.apply_reviewed_names(context, entity, legal_name, enable_llm_cleaning=True)
+        h.apply_reviewed_name_string(
+            context, entity, string=legal_name, llm_cleaning=True
+        )
         entity.add("swiftBic", bic)
         entity.add("country", bic[4:6])
         entity.add("address", row.pop("registered_address"))
@@ -47,3 +50,5 @@ def crawl(context: Context) -> None:
 
         context.audit_data(row, ignore=["branch_address"])
         context.emit(entity)
+
+    assert_all_accepted(context, raise_on_unaccepted=False)

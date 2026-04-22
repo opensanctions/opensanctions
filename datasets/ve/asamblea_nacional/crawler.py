@@ -10,7 +10,8 @@ from urllib.parse import parse_qs, urlparse
 from zavod import Context, Entity
 from zavod import helpers as h
 from zavod.stateful.positions import categorise
-from zavod.util import ElementOrTree
+from zavod.util import Element, ElementOrTree
+from zavod.extract import zyte_api
 from lxml.html import HtmlElement
 
 BIRTHDATE = re.compile(r"fecha de nacimiento\s*:\s*(.*)$", re.I | re.MULTILINE)
@@ -34,10 +35,10 @@ def extract_marked_content(infobox: HtmlElement) -> str:
         if "markedContent" not in classes.split():
             continue
         el.tail = "\n"
-    return infobox.text_content()
+    return h.element_text(infobox, squash=False)
 
 
-def crawl_infobox(context: Context, person: Entity, infobox: HtmlElement):
+def crawl_infobox(context: Context, person: Entity, infobox: HtmlElement) -> None:
     """Do a best-effort extraction of some facts from the text of an
     infobox with a member's CV."""
     text = extract_marked_content(infobox)
@@ -64,12 +65,13 @@ def crawl_infobox(context: Context, person: Entity, infobox: HtmlElement):
         person.add("idNumber", identity)
 
 
-def crawl_member_page(context: Context, person: Entity, name: str, href: str):
+def crawl_member_page(context: Context, person: Entity, name: str, href: str) -> None:
     """Attempt to extract information from a member's individual
     page."""
     context.log.debug(f"Fetching page for {name} from {href}")
     try:
-        page = context.fetch_html(href, cache_days=1)
+        # using Zyte to bypass 403
+        page = zyte_api.fetch_html(context, href, ".//h3", cache_days=1)
     except Exception as err:
         if href in KNOWN_ERRORS:
             context.log.info(f"Exception when fetching {href}: {err}")
@@ -106,8 +108,9 @@ def crawl_member_page(context: Context, person: Entity, name: str, href: str):
     crawl_infobox(context, person, list(switcher)[cv_idx])
 
 
-def crawl_member(context: Context, member_link=ElementOrTree):
+def crawl_member(context: Context, member_link: Element) -> None:
     """Extract member information from individual page."""
+    assert member_link.text is not None
     member_name = WS.sub(" ", member_link.text.strip())
     position = h.make_position(
         context,
@@ -122,6 +125,8 @@ def crawl_member(context: Context, member_link=ElementOrTree):
 
     person = context.make("Person")
     person.id = context.make_id(member_name)
+    # https://venezuela.justia.com/federales/constitucion-de-la-republica-bolivariana-de-venezuela/titulo-v/capitulo-i/
+    person.add("citizenship", "ve")
     context.log.debug(f"Unique ID {person.id}")
     h.apply_name(person, full=member_name, lang="esp")
 
@@ -141,7 +146,7 @@ def crawl_member(context: Context, member_link=ElementOrTree):
         context.emit(occupancy)
 
 
-def crawl_members(context: Context, page: ElementOrTree):
+def crawl_members(context: Context, page: ElementOrTree) -> None:
     """Extract members from a page."""
     # Don't XPath, too much trouble (wish we had CSS selectors)
     for el in page.iterfind(".//div[@class]"):
@@ -161,7 +166,9 @@ def crawl_member_list(context: Context) -> Iterator[ElementOrTree]:
     """Iterate through pages in member list from the website."""
     context.log.info(f"Fetching front page from {context.data_url}")
     page_number = 1
-    page: HtmlElement = context.fetch_html(context.data_url, cache_days=1)
+    page: HtmlElement = zyte_api.fetch_html(
+        context, context.data_url, ".//h3", cache_days=1
+    )
     yield page
     while True:
         next_links = page.find_rel_links("next")
@@ -185,11 +192,11 @@ def crawl_member_list(context: Context) -> Iterator[ElementOrTree]:
             context.log.error(f"Link to {page_number + 1} not found")
         page_number = next_page
         context.log.debug(f"Fetching page {page_number} from {href}")
-        page = context.fetch_html(href, cache_days=1)
+        page = zyte_api.fetch_html(context, href, ".//h3", cache_days=1)
         yield page
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     """Retrieve web pages for the National Assembly and extract
     entities for members."""
     for page in crawl_member_list(context):

@@ -11,6 +11,9 @@ from zavod.extract.zyte_api import fetch_html
 
 
 UNKNOWNS = {"unknown", "uknown"}
+# Cache detail pages for a day because it's useful for retries, but they also seem to
+# list pages before they're fully populated which can break a crawl one day and not the next.
+CACHE_DAYS = 1
 
 
 def crawl_detail_page(context: Context, person: Entity, source_url: str):
@@ -20,7 +23,7 @@ def crawl_detail_page(context: Context, person: Entity, source_url: str):
         source_url,
         "//td[b[contains(text(), 'Crime:')]]",
         geolocation="za",
-        cache_days=7,
+        cache_days=CACHE_DAYS,
     )
 
     # Extract details using XPath based on the provided HTML structure
@@ -117,7 +120,7 @@ def crawl(context):
         context.data_url,
         "//table",
         geolocation="za",
-        cache_days=1,
+        # cache_days=1, Don't cache index pages. Cached links to deleted listings break the crawler.
         absolute_links=True,
     )
     tables = doc.xpath("//table")

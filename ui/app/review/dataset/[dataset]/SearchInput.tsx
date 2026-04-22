@@ -1,17 +1,24 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState, useTransition } from 'react';
+import { useState, useTransition } from 'react';
 
 export default function SearchInput({ dataset }: { dataset: string }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
-  const [searchValue, setSearchValue] = useState(searchParams.get('q') || '');
+  const urlQuery = searchParams.get('q') || '';
+  const [{ prevUrlQuery, searchValue }, setSearchState] = useState({
+    prevUrlQuery: urlQuery,
+    searchValue: urlQuery,
+  });
 
-  useEffect(() => {
-    setSearchValue(searchParams.get('q') || '');
-  }, [searchParams]);
+  if (prevUrlQuery !== urlQuery) {
+    setSearchState({ prevUrlQuery: urlQuery, searchValue: urlQuery });
+  }
+
+  const setSearchValue = (value: string) =>
+    setSearchState({ prevUrlQuery, searchValue: value });
 
   const performSearch = (value: string) => {
     const params = new URLSearchParams(searchParams);

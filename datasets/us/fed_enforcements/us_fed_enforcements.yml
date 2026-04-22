@@ -56,6 +56,10 @@ dates:
   formats: ["%B %d, %Y"]
 
 lookups:
+  type.text:
+    options:
+      - match: "<a href='/newsevents/pressreleases/enforcement20200408a.htm'>Modification</a> issued on 4/08/2020"
+        value: "Modification issued on 4/08/2020"
   individual_name:
     options:
       - match: "Carl V. Thomas, Eva June Thomas, Stephen P. Thomas, Mary Beth Thomas, Marguerite Thomas, Charles Tomlinson, Herbert Phillips, Lloyd Phillips, R.L. Phillips, Stanley Phillips, Rhonda Phillips, Scott Ward, Angela Ward, Forrest Buckley, James C. Crowe, Johnny V. Jones, Harper Guinn and Jeff Guinn"

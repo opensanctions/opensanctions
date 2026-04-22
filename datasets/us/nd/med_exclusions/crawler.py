@@ -68,9 +68,8 @@ def crawl_item(row: Dict[str, str], context: Context):
 
 def crawl_excel_url(context: Context):
     doc = context.fetch_html(context.data_url, absolute_links=True)
-    return doc.xpath(
-        "//a[@title='ND Medicaid Provider Exclusion List'][substring(@href, string-length(@href) - 4) = '.xlsx']/@href"
-    )[0]
+    xpath = "//a[contains(text(), 'ND Medicaid Provider Exclusion List')][substring(@href, string-length(@href) - 4) = '.xlsx']/@href"
+    return h.xpath_string(doc, xpath)
 
 
 def crawl(context: Context) -> None:

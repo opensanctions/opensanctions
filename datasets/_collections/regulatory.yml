@@ -16,6 +16,7 @@ description: |
   These watchlists are maintained by government agencies, international
   organizations, or other regulatory bodies.
 children:
+  - ae_dfsa_prohibited
   - br_slavery
   - br_tcu_disqualified
   - ch_finma_rulings
@@ -35,13 +36,15 @@ children:
   - ps_ohchr_settlement
   - sg_mas_enforcement_actions
   - tr_cmb_banned
-  - us_bis_oac
   - us_bis_antiboycott
+  - us_bis_export
+  - us_bis_oac
   - us_ddtc_debarred
   - us_ddtc_enforcements
   - us_dod_chinese_milcorps
   - us_fcc_covered_list
   - us_fed_enforcements
+  - us_fincen_enforcement
   - us_finra_actions
   - us_occ_enfact
   - us_sam_exclusions

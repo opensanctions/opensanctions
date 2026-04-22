@@ -109,8 +109,14 @@ lookups:
           - "ASISTENT.*"
           - "ANALIST.*"
           - "TECNICO.*"
+          - "AYUDANTE.*"
+          - "AUDITOR.*"
+          - "MÉDICO.*" # Doctor (accented)
+          - "MEDICO.*" # Doctor (unaccented)
+          - "ENFERMER.*" # Nurse
       - is_pep: false
         match:
+          - AUXILIAR ADMINISTRATIVO
           - BODEGUERO
           - CONSEJERO TECNICO
           - CONSEJERO TRIBUTARIO
@@ -128,6 +134,7 @@ lookups:
           - CAPITAN DE NAVIO
           - PROFESIONALES UNIVERSITARIOS
           - TECNOLOGO MEDICO
+          - "NINGUNO" # None
 
       - is_pep: null # haven't looked closely yet
         regex:
@@ -227,9 +234,6 @@ lookups:
           - "ENCARGADO VIVIENDA"
           - "ENCARGADO ZONAL"
           - "ENCARGADO"
-          - "ENFERMERA (O)"
-          - "ENFERMERA"
-          - "ENFERMERO"
           - "EX ALCALDE"
           - "EX ALCALDESA"
           - "EX CONCEJAL"
@@ -259,6 +263,7 @@ lookups:
           - "INSPECTOR DE DOM"
           - "INSPECTOR DE OBRA"
           - "INSPECTOR DE OBRAS MUNICIPALES"
+          - "INSPECTOR DE PATENTES COMERCIALES"
           - "INSPECTOR ESTABLECIMIENTO EDUCACIONAL"
           - "INSPECTOR FISCAL"
           - "INSPECTOR GENERAL"
@@ -268,6 +273,7 @@ lookups:
           - "INSPECTOR TECNICO"
           - "INSPECTOR"
           - "INSPECTOR/A TECNICO DE OBRAS"
+          - "INTEGRANTE COMITE CIENTIFICO"
           - "INTEGRANTE DE LA COMISIÓN EXPERTA"
           - "INTEGRANTE DEL COMITÉ TÉCNICO DE ADMISIBILIDAD"
           - "INTEGRANTE PANEL TÉCNICO CONCESIONES"
@@ -298,17 +304,8 @@ lookups:
           - "MATRONA DIRECCIÓN DE SALUD MUNICIPAL"
           - "MATRONA"
           - "MEDICINA FAMILIAR "
-          - "MEDICO 22/22 HORAS"
-          - "MEDICO 22/28 HORAS"
-          - "MEDICO APS"
-          - "MEDICO CIRUJANO"
-          - "MEDICO DE 28 HORAS"
-          - "MEDICO EDF ART 8"
-          - "MEDICO"
-          - "MEDICOS"
           - "MIEMBRO DEL CONSEJO CONSTITUCIONAL"
           - "MIEMBRO ÓRGANO EJECUTIVO"
-          - "NINGUNO" # None
           - "NOTARIO CONSERVADOR ARCHIVERO"
           - "NOTARIO Y ARCHIVERO"
           - "NOTARIO"
@@ -388,6 +385,7 @@ lookups:
           - "SECRETARIO ABOGADO"
           - "SECRETARIO RELATOR"
           - "SECRETARIO EJECUTIVO"
+          - "SECRETARIA GENERAL DE POLÍTICA EXTERIOR"
           - "SECRETARIO GENERAL DE POLÍTICA EXTERIOR"
           - "SECRETARIO GENERAL"
           - "SECRETARIO MUNICIPAL"
@@ -448,6 +446,7 @@ lookups:
           - "SUBSECRETARIA"
           - "SUBSECRETARIA(O) DE EVALUACIÓN SOCIAL"
           - "SUBSECRETARIA/O"
+          - "SUBSECRETARIO DE RELACIONES ECONOMICAS INTERNACIONALES"
           - "SUBSECRETARIO DE RELACIONES EXTERIORES"
           - "SUBSECRETARIO"
           - "SUBSECRETARIO(A) DEL PATRIMONIO CULTURAL"
@@ -470,11 +469,13 @@ lookups:
           - ANALISTA DE CONTRATOS
           - ASISTENTE DE CONTRATOS
           - AUDITOR INFORMATICO
+          - AUDITOR INFRAESTRUCTURA
           - AUDITOR INTERNO
           - AUDITOR INTERNO
           - AUDITOR INTERNO
           - AUDITOR INTERNO DE AUDITORIA CONTINUA Y FORENSE
           - AUDITOR INTERNO INFRAESTRUCTURA
+          - AUDITOR INTERNO REGIONAL
           - COORDINADOR ADMINISTRACIONES ZONALES
           - COORDINADOR AREA AVANCE FISICO
           - COORDINADOR DE DISEÑO
@@ -492,3 +493,4 @@ lookups:
           - SUBJEFE DEPTO. INFORMATICA Y COMPUTACION
           - SUBSECRETARIA DE RELACIONES EXTERIORES
           - SUPERINTEDENTA (S)
+          - "INTEGRANTE COMITE DIRECTIVO LOCAL "

@@ -1,0 +1,12 @@
+id: 17
+title: Foreign Interference In A United States Election Sanctions
+key: US-FORINT
+url: https://ofac.treasury.gov/sanctions-programs-and-country-information/foreign-interference-in-a-united-states-election-sanctions
+summary: These sanctions target foreign individuals and entities that have engaged
+  in, sponsored, concealed, or otherwise been complicit in foreign interference in
+  U.S. elections. The measures include asset freezes and prohibitions on transactions
+  to safeguard U.S. electoral processes and democratic institutions.
+issuer: us_ofac
+dataset: us_ofac_sdn
+aliases:
+- EO 13848

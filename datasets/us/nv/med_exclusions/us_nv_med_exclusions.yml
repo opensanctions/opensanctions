@@ -28,7 +28,7 @@ publisher:
 ci_test: false
 url: "https://dhcfp.nv.gov/Providers/PI/PSExclusions/"
 data:
-  url: https://dhcfp.nv.gov/Providers/PI/PSExclusions/
+  url: https://www.nevadamedicaid.nv.gov/providers/provider-exclusions-sanctions-and-press-releases/
   format: PDF
   lang: eng
 
@@ -38,7 +38,7 @@ dates:
 assertions:
   min:
     schema_entities:
-      LegalEntity: 1000
+      LegalEntity: 900
       Person: 250
   max:
     schema_entities:

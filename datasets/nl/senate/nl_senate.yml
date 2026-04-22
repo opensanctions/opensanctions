@@ -130,6 +130,11 @@ lookups:
           - name: "Robert van Gasteren"
             start_date: "2023-07-11"
             party: "BBB"
+      - match: 'Robert van Gasteren (1959) is sinds 31 maart 2026 lid van de Fractie-Van Gasteren in de Eerste Kamer'
+        details:
+          - name: "Robert van Gasteren"
+            start_date: "2026-03-31"
+            party: "Fractie-Van Gasteren"
       - match: 'Math Goossen (1954) is vanaf 13 juni 2023 lid van de BBB-fractie in de Eerste Kamer'
         details:
           - name: "Math Goossen"
@@ -439,3 +444,13 @@ lookups:
           - name: "Ingrid Visseren-Hamakers"
             start_date: "2025-11-10"
             party: "Fractie-Visseren-Hamakers"
+      - match: 'Arie Griffioen (1953) is sinds 28 november 2025 lid van de D66-fractie in de Eerste Kamer'
+        details:
+          - name: "Arie Griffioen"
+            start_date: "2025-11-28"
+            party: "D66"
+      - match: 'Meryem Karaaslan-Kilic is sinds 24 februari 2026 lid van de D66-fractie in de Eerste Kamer'
+        details:
+          - name: "Meryem Karaaslan-Kilic"
+            start_date: "2026-02-24"
+            party: "D66"

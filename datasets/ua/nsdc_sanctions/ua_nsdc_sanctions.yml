@@ -109,6 +109,7 @@ lookups:
           - "reg:by2"
           - "reg:pr_cz"
           - "reg:ir_pr"
+          - "reg:ir"
           - "reg:cn_tr"
           - "reg:cn_tr_hk"
           - "reg:number_nin"
@@ -620,7 +621,48 @@ lookups:
         values:
           - Російська Федерація, 420015, Республіка Татарстан (Татарстан), м.о. Місто Казань, м. Казань, вул. Пушкіна, будівля 46, прим. 1021
           - Российская Федерация, 420015, Республика Татарстан (Татарстан), г.о. Город Казань, г. Казань, ул. Пушкина, здание 46, пом. 1021
-
+      - match: "Ісламська Республіка Іран, м. Тегеран (Damavand Tehran Highway, Tehran, Iran; P.O. Box 16595-159, Tehran, Iran; No. 5, Eslami St., Golestane Sevvom St., Pasdaran St. Tehran, Iran; Damavand Road 2, Abali Road, Tehran, Iran; Damavand Road, Azmayesh Trisection, Above Mechanical Industries, Facing Valfajr Boulevard (Hakimiyeh), Tehran, Iran)"
+        values:
+          - Ісламська Республіка Іран, м. Тегеран
+          - Damavand Tehran Highway, Tehran, Iran
+          - P.O. Box 16595-159, Tehran, Iran
+          - No. 5, Eslami St., Golestane Sevvom St., Pasdaran St. Tehran, Iran
+          - Damavand Road 2, Abali Road, Tehran, Iran
+          - Damavand Road, Azmayesh Trisection, Above Mechanical Industries, Facing Valfajr Boulevard (Hakimiyeh), Tehran, Iran
+      - match: "Ісламська Республіка Іран, м. Тегеран (Ісламська Республіка Іран, м. Ісфахан; Afra Complex, Unit 503, Fourth Floor, No. 432, Ayatollah Kashani Highway, North Shahid Ebrahimi Purbasa'i Street, Ferdows Neighborhood, Central District, Tehran County, Region 14, Tehran, 1481816668, Iran; Unit 502, Ayatollah Kashani Street, Tehran, Iran; Unit 5, 1st Floor, Surna Building. Sheikh Mofid Street, Isfahan, Iran)"
+        values:
+          - Ісламська Республіка Іран, м. Тегеран
+          - Ісламська Республіка Іран, м. Ісфахан
+          - Afra Complex, Unit 503, Fourth Floor, No. 432, Ayatollah Kashani Highway, North Shahid Ebrahimi Purbasa'i Street, Ferdows Neighborhood, Central District, Tehran County, Region 14, Tehran, 1481816668, Iran
+          - Unit 502, Ayatollah Kashani Street, Tehran, Iran
+          - Unit 5, 1st Floor, Surna Building. Sheikh Mofid Street, Isfahan, Iran
+      - match: "Ісламська Республіка Іран, м. Тегеран (Боліваріанська Республіка Венесуела, м. Каракас; 3rd Floor Aftab Building, No. 3 Shafagh Street, Dadman Blvd, Phase 7, Tehran, Iran; Shahrak Ghods, Tehran, Iran; P.O. Box 14665-495, Tehran, Iran; Office E-43 Torre E- Piso 4, Centrao Commercial Lido Av., Francisco de Miranda, Caracas, Venezuela)"
+        values:
+          - Ісламська Республіка Іран, м. Тегеран
+          - Боліваріанська Республіка Венесуела, м. Каракас
+          - 3rd Floor Aftab Building, No. 3 Shafagh Street, Dadman Blvd, Phase 7, Tehran, Iran
+          - Shahrak Ghods, Tehran, Iran
+          - P.O. Box 14665-495, Tehran, Iran
+          - Office E-43 Torre E- Piso 4, Centrao Commercial Lido Av., Francisco de Miranda, Caracas, Venezuela
+      - match: "Ісламська Республіка Іран, м. Тегеран (Ісламська Республіка Іран, м. Ісфахан; Ісламська Республіка Іран, м. Парчін; P.O. Box 19585/311, Tehran, Iran; Pasdaran Street, Tehran, 19585311, Iran; Khavarah Road Km 35, Parchin, Iran; Zarrin Shah, P.O. Box 81465-363, Esfahan, Iran; P.O. Box 16765-368, Department 146-42, Parchin, Iran)"
+        values:
+          - Ісламська Республіка Іран, м. Тегеран
+          - Ісламська Республіка Іран, м. Ісфахан
+          - Ісламська Республіка Іран, м. Парчін
+          - P.O. Box 19585/311, Tehran, Iran
+          - Pasdaran Street, Tehran, 19585311, Iran
+          - Khavarah Road Km 35, Parchin, Iran
+          - Zarrin Shah, P.O. Box 81465-363, Esfahan, Iran
+          - P.O. Box 16765-368, Department 146-42, Parchin, Iran
+      - match: "Ісламська Республіка Іран, м. Тегеран (Ісламська Республіка Іран, острів Кіш; Ісламська Республіка Іран, м. Бандар-Ленге; 2nd and 3rd Floor, No. 10, Banisi St., Between Mirdamad Blvd. and Zafar Ave., Nelson Mandela Blvd., Tehran, 7941963355, Iran; Pasargad Helicopter Hanger, Airside Area, Kish International Airport, Kish Island, 1968874511, Iran; Unit 17, 4th Floor, Mona Tower, Kish Island, Iran; Ground Floor, Kish International Exhibition Building, No. 0, Imam Khomeini Square, Airport Boulevard, Kish Airport)"
+        values:
+          - Ісламська Республіка Іран, м. Тегеран
+          - Ісламська Республіка Іран, острів Кіш
+          - Ісламська Республіка Іран, м. Бандар-Ленге
+          - 2nd and 3rd Floor, No. 10, Banisi St., Between Mirdamad Blvd. and Zafar Ave., Nelson Mandela Blvd., Tehran, 7941963355, Iran
+          - Pasargad Helicopter Hanger, Airside Area, Kish International Airport, Kish Island, 1968874511, Iran
+          - Unit 17, 4th Floor, Mona Tower, Kish Island, Iran
+          - Ground Floor, Kish International Exhibition Building, No. 0, Imam Khomeini Square, Airport Boulevard, Kish Airport
   type.name:
     options:
       - match: Федеральное государственное бюджетное военное образовательное учреждение высшего образования «Академия гражданской защиты Министерства Российской Федерации по делам гражданской обороны чрезвычайных ситуаций и ликвидации последствий стихийных бедствий»

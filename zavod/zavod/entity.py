@@ -41,6 +41,7 @@ class Entity(StatementEntity):
         lang: Optional[str] = None,
         original_value: Optional[str] = None,
         origin: Optional[str] = None,
+        external: bool = False,
     ) -> None:
         """Add a statement to the entity, possibly the value."""
         if value is None or len(value) == 0:
@@ -59,8 +60,14 @@ class Entity(StatementEntity):
         if lang is not None:
             lang = registry.language.clean_text(lang)
 
-        for prop_, clean in value_clean(
-            self, prop, value, cleaned=cleaned, fuzzy=fuzzy, format=format
+        for prop_, clean, origin_ in value_clean(
+            self,
+            prop,
+            value,
+            cleaned=cleaned,
+            fuzzy=fuzzy,
+            format=format,
+            origin=origin,
         ):
             if original_value is None and clean != value:
                 original_value = value
@@ -72,9 +79,10 @@ class Entity(StatementEntity):
                 value=clean,
                 dataset=dataset or self.dataset.name,
                 lang=lang,
-                origin=origin,
+                origin=origin_,
                 original_value=original_value,
                 first_seen=seen,
+                external=external,
             )
             self.add_statement(stmt)
 
@@ -88,6 +96,7 @@ class Entity(StatementEntity):
         format: Optional[str] = None,
         lang: Optional[str] = None,
         original_value: Optional[str] = None,
+        origin: Optional[str] = None,
     ) -> None:
         """Set a property on an entity. If the entity is of a schema that doesn't
         have the given property, also modify the schema (e.g. if something has a
@@ -104,8 +113,14 @@ class Entity(StatementEntity):
         if prop_ is None:
             raise InvalidModel("Invalid prop: %s" % prop)
         for text in string_list(values):
-            for norm_prop_, clean in value_clean(
-                self, prop_, text, cleaned=cleaned, fuzzy=fuzzy, format=format
+            for norm_prop_, clean, origin_ in value_clean(
+                self,
+                prop_,
+                text,
+                cleaned=cleaned,
+                fuzzy=fuzzy,
+                format=format,
+                origin=origin,
             ):
                 if original_value is None and clean != text:
                     original_value = text
@@ -116,7 +131,26 @@ class Entity(StatementEntity):
                     cleaned=True,
                     lang=lang,
                     original_value=original_value,
+                    origin=origin_,
                 )
+
+    def adopt_statement(self, stmt: Statement, prop: Optional[str] = None) -> None:
+        """Adopt a statement from another entity, copying it to this entity."""
+        prop = prop or stmt.prop
+        prop_ = self.schema.get(prop)
+        if prop_ is None:
+            raise InvalidModel(
+                f"Cannot adopt statement for {prop} into {self.schema.name}"
+            )
+        self.unsafe_add(
+            prop_,
+            stmt.value,
+            lang=stmt.lang,
+            origin=stmt.origin,
+            original_value=stmt.original_value,
+            external=stmt.external,
+            cleaned=True,
+        )
 
     def add_schema(self, schema: Union[str, Schema]) -> None:
         """Try to apply the given schema to the current entity, making it more

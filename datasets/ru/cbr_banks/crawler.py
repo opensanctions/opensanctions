@@ -1,5 +1,6 @@
 from lxml import etree
 from rigour.mime.types import XML
+from time import sleep
 
 from zavod import Context, helpers as h
 from zavod.entity import Entity
@@ -7,13 +8,14 @@ from zavod.extract.zyte_api import fetch_resource
 
 SOAP_URL = "http://www.cbr.ru/CreditInfoWebServ/CreditOrgInfo.asmx"
 SOAP_HEADERS = {"Content-Type": "text/xml; charset=utf-8"}
+SLEEP_SECONDS = 1
 
 
 def send_soap_request(context: Context, action, body, cache_days=None):
     """Sends a SOAP request and returns the parsed XML response."""
     headers = SOAP_HEADERS.copy()
     headers["SOAPAction"] = f"http://web.cbr.ru/{action}"
-
+    sleep(SLEEP_SECONDS)  # avoid hitting rate limits
     response = context.fetch_text(
         SOAP_URL, method="POST", headers=headers, data=body, cache_days=cache_days
     )
@@ -35,7 +37,7 @@ def get_org_info(context: Context, internal_code: str):
             </CreditInfoByIntCodeXML>
         </soap:Body>
     </soap:Envelope>"""
-    return send_soap_request(context, "CreditInfoByIntCodeXML", body)
+    return send_soap_request(context, "CreditInfoByIntCodeXML", body, cache_days=7)
 
 
 def bic_to_int_code(context: Context, bic):
@@ -88,21 +90,22 @@ def crawl_details(context: Context, bic: str, entity: Entity, short_name: str | 
     if co_data is None:
         # This is all caps ugliness - let's only use it when we're not getting nice names
         # from the detailed info.
-        h.apply_reviewed_names(context, entity, short_name, enable_llm_cleaning=True)
+        h.apply_reviewed_name_string(
+            context, entity, string=short_name, llm_cleaning=True
+        )
     else:
         ssv_date = co_data.findtext("SSV_Date")
         reg_date = co_data.findtext("MainDateReg")
 
         en_names = co_data.findtext("encname")
-        h.review_names(context, entity, en_names, enable_llm_cleaning=True)
+        names = h.Names()
+        names.add("name", co_data.findtext("OrgName"))
+        names.add("name", co_data.findtext("OrgFullName"))
+        names.add("name", co_data.findtext("csname"))
+        h.review_names(context, entity, original=names, llm_cleaning=True)
+        # en_names should apply with lang="eng"
         h.review_names(
-            context, entity, co_data.findtext("OrgName"), enable_llm_cleaning=True
-        )
-        h.review_names(
-            context, entity, co_data.findtext("OrgFullName"), enable_llm_cleaning=True
-        )
-        h.review_names(
-            context, entity, co_data.findtext("csname"), enable_llm_cleaning=True
+            context, entity, original=h.Names(name=en_names), llm_cleaning=True
         )
 
         phones = co_data.findtext("phones")

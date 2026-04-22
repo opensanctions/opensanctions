@@ -2,54 +2,31 @@ from urllib.parse import urljoin
 
 from zavod import Context, Entity
 from zavod import helpers as h
+from zavod.util import Element
 
 
-def crawl_members(context: Context, position: Entity, url: str, name: str) -> None:
-    # context.log.info(f"Crawling {url} ({name})")
-    doc = context.fetch_html(url, cache_days=7)
+def crawl_row(
+    context: Context, position: Entity, row: dict[str, Element], url: str
+) -> None:
+    str_row = h.cells_to_str(row)
+    name = str_row.pop("name")
+    in_house_group = str_row.pop("in_house_group")
+    area = str_row.pop("constituency_area")
     entity = context.make("Person")
-    entity.id = context.make_id(url)
+    entity.id = context.make_id(name, in_house_group, area)
     entity.add("name", name)
     entity.add("sourceUrl", url)
     entity.add("topics", "role.pep")
     entity.add("citizenship", "jp")
-
-    contents = doc.find('.//div[@id="contents"]')
-    assert contents is not None, "Contents div is missing"
-    entity.add("name", contents.findtext(".//h2"))
-    notes = contents.findtext('.//p[@class="post"]')
-    entity.add("notes", notes)
-    prev_label = ""
-    for li in contents.findall(".//li"):
-        label = h.element_text(li.find(".//strong"))
-        if label is not None and len(label):
-            prev_label = label
-        text = h.element_text(li).replace(label, "").strip()
-        if not len(text):
-            continue
-        elif "In-House Group" in prev_label:
-            entity.add("political", text)
-        elif "Born" in prev_label:
-            if "," in text:
-                dob, pob = text.split(",", 1)
-            else:
-                dob = text
-                pob = ""
-            h.apply_date(entity, "birthDate", dob.strip())
-            entity.add("birthPlace", pob.strip())
-            if not entity.has("birthDate"):
-                context.log.info("Failed DOB: %r" % text)
-        elif "Education" in prev_label:
-            entity.add("education", text)
-        elif "Career" in prev_label:
-            # entity.add("notes", text)
-            pass
+    entity.add("political", in_house_group)
 
     occupancy = h.make_occupancy(context, entity, position, no_end_implies_current=True)
     if occupancy is not None:
+        occupancy.add("constituency", area)
         context.emit(occupancy)
 
     context.emit(entity)
+    context.audit_data(str_row)
 
 
 def crawl(context: Context) -> None:
@@ -64,7 +41,9 @@ def crawl(context: Context) -> None:
 
     doc = context.fetch_html(context.data_url)
     urls = [context.data_url]
-    nav_links = doc.findall('.//div[@id="LnaviArea"]//table//a')
+    nav_links = h.xpath_elements(
+        doc, './/div[@id="LnaviArea"]//table//a', expect_exactly=17
+    )
     assert nav_links, nav_links
     for a in nav_links:
         href = a.get("href")
@@ -74,9 +53,6 @@ def crawl(context: Context) -> None:
 
     for url in urls:
         doc = context.fetch_html(url)
-        for a in doc.findall('.//div[@id="MainContentsArea"]//tr//a'):
-            href = a.get("href")
-            if href is None:
-                continue
-            assert a.text is not None, "Link text is missing"
-            crawl_members(context, position, urljoin(url, href), a.text)
+        table = h.xpath_element(doc, './/div[@id="MainContentsArea"]/table')
+        for row in h.parse_html_table(table):
+            crawl_row(context, position, row, url)

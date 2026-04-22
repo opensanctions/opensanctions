@@ -8,7 +8,6 @@ from zavod.stateful.positions import OccupancyStatus, categorise
 STATUS = {
     "Active": OccupancyStatus.CURRENT,
     "Incoming": OccupancyStatus.CURRENT,
-    "Inactive": OccupancyStatus.UNKNOWN,
     "Outgoing": OccupancyStatus.CURRENT,
 }
 
@@ -26,7 +25,7 @@ def crawl_person(context: Context, item: Dict[str, Any]) -> None:
     )
 
     country: Dict[str, str] = item.pop("country", {})
-    person.add("country", country.pop("value"))
+    person.add("citizenship", country.pop("value"))
 
     function: Dict[str, str] = item.pop("memberFunction")
     function_name = function.pop("value")
@@ -47,9 +46,10 @@ def crawl_person(context: Context, item: Dict[str, Any]) -> None:
         categorisation=categorisation,
     )
     if occupancy is not None:
-        for value in item.pop("memberStatuses", []):
-            status = STATUS[value].value
-            occupancy.add("status", status)
+        for member_status in item.pop("memberStatuses", []):
+            status = STATUS.get(member_status)
+            if status is not None:
+                occupancy.set("status", status.value)
         context.emit(position)
         context.emit(occupancy)
 
@@ -65,7 +65,7 @@ def crawl_person(context: Context, item: Dict[str, Any]) -> None:
     context.emit(person)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     data = context.fetch_json(context.data_url)
 
     for item in data:

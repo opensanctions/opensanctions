@@ -36,8 +36,8 @@ entity.add("birthPlace", row.pop("place_of_birth"))
 The method `entity.add` works seamlessly with both a single string and a list of strings. In the long run, however, we want to make the typing of `entity.add` more strict to accept only one argument at a time. With this in mind, it's generally better to add values individually if they are already in that form, rather than forcing them into a list unnecessarily.
 
   ```python
-for name in h.multi_split(names, SPLITS):  
-    entity.add(name)  
+for name in h.multi_split(names, SPLITS):
+    entity.add(name)
   ```
 
 ## Code structuring nitpicks
@@ -80,10 +80,10 @@ for name in h.multi_split(names, SPLITS):
     ```
 
     !!! note
-        We typically use the `crawl_thing` convention (e.g., `crawl_person`, `crawl_row`, `crawl_index`) for functions that lead to entities being emitted (directly or via a nested `crawl_` function call). 
+        We typically use the `crawl_thing` convention (e.g., `crawl_person`, `crawl_row`, `crawl_index`) for functions that lead to entities being emitted (directly or via a nested `crawl_` function call).
 
 - To improve readability and maintainability, break down deeply nested logic into smaller, focused functions.
-  
+
     ```python
     for link in main_grid.xpath(".//a/@href"):
         # Break down the handling of different data types into separate functions
@@ -156,7 +156,7 @@ Logs are essential for monitoring progress and debugging, but info-level and low
     context.log.info(f"Processed {page_number} pages")
     ```
 
-* Warning Logs: Indicate potential issues that don't stop the crawl but may require attention. These are surfaced to the dev team on the [Issues](https://www.opensanctions.org/issues/) page and checked daily. 
+* Warning Logs: Indicate potential issues that don't stop the crawl but may require attention. These are surfaced to the dev team on the [Issues](https://www.opensanctions.org/issues/) page and checked daily.
 
     Don't use warnings for things we know we won't fix, e.g. a permanent 404 that we can't do anything about. Do use warnings for things we should take action on, e.g. to notice a new entity type which we haven't mapped to a Schema yet.
 
@@ -181,13 +181,13 @@ assert position_name is not None, entity.id
 
 ## Generating consistent unique identifiers
 
-Make sure entity IDs are unique within the source. Avoid using only the name of the entity because there might eventually be two persons or two companies with the same name. [It is preferable](https://www.opensanctions.org/docs/identifiers) to have to deduplicate two Follow the Money entities for the same real world entity, rather than accidentally merge two entities. 
+Make sure entity IDs are unique within the source. Avoid using only the name of the entity because there might eventually be two persons or two companies with the same name. [It is preferable](https://www.opensanctions.org/docs/identifiers) to have to deduplicate two Follow the Money entities for the same real world entity, rather than accidentally merge two entities.
 
 Good values to use as identifiers are:
 
 * An ID in the source dataset, e.g. a sanction number, company registration number. These can be turned into a readable ID with the dataset prefix using the [`context.make_slug`][zavod.context.Context.make_slug] function.
 * Some combination of consistent attributes, e.g. a person's name and normalised date of birth in a dataset that holds a relatively small proportion of the population so that duplicates are extremely unlikely. These attributes can be turned into a unique hash describing the entity using the [`context.make_id`][zavod.context.Context.make_id] function.
-* A combination of identifiers for the entities related by another entity, e.g. an 
+* A combination of identifiers for the entities related by another entity, e.g. an
   owner and a company, in the form `ownership.id = context.make_id(owner.id, "owns", company.id)`
 
 !!! note
@@ -209,7 +209,7 @@ sanction.add("reason", reason, lang="rom")
 
 ## Handling special space characters in strings
 
-Be aware of different types of space characters and how they affect text comparison. For example, a non-breaking space (`\xa0`) or zero-width space do not match a normal space character and can affect string comparison or processing. 
+Be aware of different types of space characters and how they affect text comparison. For example, a non-breaking space (`\xa0`) or zero-width space do not match a normal space character and can affect string comparison or processing.
 
 An editor like VS Code highlights characters like this by default, and a hex editor is an effective way to see more precisely which values are present in strings that are surprising you. Remember that a hex editor is looking at the data encoded e.g. to `utf-8` while Python strings are `unicode` code points.
 

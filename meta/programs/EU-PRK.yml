@@ -1,0 +1,13 @@
+id: 64
+title: EU Restrictive Measures In Relation To The Non-Proliferation Of The Weapons
+  Of Mass Destruction (WMD)
+key: EU-PRK
+url: https://sanctionsmap.eu/#/main/details/20/
+summary: These sanctions target individuals and entities in North Korea involved in
+  the development and proliferation of weapons of mass destruction. The measures include
+  asset freezes, travel bans, and restrictions on trade to prevent North Korea from
+  advancing its WMD programs.
+issuer: eu_council
+dataset: eu_fsf
+target_territories:
+- kp

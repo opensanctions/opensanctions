@@ -6,7 +6,7 @@ from zavod import Context
 from zavod import helpers as h
 
 
-def crawl_row(context: Context, row: Dict[str, str]):
+def crawl_row(context: Context, row: Dict[str, str]) -> None:
     schema = row.pop("type")
     entity = context.make(schema)
     entity.id = context.make_slug(row.pop("id"))
@@ -41,6 +41,8 @@ def crawl_row(context: Context, row: Dict[str, str]):
         rel.add("summary", row.pop("rel_summary"))
         h.apply_date(rel, "startDate", row.pop("rel_start"))
         h.apply_date(rel, "endDate", row.pop("rel_end"))
+        assert rel.schema.source_prop is not None
+        assert rel.schema.target_prop is not None
         rel.add(rel.schema.source_prop, entity.id)
         rel.add(rel.schema.target_prop, other_id)
         context.emit(rel)
@@ -49,7 +51,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     context.audit_data(row)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     path = context.fetch_resource("source.csv", context.data_url)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:

@@ -272,7 +272,7 @@ export async function getExtractionEntries(dataset: string, search?: string) {
     .orderBy('review.modified_at', 'asc')
     .execute();
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   return rows.map((row: any) => ({
     id: row.id,
     key: row.key,
@@ -326,7 +326,7 @@ export async function updateExtractionEntry({ dataset, key, accepted, extractedD
       .execute();
 
     // Insert new row, copying fields but updating accepted, extractedData, modified_at, modified_by
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
     const { id, ...rest } = prev;
     const newRow: NewReview = {
       ...rest,
@@ -491,7 +491,7 @@ export async function softDeleteAndCreatePosition({ entityId, positionUpdate, mo
       .execute();
 
     // Drop id, modified_by, modified_at, deleted_at from the data
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
     const { id, modified_by, modified_at, deleted_at, ...baseData } = currentPosition;
 
     // Apply positionUpdate to the data

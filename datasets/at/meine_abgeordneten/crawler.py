@@ -195,6 +195,7 @@ def crawl_item(url_info_page: str, context: Context):
     person.id = context.make_slug(id)
 
     h.apply_name(person, first_name=first_name, last_name=last_name, lang="deu")
+    person.add("citizenship", "at")
     person.add("sourceUrl", url_info_page)
     birth_date_in_german = info_page.findtext(".//span[@itemprop='birthDate']")
     if birth_date_in_german:

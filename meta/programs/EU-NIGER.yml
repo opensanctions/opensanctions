@@ -1,0 +1,14 @@
+id: 81
+title: EU Restrictive Measures In View Of The Situation In Niger
+key: EU-NIGER
+url: https://sanctionsmap.eu/#/main/details/58/
+summary: These sanctions target individuals and entities in Niger involved in actions
+  that undermine peace, security, and stability. The measures include asset freezes,
+  travel bans, and restrictions on trade to promote stability and security in Niger.
+issuer: eu_council
+dataset: eu_fsf
+target_territories:
+- ne
+measures:
+- Asset freeze
+- Travel ban

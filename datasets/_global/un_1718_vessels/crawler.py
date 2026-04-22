@@ -22,7 +22,7 @@ PROGRAMS = [
 PROGRAM_KEY = "UN-SC1718"
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     # Fetch the HTML and assert the hash of the PDF file
     pdf_link_xpath = (
         ".//div[a[contains(text(), '1718 Designated Vessels List (Pdf )')]]//a/@href"
@@ -30,7 +30,7 @@ def crawl(context: Context):
     doc = zyte_api.fetch_html(
         context, URL, unblock_validator=pdf_link_xpath, cache_days=1
     )
-    source_url = str(doc.xpath(pdf_link_xpath)[0])
+    source_url = h.xpath_strings(doc, pdf_link_xpath)[0]
     _, _, _, path = zyte_api.fetch_resource(
         context, filename="source.pdf", url=source_url
     )

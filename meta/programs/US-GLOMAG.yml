@@ -1,0 +1,14 @@
+id: 18
+title: Global Magnitsky Sanctions
+key: US-GLOMAG
+url: https://ofac.treasury.gov/sanctions-programs-and-country-information/global-magnitsky-sanctions
+summary: These sanctions target individuals and entities involved in serious human
+  rights abuses and corruption worldwide. The executive order authorizes asset freezes
+  and transaction prohibitions to hold perpetrators accountable and deter such activities
+  globally.
+issuer: us_ofac
+dataset: us_ofac_sdn
+aliases:
+- EO 13818
+target_territories:
+- zz

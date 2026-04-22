@@ -34,3 +34,15 @@ data:
   url: "https://daten.offeneregister.de/de_companies_ocdata.jsonl.bz2"
   format: JSONL
   lang: deu
+
+assertions:
+  min:
+    schema_entities:
+      Person: 3_000_000
+      Organization: 700_000
+      Company: 4_000_000
+  max:
+    schema_entities:
+      Person: 6_000_000
+      Organization: 1_400_000
+      Company: 8_000_000

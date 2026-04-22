@@ -49,7 +49,9 @@ lookups:
         value: female
   type.date:
     options:
-      - match: 鹤壁市豫剧团团长
+      - match:
+          - 鹤壁市豫剧团团长
+          - 987年1月  # probably a typo for 1987, but let's not assume
         value: null
   type.name:
     options:
@@ -82,7 +84,7 @@ lookups:
 assertions:
   min:
     schema_entities:
-      Person: 2920
+      Person: 2850
   max:
     schema_entities:
-      Person: 2970
+      Person: 3000

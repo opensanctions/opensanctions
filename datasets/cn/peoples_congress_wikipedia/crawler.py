@@ -12,13 +12,15 @@ from zavod.shed.trans import ENGLISH, apply_translit_full_name
 REGEX_DELEGATION_HEADING = re.compile(r"(\w+)（\d+名）$")
 REGEX_BRACKETS = re.compile(r"\[.*?\]")
 CHANGES_IN_REPRESENTATION = [
-    "补选",  # by-election
+    # Skip because rowspan isn't supported yet
+    # "补选",  # by-election
     "辞职",  # resignation
     # Not supporting this for now because of we don't yet support HTML rowspan
     # "罢免",  # dismissal
     "去世",  # death
 ]
 REGEX_STRIP_NOTE = re.compile(r"\[註 \d+\]")
+# [Unit] + 提名 = "nominated by [Unit]"
 SKIP_SUBHEADERS = {
     "中央提名",
     "四川省提名",
@@ -26,6 +28,7 @@ SKIP_SUBHEADERS = {
     "西藏自治区提名",
     "中央提名",
     "陕西省提名",
+    "江苏省提名",
 }
 IGNORE_DUPES = {
     "cn-npc-22933e40a3e1f8cb38f88643263186428150bf6d",
@@ -84,6 +87,8 @@ def crawl_item(
 
     entity = context.make("Person")
     entity.id = context.make_id(name, ethnicity, gender, birth_date, delegation)
+    # PRC citizenship required even for HK and Macau NPC Delegates: http://en.npc.gov.cn.cdurl.cn/2020-10/17/c_674698.htm
+    entity.add("citizenship", "cn")
 
     entity.add("name", name, lang="chi")
     apply_translit_full_name(context, entity, "chi", name, TRANSLIT_OUTPUT)
@@ -161,7 +166,7 @@ def parse_table(
         if row.find("./th") is not None:
             subheader = row.text_content().strip()
             if subheader not in SKIP_SUBHEADERS:
-                context.log.warning("Unexpected subheader {subheader}")
+                context.log.warning(f"Unexpected subheader {subheader}")
             continue
         # populate cells
         cells = row.findall("./td")

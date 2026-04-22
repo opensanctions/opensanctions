@@ -1,7 +1,11 @@
 import re
 from banal import is_listish, ensure_list
-from typing import Optional, List, Union, Iterable
+from typing import Optional, List, Sequence, Union, Iterable
 from normality import squash_spaces
+
+from zavod.logs import get_logger
+
+log = get_logger(__name__)
 
 PREFIX_ = r"INTERPOL-UN\s*Security\s*Council\s*Special\s*Notice\s*web\s*link:?"
 PREFIX = re.compile(PREFIX_, re.IGNORECASE)
@@ -11,7 +15,7 @@ INTERPOL_URL = re.compile(INTERPOL_URL_, re.IGNORECASE)
 BRACKETED = re.compile(r"\(.*\)")
 
 
-def clean_note(text: Union[Optional[str], List[Optional[str]]]) -> List[str]:
+def clean_note(text: Union[Optional[str], Sequence[Optional[str]]]) -> List[str]:
     """Remove a set of specific text sections from notes supplied by sanctions data
     publishers. These include cross-references to the Security Council web site and
     the Interpol web site.
@@ -57,7 +61,9 @@ def multi_split(
     if text is None:
         return []
     fragments = ensure_list(text)
-    for splitter in splitters:
+    sorted_splitters = tuple(sorted(splitters, key=len, reverse=True))
+
+    for splitter in sorted_splitters:
         out: List[Optional[str]] = []
         for fragment in fragments:
             if fragment is None:
@@ -67,7 +73,9 @@ def multi_split(
                 if len(frag):
                     out.append(frag)
         fragments = out
-    return [f for f in fragments if f is not None]
+    result = [f for f in fragments if f is not None]
+
+    return result
 
 
 def is_empty(text: Optional[str]) -> bool:

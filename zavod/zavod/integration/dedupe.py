@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional, TYPE_CHECKING
+from typing import Any, Dict, List, Optional, TYPE_CHECKING, Set
 
 from pathlib import Path
 from followthemoney import model
@@ -17,7 +17,6 @@ if TYPE_CHECKING:
     from zavod.store import Store
 
 log = get_logger(__name__)
-AUTO_USER = "zavod/xref"
 
 
 def get_resolver() -> Resolver[Entity]:
@@ -43,8 +42,9 @@ def blocking_xref(
     limit: int = 5000,
     auto_threshold: Optional[float] = None,
     algorithm: str = DefaultAlgorithm.NAME,
-    focus_dataset: Optional[str] = None,
+    focus_datasets: Set[str] = set(),
     schema_range: Optional[str] = None,
+    user: str = "zavod/xref",
     discount_internal: float = 1.0,
     min_threshold: float = 0.01,
     blocker_options: Optional[Dict[str, Any]] = None,
@@ -72,13 +72,13 @@ def blocking_xref(
         range=range,
         scored=True,
         auto_threshold=auto_threshold,
-        focus_dataset=focus_dataset,
+        focus_datasets=focus_datasets,
         algorithm=algorithm_type,
         min_threshold=min_threshold,
         discount_internal=discount_internal,
         heuristic=logic_decide,
         blocker_options=blocker_options,
-        user=AUTO_USER,
+        user=user,
     )
 
 

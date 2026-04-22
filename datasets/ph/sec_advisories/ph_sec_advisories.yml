@@ -229,6 +229,13 @@ lookups:
           - "UNREGISTERED CRYPTO PLATFORMS CONTINUE TO TARGET FILIPINOS — SEC TO ENFORCE SANCTIONS AGAINST VIOLATORS"
           - "ADVISORY ON PREVIOUSLY IMPOSED PENALTIES AGAINST CERTAIN FINANCING AND LENDING COMPANIES"
         ignore: true
+      - match: UMETA CREDIT LENDING CORP. doing business under the name/s and style/s of More Pautang Lending, MetaPeso Lending, MoreJuan Lending and MetaCash Lending
+        name:
+          - UMETA CREDIT LENDING CORP
+          - More Pautang Lending
+          - MetaPeso Lending
+          - MoreJuan Lending
+          - MetaCash Lending
       - match: "HOUSE OF FOREX / H. FLORES BUSINESS CONSULTANCY SERVICES is NOT AUTHORIZED TO SOLICIT INVESTMENTS FROM THE PUBLIC"
         name:
           - HOUSE OF FOREX

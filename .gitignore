@@ -14,6 +14,8 @@ __pycache__/
 .vscode/settings.json
 .idea/
 balkhashdb
+# Shell completion cache
+.zavod-complete.zsh
 
 # C extensions
 *.so

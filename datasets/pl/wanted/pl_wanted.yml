@@ -7,6 +7,9 @@ coverage:
   frequency: daily
   start: 2025-02-06
 load_statements: true
+deploy:
+  memory: 1000Mi
+  memory_limit: 2600Mi
 summary: >
   Wanted and suspect persons list of the Police of Poland
 description: |
@@ -78,6 +81,8 @@ lookups:
         values: [FR, CM]
       - match: FRANCJA LIBAN
         values: [FR, LB]
+      - match: GRUZJA ARMENIA
+        values: [GE, AM]
       - match: GRUZJA ROSJA
         values: [GE, RU]
       - match: KAZACHSTAN NIEMCY
@@ -142,3 +147,5 @@ lookups:
         values: [DZ, BE]
       - match: AZERBEJDŻAN UKRAINA
         values: [AZ, UA]
+      - match: HISZPANIA ROSJA
+        values: [ES, RU]

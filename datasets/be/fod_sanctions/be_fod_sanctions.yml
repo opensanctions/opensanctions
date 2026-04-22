@@ -51,33 +51,27 @@ assertions:
     schema_entities:
       Person: 4000
       Organization: 1300
-      Address: 1150
       Vessel: 1
   max:
     schema_entities:
       Person: 9400
       Organization: 3000
-      Address: 2750
       Vessel: 4
 lookups:
   subject_type:
     lowercase: true
     options:
       - match:
-          - person
           - P
         value: Person
       - match:
-          - enterprise
           - E
         value: Organization
   schema_override:
     options:
-      - match: eu-fsf-eu-11935-5
-        value: Organization
       - match:
-          - eu-fsf-eu-9442-82 # Unica
-          - eu-fsf-eu-9443-81 # New Konk
+          - be-fod-1466e18fc1e237298e4f20761990fd017d0a9f3e # Unica
+          - be-fod-a3f9b33940d9a6301f5d997f5afc951cfc3396a5 # New Konk
         value: Vessel
   identifier_prop:
     options:

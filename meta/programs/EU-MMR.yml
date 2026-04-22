@@ -1,0 +1,12 @@
+id: 79
+title: EU Restrictive Measures In View Of The Situation In Myanmar And Burma
+key: EU-MMR
+url: https://sanctionsmap.eu/#/main/details/8/
+summary: These sanctions target individuals and entities in Myanmar involved in human
+  rights abuses, undermining democracy, and contributing to instability. The measures
+  include asset freezes, travel bans, and restrictions on trade to pressure the Myanmar
+  government to respect human rights and restore democracy.
+issuer: eu_council
+dataset: eu_fsf
+target_territories:
+- mm

@@ -27,6 +27,14 @@ data:
   format: ZIP
   lang: eng
 
+assertions:
+  min:
+    schema_entities:
+      Organization: 100_000
+  max:
+    schema_entities:
+      Organization: 200_000
+
 lookups:
   relationship:
     options:

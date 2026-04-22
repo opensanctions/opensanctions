@@ -25,7 +25,7 @@ from zavod import helpers as h
 
 
 DOWNLOAD_URL = "https://sam.gov/api/prod/fileextractservices/v1/api/download/"
-
+IGNORE_COLUMNS = ["CT Code", "Open Data Flag", "SAM Number"]
 
 NameProp = Literal["name", "alias", "weakAlias"]
 
@@ -72,63 +72,125 @@ def crawl_data_url(context: Context) -> str:
     raise RuntimeError("No ZIP file found")
 
 
+def us_fed_excl_id(
+    context: Context,
+    full_name: Optional[str],
+    first_name: Optional[str],
+    middle_name: Optional[str],
+    last_name: Optional[str],
+    zip_code: Optional[str],
+    city: Optional[str],
+) -> Optional[str]:
+    id_name = h.make_name(
+        full=full_name,
+        first_name=first_name,
+        middle_name=middle_name,
+        last_name=last_name,
+    )
+    id_zip = zip_code
+    if id_zip is not None and len(id_zip) > 5:
+        id_zip = id_zip[:5]
+    return context.make_slug(
+        id_name,
+        id_zip,
+        city,
+        strict=False,
+        prefix="us-fed-excl",
+    )
+
+
+def usgsa_id(
+    context: Context,
+    uei: Optional[str],
+    full_name: Optional[str],
+    first_name: Optional[str],
+    middle_name: Optional[str],
+    last_name: Optional[str],
+    zip_code: Optional[str],
+    city: Optional[str],
+    country: Optional[str],
+) -> Optional[str]:
+    id_name = h.make_name(
+        full=full_name,
+        first_name=first_name,
+        middle_name=middle_name,
+        last_name=last_name,
+    )
+    id_zip = zip_code
+    if id_zip is not None and len(id_zip) > 5:
+        id_zip = id_zip[:5]
+    return context.make_id(uei, id_name, id_zip, city, country)
+
+
 def crawl(context: Context) -> None:
     data_url = crawl_data_url(context)
     path = context.fetch_resource("source.zip", data_url)
     context.export_resource(path, ZIP, title=context.SOURCE_TITLE)
     schemata: Dict[str, str] = {}
-    for filename, row in read_rows(path):
+    for row_number, (filename, row) in enumerate(read_rows(path)):
         classification = row.pop("Classification")
         schema = context.lookup_value("classifications", classification)
         if schema is None:
             context.log.warn("Unknown classification", classification=classification)
             continue
         agency = row.pop("Excluding Agency")
-        sam_number = row.pop("SAM Number")
-        override_schema = context.lookup_value("schema.override", sam_number)
-        schema = override_schema or schema
-        entity = context.make(schema)
-        zip_code = row.pop("Zip Code", None)
-        entity.id = context.make_slug(sam_number)
+
+        zip_code = row.pop("Zip Code")
+        country = row.pop("Country")
+        uei = row.pop("Unique Entity ID")
+
         if agency in ("HHS", "OPM"):
-            id_name = h.make_name(
-                full=row.get("Name"),
+            entity_id = us_fed_excl_id(
+                context,
+                full_name=row.get("Name"),
                 first_name=row.get("First"),
                 middle_name=row.get("Middle"),
                 last_name=row.get("Last"),
+                zip_code=zip_code,
+                city=row.get("City"),
             )
-            id_zip = zip_code
-            if id_zip is not None and len(id_zip) > 5:
-                id_zip = id_zip[:5]
-            entity.id = context.make_slug(
-                id_name,
-                id_zip,
-                row.get("City"),
-                strict=False,
-                prefix="us-fed-excl",
+        else:
+            entity_id = usgsa_id(
+                context,
+                uei=uei,
+                full_name=row.get("Name"),
+                first_name=row.get("First"),
+                middle_name=row.get("Middle"),
+                last_name=row.get("Last"),
+                zip_code=zip_code,
+                city=row.get("City"),
+                country=country,
             )
 
-        if entity.id is None:
+        if entity_id is None:
             context.log.warning(
                 "No id for entity",
-                sam_number=sam_number,
                 name=row.get("Name"),
             )
             continue
 
-        if entity.id in schemata and not entity.schema.is_a(schemata[entity.id]):
+        override_schema = context.lookup_value("schema.override", entity_id)
+        schema = override_schema or schema
+        entity = context.make(schema)
+        entity.id = entity_id
+
+        if (
+            not override_schema
+            and entity.id in schemata
+            and not entity.schema.is_a(schemata[entity.id])
+        ):
             context.log.warning(
                 "Schema mismatch",
                 entity_id=entity.id,
-                sam_number=sam_number,
                 name=row.get("Name"),
                 schema=entity.schema.name,
                 prev_schema=schemata[entity.id],
+                row=row_number,
             )
             continue
         schemata[entity.id] = entity.schema.name
 
-        creation_date = parse_date(row.pop("Creation_Date", None))
+        creation_date = parse_date(row.pop("Creation_Date"))
         h.apply_date(entity, "createdAt", creation_date)
 
         # All exclusions in this dataset are debarments from US federal programs
@@ -137,7 +199,7 @@ def crawl(context: Context) -> None:
         # entities that have been delisted by OFAC.
         entity.add("topics", "debarment")
 
-        cross_ref = row.pop("Cross-Reference", None)
+        cross_ref = row.pop("Cross-Reference")
         # if (
         #     cross_ref is not None
         #     and cross_ref.startswith("(also ")
@@ -156,32 +218,34 @@ def crawl(context: Context) -> None:
         #     entity.add("alias", aliases, lang="eng")
         # else:
         entity.add("notes", cross_ref, lang="eng")
-        uei = row.pop("Unique Entity ID", None)
+
         if "uniqueEntityId" in entity.schema.properties:
             entity.add("uniqueEntityId", uei)
         else:
             entity.add("registrationNumber", uei, quiet=True)
 
-        entity.add("cageCode", row.pop("CAGE", None), quiet=True)
+        entity.add("cageCode", row.pop("CAGE"), quiet=True)
         # The NPI (National Provider Identifier) is a unique identification number
         # for covered health care providers. It is an optional field for exclusion
         # records.
-        npi = row.pop("NPI", None)
+        npi = row.pop("NPI")
         if npi is not None and len(npi):
+            if npi.endswith(".0"):
+                npi = npi[:-2]
             entity.add("npiCode", npi)
 
         name = h.make_name(
-            full=row.pop("Name", None),
-            first_name=row.get("First", None),
-            middle_name=row.get("Middle", None),
-            last_name=row.get("Last", None),
-            prefix=row.pop("Prefix", None),
-            suffix=row.pop("Suffix", None),
+            full=row.pop("Name"),
+            first_name=row.get("First"),
+            middle_name=row.get("Middle"),
+            last_name=row.get("Last"),
+            prefix=row.pop("Prefix"),
+            suffix=row.pop("Suffix"),
         )
 
         if not name:
             return
-        full_name_prop = "name"
+        full_name_prop: NameProp = "name"
         # Not vessels
         if len(name) < 5 and entity.schema.is_a("LegalEntity"):
             full_name_prop = "weakAlias"
@@ -204,50 +268,55 @@ def crawl(context: Context) -> None:
 
         # The low quality names tend to come from OFAC so check those.
         if agency == "TREAS-OFAC":
-            h.review_names(context, entity, name)
+            original = h.Names(name=name)
+            is_irregular, suggested = h.check_names_regularity(entity, original)
+
+            # A review will be created if standard heuristics suggest the name is irregular,
+            # or if there is a custom suggestion that differs from the original categorisation.
+            h.review_names(
+                context,
+                entity,
+                original=original,
+                suggested=suggested,
+                is_irregular=is_irregular,
+            )
+
         # TODO: Once we're done with reviews and change the OFAC clause to apply_reviewed_names,
         # and remove the heuristic-based cleaning/adding above, add the rest normally:
         # else:
         #     entity.add("name", name, lang="eng")
 
-        entity.add("firstName", row.pop("First", None), quiet=True, lang="eng")
-        entity.add("middleName", row.pop("Middle", None), quiet=True, lang="eng")
-        entity.add("lastName", row.pop("Last", None), quiet=True, lang="eng")
+        entity.add("firstName", row.pop("First"), quiet=True, lang="eng")
+        entity.add("middleName", row.pop("Middle"), quiet=True, lang="eng")
+        entity.add("lastName", row.pop("Last"), quiet=True, lang="eng")
 
-        state = clean_address_part(row.pop("State / Province", None))
-        country = row.pop("Country", None)
+        state = clean_address_part(row.pop("State / Province"))
         entity.add("country", country)
         address = h.make_address(
             context,
-            street=clean_address_part(row.pop("Address 1", None)),
-            street2=clean_address_part(row.pop("Address 2", None)),
+            street=clean_address_part(row.pop("Address 1")),
+            street2=clean_address_part(row.pop("Address 2")),
             # street3=row.pop("Address 3", None),
-            city=clean_address_part(row.pop("City", None)),
+            city=clean_address_part(row.pop("City")),
             postal_code=clean_address_part(zip_code),
             country_code=entity.first("country"),
             state=state,
         )
         h.copy_address(entity, address)
-        # h.apply_address(context, entity, address)
 
         context.emit(entity)
 
         sanction = h.make_sanction(context, entity, key=agency)
         if agency is not None and len(agency):
             sanction.set("authority", agency)
-            # entity.set("program", agency)
-        sanction.add("authorityId", sam_number)
+
         sanction.add("program", row.pop("Exclusion Program"))
         sanction.add("provisions", row.pop("Exclusion Type"))
+        sanction.add("status", row.pop("Record Status"))
         h.apply_date(sanction, "listingDate", creation_date)
         h.apply_date(sanction, "startDate", parse_date(row.pop("Active Date")))
         h.apply_date(sanction, "endDate", parse_date(row.pop("Termination Date")))
-        sanction.add("summary", row.pop("Additional Comments", None))
+        sanction.add("summary", row.pop("Additional Comments"))
         context.emit(sanction)
 
-        context.audit_data(
-            row,
-            ignore=["CT Code", "Open Data Flag"],
-        )
-
-    # print(data_url)
+        context.audit_data(row, ignore=IGNORE_COLUMNS)

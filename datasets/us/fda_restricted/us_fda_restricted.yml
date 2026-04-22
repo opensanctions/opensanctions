@@ -61,6 +61,7 @@ lookups:
           - Restrictions Removed (reinstated by correspondence)
           - Reinstated
           - Reinstated – Adequate Assurances1
+          - NIDPOE Issued
         is_debarred: false
       - match:
           - Totally Restricted

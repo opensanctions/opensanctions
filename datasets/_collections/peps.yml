@@ -68,6 +68,7 @@ children:
   - hr_public_officials
   - hu_national_assembly
   - id_regional_2018
+  - ie_parliament
   - il_knesset_members
   - in_sansad
   - is_althingi
@@ -89,17 +90,18 @@ children:
   - ng_join_dots
   - nl_house_of_representatives
   - nl_senate
+  - no_brreg
   - no_storting
   - pl_sejm
   - pl_senate
   - ro_fiu_declarations
+  - se_soe
   - sg_gov_dir
   - si_zvezoskop
   - sk_public_officials
   - th_cabinet
   - tr_parliament
   - un_ga_protocol
-  - us_cia_world_factbook
   - us_cia_world_leaders
   - us_congress
   - us_navy

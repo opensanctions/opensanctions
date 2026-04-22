@@ -1,8 +1,11 @@
 import csv
+from pathlib import Path
 from typing import Dict
 
-import zavod.helpers as h
-from zavod import Context
+from zavod import Context, helpers as h
+
+LOCAL_PATH = Path(__file__).parent
+FR_API_URL = "https://www.federalregister.gov/api/v1/documents.json?conditions[agencies][]=state-department&conditions[term]=nonproliferation+measures&order=newest"
 
 
 def crawl_row(context: Context, row: Dict[str, str]):
@@ -40,9 +43,41 @@ def crawl_row(context: Context, row: Dict[str, str]):
     context.audit_data(row)
 
 
+def crawl_fr_notices(context: Context) -> None:
+    # The ISN component of the US Trade Consolidated Screening List (CSL) is
+    # fed from the State Department's nonproliferation sanctions page, which is
+    # updated manually and with no guaranteed cadence. In practice, new INKSNA
+    # designations published in the Federal Register can take weeks or months
+    # to appear in the CSL. This function monitors the FR API directly so that
+    # any new notice triggers a warning.
+    # If the hash changes, review the updated fr_notices.csv for new entries and
+    # update the us_special_leg Google Sheet accordingly. Then commit the updated
+    # fr_notices.csv and update the hash in this function.
+    h.assert_url_hash(context, FR_API_URL, "59f3eec13dbb3e2319784f767b8ca0b84bdecd16")
+    rows, url = [], FR_API_URL
+    while url:
+        data = context.fetch_json(url)
+        rows.extend(
+            [
+                doc["document_number"],
+                doc["publication_date"],
+                doc["html_url"],
+                doc["pdf_url"],
+            ]
+            for doc in data.get("results", [])
+            if "Imposition of Nonproliferation Measures" in doc.get("title")
+        )
+        url = data.get("next_page_url")
+    with open(LOCAL_PATH / "fr_notices.csv", "w") as f:
+        writer = csv.writer(f)
+        writer.writerow(["document_number", "publication_date", "html_url", "pdf_url"])
+        writer.writerows(rows)
+
+
 def crawl(context: Context):
     path = context.fetch_resource("source.csv", context.data_url)
     with open(path, "r") as fh:
         reader = csv.DictReader(fh)
         for row in reader:
             crawl_row(context, row)
+    crawl_fr_notices(context)
