@@ -49,6 +49,7 @@ def crawl_holder(
             "Redirected person QID",
             original=person_qid,
             redirected=item.id,
+            position=position.id,
         )
     entity = wikidata_basic_human(context, client, item)
     if entity is None:
