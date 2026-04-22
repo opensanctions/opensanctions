@@ -23,7 +23,7 @@ CATEGORY_URLS = [
 ]
 
 
-def extract_name_and_title(context, raw_name: str) -> tuple[str, str | None]:
+def extract_name_and_title(context: Context, raw_name: str) -> tuple[str, str | None]:
     match = TITLE_REGEX.match(raw_name)
     if match:
         # Return the name and title separately
@@ -87,7 +87,7 @@ def parse_json_or_xml(
         context.log.debug(f"Failed to parse XML for {url}: {e}, trying as JSON instead")
 
     try:
-        json_doc = orjson.loads(data)
+        json_doc: Mapping[str, Any] = orjson.loads(data)
         return json_doc
     except orjson.JSONDecodeError:
         context.log.debug(f"Failed to decode JSON from {url}")
@@ -136,7 +136,7 @@ def process_page(context: Context, page_number: int) -> ProcessPageResult:
     return ProcessPageResult(success=True, done=doc["done"] == "true")
 
 
-def parse_html(context):
+def parse_html(context: Context) -> None:
     section_xpath = './/div[contains(@class, "DNNModuleContent") and contains(@class, "ModDNNHTMLC")]'
     doc = zyte_api.fetch_html(
         context, context.data_url, section_xpath, geolocation="us", cache_days=3
@@ -157,7 +157,7 @@ def parse_html(context):
             emit_person(context, "us", leader_url, role, name, title=title, bio=bio)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     page_number = 0
     done = False
     while not done:
