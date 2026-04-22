@@ -150,5 +150,5 @@ def crawl_sanction_ownership(context: Context):
 
 
 def crawl(context: Context):
-    # crawl_sec(context)
+    crawl_sec(context)
     crawl_sanction_ownership(context)
