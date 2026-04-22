@@ -87,9 +87,12 @@ def crawl_sanction_ownership_row(context: Context, row: Dict):
     company_name_eng = stringify(row.pop("Company name (ENG)"))
     company_id = stringify(row.pop("Company ID"))
     company_ent.id = context.make_id(company_name_eng, company_id)
-    company_name_geo = stringify(row.pop("Company name (GEO)"))
+    company_name_lang = stringify(row.pop("Company name lang"))
+    company_name = stringify(row.pop("Company name"))
     h.apply_name(company_ent, full=company_name_eng, name_prop="name", lang="eng")
-    h.apply_name(company_ent, full=company_name_geo, name_prop="name", lang="geo")
+    h.apply_name(
+        company_ent, full=company_name, name_prop="name", lang=company_name_lang
+    )
     company_ent.add("registrationNumber", company_id)
     company_jurisdiction = stringify(row.pop("Jurisdiction"))
     company_ent.add("jurisdiction", company_jurisdiction)
@@ -104,8 +107,9 @@ def crawl_sanction_ownership_row(context: Context, row: Dict):
     owner_id = stringify(row.pop("Direct Owner ID"))
     owner_ent.id = context.make_id(owner_name_eng, owner_id)
     h.apply_name(owner_ent, full=owner_name_eng, lang="eng")
-    owner_name_geo = stringify(row.pop("Direct owner name (GEO)"))
-    h.apply_name(owner_ent, full=owner_name_geo, lang="geo")
+    owner_name_lang = stringify(row.pop("Direct owner lang"))
+    owner_name = stringify(row.pop("Direct owner name"))
+    h.apply_name(owner_ent, full=owner_name, lang=owner_name_lang)
     owner_ent.add("registrationNumber", owner_id)
     context.emit(owner_ent)
 
