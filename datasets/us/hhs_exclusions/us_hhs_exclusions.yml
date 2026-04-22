@@ -1,4 +1,4 @@
-title: US Health and Human Sciences Inspector General Exclusions
+title: US Health and Human Services Inspector General Exclusions
 entry_point: crawler.py
 prefix: us-fed-excl
 coverage:
