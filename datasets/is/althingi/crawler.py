@@ -1,6 +1,7 @@
 import re
 
 from zavod import Context, helpers as h
+from zavod.entity import Entity
 from zavod.stateful.positions import categorise
 from zavod.extract import zyte_api
 
@@ -8,7 +9,9 @@ EMAIL_PATTERN = r"tpostur\('([^']+)'"
 SUFFIX_PATTERN = r"(?<=\d)(st|nd|rd|th)"
 
 
-def crawl_item(context: Context, *, member_url: str, member_name: str) -> None:
+def crawl_item(
+    context: Context, *, member_url: str, member_name: str, position: Entity
+) -> None:
     birth_date_xpath = ".//*[text()='Date of Birth:']/.."
     response = zyte_api.fetch_html(
         context,
@@ -49,9 +52,9 @@ def crawl_item(context: Context, *, member_url: str, member_name: str) -> None:
 
     person.add("sourceUrl", member_url)
 
-    position = h.make_position(context, "Member of the Althing")
-    position.add("country", "is")
     categorisation = categorise(context, position, is_pep=True)
+    if not categorisation.is_pep:
+        return
 
     occupancy = h.make_occupancy(
         context,
@@ -61,13 +64,22 @@ def crawl_item(context: Context, *, member_url: str, member_name: str) -> None:
         categorisation=categorisation,
     )
 
-    if occupancy:
+    if occupancy is not None:
         context.emit(person)
         context.emit(position)
         context.emit(occupancy)
 
 
 def crawl(context: Context) -> None:
+    position = h.make_position(
+        context,
+        "Member of the Althing",
+        wikidata_id="Q21272959",
+        topics=["gov.legislative", "gov.national"],
+        country="is",
+    )
+    context.emit(position)
+
     members_xpath = ".//*[@id='members']/tbody/tr/td/b/a"
     response = zyte_api.fetch_html(
         context,
@@ -86,4 +98,6 @@ def crawl(context: Context) -> None:
         if member_url is None:
             context.log.error("Could not find URL for member", name=member_name)
             continue
-        crawl_item(context, member_url=member_url, member_name=member_name)
+        crawl_item(
+            context, member_url=member_url, member_name=member_name, position=position
+        )
