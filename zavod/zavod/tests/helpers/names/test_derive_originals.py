@@ -21,21 +21,30 @@ def test_derive_original_values_exact_match():
 
     result = derive_original_values(original, extracted)
 
-    # John Doe isn't contained exactly, and Jhon doe matches exactly so doesn't need an original_value
+    # Jon Doe isn't contained exactly, and John Doe matches exactly so doesn't need an original_value
     assert result == {}
 
 
 def test_derive_original_values_substring_match():
     """When an extracted value is contained in an original, it maps to that original."""
-    original = Names(name=["John Doe; Brandon Doe", "John Brandon Doe", "John Doe"])
-    extracted = Names(name="John Doe", alias="Brandon Doe")
+    original = Names(name="John Doe; Brandon Doe", alias="J. Doe")
+    extracted = Names(name="John Brandon Doe", alias="Brandon Doe")
 
     result = derive_original_values(original, extracted)
 
-    # Brandon Doe isn't contained exactly.
-    # Either of "John Doe; Brandon Doe" or "John Brandon Doe" could be used.
-    assert len(result) == 1
-    assert "Brandon Doe" in result["Brandon Doe"]
+    # John Brandon Doe isn't contained exactly. We're not getting more fancy with this.
+    assert result == {"Brandon Doe": "John Doe; Brandon Doe"}
+
+
+def test_derive_original_values_substring_match_stable_selection():
+    """When multiple originals contain the extracted value,
+    the alphabetic first match is used regardless of input order."""
+    original = Names(name=["b) Jonathan", "a) Jonny", "c) Jon"])
+    extracted = Names(name="Jon")
+
+    result = derive_original_values(original, extracted)
+
+    assert result == {"Jon": "a) Jonny"}
 
 
 def test_derive_original_values_no_match():

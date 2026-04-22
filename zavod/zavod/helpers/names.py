@@ -417,10 +417,11 @@ def derive_original_values(original: Names, extracted: Names) -> Dict[str, str]:
         (3) If some value in original contains it, we can use that the value from original as original_value.
         Otherwise leave blank - this is best-effort only.
     """
-    original_values: set[str] = set()
+    original_values: list[str] = []
     for _prop, values in original.as_langtexts():
         for value in values:
-            original_values.add(value.text)
+            original_values.append(value.text)
+    original_values.sort()  # sort to pick deterministically regardless of input order
 
     derived_originals: dict[str, str] = {}
     for _prop, extracted_values in extracted.as_langtexts():
@@ -429,7 +430,7 @@ def derive_original_values(original: Names, extracted: Names) -> Dict[str, str]:
 
             if len(original_values) == 1:
                 # (1) If there's exactly one value in original, use that for all names.
-                derived_originals[extracted_string] = next(iter(original_values))
+                derived_originals[extracted_string] = original_values[0]
             elif extracted_string in original_values:
                 # (2) Exact match exists, no original_value needed.
                 continue
