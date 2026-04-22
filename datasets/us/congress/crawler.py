@@ -28,8 +28,8 @@ IGNORE = [
 def crawl_positions(
     context: Context,
     member: dict[str, Any],
-    entity: Entity,
-) -> tuple[dict[str, Any], list[Entity]]:
+    person: Entity,
+) -> list[Entity]:
     terms: list[dict[str, Any]] = member.pop("terms")
     party_history = member.pop("partyHistory", None)
     state = member.pop("state", None)
@@ -37,32 +37,39 @@ def crawl_positions(
     party_name = None
     if party_history is not None:
         party_name = max(party_history, key=lambda x: x["startYear"]).get("partyName")
+        person.add("political", party_name)
 
     entities = []
     for term in terms:
         res = context.lookup("position", term["chamber"])
         if res is None:
-            context.log.warn("Unknown chamber", chamber=term["chamber"])
+            context.log.warning("Unknown chamber", chamber=term["chamber"])
             continue
-        position = h.make_position(context, res.name, country="us")
+        position = h.make_position(
+            context,
+            res.name,
+            country="us",
+            topics=res.topics,
+            wikidata_id=res.wikidata_id,
+        )
         categorisation = categorise(context, position)
         if categorisation.is_pep:
             occupancy = h.make_occupancy(
                 context,
-                entity,
+                person,
                 position,
-                True,
+                no_end_implies_current=True,
                 start_date=str(term.pop("startYear")),
                 end_date=str(term.pop("endYear")) if "endYear" in term else None,
                 categorisation=categorisation,
             )
-            if occupancy:
-                occupancy.add("politicalGroup", party_name)
-                occupancy.add("constituency", state)
-                occupancy.add("constituency", district)
+            if occupancy is not None:
+                if state:
+                    constituency = f"{state}-{district}" if district else state
+                    occupancy.add("constituency", constituency)
                 entities.append(position)
                 entities.append(occupancy)
-    return member, entities
+    return entities
 
 
 def crawl_member(context: Context, bioguide_id: str) -> None:
@@ -91,7 +98,7 @@ def crawl_member(context: Context, bioguide_id: str) -> None:
         if is_ended and previous_name not in person.get("name"):
             person.add("previousName", entry["directOrderName"])
 
-    member, entities = crawl_positions(context, member, person)
+    entities = crawl_positions(context, member, person)
 
     context.audit_data(member, ignore=IGNORE)
     if entities:
