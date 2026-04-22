@@ -27,12 +27,13 @@ def test_derive_original_values_exact_match():
 
 def test_derive_original_values_substring_match():
     """When an extracted value is contained in an original, it maps to that original."""
-    original = Names(name="John Doe; Brandon Doe", alias="J. Doe")
-    extracted = Names(name="John Brandon Doe", alias="Brandon Doe")
+    original = Names(name="John Doe; Brandon Doe", alias="John Doe")
+    extracted = Names(name="John Doe", alias="Brandon Doe")
 
     result = derive_original_values(original, extracted)
 
-    # John Brandon Doe isn't contained exactly. We're not getting more fancy with this.
+    # John Doe is contained exactly so no original_value needed.
+    # Brandon Doe is only contained partially, so maps to the containing original.
     assert result == {"Brandon Doe": "John Doe; Brandon Doe"}
 
 
