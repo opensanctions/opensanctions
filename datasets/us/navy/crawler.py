@@ -39,8 +39,8 @@ def emit_person(
     role: str,
     name: str,
     title: str | None,
-    bio: str,
-):
+    bio: str | None,
+) -> None:
     person = context.make("Person")
     person.id = context.make_id(country, name, role)
     # leadership requires citizenship, https://www.govregs.com/uscode/title10_subtitleA_partII_chapter33_section532
@@ -72,7 +72,7 @@ def crawl_person(context: Context, item_html: str) -> None:
     role = h.xpath_strings(link_el, ".//h3/text()", expect_exactly=1)[0]
 
     name, title = extract_name_and_title(context, name)
-    emit_person(context, "us", url, role, name, title=title, notes="")
+    emit_person(context, "us", url, role, name, title=title, bio=None)
 
 
 def parse_json_or_xml(
@@ -80,8 +80,8 @@ def parse_json_or_xml(
 ) -> Optional[Mapping[str, Any]]:
     try:
         root = etree.fromstring(data)
-        html_data = root.xpath(".//*[local-name() = 'data']")[0].text
-        done = root.xpath(".//*[local-name() = 'done']")[0].text
+        html_data = h.xpath_string(root, ".//*[local-name() = 'data']/text()")
+        done = h.xpath_string(root, ".//*[local-name() = 'done']/text()")
         return {"data": html_data, "done": done}
     except etree.XMLSyntaxError as e:
         context.log.debug(f"Failed to parse XML for {url}: {e}, trying as JSON instead")
@@ -91,6 +91,8 @@ def parse_json_or_xml(
         return json_doc
     except orjson.JSONDecodeError:
         context.log.debug(f"Failed to decode JSON from {url}")
+
+    return None
 
 
 ProcessPageResult = namedtuple(
