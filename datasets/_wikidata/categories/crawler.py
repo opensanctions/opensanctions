@@ -31,7 +31,7 @@ QUERY = {
 }
 # That one time a PEP customer asked to be included....
 ALWAYS_PERSONS = ["Q21258544"]
-WIKIDATA_CACHE_DAYS = 40  # TODO: revert to 14 days when wikipedia URLs are fixed
+WIKIDATA_CACHE_DAYS = 14
 
 
 @dataclass

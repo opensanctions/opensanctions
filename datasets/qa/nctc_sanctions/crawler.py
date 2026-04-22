@@ -1,21 +1,32 @@
 import json
-from rigour.mime.types import JSON
+from rigour.mime.types import JSON, HTML
 
 from zavod import Context
 from zavod import helpers as h
 from zavod.shed.un_sc import apply_un_name_list
+from zavod.extract import zyte_api
+
 
 TYPES = {"1": "Person", "2": "Organization"}
 ALIAS_SPLITS = [";", "original script", "(", ")", "previously listed as"]
 
 
 def crawl(context: Context) -> None:
-    path = context.fetch_resource("source.json", context.data_url)
+    # The response says this is HTML even when it really is JSON.
+    _, _, _, path = zyte_api.fetch_resource(
+        context, "source.json", context.data_url, expected_media_type=HTML
+    )
     context.export_resource(path, JSON, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
-        data = json.load(fh)
+        response = fh.read()
+        try:
+            data = json.loads(response)
+        except Exception:
+            context.log.error("Failed to parse JSON response", response=response)
+            raise
 
-    assert data["totalElements"] > 700
+    assert data["totalElements"] > 700, data["totalElements"]
+
     for item in data["content"]:
         data_id = item.pop("dataId")
         typ = item.pop("typ")
