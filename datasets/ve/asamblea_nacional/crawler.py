@@ -129,6 +129,7 @@ def crawl_member(
     person.id = context.make_id(member_name)
     # https://venezuela.justia.com/federales/constitucion-de-la-republica-bolivariana-de-venezuela/titulo-v/capitulo-i/
     person.add("citizenship", "ve")
+    person.add("political", party)
     context.log.debug(f"Unique ID {person.id}")
     h.apply_name(person, full=member_name, lang="esp")
 
@@ -143,7 +144,6 @@ def crawl_member(
         context, person, position, True, categorisation=categorisation
     )
     if occupancy is not None:
-        occupancy.add("politicalGroup", party)
         occupancy.add("constituency", state)
         context.emit(person)
         context.emit(position)
@@ -164,6 +164,8 @@ def crawl_members(context: Context, page: ElementOrTree) -> None:
         party_el, state_el = h.xpath_elements(el, ".//small")
         party = h.xpath_string(party_el, ".//b/text()")
         state = h.xpath_string(state_el, "./text()")
+        assert "Partido" not in party, f"Unexpected party format: {party}"
+        assert "Estado:" in state, f"Unexpected state format: {state}"
         state = state.split("Estado: ")[1].strip()
 
         if member_link is None:
