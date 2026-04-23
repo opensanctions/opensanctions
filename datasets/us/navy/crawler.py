@@ -23,7 +23,7 @@ CATEGORY_URLS = [
 ]
 
 
-def extract_name_and_title(context, raw_name: str) -> tuple[str, str | None]:
+def extract_name_and_title(context: Context, raw_name: str) -> tuple[str, str | None]:
     match = TITLE_REGEX.match(raw_name)
     if match:
         # Return the name and title separately
@@ -39,8 +39,8 @@ def emit_person(
     role: str,
     name: str,
     title: str | None,
-    notes: str,
-):
+    bio: str | None,
+) -> None:
     person = context.make("Person")
     person.id = context.make_id(country, name, role)
     # leadership requires citizenship, https://www.govregs.com/uscode/title10_subtitleA_partII_chapter33_section532
@@ -49,7 +49,7 @@ def emit_person(
     person.add("position", role)
     person.add("sourceUrl", source_url)
     person.add("title", title)
-    person.add("notes", notes)
+    person.add("biography", bio)
 
     position = h.make_position(context, role, country=country, topics=["gov.security"])
 
@@ -72,7 +72,7 @@ def crawl_person(context: Context, item_html: str) -> None:
     role = h.xpath_strings(link_el, ".//h3/text()", expect_exactly=1)[0]
 
     name, title = extract_name_and_title(context, name)
-    emit_person(context, "us", url, role, name, title=title, notes="")
+    emit_person(context, "us", url, role, name, title=title, bio=None)
 
 
 def parse_json_or_xml(
@@ -80,17 +80,19 @@ def parse_json_or_xml(
 ) -> Optional[Mapping[str, Any]]:
     try:
         root = etree.fromstring(data)
-        html_data = root.xpath(".//*[local-name() = 'data']")[0].text
-        done = root.xpath(".//*[local-name() = 'done']")[0].text
+        html_data = h.xpath_string(root, ".//*[local-name() = 'data']/text()")
+        done = h.xpath_string(root, ".//*[local-name() = 'done']/text()")
         return {"data": html_data, "done": done}
     except etree.XMLSyntaxError as e:
         context.log.debug(f"Failed to parse XML for {url}: {e}, trying as JSON instead")
 
     try:
-        json_doc = orjson.loads(data)
+        json_doc: Mapping[str, Any] = orjson.loads(data)
         return json_doc
     except orjson.JSONDecodeError:
         context.log.debug(f"Failed to decode JSON from {url}")
+
+    return None
 
 
 ProcessPageResult = namedtuple(
@@ -134,7 +136,7 @@ def process_page(context: Context, page_number: int) -> ProcessPageResult:
     return ProcessPageResult(success=True, done=doc["done"] == "true")
 
 
-def parse_html(context):
+def parse_html(context: Context) -> None:
     section_xpath = './/div[contains(@class, "DNNModuleContent") and contains(@class, "ModDNNHTMLC")]'
     doc = zyte_api.fetch_html(
         context, context.data_url, section_xpath, geolocation="us", cache_days=3
@@ -145,17 +147,17 @@ def parse_html(context):
             name_el = h.xpath_elements(row, ".//h1/a", expect_exactly=1)[0]
             raw_name = h.xpath_strings(row, ".//h1/a/text()", expect_exactly=1)[0]
             role = h.xpath_strings(row, ".//h3/a/text()", expect_exactly=1)[0]
-            notes = h.xpath_string(row, './/p[contains(@class, "bio-sum")]/text()')
+            bio = h.xpath_string(row, './/p[contains(@class, "bio-sum")]/text()')
             leader_url = urljoin(BASE_URL, name_el.get("href"))
 
             name, title = extract_name_and_title(context, raw_name)
             if not name or not role:
                 context.log.warning("Missing name or role:", name=name, role=role)
                 continue
-            emit_person(context, "us", leader_url, role, name, title=title, notes=notes)
+            emit_person(context, "us", leader_url, role, name, title=title, bio=bio)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     page_number = 0
     done = False
     while not done:

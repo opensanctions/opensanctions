@@ -200,7 +200,6 @@ repos:
           datasets/us/ss_wanted|
           datasets/us/wa/med_exclusions|
           datasets/us/tn/med_exclusions|
-          datasets/us/navy|
           datasets/uy|
           datasets/za
           )
