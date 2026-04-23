@@ -184,7 +184,8 @@ def crawl(context: Context) -> None:
     #
     # Date precision varies: start/end dates are exact where provided; for entries with
     # only a term reference (2021–2025), period start/end dates are used. Where a role
-    # ended at "end of term", 2025 is assumed as the end year.
+    # ended at "end of term", e.g. “November 23, 2023–end of term”, the end of that term,
+    # i.e. 2025 is assumed as the `end_date`.
     path = context.fetch_resource("historical_data.csv", HISTORICAL_DATA_CSV)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
