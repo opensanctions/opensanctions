@@ -33,6 +33,12 @@ Use search (grep/glob/find) to find the most relevant starting document. Once yo
 * Keep documentation files under 500 lines. Split documentation into more specific files at conceptual/logical boundaries at the latest when approaching this limit.
 * The audience of `zavod/docs` is crawler maintainers and zavod maintainers at OpenSanctions as well as non-staff users of the zavod framework.
 
+## Task-specific guides
+
+* Writing a PEP crawler: use the `/crawler-pep` skill
+* Writing a sanctions crawler: use the `/crawler-sanctions` skill
+* General crawler patterns (helpers, lookups, FTM schemata, qsv analysis): `.claude/docs/crawler-guide.md`
+
 ## Coding hints
 
 * NEVER try to install new packages or on-board new services without being explicitly promoted to do so.
