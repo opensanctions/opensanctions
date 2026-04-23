@@ -30,23 +30,11 @@ def get_occupany_dates(tenure: str) -> tuple[str, str]:
 def crawl_member_bio(context: Context, url: str) -> None:
     doc = context.fetch_html(url, cache_days=1)
 
-    tenure = get_element_text(doc, '//div[@class="kadencija"]')
-    start_year, end_year = get_occupany_dates(tenure)
-    position_name = get_element_text(doc, '//div[@class="sn-nuo-iki"]')
-    position_name = position_name.split("from")[0].strip()
-    if start_year < h.earliest_term_start(["gov.national"]):
-        context.log.warn(
-            "Skipping position with start year before earliest term",
-            position=position_name,
-            start_year=start_year,
-        )
-        return
-
     # some pages do not list party names, hence None check
-    party = h.xpath_strings(
+    party_list = h.xpath_strings(
         doc, '//div[@class="frakcija"]/a[contains(@class, "smn-frakcija link")]/text()'
     )
-    party = party[0] if party else None
+    party = party_list[0] if party_list else None
 
     bio_table = h.xpath_strings(
         doc, '//div[@id="sn_vidines_biografija"]//table//text()'
@@ -67,11 +55,19 @@ def crawl_member_bio(context: Context, url: str) -> None:
         position=-1,
     )
 
+    position_name = get_element_text(doc, '//div[@class="sn-nuo-iki"]')
+    position_name = position_name.split("from")[0].strip()
+
+    tenure = get_element_text(doc, '//div[@class="kadencija"]')
+    # Parliamentary term dates are not necessarily the same as candidate's occupancy dates
+    period_start, period_end = get_occupany_dates(tenure)
+
     person = context.make("Person")
     person.id = context.make_slug(person_name)
     person.add("citizenship", "lt")
     person.add("name", person_name)
     person.add("biography", bio)
+    person.add("political", party)
     person.add("sourceUrl", url)
 
     if date_of_birth:
@@ -92,16 +88,14 @@ def crawl_member_bio(context: Context, url: str) -> None:
         context,
         person,
         position,
-        start_date=start_year,
-        end_date=end_year,
+        period_start=period_start,
+        period_end=period_end,
         categorisation=categorisation,
     )
-    assert occupancy is not None
-    occupancy.add("politicalGroup", party)
-
-    context.emit(person)
-    context.emit(position)
-    context.emit(occupancy)
+    if occupancy is not None:
+        context.emit(person)
+        context.emit(position)
+        context.emit(occupancy)
 
 
 def crawl(context: Context) -> None:
