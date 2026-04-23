@@ -119,6 +119,7 @@ def crawl_member(
         name="Member of the National Assembly of Venezuela",
         country="Venezuela",
         topics=["gov.national", "gov.legislative"],
+        wikidata_id="Q20011182",
     )
     categorisation = categorise(context, position)
     if not categorisation.is_pep:
