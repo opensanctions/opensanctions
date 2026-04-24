@@ -7,7 +7,7 @@ Three patterns from production crawlers. Each shows a distinct variation of trig
 ## Pattern 1: dataset-specific delimiter splits name into primary + aliases
 
 **Crawler:** `datasets/pk/proscribed_persons/crawler.py`  
-**Trigger:** `split("@")` — a dataset-specific delimiter embedded in the raw name string.  
+**Trigger:** `split("@")` — a dataset-specific delimiter embedded in the raw name string denoting zero or more aliases.  
 **Capture approach:** rename the pop assignment from `person_name` to `raw_name`, then derive `person_name` from `name_split[0]` unconditionally.
 
 ```python
