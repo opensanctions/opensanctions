@@ -21,34 +21,31 @@ def test_derive_original_values_exact_match():
 
     result = derive_original_values(original, extracted)
 
-    # John Doe isn't contained exactly, and Jhon doe matches exactly so doesn't need an original_value
+    # Jon Doe isn't contained exactly, and John Doe matches exactly so doesn't need an original_value
     assert result == {}
 
 
 def test_derive_original_values_substring_match():
     """When an extracted value is contained in an original, it maps to that original."""
-    original = Names(name="John Doe; Brandon Doe", alias="J. Doe")
-    extracted = Names(name="John Brandon Doe", alias="Brandon Doe")
+    original = Names(name="John Doe; Brandon Doe", alias="John Doe")
+    extracted = Names(name="John Doe", alias="Brandon Doe")
 
     result = derive_original_values(original, extracted)
 
-    # John Brandon Doe isn't contained exactly. We're not getting more fancy with this.
-    assert result == {
-        "Brandon Doe": "John Doe; Brandon Doe",
-    }
+    # John Doe is contained exactly so no original_value needed.
+    # Brandon Doe is only contained partially, so maps to the containing original.
+    assert result == {"Brandon Doe": "John Doe; Brandon Doe"}
 
 
-def test_derive_original_values_first_match_wins():
-    """When multiple originals contain the extracted value, the first match is used."""
-    original = Names(name=["John Brandon Doe", "John Smith"])
-    extracted = Names(name="John")
+def test_derive_original_values_substring_match_stable_selection():
+    """When multiple originals contain the extracted value,
+    the alphabetic first match is used regardless of input order."""
+    original = Names(name=["b) Jonathan", "a) Jonny", "c) Jon"])
+    extracted = Names(name="Jon")
 
     result = derive_original_values(original, extracted)
 
-    # "John" is in both originals, but the first one should win
-    assert result == {
-        "John": "John Brandon Doe",
-    }
+    assert result == {"Jon": "a) Jonny"}
 
 
 def test_derive_original_values_no_match():
