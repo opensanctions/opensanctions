@@ -155,7 +155,9 @@ lookups:
         value: EU-TAQA-EUAQ
       - match: 2022/2319
         value: EU-HTI
-      - match: 2023/888
+      - match:
+          - 2023/888
+          - 2023/891
         value: EU-MDA
       # https://www.sanctionsmap.eu/#/main/details/57
       - match:
