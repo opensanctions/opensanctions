@@ -5,8 +5,20 @@ from rigour.mime.types import CSV
 from followthemoney import model
 
 from zavod import Context, Entity
+from zavod import helpers as h
 
-SECURITIES_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTtQD9wiHuyl23NmrIeAACET4OohOXhmuxQv817FHHas8uO4k8VBzex25nIOPqsG9300aXJIqCZzo--/pub?gid=0&single=true&output=csv"
+SECURITIES_STATEMENTS_CSV = "https://docs.google.com/spreadsheets/d/1Mi5HzeUuWpQ4XrNk8JS7KF0-JKTaUjiNEnDpT0om4mc/pub?gid=1612308021&single=true&output=csv"
+SECURITIES_CUSTOM_CSV = "https://docs.google.com/spreadsheets/d/1Mi5HzeUuWpQ4XrNk8JS7KF0-JKTaUjiNEnDpT0om4mc/pub?gid=0&single=true&output=csv"
+SANCTION_OWNERSHIP_CSV = "https://docs.google.com/spreadsheets/d/1Mi5HzeUuWpQ4XrNk8JS7KF0-JKTaUjiNEnDpT0om4mc/pub?gid=351241481&single=true&output=csv"
+
+IGNORE_FIELDS: list[str] = [
+    "As of",
+]
+
+
+def add_source_link(entity: Entity, link: str) -> None:
+    if entity.id is not None and link is not None and link.startswith("http"):
+        entity.add("sourceUrl", link)
 
 
 def crawl_sec_row(context: Context, row: Dict[str, str]) -> None:
@@ -28,8 +40,8 @@ def crawl_sec_row(context: Context, row: Dict[str, str]) -> None:
     context.audit_data(row)
 
 
-def crawl(context: Context) -> None:
-    path = context.fetch_resource("source.csv", context.data_url)
+def crawl_sec(context: Context):
+    path = context.fetch_resource("sec-source.csv", SECURITIES_STATEMENTS_CSV)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
         entity: Optional[Entity] = None
@@ -58,8 +70,89 @@ def crawl(context: Context) -> None:
         if entity is not None:
             context.emit(entity)
 
-    path = context.fetch_resource("securities.csv", SECURITIES_CSV)
+    path = context.fetch_resource("securities.csv", SECURITIES_CUSTOM_CSV)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
         for row in csv.DictReader(fh):
             crawl_sec_row(context, row)
+
+
+def crawl_sanction_ownership_row(context: Context, row: Dict):
+    # source link to prove the relationships when a link exists
+    source_link = stringify(row.pop("Source Link"))
+    owner_schema = stringify(row.pop("Owner Schema"))
+
+    # company
+    company_ent = context.make("Company")
+    company_name_eng = stringify(row.pop("Company name (ENG)"))
+    company_id = stringify(row.pop("Company ID"))
+    company_ent.id = context.make_id(company_name_eng, company_id)
+    company_name_lang = stringify(row.pop("Company name lang"))
+    company_name = stringify(row.pop("Company name"))
+    h.apply_name(company_ent, full=company_name_eng, name_prop="name", lang="eng")
+    h.apply_name(
+        company_ent, full=company_name, name_prop="name", lang=company_name_lang
+    )
+    company_ent.add("registrationNumber", company_id)
+    company_jurisdiction = stringify(row.pop("Jurisdiction"))
+    company_ent.add("jurisdiction", company_jurisdiction)
+    context.emit(company_ent)
+
+    # owner of company
+    if owner_schema == "Company":
+        owner_ent = context.make("Company")
+    elif owner_schema == "Person":
+        owner_ent = context.make("Person")
+    owner_name_eng = stringify(row.pop("Direct owner name (ENG)"))
+    owner_id = stringify(row.pop("Direct Owner ID"))
+    owner_ent.id = context.make_id(owner_name_eng, owner_id)
+    h.apply_name(owner_ent, full=owner_name_eng, lang="eng")
+    owner_name_lang = stringify(row.pop("Direct owner lang"))
+    owner_name = stringify(row.pop("Direct owner name"))
+    h.apply_name(owner_ent, full=owner_name, lang=owner_name_lang)
+    owner_ent.add("registrationNumber", owner_id)
+    context.emit(owner_ent)
+
+    # company ownership
+    company_ownership = context.make("Ownership")
+    company_ownership.id = context.make_id(
+        company_name_eng, company_id, owner_name_eng, owner_id
+    )
+    company_ownership.add("owner", owner_ent.id)
+    company_ownership.add("asset", company_ent.id)
+    percent = stringify(row.pop("Percentage"))
+    company_ownership.add("percentage", percent)
+    add_source_link(company_ownership, source_link)
+    context.emit(company_ownership)
+
+    # add ubo if exists
+    ubo_name = stringify(row.pop("UBO name"))
+    if ubo_name:
+        ubo_ent = context.make("Person")
+        ubo_id = stringify(row.pop("ID Number"))
+        ubo_ent.id = context.make_id(ubo_name, ubo_id)
+        h.apply_name(ubo_ent, full=ubo_name, lang="eng")
+        ubo_ent.add("idNumber", ubo_id)
+        context.emit(ubo_ent)
+
+        ubo_ownership = context.make("Ownership")
+        ubo_ownership.id = context.make_id(ubo_name, ubo_id, owner_name_eng, owner_id)
+        ubo_ownership.add("owner", ubo_ent.id)
+        ubo_ownership.add("asset", owner_ent.id)
+        add_source_link(ubo_ownership, source_link)
+        context.emit(ubo_ownership)
+
+
+def crawl_sanction_ownership(context: Context):
+    path = context.fetch_resource(
+        "sanction-ownership-source.csv", SANCTION_OWNERSHIP_CSV
+    )
+    context.export_resource(path, CSV, title=context.SOURCE_TITLE)
+    with open(path, "r") as fh:
+        for row in csv.DictReader(fh):
+            crawl_sanction_ownership_row(context, row)
+
+
+def crawl(context: Context):
+    crawl_sec(context)
+    crawl_sanction_ownership(context)
