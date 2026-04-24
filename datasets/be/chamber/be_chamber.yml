@@ -34,20 +34,18 @@ data:
 dates:
   formats: ["%d %B %Y", "%der %B %Y", "%dier %B %Y"]
   months:
-    "january": "janvier"
-    "february": "février"
-    "march": "mars"
-    "april": "avril"
-    "may": "mai"
-    "june": "juin"
-    "july": "juillet"
-    "august":
-      - "aout"
-      - "août"
-    "september": "septembre"
-    "october": "octobre"
-    "november": "novembre"
-    "december": "décembre"
+    "january": ["janvier", "januari"]
+    "february": ["février", "februari"]
+    "march": ["mars", "maart"]
+    "april": ["avril", "april"]
+    "may": ["mai", "mei"]
+    "june": ["juin", "juni"]
+    "july": ["juillet", "juli"]
+    "august": ["aout", "août", "augustus"]
+    "september": ["septembre", "september"]
+    "october": ["octobre", "oktober"]
+    "november": ["novembre", "november"]
+    "december": ["décembre", "december"]
 
 assertions:
   min:

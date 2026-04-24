@@ -1,3 +1,4 @@
+import re
 from dataclasses import dataclass
 from lxml.html import HtmlElement
 from normality import squash_spaces
@@ -9,6 +10,16 @@ from zavod.stateful.positions import categorise
 
 UNBLOCK_VALIDATOR = "//table[@width='100%']"
 POSITION_TOPICS = ["gov.legislative", "gov.national"]
+
+# Matches DOB in plain-text bios:
+#   French: "Née à Tournai le 22 mai 1963."
+#   Dutch:  "Geboren te Namen op 14 januari 1981."
+#   Sometimes the profile on a french page is in Dutch.
+BORN_DATE_RE = re.compile(
+    r"(Née?\b.+?\ble\b|Geboren\b.+?\bop)\s+(?P<date>\d{1,2}(?:i?er)?\s+\w+\s+\d{4})",
+    re.IGNORECASE | re.DOTALL,
+)
+HEADERS = ["name", "group", "email", "website"]
 
 
 @dataclass
@@ -30,62 +41,47 @@ def get_term_dates(term: str) -> tuple[str, str]:
     return start, end
 
 
-def get_dob_bio(
-    context: Context, profile_url: str
-) -> tuple[str, str] | tuple[None, str]:
-    """Extract the date of birth and bio text from a member's profile page.
-
-    Returns a tuple of (date_of_birth, bio_text) where:
-    - date_of_birth is a string like "22 mai 1963", or None if not found
-    - bio_text is the raw biography string, kept even when no DOB is found
-      so that we don't lose the information when DOB is embedded in a plain
-      sentence without a pipe separator.
-    """
-    pep_doc = zyte_api.fetch_html(
-        context,
-        profile_url,
-        unblock_validator="//table",
-        absolute_links=True,
-        cache_days=4,
-    )
-    # First try: pipe-separated bio format e.g. "... | Né le 22 mai 1963 | ..."
-    pipe_texts = h.xpath_strings(
-        pep_doc, './/td/p[contains(., "| Né") or contains(., "| Ne")]/text()'
-    )
-    if pipe_texts:
-        parts = [part.strip() for part in pipe_texts[0].split("|")]
-        birth_part = next(part for part in parts if part.startswith((("Né", "Ne"))))
-        date_str = birth_part.split(" le ")[-1].rstrip(".")
-        return date_str, squash_spaces(pipe_texts[0])
-    # Fallback: DOB embedded in plain sentence e.g. "Née à Tournai le 22 mai 1963."
-    plain_text = h.xpath_string(
-        pep_doc,
-        './/td/p[contains(., "Né") or contains(., "Ne") or contains(., "né")]/text()',
-    )
-    return None, squash_spaces(plain_text)
-
-
 def crawl_person(
     context: Context,
     row: HtmlElement,
     legislature: Legislature,
 ) -> None:
-    cells = h.xpath_elements(row, ".//td[@class='td1' or @class='td0']")
-    name = h.xpath_string(cells[0], ".//b/text()")
-    profile_url = h.xpath_string(cells[0], ".//a/@href")
+    name = h.element_text(row["name"])
+    profile_url = h.xpath_string(row["name"], ".//a/@href")
 
-    group_texts = h.xpath_strings(cells[1], ".//a/text()")
+    group_texts = h.xpath_strings(row["group"], ".//a/text()")
     political_group = group_texts[0].strip() if group_texts else ""
-    dob, bio = get_dob_bio(context, profile_url)
+
+    context.log.info("Crawling bio", name=squash_spaces(name), profile_url=profile_url)
+    pep_doc = zyte_api.fetch_html(
+        context,
+        profile_url,
+        unblock_validator="//table",
+        absolute_links=True,
+        cache_days=30,
+    )
+    bio_texts = h.xpath_strings(
+        pep_doc,
+        './/td/p[contains(., "Né ") or contains(., "Ne ") or contains(., "Née ") or contains(., "Geboren")]/text()',
+    )
+    if len(bio_texts) > 1:
+        context.log.warning(
+            f"Multiple potential bio texts found for {name} at {profile_url}"
+        )
+    bio_text = squash_spaces(bio_texts[0]) if bio_texts else None
+    birth_date_match = BORN_DATE_RE.search(bio_text) if bio_text else None
+    birth_date = birth_date_match.group("date") if birth_date_match else None
 
     entity = context.make("Person")
-    entity.id = context.make_id(name, dob)
+    entity.id = context.make_id(name, birth_date)
     entity.add("name", name)
     entity.add("political", political_group)
     entity.add("sourceUrl", profile_url)
     entity.add("citizenship", "be")
-    entity.add("notes", bio)
-    h.apply_date(entity, "birthDate", dob)
+    entity.add("biography", bio_text)
+    entity.add("website", h.xpath_strings(row["website"], ".//a/@href"))
+    if birth_date:
+        h.apply_date(entity, "birthDate", birth_date)
 
     position = h.make_position(
         context,
@@ -127,10 +123,12 @@ def crawl_term(context: Context, legislature: Legislature) -> None:
         legislature.url,
         unblock_validator=UNBLOCK_VALIDATOR,
         absolute_links=True,
-        cache_days=4,
+        cache_days=1,
     )
     table = h.xpath_element(term_doc, "//table[@width='100%']")
-    for row in h.xpath_elements(table, ".//tr[td[@class='td1' or @class='td0']]"):
+    for tr in h.xpath_elements(table, ".//tr"):
+        cells = h.xpath_elements(tr, ".//td")
+        row = {hdr: c for hdr, c in zip(HEADERS, cells, strict=True)}
         crawl_person(context, row, legislature)
 
 
@@ -141,7 +139,7 @@ def crawl(context: Context) -> None:
         context.data_url,
         unblock_validator=UNBLOCK_VALIDATOR,
         absolute_links=True,
-        cache_days=4,
+        cache_days=1,
     )
     # Extract and process legislature terms from menu
     legislature_menu = h.xpath_element(
