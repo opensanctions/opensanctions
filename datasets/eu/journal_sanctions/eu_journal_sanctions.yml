@@ -107,6 +107,15 @@ lookups:
         values:
           - ua
           - ru
+      - match: "Republic of Moldova, Israeli"
+        values:
+          - md
+          - il
+      - match: "Republic of Moldova, Romanian, Russian"
+        values:
+          - md
+          - ro
+          - ru
   type.email:
     options:
       - match: "general@angstrem.r"
@@ -155,7 +164,9 @@ lookups:
         value: EU-TAQA-EUAQ
       - match: 2022/2319
         value: EU-HTI
-      - match: 2023/888
+      - match:
+          - 2023/888
+          - 2023/891
         value: EU-MDA
       # https://www.sanctionsmap.eu/#/main/details/57
       - match:
