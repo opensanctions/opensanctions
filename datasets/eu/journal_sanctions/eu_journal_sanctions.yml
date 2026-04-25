@@ -107,6 +107,15 @@ lookups:
         values:
           - ua
           - ru
+      - match: "Republic of Moldova, Israeli"
+        values:
+          - md
+          - il
+      - match: "Republic of Moldova, Romanian, Russian"
+        values:
+          - md
+          - ro
+          - ru
   type.email:
     options:
       - match: "general@angstrem.r"
