@@ -40,6 +40,10 @@ assertions:
     schema_entities:
       Company: 3000
 lookups:
+  type.url:
+    options:
+      - match: /company/airasia
+        value: https://www.unitedagainstnucleariran.com/company/airasia
   type.country:
     lowercase: true
     normalize: true
