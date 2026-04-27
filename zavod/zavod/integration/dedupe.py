@@ -3,7 +3,7 @@ from typing import Any, Dict, List, Optional, TYPE_CHECKING, Set
 from pathlib import Path
 from followthemoney import model
 from nomenklatura.xref import xref
-from nomenklatura.resolver import Resolver, Identifier, Linker
+from nomenklatura.resolver import Resolver, Linker
 from nomenklatura.judgement import Judgement
 from nomenklatura.matching import DefaultAlgorithm, get_algorithm
 
@@ -40,6 +40,7 @@ def blocking_xref(
     store: "Store",
     state_path: Path,
     limit: int = 5000,
+    patience: int = 500000,
     auto_threshold: Optional[float] = None,
     algorithm: str = DefaultAlgorithm.NAME,
     focus_datasets: Set[str] = set(),
@@ -69,6 +70,7 @@ def blocking_xref(
         store,
         index_dir=index_dir,
         limit=limit,
+        patience=patience,
         range=range,
         scored=True,
         auto_threshold=auto_threshold,
@@ -98,8 +100,7 @@ def merge_entities(
     if len(entity_ids) < 2:
         raise ValueError("Need multiple IDs to merge!")
     canonical_id = resolver.get_canonical(entity_ids[0])
-    for other_id_ in entity_ids[1:]:
-        other_id = Identifier.get(other_id_)
+    for other_id in entity_ids[1:]:
         other_canonical_id = resolver.get_canonical(other_id)
         if other_canonical_id == canonical_id:
             continue
