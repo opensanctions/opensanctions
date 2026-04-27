@@ -715,6 +715,10 @@ lookups:
         value: Mali
       - match: Unknown
         value: null
+      - match: mozambique (false)
+        value: Mozambique
+      - match: gambia (false)
+        value: Gambia
   type.gender:
     lowercase: true
     normalize: true
