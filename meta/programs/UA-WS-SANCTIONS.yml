@@ -1,0 +1,11 @@
+title: Individuals and legal entities under international sanctions
+key: UA-WS-SANCTIONS
+url: https://war-sanctions.gur.gov.ua/en/sanctions
+summary: Individuals and legal entities designated under international sanctions regimes as compiled by Ukraine's Defence Intelligence agency.
+issuer: ua_gur
+dataset: ua_war_sanctions
+target_territories:
+- ru
+- ua-cri
+- ua-dpr
+- ua-lpr
