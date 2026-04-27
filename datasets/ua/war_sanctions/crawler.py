@@ -62,6 +62,9 @@ class WSAPILink:
     endpoint: str
     type: WSAPIDataType
     program_key: str
+    topic: Optional[str] = "poi"
+    reg_prop: str = "ogrnCode"
+    itn_prop: str = "innCode"
 
 
 LINKS: List[WSAPILink] = [
@@ -166,6 +169,22 @@ LINKS: List[WSAPILink] = [
         "rostec/structure",
         WSAPIDataType.ROSTEC_STRUCTURE,
         "UA-WS-MILIND",
+    ),
+    WSAPILink(
+        # partner's sanctions lists - legal entities
+        "sanctions/companies",
+        WSAPIDataType.ENTITY,
+        "UA-WS-SANCTIONS",
+        topic=None,
+        reg_prop="registrationNumber",
+        itn_prop="taxNumber",
+    ),
+    WSAPILink(
+        # partner's sanctions lists - individuals
+        "sanctions/persons",
+        WSAPIDataType.PERSON,
+        "UA-WS-SANCTIONS",
+        topic=None,
     ),
 ]
 
@@ -319,7 +338,14 @@ def emit_relation(
     context.emit(relation)
 
 
-def crawl_person(context: Context, person_data, program_key, endpoint, source_url):
+def crawl_person(
+    context: Context,
+    person_data,
+    program_key,
+    endpoint,
+    source_url,
+    topic: Optional[str] = "poi",
+):
     birth_date = person_data.pop("date_bd")
     death_date = person_data.pop("date_death", None)
     if "- " in birth_date:
@@ -336,7 +362,8 @@ def crawl_person(context: Context, person_data, program_key, endpoint, source_ur
             person.add("position", squash_spaces(p))
     h.apply_date(person, "birthDate", birth_date)
     h.apply_date(person, "deathDate", death_date)
-    person.add("topics", "poi")
+    if topic:
+        person.add("topics", topic)
     person.add("birthPlace", person_data.pop("city_bd", None))
     person.add("sourceUrl", source_url)
 
@@ -372,6 +399,9 @@ def crawl_legal_entity(
     company_data: Dict[str, str],
     program_key: str,
     source_url: str,
+    topic: Optional[str] = "poi",
+    reg_prop: str = "ogrnCode",
+    itn_prop: str = "innCode",
 ):
     legal_entity = context.make("LegalEntity")
     legal_entity.id = make_id(context, WSAPIDataType.ENTITY, company_data.pop("id"))
@@ -383,11 +413,12 @@ def crawl_legal_entity(
             legal_entity.add("alias", alias)
         else:
             legal_entity.add("name", alias)
-    legal_entity.add("ogrnCode", company_data.pop("reg"))
+    legal_entity.add(reg_prop, company_data.pop("reg"))
     legal_entity.add("address", company_data.pop("address"))
     legal_entity.add("country", company_data.pop("country"))
-    legal_entity.add("innCode", company_data.pop("itn"))
-    legal_entity.add("topics", "poi")
+    legal_entity.add(itn_prop, company_data.pop("itn"))
+    if topic:
+        legal_entity.add("topics", topic)
     legal_entity.add("sourceUrl", source_url)
     imo = company_data.pop("imo", None)
     if imo:
@@ -678,6 +709,7 @@ def crawl(context: Context):
                     link.program_key,
                     link.endpoint,
                     source_url,
+                    topic=link.topic,
                 )
             elif link.type is WSAPIDataType.ENTITY:
                 crawl_legal_entity(
@@ -685,6 +717,9 @@ def crawl(context: Context):
                     entity_details,
                     link.program_key,
                     source_url,
+                    topic=link.topic,
+                    reg_prop=link.reg_prop,
+                    itn_prop=link.itn_prop,
                 )
             elif link.type is WSAPIDataType.VESSEL:
                 crawl_vessel(
