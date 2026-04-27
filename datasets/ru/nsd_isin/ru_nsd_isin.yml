@@ -82,6 +82,7 @@ lookups:
           - "Коэффициент (ДР : Представляемые ценные бумаги)" # Coefficient (DR: Securities represented)
           - "Номер решения о формировании имущественного пула" # Number of the decision on the formation of the property pool
           - "Дата государственной регистрации правил фонда" # Date of state registration of fund rules
+          - "Класс инвестиционных паев" # Investment share class (A/B)
         prop: null
       - match:
           - "ISIN код"
