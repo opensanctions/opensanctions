@@ -119,7 +119,7 @@ jobs:
             -H "Authorization: Bearer ${{ steps.app-token.outputs.token }}" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
             https://api.github.com/repos/opensanctions/operations/actions/workflows/deploy-zavod-ui.yml/dispatches \
-            -d '{ \
-                  "environment": "${{ github.ref == 'refs/heads/main' && 'prod' || 'test' }}", \
-                  "image_version": "@${{ needs.docker.outputs.digest }}" \
+            -d '{
+                  "environment": "${{ github.ref == 'refs/heads/main' && 'prod' || 'test' }}",
+                  "image_version": "@${{ needs.docker.outputs.digest }}"
                 }'
