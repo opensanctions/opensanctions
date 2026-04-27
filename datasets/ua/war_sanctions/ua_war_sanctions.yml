@@ -70,7 +70,7 @@ data:
   format: JSON
 
 dates:
-  formats: ["%d.%m.%Y", "%d.%m. %Y", "%m.%Y", "%d/%m/%Y"]
+  formats: ["%d.%m.%Y", "%d.%m. %Y", "%m.%Y", "%d/%m/%Y", "dd.mm.%Y", "dd.%m.%Y"]
 
 assertions:
   min:
@@ -483,6 +483,26 @@ lookups:
         name: ["КУЧЕРЕНКО Володимир Олександрович", "Калашников Максим Олександрович"]
       - match: КУЧЕРЕНКО Владимир Александрович / Калашников Максим Александрович
         name: ["КУЧЕРЕНКО Владимир Александрович", "Калашников Максим Александрович"]
+      - match: ПЕТРОВСКІС Томас / Петровський Томас Геннадійович
+        name: ["ПЕТРОВСКІС Томас", "Петровський Томас Геннадійович"]
+      - match: PETROVSKII / Petrovskiy / Petrovskis Tomas
+        name: ["PETROVSKII Tomas", "Petrovskiy Tomas", "Petrovskis Tomas"]
+      - match: LIPCHENKO Vladimir / Volodymyr
+        name: ["LIPCHENKO Vladimir", "Lipchenko Volodymyr"]
+      - match: TSYKURENKO Anton / Tsikurenko Anton
+        name: ["TSYKURENKO Anton", "Tsikurenko Anton"]
+      - match: NECHAYEV / Nechaev Alexey Gennadyevich
+        name: ["NECHAYEV Alexey Gennadyevich", "Nechaev Alexey Gennadyevich"]
+      - match: SHATROV / SHATROU Aleksandr Yauhenavich / Alexander Evgenevich
+        name: ["SHATROV Aleksandr Yauhenavich", "SHATROU Aleksandr Yauhenavich", "SHATROV Alexander Evgenevich", "SHATROU Alexander Evgenevich"]
+      - match: VOLFOVICH / VOLFOVYCH Aleksandr Grigorievich
+        name: ["VOLFOVICH Aleksandr Grigorievich", "VOLFOVYCH Aleksandr Grigorievich"]
+      - match: LISITSYN / Lysytsyn Anatoly Ivanovich
+        name: ["LISITSYN Anatoly Ivanovich", "Lysytsyn Anatoly Ivanovich"]
+      - match: VORONOVSKY / Voronovskiy Anatoly Vladimirovich
+        name: ["VORONOVSKY Anatoly Vladimirovich", "Voronovskiy Anatoly Vladimirovich"]
+      - match: KOZENKO Andrei / Andrey Dmitrievich
+        name: ["KOZENKO Andrei Dmitrievich", "KOZENKO Andrey Dmitrievich"]
 
   type.date:
     options:
@@ -494,6 +514,10 @@ lookups:
         values:
           - 1967-01-12
           - 1966-12-21
+      - match: 05.09.1962 (1952)
+        values: 
+          - 1962-09-05
+          - 1952
       - match:
           - 10.09.20224
           - 04.01.20205
@@ -503,6 +527,7 @@ lookups:
           - 6299069
           - 2007HQZS3
           - 09.17.1975
+          -  "-"
         value: null
   type.country:
     options:
