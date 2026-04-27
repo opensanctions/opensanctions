@@ -6037,6 +6037,27 @@ lookups:
       - match: "Télécopieur: +7 (495) 785-08-88"
         props:
           phone: +7 (495) 785-08-88
+      - match: "Télécopieur: +7 (8464) 98-81-22"
+        props:
+          phone: +7 (8464) 98-81-22
+      - match: "Télécopieur: +7 (4912) 933 -084"
+        props:
+          phone: +7 (4912) 933 -084
+      - match: "Télécopieur: (347) 261-62-62"
+        props:
+          phone: (347) 261-62-62
+      - match: "Télécopieur: (0514) 87943666"
+        props:
+          phone: (0514) 87943666
+      - match: "Identifiant EDI Global Issuer: 160823"
+        props:
+          registrationNumber: 160823
+      - match: "Identifiant d'entité unique (SAM): YCVHSDFHDUA5"
+        props:
+          uniqueEntityId: YCVHSDFHDUA5
+      - match: "Identifiant interne Cedar Rose: AEC0006867"
+        props:
+          registrationNumber: AEC0006867
       - match: "Fax: 8890028"
         props: []
       - match: "Numéro d'enregistrement ; Type d'entité: société à responsabilité limitée ; Lieu d'enregistrement: Émirats arabes unis ; Date d'enregistrement: 1.4.2008 ; CBLS: 11395424: 5002444"
