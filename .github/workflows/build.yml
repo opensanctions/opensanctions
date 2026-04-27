@@ -146,7 +146,7 @@ jobs:
   # Secrets required in this repo:
   #   OPERATIONS_DEPLOY_APP_ID  — numeric GitHub App ID
   #   OPERATIONS_DEPLOY_APP_KEY — PEM private key
-  trigger-etl-deploy:
+  trigger-deploy:
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
     needs: [docker]
