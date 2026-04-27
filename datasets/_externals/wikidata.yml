@@ -221,6 +221,10 @@ lookups:
         values:
           - "جواد صالحی"
           - "Jawad Salehi"
+      - match: "Aleem Said A. Basher<br/>سعيد أحمد بشير"
+        values:
+          - Aleem Said A. Basher
+          - سعيد أحمد بشير
   type.date:
     options:
       - match:
