@@ -1,9 +1,7 @@
-import re
 from pydantic import BaseModel
 from lxml.etree import _Element
 
 from zavod import Context, helpers as h
-from rigour.names.split_phrases import contains_split_phrase
 from zavod.stateful.review import (
     TextSourceValue,
     review_extraction,
@@ -20,37 +18,39 @@ class Organization(BaseModel):
 
 class Organizations(BaseModel):
     organizations: list[Organization]
+    start_date: str | None = None
+    reason: str | None = None
 
 
 def crawl_row(context: Context, row: dict[str, _Element]) -> None:
     str_row = h.cells_to_str(row)
     name = str_row.pop("organisation")
+    ban_info = str_row.pop("verbot_verbotsgrunde_auszug")
     assert name is not None
+    assert ban_info is not None
 
-    if contains_split_phrase(name):
-        source_value = TextSourceValue(
-            key_parts=name,
-            label="Organization Name",
-            text=name,
-            url=context.data_url,
-        )
-        # basic split and let reviewers do the rest
-        name, *aliases = h.multi_split(name, ["auch agierend unter"])
-        organization = [Organization(name=name, aliases=aliases)]
-        original_extraction = Organizations(organizations=organization)
+    # send every row for review
+    source_value = TextSourceValue(
+        key_parts=name,
+        label="Organization and Ban Info",
+        text=f"{name}\n\n{ban_info}",
+        url=context.data_url,
+    )
+    # basic split and let reviewers do the rest
+    name, *aliases = h.multi_split(name, ["auch agierend unter"])
+    organization = [Organization(name=name, aliases=aliases)]
+    original_extraction = Organizations(organizations=organization, reason=ban_info)
 
-        review = review_extraction(
-            context,
-            source_value=source_value,
-            original_extraction=original_extraction,
-            origin="heuristic",
-        )
+    review = review_extraction(
+        context,
+        source_value=source_value,
+        original_extraction=original_extraction,
+        origin="heuristic",
+    )
 
-        if not review.accepted:
-            return
-        extracted_data = review.extracted_data
-    else:
-        extracted_data = Organizations(organizations=[Organization(name=name)])
+    if not review.accepted:
+        return
+    extracted_data = review.extracted_data
 
     for item in extracted_data.organizations:
         entity = context.make("Organization")
@@ -63,26 +63,9 @@ def crawl_row(context: Context, row: dict[str, _Element]) -> None:
         entity.add("topics", "sanction")
         entity.add("country", "de")
 
-        ban_info = str_row.pop("verbot_verbotsgrunde_auszug")
-        assert ban_info is not None
         sanction = h.make_sanction(context, entity)
-
-        if "Vollzug des Verbots" in ban_info:
-            ban_info = ban_info.split("Vollzug des Verbots: ")[1]
-            date, reason = re.split(r"Verbotsgr[uü]nd\w*:\s*", ban_info, maxsplit=1)
-            h.apply_date(sanction, "listingDate", date.strip())
-            sanction.add("reason", reason.strip())
-        elif "Inkrafttreten des Kennzeichenverbots" in ban_info:
-            ban_info = ban_info.split("Inkrafttreten des Kennzeichenverbots: ")[1]
-            pattern = r"\d{1,2}\.\s+(?:Januar|Februar|März|April|Mai|Juni|Juli|August|September|Oktober|November|Dezember)\s+(?:19|20)\d{2}"
-            match = re.search(pattern, ban_info)
-            assert match is not None
-            date = match.group().strip()
-            reason = ban_info[match.end() :].strip()
-            h.apply_date(sanction, "listingDate", date.strip())
-            sanction.add("reason", reason.strip())
-        else:
-            context.log.warning(f"Unexpected ban info format: {ban_info}")
+        h.apply_date(sanction, "listingDate", extracted_data.start_date)
+        sanction.add("reason", extracted_data.reason)
 
         context.emit(entity)
         context.emit(sanction)
