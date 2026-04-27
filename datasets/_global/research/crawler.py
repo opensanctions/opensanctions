@@ -81,6 +81,7 @@ def crawl_sanction_ownership_row(context: Context, row: Dict):
     # source link to prove the relationships when a link exists
     source_link = stringify(row.pop("Source Link"))
     owner_schema = stringify(row.pop("Owner Schema"))
+    program = "GE-SANCOWN"
 
     # company
     company_ent = context.make("Company")
@@ -96,6 +97,7 @@ def crawl_sanction_ownership_row(context: Context, row: Dict):
     company_ent.add("registrationNumber", company_id)
     company_jurisdiction = stringify(row.pop("Jurisdiction"))
     company_ent.add("jurisdiction", company_jurisdiction)
+    company_ent.add("program", program)
     context.emit(company_ent)
 
     # owner of company
@@ -111,6 +113,7 @@ def crawl_sanction_ownership_row(context: Context, row: Dict):
     owner_name = stringify(row.pop("Direct owner name"))
     h.apply_name(owner_ent, full=owner_name, lang=owner_name_lang)
     owner_ent.add("registrationNumber", owner_id)
+    owner_ent.add("program", program)
     context.emit(owner_ent)
 
     # company ownership
@@ -133,6 +136,7 @@ def crawl_sanction_ownership_row(context: Context, row: Dict):
         ubo_ent.id = context.make_id(ubo_name, ubo_id)
         h.apply_name(ubo_ent, full=ubo_name, lang="eng")
         ubo_ent.add("idNumber", ubo_id)
+        ubo_ent.add("program", program)
         context.emit(ubo_ent)
 
         ubo_ownership = context.make("Ownership")
