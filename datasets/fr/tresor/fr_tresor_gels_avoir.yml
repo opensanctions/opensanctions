@@ -1072,21 +1072,6 @@ lookups:
       - match: "Numéro d'identification fiscale: 7720261827   /   Numéro"
         props:
           taxNumber: 7720261827
-      # Fax numbers are not a captured property
-      - contains: "Télécopieur:"
-        value: null
-      # Internal/proprietary identifiers not useful for our data model
-      - contains: "Identifiant interne Cedar Rose:"
-        value: null
-      - contains: "Numéro d'identification unique Acuris:"
-        value: null
-      - contains: "Identifiant d'entité unique (SAM):"
-        value: null
-      - contains: "Identifiant EDI Global Issuer:"
-        value: null
-      # Truncated segment from false OMI key split inside "économique"
-      - match: "Numéro de registre écon"
-        value: null
       # KPP codes (code du/de motif d'enregistrement)
       - match: "Code motif d'enregistrement: 526101001"
         props:
