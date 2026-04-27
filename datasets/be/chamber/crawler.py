@@ -88,7 +88,7 @@ def crawl_person(
         name="Member of the Chamber of Representatives of Belgium",
         wikidata_id="Q15705021",
         country="be",
-        topics=["gov.legislative", "gov.national"],
+        topics=POSITION_TOPICS,
         lang="eng",
     )
     categorisation = categorise(context, position, is_pep=True)
