@@ -36,7 +36,6 @@ def get_name_pos(container, context: Context):
         context.log.warning(
             f"Unexpectedly long name: {name}, additional cleanup might be needed"
         )
-
     return name, position, details
 
 
@@ -51,7 +50,7 @@ def crawl_page(context: Context, person_url):
         person_proxy.id = context.make_id(name)
         h.apply_name(person_proxy, full=name)
         person_proxy.add("sourceUrl", person_url)
-        person_proxy.add("notes", details)
+        person_proxy.add("biography", details)
         person_proxy.add("topics", "role.judge")
 
         position = h.make_position(
