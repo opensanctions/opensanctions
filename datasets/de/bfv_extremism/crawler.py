@@ -3,7 +3,7 @@ from lxml.etree import _Element
 
 from zavod import Context, helpers as h
 from zavod.stateful.review import (
-    TextSourceValue,
+    HtmlSourceValue,
     review_extraction,
     assert_all_accepted,
 )
@@ -23,19 +23,23 @@ class Organizations(BaseModel):
 
 
 def crawl_row(context: Context, row: dict[str, _Element]) -> None:
-    str_row = h.cells_to_str(row)
-    name = str_row.pop("organisation")
-    ban_info = str_row.pop("verbot_verbotsgrunde_auszug")
+
+    cells = h.xpath_elements(row, ".//td")
+    assert len(cells) == 3
+    name = h.element_text(cells[0])
+    ban_info = h.element_text(cells[1])
     assert name is not None
     assert ban_info is not None
-
+    
     # send every row for review
-    source_value = TextSourceValue(
+    source_value = HtmlSourceValue(
         key_parts=name,
         label="Organization and Ban Info",
-        text=f"{name}\n\n{ban_info}",
+        element=row,
         url=context.data_url,
     )
+
+
     # basic split and let reviewers do the rest
     name, *aliases = h.multi_split(name, ["auch agierend unter"])
     organization = [Organization(name=name, aliases=aliases)]
@@ -70,14 +74,19 @@ def crawl_row(context: Context, row: dict[str, _Element]) -> None:
         context.emit(entity)
         context.emit(sanction)
 
-    context.audit_data(str_row, ignore=["verbotene_symbole_und_kennzeichen"])
 
 
 def crawl(context: Context) -> None:
     doc = context.fetch_html(context.data_url)
     table = h.xpath_element(doc, ".//table")
 
-    for row in h.parse_html_table(table):
+    headings = h.xpath_elements(table, ".//tr[th]/th")
+    assert len(headings) == 3
+    assert h.element_text(headings[0]) == "Organisation", h.element_text(headings[0])
+    assert h.element_text(headings[1]) == "Verbotene Symbole und Kennzeichen", h.element_text(headings[1])
+    assert h.element_text(headings[2]) == "Verbot / Verbotsgründe (Auszug)", h.element_text(headings[2])
+
+    for row in h.xpath_elements(table, ".//tr[td]"):
         crawl_row(context, row)
 
     assert_all_accepted(context, raise_on_unaccepted=False)
