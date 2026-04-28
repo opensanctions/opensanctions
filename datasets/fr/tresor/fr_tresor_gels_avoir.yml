@@ -6251,6 +6251,12 @@ lookups:
       - match: "Numéro de registre économique (CBLS): 11967354"
         props:
           registrationNumber: "11967354"
+      - match: "Numéro d'identification unique Acuris: C1843799"
+        props:
+          idNumber: C1843799
+      - match: "Identifiant interne Cedar Rose: AEC221966655"
+        props:
+          idNumber: AEC221966655
   addresses:
     # Sometimes we can split on ; but sometimes it's just part of the address.
     options:
