@@ -360,7 +360,8 @@ def crawl_person(
         position = person_data.pop(key, None)
         for p in h.multi_split(position, SPLITS):
             person.add("position", squash_spaces(p))
-    h.apply_date(person, "birthDate", birth_date)
+    for birth_date in h.multi_split(birth_date, [";", ", ", " to ", " or "]):
+        h.apply_date(person, "birthDate", birth_date)
     h.apply_date(person, "deathDate", death_date)
     if topic:
         person.add("topics", topic)
