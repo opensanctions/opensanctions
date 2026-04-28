@@ -224,6 +224,11 @@ lookups:
           - "No"
           - "numéro d'identification fiscale)"
         value: null
+      # Internal IDs from commercial data providers, not official identifiers
+      - contains: "Numéro d'identification unique Acuris:"
+        value: null
+      - contains: "Identifiant interne Cedar Rose:"
+        value: null
       # Sometimes leftover from "NIF/INN"
       - match: "NIF"
       - match: "Numéro d'enregistrement"
