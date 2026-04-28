@@ -62,7 +62,9 @@ class WSAPILink:
     endpoint: str
     type: WSAPIDataType
     program_key: str
+    # topic=None skips adding a topics property (used for sanctions lists that aren't POI-tagged)
     topic: Optional[str] = "poi"
+    # Defaults are rus entity codes; override for non-rus entities (e.g. int sanctions lists)
     reg_prop: str = "ogrnCode"
     itn_prop: str = "innCode"
 
@@ -360,6 +362,8 @@ def crawl_person(
         position = person_data.pop(key, None)
         for p in h.multi_split(position, SPLITS):
             person.add("position", squash_spaces(p))
+    # Source API sometimes encodes multiple or uncertain dates in one field
+    # (e.g. "1965; 1966", "1975 or 1976", "Jan 1980 to Mar 1980")
     for birth_date in h.multi_split(birth_date, [";", ", ", " to ", " or "]):
         h.apply_date(person, "birthDate", birth_date)
     h.apply_date(person, "deathDate", death_date)
