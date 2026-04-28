@@ -224,11 +224,6 @@ lookups:
           - "No"
           - "numéro d'identification fiscale)"
         value: null
-      # Internal IDs from commercial data providers, not official identifiers
-      - contains: "Numéro d'identification unique Acuris:"
-        value: null
-      - contains: "Identifiant interne Cedar Rose:"
-        value: null
       # Sometimes leftover from "NIF/INN"
       - match: "NIF"
       - match: "Numéro d'enregistrement"
@@ -6256,6 +6251,12 @@ lookups:
       - match: "Numéro de registre économique (CBLS): 11967354"
         props:
           registrationNumber: "11967354"
+      - match: "Numéro d'identification unique Acuris: C1843799"
+        props:
+          idNumber: C1843799
+      - match: "Identifiant interne Cedar Rose: AEC221966655"
+        props:
+          idNumber: AEC221966655
   addresses:
     # Sometimes we can split on ; but sometimes it's just part of the address.
     options:
