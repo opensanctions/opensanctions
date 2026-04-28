@@ -191,3 +191,5 @@ lookups:
         value: EU-TUN
       - match: 2019/796
         value: EU-CYB
+      - match: 401/2013
+        value: EU-MMR
