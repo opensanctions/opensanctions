@@ -59,6 +59,9 @@ def crawl_page(context: Context, person_url):
             name=position,
             country="Cayman Islands",
         )
+        # no citizenship requirements for judges:
+        # https://gov.ky/documents/35692/0/Grand+Court+Act+(2026+Revision),++(1).pdf/57ca50f7-e129-6bf1-6cbf-69beb5991577
+        # Section 6.2
         categorisation = categorise(context, position, is_pep=True)
         if not categorisation.is_pep:
             continue
