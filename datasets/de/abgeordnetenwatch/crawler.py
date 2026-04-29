@@ -69,8 +69,6 @@ def crawl_mandate(context: Context, mandate: Dict[str, Any]) -> None:
     )
 
     # Occupancy
-    mandate_start_date = mandate.pop("start_date") or period_detail["start_date_period"]
-    mandate_end_date = mandate.pop("end_date") or period_detail["end_date_period"]
     categorisation = categorise(context, position)
     if not categorisation.is_pep:
         return
@@ -79,8 +77,10 @@ def crawl_mandate(context: Context, mandate: Dict[str, Any]) -> None:
         person,
         position,
         True,
-        start_date=mandate_start_date,
-        end_date=mandate_end_date,
+        start_date=period_detail["start_date_period"],
+        period_start=mandate.pop("start_date"),
+        end_date=period_detail["end_date_period"],
+        period_end=mandate.pop("end_date"),
         categorisation=categorisation,
     )
     if occupancy:
