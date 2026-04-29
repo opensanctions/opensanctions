@@ -36,6 +36,7 @@ def crawl_current_pep_item(
     entity = context.make("Person")
     entity.id = context.make_slug(first_name, last_name)
     h.apply_name(entity, first_name=first_name, last_name=last_name)
+    entity.add("citizenship", country)
 
     birth_date = row.pop("birth_date")
     h.apply_date(entity, "birthDate", birth_date.strip() if birth_date else None)
@@ -78,6 +79,7 @@ def crawl_old_pep_item(
     entity = context.make("Person")
     entity.id = context.make_slug(first_name, last_name)
     h.apply_name(entity, first_name=first_name, last_name=last_name)
+    entity.add("citizenship", country)
 
     h.apply_date(entity, "birthDate", row.pop("birth_date"))
 
