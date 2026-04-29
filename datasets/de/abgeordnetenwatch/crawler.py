@@ -61,7 +61,12 @@ def crawl_mandate(context: Context, mandate: Dict[str, Any]) -> None:
         last_name=politician_detail.pop("last_name"),
         maiden_name=politician_detail.pop("birth_name"),
     )
+    person.add("political", politician_detail["party"]["label"])
     person.add("sourceUrl", politician_detail.pop("abgeordnetenwatch_url"))
+    person.add(
+        "biography",
+        f"Past parties: {politician_detail.pop('party_past')}, education: {politician_detail.pop('education')}, residence: {politician_detail.pop('residence')}, occupation: {politician_detail.pop('occupation')}",
+    )
 
     # Occupancy
     mandate_start_date = mandate.pop("start_date") or period_detail["start_date_period"]
