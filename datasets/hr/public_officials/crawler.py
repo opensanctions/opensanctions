@@ -52,6 +52,8 @@ FIELDS = [
     "secondary_position_end_date",
 ]
 
+TOPICS = ["gov.soe"]
+
 
 def make_position_name(data: Dict[str, str]) -> Optional[str]:
     title = data.pop("position")
@@ -81,10 +83,16 @@ def make_affiliation_entities(
         return []
 
     start_date = data.pop("position_start_date")
+    if start_date < h.earliest_term_start(TOPICS):
+        context.log.info(
+            f"Skipping row with start date {start_date} outside coverage window"
+        )
+        return []
+
     end_date = data.pop("position_end_date")
     context.audit_data(data)
 
-    position = h.make_position(context, position_name, country="HR")
+    position = h.make_position(context, position_name, topics=TOPICS, country="HR")
 
     categorisation = categorise(context, position, is_pep=True)
     occupancy = h.make_occupancy(
