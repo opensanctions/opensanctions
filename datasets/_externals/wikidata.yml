@@ -225,6 +225,8 @@ lookups:
         values:
           - Aleem Said A. Basher
           - سعيد أحمد بشير
+      - match: "Moe Aung Yin <br/>"
+        value: "Moe Aung Yin"
   type.date:
     options:
       - match:
