@@ -7,31 +7,44 @@ def get_members_urls(context: Context) -> list:
 
     # this XPath corresponds to the a tags wit the links for a member page
     xpath_to_a_tags = "//*[@id='main']/section/div[2]/div/ul/li/div/div/ul/li[1]/h3/a"
-
-    return [a_tag.get("href") for a_tag in main_website.xpath(xpath_to_a_tags)]
+    return [
+        a_tag.get("href") for a_tag in h.xpath_elements(main_website, xpath_to_a_tags)
+    ]
 
 
 def crawl_item(member_url: str, context: Context):
     member_page_html = context.fetch_html(member_url)
 
     try:
-        name = member_page_html.xpath('//*[@id="main"]/header/div/h1/text()')[0]
+        name = h.xpath_string(member_page_html, '//*[@id="main"]/header/div/h1/text()')
     except IndexError:
         context.log.info("Couldn't find name. Skipping person.", url=member_url)
         return
+    bio = " ".join(
+        h.xpath_strings(
+            member_page_html,
+            '//*[@class="col-xs-6 profile-desc bg-white content"]/p[text()][1]/text()',
+        )
+    ).strip()
+    electoral_district = h.xpath_string(
+        member_page_html,
+        '//*[@class="col-xs-6 profile-desc bg-white content"]//a[contains(@href, "searchByConstituency")]/text()',
+    )
 
     entity = context.make("Person")
     entity.id = context.make_id(name)
     entity.add("citizenship", "ee")
+    entity.add("biography", bio)
     context.log.info(f"Full name {name} unique id {entity.id}")
     h.apply_name(entity, full=name)
 
     try:
         # the phone number apparently is the first contact in the list
         # but to make sure we correctly get it, we based our xpath on the icon
-        phone_els = member_page_html.xpath('//*[@class="icon icon-tel"]/../text()')
-        phone_number = phone_els[0].replace(" ", "")
-        entity.add("phone", phone_number)
+        phone_number = h.xpath_string(
+            member_page_html, '//*[@class="icon icon-tel"]/../text()'
+        )
+        entity.add("phone", phone_number.replace(" ", ""))
     except IndexError:
         # Only log a warning if the name is not "Hele Everaus" or "Kaja Kallas"
         if name not in [
@@ -44,7 +57,9 @@ def crawl_item(member_url: str, context: Context):
 
     try:
         # we do the same as the phone number
-        email = member_page_html.xpath('//*[@class="icon icon-mail"]/../text()')[0]
+        email = h.xpath_string(
+            member_page_html, '//*[@class="icon icon-mail"]/../text()'
+        )
         entity.add("email", email)
     except IndexError:
         context.log.warning("Couldn't find e-mail")
@@ -67,6 +82,7 @@ def crawl_item(member_url: str, context: Context):
     )
     if occupancy is None:
         return
+    occupancy.add("constituency", electoral_district)
 
     context.emit(entity)
     context.emit(position)
