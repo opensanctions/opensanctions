@@ -41,10 +41,8 @@ def crawl_positions(
 
     entities = []
     for term in terms:
-        res = context.lookup("position", term["chamber"])
-        if res is None:
-            context.log.warning("Unknown chamber", chamber=term["chamber"])
-            continue
+        res = context.lookup("position", term["chamber"], warn_unmatched=True)
+        assert res is not None
         position = h.make_position(
             context,
             res.name,
