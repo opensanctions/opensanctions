@@ -75,10 +75,10 @@ lookups:
         value: Ocean C&I Co., Ltd.
       - match: "(CONTEC)"
         value: CONTEC
-      - match: "(formerly known as CompuAids Inc. (doing business as (dba) Groupe Systèmes et Solutions D'enterprise also dba ESS Group, also dba Enterprise Systems and Solutions))"
+      - match: "(formerly known as CompuAids Inc. (doing business as (dba) Groupe Systèmes et Solutions D’enterprise also dba ESS Group, also dba Enterprise Systems and Solutions))"
         values:
           - CompuAids Inc.
-          - Groupe Systèmes et Solutions D'enterprise
+          - Groupe Systèmes et Solutions D’enterprise
           - ESS Group
           - Enterprise Systems and Solutions
   type.country:
