@@ -75,6 +75,10 @@ lookups:
         value: 1977
       - match: "Between Aug. and Sep. 1977"
         value: 1977-08
+      - match: "1960s-1970s"
+        value: 1960
+      - match: "Between 1960 and 1975"
+        value: 1960
   type.identifier:
     options:
       - match:
