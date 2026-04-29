@@ -160,6 +160,8 @@ def crawl_table_row(
         person.add("idNumber", id_number)
 
     person.add("name", match.group("name"))
+    # various PEPs, incl academics or clinical stuff that don't require citizenship
+    person.add("country", "co")
 
     role = str_row.pop("cargo")
     if role is None:
