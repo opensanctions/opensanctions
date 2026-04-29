@@ -83,9 +83,10 @@ def make_affiliation_entities(
         return []
 
     start_date = data.pop("position_start_date")
-    if start_date < h.earliest_term_start(TOPICS):
+    parsed_dates = h.extract_date(context.dataset, start_date)
+    if parsed_dates[0] < h.earliest_term_start(TOPICS):
         context.log.info(
-            f"Skipping row with start date {start_date} outside coverage window"
+            f"Skipping row with start date {parsed_dates[0]} outside coverage window"
         )
         return []
 
