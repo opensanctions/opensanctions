@@ -7,15 +7,6 @@ from zavod.extract.zyte_api import fetch_html
 from zavod.util import Element
 
 
-def normalize_company_url(url: str) -> str:
-    # The listing page HTML alternates between two href forms for the same company:
-    # /company/fisher-scientific and /index.php/company/fisher-scientific.
-    # Both resolve to the same page, but including the raw URL in make_id would
-    # produce different entity IDs across runs depending on which form appeared.
-    # Stripping /index.php/ canonicalises the path before hashing.
-    return url.replace("/index.php/", "/")
-
-
 def parse_facts_list(container: HtmlElement) -> dict[str, list[HtmlElement]]:
     """
     Parse a list of facts into a dictionary.
@@ -155,7 +146,12 @@ def crawl_row(context: Context, row: dict[str, HtmlElement]) -> None:
 
     company_elem = row.pop("company_sort_descending")
     company_link = h.xpath_string(company_elem, ".//a/@href")
-    company_link_clean = normalize_company_url(company_link)
+    # The listing page HTML alternates between two href forms for the same company:
+    # /company/fisher-scientific and /index.php/company/fisher-scientific.
+    # Both resolve to the same page, but including the raw URL in make_id would
+    # produce different entity IDs across runs depending on which form appeared.
+    # Stripping /index.php/ canonicalises the path before hashing.
+    company_link_clean = company_link.replace("/index.php/", "/")
     company_name = str_row.pop("company_sort_descending")
 
     # Create and emit an entity
