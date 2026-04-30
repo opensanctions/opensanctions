@@ -215,9 +215,15 @@ lookups:
       - match: "Khirullah Said Wali Khairkhwa, né en Kandahar, le 01/01/1967"
         aliases:
           - Khirullah Said Wali Khairkhwa
+      - match: "Khirullah Said Wali Khairkhwa (né à Kandahar le 01/01/1967)"
+        aliases:
+          - Khirullah Said Wali Khairkhwa
       - match: "adena Mohammad né le 01/01/1969"
         aliases:
           - adena Mohammad
+      - match: "Iadena Mohammad (né le 01/01/1969)"
+        aliases:
+          - Iadena Mohammad
   type.address:
     options:
       - match: ou
@@ -334,6 +340,18 @@ lookups:
           - 1988
       - match: 27/03//1976
         value: 1976-03-27
+      - match: entre 1972 et 1973
+        values:
+          - 1972
+          - 1973
+      - match: entre 1960 et 1962
+        values:
+          - 1960
+          - 1962
+      - match: entre 1963 et 1968
+        values:
+          - 1963
+          - 1968
       - match: entre 1977 et 1978
         values:
           - 1977
@@ -375,7 +393,9 @@ lookups:
           - entre 1975 et 1979
           - Entre 1965 et 1969
           - Entre 1960 et 1975
+          - entre 1960 et 1975
           - Années 1960-1970 (âgé d'environ 50 ans)
+          - années 1960-1970 (âgé d'environ 60 ans)
           - avant 1964
           - 1980-1990
           - 10/10/(année inconnue)
