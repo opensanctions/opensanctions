@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from email.message import Message
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, cast
 
 from lxml import html, etree
 from requests import Session
@@ -450,7 +450,7 @@ def fetch_html(
 
     doc = html.fromstring(zyte_result.response_text)
     if absolute_links and isinstance(doc, html.HtmlElement):
-        doc.make_links_absolute(url)
+        cast(html.HtmlElement, doc).make_links_absolute(url)
 
     matches = doc.xpath(unblock_validator)
     if not isinstance(matches, list) or not len(matches) > 0:
