@@ -49,7 +49,7 @@ def crawl_row(context: Context, row: dict[str, _Element]) -> None:
     )
 
     if not review.accepted:
-        extracted_date = original_extraction
+        extracted_data = original_extraction
     else:
         extracted_data = review.extracted_data
 
