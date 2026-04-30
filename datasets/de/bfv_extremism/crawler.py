@@ -49,14 +49,9 @@ def crawl_row(context: Context, row: dict[str, _Element]) -> None:
     )
 
     if not review.accepted:
-        temp_name = original_extraction.organizations[0].name
-        entity = context.make("Organization")
-        entity.id = context.make_id(temp_name)
-        entity.add("name", temp_name)
-        entity.add("country", "de")
-        context.emit(entity)
-        return
-    extracted_data = review.extracted_data
+        extracted_date = original_extraction
+    else:
+        extracted_data = review.extracted_data
 
     for item in extracted_data.organizations:
         entity = context.make("Organization")
