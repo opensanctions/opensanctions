@@ -424,6 +424,19 @@ lookups:
       - match: "Type d'entité: société de transport"
         props:
           legalForm: société de transport
+      - match: "Type d'entité: entreprise d'État"
+        props:
+          legalForm: entreprise d'État
+      - match: "Type d'entité: organisation non gouvernementale"
+        props:
+          legalForm: organisation non gouvernementale
+      - match: "Lieu d'enregistrement: Myanmar/Birmanie"
+        props:
+          jurisdiction: mm
+      - match: "Lieu d'enregistrement: Yangon, Myanmar/Birmanie"
+        props:
+          jurisdiction: mm
+          address: "Yangon, Myanmar"
       - match: "Lieu d'enregistrement: 676811 oblast d'Amurskaya, Belogorskiy Rayon, Vozhaevka, Fédération de Russie"
         props:
           jurisdiction: ru
