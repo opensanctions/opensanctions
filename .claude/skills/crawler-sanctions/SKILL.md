@@ -96,6 +96,8 @@ lookup must be called explicitly via `h.lookup_sanction_program_key()`.
 
 ### Sanction entity creation
 
+Full reference: `zavod/docs/programs.md`
+
 `h.make_sanction()` automatically sets `country`, `authority`, and `sourceUrl` from
 dataset metadata. The key parameters:
 
@@ -140,9 +142,11 @@ if h.is_active(sanction):
 
 ### Name handling in sanctions crawlers
 
-Sanctioned names are legal designations. Unlike PEP crawlers, **do not use LLM-based
-name cleaning**. Any normalisation must be human-reviewed via the stateful name review
-system, or handled with explicit lookup entries.
+Full reference: `zavod/docs/extract/names.md`
+
+Sanctioned names are legal designations — **do not use LLM-based name cleaning**.
+Any normalisation must be human-reviewed via the stateful review system, or handled
+with explicit lookup entries.
 
 ### Relationships between sanctioned entities
 
@@ -157,9 +161,10 @@ for de-listings and `sanction.add("modifiedAt", ...)` for amendments. See
 
 ### LLM extraction from free-text fields
 
-For sources with unstructured "remarks" fields containing structured data, use GPT
-extraction with the stateful review system (`run_typed_text_prompt` + `review_extraction`).
-Requires `ci_test: false`. See [examples.md](examples.md) for the full pattern.
+Full reference: `zavod/docs/data_reviews.md`
+
+For sources with unstructured "remarks" fields, use GPT extraction with the stateful
+review system. Requires `ci_test: false`. See [examples.md](examples.md) for the pattern.
 
 ## Step 4: Sanctions-specific validation checks
 

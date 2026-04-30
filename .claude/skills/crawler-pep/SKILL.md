@@ -71,17 +71,11 @@ from zavod.stateful.positions import PositionCategorisation, categorise
 
 ### Position categorisation
 
-`categorise()` is a **stateful database operation**, not a pure classifier. It persists
-position metadata (`is_pep`, `topics`) to a shared PostgreSQL `position` table, which the
-UI can then edit. This is the bridge between crawlers and the position review UI.
+Full reference: `zavod/docs/peps.md`
 
-**How it works:**
-1. First crawl: `categorise()` inserts the position into the database with the `is_pep`
-   and `topics` values from the crawler.
-2. UI review: Staff can edit `is_pep` and `topics` for any position via the positions UI.
-3. Subsequent crawls: `categorise()` returns the **database values** (including any UI
-   edits), ignoring whatever the crawler passes. The crawler's values only matter on
-   first insertion.
+`categorise()` is a **stateful database operation** that persists position metadata to
+the database. The crawler's `is_pep` and `topics` values only matter on first insertion —
+subsequent crawls return database values (including UI edits).
 
 **Three `is_pep` calling patterns:**
 
@@ -125,9 +119,11 @@ expiration, default = 5 years).
 
 ### Name cleaning strategy for PEP data
 
-PEP crawlers may use `h.clean_names()` (LLM-assisted) or the stateful name review
-system (`h.apply_reviewed_names()` / `h.review_names()`) to normalise messy name data.
-This is acceptable for PEP data — unlike sanctions, where LLM cleaning is forbidden.
+Full reference: `zavod/docs/extract/names.md`
+
+PEP crawlers may use LLM-assisted name cleaning (`h.clean_names()`) or the stateful
+name review system (`h.apply_reviewed_names()`). This is acceptable for PEP data —
+unlike sanctions, where LLM cleaning is forbidden.
 
 ## Step 4: PEP-specific validation checks
 
