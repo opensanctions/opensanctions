@@ -19,6 +19,9 @@ We want the following properties from reviews:
 
 - We want user-edited data changes to be validated early (ideally in the UI) to prevent painful slow review/editing turnaround time.
 
+## Review UI
+
+[Run the Review UI locally](https://github.com/opensanctions/opensanctions/tree/main/ui#readme) to preview reviews created by crawlers.
 
 ## Implementation
 
