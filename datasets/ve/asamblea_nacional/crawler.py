@@ -163,7 +163,11 @@ def crawl_members(context: Context, page: ElementOrTree) -> None:
         member_link = el.find(".//a")
 
         party_el, state_el = h.xpath_elements(el, ".//small")
-        party = h.xpath_string(party_el, ".//b/text()")
+        bold_els = party_el.findall(".//b")
+        if bold_els:
+            party = h.xpath_string(party_el, ".//b/text()")
+        else:
+            party = h.element_text(party_el)
         state = h.xpath_string(state_el, "./text()")
         assert "Partido" not in party, f"Unexpected party format: {party}"
         assert "Estado:" in state, f"Unexpected state format: {state}"
