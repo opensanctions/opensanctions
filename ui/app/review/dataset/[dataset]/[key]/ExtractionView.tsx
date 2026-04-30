@@ -251,7 +251,7 @@ export default function ExtractionView({ rawData, extractedData, schema, accepte
           ref={formRef}
           method="POST"
           action="/api/extraction/save"
-          className="d-flex justify-content-end align-items-center mt-3 gap-3 w-100"
+          className="d-flex justify-content-end align-items-center mt-auto pt-3 gap-3 w-100"
         >
           <input type="hidden" name="dataset" value={dataset} />
           <input type="hidden" name="key" value={entryKey} />

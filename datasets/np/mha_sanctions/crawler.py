@@ -4,7 +4,7 @@ from typing import Dict
 from zavod import Context, helpers as h
 
 
-def crawl_row(context: Context, row: Dict[str, str]):
+def crawl_row(context: Context, row: Dict[str, str]) -> None:
     unsc_id = row.pop("code")
     entity_type = row.pop("type")
     name = row.pop("name")
@@ -95,11 +95,13 @@ def crawl_row(context: Context, row: Dict[str, str]):
         context.log.warning("Unhandled entity type", type=entity_type)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
+    assert context.dataset.url is not None
     doc = context.fetch_html(context.dataset.url, cache_days=1)
-    url = doc.xpath(".//a[contains(text(), 'Sanction_List_for_All.pdf')]/@href")
-    assert len(url) == 1, "Expected exactly 1 link in the document"
-    h.assert_url_hash(context, url[0], "c31312f5c4680c9ca5e0cdffbe2d9a2d52d29fd5")
+    url = h.xpath_string(
+        doc, ".//a[contains(text(), 'Sanction_List_for_All.pdf')]/@href"
+    )
+    h.assert_url_hash(context, url, "c31312f5c4680c9ca5e0cdffbe2d9a2d52d29fd5")
     # ALI MAYCHOU
     # ...
     # STATE TRADING COMPANY FOR CONSTRUCTION MATERIALS

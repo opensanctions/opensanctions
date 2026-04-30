@@ -1,5 +1,4 @@
 from typing import List, Optional
-from rigour.names import prenormalize_name
 from followthemoney import Schema, model, registry
 from nomenklatura import Resolver, Judgement
 
@@ -47,9 +46,9 @@ def logic_vessel_match(
     if not len(left_imo.intersection(right_imo)) > 0:
         return score
     left_names_ = left.get_type_values(registry.name, matchable=True)
-    left_names = set(prenormalize_name(n) for n in left_names_)
+    left_names = set(n.casefold() for n in left_names_)
     right_names_ = right.get_type_values(registry.name, matchable=True)
-    right_names = set(prenormalize_name(n) for n in right_names_)
+    right_names = set(n.casefold() for n in right_names_)
     if not len(left_names.intersection(right_names)) > 0:
         return score
     if left.id is not None and right.id is not None:

@@ -82,6 +82,8 @@ def crawl_ls_member(
     for period in member.pop("lsExpr", "").split(","):
         if period not in periods:
             continue
+        start: str
+        end: str | None
         start, end = periods[period]
         if period == max(periods.keys()):
             end = None

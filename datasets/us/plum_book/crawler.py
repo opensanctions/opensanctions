@@ -37,6 +37,7 @@ def crawl(context: Context) -> None:
             person.id = context.make_id(
                 incumbent_first_name, incumbent_last_name, position_name
             )
+            person.add("country", "us")  # although most are US citizens in practice
 
             # Cleaning after make_id
             incumbent_first_name = html.unescape(incumbent_first_name)

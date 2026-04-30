@@ -85,6 +85,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     if not identifier:
         return
     entity.id = context.make_slug(identifier)
+    entity.add("country", "ng")  # multiple roles that don't require citizenship
     first_name = row.pop("First Name")
     middle_name = row.pop("Middle Name")
     last_name = row.pop("Last Name")

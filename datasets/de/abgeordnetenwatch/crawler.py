@@ -51,6 +51,7 @@ def crawl_mandate(context: Context, mandate: Dict[str, Any]) -> None:
     else:
         person.id = context.make_id(politician.pop("id"))
 
+    person.add("citizenship", "de")
     person.add("wikidataId", wikidata_id)
     person.add("birthDate", politician_detail.pop("year_of_birth"))
     h.apply_name(

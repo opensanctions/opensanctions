@@ -1,5 +1,6 @@
 from lxml.etree import _Element
 from lxml.html import document_fromstring
+from rigour.names import remove_person_prefixes
 
 from zavod import Context, helpers as h
 from zavod.extract.zyte_api import fetch_text
@@ -17,7 +18,7 @@ def crawl_person(context: Context, row: _Element) -> None:
 
     person = context.make("Person")
     person.id = context.make_id(name, url)
-    person.add("name", name)
+    person.add("name", remove_person_prefixes(name))
 
     sanction = h.make_sanction(context, person)
     h.apply_date(sanction, "startDate", date)

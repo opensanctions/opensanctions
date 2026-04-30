@@ -32,7 +32,7 @@ def clean_phones(phones):
     return out
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     data = context.fetch_json(context.data_url)
 
     for country in data:
@@ -42,7 +42,7 @@ def crawl(context: Context):
             crawl_legislature(context, code, legislature)
 
 
-def crawl_legislature(context: Context, country: str, legislature):
+def crawl_legislature(context: Context, country: str, legislature) -> None:
     url = urljoin(context.data_url, legislature.get("popolo"))
     # print(url)
     # this isn't being updated, hence long interval:

@@ -31,7 +31,7 @@ def clean_name(text):
     return clean_names
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     url = context.data_url
     headers = {"apikey": context.dataset.data.api_key}
     data = context.fetch_json(url, headers=headers)

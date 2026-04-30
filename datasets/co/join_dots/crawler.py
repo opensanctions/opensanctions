@@ -37,6 +37,8 @@ def crawl_row(context: Context, row: Dict[str, str]) -> tuple[str, Entity]:
     entity = context.make("Person")
     id_number = row.pop("ID / CC")
     entity.id = context.make_slug(id_number, prefix="co-cedula")
+    # required for Senador, Representante a la Cámara, Ministro
+    entity.add("citizenship", "co")
     h.apply_name(
         entity,
         given_name=join_text(

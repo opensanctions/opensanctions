@@ -9,12 +9,13 @@ from pathlib import Path
 from tempfile import NamedTemporaryFile, mkdtemp
 from unittest.mock import MagicMock, patch
 from copy import deepcopy
+from traceback import format_exception
 
 import yaml
-from click.testing import CliRunner
+from click.testing import CliRunner, Result
 from dspy import Prediction
 
-from zavod.extract.names.clean import Names
+from zavod.extract.names.clean import SimpleNames
 from zavod.extract.names.dspy.clean import load_optimised_module
 from zavod.tune import cli
 
@@ -28,6 +29,17 @@ example = {
 }
 # Repeat 3 times because test/validation/train sets are each 1/3 of shuffled data
 examples = [example, deepcopy(example), deepcopy(example)]
+
+
+def assert_exit_status_zero(result: Result) -> None:
+    if result.exit_code != 0:
+        raise AssertionError(
+            (
+                "'zavod-run compare' invocation exited non-zero.\n\n"
+                f"Output: {result.output}\n"
+                f"{''.join(format_exception(*result.exc_info))}"
+            )
+        )
 
 
 @patch("zavod.extract.names.dspy.optimise.dspy.GEPA")
@@ -58,7 +70,7 @@ def test_optimise(mock_gepa: MagicMock) -> None:
             "light",
         ],
     )
-    assert result.exit_code == 0, result.output
+    assert_exit_status_zero(result)
 
     with open(program_path) as f:
         program_data = f.read()
@@ -79,13 +91,12 @@ def test_compare(run_typed_text_prompt: MagicMock, mock_dspy_load: MagicMock):
     )
 
     # Mock direct OpenAI call
-    run_typed_text_prompt.return_value = Names(
+    run_typed_text_prompt.return_value = SimpleNames(
         name=[],
         alias=["John Doe"],
     )
 
     with NamedTemporaryFile(mode="w", suffix=".yml", delete=False) as f:
-        print(f.name)
         yaml.dump(examples, f)
         examples_path = Path(f.name)
     output_path = Path(mkdtemp()) / "validation_results.json"
@@ -99,11 +110,10 @@ def test_compare(run_typed_text_prompt: MagicMock, mock_dspy_load: MagicMock):
             examples_path.as_posix(),
         ],
     )
-    assert result.exit_code == 0, result.output
+    assert_exit_status_zero(result)
 
     assert mock_optimised_module.called, mock_optimised_module.call_args_list
     assert run_typed_text_prompt.called, run_typed_text_prompt.call_args_list
-    assert result.exit_code == 0, result.output
 
     with open(output_path) as f:
         program_data = f.read()

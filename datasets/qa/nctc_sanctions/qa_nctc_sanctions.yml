@@ -5,6 +5,7 @@ coverage:
   frequency: daily
   start: 2023-02-19
   schedule: "0 */8 * * *"
+ci_test: false # Zyte API key not available in CI
 load_statements: true
 summary: >
   This dataset contains both UN-mandated and the national sanctions designations

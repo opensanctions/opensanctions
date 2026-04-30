@@ -24,8 +24,6 @@ import logging
 import prefixdate
 import re
 
-from zavod.meta.dataset import Dataset
-
 
 log = logging.getLogger(__name__)
 
@@ -271,12 +269,12 @@ class EditSession(Generic[DS, SE]):
             self._log("Entity has no ID. Can't resolve.")
             return
         self.qid = qid
-        canonical_id = self._resolver.decide(
+        canonical = self._resolver.decide(
             self.entity.id,
             qid,
             judgement=Judgement.POSITIVE,
         )
-        self._store.update(canonical_id)
+        self._store.update(canonical.id)
         self._resolver.commit()
         self._resolver.begin()
         self.search_results = []
@@ -442,11 +440,7 @@ class EditSession(Generic[DS, SE]):
                 self._log(f"Couldn't provide source for gender from {stmt.dataset}")
 
     def _make_source_claims(self, stmt: Statement) -> Optional[List[Claim]]:
-        if isinstance(stmt.dataset, str):
-            dataset = stmt.dataset
-        elif isinstance(stmt.dataset, Dataset):
-            dataset = stmt.dataset.name
-        source_url = self.source_urls.get(dataset)
+        source_url = self.source_urls.get(stmt.dataset)
         if not source_url:
             return None
 

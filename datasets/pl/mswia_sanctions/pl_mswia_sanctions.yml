@@ -275,6 +275,12 @@ lookups:
       - match: "adres: Per. Mały Kazenny 3 Moskwa, 105064 Moskwa, Federacja Rosyjska "
         props:
           address: "Per. Mały Kazenny 3 Moskwa, 105064 Moskwa, Federacja Rosyjska"
+      - match: "adres: ul. Hoża 86/210, 00-682 Warszawa "
+        props:
+          address: "ul. Hoża 86/210, 00-682 Warszawa"
+      - match: "adres: Navoiy viloyati, Navoiy shahar, \"Kimyogar\" MFY, Navoiy ko'chasi 5-uy, Uzbekistan "
+        props:
+          address: "Navoiy viloyati, Navoiy shahar, \"Kimyogar\" MFY, Navoiy ko'chasi 5-uy, Uzbekistan"
 
   names:
     options:

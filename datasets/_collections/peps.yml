@@ -34,6 +34,7 @@ children:
   - ar_parliament
   - at_meine_abgeordneten
   - at_parlament
+  - be_chamber
   - bg_jud_declarations
   - br_pep
   - ca_commons
@@ -68,6 +69,7 @@ children:
   - hr_public_officials
   - hu_national_assembly
   - id_regional_2018
+  - ie_parliament
   - il_knesset_members
   - in_sansad
   - is_althingi

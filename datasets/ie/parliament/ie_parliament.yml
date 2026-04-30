@@ -2,7 +2,7 @@ title: Ireland Members of Parliament
 prefix: ie-parl
 coverage:
   frequency: monthly
-  start: 2026-03-09
+  start: 2026-04-21
 load_statements: true
 entry_point: crawler.py
 ci_test: true

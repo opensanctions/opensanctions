@@ -31,7 +31,7 @@ def get_json_url(context: Context) -> str:
         geolocation="MX",
         cache_days=1,
     )
-    main_website = doc.find(redirect_xpath).get("content")
+    main_website = h.xpath_string(doc, redirect_xpath + "/@content")
     url_pattern = r"url=\b(\d{2})/"
     match = re.search(url_pattern, main_website)
 

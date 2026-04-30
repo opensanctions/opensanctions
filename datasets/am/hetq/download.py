@@ -24,7 +24,7 @@ CHROME_HEADER = {
 }
 
 
-def build_front_url(lang: LANGUAGE, year: int, offset: int):
+def build_front_url(lang: LANGUAGE, year: int, offset: int) -> str:
     url = FRONTPAGE % {"lang": lang}
     return "?".join(
         (
@@ -41,11 +41,11 @@ def build_front_url(lang: LANGUAGE, year: int, offset: int):
     )
 
 
-def build_relations_url(lang: LANGUAGE, person_id: int):
+def build_relations_url(lang: LANGUAGE, person_id: int) -> str:
     return RELATIONS % {"lang": lang, "person": person_id}
 
 
-def download_front_page(lang: LANGUAGE, outdir: Path):
+def download_front_page(lang: LANGUAGE, outdir: Path) -> None:
     """Download all data from the front page for each year available."""
     pagepath = outdir / "front" / f"{lang}.html"
     pagepath.parent.mkdir(parents=True, exist_ok=True)
@@ -84,7 +84,7 @@ def download_front_page(lang: LANGUAGE, outdir: Path):
             json.dump(entries, outfh, indent=2, ensure_ascii=False)
 
 
-def download_people_page(lang: LANGUAGE, outdir: Path, person: int):
+def download_people_page(lang: LANGUAGE, outdir: Path, person: int) -> None:
     personpath = outdir / "person" / f"{person}-{lang}.html"
     if personpath.exists():
         LOGGER.info("Skipping existing file %s", personpath)
@@ -100,7 +100,7 @@ def download_people_page(lang: LANGUAGE, outdir: Path, person: int):
         page.write(r.text)
 
 
-def download_people_pages(lang: LANGUAGE, outdir: Path):
+def download_people_pages(lang: LANGUAGE, outdir: Path) -> Set[int]:
     """Get the page for each PEP (no JSON available it seems)."""
     frontdir = outdir / "front"
     # Merge all of them to get unique person ids
@@ -115,7 +115,9 @@ def download_people_pages(lang: LANGUAGE, outdir: Path):
     return person_ids
 
 
-def download_relations_pages(person_ids: Set[int], lang: LANGUAGE, outdir: Path):
+def download_relations_pages(
+    person_ids: Set[int], lang: LANGUAGE, outdir: Path
+) -> None:
     """Get relation graph for each PEP (in JSON not SVG thankfully)."""
     (outdir / "relations").mkdir(parents=True, exist_ok=True)
     more_person_ids = set()
@@ -149,7 +151,7 @@ def download_relations_pages(person_ids: Set[int], lang: LANGUAGE, outdir: Path)
     person_ids.update(more_person_ids)
 
 
-def download_officialtypes(outdir: Path):
+def download_officialtypes(outdir: Path) -> None:
     """Get the list of official types (just for completeness really)"""
     officialtypes = outdir / "officialtypes.json"
     if officialtypes.exists():
@@ -166,7 +168,7 @@ def download_officialtypes(outdir: Path):
         json.dump(r.json(), page, indent=2, ensure_ascii=False)
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("outdir", help="Path to output directory", type=Path)
     args = parser.parse_args()

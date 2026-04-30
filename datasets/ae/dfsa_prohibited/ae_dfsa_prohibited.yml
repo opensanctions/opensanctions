@@ -3,7 +3,7 @@ prefix: ae-dfsa
 entry_point: crawler.py
 coverage:
   frequency: daily
-  start: 2026-03-03
+  start: 2026-04-21
 load_statements: true
 ci_test: false  # using Zyte
 summary: >-

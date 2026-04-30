@@ -95,10 +95,13 @@ def crawl_page(context: Context, page_number: int) -> int:
             context.emit(director)
             context.emit(link)
 
-    return data.get("totalPages", 1)
+    total_pages = data.get("totalPages", 1)
+    if not isinstance(total_pages, int):
+        raise ValueError(f"Expected int for totalPages, got {type(total_pages)}")
+    return total_pages
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     """
     Main function to crawl and process data from the Kazakhstan data portal.
     """

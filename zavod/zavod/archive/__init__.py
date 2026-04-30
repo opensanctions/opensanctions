@@ -98,6 +98,9 @@ def get_dataset_artifact(
     return path
 
 
+# TODO(Leon Handreke): This function has some overlap with versions.get_history.
+# The right thing to do might be to have two functions, one to get the "root" version file
+# at artifacts/{dataset_name}/versions.json, and one to get the version file for a specific version.
 @lru_cache(maxsize=1000)
 def get_versions_data(
     dataset_name: str, version: Optional[str] = None
