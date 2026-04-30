@@ -212,12 +212,12 @@ lookups:
         aliases:
           - RFNC-VNIITF
           - VNITTF
-      - match: "Khirullah Said Wali Khairkhwa, né en Kandahar, le 01/01/1967"
+      - match: "Khirullah Said Wali Khairkhwa (né à Kandahar le 01/01/1967)"
         aliases:
           - Khirullah Said Wali Khairkhwa
-      - match: "adena Mohammad né le 01/01/1969"
+      - match: "Iadena Mohammad (né le 01/01/1969)"
         aliases:
-          - adena Mohammad
+          - Iadena Mohammad
   type.address:
     options:
       - match: ou
@@ -334,6 +334,23 @@ lookups:
           - 1988
       - match: 27/03//1976
         value: 1976-03-27
+      - match: entre 1972 et 1973
+        values:
+          - 1972
+          - 1973
+      - match: entre 1960 et 1962
+        values:
+          - 1960
+          - 1961
+          - 1962
+      - match: entre 1963 et 1968
+        values:
+          - 1963
+          - 1964
+          - 1965
+          - 1966
+          - 1967
+          - 1968
       - match: entre 1977 et 1978
         values:
           - 1977
@@ -341,10 +358,16 @@ lookups:
       - match: entre 1955 et 1958
         values:
           - 1955
+          - 1956
+          - 1957
           - 1958
       - match: entre 1945 et 1950
         values:
           - 1945
+          - 1946
+          - 1947
+          - 1948
+          - 1949
           - 1950
       - match:
           - "Environ 1958"
@@ -375,7 +398,9 @@ lookups:
           - entre 1975 et 1979
           - Entre 1965 et 1969
           - Entre 1960 et 1975
+          - entre 1960 et 1975
           - Années 1960-1970 (âgé d'environ 50 ans)
+          - années 1960-1970 (âgé d'environ 60 ans)
           - avant 1964
           - 1980-1990
           - 10/10/(année inconnue)
