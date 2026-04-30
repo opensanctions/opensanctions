@@ -81,6 +81,7 @@ lookups:
           - "reg:cz_person"
           - "reg:chiop" # https://en.wikipedia.org/wiki/SNILS_(Russia)
           - "reg:reg_snils" # https://en.wikipedia.org/wiki/SNILS_(Russia)
+          - "reg:by_rnrb" # Belarus personal identification number
         prop: idNumber
       - match:
           - null
