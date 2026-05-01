@@ -65,6 +65,9 @@ lookups:
     options:
       - match: Lev Anatolyevich Ershov
         value: Lev Anatolyevich
+      # SSPC is the renamed form of SAC; consolidated text still uses SAC
+      - match: State Security and Peace Commission (SSPC)
+        value: State Administration Council (SAC)
   type.date:
     options:
       - match: 3.1.2003 (founded in 1918)
