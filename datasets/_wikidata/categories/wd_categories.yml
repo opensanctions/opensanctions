@@ -248,13 +248,6 @@ config:
     - category: Political_office-holders_in_Asia
       depth: 8
       negcats: |
-        Ancient_monarchs
-        Ancient_princes
-        Ancient_princesses
-        Ancient_queens_consort
-        Medieval_monarchs
-        Legendary_monarchs
-        Mythological_kings
         Government_of_the_Achaemenid_Empire
         Licchavi_kings_of_Nepal
         Sinhalese-royalty
@@ -465,9 +458,6 @@ config:
       topic: role.pep
       country: in
       negcats: |
-        Ancient_monarchs
-        Ancient_queens_consort
-        Medieval_monarchs
         Tamil_monarchs
         Government_of_the_Achaemenid_Empire
     - category: Legislators_in_India
@@ -513,14 +503,7 @@ config:
       negcats: |
         Political_office-holders_in_ancient_Rome
         Ancient_Egyptian_officials
-        Ancient_monarchs
-        Ancient_princes
-        Ancient_princesses
-        Ancient_queens_consort
-        Medieval_monarchs
-        Legendary_monarchs
-        Mythological_kings
-        
+        Ancient_Egyptian_queens_consort
     - category: South_African_political_people
       depth: 6
 
@@ -2395,10 +2378,6 @@ config:
     - category: Political_office-holders_in_Iran
       topic: role.pep
       country: ir
-      negcats: |
-        Ancient_monarchs
-        Ancient_princes
-        Ancient_princesses
 
     # country: Afghanistan
     - category: Political_office-holders_in_Afghanistan
@@ -2525,8 +2504,6 @@ config:
     - category: Political_office-holders_in_Greece
       country: gr
       topic: role.pep
-      negcats: |
-        Ancient_monarchs
     - category: Members_of_the_Hellenic_Parliament
       country: gr
       topic: role.pep
