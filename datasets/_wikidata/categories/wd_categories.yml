@@ -2251,8 +2251,6 @@ config:
     - category: Political_office-holders_in_Vietnam
       topic: role.pep
       country: vn
-      negcats: |
-        Legendary_monarchs
     - category: Chính_phủ_Quốc_gia_Việt_Nam
       language: vi
       topic: role.pep
