@@ -118,9 +118,9 @@ def crawl_sheet_row(context: Context, row: Dict[str, str]):
         # In the meantime:
         status=OccupancyStatus.UNKNOWN,
         # "date of appointment"
-        period_start=row.pop("FECHA_VINCULACION"),
+        start_date=row.pop("FECHA_VINCULACION"),
         # "date of termination"
-        period_end=row.pop("FECHA_DESVINCULACION"),
+        end_date=row.pop("FECHA_DESVINCULACION"),
         categorisation=categorisation,
     )
     context.emit(person)
