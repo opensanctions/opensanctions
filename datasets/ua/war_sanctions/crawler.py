@@ -61,7 +61,7 @@ class WSAPIDataType(str, Enum):
 class WSAPILink:
     endpoint: str
     type: WSAPIDataType
-    program_key: str
+    program_key: Optional[str] = None
     # topic=None skips adding a topics property (used for sanctions lists that aren't POI-tagged)
     topic: Optional[str] = "poi"
     # Defaults are rus entity codes; override for non-rus entities (e.g. int sanctions lists)
@@ -176,7 +176,6 @@ LINKS: List[WSAPILink] = [
         # partner's sanctions lists - legal entities
         "sanctions/companies",
         WSAPIDataType.ENTITY,
-        "UA-WS-SANCTIONS",
         topic=None,
         reg_prop="registrationNumber",
         itn_prop="taxNumber",
@@ -185,7 +184,6 @@ LINKS: List[WSAPILink] = [
         # partner's sanctions lists - individuals
         "sanctions/persons",
         WSAPIDataType.PERSON,
-        "UA-WS-SANCTIONS",
         topic=None,
     ),
 ]
@@ -335,7 +333,8 @@ def emit_relation(
     )
     relation.add(from_prop, subject_id)
     relation.add(to_prop, object_id)
-    relation.add("role", rel_role)
+    if rel_role is not None:
+        relation.add("role", rel_role.replace("_", " "))
     h.apply_date(relation, "startDate", start_date)
     context.emit(relation)
 
@@ -402,7 +401,7 @@ def crawl_person(
 def crawl_legal_entity(
     context: Context,
     company_data: Dict[str, str],
-    program_key: str,
+    program_key: Optional[str],
     source_url: str,
     topic: Optional[str] = "poi",
     reg_prop: str = "ogrnCode",
