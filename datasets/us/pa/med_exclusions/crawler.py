@@ -1,11 +1,10 @@
-from typing import Dict
 from rigour.mime.types import CSV
 
 from zavod import Context, helpers as h
 import csv
 
 
-def crawl_item(row: Dict[str, str], context: Context):
+def crawl_item(row: dict[str, str], context: Context) -> None:
     start_date = row.pop("BeginDate")
     end_date = row.pop("EndDate")
     status = row.pop("Status")

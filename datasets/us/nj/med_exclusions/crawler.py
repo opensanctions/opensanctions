@@ -1,10 +1,9 @@
-from typing import Dict
 from rigour.mime.types import PDF
 
 from zavod import Context, helpers as h
 
 
-def crawl_item(row: Dict[str, str], context: Context):
+def crawl_item(row: dict[str, str], context: Context) -> None:
     zip_code = row.pop("zip")
     npi = row.pop("npi_number")
 
@@ -44,8 +43,8 @@ def crawl_item(row: Dict[str, str], context: Context):
 
 
 def translate_keys(
-    context: Context, lookup: str, row: Dict[str, str]
-) -> Dict[str, str]:
+    context: Context, lookup: str, row: dict[str, str]
+) -> dict[str, str]:
     return {context.lookup_value(lookup, k, k): v for k, v in row.items()}
 
 

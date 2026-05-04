@@ -1,5 +1,3 @@
-from typing import Dict
-
 from zavod import Context, helpers as h
 from rigour.mime.types import PDF
 
@@ -14,11 +12,11 @@ prompt = """
 """
 
 
-def flat(multiline):
+def flat(multiline: str) -> str:
     return multiline.replace("\n", " ")
 
 
-def crawl_item(row: Dict[str, str], context: Context):
+def crawl_item(row: dict[str, str], context: Context) -> None:
     address = h.make_address(
         context,
         street=flat(row.pop("address_1")),
@@ -63,7 +61,7 @@ def crawl_item(row: Dict[str, str], context: Context):
     context.audit_data(row)
 
 
-def crawl_pdf_url(context: Context):
+def crawl_pdf_url(context: Context) -> str:
     doc = context.fetch_html(context.data_url)
     # Construct the URL from bits in the table because they'd rather do that than just construct a working URL.
     rows = doc.xpath("//tr[@class='rgRow']")  # RadGrid row
@@ -73,10 +71,6 @@ def crawl_pdf_url(context: Context):
     doc_name = link_element.text_content().strip().replace(" ", "%20")
     parent_folder = row.xpath(".//td[@style='display:none;']")[0].text_content().strip()
     return f"https://www.wvmmis.com/SharepointDownload?parent={parent_folder}&docname={doc_name}"
-
-
-def page_settings(page):
-    return page, {"text_x_tolerance": 1}
 
 
 def crawl(context: Context) -> None:
@@ -89,6 +83,6 @@ def crawl(context: Context) -> None:
         context,
         path,
         headers_per_page=False,
-        page_settings=page_settings,
+        page_settings=lambda page: (page, {"text_x_tolerance": 1}),
     ):
         crawl_item(item, context)

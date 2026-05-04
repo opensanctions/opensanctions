@@ -1,5 +1,3 @@
-from typing import Dict
-
 from openpyxl import load_workbook
 from zavod.extract import zyte_api
 
@@ -7,7 +5,7 @@ from zavod import Context
 from zavod import helpers as h
 
 
-def crawl_item(row: Dict[str, str], context: Context):
+def crawl_item(row: dict[str, str], context: Context) -> None:
     first_name = row.pop("provider_individual_first_name")
     business_name = row.pop("business_name")
     npi = row.pop("national_provider_identifier_npi")
@@ -53,7 +51,7 @@ def crawl_item(row: Dict[str, str], context: Context):
     context.audit_data(row)
 
 
-def crawl_excel_url(context: Context):
+def crawl_excel_url(context: Context) -> str:
     sanction_list_xpath = (
         "//*[contains(text(), 'Medicaid Provider Exclusion and Sanction List')]"
     )
@@ -63,7 +61,9 @@ def crawl_excel_url(context: Context):
         unblock_validator=sanction_list_xpath,
         absolute_links=True,
     )
-    return doc.xpath(sanction_list_xpath)[0].get("href")
+    url = h.xpath_string(doc, sanction_list_xpath + "/@href")
+    assert url is not None, "Could not find Excel file URL"
+    return url
 
 
 def crawl(context: Context) -> None:

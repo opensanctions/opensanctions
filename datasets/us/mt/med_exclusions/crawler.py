@@ -1,16 +1,15 @@
 import re
-from typing import Dict
-
 from openpyxl import load_workbook
 from rigour.mime.types import XLSX
 
 from zavod import Context
 from zavod import helpers as h
+from zavod.entity import Entity
 
 REGEX_AKA = re.compile(r"^a\.k\.a\.? ", re.IGNORECASE)
 
 
-def crawl_item(row: Dict[str, str], context: Context):
+def crawl_item(row: dict[str, str], context: Context) -> tuple[Entity, Entity]:
     if ", " not in row.get("terminated_excluded_provider_s"):
         entity = context.make("Company")
         entity.id = context.make_id(row.get("terminated_excluded_provider_s"))
@@ -33,11 +32,14 @@ def crawl_item(row: Dict[str, str], context: Context):
     return entity, sanction
 
 
-def crawl_excel_url(context: Context):
+def crawl_excel_url(context: Context) -> str:
     doc = context.fetch_html(context.data_url, absolute_links=True)
-    return doc.xpath(
-        ".//a[text()='Download Excluded or Terminated Provider list in Excel']"
-    )[0].get("href")
+    url = h.xpath_string(
+        doc,
+        ".//a[text()='Download Excluded or Terminated Provider list in Excel']/@href",
+    )
+    assert url is not None, "Could not find Excel file URL"
+    return url
 
 
 def crawl(context: Context) -> None:

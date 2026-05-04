@@ -1,5 +1,4 @@
 from datetime import datetime, timedelta
-from typing import Dict
 
 from normality import slugify
 from openpyxl import load_workbook
@@ -9,7 +8,7 @@ from zavod import Context, helpers as h
 from zavod.stateful.positions import YEAR_DAYS
 
 
-def crawl_item(row: Dict[str, str], context: Context):
+def crawl_item(row: dict[str, str], context: Context) -> None:
     enrollment_type = row.pop("enrollment_type")
     npi = row.pop("npi")
     license_type = row.pop("state_license_type")

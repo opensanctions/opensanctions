@@ -1,4 +1,3 @@
-from typing import Dict
 from rigour.mime.types import PDF
 import re
 
@@ -13,7 +12,7 @@ REGEX_AKA = re.compile(r"\baka\b|a\.k\.a\.?", re.IGNORECASE)
 REGEX_JOB_ROLE = re.compile(r"^(?P<name>.+)[,\s]+(?P<role>([A-Z\.,/-]+|\([^\)]+\)))$")
 
 
-def crawl_item(row: Dict[str, str], context: Context):
+def crawl_item(row: dict[str, str], context: Context) -> None:
     raw_name = squash_spaces(row.pop("sanctioned_provider_name"))
     npi = row.pop("npi")
     # Skip empty rows
