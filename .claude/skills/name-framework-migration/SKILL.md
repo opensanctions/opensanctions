@@ -61,16 +61,18 @@ else:
 
 ### After
 
-```python
 name = name_raw.replace("(Acting)", "").strip()
 parts = name.split(",", 1)
 if len(parts) == 2:
     h.apply_name(entity, first_name=parts[1].strip(), last_name=parts[0].strip())
+    full_name = h.make_name(first_name=parts[1], last_name=parts[0])
+    suggested = h.Names(name=full_name)
 else:
     h.apply_name(entity, full=name)
+    suggested = h.Names(name=name)
 # Submit the unmodified source string for review; existing name properties are unchanged.
-h.review_names(context, entity, original=h.Names(name=name_raw))
-```
+is_irregular, suggested = h.check_names_regularity(entity, names)
+h.review_names(context, entity, original=h.Names(name=name_raw), suggested=suggested, is_irregular=is_irregular)
 
 ## Do not
 
