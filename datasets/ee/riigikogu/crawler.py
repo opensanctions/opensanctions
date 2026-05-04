@@ -39,23 +39,6 @@ def crawl_item(member_url: str, context: Context):
     h.apply_name(entity, full=name)
 
     try:
-        # the phone number apparently is the first contact in the list
-        # but to make sure we correctly get it, we based our xpath on the icon
-        phone_number = h.xpath_string(
-            member_page_html, '//*[@class="icon icon-tel"]/../text()'
-        )
-        entity.add("phone", phone_number.replace(" ", ""))
-    except IndexError:
-        # Only log a warning if the name is not "Hele Everaus" or "Kaja Kallas"
-        if name not in [
-            "Hele Everaus",
-            "Kaja Kallas",
-            "Mart Võrklaev",
-            "Toomas Kivimägi",
-        ]:
-            context.log.warning("Couldn't find phone number for", name=name)
-
-    try:
         # we do the same as the phone number
         email = h.xpath_string(
             member_page_html, '//*[@class="icon icon-mail"]/../text()'
