@@ -48,8 +48,10 @@ assertions:
 lookups:
   type.date:
     options:
-      match: "7/18/2017*"
-      value: "2017-07-18"
+      - match: "7/18/2017*"
+        value: "2017-07-18"
+      - match: "a4/24/2023"
+        value: "2023-04-24"
   type.identifier:
     options:
       - match: "1679546139 1285777946"
