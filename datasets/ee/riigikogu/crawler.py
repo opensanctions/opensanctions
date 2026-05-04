@@ -39,7 +39,7 @@ def crawl_item(member_url: str, context: Context):
     h.apply_name(entity, full=name)
 
     try:
-        # we do the same as the phone number
+        # base the xpath on the email icon to extract the email
         email = h.xpath_string(
             member_page_html, '//*[@class="icon icon-mail"]/../text()'
         )
