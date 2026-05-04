@@ -162,16 +162,13 @@ def crawl_members(context: Context, page: ElementOrTree) -> None:
             continue
         member_link = el.find(".//a")
 
-        party_el, state_el = h.xpath_elements(el, ".//small")
-        bold_els = party_el.findall(".//b")
-        if bold_els:
-            party = h.xpath_string(party_el, ".//b/text()")
-        else:
-            party = h.element_text(party_el)
-        state = h.xpath_string(state_el, "./text()")
-        assert "Partido" not in party, f"Unexpected party format: {party}"
-        assert "Estado:" in state, f"Unexpected state format: {state}"
-        state = state.split("Estado: ")[1].strip()
+        party_el, state_el = h.xpath_elements(el, ".//small", expect_exactly=2)
+        party_raw = h.element_text(party_el)
+        state_raw = h.element_text(state_el)
+        assert "Partido" in party_raw, f"Unexpected party format: {party_raw}"
+        assert "Estado:" in state_raw, f"Unexpected state format: {state_raw}"
+        state = state_raw.split("Estado: ")[1].strip()
+        party = party_raw.split("Partido: ")[1].strip()
 
         if member_link is None:
             context.log.error(f"No page found in element {el}")
@@ -206,7 +203,7 @@ def crawl_member_list(context: Context) -> Iterator[ElementOrTree]:
             if next_page == page_number + 1:
                 break
         else:
-            context.log.error(f"Link to {page_number + 1} not found")
+            context.log.error(f"Link to page {page_number + 1} not found")
         page_number = next_page
         context.log.debug(f"Fetching page {page_number} from {href}")
         page = zyte_api.fetch_html(context, href, ".//h3", cache_days=1)
