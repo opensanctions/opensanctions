@@ -199,7 +199,9 @@ def generate_token(context: Context, cid: str, pkey: str) -> str:
     # timestamp. Without this, Zyte returns the same cached /time response for
     # every call in the loop; tokens generated >15 s after the first one are
     # rejected with code 5 ("invalid or expired timestamp").
-    timestamp = fetch_json(context, f"{WS_API_BASE_URL}/time?_={int(time.time())}")["server_time"]
+    timestamp = fetch_json(context, f"{WS_API_BASE_URL}/time?_={int(time.time())}")[
+        "server_time"
+    ]
     # 2. Generate server instance ID (exactly 2 characters)
     sid = "".join(random.choices(string.ascii_letters + string.digits, k=2))
     # 3. Create signature = sha256(cid + sid + timestamp + pkey), lowercase hex
