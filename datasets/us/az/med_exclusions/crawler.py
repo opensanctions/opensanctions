@@ -1,4 +1,3 @@
-from typing import Dict
 from rigour.mime.types import PDF
 
 from zavod import Context, helpers as h
@@ -6,7 +5,7 @@ from zavod.extract.zyte_api import fetch_resource
 from normality import slugify, stringify
 
 
-def crawl_item(row: Dict[str, str], context: Context):
+def crawl_item(row: dict[str, str], context: Context) -> None:
     if not row.get("name_provider") and not row.get("npi"):
         return
 

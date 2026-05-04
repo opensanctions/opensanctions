@@ -1,16 +1,15 @@
 import re
-from typing import Dict
 from rigour.mime.types import PDF
 
 from zavod import Context, helpers as h
 from normality import squash_spaces
 
-from zavod.extract.zyte_api import fetch_html, fetch_resource
+from zavod.extract import zyte_api
 
 AKA_SPLIT = r"\baka\b|\ba\.k\.a\b|\bAKA\b|\bor\b"
 
 
-def crawl_item(row: Dict[str, str], context: Context):
+def crawl_item(row: dict[str, str], context: Context) -> None:
     if raw_first_name := row.pop("first_name"):
         entity = context.make("Person")
 
@@ -63,16 +62,22 @@ def crawl_item(row: Dict[str, str], context: Context):
     context.audit_data(row)
 
 
-def crawl_pdf_url(context: Context):
+def crawl_pdf_url(context: Context) -> str:
     download_xpath = ".//a[contains(text(), 'Med Prov Excl-Rein List')]"
-    doc = fetch_html(
-        context, context.data_url, download_xpath, geolocation="us", absolute_links=True
+    doc = zyte_api.fetch_html(
+        context,
+        context.data_url,
+        unblock_validator=download_xpath,
+        geolocation="us",
+        absolute_links=True,
     )
-    return doc.xpath(download_xpath)[0].get("href")
+    url = h.xpath_string(doc, download_xpath + "/@href")
+    assert url is not None, "Could not find PDF URL"
+    return url
 
 
 def crawl(context: Context) -> None:
-    _, _, _, path = fetch_resource(
+    _, _, _, path = zyte_api.fetch_resource(
         context, "source.pdf", crawl_pdf_url(context), PDF, geolocation="us"
     )
     context.export_resource(path, PDF, title=context.SOURCE_TITLE)

@@ -1,5 +1,4 @@
 import re
-from typing import Dict
 from rigour.mime.types import XLSX
 from openpyxl import load_workbook
 
@@ -9,7 +8,7 @@ from zavod.extract.zyte_api import fetch_resource
 REGEX_DBA = re.compile(r"\bdba\b", re.IGNORECASE)
 
 
-def crawl_item(row: Dict[str, str], context: Context):
+def crawl_item(row: dict[str, str], context: Context) -> None:
     period = row.pop("timeframe_of_term_exclusion")
     if not context.lookup("period", period):
         context.log.warning("Unexpected exclusion period", period=period, row=row)

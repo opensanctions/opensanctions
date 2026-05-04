@@ -1,12 +1,10 @@
-from typing import Dict
 from rigour.mime.types import XLSX
 from openpyxl import load_workbook
 
 from zavod import Context, helpers as h
 
 
-def crawl_item(row: Dict[str, str], context: Context):
-
+def crawl_item(row: dict[str, str], context: Context) -> None:
     entity = context.make("LegalEntity")
     entity.id = context.make_id(
         row.get("excluded_entity"), row.get("npi_atypical_id_excluded")
@@ -45,13 +43,14 @@ def crawl_item(row: Dict[str, str], context: Context):
     context.audit_data(row)
 
 
-def crawl_excel_url(context: Context):
+def crawl_excel_url(context: Context) -> str:
     doc = context.fetch_html(context.data_url, absolute_links=True)
-    return doc.xpath("//*[text() = 'State Excluded Provider List']")[0].get("href")
+    url = h.xpath_string(doc, "//*[text() = 'State Excluded Provider List']/@href")
+    assert url is not None, "Could not find Excel file URL"
+    return url
 
 
 def crawl(context: Context) -> None:
-
     excel_url = crawl_excel_url(context)
 
     path = context.fetch_resource("list.xlsx", excel_url)

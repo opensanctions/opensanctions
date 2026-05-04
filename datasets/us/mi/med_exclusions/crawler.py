@@ -1,4 +1,3 @@
-from typing import Dict
 from rigour.mime.types import XLSX
 from openpyxl import load_workbook
 
@@ -8,7 +7,7 @@ from zavod.extract import zyte_api
 URL_XPATH = "//*[text()='List of Sanctioned Providers (XLSX)']/ancestor::a"
 
 
-def crawl_item(row: Dict[str, str], context: Context):
+def crawl_item(row: dict[str, str], context: Context) -> None:
     sanction_date_1 = row.pop("sanction_date1")
     sanction_date_1 = sanction_date_1.split() if sanction_date_1 else None
     sanction_date_2 = row.pop("sanction_date2")

@@ -174,7 +174,6 @@ repos:
           datasets/us/cuba_sanctions|
           datasets/us/md/med_exclusions|
           datasets/us/ks/med_exclusions|
-          datasets/us/ne/med_exclusions|
           datasets/us/hi/med_exclusions|
           datasets/us/de/med_exclusions|
           datasets/us/fdic_failed_banks|

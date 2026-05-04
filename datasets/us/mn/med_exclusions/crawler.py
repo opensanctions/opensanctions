@@ -1,4 +1,3 @@
-from typing import Dict
 from rigour.mime.types import XLSX
 from openpyxl import load_workbook
 
@@ -6,7 +5,7 @@ from zavod import Context, helpers as h
 from zavod.extract.zyte_api import fetch_html, fetch_resource
 
 
-def crawl_item(row: Dict[str, str], context: Context):
+def crawl_item(row: dict[str, str], context: Context) -> None:
     is_company = "practice_name" in row
 
     address = h.make_address(
@@ -64,14 +63,15 @@ def unblock_validator(doc) -> bool:
     )
 
 
-def crawl_excel_urls(context: Context):
+def crawl_excel_urls(context: Context) -> tuple[str, str]:
     groups_xpath = ".//span[text()='MHCP Excluded Group Providers']/.."
     individuals_xpath = ".//span[text()='MHCP Excluded Individual Providers']/.."
     doc = fetch_html(context, context.data_url, groups_xpath, geolocation="US")
-    return (
-        doc.xpath(groups_xpath)[0].get("href"),
-        doc.xpath(individuals_xpath)[0].get("href"),
-    )
+    groups_url = h.xpath_string(doc, groups_xpath + "/@href")
+    individuals_url = h.xpath_string(doc, individuals_xpath + "/@href")
+    assert groups_url is not None, "Could not find Group Providers Excel URL"
+    assert individuals_url is not None, "Could not find Individual Providers Excel URL"
+    return groups_url, individuals_url
 
 
 def crawl(context: Context) -> None:

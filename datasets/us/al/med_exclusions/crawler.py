@@ -1,12 +1,12 @@
 import re
-from typing import Dict, List
+from typing import Any, List
 
 from pdfplumber.page import Page
 from pydantic import BaseModel, Field
 from rigour.mime.types import PDF
 from rigour.names.org_types import extract_org_types
 from zavod.extract.llm import DEFAULT_MODEL, run_typed_text_prompt
-from zavod.extract.zyte_api import fetch_html, fetch_resource
+from zavod.extract import zyte_api
 from zavod.stateful.review import (
     TextSourceValue,
     assert_all_accepted,
@@ -118,7 +118,7 @@ Specific fields:
 """
 
 
-def apply_comma_name(entity: entity.Entity, name: str):
+def apply_comma_name(entity: entity.Entity, name: str) -> None:
     parts = name.split(",")
     if (
         len(parts) == 2
@@ -140,7 +140,9 @@ def apply_comma_name(entity: entity.Entity, name: str):
         entity.add("name", name)
 
 
-def crawl_row(context, names, category, start_date, filename: str):
+def crawl_row(
+    context: Context, names: str, category: str | None, start_date: str, filename: str
+) -> None:
     origin = None
     entity_data = None
     if SIMPLE_NAME_REGEX.fullmatch(names):
@@ -251,13 +253,17 @@ def crawl_row(context, names, category, start_date, filename: str):
         context.emit(sanction)
 
 
-def crawl_data_url(context: Context):
+def crawl_data_url(context: Context) -> str:
     file_xpath = "//a[contains(., 'PDF Version')]"
-    doc = fetch_html(context, context.data_url, file_xpath, absolute_links=True)
-    return doc.xpath(file_xpath)[0].get("href")
+    doc = zyte_api.fetch_html(
+        context, context.data_url, unblock_validator=file_xpath, absolute_links=True
+    )
+    url = h.xpath_string(doc, file_xpath + "/@href")
+    assert url is not None, "Could not find PDF URL"
+    return url
 
 
-def page_settings(page: Page) -> Dict:
+def page_settings(page: Page) -> tuple[Page, dict[str, Any]]:
     settings = {"join_y_tolerance": 15}
     if page.page_number == 1:
         # The table header is a little box above the main table, so it gets detected as a separate table.
@@ -279,7 +285,9 @@ def crawl(context: Context) -> None:
 
     # First we find the link to the PDF file
     url = crawl_data_url(context)
-    _, _, _, path = fetch_resource(context, "source.pdf", url, expected_media_type=PDF)
+    _, _, _, path = zyte_api.fetch_resource(
+        context, "source.pdf", url, expected_media_type=PDF
+    )
     context.export_resource(path, PDF, title=context.SOURCE_TITLE)
     filename = url.split("/")[-1]
     assert ".pdf" in filename, filename
