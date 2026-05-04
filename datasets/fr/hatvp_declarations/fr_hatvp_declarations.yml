@@ -39,16 +39,15 @@ data:
 tags:
   - list.pep
 
-# TODO: Wait until we resolve the position taxonomy in the UI and set is_pep=True
-# assertions:
-#   min:
-#     schema_entities:
-#       Person: 4700
-#       Position: 1600
-#   max:
-#     schema_entities:
-#       Person: 12000
-#       Position: 4200
+assertions:
+  min:
+    schema_entities:
+      Person: 2000
+      Position: 530
+  max:
+    schema_entities:
+      Person: 5200
+      Position: 1300
 
 lookups:
   columns:
