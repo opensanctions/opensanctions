@@ -13,24 +13,24 @@ def crawl_record(
     record: dict[str, Any],
     positions: dict[str, tuple[Entity, PositionCategorisation]],
 ) -> None:
-    com_code = record.pop("COM_CODE")
-    com_label = record.pop("COM_LABEL")
-    man_label = record.pop("MAN_LABEL")
+    commune_code = record.pop("COM_CODE")
+    commune_label = record.pop("COM_LABEL")
+    position_label = record.pop("MAN_LABEL")
     first_name = record.pop("ELU_FIRST_NAME")
     last_name = record.pop("ELU_LAST_NAME")
     gender = record.pop("ELU_SEX")
     start_date = record.pop("COAC_START_DATE")
     end_date = record.pop("COAC_END_DATE")
 
-    assert man_label in POSITION_LABELS, f"Unknown position: {man_label!r}"
+    assert position_label in POSITION_LABELS, f"Unknown position: {position_label!r}"
 
-    pos_key = f"{man_label}-{com_code}"
+    pos_key = f"{position_label}-{commune_code}"
     if pos_key not in positions:
         position = h.make_position(
             context,
-            name=f"{man_label} de {com_label}",
+            name=f"{position_label} de {commune_label}",
             country="lu",
-            subnational_area=com_label,
+            subnational_area=commune_label,
             lang="fra",
         )
         cat = categorise(context, position, is_pep=True)
@@ -40,7 +40,7 @@ def crawl_record(
     position, cat = positions[pos_key]
 
     person = context.make("Person")
-    person.id = context.make_id(first_name, last_name, com_code)
+    person.id = context.make_id(first_name, last_name, commune_code)
     h.apply_name(person, first_name=first_name, last_name=last_name, lang="fra")
     person.add("gender", gender)
 
