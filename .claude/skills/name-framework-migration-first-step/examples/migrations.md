@@ -1,6 +1,6 @@
 # Real migration examples
 
-Three patterns from production crawlers. Each shows a distinct variation of trigger pattern and raw-capture approach.
+Three patterns from production crawlers. Each shows a distinct variation of trigger pattern and how `suggested` is built in parallel.
 
 ---
 
@@ -27,12 +27,20 @@ def crawl_person(context: Context, row: dict):
 def crawl_person(context: Context, row: dict):
     raw_name = row.pop("Name")
     ...
+    original = h.Names(name=raw_name)
+    suggested = h.Names()
+
     name_split = raw_name.split("@")
     person_name = name_split[0]
+    entity.add("name", person_name)
+    suggested.add("name", person_name)
     if len(name_split) > 1:
         entity.add("alias", name_split[1:])
-    entity.add("name", person_name)
-    h.review_names(context, entity, original=h.Names(name=raw_name))
+        for alias in name_split[1:]:
+            suggested.add("alias", alias)
+
+    is_irregular, suggested = h.check_names_regularity(entity, suggested)
+    h.review_names(context, entity, original=original, suggested=suggested, is_irregular=is_irregular)
 ```
 
 ---
@@ -41,7 +49,7 @@ def crawl_person(context: Context, row: dict):
 
 **Crawler:** `datasets/_global/ebrd_ineligible/crawler.py`  
 **Trigger:** `RE_NAME_SPLIT.split(name_raw)` — a regex that matches `also known as`, `f/k/a`, `formerly known as`, `doing business as`, ` or `, and several other alias/fka phrases. All split results go to `entity.add("name", ...)` without alias or previousName categorisation.  
-**Capture approach:** none needed — the raw string is already assigned to `name_raw` at the pop site.
+**Capture approach:** `name_raw` is already the raw string at the pop site; introduce a variable for the split result so `suggested` can be populated per item.
 
 ```python
 NAME_SPLITS = [
@@ -75,8 +83,15 @@ def crawl_entity(context: Context, data: Dict[str, Any]):
     if not name_raw:
         return
     ...
-    entity.add("name", RE_NAME_SPLIT.split(name_raw))
-    h.review_names(context, entity, original=h.Names(name=name_raw))
+    original = h.Names(name=name_raw)
+    suggested = h.Names()
+    names = RE_NAME_SPLIT.split(name_raw)
+    entity.add("name", names)
+    for name in names:
+        suggested.add("name", name)
+
+    is_irregular, suggested = h.check_names_regularity(entity, suggested)
+    h.review_names(context, entity, original=original, suggested=suggested, is_irregular=is_irregular)
 ```
 
 ---
@@ -89,7 +104,7 @@ def crawl_entity(context: Context, data: Dict[str, Any]):
 2. Alias text extracted from `(also known as ...)` brackets
 3. Remaining name split on `", "` to feed `h.apply_name(first_name=..., last_name=...)`
 
-**Capture approach:** none needed — `raw_name` is the function parameter; no mutation happens to it.
+**Capture approach:** `raw_name` is the function parameter; no mutation happens to it. Mirror the cleaned full name and each alias into `suggested`.
 
 ```python
 # BEFORE
@@ -135,17 +150,25 @@ def crawl_item_human_rights(context: Context, source_url, raw_name: str):
     h.apply_name(entity, first_name=first_name, last_name=last_name, lang="eng")
     entity.add("topics", "sanction")
 
+    original = h.Names(name=raw_name)
+    suggested = h.Names()
+    suggested.add("name", name)
     for alias in aliases:
         entity.add("alias", alias)
-    h.review_names(context, entity, original=h.Names(name=raw_name))
+        suggested.add("alias", alias)
+
+    is_irregular, suggested = h.check_names_regularity(entity, suggested)
+    h.review_names(context, entity, original=original, suggested=suggested, is_irregular=is_irregular)
 ```
 
 ---
 
 ## Key decisions consistent across all three
 
-- `h.Names(name=<raw>)` — `Names` only has `name`, `alias`, `weakAlias`, `previousName`, `abbreviation` fields; no `middleName`. Use `name` for unsplit source strings.
+- `original = h.Names(name=<raw>)` — always the unmodified source string, never a cleaned intermediate.
+- `suggested` mirrors every `entity.add(name_prop, value)` / `h.apply_name(...)` call with a `suggested.add(name_prop, value)` — same property, same value.
+- `h.check_names_regularity(entity, suggested)` is called after all name-setting and returns the updated `suggested` and `is_irregular` flag.
+- The return value of `h.review_names` is always discarded.
 - `h.Names` is re-exported via `zavod.helpers` — verify it appears in `zavod/zavod/helpers/__init__.py` before assuming no extra import is needed.
 - `llm_cleaning` omitted — defaults to `False`, must be `False` for all sanctions crawlers.
 - Existing cleaning logic left intact in all cases — do not modify or remove it.
-- The return value of `h.review_names` is always discarded — do not assign it.
