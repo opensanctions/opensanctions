@@ -77,10 +77,10 @@ def crawl_mandate(context: Context, mandate: Dict[str, Any]) -> None:
         person,
         position,
         True,
-        start_date=period_detail["start_date_period"],
-        period_start=mandate.pop("start_date"),
-        end_date=period_detail["end_date_period"],
-        period_end=mandate.pop("end_date"),
+        period_start=period_detail["start_date_period"],
+        start_date=mandate.pop("start_date"),
+        period_end=period_detail["end_date_period"],
+        end_date=mandate.pop("end_date"),
         categorisation=categorisation,
     )
     if occupancy:
