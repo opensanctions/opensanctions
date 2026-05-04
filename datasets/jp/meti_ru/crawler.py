@@ -7,7 +7,7 @@ from typing import Any, Optional
 import pdfplumber
 from lxml import html
 from rigour.mime.types import CSV, PDF
-from rigour.text.scripts import get_script
+from rigour.text.scripts import text_scripts
 
 from zavod import Context, helpers as h
 from zavod.extract import zyte_api
@@ -39,7 +39,7 @@ def detect_script(context: Context, text: str) -> Optional[str]:
     Detect script in a string. Return 'jpn' or 'eng' if confident, else None.
     Used primarily not to misclassify Chinese names as Japanese.
     """
-    scripts = [get_script(ord(ch)) for ch in text if get_script(ord(ch))]
+    scripts = text_scripts(text)
     if not scripts:
         context.log.warning(f"Could not detect script for: {text}")
         return None
