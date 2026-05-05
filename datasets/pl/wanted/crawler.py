@@ -73,13 +73,14 @@ def crawl_person(context: Context, url: str):
     if not person.has("citizenship"):
         person.add("country", "pl")
 
-    crimes = doc.xpath(
-        "//p[contains(text(), 'Podstawy poszukiwań:')]/following-sibling::ul//a/text()"
+    crimes = h.xpath_elements(
+        doc,
+        "//p[contains(text(), 'Podstawy poszukiwań:')]/following-sibling::ul[1]//li",
     )
     if not crimes:
         context.log.warn("No crimes found for person", entity_id=person.id, url=url)
     for crime in crimes:
-        person.add("notes", crime)
+        person.add("notes", h.element_text(crime))
 
     context.audit_data(info)
 

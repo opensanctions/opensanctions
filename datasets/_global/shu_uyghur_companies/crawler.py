@@ -22,7 +22,7 @@ OPERATING_SHEETS = {
 }
 
 
-def apply_addresses(context, entity, addr, addr_en, city, city_en):
+def apply_addresses(context, entity, addr, addr_en, city, city_en) -> None:
     """Create and apply addresses to an entity."""
     if addr:
         address_ent = h.make_address(context, full=addr, city=city, lang="zhu")
@@ -32,7 +32,7 @@ def apply_addresses(context, entity, addr, addr_en, city, city_en):
         h.copy_address(entity, address_en_ent)
 
 
-def crawl_labour_transfers(context: Context, labour_transfers_url):
+def crawl_labour_transfers(context: Context, labour_transfers_url) -> None:
     path = context.fetch_resource("labour_transfers.xlsx", labour_transfers_url)
     workbook: openpyxl.Workbook = openpyxl.load_workbook(path, read_only=True)
     assert set(workbook.sheetnames) == set(APP_LABOUR_SHEETS)
@@ -133,7 +133,7 @@ def crawl_labour_transfers(context: Context, labour_transfers_url):
         )
 
 
-def crawl_operating(context: Context, companies_url):
+def crawl_operating(context: Context, companies_url) -> None:
     path = context.fetch_resource("companies_registry.xlsx", companies_url)
     workbook: openpyxl.Workbook = openpyxl.load_workbook(path, read_only=True)
     assert set(workbook.sheetnames) == OPERATING_SHEETS
@@ -166,6 +166,6 @@ def crawl_operating(context: Context, companies_url):
     context.audit_data(row)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     crawl_operating(context, OPERATING_URL)
     crawl_labour_transfers(context, LABOUR_TRANSFERS_URL)

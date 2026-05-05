@@ -1,4 +1,3 @@
-from typing import Dict
 from rigour.mime.types import PDF
 import re
 
@@ -13,7 +12,7 @@ REGEX_AKA = re.compile(r"\baka\b|a\.k\.a\.?", re.IGNORECASE)
 REGEX_JOB_ROLE = re.compile(r"^(?P<name>.+)[,\s]+(?P<role>([A-Z\.,/-]+|\([^\)]+\)))$")
 
 
-def crawl_item(row: Dict[str, str], context: Context):
+def crawl_item(row: dict[str, str], context: Context) -> None:
     raw_name = squash_spaces(row.pop("sanctioned_provider_name"))
     npi = row.pop("npi")
     # Skip empty rows
@@ -41,14 +40,13 @@ def crawl_item(row: Dict[str, str], context: Context):
     entity.add_cast("Person", "position", position)
     entity.add("alias", alias)
     entity.add("country", "us")
-    entity.add("sector", row.pop("taxonomy"))
     dea = row.pop("dea")
-    if dea != "-":
+    if dea != "-" and dea != "N/A":
         entity.add("idNumber", dea)
     entity.add("npiCode", h.multi_split(npi, [";", ",", "&"]))
 
     # Deal with sometimes intentional line breaks, and sometimes unwanted wrapping:
-    license_numbers = row.pop("license", row.pop("license_rn707737_pa", None))
+    license_numbers = row.pop("license")
     license_numbers = re.sub(
         r"PROMISe", ";PROMISe", license_numbers, flags=re.IGNORECASE
     )

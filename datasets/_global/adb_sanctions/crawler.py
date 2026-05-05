@@ -28,12 +28,12 @@ REGEX_INTERNAL_URL = re.compile(
 )
 
 
-def crawl_row(context: Context, row: Dict[str, str | None]):
+def crawl_row(context: Context, row: Dict[str, str | None]) -> None:
     full_name = row.pop("name") or ""
 
     # Split the full name using NAME_SPLITS first
     entities = h.multi_split(full_name, ENTITY_SPLITS)
-    other_names = row.pop("otherName").replace("\\", "")
+    other_names = (row.pop("otherName") or "").replace("\\", "")
     country = row.pop("nationality") or ""
     country = country.replace("Non ADB Member Country", "")
     country = country.replace("Rep. of", "").strip()
@@ -41,7 +41,7 @@ def crawl_row(context: Context, row: Dict[str, str | None]):
 
     grounds = row.pop("grounds")
     sanction_type = row.pop("sanctionType")
-    addresses = row.pop("address").split(";")
+    addresses = (row.pop("address") or "").split(";")
     start_date = row.pop("effectiveDateOfSanction")
     end_date = row.pop("lapseDateOfSanction")
     modified_at = row.pop("changesMadeOn")
@@ -98,7 +98,7 @@ def crawl_row(context: Context, row: Dict[str, str | None]):
         context.audit_data(row)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     next_url = context.data_url + "?sortField=Name&isAscending=true"
     pages = 0
     while next_url:

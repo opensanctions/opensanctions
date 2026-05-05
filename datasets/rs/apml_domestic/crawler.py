@@ -9,7 +9,7 @@ from zavod import helpers as h
 SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTnxl3-xyO-9BBqM-rwJB849Kwm3-8ucrzVYZPl2-xhxky8DF4d485mrsyYyR266ePtK2-Qtpcz13jz/pub?gid=0&single=true&output=csv"
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     doc = context.fetch_html(context.data_url)
     url: Optional[str] = None
     for link in doc.findall(".//div[@class='text-editor']//a"):

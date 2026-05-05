@@ -39,7 +39,7 @@ def crawl(context: Context) -> None:
         # This is only a smell test, sometimes the title in the name is so slightly different from the title in the akgr column.
         # e.g. MMAg. vs Mag.
         person.add("name", name)
-        if academic_titles and any(t in name for t in academic_titles):
+        if academic_titles and any(t in person.get("name")[0] for t in academic_titles):
             context.log.warning(
                 "Academic title is part of name, please add to type.name lookups",
                 name=person.get("name"),

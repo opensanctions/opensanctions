@@ -201,6 +201,7 @@ def group_edges(resolver: Resolver[Entity], view: View) -> Dict[Key, List[str]]:
         key = make_key(connected, entity, EXTRA_KEY_PROPS)
         groups[key].append(entity.id)
 
+        # Beware: Consider how other dates like Occupancy:periodStart affect changes here
         if entity.temporal_start is not None:
             common_start_key = make_key(
                 connected,

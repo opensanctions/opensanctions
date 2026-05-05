@@ -52,6 +52,7 @@ def crawl(context: Context) -> None:
             company = context.make("Company")
             company.id = context.make_id(company_name)
             company.add("name", company_name)
+            company.add("topics", "gov.soe")
 
             pep = context.make("Person")
             pep.id = context.make_id(pep_name)

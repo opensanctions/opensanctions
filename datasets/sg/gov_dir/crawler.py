@@ -190,6 +190,8 @@ def crawl_person(
 
     person = context.make("Person")
     person.id = context.make_id(full_name, rank, agency, public_body)
+    # contains roles (scientists, clinical stuff, etc) that don't require citizenship
+    person.add("country", "sg")
     person.add("name", full_name)
     person.add("sourceUrl", link)
     person.add("position", rank)

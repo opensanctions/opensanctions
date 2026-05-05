@@ -24,7 +24,7 @@ DETECT_ALIAS_RE = re.compile("|".join(re.escape(s) for s in NAME_SPLITS), re.IGN
 NAME_REGEX = re.compile(r"^(?P<name>[^()]+?)\s*\(\s*(?P<alias>[^()]+?)\s*\)$")
 
 
-def apply_clean_name(context: Context, entity, name):
+def apply_clean_name(context: Context, entity, name) -> None:
     names_lookup_result = context.lookup("names", name)
     if names_lookup_result is not None:
         details = names_lookup_result.names[0]
@@ -49,7 +49,7 @@ def apply_clean_name(context: Context, entity, name):
         entity.add("name", name)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     tables_xpath = ".//table[contains(@id, 'datatable')]"
     doc = fetch_html(
         context, context.data_url, tables_xpath, html_source="httpResponseBody"

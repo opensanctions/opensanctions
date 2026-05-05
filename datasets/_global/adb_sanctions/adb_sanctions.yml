@@ -486,3 +486,19 @@ lookups:
             value: 2081024224
           - prop: taxNumber
             value: 137517739557
+      - match: "- AKTİF ELEKTROTEKNIK SANAYII VE TICARET\r\n-AKTIF ELEKTROTEKNIK SANAYII VE TICARET A.Ş. -Aktif Elektroteknik San ve Tic A.Ş. -Aktif Elektroteknik A.Ş. -Aktif Elektroteknik Sanayi ve Ticaret Anonim Şirketi -Akşemsettin Mah. Çatalca Sok. No:113 (Harikalar DiyariKarşisi) Sincan / ANKARA\r\n-Bayraktar Blv., Şehit Sk, No. 5 Aktif Plaza, 34775, Şerifali-Ümraniye-Istanbul, Türkiye"
+        items:
+          - prop: alias
+            value: AKTİF ELEKTROTEKNIK SANAYII VE TICARET
+          - prop: alias
+            value: AKTIF ELEKTROTEKNIK SANAYII VE TICARET A.Ş.
+          - prop: alias
+            value: Aktif Elektroteknik San ve Tic A.Ş.
+          - prop: alias
+            value: Aktif Elektroteknik A.Ş.
+          - prop: alias
+            value: Aktif Elektroteknik Sanayi ve Ticaret Anonim Şirketi
+          - prop: address
+            value: Akşemsettin Mah. Çatalca Sok. No:113 (Harikalar DiyariKarşisi) Sincan / ANKARA
+          - prop: address
+            value: Bayraktar Blv., Şehit Sk, No. 5 Aktif Plaza, 34775, Şerifali-Ümraniye-Istanbul, Türkiye

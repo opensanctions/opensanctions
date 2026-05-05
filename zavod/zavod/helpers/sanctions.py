@@ -2,6 +2,7 @@ from typing import Optional
 
 from zavod import helpers as h
 from zavod import settings
+from zavod.constants import ORIGIN_METADATA
 from zavod.context import Context
 from zavod.entity import Entity
 from zavod.stateful import programs
@@ -56,18 +57,22 @@ def make_sanction(
     sanction.id = context.make_id("Sanction", entity.id, key)
     sanction.add("entity", entity)
     if dataset.publisher.country != "zz":
-        sanction.add("country", dataset.publisher.country)
-    sanction.add("authority", dataset.publisher.name)
-    sanction.add("sourceUrl", dataset.url)
-
+        sanction.add("country", dataset.publisher.country, origin=ORIGIN_METADATA)
+    sanction.add("authority", dataset.publisher.name, origin=ORIGIN_METADATA)
+    sanction.add("sourceUrl", dataset.url, origin=ORIGIN_METADATA)
     sanction.set("program", program_name)
 
     if program_key is not None:
         program = programs.get_program_by_key(program_key)
         if program:
-            sanction.set("programId", program_key, original_value=source_program_key)
-            entity.add("programId", program_key)
-            sanction.add("programUrl", program.url)
+            sanction.set(
+                "programId",
+                program_key,
+                original_value=source_program_key,
+                origin=ORIGIN_METADATA,
+            )
+            entity.add("programId", program_key, origin=ORIGIN_METADATA)
+            sanction.add("programUrl", program.url, origin=ORIGIN_METADATA)
         else:
             context.log.warn(
                 f"Program with key {program_key!r} not found.",

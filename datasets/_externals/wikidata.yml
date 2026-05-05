@@ -13,7 +13,6 @@ deploy:
   schedule: "1 12 * * *"
   cpu: "2000m"
   memory: "7000Mi"
-  premium: true # TODO: remove after working down invalid wikipedia URLs.
 load_statements: true
 ci_test: false
 summary: >-
@@ -73,7 +72,7 @@ inputs:
 config:
   type: nomenklatura.enrich.wikidata:WikidataEnricher
   label_cache_days: 90
-  cache_days: 19 # TODO: revert to 14 days when wikipedia URLs are fixed
+  cache_days: 14
   schemata:
     - Person
 
@@ -216,6 +215,18 @@ lookups:
           - ইমদাদুল হক মিলন
       - match: "Hayatullah Khan Durrani <br />"
         value: "Hayatullah Khan Durrani"
+      - match: "Lengmoos <Gars, Inn>"
+        value: "Lengmoos"
+      - match: "جواد صالحی <br />Jawad Salehi"
+        values:
+          - "جواد صالحی"
+          - "Jawad Salehi"
+      - match: "Aleem Said A. Basher<br/>سعيد أحمد بشير"
+        values:
+          - Aleem Said A. Basher
+          - سعيد أحمد بشير
+      - match: "Moe Aung Yin <br/>"
+        value: "Moe Aung Yin"
   type.date:
     options:
       - match:

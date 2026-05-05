@@ -72,3 +72,7 @@ lookups:
         value: 1986-11-13
       - contains: "Geboren am 22. November 1986 in Frankfurt am Main"
         value: 1986-11-22
+      - contains: "Geboren am 21. Dezember 1978 in Perleberg"
+        value: 1978-12-21
+      - contains: "Geboren am 16. Dezember 1979 in Pritzwalk"
+        value: 1979-12-16

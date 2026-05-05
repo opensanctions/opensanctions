@@ -25,7 +25,7 @@ from zavod import helpers as h
 
 
 DOWNLOAD_URL = "https://sam.gov/api/prod/fileextractservices/v1/api/download/"
-
+IGNORE_COLUMNS = ["CT Code", "Open Data Flag", "SAM Number"]
 
 NameProp = Literal["name", "alias", "weakAlias"]
 
@@ -230,6 +230,8 @@ def crawl(context: Context) -> None:
         # records.
         npi = row.pop("NPI")
         if npi is not None and len(npi):
+            if npi.endswith(".0"):
+                npi = npi[:-2]
             entity.add("npiCode", npi)
 
         name = h.make_name(
@@ -317,4 +319,4 @@ def crawl(context: Context) -> None:
         sanction.add("summary", row.pop("Additional Comments"))
         context.emit(sanction)
 
-        context.audit_data(row, ignore=["CT Code", "Open Data Flag"])
+        context.audit_data(row, ignore=IGNORE_COLUMNS)

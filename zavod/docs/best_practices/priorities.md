@@ -1,4 +1,4 @@
-# Data priorities
+# Data collection priorities
 
 With some data sources, extracting some attributes of people or companies sufficiently cleanly/reliably can take more effort than others. Not all attributes are equally valuable to our users.
 
@@ -6,7 +6,7 @@ To avoid going too far down a rabbit hole or wasting effort, we recommend an app
 
 Aim for **complete coverage** - make sure all [targets](https://www.opensanctions.org/faq/23/targets/) are included. But also **ensure accuracy**, e.g. make sure not to mark someone as a PEP when they are not.
 
-## Generally
+## Generally (PEPs and Sanctions crawlers)
 
 **Essential (bare minimum)**
 
@@ -43,8 +43,13 @@ Aim for **complete coverage** - make sure all [targets](https://www.opensanction
 
 **Could**
 
+- citizenship
+- biography
+- [Occupancy:constituency](https://www.opensanctions.org/reference/#schema.Occupancy)
 - [Position:subnationalArea](https://www.opensanctions.org/reference/#schema.Position)
+- [Occupancy:politicalGroup](https://www.opensanctions.org/reference/#schema.Occupancy)
 
 **Won't - don't extract**
 
-- Addresses (not needed, and privacy concern)
+- private individual addresses (not needed, and privacy concern)
+- phone numbers (not needed, more sensitive than emails)

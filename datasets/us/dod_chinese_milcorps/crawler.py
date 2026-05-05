@@ -17,7 +17,7 @@ def crawl(context: Context) -> None:
         cache_days=1,
     )
     search_result = h.xpath_element(doc, results_xpath)
-    h.assert_dom_hash(search_result, "756b48c2a8a57399c96964c02c18ced39f2ac386")
+    h.assert_dom_hash(search_result, "472e1e80d8e70736e3e45cb80dae106680da54f1")
     # Jan. 8, 2026
     # The War Department Strengthens Measures to Protect DOW‑Funded Research
     # Jan. 7, 2025

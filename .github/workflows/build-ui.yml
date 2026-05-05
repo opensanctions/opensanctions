@@ -90,21 +90,39 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
-  dispatch:
+  # GitHub App requirements for workflow dispatch to trigger ETL deploy in operations repo:
+  # App name: opensanctions-operations-deployer (or similar)
+  # Installed on: opensanctions/operations
+  # Permissions: Actions - 'write'
+  # Secrets required in this repo:
+  #   OPERATIONS_DEPLOY_APP_ID  — numeric GitHub App ID
+  #   OPERATIONS_DEPLOY_APP_KEY — PEM private key
+  trigger-deploy:
     if: |
       (github.event_name == 'push' || github.event_name == 'workflow_dispatch') &&
       (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
     runs-on: ubuntu-latest
     needs: [docker]
     steps:
-      - name: Dispatch add-on build
-        uses: peter-evans/repository-dispatch@28959ce8df70de7be546dd1250a005dd32156697  # v3
+      - name: Generate GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v3
         with:
-          token: ${{ secrets.OPERATIONS_PAT }}
-          repository: opensanctions/operations
-          event-type: deploy-zavod-ui
-          client-payload: |-
-            {
-              "environment": "${{ github.ref == 'refs/heads/main' && 'prod' || 'test' }}",
-              "image_version": "@${{ needs.docker.outputs.digest }}"
-            }
+          app-id: ${{ secrets.OPERATIONS_DEPLOY_APP_ID }}
+          private-key: ${{ secrets.OPERATIONS_DEPLOY_APP_KEY }}
+          owner: opensanctions
+          repositories: operations
+      - name: Trigger ETL deploy
+        run: |
+          curl --fail --silent --show-error --location -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ steps.app-token.outputs.token }}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            https://api.github.com/repos/opensanctions/operations/actions/workflows/deploy-zavod-ui.yml/dispatches \
+            -d '{
+                  "ref": "main",
+                  "inputs": {
+                    "environment": "${{ github.ref == 'refs/heads/main' && 'prod' || 'test' }}",
+                    "image_version": "@${{ needs.docker.outputs.digest }}"
+                  }
+                }'

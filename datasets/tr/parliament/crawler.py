@@ -86,6 +86,10 @@ def crawl_item(context: Context, item: etree):
 
     entity = context.make("Person")
     entity.id = context.make_id(name, str(birth_year), birth_place)
+    # citizenship required:
+    # https://www.celebilegal.com/constitution-of-turkey/
+    # https://www.venice.coe.int/webforms/documents/default.aspx?pdffile=CDL-REF(2017)003-e
+    entity.add("citizenship", "tr")
     entity.add("name", name)
     entity.add("birthDate", birth_year)
     entity.add("birthPlace", birth_place)

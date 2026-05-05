@@ -18,7 +18,11 @@ See [Data Reviews](../zavod/docs/data_reviews.md)
 
 ## Getting Started
 
+At this point you'll want to start using Postgres for development.
+
 See [the documentation on how to install `zavod`](../zavod/docs/install.md) to bring up a local database.
+
+Zavod uses sqlite by default. The review UI doesn't support sqlite because the querybuilder doesn't support both sqlite and postgres out of the box, and once you're working with reviews, you'll often want both zavod and the review UI connected to the database concurrently, while sqlite doesn't support multiple processes using the same database file concurrently.
 
 Set environment variables, e.g. via .env.local file
 
@@ -46,7 +50,8 @@ npm test
 
 - Next.js for the reviews website
   - Server side pages directly query the database to show data and handle form posts to update data. There's no API.
-- SQLAlchemy is used for Python-based crawlers to maintain review entries in the reviews table.
+- Python-based zavod for crawlers to maintain review entries in the reviews table.
+- Postgres database
 - Kysely as querybuilder for the typescript side.
 
 

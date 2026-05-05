@@ -1,4 +1,3 @@
-from typing import Dict
 from rigour.mime.types import XLSX
 from openpyxl import load_workbook
 
@@ -6,7 +5,7 @@ from zavod import Context, helpers as h
 from zavod.extract import zyte_api
 
 
-def crawl_item(row: Dict[str, str], context: Context):
+def crawl_item(row: dict[str, str], context: Context) -> None:
     if not row.get("first_name"):
         entity = context.make("Company")
         entity.id = context.make_id(row.get("last_name_organization"))

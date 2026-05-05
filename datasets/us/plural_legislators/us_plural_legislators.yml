@@ -59,6 +59,14 @@ lookups:
     options:
       - match: governor
         position_prefix: Governor
+      - match: lt_governor
+        position_prefix: Lieutenant Governor
+      - match: attorney general
+        position_prefix: Attorney General
+      - match: treasurer
+        position_prefix: Treasurer
+      - match: auditor
+        position_prefix: Auditor
       - match: secretary of state
         position_prefix: Secretary of state
       - match: chief election officer

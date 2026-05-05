@@ -138,8 +138,7 @@ def parse_reference(
                 for sub_part in h.multi_split(part, ADDRESS_SPLITS):
                     address = h.make_address(context, full=sub_part)
                     h.apply_address(context, entity, address)
-        source_program = row.pop("committees")
-        source_program = source_program.strip() if source_program else None
+        source_program: str | None = str(row.pop("committees", "")).strip() or None
         sanction = h.make_sanction(
             context,
             entity,

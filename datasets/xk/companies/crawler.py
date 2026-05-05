@@ -1,7 +1,6 @@
 import os
 import re
 import requests
-from typing import Dict
 from normality import slugify
 from datetime import timedelta
 from base64 import b64encode
@@ -19,9 +18,9 @@ from zavod import helpers as h
 EXPECTED_FAILS = 20000
 
 KOSOVO_REGISTRY_KEY = os.environ.get("OPENSANCTIONS_KOSOVO_REGISTRY_KEY", "")
-assert (
-    KOSOVO_REGISTRY_KEY
-), "Please provide the Kosovo API key in the env var OPENSANCTIONS_KOSOVO_REGISTRY_KEY"
+assert KOSOVO_REGISTRY_KEY, (
+    "Please provide the Kosovo API key in the env var OPENSANCTIONS_KOSOVO_REGISTRY_KEY"
+)
 
 FIELDS_MAPPING = {
     "EmriBiznesit": {"field": "name", "lang": "sqi"},
@@ -41,7 +40,7 @@ FIELDS_MAPPING = {
 REGEX_ROUGHLY_VALID_REGNO = re.compile(r"^\d{8,9}$")
 
 
-def norm_h(string: str) -> str:
+def norm_h(string: str | None) -> str | None:
     """
     Normalize a string.
     """
@@ -50,11 +49,11 @@ def norm_h(string: str) -> str:
         string = string.replace("€", "eur")
         string = string.replace("$", "usd")
         string = string.replace("%", "percent")
-        string = slugify(string, sep="_")
+        string = slugify(string, sep="_") or string
     return string
 
 
-def norm_capital(context: Context, string: str) -> Dict[str, str]:
+def norm_capital(context: Context, string: str) -> dict[str, str | None]:
     """
     Normalize a capital string.
     Args:
@@ -63,7 +62,7 @@ def norm_capital(context: Context, string: str) -> Dict[str, str]:
     Returns:
         Capital as a dictionary of value and currency.
     """
-    capital = {"value": "", "currency": ""}
+    capital: dict[str, str | None] = {"value": "", "currency": ""}
     try:
         match = re.search(r"(?P<val>[0-9\.,]*)\s*(?P<cur>[^\d]+)?", string)
         if match:
@@ -128,7 +127,7 @@ def fetch_company(context: Context, company_id: int) -> int:
         elif roughly_valid_regno(company.get("NumriFiskal")):
             entity.id = context.make_slug("fiskal", company.get("NumriFiskal"))
         else:
-            entity.id = context.make_id("XKCompany", company_id)
+            entity.id = context.make_id("XKCompany", str(company_id))
 
         entity.add("country", "xk")
 
@@ -214,7 +213,7 @@ def fetch_company(context: Context, company_id: int) -> int:
             director.id = context.make_id(
                 "XKdirector", entity.id, rep["Emri"], rep["Mbiemri"]
             )
-            director.add("name", f'{rep["Emri"]} {rep["Mbiemri"]}', lang="sqi")
+            director.add("name", f"{rep['Emri']} {rep['Mbiemri']}", lang="sqi")
             context.emit(director)
 
             rel = context.make("Directorship")
@@ -248,7 +247,7 @@ def fetch_company(context: Context, company_id: int) -> int:
         return False
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     """
     Main function to crawl and process data from the Kosovo Registry of Business
     Organizations and Trade Names.

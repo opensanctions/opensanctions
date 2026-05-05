@@ -11,6 +11,7 @@ from rigour.text import is_nullword
 from rigour.text.scripts import is_dense_script
 
 from zavod import settings
+from zavod.constants import ORIGIN_INFERRED
 from zavod.context import Context
 from zavod.entity import Entity
 from zavod.meta.names import CleaningSpec, NamesSpec
@@ -196,6 +197,11 @@ def apply_name(
         name_prop = "alias"
     if is_weak:
         name_prop = "weakAlias"
+
+    # Provenance for full names created from parts
+    full_origin = origin
+    if full is None or len(full) == 0:
+        full_origin = ORIGIN_INFERRED
     full = make_name(
         full=full,
         name1=name1,
@@ -215,7 +221,7 @@ def apply_name(
         suffix=suffix,
     )
     if full is not None and len(full):
-        entity.add(name_prop, full, quiet=quiet, lang=lang, origin=origin)
+        entity.add(name_prop, full, quiet=quiet, lang=lang, origin=full_origin)
 
 
 def split_comma_names(context: Context, text: str) -> List[str]:
@@ -411,10 +417,11 @@ def derive_original_values(original: Names, extracted: Names) -> Dict[str, str]:
         (3) If some value in original contains it, we can use that the value from original as original_value.
         Otherwise leave blank - this is best-effort only.
     """
-    original_values: List[str] = []
+    original_values: list[str] = []
     for _prop, values in original.as_langtexts():
         for value in values:
             original_values.append(value.text)
+    original_values.sort()  # sort to pick deterministically regardless of input order
 
     derived_originals: dict[str, str] = {}
     for _prop, extracted_values in extracted.as_langtexts():
@@ -424,12 +431,12 @@ def derive_original_values(original: Names, extracted: Names) -> Dict[str, str]:
             if len(original_values) == 1:
                 # (1) If there's exactly one value in original, use that for all names.
                 derived_originals[extracted_string] = original_values[0]
+            elif extracted_string in original_values:
+                # (2) Exact match exists, no original_value needed.
+                continue
             else:
                 for original_string in original_values:
-                    if original_string == extracted_string:
-                        # (2) Exact match, no original_value needed.
-                        continue
-                    elif extracted_string in original_string:
+                    if extracted_string in original_string:
                         # (3) Extracted text is contained in original value, use as original_value.
                         derived_originals[extracted_string] = original_string
                         break

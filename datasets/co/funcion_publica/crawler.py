@@ -80,6 +80,8 @@ def crawl_sheet_row(context: Context, row: Dict[str, str]):
     person = context.make("Person")
     id_number = row.pop("NUMERO_DOCUMENTO")
     person.id = context.make_slug(id_number, prefix="co-cedula")
+    # various PEPs, incl academics or clinical stuff that don't require citizenship
+    person.add("country", "co")
     person.add("idNumber", id_number)
     person.add("name", row.pop("NOMBRE_PEP"))
     cv_url = row.pop("ENLACE_HOJA_VIDA_SIGEP")

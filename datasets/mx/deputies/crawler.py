@@ -1,4 +1,5 @@
 import orjson
+from typing import Any
 
 from zavod import Context, helpers as h
 from zavod.extract import zyte_api
@@ -6,13 +7,14 @@ from zavod.extract.zyte_api import ZyteAPIRequest
 from zavod.stateful.positions import categorise
 
 
-def crawl_item(input_dict: dict, context: Context):
+def crawl_item(context: Context, input_dict: dict[str, Any]) -> None:
     entity = context.make("Person")
     parts = [input_dict["NombreCompleto"]]
     state = input_dict.pop("Estado")
     if state:
         parts.append(state)
-    id = context.make_slug(parts)
+    # The argument to make_slug should be *parts, but we want to avoid a re-key
+    id = context.make_slug(parts)  # type: ignore
     entity.id = id
     last_name = (
         (input_dict.pop("PrimerApellido") or "")
@@ -67,8 +69,8 @@ def crawl_item(input_dict: dict, context: Context):
     )
 
 
-def crawl(context: Context):
-    json_data = {
+def crawl(context: Context) -> None:
+    json_data: dict[str, Any] = {
         "operationName": None,
         "variables": {},
         "query": """{ allDiputados
@@ -109,4 +111,4 @@ def crawl(context: Context):
     results = orjson.loads(zyte_result.response_text)
 
     for item in results["data"]["allDiputados"]:
-        crawl_item(item, context)
+        crawl_item(context, item)

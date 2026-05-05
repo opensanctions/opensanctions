@@ -1,5 +1,4 @@
 from itertools import product
-from typing import Dict
 import re
 from normality import slugify
 from rigour.mime.types import CSV
@@ -7,14 +6,14 @@ import csv
 
 
 from zavod import Context, helpers as h
-from zavod.extract.zyte_api import fetch_html, fetch_resource
+from zavod.extract import zyte_api
 
 REGEX_DBA = re.compile(r"\bdba\b", re.IGNORECASE)
 REGEX_AKA = re.compile(r"\(?a\.?k\.?a\b\.?|\)", re.IGNORECASE)
 REGEX_WORD = re.compile(r"\w{2,}")
 
 
-def crawl_item(row: Dict[str, str], context: Context):
+def crawl_item(row: dict[str, str], context: Context) -> None:
     if row.pop(" Type of Exclusion") == "OIG":
         return
 
@@ -98,15 +97,19 @@ def crawl_item(row: Dict[str, str], context: Context):
     )
 
 
-def crawl_csv_url(context: Context):
+def crawl_csv_url(context: Context) -> str:
     file_xpath = ".//a[contains(text(), 'Download CSV')]"
-    doc = fetch_html(context, context.data_url, file_xpath, absolute_links=True)
-    return doc.xpath(file_xpath)[0].get("href")
+    doc = zyte_api.fetch_html(
+        context, context.data_url, unblock_validator=file_xpath, absolute_links=True
+    )
+    url = h.xpath_string(doc, file_xpath + "/@href")
+    assert url is not None, "Could not find CSV file URL"
+    return url
 
 
 def crawl(context: Context) -> None:
     csv_url = crawl_csv_url(context)
-    _, _, _, path = fetch_resource(
+    _, _, _, path = zyte_api.fetch_resource(
         context,
         "source.csv",
         csv_url,

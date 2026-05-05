@@ -27,7 +27,7 @@ def crawl_entity(context: Context, item: Dict[str, Any]) -> None:
     context.emit(entity)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     data = context.fetch_json(context.data_url)
     if not data:
         raise ValueError("No data was returned!")

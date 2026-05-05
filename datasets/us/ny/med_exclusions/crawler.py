@@ -1,11 +1,10 @@
-from typing import Dict
 from rigour.mime.types import XLSX
 from openpyxl import load_workbook
 
 from zavod import Context, helpers as h
 
 
-def crawl_item(row: Dict[str, str], context: Context):
+def crawl_item(row: dict[str, str], context: Context) -> None:
     name = row.pop("provider_name")
 
     if not name:

@@ -1,5 +1,4 @@
 from rigour.mime.types import PDF
-from typing import Dict
 import re
 
 from zavod import Context, helpers as h
@@ -10,7 +9,7 @@ AKA_PATTERN = r"\ba\.?k\.?a[\. -]*"
 PAGE_SETTINGS = {"join_y_tolerance": 100}
 
 
-def crawl_item(row: Dict[str, str], context: Context):
+def crawl_item(row: dict[str, str], context: Context) -> None:
     address = h.make_address(
         context, city=row.pop("city"), state=row.pop("state"), country_code="US"
     )
@@ -79,12 +78,16 @@ def crawl_item(row: Dict[str, str], context: Context):
     context.audit_data(row)
 
 
-def crawl_excel_url(context: Context):
+def crawl_excel_url(context: Context) -> str:
     file_xpath = (
         ".//a[contains(text(), 'Wyoming Medicaid Provider Exclusion List')]/@href"
     )
     doc = fetch_html(context, context.data_url, file_xpath, geolocation="us")
-    return h.xpath_string(doc, file_xpath)
+    url = h.xpath_string(doc, file_xpath)
+    assert url is not None, (
+        "Could not find Wyoming Medicaid Provider Exclusion List URL"
+    )
+    return url
 
 
 def crawl(context: Context) -> None:
