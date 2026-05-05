@@ -34,6 +34,7 @@ def crawl_item(row: Dict[str, str | None], context: Context) -> None:
     first_name = row.pop("first_name")
     last_name = row.pop("last_name")
     middle_name = row.pop("middle_name")
+    raw_middle_name = middle_name
     first_names: List[str] = []
     aliases: List[str] = []
     if middle_name and "aka" in middle_name.lower():
@@ -52,6 +53,7 @@ def crawl_item(row: Dict[str, str | None], context: Context) -> None:
         entity = context.make("Company")
         entity.id = context.make_id(business_name, npi)
         entity.add("name", business_name)
+        original = h.Names(name=business_name)
     # Person name (with optional business name as d.b.a. alias)
     else:
         entity = context.make("Person")
@@ -63,6 +65,8 @@ def crawl_item(row: Dict[str, str | None], context: Context) -> None:
             entity.add("alias", business_name)
         entity.add("firstName", first_names)
         entity.add("alias", aliases)
+        original = h.Names(name=h.make_name(first_name=first_name, last_name=last_name, middle_name=raw_middle_name))
+    h.review_names(context, entity, original=original, llm_cleaning=True)
     entity.add("npiCode", npi)
     entity.add("topics", "debarment")
     entity.add("country", "us")
