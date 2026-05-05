@@ -5,19 +5,16 @@ argument-hint: "[crawler.py path]"
 disable-model-invocation: true
 ---
 
-Perform Step 1 of the name framework migration in $ARGUMENTS: introduce `h.review_names` alongside the existing cleaning logic, without removing or changing it.
+Perform Step 1 of the name framework migration in $ARGUMENTS: introduce `h.review_names` alongside the existing cleaning logic. Existing `entity.add` / `h.apply_name` calls remain in place and continue to drive output; reviews are not applied until Step 3 of the procedure.
 
-See `zavod/docs/extract/names.md#migrating-to-the-name-cleaning-helpers` for the full three-step procedure.
+## Crawler source
 
-**What Step 1 does:** adds `h.review_names` so that the raw name and the crawler's own categorisation are submitted for human review. The existing `entity.add` / `h.apply_name` calls remain in place and continue to drive entity output. Reviews are not yet applied — that happens in Step 3.
-
-## Supporting files
-
-- [examples/migrations.md](examples/migrations.md) — real before/after migrations; read this before touching any crawler
+!`cat $ARGUMENTS`
 
 ## Read first (in order)
 
-- `zavod/docs/extract/names.md#migrating-to-the-name-cleaning-helpers` — full migration procedure and rationale
+- [examples/migrations.md](examples/migrations.md) — real before/after migrations; read before touching any crawler
+- `zavod/docs/extract/names.md#migrating-to-the-name-cleaning-helpers` — full three-step procedure and rationale
 - `zavod/zavod/helpers/names.py` — exact signatures for `review_names`, `check_names_regularity`, `Names`
 - `datasets/CLAUDE.md` — name cleaning section
 
@@ -45,10 +42,10 @@ if len(name_split) > 1:
 
 ## Migration steps
 
-1. Capture the raw name string **before** any cleaning. Assign it to `original = h.Names(name=<raw>)`.
+1. Capture the raw name string **before** any cleaning: `original = h.Names(name=<raw>)`.
 2. Initialise `suggested = h.Names()`.
-3. For each existing `entity.add(name_prop, value)` call, add a parallel `suggested.add(name_prop, value)` — same property, same value. For `h.apply_name(...)` calls, use `suggested.add("name", full_reconstructed_name_string)` instead (see Pattern 3 in examples/migrations.md).
-4. After all existing name-setting calls, add:
+3. For each existing `entity.add(name_prop, value)` or `h.apply_name(...)` call, add a mirroring entry to `suggested` — see examples/migrations.md for the exact patterns.
+4. After all name-setting calls, add:
    ```python
    is_irregular, suggested = h.check_names_regularity(entity, suggested)
    h.review_names(context, entity, original=original, suggested=suggested, is_irregular=is_irregular)
