@@ -14,6 +14,7 @@ class Organization(BaseModel):
     aliases: list[str] = []
     abbreviations: list[str] = []
     previous_names: list[str] = []
+    asset: list[str] = []
 
 
 class Organizations(BaseModel):
@@ -63,6 +64,13 @@ def crawl_row(context: Context, row: dict[str, _Element]) -> None:
         entity.add("abbreviation", item.abbreviations)
         entity.add("topics", "sanction")
         entity.add("country", "de")
+
+        if item.asset is not None:
+            for asset in item.asset:
+                ownership = context.make("Ownership")
+                ownership.id = context.make_id(item.name, asset)
+                ownership.add("asset", asset)
+                ownership.add("owner", item.name)
 
         sanction = h.make_sanction(context, entity)
         h.apply_date(sanction, "listingDate", extracted_data.start_date)
