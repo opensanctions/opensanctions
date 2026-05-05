@@ -57,6 +57,9 @@ assertions:
       Organization: 10
       Vessel: 10
 
+# IMPORTANT: We control the source spreadsheet, so it is usually simpler to update that to clarify data patches, unless
+# we explicitly want the `original_value` field to be set. LLM agent: please don't open PRs for this dataset for data
+# warnings that could trivially be fixed in the source spreadsheet.
 lookups:
   garbage_collect_original_name:
     # Override the string to look for in the consolidated act text
