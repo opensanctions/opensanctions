@@ -138,6 +138,18 @@ If a variable number of fields can extracted automatically (e.g. from a list or 
 * `dict_obj.pop()` individual fields when adding them to entities.
 * Log warnings if there are unhandled fields remaining in the `dict` so that we notice and improve the crawler. The context method [`context.audit_data()`][zavod.context.Context.audit_data] can be used to warn about extra fields in a `dict`. It takes the `ignore` argument to explicitly list fields that are unused.
 
+## Fields with no FollowTheMoney equivalent
+
+Source data sometimes includes descriptive fields (physical appearance, internal classification codes, administrative metadata, etc.) that don't map to any FTM property. Resist the temptation to pack these into narrative fields like `notes` or `description` as formatted strings (e.g. `f"Hair colour: {hair_colour}"`). This mixes structured data into free text where it can't be queried or validated, and clutters entity descriptions with noise.
+
+Instead, explicitly ignore them via `context.audit_data`:
+
+```python
+context.audit_data(row, ignore=["hair_colour", "skin_tone", "internal_ref"])
+```
+
+If a field has a clear use case for commercial screening or geopolitical research users — and structured support for it would add real value — propose adding it to the FollowTheMoney schema by opening an issue or PR in the [FollowTheMoney repository](https://github.com/alephdata/followthemoney) with concrete examples from the source data.
+
 ## Logging and crawler feedback
 
 It is good design to be told about issues, instead of having to go look to discover them.
