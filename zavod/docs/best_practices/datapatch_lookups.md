@@ -28,7 +28,7 @@ res = context.lookup("relationships", row.pop("link_type"))
 
 Each option in a lookup uses one of three matching modes:
 
-- **`match`** — exact string equality, after normalization. A list of strings matches any of them.
+- **`match`** — exact string equality, after normalization. A list of strings matches any of them. Use the list form to merge multiple inputs that should produce the same result under a single option (see [Result values](#result-values)).
 - **`contains`** — substring match, after normalization.
 - **`regex`** — raw Python regular expression. The input is **not** normalized before the regex runs, so write the pattern against the original string.
 
@@ -101,6 +101,23 @@ A few rules about result values:
     values:
       - district@repkelly.com
       - mike@repkelly.com
+  ```
+
+- **Consolidate inputs that share a result.** When several distinct inputs should produce the same `value` (or `values`, or `value: null`), list them under one option's `match:`. Inputs that map to *different* results must remain in separate options.
+
+  ```yaml
+  # One option, three inputs that all drop:
+  - match:
+      - 307j@att
+      - SL Jones@ballhealth.com
+      - na
+    value: null
+
+  # Two options — different replacements, cannot be merged:
+  - match: tcolpetzer@mcdonoughga.org.
+    value: tcolpetzer@mcdonoughga.org
+  - match: sensan buenaventura@capitol.hawaii.gov
+    value: sensanbuenaventura@capitol.hawaii.gov
   ```
 
 - **Arbitrary keys on the option are accessible as attributes on the result.** Named lookups use this to attach schema, role, or category information; the next two sections show how.
