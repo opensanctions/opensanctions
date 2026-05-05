@@ -47,19 +47,23 @@ if len(name_split) > 1:
 
 1. Capture the raw name string **before** any cleaning. Assign it to `original = h.Names(name=<raw>)`.
 2. Initialise `suggested = h.Names()`.
-3. For each existing `entity.add(name_prop, value)` or `h.apply_name(...)` call, add a parallel `suggested.add(name_prop, value)` — same property, same value.
+3. For each existing `entity.add(name_prop, value)` call, add a parallel `suggested.add(name_prop, value)` — same property, same value. For `h.apply_name(...)` calls, use `suggested.add("name", full_reconstructed_name_string)` instead (see Pattern 3 in examples/migrations.md).
 4. After all existing name-setting calls, add:
    ```python
    is_irregular, suggested = h.check_names_regularity(entity, suggested)
    h.review_names(context, entity, original=original, suggested=suggested, is_irregular=is_irregular)
    ```
-5. For non-sanctions crawlers, pass `llm_cleaning=True` and omit `suggested` and `is_irregular`.
+5. For non-sanctions crawlers, pass `llm_cleaning=True` and omit `suggested` and `is_irregular`:
+   ```python
+   h.review_names(context, entity, original=original, llm_cleaning=True)
+   ```
 
 ## Do not
 
 - Do not remove or modify any existing `entity.add` / `h.apply_name` calls
 - Do not pass a cleaned or intermediate string as `original` — always use the unmodified raw source string
 - Do not use `llm_cleaning=True` for sanctions crawlers
-- Do not proceed to Step 3 (switching to `apply_reviewed_names`) — that requires completed reviews first
+- Do not proceed to Step 3 of the three-step migration procedure (switching to `apply_reviewed_names`) — that requires completed reviews first
 - Do not construct `Names` by guessing field names — read `zavod/zavod/helpers/names.py` first
+- Do not call `h.review_names` more than once per entity
 - Do not add explanatory comments beyond what the code requires

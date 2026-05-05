@@ -166,9 +166,11 @@ def crawl_item_human_rights(context: Context, source_url, raw_name: str):
 ## Key decisions consistent across all three
 
 - `original = h.Names(name=<raw>)` — always the unmodified source string, never a cleaned intermediate.
-- `suggested` mirrors every `entity.add(name_prop, value)` / `h.apply_name(...)` call with a `suggested.add(name_prop, value)` — same property, same value.
+- `suggested` mirrors every `entity.add(name_prop, value)` call with a `suggested.add(name_prop, value)` — same property, same value.
+- When the existing code uses `h.apply_name(entity, first_name=..., last_name=..., ...)`, mirror it as `suggested.add("name", full_reconstructed_name_string)` — one `"name"` entry with the combined name string, **not** separate `"firstName"` / `"lastName"` entries. Pattern 3 demonstrates this: `h.apply_name(..., first_name=first_name, last_name=last_name, ...)` → `suggested.add("name", name)` where `name = "John Doe"`.
 - `h.check_names_regularity(entity, suggested)` is called after all name-setting and returns the updated `suggested` and `is_irregular` flag.
 - The return value of `h.review_names` is always discarded.
+- `h.review_names` is called exactly once per entity.
 - `h.Names` is re-exported via `zavod.helpers` — verify it appears in `zavod/zavod/helpers/__init__.py` before assuming no extra import is needed.
 - `llm_cleaning` omitted — defaults to `False`, must be `False` for all sanctions crawlers.
 - Existing cleaning logic left intact in all cases — do not modify or remove it.
