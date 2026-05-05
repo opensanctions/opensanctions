@@ -51,7 +51,8 @@ def crawl_debarment(
         schema = "LegalEntity"
 
     entity = context.make(schema)
-    name, aliases = split_names(row.pop(name_field))
+    raw_name = row.pop(name_field)
+    name, aliases = split_names(raw_name)
     entity.id = context.make_slug(name, date_of_birth, strict=False)
     entity.add("name", name)
     entity.add("alias", aliases)
@@ -59,6 +60,14 @@ def crawl_debarment(
     if schema == "Person":
         h.apply_date(entity, "birthDate", date_of_birth)
     entity.add("topics", "debarment")
+
+    original = h.Names(name=raw_name)
+    suggested = h.Names()
+    suggested.add("name", name)
+    for alias in aliases:
+        suggested.add("alias", alias)
+    is_irregular, suggested = h.check_names_regularity(entity, suggested)
+    h.review_names(context, entity, original=original, suggested=suggested, is_irregular=is_irregular)
 
     sanction = h.make_sanction(context, entity, program_key=program_key)
     sanction.add("listingDate", row.pop(notice_date_field).isoformat()[:10])
