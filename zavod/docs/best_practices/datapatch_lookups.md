@@ -125,23 +125,17 @@ A few rules about result values:
 
 ## Re-routing to a different property
 
-In a `type.*` lookup, `prop:` moves the value to a different property of the same entity. This handles cases where source data labels a value as one thing but it is really another — e.g. an "email" field that contains a website URL, or a generic "ID" column that contains a tax number.
-
-```yaml
-type.identifier:
-  options:
-    - match:
-        - CUIT  # Argentina tax ID
-      prop: taxNumber
-```
+In a `type.*` lookup, `prop:` moves the value to a different property of the same entity. This handles cases where source data labels a value as one thing but it is really another — for example an "email" column that occasionally contains a website URL.
 
 When `values` is omitted, the original input value is preserved and only the destination property changes. To re-route **and** rewrite, set both:
 
 ```yaml
 type.email:
   options:
+    # Pure re-route — original URL preserved, moved to the website property
     - match: www.bloodandhonour.co.uk
       prop: website
+    # Re-route with rewrite — fix the typo as well
     - match: www.surena gc.com
       prop: website
       value: www.surenagc.com
