@@ -162,6 +162,8 @@ def emit_row(
     raw_known_alias = row.pop("known_alias", [])
     raw_past_alias = row.pop("past_alias", [])
     raw_old_name = row.pop("old_name", [])
+    raw_weak_alias = row.pop("weak_alias", [])
+    raw_nickname = row.pop("nickname", [])
     entity.add("name", parse_names(name_english), lang="eng")
     entity.add("name", parse_names(name_japanese))
     entity.add("alias", parse_names(h.multi_split(raw_alias, ALIAS_SPLITS)))
@@ -182,6 +184,8 @@ def emit_row(
         original.add("alias", n)
     for n in chain(raw_past_alias, raw_old_name):
         original.add("previousName", n)
+    for n in chain(raw_weak_alias, raw_nickname):
+        original.add("weakAlias", n)
     suggested = h.Names()
     for n in chain(parse_names(name_english), parse_names(name_japanese)):
         suggested.add("name", n)
@@ -192,6 +196,11 @@ def emit_row(
         suggested.add("alias", n)
     for n in chain(parse_names(raw_past_alias), parse_names(raw_old_name)):
         suggested.add("previousName", n)
+    for n in chain(
+        parse_names(h.multi_split(raw_weak_alias, ALIAS_SPLITS)),
+        parse_names(h.multi_split(raw_nickname, ALIAS_SPLITS)),
+    ):
+        suggested.add("weakAlias", n)
     is_irregular, suggested = h.check_names_regularity(entity, suggested)
     h.review_names(
         context,
@@ -262,7 +271,7 @@ def emit_row(
     context.emit(entity)
     context.emit(sanction)
     # TODO: remove IGNORE columns after https://github.com/opensanctions/opensanctions/issues/2928 is fixed
-    context.audit_data(row, ignore=["nickname", "weak_alias"])
+    context.audit_data(row)
 
 
 def trim_rightmost_blank(values: List[str | None], keep: int = 0) -> List[str | None]:
