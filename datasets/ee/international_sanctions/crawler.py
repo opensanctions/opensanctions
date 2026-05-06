@@ -21,11 +21,23 @@ def crawl_item_belarus(context: Context, source_url, raw_name: str):
 
     entity = context.make("Person")
     entity.id = context.make_id(name)
+    original = h.Names(name=raw_name)
+    suggested = h.Names()
     entity.add("name", name, lang="eng")
+    suggested.add("name", name)
     entity.add("topics", "sanction")
 
     for name in or_names:
         entity.add("name", name)
+        suggested.add("name", name)
+    is_irregular, suggested = h.check_names_regularity(entity, suggested)
+    h.review_names(
+        context,
+        entity,
+        original=original,
+        suggested=suggested,
+        is_irregular=is_irregular,
+    )
 
     sanction = h.make_sanction(context, entity)
     sanction.add("sourceUrl", source_url)
@@ -50,11 +62,23 @@ def crawl_item_human_rights(context: Context, source_url, raw_name: str):
 
     entity = context.make("Person")
     entity.id = context.make_id(name)
+    original = h.Names(name=raw_name)
+    suggested = h.Names()
     h.apply_name(entity, first_name=first_name, last_name=last_name, lang="eng")
+    suggested.add("name", h.make_name(first_name=first_name, last_name=last_name))
     entity.add("topics", "sanction")
 
     for alias in aliases:
         entity.add("alias", alias)
+        suggested.add("alias", alias)
+    is_irregular, suggested = h.check_names_regularity(entity, suggested)
+    h.review_names(
+        context,
+        entity,
+        original=original,
+        suggested=suggested,
+        is_irregular=is_irregular,
+    )
 
     sanction = h.make_sanction(context, entity)
     sanction.add("sourceUrl", source_url)
@@ -77,9 +101,21 @@ def crawl_item_rus(context: Context, source_url, raw_name: str):
 
     entity = context.make("Person")
     entity.id = context.make_id(name)
+    original = h.Names(name=raw_name)
+    suggested = h.Names()
     entity.add("name", name, lang="eng")
+    suggested.add("name", name)
     entity.add("alias", alias)
+    suggested.add("alias", alias)
     entity.add("topics", "sanction")
+    is_irregular, suggested = h.check_names_regularity(entity, suggested)
+    h.review_names(
+        context,
+        entity,
+        original=original,
+        suggested=suggested,
+        is_irregular=is_irregular,
+    )
 
     sanction = h.make_sanction(context, entity)
     sanction.add("sourceUrl", source_url)
