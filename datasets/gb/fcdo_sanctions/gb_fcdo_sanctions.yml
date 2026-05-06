@@ -1444,6 +1444,59 @@ lookups:
           - "1521418"
           - "97947 "
         value: SAME
+      - match: "'0012021"
+        props:
+          registrationNumber: "0012021"
+      - match: "Corporate Identification Number (CIN): U74999HR2023OPC109285"
+        props:
+          registrationNumber: "U74999HR2023OPC109285"
+      - match: "Corporate Identification Number: U80900DL2023NPL410201"
+        props:
+          registrationNumber: "U80900DL2023NPL410201"
+      - match: "India CIN: U63030MH2016PTC286797"
+        props:
+          registrationNumber: "U63030MH2016PTC286797"
+      - match: "India CIN: U78100MH2023PTC409367"
+        props:
+          registrationNumber: "U78100MH2023PTC409367"
+      - match: "India PAN - AAYCA2604D"
+        props:
+          taxNumber: "AAYCA2604D"
+      - match: "India PAN - AACCZ1381Q"
+        props:
+          taxNumber: "AACCZ1381Q"
+      - match: "India PAN: AALCB8806B"
+        props:
+          taxNumber: "AALCB8806B"
+      - match: "India GSTIN: 27AACCO3869L1ZW"
+        props:
+          taxNumber: "27AACCO3869L1ZW"
+      - match: "Thai business register number: 0105566092852 "
+        props:
+          registrationNumber: "0105566092852"
+      - match: "Thai business registry number: 0105554079139"
+        props:
+          registrationNumber: "0105554079139"
+      - match: "Thai business registry number: 0205566027596"
+        props:
+          registrationNumber: "0205566027596"
+      - match: "Business Registration Number - 67092371"
+        props:
+          registrationNumber: "67092371"
+      - match: "CR number: 2469563 "
+        props:
+          registrationNumber: "2469563"
+      - match: "France SIREN Number - 889 164 687"
+        props:
+          registrationNumber: "889164687"
+      - match: "INN: 7810540857OGRN:  1087847024363"
+        props:
+          innCode: "7810540857"
+          ogrnCode: "1087847024363"
+      - match: "310115002630983Unified Social Credit Code: 9131011533249393X3"
+        props:
+          registrationNumber: "310115002630983"
+          uscCode: "9131011533249393X3"
   companies:
     normalize: true
     options:
@@ -2452,3 +2505,7 @@ lookups:
           - ASSOCIATION 'CTT 'ACADEMNOVOTECH'
           - NON-COMMERCIAL PARTNERSHIP INNOVATION-IMPLEMENTATION CENTER
           - ASSOCIATION TECHNOLOGICAL PLATFORM AIR MOBILITY AND AVIATION TECHNOLOGIES
+      - match: M9 LOGISTICS (HK) LIMITED
+        value: M9 LOGISTICS (HK) LIMITED
+      - match: M9 LOGISTICS CO., LTD.
+        value: M9 LOGISTICS CO., LTD.
