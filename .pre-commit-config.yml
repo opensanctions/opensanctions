@@ -191,7 +191,6 @@ repos:
           datasets/us/fda_restricted|
           datasets/us/la/med_exclusions|
           datasets/us/congress|
-          datasets/us/bis_oac|
           datasets/us/bis_denied|
           datasets/us/state_terrorist_orgs|
           datasets/us/fincen_special_measures|
