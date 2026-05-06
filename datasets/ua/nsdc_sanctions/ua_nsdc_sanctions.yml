@@ -32,6 +32,7 @@ data:
 tags:
   - list.sanction
   - target.ru
+  - priority.essential
 
 dates:
   formats: ["%d.%m.%Y"]

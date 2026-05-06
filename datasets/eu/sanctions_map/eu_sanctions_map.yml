@@ -59,6 +59,7 @@ tags:
   - list.sanction.eu
   - issuer.west
   - sector.maritime
+  - priority.essential
 dates:
   formats: ["%d.%m.%Y", "%d.%m.%Y’"]
 
