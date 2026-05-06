@@ -71,10 +71,24 @@ if len(name_split) > 1:
 After every edit to the crawler file, run:
 
 ```
-ruff check --fix $ARGUMENTS && ruff format $ARGUMENTS
+uvx ruff check --fix $ARGUMENTS && uvx ruff format $ARGUMENTS
 ```
 
-Fix any errors ruff reports before considering the migration complete.
+Fix any errors ruff reports before proceeding.
+
+Once all changes are complete and ruff passes, stage the file:
+
+```
+git add $ARGUMENTS
+```
+
+Then output the suggested commit message (do not commit):
+
+```
+[<dataset_slug>] name migration
+```
+
+where `<dataset_slug>` is derived from the path by stripping `datasets/` and `/crawler.py` and replacing `/` with `_` (e.g. `datasets/us/ga/med_exclusions/crawler.py` → `[us_ga_med_exclusions] name migration`).
 
 ## Do not
 
