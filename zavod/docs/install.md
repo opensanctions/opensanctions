@@ -36,7 +36,7 @@ uv sync --python 3.13 --no-binary-package pyicu --no-binary-package plyvel --ext
 CXXFLAGS="-fno-rtti" \
 CPPFLAGS="-I$(brew --prefix leveldb)/include" \
 LDFLAGS="-L$(brew --prefix leveldb)/lib" \
-uv pip install --no-binary plyvel --reinstall plyvel==1.5.1
+uv pip install --no-binary plyvel --reinstall plyvel==1.5.1 # Use the current version in pyproject.toml
 ```
 
 ## Python virtual environment
