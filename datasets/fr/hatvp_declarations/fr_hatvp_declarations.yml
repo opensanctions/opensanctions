@@ -5,6 +5,7 @@ coverage:
   frequency: weekly
   start: 2026-02-26
 load_statements: true
+ci_test: false  # position categorization in the UI
 entry_point: crawler.py
 summary: >-
   French public officials who are required to declare their interests and assets
