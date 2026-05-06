@@ -7,6 +7,17 @@ disable-model-invocation: true
 
 Perform Step 1 of the name framework migration in $ARGUMENTS: introduce `h.review_names` alongside the existing cleaning logic. Existing `entity.add` / `h.apply_name` calls remain in place and continue to drive output; reviews are not applied until Step 3 of the procedure.
 
+## Branch setup
+
+Before making any changes:
+
+1. Derive a branch name from the crawler path by taking the dataset name (the directory containing `crawler.py`) and prefixing it with `name-migration/`. For example, `datasets/us/ga/med_exclusions/crawler.py` → `name-migration/us-ga-med-exclusions`.
+2. Create and check out the branch:
+   ```
+   git checkout -b <branch-name>
+   ```
+3. Confirm you are on the new branch before proceeding.
+
 ## Crawler source
 
 !`cat $ARGUMENTS`
@@ -54,6 +65,16 @@ if len(name_split) > 1:
    ```python
    h.review_names(context, entity, original=original, llm_cleaning=True)
    ```
+
+## After changes
+
+After every edit to the crawler file, run:
+
+```
+ruff check --fix $ARGUMENTS && ruff format $ARGUMENTS
+```
+
+Fix any errors ruff reports before considering the migration complete.
 
 ## Do not
 
