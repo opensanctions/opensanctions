@@ -6,10 +6,10 @@ def get_members_urls(context: Context) -> list:
     main_website = context.fetch_html(context.data_url)
 
     # this XPath corresponds to the a tags wit the links for a member page
-    xpath_to_a_tags = "//*[@id='main']/section/div[2]/div/ul/li/div/div/ul/li[1]/h3/a"
-    return [
-        a_tag.get("href") for a_tag in h.xpath_elements(main_website, xpath_to_a_tags)
-    ]
+    xpath_to_a_tags = (
+        "//*[@id='main']/section/div[2]/div/ul/li/div/div/ul/li[1]/h3/a/@href"
+    )
+    return h.xpath_strings(main_website, xpath_to_a_tags)
 
 
 def crawl_item(member_url: str, context: Context):
@@ -20,16 +20,29 @@ def crawl_item(member_url: str, context: Context):
     except IndexError:
         context.log.info("Couldn't find name. Skipping person.", url=member_url)
         return
-    bio = " ".join(
-        h.xpath_strings(
-            member_page_html,
-            '//*[@class="col-xs-6 profile-desc bg-white content"]/p[text()][1]/text()',
+    try:
+        bio = " ".join(
+            h.xpath_strings(
+                member_page_html,
+                '//*[@class="col-xs-6 profile-desc bg-white content"]/p[text()][1]/text()',
+            )
+        ).strip()
+    except ValueError:
+        context.log.warning(
+            "Couldn't find biography. Skipping biography.", url=member_url
         )
-    ).strip()
-    electoral_district = h.xpath_string(
-        member_page_html,
-        '//*[@class="col-xs-6 profile-desc bg-white content"]//a[contains(@href, "searchByConstituency")]/text()',
-    )
+        return
+    try:
+        electoral_district = h.xpath_string(
+            member_page_html,
+            '//*[@class="col-xs-6 profile-desc bg-white content"]//a[contains(@href, "searchByConstituency")]/text()',
+        )
+    except ValueError:
+        context.log.warning(
+            "Couldn't find electoral district. Skipping electoral district.",
+            url=member_url,
+        )
+        return
 
     entity = context.make("Person")
     entity.id = context.make_id(name)
@@ -38,14 +51,9 @@ def crawl_item(member_url: str, context: Context):
     context.log.info(f"Full name {name} unique id {entity.id}")
     h.apply_name(entity, full=name)
 
-    try:
-        # base the xpath on the email icon to extract the email
-        email = h.xpath_string(
-            member_page_html, '//*[@class="icon icon-mail"]/../text()'
-        )
-        entity.add("email", email)
-    except IndexError:
-        context.log.warning("Couldn't find e-mail")
+    # base the xpath on the email icon to extract the email
+    email = h.xpath_string(member_page_html, '//*[@class="icon icon-mail"]/../text()')
+    entity.add("email", email)
 
     position = h.make_position(
         context,
