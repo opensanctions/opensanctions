@@ -1,4 +1,6 @@
+import json
 from typing import Optional
+from unittest.mock import patch
 from nomenklatura.versions import VersionHistory
 
 from zavod import settings
@@ -74,12 +76,26 @@ def test_publish_failure(testdataset1: Dataset):
     published_path = settings.ARCHIVE_PATH / DATASETS
     artifacts_path = settings.ARCHIVE_PATH / ARTIFACTS
     latest_path = published_path / "latest" / testdataset1.name
+
+    # Establish a prior successful export so we can verify the published index
+    # is not overwritten by the subsequent failure.
+    linker = get_dataset_linker(testdataset1)
+    crawl_dataset(testdataset1)
+    store = get_store(testdataset1, linker)
+    store.sync()
+    view = store.view(testdataset1)
+    export_dataset(testdataset1, view)
+    publish_dataset(testdataset1, latest=True)
+    with open(latest_path / INDEX_FILE, "r") as fh:
+        success_index = json.load(fh)
+
     assert testdataset1.data is not None
     testdataset1.data.format = "FAIL"
-    try:
-        crawl_dataset(testdataset1)
-    except RunFailedException:
-        archive_failure(testdataset1, latest=True)
+    with patch.object(settings, "RUN_TIME_ISO", "2099-01-01T00:00:00"):
+        try:
+            crawl_dataset(testdataset1)
+        except RunFailedException:
+            archive_failure(testdataset1, latest=True)
     clear_data_path(testdataset1.name)
 
     history = _read_history(testdataset1.name)
@@ -93,6 +109,14 @@ def test_publish_failure(testdataset1: Dataset):
     assert artifact_path.joinpath("issues.json").exists()
     assert artifact_path.joinpath("index.json").exists()
 
-    # We don't want failed runs to end up in /datasets
-    assert not latest_path.joinpath("index.json").exists()
-    assert len(list(latest_path.glob("*"))) == 0
+    # Failed runs must not update the published dataset index: last_export
+    # must reflect the prior successful export, not the failed run.
+    with open(latest_path / INDEX_FILE, "r") as fh:
+        post_failure_index = json.load(fh)
+    assert post_failure_index["result"] == "success"
+    assert post_failure_index["last_export"] == success_index["last_export"]
+
+    # The failure index with result="failure" lives only in artifacts
+    with open(artifact_path / INDEX_FILE, "r") as fh:
+        failure_index = json.load(fh)
+    assert failure_index["result"] == "failure"
