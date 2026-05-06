@@ -65,7 +65,11 @@ def crawl_item(row: Dict[str, str | None], context: Context) -> None:
             entity.add("alias", business_name)
         entity.add("firstName", first_names)
         entity.add("alias", aliases)
-        original = h.Names(name=h.make_name(first_name=first_name, last_name=last_name, middle_name=raw_middle_name))
+        original = h.Names(
+            name=h.make_name(
+                first_name=first_name, last_name=last_name, middle_name=raw_middle_name
+            )
+        )
     h.review_names(context, entity, original=original, llm_cleaning=True)
     entity.add("npiCode", npi)
     entity.add("topics", "debarment")
