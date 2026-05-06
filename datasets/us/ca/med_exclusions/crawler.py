@@ -90,7 +90,7 @@ def crawl_data_url(context: Context) -> str:
     assert dataset_url is not None, "Could not find dataset URL"
 
     dataset_doc = context.fetch_html(dataset_url, cache_days=1, absolute_links=True)
-    resource_url = h.xpath_string(dataset_doc, xpath + "/@href")
+    resource_url = h.xpath_strings(dataset_doc, xpath + "/@href")[0]
     assert resource_url is not None, "Could not find resource URL"
 
     resource_doc = context.fetch_html(resource_url, cache_days=1, absolute_links=True)
