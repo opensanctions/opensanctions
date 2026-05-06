@@ -1,6 +1,7 @@
 import re
 import string
 from datetime import date, datetime
+from itertools import chain
 from typing import Dict, List
 from urllib.parse import urljoin
 
@@ -157,10 +158,14 @@ def emit_row(
     if entity.id is None:
         # context.inspect((sheet, row))
         return
+    raw_alias = row.pop("alias", [])
+    raw_known_alias = row.pop("known_alias", [])
+    raw_past_alias = row.pop("past_alias", [])
+    raw_old_name = row.pop("old_name", [])
     entity.add("name", parse_names(name_english), lang="eng")
     entity.add("name", parse_names(name_japanese))
-    entity.add("alias", parse_names(h.multi_split(row.pop("alias", []), ALIAS_SPLITS)))
-    entity.add("alias", parse_names(row.pop("known_alias", [])))
+    entity.add("alias", parse_names(h.multi_split(raw_alias, ALIAS_SPLITS)))
+    entity.add("alias", parse_names(raw_known_alias))
     # FIXME: https://github.com/opensanctions/opensanctions/issues/2928
     # entity.add(
     #     "weakAlias", parse_names(h.multi_split(row.pop("weak_alias", []), ALIAS_SPLITS))
@@ -168,8 +173,33 @@ def emit_row(
     # entity.add(
     #     "weakAlias", parse_names(h.multi_split(row.pop("nickname", []), ALIAS_SPLITS))
     # )
-    entity.add("previousName", parse_names(row.pop("past_alias", [])))
-    entity.add("previousName", parse_names(row.pop("old_name", [])))
+    entity.add("previousName", parse_names(raw_past_alias))
+    entity.add("previousName", parse_names(raw_old_name))
+    original = h.Names()
+    for n in chain(name_english, name_japanese):
+        original.add("name", n)
+    for n in chain(raw_alias, raw_known_alias):
+        original.add("alias", n)
+    for n in chain(raw_past_alias, raw_old_name):
+        original.add("previousName", n)
+    suggested = h.Names()
+    for n in chain(parse_names(name_english), parse_names(name_japanese)):
+        suggested.add("name", n)
+    for n in chain(
+        parse_names(h.multi_split(raw_alias, ALIAS_SPLITS)),
+        parse_names(raw_known_alias),
+    ):
+        suggested.add("alias", n)
+    for n in chain(parse_names(raw_past_alias), parse_names(raw_old_name)):
+        suggested.add("previousName", n)
+    is_irregular, suggested = h.check_names_regularity(entity, suggested)
+    h.review_names(
+        context,
+        entity,
+        original=original,
+        suggested=suggested,
+        is_irregular=is_irregular,
+    )
     entity.add_cast("Person", "position", row.pop("position", []), lang="eng")
 
     birth_date = parse_date(row.pop("birth_date", []))
