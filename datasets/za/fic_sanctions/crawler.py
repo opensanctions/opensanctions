@@ -78,7 +78,10 @@ def crawl_row(context: Context, data: Dict[str, str]):
     entity = context.make(schema)
     entity.id = context.make_slug(ent_id, full_name)
     assert entity.id, data
+    original = h.Names(name=full_name)
+    suggested = h.Names()
     entity.add("name", full_name)
+    suggested.add("name", full_name)
     entity.add("topics", "sanction")
     entity.add("notes", h.clean_note(data.pop("Comments", None)))
     if entity.schema.is_a("Person"):
@@ -95,6 +98,7 @@ def crawl_row(context: Context, data: Dict[str, str]):
             if all(c in {"?", " "} for c in alias):
                 continue
             entity.add("alias", alias)
+            suggested.add("alias", alias)
             if any(["?" in a for a in entity.get("alias")]):
                 context.log.warning("Alias contains '?'", alias=alias)
         passports, ids = clean_passports(context, data.pop("IndividualDocument", ""))
@@ -113,8 +117,17 @@ def crawl_row(context: Context, data: Dict[str, str]):
             if all(c in {"?", " "} for c in alias):
                 continue
             entity.add("alias", alias)
+            suggested.add("alias", alias)
             if any(["?" in a for a in entity.get("alias")]):
                 context.log.warning("Alias contains '?'", alias=alias)
+    is_irregular, suggested = h.check_names_regularity(entity, suggested)
+    h.review_names(
+        context,
+        entity,
+        original=original,
+        suggested=suggested,
+        is_irregular=is_irregular,
+    )
     listed_on = data.pop("ListedOn", None)
     h.apply_date(entity, "createdAt", listed_on)
 
