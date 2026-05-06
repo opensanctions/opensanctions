@@ -148,7 +148,7 @@ Instead, explicitly ignore them via `context.audit_data`:
 context.audit_data(row, ignore=["hair_colour", "skin_tone", "internal_ref"])
 ```
 
-If a field has a clear use case for commercial screening or geopolitical research users — and structured support for it would add real value — propose adding it to the FollowTheMoney schema by opening an issue or PR in the [FollowTheMoney repository](https://github.com/alephdata/followthemoney) with concrete examples from the source data.
+If a field has a clear use case for commercial screening or geopolitical research users — and structured support for it would add real value — propose adding it to the FollowTheMoney schema by opening an issue or PR in the [FollowTheMoney repository](https://github.com/opensanctions/followthemoney) with concrete examples from the source data.
 
 ## Logging and crawler feedback
 
@@ -193,7 +193,7 @@ assert position_name is not None, entity.id
 
 ## Generating consistent unique identifiers
 
-Make sure entity IDs are unique within the source. Avoid using only the name of the entity because there might eventually be two persons or two companies with the same name. [It is preferable](https://www.opensanctions.org/docs/identifiers) to have to deduplicate two Follow the Money entities for the same real world entity, rather than accidentally merge two entities.
+Make sure entity IDs are unique within the source. Avoid using only the name of the entity because there might eventually be two persons or two companies with the same name. [It is preferable](https://www.opensanctions.org/docs/identifiers/) to have to deduplicate two Follow the Money entities for the same real world entity, rather than accidentally merge two entities.
 
 Good values to use as identifiers are:
 
