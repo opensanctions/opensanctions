@@ -162,19 +162,13 @@ def emit_row(
     raw_known_alias = row.pop("known_alias", [])
     raw_past_alias = row.pop("past_alias", [])
     raw_old_name = row.pop("old_name", [])
+    # TODO: apply raw_weak_alias and raw_nickname as weakAlias after review
     raw_weak_alias = row.pop("weak_alias", [])
     raw_nickname = row.pop("nickname", [])
     entity.add("name", parse_names(name_english), lang="eng")
     entity.add("name", parse_names(name_japanese))
     entity.add("alias", parse_names(h.multi_split(raw_alias, ALIAS_SPLITS)))
     entity.add("alias", parse_names(raw_known_alias))
-    # FIXME: https://github.com/opensanctions/opensanctions/issues/2928
-    # entity.add(
-    #     "weakAlias", parse_names(h.multi_split(row.pop("weak_alias", []), ALIAS_SPLITS))
-    # )
-    # entity.add(
-    #     "weakAlias", parse_names(h.multi_split(row.pop("nickname", []), ALIAS_SPLITS))
-    # )
     entity.add("previousName", parse_names(raw_past_alias))
     entity.add("previousName", parse_names(raw_old_name))
     original = h.Names()
@@ -270,7 +264,6 @@ def emit_row(
     entity.add("topics", "sanction")
     context.emit(entity)
     context.emit(sanction)
-    # TODO: remove IGNORE columns after https://github.com/opensanctions/opensanctions/issues/2928 is fixed
     context.audit_data(row)
 
 
