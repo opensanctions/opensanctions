@@ -242,6 +242,61 @@ text = text.replace("\xa0", " ")
 cleaned_text = normality.squash_spaces(text)
 ```
 
+## Pagination
+
+Pagination logic should be easy to read, and fail early and loudly if the source
+changes in a way that makes the logic invalid.
+
+It's often nice to implement pagination
+in a way that closely reflects the controls presented to the user, e.g.
+
+- loop until the current page number is the max page number
+- loop while there is a next URL (as opposed to looping until the next button isn't found, see below)
+
+Think about how we ensure we visit all pages, but we don't end up in an infinite loop.
+If there are many pages and entities, it's easy for dataset assertions to catch
+if we're visiting too few pages.
+
+Prefer code that fails in a way that clearly indicates what went wrong. e.g.
+a KeyError if the API response changes:
+
+```python
+next_url: Optional[str] = context.data_url
+while next_url:
+    response = context.fetch_json(next_url)
+    next_url = response["links"]["next"]  # KeyError if structure changes; None on last page
+    for item in response["data"]:
+        crawl_row(context, item)
+```
+
+Watch out for code where we might miss breaking out of the loop.
+`while True` in general easily results in infinite loops.
+
+e.g. an HTML source might change the class used to indicate that the "next page"
+button is disabled. Looping until the last page button is disabled might result
+in an infinite loop if we loop until a disabled next button can be selected using xpath.
+
+```python
+while True:
+    next_disabled = doc.xpath(".//span[text()='Next' and contains(@class, 'disabled')]")
+    if next_disabled:
+        break
+```
+
+If another obvious cue is available like a max page number, consider using that.
+
+If there is no more robust way to implement it than a while True loop, count the pages
+and assert that we haven't reached some extreme case, e.g.
+
+```python
+pages = 0
+while True:
+    pages += 1
+    # We expect about 10 pages. If we've reached 100, something's broken.
+    assert pages < 100, pages
+```
+
+
 ## Use datapatch lookups to clean or map values from external forms to OpenSanctions
 
 See [Datapatches](datapatch_lookups.md)
