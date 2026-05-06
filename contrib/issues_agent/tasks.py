@@ -39,7 +39,7 @@ def index_jobs():
     tasks: List[Any] = []
 
     for dataset in index_data.get("datasets", []):
-        levels = dataset.get("issue_levels", [])
+        levels = dataset.get("issue_levels", {})
         warnings = levels.get("warning", 0)
         errors = levels.get("error", 0)
         if warnings == 0:
