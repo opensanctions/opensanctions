@@ -120,6 +120,9 @@ def crawl_acteur(context: Context, data: dict[str, Any]) -> None:
         h.apply_date(person, "deathDate", dod)
     context.audit_data(ec)
 
+    # citizenship required: https://www.assemblee-nationale.fr/dyn/synthese/deputes-groupes-parlementaires/l-election-des-deputes
+    person.add("citizenship", "fr")
+
     # We'll include this URL in the data as it's quite useful
     hatvp = acteur.pop("uri_hatvp")
     if is_not_nil(hatvp):
@@ -153,18 +156,28 @@ def crawl_acteur(context: Context, data: dict[str, Any]) -> None:
     entities: list[Entity] = []
     for mandat in mandats:
         if mandat.pop("typeOrgane") == "ASSEMBLEE":
-            start_date = mandat.pop("dateDebut")
-            end_date = mandat.pop("dateFin")
+            period_start = mandat.pop("dateDebut")
+            period_end = mandat.pop("dateFin")
+            start_date = mandat["mandature"]["datePriseFonction"]
+
+            election_data = mandat.pop("election")
+            dep = election_data["lieu"]["departement"]
+            num_dep = election_data["lieu"]["numDepartement"]
+            num_circo = election_data["lieu"]["numCirco"]
+
             occupancy = h.make_occupancy(
                 context,
                 person,
                 position,
                 True,
+                period_start=period_start,
+                period_end=period_end,
                 start_date=start_date,
-                end_date=end_date,
+                end_date=period_end,  # no explicit end date in mandature
                 categorisation=categorisation,
             )
             if occupancy is not None:
+                occupancy.add("constituency", f"{dep} ({num_dep}) - {num_circo}")
                 entities.append(occupancy)
                 # Parliamentary collaborators (i.e. staff)
                 entities.extend(crawl_collabos(context, person, uid_text, mandat))
