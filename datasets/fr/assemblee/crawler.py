@@ -161,10 +161,9 @@ def crawl_acteur(context: Context, data: dict[str, Any]) -> None:
             start_date = mandat["mandature"]["datePriseFonction"]
 
             election_data = mandat.pop("election")
-            lieu = election_data.pop("lieu")
-            dep = lieu.pop("departement")
-            num_dep = lieu.pop("numDepartement")
-            num_circo = lieu.pop("numCirco")
+            dep = election_data["lieu"]["departement"]
+            num_dep = election_data["lieu"]["numDepartement"]
+            num_circo = election_data["lieu"]["numCirco"]
 
             occupancy = h.make_occupancy(
                 context,
