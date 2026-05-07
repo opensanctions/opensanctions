@@ -4,7 +4,16 @@ import re
 from zavod import Context
 from zavod import helpers as h
 
-REG_NRS = ["(Reg. No:", "(Reg. No.:", "(Reg. No.", "(Trade Register No.:"]
+REG_NRS = [
+    "(Reg. No:",
+    "(Reg. No.:",
+    "(Reg. No.",
+    "(Trade Register No.:",
+    "(Registration No.",
+    "(TIN No. ",
+    " Enterprise Registration No. ",
+    "(CNPJ:",
+]
 ENTITY_SPLITS = [
     ";",
     "affiliates",
@@ -12,13 +21,19 @@ ENTITY_SPLITS = [
 NAME_SPLITS = [
     "Previously known as",
     "also known as",
+    "Also known as",
     "also doing business as",
     "formerly operating as",
     "also",
     "formerly",
     "f/k/a",
     "(AKA",
+    "CURRENTLY KNOWN AS",
+    " (currently doing business as",
+    " / ",
 ]
+
+
 # MIRROR_URL = "https://data.opensanctions.org/contrib/adb_sanctions/data.html"
 REGEX_ALIAS_REGNO = re.compile(
     r"(?P<name>.{5,30})[;,] (Registration no.|ID:) (?P<regno>.{5,20})", re.IGNORECASE
@@ -66,7 +81,11 @@ def crawl_row(context: Context, row: Dict[str, str | None]) -> None:
         if match := REGEX_ALIAS_REGNO.match(other_names):
             entity.add("alias", match.group("name"))
             entity.add("registrationNumber", match.group("regno"))
-        elif ":" in other_names or "no." in other_names.lower():
+        elif (
+            ":" in other_names
+            or "no." in other_names.lower()
+            or "registration" in other_names.lower()
+        ):
             res = context.lookup("other_names", other_names)
             if res:
                 for item in res.items:
