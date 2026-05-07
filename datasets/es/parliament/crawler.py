@@ -11,7 +11,7 @@ from zavod.extract import zyte_api
 SENATORS_URL = "https://www.senado.es/web/composicionorganizacion/senadores/composicionsenado/index.html"
 DEPUTIES_URL = "https://www.congreso.es/en/busqueda-de-diputados"
 DEPUTIES_API_URL = "https://www.congreso.es/en/busqueda-de-diputados?p_p_id=diputadomodule&p_p_lifecycle=2&p_p_state=normal&p_p_mode=view&p_p_resource_id=searchDiputados&p_p_cacheability=cacheLevelPage"
-IGNORE = ["constituency_id", "legislative_term_id", "gender"]
+IGNORE = ["constituency_id", "legislative_term_id"]
 
 
 def rename_headers(context: Context, entry: dict[str, str]) -> dict[str, str]:
@@ -121,6 +121,7 @@ def crawl_deputy(
     person.add("citizenship", "es")
     person.add("birthPlace", birth_place)
     person.add("political", party)
+    person.add("gender", item.pop("gender"))
     parliamentarian_group = item.pop("parliamentary_group")
     constituency = item.pop("constituency_name")
     person.add("sourceUrl", profile_url)
