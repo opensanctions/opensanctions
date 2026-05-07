@@ -27,7 +27,7 @@ def crawl_row(
     munid = row.pop("Code de la commune").strip()
     municipality = row.pop("Libellé de la commune").strip()
     birth_date = row.pop("Date de naissance").strip()
-    position_start_date = row.pop(
+    office_term_start_date = row.pop(
         "Date de début du mandat"
     ).strip()  # position's start date
     function_start = row.pop(
@@ -68,7 +68,7 @@ def crawl_row(
         position,
         no_end_implies_current=True,
         start_date=function_start,  # individual's mandate start date
-        period_start=position_start_date,  # position's start date
+        period_start=office_term_start_date,  # office term's start date
         categorisation=categorisation,
     )
     if occupancy is not None:
