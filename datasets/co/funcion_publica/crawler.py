@@ -117,7 +117,9 @@ def crawl_sheet_row(context: Context, row: Dict[str, str]):
         # but that's not the case. I have an issue open with their support.
         # In the meantime:
         status=OccupancyStatus.UNKNOWN,
+        # "date of appointment"
         start_date=row.pop("FECHA_VINCULACION"),
+        # "date of termination"
         end_date=row.pop("FECHA_DESVINCULACION"),
         categorisation=categorisation,
     )
@@ -158,6 +160,8 @@ def crawl_table_row(
         person.add("idNumber", id_number)
 
     person.add("name", match.group("name"))
+    # various PEPs, incl academics or clinical stuff that don't require citizenship
+    person.add("country", "co")
 
     role = str_row.pop("cargo")
     if role is None:
