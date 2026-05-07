@@ -92,7 +92,6 @@ repos:
           datasets/eu|
           datasets/gb/coh|
           datasets/gb/fca_firds|
-          datasets/gb/fcdo_sanctions|
           datasets/gb/nca_most_wanted|
           datasets/gb/nca_press_releases|
           datasets/hk|
