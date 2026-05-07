@@ -436,6 +436,10 @@ lookups:
         props:
           innCode: "7720603527"
           ogrnCode: "1077764566373"
+      - match: "INN: 7810540857OGRN:  1087847024363"
+        props:
+          innCode: "7810540857"
+          ogrnCode: "1087847024363"
       - match: "7813654490 - TIN"
         props:
           taxNumber: "7813654490"
