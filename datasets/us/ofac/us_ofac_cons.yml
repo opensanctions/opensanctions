@@ -41,6 +41,7 @@ tags:
   - juris.us
   - issuer.west
   - sector.maritime
+  - priority.essential
 url: https://www.treasury.gov/resource-center/sanctions/Pages/default.aspx
 data:
   url: https://www.treasury.gov/ofac/downloads/sanctions/1.0/cons_advanced.xml

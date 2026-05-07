@@ -38,6 +38,7 @@ tags:
   - list.sanction
   - issuer.west
   - sector.maritime
+  - priority.essential
 
 assertions:
   min:

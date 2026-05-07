@@ -26,6 +26,7 @@ url: https://www.dfat.gov.au/international-relations/security/sanctions/Pages/sa
 tags:
   - list.sanction
   - issuer.west
+  - priority.essential
 publisher:
   name: "Department of Foreign Affairs and Trade"
   acronym: DFAT
