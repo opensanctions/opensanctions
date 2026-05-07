@@ -51,6 +51,7 @@ def crawl_entity(context: Context, data: Dict[str, Any]) -> None:
         original=original,
         suggested=suggested,
         is_irregular=is_irregular,
+        default_accepted=True,
     )
     entity.add("address", address.split("$"))
     entity.add("country", country)
