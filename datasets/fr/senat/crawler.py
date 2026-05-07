@@ -11,10 +11,8 @@ from zavod import helpers as h
 from zavod.stateful.positions import categorise
 
 UNUSED_FIELDS = [
-    "Groupe politique",
     "Type d'app au grp politique",
     "Commission permanente",
-    "Circonscription",
     "Fonction au Bureau du Sénat",
     "PCS INSEE",
     "Catégorie professionnelle",
@@ -26,7 +24,6 @@ UNUSED_MANDATE_FIELDS = [
     "Prénom usuel",
     "État Sénateur",
     "Identifiant mandat",
-    "Date d'élection",
     "Année de début de mandat",
     "Motif début de mandat",
     "Année de fin de mandat",
@@ -38,7 +35,7 @@ UNUSED_MANDATE_FIELDS = [
 def crawl_row(
     context: Context,
     row: dict[str, str],
-    mandate_dict: dict[str, list[tuple[Optional[str], Optional[str]]]],
+    mandate_dict: dict[str, list[tuple[Optional[str], Optional[str], Optional[str]]]],
 ) -> None:
     """Process one row of the CSV data"""
     # Unique senator ID (note: *not* a national ID number)
@@ -50,6 +47,8 @@ def crawl_row(
     birth_date = row.pop("Date naissance")
     death_date = row.pop("Date de décès")
     email = row.pop("Courrier électronique")
+    constituency = row.pop("Circonscription")
+    political_group = row.pop("Groupe politique")
     context.log.debug(
         f"Senator {senid}: {prefix} {given_name} {family_name} ({status})"
     )
@@ -62,6 +61,8 @@ def crawl_row(
     h.apply_name(
         person, prefix=prefix, given_name=given_name, last_name=family_name, lang="fra"
     )
+    # citizenship required: https://www.elections.interieur.gouv.fr/scrutins/elections-senatoriales/elections-senatoriales-je-suis-candidat
+    person.add("citizenship", "fr")
     if email and email != "Non public":
         person.add("email", email)
     if birth_date:
@@ -89,9 +90,9 @@ def crawl_row(
     # with ACTIF, then we at least get 347 currents as of writing.
     mandates = mandate_dict.get(senid, [])
     if status == "ACTIF":
-        mandates.append((None, None))
+        mandates.append((None, None, None))
     entities: list[Entity] = []
-    for start_date, end_date in mandates:
+    for start_date, end_date, election_date in mandates:
         context.log.debug(f"Mandate for {senid}: {start_date} - {end_date}")
         occupancy = h.make_occupancy(
             context,
@@ -100,10 +101,14 @@ def crawl_row(
             no_end_implies_current=True,
             start_date=start_date,
             end_date=end_date,
+            election_date=election_date,
             categorisation=categorisation,
         )
-        if occupancy is not None:
-            entities.append(occupancy)
+        if occupancy is None:
+            continue
+        occupancy.add("constituency", constituency)
+        occupancy.add("politicalGroup", political_group)
+        entities.append(occupancy)
     if entities:
         context.log.debug(f"Emitting PEP entities for {senid}")
         context.emit(person)
@@ -114,7 +119,7 @@ def crawl_row(
 
 def crawl_mandates(
     context: Context, reader: Iterator[dict[str, str]]
-) -> Iterator[tuple[str, tuple[Optional[str], Optional[str]]]]:
+) -> Iterator[tuple[str, tuple[Optional[str], Optional[str], Optional[str]]]]:
     """Get mandates for senators by ID."""
     for row in reader:
         senid = row.pop("Matricule")
@@ -124,8 +129,11 @@ def crawl_mandates(
         end_date = row.pop("Date de fin de mandat") or None
         if end_date is not None:
             end_date = end_date.split(maxsplit=1)[0]
+        election_date = row.pop("Date d'élection") or None
+        if election_date is not None:
+            election_date = election_date.split(maxsplit=1)[0]
         context.audit_data(row, UNUSED_MANDATE_FIELDS)
-        yield senid, (start_date, end_date)
+        yield senid, (start_date, end_date, election_date)
 
 
 def crawl(context: Context) -> None:
@@ -135,7 +143,7 @@ def crawl(context: Context) -> None:
     path = context.fetch_resource(
         "mandates.csv", urljoin(context.data_url, "/data/senateurs/ODSEN_ELUSEN.csv")
     )
-    mandates: dict[str, list[tuple[Optional[str], Optional[str]]]] = {}
+    mandates: dict[str, list[tuple[Optional[str], Optional[str], Optional[str]]]] = {}
     with open(path, "rt", encoding="cp1252") as infh:
         decomment = (spam for spam in infh if spam[0] != "%")
         for senid, dates in crawl_mandates(context, csv.DictReader(decomment)):
