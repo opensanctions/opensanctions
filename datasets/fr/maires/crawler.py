@@ -11,7 +11,6 @@ from zavod.stateful.positions import categorise
 UNUSED_FIELDS = [
     "Code de la catégorie socio-professionnelle",
     "Libellé de la catégorie socio-professionnelle",
-    "Date de début de la fonction",
     "Code de la collectivité à statut particulier",
     "Code du département",
 ]
@@ -28,7 +27,12 @@ def crawl_row(
     munid = row.pop("Code de la commune").strip()
     municipality = row.pop("Libellé de la commune").strip()
     birth_date = row.pop("Date de naissance").strip()
-    start_date = row.pop("Date de début du mandat").strip()
+    position_start_date = row.pop(
+        "Date de début du mandat"
+    ).strip()  # position's start date
+    function_start = row.pop(
+        "Date de début de la fonction"
+    ).strip()  # individual's mandate start date
     departement = row.pop("Libellé du département").strip()
     cspname = row.pop("Libellé de la collectivité à statut particulier").strip()
     # Technically Martinique, Guyana, etc, are not départements but
@@ -43,6 +47,8 @@ def crawl_row(
     if birth_date:
         h.apply_date(person, "birthDate", birth_date)
     person.add("gender", row.pop("Code sexe"))
+    # citizenhip required: https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006389917
+    person.add("citizenship", "fr")
     position = h.make_position(
         context,
         name=f"Mayor of {municipality}",
@@ -61,7 +67,8 @@ def crawl_row(
         person,
         position,
         no_end_implies_current=True,
-        start_date=start_date,
+        start_date=function_start,  # individual's mandate start date
+        period_start=position_start_date,  # position's start date
         categorisation=categorisation,
     )
     if occupancy is not None:
