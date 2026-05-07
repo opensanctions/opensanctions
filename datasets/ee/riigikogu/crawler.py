@@ -15,34 +15,16 @@ def get_members_urls(context: Context) -> list:
 def crawl_item(member_url: str, context: Context):
     member_page_html = context.fetch_html(member_url)
 
-    try:
-        name = h.xpath_string(member_page_html, '//*[@id="main"]/header/div/h1/text()')
-    except IndexError:
-        context.log.info("Couldn't find name. Skipping person.", url=member_url)
-        return
-    try:
-        bio = " ".join(
-            h.xpath_strings(
-                member_page_html,
-                '//*[@class="col-xs-6 profile-desc bg-white content"]/p[text()][1]/text()',
-            )
-        ).strip()
-    except ValueError:
-        context.log.warning(
-            "Couldn't find biography. Skipping biography.", url=member_url
-        )
-        return
-    try:
-        electoral_district = h.xpath_string(
-            member_page_html,
-            '//*[@class="col-xs-6 profile-desc bg-white content"]//a[contains(@href, "searchByConstituency")]/text()',
-        )
-    except ValueError:
-        context.log.warning(
-            "Couldn't find electoral district. Skipping electoral district.",
-            url=member_url,
-        )
-        return
+    name = h.xpath_string(member_page_html, '//*[@id="main"]/header/div/h1/text()')
+    bio_parts = h.xpath_strings(
+        member_page_html, '//*[contains(@class, "profile-desc")]/p[text()][1]/text()'
+    )
+    bio = " ".join(bio_parts).strip()
+    electoral_district = h.xpath_strings(
+        member_page_html,
+        '//*[contains(@class, "profile-desc")]//a[contains(@href, "searchByConstituency")]/text()',
+    )
+    electoral_district = electoral_district[0] if electoral_district else None
 
     entity = context.make("Person")
     entity.id = context.make_id(name)
