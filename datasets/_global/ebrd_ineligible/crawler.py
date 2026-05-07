@@ -37,6 +37,7 @@ def crawl_entity(context: Context, data: Dict[str, Any]) -> None:
     for name in names:
         suggested.add("name", name)
     if subtitle:
+        original.add("alias", subtitle)
         res = context.lookup("subtitle", subtitle, warn_unmatched=True)
         if res:
             entity.add("alias", res.value)
