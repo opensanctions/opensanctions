@@ -11,7 +11,7 @@ from zavod.extract import zyte_api
 SENATORS_URL = "https://www.senado.es/web/composicionorganizacion/senadores/composicionsenado/index.html"
 DEPUTIES_URL = "https://www.congreso.es/en/busqueda-de-diputados"
 DEPUTIES_API_URL = "https://www.congreso.es/en/busqueda-de-diputados?p_p_id=diputadomodule&p_p_lifecycle=2&p_p_state=normal&p_p_mode=view&p_p_resource_id=searchDiputados&p_p_cacheability=cacheLevelPage"
-IGNORE = ["constituency_id", "constituency_name", "legislative_term_id", "gender"]
+IGNORE = ["constituency_id", "legislative_term_id", "gender"]
 
 
 def rename_headers(context: Context, entry: dict[str, str]) -> dict[str, str]:
@@ -33,6 +33,8 @@ def emit_pep_entities(
     lang: str,
     start_date: Optional[str],
     end_date: Optional[str],
+    constituency: Optional[str] = None,
+    political_group: Optional[str] = None,
     is_pep: bool,
     wikidata_id: Optional[str] = None,
 ) -> bool:
@@ -55,6 +57,8 @@ def emit_pep_entities(
         categorisation=categorisation,
     )
     if occupancy:
+        occupancy.add("constituency", constituency)
+        occupancy.add("politicalGroup", political_group)
         context.emit(occupancy)
         context.emit(position)
         context.emit(person)
@@ -113,9 +117,12 @@ def crawl_deputy(
     )
     birth_date, birth_place = get_birth_date_and_place(context, profile_url)
     h.apply_date(person, "birthDate", birth_date)
+    # citizenship required: https://www.boe.es/buscar/act.php?id=BOE-A-1985-11672
+    person.add("citizenship", "es")
     person.add("birthPlace", birth_place)
     person.add("political", party)
-    person.add("political", item.pop("parliamentary_group"))
+    parliamentarian_group = item.pop("parliamentary_group")
+    constituency = item.pop("constituency_name")
     person.add("sourceUrl", profile_url)
     emitted = emit_pep_entities(
         context,
@@ -124,6 +131,8 @@ def crawl_deputy(
         lang="eng",
         start_date=item.pop("start_date"),
         end_date=item.pop("end_date", None),
+        constituency=constituency,
+        political_group=parliamentarian_group,
         is_pep=True,
         wikidata_id="Q18171345",
     )
@@ -167,8 +176,10 @@ def crawl_senator(context: Context, senator_url: str) -> bool:
     )
     h.apply_date(person, "birthDate", datos.findtext("fechaNacimiento"))
     h.apply_date(person, "deathDate", datos.findtext("fechaFallecimiento"))
+    # citizenship required: https://www.boe.es/buscar/act.php?id=BOE-A-1985-11672
+    person.add("citizenship", "es")
     person.add("birthPlace", datos.findtext("lugarNacimiento"))
-    person.add("notes", datos.findtext("biografia"))
+    person.add("biography", datos.findtext("biografia"))
     person.add("sourceUrl", senator_url)
 
     for legislatura in doc_xml.findall(".//legislatura"):
