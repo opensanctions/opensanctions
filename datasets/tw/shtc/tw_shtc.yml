@@ -49,6 +49,10 @@ assertions:
       LegalEntity: 15000
 
 lookups:
+  type.country:
+    options:
+      - match: "null"
+        value: null
   type.name:
     options:
       - match: WEIHAI WORLD-SHPPING FREIGHT
