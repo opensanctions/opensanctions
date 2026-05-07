@@ -144,10 +144,24 @@ def parse_html(context: Context) -> None:
     for section in h.xpath_elements(doc, section_xpath):
         for row in h.xpath_elements(section, './/div[@class="row"]'):
             # Extract core HTML elements
-            name_el = h.xpath_elements(row, ".//h1/a", expect_exactly=1)[0]
+            name_els = h.xpath_elements(row, ".//h1/a")
+            if len(name_els) != 1:
+                # Seems they like to fire the secretary, so allow skipping him if the row content is empty
+                has_secnav_comment = any(
+                    "Secretary of the Navy" in (c.text or "")
+                    for c in row.iter(etree.Comment)
+                )
+                assert has_secnav_comment, (
+                    f"Unexpected row with {len(name_els)} name elements"
+                )
+                continue
+            name_el = name_els[0]
+
             raw_name = h.xpath_strings(row, ".//h1/a/text()", expect_exactly=1)[0]
             role = h.xpath_strings(row, ".//h3/a/text()", expect_exactly=1)[0]
-            bio = h.xpath_string(row, './/p[contains(@class, "bio-sum")]/text()')
+            bio = h.element_text(
+                h.xpath_element(row, './/p[contains(@class, "bio-sum")]')
+            )
             leader_url = urljoin(BASE_URL, name_el.get("href"))
 
             name, title = extract_name_and_title(context, raw_name)
