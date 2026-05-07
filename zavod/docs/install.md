@@ -33,6 +33,7 @@ uv sync --python 3.13 --no-binary-package pyicu --no-binary-package plyvel --ext
 # Step 2: rebuild plyvel with -fno-rtti to match homebrew's leveldb
 # (leveldb disables RTTI in its own build, so the plyvel wheel references symbols
 # that don't exist at runtime — building from source with matching flags fixes this)
+# pyicu doesn't wan to be built with this option, so a second step is required.
 CXXFLAGS="-fno-rtti" \
 CPPFLAGS="-I$(brew --prefix leveldb)/include" \
 LDFLAGS="-L$(brew --prefix leveldb)/lib" \
