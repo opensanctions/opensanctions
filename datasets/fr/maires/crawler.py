@@ -27,9 +27,7 @@ def crawl_row(
     munid = row.pop("Code de la commune").strip()
     municipality = row.pop("Libellé de la commune").strip()
     birth_date = row.pop("Date de naissance").strip()
-    office_term_start_date = row.pop(
-        "Date de début du mandat"
-    ).strip()  # position's start date
+    office_term_start_date = row.pop("Date de début du mandat").strip()
     function_start = row.pop(
         "Date de début de la fonction"
     ).strip()  # individual's mandate start date
