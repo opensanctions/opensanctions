@@ -3,12 +3,20 @@ Crawler for active French senators.
 """
 
 import csv
-from typing import Optional, Iterator
+from collections import defaultdict
+from typing import Optional, Iterator, NamedTuple
 from urllib.parse import urljoin
 
 from zavod import Context, Entity
 from zavod import helpers as h
 from zavod.stateful.positions import categorise
+
+
+class Mandate(NamedTuple):
+    start_date: Optional[str]
+    end_date: Optional[str]
+    election_date: Optional[str]
+
 
 UNUSED_FIELDS = [
     "Type d'app au grp politique",
@@ -35,9 +43,8 @@ UNUSED_MANDATE_FIELDS = [
 def crawl_row(
     context: Context,
     row: dict[str, str],
-    mandate_dict: dict[str, list[tuple[Optional[str], Optional[str], Optional[str]]]],
+    mandates_by_senid: dict[str, list[Mandate]],
 ) -> None:
-    """Process one row of the CSV data"""
     # Unique senator ID (note: *not* a national ID number)
     senid = row.pop("Matricule")
     status = row.pop("État")
@@ -88,9 +95,9 @@ def crawl_row(
     # When only adding these empty mandates to those missing mandates,
     # we only got 252 senators with current occupancy, so let's add it to all
     # with ACTIF, then we at least get 347 currents as of writing.
-    mandates = mandate_dict.get(senid, [])
+    mandates = mandates_by_senid.get(senid, [])
     if status == "ACTIF":
-        mandates.append((None, None, None))
+        mandates.append(Mandate(start_date=None, end_date=None, election_date=None))
     entities: list[Entity] = []
     for start_date, end_date, election_date in mandates:
         context.log.debug(f"Mandate for {senid}: {start_date} - {end_date}")
@@ -119,7 +126,7 @@ def crawl_row(
 
 def crawl_mandates(
     context: Context, reader: Iterator[dict[str, str]]
-) -> Iterator[tuple[str, tuple[Optional[str], Optional[str], Optional[str]]]]:
+) -> Iterator[tuple[str, Mandate]]:
     """Get mandates for senators by ID."""
     for row in reader:
         senid = row.pop("Matricule")
@@ -133,7 +140,12 @@ def crawl_mandates(
         if election_date is not None:
             election_date = election_date.split(maxsplit=1)[0]
         context.audit_data(row, UNUSED_MANDATE_FIELDS)
-        yield senid, (start_date, end_date, election_date)
+        yield (
+            senid,
+            Mandate(
+                start_date=start_date, end_date=end_date, election_date=election_date
+            ),
+        )
 
 
 def crawl(context: Context) -> None:
@@ -143,15 +155,17 @@ def crawl(context: Context) -> None:
     path = context.fetch_resource(
         "mandates.csv", urljoin(context.data_url, "/data/senateurs/ODSEN_ELUSEN.csv")
     )
-    mandates: dict[str, list[tuple[Optional[str], Optional[str], Optional[str]]]] = {}
+    # Keyed by senator matricule (senid); one senator can have multiple mandates
+    # covering different terms, each with its own start/end/election dates.
+    mandates_by_senid: defaultdict[str, list[Mandate]] = defaultdict(list)
     with open(path, "rt", encoding="cp1252") as infh:
         decomment = (spam for spam in infh if spam[0] != "%")
-        for senid, dates in crawl_mandates(context, csv.DictReader(decomment)):
-            mandates.setdefault(senid, []).append(dates)
+        for senid, mandate in crawl_mandates(context, csv.DictReader(decomment)):
+            mandates_by_senid[senid].append(mandate)
 
-    # Do main CSV
+    # Main CSV: one row per senator with biographical and status fields
     path = context.fetch_resource("senators.csv", context.data_url)
     with open(path, "rt", encoding="cp1252") as infh:
         decomment = (spam for spam in infh if spam[0] != "%")
         for row in csv.DictReader(decomment):
-            crawl_row(context, row, mandates)
+            crawl_row(context, row, mandates_by_senid)
