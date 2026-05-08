@@ -81,7 +81,9 @@ lookups:
         value: US-BRUS
       - match: CAR
         value: US-CAR
-      - match: CUBA
+      - match:
+          - CUBA
+          - CUBA-EO
         value: US-CUBA
       - match:
           - ILLICIT-DRUGS-EO14059
@@ -694,6 +696,8 @@ lookups:
         value: Aru
       - match: Ibb
         value: Ibb
+      - match: Moa
+        value: Moa
       - match: Osh
         value: Osh
       - match: KPK
