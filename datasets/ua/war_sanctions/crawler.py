@@ -6,7 +6,7 @@ import json
 
 from dataclasses import dataclass
 from enum import Enum
-from normality import slugify, squash_spaces
+from normality import squash_spaces
 from os import environ as env
 from typing import Any, Dict, Optional, List
 from urllib.parse import urljoin
@@ -260,8 +260,6 @@ def fetch_endpoint(context: Context, url: str, max_retries: int = 4) -> dict[str
         )
         response: dict[str, Any] = json.loads(zyte_result.response_text)
         if response and response.get("code") == 0:
-            with open(slugify(url), "w") as f:
-                json.dump(response, f, indent=2)
             return response
         context.cache.delete(zyte_result.cache_fingerprint)
         error_code = response.get("code") if response else None
