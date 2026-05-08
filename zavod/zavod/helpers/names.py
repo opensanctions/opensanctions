@@ -536,10 +536,13 @@ def _review_names(
     # Sort within each prop so the source_value JSON is stable when source order changes.
     populated_props: Dict[str, List[str | Dict[str, str | None]]] = {}
     for prop, vals in source_names.original.as_langtexts():
-        populated_props[prop] = [
-            v.text if v.lang is None else cast(Dict[str, str | None], v.model_dump())
-            for v in sorted(vals, key=lambda v: (v.lang or "", v.text))
-        ]
+        items: List[str | Dict[str, str | None]] = []
+        for v in sorted(vals, key=lambda v: (v.lang or "", v.text)):
+            if v.lang is None:
+                items.append(v.text)
+            else:
+                items.append(cast(Dict[str, str | None], v.model_dump()))
+        populated_props[prop] = items
     source_value_data: Dict[str, str | Dict[str, List[str | Dict[str, str | None]]]] = {
         "entity_schema": entity.schema.name,
         "original": populated_props,
