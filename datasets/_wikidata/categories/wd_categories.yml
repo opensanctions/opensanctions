@@ -250,7 +250,7 @@ config:
       negcats: |
         Government_of_the_Achaemenid_Empire
         Licchavi_kings_of_Nepal
-        Sinhalese-royalty
+        Sinhalese_royalty
         Tamil_monarchs
     - category: Political_office-holders_in_Oceania
       depth: 8
