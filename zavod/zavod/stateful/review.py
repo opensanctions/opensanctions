@@ -49,10 +49,8 @@ class Review(BaseModel, Generic[ModelType]):
 
     id: Optional[int] = None
     key: str
-    """A slug derived from some information from the source that uniquely and
-    consistently identifies the review within the dataset. For an enforcement action,
-    that might be an action reference number or publication url (for lack of a consistent identifier).
-    For a string of names that rarely changes, that string itself might work."""
+    """A SHA1 hash derived from key_parts that uniquely and consistently identifies
+    the review within the dataset."""
     dataset: str
     extraction_schema: JsonValue
     source_value: str
@@ -140,6 +138,27 @@ class Review(BaseModel, Generic[ModelType]):
         )
         return cls.load(conn, data_model, select_stmt)
 
+    def rename_key(self, conn: Connection, new_key: str) -> None:
+        """Rename this review's key in-place without creating a new revision.
+        Updates both the review table and the entity link table."""
+        conn.execute(
+            update(review_table)
+            .where(
+                review_table.c.key == self.key,
+                review_table.c.dataset == self.dataset,
+            )
+            .values(key=new_key)
+        )
+        conn.execute(
+            update(review_entity_table)
+            .where(
+                review_entity_table.c.review_key == self.key,
+                review_entity_table.c.dataset == self.dataset,
+            )
+            .values(review_key=new_key)
+        )
+        self.key = new_key
+
     def save(self, conn: Connection, new_revision: bool) -> None:
         values = {
             "key": self.key,
@@ -224,8 +243,10 @@ class SourceValue(ABC):
     """
 
     key_parts: str | List[str]
-    """The key parts will be slugified and shortened with a hash of all the
-    parts if the slug would be too long."""
+    """Parts that are SHA1-hashed to produce the review key."""
+    legacy_key_parts: Optional[str | List[str]] = None
+    """If set, the migration path in review_extraction() will also try the legacy
+    slug key derived from these parts. Use when key_parts ordering has changed."""
     mime_type: str
     label: str
     url: Optional[str]
@@ -276,14 +297,18 @@ class JSONSourceValue(SourceValue):
         label: str,
         data: JsonValue,
         url: Optional[str] = None,
+        legacy_key_parts: Optional[str | List[str]] = None,
     ):
         """
         Args:
             key_parts: Information from the source that uniquely and
                 consistently identifies the review within the dataset. For a JSON
                 object, that might be a unique id field or a url.
+            legacy_key_parts: If key_parts ordering has changed, supply the old
+                ordering here so the migration path can find existing reviews.
         """
         self.key_parts = key_parts
+        self.legacy_key_parts = legacy_key_parts
         self.label = label
         self.url = url
         options = orjson.OPT_SORT_KEYS | orjson.OPT_INDENT_2
@@ -354,18 +379,24 @@ def unicode_slug(parts: str | List[str]) -> Optional[str]:
 
 
 def review_key(parts: str | List[str]) -> str:
-    """Generates a unique key for a given string of party names.
-    If the slug would be longer than 255 chars, we include a truncated hash of the
-    string with part of the slug to ensure it's consistent, unique, and short enough.
-    """
+    """Generates a stable 40-char SHA1 key for a review.
+    Behaves like make_entity_id with no prefix: each part is stripped and hashed as-is."""
+    if isinstance(parts, str):
+        parts = [parts]
+    digest = sha1()
+    for part in parts:
+        digest.update(part.strip().encode("utf-8"))
+    return digest.hexdigest()
+
+
+def review_key_legacy(parts: str | List[str]) -> str:
+    """Returns the old slug-based key for migration lookups only. Do not use for new reviews."""
     slug = unicode_slug(parts)
     assert slug is not None
-    # Hardcoding based on model.KEY_LEN to prevent inadvertent key changes
     if len(slug) <= 255:
         return slug
-    else:
-        hash = sha1(slug.encode("utf-8")).hexdigest()
-        return f"{slug[:80]}-{hash[:10]}"
+    hash_ = sha1(slug.encode("utf-8")).hexdigest()
+    return f"{slug[:80]}-{hash_[:10]}"
 
 
 def review_extraction(
@@ -412,6 +443,22 @@ def review_extraction(
     review = Review[ModelType].by_key(
         context.conn, data_model, dataset=context.dataset.name, key=key_slug
     )
+    if review is None:
+        # Migrate from legacy slug-based keys (slug→hash migration for all types;
+        # legacy_key_parts also handles name-ordering changes for names reviews).
+        legacy_candidates: List[str | List[str]] = [source_value.key_parts]
+        if source_value.legacy_key_parts is not None:
+            legacy_candidates.append(source_value.legacy_key_parts)
+        for candidate in legacy_candidates:
+            legacy_slug = review_key_legacy(candidate)
+            legacy_review = Review[ModelType].by_key(
+                context.conn, data_model, dataset=context.dataset.name, key=legacy_slug
+            )
+            if legacy_review is not None:
+                legacy_review.rename_key(context.conn, key_slug)
+                context.log.debug("Migrated review key", old=legacy_slug, new=key_slug)
+                review = legacy_review
+                break
     save_new_revision = False
     if review is None:
         context.log.debug("Creating new review", key=key_slug)
