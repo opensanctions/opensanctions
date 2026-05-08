@@ -87,7 +87,7 @@ def crawl_item(
         lang="spa",
         topics=topics,
     )
-    categorisation = categorise(context, position, is_pep=True)
+    categorisation = categorise(context, position, default_is_pep=True)
 
     occupancy = h.make_occupancy(
         context,

@@ -190,7 +190,7 @@ def wikidata_position(
         topics.discard("gov.head")
 
     position.add("topics", topics)
-    categorisation = categorise(context, position, is_pep=is_pep)
+    categorisation = categorise(context, position, default_is_pep=is_pep)
     if not categorisation.is_pep:
         return None
     real_topics = set(categorisation.topics)

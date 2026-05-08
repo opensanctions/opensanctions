@@ -30,7 +30,7 @@ def crawl(context: Context):
                 name="Financial Intelligence Unit Official",
                 country="ro",
             )
-            categorisation = categorise(context, position, True)
+            categorisation = categorise(context, position, default_is_pep=True)
             if categorisation:
                 occupancy = h.make_occupancy(
                     context,

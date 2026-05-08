@@ -99,7 +99,7 @@ def crawl_item(context: Context, item: etree):
     position = h.make_position(
         context, "Member of the Grand National Assembly", country="tr"
     )
-    categorisation = categorise(context, position, is_pep=True)
+    categorisation = categorise(context, position, default_is_pep=True)
 
     occupancy = h.make_occupancy(
         context,

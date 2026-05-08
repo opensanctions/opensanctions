@@ -56,7 +56,7 @@ def crawl_row(
     )
 
     # is_pep=True because we expect all mayors to be PEPs
-    categorisation = categorise(context, position, is_pep=True)
+    categorisation = categorise(context, position, default_is_pep=True)
     if not categorisation.is_pep:
         context.log.warning(f"Mayor {given_name} {family_name} is not PEP")
         return

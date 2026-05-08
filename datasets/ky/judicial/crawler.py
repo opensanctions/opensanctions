@@ -63,7 +63,7 @@ def crawl_page(context: Context, person_url):
             name=position,
             country="Cayman Islands",
         )
-        categorisation = categorise(context, position, is_pep=True)
+        categorisation = categorise(context, position, default_is_pep=True)
         if not categorisation.is_pep:
             continue
         occupancy = h.make_occupancy(

@@ -45,7 +45,7 @@ def emit_pep_entities(
         topics=["gov.legislative", "gov.national"],
         wikidata_id=wikidata_id,
     )
-    categorisation = categorise(context, position, is_pep=is_pep)
+    categorisation = categorise(context, position, default_is_pep=is_pep)
     occupancy = h.make_occupancy(
         context,
         person,

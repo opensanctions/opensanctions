@@ -183,7 +183,7 @@ def crawl_row(context: Context, row: Dict[str, HtmlElement], index_url: str):
         context, position, "bul", position_name, TRANSLIT_OUTPUT, POSITION_PROMPT
     )
 
-    categorisation = categorise(context, position, is_pep=True)
+    categorisation = categorise(context, position, default_is_pep=True)
     if not categorisation.is_pep:
         return
 

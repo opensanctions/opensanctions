@@ -111,7 +111,7 @@ def crawl_item(
     position = h.make_position(
         context, "Member of the National People’s Congress", country="cn"
     )
-    categorisation = categorise(context, position, is_pep=True)
+    categorisation = categorise(context, position, default_is_pep=True)
 
     occupancy = h.make_occupancy(
         context,

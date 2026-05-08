@@ -127,7 +127,7 @@ def crawl_mandate(context, url, person, el):
         return
 
     position = h.make_position(context, position_name, country="at", lang="deu")
-    categorisation = categorise(context, position, is_pep=True)
+    categorisation = categorise(context, position, default_is_pep=True)
     if not categorisation.is_pep:
         return
 
@@ -155,7 +155,7 @@ def crawl_title(context, url, person, el):
     h1 = el.find(".//h1")
     position_name = h1.getnext().text_content().strip()
     position = h.make_position(context, position_name, country="at", lang="deu")
-    categorisation = categorise(context, position, is_pep=None)
+    categorisation = categorise(context, position, default_is_pep=None)
     if not categorisation.is_pep:
         if categorisation.is_pep is None:
             context.log.warning(
