@@ -178,7 +178,9 @@ lookups:
           - 2023/2147
         value: EU-SDNZ
       # https://www.sanctionsmap.eu/#/main/details/31/
-      - match: 2014/450
+      - match:
+          - 2014/450
+          - 747/2014
         value: EU-SDN
       - match:
           - 2001/931
