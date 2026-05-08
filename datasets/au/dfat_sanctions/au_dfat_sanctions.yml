@@ -255,6 +255,10 @@ lookups:
         values:
           - 1973-05-27
           - 1975-01-01
+      - match: 1968_x000D_ 28/08/1965
+        values:
+          - 1968
+          - 1965-08-28
 
       - match:
           - 196719611973
@@ -286,3 +290,11 @@ lookups:
         values:
           - Somalia
           - Sweden
+      - match: "Colombia. Italy."
+        values:
+          - Colombia
+          - Italy
+      - match: Colombia. Spain.
+        values:
+          - Colombia
+          - Spain
