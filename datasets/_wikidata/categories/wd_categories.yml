@@ -2390,7 +2390,7 @@ config:
       topic: role.pep
       country: lk
       negcats: |
-        Sinhalese-royalty
+        Sinhalese_royalty
         Tamil_monarchs
         
     # country: Bhutan
