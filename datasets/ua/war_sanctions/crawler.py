@@ -211,24 +211,7 @@ def generate_token(context: Context, cid: str, pkey: str) -> str:
 def apply_names(context: Context, person: Entity, person_data: Dict[str, str]):
     for key, lang in NAMES_LANG_MAP.items():
         raw_name = person_data.pop(key)
-        original = h.Names(name=raw_name)
-        suggested = None
-        if "/" in raw_name:
-            res = context.lookup("names", raw_name, warn_unmatched=True)
-            if res:
-                suggested = h.Names(
-                    name=res.name,
-                    weakAlias=getattr(res, "weakAlias", None),
-                    alias=getattr(res, "alias", None),
-                )
-        h.apply_reviewed_names(
-            context,
-            person,
-            original=original,
-            suggested=suggested,
-            lang=lang,
-            default_accepted=suggested is not None,
-        )
+        h.apply_reviewed_name_string(context, person, string=raw_name, lang=lang)
 
 
 def make_id(context: Context, entity_type: str, raw_id: str):
