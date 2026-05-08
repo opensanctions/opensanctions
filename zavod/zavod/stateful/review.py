@@ -289,6 +289,11 @@ class TextSourceValue(SourceValue):
 
 
 class JSONSourceValue(SourceValue):
+    """
+    Sorts keys but not array values, so ensure array values are ordered consistently
+    for consistent comparison between existing reviews and source values.
+    """
+
     mime_type: str = "application/json"
 
     def __init__(
@@ -380,7 +385,9 @@ def unicode_slug(parts: str | List[str]) -> Optional[str]:
 
 def review_key(parts: str | List[str]) -> str:
     """Generates a stable 40-char SHA1 key for a review.
-    Behaves like make_entity_id with no prefix: each part is stripped and hashed as-is."""
+    String normalization should be no more aggressive than source value matching,
+    so that two source values don't match as keys but appear to be changing source values.
+    """
     if isinstance(parts, str):
         parts = [parts]
     digest = sha1()
