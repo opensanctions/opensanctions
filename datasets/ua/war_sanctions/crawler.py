@@ -6,7 +6,7 @@ import json
 
 from dataclasses import dataclass
 from enum import Enum
-from normality import squash_spaces
+from normality import slugify, squash_spaces
 from os import environ as env
 from typing import Any, Dict, Optional, List
 from urllib.parse import urljoin
@@ -242,7 +242,7 @@ def split_dob_dod(raw_date):
     return dob, dod
 
 
-def fetch_endpoint(context: Context, url: str, max_retries: int = 2) -> dict[str, Any]:
+def fetch_endpoint(context: Context, url: str, max_retries: int = 4) -> dict[str, Any]:
     # Retry on code 5 (invalid or expired timestamp) — Zyte can be slow to route
     # the request and the 15-second timestamp window expires in transit.
     for attempt in range(max_retries + 1):
@@ -260,6 +260,8 @@ def fetch_endpoint(context: Context, url: str, max_retries: int = 2) -> dict[str
         )
         response: dict[str, Any] = json.loads(zyte_result.response_text)
         if response and response.get("code") == 0:
+            with open(slugify(url), "w") as f:
+                json.dump(response, f, indent=2)
             return response
         context.cache.delete(zyte_result.cache_fingerprint)
         error_code = response.get("code") if response else None
@@ -268,10 +270,9 @@ def fetch_endpoint(context: Context, url: str, max_retries: int = 2) -> dict[str
             raise Exception(
                 f"Failed to fetch data for {url} error={error} response={response}"
             )
-        context.log.warning(
-            "Retrying after timestamp error", url=url, attempt=attempt + 1
-        )
-    raise Exception("unreachable")
+        # Info level because we know this happens regularly but isn't normally surprising.
+        context.log.info("Retrying after timestamp error", url=url, attempt=attempt + 1)
+    raise Exception("Too many timestamp errors.")
 
 
 def load_managers(context: Context, program_key: str) -> Dict[str, Dict]:
@@ -371,11 +372,33 @@ def crawl_person(
     endpoint,
     source_url,
     topic: Optional[str] = "poi",
+    known_vessel_ids: set[str] | None = None,
 ):
     birth_date = person_data.pop("date_bd")
     death_date = person_data.pop("date_death", None)
     if "- " in birth_date:
         birth_date, death_date = split_dob_dod(birth_date)
+
+    # Pop ships early so we can build source URLs before emitting
+    # 'transport/persons' and 'transport/captains' endpoints provide vessel ids
+    related_ships = person_data.pop("ships", None)
+    is_captain = endpoint == "transport/captains"
+
+    # For captains, filter to vessels present in the ships endpoint
+    valid_ships: list[Any] = []
+    if related_ships:
+        for ship_id_raw in related_ships:
+            if (
+                is_captain
+                and known_vessel_ids is not None
+                and str(ship_id_raw) not in known_vessel_ids
+            ):
+                context.log.info(
+                    "Captain references vessel not in ships endpoint",
+                    vessel_id=str(ship_id_raw),
+                )
+                continue
+            valid_ships.append(ship_id_raw)
 
     person = context.make("Person")
     person.id = make_id(context, WSAPIDataType.PERSON, person_data.pop("id"))
@@ -394,7 +417,16 @@ def crawl_person(
     if topic:
         person.add("topics", topic)
     person.add("birthPlace", person_data.pop("city_bd", None))
-    person.add("sourceUrl", source_url)
+    # Captains don't have individual pages; use ship-filtered URLs instead.
+    # Fall back to the constructed URL when there are no valid ships.
+    if is_captain and valid_ships:
+        for ship_id_raw in valid_ships:
+            person.add(
+                "sourceUrl",
+                f"{context.data_url}/transport/captains?kp[ships]={ship_id_raw}",
+            )
+    else:
+        person.add("sourceUrl", source_url)
 
     sanction = h.make_sanction(
         context, person, key=program_key, program_key=program_key
@@ -406,17 +438,14 @@ def crawl_person(
     context.emit(person)
     context.emit(sanction)
 
-    # 'transport/persons' and 'transport/captains' endpoints provide a list of vessel ids associated with persons
-    related_ships = person_data.pop("ships", None)
-    if related_ships:
-        for ship_id_raw in related_ships:
-            role = "captain" if endpoint == "transport/captains" else None
-            emit_relation(
-                context,
-                subject_id=person.id,
-                object_id=make_id(context, WSAPIDataType.VESSEL, ship_id_raw),
-                rel_role=role,
-            )
+    for ship_id_raw in valid_ships:
+        role = "captain" if is_captain else None
+        emit_relation(
+            context,
+            subject_id=person.id,
+            object_id=make_id(context, WSAPIDataType.VESSEL, ship_id_raw),
+            rel_role=role,
+        )
 
     context.audit_data(
         person_data, ["sanctions", "documents", "category", "sport", "places", "photo"]
@@ -699,6 +728,10 @@ def crawl(context: Context):
     # to avoid duplicate API calls and enable lookup during vessel processing
     managers_lookup = load_managers(context, "UA-WS-MARE")
 
+    # Collected during the ships pass; used to filter captain→vessel links so
+    # we never emit relations to vessels that aren't in the dataset.
+    vessel_ids: set[str] = set()
+
     for link in LINKS:
         url = f"{WS_API_BASE_URL}/v1/{link.endpoint}"
         # Zyte because cloudflare is blocking us possibly based on IP reputation
@@ -719,6 +752,7 @@ def crawl(context: Context):
                     link.endpoint,
                     source_url,
                     topic=link.topic,
+                    known_vessel_ids=vessel_ids,
                 )
             elif link.type is WSAPIDataType.ENTITY:
                 crawl_legal_entity(
@@ -731,6 +765,7 @@ def crawl(context: Context):
                     itn_prop=link.itn_prop,
                 )
             elif link.type is WSAPIDataType.VESSEL:
+                vessel_ids.add(str(entity_id))
                 crawl_vessel(
                     context,
                     entity_details,
