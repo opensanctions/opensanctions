@@ -456,7 +456,8 @@ def review_extraction(
             )
             if legacy_review is not None:
                 legacy_review.rename_key(context.conn, key_slug)
-                context.log.debug("Migrated review key", old=legacy_slug, new=key_slug)
+                # info so we get migration in prod logs
+                context.log.info("Migrated review key", old=legacy_slug, new=key_slug)
                 review = legacy_review
                 break
     save_new_revision = False
