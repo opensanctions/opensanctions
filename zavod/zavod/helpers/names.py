@@ -480,9 +480,9 @@ def apply_names(
 def review_key_parts(entity: Entity, original: Names) -> List[str]:
     # Only use the non-empty props in the key so that adding props in
     # future doesn't change the key unless they're actually populated.
-    # Names within each prop are sorted so the key is stable regardless of source order.
+    # Both props and names within each prop are sorted for a stable key.
     key_parts = [entity.schema.name]
-    for prop, names_values in original.as_langtexts():
+    for prop, names_values in sorted(original.as_langtexts(), key=lambda x: x[0]):
         key_parts.append(prop)
         for names_value in sorted(names_values, key=lambda n: (n.lang or "", n.text)):
             if names_value.lang is not None:
