@@ -3,13 +3,12 @@ import hashlib
 import random
 import string
 import json
-import time
 
 from dataclasses import dataclass
 from enum import Enum
 from normality import squash_spaces
 from os import environ as env
-from typing import Dict, Optional, List
+from typing import Any, Dict, Optional, List
 from urllib.parse import urljoin
 
 from zavod import Context, helpers as h
@@ -195,13 +194,8 @@ def generate_token(context: Context, cid: str, pkey: str) -> str:
     # from the our server time will not be processed.
     # Zyte because cloudflare is blocking us possibly based on IP reputation
     # - I can't reproduce the block from our GCP jump host.
-    # Bust Zyte's response cache with a nonce so each token gets a fresh server
-    # timestamp. Without this, Zyte returns the same cached /time response for
-    # every call in the loop; tokens generated >15 s after the first one are
-    # rejected with code 5 ("invalid or expired timestamp").
-    timestamp = fetch_json(context, f"{WS_API_BASE_URL}/time?_={int(time.time())}")[
-        "server_time"
-    ]
+    timestamp = fetch_json(context, f"{WS_API_BASE_URL}/time")["server_time"]
+    context.log.debug("Server timestamp", timestamp_=timestamp)
     # 2. Generate server instance ID (exactly 2 characters)
     sid = "".join(random.choices(string.ascii_letters + string.digits, k=2))
     # 3. Create signature = sha256(cid + sid + timestamp + pkey), lowercase hex
@@ -248,27 +242,42 @@ def split_dob_dod(raw_date):
     return dob, dod
 
 
+def fetch_endpoint(context: Context, url: str, max_retries: int = 2) -> dict[str, Any]:
+    # Retry on code 5 (invalid or expired timestamp) — Zyte can be slow to route
+    # the request and the 15-second timestamp window expires in transit.
+    for attempt in range(max_retries + 1):
+        token = generate_token(context, WS_API_CLIENT_ID, WS_API_KEY)
+        zyte_result = fetch(
+            context,
+            ZyteAPIRequest(
+                url=url,
+                headers={
+                    "Accept": "application/json",
+                    "Authorization": token,
+                },
+            ),
+            cache_days=1,
+        )
+        response: dict[str, Any] = json.loads(zyte_result.response_text)
+        if response and response.get("code") == 0:
+            return response
+        context.cache.delete(zyte_result.cache_fingerprint)
+        error_code = response.get("code") if response else None
+        if error_code != 5 or attempt >= max_retries:
+            error = RESPONSE_CODES.get(error_code) if error_code is not None else None
+            raise Exception(
+                f"Failed to fetch data for {url} error={error} response={response}"
+            )
+        context.log.warning(
+            "Retrying after timestamp error", url=url, attempt=attempt + 1
+        )
+    raise Exception("unreachable")
+
+
 def load_managers(context: Context, program_key: str) -> Dict[str, Dict]:
     """Load all manager data from API into a dictionary keyed by raw ID."""
-    token = generate_token(context, WS_API_CLIENT_ID, WS_API_KEY)
     url = f"{WS_API_BASE_URL}/v1/transport/management"
-
-    zyte_result = fetch(
-        context,
-        ZyteAPIRequest(
-            url=url,
-            headers={
-                "Accept": "application/json",
-                "Authorization": token,
-            },
-        ),
-        cache_days=1,
-    )
-    response = json.loads(zyte_result.response_text)
-
-    if not response or response.get("code") != 0:
-        context.log.error("Failed to load managers", url=url, response=response)
-        return {}
+    response = fetch_endpoint(context, url)
 
     # Build lookup: raw_id -> manager_data
     # Convert IDs to strings to match the string IDs in vessel payloads
@@ -691,30 +700,10 @@ def crawl(context: Context):
     managers_lookup = load_managers(context, "UA-WS-MARE")
 
     for link in LINKS:
-        token = generate_token(context, WS_API_CLIENT_ID, WS_API_KEY)
         url = f"{WS_API_BASE_URL}/v1/{link.endpoint}"
         # Zyte because cloudflare is blocking us possibly based on IP reputation
         # - I can't reproduce the block from our GCP jump host.
-        zyte_result = fetch(
-            context,
-            ZyteAPIRequest(
-                url=url,
-                headers={
-                    "Accept": "application/json",
-                    "Authorization": token,
-                },
-            ),
-            cache_days=1,
-        )
-        response = json.loads(zyte_result.response_text)
-        if not response or response.get("code") != 0:
-            if response and "code" in response:
-                error = RESPONSE_CODES.get(response["code"])
-            # Clear cache for failed request and exit to retry job later.
-            context.cache.delete(zyte_result.cache_fingerprint)
-            raise Exception(
-                f"Failed to fetch data for {url} error={error} response={response}"
-            )
+        response = fetch_endpoint(context, url)
 
         data = response.get("data")
         for entity_details in data:
