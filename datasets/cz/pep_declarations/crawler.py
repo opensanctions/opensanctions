@@ -65,7 +65,7 @@ def crawl_person(context: Context, item: Dict[str, Any]) -> None:
         )
         entity.add("position", position_name)
 
-        categorisation = categorise(context, position, is_pep=is_pep)
+        categorisation = categorise(context, position, default_is_pep=is_pep)
         if not categorisation.is_pep:
             continue
 

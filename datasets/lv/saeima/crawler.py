@@ -42,7 +42,7 @@ def crawl_item(context: Context, unid: str) -> None:
     entity.add("email", h.element_text(email_el))
 
     position = h.make_position(context, "deputy of Saeima", country="lv")
-    categorisation = categorise(context, position, is_pep=True)
+    categorisation = categorise(context, position, default_is_pep=True)
 
     occupancy = h.make_occupancy(
         context,

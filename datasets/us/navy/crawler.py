@@ -53,7 +53,7 @@ def emit_person(
 
     position = h.make_position(context, role, country=country, topics=["gov.security"])
 
-    categorisation = categorise(context, position, is_pep=True)
+    categorisation = categorise(context, position, default_is_pep=True)
     if categorisation.is_pep:
         occupancy = h.make_occupancy(context, person, position)
         if occupancy:

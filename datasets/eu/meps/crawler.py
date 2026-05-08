@@ -76,7 +76,7 @@ def crawl(context: Context):
         country="eu",
         topics=["gov.igo", "gov.legislative"],
     )
-    categorisation = categorise(context, position, True)
+    categorisation = categorise(context, position, default_is_pep=True)
     context.emit(position)
     for node in doc.findall(".//mep"):
         crawl_node(context, node, position, categorisation)

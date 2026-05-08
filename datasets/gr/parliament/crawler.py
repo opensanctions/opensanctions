@@ -77,7 +77,7 @@ def crawl_row(
         lang="eng",
         wikidata_id="Q18915989",
     )
-    categorisation = categorise(context, position, True)
+    categorisation = categorise(context, position, default_is_pep=True)
 
     if categorisation.is_pep:
         occupancy = h.make_occupancy(

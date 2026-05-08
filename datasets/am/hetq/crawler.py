@@ -139,7 +139,7 @@ def crawl_person(
             lang=position_lang,
         )
         # Do usual PEP logic for positions/occupancies
-        categorisation = categorise(context, position, is_pep=True)
+        categorisation = categorise(context, position, default_is_pep=True)
         if categorisation.is_pep:
             occupancy = h.make_occupancy(
                 context,

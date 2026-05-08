@@ -139,7 +139,7 @@ def crawl_acteur(context: Context, data: dict[str, Any]) -> None:
         country="fr",
         topics=["gov.national", "gov.legislative"],
     )
-    categorisation = categorise(context, position, is_pep=True)
+    categorisation = categorise(context, position, default_is_pep=True)
     if not categorisation.is_pep:
         context.log.warning(f"Member {given_name} {family_name} is not PEP")
         return

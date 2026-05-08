@@ -85,7 +85,7 @@ def crawl(context: Context) -> None:
             topics=["gov.legislative", "gov.national"],
             lang="eng",
         )
-        categorisation = categorise(context, position, is_pep=True)
+        categorisation = categorise(context, position, default_is_pep=True)
         if not categorisation.is_pep:
             continue
 

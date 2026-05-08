@@ -92,7 +92,7 @@ def crawl_item(context: Context, input_html: Element) -> None:
 
     name_of_position = "Governor of " + state.title()
     position = h.make_position(context, name_of_position, country="mx")
-    categorisation = categorise(context, position, is_pep=True)
+    categorisation = categorise(context, position, default_is_pep=True)
 
     occupancy = h.make_occupancy(
         context,
