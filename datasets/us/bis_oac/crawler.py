@@ -1,5 +1,6 @@
 from csv import DictReader
 from pathlib import Path
+from urllib.parse import urljoin
 
 from rigour.mime.types import CSV
 from zavod import Context, settings
@@ -49,7 +50,10 @@ def crawl_csv(context: Context, path: Path, encoding: str) -> None:
 def fetch_file_url(context: Context) -> str:
     params = {"_": settings.RUN_TIME.date().isoformat()}
     doc = context.fetch_html(context.data_url, params=params)
-    return h.xpath_string(doc, ".//a[text() = 'Requester List (CSV)']/@href")
+    return urljoin(
+        context.data_url,
+        h.xpath_string(doc, ".//a[text() = 'Requester List (CSV)']/@href"),
+    )
 
 
 def crawl(context: Context) -> None:
