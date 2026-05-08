@@ -115,3 +115,6 @@ lookups:
           - "Zeynel, Nurten. İş İnsanı; Lise mezunudur."
         birth_place: null
         birth_date: null
+      - match: "Aslen Kahramanmaraş’lı olup 1978 yılında Ankara’da doğmuştur."
+        birth_place: Ankara
+        birth_date: "1978"
