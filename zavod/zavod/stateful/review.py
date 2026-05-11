@@ -393,6 +393,9 @@ def review_key(parts: str | List[str]) -> str:
     """
     if isinstance(parts, str):
         parts = [parts]
+    # rigour.text_hash normalizes capitalization away. It's nice to distinguish
+    # capitalization so that a review with bad name capitalization doesn't overwrite
+    # one with good name capitalization.
     digest = sha1()
     for part in parts:
         digest.update(part.strip().encode("utf-8"))
