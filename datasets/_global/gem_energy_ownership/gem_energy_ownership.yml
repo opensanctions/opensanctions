@@ -36,7 +36,7 @@ description: |
   [Creative Commons CC BY 4.0 International license](https://creativecommons.org/licenses/by/4.0/).
 tags:
   - sector.energy
-url: https://globalenergymonitor.org/projects/global-energy-ownership-tracker/
+url: https://globalenergymonitor.org/projects/global-energy-ownership-tracker
 publisher:
   name: Global Energy Monitor
   country: zz
@@ -47,7 +47,7 @@ publisher:
     It provides open access to information that is essential to building a sustainable energy future.
   url: https://globalenergymonitor.org
 data:
-  url: https://globalenergymonitor.org/projects/global-energy-ownership-tracker/download-data/
+  url: https://globalenergymonitor.org/projects/global-energy-ownership-tracker#download
   format: xlsx
 
 assertions:
