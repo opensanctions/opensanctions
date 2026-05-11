@@ -84,6 +84,7 @@ lookups:
       - match:
           - CUBA
           - CUBA-EO
+          - CUBA-EO14404
         value: US-CUBA
       - match:
           - ILLICIT-DRUGS-EO14059
