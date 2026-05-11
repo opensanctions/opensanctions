@@ -114,6 +114,10 @@ def make_person(
     position = positions[0] if positions else None
     person = context.make("Person")
     person.id = context.make_id(first_name, last_name, position)
+
+    # citizenship for state service is not required as per Article 52:
+    # https://www.zakon.hr/z/108/zakon-o-drzavnim-sluzbenicima
+    person.add("country", "hr")
     h.apply_name(person, first_name=first_name, last_name=last_name)
     return person
 
