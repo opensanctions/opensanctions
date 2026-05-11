@@ -123,6 +123,8 @@ def crawl_person(
         h.apply_date(person, "birthDate", birth_date)
     if birth_place is not None:
         person.add("birthPlace", birth_place)
+    # various positons
+    person.add("country", "am")
     position_name = data.get("position_en", "").strip()
     position_name = fix_trans_spill(position_name)
     position_lang = "en"
