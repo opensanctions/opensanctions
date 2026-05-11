@@ -48,7 +48,7 @@ def crawl_excel_url(context: Context) -> str:
     doc = zyte_api.fetch_html(
         context, context.data_url, unblock_validator=file_xpath, absolute_links=True
     )
-    url = h.xpath_string(doc, file_xpath + "/../@href")
+    url = h.xpath_string(doc, file_xpath + "/@href")
     assert url is not None, "Could not find Excel file URL"
     return url
 
