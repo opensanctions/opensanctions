@@ -56,7 +56,7 @@ def crawl(context: Context) -> None:
                 country="us",
             )
 
-            categorisation = categorise(context, position, is_pep=True)
+            categorisation = categorise(context, position, default_is_pep=True)
             if not categorisation.is_pep:
                 continue
             occupancy = h.make_occupancy(

@@ -36,6 +36,7 @@ def crawl_current_pep_item(
     entity = context.make("Person")
     entity.id = context.make_slug(first_name, last_name)
     h.apply_name(entity, first_name=first_name, last_name=last_name)
+    entity.add("citizenship", country)
 
     birth_date = row.pop("birth_date")
     h.apply_date(entity, "birthDate", birth_date.strip() if birth_date else None)
@@ -48,7 +49,7 @@ def crawl_current_pep_item(
     assert position_name is not None, entity.id
 
     position = h.make_position(context, position_name, country=country, lang=lang)
-    categorisation = categorise(context, position, is_pep=True)
+    categorisation = categorise(context, position, default_is_pep=True)
 
     listing_date = row.pop("listing_date")
     assert listing_date is not None, row
@@ -78,6 +79,7 @@ def crawl_old_pep_item(
     entity = context.make("Person")
     entity.id = context.make_slug(first_name, last_name)
     h.apply_name(entity, first_name=first_name, last_name=last_name)
+    entity.add("citizenship", country)
 
     h.apply_date(entity, "birthDate", row.pop("birth_date"))
 
@@ -92,7 +94,7 @@ def crawl_old_pep_item(
         position,
         True,
         end_date=removal_date.strip(),
-        categorisation=categorise(context, position, is_pep=True),
+        categorisation=categorise(context, position, default_is_pep=True),
     )
 
     if occupation:

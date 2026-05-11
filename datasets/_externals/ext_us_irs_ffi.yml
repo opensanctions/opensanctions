@@ -86,7 +86,6 @@ config:
     - Organization
     # - LegalEntity
     # - Person
-  cache_days: 90
 
 assertions:
   min:

@@ -860,6 +860,7 @@ lookups:
           - невідомо
           - 25.07.yyyy
           - 10.01.yyyy
+          - 0196-11-29
         value: null
   type.country:
     options:

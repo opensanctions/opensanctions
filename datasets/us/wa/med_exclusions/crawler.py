@@ -1,11 +1,10 @@
-from typing import Dict
 from rigour.mime.types import XLSX
 from openpyxl import load_workbook
 
 from zavod import Context, helpers as h
 
 
-def crawl_item(row: Dict[str, str], context: Context):
+def crawl_item(row: dict[str, str], context: Context) -> None:
     name = row.pop("name")
     if len(name.split("\n")) == 1:
         aliases = []
@@ -38,11 +37,13 @@ def crawl_item(row: Dict[str, str], context: Context):
     context.audit_data(row)
 
 
-def crawl_excel_url(context: Context):
+def crawl_excel_url(context: Context) -> str:
     doc = context.fetch_html(context.data_url, absolute_links=True)
-    return doc.xpath(".//a[contains(text(), 'the HCA Medicaid providers listing')]")[
-        0
-    ].get("href")
+    url = h.xpath_string(
+        doc, ".//a[contains(text(), 'the HCA Medicaid providers listing')]/@href"
+    )
+    assert url is not None, "Could not find Excel file URL"
+    return url
 
 
 def crawl(context: Context) -> None:

@@ -1,16 +1,15 @@
-from typing import Dict
 from rigour.mime.types import XLSX
 from openpyxl import load_workbook
 import re
 
 from zavod import Context, helpers as h
-from zavod.extract.zyte_api import fetch_html, fetch_resource
+from zavod.extract import zyte_api
 
 # Regular expression to match the comma before "Inc."
 INC_PATTERN = r",\s*Inc\."
 
 
-def crawl_item(row: Dict[str, str], context: Context):
+def crawl_item(row: dict[str, str], context: Context) -> None:
     if not row.get("name"):
         return
 
@@ -44,16 +43,20 @@ def crawl_item(row: Dict[str, str], context: Context):
     context.audit_data(row)
 
 
-def crawl_excel_url(context: Context):
+def crawl_excel_url(context: Context) -> str:
     file_xpath = "//*[text()='Termination List (XLSX)']"
-    doc = fetch_html(context, context.data_url, file_xpath, absolute_links=True)
-    return doc.xpath(file_xpath)[0].get("href")
+    doc = zyte_api.fetch_html(
+        context, context.data_url, unblock_validator=file_xpath, absolute_links=True
+    )
+    url = h.xpath_string(doc, file_xpath + "/../@href")
+    assert url is not None, "Could not find Excel file URL"
+    return url
 
 
 def crawl(context: Context) -> None:
     # First we find the link to the excel file
     excel_url = crawl_excel_url(context)
-    _, _, _, path = fetch_resource(
+    _, _, _, path = zyte_api.fetch_resource(
         context, "source.xlsx", excel_url, expected_media_type=XLSX
     )
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)

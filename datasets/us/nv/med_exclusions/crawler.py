@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Any
 from rigour.mime.types import PDF
 from pdfplumber.page import Page
 
@@ -6,7 +6,7 @@ from zavod import Context, helpers as h
 from zavod.extract import zyte_api
 
 
-def crawl_item(row: Dict[str, str], context: Context):
+def crawl_item(row: dict[str, str], context: Context) -> None:
     # We already crawl the federal dataset on another crawler
     sanction_tier = row.pop("nevada_medicaid_sanction_tier")
     if sanction_tier.lower() == "federal":
@@ -81,20 +81,21 @@ def crawl_item(row: Dict[str, str], context: Context):
     )
 
 
-def page_settings(page: Page):
+def page_settings(page: Page) -> tuple[Page, dict[str, Any]]:
     # Find the bottom of the bottom-most rectangle on the page
     bottom = max(page.height - rect["y0"] for rect in page.rects)
     assert bottom < (page.height - 5), (bottom, page.height)
     return page, {"explicit_horizontal_lines": [bottom]}
 
 
-def crawl_pdf_url(context: Context):
+def crawl_pdf_url(context: Context) -> str:
     pdf_link_xpath = "//*[text()='NV Exclusion List ']"
     doc = zyte_api.fetch_html(
         context, context.data_url, pdf_link_xpath, geolocation="US", absolute_links=True
     )
-    # doc = context.fetch_html(context.data_url)
-    return doc.xpath(pdf_link_xpath)[0].get("href")
+    url = h.xpath_string(doc, pdf_link_xpath + "/@href")
+    assert url is not None, "Could not find PDF URL"
+    return url
 
 
 def crawl(context: Context) -> None:

@@ -67,7 +67,7 @@ jobs:
           python3 -m build --wheel
       - name: Get any modified dataset files
         id: changed-files
-        uses: tj-actions/changed-files@22103cc46bda19c2b464ffe86db46df6922fd323  # v47.0.5
+        uses: tj-actions/changed-files@9426d40962ed5378910ee2e21d5f8c6fcbf2dd96  # v47.0.6
         with:
           files: "datasets/**"
       - name: Crawl modified datasets
@@ -139,14 +139,31 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-  dispatch:
+  # GitHub App requirements for workflow dispatch to trigger ETL deploy in operations repo:
+  # App name: opensanctions-operations-deployer (or similar)
+  # Installed on: opensanctions/operations
+  # Permissions: Actions - 'write'
+  # Secrets required in this repo:
+  #   OPERATIONS_DEPLOY_APP_ID  — numeric GitHub App ID
+  #   OPERATIONS_DEPLOY_APP_KEY — PEM private key
+  trigger-deploy:
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
-    needs: [docker, python]
+    needs: [docker]
     steps:
-      - name: Dispatch add-on build
-        uses: peter-evans/repository-dispatch@28959ce8df70de7be546dd1250a005dd32156697  # v3
+      - name: Generate GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v3
         with:
-          token: ${{ secrets.OPERATIONS_PAT }}
-          repository: opensanctions/operations
-          event-type: build-etl
+          app-id: ${{ secrets.OPERATIONS_DEPLOY_APP_ID }}
+          private-key: ${{ secrets.OPERATIONS_DEPLOY_APP_KEY }}
+          owner: opensanctions
+          repositories: operations
+      - name: Trigger ETL deploy
+        run: |
+          curl --fail --silent --show-error --location -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ steps.app-token.outputs.token }}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            https://api.github.com/repos/opensanctions/operations/actions/workflows/build-etl.yml/dispatches \
+            -d '{"ref":"main"}'

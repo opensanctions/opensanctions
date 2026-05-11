@@ -3,7 +3,7 @@ prefix: be-kam
 url: https://www.dekamer.be/kvvcr/showpage.cfm?section=/depute&language=fr&cfm=cvlist54.cfm?legis=56&today=y
 coverage:
   frequency: monthly
-  start: 2025-12-03
+  start: 2026-04-27
 load_statements: true
 ci_test: false
 entry_point: crawler.py
@@ -34,20 +34,18 @@ data:
 dates:
   formats: ["%d %B %Y", "%der %B %Y", "%dier %B %Y"]
   months:
-    "january": "janvier"
-    "february": "février"
-    "march": "mars"
-    "april": "avril"
-    "may": "mai"
-    "june": "juin"
-    "july": "juillet"
-    "august":
-      - "aout"
-      - "août"
-    "september": "septembre"
-    "october": "octobre"
-    "november": "novembre"
-    "december": "décembre"
+    "january": ["janvier", "januari"]
+    "february": ["février", "februari"]
+    "march": ["mars", "maart"]
+    "april": ["avril", "april"]
+    "may": ["mai", "mei"]
+    "june": ["juin", "juni"]
+    "july": ["juillet", "juli"]
+    "august": ["aout", "août", "augustus"]
+    "september": ["septembre", "september"]
+    "october": ["octobre", "oktober"]
+    "november": ["novembre", "november"]
+    "december": ["décembre", "december"]
 
 assertions:
   min:
@@ -58,35 +56,6 @@ assertions:
       be: 1
 
 lookups:
-  term_years:
-    options:
-      - match: Actuels
-        start_date: 2024
-        end_date: null
-      - match: "55 (2019-2024)"
-        start_date: 2019
-        end_date: 2024
-      - match: "54 (2014-2019)"
-        start_date: 2014
-        end_date: 2019
-      - match: "53 (2010-2014)"
-        start_date: 2010
-        end_date: 2014
-      - match: "52 (2007-2010)"
-        start_date: 2007
-        end_date: 2010
-      - match: "51 (2003-2007)"
-        start_date: 2003
-        end_date: 2007
-      - match: "50 (1999-2003)"
-        start_date: 1999
-        end_date: 2003
-      - match: "49 (1995-1999)"
-        start_date: 1995
-        end_date: 1999
-      - match: "48 (1991-1995)"
-        start_date: 1991
-        end_date: 1995
   type.date:
     options:
       - match: Née à Vilvorde
@@ -107,3 +76,5 @@ lookups:
         value: 1953-12-09
       - match: 30 janvier 1987. Master en communication politique
         value: 1987-01-30
+      - match: 29 févier 1948
+        value: 1948-02-29

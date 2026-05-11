@@ -1118,3 +1118,8 @@ lookups:
           - Ability Inc.
           - Alexander Aurovsky
           - Anatoly Hurgin
+      - match: kenneth a. dachman, scott a. wolf, and stone lion management inc.
+        names:
+          - Kenneth A. Dachman
+          - Scott A. Wolf
+          - Stone Lion Management Inc.

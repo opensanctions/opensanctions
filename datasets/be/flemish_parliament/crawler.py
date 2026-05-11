@@ -78,7 +78,7 @@ def crawl_member(context: Context, position: Entity, node: Dict[str, Any]) -> No
     if fractie_node is not None:
         person.add("political", fractie_node.pop("naam"))
 
-    categorisation = categorise(context, position, is_pep=True)
+    categorisation = categorise(context, position, default_is_pep=True)
     if not categorisation.is_pep:
         return
 

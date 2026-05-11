@@ -1,4 +1,3 @@
-from typing import Dict
 from rigour.mime.types import XLSX
 from openpyxl import load_workbook
 import re
@@ -8,7 +7,7 @@ from zavod import Context, helpers as h
 AKA_MATCH = r"\(aka ([^)]+)\)"
 
 
-def crawl_item(row: Dict[str, str], context: Context):
+def crawl_item(row: dict[str, str], context: Context) -> None:
     provider_name = row.pop("provider_name")
     if not provider_name:
         return
@@ -66,10 +65,12 @@ def crawl_item(row: Dict[str, str], context: Context):
     )
 
 
-def crawl_excel_url(context: Context):
+def crawl_excel_url(context: Context) -> str:
     doc = context.fetch_html(context.data_url, absolute_links=True)
     xpath = "//a[contains(text(), 'ND Medicaid Provider Exclusion List')][substring(@href, string-length(@href) - 4) = '.xlsx']/@href"
-    return h.xpath_string(doc, xpath)
+    url = h.xpath_string(doc, xpath)
+    assert url is not None, "Could not find Excel file URL"
+    return url
 
 
 def crawl(context: Context) -> None:

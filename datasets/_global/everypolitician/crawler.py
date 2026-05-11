@@ -192,7 +192,7 @@ def parse_membership(
             country=country,
             topics=["gov.national", "gov.legislative"],
         )
-        categorisation = categorise(context, position, True)
+        categorisation = categorise(context, position, default_is_pep=True)
 
         position_property = post_summary(org_name, role, starts, ends, [])
         person = context.make("Person")

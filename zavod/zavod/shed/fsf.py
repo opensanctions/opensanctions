@@ -151,10 +151,23 @@ def parse_entry(context: Context, entry: Element) -> None:
 
     original = h.Names()
     for name, lang in name_el_to_lang.items():
+        name_prop = "name"
+
+        # Often there will be translations of organization names to every EU language under the sun,
+        # and those can feature less prominently when we have geopolitically-interesting languages.
+        interesting_languages = {None, "eng", "zho", "rus", "fas", "ara"}
+        # If we have at least one name in English/Chinese/Russian/Farsi/Arabic or with no language tag,
+        # put the interesting language names in `name` and other languages in `alias`.
+        # Otherwise leave them all in name.
+        if len(set(name_el_to_lang.values()) & interesting_languages) > 0:
+            if lang not in interesting_languages:
+                name_prop = "alias"
+
+        # Let the EU's weak alias decisions override our language logic
+
         is_weak = not as_bool(name.get("strong"))
         remark = name.findtext("./remark")
         if remark is not None:
-            # context.inspect(name)
             lremark = remark.lower()
             if "low quality" in lremark or "lo quality" in lremark:
                 is_weak = True
@@ -171,53 +184,27 @@ def parse_entry(context: Context, entry: Element) -> None:
                 context.log.warning("Unknown alias remark", remark=remark)
             entity.add("notes", remark, quiet=True)
 
-        # Often there will be translations of organization names to every EU language under the sun,
-        # and we don't much care for those.
-        #
-        # If we have at least one name in English/Chinese/Russian/Farsi/Arabic or with no language tag,
-        # put it in the name field and treat the other languages as aliases.
-        interesting_languages = {None, "eng", "zho", "rus", "fas", "ara"}
-        if len(set(name_el_to_lang.values()) & interesting_languages) > 0:
-            treat_as_alias = lang not in interesting_languages
-        else:
-            # If all names we have are in the languages that we commonly assume are translated,
-            # put them all in the name field. This happens e.g. for Spanish-name terrorists.
-            treat_as_alias = False
-
         full_name = name.get("wholeName")
         first_name = name.get("firstName")
         middle_name = name.get("middleName")
         last_name = name.get("lastName")
-        if is_weak:
-            h.apply_name(
-                entity,
+        if not full_name and (first_name and last_name):
+            # Currently full_name always exists with first and last, but just make sure.
+            full_name = h.make_name(
                 full=full_name,
                 first_name=first_name,
                 middle_name=middle_name,
                 last_name=last_name,
-                is_weak=True,
-                quiet=True,
-                lang=lang,
             )
-            original.add("weakAlias", full_name, lang=lang)
+
+        if is_weak:
+            name_prop = "weakAlias"
         else:
-            if not full_name and (first_name and last_name):
-                # Currently full_name always exists with first and last, but just make sure.
-                full_name = h.make_name(
-                    first_name=first_name,
-                    middle_name=middle_name,
-                    last_name=last_name,
-                )
-            h.apply_reviewed_name_string(
-                context,
-                entity,
-                string=full_name,
-                original_prop="alias" if treat_as_alias else "name",
-            )
-            original.add("alias" if treat_as_alias else "name", full_name, lang=lang)
             entity.add("firstName", first_name, quiet=True, lang=lang)
             entity.add("middleName", middle_name, quiet=True, lang=lang)
             entity.add("lastName", last_name, quiet=True, lang=lang)
+
+        original.add(name_prop, full_name, lang=lang)
 
         # split "(a) Mullah, (b) Maulavi" into ["Mullah", "Maulavi"]
         titles = [
@@ -235,10 +222,9 @@ def parse_entry(context: Context, entry: Element) -> None:
             entity.add("notes", name.get("function"), lang=lang)
         entity.add("gender", name.get("gender"), quiet=True, lang=lang)
 
-    # TODO: Change to apply_reviewed_names and remove the per-name
-    # apply_reviewed_name_string and apply_name calls above.
-    # https://github.com/opensanctions/opensanctions/issues/3603
-    h.review_names(context, entity, original=original)
+    # Apply after looping over name language elements in the source
+    # and adding each real name to 'original'.
+    h.apply_reviewed_names(context, entity, original=original)
 
     for node in entry.findall("./identification"):
         doc_type = node.get("identificationTypeCode")

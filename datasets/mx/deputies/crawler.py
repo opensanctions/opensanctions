@@ -37,7 +37,7 @@ def crawl_item(context: Context, input_dict: dict[str, Any]) -> None:
     position = h.make_position(
         context, "Member of the Chamber of Deputies of Mexico", country="mx"
     )
-    categorisation = categorise(context, position, is_pep=True)
+    categorisation = categorise(context, position, default_is_pep=True)
 
     occupancy = h.make_occupancy(
         context,

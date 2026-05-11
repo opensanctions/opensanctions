@@ -83,7 +83,7 @@ def crawl_leader(
         topics=position_topics,
         id_hash_prefix="us_cia_world_leaders",
     )
-    categorisation = categorise(context, position, True)
+    categorisation = categorise(context, position, default_is_pep=True)
     if categorisation.is_pep:
         occupancy = h.make_occupancy(
             context, person, position, categorisation=categorisation

@@ -353,6 +353,8 @@ lookups:
         values:
           - info@sctbankers.com
           - zanjani@sctbankers.com
+      - match: "emo.xz@ chemplant.ru"
+        value: emo.xz@chemplant.ru
   type.gender:
     lowercase: true
     normalize: true

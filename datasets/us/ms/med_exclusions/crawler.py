@@ -1,11 +1,10 @@
 import openpyxl
 from rigour.mime.types import XLSX
-from typing import Dict
 
 from zavod import Context, helpers as h
 
 
-def crawl_item(row: Dict[str, str], context: Context):
+def crawl_item(row: dict[str, str], context: Context) -> None:
     if not any(row.values()):  # Skip empty rows
         return
 
@@ -57,9 +56,11 @@ def crawl_item(row: Dict[str, str], context: Context):
     context.audit_data(row, ignore=["column_0", "sanction_type"])
 
 
-def crawl_data_url(context: Context):
+def crawl_data_url(context: Context) -> str:
     doc = context.fetch_html(context.data_url, absolute_links=True)
-    return doc.xpath("//a[contains(text(), 'Sanctioned Provider List')]/@href")[0]
+    url = h.xpath_string(doc, "//a[contains(text(), 'Sanctioned Provider List')]/@href")
+    assert url is not None, "Could not find Excel file URL"
+    return url
 
 
 def crawl(context: Context) -> None:

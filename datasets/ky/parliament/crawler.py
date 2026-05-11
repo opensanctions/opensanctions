@@ -79,7 +79,7 @@ def crawl_card_2025(
         topics=TOPICS,
         country="ky",
     )
-    categorisation = categorise(context, position, True)
+    categorisation = categorise(context, position, default_is_pep=True)
     if not categorisation.is_pep:
         return None
     occupancy = h.make_occupancy(
@@ -123,7 +123,7 @@ def crawl_row(context: Context, row: Dict[str, str]) -> None:
         topics=TOPICS,
         country="ky",
     )
-    categorisation = categorise(context, position, True)
+    categorisation = categorise(context, position, default_is_pep=True)
     if not categorisation.is_pep:
         return
 

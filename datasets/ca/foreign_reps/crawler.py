@@ -68,7 +68,7 @@ def crawl(context: Context):
             country=country,
             topics=["gov.national", "role.diplo"],
         )
-        categorisation = categorise(context, position, is_pep=True)
+        categorisation = categorise(context, position, default_is_pep=True)
         if categorisation.is_pep:
             occupancy = h.make_occupancy(context, person, position)
             if spouse:

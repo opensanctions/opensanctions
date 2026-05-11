@@ -210,7 +210,7 @@ def crawl_person(
                     person.add("email", email)
 
     position = h.make_position(context, name=position_name, country="sg")
-    categorisation = categorise(context, position, is_pep=pep_status)
+    categorisation = categorise(context, position, default_is_pep=pep_status)
     if categorisation.is_pep:
         occupancy = h.make_occupancy(context, person, position)
         if occupancy:

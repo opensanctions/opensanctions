@@ -108,7 +108,9 @@ def crawl_member_page(context: Context, person: Entity, name: str, href: str) ->
     crawl_infobox(context, person, list(switcher)[cv_idx])
 
 
-def crawl_member(context: Context, member_link: Element) -> None:
+def crawl_member(
+    context: Context, member_link: Element, party: str, state: str
+) -> None:
     """Extract member information from individual page."""
     assert member_link.text is not None
     member_name = WS.sub(" ", member_link.text.strip())
@@ -117,6 +119,7 @@ def crawl_member(context: Context, member_link: Element) -> None:
         name="Member of the National Assembly of Venezuela",
         country="Venezuela",
         topics=["gov.national", "gov.legislative"],
+        wikidata_id="Q20011182",
     )
     categorisation = categorise(context, position)
     if not categorisation.is_pep:
@@ -127,6 +130,7 @@ def crawl_member(context: Context, member_link: Element) -> None:
     person.id = context.make_id(member_name)
     # https://venezuela.justia.com/federales/constitucion-de-la-republica-bolivariana-de-venezuela/titulo-v/capitulo-i/
     person.add("citizenship", "ve")
+    person.add("political", party)
     context.log.debug(f"Unique ID {person.id}")
     h.apply_name(person, full=member_name, lang="esp")
 
@@ -141,6 +145,7 @@ def crawl_member(context: Context, member_link: Element) -> None:
         context, person, position, True, categorisation=categorisation
     )
     if occupancy is not None:
+        occupancy.add("constituency", state)
         context.emit(person)
         context.emit(position)
         context.emit(occupancy)
@@ -156,10 +161,19 @@ def crawl_members(context: Context, page: ElementOrTree) -> None:
         if "text-diputado-slider" not in classes.split():
             continue
         member_link = el.find(".//a")
+
+        party_el, state_el = h.xpath_elements(el, ".//small", expect_exactly=2)
+        party_raw = h.element_text(party_el)
+        state_raw = h.element_text(state_el)
+        assert "Partido" in party_raw, f"Unexpected party format: {party_raw}"
+        assert "Estado:" in state_raw, f"Unexpected state format: {state_raw}"
+        state = state_raw.split("Estado: ")[1].strip()
+        party = party_raw.split("Partido: ")[1].strip()
+
         if member_link is None:
             context.log.error(f"No page found in element {el}")
             continue
-        crawl_member(context, member_link)
+        crawl_member(context, member_link, party, state)
 
 
 def crawl_member_list(context: Context) -> Iterator[ElementOrTree]:
@@ -189,7 +203,7 @@ def crawl_member_list(context: Context) -> Iterator[ElementOrTree]:
             if next_page == page_number + 1:
                 break
         else:
-            context.log.error(f"Link to {page_number + 1} not found")
+            context.log.error(f"Link to page {page_number + 1} not found")
         page_number = next_page
         context.log.debug(f"Fetching page {page_number} from {href}")
         page = zyte_api.fetch_html(context, href, ".//h3", cache_days=1)

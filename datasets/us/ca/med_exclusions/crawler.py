@@ -1,5 +1,4 @@
 import csv
-from typing import Dict
 
 from normality import slugify
 from rigour.ids.npi import NPI
@@ -10,7 +9,7 @@ from zavod import Context
 from zavod import helpers as h
 
 
-def crawl_item(row: Dict[str, str], context: Context):
+def crawl_item(row: dict[str, str], context: Context) -> None:
     addresses = row.pop("address_es")
     first_name = row.pop("first_name")
     middle_name = row.pop("middle_name")
@@ -75,7 +74,7 @@ def crawl_item(row: Dict[str, str], context: Context):
     context.audit_data(row)
 
 
-def crawl_data_url(context: Context):
+def crawl_data_url(context: Context) -> str:
     # Landing page
     xpath = ".//a[contains(text(), 'Suspended')][contains(text(), 'Ineligible')][contains(text(), 'List')]"
 
@@ -87,14 +86,17 @@ def crawl_data_url(context: Context):
         cache_days=1,
         absolute_links=True,
     )
-    dataset_url = landing_doc.xpath(xpath)[0].get("href")
+    dataset_url = h.xpath_string(landing_doc, xpath + "/@href")
+    assert dataset_url is not None, "Could not find dataset URL"
 
     dataset_doc = context.fetch_html(dataset_url, cache_days=1, absolute_links=True)
-    resource_url = dataset_doc.xpath(xpath)[0].get("href")
+    resource_url = h.xpath_strings(dataset_doc, xpath + "/@href")[0]
+    assert resource_url is not None, "Could not find resource URL"
 
     resource_doc = context.fetch_html(resource_url, cache_days=1, absolute_links=True)
     file_xpath = ".//a[contains(@href, '.csv')]"
-    file_url = resource_doc.xpath(file_xpath)[0].get("href")
+    file_url = h.xpath_string(resource_doc, file_xpath + "/@href")
+    assert file_url is not None, "Could not find CSV file URL"
     return file_url
 
 

@@ -80,10 +80,11 @@ suggested = h.Names()
 for name in h.multi_split(names_string, [";"]):
     suggested.add("name", name)
 
-# If we supply a suggested instance, determining irregularity is left to the crawler.
+# If we supply a suggested Names instance, a review will be created if suggested
+# differs from original, but further determining irregularity is left to the crawler.
 # If the crawler wants to re-categorise names (eg. move name from `name` to `weakAlias`)
-# consider doing that on the result of `check_names_regularity` so that it doesn't
-# override the crawler's decisions.
+# consider doing that on the result of `check_names_regularity` so that standard
+# heuristics don't override the crawler's decisions.
 is_irregular, suggested = h.check_names_regularity(entity, suggested)
 h.apply_reviewed_names(
     context,
@@ -103,6 +104,82 @@ The suggested procedure is as follows:
 1. Call [zavod.helpers.review_names][] with a `h.Names` instance as you would pass to `apply_reviewed_names` or create using `apply_reviewed_name_string`. Leave any existing name cleaning and applying in place
 2. Deploy the change, let it run, and complete the name reviews created by this crawler
 3. Replace the call of `review_names` with call of `apply_reviewed_names` or `apply_reviewed_name_string` and remove the existing name cleaning and applying logic.
+
+### Migration example
+
+For an example sanctions crawler that does some custom splitting and categorisation:
+
+```python
+entity = context.make("LegalEntity")
+names_string = row.pop("full_name")
+entity.id = context.make_id(names_string, ...)
+
+names = h.multi_split(names_string, ["a.k.a."])
+entity.add("name", names[0])
+entity.add("alias", names[1:])
+```
+
+#### Step 1
+
+Introduce the names framework without changing the existing behaviour.
+
+```python
+entity = context.make("LegalEntity")
+names_string = row.pop("full_name")
+entity.id = context.make_id(names_string, ...)
+
+original = h.Names(name=names_string)
+suggested = h.Names()
+
+names = h.multi_split(names_string, ["a.k.a."])
+entity.add("name", names[0])
+suggested.add("name", names[0])
+entity.add("alias", names[1:])
+for alias in names[1:]:
+    suggested.add("alias", alias)
+
+is_irregular, suggested = h.check_names_regularity(entity, suggested)
+h.review_names(
+    context,
+    entity,
+    original=original,
+    suggested=suggested,
+    is_irregular=is_irregular,
+)
+```
+
+#### Step 2
+
+Once the crawler has run in production, complete the name reviews for this dataset.
+
+#### Step 3
+
+Replace the old `h.apply_names` and `Entity.add(name_prop, ...` calls with `h.apply_reviewed_name...` calls.
+
+```python
+entity = context.make("LegalEntity")
+names_string = row.pop("full_name")
+entity.id = context.make_id(names_string, ...)
+
+original = h.Names(name=names_string)
+suggested = h.Names()
+
+names = h.multi_split(names_string, ["a.k.a."])
+suggested.add("name", names[0])
+for alias in names[1:]:
+    suggested.add("alias", alias)
+
+is_irregular, suggested = h.check_names_regularity(entity, suggested)
+h.apply_reviewed_names(
+    context,
+    entity,
+    original=original,
+    suggested=suggested,
+    is_irregular=is_irregular,
+)
+```
+
+The procedure is the same for a non-sanctions crawler, passing `llm_cleaning=True` instead of `suggested`.
 
 
 ## What's a dirty name?

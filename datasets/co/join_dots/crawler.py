@@ -102,7 +102,7 @@ def crawl_node(context: Context, peps: dict[str, Entity], node: dict[str, str]) 
             position = h.make_position(
                 context, res.name, country="co", topics=res.topics
             )
-            categorisation = categorise(context, position, True)
+            categorisation = categorise(context, position, default_is_pep=True)
             if categorisation.is_pep:
                 occupancy = h.make_occupancy(
                     context, entity, position, status=OccupancyStatus.UNKNOWN

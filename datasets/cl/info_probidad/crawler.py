@@ -73,7 +73,7 @@ def crawl_row(context: Context, declaration_id: int):
         )
         return
 
-    categorisation = categorise(context, position, res.is_pep)
+    categorisation = categorise(context, position, default_is_pep=res.is_pep)
 
     if not categorisation.is_pep:
         return

@@ -36,7 +36,6 @@ def get_name_pos(container, context: Context):
         context.log.warning(
             f"Unexpectedly long name: {name}, additional cleanup might be needed"
         )
-
     return name, position, details
 
 
@@ -51,15 +50,20 @@ def crawl_page(context: Context, person_url):
         person_proxy.id = context.make_id(name)
         h.apply_name(person_proxy, full=name)
         person_proxy.add("sourceUrl", person_url)
-        person_proxy.add("notes", details)
+        person_proxy.add("biography", details)
         person_proxy.add("topics", "role.judge")
+
+        # no citizenship requirements for judges:
+        # https://gov.ky/documents/35692/0/Grand+Court+Act+(2026+Revision),++(1).pdf/57ca50f7-e129-6bf1-6cbf-69beb5991577
+        # Section 6.2
+        person_proxy.add("country", "ky")
 
         position = h.make_position(
             context,
             name=position,
             country="Cayman Islands",
         )
-        categorisation = categorise(context, position, is_pep=True)
+        categorisation = categorise(context, position, default_is_pep=True)
         if not categorisation.is_pep:
             continue
         occupancy = h.make_occupancy(

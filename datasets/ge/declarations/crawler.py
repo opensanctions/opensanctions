@@ -329,7 +329,7 @@ def crawl_declaration(context: Context, *, item: dict[str, Any]) -> None:
     apply_translit_full_name(
         context, position, "kat", position_name_kat, TRANSLIT_OUTPUT, POSITION_PROMPT
     )
-    categorisation = categorise(context, position, is_pep=None)
+    categorisation = categorise(context, position, default_is_pep=None)
     if not categorisation.is_pep:
         return
     occupancy = h.make_occupancy(

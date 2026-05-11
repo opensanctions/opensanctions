@@ -138,6 +138,18 @@ If a variable number of fields can extracted automatically (e.g. from a list or 
 * `dict_obj.pop()` individual fields when adding them to entities.
 * Log warnings if there are unhandled fields remaining in the `dict` so that we notice and improve the crawler. The context method [`context.audit_data()`][zavod.context.Context.audit_data] can be used to warn about extra fields in a `dict`. It takes the `ignore` argument to explicitly list fields that are unused.
 
+## Fields with no FollowTheMoney equivalent
+
+Source data sometimes includes descriptive fields (physical appearance, internal classification codes, administrative metadata, etc.) that don't map to any FTM property. Resist the temptation to pack these into narrative fields like `notes` or `description` as formatted strings (e.g. `f"Hair colour: {hair_colour}"`). This mixes structured data into free text where it can't be queried or validated, and clutters entity descriptions with noise.
+
+Instead, explicitly ignore them via `context.audit_data`:
+
+```python
+context.audit_data(row, ignore=["hair_colour", "skin_tone", "internal_ref"])
+```
+
+If a field has a clear use case for commercial screening or geopolitical research users — and structured support for it would add real value — propose adding it to the FollowTheMoney schema by opening an issue or PR in the [FollowTheMoney repository](https://github.com/opensanctions/followthemoney) with concrete examples from the source data.
+
 ## Logging and crawler feedback
 
 It is good design to be told about issues, instead of having to go look to discover them.
@@ -181,7 +193,7 @@ assert position_name is not None, entity.id
 
 ## Generating consistent unique identifiers
 
-Make sure entity IDs are unique within the source. Avoid using only the name of the entity because there might eventually be two persons or two companies with the same name. [It is preferable](https://www.opensanctions.org/docs/identifiers) to have to deduplicate two Follow the Money entities for the same real world entity, rather than accidentally merge two entities.
+Make sure entity IDs are unique within the source. Avoid using only the name of the entity because there might eventually be two persons or two companies with the same name. [It is preferable](https://www.opensanctions.org/docs/identifiers/) to have to deduplicate two Follow the Money entities for the same real world entity, rather than accidentally merge two entities.
 
 Good values to use as identifiers are:
 
@@ -229,6 +241,61 @@ text = text.replace("\xa0", " ")
 # e.g., collapsing whitespace from text extracted from HTML
 cleaned_text = normality.squash_spaces(text)
 ```
+
+## Pagination
+
+Pagination logic should be easy to read, and fail early and loudly if the source
+changes in a way that makes the logic invalid.
+
+It's often nice to implement pagination
+in a way that closely reflects the controls presented to the user, e.g.
+
+- loop until the current page number is the max page number
+- loop while there is a next URL (as opposed to looping until the next button isn't found, see below)
+
+Think about how we ensure we visit all pages, but we don't end up in an infinite loop.
+If there are many pages and entities, it's easy for dataset assertions to catch
+if we're visiting too few pages.
+
+Prefer code that fails in a way that clearly indicates what went wrong. e.g.
+a KeyError if the API response changes:
+
+```python
+next_url: Optional[str] = context.data_url
+while next_url:
+    response = context.fetch_json(next_url)
+    next_url = response["links"]["next"]  # KeyError if structure changes; None on last page
+    for item in response["data"]:
+        crawl_row(context, item)
+```
+
+Watch out for code where we might miss breaking out of the loop.
+`while True` in general easily results in infinite loops.
+
+e.g. an HTML source might change the class used to indicate that the "next page"
+button is disabled. Looping until the last page button is disabled might result
+in an infinite loop if we loop until a disabled next button can be selected using xpath.
+
+```python
+while True:
+    next_disabled = doc.xpath(".//span[text()='Next' and contains(@class, 'disabled')]")
+    if next_disabled:
+        break
+```
+
+If another obvious cue is available like a max page number, consider using that.
+
+If there is no more robust way to implement it than a while True loop, count the pages
+and assert that we haven't reached some extreme case, e.g.
+
+```python
+pages = 0
+while True:
+    pages += 1
+    # We expect about 10 pages. If we've reached 100, something's broken.
+    assert pages < 100, pages
+```
+
 
 ## Use datapatch lookups to clean or map values from external forms to OpenSanctions
 

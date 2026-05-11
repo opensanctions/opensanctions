@@ -6,6 +6,7 @@ import click
 from click.shell_completion import CompletionItem
 
 from followthemoney.statement import FORMATS
+import requests
 from zavod import settings
 from zavod.logs import configure_logging, get_logger, set_logging_context_dataset_name
 from zavod.meta import load_dataset_from_path, get_multi_dataset, Dataset
@@ -55,12 +56,24 @@ def _load_datasets(paths: List[Path]) -> Dataset:
 
 @click.group(help="Zavod data factory")
 @click.option("--debug", is_flag=True, default=False)
-def cli(debug: bool = False) -> None:
+@click.option(
+    "--ping-heartbeat-url", default=None, help="URL to GET on successful completion"
+)
+def cli(debug: bool = False, ping_heartbeat_url: str | None = None) -> None:
     settings.DEBUG = debug
 
     level = logging.DEBUG if debug else logging.INFO
     configure_logging(level=level)
     create_db()
+
+
+@cli.result_callback()
+def _ping_heartbeat(
+    result: object, debug: bool, ping_heartbeat_url: str | None
+) -> None:
+    """Run after the subcommand has completed. If a heartbeat URL is provided, send a GET request to it."""
+    if ping_heartbeat_url:
+        requests.get(ping_heartbeat_url)
 
 
 # Register submodule commands

@@ -146,17 +146,23 @@ def crawl_row(context: Context, row: dict[str, HtmlElement]) -> None:
 
     company_elem = row.pop("company_sort_descending")
     company_link = h.xpath_string(company_elem, ".//a/@href")
+    # The listing page HTML alternates between two href forms for the same company:
+    # /company/fisher-scientific and /index.php/company/fisher-scientific.
+    # Both resolve to the same page, but including the raw URL in make_id would
+    # produce different entity IDs across runs depending on which form appeared.
+    # Stripping /index.php/ canonicalises the path before hashing.
+    company_link_clean = company_link.replace("/index.php/", "/")
     company_name = str_row.pop("company_sort_descending")
 
     # Create and emit an entity
     entity = context.make("Company")
-    entity.id = context.make_id(company_name, company_link, prefix="ir-br-co")
+    entity.id = context.make_id(company_name, company_link_clean, prefix="ir-br-co")
     assert entity.id
 
-    crawl_subpage(context, company_link, entity, entity.id)
+    crawl_subpage(context, company_link_clean, entity, entity.id)
     entity.add("name", company_name)
     entity.add("country", str_row.pop("nationality"))
-    entity.add("sourceUrl", company_link)
+    entity.add("sourceUrl", company_link_clean)
     entity.add("ticker", str_row.pop("stock_symbol"))
 
     # FL 2026-02-13 - Legal work-around, do not remove without written approval

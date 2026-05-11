@@ -1,5 +1,4 @@
 import re
-from typing import Dict
 import csv
 from rigour.mime.types import CSV
 
@@ -10,7 +9,7 @@ REGEX_AKA = re.compile(r"\baka\b", re.IGNORECASE)
 REGEX_WORD = re.compile(r"\w{2,}")
 
 
-def crawl_item(row: Dict[str, str], context: Context):
+def crawl_item(row: dict[str, str], context: Context) -> None:
     zip_code = row.pop("Zip")
     division = row.pop("Division")
 
