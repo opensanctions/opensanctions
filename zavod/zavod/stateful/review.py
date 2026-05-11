@@ -138,6 +138,7 @@ class Review(BaseModel, Generic[ModelType]):
         )
         return cls.load(conn, data_model, select_stmt)
 
+    # TODO: Remove in https://github.com/opensanctions/opensanctions/issues/4148 after all crawlers have run.
     def rename_key(self, conn: Connection, new_key: str) -> None:
         """Rename this review's key in-place without creating a new revision.
         Updates both the review table and the entity link table."""
@@ -244,6 +245,7 @@ class SourceValue(ABC):
 
     key_parts: str | List[str]
     """Parts that are SHA1-hashed to produce the review key."""
+    # TODO: Remove in https://github.com/opensanctions/opensanctions/issues/4148 after all crawlers have run.
     legacy_key_parts: Optional[str | List[str]] = None
     """If set, the migration path in review_extraction() will also try the legacy
     slug key derived from these parts. Use when key_parts ordering has changed."""
@@ -302,6 +304,7 @@ class JSONSourceValue(SourceValue):
         label: str,
         data: JsonValue,
         url: Optional[str] = None,
+        # TODO: Remove in https://github.com/opensanctions/opensanctions/issues/4148 after all crawlers have run.
         legacy_key_parts: Optional[str | List[str]] = None,
     ):
         """
@@ -396,6 +399,7 @@ def review_key(parts: str | List[str]) -> str:
     return digest.hexdigest()
 
 
+# TODO: Remove in https://github.com/opensanctions/opensanctions/issues/4148 after all crawlers have run.
 def review_key_legacy(parts: str | List[str]) -> str:
     """Returns the old slug-based key for migration lookups only. Do not use for new reviews."""
     slug = unicode_slug(parts)
@@ -451,6 +455,7 @@ def review_extraction(
         context.conn, data_model, dataset=context.dataset.name, key=key_slug
     )
     if review is None:
+        # TODO: Remove in https://github.com/opensanctions/opensanctions/issues/4148 after all crawlers have run.
         # Migrate from legacy slug-based keys (slug→hash migration for all types;
         # legacy_key_parts also handles name-ordering changes for names reviews).
         legacy_candidates: List[str | List[str]] = [source_value.key_parts]
