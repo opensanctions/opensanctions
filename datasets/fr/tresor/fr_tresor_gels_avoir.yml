@@ -228,6 +228,8 @@ lookups:
       - match: "NIF"
       - match: "Numéro d'enregistrement"
       - match: "Code"
+      # Sometimes leftover from "BIN/OGRN"
+      - match: "BIN"
       - match: "Principal établissement: Fédération de Russie, Tarusa"
         props:
           jurisdiction: ru
@@ -259,6 +261,13 @@ lookups:
       - match: "Lieu d'enregistrement: Hong Kong"
         props:
           jurisdiction: hk
+      - match: "Lieu d'enregistrement: Ukraine"
+        props:
+          jurisdiction: ua
+      - match: "Lieu d'enregistrement: Sébastopol, Crimée"
+        props:
+          address: "Sébastopol, Crimée"
+          jurisdiction: ua-cri
       - match: "Lieu d'enregistrement: Fédération de Russie, région de Sverdlovsk, Yekaterinburg"
         props:
           address: "Lieu d'enregistrement: Fédération de Russie, région de Sverdlovsk, Yekaterinburg"
@@ -430,6 +439,18 @@ lookups:
       - match: "Type d'entité: organisation non gouvernementale"
         props:
           legalForm: organisation non gouvernementale
+      - match: "Type d'entité: Centre de formation militaro-patriotique pour mineurs lié à l'État"
+        props:
+          legalForm: Centre de formation militaro-patriotique pour mineurs lié à l'État
+      - match: "Type d'entité: Federal State Budgetary Educational Institution (établissement d'enseignement relevant du budget de l'État fédéral)"
+        props:
+          legalForm: Federal State Budgetary Educational Institution (établissement d'enseignement relevant du budget de l'État fédéral)
+      - match: "Type d'entité: Etablissement d'enseignement public relevant de l'État fédéral"
+        props:
+          legalForm: Etablissement d'enseignement public relevant de l'État fédéral
+      - match: "Type d'entité: Etablissement d'enseignement relevant du budget de l'État fédéral"
+        props:
+          legalForm: Etablissement d'enseignement relevant du budget de l'État fédéral
       - match: "Lieu d'enregistrement: Myanmar/Birmanie"
         props:
           jurisdiction: mm
