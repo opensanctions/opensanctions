@@ -20,6 +20,8 @@ def crawl_item(context: Context, unid: str) -> None:
     entity = context.make("Person")
     entity.id = context.make_slug(full_name)
     h.apply_name(entity, full_name)
+    # citizenship required (Art 9): https://likumi.lv/ta/en/id/57980-the-constitution-of-the-republic-of-latvia
+    entity.add("citizenship", "lv")
 
     entity.add("sourceUrl", member_url)
 
