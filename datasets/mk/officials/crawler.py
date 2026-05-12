@@ -33,6 +33,8 @@ def crawl_row(context: Context, row: dict[str, str]) -> None:
     person.id = context.make_id(
         first_name, last_name, position_name, position_institution
     )
+    # various positions
+    person.add("country", "mk")
 
     h.apply_name(
         person,
