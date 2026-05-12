@@ -65,6 +65,8 @@ def crawl_item(
         first_name=input_dict.pop("Nombre"),
         last_name=input_dict.pop("Apellidos"),
     )
+    # citizenship by birth required (Art 58): https://mexico.justia.com/federales/constitucion-politica-de-los-estados-unidos-mexicanos/titulo-tercero/capitulo-ii/seccion-i/#articulo-58
+    entity.add("citizenship", "mx")
 
     gender = (
         "male"
