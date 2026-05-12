@@ -266,6 +266,8 @@ lookups:
         value: null
       - match: "ttps://www.brownsgroup.lk/"
         value: https://www.brownsgroup.lk/
+      - match: "ttps://www.bpi.ir"
+        value: https://www.bpi.ir
   type.identifier:
     options:
       - match:
@@ -334,6 +336,7 @@ lookups:
           - 2315072242
           - 2315076504
           - 2315995868
+          - 2320109650
           - 2322026840
           - 2323025302
           - 2430002701
@@ -567,6 +570,7 @@ lookups:
           - 7703546678
           - 7703730010
           - 7703783037
+          - 7703816236
           - 7704004212
           - 7704274402
           - 7704531762
@@ -633,6 +637,7 @@ lookups:
           - 7730290591
           - 7734345499
           - 7736035485
+          - 7736050003
           - 7743106056
           - 7743834721
           - 7744001497
@@ -645,6 +650,7 @@ lookups:
           - 7814382859
           - 7817308885
           - 7817312063
+          - 7831000010
           - 7838306818
           - 7838365595
           - 7840346335
@@ -699,4 +705,6 @@ lookups:
       - match:
           - not found
           - not applicable
+          - not ofund
+          - PT Adaro Strategic Capital
         value: null
