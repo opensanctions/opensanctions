@@ -28,7 +28,7 @@ Then, from the `zavod/` directory:
 PATH="$(brew --prefix icu4c)/bin:$PATH" \
 CPPFLAGS="-I$(brew --prefix leveldb)/include" \
 LDFLAGS="-L$(brew --prefix leveldb)/lib" \
-uv sync --python 3.13 --no-binary-package pyicu --no-binary-package plyvel --extra dev --extra docs
+uv sync --no-binary-package pyicu --no-binary-package plyvel --extra dev --extra docs
 
 # Step 2: rebuild plyvel with -fno-rtti to match homebrew's leveldb
 # (leveldb disables RTTI in its own build, so the plyvel wheel references symbols
