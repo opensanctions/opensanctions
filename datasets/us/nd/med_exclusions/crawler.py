@@ -67,7 +67,8 @@ def crawl_item(row: dict[str, str | None], context: Context) -> None:
         entity.add("idNumber", medicare_number)
 
     sanction = h.make_sanction(context, entity)
-    termination_date = row.pop("exclusion_date") or ""
+    termination_date = row.pop("exclusion_date")
+    assert termination_date is not None
     termination_date = termination_date.replace("Termination ", "")
     termination_date = termination_date.replace("Termination: ", "")
     termination_date = termination_date.replace("Denial ", "").strip()
@@ -102,6 +103,7 @@ def crawl(context: Context) -> None:
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
 
     wb = load_workbook(path, read_only=True)
+    assert wb.active is not None
 
     for item in h.parse_xlsx_sheet(context, wb.active, skiprows=SKIPROWS):
         crawl_item(item, context)

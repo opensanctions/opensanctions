@@ -108,6 +108,7 @@ def crawl(context: Context) -> None:
 
     with open(path, "r", encoding="latin-1") as f:
         reader = csv.DictReader(f)
-        reader.fieldnames = [slugify(key, sep="_") for key in reader.fieldnames]
+        assert reader.fieldnames is not None
+        reader.fieldnames = [slugify(key, sep="_") or "" for key in reader.fieldnames]
         for row in reader:
             crawl_item(row, context)

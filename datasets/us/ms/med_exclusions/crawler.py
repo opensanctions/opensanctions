@@ -4,7 +4,7 @@ from rigour.mime.types import XLSX
 from zavod import Context, helpers as h
 
 
-def crawl_item(row: dict[str, str], context: Context) -> None:
+def crawl_item(row: dict[str, str | None], context: Context) -> None:
     if not any(row.values()):  # Skip empty rows
         return
 

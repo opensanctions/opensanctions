@@ -50,14 +50,11 @@ NAME_WITH_ROLE_REGEX = re.compile(
 )
 CRAWLER_VERSION = 2
 
-positions_field = Field(
-    default=[],
-    description=(
-        "The positions held by the person for an entity who is a person. "
-        "Populate this precisely as listed in the text when the text indicates "
-        "the job role of a person, otherwise leave empty. Sometimes this is an "
-        "abbreviation of a job title, e.g. RN for Registered Nurse."
-    ),
+POSITIONS_DESCRIPTION = (
+    "The positions held by the person for an entity who is a person. "
+    "Populate this precisely as listed in the text when the text indicates "
+    "the job role of a person, otherwise leave empty. Sometimes this is an "
+    "abbreviation of a job title, e.g. RN for Registered Nurse."
 )
 
 
@@ -65,32 +62,31 @@ class Entity(BaseModel):
     name: str
     name_suffix: str | None = None
     aliases: List[str] = []
-    positions: List[str] = positions_field
+    positions: List[str] = Field(default=[], description=POSITIONS_DESCRIPTION)
     address: str | None = None
 
 
-relationship_field = Field(
-    description=("Relationship between the entities e.g. `Owner` or `Vice President`.")
+RELATIONSHIP_DESCRIPTION = (
+    "Relationship between the entities e.g. `Owner` or `Vice President`."
 )
 
 
 class RelatedEntity(Entity):
-    relationship_role: str | None = relationship_field
+    relationship_role: str | None = Field(description=RELATIONSHIP_DESCRIPTION)
 
 
-related_entities_field = Field(
-    description=(
-        "Owners or other officers of a company if listed. If the "
-        "first entity looks like a person and a single owner name is included in"
-        " parentheses, then only give one entity - the person. Don't make a company"
-        " out of the person's name."
-    ),
-    default=[],
+RELATED_ENTITIES_DESCRIPTION = (
+    "Owners or other officers of a company if listed. If the "
+    "first entity looks like a person and a single owner name is included in"
+    " parentheses, then only give one entity - the person. Don't make a company"
+    " out of the person's name."
 )
 
 
 class RootEntity(Entity):
-    related_entities: List[RelatedEntity] = related_entities_field
+    related_entities: List[RelatedEntity] = Field(
+        default=[], description=RELATED_ENTITIES_DESCRIPTION
+    )
 
 
 PROMPT = f"""
@@ -108,11 +104,11 @@ to the positions field.
 
 Specific fields:
 
-`related_entities`: {related_entities_field.description}
+`related_entities`: {RELATED_ENTITIES_DESCRIPTION}
 
-`positions`: {positions_field.description}
+`positions`: {POSITIONS_DESCRIPTION}
 
-`relationship_role`: {relationship_field.description}
+`relationship_role`: {RELATIONSHIP_DESCRIPTION}
 
 `name_suffix`: This field MUST be null.
 """
@@ -200,7 +196,8 @@ def crawl_row(
         origin = review.origin
 
     entity = context.make("LegalEntity")
-    entity.id = context.make_id(entity_data.name, entity_data.positions)
+    # Passing *postitions would re-key, so we keep it for now and ignore the type error
+    entity.id = context.make_id(entity_data.name, entity_data.positions)  # type: ignore[arg-type]
     apply_comma_name(entity, entity_data.name)
     entity.add_cast("Person", "nameSuffix", entity_data.name_suffix)
     entity.add("alias", entity_data.aliases, origin=origin)
@@ -221,7 +218,8 @@ def crawl_row(
 
     for item in entity_data.related_entities:
         related = context.make("LegalEntity")
-        related_id = context.make_id(item.name, item.positions)
+        # Passing *postitions would re-key, so we keep it for now and ignore the type error
+        related_id = context.make_id(item.name, item.positions)  # type: ignore[arg-type]
         if related_id == entity.id:
             continue
         related.id = related_id
