@@ -5,14 +5,14 @@ from zavod import Context
 from zavod import helpers as h
 
 
-def crawl_item(row: dict[str, str], context: Context) -> None:
+def crawl_item(row: dict[str, str | None], context: Context) -> None:
     first_name = row.pop("provider_individual_first_name")
     business_name = row.pop("business_name")
     npi = row.pop("national_provider_identifier_npi")
     sector = row.pop("provider_individual_type")
     reason = row.pop("exclusion_sanction_reason")
     # There is one line with multiple dates, we are only going to consider the first one
-    startDate = row.pop("exclusion_sanction_effective_date").split(" ")[0]
+    startDate = (row.pop("exclusion_sanction_effective_date") or "").split(" ")[0]
 
     if first_name:
         person = context.make("Person")
@@ -75,5 +75,6 @@ def crawl(context: Context) -> None:
 
     wb = load_workbook(path, read_only=True)
 
+    assert wb.active is not None
     for item in h.parse_xlsx_sheet(context, wb.active, skiprows=1):
         crawl_item(item, context)
