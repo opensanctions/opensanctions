@@ -769,6 +769,8 @@ lookups:
         name: ["ВІНЕР Натан Ададієвич", "ВІНЕР Антон Ададієвич"]
       - match: ВИНЕР Натан / Антон Ададьевич
         name: ["ВИНЕР Натан Ададьевич", "ВИНЕР Антон Ададьевич"]
+      - match: GUTOROV / Goutorov German
+        name: ["GUTOROV German", "Goutorov German"]
   type.date:
     options:
       - match: "23.06.1974 /23.06.1973"
@@ -829,8 +831,6 @@ lookups:
         value: 1979-09-21
       - match: 21.03.961
         value: 1961-03-21
-      - match: 02.071973
-        value: 1973-07-02
       - match: 13 або 31.12.1986
         values:
           - 1986-12-13
@@ -868,6 +868,8 @@ lookups:
           - X00
           - ROM
         value: null
+      - match: SCT
+        value: gb-sct
   type.name:
     options:
       - match:
@@ -956,6 +958,8 @@ lookups:
         value: 0262016287
       - match: 323018510
         value: 0323018510
+      - match: 700016217
+        value: null  # 9 digits inn
       - match: Невідомо
         value: null
       # Source puts the full company name in the itn field for this entity
