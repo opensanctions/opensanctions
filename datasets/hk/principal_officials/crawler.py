@@ -34,8 +34,10 @@ def crawl_members(context: Context, section: str, elem: ElementTree):
     person.add("name", person_name)
     person.add("title", person_title)
     person.add("summary", member_header)
-    person.add("description", member_desc)
+    person.add("biography", member_desc)
     person.add("sourceUrl", url)
+    # various positions
+    person.add("country", "hk")
 
     position_name = ",".join(member_header.split(",")[1:])
     position_name = re.sub(
