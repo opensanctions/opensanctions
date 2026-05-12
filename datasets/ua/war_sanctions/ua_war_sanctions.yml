@@ -958,6 +958,8 @@ lookups:
         value: 0262016287
       - match: 323018510
         value: 0323018510
+      - match: 700016217
+        value: null  # 9 digits inn
       - match: Невідомо
         value: null
       # Source puts the full company name in the itn field for this entity
