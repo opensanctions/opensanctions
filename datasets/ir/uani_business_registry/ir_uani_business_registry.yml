@@ -60,6 +60,10 @@ lookups:
         values:
           - Netherlands
           - United Kingdom
+  type.url:
+    options:
+      - match: /company/mehdi-group
+        value: https://www.unitedagainstnucleariran.com/company/mehdi-group
   type.text:
     options:
     # Nulling empty notes
