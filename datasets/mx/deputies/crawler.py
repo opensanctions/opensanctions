@@ -27,6 +27,8 @@ def crawl_item(context: Context, input_dict: dict[str, Any]) -> None:
         first_name=input_dict.pop("Nombre"),
         last_name=last_name,
     )
+    # citizenship by birth required (Art 55): https://mexico.justia.com/federales/constitucion-politica-de-los-estados-unidos-mexicanos/titulo-tercero/capitulo-ii/seccion-i/
+    entity.add("citizenship", "mx")
 
     if input_dict["Telefono"] is not None:
         entity.add("phone", "+52" + input_dict.pop("Telefono"))
