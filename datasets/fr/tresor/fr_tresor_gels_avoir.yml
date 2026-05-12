@@ -267,6 +267,7 @@ lookups:
       - match: "Lieu d'enregistrement: Sébastopol, Crimée"
         props:
           address: "Sébastopol, Crimée"
+          jurisdiction: ua-cri
       - match: "Lieu d'enregistrement: Fédération de Russie, région de Sverdlovsk, Yekaterinburg"
         props:
           address: "Lieu d'enregistrement: Fédération de Russie, région de Sverdlovsk, Yekaterinburg"
