@@ -249,5 +249,4 @@ def crawl(context: Context):
         for row in csv.DictReader(infh):
             crawl_row(context, row)
 
-    # TODO: Stop raising once we're through the initial bunch of reviews.
-    assert_all_accepted(context, raise_on_unaccepted=True)
+    assert_all_accepted(context, raise_on_unaccepted=False)

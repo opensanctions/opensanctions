@@ -480,10 +480,11 @@ def apply_names(
 def review_key_parts(entity: Entity, original: Names) -> List[str]:
     # Only use the non-empty props in the key so that adding props in
     # future doesn't change the key unless they're actually populated.
+    # Both props and names within each prop are sorted for a stable key.
     key_parts = [entity.schema.name]
-    for prop, names_values in original.as_langtexts():
+    for prop, names_values in sorted(original.as_langtexts(), key=lambda x: x[0]):
         key_parts.append(prop)
-        for names_value in names_values:
+        for names_value in sorted(names_values, key=lambda n: (n.lang or "", n.text)):
             if names_value.lang is not None:
                 key_parts.append(names_value.lang)
             key_parts.append(names_value.text)
@@ -519,20 +520,39 @@ def _review_names(
 
     # We don't include suggested in the key so that we don't automatically invalidate
     # the reviews just by changing heuristic or LLM suggestions.
+    # key_parts uses sorted names for a stable key regardless of source insertion order.
     key_parts = review_key_parts(entity, original)
 
-    # Only include the populated props in the source value for human readability
+    # TODO: Remove in https://github.com/opensanctions/opensanctions/issues/4148 after all crawlers have run.
+    # Legacy unsorted key_parts for migrating reviews created before sorting was introduced.
+    legacy_key_parts: List[str] = [entity.schema.name]
+    for prop, names_values in original.as_langtexts():
+        legacy_key_parts.append(prop)
+        for names_value in names_values:
+            if names_value.lang is not None:
+                legacy_key_parts.append(names_value.lang)
+            legacy_key_parts.append(names_value.text)
+
+    # For human readability, we only include the populated props in the source value.
+    # Sort within each prop so the source_value JSON is stable when source order changes.
+    populated_props: Dict[str, List[str | Dict[str, str | None]]] = {}
+    for prop, vals in source_names.original.as_langtexts():
+        items: List[str | Dict[str, str | None]] = []
+        for v in sorted(vals, key=lambda v: (v.lang or "", v.text)):
+            if v.lang is None:
+                items.append(v.text)
+            else:
+                items.append(cast(Dict[str, str | None], v.model_dump()))
+        populated_props[prop] = items
     source_value_data: Dict[str, str | Dict[str, List[str | Dict[str, str | None]]]] = {
-        "entity_schema": entity.schema.name
+        "entity_schema": entity.schema.name,
+        "original": populated_props,
     }
-    populated_props: Dict[str, List[str | Dict[str, str | None]]] = {
-        k: [v.text if v.lang is None else v.model_dump() for v in vals]
-        for k, vals in source_names.original.as_langtexts()
-    }
-    source_value_data["original"] = populated_props
 
     source_value = JSONSourceValue(
         key_parts=key_parts,
+        # TODO: Remove in https://github.com/opensanctions/opensanctions/issues/4148 after all crawlers have run.
+        legacy_key_parts=legacy_key_parts,
         label="names",
         data=cast(JsonValue, source_value_data),
     )
