@@ -23,7 +23,6 @@ from rigour.mime.types import ZIP
 from zavod import Context
 from zavod import helpers as h
 
-
 DOWNLOAD_URL = "https://sam.gov/api/prod/fileextractservices/v1/api/download/"
 IGNORE_COLUMNS = ["CT Code", "Open Data Flag", "SAM Number"]
 
@@ -122,6 +121,20 @@ def usgsa_id(
     return context.make_id(uei, id_name, id_zip, city, country)
 
 
+def sort_cross_ref(cross_ref: str) -> str:
+    """
+    Ensure ordering of cross-reference names is stable for values like
+    `(also  Abbas ABDI ASJARD ,  Abbas ABDIASJERD ,  Abbas ABDI ESJERD )`
+    """
+    prefix = "(also  "
+    suffix = " )"
+    if not (cross_ref.startswith(prefix) and cross_ref.endswith(suffix)):
+        return cross_ref
+    inner = cross_ref[len(prefix) : -len(suffix)]
+    names = sorted(n.strip() for n in inner.split(" , "))
+    return prefix + " ,  ".join(names) + suffix
+
+
 def crawl(context: Context) -> None:
     data_url = crawl_data_url(context)
     path = context.fetch_resource("source.zip", data_url)
@@ -217,6 +230,7 @@ def crawl(context: Context) -> None:
         #             aliases.append(alias)
         #     entity.add("alias", aliases, lang="eng")
         # else:
+        cross_ref = sort_cross_ref(cross_ref)
         entity.add("notes", cross_ref, lang="eng")
 
         if "uniqueEntityId" in entity.schema.properties:
