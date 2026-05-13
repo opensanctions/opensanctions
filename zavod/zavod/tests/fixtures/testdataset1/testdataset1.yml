@@ -34,6 +34,7 @@ names:
   schema_rules:
     Organization:
       reject_chars: ","
+      reject_strings: [" and ", " or "]
       min_length: 3
       single_token_min_length: 4
   suggest_weak_alias_person_single_token: true
