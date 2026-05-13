@@ -168,7 +168,11 @@ def crawl_members(context: Context, page: ElementOrTree) -> None:
         assert "Partido" in party_raw, f"Unexpected party format: {party_raw}"
         assert "Estado:" in state_raw, f"Unexpected state format: {state_raw}"
         state = state_raw.split("Estado: ")[1].strip()
-        party = party_raw.split("Partido: ")[1].strip()
+
+        party_split = party_raw.split("Partido: ")
+        # Some people are partyless (in this case, len(party_split) == 1)
+        if len(party_split) == 2:
+            party = party_split[1].strip()
 
         if member_link is None:
             context.log.error(f"No page found in element {el}")

@@ -76,9 +76,9 @@ def crawl(context: Context) -> None:
         name="Member of the House of Representatives",
         country="nl",
         summary="Member of the lower house of the bicameral parliament of the Netherlands, the States General",
+        wikidata_id="Q18887908",
     )
     categorise(context, position, default_is_pep=True)
-    context.emit(position)
 
     view_dom_id = "whatever"
 
