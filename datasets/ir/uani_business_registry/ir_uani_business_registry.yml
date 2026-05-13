@@ -60,6 +60,10 @@ lookups:
         values:
           - Netherlands
           - United Kingdom
+  type.url:
+    options:
+      - match: /company/banca-popolare-dellemilia-romagna
+        value: https://www.unitedagainstnucleariran.com/company/banca-popolare-dellemilia-romagna
   type.text:
     options:
     # Nulling empty notes
