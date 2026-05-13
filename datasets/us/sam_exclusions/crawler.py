@@ -23,7 +23,6 @@ from rigour.mime.types import ZIP
 from zavod import Context
 from zavod import helpers as h
 
-
 DOWNLOAD_URL = "https://sam.gov/api/prod/fileextractservices/v1/api/download/"
 IGNORE_COLUMNS = ["CT Code", "Open Data Flag", "SAM Number"]
 
@@ -122,6 +121,20 @@ def usgsa_id(
     return context.make_id(uei, id_name, id_zip, city, country)
 
 
+def sort_cross_ref(cross_ref: str) -> str:
+    """
+    Ensure ordering of cross-reference names is stable for values like
+    `(also  Abbas ABDI ASJARD ,  Abbas ABDIASJERD ,  Abbas ABDI ESJERD )`
+    """
+    prefix = "(also  "
+    suffix = " )"
+    if not (cross_ref.startswith(prefix) and cross_ref.endswith(suffix)):
+        return cross_ref
+    inner = cross_ref[len(prefix) : -len(suffix)]
+    names = sorted(n.strip() for n in inner.split(" , "))
+    return prefix + " ,  ".join(names) + suffix
+
+
 def crawl(context: Context) -> None:
     data_url = crawl_data_url(context)
     path = context.fetch_resource("source.zip", data_url)
@@ -217,6 +230,7 @@ def crawl(context: Context) -> None:
         #             aliases.append(alias)
         #     entity.add("alias", aliases, lang="eng")
         # else:
+        cross_ref = sort_cross_ref(cross_ref)
         entity.add("notes", cross_ref, lang="eng")
 
         if "uniqueEntityId" in entity.schema.properties:
@@ -245,6 +259,8 @@ def crawl(context: Context) -> None:
 
         if not name:
             return
+
+        # =========== remove from here for name migration step 3 ===========
         full_name_prop: NameProp = "name"
         # Not vessels
         if len(name) < 5 and entity.schema.is_a("LegalEntity"):
@@ -265,26 +281,24 @@ def crawl(context: Context) -> None:
             lang="eng",
             origin=origin,
         )
+        # =========== remove up to here for name migration step 3 ===========
 
-        # The low quality names tend to come from OFAC so check those.
-        if agency == "TREAS-OFAC":
-            original = h.Names(name=name)
-            is_irregular, suggested = h.check_names_regularity(entity, original)
+        original = h.Names(name=name)
+        suggested = h.Names()
+        suggested.add(full_name_prop, name)
+        is_irregular, suggested = h.check_names_regularity(entity, suggested)
 
-            # A review will be created if standard heuristics suggest the name is irregular,
-            # or if there is a custom suggestion that differs from the original categorisation.
-            h.review_names(
-                context,
-                entity,
-                original=original,
-                suggested=suggested,
-                is_irregular=is_irregular,
-            )
-
-        # TODO: Once we're done with reviews and change the OFAC clause to apply_reviewed_names,
-        # and remove the heuristic-based cleaning/adding above, add the rest normally:
-        # else:
-        #     entity.add("name", name, lang="eng")
+        # A review will be created if standard heuristics suggest the name is irregular,
+        # or if there is a custom suggestion that differs from the original categorisation.
+        # TODO: Once we're done with reviews and h.review_names to h.apply_reviewed_name_string
+        h.review_names(
+            context,
+            entity,
+            original=original,
+            suggested=suggested,
+            is_irregular=is_irregular,
+            default_accepted=True,
+        )
 
         entity.add("firstName", row.pop("First"), quiet=True, lang="eng")
         entity.add("middleName", row.pop("Middle"), quiet=True, lang="eng")
