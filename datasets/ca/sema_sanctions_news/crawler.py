@@ -8,21 +8,6 @@ from zavod.stateful.review import assert_all_accepted
 PROGRAM_KEY = "CA-SEMA"
 
 
-def split_names(name: str) -> h.Names:
-    """Split out aliases embedded in the name string."""
-    aliases = []
-
-    if "(also known as" in name.lower():
-        name, aka = name.split("(also known as", 1)
-        aliases.extend([a.strip().rstrip(")") for a in aka.split(",")])
-
-    if "(également connue sous le nom" in name.lower():
-        name, aka = name.split("(également connue sous le nom de ", 1)
-        aliases.extend([a.strip().rstrip(")") for a in aka.split(",")])
-
-    return h.Names(name=name.strip(), alias=aliases)
-
-
 def crawl_entity_notice(context: Context, row: Dict[str, _Element]) -> None:
     str_row = h.cells_to_str(row)
     country = str_row.pop("country")
@@ -64,27 +49,32 @@ def crawl_entity_notice(context: Context, row: Dict[str, _Element]) -> None:
         listing_date,
     )
 
-    for name in chain(persons, oranizations):
+    for raw_name in chain(persons, oranizations):
         entity = context.make(schema)
-        entity.id = context.make_id(name, country)
+        entity.id = context.make_id(raw_name, country)
 
-        born_patterns = ["(born ", "(bornon "]
+        born_patterns = [" (born ", " (bornon "]
         for born in born_patterns:
-            if born in name.lower():
-                name, dob = name.split(born, 1)
+            if born in raw_name.lower():
+                name, dob = raw_name.split(born, 1)
                 dob = dob.strip(")")
                 h.apply_date(entity, "birthDate", dob)
+                break
+            else:
+                name = raw_name
 
-        # TODO: Add once LangText is merged
-        # https://github.com/opensanctions/opensanctions/pull/3770
-        if "(russian:" in name.lower():
+        original = h.Names(name=name)
+        is_irregular = False
+        suggested = None
+
+        # TODO: Remove after initial import
+        if "(Russian:" in name:
             name, name_ru = name.split("(Russian:", 1)
             name_ru = name_ru.strip().rstrip(")")
-            h.apply_reviewed_name_string(context, entity, string=name_ru, lang="rus")
-
-        original = h.Names(name=name.strip())
-        suggested = split_names(name)
-        is_irregular, suggested = h.check_names_regularity(entity, suggested)
+            suggested = h.Names()
+            suggested.add("name", name.strip())
+            suggested.add("name", name_ru.strip(), lang="rus")
+            is_irregular, suggested = h.check_names_regularity(entity, suggested)
 
         h.apply_reviewed_names(
             context,
@@ -92,6 +82,7 @@ def crawl_entity_notice(context: Context, row: Dict[str, _Element]) -> None:
             original=original,
             suggested=suggested,
             is_irregular=is_irregular,
+            default_accepted=True,  # TODO: Remove after one run
         )
         entity.add("topics", "sanction")
 
