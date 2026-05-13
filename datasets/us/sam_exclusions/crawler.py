@@ -270,7 +270,9 @@ def crawl(context: Context) -> None:
         # =========== remove up to here for name migration step 3 ===========
 
         original = h.Names(name=name)
-        is_irregular, suggested = h.check_names_regularity(entity, original)
+        suggested = h.Names()
+        suggested.add(full_name_prop, name)
+        is_irregular, suggested = h.check_names_regularity(entity, suggested)
 
         # A review will be created if standard heuristics suggest the name is irregular,
         # or if there is a custom suggestion that differs from the original categorisation.
@@ -281,6 +283,7 @@ def crawl(context: Context) -> None:
             original=original,
             suggested=suggested,
             is_irregular=is_irregular,
+            default_accepted=True,
         )
 
         entity.add("firstName", row.pop("First"), quiet=True, lang="eng")
