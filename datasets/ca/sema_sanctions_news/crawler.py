@@ -63,27 +63,8 @@ def crawl_entity_notice(context: Context, row: Dict[str, _Element]) -> None:
             else:
                 name = raw_name
 
-        original = h.Names(name=name)
-        is_irregular = False
-        suggested = None
+        h.apply_reviewed_name_string(context, entity, string=name)
 
-        # TODO: Remove after initial import
-        if "(Russian:" in name:
-            name, name_ru = name.split("(Russian:", 1)
-            name_ru = name_ru.strip().rstrip(")")
-            suggested = h.Names()
-            suggested.add("name", name.strip())
-            suggested.add("name", name_ru.strip(), lang="rus")
-            is_irregular, suggested = h.check_names_regularity(entity, suggested)
-
-        h.apply_reviewed_names(
-            context,
-            entity,
-            original=original,
-            suggested=suggested,
-            is_irregular=is_irregular,
-            default_accepted=True,  # TODO: Remove after one run
-        )
         entity.add("topics", "sanction")
 
         sanction = h.make_sanction(
