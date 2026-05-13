@@ -379,6 +379,9 @@ def check_name_regularity(entity: Entity, string: Optional[str]) -> Regularity:
     if contains_split_phrase(string):
         return Regularity(is_irregular=True)
 
+    if string[0].isdigit():
+        return Regularity(is_irregular=True)
+
     return Regularity(is_irregular=False)
 
 

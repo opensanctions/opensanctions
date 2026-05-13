@@ -1,5 +1,3 @@
-import re
-
 from itertools import chain
 from lxml.etree import _Element
 from typing import Dict
@@ -21,9 +19,6 @@ def split_names(name: str) -> h.Names:
     if "(également connue sous le nom" in name.lower():
         name, aka = name.split("(également connue sous le nom de ", 1)
         aliases.extend([a.strip().rstrip(")") for a in aka.split(",")])
-
-    # some names contain digits at the beginning of the string
-    name = re.sub(r"^\d+\s*", "", name)
 
     return h.Names(name=name.strip(), alias=aliases)
 

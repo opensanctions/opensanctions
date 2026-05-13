@@ -23,6 +23,10 @@ def test_is_name_irregular(testdataset1: Dataset):
     assert is_name_irregular(org, "Company Alpha OR Company Beta")  # case-insensitive
     assert not is_name_irregular(org, "Org NPO")
 
+    # Leading digit
+    assert is_name_irregular(org, "1 Some Organization")
+    assert not is_name_irregular(org, "Some Organization 1")
+
     # Nullwords
     assert is_name_irregular(org, "Unknown")
 
