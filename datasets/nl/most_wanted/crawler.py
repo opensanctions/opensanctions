@@ -105,7 +105,9 @@ def crawl(context: Context) -> None:
             # The website also contains some other search notices that we don't care about
             if detail_url.startswith(FUGITIVES_URL_PREFIX):
                 crawl_person(context, detail_url)
-        next_button = h.xpath_element(doc, ".//*[@id='paginator-next-button' and @type='button']")
+        next_button = h.xpath_element(
+            doc, ".//*[@id='paginator-next-button' and @type='button']"
+        )
 
         # <button disabled> is '', <button> is None.
         if next_button.get("disabled") == "":
