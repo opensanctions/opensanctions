@@ -206,6 +206,7 @@ names:
   schema_rules:
     Company:
       reject_chars: ","
+      reject_strings: [" and ", " or ", " et "]
       allow_chars: "/"
   suggest_weak_alias_person_single_token: true
   suggest_abbreviation_uppercase_org_single_token_shorter_than: 8
