@@ -21,6 +21,14 @@ class CleaningSpec(BaseModel):
     Use this to define characters in dataset-specific config. Adds to the baseline
     characters for default specs.
     """
+    reject_strings: list[str] = []
+    """
+    Substrings that, if present in a name string, flag it as irregular.
+
+    Use this to define phrases in dataset-specific config that suggest a name string
+    is unsuitable as-is (e.g. " and ", " or ", " et " indicating multiple names, or
+    other superfluous strings). Matching is case-insensitive.
+    """
     allow_chars: str = ""
     """
     Characters that would otherwise trigger cleaning but are allowed for this schema.

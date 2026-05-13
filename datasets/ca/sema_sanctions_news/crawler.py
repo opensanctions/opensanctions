@@ -10,14 +10,9 @@ from zavod.stateful.review import assert_all_accepted
 PROGRAM_KEY = "CA-SEMA"
 
 
-def split_names(name: str) -> tuple[bool, h.Names]:
-    """
-    Returns:
-    - True if any name or alias contains a conjunction (or, and, et), otherwise False
-    - categorised and cleaned Names instance
-    """
+def split_names(name: str) -> h.Names:
+    """Split out aliases embedded in the name string."""
     aliases = []
-    is_irregular = False
 
     if "(also known as" in name.lower():
         name, aka = name.split("(also known as", 1)
@@ -30,15 +25,7 @@ def split_names(name: str) -> tuple[bool, h.Names]:
     # some names contain digits at the beginning of the string
     name = re.sub(r"^\d+\s*", "", name)
 
-    suggested = h.Names(name=name.strip(), alias=aliases)
-
-    for _prop_name, values in suggested.nonempty_item_lists():
-        for value in values:
-            if re.search(r"\b(or|and|et)\b", value, flags=re.I):
-                is_irregular = True
-                return is_irregular, suggested
-
-    return is_irregular, suggested
+    return h.Names(name=name.strip(), alias=aliases)
 
 
 def crawl_entity_notice(context: Context, row: Dict[str, _Element]) -> None:
@@ -101,15 +88,15 @@ def crawl_entity_notice(context: Context, row: Dict[str, _Element]) -> None:
             h.apply_reviewed_name_string(context, entity, string=name_ru, lang="rus")
 
         original = h.Names(name=name.strip())
-        crawler_is_irregular, suggested = split_names(name)
-        helper_is_irregular, suggested = h.check_names_regularity(entity, suggested)
+        suggested = split_names(name)
+        is_irregular, suggested = h.check_names_regularity(entity, suggested)
 
         h.apply_reviewed_names(
             context,
             entity,
             original=original,
             suggested=suggested,
-            is_irregular=crawler_is_irregular or helper_is_irregular,
+            is_irregular=is_irregular,
         )
         entity.add("topics", "sanction")
 

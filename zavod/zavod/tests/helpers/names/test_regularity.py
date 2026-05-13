@@ -18,6 +18,11 @@ def test_is_name_irregular(testdataset1: Dataset):
     # Rejected chars
     assert is_name_irregular(org, "Org NPO, Org Charitable")
 
+    # Rejected strings
+    assert is_name_irregular(org, "Company Alpha and Company Beta")
+    assert is_name_irregular(org, "Company Alpha OR Company Beta")  # case-insensitive
+    assert not is_name_irregular(org, "Org NPO")
+
     # Nullwords
     assert is_name_irregular(org, "Unknown")
 

@@ -45,6 +45,9 @@ dates:
     - "on %B %d, %Y"
     - "in %B %Y"
 names:
+  schema_rules:
+    LegalEntity:
+      reject_strings: [" and ", " or ", " et "]
   suggest_abbreviation_non_person_single_token_shorter_than: 5
   suggest_weak_alias_person_single_token: true
 

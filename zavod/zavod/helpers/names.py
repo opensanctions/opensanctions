@@ -330,6 +330,11 @@ def _check_schema_name_specs(string: str, spec: CleaningSpec) -> Optional[Regula
         if char in string:
             return Regularity(is_irregular=True)
 
+    string_lower = string.lower()
+    for phrase in spec.reject_strings:
+        if phrase.lower() in string_lower:
+            return Regularity(is_irregular=True)
+
     # spec.allow_nullwords
     if not spec.allow_nullwords and is_nullword(string, normalize=True):
         return Regularity(is_irregular=True)
