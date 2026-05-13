@@ -79,6 +79,7 @@ def crawl(context: Context) -> None:
         wikidata_id="Q18887908",
     )
     categorise(context, position, default_is_pep=True)
+    context.emit(position)
 
     view_dom_id = "whatever"
 
