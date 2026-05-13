@@ -245,6 +245,8 @@ def crawl(context: Context) -> None:
 
         if not name:
             return
+
+        # =========== remove from here for name migration step 3 ===========
         full_name_prop: NameProp = "name"
         # Not vessels
         if len(name) < 5 and entity.schema.is_a("LegalEntity"):
@@ -265,26 +267,21 @@ def crawl(context: Context) -> None:
             lang="eng",
             origin=origin,
         )
+        # =========== remove up to here for name migration step 3 ===========
 
-        # The low quality names tend to come from OFAC so check those.
-        if agency == "TREAS-OFAC":
-            original = h.Names(name=name)
-            is_irregular, suggested = h.check_names_regularity(entity, original)
+        original = h.Names(name=name)
+        is_irregular, suggested = h.check_names_regularity(entity, original)
 
-            # A review will be created if standard heuristics suggest the name is irregular,
-            # or if there is a custom suggestion that differs from the original categorisation.
-            h.review_names(
-                context,
-                entity,
-                original=original,
-                suggested=suggested,
-                is_irregular=is_irregular,
-            )
-
-        # TODO: Once we're done with reviews and change the OFAC clause to apply_reviewed_names,
-        # and remove the heuristic-based cleaning/adding above, add the rest normally:
-        # else:
-        #     entity.add("name", name, lang="eng")
+        # A review will be created if standard heuristics suggest the name is irregular,
+        # or if there is a custom suggestion that differs from the original categorisation.
+        # TODO: Once we're done with reviews and h.review_names to h.apply_reviewed_name_string
+        h.review_names(
+            context,
+            entity,
+            original=original,
+            suggested=suggested,
+            is_irregular=is_irregular,
+        )
 
         entity.add("firstName", row.pop("First"), quiet=True, lang="eng")
         entity.add("middleName", row.pop("Middle"), quiet=True, lang="eng")
