@@ -291,6 +291,7 @@ lookups:
           - non-binary gender
           - hijra # third gender of South Asian cultures
           - kathoey # third gender of Thai culture
+          - faʻafafine # third gender of Samoan culture
         value: other
       - match:
           - MALE
