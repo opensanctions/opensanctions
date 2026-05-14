@@ -73,13 +73,10 @@ original = h.Names(name=item["name"], previousName=item["former_name"])
 for alias in item["aliases"]:
     original.add("alias", alias["value"], lang=alias["language"])
 
-# Then we can either just review the names
-h.review_names(context, entity, original=original)
-
 # Or we can review the names, applying the accepted cleaned/categorised versions if accepted,
 # otherwise just applying the original strings in their original props
 h.apply_reviewed_names(context, entity, original=original)
-
+```
 
 ## Migrating to the name cleaning helpers
 
