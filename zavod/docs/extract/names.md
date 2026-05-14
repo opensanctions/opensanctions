@@ -3,6 +3,7 @@
 One or more names are generally available for entities named/listed in our data sources. We often need to
 
 - categorise them, e.g. as primary name, aliases, or previous/former names,
+- split the string when multiple names are combined in one string, and
 - clean superfluous text that is not part of the name.
 
 Clean, correctly categorised names are important to maximise recall (finding all true matches) and maximise precision (avoiding false positives).
@@ -20,7 +21,6 @@ New crawlers can use the most appropriate of the `apply_reviewed_...` helpers st
 
 Existing crawlers which already do some splitting/cleaning can be [migrated to these helpers](#migrating-to-the-name-cleaning-helpers).
 
-
 ## Example usage
 
 ### Simple example, no existing cleaning
@@ -28,7 +28,7 @@ Existing crawlers which already do some splitting/cleaning can be [migrated to t
 #### Before
 
 ```python
-entity.add("name", row.pop("full_legal_name"))
+entity.add("name", row.pop("full_legal_name"), lang="rus")
 ```
 
 Includes names like `THE NATIONAL BANK PLC (FORMERLY AL RAFAH MICROFINANCE BANK)` as a value of `name` property.
@@ -38,7 +38,7 @@ Includes names like `THE NATIONAL BANK PLC (FORMERLY AL RAFAH MICROFINANCE BANK)
 `crawler.py` replace `entity.add` with
 
 ```python
-h.apply_reviewed_name_string(context, entity, string=legal_name, llm_cleaning=True)
+h.apply_reviewed_name_string(context, entity, string=legal_name, llm_cleaning=True, lang="rus")
 ```
 
 `iso9362.yml` add
@@ -61,39 +61,25 @@ previousName: AL RAFAH MICROFINANCE BANK
 abbreviation: []
 ```
 
+### Multiple name fields in the source data
 
-### Sanctions crawler with some custom splitting
-
-We still want to review the result of [the splitting taking place in the crawler](#using-llms), and review anything else that looks irregular.
+We add the strings to a `Names` instance and pass it to the name review system:
 
 ```python
-entity = context.make("LegalEntity")
-names_string = row.pop("full_name")
-entity.id = context.make_id(names_string, ...)
+# Names can be added to a names instance
+original = h.Names(name=item["name"], previousName=item["former_name"])
 
-# We show the original to the analyst, and include it in statements data for provenance
-original = h.Names(name=names_string)
-# We're not using an LLM for cleaning in this case, so we do some trivial splitting.
-# Remember the point of the helpers is to keep crawlers simple. Never get too fancy
-# with suggested names in a crawler. Simple code has fewer bugs.
-suggested = h.Names()
-for name in h.multi_split(names_string, [";"]):
-    suggested.add("name", name)
+# Multiple names can be added to a names instance
+for alias in item["aliases"]:
+    original.add("alias", alias["value"], lang=alias["language"])
 
-# If we supply a suggested Names instance, a review will be created if suggested
-# differs from original, but further determining irregularity is left to the crawler.
-# If the crawler wants to re-categorise names (eg. move name from `name` to `weakAlias`)
-# consider doing that on the result of `check_names_regularity` so that standard
-# heuristics don't override the crawler's decisions.
-is_irregular, suggested = h.check_names_regularity(entity, suggested)
-h.apply_reviewed_names(
-    context,
-    entity,
-    original=original,
-    suggested=suggested,
-    is_irregular=is_irregular,
-)
-```
+# Then we can either just review the names
+h.review_names(context, entity, original=original)
+
+# Or we can review the names, applying the accepted cleaned/categorised versions if accepted,
+# otherwise just applying the original strings in their original props
+h.apply_reviewed_names(context, entity, original=original)
+
 
 ## Migrating to the name cleaning helpers
 
