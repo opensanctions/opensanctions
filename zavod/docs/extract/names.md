@@ -152,6 +152,10 @@ h.review_names(
 )
 ```
 
+Before deploying the change, check that a sample of the created reviews look ok, and that the export doesn't have any changes to names.
+
+You will need to deploy the step 3 change ASAP after running step 1 so that we don't default-accept new entities.
+
 **Non-sanctions crawler** — add LLM cleaning:
 
 ```python
@@ -168,7 +172,11 @@ entity.add("alias", names[1:])
 h.review_names(context, entity, original=original, llm_cleaning=True)
 ```
 
+Before deploying the change, check that a sample of the LLM-based extraction looks ok.
+
 If the crawler defines its own list of alias-marker phrases (e.g. a `NAME_SPLITS` constant used to detect `"aka"`, `"d.b.a."`, `" or "` etc.), compare that list against `rigour.names.name_split_phrases_list()` and add any phrases not already covered as `reject_strings` in the dataset YAML under `names.schema_rules`. This ensures those patterns continue to flag irregularity once the old logic is removed in step 3.
+
+
 
 #### Step 2
 
@@ -185,8 +193,10 @@ entity = context.make("LegalEntity")
 names_string = row.pop("full_name")
 entity.id = context.make_id(names_string, ...)
 
-h.apply_reviewed_names(context, entity, original=h.Names(name=names_string))
+h.apply_reviewed_name_string(context, entity, string=names_string)
 ```
+
+After the deployment of step 3 has run, check the latest reviews and make sure new names were't auto-accepted between deploying step 1 and step 3.
 
 **Non-sanctions crawler**:
 
@@ -195,16 +205,6 @@ entity = context.make("LegalEntity")
 names_string = row.pop("full_name")
 entity.id = context.make_id(names_string, ...)
 
-h.apply_reviewed_names(
-    context, entity, original=h.Names(name=names_string), llm_cleaning=True
-)
-```
-
-When there is a single raw name string, `apply_reviewed_name_string` is simpler:
-
-```python
-h.apply_reviewed_name_string(context, entity, string=names_string)
-# non-sanctions:
 h.apply_reviewed_name_string(context, entity, string=names_string, llm_cleaning=True)
 ```
 
