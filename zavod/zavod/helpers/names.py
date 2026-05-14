@@ -354,6 +354,10 @@ def _check_schema_name_specs(string: str, spec: CleaningSpec) -> Optional[Regula
     if spec.require_space and _is_single_token(string):
         return Regularity(is_irregular=True)
 
+    # spec.reject_leading_digit
+    if spec.reject_leading_digit and string[0].isdigit():
+        return Regularity(is_irregular=True)
+
     return None
 
 
@@ -377,9 +381,6 @@ def check_name_regularity(entity: Entity, string: Optional[str]) -> Regularity:
             return result
 
     if contains_split_phrase(string):
-        return Regularity(is_irregular=True)
-
-    if string[0].isdigit():
         return Regularity(is_irregular=True)
 
     return Regularity(is_irregular=False)
