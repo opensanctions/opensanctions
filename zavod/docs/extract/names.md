@@ -148,6 +148,14 @@ h.review_names(
 )
 ```
 
+For a non-sanctions crawler, pass `llm_cleaning=True` and omit `suggested` and `is_irregular`:
+
+```python
+h.review_names(context, entity, original=original, llm_cleaning=True)
+```
+
+If the crawler had its own list of alias-marker phrases (e.g. a `NAME_SPLITS` constant used to detect `"aka"`, `"d.b.a."`, `" or "` etc.), compare that list against `rigour.names.name_split_phrases_list()` and add any phrases not already covered as `reject_strings` in the dataset YAML under `names.schema_rules`. This ensures those patterns continue to trigger irregularity detection once the old code is removed in step 3.
+
 #### Step 2
 
 Once the crawler has run in production, complete the name reviews for this dataset.
@@ -179,7 +187,11 @@ h.apply_reviewed_names(
 )
 ```
 
-The procedure is the same for a non-sanctions crawler, passing `llm_cleaning=True` instead of `suggested`.
+When the crawler has a single raw name string with no splitting logic, use the simpler `apply_reviewed_name_string` instead:
+
+```python
+h.apply_reviewed_name_string(context, entity, string=names_string)
+```
 
 
 ## What's a dirty name?
