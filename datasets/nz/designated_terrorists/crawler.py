@@ -49,7 +49,8 @@ def parse_table(
 
 def crawl_item(input_dict: dict, context: Context):
     # aliases will be either a list of size one or None if there is no aliases
-    name, *aliases = h.multi_split(input_dict.pop("terrorist-entity")[0], ALIAS_SPLITS)
+    raw_name = input_dict.pop("terrorist-entity")[0]
+    name, *aliases = h.multi_split(raw_name, ALIAS_SPLITS)
     alias_lists = [h.multi_split(alias, [", and", ","]) for alias in aliases]
     aliases = reduce(concat, alias_lists, [])
 
@@ -59,6 +60,19 @@ def crawl_item(input_dict: dict, context: Context):
 
     organization.add("name", name)
     organization.add("alias", aliases)
+    original = h.Names(name=raw_name)
+    suggested = h.Names()
+    suggested.add("name", name)
+    for alias in aliases:
+        suggested.add("alias", alias)
+    is_irregular, suggested = h.check_names_regularity(organization, suggested)
+    h.review_names(
+        context,
+        organization,
+        original=original,
+        suggested=suggested,
+        is_irregular=is_irregular,
+    )
 
     sanction = h.make_sanction(context, organization, program_key=PROGRAM_KEY)
 
