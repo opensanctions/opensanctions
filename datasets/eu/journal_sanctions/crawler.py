@@ -3,6 +3,7 @@ import re
 from functools import cache
 from datetime import timedelta, datetime
 
+from followthemoney import registry
 from normality import normalize, squash_spaces
 from nomenklatura.resolver import Linker
 from rigour.ids.ogrn import OGRN
@@ -232,30 +233,15 @@ def check_in_consolidated_act_text(
             )
 
 
-def crawl_unconsolidated_row(
-    context: Context, linker: Linker[Entity], row_idx: int, row: dict[str, str]
+def check_in_consolidated_data(
+    context: Context,
+    linker: Linker,
+    entity: Entity,
+    row_idx: int,
+    row_id: str,
+    names: list[str],
+    country: str,
 ) -> None:
-    """Process one row of the CSV data
-
-    Unconsolidated between EU Journal and XML, not in the consolidated legislation sense.
-    """
-    row_id = row.pop("List ID").strip(" \t.")
-    entity_type = row.pop("Type").strip()
-    name = row.pop("Name").strip()
-    country = row.pop("Country").strip()
-    reg_number = row.pop("registrationNumber").strip()
-    source_url = row.pop("Source URL").strip()
-    program_code = extract_program_code(context, source_url)
-
-    context.log.debug(f"Processing row #{row_idx}: {name}")
-    entity = context.make(entity_type)
-    entity.id = context.make_id(row_id, name, country)
-    context.log.debug(f"Unique ID {entity.id}")
-
-    start_date = row.pop("startDate")
-    names = h.multi_split(name, ";")
-    check_in_consolidated_act_text(context, start_date, names, row_id, source_url)
-
     canonical_id = linker.get_canonical(entity.id)
     for other_id in linker.get_referents(canonical_id):
         if other_id.startswith("eu-fsf-"):
@@ -263,8 +249,8 @@ def crawl_unconsolidated_row(
                 f"Row {row_idx} is also present in FSF XML: {other_id}",
                 row_id=row_id,
                 other_id=other_id,
-                name=name,
-                entity_type=entity_type,
+                name=names,
+                entity_type=entity.schema.name,
                 country=country,
             )
             GC_ROWS.append(row_idx)
@@ -274,8 +260,8 @@ def crawl_unconsolidated_row(
                 f"Row {row_idx} is also present in EU Sanctions map: {other_id}",
                 row_id=row_id,
                 other_id=other_id,
-                name=name,
-                entity_type=entity_type,
+                name=names,
+                entity_type=entity.schema.name,
                 country=country,
             )
             GC_ROWS.append(row_idx)
@@ -285,39 +271,103 @@ def crawl_unconsolidated_row(
                 f"Row {row_idx} is also present in EU Travel Bans: {other_id}",
                 row_id=row_id,
                 other_id=other_id,
-                name=name,
-                entity_type=entity_type,
+                name=names,
+                entity_type=entity.schema.name,
                 country=country,
             )
             break
+
+
+def crawl_common(context: Context, row_idx: int, row: dict[str, str]) -> Entity:
+    """Build entity with stable properties shared across all CSV sources.
+
+    Captures properties that are unlikely to become stale and are therefore safe
+    to include in post-consolidation (contextual) data as enrichment. Some statements
+    might have been legally challenged and removed from the EU legislation but remains
+    captured in this spreadsheet and must not be published by mistake.
+
+    !!! Legal Liability Warning !!!
+
+    We specifically exclude:
+      - notes
+      - position
+      - address
+      - previousName
+      - country
+
+    Before adding more to this, think whether it's ok for it to be included once
+    someone is delisted or whether that's a legal risk.
+
+    """
+    row_id = row.pop("List ID").strip(" \t.")
+    entity_type = row.pop("Type").strip()
+    name = row.pop("Name").strip()
+    country = row.pop("Country").strip()
+    reg_number = row.pop("registrationNumber").strip()
+    source_url = row.pop("Source URL").strip()
+
+    context.log.debug(f"Processing row #{row_idx}: {name}")
+    entity = context.make(entity_type)
+    entity.id = context.make_id(row_id, name, country)
+    context.log.debug(f"Unique ID {entity.id}")
 
     dob = row.pop("DOB")
     if entity.schema.is_a("Organization"):
         h.apply_dates(entity, "incorporationDate", h.multi_split(dob, ";"))
     elif entity.schema.is_a("Person"):
         h.apply_dates(entity, "birthDate", h.multi_split(dob, ";"))
+
+    # !!! See docstring for what can be included here.
+
+    names = h.multi_split(name, ";")
     entity.add("birthPlace", row.pop("POB"), quiet=True)
-    entity.add("country", h.multi_split(country, ";"))
     entity.add("name", names)
-    entity.add("previousName", h.multi_split(row.pop("previousName"), ";"))
     entity.add("alias", h.multi_split(row.pop("Alias"), ";"))
     entity.add("weakAlias", h.multi_split(row.pop("weakAlias"), ";"))
     entity.add_cast("Person", "passportNumber", h.multi_split(row.pop("passport"), ";"))
     entity.add("taxNumber", h.multi_split(row.pop("taxNumber"), ";"), quiet=True)
+    entity.add("kppCode", h.multi_split(row.pop("kppCode"), ";"), quiet=True)
     entity.add("idNumber", h.multi_split(row.pop("idNumber"), ";"), quiet=True)
     entity.add("imoNumber", row.pop("imoNumber"), quiet=True)
-    entity.add("notes", row.pop("Notes").strip())
-    entity.add("position", h.multi_split(row.pop("Position", None), ";"), quiet=True)
-    entity.add("address", h.multi_split(row.pop("Address", None), ";"), quiet=True)
     entity.add("email", h.multi_split(row.pop("email"), ";"), quiet=True)
     entity.add("website", h.multi_split(row.pop("website"), ";"), quiet=True)
     entity.add("gender", row.pop("Gender", None), quiet=True)
     entity.add("sourceUrl", h.multi_split(source_url, ";"))
     for reg_num in h.multi_split(reg_number, ";"):
-        if "ru" in entity.get("country") and OGRN.is_valid(reg_num):
+        if "ru" == registry.country.clean(country) and OGRN.is_valid(reg_num):
             entity.add("ogrnCode", reg_num)
         else:
             entity.add("registrationNumber", reg_num)
+
+    # !!! See docstring for what can be included here.
+
+    return entity
+
+
+def crawl_unconsolidated_row(
+    context: Context, linker: Linker[Entity], row_idx: int, row: dict[str, str]
+) -> None:
+    """Process one row of the unconsolidated CSV data.
+
+    Unconsolidated between EU Journal and XML, not in the consolidated legislation sense.
+
+    We add the sanction topic here since they might not be in the official structured data yet.
+    """
+    row_id = row.get("List ID")
+    country = row.get("Country").strip()
+    source_url = row.get("Source URL").strip()
+
+    entity = crawl_common(context, row_idx, row)
+    program_code = extract_program_code(context, source_url)
+    names = entity.get("name")
+
+    start_date = row.pop("startDate")
+
+    entity.add("country", h.multi_split(country, ";"))
+    entity.add("previousName", h.multi_split(row.pop("previousName"), ";"))
+    entity.add("notes", row.pop("Notes").strip())
+    entity.add("position", h.multi_split(row.pop("Position", None), ";"), quiet=True)
+    entity.add("address", h.multi_split(row.pop("Address", None), ";"), quiet=True)
 
     for related_name in h.multi_split(row.pop("related"), ";"):
         related = context.make("LegalEntity")
@@ -359,50 +409,17 @@ def crawl_unconsolidated_row(
         context.emit(wallet)
         context.emit(wallet_sanction)
 
+    check_in_consolidated_act_text(context, start_date, names, row_id, source_url)
+    check_in_consolidated_data(context, linker, entity, row_idx, row_id, names, country)
+
     context.emit(entity)
     context.emit(sanction)
     context.audit_data(row)
 
 
 def crawl_context_row(context: Context, row_idx: int, row: dict[str, str]) -> None:
-    """Process one row of the contextual CSV data"""
-    row_id = row.pop("List ID").strip(" \t.")
-    entity_type = row.pop("Type").strip()
-    name = row.pop("Name").strip()
-    country = row.pop("Country").strip()
-    reg_number = row.pop("registrationNumber").strip()
-    source_url = row.pop("Source URL").strip()
-
-    context.log.debug(f"Processing row #{row_idx}: {name}")
-    entity = context.make(entity_type)
-    entity.id = context.make_id(row_id, name, country)
-    context.log.debug(f"Unique ID {entity.id}")
-
-    dob = row.pop("DOB")
-    if entity.schema.is_a("Person"):
-        h.apply_dates(entity, "birthDate", h.multi_split(dob, ";"))
-    entity.add("birthPlace", row.pop("POB"), quiet=True)
-    # entity.add("country", h.multi_split(country, ";"))
-    entity.add("name", h.multi_split(name, ";"))
-    # entity.add("previousName", h.multi_split(row.pop("previousName"), ";"))
-    entity.add("alias", h.multi_split(row.pop("Alias"), ";"))
-    entity.add("weakAlias", h.multi_split(row.pop("weakAlias"), ";"))
-    entity.add_cast("Person", "passportNumber", h.multi_split(row.pop("passport"), ";"))
-    entity.add("taxNumber", h.multi_split(row.pop("taxNumber"), ";"), quiet=True)
-    entity.add("kppCode", h.multi_split(row.pop("kppCode"), ";"), quiet=True)
-    entity.add("idNumber", h.multi_split(row.pop("idNumber"), ";"), quiet=True)
-    entity.add("imoNumber", row.pop("imoNumber"), quiet=True)
-    # entity.add("notes", row.pop("Notes").strip())
-    # entity.add("position", h.multi_split(row.pop("Position", None), ";"), quiet=True)
-    # entity.add("address", h.multi_split(row.pop("Address", None), ";"), quiet=True)
-    entity.add("email", h.multi_split(row.pop("email"), ";"), quiet=True)
-    entity.add("website", h.multi_split(row.pop("website"), ";"), quiet=True)
-    entity.add("gender", row.pop("Gender", None), quiet=True)
-    entity.add("sourceUrl", h.multi_split(source_url, ";"))
-    if "ru" in entity.get("country"):
-        entity.add("ogrnCode", h.multi_split(reg_number, ";"))
-    else:
-        entity.add("registrationNumber", h.multi_split(reg_number, ";"))
+    """Process one row of the contextual CSV data."""
+    entity = crawl_common(context, row_idx, row)
 
     context.emit(entity)
     context.audit_data(
