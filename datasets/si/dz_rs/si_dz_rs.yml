@@ -70,3 +70,8 @@ lookups:
         value: male
       - match: Z
         value: female
+  type.date:
+    options:
+      - match: 24. oktober 1977
+        value: 1977-10-24
+
