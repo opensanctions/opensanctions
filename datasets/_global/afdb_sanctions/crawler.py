@@ -74,7 +74,9 @@ def crawl(context: Context) -> None:
         country = cells.pop("nationality")
         entity = context.make(schema)
         entity.id = context.make_id(name, country)
+        original = h.Names(name=name)
         apply_clean_name(context, entity, name)
+        h.review_names(context, entity, original=original, llm_cleaning=True)
         entity.add("topics", "debarment")
         entity.add("country", country)
 
