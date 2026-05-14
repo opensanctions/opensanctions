@@ -532,16 +532,6 @@ def _review_names(
     # key_parts uses sorted names for a stable key regardless of source insertion order.
     key_parts = review_key_parts(entity, original)
 
-    # TODO: Remove in https://github.com/opensanctions/opensanctions/issues/4148 after all crawlers have run.
-    # Legacy unsorted key_parts for migrating reviews created before sorting was introduced.
-    legacy_key_parts: List[str] = [entity.schema.name]
-    for prop, names_values in original.as_langtexts():
-        legacy_key_parts.append(prop)
-        for names_value in names_values:
-            if names_value.lang is not None:
-                legacy_key_parts.append(names_value.lang)
-            legacy_key_parts.append(names_value.text)
-
     # For human readability, we only include the populated props in the source value.
     # Sort within each prop so the source_value JSON is stable when source order changes.
     populated_props: Dict[str, List[str | Dict[str, str | None]]] = {}
@@ -560,8 +550,6 @@ def _review_names(
 
     source_value = JSONSourceValue(
         key_parts=key_parts,
-        # TODO: Remove in https://github.com/opensanctions/opensanctions/issues/4148 after all crawlers have run.
-        legacy_key_parts=legacy_key_parts,
         label="names",
         data=cast(JsonValue, source_value_data),
     )

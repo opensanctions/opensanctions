@@ -6,8 +6,7 @@ from typing import Any, Callable, Dict, Generic, List, Optional, Type, TypeVar
 
 import orjson
 from lxml.html import fromstring, tostring
-from normality import WS, category_replace, slugify, squash_spaces, stringify
-from normality.constants import SLUG_CATEGORIES
+from normality import slugify, squash_spaces
 from pydantic import BaseModel, JsonValue, PrivateAttr
 from pydantic.json_schema import GenerateJsonSchema, JsonSchemaMode
 from pydantic_core import CoreSchema
@@ -138,28 +137,6 @@ class Review(BaseModel, Generic[ModelType]):
         )
         return cls.load(conn, data_model, select_stmt)
 
-    # TODO: Remove in https://github.com/opensanctions/opensanctions/issues/4148 after all crawlers have run.
-    def rename_key(self, conn: Connection, new_key: str) -> None:
-        """Rename this review's key in-place without creating a new revision.
-        Updates both the review table and the entity link table."""
-        conn.execute(
-            update(review_table)
-            .where(
-                review_table.c.key == self.key,
-                review_table.c.dataset == self.dataset,
-            )
-            .values(key=new_key)
-        )
-        conn.execute(
-            update(review_entity_table)
-            .where(
-                review_entity_table.c.review_key == self.key,
-                review_entity_table.c.dataset == self.dataset,
-            )
-            .values(review_key=new_key)
-        )
-        self.key = new_key
-
     def save(self, conn: Connection, new_revision: bool) -> None:
         values = {
             "key": self.key,
@@ -245,10 +222,6 @@ class SourceValue(ABC):
 
     key_parts: str | List[str]
     """Parts that are SHA1-hashed to produce the review key."""
-    # TODO: Remove in https://github.com/opensanctions/opensanctions/issues/4148 after all crawlers have run.
-    legacy_key_parts: Optional[str | List[str]] = None
-    """If set, the migration path in review_extraction() will also try the legacy
-    slug key derived from these parts. Use when key_parts ordering has changed."""
     mime_type: str
     label: str
     url: Optional[str]
@@ -304,19 +277,14 @@ class JSONSourceValue(SourceValue):
         label: str,
         data: JsonValue,
         url: Optional[str] = None,
-        # TODO: Remove in https://github.com/opensanctions/opensanctions/issues/4148 after all crawlers have run.
-        legacy_key_parts: Optional[str | List[str]] = None,
     ):
         """
         Args:
             key_parts: Information from the source that uniquely and
                 consistently identifies the review within the dataset. For a JSON
                 object, that might be a unique id field or a url.
-            legacy_key_parts: If key_parts ordering has changed, supply the old
-                ordering here so the migration path can find existing reviews.
         """
         self.key_parts = key_parts
-        self.legacy_key_parts = legacy_key_parts
         self.label = label
         self.url = url
         options = orjson.OPT_SORT_KEYS | orjson.OPT_INDENT_2
@@ -366,26 +334,6 @@ class HtmlSourceValue(SourceValue):
         return element_text_hash(seen_element) == element_text_hash(self.element)
 
 
-def unicode_slug(parts: str | List[str]) -> Optional[str]:
-    """Slugify a text string. This will not transliterate the text to ASCII,
-    but will replace punctuation with - and remove all
-    characters that are not alphanumeric or the separator."""
-
-    sep = "-"
-
-    text = stringify(parts)
-    if text is None:
-        return None
-
-    text = text.lower().replace(sep, WS)
-    replaced = category_replace(text, SLUG_CATEGORIES)
-    text = squash_spaces(replaced)
-    text = "".join([c for c in text if (c.isprintable() and c.isalnum()) or c == WS])
-    if len(text) == 0:
-        return None
-    return text.replace(WS, sep)
-
-
 def review_key(parts: str | List[str]) -> str:
     """Generates a stable 40-char SHA1 key for a review.
     String normalization should be no more aggressive than source value matching,
@@ -400,17 +348,6 @@ def review_key(parts: str | List[str]) -> str:
     for part in parts:
         digest.update(part.strip().encode("utf-8"))
     return digest.hexdigest()
-
-
-# TODO: Remove in https://github.com/opensanctions/opensanctions/issues/4148 after all crawlers have run.
-def review_key_legacy(parts: str | List[str]) -> str:
-    """Returns the old slug-based key for migration lookups only. Do not use for new reviews."""
-    slug = unicode_slug(parts)
-    assert slug is not None
-    if len(slug) <= 255:
-        return slug
-    hash_ = sha1(slug.encode("utf-8")).hexdigest()
-    return f"{slug[:80]}-{hash_[:10]}"
 
 
 def review_extraction(
@@ -457,24 +394,6 @@ def review_extraction(
     review = Review[ModelType].by_key(
         context.conn, data_model, dataset=context.dataset.name, key=key_slug
     )
-    if review is None:
-        # TODO: Remove in https://github.com/opensanctions/opensanctions/issues/4148 after all crawlers have run.
-        # Migrate from legacy slug-based keys (slug→hash migration for all types;
-        # legacy_key_parts also handles name-ordering changes for names reviews).
-        legacy_candidates: List[str | List[str]] = [source_value.key_parts]
-        if source_value.legacy_key_parts is not None:
-            legacy_candidates.append(source_value.legacy_key_parts)
-        for candidate in legacy_candidates:
-            legacy_slug = review_key_legacy(candidate)
-            legacy_review = Review[ModelType].by_key(
-                context.conn, data_model, dataset=context.dataset.name, key=legacy_slug
-            )
-            if legacy_review is not None:
-                legacy_review.rename_key(context.conn, key_slug)
-                # info so we get migration in prod logs
-                context.log.info("Migrated review key", old=legacy_slug, new=key_slug)
-                review = legacy_review
-                break
     save_new_revision = False
     if review is None:
         context.log.debug("Creating new review", key=key_slug)
