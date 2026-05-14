@@ -12,7 +12,6 @@ from zavod.stateful.review import (
     TextSourceValue,
     review_extraction,
     review_key,
-    review_key_legacy,
 )
 
 
@@ -332,64 +331,3 @@ def test_review_key():
     assert review_key(["part1", "part2"]) != review_key(["part2", "part1"])
     # Whitespace stripped from each part
     assert review_key([" part1 ", "part2"]) == review_key(["part1", "part2"])
-
-
-def test_review_key_legacy():
-    # Preserves old slug behaviour for migration lookups
-    assert review_key_legacy("key1") == "key1"
-    assert review_key_legacy(["part1", "part2"]) == "part1-part2"
-    assert (
-        review_key_legacy("key1" * 100)
-        == "key1key1key1key1key1key1key1key1key1key1key1key1key1key1key1key1key1key1key1key1-0ed37245d1"
-    )
-    assert (
-        review_key_legacy(["key1"] * 100)
-        == "key1-key1-key1-key1-key1-key1-key1-key1-key1-key1-key1-key1-key1-key1-key1-key1--5611368bed"
-    )
-    assert (
-        review_key_legacy("STEPHEN D/B/A S CONTRACTING")
-        == "stephen-d-b-a-s-contracting"
-    )
-    assert review_key_legacy("Север Мухамадмухтар Крот") == "север-мухамадмухтар-крот"
-    assert (
-        review_key_legacy("name\u200bwith\u200cweird\u200dchars")
-        == "namewithweirdchars"
-    )
-
-
-def test_slug_to_hash_migration(testdataset1: Dataset):
-    # Create a review under the old slug key directly (simulating a pre-migration DB row).
-    context1 = Context(testdataset1)
-    source_value = mock_source_value("mykey")
-    legacy_slug = review_key_legacy("mykey")
-    data = DummyModel(foo="bar")
-    # Insert directly with the legacy slug key
-    old_review = review_extraction(
-        context1,
-        crawler_version=1,
-        source_value=source_value,
-        original_extraction=data,
-        origin="test",
-    )
-    # Manually rename to the legacy slug to simulate pre-migration state
-    old_review.rename_key(context1.conn, legacy_slug)
-    assert get_row(context1.conn, legacy_slug) is not None
-    assert get_row(context1.conn, review_key("mykey")) is None
-
-    # Re-crawl: migration should rename slug key → hash key
-    context2 = Context(testdataset1)
-    review2 = review_extraction(
-        context2,
-        crawler_version=1,
-        source_value=source_value,
-        original_extraction=data,
-        origin="test",
-    )
-    new_key = review_key("mykey")
-    assert review2.key == new_key
-    assert get_row(context2.conn, new_key) is not None
-    assert get_row(context2.conn, legacy_slug) is None
-    # Only one active row
-    assert len(get_all_rows(context2.conn, new_key)) == 1
-    context1.close()
-    context2.close()
