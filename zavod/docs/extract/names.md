@@ -99,7 +99,7 @@ h.apply_reviewed_names(
 
 It can be nice to migrate existing crawlers which already do some cleaning themselves such that all the names cleaned through the helpers are fully reviewed when the switchover takes place. This is important because the original string(s) are applied as names when reviews are not accepted yet.
 
-The goal of the migration is to remove all crawler-specific name cleaning and hand it off to the review system. Only retain custom logic in step 3 if the dataset has particular requirements that can't be handled by reviews (e.g. swapping the primary name for the longest alias under certain conditions).
+The goal of the migration is to remove all crawler-specific name cleaning and hand it off to the review system.
 
 The approach in step 1 differs by dataset type:
 
