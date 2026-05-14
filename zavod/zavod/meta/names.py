@@ -44,6 +44,11 @@ class CleaningSpec(BaseModel):
     """Whether to require a space in the name.
     Does not apply to writing systems that don't use spaces to separate name parts, e.g. Han for Chinese"""
     allow_nullwords: bool = False
+    """Strings like n/a, none, etc are considered irregular by default. Set to True to ignore them."""
+    reject_leading_digit: bool = False
+    """If True, names starting with a digit are flagged as irregular. Off by default.
+    Useful where leading digits are irregular, e.g. numbering artifacts.
+    Some organisation names really have leading digits in the name."""
 
     @cached_property
     def reject_chars_consolidated(self) -> Set[str]:
