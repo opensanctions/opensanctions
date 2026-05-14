@@ -45,6 +45,14 @@ dates:
   formats: ["%Y/%m/%d", "%d-%b-%Y", "%d-%m-%Y", "%d-%b-%y"]
   months:
     "Sep": "Sept"
+names:
+  schema_rules:
+    LegalEntity:
+      reject_strings: ["aka", "d.b.a.", " or ", "operating", "previously"]
+      reject_chars: "("
+    Person:
+      reject_strings: ["aka", "d.b.a.", " or ", "operating", "previously"]
+
 assertions:
   min:
     schema_entities:
@@ -59,11 +67,6 @@ assertions:
     schema_entities:
       LegalEntity: 1400
       Person: 500
-
-names:
-  schema_rules:
-    LegalEntity:
-      reject_strings: ["aka", "d.b.a.", " or ", "operating", "previously"]
 
 lookups:
   names:
