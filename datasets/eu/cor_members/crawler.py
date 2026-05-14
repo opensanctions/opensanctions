@@ -44,6 +44,7 @@ def crawl_person(context: Context, item: Dict[str, Any]) -> None:
         start_date=item.pop("from"),
         end_date=item.pop("to"),
         categorisation=categorisation,
+        propagate_country=False,
     )
     if occupancy is not None:
         for member_status in item.pop("memberStatuses", []):
