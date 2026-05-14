@@ -60,6 +60,11 @@ assertions:
       LegalEntity: 1400
       Person: 500
 
+names:
+  schema_rules:
+    LegalEntity:
+      reject_strings: ["aka", "d.b.a.", " or ", "operating", "previously"]
+
 lookups:
   names:
     options:
