@@ -31,10 +31,15 @@ def crawl_node(
     person.add("topics", "role.pep")
 
     occupancy = h.make_occupancy(
-        context, person, position, categorisation=categorisation
+        context,
+        person,
+        position,
+        categorisation=categorisation,
+        propagate_country=False,
     )
+    if occupancy is not None:
+        context.emit(occupancy)
 
-    context.emit(occupancy)
     context.emit(person)
 
     party_name = node.findtext(".//nationalPoliticalGroup")
