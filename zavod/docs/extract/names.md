@@ -99,15 +99,16 @@ h.apply_reviewed_names(
 
 It can be nice to migrate existing crawlers which already do some cleaning themselves such that all the names cleaned through the helpers are fully reviewed when the switchover takes place. This is important because the original string(s) are applied as names when reviews are not accepted yet.
 
-The suggested procedure is as follows:
+The goal of the migration is to remove all crawler-specific name cleaning and hand it off to the review system. Only retain custom logic in step 3 if the dataset has particular requirements that can't be handled by reviews (e.g. swapping the primary name for the longest alias under certain conditions).
 
-1. Call [zavod.helpers.review_names][] with a `h.Names` instance as you would pass to `apply_reviewed_names` or create using `apply_reviewed_name_string`. Leave any existing name cleaning and applying in place
-2. Deploy the change, let it run, and complete the name reviews created by this crawler
-3. Replace the call of `review_names` with call of `apply_reviewed_names` or `apply_reviewed_name_string` and remove the existing name cleaning and applying logic.
+The approach in step 1 differs by dataset type:
+
+- **Sanctions crawler**: pass the existing cleaned names as `suggested` with `default_accepted=True`, so the reviews are immediately accepted and output is unchanged while reviews accumulate.
+- **Non-sanctions crawler**: add `llm_cleaning=True`, which creates LLM-cleaned reviews alongside the existing logic.
 
 ### Migration example
 
-For an example sanctions crawler that does some custom splitting and categorisation:
+For a crawler that does some custom splitting:
 
 ```python
 entity = context.make("LegalEntity")
@@ -121,7 +122,9 @@ entity.add("alias", names[1:])
 
 #### Step 1
 
-Introduce the names framework without changing the existing behaviour.
+Introduce reviews alongside the existing logic without changing output.
+
+**Sanctions crawler** — mirror existing cleaned names into `suggested` and auto-accept:
 
 ```python
 entity = context.make("LegalEntity")
@@ -145,24 +148,11 @@ h.review_names(
     original=original,
     suggested=suggested,
     is_irregular=is_irregular,
+    default_accepted=True,
 )
 ```
 
-For a non-sanctions crawler, pass `llm_cleaning=True` and omit `suggested` and `is_irregular`:
-
-```python
-h.review_names(context, entity, original=original, llm_cleaning=True)
-```
-
-If the crawler had its own list of alias-marker phrases (e.g. a `NAME_SPLITS` constant used to detect `"aka"`, `"d.b.a."`, `" or "` etc.), compare that list against `rigour.names.name_split_phrases_list()` and add any phrases not already covered as `reject_strings` in the dataset YAML under `names.schema_rules`. This ensures those patterns continue to trigger irregularity detection once the old code is removed in step 3.
-
-#### Step 2
-
-Once the crawler has run in production, complete the name reviews for this dataset.
-
-#### Step 3
-
-Replace the old `h.apply_names` and `Entity.add(name_prop, ...` calls with `h.apply_reviewed_name...` calls.
+**Non-sanctions crawler** — add LLM cleaning:
 
 ```python
 entity = context.make("LegalEntity")
@@ -170,27 +160,52 @@ names_string = row.pop("full_name")
 entity.id = context.make_id(names_string, ...)
 
 original = h.Names(name=names_string)
-suggested = h.Names()
 
 names = h.multi_split(names_string, ["a.k.a."])
-suggested.add("name", names[0])
-for alias in names[1:]:
-    suggested.add("alias", alias)
+entity.add("name", names[0])
+entity.add("alias", names[1:])
 
-is_irregular, suggested = h.check_names_regularity(entity, suggested)
+h.review_names(context, entity, original=original, llm_cleaning=True)
+```
+
+If the crawler defines its own list of alias-marker phrases (e.g. a `NAME_SPLITS` constant used to detect `"aka"`, `"d.b.a."`, `" or "` etc.), compare that list against `rigour.names.name_split_phrases_list()` and add any phrases not already covered as `reject_strings` in the dataset YAML under `names.schema_rules`. This ensures those patterns continue to flag irregularity once the old logic is removed in step 3.
+
+#### Step 2
+
+Once the crawler has run in production, complete the name reviews for this dataset.
+
+#### Step 3
+
+Remove all custom name cleaning and splitting logic and replace with a single `apply_reviewed_names` or `apply_reviewed_name_string` call.
+
+**Sanctions crawler**:
+
+```python
+entity = context.make("LegalEntity")
+names_string = row.pop("full_name")
+entity.id = context.make_id(names_string, ...)
+
+h.apply_reviewed_names(context, entity, original=h.Names(name=names_string))
+```
+
+**Non-sanctions crawler**:
+
+```python
+entity = context.make("LegalEntity")
+names_string = row.pop("full_name")
+entity.id = context.make_id(names_string, ...)
+
 h.apply_reviewed_names(
-    context,
-    entity,
-    original=original,
-    suggested=suggested,
-    is_irregular=is_irregular,
+    context, entity, original=h.Names(name=names_string), llm_cleaning=True
 )
 ```
 
-When the crawler has a single raw name string with no splitting logic, use the simpler `apply_reviewed_name_string` instead:
+When there is a single raw name string, `apply_reviewed_name_string` is simpler:
 
 ```python
 h.apply_reviewed_name_string(context, entity, string=names_string)
+# non-sanctions:
+h.apply_reviewed_name_string(context, entity, string=names_string, llm_cleaning=True)
 ```
 
 
