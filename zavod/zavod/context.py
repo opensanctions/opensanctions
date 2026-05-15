@@ -131,6 +131,13 @@ class Context:
         to be flawed."""
         if old_id is None or new_id is None or old_id == new_id:
             return
+        if self.cache._engine.dialect.name == "sqlite":
+            self.log.error(
+                "Rekeying is not supported with SQLite resolver",
+                old_id=old_id,
+                new_id=new_id,
+            )
+            return
         if self._resolver is None:
             self._resolver = get_resolver()
             self._resolver.begin()
@@ -144,11 +151,6 @@ class Context:
             user="zavod/rekey",
             judgement=Judgement.POSITIVE,
         )
-        if self._resolver._engine.dialect.name == "sqlite":
-            # In SQLite, the resolver cannot maintain an open transaction, so we need to
-            # commit after every decision.
-            self._resolver.commit()
-            self._resolver = None
 
     def flush(self) -> None:
         """Flush the context to ensure all data is written to disk."""
