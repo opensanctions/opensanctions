@@ -75,8 +75,6 @@ def crawl_member(context: Context, bioguide_id: str) -> None:
     assert API_KEY is not None, "No $OPENSANCTIONS_US_CONGRESS_API_KEY key set."
     headers = {"x-api-key": API_KEY}
     member = context.fetch_json(url, headers=headers, cache_days=30)["member"]
-    context.log.info("Crawling member: %s" % member.get("directOrderName"))
-
     person = context.make("Person")
     person.id = context.make_id(bioguide_id)
     person.add("citizenship", "us")
@@ -122,6 +120,6 @@ def crawl(context: Context) -> None:
                 crawl_member(context, member["bioguideId"])
         except HTTPError as err:
             if err.response.status_code == 429:
-                context.log.info("Rate limit exceeded, stopping crawl.")
+                context.log.warning("Rate limit exceeded, stopping crawl.")
                 break
             raise
