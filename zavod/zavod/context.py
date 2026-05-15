@@ -144,6 +144,11 @@ class Context:
             user="zavod/rekey",
             judgement=Judgement.POSITIVE,
         )
+        if self._resolver._engine.dialect.name == "sqlite":
+            # In SQLite, the resolver cannot maintain an open transaction, so we need to
+            # commit after every decision.
+            self._resolver.commit()
+            self._resolver = None
 
     def flush(self) -> None:
         """Flush the context to ensure all data is written to disk."""

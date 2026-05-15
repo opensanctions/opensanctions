@@ -70,14 +70,15 @@ def crawl_debarment(
     suggested.add("name", name)
     for alias in aliases:
         suggested.add("alias", alias)
-    is_irregular, _ = h.check_names_regularity(entity, original)
-    h.review_names(
-        context,
-        entity,
-        original=original,
-        suggested=suggested,
-        is_irregular=is_irregular,
-    )
+    # is_irregular, suggested = h.check_names_regularity(entity, original)
+    if name != raw_name:
+        h.review_names(
+            context,
+            entity,
+            original=original,
+            suggested=suggested,
+            is_irregular=True,
+        )
 
     sanction = h.make_sanction(context, entity, program_key=program_key)
     sanction.add("listingDate", row.pop(notice_date_field).isoformat()[:10])
