@@ -1,4 +1,4 @@
-FROM ubuntu:24.04 AS build
+FROM ubuntu:26.04 AS build
 
 ARG BUILD_DATE=static
 
@@ -22,7 +22,7 @@ RUN pip install --no-cache-dir -e /opensanctions/zavod
 WORKDIR /opensanctions
 
 # ----------------------------------------------------------------------------------------
-FROM ubuntu:24.04 AS runtime
+FROM ubuntu:26.04 AS runtime
 
 LABEL org.opencontainers.image.title="OpenSanctions ETL"
 LABEL org.opencontainers.image.licenses=MIT
