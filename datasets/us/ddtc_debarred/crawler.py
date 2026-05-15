@@ -1,7 +1,7 @@
 from normality import slugify
 import openpyxl
 from rigour.mime.types import XLSX
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 from zavod import Context
 from zavod import helpers as h
@@ -17,16 +17,16 @@ def sheet_to_dicts(sheet):
     for row in sheet.rows:
         cells = [c.value for c in row]
         if headers is None:
-            headers = [slugify(h) for h in cells]
+            headers = [slugify(h) or f"column_{i}" for i, h in enumerate(cells)]
             continue
         row = dict(zip(headers, cells))
         yield row
 
 
-def split_names(name: str) -> (str, List[str]):
+def split_names(name: str) -> Tuple[str, List[str]]:
     parts = name.split("(a.k.a. ", 1)
     main_name = parts[0]
-    alias_list = []
+    alias_list: List[str] = []
     if len(parts) > 1:
         aliases = parts[1]
         aliases = aliases.replace(")", "")
@@ -40,11 +40,8 @@ def crawl_debarment(
     program_key: str,
     name_field: str,
     notice_date_field: str,
-    birth_date_field=None,
 ):
-    date_of_birth = row.pop(birth_date_field, None)
-    if type(date_of_birth) is str:
-        date_of_birth = date_of_birth.strip()
+    date_of_birth = row.pop("date-of-birth", None)
     if date_of_birth:
         schema = "Person"
     else:
@@ -53,7 +50,14 @@ def crawl_debarment(
     entity = context.make(schema)
     raw_name = row.pop(name_field)
     name, aliases = split_names(raw_name)
-    entity.id = context.make_slug(name, date_of_birth, strict=False)
+
+    prev_dob = date_of_birth
+    if isinstance(date_of_birth, str):
+        prev_dob = prev_dob.strip()
+    old_id = context.make_slug(name, prev_dob, strict=False)
+    entity.id = context.make_id(raw_name, date_of_birth)
+    context.rekey(old_id, entity.id)
+
     entity.add("name", name)
     entity.add("alias", aliases)
     entity.add("country", "us")
@@ -66,7 +70,7 @@ def crawl_debarment(
     suggested.add("name", name)
     for alias in aliases:
         suggested.add("alias", alias)
-    is_irregular, suggested = h.check_names_regularity(entity, suggested)
+    is_irregular, _ = h.check_names_regularity(entity, original)
     h.review_names(
         context,
         entity,
@@ -100,14 +104,7 @@ def crawl(context: Context):
     context.export_resource(path, XLSX, title="Statutory Debarments")
     rows = sheet_to_dicts(openpyxl.load_workbook(path, read_only=True).worksheets[0])
     for row in rows:
-        crawl_debarment(
-            context,
-            row,
-            US_DDTC_SD,
-            "party-name",
-            "notice-date",
-            "date-of-birth",
-        )
+        crawl_debarment(context, row, US_DDTC_SD, "party-name", "notice-date")
 
     path = context.fetch_resource("administrative.xlsx", ADMINISTRATIVE_XLSX_URL)
     context.export_resource(path, XLSX, title="Administrative Debarments")
