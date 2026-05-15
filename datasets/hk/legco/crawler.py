@@ -43,6 +43,8 @@ def crawl_person(
     person.id = context.make_id(
         str(member.pop("member_id")), str(member.pop("search_key"))
     )
+    # citizenship not required (Art 67): https://www.cmab.gov.hk/doc/en/documents/policy_responsibilities/Racial_Discrimination/AnnexI-Eng.pdf
+    person.add("country", "hk")
     context.log.debug("Unique ID {person_id}".format(person_id=person.id))
     # Add names in English and both Chinese writing systems
     h.apply_name(person, full=pages.en.pop("name"), lang="eng")
@@ -96,7 +98,6 @@ UNUSED_LIST_FIELDS = [
     "honour",
 ]
 UNUSED_PAGE_FIELDS = [
-    "constituency",
     "constituency_type",
     "photo_url",
     "large_photo_url",
@@ -106,7 +107,6 @@ UNUSED_PAGE_FIELDS = [
     "salute_name",
     "honour",
     "occupation",
-    "party",
     "office_address",
     "office_list",
     "annual_report_list",
@@ -132,6 +132,7 @@ def crawl_member(
     member_id = int(member["member_id"])
     pages = crawl_member_pages(context, member_id)
     person = crawl_person(context, member, pages)
+    person.add("political", member.pop("party", None))
 
     positions = []
     if member.pop("is_president", "N") == "Y":
@@ -168,6 +169,7 @@ def crawl_member(
             context, person, position, True, categorisation=categorisation
         )
         if occupancy is not None:
+            occupancy.add("constituency", member.pop("constituency", None))
             context.emit(person)
             context.emit(position)
             context.emit(occupancy)
