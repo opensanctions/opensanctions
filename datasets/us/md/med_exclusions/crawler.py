@@ -5,7 +5,7 @@ from zavod import Context, helpers as h
 from zavod.extract import zyte_api
 
 
-def crawl_item(row: dict[str, str], context: Context) -> None:
+def crawl_item(row: dict[str, str | None], context: Context) -> None:
     if not row.get("first_name"):
         entity = context.make("Company")
         entity.id = context.make_id(row.get("last_name_organization"))
@@ -26,8 +26,8 @@ def crawl_item(row: dict[str, str], context: Context) -> None:
     entity.add("topics", "debarment")
     entity.add("country", "us")
 
-    if row.get("license_no"):
-        entity.add("description", "License No: " + row.pop("license_no"))
+    if license_no := row.pop("license_no"):
+        entity.add("description", "License No: " + license_no)
 
     street_address = row.pop("address") or ""
     city_state_zip = row.pop("city_state_zip") or ""
@@ -56,7 +56,9 @@ def crawl_excel_url(context: Context) -> str:
         unblock_validator=provider_list_xpath,
         absolute_links=True,
     )
-    return doc.xpath(provider_list_xpath)[0].get("href")
+    href = h.xpath_string(doc, provider_list_xpath + "/@href")
+    assert href is not None
+    return href
 
 
 def crawl(context: Context) -> None:
@@ -67,6 +69,7 @@ def crawl(context: Context) -> None:
 
     wb = load_workbook(path, read_only=True)
 
+    assert wb.active is not None
     for item in h.parse_xlsx_sheet(context, wb.active):
         # it means the table has ended and the rest is just the sanction types
         if item.get("last_name_organization") == "Sanction Type":

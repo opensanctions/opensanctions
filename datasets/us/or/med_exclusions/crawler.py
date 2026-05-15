@@ -27,16 +27,17 @@ NAMESPACES = {
 
 
 def crawl(context: Context) -> None:
-
     response = context.fetch_text(
         context.data_url, headers=HEADERS, data=REQUEST_DATA, method="POST"
     )
+    assert response is not None
 
     tree = etree.fromstring(response.encode("utf-8"))
 
     for item in [
-        row.get("ows_URL")
+        val
         for row in tree.findall(".//rs:data/z:row", namespaces=NAMESPACES)
+        if (val := row.get("ows_URL")) is not None
     ]:
         url, last_name, first_name = item.split(", ")
         person = context.make("Person")

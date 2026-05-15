@@ -7,7 +7,7 @@ from zavod import Context, helpers as h
 AKA_MATCH = r"\(aka ([^)]+)\)"
 
 
-def crawl_item(row: dict[str, str], context: Context) -> None:
+def crawl_item(row: dict[str, str | None], context: Context) -> None:
     provider_name = row.pop("provider_name")
     if not provider_name:
         return
@@ -47,6 +47,7 @@ def crawl_item(row: dict[str, str], context: Context) -> None:
         )
     sanction = h.make_sanction(context, entity)
     termination_date = row.pop("exclusiondate")
+    assert termination_date is not None
     termination_date = termination_date.replace("Termination ", "")
     termination_date = termination_date.replace("Termination: ", "")
     termination_date = termination_date.replace("Denial ", "").strip()
@@ -81,5 +82,6 @@ def crawl(context: Context) -> None:
 
     wb = load_workbook(path, read_only=True)
 
+    assert wb.active is not None
     for item in h.parse_xlsx_sheet(context, wb.active, skiprows=0):
         crawl_item(item, context)
