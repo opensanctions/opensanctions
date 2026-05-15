@@ -46,13 +46,10 @@ def crawl_debarment(
     entity.add("topics", "debarment")
 
     original = h.Names(name=name)
-    is_irregular, suggested = h.check_names_regularity(entity, original)
     h.apply_reviewed_names(
         context,
         entity,
         original=original,
-        suggested=suggested,
-        is_irregular=is_irregular,
         llm_cleaning=True,
     )
 
