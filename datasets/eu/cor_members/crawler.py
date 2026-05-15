@@ -33,7 +33,7 @@ def crawl_person(context: Context, item: Dict[str, Any]) -> None:
     position = h.make_position(
         context, name=position_name, country="eu", topics=["gov.igo"]
     )
-    categorisation = categorise(context, position, True)
+    categorisation = categorise(context, position, default_is_pep=True)
     if not categorisation.is_pep:
         return
     occupancy = h.make_occupancy(
@@ -44,6 +44,7 @@ def crawl_person(context: Context, item: Dict[str, Any]) -> None:
         start_date=item.pop("from"),
         end_date=item.pop("to"),
         categorisation=categorisation,
+        propagate_country=False,
     )
     if occupancy is not None:
         for member_status in item.pop("memberStatuses", []):

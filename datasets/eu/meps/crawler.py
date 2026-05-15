@@ -31,10 +31,15 @@ def crawl_node(
     person.add("topics", "role.pep")
 
     occupancy = h.make_occupancy(
-        context, person, position, categorisation=categorisation
+        context,
+        person,
+        position,
+        categorisation=categorisation,
+        propagate_country=False,
     )
+    if occupancy is not None:
+        context.emit(occupancy)
 
-    context.emit(occupancy)
     context.emit(person)
 
     party_name = node.findtext(".//nationalPoliticalGroup")
@@ -76,7 +81,7 @@ def crawl(context: Context):
         country="eu",
         topics=["gov.igo", "gov.legislative"],
     )
-    categorisation = categorise(context, position, True)
+    categorisation = categorise(context, position, default_is_pep=True)
     context.emit(position)
     for node in doc.findall(".//mep"):
         crawl_node(context, node, position, categorisation)

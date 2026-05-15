@@ -1,0 +1,95 @@
+type: external
+title: Business Identifier Code (BIC) Reference Data
+entry_point: zavod.runner.local_enricher:enrich
+full_dataset: iso9362_bic
+disabled: false
+hidden: false
+prefix: bic
+coverage:
+  frequency: monthly
+  start: "2026-05-07"
+exports:
+  - statistics.json
+  - entities.delta.json
+deploy:
+  cpu: "2000m"
+  memory: "5000Mi"
+load_statements: true
+ci_test: false
+summary: >-
+  Banks and other financial institutions matched against the SWIFT BIC
+  (ISO 9362) reference data.
+description: |
+  > BIC is the International Standard ISO 9362:2014. This standard specifies
+  > the elements and structure of a universal identifier code, the business
+  > identifier code (BIC), for financial and non-financial institutions, for
+  > which such an international identifier is required to facilitate
+  > automated processing of information for financial services.
+
+  This enricher matches risk-linked entities (sanctioned, PEP-linked, etc.)
+  in the database against the global ISO 9362 BIC reference data published
+  by ISO/SWIFT. Matches expand the target entities with their SWIFT BIC and
+  registered/operational addresses.
+tags:
+  - sector.banking
+url: https://www.iso9362.org/isobic/overview.html
+publisher:
+  name: Society for Worldwide Interbank Financial Telecommunication
+  acronym: SWIFT
+  description: |
+    SWIFT is a global member-owned cooperative that provides secure financial
+    messaging services. It is used by more than 11,000 financial institutions
+    and offers comprehensive reference data for the financial industry.
+  url: https://www.swift.com/
+  official: true
+  country: zz
+
+inputs:
+  - ann_graph_topics
+  - debarment
+  - eu_esma_sanctions
+  - ext_cy_companies
+  - ext_cz_business_register
+  - ext_ee_ariregister
+  - ext_gb_coh_psc
+  - ext_gleif
+  - ext_icij_offshoreleaks
+  - ext_lv_business_register
+  - ext_md_companies
+  - ext_ru_egrul
+  - ext_ua_edr
+  - ext_us_irs_ffi
+  - opencorporates
+  - regulatory
+  - ru_cbr_banks
+  - sanctions
+  - enforcement
+  - special_interest
+
+config:
+  threshold: 0.5
+  index_options:
+    memory: 3000
+  topics:
+    - role.pep
+    - role.rca
+    - sanction
+    - sanction.linked
+    - export.control
+    - export.control.linked
+    - debarment
+    - asset.frozen
+    - poi
+    - fin
+    - fin.bank
+    - fin.fund
+    - gov.soe
+  schemata:
+    - Company
+    - Organization
+    - LegalEntity
+
+assertions:
+  min:
+    schema_entities:
+      Organization: 20

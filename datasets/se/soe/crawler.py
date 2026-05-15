@@ -68,7 +68,7 @@ def crawl(context: Context) -> None:
                 country="se",
                 organization=company,
             )
-            categorisation = categorise(context, position, is_pep=True)
+            categorisation = categorise(context, position, default_is_pep=True)
 
             occupancy = h.make_occupancy(
                 context,

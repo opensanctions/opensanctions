@@ -1,5 +1,3 @@
-import re
-
 from itertools import chain
 from lxml.etree import _Element
 from typing import Dict
@@ -8,37 +6,6 @@ from zavod import Context, helpers as h
 from zavod.stateful.review import assert_all_accepted
 
 PROGRAM_KEY = "CA-SEMA"
-
-
-def split_names(name: str) -> tuple[bool, h.Names]:
-    """
-    Returns:
-    - True if any name or alias contains a conjunction (or, and, et), otherwise False
-    - categorised and cleaned Names instance
-    """
-    aliases = []
-    is_irregular = False
-
-    if "(also known as" in name.lower():
-        name, aka = name.split("(also known as", 1)
-        aliases.extend([a.strip().rstrip(")") for a in aka.split(",")])
-
-    if "(également connue sous le nom" in name.lower():
-        name, aka = name.split("(également connue sous le nom de ", 1)
-        aliases.extend([a.strip().rstrip(")") for a in aka.split(",")])
-
-    # some names contain digits at the beginning of the string
-    name = re.sub(r"^\d+\s*", "", name)
-
-    suggested = h.Names(name=name.strip(), alias=aliases)
-
-    for _prop_name, values in suggested.nonempty_item_lists():
-        for value in values:
-            if re.search(r"\b(or|and|et)\b", value, flags=re.I):
-                is_irregular = True
-                return is_irregular, suggested
-
-    return is_irregular, suggested
 
 
 def crawl_entity_notice(context: Context, row: Dict[str, _Element]) -> None:
@@ -82,35 +49,22 @@ def crawl_entity_notice(context: Context, row: Dict[str, _Element]) -> None:
         listing_date,
     )
 
-    for name in chain(persons, oranizations):
+    for raw_name in chain(persons, oranizations):
         entity = context.make(schema)
-        entity.id = context.make_id(name, country)
+        entity.id = context.make_id(raw_name, country)
 
-        born_patterns = ["(born ", "(bornon "]
+        born_patterns = [" (born ", " (bornon "]
         for born in born_patterns:
-            if born in name.lower():
-                name, dob = name.split(born, 1)
+            if born in raw_name.lower():
+                name, dob = raw_name.split(born, 1)
                 dob = dob.strip(")")
                 h.apply_date(entity, "birthDate", dob)
+                break
+            else:
+                name = raw_name
 
-        # TODO: Add once LangText is merged
-        # https://github.com/opensanctions/opensanctions/pull/3770
-        if "(russian:" in name.lower():
-            name, name_ru = name.split("(Russian:", 1)
-            name_ru = name_ru.strip().rstrip(")")
-            h.apply_reviewed_name_string(context, entity, string=name_ru, lang="rus")
+        h.apply_reviewed_name_string(context, entity, string=name)
 
-        original = h.Names(name=name.strip())
-        crawler_is_irregular, suggested = split_names(name)
-        helper_is_irregular, suggested = h.check_names_regularity(entity, suggested)
-
-        h.apply_reviewed_names(
-            context,
-            entity,
-            original=original,
-            suggested=suggested,
-            is_irregular=crawler_is_irregular or helper_is_irregular,
-        )
         entity.add("topics", "sanction")
 
         sanction = h.make_sanction(

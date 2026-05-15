@@ -216,6 +216,7 @@ def crawl_assets_for_family(
             output_spec=TRANSLIT_OUTPUT,
         )
         person.add("topics", "role.rca")
+        person.add("country", "ge")
 
         rel_entity = context.make("Family")
         rel_entity.id = context.make_id(pep.id, relationship, person.id)
@@ -257,6 +258,7 @@ def crawl_family_member(
         last_name=last_name,
         output_spec=TRANSLIT_OUTPUT,
     )
+    person.add("country", "ge")
     person.add("birthDate", birth_date)
     person.add("birthPlace", birth_place, lang="kat")
     person.add("topics", "role.rca")
@@ -294,6 +296,8 @@ def crawl_declaration(context: Context, *, item: dict[str, Any]) -> None:
         last_name=last_name,
         output_spec=TRANSLIT_OUTPUT,
     )
+    # various positions, including public officials that don't necessarily require citizenship
+    person.add("country", "ge")
     person.add("birthDate", birth_date)
     person.add("birthPlace", birth_place, lang="kat")
     declaration_url = (
@@ -329,7 +333,7 @@ def crawl_declaration(context: Context, *, item: dict[str, Any]) -> None:
     apply_translit_full_name(
         context, position, "kat", position_name_kat, TRANSLIT_OUTPUT, POSITION_PROMPT
     )
-    categorisation = categorise(context, position, is_pep=None)
+    categorisation = categorise(context, position, default_is_pep=None)
     if not categorisation.is_pep:
         return
     occupancy = h.make_occupancy(

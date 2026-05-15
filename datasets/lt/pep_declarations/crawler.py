@@ -125,7 +125,7 @@ def parse_affiliations(
             categorisation = categorise(
                 context,
                 position,
-                is_pep=True,
+                default_is_pep=True,
             )
             if affiliation_start_date > str(datetime.now().year):
                 status = OccupancyStatus.CURRENT

@@ -2,9 +2,7 @@ id: 312
 title: Russian military-industrial complex
 key: UA-WS-MILIND
 url: https://war-sanctions.gur.gov.ua/en/rostec
-summary: Enterprises within the three military holdings of the Russian state corporation
-  Rostec, responsible for developing and producing missiles, combat aircraft, and
-  engines used in Russia’s war against Ukraine.
+summary: Enterprises within Russia’s military-industrial complex — primarily within the Rostec corporation — as designated by Ukraine’s GUR.
 issuer: ua_gur
 dataset: ua_war_sanctions
 target_territories:

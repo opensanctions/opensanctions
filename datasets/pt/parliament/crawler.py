@@ -45,7 +45,7 @@ def crawl_parliament(context: Context, url: str) -> None:
             country=["pt"],
             wikidata_id="Q19953703",
         )
-        categorisation = categorise(context, position, is_pep=True)
+        categorisation = categorise(context, position, default_is_pep=True)
 
         if not categorisation.is_pep:
             continue
@@ -94,7 +94,7 @@ def crawl_parliament(context: Context, url: str) -> None:
                 country=["pt"],
             )
             categorisation_leadership = categorise(
-                context, position_leadership, is_pep=None
+                context, position_leadership, default_is_pep=None
             )
             if not categorisation_leadership.is_pep:
                 continue

@@ -56,7 +56,7 @@ def crawl_item(context: Context, item: Dict[str, Any]) -> None:
     # https://github.com/opensanctions/countrynames/issues/55
     position.add("subnationalArea", item.pop("dep_province"))
 
-    categorisation = categorise(context, position, is_pep=True)
+    categorisation = categorise(context, position, default_is_pep=True)
     if not categorisation.is_pep:
         return
 

@@ -108,7 +108,7 @@ def crawl_pep(context: Context, row) -> Tuple[Optional[str], Optional[str]]:
             topics=topics,
             subnational_area=subnational_area,
         )
-        categorisation = categorise(context, position, True)
+        categorisation = categorise(context, position, default_is_pep=True)
 
         start_date, end_date = parse_position_dates(row.pop("period", None))
         if categorisation.is_pep:

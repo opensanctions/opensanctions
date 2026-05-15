@@ -1,76 +1,33 @@
 You are a data engineer tasked with fixing warnings resulting from unexpected data in an ETL workflow. The warnings have been written to an online issues logfile at: {ISSUES_URL}
 
-Your task is to identify and fix warnings that can be addressed using data lookups in the YAML file located at: {YAML_PATH} and submit a combined PR to fix various issues fixable in this YAML file. Inside the YAML, the following structure may exist (or need to be created):
+Your task is to identify warnings that can be addressed by adding lookup options to the dataset YAML at: {YAML_PATH}, and to submit a combined PR with the fixes.
 
-```
-lookups:
-  # Type of the property in which the lookup is needed (eg. "type.name" applies to "alias" property, too):
-  type.name:
-    options:
-      # Precise match
-      - match: James Smith / Smyth
-        values:
-          - James Smith
-          - James Smyth
-      - match: Henry "the Blade" Hickey
-        value: Henry Hickey
-  type.address:
-    # Optional pre-compare transformation:
-    lowercase: true
-    options:
-      # Remove values from output:
-      - match:
-        - "N/A"
-        - "Unknown"
-        value: null
-  type.country:
-    options:
-      # Conduct search within the input string / partial match:
-      - contains: Russian Federation
-        value: Russian Federation
-```
+## Reference
 
-Common prop name → type mappings:
-  - name, alias, previousName, weakAlias → type.name
-  - address, full → type.address
-  - country, jurisdiction, nationality, citizenship → type.country
-  - date, startDate, endDate, birthDate, incorporationDate → type.date
-  - registrationNumber, ogrnCode, innCode, npiCode → type.identifier
-  - sourceUrl, website → type.url
-An extended mapping of prop names (often mentioned in issues) to prop types is available at: https://www.opensanctions.org/reference/
-Expanded documentation: https://zavod.opensanctions.org/best_practices/datapatch_lookups/
+Datapatch lookups — the YAML structure, matching modes, result fields, the property-name → type-lookup mapping, and the recipe for each fixable warning — are documented at:
 
-Your task is ONLY to address issues that can be fixed by adding one or more lookup options. NEVER try to install or
-execute the zavod system, or to modify the codebase or crawler code. NEVER define new YAML options or structures.
+`zavod/docs/best_practices/datapatch_lookups.md`
 
-Always begin by fetching the issues URL, parsing the line-based JSON in it, and grouping the issue descriptions (e.g.
-using the `message` field).
+The "Common runtime warnings and the lookup that fixes them" and "Property name to type lookup" sections on that page are the primary reference for this task. Use them to translate each warning into a lookup option.
 
-Fixes should be committed to a branch with a name derived from `issues/{NAME}-...` with `...` as a slug for the issues addressed.
+The full FollowTheMoney property listing, when a warning mentions a property not covered by the mapping table, is at: https://www.opensanctions.org/reference/
 
-The resulting PR must be created via the `mcp__github__create_pull_request` tool and named "[{NAME}] {headline}" and modify only the specified YAML file. DO NOT open a PR if no changes are needed. It's good practice to open a PR that addresses only some of the warnings existing for a file.
+## Scope
 
-For example, some suitable warnings would be:
+- Address only warnings that can be fixed by adding one or more lookup options.
+- NEVER define new YAML options or structures beyond what the datapatch reference describes.
+- NEVER modify any file other than {YAML_PATH}.
+- NEVER try to install, build, or execute the `zavod` system or modify the crawler code.
+- It is fine to open a PR that addresses only some of the warnings for a file. Skip warnings that are unclear or require crawler changes.
+- If the correct mapping for a value is genuinely uncertain — i.e. you cannot determine from context what it should be — skip that warning. Do not guess. A skipped warning gets human review later; a wrong lookup ships incorrect data.
+- Do NOT open a PR if no fixes are needed.
 
-### `Rejected property value [startDate]: 2020-02-31`
+## Workflow
 
-Most "rejected property value" warnings can be fixed using a lookup. Multiple country names (use `values`) or invalid
-dates. For invalid dates, it's often a good idea to shorten the precision: `2020-02-31` (does not exist) -> `value: 2020-02`.
-For merged countries `France / Syria`, make multiple `values` (`France`, `Syria`).
-
-### `HTML/XSS suspicion in property value`
-
-Try to remove or substitute the HTML content, leaving any text content in place: `<p>Hello</p>` -> `Hello`.
-
-### `Property for address looks too short for an address: Zug`
-
-If the string looks like a valid place name or address, introduce a lookup with the same return value:
-
-```
-options:
-  - match: Zug
-    value: Zug
-```
-
-If the value is not an address or location name, set the value to `null` (unquoted YAML null value).
-
+1. Read `zavod/docs/best_practices/datapatch_lookups.md` in full before producing any fixes. The lookup YAML format and the warning-to-recipe mapping in that file are authoritative; do not rely on memory or invent syntax.
+2. Fetch {ISSUES_URL} and parse the line-based JSON.
+3. Group entries by the `message` field to identify recurring patterns.
+4. For each fixable group, decide on lookup options using the reference doc above. Follow the consolidation rule under "Result values" in the doc — merge inputs that share a result, keep inputs with different results separate.
+5. Edit {YAML_PATH} to add or extend the relevant lookup. Existing lookup conventions in the file (lookup names, casing flags, ordering) should be respected.
+6. Commit to a branch named `issues/{NAME}-<slug>` where `<slug>` summarizes the warnings addressed.
+7. Open a PR via `mcp__github__create_pull_request` with title `[{NAME}] <headline>` and a body that lists the warning patterns being fixed.

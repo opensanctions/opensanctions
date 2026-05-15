@@ -119,7 +119,7 @@ def crawl(context: Context):
             subnational_area=municipality_code,
         )
 
-        categorisation = categorise(context, position, is_pep)
+        categorisation = categorise(context, position, default_is_pep=is_pep)
 
         if not categorisation.is_pep:
             continue

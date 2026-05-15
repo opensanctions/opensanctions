@@ -157,7 +157,7 @@ def crawl_membership(
     )
 
     # Always PEP because filtered by known position label patterns
-    categorisation = categorise(context, position, is_pep=True)
+    categorisation = categorise(context, position, default_is_pep=True)
     override_status = OccupancyStatus.UNKNOWN if not (start_date or end_date) else None
     occupancy = h.make_occupancy(
         context,

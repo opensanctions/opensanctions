@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from enum import Enum
 from normality import squash_spaces
 from os import environ as env
-from typing import Dict, Optional, List
+from typing import Any, Dict, Optional, List
 from urllib.parse import urljoin
 
 from zavod import Context, helpers as h
@@ -61,7 +61,12 @@ class WSAPIDataType(str, Enum):
 class WSAPILink:
     endpoint: str
     type: WSAPIDataType
-    program_key: str
+    program_key: Optional[str] = None
+    # topic=None skips adding a topics property (used for sanctions lists that aren't POI-tagged)
+    topic: Optional[str] = "poi"
+    # Defaults are rus entity codes; override for non-rus entities (e.g. int sanctions lists)
+    reg_prop: str = "ogrnCode"
+    itn_prop: str = "innCode"
 
 
 LINKS: List[WSAPILink] = [
@@ -167,6 +172,20 @@ LINKS: List[WSAPILink] = [
         WSAPIDataType.ROSTEC_STRUCTURE,
         "UA-WS-MILIND",
     ),
+    WSAPILink(
+        # partner's sanctions lists - legal entities
+        "sanctions/companies",
+        WSAPIDataType.ENTITY,
+        topic=None,
+        reg_prop="registrationNumber",
+        itn_prop="taxNumber",
+    ),
+    WSAPILink(
+        # partner's sanctions lists - individuals
+        "sanctions/persons",
+        WSAPIDataType.PERSON,
+        topic=None,
+    ),
 ]
 
 
@@ -176,6 +195,7 @@ def generate_token(context: Context, cid: str, pkey: str) -> str:
     # Zyte because cloudflare is blocking us possibly based on IP reputation
     # - I can't reproduce the block from our GCP jump host.
     timestamp = fetch_json(context, f"{WS_API_BASE_URL}/time")["server_time"]
+    context.log.debug("Server timestamp", timestamp_=timestamp)
     # 2. Generate server instance ID (exactly 2 characters)
     sid = "".join(random.choices(string.ascii_letters + string.digits, k=2))
     # 3. Create signature = sha256(cid + sid + timestamp + pkey), lowercase hex
@@ -189,17 +209,26 @@ def generate_token(context: Context, cid: str, pkey: str) -> str:
 
 
 def apply_names(context: Context, person: Entity, person_data: Dict[str, str]):
-    # TODO: Switch to LLM-backed name splitting helper #3561, once we have it
-    # https://github.com/opensanctions/opensanctions/issues/3561
     for key, lang in NAMES_LANG_MAP.items():
         raw_name = person_data.pop(key)
+        original = h.Names(name=raw_name)
+        suggested = None
         if "/" in raw_name:
             res = context.lookup("names", raw_name, warn_unmatched=True)
             if res:
-                person.add("name", res.name, lang=lang)
-                person.add("alias", res.alias, lang=lang)
-        else:
-            person.add("name", raw_name, lang=lang)
+                suggested = h.Names(
+                    name=res.name,
+                    weakAlias=getattr(res, "weakAlias", None),
+                    alias=getattr(res, "alias", None),
+                )
+        h.apply_reviewed_names(
+            context,
+            person,
+            original=original,
+            suggested=suggested,
+            lang=lang,
+            default_accepted=suggested is not None,
+        )
 
 
 def make_id(context: Context, entity_type: str, raw_id: str):
@@ -213,27 +242,41 @@ def split_dob_dod(raw_date):
     return dob, dod
 
 
+def fetch_endpoint(context: Context, url: str, max_retries: int = 4) -> dict[str, Any]:
+    # Retry on code 5 (invalid or expired timestamp) — Zyte can be slow to route
+    # the request and the 15-second timestamp window expires in transit.
+    for attempt in range(max_retries + 1):
+        token = generate_token(context, WS_API_CLIENT_ID, WS_API_KEY)
+        zyte_result = fetch(
+            context,
+            ZyteAPIRequest(
+                url=url,
+                headers={
+                    "Accept": "application/json",
+                    "Authorization": token,
+                },
+            ),
+            cache_days=1,
+        )
+        response: dict[str, Any] = json.loads(zyte_result.response_text)
+        if response and response.get("code") == 0:
+            return response
+        context.cache.delete(zyte_result.cache_fingerprint)
+        error_code = response.get("code") if response else None
+        if error_code != 5 or attempt >= max_retries:
+            error = RESPONSE_CODES.get(error_code) if error_code is not None else None
+            raise Exception(
+                f"Failed to fetch data for {url} error={error} response={response}"
+            )
+        # Info level because we know this happens regularly but isn't normally surprising.
+        context.log.info("Retrying after timestamp error", url=url, attempt=attempt + 1)
+    raise Exception("Too many timestamp errors.")
+
+
 def load_managers(context: Context, program_key: str) -> Dict[str, Dict]:
     """Load all manager data from API into a dictionary keyed by raw ID."""
-    token = generate_token(context, WS_API_CLIENT_ID, WS_API_KEY)
     url = f"{WS_API_BASE_URL}/v1/transport/management"
-
-    zyte_result = fetch(
-        context,
-        ZyteAPIRequest(
-            url=url,
-            headers={
-                "Accept": "application/json",
-                "Authorization": token,
-            },
-        ),
-        cache_days=1,
-    )
-    response = json.loads(zyte_result.response_text)
-
-    if not response or response.get("code") != 0:
-        context.log.error("Failed to load managers", url=url, response=response)
-        return {}
+    response = fetch_endpoint(context, url)
 
     # Build lookup: raw_id -> manager_data
     # Convert IDs to strings to match the string IDs in vessel payloads
@@ -314,16 +357,46 @@ def emit_relation(
     )
     relation.add(from_prop, subject_id)
     relation.add(to_prop, object_id)
-    relation.add("role", rel_role)
+    if rel_role is not None:
+        relation.add("role", rel_role.replace("_", " "))
     h.apply_date(relation, "startDate", start_date)
     context.emit(relation)
 
 
-def crawl_person(context: Context, person_data, program_key, endpoint, source_url):
+def crawl_person(
+    context: Context,
+    person_data,
+    program_key,
+    endpoint,
+    source_url,
+    topic: Optional[str] = "poi",
+    known_vessel_ids: set[str] | None = None,
+):
     birth_date = person_data.pop("date_bd")
     death_date = person_data.pop("date_death", None)
     if "- " in birth_date:
         birth_date, death_date = split_dob_dod(birth_date)
+
+    # Pop ships early so we can build source URLs before emitting
+    # 'transport/persons' and 'transport/captains' endpoints provide vessel ids
+    related_ships = person_data.pop("ships", None)
+    is_captain = endpoint == "transport/captains"
+
+    # For captains, filter to vessels present in the ships endpoint
+    valid_ships: list[Any] = []
+    if related_ships:
+        for ship_id_raw in related_ships:
+            if (
+                is_captain
+                and known_vessel_ids is not None
+                and str(ship_id_raw) not in known_vessel_ids
+            ):
+                context.log.info(
+                    "Captain references vessel not in ships endpoint",
+                    vessel_id=str(ship_id_raw),
+                )
+                continue
+            valid_ships.append(ship_id_raw)
 
     person = context.make("Person")
     person.id = make_id(context, WSAPIDataType.PERSON, person_data.pop("id"))
@@ -334,11 +407,24 @@ def crawl_person(context: Context, person_data, program_key, endpoint, source_ur
         position = person_data.pop(key, None)
         for p in h.multi_split(position, SPLITS):
             person.add("position", squash_spaces(p))
-    h.apply_date(person, "birthDate", birth_date)
+    # Source API sometimes encodes multiple or uncertain dates in one field
+    # (e.g. "1965; 1966", "1975 or 1976", "Jan 1980 to Mar 1980")
+    for birth_date in h.multi_split(birth_date, [";", ", ", " to ", " or "]):
+        h.apply_date(person, "birthDate", birth_date)
     h.apply_date(person, "deathDate", death_date)
-    person.add("topics", "poi")
+    if topic:
+        person.add("topics", topic)
     person.add("birthPlace", person_data.pop("city_bd", None))
-    person.add("sourceUrl", source_url)
+    # Captains don't have individual pages; use ship-filtered URLs instead.
+    # Fall back to the constructed URL when there are no valid ships.
+    if is_captain and valid_ships:
+        for ship_id_raw in valid_ships:
+            person.add(
+                "sourceUrl",
+                f"{context.data_url}/transport/captains?kp[ships]={ship_id_raw}",
+            )
+    else:
+        person.add("sourceUrl", source_url)
 
     sanction = h.make_sanction(
         context, person, key=program_key, program_key=program_key
@@ -350,17 +436,14 @@ def crawl_person(context: Context, person_data, program_key, endpoint, source_ur
     context.emit(person)
     context.emit(sanction)
 
-    # 'transport/persons' and 'transport/captains' endpoints provide a list of vessel ids associated with persons
-    related_ships = person_data.pop("ships", None)
-    if related_ships:
-        for ship_id_raw in related_ships:
-            role = "captain" if endpoint == "transport/captains" else None
-            emit_relation(
-                context,
-                subject_id=person.id,
-                object_id=make_id(context, WSAPIDataType.VESSEL, ship_id_raw),
-                rel_role=role,
-            )
+    for ship_id_raw in valid_ships:
+        role = "captain" if is_captain else None
+        emit_relation(
+            context,
+            subject_id=person.id,
+            object_id=make_id(context, WSAPIDataType.VESSEL, ship_id_raw),
+            rel_role=role,
+        )
 
     context.audit_data(
         person_data, ["sanctions", "documents", "category", "sport", "places", "photo"]
@@ -370,8 +453,11 @@ def crawl_person(context: Context, person_data, program_key, endpoint, source_ur
 def crawl_legal_entity(
     context: Context,
     company_data: Dict[str, str],
-    program_key: str,
+    program_key: Optional[str],
     source_url: str,
+    topic: Optional[str] = "poi",
+    reg_prop: str = "ogrnCode",
+    itn_prop: str = "innCode",
 ):
     legal_entity = context.make("LegalEntity")
     legal_entity.id = make_id(context, WSAPIDataType.ENTITY, company_data.pop("id"))
@@ -383,11 +469,12 @@ def crawl_legal_entity(
             legal_entity.add("alias", alias)
         else:
             legal_entity.add("name", alias)
-    legal_entity.add("ogrnCode", company_data.pop("reg"))
+    legal_entity.add(reg_prop, company_data.pop("reg"))
     legal_entity.add("address", company_data.pop("address"))
     legal_entity.add("country", company_data.pop("country"))
-    legal_entity.add("innCode", company_data.pop("itn"))
-    legal_entity.add("topics", "poi")
+    legal_entity.add(itn_prop, company_data.pop("itn"))
+    if topic:
+        legal_entity.add("topics", topic)
     legal_entity.add("sourceUrl", source_url)
     imo = company_data.pop("imo", None)
     if imo:
@@ -639,31 +726,15 @@ def crawl(context: Context):
     # to avoid duplicate API calls and enable lookup during vessel processing
     managers_lookup = load_managers(context, "UA-WS-MARE")
 
+    # Collected during the ships pass; used to filter captain→vessel links so
+    # we never emit relations to vessels that aren't in the dataset.
+    vessel_ids: set[str] = set()
+
     for link in LINKS:
-        token = generate_token(context, WS_API_CLIENT_ID, WS_API_KEY)
         url = f"{WS_API_BASE_URL}/v1/{link.endpoint}"
         # Zyte because cloudflare is blocking us possibly based on IP reputation
         # - I can't reproduce the block from our GCP jump host.
-        zyte_result = fetch(
-            context,
-            ZyteAPIRequest(
-                url=url,
-                headers={
-                    "Accept": "application/json",
-                    "Authorization": token,
-                },
-            ),
-            cache_days=1,
-        )
-        response = json.loads(zyte_result.response_text)
-        if not response or response.get("code") != 0:
-            if response and "code" in response:
-                error = RESPONSE_CODES.get(response["code"])
-            # Clear cache for failed request and exit to retry job later.
-            context.cache.delete(zyte_result.cache_fingerprint)
-            raise Exception(
-                f"Failed to fetch data for {url} error={error} response={response}"
-            )
+        response = fetch_endpoint(context, url)
 
         data = response.get("data")
         for entity_details in data:
@@ -678,6 +749,8 @@ def crawl(context: Context):
                     link.program_key,
                     link.endpoint,
                     source_url,
+                    topic=link.topic,
+                    known_vessel_ids=vessel_ids,
                 )
             elif link.type is WSAPIDataType.ENTITY:
                 crawl_legal_entity(
@@ -685,8 +758,12 @@ def crawl(context: Context):
                     entity_details,
                     link.program_key,
                     source_url,
+                    topic=link.topic,
+                    reg_prop=link.reg_prop,
+                    itn_prop=link.itn_prop,
                 )
             elif link.type is WSAPIDataType.VESSEL:
+                vessel_ids.add(str(entity_id))
                 crawl_vessel(
                     context,
                     entity_details,

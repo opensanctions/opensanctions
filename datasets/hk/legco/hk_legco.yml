@@ -55,3 +55,20 @@ assertions:
     schema_entities:
       Person: 95
       Position: 2
+
+lookups:
+  type.string:
+    options:
+      - match:
+          "-"
+        value: null
+  type.phone:
+    options:
+      - match:
+          "-"
+        value: null
+  type.url:
+    options:
+      - match:
+          "-"
+        value: null

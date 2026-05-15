@@ -21,6 +21,7 @@ SCOPES = [
 TYPES = {
     "Individual": "Person",
     "individual": "Person",
+    "Indiividual": "Person",
     "Entity": "LegalEntity",
     "Bank": "Company",
 }
