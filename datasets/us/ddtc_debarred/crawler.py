@@ -1,7 +1,7 @@
 from normality import slugify
 import openpyxl
 from rigour.mime.types import XLSX
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 
 from zavod import Context
 from zavod import helpers as h
@@ -23,17 +23,6 @@ def sheet_to_dicts(sheet):
         yield row
 
 
-def split_names(name: str) -> Tuple[str, List[str]]:
-    parts = name.split("(a.k.a. ", 1)
-    main_name = parts[0]
-    alias_list: List[str] = []
-    if len(parts) > 1:
-        aliases = parts[1]
-        aliases = aliases.replace(")", "")
-        alias_list = aliases.split("; ")
-    return main_name, alias_list
-
-
 def crawl_debarment(
     context: Context,
     row: Dict[str, Any],
@@ -48,37 +37,21 @@ def crawl_debarment(
         schema = "LegalEntity"
 
     entity = context.make(schema)
-    raw_name = row.pop(name_field)
-    name, aliases = split_names(raw_name)
+    name = row.pop(name_field)
+    entity.id = context.make_id(name, date_of_birth)
 
-    prev_dob = date_of_birth
-    if isinstance(date_of_birth, str):
-        prev_dob = prev_dob.strip()
-    old_id = context.make_slug(name, prev_dob, strict=False)
-    entity.id = context.make_id(raw_name, date_of_birth)
-    context.rekey(old_id, entity.id)
-
-    entity.add("name", name)
-    entity.add("alias", aliases)
     entity.add("country", "us")
     if schema == "Person":
         h.apply_date(entity, "birthDate", date_of_birth)
     entity.add("topics", "debarment")
 
-    original = h.Names(name=raw_name)
-    suggested = h.Names()
-    suggested.add("name", name)
-    for alias in aliases:
-        suggested.add("alias", alias)
-    # is_irregular, suggested = h.check_names_regularity(entity, original)
-    if name != raw_name:
-        h.review_names(
-            context,
-            entity,
-            original=original,
-            suggested=suggested,
-            is_irregular=True,
-        )
+    original = h.Names(name=name)
+    h.apply_reviewed_names(
+        context,
+        entity,
+        original=original,
+        llm_cleaning=True,
+    )
 
     sanction = h.make_sanction(context, entity, program_key=program_key)
     sanction.add("listingDate", row.pop(notice_date_field).isoformat()[:10])

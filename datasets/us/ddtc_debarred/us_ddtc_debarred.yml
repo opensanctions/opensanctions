@@ -4,11 +4,6 @@ prefix: us-ddtc
 coverage:
   frequency: daily
   start: "2023-10-13"
-deploy:
-  cpu: "2000m"
-  memory: "5000Mi"
-  memory_limit: "7000Mi"
-  disk: "50Gi"
 load_statements: true
 summary: >-
   Companies and individuals prohibited from participating in export of defence articles
