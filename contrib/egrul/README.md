@@ -1,4 +1,32 @@
 
+## Source-data format
+
+The EGRUL/EGRIP XML format is defined by FNS (Russian Federal Tax Service) and
+published as XSD schemas. They are stored in `docs/`:
+
+| File | Format | Notes |
+|---|---|---|
+| `docs/VO_RUGF_2_311_26_04_07_01.xsd` | EGRUL (legal entities) 4.07 | Current. FNS order ЕД-7-14/382@ (2023-06-06). |
+| `docs/VO_RIGF_2_311_27_04_06_01.xsd` | EGRIP (sole traders) 4.06 | Current. Same order. |
+| `docs/VO_RUGF_2_311_26_04_08_01.xsd` | EGRUL 4.08 | Effective 2026-02-01, mandatory 2026-08-01. FNS order ЕД-7-14/613@ (2025-07-08). |
+| `docs/VO_RIGF_2_311_27_04_07_01.xsd` | EGRIP 4.07 | Same order as 4.08 EGRUL. |
+
+The XSDs are `windows-1251`-encoded. To read them in a UTF-8 terminal:
+
+    iconv -f windows-1251 -t utf-8 docs/VO_RUGF_2_311_26_04_07_01.xsd | less
+
+### Where these come from / where to look for future updates
+
+- Landing page (overview, regulations, FTP access procedure):
+  https://www.nalog.gov.ru/rn77/service/egrip2/egrip_vzayim/
+- Current formats (4.07/4.06), source of the first two files above:
+  https://www.nalog.gov.ru/rn77/about_fts/docs/13673441/
+- New formats (4.08/4.07), source of the last two:
+  https://www.nalog.gov.ru/rn77/about_fts/docs/16493030/
+
+When FNS publishes a new format version, add the XSD to `docs/` and update
+this table.
+
 ## How to run
 
 Install a JVM (on macOS):

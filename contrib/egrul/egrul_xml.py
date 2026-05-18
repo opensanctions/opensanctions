@@ -404,6 +404,25 @@ def parse_company(context: Context, el: Element) -> Dict[str, Any]:
     if citizen_el is not None:
         company["country"] = citizen_el.get("НаимСтран")
 
+    # СвОКВЭД = container for OKVED economic-activity codes.
+    # СвОКВЭДОсн = primary activity (0..1), СвОКВЭДДоп = additional (0..*).
+    # NOTE: EGRUL format 4.08 (effective 2026-02-01, mandatory 2026-08-01)
+    # adds a second sibling block СвОКВЭДОтч ("reporting type", derived from
+    # tax filings) with СвОКВЭДОтчОсн/СвОКВЭДОтчДоп. We currently ignore it.
+    okved_codes: list[str] = []
+    okved_root = el.find("./СвОКВЭД")
+    if okved_root is not None:
+        primary = okved_root.find("./СвОКВЭДОсн")
+        if primary is not None:
+            code = primary.get("КодОКВЭД")
+            if code:
+                okved_codes.append(code)
+        for extra in okved_root.findall("./СвОКВЭДДоп"):
+            code = extra.get("КодОКВЭД")
+            if code:
+                okved_codes.append(code)
+    company["okved_codes"] = ";".join(okved_codes) if okved_codes else None
+
     for addr_el in el.findall("./СвАдресЮЛ/*"):
         if "addresses" not in company:
             company["addresses"] = []
@@ -477,6 +496,23 @@ def parse_sole_trader(context: Context, el: Element) -> Optional[Dict[str, Any]]
     if t["id"] is None:
         context.log.warn("No ID for sole trader")
         return None
+
+    # Same OKVED structure as legal entities; see parse_company for the
+    # note on the new СвОКВЭДОтч block in EGRIP 4.07.
+    okved_codes: list[str] = []
+    okved_root = el.find("./СвОКВЭД")
+    if okved_root is not None:
+        primary = okved_root.find("./СвОКВЭДОсн")
+        if primary is not None:
+            code = primary.get("КодОКВЭД")
+            if code:
+                okved_codes.append(code)
+        for extra in okved_root.findall("./СвОКВЭДДоп"):
+            code = extra.get("КодОКВЭД")
+            if code:
+                okved_codes.append(code)
+    t["okved_codes"] = ";".join(okved_codes) if okved_codes else None
+
     return {"id": t["id"], "legal_entity": t}
 
 
