@@ -1,12 +1,28 @@
 id: 304
-title: Entities and individuals involved in the deportation of Ukrainian children
+title: Individuals and entitmeta/programs/UA-WS-KIDNAPPERS.ymlies involved in deportation of Ukrainian children
 key: UA-WS-KIDNAPPERS
 url: https://war-sanctions.gur.gov.ua/en/kidnappers/persons
-summary: Individuals and organisations Ukraine's GUR holds responsible for the deportation of Ukrainian children.
+summary: |
+  Ukraine's GUR lists individuals and organizations in the context of their note
+
+  > Everyone involved in the deportation and forced displacement of Ukrainian children
+  > must be made known to the world and brought to justice. These include decision-makers,
+  > leaders of paramilitary and patriotic youth organisations, camps and educational
+  > programmes that "re-educate" children, and employees of russian educational and
+  > cultural institutions who carry out indoctrination.
+  >
+  > Illegal deportation and forced displacement of children are war crimes, and their
+  > forced transfer to russian citizenship, change of personal status (name, date and
+  > place of birth, information about parents, etc.) and "re-education" are part of
+  > the cultural genocide of Ukrainians committed by the enemy.
+  >
+  > [...]
+
+  https://war-sanctions.gur.gov.ua/en/kidnappers/persons
 issuer: ua_gur
 dataset: ua_war_sanctions
 target_territories:
-- ru
-- ua-cri
-- ua-dpr
-- ua-lpr
+  - ru
+  - ua-cri
+  - ua-dpr
+  - ua-lpr

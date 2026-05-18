@@ -1,12 +1,25 @@
 id: 308
-title: Athletes whom Russia uses to propagate its agenda
+title: Sports figures used in propaganda and sanction circumvention
 key: UA-WS-ATHLETES
 url: https://war-sanctions.gur.gov.ua/en/sport/persons
-summary: Sports figures designated by Ukraine's GUR as tools Russia uses for propaganda and to circumvent international sanctions.
+summary: |
+  Ukraine's GUR lists athletes and sports officials in the context of their note
+
+  > The participation of russian athletes in international competitions is a
+  > means of whitewashing russia`s reputation (sportwashing), spreading disinformation,
+  > justifying and legitimizing aggression against Ukraine among foreign audiences
+  > and demonstrating russia`s continued presence in the civilized world
+  >
+  > Russian officials in international sports committees and federations remain a
+  > russian lobby and an element of strategic influence outside russia,
+  > providing ways to establish international relations and cooperation bypassing
+  > sanctions
+
+  https://war-sanctions.gur.gov.ua/en/sport/persons
 issuer: ua_gur
 dataset: ua_war_sanctions
 target_territories:
-- ru
-- ua-cri
-- ua-dpr
-- ua-lpr
+  - ru
+  - ua-cri
+  - ua-dpr
+  - ua-lpr
