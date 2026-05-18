@@ -76,7 +76,6 @@ def crawl_row(context: Context, row: dict[str, _Element]) -> None:
             link.add("subject", first_entity)
             link.add("object", entity)
             context.emit(link)
-            print(link)
 
         context.emit(entity)
         context.emit(sanction)
