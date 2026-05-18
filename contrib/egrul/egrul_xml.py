@@ -11,6 +11,34 @@ from zavod import helpers as h
 NULL_NAMES = {"-", "0"}
 
 
+def parse_okved_codes(el: Element) -> list[str]:
+    """
+    Extract OKVED economic-activity codes from a СвЮЛ or СвИП element.
+    Returns primary (СвОКВЭДОсн) first, then additional (СвОКВЭДДоп).
+
+    NOTE: EGRUL format 4.08 (effective 2026-02-01, mandatory 2026-08-01)
+    adds a sibling block СвОКВЭДОтч ("отчетного типа") alongside the
+    existing СвОКВЭД ("заявительного типа") — we currently ignore it.
+    """
+    codes: list[str] = []
+    # СвОКВЭД = container for OKVED codes
+    okved_root = el.find("./СвОКВЭД")
+    if okved_root is None:
+        return codes
+    # СвОКВЭДОсн = primary activity (0..1)
+    primary = okved_root.find("./СвОКВЭДОсн")
+    if primary is not None:
+        code = primary.get("КодОКВЭД")  # the OKVED code, e.g. "62.01"
+        if code:
+            codes.append(code)
+    # СвОКВЭДДоп = additional activities (0..*)
+    for extra in okved_root.findall("./СвОКВЭДДоп"):
+        code = extra.get("КодОКВЭД")
+        if code:
+            codes.append(code)
+    return codes
+
+
 def entity_id(
     context: Context,
     name: Optional[str] = None,
@@ -404,23 +432,7 @@ def parse_company(context: Context, el: Element) -> Dict[str, Any]:
     if citizen_el is not None:
         company["country"] = citizen_el.get("НаимСтран")
 
-    # СвОКВЭД = container for OKVED economic-activity codes.
-    # СвОКВЭДОсн = primary activity (0..1), СвОКВЭДДоп = additional (0..*).
-    # NOTE: EGRUL format 4.08 (effective 2026-02-01, mandatory 2026-08-01)
-    # adds a second sibling block СвОКВЭДОтч ("reporting type", derived from
-    # tax filings) with СвОКВЭДОтчОсн/СвОКВЭДОтчДоп. We currently ignore it.
-    okved_codes: list[str] = []
-    okved_root = el.find("./СвОКВЭД")
-    if okved_root is not None:
-        primary = okved_root.find("./СвОКВЭДОсн")
-        if primary is not None:
-            code = primary.get("КодОКВЭД")
-            if code:
-                okved_codes.append(code)
-        for extra in okved_root.findall("./СвОКВЭДДоп"):
-            code = extra.get("КодОКВЭД")
-            if code:
-                okved_codes.append(code)
+    okved_codes = parse_okved_codes(el)
     company["okved_codes"] = ";".join(okved_codes) if okved_codes else None
 
     for addr_el in el.findall("./СвАдресЮЛ/*"):
@@ -497,20 +509,7 @@ def parse_sole_trader(context: Context, el: Element) -> Optional[Dict[str, Any]]
         context.log.warn("No ID for sole trader")
         return None
 
-    # Same OKVED structure as legal entities; see parse_company for the
-    # note on the new СвОКВЭДОтч block in EGRIP 4.07.
-    okved_codes: list[str] = []
-    okved_root = el.find("./СвОКВЭД")
-    if okved_root is not None:
-        primary = okved_root.find("./СвОКВЭДОсн")
-        if primary is not None:
-            code = primary.get("КодОКВЭД")
-            if code:
-                okved_codes.append(code)
-        for extra in okved_root.findall("./СвОКВЭДДоп"):
-            code = extra.get("КодОКВЭД")
-            if code:
-                okved_codes.append(code)
+    okved_codes = parse_okved_codes(el)
     t["okved_codes"] = ";".join(okved_codes) if okved_codes else None
 
     return {"id": t["id"], "legal_entity": t}
