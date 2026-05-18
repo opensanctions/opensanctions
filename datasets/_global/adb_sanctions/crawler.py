@@ -4,7 +4,16 @@ import re
 from zavod import Context
 from zavod import helpers as h
 
-REG_NRS = ["(Reg. No:", "(Reg. No.:", "(Reg. No.", "(Trade Register No.:"]
+REG_NRS = [
+    "(Reg. No:",
+    "(Reg. No.:",
+    "(Reg. No.",
+    "(Trade Register No.:",
+    "(Registration No.",
+    "(TIN No. ",
+    " Enterprise Registration No. ",
+    "(CNPJ:",
+]
 ENTITY_SPLITS = [
     ";",
     "affiliates",
@@ -12,13 +21,19 @@ ENTITY_SPLITS = [
 NAME_SPLITS = [
     "Previously known as",
     "also known as",
+    "Also known as",
     "also doing business as",
     "formerly operating as",
     "also",
     "formerly",
     "f/k/a",
     "(AKA",
+    "CURRENTLY KNOWN AS",
+    " (currently doing business as",
+    " / ",
 ]
+
+
 # MIRROR_URL = "https://data.opensanctions.org/contrib/adb_sanctions/data.html"
 REGEX_ALIAS_REGNO = re.compile(
     r"(?P<name>.{5,30})[;,] (Registration no.|ID:) (?P<regno>.{5,20})", re.IGNORECASE
@@ -61,22 +76,42 @@ def crawl_row(context: Context, row: Dict[str, str | None]) -> None:
 
         entity = context.make("LegalEntity")
         entity.id = context.make_id(name_optional_regno, country)
-        entity.add("name", h.multi_split(entity_names_str, NAME_SPLITS))
+        original = h.Names(name=name_optional_regno)
+        suggested = h.Names()
+        for name in h.multi_split(entity_names_str, NAME_SPLITS):
+            entity.add("name", name)
+            suggested.add("name", name)
 
         if match := REGEX_ALIAS_REGNO.match(other_names):
             entity.add("alias", match.group("name"))
+            suggested.add("alias", match.group("name"))
             entity.add("registrationNumber", match.group("regno"))
-        elif ":" in other_names or "no." in other_names.lower():
+        elif (
+            ":" in other_names
+            or "no." in other_names.lower()
+            or "registration" in other_names.lower()
+        ):
             res = context.lookup("other_names", other_names)
             if res:
                 for item in res.items:
                     entity.add(item["prop"], item["value"])
+                    suggested.add(item["prop"], item["value"])
             else:
                 context.log.warning(
                     f'Unhandled other_names "{other_names}"', value=other_names
                 )
         else:
             entity.add("alias", other_names)
+            suggested.add("alias", other_names)
+
+        is_irregular, suggested = h.check_names_regularity(entity, suggested)
+        h.review_names(
+            context,
+            entity,
+            original=original,
+            suggested=suggested,
+            is_irregular=is_irregular,
+        )
 
         entity.add("country", country)
         entity.add("registrationNumber", registration_number)
