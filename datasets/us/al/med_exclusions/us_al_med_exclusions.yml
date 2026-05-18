@@ -45,7 +45,7 @@ publisher:
 url: "https://medicaid.alabama.gov/content/8.0_Fraud/8.7_Suspended_Providers.aspx"
 data:
   url: https://medicaid.alabama.gov/content/8.0_Fraud/8.7_Suspended_Providers.aspx
-  format: PDF
+  format: XLSX
   lang: eng
 ci_test: false
 
