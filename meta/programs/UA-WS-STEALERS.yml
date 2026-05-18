@@ -1,13 +1,23 @@
 id: 311
-title: Individuals and entities involved in the theft and destruction of Ukrainian
-  cultural heritage
+title: Individuals and entities listed as "Stealers of heritage"
 key: UA-WS-STEALERS
 url: https://war-sanctions.gur.gov.ua/en/stolen/persons
-summary: Individuals and organisations Ukraine's GUR holds responsible for the theft and destruction of Ukrainian cultural heritage.
+summary: |
+  Ukraine's GUR lists individuals and entities in the context of their note
+
+  > russia has been trying for centuries to destroy or appropriate Ukrainian history,
+  > erase the identity of the Ukrainian nation, and prove to the world that an independent
+  > Ukraine does not exist.
+  >
+  > To achieve this, the aggressor conducts archaeological excavations in the temporarily
+  > occupied territories of Ukraine, steals cultural heritage objects from museums,
+  > and appropriates Ukrainian culture.
+
+  https://war-sanctions.gur.gov.ua/en/stolen/persons
 issuer: ua_gur
 dataset: ua_war_sanctions
 target_territories:
-- ru
-- ua-cri
-- ua-dpr
-- ua-lpr
+  - ru
+  - ua-cri
+  - ua-dpr
+  - ua-lpr

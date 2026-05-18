@@ -2,11 +2,26 @@ id: 312
 title: Russian military-industrial complex
 key: UA-WS-MILIND
 url: https://war-sanctions.gur.gov.ua/en/rostec
-summary: Enterprises within Russia’s military-industrial complex — primarily within the Rostec corporation — as designated by Ukraine’s GUR.
+summary: |
+  Ukraine's GUR lists companies and executives of Rostec Corporation in the
+  context of their note
+
+  > The state-owned Rostec Corporation manages hundreds of enterprises that produce more
+  > than half of russia`s weapons and military equipment, and facilitates the
+  > development, production and export of high-tech products for the russian
+  > military-industrial complex.
+  >
+  > Using the information in this section, responsible businesses can easily check
+  > whether their counterparties belong to the russian military-industrial complex
+  > and refuse to cooperate with them.
+  >
+  > [...]
+
+  https://war-sanctions.gur.gov.ua/en/rostec
 issuer: ua_gur
 dataset: ua_war_sanctions
 target_territories:
-- ru
-- ua-cri
-- ua-dpr
-- ua-lpr
+  - ru
+  - ua-cri
+  - ua-dpr
+  - ua-lpr

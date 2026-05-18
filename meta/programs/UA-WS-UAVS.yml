@@ -1,12 +1,27 @@
 id: 307
-title: Russian UAVs manufacturers
+title: UAV manufacturers
 key: UA-WS-UAVS
 url: https://war-sanctions.gur.gov.ua/en/uav/companies
-summary: Russian companies designated by Ukraine's GUR as manufacturers of unmanned aerial vehicles.
+summary: |
+  Ukraine's GUR lists companies in the context of their note
+
+  > Along with its use against military targets, russia systematically uses unmanned systems
+  > to terrorize the civilian population of Ukraine.
+  >
+  > In the context of a full-scale war, there is practically no market for civilian
+  > unmanned systems in russia, and almost the entire industry is working to supply
+  > russian troops in Ukraine. Most of the companies involved are still not under
+  > sanctions and have access to foreign technology, equipment and components.
+  >
+  > The civilized world should synchronize and intensify efforts against russian UAV
+  > manufacturers by imposing sanctions, limiting supplies, and strengthening control
+  > and accountability.
+
+  https://war-sanctions.gur.gov.ua/en/uav/companies
 issuer: ua_gur
 dataset: ua_war_sanctions
 target_territories:
-- ru
-- ua-cri
-- ua-dpr
-- ua-lpr
+  - ru
+  - ua-cri
+  - ua-dpr
+  - ua-lpr
