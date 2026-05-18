@@ -40,6 +40,10 @@ legal_entity_schema = StructType(
         StructField("publisher", StringType()),
         StructField("registration_number", StringType()),
         StructField("addresses", ArrayType(StringType())),
+        # Russian OKVED economic-activity classifier codes, joined with ';'.
+        # Populated only on the main entity row (Company / sole trader),
+        # not on owners/directors/successors.
+        StructField("okved_codes", StringType()),
         StructField("schema", StringType(), nullable=False),
     ]
 )

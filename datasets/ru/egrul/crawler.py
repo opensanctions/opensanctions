@@ -95,6 +95,12 @@ def emit_legal_entity(
     entity.add("email", row["email"])
     entity.add("address", row["address"])
 
+    # ';'-separated OKVED codes (Russian economic-activity classifier).
+    # okvedCode is defined on LegalEntity in FtM so it applies to all
+    # legal entity rows here (LegalEntity, Organization, Company).
+    if row.get("okved_codes"):
+        entity.add("okvedCode", row["okved_codes"].split(";"))
+
     if row["schema"] == "Company":
         entity.add("kppCode", row["kpp_code"])
 
