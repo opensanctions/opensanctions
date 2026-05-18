@@ -2522,3 +2522,7 @@ lookups:
         value: M9 LOGISTICS (HK) LIMITED
       - match: M9 LOGISTICS CO., LTD.
         value: M9 LOGISTICS CO., LTD.
+      - match: EKC AG Turkey Madencilik Anonim Sirketi; EK Resources LLC
+        values:
+          - EKC AG Turkey Madencilik Anonim Sirketi
+          - EK Resources LLC
