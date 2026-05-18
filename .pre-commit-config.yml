@@ -4,8 +4,6 @@ repos:
     hooks:
       - id: check-yaml
       - id: trailing-whitespace
-        # Keep vendored XSDs from FNS byte-identical to upstream
-        exclude: '^contrib/egrul/docs/'
       - id: check-merge-conflict
   - repo: local
     hooks:
