@@ -14,7 +14,6 @@ class Organization(BaseModel):
     aliases: list[str] = []
     abbreviations: list[str] = []
     previous_names: list[str] = []
-    child_organizations: list[str] = []
 
 
 class Organizations(BaseModel):
@@ -54,6 +53,7 @@ def crawl_row(context: Context, row: dict[str, _Element]) -> None:
     else:
         extracted_data = review.extracted_data
 
+    first_entity = None
     for item in extracted_data.organizations:
         entity = context.make("Organization")
         entity.id = context.make_id(item.name)
@@ -65,24 +65,18 @@ def crawl_row(context: Context, row: dict[str, _Element]) -> None:
         entity.add("topics", "sanction")
         entity.add("country", "de")
 
-        if item.child_organizations is not None:
-            for child in item.child_organizations:
-                child_entity = context.make("Organization")
-                child_entity.id = context.make_id(child)
-                child_entity.add("name", child)
-                entity.add("topics", "sanction")
-                child_entity.add("country", "de")
-                context.emit(child_entity)
-
-                link = context.make("UnknownLink")
-                link.id = context.make_id(child_entity.id, entity.id)
-                link.add("subject", entity)
-                link.add("object", child)
-                context.emit(link)
-
         sanction = h.make_sanction(context, entity)
         h.apply_date(sanction, "listingDate", extracted_data.start_date)
         sanction.add("reason", extracted_data.reason)
+
+        if first_entity is None:
+            first_entity = entity
+        else:
+            link = context.make("UnknownLink")
+            link.add("subject", first_entity)
+            link.add("object", entity)
+            context.emit(link)
+            print(link)
 
         context.emit(entity)
         context.emit(sanction)
