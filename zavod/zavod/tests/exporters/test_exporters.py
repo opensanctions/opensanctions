@@ -2,7 +2,7 @@ from csv import DictReader
 from typing import Optional
 import uuid
 from followthemoney.cli.util import path_entities
-from followthemoney import Statement, ValueEntity
+from followthemoney import ValueEntity
 from followthemoney.statement import CSV, read_path_statements
 from json import load, loads
 from nomenklatura import Resolver
@@ -23,7 +23,6 @@ from zavod.meta import Dataset, get_catalog, load_dataset_from_path
 from zavod.crawl import crawl_dataset
 from zavod.tests.conftest import DATASET_2_YML, COLLECTION_YML
 from zavod.tests.exporters.util import harnessed_export
-
 
 TIME_SECONDS_FMT = "%Y-%m-%dT%H:%M:%S"
 
@@ -327,8 +326,9 @@ def test_statements(testdataset1: Dataset):
 
     path = dataset_path / "statements.csv"
     statements = list(read_path_statements(path, CSV))
-    entities = [s.canonical_id for s in statements if s.prop == Statement.BASE]
-    assert len(entities) == 12
+    assert len([s.canonical_id for s in statements if s.prop == "name"]) == 8
+    country_props = {"jurisdiction", "nationality"}
+    assert len([s.canonical_id for s in statements if s.prop in country_props]) == 8
 
 
 def test_statements_preserves_consolidated_removals() -> None:
