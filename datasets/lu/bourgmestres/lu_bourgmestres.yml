@@ -1,0 +1,59 @@
+title: Luxembourg Bourgmestres and Échevins
+entry_point: crawler.py
+prefix: lu-bourg
+coverage:
+  frequency: monthly
+  start: 2026-04-14
+load_statements: true
+ci_test: true
+summary: >-
+  Members of the collège échevinal (bourgmestres and échevins) of Luxembourg
+  municipalities since the 2023 communal elections.
+
+description: |
+  The dataset lists all bourgmestres (mayors) and échevins (aldermen) of
+  Luxembourg's 100 municipalities for the 2023–2029 electoral period, including
+  those who have since left office.
+
+  Source: [data.public.lu](https://data.public.lu/en/datasets/college-des-bourgmestre-et-echevins-depuis-les-elections-communales-2023/)
+
+url: https://data.public.lu/en/datasets/college-des-bourgmestre-et-echevins-depuis-les-elections-communales-2023/
+
+publisher:
+  name: Portail Open Data Luxembourg
+  description: >
+    Luxembourg's national open data portal, operated by the Service information
+    et presse (SIP) of the Government of the Grand Duchy of Luxembourg.
+  country: lu
+  url: https://data.public.lu/
+  official: true
+
+data:
+  url: https://download.data.public.lu/resources/college-des-bourgmestre-et-echevins-depuis-les-elections-communales-2023/20260401-082119/collegeechevinal-periode2023-2029.json
+  format: JSON
+  lang: fra
+
+dates:
+  formats: ["%d/%m/%Y"]
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 300
+      Position: 100
+    country_entities:
+      lu: 300
+  max:
+    schema_entities:
+      Person: 600
+
+lookups:
+  type.gender:
+    options:
+      - match: M
+        value: male
+      - match: F
+        value: female
