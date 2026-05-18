@@ -17,8 +17,12 @@ def parse_okved_codes(el: Element) -> list[str]:
     Returns primary (СвОКВЭДОсн) first, then additional (СвОКВЭДДоп).
 
     NOTE: EGRUL format 4.08 (effective 2026-02-01, mandatory 2026-08-01)
-    adds a sibling block СвОКВЭДОтч ("отчетного типа") alongside the
-    existing СвОКВЭД ("заявительного типа") — we currently ignore it.
+    adds a sibling block СвОКВЭДОтч ("отчетного типа", "reporting type")
+    alongside the existing СвОКВЭД (now relabeled "заявительного типа",
+    codes the company declared in its registration application). The new
+    block takes precedence when present, and the percentage-share fields
+    under it are access-restricted (not in the public VO_RUGFO files we
+    ingest). We currently ignore СвОКВЭДОтч.
     """
     codes: list[str] = []
     # СвОКВЭД = container for OKVED codes
