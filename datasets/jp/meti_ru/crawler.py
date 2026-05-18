@@ -187,7 +187,7 @@ def crawl(context: Context) -> None:
     )
     content_div = h.xpath_element(doc, divs_xpath)
     # Check hash of the content part of the page
-    h.assert_dom_hash(content_div, "1c1664fcb9c771b62a2ccdec1d13a0bbbe2722d7")
+    h.assert_dom_hash(content_div, "9416632091a20ef819425d12229e012d0fd4fe20")
     pdf_xpath = ".//a[contains(@href, '.pdf') and contains(@href, 'export/17_russia/') and contains(@href, 'tokutei')]/@href"
     pdf_urls = h.xpath_strings(content_div, pdf_xpath, expect_exactly=3)
 
