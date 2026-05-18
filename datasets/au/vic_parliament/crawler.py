@@ -75,7 +75,6 @@ def crawl(context: Context) -> None:
         data = context.fetch_json(
             context.data_url,
             params={"page": page},
-            # cache_days=1,
         )
         result = data["result"]
         hits: list[dict[str, Any]] = result.get("hits", [])
