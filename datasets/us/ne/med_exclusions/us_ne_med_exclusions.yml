@@ -72,4 +72,11 @@ lookups:
       - match:
           - 68123
           - 1013706432
+          - Provider NPI
+        value: null
+  type.date:
+    options:
+      - match:
+          - Effective Date
+          - Date Added to NMEP
         value: null
