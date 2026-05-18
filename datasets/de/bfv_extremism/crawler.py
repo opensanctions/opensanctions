@@ -53,6 +53,7 @@ def crawl_row(context: Context, row: dict[str, _Element]) -> None:
     else:
         extracted_data = review.extracted_data
 
+    first_entity = None
     for item in extracted_data.organizations:
         entity = context.make("Organization")
         entity.id = context.make_id(item.name)
@@ -67,6 +68,14 @@ def crawl_row(context: Context, row: dict[str, _Element]) -> None:
         sanction = h.make_sanction(context, entity)
         h.apply_date(sanction, "listingDate", extracted_data.start_date)
         sanction.add("reason", extracted_data.reason)
+
+        if first_entity is None:
+            first_entity = entity
+        else:
+            link = context.make("UnknownLink")
+            link.add("subject", first_entity)
+            link.add("object", entity)
+            context.emit(link)
 
         context.emit(entity)
         context.emit(sanction)
