@@ -2,7 +2,7 @@ from csv import DictReader
 from typing import Optional
 import uuid
 from followthemoney.cli.util import path_entities
-from followthemoney import ValueEntity
+from followthemoney import Statement, ValueEntity
 from followthemoney.statement import CSV, read_path_statements
 from json import load, loads
 from nomenklatura import Resolver
@@ -329,6 +329,7 @@ def test_statements(testdataset1: Dataset):
     assert len([s.canonical_id for s in statements if s.prop == "name"]) == 8
     country_props = {"jurisdiction", "nationality"}
     assert len([s.canonical_id for s in statements if s.prop in country_props]) == 8
+    assert len([s.canonical_id for s in statements if s.prop == Statement.BASE]) == 0
 
 
 def test_statements_preserves_consolidated_removals() -> None:
