@@ -4,7 +4,6 @@ from typing import Dict
 
 from pydantic import BaseModel
 from pydantic import JsonValue
-from rigour.names import contains_split_phrase
 
 from zavod import Context
 from zavod import helpers as h
@@ -60,16 +59,6 @@ class EntityExtractionResult(BaseModel):
     entities: list[EntityData]
 
 
-def needs_llm(name: str, other_name: str) -> bool:
-    combined = f"{name} {other_name}"
-    return (
-        contains_split_phrase(combined)
-        or "(" in combined
-        or "reg" in combined.lower()
-        or bool(other_name.strip() and re.search(r"\d", other_name))
-    )
-
-
 def extract_entities(
     context: Context, name: str, other_name: str
 ) -> EntityExtractionResult:
@@ -116,7 +105,14 @@ def crawl_row(context: Context, row: Dict[str, str | None]) -> None:
     end_date = row.pop("lapseDateOfSanction")
     modified_at = row.pop("changesMadeOn")
 
-    if needs_llm(full_name, other_name):
+    base_entity = context.make("LegalEntity")
+    base_entity.id = context.make_id(full_name, country)
+
+    if (
+        h.is_name_irregular(base_entity, full_name)
+        or h.is_name_irregular(base_entity, other_name)
+        or bool(other_name.strip() and re.search(r"\d", other_name))
+    ):
         extraction = extract_entities(context, full_name, other_name)
         entities_data = extraction.entities
     else:
@@ -124,11 +120,11 @@ def crawl_row(context: Context, row: Dict[str, str | None]) -> None:
         entities_data = [EntityData(name=[full_name], alias=alias)]
 
     for i, entity_data in enumerate(entities_data):
-        entity = context.make("LegalEntity")
         if len(entities_data) > 1:
+            entity = context.make("LegalEntity")
             entity.id = context.make_id(full_name, str(i), country)
         else:
-            entity.id = context.make_id(full_name, country)
+            entity = base_entity
 
         apply_entity_data(entity, entity_data)
         entity.add("country", country)

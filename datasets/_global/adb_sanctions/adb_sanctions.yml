@@ -55,6 +55,14 @@ assertions:
     schema_entities:
       LegalEntity: 1800
 
+names:
+  schema_rules:
+    LegalEntity:
+      reject_chars: "("
+      reject_strings:
+        - "currently known as"
+        - "(aka"
+
 dates:
   formats: ["%d/%b/%Y"]
 
