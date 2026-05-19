@@ -79,7 +79,7 @@ h.review_names(context, entity, original=original)
 # Or we can review the names, applying the accepted cleaned/categorised versions if accepted,
 # otherwise just applying the original strings in their original props
 h.apply_reviewed_names(context, entity, original=original)
-
+```
 
 ## Migrating to the name cleaning helpers
 
