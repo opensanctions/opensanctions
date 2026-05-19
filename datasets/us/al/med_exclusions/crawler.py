@@ -1,9 +1,9 @@
 import re
-from typing import Any, List
+from typing import List
 
-from pdfplumber.page import Page
+from openpyxl import load_workbook
 from pydantic import BaseModel, Field
-from rigour.mime.types import PDF
+from rigour.mime.types import XLSX
 from rigour.names.org_types import extract_org_types
 from zavod.extract.llm import DEFAULT_MODEL, run_typed_text_prompt
 from zavod.extract import zyte_api
@@ -254,72 +254,56 @@ def crawl_row(
 
 
 def crawl_data_url(context: Context) -> str:
-    file_xpath = "//a[contains(., 'PDF Version')]"
+    file_xpath = "//a[contains(., 'Excel Version')]"
     doc = zyte_api.fetch_html(
         context, context.data_url, unblock_validator=file_xpath, absolute_links=True
     )
     url = h.xpath_string(doc, file_xpath + "/@href")
-    assert url is not None, "Could not find PDF URL"
+    assert url is not None, "Could not find XLSX URL"
     return url
 
 
-def page_settings(page: Page) -> tuple[Page, dict[str, Any]]:
-    settings = {"join_y_tolerance": 15}
-    if page.page_number == 1:
-        # The table header is a little box above the main table, so it gets detected as a separate table.
-        tables = page.find_tables()
-        table_start_y = tables[0].bbox[1]
-        # im = page.to_image()
-        # im.draw_hline(table_start)
-        # im.save("page.png")
-        page = page.crop((0, table_start_y, page.width - 15, page.height - 15))
-    return page, settings
-
-
 def crawl(context: Context) -> None:
-    # The .xls file first seemed to work, then a newer file couldn't be parsed
-    # as a valid Compond Document file.
-    # xlrd gave "xlrd.compdoc.CompDocError: MSAT extension: accessing sector ..."
-    # https://stackoverflow.com/questions/74262026/reading-the-excel-file-from-python-pandas-given-msat-extension-error
-    # didn't work.
-
-    # First we find the link to the PDF file
     url = crawl_data_url(context)
     _, _, _, path = zyte_api.fetch_resource(
-        context, "source.pdf", url, expected_media_type=PDF
+        context, "source.xlsx", url, expected_media_type=XLSX
     )
-    context.export_resource(path, PDF, title=context.SOURCE_TITLE)
+    context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
     filename = url.split("/")[-1]
-    assert ".pdf" in filename, filename
+    assert ".xlsx" in filename, filename
 
-    try:
-        category = None
-        for row in h.parse_pdf_table(context, path, page_settings=page_settings):
-            name = row.pop("name_of_provider").replace("\n", " ").strip()
-            if name == "":
-                continue
-            start_date = row.pop("suspension_effective_date").strip()
-            # When there's no date, we're probably at a category header row.
-            if start_date == "":
-                if context.lookup("categories", name):
-                    category = name
-                else:
-                    category = None
-                    context.log.warning(
-                        "Unexpected category. Confirm we're parsing the PDF correctly.",
-                        category=name,
-                    )
-                continue
-            crawl_row(context, name, category, start_date, filename)
-        assert_all_accepted(context)
-    except Exception as e:
-        if "No table found on page 49" in str(e):
-            # this is where the right-hand side of the table starts wrapping
-            pass
-        else:
-            if "No table found on page" in str(e):
-                raise RuntimeError(
-                    "PDF pages changed. See if they've upgraded to xlsx or update max page."
-                )
+    wb = load_workbook(path, read_only=True)
+    ws = wb.active
+    assert ws is not None, "No active worksheet"
+    assert len(wb.worksheets) == 1, len(wb.worksheets)
+
+    rows = h.parse_xlsx_sheet(context, ws, skiprows=33)
+    category = None
+    for row in rows:
+        name_raw = row.pop("column_0")
+        if name_raw is None:
+            continue
+        name = name_raw.replace("\n", " ").strip()
+        if name == "":
+            continue
+        start_date_raw = row.pop("effective_date")
+        start_date = start_date_raw.strip() if start_date_raw is not None else ""
+        # When there's no date, we're probably at a category header row.
+        if start_date == "":
+            if context.lookup("categories", name):
+                category = name
             else:
-                raise
+                if name.startswith("NOTE:  Any nurse aide listed"):
+                    break
+                raise Exception(
+                    f"Unexpected category {name!r}. Confirm we're parsing the XLSX correctly."
+                )
+            continue
+        crawl_row(context, name, category, start_date, filename)
+
+    for row in rows:
+        assert row.pop("effective_date") is None, (
+            "Expected all rows to have been processed"
+        )
+
+    assert_all_accepted(context, raise_on_unaccepted=False)

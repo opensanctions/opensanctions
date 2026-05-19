@@ -20,7 +20,7 @@ REGEX_JURISDICTION = re.compile(
 
 
 def make_source_url(id: str) -> str:
-    return f'https://pluralpolicy.com/app/person/{id.replace("ocd-person/", "")}'
+    return f"https://pluralpolicy.com/app/person/{id.replace('ocd-person/', '')}"
 
 
 def crawl_person(context, jurisdictions, house_positions, data: dict[str, Any]):
@@ -99,7 +99,7 @@ def crawl_person(context, jurisdictions, house_positions, data: dict[str, Any]):
         position = h.make_position(
             context, position_name, country="us", subnational_area=jurisdiction_name
         )
-        categorisation = categorise(context, position, True)
+        categorisation = categorise(context, position, default_is_pep=True)
         if not categorisation.is_pep:
             return
         start_date = role.get("start_date", None)
@@ -162,15 +162,15 @@ def crawl_jurisdictions(context: Context):
             for org in jurisdiction["organizations"]:
                 type = org["classification"]
                 if type == "legislature":
-                    house_positions[(code, type)] = f'Member of the {org["name"]}'
+                    house_positions[(code, type)] = f"Member of the {org['name']}"
                 if type == "upper":
                     house_positions[(code, type)] = (
-                        f'Member of the {name} {org["name"]}'
+                        f"Member of the {name} {org['name']}"
                     )
                 if type == "lower":
                     representative = org["districts"][0]["role"]
                     house_positions[(code, type)] = (
-                        f'Member of the {name} {org["name"]} of {representative}s'
+                        f"Member of the {name} {org['name']} of {representative}s"
                     )
 
         if query.get("page") == result.get("pagination").get("max_page", None):

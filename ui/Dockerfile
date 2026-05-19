@@ -28,5 +28,7 @@ WORKDIR /app
 RUN npm install --no-fund -g npm && npm install --no-fund --production=false --force
 RUN npm run --prefix /app build
 
+RUN mkdir -p /app/.next/cache && chown -R app:app /app/.next/cache
+USER app
 EXPOSE 3000
 CMD ["npm", "run", "--prefix", "/app", "start"]

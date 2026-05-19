@@ -103,6 +103,7 @@ lookups:
       - match:
           - الرقم الموحد # Unified number
           - تأشيرة سياحية  # Tourist visa
+          - null
         value: null
   headers:
     options:
@@ -224,3 +225,56 @@ lookups:
         values:
           - Sweden
           - United Arab Emirates
+
+  type.date:
+    options:
+      # Arabic-month birth dates of the form "DD <month-ara> YYYYم"
+      - match: 21 فبراير 1987م
+        value: 1987-02-21
+      - match: 20 إبريل 1963م
+        value: 1963-04-20
+      - match: 29 يونيو 1979م
+        value: 1979-06-29
+      - match: 28 نوفمبر 1974م
+        value: 1974-11-28
+      - match: 01 ديسمبر 1971م
+        value: 1971-12-01
+      - match: 21 يوليو 1977م
+        value: 1977-07-21
+      - match: 04 يوليو 1964م
+        value: 1964-07-04
+      - match: 25 سبتمبر 1969م
+        value: 1969-09-25
+      - match: 29 يونيو 1978م
+        value: 1978-06-29
+      - match: 01 نوفمبر 1967م
+        value: 1967-11-01
+      - match: 23 فبراير 1961م
+        value: 1961-02-23
+      - match: 06 أغسطس 1973م
+        value: 1973-08-06
+      - match: 14 يوليو 1975م
+        value: 1975-07-14
+      - match: 18 مايو 1966م
+        value: 1966-05-18
+      - match: 17 يوليو 1977م
+        value: 1977-07-17
+      - match: 08 أغسطس 1970م
+        value: 1970-08-08
+
+  type.identifier:
+    options:
+      # Combined "Lebanese passport number: X Lebanese ID number: Y" strings;
+      # split into the two separate identifier values.
+      - match: "رقم جواز السفر اللبناني: 1730241 رقم الهوية اللبنانية :288030510000000"
+        values:
+          - "1730241"
+          - "288030510000000"
+      - match: "رقم جواز السفر اللبناني: RL2923703 رقم الهوية اللبنانية :000004334212"
+        values:
+          - RL2923703
+          - "000004334212"
+      - match: "رقم جواز السفر اللبناني: LR0993984 رقم الهوية اللبنانية :000025755618"
+        values:
+          - LR0993984
+          - "000025755618"

@@ -8,6 +8,7 @@ from followthemoney.schema import Schema
 from followthemoney.util import PathLike, make_entity_id
 from followthemoney.statement.serialize import PackStatementWriter
 from lxml import etree, html
+from nomenklatura import Judgement, Resolver
 from nomenklatura.cache import Cache
 from nomenklatura.versions import Version
 from requests import Response
@@ -21,6 +22,7 @@ from zavod.archive import STATEMENTS_FILE, dataset_data_path, dataset_resource_p
 from zavod.audit import inspect
 from zavod.db import get_engine, meta
 from zavod.entity import Entity
+from zavod.integration.dedupe import get_resolver
 from zavod.logs import get_logger
 from zavod.meta import Dataset
 from zavod.runtime.http_ import (
@@ -60,6 +62,7 @@ class Context:
         self.http = make_session(dataset.http)
         self._cache: Optional[Cache] = None
         self._timestamps: Optional[TimeStampIndex] = None
+        self._resolver: Optional[Resolver[Entity]] = None
         self._structlog_contextvars_tokens: Optional[
             Mapping[str, contextvars.Token[Any]]
         ] = None
@@ -122,14 +125,46 @@ class Context:
             self.issues.clear()
         self.stats.reset()
 
+    def rekey(self, old_id: str | None, new_id: str | None) -> None:
+        """Change the ID of an entity, and record the decision in the resolver if applicable.
+        This can be used to migrate entity IDs in a crawler when the old ID scheme is found
+        to be flawed."""
+        if old_id is None or new_id is None or old_id == new_id:
+            return
+        if self.cache._engine.dialect.name == "sqlite":
+            self.log.error(
+                "Rekeying is not supported with SQLite resolver",
+                old_id=old_id,
+                new_id=new_id,
+            )
+            return
+        if self._resolver is None:
+            self._resolver = get_resolver()
+            self._resolver.begin()
+        old_canonical = self._resolver.get_canonical(old_id)
+        new_canonical = self._resolver.get_canonical(new_id)
+        if old_canonical == new_canonical:
+            return
+        self._resolver.decide(
+            old_canonical,
+            new_canonical,
+            user="zavod/rekey",
+            judgement=Judgement.POSITIVE,
+        )
+
     def flush(self) -> None:
         """Flush the context to ensure all data is written to disk."""
         if self._cache is not None:
             self._cache.flush()
+        # if self._resolver is not None:
+        #     self._resolver.commit()
+        #     self._resolver.begin()
 
     def close(self) -> None:
         """Flush and tear down the context."""
         self.http.close()
+        if self._resolver is not None:
+            self._resolver.commit()
         if self._cache is not None:
             self._cache.close()
         if self._timestamps is not None:

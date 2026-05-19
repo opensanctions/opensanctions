@@ -45,6 +45,15 @@ dates:
     - "on %B %d, %Y"
     - "in %B %Y"
 names:
+  schema_rules:
+    LegalEntity:
+      # Catch cases like "Name (Russian: Name) or other additional things like this."
+      reject_chars: "(:"
+      reject_strings: [" and ", " or ", " et "]
+      reject_leading_digit: true
+    Person:
+      reject_strings: [" and ", " or ", " et "]
+      reject_leading_digit: true
   suggest_abbreviation_non_person_single_token_shorter_than: 5
   suggest_weak_alias_person_single_token: true
 

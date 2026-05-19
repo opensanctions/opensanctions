@@ -70,11 +70,22 @@ jobs:
         uses: tj-actions/changed-files@9426d40962ed5378910ee2e21d5f8c6fcbf2dd96  # v47.0.6
         with:
           files: "datasets/**"
+          separator: "\n"
+          safe_output: false  # false because we are using an environment variable to store the output and avoid command injection.
       - name: Crawl modified datasets
         if: ${{ steps.changed-files.outputs.all_changed_files != '' && github.ref != 'refs/heads/main'}}
+        env:
+          # For security reasons, pass possibly attacker-chosen filenames via
+          # env var (not direct ${{ }} interpolation into shell) to prevent
+          # command injection through crafted PR filenames containing shell
+          # metacharacters.
+          CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
         run: |
           set -euo pipefail
-          datasets=$(python contrib/ci_datasets.py ${{ steps.changed-files.outputs.all_changed_files }})
+          # Read into an array so each filename is passed as its own quoted argv
+          # entry (a bare `for f in $CHANGED_FILES` would word-split unsafely).
+          mapfile -t files <<< "$CHANGED_FILES"
+          datasets=$(python contrib/ci_datasets.py "${files[@]}")
           echo "$datasets"
           for dataset in $datasets
           do
@@ -83,9 +94,16 @@ jobs:
           done
       - name: Validate modified datasets
         if: ${{ steps.changed-files.outputs.all_changed_files != '' && github.ref != 'refs/heads/main'}}
+        env:
+          # See note above: env var + quoted expansion avoids shell injection
+          # via filenames in PRs.
+          CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
         run: |
           set -euo pipefail
-          datasets=$(python contrib/ci_datasets.py ${{ steps.changed-files.outputs.all_changed_files }})
+          # Read into an array so each filename is passed as its own quoted argv
+          # entry (a bare `for f in $CHANGED_FILES` would word-split unsafely).
+          mapfile -t files <<< "$CHANGED_FILES"
+          datasets=$(python contrib/ci_datasets.py "${files[@]}")
           for dataset in $datasets
           do
               echo Validating $dataset
@@ -93,9 +111,16 @@ jobs:
           done
       - name: Export modified datasets
         if: ${{ steps.changed-files.outputs.all_changed_files != '' && github.ref != 'refs/heads/main'}}
+        env:
+          # See note above: env var + quoted expansion avoids shell injection
+          # via filenames in PRs.
+          CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
         run: |
           set -euo pipefail
-          datasets=$(python contrib/ci_datasets.py ${{ steps.changed-files.outputs.all_changed_files }})
+          # Read into an array so each filename is passed as its own quoted argv
+          # entry (a bare `for f in $CHANGED_FILES` would word-split unsafely).
+          mapfile -t files <<< "$CHANGED_FILES"
+          datasets=$(python contrib/ci_datasets.py "${files[@]}")
           for dataset in $datasets
           do
               echo Exporting $dataset

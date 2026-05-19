@@ -18,6 +18,7 @@ REGEX_BIRTH_PLACE_AND_DATE = re.compile(
 
 
 def crawl_person(context: Context, element: _Element, position: Entity) -> None:
+    party = element.findtext('.//span[@class="u-text-sm u-text-primary"]')
     anchor = element.find(".//a")
     assert anchor is not None, "Failed to extract anchor"
     source_url = urljoin(context.data_url, anchor.get("href"))
@@ -49,6 +50,9 @@ def crawl_person(context: Context, element: _Element, position: Entity) -> None:
     person.id = context.make_id(name, birth_date)
     person.add("name", name)
 
+    # citizenship required: https://www.denederlandsegrondwet.nl/artikel/1983/56-vereisten-lidmaatschap-staten-generaal
+    person.add("citizenship", "nl")
+    person.add("political", party)
     person.add("birthPlace", birth_place)
     h.apply_date(person, "birthDate", birth_date)
     person.add("topics", "role.pep")
@@ -72,8 +76,9 @@ def crawl(context: Context) -> None:
         name="Member of the House of Representatives",
         country="nl",
         summary="Member of the lower house of the bicameral parliament of the Netherlands, the States General",
+        wikidata_id="Q18887908",
     )
-    categorise(context, position, True)
+    categorise(context, position, default_is_pep=True)
     context.emit(position)
 
     view_dom_id = "whatever"

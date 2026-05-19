@@ -65,6 +65,8 @@ def crawl_item(
         first_name=input_dict.pop("Nombre"),
         last_name=input_dict.pop("Apellidos"),
     )
+    # citizenship by birth required (Art 58): https://mexico.justia.com/federales/constitucion-politica-de-los-estados-unidos-mexicanos/titulo-tercero/capitulo-ii/seccion-i/#articulo-58
+    entity.add("citizenship", "mx")
 
     gender = (
         "male"
@@ -130,7 +132,7 @@ def crawl(context: Context) -> None:
 
     # We first define the Mexico Senator Position
     position = h.make_position(context, "Member of the Senate of Mexico", country="mx")
-    categorisation = categorise(context, position, is_pep=True)
+    categorisation = categorise(context, position, default_is_pep=True)
     context.emit(position)
 
     for item in senators:

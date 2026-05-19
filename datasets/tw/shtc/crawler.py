@@ -11,7 +11,6 @@ from typing import Set
 
 import datapatch
 from rigour.mime.types import CSV
-from rigour.text import is_nullword
 from zavod.extract.names.clean import Names
 from zavod.extract.zyte_api import fetch_html
 from zavod.stateful.review import (
@@ -220,9 +219,7 @@ def crawl_row(context: Context, row):
             entity.add("idNumber", id_number)
 
     for country in row.pop("國家代碼country code").split(";"):
-        # Sometimes the country code is "null"
-        if not is_nullword(country):
-            entity.add("country", country)
+        entity.add("country", country)
     entity.add("topics", "export.control")
 
     context.emit(entity)
@@ -252,5 +249,4 @@ def crawl(context: Context):
         for row in csv.DictReader(infh):
             crawl_row(context, row)
 
-    # TODO: Stop raising once we're through the initial bunch of reviews.
-    assert_all_accepted(context, raise_on_unaccepted=True)
+    assert_all_accepted(context, raise_on_unaccepted=False)

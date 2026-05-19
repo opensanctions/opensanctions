@@ -39,7 +39,7 @@ def crawl_row(context: Context, row: Dict[str, str | None]) -> None:
         country="fr",
     )
 
-    categorisation = categorise(context, position, is_pep=None)
+    categorisation = categorise(context, position, default_is_pep=None)
     if not categorisation.is_pep:
         return
 

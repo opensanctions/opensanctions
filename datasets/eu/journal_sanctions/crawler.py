@@ -304,6 +304,7 @@ def crawl_unconsolidated_row(
     entity.add("weakAlias", h.multi_split(row.pop("weakAlias"), ";"))
     entity.add_cast("Person", "passportNumber", h.multi_split(row.pop("passport"), ";"))
     entity.add("taxNumber", h.multi_split(row.pop("taxNumber"), ";"), quiet=True)
+    entity.add("kppCode", h.multi_split(row.pop("kppCode"), ";"), quiet=True)
     entity.add("idNumber", h.multi_split(row.pop("idNumber"), ";"), quiet=True)
     entity.add("imoNumber", row.pop("imoNumber"), quiet=True)
     entity.add("notes", row.pop("Notes").strip())

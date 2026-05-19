@@ -1,13 +1,26 @@
 id: 310
-title: Officials, security agencies, and defense industry representatives shaping
-  Russia’s military-industrial policy, defense orders, and wartime economy
+title: Management bodies of Russia’s military-industrial complex
 key: UA-WS-EXECUTIVES
 url: https://war-sanctions.gur.gov.ua/en/executives
-summary: ''
+summary: |
+  Ukraine's GUR lists executives and officials of Russia's military-industrial
+  complex in the context of their note
+
+  > The military-industrial complex of the russian federation has a complicated
+  > and multi-level management.
+  >
+  > Major decisions are made personally by Putin. However, there is a number of
+  > collegial and advisory bodies directly and indirectly subordinated to him that
+  > form and implement the state policy of the russian military-industrial complex,
+  > the state defense order and the transition of the economy to military use.
+  >
+  > [...]
+
+  https://war-sanctions.gur.gov.ua/en/executives
 issuer: ua_gur
 dataset: ua_war_sanctions
 target_territories:
-- ru
-- ua-cri
-- ua-dpr
-- ua-lpr
+  - ru
+  - ua-cri
+  - ua-dpr
+  - ua-lpr

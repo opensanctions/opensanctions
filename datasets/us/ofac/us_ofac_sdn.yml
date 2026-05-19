@@ -81,7 +81,10 @@ lookups:
         value: US-BRUS
       - match: CAR
         value: US-CAR
-      - match: CUBA
+      - match:
+          - CUBA
+          - CUBA-EO
+          - CUBA-EO14404
         value: US-CUBA
       - match:
           - ILLICIT-DRUGS-EO14059
@@ -344,6 +347,7 @@ lookups:
           - Military Registration Number
           - C.I.N.
           - Registration Certificate Number (Dubai)
+          - Entity Code
         prop: registrationNumber
       - match:
           - Russian State Individual Business Registration Number Pattern (OGRNIP)
@@ -700,6 +704,8 @@ lookups:
         value: Khyber Pakhtunkhwa
       - match: Zug
         value: Zug
+      - match: Moa
+        value: Moa
   type.country:
     lowercase: true
     normalize: true

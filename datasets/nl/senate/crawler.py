@@ -92,7 +92,7 @@ def crawl_member(context: Context, member_el: _Element) -> None:
         lang="eng",
         wikidata_id="Q19305384",
     )
-    categorisation = categorise(context, position, True)
+    categorisation = categorise(context, position, default_is_pep=True)
 
     if categorisation.is_pep:
         occupancy = h.make_occupancy(

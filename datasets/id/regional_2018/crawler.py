@@ -47,7 +47,7 @@ def crawl_person(
         subnational_area=jurisdiction,
     )
     position.add("description", position_eng)
-    categorisation = categorise(context, position, True)
+    categorisation = categorise(context, position, default_is_pep=True)
     occupancy = h.make_occupancy(
         context,
         entity,

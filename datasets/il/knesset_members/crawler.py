@@ -104,7 +104,7 @@ def crawl_positions(
         country="il",
         topics=["gov.national", "gov.legislative"],
     )
-    categorisation = categorise(context, position, is_pep=True)
+    categorisation = categorise(context, position, default_is_pep=True)
     if not categorisation.is_pep:
         return
     context.emit(position)

@@ -30,6 +30,7 @@ url: https://portaldatransparencia.gov.br/download-de-dados/ceis
 data:
   url: https://portaldatransparencia.gov.br/download-de-dados/ceis
   format: csv
+ci_test: false # no zyte in CI
 
 assertions:
   min:

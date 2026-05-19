@@ -1501,6 +1501,15 @@ lookups:
         props:
           registrationNumber: "310115002630983"
           uscCode: "9131011533249393X3"
+      - match: "1257700355912 (Russia OGRN)"
+        props:
+          ogrnCode: "1257700355912"
+      - match: "9704263563 (Russia TIN)"
+        props:
+          innCode: "9704263563"
+      - match: "7709473987 (Russia TIN)"
+        props:
+          innCode: "7709473987"
   companies:
     normalize: true
     options:
@@ -2513,3 +2522,7 @@ lookups:
         value: M9 LOGISTICS (HK) LIMITED
       - match: M9 LOGISTICS CO., LTD.
         value: M9 LOGISTICS CO., LTD.
+      - match: EKC AG Turkey Madencilik Anonim Sirketi; EK Resources LLC
+        values:
+          - EKC AG Turkey Madencilik Anonim Sirketi
+          - EK Resources LLC

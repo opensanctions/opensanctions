@@ -9,33 +9,49 @@ $ git clone https://github.com/opensanctions/opensanctions.git
 $ cd opensanctions
 ```
 
-The steps below assume you're working within a checkout of that repository.
+The steps below assume you're working within a clone of that repository.
+
+## Using Docker
+
+```
+docker compose run --rm app zavod --help
+```
+
 
 ## Dependencies on macOS
 
-The two tricky ones are [pyICU](https://pypi.org/project/pyicu/) and [plyvel](https://github.com/wbolster/plyvel). Here are some one-liners to make `uv sync` just work™.
+[pyICU](https://pypi.org/project/pyicu/) and [plyvel](https://github.com/wbolster/plyvel) have no pre-built wheels for macOS arm64 and must be compiled from source. They also have conflicting build requirements, so installation requires two passes.
+
+First, install the native libraries:
 
 ```sh
-brew install pkg-config icu4c
-# Let the compiler that is run somewhere deep inside `uv sync` find the library
-export PATH="$(brew --prefix)/opt/icu4c/bin:$(brew --prefix)/opt/icu4c/sbin:$PATH"
-export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:$(brew --prefix)/opt/icu4c/lib/pkgconfig"
-
-brew install leveldb
-# Let the compiler that is run somewhere deep inside `uv sync` find the library
-# See https://github.com/wbolster/plyvel/issues/114 for more info on this painpoint
-export CPPFLAGS="-I$(brew --prefix leveldb)/include/ -L$(brew --prefix leveldb)/lib/"
+brew install icu4c leveldb
 ```
 
-You might want to put the `export`s in your [`.envrc`](https://direnv.net/) so that updates to these libraries just install and you don't have to go digging for these in the documentation again.
+Then, from the `zavod/` directory:
+
+```sh
+# Step 1: build pyicu against the system icu4c, and plyvel against leveldb
+PATH="$(brew --prefix icu4c)/bin:$PATH" \
+CPPFLAGS="-I$(brew --prefix leveldb)/include" \
+LDFLAGS="-L$(brew --prefix leveldb)/lib" \
+uv sync --no-binary-package pyicu --no-binary-package plyvel --extra dev --extra docs
+
+# Step 2: rebuild plyvel with -fno-rtti to match homebrew's leveldb
+# (leveldb disables RTTI in its own build, so the plyvel wheel references symbols
+# that don't exist at runtime — building from source with matching flags fixes this)
+# pyicu doesn't wan to be built with this option, so a second step is required.
+CXXFLAGS="-fno-rtti" \
+CPPFLAGS="-I$(brew --prefix leveldb)/include" \
+LDFLAGS="-L$(brew --prefix leveldb)/lib" \
+uv pip --no-cache install --no-binary plyvel --reinstall plyvel==1.5.1 # Use the current version in pyproject.toml
+```
 
 ## Python virtual environment
 
-The application is a fairly stand-alone Python application, albeit with a large number of library dependencies. To set up a local development environment using `uv`:
+The application is a fairly stand-alone Python application, albeit with a large number of library dependencies. After running the install steps above, activate the virtualenv:
 
 ```bash
-# Inside the opensanctions repository path:
-$ pushd zavod; uv sync --extra dev --extra docs; popd
 # Activate the virtualenv. You probably want to put this in your .envrc
 $ source zavod/.venv/bin/activate
 # You can check if the application has been installed successfully by
@@ -45,12 +61,18 @@ $ zavod --help
 
 ## Running a database
 
-Some (actually, most) crawlers in zavod use the cache and some other things that get read from the database.
+Some (actually, most) crawlers in zavod use the cache and some other things that get read from the database. Zavod uses sqlite by default, but once you need concurrent access to the database, use Postgres. Zavod creates the tables automatically.
+
+If you run zavod using docker-compose:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d db
+```
 
 To bring a database up for local development:
 
 ```bash
-docker compose -f ../docker-compose.yml up -d db # Bring up a dev database
+docker compose -f docker-compose.dev.yml up -d db
 # Your probably want to put this in your .envrc
 export ZAVOD_DATABASE_URI=postgresql://postgres:password@localhost:5432/dev
 export NOMENKLATURA_DB_URL=$ZAVOD_DATABASE_URI

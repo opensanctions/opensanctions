@@ -1123,3 +1123,7 @@ lookups:
           - Kenneth A. Dachman
           - Scott A. Wolf
           - Stone Lion Management Inc.
+      - match: prosky inc. and crystal a. huang
+        names:
+          - ProSky Inc.
+          - Crystal A. Huang

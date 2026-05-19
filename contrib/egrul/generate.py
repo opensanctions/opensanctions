@@ -434,7 +434,7 @@ def crawl(context: Context) -> None:
     # Saving to partial_ tables is not strictly required, but quite useful to interrupt and resume the process when
     # running locally and running sql queries on it.
     year_dfs = []
-    for year in [2022, 2023, 2024, 2025]:
+    for year in [2022, 2023, 2024, 2025, 2026]:
         year_archives = [
             (archive_date, archives)
             for archive_date, archives in archives_by_date
@@ -502,7 +502,9 @@ def get_context(data_time: Optional[date] = None) -> Context:
     dataset = Dataset.from_path("datasets/ru/egrul/ru_egrul.yml")
     context = Context(dataset)
     if data_time is not None:
-        context._data_time = datetime.combine(data_time, datetime.min.time())
+        # TODO: This is very hacky, but that's how we pass "what archive are we in"
+        # down the stack right now
+        context.data_time = datetime.combine(data_time, datetime.min.time())
     return context
 
 

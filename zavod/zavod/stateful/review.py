@@ -6,8 +6,7 @@ from typing import Any, Callable, Dict, Generic, List, Optional, Type, TypeVar
 
 import orjson
 from lxml.html import fromstring, tostring
-from normality import WS, category_replace, slugify, squash_spaces, stringify
-from normality.constants import SLUG_CATEGORIES
+from normality import slugify, squash_spaces
 from pydantic import BaseModel, JsonValue, PrivateAttr
 from pydantic.json_schema import GenerateJsonSchema, JsonSchemaMode
 from pydantic_core import CoreSchema
@@ -49,10 +48,8 @@ class Review(BaseModel, Generic[ModelType]):
 
     id: Optional[int] = None
     key: str
-    """A slug derived from some information from the source that uniquely and
-    consistently identifies the review within the dataset. For an enforcement action,
-    that might be an action reference number or publication url (for lack of a consistent identifier).
-    For a string of names that rarely changes, that string itself might work."""
+    """A SHA1 hash derived from key_parts that uniquely and consistently identifies
+    the review within the dataset."""
     dataset: str
     extraction_schema: JsonValue
     source_value: str
@@ -224,8 +221,7 @@ class SourceValue(ABC):
     """
 
     key_parts: str | List[str]
-    """The key parts will be slugified and shortened with a hash of all the
-    parts if the slug would be too long."""
+    """Parts that are SHA1-hashed to produce the review key."""
     mime_type: str
     label: str
     url: Optional[str]
@@ -268,6 +264,11 @@ class TextSourceValue(SourceValue):
 
 
 class JSONSourceValue(SourceValue):
+    """
+    Sorts keys but not array values, so ensure array values are ordered consistently
+    for consistent comparison between existing reviews and source values.
+    """
+
     mime_type: str = "application/json"
 
     def __init__(
@@ -333,39 +334,20 @@ class HtmlSourceValue(SourceValue):
         return element_text_hash(seen_element) == element_text_hash(self.element)
 
 
-def unicode_slug(parts: str | List[str]) -> Optional[str]:
-    """Slugify a text string. This will not transliterate the text to ASCII,
-    but will replace punctuation with - and remove all
-    characters that are not alphanumeric or the separator."""
-
-    sep = "-"
-
-    text = stringify(parts)
-    if text is None:
-        return None
-
-    text = text.lower().replace(sep, WS)
-    replaced = category_replace(text, SLUG_CATEGORIES)
-    text = squash_spaces(replaced)
-    text = "".join([c for c in text if (c.isprintable() and c.isalnum()) or c == WS])
-    if len(text) == 0:
-        return None
-    return text.replace(WS, sep)
-
-
 def review_key(parts: str | List[str]) -> str:
-    """Generates a unique key for a given string of party names.
-    If the slug would be longer than 255 chars, we include a truncated hash of the
-    string with part of the slug to ensure it's consistent, unique, and short enough.
+    """Generates a stable 40-char SHA1 key for a review.
+    String normalization should be no more aggressive than source value matching,
+    so that two source values don't match as keys but appear to be changing source values.
     """
-    slug = unicode_slug(parts)
-    assert slug is not None
-    # Hardcoding based on model.KEY_LEN to prevent inadvertent key changes
-    if len(slug) <= 255:
-        return slug
-    else:
-        hash = sha1(slug.encode("utf-8")).hexdigest()
-        return f"{slug[:80]}-{hash[:10]}"
+    if isinstance(parts, str):
+        parts = [parts]
+    # rigour.text_hash normalizes capitalization away. It's nice to distinguish
+    # capitalization so that a review with bad name capitalization doesn't overwrite
+    # one with good name capitalization.
+    digest = sha1()
+    for part in parts:
+        digest.update(part.strip().encode("utf-8"))
+    return digest.hexdigest()
 
 
 def review_extraction(

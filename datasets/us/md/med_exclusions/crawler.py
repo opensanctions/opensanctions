@@ -71,4 +71,6 @@ def crawl(context: Context) -> None:
         # it means the table has ended and the rest is just the sanction types
         if item.get("last_name_organization") == "Sanction Type":
             return
+        if item.get("last_name_organization").startswith("A = Abuse"):
+            return
         crawl_item(item, context)
