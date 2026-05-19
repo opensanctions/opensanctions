@@ -52,10 +52,8 @@ def crawl_item(row: dict[str, str | None], context: Context) -> None:
 
     license_number = row.pop("license_number")
     if license_number and license_number != "N/A":
-        for ln in re.split(r"[;,]\s*", license_number):
-            ln = ln.strip()
-            if ln:
-                entity.add("registrationNumber", ln)
+        for ln in h.multi_split(license_number, ["; ", ", "]):
+            entity.add("idNumber", ln)
 
     entity.add("topics", "debarment")
     entity.add("sector", row.pop("provider_type"))
