@@ -105,9 +105,16 @@ def crawl_row(context: Context, row: Dict[str, str | None]) -> None:
     end_date = row.pop("lapseDateOfSanction")
     modified_at = row.pop("changesMadeOn")
 
+    # A probe entity is needed to call h.is_name_irregular, which consults
+    # the dataset's names spec (reject_chars, reject_strings, contains_split_phrase).
+    # It is reused as the emitted entity for single-entity rows.
     base_entity = context.make("LegalEntity")
     base_entity.id = context.make_id(full_name, country)
 
+    # Trigger LLM extraction when the framework detects irregular name content
+    # (split phrases, parentheses, reject_strings) or when other_name contains
+    # digits — a reliable signal for embedded identifiers (TINs, reg numbers,
+    # USC codes) that have no split-phrase marker.
     if (
         h.is_name_irregular(base_entity, full_name)
         or h.is_name_irregular(base_entity, other_name)
@@ -119,6 +126,11 @@ def crawl_row(context: Context, row: Dict[str, str | None]) -> None:
         alias = [other_name] if other_name.strip() else []
         entities_data = [EntityData(name=[full_name], alias=alias)]
 
+    # Occasionally a single source row encodes more than one entity (e.g.
+    # "Company A; Company B"). The LLM returns one EntityData per distinct
+    # entity; for those rows we generate a stable per-entity ID using the
+    # loop index. Single-entity rows reuse base_entity to avoid a redundant
+    # context.make() call.
     for i, entity_data in enumerate(entities_data):
         if len(entities_data) > 1:
             entity = context.make("LegalEntity")
