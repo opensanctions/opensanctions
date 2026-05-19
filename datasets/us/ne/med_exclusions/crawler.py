@@ -50,14 +50,17 @@ def crawl_item(row: Dict[str, str | None], context: Context) -> None:
 
 def crawl(context: Context) -> None:
     _, _, _, path = fetch_resource(
-        context, "source.pdf", context.data_url, expected_media_type=PDF
+        context,
+        "source.pdf",
+        context.data_url,
+        expected_media_type=PDF,
+        geolocation="US",
     )
     context.export_resource(path, PDF, title=context.SOURCE_TITLE)
 
     for item in h.parse_pdf_table(
         context,
         path,
-        headers_per_page=True,
         page_settings=lambda page: (page, PAGE_SETTINGS),
     ):
         crawl_item(item, context)

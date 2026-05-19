@@ -6,14 +6,16 @@ from zavod import Context, helpers as h
 
 AKA_MATCH = r"\(aka ([^)]+)\)"
 
+SKIPROWS = 4
 
-def crawl_item(row: dict[str, str], context: Context) -> None:
+
+def crawl_item(row: dict[str, str | None], context: Context) -> None:
     provider_name = row.pop("provider_name")
     if not provider_name:
         return
 
     entity = context.make("LegalEntity")
-    entity.id = context.make_id(provider_name, row.get("n_p_i"))
+    entity.id = context.make_id(provider_name, row.get("npi"))
 
     alias_match = re.search(AKA_MATCH, provider_name)
     if alias_match:
@@ -26,32 +28,52 @@ def crawl_item(row: dict[str, str], context: Context) -> None:
     entity.add("name", name_parts[0])
     entity.add("country", "US")
 
-    npi = row.pop("n_p_i")
-    if npi != "N/A":
+    npi = row.pop("npi")
+    if npi and npi != "N/A":
         entity.add("npiCode", npi)
 
-    address = row.pop("business_nameand_address")
-    if address != "N/A":
-        entity.add("address", address)
+    business_name = row.pop("business_name")
+    if business_name and business_name != "N/A":
+        entity.add("alias", business_name)
+
+    street = row.pop("street_address")
+    city = row.pop("city")
+    state = row.pop("state")
+    zip_code = row.pop("zip")
+    address = h.make_address(
+        context,
+        street=street,
+        city=city,
+        state=state,
+        postal_code=zip_code,
+        country_code="us",
+    )
+    h.copy_address(entity, address)
+
+    license_number = row.pop("license_number")
+    if license_number and license_number != "N/A":
+        for ln in h.multi_split(license_number, ["; ", ", "]):
+            entity.add("idNumber", ln)
 
     entity.add("topics", "debarment")
     entity.add("sector", row.pop("provider_type"))
-    medicaid_id = row.pop("medicaid_provider_id")
+
+    medicaid_id = row.pop("medicaid_provider_number")
     if medicaid_id and medicaid_id != "N/A":
-        entity.add("description", "Medicaid Provider ID: " + medicaid_id)
-    medicare_number = row.pop("medicareprovidernumber")
+        entity.add("idNumber", medicaid_id)
+
+    medicare_number = row.pop("medicare_provider_number")
     if medicare_number and medicare_number != "N/A":
-        entity.add(
-            "description",
-            "Medicare Provider Number: " + medicare_number,
-        )
+        entity.add("idNumber", medicare_number)
+
     sanction = h.make_sanction(context, entity)
-    termination_date = row.pop("exclusiondate")
+    termination_date = row.pop("exclusion_date") or ""
     termination_date = termination_date.replace("Termination ", "")
     termination_date = termination_date.replace("Termination: ", "")
     termination_date = termination_date.replace("Denial ", "").strip()
     h.apply_date(sanction, "startDate", termination_date)
-    sanction.add("reason", row.pop("reason_for_exclusion"))
+    sanction.add("reason", row.pop("reasofn_for_exclusion"))
+    sanction.add("provisions", row.pop("sanction_type"))
 
     context.emit(entity)
     context.emit(sanction)
@@ -59,8 +81,8 @@ def crawl_item(row: dict[str, str], context: Context) -> None:
     context.audit_data(
         row,
         ignore=[
-            "providerverification",
-            "state",
+            "verification_contact",
+            "practice_state",
         ],
     )
 
@@ -81,5 +103,5 @@ def crawl(context: Context) -> None:
 
     wb = load_workbook(path, read_only=True)
 
-    for item in h.parse_xlsx_sheet(context, wb.active, skiprows=0):
+    for item in h.parse_xlsx_sheet(context, wb.active, skiprows=SKIPROWS):
         crawl_item(item, context)
