@@ -73,6 +73,7 @@ def crawl_item(row: dict[str, str | None], context: Context) -> None:
     termination_date = termination_date.replace("Denial ", "").strip()
     h.apply_date(sanction, "startDate", termination_date)
     sanction.add("reason", row.pop("reasofn_for_exclusion"))
+    sanction.add("provisions", row.pop("sanction_type"))
 
     context.emit(entity)
     context.emit(sanction)
@@ -82,7 +83,6 @@ def crawl_item(row: dict[str, str | None], context: Context) -> None:
         ignore=[
             "verification_contact",
             "practice_state",
-            "sanction_type",
         ],
     )
 
