@@ -9,7 +9,14 @@ $ git clone https://github.com/opensanctions/opensanctions.git
 $ cd opensanctions
 ```
 
-The steps below assume you're working within a checkout of that repository.
+The steps below assume you're working within a clone of that repository.
+
+## Using Docker
+
+```
+docker compose run --rm app zavod --help
+```
+
 
 ## Dependencies on macOS
 
@@ -54,12 +61,18 @@ $ zavod --help
 
 ## Running a database
 
-Some (actually, most) crawlers in zavod use the cache and some other things that get read from the database.
+Some (actually, most) crawlers in zavod use the cache and some other things that get read from the database. Zavod uses sqlite by default, but once you need concurrent access to the database, use Postgres. Zavod creates the tables automatically.
+
+If you run zavod using docker-compose:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d db
+```
 
 To bring a database up for local development:
 
 ```bash
-docker compose -f ../docker-compose.yml up -d db # Bring up a dev database
+docker compose -f docker-compose.dev.yml up -d db
 # Your probably want to put this in your .envrc
 export ZAVOD_DATABASE_URI=postgresql://postgres:password@localhost:5432/dev
 export NOMENKLATURA_DB_URL=$ZAVOD_DATABASE_URI
