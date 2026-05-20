@@ -20,7 +20,7 @@ def get_csv_url(context: Context) -> str:
     date_pattern = re.compile(
         r'"ano"\s*:\s*"(\d+)",\s*"mes"\s*:\s*"(\d+)",\s*"dia"\s*:\s*"(\d+)"'
     )
-    for script in doc.xpath("//script"):
+    for script in h.xpath_elements(doc, "//script"):
         if script.text:
             match = date_pattern.search(script.text)
             if match:
