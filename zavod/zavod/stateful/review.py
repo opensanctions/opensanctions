@@ -437,6 +437,10 @@ def review_extraction(
                 context.log.debug(
                     "Source value changed. Resetting review.", key=key_slug
                 )
+            review.source_value = source_value.value_string
+            review.source_mime_type = source_value.mime_type
+            review.source_label = source_value.label
+            review.source_url = source_value.url
             review.crawler_version = crawler_version
             review.data_model = data_model
             review.extraction_schema = schema

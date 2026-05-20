@@ -320,6 +320,49 @@ def test_text_source_comparison(testdataset1: Dataset):
     assert not source_value2.matches(review)
 
 
+def test_source_changed_updates_source_fields(testdataset1: Dataset):
+    #   preconditions:
+    #     - there is an existing review
+    #     - the source value has changed
+    #   postconditions:
+    #     - source_value, source_mime_type, source_label, source_url are all
+    #       updated to reflect the new source
+    context1 = Context(testdataset1)
+    source_value1 = TextSourceValue(
+        key_parts="key8", label="label-old", url="http://s/old", text="old text"
+    )
+    review_extraction(
+        context1,
+        crawler_version=1,
+        source_value=source_value1,
+        original_extraction=DummyModel(foo="old"),
+        origin="test data",
+        default_accepted=True,
+    )
+
+    context2 = Context(testdataset1)
+    source_value2 = TextSourceValue(
+        key_parts="key8", label="label-new", url="http://s/new", text="new text"
+    )
+    review_extraction(
+        context2,
+        crawler_version=1,
+        source_value=source_value2,
+        original_extraction=DummyModel(foo="new"),
+        origin="test data",
+    )
+
+    key8 = review_key("key8")
+    row = get_row(context2.conn, key8)
+    assert row is not None
+    assert row["source_value"] == source_value2.value_string
+    assert row["source_mime_type"] == source_value2.mime_type
+    assert row["source_label"] == source_value2.label
+    assert row["source_url"] == source_value2.url
+    context1.close()
+    context2.close()
+
+
 def test_review_key():
     # Returns a 40-char hex SHA1
     assert len(review_key("key1")) == 40
