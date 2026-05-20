@@ -12,7 +12,7 @@ HA_MEMBERS_URI = "/house-of-assembly/currentmembers"
 LC_MEMBERS_URI = "/legislative-council/members"
 
 
-def parse_party(doc: Element) -> str | None:
+def parse_party(doc: Element) -> tuple:
     """
     Search for party pattern and return party and
     electoral position if exists
@@ -29,6 +29,16 @@ def parse_party(doc: Element) -> str | None:
                 return None, member_list[0].strip()
 
 
+def parse_name(url: str) -> str:
+    """
+    Extract name from profile url. The URL slug is
+    the most straight forward way to extract clean name
+    """
+    name_slug = url.split("/")[-1]
+    name_list = name_slug.split("-")
+    return " ".join(name_list).title()
+
+
 def crawl_person(
     context: Context,
     position: Entity,
@@ -43,9 +53,7 @@ def crawl_person(
         cache_days=1,
     )
 
-    # slug is most straight forward way to extract clean name
-    name_slug = profile_url.split("/")[-1]
-    name = " ".join(name_slug.split("-")).title()
+    name = parse_name(profile_url)
     party, jurisdiction = parse_party(doc)
 
     slug = urlparse(profile_url).path.rstrip("/").rsplit("/", 1)[-1]
@@ -64,7 +72,8 @@ def crawl_person(
         categorisation=categorisation,
         propagate_country=True,
     )
-    occupancy.add("constituency", jurisdiction)
+    if jurisdiction is not None:
+        occupancy.add("constituency", jurisdiction)
     if occupancy is not None:
         context.emit(occupancy)
         context.emit(person)
