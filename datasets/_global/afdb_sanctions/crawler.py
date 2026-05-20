@@ -9,9 +9,7 @@ def crawl(context: Context) -> None:
     doc = fetch_html(
         context, context.data_url, tables_xpath, html_source="httpResponseBody"
     )
-    tables = doc.xpath(tables_xpath)
-    assert len(tables) == 1
-    table = tables[0]
+    table = h.xpath_element(doc, tables_xpath)
     for row in h.parse_html_table(table):
         cells = h.cells_to_str(row)
         if not any(cells.values()):  # Skip empty rows
