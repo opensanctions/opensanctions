@@ -42,7 +42,7 @@ def crawl_person(
         unblock_validator=".//h1",
         cache_days=1,
     )
-    h1s = h.xpath_elements(doc, ".//h1")
+
     # slug is most straight forward way to extract clean name
     name_slug = profile_url.split("/")[-1]
     name = " ".join(name_slug.split("-")).title()
