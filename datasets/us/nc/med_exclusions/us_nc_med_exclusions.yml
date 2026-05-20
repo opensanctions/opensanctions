@@ -47,5 +47,7 @@ lookups:
         prop: idNumber
       - match: 1265032319
         value: 1265032320
+      - match: 1740274522
+        value: 1740274521
       - match: N/A
         value: null
