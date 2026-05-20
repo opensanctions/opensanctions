@@ -73,6 +73,7 @@ def crawl_row(context: Context, row: dict[str, _Element]) -> None:
             first_entity = entity
         else:
             link = context.make("UnknownLink")
+            link.id = context.make_id(entity.id, first_entity.id)
             link.add("subject", first_entity)
             link.add("object", entity)
             context.emit(link)
