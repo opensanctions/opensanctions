@@ -1,5 +1,6 @@
 from urllib.parse import urlparse
 
+from lxml import etree
 from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
@@ -12,13 +13,13 @@ HA_MEMBERS_URI = "/house-of-assembly/currentmembers"
 LC_MEMBERS_URI = "/legislative-council/members"
 
 
-def parse_party(doc: Element) -> tuple:
+def parse_party(doc: Element) -> tuple[str | None, str | None]:
     """
     Search for party pattern and return party and
     electoral position if exists
     """
-    for ptag in doc.xpath('//main[@id="main"]//p'):
-        text = ptag.text_content()
+    for ptag in h.xpath_elements(doc, '//main[@id="main"]//p'):
+        text = etree.tostring(ptag, method="text", encoding="unicode")
         if "member for" in text:
             member_list = text.split("member for")
             if len(member_list) == 2:
@@ -27,6 +28,7 @@ def parse_party(doc: Element) -> tuple:
             elif len(member_list) == 1:
                 # only jurisdiction
                 return None, member_list[0].strip()
+    return None, None
 
 
 def parse_name(url: str) -> str:
@@ -72,9 +74,9 @@ def crawl_person(
         categorisation=categorisation,
         propagate_country=True,
     )
-    if jurisdiction is not None:
-        occupancy.add("constituency", jurisdiction)
     if occupancy is not None:
+        if jurisdiction is not None:
+            occupancy.add("constituency", jurisdiction)
         context.emit(occupancy)
         context.emit(person)
 
