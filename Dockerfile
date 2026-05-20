@@ -55,6 +55,7 @@ COPY --from=build /venv /venv
 ENV PATH="/venv/bin:$PATH"
 
 COPY . /opensanctions
+RUN chown -R app:app /opensanctions/datasets
 RUN pip install --no-cache-dir -e /opensanctions/zavod
 WORKDIR /opensanctions
 

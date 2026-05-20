@@ -175,24 +175,9 @@ def crawl_row(context: Context, row: dict[str, Any]) -> None:
     )
 
 
-def crawl(context: Context) -> None:
-    divs_xpath = ".//div[@class='wrapper2011']"
-    doc = zyte_api.fetch_html(
-        context,
-        SOURCE_URL,
-        unblock_validator=divs_xpath,
-        html_source="httpResponseBody",
-        geolocation="jp",
-        absolute_links=True,
-    )
-    content_div = h.xpath_element(doc, divs_xpath)
-    # Check hash of the content part of the page
-    h.assert_dom_hash(content_div, "9416632091a20ef819425d12229e012d0fd4fe20")
-    pdf_xpath = ".//a[contains(@href, '.pdf') and contains(@href, 'export/17_russia/') and contains(@href, 'tokutei')]/@href"
-    pdf_urls = h.xpath_strings(content_div, pdf_xpath, expect_exactly=3)
-
-    # Update local copy of just the content part of the page to diff easily when
-    # there are changes. Commit changes once they're handled.
+def save_versioned_data(
+    context: Context, content_div: html.Element, pdf_urls: list[str]
+) -> None:
     with open(LOCAL_PATH / "page_content.txt", "w") as fh:
         text = html.tostring(
             content_div,
@@ -216,9 +201,33 @@ def crawl(context: Context) -> None:
         with pdfplumber.open(pdf_path) as pdf:
             for page in pdf.pages:
                 pdf_text += page.extract_text()
-        pdf_text_path = LOCAL_PATH / f"{pdf_name}.txt"
+        # Only write to predefined safe paths
+        assert pdf_name in EXPECTED_HASHES, pdf_name
+        txt_name = f"{pdf_name}.txt"
+        pdf_text_path = LOCAL_PATH / txt_name
         with open(pdf_text_path, "w") as fh:
             fh.write(pdf_text)
+
+
+def crawl(context: Context) -> None:
+    divs_xpath = ".//div[@class='wrapper2011']"
+    doc = zyte_api.fetch_html(
+        context,
+        SOURCE_URL,
+        unblock_validator=divs_xpath,
+        html_source="httpResponseBody",
+        geolocation="jp",
+        absolute_links=True,
+    )
+    content_div = h.xpath_element(doc, divs_xpath)
+    # Check hash of the content part of the page
+    h.assert_dom_hash(content_div, "9416632091a20ef819425d12229e012d0fd4fe20")
+    pdf_xpath = ".//a[contains(@href, '.pdf') and contains(@href, 'export/17_russia/') and contains(@href, 'tokutei')]/@href"
+    pdf_urls = h.xpath_strings(content_div, pdf_xpath, expect_exactly=3)
+
+    # Update local copy of just the content part of the
+    # page to diff easily when there are changes. Commit changes once they're handled.
+    save_versioned_data(context, content_div, pdf_urls)
 
     # Crawling the google sheet
     path = context.fetch_resource("source.csv", context.data_url)

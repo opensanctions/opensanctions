@@ -68,6 +68,7 @@ def crawl_fr_notices(context: Context) -> None:
             if "Imposition of Nonproliferation Measures" in doc.get("title")
         )
         url = data.get("next_page_url")
+
     with open(LOCAL_PATH / "fr_notices.csv", "w") as f:
         writer = csv.writer(f)
         writer.writerow(["document_number", "publication_date", "html_url", "pdf_url"])
