@@ -55,3 +55,10 @@ lookups:
         value: male
       - match: F
         value: female
+
+  position:
+    options:
+      - match: Bourgmestre
+        value: Mayor
+      - match: Échevin
+        value: Alderman
