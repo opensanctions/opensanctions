@@ -1,4 +1,4 @@
-title: Luxembourg Bourgmestres and Échevins
+title: Luxembourg Municipal Mayors and Aldermen
 entry_point: crawler.py
 prefix: lu-bourg
 coverage:
@@ -7,15 +7,13 @@ coverage:
 load_statements: true
 ci_test: true
 summary: >-
-  Members of the collège échevinal (bourgmestres and échevins) of Luxembourg
+  Members of the collège échevinal (mayors and aldermen) of Luxembourg
   municipalities since the 2023 communal elections.
 
 description: |
   The dataset lists all bourgmestres (mayors) and échevins (aldermen) of
   Luxembourg's 100 municipalities for the 2023–2029 electoral period, including
   those who have since left office.
-
-  Source: [data.public.lu](https://data.public.lu/en/datasets/college-des-bourgmestre-et-echevins-depuis-les-elections-communales-2023/)
 
 url: https://data.public.lu/en/datasets/college-des-bourgmestre-et-echevins-depuis-les-elections-communales-2023/
 
