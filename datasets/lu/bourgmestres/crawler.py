@@ -3,10 +3,8 @@ import re
 
 from zavod import Context
 from zavod import helpers as h
-from zavod.entity import Entity
-from zavod.stateful.positions import PositionCategorisation, categorise
+from zavod.stateful.positions import categorise
 
-POSITION_LABELS: set[str] = {"Bourgmestre", "Échevin"}
 LANDING_PAGE_URL = (
     "https://data.public.lu/en/datasets/?q=bourgmestre+échevins+élections"
 )
@@ -15,7 +13,6 @@ LANDING_PAGE_URL = (
 def crawl_record(
     context: Context,
     record: dict[str, Any],
-    positions: dict[str, tuple[Entity, PositionCategorisation]],
 ) -> None:
     commune_code = record.pop("COM_CODE")
     commune_label = record.pop("COM_LABEL")
@@ -26,22 +23,20 @@ def crawl_record(
     start_date = record.pop("COAC_START_DATE")
     end_date = record.pop("COAC_END_DATE")
 
-    assert position_label in POSITION_LABELS, f"Unknown position: {position_label!r}"
+    res = context.lookup("position", position_label)
+    assert res is not None, f"Unknown position: {position_label!r}"
+    position_name = res.value
 
-    pos_key = f"{position_label}-{commune_code}"
-    if pos_key not in positions:
-        position = h.make_position(
-            context,
-            name=f"{position_label} de {commune_label}",
-            country="lu",
-            subnational_area=commune_label,
-            lang="fra",
-        )
-        cat = categorise(context, position, is_pep=True)
-        context.emit(position)
-        positions[pos_key] = (position, cat)
-
-    position, cat = positions[pos_key]
+    position = h.make_position(
+        context,
+        name=f"{position_name} of {commune_label}",
+        country="lu",
+        subnational_area=commune_label,
+        lang="fra",
+    )
+    categorisation = categorise(context, position)
+    if not categorisation.is_pep:
+        return
 
     person = context.make("Person")
     person.id = context.make_id(first_name, last_name, commune_code)
@@ -54,12 +49,14 @@ def crawl_record(
         context,
         person,
         position,
-        categorisation=cat,
+        categorisation=categorisation,
+        no_end_implies_current=True,
         start_date=start_date,
         end_date=end_date or None,
         propagate_country=True,
     )
     if occupancy is not None:
+        context.emit(position)
         context.emit(occupancy)
         context.emit(person)
 
@@ -91,6 +88,5 @@ def crawl(context: Context) -> None:
     data = context.fetch_json(context.data_url, cache_days=1)
     assert isinstance(data, list), f"Expected list, got {type(data)}"
 
-    positions: dict[str, tuple[Entity, PositionCategorisation]] = {}
     for record in data:
-        crawl_record(context, record, positions)
+        crawl_record(context, record)
