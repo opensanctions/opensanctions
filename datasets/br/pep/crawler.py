@@ -1,12 +1,11 @@
 import csv
 from typing import Dict, Any
 from zipfile import ZipFile
-from datetime import datetime, timedelta
 
 from zavod import Context
 from zavod import helpers as h
 from zavod.stateful.positions import categorise
-from zavod.extract.zyte_api import fetch_resource
+from zavod.extract.zyte_api import fetch_resource, fetch_html
 
 
 ZIP = "application/x-zip-compressed"
@@ -24,25 +23,14 @@ ZIP = "application/x-zip-compressed"
 
 
 def get_csv_url(context: Context) -> str:
-    """
-    Fetches the CSV URL from the main page.
-    The CSV URL is dynamically generated and changes every day
-    and is created by concatenating the base url
-    (the url in the metadata) with the date in the format YYYYMM (it doesn't include the day).
-
-    The date is in a script tag in the main page.
-
-    :param context: The context object.
-
-    :return: The URL of the CSV file.
-    """
-    for i in range(13):
-        prev = datetime.now() - timedelta(days=i * 28)
-        url = context.data_url + f"/{prev.strftime('%Y%m')}"
-        resp = context.http.head(url, allow_redirects=True)
-        if resp.status_code == 200:
-            return url
-    raise ValueError("Data URL not found")
+    doc = fetch_html(
+        context,
+        context.data_url,
+        unblock_validator="//select[@id='links-meses']",
+        geolocation="BR",
+        absolute_links=True,
+    )
+    return h.xpath_string(doc, "//a[contains(@href, '/download-de-dados/pep/')]/@href")
 
 
 def create_entity(raw_entity: Dict[str, Any], context: Context) -> None:
