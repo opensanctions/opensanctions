@@ -1,4 +1,5 @@
 from typing import Any
+import re
 
 from zavod import Context
 from zavod import helpers as h
@@ -6,6 +7,9 @@ from zavod.entity import Entity
 from zavod.stateful.positions import PositionCategorisation, categorise
 
 POSITION_LABELS: set[str] = {"Bourgmestre", "Échevin"}
+LANDING_PAGE_URL = (
+    "https://data.public.lu/en/datasets/?q=bourgmestre+échevins+élections"
+)
 
 
 def crawl_record(
@@ -43,6 +47,8 @@ def crawl_record(
     person.id = context.make_id(first_name, last_name, commune_code)
     h.apply_name(person, first_name=first_name, last_name=last_name, lang="fra")
     person.add("gender", gender)
+    # citizenship not required: https://guichet.public.lu/fr/citoyens/citoyennete/elections/elections-communales/candidat-elections-communales.html
+    person.add("country", "lu")
 
     occupancy = h.make_occupancy(
         context,
@@ -61,6 +67,27 @@ def crawl_record(
 
 
 def crawl(context: Context) -> None:
+    landing_page = context.fetch_html(
+        LANDING_PAGE_URL, cache_days=1, absolute_links=True
+    )
+    results = h.xpath_elements(
+        landing_page, ".//ul[contains(@class, 'search-results')]/li"
+    )
+    # one dataset is expected:
+    assert len(results) == 1
+
+    # notify in case of new elections
+    text = h.xpath_strings(results[0], ".//a[contains(@href, '/datasets/')]/text()")
+    match = re.search(r"\b(20\d{2})\b", text[0])
+    if match and match.group(1) != "2023":
+        context.log.info(
+            "Expected dataset for 2023 elections, but found different year: %s",
+            match.group(1),
+        )
+    if match is None:
+        context.log.warning("Could not determine election year from dataset title")
+
+    # fetch the data
     data = context.fetch_json(context.data_url, cache_days=1)
     assert isinstance(data, list), f"Expected list, got {type(data)}"
 
