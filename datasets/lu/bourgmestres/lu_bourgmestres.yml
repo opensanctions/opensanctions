@@ -3,7 +3,7 @@ entry_point: crawler.py
 prefix: lu-bourg
 coverage:
   frequency: monthly
-  start: 2026-04-14
+  start: 2026-05-22
 load_statements: true
 ci_test: true
 summary: >-
