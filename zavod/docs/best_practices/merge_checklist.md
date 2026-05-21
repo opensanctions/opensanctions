@@ -1,6 +1,6 @@
 # Checklist when reviewing a crawler
 
-Some things that are easy to forget but critical for new crawlers
+Some things that are easy to forget but critical for new crawlers. Scope and per-attribute completeness are governed by the [data priorities guide](priorities.md) — check the crawler against it before merging.
 
 - Metadata
     - required fields for crawlers that are often forgotten:

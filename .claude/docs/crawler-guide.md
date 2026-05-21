@@ -316,3 +316,7 @@ qsv count data/datasets/xx_foo/statements.pack
 qsv frequency -s prop --limit 30 data/datasets/xx_foo/statements.pack
 qsv search -s prop "^Person:id$" data/datasets/xx_foo/statements.pack | qsv count
 ```
+
+## Before merging
+
+See `zavod/docs/best_practices/merge_checklist.md` for the review criteria the team applies to new crawlers, and `zavod/docs/best_practices/priorities.md` for the Essential / Should / Could / Won't framing that governs what attributes a crawler should extract.

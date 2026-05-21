@@ -232,6 +232,7 @@ You may now want to level up your crawler by looking at
 
 - [helpers](helpers.md) for common tasks,
 - [common patterns](best_practices/patterns.md) for building crawlers,
+- the [data priorities guide](best_practices/priorities.md) for what attributes to scope into the crawler,
 - the [PEPs guide](peps.md) if you're crawling Politically Exposed Persons and their Relatives and Close Associates.
 - the [merge checklist](best_practices/merge_checklist.md) we'll follow before merging a new crawler
 

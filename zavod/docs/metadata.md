@@ -72,7 +72,7 @@ You can find a full overview of available tags [here](https://www.opensanctions.
 
 ### Date formatting
 
-- `dates` - date formatting used by [helpers.apply_date and apply_dates](helpers.md#zavod.helpers.apply_date) but also accessible via the context for use in `helpers.parse_date`.
+- `dates` - date formatting used by [helpers.apply_date and apply_dates](helpers.md#zavod.helpers.apply_date) but also accessible via the context for use in `helpers.parse_date`. See the [date parsing guide](best_practices/dates_meta.md) for usage patterns and worked examples.
   - `formats`: Array of date format strings for parsing dates into partial ISO dates
   - `months`: Map where values like `März` are translated into keys like `"3"` so that it could then be parsed by a format string like `%m`
 
