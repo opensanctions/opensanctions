@@ -1059,3 +1059,7 @@ lookups:
           - Kerdiz Finance et Conseil
           - Marc Peuvrier
           - Anthony Finck
+      - match: "MM. Ytane Mamou et Elie Houri"
+        entities:
+          - Ytane Mamou
+          - Elie Houri
