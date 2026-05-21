@@ -1,7 +1,6 @@
 import csv
 from rigour.mime.types import CSV
 from typing import Dict
-from lxml import etree
 from pathlib import Path
 
 from zavod import Context, helpers as h
@@ -69,9 +68,13 @@ def crawl(context: Context) -> None:
         table_xpath,
     )
     table = h.xpath_element(doc, table_xpath)
-    with open(Path(__file__).parent / "table.html", "w") as fh:
-        fh.write(etree.tostring(table, pretty_print=True, encoding="unicode"))
-    h.assert_dom_hash(table, "2659e7273e07d8abbd9b3d9fcfd3701218d48c81")
+    with open(Path(__file__).parent / "table.csv", "w") as fh:
+        rows = [h.cells_to_str(r) for r in h.parse_html_table(table)]
+        writer = csv.DictWriter(fh, fieldnames=rows[0].keys())
+        writer.writeheader()
+        writer.writerows(rows)
+    # Run locally and check the diff on table.csv to see what changed.
+    h.assert_dom_hash(table, "2659e7273e07d8abbd9b3d9fcfd3701218d48c81", text_only=True)
 
     path = context.fetch_resource("source.csv", context.data_url)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
