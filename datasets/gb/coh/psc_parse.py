@@ -1,5 +1,6 @@
 import csv
 import json
+import re
 from typing import Optional, Generator, Dict, Any
 from zipfile import ZipFile
 from functools import lru_cache
@@ -16,6 +17,20 @@ from zavod import helpers as h
 
 BASE_URL = "http://download.companieshouse.gov.uk/en_output.html"
 PSC_URL = "http://download.companieshouse.gov.uk/en_pscdata.html"
+PUBLIC_BASE = "https://find-and-update.company-information.service.gov.uk"
+
+OWNERSHIP_PREFIXES = (
+    "ownership-of-shares-",
+    "voting-rights-",
+    "right-to-share-surplus-assets-",
+)
+DIRECTORSHIP_PREFIXES = (
+    "right-to-appoint-and-remove-directors",
+    "right-to-appoint-and-remove-members",
+    "significant-influence-or-control",
+)
+CONDITION_5_SUFFIXES = ("-as-trust", "-as-firm")
+PERCENTAGE_RE = re.compile(r"(\d+)-to-(\d+)-percent")
 
 KINDS = {
     "individual-person-with-significant-control": "Person",
@@ -52,6 +67,34 @@ IGNORE_BASE_COLUMNS = [
 def company_id(company_nr: str) -> str:
     nr = company_nr.lower()
     return f"oc-companies-gb-{nr}"
+
+
+def classify_nature(slug: str) -> tuple[str, bool]:
+    """Bucket a PSC nature-of-control slug into Ownership vs Directorship.
+
+    Conditions 1 and 2 (shares, voting rights, LLP surplus-assets share) map
+    to Ownership. Conditions 3 (board appointment), 4 (significant influence)
+    and 5 (any of the above held via a trust or firm) map to Directorship.
+
+    Returns ``(bucket, is_known)``. Unknown slugs default to Directorship but
+    are flagged so the crawler can warn — a new Companies House taxonomy entry
+    is the only way one arrives here.
+    """
+    if slug.endswith(CONDITION_5_SUFFIXES):
+        return "directorship", True
+    if slug.startswith(OWNERSHIP_PREFIXES):
+        return "ownership", True
+    if slug.startswith(DIRECTORSHIP_PREFIXES):
+        return "directorship", True
+    return "directorship", False
+
+
+def percentage_range(slug: str) -> Optional[str]:
+    """Render the share-range encoded in a PSC slug as ``"25–50%"`` etc."""
+    match = PERCENTAGE_RE.search(slug)
+    if match is None:
+        return None
+    return f"{match.group(1)}–{match.group(2)}%"
 
 
 @lru_cache(maxsize=MEMO_MEDIUM)
@@ -262,13 +305,6 @@ def parse_psc_data(context: Context) -> None:
         # if len(ident):
         #     pprint(ident)
         asset_id = company_id(company_nr)
-        link = context.make("Ownership")
-        link.id = context.make_id("psc", company_nr, psc_id)
-        link.add("owner", psc.id)
-        link.add("recordId", psc_id)
-        link.add("asset", asset_id)
-        link.add("startDate", data.pop("notified_on"))
-        link.add("endDate", data.pop("ceased_on", None))
 
         # Generate at least a stub of a company for dissolved companies which
         # aren't in the base data.
@@ -277,9 +313,68 @@ def parse_psc_data(context: Context) -> None:
         asset.add("registrationNumber", company_nr)
         asset.add("jurisdiction", "gb")
 
-        for nature in data.pop("natures_of_control", []):
-            nature = (nature or "").replace("-", " ").capitalize()
-            link.add("role", nature)
+        natures = data.pop("natures_of_control", None) or []
+        notified_on = data.pop("notified_on")
+        ceased_on = data.pop("ceased_on", None)
+        source_url = urljoin(PUBLIC_BASE, url)
+        status = "ceased" if ceased_on else "active"
+
+        roles: dict[str, list[str]] = {"ownership": [], "directorship": []}
+        percentages: list[str] = []
+        unknown_natures: list[str] = []
+        for nature in natures:
+            if nature is None:
+                continue
+            bucket, known = classify_nature(nature)
+            roles[bucket].append(nature.replace("-", " ").capitalize())
+            if bucket == "ownership":
+                pct = percentage_range(nature)
+                if pct is not None:
+                    percentages.append(pct)
+            if not known:
+                unknown_natures.append(nature)
+        if unknown_natures:
+            context.log.warn(
+                "Unknown PSC nature-of-control slug; defaulted to Directorship",
+                natures=unknown_natures,
+                psc_id=psc_id,
+                company_number=company_nr,
+            )
+
+        # Pure-bucket case keeps the legacy link ID. Mixed case keeps it on
+        # Ownership and gives Directorship a distinct suffixed ID.
+        only_one_bucket = sum(1 for r in roles.values() if r) <= 1
+
+        if roles["ownership"] or not natures:
+            link = context.make("Ownership")
+            link.id = context.make_id("psc", company_nr, psc_id)
+            link.add("owner", psc.id)
+            link.add("asset", asset_id)
+            link.add("recordId", psc_id)
+            link.add("role", roles["ownership"])
+            link.add("startDate", notified_on)
+            link.add("endDate", ceased_on)
+            link.add("status", status)
+            link.add("sourceUrl", source_url)
+            link.add("ownershipType", "beneficial")
+            link.add("percentage", percentages)
+            context.emit(link)
+
+        if roles["directorship"]:
+            link = context.make("Directorship")
+            if only_one_bucket:
+                link.id = context.make_id("psc", company_nr, psc_id)
+            else:
+                link.id = context.make_id("psc", company_nr, psc_id, "directorship")
+            link.add("director", psc.id)
+            link.add("organization", asset_id)
+            link.add("recordId", psc_id)
+            link.add("role", roles["directorship"])
+            link.add("startDate", notified_on)
+            link.add("endDate", ceased_on)
+            link.add("status", status)
+            link.add("sourceUrl", source_url)
+            context.emit(link)
 
         if data.pop("is_sanctioned", False):
             psc.add("topics", "sanction")
@@ -292,7 +387,6 @@ def parse_psc_data(context: Context) -> None:
             ],
         )
         context.emit(psc)
-        context.emit(link)
         context.emit(asset)
 
     data_path.unlink()
