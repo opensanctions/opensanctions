@@ -121,14 +121,7 @@ for name in h.multi_split(names, SPLITS):
 
 ## Addresses
 
-When distinct address fields are available, use `h.make_address` to compose it, adding a country code if possible.
-
-Then use `h.copy_address` to add the full address to the entity's `address` property.
-
-    ```python
-    address_ent = h.make_address(context, full=addr, city=city, lang="zhu")
-    h.copy_address(entity, address_ent)
-    ```
+See the [addresses guide](addresses.md) for the full pattern, country handling, and the choice between `copy_address` and `apply_address`.
 
 ## Detect unhandled data
 
@@ -190,25 +183,6 @@ assert position_name != "Socialdemokratiet"
 # Check for Non-None Position Name
 assert position_name is not None, entity.id
 ```
-
-## Generating consistent unique identifiers
-
-Make sure entity IDs are unique within the source. Avoid using only the name of the entity because there might eventually be two persons or two companies with the same name. [It is preferable](https://www.opensanctions.org/docs/identifiers/) to have to deduplicate two Follow the Money entities for the same real world entity, rather than accidentally merge two entities.
-
-Good values to use as identifiers are:
-
-* An ID in the source dataset, e.g. a sanction number, company registration number. These can be turned into a readable ID with the dataset prefix using the [`context.make_slug`][zavod.context.Context.make_slug] function.
-* Some combination of consistent attributes, e.g. a person's name and normalised date of birth in a dataset that holds a relatively small proportion of the population so that duplicates are extremely unlikely. These attributes can be turned into a unique hash describing the entity using the [`context.make_id`][zavod.context.Context.make_id] function.
-* A combination of identifiers for the entities related by another entity, e.g. an
-  owner and a company, in the form `ownership.id = context.make_id(owner.id, "owns", company.id)`
-
-!!! note
-
-    Remember to make sure distinct sanctions, occupancies, positions, relationships, etc get distinct IDs.
-
-!!! note
-
-    Do not reveal personally-identifying information such as names, ID numbers, etc in IDs, e.g. via `context.make_slug`.
 
 ## Capture text in its original language
 

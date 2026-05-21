@@ -172,7 +172,8 @@ def crawl(context):
     # Each entity needs an ID which is unique within the source database, and
     # ideally consistent over time.
     # This is often ideally derived from its ID in the source database,
-    # or a string with the above properties. See Patterns below.
+    # or a string with the above properties.
+    # See the entity ID guide: best_practices/entity_id.md
     entity.id = context.make_id('Joseph Biden')
 
     # Assign some property values:
