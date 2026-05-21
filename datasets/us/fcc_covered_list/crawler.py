@@ -1,6 +1,8 @@
 import csv
 from rigour.mime.types import CSV
 from typing import Dict
+from lxml import etree
+from pathlib import Path
 
 from zavod import Context, helpers as h
 from zavod.extract import zyte_api
@@ -61,8 +63,14 @@ def crawl_item(context: Context, input_dict: Dict[str, str]) -> None:
 def crawl(context: Context) -> None:
     assert context.dataset.url is not None
     table_xpath = './/div[@id="covered-list"]//table'
-    doc = zyte_api.fetch_html(context, context.dataset.url, table_xpath)
+    doc = zyte_api.fetch_html(
+        context,
+        "https://web.archive.org/web/20260514072510/https://www.fcc.gov/supplychain/coveredlist",
+        table_xpath,
+    )
     table = h.xpath_element(doc, table_xpath)
+    with open(Path(__file__).parent / "table.html", "w") as fh:
+        fh.write(etree.tostring(table, pretty_print=True, encoding="unicode"))
     h.assert_dom_hash(table, "2659e7273e07d8abbd9b3d9fcfd3701218d48c81")
 
     path = context.fetch_resource("source.csv", context.data_url)
