@@ -12,7 +12,7 @@ Use the `.yml` extension.
 
 - `title` - As close as possible to an official title for what this dataset contains. If it is a subset of its source data, try to capture that. e.g. `Plural Legislators` - if the Plural portal includes committees but the dataset only captures the legislators. Prefix the dataset's name with the country name as `Country` (and not `Country's`).
 - `entry_point` e.g. `crawler.py:crawl_peps` - the file name, optionally followed by a method name called by the zavod `crawl` command. Defaults to the `crawler.py:crawl` calling an entry point in the dataset directory.
-- `prefix` - The prefix used by entity id helpers, e.g. `gb-coh` or `ofac` - try to make this short but unique across datasets, unless you would like different datasets to intentionally generate overlapping keys.
+- `prefix` - The prefix used by entity id helpers, e.g. `gb-coh` or `ofac` - try to make this short but unique across datasets, unless you would like different datasets to intentionally generate overlapping keys. See the [entity ID guide](best_practices/entity_id.md) for the shape and stability rules that apply to IDs.
 - `summary` - Capture what a user of the dataset needs to know to decide if it's what they're looking for in a single clear concise line. This is used in search results.
 - `description` - This can be one to three paragraphs of text. A more complete description of the dataset, perhaps with a bit more detail about what it includes, what it excludes, and how it is kept up to date if it is not from an official publisher.
 - `url` - the home page or most authoritative place where someone can read about this particular dataset at its source. E.g If a source publishes 5 different datasets, try to link to the page describing the data actually contained in this dataset.
@@ -72,7 +72,7 @@ You can find a full overview of available tags [here](https://www.opensanctions.
 
 ### Date formatting
 
-- `dates` - date formatting used by [helpers.apply_date and apply_dates](helpers.md#zavod.helpers.apply_date) but also accessible via the context for use in `helpers.parse_date`.
+- `dates` - date formatting used by [helpers.apply_date and apply_dates](helpers.md#zavod.helpers.apply_date) but also accessible via the context for use in `helpers.parse_date`. See the [date parsing guide](best_practices/dates_meta.md) for usage patterns and worked examples.
   - `formats`: Array of date format strings for parsing dates into partial ISO dates
   - `months`: Map where values like `März` are translated into keys like `"3"` so that it could then be parsed by a format string like `%m`
 

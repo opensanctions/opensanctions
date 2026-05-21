@@ -117,17 +117,16 @@ bundles first. If the source requires JS rendering or anti-bot protection that p
 
 ```python
 entity = context.make("Person")
-entity.id = context.make_slug("person", row["id"])   # or context.make_id(...)
+entity.id = context.make_slug(row["id"])  # or make_slug("person", row["id"]) if the source reuses IDs across entity types
 entity.add("name", row["name"])
 h.apply_date(entity, "birthDate", row["dob"])
 context.emit(entity)
 ```
 
 - `entity.add()` skips `None` and empty strings — never guard with `if value:`.
-- `make_slug` for human-readable IDs from source identifiers.
-  `make_id` for hashed IDs from multiple fields.
-- **Never put PII into `make_slug`** — use source opaque IDs or `make_id`.
-- **Never change entity IDs** of existing crawlers without explicit agreement.
+- See `zavod/docs/best_practices/entity_id.md` for the ID design rules; the two hard rules to remember:
+    - **Never put PII into `make_slug`.**
+    - **Never change entity IDs** of existing crawlers without team coordination.
 - **Never emit** an entity without setting `.id`.
 
 ### Audit and fail fast
@@ -202,6 +201,8 @@ h.apply_dates(entity, "birthDate", [date1, date2])
 addr = h.make_address(context, street=..., city=..., country=...)
 h.copy_address(entity, addr)
 ```
+
+See `zavod/docs/best_practices/addresses.md` for the full pattern and the choice between `copy_address` (default) and `apply_address` (legacy).
 
 ### HTML/XML parsing
 
@@ -315,3 +316,7 @@ qsv count data/datasets/xx_foo/statements.pack
 qsv frequency -s prop --limit 30 data/datasets/xx_foo/statements.pack
 qsv search -s prop "^Person:id$" data/datasets/xx_foo/statements.pack | qsv count
 ```
+
+## Before merging
+
+See `zavod/docs/best_practices/merge_checklist.md` for the review criteria the team applies to new crawlers, and `zavod/docs/best_practices/priorities.md` for the Essential / Should / Could / Won't framing that governs what attributes a crawler should extract.

@@ -1,6 +1,6 @@
 # Checklist when reviewing a crawler
 
-Some things that are easy to forget but critical for new crawlers
+Some things that are easy to forget but critical for new crawlers. Scope and per-attribute completeness are governed by the [data priorities guide](priorities.md) — check the crawler against it before merging.
 
 - Metadata
     - required fields for crawlers that are often forgotten:
@@ -20,6 +20,6 @@ Some things that are easy to forget but critical for new crawlers
     - It emits as many entities as are available at the source
     - When first added, it doesn't emit warnings or errors (except transient, e.g. network timeout/server error that can be expected to go away tomorrow)
         - **note:** code designed to warn when there are issues with the data if something changes later is very welcome!
-    - all IDs are created via `Context.make_slug` or `Context.make_id` (it enforces validity)
+    - all IDs are created via `Context.make_slug` or `Context.make_id` (it enforces validity) and follow the [entity ID guide](entity_id.md)
       - QIDs validated by is_qid are an exception
     - all Persons have a `name` property. Add first and last name via `helpers.apply_name`.
