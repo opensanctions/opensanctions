@@ -438,6 +438,8 @@ lookups:
         value: ua
       - match: TRINITE-ET-TOBAGO
         value: tt
+      - match: SAINT-CHRISTOPHE-ET-NIEVES
+        value: kn
 
   type.name:
     options:
