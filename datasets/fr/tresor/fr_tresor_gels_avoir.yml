@@ -1249,6 +1249,11 @@ lookups:
           country:
             - ru
             - bz
+      - match: "Type de navire: bateau-citerne, pétrolier"
+        props:
+          type:
+            - bateau-citerne
+            - pétrolier
 
   ####################################################################################################
   ####################################################################################################
@@ -6423,3 +6428,5 @@ lookups:
         addresses:
           - "S1500, Jebel Ali Freezone, Dubaï, Émirats arabes unis"
           - "Jebel Ali Free Zone South, Dubaï, Jebel Ali 61354, AE, Émirats arabes unis"
+      - match: "Principal lieu d'activité: RPDC, République populaire de Chine"
+        jurisdiction: cn
