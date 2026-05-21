@@ -179,6 +179,14 @@ def crawl(context: Context) -> None:
         entity = context.make(schema)
         entity.id = entity_id
 
+        # Basically if the name is something like "Pete's sport and kickball",
+        # run the crawler, unzip source.zip, check for rows where the same name can be
+        # constructed from the various name columns, and check if the Classification
+        # column differs for two rows that would generate the same id. Choose the
+        # most appropriate schema and map the id to that schema in lookups.
+        # Often a company is under both Firm and Special Designated Entity.
+        # Prefer putting a sole trader like "John Smith d.b.a. John's business ltd"
+        # under Company.
         if (
             not override_schema
             and entity.id in schemata
