@@ -27,7 +27,7 @@ publisher:
   official: true
 
 data:
-  url: https://download.data.public.lu/resources/college-des-bourgmestre-et-echevins-depuis-les-elections-communales-2023/20260401-082119/collegeechevinal-periode2023-2029.json
+  url: https://data.public.lu/en/datasets/college-des-bourgmestre-et-echevins-depuis-les-elections-communales-2023/
   format: JSON
   lang: fra
 

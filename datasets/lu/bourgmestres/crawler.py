@@ -1,13 +1,10 @@
 from typing import Any
-import re
 
 from zavod import Context
 from zavod import helpers as h
 from zavod.stateful.positions import categorise
 
-LANDING_PAGE_URL = (
-    "https://data.public.lu/en/datasets/?q=bourgmestre+échevins+élections"
-)
+DATASETS_QUERY_URL = "https://data.public.lu/api/1/datasets/?lang=en&q=bourgmestre"
 
 
 def crawl_record(
@@ -64,28 +61,34 @@ def crawl_record(
 
 
 def crawl(context: Context) -> None:
-    landing_page = context.fetch_html(
-        LANDING_PAGE_URL, cache_days=1, absolute_links=True
-    )
-    results = h.xpath_elements(
-        landing_page, ".//ul[contains(@class, 'search-results')]/li"
-    )
-    # one dataset is expected:
-    assert len(results) == 1
+    response = context.fetch_json(DATASETS_QUERY_URL, cache_days=1)
+    assert isinstance(response, dict)
 
-    # notify in case of new elections
-    text = h.xpath_strings(results[0], ".//a[contains(@href, '/datasets/')]/text()")
-    match = re.search(r"\b(20\d{2})\b", text[0])
-    if match and match.group(1) != "2023":
-        context.log.info(
-            "Expected dataset for 2023 elections, but found different year: %s",
-            match.group(1),
+    # If there is more than one dataset for our search for "bourgmestre", a new election may have happened.
+    total = response["total"]
+    if total != 1:
+        context.log.warning(
+            "Expected exactly one dataset, found %d — a new election may have happened",
+            total,
         )
-    if match is None:
-        context.log.warning("Could not determine election year from dataset title")
+        raise
+    dataset = response["data"][0]
 
-    # fetch the data
-    data = context.fetch_json(context.data_url, cache_days=1)
+    # If the dataset page URL has changed, something changed, we want to bail
+    if dataset["page"] != context.data_url:
+        context.log.error(
+            "Dataset page URL has changed — a new election may have happened: %s",
+            dataset["page"],
+        )
+        raise
+
+    json_resource = next(
+        (r for r in dataset["resources"] if r["format"] == "json"),
+        None,
+    )
+    assert json_resource is not None, "No JSON resource found in dataset"
+
+    data = context.fetch_json(json_resource["url"], cache_days=1)
     assert isinstance(data, list), f"Expected list, got {type(data)}"
 
     for record in data:
