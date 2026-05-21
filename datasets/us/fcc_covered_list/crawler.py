@@ -62,11 +62,7 @@ def crawl_item(context: Context, input_dict: Dict[str, str]) -> None:
 def crawl(context: Context) -> None:
     assert context.dataset.url is not None
     table_xpath = './/div[@id="covered-list"]//table'
-    doc = zyte_api.fetch_html(
-        context,
-        "https://web.archive.org/web/20260514072510/https://www.fcc.gov/supplychain/coveredlist",
-        table_xpath,
-    )
+    doc = zyte_api.fetch_html(context, context.dataset.url, table_xpath)
     table = h.xpath_element(doc, table_xpath)
     with open(Path(__file__).parent / "table.csv", "w") as fh:
         rows = [h.cells_to_str(r) for r in h.parse_html_table(table)]
@@ -74,7 +70,7 @@ def crawl(context: Context) -> None:
         writer.writeheader()
         writer.writerows(rows)
     # Run locally and check the diff on table.csv to see what changed.
-    h.assert_dom_hash(table, "2659e7273e07d8abbd9b3d9fcfd3701218d48c81", text_only=True)
+    h.assert_dom_hash(table, "097ab828e6d4b6b8df8e25935d0bf08b6aa4cf24", text_only=True)
 
     path = context.fetch_resource("source.csv", context.data_url)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
