@@ -86,7 +86,6 @@ def crawl_row(context: Context, row: Dict[str, str | None]) -> None:
 
     # A probe entity is needed to call h.is_name_irregular, which consults
     # the dataset's names spec (reject_chars, reject_strings, contains_split_phrase).
-    # It is reused as the emitted entity for single-entity rows.
     base_entity = context.make("LegalEntity")
     base_entity.id = context.make_id(full_name, country)
 
@@ -118,8 +117,6 @@ def crawl_row(context: Context, row: Dict[str, str | None]) -> None:
             original_extraction=result,
             origin=LLM_MODEL_VERSION,
         )
-        # if the review is accepted return entities
-        # otherwise return
         if review.accepted:
             entities_data = review.extracted_data.entities
         else:
