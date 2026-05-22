@@ -1,6 +1,6 @@
 import re
 import json
-from typing import Any, Dict
+from typing import Any
 from rigour.mime.types import JSON
 
 from zavod import Context
@@ -20,7 +20,7 @@ IGNORE_COLUMNS = [
 ]
 
 
-def parse_result(context: Context, row: Dict[str, Any]):
+def parse_result(context: Context, row: dict[str, Any]) -> None:
     name_en = row.pop("name_en")
     result = context.lookup("censored", name_en)
     if result is not None:
@@ -65,7 +65,7 @@ def parse_result(context: Context, row: Dict[str, Any]):
     context.audit_data(row, ignore=IGNORE_COLUMNS)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     path = context.fetch_resource("source.json", context.data_url)
     context.export_resource(path, JSON, title=context.SOURCE_TITLE)
     with open(path, "r") as file:

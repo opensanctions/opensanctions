@@ -1,11 +1,11 @@
 import os
 import csv
-from typing import Dict, Set, Any, Optional, List
+from typing import Any, Callable
 from normality import squash_spaces
 from rigour.names import replace_org_types_display
 from followthemoney.types import registry
 
-from zavod import Context, Entity
+from zavod import Context
 from zavod import helpers as h
 from zavod.shed.internal_data import fetch_internal_data, list_internal_data
 
@@ -13,7 +13,7 @@ LOCAL_BUCKET_PATH = "/Users/leon/internal-data/"
 PROCESSED_EGRUL_PREFIX = "ru_egrul/processed_2026-03-07/"
 
 
-def substitute_abbreviations(name: Optional[str]) -> Optional[str]:
+def substitute_abbreviations(name: str | None) -> str | None:
     """
     Substitute organisation type in the name with its abbreviation
     using the compiled regex patterns.
@@ -31,7 +31,7 @@ def substitute_abbreviations(name: Optional[str]) -> Optional[str]:
     return replace_org_types_display(name)
 
 
-def emit_person(context: Context, row: dict[str, Any]) -> Entity:
+def emit_person(context: Context, row: dict[str, Any]) -> None:
     entity = context.make("Person")
     entity.id = row["id"]
     h.apply_name(
@@ -46,7 +46,7 @@ def emit_person(context: Context, row: dict[str, Any]) -> Entity:
     context.emit(entity)
 
 
-def parse_name(name: Optional[str]) -> List[str]:
+def parse_name(name: str | None) -> list[str]:
     """
     A simple rule-based parser for names, which can contain aliases in parentheses.
     Args:
@@ -56,7 +56,7 @@ def parse_name(name: Optional[str]) -> List[str]:
     """
     if name is None:
         return []
-    names: List[str] = []
+    names: list[str] = []
     if name.endswith(")"):
         parts = name.rsplit("(", 1)
         if len(parts) == 2:
@@ -101,7 +101,7 @@ def emit_legal_entity(
     context.emit(entity)
 
 
-def emit_ownership(context: Context, row: Dict[str, Any]) -> None:
+def emit_ownership(context: Context, row: dict[str, Any]) -> None:
     entity = context.make("Ownership")
 
     entity.id = row["id"]
@@ -140,7 +140,7 @@ def emit_succession(context: Context, row: dict[str, Any]) -> None:
     context.emit(entity)
 
 
-def list_csv_in_internal_bucket(prefix: str) -> Set[str]:
+def list_csv_in_internal_bucket(prefix: str) -> set[str]:
     # For debug: use local paths
     # from pathlib import Path
     # archives = [
@@ -158,7 +158,7 @@ def list_csv_in_internal_bucket(prefix: str) -> Set[str]:
     )
 
 
-def emit_csv(context: Context, emit_fn, blob_name: str) -> None:
+def emit_csv(context: Context, emit_fn: Callable[..., None], blob_name: str) -> None:
     # For debug: just use a local path
     # local_path = blob_name
     local_path = context.get_resource_path(blob_name)
@@ -172,7 +172,7 @@ def emit_csv(context: Context, emit_fn, blob_name: str) -> None:
 
 
 def crawl(context: Context) -> None:
-    file_prefix_to_emit_fn = [
+    file_prefix_to_emit_fn: list[tuple[str, Callable[..., None]]] = [
         ("persons", emit_person),
         ("legalentities", emit_legal_entity),
         ("ownerships", emit_ownership),
