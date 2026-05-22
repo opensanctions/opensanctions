@@ -31,12 +31,14 @@ def crawl_entity(context: Context, data: Dict[str, Any]) -> None:
     entity.id = context.make_id(name_raw, address, country)
     entity.add("name", RE_NAME_SPLIT.split(name_raw))
     subtitle = data.pop("subtitle", "")
+    original = h.Names(name=name_raw, alias=subtitle)
     if subtitle:
         res = context.lookup("subtitle", subtitle, warn_unmatched=True)
         if res:
             entity.add("alias", res.value)
             for alias in res.values:
                 entity.add("alias", alias)
+    h.review_names(context, entity, original=original, llm_cleaning=True)
     entity.add("address", address.split("$"))
     entity.add("country", country)
 
