@@ -1,7 +1,6 @@
 import csv
 import json
 import re
-import yaml
 from pathlib import Path
 from typing import Optional, Generator, Dict, Any
 from zipfile import ZipFile
@@ -21,8 +20,10 @@ BASE_URL = "http://download.companieshouse.gov.uk/en_output.html"
 PSC_URL = "http://download.companieshouse.gov.uk/en_pscdata.html"
 PUBLIC_BASE = "https://find-and-update.company-information.service.gov.uk"
 
-# Vendored from https://github.com/companieshouse/api-enumerations/blob/master/psc_descriptions.yml
-PSC_DESCRIPTIONS_PATH = Path(__file__).parent / "psc_descriptions.yml"
+# Snapshot of https://github.com/companieshouse/api-enumerations/blob/master/psc_descriptions.yml,
+# converted to JSON by `update_psc_descriptions.py`. JSON so that CI's dataset
+# discovery does not try to load this data file as a DatasetModel.
+PSC_DESCRIPTIONS_PATH = Path(__file__).parent / "psc_descriptions.json"
 
 # Condition 5 of the UK PSC regime: the person controls a trust/firm whose
 # trustees/members hold the underlying ownership or rights. Any slug containing
@@ -84,7 +85,7 @@ def company_id(company_nr: str) -> str:
 def _psc_descriptions() -> dict[str, dict[str, str]]:
     """Load the vendored Companies House PSC nature-of-control enumeration."""
     with open(PSC_DESCRIPTIONS_PATH, "r") as fh:
-        return yaml.safe_load(fh)
+        return json.load(fh)
 
 
 def psc_short_description(slug: str) -> Optional[str]:
