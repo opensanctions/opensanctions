@@ -180,6 +180,7 @@ lookups:
           - IRAN-TRA
           - ISA
           - IRGC
+          - "[IRGC]"
           - IFSR
         value: US-IRAN
       - match: BURMA-EO14014
@@ -465,6 +466,7 @@ lookups:
           - "PEESA Information:"
           - "PAIPA Section 2 Information:"
           - "Additional Sanctions Information -"
+          - "Additional Program Tags -"
           - "Secondary sanctions risk:"
           - "Transactions Prohibited For Persons Owned or Controlled By U.S. Financial Institutions:"
           - Effective Date (CMIC)

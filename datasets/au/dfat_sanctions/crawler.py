@@ -151,7 +151,7 @@ def parse_reference(
                 else None
             ),
         )
-        country = h.multi_split(row.pop("citizenship"), [","])
+        country = h.multi_split(row.pop("citizenship"), [";"])
         if entity.schema.is_a("Person"):
             entity.add("citizenship", country)
         else:

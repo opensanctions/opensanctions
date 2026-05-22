@@ -6296,6 +6296,13 @@ lookups:
       - match: "Identifiant interne Cedar Rose: AEC221966655"
         props:
           idNumber: AEC221966655
+      - match: "Principal lieu d'activité: RPDC, République populaire de Chine"
+        jurisdiction: cn
+  # =====================================
+  #
+  #  ADDRESSES
+  #
+  # =====================================
   addresses:
     # Sometimes we can split on ; but sometimes it's just part of the address.
     options:
@@ -6428,5 +6435,3 @@ lookups:
         addresses:
           - "S1500, Jebel Ali Freezone, Dubaï, Émirats arabes unis"
           - "Jebel Ali Free Zone South, Dubaï, Jebel Ali 61354, AE, Émirats arabes unis"
-      - match: "Principal lieu d'activité: RPDC, République populaire de Chine"
-        jurisdiction: cn
