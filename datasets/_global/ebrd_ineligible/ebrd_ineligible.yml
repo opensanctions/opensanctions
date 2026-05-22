@@ -43,6 +43,16 @@ http:
   retry_methods: [POST]
 dates:
   formats: ["%d-%m-%Y"]
+names:
+  schema_rules:
+    LegalEntity:
+      reject_strings:
+        - "also doing business under"
+        - "also known as"
+        - " or "
+        - " and "
+        - successor
+        - assign
 lookups:
   subtitle:
     options:

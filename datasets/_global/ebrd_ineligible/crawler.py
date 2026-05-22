@@ -29,31 +29,16 @@ def crawl_entity(context: Context, data: Dict[str, Any]) -> None:
     country = collapse_spaces(data.pop("nationality"))
     entity = context.make("LegalEntity")
     entity.id = context.make_id(name_raw, address, country)
-    names = RE_NAME_SPLIT.split(name_raw)
-    entity.add("name", names)
+    entity.add("name", RE_NAME_SPLIT.split(name_raw))
     subtitle = data.pop("subtitle", "")
-    original = h.Names(name=name_raw)
-    suggested = h.Names()
-    for name in names:
-        suggested.add("name", name)
+    original = h.Names(name=name_raw, alias=subtitle)
     if subtitle:
-        original.add("alias", subtitle)
         res = context.lookup("subtitle", subtitle, warn_unmatched=True)
         if res:
             entity.add("alias", res.value)
-            suggested.add("alias", res.value)
             for alias in res.values:
                 entity.add("alias", alias)
-                suggested.add("alias", alias)
-    is_irregular, suggested = h.check_names_regularity(entity, suggested)
-    h.review_names(
-        context,
-        entity,
-        original=original,
-        suggested=suggested,
-        is_irregular=is_irregular,
-        default_accepted=True,
-    )
+    h.review_names(context, entity, original=original, llm_cleaning=True)
     entity.add("address", address.split("$"))
     entity.add("country", country)
 
