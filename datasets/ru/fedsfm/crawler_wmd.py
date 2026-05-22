@@ -12,23 +12,22 @@ SPLITS = ["%s)" % c for c in string.ascii_lowercase]
 SPLITS = SPLITS + ["; ", " и "]
 
 
-def letter_split(text):
+def letter_split(text: str | None) -> list[str]:
     return h.multi_split(text, SPLITS)
 
 
-def maybe_rsplit(text, splitter):
+def maybe_rsplit(text: str | None, splitter: str) -> tuple[str | None, str | None]:
+    # Returns (text_before_splitter, text_after_splitter)
     if text is None:
         return None, None
     if splitter not in text:
         return text, None
     text, remain = text.rsplit(splitter, 1)
-    remain = remain.strip().replace("д/о", "")
-    if not len(remain):
-        remain = None
-    return text, remain
+    stripped = remain.strip().replace("д/о", "")
+    return text, stripped if stripped else None
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     path = context.fetch_resource("source.html", context.data_url)
     context.export_resource(path, HTML, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
@@ -81,13 +80,16 @@ def crawl(context: Context):
         body, listing_date = maybe_rsplit(body, "Дата внесения в перечень:")
         body, addresses = maybe_rsplit(body, "Адрес:")
         for address in letter_split(addresses):
-            country = address
-            if ", " in country:
-                country = address.rsplit(", ", 1)
-            code = registry.country.clean(country, fuzzy=True)
-            obj = h.make_address(context, full=address, country_code=code)
-            h.apply_address(context, entity, obj)
-            entity.add("country", code)
+            if ", " in address:
+                countries = address.rsplit(", ", 1)
+            else:
+                countries = [address]
+
+            for country in countries:
+                code = registry.country.clean(country, fuzzy=True)
+                obj = h.make_address(context, full=address, country_code=code)
+                h.apply_address(context, entity, obj)
+                entity.add("country", code)
         body, national_ids = maybe_rsplit(body, "Национальный идентификационный номер:")
         for national_id in letter_split(national_ids):
             entity.add_cast("LegalEntity", "idNumber", national_id)
@@ -96,11 +98,11 @@ def crawl(context: Context):
             entity.add_cast("Person", "passportNumber", passport_no)
         body, citizenship = maybe_rsplit(body, "Гражданство:")
         entity.add_cast("Person", "nationality", citizenship)
-        aka = "На основании менее достоверных источников также известен как:"
-        body, aka = maybe_rsplit(body, aka)
+        aka_key = "На основании менее достоверных источников также известен как:"
+        body, aka = maybe_rsplit(body, aka_key)
         entity.add("alias", letter_split(aka))
-        strong_aka = "На основании достоверных источников также известен как:"
-        body, strong_aka = maybe_rsplit(body, strong_aka)
+        strong_aka_key = "На основании достоверных источников также известен как:"
+        body, strong_aka = maybe_rsplit(body, strong_aka_key)
         entity.add("alias", letter_split(strong_aka))
         body, rik_no = maybe_rsplit(body, "Р.И.К.:")
 
@@ -121,12 +123,15 @@ def crawl(context: Context):
         body, aliases = maybe_rsplit(body, "Вымышленные названия:")
         entity.add("alias", letter_split(aliases))
 
+        assert body is not None
         names = body.split(", ")
         entity.add("name", names)
         # context.inspect(names)
 
         if entity.schema.name == "Thing":
-            entity.schema = model.get("LegalEntity")
+            schema = model.get("LegalEntity")
+            assert schema is not None
+            entity.schema = schema
 
         context.emit(entity)
         context.emit(sanction)
