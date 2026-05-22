@@ -2,21 +2,20 @@ import json
 import re
 from typing import Dict
 
-from pydantic import BaseModel
-from pydantic import JsonValue
+from pydantic import BaseModel, JsonValue
 from rigour.names import contains_split_phrase
 
 from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
 from zavod.extract.llm import run_typed_text_prompt
-from zavod.extract.names.clean import LLM_MODEL_VERSION
 from zavod.stateful.review import (
     JSONSourceValue,
     review_extraction,
     assert_all_accepted,
 )
 
+LLM_MODEL_VERSION = "gpt-5.4"
 EXTRACT_PROMPT = """Extract structured entity data from an entry from a list
 of debarments from a development bank.
 
@@ -44,7 +43,7 @@ Rules:
   put them only in the relevant identifier field.
 """
 
-PATTERN_IRREGULAR = r"[;()\\:]|Reg\b|\bNo\b|Registration|Register|Number|operating|also|\baka\b|CNPJ|known"
+PATTERN_IRREGULAR = r"[;()\\/:]|Reg\b|\bNo\b|Registration|Register|Number|operating|also|\baka\b|CNPJ|known"
 REGEX_IRREGULAR = re.compile(PATTERN_IRREGULAR, re.IGNORECASE)
 REGEX_INTERNAL_URL = re.compile(
     r"http://([\w-]+\.)+azurecontainerapps.io:80/published-list"
