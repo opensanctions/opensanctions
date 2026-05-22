@@ -2327,6 +2327,64 @@ config:
         topics:
           - gov.legislative
 
+    # Australian local government politicians
+    - category: New_South_Wales_local_councillors
+      topic: role.pep
+      country: au
+      position:
+        name: Local Councillor in New South Wales
+        country: au
+        topics:
+          - gov.muni
+    - category: Northern_Territory_local_councillors
+      topic: role.pep
+      country: au
+      position:
+        name: Local Councillor in the Northern Territory
+        country: au
+        topics:
+          - gov.muni
+    - category: Victoria_(state)_local_councillors
+      topic: role.pep
+      country: au
+      position:
+        name: Local Councillor in Victoria
+        country: au
+        topics:
+          - gov.muni
+    - category: Queensland_local_councillors
+      topic: role.pep
+      country: au
+      position:
+        name: Local Councillor in Queensland
+        country: au
+        topics:
+          - gov.muni
+    - category: Western_Australian_local_councillors
+      topic: role.pep
+      country: au
+      position:
+        name: Local Councillor in Western Australia
+        country: au
+        topics:
+          - gov.muni
+    - category: South_Australian_local_councillors
+      topic: role.pep
+      country: au
+      position:
+        name: Local Councillor in South Australia
+        country: au
+        topics:
+          - gov.muni
+    - category: Tasmanian_local_councillors
+      topic: role.pep
+      country: au
+      position:
+        name: Local Councillor in Tasmania
+        country: au
+        topics:
+          - gov.muni
+
     - category: Governors-general_of_New_Zealand
       topic: role.pep
       country: nz
