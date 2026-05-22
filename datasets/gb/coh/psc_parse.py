@@ -1,6 +1,8 @@
 import csv
 import json
 import re
+import yaml
+from pathlib import Path
 from typing import Optional, Generator, Dict, Any
 from zipfile import ZipFile
 from functools import lru_cache
@@ -19,17 +21,26 @@ BASE_URL = "http://download.companieshouse.gov.uk/en_output.html"
 PSC_URL = "http://download.companieshouse.gov.uk/en_pscdata.html"
 PUBLIC_BASE = "https://find-and-update.company-information.service.gov.uk"
 
+# Vendored from https://github.com/companieshouse/api-enumerations/blob/master/psc_descriptions.yml
+PSC_DESCRIPTIONS_PATH = Path(__file__).parent / "psc_descriptions.yml"
+
+# Condition 5 of the UK PSC regime: the person controls a trust/firm whose
+# trustees/members hold the underlying ownership or rights. Any slug containing
+# one of these markers describes a mediated relationship — control over an
+# intermediary — so it maps to Directorship regardless of what the intermediary
+# itself holds. "as-control-over-" is the Register of Overseas Entities variant.
+CONDITION_5_MARKERS = ("-as-trust", "-as-firm", "-as-control-over-")
 OWNERSHIP_PREFIXES = (
     "ownership-of-shares-",
     "voting-rights-",
     "right-to-share-surplus-assets-",
+    "part-right-to-share-surplus-assets-",
+    "registered-owner-as-nominee-",
 )
 DIRECTORSHIP_PREFIXES = (
-    "right-to-appoint-and-remove-directors",
-    "right-to-appoint-and-remove-members",
+    "right-to-appoint-and-remove-",
     "significant-influence-or-control",
 )
-CONDITION_5_SUFFIXES = ("-as-trust", "-as-firm")
 PERCENTAGE_RE = re.compile(r"(\d+)-to-(\d+)-percent")
 
 KINDS = {
@@ -69,24 +80,45 @@ def company_id(company_nr: str) -> str:
     return f"oc-companies-gb-{nr}"
 
 
+@lru_cache(maxsize=1)
+def _psc_descriptions() -> dict[str, dict[str, str]]:
+    """Load the vendored Companies House PSC nature-of-control enumeration."""
+    with open(PSC_DESCRIPTIONS_PATH, "r") as fh:
+        return yaml.safe_load(fh)
+
+
+def psc_short_description(slug: str) -> Optional[str]:
+    """Return the Companies House human-readable label for a PSC nature slug.
+
+    Used as the ``role`` text on emitted Ownership/Directorship links so
+    consumers see CH's wording (``"Ownership of shares – More than 25% but
+    not more than 50%"``) rather than a slug-derived string.
+    """
+    return _psc_descriptions().get("short_description", {}).get(slug)
+
+
 def classify_nature(slug: str) -> tuple[str, bool]:
     """Bucket a PSC nature-of-control slug into Ownership vs Directorship.
 
-    Conditions 1 and 2 (shares, voting rights, LLP surplus-assets share) map
-    to Ownership. Conditions 3 (board appointment), 4 (significant influence)
-    and 5 (any of the above held via a trust or firm) map to Directorship.
+    Conditions 1–2 (direct holdings of shares, voting rights, LLP/partnership
+    surplus-asset shares) and the Register of Overseas Entities nominee
+    statements map to Ownership. Conditions 3 (board/member appointment),
+    4 (significant influence) and 5 (any of the above held via a trust or
+    firm intermediary) map to Directorship — the relationship is exercise of
+    control rather than direct holding.
 
-    Returns ``(bucket, is_known)``. Unknown slugs default to Directorship but
-    are flagged so the crawler can warn — a new Companies House taxonomy entry
-    is the only way one arrives here.
+    Returns ``(bucket, is_known)``. Unknown slugs default to Ownership: it is
+    the dominant case in the corpus, and a wrong Ownership claim is a less
+    semantically loaded assertion than a wrong Directorship claim. Arrival
+    here means CH added a slug not in the vendored ``psc_descriptions.yml``.
     """
-    if slug.endswith(CONDITION_5_SUFFIXES):
+    if any(marker in slug for marker in CONDITION_5_MARKERS):
         return "directorship", True
     if slug.startswith(OWNERSHIP_PREFIXES):
         return "ownership", True
     if slug.startswith(DIRECTORSHIP_PREFIXES):
         return "directorship", True
-    return "directorship", False
+    return "ownership", False
 
 
 def percentage_range(slug: str) -> Optional[str]:
@@ -326,7 +358,10 @@ def parse_psc_data(context: Context) -> None:
             if nature is None:
                 continue
             bucket, known = classify_nature(nature)
-            roles[bucket].append(nature.replace("-", " ").capitalize())
+            label = psc_short_description(nature)
+            if label is None:
+                label = nature.replace("-", " ").capitalize()
+            roles[bucket].append(label)
             if bucket == "ownership":
                 pct = percentage_range(nature)
                 if pct is not None:
@@ -335,7 +370,7 @@ def parse_psc_data(context: Context) -> None:
                 unknown_natures.append(nature)
         if unknown_natures:
             context.log.warn(
-                "Unknown PSC nature-of-control slug; defaulted to Directorship",
+                "Unknown PSC nature-of-control slug; defaulted to Ownership",
                 natures=unknown_natures,
                 psc_id=psc_id,
                 company_number=company_nr,
