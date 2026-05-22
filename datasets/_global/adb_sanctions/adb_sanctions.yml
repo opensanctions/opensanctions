@@ -55,22 +55,6 @@ assertions:
     schema_entities:
       LegalEntity: 1800
 
-names:
-  schema_rules:
-    LegalEntity:
-      # "(" appears in virtually every complex name in this dataset: Chinese
-      # transliterations, parenthetical aliases, and embedded registration
-      # numbers all use it. Flagging any name containing "(" as irregular
-      # routes it to LLM extraction.
-      reject_chars: "("
-      # The phrases below are not matched by rigour's contains_split_phrase
-      # and so must be listed explicitly. All other original split indicators
-      # ("also known as", "formerly", "f/k/a", etc.) are already covered by
-      # contains_split_phrase and do not need to be repeated here.
-      reject_strings:
-        - "currently known as"
-        - "(aka"
-
 dates:
   formats: ["%d/%b/%Y"]
 

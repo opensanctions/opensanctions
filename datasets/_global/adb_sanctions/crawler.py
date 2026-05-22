@@ -4,6 +4,7 @@ from typing import Dict
 
 from pydantic import BaseModel
 from pydantic import JsonValue
+from rigour.names import contains_split_phrase
 
 from zavod import Context
 from zavod import helpers as h
@@ -16,7 +17,8 @@ from zavod.stateful.review import (
     assert_all_accepted,
 )
 
-EXTRACT_PROMPT = """Extract structured entity data from a sanctions list entry.
+EXTRACT_PROMPT = """Extract structured entity data from an entry from a list
+of debarments from a development bank.
 
 Input: JSON with "name" and "other_name" fields. These fields may contain:
 - One or more distinct legal entity names (e.g. "Company A; Company B")
@@ -24,15 +26,15 @@ Input: JSON with "name" and "other_name" fields. These fields may contain:
 - Embedded registration numbers, tax IDs, USC codes, national ID numbers
 
 For EACH distinct legal entity found, extract:
-  name              – primary legal name(s)
-  alias             – alternative or also-known-as names
-  weakAlias         – abbreviations, acronyms, short forms
-  previousName      – former legal names
-  abbreviation      – official abbreviations
-  registrationNumber – company / business registration numbers
-  uscCode           – Unified Social Credit Codes (China 统一社会信用代码)
-  taxNumber         – tax IDs (TIN, VAT, BIN, e-TIN, IRC, etc.)
-  idNumber          – national ID, passport, CNIC, or other personal IDs
+  name               - primary legal name(s)
+  alias              - alternative or also-known-as names
+  weakAlias          - abbreviations, acronyms, short forms
+  previousName       - former legal names
+  abbreviation       - official abbreviations
+  registrationNumber - company / business registration numbers
+  uscCode            - Unified Social Credit Codes (China 统一社会信用代码)
+  taxNumber          - tax IDs (TIN, VAT, BIN, e-TIN, IRC, etc.)
+  idNumber           - national ID, passport, CNIC, or other personal IDs
 
 Rules:
 - Preserve original text exactly (no spelling corrections, no title-casing).
@@ -42,6 +44,8 @@ Rules:
   put them only in the relevant identifier field.
 """
 
+PATTERN_IRREGULAR = r"[;()\\:]|Reg\b|\bNo\b|Registration|Register|Number|operating|also|\baka\b|CNPJ|known"
+REGEX_IRREGULAR = re.compile(PATTERN_IRREGULAR, re.IGNORECASE)
 REGEX_INTERNAL_URL = re.compile(
     r"http://([\w-]+\.)+azurecontainerapps.io:80/published-list"
 )
@@ -84,23 +88,15 @@ def crawl_row(context: Context, row: Dict[str, str | None]) -> None:
     end_date = row.pop("lapseDateOfSanction")
     modified_at = row.pop("changesMadeOn")
 
-    # A probe entity is needed to call h.is_name_irregular, which consults
-    # the dataset's names spec (reject_chars, reject_strings, contains_split_phrase).
-    base_entity = context.make("LegalEntity")
-    base_entity.id = context.make_id(full_name, country)
-
-    # Trigger LLM extraction when the framework detects irregular name content
-    # (split phrases, parentheses, reject_strings) or when other_name contains
-    # digits — a reliable signal for embedded identifiers (TINs, reg numbers,
-    # USC codes) that have no split-phrase marker.
     if (
-        h.is_name_irregular(base_entity, full_name)
-        or h.is_name_irregular(base_entity, other_name)
-        or bool(other_name.strip() and re.search(r"\d", other_name))
+        REGEX_IRREGULAR.search(full_name)
+        or REGEX_IRREGULAR.search(other_name)
+        or contains_split_phrase(full_name)
+        or contains_split_phrase(other_name)
     ):
         source_data: JsonValue = {"name": full_name, "other_name": other_name}
         source_value = JSONSourceValue(
-            key_parts=[context.dataset.name, full_name, other_name],
+            key_parts=[full_name, "other_name", other_name],
             label="entity extraction",
             data=source_data,
         )
