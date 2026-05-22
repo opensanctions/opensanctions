@@ -75,8 +75,7 @@ WD_ACCESS_SECRET = env.get("ZAVOD_WD_ACCESS_SECRET")
 WD_USER = env.get("ZAVOD_WD_USER")
 
 ZYTE_API_KEY = env.get("OPENSANCTIONS_ZYTE_API_KEY", None)
-OPENAI_API_KEY = env.get("OPENSANCTIONS_OPENAI_API_KEY", None)
-AZURE_OPENAI_ENDPOINT = env.get("OPENSANCTIONS_AZURE_OPENAI_ENDPOINT", None)
+OPENAI_API_KEY = env.get("OPENAI_API_KEY", None)
 
 # Test code in prod code is generally a Bad Idea.
 # This is here to allow for fallbacks to skip some external service usage
