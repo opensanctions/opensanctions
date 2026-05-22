@@ -10,7 +10,11 @@ from zavod import helpers as h
 from zavod.entity import Entity
 from zavod.extract.llm import run_typed_text_prompt
 from zavod.extract.names.clean import LLM_MODEL_VERSION
-from zavod.stateful.review import JSONSourceValue, review_extraction
+from zavod.stateful.review import (
+    JSONSourceValue,
+    review_extraction,
+    assert_all_accepted,
+)
 
 EXTRACT_PROMPT = """Extract structured entity data from a sanctions list entry.
 
@@ -59,31 +63,6 @@ class EntityExtractionResult(BaseModel):
     entities: list[EntityData]
 
 
-def extract_entities(
-    context: Context, name: str, other_name: str
-) -> EntityExtractionResult:
-    source_data: JsonValue = {"name": name, "other_name": other_name}
-    source_value = JSONSourceValue(
-        key_parts=[context.dataset.name, name, other_name],
-        label="entity extraction",
-        data=source_data,
-    )
-    result = run_typed_text_prompt(
-        context=context,
-        prompt=EXTRACT_PROMPT,
-        string=json.dumps(source_data, ensure_ascii=False),
-        response_type=EntityExtractionResult,
-        model=LLM_MODEL_VERSION,
-    )
-    review = review_extraction(
-        context=context,
-        source_value=source_value,
-        original_extraction=result,
-        origin=LLM_MODEL_VERSION,
-    )
-    return review.extracted_data
-
-
 def apply_entity_data(entity: Entity, data: EntityData) -> None:
     for prop in EntityData.model_fields:
         for val in getattr(data, prop):
@@ -120,23 +99,38 @@ def crawl_row(context: Context, row: Dict[str, str | None]) -> None:
         or h.is_name_irregular(base_entity, other_name)
         or bool(other_name.strip() and re.search(r"\d", other_name))
     ):
-        extraction = extract_entities(context, full_name, other_name)
-        entities_data = extraction.entities
+        source_data: JsonValue = {"name": full_name, "other_name": other_name}
+        source_value = JSONSourceValue(
+            key_parts=[context.dataset.name, full_name, other_name],
+            label="entity extraction",
+            data=source_data,
+        )
+        result = run_typed_text_prompt(
+            context=context,
+            prompt=EXTRACT_PROMPT,
+            string=json.dumps(source_data, ensure_ascii=False),
+            response_type=EntityExtractionResult,
+            model=LLM_MODEL_VERSION,
+        )
+        review = review_extraction(
+            context=context,
+            source_value=source_value,
+            original_extraction=result,
+            origin=LLM_MODEL_VERSION,
+        )
+        # if the review is accepted return entities
+        # otherwise return
+        if review.accepted:
+            entities_data = review.extracted_data.entities
+        else:
+            entities_data = []  # we loop over this later regardless
     else:
         alias = [other_name] if other_name.strip() else []
         entities_data = [EntityData(name=[full_name], alias=alias)]
 
-    # Occasionally a single source row encodes more than one entity (e.g.
-    # "Company A; Company B"). The LLM returns one EntityData per distinct
-    # entity; for those rows we generate a stable per-entity ID using the
-    # loop index. Single-entity rows reuse base_entity to avoid a redundant
-    # context.make() call.
-    for i, entity_data in enumerate(entities_data):
-        if len(entities_data) > 1:
-            entity = context.make("LegalEntity")
-            entity.id = context.make_id(full_name, str(i), country)
-        else:
-            entity = base_entity
+    for entity_data in entities_data:
+        entity = context.make("LegalEntity")
+        entity.id = context.make_id(full_name, country)
 
         apply_entity_data(entity, entity_data)
         entity.add("country", country)
@@ -173,3 +167,5 @@ def crawl(context: Context) -> None:
 
         pages += 1
         assert pages <= 500, "More pages than expected."
+
+    assert_all_accepted(context)
