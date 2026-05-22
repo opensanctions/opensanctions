@@ -97,6 +97,7 @@ lookups:
       - match: "Autonomous (Vessels)"
         value: AU-VESSELS
       - match:
+          - "1267 (ISIL (Da'esh) and Al-Qaida)"
           - "1267/1989/2253 (ISIL (Da'esh) and Al-Qaida)"
           - "1267 Committee (ISIL & Al-Qaida)"
           - "1267"
@@ -105,7 +106,9 @@ lookups:
         value: AU-UNSC1373
       - match: "1518 (Iraq)"
         value: UN-SC1518
-      - match: "1533 (Democratic Republic of the Congo)"
+      - match:
+          - "1533 (Democratic Republic of the Congo)"
+          - "1533 (Democratic People’s Republic of the Congo)"
         value: UN-SC1533
       - match: "1591 (Sudan)"
         value: UN-SC1591
@@ -299,3 +302,5 @@ lookups:
         values:
           - Colombia
           - Spain
+      - match: "Democratic People's Republic of Korea (North Korea)"
+        value: KP
