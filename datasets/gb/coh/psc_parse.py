@@ -1,7 +1,7 @@
 import csv
 import json
 import re
-from pathlib import Path
+import yaml
 from typing import Optional, Generator, Dict, Any
 from zipfile import ZipFile
 from functools import lru_cache
@@ -20,10 +20,11 @@ BASE_URL = "http://download.companieshouse.gov.uk/en_output.html"
 PSC_URL = "http://download.companieshouse.gov.uk/en_pscdata.html"
 PUBLIC_BASE = "https://find-and-update.company-information.service.gov.uk"
 
-# Snapshot of https://github.com/companieshouse/api-enumerations/blob/master/psc_descriptions.yml,
-# converted to JSON by `update_psc_descriptions.py`. JSON so that CI's dataset
-# discovery does not try to load this data file as a DatasetModel.
-PSC_DESCRIPTIONS_PATH = Path(__file__).parent / "psc_descriptions.json"
+# Canonical PSC nature-of-control enumeration, published by Companies House
+# in companieshouse/api-enumerations. Fetched live each crawl (cached via
+# context.fetch_resource) so the slug taxonomy stays in sync with upstream
+# without a vendored snapshot to refresh.
+PSC_DESCRIPTIONS_URL = "https://raw.githubusercontent.com/companieshouse/api-enumerations/master/psc_descriptions.yml"
 
 # Condition 5 of the UK PSC regime: the person controls a trust/firm whose
 # trustees/members hold the underlying ownership or rights. Any slug containing
@@ -81,21 +82,17 @@ def company_id(company_nr: str) -> str:
     return f"oc-companies-gb-{nr}"
 
 
-@lru_cache(maxsize=1)
-def _psc_descriptions() -> dict[str, dict[str, str]]:
-    """Load the vendored Companies House PSC nature-of-control enumeration."""
-    with open(PSC_DESCRIPTIONS_PATH, "r") as fh:
-        return json.load(fh)
+def fetch_psc_short_descriptions(context: Context) -> dict[str, str]:
+    """Fetch CH's PSC nature-of-control short-description map.
 
-
-def psc_short_description(slug: str) -> Optional[str]:
-    """Return the Companies House human-readable label for a PSC nature slug.
-
-    Used as the ``role`` text on emitted Ownership/Directorship links so
-    consumers see CH's wording (``"Ownership of shares – More than 25% but
-    not more than 50%"``) rather than a slug-derived string.
+    Used to populate the ``role`` text on emitted Ownership/Directorship
+    links with CH's official wording (``"Ownership of shares – More than 25%
+    but not more than 50%"``) rather than a slug-derived string.
     """
-    return _psc_descriptions().get("short_description", {}).get(slug)
+    path = context.fetch_resource("psc_descriptions.yml", PSC_DESCRIPTIONS_URL)
+    with open(path, "r") as fh:
+        data = yaml.safe_load(fh)
+    return data.get("short_description", {})
 
 
 def classify_nature(slug: str) -> tuple[str, bool]:
@@ -245,6 +242,7 @@ def read_psc_data(path: PathLike) -> Generator[Dict[str, Any], None, None]:
 
 
 def parse_psc_data(context: Context) -> None:
+    short_descriptions = fetch_psc_short_descriptions(context)
     psc_data_url = get_psc_data_url(context)
     if psc_data_url is None:
         raise RuntimeError("PSC data zip URL not found!")
@@ -359,7 +357,7 @@ def parse_psc_data(context: Context) -> None:
             if nature is None:
                 continue
             bucket, known = classify_nature(nature)
-            label = psc_short_description(nature)
+            label = short_descriptions.get(nature)
             if label is None:
                 label = nature.replace("-", " ").capitalize()
             roles[bucket].append(label)
