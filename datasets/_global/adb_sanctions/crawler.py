@@ -120,9 +120,10 @@ def crawl_row(context: Context, row: Dict[str, str | None]) -> None:
         alias = [other_name] if other_name.strip() else []
         entities_data = [EntityData(name=[full_name], alias=alias)]
 
+    first_org = None
     for entity_data in entities_data:
         entity = context.make("LegalEntity")
-        entity.id = context.make_id(full_name, country)
+        entity.id = context.make_id(entity_data.name, country)
 
         apply_entity_data(entity, entity_data)
         entity.add("country", country)
@@ -137,6 +138,16 @@ def crawl_row(context: Context, row: Dict[str, str | None]) -> None:
 
         if h.is_active(sanction):
             entity.add("topics", "debarment")
+
+        # create relation to preserve link
+        # when there is more than one org per row
+        if first_org is None:
+            first_org = entity
+        else:
+            rel = context.make("UnknownLink")
+            rel.add("subject", first_org)
+            rel.add("object", entity)
+            context.emit(rel)
 
         context.emit(entity)
         context.emit(sanction)
