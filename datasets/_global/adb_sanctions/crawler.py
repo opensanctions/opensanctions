@@ -123,7 +123,7 @@ def crawl_row(context: Context, row: Dict[str, str | None]) -> None:
     first_org = None
     for entity_data in entities_data:
         entity = context.make("LegalEntity")
-        entity.id = context.make_id(entity_data.name, country)
+        entity.id = context.make_id(entity_data.name[0], country)
 
         apply_entity_data(entity, entity_data)
         entity.add("country", country)
