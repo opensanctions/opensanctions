@@ -21,7 +21,7 @@ Use the `.yml` extension.
 
 - `coverage`
     - `frequency` - e.g. `daily`, `weekly`, `monthly`, `never`. This represents how often it is expected that this dataset will be updated. It conveys to users how often to expect updates, and will also be used to generate a crawling schedule unless a specific schedule is defined.
-    - `start` - The start date of a dataset which covers only a specific period in time, e.g. for a dataset specific to a data dump or parliamentary term. A string in the format `YYYY-MM-DD`.
+    - `start` - The date the dataset was first included in the `default` collection — i.e. the date the crawler was added to OpenSanctions. Use today's date when scaffolding a new crawler. A string in the format `YYYY-MM-DD`. Do **not** set this to the date the source data begins covering (e.g. an election date or the start of a parliamentary term).
     - `end` - The end date of a dataset which covers only a specific period in time, e.g. for a dataset specific to a data dump or parliamentary term. A string in the format `YYYY-MM-DD`. Future dates imply an expected end to the maintenance and coverage period of the dataset. Past end dates result in the datasets last_change date being fixed to that date, while its last_exported date remains unchanged.
     - `schedule` - `string` - a cron style schedule defining what time and frequency a crawler should run, e.g `30 */6 * * *`
     - Data sources that don't receive updates are marked `never` and must have their schedule defined otherwise (e.g. usually `coverage.schedule: @monthly` just to keep consistent with FTM updates). You may want to set `disabled: true` for sources that are not available any more so that the metadata can get published without attempting to crawl the source.
