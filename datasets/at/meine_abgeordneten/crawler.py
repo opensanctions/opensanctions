@@ -1,5 +1,4 @@
 from collections import defaultdict
-from datetime import datetime
 import os
 from pprint import pprint
 import re
@@ -225,14 +224,6 @@ def crawl_item(url_info_page: str, context: Context):
 
 def crawl(context: Context):
     response = context.fetch_html(context.data_url)
-
-    if datetime.now().isoformat() > "2026-05-21":
-        # Since this is an unofficial source, check periodically whether the site is maintained.
-        # As of 2025-05-22, there is a "NEUES AUS DEN DOSSIERS" section on the front page
-        # https://www.meineabgeordneten.at/ that showcases recently updated entities.
-        # As of 2026-05-22, the showcased dossier contains an update from 2025-03-03, so this site
-        # is still being maintained.
-        context.log.warning("Verify again that the site is kept up to date")
 
     # XPath to the url for the pages of each politician
     xpath_politician_page = (
