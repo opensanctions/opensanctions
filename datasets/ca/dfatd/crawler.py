@@ -1,11 +1,10 @@
-from typing import Dict, List
-from lxml.etree import _Element
 from normality import squash_spaces
 from rigour.mime.types import XML
 from followthemoney.types import registry
 
 from zavod import Context
 from zavod import helpers as h
+from zavod.util import Element
 
 NAME_SPLITS = [
     " (a.k.a.",
@@ -32,9 +31,9 @@ ALIAS_SPLITS = [
 ]
 
 
-def split_name(name: str) -> List[str]:
+def split_name(name: str) -> list[str]:
     name = squash_spaces(name)
-    parts: List[str] = []
+    parts: list[str] = []
     for part in h.multi_split(name, NAME_SPLITS):
         part = part.rstrip(")").rstrip(";")
         if len(part):
@@ -42,7 +41,7 @@ def split_name(name: str) -> List[str]:
     return parts
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     path = context.fetch_resource("source.xml", context.data_url)
     context.export_resource(path, XML, title=context.SOURCE_TITLE)
     doc = context.parse_resource_xml(path)
@@ -50,8 +49,8 @@ def crawl(context: Context):
         parse_entry(context, node)
 
 
-def parse_entry(context: Context, node: _Element):
-    row: Dict[str, str] = {}
+def parse_entry(context: Context, node: Element) -> None:
+    row: dict[str, str] = {}
     for child in node:
         if child.text is not None:
             row[child.tag] = child.text

@@ -83,8 +83,6 @@ repos:
           datasets/bg/jud_declarations|
           datasets/bh|
           datasets/br|
-          datasets/ca|
-          datasets/ch|
           datasets/cl|
           datasets/cn|
           datasets/co|
@@ -112,7 +110,6 @@ repos:
           datasets/qa|
           datasets/ro|
           datasets/rs|
-          datasets/ru|
           datasets/sg|
           datasets/si|
           datasets/sk/rpvs|
