@@ -30,6 +30,7 @@ REGIME_URL = "https://www.sanctionsmap.eu/api/v1/regime"
 
 VESSELS_URL = (
     # "https://dk9q89lxhn3e0.cloudfront.net/EU+designated+vessels-+conso+July+2025.xlsx"
+    # November/December edition:
     "https://dk9q89lxhn3e0.cloudfront.net/EU+designated+vessels+consolidated.xlsx"
 )
 PROGRAM_KEY = "EU-MARE"
