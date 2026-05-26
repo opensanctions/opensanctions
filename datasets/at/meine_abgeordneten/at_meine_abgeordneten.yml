@@ -5,6 +5,14 @@ coverage:
   start: 2024-03-08
   frequency: daily
 load_statements: true
+manual_check:
+  last_checked: "2026-05-20"
+  interval: 365
+  message: |
+    Since this is an unofficial source, verify periodically that the site is still maintained.
+    Check the "NEUES AUS DEN DOSSIERS" section on the front page which showcases recently
+    updated entities. If the showcased dossiers contain reasonably recent updates, the
+    site is still being maintained.
 summary: >
   List of politicians and others officials from Austria.
 description: |

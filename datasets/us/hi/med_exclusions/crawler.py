@@ -45,8 +45,6 @@ def crawl_item(row: dict[str, str | None], context: Context) -> None:
     medicaid_provider_id = row.pop("medicaid_provider_id")
     if medicaid_provider_id is not None and medicaid_provider_id != "NONE":
         entity.add("description", "Provider ID: " + medicaid_provider_id)
-    else:
-        row.pop("medicaid_provider_id")
     entity.add("country", "us")
 
     sanction = h.make_sanction(context, entity)
