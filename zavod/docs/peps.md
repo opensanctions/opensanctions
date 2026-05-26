@@ -30,7 +30,12 @@ The [Position](https://www.opensanctions.org/reference/#schema.Position) `name` 
 
 Do
 
-- use local preferred terminology
+- write the position in English. Use the standard English term for the role
+  (e.g. `Mayor`, not `Bourgmestre`). Preserve native-language terminology only for
+  proper nouns of specific institutions where translation would obscure the
+  reference (e.g. `Landtag of Mecklenburg-Vorpommern`, not `State Parliament of …`).
+  When the source labels roles in another language, declare a `position` lookup
+  in the YAML to translate each label before passing it to `h.make_position`.
 - include the role
 - include the organisational body where needed
 - include the specific geographic jurisdiction where relevant
