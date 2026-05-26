@@ -14,8 +14,8 @@ def crawl_item(row: dict[str, str | None], context: Context) -> None:
         context, city=row.pop("city"), state=row.pop("state"), country_code="US"
     )
     sector = row.pop("provider_type")
-    provider_number = row.pop("provider_number")
-    assert provider_number
+    # In very rare exceptions, the provider number is missing.
+    provider_number = row.pop("provider_number") or ""
     exclusion_date = row.pop("exclusion_date")
     last_name = row.pop("last_name")
     first_name = row.pop("first_name")
