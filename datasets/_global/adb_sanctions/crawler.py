@@ -145,6 +145,9 @@ def crawl_row(context: Context, row: Dict[str, str | None]) -> None:
             first_org = entity
         else:
             rel = context.make("UnknownLink")
+            rel.id = context.make_id(
+                first_org.first("name"), entity_data.name[0], country
+            )
             rel.add("subject", first_org)
             rel.add("object", entity)
             context.emit(rel)
