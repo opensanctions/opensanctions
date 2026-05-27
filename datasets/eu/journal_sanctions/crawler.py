@@ -97,7 +97,7 @@ def get_consolidated_url(context: Context, source_url: str) -> str | None:
         absolute_links=True,
     )
     original_celex: str | None = None
-    for table in h.xpath_element(doc, ".//table[@id='relatedDocsTbMS']"):
+    for table in h.xpath_elements(doc, ".//table[@id='relatedDocsTbMS']"):
         # The <th> header cells embed <select> filter widgets whose text corrupts
         # parse_html_table's slugified keys (e.g. "relation_all_modifies" instead
         # of "relation").  Strip them before parsing.
