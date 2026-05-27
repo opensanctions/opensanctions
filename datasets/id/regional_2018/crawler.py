@@ -25,7 +25,7 @@ def worksheet_rows(sheet) -> Generator[Dict[str, Any], None, None]:
 
 
 def clean_name(name: str) -> str:
-    name = re.sub("^\d\. ", "", name)
+    name = re.sub(r"^\d\. ", "", name)
     name = REGEX_TITLE.sub("", name).strip()
     name = name.split(",")[0]
     return name
@@ -37,6 +37,7 @@ def crawl_person(
     entity = context.make("Person")
     entity.id = context.make_slug(jurisdiction, name)
     entity.add("name", name)
+    entity.add("citizenship", "id")
 
     position = h.make_position(
         context,
