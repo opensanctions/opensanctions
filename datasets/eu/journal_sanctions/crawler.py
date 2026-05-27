@@ -97,18 +97,24 @@ def get_consolidated_url(context: Context, source_url: str) -> str | None:
         absolute_links=True,
     )
     original_celex: str | None = None
-    for table in doc.xpath(".//table[@id='relatedDocsTbMS']"):
+    for table in h.xpath_element(doc, ".//table[@id='relatedDocsTbMS']"):
         # The <th> header cells embed <select> filter widgets whose text corrupts
         # parse_html_table's slugified keys (e.g. "relation_all_modifies" instead
         # of "relation").  Strip them before parsing.
-        for select in table.xpath(".//thead//th/select"):
-            select.getparent().remove(select)
-        rows = [h.cells_to_str(row) for row in h.parse_html_table(table)]
-        act_values = {r.get("act") for r in rows if r.get("act")}
+        for select in h.xpath_element(table, ".//thead//th/select"):
+            parent = select.getparent()
+            assert parent is not None
+            parent.remove(select)
+        modify_rows = [
+            h.cells_to_str(row)
+            for row in h.parse_html_table(table)
+            if row.get("relation") not in ("Repeal",)
+        ]
+        act_values = {r.get("act") for r in modify_rows if r.get("act")}
         assert len(act_values) <= 1, (
             f"Multiple CELEX numbers in amendments table for {source_url}: {act_values}"
         )
-        for row_strs in rows:
+        for row_strs in modify_rows:
             if row_strs.get("relation") in ("Modifies", "Extended validity"):
                 original_celex = row_strs.get("act")
                 break

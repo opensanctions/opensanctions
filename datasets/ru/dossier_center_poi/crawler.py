@@ -8,11 +8,9 @@ ORGANIZERS_URL = "https://peps.dossier.center/types/oligarhi/"
 ACCOMPLICES_URL = "https://peps.dossier.center/types/goschinovniki/"
 
 
-def get_element_text(
-    doc: Element, xpath_value: str, to_remove: list[str] = [], position: int = 0
-) -> str:
-    el = h.xpath_element(doc, xpath_value)
-    text = h.element_text(el) or ""
+def get_element_text(doc: Element, xpath_value: str, to_remove: list[str] = []) -> str:
+    els = h.xpath_elements(doc, xpath_value)
+    text = "".join(h.element_text(el) for el in els)
     for string in to_remove:
         text = text.replace(string, "")
     return text
@@ -60,18 +58,18 @@ def crawl_person(context: Context, url: str, accomplice: bool = False) -> None:
         doc, '//div[@class="b-pr-section__field bottom-gap p-compact"]//p[2]'
     )
 
-    birth_date_n_palce = get_element_text(
+    birth_date_and_place = get_element_text(
         doc,
         '//div[@class="b-pr-section__label"][contains(.//text(), "Дата и место рождения")]//following-sibling::div[@class="b-pr-section__value"]',
     )
     date_pattern = r"\d{1,2}[./]\d{1,2}[./]\d{4}"
 
-    date_of_birth_matches = re.findall(date_pattern, birth_date_n_palce)
+    date_of_birth_matches = re.findall(date_pattern, birth_date_and_place)
     date_of_birth: str | None = (
         date_of_birth_matches[0] if date_of_birth_matches else None
     )
 
-    place_of_birth = re.sub(date_pattern, "", birth_date_n_palce)
+    place_of_birth = re.sub(date_pattern, "", birth_date_and_place)
     place_of_birth = place_of_birth.strip(", ")
 
     citizenships = get_element_text(
