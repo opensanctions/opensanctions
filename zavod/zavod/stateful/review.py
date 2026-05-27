@@ -454,7 +454,10 @@ def review_extraction(
             # If we haven't accepted this yet and the extraction changed, we want the
             # change regardless of whether the source changed since the prompt or the
             # model might be better.
+            review.data_model = data_model
+            review.extraction_schema = schema
             review.original_extraction = original_extraction
+            review.origin = origin
             # Resetting extracted_data to original_extraction here loses unaccepted edits
             # but prompt improvements happen more often than unaccepted edits.
             review.extracted_data = original_extraction
