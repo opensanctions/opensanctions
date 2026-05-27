@@ -146,7 +146,7 @@ def parse_city(
     city: Dict[str, str],
     from_date: str,
     to_date: str,
-) -> None:
+) -> List[Dict[str, str]]:
     """
     Fetches the list of companies from the website.
     Args:
@@ -430,7 +430,7 @@ def crawl_details(context: Context, record: Dict[str, str]) -> bool:
             own.id = context.make_id("BAOwnership", entity.id, founder.id)
             own.add("asset", entity.id)
             own.add("owner", founder.id)
-            own.add("ownershipType", "Founder", lang="eng")
+            own.add("role", "Founder", lang="eng")
 
             own.add("sharesValue", person["capital_paid"])
             if person["shares"].replace("\xa0", " ").strip("	 -"):
@@ -467,7 +467,7 @@ def crawl_details(context: Context, record: Dict[str, str]) -> bool:
             own.id = context.make_id("BAOwnership", entity.id, founder_company.id)
             own.add("asset", entity.id)
             own.add("owner", founder_company.id)
-            own.add("ownershipType", "Founder", lang="eng")
+            own.add("role", "Founder", lang="eng")
 
             context.emit(own)
 
