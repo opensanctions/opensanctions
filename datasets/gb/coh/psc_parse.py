@@ -26,23 +26,6 @@ PUBLIC_BASE = "https://find-and-update.company-information.service.gov.uk"
 # without a vendored snapshot to refresh.
 PSC_DESCRIPTIONS_URL = "https://raw.githubusercontent.com/companieshouse/api-enumerations/master/psc_descriptions.yml"
 
-# Condition 5 of the UK PSC regime: the person controls a trust/firm whose
-# trustees/members hold the underlying ownership or rights. Any slug containing
-# one of these markers describes a mediated relationship — control over an
-# intermediary — so it maps to Directorship regardless of what the intermediary
-# itself holds. "as-control-over-" is the Register of Overseas Entities variant.
-CONDITION_5_MARKERS = ("-as-trust", "-as-firm", "-as-control-over-")
-OWNERSHIP_PREFIXES = (
-    "ownership-of-shares-",
-    "voting-rights-",
-    "right-to-share-surplus-assets-",
-    "part-right-to-share-surplus-assets-",
-    "registered-owner-as-nominee-",
-)
-DIRECTORSHIP_PREFIXES = (
-    "right-to-appoint-and-remove-",
-    "significant-influence-or-control",
-)
 PERCENTAGE_RE = re.compile(r"(\d+)-to-(\d+)-percent")
 
 KINDS = {
@@ -85,38 +68,15 @@ def company_id(company_nr: str) -> str:
 def fetch_psc_short_descriptions(context: Context) -> dict[str, str]:
     """Fetch CH's PSC nature-of-control short-description map.
 
-    Used to populate the ``role`` text on emitted Ownership/Directorship
-    links with CH's official wording (``"Ownership of shares – More than 25%
-    but not more than 50%"``) rather than a slug-derived string.
+    Used to populate the ``role`` text on emitted Ownership links with CH's
+    official wording (``"Ownership of shares – More than 25% but not more
+    than 50%"``) rather than a slug-derived string. A slug missing from this
+    map is logged so new CH taxonomy additions surface in the run.
     """
     path = context.fetch_resource("psc_descriptions.yml", PSC_DESCRIPTIONS_URL)
     with open(path, "r") as fh:
         data = yaml.safe_load(fh)
     return data.get("short_description", {})
-
-
-def classify_nature(slug: str) -> tuple[str, bool]:
-    """Bucket a PSC nature-of-control slug into Ownership vs Directorship.
-
-    Conditions 1–2 (direct holdings of shares, voting rights, LLP/partnership
-    surplus-asset shares) and the Register of Overseas Entities nominee
-    statements map to Ownership. Conditions 3 (board/member appointment),
-    4 (significant influence) and 5 (any of the above held via a trust or
-    firm intermediary) map to Directorship — the relationship is exercise of
-    control rather than direct holding.
-
-    Returns ``(bucket, is_known)``. Unknown slugs default to Ownership: it is
-    the dominant case in the corpus, and a wrong Ownership claim is a less
-    semantically loaded assertion than a wrong Directorship claim. Arrival
-    here means CH added a slug not in the vendored ``psc_descriptions.yml``.
-    """
-    if any(marker in slug for marker in CONDITION_5_MARKERS):
-        return "directorship", True
-    if slug.startswith(OWNERSHIP_PREFIXES):
-        return "ownership", True
-    if slug.startswith(DIRECTORSHIP_PREFIXES):
-        return "directorship", True
-    return "ownership", False
 
 
 def percentage_range(slug: str) -> Optional[str]:
@@ -350,65 +310,46 @@ def parse_psc_data(context: Context) -> None:
         source_url = urljoin(PUBLIC_BASE, url)
         status = "ceased" if ceased_on else "active"
 
-        roles: dict[str, list[str]] = {"ownership": [], "directorship": []}
+        # Every PSC declaration — Conditions 1–5 of the UK regime — is modelled
+        # as a single Ownership link. FTM's Ownership reverse is "Ownership and
+        # Control"; the per-nature wording lives in the multi-valued ``role``
+        # field (CH's short_description verbatim), and percentage ranges from
+        # share/voting/surplus-asset slugs are collected separately.
+        roles: list[str] = []
         percentages: list[str] = []
-        unknown_natures: list[str] = []
+        unlabelled_natures: list[str] = []
         for nature in natures:
             if nature is None:
                 continue
-            bucket, known = classify_nature(nature)
             label = short_descriptions.get(nature)
             if label is None:
                 label = nature.replace("-", " ").capitalize()
-            roles[bucket].append(label)
-            if bucket == "ownership":
-                pct = percentage_range(nature)
-                if pct is not None:
-                    percentages.append(pct)
-            if not known:
-                unknown_natures.append(nature)
-        if unknown_natures:
+                unlabelled_natures.append(nature)
+            roles.append(label)
+            pct = percentage_range(nature)
+            if pct is not None:
+                percentages.append(pct)
+        if unlabelled_natures:
             context.log.warn(
-                "Unknown PSC nature-of-control slug; defaulted to Ownership",
-                natures=unknown_natures,
+                "PSC nature-of-control slug missing from CH enumeration",
+                natures=unlabelled_natures,
                 psc_id=psc_id,
                 company_number=company_nr,
             )
 
-        # Pure-bucket case keeps the legacy link ID. Mixed case keeps it on
-        # Ownership and gives Directorship a distinct suffixed ID.
-        only_one_bucket = sum(1 for r in roles.values() if r) <= 1
-
-        if roles["ownership"] or not natures:
-            link = context.make("Ownership")
-            link.id = context.make_id("psc", company_nr, psc_id)
-            link.add("owner", psc.id)
-            link.add("asset", asset_id)
-            link.add("recordId", psc_id)
-            link.add("role", roles["ownership"])
-            link.add("startDate", notified_on)
-            link.add("endDate", ceased_on)
-            link.add("status", status)
-            link.add("sourceUrl", source_url)
-            link.add("ownershipType", "beneficial")
-            link.add("percentage", percentages)
-            context.emit(link)
-
-        if roles["directorship"]:
-            link = context.make("Directorship")
-            if only_one_bucket:
-                link.id = context.make_id("psc", company_nr, psc_id)
-            else:
-                link.id = context.make_id("psc", company_nr, psc_id, "directorship")
-            link.add("director", psc.id)
-            link.add("organization", asset_id)
-            link.add("recordId", psc_id)
-            link.add("role", roles["directorship"])
-            link.add("startDate", notified_on)
-            link.add("endDate", ceased_on)
-            link.add("status", status)
-            link.add("sourceUrl", source_url)
-            context.emit(link)
+        link = context.make("Ownership")
+        link.id = context.make_id("psc", company_nr, psc_id)
+        link.add("owner", psc.id)
+        link.add("asset", asset_id)
+        link.add("recordId", psc_id)
+        link.add("role", roles)
+        link.add("startDate", notified_on)
+        link.add("endDate", ceased_on)
+        link.add("status", status)
+        link.add("sourceUrl", source_url)
+        link.add("ownershipType", "beneficial")
+        link.add("percentage", percentages)
+        context.emit(link)
 
         if data.pop("is_sanctioned", False):
             psc.add("topics", "sanction")
