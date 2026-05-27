@@ -54,10 +54,6 @@ NAME_CHINESE = [
 PERMANENT_ID_RE = re.compile(r"^(?P<name>.+?)（永久參考號：(?P<unsc_num>.+?)）$")
 
 
-def contains_part(part: str, name: str) -> bool:
-    return re.search(r"\b" + re.escape(part) + r"\b", name) is not None
-
-
 def apply_details_override(
     context: Context, entity: Entity, lookup_result: datapatch.Result
 ):
@@ -76,25 +72,31 @@ def apply_details_override(
 def parse_names(
     context: Context, item_num: str, entity: Entity, names_raw: str, aliases_raw: str
 ):
-    primary_name = names_raw.strip()
     # Deal with UNSC numbers in names
-    perm_id_match = PERMANENT_ID_RE.match(primary_name)
+    perm_id_match = PERMANENT_ID_RE.match(names_raw.strip())
     if perm_id_match:
-        primary_name = perm_id_match.group("name").strip()
+        raw_name_without_unsc_id = perm_id_match.group("name").strip()
         unsc_num = perm_id_match.group("unsc_num")
         if unsc_num is not None and len(unsc_num) > 3:
             sanction = h.make_sanction(context, entity)
             sanction.add("unscId", unsc_num)
             context.emit(sanction)
+    else:
+        raw_name_without_unsc_id = names_raw.strip()
 
-    if "永久參考號" in primary_name:
+    good_original_names = Names(
+        name=raw_name_without_unsc_id,
+        alias=aliases_raw.strip(),
+    )
+
+    if "永久參考號" in raw_name_without_unsc_id:
         context.log.warning(
             "Failed to separate name and UNSC number", names_raw=names_raw
         )
 
     aliases_str = aliases_raw.replace("<span   id='alias'>", "")
     aliases_str = aliases_str.replace("；", ";")  # Chinese semicolon
-    primary_name = primary_name.replace("；", ";")  # Chinese semicolon
+    primary_name = raw_name_without_unsc_id.replace("；", ";")  # Chinese semicolon
     needs_review = False
 
     if " alias:" in primary_name:
@@ -108,21 +110,17 @@ def parse_names(
                 aliases_str=aliases_str,
             )
 
-    original_names = Names(name=primary_name, alias=aliases_str)
+    # Bad because we're using primary_name and aliases_str which has had more than the
+    # UN SC number removed.
+    bad_original_names = Names(name=primary_name, alias=aliases_str)
     suggested_names = Names(alias=[])
-    # TODO (JD Bothma): Add Chinese names as LangText.
-    # We're adding names indicated to be Chinese (zho) to the suggested names
-    # without language information until we add LangText support to the Names structure.
-    # There are about 170 items with this annotation.
-    # In the meantime, if the same property is used by an accepted review, the
-    # statement with lang=zho persists.
 
     for split in NAME_CHINESE:
         split = f"; {split}"
         if split in primary_name:
             primary_name, chinese_name = primary_name.split(split, 1)
             entity.add("alias", chinese_name.strip(), lang="zho")
-            suggested_names.alias.append(chinese_name.strip())
+            suggested_names.add("name", chinese_name.strip(), lang="zho")
 
     aliases: Set[str] = set()
     weak_aliases: Set[str] = set()
@@ -135,7 +133,7 @@ def parse_names(
             if len(splitted) > 1:
                 _, chinese_alias = splitted
                 entity.add("alias", chinese_alias.strip(), lang="zho")
-                suggested_names.alias.append(chinese_alias.strip())
+                suggested_names.add("alias", chinese_alias.strip(), lang="zho")
                 break
         else:
             if len(alias) < 8:
@@ -172,15 +170,23 @@ def parse_names(
             )
             needs_review = True
 
-    suggested_names.name = primary_name
+    suggested_names.add("name", primary_name)
     suggested_names.alias.extend(aliases)
     suggested_names.weakAlias = list(weak_aliases)
-
     h.apply_reviewed_names(
         context,
         entity,
-        original=original_names,
+        original=bad_original_names,
         suggested=suggested_names,
+        is_irregular=needs_review,
+        default_accepted=not needs_review,
+    )
+    h.review_names(
+        context,
+        entity,
+        original=good_original_names,
+        suggested=suggested_names,
+        is_irregular=needs_review,
         default_accepted=not needs_review,
     )
 
