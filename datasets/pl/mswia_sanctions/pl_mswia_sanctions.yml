@@ -309,6 +309,11 @@ lookups:
       - match: "adres: ul. Sienkiewicza 49, 42-600 Tarnowskie Góry "
         props:
           address: "ul. Sienkiewicza 49, 42-600 Tarnowskie Góry"
+      - match: "adres: 11 Boulevard Prince Henri, L-1724 Luksembourg (poprzedni adres: Avenue de la Gare 8–10, 1610 Luksemburg)"
+        props:
+          address:
+            - "11 Boulevard Prince Henri, L-1724 Luksembourg"
+            - "Avenue de la Gare 8–10, 1610 Luksemburg"
 
   names:
     options:
