@@ -1510,6 +1510,55 @@ lookups:
       - match: "7709473987 (Russia TIN)"
         props:
           innCode: "7709473987"
+      - match: "Russia INN – 7704817031"
+        props:
+          innCode: "7704817031"
+      - match: "Russia INN: 9909674370"
+        props:
+          innCode: "9909674370"
+      - match: "Marshall Islands Entity Number - 117922"
+        props:
+          registrationNumber: "117922"
+      - match: "Panama Folio Number - Folio Nº 155737650"
+        props:
+          registrationNumber: "155737650"
+      - match: "Georgia MyGov Legal Code - 10756093Georgia Identification Code - 400361559"
+        props:
+          registrationNumber: ["10756093", "400361559"]
+      - match: "Georgia MyGov Legal Code – 10783789 Georgia Identification Code - 405655143 "
+        props:
+          registrationNumber: ["10783789", "405655143"]
+      - match: "Georgia MyGov Legal Code – 10703969 Georgia Identification Code - 412771852  "
+        props:
+          registrationNumber: ["10703969", "412771852"]
+      - match: "Kyrgyzstan INN - 01211202510014Kyrgyzstan Company Registration Number - 322290-3301-ОАО"
+        props:
+          taxNumber: "01211202510014"  # remapping to taxNumber because of validation failure
+          registrationNumber: "322290-3301-ОАО"
+      - match: "Kyrgyzstan INN - 02512202410270Kyrgyzstan Company Registration Number - 311855-3301-ОАО"
+        props:
+          taxNumber: "02512202410270"  # remapping to taxNumber because of validation failure
+          registrationNumber: "311855-3301-ОАО"
+      - match: "OGRN 1247700271829TIN 9710131220 (TIN region – Moscow)Checkpoint 773001001"
+        props:
+          ogrnCode: "1247700271829"
+          innCode: "9710131220"
+          kppCode: "773001001"
+      - match: "OKPO of a legal entity: 20205649TIN of a legal entity: 02903199310045Registration number: 5275-3301-OJSCRegistration number: KG0110104013"
+        props:
+          okpoCode: "20205649"
+          taxNumber: "02903199310045"  # remapping to taxNumber because of validation failure
+          registrationNumber: ["5275-3301-OJSC", "KG0110104013"]
+      - match: "Registration Number 5069 (United Arab Emirates)Economic Register Number (CBLS) 11874154 (United Arab Emirates)Alt. Registration Number RA000693_172229 (Belize)"
+        props:
+          registrationNumber: ["5069", "11874154", "RA000693_172229"]
+      - match: "Seat number 2025074769 Management No. SF2025008950 "
+        props:
+          registrationNumber: ["2025074769", "SF2025008950"]
+      - match: "UK Company number - 11655602EVA ID (IP Identification) - EEA90DD050C635EC8F637E8DB2F69969Legal Entity Identifier - 984500B899H9EED3B354 "
+        props:
+          registrationNumber: ["11655602", "EEA90DD050C635EC8F637E8DB2F69969"]
+          leiCode: "984500B899H9EED3B354"
   companies:
     normalize: true
     options:
@@ -2162,6 +2211,8 @@ lookups:
           - Zale Shipping Inc
           - Zulu Ships Management
           - Xinbi Guarantee
+          - EXMO POLAND SP Z.O.O.
+          - REPRESENATIVE OFFICE OF ALISTAIR LTD
         value: SAME
       - match: Subsidiary of the Organisation for Technological Industries (OTI) and therefore the Syrian Ministry of Defence
         values:
