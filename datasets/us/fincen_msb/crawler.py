@@ -34,7 +34,7 @@ IGNORE_COLUMNS = [
 ]
 
 
-def crawl_row(context: Context, row: Dict[str, List[str]]):
+def crawl_row(context: Context, row: Dict[str, List[str]]) -> None:
     name = h.multi_split(row.pop("LEGAL NAME"), NAME_SPLITS)
     street = row.pop("STREET ADDRESS")
     city = row.pop("CITY")
@@ -70,7 +70,7 @@ def crawl_row(context: Context, row: Dict[str, List[str]]):
     context.audit_data(row, IGNORE_COLUMNS)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     # Perform the POST request with headers
     path = context.fetch_resource(
         "source.tsv",

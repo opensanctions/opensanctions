@@ -31,7 +31,7 @@ def get_element_text(
     return squash_spaces(element_text.strip())
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     person_xpath = './/div[@class="wanted-card"]//div[@class="button-container"]/a'
     doc = fetch_html(
         context,
@@ -47,7 +47,7 @@ def crawl(context: Context):
         crawl_person(context, url)
 
 
-def crawl_person(context: Context, url: str):
+def crawl_person(context: Context, url: str) -> None:
     unblock_xpath = './/li[contains(@class, "usa-sidenav__item")]'
     doc = fetch_html(
         context, url, unblock_xpath, html_source="httpResponseBody", cache_days=1

@@ -141,7 +141,10 @@ def crawl_person(
         context.emit(entity)
 
 
-def crawl_jurisdictions(context: Context):
+def crawl_jurisdictions(
+    context: Context,
+) -> tuple[dict[str, str], dict[tuple[str, str], str]]:
+    """Returns (jurisdictions, house_positions): state code→name and (code, chamber)→position name."""
     if API_KEY is None:
         raise ValueError("No OPENSANCTIONS_PLURAL_API_KEY key set for OpenStates")
     jurisdictions = {}
@@ -184,7 +187,7 @@ def crawl_jurisdictions(context: Context):
     return jurisdictions, house_positions
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     jurisdictions, house_positions = crawl_jurisdictions(context)
     path = context.fetch_resource("source.zip", context.data_url)
     context.export_resource(path, ZIP, title=context.SOURCE_TITLE)

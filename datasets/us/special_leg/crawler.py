@@ -8,7 +8,7 @@ LOCAL_PATH = Path(__file__).parent
 FR_API_URL = "https://www.federalregister.gov/api/v1/documents.json?conditions[agencies][]=state-department&conditions[term]=nonproliferation+measures&order=newest"
 
 
-def crawl_row(context: Context, row: Dict[str, str]):
+def crawl_row(context: Context, row: Dict[str, str]) -> None:
     """Process one row of the CSV data"""
     schema = row.pop("schema")
     name = row.pop("name")
@@ -75,7 +75,7 @@ def crawl_fr_notices(context: Context) -> None:
         writer.writerows(rows)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     path = context.fetch_resource("source.csv", context.data_url)
     with open(path, "r") as fh:
         reader = csv.DictReader(fh)

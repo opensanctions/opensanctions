@@ -64,7 +64,7 @@ def crawl_row(context: Context, row: dict[str, str]) -> None:
     context.audit_data(row)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     doc = fetch_html(context, context.data_url, ".//table")
 
     tables = doc.xpath(".//table")

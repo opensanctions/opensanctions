@@ -7,7 +7,7 @@ from zavod.stateful.positions import categorise
 from zavod.extract.zyte_api import fetch_html
 
 
-def crawl_bio_page(context: Context, url: str):
+def crawl_bio_page(context: Context, url: str) -> None:
     name_xpath = ".//h1[contains(@class, 'featured-content__headline')]"
     doc = fetch_html(
         context,
@@ -102,7 +102,7 @@ def get_next_link(doc: HtmlElement) -> Optional[str]:
         return el.get("href")
 
 
-def crawl_index_page(context: Context, url: str):
+def crawl_index_page(context: Context, url: str) -> str | None:
     bios_xpath = ".//a[contains(@class, 'biography-collection__link')]"
     context.log.info("Crawling index page", url=url)
     doc = fetch_html(

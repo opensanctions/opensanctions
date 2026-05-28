@@ -49,7 +49,7 @@ def parse_row(context: Context, row: dict[str, str | None]) -> None:
     context.audit_data(row)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     doc = context.fetch_html(context.data_url, cache_days=1)
     urls = doc.xpath(".//a[contains(normalize-space(.), 'Export as CSV')]/@href")
     assert len(urls) == 1, "Expected exactly one URL"

@@ -30,7 +30,7 @@ def crawl_debarment(
     program_key: str,
     name_field: str,
     notice_date_field: str,
-):
+) -> None:
     date_of_birth = row.pop("date-of-birth", None)
     if date_of_birth:
         schema = "Person"
@@ -74,7 +74,7 @@ def crawl_debarment(
     context.audit_data(row, ["charging-letter", "debarment-order"])
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     path = context.fetch_resource("statutory.xlsx", STATUTORY_XLSX_URL)
     context.export_resource(path, XLSX, title="Statutory Debarments")
     rows = sheet_to_dicts(openpyxl.load_workbook(path, read_only=True).worksheets[0])

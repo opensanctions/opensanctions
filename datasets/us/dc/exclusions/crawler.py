@@ -75,7 +75,7 @@ def crawl_row(context: Context, row: dict[str, str]) -> None:
     context.audit_data(row)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     doc = context.fetch_html(context.data_url, cache_days=1)
     tables = doc.xpath(".//table")
     # We expect 2 current and 2 historical tables
