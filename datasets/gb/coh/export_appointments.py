@@ -33,7 +33,7 @@ COMPANY_STATUS = {
 WRITE_DIR = "output_files"
 
 
-def parse_officer(line):
+def parse_officer(line: str) -> None:
     company_nr = line[0:8]
     comp_id = company_id(company_nr)  # company_id the officer is appointed to
 
@@ -194,8 +194,7 @@ def parse_officer(line):
         f.write(json.dumps(link.to_dict()) + "\n")
 
 
-def parse_company(line):
-
+def parse_company(line: str) -> None:
     company_nr = line[0:8]
     company_name = line[40:].strip("< \n")
     company_status_code = line[9].replace(" ", "UKN")  # " " means status not known
@@ -216,8 +215,7 @@ def parse_company(line):
         f.write(json.dumps(company.to_dict()) + "\n")
 
 
-def parse_appointment_line(line):
-
+def parse_appointment_line(line: str) -> None:
     # DDDD == first line
     # digit only = last line
 
@@ -240,14 +238,13 @@ def parse_appointment_line(line):
             fh.write(line + "\n")
 
 
-def process_file(filepath):
-
+def process_file(filepath: str) -> None:
     for ix, line in enumerate(read_appointments(filepath)):
         print(f"Appointment line at index {ix}\n")
         parse_appointment_line(line)
 
 
-def process_directory(dirpath):
+def process_directory(dirpath: str) -> None:
     pattern = f"{dirpath}/Prod216*.dat"
     tp = ThreadPool(10)
 
@@ -263,5 +260,4 @@ def process_directory(dirpath):
 
 
 if __name__ == "__main__":
-
     process_directory(DATA_DIR)
