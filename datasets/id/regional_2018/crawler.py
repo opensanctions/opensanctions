@@ -14,7 +14,7 @@ REGEX_TITLE = re.compile(
 )
 
 
-def worksheet_rows(sheet) -> Generator[Dict[str, Any], None, None]:
+def worksheet_rows(sheet: Any) -> Generator[Dict[str, Any], None, None]:
     headers: Optional[List[str]] = None
     for row in sheet.iter_rows(min_row=4):
         cells = [c.value for c in row]
@@ -32,8 +32,13 @@ def clean_name(name: str) -> str:
 
 
 def crawl_person(
-    context: Context, name, jurisdiction, position_ind, position_eng, topics
-):
+    context: Context,
+    name: str,
+    jurisdiction: str,
+    position_ind: str,
+    position_eng: str,
+    topics: list[str],
+) -> None:
     entity = context.make("Person")
     entity.id = context.make_slug(jurisdiction, name)
     entity.add("name", name)
@@ -65,14 +70,14 @@ def crawl_person(
 
 def crawl_pair(
     context: Context,
-    row,
-    head_ind,
-    head_eng,
-    deputy_ind,
-    deputy_eng,
-    jurisdiction_column,
-    topics,
-):
+    row: Dict[str, Any],
+    head_ind: str,
+    head_eng: str,
+    deputy_ind: str,
+    deputy_eng: str,
+    jurisdiction_column: str,
+    topics: list[str],
+) -> None:
     head_name, deputy_name = row["nama_paslon"].split("/")
     head_name = clean_name(head_name)
     deputy_name = clean_name(deputy_name)
@@ -81,7 +86,7 @@ def crawl_pair(
     crawl_person(context, deputy_name, jurisdiction, deputy_ind, deputy_eng, topics)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     path = context.fetch_resource("individuals.xlsx", context.data_url)
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
     workbook = openpyxl.load_workbook(path, read_only=True)

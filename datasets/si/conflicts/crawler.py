@@ -2,6 +2,7 @@ from typing import Any, Dict
 
 from zavod import Context
 
+
 # let's not make Sanction entities for these - this dataset should be handled
 # a bit carefully because it's preventative, not punitive. While we use Sanction
 # entities to describe other debarments, we know some users sometimes over-react
@@ -25,7 +26,7 @@ RESTRICTION_NOTE = (
 )
 
 
-def rename_record(context, entry):
+def rename_record(context: Context, entry: Dict[str, Any]) -> Dict[str, Any]:
     result = {}
     for old_key, value in entry.items():
         new_key = context.lookup_value("columns", old_key)
@@ -36,7 +37,7 @@ def rename_record(context, entry):
     return result
 
 
-def crawl_entity(context: Context, record: Dict[str, Any]):
+def crawl_entity(context: Context, record: Dict[str, Any]) -> None:
     subject_name = record.pop("entity_name")
     registration_number = record.pop("entity_reg_number")
     country = record.pop("country")
@@ -75,7 +76,7 @@ def crawl_entity(context: Context, record: Dict[str, Any]):
     context.audit_data(record, IGNORE)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     response = context.fetch_json(context.data_url, cache_days=1)
     for record in response:
         renamed_record = rename_record(context, record)

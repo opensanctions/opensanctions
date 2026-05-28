@@ -1,7 +1,8 @@
 from datetime import datetime
 from normality import slugify, stringify
 from openpyxl import load_workbook
-from typing import Dict
+from pathlib import Path
+from typing import Dict, Generator
 
 from zavod import Context
 from zavod import helpers as h
@@ -97,7 +98,9 @@ def si_label(institution_si: str, department_si: str, position_si: str) -> str:
     return label
 
 
-def crawl_cv_entry(context: Context, entities: Dict[str, Entity], row: Dict[str, str]):
+def crawl_cv_entry(
+    context: Context, entities: Dict[str, Entity], row: Dict[str, str]
+) -> bool | None:
     svezo_id = row.pop("id_gni_live")
     person = entities[svezo_id]
 
@@ -207,7 +210,7 @@ def crawl_cv_entry(context: Context, entities: Dict[str, Entity], row: Dict[str,
         return True
 
 
-def header_names(cells, expected_columns: int):
+def header_names(cells: list[str | None], expected_columns: int) -> list[str | None]:
     headers = []
     for idx, cell in enumerate(cells):
         if cell is None:
@@ -217,7 +220,9 @@ def header_names(cells, expected_columns: int):
     return headers
 
 
-def excel_records(path, sheet_name: str, expected_columns: int):
+def excel_records(
+    path: Path, sheet_name: str, expected_columns: int
+) -> Generator[Dict[str, str], None, None]:
     wb = load_workbook(filename=path, read_only=True)
     sheet = wb[sheet_name]
     headers = None
@@ -237,7 +242,7 @@ def excel_records(path, sheet_name: str, expected_columns: int):
         yield record
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     entities = {}
     all_zvezo_ids = set()
     emitted = set()
