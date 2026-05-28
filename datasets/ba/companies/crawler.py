@@ -518,7 +518,7 @@ def generate_periods(
     return periods
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     """
     Main function to crawl and process data from the Registers of business entities in
     Bosnia and Herzegovina

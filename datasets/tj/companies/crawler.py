@@ -229,7 +229,7 @@ def crawl_page(
     return max_page
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     """
     Main function to crawl and process data from the Unified State Register
     of the register of taxpayers.

@@ -35,7 +35,7 @@ def parse_table(table: ElementOrTree) -> List[Dict[str, Any]]:
     return rows
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     doc = context.fetch_html(context.data_url, absolute_links=True)
     for data in parse_table(doc.find(".//table")):
         company = data.pop("company")
