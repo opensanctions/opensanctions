@@ -12,7 +12,8 @@ from zavod import helpers as h
 PROGRAM_KEY = "US-BIS-DPL"
 
 
-def split_name_address(name_and_address: str):
+def split_name_address(name_and_address: str) -> tuple[str, str | None]:
+    """Returns (name, address), splitting on the first comma. Address is None if absent."""
     # Split only on the first comma
     parts = name_and_address.split(",", 1)
     name = parts[0].strip()
@@ -20,7 +21,7 @@ def split_name_address(name_and_address: str):
     return name, address
 
 
-def parse_row(context: Context, row):
+def parse_row(context: Context, row: dict[str, str | None]) -> None:
     entity = context.make("LegalEntity")
     name_and_address = row.pop("name_and_address")
     name, address = split_name_address(name_and_address)

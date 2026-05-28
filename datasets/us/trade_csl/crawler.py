@@ -109,7 +109,7 @@ def parse_addresses(
         postal_code, po_box = h.postcode_pobox(address.get("postal_code"))
         state = address.get("state")
 
-        def contains_parts(addr):
+        def contains_parts(addr: str) -> bool:
             return (
                 (city is None or city in addr)
                 and (postal_code is None or postal_code in addr)
@@ -154,7 +154,7 @@ def clean_authority(value: Optional[str]) -> Optional[List[str]]:
     return h.multi_split(value, [";", ", "])
 
 
-def parse_list_entry(context: Context, list_entry: Dict[str, Any]):
+def parse_list_entry(context: Context, list_entry: Dict[str, Any]) -> None:
     for k, v in list(list_entry.items()):
         if isinstance(v, str) and len(v.strip()) == 0:
             list_entry.pop(k)

@@ -1,7 +1,8 @@
 from normality import slugify
 import openpyxl
+from openpyxl.worksheet.worksheet import Worksheet
 from rigour.mime.types import XLSX
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Iterator, List, Optional
 
 from zavod import Context
 from zavod import helpers as h
@@ -12,7 +13,7 @@ US_DDTC_SD = "US-DDTC-SD"
 US_DDTC_AD = "US-DDTC-AD"
 
 
-def sheet_to_dicts(sheet):
+def sheet_to_dicts(sheet: Worksheet) -> Iterator[Dict[str, Any]]:
     headers: Optional[List[str]] = None
     for row in sheet.rows:
         cells = [c.value for c in row]

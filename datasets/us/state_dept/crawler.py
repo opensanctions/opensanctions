@@ -1,5 +1,6 @@
 from typing import Optional
 from normality import collapse_spaces
+from lxml.html import HtmlElement
 from zavod import Context
 from zavod import helpers as h
 from zavod.stateful.positions import categorise
@@ -95,7 +96,7 @@ def crawl_bio_page(context: Context, url: str):
     context.emit(occupancy)
 
 
-def get_next_link(doc) -> Optional[str]:
+def get_next_link(doc: HtmlElement) -> Optional[str]:
     el = doc.find(".//a[@class='next page-numbers']")
     if el is not None:
         return el.get("href")

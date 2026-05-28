@@ -213,7 +213,7 @@ def crawl_release(
         context.emit(documentation)
 
 
-def crawl_index_page(context: Context, doc) -> bool:
+def crawl_index_page(context: Context, doc: HtmlElement) -> bool:
     """Returns false if we should stop crawling."""
     table_xpath = ".//table[contains(@class, 'views-view-table')]"
     tables = doc.xpath(table_xpath)

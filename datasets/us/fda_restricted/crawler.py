@@ -1,6 +1,7 @@
 import re
 from typing import Dict
 
+from lxml.html import HtmlElement
 from zavod import Context
 from zavod import helpers as h
 from zavod.extract.zyte_api import fetch_html
@@ -9,7 +10,9 @@ REGEX_TITLE = re.compile("(?:, (MD|PhD|DO|DVM))")
 REGEX_SUFFIX = re.compile(r",? (Jr|Sr|II|III|IV).?,")
 
 
-def crawl_item(context: Context, row: Dict[str, str], row_elements):
+def crawl_item(
+    context: Context, row: Dict[str, str], row_elements: dict[str, HtmlElement]
+) -> None:
     raw_name = row.pop("name")
     state = row.pop("state")
 

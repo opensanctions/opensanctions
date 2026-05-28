@@ -5,7 +5,9 @@ from zavod import Context, helpers as h
 from zavod.extract.zyte_api import fetch_html
 
 
-def get_element_text(doc: ElementTree, xpath_value: str, to_remove=[]) -> str:
+def get_element_text(
+    doc: ElementTree, xpath_value: str, to_remove: list[str] = []
+) -> str:
     """Extract text from from an xpath
 
     Args:

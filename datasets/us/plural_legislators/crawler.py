@@ -23,7 +23,12 @@ def make_source_url(id: str) -> str:
     return f"https://pluralpolicy.com/app/person/{id.replace('ocd-person/', '')}"
 
 
-def crawl_person(context, jurisdictions, house_positions, data: dict[str, Any]):
+def crawl_person(
+    context: Context,
+    jurisdictions: dict[str, str],
+    house_positions: dict[tuple[str, str], str],
+    data: dict[str, Any],
+) -> None:
     if data.pop("death_date", None):
         return
     person = context.make("Person")
