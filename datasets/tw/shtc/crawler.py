@@ -1,13 +1,5 @@
-# How to review data reviews from this crawler:
-# =============================================
-#
-# The prefix 簡體中文： indicates that the name is in Simplified Chinese.
-# This will be stripped from the suggested data. Accept as is - we don't
-# support language annotations in the result data yet.
-
 import csv
 import re
-from typing import Set
 
 import datapatch
 from rigour.mime.types import CSV
@@ -47,10 +39,6 @@ ADDRESS_SPLITS = [
     "v)",
     ";",
 ]
-NAME_CHINESE = [
-    "繁體中文：",  # Traditional Chinese:
-    "簡體中文：",  # Simplified Chinese:
-]
 PERMANENT_ID_RE = re.compile(r"^(?P<name>.+?)（永久參考號：(?P<unsc_num>.+?)）$")
 
 
@@ -84,111 +72,13 @@ def parse_names(
     else:
         raw_name_without_unsc_id = names_raw.strip()
 
-    good_original_names = Names(
-        name=raw_name_without_unsc_id,
-        alias=aliases_raw.strip(),
-    )
-
     if "永久參考號" in raw_name_without_unsc_id:
         context.log.warning(
             "Failed to separate name and UNSC number", names_raw=names_raw
         )
 
-    aliases_str = aliases_raw.replace("<span   id='alias'>", "")
-    aliases_str = aliases_str.replace("；", ";")  # Chinese semicolon
-    primary_name = raw_name_without_unsc_id.replace("；", ";")  # Chinese semicolon
-    needs_review = False
-
-    if " alias:" in primary_name:
-        primary_name, aliases_in_names_str = primary_name.split(" alias:", 1)
-        aliases_in_names_str = aliases_in_names_str.strip()
-        if aliases_in_names_str != aliases_str:
-            context.log.warning(
-                "Found aliases in names string, but they are not the same as the aliases in the aliases string. "
-                "Please check if we need to re-work the crawler to also add aliases from the names string.",
-                aliases_in_names_str=aliases_in_names_str,
-                aliases_str=aliases_str,
-            )
-
-    # Bad because we're using primary_name and aliases_str which has had more than the
-    # UN SC number removed.
-    bad_original_names = Names(name=primary_name, alias=aliases_str)
-    suggested_names = Names(alias=[])
-
-    for split in NAME_CHINESE:
-        split = f"; {split}"
-        if split in primary_name:
-            primary_name, chinese_name = primary_name.split(split, 1)
-            entity.add("alias", chinese_name.strip(), lang="zho")
-            suggested_names.add("name", chinese_name.strip(), lang="zho")
-
-    aliases: Set[str] = set()
-    weak_aliases: Set[str] = set()
-    for alias in aliases_str.split(";"):
-        alias = alias.strip()
-        if len(alias) == 0:
-            continue
-        for split in NAME_CHINESE:
-            splitted = alias.split(split, 1)
-            if len(splitted) > 1:
-                _, chinese_alias = splitted
-                entity.add("alias", chinese_alias.strip(), lang="zho")
-                suggested_names.add("alias", chinese_alias.strip(), lang="zho")
-                break
-        else:
-            if len(alias) < 8:
-                # Demote alias to weakAlias
-                needs_review = True
-                weak_aliases.add(alias)
-                continue
-
-            if " " not in alias:
-                needs_review = True
-
-            spec = context.dataset.names.get_spec(entity.schema)
-            reject_chars = spec.reject_chars_consolidated
-            if reject_chars.intersection(set(alias)):
-                needs_review = True
-
-            aliases.add(alias)
-
-    # Promote the longest alias to primary name if
-    # - it doesn't contain spaces,
-    # - and it contains the current primary name.
-    primary_name = primary_name.strip()
-    if " " not in primary_name and len(aliases):
-        prev_name = primary_name
-        longest_alias = max(aliases, key=len)
-        if len(longest_alias) > len(primary_name):
-            if primary_name not in longest_alias:
-                aliases.add(primary_name)
-            primary_name = longest_alias
-            context.log.info(
-                "Promoting longest alias to name",
-                name=primary_name,
-                prev_name=prev_name,
-            )
-            needs_review = True
-
-    suggested_names.add("name", primary_name)
-    suggested_names.alias.extend(aliases)
-    suggested_names.weakAlias = list(weak_aliases)
-    h.apply_reviewed_names(
-        context,
-        entity,
-        original=bad_original_names,
-        suggested=suggested_names,
-        is_irregular=needs_review,
-        default_accepted=not needs_review,
-    )
-    h.review_names(
-        context,
-        entity,
-        original=good_original_names,
-        suggested=suggested_names,
-        is_irregular=needs_review,
-        default_accepted=not needs_review,
-    )
+    original_names = Names(name=raw_name_without_unsc_id, alias=aliases_raw.strip())
+    h.apply_reviewed_names(context, entity, original=original_names)
 
 
 def crawl_row(context: Context, row):

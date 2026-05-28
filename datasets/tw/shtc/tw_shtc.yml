@@ -39,7 +39,7 @@ names:
       # ascii then non-ascii parens, semicolon, colon
       reject_chars: "<>():/\\（）；："
       single_token_min_length: 10
-      min_length: 5
+      min_length: 8
       require_space: true
       reject_strings:
         - 永久參考號 # Permanent Reference Number
