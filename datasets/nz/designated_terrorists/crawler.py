@@ -47,7 +47,7 @@ def parse_table(
         yield {hdr: c for hdr, c in zip(headers, cells) if hdr}
 
 
-def crawl_item(input_dict: dict, context: Context):
+def crawl_item(input_dict: dict, context: Context) -> None:
     # aliases will be either a list of size one or None if there is no aliases
     name, *aliases = h.multi_split(input_dict.pop("terrorist-entity")[0], ALIAS_SPLITS)
     alias_lists = [h.multi_split(alias, [", and", ","]) for alias in aliases]
@@ -89,7 +89,7 @@ def crawl_item(input_dict: dict, context: Context):
     context.audit_data(input_dict)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     response = context.fetch_html(context.data_url, absolute_links=True)
 
     table = response.find(".//table")
