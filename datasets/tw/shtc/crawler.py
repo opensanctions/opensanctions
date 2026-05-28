@@ -56,7 +56,7 @@ PERMANENT_ID_RE = re.compile(r"^(?P<name>.+?)（永久參考號：(?P<unsc_num>.
 
 def apply_details_override(
     context: Context, entity: Entity, lookup_result: datapatch.Result
-):
+) -> None:
     details = lookup_result.details[0]
 
     entity.add("name", details.get("name"))
@@ -71,7 +71,7 @@ def apply_details_override(
 
 def parse_names(
     context: Context, item_num: str, entity: Entity, names_raw: str, aliases_raw: str
-):
+) -> None:
     # Deal with UNSC numbers in names
     perm_id_match = PERMANENT_ID_RE.match(names_raw.strip())
     if perm_id_match:
@@ -191,7 +191,7 @@ def parse_names(
     )
 
 
-def crawl_row(context: Context, row):
+def crawl_row(context: Context, row: dict[str, str]) -> None:
     # Running number, too unstable to build and ID from.
     item_num = row.pop("項次item", None)
     assert item_num is not None, "Missing item number"
@@ -232,7 +232,7 @@ def crawl_row(context: Context, row):
     context.audit_data(row)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     # On the dataset page is a link to a PDF file that contains a link to the CSV file.
     # Assert on the URL of the PDF file in the hope that it changes when the list is updated.
     url_xpath = ".//a[@title='SHTC Entity List']/@href"
