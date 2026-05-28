@@ -173,7 +173,7 @@ def crawl_page(
                 retries=retries - 1,
             )
         else:
-            context.log.error("Exceeded retries.")
+            context.log.error("Exceeded retries.", url=url, payload=raw_payload)
             raise
 
     headers = []

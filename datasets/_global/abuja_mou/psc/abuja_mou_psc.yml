@@ -53,6 +53,8 @@ assertions:
 lookups:
   type.identifier:
     options:
+      - match: 936016647
+        prop: registrationNumber
       - match: 636019170
         prop: mmsi
       - match: 91764126

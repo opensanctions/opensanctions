@@ -105,16 +105,13 @@ def get_consolidated_url(context: Context, source_url: str) -> str | None:
             parent = select.getparent()
             assert parent is not None
             parent.remove(select)
-        modify_rows = [
-            h.cells_to_str(row)
-            for row in h.parse_html_table(table)
-            if row.get("relation") not in ("Repeal",)
-        ]
-        act_values = {r.get("act") for r in modify_rows if r.get("act")}
+        rows = [h.cells_to_str(row) for row in h.parse_html_table(table)]
+        rows = [r for r in rows if r.get("relation") != "Repeal"]
+        act_values = {r.get("act") for r in rows if r.get("act")}
         assert len(act_values) <= 1, (
             f"Multiple CELEX numbers in amendments table for {source_url}: {act_values}"
         )
-        for row_strs in modify_rows:
+        for row_strs in rows:
             if row_strs.get("relation") in ("Modifies", "Extended validity"):
                 original_celex = row_strs.get("act")
                 break

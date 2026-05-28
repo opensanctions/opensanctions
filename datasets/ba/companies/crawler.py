@@ -405,7 +405,9 @@ def crawl_details(context: Context, record: Dict[str, str]) -> bool:
         entity.add("status", record.get("status_bankruptcy", None), lang="bos")
 
         entity.add("country", "ba")
-        entity.add("address", record["address"], lang="bos")
+        address = record["address"]
+        if address != "-":
+            entity.add("address", address, lang="bos")
         entity.add("address", record.get("address_additional", None), lang="bos")
 
         entity.add("legalForm", record.get("legal_form", None), lang="bos")
@@ -455,7 +457,7 @@ def crawl_details(context: Context, record: Dict[str, str]) -> bool:
             if comp.get("country"):
                 founder_company.add("country", comp["country"], lang="bos")
 
-            if comp.get("address"):
+            if comp.get("address") and comp["address"] != "-":
                 founder_company.add("address", comp["address"], lang="bos")
 
             if comp.get("registration_number"):
