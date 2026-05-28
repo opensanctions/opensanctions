@@ -147,7 +147,7 @@ def crawl_enforcement_action(context: Context, url: str) -> None:
         context.emit(documentation)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     index_url = context.data_url
     seen: set[str] = set()
     while index_url:

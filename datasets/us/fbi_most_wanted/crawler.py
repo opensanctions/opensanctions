@@ -110,7 +110,7 @@ def crawl_person(context: Context, url: str) -> None:
     context.emit(person)
 
 
-def crawl_type(context: Context, type: str, query_id: str):
+def crawl_type(context: Context, type: str, query_id: str) -> None:
     total_pages: Optional[int] = None
     total_xpath = './/div[@class="row top-total"]//p'
     for page in count(1):
@@ -148,7 +148,7 @@ def crawl_type(context: Context, type: str, query_id: str):
             crawl_person(context, href)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     # Check if new menu items have been added that we potentially want to crawl.
     # Expected items listed below.
     menu_xpath = ".//ul[contains(@class, 'section-menu')]"

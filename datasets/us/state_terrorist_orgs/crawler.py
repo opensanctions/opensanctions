@@ -8,7 +8,10 @@ NORMAL_CASE_RE = r"^(?P<name>[\w\s’'/-]+?)(?:\s*\((?P<alias>[\w\s’'/-]+?)\))
 PROGRAM_KEY = "US-FTO219"
 
 
-def split_clean_name(context, name):
+def split_clean_name(
+    context: Context, name: str
+) -> tuple[str | None, str | None, str | None]:
+    """Returns (name_clean, name_former, alias)."""
     name = name.strip()
     name_former = None
     alias = None
@@ -32,7 +35,7 @@ def split_clean_name(context, name):
     return name, name_former, alias
 
 
-def crawl_row(context, row):
+def crawl_row(context: Context, row: dict[str, str]) -> None:
     name = row.pop("name")
     start_date = row.pop("date_designated", None) or row.pop(
         "date_originally_designated", None
@@ -61,7 +64,7 @@ def crawl_row(context, row):
     context.audit_data(row)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     doc = fetch_html(context, context.data_url, ".//table")
 
     tables = doc.xpath(".//table")

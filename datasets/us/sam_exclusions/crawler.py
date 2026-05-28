@@ -26,7 +26,7 @@ DOWNLOAD_URL = "https://sam.gov/api/prod/fileextractservices/v1/api/download/"
 IGNORE_COLUMNS = ["CT Code", "Open Data Flag", "SAM Number"]
 
 
-def parse_date(date: Optional[str]):
+def parse_date(date: Optional[str]) -> str | None:
     if date in ("", "Indefinite", None):
         return None
     return date

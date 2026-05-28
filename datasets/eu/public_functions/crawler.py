@@ -1,5 +1,4 @@
 from normality import collapse_spaces
-from typing import Dict
 import csv
 
 from zavod import Context
@@ -7,7 +6,7 @@ from zavod import helpers as h
 from zavod.stateful.positions import categorise
 
 
-def crawl_row(context: Context, row: Dict[str, str]):
+def crawl_row(context: Context, row: dict[str, str]) -> None:
     if row.pop("Status") != "Position for territory":
         return
 
@@ -24,7 +23,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
         context.emit(position)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     path = context.fetch_resource("source.csv", context.data_url)
     with open(path, "r") as fh:
         for row in csv.DictReader(fh):

@@ -76,7 +76,7 @@ def build_position(context: Context, *, role: str, entity_name: str) -> Entity:
     return position
 
 
-def crawl_sheet_row(context: Context, row: Dict[str, str]):
+def crawl_sheet_row(context: Context, row: Dict[str, str]) -> None:
     person = context.make("Person")
     id_number = row.pop("NUMERO_DOCUMENTO")
     person.id = context.make_slug(id_number, prefix="co-cedula")
@@ -134,7 +134,7 @@ def crawl_table_row(
     context: Context,
     seen: set,
     row: Dict[str, HtmlElement],
-):
+) -> None:
     str_row = h.cells_to_str(row)
     name_id = str_row.pop("declarante")
     person = context.make("Person")
@@ -216,7 +216,7 @@ def crawl_table_row(
     context.audit_data(str_row, ["descargar", "enlaces_externos"])
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     seen = set()
     path = context.fetch_resource("source.csv", context.data_url)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)

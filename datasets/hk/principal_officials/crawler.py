@@ -7,7 +7,9 @@ from zavod import helpers as h
 from zavod.stateful.positions import categorise
 
 
-def get_element_text(doc: ElementTree, xpath_value: str, to_remove=[], position=0):
+def get_element_text(
+    doc: ElementTree, xpath_value: str, to_remove: list[str] = [], position: int = 0
+) -> str | None:
     element_tag = doc.xpath(xpath_value)
     element_text = element_tag[position].text_content() if element_tag else ""
 
@@ -17,7 +19,7 @@ def get_element_text(doc: ElementTree, xpath_value: str, to_remove=[], position=
     return collapse_spaces(element_text.strip())
 
 
-def crawl_members(context: Context, section: str, elem: ElementTree):
+def crawl_members(context: Context, section: str, elem: ElementTree) -> None:
     url = elem.get("href")
 
     doc = context.fetch_html(url, cache_days=1)
@@ -65,7 +67,7 @@ def crawl_members(context: Context, section: str, elem: ElementTree):
     context.emit(occupancy)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     doc = context.fetch_html(context.data_url, cache_days=1, absolute_links=True)
     for section in doc.xpath('//section[@class="blockItem"]'):
         section_name = section.xpath("./h3")[0].text_content()

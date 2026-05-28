@@ -14,7 +14,7 @@ REGEX_ITEM = re.compile(
 )
 
 
-def crawl_section(context: Context, url: str, section: ElementOrTree):
+def crawl_section(context: Context, url: str, section: ElementOrTree) -> None:
     listing_titles = section.xpath(".//h3[contains(@class, 'report__section-title')]")
     if len(listing_titles) == 1:
         year = re.match(r"(\d{4})$", listing_titles[0]).group(1)
@@ -68,7 +68,7 @@ def crawl_section(context: Context, url: str, section: ElementOrTree):
             context.log.warning("Cannot parse item", item=item_text)
 
 
-def crawl_report(context: Context, url: str):
+def crawl_report(context: Context, url: str) -> None:
     context.log.info(f"Crawling {url}")
     sections_xpath = ".//section[@class='entry-content']"
     doc = fetch_html(context, url, sections_xpath, cache_days=1)

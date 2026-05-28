@@ -15,7 +15,7 @@ IGNORE = [
 ]
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     path = context.fetch_resource("source.json", context.data_url)
     context.export_resource(path, JSON, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:

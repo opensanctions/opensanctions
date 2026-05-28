@@ -1,12 +1,13 @@
 from typing import Optional
 from normality import collapse_spaces
+from lxml.html import HtmlElement
 from zavod import Context
 from zavod import helpers as h
 from zavod.stateful.positions import categorise
 from zavod.extract.zyte_api import fetch_html
 
 
-def crawl_bio_page(context: Context, url: str):
+def crawl_bio_page(context: Context, url: str) -> None:
     name_xpath = ".//h1[contains(@class, 'featured-content__headline')]"
     doc = fetch_html(
         context,
@@ -95,13 +96,13 @@ def crawl_bio_page(context: Context, url: str):
     context.emit(occupancy)
 
 
-def get_next_link(doc) -> Optional[str]:
+def get_next_link(doc: HtmlElement) -> Optional[str]:
     el = doc.find(".//a[@class='next page-numbers']")
     if el is not None:
         return el.get("href")
 
 
-def crawl_index_page(context: Context, url: str):
+def crawl_index_page(context: Context, url: str) -> str | None:
     bios_xpath = ".//a[contains(@class, 'biography-collection__link')]"
     context.log.info("Crawling index page", url=url)
     doc = fetch_html(

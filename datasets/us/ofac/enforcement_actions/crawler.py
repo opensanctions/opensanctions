@@ -185,7 +185,7 @@ def crawl_enforcement_action(context: Context, url: str) -> None:
         context.emit(documentation)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     page = 0
     within_age_limit = True
     while within_age_limit:

@@ -56,7 +56,7 @@ def crawl_person(context: Context, item: _Element, url: str) -> None:
     context.emit(person)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     url = context.data_url
     doc = context.fetch_html(url)
     mw_grid = doc.find('.//div[@class="blog most-wanted-grid"]')

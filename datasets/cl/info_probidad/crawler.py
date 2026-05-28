@@ -24,7 +24,7 @@ REGEX_JSON = re.compile(r"var datos =(.+?}]);")
 DECLARATION_URL = "https://www.infoprobidad.cl/Declaracion/descargarDeclaracionJSon"
 
 
-def crawl_row(context: Context, declaration_id: int):
+def crawl_row(context: Context, declaration_id: int) -> None:
     declaration = context.fetch_json(
         DECLARATION_URL, method="POST", data={"ID": declaration_id}, cache_days=30
     )
@@ -146,7 +146,7 @@ def crawl_row(context: Context, declaration_id: int):
     )
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     path = context.fetch_resource("source.html", context.dataset.data.url)
     json_path = dataset_data_path(context.dataset.name) / "source.json"
 

@@ -25,7 +25,7 @@ ACTIONS = [
 ]
 
 
-def crawl_accommodations(context: Context):
+def crawl_accommodations(context: Context) -> None:
     doc = fetch_html(
         context, ORIGINAL_ACCOMMODATIONS_URL, CONTENT_XPATH, actions=ACTIONS
     )
@@ -53,7 +53,7 @@ def crawl_accommodations(context: Context):
             context.audit_data(row, ignore=["City"])
 
 
-def crawl_restricted_entities(context: Context):
+def crawl_restricted_entities(context: Context) -> None:
     doc = fetch_html(
         context, ORIGINAL_RESTRICTED_ENTITIES_URL, CONTENT_XPATH, actions=ACTIONS
     )
@@ -95,7 +95,7 @@ def crawl_restricted_entities(context: Context):
             context.audit_data(row)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     doc = fetch_html(context, context.dataset.url, CONTENT_XPATH, actions=ACTIONS)
     node = doc.find(CONTENT_XPATH)
     # Chrome save HTML only

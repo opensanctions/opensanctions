@@ -45,7 +45,9 @@ def clean_text(text: str) -> str:
     return collapse_spaces(strip_note(text))
 
 
-def get_cleaned_field(input_dict, field_name):
+def get_cleaned_field(
+    input_dict: dict[str, HtmlElement], field_name: str
+) -> str | None:
     """Extracts and cleans the field value from the input dictionary."""
     field = input_dict.pop(field_name, None)
     if field is not None:
@@ -61,7 +63,7 @@ def crawl_item(
     context: Context,
     input_dict: dict,
     delegation: str,
-):
+) -> None:
     name_el = input_dict.pop("name")
     reference = name_el.find(".//sup")
     # Make sure to explicitly check if the element is not None.
@@ -174,7 +176,7 @@ def parse_table(
         yield row
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     doc = context.fetch_html(context.data_url)
     ids = defaultdict(int)
 

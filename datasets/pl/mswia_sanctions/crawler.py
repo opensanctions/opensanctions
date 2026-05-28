@@ -1,5 +1,4 @@
 import re
-from typing import Dict
 
 from followthemoney.types import registry
 
@@ -18,7 +17,7 @@ CHOPSKA = [
 ]
 
 
-def parse_date(text, context):
+def parse_date(text: str, context: Context) -> str | None:
     text = text.lower().strip()
     text = text.replace("urodzona", "")
     text = text.replace("urodzonego", "")
@@ -34,7 +33,7 @@ def parse_date(text, context):
     return None
 
 
-def parse_details(context: Context, entity: Entity, text: str):
+def parse_details(context: Context, entity: Entity, text: str) -> None:
     for chop, prop in CHOPSKA:
         parts = text.rsplit(chop, 1)
         text = parts[0]
@@ -59,7 +58,7 @@ def parse_details(context: Context, entity: Entity, text: str):
             entity.add(prop, value)
 
 
-def crawl_row(context: Context, row: Dict[str, str], table_title: str):
+def crawl_row(context: Context, row: dict[str, str | None], table_title: str) -> None:
     listing_date = row.pop("data_umieszczenia_na_liscie")
     if listing_date is None:
         context.log.warn("No listing date", row=row)
@@ -145,6 +144,7 @@ def crawl_row(context: Context, row: Dict[str, str], table_title: str):
 
     sanction = h.make_sanction(context, entity)
     provisions = row.pop("zastosowane_srodki_sankcyjne")
+    assert provisions is not None
     if len(provisions) > registry.string.max_length:
         sanction.add("description", provisions)
         sanction.add("provisions", "See description.")
@@ -161,15 +161,17 @@ def crawl_row(context: Context, row: Dict[str, str], table_title: str):
     context.emit(sanction)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     doc = context.fetch_html(context.data_url, absolute_links=True)
-    table = doc.xpath(".//h3[text() = 'Osoby']/following-sibling::div//table")[0]
+    table = h.xpath_element(
+        doc, ".//h3[text() = 'Osoby']/following-sibling::div//table"
+    )
     for row in h.parse_html_table(table, header_tag="td"):
         crawl_row(context, h.cells_to_str(row), "osoby")
 
     # Pretty special xpath because they have some <table><tr><table> thing going on
-    table = doc.xpath(
-        ".//h3[text() = 'Podmioty']/following-sibling::div//table//tr//table"
-    )[0]
+    table = h.xpath_element(
+        doc, ".//h3[text() = 'Podmioty']/following-sibling::div//table//tr//table"
+    )
     for row in h.parse_html_table(table, header_tag="td"):
         crawl_row(context, h.cells_to_str(row), "podmioty")

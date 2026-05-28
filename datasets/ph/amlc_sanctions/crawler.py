@@ -4,7 +4,7 @@ from typing import Dict
 from zavod import Context, helpers as h
 
 
-def crawl_row(context: Context, row: Dict[str, str]):
+def crawl_row(context: Context, row: Dict[str, str]) -> None:
     name = row.pop("name")
     name_raw = row.pop("original_string")
     alias = row.pop("alias")
@@ -33,7 +33,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     context.audit_data(row)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     doc = context.fetch_html(context.dataset.url, cache_days=1)
     table = doc.xpath(".//div[@class='item-page']/table")
     assert len(table) == 1, "Expected exactly one table in the document"

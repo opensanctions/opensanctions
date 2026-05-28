@@ -2,9 +2,11 @@ from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
 from zavod.stateful.positions import PositionCategorisation, categorise
+from zavod.util import Element
 
 
-def split_name(name):
+def split_name(name: str) -> tuple[str, str] | tuple[None, None]:
+    """Returns (first_name, last_name), or (None, None) if no uppercase suffix found."""
     for i in range(len(name)):
         last_name = name[i:].strip()
         if last_name == last_name.upper():
@@ -15,8 +17,11 @@ def split_name(name):
 
 
 def crawl_node(
-    context: Context, node, position: Entity, categorisation: PositionCategorisation
-):
+    context: Context,
+    node: Element,
+    position: Entity,
+    categorisation: PositionCategorisation,
+) -> None:
     mep_id = node.findtext(".//id")
     person = context.make("Person")
     person.id = context.make_slug(mep_id)
@@ -70,7 +75,7 @@ def crawl_node(
         context.emit(membership)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     path = context.fetch_resource("source.xml", context.data_url)
     context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)
     doc = context.parse_resource_xml(path)

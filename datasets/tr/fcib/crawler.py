@@ -67,7 +67,7 @@ def parse_passport_numbers(pass_no: Optional[str]) -> List[str]:
         return [pass_no]
 
 
-def crawl_row(context: Context, row: Dict[str, str], program: str, url: str):
+def crawl_row(context: Context, row: Dict[str, str], program: str, url: str) -> None:
     name = row.pop("name")
     if not name:
         return  # in the XLSX file, there are empty rows
@@ -147,7 +147,7 @@ def crawl_row(context: Context, row: Dict[str, str], program: str, url: str):
     context.audit_data(row, ignore=["sequence_no", "decision_date"])
 
 
-def crawl_xlsx(context: Context, url: str, program: str, short_name: str):
+def crawl_xlsx(context: Context, url: str, program: str, short_name: str) -> None:
     _, _, _, path = fetch_resource(context, f"{short_name}.xlsx", url, XLSX)
     context.export_resource(path, XLSX, title=f"{context.SOURCE_TITLE} - {short_name}")
     wb = load_workbook(path, read_only=True)
@@ -159,7 +159,7 @@ def crawl_xlsx(context: Context, url: str, program: str, short_name: str):
             crawl_row(context, row, program, url)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     # Use browser to render javascript-based frontend
     table_xpath = './/table[@class="table table-bordered"]'
     doc = fetch_html(

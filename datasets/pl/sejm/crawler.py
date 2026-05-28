@@ -17,10 +17,12 @@ def split_dob_pob(dob_pob: str) -> tuple[str, str]:
     return dob, pob
 
 
-def extract_party_name(context, doc: HtmlElement, label_id: str) -> str | None:
-    el = doc.xpath(f".//p[@id='{label_id}']/following-sibling::p[@class='right']")
-    if el is not None and len(el) == 1:
-        return el[0].text_content().strip()
+def extract_party_name(context: Context, doc: HtmlElement, label_id: str) -> str | None:
+    els = h.xpath_elements(
+        doc, f".//p[@id='{label_id}']/following-sibling::p[@class='right']"
+    )
+    if len(els) == 1:
+        return h.element_text(els[0])
     else:
         context.log.warning("Missing party affiliation.", doc=doc)
         return None

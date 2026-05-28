@@ -10,7 +10,7 @@ from zavod import Context, helpers as h
 LISTING_INTERVAL_RE = re.compile(r"(?P<start_date>.+) a (?P<end_date>.+)")
 
 
-def crawl_row(context: Context, row: Dict[str, str]):
+def crawl_row(context: Context, row: Dict[str, str]) -> None:
     tax_number = row.pop("CNPJ/CPF")
 
     if CNPJ.is_valid(tax_number):
@@ -74,7 +74,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     context.emit(entity)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     path = context.fetch_resource("source.csv", context.data_url)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
     with open(path, "r", encoding="latin-1") as fh:

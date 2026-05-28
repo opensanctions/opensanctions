@@ -27,7 +27,7 @@ def rename_headers(
     return result
 
 
-def clean_value(v):
+def clean_value(v: str | None) -> str | None:
     if not v:
         return v
     v = squash_spaces(v)
@@ -99,7 +99,7 @@ def crawl_pdf_url(context: Context) -> str:
     return source_url
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     pdf_url = crawl_pdf_url(context)
     path = context.fetch_resource("source.pdf", pdf_url)
     # If the PDF file has changed, check if the headers mappings are still on

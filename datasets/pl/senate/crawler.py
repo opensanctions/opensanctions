@@ -21,7 +21,7 @@ SKIP_DETAILS = [
 DOB_REGEX = re.compile(r"\b[Bb]orn\s+on\s+(\d{1,2}\s+[A-Z][a-z]+\s+\d{4})\s+in\b")
 
 
-def extract_dob(context, lookup: Lookup, text):
+def extract_dob(context: Context, lookup: Lookup, text: str) -> str | None:
     """Try to extract a date from text using regex, fallback to context lookup, log if missing."""
     match = DOB_REGEX.search(text)
     if match:

@@ -70,7 +70,7 @@ def parse_table(table: _Element) -> Generator[Dict[str, str], None, None]:
         yield {hdr: c for hdr, c in zip(headers, cells)}
 
 
-def crawl_item(context: Context, input_dict: dict):
+def crawl_item(context: Context, input_dict: dict[str, str]) -> None:
     dict_keys = list(input_dict.keys())
 
     for column in dict_keys:
@@ -111,7 +111,7 @@ def crawl_item(context: Context, input_dict: dict):
     context.audit_data(input_dict, ignore=["No.", "No"])
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     response = context.fetch_html(context.data_url)
 
     # There is a table for each year

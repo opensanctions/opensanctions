@@ -123,7 +123,14 @@ For each entity found, extract these fields:
 """
 
 
-def crawl_item(context, item, date, url, article_name, origin):
+def crawl_item(
+    context: Context,
+    item: Designee,
+    date: str,
+    url: str,
+    article_name: str,
+    origin: str,
+) -> None:
     entity = context.make(item.entity_schema)
     entity.id = context.make_id(item.name, item.country)
     entity.add("name", item.name, origin=origin)
@@ -186,7 +193,7 @@ def crawl_press_release(context: Context, url: str) -> None:
         crawl_item(context, item, date, url, article_name, review.origin)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     page = 0
     while True:
         base_url = f"https://ofac.treasury.gov/press-releases?page={page}"

@@ -10,7 +10,7 @@ HUMAN_RIGHTS_DESC = (
 )
 
 
-def crawl_item_belarus(context: Context, source_url, raw_name: str):
+def crawl_item_belarus(context: Context, source_url: str, raw_name: str) -> None:
     match = re.search(r"([^\(\n]+)\s*(?:\((.+)\))?", raw_name)
     if match:
         name = match.group(1)
@@ -35,7 +35,7 @@ def crawl_item_belarus(context: Context, source_url, raw_name: str):
     context.emit(sanction)
 
 
-def crawl_item_human_rights(context: Context, source_url, raw_name: str):
+def crawl_item_human_rights(context: Context, source_url: str, raw_name: str) -> None:
     # "1. Mr. John Doe (also known as John Smith)"
     # "1.23 Mr. John Doe (also known as John Smith)"
     match = re.search(r"^\d+\.\d*\.?\s*([^(\n]+)(?:\s*\(also\s*([^)]+)\))?", raw_name)
@@ -64,7 +64,7 @@ def crawl_item_human_rights(context: Context, source_url, raw_name: str):
     context.emit(sanction)
 
 
-def crawl_item_rus(context: Context, source_url, raw_name: str):
+def crawl_item_rus(context: Context, source_url: str, raw_name: str) -> None:
     match = re.search(r"^\d+\.\d*\.?", raw_name)
     if match:
         prefix = match.group()
@@ -89,7 +89,7 @@ def crawl_item_rus(context: Context, source_url, raw_name: str):
     context.emit(sanction)
 
 
-def crawl_belarus(context, url):
+def crawl_belarus(context: Context, url: str) -> None:
     doc = context.fetch_html(url)
     main_container = doc.xpath(".//article")
     assert len(main_container) == 1, (
@@ -119,7 +119,7 @@ def crawl_belarus(context, url):
         crawl_item_belarus(context, url, item.text_content())
 
 
-def crawl_human_rights(context, url):
+def crawl_human_rights(context: Context, url: str) -> None:
     doc = context.fetch_html(url)
     main_container = doc.xpath(".//article")
     assert len(main_container) == 1, (
@@ -143,7 +143,7 @@ def crawl_human_rights(context, url):
         directive.getparent().remove(directive)
 
 
-def crawl_rus(context, url):
+def crawl_rus(context: Context, url: str) -> None:
     doc = context.fetch_html(url)
     main_container = doc.xpath(".//article")
     h.assert_dom_hash(main_container[0], "ee2ce6c8eaec412ae93ecb4e38a305ba627d7a47")
@@ -157,7 +157,7 @@ def crawl_rus(context, url):
         crawl_item_rus(context, url, raw_name)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     index_doc = context.fetch_html(context.data_url, absolute_links=True)
     anchors = index_doc.xpath(".//*[contains(text(), 'LIST OF SUBJECTS')]/ancestor::a")
     assert len(anchors) == 3, "Could not find the links to the lists"

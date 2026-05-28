@@ -24,7 +24,7 @@ def clean_name(name: str) -> str:
     return REGEX_CLEAN_NAME.sub("", name)
 
 
-def crawl_item(url: str, context: Context):
+def crawl_item(url: str, context: Context) -> None:
     response = fetch_html(
         context,
         url,
@@ -82,7 +82,7 @@ def crawl_item(url: str, context: Context):
     context.audit_data(info_dict, ignore=["Status"])
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     response = context.fetch_html(context.data_url, cache_days=1, absolute_links=True)
 
     # We are going to iterate over all url of the designated persons
