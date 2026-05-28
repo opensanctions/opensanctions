@@ -12,7 +12,7 @@ def get_members_urls(context: Context) -> list:
     return h.xpath_strings(main_website, xpath_to_a_tags)
 
 
-def crawl_item(member_url: str, context: Context):
+def crawl_item(member_url: str, context: Context) -> None:
     member_page_html = context.fetch_html(member_url)
 
     name = h.xpath_string(member_page_html, '//*[@id="main"]/header/div/h1/text()')
@@ -62,7 +62,7 @@ def crawl_item(member_url: str, context: Context):
     context.emit(occupancy)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     members_urls = get_members_urls(context)
 
     if members_urls is None:
