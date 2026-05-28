@@ -17,7 +17,7 @@ FIELDS = {
 }
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     base_url = context.data_url
     doc = context.fetch_html(base_url)
     for link in doc.findall(".//span[@class='field-content']"):
@@ -32,7 +32,7 @@ def crawl(context: Context):
         crawl_person(context, link.text, url)
 
 
-def crawl_person(context: Context, person_id: str, url: str):
+def crawl_person(context: Context, person_id: str, url: str) -> None:
     """read and parse every person-page"""
     doc = context.fetch_html(url)
     person = context.make("Person")

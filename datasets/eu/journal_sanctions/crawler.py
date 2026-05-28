@@ -30,7 +30,7 @@ GC_ROWS = []
 
 
 @cache
-def extract_program_code(context, source_url):
+def extract_program_code(context: Context, source_url: str) -> str | None:
     """Fetch EU act code from a EUR-Lex page."""
     if SPECIAL_CASE_URL in source_url:
         return "833/2014"
@@ -423,7 +423,7 @@ def crawl_context_row(context: Context, row_idx: int, row: dict[str, str]) -> No
     )
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     # Round 1: unconsolidated.csv with the latest journal updates
     # Unconsolidated between EU Journal and XML, not in the consolidated legislation sense.
     path = context.fetch_resource("unconsolidated.csv", context.data_url)
