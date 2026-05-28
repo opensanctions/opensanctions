@@ -112,7 +112,7 @@ PAGE_FIELDS = [
 def crawl_member(
     context: Context,
     member: Dict[str, Union[str, int]],
-):
+) -> None:
     """Emit entities for a member of the Legislative Council from JSON data."""
     salute_name = member.pop("salute_name")
     context.log.debug("Adding {name}".format(name=salute_name))
@@ -164,7 +164,7 @@ def crawl_member(
     context.audit_data(member, ignore=UNUSED_LIST_FIELDS)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     """Retrieve member list and member information from the JSON API
     and emit entities for council members."""
     assert context.dataset.data is not None

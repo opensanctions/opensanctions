@@ -72,7 +72,7 @@ def crawl_birth_year_place(context: Context, url: str) -> tuple[str | None, str 
     return None, None
 
 
-def crawl_item(context: Context, item: etree):
+def crawl_item(context: Context, item: etree) -> None:
     anchor = item.find(".//a")
     if anchor is None:
         return
@@ -115,7 +115,7 @@ def crawl_item(context: Context, item: etree):
         context.emit(occupancy)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     items_xpath = '//li[contains(@class, "tbmm-list-item")]'
     doc = fetch_html(
         context,
