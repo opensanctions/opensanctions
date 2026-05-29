@@ -205,6 +205,8 @@ lookups:
         value: CN
       - match: "République de Biélorussie"
         value: BY
+      - match: "ÉTAT DE PALESTINE"
+        value: PS
   type.identifier:
     options:
       - match: "BMJIIRT"
@@ -254,6 +256,13 @@ lookups:
           jurisdiction: ru
       - match: "Lieu d'enregistrement: Israël"
         props:
+          jurisdiction: il
+      - match: "Lieu d'enregistrement: Sha'ar Binyamin"
+        props:
+          address: "Sha'ar Binyamin"
+      - match: "PO BOX 44439, Jérusalem, Israël, 9144302"
+        props:
+          address: "PO BOX 44439, Jérusalem, Israël, 9144302"
           jurisdiction: il
       - match: "Lieu d'enregistrement: Turquie"
         props:
@@ -6280,6 +6289,14 @@ lookups:
         props:
           registrationNumber: 600122610
           incorporationDate: 1996-12-23
+      - match: "Numéro d'enregistrement / Date d'enregistrement: 18.2.1979: 570025742"
+        props:
+          registrationNumber: 570025742
+          incorporationDate: 1979-02-18
+      - match: "Numéro d'enregistrement / Date d'enregistrement: 18.6.2013: 580575629"
+        props:
+          registrationNumber: 580575629
+          incorporationDate: 2013-06-18
       - match: "Type d'entité: Unité militaire du Corps des gardiens de la révolution islamique (IRGC) - Principal lieu d'activité: Iran: /Autres entités associées: Corps des gardiens de la révolution islamique (IRGC)"
         props:
           legalForm: Unité militaire du Corps des gardiens de la révolution islamique (IRGC)
