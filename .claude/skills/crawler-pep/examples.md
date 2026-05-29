@@ -30,6 +30,9 @@ def crawl_member(
     h.apply_date(person, "birthDate", row.pop("dob", None))
     person.add("gender", row.pop("gender", None))
     person.add("political", row.pop("party", None))
+    profile_url = row.pop("profile_url", None)
+    if profile_url is not None:
+        person.add("sourceUrl", profile_url)
 
     # IMPORTANT: set ALL person props BEFORE calling make_occupancy.
     # make_occupancy reads birthDate/deathDate from the entity to determine PEP status.

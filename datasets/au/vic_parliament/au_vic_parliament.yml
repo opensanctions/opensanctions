@@ -1,0 +1,45 @@
+name: au_vic_parliament
+title: Australia State Parliament of Victoria
+prefix: au-vicparl
+entry_point: crawler.py
+coverage:
+  frequency: weekly
+  start: 2026-05-18
+load_statements: true
+ci_test: false
+summary: >
+  Current members of both chambers of the Parliament of Victoria, Australia.
+description: |
+  Lists current members of the Parliament of Victoria, including both the
+  Legislative Assembly (lower house) and the Legislative Council (upper house).
+  The data is sourced from the parliament's official member directory and is
+  updated when membership changes following elections or by-elections.
+url: https://www.parliament.vic.gov.au/members/member-search/
+publisher:
+  name: Parliament of Victoria
+  description: >
+    The Parliament of Victoria is the state legislature of Victoria, Australia,
+    consisting of the Legislative Assembly and the Legislative Council.
+  url: https://www.parliament.vic.gov.au/
+  country: au
+  official: true
+data:
+  url: https://www.parliament.vic.gov.au/api/search/members?member-status=current&pageSize=100&sortType=2
+  format: JSON
+  lang: eng
+tags:
+  - list.pep
+  - gov.legislative
+  - gov.state
+
+assertions:
+  min:
+    schema_entities:
+      Person: 100
+      Position: 2
+    country_entities:
+      au: 100
+  max:
+    schema_entities:
+      Person: 200
+      Position: 5
