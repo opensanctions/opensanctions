@@ -34,13 +34,13 @@ REGEX_HOUSE_REP = re.compile(
 # House of Representatives Deputy Chairman Army
 
 
-def has_length(name: Optional[str], length: int):
+def has_length(name: Optional[str], length: int) -> bool:
     if name is None:
         return False
     return len(name.strip().strip(".")) >= length
 
 
-def crawl_position(context: Context, entity: Entity, name: str):
+def crawl_position(context: Context, entity: Entity, name: str) -> None:
     name = REGEX_FIX_COMMA.sub(r"\1, \2", name)
     name_lower = name.lower()
 
@@ -79,7 +79,7 @@ def crawl_position(context: Context, entity: Entity, name: str):
         entity.add("topics", "poi")
 
 
-def crawl_row(context: Context, row: Dict[str, str]):
+def crawl_row(context: Context, row: Dict[str, str]) -> None:
     entity = context.make("Person")
     identifier = row.pop("Unique Identifier")
     if not identifier:
@@ -135,7 +135,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     context.emit(entity)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     path = context.fetch_resource("source.csv", context.data_url)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:

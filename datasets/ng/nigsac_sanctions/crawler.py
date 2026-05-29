@@ -1,5 +1,4 @@
 from lxml import html
-from typing import Dict
 from rigour.mime.types import HTML
 from normality import collapse_spaces, slugify
 
@@ -8,7 +7,7 @@ from zavod import helpers as h
 from zavod.entity import Entity
 
 
-def format_birth_place(city, country):
+def format_birth_place(city: str | None, country: str | None) -> str | None:
     if city and country:
         return f"{city}, {country}"
     if city:
@@ -18,7 +17,7 @@ def format_birth_place(city, country):
     return None
 
 
-def parse_page(context: Context, url) -> Dict[str, str]:
+def parse_page(context: Context, url: str) -> dict[str, str | None]:
     doc = context.fetch_html(url, cache_days=1)
     data = dict()
     for dt in doc.findall(".//dt"):
@@ -37,7 +36,13 @@ def parse_page(context: Context, url) -> Dict[str, str]:
     return data
 
 
-def crawl_common(context: Context, url: str, entity: Entity, sanction: Entity, data):
+def crawl_common(
+    context: Context,
+    url: str,
+    entity: Entity,
+    sanction: Entity,
+    data: dict[str, str | None],
+) -> None:
     entity.add("sourceUrl", url)
     entity.add("topics", "sanction")
     entity.add("notes", data.pop("narrative-summary"))
@@ -51,7 +56,7 @@ def crawl_common(context: Context, url: str, entity: Entity, sanction: Entity, d
     context.audit_data(data, ["phone-numbers"])
 
 
-def crawl_individual(context: Context, url: str, data: Dict[str, str]):
+def crawl_individual(context: Context, url: str, data: dict[str, str | None]) -> None:
     first_name = data.pop("first-name")
     middle_name = data.pop("middlename")
     last_name = data.pop("surname")
@@ -93,7 +98,7 @@ def crawl_individual(context: Context, url: str, data: Dict[str, str]):
     crawl_common(context, url, entity, sanction, data)
 
 
-def crawl_entity(context: Context, url: str, data: Dict[str, str]):
+def crawl_entity(context: Context, url: str, data: dict[str, str | None]) -> None:
     entity = context.make("LegalEntity")
     name = data.pop("entity-name")
     entity.id = context.make_id(name)
@@ -109,7 +114,7 @@ def crawl_entity(context: Context, url: str, data: Dict[str, str]):
     crawl_common(context, url, entity, sanction, data)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     path = context.fetch_resource("source.html", context.data_url)
     context.export_resource(path, HTML, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:

@@ -1,5 +1,5 @@
 import openpyxl
-from typing import Any, Dict, Generator, List, Optional, Tuple
+from typing import Any, Iterator, Optional, Tuple
 from normality import collapse_spaces, slugify
 from rigour.mime.types import XLSX
 import re
@@ -59,7 +59,7 @@ def clean_position(
         return res.name
 
 
-def position_topics(position):
+def position_topics(position: str) -> list[str]:
     if "President Federal Republic Of Nigeria" in position:
         return ["gov.national", "gov.head"]
     if position.startswith("Minister"):
@@ -83,7 +83,9 @@ def parse_position_dates(string: Optional[str]) -> Tuple[Optional[str], Optional
     return start, end
 
 
-def crawl_pep(context: Context, row) -> Tuple[Optional[str], Optional[str]]:
+def crawl_pep(
+    context: Context, row: dict[str, Any]
+) -> Tuple[Optional[str], Optional[str]]:
     name = row.pop("name")
     birth_date = row.pop("date_of_birth", None)
     birth_date = birth_date.isoformat()[:10] if birth_date else None
@@ -132,7 +134,9 @@ def crawl_pep(context: Context, row) -> Tuple[Optional[str], Optional[str]]:
     return None, None
 
 
-def crawl_relative(context: Context, row, pep_ids):
+def crawl_relative(
+    context: Context, row: dict[str, Any], pep_ids: dict[str | None, str | None]
+) -> None:
     name = row.pop("name")
     pep_name = row.pop("pep_name")
     pep_id = pep_ids.get(slugify(pep_name), None)
@@ -158,8 +162,8 @@ def crawl_relative(context: Context, row, pep_ids):
     context.emit(rel)
 
 
-def worksheet_rows(sheet) -> Generator[Dict[str, Any], None, None]:
-    headers: Optional[List[str]] = None
+def worksheet_rows(sheet: Any) -> Iterator[dict[str, Any]]:
+    headers: list[str] | None = None
     for row in sheet.rows:
         cells = [c.value for c in row]
         if headers is None:
@@ -168,7 +172,7 @@ def worksheet_rows(sheet) -> Generator[Dict[str, Any], None, None]:
         yield dict(zip(headers, cells))
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     pep_ids = {}
     dupes = set()
 
