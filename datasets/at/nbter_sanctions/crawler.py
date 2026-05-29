@@ -1,11 +1,10 @@
 import csv
-from typing import Dict
 
 from zavod import Context
 from zavod import helpers as h
 
 
-def crawl_row(context: Context, row: Dict[str, str]):
+def crawl_row(context: Context, row: dict[str, str]) -> None:
     full_name = row.pop("name")
     # Split `other_name` on `/` and trim any extra whitespace
     other_names = row.pop("other name").split("/")
@@ -58,7 +57,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
             context.emit(entity)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     doc = context.fetch_html(
         context.dataset.model.url, cache_days=1, absolute_links=True
     )
