@@ -3,7 +3,7 @@ from datetime import date, datetime
 import os
 from pathlib import Path
 import tempfile
-from typing import Any, Generator, List, Iterable, Dict
+from typing import Any, Generator, List, Iterable, Iterator, Dict
 from zipfile import ZipFile
 from dataclasses import dataclass
 
@@ -199,6 +199,28 @@ def merge_duplicate_company_records(df: DataFrame) -> DataFrame:
     return non_dupes.union(deduped)
 
 
+def _parse_archives_udf(
+    batches: Iterable[pandas.DataFrame],
+) -> Iterator[pandas.DataFrame]:
+    """mapInPandas worker: take batches of [url] rows, yield batches of parsed company records.
+
+    Flushes every N rows to bound per-worker memory, since our records contain
+    nested arrays (ownerships/directorships/etc.) and can be large.
+    """
+    FLUSH_EVERY = 10_000
+
+    rows: list[dict[str, Any]] = []
+    for batch in batches:
+        for url in batch["url"]:
+            for row in crawl_archive(BlobURL(url)):
+                rows.append(row)
+                if len(rows) >= FLUSH_EVERY:
+                    yield pandas.DataFrame(rows)
+                    rows = []
+    if rows:
+        yield pandas.DataFrame(rows)
+
+
 def crawl_archives_for_date(
     spark: SparkSession,
     archive_date: date,
@@ -210,11 +232,12 @@ def crawl_archives_for_date(
 
     # TODO: Parallelizing on XML files (inside the zips) instead of just the zips
     # would speed up dataframe building for days that only have few archives a lot.
-    blob_rdd = spark.sparkContext.parallelize(archives)
-    parsed_rows_rdd = blob_rdd.flatMap(crawl_archive)
-    # Persist this expensive computation to avoid doing it multiple times during the following join
-    # https://spark.apache.org/docs/latest/rdd-programming-guide.html#which-storage-level-to-choose
-    df = spark.createDataFrame(parsed_rows_rdd, schema=company_record_schema).persist(
+    # One partition per archive so each task processes exactly one zip — matches the
+    # behavior of the previous sparkContext.parallelize(archives) path.
+    urls_df = spark.createDataFrame(
+        [(str(a),) for a in archives], schema="url string"
+    ).repartition(len(archives), "url")
+    df = urls_df.mapInPandas(_parse_archives_udf, schema=company_record_schema).persist(
         StorageLevel.DISK_ONLY
     )
     # Not historical merging across dumps (that happens a layer above) — just collapsing
