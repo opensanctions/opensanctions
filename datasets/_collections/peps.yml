@@ -35,6 +35,7 @@ children:
   - at_meine_abgeordneten
   - at_parlament
   - be_chamber
+  - be_walloon_parliament
   - bg_jud_declarations
   - br_pep
   - ca_commons
