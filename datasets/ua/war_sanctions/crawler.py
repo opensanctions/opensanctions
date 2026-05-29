@@ -208,17 +208,17 @@ def generate_token(context: Context, cid: str, pkey: str) -> str:
     return token
 
 
-def apply_names(context: Context, person: Entity, person_data: Dict[str, str]):
+def apply_names(context: Context, person: Entity, person_data: Dict[str, str]) -> None:
     for key, lang in NAMES_LANG_MAP.items():
         raw_name = person_data.pop(key)
         h.apply_reviewed_name_string(context, person, string=raw_name, lang=lang)
 
 
-def make_id(context: Context, entity_type: str, raw_id: str):
+def make_id(context: Context, entity_type: str, raw_id: str) -> str | None:
     return context.make_slug(entity_type, raw_id)
 
 
-def split_dob_dod(raw_date):
+def split_dob_dod(raw_date: str) -> tuple[str | None, str | None]:
     parts = [p.strip() for p in raw_date.split("-")]
     dob = parts[0] if parts and parts[0] else None
     dod = parts[1] if len(parts) > 1 and parts[1] else None
@@ -274,13 +274,13 @@ def load_managers(context: Context, program_key: str) -> Dict[str, Dict]:
 
 def crawl_ship_relation(
     context: Context,
-    party_info,
-    vessel_id_slug,
+    party_info: Dict[str, Any],
+    vessel_id_slug: str | None,
     managers_lookup: Dict[str, Dict],
     program_key: str,
     source_url: str,
     rel_role: Optional[str] = None,
-):
+) -> None:
     company_id_raw = party_info.pop("id")
     start_date = party_info.pop("date")
     # Note: We intentionally skip "c/o" (care of) relationships between companies.
@@ -326,14 +326,14 @@ def crawl_ship_relation(
 def emit_relation(
     context: Context,
     *,
-    subject_id,
-    object_id,
+    subject_id: str | None,
+    object_id: str | None,
     rel_schema: str = "UnknownLink",
     rel_role: Optional[str] = None,
     from_prop: str = "subject",
     to_prop: str = "object",
     start_date: Optional[str] = None,
-):
+) -> None:
     relation = context.make(rel_schema)
     relation.id = context.make_id(
         object_id, rel_role, subject_id, start_date, rel_schema
@@ -348,13 +348,13 @@ def emit_relation(
 
 def crawl_person(
     context: Context,
-    person_data,
-    program_key,
-    endpoint,
-    source_url,
+    person_data: Dict[str, Any],
+    program_key: str,
+    endpoint: str,
+    source_url: str,
     topic: Optional[str] = "poi",
     known_vessel_ids: set[str] | None = None,
-):
+) -> None:
     birth_date = person_data.pop("date_bd")
     death_date = person_data.pop("date_death", None)
     if "- " in birth_date:
@@ -441,7 +441,7 @@ def crawl_legal_entity(
     topic: Optional[str] = "poi",
     reg_prop: str = "ogrnCode",
     itn_prop: str = "innCode",
-):
+) -> None:
     legal_entity = context.make("LegalEntity")
     legal_entity.id = make_id(context, WSAPIDataType.ENTITY, company_data.pop("id"))
     legal_entity.add("name", h.multi_split(company_data.pop("name"), [" / "]))
@@ -495,7 +495,7 @@ def emit_manager(
     management_data: Dict,
     program_key: str,
     source_url: str,
-):
+) -> None:
     """Emit a manager entity. Call only when manager is referenced by a ship."""
     # Make a copy to avoid mutating the cached lookup dict
     management_data = management_data.copy()
@@ -524,11 +524,11 @@ def emit_manager(
 
 def crawl_vessel(
     context: Context,
-    vessel_data,
-    program_key,
+    vessel_data: Dict[str, Any],
+    program_key: str,
     managers_lookup: Dict[str, Dict],
     source_url: str,
-):
+) -> None:
     raw_vessel_id = vessel_data.pop("id")
     vessel = context.make("Vessel")
     vessel.id = make_id(context, WSAPIDataType.VESSEL, raw_vessel_id)
@@ -616,7 +616,7 @@ def crawl_vessel(
     )
 
 
-def crawl_rostec_structure(context: Context, structure_data):
+def crawl_rostec_structure(context: Context, structure_data: Dict[str, Any]) -> None:
     company_id = structure_data.pop("company_id")
     parent_id = structure_data.pop("parent_id")
     if parent_id and company_id:
@@ -631,7 +631,7 @@ def crawl_rostec_structure(context: Context, structure_data):
         )
 
 
-def check_updates(context: Context):
+def check_updates(context: Context) -> None:
     # NOTE: When debugging, uncomment the logging below ONLY in local development.
     # Do not enable in production or commit uncommented to avoid leaking
     # the API docs key in the logs.
@@ -702,7 +702,7 @@ def check_updates(context: Context):
     # - structure
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     check_updates(context)
 
     # Load all managers once upfront from the /transport/management endpoint
