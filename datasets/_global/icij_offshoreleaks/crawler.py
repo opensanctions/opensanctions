@@ -14,7 +14,7 @@ ADDRESSES_FULL: Dict[str, List[str]] = {}
 ADDRESSES_COUNTRIES: Dict[str, List[str]] = {}
 
 
-def parse_countries(text):
+def parse_countries(text: str | None) -> list[str] | None:
     return h.multi_split(text, [";"])
 
 
@@ -49,7 +49,7 @@ def read_rows(
                 #     context.log.info("Read %d rows..." % idx, file_name=file_name)
 
 
-def make_row_entity(context: Context, row: Dict[str, str], schema) -> None:
+def make_row_entity(context: Context, row: Dict[str, str], schema: str) -> None:
     # node_id = row.pop("id", row.pop("_id", row.pop("node_id", None)))
     node_id = row.pop("node_id", None)
     proxy = context.make(schema)

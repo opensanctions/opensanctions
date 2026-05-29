@@ -24,7 +24,7 @@ SPLITS = [
 ]
 
 
-def clean_name(string: str):
+def clean_name(string: str) -> str:
     name = re.sub(r"^[\]\), ]+", "", string)
     name = re.sub(r"[\[\(\., ]+$", "", string)
     return name
@@ -38,7 +38,7 @@ def parse_names(string: str) -> Tuple[str, List[str]]:
     return name, aliases
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     path = context.fetch_resource("source.html", context.data_url)
     context.export_resource(path, HTML, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:

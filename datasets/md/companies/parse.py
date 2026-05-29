@@ -24,7 +24,7 @@ LEGAL_ENTITIES_URL = "https://dataset.gov.md/ro/dataset/11736-date-din-registrul
 REGEX_CONTAINS_WORDS = re.compile(r"\w{2}")
 
 
-def read_ckan(context: Context, source_url, label) -> str:
+def read_ckan(context: Context, source_url: str, label: str) -> str:
     resource_list_doc = context.fetch_html(source_url)
 
     resource_item_els = list(
@@ -183,7 +183,7 @@ def parse_companies(context: Context, book: Workbook) -> None:
             context.log.info("Read %d companies..." % idx)
 
 
-def parse_nonprofits(context, wb):
+def parse_nonprofits(context: Context, wb: Workbook) -> None:
     assert set(wb.sheetnames) == {wb.active.title}
     for row in h.parse_xlsx_sheet(
         context,

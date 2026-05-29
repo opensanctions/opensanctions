@@ -32,7 +32,7 @@ REGEX_NAME_CLEAN = re.compile(
 )
 
 
-def clean_emails(emails):
+def clean_emails(emails: str | None) -> list[str]:
     out = []
     for email in h.multi_split(emails, ["/", ",", " or "]):
         if email is None:
@@ -42,7 +42,7 @@ def clean_emails(emails):
     return out
 
 
-def clean_phones(phones):
+def clean_phones(phones: str | None) -> list[str]:
     out = []
     for phone in h.multi_split(
         phones, [",", "/", "(1)", "(2)", "(3)", "(4)", "(5)", "(6)", "(7)", "(8)"]
@@ -54,11 +54,11 @@ def clean_phones(phones):
     return out
 
 
-def clean_name(name):
+def clean_name(name: str) -> str:
     return REGEX_NAME_CLEAN.sub("", name).strip()
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     officials = context.fetch_json(context.data_url, cache_days=1).get("data")
 
     # All munis

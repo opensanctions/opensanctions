@@ -7,14 +7,18 @@ from normality import collapse_spaces
 from requests import HTTPError
 
 from zavod import Context, helpers as h
+from zavod.entity import Entity
 from zavod.stateful.positions import OccupancyStatus, categorise
+from zavod.util import Element
 
 PARTY_NAMES = defaultdict(int)
 PARTY_REGEX = re.compile(r"(\([\w ]+\)|, [\w ]+$)")
 MAX_POSITION_NAME_LENGTH = 120
 
 
-def extract_dates(context: Context, url, el):
+def extract_dates(
+    context: Context, url: str, el: Element
+) -> tuple[str | None, str | None, bool]:
     active_date_el = el.find('.//span[@class="aktiv"]')
     inactive_dates_el = el.find('.//span[@class="inaktiv"]')
     start_date = None
@@ -69,7 +73,7 @@ def extract_dates(context: Context, url, el):
     return start_date, end_date, assume_current
 
 
-def strip_party_name(position_name):
+def strip_party_name(position_name: str) -> str:
     party_match = PARTY_REGEX.search(position_name)
     if party_match:
         party_name = party_match.group(0).strip()
@@ -83,7 +87,7 @@ def strip_party_name(position_name):
     return collapse_spaces(position_name)
 
 
-def crawl_sources(context, entity, el):
+def crawl_sources(context: Context, entity: Entity, el: Element) -> None:
     for source_el in el.xpath('.//p[contains(@class, "source")]'):
         text = collapse_spaces(source_el.text_content())
         entity.add("description", text)
@@ -91,7 +95,9 @@ def crawl_sources(context, entity, el):
             entity.add("sourceUrl", link.get("href"))
 
 
-def crawl_mandate(context, url, person, el):
+def crawl_mandate(
+    context: Context, url: str, person: Entity, el: Element
+) -> str | None:
     """Returns true if dates could be parsed for a PEP position."""
     start_date, end_date, assume_current = extract_dates(context, url, el)
 
@@ -150,7 +156,7 @@ def crawl_mandate(context, url, person, el):
         return start_date or end_date
 
 
-def crawl_title(context, url, person, el):
+def crawl_title(context: Context, url: str, person: Entity, el: Element) -> None:
     h1 = el.find(".//h1")
     position_name = h1.getnext().text_content().strip()
     position = h.make_position(context, position_name, country="at", lang="deu")
@@ -176,7 +182,7 @@ def crawl_title(context, url, person, el):
         context.emit(occupancy)
 
 
-def crawl_item(url_info_page: str, context: Context):
+def crawl_item(url_info_page: str, context: Context) -> None:
     try:
         info_page = context.fetch_html(url_info_page, cache_days=1, absolute_links=True)
     except HTTPError as e:
@@ -222,7 +228,7 @@ def crawl_item(url_info_page: str, context: Context):
         crawl_title(context, url_info_page, person, header_el)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     response = context.fetch_html(context.data_url)
 
     # XPath to the url for the pages of each politician

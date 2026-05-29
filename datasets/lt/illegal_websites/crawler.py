@@ -1,12 +1,11 @@
 import csv
-from typing import Dict
 from rigour.mime.types import CSV
 
 from zavod import Context
 from zavod.extract.zyte_api import fetch_resource
 
 
-def crawl_row(context: Context, row: Dict[str, str]):
+def crawl_row(context: Context, row: dict[str, str]) -> None:
     domain = row.pop("\ufeffDomenas")
     company_name = row.pop("Bendrovės pavadinimas")
     brand_name = row.pop("Prekės ženklas")
@@ -23,7 +22,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     context.audit_data(row)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     _, _, _, path = fetch_resource(
         context,
         "source.csv",
