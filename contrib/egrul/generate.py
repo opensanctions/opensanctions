@@ -1,7 +1,7 @@
 from datetime import date, datetime, timedelta
 from typing import Optional, Iterable
 
-from pyspark import Row, StorageLevel
+from pyspark import Row
 from pyspark.sql import SparkSession
 from pyspark.sql.dataframe import DataFrame
 from pyspark.sql.functions import (
@@ -14,8 +14,10 @@ from pyspark.sql.functions import (
 )
 
 from archives import (
+    BlobURL,
     crawl_archives_for_date,
     list_archives_by_date,
+    materialize_with_cache_for_local,
 )
 from schema import company_record_schema
 from zavod import Context
@@ -226,12 +228,6 @@ def crawl(context: Context) -> None:
     # For debugging (or manual partial resume), narrow the date range via start_date.
     archives_by_date = list_archives_by_date()
 
-    # Process the archives first to have them ready in the warehouse for the
-    # iterative join later.
-    for archive_date, archives in archives_by_date:
-        context.log.info("Processing %s" % archive_date)
-        crawl_archives_for_date(spark, archive_date, archives)
-
     # The general idea is that we continously fold new data into the existing data, starting at the full dump
     # at 2022-01-01. Because updating the full dataset with every new incremental update takes too long
     # (~90s per join on my M4, depending a bit on the size of the new data), we exploit the fact that the operation is
@@ -239,8 +235,12 @@ def crawl(context: Context) -> None:
     # yearly partial update, and finally merge that into the full dump, to get the state at the end of the year.
     # We do this for every year and then merge the years. We could also do chunks of 20 or whatever, it doesn't matter.
     # What does matter is to reduce the number of joins with very large datasets.
-    # Saving to partial_ tables is not strictly required, but quite useful to interrupt and resume the process when
-    # running locally and running sql queries on it.
+    #
+    # The materialize_with_cache_for_local() calls below wrap each intermediate: in local dev
+    # (hive catalog) they save to partial_ tables that survive across runs, so a failed
+    # local run can be resumed without redoing months that already finished. In prod
+    # (in-memory catalog) they fall back to localCheckpoint and re-do everything on a
+    # re-submitted batch.
     year_dfs = []
     for year in [2022, 2023, 2024, 2025, 2026]:
         year_archives = [
@@ -251,55 +251,57 @@ def crawl(context: Context) -> None:
         full_archive = year_archives[0]
         partial_archives = year_archives[1:]
 
-        year_table_name = "partial_%d" % year
-        if spark.catalog.tableExists(year_table_name):
-            context.log.info("Reading %d from table" % year)
-            year_dfs.append(spark.table(year_table_name))
-            continue
+        def build_year(
+            year: int = year,
+            partial_archives: list[tuple[date, list[BlobURL]]] = partial_archives,
+        ) -> DataFrame:
+            month_dfs = []
+            for month in range(1, 13):
+                day_archives = [x for x in partial_archives if x[0].month == month]
+                if not day_archives:
+                    continue
 
-        month_dfs = []
-        for month in range(1, 13):
-            month_table_name = "partial_%d_%02d" % (year, month)
-            if spark.catalog.tableExists(month_table_name):
-                context.log.info("Reading %d-%d from table" % (year, month))
-                month_dfs.append(spark.table(month_table_name))
-                continue
+                def build_month(
+                    year: int = year,
+                    month: int = month,
+                    day_archives: list[tuple[date, list[BlobURL]]] = day_archives,
+                ) -> DataFrame:
+                    context.log.info("Processing %d-%d" % (year, month))
+                    day_dfs = [
+                        crawl_archives_for_date(spark, x[0], x[1]) for x in day_archives
+                    ]
+                    context.log.info("Merging day records for %d-%d" % (year, month))
+                    month_df = merge_company_record_dfs(context, day_dfs)
+                    context.log.info(
+                        "%d-%d has %d records" % (year, month, month_df.count())
+                    )
+                    return month_df
 
-            context.log.info("Processing %d-%d" % (year, month))
-            day_archives = [
-                x for x in partial_archives if x[0].year == year and x[0].month == month
-            ]
-            day_dfs = [crawl_archives_for_date(spark, x[0], x[1]) for x in day_archives]
-            context.log.info("Merging day records for %d-%d" % (year, month))
-            if len(day_dfs) == 0:
-                continue
+                month_dfs.append(
+                    materialize_with_cache_for_local(
+                        spark, "partial_%d_%02d" % (year, month), build_month
+                    )
+                )
 
-            month_df = merge_company_record_dfs(context, day_dfs)
-            context.log.info("%d-%d has %d records" % (year, month, month_df.count()))
+            context.log.info("Merging partial monthly records for %d" % year)
+            partial_year_df = merge_company_record_dfs(context, month_dfs)
+            full_df = crawl_archives_for_date(spark, full_archive[0], full_archive[1])
+            context.log.info("Merging full and partial daily records for %d" % year)
+            year_df = merge_company_record_dfs(context, [full_df, partial_year_df])
+            context.log.info("%d has %d records" % (year, year_df.count()))
+            return year_df
 
-            month_df.write.saveAsTable(month_table_name)
-            month_df = month_df.persist(StorageLevel.DISK_ONLY)
-            month_dfs.append(month_df)
-
-        context.log.info("Merging partial monthly records for %d" % year)
-        partial_year_df = merge_company_record_dfs(context, month_dfs)
-        full_df = crawl_archives_for_date(spark, full_archive[0], full_archive[1])
-        context.log.info("Merging full and partial daily records for %d" % year)
-        year_df = merge_company_record_dfs(context, [full_df, partial_year_df])
-        context.log.info("%d has %d records" % (year, year_df.count()))
-
-        # Persist to make sure that Spark doesn't get the idea to throw away and recompute this.
-        year_df = year_df.persist(StorageLevel.DISK_ONLY)
-        year_df.write.saveAsTable(year_table_name, mode="overwrite")
-        year_dfs.append(year_df)
+        year_dfs.append(
+            materialize_with_cache_for_local(spark, "partial_%d" % year, build_year)
+        )
 
     context.log.info("Merging yearly records")
     # Each of these (join of ~12M on ~12M records with merge UDF in Python) takes around 8min on M4 10 cores
-    final_df = merge_company_record_dfs(context, year_dfs)
-
     last_date = archives_by_date[-1][0]
     final_table_name = "current_" + last_date.isoformat().replace("-", "_")
-    final_df.write.saveAsTable(final_table_name)
+    final_df = materialize_with_cache_for_local(
+        spark, final_table_name, lambda: merge_company_record_dfs(context, year_dfs)
+    )
 
     run_timestamp = datetime.now().strftime("%Y-%m-%dT%H-%M-%S")
     write_companies_df_to_csv(final_df, f"{OUTPUT_PREFIX}/{run_timestamp}")

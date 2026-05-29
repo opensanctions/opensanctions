@@ -3,7 +3,7 @@ from datetime import date, datetime
 from io import BytesIO
 import os
 from pathlib import Path
-from typing import Any, Generator, List, Iterable, Iterator, Dict
+from typing import Any, Callable, Generator, List, Iterable, Iterator, Dict
 from zipfile import ZipFile
 from dataclasses import dataclass
 
@@ -224,29 +224,71 @@ def _parse_archives_udf(
         yield pandas.DataFrame(rows)
 
 
+def materialize_with_cache_for_local(
+    spark: SparkSession,
+    name: str,
+    build: Callable[[], DataFrame],
+) -> DataFrame:
+    """Materialize an intermediate DataFrame, either via a persistent table or via an
+    executor-local checkpoint, depending on whether a persistent catalog is configured.
+
+    Why this helper exists at all
+    -----------------------------
+    The iterative-join pipeline (year-by-year folds in merge_company_record_dfs and the
+    monthly/yearly partial accumulations in crawl()) needs to materialize intermediate
+    DataFrames between rounds — otherwise the logical plan grows unboundedly and
+    eventually grinds Spark's planner to a halt. We also want to be able to *skip*
+    work that's already been done on a previous attempt, but only locally: a developer
+    re-running a failed local run shouldn't have to re-parse hundreds of GB of zips.
+    In prod we don't want any shared metastore/warehouse infrastructure just to enable
+    cross-batch resume — running a Dataproc Serverless batch twice for the same date
+    is cheap enough that paying for idle catalog services isn't worth it.
+
+    Two modes, selected automatically by the Spark catalog config:
+
+      catalogImplementation = "hive"  (local dev, opt-in via --conf):
+        Persist the intermediate via saveAsTable. The local Derby metastore and
+        ./spark-warehouse/ directory survive across spark-submit invocations, so a
+        re-run resumes by re-using already-built tables. The README documents the
+        flags needed to turn this on.
+
+      catalogImplementation = "in-memory"  (default; what runs on Dataproc Serverless):
+        Materialize via localCheckpoint(eager=True) to executor local disk. Same
+        plan-cutting and materialization semantics, no shared storage needed, no
+        warehouse dir or metastore to configure, and nothing to clean up afterwards.
+        Cross-batch resume is not supported in this mode — a re-submitted batch
+        starts from scratch.
+    """
+    catalog_impl = spark.conf.get("spark.sql.catalogImplementation", "in-memory")
+    if catalog_impl == "hive":
+        if spark.catalog.tableExists(name):
+            return spark.table(name)
+        df = build()
+        df.write.saveAsTable(name, mode="overwrite")
+        return spark.table(name)
+    return build().localCheckpoint(eager=True)
+
+
 def crawl_archives_for_date(
     spark: SparkSession,
     archive_date: date,
     archives: List[BlobURL],
 ) -> DataFrame:
+    def build() -> DataFrame:
+        # TODO: Parallelizing on XML files (inside the zips) instead of just the zips
+        # would speed up dataframe building for days that only have few archives a lot.
+        # One partition per archive so each task processes exactly one zip — matches the
+        # behavior of the previous sparkContext.parallelize(archives) path.
+        urls_df = spark.createDataFrame(
+            [(str(a),) for a in archives], schema="url string"
+        ).repartition(len(archives), "url")
+        df = urls_df.mapInPandas(
+            _parse_archives_udf, schema=company_record_schema
+        ).persist(StorageLevel.DISK_ONLY)
+        # Not historical merging across dumps (that happens a layer above) — just
+        # collapsing duplicate IDs within this single dump, which appears to be a
+        # bureaucratic artifact.
+        return merge_duplicate_company_records(df)
+
     table_name = archive_date.isoformat().replace("-", "_")
-    if spark.catalog.tableExists(table_name):
-        return spark.table(table_name)
-
-    # TODO: Parallelizing on XML files (inside the zips) instead of just the zips
-    # would speed up dataframe building for days that only have few archives a lot.
-    # One partition per archive so each task processes exactly one zip — matches the
-    # behavior of the previous sparkContext.parallelize(archives) path.
-    urls_df = spark.createDataFrame(
-        [(str(a),) for a in archives], schema="url string"
-    ).repartition(len(archives), "url")
-    df = urls_df.mapInPandas(_parse_archives_udf, schema=company_record_schema).persist(
-        StorageLevel.DISK_ONLY
-    )
-    # Not historical merging across dumps (that happens a layer above) — just collapsing
-    # duplicate IDs within this single dump, which appears to be a bureaucratic artifact.
-    df = merge_duplicate_company_records(df)
-
-    df.write.saveAsTable(table_name, mode="overwrite")
-
-    return spark.table(table_name)
+    return materialize_with_cache_for_local(spark, table_name, build)
