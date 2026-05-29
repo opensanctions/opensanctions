@@ -88,6 +88,7 @@ class CrawlState(object):
 
 
 def make_position_name(
+    *,
     rank: str,
     public_body: str,
     agency: str,
@@ -138,7 +139,8 @@ def make_hierarchy(breadcrumbs: HtmlElement) -> Optional[str]:
 
 def check_expectations(
     context: Context,
-    link: str,
+    url: str,
+    *,
     official_count: int,
     pep_count: int,
     expectations: dict[str, int] | None,
@@ -149,14 +151,14 @@ def check_expectations(
                 "Insufficient officials",
                 expected=expectations["officials"],
                 actual=official_count,
-                url=link,
+                url=url,
             )
         if pep_count < expectations["peps"]:
             context.log.warning(
                 "Insufficient PEPs",
                 expected=expectations["peps"],
                 actual=pep_count,
-                url=link,
+                url=url,
             )
 
 
@@ -164,7 +166,8 @@ def crawl_person(
     context: Context,
     state: CrawlState,
     official: HtmlElement,
-    link: str,
+    url: str,
+    *,
     public_body: str,
     agency: str,
     section_name: str,
@@ -188,7 +191,11 @@ def crawl_person(
 
     pep_status = is_pep(context, rank)
     position_name = make_position_name(
-        rank, public_body, agency, section_name, hierarchy
+        rank=rank,
+        public_body=public_body,
+        agency=agency,
+        section_name=section_name,
+        hierarchy=hierarchy,
     )
     # Override status and position name for MPs
     if collapse_spaces(section_name.lower()) == "members of parliament":
@@ -205,7 +212,7 @@ def crawl_person(
     # contains roles (scientists, clinical stuff, etc) that don't require citizenship
     person.add("country", "sg")
     person.add("name", full_name)
-    person.add("sourceUrl", link)
+    person.add("sourceUrl", url)
     person.add("position", rank)
     if title is not None:
         person.add("title", title)
@@ -231,26 +238,26 @@ def crawl_person(
             context.emit(occupancy)
             return True
     elif categorisation.is_pep is None:
-        context.log.info("Uncategorised position", position=position_name, url=link)
+        context.log.info("Uncategorised position", position=position_name, url=url)
         state.uncategorised.add(position_name)
     return False
 
 
-def crawl_body(context: Context, state: CrawlState, link: str) -> None:
+def crawl_body(context: Context, state: CrawlState, url: str) -> None:
     """Crawl a government body page"""
-    if link in state.seen_urls:
+    if url in state.seen_urls:
         return
-    state.seen_urls.add(link)
-    expectations = PAGE_EXPECTATIONS.get(link, None)
+    state.seen_urls.add(url)
+    expectations = PAGE_EXPECTATIONS.get(url, None)
     official_count = 0
     pep_count = 0
     try:
-        board_doc = context.fetch_html(link, cache_days=1)
+        board_doc = context.fetch_html(url, cache_days=1)
     except HTTPError as e:
         if e.response.status_code == 403:
             # We see one 403 right now - maybe it's in a "draft" state or something?
             # https://www.sgdi.gov.sg/ministries/mnd/statutory-boards/bca/departments/p--c/departments/wppd
-            context.log.info("Access denied for body page", url=link)
+            context.log.info("Access denied for body page", url=url)
             return
         raise
 
@@ -285,11 +292,11 @@ def crawl_body(context: Context, state: CrawlState, link: str) -> None:
                 context,
                 state,
                 official,
-                link,
-                public_body,
-                agency,
-                section_name,
-                hierarchy,
+                url,
+                public_body=public_body,
+                agency=agency,
+                section_name=section_name,
+                hierarchy=hierarchy,
             )
             if is_pep:
                 pep_count += 1
@@ -299,12 +306,25 @@ def crawl_body(context: Context, state: CrawlState, link: str) -> None:
         for official in section.findall(".//li[@id]"):
             official_count += 1
             is_pep = crawl_person(
-                context, state, official, link, public_body, agency, "", hierarchy
+                context,
+                state,
+                official,
+                url,
+                public_body=public_body,
+                agency=agency,
+                section_name="",
+                hierarchy=hierarchy,
             )
             if is_pep:
                 pep_count += 1
 
-    check_expectations(context, link, official_count, pep_count, expectations)
+    check_expectations(
+        context,
+        url,
+        official_count=official_count,
+        pep_count=pep_count,
+        expectations=expectations,
+    )
     subdivision_links = board_doc.xpath(".//div[contains(@class, 'tab-content')]//a")
     for subdivision_link in subdivision_links:
         crawl_body(context, state, subdivision_link.get("href"))
@@ -316,34 +336,46 @@ def crawl_spokespersons(context: Context, state: CrawlState) -> None:
 
     for list_item in main_doc.xpath(".//ul[@class='contact-list']//a"):
         # Extract the public body from the text within an <a> element
-        link_url = list_item.get("href")
+        url = list_item.get("href")
         public_body = list_item.text_content().strip()
-        crawl_subpage(context, state, link_url, public_body)
+        crawl_subpage(context, state, url, public_body=public_body)
 
 
 def crawl_subpage(
     context: Context,
     state: CrawlState,
-    link: str,
+    url: str,
+    *,
     public_body: str,
     agency: str | None = None,
 ) -> None:
     """Crawls a spokesperson page to extract spokesperson details and visit subdivision links."""
-    if link in state.seen_urls:
+    if url in state.seen_urls:
         return
-    state.seen_urls.add(link)
-    subpage_doc = context.fetch_html(link)
+    state.seen_urls.add(url)
+    subpage_doc = context.fetch_html(url)
     # Main subpage
     for person in subpage_doc.xpath("//div[@class='section-info']//li"):
-        crawl_person(context, state, person, link, public_body, agency, "", None)
+        crawl_person(
+            context,
+            state,
+            person,
+            url,
+            public_body=public_body,
+            agency=agency or "",
+            section_name="",
+            hierarchy=None,
+        )
     # Subsections
     for subsection_el in subpage_doc.xpath(
         ".//div[@class='tab-content']//ul[@class='section-listing']//a"
     ):
-        sub_link = subsection_el.get("href")
+        sub_url = subsection_el.get("href")
         agency = subsection_el.text_content().strip()
-        if sub_link:
-            crawl_subpage(context, state, sub_link, public_body, agency)
+        if sub_url:
+            crawl_subpage(
+                context, state, sub_url, public_body=public_body, agency=agency
+            )
 
 
 def crawl(context: Context) -> None:
@@ -362,15 +394,15 @@ def crawl(context: Context) -> None:
             ".//div[@class='directory-list']//ul[@class='ministries']//li//a"
         )
         for board in bodies:
-            link = board.get("href")
+            url = board.get("href")
             org_name = board.text_content().strip()
-            if link is None:
+            if url is None:
                 context.log.warning("No link found", org_name=org_name)
                 continue
             if org_name == "":
-                context.log.warning("No org name found", link=link)
+                context.log.warning("No org name found", url=url)
                 continue
-            crawl_body(context, state, link)
+            crawl_body(context, state, url)
     # Crawl spokespersons pages
     crawl_spokespersons(context, state)
     expected = set(PAGE_EXPECTATIONS.keys())
