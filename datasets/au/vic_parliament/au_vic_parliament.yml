@@ -1,5 +1,5 @@
 name: au_vic_parliament
-title: Australia Victoria Members of Parliament
+title: Australia State Parliament of Victoria
 prefix: au-vicparl
 entry_point: crawler.py
 coverage:
