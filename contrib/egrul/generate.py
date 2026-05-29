@@ -1,5 +1,4 @@
 from datetime import date, datetime, timedelta
-from pathlib import Path
 from typing import Optional, Iterable
 
 from pyspark import Row, StorageLevel
@@ -15,7 +14,6 @@ from pyspark.sql.functions import (
 )
 
 from archives import (
-    LOCAL_BUCKET_CACHE_DIR,
     crawl_archives_for_date,
     list_archives_by_date,
 )
@@ -23,7 +21,7 @@ from schema import company_record_schema
 from zavod import Context
 from zavod import Dataset
 
-PROCESSESED_PREFIX = "ru_egrul/processed/"
+OUTPUT_PREFIX = "gs://internal-data.opensanctions.org/ru_egrul/processed"
 
 
 def day_before(d: date) -> date:
@@ -123,7 +121,7 @@ def update_companies_from_new_companies(
     return merged.union(not_to_merge_old).union(not_to_merge_new)
 
 
-def write_companies_df_to_csv(df: DataFrame, path_prefix: Path) -> None:
+def write_companies_df_to_csv(df: DataFrame, path_prefix: str) -> None:
     """Write the companies DataFrame to CSV files to be emitted as FtM in the ru_egrul crawler.
 
     The processing happening here is basically:
@@ -196,11 +194,11 @@ def write_companies_df_to_csv(df: DataFrame, path_prefix: Path) -> None:
 
     # This is what's required for the Python csv module to read the file with no further options
     csv_options = {"header": True, "escape": '"', "mode": "overwrite"}
-    ownerships_df.write.csv(str(path_prefix / "ownerships"), **csv_options)
-    directorships_df.write.csv(str(path_prefix / "directorships"), **csv_options)
-    successions_df.write.csv(str(path_prefix / "successions"), **csv_options)
-    persons_df.write.csv(str(path_prefix / "persons"), **csv_options)
-    all_legal_entities_df.write.csv(str(path_prefix / "legalentities"), **csv_options)
+    ownerships_df.write.csv(f"{path_prefix}/ownerships", **csv_options)
+    directorships_df.write.csv(f"{path_prefix}/directorships", **csv_options)
+    successions_df.write.csv(f"{path_prefix}/successions", **csv_options)
+    persons_df.write.csv(f"{path_prefix}/persons", **csv_options)
+    all_legal_entities_df.write.csv(f"{path_prefix}/legalentities", **csv_options)
 
 
 def merge_company_record_dfs(
@@ -311,9 +309,8 @@ def crawl(context: Context) -> None:
     final_table_name = "current_" + last_date.isoformat().replace("-", "_")
     final_df.write.saveAsTable(final_table_name)
 
-    write_companies_df_to_csv(
-        final_df, LOCAL_BUCKET_CACHE_DIR / PROCESSESED_PREFIX / final_table_name
-    )
+    run_timestamp = datetime.now().strftime("%Y-%m-%dT%H-%M-%S")
+    write_companies_df_to_csv(final_df, f"{OUTPUT_PREFIX}/{run_timestamp}")
 
 
 def get_context(data_time: Optional[date] = None) -> Context:
