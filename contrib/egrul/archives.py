@@ -1,8 +1,8 @@
 from collections import defaultdict
 from datetime import date, datetime
+from io import BytesIO
 import os
 from pathlib import Path
-import tempfile
 from typing import Any, Generator, List, Iterable, Iterator, Dict
 from zipfile import ZipFile
 from dataclasses import dataclass
@@ -17,10 +17,12 @@ from google.cloud.storage import Client  # type: ignore
 
 from egrul_xml import parse_xml
 from schema import company_record_schema
+from zavod import Context
 
-LOCAL_BUCKET_CACHE_DIR = Path(
-    os.environ.get("LOCAL_BUCKET_CACHE_DIR", tempfile.gettempdir())
-)
+# Optional on-disk archive cache. Set this env var to a persistent path for local dev
+# (skips re-downloading hundreds of GB of zips on re-runs). On serverless workers,
+# leave unset — archives are streamed straight into worker memory.
+LOCAL_BUCKET_CACHE_DIR_ENV = "LOCAL_BUCKET_CACHE_DIR"
 
 SOURCE_DATA_BUCKET_NAME = "egrul.opensanctions.org"
 
@@ -58,10 +60,6 @@ class BlobURL:
 
     def __str__(self) -> str:
         return self.url
-
-
-def get_local_archive_path(blob_url: BlobURL) -> Path:
-    return LOCAL_BUCKET_CACHE_DIR / str(blob_url.name)
 
 
 def get_archive_date_from_blob_url(blob_url: BlobURL) -> date:
@@ -133,6 +131,33 @@ def list_archives_by_date(
     ]
 
 
+def _open_archive_zip(blob_url: BlobURL, context: Context) -> ZipFile:
+    """Open a zip archive, either from the optional on-disk cache or by streaming
+    the blob bytes into worker memory."""
+    cache_dir_env = os.environ.get(LOCAL_BUCKET_CACHE_DIR_ENV)
+    client = Client()
+    bucket = client.get_bucket(blob_url.bucket_name)
+    blob = bucket.blob(blob_url.name)
+
+    if cache_dir_env is not None:
+        # On-disk cache mode (local dev): persist the zip across runs.
+        local_path = Path(cache_dir_env) / blob_url.name
+        # TODO: a checksum comparison with the remote blob would be a good idea.
+        if not local_path.exists():
+            context.log.info("Downloading archive: %s" % blob_url)
+            local_path.parent.mkdir(parents=True, exist_ok=True)
+            blob.download_to_filename(local_path)
+        context.log.info(
+            "Opening cached archive: %s (cache of %s)" % (local_path, blob_url)
+        )
+        return ZipFile(local_path, "r")
+
+    # In-memory mode (serverless workers): download bytes and feed to ZipFile.
+    # Source zips are a few hundred MB — fits comfortably in worker memory.
+    context.log.info("Streaming archive: %s" % blob_url)
+    return ZipFile(BytesIO(blob.download_as_bytes()), "r")
+
+
 def crawl_archive(blob_url: BlobURL) -> Generator[dict[str, Any], None, None]:
     # Lazy import to avoid circular import with generate.py
     from generate import get_context
@@ -140,35 +165,13 @@ def crawl_archive(blob_url: BlobURL) -> Generator[dict[str, Any], None, None]:
     data_date = get_archive_date_from_blob_url(blob_url)
     context = get_context(data_date)
 
-    local_archive_path = get_local_archive_path(blob_url)
-    # TODO: Since we cache persistently locally (for running on Leon's machine),
-    # maybe a checksum comparison with the remote blob would be a good idea.
-    if not os.path.exists(local_archive_path):
-        context.log.info("Downloading archive: %s" % blob_url)
-        client = Client()
-        bucket = client.get_bucket(blob_url.bucket_name)
-        blob = bucket.blob(blob_url.name)
-        # mkdir -p the directory for the archive
-        local_archive_path.parent.mkdir(parents=True, exist_ok=True)
-        blob.download_to_filename(local_archive_path)
-
-    context.log.info(
-        "Opening local archive: %s (cache of %s)" % (local_archive_path, blob_url)
-    )
-
-    try:
-        with ZipFile(local_archive_path, "r") as zip:
-            for name in zip.namelist():
-                if not name.lower().endswith(".xml"):
-                    continue
-                with zip.open(name, "r") as fh:
-                    for e in parse_xml(context, fh):
-                        yield e
-    finally:
-        # Don't clean up the temporary file, for now this is being run on Leon's machine and it's
-        # okay to just have them cached.
-        # os.unlink(local_archive_path)
-        pass
+    with _open_archive_zip(blob_url, context) as zip:
+        for name in zip.namelist():
+            if not name.lower().endswith(".xml"):
+                continue
+            with zip.open(name, "r") as fh:
+                for e in parse_xml(context, fh):
+                    yield e
 
 
 def merge_duplicate_company_records(df: DataFrame) -> DataFrame:
