@@ -1,7 +1,6 @@
 from zavod import Context, helpers as h
 from zavod.stateful.positions import categorise
 
-
 IGNORE = [
     "DepCadId",  # position ID
     "DepCPId",  # constituency ID
@@ -10,10 +9,13 @@ IGNORE = [
 ]
 
 
-def crawl_parliament(context: Context, url: str) -> None:
+def crawl_parliament(context: Context, parl_name: str, url: str) -> None:
     plenary_chamber = context.fetch_json(url)["Plenario"]["Composicao"]
-
+    member_count = 0
+    occupied_count = 0
+    occupancy_count = 0
     for member in plenary_chamber:
+        some_occupied = False
         id = member.pop("DepId")
         name = member.pop("DepNomeCompleto")
 
@@ -57,17 +59,17 @@ def crawl_parliament(context: Context, url: str) -> None:
             # There are periods in the data for durations when the member has suspended/had
             # resigned early. We don't want occupancies for those.
             period_status = seat_occupancy.pop("sioDes")
-            is_active = (
-                context.lookup_value(
-                    "seat_status",
-                    period_status,
-                    warn_unmatched=True,
-                )
-                == "true"
+            is_active_str = context.lookup_value(
+                "seat_status", period_status, warn_unmatched=True
             )
+            is_active = is_active_str == "true"
 
             if not is_active:
                 continue
+            occupied_count += 1
+            if not some_occupied:
+                member_count += 1
+                some_occupied = True
 
             occupancy = h.make_occupancy(
                 context,
@@ -79,6 +81,7 @@ def crawl_parliament(context: Context, url: str) -> None:
             )
 
             if occupancy is not None:
+                occupancy_count += 1
                 occupancy.add("constituency", constituency_name)
                 occupancy.add("summary", period_status)
                 context.emit(person)
@@ -112,6 +115,13 @@ def crawl_parliament(context: Context, url: str) -> None:
                 context.emit(position_leadership)
 
         context.audit_data(member, IGNORE)
+    context.log.info(
+        "Parliament counts",
+        parliament=parl_name,
+        members=member_count,
+        occupied=occupied_count,
+        occupancies=occupancy_count,
+    )
 
 
 def crawl(context: Context) -> None:
@@ -143,4 +153,4 @@ def crawl(context: Context) -> None:
             doc,
             "//a[starts-with(@title,'OrgaoComposicao') and contains(@title,'_json.txt')]/@href",
         )
-        crawl_parliament(context, json_url)
+        crawl_parliament(context, name, json_url)
