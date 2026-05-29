@@ -60,6 +60,7 @@ children:
   - everypolitician
   - fi_eduskunta
   - fr_assemblee
+  - fr_hatvp_declarations
   - fr_maires
   - fr_senat
   - ge_declarations
