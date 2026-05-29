@@ -28,7 +28,7 @@ def day_before(d: date) -> date:
     return d - timedelta(days=1)
 
 
-def update_company_from_new_company(context: Context, old: Row, new: Row) -> Row:
+def update_company_from_new_company(old: Row, new: Row) -> Row:
     """Enriches a company with information from a previous version."""
     # Doing this in Python is too expensive, we use a Spark join
     assert old is not None and new is not None, "Both old and new must be present"
@@ -81,10 +81,6 @@ def update_company_from_new_company(context: Context, old: Row, new: Row) -> Row
 
     if expired_directorships or expired_ownerships:
         result_dict = result.asDict()
-        # context.log.info(
-        #     "Adding %d ended ownerships and %d ended directorships to %s"
-        #     % (len(expired_ownerships), len(expired_directorships), result_dict["id"])
-        # )
         result_dict["ownerships"].extend(expired_ownerships)
         result_dict["directorships"].extend(expired_directorships)
         result = Row(**result_dict)
@@ -102,10 +98,7 @@ def update_companies_from_new_companies(
     # We run the python code only on rows where both old and new are present because it's expensive
     to_merge = old.join(new, on="id", how="inner")
 
-    merge_fn = udf(
-        lambda old, new: update_company_from_new_company(context, old, new),
-        company_record_schema,
-    )
+    merge_fn = udf(update_company_from_new_company, company_record_schema)
     merged = (
         to_merge.withColumn(
             "merged", merge_fn(struct(col("old.*")), struct(col("new.*")))
