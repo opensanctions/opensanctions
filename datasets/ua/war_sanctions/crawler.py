@@ -277,6 +277,7 @@ def crawl_ship_relation(
     party_info: Dict[str, Any],
     vessel_id_slug: str | None,
     managers_lookup: Dict[str, Dict],
+    *,
     program_key: str,
     source_url: str,
     rel_role: Optional[str] = None,
@@ -292,7 +293,12 @@ def crawl_ship_relation(
     # Convert to string to match the string keys in managers_lookup
     company_id_str = str(company_id_raw)
     if company_id_str in managers_lookup:
-        emit_manager(context, managers_lookup[company_id_str], program_key, source_url)
+        emit_manager(
+            context,
+            managers_lookup[company_id_str],
+            program_key=program_key,
+            source_url=source_url,
+        )
     else:
         context.log.warn(
             "company_id not found in the managers_lookup", company_id=company_id_str
@@ -349,6 +355,7 @@ def emit_relation(
 def crawl_person(
     context: Context,
     person_data: Dict[str, Any],
+    *,
     program_key: str,
     endpoint: str,
     source_url: str,
@@ -436,6 +443,7 @@ def crawl_person(
 def crawl_legal_entity(
     context: Context,
     company_data: Dict[str, str],
+    *,
     program_key: Optional[str],
     source_url: str,
     topic: Optional[str] = "poi",
@@ -493,6 +501,7 @@ def crawl_legal_entity(
 def emit_manager(
     context: Context,
     management_data: Dict,
+    *,
     program_key: str,
     source_url: str,
 ) -> None:
@@ -525,8 +534,9 @@ def emit_manager(
 def crawl_vessel(
     context: Context,
     vessel_data: Dict[str, Any],
-    program_key: str,
     managers_lookup: Dict[str, Dict],
+    *,
+    program_key: str,
     source_url: str,
 ) -> None:
     raw_vessel_id = vessel_data.pop("id")
@@ -577,9 +587,9 @@ def crawl_vessel(
             party_info,
             vessel.id,
             managers_lookup,
-            program_key,
-            source_url,
-            role,
+            program_key=program_key,
+            source_url=source_url,
+            rel_role=role,
         )
 
     pi_club_info = vessel_data.pop("pi_club", None)
@@ -729,9 +739,9 @@ def crawl(context: Context) -> None:
                 crawl_person(
                     context,
                     entity_details,
-                    link.program_key,
-                    link.endpoint,
-                    source_url,
+                    program_key=link.program_key,
+                    endpoint=link.endpoint,
+                    source_url=source_url,
                     topic=link.topic,
                     known_vessel_ids=vessel_ids,
                 )
@@ -739,8 +749,8 @@ def crawl(context: Context) -> None:
                 crawl_legal_entity(
                     context,
                     entity_details,
-                    link.program_key,
-                    source_url,
+                    program_key=link.program_key,
+                    source_url=source_url,
                     topic=link.topic,
                     reg_prop=link.reg_prop,
                     itn_prop=link.itn_prop,
@@ -750,9 +760,9 @@ def crawl(context: Context) -> None:
                 crawl_vessel(
                     context,
                     entity_details,
-                    link.program_key,
                     managers_lookup,
-                    source_url,
+                    program_key=link.program_key,
+                    source_url=source_url,
                 )
             elif link.type is WSAPIDataType.MANAGER:
                 continue
