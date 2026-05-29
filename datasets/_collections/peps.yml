@@ -96,6 +96,7 @@ children:
   - no_storting
   - pl_sejm
   - pl_senate
+  - pt_parliament
   - ro_fiu_declarations
   - se_soe
   - sg_gov_dir
