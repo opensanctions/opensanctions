@@ -47,7 +47,6 @@ def crawl_person(
     categorisation: PositionCategorisation,
     profile_url: str,
 ) -> None:
-
     doc = zyte_api.fetch_html(
         context,
         profile_url,
@@ -87,7 +86,6 @@ def crawl_chamber(
     position: Entity,
     categorisation: PositionCategorisation,
 ) -> None:
-
     listing_url = BASE_URL + member_path_prefix
     doc = zyte_api.fetch_html(
         context,

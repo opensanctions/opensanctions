@@ -1,4 +1,4 @@
-title: Tasmania Parliament
+title: Australia State Parliament of Tasmania
 prefix: au-tas-ha
 entry_point: crawler.py
 coverage:
