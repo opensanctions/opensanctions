@@ -422,7 +422,9 @@ lookups:
       - match: 'Mehdi Hashemi, a/k/a Eddie Hashemi'
         entities:
           - ['Mehdi Hashemi', 'Eddie Hashemi']
-      - match: 'Hans De Geetere and Knokke-Heist Support Corporation Management a/k/a Hasa-Invest'
+      - match:
+          - 'Hans De Geetere and Knokke-Heist Support Corporation Management a/k/a Hasa-Invest'
+          - 'Hans De Geetere and Knokke-Heist Support Corporation Management'
         entities:
           - ['Hans De Geetere']
           - ['Knokke-Heist Support Corporation Management', 'Hasa-Invest']
