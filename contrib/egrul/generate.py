@@ -216,9 +216,11 @@ def merge_company_record_dfs(
         # Reduce number of partitions, otherwise it will explode with every iteration (don't ask me why)
         # and eventually grind everything to a halt.
         result = result.coalesce(16)
-        # Checkpoint cuts the lineage of the DataFrame, so we don't
-        # end up with a huge execution plan
-        result = result.checkpoint()
+        # Materialize and cut the lineage of the DataFrame, so we don't end up with
+        # a huge execution plan. Local (executor-disk) rather than reliable (GCS):
+        # we'd be re-computing from scratch on executor loss anyway, since the partial
+        # state isn't useful to subsequent runs.
+        result = result.localCheckpoint(eager=True)
 
         context.log.info("Updated state has %d company records" % result.count())
 
@@ -228,7 +230,6 @@ def merge_company_record_dfs(
 def crawl(context: Context) -> None:
     # .enableHiveSupport() is required to use tables in spark.catalog
     spark = SparkSession.builder.appName("ru_egrul").enableHiveSupport().getOrCreate()
-    spark.sparkContext.setCheckpointDir("env/spark-checkpoint")
     spark.sparkContext.setLogLevel("WARN")
 
     # For debugging (or manual partial resume), narrow the date range via start_date.
