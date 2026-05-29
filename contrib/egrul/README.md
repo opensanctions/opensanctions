@@ -5,35 +5,43 @@ The XML format we parse is defined by FNS (Russian Federal Tax Service).
 See [`docs/README.md`](docs/README.md) for the vendored XSDs, FNS order
 references, and pointers to upcoming format versions.
 
-## How to run
+The source archives live in the `gs://egrul.opensanctions.org` bucket,
+synced from FNS by a separate job. No local data fetch is needed before
+running.
+
+## How to run locally
 
 Install a JVM (on macOS):
 
-	brew install openjdk@21
-	export JAVA_HOME=$(/usr/libexec/java_home -v 21)
+    brew install openjdk@21
+    export JAVA_HOME=$(/usr/libexec/java_home -v 21)
 
-Get some new data. This must be done on rivne.
+Install pyspark and friends:
 
-	pushd ~/operations/workspace/; ./sync-egrul.sh; popd
+    pip install -r contrib/egrul/requirements.txt
 
-Run:
+Set up a persistent local archive cache so re-runs don't re-download
+hundreds of GB of zips:
 
-	# Install pyspark
-	pip install -r contrib/egrul/requirements.txt
-	# Use a persistent local cache of the internal-data bucket
-	mkdir ~/internal-data
-	export LOCAL_BUCKET_CACHE_DIR="$HOME/internal-data"
+    mkdir ~/internal-data
+    export LOCAL_BUCKET_CACHE_DIR="$HOME/internal-data"
 
-	# Run the job!
-	spark-submit --master 'local[*]' -c "spark.driver.memory=10g" --py-files contrib/egrul/egrul_xml.py,contrib/egrul/address.py,contrib/egrul/schema.py contrib/egrul/generate.py
+`LOCAL_BUCKET_CACHE_DIR` is opt-in: when set, source zips are cached on
+disk under that path. When unset (e.g. on serverless workers), the worker
+streams each zip into memory and discards it.
 
-The checkpoint directory fills up quickly, don't know why yet.
+Run the job:
 
-	rm -rf env/spark-checkpoint
+    spark-submit --master 'local[*]' \
+      --conf spark.driver.memory=10g \
+      --conf spark.sql.catalogImplementation=hive \
+      --py-files contrib/egrul/archives.py,contrib/egrul/egrul_xml.py,contrib/egrul/address.py,contrib/egrul/schema.py \
+      contrib/egrul/generate.py
 
+`spark.sql.catalogImplementation=hive` is required locally so the
+`saveAsTable`/`tableExists` resume pattern persists across runs
+(otherwise tables live in an in-memory catalog that vanishes with
+the process).
 
-## Copy finished data to internal-data bucket
-
-Until this runs as a cronjobs, here is how:
-
-    gsutil cp -rZ ~/internal-data/ru_egrul/processed/current_2025_01_14 gs://internal-data.opensanctions.org/ru_egrul/processed_2025-01-14
+The job writes the final partitioned CSVs straight to
+`gs://internal-data.opensanctions.org/ru_egrul/processed/<run timestamp>/`.

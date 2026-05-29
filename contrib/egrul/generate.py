@@ -221,9 +221,7 @@ def merge_company_record_dfs(
 
 
 def crawl(context: Context) -> None:
-    # .enableHiveSupport() is required to use tables in spark.catalog
-    spark = SparkSession.builder.appName("ru_egrul").enableHiveSupport().getOrCreate()
-    spark.sparkContext.setLogLevel("WARN")
+    spark = SparkSession.builder.appName("ru_egrul").getOrCreate()
 
     # For debugging (or manual partial resume), narrow the date range via start_date.
     archives_by_date = list_archives_by_date()
