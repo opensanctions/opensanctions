@@ -87,7 +87,13 @@ class CrawlState(object):
     uncategorised = set()
 
 
-def make_position_name(rank, public_body, agency, section_name, hierarchy):
+def make_position_name(
+    rank: str,
+    public_body: str,
+    agency: str,
+    section_name: str,
+    hierarchy: str | None,
+) -> str:
     if agency:
         position = f"{rank}, {section_name}, {agency}"
     else:
@@ -130,7 +136,13 @@ def make_hierarchy(breadcrumbs: HtmlElement) -> Optional[str]:
     return None
 
 
-def check_expectations(context: Context, link, official_count, pep_count, expectations):
+def check_expectations(
+    context: Context,
+    link: str,
+    official_count: int,
+    pep_count: int,
+    expectations: dict[str, int] | None,
+) -> None:
     if expectations:
         if official_count < expectations["officials"]:
             context.log.warning(
@@ -153,9 +165,9 @@ def crawl_person(
     state: CrawlState,
     official: HtmlElement,
     link: str,
-    public_body,
-    agency,
-    section_name,
+    public_body: str,
+    agency: str,
+    section_name: str,
     hierarchy: Optional[str],
 ) -> bool:
     """Returns true if the crawled person is a PEP based on the provided position info"""
@@ -224,7 +236,7 @@ def crawl_person(
     return False
 
 
-def crawl_body(context: Context, state: CrawlState, link) -> None:
+def crawl_body(context: Context, state: CrawlState, link: str) -> None:
     """Crawl a government body page"""
     if link in state.seen_urls:
         return
@@ -298,7 +310,7 @@ def crawl_body(context: Context, state: CrawlState, link) -> None:
         crawl_body(context, state, subdivision_link.get("href"))
 
 
-def crawl_spokespersons(context: Context, state: CrawlState):
+def crawl_spokespersons(context: Context, state: CrawlState) -> None:
     """Crawl the root page to find all spokesperson links and process them."""
     main_doc = context.fetch_html(SPOKEPERSONS_URL, cache_days=1)
 
@@ -310,8 +322,12 @@ def crawl_spokespersons(context: Context, state: CrawlState):
 
 
 def crawl_subpage(
-    context: Context, state: CrawlState, link: str, public_body, agency=None
-):
+    context: Context,
+    state: CrawlState,
+    link: str,
+    public_body: str,
+    agency: str | None = None,
+) -> None:
     """Crawls a spokesperson page to extract spokesperson details and visit subdivision links."""
     if link in state.seen_urls:
         return
@@ -330,7 +346,7 @@ def crawl_subpage(
             crawl_subpage(context, state, sub_link, public_body, agency)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     assert is_pep(context, "Director of this") is True
     assert is_pep(context, "Deputy director") is True
     assert is_pep(context, "DEADBEEF") is None
