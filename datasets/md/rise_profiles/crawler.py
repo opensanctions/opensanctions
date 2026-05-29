@@ -1,7 +1,7 @@
 from urllib.parse import urljoin, urlencode
 from normality import collapse_spaces, slugify
 
-from zavod import Context
+from zavod import Context, Entity
 from zavod import helpers as h
 
 CACHE_DAYS = 14
@@ -10,7 +10,9 @@ COUNTRY = "md"
 relationships = dict()
 
 
-def crawl_entity(context: Context, relative_url: str, follow_relations: bool = True):
+def crawl_entity(
+    context: Context, relative_url: str, follow_relations: bool = True
+) -> Entity | None:
     url = urljoin(context.data_url, relative_url)
     doc = context.fetch_html(url, cache_days=CACHE_DAYS)
     name_el = doc.find('.//span[@class="name"]')
@@ -78,7 +80,7 @@ def crawl_entity(context: Context, relative_url: str, follow_relations: bool = T
 
 def make_person(
     context: Context, url: str, name: str, position: str | None, attributes: dict
-):
+) -> Entity:
     person = context.make("Person")
     identification = [COUNTRY, name]
     birth_date = attributes.pop("data-nasterii", None)
@@ -98,7 +100,7 @@ def make_person(
     return person
 
 
-def make_company(context: Context, url: str, name: str, attributes: dict):
+def make_company(context: Context, url: str, name: str, attributes: dict) -> Entity:
     company = context.make("Company")
     identification = [COUNTRY, name]
     founded = attributes.pop("data-inregistrarii", None)
@@ -120,7 +122,9 @@ def make_company(context: Context, url: str, name: str, attributes: dict):
     return company
 
 
-def make_legal_entity(context: Context, url: str, name: str, attributes: dict):
+def make_legal_entity(
+    context: Context, url: str, name: str, attributes: dict
+) -> Entity:
     entity = context.make("LegalEntity")
     identification = [COUNTRY, name]
     # founded = parse_date(attributes.get("data-fondarii"))
@@ -159,7 +163,13 @@ def make_legal_entity(context: Context, url: str, name: str, attributes: dict):
     return entity
 
 
-def make_relation(context, source, description, dest_name, dest_url):
+def make_relation(
+    context: Context,
+    source: Entity,
+    description: str | None,
+    dest_name: str | None,
+    dest_url: str | None,
+) -> None:
     res = context.lookup("relations", description)
     dest = None
     if dest_url:
@@ -186,11 +196,11 @@ def make_relation(context, source, description, dest_name, dest_url):
     context.emit(relation)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     query = {"br": 0, "lang": "rom"}
     while True:
         context.log.debug("Crawling index offset ", query)
-        url = f"{ context.data_url }?{ urlencode(query) }"
+        url = f"{context.data_url}?{urlencode(query)}"
         doc = context.fetch_html(url)
         profiles = doc.findall('.//div[@class="profileWindow"]//a')
 
