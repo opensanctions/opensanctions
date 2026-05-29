@@ -106,6 +106,42 @@ Key differences from Pattern A:
 - `status=OccupancyStatus.UNKNOWN` — end date reliability is low.
 - Position is created per-record (each unique role string becomes a position).
 
+### Subnational variant (per-municipality / per-region positions)
+
+Same `is_pep=None` shape as Pattern B, but used for sources where each record names
+a sub-national position (e.g. mayor of municipality X). Two extras:
+
+- Translate the role label to English via a `position` lookup.
+- Pass `subnational_area=...` and **omit `wikidata_id`** — a Wikidata ID would
+  collapse every municipality into the same entity.
+
+```python
+res = context.lookup("position", row.pop("MAN_LABEL"))
+assert res is not None, f"Unknown position: {row['MAN_LABEL']!r}"
+position = h.make_position(
+    context,
+    name=f"{res.value} of {commune_label}",   # English name + locality
+    country="lu",
+    subnational_area=commune_label,           # NOT wikidata_id — per-locality
+    lang="fra",
+)
+categorisation = categorise(context, position, is_pep=None)
+if not categorisation.is_pep:
+    return
+```
+
+YAML side — declare the translation lookup:
+
+```yaml
+lookups:
+  position:
+    options:
+      - match: Bourgmestre
+        value: Mayor
+      - match: Échevin
+        value: Alderman
+```
+
 ## Pattern C: Multi-position crawler with `is_pep=True`
 
 For sources that list officials across known, enumerable position types:
