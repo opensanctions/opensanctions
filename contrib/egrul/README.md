@@ -23,8 +23,8 @@ Install pyspark and friends:
 Set up a persistent local archive cache so re-runs don't re-download
 hundreds of GB of zips:
 
-    mkdir ~/internal-data
-    export LOCAL_BUCKET_CACHE_DIR="$HOME/internal-data"
+    mkdir ~/egrul-cache
+    export LOCAL_BUCKET_CACHE_DIR="$HOME/egrul-cache"
 
 `LOCAL_BUCKET_CACHE_DIR` is opt-in: when set, source zips are cached on
 disk under that path. When unset (e.g. on serverless workers), the worker
@@ -76,25 +76,20 @@ batch. Trigger a build manually before submitting:
 This pulls the latest root image, layers our Spark-specific bits on top,
 and pushes to GHCR. Takes a couple of minutes.
 
-### Upload the entrypoint stub (one-time)
-
-`gcloud dataproc batches submit pyspark` requires a main Python file URI.
-We use a tiny stub (`entrypoint.py`) that imports and calls `generate.main`
-from the image's PYTHONPATH, so this gets uploaded once and never needs
-to change — code changes are picked up by rebuilding the image.
-
-    gsutil cp contrib/egrul/entrypoint.py \
-      gs://internal-data.opensanctions.org/_dataproc_staging/entrypoint.py
-
 ### Submit a batch
 
-    gcloud dataproc batches submit pyspark \
-      gs://internal-data.opensanctions.org/_dataproc_staging/entrypoint.py \
-      --project=<project> \
-      --region=<region> \
+`gcloud dataproc batches submit pyspark` requires a main Python file —
+we pass a tiny stub (`contrib/egrul/entrypoint.py`) that imports and
+calls `generate.main` from the image's PYTHONPATH. gcloud uploads it to
+the Dataproc auto-staging bucket on each invocation; code changes flow
+through image rebuilds, not stub edits.
+
+    gcloud dataproc batches submit pyspark contrib/egrul/entrypoint.py \
+      --project=opensanctions-ops \
+      --region=europe-west3 \
       --version=3.0 \
       --container-image=ghcr.io/opensanctions/opensanctions-egrul-spark:latest \
-      --service-account=etl-egrul-spark@<project>.iam.gserviceaccount.com \
+      --service-account=etl-egrul-spark@opensanctions-ops.iam.gserviceaccount.com \
       --properties=spark.executor.instances=50,spark.sql.shuffle.partitions=200
 
 The batch page in the Dataproc UI shows progress and the DCU-hour total
