@@ -74,3 +74,5 @@ lookups:
     options:
       - match: 24. oktober 1977
         value: 1977-10-24
+      - match: 2. februar 1994
+        value: 1994-02-02
