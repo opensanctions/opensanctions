@@ -1,15 +1,7 @@
-from collections import defaultdict
 from datetime import date, datetime, timedelta
-import os
-from pathlib import Path
-import tempfile
-from typing import Generator, Optional, List, Iterable, Dict
-from zipfile import ZipFile
-from dataclasses import dataclass
+from typing import Optional, Iterable
 
-import numpy as np
-import pandas
-from pyspark import Row, StorageLevel
+from pyspark import Row
 from pyspark.sql import SparkSession
 from pyspark.sql.dataframe import DataFrame
 from pyspark.sql.functions import (
@@ -20,58 +12,25 @@ from pyspark.sql.functions import (
     explode_outer,
     explode,
 )
-from google.cloud.storage import Client  # type: ignore
 
-from egrul_xml import parse_xml
+from archives import (
+    BlobURL,
+    crawl_archives_for_date,
+    list_archives_by_date,
+    materialize_with_cache_for_local,
+)
 from schema import company_record_schema
 from zavod import Context
 from zavod import Dataset
 
-LOCAL_BUCKET_CACHE_DIR = Path(
-    os.environ.get("LOCAL_BUCKET_CACHE_DIR", tempfile.gettempdir())
-)
-SOURCE_DATA_BUCKET_NAME = "internal-data.opensanctions.org"
-PROCESSESED_PREFIX = "ru_egrul/processed/"
-
-# The two formats don't seem to be different enough to make a difference to us, fortunately.
-# The overlap between the two formats is quite long, we use 2025-01-01 as the switchover date.
-SOURCE_DATA_PREFIX_OLD = "ru_egrul/egrul.itsoft.ru/EGRUL_406/"
-SOURCE_DATA_PREFIX_NEW = "ru_egrul/egrul.itsoft.ru/EGRUL_407/"
-
-
-@dataclass
-class BlobURL:
-    """A wrapper around blob URLs that can be pickled for Spark workers."""
-
-    url: str
-
-    def _split_url(self) -> tuple[str, str]:
-        """Split the URL into bucket name and blob name."""
-        # URL format: gs://bucket-name/path/to/blob
-        assert self.url.startswith("gs://")
-        split = self.url[5:].split("/", 1)
-        assert len(split) == 2, f"Invalid Blob URL: {self.url}"
-        return split[0], split[1]
-
-    @property
-    def bucket_name(self) -> str:
-        """Extract the bucket name from the URL."""
-        return self._split_url()[0]
-
-    @property
-    def name(self) -> str:
-        """Extract the blob name from the URL."""
-        return self._split_url()[1]
-
-    def __str__(self) -> str:
-        return self.url
+OUTPUT_PREFIX = "gs://internal-data.opensanctions.org/ru_egrul/processed"
 
 
 def day_before(d: date) -> date:
     return d - timedelta(days=1)
 
 
-def update_company_from_new_company(context: Context, old: Row, new: Row) -> Row:
+def update_company_from_new_company(old: Row, new: Row) -> Row:
     """Enriches a company with information from a previous version."""
     # Doing this in Python is too expensive, we use a Spark join
     assert old is not None and new is not None, "Both old and new must be present"
@@ -124,10 +83,6 @@ def update_company_from_new_company(context: Context, old: Row, new: Row) -> Row
 
     if expired_directorships or expired_ownerships:
         result_dict = result.asDict()
-        # context.log.info(
-        #     "Adding %d ended ownerships and %d ended directorships to %s"
-        #     % (len(expired_ownerships), len(expired_directorships), result_dict["id"])
-        # )
         result_dict["ownerships"].extend(expired_ownerships)
         result_dict["directorships"].extend(expired_directorships)
         result = Row(**result_dict)
@@ -145,10 +100,7 @@ def update_companies_from_new_companies(
     # We run the python code only on rows where both old and new are present because it's expensive
     to_merge = old.join(new, on="id", how="inner")
 
-    merge_fn = udf(
-        lambda old, new: update_company_from_new_company(context, old, new),
-        company_record_schema,
-    )
+    merge_fn = udf(update_company_from_new_company, company_record_schema)
     merged = (
         to_merge.withColumn(
             "merged", merge_fn(struct(col("old.*")), struct(col("new.*")))
@@ -164,93 +116,7 @@ def update_companies_from_new_companies(
     return merged.union(not_to_merge_old).union(not_to_merge_new)
 
 
-def merge_duplicate_company_records(df: DataFrame) -> DataFrame:
-    """Deduplicate companies that have the same ID in the given DataFrame."""
-
-    dupe_ids = df.groupBy("id").count().where(col("count") > 1).drop("count")
-    dupes = df.join(dupe_ids, on="id", how="inner")
-    non_dupes = df.join(dupe_ids, on="id", how="left_anti")
-
-    def _merge_companies(pdf: pandas.DataFrame) -> pandas.DataFrame:
-        # TODO(Leon Handreke): Implement a more sophisticated merge strategy. For now, all of them
-        # seem to be dissolved and reopened companies, some bureaucratic artifact.
-        # Magic from
-        # https://stackoverflow.com/questions/45469417/sort-by-column-sub-values-in-pandas
-        newest = pdf.iloc[
-            np.argsort([x.get("incorporation_date") for x in pdf.legal_entity])
-        ]
-        return newest[:1]
-
-    deduped = dupes.groupBy("id").applyInPandas(_merge_companies, company_record_schema)
-    # We do this fancy union stuff to avoid running expensive python on the non-dupes
-    return non_dupes.union(deduped)
-
-
-def get_local_archive_path(blob_url: BlobURL) -> Path:
-    return LOCAL_BUCKET_CACHE_DIR / str(blob_url.name)
-
-
-def crawl_archive(blob_url: BlobURL) -> Generator[dict, None, None]:
-    data_date = get_archive_date_from_blob_url(blob_url)
-    context = get_context(data_date)
-
-    local_archive_path = get_local_archive_path(blob_url)
-    # TODO: Since we cache persistently locally (for running on Leon's machine),
-    # maybe a checksum comparison with the remote blob would be a good idea.
-    if not os.path.exists(local_archive_path):
-        context.log.info("Downloading archive: %s" % blob_url)
-        client = Client()
-        bucket = client.get_bucket(blob_url.bucket_name)
-        blob = bucket.blob(blob_url.name)
-        # mkdir -p the directory for the archive
-        local_archive_path.parent.mkdir(parents=True, exist_ok=True)
-        blob.download_to_filename(local_archive_path)
-
-    context.log.info(
-        "Opening local archive: %s (cache of %s)" % (local_archive_path, blob_url)
-    )
-
-    try:
-        with ZipFile(local_archive_path, "r") as zip:
-            for name in zip.namelist():
-                if not name.lower().endswith(".xml"):
-                    continue
-                with zip.open(name, "r") as fh:
-                    for e in parse_xml(context, fh):
-                        yield e
-    finally:
-        # Don't clean up the temporary file, for now this is being run on Leon's machine and it's
-        # okay to just have them cached.
-        # os.unlink(local_archive_path)
-        pass
-
-
-def crawl_archives_for_date(
-    spark: SparkSession,
-    archive_date: date,
-    archives: List[BlobURL],
-) -> DataFrame:
-    table_name = archive_date.isoformat().replace("-", "_")
-    if spark.catalog.tableExists(table_name):
-        return spark.table(table_name)
-
-    # TODO: Parallelizing on XML files (inside the zips) instead of just the zips
-    # would speed up dataframe building for days that only have few archives a lot.
-    blob_rdd = spark.sparkContext.parallelize(archives)
-    parsed_rows_rdd = blob_rdd.flatMap(crawl_archive)
-    # Persist this expensive computation to avoid doing it multiple times during the following join
-    # https://spark.apache.org/docs/latest/rdd-programming-guide.html#which-storage-level-to-choose
-    df = spark.createDataFrame(parsed_rows_rdd, schema=company_record_schema).persist(
-        StorageLevel.DISK_ONLY
-    )
-    df = merge_duplicate_company_records(df)
-
-    df.write.saveAsTable(table_name, mode="overwrite")
-
-    return spark.table(table_name)
-
-
-def write_companies_df_to_csv(df: DataFrame, path_prefix: Path) -> None:
+def write_companies_df_to_csv(df: DataFrame, path_prefix: str) -> None:
     """Write the companies DataFrame to CSV files to be emitted as FtM in the ru_egrul crawler.
 
     The processing happening here is basically:
@@ -323,46 +189,11 @@ def write_companies_df_to_csv(df: DataFrame, path_prefix: Path) -> None:
 
     # This is what's required for the Python csv module to read the file with no further options
     csv_options = {"header": True, "escape": '"', "mode": "overwrite"}
-    ownerships_df.write.csv(str(path_prefix / "ownerships"), **csv_options)
-    directorships_df.write.csv(str(path_prefix / "directorships"), **csv_options)
-    successions_df.write.csv(str(path_prefix / "successions"), **csv_options)
-    persons_df.write.csv(str(path_prefix / "persons"), **csv_options)
-    all_legal_entities_df.write.csv(str(path_prefix / "legalentities"), **csv_options)
-
-
-def get_archive_date_from_blob_url(blob_url: BlobURL) -> date:
-    """Gets an archive date from the blob URL."""
-    # blob_url.name format: "ru_egrul/egrul.itsoft.ru/EGRUL_406/01.01.2022_FULL/EGRUL_FULL_2022-01-01_214.zip"
-    path_parts = blob_url.name.split("/")
-    if len(path_parts) < 2:
-        raise ValueError(f"Invalid blob name format: {blob_url.name}")
-
-    dirname = path_parts[-2]  # Get the directory name before the zip file
-    # 01-01 has a _FULL suffix
-    dirname = dirname.rstrip("_FULL")
-    return datetime.strptime(dirname, "%d.%m.%Y").date()
-
-
-def aggregate_archives_by_date(
-    archive_blobs: Iterable[BlobURL],
-) -> Dict[date, List[BlobURL]]:
-    archives_by_date = defaultdict(list)
-    for archive_blob in archive_blobs:
-        archive_date = get_archive_date_from_blob_url(archive_blob)
-        archives_by_date[archive_date].append(archive_blob)
-    return archives_by_date
-
-
-def list_archives(bucket_name: str, prefix: str) -> List[BlobURL]:
-    """List all archive blobs from Google Cloud Storage and convert to BlobURL objects."""
-    client = Client()
-    bucket = client.get_bucket(bucket_name)
-
-    return [
-        BlobURL(f"gs://{bucket_name}/{blob.name}")
-        for blob in bucket.list_blobs(prefix=prefix)
-        if blob.name.endswith(".zip")
-    ]
+    ownerships_df.write.csv(f"{path_prefix}/ownerships", **csv_options)
+    directorships_df.write.csv(f"{path_prefix}/directorships", **csv_options)
+    successions_df.write.csv(f"{path_prefix}/successions", **csv_options)
+    persons_df.write.csv(f"{path_prefix}/persons", **csv_options)
+    all_legal_entities_df.write.csv(f"{path_prefix}/legalentities", **csv_options)
 
 
 def merge_company_record_dfs(
@@ -380,9 +211,11 @@ def merge_company_record_dfs(
         # Reduce number of partitions, otherwise it will explode with every iteration (don't ask me why)
         # and eventually grind everything to a halt.
         result = result.coalesce(16)
-        # Checkpoint cuts the lineage of the DataFrame, so we don't
-        # end up with a huge execution plan
-        result = result.checkpoint()
+        # Materialize and cut the lineage of the DataFrame, so we don't end up with
+        # a huge execution plan. Local (executor-disk) rather than reliable (GCS):
+        # we'd be re-computing from scratch on executor loss anyway, since the partial
+        # state isn't useful to subsequent runs.
+        result = result.localCheckpoint(eager=True)
 
         context.log.info("Updated state has %d company records" % result.count())
 
@@ -390,39 +223,10 @@ def merge_company_record_dfs(
 
 
 def crawl(context: Context) -> None:
-    # .enableHiveSupport() is required to use tables in spark.catalog
-    spark = SparkSession.builder.appName("ru_egrul").enableHiveSupport().getOrCreate()
-    spark.sparkContext.setCheckpointDir("env/spark-checkpoint")
-    spark.sparkContext.setLogLevel("WARN")
+    spark = SparkSession.builder.appName("ru_egrul").getOrCreate()
 
-    # We split the archives into old and new because the format changed. The switchover date is a bit arbitrary, the overlap was quite long.
-    archives_old = [
-        a
-        for a in list_archives(SOURCE_DATA_BUCKET_NAME, SOURCE_DATA_PREFIX_OLD)
-        if get_archive_date_from_blob_url(a) < date(2025, 1, 1)
-    ]
-    archives_new = [
-        a
-        for a in list_archives(SOURCE_DATA_BUCKET_NAME, SOURCE_DATA_PREFIX_NEW)
-        if get_archive_date_from_blob_url(a) >= date(2025, 1, 1)
-    ]
-    archives = archives_old + archives_new
-
-    archives_by_date = sorted(aggregate_archives_by_date(archives).items())
-    archives_by_date = [
-        (d, archives)
-        for d, archives in archives_by_date
-        # For debugging (or manual partial resume), process only part of the data
-        # if date(2022, 1, 1) <= d <= date(2022, 12, 31)
-        # Take 2022-01-01 as the starting point
-        if date(2022, 1, 1) <= d
-    ]
-
-    # Process the archives first to have them ready in the warehouse for the
-    # iterative join later.
-    for archive_date, archives in archives_by_date:
-        context.log.info("Processing %s" % archive_date)
-        crawl_archives_for_date(spark, archive_date, archives)
+    # For debugging (or manual partial resume), narrow the date range via start_date.
+    archives_by_date = list_archives_by_date()
 
     # The general idea is that we continously fold new data into the existing data, starting at the full dump
     # at 2022-01-01. Because updating the full dataset with every new incremental update takes too long
@@ -431,8 +235,12 @@ def crawl(context: Context) -> None:
     # yearly partial update, and finally merge that into the full dump, to get the state at the end of the year.
     # We do this for every year and then merge the years. We could also do chunks of 20 or whatever, it doesn't matter.
     # What does matter is to reduce the number of joins with very large datasets.
-    # Saving to partial_ tables is not strictly required, but quite useful to interrupt and resume the process when
-    # running locally and running sql queries on it.
+    #
+    # The materialize_with_cache_for_local() calls below wrap each intermediate: in local dev
+    # (hive catalog) they save to partial_ tables that survive across runs, so a failed
+    # local run can be resumed without redoing months that already finished. In prod
+    # (in-memory catalog) they fall back to localCheckpoint and re-do everything on a
+    # re-submitted batch.
     year_dfs = []
     for year in [2022, 2023, 2024, 2025, 2026]:
         year_archives = [
@@ -443,59 +251,60 @@ def crawl(context: Context) -> None:
         full_archive = year_archives[0]
         partial_archives = year_archives[1:]
 
-        year_table_name = "partial_%d" % year
-        if spark.catalog.tableExists(year_table_name):
-            context.log.info("Reading %d from table" % year)
-            year_dfs.append(spark.table(year_table_name))
-            continue
+        def build_year(
+            year: int = year,
+            partial_archives: list[tuple[date, list[BlobURL]]] = partial_archives,
+        ) -> DataFrame:
+            month_dfs = []
+            for month in range(1, 13):
+                day_archives = [x for x in partial_archives if x[0].month == month]
+                if not day_archives:
+                    continue
 
-        month_dfs = []
-        for month in range(1, 13):
-            month_table_name = "partial_%d_%02d" % (year, month)
-            if spark.catalog.tableExists(month_table_name):
-                context.log.info("Reading %d-%d from table" % (year, month))
-                month_dfs.append(spark.table(month_table_name))
-                continue
+                def build_month(
+                    year: int = year,
+                    month: int = month,
+                    day_archives: list[tuple[date, list[BlobURL]]] = day_archives,
+                ) -> DataFrame:
+                    context.log.info("Processing %d-%d" % (year, month))
+                    day_dfs = [
+                        crawl_archives_for_date(spark, x[0], x[1]) for x in day_archives
+                    ]
+                    context.log.info("Merging day records for %d-%d" % (year, month))
+                    month_df = merge_company_record_dfs(context, day_dfs)
+                    context.log.info(
+                        "%d-%d has %d records" % (year, month, month_df.count())
+                    )
+                    return month_df
 
-            context.log.info("Processing %d-%d" % (year, month))
-            day_archives = [
-                x for x in partial_archives if x[0].year == year and x[0].month == month
-            ]
-            day_dfs = [crawl_archives_for_date(spark, x[0], x[1]) for x in day_archives]
-            context.log.info("Merging day records for %d-%d" % (year, month))
-            if len(day_dfs) == 0:
-                continue
+                month_dfs.append(
+                    materialize_with_cache_for_local(
+                        spark, "partial_%d_%02d" % (year, month), build_month
+                    )
+                )
 
-            month_df = merge_company_record_dfs(context, day_dfs)
-            context.log.info("%d-%d has %d records" % (year, month, month_df.count()))
+            context.log.info("Merging partial monthly records for %d" % year)
+            partial_year_df = merge_company_record_dfs(context, month_dfs)
+            full_df = crawl_archives_for_date(spark, full_archive[0], full_archive[1])
+            context.log.info("Merging full and partial daily records for %d" % year)
+            year_df = merge_company_record_dfs(context, [full_df, partial_year_df])
+            context.log.info("%d has %d records" % (year, year_df.count()))
+            return year_df
 
-            month_df.write.saveAsTable(month_table_name)
-            month_df = month_df.persist(StorageLevel.DISK_ONLY)
-            month_dfs.append(month_df)
-
-        context.log.info("Merging partial monthly records for %d" % year)
-        partial_year_df = merge_company_record_dfs(context, month_dfs)
-        full_df = crawl_archives_for_date(spark, full_archive[0], full_archive[1])
-        context.log.info("Merging full and partial daily records for %d" % year)
-        year_df = merge_company_record_dfs(context, [full_df, partial_year_df])
-        context.log.info("%d has %d records" % (year, year_df.count()))
-
-        # Persist to make sure that Spark doesn't get the idea to throw away and recompute this.
-        year_df = year_df.persist(StorageLevel.DISK_ONLY)
-        year_df.write.saveAsTable(year_table_name, mode="overwrite")
-        year_dfs.append(year_df)
+        year_dfs.append(
+            materialize_with_cache_for_local(spark, "partial_%d" % year, build_year)
+        )
 
     context.log.info("Merging yearly records")
     # Each of these (join of ~12M on ~12M records with merge UDF in Python) takes around 8min on M4 10 cores
-    final_df = merge_company_record_dfs(context, year_dfs)
-
     last_date = archives_by_date[-1][0]
     final_table_name = "current_" + last_date.isoformat().replace("-", "_")
-    final_df.write.saveAsTable(final_table_name)
-
-    write_companies_df_to_csv(
-        final_df, LOCAL_BUCKET_CACHE_DIR / PROCESSESED_PREFIX / final_table_name
+    final_df = materialize_with_cache_for_local(
+        spark, final_table_name, lambda: merge_company_record_dfs(context, year_dfs)
     )
+
+    run_timestamp = datetime.now().strftime("%Y-%m-%dT%H-%M-%S")
+    write_companies_df_to_csv(final_df, f"{OUTPUT_PREFIX}/{run_timestamp}")
 
 
 def get_context(data_time: Optional[date] = None) -> Context:
