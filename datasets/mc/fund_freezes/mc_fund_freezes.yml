@@ -440,6 +440,8 @@ lookups:
         value: tt
       - match: SAINT-CHRISTOPHE-ET-NIEVES
         value: kn
+      - match: ISRAÉLIENNE
+        value: il
 
   type.name:
     options:
