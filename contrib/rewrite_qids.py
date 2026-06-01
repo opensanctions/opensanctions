@@ -1,12 +1,14 @@
 #!/usr/bin/env python
 from functools import cache
 
+import time
 import click
 import requests
 from typing import Set
 
 from rigour.ids.wikidata import is_qid
 from nomenklatura import settings as nk_settings
+from followthemoney.settings import USER_AGENT
 from zavod.logs import configure_logging, get_logger
 from zavod.db import get_engine, meta
 from sqlalchemy import delete, update, or_
@@ -25,7 +27,8 @@ def map_qid(qid: str) -> str:
         "ids": qid,
         "format": "json",
     }
-    headers = {"User-Agent": "Zavod QID Rewriter/1.0"}
+    headers = {"User-Agent": USER_AGENT}
+    time.sleep(1)  # be nice to the wikidata API
     response = requests.get(WD_API, params=params, headers=headers)
     response.raise_for_status()
     data = response.json()
