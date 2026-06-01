@@ -3,6 +3,7 @@ from typing import Any
 
 from zavod import Context
 from zavod import helpers as h
+from zavod.extract.zyte_api import fetch_json
 from zavod.entity import Entity
 from zavod.stateful.positions import PositionCategorisation, categorise
 
@@ -72,10 +73,8 @@ def crawl(context: Context) -> None:
         house_positions[house_id] = (position, categorisation)
 
     for page in count(1):
-        data = context.fetch_json(
-            context.data_url,
-            params={"page": page},
-        )
+        url = f"{context.data_url}&page={page}"
+        data = fetch_json(context, url, geolocation="au")
         result = data["result"]
         hits: list[dict[str, Any]] = result.get("hits", [])
         total: int = result.get("totalMatching", 0)
