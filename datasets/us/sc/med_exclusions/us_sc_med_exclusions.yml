@@ -74,4 +74,5 @@ lookups:
           - Not
           - found
           - NPI
+          - "None"
         value: null
