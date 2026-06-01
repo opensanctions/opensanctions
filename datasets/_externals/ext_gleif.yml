@@ -99,10 +99,10 @@ assertions:
   min:
     schema_entities:
       Security: 184000
-      Organization: 1000
-      Company: 1250
+      Organization: 8000
+      Company: 4000
   max:
     schema_entities:
       Security: 433000
-      Organization: 3000
-      Company: 4000
+      Organization: 14000
+      Company: 8000
