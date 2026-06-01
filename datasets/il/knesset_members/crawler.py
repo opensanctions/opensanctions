@@ -103,6 +103,7 @@ def crawl_positions(
         "Knesset Member",
         country="il",
         topics=["gov.national", "gov.legislative"],
+        wikidata_id="Q4047513",
     )
     categorisation = categorise(context, position, default_is_pep=True)
     if not categorisation.is_pep:
@@ -141,6 +142,9 @@ def crawl_item(
     person = context.make("Person")
     person.id = context.make_slug(str(member_id))
     person.add("name", name, lang=lang_iso_639_2)
+    # Knesset members must be Israeli citizens and renounce all other citizenships
+    # https://www.gov.il/apps/elections/elections-knesset-19/eng/law/BasicLawKnesset_eng.html
+    person.add("citizenship", "il")
     person.add(
         "sourceUrl",
         f"https://main.knesset.gov.il/{lang_iso_639_1}/MK/APPS/mk/mk-personal-details/{member_id}",
