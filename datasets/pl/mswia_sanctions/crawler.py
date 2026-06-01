@@ -112,7 +112,7 @@ def crawl_row(context: Context, row: dict[str, str | None], table_title: str) ->
 
     else:
         # "w likwidacji" = in liquidation; "w upadłości" = in bankruptcy
-        name = names[0].rstrip(" w likwidacji").rstrip(" w upadłości")
+        name = names[0].removesuffix(" w likwidacji").removesuffix(" w upadłości")
         entity.add("name", name)
 
         alias = names[1] if len(names) > 1 else ""
@@ -132,8 +132,8 @@ def crawl_row(context: Context, row: dict[str, str | None], table_title: str) ->
             aliases = h.multi_split(alias, ["lub", "obecnie:", "inaczej:"])
             # Aliases are often in quotes
             cleaned_aliases = [
-                a.rstrip(" w likwidacji")
-                .rstrip(" w upadłości")
+                a.removesuffix(" w likwidacji")
+                .removesuffix(" w upadłości")
                 .replace("„", "")
                 .replace("”", "")
                 for a in aliases
