@@ -84,7 +84,7 @@ def clean_name_en(data_string: str) -> tuple[str, list[str]]:
         # Default: Return the data string as the name with no aliases
         return data_string.strip(), []
 
-    clean_name = parts[0].strip().rstrip(",").rstrip(".").rstrip("a.k.a")
+    clean_name = parts[0].strip().rstrip(",").rstrip(".").removesuffix("a.k.a")
     aliases = []
     if len(parts) > 1:
         aliases_part = parts[1]
