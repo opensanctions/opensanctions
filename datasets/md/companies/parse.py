@@ -139,7 +139,7 @@ def parse_company(context: Context, data: Dict[str, Any]) -> None:
     name = data.pop("Denumirea completă")
     address = data.pop("Adresa")
     company = context.make("Company")
-    if idno is not None:
+    if idno is not None and str(idno).strip():
         company.id = f"oc-companies-md-{idno}"
     else:
         company.id = context.make_id(name, address)
@@ -153,8 +153,8 @@ def parse_company(context: Context, data: Dict[str, Any]) -> None:
         return
     company.add("name", name)
     company.add("taxNumber", idno)
-    company.add("incorporationDate", data.pop("Data înregistrării"))
-    company.add("dissolutionDate", data.pop("Data lichidării"))
+    h.apply_date(company, "incorporationDate", data.pop("Data înregistrării"))
+    h.apply_date(company, "dissolutionDate", data.pop("Data lichidării"))
     company.add("jurisdiction", "md")
     company.add("address", address)
     company.add("legalForm", data.pop("Forma org./jurid."))
