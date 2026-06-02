@@ -59,7 +59,7 @@ Target worksheet: **Unconsolidated** (the first tab, `gid=0`).
 Copy the rows from the CSV into the sheet, matching the column layout. Key rules:
 
 - **Multiple values** in a single cell are semicolon-separated (e.g. `John Smith; Ivan Petrov`).
-- **Leave the `schema` column until last.** The crawler cannot emit an entity without a schema, so rows with no schema are silently skipped. Filling in schema last ensures no partial entity is exported if you are interrupted mid-paste.
+- **Leave the `schema` column until last.** The crawler cannot emit an entity without a schema, so the crawler fails with an error preventing exporting partially-edited data.
 - **Be careful with fill-down on source URLs.** Google Sheets auto-increments the last number in a URL when you drag-fill a cell. Hold **Ctrl** (Windows/Linux) or **Option** (Mac) while filling down to copy the value literally without incrementing.
 - **Check every row.** Pasting a value into the wrong column emits incorrect entity data. Double-check the column headers before and after pasting.
 
