@@ -75,6 +75,10 @@ lookups:
         prop: ogrnCode
       - match: "reg:okpo"
         prop: okpoCode
+      - match: "reg:reg_legal_cn"
+        prop: leiCode
+      - match: "reg:reg_sam"
+        prop: uniqueEntityId
       - match:
           - "reg:person_ro"
           - "reg:person_il"
