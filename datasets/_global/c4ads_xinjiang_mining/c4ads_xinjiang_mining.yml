@@ -8,10 +8,10 @@ load_statements: true
 summary: >-
   Mining companies in Xinjiang (XUAR) and their links to ultimate beneficial owners.
 description: |
-  > The world is increasingly exposed to the mining industry in the Xinjiang Uyghur 
-  > Autonomous Region (XUAR), with gold and other minerals extracted from the region 
-  > linked to global supply chains and investment. These minerals, as with other 
-  > products manufactured or processed in XUAR, are at high risk of being produced 
+  > The world is increasingly exposed to the mining industry in the Xinjiang Uyghur
+  > Autonomous Region (XUAR), with gold and other minerals extracted from the region
+  > linked to global supply chains and investment. These minerals, as with other
+  > products manufactured or processed in XUAR, are at high risk of being produced
   > through forced labor or in conditions of human rights violations.
   >
   > Using publicly available mining licenses and corporate data, C4ADS mapped the
@@ -42,12 +42,10 @@ data:
 assertions:
   min:
     schema_entities:
-      Organization: 6300
-      Company: 4000
+      Company: 9000
   max:
     schema_entities:
-      Organization: 12000
-      Company: 8000
+      Company: 13000
 
 dates:
   formats: ["%m/%d/%y"]
