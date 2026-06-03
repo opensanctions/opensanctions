@@ -2,7 +2,7 @@ from pathlib import Path
 import shutil
 import orjson
 from rigour.mime.types import JSON
-from stdnum.pk import cnic as cnic_validator  # type: ignore
+from stdnum.pk import cnic as cnic_validator
 
 from zavod import Context
 from zavod import helpers as h
