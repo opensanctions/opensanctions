@@ -52,7 +52,7 @@ def crawl(context: Context) -> None:
             context.emit(sanction)
             issuer_id = row.pop("issuer", "").strip()
             if issuer_id != "":
-                issuer = context.make("LegalEntity")
+                issuer = context.make("Organization")
                 if len(issuer_id) == 20:
                     issuer.id = f"lei-{issuer_id}"
                     issuer.add("leiCode", issuer_id)
