@@ -57,3 +57,9 @@ assertions:
   max:
     schema_entities:
       Organization: 250
+
+lookups:
+  type.name:
+    options:
+      - match: "453453"
+        value: null
