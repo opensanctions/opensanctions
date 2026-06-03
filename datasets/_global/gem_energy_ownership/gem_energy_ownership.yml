@@ -9,9 +9,9 @@ manual_check:
   last_checked: "2026-06-01"
   interval: 90
   message: |
-    Check with Global Energy Monitor for new data in the Global Energy Ownership Tracker.
-    If parseable via context.fetch, parse directly from the link. Otherwise, add to internal
-    data and parse locally.
+    Download the latest file from the website, see if it's newer than the version being referenced in the crawler (unfortunately, the website does not reveal a last-updated date).
+
+    GEM are considering making this a direct download again in the future, possibly even with a stable link to the latest version. Until then, we use internal-data to store the latest version of the file, and update it manually when needed.
 deploy:
   schedule: "@monthly"
 exports:
@@ -263,11 +263,47 @@ lookups:
           - Borås Energy and Environment
           - nan
           - nan,nan
+          # In the May 2026 spreadsheet, some "Registration Country" records slipped one column forward
+          - Australia
+          - Chile
+          - China
+          - Cuba
+          - Germany
+          - Greece
+          - Honduras
+          - India
+          - Indonesia
+          - Iran
+          - Isle of Man
+          - Italy
+          - Japan
+          - Kazakhstan
+          - Laos
+          - Mozambique
+          - Nigeria
+          - Norway
+          - Pakistan
+          - Philippines
+          - Switzerland
+          - Türkiye
+          - Ukraine
+          - United Kingdom
+          - United States
+          - Zimbabwe
         value: null
       - match: "ttps://www.brownsgroup.lk/"
         value: https://www.brownsgroup.lk/
       - match: "ttps://www.bpi.ir"
         value: https://www.bpi.ir
+  type.address:
+    options:
+      - match:
+          - "unknown [61.0%]; China Yangtze Power Co Ltd [16.4%]; Chongqing Liangjiang New Area Management Committee [6.3%]; Xinhua Water Holding Group Co Ltd [5.8%]; Comprehensive Development and Management Center of the Ministry of Water Resources [5.1%]; Chongqing Fuling Industrial Development Group Co Ltd [2.7%]; Suzhou Thvow Technology Co Ltd [0.7%]; China National Machinery Industry Corp [0.0%]; Shanghai Electric Group Co Ltd [0.0%]; Jiangsu Chen YI Xuan Trading Co Ltd [0.0%]; Shanghai Changtai Electrical Co Ltd [0.0%]; Bank of Communications Co Ltd [0.0%], China"
+          - "State-owned Assets Supervision and Administration Commission of Baise Municipal People's Government [55.0%]; Guangxi Baise Urban Construction Investment Development Group Co Ltd [27.6%]; Guangxi Fudi Financial Investment Group Co Ltd [14.7%]; Nanning Nuobang Investment Co Ltd [1.9%]; Lion International Asset Management (Hong Kong) [0.8%]; Noan Venture Capital Technology (Beijing) Co Ltd [0.0%], China"
+          - "Guizhou Wujiang Energy Group Co Ltd [30.4%]; Guangxi Investment Group Co Ltd [21.0%]; Henan Province Energy Chemical Group Co Ltd [15.0%]; Guangxi Guiguan Electric Power Co Ltd [11.0%]; Guizhou Qiansheng State-Owned Assets Management Co Ltd [10.2%]; unknown [4.4%]; Guizhou Financial Holding Group Co Ltd (Guizhou Guimin Investment Group Co., Ltd.) [4.0%]; Guizhou Xingyi Sunshine Asset Management Group Co Ltd [4.0%], China"
+          - "Fujian Lanyue Investment Partnership LP [25.5%]; Fujian Lantian Investment Partnership LP [16.7%]; Fujian Lanze Investment Partnership LP [14.0%]; unknown [10.5%]; Fujian Jinkun Investment Co Ltd [4.3%]; Fuzhou Deyu Investment Co Ltd [4.3%]; Fujian Taisong Investment Co Ltd [3.8%]; Fujian Honghang Investment Co Ltd [2.0%]; Fujian Xinghan Investment Co Ltd [2.0%]; Fujian Qinghe Investment Co Ltd [1.9%]; Fujian Yinchen Investment Co Ltd [1.9%]; Fenghe Investment (Fujian) Co Ltd [1.7%]; Fujian Jingyuan Investment Co Ltd [1.7%]; Fujian Junao Investment Co Ltd [1.7%]; Fujian Yongxinqi Investment Co Ltd [1.7%]; Yuncheng Investment (Fujian) Co Ltd [1.7%]; Fujian Quanlong Investment Co Ltd [1.6%]; Fujian Shengwei Investment Co Ltd [1.6%]; Fujian Shunle Investment Co Ltd [1.5%], China"
+          - "Weihai Industrial Investment Group Co Ltd [56.4%]; Weihai Lingang Development Group Co Ltd [20.0%]; Weihai Xintai Investment Co Ltd [11.6%]; Weihai Shenglai Investment Co Ltd [4.0%]; Agricultural Development Bank of China [3.6%]; unknown [2.6%]; Weihai Jinshi Investment Co Ltd [1.7%], China"
+        value: null
   type.identifier:
     options:
       - match:
@@ -275,7 +311,11 @@ lookups:
           - 10942092
           - 6500004766
           - 7802942672
+          - U40107DL2008PLC179263
         prop: registrationNumber
+      - match:
+          - 253400U464BV6CWFSP06
+        prop: leiCode
       - match:
           - 4205070630
           - 7722515837
@@ -701,10 +741,12 @@ lookups:
           - 9729291114
           - 9731001285
           - 9731011220
+          - 7729722060
         prop: innCode
       - match:
           - not found
           - not applicable
           - not ofund
+          - not sure
           - PT Adaro Strategic Capital
         value: null
