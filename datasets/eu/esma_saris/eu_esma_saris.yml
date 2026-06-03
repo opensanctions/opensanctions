@@ -49,11 +49,11 @@ assertions:
   min:
     schema_entities:
       Security: 2000
-      LegalEntity: 1700
+      Organization: 1700
   max:
     schema_entities:
       Security: 4800
-      LegalEntity: 3900
+      Organization: 3900
 
 lookups:
   reason_topic:
