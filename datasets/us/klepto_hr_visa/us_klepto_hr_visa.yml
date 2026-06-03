@@ -4,9 +4,9 @@ prefix: us-klepto-hr-visa
 coverage:
   frequency: daily
   start: "2023-10-18"
-deploy:
-  memory: 2500Mi
-  memory_limit: "4000Mi"
+# deploy:
+#   memory: 2500Mi
+#   memory_limit: "4000Mi"
 load_statements: true
 ci_test: false
 summary: >-

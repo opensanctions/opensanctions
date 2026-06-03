@@ -1,4 +1,4 @@
-from typing import Optional, cast
+from typing import Optional
 from normality import squash_spaces
 from followthemoney.types import registry
 import re
@@ -59,8 +59,6 @@ def crawl_section(context: Context, url: str, section: HtmlElement) -> None:
 
             entity = context.make("Person")
             entity.id = context.make_id(item_text)
-            prev_id = context.make_slug(cast(str, countries), name)
-            context.rekey(entity.id, prev_id)
             entity.add("name", name)
             entity.add("notes", item_text)
             entity.add("country", countries)
