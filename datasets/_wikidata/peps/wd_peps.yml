@@ -125,6 +125,8 @@ lookups:
         value: 1969-04
       - match: "2025-06-31"
         value: 2025-06
+      - match: "2026-06-31"
+        value: 2026-06
       - match: "2023-02-31"
         value: 2023-02
       - match: "2011-02-31"
