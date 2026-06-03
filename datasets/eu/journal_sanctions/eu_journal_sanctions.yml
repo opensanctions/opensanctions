@@ -88,6 +88,10 @@ lookups:
         values:
           - 1960
           - 1975
+      - match: "1.1.1966 or 25.12.1965"
+        values:
+          - 1966-01-01
+          - 1965-12-25
   type.identifier:
     options:
       - match:
