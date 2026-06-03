@@ -209,7 +209,7 @@ def crawl_rel(context: Context, row: Dict[str, str | None], skipped: Set[str]) -
 def crawl(context: Context) -> None:
     path = context.get_resource_path("source.xlsx")
     fetch_internal_data(
-        "gem_energy_ownership/Global-Energy-Ownership-Tracker-March-2026-V1.xlsx",
+        "gem_energy_ownership/Global-Energy-Ownership-Tracker-May-2026-V1.xlsx",
         path,
     )
     workbook: openpyxl.Workbook = openpyxl.load_workbook(path, read_only=True)
