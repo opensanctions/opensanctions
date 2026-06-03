@@ -1,6 +1,6 @@
 import io
 from pathlib import Path
-from typing import Dict, Generator, List
+from typing import Iterator
 from csv import DictReader
 from zipfile import ZipFile
 from normality import stringify
@@ -9,9 +9,9 @@ from followthemoney import model
 from zavod import Context, Entity
 from zavod import helpers as h
 
-SCHEMATA: Dict[str, str] = {}
-ADDRESSES_FULL: Dict[str, List[str]] = {}
-ADDRESSES_COUNTRIES: Dict[str, List[str]] = {}
+SCHEMATA: dict[str, str] = {}
+ADDRESSES_FULL: dict[str, list[str | None]] = {}
+ADDRESSES_COUNTRIES: dict[str, list[str] | None] = {}
 
 
 def parse_countries(text: str | None) -> list[str] | None:
@@ -22,10 +22,12 @@ def emit_entity(context: Context, proxy: Entity) -> None:
     assert proxy.id is not None, proxy
     if proxy.id in SCHEMATA:
         schemata = [proxy.schema.name, SCHEMATA[proxy.id]]
+        company_schema = model.get("Company")
+        assert company_schema is not None
         if sorted(schemata) == sorted(["Asset", "Organization"]):
-            proxy.schema = model.get("Company")
+            proxy.schema = company_schema
         if sorted(schemata) == sorted(["Asset", "LegalEntity"]):
-            proxy.schema = model.get("Company")
+            proxy.schema = company_schema
 
         try:
             proxy.schema = model.common_schema(proxy.schema, SCHEMATA[proxy.id])
@@ -38,7 +40,7 @@ def emit_entity(context: Context, proxy: Entity) -> None:
 
 def read_rows(
     context: Context, zip_path: Path, file_name: str
-) -> Generator[Dict[str, str], None, None]:
+) -> Iterator[dict[str, str | None]]:
     with ZipFile(zip_path, "r") as zip:
         with zip.open(file_name) as zfh:
             fh = io.TextIOWrapper(zfh)
@@ -49,7 +51,7 @@ def read_rows(
                 #     context.log.info("Read %d rows..." % idx, file_name=file_name)
 
 
-def make_row_entity(context: Context, row: Dict[str, str], schema: str) -> None:
+def make_row_entity(context: Context, row: dict[str, str | None], schema: str) -> None:
     # node_id = row.pop("id", row.pop("_id", row.pop("node_id", None)))
     node_id = row.pop("node_id", None)
     proxy = context.make(schema)
@@ -104,8 +106,9 @@ def make_row_entity(context: Context, row: Dict[str, str], schema: str) -> None:
     emit_entity(context, proxy)
 
 
-def make_row_address(context: Context, row: Dict[str, str]) -> None:
+def make_row_address(context: Context, row: dict[str, str | None]) -> None:
     node_id = row.pop("node_id", None)
+    assert node_id is not None
     ADDRESSES_COUNTRIES[node_id] = parse_countries(row.pop("countries"))
     ADDRESSES_FULL[node_id] = [row.pop("address", None), row.pop("name", None)]
     # proxy = context.make("Address")
@@ -130,10 +133,10 @@ def make_row_address(context: Context, row: Dict[str, str]) -> None:
     # emit_entity(context, proxy)
 
 
-LINK_SEEN = set()
+LINK_SEEN: set[str] = set()
 
 
-def make_row_relationship(context: Context, row: Dict[str, str]) -> None:
+def make_row_relationship(context: Context, row: dict[str, str | None]) -> None:
     _type = row.pop("rel_type")
     _start = row.pop("node_id_start")
     _end = row.pop("node_id_end")
@@ -151,6 +154,7 @@ def make_row_relationship(context: Context, row: Dict[str, str]) -> None:
     start = context.make_slug(_start)
     assert start is not None, _start
     start_schema = SCHEMATA.get(start)
+    assert start_schema is not None, start
     start_ent = context.make(start_schema)
     start_ent.id = start
 
@@ -162,6 +166,7 @@ def make_row_relationship(context: Context, row: Dict[str, str]) -> None:
     end = context.make_slug(_end)
     assert end is not None, _end
     end_schema = SCHEMATA.get(end)
+    assert end_schema is not None, end
     end_ent = context.make(end_schema)
     end_ent.id = end
     link = row.pop("link", None)
@@ -177,7 +182,7 @@ def make_row_relationship(context: Context, row: Dict[str, str]) -> None:
         return
 
     if res is None:
-        if link not in LINK_SEEN:
+        if link and link not in LINK_SEEN:
             # log.warning("Unknown link type: %s (%s, %s)", link, _type, row)
             LINK_SEEN.add(link)
         return
@@ -221,12 +226,20 @@ def make_row_relationship(context: Context, row: Dict[str, str]) -> None:
         context.emit(rel)
 
         # this turns legalentity into organization in some cases
-        start_ent = context.make(rel.schema.get(res.start).range)
+        start_prop = rel.schema.get(res.start)
+        assert start_prop is not None
+        start_range = start_prop.range
+        assert start_range is not None
+        start_ent = context.make(start_range)
         start_ent.id = start
         start_ent.add("sourceUrl", f"https://offshoreleaks.icij.org/nodes/{_start}")
         emit_entity(context, start_ent)
 
-        end_ent = context.make(rel.schema.get(res.end).range)
+        end_prop = rel.schema.get(res.end)
+        assert end_prop is not None
+        end_range = end_prop.range
+        assert end_range is not None
+        end_ent = context.make(end_range)
         end_ent.id = end
         end_ent.add("sourceUrl", f"https://offshoreleaks.icij.org/nodes/{_end}")
         emit_entity(context, end_ent)
