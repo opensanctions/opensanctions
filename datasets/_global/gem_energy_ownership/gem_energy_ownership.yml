@@ -9,9 +9,9 @@ manual_check:
   last_checked: "2026-02-01"
   interval: 90
   message: |
-    Check with Global Energy Monitor for new data in the Global Energy Ownership Tracker.
-    If parseable via context.fetch, parse directly from the link. Otherwise, add to internal
-    data and parse locally.
+    Download the latest file from the website, see if it's newer than the version being referenced in the crawler (unfortunately, the website does not reveal a last-updated date).
+
+    GEM are considering making this a direct download again in the future, possibly even with a stable link to the latest version. Until then, we use internal-data to store the latest version of the file, and update it manually when needed.
 deploy:
   schedule: "@monthly"
 exports:
