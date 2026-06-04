@@ -14,12 +14,12 @@
 ###
 
 
-from lxml import etree
 import re
 
 from zavod import Context, helpers as h
 from zavod.stateful.positions import categorise
 from zavod.extract.zyte_api import fetch_html
+from zavod.util import Element
 
 UNBLOCK_ACTIONS = [
     {
@@ -72,15 +72,16 @@ def crawl_birth_year_place(context: Context, url: str) -> tuple[str | None, str 
     return None, None
 
 
-def crawl_item(context: Context, item: etree) -> None:
+def crawl_item(context: Context, item: Element) -> None:
     anchor = item.find(".//a")
     if anchor is None:
         return
     deputy_url = anchor.get("href")
-    name = anchor.text_content().strip()
-    party_els = item.xpath('.//div[contains(@class, "text-right")]')
+    assert deputy_url is not None
+    name = h.element_text(anchor)
+    party_els = h.xpath_elements(item, './/div[contains(@class, "text-right")]')
     assert len(party_els) == 1
-    party = party_els[0].text_content().strip()
+    party = h.element_text(party_els[0])
 
     birth_year, birth_place = crawl_birth_year_place(context, deputy_url)
 
@@ -127,5 +128,5 @@ def crawl(context: Context) -> None:
         cache_days=1,
     )
 
-    for item in doc.xpath(items_xpath):
+    for item in h.xpath_elements(doc, items_xpath):
         crawl_item(context, item)
