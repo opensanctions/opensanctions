@@ -97,7 +97,7 @@ a PEP position, and the PEP duration of its scope.
 To allow newly discovered positions to be added to the database, and to use the
 `is_pep` value from the database, call `zavod.stateful.positions:categorise` with the Position.
 If the data source is known to only include PEP positions, or if the crawler only
-attempts to create positions known to be PEPs, the `is_pep` argument should be `True`.
+attempts to create positions known to be PEPs, the `default_is_pep` argument should be `True`.
 Otherwise it should be `None`, denoting that it should be manually categorised
 in the database.
 **Only make occupancies and emit entities for which the returned `categorisation.is_pep` is `True`**.
@@ -131,6 +131,12 @@ a position is currently held or not, we consider someone a PEP if they have not
 passed away, and they entered the position within the past 40 years. In this
 case the occupancy status should be `unknown`.
 
+When the source records that a person has died or left office mid-term, set their
+`deathDate` (on the person) and the occupancy `endDate`, rather than skipping them.
+`make_occupancy` applies the thresholds above and returns `None` once the person no
+longer qualifies — so a recently-deceased or recently-removed office holder is still
+emitted with an `ended` occupancy, while one who left long ago is dropped automatically.
+
 ### Only emit if the person is a PEP
 
 Occupancies and positions should only be emitted for instances where these
@@ -147,12 +153,12 @@ and determine whether the occupancy meets our criteria and should be emitted.
 
 ```python
 # ... looping over people in a province ...
-if person_data.pop("death_date", None):
-    return
 person = context.make("Person")
 source_id = person_data.pop("id")
 person.add("country", "us")
 person.add("name", person_data.pop("name"))
+# Set deathDate rather than skipping the person; make_occupancy decides PEP status.
+h.apply_date(person, "deathDate", person_data.pop("death_date", None))
 # ... more person properties ...
 
 pep_entities = []
@@ -164,7 +170,7 @@ for role in person_data.pop("roles"):
         country="us",
         subnational_area=province
     )
-    categorisation = categorise(context, position, is_pep=True)
+    categorisation = categorise(context, position, default_is_pep=True)
     if not categorisation.is_pep:
         continue
     occupancy = h.make_occupancy(
