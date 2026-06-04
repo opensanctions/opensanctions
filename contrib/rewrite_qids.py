@@ -28,7 +28,6 @@ def map_qid(qid: str) -> str:
         "format": "json",
     }
     headers = {"User-Agent": USER_AGENT}
-    time.sleep(1)  # be nice to the wikidata API
     response = requests.get(WD_API, params=params, headers=headers)
     response.raise_for_status()
     data = response.json()
@@ -60,6 +59,7 @@ def rewrite_qids(qids: Set[str]):
             if not is_qid(qid):
                 log.warning(f"Skipping invalid QID: {qid}")
                 continue
+            time.sleep(3)  # be nice to the wikidata API
             new_qid = map_qid(qid)
             if new_qid == qid:
                 log.info(f"No mapping found for {qid}, skipping.")
@@ -86,6 +86,9 @@ def rewrite_qids(qids: Set[str]):
             log.info(f"Updated {result_target.rowcount} rows in resolver.target")
 
         conn.commit()
+
+    # Cache is optional and takes forever so let's skip:
+    return
 
     # Build the DELETE query with filters
     # Filter 1: dataset column is one of the DATASETS
