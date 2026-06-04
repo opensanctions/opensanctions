@@ -55,7 +55,7 @@ assertions:
     schema_entities:
       Company: 22200
       Organization: 1100
-      LegalEntity: 170
+      LegalEntity: 130
     country_entities:
       cn: 6400
       us: 1500
@@ -68,7 +68,7 @@ assertions:
     schema_entities:
       Company: 30000
       Organization: 2500
-      LegalEntity: 350
+      LegalEntity: 280
 
 lookups:
   associates:
