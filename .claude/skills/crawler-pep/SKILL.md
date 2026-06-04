@@ -24,11 +24,11 @@ context about the dataset.
 
 **Prefer section reads over full reads.** All of these docs are well-headered — use `Grep` to find the symbol/topic you need (`make_occupancy`, `apply_date`, `coverage.start`, etc.) and `Read` with `offset`/`limit` instead of reading the whole file.
 
-**Do NOT search the repo for similar crawlers.** The codebase is large and old, so many
-crawlers predate current best practice — "looks similar" and "is correct" have drifted
-apart, and copying one propagates outdated patterns. The docs above are the curated,
-current source of truth; `examples.md` is where to find worked code. Use only the files
-listed above.
+**Ground the crawler in the files listed above — they are the only source you need.**
+They are the curated, current best practice, and `examples.md` is the maintained version
+of "show me a crawler like this one." The wider crawler codebase is large and old, so many
+crawlers have drifted from current practice — which is exactly why the docs, not the
+corpus, are authoritative here.
 
 ## Step 1: Understand the source
 
