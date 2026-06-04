@@ -15,7 +15,7 @@ description: |
 
   This dataset captures the deputies of the current legislature as published in the
   National Assembly's official deputy database. Deputies who are removed, dismissed or
-  die during the term are recorded as ended.
+  die during the term are marked as former members.
 url: https://dbqh.quochoi.vn/XV/Daibieu.aspx
 publisher:
   name: Quốc hội nước Cộng hòa xã hội chủ nghĩa Việt Nam
