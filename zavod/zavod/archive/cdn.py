@@ -19,7 +19,7 @@ def invalidate_archive_cache(path: str) -> None:
     purge_url = "https://api.bunny.net/purge"
     headers = {"AccessKey": bunnynet_api_key}
     archive_url = f"{settings.ARCHIVE_SITE}/{path}"
-    params = {"url": archive_url, "async": "true"}
+    params = {"url": archive_url, "async": "false"}
 
     try:
         response = requests.post(purge_url, headers=headers, params=params)
