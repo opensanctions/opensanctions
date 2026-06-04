@@ -101,6 +101,8 @@ def crawl(context: Context) -> None:
         entity.add(
             "phone", clean_phones(person_data.get("contact_details.phone_number"))
         )
+        # mayors require citizenship, but appointed managers/CFOs don't
+        entity.add("country", "za")
 
         role = person_data.get("role.role")
 
