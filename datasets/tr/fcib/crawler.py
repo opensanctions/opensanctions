@@ -1,6 +1,5 @@
-from normality import collapse_spaces
+from normality import squash_spaces
 from openpyxl import load_workbook
-from typing import Dict, List, Optional
 import re
 from rigour.mime.types import XLSX
 
@@ -52,13 +51,13 @@ REGEX_SPLITTABLE_PASSPORT = re.compile(
 UN_SC_PREFIXES = [Regime.TALIBAN, Regime.DAESH_AL_QAIDA]
 
 
-def split(text: Optional[str]) -> List[str]:
+def split(text: str | None) -> list[str]:
     if text is None:
         return []
     return [s.strip() for s in REGEX_SPLIT.split(text)]
 
 
-def parse_passport_numbers(pass_no: Optional[str]) -> List[str]:
+def parse_passport_numbers(pass_no: str | None) -> list[str]:
     if pass_no is None:
         return []
     if REGEX_SPLITTABLE_PASSPORT.match(pass_no):
@@ -67,13 +66,15 @@ def parse_passport_numbers(pass_no: Optional[str]) -> List[str]:
         return [pass_no]
 
 
-def crawl_row(context: Context, row: Dict[str, str], program: str, url: str) -> None:
+def crawl_row(
+    context: Context, row: dict[str, str | None], program: str, url: str
+) -> None:
     name = row.pop("name")
     if not name:
         return  # in the XLSX file, there are empty rows
 
-    pass_no = row.pop("passport_number", "")  # Person
-    passport_other = row.pop("passport_number_other_info", "")  # LegalEntity
+    pass_no = row.pop("passport_number") or ""  # Person
+    passport_other = row.pop("passport_number_other_info") or ""  # LegalEntity
     birth_establishment_date = split(row.pop("date_of_birth_establishment", ""))
     birth_place = row.pop("birth_place", "")
     birth_dates = split(row.pop("birth_date"))
@@ -88,8 +89,14 @@ def crawl_row(context: Context, row: Dict[str, str], program: str, url: str) -> 
     # Birthplace is also used for organisations
     if birth_dates or mother_name or father_name:
         entity = context.make("Person")
+        # we're passing birth_dates as a list, which violates the expected signature
+        # We want to avoid a re-key, so ignore for now
         entity.id = context.make_id(
-            name, nationality, birth_dates, birth_place, pass_no
+            name,
+            nationality,
+            birth_dates,  # type: ignore[arg-type]
+            birth_place,
+            pass_no,
         )
         entity.add("nationality", nationality)
         entity.add("nationality", row.pop("other_nationality", ""))
@@ -97,9 +104,9 @@ def crawl_row(context: Context, row: Dict[str, str], program: str, url: str) -> 
         h.apply_dates(entity, "birthDate", birth_dates)
         h.apply_dates(entity, "birthDate", birth_establishment_date)
         entity.add(
-            "passportNumber", parse_passport_numbers(collapse_spaces(passport_other))
+            "passportNumber", parse_passport_numbers(squash_spaces(passport_other))
         )
-        entity.add("passportNumber", parse_passport_numbers(collapse_spaces(pass_no)))
+        entity.add("passportNumber", parse_passport_numbers(squash_spaces(pass_no)))
         entity.add("position", row.pop("position", ""))
         entity.add("motherName", mother_name)
         entity.add("fatherName", father_name)
@@ -107,8 +114,8 @@ def crawl_row(context: Context, row: Dict[str, str], program: str, url: str) -> 
         entity = context.make("LegalEntity")
         entity.id = context.make_id(name, birth_place, nationality, passport_other)
         entity.add("name", row.pop("legal_entity_name", ""))
-        id_number = collapse_spaces(passport_other)
-        if id_number is not None and len(id_number) > 0:
+        id_number = squash_spaces(passport_other)
+        if len(id_number) > 0:
             if id_number.startswith("IMO number:"):
                 id_number = id_number.replace("IMO number:", "").strip()
                 entity.add_schema("Organization")
@@ -166,7 +173,8 @@ def crawl(context: Context) -> None:
         context, context.data_url, table_xpath, cache_days=3, absolute_links=True
     )
     table = doc.find(table_xpath)
-    category_urls = [link.get("href") for link in table.findall(".//a")]
+    assert table is not None
+    category_urls = h.xpath_strings(table, ".//a/@href")
 
     # Ensure exactly 4 links are found
     if len(category_urls) != 4:
@@ -185,7 +193,7 @@ def crawl(context: Context) -> None:
 
         # Fetch the content of the section
         section_doc = fetch_html(context, url, table_xpath, cache_days=3)
-        doc_links = section_doc.xpath('//a[contains(@href, ".xlsx")]')
+        doc_links = h.xpath_strings(section_doc, '//a[contains(@href, ".xlsx")]/@href')
 
         # Expect exactly one .xlsx link in each section
         if len(doc_links) != 1:
@@ -194,7 +202,7 @@ def crawl(context: Context) -> None:
             )
 
         # Extract the link
-        doc_link = doc_links[0].get("href")
+        doc_link = doc_links[0]
 
         # Extract the slug (e.g., 6MADDE_ING) from the filename or URL structure
         slug = url.split("/")[-1].upper()
@@ -226,8 +234,10 @@ def crawl(context: Context) -> None:
     context.log.info("Finished processing the Excel files")
 
     # UN Security Council stubs
-    un_sc, doc = load_un_sc(context)
-    for _node, entity in get_persons(context, un_sc.prefix, doc, UN_SC_PREFIXES):
+    un_sc, un_doc = load_un_sc(context)
+    prefix = un_sc.prefix
+    assert prefix is not None
+    for _node, entity in get_persons(context, prefix, un_doc, UN_SC_PREFIXES):
         context.emit(entity)
-    for _node, entity in get_legal_entities(context, un_sc.prefix, doc, UN_SC_PREFIXES):
+    for _node, entity in get_legal_entities(context, prefix, un_doc, UN_SC_PREFIXES):
         context.emit(entity)
