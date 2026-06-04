@@ -50,3 +50,11 @@ assertions:
     schema_entities:
       Person: 550
       Position: 1
+
+lookups:
+  type.gender:
+    options:
+      - match: Nam
+        value: male
+      - match: Nữ
+        value: female

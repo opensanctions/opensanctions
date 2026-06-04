@@ -20,8 +20,6 @@ LINK_RE = re.compile(r"/daibieu/(\d+)/(\d+)/(\d+)/[^/]+\.aspx")
 
 DATE_RE = re.compile(r"\d{1,2}\s*/\s*\d{1,2}\s*/\s*\d{4}")
 
-GENDERS = {"Nam": "male", "Nữ": "female"}
-
 # Phrases in the occupation / note fields that mark the deputy losing their mandate.
 REMOVAL_MARKERS = ["bãi nhiệm", "miễn nhiệm", "cho thôi làm nhiệm vụ"]
 DECEASED_MARKER = "từ trần"
@@ -98,9 +96,8 @@ def crawl_deputy(context: Context, url: str, province: str, deputy: str) -> None
         person.add("alias", common_name)
 
     h.apply_date(person, "birthDate", fields.pop(BIRTH_DATE, None))
-    gender = fields.pop(GENDER, None)
-    if gender is not None:
-        person.add("gender", GENDERS.get(gender, gender))
+    # "Nam"/"Nữ" are translated by the type.gender lookup in the dataset YAML.
+    person.add("gender", fields.pop(GENDER, None))
     person.add("ethnicity", fields.pop(ETHNICITY, None))
     religion = fields.pop(RELIGION, None)
     if religion is not None and religion != "Không":  # "Không" = none
