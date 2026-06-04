@@ -732,6 +732,7 @@ lookups:
           - "5914024719"
           - "5402692"
           - "5740562"
+          - "321000400012591" # 15-digit old-style China business registration number, not a USCC
         prop: registrationNumber
       - match:
           - 9102012001
