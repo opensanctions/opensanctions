@@ -129,7 +129,6 @@ repos:
           datasets/us/fbi_most_wanted|
           datasets/us/sam_exclusions|
           datasets/us/nk_jointventures|
-          datasets/us/state_dept|
           datasets/us/cia_world_factbook|
           datasets/us/fara_filings|
           datasets/us/fincen_msb|
