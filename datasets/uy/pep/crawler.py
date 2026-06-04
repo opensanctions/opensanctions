@@ -32,6 +32,8 @@ def parse_sheet_row(context: Context, row: Dict[str, str]) -> None:
     person.id = context.make_slug(id_number, prefix="uy-cedula")
     person.add("idNumber", id_number)
     person.add("name", person_name)
+    # list includes international org officials, so not all require citizenship
+    person.add("country", "uy")
 
     position = h.make_position(
         context, f"{role}, {organization_name}", country="uy", lang="spa"
