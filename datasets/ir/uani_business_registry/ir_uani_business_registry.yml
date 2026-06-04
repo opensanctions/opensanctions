@@ -60,6 +60,11 @@ lookups:
         values:
           - Netherlands
           - United Kingdom
+  type.url:
+    options:
+    # Relative hrefs from the listing/subpages that lost their host.
+      - match: /company/deutsche-telekom
+        value: https://www.unitedagainstnucleariran.com/company/deutsche-telekom
   type.text:
     options:
     # Nulling empty notes
