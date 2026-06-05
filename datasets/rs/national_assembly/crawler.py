@@ -1,12 +1,12 @@
 import re
-from datetime import date
+from datetime import date, datetime
 
 from normality import squash_spaces
 
 from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
-from zavod.stateful.positions import OccupancyStatus, PositionCategorisation, categorise
+from zavod.stateful.positions import PositionCategorisation, categorise
 from zavod.util import Element
 
 # The roster page id (the ".1435." segment of /NAME.1435.891.html) is a stable per-MP
@@ -136,7 +136,7 @@ def crawl_row(
     person.add("citizenship", "rs")
 
     if departed:
-        # Third column is the mandate range, e.g. "27.11.2024 - 17.04.2025.".
+        # Third column is this member's own mandate range, e.g. "27.11.2024 - 17.04.2025.".
         dates = DMY_RE.findall(h.element_text(cells[2]))
         occupancy = h.make_occupancy(
             context,
@@ -146,11 +146,11 @@ def crawl_row(
             start_date=dates[0] if dates else None,
             end_date=dates[1] if len(dates) > 1 else None,
         )
-    elif is_current:
-        occupancy = h.make_occupancy(
-            context, person, position, categorisation=categorisation
-        )
     else:
+        # Full-term members are dated to the convocation period. We let make_occupancy
+        # derive the status from the dates: for the current convocation no_end_implies_
+        # current keeps them `current`; past convocations have a period_end and resolve
+        # to `ended`.
         occupancy = h.make_occupancy(
             context,
             person,
@@ -158,7 +158,7 @@ def crawl_row(
             categorisation=categorisation,
             period_start=period_start,
             period_end=period_end,
-            status=OccupancyStatus.ENDED,
+            no_end_implies_current=is_current,
         )
     if occupancy is None:
         return
@@ -202,6 +202,27 @@ def crawl_convocation(
             )
 
 
+def earliest_mandate_start(doc: Element) -> str | None:
+    """Return the earliest mandate start date on a convocation page, or None.
+
+    The source never labels the current convocation with its start date, but its
+    departed-members table records each mandate's start; the earliest of those is the
+    date the convocation convened (its original members started then). We use it as the
+    period end of the most recent archived convocation rather than hard-coding a date.
+    """
+    starts: list[date] = []
+    for table, departed in member_tables(doc):
+        if not departed:
+            continue
+        for row in h.xpath_elements(table, ".//tr")[1:]:
+            cells = h.xpath_elements(row, "./td")
+            if len(cells) >= 3:
+                dates = DMY_RE.findall(h.element_text(cells[2]))
+                if dates:
+                    starts.append(datetime.strptime(dates[0], "%d.%m.%Y").date())
+    return min(starts).isoformat() if starts else None
+
+
 def list_convocations(doc: Element) -> list[tuple[str, str]]:
     """Return archived convocations as ``(url, start_date)``, newest first.
 
@@ -241,13 +262,16 @@ def crawl(context: Context) -> None:
         cyr_doc = context.fetch_html(toggle[0], absolute_links=True, cache_days=1)
         cyrillic = cyrillic_name_index(cyr_doc)
 
+    # The current convocation isn't labelled with a start date; derive it from its own
+    # mandate records so it can close out the most recent archived convocation's period.
+    current_start = earliest_mandate_start(current)
     crawl_convocation(
         context,
         current,
         context.data_url,
         position,
         categorisation,
-        None,
+        current_start,
         None,
         True,
         cyrillic,
@@ -264,9 +288,9 @@ def crawl(context: Context) -> None:
     for index, (url, start) in enumerate(convocations):
         if start < cutoff:
             continue
-        # The convocation ended when the next (newer) one began; the most recent
-        # archived convocation has no newer archived neighbour, so its end is left open.
-        period_end = convocations[index - 1][1] if index > 0 else None
+        # A convocation ended when the next (newer) one began: the previous entry in the
+        # newest-first list, or the current convocation's start for the most recent one.
+        period_end = convocations[index - 1][1] if index > 0 else current_start
         doc = context.fetch_html(url, absolute_links=True, cache_days=7)
         crawl_convocation(
             context,
