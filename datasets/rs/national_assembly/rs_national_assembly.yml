@@ -37,7 +37,20 @@ data:
   lang: srp
 
 dates:
-  formats: ["%d.%m.%Y", "%Y.", "%Y-%m-%d"]
+  formats: ["%d.%m.%Y", "%Y.", "%Y-%m-%d", "%d. %B %Y"]
+  months:
+    january: [januar, januara]
+    february: [februar, februara]
+    march: [mart, marta]
+    april: [april, aprila]
+    may: [maj, maja]
+    june: [jun, juna]
+    july: [jul, jula]
+    august: [avgust, avgusta]
+    september: [septembar, septembra]
+    october: [oktobar, oktobra]
+    november: [novembar, novembra]
+    december: [decembar, decembra]
 
 
 assertions:

@@ -1,5 +1,4 @@
 import re
-from datetime import date, datetime
 
 from normality import squash_spaces
 
@@ -14,22 +13,10 @@ from zavod.util import Element
 # render plain text without links.
 MP_ID_RE = re.compile(r"\.(\d+)\.\d+\.html")
 DMY_RE = re.compile(r"\d{1,2}\.\d{1,2}\.\d{4}")
-# Genitive month names as they appear in convocation labels ("Saziv od 1. avgusta 2022.").
-SR_MONTHS = {
-    "januar": 1,
-    "februar": 2,
-    "mart": 3,
-    "april": 4,
-    "maj": 5,
-    "jun": 6,
-    "jul": 7,
-    "avgust": 8,
-    "septembar": 9,
-    "oktobar": 10,
-    "novembar": 11,
-    "decembar": 12,
-}
-LABEL_DATE_RE = re.compile(r"(\d{1,2})\.?\s+([a-zšđčćž]+)\s+(\d{4})", re.IGNORECASE)
+ISO_DATE_RE = re.compile(r"\d{4}-\d{2}-\d{2}")
+# The date fragment ("1. avgusta 2022") inside a convocation label; the Serbian month
+# name is translated via the dataset's `dates.months` mapping when parsed.
+LABEL_DATE_RE = re.compile(r"\d{1,2}\.?\s+[^\s.]+\s+\d{4}")
 
 POSITION_NAME = "Member of the National Assembly of Serbia"
 
@@ -44,20 +31,13 @@ def make_assembly_position(context: Context) -> Entity:
     )
 
 
-def parse_label_date(label: str) -> str | None:
+def parse_label_date(context: Context, label: str) -> str | None:
     """Parse the start date out of a convocation label like "Saziv od 1. avgusta 2022."."""
     match = LABEL_DATE_RE.search(label)
     if match is None:
         return None
-    day, month_name, year = match.groups()
-    # Labels use the genitive ("avgusta"); match on the nominative stem prefix.
-    month = next(
-        (num for stem, num in SR_MONTHS.items() if month_name.lower().startswith(stem)),
-        None,
-    )
-    if month is None:
-        return None
-    return date(int(year), month, int(day)).isoformat()
+    iso = h.extract_date(context.dataset, match.group(0))[0]
+    return iso if ISO_DATE_RE.fullmatch(iso) else None
 
 
 def cyrillic_name_index(doc: Element) -> dict[str, str]:
@@ -202,7 +182,7 @@ def crawl_convocation(
             )
 
 
-def earliest_mandate_start(doc: Element) -> str | None:
+def earliest_mandate_start(context: Context, doc: Element) -> str | None:
     """Return the earliest mandate start date on a convocation page, or None.
 
     The source never labels the current convocation with its start date, but its
@@ -210,7 +190,7 @@ def earliest_mandate_start(doc: Element) -> str | None:
     date the convocation convened (its original members started then). We use it as the
     period end of the most recent archived convocation rather than hard-coding a date.
     """
-    starts: list[date] = []
+    starts: list[str] = []
     for table, departed in member_tables(doc):
         if not departed:
             continue
@@ -219,11 +199,13 @@ def earliest_mandate_start(doc: Element) -> str | None:
             if len(cells) >= 3:
                 dates = DMY_RE.findall(h.element_text(cells[2]))
                 if dates:
-                    starts.append(datetime.strptime(dates[0], "%d.%m.%Y").date())
-    return min(starts).isoformat() if starts else None
+                    iso = h.extract_date(context.dataset, dates[0])[0]
+                    if ISO_DATE_RE.fullmatch(iso):
+                        starts.append(iso)
+    return min(starts) if starts else None
 
 
-def list_convocations(doc: Element) -> list[tuple[str, str]]:
+def list_convocations(context: Context, doc: Element) -> list[tuple[str, str]]:
     """Return archived convocations as ``(url, start_date)``, newest first.
 
     The archive navigation (present on any archive page) links to every past
@@ -237,7 +219,7 @@ def list_convocations(doc: Element) -> list[tuple[str, str]]:
             continue
         if href in seen:
             continue
-        start = parse_label_date(h.element_text(link))
+        start = parse_label_date(context, h.element_text(link))
         if start is None:
             continue
         seen.add(href)
@@ -264,7 +246,7 @@ def crawl(context: Context) -> None:
 
     # The current convocation isn't labelled with a start date; derive it from its own
     # mandate records so it can close out the most recent archived convocation's period.
-    current_start = earliest_mandate_start(current)
+    current_start = earliest_mandate_start(context, current)
     crawl_convocation(
         context,
         current,
@@ -282,7 +264,7 @@ def crawl(context: Context) -> None:
     )
     assert archive_links, "No archive link found on the current roster"
     archive = context.fetch_html(archive_links[0], absolute_links=True, cache_days=7)
-    convocations = list_convocations(archive)
+    convocations = list_convocations(context, archive)
     assert len(convocations) > 1, convocations
 
     for index, (url, start) in enumerate(convocations):
