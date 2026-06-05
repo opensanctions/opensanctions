@@ -337,6 +337,20 @@ lookups:
         value: Afghanistan
       - match: ウガンダ_x000D_
         value: Uganda
+      - match: コロンビア_x000D_
+        value: Colombia
+      - match:
+          - コロンビア; イタリア_x000D_
+          - Colombia; Italy
+        values:
+          - Colombia
+          - Italy
+      - match:
+          - コロンビア; スペイン_x000D_
+          - Colombia; Spain
+        values:
+          - Colombia
+          - Spain
   type.date:
     options:
       - match:
@@ -882,6 +896,11 @@ lookups:
         value: P00429243
       - match: "アフガニスタン旅券P02504168（2019年11月12日にアラブ首長国連邦のドバイで発行、2029年11月12日に失効、氏名の英字表記：Azizurahman Abdul Ahad、2019年11月12日発行、2029年11月12日に失効)"
         value: P02504168
+      - match: コロンビア旅券 AS272175、2026年3月31日失効; スペイン旅券 XDD789846; コロンビア旅券 BF868819、2035年3月1日失効
+        values:
+          - AS272175
+          - XDD789846
+          - BF868819
   type.name:
     lowercase: true
     normalize: true
