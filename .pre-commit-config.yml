@@ -121,7 +121,6 @@ repos:
           datasets/us/occ_enfact|
           datasets/us/ddtc_enforcements|
           datasets/us/ddtc_debarred|
-          datasets/us/fbi_most_wanted|
           datasets/us/sam_exclusions|
           datasets/us/nk_jointventures|
           datasets/us/cia_world_factbook|

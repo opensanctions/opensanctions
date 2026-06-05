@@ -155,8 +155,10 @@ def crawl(context: Context) -> None:
     # To find query_id, press the "Filter" button once on the listing page and look
     # at the console of network requests in the browser devtools.
     menu_xpath = ".//ul[contains(@class, 'section-menu')]"
-    doc = fetch_html(context, context.dataset.model.url, menu_xpath)
-    [menu] = doc.xpath(menu_xpath)
+    url = context.dataset.model.url
+    assert url is not None
+    doc = fetch_html(context, url, menu_xpath)
+    menu = h.xpath_element(doc, menu_xpath)
     h.assert_dom_hash(menu, "d5a637f3eb32e7f0e46cb0d9a99682620e4793df")
 
     crawl_type(
