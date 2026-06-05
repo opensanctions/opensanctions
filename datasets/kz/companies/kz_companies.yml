@@ -17,7 +17,7 @@ ci_test: false
 http:
   total_retries: 5
   backoff_factor: 3
-  retry_statuses: [503, 429, 403]
+  retry_statuses: [502, 503, 429, 403]
 summary: >
   Companies and other entities registered in the Republic of Kazakhstan and their director.
 description: |
