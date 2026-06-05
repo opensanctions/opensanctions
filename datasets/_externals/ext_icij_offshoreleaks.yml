@@ -69,6 +69,7 @@ inputs:
   - sanctions
 
 config:
+  topic_gated: true
   index_options:
     match_batch: 300
     memory: 4000

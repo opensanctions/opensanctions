@@ -18,7 +18,7 @@ from zavod.context import Context
 from zavod.integration.dedupe import get_dataset_linker, get_resolver
 from zavod.entity import Entity
 from zavod.meta import Dataset, get_multi_dataset, get_catalog
-from zavod.store import get_store
+from zavod.store import get_store, View
 from zavod.reset import reset_caches
 
 
@@ -170,12 +170,34 @@ class LocalEnricher(BaseEnricher[Dataset]):
         yield from self.expand(match)
 
 
+def has_topic(entity_id: str, view: View) -> bool:
+    """Return True iff the entity exists in the view and carries a risk topic."""
+    entity = view.get_entity(entity_id)
+    if entity is None:
+        return False
+    return bool(entity.get("topics"))
+
+
+def is_edge_internal(entity: Entity, view: View) -> bool:
+    """For an edge entity, return True iff every endpoint has a risk topic."""
+    endpoint_ids: set[str] = set()
+    if entity.schema.source_prop is not None:
+        endpoint_ids.update(entity.get(entity.schema.source_prop.name))
+    if entity.schema.target_prop is not None:
+        endpoint_ids.update(entity.get(entity.schema.target_prop.name))
+    if not endpoint_ids:
+        return False
+    return all(has_topic(eid, view) for eid in endpoint_ids)
+
+
 def save_match(
     context: Context,
     resolver: Resolver[Entity],
     enricher: LocalEnricher,
     entity: Entity,
     match: Entity,
+    subject_view: View,
+    topic_gated: bool,
 ) -> None:
     if match.id is None or entity.id is None:
         return None
@@ -193,7 +215,17 @@ def save_match(
         for adjacent in enricher.expand_wrapped(entity, match):
             if check_person_cutoff(adjacent):
                 continue
-            context.emit(adjacent)
+            if topic_gated:
+                adj_id = adjacent.id
+                if adjacent.schema.edge:
+                    ext = not is_edge_internal(adjacent, subject_view)
+                elif adj_id is None:
+                    ext = True
+                else:
+                    ext = not has_topic(adj_id, subject_view)
+            else:
+                ext = False
+            context.emit(adjacent, external=ext)
 
 
 def enrich(context: Context) -> None:
@@ -207,6 +239,7 @@ def enrich(context: Context) -> None:
     subject_store.sync()
     subject_view = subject_store.view(scope)
     config = dict(context.dataset.config)
+    topic_gated: bool = bool(config.get("topic_gated", False))
     enricher = LocalEnricher(context.dataset, context.cache, config)
     reset_caches()
     try:
@@ -225,7 +258,15 @@ def enrich(context: Context) -> None:
                 continue
             try:
                 for match in enricher.match_candidates(subject_entity, candidate_set):
-                    save_match(context, resolver, enricher, subject_entity, match)
+                    save_match(
+                        context,
+                        resolver,
+                        enricher,
+                        subject_entity,
+                        match,
+                        subject_view,
+                        topic_gated,
+                    )
             except EnrichmentException as exc:
                 context.log.error(
                     "Enrichment error %r: %s" % (subject_entity, str(exc))

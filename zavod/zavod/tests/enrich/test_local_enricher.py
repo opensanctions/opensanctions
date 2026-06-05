@@ -8,9 +8,10 @@ from zavod.entity import Entity
 from zavod.archive import clear_data_path
 from zavod.context import Context
 from zavod.crawl import crawl_dataset
+from zavod.integration import get_dataset_linker
 from zavod.integration.dedupe import get_resolver
 from zavod.meta import Dataset
-from zavod.runner.local_enricher import LocalEnricher
+from zavod.runner.local_enricher import LocalEnricher, is_edge_internal
 from zavod.store import get_store
 
 DATASET_DATA = {
@@ -209,4 +210,98 @@ def test_limit(vcontext: Context):
     results = list(enricher.match_candidates(entity, candidates[entity.id]))
     assert len(results) == 0, results
 
+    shutil.rmtree(settings.DATA_PATH, ignore_errors=True)
+
+
+def test_is_edge_internal(testdataset1: Dataset):
+    """is_edge_internal returns True iff every edge endpoint has a risk topic."""
+    linker = get_dataset_linker(testdataset1)
+    crawl_dataset(testdataset1)
+    store = get_store(testdataset1, linker)
+    store.sync()
+    view = store.view(testdataset1, external=False)
+
+    # Ownership: oswell-spencer (crime.boss) → umbrella-corp (reg.warn) — both have topics
+    ownership = Entity.from_data(
+        testdataset1,
+        {
+            "schema": "Ownership",
+            "id": "test-ownership",
+            "properties": {
+                "owner": ["osv-oswell-spencer"],
+                "asset": ["osv-umbrella-corp"],
+            },
+        },
+    )
+    assert is_edge_internal(ownership, view)
+
+    # Family: johnny-does (no topics) → oswell-spencer (crime.boss) — one endpoint missing topic
+    family_no_topic = Entity.from_data(
+        testdataset1,
+        {
+            "schema": "Family",
+            "id": "test-family-no-topic",
+            "properties": {
+                "person": ["osv-johnny-does"],
+                "relative": ["osv-oswell-spencer"],
+            },
+        },
+    )
+    assert not is_edge_internal(family_no_topic, view)
+
+    # Family: one endpoint not in view at all
+    family_missing = Entity.from_data(
+        testdataset1,
+        {
+            "schema": "Family",
+            "id": "test-family-missing",
+            "properties": {
+                "person": ["osv-john-doe"],
+                "relative": ["nonexistent-id"],
+            },
+        },
+    )
+    assert not is_edge_internal(family_missing, view)
+
+    store.close()
+    shutil.rmtree(settings.DATA_PATH, ignore_errors=True)
+
+
+def test_enrich_topic_gated(testdataset1: Dataset, testdataset_enrich_subject: Dataset):
+    """With topic_gated=True, expanded entities without topics are emitted external."""
+    resolver = get_resolver()
+    crawl_dataset(testdataset_enrich_subject)
+    crawl_dataset(testdataset1)
+
+    dataset_data = deepcopy(DATASET_DATA)
+    dataset_data["config"]["topic_gated"] = True
+    enricher_ds = make_enricher_dataset(dataset_data, testdataset1.name)
+    crawl_dataset(enricher_ds)
+
+    # Confirm the match (decide requires an active transaction)
+    resolver.begin()
+    canon_id = resolver.decide("osv-umbrella-corp", "xxx", Judgement.POSITIVE)
+    resolver.commit()
+
+    clear_data_path(enricher_ds.name)
+    crawl_dataset(enricher_ds)
+
+    resolver.begin()
+    store = get_store(enricher_ds, resolver)
+    store.sync(clear=True)
+
+    # The subject entity (Umbrella Corp.) has no topics in the subject store,
+    # so all expanded entities should be emitted as external.
+    internals = list(store.view(enricher_ds, external=False).entities())
+    assert len(internals) == 0, internals
+
+    all_entities = list(store.view(enricher_ds, external=True).entities())
+    assert len(all_entities) > 0, all_entities
+
+    # Canonical entity exists in the combined view
+    canon_entity = store.view(enricher_ds, external=True).get_entity(canon_id)
+    assert canon_entity is not None
+
+    resolver.rollback()
+    store.close()
     shutil.rmtree(settings.DATA_PATH, ignore_errors=True)
