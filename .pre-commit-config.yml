@@ -77,18 +77,14 @@ repos:
           datasets/_wikidata|
           datasets/ae|
           datasets/bg/jud_declarations|
-          datasets/bh|
           datasets/br|
-          datasets/cl|
           datasets/cn|
-          datasets/co|
           datasets/ee|
           datasets/eu|
           datasets/gb/coh|
           datasets/gb/fca_firds|
           datasets/gb/nca_most_wanted|
           datasets/gb/nca_press_releases|
-          datasets/hk|
           datasets/id|
           datasets/in|
           datasets/ky/judicial|
@@ -125,7 +121,6 @@ repos:
           datasets/us/occ_enfact|
           datasets/us/ddtc_enforcements|
           datasets/us/ddtc_debarred|
-          datasets/us/fbi_most_wanted|
           datasets/us/sam_exclusions|
           datasets/us/nk_jointventures|
           datasets/us/cia_world_factbook|
