@@ -1,0 +1,53 @@
+title: Serbia National Assembly Members
+prefix: rs-na
+coverage:
+  frequency: monthly
+  start: 2026-06-05
+load_statements: true
+entry_point: crawler.py
+ci_test: false
+summary: >-
+  Members of the National Assembly of Serbia, the unicameral parliament.
+description: |
+  The National Assembly (Narodna skupština) is the unicameral parliament of the
+  Republic of Serbia, with 250 seats.
+
+  This dataset is scraped from the Assembly's official roster. It covers the members
+  of the current convocation as well as the members of past convocations published in
+  the Assembly's archive, so that politicians who served in earlier terms remain in the
+  data. Members who left a convocation before its end are listed with the start and end
+  dates of their mandate; members who served a full past term are dated to the
+  convocation's own period.
+tags:
+  - list.pep
+url: https://www.parlament.gov.rs/sastav/narodni-poslanici/aktuelni-saziv.890.html
+publisher:
+  name: Narodna skupština Republike Srbije
+  name_en: National Assembly of the Republic of Serbia
+  description: |
+    The National Assembly is the supreme representative body and holder of
+    constitutional and legislative power in Serbia. It publishes the roster of current
+    and past members on its official website.
+  url: https://www.parlament.gov.rs/
+  country: rs
+  official: true
+data:
+  url: https://www.parlament.gov.rs/sastav/narodni-poslanici/aktuelni-saziv.890.html
+  format: HTML
+  lang: srp
+
+dates:
+  formats: ["%d.%m.%Y", "%Y.", "%Y-%m-%d"]
+
+
+assertions:
+  min:
+    schema_entities:
+      Person: 250
+      Position: 1
+    country_entities:
+      rs: 250
+  max:
+    schema_entities:
+      Person: 3000
+      Position: 1
