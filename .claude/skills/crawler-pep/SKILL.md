@@ -24,7 +24,11 @@ context about the dataset.
 
 **Prefer section reads over full reads.** All of these docs are well-headered — use `Grep` to find the symbol/topic you need (`make_occupancy`, `apply_date`, `coverage.start`, etc.) and `Read` with `offset`/`limit` instead of reading the whole file.
 
-**Do NOT search the repo for similar crawlers.** Use only the files listed above.
+**Ground the crawler in the files listed above — they are the only source you need.**
+They are the curated, current best practice, and `examples.md` is the maintained version
+of "show me a crawler like this one." The wider crawler codebase is large and old, so many
+crawlers have drifted from current practice — which is exactly why the docs, not the
+corpus, are authoritative here.
 
 ## Step 1: Understand the source
 
@@ -87,13 +91,12 @@ Depth on edge cases: `zavod/docs/peps.md` → "Selecting a position name".
 
 Full reference: `zavod/docs/peps.md`. `categorise()` is a stateful DB operation; `is_pep`/`topics` only matter on first insertion — subsequent crawls return DB values (including UI edits).
 
-**Three `is_pep` calling patterns:**
+**`default_is_pep` calling patterns:**
 
-| `is_pep` arg | When to use | Example datasets |
-|---|---|---|
-| `True` | Source definitionally contains PEPs (parliament, cabinet, judges) | fr_assemblee, ie_parliament, ky_judicial |
-| `None` | Mixed dataset, or per-locality positions where UI decides PEP status | fr_hatvp_declarations, lu_bourgmestres |
-| `False` | Explicitly not PEP (rare in PEP crawlers) | — |
+| `default_is_pep` arg | When to use |
+|---|---|
+| `True` | Source definitionally contains PEPs (parliament, cabinet, judges) |
+| `None` | Mixed dataset, or per-locality positions where the UI decides PEP status |
 
 Pass the returned `categorisation` to `make_occupancy()`.
 
