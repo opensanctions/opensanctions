@@ -248,6 +248,7 @@ def crawl_archives_for_date(
     df = merge_duplicate_company_records(df)
 
     df.write.saveAsTable(table_name, mode="overwrite")
+    df.unpersist()
 
     return spark.table(table_name)
 
@@ -484,6 +485,9 @@ def crawl(context: Context) -> None:
         full_df = crawl_archives_for_date(spark, full_archive[0], full_archive[1])
         context.log.info("Merging full and partial daily records for %d" % year)
         year_df = merge_company_record_dfs(context, [full_df, partial_year_df])
+        # We've computed year_df now, we won't need month_dfs anymore.
+        for month_df in month_dfs:
+            month_df.unpersist()
         context.log.info("%d has %d records" % (year, year_df.count()))
 
         # Persist to make sure that Spark doesn't get the idea to throw away and recompute this.
