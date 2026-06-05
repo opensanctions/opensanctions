@@ -1,0 +1,60 @@
+title: Vietnam National Assembly (Quốc hội)
+entry_point: crawler.py
+prefix: vn-na
+coverage:
+  frequency: weekly
+  start: 2021-07-20
+load_statements: true
+ci_test: false
+summary: >-
+  Deputies of the National Assembly of Vietnam (Quốc hội), the country's unicameral
+  legislature, with biographical details from the official deputy database.
+description: |
+  The National Assembly (Quốc hội) is the unicameral legislature of Vietnam, with around
+  500 deputies elected for five-year terms.
+
+  This dataset captures the deputies of the current legislature as published in the
+  National Assembly's official deputy database. Deputies who are removed, dismissed or
+  die during the term are marked as former members.
+url: https://dbqh.quochoi.vn/XV/Daibieu.aspx
+publisher:
+  name: Quốc hội nước Cộng hòa xã hội chủ nghĩa Việt Nam
+  name_en: National Assembly of the Socialist Republic of Vietnam
+  acronym: QH
+  description: >
+    The National Assembly is the highest representative body and the sole legislative
+    organ of the Socialist Republic of Vietnam, electing the country's senior office
+    holders and enacting its laws.
+  url: https://quochoi.vn/
+  country: vn
+  official: true
+data:
+  url: https://dbqh.quochoi.vn/XV/Daibieu.aspx
+  format: HTML
+  lang: vie
+
+dates:
+  formats: ["%d/%m/%Y"]
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 400
+      Position: 1
+    country_entities:
+      vn: 400
+  max:
+    schema_entities:
+      Person: 550
+      Position: 1
+
+lookups:
+  type.gender:
+    options:
+      - match: Nam
+        value: male
+      - match: Nữ
+        value: female
