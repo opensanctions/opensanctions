@@ -24,7 +24,7 @@ DATASET_DATA = {
 UMBRELLA_CORP = {
     "schema": "LegalEntity",
     "id": "xxx",
-    "properties": {"name": ["Umbrella Corp."]},
+    "properties": {"name": ["Umbrella Corp."], "topics": ["reg.warn"]},
 }
 JON_DOVER = {
     "schema": "Person",
@@ -268,39 +268,50 @@ def test_is_edge_internal(testdataset1: Dataset):
 
 
 def test_enrich_topic_gated(testdataset1: Dataset, testdataset_enrich_subject: Dataset):
-    """With topic_gated=True, expanded entities without topics are emitted external."""
-    resolver = get_resolver()
-    crawl_dataset(testdataset_enrich_subject)
-    crawl_dataset(testdataset1)
-
-    dataset_data = deepcopy(DATASET_DATA)
-    dataset_data["config"]["topic_gated"] = True
-    enricher_ds = make_enricher_dataset(dataset_data, testdataset1.name)
-    crawl_dataset(enricher_ds)
+    """With topic_gated=True, the matched entity (which has a topic) is emitted
+    internal; adjacent entities not in the subject store are emitted external."""
+    clear_data_path(testdataset_enrich_subject.name)
+    crawl_dataset(testdataset_enrich_subject)  # enriching this
+    crawl_dataset(testdataset1)  # enriching against this
 
     # Confirm the match (decide requires an active transaction)
+    resolver = get_resolver()
     resolver.begin()
     canon_id = resolver.decide("osv-umbrella-corp", "xxx", Judgement.POSITIVE)
     resolver.commit()
 
+    dataset_data = deepcopy(DATASET_DATA)
+    dataset_data["config"]["topic_gated"] = True
+    enricher_ds = make_enricher_dataset(dataset_data, testdataset1.name)
     clear_data_path(enricher_ds.name)
     crawl_dataset(enricher_ds)
 
     resolver.begin()
     store = get_store(enricher_ds, resolver)
     store.sync(clear=True)
+    view_internal = store.view(enricher_ds, external=False)
+    view_all = store.view(enricher_ds, external=True)
 
-    # The subject entity (Umbrella Corp.) has no topics in the subject store,
-    # so all expanded entities should be emitted as external.
-    internals = list(store.view(enricher_ds, external=False).entities())
-    assert len(internals) == 0, internals
+    # The matched entity has topic "reg.warn" in the subject store → emitted internal.
+    internals = list(view_internal.entities())
+    assert len(internals) == 1, internals
+    assert internals[0].id == canon_id
 
-    all_entities = list(store.view(enricher_ds, external=True).entities())
-    assert len(all_entities) > 0, all_entities
+    # oswell-spencer is reachable from the match but absent from the subject store
+    # (only the enrich subject is in scope), so it must be external only.
+    assert view_all.get_entity("osv-oswell-spencer") is not None
+    assert view_internal.get_entity("osv-oswell-spencer") is None, (
+        "oswell-spencer has no topic in the subject store → must be external"
+    )
 
-    # Canonical entity exists in the combined view
-    canon_entity = store.view(enricher_ds, external=True).get_entity(canon_id)
-    assert canon_entity is not None
+    # Ownership edge: oswell-spencer endpoint has no topic → external.
+    inverted = list(view_all.get_inverted(canon_id))
+    ownership_entities = [e for _, e in inverted if e.schema.edge]
+    assert len(ownership_entities) == 1, ownership_entities
+    ownership_id = ownership_entities[0].id
+    assert view_internal.get_entity(ownership_id) is None, (
+        "ownership edge has an untagged endpoint → must be external"
+    )
 
     resolver.rollback()
     store.close()

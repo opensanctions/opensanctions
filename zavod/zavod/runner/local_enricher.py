@@ -172,7 +172,8 @@ class LocalEnricher(BaseEnricher[Dataset]):
 
 def has_topic(entity_id: str, view: View) -> bool:
     """Return True iff the entity exists in the view and carries a risk topic."""
-    entity = view.get_entity(entity_id)
+    canonical_id = view.store.linker.get_canonical(entity_id)
+    entity = view.get_entity(canonical_id)
     if entity is None:
         return False
     return bool(entity.get("topics"))
@@ -216,13 +217,12 @@ def save_match(
             if check_person_cutoff(adjacent):
                 continue
             if topic_gated:
-                adj_id = adjacent.id
                 if adjacent.schema.edge:
                     ext = not is_edge_internal(adjacent, subject_view)
-                elif adj_id is None:
+                elif adjacent.id is None:
                     ext = True
                 else:
-                    ext = not has_topic(adj_id, subject_view)
+                    ext = not has_topic(adjacent.id, subject_view)
             else:
                 ext = False
             context.emit(adjacent, external=ext)
