@@ -42,7 +42,7 @@ See also: [guide for building PEP data crawlers](../peps.md)
 
 - `country` (occasionally multiple apply to one position, e.g. *Ambassador of Palestine to Germany*)
 - `position` (of a person)
-- `occupancy` (relating a person to the position(s) they hold/held) - focus on current positions before worrying about historical.
+- `occupancy` (relating a person to the position(s) they hold/held) - focus on current position-holders. When a legislature exposes past terms cheaply, see [Historical and multi-term sources](../peps.md#historical-and-multi-term-sources).
 
 **Could**
 
