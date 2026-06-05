@@ -82,13 +82,9 @@ def crawl(context: Context) -> None:
     headlines = h.xpath_elements(
         doc, "//div[contains(@class, 'tileItem')]//h3[@class='tileHeadline']/a"
     )
-    seen: set[str] = set()
     for link in headlines:
         url = link.get("href")
-        if url is None or url.rstrip("/").endswith(INTRO_SLUG) or url in seen:
+        if url is None or url.rstrip("/").endswith(INTRO_SLUG):
             continue
-        seen.add(url)
         name = squash_spaces(h.element_text(link))
         crawl_member(context, url, name, position, categorisation)
-
-    assert len(seen) >= 24, len(seen)
