@@ -127,6 +127,8 @@ def crawl_page(
         entity_type = "LegalEntity"
     elif section == "legal":
         entity_type = "Company"
+    else:
+        raise ValueError(f"Unknown section: {section}")
 
     local_params = params.copy()
     local_params["__CALLBACKPARAM"] = get_callback_pagination_params(page_number)
@@ -135,6 +137,7 @@ def crawl_page(
         url=url, method="POST", data=local_params, cache_days=CACHE_DAYS
     )
 
+    assert response is not None
     _, raw_payload = response.split("(", 1)
     raw_payload = raw_payload.strip("()")
     matches = re.search(r"'result':'(.*)'", raw_payload, re.M | re.S)
@@ -149,10 +152,9 @@ def crawl_page(
     # the remaining escapes live inside attribute values and script bodies,
     # where they don't affect our queries.
     dom = html.fromstring(matches.group(1).replace("\\/", "/"))
-    pages = [
-        el.text
-        for el in dom.xpath(".//td[contains(@class, 'dxpPageNumber_Office2003Blue')]")
-    ]
+    pages = h.xpath_strings(
+        dom, ".//td[contains(@class, 'dxpPageNumber_Office2003Blue')]/text()"
+    )
 
     try:
         max_page = max(map(lambda x: int(x.strip("[]")), pages))
@@ -185,18 +187,19 @@ def crawl_page(
             context.log.error("Exceeded retries.", url=url, payload=raw_payload)
             raise
 
-    headers = []
+    headers: list[str | None] = []
 
-    for cell in dom.xpath('//tr[@id="ASPxGridView1_DXHeadersRow0"]/td'):
-        value = cell.text_content()
+    for cell in h.xpath_elements(dom, '//tr[@id="ASPxGridView1_DXHeadersRow0"]/td'):
+        value = h.element_text(cell, squash=False)
         value = re.sub(r"\\[rnt]", "", value)
         headers.append(context.lookup_value("headers", value))
     if not all(headers):
         raise ValueError("Failed to translate some header: %s" % headers)
-    data_rows = dom.xpath(
+    data_rows = h.xpath_elements(
+        dom,
         "descendant-or-self::*[@id = 'ASPxGridView1_DXMainTable']/"
         "descendant-or-self::*/tr[@class and contains(concat(' ', "
-        "normalize-space(@class), ' '), ' dxgvDataRow_Office2003Blue')]"
+        "normalize-space(@class), ' '), ' dxgvDataRow_Office2003Blue')]",
     )
     if len(data_rows) == 0:
         if retries > 0:
@@ -214,9 +217,12 @@ def crawl_page(
             raise RuntimeError("No data rows found")
 
     for tr in data_rows:
-        cells = tr.xpath("td")
+        cells = h.xpath_elements(tr, "td")
 
-        values = [cell.text.strip() for cell in cells]
+        values: list[str] = []
+        for cell in cells:
+            assert cell.text is not None
+            values.append(cell.text.strip())
         item = dict(zip(headers, values))
 
         entity = context.make(entity_type)
