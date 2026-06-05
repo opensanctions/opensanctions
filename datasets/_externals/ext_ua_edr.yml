@@ -13,7 +13,7 @@ exports:
 deploy:
   schedule: "@monthly"
   cpu: "2000m"
-  memory: "6000Mi"
+  memory: "9000Mi"
   disk: "100Gi"
 load_statements: true
 ci_test: false
