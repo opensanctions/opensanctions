@@ -1,14 +1,13 @@
 from datetime import timedelta
 from normality import slugify
 from rigour.mime.types import CSV
-from typing import Dict
 import csv
-from lxml.html import HtmlElement
 import re
 
 from zavod import helpers as h
 from zavod.context import Context
 from zavod.entity import Entity
+from zavod.util import Element
 from zavod.stateful.positions import YEAR_DAYS, OccupancyStatus, categorise
 from zavod import settings
 
@@ -76,7 +75,7 @@ def build_position(context: Context, *, role: str, entity_name: str) -> Entity:
     return position
 
 
-def crawl_sheet_row(context: Context, row: Dict[str, str]) -> None:
+def crawl_sheet_row(context: Context, row: dict[str, str]) -> str | None:
     person = context.make("Person")
     id_number = row.pop("NUMERO_DOCUMENTO")
     person.id = context.make_slug(id_number, prefix="co-cedula")
@@ -105,7 +104,7 @@ def crawl_sheet_row(context: Context, row: Dict[str, str]) -> None:
     position = build_position(context, role=role, entity_name=entity_name)
     categorisation = categorise(context, position)
     if not categorisation.is_pep:
-        return
+        return None
 
     occupancy = h.make_occupancy(
         context,
@@ -123,6 +122,8 @@ def crawl_sheet_row(context: Context, row: Dict[str, str]) -> None:
         end_date=row.pop("FECHA_DESVINCULACION"),
         categorisation=categorisation,
     )
+    # assert added during typechecker fixes to not change behavior; may not reflect reality
+    assert occupancy is not None
     context.emit(person)
     context.emit(position)
     context.emit(occupancy)
@@ -132,11 +133,12 @@ def crawl_sheet_row(context: Context, row: Dict[str, str]) -> None:
 
 def crawl_table_row(
     context: Context,
-    seen: set,
-    row: Dict[str, HtmlElement],
+    seen: set[str | None],
+    row: dict[str, Element],
 ) -> None:
     str_row = h.cells_to_str(row)
     name_id = str_row.pop("declarante")
+    assert name_id is not None
     person = context.make("Person")
     match = REGEX_ID.search(name_id)
     if match is None:
@@ -174,9 +176,9 @@ def crawl_table_row(
     if key in seen:
         return
 
-    if str_row.pop("fecha_publicacion") < h.backdate(
-        settings.RUN_TIME, timedelta(days=YEAR_DAYS * 5)
-    ):
+    fecha_publicacion = str_row.pop("fecha_publicacion")
+    assert fecha_publicacion is not None
+    if fecha_publicacion < h.backdate(settings.RUN_TIME, timedelta(days=YEAR_DAYS * 5)):
         context.log.warning("Skipping potentially too old position", key=key)
         return
 
@@ -210,6 +212,8 @@ def crawl_table_row(
         status=OccupancyStatus.UNKNOWN,
         categorisation=categorisation,
     )
+    # assert added during typechecker fixes to not change behavior; may not reflect reality
+    assert occupancy is not None
     context.emit(person)
     context.emit(position)
     context.emit(occupancy)
@@ -217,26 +221,30 @@ def crawl_table_row(
 
 
 def crawl(context: Context) -> None:
-    seen = set()
+    seen: set[str | None] = set()
     path = context.fetch_resource("source.csv", context.data_url)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
         for row in csv.DictReader(fh):
             seen.add(crawl_sheet_row(context, row))
 
-    next_link = "https://www.funcionpublica.gov.co/fdci/consultaCiudadana/consultaPEP?find=FindNext&tipoRegistro=4&offset=0&max=50"
+    next_link: str | None = (
+        "https://www.funcionpublica.gov.co/fdci/consultaCiudadana/consultaPEP?find=FindNext&tipoRegistro=4&offset=0&max=50"
+    )
     while next_link:
         context.log.info("Fetching page", url=next_link)
         doc = context.fetch_html(next_link, cache_days=1, absolute_links=True)
-        step_anchors = doc.xpath("//a[contains(@class, 'step')]")
-        context.log.info("Pages", pagenums=[a.text_content() for a in step_anchors])
+        step_anchors = h.xpath_elements(doc, "//a[contains(@class, 'step')]")
+        context.log.info("Pages", pagenums=[h.element_text(a) for a in step_anchors])
         if not step_anchors:
             context.log.warning("No pagination found", url=next_link)
-        next_anchors = doc.xpath("//a[contains(@class, 'nextLink')]")
+        next_anchors = h.xpath_elements(doc, "//a[contains(@class, 'nextLink')]")
         if next_anchors:
-            next_link = next_anchors[0].get("href")
+            href = next_anchors[0].get("href")
+            assert href is not None
+            next_link = href
         else:
             next_link = None
 
-        for row in h.parse_html_table(doc.find(".//table")):
-            crawl_table_row(context, seen, row)
+        for html_row in h.parse_html_table(h.xpath_element(doc, ".//table")):
+            crawl_table_row(context, seen, html_row)
