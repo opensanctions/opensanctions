@@ -73,8 +73,8 @@ def crawl_row(
     if not name:
         return  # in the XLSX file, there are empty rows
 
-    pass_no = row.pop("passport_number") or ""  # Person
-    passport_other = row.pop("passport_number_other_info") or ""  # LegalEntity
+    pass_no = row.pop("passport_number", None) or ""  # Person
+    passport_other = row.pop("passport_number_other_info", None) or ""  # LegalEntity
     birth_establishment_date = split(row.pop("date_of_birth_establishment", ""))
     birth_place = row.pop("birth_place", "")
     birth_dates = split(row.pop("birth_date"))
