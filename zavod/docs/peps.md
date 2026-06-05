@@ -192,3 +192,33 @@ if pep_entities:
 for entity in pep_entities:
     context.emit(entity)
 ```
+
+## Historical and multi-term sources
+
+Current office holders are the priority, but when a source also exposes past terms
+cheaply — the same table, or a per-term archive — it is worth crawling them. A national
+legislator remains politically exposed for years after leaving office, so several terms
+still matter.
+
+Two mechanisms divide the labour:
+
+- [`earliest_term_start`][zavod.helpers.earliest_term_start] bounds how far back you
+  **crawl**: skip fetching whole terms or archive pages older than the PEP-relevance
+  window. The only thing it buys you is the crawl you avoid, so there is no point
+  applying it to terms you would fetch anyway — [`make_occupancy`][zavod.helpers.make_occupancy]
+  gates those records more precisely. Log a skipped term at `info`; it is a deliberate
+  gap, not something the crawler team can fix.
+- [`make_occupancy`][zavod.helpers.make_occupancy] is the decider on whether political
+  exposure still applies, per occupancy. The cutoff is deliberately more generous than
+  this window, so it never skips a term whose members would still qualify.
+
+Date each occupancy. Use `startDate`/`endDate` for a person's own mandate (a member who
+left mid-term, or any source giving per-person dates); use `periodStart`/`periodEnd` for
+whole-term membership, where you only know the term's bounds and they are identical for
+everyone who served that term. The two can coexist, and `make_occupancy` treats an
+individual end date as the more specific signal. If neither is known, `electionDate` can
+stand in as a fallback for inferring exposure.
+
+Let `make_occupancy` derive the `status` from these dates — do not pass `status="ended"`
+yourself when you have an end date. Override `status` only when the source states that a
+mandate is current or ended but gives no date to derive it from.
