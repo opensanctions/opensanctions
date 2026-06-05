@@ -147,12 +147,15 @@ def crawl_row(context: Context, declaration_id: int) -> None:
 
 
 def crawl(context: Context) -> None:
+    assert context.dataset.data is not None
     path = context.fetch_resource("source.html", context.dataset.data.url)
     json_path = dataset_data_path(context.dataset.name) / "source.json"
 
     with open(path, "r") as fh:
         html = fh.read()
-    json = REGEX_JSON.search(html).group(1)
+    json_match = REGEX_JSON.search(html)
+    assert json_match is not None
+    json = json_match.group(1)
     with open(json_path, "w") as fh:
         fh.write(json)
     context.export_resource(json_path, JSON, title=context.SOURCE_TITLE)
