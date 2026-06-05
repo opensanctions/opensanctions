@@ -129,6 +129,8 @@ content = h.xpath_element(doc, divs_xpath)
 
 `h.element_text()` calls `text_content()` internally and applies `collapse_spaces` + `strip`. If the original code was calling `squash_spaces` or `collapse_spaces` on the result, that's now redundant and should be removed. If the extracted text is used for lookups (check the `lookups:` section in the crawler's `.yml` file) or exact comparisons, pass `squash=False` to preserve the original whitespace.
 
+**Watch out for code that splits the text on `\n`** (or otherwise relies on line breaks) — the default `squash=True` collapses newlines into spaces, which silently breaks the splitting and merges all rows into one. Always pass `squash=False` in that case.
+
 ```python
 # Before
 name_info = summary.text.strip()
