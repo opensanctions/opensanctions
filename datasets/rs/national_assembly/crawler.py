@@ -18,18 +18,6 @@ ISO_DATE_RE = re.compile(r"\d{4}-\d{2}-\d{2}")
 # name is translated via the dataset's `dates.months` mapping when parsed.
 LABEL_DATE_RE = re.compile(r"\d{1,2}\.?\s+[^\s.]+\s+\d{4}")
 
-POSITION_NAME = "Member of the National Assembly of Serbia"
-
-
-def make_assembly_position(context: Context) -> Entity:
-    return h.make_position(
-        context,
-        name=POSITION_NAME,
-        country="rs",
-        topics=["gov.national", "gov.legislative"],
-        wikidata_id="Q21295999",
-    )
-
 
 def parse_label_date(context: Context, label: str) -> str | None:
     """Parse the start date out of a convocation label like "Saziv od 1. avgusta 2022."."""
@@ -230,7 +218,13 @@ def list_convocations(context: Context, doc: Element) -> list[tuple[str, str]]:
 
 def crawl(context: Context) -> None:
     cutoff = h.earliest_term_start(["gov.national"])
-    position = make_assembly_position(context)
+    position = h.make_position(
+        context,
+        name="Member of the National Assembly of Serbia",
+        country="rs",
+        topics=["gov.national", "gov.legislative"],
+        wikidata_id="Q21295999",
+    )
     context.emit(position)
     categorisation = categorise(context, position, default_is_pep=True)
 
