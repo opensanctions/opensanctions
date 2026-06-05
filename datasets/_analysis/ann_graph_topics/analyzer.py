@@ -29,11 +29,10 @@ def emit_patch(
         existing_topics=list(existing_topics),
     )
 
-    has_internal = any(not s.external for s in related_entity.statements)
     patch = context.make("Thing")
     patch.id = related_entity.id
     patch.add("topics", topic)
-    context.emit(patch, external=not has_internal)
+    context.emit(patch, external=related_entity.external)
 
 
 def analyze_entity(context: Context, view: View, entity: Entity) -> None:

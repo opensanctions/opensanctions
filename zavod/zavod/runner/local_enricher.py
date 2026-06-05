@@ -21,7 +21,6 @@ from zavod.meta import Dataset, get_multi_dataset, get_catalog
 from zavod.store import get_store, View
 from zavod.reset import reset_caches
 
-
 log = logging.getLogger(__name__)
 
 
@@ -170,17 +169,17 @@ class LocalEnricher(BaseEnricher[Dataset]):
         yield from self.expand(match)
 
 
-def has_topic(entity_id: str, view: View) -> bool:
-    """Return True iff the entity exists in the view and carries a risk topic."""
+def has_risk_topic(entity_id: str, view: View) -> bool:
+    """Return True if and only if the entity exists in the view and carries a risk topic."""
     canonical_id = view.store.linker.get_canonical(entity_id)
     entity = view.get_entity(canonical_id)
     if entity is None:
         return False
-    return bool(entity.get("topics"))
+    return len(registry.topic.RISKS.intersection(entity.get("topics"))) > 0
 
 
 def is_edge_internal(entity: Entity, view: View) -> bool:
-    """For an edge entity, return True iff every endpoint has a risk topic."""
+    """For an edge entity, return True if and only if every endpoint has a risk topic."""
     endpoint_ids: set[str] = set()
     if entity.schema.source_prop is not None:
         endpoint_ids.update(entity.get(entity.schema.source_prop.name))
@@ -188,7 +187,7 @@ def is_edge_internal(entity: Entity, view: View) -> bool:
         endpoint_ids.update(entity.get(entity.schema.target_prop.name))
     if not endpoint_ids:
         return False
-    return all(has_topic(eid, view) for eid in endpoint_ids)
+    return all(has_risk_topic(eid, view) for eid in endpoint_ids)
 
 
 def save_match(
@@ -222,7 +221,7 @@ def save_match(
                 elif adjacent.id is None:
                     ext = True
                 else:
-                    ext = not has_topic(adjacent.id, subject_view)
+                    ext = not has_risk_topic(adjacent.id, subject_view)
             else:
                 ext = False
             context.emit(adjacent, external=ext)
