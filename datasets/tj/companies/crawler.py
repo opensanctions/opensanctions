@@ -138,8 +138,17 @@ def crawl_page(
     _, raw_payload = response.split("(", 1)
     raw_payload = raw_payload.strip("()")
     matches = re.search(r"'result':'(.*)'", raw_payload, re.M | re.S)
+    assert matches is not None, raw_payload
 
-    dom = html.fromstring(matches.group(1))
+    # The DevExpress callback wraps the HTML in a JSON-style escaped string
+    # literal (escaping `\'`, `\n`, `\/`, etc.). There's no clean stdlib way
+    # to fully unescape it. But the only escape that actually breaks
+    # downstream parsing is `\/` inside `<\/script>`: lxml doesn't recognize
+    # that as a closing tag, so the <script> swallows the rest of the document
+    # and our pagination xpath finds nothing. Targeted unescape is sufficient —
+    # the remaining escapes live inside attribute values and script bodies,
+    # where they don't affect our queries.
+    dom = html.fromstring(matches.group(1).replace("\\/", "/"))
     pages = [
         el.text
         for el in dom.xpath(".//td[contains(@class, 'dxpPageNumber_Office2003Blue')]")
