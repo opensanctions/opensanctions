@@ -1,5 +1,5 @@
 from typing import Optional
-from nomenklatura.versions import VersionHistory
+from followthemoney.dataset import VersionHistory
 
 from zavod import settings
 from zavod.meta import Dataset

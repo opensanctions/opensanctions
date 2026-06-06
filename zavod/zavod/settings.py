@@ -3,7 +3,7 @@ from pathlib import Path
 
 from banal import as_bool
 from nomenklatura import settings as nk
-from nomenklatura.versions import Version
+from followthemoney.dataset import Version
 from rigour.env import env_str
 
 # Logging configuration
