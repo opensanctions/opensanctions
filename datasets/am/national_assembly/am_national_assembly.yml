@@ -1,0 +1,53 @@
+title: Armenia National Assembly Members
+entry_point: crawler.py
+prefix: am-natassembly
+coverage:
+  frequency: weekly
+  start: 2021-08-02
+load_statements: true
+ci_test: false
+summary: >-
+  Members of the National Assembly of Armenia, the country's unicameral
+  parliament, as published on the official parliament website.
+description: |
+  The National Assembly (Azgayin Zhoghov) is the unicameral parliament of
+  the Republic of Armenia. Its members are elected via party lists and
+  organised into parliamentary factions.
+
+  This dataset is crawled from the official roster of sitting members
+  published on parliament.am. Each member's detail page provides their
+  birth date, party affiliation, faction membership (with a start date),
+  committee assignments and a biographical note. The roster is refreshed
+  as the composition of the assembly changes.
+url: https://www.parliament.am/deputies.php?sel=factions&lang=eng
+publisher:
+  name: National Assembly of the Republic of Armenia
+  acronym: NA
+  description: >
+    The National Assembly is the legislative branch of the Republic of
+    Armenia. Its official website publishes the roster of sitting members
+    of parliament.
+  url: https://www.parliament.am/
+  country: am
+  official: true
+data:
+  url: https://www.parliament.am/deputies.php?sel=factions&lang=eng
+  format: HTML
+  lang: eng
+tags:
+  - list.pep
+
+dates:
+  formats: ["%d.%m.%Y"]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 90
+      Position: 1
+    country_entities:
+      am: 90
+  max:
+    schema_entities:
+      Person: 160
+      Position: 1
