@@ -1,7 +1,7 @@
 import shutil
 
 from click.testing import CliRunner
-from nomenklatura.versions import VersionHistory
+from followthemoney.dataset import VersionHistory
 
 from zavod import settings
 from zavod.archive import dataset_state_path, dataset_resource_path, VERSIONS_FILE

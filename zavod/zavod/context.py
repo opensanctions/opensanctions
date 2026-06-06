@@ -3,14 +3,13 @@ import contextvars
 from pathlib import Path
 from typing import Any, Dict, List, Mapping, Optional, Union, cast
 from datapatch import Lookup, LookupException, Result
-from followthemoney.dataset import DataResource
+from followthemoney.dataset import DataResource, Version
 from followthemoney.schema import Schema
 from followthemoney.util import PathLike, make_entity_id
 from followthemoney.statement.serialize import PackStatementWriter
 from lxml import etree, html
 from nomenklatura import Judgement, Resolver
 from nomenklatura.cache import Cache
-from nomenklatura.versions import Version
 from requests import Response
 from rigour.env import ENCODING
 from rigour.urls import ParamsType, build_url
