@@ -62,45 +62,22 @@ PERSON_LINK_LABELS = ["Links", "Archive links"]
 PERSON_SKIP_LABELS = {"Go to site"}
 
 
-# Letters that only occur in Ukrainian (not Russian) Cyrillic.
-UKR_ONLY = set("іїєґІЇЄҐ")
-
 # Persons list their name forms in a fixed order (verified across sections): the site
-# renders name_uk, then name_ru, then name_en (Latin). When exactly three forms are
-# present this order is authoritative — more reliable than script detection, which can't
-# tell a Ukrainian name from a Russian one when it lacks Ukrainian-only letters.
+# renders name_uk, then name_ru, then name_en (Latin). When exactly three forms are present
+# this order is authoritative, so we tag languages by position. We deliberately don't infer
+# language any other way — script detection can't tell a Ukrainian name from a Russian one
+# once it lacks Ukrainian-only letters — so any other shape is emitted untagged.
 PERSON_NAME_LANGS = ("ukr", "rus", "eng")
 
 
-def name_lang(name: str) -> Optional[str]:
-    """Conservative language tag for a single name form, from its script.
-
-    Latin → eng; Cyrillic with Ukrainian-only letters → ukr. Other Cyrillic is left untagged
-    (None) rather than guessed: uk and ru are indistinguishable from script alone once the
-    Ukrainian-only letters are absent. Used for entity names and as a person fallback when the
-    fixed three-form order doesn't hold.
-    """
-    if re.search(r"[A-Za-z]", name):
-        return "eng"
-    if any(ch in UKR_ONLY for ch in name):
-        return "ukr"
-    return None
-
-
-def add_names(entity: Entity, prop: str, values: list[str]) -> None:
-    """Add name/alias values, tagging each with a script-detected language."""
-    for value in values:
-        entity.add(prop, value, lang=name_lang(value))
-
-
 def add_person_names(person: Entity, lines: list[str]) -> None:
-    """Add a person's name forms, using the site's fixed uk/ru/en order when all three are
-    present, and falling back to conservative script detection otherwise."""
+    """Add a person's name forms: positional uk/ru/en when all three are present, else
+    untagged (lang=None)."""
     if len(lines) == len(PERSON_NAME_LANGS):
         for value, lang in zip(lines, PERSON_NAME_LANGS):
             person.add("name", value, lang=lang)
     else:
-        add_names(person, "name", lines)
+        person.add("name", lines)
 
 
 def vessel_id(imo: str) -> str:
@@ -237,11 +214,9 @@ def crawl_entity_page(
         raise ValueError(f"Cannot build entity id from {url!r}")
     entity = context.make("LegalEntity")
     entity.id = entity_id
-    add_names(entity, "name", value_lines(pairs.pop("Full name of legal entity", None)))
-    add_names(
-        entity,
-        "alias",
-        value_lines(pairs.pop("Abbreviated name of the legal entity", None)),
+    entity.add("name", value_lines(pairs.pop("Full name of legal entity", None)))
+    entity.add(
+        "alias", value_lines(pairs.pop("Abbreviated name of the legal entity", None))
     )
     entity.add("registrationNumber", take("Registration number"))
     entity.add("taxNumber", take("TIN"))
