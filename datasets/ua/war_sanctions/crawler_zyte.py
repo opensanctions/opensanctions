@@ -16,7 +16,6 @@ from zavod import Context, Entity, helpers as h
 from zavod.util import Element
 from zavod.extract.zyte_api import fetch_html
 
-BASE = "https://war-sanctions.gur.gov.ua"
 # Success marker for Zyte unblocking: the language switcher is on every real page.
 UNBLOCK = ".//div[contains(@class, 'lang')]"
 CACHE_DAYS = 7
@@ -370,7 +369,7 @@ def crawl_vessel_page(context: Context, url: str) -> None:
                 continue
             company_id = crawl_entity_page(
                 context,
-                f"{BASE}/en/transport/ships-company/{match.group(1)}",
+                f"{context.data_url}/transport/ships-company/{match.group(1)}",
                 program_key="UA-WS-MARE",
                 topic="poi",
             )
@@ -387,7 +386,7 @@ def crawl_vessel_page(context: Context, url: str) -> None:
 
 
 def fetch_listing(context: Context, path: str, page: int) -> Element:
-    url = f"{BASE}/en/{path}?page={page}&per-page={LISTING_PER_PAGE}"
+    url = f"{context.data_url}/{path}?page={page}&per-page={LISTING_PER_PAGE}"
     return fetch_html(
         context, url, UNBLOCK, html_source="httpResponseBody", cache_days=CACHE_DAYS
     )
@@ -408,8 +407,8 @@ def listing_max_page(doc: Element) -> int:
     return max(pages)
 
 
-def listing_detail_urls(doc: Element, path: str) -> list[str]:
-    """The /en/<path>/<id> detail URLs linked from one listing page, de-duplicated."""
+def listing_detail_urls(doc: Element, base: str, path: str) -> list[str]:
+    """The <base>/<path>/<id> detail URLs linked from one listing page, de-duplicated."""
     urls: list[str] = []
     seen: set[str] = set()
     pattern = re.compile(rf"/{re.escape(path)}/(\d+)")
@@ -417,7 +416,7 @@ def listing_detail_urls(doc: Element, path: str) -> list[str]:
         match = pattern.search(href)
         if match is None:
             continue
-        url = f"{BASE}/en/{path}/{match.group(1)}"
+        url = f"{base}/{path}/{match.group(1)}"
         if url not in seen:
             seen.add(url)
             urls.append(url)
@@ -432,7 +431,7 @@ def crawl_listing(context: Context, path: str) -> Iterator[str]:
     seen: set[str] = set()
     for page in range(1, last + 1):
         doc = first if page == 1 else fetch_listing(context, path, page)
-        urls = listing_detail_urls(doc, path)
+        urls = listing_detail_urls(doc, context.data_url, path)
         if not urls:
             context.log.warning("Empty listing page", path=path, page=page)
         for url in urls:
@@ -602,7 +601,7 @@ def crawl_tools(context: Context) -> None:
             seen.add(match.group(1))
             crawl_entity_page(
                 context,
-                f"{BASE}/en/tools/company/{match.group(1)}",
+                f"{context.data_url}/tools/company/{match.group(1)}",
                 program_key="UA-WS-MILIND",
                 topic="poi",
             )
