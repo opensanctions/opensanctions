@@ -62,23 +62,28 @@ PERSON_LINK_LABELS = ["Links", "Archive links"]
 PERSON_SKIP_LABELS = {"Go to site"}
 
 
-# Letters that only occur in Ukrainian (not Russian) Cyrillic, to tell uk from ru.
+# Letters that only occur in Ukrainian (not Russian) Cyrillic.
 UKR_ONLY = set("іїєґІЇЄҐ")
+
+# Persons list their name forms in a fixed order (verified across sections): the site
+# renders name_uk, then name_ru, then name_en (Latin). When exactly three forms are
+# present this order is authoritative — more reliable than script detection, which can't
+# tell a Ukrainian name from a Russian one when it lacks Ukrainian-only letters.
+PERSON_NAME_LANGS = ("ukr", "rus", "eng")
 
 
 def name_lang(name: str) -> Optional[str]:
-    """Best-effort ISO-639-3 language tag for a name form, from its script.
+    """Conservative language tag for a single name form, from its script.
 
-    The public site merges uk/ru/latin name forms into one cell (unlike the API's separate
-    name_en/ru/uk fields), so language is recovered from the script: Latin → eng, Cyrillic
-    with Ukrainian-only letters → ukr, other Cyrillic → rus.
+    Latin → eng; Cyrillic with Ukrainian-only letters → ukr. Other Cyrillic is left untagged
+    (None) rather than guessed: uk and ru are indistinguishable from script alone once the
+    Ukrainian-only letters are absent. Used for entity names and as a person fallback when the
+    fixed three-form order doesn't hold.
     """
     if re.search(r"[A-Za-z]", name):
         return "eng"
     if any(ch in UKR_ONLY for ch in name):
         return "ukr"
-    if re.search(r"[А-Яа-яЁё]", name):
-        return "rus"
     return None
 
 
@@ -86,6 +91,16 @@ def add_names(entity: Entity, prop: str, values: list[str]) -> None:
     """Add name/alias values, tagging each with a script-detected language."""
     for value in values:
         entity.add(prop, value, lang=name_lang(value))
+
+
+def add_person_names(person: Entity, lines: list[str]) -> None:
+    """Add a person's name forms, using the site's fixed uk/ru/en order when all three are
+    present, and falling back to conservative script detection otherwise."""
+    if len(lines) == len(PERSON_NAME_LANGS):
+        for value, lang in zip(lines, PERSON_NAME_LANGS):
+            person.add("name", value, lang=lang)
+    else:
+        add_names(person, "name", lines)
 
 
 def vessel_id(imo: str) -> str:
@@ -481,7 +496,7 @@ def crawl_person_page(
         raise ValueError(f"Cannot build person id from {url!r}")
     person = context.make("Person")
     person.id = person_id
-    add_names(person, "name", take_lines("Name"))
+    add_person_names(person, take_lines("Name"))
     person.add("taxNumber", take_lines("TIN"))
     for label in PERSON_CITIZENSHIP_LABELS:
         person.add("citizenship", take_lines(label))
