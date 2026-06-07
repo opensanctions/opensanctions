@@ -80,14 +80,6 @@ def add_person_names(person: Entity, lines: list[str]) -> None:
         person.add("name", lines)
 
 
-def vessel_id(imo: str) -> str:
-    return f"imo-vsl-{imo}"
-
-
-def org_id(imo: str) -> str:
-    return f"imo-org-{imo}"
-
-
 def label_map(doc: Element) -> dict[str, Element]:
     """Map every visible 'label -> value' pair on a detail page to the value element.
 
@@ -145,7 +137,7 @@ def emit_party(
     if party is None:
         return
     org = context.make("Company")
-    org.id = org_id(party["imo"])
+    org.id = h.make_org_imo_id(party["imo"])
     org.add("name", party["name"])
     org.add("imoNumber", party["imo"])
     org.add("country", party["country"])
@@ -275,12 +267,10 @@ def crawl_vessel_page(context: Context, url: str) -> None:
         return h.element_text(el) or None if el is not None else None
 
     imo = take("IMO")
-    if imo is None or not re.fullmatch(r"\d{7}", imo):
-        context.log.warning("Vessel without usable IMO", url=url, imo=imo)
-        return
-
     vessel = context.make("Vessel")
-    vessel.id = vessel_id(imo)
+    # Key by IMO; fall back to the source url id when there's no usable IMO at all, so a
+    # missing/faulty IMO doesn't drop the vessel.
+    vessel.id = h.make_vessel_imo_id(imo) or context.make_slug("vessel", url_id_of(url))
     vessel.add("imoNumber", imo)
     vessel.add("name", take("Vessel name"))
     vessel.add("flag", take("Flag (Current)"))
@@ -553,10 +543,13 @@ def crawl_shadow_fleet(context: Context) -> None:
                 continue
             value_el = labels[0].getnext()
             imo = h.element_text(value_el) if value_el is not None else ""
-            if not re.fullmatch(r"\d{7}", imo):
+            # Stubs key purely by IMO to merge with the full vessel; skip cards with no IMO
+            # (the shadow listing has no other id we could match on a ship page).
+            vessel_imo_id = h.make_vessel_imo_id(imo)
+            if vessel_imo_id is None:
                 continue
             vessel = context.make("Vessel")
-            vessel.id = vessel_id(imo)
+            vessel.id = vessel_imo_id
             vessel.add("imoNumber", imo)
             vessel.add("topics", "mare.shadow")
             context.emit(vessel)
