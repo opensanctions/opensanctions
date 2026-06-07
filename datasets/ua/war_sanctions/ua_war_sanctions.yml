@@ -193,6 +193,8 @@ lookups:
       - match:
           - X00
           - ROM
+          - Unknown
+          - unknown
         value: null
       - match: SCT
         value: gb-sct
