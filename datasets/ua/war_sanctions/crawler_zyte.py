@@ -2,7 +2,7 @@
 
 Sources data from the public site (https://war-sanctions.gur.gov.ua) via Zyte, rather
 than the confidential JSON API. The site is server-rendered, so a plain HTTP fetch is
-enough. Entity IDs use an IMO microformat (imo-v-<imo> for vessels, imo-o-<imo> for
+enough. Entity IDs use an IMO microformat (imo-vsl-<imo> for vessels, imo-org-<imo> for
 ship-management orgs) so they don't depend on the source's internal numeric ids.
 """
 
@@ -81,11 +81,11 @@ def add_person_names(person: Entity, lines: list[str]) -> None:
 
 
 def vessel_id(imo: str) -> str:
-    return f"imo-v-{imo}"
+    return f"imo-vsl-{imo}"
 
 
 def org_id(imo: str) -> str:
-    return f"imo-o-{imo}"
+    return f"imo-org-{imo}"
 
 
 def label_map(doc: Element) -> dict[str, Element]:
