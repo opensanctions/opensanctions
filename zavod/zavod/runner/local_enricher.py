@@ -258,9 +258,6 @@ def enrich(context: Context) -> None:
     context.log.info(
         "Enriching %s (%s)" % (scope.name, [d.name for d in scope.datasets])
     )
-    subject_store = get_store(scope, resolver)
-    subject_store.sync()
-    subject_view = subject_store.view(scope)
 
     config = dict(context.dataset.config)
     topic_gated: bool = bool(config.get("topic_gated", False))
@@ -270,6 +267,11 @@ def enrich(context: Context) -> None:
         context.log.warning(
             "topic_gated=True but no topics configured; all expanded entities will be external"
         )
+
+    subject_store = get_store(scope, resolver)
+    subject_store.sync()
+    subject_view = subject_store.view(scope, external=topic_gated)
+
     reset_caches()
 
     try:
