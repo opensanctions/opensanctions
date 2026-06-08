@@ -1,6 +1,9 @@
 title: Lithuania Members of the Seimas
 entry_point: crawler.py
 prefix: lt-seimas
+# Fetches via the Zyte API (Cloudflare-protected source), which needs a key
+# that CI doesn't provide, so skip the changed-dataset crawl check.
+ci_test: false
 summary: >-
   Current and recent members of the Seimas, Lithuania's unicameral parliament
 coverage:
@@ -8,12 +11,12 @@ coverage:
   start: 2024-01-18
 load_statements: true
 description: |
-  The Seimas of the Republic of Lithuania is the unicameral parliament 
+  The Seimas of the Republic of Lithuania is the unicameral parliament
   responsible for exercising legislative power in Lithuania
 
-  Members of the Seimas are elected to serve a four-year term through parallel voting, 
-  with a portion elected in single-seat constituencies and another through proportional 
-  representation. The election process involves ordinary elections, with both single-seat 
+  Members of the Seimas are elected to serve a four-year term through parallel voting,
+  with a portion elected in single-seat constituencies and another through proportional
+  representation. The election process involves ordinary elections, with both single-seat
   constituencies and proportional representation determining the composition of the Seimas.
   [Source: Wikipedia](https://en.wikipedia.org/wiki/Seimas)
 
@@ -23,8 +26,8 @@ publisher:
   name: Seimas of the Republic of Lithuania
   acronym: Seimas
   description: >
-    The Seimas of the Republic of Lithuania exercises legislative power in Lithuania. 
-    The powers of the Seimas are defined by the Constitution and the laws of Lithuania. 
+    The Seimas of the Republic of Lithuania exercises legislative power in Lithuania.
+    The powers of the Seimas are defined by the Constitution and the laws of Lithuania.
     The primary function of the Seimas is to consider, adopt and issue laws and amendments to the Constitution
     [Source: Wikipedia](https://en.wikipedia.org/wiki/Seimas)
   url: https://www.lrs.lt
