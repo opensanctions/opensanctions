@@ -5,20 +5,29 @@ from zavod.stateful.positions import categorise
 
 
 IGNORE = [
+    # Name composed from the parts above.
     "fullName",
+    # Declaration-filing records (private, canOpen=false) and metadata about
+    # them - not biographical data about the official.
+    "statements",
+    "hasPoint3",
+    "hasRequestStatement",
+    "hasSecretStatement",
+    # Whether the person currently holds any registered position.
     "active",
+    # Flattened, human-readable duplicates of workingPositions[].
     "concatenatedWorkingPositions",
     "concatenatedWorkingPositionDates",
     "concatenatedWorkingPositionOrganizations",
+    "workingFrom",
+    "workingTo",
+    # Person-level summary flags; the per-position deputy/senator flags inside
+    # workingPositions[].workingPosition are used instead.
     "deputy",
     "senator",
     "deputyAndOthers",
     "senatorAndOthers",
-    "workingFrom",
-    "workingTo",
     "judge",
-    "visibility",
-    "government",
 ]
 
 
@@ -102,6 +111,11 @@ def crawl(context: Context) -> None:
             break
 
         for item in items:
-            crawl_person(context, item)
+            # The list endpoint only returns flattened summary fields; the
+            # structured workingPositions array lives on the detail endpoint.
+            detail_url = f"{context.data_url}/{item['id']}"
+            detail = context.fetch_json(detail_url, cache_days=14)
+            assert detail is not None, "Expected JSON response"
+            crawl_person(context, detail)
 
         page += 1
