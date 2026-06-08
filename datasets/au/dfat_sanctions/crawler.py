@@ -171,7 +171,8 @@ def parse_reference(
             sanction.add("listingDate", listing_info)
         else:
             sanction.add(
-                "summary", listing_info.replace("_x000D_", "") if listing_info else None
+                "summary",
+                str(listing_info).replace("_x000D_", "") if listing_info else None,
             )
         designation_instrument = row.pop("instrument_of_designation")
         # designation instrument is very often the same as listing info
