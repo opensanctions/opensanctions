@@ -7,21 +7,47 @@ from zavod.entity import Entity
 from zavod.extract import zyte_api
 from zavod.stateful.positions import PositionCategorisation, categorise
 
-# CKAN datastore resources in the data.govt.nz "Members of Parliament" dataset, joined
-# on the stable integer MemberID. The "Basic List of Current Members" resource is
-# deliberately not used: it lacks MemberID and stores Māori macrons as "?", so it can
-# neither be joined reliably nor trusted for names.
-API = "https://catalogue.data.govt.nz/api/3/action/datastore_search"
-ROSTER = "11b77d31-e8cb-46e6-8924-aabfbb9136ad"  # name, year of birth/death, gender
-TERMS = "9767376e-ead0-468d-8b55-a65dfb629b54"  # one row per parliamentary term
+# The data.govt.nz "Members of Parliament" dataset. Resource IDs are resolved by name at
+# runtime rather than hardcoded: CKAN mints a new resource_id whenever a resource is
+# re-uploaded, so a hardcoded ID would silently 404 after a routine refresh.
+#
+# Two resources are joined on the integer MemberID. The "Basic List of Current Members"
+# resource is deliberately unused: it lacks MemberID and stores Māori macrons as "?", so
+# it can be neither joined reliably nor trusted for names.
+DATASET = "members-of-parliament"
+ROSTER_NAME = (
+    "Members of Parliament - full list"  # name, birth/death year, gender, ethnicity
+)
+TERMS_NAME = "Members of Parliament - Member Terms"  # one row per parliamentary term
+API = "https://catalogue.data.govt.nz/api/3/action"
 # Above the current row counts (1.5k roster, 5.3k terms); a truncated read fails loudly.
 LIMIT = 20000
 
 
-def fetch_records(context: Context, resource_id: str) -> list[dict[str, Any]]:
-    url = f"{API}?resource_id={resource_id}&limit={LIMIT}"
+def fetch_action(context: Context, action: str, query: str) -> Any:
+    url = f"{API}/{action}?{query}"
     data = zyte_api.fetch_json(context, url, geolocation="nz", cache_days=1)
-    result = data["result"]
+    if not data.get("success"):
+        raise ValueError(f"CKAN {action} request was not successful: {url}")
+    return data["result"]
+
+
+def resolve_resource_id(resources: list[dict[str, Any]], name: str) -> str:
+    matches = [
+        r for r in resources if r.get("name") == name and r.get("datastore_active")
+    ]
+    if len(matches) != 1:
+        raise ValueError(
+            f"Expected exactly one active datastore resource named {name!r}, "
+            f"found {len(matches)}"
+        )
+    return str(matches[0]["id"])
+
+
+def fetch_records(context: Context, resource_id: str) -> list[dict[str, Any]]:
+    result = fetch_action(
+        context, "datastore_search", f"resource_id={resource_id}&limit={LIMIT}"
+    )
     records: list[dict[str, Any]] = result["records"]
     if len(records) != result["total"]:
         raise ValueError(
@@ -60,19 +86,23 @@ def crawl_member(
     # s 47(3). https://www.legislation.govt.nz/act/public/1993/0087/latest/DLM308516.html
     person.add("citizenship", "nz")
     if record is not None:
-        person.add("gender", record.pop("Gender", None))
-        year_of_birth = record.pop("Year_of_Birth", None)
+        # pop without a default: a renamed/removed column crashes here rather than
+        # silently dropping data, and audit_data surfaces any newly added column.
+        person.add("gender", record.pop("Gender"))
+        year_of_birth = record.pop("Year_of_Birth")
         h.apply_date(person, "birthDate", str(year_of_birth) if year_of_birth else None)
-        year_of_death = record.pop("Year_of_Death", None)
+        year_of_death = record.pop("Year_of_Death")
         h.apply_date(person, "deathDate", str(year_of_death) if year_of_death else None)
         # Multiple ethnicities are comma-separated ("Māori, European"); a slash denotes a
-        # single Stats NZ category ("Middle Eastern/Latin American/African"), so only split
-        # on commas.
-        person.add("ethnicity", h.multi_split(record.pop("Ethnicity", None), [","]))
+        # single Stats NZ category ("Middle Eastern/Latin American/African"), so only
+        # split on commas.
+        person.add("ethnicity", h.multi_split(record.pop("Ethnicity"), [","]))
+        context.audit_data(record, ignore=["_id", "MemberID"])
 
     has_occupancy = False
     for term in terms:
-        person.add("political", term.get("Party") or None)
+        person.add("political", term.pop("Party") or None)
+        constituency = term.pop("Electorate_List") or None
         # make_occupancy gates each term on PEP duration, so old terms drop out and only
         # current or recently-ended ones survive — the historical multi-term pattern.
         occupancy = h.make_occupancy(
@@ -80,18 +110,27 @@ def crawl_member(
             person,
             position,
             categorisation=categorisation,
-            start_date=iso_date(term.get("Date_Elected")),
-            end_date=iso_date(term.get("Date_Vacated")),
+            start_date=iso_date(term.pop("Date_Elected")),
+            end_date=iso_date(term.pop("Date_Vacated")),
         )
         if occupancy is not None:
-            occupancy.add("constituency", term.get("Electorate_List") or None)
+            occupancy.add("constituency", constituency)
             context.emit(occupancy)
             has_occupancy = True
+        context.audit_data(
+            term,
+            ignore=[
+                "_id",
+                "MemberID",
+                "Name",
+                "Parliament",
+                "Method_of_Election",
+                "Reason_for_Leaving",
+            ],
+        )
 
     if has_occupancy:
         context.emit(person)
-    if record is not None:
-        context.audit_data(record, ignore=["_id", "MemberID"])
 
 
 def crawl(context: Context) -> None:
@@ -105,14 +144,18 @@ def crawl(context: Context) -> None:
     categorisation = categorise(context, position, default_is_pep=True)
     context.emit(position)
 
+    resources = fetch_action(context, "package_show", f"id={DATASET}")["resources"]
+    roster_id = resolve_resource_id(resources, ROSTER_NAME)
+    terms_id = resolve_resource_id(resources, TERMS_NAME)
+
     terms_by_member: dict[int, list[dict[str, Any]]] = defaultdict(list)
-    for term in fetch_records(context, TERMS):
+    for term in fetch_records(context, terms_id):
         terms_by_member[term["MemberID"]].append(term)
 
     sitting = {
         mid
         for mid, terms in terms_by_member.items()
-        if any(not t.get("Date_Vacated") for t in terms)
+        if any(not t["Date_Vacated"] for t in terms)
     }
     if not (115 <= len(sitting) <= 130):
         context.log.warning(
@@ -120,7 +163,7 @@ def crawl(context: Context) -> None:
             count=len(sitting),
         )
 
-    roster = {r["MemberID"]: r for r in fetch_records(context, ROSTER)}
+    roster = {r["MemberID"]: r for r in fetch_records(context, roster_id)}
     # Iterate by member terms: a member with no term cannot hold a qualifying occupancy,
     # and a member present in terms but not yet in the roster must still be emitted.
     for member_id, terms in terms_by_member.items():
