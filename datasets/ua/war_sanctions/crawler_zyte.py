@@ -167,6 +167,12 @@ def value_lines(el: Optional[Element]) -> list[str]:
     return [s for s in (squash_spaces(t) for t in texts) if s]
 
 
+def pop_text(pairs: dict[str, Element], label: str) -> Optional[str]:
+    """Remove a label's value cell from the map and return its squashed text, if any."""
+    el = pairs.pop(label, None)
+    return h.element_text(el) or None if el is not None else None
+
+
 def entity_label_map(doc: Element) -> dict[str, Element]:
     """Label -> value map for an entity (company) page: col-sm-8 value, prev-sibling label."""
     pairs: dict[str, Element] = {}
@@ -197,10 +203,6 @@ def crawl_entity_page(
     )
     pairs = entity_label_map(doc)
 
-    def take(label: str) -> Optional[str]:
-        el = pairs.pop(label, None)
-        return h.element_text(el) or None if el is not None else None
-
     entity_id = context.make_slug("entity", url_id_of(url))
     if entity_id is None:
         raise ValueError(f"Cannot build entity id from {url!r}")
@@ -210,10 +212,10 @@ def crawl_entity_page(
     entity.add(
         "alias", value_lines(pairs.pop("Abbreviated name of the legal entity", None))
     )
-    entity.add("registrationNumber", take("Registration number"))
-    entity.add("taxNumber", take("TIN"))
-    entity.add("country", take("Country"))
-    entity.add("address", take("Address"))
+    entity.add("registrationNumber", pop_text(pairs, "Registration number"))
+    entity.add("taxNumber", pop_text(pairs, "TIN"))
+    entity.add("country", pop_text(pairs, "Country"))
+    entity.add("address", pop_text(pairs, "Address"))
     if topic is not None:
         entity.add("topics", topic)
     entity.add("sourceUrl", url)
@@ -228,7 +230,7 @@ def crawl_entity_page(
         context, entity, key=program_key, program_key=program_key
     )
     sanction.set("programUrl", url)
-    sanction.add("reason", take("Reasons"))
+    sanction.add("reason", pop_text(pairs, "Reasons"))
     context.emit(entity)
     context.emit(sanction)
 
@@ -262,29 +264,25 @@ def crawl_vessel_page(context: Context, url: str) -> None:
     )
     pairs = label_map(doc)
 
-    def take(label: str) -> Optional[str]:
-        el = pairs.pop(label, None)
-        return h.element_text(el) or None if el is not None else None
-
-    imo = take("IMO")
+    imo = pop_text(pairs, "IMO")
     vessel = context.make("Vessel")
     # Key by IMO; fall back to the source url id when there's no usable IMO at all, so a
     # missing/faulty IMO doesn't drop the vessel.
     vessel.id = h.make_vessel_imo_id(imo) or context.make_slug("vessel", url_id_of(url))
     vessel.add("imoNumber", imo)
-    vessel.add("name", take("Vessel name"))
-    vessel.add("flag", take("Flag (Current)"))
-    vessel.add("mmsi", take("MMSI"))
-    vessel.add("callSign", take("Call sign"))
-    vessel.add("type", take("Vessel Type"))
-    vessel.add("grossRegisteredTonnage", take("Gross tonnage"))
-    vessel.add("deadweightTonnage", take("DWT"))
-    vessel.add("description", take("Vessel information"))
-    for name in h.multi_split(take("Former ship names"), [SPLIT]):
+    vessel.add("name", pop_text(pairs, "Vessel name"))
+    vessel.add("flag", pop_text(pairs, "Flag (Current)"))
+    vessel.add("mmsi", pop_text(pairs, "MMSI"))
+    vessel.add("callSign", pop_text(pairs, "Call sign"))
+    vessel.add("type", pop_text(pairs, "Vessel Type"))
+    vessel.add("grossRegisteredTonnage", pop_text(pairs, "Gross tonnage"))
+    vessel.add("deadweightTonnage", pop_text(pairs, "DWT"))
+    vessel.add("description", pop_text(pairs, "Vessel information"))
+    for name in h.multi_split(pop_text(pairs, "Former ship names"), [SPLIT]):
         vessel.add("previousName", name)
-    for flag in h.multi_split(take("Flags (former)"), [SPLIT]):
+    for flag in h.multi_split(pop_text(pairs, "Flags (former)"), [SPLIT]):
         vessel.add("pastFlags", flag)
-    h.apply_date(vessel, "buildDate", take("Build year"))
+    h.apply_date(vessel, "buildDate", pop_text(pairs, "Build year"))
     vessel.add("topics", "poi")
     vessel.add("sourceUrl", url)
 
@@ -300,7 +298,7 @@ def crawl_vessel_page(context: Context, url: str) -> None:
     emit_party(
         context,
         vessel,
-        take("Ship Owner (IMO / Country / Date)"),
+        pop_text(pairs, "Ship Owner (IMO / Country / Date)"),
         role="owner",
         schema="Ownership",
         from_prop="owner",
@@ -309,7 +307,7 @@ def crawl_vessel_page(context: Context, url: str) -> None:
     emit_party(
         context,
         vessel,
-        take("Commercial ship manager (IMO / Country / Date)"),
+        pop_text(pairs, "Commercial ship manager (IMO / Country / Date)"),
         role="commerce manager",
         schema="UnknownLink",
         from_prop="subject",
@@ -318,14 +316,14 @@ def crawl_vessel_page(context: Context, url: str) -> None:
     emit_party(
         context,
         vessel,
-        take("Ship Safety Management Manager (IMO / Country / Date)"),
+        pop_text(pairs, "Ship Safety Management Manager (IMO / Country / Date)"),
         role="security manager",
         schema="UnknownLink",
         from_prop="subject",
         to_prop="object",
     )
 
-    pi_name = take("P&I Club")
+    pi_name = pop_text(pairs, "P&I Club")
     if pi_name is not None:
         club = context.make("Organization")
         club.id = context.make_slug("pi-club", pi_name)
