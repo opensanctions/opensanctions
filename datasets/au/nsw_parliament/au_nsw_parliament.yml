@@ -33,7 +33,7 @@ data:
   lang: eng
 tags:
   - list.pep
-  
+
 assertions:
   min:
     schema_entities:
