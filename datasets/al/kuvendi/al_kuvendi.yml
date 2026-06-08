@@ -1,6 +1,6 @@
 title: Albania Members of Parliament (Kuvendi)
 entry_point: crawler.py
-prefix: al-kuvendi
+prefix: al-kuv
 coverage:
   frequency: weekly
   start: 2026-06-08
