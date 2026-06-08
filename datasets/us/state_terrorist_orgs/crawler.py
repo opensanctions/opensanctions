@@ -37,22 +37,24 @@ def split_clean_name(
 
 def crawl_row(context: Context, row: dict[str, str]) -> None:
     name = row.pop("name")
-    start_date = row.pop("date_designated", None) or row.pop(
-        "date_originally_designated", None
-    )
+    # The designated table records the date the designation took effect; the
+    # delisted table only carries the original listing date.
+    start_date = row.pop("date_implemented", None)
+    listing_date = row.pop("date_originally_listed", None)
     # Rely on auditing rows to be sure the default of None doesn't mean we miss these
     # if the column name changes.
     end_date = row.pop("date_removed", None)
 
     name_clean, name_former, alias = split_clean_name(context, name)
     entity = context.make("Organization")
-    entity.id = context.make_id(name, start_date)
+    entity.id = context.make_id(name, start_date or listing_date)
     entity.add("name", name_clean)
     entity.add("alias", alias)
     entity.add("previousName", name_former)
 
     sanction = h.make_sanction(context, entity, program_key=PROGRAM_KEY)
     h.apply_date(sanction, "startDate", start_date)
+    h.apply_date(sanction, "listingDate", listing_date)
     if end_date:
         h.apply_date(sanction, "endDate", end_date)
     if h.is_active(sanction):
