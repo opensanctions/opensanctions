@@ -190,6 +190,18 @@ def is_edge_internal(entity: Entity, view: View, enrich_topics: frozenset[str]) 
     return all(has_enrich_topic(eid, view, enrich_topics) for eid in endpoint_ids)
 
 
+def promote(
+    entity: Entity, view: View, topic_gated: bool, enrich_topics: frozenset[str]
+) -> bool:
+    if not topic_gated:
+        return True
+    if entity.schema.edge:
+        return is_edge_internal(entity, view, enrich_topics)
+    else:
+        assert entity.id is not None
+        return has_enrich_topic(entity.id, view, enrich_topics)
+
+
 def save_match(
     context: Context,
     resolver: Resolver[Entity],
@@ -216,16 +228,8 @@ def save_match(
         for adjacent in enricher.expand_wrapped(entity, match):
             if check_person_cutoff(adjacent):
                 continue
-            if topic_gated:
-                if adjacent.schema.edge:
-                    ext = not is_edge_internal(adjacent, subject_view, enrich_topics)
-                elif adjacent.id is None:
-                    ext = True
-                else:
-                    ext = not has_enrich_topic(adjacent.id, subject_view, enrich_topics)
-            else:
-                ext = False
-            context.emit(adjacent, external=ext)
+            external = not promote(adjacent, subject_view, topic_gated, enrich_topics)
+            context.emit(adjacent, external=external)
 
 
 def enrich(context: Context) -> None:
