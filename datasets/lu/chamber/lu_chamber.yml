@@ -3,7 +3,7 @@ prefix: lu-chamber
 url: https://data.public.lu/en/datasets/la-liste-des-deputes-actifs-a-la-chambre-des-deputes-du-luxembourg/
 coverage:
   frequency: monthly
-  start: 2025-11-26
+  start: "2026-06-08"
 load_statements: true
 entry_point: crawler.py
 summary: >-

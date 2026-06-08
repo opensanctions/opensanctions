@@ -29,11 +29,13 @@ description: |
   not include some relevant information from enrichment sources. [Read the FAQ
   item](https://www.opensanctions.org/faq/165/peps-only/).**
 children:
+  - ad_consell_general
   - am_hetq_officials
   - ann_pep_positions
   - ar_parliament
   - at_meine_abgeordneten
   - at_parlament
+  - az_parliament
   - be_chamber
   - be_walloon_parliament
   - bg_jud_declarations
@@ -80,8 +82,11 @@ children:
   - jp_shugiin
   - ky_judicial
   - ky_parliament
+  - li_landtag
   - lt_pep_declarations
   - lt_seimas
+  - lu_bourgmestres
+  - lu_chamber
   - lv_saeima
   - me_acp_peps
   - mk_officials
@@ -99,6 +104,7 @@ children:
   - pl_senate
   - pt_parliament
   - ro_fiu_declarations
+  - rs_national_assembly
   - se_soe
   - sg_gov_dir
   - si_dz_rs
