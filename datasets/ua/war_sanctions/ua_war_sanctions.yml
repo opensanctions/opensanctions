@@ -1,5 +1,5 @@
 title: Ukraine War and Sanctions
-entry_point: crawler.py
+entry_point: crawler_transition.py
 prefix: ua-ws
 coverage:
   frequency: daily
@@ -89,12 +89,16 @@ assertions:
         asset: 700
       UnknownLink:
         role: 1500
-  max:
-    schema_entities:
-      Organization: 100
-      Person: 7000
-      Vessel: 2500
-      LegalEntity: 9000
+  # max assertions are disabled during the API->public migration: while both crawlers emit
+  # in parallel, vessels and manager orgs exist twice (ua-ws-* and imo-* ids) until dedupe
+  # links them, so the old ceilings would trip. Restate them from the deduped output once the
+  # API crawler is retired (entry_point switched to crawler_zyte.py):
+  # max:
+  #   schema_entities:
+  #     Organization: 100
+  #     Person: 7000
+  #     Vessel: 2500
+  #     LegalEntity: 9000
 
 lookups:
   type.date:
@@ -193,6 +197,8 @@ lookups:
       - match:
           - X00
           - ROM
+          - Unknown
+          - unknown
         value: null
       - match: SCT
         value: gb-sct
