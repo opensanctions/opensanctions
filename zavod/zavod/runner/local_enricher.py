@@ -1,6 +1,6 @@
 import logging
 from decimal import Decimal
-from typing import Generator, Iterator, List, Tuple
+from typing import Dict, Generator, Iterable, Iterator, List, Tuple
 from followthemoney import registry, model
 from followthemoney.helpers import check_person_cutoff
 
@@ -100,10 +100,10 @@ class LocalEnricher(BaseEnricher[Dataset]):
     ) -> Generator[Entity, None, None]:
         # Make sure an entity with the same ID is yielded. E.g. a QID or ID scheme
         # intentionally consistent between datasets.
-        if entity.id is not None:
-            same_id_match = self.target_view.get_entity(entity.id)
-            if same_id_match is not None:
-                yield same_id_match
+        assert entity.id is not None
+        same_id_match = self.target_view.get_entity(entity.id)
+        if same_id_match is not None:
+            yield same_id_match
 
         scores: List[Tuple[float, Entity]] = []
         last_rounded_score = None
@@ -138,8 +138,7 @@ class LocalEnricher(BaseEnricher[Dataset]):
         self, entity: Entity, path: List[str] = []
     ) -> Generator[Entity, None, None]:
         """Expand starting from a match, recursing to related non-edge entities"""
-        if entity.id is None:
-            return
+        assert entity.id is not None
 
         yield entity
 
@@ -169,6 +168,15 @@ class LocalEnricher(BaseEnricher[Dataset]):
         yield from self.expand(match)
 
 
+def _endpoint_ids(entity: Entity) -> set[str]:
+    endpoint_ids: set[str] = set()
+    if entity.schema.source_prop is not None:
+        endpoint_ids.update(entity.get(entity.schema.source_prop.name))
+    if entity.schema.target_prop is not None:
+        endpoint_ids.update(entity.get(entity.schema.target_prop.name))
+    return endpoint_ids
+
+
 def has_enrich_topic(entity_id: str, view: View, enrich_topics: frozenset[str]) -> bool:
     """True only if the entity exists in the view and carries one of the enrich topics."""
     canonical_id = view.store.linker.get_canonical(entity_id)
@@ -180,26 +188,40 @@ def has_enrich_topic(entity_id: str, view: View, enrich_topics: frozenset[str]) 
 
 def is_edge_internal(entity: Entity, view: View, enrich_topics: frozenset[str]) -> bool:
     """For an edge entity, return True only if every endpoint carries an enrich topic."""
-    endpoint_ids: set[str] = set()
-    if entity.schema.source_prop is not None:
-        endpoint_ids.update(entity.get(entity.schema.source_prop.name))
-    if entity.schema.target_prop is not None:
-        endpoint_ids.update(entity.get(entity.schema.target_prop.name))
+    endpoint_ids = _endpoint_ids(entity)
     if not endpoint_ids:
         return False
     return all(has_enrich_topic(eid, view, enrich_topics) for eid in endpoint_ids)
 
 
-def promote(
-    entity: Entity, view: View, topic_gated: bool, enrich_topics: frozenset[str]
-) -> bool:
-    if not topic_gated:
-        return True
+def check_enrich_topics(
+    expanded: Iterable[Entity], view: View, enrich_topics: frozenset[str]
+) -> Dict[str, bool]:
+    """Resolve has_enrich_topic exactly once per ID across an entire expansion.
+
+    Edges and non-edges in a single expansion  reference the same handful of IDs.
+    This avoids repeat entity lookups.
+    """
+    ids_to_check: set[str] = set()
+    for entity in expanded:
+        if entity.schema.edge:
+            ids_to_check.update(_endpoint_ids(entity))
+        else:
+            assert entity.id is not None
+            ids_to_check.add(entity.id)
+    return {eid: has_enrich_topic(eid, view, enrich_topics) for eid in ids_to_check}
+
+
+def promote(entity: Entity, topic_matches: Dict[str, bool]) -> bool:
+    """Decide whether an expanded entity should be emitted as internal,
+    using a precomputed map of entity-id → has_enrich_topic."""
     if entity.schema.edge:
-        return is_edge_internal(entity, view, enrich_topics)
-    else:
-        assert entity.id is not None
-        return has_enrich_topic(entity.id, view, enrich_topics)
+        endpoint_ids = _endpoint_ids(entity)
+        if not endpoint_ids:
+            return False
+        return all(topic_matches.get(eid, False) for eid in endpoint_ids)
+    assert entity.id is not None
+    return topic_matches.get(entity.id, False)
 
 
 def save_match(
@@ -212,8 +234,8 @@ def save_match(
     topic_gated: bool,
     enrich_topics: frozenset[str],
 ) -> None:
-    if match.id is None or entity.id is None:
-        return None
+    assert match.id is not None
+    assert entity.id is not None
     if not entity.schema.can_match(match.schema):
         return None
     judgement = resolver.get_judgement(match.id, entity.id)
@@ -225,11 +247,16 @@ def save_match(
     # them visible:
     if judgement == Judgement.POSITIVE:
         context.log.info("Enrich [%s]: %r" % (entity, match))
-        for adjacent in enricher.expand_wrapped(entity, match):
-            if check_person_cutoff(adjacent):
-                continue
-            external = not promote(adjacent, subject_view, topic_gated, enrich_topics)
-            context.emit(adjacent, external=external)
+        expanded = list(enricher.expand_wrapped(entity, match))
+        expanded = [adj for adj in expanded if not check_person_cutoff(adj)]
+
+        if topic_gated:
+            topic_matches = check_enrich_topics(expanded, subject_view, enrich_topics)
+            for adj in expanded:
+                context.emit(adj, external=not promote(adj, topic_matches))
+        else:
+            for adj in expanded:
+                context.emit(adj, external=False)
 
 
 def enrich(context: Context) -> None:
