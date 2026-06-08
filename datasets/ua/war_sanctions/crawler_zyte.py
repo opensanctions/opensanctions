@@ -22,9 +22,11 @@ CACHE_DAYS = 7
 LISTING_PER_PAGE = 12
 SPLIT = " / "
 
-# "Name (IMO / Country / Date)" — the format of owner/manager rows on a vessel page.
+# "Name (IMO / Country / Date)" — the format of owner/manager rows on a vessel page. The
+# date is dot- or slash-separated (DD.MM.YYYY / DD/MM/YYYY); allowing both in the date group
+# stops a slash-date's leading DD/MM from bleeding back into the country group.
 PARTY_RE = re.compile(
-    r"^(?P<name>.+?)\s*\((?P<imo>\d+)\s*/\s*(?P<country>.+?)\s*/\s*(?P<date>[\d.]+)\)\s*$"
+    r"^(?P<name>.+?)\s*\((?P<imo>\d+)\s*/\s*(?P<country>.+?)\s*/\s*(?P<date>[\d./]+)\)\s*$"
 )
 
 # The vessel-page row whose value links to the associated ships-company (shadow operator).
@@ -46,6 +48,12 @@ VESSEL_SKIP_LABELS = {
 # Entity-page (col-sm-8) labels we don't emit as properties. "Within the structure of
 # Rostec" is handled separately (parsed into Ownership edges), not skipped.
 COMPANY_SKIP_LABELS = {"Products"}
+
+# Liquidated companies render a status badge inside the name label, so the label text reads
+# "Full name of legal entity Liquidated 30.05.2025" rather than the bare field name. We match
+# the name label by prefix and lift any trailing "Liquidated <date>" into a dissolution date.
+COMPANY_NAME_LABEL = "Full name of legal entity"
+LIQUIDATED_RE = re.compile(r"\bLiquidated\b\s*(?P<date>[\d.]*)")
 
 # Person-page label aliases — they vary by section (war sections vs partner sanctions vs
 # executives). Each FtM property is fed from any of its aliases.
@@ -173,6 +181,21 @@ def pop_text(pairs: dict[str, Element], label: str) -> Optional[str]:
     return h.element_text(el) or None if el is not None else None
 
 
+def pop_prefixed(
+    pairs: dict[str, Element], prefix: str
+) -> tuple[Optional[Element], str]:
+    """Remove the first label that starts with `prefix`; return its value cell and full label.
+
+    Used where a label carries an appended status badge (e.g. a liquidation date) so its text
+    no longer matches the bare field name exactly. The returned label lets the caller parse
+    the badge; it is "" when nothing matched.
+    """
+    for label in list(pairs):
+        if label.startswith(prefix):
+            return pairs.pop(label), label
+    return None, ""
+
+
 def entity_label_map(doc: Element) -> dict[str, Element]:
     """Label -> value map for an entity (company) page: col-sm-8 value, prev-sibling label."""
     pairs: dict[str, Element] = {}
@@ -208,7 +231,11 @@ def crawl_entity_page(
         raise ValueError(f"Cannot build entity id from {url!r}")
     entity = context.make("LegalEntity")
     entity.id = entity_id
-    entity.add("name", value_lines(pairs.pop("Full name of legal entity", None)))
+    name_el, name_label = pop_prefixed(pairs, COMPANY_NAME_LABEL)
+    entity.add("name", value_lines(name_el))
+    liquidated = LIQUIDATED_RE.search(name_label)
+    if liquidated is not None and liquidated.group("date"):
+        h.apply_date(entity, "dissolutionDate", liquidated.group("date"))
     entity.add(
         "alias", value_lines(pairs.pop("Abbreviated name of the legal entity", None))
     )
