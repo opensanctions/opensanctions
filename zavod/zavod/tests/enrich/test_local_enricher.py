@@ -8,10 +8,9 @@ from zavod.entity import Entity
 from zavod.archive import clear_data_path, dataset_state_path
 from zavod.context import Context
 from zavod.crawl import crawl_dataset
-from zavod.integration import get_dataset_linker
 from zavod.integration.dedupe import get_resolver
 from zavod.meta import Dataset
-from zavod.runner.local_enricher import LocalEnricher, is_edge_internal
+from zavod.runner.local_enricher import LocalEnricher
 from zavod.store import get_store
 
 DATASET_DATA = {
@@ -210,61 +209,6 @@ def test_limit(vcontext: Context):
     results = list(enricher.match_candidates(entity, candidates[entity.id]))
     assert len(results) == 0, results
 
-    shutil.rmtree(settings.DATA_PATH, ignore_errors=True)
-
-
-def test_is_edge_internal(testdataset1: Dataset):
-    """is_edge_internal returns True iff every edge endpoint has a risk topic."""
-    linker = get_dataset_linker(testdataset1)
-    crawl_dataset(testdataset1)
-    store = get_store(testdataset1, linker)
-    store.sync()
-    view = store.view(testdataset1, external=False)
-
-    # Ownership: oswell-spencer (crime.boss) → umbrella-corp (reg.warn) — both have topics
-    ownership = Entity.from_data(
-        testdataset1,
-        {
-            "schema": "Ownership",
-            "id": "test-ownership",
-            "properties": {
-                "owner": ["osv-oswell-spencer"],
-                "asset": ["osv-umbrella-corp"],
-            },
-        },
-    )
-    topics = frozenset(["reg.warn", "crime.boss"])
-    assert is_edge_internal(ownership, view, topics)
-
-    # Family: johnny-does (no topics) → oswell-spencer (crime.boss) — one endpoint missing topic
-    family_no_topic = Entity.from_data(
-        testdataset1,
-        {
-            "schema": "Family",
-            "id": "test-family-no-topic",
-            "properties": {
-                "person": ["osv-johnny-does"],
-                "relative": ["osv-oswell-spencer"],
-            },
-        },
-    )
-    assert not is_edge_internal(family_no_topic, view, topics)
-
-    # Family: one endpoint not in view at all
-    family_missing = Entity.from_data(
-        testdataset1,
-        {
-            "schema": "Family",
-            "id": "test-family-missing",
-            "properties": {
-                "person": ["osv-john-doe"],
-                "relative": ["nonexistent-id"],
-            },
-        },
-    )
-    assert not is_edge_internal(family_missing, view, topics)
-
-    store.close()
     shutil.rmtree(settings.DATA_PATH, ignore_errors=True)
 
 

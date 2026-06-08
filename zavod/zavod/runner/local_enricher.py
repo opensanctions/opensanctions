@@ -186,14 +186,6 @@ def has_enrich_topic(entity_id: str, view: View, enrich_topics: frozenset[str]) 
     return bool(enrich_topics.intersection(entity.get("topics")))
 
 
-def is_edge_internal(entity: Entity, view: View, enrich_topics: frozenset[str]) -> bool:
-    """For an edge entity, return True only if every endpoint carries an enrich topic."""
-    endpoint_ids = _endpoint_ids(entity)
-    if not endpoint_ids:
-        return False
-    return all(has_enrich_topic(eid, view, enrich_topics) for eid in endpoint_ids)
-
-
 def check_enrich_topics(
     expanded: Iterable[Entity], view: View, enrich_topics: frozenset[str]
 ) -> Dict[str, bool]:
@@ -212,9 +204,9 @@ def check_enrich_topics(
     return {eid: has_enrich_topic(eid, view, enrich_topics) for eid in ids_to_check}
 
 
-def promote(entity: Entity, topic_matches: Dict[str, bool]) -> bool:
-    """Decide whether an expanded entity should be emitted as internal,
-    using a precomputed map of entity-id → has_enrich_topic."""
+def should_promote(entity: Entity, topic_matches: Dict[str, bool]) -> bool:
+    """Decide whether an entity should be emitted as internal,
+    based on a precomputed map of entity-id → has_enrich_topic."""
     if entity.schema.edge:
         endpoint_ids = _endpoint_ids(entity)
         if not endpoint_ids:
@@ -253,7 +245,7 @@ def save_match(
         if topic_gated:
             topic_matches = check_enrich_topics(expanded, subject_view, enrich_topics)
             for adj in expanded:
-                context.emit(adj, external=not promote(adj, topic_matches))
+                context.emit(adj, external=not should_promote(adj, topic_matches))
         else:
             for adj in expanded:
                 context.emit(adj, external=False)
