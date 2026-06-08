@@ -1,0 +1,47 @@
+title: Albania Members of Parliament (Kuvendi)
+entry_point: crawler.py
+prefix: al-kuvendi
+coverage:
+  frequency: weekly
+  start: 2026-06-08
+load_statements: true
+summary: >-
+  Current members of the Kuvendi, the unicameral parliament of the Republic of Albania
+description: |
+  This dataset contains the current members of the Kuvendi i Shqipërisë (Assembly of
+  the Republic of Albania), the country's unicameral legislature of 140 seats.
+
+  The data is sourced from the JSON API that backs the official parlament.al website.
+  It lists each member's name, date of birth (where available), email address and
+  political party.
+publisher:
+  name: Kuvendi i Shqipërisë
+  name_en: Assembly of the Republic of Albania
+  description: |
+    The Kuvendi is the unicameral parliament of Albania. It has 140 members elected
+    for four-year terms by proportional representation across the country's twelve
+    electoral districts (qarqe).
+  country: al
+  url: https://www.parlament.al/
+  official: true
+data:
+  # Undocumented OData API backing the parlament.al single-page app. $top is capped
+  # at 1000 by the server, returning the full member set in one request.
+  url: https://kuvendiapi.azurewebsites.net/api/Anetaret?$top=1000
+  format: JSON
+
+assertions:
+  min:
+    schema_entities:
+      Person: 125
+      Position: 1
+  max:
+    schema_entities:
+      Person: 160
+
+lookups:
+  type.email:
+    options:
+      # Domain typo in the source for a single sitting member.
+      - match: ardit.bido@parlamend.al
+        value: ardit.bido@parlament.al
