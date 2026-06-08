@@ -169,17 +169,17 @@ class LocalEnricher(BaseEnricher[Dataset]):
         yield from self.expand(match)
 
 
-def has_risk_topic(entity_id: str, view: View) -> bool:
-    """Return True if and only if the entity exists in the view and carries a risk topic."""
+def has_enrich_topic(entity_id: str, view: View, enrich_topics: frozenset[str]) -> bool:
+    """True only if the entity exists in the view and carries one of the enrich topics."""
     canonical_id = view.store.linker.get_canonical(entity_id)
     entity = view.get_entity(canonical_id)
     if entity is None:
         return False
-    return len(registry.topic.RISKS.intersection(entity.get("topics"))) > 0
+    return bool(enrich_topics.intersection(entity.get("topics")))
 
 
-def is_edge_internal(entity: Entity, view: View) -> bool:
-    """For an edge entity, return True if and only if every endpoint has a risk topic."""
+def is_edge_internal(entity: Entity, view: View, enrich_topics: frozenset[str]) -> bool:
+    """For an edge entity, return True only if every endpoint carries an enrich topic."""
     endpoint_ids: set[str] = set()
     if entity.schema.source_prop is not None:
         endpoint_ids.update(entity.get(entity.schema.source_prop.name))
@@ -187,7 +187,7 @@ def is_edge_internal(entity: Entity, view: View) -> bool:
         endpoint_ids.update(entity.get(entity.schema.target_prop.name))
     if not endpoint_ids:
         return False
-    return all(has_risk_topic(eid, view) for eid in endpoint_ids)
+    return all(has_enrich_topic(eid, view, enrich_topics) for eid in endpoint_ids)
 
 
 def save_match(
@@ -198,6 +198,7 @@ def save_match(
     match: Entity,
     subject_view: View,
     topic_gated: bool,
+    enrich_topics: frozenset[str],
 ) -> None:
     if match.id is None or entity.id is None:
         return None
@@ -217,11 +218,11 @@ def save_match(
                 continue
             if topic_gated:
                 if adjacent.schema.edge:
-                    ext = not is_edge_internal(adjacent, subject_view)
+                    ext = not is_edge_internal(adjacent, subject_view, enrich_topics)
                 elif adjacent.id is None:
                     ext = True
                 else:
-                    ext = not has_risk_topic(adjacent.id, subject_view)
+                    ext = not has_enrich_topic(adjacent.id, subject_view, enrich_topics)
             else:
                 ext = False
             context.emit(adjacent, external=ext)
@@ -237,10 +238,17 @@ def enrich(context: Context) -> None:
     subject_store = get_store(scope, resolver)
     subject_store.sync()
     subject_view = subject_store.view(scope)
+
     config = dict(context.dataset.config)
     topic_gated: bool = bool(config.get("topic_gated", False))
     enricher = LocalEnricher(context.dataset, context.cache, config)
+    enrich_topics: frozenset[str] = frozenset(enricher._filter_topics)
+    if topic_gated and not enrich_topics:
+        context.log.warning(
+            "topic_gated=True but no topics configured; all expanded entities will be external"
+        )
     reset_caches()
+
     try:
         context.log.info("Matching candidates...")
         schemata = list(model.matchable_schemata())
@@ -265,6 +273,7 @@ def enrich(context: Context) -> None:
                         match,
                         subject_view,
                         topic_gated,
+                        enrich_topics,
                     )
             except EnrichmentException as exc:
                 context.log.error(

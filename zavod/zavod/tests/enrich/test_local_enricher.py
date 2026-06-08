@@ -233,7 +233,8 @@ def test_is_edge_internal(testdataset1: Dataset):
             },
         },
     )
-    assert is_edge_internal(ownership, view)
+    topics = frozenset(["reg.warn", "crime.boss"])
+    assert is_edge_internal(ownership, view, topics)
 
     # Family: johnny-does (no topics) → oswell-spencer (crime.boss) — one endpoint missing topic
     family_no_topic = Entity.from_data(
@@ -247,7 +248,7 @@ def test_is_edge_internal(testdataset1: Dataset):
             },
         },
     )
-    assert not is_edge_internal(family_no_topic, view)
+    assert not is_edge_internal(family_no_topic, view, topics)
 
     # Family: one endpoint not in view at all
     family_missing = Entity.from_data(
@@ -261,7 +262,7 @@ def test_is_edge_internal(testdataset1: Dataset):
             },
         },
     )
-    assert not is_edge_internal(family_missing, view)
+    assert not is_edge_internal(family_missing, view, topics)
 
     store.close()
     shutil.rmtree(settings.DATA_PATH, ignore_errors=True)
@@ -282,6 +283,7 @@ def test_enrich_topic_gated(testdataset1: Dataset, testdataset_enrich_subject: D
 
     dataset_data = deepcopy(DATASET_DATA)
     dataset_data["config"]["topic_gated"] = True
+    dataset_data["config"]["topics"] = ["reg.warn", "crime.boss"]
     enricher_ds = make_enricher_dataset(dataset_data, testdataset1.name)
     clear_data_path(enricher_ds.name)
     crawl_dataset(enricher_ds)
