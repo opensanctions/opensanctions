@@ -231,6 +231,7 @@ lookups:
           - "Q7315432" # Resident Commissioner
           - "Q7494991" # Sheriff of Kolkata
           - "Q7574852" # special prosecutor
+          - "Q3368517" # public prosecutor general
           - "Q7603902" # state treasurer
           - "Q8135012" # Chief Minister of Gilgit-Baltistan
           - "Q9200127" # member
@@ -440,6 +441,8 @@ lookups:
           - "Q135842653" # directeur de cabinet du ministre des Outre-mer
           - "Q8349973" # insular council
           - "Q108466181" # judicial position
+          - "Q107363151" # central bank governor
+          - "Q5785176" # auditor general
       - maybe_pep: false
         match:
           - "Q8191099" # affiliate
