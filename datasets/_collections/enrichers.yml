@@ -33,6 +33,7 @@ children:
   - ext_ru_egrul
   - ext_tokyo_mou_psc
   - ext_ua_edr
+  - ext_us_cms_npi
   - ext_us_irs_ffi
   - ext_us_ofac_press_releases
   - opencorporates
