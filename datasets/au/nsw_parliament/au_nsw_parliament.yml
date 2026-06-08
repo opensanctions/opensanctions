@@ -27,18 +27,13 @@ publisher:
   url: https://www.parliament.nsw.gov.au/
   country: au
   official: true
-
 data:
   url: https://www.parliament.nsw.gov.au/members/Pages/all-members.aspx
   format: HTML
   lang: eng
-
 tags:
   - list.pep
-  - role.pep
-  - gov.legislative
-  - gov.state
-
+  
 assertions:
   min:
     schema_entities:
