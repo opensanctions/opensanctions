@@ -1,0 +1,162 @@
+import json
+from typing import Any
+
+from zavod import Context
+from zavod import helpers as h
+from zavod.entity import Entity
+from zavod.stateful.positions import PositionCategorisation, categorise
+
+# Static API key hardcoded in the congress.gov.ph frontend bundle (the Axios client
+# factory in _next/static/chunks/app/house-members/page-*.js sends it as the
+# x-hrep-website-backend header). It ships to every site visitor, so it is not a
+# secret. A 401 "Invalid authorization" response means the site rotated the key and
+# this constant needs to be updated from the live bundle.
+WEBSITE_BACKEND_TOKEN = "cc8bd00d-9b88-4fee-aafe-311c574fcdc1"
+
+# A party-list seat whose nominee has not yet been seated is returned with a
+# placeholder author_id and the organisation name in place of a person name.
+PLACEHOLDER_AUTHOR_ID = "000000"
+
+
+def fetch_page(context: Context, page: int) -> dict[str, Any]:
+    # The "current" endpoint always returns the currently-seated Congress and ignores
+    # the `congress` parameter, so we don't pin a term — the dataset follows whichever
+    # Congress is in session. crawl() derives and logs which one that is.
+    body = {
+        "page": page,
+        "limit": 100,
+        "filter": "",
+        "type": "all",
+    }
+    # No caching: the API replies HTTP 200 with the real status in the body, and the
+    # cache key (request_hash) does not include headers — so a cached auth failure
+    # could not be invalidated by fixing the token. The roster is only a few pages.
+    response = context.fetch_json(
+        context.data_url,
+        method="POST",
+        data=json.dumps(body),
+        headers={
+            "Content-Type": "application/json",
+            "x-hrep-website-backend": WEBSITE_BACKEND_TOKEN,
+        },
+    )
+    status = response.get("status")
+    if status == 401:
+        raise RuntimeError(
+            "API rejected the authorization token (HTTP body status 401: %r). The "
+            "site likely rotated x-hrep-website-backend; refresh WEBSITE_BACKEND_TOKEN "
+            "from the current value in the congress.gov.ph house-members JS bundle."
+            % response.get("message")
+        )
+    if status != 200 or not response.get("success") or "data" not in response:
+        raise RuntimeError("Unexpected API response: %r" % response)
+    data: dict[str, Any] = response["data"]
+    return data
+
+
+def crawl_member(
+    context: Context,
+    row: dict[str, Any],
+    position: Entity,
+    categorisation: PositionCategorisation,
+    congresses: set[str],
+) -> None:
+    author_id = row.pop("author_id")
+    member_type = row.pop("member_type")
+    memberships = row.pop("memberships") or {}
+
+    if author_id == PLACEHOLDER_AUTHOR_ID:
+        # Party-list seat without a named representative yet; nothing to emit until
+        # the organisation's nominee is seated.
+        context.log.info("Skipping unseated party-list slot", name=row.get("fullname"))
+        return
+
+    congress_desc = memberships.get("congress_desc")
+    if not congress_desc:
+        raise RuntimeError(f"Member {author_id} has no Congress label: {memberships!r}")
+    congresses.add(congress_desc)
+
+    person = context.make("Person")
+    person.id = context.make_slug(str(row.pop("id")))
+    h.apply_name(
+        person,
+        first_name=row.pop("first_name"),
+        middle_name=row.pop("middle_name"),
+        last_name=row.pop("last_name"),
+        suffix=row.pop("suffix"),
+        lang="eng",
+    )
+    if not person.has("name"):
+        context.log.warning("Member without a name", author_id=author_id)
+        return
+
+    if member_type == "Party List Representative":
+        # The party-list organisation a member represents is their political vehicle.
+        person.add("political", memberships.get("party_list_name"), lang="eng")
+
+    # Membership of the House requires natural-born Philippine citizenship for both
+    # district and party-list representatives: 1987 Constitution, Article VI, Section 6.
+    # https://www.officialgazette.gov.ph/constitutions/1987-constitution/
+    person.add("citizenship", "ph")
+
+    occupancy = h.make_occupancy(
+        context, person, position, categorisation=categorisation
+    )
+    if occupancy is None:
+        return
+    context.emit(person)
+    context.emit(occupancy)
+
+    context.audit_data(
+        row,
+        ignore=[
+            "type",
+            "district",
+            "fullname",
+            "nick_name",
+            "email",
+            "website",
+            "room",
+            "local",
+            "directline",
+            "chief_of_staff",
+            "party_affilation",
+            "party_affilation_desc",
+            "remarks",
+            "house_leader",
+            "current",
+            "photo",
+            "committee_membership",
+            "principal_authored_bills",
+        ],
+    )
+
+
+def crawl(context: Context) -> None:
+    position = h.make_position(
+        context,
+        name="Member of the House of Representatives of the Philippines",
+        country="ph",
+        wikidata_id="Q18002923",
+    )
+    categorisation = categorise(context, position, default_is_pep=True)
+    context.emit(position)
+
+    congresses: set[str] = set()
+    page = 0
+    while True:
+        data = fetch_page(context, page)
+        rows = data["rows"]
+        if not rows:
+            break
+        for row in rows:
+            crawl_member(context, row, position, categorisation, congresses)
+        if page + 1 >= data["pageCount"]:
+            break
+        page += 1
+
+    # The roster should describe a single seated Congress; a mix signals the source
+    # returned inconsistent data. Logged so the active term is visible per run.
+    if len(congresses) != 1:
+        raise RuntimeError(f"Expected one current Congress, got: {sorted(congresses)}")
+    context.log.info("Crawled current Congress", congress=congresses.pop())
