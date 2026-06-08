@@ -37,6 +37,7 @@ children:
   - at_parlament
   - az_parliament
   - be_chamber
+  - be_flemish_parliament
   - be_walloon_parliament
   - bg_jud_declarations
   - br_pep
@@ -50,6 +51,7 @@ children:
   - co_join_dots
   - cu_inventario_legislatura
   - cy_parliament
+  - cz_pep_declarations
   - de_abgeordnetenwatch
   - de_bundesrat
   - de_bundestag
@@ -89,6 +91,7 @@ children:
   - lu_chamber
   - lv_saeima
   - me_acp_peps
+  - me_skupstina
   - mk_officials
   - mt_parlament
   - mx_deputies
@@ -105,6 +108,7 @@ children:
   - pt_parliament
   - ro_fiu_declarations
   - rs_national_assembly
+  - se_riksdag
   - se_soe
   - sg_gov_dir
   - si_dz_rs
@@ -121,6 +125,7 @@ children:
   - us_state_dept
   - uy_pep
   - ve_asamblea_nacional
+  - vn_national_assembly
   - wd_categories
   - wd_peps
   - za_mm_officials

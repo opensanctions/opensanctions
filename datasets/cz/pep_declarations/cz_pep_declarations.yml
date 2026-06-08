@@ -3,7 +3,7 @@ prefix: cz-pep
 url: https://cro.gov.cz/verejnost/funkcionari
 coverage:
   frequency: monthly
-  start: 2026-03-17
+  start: "2026-06-08"
 load_statements: true
 entry_point: crawler.py
 ci_test: false  # ~39k per-person detail fetches is too slow for CI
