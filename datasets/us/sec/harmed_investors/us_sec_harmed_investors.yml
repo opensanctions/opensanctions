@@ -1127,3 +1127,9 @@ lookups:
         names:
           - ProSky Inc.
           - Crystal A. Huang
+      - match: herman’s world of sports inc., thomas j. dzwilewski, michael eisemann, and louis montaino
+        names:
+          - Herman’s World of Sports Inc.
+          - Thomas J. Dzwilewski
+          - Michael Eisemann
+          - Louis Montaino
