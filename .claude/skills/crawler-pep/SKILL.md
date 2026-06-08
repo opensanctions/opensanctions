@@ -18,7 +18,7 @@ context about the dataset.
 **Consult on demand** (open only when you actually need the section — don't pre-load):
 
 - `.claude/skills/crawler-pep/examples.md` — full code examples (Patterns A/B/C, subnational variant, freshness check, qsv recipes). Open when you're stuck on a pattern or want a worked example.
-- `zavod/docs/peps.md` — depth on Position naming, `categorise()`, Occupancy duration rules. Open if you need more than the summary in this skill.
+- `zavod/docs/peps.md` — depth on Position naming, `categorise()`, Occupancy duration rules, and which person/PEP properties to capture (its "Properties to capture" section). Open if you need more than the summary in this skill.
 - `zavod/docs/metadata.md` — full YAML field reference. Open if you're using a field not covered by the template in `crawler-guide.md`.
 - `zavod/docs/extract/names.md` — open only if you're doing LLM-assisted or reviewed name cleaning.
 
@@ -75,6 +75,14 @@ from zavod import helpers as h
 from zavod.entity import Entity
 from zavod.stateful.positions import PositionCategorisation, categorise
 ```
+
+### Person properties
+
+Capture properties by priority — don't chase every field. For people, capture when
+available: name(s), date/place/country of birth, citizenship/nationality, and ID
+numbers. Don't extract private addresses or phone numbers. Full PEP property ladder
+(Must/Could/Won't) and the generic framing: `zavod/docs/peps.md` → "Properties to
+capture".
 
 ### Position naming
 
