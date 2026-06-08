@@ -5,7 +5,7 @@ Some things that are easy to forget but critical for new crawlers. Scope and per
 - Metadata
     - required fields for crawlers that are often forgotten:
         - `coverage`
-            - `frequency` (normally `daily`, but `weekly` for zyte and gpt crawlers, and `monthly` for company registers)
+            - `frequency` (normally `daily`, but `weekly` for gpt crawlers, and `monthly` for company registers)
             - `start` (updated to the current day when releasing)
         - `load_statements`: `true` for normal crawlers, `false` for KYB data.
         - `assertions` - see [Data Assertions](../metadata.md#data-assertions)

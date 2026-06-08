@@ -1,6 +1,6 @@
 ---
 name: debug-crawler
-description: Investigate a failing crawler from an issues.json artifact URL and propose a fix. Covers fetching error details, inspecting source data via Zyte, and common failure patterns.
+description: Investigate a failing crawler from an issues.json artifact URL and propose a fix. Covers fetching error details, inspecting source data via Zyte, and common failure patterns including sources that are blocked, geo-blocked, 403/429-throttled, or behind a JavaScript challenge or anti-bot protection.
 argument-hint: "<issues.json URL>"
 allowed-tools: Read, Edit, Glob, Grep, Bash, WebFetch
 ---
@@ -63,6 +63,12 @@ content = b64decode(resp.json()['httpResponseBody'])
 Add `'geolocation': 'US'` (or the relevant country code) to the Zyte request when
 the source geo-restricts access — and add the matching `geolocation=` argument to
 the `fetch_resource` / `fetch_html` call in the crawler.
+
+If the fix is to move the crawler onto Zyte (the source is now blocked, geo-blocked,
+throttled, or behind a JavaScript challenge), see
+`zavod/docs/best_practices/http_operations.md` for choosing the right helper
+(`fetch_html` for browser rendering, `fetch_text` / `fetch_json` / `fetch_resource`
+otherwise) and remember to set `ci_test: false` on the dataset.
 
 ## Step 4: Diagnose
 

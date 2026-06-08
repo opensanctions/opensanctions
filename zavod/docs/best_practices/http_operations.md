@@ -39,16 +39,35 @@ context.fetch_...(url, headers=HEADERS)
 
 ### Network/geo-blocking
 
-If it fails in production but not locally, they might be blocking our production network IP range. It's common to block hosting provider networks for websites intended for humans only.
+If it fails in production but not locally, the site might be blocking the production network IP range. It's common to block hosting provider networks for websites intended for humans only. It's also common to block requests from a country other than the publisher; if it works using a VPN exit point in that country, pass that country to the `geolocation` argument.
 
-Use zyte with with `httpResponseBody` approach (default in `zavod.shed.zyte_api.fetch_*` functions except `fetch_htm` whose `html_source` defaults to `browser_html`). `httpResponseBody` is faster and cheaper than `browserHtml`.
-
-It's also common to block requests from a country other than the publisher. If it works using a VPN exit point in that country, also try zyte using the `geolocation` argument.
+In both cases, route the request through the [Zyte API](#the-zyte-api) (`zavod.extract.zyte_api`), which proxies and unblocks requests. The `fetch_*` helpers default to the `httpResponseBody` scrape type, which is faster and cheaper than `browserHtml`. Prefer it unless the page needs JavaScript (see below).
 
 ### JavaScript challenges
 
 If it works in the browser but you see different content when fetching using `zavod` or `curl`, there might be a javascript challenge that checks whether a full browser is rendering the page. This usually sets a cookie so the browser doesn't have to complete the challenge on each request. These challenges can also be intermittent.
 
-For HTML, try requesting using `zyte_api.fetch_text` with `html_source="browserHtml"` (the default). This will render the page in a browser, execute any javascript, then turn the DOM back into HTML and return that.
+Use `zyte_api.fetch_html`, whose `html_source` defaults to `"browserHtml"`: it renders the page in a browser, executes the JavaScript, and returns the resulting DOM as parsed HTML. It requires an `unblock_validator` XPath that matches only when unblocking succeeded, so challenge pages aren't cached. If you need to wait for specific content or click to reveal data, use the `actions` argument.
 
-If tricks like waiting for specific content or clicking on something to render the data is needed, look at the `actions` argument.
+### The Zyte API
+
+The helpers in `zavod.extract.zyte_api` route requests through the [Zyte API](https://www.zyte.com/zyte-api/), which handles proxying, geolocation, and browser rendering. They require the `OPENSANCTIONS_ZYTE_API_KEY` environment variable, so crawlers that use them set `ci_test: false`. Most take an optional `geolocation` (e.g. `"US"`) and `cache_days`. For requests that need a POST body, custom headers, cookies, or browser actions, build a `ZyteAPIRequest` and call the lower-level `fetch`.
+
+::: zavod.extract.zyte_api.fetch_text
+    options:
+      heading_level: 4
+::: zavod.extract.zyte_api.fetch_json
+    options:
+      heading_level: 4
+::: zavod.extract.zyte_api.fetch_resource
+    options:
+      heading_level: 4
+::: zavod.extract.zyte_api.fetch_html
+    options:
+      heading_level: 4
+::: zavod.extract.zyte_api.fetch
+    options:
+      heading_level: 4
+::: zavod.extract.zyte_api.ZyteAPIRequest
+    options:
+      heading_level: 4

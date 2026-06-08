@@ -109,9 +109,13 @@ doc = context.parse_resource_xml(path)
 ### JS-rendered pages and anti-bot protection
 
 If the source is a JS-rendered SPA, look for API endpoints in the page source or JS
-bundles first. If the source requires JS rendering or anti-bot protection that prevents
-`context.fetch_*` from working, **stop and warn the user** — these require the Zyte API
-(`zavod.extract.zyte_api`) which needs manual setup.
+bundles first — a clean JSON endpoint is almost always simpler than rendering. If the
+source requires JS rendering or anti-bot protection that prevents `context.fetch_*` from
+working, route the request through the Zyte API (`zavod.extract.zyte_api`). See
+`zavod/docs/best_practices/http_operations.md` for which helper to use (`fetch_html` for
+browser rendering, `fetch_text` / `fetch_json` / `fetch_resource` otherwise) and how to
+handle geo-blocking. Crawlers that use Zyte set `ci_test: false`, since the API key isn't
+available in CI.
 
 ### Creating and emitting entities
 
