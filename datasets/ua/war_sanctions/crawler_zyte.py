@@ -9,6 +9,7 @@ ship-management orgs) so they don't depend on the source's internal numeric ids.
 import re
 from collections.abc import Iterator
 from typing import Optional
+from urllib.parse import urljoin
 
 from normality import squash_spaces
 
@@ -196,6 +197,36 @@ def pop_prefixed(
     return None, ""
 
 
+def emit_succession(
+    context: Context, predecessor_id: str, value_el: Element, page_url: str
+) -> None:
+    """Link a liquidated company to the legal successor named in its 'Assignee' row.
+
+    The Assignee value links to another company page whose trailing id keys the successor the
+    same way every company page does, so we reference it without a fetch: a stub carries the
+    name (visible here) and merges by id with the successor's own crawl when a listing reaches
+    it. Silently no-ops when the row has no link or name.
+    """
+    hrefs = h.xpath_strings(value_el, ".//a/@href")
+    name = h.element_text(value_el)
+    if not hrefs or name is None:
+        return
+    successor_id = context.make_slug("entity", url_id_of(hrefs[0]))
+    if successor_id is None:
+        return
+    successor = context.make("LegalEntity")
+    successor.id = successor_id
+    successor.add("name", name)
+    successor.add("sourceUrl", urljoin(page_url, hrefs[0]))
+    context.emit(successor)
+
+    rel = context.make("Succession")
+    rel.id = context.make_id(predecessor_id, "succeeded by", successor_id)
+    rel.add("predecessor", predecessor_id)
+    rel.add("successor", successor_id)
+    context.emit(rel)
+
+
 def entity_label_map(doc: Element) -> dict[str, Element]:
     """Label -> value map for an entity (company) page: col-sm-8 value, prev-sibling label."""
     pairs: dict[str, Element] = {}
@@ -278,6 +309,11 @@ def crawl_entity_page(
             rel.add("asset", entity_id)
             rel.add("role", "subsidiary of")
             context.emit(rel)
+
+    # Liquidated companies name their legal successor in an "Assignee" row.
+    successor_el = pairs.pop("Assignee", None)
+    if successor_el is not None:
+        emit_succession(context, entity_id, successor_el, url)
 
     for label in pairs:
         if label not in COMPANY_SKIP_LABELS:
