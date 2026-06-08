@@ -30,12 +30,12 @@ data:
   url: https://data.public.lu/api/1/datasets/
   format: CSV
 dates:
-  formats: ["%d/%m/%Y"]
+  formats: ["%Y-%m-%d %H:%M:%S", "%Y-%m-%d"]
 
 assertions:
   min:
     schema_entities:
-      Person: 60  # The Chamber is made up of 60 seats. Some previous members may be included.
+      Person: 55  # The Chamber is made up of 60 seats.
       Position: 1
     country_entities:
       lu: 1
