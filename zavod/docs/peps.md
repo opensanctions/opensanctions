@@ -17,6 +17,48 @@ In addition to capturing general information about PEPs, a PEP crawler must
 - Add the `role.pep` [topic](https://www.opensanctions.org/reference/#type.topic) to each PEP Person entity.
 - Add the `role.rca` [topic](https://www.opensanctions.org/reference/#type.topic) to each relative or close associate, as well as the most appropriate entity to represent the relationship, e.g. [Family](https://www.opensanctions.org/reference/#schema.Family), [Associate](https://www.opensanctions.org/reference/#schema.Associate), or [UnknownLink](https://www.opensanctions.org/reference/#schema.UnknownLink).
 
+## Properties to capture
+
+Not every attribute is worth the same effort. Time-box the work and capture
+properties by priority, aiming for complete coverage of the people who qualify
+while not wrongly marking someone as a PEP.
+
+**People — capture when available:**
+
+- Name(s) (see: [name cleaning and review framework](extract/names.md))
+- Date of birth, place of birth, country of birth
+- Citizenship or nationality
+- Official ID numbers and other identifiers (e.g. National ID, `wikidataId`)
+
+This is the people-relevant subset of the general [data collection
+priorities](best_practices/priorities.md) — see there for the full
+Essential / Should / Could / Won't framing and for company/vessel attributes.
+
+**PEP-specific:**
+
+*Must:*
+
+- `country` (occasionally multiple apply to one position, e.g. *Ambassador of Palestine to Germany*)
+- `position` (of a person)
+- `occupancy` (relating a person to the position(s) they hold/held) — focus on current
+  position-holders. When a legislature exposes past terms cheaply, see
+  [Historical and multi-term sources](#historical-and-multi-term-sources).
+
+*Could:*
+
+- `citizenship` — safe to assume over `country` for most elected officials
+- `biography`
+- [`Occupancy:constituency`](https://www.opensanctions.org/reference/#schema.Occupancy)
+- [`Position:subnationalArea`](https://www.opensanctions.org/reference/#schema.Position)
+- [`Occupancy:politicalGroup`](https://www.opensanctions.org/reference/#schema.Occupancy) —
+  the parliamentary faction/group held within the body, distinct from a person's general
+  party membership (`Person:political`)
+
+*Won't — don't extract:*
+
+- private individual addresses (not needed, and a privacy concern)
+- phone numbers (not needed, more sensitive than emails)
+
 ## Creating Positions
 
 The [Position](https://www.opensanctions.org/reference/#schema.Position) `name` property should ideally capture the position and its jurisdiction, but be no more specific than that.

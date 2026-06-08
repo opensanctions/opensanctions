@@ -36,23 +36,6 @@ Aim for **complete coverage** - make sure all risk-associated entities (people, 
 
 ## Politically-exposed persons
 
-See also: [guide for building PEP data crawlers](../peps.md)
-
-**Must**
-
-- `country` (occasionally multiple apply to one position, e.g. *Ambassador of Palestine to Germany*)
-- `position` (of a person)
-- `occupancy` (relating a person to the position(s) they hold/held) - focus on current position-holders. When a legislature exposes past terms cheaply, see [Historical and multi-term sources](../peps.md#historical-and-multi-term-sources).
-
-**Could**
-
-- `citizenship` - safe to assume over `country` for most elected officials
-- `biography`
-- [Occupancy:constituency](https://www.opensanctions.org/reference/#schema.Occupancy)
-- [Position:subnationalArea](https://www.opensanctions.org/reference/#schema.Position)
-- [Occupancy:politicalGroup](https://www.opensanctions.org/reference/#schema.Occupancy)
-
-**Won't - don't extract**
-
-- private individual addresses (not needed, and privacy concern)
-- phone numbers (not needed, more sensitive than emails)
+The PEP-specific property priorities (Must / Could / Won't) live with the rest of the
+PEP guidance: see [Properties to capture](../peps.md#properties-to-capture) in the
+[guide for building PEP data crawlers](../peps.md).
