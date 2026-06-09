@@ -29,10 +29,10 @@ def emit_patch(
         existing_topics=list(existing_topics),
     )
 
-    patch = context.make(related_entity.schema)
+    patch = context.make("Thing")
     patch.id = related_entity.id
     patch.add("topics", topic)
-    context.emit(patch)
+    context.emit(patch, external=related_entity.external)
 
 
 def analyze_entity(context: Context, view: View, entity: Entity) -> None:
@@ -120,7 +120,7 @@ def crawl(context: Context) -> None:
     linker = get_dataset_linker(scope)
     store = get_store(scope, linker)
     store.sync()
-    view = store.view(scope)
+    view = store.view(scope, external=True)
 
     for entity_idx, entity in enumerate(view.entities()):
         if entity_idx > 0 and entity_idx % 1000 == 0:
