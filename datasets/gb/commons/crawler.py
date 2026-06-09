@@ -61,6 +61,20 @@ def crawl_member(
         context.emit(position)
         context.emit(occupancy)
 
+        # previous government posts
+        bio_url = value.pop("thumbnailUrl").replace("Thumbnail", "biography")
+        data_bio = context.fetch_json(bio_url)
+        bio = data_bio["value"]
+        gov_posts = bio["governmentPosts"]
+        if gov_posts != [] and gov_posts is not None:
+            for post in gov_posts:
+                previous_position = h.make_position(
+                    context,
+                    name=post["name"],
+                    country="gb",
+                )
+                context.emit(previous_position)
+
 
 def crawl(context: Context) -> None:
     skip = 0
