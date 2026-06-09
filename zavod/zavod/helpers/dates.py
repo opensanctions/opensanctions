@@ -104,7 +104,11 @@ def extract_date(
 
 
 def apply_date(
-    entity: Entity, prop: str, text: DateValue, formats: Optional[Tuple[str]] = None
+    entity: Entity,
+    prop: str,
+    text: DateValue,
+    formats: Optional[Tuple[str]] = None,
+    original_value: Optional[str] = None,
 ) -> None:
     """Apply a date value to an entity, parsing it if necessary and cleaning it up.
 
@@ -115,6 +119,9 @@ def apply_date(
         prop: The property to which the date will be applied.
         text: The date value to be applied.
         formats: A list of date formats to use for parsing, overriding dataset defaults.
+        original_value: If provided, recorded as the entity's original value for
+            this property instead of ``text``. Use when ``text`` has already been
+            transformed.
     """
     prop_ = entity.schema.get(prop)
     if prop_ is None or prop_.type != registry.date:
@@ -126,8 +133,10 @@ def apply_date(
     if text is None:
         return None
 
+    if original_value is None:
+        original_value = text
     dates = extract_date(entity.dataset, text, formats=formats)
-    return entity.add(prop_, dates, original_value=text)
+    return entity.add(prop_, dates, original_value=original_value)
 
 
 def apply_dates(entity: Entity, prop: str, texts: Iterable[DateValue]) -> None:
