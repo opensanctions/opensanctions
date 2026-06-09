@@ -8,8 +8,9 @@ from zavod.util import Element
 # The roster is published in two languages with one CV record per language, under
 # different member IDs. They are joined on the shared parliamentary email address;
 # the ID is therefore derived from the email, so the Mongolian (Cyrillic) and English
-# (Latin) records of one member collapse into a single entity. Records whose English
-# CV omits the email get their own ID and are reconciled downstream by name.
+# (Latin) records of one member collapse into a single entity. Every Mongolian record
+# carries an email (a missing one is a hard error); an English record without one has
+# no reliable join key and is skipped — its Mongolian counterpart is authoritative.
 LIST_MN = "https://www.parliament.mn/cv/"
 LIST_EN = "https://www.parliament.mn/en/cv/"
 
@@ -103,15 +104,18 @@ def crawl_member(
         context.log.warning("Member has no name", url=f"{list_url}{member_id}/")
         return
 
+    # Email is the cross-language join key (see module docstring) and the entity ID.
+    # The Mongolian roster is authoritative and must carry it; an English record
+    # without it has no reliable join key, so skip it (its Mongolian counterpart
+    # already holds the full record).
     email = member_email(doc)
+    if email is None:
+        if lang == "mon":
+            raise RuntimeError(f"Mongolian CV has no email: {list_url}{member_id}/")
+        return
 
     person = context.make("Person")
-    # Email is the cross-language join key (see module docstring); fall back to the
-    # opaque member ID, which is unique within a single language's roster.
-    if email is not None:
-        person.id = context.make_id("member", email)
-    else:
-        person.id = context.make_slug("member", lang, member_id)
+    person.id = context.make_id("member", email)
     person.add("name", name, lang=lang)
     person.add("email", email)
     for party in parties:
