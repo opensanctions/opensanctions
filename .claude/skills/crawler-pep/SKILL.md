@@ -17,7 +17,7 @@ context about the dataset.
 
 **Consult on demand** (open only when you actually need the section — don't pre-load):
 
-- `.claude/skills/crawler-pep/examples.md` — full code examples (Patterns A/B/C, subnational variant, freshness check, qsv recipes). Open when you're stuck on a pattern or want a worked example.
+- `.claude/skills/crawler-pep/examples.md` — full code examples (Patterns A/B/C, subnational variant, occupancy date edge cases, associates). Open when you're stuck on a pattern or want a worked example.
 - `zavod/docs/peps.md` — depth on Position naming, `categorise()`, Occupancy duration rules, and which person/PEP properties to capture (its "Properties to capture" section). Open if you need more than the summary in this skill.
 - `zavod/docs/metadata.md` — full YAML field reference. Open if you're using a field not covered by the template in `crawler-guide.md`.
 - `zavod/docs/extract/names.md` — open only if you're doing LLM-assisted or reviewed name cleaning.
@@ -38,7 +38,7 @@ In addition to the general checks (fields, date formats, language, record count)
 - What are the position types (parliament, cabinet, judiciary, etc.)?
 - Current members only, or historical terms too?
 - Are start/end dates provided?
-- **Term-bounded data?** Identify a freshness signal (dataset count, page URL, file name) so the crawler fails loudly when a new term lands. See `examples.md` → "New-election freshness check".
+- **Term-bounded data?** Identify a freshness signal (dataset count, page URL, file name) so the crawler fails loudly when a new term lands.
 - **Does the position legally require citizenship?** Don't assume from position type — national parliaments usually do (UK is an exception), but sub-national elected positions (mayors, councils) often don't. Spawn a subagent (`Agent` with `WebSearch`/`WebFetch`) to find the **legal document** (electoral law, constitution, official government guidance) that stipulates the citizenship requirement for this specific position. In a code comment next to the `person.add("citizenship", ...)` call — or, if citizenship is not required, next to the omission — include the URL to that legal document.
 
 ## Step 2: YAML metadata — PEP-specific parts
@@ -127,4 +127,39 @@ LLM-assisted (`h.clean_names()`) and reviewed-name (`h.apply_reviewed_names()`) 
 
 ## Step 4: Validate
 
-Run `zavod crawl <path>` then `zavod validate <path>`. PEP-specific qsv recipes (referential integrity for Person↔Occupancy, country propagation check) are in `examples.md` → "qsv validation checks".
+Run `zavod crawl <path>` then `zavod validate <path>`.
+
+Spot-check the crawl output with qsv against `data/datasets/<dataset>/statements.pack`.
+The `prop` column is `Schema:property`, so entity type is recoverable; within one
+dataset's pack `entity_id` matches the ids that `Occupancy:holder`/`post` reference (this
+is pre-resolution crawl output). Each integrity check below should print nothing:
+
+```bash
+P=data/datasets/<dataset>/statements.pack
+
+# Entity counts — sanity-check against the assertions block
+for s in Person Position Occupancy; do
+  echo "$s: $(qsv search -s prop "^${s}:id\$" "$P" | qsv behead | wc -l)"
+done
+
+# 1. Occupancy.post referencing a Position that wasn't emitted
+comm -23 \
+  <(qsv search -s prop '^Occupancy:post$' "$P" | qsv select value     | qsv behead | sort -u) \
+  <(qsv search -s prop '^Position:'       "$P" | qsv select entity_id | qsv behead | sort -u)
+
+# 2. Occupancy.holder referencing a Person that wasn't emitted
+comm -23 \
+  <(qsv search -s prop '^Occupancy:holder$' "$P" | qsv select value     | qsv behead | sort -u) \
+  <(qsv search -s prop '^Person:'           "$P" | qsv select entity_id | qsv behead | sort -u)
+
+# 3. role.pep Person that never holds an Occupancy
+comm -23 \
+  <(qsv search -s prop '^Person:topics$' "$P" | qsv search -s value '^role\.pep$' | qsv select entity_id | qsv behead | sort -u) \
+  <(qsv search -s prop '^Occupancy:holder$' "$P" | qsv select value | qsv behead | sort -u)
+
+# 4. PEP Person with no country/citizenship/nationality (make_occupancy no longer
+#    back-fills country from the position, so this must be set explicitly)
+comm -23 \
+  <(qsv search -s prop '^Person:topics$' "$P" | qsv search -s value '^role\.pep$' | qsv select entity_id | qsv behead | sort -u) \
+  <(qsv search -s prop '^Person:(citizenship|country|nationality)$' "$P" | qsv select entity_id | qsv behead | sort -u)
+```

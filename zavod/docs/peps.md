@@ -219,10 +219,9 @@ for role in person_data.pop("roles"):
         context,
         person,
         position,
-        True,
         start_date=role.get("start_date", None),
         end_date=role.get("end_date", None),
-        categorisation=categorisation
+        categorisation=categorisation,
     )
     if occupancy:
         pep_entities.append(position)
