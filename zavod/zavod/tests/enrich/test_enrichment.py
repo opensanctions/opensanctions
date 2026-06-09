@@ -1,4 +1,4 @@
-from typing import Generator
+from typing import Generator, Iterable, Optional
 
 from followthemoney import SE
 from nomenklatura.enrich import Enricher
@@ -14,19 +14,39 @@ from zavod.meta import Dataset
 class StubEnricher(Enricher):
     __test__ = False
 
-    def match(self, entity: SE) -> Generator[SE, None, None]:
+    def make_match(self, entity: SE) -> Optional[SE]:
         if entity.schema.name != "Person":
-            return
+            return None
         result = self.make_entity(entity, "Person")
         derived_name = slugify(entity.first("name"))
         result.id = f"enrich-{derived_name}"
         result.add("name", entity.get("name"))
         result.add("birthDate", entity.get("birthDate"))
         result.add("sourceUrl", "https://enrichment.os.org")
-        yield result
+        return result
+
+    def match(self, entity: SE) -> Generator[SE, None, None]:
+        result = self.make_match(entity)
+        if result is not None:
+            yield result
 
     def expand(self, entity: SE, match: SE) -> Generator[SE, None, None]:
         yield match
+
+
+class BatchStubEnricher(StubEnricher):
+    __test__ = False
+
+    def match(self, entity: SE) -> Generator[SE, None, None]:
+        raise AssertionError("runner should use match_many_wrapped")
+
+    def match_many_wrapped(
+        self, entities: Iterable[SE]
+    ) -> Generator[tuple[SE, SE], None, None]:
+        for entity in entities:
+            result = self.make_match(entity)
+            if result is not None:
+                yield entity, result
 
 
 def test_enrich_process(testdataset1: Dataset, enricher: Dataset):
@@ -60,3 +80,28 @@ def test_enrich_process(testdataset1: Dataset, enricher: Dataset):
     stats = crawl_dataset(enricher)
     internals = list(iter_dataset_statements(enricher, external=False))
     assert len(internals) > 2, internals
+
+
+def test_enrich_process_uses_batch_matcher(testdataset1: Dataset):
+    crawl_dataset(testdataset1)
+    enricher = Dataset.make(
+        {
+            "name": "batch_enricher",
+            "entry_point": "zavod.runner.enrich:enrich",
+            "title": "Batch Enrichment Source",
+            "prefix": "batch-enrich",
+            "publisher": {
+                "name": "OpenSanctions",
+                "url": "https://www.opensanctions.org",
+            },
+            "url": "https://github.com/opensanctions/opensanctions",
+            "inputs": ["testdataset1"],
+            "config": {
+                "type": "zavod.tests.enrich.test_enrichment:BatchStubEnricher",
+            },
+        }
+    )
+    stats = crawl_dataset(enricher)
+    assert stats.entities > 0, stats.entities
+    externals = list(iter_dataset_statements(enricher, external=True))
+    assert len(externals) > 5, externals
