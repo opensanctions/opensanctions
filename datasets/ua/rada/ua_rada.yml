@@ -1,13 +1,13 @@
-title: Ukraine Verkhovna Rada (People's Deputies)
+title: Ukraine Members of Verkhovna Rada
 entry_point: crawler.py
 prefix: ua-rada
 coverage:
-  frequency: weekly
+  frequency: monthly
   start: 2024-06-08
 load_statements: true
-ci_test: false
+ci_test: true
 summary: >-
-  Members (People's Deputies) of the Verkhovna Rada, the unicameral parliament
+  Current and historical members of the Verkhovna Rada, the unicameral parliament
   of Ukraine.
 description: |
   The Verkhovna Rada is the unicameral parliament of Ukraine, composed of 450
@@ -17,11 +17,7 @@ description: |
   This dataset is built from the official Verkhovna Rada open-data feed for the
   current convocation. The source contains all deputies elected during the
   convocation, including those who have since resigned or whose mandate was
-  terminated early. The crawler emits only the currently active deputies,
-  i.e. those with no recorded mandate end date.
-
-  Per-deputy detail pages are available at
-  `http://itd.rada.gov.ua/mps/info/page/<id>`.
+  terminated early.
 url: https://www.rada.gov.ua/
 
 publisher:
@@ -46,14 +42,12 @@ tags:
 assertions:
   min:
     schema_entities:
-      Person: 300
-      Position: 1
+      Person: 1200
     country_entities:
-      ua: 300
+      ua: 1200
   max:
     schema_entities:
-      Person: 600
-      Position: 1
+      Person: 2000
 
 lookups:
   type.gender:
