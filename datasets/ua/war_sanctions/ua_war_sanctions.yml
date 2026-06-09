@@ -202,6 +202,12 @@ lookups:
         value: null
       - match: SCT
         value: gb-sct
+      - match: Bermuda Islands
+        value: bm
+      # GUR's label for companies in the temporarily occupied territories of Ukraine,
+      # which now operate under Russian jurisdiction.
+      - match: TOT Ukraine
+        value: ru
   type.name:
     options:
       - match:

@@ -9,6 +9,7 @@ ship-management orgs) so they don't depend on the source's internal numeric ids.
 import re
 from collections.abc import Iterator
 from typing import Optional
+from urllib.parse import urljoin
 
 from normality import squash_spaces
 
@@ -22,9 +23,11 @@ CACHE_DAYS = 7
 LISTING_PER_PAGE = 12
 SPLIT = " / "
 
-# "Name (IMO / Country / Date)" — the format of owner/manager rows on a vessel page.
+# "Name (IMO / Country / Date)" — the format of owner/manager rows on a vessel page. The
+# date is dot- or slash-separated (DD.MM.YYYY / DD/MM/YYYY); allowing both in the date group
+# stops a slash-date's leading DD/MM from bleeding back into the country group.
 PARTY_RE = re.compile(
-    r"^(?P<name>.+?)\s*\((?P<imo>\d+)\s*/\s*(?P<country>.+?)\s*/\s*(?P<date>[\d.]+)\)\s*$"
+    r"^(?P<name>.+?)\s*\((?P<imo>\d+)\s*/\s*(?P<country>.+?)\s*/\s*(?P<date>[\d./]+)\)\s*$"
 )
 
 # The vessel-page row whose value links to the associated ships-company (shadow operator).
@@ -46,6 +49,12 @@ VESSEL_SKIP_LABELS = {
 # Entity-page (col-sm-8) labels we don't emit as properties. "Within the structure of
 # Rostec" is handled separately (parsed into Ownership edges), not skipped.
 COMPANY_SKIP_LABELS = {"Products"}
+
+# Liquidated companies render a status badge inside the name label, so the label text reads
+# "Full name of legal entity Liquidated 30.05.2025" rather than the bare field name. We match
+# the name label by prefix and lift any trailing "Liquidated <date>" into a dissolution date.
+COMPANY_NAME_LABEL = "Full name of legal entity"
+LIQUIDATED_RE = re.compile(r"\bLiquidated\b\s*(?P<date>[\d.]*)")
 
 # Person-page label aliases — they vary by section (war sections vs partner sanctions vs
 # executives). Each FtM property is fed from any of its aliases.
@@ -173,6 +182,51 @@ def pop_text(pairs: dict[str, Element], label: str) -> Optional[str]:
     return h.element_text(el) or None if el is not None else None
 
 
+def pop_prefixed(
+    pairs: dict[str, Element], prefix: str
+) -> tuple[Optional[Element], str]:
+    """Remove the first label that starts with `prefix`; return its value cell and full label.
+
+    Used where a label carries an appended status badge (e.g. a liquidation date) so its text
+    no longer matches the bare field name exactly. The returned label lets the caller parse
+    the badge; it is "" when nothing matched.
+    """
+    for label in list(pairs):
+        if label.startswith(prefix):
+            return pairs.pop(label), label
+    return None, ""
+
+
+def emit_succession(
+    context: Context, predecessor_id: str, value_el: Element, page_url: str
+) -> None:
+    """Link a liquidated company to the legal successor named in its 'Assignee' row.
+
+    The Assignee value links to another company page whose trailing id keys the successor the
+    same way every company page does, so we reference it without a fetch: a stub carries the
+    name (visible here) and merges by id with the successor's own crawl when a listing reaches
+    it. Silently no-ops when the row has no link or name.
+    """
+    hrefs = h.xpath_strings(value_el, ".//a/@href")
+    name = h.element_text(value_el)
+    if not hrefs or name is None:
+        return
+    successor_id = context.make_slug("entity", url_id_of(hrefs[0]))
+    if successor_id is None:
+        return
+    successor = context.make("LegalEntity")
+    successor.id = successor_id
+    successor.add("name", name)
+    successor.add("sourceUrl", urljoin(page_url, hrefs[0]))
+    context.emit(successor)
+
+    rel = context.make("Succession")
+    rel.id = context.make_id(predecessor_id, "succeeded by", successor_id)
+    rel.add("predecessor", predecessor_id)
+    rel.add("successor", successor_id)
+    context.emit(rel)
+
+
 def entity_label_map(doc: Element) -> dict[str, Element]:
     """Label -> value map for an entity (company) page: col-sm-8 value, prev-sibling label."""
     pairs: dict[str, Element] = {}
@@ -208,7 +262,11 @@ def crawl_entity_page(
         raise ValueError(f"Cannot build entity id from {url!r}")
     entity = context.make("LegalEntity")
     entity.id = entity_id
-    entity.add("name", value_lines(pairs.pop("Full name of legal entity", None)))
+    name_el, name_label = pop_prefixed(pairs, COMPANY_NAME_LABEL)
+    entity.add("name", value_lines(name_el))
+    liquidated = LIQUIDATED_RE.search(name_label)
+    if liquidated is not None and liquidated.group("date"):
+        h.apply_date(entity, "dissolutionDate", liquidated.group("date"))
     entity.add(
         "alias", value_lines(pairs.pop("Abbreviated name of the legal entity", None))
     )
@@ -251,6 +309,11 @@ def crawl_entity_page(
             rel.add("asset", entity_id)
             rel.add("role", "subsidiary of")
             context.emit(rel)
+
+    # Liquidated companies name their legal successor in an "Assignee" row.
+    successor_el = pairs.pop("Assignee", None)
+    if successor_el is not None:
+        emit_succession(context, entity_id, successor_el, url)
 
     for label in pairs:
         if label not in COMPANY_SKIP_LABELS:
