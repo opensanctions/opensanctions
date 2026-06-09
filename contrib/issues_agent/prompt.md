@@ -30,12 +30,29 @@ The "Common runtime warnings and the lookup that fixes them" and "Property name 
 
 The full FollowTheMoney property listing, when a warning mentions a property not covered by the mapping table, is at: https://www.opensanctions.org/reference/
 
+## Assertion failures
+
+Some warnings are not dirty values but assertion failures, e.g.:
+
+    Assertion schema_entities failed for Security: 669973 is not <= threshold 418000
+
+These mean the dataset's expected size envelope, declared under `assertions:` in {{ yaml_path }}, no longer matches reality because the source legitimately grew or shrank. The fix is to **widen the envelope in the direction it drifted**, to a round number that leaves headroom so normal fluctuation will not immediately re-trip it. Never tighten a threshold toward the current value — that just re-breaks on the next run.
+
+Read the message as `<value> is not <op> threshold <threshold>` and edit the matching entry under `assertions.min.<metric>.<key>` or `assertions.max.<metric>.<key>` (the `<metric>`, e.g. `schema_entities`, and `<key>`, e.g. `Security`, come straight from the message):
+
+- `is not <= threshold` — a `max:` bound was exceeded (the count grew). Raise that `max:` entry to a round number comfortably **above** `<value>` (roughly +15–20%). Example: value 5200 over a max of 4000 → set the max to `6000`.
+- `is not >= threshold` — a `min:` bound was undercut (the count shrank). Lower that `min:` entry to a round number comfortably **below** `<value>` (roughly −15–20%, never below 0). Example: value 117 under a min of 130 → set the min to `100`.
+
+The same logic applies to the other count metrics (`entity_count`, `countries`, `country_entities`). For `property_fill_rate` the threshold is a 0–1 rate, so widen by a small decimal margin instead of rounding.
+
+If you cannot tell whether the drift is legitimate or a sign the crawler broke, still open the PR with the widened threshold — a reviewer can close it if the envelope should not move.
+
 ## Scope
 
 {% if code_path %}
 - Prefer lookups. Only change code when no lookup can express the fix.
 {% endif %}
-- NEVER define new YAML options or structures beyond what the datapatch reference describes.
+- When adding lookups, NEVER define new YAML options or structures beyond what the datapatch reference describes. Editing existing `assertions:` thresholds is allowed, as described above.
 {% if code_path %}
 - NEVER modify any file other than {{ yaml_path }} and {{ code_path }}.
 {% else %}
@@ -50,7 +67,7 @@ The full FollowTheMoney property listing, when a warning mentions a property not
 1. Read `zavod/docs/best_practices/datapatch_lookups.md` in full before producing any fixes. The lookup YAML format and the warning-to-recipe mapping in that file are authoritative; do not rely on memory or invent syntax.
 2. Fetch {{ issues_url }} and parse the JSON.
 3. Group entries by the `message` field to identify recurring patterns.
-4. For each fixable group, decide {% if code_path %}whether a lookup or a code change is appropriate{% else %}on a lookup option{% endif %}. For lookups, follow the consolidation rule under "Result values" in the doc — merge inputs that share a result, keep inputs with different results separate. Respect the existing lookup conventions in the file (lookup names, casing flags, ordering).
+4. For each fixable group, decide which fix applies: a lookup, an assertion-threshold widening, {% if code_path %}or a crawler code change{% else %}or skip it if neither fits{% endif %}. For lookups, follow the consolidation rule under "Result values" in the doc — merge inputs that share a result, keep inputs with different results separate. Respect the existing lookup conventions in the file (lookup names, casing flags, ordering).
 5. Apply the fixes: edit {{ yaml_path }}{% if code_path %}, and {{ code_path }} where a code change is warranted{% endif %}.
 {% if code_path %}
 6. Verify your changes:
