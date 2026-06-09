@@ -2,13 +2,13 @@ title: UK House of Commons
 entry_point: crawler.py
 prefix: gb-commons
 coverage:
-  frequency: weekly
+  frequency: monthly
   start: 2024-07-04
 load_statements: true
 ci_test: false
 
 summary: >-
-  Current Members of Parliament (MPs) sitting in the House of Commons of the
+  Current Members of Parliament sitting in the House of Commons of the
   United Kingdom.
 
 description: |
@@ -18,10 +18,7 @@ description: |
 
   This dataset is sourced from the official UK Parliament Members API, which
   publishes the roster of current MPs along with their party affiliation,
-  constituency and the date they entered the House. The roster is updated as
-  members join or leave the House (for example following by-elections or
-  general elections).
-
+  constituency and the date they entered the House.
 url: https://members-api.parliament.uk/
 
 publisher:
