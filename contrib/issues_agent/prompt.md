@@ -68,6 +68,8 @@ Some warnings are deliberate signals for a maintainer to investigate, not someth
 
 {% if code_path %}
 - Prefer lookups. Only change code when no lookup can express the fix.
+- Code changes must be minimal, targeted, and behavior-preserving: fix only the warning at hand, do not refactor, and do not change what the crawler emits beyond that fix.
+- Never change entity IDs — do not alter the values passed to `make_id` / `make_slug`, and never put PII into `make_slug`. Re-keying entities breaks downstream data.
 {% endif %}
 - When adding lookups, NEVER define new YAML options or structures beyond what the datapatch reference describes. Editing existing `assertions:` thresholds is allowed, as described above.
 {% if code_path %}
@@ -88,11 +90,13 @@ Some warnings are deliberate signals for a maintainer to investigate, not someth
 5. Apply the fixes: edit {{ yaml_path }}{% if code_path %}, and {{ code_path }} where a code change is warranted{% endif %}.
 {% if code_path %}
 6. Verify your changes:
+   - Any code change MUST pass the same checks CI runs, or the PR is dead on arrival: `mypy --strict {{ code_path }}` and `ruff check {{ code_path }}` (and `ruff format`). Note that raw lxml `.xpath()` returns `Any` and fails strict mode — use the typed `h.xpath_*` helpers. Do not open the PR if these fail.
 {% if ci_test %}
-   - This crawler runs in CI. After making your changes, run `zavod crawl --clear-data {{ yaml_path }}`, then read `data/datasets/{{ name }}/issues.log` and confirm the warnings you targeted are gone and that you have not introduced new warnings. Do not open the PR if the crawl fails or warnings increase.
+   - This crawler runs in CI, so also confirm the fix works end to end: run `zavod crawl --clear-data {{ yaml_path }}`, then read `data/datasets/{{ name }}/issues.log` and confirm the warnings you targeted are gone and that you have not introduced new ones. Do not open the PR if the crawl fails or warnings increase.
 {% else %}
-   - This crawler CANNOT run in CI (it needs credentials we don't have here, or is too slow). You cannot verify a code change by crawling. Make any code change conservatively, and state clearly in the PR body that the code change is unverified and needs human review before merge.
+   - This crawler CANNOT run in CI (it needs credentials we don't have here, or is too slow), so you cannot verify the fix by crawling. State clearly in the PR body that the code change is unverified and needs human review before merge.
 {% endif %}
+   - Assertion-threshold changes need no verification — a widened bound is taken on trust and reviewed by a human. Do not try to crawl to confirm it.
 {% endif %}
 
 ## Submit
