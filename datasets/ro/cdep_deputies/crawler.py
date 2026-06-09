@@ -89,7 +89,14 @@ def crawl_member(
     assert match is not None, url
     idm = match.group(1)
 
-    doc = fetch_html(context, url)
+    try:
+        doc = fetch_html(context, url)
+    except RequestException:
+        # A single member page that stays unreachable after all retries shouldn't
+        # abort a crawl of thousands of pages; drop it and let the `min` assertions
+        # catch any wholesale shortfall.
+        context.log.warning("Skipping member after repeated fetch failures", url=url)
+        return
 
     person = context.make("Person")
     person.id = context.make_slug("person", str(leg_year), idm)
