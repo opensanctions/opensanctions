@@ -171,7 +171,6 @@ def emit_affiliated_position(
         context,
         person,
         position,
-        no_end_implies_current=True,
         categorisation=categorisation,
         start_date=start_date,
         end_date=end_date,

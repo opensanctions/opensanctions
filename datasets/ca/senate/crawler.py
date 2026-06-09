@@ -38,7 +38,6 @@ def crawl(context: Context) -> None:
             position=position,
             start_date=cells[3],
             end_date=cells[4],
-            no_end_implies_current=True,
             propagate_country=False,
         )
         if occupancy:

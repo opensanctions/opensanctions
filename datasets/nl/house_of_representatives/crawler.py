@@ -63,7 +63,6 @@ def crawl_person(context: Context, element: _Element, position: Entity) -> None:
         person,
         position,
         end_date=None,
-        no_end_implies_current=True,
     )
     if occupancy is not None:
         context.emit(occupancy)

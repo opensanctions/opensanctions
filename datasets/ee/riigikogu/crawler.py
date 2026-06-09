@@ -50,7 +50,6 @@ def crawl_item(member_url: str, context: Context) -> None:
         context,
         entity,
         position,
-        no_end_implies_current=True,
         categorisation=categorisation,
     )
     if occupancy is None:

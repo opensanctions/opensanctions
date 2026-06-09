@@ -69,7 +69,6 @@ def crawl_person(
         context,
         person,
         position,
-        no_end_implies_current=True,
         categorisation=categorisation,
         propagate_country=True,
     )

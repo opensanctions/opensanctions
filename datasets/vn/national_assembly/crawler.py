@@ -149,7 +149,6 @@ def crawl_deputy(context: Context, url: str, province: str, deputy: str) -> None
         context,
         person,
         position,
-        no_end_implies_current=True,
         end_date=end_date,
         categorisation=categorisation,
     )

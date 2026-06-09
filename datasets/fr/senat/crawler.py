@@ -105,7 +105,6 @@ def crawl_row(
             context,
             person,
             position,
-            no_end_implies_current=True,
             start_date=start_date,
             end_date=end_date,
             election_date=election_date,
