@@ -40,7 +40,6 @@ def crawl_node(
         person,
         position,
         categorisation=categorisation,
-        propagate_country=False,
     )
     if occupancy is not None:
         context.emit(occupancy)

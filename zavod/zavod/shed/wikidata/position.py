@@ -1,11 +1,13 @@
 from typing import Dict, Optional, Set
 
+from followthemoney import registry
 from nomenklatura.wikidata import Item, WikidataClient, Claim
 from nomenklatura.wikidata.value import clean_wikidata_name
 from rigour.territories import get_territory_by_qid
 
 from zavod import Context, Entity
 from zavod import helpers as h
+from zavod.constants import ORIGIN_INFERRED
 from zavod.stateful.positions import categorise
 from zavod.shed.wikidata.country import is_historical_country, item_countries
 
@@ -248,11 +250,6 @@ def wikidata_occupancy(
             else:
                 end_date = max(end_date, qual_date)
 
-    # Diplomatic positions tend to be associated with the receiving country,
-    # so we don't want to propagate that to the person.
-    position_topics = position.get("topics")
-    is_diplomat = "role.diplo" in position_topics
-
     # Set the key prefix in order to avoid duplicating occupancies for the same
     # position held by the same person across multiple datasets. The choice is
     # somewhat arbitrary, but it avoids a larger delta if we chose "wikidata".
@@ -263,12 +260,20 @@ def wikidata_occupancy(
         no_end_implies_current=False,
         start_date=start_date,
         end_date=end_date,
-        propagate_country=not is_diplomat,
         key_prefix="wd_peps",
     )
 
     if occupancy is None:
         return None
+
+    # Wikidata persons frequently lack their own citizenship statement, so we
+    # associate confirmed PEPs with the position's country. Diplomatic posts
+    # (role.diplo) name the receiving country rather than the person's, so those
+    # are left out.
+    if "role.diplo" not in position.get("topics"):
+        for country in position.get("country"):
+            if country not in person.get_type_values(registry.country, matchable=True):
+                person.add("country", country, origin=ORIGIN_INFERRED)
 
     # reference URL:
     for ref in claim.references:

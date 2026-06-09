@@ -93,7 +93,6 @@ def crawl_ls_member(
             position,
             start_date=start,
             end_date=end,
-            propagate_country=False,
         )
         if occupancy is not None:
             context.emit(occupancy)
@@ -195,7 +194,6 @@ def crawl_rs_member(context: Context, position: Entity, member: Dict[str, Any]) 
                 position,
                 start_date=start,
                 end_date=end,
-                propagate_country=False,
             )
             if occupancy is not None:
                 context.emit(occupancy)

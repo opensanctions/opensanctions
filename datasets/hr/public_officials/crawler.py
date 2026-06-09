@@ -92,7 +92,6 @@ def make_affiliation_entities(
         person,
         position,
         categorisation=categorisation,
-        propagate_country=True,
         start_date=start_date,
         end_date=end_date,
     )

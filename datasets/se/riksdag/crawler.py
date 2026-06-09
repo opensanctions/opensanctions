@@ -170,7 +170,6 @@ def crawl(context: Context) -> None:
                 categorisation=categorisation,
                 # Citizenship is set explicitly above; don't let an MEP seat
                 # (country "eu") propagate onto the person as a country.
-                propagate_country=False,
             )
             if occupancy is not None:
                 if role.get("typ") == "kammaruppdrag":

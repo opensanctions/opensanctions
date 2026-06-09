@@ -50,7 +50,6 @@ def crawl_member(
         person,
         position,
         categorisation=categorisation,
-        propagate_country=True,
     )
     if occupancy is not None:
         context.emit(occupancy)
