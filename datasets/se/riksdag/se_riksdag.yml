@@ -3,7 +3,7 @@ prefix: se-riksdag
 url: https://www.riksdagen.se/en/members-and-parties/members/
 coverage:
   frequency: monthly
-  start: "2026-06-08"
+  start: "2026-06-09"
 load_statements: true
 entry_point: crawler.py
 summary: >-
