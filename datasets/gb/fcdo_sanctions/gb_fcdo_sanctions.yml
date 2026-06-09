@@ -1559,6 +1559,18 @@ lookups:
         props:
           registrationNumber: ["11655602", "EEA90DD050C635EC8F637E8DB2F69969"]
           leiCode: "984500B899H9EED3B354"
+      - match: "515349660"
+        props:
+          registrationNumber: "515349660"
+      - match: "580537942"
+        props:
+          registrationNumber: "580537942"
+      - match: "580665800"
+        props:
+          registrationNumber: "580665800"
+      - match: "580556306"
+        props:
+          registrationNumber: "580556306"
   companies:
     normalize: true
     options:
