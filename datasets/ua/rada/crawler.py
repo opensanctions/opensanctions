@@ -7,7 +7,7 @@ from zavod.stateful.positions import categorise
 
 # get path to all convocations from metadata url
 SKL_RE = re.compile(r"^/ogd/mps/skl(\d+)/$")
-TOPICS = ["gov.national"]
+TOPICS = ["gov.national", "gov.legislative"]
 
 
 def crawl_member(
@@ -65,7 +65,6 @@ def crawl_member(
         start_date=start_date,
         end_date=row.pop("date_end", None),
         no_end_implies_current=True,
-        propagate_country=True,
     )
     if occupancy is not None:
         occupancy.add("constituency", row.pop("district_text"))
@@ -75,7 +74,7 @@ def crawl_member(
 
 
 def crawl(context: Context) -> None:
-    metadata = context.fetch_json("https://data.rada.gov.ua/ogd/mps/list.json")
+    metadata = context.fetch_json(context.data_url)
     for item in metadata["item"]:
         match = SKL_RE.match(item.get("path", ""))
         if match is None:

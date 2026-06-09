@@ -32,7 +32,7 @@ publisher:
   official: true
 
 data:
-  url: https://data.rada.gov.ua/ogd/mps/skl9/mps09-data.json
+  url: https://data.rada.gov.ua/ogd/mps/list.json
   format: JSON
   lang: ukr
 
