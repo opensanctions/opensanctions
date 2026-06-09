@@ -70,7 +70,6 @@ def crawl_person(
         person,
         position,
         categorisation=categorisation,
-        propagate_country=True,
     )
     if occupancy is not None:
         if jurisdiction is not None:

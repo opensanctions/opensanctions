@@ -49,7 +49,6 @@ def crawl_record(
         categorisation=categorisation,
         start_date=start_date,
         end_date=end_date or None,
-        propagate_country=True,
     )
     if occupancy is not None:
         context.emit(position)

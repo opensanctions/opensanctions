@@ -263,7 +263,6 @@ def wikidata_occupancy(
         no_end_implies_current=False,
         start_date=start_date,
         end_date=end_date,
-        propagate_country=False,
         key_prefix="wd_peps",
     )
 

@@ -110,7 +110,6 @@ def crawl_councillor(context: Context, councillor_id: int) -> None:
             position,
             start_date=mem.get("entryDate"),
             end_date=mem.get("leavingDate"),
-            propagate_country=False,
         )
         if occupancy is None:
             continue
