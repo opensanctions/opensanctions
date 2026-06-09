@@ -29,6 +29,16 @@ Datapatch lookups — the YAML structure, matching modes, result fields, the pro
 The "Common runtime warnings and the lookup that fixes them" and "Property name to type lookup" sections on that page are the primary reference. Use them to translate each warning into a lookup option.
 
 The full FollowTheMoney property listing, when a warning mentions a property not covered by the mapping table, is at: https://www.opensanctions.org/reference/
+{% if code_path %}
+
+When a fix needs a crawler code change, these best-practice guides are the relevant references — read the one that matches the warning:
+
+- `zavod/docs/best_practices/dates_meta.md` — parsing and formatting dates (for "failed to parse date" warnings)
+- `zavod/docs/best_practices/addresses.md` — constructing addresses
+- `zavod/docs/best_practices/xpath_and_html.md` — extracting values from HTML
+- `zavod/docs/best_practices/entity_id.md` — how entity IDs are generated; do NOT change the inputs to an entity's ID
+- `zavod/docs/best_practices/patterns.md` and `zavod/docs/helpers.md` — common crawler patterns and the `h.*` helpers
+{% endif %}
 
 ## Assertion failures
 
@@ -36,7 +46,7 @@ Some warnings are not dirty values but assertion failures, e.g.:
 
     Assertion schema_entities failed for Security: 669973 is not <= threshold 418000
 
-These mean the dataset's expected size envelope, declared under `assertions:` in {{ yaml_path }}, no longer matches reality because the source legitimately grew or shrank. The fix is to **widen the envelope in the direction it drifted**, to a round number that leaves headroom so normal fluctuation will not immediately re-trip it. Never tighten a threshold toward the current value — that just re-breaks on the next run.
+These mean the dataset's expected size envelope, declared under `assertions:` in {{ yaml_path }}, no longer matches reality because the source legitimately grew or shrank. See the "Data assertions" section of `zavod/docs/metadata.md` for how thresholds work. The fix is to **widen the envelope in the direction it drifted**, to a round number that leaves headroom so normal fluctuation will not immediately re-trip it. Never tighten a threshold toward the current value — that just re-breaks on the next run.
 
 Read the message as `<value> is not <op> threshold <threshold>` and edit the matching entry under `assertions.min.<metric>.<key>` or `assertions.max.<metric>.<key>` (the `<metric>`, e.g. `schema_entities`, and `<key>`, e.g. `Security`, come straight from the message):
 
@@ -46,6 +56,13 @@ Read the message as `<value> is not <op> threshold <threshold>` and edit the mat
 The same logic applies to the other count metrics (`entity_count`, `countries`, `country_entities`). For `property_fill_rate` the threshold is a 0–1 rate, so widen by a small decimal margin instead of rounding.
 
 If you cannot tell whether the drift is legitimate or a sign the crawler broke, still open the PR with the widened threshold — a reviewer can close it if the envelope should not move.
+
+## Leave these for humans
+
+Some warnings are deliberate signals for a maintainer to investigate, not something to auto-fix. Skip them — do not edit anything in response to:
+
+- Change-detection tripwires: `DOM hash changed`, `URL hash changed`, `File hash changed`. These flag that a source page or file changed and a human needs to check whether the crawler still parses it correctly. "Fixing" the hash would just hide the change.
+- Transient runtime errors: `Runner failed with ...`, HTTP errors, timeouts. These are not fixable by editing the dataset.
 
 ## Scope
 
