@@ -138,7 +138,6 @@ def crawl_member(
         context,
         person,
         position,
-        no_end_implies_current=True,
     )
     if occupancy is None:
         return

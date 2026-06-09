@@ -56,7 +56,6 @@ def crawl_member(
         position,
         categorisation=categorisation,
         start_date=field(doc, "dataeleccio"),
-        no_end_implies_current=True,
     )
     if occupancy is None:
         return

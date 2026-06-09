@@ -156,7 +156,6 @@ def crawl_member(context: Context, url: str, name: str) -> None:
         context,
         person,
         position,
-        no_end_implies_current=True,
         start_date=start_date,
         categorisation=categorisation,
     )

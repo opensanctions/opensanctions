@@ -61,7 +61,6 @@ def crawl_members(context: Context, section: str, elem: Element) -> None:
         person,
         position,
         categorisation=categorisation,
-        no_end_implies_current=True,
     )
 
     # assert added during typechecker fixes to not change behavior; may not reflect reality

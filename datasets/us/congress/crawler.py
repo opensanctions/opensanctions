@@ -56,7 +56,6 @@ def crawl_positions(
                 context,
                 person,
                 position,
-                no_end_implies_current=True,
                 start_date=str(term.pop("startYear")),
                 end_date=str(term.pop("endYear")) if "endYear" in term else None,
                 categorisation=categorisation,

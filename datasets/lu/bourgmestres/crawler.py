@@ -47,7 +47,6 @@ def crawl_record(
         person,
         position,
         categorisation=categorisation,
-        no_end_implies_current=True,
         start_date=start_date,
         end_date=end_date or None,
         propagate_country=True,

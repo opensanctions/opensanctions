@@ -40,7 +40,6 @@ def crawl_person(context: Context, item: Dict[str, Any]) -> None:
         context,
         person,
         position,
-        no_end_implies_current=True,
         start_date=item.pop("from"),
         end_date=item.pop("to"),
         categorisation=categorisation,

@@ -64,7 +64,6 @@ def crawl_row(
         context,
         person,
         position,
-        no_end_implies_current=True,
         start_date=function_start,  # individual's mandate start date
         period_start=office_term_start_date,  # office term's start date
         categorisation=categorisation,
