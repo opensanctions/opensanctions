@@ -106,9 +106,30 @@ lookups:
         values:
           - 1963
           - 1964
+      # Vessel build dates exported as bare spreadsheet serial numbers; the
+      # exact epoch/day cannot be confirmed, so drop them rather than guess.
       - match:
+          - "19575"
+          - "20849"
+          - "22681"
+          - "23917"
+          - "25587"
+          - "27917"
+          - "28528"
+          - "28541"
+          - "28900"
+          - "28993"
+          - "29021"
+          - "29283"
+          - "30104"
+          - "30283"
+          - "30608"
+          - "30637"
           - "31801"
           - "31948"
+          - "32995"
+          - "33536"
+          - "35570"
         value: null
       - match: born in the early 1970s
         values: [1970, 1971, 1972, 1973, 1974]
