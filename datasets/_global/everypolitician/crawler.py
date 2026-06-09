@@ -200,6 +200,7 @@ def parse_membership(
         person = context.make("Person")
         person.id = person_entity_id(context, person_id)
         person.add("position", position_property)
+        person.add("citizenship", country)
         person.add("birthDate", birth_dates.get(person_id, None))
         person.add("deathDate", death_dates.get(person_id, None))
 
