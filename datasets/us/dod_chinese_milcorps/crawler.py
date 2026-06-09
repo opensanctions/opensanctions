@@ -59,9 +59,17 @@ def crawl(context: Context) -> None:
                 own.add("owner", parent)
                 own.add("asset", entity)
                 context.emit(own)
-            sanction = h.make_sanction(context, entity, program_key=PROGRAM_KEY)
-            sanction.add("startDate", row.pop("Start date"))
-            sanction.add("endDate", row.pop("End date"))
+            start_date = row.pop("Start date")
+            # Sanction per listing period: startDate = date added, endDate = date removed.
+            # start_date also keys the sanction to avoid collisions when entities are re-listed.
+            sanction = h.make_sanction(
+                context,
+                entity,
+                key=start_date,
+                program_key=PROGRAM_KEY,
+                start_date=start_date,
+                end_date=row.pop("End date"),
+            )
             context.emit(sanction)
             context.emit(entity)
             context.audit_data(row)
