@@ -17,7 +17,9 @@ def crawl(context: Context) -> None:
         cache_days=1,
     )
     search_result = h.xpath_element(doc, results_xpath)
-    h.assert_dom_hash(search_result, "472e1e80d8e70736e3e45cb80dae106680da54f1")
+    h.assert_dom_hash(search_result, "dbe85db819c9e01e3d2d9bc724d431d7583d173a")
+    # June 8, 2026
+    # DOD Releases List of Chinese Military Companies in Accordance with Section 1260H of the National Defense Authorization Act for Fiscal Year 2021
     # Jan. 8, 2026
     # The War Department Strengthens Measures to Protect DOW‑Funded Research
     # Jan. 7, 2025
@@ -57,9 +59,17 @@ def crawl(context: Context) -> None:
                 own.add("owner", parent)
                 own.add("asset", entity)
                 context.emit(own)
-            sanction = h.make_sanction(context, entity, program_key=PROGRAM_KEY)
-            sanction.add("startDate", row.pop("Start date"))
-            sanction.add("endDate", row.pop("End date"))
+            start_date = row.pop("Start date")
+            # Sanction per listing period: startDate = date added, endDate = date removed.
+            # start_date also keys the sanction to avoid collisions when entities are re-listed.
+            sanction = h.make_sanction(
+                context,
+                entity,
+                key=start_date,
+                program_key=PROGRAM_KEY,
+                start_date=start_date,
+                end_date=row.pop("End date"),
+            )
             context.emit(sanction)
             context.emit(entity)
             context.audit_data(row)
