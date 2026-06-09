@@ -19,22 +19,11 @@ def crawl_member(
     person.add("name", name)
     person.add("title", value.pop("nameFullTitle"))
     person.add("gender", value.pop("gender"))
-    person.add("topics", "role.pep")
-    # British citizenship isn't required: citizens of the
-    # Republic of Ireland and qualifying Commonwealth citizens resident in the
-    # UK are also eligible to stand. See the Electoral Commission guidance and
-    # the British Nationality Act 1981
+    person.add("political", value["latestParty"]["name"])
+    # citizenship not required
     person.add("country", "gb")
 
-    party = value.pop("latestParty")
-    if party is not None:
-        person.add("political", party.pop("name"))
-
-    membership = value.pop("latestHouseMembership")
-    start_date = None
-    if membership is not None:
-        start_date = membership.pop("membershipStartDate")
-
+    start_date = value["latestHouseMembership"]["membershipStartDate"]
     position = h.make_position(
         context,
         name="Member of the House of Commons",

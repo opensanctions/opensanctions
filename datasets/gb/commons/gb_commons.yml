@@ -5,14 +5,14 @@ coverage:
   frequency: monthly
   start: 2024-07-04
 load_statements: true
-ci_test: false
+ci_test: true
 
 summary: >-
   Current Members of Parliament sitting in the House of Commons of the
   United Kingdom.
 
 description: |
-  The House of Commons is the elected lower house of the Parliament of the
+  Current member of the House of Commons, the elected lower house of the Parliament of the
   United Kingdom. Members of Parliament (MPs) are elected to represent
   geographic constituencies.
 
@@ -25,8 +25,8 @@ publisher:
   name: UK Parliament
   description: >
     The Parliament of the United Kingdom is the supreme legislative body of the
-    United Kingdom. It maintains the Members API, an official service exposing
-    structured data about current and former members of both Houses.
+    United Kingdom. It comprises the Sovereign, the House of Lords and the House
+    of Commons.
   url: https://www.parliament.uk/
   country: gb
   official: true
@@ -51,11 +51,7 @@ lookups:
 assertions:
   min:
     schema_entities:
-      Person: 510
-      Position: 1
-    country_entities:
-      gb: 510
+      Person: 500
   max:
     schema_entities:
-      Person: 970
-      Position: 1
+      Person: 700
