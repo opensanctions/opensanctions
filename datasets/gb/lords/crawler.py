@@ -6,6 +6,7 @@ from zavod.stateful.positions import categorise
 
 # The UK Parliament Members API caps the `take` page size at 20 records.
 PAGE_SIZE = 20
+TOPICS = ["gov.national"]
 
 
 def crawl_member(
@@ -13,8 +14,16 @@ def crawl_member(
     item: dict[str, Any],
 ) -> None:
     member = item.pop("value")
-    name = member.pop("nameDisplayAs")
+    membership = member.pop("latestHouseMembership")
+    start_date = membership.pop("membershipStartDate")
+    end_date = membership.pop("membershipEndDate")
+    if start_date and start_date < h.earliest_term_start(TOPICS):
+        context.log.info(
+            f"Skipping row with start date {start_date} outside coverage window"
+        )
+        return
 
+    name = member.pop("nameDisplayAs")
     person = context.make("Person")
     person.id = context.make_id("person", name, member.pop("id"))
 
@@ -23,13 +32,11 @@ def crawl_member(
     person.add("name", member.pop("nameFullTitle", None))
     person.add("name", member.pop("nameAddressAs", None))
     person.add("gender", member.pop("gender", None))
-    person.add("political", member["latestParty"]["name"])
+    party = member.pop("latestParty")
+    if party is not None:
+        person.add("political", party["name"])
     # citizenship not required
     person.add("country", "gb")
-
-    membership = member.pop("latestHouseMembership")
-    start_date = membership.pop("membershipStartDate", None)
-    end_date = membership.pop("membershipEndDate", None)
 
     position = h.make_position(
         context,
@@ -37,6 +44,8 @@ def crawl_member(
         country="gb",
         wikidata_id="Q18952564",
     )
+    # hereditary, life peer, etc:
+    position.add("notes", membership["membershipFrom"])
     categorisation = categorise(context, position)
     if not categorisation.is_pep:
         return

@@ -8,11 +8,11 @@ load_statements: true
 ci_test: true
 
 summary: >-
-  Current members (peers) of the House of Lords, the upper house of the
+  Current and historical members (peers) of the House of Lords, the upper house of the
   Parliament of the United Kingdom.
 
 description: |
-  Current members of the House of Lords, sourced from
+  Current and historical members of the House of Lords, sourced from
   the official UK Parliament Members API. It includes life peers, bishops
   (Lords Spiritual) and any remaining members entitled to sit,
   as well as current members who are on leave of absence.
@@ -31,7 +31,7 @@ publisher:
   official: true
 
 data:
-  url: https://members-api.parliament.uk/api/Members/Search?House=2&IsCurrentMember=true
+  url: https://members-api.parliament.uk/api/Members/Search?House=2
   format: JSON
   lang: eng
 
@@ -41,9 +41,7 @@ tags:
 assertions:
   min:
     schema_entities:
-      Person: 600
-      Position: 1
+      Person: 750
   max:
     schema_entities:
-      Person: 800
-      Position: 1
+      Person: 1200
