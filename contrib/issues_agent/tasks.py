@@ -2,10 +2,12 @@ import os
 import re
 import sys
 import json
+import yaml
 import hashlib
-from typing import Any, List
+from typing import Any, List, Optional, Tuple
 import requests
 from pathlib import Path
+from jinja2 import Template
 
 
 session = requests.Session()
@@ -15,7 +17,14 @@ datasets_path = Path(repo_path_) / "datasets"
 
 INDEX_URL = "https://data.opensanctions.org/datasets/latest/index.json"
 MAX_ISSUES = 1000
-PROMPT = open(Path(__file__).parent / "prompt.md", "r").read()
+# Rendered per dataset with the diagnostic context (paths, branch, ci_test) so
+# the prompt can branch between lookup-only and code-fix instructions. autoescape
+# stays off (default) so markdown and YAML examples pass through untouched.
+PROMPT = Template(
+    (Path(__file__).parent / "prompt.md").read_text(),
+    trim_blocks=True,
+    lstrip_blocks=True,
+)
 
 # Outages are tracked on the org-level GitHub Projects v2 board #6, not as plain
 # issues. The board carries two custom fields we care about: `dataset` (which
@@ -141,6 +150,40 @@ def pr_exists(branch: str) -> bool:
     return response.json().get("total_count", 0) > 0
 
 
+def get_code_path(yaml_path: str, entry_point: Optional[str]) -> Optional[str]:
+    """Resolve a dataset's entry_point to the crawler source file, if it has one.
+
+    Use this to give the agent the actual code to read and fix, not just the
+    metadata YAML. Mirrors zavod's loader (zavod/runtime/loader.py): an
+    entry_point naming an installed module — e.g. `zavod.runner.enrich:enrich`,
+    used by enrichment datasets — has no dataset-local code to edit, so return
+    None. Otherwise the entry_point names a file relative to the dataset
+    directory (`crawler.py`, `crawler`, `ofac_advanced.py:crawl`); return its path.
+    """
+    if entry_point is None:
+        return None
+    module_name = entry_point.split(":", 1)[0]
+    base = Path(yaml_path).parent
+    for candidate in (module_name, f"{module_name}.py"):
+        file_path = base / candidate
+        if file_path.is_file():
+            return file_path.as_posix()
+    return None
+
+
+def read_dataset_meta(yaml_path: str) -> Tuple[Optional[str], bool]:
+    """Return the `entry_point` and `ci_test` flag from a dataset YAML.
+
+    `ci_test` indicates whether the crawler can run in CI at all: it is set to
+    false for crawlers that need credentials we don't have in CI (Zyte, GPT
+    keys) or are too slow. It tells the agent whether re-running the crawler to
+    verify a fix is even possible. Defaults to True, matching the zavod model.
+    """
+    with open(yaml_path, "r") as fh:
+        data = yaml.safe_load(fh)
+    return data.get("entry_point"), data.get("ci_test", True)
+
+
 def get_issue_details(issue_url):
     try:
         response = session.get(issue_url)
@@ -192,11 +235,17 @@ def index_jobs():
             continue
 
         path = get_path_from_name(name)
-        prompt = str(PROMPT)
-        prompt = prompt.replace("{NAME}", name)
-        prompt = prompt.replace("{ISSUES_URL}", dataset.get("issues_url"))
-        prompt = prompt.replace("{YAML_PATH}", path)
-        prompt = prompt.replace("{BRANCH}", branch)
+        entry_point, ci_test = read_dataset_meta(path)
+        code_path = get_code_path(path, entry_point)
+
+        prompt = PROMPT.render(
+            name=name,
+            issues_url=dataset.get("issues_url"),
+            yaml_path=path,
+            branch=branch,
+            code_path=code_path,
+            ci_test=ci_test,
+        )
         title = f"[{name}]: {warnings} warnings"
         tasks.append({"prompt": prompt, "name": title, "branch": branch})
 
