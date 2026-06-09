@@ -81,7 +81,7 @@ def parse_entry(context: Context, node: Element) -> None:
     entity = context.make("LegalEntity")
     country_code = registry.country.clean(country)
     entity.id = context.make_id(schedule, country_code, entity_name)
-    if imo_number:
+    if imo_number is not None:
         entity = context.make("Vessel")
         entity.id = context.make_id(schedule, country_code, entity_name, imo_number)
         entity.add("imoNumber", imo_number)
