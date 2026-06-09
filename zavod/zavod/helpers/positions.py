@@ -96,15 +96,6 @@ def make_position(
 
 
 @cache
-def _tmp_warn_person_dates(context: Context) -> None:
-    log.warning(
-        "Passing birth_date and death_date into make_occupancy is deprecated and "
-        "will be removed in a future release. Please set birth/death dates directly on "
-        "Person entities before calling make_occupancy."
-    )
-
-
-@cache
 def _tmp_warn_propagate_country(context: Context) -> None:
     # Chaos datasets excluded. There's probably more?
     if context.dataset.name in ("wd_peps", "wd_categories"):
@@ -127,8 +118,6 @@ def make_occupancy(
     period_start: Optional[str] = None,
     period_end: Optional[str] = None,
     election_date: Optional[str] = None,
-    birth_date: Optional[str] = None,
-    death_date: Optional[str] = None,
     categorisation: Optional[PositionCategorisation] = None,
     status: Optional[OccupancyStatus] = None,
     propagate_country: bool = True,
@@ -172,9 +161,6 @@ def make_occupancy(
     assert person.schema.is_a("Person")
     assert position.schema.is_a("Position")
 
-    if birth_date is not None or death_date is not None:
-        _tmp_warn_person_dates(context)
-
     occupancy = context.make("Occupancy")
     # Include started and ended strings so that two occupancies, one missing start
     # and and one missing end, don't get normalisted to the same ID
@@ -199,13 +185,6 @@ def make_occupancy(
     h.apply_date(occupancy, "periodStart", period_start)
     h.apply_date(occupancy, "periodEnd", period_end)
     h.apply_date(occupancy, "electionDate", election_date)
-
-    # FIXME: delete birth_date and death_date args in favor of setting
-    # these directly on the Person before calling make_occupancy
-    if birth_date not in person.get("birthDate"):
-        h.apply_date(person, "birthDate", birth_date)
-    if death_date not in person.get("deathDate"):
-        h.apply_date(person, "deathDate", death_date)
 
     if categorisation is not None and not categorisation.is_pep:
         context.log.warning(
