@@ -53,7 +53,9 @@ def parse_entry(context: Context, node: Element) -> None:
     row: dict[str, str] = {}
     for child in node:
         if child.text is not None:
-            row[child.tag] = child.text
+            text = child.text.strip()
+            if text:
+                row[child.tag] = text
 
     entity_name = row.pop("EntityOrShip", None)
     given_name = row.pop("GivenName", None)
@@ -74,7 +76,7 @@ def parse_entry(context: Context, node: Element) -> None:
     entity = context.make("LegalEntity")
     country_code = registry.country.clean(country)
     entity.id = context.make_id(schedule, country_code, entity_name)
-    if imo_number is not None:
+    if imo_number:
         entity = context.make("Vessel")
         entity.id = context.make_id(schedule, country_code, entity_name, imo_number)
         entity.add("imoNumber", imo_number)
