@@ -29,7 +29,11 @@ def emit_patch(
         existing_topics=list(existing_topics),
     )
 
-    patch = context.make("Thing")
+    if related_entity.schema.is_a("LegalEntity"):
+        schema = "LegalEntity"
+    else:
+        schema = related_entity.schema.name
+    patch = context.make(schema)
     patch.id = related_entity.id
     patch.add("topics", topic)
     context.emit(patch, external=related_entity.external)
