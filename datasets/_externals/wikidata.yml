@@ -322,4 +322,5 @@ lookups:
           - agender
           - Curis
           - undisclosed gender
+          - San Diego # not a gender; erroneous place value on the Wikidata item
         value: null
