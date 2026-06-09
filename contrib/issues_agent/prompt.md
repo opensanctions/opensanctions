@@ -29,5 +29,5 @@ The full FollowTheMoney property listing, when a warning mentions a property not
 3. Group entries by the `message` field to identify recurring patterns.
 4. For each fixable group, decide on lookup options using the reference doc above. Follow the consolidation rule under "Result values" in the doc — merge inputs that share a result, keep inputs with different results separate.
 5. Edit {YAML_PATH} to add or extend the relevant lookup. Existing lookup conventions in the file (lookup names, casing flags, ordering) should be respected.
-6. Commit to a branch named `issues/{NAME}-<slug>` where `<slug>` summarizes the warnings addressed.
-7. Open a PR via `mcp__github__create_pull_request` with title `[{NAME}] <headline>` and a body that lists the warning patterns being fixed.
+6. Commit to a branch. The branch name MUST be exactly `{BRANCH}` — do not invent your own name or add a slug.
+7. Open a PR via `mcp__github__create_pull_request` from the `{BRANCH}` branch. The title MUST start with `[{NAME}]` followed by a short headline, and the body must list the warning patterns being fixed.

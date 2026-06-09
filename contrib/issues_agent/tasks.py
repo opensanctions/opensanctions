@@ -1,5 +1,8 @@
 import os
+import re
+import sys
 import json
+import hashlib
 from typing import Any, List
 import requests
 from pathlib import Path
@@ -14,12 +17,128 @@ INDEX_URL = "https://data.opensanctions.org/datasets/latest/index.json"
 MAX_ISSUES = 1000
 PROMPT = open(Path(__file__).parent / "prompt.md", "r").read()
 
+# Outages are tracked on the org-level GitHub Projects v2 board #6, not as plain
+# issues. The board carries two custom fields we care about: `dataset` (which
+# dataset the item is about) and `Status` (whether it's a passing "Issue" or an
+# active "Outage"). Field ids are stable and mirror site/lib/github.ts.
+GITHUB_API = "https://api.github.com"
+GITHUB_REPO = os.environ.get("GITHUB_REPOSITORY", "opensanctions/opensanctions")
+PROJECT_ORG = "opensanctions"
+PROJECT_NUMBER = 6
+FIELD_DATASET = 271254866
+FIELD_STATUS = 271254605
+OUTAGE_STATUS = "Outage"
+
 
 def get_path_from_name(name: str) -> str:
     for path in datasets_path.glob("**/*.y*ml"):
         if path.stem == name:
             return path.as_posix()
     raise RuntimeError(f"Dataset {name!r} not found in: {datasets_path}")
+
+
+# Python object reprs carry a memory address (e.g. "<Element div at 0x7f...>")
+# that changes every run. The address tells us nothing about which issue this is,
+# so strip it before checksumming.
+HEX_ADDR_RE = re.compile(r"0x[0-9a-fA-F]+")
+
+
+def issues_checksum(issues: List[Any]) -> str:
+    """Return a checksum that identifies a constant set of crawl issues.
+
+    Use this to seed a deterministic branch name: two crawls that surface the
+    same warnings hash to the same value, so a re-run over an unchanged issue
+    set reuses the branch (and dedupes against an existing PR), while a genuinely
+    changed set produces a new branch.
+
+    Only run-invariant content is hashed. Each issue's `timestamp` and `id` are
+    dropped — `id` is itself a hash that folds in the timestamp, so it churns
+    every run — and memory addresses are scrubbed from the remaining fields. The
+    page-content hashes that live in `data` (e.g. the expected/actual values of a
+    "DOM hash changed" warning) are stable and are kept, so a real source change
+    still moves the checksum.
+    """
+    normalized = [
+        {k: issue.get(k) for k in ("level", "module", "message", "entity", "data")}
+        for issue in issues
+    ]
+    # Sort so the order issues happen to appear in the log doesn't affect the hash.
+    normalized.sort(key=lambda i: json.dumps(i, sort_keys=True, ensure_ascii=False))
+    canonical = json.dumps(normalized, sort_keys=True, ensure_ascii=False)
+    canonical = HEX_ADDR_RE.sub("0x*", canonical)
+    return hashlib.sha1(canonical.encode("utf-8")).hexdigest()
+
+
+def get_outage_datasets() -> set[str]:
+    """Return the names of datasets that have an active outage on the project board.
+
+    Use this to skip datasets whose source is known to be down: their warnings
+    are a symptom of the outage, not something a lookup or code change can fix,
+    so the agent should leave them for the humans tracking the outage.
+
+    Reads the public Projects v2 board #6 (no auth needed — the project is
+    public), paginating via the Link header, and keeps items whose `Status`
+    field is "Outage". Mirrors getOpenIssues() in site/lib/github.ts.
+    """
+    headers = {
+        "Accept": "application/vnd.github+json",
+        # Required header for the Projects v2 REST API (currently in preview).
+        "X-GitHub-Api-Version": "2026-03-10",
+    }
+    url: str | None = (
+        f"{GITHUB_API}/orgs/{PROJECT_ORG}/projectsV2/{PROJECT_NUMBER}/items"
+        f"?fields[]={FIELD_DATASET}&fields[]={FIELD_STATUS}&q=is:open&per_page=100"
+    )
+    outages: set[str] = set()
+    while url is not None:
+        response = session.get(url, headers=headers)
+        response.raise_for_status()
+
+        # Each field value has a different shape depending on its data_type.
+        for item in response.json():
+            if item.get("content_type") != "Issue":
+                continue
+            dataset: str | None = None
+            status: str | None = None
+            for field in item.get("fields", []):
+                if field["id"] == FIELD_DATASET:
+                    dataset = field.get("value", {}).get("raw")
+                elif field["id"] == FIELD_STATUS:
+                    status = field.get("value", {}).get("name", {}).get("raw")
+            if dataset is not None and status == OUTAGE_STATUS:
+                outages.add(dataset)
+
+        # Follow the `Link: <url>; rel="next"` header until exhausted.
+        next_link = response.links.get("next")
+        url = next_link["url"] if next_link is not None else None
+
+    return outages
+
+
+def pr_exists(branch: str) -> bool:
+    """Return True if a PR for this branch already exists, in any state.
+
+    The branch name encodes a checksum of the issue set, so a PR whose head is
+    this branch — whether open, merged, or closed-unmerged — means this exact
+    set of warnings has already been handled: open (awaiting review), merged
+    (fixed, but the published index still shows the old issues until the next
+    crawl), or closed (a human rejected this fix). In every case we skip rather
+    than re-open, which is what makes the agent idempotent across daily runs.
+
+    Searches as the authenticated `GITHUB_TOKEN` when present (required for the
+    search API in CI); falls back to unauthenticated for local runs.
+    """
+    headers = {"Accept": "application/vnd.github+json"}
+    token = os.environ.get("GITHUB_TOKEN")
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
+    response = session.get(
+        f"{GITHUB_API}/search/issues",
+        params={"q": f"repo:{GITHUB_REPO} is:pr head:{branch}"},
+        headers=headers,
+    )
+    response.raise_for_status()
+    return response.json().get("total_count", 0) > 0
 
 
 def get_issue_details(issue_url):
@@ -32,33 +151,54 @@ def get_issue_details(issue_url):
         return None
 
 
+def log(message: str) -> None:
+    """Emit a diagnostic line to stderr.
+
+    stdout carries the matrix JSON that GitHub Actions captures, so anything we
+    want a human to read in the run log has to go to stderr to avoid corrupting it.
+    """
+    print(message, file=sys.stderr)
+
+
 def index_jobs():
     response = session.get(INDEX_URL)
     response.raise_for_status()
     index_data = response.json()
+    outage_datasets = get_outage_datasets()
     tasks: List[Any] = []
 
     for dataset in index_data.get("datasets", []):
-        levels = dataset.get("issue_levels", {})
-        warnings = levels.get("warning", 0)
-        errors = levels.get("error", 0)
-        if warnings == 0:
-            continue
-        if (warnings + errors) > MAX_ISSUES:
-            continue
         name = dataset.get("name")
         if not name:
             continue
+        levels = dataset.get("issue_levels", {})
+        warnings = levels.get("warning", 0)
+        errors = levels.get("error", 0)
+
+        if warnings == 0:
+            continue
+        if name in outage_datasets:
+            log(f"Documented outage: {name}")
+            continue
+        if (warnings + errors) > MAX_ISSUES:
+            log(f"Fubar: {name}")
+            continue
+
+        issues = get_issue_details(dataset.get("issues_url")) or {}
+        checksum = issues_checksum(issues.get("issues", []))
+        branch = f"autofix/{name.replace('_', '-')}-{checksum[:10]}"
+        if pr_exists(branch):
+            log(f"PR exists: {name} ({branch})")
+            continue
 
         path = get_path_from_name(name)
-        # print(f"Dataset: {name}, Issues: {levels}, Path: {path}")
-
         prompt = str(PROMPT)
         prompt = prompt.replace("{NAME}", name)
         prompt = prompt.replace("{ISSUES_URL}", dataset.get("issues_url"))
         prompt = prompt.replace("{YAML_PATH}", path)
+        prompt = prompt.replace("{BRANCH}", branch)
         title = f"[{name}]: {warnings} warnings"
-        tasks.append({"prompt": prompt, "name": title})
+        tasks.append({"prompt": prompt, "name": title, "branch": branch})
 
     print(json.dumps(tasks))
 

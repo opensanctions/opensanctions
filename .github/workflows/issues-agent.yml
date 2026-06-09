@@ -22,6 +22,8 @@ jobs:
 
       - name: Generate sub-tasks
         id: gen
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           MATRIX=$(python contrib/issues_agent/tasks.py)
           echo "matrix=$MATRIX" >> "$GITHUB_OUTPUT"
