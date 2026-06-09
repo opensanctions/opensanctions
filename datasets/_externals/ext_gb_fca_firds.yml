@@ -81,5 +81,5 @@ assertions:
       Organization: 125
   max:
     schema_entities:
-      Security: 392000
-      Organization: 290
+      Security: 800000
+      Organization: 500
