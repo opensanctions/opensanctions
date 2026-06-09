@@ -54,6 +54,11 @@ publisher:
   country: ua
   official: true
 
+assertions:
+  min:
+    schema_entities:
+      Company: 0
+
 inputs:
   - ann_graph_topics
   - debarment
