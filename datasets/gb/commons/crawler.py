@@ -6,7 +6,7 @@ from zavod.stateful.positions import categorise
 
 # Page size accepted by the Members API. The API caps `take` at 20.
 PAGE_SIZE = 20
-TOPICS = ["gov.national"]
+TOPICS = ["gov.national", "gov.legislative"]
 
 
 def crawl_member(
@@ -40,6 +40,7 @@ def crawl_member(
         context,
         name="Member of the House of Commons",
         country="gb",
+        topics=TOPICS,
         wikidata_id="Q16707842",
     )
     categorisation = categorise(context, position)
@@ -61,19 +62,36 @@ def crawl_member(
         context.emit(position)
         context.emit(occupancy)
 
-        # previous government posts
-        bio_url = value.pop("thumbnailUrl").replace("Thumbnail", "biography")
-        data_bio = context.fetch_json(bio_url)
-        bio = data_bio["value"]
-        gov_posts = bio["governmentPosts"]
-        if gov_posts != [] and gov_posts is not None:
-            for post in gov_posts:
-                previous_position = h.make_position(
-                    context,
-                    name=post["name"],
-                    country="gb",
-                )
+    # previous government posts
+    bio_url = value.pop("thumbnailUrl").replace("Thumbnail", "biography")
+    data_bio = context.fetch_json(bio_url)
+    bio = data_bio["value"]
+    gov_posts = bio["governmentPosts"]
+    if gov_posts != [] and gov_posts is not None:
+        for post in gov_posts:
+            previous_position = h.make_position(
+                context,
+                name=post["name"],
+                topics=["gov.national"],
+                country="gb",
+            )
+            categorisation = categorise(context, previous_position)
+            if not categorisation.is_pep:
+                continue
+
+            previous_occupancy = h.make_occupancy(
+                context,
+                person,
+                previous_position,
+                start_date=post["startDate"],
+                end_date=post["endDate"],
+                no_end_implies_current=True,
+                categorisation=categorisation,
+            )
+            if previous_occupancy is not None:
+                context.emit(person)
                 context.emit(previous_position)
+                context.emit(previous_occupancy)
 
 
 def crawl(context: Context) -> None:
