@@ -1,0 +1,47 @@
+title: "Mongolia State Great Khural (Members of Parliament)"
+entry_point: crawler.py
+prefix: mn-khural
+coverage:
+  frequency: weekly
+  start: 2026-06-09
+load_statements: true
+ci_test: false
+summary: >-
+  Members of the State Great Khural, the unicameral parliament of Mongolia.
+description: |
+  The State Great Khural (Улсын Их Хурал) is the unicameral parliament of Mongolia.
+  Its members are published on the parliament's website, each with a CV page in both
+  Mongolian and English.
+
+  This crawler reads the member roster in both languages. The two language records for
+  one member are joined on the shared parliamentary email address where present;
+  members whose English record carries no email are emitted as separate entities and
+  merged downstream by name.
+url: https://www.parliament.mn/cv/
+publisher:
+  name: "State Great Khural of Mongolia"
+  acronym: UIH
+  description: >
+    The State Great Khural (Улсын Их Хурал) is the unicameral parliament and supreme
+    legislative body of Mongolia.
+  url: https://www.parliament.mn/
+  country: mn
+  official: true
+data:
+  url: https://www.parliament.mn/cv/
+  format: HTML
+  lang: mon
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 100
+      Position: 1
+    country_entities:
+      mn: 100
+  max:
+    schema_entities:
+      Person: 250
+      Position: 1
