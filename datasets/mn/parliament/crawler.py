@@ -13,16 +13,6 @@ from zavod.util import Element
 LIST_MN = "https://www.parliament.mn/cv/"
 LIST_EN = "https://www.parliament.mn/en/cv/"
 
-# partyId filter -> party name as labelled in the site sidebar. A 0-result page means
-# the filter ID changed and the party map is stale (see crawl()).
-PARTIES = {
-    "1": "Монгол Ардын Нам",
-    "22": "Ардчилсан Нам",
-    "4": "Хүн нам",
-    "25": "Үндэсний эвсэл",
-    "26": "Иргэний зориг ногоон нам",
-}
-
 MEMBER = "Member of the State Great Khural"
 
 
@@ -55,14 +45,36 @@ def member_email(doc: Element) -> str | None:
     return None
 
 
+def discover_party_filters(doc: Element) -> dict[str, str]:
+    """Party filters from the roster's "filter by party" links: partyId -> label.
+
+    Parties are read from the source rather than hardcoded, so a newly seated party is
+    picked up automatically and the labels stay the source's own party names.
+    """
+    filters: dict[str, str] = {}
+    for anchor in h.xpath_elements(doc, "//a[contains(@href, 'partyId=')]"):
+        href = anchor.get("href")
+        if href is None:
+            continue
+        match = re.search(r"partyId=(\d+)", href)
+        label = h.element_text(anchor)
+        if match is not None and label:
+            filters[match.group(1)] = label
+    return filters
+
+
 def build_party_map(context: Context) -> dict[str, set[str]]:
     """Map each Mongolian-record member ID to the set of parties it is filed under.
 
     A member may appear under more than one party filter (the National Coalition is an
     electoral alliance), so parties are collected as a set.
     """
+    roster = context.fetch_html(LIST_MN, cache_days=1, absolute_links=True)
+    filters = discover_party_filters(roster)
+    if not filters:
+        raise RuntimeError("No party filters found on the roster page")
     party_map: dict[str, set[str]] = {}
-    for party_id, party_name in PARTIES.items():
+    for party_id, party_name in filters.items():
         url = f"{LIST_MN}?partyId={party_id}"
         doc = context.fetch_html(url, cache_days=1, absolute_links=True)
         ids = member_ids(doc)
