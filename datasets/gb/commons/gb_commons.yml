@@ -8,11 +8,11 @@ load_statements: true
 ci_test: true
 
 summary: >-
-  Current Members of Parliament sitting in the House of Commons of the
+  Current and historical Members of Parliament sitting in the House of Commons of the
   United Kingdom.
 
 description: |
-  Current member of the House of Commons, the elected lower house of the Parliament of the
+  Current and historical members of the House of Commons, the elected lower house of the Parliament of the
   United Kingdom. Members of Parliament (MPs) are elected to represent
   geographic constituencies.
 
@@ -32,7 +32,7 @@ publisher:
   official: true
 
 data:
-  url: https://members-api.parliament.uk/api/Members/Search?House=Commons&IsCurrentMember=true
+  url: https://members-api.parliament.uk/api/Members/Search?House=Commons
   format: JSON
   lang: eng
 
@@ -51,7 +51,7 @@ lookups:
 assertions:
   min:
     schema_entities:
-      Person: 500
+      Person: 770
   max:
     schema_entities:
-      Person: 700
+      Person: 1500

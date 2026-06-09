@@ -6,24 +6,36 @@ from zavod.stateful.positions import categorise
 
 # Page size accepted by the Members API. The API caps `take` at 20.
 PAGE_SIZE = 20
+TOPICS = ["gov.national"]
 
 
 def crawl_member(
     context: Context,
     value: dict[str, Any],
 ) -> None:
+    membership = value.pop("latestHouseMembership")
+    start_date = membership["membershipStartDate"]
+    end_date = membership["membershipEndDate"]
+
+    if start_date and start_date < h.earliest_term_start(TOPICS):
+        context.log.info(
+            f"Skipping row with start date {start_date} outside coverage window"
+        )
+        return
+
     name = value.pop("nameDisplayAs")
     person = context.make("Person")
     person.id = context.make_id(name, value.pop("id"))
 
     person.add("name", name)
-    person.add("title", value.pop("nameFullTitle"))
+    person.add("name", value.pop("nameFullTitle"))
+    person.add("name", value.pop("nameAddressAs"))
+    person.add("name", value.pop("nameListAs"))
     person.add("gender", value.pop("gender"))
     person.add("political", value["latestParty"]["name"])
     # citizenship not required
     person.add("country", "gb")
 
-    start_date = value["latestHouseMembership"]["membershipStartDate"]
     position = h.make_position(
         context,
         name="Member of the House of Commons",
@@ -39,14 +51,15 @@ def crawl_member(
         person,
         position,
         start_date=start_date,
+        end_date=end_date,
+        no_end_implies_current=True,
         categorisation=categorisation,
     )
-    if occupancy is None:
-        return
-
-    context.emit(person)
-    context.emit(position)
-    context.emit(occupancy)
+    if occupancy is not None:
+        occupancy.add("constituency", membership["membershipFrom"])
+        context.emit(person)
+        context.emit(position)
+        context.emit(occupancy)
 
 
 def crawl(context: Context) -> None:
