@@ -13,8 +13,6 @@ from zavod.util import Element
 LIST_MN = "https://www.parliament.mn/cv/"
 LIST_EN = "https://www.parliament.mn/en/cv/"
 
-MEMBER = "Member of the State Great Khural"
-
 
 def member_ids(doc: Element) -> list[str]:
     """Member IDs from a roster page, scoped to the member-card grid.
@@ -126,7 +124,10 @@ def crawl_member(
     person.add("citizenship", "mn")
 
     position = h.make_position(
-        context, MEMBER, country="mn", topics=["gov.national", "gov.legislative"]
+        context,
+        "Member of the State Great Khural",
+        country="mn",
+        topics=["gov.national", "gov.legislative"],
     )
     categorisation = categorise(context, position, default_is_pep=True)
     if not categorisation.is_pep:
