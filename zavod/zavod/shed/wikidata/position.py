@@ -250,9 +250,6 @@ def wikidata_occupancy(
             else:
                 end_date = max(end_date, qual_date)
 
-    position_topics = position.get("topics")
-    is_diplomat = "role.diplo" in position_topics
-
     # Set the key prefix in order to avoid duplicating occupancies for the same
     # position held by the same person across multiple datasets. The choice is
     # somewhat arbitrary, but it avoids a larger delta if we chose "wikidata".
@@ -270,9 +267,10 @@ def wikidata_occupancy(
         return None
 
     # Wikidata persons frequently lack their own citizenship statement, so we
-    # associate confirmed PEPs with the position's country. Diplomatic posts name
-    # the receiving country rather than the person's, so those are left out.
-    if not is_diplomat:
+    # associate confirmed PEPs with the position's country. Diplomatic posts
+    # (role.diplo) name the receiving country rather than the person's, so those
+    # are left out.
+    if "role.diplo" not in position.get("topics"):
         for country in position.get("country"):
             if country not in person.get_type_values(registry.country, matchable=True):
                 person.add("country", country, origin=ORIGIN_INFERRED)
