@@ -127,4 +127,4 @@ LLM-assisted (`h.clean_names()`) and reviewed-name (`h.apply_reviewed_names()`) 
 
 ## Step 4: Validate
 
-Run `zavod crawl <path>` then `zavod validate <path>`. PEP-specific qsv recipes (referential integrity for Person↔Occupancy, country propagation check) are in `examples.md` → "qsv validation checks".
+Run `zavod crawl <path>` then `zavod validate <path>`.

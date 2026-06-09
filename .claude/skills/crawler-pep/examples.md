@@ -44,7 +44,6 @@ def crawl_member(
         categorisation=categorisation,
         start_date=row.pop("term_start", None),
         end_date=row.pop("term_end", None),
-        propagate_country=True,
     )
     if occupancy is not None:
         context.emit(occupancy)
@@ -179,7 +178,8 @@ def crawl(context: Context) -> None:
 
 ## Current-only positions (no dates)
 
-When the source only lists current officeholders with no term dates:
+When the source only lists current officeholders with no term dates, call
+`make_occupancy` with no dates and it records a `current` occupancy:
 
 ```python
 occupancy = h.make_occupancy(
@@ -187,8 +187,6 @@ occupancy = h.make_occupancy(
     person,
     position,
     categorisation=categorisation,
-    is_current=True,        # no start_date/end_date needed
-    propagate_country=True,
 )
 ```
 
