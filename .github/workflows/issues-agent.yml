@@ -76,7 +76,21 @@ jobs:
           DEBIAN_FRONTEND: noninteractive
         run: |
           sudo apt-get update
-          sudo apt-get install -y -qq libicu-dev poppler-utils
+          # libicu-dev/poppler-utils for zavod; jq + xmllint for the agent to
+          # inspect JSON issue logs and XML source documents while debugging.
+          sudo apt-get install -y -qq libicu-dev poppler-utils jq libxml2-utils
+
+      - name: Install qsv
+        if: ${{ matrix.task.needs_zavod }}
+        env:
+          # Pinned: qsv is the standard tool for spot-checking emitted data
+          # (e.g. `qsv frequency -s prop statements.pack`), see crawler-guide.md.
+          QSV_VERSION: "21.0.0"
+        run: |
+          curl -fsSL -o /tmp/qsv.zip \
+            "https://github.com/dathere/qsv/releases/download/${QSV_VERSION}/qsv-${QSV_VERSION}-x86_64-unknown-linux-gnu.zip"
+          sudo unzip -o -j /tmp/qsv.zip qsv -d /usr/local/bin
+          qsv --version
 
       - name: Install zavod
         if: ${{ matrix.task.needs_zavod }}

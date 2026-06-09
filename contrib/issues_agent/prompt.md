@@ -92,7 +92,7 @@ Some warnings are deliberate signals for a maintainer to investigate, not someth
 6. Verify your changes:
    - Any code change MUST pass the same checks CI runs, or the PR is dead on arrival: `mypy --strict {{ code_path }}` and `ruff check {{ code_path }}` (and `ruff format`). Note that raw lxml `.xpath()` returns `Any` and fails strict mode — use the typed `h.xpath_*` helpers. Do not open the PR if these fail.
 {% if ci_test %}
-   - This crawler runs in CI, so also confirm the fix works end to end: run `zavod crawl --clear-data {{ yaml_path }}`, then read `data/datasets/{{ name }}/issues.log` and confirm the warnings you targeted are gone and that you have not introduced new ones. Do not open the PR if the crawl fails or warnings increase.
+   - This crawler runs in CI, so also confirm the fix works end to end: run `zavod crawl --clear-data {{ yaml_path }}`, then read `data/datasets/{{ name }}/issues.log` and confirm the warnings you targeted are gone and that you have not introduced new ones. Do not open the PR if the crawl fails or warnings increase. `jq` (for the JSON logs) and `qsv` (for spot-checking the emitted `data/datasets/{{ name }}/statements.pack`, e.g. `qsv frequency -s prop`) are available.
 {% else %}
    - This crawler CANNOT run in CI (it needs credentials we don't have here, or is too slow), so you cannot verify the fix by crawling. State clearly in the PR body that the code change is unverified and needs human review before merge.
 {% endif %}
