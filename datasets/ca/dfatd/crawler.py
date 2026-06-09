@@ -61,6 +61,10 @@ def parse_entry(context: Context, node: Element) -> None:
     given_name = row.pop("GivenName", None)
     last_name = row.pop("LastName", None)
     dob = row.pop("DateOfBirthOrShipBuildDate", None)
+    if dob is not None:
+        excel_date = h.convert_excel_date(dob)
+        if excel_date is not None:
+            dob = excel_date
     title = row.pop("TitleOrShip", None)
     imo_number = row.pop("ShipIMONumber", None)
     schedule = row.pop("Schedule", None)
