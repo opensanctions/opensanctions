@@ -39,6 +39,12 @@ jobs:
     needs: generate-matrix
     runs-on: ubuntu-latest
     name: ${{ matrix.task.name }}
+    # Match build.yml so `zavod crawl` behaves the same as in normal CI: the
+    # agent runs the crawler to verify its fixes (for datasets where ci_test
+    # allows it), so it needs a working zavod install, not just lookup edits.
+    env:
+      OPENSSL_CONF: "contrib/openssl.cnf"
+      FTM_USER_AGENT: "Mozilla/5.0 (compatible; github-actions-zavod/0.8; tech@opensanctions.org)"
     strategy:
       matrix:
         task: ${{ fromJson(needs.generate-matrix.outputs.matrix) }}
@@ -46,14 +52,33 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      # - uses: actions/setup-node@v6
-      #   with:
-      #     cache: 'npm'
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          # Key the pip download/build cache to zavod's dependency spec so the
+          # compiled wheels (lxml, icu, leveldb, pydantic) are reused across runs
+          # instead of rebuilt every time.
+          cache-dependency-path: zavod/pyproject.toml
+
+      - name: Install system dependencies
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y -qq libicu-dev poppler-utils
+
+      - name: Install zavod
+        working-directory: zavod
+        run: |
+          python -m pip install --upgrade pip wheel
+          pip install --no-cache-dir -e ".[dev]"
 
       - uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           prompt: ${{ matrix.task.prompt }}
-          claude_args: "--max-turns 50 --allowed-tools \"Bash(git:*),Bash(curl:*),View,Edit,Write,GlobTool,GrepTool,WebFetch,mcp__github__create_pull_request\""
+          claude_args: "--max-turns 50 --allowed-tools \"Bash,View,Edit,Write,GlobTool,GrepTool,WebFetch,mcp__github__create_pull_request\""
           show_full_output: true
 
