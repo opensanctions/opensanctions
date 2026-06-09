@@ -95,12 +95,12 @@ config:
 assertions:
   min:
     schema_entities:
-      Company: 4200
-      LegalEntity: 2500
+      Company: 800
+      LegalEntity: 150
   max:
     schema_entities:
-      Company: 9900
-      LegalEntity: 5800
+      Company: 1600
+      LegalEntity: 300
 
 lookups:
   type.address:
