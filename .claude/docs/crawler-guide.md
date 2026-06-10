@@ -71,7 +71,8 @@ assertions:
 Key rules:
 - Always set `load_statements: true`.
 - Set assertions to ~80% min / ~150% max of expected counts. Checked by
-  `zavod validate`, not by `zavod crawl`.
+  `zavod validate`, not by `zavod crawl`. See the "Data assertions" section of
+  `zavod/docs/metadata.md` for the metrics and comparison semantics.
 - Write `summary` and `description` to be **time-agnostic** — describe the source's
   purpose and update cadence, not the current snapshot (e.g. "Members of parliament,
   updated after each election" not "Members since the 2023 elections").
@@ -234,6 +235,8 @@ for row in h.parse_xlsx_sheet(context, wb["Sheet1"]):
 ```
 
 ## Lookups
+
+Full reference: `zavod/docs/best_practices/datapatch_lookups.md` — the YAML structure, matching modes, result fields, and the property-name → type-lookup mapping.
 
 ```yaml
 lookups:

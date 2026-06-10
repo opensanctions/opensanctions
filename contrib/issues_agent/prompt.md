@@ -31,13 +31,7 @@ The "Common runtime warnings and the lookup that fixes them" and "Property name 
 The full FollowTheMoney property listing, when a warning mentions a property not covered by the mapping table, is at: https://www.opensanctions.org/reference/
 {% if code_path %}
 
-When a fix needs a crawler code change, these best-practice guides are the relevant references — read the one that matches the warning:
-
-- `zavod/docs/best_practices/dates_meta.md` — parsing and formatting dates (for "failed to parse date" warnings)
-- `zavod/docs/best_practices/addresses.md` — constructing addresses
-- `zavod/docs/best_practices/xpath_and_html.md` — extracting values from HTML
-- `zavod/docs/best_practices/entity_id.md` — how entity IDs are generated; do NOT change the inputs to an entity's ID
-- `zavod/docs/best_practices/patterns.md` and `zavod/docs/helpers.md` — common crawler patterns and the `h.*` helpers
+When a fix needs a crawler code change, `.claude/docs/crawler-guide.md` is the hub: it covers the common patterns and links the relevant `zavod/docs` best-practice guides (dates, addresses, HTML/XPath, entity IDs, helpers). Read it, then the specific guide matching the warning.
 {% endif %}
 
 ## Assertion failures
