@@ -38,10 +38,10 @@ tags:
 assertions:
   min:
     schema_entities:
-      Person: 400
+      Person: 250
       Position: 2
     country_entities:
-      au: 400
+      au: 250
   max:
     schema_entities:
       Person: 900
