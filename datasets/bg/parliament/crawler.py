@@ -80,7 +80,11 @@ def crawl_member(
         return
 
     person = context.make("Person")
-    # `A_ns_MP_id` is an opaque numeric key, stable across assemblies.
+    # `A_ns_MP_id` identifies a single assembly membership, not a person: a
+    # politician who serves several assemblies gets a new id each time (and each
+    # profile's mshipList only covers that one assembly). We deliberately emit one
+    # Person per term and leave merging the same human across terms to downstream
+    # entity resolution, rather than guessing identity from name + birthDate.
     person.id = context.make_slug("person", str(mp_id))
 
     h.apply_name(
