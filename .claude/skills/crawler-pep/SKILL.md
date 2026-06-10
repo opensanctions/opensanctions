@@ -38,7 +38,7 @@ In addition to the general checks (fields, date formats, language, record count)
 - What are the position types (parliament, cabinet, judiciary, etc.)?
 - Current members only, or historical terms too?
 - Are start/end dates provided?
-- **Term-bounded data?** Identify a freshness signal (dataset count, page URL, file name) so the crawler fails loudly when a new term lands.
+- **Term-bounded data?** Note any *structural* freshness signal (a new page URL, file name, or term id per term) so the crawler fails loudly when a new term lands. Record-count ranges are not a freshness signal — they belong in the `assertions` block, not the crawler.
 - **Does the position legally require citizenship?** Don't assume from position type — national parliaments usually do (UK is an exception), but sub-national elected positions (mayors, councils) often don't. Spawn a subagent (`Agent` with `WebSearch`/`WebFetch`) to find the **legal document** (electoral law, constitution, official government guidance) that stipulates the citizenship requirement for this specific position. In a code comment next to the `person.add("citizenship", ...)` call — or, if citizenship is not required, next to the omission — include the URL to that legal document.
 
 ## Step 2: YAML metadata — PEP-specific parts
@@ -114,7 +114,7 @@ Pass the returned `categorisation` to `make_occupancy()`.
 - `make_occupancy()` returns `None` if the occupancy doesn't meet PEP criteria. Only emit persons with at least one valid occupancy.
 - Emit the person AFTER `make_occupancy` — it mutates `person.topics`.
 - For judicial crawlers, also `person.add("topics", "role.judge")`.
-- **Term-bounded sources** (election cycles, fixed mandates): add a freshness check in `crawl()` that fails when the source signature changes (dataset count, page URL, etc.).
+- **Term-bounded sources** (fixed mandates, per-term archives): fail in `crawl()` when the source's *structural* signature changes (new page URL, file name, term id). Don't hardcode record-count bands and `raise` — count sanity is the `assertions` block's job. A continuously-updated roster (a parliament refilled by by-elections) is not term-bounded.
 
 ### `no_end_implies_current`
 
