@@ -1,0 +1,61 @@
+title: Australia Members of Parliament
+entry_point: crawler.py
+prefix: au-parl
+coverage:
+  frequency: weekly
+  start: 2026-06-10
+load_statements: true
+ci_test: false # live external API, ~1.9k people
+summary: >-
+  Current and recent members of the Australian federal Parliament (House of
+  Representatives and Senate)
+description: |
+  Senators and Members of the House of Representatives of the Parliament of
+  Australia. The data is sourced from the Parliamentary Handbook, the official
+  biographical reference maintained by the Australian Parliamentary Library,
+  via its public API. The handbook covers all parliamentarians since Federation
+  (1901); a person is emitted when at least one of their parliamentary terms
+  still qualifies them as a politically exposed person.
+url: https://handbook.aph.gov.au/
+publisher:
+  name: Parliament of Australia
+  description: |
+    The federal bicameral legislature of Australia, consisting of the Monarch,
+    the Senate (76 seats) and the House of Representatives (150 seats). The
+    Parliamentary Handbook is maintained by the Parliamentary Library within
+    the Department of Parliamentary Services.
+  country: au
+  url: https://www.aph.gov.au/
+  official: true
+data:
+  url: https://handbookapi.aph.gov.au/api/individuals
+  format: JSON
+  lang: eng
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 400
+      Position: 2
+    country_entities:
+      au: 400
+  max:
+    schema_entities:
+      Person: 900
+
+lookups:
+  type.country:
+    options:
+      # 1918-1929 official name of the state that became Yugoslavia
+      - match: The Kingdom of Serbs, Croats and Slovenes
+        value: yucs
+  type.gender:
+    normalize: true
+    options:
+      - match: Male
+        value: male
+      - match: Female
+        value: female
