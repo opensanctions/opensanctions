@@ -40,6 +40,10 @@ def crawl_person(context: Context, item: Dict[str, Any]) -> None:
     first_name = item.pop("firstName")
     last_name = item.pop("lastName")
     middle_name = item.pop("middleName", None)
+    # The source uses placeholder punctuation ("-", ";") in the middle name
+    # field to indicate the absence of a middle name; treat these as empty.
+    if middle_name is not None and middle_name.strip() in ("-", ";"):
+        middle_name = None
 
     entity = context.make("Person")
     entity.id = context.make_id(person_id)
