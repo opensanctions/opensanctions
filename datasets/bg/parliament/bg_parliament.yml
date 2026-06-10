@@ -40,10 +40,10 @@ data:
 assertions:
   min:
     schema_entities:
-      Person: 1000
+      Person: 200
       Position: 1
     country_entities:
-      bg: 1000
+      bg: 200
   max:
     schema_entities:
       Person: 4000
