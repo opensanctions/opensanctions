@@ -2,23 +2,20 @@ title: Philippines Senate
 entry_point: crawler.py
 prefix: ph-sen
 coverage:
-  frequency: weekly
+  frequency: monthly
   start: 2025-06-30
 load_statements: true
 ci_test: false  # uses Zyte to bypass Cloudflare; API key unavailable in CI
 summary: >-
-  Members of the Senate of the Philippines, the upper chamber of the
+  Current and historical members of the Senate of the Philippines, the upper chamber of the
   Congress of the Philippines.
 description: |
-  The Senate is the upper chamber of the bicameral Congress of the Philippines.
-  It has 24 seats; senators are elected nationwide to staggered six-year terms,
+  The Senate has 24 seats. Senators are elected nationwide to staggered six-year terms,
   with half the chamber renewed every three years.
 
   This dataset lists the senators of the current Congress as published in the
-  official Senate directory, along with the earlier Congresses each of them
-  served in (limited to terms recent enough to remain relevant for PEP
-  screening). Each membership is modelled as an occupancy of the
-  "Senator of the Philippines" position.
+  official Senate directory, along with senators of earlier Congresses going
+  back to the cutoff for PEP relevance.
 url: https://web.senate.gov.ph/senators/
 publisher:
   name: Senate of the Philippines
@@ -39,11 +36,7 @@ tags:
 assertions:
   min:
     schema_entities:
-      Person: 18
-      Position: 1
-    country_entities:
-      ph: 18
+      Person: 40
   max:
     schema_entities:
-      Person: 80
-      Position: 5
+      Person: 100

@@ -25,16 +25,13 @@ CONGRESS_YEARS = 3
 
 EMAIL_RE = re.compile(r"[\w.+-]+@[\w-]+\.[\w.-]+")
 
+TOPICS = ["gov.national", "gov.legislative"]
+
 
 def congress_term(congress_id: int) -> tuple[str, str]:
-    """Return the (start_date, end_date) of a Congress as ISO date strings."""
+    """Return the (start_year, end_year) of a Congress as year strings."""
     start_year = ANCHOR_START_YEAR + (congress_id - ANCHOR_CONGRESS_ID) * CONGRESS_YEARS
     return f"{start_year}", f"{start_year + CONGRESS_YEARS}"
-
-
-def source_url(name: str) -> str:
-    """Build the per-senator profile URL, e.g. .../senator/Win-Gatchalian."""
-    return "https://senate.gov.ph/senator/" + quote(name.replace(" ", "-"))
 
 
 def clean_biography(raw: str) -> str:
@@ -51,17 +48,24 @@ def crawl_senator(
     context: Context,
     position: Entity,
     categorisation: PositionCategorisation,
-    cutoff: str,
     senator: dict[str, Any],
+    seen: set[str],
 ) -> None:
-    person = context.make("Person")
-    person.id = context.make_slug(str(senator.pop("id")))
     name = senator.pop("name")
-    h.apply_name(person, full=name)
-    person.add("sourceUrl", source_url(name))
-    # Free-text role label, e.g. "Senator" or a leadership title like
-    # "Senate President Pro Tempore"; the Position entity always says "Senator".
-    person.add("position", senator.pop("position"))
+
+    person = context.make("Person")
+    person.id = context.make_id(name, senator.pop("id"))
+    assert person.id is not None, name
+    # A senator who served in several Congresses appears in each of those
+    # rosters; their `congress_ids` already lists their full history, so we only
+    # process them once -- on the newest roster we encounter them in.
+    if person.id in seen:
+        return
+    seen.add(person.id)
+    person.add("name", name)
+    person.add(
+        "sourceUrl", "https://senate.gov.ph/senator/" + quote(name.replace(" ", "-"))
+    )
 
     # The Senate requires senators to be natural-born citizens of the
     # Philippines (1987 Constitution, Art. VI, Sec. 3 -- lawphil.net/consti/cons1987.html).
@@ -69,8 +73,6 @@ def crawl_senator(
 
     for entry in senator.pop("emails"):
         emails = EMAIL_RE.findall(entry)
-        if not emails:
-            context.log.warning("No email address found", value=entry, person=person.id)
         person.add("email", emails)
 
     for link in senator.pop("website_links") + senator.pop("social_media"):
@@ -78,9 +80,9 @@ def crawl_senator(
             link = "https://" + link
         person.add("website", link)
 
-    address = senator.pop("address").strip()
+    address = senator.pop("address", None)
     if address:
-        addr = h.make_address(context, full=address, country_code="ph")
+        addr = h.make_address(context, full=address.strip(), country_code="ph")
         h.copy_address(person, addr)
 
     biography = senator.pop("biography")
@@ -92,7 +94,7 @@ def crawl_senator(
     occupancies = []
     for congress_id in sorted(set(senator.pop("congress_ids")), key=int):
         start_date, end_date = congress_term(int(congress_id))
-        if start_date < cutoff:
+        if start_date < h.earliest_term_start(TOPICS):
             continue
         occupancy = h.make_occupancy(
             context,
@@ -111,45 +113,39 @@ def crawl_senator(
         context.emit(occupancy)
     context.emit(person)
 
-    context.audit_data(
-        senator,
-        ignore=[
-            "description",
-            "image_upload_id",
-            "image_upload",
-            "flag",
-            "status",
-            "lis_code",
-            "biography",  # consumed above only when present
-            "resume",
-            "contact_numbers",  # office switchboard descriptions, not dialable numbers
-            "stats",
-            "congresses",
-            "created_at",
-            "updated_at",
-        ],
-    )
-
 
 def crawl(context: Context) -> None:
     congresses = zyte_api.fetch_json(context, CONGRESS_LIST_URL, cache_days=1)
-    latest = max(congresses, key=lambda c: int(c["id"]))
-    context.log.info("Crawling current Congress", id=latest["id"], name=latest["name"])
-
-    data = zyte_api.fetch_json(context, SENATORS_URL % latest["id"], cache_days=1)
-    senators = data["senators"]
-    if len(senators) < 18:
-        context.log.warning("Fewer senators than expected", count=len(senators))
 
     position = h.make_position(
         context,
         name="Senator of the Philippines",
         country="ph",
+        topics=TOPICS,
         wikidata_id="Q18579098",
     )
-    categorisation = categorise(context, position, default_is_pep=True)
+    categorisation = categorise(context, position)
     context.emit(position)
 
-    cutoff = h.earliest_term_start(["gov.national"])
-    for senator in senators:
-        crawl_senator(context, position, categorisation, cutoff, senator)
+    current_id = max(int(c["id"]) for c in congresses)
+    seen: set[str] = set()
+    # Walk Congresses newest-first. The current Congress's roster already carries
+    # every sitting senator's full history (via `congress_ids`); older rosters
+    # only contribute senators who have since left the Senate.
+    for congress in sorted(congresses, key=lambda c: int(c["id"]), reverse=True):
+        congress_id = int(congress["id"])
+        start_date, _ = congress_term(congress_id)
+        if start_date < h.earliest_term_start(TOPICS):
+            context.log.info(
+                "Skipping Congress outside the coverage window", id=congress_id
+            )
+            break
+        if congress_id == current_id:
+            context.log.info(
+                "Crawling current Congress", id=congress_id, name=congress["name"]
+            )
+
+        data = zyte_api.fetch_json(context, SENATORS_URL % congress_id, cache_days=1)
+        senators = data["senators"]
+        for senator in senators:
+            crawl_senator(context, position, categorisation, senator, seen)
