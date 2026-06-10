@@ -153,8 +153,9 @@ context.audit_data(record)
 ## FTM Schemata
 
 Discover available schemata and properties with the `ftm ref` command group (see the project
-`CLAUDE.md`) — e.g. `ftm ref schema Person --json`, `ftm ref prop Person:nationality`. This is
+`CLAUDE.md`) — e.g. `ftm ref schema Person`, `ftm ref prop Person:nationality`. This is
 the authoritative, always-current view of the model; don't rely on remembered property lists.
+Captured output is always JSON, so pipe to `jq` to extract fields.
 
 A few usage notes that the model itself doesn't capture:
 

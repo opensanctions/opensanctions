@@ -8,7 +8,7 @@ This project contains crawlers that import source data, such as sanctions lists 
         * `ftm ref schema Person` — one schema with all its (inherited) properties
         * `ftm ref types` / `ftm ref type country` — list property types, or detail one with its allowed values
         * `ftm ref prop Person:nationality` — one property's type and allowed values
-      Output is a table in the terminal, or JSON when piped (or with `--json`) — e.g. `ftm ref schema Person --json` for structured data.
+      Output is a formatted table in a real terminal, but JSON whenever the output is captured — so when you run these, you'll always get JSON. Pipe to `jq` to extract fields, e.g. `ftm ref schema Person | jq -r '.properties[] | "\(.name) [\(.type)]"'` (`.properties` is a list, not keyed by name).
     * Data cleaning functions from `rigour` are documented at: https://rigour.followthemoney.tech/
     * Write code for all zavod functions in `zavod/zavod/tests`.
     * Run tests using `cd zavod && pytest zavod/tests/`.
