@@ -2,16 +2,15 @@ title: Philippines House of Representatives
 entry_point: crawler.py
 prefix: ph-hrep
 coverage:
-  frequency: weekly
+  frequency: monthly
   start: 2026-06-08
 load_statements: true
 ci_test: false
 summary: >-
   Members of the House of Representatives of the Philippines, the lower chamber of
-  the bicameral Congress, comprising district and party-list representatives.
+  the bicameral Congress.
 description: |
-  The House of Representatives is the lower chamber of the Congress of the
-  Philippines. It is made up of district representatives, each elected from a
+  The House of Representatives is made up of district representatives: each elected from a
   legislative district, and party-list representatives, who represent national,
   regional, and sectoral organisations rather than a territorial district.
 
