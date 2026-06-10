@@ -4,7 +4,7 @@ import sys
 import json
 import yaml
 import hashlib
-from typing import Any, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 import requests
 from pathlib import Path
 from jinja2 import Template
@@ -133,27 +133,71 @@ def get_outage_datasets() -> set[str]:
     return outages
 
 
-def pr_exists(branch: str) -> bool:
-    """Return True if a PR for this branch already exists, in any state.
+def _github_headers() -> Dict[str, str]:
+    """Headers for the GitHub REST API, authenticated when a token is present.
 
-    The branch name encodes a checksum of the issue set, so a PR whose head is
-    this branch — whether open, merged, or closed-unmerged — means this exact
-    set of warnings has already been handled: open (awaiting review), merged
-    (fixed, but the published index still shows the old issues until the next
-    crawl), or closed (a human rejected this fix). In every case we skip rather
-    than re-open, which is what makes the agent idempotent across daily runs.
-
-    Searches as the authenticated `GITHUB_TOKEN` when present (required for the
-    search API in CI); falls back to unauthenticated for local runs.
+    A token is required for the search API rate limit in CI; local runs fall
+    back to unauthenticated access (fine for this public repo).
     """
     headers = {"Accept": "application/vnd.github+json"}
     token = os.environ.get("GITHUB_TOKEN")
     if token:
         headers["Authorization"] = f"Bearer {token}"
+    return headers
+
+
+def branch_prefix(name: str) -> str:
+    """The branch-name prefix shared by every autofix PR for a dataset."""
+    return f"autofix/{name.replace('_', '-')}-"
+
+
+def get_open_autofix_branches() -> set[str]:
+    """Return every open PR head branch under the `autofix/` prefix.
+
+    Fetched once per run (open PRs are few) and matched locally, rather than
+    listing PRs once per dataset.
+    """
+    branches: set[str] = set()
+    url: Optional[str] = (
+        f"{GITHUB_API}/repos/{GITHUB_REPO}/pulls?state=open&per_page=100"
+    )
+    while url is not None:
+        response = session.get(url, headers=_github_headers())
+        response.raise_for_status()
+        for pr in response.json():
+            ref = pr["head"]["ref"]
+            if ref.startswith("autofix/"):
+                branches.add(ref)
+        next_link = response.links.get("next")
+        url = next_link["url"] if next_link is not None else None
+    return branches
+
+
+def dataset_has_open_pr(name: str, open_branches: set[str]) -> bool:
+    """Return True if an open autofix PR already targets this dataset.
+
+    Matched by branch prefix, not by the full checksum: for datasets with
+    drifting counts the checksum changes every run, so an exact-branch check
+    would never catch yesterday's still-open PR and we'd open a fresh one daily.
+    One open proposal per dataset at a time is enough.
+    """
+    pattern = re.compile(rf"^{re.escape(branch_prefix(name))}[0-9a-f]+$")
+    return any(pattern.match(branch) for branch in open_branches)
+
+
+def has_closed_pr_for_branch(branch: str) -> bool:
+    """Return True if a CLOSED or merged PR already used this exact branch.
+
+    The branch encodes the issue-set checksum, so a closed/merged match means
+    this precise set of warnings was already handled — merged (fixed; the
+    published index still shows it until the next crawl) or closed (a human
+    rejected it). Don't re-propose the identical set. `is:closed` includes
+    merged PRs.
+    """
     response = session.get(
         f"{GITHUB_API}/search/issues",
-        params={"q": f"repo:{GITHUB_REPO} is:pr head:{branch}"},
-        headers=headers,
+        params={"q": f"repo:{GITHUB_REPO} is:pr is:closed head:{branch}"},
+        headers=_github_headers(),
     )
     response.raise_for_status()
     return response.json().get("total_count", 0) > 0
@@ -217,6 +261,7 @@ def index_jobs():
     response.raise_for_status()
     index_data = response.json()
     outage_datasets = get_outage_datasets()
+    open_autofix_branches = get_open_autofix_branches()
     tasks: List[Any] = []
 
     for dataset in index_data.get("datasets", []):
@@ -236,11 +281,15 @@ def index_jobs():
             log(f"Fubar: {name}")
             continue
 
+        if dataset_has_open_pr(name, open_autofix_branches):
+            log(f"Open PR exists: {name}")
+            continue
+
         issues = get_issue_details(dataset.get("issues_url")) or {}
         checksum = issues_checksum(issues.get("issues", []))
-        branch = f"autofix/{name.replace('_', '-')}-{checksum[:10]}"
-        if pr_exists(branch):
-            log(f"PR exists: {name} ({branch})")
+        branch = f"{branch_prefix(name)}{checksum[:10]}"
+        if has_closed_pr_for_branch(branch):
+            log(f"Already handled (closed PR): {name} ({branch})")
             continue
 
         path = get_path_from_name(name)
