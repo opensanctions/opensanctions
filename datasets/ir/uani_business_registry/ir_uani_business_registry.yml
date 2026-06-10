@@ -60,6 +60,12 @@ lookups:
         values:
           - Netherlands
           - United Kingdom
+  type.url:
+    options:
+    # A relative company link slipped past absolute_links resolution. Map it to
+    # its absolute form on the source domain.
+      - match: /company/mitsubishi-ufj-financial-group
+        value: https://www.unitedagainstnucleariran.com/company/mitsubishi-ufj-financial-group
   type.text:
     options:
     # Nulling empty notes
