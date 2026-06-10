@@ -57,8 +57,6 @@ def crawl_member(
         categorisation=categorisation,
         start_date=start_date,
         end_date=end_date,
-        no_end_implies_current=True,
-        propagate_country=True,
     )
     if occupancy is not None:
         context.emit(occupancy)
