@@ -141,6 +141,11 @@ def crawl_member(
     context.emit(person)
     for occupancy in occupancies:
         context.emit(occupancy)
+    context.log.info(
+        f"Emitting MP {person.first('name')}",
+        mp_id=mp_id,
+        terms=len(occupancies),
+    )
 
     context.audit_data(
         en,
