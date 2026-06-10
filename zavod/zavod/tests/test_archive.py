@@ -19,12 +19,12 @@ def test_archive_publish(testdataset1: Dataset):
         fh.write("hello, world!\n")
     archive_path = dataset_archive_path / settings.RELEASE / testdataset1.name / name
     assert not archive_path.exists()
-    publish_resource(local_path, testdataset1.name, name, latest=False)
+    publish_resource(local_path, testdataset1.name, name, republish_to_latest=False)
     assert archive_path.exists()
 
     latest_path = dataset_archive_path / "latest" / testdataset1.name / name
     assert not latest_path.exists()
-    publish_resource(local_path, testdataset1.name, name, latest=True)
+    publish_resource(local_path, testdataset1.name, name, republish_to_latest=True)
     assert latest_path.exists()
 
     backend = get_archive_backend()

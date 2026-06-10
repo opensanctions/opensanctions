@@ -76,7 +76,7 @@ def publish(dataset_path: Path, latest: bool = False) -> None:
     dataset = _load_dataset(dataset_path)
     make_version(dataset, settings.RUN_VERSION, append_new_version_to_history=False)
     try:
-        publish_dataset(dataset, latest=latest)
+        publish_dataset(dataset, republish_to_latest=latest)
     except Exception:
         log.exception("Failed to publish: %s" % dataset_path)
         sys.exit(1)
@@ -134,7 +134,7 @@ def run(
         export_dataset(dataset, view)
         # Set the version as successful in the version file, which will be archived by publish_dataset.
         set_last_successful_version(dataset, settings.RUN_VERSION)
-        publish_dataset(dataset, latest=latest)
+        publish_dataset(dataset, republish_to_latest=latest)
 
         if not dataset.is_collection and dataset.model.load_statements:
             log.info("Loading dataset into database...", dataset=dataset.name)
