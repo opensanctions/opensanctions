@@ -65,7 +65,9 @@ PERSON_POSITION_LABELS = [
     "Positions or membership in the governance bodies of the russian MIC",
     "Other positions",
 ]
-PERSON_LINK_LABELS = ["Links", "Archive links"]
+
+# "Permission for illegal excavations": links to scanned permits for illegal archaeological work
+PERSON_LINK_LABELS = ["Links", "Archive links", "Permission for illegal excavations"]
 
 # "Go to site" is a footer navigation button, not entity data.
 PERSON_SKIP_LABELS = {"Go to site"}
