@@ -1,0 +1,55 @@
+title: Bulgaria Members of the National Assembly
+entry_point: crawler.py
+prefix: bg-na
+coverage:
+  frequency: weekly
+  start: 2026-06-10
+load_statements: true
+ci_test: false
+summary: >-
+  Members of the National Assembly of Bulgaria, the country's unicameral legislature.
+description: |
+  The National Assembly (Bulgarian: Народно събрание, Narodno sabranie) is the
+  unicameral parliament of the Republic of Bulgaria, composed of 240 members elected
+  for a four-year term. It exercises legislative power, elects and dismisses the
+  Council of Ministers, and adopts the state budget.
+
+  This dataset covers members of the National Assembly across the assemblies for which
+  the parliament publishes structured data (the 39th assembly onward, i.e. from 2001),
+  including their membership terms. Members who left office before the period in which
+  we still consider former parliamentarians to be politically exposed are not included.
+
+  The data is sourced from the JSON API that powers the official parliament website,
+  which exposes the roster of each assembly and a per-member profile with biographical
+  details and a full membership history.
+url: https://www.parliament.bg/en/MP
+publisher:
+  name: National Assembly of the Republic of Bulgaria
+  acronym: NA
+  description: |
+    The National Assembly is the supreme representative and legislative body of
+    Bulgaria. It publishes information about its members on its official website.
+  country: bg
+  url: https://www.parliament.bg/
+  official: true
+data:
+  url: https://www.parliament.bg/api/v1/fn-assembly/en
+  format: JSON
+  lang: bul
+
+assertions:
+  min:
+    schema_entities:
+      Person: 1000
+      Position: 1
+    country_entities:
+      bg: 1000
+  max:
+    schema_entities:
+      Person: 4000
+
+lookups:
+  type.email:
+    options:
+      - match: ""
+        value: null
