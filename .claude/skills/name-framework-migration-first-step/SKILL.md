@@ -27,7 +27,6 @@ Before making any changes:
 - [examples/migrations.md](examples/migrations.md) — real before/after migrations; read before touching any crawler
 - `zavod/docs/extract/names.md#migrating-to-the-name-cleaning-helpers` — full three-step procedure and rationale
 - `zavod/zavod/helpers/names.py` — exact signatures for `review_names`, `check_names_regularity`, `Names`
-- `datasets/CLAUDE.md` — name cleaning section
 
 ## Trigger patterns to find
 
