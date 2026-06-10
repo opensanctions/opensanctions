@@ -19,20 +19,18 @@ def crawl_member(
     categorisation: PositionCategorisation,
     row: dict[str, Any],
 ) -> None:
+    name = row.pop("name")
+    dob = row.pop("dob", None)
     person = context.make("Person")
-    person.id = context.make_slug("mp", row.pop("id"))
+    # name + DOB; anchor on a clean source ID instead when one exists. See entity_id.md.
+    person.id = context.make_id(name, dob)
 
-    h.apply_name(
-        person,
-        first_name=row.pop("first_name"),
-        last_name=row.pop("last_name"),
-    )
-    h.apply_date(person, "birthDate", row.pop("dob", None))
+    person.add("name", name)  # name variants all go to `name`, not `alias`/`title`
+    h.apply_date(person, "birthDate", dob)
     person.add("gender", row.pop("gender", None))
     person.add("political", row.pop("party", None))
-    profile_url = row.pop("profile_url", None)
-    if profile_url is not None:
-        person.add("sourceUrl", profile_url)
+    person.add("country", "xx")  # set explicitly when you omit citizenship
+    person.add("sourceUrl", row.pop("profile_url", None))  # source-provided links only
 
     # IMPORTANT: set ALL person props BEFORE calling make_occupancy.
     # make_occupancy reads birthDate/deathDate from the entity to determine PEP status.
@@ -47,7 +45,8 @@ def crawl_member(
     )
     if occupancy is not None:
         context.emit(occupancy)
-        # IMPORTANT: emit person AFTER make_occupancy — it adds role.pep to person.topics
+        # IMPORTANT: emit person AFTER make_occupancy — it adds role.pep to
+        # person.topics. Don't add role.pep yourself.
         context.emit(person)
 
     context.audit_data(row, ignore=["photo_url"])
@@ -61,6 +60,10 @@ def crawl(context: Context) -> None:
         wikidata_id="Q...",
     )
     categorisation = categorise(context, position, default_is_pep=True)
+    # Gate even with default_is_pep=True: the position may have been un-flagged
+    # in the review UI, in which case emit nothing.
+    if not categorisation.is_pep:
+        return
     context.emit(position)
 
     data = context.fetch_json(context.data_url)
