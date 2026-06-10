@@ -31,6 +31,9 @@ data:
   url: https://www.parliament.nsw.gov.au/members/Pages/all-members.aspx
   format: HTML
   lang: eng
+
+dates:
+  formats: ["%d %b %Y"]
 tags:
   - list.pep
 
