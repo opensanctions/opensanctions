@@ -1,65 +1,68 @@
 # Developing crawlers for Politically Exposed Persons (PEPs)
 
-If this is your first crawler, you may want to start with a basic crawler by
-following the [tutorial](tutorial.md), coming back here when you have one working.
-You may also want to look at children of the [peps collection](https://github.com/opensanctions/opensanctions/blob/main/datasets/_collections/peps.yml)
-to see common approaches.
+If this is your first crawler, start with a basic one by following the
+[tutorial](tutorial.md), then come back here. For common approaches, look at the
+children of the [peps collection](https://github.com/opensanctions/opensanctions/blob/main/datasets/_collections/peps.yml).
 
-Being classified as a PEP does not imply you have done anything wrong. However,
-the concept is important because PEPs and members of their families should be
-the subject of enhanced public scrutiny. This is also mandated by financial
-crime laws in many countries. Read more about our [PEP data](https://www.opensanctions.org/pep/).
+Being classified as a PEP does not imply you have done anything wrong. The
+concept matters because PEPs and members of their families should be the subject
+of enhanced public scrutiny, which is also mandated by financial crime laws in
+many countries. Read more about the [PEP data](https://www.opensanctions.org/pep/).
 
-In addition to capturing general information about PEPs, a PEP crawler must
+## How a PEP is modeled
 
-- Generate a [Position entity](https://www.opensanctions.org/reference/#schema.Position) for each position where a person has the kind of influence causing them to be defined as a PEP.
-- Generate [Occupancy entities](https://www.opensanctions.org/reference/#schema.Occupancy) representing the act of each person occupying a position for a period of time.
-- Add the `role.pep` [topic](https://www.opensanctions.org/reference/#type.topic) to each PEP Person entity.
-- Add the `role.rca` [topic](https://www.opensanctions.org/reference/#type.topic) to each relative or close associate, as well as the most appropriate entity to represent the relationship, e.g. [Family](https://www.opensanctions.org/reference/#schema.Family), [Associate](https://www.opensanctions.org/reference/#schema.Associate), or [UnknownLink](https://www.opensanctions.org/reference/#schema.UnknownLink).
+A PEP is represented as three linked entities:
+
+- a **Person** — the individual.
+- a **Position** — the political role that confers exposure (e.g. *Member of the
+  Bundestag*), defined independently of who holds it.
+- an **Occupancy** — the time-bounded link recording that a person held a
+  position over some period.
+
+So one person who has held two roles produces one Person, two Positions, and two
+Occupancies.
+
+[`make_occupancy`][zavod.helpers.make_occupancy] is the linchpin: it builds the
+Occupancy, sets its `status`, adds the `role.pep` topic to the person, and
+returns nothing once political exposure has lapsed. A person should be emitted as
+a PEP only when at least one occupancy qualifies. Let `make_occupancy` add
+`role.pep`; set it by hand only as a rare exception, when the data is too sparse
+to model an occupancy or to capture someone with clear political influence but no
+formal position.
+
+For relatives and close associates, add the `role.rca` topic and the most
+appropriate relationship entity. See [Relatives and close associates](#relatives-and-close-associates).
 
 ## Properties to capture
 
-Not every attribute is worth the same effort. Time-box the work and capture
-properties by priority, aiming for complete coverage of the people who qualify
-while not wrongly marking someone as a PEP.
+Every property in the schema is welcome: capture whatever the source gives you
+cleanly. The authoritative list for each is `ftm ref schema Person` / `Position`
+/ `Occupancy`. The notes below cover only what is required or specifically
+valuable for political exposure; for general attributes and how to prioritize
+effort, see [data collection priorities](best_practices/priorities.md).
 
-**People — capture when available:**
+**On the person:** use the most precise country property the source supports,
+without overstating. Use `citizenship` for elected officials, who in most countries
+must be citizens to hold office (the United Kingdom being a notable exception). Use
+`country` for civil servants, state-owned-enterprise managers, and appointed
+officials, who face no such requirement.
 
-- Name(s) (see: [name cleaning and review framework](extract/names.md))
-- Date of birth, place of birth, country of birth
-- Citizenship or nationality
-- Official ID numbers and other identifiers (e.g. National ID, `wikidataId`)
+**On the position:** `country` is required; occasionally several apply (e.g.
+*Ambassador of Palestine to Germany*). `subnationalArea` locates a sub-national
+role. See [Creating positions](#creating-positions) and [Categorizing positions](#categorizing-positions).
 
-This is the people-relevant subset of the general [data collection
-priorities](best_practices/priorities.md) — see there for the full
-Essential / Should / Could / Won't framing and for company/vessel attributes.
+**On the occupancy:** dating it determines whether exposure still applies; see
+[Creating occupancies](#creating-occupancies) and
+[Historical and multi-term sources](#historical-and-multi-term-sources).
+Valuable where available: `constituency`; `electionDate`; and `politicalGroup`,
+the parliamentary faction held within the body, distinct from general party
+membership in `Person:political`.
 
-**PEP-specific:**
+**Do not extract**, even when cleanly available: private individual addresses (a
+privacy concern) and phone numbers (more sensitive than emails). These are
+prohibitions, not low priorities.
 
-*Must:*
-
-- `country` (occasionally multiple apply to one position, e.g. *Ambassador of Palestine to Germany*)
-- `position` (of a person)
-- `occupancy` (relating a person to the position(s) they hold/held) — focus on current
-  position-holders. When a legislature exposes past terms cheaply, see
-  [Historical and multi-term sources](#historical-and-multi-term-sources).
-
-*Could:*
-
-- `citizenship` — safe to assume over `country` for most elected officials
-- `biography`
-- [`Occupancy:constituency`](https://www.opensanctions.org/reference/#schema.Occupancy)
-- [`Position:subnationalArea`](https://www.opensanctions.org/reference/#schema.Position)
-- [`Occupancy:politicalGroup`](https://www.opensanctions.org/reference/#schema.Occupancy) —
-  the parliamentary faction/group held within the body, distinct from a person's general
-  party membership (`Person:political`)
-
-*Won't — don't extract:*
-
-- private individual addresses (not needed, and a privacy concern)
-- phone numbers (not needed, more sensitive than emails)
-
-## Creating Positions
+## Creating positions
 
 The [Position](https://www.opensanctions.org/reference/#schema.Position) `name` property should ideally capture the position and its jurisdiction, but be no more specific than that.
 
@@ -79,13 +82,12 @@ Do
   When the source labels roles in another language, declare a `position` lookup
   in the YAML to translate each label before passing it to `h.make_position`.
 - include the role
-- include the organisational body where needed
+- include the organizational body where needed
 - include the specific geographic jurisdiction where relevant
-- include `citizenship` for members of national parliaments (except for members of the United Kingdom Parliament)
 - refer to [Wikidata EveryPolitician](https://www.wikidata.org/wiki/Wikidata:WikiProject_every_politician)
-  for examples - specifically [position Q4164871](https://www.wikidata.org/wiki/Q4164871).
-  Much work has been done on defining positions in understandable and accurate
-  ways here, and we plan on contributing our politician in the near future.
+  for examples, specifically [position Q4164871](https://www.wikidata.org/wiki/Q4164871).
+  Much careful work has been done there on defining positions in understandable
+  and accurate ways.
 
 Avoid
 
@@ -115,39 +117,45 @@ Use the [`make_position`][zavod.helpers.make_position] helper to generate positi
     It's perfectly fine to emit the same position over and over for each instance
     of a person holding that position, if that simplifies your code.
 
-    It is often convenient to just create the person, all their positions, and
+    It is often convenient to create the person, all their positions, and
     occupancies in a loop. You don't have to track created positions in your
-    crawler to avoid duplicates as long as the position `id` is consistent for
-    each distinct position encountered. This will be the case if the values you
-    pass [`make_position`][zavod.helpers.make_position] are consistent. The
-    export process will take care of deduplication of entities with consistent
-    `id`s.
+    crawler to avoid duplicates, as long as the position `id` is consistent for
+    each distinct position encountered. This is the case if the values you pass
+    [`make_position`][zavod.helpers.make_position] are consistent. The export
+    process takes care of deduplication of entities with consistent `id`s.
 
-## Categorising positions
+## Categorizing positions
 
 Most sources by their nature comprise entirely of PEPs. On rare occasions a
-source may contain positions which do not fall within the [categories of roles we consider PEPs](https://www.opensanctions.org/docs/pep/methodology/#types).
+source can contain positions that fall outside the [categories of roles considered PEPs](https://www.opensanctions.org/docs/pep/methodology/#types).
 
-We maintain a database of positions where we can easily categorise positions as
-PEP or not, as well as their [scope and role](https://www.opensanctions.org/docs/topics/#politically-exposed-persons).
-This categorisation is used to determine whether a position, its holder(s), and
-the Occupancy entities relating them, should be emitted based on whether it is
-a PEP position, and the PEP duration of its scope.
+OpenSanctions maintains a database that categorizes positions as PEP or not,
+along with their [scope and role](https://www.opensanctions.org/docs/topics/#politically-exposed-persons).
+This categorization determines whether a position, its holders, and the Occupancy
+entities relating them should be emitted, based on whether it is a PEP position
+and the PEP duration of its scope.
 
-![Position categorisation UI](images/position-ui.png)
+![Review UI for categorizing a position as PEP or not, with its scope and role](images/position-ui.png)
 
 To allow newly discovered positions to be added to the database, and to use the
 `is_pep` value from the database, call `zavod.stateful.positions:categorise` with the Position.
 If the data source is known to only include PEP positions, or if the crawler only
 attempts to create positions known to be PEPs, the `default_is_pep` argument should be `True`.
-Otherwise it should be `None`, denoting that it should be manually categorised
+Otherwise it should be `None`, denoting that it should be categorized manually
 in the database.
 **Only make occupancies and emit entities for which the returned `categorisation.is_pep` is `True`**.
 See example below.
 
-Positions will be created in the database if they don't already exist,
-which we can later categorise manually. The `is_pep` and `topics` values
-from the database will then be used during crawling and [enrichment](https://www.opensanctions.org/datasets/annotations/)
+With `default_is_pep=None`, a not-yet-reviewed position returns `is_pep=None` and
+its holders are not emitted. A new crawler against an uncategorized source then
+produces no PEP output until someone sets `is_pep` in the review UI, and only the
+next crawl picks those people up. Use `None` only when the source genuinely mixes
+PEP and non-PEP roles; when the source is known to consist entirely of PEPs,
+`True` is correct.
+
+Positions are created in the database if they don't already exist, and can be
+categorized manually later. The `is_pep` and `topics` values from the database
+are then used during crawling and [enrichment](https://www.opensanctions.org/datasets/annotations/)
 respectively.
 
 ### ::: zavod.stateful.positions.categorise
@@ -155,41 +163,57 @@ respectively.
 ### ::: zavod.stateful.positions.PositionCategorisation
 
 
-## Creating Occupancies
+## Creating occupancies
 
-Occupanies represent the fact that a person holds or held a position for a given
+Occupancies represent the fact that a person holds or held a position for a given
 period of time. If a person holds the same position numerous times, emit an
 occupancy for each instance.
 
 For most positions, someone holding a position becomes less and less significant over time.
 It becomes less important to carry out anti money-laundering checks on people the
 more time has passed since they held a position of influence which could enable
-money laundering. We therefore only represent people as PEPs if a data source indicates
-they hold the position now, or they left the position within the past 5 years.
-In these cases the occupancy status should be `current` or `ended` respectively.
+money laundering. A person is therefore represented as a PEP only if a data source
+indicates they hold the position now, or they left the position within the past 5
+years. In these cases the occupancy status should be `current` or `ended` respectively.
 
-If it is unclear from the data or the data methodology of the source whether
-a position is currently held or not, we consider someone a PEP if they have not
-passed away, and they entered the position within the past 40 years. In this
-case the occupancy status should be `unknown`.
+If the data or the source's methodology makes it unclear whether a position is
+currently held, someone is considered a PEP if they have not died and entered the
+position within the past 40 years. In this case the occupancy status should be
+`unknown`.
 
 When the source records that a person has died or left office mid-term, set their
 `deathDate` (on the person) and the occupancy `endDate`, rather than skipping them.
 `make_occupancy` applies the thresholds above and returns `None` once the person no
-longer qualifies — so a recently-deceased or recently-removed office holder is still
+longer qualifies, so a recently deceased or recently removed office holder is still
 emitted with an `ended` occupancy, while one who left long ago is dropped automatically.
+
+Date each occupancy. Use `startDate`/`endDate` for a person's own mandate (a member who
+left mid-term, or any source giving per-person dates); use `periodStart`/`periodEnd` for
+whole-term membership, where you only know the term's bounds and they are identical for
+everyone who served that term. The two can coexist, and `make_occupancy` treats an
+individual end date as the more specific signal. If neither is known, `electionDate` can
+stand in as a fallback for inferring exposure.
+
+Pass `no_end_implies_current=False` for sources that don't reliably remove people when
+they leave office (static snapshots, scraped archives), so an occupancy with no end date
+resolves to `unknown` rather than `current`. Leave the default (`True`) only when the
+source is actively maintained and can be trusted to drop departed office-holders.
+
+Let `make_occupancy` derive the `status` from these dates; do not pass `status="ended"`
+yourself when you have an end date. Override `status` only when the source states that a
+mandate is current or ended but gives no date to derive it from.
 
 ### Only emit if the person is a PEP
 
 Occupancies and positions should only be emitted for instances where these
 conditions are met. Persons should only be emitted if at least one occupancy
-exists to indicate they meet our criteria for being considered a PEP.
+exists to indicate they meet the criteria for being considered a PEP.
 
-The [`make_occupancy`][zavod.helpers.make_occupancy] helper will only return
-occupancies if they still meet these conditions, taking the [PEP duration](https://www.opensanctions.org/docs/pep/methodology/#types)
-into account.
-You can use this to create occupancies, automatically set the correct `status`,
-and determine whether the occupancy meets our criteria and should be emitted.
+The [`make_occupancy`][zavod.helpers.make_occupancy] helper returns occupancies
+only if they still meet these conditions, taking the [PEP duration](https://www.opensanctions.org/docs/pep/methodology/#types)
+into account. Use it to create occupancies, set the correct `status`
+automatically, and determine whether the occupancy meets the criteria and should
+be emitted.
 
 ### Example
 
@@ -197,13 +221,12 @@ and determine whether the occupancy meets our criteria and should be emitted.
 # ... looping over people in a province ...
 person = context.make("Person")
 source_id = person_data.pop("id")
-person.add("country", "us")
 person.add("name", person_data.pop("name"))
+person.add("citizenship", "us")
 # Set deathDate rather than skipping the person; make_occupancy decides PEP status.
 h.apply_date(person, "deathDate", person_data.pop("death_date", None))
 # ... more person properties ...
 
-pep_entities = []
 for role in person_data.pop("roles"):
     position = h.make_position(
         context,
@@ -223,43 +246,50 @@ for role in person_data.pop("roles"):
         end_date=role.get("end_date", None),
         categorisation=categorisation,
     )
-    if occupancy:
-        pep_entities.append(position)
-        pep_entities.append(occupancy)
-
-if pep_entities:
-    person.add("topics", "role.pep")
-    context.emit(person)
-for entity in pep_entities:
-    context.emit(entity)
+    if occupancy is not None:
+        context.emit(occupancy)
+        # Emitting the position and person multiple times is a bit wasteful
+        # but not harmful:
+        context.emit(position)
+        context.emit(person)
 ```
 
 ## Historical and multi-term sources
 
 Current office holders are the priority, but when a source also exposes past terms
-cheaply — the same table, or a per-term archive — it is worth crawling them. A national
+cheaply (the same table, or a per-term archive), it is worth crawling them. A national
 legislator remains politically exposed for years after leaving office, so several terms
 still matter.
 
-Two mechanisms divide the labour:
+Two mechanisms divide the labor:
 
 - [`earliest_term_start`][zavod.helpers.earliest_term_start] bounds how far back you
   **crawl**: skip fetching whole terms or archive pages older than the PEP-relevance
   window. The only thing it buys you is the crawl you avoid, so there is no point
-  applying it to terms you would fetch anyway — [`make_occupancy`][zavod.helpers.make_occupancy]
+  applying it to terms you would fetch anyway; [`make_occupancy`][zavod.helpers.make_occupancy]
   gates those records more precisely. Log a skipped term at `info`; it is a deliberate
   gap, not something the crawler team can fix.
 - [`make_occupancy`][zavod.helpers.make_occupancy] is the decider on whether political
   exposure still applies, per occupancy. The cutoff is deliberately more generous than
   this window, so it never skips a term whose members would still qualify.
 
-Date each occupancy. Use `startDate`/`endDate` for a person's own mandate (a member who
-left mid-term, or any source giving per-person dates); use `periodStart`/`periodEnd` for
-whole-term membership, where you only know the term's bounds and they are identical for
-everyone who served that term. The two can coexist, and `make_occupancy` treats an
-individual end date as the more specific signal. If neither is known, `electionDate` can
-stand in as a fallback for inferring exposure.
+Date each occupancy as described in [Creating occupancies](#creating-occupancies). Whole-term
+archives are the typical case for `periodStart`/`periodEnd` (the same term bounds applied to
+everyone who served), while a source giving per-person dates uses `startDate`/`endDate`.
 
-Let `make_occupancy` derive the `status` from these dates — do not pass `status="ended"`
-yourself when you have an end date. Override `status` only when the source states that a
-mandate is current or ended but gives no date to derive it from.
+## Relatives and close associates
+
+Relatives and close associates (RCAs) are rare in PEP sources but valuable under AML
+regimes: the family members and close associates of a politically exposed person
+warrant the same enhanced scrutiny. When a source links a PEP to such a person, model
+the relationship:
+
+- Emit the relative or associate as a **Person** carrying the `role.rca` topic, not
+  `role.pep`: their exposure comes from the relationship, not from holding office.
+  They get **no Position or Occupancy**.
+- Link them to the PEP with the relationship entity that fits the source:
+    - **Family** for kinship: set `person` to the PEP and `relative` to the family member.
+    - **Associate** for a known non-family relationship, such as a business partner or
+      close friend: set `person` to the PEP and `associate` to the other party.
+    - **UnknownLink** only when the source asserts a connection whose nature is unclear:
+      set `subject` and `object`.
