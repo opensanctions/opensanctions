@@ -3,7 +3,7 @@ from typing import Any, Dict, Optional, Set
 from urllib.parse import urljoin, unquote
 from followthemoney.helpers import post_summary
 
-from zavod import Context
+from zavod import Context, Entity
 from zavod import helpers as h
 from zavod.stateful.positions import categorise
 
@@ -30,6 +30,13 @@ def clean_phones(phones: str | None) -> list[str]:
         phone = PHONE_REMOVE.sub("", phone)
         out.append(phone)
     return out
+
+
+def associate_country(entity: Entity, country: str) -> None:
+    if country.startswith("gb"):
+        entity.add("country", country)
+    else:
+        entity.add("citizenship", country)
 
 
 def crawl(context: Context) -> None:
@@ -92,7 +99,7 @@ def crawl_legislature(
             parse_person(context, person, country)
 
 
-def person_entity_id(context: Context, person_id: str) -> str:
+def person_entity_id(context: Context, person_id: str) -> str | None:
     return context.make_slug(person_id)
 
 
@@ -119,7 +126,7 @@ def parse_person(context: Context, data: dict[str, Any], country: str) -> None:
     person.add("deathDate", data.pop("death_date", None))
     person.add("email", clean_emails(data.pop("email", None)))
     person.add("notes", data.pop("summary", None))
-    person.add("citizenship", country)
+    associate_country(person, country)
     person.add("topics", "role.pep")
 
     for link in data.pop("links", []):
@@ -200,7 +207,7 @@ def parse_membership(
         person = context.make("Person")
         person.id = person_entity_id(context, person_id)
         person.add("position", position_property)
-        person.add("citizenship", country)
+        associate_country(person, country)
         person.add("birthDate", birth_dates.get(person_id, None))
         person.add("deathDate", death_dates.get(person_id, None))
 
