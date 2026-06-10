@@ -1,0 +1,52 @@
+title: UK House of Lords
+entry_point: crawler.py
+prefix: gb-lords
+coverage:
+  frequency: monthly
+  start: 2025-06-08
+load_statements: true
+ci_test: true
+
+summary: >-
+  Current and historical members (peers) of the House of Lords, the upper house of the
+  Parliament of the United Kingdom.
+
+description: |
+  Current and historical members of the House of Lords, sourced from
+  the official UK Parliament Members API. It includes life peers, bishops
+  (Lords Spiritual) and any remaining members entitled to sit,
+  as well as current members who are on leave of absence.
+  Hereditary peers were removed by the House of Lords (Hereditary Peers) Act 2025.
+
+  Bishops (Lords Spiritual) are recorded by the source only by their see
+  (e.g. "The Lord Bishop of Lincoln"), never by personal name. Each occupant
+  of a see is a distinct entity, so two holders of the same bishopric at
+  different times will share an identical, office-based name.
+
+url: https://members.parliament.uk/members/lords
+
+publisher:
+  name: UK Parliament
+  description: >
+    The Parliament of the United Kingdom is the supreme legislative body of the
+    United Kingdom. It comprises the Sovereign, the House of Lords and the House
+    of Commons.
+  url: https://www.parliament.uk/
+  country: gb
+  official: true
+
+data:
+  url: https://members-api.parliament.uk/api/Members/Search?House=2
+  format: JSON
+  lang: eng
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 750
+  max:
+    schema_entities:
+      Person: 1200
