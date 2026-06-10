@@ -191,7 +191,9 @@ lookups:
         values:
           - 1970
           - 1977
-      # Place-of-birth text that landed in the birth date slot (first DOB line); drop it.
+      # Place-of-birth text that landed in the birth date slot (first DOB line);
+      # re-route it to birthPlace rather than dropping it. `values` is omitted so
+      # the original string is preserved on the destination property.
       - match:
           - Russian Federation
           - "Hamedan, Iran"
@@ -200,7 +202,7 @@ lookups:
           - "Ukraine, Zhytomyr"
           - "Shklov, Belarus"
           - "German Democratic Republic, Potsdam, Germany"
-        value: null
+        prop: birthPlace
       - match:
           - 10.09.20224
           - 04.01.20205
