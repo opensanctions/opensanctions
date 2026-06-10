@@ -191,6 +191,12 @@ def crawl(context):
 
 The [entity object][zavod.entity.Entity] is based on the [entity proxy in FollowTheMoney](https://followthemoney.tech/python/entity/#followthemoney.proxy.EntityProxy), so we suggest you also check out the [FtM documentation](https://followthemoney.tech/docs/api/) on entity construction. Some additional utility methods are added in the [`Entity`][zavod.entity.Entity] class in `zavod`.
 
+!!! info "Browse the FtM model on the command line"
+    To see which schemata and properties exist without leaving your terminal, use `ftm ref`.
+    For example, `ftm ref schema Person` lists every property on `Person`, and
+    `ftm ref prop Person:nationality` shows a single property's type and allowed values.
+    Run `ftm ref` on its own for the full list of subcommands.
+
 ### Verifying your output
 
 Now that you're extracting data, it's a good idea to start verifying your output. Start by exportng your crawler's data:
