@@ -13,6 +13,9 @@ IGNORE = [
     "hasPoint3",
     "hasRequestStatement",
     "hasSecretStatement",
+    # Visibility metadata for the declaration record (e.g. SECRET, REQUEST),
+    # mirroring the statement flags above - not biographical data.
+    "visibility",
     # Whether the person currently holds any registered position.
     "active",
     # Flattened, human-readable duplicates of workingPositions[].
@@ -28,6 +31,7 @@ IGNORE = [
     "deputyAndOthers",
     "senatorAndOthers",
     "judge",
+    "government",
 ]
 
 
