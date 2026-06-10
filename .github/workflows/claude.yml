@@ -42,8 +42,22 @@ jobs:
       group: claude-${{ github.event.issue.number || github.event.pull_request.number }}
       cancel-in-progress: false
     steps:
+      # claude-code-action does its own `git fetch` of the PR branch, but it
+      # needs a checked-out repo (with the origin remote) to fetch into — without
+      # this it fails with "not a git repository". fetch-depth: 0 gives full
+      # history so commits can be pushed back to the PR branch cleanly.
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
       - uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          claude_args: "--model claude-opus-4-8 --max-turns 30 --allowed-tools \"Bash,View,Edit,Write,GlobTool,GrepTool,WebFetch\""
+          # Folded (>-) so the multi-word system prompt stays readable; the
+          # embedded quotes are literal. --append-system-prompt (not
+          # --system-prompt) keeps Claude Code's default behavior and adds to it.
+          claude_args: >-
+            --model claude-opus-4-8 --max-turns 30
+            --append-system-prompt "On autofix/* PRs you are tuning datapatch lookups and small crawler fixes. Key references: zavod/docs/best_practices/datapatch_lookups.md (lookups) and .claude/docs/crawler-guide.md. The repo CLAUDE.md maps the rest of the documentation."
+            --allowed-tools "Bash,View,Edit,Write,GlobTool,GrepTool,WebFetch,Skill"
