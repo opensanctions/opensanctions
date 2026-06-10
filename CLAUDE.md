@@ -3,7 +3,12 @@ This project contains crawlers that import source data, such as sanctions lists 
 ### Repo layout
 
 * `zavod` contains an ETL framework for crawlers, including definitions for metadata (`zavod.meta`), entity structure (`zavod.entity.Entity`) and crawler context (`zavod.context.Context`).
-    * Documentation for the entity structure (available schemata and properties in `followthemoney`) is available here: https://followthemoney.tech/explorer/schemata/ (sub paths eg. https://followthemoney.tech/explorer/schemata/Person/). Property types are documented here: https://followthemoney.tech/explorer/types/ (and eg. https://followthemoney.tech/explorer/types/name/).
+    * To discover which schemata and properties are available, use the `ftm ref` command group — the authoritative, always-current view of the model:
+        * `ftm ref schemata` — list all schemata (add `--matchable` to filter)
+        * `ftm ref schema Person` — one schema with all its (inherited) properties
+        * `ftm ref types` / `ftm ref type country` — list property types, or detail one with its allowed values
+        * `ftm ref prop Person:nationality` — one property's type and allowed values
+      Output is a table in the terminal, or JSON when piped (or with `--json`) — e.g. `ftm ref schema Person --json` for structured data.
     * Data cleaning functions from `rigour` are documented at: https://rigour.followthemoney.tech/
     * Write code for all zavod functions in `zavod/zavod/tests`.
     * Run tests using `cd zavod && pytest zavod/tests/`.

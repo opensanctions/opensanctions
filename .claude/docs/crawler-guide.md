@@ -152,31 +152,15 @@ context.audit_data(record)
 
 ## FTM Schemata
 
-Full reference: https://followthemoney.tech/explorer/schemata/
+Discover available schemata and properties with the `ftm ref` command group (see the project
+`CLAUDE.md`) — e.g. `ftm ref schema Person --json`, `ftm ref prop Person:nationality`. This is
+the authoritative, always-current view of the model; don't rely on remembered property lists.
 
-**Person** — `name, firstName, lastName, middleName, patronymic, fatherName, motherName,
-title, alias, weakAlias, birthDate, birthPlace, birthCountry, deathDate, nationality,
-citizenship, passportNumber, idNumber, gender, position, political, phone, email, address,
-notes, innCode, taxNumber, registrationNumber`
+A few usage notes that the model itself doesn't capture:
 
-**Organization** — `name, alias, weakAlias, incorporationDate, dissolutionDate,
-jurisdiction, legalForm, registrationNumber, taxNumber, vatCode, innCode, leiCode,
-email, phone, address, notes`
-
-**LegalEntity** — base for Person and Organization; use when type is unknown.
-
-**Address** — `full, street, street2, city, postalCode, region, country, poBox`
-
-**Family** — `person, relative, relationship`
-
-**Ownership** — `owner, asset, startDate, endDate, percentage`
-
-### Property types
-
-- **country**: ISO 2-letter + variants. Use `type.country` lookup for unusual values.
-- **date**: Normalised to ISO. Always use `h.apply_date()`.
-- **name**: Fingerprinted for dedup. Add all known forms including aliases.
-- **topics**: `sanction`, `role.pep`, `role.rca` etc. drive downstream logic.
+- **dates**: always set via `h.apply_date()` — never assign raw strings.
+- **names**: fingerprinted for dedup, so add all known forms including aliases.
+- **topics**: values like `sanction`, `role.pep`, `role.rca` drive downstream logic.
 
 ## Helpers (`from zavod import helpers as h`)
 
