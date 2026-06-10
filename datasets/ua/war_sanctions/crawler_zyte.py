@@ -66,11 +66,10 @@ PERSON_POSITION_LABELS = [
     "Other positions",
 ]
 
-# "Permission for illegal excavations": links to scanned permits for illegal archaeological work
-PERSON_LINK_LABELS = ["Links", "Archive links", "Permission for illegal excavations"]
+PERSON_LINK_LABELS = ["Links", "Archive links"]
 
 # "Go to site" is a footer navigation button, not entity data.
-PERSON_SKIP_LABELS = {"Go to site"}
+PERSON_SKIP_LABELS = {"Go to site", "Permission for illegal excavations"}
 
 
 # Persons list their name forms in a fixed order (verified across sections): the site
