@@ -177,6 +177,30 @@ lookups:
         values:
           - 1966-03-21
           - 1967-03-21
+      - match: ", 06.01.1967"
+        value: 1967-01-06
+      - match: "dd.mm.1973; dd.10.1971"
+        values:
+          - 1973
+          - 1971-10
+      - match: "dd.mm.1972;dd.mm.1975"
+        values:
+          - 1972
+          - 1975
+      - match: "dd.mm.1970;dd.mm.1977"
+        values:
+          - 1970
+          - 1977
+      # Place-of-birth text that landed in the birth date slot (first DOB line); drop it.
+      - match:
+          - Russian Federation
+          - "Hamedan, Iran"
+          - "Turkey, Istanbul"
+          - "Zimbabwe, Harare"
+          - "Ukraine, Zhytomyr"
+          - "Shklov, Belarus"
+          - "German Democratic Republic, Potsdam, Germany"
+        value: null
       - match:
           - 10.09.20224
           - 04.01.20205
@@ -208,6 +232,176 @@ lookups:
       # which now operate under Russian jurisdiction.
       - match: TOT Ukraine
         value: ru
+      # Historical state; map to modern Yemen.
+      - match: "People's Democratic Republic of Yemen"
+        value: ye
+      # Multi-citizenship persons: the source lists several countries in one
+      # comma-separated citizenship line. Split each into its component countries.
+      - match: "Angola, Portugal"
+        values:
+          - "Angola"
+          - "Portugal"
+      - match: "Armenia, russian federation"
+        values:
+          - "Armenia"
+          - "russian federation"
+      - match: "Austria, Switzerland"
+        values:
+          - "Austria"
+          - "Switzerland"
+      - match: "Austria, russian federation"
+        values:
+          - "Austria"
+          - "russian federation"
+      - match: "Azerbaijan, Slovakia"
+        values:
+          - "Azerbaijan"
+          - "Slovakia"
+      - match: "Azerbaijan, russian federation"
+        values:
+          - "Azerbaijan"
+          - "russian federation"
+      - match: "Belarus, russian federation"
+        values:
+          - "Belarus"
+          - "russian federation"
+      - match: "Belgium, Great Britain, russian federation"
+        values:
+          - "Belgium"
+          - "Great Britain"
+          - "russian federation"
+      - match: "Canada, Pakistan"
+        values:
+          - "Canada"
+          - "Pakistan"
+      - match: "Canada, United Arab Emirates, russian federation"
+        values:
+          - "Canada"
+          - "United Arab Emirates"
+          - "russian federation"
+      - match: "Cyprus, Israel"
+        values:
+          - "Cyprus"
+          - "Israel"
+      - match: "Cyprus, Israel, russian federation"
+        values:
+          - "Cyprus"
+          - "Israel"
+          - "russian federation"
+      - match: "Cyprus, Ukraine, russian federation"
+        values:
+          - "Cyprus"
+          - "Ukraine"
+          - "russian federation"
+      - match: "Cyprus, Uzbekistan, russian federation"
+        values:
+          - "Cyprus"
+          - "Uzbekistan"
+          - "russian federation"
+      - match: "Cyprus, russian federation"
+        values:
+          - "Cyprus"
+          - "russian federation"
+      - match: "Dominica, Iran"
+        values:
+          - "Dominica"
+          - "Iran"
+      - match: "Germany, Iran"
+        values:
+          - "Germany"
+          - "Iran"
+      - match: "Germany, russian federation"
+        values:
+          - "Germany"
+          - "russian federation"
+      - match: "Great Britain, Switzerland"
+        values:
+          - "Great Britain"
+          - "Switzerland"
+      - match: "Great Britain, Uzbekistan, russian federation"
+        values:
+          - "Great Britain"
+          - "Uzbekistan"
+          - "russian federation"
+      - match: "Great Britain, russian federation"
+        values:
+          - "Great Britain"
+          - "russian federation"
+      - match: "Honduras, Montenegro, russian federation"
+        values:
+          - "Honduras"
+          - "Montenegro"
+          - "russian federation"
+      - match: "India, Singapore"
+        values:
+          - "India"
+          - "Singapore"
+      - match: "Ireland, Republic of Korea"
+        values:
+          - "Ireland"
+          - "Republic of Korea"
+      - match: "Israel, Latvia"
+        values:
+          - "Israel"
+          - "Latvia"
+      - match: "Israel, Moldova, russian federation"
+        values:
+          - "Israel"
+          - "Moldova"
+          - "russian federation"
+      - match: "Israel, Ukraine"
+        values:
+          - "Israel"
+          - "Ukraine"
+      - match: "Israel, russian federation"
+        values:
+          - "Israel"
+          - "russian federation"
+      - match: "Italy, Switzerland"
+        values:
+          - "Italy"
+          - "Switzerland"
+      - match: "Liechtenstein, Switzerland"
+        values:
+          - "Liechtenstein"
+          - "Switzerland"
+      - match: "Lithuania, russian federation"
+        values:
+          - "Lithuania"
+          - "russian federation"
+      - match: "Moldova, Romania"
+        values:
+          - "Moldova"
+          - "Romania"
+      - match: "Moldova, Ukraine, russian federation"
+        values:
+          - "Moldova"
+          - "Ukraine"
+          - "russian federation"
+      - match: "Moldova, russian federation"
+        values:
+          - "Moldova"
+          - "russian federation"
+      - match: "Netherlands, russian federation"
+        values:
+          - "Netherlands"
+          - "russian federation"
+      - match: "Serbia, russian federation"
+        values:
+          - "Serbia"
+          - "russian federation"
+      - match: "Switzerland, russian federation"
+        values:
+          - "Switzerland"
+          - "russian federation"
+      - match: "Ukraine, russian federation"
+        values:
+          - "Ukraine"
+          - "russian federation"
+      - match: "United States of America, russian federation"
+        values:
+          - "United States of America"
+          - "russian federation"
   type.name:
     options:
       - match:
