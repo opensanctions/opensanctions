@@ -65,10 +65,11 @@ PERSON_POSITION_LABELS = [
     "Positions or membership in the governance bodies of the russian MIC",
     "Other positions",
 ]
+
 PERSON_LINK_LABELS = ["Links", "Archive links"]
 
 # "Go to site" is a footer navigation button, not entity data.
-PERSON_SKIP_LABELS = {"Go to site"}
+PERSON_SKIP_LABELS = {"Go to site", "Permission for illegal excavations"}
 
 
 # Persons list their name forms in a fixed order (verified across sections): the site

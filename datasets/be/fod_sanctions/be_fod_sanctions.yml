@@ -88,6 +88,7 @@ lookups:
       - match:
           - "taxid-Tax identification number"
           - "fiscalcode-National Fiscal Code"
+          - "taxid-Tax identification number) [revoked by issuer]"
         value: taxNumber
       - match: "swiftbic-SWIFT BIC"
         value: swiftBic

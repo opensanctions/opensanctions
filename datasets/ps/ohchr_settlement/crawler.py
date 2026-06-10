@@ -46,7 +46,7 @@ def crawl(context: Context) -> None:
     content = h.xpath_elements(doc, content_xpath, expect_exactly=1)
     # Check if the data has been updated, normally with a new report, if the content has changed.
     h.assert_dom_hash(
-        content[0], "8999f952feef57fd4c668b83c49e0623b4a8c8ae", text_only=True
+        content[0], "66e1e163a93d72deb0ad257d2069004f70afba0f", text_only=True
     )
 
     # Crawl the CSV version of the database

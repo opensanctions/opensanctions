@@ -17,7 +17,7 @@ def crawl(context: Context) -> None:
         cache_days=1,
     )
     search_result = h.xpath_element(doc, results_xpath)
-    h.assert_dom_hash(search_result, "dbe85db819c9e01e3d2d9bc724d431d7583d173a")
+    h.assert_dom_hash(search_result, "5340b6c265dd14f560aac8cd112d77950f364a36")
     # June 8, 2026
     # DOD Releases List of Chinese Military Companies in Accordance with Section 1260H of the National Defense Authorization Act for Fiscal Year 2021
     # Jan. 8, 2026
