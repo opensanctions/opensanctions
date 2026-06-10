@@ -5,6 +5,10 @@ name: Issues agent
   workflow_dispatch: {}
   schedule:
     - cron: "0 3 * * 1-5"
+    # 12:00 UTC = 14:00 CEST (summer) / 13:00 CET (winter). GHA cron is always
+    # UTC and ignores DST, so this lands at 2pm Central European time only
+    # during summer time; in winter it runs an hour earlier.
+    - cron: "0 12 * * 1-5"
 
 permissions:
   contents: write
