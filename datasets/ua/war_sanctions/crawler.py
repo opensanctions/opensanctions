@@ -66,6 +66,10 @@ class WSAPILink:
     itn_prop: str = "innCode"
 
 
+# NOTE: Vessel data (transport/ships, transport/management, transport/companies,
+# transport/persons, transport/captains) is no longer sourced from the API.
+# The API contains outdated vessel information; vessels will be covered by
+# crawling the website directly.
 LINKS: List[WSAPILink] = [
     WSAPILink(
         # child kidnappers
@@ -91,10 +95,6 @@ LINKS: List[WSAPILink] = [
         WSAPIDataType.PERSON,
         "UA-WS-ATHLETES",
     ),
-    # NOTE: Vessel data (transport/ships, transport/management, transport/companies,
-    # transport/persons, transport/captains) is no longer sourced from the API.
-    # The API contains outdated vessel information; vessels will be covered by
-    # crawling the website directly.
     WSAPILink(
         # propagandists
         "propaganda/persons",
@@ -227,7 +227,6 @@ def fetch_endpoint(context: Context, url: str, max_retries: int = 4) -> dict[str
     raise Exception("Too many timestamp errors.")
 
 
-
 def emit_relation(
     context: Context,
     *,
@@ -345,7 +344,6 @@ def crawl_legal_entity(
         company_data,
         ["sanctions", "products", "rel_companies", "tools", "places", "logo"],
     )
-
 
 
 def crawl_rostec_structure(context: Context, structure_data: Dict[str, Any]) -> None:
