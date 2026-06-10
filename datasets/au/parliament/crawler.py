@@ -19,7 +19,6 @@ ONGOING = "1900-01-01"
 INDIVIDUAL_IGNORE = [
     "Age",
     "Age_String",
-    "DisplayName",
     "ElectedMemberNo",
     "ElectedSenatorNo",
     "Electorate",
@@ -32,7 +31,6 @@ INDIVIDUAL_IGNORE = [
     "InCurrentParliament",
     "MPorSenator",
     "MaritalStatus",
-    "Occupations",
     "ParliamentaryPositions",
     "PartyAbbrev",
     "PartyParliamentaryService",
@@ -122,6 +120,8 @@ def crawl_member(
             context.log.warning(
                 "Unexpected PreferredName shape", phid=phid, value=preferred
             )
+    # The handbook's formatted name, e.g. "ALBANESE, the Hon. Anthony Norman".
+    person.add("alias", record.pop("DisplayName") or None)
 
     h.apply_date(person, "birthDate", record.pop("DateOfBirth") or None)
     h.apply_date(person, "deathDate", record.pop("DateOfDeath") or None)
@@ -130,6 +130,8 @@ def crawl_member(
     person.add("birthCountry", record.pop("CountryOfBirth") or None)
     person.add("gender", record.pop("Gender") or None)
     person.add("political", record.pop("Party") or None)
+    # Pre-parliamentary career entries, as prose ("Lawyer from 2007 to 2012.").
+    person.add("profession", record.pop("Occupations") or None)
     # Commonwealth Electoral Act 1918 s 163(1)(b) requires members of either federal
     # chamber to be Australian citizens; Constitution s 44(i) bars foreign citizens.
     # https://www.legislation.gov.au/C1918A00027/latest/text
