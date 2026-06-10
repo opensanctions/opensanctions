@@ -42,6 +42,14 @@ jobs:
       group: claude-${{ github.event.issue.number || github.event.pull_request.number }}
       cancel-in-progress: false
     steps:
+      # claude-code-action does its own `git fetch` of the PR branch, but it
+      # needs a checked-out repo (with the origin remote) to fetch into — without
+      # this it fails with "not a git repository". fetch-depth: 0 gives full
+      # history so commits can be pushed back to the PR branch cleanly.
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
       - uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
