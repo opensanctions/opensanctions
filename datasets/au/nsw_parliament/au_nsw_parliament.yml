@@ -1,0 +1,50 @@
+name: au_nsw_parliament
+title: Australia State Parliament of New South Wales
+prefix: au-nswparl
+entry_point: crawler.py
+coverage:
+  frequency: weekly
+  start: "2026-06-08"
+load_statements: true
+ci_test: false
+summary: >-
+  Current members of both chambers of the Parliament of New South Wales,
+  as published on the parliament website.
+description: |
+  The Parliament of New South Wales is the bicameral state legislature of
+  New South Wales, Australia. This dataset covers both chambers:
+
+  - The Legislative Assembly (lower house), with each member representing
+    a single-member electorate, elected under first-past-the-post voting.
+  - The Legislative Council (upper house), with each member serving 8-year
+    staggered terms, elected statewide by proportional representation.
+publisher:
+  name: Australia State Parliament of New South Wales
+  description: >
+    The Australia State Parliament of New South Wales is the bicameral state legislature of
+    New South Wales, Australia, consisting of the Legislative Assembly and
+    the Legislative Council.
+  url: https://www.parliament.nsw.gov.au/
+  country: au
+  official: true
+data:
+  url: https://www.parliament.nsw.gov.au/members/Pages/all-members.aspx
+  format: HTML
+  lang: eng
+
+dates:
+  formats: ["%d %b %Y"]
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 108
+      Position: 2
+    country_entities:
+      au: 108
+  max:
+    schema_entities:
+      Person: 205
+      Position: 5
