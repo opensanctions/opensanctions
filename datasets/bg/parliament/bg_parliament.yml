@@ -52,3 +52,22 @@ lookups:
     options:
       - match: ""
         value: null
+  type.language:
+    options:
+      - match: Serbian/Croatian
+        values:
+          - srp
+          - hrv
+      - match: Slovakian
+        value: slk
+      - match: Arabian
+        value: ara
+      - match:
+          - Latin
+          - Romany
+          - Gypsy
+        value: null
+  type.date:
+    options:
+      - match: "0000-00-00"
+        value: null
