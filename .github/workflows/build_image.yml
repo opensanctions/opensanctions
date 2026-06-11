@@ -1,0 +1,156 @@
+name: Build and Push Docker Images
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - "v*"
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: "Target platform to build"
+        required: true
+        default: "arm"
+        type: choice
+        options:
+          - arm
+          - amd
+          - both
+
+# Cancel in-progress builds on this branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-arm:
+    name: build-arm
+    runs-on: ubuntu-24.04-arm
+    if: github.event_name == 'push' || github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && (github.event.inputs.platform == 'arm' || github.event.inputs.platform == 'both'))
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Checkout the repo
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+          fetch-depth: ${{ github.event_name != 'pull_request' && '0' || '1' }}
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: Hunted-Labs/tools/actions/login-ecr@2b9f07140688c85f113e68217ca23b3045870a36
+        with:
+          arn: ${{ vars.ECR_ARN }}
+      - name: Set build metadata
+        env:
+          BRANCH_NAME: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          if [ "${BRANCH_NAME}" = "main" ]; then
+            version="$(git -c "versionsort.suffix=-beta" -c "versionsort.suffix=-rc" describe --tags 2>/dev/null || echo "${GITHUB_SHA}")"
+          else
+            version="${BRANCH_NAME}"
+          fi
+          {
+            echo "BUILD_DATE=$(date +%Y%m%d)"
+            echo "BUILD_VERSION=${version}"
+            echo "GIT_COMMIT=${GITHUB_SHA}"
+          } >> "$GITHUB_ENV"
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@b5ca514318bd6ebac0fb2aedd5d36ec1b5c232a2 # v3.10.0
+      - name: Docker meta
+        id: docker-meta
+        uses: docker/metadata-action@902fa8ec7d6ecbf8d84d538b9b233a880e428804 # v5.7.0
+        with:
+          images: |
+            ${{ steps.login-ecr.outputs.registry }}/opensanctions
+          tags: |
+            type=semver,pattern={{raw}}
+            type=semver,pattern={{version}}
+            type=ref,event=branch
+            type=ref,event=pr
+            type=sha,format=long,prefix=
+          flavor: |
+            latest=auto
+      - name: Build the Docker image
+        uses: docker/build-push-action@471d1dc4e07e5cdedd4c2171150001c434f0b7a4 # v6.15.0
+        with:
+          context: .
+          push: ${{ github.event_name != 'pull_request' }}
+          platforms: linux/aarch64
+          cache-from: ${{ github.event_name == 'pull_request' && 'type=gha' || '' }}
+          cache-to: ${{ github.event_name == 'pull_request' && 'type=gha,mode=max' || '' }}
+          tags: ${{ steps.docker-meta.outputs.tags }}
+          labels: ${{ steps.docker-meta.outputs.labels }}
+          build-args: |
+            BUILD_DATE=${{ env.BUILD_DATE }}
+            BUILD_VERSION=${{ env.BUILD_VERSION }}
+            GIT_COMMIT=${{ env.GIT_COMMIT }}
+
+  build-amd:
+    name: build-amd
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' && (github.event.inputs.platform == 'amd' || github.event.inputs.platform == 'both')
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Checkout the repo
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: Hunted-Labs/tools/actions/login-ecr@2b9f07140688c85f113e68217ca23b3045870a36
+        with:
+          arn: ${{ vars.ECR_ARN }}
+      - name: Set build metadata
+        env:
+          BRANCH_NAME: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          if [ "${BRANCH_NAME}" = "main" ]; then
+            version="$(git -c "versionsort.suffix=-beta" -c "versionsort.suffix=-rc" describe --tags 2>/dev/null || echo "${GITHUB_SHA}")"
+          else
+            version="${BRANCH_NAME}"
+          fi
+          {
+            echo "BUILD_DATE=$(date +%Y%m%d)"
+            echo "BUILD_VERSION=${version}"
+            echo "GIT_COMMIT=${GITHUB_SHA}"
+          } >> "$GITHUB_ENV"
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@b5ca514318bd6ebac0fb2aedd5d36ec1b5c232a2 # v3.10.0
+      - name: Docker meta
+        id: docker-meta
+        uses: docker/metadata-action@902fa8ec7d6ecbf8d84d538b9b233a880e428804 # v5.7.0
+        with:
+          images: |
+            ${{ steps.login-ecr.outputs.registry }}/opensanctions
+          tags: |
+            type=semver,pattern={{raw}}
+            type=semver,pattern={{version}}
+            type=ref,event=branch
+            type=ref,event=pr
+            type=sha,format=long,prefix=
+          flavor: |
+            latest=auto
+      - name: Build the Docker image
+        uses: docker/build-push-action@471d1dc4e07e5cdedd4c2171150001c434f0b7a4 # v6.15.0
+        with:
+          context: .
+          push: ${{ github.event_name != 'pull_request' }}
+          platforms: linux/amd64
+          cache-from: ${{ github.event_name == 'pull_request' && 'type=gha' || '' }}
+          cache-to: ${{ github.event_name == 'pull_request' && 'type=gha,mode=max' || '' }}
+          tags: ${{ steps.docker-meta.outputs.tags }}
+          labels: ${{ steps.docker-meta.outputs.labels }}
+          build-args: |
+            BUILD_DATE=${{ env.BUILD_DATE }}
+            BUILD_VERSION=${{ env.BUILD_VERSION }}
+            GIT_COMMIT=${{ env.GIT_COMMIT }}
