@@ -1133,3 +1133,9 @@ lookups:
           - Thomas J. Dzwilewski
           - Michael Eisemann
           - Louis Montaino
+      - match: vestech partners llc, marita partners llc, mi 15 llc, and riadh fakhoury
+        names:
+          - Vestech Partners LLC
+          - Marita Partners LLC
+          - MI 15 LLC
+          - Riadh Fakhoury
