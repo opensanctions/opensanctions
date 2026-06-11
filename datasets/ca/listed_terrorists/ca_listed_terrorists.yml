@@ -71,7 +71,7 @@ lookups:
           - Revolutionary Armed Forces of Colombia-People's Army
           - Fuerzas Armadas Revolucionarias de Colombia-Ejército del Pueblo
           - FARC-EP
-      - match: "Jaish-i-Mohammed (Mohammad, Muhammad, Muhammed), Jaish-e-Mohammad (Muhammed), Jaish-e-Mohammad Mujahideen E-Tanzeem, Jeish-e-Mahammed, Army of Mohammed, Mohammed's Army, Tehrik Ul-Furqaan, National Movement for the Restoration of Pakistani Sovereignty and Army of the Prophet."
+      - match: "Jaish-i-Mohammed (Mohammad, Muhammad, Muhammed), Jaish-e-Mohammad (Muhammed), Jaish-e-Mohammad Mujahideen E-Tanzeem, Jeish-e-Mahammed, Army of Mohammed, Mohammed's Army, Tehrik Ul-Furqaan, National Movement for the Restoration of Pakistani Sovereignty and Army of the Prophet"
         aliases:
           - Jaish-i-Mohammed
           - Jaish-i-Mohammad
@@ -165,7 +165,7 @@ lookups:
           - Jaysh al-Sunnah
           - Jaish al-Sunna
           - Jaysh al-Sunna
-      - match: "Hizbullah, Hizbollah, Hezbollah, Hezballah, Hizbullah, The Party of God, Islamic Jihad (Islamic Holy War), Islamic Jihad Organization, Islamic Resistance, Islamic Jihad for the Liberation of Palestine, Ansar al-Allah (Followers of God/Partisans of God/God's Helpers), Ansarollah (Followers of God/Partisans of God/God's Helpers), Ansar Allah (Followers of God/Partisans of God/God's Helpers), Al-Muqawamah al-Islamiyyah (Islamic Resistance), Organization of the Oppressed, Organization of the Oppressed on Earth, Revolutionary Justice Organization, Organization of Right Against Wrong and Followers of the Prophet Muhammed."
+      - match: "Hizbullah, Hizbollah, Hezbollah, Hezballah, Hizbullah, The Party of God, Islamic Jihad (Islamic Holy War), Islamic Jihad Organization, Islamic Resistance, Islamic Jihad for the Liberation of Palestine, Ansar al-Allah (Followers of God/Partisans of God/God's Helpers), Ansarollah (Followers of God/Partisans of God/God's Helpers), Ansar Allah (Followers of God/Partisans of God/God's Helpers), Al-Muqawamah al-Islamiyyah (Islamic Resistance), Organization of the Oppressed, Organization of the Oppressed on Earth, Revolutionary Justice Organization, Organization of Right Against Wrong and Followers of the Prophet Muhammed"
         aliases:
           - Hizbullah
           - Hizbollah
