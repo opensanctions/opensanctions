@@ -6,7 +6,7 @@ from zavod.stateful.positions import categorise
 
 # The UK Parliament Members API caps the `take` page size at 20 records.
 PAGE_SIZE = 20
-TOPICS = ["gov.national"]
+TOPICS = ["gov.national", "gov.legislative"]
 
 
 def crawl_member(
