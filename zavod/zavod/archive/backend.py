@@ -127,11 +127,11 @@ class GoogleCloudObject(ArchiveObject):
             self.backend.bucket,
             self.name,
         )
-        if ttl is not None:
-            # copy_blob inherits cache_control from the source; override so the
-            # /datasets/ copies don't keep the long TTL we set on artifacts.
-            self._blob.cache_control = f"public, max-age={ttl}"
-            self._blob.patch()
+        # copy_blob inherits cache_control from the source; override it so the
+        # destination doesn't keep the source's TTL (which may differ — e.g.
+        # /datasets/ copies should not inherit the long TTL of an artifact).
+        self._blob.cache_control = f"public, max-age={ttl}" if ttl is not None else None
+        self._blob.patch()
 
 
 class GoogleCloudBackend(ArchiveBackend):

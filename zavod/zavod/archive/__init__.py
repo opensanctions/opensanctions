@@ -14,6 +14,10 @@ be found for the latest successful run.
 See archive backends for operating on the archive - in OpenSanctions production
 this is the Google Cloud Storage bucket data.opensanctions.org. In the local
 filesystem can be used e.g. in development and testing.
+
+When storing in /artifacts we use the verb "archive".
+When storing in /datasets we use the verb "publish".
+We "publish" by copying server-side what's been already been "archived".
 """
 
 import shutil
@@ -50,18 +54,17 @@ RESOURCES_FILE = "resources.json"
 INDEX_FILE = "index.json"
 CATALOG_FILE = "catalog.json"
 VERSIONS_FILE = "versions.json"
-# Files registered as DatasetResources during the run that we don't want
-# included in the public `resources` list (they're either internal-only or
-# already referenced under a dedicated metadata field like statistics_url /
-# delta_url). They're still uploaded to /artifacts/ via the resources loop.
+# HACK: DatasetResources are defined as downloadable files of a dataset.
+# A couple of exporters use this as a mechanism to get files archived,
+# and some of those files are also referenced elsewhere in metadata. But we don't
+# want any of these files listed as resources in the dataset's resource list.
 UNLISTED_RESOURCES = [
     STATISTICS_FILE,
     DELTA_EXPORT_FILE,
+    DELTA_INDEX_FILE,
 ]
-# Files we persist about a run that are NOT registered as DatasetResources.
-# Disjoint from the registered resources; together they form the full set of
-# per-dataset files uploaded to /artifacts/.
-ARTIFACT_FILES = [
+# Files we persist about a run other than DatasetResources.
+EXTRA_ARTIFACTS = [
     ISSUES_FILE,
     ISSUES_LOG,
     INDEX_FILE,
@@ -69,7 +72,6 @@ ARTIFACT_FILES = [
     STATEMENTS_FILE,
     VERSIONS_FILE,
     RESOURCES_FILE,
-    DELTA_INDEX_FILE,
     HASH_FILE,
 ]
 TTL_SHORT = 10 * 60
@@ -200,7 +202,7 @@ def archive_version_history(dataset_name: str) -> None:
     get_versions_data.cache_clear()
 
 
-def publish_artifact(
+def archive_artifact(
     path: Path,
     dataset_name: str,
     version: Version,
@@ -208,37 +210,14 @@ def publish_artifact(
     mime_type: Optional[str] = None,
 ) -> None:
     """Publish a file in the given versions artifact directory of the dataset."""
+    assert path.relative_to(dataset_data_path(dataset_name))
     name = f"{ARTIFACTS}/{dataset_name}/{version.id}/{resource}"
     backend = get_archive_backend()
     object = backend.get_object(name)
     object.publish(path, mime_type=mime_type, ttl=TTL_LONG)
 
 
-def publish_resource(
-    path: Path,
-    dataset_name: Optional[str],
-    resource: str,
-    republish_to_latest: bool = True,
-    mime_type: Optional[str] = None,
-) -> None:
-    """Resources are files published to the main publication directory of the dataset."""
-    backend = get_archive_backend()
-    if dataset_name is not None:
-        assert path.relative_to(dataset_data_path(dataset_name))
-        resource = f"{dataset_name}/{resource}"
-    release_name = f"{DATASETS}/{settings.RELEASE}/{resource}"
-    release_object = backend.get_object(release_name)
-    release_object.publish(path, mime_type=mime_type, ttl=TTL_MEDIUM)
-    invalidate_archive_cache(release_name)
-
-    if republish_to_latest and settings.RELEASE != LATEST:
-        latest_name = f"{DATASETS}/{LATEST}/{resource}"
-        latest_object = backend.get_object(latest_name)
-        latest_object.republish(release_name, ttl=TTL_MEDIUM)
-        invalidate_archive_cache(latest_name)
-
-
-def republish_resource_from_artifact(
+def publish_artifact(
     dataset_name: str,
     version_id: str,
     resource: str,

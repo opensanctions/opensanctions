@@ -7,11 +7,11 @@ from zavod.exporters.metadata import DatasetVersionResult
 from zavod.meta import Dataset
 from zavod.logs import get_logger
 from zavod.archive import DATASETS, LATEST, UNLISTED_RESOURCES, dataset_resource_path
-from zavod.archive import archive_version_history, publish_artifact
-from zavod.archive import republish_resource_from_artifact
+from zavod.archive import archive_version_history, archive_artifact
+from zavod.archive import publish_artifact
 from zavod.archive import INDEX_FILE, CATALOG_FILE
 from zavod.archive import STATEMENTS_FILE, RESOURCES_FILE, STATISTICS_FILE
-from zavod.archive import VERSIONS_FILE, ARTIFACT_FILES
+from zavod.archive import VERSIONS_FILE, EXTRA_ARTIFACTS
 from zavod.archive import DELTA_EXPORT_FILE, DELTA_INDEX_FILE
 from zavod.runtime.resources import DatasetResources
 from zavod.runtime.versions import get_latest
@@ -23,12 +23,7 @@ log = get_logger(__name__)
 def _archive_artifacts(dataset: Dataset) -> None:
     """Upload every file we persist about a run to /artifacts/{dataset}/{version}/.
 
-    This covers both registered resources (entities.ftm.json, statements.csv,
-    statistics.json, entities.delta.json, ...) and the non-resource files
-    listed in ARTIFACT_FILES (issues, versions, hash, statements.pack,
-    index, ...). archive_failure publishes here without ever copying to
-    /datasets/; publish_dataset reuses this and then copies the public
-    subset to /datasets/.
+    This covers both registered resources and non-resource files.
     """
     version = get_latest(dataset.name, backfill=False)
     if version is None:
@@ -39,7 +34,7 @@ def _archive_artifacts(dataset: Dataset) -> None:
         if not path.is_file():
             log.error("Resource not found: %s" % path, dataset=dataset.name)
             continue
-        publish_artifact(
+        archive_artifact(
             path,
             dataset.name,
             version,
@@ -47,11 +42,12 @@ def _archive_artifacts(dataset: Dataset) -> None:
             mime_type=resource.mime_type,
         )
 
-    for artifact in ARTIFACT_FILES:
+    for artifact in EXTRA_ARTIFACTS:
         path = dataset_resource_path(dataset.name, artifact)
         if not path.is_file():
+            log.error("Resource not found: %s" % path, dataset=dataset.name)
             continue
-        publish_artifact(
+        archive_artifact(
             path,
             dataset.name,
             version,
@@ -95,7 +91,7 @@ def publish_dataset(dataset: Dataset, republish_to_latest: bool = True) -> None:
                 dataset=dataset.name,
             )
             continue
-        republish_resource_from_artifact(
+        publish_artifact(
             dataset.name, version.id, name, republish_to_latest=republish_to_latest
         )
 
