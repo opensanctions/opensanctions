@@ -160,8 +160,9 @@ def crawl(context: Context) -> None:
             name=config["name"],
             country="au",
             wikidata_id=config["wikidata_id"],
+            topics=["gov.state", "gov.legislative"],
         )
-        categorisation = categorise(context, position, default_is_pep=True)
+        categorisation = categorise(context, position)
         context.emit(position)
         house_positions[house_code] = (position, categorisation, config["chamber"])
 

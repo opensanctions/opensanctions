@@ -1,6 +1,5 @@
 from urllib.parse import urlparse
 
-from lxml import etree
 from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
@@ -19,7 +18,7 @@ def parse_party(doc: Element) -> tuple[str | None, str | None]:
     electoral position if exists
     """
     for ptag in h.xpath_elements(doc, '//main[@id="main"]//p'):
-        text = etree.tostring(ptag, method="text", encoding="unicode")
+        text = h.element_text(ptag)
         if "member for" in text:
             member_list = text.split("member for")
             if len(member_list) == 2:
@@ -116,6 +115,7 @@ def crawl(context: Context) -> None:
         name="Member of the House of Assembly of Tasmania",
         country="au",
         subnational_area="Tasmania",
+        topics=["gov.state", "gov.legislative"],
         wikidata_id="Q19007285",
     )
     ha_categorisation = categorise(context, ha_position, default_is_pep=True)
@@ -126,6 +126,7 @@ def crawl(context: Context) -> None:
         name="Member of the Legislative Council of Tasmania",
         country="au",
         subnational_area="Tasmania",
+        topics=["gov.state", "gov.legislative"],
         wikidata_id="Q19299542",
     )
     lc_categorisation = categorise(context, lc_position, default_is_pep=True)
