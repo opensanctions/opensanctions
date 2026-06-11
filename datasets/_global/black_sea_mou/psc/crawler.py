@@ -62,7 +62,9 @@ def attempt_login(context: Context) -> None:
         login_url, data={"captcha": code}, headers=HEADERS, method="POST"
     )
     if not login_text:
-        raise ValueError(f"Login failed: server returned empty response (wrong CAPTCHA code: {code})")
+        raise ValueError(
+            f"Login failed: server returned empty response (wrong CAPTCHA code: {code})"
+        )
 
 
 def crawl(context: Context) -> None:
@@ -74,7 +76,9 @@ def crawl(context: Context) -> None:
         except ValueError as exc:
             context.log.warning(str(exc))
             if attempt == MAX_LOGIN_ATTEMPTS:
-                raise RuntimeError(f"Login failed after {MAX_LOGIN_ATTEMPTS} attempts") from exc
+                raise RuntimeError(
+                    f"Login failed after {MAX_LOGIN_ATTEMPTS} attempts"
+                ) from exc
 
     crawl_psc_records(
         context,
