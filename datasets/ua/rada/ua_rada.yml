@@ -10,14 +10,15 @@ summary: >-
   Current and historical members of the Verkhovna Rada, the unicameral parliament
   of Ukraine.
 description: |
-  The Verkhovna Rada is the unicameral parliament of Ukraine, composed of 450
-  People's Deputies (народні депутати України) elected for the duration of a
-  convocation.
+  Current and historical People's Deputies (народні депутати України) of the
+  Verkhovna Rada, the unicameral parliament of Ukraine. Its 450 deputies are elected
+  for the duration of a convocation and hold the country's legislative power,
+  including passing laws, adopting the budget, and forming the Cabinet of Ministers.
 
-  This dataset is built from the official Verkhovna Rada open-data feed for the
-  current convocation. The source contains all deputies elected during the
-  convocation, including those who have since resigned or whose mandate was
-  terminated early.
+  This dataset records the deputies of each convocation, including those who have
+  since resigned or whose mandate was terminated early, with their name, date of
+  birth, gender, party affiliation, education, the electoral district or region they
+  represented, and a biography.
 url: https://www.rada.gov.ua/
 
 publisher:
