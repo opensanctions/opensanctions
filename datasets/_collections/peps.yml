@@ -35,11 +35,16 @@ children:
   - ar_parliament
   - at_meine_abgeordneten
   - at_parlament
+  - au_nsw_parliament
+  - au_parliament
+  - au_tas_parliament
+  - au_vic_parliament
   - az_parliament
   - be_chamber
   - be_flemish_parliament
   - be_walloon_parliament
   - bg_jud_declarations
+  - bg_parliament
   - br_pep
   - ca_commons
   - ca_foreign_reps
@@ -68,6 +73,8 @@ children:
   - fr_hatvp_declarations
   - fr_maires
   - fr_senat
+  - gb_commons
+  - gb_lords
   - ge_declarations
   - gr_parliament
   - hk_legco
@@ -93,6 +100,7 @@ children:
   - me_acp_peps
   - me_skupstina
   - mk_officials
+  - mn_parliament
   - mt_parlament
   - mx_deputies
   - mx_governors
@@ -103,6 +111,7 @@ children:
   - nl_senate
   - no_brreg
   - no_storting
+  - nz_parliament
   - pl_sejm
   - pl_senate
   - pt_parliament
@@ -116,6 +125,7 @@ children:
   - sk_public_officials
   - th_cabinet
   - tr_parliament
+  - ua_rada
   - un_ga_protocol
   - us_cia_world_leaders
   - us_congress
