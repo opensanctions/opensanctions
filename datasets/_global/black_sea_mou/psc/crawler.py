@@ -37,14 +37,16 @@ LLM_VERSION = "gpt-4o"
 PROMPT = """This is an image of a numeric CAPTCHA.
 Extract the 5-digit number shown in the image and return it as JSON: {"code": "XXXXX"}.
 Preserve leading zeros. The answer is always exactly 5 digits."""
+MAX_LOGIN_ATTEMPTS = 5
 
 
-def crawl(context: Context) -> None:
+def attempt_login(context: Context) -> None:
+    """Fetch a fresh CAPTCHA and attempt login, establishing the session cookie."""
     login_page = context.fetch_html(context.data_url)
     image = h.xpath_element(login_page, './/img[contains(@src, "captcha.php")]')
     captcha_url = urljoin(context.data_url, image.get("src"))
     image_path: Path = context.fetch_resource("captcha.png", captcha_url)
-    context.log.debug(f"Fetched CAPTCHA image from {captcha_url} to {image_path}")
+    context.log.debug(f"Fetched CAPTCHA image from {captcha_url}")
     result = run_image_prompt(
         context,
         prompt=PROMPT,
@@ -52,13 +54,27 @@ def crawl(context: Context) -> None:
         cache_days=0,
         model=LLM_VERSION,
     )
-    login_data = {"captcha": result["code"]}
-    context.log.debug(f"Extracted CAPTCHA code: {result['code']} from the image")
+    code = result["code"]
+    context.log.debug(f"Extracted CAPTCHA code: {code}")
     login_url = urljoin(context.data_url, "?action=login")
-    login_resp = context.fetch_html(
-        login_url, data=login_data, headers=HEADERS, method="POST"
+    # The server returns an empty body on wrong CAPTCHA, HTML on success.
+    login_text = context.fetch_text(
+        login_url, data={"captcha": code}, headers=HEADERS, method="POST"
     )
-    assert login_resp is not None, "Login failed, response is None"
+    if not login_text:
+        raise ValueError(f"Login failed: server returned empty response (wrong CAPTCHA code: {code})")
+
+
+def crawl(context: Context) -> None:
+    for attempt in range(1, MAX_LOGIN_ATTEMPTS + 1):
+        try:
+            context.log.info(f"Login attempt {attempt}/{MAX_LOGIN_ATTEMPTS}")
+            attempt_login(context)
+            break
+        except ValueError as exc:
+            context.log.warning(str(exc))
+            if attempt == MAX_LOGIN_ATTEMPTS:
+                raise RuntimeError(f"Login failed after {MAX_LOGIN_ATTEMPTS} attempts") from exc
 
     crawl_psc_records(
         context,
