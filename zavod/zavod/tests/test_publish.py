@@ -1,3 +1,4 @@
+import json
 from typing import Optional
 from followthemoney.dataset import VersionHistory
 
@@ -59,6 +60,26 @@ def test_publish_dataset(testdataset1: Dataset):
 
     publish_dataset(testdataset1, republish_to_latest=True)
     assert latest_path.joinpath(INDEX_FILE).exists()
+
+    # Resources are also copied to /datasets/{RELEASE} and /datasets/latest, and
+    # both copies must be byte-identical to the canonical /artifacts version.
+    artifact_index = artifact_path.joinpath(INDEX_FILE).read_bytes()
+    assert release_path.joinpath(INDEX_FILE).read_bytes() == artifact_index
+    assert latest_path.joinpath(INDEX_FILE).read_bytes() == artifact_index
+    artifact_entities = artifact_path.joinpath("entities.ftm.json").read_bytes()
+    assert release_path.joinpath("entities.ftm.json").read_bytes() == artifact_entities
+    assert latest_path.joinpath("entities.ftm.json").read_bytes() == artifact_entities
+
+    # URLs in the index.json point at the canonical /artifacts/{ds}/{v}/ path.
+    index = json.loads(artifact_index)
+    expected_prefix = (
+        f"{settings.ARCHIVE_SITE}/{ARTIFACTS}/{testdataset1.name}/{history.latest.id}/"
+    )
+    assert index["index_url"] == expected_prefix + INDEX_FILE
+    assert len(index["resources"]) > 0
+    for resource in index["resources"]:
+        assert resource["url"].startswith(expected_prefix), resource
+        assert resource["url"].endswith(resource["name"]), resource
 
     # Test backfill:
     clear_data_path(testdataset1.name)

@@ -206,7 +206,36 @@ def publish_resource(
     if republish_to_latest and settings.RELEASE != LATEST:
         latest_name = f"{DATASETS}/{LATEST}/{resource}"
         latest_object = backend.get_object(latest_name)
-        latest_object.republish(release_name)
+        latest_object.republish(release_name, ttl=TTL_MEDIUM)
+        invalidate_archive_cache(latest_name)
+
+
+def republish_resource_from_artifact(
+    dataset_name: str,
+    version_id: str,
+    resource: str,
+    republish_to_latest: bool = True,
+) -> None:
+    """Server-side copy from /artifacts/{dataset}/{version}/{resource} into
+    /datasets/{RELEASE}/{dataset}/{resource} (and /datasets/{LATEST}/{dataset}/{resource}
+    when republish_to_latest=True and RELEASE != LATEST).
+
+    The /artifacts/ copy is the canonical, immutable URL surfaced in metadata;
+    the /datasets/ copies exist for back-compat with customers using stable
+    /datasets/{LATEST}/... or /datasets/{RELEASE}/... URLs.
+    """
+    backend = get_archive_backend()
+    artifact_name = f"{ARTIFACTS}/{dataset_name}/{version_id}/{resource}"
+
+    release_name = f"{DATASETS}/{settings.RELEASE}/{dataset_name}/{resource}"
+    release_object = backend.get_object(release_name)
+    release_object.republish(artifact_name, ttl=TTL_MEDIUM)
+    invalidate_archive_cache(release_name)
+
+    if republish_to_latest and settings.RELEASE != LATEST:
+        latest_name = f"{DATASETS}/{LATEST}/{dataset_name}/{resource}"
+        latest_object = backend.get_object(latest_name)
+        latest_object.republish(artifact_name, ttl=TTL_MEDIUM)
         invalidate_archive_cache(latest_name)
 
 

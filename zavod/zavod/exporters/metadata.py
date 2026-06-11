@@ -28,11 +28,18 @@ class DatasetVersionResult(StrEnum):
 def get_base_dataset_metadata(
     dataset: Dataset, version: Optional[Version] = None
 ) -> Dict[str, Any]:
+    if version is not None:
+        # The /artifacts/{dataset}/{version}/ path is the canonical, immutable
+        # location; fall back to /datasets/ only for datasets that have never
+        # published a version (and therefore have no resources to point at).
+        index_url = make_artifact_url(dataset.name, version.id, INDEX_FILE)
+    else:
+        index_url = make_published_url(dataset.name, INDEX_FILE)
     meta = {
         "issue_levels": {},
         "issue_count": 0,
         "updated_at": settings.RUN_TIME_ISO,
-        "index_url": make_published_url(dataset.name, INDEX_FILE),
+        "index_url": index_url,
     }
     if version is not None:
         meta["version"] = version.id
@@ -66,10 +73,11 @@ def get_base_dataset_metadata(
     res_datas: List[Dict[str, Any]] = []
     for res in resources.all():
         if res.name in ARTIFACT_FILES:
-            # TODO: we could make artifact URLs here?
             continue
         res_data = res.model_dump(mode="json", exclude_none=True)
         res_data["path"] = res.name
+        if version is not None:
+            res_data["url"] = make_artifact_url(dataset.name, version.id, res.name)
         res_datas.append(res_data)
     meta["resources"] = res_datas
     return meta
