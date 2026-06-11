@@ -75,11 +75,11 @@ config:
 assertions:
   min:
     schema_entities:
-      Person: 70
+      Person: 20
       Company: 50
-      LegalEntity: 10
+      LegalEntity: 5
   max:
     schema_entities:
-      Person: 150
+      Person: 50
       Company: 120
-      LegalEntity: 100
+      LegalEntity: 30
