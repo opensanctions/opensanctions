@@ -1,5 +1,4 @@
-from pathlib import Path
-from typing import List, Optional, Tuple
+from typing import List
 
 from rigour.mime.types import JSON
 
@@ -7,8 +6,8 @@ from zavod.archive.backend import get_archive_backend
 from zavod.exporters.metadata import DatasetVersionResult
 from zavod.meta import Dataset
 from zavod.logs import get_logger
-from zavod.archive import DATASETS, LATEST, dataset_resource_path
-from zavod.archive import publish_dataset_version, publish_artifact
+from zavod.archive import DATASETS, LATEST, UNLISTED_RESOURCES, dataset_resource_path
+from zavod.archive import archive_version_history, publish_artifact
 from zavod.archive import republish_resource_from_artifact
 from zavod.archive import INDEX_FILE, CATALOG_FILE
 from zavod.archive import STATEMENTS_FILE, RESOURCES_FILE, STATISTICS_FILE
@@ -22,93 +21,80 @@ log = get_logger(__name__)
 
 
 def _archive_artifacts(dataset: Dataset) -> None:
-    """Archive metadata-only artifacts (issues, statistics, versions, ...) to
-    /artifacts/{dataset}/{version}/. Used by archive_failure; publish_dataset has
-    its own inlined version that also handles the heavy resources."""
-    version = get_latest(dataset.name, backfill=False)
-    if version is None:
-        raise ValueError(f"No working version found for dataset: {dataset.name}")
-    for artifact in ARTIFACT_FILES:
-        path = dataset_resource_path(dataset.name, artifact)
-        if path.is_file():
-            publish_artifact(
-                path,
-                dataset.name,
-                version,
-                artifact,
-                mime_type=JSON if artifact.endswith(".json") else None,
-            )
-    publish_dataset_version(dataset.name)
+    """Upload every file we persist about a run to /artifacts/{dataset}/{version}/.
 
-
-def publish_dataset(dataset: Dataset, republish_to_latest: bool = True) -> None:
-    """Publish a dataset.
-
-    Each per-dataset file is uploaded once to /artifacts/{dataset}/{version}/{file}
-    (the canonical, immutable URL surfaced in metadata) and then server-side copied
-    to /datasets/{RELEASE}/{dataset}/{file} (and /datasets/{LATEST}/{dataset}/{file})
-    for back-compat with customers who hardcode those URLs. Internal-only metadata
-    artifacts (issues, statistics, versions, ...) only go to /artifacts/.
+    This covers both registered resources (entities.ftm.json, statements.csv,
+    statistics.json, entities.delta.json, ...) and the non-resource files
+    listed in ARTIFACT_FILES (issues, versions, hash, statements.pack,
+    index, ...). archive_failure publishes here without ever copying to
+    /datasets/; publish_dataset reuses this and then copies the public
+    subset to /datasets/.
     """
     version = get_latest(dataset.name, backfill=False)
     if version is None:
         raise ValueError(f"No working version found for dataset: {dataset.name}")
 
-    # (path, name, mime_type) for files that are both archived as artifacts AND
-    # copied to the /datasets/ paths.
-    resource_files: List[Tuple[Path, str, Optional[str]]] = []
-    resources = DatasetResources(dataset)
-    for resource in resources.all():
-        if resource.name in ARTIFACT_FILES:
-            # The delta and statistics exporters write internal artifacts via the
-            # resources registry; strip them so they don't appear in the
-            # dataset's public resource list.
-            resources.remove(resource.name)
-            continue
+    for resource in DatasetResources(dataset).all():
         path = dataset_resource_path(dataset.name, resource.name)
         if not path.is_file():
             log.error("Resource not found: %s" % path, dataset=dataset.name)
             continue
-        resource_files.append((path, resource.name, resource.mime_type))
+        publish_artifact(
+            path,
+            dataset.name,
+            version,
+            resource.name,
+            mime_type=resource.mime_type,
+        )
 
-    meta_files = [INDEX_FILE]
-    if dataset.is_collection:
-        meta_files.append(CATALOG_FILE)
-    for meta in meta_files:
-        path = dataset_resource_path(dataset.name, meta)
-        if not path.is_file():
-            log.error("Metadata file not found: %s" % path, dataset=dataset.name)
-            continue
-        mime_type = JSON if meta.endswith(".json") else None
-        resource_files.append((path, meta, mime_type))
-
-    # 1. Upload each resource/index/catalog file to /artifacts/{dataset}/{version}/.
-    for path, name, mime_type in resource_files:
-        publish_artifact(path, dataset.name, version, name, mime_type=mime_type)
-
-    # 2. Upload the remaining internal artifacts (issues, statistics, versions,
-    #    delta, hash, resources) to /artifacts/ only — they don't get copied to
-    #    /datasets/.
     for artifact in ARTIFACT_FILES:
-        if artifact in (INDEX_FILE, CATALOG_FILE):
-            continue
         path = dataset_resource_path(dataset.name, artifact)
-        if path.is_file():
-            publish_artifact(
-                path,
-                dataset.name,
-                version,
-                artifact,
-                mime_type=JSON if artifact.endswith(".json") else None,
-            )
-    publish_dataset_version(dataset.name)
+        if not path.is_file():
+            continue
+        publish_artifact(
+            path,
+            dataset.name,
+            version,
+            artifact,
+            mime_type=JSON if artifact.endswith(".json") else None,
+        )
 
-    # 3. Server-side copy each public file from /artifacts/ into the
-    #    /datasets/{RELEASE}/ and /datasets/{LATEST}/ locations.
+    archive_version_history(dataset.name)
+
+
+def publish_dataset(dataset: Dataset, republish_to_latest: bool = True) -> None:
+    """Publish a dataset.
+
+    Every file we persist about this run is uploaded to /artifacts/{dataset}/{version}/
+
+    Listed resources plus index and collection catalog are copied to
+    /datasets/{RELEASE}/{dataset}/ backward compatibility and
+    /datasets/{LATEST}/{dataset}/ for discovery without the full catalog.
+    """
+    _archive_artifacts(dataset)
+
+    publish_to_datasets: List[str] = [
+        r.name
+        for r in DatasetResources(dataset).all()
+        if r.name not in UNLISTED_RESOURCES
+    ]
+    publish_to_datasets.append(INDEX_FILE)
+    if dataset.is_collection:
+        publish_to_datasets.append(CATALOG_FILE)
+
+    version = get_latest(dataset.name, backfill=False)
+    assert version is not None
+
     if republish_to_latest:
-        published_files = {name for _path, name, _mime_type in resource_files}
-        _warn_about_stale_latest_files(dataset, published_files)
-    for _path, name, _mime_type in resource_files:
+        _warn_about_stale_latest_files(dataset, set(publish_to_datasets))
+
+    for name in publish_to_datasets:
+        if not dataset_resource_path(dataset.name, name).is_file():
+            log.error(
+                "File to copy to /datasets/ not found: %s" % name,
+                dataset=dataset.name,
+            )
+            continue
         republish_resource_from_artifact(
             dataset.name, version.id, name, republish_to_latest=republish_to_latest
         )

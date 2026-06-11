@@ -1,6 +1,6 @@
 """
-The archive is the place where we store all the outputs of zavod runs
-beyond a single run.
+The archive is the place where we store the outputs of zavod runs
+beyond beyond their local scratch space.
 
 `/artifacts/{dataset}/{version}/` is the canonical, immutable location for all
 outputs of a given run, and is what we point to in the metadata.
@@ -50,15 +50,25 @@ RESOURCES_FILE = "resources.json"
 INDEX_FILE = "index.json"
 CATALOG_FILE = "catalog.json"
 VERSIONS_FILE = "versions.json"
+# Files registered as DatasetResources during the run that we don't want
+# included in the public `resources` list (they're either internal-only or
+# already referenced under a dedicated metadata field like statistics_url /
+# delta_url). They're still uploaded to /artifacts/ via the resources loop.
+UNLISTED_RESOURCES = [
+    STATISTICS_FILE,
+    DELTA_EXPORT_FILE,
+]
+# Files we persist about a run that are NOT registered as DatasetResources.
+# Disjoint from the registered resources; together they form the full set of
+# per-dataset files uploaded to /artifacts/.
 ARTIFACT_FILES = [
     ISSUES_FILE,
     ISSUES_LOG,
     INDEX_FILE,
+    CATALOG_FILE,
     STATEMENTS_FILE,
-    STATISTICS_FILE,
     VERSIONS_FILE,
     RESOURCES_FILE,
-    DELTA_EXPORT_FILE,
     DELTA_INDEX_FILE,
     HASH_FILE,
 ]
@@ -176,7 +186,7 @@ def get_artifact_object(
     return None
 
 
-def publish_dataset_version(dataset_name: str) -> None:
+def archive_version_history(dataset_name: str) -> None:
     """Publish the history of versions for a given dataset to the artifact directory."""
     path = dataset_resource_path(dataset_name, VERSIONS_FILE)
     if not path.exists():

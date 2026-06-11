@@ -8,7 +8,7 @@ from zavod.logs import get_logger
 from zavod.meta import Dataset, get_catalog
 from zavod.archive import INDEX_FILE, STATISTICS_FILE, ISSUES_FILE
 from zavod.archive import CATALOG_FILE, DELTA_INDEX_FILE, DELTA_EXPORT_FILE
-from zavod.archive import ARTIFACT_FILES
+from zavod.archive import UNLISTED_RESOURCES
 from zavod.archive import get_dataset_artifact, get_artifact_object
 from zavod.archive import iter_dataset_versions, dataset_resource_path
 from zavod.runtime.urls import make_published_url, make_artifact_url
@@ -72,7 +72,7 @@ def get_base_dataset_metadata(
     resources = DatasetResources(dataset)
     res_datas: List[Dict[str, Any]] = []
     for res in resources.all():
-        if res.name in ARTIFACT_FILES:
+        if res.name in UNLISTED_RESOURCES:
             continue
         res_data = res.model_dump(mode="json", exclude_none=True)
         res_data["path"] = res.name
