@@ -2,23 +2,22 @@ title: New Zealand Members of Parliament
 entry_point: crawler.py
 prefix: nz-parl
 coverage:
-  frequency: weekly
-  start: 2026-06-08
+  frequency: monthly
+  start: 2026-06-11
 load_statements: true
 ci_test: false  # fetched via the Zyte API (catalogue.data.govt.nz is anti-bot protected)
 summary: >-
-  Current and recent members of the New Zealand House of Representatives
+  Current and historical members of the New Zealand House of Representatives
 description: |
-  Members of the House of Representatives, the unicameral parliament of New Zealand
-  (120–123 seats, elected under a mixed-member proportional system).
+  Members of the House of Representatives, the unicameral parliament of New Zealand.
+  Its members are elected for three-year terms under a mixed-member proportional
+  system, currently filling 120–123 seats, and hold the country's legislative power,
+  including making laws, voting supply, and forming the government from which the Prime
+  Minister and Cabinet are drawn.
 
-  The data is sourced from the official "Members of Parliament" open dataset published
-  on data.govt.nz by the Parliamentary Service / Department of Internal Affairs. Two
-  resources are combined on a stable member identifier: a biographical roster (name,
-  year of birth and death, gender) covering all members since 1854, and a list of
-  parliamentary terms (electorate, party, dates elected and vacated). A person is
-  emitted when at least one of their terms still qualifies them as a politically
-  exposed person.
+  This dataset records both current and historical members, with
+  their name, year of birth and death, gender, the electorate they represented, and
+  their party affiliation across each parliamentary term.
 url: https://catalogue.data.govt.nz/dataset/members-of-parliament
 publisher:
   name: New Zealand Parliament

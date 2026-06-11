@@ -2,22 +2,21 @@ title: Bulgaria Members of the National Assembly
 entry_point: crawler.py
 prefix: bg-na
 coverage:
-  frequency: weekly
-  start: 2026-06-10
+  frequency: monthly
+  start: 2026-06-11
 load_statements: true
 ci_test: false
 summary: >-
   Members of the National Assembly of Bulgaria, the country's unicameral legislature.
 description: |
-  The National Assembly (Bulgarian: Народно събрание, Narodno sabranie) is the
-  unicameral parliament of the Republic of Bulgaria, composed of 240 members elected
+  Current and historical members of the National Assembly (Bulgarian: Народно събрание, Narodno sabranie),
+  the unicameral parliament of the Republic of Bulgaria, composed of 240 members elected
   for a four-year term. It exercises legislative power, elects and dismisses the
   Council of Ministers, and adopts the state budget.
 
   This dataset covers members of the National Assembly across the assemblies for which
-  the parliament publishes structured data (the 39th assembly onward, i.e. from 2001),
-  including their membership terms. Members who left office before the period in which
-  we still consider former parliamentarians to be politically exposed are not included.
+  the parliament publishes structured data (the 39th assembly onward),
+  including their membership terms.
 
   The data is sourced from the JSON API that powers the official parliament website,
   which exposes the roster of each assembly and a per-member profile with biographical
