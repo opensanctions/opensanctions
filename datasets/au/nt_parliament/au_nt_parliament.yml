@@ -1,0 +1,51 @@
+title: Australia Northern Territory Legislative Assembly
+prefix: au-ntparl
+entry_point: crawler.py
+coverage:
+  frequency: weekly
+  start: "2026-06-11"
+load_statements: true
+ci_test: false
+
+summary: >
+  Current members (MLAs) of the unicameral Northern Territory Legislative
+  Assembly, as published on the Assembly website.
+
+description: |
+  The Northern Territory Legislative Assembly is the unicameral legislature of
+  the Northern Territory, Australia. It has 25 members (MLAs), each elected to a
+  single-member electorate (division) for a four-year term. The roster is updated
+  between elections as casual vacancies are filled by by-election. This dataset
+  covers the current members listed on the Assembly's website, with each member's
+  electorate and party affiliation.
+
+url: https://parliament.nt.gov.au/members/by-name
+
+publisher:
+  name: Northern Territory Legislative Assembly
+  description: >
+    The unicameral legislature of the Northern Territory, Australia, comprising
+    25 elected Members of the Legislative Assembly (MLAs).
+  url: https://parliament.nt.gov.au/
+  country: au
+  official: true
+
+data:
+  url: https://parliament.nt.gov.au/members/by-name
+  format: HTML
+  lang: eng
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 20
+      Position: 1
+    country_entities:
+      au: 20
+  max:
+    schema_entities:
+      Person: 30
+      Position: 1
