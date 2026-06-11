@@ -8,11 +8,10 @@ coverage:
 load_statements: true
 ci_test: false
 summary: >-
-  Current members of both chambers of the Parliament of New South Wales,
-  as published on the parliament website.
+  Current members of both chambers of the Parliament of New South Wales.
 description: |
-  The Parliament of New South Wales is the bicameral state legislature of
-  New South Wales, Australia. This dataset covers both chambers:
+  Current members of the parliament of New South Wales, the bicameral state legislature of
+  New South Wales, Australia. This dataset covers members of both chambers:
 
   - The Legislative Assembly (lower house), with each member representing
     a single-member electorate, elected under first-past-the-post voting.

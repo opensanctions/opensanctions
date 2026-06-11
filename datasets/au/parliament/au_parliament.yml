@@ -10,18 +10,16 @@ summary: >-
   Current and recent members of the Australian federal Parliament (House of
   Representatives and Senate)
 description: |
-  Senators and Members of the House of Representatives of the Parliament of
+  Senators (76 members) and Members of the House of Representatives (150 members) of the Parliament of
   Australia. The data is sourced from the Parliamentary Handbook, the official
-  biographical reference maintained by the Australian Parliamentary Library,
-  via its public API. The handbook covers all parliamentarians since Federation
-  (1901); a person is emitted when at least one of their parliamentary terms
-  still qualifies them as a politically exposed person.
+  biographical reference maintained by the Australian Parliamentary Library.
+  The handbook covers all parliamentarians since Federation (1901).
 url: https://handbook.aph.gov.au/
 publisher:
   name: Parliament of Australia
   description: |
     The federal bicameral legislature of Australia, consisting of the Monarch,
-    the Senate (76 seats) and the House of Representatives (150 seats). The
+    the Senate and the House of Representatives. The
     Parliamentary Handbook is maintained by the Parliamentary Library within
     the Department of Parliamentary Services.
   country: au

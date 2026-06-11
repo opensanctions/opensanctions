@@ -10,7 +10,7 @@ ci_test: false
 summary: >
   Current members of both chambers of the Parliament of Victoria, Australia.
 description: |
-  Lists current members of the Parliament of Victoria, including both the
+  Current members of the Parliament of Victoria, including both the
   Legislative Assembly (lower house) and the Legislative Council (upper house).
   The data is sourced from the parliament's official member directory and is
   updated when membership changes following elections or by-elections.
