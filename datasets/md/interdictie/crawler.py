@@ -44,8 +44,8 @@ def crawl(context: Context) -> None:
         doc = html.parse(fh)
 
     table = doc.find(".//table")
-    for row in h.parse_html_table(table):
-        row = h.cells_to_str(row)
+    for _row in h.parse_html_table(table):
+        row = h.cells_to_str(_row)
         entity = context.make("Company")
         name = row.pop("denumirea_si_forma_de_organizare_a_operatorului_economic")
         entity.id = context.make_id(name, "md")
@@ -65,12 +65,14 @@ def crawl(context: Context) -> None:
                 delay_until_date = parse_date(date_match.group(1), context)
             else:
                 delay_note = "Mențiuni: " + delay
-        start_date = parse_date(row.pop("data_inscrierii"), context)
+        data_inscrierii = row.pop("data_inscrierii")
+        assert data_inscrierii is not None
+        start_date = parse_date(data_inscrierii, context)
         start_date = delay_until_date or start_date
 
-        sanction_num, decision_date = parse_sanction_decision(
-            context, row.pop("nr_si_data_deciziei_agentiei")
-        )
+        decision_raw = row.pop("nr_si_data_deciziei_agentiei")
+        assert decision_raw is not None
+        sanction_num, decision_date = parse_sanction_decision(context, decision_raw)
         sanction = h.make_sanction(context, entity, sanction_num)
         sanction.add("authorityId", sanction_num)
         reason = row.pop(
@@ -78,15 +80,14 @@ def crawl(context: Context) -> None:
         )
         sanction.add("reason", reason)
         h.apply_date(sanction, "startDate", start_date)
-        h.apply_date(
-            sanction,
-            "endDate",
-            parse_date(row.pop("termenul_limita_de_includere_in_lista"), context),
-        )
+        end_date_raw = row.pop("termenul_limita_de_includere_in_lista")
+        assert end_date_raw is not None
+        h.apply_date(sanction, "endDate", parse_date(end_date_raw, context))
         h.apply_date(sanction, "listingDate", start_date)
         sanction.add("status", delay_note)
 
         owners_and_admins = row.pop("date_privind_administratotul_si_fondatorii")
+        assert owners_and_admins is not None
         crawl_control(context, entity, decision_date, owners_and_admins)
 
         context.emit(entity)
@@ -140,7 +141,7 @@ def crawl_control(
         else:
             owners = []
 
-        members = []
+        members: list[str] = []
         admins_str = match.groupdict()["admin"]
         if admins_str:
             members = admins_str.split(",")
