@@ -2,7 +2,7 @@ title: New Zealand Members of Parliament
 entry_point: crawler.py
 prefix: nz-parl
 coverage:
-  frequency: weekly
+  frequency: monthly
   start: 2026-06-11
 load_statements: true
 ci_test: false  # fetched via the Zyte API (catalogue.data.govt.nz is anti-bot protected)
