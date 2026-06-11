@@ -91,48 +91,38 @@ def crawl_item_rus(context: Context, source_url: str, raw_name: str) -> None:
 
 def crawl_belarus(context: Context, url: str) -> None:
     doc = context.fetch_html(url)
-    main_container = doc.xpath(".//article")
-    assert len(main_container) == 1, (
-        main_container,
-        "Could not find the main container",
-    )
+    main_container = h.xpath_element(doc, ".//article")
 
-    last_updated = main_container[0].xpath(".//p[contains(text(), 'Last updated')]")
-    assert len(last_updated) == 1, (
-        last_updated,
-        "Could not find the last updated date",
+    last_updated = h.xpath_element(
+        main_container, ".//p[contains(text(), 'Last updated')]"
     )
-    last_updated[0].getparent().remove(last_updated[0])
+    last_updated_parent = last_updated.getparent()
+    assert last_updated_parent is not None
+    last_updated_parent.remove(last_updated)
 
-    list_container = main_container[0].xpath(".//ol")
-    assert len(list_container) == 1, (
-        list_container,
-        "Could not find the list container",
-    )
-    list_container[0].getparent().remove(list_container[0])
+    list_container = h.xpath_element(main_container, ".//ol")
+    list_container_parent = list_container.getparent()
+    assert list_container_parent is not None
+    list_container_parent.remove(list_container)
 
     # Find out of more lists are added without being <ol>
-    h.assert_dom_hash(main_container[0], "c7f1460711ffebddcfd97263c5e3e4cc1df4cde1")
+    h.assert_dom_hash(main_container, "c7f1460711ffebddcfd97263c5e3e4cc1df4cde1")
 
     # We find the list of names and iterate over them
-    for item in list_container[0].findall(".//li"):
-        crawl_item_belarus(context, url, item.text_content())
+    for item in h.xpath_elements(list_container, ".//li"):
+        crawl_item_belarus(context, url, h.element_text(item))
 
 
 def crawl_human_rights(context: Context, url: str) -> None:
     doc = context.fetch_html(url)
-    main_container = doc.xpath(".//article")
-    assert len(main_container) == 1, (
-        main_container,
-        "Could not find the main container",
-    )
+    main_container = h.xpath_element(doc, ".//article")
 
     # "According to&nbsp;directive", but let's not assume there's always a non-breaking space
     xpath = ".//p[contains(text(), 'According to')][contains(text(), 'directive')]/following-sibling::p[1]"
-    directives = main_container[0].xpath(xpath)
+    directives = h.xpath_elements(main_container, xpath)
     assert len(directives) > 1, xpath
     for directive in directives:
-        items = h.multi_split(directive.text_content(), "\n")
+        items = h.multi_split(h.element_text(directive, squash=False), "\n")
         assert len(items) > 1, items
         # The last element is non-breaking space (\xa0)
         for item in items:
@@ -140,30 +130,31 @@ def crawl_human_rights(context: Context, url: str) -> None:
                 continue
             crawl_item_human_rights(context, url, item)
 
-        directive.getparent().remove(directive)
+        directive_parent = directive.getparent()
+        assert directive_parent is not None
+        directive_parent.remove(directive)
 
 
 def crawl_rus(context: Context, url: str) -> None:
     doc = context.fetch_html(url)
-    main_container = doc.xpath(".//article")
-    h.assert_dom_hash(main_container[0], "ee2ce6c8eaec412ae93ecb4e38a305ba627d7a47")
-    assert len(main_container) == 1, (
-        main_container,
-        "Could not find the main container",
-    )
-    raw_names = main_container[0].findall(".//p")
-    names = [p.text_content() for p in raw_names]
+    main_container = h.xpath_element(doc, ".//article")
+    h.assert_dom_hash(main_container, "ee2ce6c8eaec412ae93ecb4e38a305ba627d7a47")
+    raw_names = h.xpath_elements(main_container, ".//p")
+    names = [h.element_text(p) for p in raw_names]
     for raw_name in names:
         crawl_item_rus(context, url, raw_name)
 
 
 def crawl(context: Context) -> None:
     index_doc = context.fetch_html(context.data_url, absolute_links=True)
-    anchors = index_doc.xpath(".//*[contains(text(), 'LIST OF SUBJECTS')]/ancestor::a")
+    anchors = h.xpath_elements(
+        index_doc, ".//*[contains(text(), 'LIST OF SUBJECTS')]/ancestor::a"
+    )
     assert len(anchors) == 3, "Could not find the links to the lists"
     for a in anchors:
         url = a.get("href")
-        label = a.text_content().lower()
+        assert url is not None
+        label = h.element_text(a).lower()
 
         if "belarus" in label:
             crawl_belarus(context, url)
