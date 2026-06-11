@@ -37,7 +37,9 @@ def read_ckan(context: Context, source_url: str, label: str) -> str:
     resource_detail_doc = context.fetch_html(resource_url)
 
     for action_anchor_el in resource_detail_doc.findall('.//div[@class="actions"]//a'):
-        return action_anchor_el.get("href")
+        href = action_anchor_el.get("href")
+        assert href is not None
+        return href
 
     raise RuntimeError("No data URL on data resource page!")
 
@@ -184,7 +186,9 @@ def parse_companies(context: Context, book: Workbook) -> None:
 
 
 def parse_nonprofits(context: Context, wb: Workbook) -> None:
-    assert set(wb.sheetnames) == {wb.active.title}
+    active_sheet = wb.active
+    assert active_sheet is not None
+    assert set(wb.sheetnames) == {active_sheet.title}
     for row in h.parse_xlsx_sheet(
         context,
         wb["organizations"],

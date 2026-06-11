@@ -1,3 +1,4 @@
+from typing import Any
 from urllib.parse import urljoin, urlencode
 from normality import collapse_spaces, slugify
 
@@ -7,7 +8,7 @@ from zavod import helpers as h
 CACHE_DAYS = 14
 COUNTRY = "md"
 
-relationships = dict()
+relationships: dict[str, int] = dict()
 
 
 def crawl_entity(
@@ -17,10 +18,16 @@ def crawl_entity(
     doc = context.fetch_html(url, cache_days=CACHE_DAYS)
     name_el = doc.find('.//span[@class="name"]')
     assert name_el is not None, url
+    assert name_el.text is not None
     name = collapse_spaces(name_el.text)
-    attributes = dict()
-    for el in name_el.find("./..").getnext().getchildren():
-        text = collapse_spaces(el.text_content())
+    assert name is not None
+    attributes: dict[str, Any] = dict()
+    parent_el = name_el.find("./..")
+    assert parent_el is not None
+    next_el = parent_el.getnext()
+    assert next_el is not None
+    for el in next_el:
+        text = h.element_text(el)
         # It picks up one empty element (website's fault), we check the URL to skip only that one
         if (
             url == "https://profiles.rise.md/connection.php?id=191024070929"
@@ -29,17 +36,21 @@ def crawl_entity(
             continue
         parts = text.split(": ")
         if len(parts) == 2:
-            attributes[slugify(parts[0])] = collapse_spaces(parts[1])
+            key = slugify(parts[0])
+            assert key is not None
+            attributes[key] = collapse_spaces(parts[1])
 
     if relative_url.startswith("profile.php"):
-        type_el = name_el.getnext().getnext()
+        first_next = name_el.getnext()
+        assert first_next is not None
+        type_el = first_next.getnext()
     elif relative_url.startswith("connection.php"):
         type_el = None
     else:
         context.log.warn("Don't know how to handle url", url=relative_url)
-        return
+        return None
 
-    if hasattr(type_el, "text"):
+    if type_el is not None and type_el.text is not None:
         type_str = collapse_spaces(type_el.text)
     else:
         type_str = None
@@ -57,18 +68,21 @@ def crawl_entity(
         entity = make_company(context, url, name, attributes)
     else:
         context.log.warn("Unhandled entity type", url, type_str)
-        return
+        return None
 
     if follow_relations and entity is not None:
         for connection in doc.findall('.//div[@class="con"]'):
             related_entity_el = connection.find("./div[2]/div[1]/span/*[1]")
-            related_entity_link = related_entity_el.getparent().find(".//a")
+            assert related_entity_el is not None
+            related_entity_parent = related_entity_el.getparent()
+            assert related_entity_parent is not None
+            related_entity_link = related_entity_parent.find(".//a")
             relationship_el = connection.find("./div/div[2]")
             if relationship_el is None:
                 description = None
             else:
-                description = collapse_spaces(relationship_el.text_content())
-            dest_name = collapse_spaces(related_entity_el.text_content())
+                description = h.element_text(relationship_el) or None
+            dest_name = h.element_text(related_entity_el) or None
             if related_entity_link is None:
                 dest_url = None
             else:
@@ -79,7 +93,11 @@ def crawl_entity(
 
 
 def make_person(
-    context: Context, url: str, name: str, position: str | None, attributes: dict
+    context: Context,
+    url: str,
+    name: str,
+    position: str | None,
+    attributes: dict[str, Any],
 ) -> Entity:
     person = context.make("Person")
     identification = [COUNTRY, name]
@@ -100,7 +118,9 @@ def make_person(
     return person
 
 
-def make_company(context: Context, url: str, name: str, attributes: dict) -> Entity:
+def make_company(
+    context: Context, url: str, name: str, attributes: dict[str, Any]
+) -> Entity:
     company = context.make("Company")
     identification = [COUNTRY, name]
     founded = attributes.pop("data-inregistrarii", None)
@@ -123,7 +143,7 @@ def make_company(context: Context, url: str, name: str, attributes: dict) -> Ent
 
 
 def make_legal_entity(
-    context: Context, url: str, name: str, attributes: dict
+    context: Context, url: str, name: str, attributes: dict[str, Any]
 ) -> Entity:
     entity = context.make("LegalEntity")
     identification = [COUNTRY, name]
@@ -174,7 +194,7 @@ def make_relation(
     dest = None
     if dest_url:
         dest = crawl_entity(context, dest_url, False)
-        if dest_url.startswith("connection.php"):
+        if dest_url.startswith("connection.php") and dest is not None:
             context.emit(dest)
     if dest is None:
         dest_schema = res.dest_schema if res and res.dest_schema else "LegalEntity"
@@ -197,7 +217,7 @@ def make_relation(
 
 
 def crawl(context: Context) -> None:
-    query = {"br": 0, "lang": "rom"}
+    query: dict[str, Any] = {"br": 0, "lang": "rom"}
     while True:
         context.log.debug("Crawling index offset ", query)
         url = f"{context.data_url}?{urlencode(query)}"
@@ -209,7 +229,9 @@ def crawl(context: Context) -> None:
             break
 
         for link in profiles:
-            entity = crawl_entity(context, link.get("href"))
+            href = link.get("href")
+            assert href is not None
+            entity = crawl_entity(context, href)
             if entity:
                 entity.add("topics", "poi")
                 context.emit(entity)
