@@ -1,3 +1,21 @@
+"""
+The archive is the place where we store all the outputs of zavod runs
+beyond a single run.
+
+`/artifacts/{dataset}/{version}/` is the canonical, immutable location for all
+outputs of a given run, and is what we point to in the metadata.
+
+`/datasets/{date_stamp}/{dataset}/` is where the metadata and listed resources
+can be found for the latest successful run on a given day.
+
+`/datasets/latest/{dataset}/` is where the the metadata and listed resources can
+be found for the latest successful run.
+
+See archive backends for operating on the archive - in OpenSanctions production
+this is the Google Cloud Storage bucket data.opensanctions.org. In the local
+filesystem can be used e.g. in development and testing.
+"""
+
 import shutil
 from pathlib import Path
 from functools import lru_cache
