@@ -1,6 +1,6 @@
 from lxml import html
 from rigour.mime.types import HTML
-from normality import collapse_spaces, slugify
+from normality import slugify
 
 from zavod import Context
 from zavod import helpers as h
@@ -19,20 +19,21 @@ def format_birth_place(city: str | None, country: str | None) -> str | None:
 
 def parse_page(context: Context, url: str) -> dict[str, str | None]:
     doc = context.fetch_html(url, cache_days=1)
-    data = dict()
+    data: dict[str, str | None] = {}
     for dt in doc.findall(".//dt"):
-        key = slugify(dt.text_content())
+        key = slugify(h.element_text(dt))
         next = dt.getnext()
         if next is None:
             value = None
         elif next.tag == "dt":
             value = None
         elif next.tag == "dd":
-            value = collapse_spaces(next.text_content())
+            value = h.element_text(next) or None
         else:
             context.log.warning("Unexpected tag after key", key=key, tag=next, url=url)
             value = None
-        data[key] = value
+        if key is not None:
+            data[key] = value
     return data
 
 
@@ -78,8 +79,13 @@ def crawl_individual(context: Context, url: str, data: dict[str, str | None]) ->
     entity = context.make("Person")
     birth_place = format_birth_place(data.pop("birth-city"), data.pop("birth-country"))
     birth_date = h.extract_date(context.dataset, data.pop("date-of-birth"))
+    # birth_date is list[str] but make_id expects str | None — don't transform it to avoid re-keying existing entities
     entity.id = context.make_id(
-        first_name, middle_name, last_name, birth_place, birth_date
+        first_name,
+        middle_name,
+        last_name,
+        birth_place,
+        birth_date,  # type: ignore[arg-type]
     )
     h.apply_name(
         entity, first_name=first_name, middle_name=middle_name, last_name=last_name
@@ -119,7 +125,7 @@ def crawl(context: Context) -> None:
     context.export_resource(path, HTML, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
         doc = html.fromstring(fh.read())
-    doc.make_links_absolute(context.data_url)
+    doc.make_links_absolute(context.data_url)  # type: ignore[attr-defined]  # lxml-stubs omits HtmlMixin methods
 
     individual_table = h.xpath_element(
         doc, ".//h6[text() = 'Individual']/following-sibling::table[1]"
