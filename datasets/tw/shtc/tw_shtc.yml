@@ -72,6 +72,9 @@ lookups:
       - match: OOO Intech,intek Analitika, Intech, Intech Engineering
         values:
           - OOO INTEKH INZHINIRING
+      # Note: over-length names (where multiple aliases are concatenated into a
+      # single value) are split in the name review system, not here. Do not add
+      # type.name lookups to fan these out into individual values.
   details:
     options:
       - match: "Counterfeit Danish driving licence number 20645897 note:made out to Ali Barkani, born on 22 Aug. 1973 in Morocco"
