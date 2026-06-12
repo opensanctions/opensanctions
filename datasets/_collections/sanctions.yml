@@ -58,6 +58,7 @@ children:
   - cn_sanctions
   - cz_national_sanctions
   - cz_terrorists
+  - de_bfv_extremism
   - ee_international_sanctions
   - eu_esma_saris
   - eu_fsf
