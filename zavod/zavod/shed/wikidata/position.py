@@ -9,8 +9,8 @@ from rigour.territories import get_territory_by_qid
 from zavod import Context, Entity
 from zavod import helpers as h
 from zavod.constants import ORIGIN_INFERRED
-from zavod.shed.trans import GOOGLE_TRANSLATE_ORIGIN
-from zavod.shed.wikidata.lang import translate_langtext_to_english
+from zavod.extract.llm import DEFAULT_MODEL
+from zavod.shed.wikidata.lang import translate_position_label_to_english
 from zavod.stateful.positions import categorise
 from zavod.shed.wikidata.country import is_historical_country, item_countries
 
@@ -128,7 +128,7 @@ def wikidata_position(
         if item.label.lang in ("eng", MULTI_LANG):
             item.label.apply(position, "name", clean=clean_wikidata_name)
         else:
-            translated = translate_langtext_to_english(context, item.label)
+            translated = translate_position_label_to_english(context, item.label)
             if translated is not None and translated.text is not None:
                 clean_text = clean_wikidata_name(translated.text)
                 if clean_text is not None and clean_text.strip() != "":
@@ -137,7 +137,7 @@ def wikidata_position(
                         clean_text,
                         lang="eng",
                         original_value=translated.original,
-                        origin=GOOGLE_TRANSLATE_ORIGIN,
+                        origin=DEFAULT_MODEL,
                     )
 
     for claim in item.claims:
