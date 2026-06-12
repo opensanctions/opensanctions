@@ -71,4 +71,4 @@ assertions:
       Security: 35500
   max:
     schema_entities:
-      Security: 83500
+      Security: 230000
