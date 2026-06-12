@@ -9,7 +9,21 @@ during a real crawl. Nothing is written to the archive — the underlying
 
 Useful for inspecting why a specific person/position is (or is not) being
 included, or what its statements look like, without running the full PEPs
-crawler.
+crawler. Common debugging flows:
+
+* A person you'd expect in ``wd_peps`` is missing — run the tool to see
+  whether ``wikidata_basic_human`` rejects them (returns ``None``) or
+  whether every one of their ``P39`` claims is filtered out by
+  ``wikidata_position`` / ``wikidata_occupancy``. Combine with
+  ``wd_categories_paths.py`` in this directory to understand which
+  Wikipedia category path got them included in the candidate set in the
+  first place.
+* A position looks wrong (label, country, topics, dates) — pass the
+  position QID directly to see just the Position statements.
+* A person from a sanctions/PEP source matches against ``wd_peps`` and
+  the merged entity looks off — run the tool on their QID to see which
+  positions/occupancies the helpers generated, and whether the dates and
+  countries look right.
 
 For a person QID, the output covers the Person plus the Position and
 Occupancy for every ``P39`` (position held) claim. For a position QID,
@@ -17,13 +31,13 @@ the output covers just the Position. For anything the helpers reject
 (historical, fictional, too old, no country, ...) the tool exits with a
 "neither a relevant person nor a position" error.
 
-Usage:
-    python -m zavod.shed.wikidata.debug Q567
-    python -m zavod.shed.wikidata.debug Q4970706
-    python -m zavod.shed.wikidata.debug Q567 | csvlens
-    python -m zavod.shed.wikidata.debug Q567 -p datasets/_wikidata/peps/wd_peps.yml
+Usage (from the opensanctions repo root, so the default dataset path
+resolves):
 
-Run from the opensanctions repo root so the default dataset path resolves.
+    python contrib/wikidata/wd_item_debug.py Q567
+    python contrib/wikidata/wd_item_debug.py Q4970706
+    python contrib/wikidata/wd_item_debug.py Q567 | csvlens
+    python contrib/wikidata/wd_item_debug.py Q567 -p datasets/_wikidata/peps/wd_peps.yml
 """
 
 import logging
