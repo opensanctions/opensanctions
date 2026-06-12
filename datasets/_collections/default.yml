@@ -50,7 +50,6 @@ children:
   - securities
 
   # banks
-  - iso9362_bic
   - ru_cbr_banks
 
   # misc
