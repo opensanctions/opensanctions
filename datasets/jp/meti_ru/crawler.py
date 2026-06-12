@@ -210,7 +210,7 @@ def save_versioned_data(
 
 
 def crawl(context: Context) -> None:
-    divs_xpath = ".//div[@class='wrapper2011']"
+    divs_xpath = ".//div[@id='__main_contents']"
     doc = zyte_api.fetch_html(
         context,
         SOURCE_URL,
@@ -221,7 +221,7 @@ def crawl(context: Context) -> None:
     )
     content_div = h.xpath_element(doc, divs_xpath)
     # Check hash of the content part of the page
-    h.assert_dom_hash(content_div, "9416632091a20ef819425d12229e012d0fd4fe20")
+    h.assert_dom_hash(content_div, "db271c508f831b212fe8fdf1fae2dc271d0810bc")
     pdf_xpath = ".//a[contains(@href, '.pdf') and contains(@href, 'export/17_russia/') and contains(@href, 'tokutei')]/@href"
     pdf_urls = h.xpath_strings(content_div, pdf_xpath, expect_exactly=3)
 
