@@ -2,12 +2,15 @@ from typing import Dict, Optional, Set
 
 from followthemoney import registry
 from nomenklatura.wikidata import Item, WikidataClient, Claim
+from nomenklatura.wikidata.lang import MULTI_LANG
 from nomenklatura.wikidata.value import clean_wikidata_name
 from rigour.territories import get_territory_by_qid
 
 from zavod import Context, Entity
 from zavod import helpers as h
 from zavod.constants import ORIGIN_INFERRED
+from zavod.shed.trans import GOOGLE_TRANSLATE_ORIGIN
+from zavod.shed.wikidata.lang import translate_langtext_to_english
 from zavod.stateful.positions import categorise
 from zavod.shed.wikidata.country import is_historical_country, item_countries
 
@@ -122,7 +125,20 @@ def wikidata_position(
     position.id = item.id
     position.add("wikidataId", item.id)
     if item.label is not None:
-        item.label.apply(position, "name", clean=clean_wikidata_name)
+        if item.label.lang in ("eng", MULTI_LANG):
+            item.label.apply(position, "name", clean=clean_wikidata_name)
+        else:
+            translated = translate_langtext_to_english(context, item.label)
+            if translated is not None and translated.text is not None:
+                clean_text = clean_wikidata_name(translated.text)
+                if clean_text is not None and clean_text.strip() != "":
+                    position.add(
+                        "name",
+                        clean_text,
+                        lang="eng",
+                        original_value=translated.original,
+                        origin=GOOGLE_TRANSLATE_ORIGIN,
+                    )
 
     for claim in item.claims:
         if claim.property in ("P1001", "P17", "P27") and claim.qid is not None:
