@@ -40,6 +40,12 @@ assertions:
     schema_entities:
       Company: 3000
 lookups:
+  type.url:
+    options:
+      # Listing page occasionally yields a relative href that escaped absolute_links;
+      # rewrite it to the canonical absolute company URL.
+      - match: /company/caterpillar-inc
+        value: https://www.unitedagainstnucleariran.com/company/caterpillar-inc
   type.country:
     lowercase: true
     normalize: true
