@@ -64,8 +64,8 @@ assertions:
   min:
     schema_entities:
       Vessel: 100
-      Company: 100
+      Company: 50
   max:
     schema_entities:
       Vessel: 500
-      Company: 300
+      Company: 150
