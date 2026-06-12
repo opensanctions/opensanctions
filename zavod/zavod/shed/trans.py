@@ -1,11 +1,95 @@
+from functools import cache
+from hashlib import sha1
 from typing import Optional, NamedTuple, List
 import orjson
+
+import google.auth
+from google.cloud import translate_v3
 
 from zavod.context import Context
 from zavod.entity import Entity
 from zavod.exc import ConfigurationException
 from zavod.extract.llm import run_text_prompt, DEFAULT_MODEL
 from zavod import helpers as h
+
+
+GOOGLE_TRANSLATE_ORIGIN = "google-translate"
+
+
+@cache
+def _get_google_translation_client() -> translate_v3.TranslationServiceClient:
+    return translate_v3.TranslationServiceClient()
+
+
+@cache
+def _get_google_translate_parent() -> str:
+    # Picks up project from ADC / GOOGLE_APPLICATION_CREDENTIALS at call time
+    # so a missing setup doesn't crash module import.
+    _, project_id = google.auth.default()
+    return f"projects/{project_id}/locations/global"
+
+
+def _build_google_translate_cache_key(
+    text: str,
+    source_language: Optional[str],
+    target_language: str,
+) -> str:
+    cache_hash = sha1(text.encode("utf-8"))
+    cache_hash.update(source_language.encode("utf-8") if source_language else b"")
+    cache_hash.update(target_language.encode("utf-8"))
+    return f"google-translate-{cache_hash.hexdigest()}"
+
+
+def google_translate(
+    context: Context,
+    text: str,
+    *,
+    source_language: Optional[str],
+    target_language: str,
+    cache_days: int = 100,
+) -> str:
+    """Translate text via Google Cloud Translate v3, caching the result.
+
+    Language codes are BCP-47 tags. The simplest BCP-47 tag is just a language
+    subtag, which for the vast majority of languages is the ISO 639-1 alpha-2
+    code — so passing ``"en"``, ``"de"``, ``"ru"`` etc. works fine. Use a
+    longer BCP-47 tag when you need to disambiguate script or region (e.g.
+    ``"zh-CN"`` vs ``"zh-TW"``, ``"pt-BR"`` vs ``"pt-PT"``, ``"sr-Latn"`` vs
+    ``"sr-Cyrl"``). Pass ``source_language=None`` to let Google auto-detect.
+
+    NOTE: this translates rather than transliterates. Names get translated
+    literally — e.g. "Al-Qaeda" becomes "the base". Use this only for generic
+    phrases like position titles, not for personal or organisation names. For
+    those, use a transliteration approach (LLM-based, or Google Translate's
+    romanization API).
+    """
+    cache_key = _build_google_translate_cache_key(
+        text, source_language, target_language
+    )
+    cached_data = context.cache.get_json(cache_key, max_age=cache_days)
+    if cached_data is not None:
+        return str(cached_data)
+
+    client = _get_google_translation_client()
+    response = client.translate_text(
+        parent=_get_google_translate_parent(),
+        contents=[text],
+        mime_type="text/plain",
+        source_language_code=source_language if source_language else None,
+        target_language_code=target_language,
+    )
+    if len(response.translations) != 1:
+        raise ValueError("Expected exactly one translation from Google Translate")
+    translation: str = response.translations[0].translated_text
+    context.log.info(
+        "Translated text using Google Translate",
+        text=text,
+        source_language=source_language,
+        target_language=target_language,
+        translation=translation,
+    )
+    context.cache.set_json(cache_key, translation)
+    return translation
 
 
 class TransliterationLanguageSpec(NamedTuple):
