@@ -1,8 +1,8 @@
+import requests
 from typing import Dict, Any
 
 from zavod import Context, helpers as h
 from zavod.stateful.positions import categorise
-
 
 IGNORE = [
     # Name composed from the parts above.
@@ -122,7 +122,14 @@ def crawl(context: Context) -> None:
             # The list endpoint only returns flattened summary fields; the
             # structured workingPositions array lives on the detail endpoint.
             detail_url = f"{context.data_url}/{item['id']}"
-            detail = context.fetch_json(detail_url, cache_days=14)
+            try:
+                detail = context.fetch_json(detail_url, cache_days=14)
+            except requests.exceptions.HTTPError as e:
+                if e.response is not None and e.response.status_code == 404:
+                    # Person appeared in list but was removed before detail fetch.
+                    context.log.warning("Official not found, skipping", url=detail_url)
+                    continue
+                raise
             assert detail is not None, "Expected JSON response"
             crawl_person(context, detail)
 
