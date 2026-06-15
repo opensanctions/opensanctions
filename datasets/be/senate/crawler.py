@@ -2,9 +2,8 @@ import re
 from dataclasses import dataclass
 
 from zavod import Context, helpers as h
-from zavod.stateful.positions import categorise
-
-POSITION_TOPICS = ["gov.legislative", "gov.national"]
+from zavod.entity import Entity
+from zavod.stateful.positions import PositionCategorisation, categorise
 
 # Senator profile links on the listing pages, e.g.
 #   /www/?MIval=showSenator&ID=4689&LANG=nl
@@ -33,7 +32,13 @@ class Legislature:
     end: str | None
 
 
-def crawl_senator(context: Context, senator_id: str, legislature: Legislature) -> None:
+def crawl_senator(
+    context: Context,
+    senator_id: str,
+    legislature: Legislature,
+    position: Entity,
+    categorisation: PositionCategorisation,
+) -> None:
     url = DETAIL_URL % senator_id
     doc = context.fetch_html(url, cache_days=7)
 
@@ -58,7 +63,7 @@ def crawl_senator(context: Context, senator_id: str, legislature: Legislature) -
             birth_date = match.group("date").strip()
 
     person = context.make("Person")
-    person.id = context.make_id(name, birth_date)
+    person.id = context.make_slug(senator_id)
     person.add("name", name)
     person.add("political", political)
     person.add("birthPlace", birth_place)
@@ -67,18 +72,6 @@ def crawl_senator(context: Context, senator_id: str, legislature: Legislature) -
     person.add("citizenship", "be")
     person.add("sourceUrl", url)
     h.apply_date(person, "birthDate", birth_date)
-
-    position = h.make_position(
-        context,
-        name="Member of the Senate of Belgium",
-        wikidata_id="Q17619252",
-        country="be",
-        topics=POSITION_TOPICS,
-        lang="eng",
-    )
-    categorisation = categorise(context, position, default_is_pep=True)
-    if not categorisation.is_pep:
-        return
 
     occupancy = h.make_occupancy(
         context,
@@ -95,8 +88,13 @@ def crawl_senator(context: Context, senator_id: str, legislature: Legislature) -
         context.emit(occupancy)
 
 
-def crawl_legislature(context: Context, legislature: Legislature) -> None:
-    cutoff = h.earliest_term_start(POSITION_TOPICS)
+def crawl_legislature(
+    context: Context,
+    legislature: Legislature,
+    cutoff: str,
+    position: Entity,
+    categorisation: PositionCategorisation,
+) -> None:
     if legislature.start < cutoff:
         context.log.info(
             "Skipping legislature outside PEP relevance window",
@@ -119,7 +117,7 @@ def crawl_legislature(context: Context, legislature: Legislature) -> None:
         raise ValueError(f"No senator links for legislature {legislature.leg}")
 
     for senator_id in senator_ids:
-        crawl_senator(context, senator_id, legislature)
+        crawl_senator(context, senator_id, legislature, position, categorisation)
 
 
 def parse_legislatures(context: Context) -> list[Legislature]:
@@ -139,9 +137,22 @@ def parse_legislatures(context: Context) -> list[Legislature]:
 
 
 def crawl(context: Context) -> None:
+    position = h.make_position(
+        context,
+        name="Member of the Senate of Belgium",
+        wikidata_id="Q17619252",
+        country="be",
+        topics=["gov.legislative", "gov.national"],
+        lang="eng",
+    )
+    categorisation = categorise(context, position, default_is_pep=True)
+    if not categorisation.is_pep:
+        return
+    cutoff = h.earliest_term_start(position.get("topics"))
+
     legislatures = parse_legislatures(context)
     if not legislatures:
         raise ValueError("No legislature listings found on the index page")
 
     for legislature in legislatures:
-        crawl_legislature(context, legislature)
+        crawl_legislature(context, legislature, cutoff, position, categorisation)

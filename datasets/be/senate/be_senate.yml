@@ -6,8 +6,7 @@ coverage:
   start: 2026-06-15
 load_statements: true
 summary: >-
-  Current and former members of the Belgian Federal Senate, the upper house of
-  the federal Parliament.
+  Members of the Belgian Federal Senate, the upper house of the parliament.
 description: |
   This dataset contains persons who serve or have served as members of the
   Belgian Federal Senate (Belgische Senaat / Sénat de Belgique), the upper house
