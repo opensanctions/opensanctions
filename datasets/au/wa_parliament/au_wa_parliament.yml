@@ -1,4 +1,4 @@
-title: Australia Parliament of Western Australia
+title: Australia State Parliament of Western Australia
 prefix: au-waparl
 entry_point: crawler.py
 coverage:
@@ -16,9 +16,9 @@ description: |
   Western Australia, Australia. This dataset covers the current members of both
   houses, as published on the Parliament's website:
 
-  - The Legislative Assembly (lower house), with 59 members each elected to a
+  - The Legislative Assembly (lower house), with each member elected to a
     single-member district.
-  - The Legislative Council (upper house), with 37 members elected from a single
+  - The Legislative Council (upper house), with each member elected from a single
     state-wide electorate by single transferable vote (since the 2025 reform).
 
   The roster is updated between elections as casual vacancies are filled — by
