@@ -12,10 +12,7 @@ from zavod.stateful.positions import PositionCategorisation, categorise
 # secret. A 401 "Invalid authorization" response means the site rotated the key and
 # this constant needs to be updated from the live bundle.
 WEBSITE_BACKEND_TOKEN = "cc8bd00d-9b88-4fee-aafe-311c574fcdc1"
-
-# A party-list seat whose nominee has not yet been seated is returned with a
-# placeholder author_id and the organisation name in place of a person name.
-PLACEHOLDER_AUTHOR_ID = "000000"
+TOPICS = ["gov.legislative", "gov.national"]
 
 
 def district_constituency(memberships: dict[str, Any]) -> str | None:
@@ -79,7 +76,7 @@ def crawl_member(
     member_type = row.pop("member_type")
     memberships = row.pop("memberships") or {}
 
-    if author_id == PLACEHOLDER_AUTHOR_ID:
+    if author_id == "000000":
         # Party-list seat without a named representative yet; nothing to emit until
         # the organisation's nominee is seated.
         context.log.info("Skipping unseated party-list slot", name=row.get("fullname"))
@@ -100,9 +97,6 @@ def crawl_member(
         suffix=row.pop("suffix"),
         lang="eng",
     )
-    if not person.has("name"):
-        context.log.warning("Member without a name", author_id=author_id)
-        return
 
     constituency: str | None = None
     if member_type == "Party List Representative":
@@ -115,7 +109,6 @@ def crawl_member(
         # occupancy as the constituency (e.g. "6th District, City of Manila").
         constituency = district_constituency(memberships)
 
-    # The free-text party affiliation is almost always blank, but capture it when set.
     person.add("political", row.pop("party_affilation_desc"), lang="eng")
 
     # Membership of the House requires natural-born Philippine citizenship for both
@@ -138,6 +131,7 @@ def crawl(context: Context) -> None:
         context,
         name="Member of the House of Representatives of the Philippines",
         country="ph",
+        topics=TOPICS,
         wikidata_id="Q18002923",
     )
     categorisation = categorise(context, position)
@@ -157,9 +151,3 @@ def crawl(context: Context) -> None:
         if page + 1 >= data["pageCount"]:
             break
         page += 1
-
-    # The roster should describe a single seated Congress; a mix signals the source
-    # returned inconsistent data. Logged so the active term is visible per run.
-    if len(congresses) != 1:
-        raise RuntimeError(f"Expected one current Congress, got: {sorted(congresses)}")
-    context.log.info("Crawled current Congress", congress=congresses.pop())

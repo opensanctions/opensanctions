@@ -10,13 +10,16 @@ summary: >-
   Members of the House of Representatives of the Philippines, the lower chamber of
   the bicameral Congress.
 description: |
-  The House of Representatives is made up of district representatives: each elected from a
-  legislative district, and party-list representatives, who represent national,
-  regional, and sectoral organisations rather than a territorial district.
+  Current members of the House of Representatives, the lower chamber of the bicameral
+  Congress of the Philippines. Its members are elected for three-year terms and,
+  together with the Senate, hold the country's legislative power, including passing
+  laws and approving the budget. They sit either as district representatives, each
+  elected from a single legislative district, or as party-list representatives, who
+  represent national, regional, and sectoral organisations rather than a territorial
+  district.
 
-  This dataset is sourced from the official congress.gov.ph member roster API and
-  is updated as the membership of the current Congress changes. Each Congress runs
-  for a three-year term.
+  This dataset records each member of the currently seated Congress with their name,
+  party-list or party affiliation, and the legislative district they represent.
 url: https://www.congress.gov.ph/house-members/
 publisher:
   name: House of Representatives of the Philippines
