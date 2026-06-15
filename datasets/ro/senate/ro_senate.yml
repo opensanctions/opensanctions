@@ -9,8 +9,7 @@ load_statements: true
 # so a full crawl issues well over a thousand requests -- too large for CI.
 ci_test: false
 summary: >-
-  Members of the Senate of Romania (Senatul României), the upper chamber of the
-  Romanian Parliament.
+  Members of the Senatul României, the upper chamber of the Romanian Parliament.
 description: |
   Current and historical senators of the Romanian Parliament's upper chamber. The data comes
   from the official register of senators published by the Senate, which exposes
@@ -20,6 +19,7 @@ tags:
   - list.pep
 publisher:
   name: Senatul României
+  name_en: Romanian Senate
   acronym: Senat
   description: |
     The Senate (Senatul) is the upper chamber of the bicameral Parliament of Romania,
