@@ -75,8 +75,7 @@ lookups:
       FIRM: LegalEntity
       INDIVIDUAL: Person
       # Individual entity IDs to override misclassifications in the source data
-      afdb-ff4276d56746fd7d0e1e33d99eb958030b6b8539: LegalEntity
-
+      afdb-ff4276d56746fd7d0e1e33d99eb958030b6b8539: LegalEntity # Laxminarayan Mallick
   type.country:
     lowercase: true
     normalize: true
