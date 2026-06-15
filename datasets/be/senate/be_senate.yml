@@ -6,18 +6,20 @@ coverage:
   start: 2026-06-15
 load_statements: true
 summary: >-
-  Current members of the Belgian Federal Senate, the upper house of the federal
-  Parliament.
+  Current and former members of the Belgian Federal Senate, the upper house of
+  the federal Parliament.
 description: |
-  This dataset contains persons who currently serve as members of the Belgian
-  Federal Senate (Belgische Senaat / Sénat de Belgique), the upper house of the
-  federal Parliament. The Senate is composed of 60 senators: 50 designated by the
-  parliaments of the communities and regions (federated-entity senators) and 10
-  co-opted senators.
+  This dataset contains persons who serve or have served as members of the
+  Belgian Federal Senate (Belgische Senaat / Sénat de Belgique), the upper house
+  of the federal Parliament. Since the sixth state reform the Senate is composed
+  of 60 senators: 50 designated by the parliaments of the communities and regions
+  (federated-entity senators) and 10 co-opted senators.
 
-  For each senator the dataset captures their full name, political group
-  affiliation, place and date of birth where stated in the published biography,
-  and a link to their profile page.
+  The crawler walks the per-legislature member lists published by the Senate,
+  covering the current term and earlier terms within the politically-exposed
+  relevance window. For each senator the dataset captures their full name,
+  political group affiliation, place and date of birth where stated in the
+  published biography, and a link to their profile page.
 url: https://www.senate.be/www/?MIval=index_senate&LANG=nl&MENUID=11220
 publisher:
   name: Belgische Senaat
@@ -38,7 +40,7 @@ data:
 dates:
   formats: ["%d %m %Y"]
   months:
-    "01": "januari"
+    "01": ["januari", "januarir"]
     "02": "februari"
     "03": "maart"
     "04": "april"
@@ -57,11 +59,11 @@ tags:
 assertions:
   min:
     schema_entities:
-      Person: 45
+      Person: 250
       Position: 1
     country_entities:
-      be: 45
+      be: 250
   max:
     schema_entities:
-      Person: 90
+      Person: 800
       Position: 1

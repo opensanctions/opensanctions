@@ -1,13 +1,19 @@
 import re
+from dataclasses import dataclass
 
 from zavod import Context, helpers as h
 from zavod.stateful.positions import categorise
 
 POSITION_TOPICS = ["gov.legislative", "gov.national"]
 
-# Senator profile links on the listing page, e.g.
+# Senator profile links on the listing pages, e.g.
 #   /www/?MIval=showSenator&ID=4689&LANG=nl
 SENATOR_ID_RE = re.compile(r"MIval=showSenator&ID=(\d+)", re.IGNORECASE)
+
+# Per-legislature listing links, e.g.
+#   /www/?MIval=WieIsWie/SenPerType&LEG=7&LANG=nl  -> "Legislatuur 2019-2024"
+LEG_ID_RE = re.compile(r"SenPerType&LEG=(\d+)", re.IGNORECASE)
+LEG_LABEL_RE = re.compile(r"Legislatuur\s+(\d{4})\s*-\s*(\d{4}|\.+)")
 
 # Born line in the Dutch biography, e.g.
 #   "Geboren te Roeselare op 20 september 1982"
@@ -17,9 +23,17 @@ BORN_RE = re.compile(
 )
 
 DETAIL_URL = "https://www.senate.be/www/?MIval=showSenator&ID=%s&LANG=nl"
+LEG_URL = "https://www.senate.be/www/?MIval=WieIsWie/SenPerType&LEG=%s&LANG=nl"
 
 
-def crawl_senator(context: Context, senator_id: str) -> None:
+@dataclass
+class Legislature:
+    leg: str
+    start: str
+    end: str | None
+
+
+def crawl_senator(context: Context, senator_id: str, legislature: Legislature) -> None:
     url = DETAIL_URL % senator_id
     doc = context.fetch_html(url, cache_days=7)
 
@@ -31,16 +45,17 @@ def crawl_senator(context: Context, senator_id: str) -> None:
     # First heading reads "<name> - <political group>".
     heading = h.element_text(h.xpath_element(doc, "(//th)[1]"))
     political = None
-    if " - " in heading:
+    if heading is not None and " - " in heading:
         political = heading.split(" - ", 1)[1].strip()
 
     body_text = h.element_text(h.xpath_element(doc, "//body"))
     birth_place = None
     birth_date = None
-    match = BORN_RE.search(body_text)
-    if match is not None:
-        birth_place = match.group("place").strip()
-        birth_date = match.group("date").strip()
+    if body_text is not None:
+        match = BORN_RE.search(body_text)
+        if match is not None:
+            birth_place = match.group("place").strip()
+            birth_date = match.group("date").strip()
 
     person = context.make("Person")
     person.id = context.make_id(name, birth_date)
@@ -70,7 +85,9 @@ def crawl_senator(context: Context, senator_id: str) -> None:
         person=person,
         position=position,
         categorisation=categorisation,
-        no_end_implies_current=True,
+        no_end_implies_current=legislature.end is None,
+        period_start=legislature.start,
+        period_end=legislature.end,
     )
     if occupancy is not None:
         context.emit(person)
@@ -78,24 +95,54 @@ def crawl_senator(context: Context, senator_id: str) -> None:
         context.emit(occupancy)
 
 
-def crawl(context: Context) -> None:
-    doc = context.fetch_html(context.data_url, cache_days=1)
-    hrefs = h.xpath_strings(doc, "//a/@href")
+def crawl_legislature(context: Context, legislature: Legislature) -> None:
+    cutoff = h.earliest_term_start(POSITION_TOPICS)
+    if legislature.start < cutoff:
+        context.log.info(
+            "Skipping legislature outside PEP relevance window",
+            leg=legislature.leg,
+            start=legislature.start,
+        )
+        return
 
-    senator_ids = []
-    seen = set()
-    for href in hrefs:
-        match = SENATOR_ID_RE.search(href)
-        if match is None:
-            continue
-        senator_id = match.group(1)
-        if senator_id in seen:
-            continue
-        seen.add(senator_id)
-        senator_ids.append(senator_id)
-
+    doc = context.fetch_html(LEG_URL % legislature.leg, cache_days=1)
+    senator_ids = sorted(
+        {
+            match.group(1)
+            for match in (
+                SENATOR_ID_RE.search(href)
+                for href in h.xpath_strings(doc, "//a/@href")
+            )
+            if match is not None
+        }
+    )
     if not senator_ids:
-        raise ValueError("No senator profile links found on the listing page")
+        raise ValueError(f"No senator links for legislature {legislature.leg}")
 
     for senator_id in senator_ids:
-        crawl_senator(context, senator_id)
+        crawl_senator(context, senator_id, legislature)
+
+
+def parse_legislatures(context: Context) -> list[Legislature]:
+    doc = context.fetch_html(context.data_url, cache_days=1)
+    legislatures: dict[str, Legislature] = {}
+    for anchor in h.xpath_elements(doc, "//a[contains(@href, 'SenPerType&LEG=')]"):
+        href = anchor.get("href")
+        leg_match = LEG_ID_RE.search(href or "")
+        label_match = LEG_LABEL_RE.search(h.element_text(anchor) or "")
+        if leg_match is None or label_match is None:
+            continue
+        leg = leg_match.group(1)
+        end_raw = label_match.group(2)
+        end = end_raw if end_raw.isdigit() else None
+        legislatures[leg] = Legislature(leg=leg, start=label_match.group(1), end=end)
+    return list(legislatures.values())
+
+
+def crawl(context: Context) -> None:
+    legislatures = parse_legislatures(context)
+    if not legislatures:
+        raise ValueError("No legislature listings found on the index page")
+
+    for legislature in legislatures:
+        crawl_legislature(context, legislature)
