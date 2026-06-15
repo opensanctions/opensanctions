@@ -64,7 +64,6 @@ def crawl_member(
     # https://www.nrsr.sk/web/Static/en-US/NRSR/Dokumenty/constitution.doc
     person.add("citizenship", "sk")
     person.add("sourceUrl", href)
-    person.add("topics", "role.pep")
 
     context.audit_data(data, ignore=["Bydlisko", "Kraj"])
 

@@ -7,8 +7,7 @@ coverage:
 load_statements: true
 ci_test: false
 summary: >-
-  Members of the National Council of the Slovak Republic, the country's
-  unicameral national parliament.
+  Members of the National Council, the parliament of the Slovak Republic.
 description: |
   This dataset lists the members (poslanci) of the National Council of the
   Slovak Republic (Národná rada Slovenskej republiky), the sole constitutional
