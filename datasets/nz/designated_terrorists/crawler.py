@@ -17,6 +17,29 @@ ALIAS_SPLITS = [
 ]
 PROGRAM_KEY = "NZ-UNSC1373"
 
+ACTIVE_CAPTION = (
+    "Alphabetical list of Designated Terrorist Entities in New Zealand "
+    "pursuant to UNSC Resolution 1373"
+)
+ACTIVE_INITIAL_KEY = (
+    "date-of-designation-as-a-terrorist-entity-in-new-zealand-"
+    "including-and-statement-of-case-for-designation"
+)
+ACTIVE_RENEW_KEY = (
+    "date-terrorist-designation-was-renewed-in-new-zealand-"
+    "including-statement-of-case-for-renewal-of-designation"
+)
+EXPIRED_DATES_KEY = (
+    "date-of-designation-or-renewal-as-a-terrorist-entity-in-new-zealand-"
+    "including-and-statement-of-case-for-designati-and-the-attached-statement-of-case"
+)
+EXPIRED_END_KEY = (
+    "date-terrorist-designation-was-allowed-to-expire-"
+    "including-statement-of-case-for-expiration"
+)
+REVOKED_SECTION = "Revoked designations"
+EXPIRED_SECTION = "Expired designations"
+
 
 def parse_table(
     table: Element,
@@ -47,7 +70,9 @@ def parse_table(
 
 
 def crawl_item(
-    context: Context, input_dict: dict[str, tuple[str | None, list[str | None] | None]]
+    context: Context,
+    input_dict: dict[str, tuple[str | None, list[str | None] | None]],
+    expired: bool,
 ) -> None:
     # aliases will be either a list of size one or None if there is no aliases
     name, *aliases = h.multi_split(input_dict.pop("terrorist-entity")[0], ALIAS_SPLITS)
@@ -56,37 +81,57 @@ def crawl_item(
 
     organization = context.make("Organization")
     organization.id = context.make_slug(name)
-    organization.add("topics", "sanction")
-
     organization.add("name", name)
     organization.add("alias", aliases)
 
     sanction = h.make_sanction(context, organization, program_key=PROGRAM_KEY)
 
-    raw_initial_sanction_date, initial_statement_url = input_dict.pop(
-        "date-of-designation-as-a-terrorist-entity-in-new-zealand-including-and-statement-of-case-for-designation"
-    )
+    if expired:
+        raw_dates, designation_urls = input_dict.pop(EXPIRED_DATES_KEY)
+        assert raw_dates is not None
+        designation_dates = re.findall(DATE_PATTERN, raw_dates)
+        assert designation_dates, raw_dates
+        h.apply_date(sanction, "startDate", designation_dates[0])
+        for d in designation_dates[1:]:
+            h.apply_date(sanction, "date", d)
+        for url in designation_urls or []:
+            sanction.add("sourceUrl", url)
 
-    assert raw_initial_sanction_date is not None
-    initial_sanction_date = re.findall(DATE_PATTERN, raw_initial_sanction_date)[0]
+        raw_end, expire_urls = input_dict.pop(EXPIRED_END_KEY)
+        assert raw_end is not None
+        end_dates = re.findall(DATE_PATTERN, raw_end)
+        assert len(end_dates) == 1, raw_end
+        h.apply_date(sanction, "endDate", end_dates[0])
+        for url in expire_urls or []:
+            sanction.add("sourceUrl", url)
+    else:
+        raw_initial_sanction_date, initial_statement_url = input_dict.pop(
+            ACTIVE_INITIAL_KEY
+        )
 
-    # There is only one date in this case
-    h.apply_date(sanction, "startDate", initial_sanction_date)
-    sanction.add("sourceUrl", initial_statement_url)
+        assert raw_initial_sanction_date is not None
+        initial_sanction_date = re.findall(DATE_PATTERN, raw_initial_sanction_date)[0]
 
-    raw_renew_sanction_dates, renew_statement_urls = input_dict.pop(
-        "date-terrorist-designation-was-renewed-in-new-zealand-including-statement-of-case-for-renewal-of-designation"
-    )
+        # There is only one date in this case
+        h.apply_date(sanction, "startDate", initial_sanction_date)
+        sanction.add("sourceUrl", initial_statement_url)
 
-    assert raw_renew_sanction_dates is not None
-    renew_sanction_dates = re.findall(DATE_PATTERN, raw_renew_sanction_dates)
+        raw_renew_sanction_dates, renew_statement_urls = input_dict.pop(
+            ACTIVE_RENEW_KEY
+        )
 
-    for renew_sanction_date in renew_sanction_dates:
-        h.apply_date(sanction, "date", renew_sanction_date)
+        assert raw_renew_sanction_dates is not None
+        renew_sanction_dates = re.findall(DATE_PATTERN, raw_renew_sanction_dates)
 
-    assert renew_statement_urls is not None
-    for renew_statement_url in renew_statement_urls:
-        sanction.add("sourceUrl", renew_statement_url)
+        for renew_sanction_date in renew_sanction_dates:
+            h.apply_date(sanction, "date", renew_sanction_date)
+
+        assert renew_statement_urls is not None
+        for renew_statement_url in renew_statement_urls:
+            sanction.add("sourceUrl", renew_statement_url)
+
+    if h.is_active(sanction):
+        organization.add("topics", "sanction")
 
     context.emit(organization)
     context.emit(sanction)
@@ -96,13 +141,23 @@ def crawl_item(
 def crawl(context: Context) -> None:
     response = context.fetch_html(context.data_url, absolute_links=True)
 
-    table = h.xpath_element(response, ".//table")
+    active_seen = False
+    for table in h.xpath_elements(response, ".//table"):
+        section_headings = h.xpath_elements(table, "preceding-sibling::h2[1]")
+        section = h.element_text(section_headings[0]) if section_headings else None
+        if section == REVOKED_SECTION:
+            continue
+        if section == EXPIRED_SECTION:
+            for item in parse_table(table):
+                crawl_item(context, item, expired=True)
+            continue
+        if section is not None:
+            raise ValueError(f"Unexpected section heading before table: {section!r}")
 
-    caption = table.findtext(".//caption/strong")
-    assert (
-        caption
-        == "Alphabetical list of Designated Terrorist Entities in New Zealand pursuant to UNSC Resolution 1373"
-    ), caption
+        caption = table.findtext(".//caption/strong")
+        assert caption == ACTIVE_CAPTION, caption
+        for item in parse_table(table):
+            crawl_item(context, item, expired=False)
+        active_seen = True
 
-    for item in parse_table(table):
-        crawl_item(context, item)
+    assert active_seen, "Did not find active designations table"
