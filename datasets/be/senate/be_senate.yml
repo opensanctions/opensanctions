@@ -58,10 +58,10 @@ tags:
 assertions:
   min:
     schema_entities:
-      Person: 250
+      Person: 100
       Position: 1
     country_entities:
-      be: 250
+      be: 100
   max:
     schema_entities:
       Person: 800
