@@ -140,7 +140,6 @@ def crawl_senator(
     # Senators must be Romanian citizens: Constitution of Romania Art. 16(3) and
     # Art. 37(1). https://www.wipo.int/wipolex/edocs/lexdocs/laws/en/ro/ro021en.html
     person.add("citizenship", "ro")
-    person.add("political", party)
     person.add("sourceUrl", detail_url)
 
     # The mandate starts when validated (fall back to election or term start).
@@ -161,6 +160,7 @@ def crawl_senator(
     )
     if occupancy is None:
         return
+    occupancy.add("politicalGroup", party)
     context.emit(occupancy)
     context.emit(person)
 
