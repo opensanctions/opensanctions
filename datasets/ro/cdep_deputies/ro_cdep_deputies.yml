@@ -33,7 +33,7 @@ data:
   lang: eng
 
 dates:
-  formats: ["%d %m %Y"]
+  formats: ["%d %m %Y", "%d %m. %Y"]
   months:
     "01": ["jan", "january"]
     "02": ["feb", "february"]

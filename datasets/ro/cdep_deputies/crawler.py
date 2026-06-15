@@ -1,7 +1,7 @@
 import re
 import time
 
-from lxml import etree
+from lxml.etree import _Element
 from requests.exceptions import RequestException
 
 from zavod import Context
@@ -9,16 +9,19 @@ from zavod import helpers as h
 from zavod.entity import Entity
 from zavod.stateful.positions import PositionCategorisation, categorise
 
+TOPICS = ["gov.national", "gov.legislative"]
+
 # cdep.ro intermittently drops connections (a broken TLS chain plus rate-limiting on
 # rapid bursts), so a single sequential pass over thousands of pages will hit transient
 # errors. Retry with backoff, and rely on a long cache so re-runs resume from where a
 # previous pass left off.
 CACHE_DAYS = 14
 
-# Date written like "14 oct. 1988" or "21 december 2024". We strip the period and
-# collapse whitespace, then let the dataset's `dates.months` map translate the
-# (Romanian-localised) English month token into a numeric "%d %m %Y" value.
-DATE_RE = re.compile(r"(\d{1,2})\s+([A-Za-z]+)\.?\s+(\d{4})")
+# Dates are embedded in labelled snippets like "b. 14 oct. 1988" or
+# "start of the mandate: 21 december 2024", so we isolate the date substring here.
+# Translating the month name and parsing the format (including the abbreviated
+# month's trailing period) is left to `h.apply_date` via the dataset `dates` config.
+DATE_RE = re.compile(r"\d{1,2}\s+[A-Za-z]+\.?\s+\d{4}")
 
 # Each member links to a detail page like
 # /ords/pls/parlam/structura2015.mp?idm=1&cam=2&leg=2024&idl=2
@@ -38,7 +41,7 @@ ROSTER_URL = "https://www.cdep.ro/ords/pls/parlam/structura2015.de?leg=%s&idl=2"
 
 def fetch_html(
     context: Context, url: str, absolute_links: bool = False, attempts: int = 6
-) -> etree._Element:
+) -> _Element:
     """Fetch and parse an HTML page, retrying transient connection failures.
 
     cdep.ro frequently resets connections mid-crawl; a plain `context.fetch_html`
@@ -65,15 +68,15 @@ def fetch_html(
     raise RuntimeError("unreachable")
 
 
-def parse_date(text: str | None) -> str | None:
-    """Extract a `D month YYYY` date from a snippet and normalise its spacing."""
+def date_in_text(text: str | None) -> str | None:
+    """Return the date substring (e.g. "14 oct. 1988") found in a labelled snippet.
+
+    Returns None when no date is present, so `apply_date` is never handed the
+    surrounding label text (which it cannot parse and would emit verbatim)."""
     if text is None:
         return None
     match = DATE_RE.search(text)
-    if match is None:
-        return None
-    day, month, year = match.groups()
-    return f"{day} {month} {year}"
+    return match.group(0) if match is not None else None
 
 
 def crawl_member(
@@ -112,7 +115,7 @@ def crawl_member(
         ".//div[contains(@class, 'mp-contact-item2025')][starts-with(normalize-space(.), 'b.')]",
     )
     if len(birth_box) == 1:
-        h.apply_date(person, "birthDate", parse_date(h.element_text(birth_box[0])))
+        h.apply_date(person, "birthDate", date_in_text(h.element_text(birth_box[0])))
 
     party_links = h.xpath_elements(
         doc,
@@ -129,12 +132,10 @@ def crawl_member(
     # Older legislatures omit the precise validation date; fall back to the term year.
     start_date = None
     if len(mandate) == 1:
-        start_date = parse_date(h.element_text(mandate[0]))
+        start_date = date_in_text(h.element_text(mandate[0]))
     if start_date is None:
         start_date = str(leg_year)
 
-    # Set all person properties before make_occupancy: it reads birthDate to decide
-    # PEP status and mutates person.topics.
     occupancy = h.make_occupancy(
         context,
         person,
@@ -156,17 +157,17 @@ def crawl_roster(
     leg_year: int,
     end_year: int | None,
     is_current: bool,
-    doc: etree._Element | None = None,
+    doc: _Element | None = None,
 ) -> None:
     if doc is None:
         roster = fetch_html(context, ROSTER_URL % leg_year, absolute_links=True)
     else:
         roster = doc
-    members: dict[str, str] = {}
+    members: dict[str, None] = {}
     for link in h.xpath_elements(roster, MEMBER_XPATH):
         href = link.get("href")
         assert href is not None, link
-        members[href] = href
+        members.setdefault(href, None)  # order-preserving de-duplication
     context.log.info("Crawling legislature roster", leg=leg_year, members=len(members))
     for url in members:
         crawl_member(
@@ -180,10 +181,10 @@ def crawl(context: Context) -> None:
         name="Member of the Chamber of Deputies of Romania",
         country="ro",
         wikidata_id="Q17556530",
-        topics=["gov.national", "gov.legislative"],
+        topics=TOPICS,
         lang="eng",
     )
-    categorisation = categorise(context, position, default_is_pep=True)
+    categorisation = categorise(context, position)
     context.emit(position)
 
     # The current roster lists current members and links to every legislature's home
@@ -200,9 +201,7 @@ def crawl(context: Context) -> None:
     ordered = sorted(years)
     current_year = ordered[-1]
 
-    # Only crawl terms recent enough to still imply PEP status. earliest_term_start
-    # gives the cut-off date (relevance window + slack) for national positions.
-    cutoff_year = int(h.earliest_term_start(["gov.national"])[:4])
+    cutoff_year = int(h.earliest_term_start(TOPICS)[:4])
 
     for index, leg_year in enumerate(ordered):
         end_year = ordered[index + 1] if index + 1 < len(ordered) else None
