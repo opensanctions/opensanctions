@@ -1,9 +1,8 @@
-from functools import reduce
-from operator import concat
-from typing import Generator, Dict, Tuple, Optional
-from lxml.etree import _Element
+from itertools import chain
+from typing import Iterator
 from normality import slugify
 from zavod import Context, helpers as h
+from zavod.util import Element
 import re
 
 # It will match the following substrings: DD (any month) YYYY
@@ -20,14 +19,14 @@ PROGRAM_KEY = "NZ-UNSC1373"
 
 
 def parse_table(
-    table: _Element,
-) -> Generator[Dict[str, Tuple[str, Optional[str]]], None, None]:
+    table: Element,
+) -> Iterator[dict[str, tuple[str | None, list[str | None] | None]]]:
     headers = None
     for row in table.findall(".//tr"):
         if headers is None:
             headers = []
             for el in row.findall("./th"):
-                headers.append(slugify(el.text_content()))
+                headers.append(slugify(h.element_text(el)))
             continue
 
         cells = []
@@ -39,19 +38,21 @@ def parse_table(
             # there can be multiple links in the same cell
             a_tags = el.findall(".//a")
             if a_tags is None:
-                cells.append((el.text_content(), None))
+                cells.append((h.element_text(el), None))
             else:
-                cells.append((el.text_content(), [a.get("href") for a in a_tags]))
+                cells.append((h.element_text(el), [a.get("href") for a in a_tags]))
 
         assert len(headers) == len(cells)
-        yield {hdr: c for hdr, c in zip(headers, cells) if hdr}
+        yield {hdr: c for hdr, c in zip(headers, cells) if hdr is not None}
 
 
-def crawl_item(input_dict: dict, context: Context) -> None:
+def crawl_item(
+    context: Context, input_dict: dict[str, tuple[str | None, list[str | None] | None]]
+) -> None:
     # aliases will be either a list of size one or None if there is no aliases
     name, *aliases = h.multi_split(input_dict.pop("terrorist-entity")[0], ALIAS_SPLITS)
     alias_lists = [h.multi_split(alias, [", and", ","]) for alias in aliases]
-    aliases = reduce(concat, alias_lists, [])
+    aliases = list(chain.from_iterable(alias_lists))
 
     organization = context.make("Organization")
     organization.id = context.make_slug(name)
@@ -66,6 +67,7 @@ def crawl_item(input_dict: dict, context: Context) -> None:
         "date-of-designation-as-a-terrorist-entity-in-new-zealand-including-and-statement-of-case-for-designation"
     )
 
+    assert raw_initial_sanction_date is not None
     initial_sanction_date = re.findall(DATE_PATTERN, raw_initial_sanction_date)[0]
 
     # There is only one date in this case
@@ -76,11 +78,13 @@ def crawl_item(input_dict: dict, context: Context) -> None:
         "date-terrorist-designation-was-renewed-in-new-zealand-including-statement-of-case-for-renewal-of-designation"
     )
 
+    assert raw_renew_sanction_dates is not None
     renew_sanction_dates = re.findall(DATE_PATTERN, raw_renew_sanction_dates)
 
     for renew_sanction_date in renew_sanction_dates:
         h.apply_date(sanction, "date", renew_sanction_date)
 
+    assert renew_statement_urls is not None
     for renew_statement_url in renew_statement_urls:
         sanction.add("sourceUrl", renew_statement_url)
 
@@ -92,7 +96,7 @@ def crawl_item(input_dict: dict, context: Context) -> None:
 def crawl(context: Context) -> None:
     response = context.fetch_html(context.data_url, absolute_links=True)
 
-    table = response.find(".//table")
+    table = h.xpath_element(response, ".//table")
 
     caption = table.findtext(".//caption/strong")
     assert (
@@ -100,5 +104,5 @@ def crawl(context: Context) -> None:
         == "Alphabetical list of Designated Terrorist Entities in New Zealand pursuant to UNSC Resolution 1373"
     ), caption
 
-    for item in parse_table(response.find(".//table")):
-        crawl_item(item, context)
+    for item in parse_table(table):
+        crawl_item(context, item)

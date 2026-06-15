@@ -77,9 +77,7 @@ repos:
           datasets/_wikidata|
           datasets/ae|
           datasets/bg/jud_declarations|
-          datasets/br|
           datasets/cn|
-          datasets/ee|
           datasets/eu|
           datasets/gb/coh|
           datasets/gb/fca_firds|
@@ -89,12 +87,10 @@ repos:
           datasets/in|
           datasets/ky/judicial|
           datasets/lt|
-          datasets/md|
           datasets/my|
           datasets/ng|
           datasets/no/nbim_exclusions|
           datasets/np|
-          datasets/nz|
           datasets/ph|
           datasets/qa|
           datasets/ro|

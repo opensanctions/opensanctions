@@ -2,7 +2,7 @@ from zavod import Context, helpers as h
 from zavod.stateful.positions import categorise
 
 
-def get_members_urls(context: Context) -> list:
+def get_members_urls(context: Context) -> list[str]:
     main_website = context.fetch_html(context.data_url)
 
     # this XPath corresponds to the a tags wit the links for a member page
@@ -20,11 +20,11 @@ def crawl_item(member_url: str, context: Context) -> None:
         member_page_html, '//*[contains(@class, "profile-desc")]/p[text()][1]/text()'
     )
     bio = " ".join(bio_parts).strip()
-    electoral_district = h.xpath_strings(
+    electoral_district_list = h.xpath_strings(
         member_page_html,
         '//*[contains(@class, "profile-desc")]//a[contains(@href, "searchByConstituency")]/text()',
     )
-    electoral_district = electoral_district[0] if electoral_district else None
+    electoral_district = electoral_district_list[0] if electoral_district_list else None
 
     entity = context.make("Person")
     entity.id = context.make_id(name)

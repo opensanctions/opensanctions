@@ -1,6 +1,5 @@
 import csv
 import re
-from typing import Dict
 
 from rigour.ids import CNPJ, CPF
 from rigour.mime.types import CSV
@@ -10,16 +9,20 @@ from zavod import Context, helpers as h
 LISTING_INTERVAL_RE = re.compile(r"(?P<start_date>.+) a (?P<end_date>.+)")
 
 
-def crawl_row(context: Context, row: Dict[str, str]) -> None:
+def crawl_row(context: Context, row: dict[str, str]) -> None:
     tax_number = row.pop("CNPJ/CPF")
 
     if CNPJ.is_valid(tax_number):
         entity = context.make("Company")
-        tax_number = CNPJ.normalize(tax_number)
+        normalized = CNPJ.normalize(tax_number)
+        assert normalized is not None
+        tax_number = normalized
         entity.id = context.make_slug(tax_number, prefix="br-cnpj")
     elif CPF.is_valid(tax_number):
         entity = context.make("Person")
-        tax_number = CPF.normalize(tax_number)
+        normalized = CPF.normalize(tax_number)
+        assert normalized is not None
+        tax_number = normalized
         entity.id = context.make_slug(tax_number, prefix="br-cpf")
     else:
         entity = context.make("LegalEntity")

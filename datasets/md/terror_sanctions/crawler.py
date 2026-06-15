@@ -49,7 +49,9 @@ def crawl(context: Context) -> None:
         str_row = h.cells_to_str(row)
         dob = str_row.pop("data_de_nastere")
         entity = context.make("LegalEntity")
-        name, aliases = parse_names(str_row.pop("persoana_fizica_entitate"))
+        persoana = str_row.pop("persoana_fizica_entitate")
+        assert persoana is not None
+        name, aliases = parse_names(persoana)
         entity.id = context.make_id(name, dob)
         entity.add("name", name)
         entity.add("topics", "sanction")

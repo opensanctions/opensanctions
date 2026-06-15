@@ -38,7 +38,9 @@ def get_value(
 
 
 def get_address(data: Item) -> Optional[str]:
-    value = data.pop("aadress_ads__ads_normaliseeritud_taisaadress", None)
+    value: Optional[str] = data.pop(
+        "aadress_ads__ads_normaliseeritud_taisaadress", None
+    )
     if value is not None:
         return value
     parts = []
