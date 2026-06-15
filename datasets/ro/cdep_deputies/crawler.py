@@ -101,9 +101,10 @@ def crawl_member(
         context.log.warning("Skipping member after repeated fetch failures", url=url)
         return
 
+    name = h.element_text(h.xpath_element(doc, NAME_XPATH))
     person = context.make("Person")
-    person.id = context.make_slug("person", str(leg_year), idm)
-    person.add("name", h.element_text(h.xpath_element(doc, NAME_XPATH)))
+    person.id = context.make_id(name, idm)
+    person.add("name", name)
     person.add("sourceUrl", url)
     # Members of the Chamber of Deputies must be Romanian citizens: Constitution of
     # Romania, Article 37(1) (right to be elected), read with Article 16(3) (public
