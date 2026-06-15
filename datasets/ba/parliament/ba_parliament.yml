@@ -3,7 +3,7 @@ prefix: ba-parl
 entry_point: crawler.py
 coverage:
   frequency: weekly
-  start: "2026-06-11"
+  start: "2026-06-15"
 load_statements: true
 ci_test: false
 
@@ -15,10 +15,10 @@ description: |
   BiH) is the bicameral state-level legislature. This dataset covers both chambers:
 
   - The House of Representatives (Predstavnički/Zastupnički dom), the directly
-    elected lower house of 42 members — 28 from the Federation of Bosnia and
+    elected lower house comprised of 42 members — 28 from the Federation of Bosnia and
     Herzegovina and 14 from Republika Srpska — serving four-year terms.
-  - The House of Peoples (Dom naroda), the upper house of 15 delegates (five
-    Bosniak, five Croat and five Serb) delegated by the entity legislatures.
+  - The House of Peoples (Dom naroda), the upper house comprised of 15 delegates (five
+    Bosniak, five Croat and five Serb).
 
 url: https://www.parlament.ba/
 
