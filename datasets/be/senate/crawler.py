@@ -110,8 +110,7 @@ def crawl_legislature(context: Context, legislature: Legislature) -> None:
         {
             match.group(1)
             for match in (
-                SENATOR_ID_RE.search(href)
-                for href in h.xpath_strings(doc, "//a/@href")
+                SENATOR_ID_RE.search(href) for href in h.xpath_strings(doc, "//a/@href")
             )
             if match is not None
         }
