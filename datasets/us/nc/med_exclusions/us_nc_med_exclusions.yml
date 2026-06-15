@@ -44,6 +44,7 @@ lookups:
       - match: # NPI/ATYPICAL ID in the source
           - 50345490
           - 40401363
+          - 40425647
           - 1740274522
         prop: idNumber
       - match: 1265032319
