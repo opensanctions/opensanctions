@@ -19,8 +19,6 @@ VALIDATION_RE = re.compile(r"validat\b[^,]*?(\d{2}\.\d{2}\.\d{4})", re.DOTALL)
 # Legislature labels look like "2024-2028".
 LEGISLATURE_LABEL_RE = re.compile(r"^(\d{4})-(\d{4})$")
 
-TOPICS = ["gov.legislative", "gov.national"]
-
 
 def parse_form_fields(doc: _Element) -> dict[str, str]:
     """Collect the ASP.NET form state needed to round-trip a postback: all hidden
@@ -178,7 +176,7 @@ def crawl(context: Context) -> None:
         context,
         name="Member of the Senate of Romania",
         country="ro",
-        topics=TOPICS,
+        topics=["gov.legislative", "gov.national"],
         wikidata_id="Q19938957",
         lang="eng",
     )
@@ -186,6 +184,7 @@ def crawl(context: Context) -> None:
     if not categorisation.is_pep:
         return
     context.emit(position)
+    cutoff = h.earliest_term_start(position.get("topics"))
 
     for option in options:
         legislature_id = option.get("value")
@@ -199,7 +198,7 @@ def crawl(context: Context) -> None:
             context.log.warning("Unexpected legislature label", label=label)
             continue
         term_start_year, term_end_year = label_match.group(1), label_match.group(2)
-        if not is_current and f"{term_end_year}-12-31" < h.earliest_term_start(TOPICS):
+        if not is_current and f"{term_end_year}-12-31" < cutoff:
             context.log.info(
                 "Skipping legislature outside the coverage window", label=label
             )
