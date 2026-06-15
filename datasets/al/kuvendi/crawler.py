@@ -5,9 +5,7 @@ from zoneinfo import ZoneInfo
 from zavod import Context, Entity
 from zavod import helpers as h
 
-# The 2025 Kuvendi has 140 seats; the API marks sitting members with status 0.
-SITTING_STATUS = 0
-EXPECTED_SEATS = 140
+
 TIRANE = ZoneInfo("Europe/Tirane")
 
 
@@ -60,10 +58,8 @@ def crawl_member(context: Context, position: Entity, record: dict[str, Any]) -> 
 
     context.audit_data(
         record,
-        # Electoral district code, profile photo, social media handles and row
-        # audit metadata are not modelled.
         ignore=[
-            "qarku",
+            "qarku",  # numerical representation of the MP's electoral district
             "fotoProfil",
             "fbProfileUrl",
             "twitterProfileUrl",
@@ -80,16 +76,10 @@ def crawl_member(context: Context, position: Entity, record: dict[str, Any]) -> 
 
 
 def crawl(context: Context) -> None:
-    data: Any = context.fetch_json(context.data_url)
-    if not isinstance(data, list) or len(data) == 0:
-        raise ValueError("Unexpected API response: expected a non-empty list")
+    data = context.fetch_json(context.data_url)
 
-    members = [r for r in data if r.get("status") == SITTING_STATUS]
-    if not (EXPECTED_SEATS * 0.9 <= len(members) <= EXPECTED_SEATS * 1.1):
-        context.log.warning(
-            "Sitting member count differs from the expected 140 seats",
-            count=len(members),
-        )
+    # the API marks sitting members with status 0
+    members = [r for r in data if r.get("status") == 0]
 
     position = h.make_position(
         context,
