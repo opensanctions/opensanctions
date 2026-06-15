@@ -34,7 +34,9 @@ def clean_birth_date(raw: str | None) -> str | None:
 
 def crawl_member(context: Context, position: Entity, record: dict[str, Any]) -> None:
     person = context.make("Person")
-    person.id = context.make_slug(record.pop("id"))
+    first_name = record.get("emer")
+    last_name = record.get("mbiemer")
+    person.id = context.make_id(first_name, last_name, record.pop("id"))
 
     # `atesi` (patronymic) is sometimes a "-" placeholder rather than a name.
     patronymic = record.pop("atesi", None)
@@ -42,9 +44,9 @@ def crawl_member(context: Context, position: Entity, record: dict[str, Any]) -> 
         patronymic = None
     h.apply_name(
         person,
-        first_name=record.pop("emer"),
+        first_name=first_name,
         patronymic=patronymic,
-        last_name=record.pop("mbiemer"),
+        last_name=last_name,
     )
     person.add("citizenship", "al")
     h.apply_date(person, "birthDate", clean_birth_date(record.pop("ditlindje")))
