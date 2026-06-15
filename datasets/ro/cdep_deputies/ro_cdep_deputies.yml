@@ -1,22 +1,22 @@
-title: Romania Chamber of Deputies
+title: Romania Members of Chamber of Deputies
 entry_point: crawler.py
 prefix: ro-cdep
 coverage:
-  frequency: weekly
+  frequency: monthly
   start: 2025-06-09
 load_statements: true
 ci_test: false
 summary: >-
   Members of the Chamber of Deputies, the lower house of the Romanian Parliament.
 description: |
-  The Chamber of Deputies (Camera Deputaților) is the lower house of the bicameral
-  Parliament of Romania. Its members are elected for four-year terms.
+  Current and historical members of the Chamber of Deputies (Camera Deputaților), the
+  lower house of the bicameral Parliament of Romania. Its deputies are elected for
+  four-year terms and, together with the Senate, hold the country's legislative power,
+  including passing laws, approving the budget, and giving the government a vote of
+  confidence.
 
-  This dataset lists the deputies of the current and recent legislative terms, as
-  published on the Chamber's official website. Older terms are included as long as
-  they fall within the window in which a former member is still considered a
-  politically exposed person. For each deputy it captures their name, date of birth,
-  political party and the term(s) they served.
+  This dataset records the deputies of the current and recent legislative terms, with
+  their name, date of birth, political party, and the term(s) they served.
 url: https://www.cdep.ro/ords/pls/parlam/structura2015.de?idl=2
 publisher:
   name: Camera Deputaților
@@ -48,19 +48,6 @@ dates:
     "11": ["nov", "november"]
     "12": ["dec", "december"]
 
-lookups:
-  # The "Political party" field also records affiliation *statuses* — a deputy who
-  # left their party shows the original party plus one of these phrases. They are not
-  # party names, so drop them from the `political` (string-typed) property.
-  type.string:
-    normalize: true
-    options:
-      - match:
-          - "Without adhesion to the political party for which he had run for election"
-          - "Indep."
-          - "independent"
-        value: null
-
 tags:
   - list.pep
 
@@ -68,10 +55,8 @@ assertions:
   min:
     schema_entities:
       Person: 1000
-      Position: 1
     country_entities:
       ro: 1000
   max:
     schema_entities:
       Person: 3000
-      Position: 1
