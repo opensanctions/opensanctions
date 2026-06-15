@@ -34,8 +34,8 @@ def crawl(dataset_path: Path, dry_run: bool = False, clear_data: bool = False) -
 
 @cli.command("validate", help="Check the integrity of a dataset")
 @click.argument("dataset_path", type=DatasetInPath)
-@click.option("-r", "--rebuild-store", is_flag=True, default=False)
-def validate(dataset_path: Path, rebuild_store: bool = False) -> None:
+@click.option("--rebuild-store/--keep-store", is_flag=True, default=True)
+def validate(dataset_path: Path, rebuild_store: bool = True) -> None:
     dataset = _load_dataset(dataset_path)
     if dataset.model.disabled:
         log.info("Dataset is disabled, skipping: %s" % dataset.name)
@@ -53,8 +53,8 @@ def validate(dataset_path: Path, rebuild_store: bool = False) -> None:
 
 @cli.command("export", help="Export data from a specific dataset")
 @click.argument("dataset_path", type=DatasetInPath)
-@click.option("-r", "--rebuild-store", is_flag=True, default=False)
-def export(dataset_path: Path, rebuild_store: bool = False) -> None:
+@click.option("--rebuild-store/--keep-store", is_flag=True, default=True)
+def export(dataset_path: Path, rebuild_store: bool = True) -> None:
     dataset = _load_dataset(dataset_path)
     if dataset.model.disabled:
         log.info("Dataset is disabled, skipping: %s" % dataset.name)

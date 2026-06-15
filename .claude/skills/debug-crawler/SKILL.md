@@ -98,7 +98,7 @@ Check `data/datasets/<dataset_name>/issues.log` for remaining warnings. Then exp
 and confirm the delta is plausible:
 
 ```bash
-zavod export --rebuild-store datasets/<path>/<dataset_name>.yml
+zavod export datasets/<path>/<dataset_name>.yml
 ```
 
 A healthy run shows:
