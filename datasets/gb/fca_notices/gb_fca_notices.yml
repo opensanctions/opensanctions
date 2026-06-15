@@ -19,7 +19,7 @@ description: |
 
   The list is continuously updated and includes entities operating in the UK
   financial services sector without the required FCA authorisation.
-url: https://www.fca.org.uk/consumers/warning-list-unauthorised-firms
+url: https://www.fca.org.uk/news/search-results
 publisher:
   name: Financial Conduct Authority
   acronym: FCA
@@ -30,9 +30,10 @@ publisher:
   country: gb
   official: true
 data:
-  url: https://www.fca.org.uk/consumers/warning-list-unauthorised-firms
-  format: JSON
+  url: https://www.fca.org.uk/news/search-results?n_search_term=&category=warnings&sort_by=dmetaZ&start=1
+  format: HTML
   lang: eng
+
 tags:
   - list.regulatory
   - issuer.west
