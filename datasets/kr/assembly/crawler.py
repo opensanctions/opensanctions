@@ -4,12 +4,6 @@ from zavod import Context, Entity
 from zavod import helpers as h
 from zavod.stateful.positions import PositionCategorisation, categorise
 
-# The endpoint caps the page size silently; request all seats in one call and assert
-# the returned count matches the reported total (see crawl()).
-ROWS = "500"
-
-POSITION_NAME = "Member of the National Assembly of the Republic of Korea"
-
 
 def crawl_member(
     context: Context,
@@ -39,6 +33,7 @@ def crawl_member(
     if occupancy is not None:
         occupancy.add("constituency", row.pop("origNm", None))
         context.emit(occupancy)
+        context.emit(person)
 
     context.audit_data(
         row,
@@ -61,13 +56,12 @@ def crawl_member(
             "openNaId",
         ],
     )
-    context.emit(person)
 
 
 def crawl(context: Context) -> None:
     position = h.make_position(
         context,
-        name=POSITION_NAME,
+        name="Member of the National Assembly of the Republic of Korea",
         wikidata_id="Q14850694",
         country="kr",
         topics=["gov.legislative", "gov.national"],
@@ -75,10 +69,12 @@ def crawl(context: Context) -> None:
     categorisation = categorise(context, position, default_is_pep=True)
     context.emit(position)
 
+    # The endpoint caps the page size silently; request all seats in one call and assert
+    # the returned count matches the reported total.
     data = context.fetch_json(
         context.data_url,
         method="POST",
-        data={"page": "1", "rows": ROWS},
+        data={"page": "1", "rows": 500},
         cache_days=1,
     )
     rows = data["data"]

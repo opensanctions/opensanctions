@@ -2,17 +2,16 @@ title: South Korea National Assembly Members
 entry_point: crawler.py
 prefix: kr-na
 load_statements: true
-ci_test: true
+ci_test: false
 coverage:
   frequency: weekly
-  start: 2026-06-15
+  start: "2026-06-15"
 summary: >-
-  Members of the National Assembly of the Republic of Korea, the country's
-  unicameral national legislature.
+  Members of the unicameral National Assembly of the Republic of Korea.
 description: |
   Individuals currently serving in the National Assembly (국회), the unicameral
-  legislature of the Republic of Korea. The Assembly has 300 seats — 254 single-member
-  districts and 46 proportional-representation seats — whose members are elected to
+  legislature of the Republic of Korea. The Assembly has 300 seats (254 single-member
+  districts and 46 proportional-representation seats) whose members are elected to
   four-year terms.
 
   The data is sourced from the National Assembly Secretariat's public member-search
