@@ -10,6 +10,9 @@ from zavod.extract.zyte_api import fetch_html
 # Funnelback uses 1-based start; pages step by 10.
 PAGE_SIZE = 10
 
+# Prefixes of the standard FCA disclaimer that ends the firm details.
+DISCLAIMERS = ("Some firms may", "They may also")
+
 # Strip clone/status annotations the FCA appends to names, e.g.
 # "Fortradefx (Clone of FCA authorised firm)".
 STATUS_RE = re.compile(
@@ -57,17 +60,33 @@ def flush_field(
             context.log.warning("Unhandled firm detail field", label=label, value=value)
 
 
-def crawl_firm(context: Context, url: str, name: str, date_raw: str | None) -> None:
-    doc = fetch_html(context, url, ".//h1", html_source="httpResponseBody", cache_days=7)
+def crawl_item(context: Context, item: _Element) -> None:
+    links = h.xpath_elements(item, ".//h3[@class='search-item__title']//a[@href]")
+    if not links:
+        return
+    raw_name = h.element_text(links[0])
+    url = links[0].get("href")
+    if not raw_name or not url:
+        return
+
+    date_raw: str | None = None
+    dates = h.xpath_elements(item, ".//p[contains(@class,'published-date')]")
+    if dates:
+        text = h.element_text(dates[0]) or ""
+        date_raw = text.removeprefix("Published:").strip()
+
+    doc = fetch_html(
+        context, url, ".//h1", html_source="httpResponseBody", cache_days=7
+    )
 
     entity = context.make("LegalEntity")
     entity.id = context.make_id(url)
-    entity.add("name", name)
+    entity.add("name", clean_name(raw_name))
     entity.add("sourceUrl", url)
     entity.add("topics", "reg.warn")
 
     sections = h.xpath_elements(
-        doc, ".//section[@id='section-unauthorised-firm-details']"
+        doc, ".//section" "[@id='section-unauthorised-firm-details']"
     )
     if not sections:
         context.log.warning("No details section found on firm page", url=url)
@@ -80,15 +99,14 @@ def crawl_firm(context: Context, url: str, name: str, date_raw: str | None) -> N
     values: list[str] = []
     for p in h.xpath_elements(sections[0], ".//p"):
         strong = h.xpath_elements(p, "./strong")
+        value = ((strong[0].tail or "") if strong else h.element_text(p) or "").strip()
         if strong:
             if label is not None:
                 flush_field(context, entity, label, values)
-            label_text = h.element_text(strong[0]) or ""
-            label = label_text.rstrip(":").strip()
-            values = [(h.element_text(p) or "")[len(label_text):].strip()]
+            label = (h.element_text(strong[0]) or "").rstrip(":").strip()
+            values = [value]
         elif label is not None:
-            value = (h.element_text(p) or "").strip()
-            if value.startswith("Some firms may") or value.startswith("They may also"):
+            if value.startswith(DISCLAIMERS):
                 break
             if value:
                 values.append(value)
@@ -101,51 +119,32 @@ def crawl_firm(context: Context, url: str, name: str, date_raw: str | None) -> N
     context.emit(sanction)
 
 
-def crawl_page(context: Context, start: int) -> tuple[list[_Element], _Element]:
-    params = urlencode(
-        {
-            "n_search_term": "",
-            "category": "warnings",
-            "sort_by": "dmetaZ",
-            "start": start,
-        }
-    )
-    url = f"{context.dataset.url}?{params}"
-    doc = fetch_html(
-        context,
-        url,
-        ".//li[contains(@class,'search-item')]",
-        html_source="httpResponseBody",
-        cache_days=1,
-    )
-    items = h.xpath_elements(doc, ".//li[contains(@class,'search-item')]")
-    return items, doc
-
-
 def crawl(context: Context) -> None:
     start = 1
+    ITEMS_XPATH = ".//li[contains(@class,'search-item')]"
     while True:
-        items, doc = crawl_page(context, start)
+        params = urlencode(
+            {
+                "n_search_term": "",
+                "category": "warnings",
+                "sort_by": "dmetaZ",
+                "start": start,
+            }
+        )
+        url = f"{context.dataset.url}?{params}"
+        doc = fetch_html(
+            context,
+            url,
+            ITEMS_XPATH,
+            html_source="httpResponseBody",
+            cache_days=1,
+        )
+        items = h.xpath_elements(doc, ITEMS_XPATH)
+
         if not items:
             break
         for item in items:
-            links = h.xpath_elements(
-                item, ".//h3[@class='search-item__title']//a[@href]"
-            )
-            if not links:
-                continue
-            raw_name = h.element_text(links[0])
-            href = links[0].get("href", "")
-            if not raw_name or not href:
-                continue
-            firm_url = href if href.startswith("http") else f"https://www.fca.org.uk{href}"
-
-            date_raw: str | None = None
-            dates = h.xpath_elements(item, ".//p[contains(@class,'published-date')]")
-            if dates:
-                date_raw = (h.element_text(dates[0]) or "").removeprefix("Published:").strip()
-
-            crawl_firm(context, firm_url, clean_name(raw_name), date_raw)
+            crawl_item(context, item)
 
         if not h.xpath_elements(doc, ".//a[@title='Go to next page']"):
             break
