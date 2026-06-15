@@ -16,17 +16,23 @@ def crawl(context: Context) -> None:
             continue
 
         type_ = cells.pop("type")
-        schema = context.lookup_value("types", type_)
-        if schema is None:
-            context.log.error("Unknown entity type", type=type_, item=cells)
+
+        if all(v == "" for v in cells.values()):
             continue
 
         name = cells.pop("name").strip()
-        if all(v == "" for v in cells.values()):
-            continue
         country = cells.pop("nationality")
+        entity_id = context.make_id(name, country)
+
+        schema = context.lookup_value("types", entity_id)
+        if schema is None:
+            schema = context.lookup_value("types", type_)
+        if schema is None:
+            context.log.error("Unknown entity type", type=type_, item=cells)
+            continue
         entity = context.make(schema)
-        entity.id = context.make_id(name, country)
+
+        entity.id = entity_id
         h.apply_reviewed_name_string(context, entity, string=name, llm_cleaning=True)
         entity.add("topics", "debarment")
         entity.add("country", country)

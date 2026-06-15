@@ -74,6 +74,9 @@ lookups:
     map:
       FIRM: LegalEntity
       INDIVIDUAL: Person
+      # Individual entity IDs to override misclassifications in the source data
+      afdb-ff4276d56746fd7d0e1e33d99eb958030b6b8539: LegalEntity
+
   type.country:
     lowercase: true
     normalize: true
