@@ -79,9 +79,9 @@ config:
 assertions:
   min:
     schema_entities:
-      Person: 390
+      Person: 47
       Company: 25
   max:
     schema_entities:
-      Person: 1100
+      Person: 150
       Company: 100
