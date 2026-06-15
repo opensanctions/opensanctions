@@ -1,0 +1,55 @@
+title: UK FCA Warning List of Unauthorised Firms
+prefix: gb-fca-ntc
+entry_point: crawler.py
+coverage:
+  frequency: daily
+  schedule: "0 6 * * *"
+  start: 2024-01-01
+load_statements: true
+ci_test: false
+summary: >-
+  List of firms and individuals that the UK Financial Conduct Authority has
+  warned consumers about, because they appear to be operating without proper
+  authorisation or are suspected of carrying out financial scams.
+description: |
+  The Financial Conduct Authority (FCA) publishes a warning list of firms and
+  individuals that are not authorised or registered by the FCA, or which appear
+  to be impersonating legitimate authorised firms (clone firms). Consumers are
+  warned not to deal with these entities.
+
+  The list is continuously updated and includes entities operating in the UK
+  financial services sector without the required FCA authorisation.
+url: https://www.fca.org.uk/consumers/warning-list-unauthorised-firms
+publisher:
+  name: Financial Conduct Authority
+  acronym: FCA
+  description: >
+    The Financial Conduct Authority is the conduct regulator for around 45,000
+    financial services firms and financial markets in the UK.
+  url: https://www.fca.org.uk/
+  country: gb
+  official: true
+data:
+  url: https://www.fca.org.uk/consumers/warning-list-unauthorised-firms
+  format: JSON
+  lang: eng
+tags:
+  - list.regulatory
+  - issuer.west
+  - sector.financial
+dates:
+  formats: ["%d/%m/%Y", "%Y-%m-%d"]
+names:
+  schema_rules:
+    LegalEntity:
+      reject_chars: "/"
+
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 5000
+      Sanction: 5000
+  max:
+    schema_entities:
+      LegalEntity: 30000
+      Sanction: 30000
