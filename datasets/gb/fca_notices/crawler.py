@@ -1,4 +1,3 @@
-import re
 from urllib.parse import urlencode
 
 from lxml.etree import _Element
@@ -16,18 +15,6 @@ DISCLAIMERS = (
     "They may also",
     "Scammers may",
 )
-
-# Strip clone/status annotations the FCA appends to names, e.g.
-# "Fortradefx (Clone of FCA authorised firm)".
-STATUS_RE = re.compile(
-    r"\s*\((?:new|updated|clone of fca "
-    r"(?:authorised|registered|approved) (?:firm|fund))\)\s*",
-    re.IGNORECASE,
-)
-
-
-def clean_name(raw: str) -> str:
-    return STATUS_RE.sub(" ", raw).strip()
 
 
 def apply_prop(context: Context, entity: Entity, label: str, value: str) -> None:
@@ -66,7 +53,9 @@ def crawl_item(context: Context, item: _Element) -> None:
 
     entity = context.make("LegalEntity")
     entity.id = context.make_id(url)
-    entity.add("name", clean_name(raw_name))
+    h.apply_reviewed_name_string(
+        context, entity, string=raw_name, llm_cleaning=True
+    )
     entity.add("sourceUrl", url)
     entity.add("topics", "reg.warn")
 
