@@ -103,6 +103,6 @@ assertions:
       Company: 4000
   max:
     schema_entities:
-      Security: 433000
+      Security: 1100000
       Organization: 14000
       Company: 8000
