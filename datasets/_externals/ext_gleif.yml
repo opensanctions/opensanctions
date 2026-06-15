@@ -58,12 +58,12 @@ inputs:
   - ext_gb_coh_psc
   - ext_gleif
   - ext_icij_offshoreleaks
+  - ext_iso9362_bic
   - ext_lv_business_register
   - ext_md_companies
   - ext_ru_egrul
   - ext_ua_edr
   - ext_us_irs_ffi
-  - iso9362_bic
   - opencorporates
   - permid
   - regulatory
