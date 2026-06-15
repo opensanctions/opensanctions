@@ -45,6 +45,32 @@ names:
     LegalEntity:
       reject_chars: "/"
 
+lookups:
+  firm.field:
+    lowercase: true
+    options:
+      - match: name
+        value: name
+      - match: [website, url, web address]
+        value: website
+      - match: [telephone, tel, mobile, phone]
+        value: phone
+      - match: [email, e-mail]
+        value: email
+      - match: address
+        value: address
+      - match: [other information, social media details]
+        value: notes
+  type.email:
+    lowercase: true
+    options:
+      - match: '[email protected]'
+        value: null
+  type.address:
+    options:
+      - match: 'na/'
+        value: null
+    
 assertions:
   min:
     schema_entities:

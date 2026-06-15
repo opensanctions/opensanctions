@@ -11,7 +11,11 @@ from zavod.extract.zyte_api import fetch_html
 PAGE_SIZE = 10
 
 # Prefixes of the standard FCA disclaimer that ends the firm details.
-DISCLAIMERS = ("Some firms may", "They may also")
+DISCLAIMERS = (
+    "Some firms may",
+    "They may also",
+    "Scammers may",
+)
 
 # Strip clone/status annotations the FCA appends to names, e.g.
 # "Fortradefx (Clone of FCA authorised firm)".
@@ -21,43 +25,24 @@ STATUS_RE = re.compile(
     re.IGNORECASE,
 )
 
-LABEL_PROPS = {
-    "name": "name",
-    "website": "website",
-    "url": "website",
-    "web address": "website",
-    "telephone": "phone",
-    "tel": "phone",
-    "mobile": "phone",
-    "phone": "phone",
-    "email": "email",
-    "e-mail": "email",
-}
-
 
 def clean_name(raw: str) -> str:
     return STATUS_RE.sub(" ", raw).strip()
 
 
-def flush_field(
-    context: Context, entity: Entity, label: str, values: list[str]
-) -> None:
-    combined = " ".join(v.strip().strip(",") for v in values if v.strip().strip(","))
-    label = label.lower()
-    for value in h.multi_split(combined, [","]):
-        value = value.strip()
-        if not value:
-            continue
-        prop = LABEL_PROPS.get(label)
-        if prop is not None:
-            entity.add(prop, value)
-        elif label == "address":
-            address = h.make_address(context, full=value)
-            h.copy_address(entity, address)
-        elif label in ("other information", "social media details"):
-            entity.add("notes", f"{label}: {value}")
-        else:
-            context.log.warning("Unhandled firm detail field", label=label, value=value)
+def apply_prop(context: Context, entity: Entity, label: str, value: str) -> None:
+    value = value.strip().strip(",")
+    if not value:
+        return
+    prop = context.lookup_value("firm.field", label.lower())
+    if prop is None:
+        context.log.warning("Unhandled firm detail field", label=label, value=value)
+    elif prop == "address":
+        h.copy_address(entity, h.make_address(context, full=value))
+    elif prop == "notes":
+        entity.add("notes", f"{label}: {value}")
+    else:
+        entity.add(prop, h.multi_split(value, [","]))
 
 
 def crawl_item(context: Context, item: _Element) -> None:
@@ -86,7 +71,9 @@ def crawl_item(context: Context, item: _Element) -> None:
     entity.add("topics", "reg.warn")
 
     sections = h.xpath_elements(
-        doc, ".//section" "[@id='section-unauthorised-firm-details']"
+        doc,
+        ".//section"
+        "[@id='section-unauthorised-firm-details' or @id='section-clone-firm-details']",
     )
     if not sections:
         context.log.warning("No details section found on firm page", url=url)
@@ -94,24 +81,18 @@ def crawl_item(context: Context, item: _Element) -> None:
         return
 
     # Fields are <p><strong>Label:</strong> value</p>; multi-value fields continue
-    # in subsequent <p> elements until the FCA disclaimer paragraph.
+    # in subsequent <p> elements (no <strong>) until the FCA disclaimer paragraph.
     label: str | None = None
-    values: list[str] = []
     for p in h.xpath_elements(sections[0], ".//p"):
         strong = h.xpath_elements(p, "./strong")
         value = ((strong[0].tail or "") if strong else h.element_text(p) or "").strip()
         if strong:
-            if label is not None:
-                flush_field(context, entity, label, values)
             label = (h.element_text(strong[0]) or "").rstrip(":").strip()
-            values = [value]
+            apply_prop(context, entity, label, value)
         elif label is not None:
             if value.startswith(DISCLAIMERS):
                 break
-            if value:
-                values.append(value)
-    if label is not None:
-        flush_field(context, entity, label, values)
+            apply_prop(context, entity, label, value)
 
     sanction = h.make_sanction(context, entity)
     h.apply_date(sanction, "listingDate", date_raw)
