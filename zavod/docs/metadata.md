@@ -91,7 +91,7 @@ HTTP requests for GET requests are automatically retried for connection and HTTP
 
 Data assertions are intended to "smoke test" the data. Assertions are checked on export. If assertions aren't met, warnings are emitted.
 
-Data assertions are checked when running `zavod run` (and `zavod validate --rebuild-store` is useful when developing a crawler).
+Data assertions are checked when running `zavod run` (and `zavod validate` is useful when developing a crawler).
 
 Data assertions are useful to communicate our expectations about what's in a dataset. `min` validations set a baseline for what should be in the dataset and are fatal to the export if they fail. `max` validations emit a warning when the dataset has grown beyond the validity of our earlier baseline (or if something's gone horribly wrong and emitted way more than expected)
 
