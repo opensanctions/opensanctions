@@ -1,0 +1,47 @@
+title: Japan House of Councillors (Sangiin) Members
+entry_point: crawler.py
+prefix: jp-san
+load_statements: true
+ci_test: false
+coverage:
+  frequency: monthly
+  start: 2026-06-15
+summary: >-
+  Japanese House of Councillors (Sangiin), the upper house of the National Diet of Japan.
+description: |
+  Individuals serving in the House of Councillors (参議院), the upper chamber of Japan's
+  National Diet. The chamber has 248 seats; members are elected to six-year terms with
+  half renewed every three years.
+
+  The official site publishes one member roster per Diet session but only retains the most
+  recent sessions online. This dataset walks that rolling window of live sessions and takes
+  the union of members across it, so members who have left the chamber during the window
+  are also captured (marked as no longer current). Each member's date and place of birth
+  are read from their individual profile page where available.
+publisher:
+  name: 参議院
+  name_en: House of Councillors
+  official: true
+  description: |
+    The House of Councillors (Sangiin) is the upper house of the National Diet of Japan.
+  country: jp
+  url: https://www.sangiin.go.jp/
+tags:
+  - list.pep
+url: https://www.sangiin.go.jp/japanese/joho1/kousei/giin/current/giin.htm
+data:
+  url: https://www.sangiin.go.jp/japanese/joho1/kousei/giin/current/giin.htm
+  format: HTML
+  lang: jpn
+
+assertions:
+  min:
+    schema_entities:
+      Person: 200
+      Position: 1
+    country_entities:
+      jp: 200
+  max:
+    schema_entities:
+      Person: 340
+      Position: 1
