@@ -13,11 +13,11 @@ summary: >
 
 description: |
   The Australian Capital Territory Legislative Assembly is the unicameral
-  legislature of the Australian Capital Territory (ACT). It has 25 members (MLAs) 
-  representing five multi-member electorates — Brindabella, Ginninderra, Kurrajong, 
-  Murrumbidgee and Yerrabi — elected by the Hare-Clark proportional (single 
-  transferable vote) system to fixed four-year terms. The roster is updated 
-  between elections as casual vacancies are filled by countback. This dataset 
+  legislature of the Australian Capital Territory (ACT). It has 25 members (MLAs)
+  representing five multi-member electorates — Brindabella, Ginninderra, Kurrajong,
+  Murrumbidgee and Yerrabi — elected by the Hare-Clark proportional (single
+  transferable vote) system to fixed four-year terms. The roster is updated
+  between elections as casual vacancies are filled by countback. This dataset
   covers the current members listed on the Assembly's website.
 
 url: https://www.parliament.act.gov.au/members/current
