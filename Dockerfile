@@ -35,7 +35,7 @@ RUN apt-get -qq -y update \
     && apt-get -qq -y install --no-install-recommends \
     locales apt-transport-https ca-certificates gnupg \
     tzdata curl python3-pip python3-venv poppler-utils poppler-data \
-    libicu74 libleveldb1d \
+    libicu78 libleveldb1d \
     && apt-get -qq -y autoremove \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
@@ -45,7 +45,7 @@ ENV LANG="en_US.UTF-8" \
     ZAVOD_DATA_PATH="/opensanctions/data" \
     OPENSSL_CONF="/opensanctions/contrib/openssl.cnf"
 
-RUN localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8 \
+RUN localedef -i en_US -c -f UTF-8 en_US.UTF-8 \
     && ln -fs /usr/share/zoneinfo/Etc/UTC /etc/localtime \
     && dpkg-reconfigure -f noninteractive tzdata \
     && groupadd -g 10023 -r app \
