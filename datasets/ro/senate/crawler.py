@@ -1,20 +1,10 @@
 import re
 from urllib.parse import urljoin
+from lxml.etree import _Element
 
 from zavod import Context, helpers as h
 from zavod.entity import Entity
 from zavod.stateful.positions import PositionCategorisation, categorise
-from zavod.util import Element
-
-# The senator register is an ASP.NET WebForms page. It defaults to the current
-# legislature; switching to a historical one is driven by postbacks, not query
-# parameters. The relevant control names:
-LEGISLATURE_FIELD = "ctl00$B_Center$ddLegislatura"
-SEARCH_TARGET = "ctl00$B_Center$cmdSearch"
-# Checked by default ("Fără poze" / without photos). It must be re-submitted on
-# every postback, otherwise the roster renders a photo layout that omits the
-# birth date and constituency we rely on.
-NO_PHOTOS_FIELD = "ctl00$B_Center$checkPoze"
 
 # A senator card from the no-photos layout, e.g.
 # "ABRUDEAN Mircea Data nasterii: 23.07.1984 Circumscripţia electorală nr.13 Cluj ..."
@@ -32,7 +22,7 @@ LEGISLATURE_LABEL_RE = re.compile(r"^(\d{4})-(\d{4})$")
 TOPICS = ["gov.legislative", "gov.national"]
 
 
-def parse_form_fields(doc: Element) -> dict[str, str]:
+def parse_form_fields(doc: _Element) -> dict[str, str]:
     """Collect the ASP.NET form state needed to round-trip a postback: all hidden
     inputs plus the currently selected (or first) option of every dropdown."""
     fields: dict[str, str] = {}
@@ -52,13 +42,16 @@ def parse_form_fields(doc: Element) -> dict[str, str]:
     return fields
 
 
-def post_form(context: Context, fields: dict[str, str], event_target: str) -> Element:
+def post_form(context: Context, fields: dict[str, str], event_target: str) -> _Element:
     """Submit the senator-register form as a postback targeting `event_target`."""
     data = dict(fields)
     data["__EVENTTARGET"] = event_target
     data["__EVENTARGUMENT"] = ""
     # Force the no-photos layout so the roster carries birth dates.
-    data[NO_PHOTOS_FIELD] = "on"
+    # Checked by default ("Fără poze" / without photos). It must be re-submitted on
+    # every postback, otherwise the roster renders a photo layout that omits the
+    # birth date and constituency we rely on.
+    data["ctl00$B_Center$checkPoze"] = "on"
     # Postbacks are not cached: the VIEWSTATE is single-use and tied to the
     # session cookie established by the initial GET, so a stale cached copy
     # would be rejected on a later run.
@@ -77,12 +70,12 @@ def fetch_roster(
     "dd/MM/yyyy"), in which case `dob` is None.
     """
     step1_fields = dict(base_fields)
-    step1_fields[LEGISLATURE_FIELD] = legislature_id
-    doc1 = post_form(context, step1_fields, LEGISLATURE_FIELD)
+    step1_fields["ctl00$B_Center$ddLegislatura"] = legislature_id
+    doc1 = post_form(context, step1_fields, "ctl00$B_Center$ddLegislatura")
 
     step2_fields = parse_form_fields(doc1)
-    step2_fields[LEGISLATURE_FIELD] = legislature_id
-    roster = post_form(context, step2_fields, SEARCH_TARGET)
+    step2_fields["ctl00$B_Center$ddLegislatura"] = legislature_id
+    roster = post_form(context, step2_fields, "ctl00$B_Center$btnCauta")
 
     senators: dict[str, tuple[str, str | None]] = {}
     for card in h.xpath_elements(roster, "//div[@class='new-card-without-pics']"):
@@ -141,7 +134,7 @@ def crawl_senator(
     election_date, validation_date, party = crawl_detail(context, detail_url)
 
     person = context.make("Person")
-    person.id = context.make_id(name, dob)
+    person.id = context.make_id(name, dob, guid)
     person.add("name", name)
     h.apply_date(person, "birthDate", dob)
     # Senators must be Romanian citizens: Constitution of Romania Art. 16(3) and
