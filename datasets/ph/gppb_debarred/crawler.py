@@ -1,14 +1,21 @@
 from typing import Any
+from enum import Enum
 
 from zavod import Context
 from zavod import helpers as h
 from rigour.text.stopwords import is_nullword
 
 
+class DebarmentStatus(Enum):
+    TEMPORARY = "temporary debarment"
+    PERMANENT = "permanent debarment"
+
+
 CATEGORIES = {
-    "BLACKLISTED_ENTITIES": "active",
-    "PERMANENT_BLACKLISTED_ENTITIES": "permanent debarment",
+    "BLACKLISTED_ENTITIES": DebarmentStatus.TEMPORARY,
+    "PERMANENT_BLACKLISTED_ENTITIES": DebarmentStatus.PERMANENT,
 }
+
 IGNORE = [
     "category",
     "blacklisting_order_no",
@@ -29,7 +36,9 @@ IGNORE = [
 ]
 
 
-def crawl_record(context: Context, record: dict[str, Any], status: str) -> None:
+def crawl_record(
+    context: Context, record: dict[str, Any], status: DebarmentStatus
+) -> None:
     name = record.pop("blacklisted_entity")
     assert name is not None, "Record without blacklisted_entity"
 
@@ -49,12 +58,12 @@ def crawl_record(context: Context, record: dict[str, Any], status: str) -> None:
     entity.add("topics", "debarment")
 
     sanction = h.make_sanction(context, entity)
-    sanction.add("status", status)
+    sanction.add("status", status.value)
     h.apply_date(sanction, "startDate", record.pop("start_date"))
     h.apply_date(sanction, "modifiedAt", record.pop("updated_date"))
 
     end_date = record.pop("end_date")
-    if status != "permanent debarment":
+    if status != DebarmentStatus.PERMANENT:
         h.apply_date(sanction, "endDate", end_date)
 
     for offense in offenses.values():
