@@ -4,14 +4,19 @@ from typing import Dict
 
 from zavod import Context, helpers as h
 from zavod.stateful.review import assert_all_accepted
+from zavod.shed import enforcements
 
 PROGRAM_KEY = "CA-SEMA"
+MAX_AGE_DAYS = 100
 
 
 def crawl_entity_notice(context: Context, row: Dict[str, _Element]) -> None:
     str_row = h.cells_to_str(row)
-    country = str_row.pop("country")
     listing_date = str_row.pop("date")
+    assert listing_date is not None
+    if not enforcements.within_max_age(context, listing_date, MAX_AGE_DAYS):
+        return
+    country = str_row.pop("country")
     entity_type = str_row.pop("types")
     res = context.lookup("schema_type", entity_type, warn_unmatched=True)
     schema = res.value if res else None
