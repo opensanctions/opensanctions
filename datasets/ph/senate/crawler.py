@@ -24,7 +24,6 @@ ANCHOR_START_YEAR = 2025
 CONGRESS_YEARS = 3
 
 EMAIL_RE = re.compile(r"[\w.+-]+@[\w-]+\.[\w.-]+")
-
 TOPICS = ["gov.national", "gov.legislative"]
 
 
