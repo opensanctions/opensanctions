@@ -127,6 +127,8 @@ lookups:
         value: 2019-11
       - match: "2012-02-30"
         value: 2012-02
+      - match: "2012-04-31"
+        value: 2012-04
       - match: "2020-04-31"
         value: 2020-04
       - match: "1973-09-31"
