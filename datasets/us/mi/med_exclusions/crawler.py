@@ -1,4 +1,3 @@
-from typing import Dict
 from rigour.mime.types import XLSX
 from openpyxl import load_workbook
 
@@ -8,11 +7,11 @@ from zavod.extract import zyte_api
 URL_XPATH = "//*[text()='List of Sanctioned Providers (XLSX)']/ancestor::a"
 
 
-def crawl_item(row: Dict[str, str], context: Context):
-    sanction_date_1 = row.pop("sanction_date1")
-    sanction_date_1 = sanction_date_1.split() if sanction_date_1 else None
-    sanction_date_2 = row.pop("sanction_date2")
-    sanction_date_2 = sanction_date_2.split() if sanction_date_2 else None
+def crawl_item(row: dict[str, str | None], context: Context) -> None:
+    raw_date_1 = row.pop("sanction_date1")
+    sanction_date_1: list[str] | None = raw_date_1.split() if raw_date_1 else None
+    raw_date_2 = row.pop("sanction_date2")
+    sanction_date_2: list[str] | None = raw_date_2.split() if raw_date_2 else None
     reason = row.pop("reason")
     license = row.pop("license")
     npi = row.pop("npi")
@@ -79,6 +78,8 @@ def crawl_item(row: Dict[str, str], context: Context):
         context.emit(person_sanction)
 
     if last_name and entity_name:
+        assert person is not None
+        assert entity is not None
         link = context.make("UnknownLink")
         link.id = context.make_id(person.id, entity.id)
         link.add("object", entity)
@@ -97,9 +98,10 @@ def crawl_excel_url(context: Context) -> str:
         html_source="httpResponseBody",
         absolute_links=True,
     )
-    links = doc.xpath(URL_XPATH)
-    assert len(links) >= 1 and links[0].get("href"), "No link to Excel file found"
-    return links[0].get("href")
+    anchor = h.xpath_element(doc, URL_XPATH)
+    href = anchor.get("href")
+    assert href, "No link to Excel file found"
+    return href
 
 
 def crawl(context: Context) -> None:
@@ -112,5 +114,6 @@ def crawl(context: Context) -> None:
 
     wb = load_workbook(path, read_only=True)
 
+    assert wb.active is not None
     for item in h.parse_xlsx_sheet(context, wb.active, skiprows=1):
         crawl_item(item, context)

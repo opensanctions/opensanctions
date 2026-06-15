@@ -57,7 +57,7 @@ jobs:
       - uses: actions/checkout@v6
       - name: Docker meta
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ghcr.io/opensanctions/zavod-ui
           tags: |
@@ -67,7 +67,7 @@ jobs:
       - name: Set build date
         run: echo "BUILD_DATE=$(date +%Y%m%d)" >> $GITHUB_ENV
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
         with:
           install: true
       - name: Login to Github Container Registry
@@ -78,7 +78,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and push release
         id: build
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         env:
           BUILD_DATE: ${{ env.BUILD_DATE }}
         with:
@@ -90,21 +90,44 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
-  dispatch:
+  # GitHub App requirements for workflow dispatch to trigger ETL deploy in operations repo:
+  # App name: opensanctions-operations-deployer (or similar)
+  # Installed on: opensanctions/operations
+  # Permissions: Actions - 'write'
+  # Secrets required in this repo:
+  #   OPERATIONS_DEPLOY_APP_ID  — numeric GitHub App ID
+  #   OPERATIONS_DEPLOY_APP_KEY — PEM private key
+  trigger-deploy:
     if: |
       (github.event_name == 'push' || github.event_name == 'workflow_dispatch') &&
       (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
     runs-on: ubuntu-latest
     needs: [docker]
     steps:
-      - name: Dispatch add-on build
-        uses: peter-evans/repository-dispatch@28959ce8df70de7be546dd1250a005dd32156697  # v3
+      - name: Generate GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v3
         with:
-          token: ${{ secrets.OPERATIONS_PAT }}
-          repository: opensanctions/operations
-          event-type: deploy-zavod-ui
-          client-payload: |-
-            {
-              "environment": "${{ github.ref == 'refs/heads/main' && 'prod' || 'test' }}",
-              "image_version": "@${{ needs.docker.outputs.digest }}"
-            }
+          app-id: ${{ secrets.OPERATIONS_DEPLOY_APP_ID }}
+          private-key: ${{ secrets.OPERATIONS_DEPLOY_APP_KEY }}
+          owner: opensanctions
+          repositories: operations
+      - name: Trigger ETL deploy
+        # Cloud Run pulls zavod-ui via Google Artifact Registry (GAR),
+        # specifically the remote repository `opensanctions-ghcr` that
+        # mirrors ghcr.io. Something on the Google side caches it in a
+        # way that makes tag-based deploys unreliable, so we pass the
+        # resolved digest to force a fresh pull.
+        run: |
+          curl --fail --silent --show-error --location -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ steps.app-token.outputs.token }}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            https://api.github.com/repos/opensanctions/operations/actions/workflows/deploy-zavod-ui.yml/dispatches \
+            -d '{
+                  "ref": "main",
+                  "inputs": {
+                    "environment": "${{ github.ref == 'refs/heads/main' && 'prod' || 'test' }}",
+                    "image_version": "@${{ needs.docker.outputs.digest }}"
+                  }
+                }'

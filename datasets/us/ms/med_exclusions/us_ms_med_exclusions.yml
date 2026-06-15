@@ -52,6 +52,10 @@ assertions:
       Person: 200
 
 lookups:
+  type.identifier:
+    options:
+      - match: "and"
+        value: null
   exclusion_period:
     options:
       # Just a single date (that happens to be the same as the start date) means indefinite debarment

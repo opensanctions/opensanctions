@@ -38,7 +38,9 @@ def get_value(
 
 
 def get_address(data: Item) -> Optional[str]:
-    value = data.pop("aadress_ads__ads_normaliseeritud_taisaadress", None)
+    value: Optional[str] = data.pop(
+        "aadress_ads__ads_normaliseeritud_taisaadress", None
+    )
     if value is not None:
         return value
     parts = []
@@ -132,7 +134,7 @@ def make_rel(
     return rel
 
 
-def parse_general(context: Context, row: Item):
+def parse_general(context: Context, row: Item) -> None:
     data = row.pop("yldandmed")
     legal_form = data.pop("oiguslik_vorm_tekstina")
     proxy = make_proxy(context, row, TYPES.get(legal_form, "Company"))
@@ -162,7 +164,7 @@ def parse_general(context: Context, row: Item):
     context.emit(proxy)
 
 
-def parse_officer(context: Context, row: Item):
+def parse_officer(context: Context, row: Item) -> None:
     company = make_proxy(context, row)
     assert company.id is not None, ("Company ID is None", row)
     context.emit(company)
@@ -184,7 +186,7 @@ def parse_officer(context: Context, row: Item):
         context.emit(rel)
 
 
-def parse_bfo(context: Context, row: Item):
+def parse_bfo(context: Context, row: Item) -> None:
     company = make_proxy(context, row)
     assert company.id is not None, ("Company ID is None", row)
     context.emit(company)

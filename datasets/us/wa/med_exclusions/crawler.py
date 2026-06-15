@@ -1,12 +1,13 @@
-from typing import Dict
 from rigour.mime.types import XLSX
 from openpyxl import load_workbook
 
 from zavod import Context, helpers as h
 
 
-def crawl_item(row: Dict[str, str], context: Context):
+def crawl_item(row: dict[str, str | None], context: Context) -> None:
     name = row.pop("name")
+    assert name
+    aliases: list[str]
     if len(name.split("\n")) == 1:
         aliases = []
     else:
@@ -16,6 +17,7 @@ def crawl_item(row: Dict[str, str], context: Context):
 
     entity = context.make("LegalEntity")
     npi_or_p1 = row.pop("npi_or_p1")
+    assert npi_or_p1
     entity.id = context.make_id(name, npi_or_p1)
     entity.add("name", name)
     for number in npi_or_p1.split("\n"):
@@ -38,11 +40,13 @@ def crawl_item(row: Dict[str, str], context: Context):
     context.audit_data(row)
 
 
-def crawl_excel_url(context: Context):
+def crawl_excel_url(context: Context) -> str:
     doc = context.fetch_html(context.data_url, absolute_links=True)
-    return doc.xpath(".//a[contains(text(), 'the HCA Medicaid providers listing')]")[
-        0
-    ].get("href")
+    url = h.xpath_string(
+        doc, ".//a[contains(text(), 'the HCA Medicaid providers listing')]/@href"
+    )
+    assert url is not None, "Could not find Excel file URL"
+    return url
 
 
 def crawl(context: Context) -> None:
@@ -51,6 +55,7 @@ def crawl(context: Context) -> None:
 
     wb = load_workbook(path, read_only=True)
 
+    assert wb.active is not None
     for item in h.parse_xlsx_sheet(context, wb.active, skiprows=3):
         print(item)
         crawl_item(item, context)

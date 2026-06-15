@@ -1,29 +1,35 @@
 from lxml import etree
 from rigour.mime.types import XML
+from time import sleep
 
 from zavod import Context, helpers as h
 from zavod.entity import Entity
 from zavod.extract.zyte_api import fetch_resource
+from zavod.util import ElementOrTree
 
 SOAP_URL = "http://www.cbr.ru/CreditInfoWebServ/CreditOrgInfo.asmx"
 SOAP_HEADERS = {"Content-Type": "text/xml; charset=utf-8"}
+SLEEP_SECONDS = 1
 
 
-def send_soap_request(context: Context, action, body, cache_days=None):
+def send_soap_request(
+    context: Context, action: str, body: str, cache_days: int | None = None
+) -> ElementOrTree:
     """Sends a SOAP request and returns the parsed XML response."""
     headers = SOAP_HEADERS.copy()
     headers["SOAPAction"] = f"http://web.cbr.ru/{action}"
-
+    sleep(SLEEP_SECONDS)  # avoid hitting rate limits
     response = context.fetch_text(
         SOAP_URL, method="POST", headers=headers, data=body, cache_days=cache_days
     )
+    assert response is not None
     # Make sure we encode as the xml says it is.
     assert "utf-8" in response.split("\n", 1)[0]
     root = etree.fromstring(response.encode("utf-8"))
     return h.remove_namespace(root)
 
 
-def get_org_info(context: Context, internal_code: str):
+def get_org_info(context: Context, internal_code: str) -> ElementOrTree:
     # Create the SOAP request body
     body = f"""<?xml version="1.0" encoding="utf-8"?>
     <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -35,10 +41,10 @@ def get_org_info(context: Context, internal_code: str):
             </CreditInfoByIntCodeXML>
         </soap:Body>
     </soap:Envelope>"""
-    return send_soap_request(context, "CreditInfoByIntCodeXML", body)
+    return send_soap_request(context, "CreditInfoByIntCodeXML", body, cache_days=7)
 
 
-def bic_to_int_code(context: Context, bic):
+def bic_to_int_code(context: Context, bic: str) -> str | None:
     """Gets the internal code for a BIC."""
     # Formulate the SOAP request body
     body = f"""<?xml version="1.0" encoding="utf-8"?>
@@ -61,7 +67,9 @@ def bic_to_int_code(context: Context, bic):
         return None
 
 
-def crawl_details(context: Context, bic: str, entity: Entity, short_name: str | None):
+def crawl_details(
+    context: Context, bic: str, entity: Entity, short_name: str | None
+) -> None:
     """Crawl additional details on best-effort basis and emit."""
     co_data = None
     lic_data = None
@@ -79,7 +87,7 @@ def crawl_details(context: Context, bic: str, entity: Entity, short_name: str | 
                     "Error fetching details",
                     internal_code=internal_code,
                     entity_id=entity.id,
-                    error=error.text,
+                    error=error,
                 )
 
         co_data = result.find(".//CreditOrgInfo/CO")
@@ -96,15 +104,15 @@ def crawl_details(context: Context, bic: str, entity: Entity, short_name: str | 
         reg_date = co_data.findtext("MainDateReg")
 
         en_names = co_data.findtext("encname")
-        names = h.Names(
-            name=[
-                en_names,
-                co_data.findtext("OrgName"),
-                co_data.findtext("OrgFullName"),
-                co_data.findtext("csname"),
-            ]
-        )
+        names = h.Names()
+        names.add("name", co_data.findtext("OrgName"))
+        names.add("name", co_data.findtext("OrgFullName"))
+        names.add("name", co_data.findtext("csname"))
         h.review_names(context, entity, original=names, llm_cleaning=True)
+        # en_names should apply with lang="eng"
+        h.review_names(
+            context, entity, original=h.Names(name=en_names), llm_cleaning=True
+        )
 
         phones = co_data.findtext("phones")
         lic_withd_num = co_data.findtext("licwithdnum")
@@ -124,8 +132,7 @@ def crawl_details(context: Context, bic: str, entity: Entity, short_name: str | 
             for name in en_names.split(","):
                 entity.add("name", name, lang="eng")
         if phones is not None:
-            phones = h.multi_split(phones, ",")
-            for phone in phones:
+            for phone in h.multi_split(phones, ","):
                 if phone.startswith("("):
                     phone = "+7" + phone
                 entity.add("phone", phone)
@@ -183,7 +190,7 @@ def crawl_details(context: Context, bic: str, entity: Entity, short_name: str | 
     context.emit(entity)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     # protected by ddos-guard
     _, _, _, path = fetch_resource(
         context,
@@ -198,6 +205,7 @@ def crawl(context: Context):
         raise ValueError("No <Record> elements found in the XML.")
     for record in records:
         bic = record.findtext("Bic")
+        assert bic is not None
         entity = context.make("Company")
         entity.id = context.make_slug(bic)
         entity.add("ogrnCode", record.findtext("RegNum"))

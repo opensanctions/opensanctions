@@ -226,7 +226,7 @@ def crawl_enforcement_action(context: Context, date: str, url: str) -> None:
         context.emit(documentation)
 
 
-def crawl_index_page(context: Context, doc) -> bool:
+def crawl_index_page(context: Context, doc: HtmlElement) -> bool:
     """Returns false if we should stop crawling."""
     table_xpath = ".//div[contains(@class, 'view-content')]//table"
     tables = doc.xpath(table_xpath)

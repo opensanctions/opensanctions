@@ -1,4 +1,11 @@
 services:
+  # overlay on the app service in docker-compose.yml
+  app:
+    extends:
+      file: docker-compose.yml
+      service: app
+    environment:
+      - ZAVOD_DATABASE_URI=postgresql://postgres:password@db:5432/dev
   db:
     image: postgres:15
     environment:

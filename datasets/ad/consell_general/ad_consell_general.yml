@@ -1,0 +1,53 @@
+title: Andorra General Council Members
+prefix: ad-cg
+coverage:
+  frequency: monthly
+  start: "2026-06-08"
+load_statements: true
+entry_point: crawler.py
+ci_test: false
+summary: >-
+  Members of the General Council (Consell General), the parliament of the
+  Principality of Andorra.
+description: |
+  The General Council (Consell General) is the unicameral parliament of the
+  Principality of Andorra, with 28 members (consellers generals): 14 elected
+  from the national constituency and two from each of the seven parishes.
+
+  This dataset is scraped from the General Council's official roster of the
+  current members, following each member's profile page for their date of
+  birth, election date, parliamentary group and constituency. Leadership
+  offices (Síndic General, Subsíndic General, secretaries) are internal roles
+  and are not modelled as separate positions.
+tags:
+  - list.pep
+url: https://www.consellgeneral.ad/ca/composicio-actual/consellers-generals
+publisher:
+  name: Consell General
+  name_en: General Council of Andorra
+  description: |
+    The General Council is the parliament of the Principality of Andorra. It
+    represents the Andorran people, holds legislative power and publishes the
+    roster of its current members on its official website.
+  url: https://www.consellgeneral.ad/
+  country: ad
+  official: true
+data:
+  url: https://www.consellgeneral.ad/ca/composicio-actual/consellers-generals
+  format: HTML
+  lang: cat
+
+dates:
+  formats: ["%d/%m/%Y"]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 24
+      Position: 1
+    country_entities:
+      ad: 24
+  max:
+    schema_entities:
+      Person: 40
+      Position: 1

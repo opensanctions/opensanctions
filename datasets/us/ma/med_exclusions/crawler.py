@@ -1,4 +1,3 @@
-from typing import Dict
 from openpyxl import load_workbook
 
 from zavod import Context, helpers as h
@@ -16,7 +15,7 @@ HEADERS = {
 }
 
 
-def crawl_item(row: Dict[str, str], context: Context):
+def crawl_item(row: dict[str, str | None], context: Context) -> None:
     name = row.pop("provider_name")
 
     if not name:
@@ -42,12 +41,14 @@ def crawl_item(row: Dict[str, str], context: Context):
     context.audit_data(row)
 
 
-def crawl_excel_url(context: Context):
+def crawl_excel_url(context: Context) -> str:
     xlsx_xpath = "//*[contains(text(), 'XLSX')]/../@href"
     doc = zyte_api.fetch_html(
         context, context.data_url, unblock_validator=xlsx_xpath, absolute_links=True
     )
-    return doc.xpath(xlsx_xpath)[0]
+    url = h.xpath_string(doc, xlsx_xpath)
+    assert url is not None, "Could not find Excel file URL"
+    return url
 
 
 def crawl(context: Context) -> None:

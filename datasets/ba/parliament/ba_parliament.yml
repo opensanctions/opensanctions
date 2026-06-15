@@ -1,0 +1,56 @@
+title: Bosnia and Herzegovina Parliamentary Assembly
+prefix: ba-parl
+entry_point: crawler.py
+coverage:
+  frequency: weekly
+  start: "2026-06-15"
+load_statements: true
+ci_test: false
+
+summary: >
+  Members of the House of Representatives and the House of Peoples.
+
+description: |
+  The Parliamentary Assembly of Bosnia and Herzegovina (Parlamentarna skupština
+  BiH) is the bicameral state-level legislature. This dataset covers both chambers:
+
+  - The House of Representatives (Predstavnički/Zastupnički dom), the directly
+    elected lower house comprised of 42 members — 28 from the Federation of Bosnia and
+    Herzegovina and 14 from Republika Srpska — serving four-year terms.
+  - The House of Peoples (Dom naroda), the upper house comprised of 15 delegates (five
+    Bosniak, five Croat and five Serb).
+
+url: https://www.parlament.ba/
+
+publisher:
+  name: Parliamentary Assembly of Bosnia and Herzegovina
+  acronym: PSBiH
+  description: >
+    The bicameral state-level legislature of Bosnia and Herzegovina, comprising
+    the House of Representatives and the House of Peoples.
+  url: https://www.parlament.ba/
+  country: ba
+  official: true
+
+data:
+  url: https://www.parlament.ba/representative/list?lang=en
+  format: HTML
+  lang: eng
+
+dates:
+  formats: ["%d.%m.%Y", "%d %B %Y"]
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 50
+      Position: 2
+    country_entities:
+      ba: 50
+  max:
+    schema_entities:
+      Person: 70
+      Position: 2

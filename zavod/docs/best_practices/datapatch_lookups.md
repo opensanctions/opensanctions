@@ -1,67 +1,165 @@
 # Datapatch lookups
 
-We often use the [datapatch](https://pypi.org/project/datapatch/) library to help
-clean up the data, as well as to map between data values and OpenSanctions concepts.
+Lookups patch broken or inconsistent source values into clean ones, declared in the dataset metadata YAML and applied either automatically by `zavod` or explicitly by crawler code.
 
-Lookups are sets of matching options which can be defined under the `lookups` key in the metadata.
-They can then be used via [`context.lookup_value`][zavod.context.Context.lookup_value].
-
-Lookups named after [FollowTheMoney](https://followthemoney.tech/explorer/types/)
-types are also automatically invoked for each value when adding/setting an entity
-property of that type. See below.
+The mechanism comes from the [datapatch](https://pypi.org/project/datapatch/) library. Use it whenever the same dirty value or class of values reappears across crawls — listing the fixes in YAML keeps the crawler code free of one-off conditionals and gives reviewers a single place to inspect what has been overridden.
 
 !!! info "Please note"
-    Avoid using lookups to express something not evident in the data. E.g. don't
-    make a date more precise than it is in the data, even if you know your version
-    to be true.
+    Avoid using lookups to express something not evident in the data. For example, do not make a date more precise than it is in the data, even if you know your version to be true.
 
 
-## Fixing typos and formatting
+## Two ways lookups get invoked
 
-A very common use is to fix typos and mistakes in the data:
+Lookups appear under the `lookups:` key in the dataset YAML. Each named lookup is invoked in one of two ways:
 
-In the metadata:
+- **Type lookups** — any lookup named `type.<typename>` (e.g. `type.country`, `type.email`, `type.identifier`) is invoked automatically by `zavod` whenever a property of that FollowTheMoney type is added to an entity. Crawler code does not need to call it.
+- **Named lookups** — every other lookup is invoked explicitly from the crawler, via [`context.lookup_value`][zavod.context.Context.lookup_value] (returns the result's `value`) or [`context.lookup`][zavod.context.Context.lookup] (returns the full `Result` object with all attributes).
 
-A lookup named after the FtM type prefixed with `type.`, where each option has ha `value` property.
+```python
+# Type lookup — runs implicitly:
+entity.add("email", row.pop("email"))
+
+# Named lookup — invoked explicitly:
+res = context.lookup("relationships", row.pop("link_type"))
+```
+
+
+## Matching: match, contains, regex
+
+Each option in a lookup uses one of three matching modes:
+
+- **`match`** — exact string equality, after normalization. A list of strings matches any of them. Use the list form to merge multiple inputs that should produce the same result under a single option (see [Result values](#result-values)).
+- **`contains`** — substring match, after normalization.
+- **`regex`** — raw Python regular expression. The input is **not** normalized before the regex runs, so write the pattern against the original string.
+
+A single option may combine modes; if any clause matches, the option matches.
 
 ```yaml
 lookups:
-  type.email:
+  type.country:
     lowercase: true
     options:
-      - match:
-          - 307j@att
-          - SL Jones@ballhealth.com
-          - na
-        value: null
-      - match: tcolpetzer@mcdonoughga.org.
-        value: tcolpetzer@mcdonoughga.org
-      - match: sensan buenaventura@capitol.hawaii.gov
-        value: sensanbuenaventura@capitol.hawaii.gov
-      - match: district@repkelly.com, mike@repkelly.com
-        values:
-          - district@repkelly.com
-          - mike@repkelly.com
-  type.country: ...
+      - match: Tazmania
+        value: Australia
+      - contains: Syrian Arab Republic
+        value: Syria
+      - regex: "^USSR.*"
+        value: SUHH
 ```
 
-In the crawler:
+### Normalization
 
-```python
-entity.add("email", row.pop("email"))
+Three flags control how the input value and the `match`/`contains` patterns are folded before comparison. They can be set on the lookup as defaults and overridden per option:
+
+| Flag | Default | Effect |
+|---|---|---|
+| `normalize` | `false` | Strip diacritics and collapse whitespace. |
+| `lowercase` | `false` | Lowercase before matching. |
+| `asciify` | `true` | When normalizing, transliterate non-ASCII to ASCII (Путин → Putin). Set `false` to keep non-Latin scripts intact. |
+
+### Matching `null` inputs
+
+To match a missing value, list `null` in the option's `match`:
+
+```yaml
+- match:
+    - null
+    - "Unknown"
+  value: null
 ```
 
-The lookup is automatically invoked when setting the value, and the original value
-is replaced by the corrected value:
+### Disambiguating overlapping options
 
-- Three values where the correct value is unknown are replaced by None in Python world
-- The trailing dot is dropped
-- Two addresses are replaced by a list of addresses in Python world
+When two options match the same input with the same priority, datapatch raises `LookupException`. Use `weight: <int>` on one option to break the tie — higher weight wins.
+
+```yaml
+- contains: Bank
+  value: Generic Bank
+- match: Sberbank
+  weight: 10
+  value: Sberbank of Russia
+```
 
 
-## Mapping to OpenSanctions concepts
+## Result values
 
-In the metadata:
+Every option produces a result. The simplest result is a single replacement string:
+
+```yaml
+- match: tcolpetzer@mcdonoughga.org.
+  value: tcolpetzer@mcdonoughga.org
+```
+
+A few rules about result values:
+
+- **`value: X` is shorthand for `values: [X]`.** The two are interchangeable; `values:` exists for the multi-value case.
+- **`value: null` drops the input.** No property is added to the entity.
+- **Multiple values fan out into multiple property values:**
+
+  ```yaml
+  - match: district@repkelly.com, mike@repkelly.com
+    values:
+      - district@repkelly.com
+      - mike@repkelly.com
+  ```
+
+- **Consolidate inputs that share a result.** When several distinct inputs should produce the same `value` (or `values`, or `value: null`), list them under one option's `match:`. Inputs that map to *different* results must remain in separate options.
+
+  ```yaml
+  # One option, three inputs that all drop:
+  - match:
+      - 307j@att
+      - SL Jones@ballhealth.com
+      - na
+    value: null
+
+  # Two options — different replacements, cannot be merged:
+  - match: tcolpetzer@mcdonoughga.org.
+    value: tcolpetzer@mcdonoughga.org
+  - match: sensan buenaventura@capitol.hawaii.gov
+    value: sensanbuenaventura@capitol.hawaii.gov
+  ```
+
+- **Arbitrary keys on the option are accessible as attributes on the result.** Named lookups use this to attach schema, role, or category information; the next two sections show how.
+
+
+## Re-routing to a different property
+
+In a `type.*` lookup, `prop:` moves the value to a different property of the same entity. This handles cases where source data labels a value as one thing but it is really another — for example an "email" column that occasionally contains a website URL.
+
+When `values` is omitted, the original input value is preserved and only the destination property changes. To re-route **and** rewrite, set both:
+
+```yaml
+type.email:
+  options:
+    # Pure re-route — original URL preserved, moved to the website property
+    - match: www.bloodandhonour.co.uk
+      prop: website
+    # Re-route with rewrite — fix the typo as well
+    - match: www.surena gc.com
+      prop: website
+      value: www.surenagc.com
+```
+
+If the target property does not exist on the entity's schema, `zavod` logs `Invalid type lookup property re-write` and falls back to the original property.
+
+!!! note "Same-type re-routes are the safe default"
+    Re-routing keeps the value's `cleaned` flag from the original type's processing, so the value is not re-validated against the destination property's type. Re-routes within the same FtM type (e.g. `identifier` → `identifier`) are uncontroversial. Cross-type re-routes (e.g. `email` → `website`) work but the destination type's validator does not run on the value — only use them when the value is already known to be clean for the destination type.
+
+### Curated values bypass smell checks
+
+Any value produced by a `type.*` lookup is treated as manually reviewed and bypasses three downstream warnings:
+
+- `Property value '<value>' is not a valid name.` (from `rigour.names.is_name`)
+- `Property for <prop> looks too short for an address: <value>` (≤ 3 characters)
+- `HTML/XSS suspicion in property value: <value>`
+
+This is useful for short place names like `Zug` or for legitimate names that fail `is_name`'s heuristics — adding an identity lookup (`match: Zug` / `value: Zug`) marks the value as curated and silences the warning.
+
+
+## Mapping to richer concepts
+
+Named lookups become powerful when the result carries more than just a replacement string. Any extra YAML key on the option is accessible as an attribute on the `Result` object.
 
 ```yaml
 lookups:
@@ -76,36 +174,21 @@ lookups:
         end: organization
         link: role
       - contains:
-          - beneficiary of
           - shareholder of
           - owner of
         schema: Ownership
         start: owner
         end: asset
         link: role
-      - contains:
-          - connected to
-          - auditor of
-        schema: UnknownLink
-        start: subject
-        end: object
-        link: role
-  type.country:
-    options:
-      - contains: ...
 ```
 
-The lookup is named `relationships`. Each option defines four properties:
-`schema`, `start`, `end`, and `link`. These are then available in the result,
-if any option matched.
-
-In the crawler:
+The crawler reads `result.schema`, `result.start`, `result.end`, `result.link` to assemble the relation:
 
 ```python
 link_type = row.pop("link_type")
-res = context.lookup("relationships", link_type)
+res = context.lookup("relationships", link_type, warn_unmatched=True)
 if res is None:
-    context.log.warning("Unknown relationship", link_type=link_type)
+    continue
 rel = context.make(res.schema)
 rel.id = context.make_id(rel.schema, company.id, other_entity.id, link_type)
 rel.add(res.start, entity)
@@ -113,49 +196,102 @@ rel.add(res.end, other_entity)
 rel.add(res.link, link_type)
 ```
 
-The result objects define both the schema, and the property names applicable to
-the matching schema, to be able to concisely generate differet types of relationships
-between two entities assumed to be created earlier - `entity`, and `other_entity`.
+Pass `warn_unmatched=True` to log a warning when a value matches no option — this surfaces values that need a new lookup entry rather than silently dropping data.
 
-!!! info "Please note"
-    It's usually a good idea to structure the code so that you warn if an unmatched
-    value is encountered, instead of silently ignoring values and possibly excluding
-    valid data from the dataset.
+For lookups where any unmatched value should halt the crawl, set `required: true` on the lookup itself. A miss then raises `LookupException`.
 
 
-## Translate headers using datapatch lookups
+## Common runtime warnings and the lookup that fixes them
 
-e.g.
+Several warnings emitted by `zavod` are best fixed by adding a lookup option. Each row below names the warning, what triggered it, and the lookup recipe.
+
+| Warning | What it means | Fix |
+|---|---|---|
+| `Rejected property value [<prop>]: <value>` | The type cleaner could not normalize the value (an invalid date like `2020-02-31`, a country string like `France / Syria`, an unparseable phone number). | Add a `type.<type>` lookup mapping `<value>` to a corrected `value:` (or `values:` for the multi-country case). Use `value: null` to drop. |
+| `Property value '<value>' is not a valid name.` | A name property on a `LegalEntity` failed [`rigour.names.is_name`](https://rigour.followthemoney.tech/) — usually because the string contains digits, punctuation patterns, or looks like an address. | `type.name` lookup with a corrected `value:`, or `value: null` to drop. The value-came-from-a-lookup check then suppresses the warning automatically. |
+| `Property for <prop> looks too short for an address: <value>` | An address value is three characters or fewer. Often a parsing error; sometimes a real short place name. | If the value is a real place, add an identity lookup (`match: Zug` / `value: Zug`) to mark it as curated. Otherwise `value: null`. |
+| `HTML/XSS suspicion in property value: <value>` | The value contains HTML tags or entity references — usually leftover markup from extraction. | Map the dirty value to its cleaned text via a `type.<type>` lookup. If the markup is genuinely intended (rare), add `silence_warnings: [xss-html-smell]` to the option. |
+| `Property value for <prop> exceeds type length: <value>` | The value is longer than the type's `max_length`. `zavod` warns but does not truncate. | `type.<type>` lookup with a shorter `value:`. |
+| `Failed to validate <format> identifier: <value>` | The value did not validate against a known identifier format (`bic`, `isin`, `lei`, `iban`, `inn`, `ogrn`, `npi`, `uei`, `qid`, `uscc`, `imo`). | `type.identifier` lookup with `match: <value>` and a corrected `value:`, or `value: null`. |
+
+### Property name to type lookup
+
+When an issue references a property name, the corresponding type lookup is one of these:
+
+| Property names | Type lookup |
+|---|---|
+| `name`, `alias`, `previousName`, `weakAlias`, `firstName`, `lastName`, … | `type.name` |
+| `address`, `full` | `type.address` |
+| `country`, `jurisdiction`, `nationality`, `citizenship` | `type.country` |
+| `date`, `startDate`, `endDate`, `birthDate`, `incorporationDate`, `dissolutionDate` | `type.date` |
+| `registrationNumber`, `taxNumber`, `ogrnCode`, `innCode`, `npiCode`, `leiCode`, `bicCode`, `imoNumber`, … | `type.identifier` |
+| `sourceUrl`, `website`, `wikipediaUrl` | `type.url` |
+| `email` | `type.email` |
+| `phone` | `type.phone` |
+| `gender` | `type.gender` |
+
+The full property listing is at [followthemoney.tech](https://followthemoney.tech/explorer/types/).
+You can also resolve a single property's exact type from the command line with
+`ftm ref prop Schema:property --json` (e.g. `ftm ref prop Person:nationality`).
+
+
+## Reference: configuration keys
+
+### Lookup-level keys
+
+Set under each named lookup (e.g. `lookups: type.country: …`):
+
+| Key | Default | Effect |
+|---|---|---|
+| `options` | required | List of options. |
+| `map` | — | Dict shorthand of `match: value` pairs; merged with `options`. |
+| `normalize` | `false` | Strip diacritics and collapse whitespace before matching. |
+| `lowercase` | `false` | Lowercase before matching. |
+| `asciify` | `true` | Transliterate to ASCII when normalizing. |
+| `required` | `false` | Raise `LookupException` when no option matches the input. |
+
+### Option-level keys
+
+Each entry in the `options:` list:
+
+| Key | Effect |
+|---|---|
+| `match` | String, list of strings, or `null`; exact match after normalization. |
+| `contains` | String or list; substring match after normalization. |
+| `regex` | String or list; raw regex pattern, not normalized. |
+| `value` / `values` | Replacement value(s). `value: null` drops the input. |
+| `prop` | (`type.*` lookups only) Re-route the value to a different property. |
+| `weight` | Integer to disambiguate when multiple options match the same input. |
+| `normalize` / `lowercase` / `asciify` | Override the lookup-level setting. |
+| `silence_warnings` | List of warning types to suppress. Currently the only recognized value is `xss-html-smell`. |
+| any other key | Available as an attribute on the `Result` object (e.g. `schema`, `start`, `end`, `link`, `is_alias`, `document_schema`). |
+
+
+## Recipe: translating column headers
+
+A recurring use of named lookups is mapping non-English source column headers onto English slug keys that the crawler code references. The lookup runs once per header during table parsing.
 
 ```yaml
 lookups:
   columns:
     options:
-      - match:
-          - 日 本 語 表 記
-        value: name_japanese
-      - match: 英 語 表 記
-        value: name_english
-      - match:
-          - 別 名
-          - 別 称 ・ 別 名
-          - 別称・旧称
-          - 別称
-          - 別名
-        value: alias
+      - match: الإسم الثلاثي
+        value: full_name
+      - match: تاريخ الولادة ومكانها
+        value: dob_place
+      - match: العنوان
+        value: address
+      - match: الجنسية
+        value: nationality
 ```
 
-## Regex mappings:
-If you're working with date formats or specific patterns, using a lookup like this allows you to map certain patterns to a value, such as `null` for when no further processing is needed.
+In the crawler, look up each header before treating it as a dictionary key:
 
-```yaml
-# Date pattern (in Chinese month-day format):
-- regex: "\\d{1,2}月\\d{1,2}"
-  value: null  # Dropping this value because it doesn't contain a year
-
-# Identifying specific titles or roles in Spanish:
-- regex: "^senador"
-  name: member of the Senado
+```python
+slug = context.lookup_value("columns", raw_header)
+if slug is None:
+    context.log.warning("Unknown column header", header=raw_header)
+    continue
 ```
 
-It simplifies handling cases where you don't need to perform further actions on the match, especially for non-standard date formats or irrelevant entries.
+This pattern keeps the crawler code in English regardless of the source language, and any new header in the source surfaces as an explicit warning rather than silently dropped data.

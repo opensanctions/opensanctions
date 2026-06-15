@@ -103,6 +103,7 @@ def crawl_company(
     entity = context.make("Organization")
     entity.id = context.make_id(org_number)
     entity.add("name", company_name)
+    entity.add("topics", "gov.soe")
     entity.add("alias", row.pop("foreign_register_name"))
     entity.add("jurisdiction", row.pop("subject_to_legislation_country_code"))
     entity.add("legalForm", row.pop("org_form_description"))
@@ -197,7 +198,7 @@ def crawl_soe_peps(
                 country=["no"],
                 organization=entity,
             )
-            categorisation = categorise(context, position, is_pep=True)
+            categorisation = categorise(context, position, default_is_pep=True)
 
             if not categorisation.is_pep:
                 continue

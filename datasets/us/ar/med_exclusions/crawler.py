@@ -1,5 +1,4 @@
 import re
-from typing import Dict
 import csv
 from rigour.mime.types import CSV
 
@@ -10,7 +9,7 @@ REGEX_AKA = re.compile(r"\baka\b", re.IGNORECASE)
 REGEX_WORD = re.compile(r"\w{2,}")
 
 
-def crawl_item(row: Dict[str, str], context: Context):
+def crawl_item(row: dict[str, str], context: Context) -> None:
     zip_code = row.pop("Zip")
     division = row.pop("Division")
 
@@ -27,13 +26,10 @@ def crawl_item(row: Dict[str, str], context: Context):
         provider.id = context.make_id(provider_name, zip_code)
 
         last_name, first_name = provider_name.split(",", 1)
-        names = REGEX_AKA.split(last_name)
-        if REGEX_WORD.search(first_name) and REGEX_WORD.search(last_name):
-            provider.add_schema("Person")
-            h.apply_name(
-                provider, last_name=names[0], alias=names[1:], first_name=first_name
-            )
-        else:
+        # If the provider name contains "aka" or the name look long enough, default to lookup
+        if REGEX_AKA.search(provider_name) or not (
+            REGEX_WORD.search(first_name) and REGEX_WORD.search(last_name)
+        ):
             result = context.lookup("names", provider_name)
             if result is None:
                 context.log.warning(
@@ -43,6 +39,9 @@ def crawl_item(row: Dict[str, str], context: Context):
             else:
                 provider.add("name", result.name)
                 provider.add("alias", result.alias)
+        else:
+            provider.add_schema("Person")
+            h.apply_name(provider, last_name=last_name, first_name=first_name)
 
         provider.add("country", "us")
         provider.add("topics", "debarment")

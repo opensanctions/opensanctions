@@ -52,6 +52,7 @@ def crawl(context: Context) -> None:
             company = context.make("Company")
             company.id = context.make_id(company_name)
             company.add("name", company_name)
+            company.add("topics", "gov.soe")
 
             pep = context.make("Person")
             pep.id = context.make_id(pep_name)
@@ -67,7 +68,7 @@ def crawl(context: Context) -> None:
                 country="se",
                 organization=company,
             )
-            categorisation = categorise(context, position, is_pep=True)
+            categorisation = categorise(context, position, default_is_pep=True)
 
             occupancy = h.make_occupancy(
                 context,

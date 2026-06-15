@@ -63,6 +63,7 @@ inputs:
   - special_interest
 
 config:
+  topic_gated: true
   index_options:
     max_candidates: 100
     match_batch: 300

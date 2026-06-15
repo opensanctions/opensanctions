@@ -1,13 +1,15 @@
 import re
-from typing import Dict
 
 from followthemoney.types import registry
 
 from zavod import Context, Entity
 from zavod import helpers as h
 
+# "osoby" = persons, "podmioty" = entities
 TYPES = {"osoby": "Person", "podmioty": "Company"}
 CHOPSKA = [
+    # "Nr" = number; NIP = Polish tax ID, KRS = Polish business register number,
+    # PESEL = Polish personal ID, "siedziba" = registered seat / headquarters
     ("Nr NIP", "taxNumber"),
     ("NIP", "taxNumber"),
     ("Nr KRS", "registrationNumber"),
@@ -18,12 +20,14 @@ CHOPSKA = [
 ]
 
 
-def parse_date(text, context):
+def parse_date(text: str, context: Context) -> str | None:
     text = text.lower().strip()
+    # "urodzona/urodzonego/urodzony/urodzonej" = born (different gender/case forms)
     text = text.replace("urodzona", "")
     text = text.replace("urodzonego", "")
     text = text.replace("urodzony", "")
     text = text.replace("urodzonej", "")
+    # " r." = abbreviation for "rok" (year)
     text = re.split(r" r\.| r$", text)[0]
     text = text.strip()
     if text is None:
@@ -34,7 +38,7 @@ def parse_date(text, context):
     return None
 
 
-def parse_details(context: Context, entity: Entity, text: str):
+def parse_details(context: Context, entity: Entity, text: str) -> None:
     for chop, prop in CHOPSKA:
         parts = text.rsplit(chop, 1)
         text = parts[0]
@@ -59,13 +63,15 @@ def parse_details(context: Context, entity: Entity, text: str):
             entity.add(prop, value)
 
 
-def crawl_row(context: Context, row: Dict[str, str], table_title: str):
+def crawl_row(context: Context, row: dict[str, str | None], table_title: str) -> None:
+    # "data_umieszczenia_na_liscie" = date of placement on the list
     listing_date = row.pop("data_umieszczenia_na_liscie")
     if listing_date is None:
         context.log.warn("No listing date", row=row)
         return
 
     entity = context.make(TYPES[table_title])
+    # "nazwisko_i_imie" = surname and first name; "nazwa_podmiotu" = entity name
     name_raw = row.pop("nazwisko_i_imie", None) or row.pop("nazwa_podmiotu", None)
     if name_raw is None:
         context.log.warn("No name", row=row)
@@ -73,7 +79,7 @@ def crawl_row(context: Context, row: Dict[str, str], table_title: str):
 
     entity.id = context.make_slug(table_title, name_raw)
     # Normal case: LASTNAME Firstname (Alias) / Company Name (Alias)
-    # "lub" = or
+    # "w zapisie także" = also written as; "lub" = or
     names = h.multi_split(name_raw, ["(w zapisie także", "(", ")", "lub", ","])
 
     if entity.schema.name == "Person":
@@ -106,7 +112,7 @@ def crawl_row(context: Context, row: Dict[str, str], table_title: str):
 
     else:
         # "w likwidacji" = in liquidation; "w upadłości" = in bankruptcy
-        name = names[0].rstrip(" w likwidacji").rstrip(" w upadłości")
+        name = names[0].removesuffix(" w likwidacji").removesuffix(" w upadłości")
         entity.add("name", name)
 
         alias = names[1] if len(names) > 1 else ""
@@ -126,8 +132,8 @@ def crawl_row(context: Context, row: Dict[str, str], table_title: str):
             aliases = h.multi_split(alias, ["lub", "obecnie:", "inaczej:"])
             # Aliases are often in quotes
             cleaned_aliases = [
-                a.rstrip(" w likwidacji")
-                .rstrip(" w upadłości")
+                a.removesuffix(" w likwidacji")
+                .removesuffix(" w upadłości")
                 .replace("„", "")
                 .replace("”", "")
                 for a in aliases
@@ -135,16 +141,20 @@ def crawl_row(context: Context, row: Dict[str, str], table_title: str):
             for uncleaned_alias, cleaned_alias in zip(aliases, cleaned_aliases):
                 entity.add("alias", cleaned_alias, original_value=uncleaned_alias)
 
+    # "uzasadnienie_wpisu_na_liste" = justification for placement on the list
     notes = row.pop("uzasadnienie_wpisu_na_liste")
     entity.add("notes", notes)
 
+    # "dane_identyfikacyjne_podmiotu/osoby" = identification data of entity/person
     details = row.pop("dane_identyfikacyjne_podmiotu", None)
     details = row.pop("dane_identyfikacyjne_osoby", details)
     if details is not None:
         parse_details(context, entity, details)
 
     sanction = h.make_sanction(context, entity)
+    # "zastosowane_srodki_sankcyjne" = applied sanctions measures
     provisions = row.pop("zastosowane_srodki_sankcyjne")
+    assert provisions is not None
     if len(provisions) > registry.string.max_length:
         sanction.add("description", provisions)
         sanction.add("provisions", "See description.")
@@ -152,6 +162,7 @@ def crawl_row(context: Context, row: Dict[str, str], table_title: str):
         sanction.add("provisions", provisions)
 
     h.apply_date(sanction, "startDate", listing_date)
+    # "data_wykreslenia_z_listy" = date of removal from the list
     end_date = row.pop("data_wykreslenia_z_listy", None)
     h.apply_date(sanction, "endDate", end_date)
     if not end_date:
@@ -161,15 +172,19 @@ def crawl_row(context: Context, row: Dict[str, str], table_title: str):
     context.emit(sanction)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     doc = context.fetch_html(context.data_url, absolute_links=True)
-    table = doc.xpath(".//h3[text() = 'Osoby']/following-sibling::div//table")[0]
+    # "Osoby" = Persons
+    table = h.xpath_element(
+        doc, ".//h3[text() = 'Osoby']/following-sibling::div[1]//table"
+    )
     for row in h.parse_html_table(table, header_tag="td"):
         crawl_row(context, h.cells_to_str(row), "osoby")
 
+    # "Podmioty" = Entities
     # Pretty special xpath because they have some <table><tr><table> thing going on
-    table = doc.xpath(
-        ".//h3[text() = 'Podmioty']/following-sibling::div//table//tr//table"
-    )[0]
+    table = h.xpath_element(
+        doc, ".//h3[text() = 'Podmioty']/following-sibling::div[1]//table//tr//table"
+    )
     for row in h.parse_html_table(table, header_tag="td"):
         crawl_row(context, h.cells_to_str(row), "podmioty")

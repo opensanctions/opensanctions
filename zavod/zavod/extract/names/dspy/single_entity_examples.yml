@@ -135,7 +135,7 @@
     - Pitoyo, Joko
   alias:
     - Pintono, Joko
-    - Dulmatin # Contraction of Abdul Martin?
+    - Dulmatin  # Contraction of Abdul Martin?
     - Dul Matin
     - Abdul Martin
     - Abdul Matin
@@ -166,7 +166,7 @@
 - strings: ["Al-Sayyad Company for; Guarding and Protection Services; Ltd"]
   entity_schema: LegalEntity
   name: [Al-Sayyad Company for Guarding and Protection Services Ltd]
-          # ???
+  # ???
 - strings: ["MUSIC MAR-CO; MUSIC SERVIS, IZOBRAŽEVANJE, MARKETING MARKO KAVTIČNIK S.P."]
   entity_schema: LegalEntity
 - strings: ["Cho Yan Nathan; a.k.a Nathan Man Man"]

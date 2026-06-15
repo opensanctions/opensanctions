@@ -3,7 +3,7 @@ from typing import Dict
 from zavod import Context
 
 
-def crawl_row(context: Context, row: Dict[str, str]):
+def crawl_row(context: Context, row: Dict[str, str]) -> None:
     publicKey = row.pop("Address")
     network = row.pop("Network")
     linked_to = row.pop("Linked to")
@@ -30,7 +30,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     context.emit(wallet)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     path = context.fetch_resource("source.csv", context.data_url)
     with open(path, "r", encoding="utf-8") as fh:
         reader = csv.DictReader(fh)

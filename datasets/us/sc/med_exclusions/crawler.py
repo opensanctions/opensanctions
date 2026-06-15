@@ -1,19 +1,18 @@
-from typing import Dict
 from rigour.mime.types import XLSX
 from openpyxl import load_workbook
 
 from zavod import Context, helpers as h
-from zavod.extract.zyte_api import fetch_html, fetch_resource
+from zavod.extract import zyte_api
 import re
 
 REGEX_ALIAS = re.compile(r"\ba\.k\.a\.?|\baka\b|\bf/k/a\b|\bdba\b", re.IGNORECASE)
 
 
-def crawl_item(row: Dict[str, str], context: Context):
+def crawl_item(row: dict[str, str | None], context: Context) -> None:
     entity = context.make("LegalEntity")
     npi = row.pop("npi")
     entity.id = context.make_id(row.get("individual_entity"), npi)
-    parts = REGEX_ALIAS.split(row.pop("individual_entity").strip())
+    parts = REGEX_ALIAS.split((row.pop("individual_entity") or "").strip())
 
     entity.add("name", parts[0])
     entity.add("alias", parts[1:])
@@ -43,20 +42,23 @@ def crawl_item(row: Dict[str, str], context: Context):
     context.audit_data(row)
 
 
-def crawl_excel_url(context: Context):
+def crawl_excel_url(context: Context) -> str:
     file_xpath = ".//a[contains(text(), 'South Carolina Medicaid Excluded/Terminated Providers')]"
-    doc = fetch_html(context, context.data_url, file_xpath)
-    return doc.xpath(file_xpath)[0].get("href")
+    doc = zyte_api.fetch_html(context, context.data_url, unblock_validator=file_xpath)
+    url = h.xpath_string(doc, file_xpath + "/@href")
+    assert url is not None, "Could not find Excel file URL"
+    return url
 
 
 def crawl(context: Context) -> None:
     excel_url = crawl_excel_url(context)
 
-    _, _, _, path = fetch_resource(
+    _, _, _, path = zyte_api.fetch_resource(
         context, "source.xlsx", excel_url, geolocation="US", expected_media_type=XLSX
     )
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
 
     wb = load_workbook(path, read_only=True)
+    assert wb.active is not None
     for item in h.parse_xlsx_sheet(context, wb.active, skiprows=2):
         crawl_item(item, context)

@@ -19,7 +19,7 @@ export default async function EntryPage({ params }: PageProps) {
   const relatedEntities = await getRelatedEntities(key, dataset, entry.last_seen_version);
 
   return (
-    <div className="pb-4 d-flex flex-column" style={{ minHeight: 0 }}>
+    <div className="pb-4 d-flex flex-column flex-grow-1" style={{ minHeight: 0 }}>
       <nav aria-label="breadcrumb" className="mb-3">
         <ol className="breadcrumb">
           <li className="breadcrumb-item">

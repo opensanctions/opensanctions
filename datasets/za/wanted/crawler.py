@@ -1,4 +1,3 @@
-from typing import Dict
 from urllib.parse import parse_qs, urlparse
 
 from lxml import html
@@ -16,7 +15,7 @@ UNKNOWNS = {"unknown", "uknown"}
 CACHE_DAYS = 1
 
 
-def crawl_detail_page(context: Context, person: Entity, source_url: str):
+def crawl_detail_page(context: Context, person: Entity, source_url: str) -> None:
     """Fetch and parse detailed information from a person's detail page."""
     doc = fetch_html(
         context,
@@ -71,7 +70,7 @@ def crawl_detail_page(context: Context, person: Entity, source_url: str):
     context.emit(person)
 
 
-def crawl_person(context: Context, row: Dict[str, html.HtmlElement]):
+def crawl_person(context: Context, row: dict[str, html.HtmlElement]) -> None:
     detail_url = row["Surname"].xpath(".//a/@href")[0]
 
     # There can be additional text outside the link, e.g. "international sought"
@@ -114,7 +113,7 @@ def crawl_person(context: Context, row: Dict[str, html.HtmlElement]):
     crawl_detail_page(context, person, detail_url)
 
 
-def crawl(context):
+def crawl(context: Context) -> None:
     doc = fetch_html(
         context,
         context.data_url,

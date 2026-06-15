@@ -1,5 +1,6 @@
 from datetime import datetime
-from typing import Optional, List
+from pathlib import Path
+from typing import Any, Iterator, Optional, List
 
 from normality import slugify, stringify
 from openpyxl import load_workbook
@@ -7,6 +8,7 @@ from openpyxl import load_workbook
 from rigour.mime.types import XLSX
 from zavod import Context
 from zavod import helpers as h
+from zavod.extract.zyte_api import fetch_json
 
 # From inspecting the getNewAccessToken function in the website source, the UUID corresponds to the report ID,
 # so hopefully won't change too quickly.
@@ -27,7 +29,7 @@ def parse_countries(countries: Optional[str]) -> List[str]:
     return parsed
 
 
-def header_names(cells):
+def header_names(cells: list[Any]) -> list[str]:
     headers = []
     for idx, cell in enumerate(cells):
         if cell is None:
@@ -36,7 +38,7 @@ def header_names(cells):
     return headers
 
 
-def excel_records(path):
+def excel_records(path: Path) -> Iterator[dict[str, str]]:
     wb = load_workbook(filename=path, read_only=True)
     for sheet in wb.worksheets:
         headers = None
@@ -55,9 +57,10 @@ def excel_records(path):
             yield record
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     # The IADB PowerBI report requires a token to access the data, which it luckily readily provides.
-    get_token_response = context.fetch_json(GET_TOKEN_URL)
+    # Zyte because cloudflare
+    get_token_response = fetch_json(context, GET_TOKEN_URL)
     token = get_token_response["token"]["token"]
     path = context.fetch_resource(
         "data.xlsx",

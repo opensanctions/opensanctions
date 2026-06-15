@@ -1,14 +1,13 @@
 import csv
 from rigour.mime.types import CSV
 from normality import collapse_spaces
-from typing import Dict
 
 from zavod import Context, helpers as h
 
 PROGRAM_KEY = "IR-MFA-SANC"
 
 
-def crawl_row(context: Context, row: Dict[str, str]):
+def crawl_row(context: Context, row: dict[str, str]) -> None:
     entity_type = row.pop("Sanction Type")
     schema = context.lookup_value("schema", entity_type)
     if schema is None:
@@ -38,7 +37,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     context.audit_data(row, ignore=["Number"])
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     path = context.fetch_resource("source.csv", context.data_url)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:

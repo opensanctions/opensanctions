@@ -3,7 +3,7 @@ from typing import Optional, Dict, Any, Generator
 from rigour.ids import LEI
 from lxml import html
 
-from zavod import Context, helpers
+from zavod import Context, helpers as h
 
 
 def get_json(
@@ -30,8 +30,7 @@ def parse_name(name_markup: str) -> Optional[str]:
     """
     if name_markup is None:
         return None
-    name = html.fromstring(name_markup).text_content().strip()
-    return name
+    return h.element_text(html.fromstring(name_markup))
 
 
 def crawl(context: Context) -> None:
@@ -63,7 +62,7 @@ def crawl(context: Context) -> None:
         entity.add("name", parse_name(row.pop("sn_otherEntityName", None)))
         entity.add("topics", "reg.warn")
 
-        sanction = helpers.make_sanction(context, entity)
+        sanction = h.make_sanction(context, entity)
         sanction.add("program", row.pop("sn_sanctionLegalFrameworkName", None))
         sanction.add("startDate", row.pop("sn_date", None))
         sanction.add("endDate", row.pop("sn_expirationDate", None))

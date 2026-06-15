@@ -100,7 +100,7 @@ def crawl_councillor(context: Context, councillor_id: int) -> None:
             topics=["gov.legislative", "gov.national"],
             # lang="eng",
         )
-        categorisation = categorise(context, position, is_pep=True)
+        categorisation = categorise(context, position, default_is_pep=True)
         if not categorisation.is_pep:
             continue
         context.emit(position)
@@ -110,8 +110,6 @@ def crawl_councillor(context: Context, councillor_id: int) -> None:
             position,
             start_date=mem.get("entryDate"),
             end_date=mem.get("leavingDate"),
-            no_end_implies_current=True,
-            propagate_country=False,
         )
         if occupancy is None:
             continue

@@ -34,31 +34,16 @@ def crawl_item(row: Dict[str, str | None], context: Context) -> None:
     context.audit_data(row)
 
 
-def crawl_excel_url(context: Context, sanctions_list_url: str) -> str:
+def crawl(context: Context) -> None:
     excel_xpath = (
         ".//a[contains(@href, 'Sanction-List') and contains(@href, '.xlsx')]/@href"
     )
-    exclusions_page = zyte_api.fetch_html(
-        context,
-        sanctions_list_url,
-        unblock_validator=excel_xpath,
-    )
-    excel_url = h.xpath_string(exclusions_page, excel_xpath)
-    return excel_url
-
-
-def crawl(context: Context) -> None:
-    # Locate the Sanctions page
-    sanctions_list_url_xpath = ".//a[contains(@href, 'sanction-list')]/@href"
     landing_page = zyte_api.fetch_html(
         context,
         context.data_url,
-        unblock_validator=sanctions_list_url_xpath,
+        unblock_validator=excel_xpath,
     )
-    sp_url = h.xpath_string(landing_page, sanctions_list_url_xpath)
-
-    # Find the link to the excel file on the Sanctions page
-    excel_url = crawl_excel_url(context, sp_url)
+    excel_url = h.xpath_string(landing_page, excel_xpath)
     _, _, _, path = zyte_api.fetch_resource(
         context, "source.xlsx", excel_url, expected_media_type=XLSX, geolocation="US"
     )

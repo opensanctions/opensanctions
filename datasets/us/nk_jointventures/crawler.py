@@ -6,7 +6,7 @@ from zavod import Context, helpers as h
 from zavod.extract.zyte_api import fetch_html, fetch_resource
 
 
-def crawl_item(context: Context, row: Dict[str, str]):
+def crawl_item(context: Context, row: Dict[str, str]) -> None:
     name = row.pop("Joint Venture Name")
     sector = row.pop("Sector")
 

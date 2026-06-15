@@ -130,6 +130,11 @@ lookups:
           - name: "Robert van Gasteren"
             start_date: "2023-07-11"
             party: "BBB"
+      - match: 'Robert van Gasteren (1959) is sinds 31 maart 2026 lid van de Fractie-Van Gasteren in de Eerste Kamer'
+        details:
+          - name: "Robert van Gasteren"
+            start_date: "2026-03-31"
+            party: "Fractie-Van Gasteren"
       - match: 'Math Goossen (1954) is vanaf 13 juni 2023 lid van de BBB-fractie in de Eerste Kamer'
         details:
           - name: "Math Goossen"
@@ -449,3 +454,13 @@ lookups:
           - name: "Meryem Karaaslan-Kilic"
             start_date: "2026-02-24"
             party: "D66"
+      - match: 'Meryem Karaaslan is sinds 24 februari 2026 lid van de D66-fractie in de Eerste Kamer'
+        details:
+          - name: "Meryem Karaaslan"
+            start_date: "2026-02-24"
+            party: "D66"
+      - match: 'Joris Steenkamp is sinds 19 mei 2026 lid van de CDA-fractie in de Eerste Kamer'
+        details:
+          - name: "Joris Steenkamp"
+            start_date: "2026-05-19"
+            party: "CDA"

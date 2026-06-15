@@ -164,6 +164,8 @@ lookups:
         value: hrv
       - match: Japanese
         value: jpn
+      - match: Central Khmer
+        value: khm
       - match: "" # we don't want to warn on empty languages
         value: null
   name_type:
@@ -286,6 +288,8 @@ lookups:
       - match: "P.O. Box 11365-8486"
         prop: postOfficeBox
         value: "11365-8486"
+      - match: Kampong Speu 5301
+        value: "5301"
   type.url:
     options:
       - match: "Unknown"
@@ -432,6 +436,10 @@ lookups:
         props:
           innCode: "7720603527"
           ogrnCode: "1077764566373"
+      - match: "INN: 7810540857OGRN:  1087847024363"
+        props:
+          innCode: "7810540857"
+          ogrnCode: "1087847024363"
       - match: "7813654490 - TIN"
         props:
           taxNumber: "7813654490"
@@ -1264,6 +1272,15 @@ lookups:
       - match: "Russia Licence No. \u2013 1885 "
         props:
           registrationNumber: "1885"
+      - match: "'00021503 (KH) "
+        props:
+          registrationNumber: "00021503"
+      - match: "'00073994 (KH) "
+        props:
+          registrationNumber: "00073994"
+      - match: "1000334551/00070350/L001-902305069 (Tax identification number) "
+        props:
+          taxNumber: ["1000334551", "00070350", "L001-902305069"]
       - match:
           - "9703155974"
           - "DSO-ZZCO-16068"
@@ -1431,6 +1448,129 @@ lookups:
           - "1521418"
           - "97947 "
         value: SAME
+      - match: "'0012021"
+        props:
+          registrationNumber: "0012021"
+      - match: "Corporate Identification Number (CIN): U74999HR2023OPC109285"
+        props:
+          registrationNumber: "U74999HR2023OPC109285"
+      - match: "Corporate Identification Number: U80900DL2023NPL410201"
+        props:
+          registrationNumber: "U80900DL2023NPL410201"
+      - match: "India CIN: U63030MH2016PTC286797"
+        props:
+          registrationNumber: "U63030MH2016PTC286797"
+      - match: "India CIN: U78100MH2023PTC409367"
+        props:
+          registrationNumber: "U78100MH2023PTC409367"
+      - match: "India PAN - AAYCA2604D"
+        props:
+          taxNumber: "AAYCA2604D"
+      - match: "India PAN - AACCZ1381Q"
+        props:
+          taxNumber: "AACCZ1381Q"
+      - match: "India PAN: AALCB8806B"
+        props:
+          taxNumber: "AALCB8806B"
+      - match: "India GSTIN: 27AACCO3869L1ZW"
+        props:
+          taxNumber: "27AACCO3869L1ZW"
+      - match: "Thai business register number: 0105566092852 "
+        props:
+          registrationNumber: "0105566092852"
+      - match: "Thai business registry number: 0105554079139"
+        props:
+          registrationNumber: "0105554079139"
+      - match: "Thai business registry number: 0205566027596"
+        props:
+          registrationNumber: "0205566027596"
+      - match: "Business Registration Number - 67092371"
+        props:
+          registrationNumber: "67092371"
+      - match: "CR number: 2469563 "
+        props:
+          registrationNumber: "2469563"
+      - match: "France SIREN Number - 889 164 687"
+        props:
+          registrationNumber: "889164687"
+      - match: "INN: 7810540857OGRN:  1087847024363"
+        props:
+          innCode: "7810540857"
+          ogrnCode: "1087847024363"
+      - match: "310115002630983Unified Social Credit Code: 9131011533249393X3"
+        props:
+          registrationNumber: "310115002630983"
+          uscCode: "9131011533249393X3"
+      - match: "1257700355912 (Russia OGRN)"
+        props:
+          ogrnCode: "1257700355912"
+      - match: "9704263563 (Russia TIN)"
+        props:
+          innCode: "9704263563"
+      - match: "7709473987 (Russia TIN)"
+        props:
+          innCode: "7709473987"
+      - match: "Russia INN – 7704817031"
+        props:
+          innCode: "7704817031"
+      - match: "Russia INN: 9909674370"
+        props:
+          innCode: "9909674370"
+      - match: "Marshall Islands Entity Number - 117922"
+        props:
+          registrationNumber: "117922"
+      - match: "Panama Folio Number - Folio Nº 155737650"
+        props:
+          registrationNumber: "155737650"
+      - match: "Georgia MyGov Legal Code - 10756093Georgia Identification Code - 400361559"
+        props:
+          registrationNumber: ["10756093", "400361559"]
+      - match: "Georgia MyGov Legal Code – 10783789 Georgia Identification Code - 405655143 "
+        props:
+          registrationNumber: ["10783789", "405655143"]
+      - match: "Georgia MyGov Legal Code – 10703969 Georgia Identification Code - 412771852  "
+        props:
+          registrationNumber: ["10703969", "412771852"]
+      - match: "Kyrgyzstan INN - 01211202510014Kyrgyzstan Company Registration Number - 322290-3301-ОАО"
+        props:
+          taxNumber: "01211202510014"  # remapping to taxNumber because of validation failure
+          registrationNumber: "322290-3301-ОАО"
+      - match: "Kyrgyzstan INN - 02512202410270Kyrgyzstan Company Registration Number - 311855-3301-ОАО"
+        props:
+          taxNumber: "02512202410270"  # remapping to taxNumber because of validation failure
+          registrationNumber: "311855-3301-ОАО"
+      - match: "OGRN 1247700271829TIN 9710131220 (TIN region – Moscow)Checkpoint 773001001"
+        props:
+          ogrnCode: "1247700271829"
+          innCode: "9710131220"
+          kppCode: "773001001"
+      - match: "OKPO of a legal entity: 20205649TIN of a legal entity: 02903199310045Registration number: 5275-3301-OJSCRegistration number: KG0110104013"
+        props:
+          okpoCode: "20205649"
+          taxNumber: "02903199310045"  # remapping to taxNumber because of validation failure
+          registrationNumber: ["5275-3301-OJSC", "KG0110104013"]
+      - match: "Registration Number 5069 (United Arab Emirates)Economic Register Number (CBLS) 11874154 (United Arab Emirates)Alt. Registration Number RA000693_172229 (Belize)"
+        props:
+          registrationNumber: ["5069", "11874154", "RA000693_172229"]
+      - match: "Seat number 2025074769 Management No. SF2025008950 "
+        props:
+          registrationNumber: ["2025074769", "SF2025008950"]
+      - match: "UK Company number - 11655602EVA ID (IP Identification) - EEA90DD050C635EC8F637E8DB2F69969Legal Entity Identifier - 984500B899H9EED3B354 "
+        props:
+          registrationNumber: ["11655602", "EEA90DD050C635EC8F637E8DB2F69969"]
+          leiCode: "984500B899H9EED3B354"
+      - match: "515349660"
+        props:
+          registrationNumber: "515349660"
+      - match: "580537942"
+        props:
+          registrationNumber: "580537942"
+      - match: "580665800"
+        props:
+          registrationNumber: "580665800"
+      - match: "580556306"
+        props:
+          registrationNumber: "580556306"
   companies:
     normalize: true
     options:
@@ -2082,6 +2222,9 @@ lookups:
           - Wei Hai Yuan Jing Ship
           - Zale Shipping Inc
           - Zulu Ships Management
+          - Xinbi Guarantee
+          - EXMO POLAND SP Z.O.O.
+          - REPRESENATIVE OFFICE OF ALISTAIR LTD
         value: SAME
       - match: Subsidiary of the Organisation for Technological Industries (OTI) and therefore the Syrian Ministry of Defence
         values:
@@ -2438,3 +2581,11 @@ lookups:
           - ASSOCIATION 'CTT 'ACADEMNOVOTECH'
           - NON-COMMERCIAL PARTNERSHIP INNOVATION-IMPLEMENTATION CENTER
           - ASSOCIATION TECHNOLOGICAL PLATFORM AIR MOBILITY AND AVIATION TECHNOLOGIES
+      - match: M9 LOGISTICS (HK) LIMITED
+        value: M9 LOGISTICS (HK) LIMITED
+      - match: M9 LOGISTICS CO., LTD.
+        value: M9 LOGISTICS CO., LTD.
+      - match: EKC AG Turkey Madencilik Anonim Sirketi; EK Resources LLC
+        values:
+          - EKC AG Turkey Madencilik Anonim Sirketi
+          - EK Resources LLC

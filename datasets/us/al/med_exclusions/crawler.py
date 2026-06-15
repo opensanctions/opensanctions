@@ -1,12 +1,12 @@
 import re
-from typing import Dict, List
+from typing import List
 
-from pdfplumber.page import Page
+from openpyxl import load_workbook
 from pydantic import BaseModel, Field
-from rigour.mime.types import PDF
+from rigour.mime.types import XLSX
 from rigour.names.org_types import extract_org_types
 from zavod.extract.llm import DEFAULT_MODEL, run_typed_text_prompt
-from zavod.extract.zyte_api import fetch_html, fetch_resource
+from zavod.extract import zyte_api
 from zavod.stateful.review import (
     TextSourceValue,
     assert_all_accepted,
@@ -50,14 +50,11 @@ NAME_WITH_ROLE_REGEX = re.compile(
 )
 CRAWLER_VERSION = 2
 
-positions_field = Field(
-    default=[],
-    description=(
-        "The positions held by the person for an entity who is a person. "
-        "Populate this precisely as listed in the text when the text indicates "
-        "the job role of a person, otherwise leave empty. Sometimes this is an "
-        "abbreviation of a job title, e.g. RN for Registered Nurse."
-    ),
+POSITIONS_DESCRIPTION = (
+    "The positions held by the person for an entity who is a person. "
+    "Populate this precisely as listed in the text when the text indicates "
+    "the job role of a person, otherwise leave empty. Sometimes this is an "
+    "abbreviation of a job title, e.g. RN for Registered Nurse."
 )
 
 
@@ -65,32 +62,31 @@ class Entity(BaseModel):
     name: str
     name_suffix: str | None = None
     aliases: List[str] = []
-    positions: List[str] = positions_field
+    positions: List[str] = Field(default=[], description=POSITIONS_DESCRIPTION)
     address: str | None = None
 
 
-relationship_field = Field(
-    description=("Relationship between the entities e.g. `Owner` or `Vice President`.")
+RELATIONSHIP_DESCRIPTION = (
+    "Relationship between the entities e.g. `Owner` or `Vice President`."
 )
 
 
 class RelatedEntity(Entity):
-    relationship_role: str | None = relationship_field
+    relationship_role: str | None = Field(description=RELATIONSHIP_DESCRIPTION)
 
 
-related_entities_field = Field(
-    description=(
-        "Owners or other officers of a company if listed. If the "
-        "first entity looks like a person and a single owner name is included in"
-        " parentheses, then only give one entity - the person. Don't make a company"
-        " out of the person's name."
-    ),
-    default=[],
+RELATED_ENTITIES_DESCRIPTION = (
+    "Owners or other officers of a company if listed. If the "
+    "first entity looks like a person and a single owner name is included in"
+    " parentheses, then only give one entity - the person. Don't make a company"
+    " out of the person's name."
 )
 
 
 class RootEntity(Entity):
-    related_entities: List[RelatedEntity] = related_entities_field
+    related_entities: List[RelatedEntity] = Field(
+        default=[], description=RELATED_ENTITIES_DESCRIPTION
+    )
 
 
 PROMPT = f"""
@@ -108,17 +104,17 @@ to the positions field.
 
 Specific fields:
 
-`related_entities`: {related_entities_field.description}
+`related_entities`: {RELATED_ENTITIES_DESCRIPTION}
 
-`positions`: {positions_field.description}
+`positions`: {POSITIONS_DESCRIPTION}
 
-`relationship_role`: {relationship_field.description}
+`relationship_role`: {RELATIONSHIP_DESCRIPTION}
 
 `name_suffix`: This field MUST be null.
 """
 
 
-def apply_comma_name(entity: entity.Entity, name: str):
+def apply_comma_name(entity: entity.Entity, name: str) -> None:
     parts = name.split(",")
     if (
         len(parts) == 2
@@ -140,7 +136,9 @@ def apply_comma_name(entity: entity.Entity, name: str):
         entity.add("name", name)
 
 
-def crawl_row(context, names, category, start_date, filename: str):
+def crawl_row(
+    context: Context, names: str, category: str | None, start_date: str, filename: str
+) -> None:
     origin = None
     entity_data = None
     if SIMPLE_NAME_REGEX.fullmatch(names):
@@ -198,7 +196,8 @@ def crawl_row(context, names, category, start_date, filename: str):
         origin = review.origin
 
     entity = context.make("LegalEntity")
-    entity.id = context.make_id(entity_data.name, entity_data.positions)
+    # Passing *postitions would re-key, so we keep it for now and ignore the type error
+    entity.id = context.make_id(entity_data.name, entity_data.positions)  # type: ignore[arg-type]
     apply_comma_name(entity, entity_data.name)
     entity.add_cast("Person", "nameSuffix", entity_data.name_suffix)
     entity.add("alias", entity_data.aliases, origin=origin)
@@ -219,7 +218,8 @@ def crawl_row(context, names, category, start_date, filename: str):
 
     for item in entity_data.related_entities:
         related = context.make("LegalEntity")
-        related_id = context.make_id(item.name, item.positions)
+        # Passing *postitions would re-key, so we keep it for now and ignore the type error
+        related_id = context.make_id(item.name, item.positions)  # type: ignore[arg-type]
         if related_id == entity.id:
             continue
         related.id = related_id
@@ -251,67 +251,57 @@ def crawl_row(context, names, category, start_date, filename: str):
         context.emit(sanction)
 
 
-def crawl_data_url(context: Context):
-    file_xpath = "//a[contains(., 'PDF Version')]"
-    doc = fetch_html(context, context.data_url, file_xpath, absolute_links=True)
-    return doc.xpath(file_xpath)[0].get("href")
-
-
-def page_settings(page: Page) -> Dict:
-    settings = {"join_y_tolerance": 15}
-    if page.page_number == 1:
-        # The table header is a little box above the main table, so it gets detected as a separate table.
-        tables = page.find_tables()
-        table_start_y = tables[0].bbox[1]
-        # im = page.to_image()
-        # im.draw_hline(table_start)
-        # im.save("page.png")
-        page = page.crop((0, table_start_y, page.width - 15, page.height - 15))
-    return page, settings
+def crawl_data_url(context: Context) -> str:
+    file_xpath = "//a[contains(., 'Excel Version')]"
+    doc = zyte_api.fetch_html(
+        context, context.data_url, unblock_validator=file_xpath, absolute_links=True
+    )
+    url = h.xpath_string(doc, file_xpath + "/@href")
+    assert url is not None, "Could not find XLSX URL"
+    return url
 
 
 def crawl(context: Context) -> None:
-    # The .xls file first seemed to work, then a newer file couldn't be parsed
-    # as a valid Compond Document file.
-    # xlrd gave "xlrd.compdoc.CompDocError: MSAT extension: accessing sector ..."
-    # https://stackoverflow.com/questions/74262026/reading-the-excel-file-from-python-pandas-given-msat-extension-error
-    # didn't work.
-
-    # First we find the link to the PDF file
     url = crawl_data_url(context)
-    _, _, _, path = fetch_resource(context, "source.pdf", url, expected_media_type=PDF)
-    context.export_resource(path, PDF, title=context.SOURCE_TITLE)
+    _, _, _, path = zyte_api.fetch_resource(
+        context, "source.xlsx", url, expected_media_type=XLSX
+    )
+    context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
     filename = url.split("/")[-1]
-    assert ".pdf" in filename, filename
+    assert ".xlsx" in filename, filename
 
-    try:
-        category = None
-        for row in h.parse_pdf_table(context, path, page_settings=page_settings):
-            name = row.pop("name_of_provider").replace("\n", " ").strip()
-            if name == "":
-                continue
-            start_date = row.pop("suspension_effective_date").strip()
-            # When there's no date, we're probably at a category header row.
-            if start_date == "":
-                if context.lookup("categories", name):
-                    category = name
-                else:
-                    category = None
-                    context.log.warning(
-                        "Unexpected category. Confirm we're parsing the PDF correctly.",
-                        category=name,
-                    )
-                continue
-            crawl_row(context, name, category, start_date, filename)
-        assert_all_accepted(context)
-    except Exception as e:
-        if "No table found on page 49" in str(e):
-            # this is where the right-hand side of the table starts wrapping
-            pass
-        else:
-            if "No table found on page" in str(e):
-                raise RuntimeError(
-                    "PDF pages changed. See if they've upgraded to xlsx or update max page."
-                )
+    wb = load_workbook(path, read_only=True)
+    ws = wb.active
+    assert ws is not None, "No active worksheet"
+    assert len(wb.worksheets) == 1, len(wb.worksheets)
+
+    rows = h.parse_xlsx_sheet(context, ws, skiprows=33)
+    category = None
+    for row in rows:
+        name_raw = row.pop("column_0")
+        if name_raw is None:
+            continue
+        name = name_raw.replace("\n", " ").strip()
+        if name == "":
+            continue
+        start_date_raw = row.pop("effective_date")
+        start_date = start_date_raw.strip() if start_date_raw is not None else ""
+        # When there's no date, we're probably at a category header row.
+        if start_date == "":
+            if context.lookup("categories", name):
+                category = name
             else:
-                raise
+                if name.startswith("NOTE:  Any nurse aide listed"):
+                    break
+                raise Exception(
+                    f"Unexpected category {name!r}. Confirm we're parsing the XLSX correctly."
+                )
+            continue
+        crawl_row(context, name, category, start_date, filename)
+
+    for row in rows:
+        assert row.pop("effective_date") is None, (
+            "Expected all rows to have been processed"
+        )
+
+    assert_all_accepted(context, raise_on_unaccepted=False)

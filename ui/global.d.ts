@@ -9,6 +9,14 @@ declare global {
      */
     escape(str: string): string;
   }
+
+  interface Element {
+    /**
+     * Parses HTML, sanitizes it (removing scripts/event handlers), and sets as element content.
+     * See: https://developer.mozilla.org/en-US/docs/Web/API/Element/setHTML
+     */
+    setHTML(input: string): void;
+  }
 }
 
 export {};

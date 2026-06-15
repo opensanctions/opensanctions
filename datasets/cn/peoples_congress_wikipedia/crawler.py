@@ -45,7 +45,9 @@ def clean_text(text: str) -> str:
     return collapse_spaces(strip_note(text))
 
 
-def get_cleaned_field(input_dict, field_name):
+def get_cleaned_field(
+    input_dict: dict[str, HtmlElement], field_name: str
+) -> str | None:
     """Extracts and cleans the field value from the input dictionary."""
     field = input_dict.pop(field_name, None)
     if field is not None:
@@ -61,7 +63,7 @@ def crawl_item(
     context: Context,
     input_dict: dict,
     delegation: str,
-):
+) -> None:
     name_el = input_dict.pop("name")
     reference = name_el.find(".//sup")
     # Make sure to explicitly check if the element is not None.
@@ -87,6 +89,8 @@ def crawl_item(
 
     entity = context.make("Person")
     entity.id = context.make_id(name, ethnicity, gender, birth_date, delegation)
+    # PRC citizenship required even for HK and Macau NPC Delegates: http://en.npc.gov.cn.cdurl.cn/2020-10/17/c_674698.htm
+    entity.add("citizenship", "cn")
 
     entity.add("name", name, lang="chi")
     apply_translit_full_name(context, entity, "chi", name, TRANSLIT_OUTPUT)
@@ -109,7 +113,7 @@ def crawl_item(
     position = h.make_position(
         context, "Member of the National People’s Congress", country="cn"
     )
-    categorisation = categorise(context, position, is_pep=True)
+    categorisation = categorise(context, position, default_is_pep=True)
 
     occupancy = h.make_occupancy(
         context,
@@ -172,7 +176,7 @@ def parse_table(
         yield row
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     doc = context.fetch_html(context.data_url)
     ids = defaultdict(int)
 

@@ -1,4 +1,3 @@
-from typing import Dict
 from rigour.mime.types import PDF
 import re
 
@@ -13,8 +12,8 @@ REGEX_AKA = re.compile(r"\baka\b|a\.k\.a\.?", re.IGNORECASE)
 REGEX_JOB_ROLE = re.compile(r"^(?P<name>.+)[,\s]+(?P<role>([A-Z\.,/-]+|\([^\)]+\)))$")
 
 
-def crawl_item(row: Dict[str, str], context: Context):
-    raw_name = squash_spaces(row.pop("sanctioned_provider_name"))
+def crawl_item(row: dict[str, str | None], context: Context) -> None:
+    raw_name = squash_spaces(row.pop("sanctioned_provider_name") or "")
     npi = row.pop("npi")
     # Skip empty rows
     if raw_name == "" and npi == "":
@@ -41,36 +40,17 @@ def crawl_item(row: Dict[str, str], context: Context):
     entity.add_cast("Person", "position", position)
     entity.add("alias", alias)
     entity.add("country", "us")
-    entity.add("sector", row.pop("taxonomy"))
     dea = row.pop("dea")
-    if dea != "-":
+    if dea != "-" and dea != "N/A":
         entity.add("idNumber", dea)
     entity.add("npiCode", h.multi_split(npi, [";", ",", "&"]))
 
-    # Deal with sometimes intentional line breaks, and sometimes unwanted wrapping:
-    license_numbers = row.pop("license", row.pop("license_rn707737_pa", None))
-    license_numbers = re.sub(
-        r"PROMISe", ";PROMISe", license_numbers, flags=re.IGNORECASE
-    )
-    license_numbers = re.sub(
-        r"PROMISe#?:?\n#?", "PROMISe# ", license_numbers, flags=re.IGNORECASE
-    )
-    for license_num in h.multi_split(license_numbers, [",", ";"]):
-        if "\n" in license_num:
-            res = context.lookup("license_numbers", license_num)
-            if res:
-                assert res.values, res
-                entity.add("idNumber", res.values, original_value=license_num)
-            else:
-                context.log.warning(
-                    "Unhandled license number", license_number=license_num
-                )
-        else:
-            entity.add("idNumber", squash_spaces(license_num))
-
     sanction = h.make_sanction(context, entity)
-    sanction.add("description", squash_spaces(row.pop("comments")))
-    sanction.set("authority", squash_spaces(row.pop("oig_medicaid_sanction")))
+    assert (comments := row.pop("comments")) is not None
+    sanction.add("description", squash_spaces(comments))
+    assert (authority := row.pop("oig_medicaid_sanction")) is not None
+    sanction.set("authority", squash_spaces(authority))
+
     h.apply_date(sanction, "startDate", row.pop("effective_date"))
     reinstated_date = row.pop("reinstated_date")
     h.apply_date(sanction, "endDate", reinstated_date)

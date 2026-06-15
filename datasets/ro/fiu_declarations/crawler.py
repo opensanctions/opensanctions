@@ -3,7 +3,7 @@ from zavod.stateful.positions import categorise
 from zavod.extract import zyte_api
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     table_xpath = ".//table[@class='table table-bordered declarations']"
     doc = zyte_api.fetch_html(
         context,
@@ -30,7 +30,7 @@ def crawl(context: Context):
                 name="Financial Intelligence Unit Official",
                 country="ro",
             )
-            categorisation = categorise(context, position, True)
+            categorisation = categorise(context, position, default_is_pep=True)
             if categorisation:
                 occupancy = h.make_occupancy(
                     context,

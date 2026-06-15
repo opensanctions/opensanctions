@@ -37,15 +37,17 @@ def compare_single_entity(examples_path: Path, output_path: Path) -> None:
         assert schema is not None, example.entity_schema
         original = Names(name=example.strings)
         raw_names = SourceNames(entity_schema=schema.name, original=original)
+
         direct_gpt_result = clean_names(context, raw_names)
+
         direct_gpt_eval = metric_with_feedback_dict(
-            example.toDict(), dict(direct_gpt_result.nonempty_item_lists())
+            example.toDict(), direct_gpt_result.model_dump()
         )
 
         agree = True
         for field in FIELDS:
             if set(dspy_result.toDict()[field]) != set(
-                dict(direct_gpt_result.nonempty_item_lists()).get(field, [])
+                direct_gpt_result.model_dump().get(field, [])
             ):
                 agree = False
         result = {

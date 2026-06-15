@@ -11,7 +11,7 @@ c) Store the unparsed `original_value` alongside the parsed form.
 
 ## Dataset metadata
 
-In the dataset metadata YAML file, you can add a section like this: 
+In the dataset metadata YAML file, you can add a section like this:
 
 ```yaml
 dates:

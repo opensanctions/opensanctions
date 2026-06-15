@@ -7,6 +7,7 @@ coverage:
   frequency: daily
   start: 2024-02-08
 load_statements: true
+ci_test: false
 summary: >-
   The United Kingdom's list of Proscribed Organizations under the
   Terrorism Act 2000

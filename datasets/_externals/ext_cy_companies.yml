@@ -67,6 +67,7 @@ inputs:
   - special_interest
 
 config:
+  topic_gated: true
   index_options:
     memory: 2500
   topics:
@@ -88,9 +89,9 @@ config:
 assertions:
   min:
     schema_entities:
-      LegalEntity: 650
+      LegalEntity: 450
       Company: 320
   max:
     schema_entities:
-      LegalEntity: 1540
+      LegalEntity: 1000
       Company: 770

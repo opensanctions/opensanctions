@@ -1,5 +1,3 @@
-from typing import Dict
-
 from zavod import Context, helpers as h
 from rigour.mime.types import PDF
 
@@ -14,16 +12,16 @@ prompt = """
 """
 
 
-def flat(multiline):
-    return multiline.replace("\n", " ")
+def flat(multiline: str | None) -> str:
+    return (multiline or "").replace("\n", " ")
 
 
-def crawl_item(row: Dict[str, str], context: Context):
+def crawl_item(row: dict[str, str | None], context: Context) -> None:
     address = h.make_address(
         context,
         street=flat(row.pop("address_1")),
         street2=flat(row.pop("address_2")),
-        postal_code=row.pop("zip").replace("\n", ""),
+        postal_code=(row.pop("zip") or "").replace("\n", ""),
         city=flat(row.pop("city")),
         state=flat(row.pop("state")),
         country_code="us",
@@ -35,7 +33,7 @@ def crawl_item(row: Dict[str, str], context: Context):
     # Setting 'headers_per_page=False' takes the header only from the first page
     # For each page we skip the header row with this check
     # Please remove this check if the header is always on the first row
-    if "last name" in last_name.lower():
+    if "last name" in (last_name or "").lower():
         return
 
     if first_name:
@@ -53,7 +51,9 @@ def crawl_item(row: Dict[str, str], context: Context):
     h.apply_address(context, entity, address)
 
     sanction = h.make_sanction(context, entity)
-    h.apply_date(sanction, "startDate", row.pop("action_date").replace("\n", ""))
+    h.apply_date(
+        sanction, "startDate", (row.pop("action_date") or "").replace("\n", "")
+    )
     sanction.add("reason", flat(row.pop("reason_for_exclusion_termination")))
     sanction.add("provisions", flat(row.pop("excluded_terminated")))
 
@@ -63,20 +63,20 @@ def crawl_item(row: Dict[str, str], context: Context):
     context.audit_data(row)
 
 
-def crawl_pdf_url(context: Context):
+def crawl_pdf_url(context: Context) -> str:
     doc = context.fetch_html(context.data_url)
     # Construct the URL from bits in the table because they'd rather do that than just construct a working URL.
-    rows = doc.xpath("//tr[@class='rgRow']")  # RadGrid row
+    rows = h.xpath_elements(doc, "//tr[@class='rgRow']")  # RadGrid row
     assert len(rows) == 1, len(rows)
     row = rows[0]
-    link_element = row.xpath(".//a[contains(@href, 'javascript:__doPostBack')]")[0]
-    doc_name = link_element.text_content().strip().replace(" ", "%20")
-    parent_folder = row.xpath(".//td[@style='display:none;']")[0].text_content().strip()
+    link_element = h.xpath_element(
+        row, ".//a[contains(@href, 'javascript:__doPostBack')]"
+    )
+    doc_name = h.element_text(link_element).strip().replace(" ", "%20")
+    parent_folder = h.element_text(
+        h.xpath_element(row, ".//td[@style='display:none;']")
+    ).strip()
     return f"https://www.wvmmis.com/SharepointDownload?parent={parent_folder}&docname={doc_name}"
-
-
-def page_settings(page):
-    return page, {"text_x_tolerance": 1}
 
 
 def crawl(context: Context) -> None:
@@ -89,6 +89,6 @@ def crawl(context: Context) -> None:
         context,
         path,
         headers_per_page=False,
-        page_settings=page_settings,
+        page_settings=lambda page: (page, {"text_x_tolerance": 1}),
     ):
         crawl_item(item, context)

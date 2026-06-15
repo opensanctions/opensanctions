@@ -194,7 +194,7 @@ Other properties:
 """
 
 
-def parse_address(node: Element):
+def parse_address(node: Element) -> dict[str, str]:
     address = {
         "remarks": node.findtext("./remarks"),
         "co": node.findtext("./c-o"),
@@ -209,9 +209,14 @@ def parse_address(node: Element):
 
 
 def compose_address(
-    context: Context, entity: Entity, place, el: Element, country_prop: str = "country"
-) -> Optional[Entity]:
-    addr = dict(place)
+    context: Context,
+    entity: Entity,
+    place: dict[str, str] | None,
+    el: Element,
+    country_prop: str = "country",
+) -> Entity | None:
+    addr: dict[str, str] = dict(place) if place is not None else {}
+
     addr.update(parse_address(el))
     entity.add(country_prop, addr.get("country"))
     po_box = addr.get("p-o-box")
@@ -230,7 +235,7 @@ def compose_address(
     )
 
 
-def parse_name(context: Context, entity: Entity, node: Element):
+def parse_name(context: Context, entity: Entity, node: Element) -> None:
     # verification:
     # al-Nu'Aymi   - in full name
     # Lutsky   - Lutsky Ihar Uladzimiravich as primary name
@@ -301,7 +306,12 @@ def parse_name(context: Context, entity: Entity, node: Element):
             entity.add(full_prop, whole_name, lang=lang)
 
 
-def parse_identity(context: Context, entity: Entity, node: Element, places):
+def parse_identity(
+    context: Context,
+    entity: Entity,
+    node: Element,
+    places: dict[str | None, dict[str, str]],
+) -> None:
     for name in node.findall(".//name"):
         parse_name(context, entity, name)
 
@@ -377,7 +387,9 @@ def make_related_entities(
     return [rel, other]
 
 
-def crawl_other_info(context: Context, entity_ssid: str, entity: Entity, node: Element):
+def crawl_other_info(
+    context: Context, entity_ssid: str, entity: Entity, node: Element
+) -> None:
     related_entities = []
     others = node.findall("./other-information")
     other_strings = [o.text for o in others if o.text is not None and o.text.strip()]
@@ -456,7 +468,12 @@ def crawl_other_info(context: Context, entity_ssid: str, entity: Entity, node: E
         context.emit(related_entity)
 
 
-def parse_entry(context: Context, target: Element, programs, places):
+def parse_entry(
+    context: Context,
+    target: Element,
+    programs: dict[str, str | None],
+    places: dict[str | None, dict[str, str]],
+) -> None:
     entity = context.make("LegalEntity")
     entity_ssid = target.get("ssid")
     if entity_ssid is None:
@@ -488,12 +505,13 @@ def parse_entry(context: Context, target: Element, programs, places):
     if ssid is None:
         ssid = target.findtext("./sanctions-set-id")
 
+    program_name = programs.get(ssid) if ssid is not None else None
     sanction = h.make_sanction(
         context,
         entity,
-        program_name=programs.get(ssid),
-        source_program_key=programs.get(ssid),
-        program_key=h.lookup_sanction_program_key(context, programs.get(ssid)),
+        program_name=program_name,
+        source_program_key=program_name,
+        program_key=h.lookup_sanction_program_key(context, program_name),
     )
     sanction.add("authorityId", entity_ssid)
     last_modification = None
@@ -570,7 +588,7 @@ def parse_entry(context: Context, target: Element, programs, places):
     context.emit(sanction)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     path = context.fetch_resource("source.xml", context.data_url)
     context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)
     doc = context.parse_resource_xml(path)

@@ -54,15 +54,19 @@ nav:
   - Best practices:
       - best_practices/caching.md
       - best_practices/patterns.md
+      - best_practices/addresses.md
       - best_practices/datapatch_lookups.md
       - best_practices/dates_meta.md
+      - best_practices/entity_id.md
       - best_practices/http_operations.md
       - best_practices/priorities.md
       - best_practices/merge_checklist.md
       - best_practices/xpath_and_html.md
+  - Sanctions Programs: programs.md
   - PEPs: peps.md
   - Data extraction:
       - Names: extract/names.md
       - Enforcements: extract/enforcements.md
   - Data Reviews: data_reviews.md
   - Wikidata: wikidata.md
+  - "EU Journal Sanctions": eu_journal_sanctions.md

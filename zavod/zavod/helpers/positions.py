@@ -2,10 +2,10 @@ from datetime import datetime
 from typing import Iterable, List, Optional
 
 from banal import ensure_list
-from followthemoney import registry
 
 from zavod import helpers as h
 from zavod import settings
+from zavod.constants import ORIGIN_INFERRED
 from zavod.context import Context
 from zavod.entity import Entity
 from zavod.stateful.positions import (
@@ -98,17 +98,17 @@ def make_occupancy(
     current_time: datetime = settings.RUN_TIME,
     start_date: Optional[str] = None,
     end_date: Optional[str] = None,
-    birth_date: Optional[str] = None,
-    death_date: Optional[str] = None,
+    period_start: Optional[str] = None,
+    period_end: Optional[str] = None,
+    election_date: Optional[str] = None,
     categorisation: Optional[PositionCategorisation] = None,
     status: Optional[OccupancyStatus] = None,
-    propagate_country: bool = True,
     key_prefix: Optional[str] = None,
 ) -> Optional[Entity]:
     """Creates and returns an Occupancy entity if the arguments meet our criteria
-    for PEP position occupancy, otherwise returns None. Also adds the position countries
-    and the `role.pep` topic to the person if an Occupancy is returned.
-    **Emit the person after calling this to include these changes.**
+    for PEP position occupancy, otherwise returns None. Also adds the `role.pep` topic
+    to the person if an Occupancy is returned.
+    **Emit the person after calling this to include this change.**
 
     Unless `status` is overridden, Occupancies are only returned if end_date is None or
     less than the after-office period after current_time.
@@ -153,6 +153,10 @@ def make_occupancy(
         start_date or "unknown",
         "ended",
         end_date or "unknown",
+        "period_start" if period_start else None,
+        period_start,
+        "period_end" if period_end else None,
+        period_end,
     ]
     occupancy.id = context.make_id(*parts, hash_prefix=key_prefix)
     occupancy.add("holder", person)
@@ -160,15 +164,13 @@ def make_occupancy(
 
     h.apply_date(occupancy, "startDate", start_date)
     h.apply_date(occupancy, "endDate", end_date)
-
-    if birth_date not in person.get("birthDate"):
-        h.apply_date(person, "birthDate", birth_date)
-    if death_date not in person.get("deathDate"):
-        h.apply_date(person, "deathDate", death_date)
+    h.apply_date(occupancy, "periodStart", period_start)
+    h.apply_date(occupancy, "periodEnd", period_end)
+    h.apply_date(occupancy, "electionDate", election_date)
 
     if categorisation is not None and not categorisation.is_pep:
         context.log.warning(
-            "Person is not categorized as a PEP, but was passed to make_occupancy",
+            "Position is not categorized as a PEP, but was passed to make_occupancy",
             person=person.id,
             position=position.id,
             categorisation=categorisation,
@@ -178,15 +180,14 @@ def make_occupancy(
     if status is None:
         status = occupancy_status(
             context,
-            person,
-            position,
-            no_end_implies_current,
-            current_time,
-            max(occupancy.get("startDate"), default=None),
-            max(occupancy.get("endDate"), default=None),
-            max(person.get("birthDate"), default=None),
-            max(person.get("deathDate"), default=None),
-            categorisation,
+            person=person,
+            position=position,
+            occupancy=occupancy,
+            no_end_implies_current=no_end_implies_current,
+            current_time=current_time,
+            birth_date=max(person.get("birthDate"), default=None),
+            death_date=max(person.get("deathDate"), default=None),
+            categorisation=categorisation,
         )
     if status is None:
         return None
@@ -194,13 +195,7 @@ def make_occupancy(
     if status != OccupancyStatus.UNKNOWN:
         occupancy.add("status", status.value)
 
-    person.add("topics", "role.pep")
-    if propagate_country:
-        for country in position.get("country"):
-            # Only propagate to Person.country it isn't already set
-            # in another field (such as citizenship).
-            if country not in person.get_type_values(registry.country, matchable=True):
-                person.add("country", country)
+    person.add("topics", "role.pep", origin=ORIGIN_INFERRED)
 
     return occupancy
 

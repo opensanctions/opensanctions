@@ -37,7 +37,7 @@ BROKEN_LINKS = {
 
 
 def extract_judicial_declaration(
-    context, name, url, doc_id_date
+    context: Context, name: str, url: str, doc_id_date: str
 ) -> Dict[str, Optional[str]]:
     """Extract name, role, and organization from the first page of a judicial declaration PDF."""
     pdf_path = context.fetch_resource(f"{slugify([name, doc_id_date])}.pdf", url)
@@ -83,7 +83,7 @@ def parse_html_table(
         yield {hdr: c for hdr, c in zip(headers, cells)}
 
 
-def crawl_row(context: Context, row: Dict[str, HtmlElement], index_url: str):
+def crawl_row(context: Context, row: Dict[str, HtmlElement], index_url: str) -> None:
     str_row = h.cells_to_str(row)
     name = str_row.pop("name")
     doc_id_date = str_row.pop("doc_id_date")
@@ -166,6 +166,8 @@ def crawl_row(context: Context, row: Dict[str, HtmlElement], index_url: str):
     person = context.make("Person")
     # We want the same person for 2 different years to have the same ID
     person.id = context.make_id(name, role, city)
+    # BG citizenship required to hold all these positions, https://tinyurl.com/3nury6bv
+    person.add("citizenship", "bg")
     person.add("name", name, lang="bul")
     person.add("topics", "role.pep")
     person.add("sourceUrl", declaration_url)
@@ -181,7 +183,7 @@ def crawl_row(context: Context, row: Dict[str, HtmlElement], index_url: str):
         context, position, "bul", position_name, TRANSLIT_OUTPUT, POSITION_PROMPT
     )
 
-    categorisation = categorise(context, position, is_pep=True)
+    categorisation = categorise(context, position, default_is_pep=True)
     if not categorisation.is_pep:
         return
 
@@ -201,7 +203,7 @@ def crawl_row(context: Context, row: Dict[str, HtmlElement], index_url: str):
         context.emit(person)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     doc = context.fetch_html(context.data_url, cache_days=1, absolute_links=True)
     alphabet_links = doc.xpath(".//div[@itemprop='articleBody']/p//a[@href]")
     assert len(alphabet_links) >= 58, "Expected at least 58 links in `alphabet_links`."

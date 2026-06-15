@@ -3,7 +3,7 @@
 Once you've successfully [installed](install.md) zavod, you can use the built-in command-line tool to run parts of the system:
 
 ```bash
-# Before everything else, flush away cached source data. If you don't 
+# Before everything else, flush away cached source data. If you don't
 # do this, you'll essentially work in developer mode where a local
 # cached copy of the source data is used instead of fetching fresh
 # files.
@@ -39,5 +39,5 @@ $ zavod export --clear ...
 ```
 
 # Debugging Crawlers in VSCode
-It is possible to debug crawlers through the Python debugger that comes with the standard VSCode install. To enable it either rename `.vscode/launch.json.example` to `.vscode/launch.json` or copy over the launch configuration you find in it to your own `launch.json` file. 
+It is possible to debug crawlers through the Python debugger that comes with the standard VSCode install. To enable it either rename `.vscode/launch.json.example` to `.vscode/launch.json` or copy over the launch configuration you find in it to your own `launch.json` file.
 You should now be able to run crawlers by navigating to their `.yaml` file and running the "Debug: Crawl of current .YAML" launch configuration.

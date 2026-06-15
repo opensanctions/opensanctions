@@ -1,50 +1,64 @@
-# Data priorities
+# Data collection priorities
 
-With some data sources, extracting some attributes of people or companies sufficiently cleanly/reliably can take more effort than others. Not all attributes are equally valuable to our users.
+With some data sources, extracting some attributes of people or companies
+cleanly and reliably takes more effort than others, and not all attributes are
+equally valuable to users.
 
-To avoid going too far down a rabbit hole or wasting effort, we recommend an approach of time-boxing the work on a crawler, and taking a best-effort approach according to the following priorities, categorised roughly by Essential, Should, Could and Won't.
+**Every property in the schema is welcome.** If the source cleanly gives you a
+property, capture it. You don't need to find it on a list below. The
+authoritative, always-current set of available properties is the schema itself:
 
-Aim for **complete coverage** - make sure all [targets](https://www.opensanctions.org/faq/23/targets/) are included. But also **ensure accuracy**, e.g. make sure not to mark someone as a PEP when they are not.
+- `ftm ref schema Person` — people
+- `ftm ref schema Company` / `ftm ref schema Organization` — companies and bodies
+- `ftm ref schema Position` / `ftm ref schema Occupancy` — PEP positions and tenure
 
-## Generally
+(Pipe to `jq -r '.properties[] | "\(.name) [\(.type)]"'` for a flat list.)
 
-**Essential (bare minimum)**
+The lists below rank **where to spend effort** when a source makes some
+attributes expensive to extract cleanly. Treat them as a guide to what to
+prioritize, not as the set of properties available to you. To avoid going down
+a rabbit hole, time-box the work and take a best-effort approach by these
+priorities.
 
-- Name(s)
+Aim for **complete coverage** — make sure all risk-associated entities (people,
+companies, vessels, etc.) are included. But also **ensure accuracy**, e.g. make
+sure not to mark someone as a PEP when they are not.
 
-**Essential (when available)**
+## Effort priorities (PEP and sanctions crawlers)
 
-- People: Date of birth, nationality
-- Companies/Organizations: Date of registration/creation
-- Official ID numbers (National ID for people, Registration number for companies, etc)
-- Other identifiers (See specifics in schemata, e.g. `innCode`, `wikidataId`)
+**Essential — get these right before anything else**
+
+- Name(s) (see: [name cleaning and review framework](../extract/names.md))
+
+**Essential when the source provides them**
+
+- People: date of birth, place of birth, citizenship or nationality
+- Official ID numbers (National ID for people, registration / VAT / tax number
+  for companies, etc.)
+- Other identifiers (see specifics in the schema, e.g. `innCode`, `wikidataId`)
 - Country of birth, registration country (`Company:jurisdiction`)
 
-**Should**
+**Worth a moderate effort**
 
-- start/end dates - useful for determining PEP status duration
-- listing dates (sanctions)
+- People: `biography`, `profession`, `gender`
+- Companies/Organizations: `abbreviation`
+- Companies/Organizations: date of registration/creation (often ambiguous)
+- `sourceUrl` — only if it is a deep link to the specific company/person, not
+  generic for the data source
+- listing and effective dates (sanctions)
 - company relationships
 - person relationships
-- addresses (Except PEPs - see [below](#politically-exposed-persons))
+- addresses (except PEPs — see [below](#politically-exposed-persons))
 
-**Could**
+**Worth capturing when cheap**
 
-- sourceUrl
-- notes
+- anything else the source exposes cleanly. For people: `education`,
+  `religion`, `title`, `website`, `wikipediaUrl`. For most entities: `notes`,
+  `keywords`.
 
 ## Politically-exposed persons
 
-**Must**
-
-- country (occasionally multiple apply to one position, e.g. *Ambassador of Palestine to Germany*)
-- position (of a person)
-- occupancy (relating a person to the position(s) they hold/held) - focus on current positions before worrying about historical.
-
-**Could**
-
-- [Position:subnationalArea](https://www.opensanctions.org/reference/#schema.Position)
-
-**Won't - don't extract**
-
-- Addresses (not needed, and privacy concern)
+PEP crawlers have additional required properties (`country`, `position`,
+`occupancy`) and their own effort priorities. These live with the rest of the
+PEP guidance: see [Properties to capture](../peps.md#properties-to-capture) in
+the [guide for building PEP data crawlers](../peps.md).

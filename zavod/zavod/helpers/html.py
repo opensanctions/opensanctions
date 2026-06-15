@@ -139,7 +139,17 @@ def xpath_elements(
     el: Element, xpath: str, *, expect_exactly: Optional[int] = None
 ) -> List[Element]:
     """
-    Return a list of HtmlElement objects that match the given XPath expression.
+    Evaluate an XPath expression and return matching elements as a typed list.
+
+    Prefer this over `el.xpath(...)` when the expression returns elements:
+    `lxml`'s `.xpath()` is typed as `Any` because a single call can return
+    elements, strings, numbers, or booleans depending on the expression. This
+    helper asserts the result is a list of elements, so a mismatched expression
+    or upstream HTML change fails at the call site rather than further down
+    the crawler.
+
+    Args:
+        expect_exactly: If set, raise unless exactly this many elements match.
     """
     result = el.xpath(xpath)
     assert isinstance(result, list), (
@@ -159,7 +169,11 @@ def xpath_elements(
 
 def xpath_element(el: Element, xpath: str) -> Element:
     """
-    Return the only element that matches the given XPath expression (and complain if there are multiple)
+    Evaluate an XPath expression and return the single matching element.
+
+    Use this when exactly one match is expected — e.g. selecting the main
+    content table on a page. Raises if there are zero or more than one matches,
+    catching unexpected duplication or removal at the call site.
     """
     return xpath_elements(el, xpath, expect_exactly=1)[0]
 
@@ -168,7 +182,15 @@ def xpath_strings(
     el: Element, xpath: str, *, expect_exactly: Optional[int] = None
 ) -> List[str]:
     """
-    Return a list of strings that match the given XPath expression.
+    Evaluate an XPath expression and return matching strings as a typed list.
+
+    Use this for expressions that return text rather than elements, such as
+    `.//td/text()` or attribute selectors like `.//@href`. Like `xpath_elements`,
+    this guards against `.xpath()`'s `Any` return type by asserting the result
+    is a list of strings.
+
+    Args:
+        expect_exactly: If set, raise unless exactly this many strings match.
     """
     result = el.xpath(xpath)
     if not isinstance(result, list) or not all(isinstance(r, str) for r in result):
@@ -181,6 +203,13 @@ def xpath_strings(
 
 
 def xpath_string(el: Element, xpath: str) -> str:
+    """
+    Evaluate an XPath expression and return the single matching string.
+
+    Use for text-returning expressions where exactly one result is expected,
+    such as `string(.//h1)` or `.//meta[@name='title']/@content`. Raises if
+    there are zero or more than one matches.
+    """
     return xpath_strings(el, xpath, expect_exactly=1)[0]
 
 

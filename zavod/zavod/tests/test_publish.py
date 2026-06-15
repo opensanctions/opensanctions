@@ -1,5 +1,5 @@
 from typing import Optional
-from nomenklatura.versions import VersionHistory
+from followthemoney.dataset import VersionHistory
 
 from zavod import settings
 from zavod.meta import Dataset
@@ -39,7 +39,7 @@ def test_publish_dataset(testdataset1: Dataset):
     view = store.view(testdataset1)
     export_dataset(testdataset1, view)
 
-    publish_dataset(testdataset1, latest=False)
+    publish_dataset(testdataset1, republish_to_latest=False)
     history = _read_history(testdataset1.name)
     assert history is not None
     assert history.latest is not None
@@ -57,7 +57,7 @@ def test_publish_dataset(testdataset1: Dataset):
     assert not latest_path.joinpath(INDEX_FILE).exists()
     assert release_path.joinpath("entities.ftm.json").exists()
 
-    publish_dataset(testdataset1, latest=True)
+    publish_dataset(testdataset1, republish_to_latest=True)
     assert latest_path.joinpath(INDEX_FILE).exists()
 
     # Test backfill:

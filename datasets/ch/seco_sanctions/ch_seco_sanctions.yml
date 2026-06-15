@@ -67,7 +67,9 @@ lookups:
         value: SECO-IRAN
       - match: "Ordinance of 2 October 2000 on measures against individuals and entities associated with Usama bin Laden, the group «Al-Qaïda» or the Taliban (SR 946.203), annex 2"
         value: SECO-AFGH
-      - match: "Ordinance of 4 March 2022 on measures related to the situation in Ukraine (RS 946.231.176.72), annexes 2, 8, 9, 10, 11, 12,13, 14, 14a, 15, 15a, 15b, 25 and 33"
+      - match:
+          - "Ordinance of 4 March 2022 on measures related to the situation in Ukraine (RS 946.231.176.72), annexes 2, 8, 9, 10, 11, 12,13, 14, 14a, 15, 15a, 15b, 25 and 33"
+          - "Ordinance of 4 March 2022 on measures related to the situation in Ukraine (RS 946.231.176.72), annexes 2, 8, 9, 10, 11, 12,13, 14, 14a, 15, 15a, 15b, 15c, 25 and 33"
         value: SECO-UKRAINE
       - match: "Ordinance of 14 March 2014  on measures against the Central African Republic (RS 946.231.123.6), annex"
         value: SECO-CAR
@@ -212,9 +214,9 @@ lookups:
     options:
       - match:
           - 3232824038
-          - 01805202210181
+          - "01805202210181"
           - 21819719
-          - 0000114330
+          - "0000114330"
           - 190950894
           - 770301001
         prop: taxNumber

@@ -49,6 +49,7 @@ def crawl_holder(
             "Redirected person QID",
             original=person_qid,
             redirected=item.id,
+            position=position.id,
         )
     entity = wikidata_basic_human(context, client, item)
     if entity is None:
@@ -206,7 +207,9 @@ def query_position_classes(context: Context, client: WikidataClient) -> List[Pos
     return classes
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
+    # crawl_test(context)
+    # return
     seen_positions: Set[str] = set()
     cache_days = context.dataset.config.get("cache_days", 14)
     client = WikidataClient(context.cache, context.http, cache_days=cache_days)
@@ -247,3 +250,16 @@ def crawl(context: Context):
                 context.emit(position)
 
             context.flush()
+
+
+# def crawl_test(context: Context):
+#     client = WikidataClient(context.cache, context.http)
+#     item = client.fetch_item("Q11696")
+#     assert item is not None
+#     position = wikidata_position(context, client, item)
+#     assert position is not None
+#     context.log.info("Position [%s]: %s" % (position.id, position.caption))
+
+#     for person in position_holders(client, item):
+#         holder = crawl_holder(context, client, position, person)
+#         context.log.info("Holder: %r" % holder)

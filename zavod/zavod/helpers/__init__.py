@@ -92,13 +92,14 @@ from zavod.helpers.names import (
 )
 from zavod.helpers.numbers import apply_number
 from zavod.helpers.pdf import make_pdf_page_images, parse_pdf_table
-from zavod.helpers.positions import make_occupancy, make_position
+from zavod.helpers.positions import make_occupancy, make_position, earliest_term_start
 from zavod.helpers.sanctions import (
     is_active,
     lookup_sanction_program_key,
     make_sanction,
 )
 from zavod.helpers.securities import make_security
+from zavod.helpers.vessels import make_vessel_imo_id, make_org_imo_id
 from zavod.helpers.text import clean_note, is_empty, multi_split, remove_bracketed
 from zavod.helpers.xml import remove_namespace
 from zavod.helpers.wikidata import deref_wikidata_id
@@ -132,11 +133,14 @@ __all__ = [
     "convert_excel_cell",
     "convert_excel_date",
     "make_security",
+    "make_vessel_imo_id",
+    "make_org_imo_id",
     "remove_namespace",
     "make_name",
     "apply_name",
     "make_position",
     "make_occupancy",
+    "earliest_term_start",
     "element_text",
     "element_text_hash",
     "parse_html_table",

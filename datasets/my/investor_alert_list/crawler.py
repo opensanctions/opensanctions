@@ -4,7 +4,7 @@ import re
 from zavod import Context
 
 
-def crawl_item(input_dict: dict, context: Context):
+def crawl_item(input_dict: dict, context: Context) -> None:
     name = input_dict.pop("name")
 
     # If it's a potential clone, we remove the "potential clone" from the name
@@ -32,7 +32,7 @@ def crawl_item(input_dict: dict, context: Context):
     context.audit_data(input_dict, ignore=["group", "date"])
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     response = context.fetch_html(context.data_url)
 
     # We first try to find the script with the data

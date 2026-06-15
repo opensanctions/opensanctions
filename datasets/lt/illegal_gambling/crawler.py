@@ -1,9 +1,10 @@
 import re
-from typing import Generator, Dict, Tuple
+from typing import Iterator
 
 from normality import squash_spaces
 from zavod import Context
 from zavod import helpers as h
+from zavod.util import Element
 
 EXPECTED_HEADERS = [
     [
@@ -18,11 +19,22 @@ EXPECTED_HEADERS = [
     ],
 ]
 HEADERS = ["Number", "Name", "Domain", "Contacts", "Court information"]
+NAME_SPLITS = [
+    "“, „",
+    "”, „",  # This really does differ from the one above
+    "“; „",
+    "“ „",
+    "“), „",
+    "“",
+    "”",
+    "(„",
+    "„",
+]
 
 
 def parse_table(
-    table,
-) -> Generator[Dict[str, str | Tuple[str]], None, None]:
+    table: Element,
+) -> Iterator[dict[str, str]]:
     """
     The first two rows of the table represent the headers, but we're not going to
     try and parse colspan and rowspan.
@@ -43,25 +55,21 @@ def parse_table(
         yield {hdr: c for hdr, c in zip(HEADERS, cells, strict=True)}
 
 
-def crawl_item(item, context: Context):
-    name = item.pop("Name")
+def crawl_item(item: dict[str, str], context: Context) -> None:
+    raw_names = item.pop("Name")
     domain = item.pop("Domain")
     contacts = item.pop("Contacts")
     ruling_information = item.pop("Court information")
 
     # Skip empty row at the end of the table
-    if not any([name, domain, contacts, ruling_information]):
+    if not any([raw_names, domain, contacts, ruling_information]):
         return
 
     entity = context.make("Company")
-    entity.id = context.make_id(name)
+    entity.id = context.make_id(raw_names)
 
-    names = []
-    #                               They differ. Really.
-    for name in h.multi_split(name, ["“, „", "“ „", "“),", "“", "”", "(„", "„"]):
-        if name.strip(","):
-            names.append(name.strip())
-    entity.add("name", names)
+    for name in h.multi_split(raw_names, NAME_SPLITS):
+        entity.add("name", name)
     entity.add("website", domain)
 
     # We find all emails in the contacts field and add them to the entity
@@ -85,7 +93,7 @@ def crawl_item(item, context: Context):
     context.emit(entity)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     response = context.fetch_html(context.data_url)
     tables = response.findall(".//table")
     for table in tables:

@@ -17,7 +17,7 @@ HEADERS = {
 }
 
 
-def crawl_item(fugitive_url: str, context: Context):
+def crawl_item(fugitive_url: str, context: Context) -> None:
     response = context.fetch_html(fugitive_url, cache_days=7, headers=HEADERS)
 
     name = response.findtext('.//h2[@class="fugitive__title"]')
@@ -70,7 +70,7 @@ def crawl_item(fugitive_url: str, context: Context):
     # context.audit_data(info_dict)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     # Each page only displays 10 fugitives at a time, so we need to loop until we don't find any more fugitives
     base_url = context.data_url
     page_num = 0

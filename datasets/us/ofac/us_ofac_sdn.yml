@@ -81,7 +81,10 @@ lookups:
         value: US-BRUS
       - match: CAR
         value: US-CAR
-      - match: CUBA
+      - match:
+          - CUBA
+          - CUBA-EO
+          - CUBA-EO14404
         value: US-CUBA
       - match:
           - ILLICIT-DRUGS-EO14059
@@ -177,6 +180,7 @@ lookups:
           - IRAN-TRA
           - ISA
           - IRGC
+          - "[IRGC]"
           - IFSR
         value: US-IRAN
       - match: BURMA-EO14014
@@ -344,6 +348,7 @@ lookups:
           - Military Registration Number
           - C.I.N.
           - Registration Certificate Number (Dubai)
+          - Entity Code
         prop: registrationNumber
       - match:
           - Russian State Individual Business Registration Number Pattern (OGRNIP)
@@ -461,6 +466,7 @@ lookups:
           - "PEESA Information:"
           - "PAIPA Section 2 Information:"
           - "Additional Sanctions Information -"
+          - "Additional Program Tags -"
           - "Secondary sanctions risk:"
           - "Transactions Prohibited For Persons Owned or Controlled By U.S. Financial Institutions:"
           - Effective Date (CMIC)
@@ -700,6 +706,8 @@ lookups:
         value: Khyber Pakhtunkhwa
       - match: Zug
         value: Zug
+      - match: Moa
+        value: Moa
   type.country:
     lowercase: true
     normalize: true
@@ -715,6 +723,10 @@ lookups:
         value: Mali
       - match: Unknown
         value: null
+      - match: mozambique (false)
+        value: Mozambique
+      - match: gambia (false)
+        value: Gambia
   type.gender:
     lowercase: true
     normalize: true
@@ -736,13 +748,13 @@ lookups:
       - match: Codigo Postal 21297
         value: 21297
       - match: Codigo Postal 03300
-        value: 03300
+        value: "03300"
       - match: Codigo Postal 03100
-        value: 03100
+        value: "03100"
       - match: Codigo Postal 06700
-        value: 06700
+        value: "06700"
       - match: Codigo Postal 03020
-        value: 03020
+        value: "03020"
       - match: Codigo Postal 14410
         value: 14410
       - match: Codigo Postal 01480

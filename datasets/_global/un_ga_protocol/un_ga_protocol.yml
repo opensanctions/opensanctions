@@ -83,6 +83,7 @@ lookups:
           - 09-Sep-2201
           - 09-Sep-2228
           - 09-Sep-220
+          - 09-Sep-221
         value: 2022-09-09
   override_name:
     lowercase: true

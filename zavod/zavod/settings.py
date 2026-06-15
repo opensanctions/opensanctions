@@ -3,7 +3,7 @@ from pathlib import Path
 
 from banal import as_bool
 from nomenklatura import settings as nk
-from nomenklatura.versions import Version
+from followthemoney.dataset import Version
 from rigour.env import env_str
 
 # Logging configuration
@@ -14,7 +14,9 @@ DEBUG = as_bool(env_str("ZAVOD_DEBUG", "false"))
 
 # Default paths
 _META_RESOURCE_DEFAULT = Path(__file__).parent.parent.parent / "meta"
-META_RESOURCE_PATH = Path(env.get("ZAVOD_META_RESOURCE_PATH") or _META_RESOURCE_DEFAULT).resolve()
+META_RESOURCE_PATH = Path(
+    env.get("ZAVOD_META_RESOURCE_PATH") or _META_RESOURCE_DEFAULT
+).resolve()
 DATA_PATH_ = env_str("ZAVOD_DATA_PATH", "data")
 DATA_PATH = Path(env_str("OPENSANCTIONS_DATA_PATH", DATA_PATH_)).resolve()
 DATA_PATH.mkdir(parents=True, exist_ok=True)
@@ -48,7 +50,9 @@ ARCHIVE_BACKEND = env.get("ZAVOD_ARCHIVE_BACKEND", "FileSystemBackend")
 ARCHIVE_BUCKET = env.get("ZAVOD_ARCHIVE_BUCKET", None)
 ARCHIVE_BUCKET = env.get("OPENSANCTIONS_BACKFILL_BUCKET", ARCHIVE_BUCKET)
 ARCHIVE_PATH = Path(env.get("ZAVOD_ARCHIVE_PATH", DATA_PATH.joinpath("archive")))
-ARCHIVE_BACKFILL_STATEMENTS = as_bool(env_str("ARCHIVE_BACKFILL_STATEMENTS", "false"))
+ARCHIVE_BACKFILL_STATEMENTS = as_bool(
+    env_str("ZAVOD_ARCHIVE_BACKFILL_STATEMENTS", "false")
+)
 BACKFILL_RELEASE = env_str("ZAVOD_BACKFILL_RELEASE", "latest")
 
 # HTTP settings
@@ -71,8 +75,7 @@ WD_ACCESS_SECRET = env.get("ZAVOD_WD_ACCESS_SECRET")
 WD_USER = env.get("ZAVOD_WD_USER")
 
 ZYTE_API_KEY = env.get("OPENSANCTIONS_ZYTE_API_KEY", None)
-OPENAI_API_KEY = env.get("OPENSANCTIONS_OPENAI_API_KEY", None)
-AZURE_OPENAI_ENDPOINT = env.get("OPENSANCTIONS_AZURE_OPENAI_ENDPOINT", None)
+OPENAI_API_KEY = env.get("OPENAI_API_KEY", None)
 
 # Test code in prod code is generally a Bad Idea.
 # This is here to allow for fallbacks to skip some external service usage

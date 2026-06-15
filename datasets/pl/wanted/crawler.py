@@ -24,12 +24,12 @@ ATTRIBUTES = [
 ]
 
 
-def crawl_person(context: Context, url: str):
+def crawl_person(context: Context, url: str) -> None:
     doc = context.fetch_html(url, cache_days=7)
 
     info = dict()
     for required, key, xpath in ATTRIBUTES:
-        matches = doc.xpath(xpath)
+        matches = h.xpath_strings(doc, xpath)
         text = ""
         if required or matches:
             assert len(matches) == 1, (key, url, matches)
@@ -73,36 +73,38 @@ def crawl_person(context: Context, url: str):
     if not person.has("citizenship"):
         person.add("country", "pl")
 
-    crimes = doc.xpath(
-        "//p[contains(text(), 'Podstawy poszukiwań:')]/following-sibling::ul//a/text()"
+    crimes = h.xpath_elements(
+        doc,
+        "//p[contains(text(), 'Podstawy poszukiwań:')]/following-sibling::ul[1]//li",
     )
     if not crimes:
         context.log.warn("No crimes found for person", entity_id=person.id, url=url)
     for crime in crimes:
-        person.add("notes", crime)
+        person.add("notes", h.element_text(crime))
 
     context.audit_data(info)
 
     context.emit(person)
 
 
-def crawl_index(context, url) -> str | None:
+def crawl_index(context: Context, url: str) -> str | None:
     context.log.info(f"Crawling index page {url}")
     doc = context.fetch_html(url, absolute_links=True)
     # makes it easier to extract dedicated details page
-    cells = doc.xpath("//li[.//a[contains(@href, '/pos/form/r')]]/a/@href")
+    cells = h.xpath_strings(doc, "//li[.//a[contains(@href, '/pos/form/r')]]/a/@href")
     for cell in cells:
         crawl_person(context, cell)
 
     # On the last page, the next button will not have an <a>, so this will not match
-    next_button_href = doc.xpath(
-        "//li/a/span[contains(text(), 'następna')]/parent::a/@href"
+    next_button_href = h.xpath_strings(
+        doc, "//li/a/span[contains(text(), 'następna')]/parent::a/@href"
     )
     return next_button_href[0] if next_button_href else None
 
 
-def crawl(context):
-    next_url = context.dataset.data.url
+def crawl(context: Context) -> None:
+    assert context.dataset.data is not None
+    next_url: str | None = context.dataset.data.url
     # Use this construction instead of recursion because Python sets a recursion limit
     while next_url:
         next_url = crawl_index(context, next_url)

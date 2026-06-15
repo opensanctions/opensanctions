@@ -1,5 +1,4 @@
 import re
-from typing import Tuple
 
 from lxml import html
 from zavod.stateful.positions import categorise
@@ -12,7 +11,7 @@ REGEX_TITLES = re.compile(
 )
 
 
-def split_title(context, name) -> Tuple[str, str | None]:
+def split_title(context: Context, name: str) -> tuple[str, str | None]:
     title_match = REGEX_TITLES.match(name)
     if title_match:
         name = name[title_match.end() :].strip()
@@ -23,7 +22,9 @@ def split_title(context, name) -> Tuple[str, str | None]:
     return name, title
 
 
-def emit_spouse(context, spouse_name, person_id, country):
+def emit_spouse(
+    context: Context, spouse_name: str, person_id: str | None, country: str
+) -> None:
     spouse = context.make("Person")
     spouse.id = context.make_id(spouse_name, person_id)
     name, title = split_title(context, spouse_name)
@@ -41,16 +42,18 @@ def emit_spouse(context, spouse_name, person_id, country):
     context.emit(rel)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     doc = context.fetch_html(context.data_url, cache_days=1)
     content = doc.findall(".//div[@class='mainContent']")
     assert len(content) == 1, html.tostring(doc)
     containers = content[0].findall(".//div[@class='fluid-container']")
     for c in containers:
-        name = c.find(".//div[@title='Salutation and Name']").text_content().strip()
-        country = c.find(".//h2[@title='Country']").text_content().strip()
-        role = c.find(".//div[@title='Title']").text_content().strip()
-        spouse = c.find(".//div[@title='Spouse']").text_content().strip()
+        name = h.element_text(
+            h.xpath_element(c, ".//div[@title='Salutation and Name']")
+        )
+        country = h.element_text(h.xpath_element(c, ".//h2[@title='Country']"))
+        role = h.element_text(h.xpath_element(c, ".//div[@title='Title']"))
+        spouse = h.element_text(c.find(".//div[@title='Spouse']"))
         # Skip entries without a name
         if not name:
             continue
@@ -68,11 +71,12 @@ def crawl(context: Context):
             country=country,
             topics=["gov.national", "role.diplo"],
         )
-        categorisation = categorise(context, position, is_pep=True)
+        categorisation = categorise(context, position, default_is_pep=True)
         if categorisation.is_pep:
             occupancy = h.make_occupancy(context, person, position)
-            if spouse:
-                emit_spouse(context, spouse, person.id, country)
-            context.emit(position)
-            context.emit(occupancy)
-            context.emit(person)
+            if occupancy is not None:
+                context.emit(position)
+                context.emit(occupancy)
+                context.emit(person)
+                if spouse:
+                    emit_spouse(context, spouse, person.id, country)

@@ -31,7 +31,7 @@ QUERY = {
 }
 # That one time a PEP customer asked to be included....
 ALWAYS_PERSONS = ["Q21258544"]
-WIKIDATA_CACHE_DAYS = 40  # TODO: revert to 14 days when wikipedia URLs are fixed
+WIKIDATA_CACHE_DAYS = 14
 
 
 @dataclass
@@ -164,7 +164,9 @@ def crawl_category(state: CrawlState, category_crawl_spec: Dict[str, Any]) -> No
         if person_qid is None:
             continue
         if person_qid in state.exclusion_checks:
-            state.context.log.warning("Regression on exclusion found", qid=person_qid)
+            state.context.log.warning(
+                "Regression on exclusion found", category=cat, qid=person_qid
+            )
             continue
         state.persons[person_qid].from_categories.add(cat)
 

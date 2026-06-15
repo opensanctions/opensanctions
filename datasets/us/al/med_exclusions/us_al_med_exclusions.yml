@@ -45,7 +45,7 @@ publisher:
 url: "https://medicaid.alabama.gov/content/8.0_Fraud/8.7_Suspended_Providers.aspx"
 data:
   url: https://medicaid.alabama.gov/content/8.0_Fraud/8.7_Suspended_Providers.aspx
-  format: PDF
+  format: XLSX
   lang: eng
 ci_test: false
 
@@ -86,6 +86,7 @@ lookups:
         - MEDICAL CLINIC PROVIDERS
         - PSYCHOLOGY PROVIDERS
         - MENTAL HEALTH WORKERS/SOCIAL WORKERS
+        - MENTAL HEALTH WORKERS/SOCIAL WORKERS/COUNSELORS
         - CHIROPRACTORS
         - PODIATRISTS
         - RESPIRATORY/PULMONARY CARE PROVIDERS

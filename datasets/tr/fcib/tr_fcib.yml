@@ -85,8 +85,8 @@ lookups:
       - match: 0520665064/0520673467
         prop: passportNumber
         values:
-          - 0520665064
-          - 0520673467
+          - "0520665064"
+          - "0520673467"
       - match: Tüzel Kişi/Kuruluş/Organizasyon
         value: null
   type.country:

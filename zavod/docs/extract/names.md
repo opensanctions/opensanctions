@@ -3,15 +3,205 @@
 One or more names are generally available for entities named/listed in our data sources. We often need to
 
 - categorise them, e.g. as primary name, aliases, or previous/former names,
+- split the string when multiple names are combined in one string, and
 - clean superfluous text that is not part of the name.
 
 Clean, correctly categorised names are important to maximise recall (finding all true matches) and maximise precision (avoiding false positives).
 
 While we've done this using simple, explainable logic for the most part, this leaves some noise or incorrectly-categorised names for a number of sources.
 
+In most cases, the end goal is to use the [zavod.helpers.apply_reviewed_name_string][] or [zavod.helpers.apply_reviewed_names][] to
+
+- determine whether names need cleaning
+- carry out some heuristic or llm-based cleaning
+- create a [Data Review](../data_reviews.md)
+- apply the cleaned or original names, depending on cleaning needs and review acceptance.
+
+New crawlers can use the most appropriate of the `apply_reviewed_...` helpers straight away.
+
+Existing crawlers which already do some splitting/cleaning can be [migrated to these helpers](#migrating-to-the-name-cleaning-helpers).
+
+## Example usage
+
+### Simple example, no existing cleaning
+
+#### Before
+
+```python
+entity.add("name", row.pop("full_legal_name"), lang="rus")
+```
+
+Includes names like `THE NATIONAL BANK PLC (FORMERLY AL RAFAH MICROFINANCE BANK)` as a value of `name` property.
+
+#### After
+
+`crawler.py` replace `entity.add` with
+
+```python
+h.apply_reviewed_name_string(context, entity, string=legal_name, llm_cleaning=True, lang="rus")
+```
+
+`iso9362.yml` add
+
+```yaml
+names:
+  schema_rules:
+    LegalEntity:
+      # Skip / because of 2913 A/S (company type) instances vs 1 C/O instance
+      allow_chars: "/"
+```
+
+The LLM produced the following suggested extraction and this was proposed in a data review. Until it was accepted, the original value was applied to the entity. On the next crawl after the review was accepted, the names were applied to the correct properties as shown below.
+
+```yaml
+name: THE NATIONAL BANK PLC
+alias: []
+weakAlias: []
+previousName: AL RAFAH MICROFINANCE BANK
+abbreviation: []
+```
+
+### Multiple name fields in the source data
+
+We add the strings to a `Names` instance and pass it to the name review system:
+
+```python
+# Names can be added to a names instance
+original = h.Names(name=item["name"], previousName=item["former_name"])
+
+# Multiple names can be added to a names instance
+for alias in item["aliases"]:
+    original.add("alias", alias["value"], lang=alias["language"])
+
+# Then we can either just review the names
+h.review_names(context, entity, original=original)
+
+# Or we can review the names, applying the accepted cleaned/categorised versions if accepted,
+# otherwise just applying the original strings in their original props
+h.apply_reviewed_names(context, entity, original=original)
+```
+
+## Migrating to the name cleaning helpers
+
+It can be nice to migrate existing crawlers which already do some cleaning themselves such that all the names cleaned through the helpers are fully reviewed when the switchover takes place. This is important because the original string(s) are applied as names when reviews are not accepted yet.
+
+The goal of the migration is to remove all crawler-specific name cleaning and hand it off to the review system.
+
+The approach in step 1 differs by dataset type:
+
+- **Sanctions crawler**: pass the existing cleaned names as `suggested` with `default_accepted=True`, so the reviews are immediately accepted and output is unchanged while reviews accumulate.
+- **Non-sanctions crawler**: add `llm_cleaning=True`, which creates LLM-cleaned reviews alongside the existing logic.
+
+### Migration example
+
+For a crawler that does some custom splitting:
+
+```python
+entity = context.make("LegalEntity")
+names_string = row.pop("full_name")
+entity.id = context.make_id(names_string, ...)
+
+names = h.multi_split(names_string, ["a.k.a."])
+entity.add("name", names[0])
+entity.add("alias", names[1:])
+```
+
+#### Step 1
+
+Introduce reviews alongside the existing logic without changing output.
+
+**Sanctions crawler** — mirror existing cleaned names into `suggested` and auto-accept:
+
+```python
+entity = context.make("LegalEntity")
+names_string = row.pop("full_name")
+entity.id = context.make_id(names_string, ...)
+
+original = h.Names(name=names_string)
+suggested = h.Names()
+
+names = h.multi_split(names_string, ["a.k.a."])
+entity.add("name", names[0])
+suggested.add("name", names[0])
+entity.add("alias", names[1:])
+for alias in names[1:]:
+    suggested.add("alias", alias)
+
+is_irregular, suggested = h.check_names_regularity(entity, suggested)
+h.review_names(
+    context,
+    entity,
+    original=original,
+    suggested=suggested,
+    is_irregular=is_irregular,
+    default_accepted=True,
+)
+```
+
+Before deploying the change, check that a sample of the created reviews look ok, and that the export doesn't have any changes to names.
+
+You will need to deploy the step 3 change ASAP after running step 1 so that we don't default-accept new entities.
+
+**Non-sanctions crawler** — add LLM cleaning:
+
+```python
+entity = context.make("LegalEntity")
+names_string = row.pop("full_name")
+entity.id = context.make_id(names_string, ...)
+
+original = h.Names(name=names_string)
+
+names = h.multi_split(names_string, ["a.k.a."])
+entity.add("name", names[0])
+entity.add("alias", names[1:])
+
+h.review_names(context, entity, original=original, llm_cleaning=True)
+```
+
+Before deploying the change, check that a sample of the LLM-based extraction looks ok.
+
+If the crawler defines its own list of alias-marker phrases (e.g. a `NAME_SPLITS` constant used to detect `"aka"`, `"d.b.a."`, `" or "` etc.), compare that list against `rigour.names.name_split_phrases_list()` and add any phrases not already covered as `reject_strings` in the dataset YAML under `names.schema_rules`. This ensures those patterns continue to flag irregularity once the old logic is removed in step 3.
+
+
+
+#### Step 2
+
+Once the crawler has run in production, complete the name reviews for this dataset.
+
+#### Step 3
+
+Remove all custom name cleaning and splitting logic and replace with a single `apply_reviewed_names` or `apply_reviewed_name_string` call.
+
+**Sanctions crawler**:
+
+```python
+entity = context.make("LegalEntity")
+names_string = row.pop("full_name")
+entity.id = context.make_id(names_string, ...)
+
+h.apply_reviewed_name_string(context, entity, string=names_string)
+```
+
+After the deployment of step 3 has run, check the latest reviews and make sure new names were't auto-accepted between deploying step 1 and step 3.
+
+**Non-sanctions crawler**:
+
+```python
+entity = context.make("LegalEntity")
+names_string = row.pop("full_name")
+entity.id = context.make_id(names_string, ...)
+
+h.apply_reviewed_name_string(context, entity, string=names_string, llm_cleaning=True)
+```
+
+
 ## What's a dirty name?
 
-The helper [zavod.helpers.is_name_irregular][] returns true if a name potentially needs cleaning.
+- `THE NATIONAL BANK PLC (FORMERLY AL RAFAH MICROFINANCE BANK)` (two names, one a `previousName`)
+- `Aleksandr(Oleksandr) KALYUSSKY(KALIUSKY)` (a name and some alternative transliterations of the parts)
+- `John Smith; Jonny Smith` (another form of multiple versions of a name in a single string)
+
+The helper [zavod.helpers.is_name_irregular][] returns true if a name potentially needs cleaning. It can be used directly, but is also used by the other name cleaning helpers.
 
 A dataset can customise what should be considered "in need of cleaning" using options
 under the `names` key of the dataset metadata.
@@ -20,7 +210,7 @@ Schema-specific cleaning rules go under `schema_rules`, so that different rules 
 entity types in the dataset.
 
 `suggest_...` heuristics can be enabled to automatically suggest better categorisation for entity
-types and name patterns.
+types and name patterns. `h.review_names` and `h.apply_reviewed_...` include these heuristics.
 
 e.g.
 
@@ -29,6 +219,7 @@ names:
   schema_rules:
     Company:
       reject_chars: ","
+      reject_strings: [" and ", " or ", " et "]
       allow_chars: "/"
   suggest_weak_alias_person_single_token: true
   suggest_abbreviation_uppercase_org_single_token_shorter_than: 8
@@ -43,25 +234,6 @@ names:
     options:
       show_if_no_docstring: true
       show_bases: false
-
-## Using LLMs
-
-LLMs can do a lot of the categorisation and cleaning for us. We pair this with [human reviews](../data_reviews.md) to make 100% sure the categorisation and cleaning was correct, and did not lose any important information.
-
-
-## Name cleaning helper
-
-The helper [zavod.helpers.review_names][] makes it easy to
-
-1. prompt for proper name categorisation and cleaning
-2. get it reviewed
-
-Once a dataset is fully reviewed, you can replace `review_names()` with [zavod.helpers.apply_reviewed_names][] which will
-
-1. Call `review_names()` to do the cleaning and ensure a review exists
-3. apply each extracted name to the correct property of an entity if the review is accepted
-3. fall back to applying the original string cleaning wasn't deemed necessary, or human review is pending.
-
 
 ### What's a clean name?
 
@@ -140,7 +312,19 @@ The approach we take is
 - Especially in Person names, see if it's a cultural thing that's maybe one person's full official name
     - e.g. `Amir S/O AHAMED` means Amir son of Ahmed and appears to be one valid full name in Singapore
 
+## Using LLMs
+
+LLMs can do a lot of the categorisation and cleaning for us. We pair this with [human reviews](../data_reviews.md) to make 100% sure the categorisation and cleaning was correct, and did not lose any important information.
+
+!!! note
+
+    We don't enable `llm_cleaning` for sanctions datasets. We prefer cleaning those manually and using deterministic heuristics.
+
 ## Prompt engineering
+
+!!! note
+
+    This is not part of normal crawler development. This is carried out by the platform team from time to time as necessary improvements are identified.
 
 We use [DSPy](https://dspy.ai/) to write, optimise, and evaluate the prompt. The process is
 

@@ -47,6 +47,11 @@ data:
   url: https://www.sanctionsmap.eu/api/v1/data?
   format: JSON
 
+names:
+  suggest_weak_alias_person_single_token: true
+  suggest_abbreviation_uppercase_org_single_token_shorter_than: 8
+  suggest_abbreviation_non_person_single_token_shorter_than: 5
+
 assertions:
   min:
     schema_entities:

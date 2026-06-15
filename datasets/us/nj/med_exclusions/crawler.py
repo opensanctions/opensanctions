@@ -1,10 +1,9 @@
-from typing import Dict
 from rigour.mime.types import PDF
 
 from zavod import Context, helpers as h
 
 
-def crawl_item(row: Dict[str, str], context: Context):
+def crawl_item(row: dict[str, str | None], context: Context) -> None:
     zip_code = row.pop("zip")
     npi = row.pop("npi_number")
 
@@ -12,7 +11,7 @@ def crawl_item(row: Dict[str, str], context: Context):
     entity.id = context.make_id(npi, row.get("provider_name"), zip_code)
     entity.add("name", h.multi_split(row.pop("provider_name"), ["a.k.a."]))
     entity.add("sector", row.pop("title"))
-    entity.add("npiCode", h.multi_split(npi.replace("\n", ""), ";/"))
+    entity.add("npiCode", h.multi_split((npi or "").replace("\n", ""), ";/"))
     entity.add("country", "us")
 
     address = h.make_address(
@@ -38,15 +37,16 @@ def crawl_item(row: Dict[str, str], context: Context):
 
     context.emit(entity)
     context.emit(sanction)
-    context.emit(address)
+    if address is not None:
+        context.emit(address)
 
     context.audit_data(row)
 
 
 def translate_keys(
-    context: Context, lookup: str, row: Dict[str, str]
-) -> Dict[str, str]:
-    return {context.lookup_value(lookup, k, k): v for k, v in row.items()}
+    context: Context, lookup: str, row: dict[str, str | None]
+) -> dict[str, str | None]:
+    return {context.lookup_value(lookup, k, k) or k: v for k, v in row.items()}
 
 
 def crawl(context: Context) -> None:

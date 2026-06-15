@@ -3,7 +3,7 @@ prefix: se-riksdag
 url: https://www.riksdagen.se/en/members-and-parties/members/
 coverage:
   frequency: monthly
-  start: 2025-11-19
+  start: "2026-06-09"
 load_statements: true
 entry_point: crawler.py
 summary: >-
@@ -63,8 +63,6 @@ lookups:
         value: person_mandate
       - match: personuppgift
         value: person_info
-      - match: uppdrag
-        value: mandate
   parties:
     options:
       - match: ["", "-"]
@@ -88,6 +86,15 @@ lookups:
         value: Kristdemokraterna
       - match: nyd
         value: Ny demokrati
+      - match: JL
+        value: Junilistan
+      - match: FI
+        value: Feministiskt initiativ
+  type.name:
+    options:
+      # The source truncates this ministerial title.
+      - match: "Arbetsmarknads- och jämställdhetsministe"
+        value: "Arbetsmarknads- och jämställdhetsminister"
   type.gender:
     lowercase: true
     options:

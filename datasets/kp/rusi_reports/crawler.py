@@ -1,6 +1,7 @@
 import json
 import zipfile
 from typing import Dict, Any, List
+from followthemoney.property import Property
 from followthemoney.types import registry
 from zavod import Context
 
@@ -26,12 +27,15 @@ def parse_entity(context: Context, data: Dict[str, Any]) -> None:
                 context.log.warn(f"Unknown property: {prop_name}", entity=entity)
                 continue
             prop = entity.schema.get(alias_prop)
+            assert prop is not None, f"No valid FtM property found for {prop_name!r}"
 
         for value in values:
-            prop_ = prop
+            prop_: Property | None = prop
             original_value = value
             if prop.type == registry.entity:
-                value = context.make_slug(value)
+                slug = context.make_slug(value)
+                assert slug is not None
+                value = slug
             if prop.name == "idNumber":
                 if ":" not in value:
                     context.log.warn(
@@ -54,6 +58,7 @@ def parse_entity(context: Context, data: Dict[str, Any]) -> None:
                             entity.add_schema("Company")
                         prop_ = entity.schema.get(res)
 
+            assert prop_ is not None
             entity.add(prop_, value, original_value=original_value)
 
     context.emit(entity)

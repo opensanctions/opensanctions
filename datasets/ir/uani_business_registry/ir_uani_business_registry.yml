@@ -29,7 +29,7 @@ publisher:
   country: us
   url: https://www.unitedagainstnucleariran.com
 data:
-  url: https://www.unitedagainstnucleariran.com/iran-business-registry?page=0
+  url: https://www.unitedagainstnucleariran.com/iran-business-registry
   format: html
 
 assertions:

@@ -38,6 +38,7 @@ SKIP_LIST = [
     "79bf7490-332e-40c7-a226-b034010b36eb",
     "591f30ee-64a4-4f03-bfd0-b034010b18f2",
     "363082e4-9389-409b-abf8-b34700d49a75",
+    "7451bc83-3eae-446f-a0bb-b42000e029ea",
 ]
 
 
@@ -77,7 +78,7 @@ def crawl_row(
         lang="eng",
         wikidata_id="Q18915989",
     )
-    categorisation = categorise(context, position, True)
+    categorisation = categorise(context, position, default_is_pep=True)
 
     if categorisation.is_pep:
         occupancy = h.make_occupancy(

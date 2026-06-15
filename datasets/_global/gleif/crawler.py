@@ -2,7 +2,7 @@ import csv
 from contextlib import contextmanager
 from io import TextIOWrapper
 from pathlib import Path
-from typing import IO, Dict, List, Optional, Tuple, Union
+from typing import IO, Dict, Generator, List, Optional, Tuple, Union
 from urllib.parse import urljoin
 from zipfile import ZipFile
 
@@ -11,6 +11,7 @@ from normality import slugify
 
 from zavod import Context, Entity
 from zavod import helpers as h
+from zavod.util import Element
 
 UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36"  # noqa
 LEI = "http://www.gleif.org/data/schema/leidata/2016"
@@ -42,7 +43,7 @@ ADDRESS_PARTS: Dict[str, str] = {
 }
 
 
-def parse_address(entity: Entity, el: Optional[etree._Element]) -> None:
+def parse_address(entity: Entity, el: Optional[Element]) -> None:
     if el is None:
         return
     parts: Dict[str, Union[str, None]] = {}  # FirstAddressLine
@@ -110,7 +111,7 @@ def fetch_rr_file(context: Context) -> Path:
 
 
 @contextmanager
-def read_zip_file(context: Context, path: Path):
+def read_zip_file(context: Context, path: Path) -> Generator[IO[bytes], None, None]:
     with ZipFile(path, "r") as zip:
         for name in zip.namelist():
             context.log.info("Reading: %s in %s" % (name, path))
@@ -169,13 +170,13 @@ def load_isin_mapping(context: Context) -> Dict[str, List[str]]:
 
 def parse_lei_record(
     context: Context,
-    el: etree._Element,
+    el: Element,
     *,
     bics: Dict[str, List[str]],
     ocurls: Dict[str, List[str]],
     isins: Dict[str, List[str]],
     elfs: Dict[str, str],
-):
+) -> None:
     elc = h.remove_namespace(el)
     proxy = context.make("Organization")
     lei = elc.findtext("LEI")
@@ -288,7 +289,7 @@ def parse_lei_file(context: Context, fh: IO[bytes]) -> None:
         raise RuntimeError("No entities!")
 
 
-def parse_relationship_record(context: Context, el: etree._Element):
+def parse_relationship_record(context: Context, el: etree._Element) -> None:
     elc = h.remove_namespace(el)
     rel = elc.find("Relationship")
     if rel is None:
@@ -357,7 +358,7 @@ def parse_relationship_record(context: Context, el: etree._Element):
     context.emit(proxy)
 
 
-def parse_rr_file(context: Context, fh: IO[bytes]):
+def parse_rr_file(context: Context, fh: IO[bytes]) -> None:
     tag = "{%s}RelationshipRecord" % RR
     idx = 0
     for idx, (_, el) in enumerate(etree.iterparse(fh, tag=tag)):
@@ -370,7 +371,7 @@ def parse_rr_file(context: Context, fh: IO[bytes]):
         raise RuntimeError("No relationships!")
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     lei_file = fetch_lei_file(context)
     rr_file = fetch_rr_file(context)
     with read_zip_file(context, lei_file) as fh:

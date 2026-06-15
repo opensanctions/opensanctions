@@ -30,7 +30,7 @@ def split_middle_name(context: Context, middle_name: str) -> SplitName:
     return SplitName(name, aliases, [])
 
 
-def crawl_item(row: Dict[str, str | None], context: Context):
+def crawl_item(row: Dict[str, str | None], context: Context) -> None:
     first_name = row.pop("first_name")
     last_name = row.pop("last_name")
     middle_name = row.pop("middle_name")

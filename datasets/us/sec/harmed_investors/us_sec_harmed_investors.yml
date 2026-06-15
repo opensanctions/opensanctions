@@ -594,6 +594,12 @@ lookups:
           - South Atlantic Regional Center LLC
           - Joseph J. Walsh Sr.
           - Robert V. Matthews
+      - match: palm house hotel lllp, south atlantic regional center llc, joseph j. walsh sr., and robert v. matthews
+        names:
+          - Palm House Hotel LLLP
+          - South Atlantic Regional Center LLC
+          - Joseph J. Walsh Sr.
+          - Robert V. Matthews
       - match: penson financial services inc., penson worldwide inc., philip a. pendergraft, kevin w. mcaleer, cpa, thomas r. johnson, and charles w. yancey
         names:
           - Penson Financial Services Inc.
@@ -1112,3 +1118,24 @@ lookups:
           - Ability Inc.
           - Alexander Aurovsky
           - Anatoly Hurgin
+      - match: kenneth a. dachman, scott a. wolf, and stone lion management inc.
+        names:
+          - Kenneth A. Dachman
+          - Scott A. Wolf
+          - Stone Lion Management Inc.
+      - match: prosky inc. and crystal a. huang
+        names:
+          - ProSky Inc.
+          - Crystal A. Huang
+      - match: herman’s world of sports inc., thomas j. dzwilewski, michael eisemann, and louis montaino
+        names:
+          - Herman’s World of Sports Inc.
+          - Thomas J. Dzwilewski
+          - Michael Eisemann
+          - Louis Montaino
+      - match: vestech partners llc, marita partners llc, mi 15 llc, and riadh fakhoury
+        names:
+          - Vestech Partners LLC
+          - Marita Partners LLC
+          - MI 15 LLC
+          - Riadh Fakhoury

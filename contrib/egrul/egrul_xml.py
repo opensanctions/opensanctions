@@ -11,6 +11,54 @@ from zavod import helpers as h
 NULL_NAMES = {"-", "0"}
 
 
+def parse_okved_codes(el: Element) -> set[str]:
+    """
+    Extract OKVED economic-activity codes from a СвЮЛ (legal entity) or
+    СвИП (sole trader) element. Returns the set union of all codes across
+    both the declarative and reporting blocks (where both exist).
+
+    EGRUL 4.07 / EGRIP 4.06 have one block:
+      СвОКВЭД (OKVED info) > СвОКВЭДОсн (primary) + СвОКВЭДДоп (additional).
+
+    EGRUL 4.08 / EGRIP 4.07 (effective 2026-02-01, mandatory 2026-08-01)
+    add a sibling block:
+      СвОКВЭДОтч (OKVED, reporting type) > СвОКВЭДОтчОсн + СвОКВЭДОтчДоп,
+    and relabel the existing СвОКВЭД as "заявительного типа" (declarative
+    type) — codes the entity declared in its registration application.
+    The reporting-type source is not documented in the FNS materials, but
+    its percentage-share fields are access-restricted and only appear in
+    VO_RUGFZ/VO_RUGFD file variants (not the public VO_RUGFO files we
+    ingest). The two sets typically overlap heavily; we union them.
+
+    All leaf elements (СвОКВЭДОсн / СвОКВЭДДоп / СвОКВЭДОтчОсн /
+    СвОКВЭДОтчДоп) carry the actual code in attribute КодОКВЭД (OKVED code).
+    """
+    codes: set[str] = set()
+    blocks: list[tuple[str, str, str]] = [
+        # (container, primary leaf, additional leaf)
+        # СвОКВЭД (OKVED, declarative type in 4.08; sole block in 4.07)
+        ("./СвОКВЭД", "./СвОКВЭДОсн", "./СвОКВЭДДоп"),
+        # СвОКВЭДОтч (OKVED, reporting type) — 4.08+
+        ("./СвОКВЭДОтч", "./СвОКВЭДОтчОсн", "./СвОКВЭДОтчДоп"),
+    ]
+    for container_path, primary_path, additional_path in blocks:
+        root = el.find(container_path)
+        if root is None:
+            continue
+        # Сведения об основном виде деятельности (primary activity), 0..1
+        primary = root.find(primary_path)
+        if primary is not None:
+            code = primary.get("КодОКВЭД")  # КодОКВЭД = OKVED code, e.g. "62.01"
+            if code:
+                codes.add(code)
+        # Сведения о дополнительном виде деятельности (additional activity), 0..*
+        for extra in root.findall(additional_path):
+            code = extra.get("КодОКВЭД")  # КодОКВЭД = OKVED code
+            if code:
+                codes.add(code)
+    return codes
+
+
 def entity_id(
     context: Context,
     name: Optional[str] = None,
@@ -404,6 +452,9 @@ def parse_company(context: Context, el: Element) -> Dict[str, Any]:
     if citizen_el is not None:
         company["country"] = citizen_el.get("НаимСтран")
 
+    okved_codes = parse_okved_codes(el)
+    company["okved_codes"] = ";".join(sorted(okved_codes)) if okved_codes else None
+
     for addr_el in el.findall("./СвАдресЮЛ/*"):
         if "addresses" not in company:
             company["addresses"] = []
@@ -477,6 +528,10 @@ def parse_sole_trader(context: Context, el: Element) -> Optional[Dict[str, Any]]
     if t["id"] is None:
         context.log.warn("No ID for sole trader")
         return None
+
+    okved_codes = parse_okved_codes(el)
+    t["okved_codes"] = ";".join(sorted(okved_codes)) if okved_codes else None
+
     return {"id": t["id"], "legal_entity": t}
 
 

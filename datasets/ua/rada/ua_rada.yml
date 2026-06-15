@@ -1,0 +1,59 @@
+title: Ukraine Members of Verkhovna Rada
+entry_point: crawler.py
+prefix: ua-rada
+coverage:
+  frequency: monthly
+  start: 2026-06-11
+load_statements: true
+ci_test: true
+summary: >-
+  Current and historical members of the Verkhovna Rada, the unicameral parliament
+  of Ukraine.
+description: |
+  Current and historical People's Deputies (народні депутати України) of the
+  Verkhovna Rada, the unicameral parliament of Ukraine. Its 450 deputies are elected
+  for the duration of a convocation and hold the country's legislative power,
+  including passing laws, adopting the budget, and forming the Cabinet of Ministers.
+
+  This dataset records the deputies of each convocation, including those who have
+  since resigned or whose mandate was terminated early, with their name, date of
+  birth, gender, party affiliation, education, the electoral district or region they
+  represented, and a biography.
+url: https://www.rada.gov.ua/
+
+publisher:
+  name: Verkhovna Rada of Ukraine
+  acronym: VRU
+  description: >
+    The Verkhovna Rada is the sole body of legislative power in Ukraine. It
+    publishes open data about its People's Deputies through its open-data
+    portal.
+  url: https://www.rada.gov.ua/
+  country: ua
+  official: true
+
+data:
+  url: https://data.rada.gov.ua/ogd/mps/list.json
+  format: JSON
+  lang: ukr
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 1200
+    country_entities:
+      ua: 1200
+  max:
+    schema_entities:
+      Person: 2000
+
+lookups:
+  type.gender:
+    options:
+      - match: 1
+        value: male
+      - match: 2
+        value: female

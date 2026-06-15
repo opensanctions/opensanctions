@@ -137,6 +137,12 @@ lookups:
         values:
           - PS
           - Turkey
+      - match:
+          - "Turkiye; United Kingdom"
+          - "טורקיה; בריטניה"
+        values:
+          - Turkey
+          - United Kingdom
   type.date:
     options:
       - match:
@@ -167,6 +173,11 @@ lookups:
         value: admin@europalforum.org.uk
       - contains: "101193998017268"
         value: null
+      - match: "info@zedpay.com\nsupport@zedpay.com\nsocial@zedpay.com"
+        values:
+          - info@zedpay.com
+          - support@zedpay.com
+          - social@zedpay.com
   type.url:
     options:
       - match: "טוויטר: @PalesAbroadE"

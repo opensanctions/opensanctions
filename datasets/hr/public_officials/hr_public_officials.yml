@@ -18,6 +18,10 @@ description: >
   Only officials who have held some position falling within our PEP criteria within our
   PEP retention period are included.
 entry_point: crawler.py
+http:
+  # sukobinteresa.hr sits behind a flaky WAF that intermittently rejects
+  # requests with 403/415; retry so the crawl rides out a bad response.
+  additional_retry_statuses: [403, 415]
 tags:
   - list.pep
 publisher:

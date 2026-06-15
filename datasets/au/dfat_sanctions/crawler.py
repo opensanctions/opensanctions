@@ -138,8 +138,7 @@ def parse_reference(
                 for sub_part in h.multi_split(part, ADDRESS_SPLITS):
                     address = h.make_address(context, full=sub_part)
                     h.apply_address(context, entity, address)
-        source_program = row.pop("committees")
-        source_program = source_program.strip() if source_program else None
+        source_program: str | None = str(row.pop("committees", "")).strip() or None
         sanction = h.make_sanction(
             context,
             entity,
@@ -152,7 +151,7 @@ def parse_reference(
                 else None
             ),
         )
-        country = h.multi_split(row.pop("citizenship"), [","])
+        country = h.multi_split(row.pop("citizenship"), [";"])
         if entity.schema.is_a("Person"):
             entity.add("citizenship", country)
         else:
@@ -172,7 +171,8 @@ def parse_reference(
             sanction.add("listingDate", listing_info)
         else:
             sanction.add(
-                "summary", listing_info.replace("_x000D_", "") if listing_info else None
+                "summary",
+                str(listing_info).replace("_x000D_", "") if listing_info else None,
             )
         designation_instrument = row.pop("instrument_of_designation")
         # designation instrument is very often the same as listing info

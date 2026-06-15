@@ -1,5 +1,5 @@
 from zavod import Context
-from typing import Dict, List, Optional
+from typing import Any, Dict, Iterator, List, Optional
 from rigour.mime.types import XLSX
 import openpyxl
 from normality import slugify
@@ -7,7 +7,7 @@ from zavod import helpers as h
 from zavod.stateful.positions import OccupancyStatus, categorise
 
 
-def sheet_to_dicts(sheet):
+def sheet_to_dicts(sheet: Any) -> Iterator[dict[str, Any]]:
     headers: Optional[List[str]] = None
     for row in sheet.rows:
         cells = [c.value for c in row]
@@ -21,7 +21,7 @@ def sheet_to_dicts(sheet):
             yield row
 
 
-def parse_sheet_row(context: Context, row: Dict[str, str]):
+def parse_sheet_row(context: Context, row: Dict[str, str]) -> None:
     person = context.make("Person")
 
     id_number = row.pop("c-i")
@@ -32,6 +32,8 @@ def parse_sheet_row(context: Context, row: Dict[str, str]):
     person.id = context.make_slug(id_number, prefix="uy-cedula")
     person.add("idNumber", id_number)
     person.add("name", person_name)
+    # list includes international org officials, so not all require citizenship
+    person.add("country", "uy")
 
     position = h.make_position(
         context, f"{role}, {organization_name}", country="uy", lang="spa"
@@ -57,7 +59,7 @@ def parse_sheet_row(context: Context, row: Dict[str, str]):
     context.audit_data(row)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     path = context.fetch_resource("uy_pep_list.xlsx", context.data_url)
 
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)

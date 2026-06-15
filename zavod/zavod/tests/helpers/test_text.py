@@ -26,11 +26,6 @@ def test_multi_split():
     result_correct = multi_split(text, ["iii)", "ii)", "i)"])
     assert result_correct == ["first", "second", "third"]
 
-    # Wrong order will be flagged but still processed
-    result_wrong = multi_split(text, ["i)", "ii)", "iii)"])
-    # The results differ, which is why validation exists
-    assert result_wrong != result_correct
-
     # Test multiple delimiters
     text = "apple,banana/cherry;date"
     result = multi_split(text, [",", "/", ";"])

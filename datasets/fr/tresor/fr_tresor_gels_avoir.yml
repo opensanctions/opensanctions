@@ -201,6 +201,12 @@ lookups:
           - "Fédération de Russie"
           - "Fédération de Russi e"
         value: RU
+      - match: "République populaire de Chine"
+        value: CN
+      - match: "République de Biélorussie"
+        value: BY
+      - match: "ÉTAT DE PALESTINE"
+        value: PS
   type.identifier:
     options:
       - match: "BMJIIRT"
@@ -224,6 +230,8 @@ lookups:
       - match: "NIF"
       - match: "Numéro d'enregistrement"
       - match: "Code"
+      # Sometimes leftover from "BIN/OGRN"
+      - match: "BIN"
       - match: "Principal établissement: Fédération de Russie, Tarusa"
         props:
           jurisdiction: ru
@@ -249,12 +257,26 @@ lookups:
       - match: "Lieu d'enregistrement: Israël"
         props:
           jurisdiction: il
+      - match: "Lieu d'enregistrement: Sha'ar Binyamin"
+        props:
+          address: "Sha'ar Binyamin"
+      - match: "PO BOX 44439, Jérusalem, Israël, 9144302"
+        props:
+          address: "PO BOX 44439, Jérusalem, Israël, 9144302"
+          jurisdiction: il
       - match: "Lieu d'enregistrement: Turquie"
         props:
           jurisdiction: tr
       - match: "Lieu d'enregistrement: Hong Kong"
         props:
           jurisdiction: hk
+      - match: "Lieu d'enregistrement: Ukraine"
+        props:
+          jurisdiction: ua
+      - match: "Lieu d'enregistrement: Sébastopol, Crimée"
+        props:
+          address: "Sébastopol, Crimée"
+          jurisdiction: ua-cri
       - match: "Lieu d'enregistrement: Fédération de Russie, région de Sverdlovsk, Yekaterinburg"
         props:
           address: "Lieu d'enregistrement: Fédération de Russie, région de Sverdlovsk, Yekaterinburg"
@@ -420,6 +442,31 @@ lookups:
       - match: "Type d'entité: société de transport"
         props:
           legalForm: société de transport
+      - match: "Type d'entité: entreprise d'État"
+        props:
+          legalForm: entreprise d'État
+      - match: "Type d'entité: organisation non gouvernementale"
+        props:
+          legalForm: organisation non gouvernementale
+      - match: "Type d'entité: Centre de formation militaro-patriotique pour mineurs lié à l'État"
+        props:
+          legalForm: Centre de formation militaro-patriotique pour mineurs lié à l'État
+      - match: "Type d'entité: Federal State Budgetary Educational Institution (établissement d'enseignement relevant du budget de l'État fédéral)"
+        props:
+          legalForm: Federal State Budgetary Educational Institution (établissement d'enseignement relevant du budget de l'État fédéral)
+      - match: "Type d'entité: Etablissement d'enseignement public relevant de l'État fédéral"
+        props:
+          legalForm: Etablissement d'enseignement public relevant de l'État fédéral
+      - match: "Type d'entité: Etablissement d'enseignement relevant du budget de l'État fédéral"
+        props:
+          legalForm: Etablissement d'enseignement relevant du budget de l'État fédéral
+      - match: "Lieu d'enregistrement: Myanmar/Birmanie"
+        props:
+          jurisdiction: mm
+      - match: "Lieu d'enregistrement: Yangon, Myanmar/Birmanie"
+        props:
+          jurisdiction: mm
+          address: "Yangon, Myanmar"
       - match: "Lieu d'enregistrement: 676811 oblast d'Amurskaya, Belogorskiy Rayon, Vozhaevka, Fédération de Russie"
         props:
           jurisdiction: ru
@@ -1068,6 +1115,154 @@ lookups:
       - match: "Numéro d'identification fiscale: 7720261827   /   Numéro"
         props:
           taxNumber: 7720261827
+      # KPP codes (code du/de motif d'enregistrement)
+      - match: "Code motif d'enregistrement: 526101001"
+        props:
+          kppCode: "526101001"
+      - match: "Code motif d'enregistrement: 771701001"
+        props:
+          kppCode: "771701001"
+      - match: "Code motif d'enregistrement: 246201001"
+        props:
+          kppCode: "246201001"
+      - match: "Code du motif d'enregistrement: 057101001"
+        props:
+          kppCode: "057101001"
+      - match: "Code du motif d'enregistrement: 770101001"
+        props:
+          kppCode: "770101001"
+      - match: "Code du motif d'enregistrement: 450101001"
+        props:
+          kppCode: "450101001"
+      - match: "Code du motif d'enregistrement: 504201001"
+        props:
+          kppCode: "504201001"
+      - match: "Code du motif d'enregistrement: 668501001"
+        props:
+          kppCode: "668501001"
+      # Registration locations using unaccented "Etablissement" (not matched by TEXT_KEYS)
+      - match: "Etablissement principal: Fédération de Russie"
+        props:
+          jurisdiction: ru
+      - match: "Etablissement principal: Émirats arabes unis"
+        props:
+          jurisdiction: ae
+      - match: "Principal lieu établissement: Émirats arabes unis"
+        props:
+          jurisdiction: ae
+      - match: "Lieu d'enregistrement: Sharjah, Émirats arabes unis"
+        props:
+          jurisdiction: ae
+          address: "Sharjah, Émirats arabes unis"
+      - match: "Lieu d'enregistrement: Yangzhou, République populaire de Chine"
+        props:
+          jurisdiction: cn
+          address: "Yangzhou, République populaire de Chine"
+      - match: "Lieu d'enregistrement: Wanchai, Hong Kong"
+        props:
+          jurisdiction: hk
+          address: "Wanchai, Hong Kong"
+      - match: "Lieu d'enregistrement: Kazakhstan"
+        props:
+          jurisdiction: kz
+      - match: "Lieu d'enregistrement: Fédération de Russie; Belize"
+        props:
+          jurisdiction:
+            - ru
+            - bz
+      - match: "Lieu d'enregistrement: République de Biélorussie"
+        props:
+          jurisdiction: by
+      # Associated persons and entities
+      - match: "Personne associée: Li Xinyang"
+        associates:
+          - Li Xinyang
+      - match: "Personne associée: Anastasiya Aleksandrovna Tarshinova"
+        associates:
+          - Anastasiya Aleksandrovna Tarshinova
+      - match: "Entité associée: JSC IEMZ Kupol"
+        associates:
+          - JSC IEMZ Kupol
+      - match: "Entités associées: State Production Association “Belorusneft”; Open Joint Stock Company “Naftan”"
+        associates:
+          - State Production Association Belorusneft
+          - Open Joint Stock Company Naftan
+      # LEI codes
+      - match: "Identifiant d'entité juridique: 6556009FCJ7O8QPFTC19"
+        props:
+          leiCode: "6556009FCJ7O8QPFTC19"
+      - match: "LEI: 984500SAI1E9CB88DC54"
+        props:
+          leiCode: "984500SAI1E9CB88DC54"
+      # Other registration/identifier fields
+      - match: "Numéro chinois d'enregistrement de l'entreprise: 321000400012591"
+        props:
+          registrationNumber: "321000400012591"
+      - match: "Numéro d'entreprise belizien: 82305"
+        props:
+          registrationNumber: "82305"
+      - match: "Numéro russe d'identification fiscale: 0268061215"
+        props:
+          innCode: "0268061215"
+      - match: "TVA: 60001-1229370"
+        props:
+          vatCode: "60001-1229370"
+      # Legal forms not yet covered
+      - match: "Type d'entité: société par actions de type fermé"
+        props:
+          legalForm: société par actions de type fermé
+      - match: "Type d'entité: institution d'enseignement professionnel supérieur de l'État fédéral"
+        props:
+          legalForm: institution d'enseignement professionnel supérieur de l'État fédéral
+      - match: "Type d'entité: institution relevant du budget de l'État fédéral"
+        props:
+          legalForm: institution relevant du budget de l'État fédéral
+      - match: "Type d'entité: établissement de zone franche"
+        props:
+          legalForm: établissement de zone franche
+      # Registration numbers with non-standard formats
+      - match: "Numéro d'enregistrement: 311490-3301-ЗАО"
+        props:
+          registrationNumber: "311490-3301-ЗАО"
+      - match: "Numéro d'enregistrement: 004181508-0405"
+        props:
+          registrationNumber: "004181508-0405"
+      - match: "Numéro d'enregistrement: 73787237 (Hong Kong Business Registration Number); 3127263 (Hong Kong CR Number)"
+        props:
+          registrationNumber:
+            - "73787237"
+            - "3127263"
+      # Multiple incorporation dates
+      - match: "Date d'enregistrement: 1946; 15.10.2002"
+        props:
+          incorporationDate:
+            - "1946"
+            - "2002-10-15"
+      # Complex segments with mixed property types
+      - match: "Numéro d'identification fiscale: 6685066917 - Code du motif d'enregistrement: 668501001"
+        props:
+          taxNumber: "6685066917"
+          kppCode: "668501001"
+      - match: "Principal lieu d'activité: Fédération de Russie: société par actions"
+        props:
+          country: ru
+          legalForm: société par actions
+      - match: "Code de crédit social unifié chinois: 913210007908906337"
+        props:
+          uscCode: "913210007908906337"
+      - match: "Principal lieu d'activité: région administrative spéciale de Hong Kong de la République populaire de Chine"
+        props:
+          country: hk
+      - match: "Principal lieu d'activité: Fédération de Russie; Belize"
+        props:
+          country:
+            - ru
+            - bz
+      - match: "Type de navire: bateau-citerne, pétrolier"
+        props:
+          type:
+            - bateau-citerne
+            - pétrolier
 
   ####################################################################################################
   ####################################################################################################
@@ -5890,6 +6085,27 @@ lookups:
       - match: "Télécopieur: +7 (495) 785-08-88"
         props:
           phone: +7 (495) 785-08-88
+      - match: "Télécopieur: +7 (8464) 98-81-22"
+        props:
+          phone: +7 (8464) 98-81-22
+      - match: "Télécopieur: +7 (4912) 933 -084"
+        props:
+          phone: +7 (4912) 933 -084
+      - match: "Télécopieur: (347) 261-62-62"
+        props:
+          phone: (347) 261-62-62
+      - match: "Télécopieur: (0514) 87943666"
+        props:
+          phone: (0514) 87943666
+      - match: "Identifiant EDI Global Issuer: 160823"
+        props:
+          registrationNumber: 160823
+      - match: "Identifiant d'entité unique (SAM): YCVHSDFHDUA5"
+        props:
+          uniqueEntityId: YCVHSDFHDUA5
+      - match: "Identifiant interne Cedar Rose: AEC0006867"
+        props:
+          registrationNumber: AEC0006867
       - match: "Fax: 8890028"
         props: []
       - match: "Numéro d'enregistrement ; Type d'entité: société à responsabilité limitée ; Lieu d'enregistrement: Émirats arabes unis ; Date d'enregistrement: 1.4.2008 ; CBLS: 11395424: 5002444"
@@ -6073,6 +6289,37 @@ lookups:
         props:
           registrationNumber: 600122610
           incorporationDate: 1996-12-23
+      - match: "Numéro d'enregistrement / Date d'enregistrement: 18.2.1979: 570025742"
+        props:
+          registrationNumber: 570025742
+          incorporationDate: 1979-02-18
+      - match: "Numéro d'enregistrement / Date d'enregistrement: 18.6.2013: 580575629"
+        props:
+          registrationNumber: 580575629
+          incorporationDate: 2013-06-18
+      - match: "Type d'entité: Unité militaire du Corps des gardiens de la révolution islamique (IRGC) - Principal lieu d'activité: Iran: /Autres entités associées: Corps des gardiens de la révolution islamique (IRGC)"
+        props:
+          legalForm: Unité militaire du Corps des gardiens de la révolution islamique (IRGC)
+          address: Iran
+        associates:
+          - Corps des gardiens de la révolution islamique (IRGC)
+      # False split: "OMI" key matches inside "économique"; handle the full field to avoid it
+      - match: "Numéro de registre économique (CBLS): 11967354"
+        props:
+          registrationNumber: "11967354"
+      - match: "Numéro d'identification unique Acuris: C1843799"
+        props:
+          idNumber: C1843799
+      - match: "Identifiant interne Cedar Rose: AEC221966655"
+        props:
+          idNumber: AEC221966655
+      - match: "Principal lieu d'activité: RPDC, République populaire de Chine"
+        jurisdiction: cn
+  # =====================================
+  #
+  #  ADDRESSES
+  #
+  # =====================================
   addresses:
     # Sometimes we can split on ; but sometimes it's just part of the address.
     options:
@@ -6188,3 +6435,20 @@ lookups:
           - "St Maarten, Billy Folly Road #37, Sint-Maarten, Antilles néerlandaises"
           - "Cohune Walk, 3 Lime St, Belmopan, Belize"
           - "9350 Wilshire Blvd, Beverly Hills CA 90212, États-Unis d'Amérique"
+      - match: "141701, oblast de Moscou, Dolgoprudny, Institutsky Pereulok, 9, Fédération de Russie; 117303, Moscow, rue Kerchenskaya, 1 A, bât. 1, Fédération de Russie"
+        addresses:
+          - "141701, oblast de Moscou, Dolgoprudny, Institutsky Pereulok, 9, Fédération de Russie"
+          - "117303, Moscow, rue Kerchenskaya, 1 A, bât. 1, Fédération de Russie"
+      - match: "Fédération de Russie, 455048, RÉGION de CHELYABINSK, MAGNITOGORSK, 21 Murmanskiy Side St; Fédération de Russie, 109518, Moscou, 23 Grayvoronovskaya st"
+        addresses:
+          - "Fédération de Russie, 455048, RÉGION de CHELYABINSK, MAGNITOGORSK, 21 Murmanskiy Side St"
+          - "Fédération de Russie, 109518, Moscou, 23 Grayvoronovskaya st"
+      - match: "c/o Asterra International Management Ltd 1885 Driftwood Bay, Suite 101 Belize City, Belize; 52 rue Sokolnichesky Val, Moscou, Fédération de Russie; Novinskiy Bulvar 31, 123242, Moscou, Fédération de Russie"
+        addresses:
+          - "c/o Asterra International Management Ltd 1885 Driftwood Bay, Suite 101 Belize City, Belize"
+          - "52 rue Sokolnichesky Val, Moscou, Fédération de Russie"
+          - "Novinskiy Bulvar 31, 123242, Moscou, Fédération de Russie"
+      - match: "S1500, Jebel Ali Freezone, Dubaï, Émirats arabes unis; Jebel Ali Free Zone South, Dubaï, Jebel Ali 61354, AE, Émirats arabes unis"
+        addresses:
+          - "S1500, Jebel Ali Freezone, Dubaï, Émirats arabes unis"
+          - "Jebel Ali Free Zone South, Dubaï, Jebel Ali 61354, AE, Émirats arabes unis"

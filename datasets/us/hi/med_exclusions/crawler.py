@@ -1,23 +1,22 @@
 import re
-from typing import Dict
 from rigour.mime.types import PDF
 
 from zavod import Context, helpers as h
 from normality import squash_spaces
 
-from zavod.extract.zyte_api import fetch_html, fetch_resource
+from zavod.extract import zyte_api
 
 AKA_SPLIT = r"\baka\b|\ba\.k\.a\b|\bAKA\b|\bor\b"
 
 
-def crawl_item(row: Dict[str, str], context: Context):
+def crawl_item(row: dict[str, str | None], context: Context) -> None:
     if raw_first_name := row.pop("first_name"):
         entity = context.make("Person")
 
         raw_last_name = row.pop("last_name_or_business_name")
         raw_middle_initial = row.pop("middle_initial")
         dba = None
-        if " DBA " in raw_last_name:
+        if raw_last_name and " DBA " in raw_last_name:
             result = context.lookup("names", raw_last_name)
             if result is not None:
                 raw_last_name, dba = result.values[0], result.values[1]
@@ -28,8 +27,8 @@ def crawl_item(row: Dict[str, str], context: Context):
             raw_last_name, raw_middle_initial, raw_first_name, row.get("exclusion_date")
         )
         for first_name in re.split(AKA_SPLIT, raw_first_name):
-            for last_name in re.split(AKA_SPLIT, raw_last_name):
-                for middle_initial in re.split(AKA_SPLIT, raw_middle_initial):
+            for last_name in re.split(AKA_SPLIT, raw_last_name or ""):
+                for middle_initial in re.split(AKA_SPLIT, raw_middle_initial or ""):
                     h.apply_name(
                         entity,
                         first_name=first_name,
@@ -43,10 +42,9 @@ def crawl_item(row: Dict[str, str], context: Context):
         entity.add("name", row.pop("last_name_or_business_name"))
 
     entity.add("sector", row.pop("last_known_program_or_provider_type"))
-    if row.get("medicaid_provider_id") != "NONE":
-        entity.add("description", "Provider ID: " + row.pop("medicaid_provider_id"))
-    else:
-        row.pop("medicaid_provider_id")
+    medicaid_provider_id = row.pop("medicaid_provider_id")
+    if medicaid_provider_id is not None and medicaid_provider_id != "NONE":
+        entity.add("description", "Provider ID: " + medicaid_provider_id)
     entity.add("country", "us")
 
     sanction = h.make_sanction(context, entity)
@@ -63,20 +61,26 @@ def crawl_item(row: Dict[str, str], context: Context):
     context.audit_data(row)
 
 
-def crawl_pdf_url(context: Context):
+def crawl_pdf_url(context: Context) -> str:
     download_xpath = ".//a[contains(text(), 'Med Prov Excl-Rein List')]"
-    doc = fetch_html(
-        context, context.data_url, download_xpath, geolocation="us", absolute_links=True
+    doc = zyte_api.fetch_html(
+        context,
+        context.data_url,
+        unblock_validator=download_xpath,
+        geolocation="us",
+        absolute_links=True,
     )
-    return doc.xpath(download_xpath)[0].get("href")
+    url = h.xpath_string(doc, download_xpath + "/@href")
+    assert url is not None, "Could not find PDF URL"
+    return url
 
 
 def crawl(context: Context) -> None:
-    _, _, _, path = fetch_resource(
+    _, _, _, path = zyte_api.fetch_resource(
         context, "source.pdf", crawl_pdf_url(context), PDF, geolocation="us"
     )
     context.export_resource(path, PDF, title=context.SOURCE_TITLE)
     for item in h.parse_pdf_table(context, path, headers_per_page=True):
         for key, value in item.items():
-            item[key] = squash_spaces(value)
+            item[key] = squash_spaces(value) if value else None
         crawl_item(item, context)

@@ -6,7 +6,9 @@ from zavod import Context
 from zavod.extract.zyte_api import fetch_html
 
 
-def get_element_text(doc: ElementTree, xpath_value: str, to_remove=[]) -> str:
+def get_element_text(
+    doc: ElementTree, xpath_value: str, to_remove: list[str] = []
+) -> str:
     """Extract text from each child nodes of an xpath and joins them together
 
     Args:
@@ -28,7 +30,7 @@ def get_element_text(doc: ElementTree, xpath_value: str, to_remove=[]) -> str:
     return squash_spaces(element_text.strip())
 
 
-def crawl_person(context: Context, url: str, wanted_for: str):
+def crawl_person(context: Context, url: str, wanted_for: str) -> None:
     name_xpath = '//div[contains(@class, "field--name-field-most-wanted-name")]//div[contains(@class, "field__item")]'
     doc = fetch_html(
         context,
@@ -143,7 +145,7 @@ def crawl_person(context: Context, url: str, wanted_for: str):
     context.emit(person)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     wanted_xpath = './/span[contains(text(), "Wanted for:")]'
     doc = fetch_html(
         context,

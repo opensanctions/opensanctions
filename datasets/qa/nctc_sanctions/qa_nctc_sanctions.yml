@@ -5,6 +5,7 @@ coverage:
   frequency: daily
   start: 2023-02-19
   schedule: "0 */8 * * *"
+ci_test: false # Zyte API key not available in CI
 load_statements: true
 summary: >
   This dataset contains both UN-mandated and the national sanctions designations
@@ -180,6 +181,14 @@ lookups:
         values:
           - 1940
           - 1941
+      - match: BETWEEN_X_X_1945_1950
+        values:
+          - 1945
+          - 1950
+      - match: BETWEEN_X_X_1958_1964
+        values:
+          - 1958
+          - 1964
       - match: EXACT_7/9/1975; 1982___
         values:
           - 1975-09-07

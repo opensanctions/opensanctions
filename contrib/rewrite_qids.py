@@ -1,19 +1,26 @@
 #!/usr/bin/env python
 from functools import cache
 
+import time
 import click
-import requests
 from typing import Set
 
 from rigour.ids.wikidata import is_qid
 from nomenklatura import settings as nk_settings
 from zavod.logs import configure_logging, get_logger
+from zavod.meta.http import HTTP
+from zavod.runtime.http_ import make_session
 from zavod.db import get_engine, meta
 from sqlalchemy import delete, update, or_
 
 log = get_logger(__name__)
 WD_API = "https://www.wikidata.org/w/api.php"
 DATASETS = {"wd_peps", "wd_categories", "wikidata"}
+
+# Retrying session: backs off on 429/503 while honoring Retry-After (tuned via the
+# ZAVOD_HTTP_RETRY_* env vars), so the script survives Wikidata rate limiting.
+http_session = make_session(HTTP({}))
+http_session.verify = True  # Wikidata serves valid certs; drop zavod's lax default
 
 
 @cache
@@ -23,10 +30,12 @@ def map_qid(qid: str) -> str:
     params = {
         "action": "wbgetentities",
         "ids": qid,
+        # We only read the redirect target; props=info keeps the payload tiny
+        # (redirects is returned regardless of props).
+        "props": "info",
         "format": "json",
     }
-    headers = {"User-Agent": "Zavod QID Rewriter/1.0"}
-    response = requests.get(WD_API, params=params, headers=headers)
+    response = http_session.get(WD_API, params=params)
     response.raise_for_status()
     data = response.json()
     if "entities" in data and qid in data["entities"]:
@@ -57,6 +66,7 @@ def rewrite_qids(qids: Set[str]):
             if not is_qid(qid):
                 log.warning(f"Skipping invalid QID: {qid}")
                 continue
+            time.sleep(2)  # be nice to the wikidata API
             new_qid = map_qid(qid)
             if new_qid == qid:
                 log.info(f"No mapping found for {qid}, skipping.")

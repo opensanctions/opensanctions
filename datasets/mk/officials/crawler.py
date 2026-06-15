@@ -33,6 +33,8 @@ def crawl_row(context: Context, row: dict[str, str]) -> None:
     person.id = context.make_id(
         first_name, last_name, position_name, position_institution
     )
+    # various positions
+    person.add("country", "mk")
 
     h.apply_name(
         person,
@@ -48,7 +50,7 @@ def crawl_row(context: Context, row: dict[str, str]) -> None:
     )
     position.add("name", position_names[1:])
 
-    categorisation = categorise(context, position, is_pep=True)
+    categorisation = categorise(context, position, default_is_pep=True)
 
     if not categorisation.is_pep:
         return

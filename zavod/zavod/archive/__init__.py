@@ -6,7 +6,7 @@ from typing import Optional, Generator, TextIO, Set
 from rigour.mime.types import JSON
 from followthemoney import Statement
 from followthemoney.statement.serialize import read_pack_statements_decoded
-from nomenklatura.versions import Version, VersionHistory
+from followthemoney.dataset import Version, VersionHistory
 
 from zavod import settings
 from zavod.logs import get_logger
@@ -20,6 +20,7 @@ log = get_logger(__name__)
 StatementGen = Generator[Statement, None, None]
 DATASETS = "datasets"
 ARTIFACTS = "artifacts"
+LATEST = "latest"
 STATEMENTS_FILE = "statements.pack"
 HASH_FILE = "entities.hash"
 DELTA_EXPORT_FILE = "entities.delta.json"
@@ -98,6 +99,9 @@ def get_dataset_artifact(
     return path
 
 
+# TODO(Leon Handreke): This function has some overlap with versions.get_history.
+# The right thing to do might be to have two functions, one to get the "root" version file
+# at artifacts/{dataset_name}/versions.json, and one to get the version file for a specific version.
 @lru_cache(maxsize=1000)
 def get_versions_data(
     dataset_name: str, version: Optional[str] = None
@@ -147,7 +151,7 @@ def get_artifact_object(
 
     # FIXME: legacy fallback option of using the latest release
     # REMOVE THIS AFTER MIGRATION
-    name = f"{DATASETS}/latest/{dataset_name}/{resource}"
+    name = f"{DATASETS}/{LATEST}/{dataset_name}/{resource}"
     object = backend.get_object(name)
     if object.exists():
         return object
@@ -186,7 +190,7 @@ def publish_resource(
     path: Path,
     dataset_name: Optional[str],
     resource: str,
-    latest: bool = True,
+    republish_to_latest: bool = True,
     mime_type: Optional[str] = None,
 ) -> None:
     """Resources are files published to the main publication directory of the dataset."""
@@ -199,8 +203,8 @@ def publish_resource(
     release_object.publish(path, mime_type=mime_type, ttl=TTL_MEDIUM)
     invalidate_archive_cache(release_name)
 
-    if latest and settings.RELEASE != "latest":
-        latest_name = f"{DATASETS}/latest/{resource}"
+    if republish_to_latest and settings.RELEASE != LATEST:
+        latest_name = f"{DATASETS}/{LATEST}/{resource}"
         latest_object = backend.get_object(latest_name)
         latest_object.republish(release_name)
         invalidate_archive_cache(latest_name)

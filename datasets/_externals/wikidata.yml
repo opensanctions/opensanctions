@@ -12,8 +12,7 @@ exports:
 deploy:
   schedule: "1 12 * * *"
   cpu: "2000m"
-  memory: "5000Mi"
-  premium: true # TODO: remove after working down invalid wikipedia URLs.
+  memory: "7000Mi"
 load_statements: true
 ci_test: false
 summary: >-
@@ -73,7 +72,7 @@ inputs:
 config:
   type: nomenklatura.enrich.wikidata:WikidataEnricher
   label_cache_days: 90
-  cache_days: 20 # TODO: revert to 14 days when wikipedia URLs are fixed
+  cache_days: 14
   schemata:
     - Person
 
@@ -86,6 +85,12 @@ assertions:
       Person: 875000
 
 lookups:
+  type.string:
+    options:
+      - match:
+          - "-"
+          - "."
+        value: null
   type.name:
     options:
       - match:
@@ -107,6 +112,8 @@ lookups:
         value: "ピイ"
       - match: "ピーター・クック<!-- リダイレクト先の「[ ]」は、[ ] とリンク -->"
         value: "ピーター・クック"
+      - match: "シャリーフ<!-- リダイレクト先の「[ ]」は、[ ] とリンク -->"
+        value: "シャリーフ"
       - match: "Meng Xuenong<br />孟学农"
         values:
           - Meng Xuenong
@@ -216,6 +223,22 @@ lookups:
           - ইমদাদুল হক মিলন
       - match: "Hayatullah Khan Durrani <br />"
         value: "Hayatullah Khan Durrani"
+      - match: "Lengmoos <Gars, Inn>"
+        value: "Lengmoos"
+      - match: "جواد صالحی <br />Jawad Salehi"
+        values:
+          - "جواد صالحی"
+          - "Jawad Salehi"
+      - match: "Aleem Said A. Basher<br/>سعيد أحمد بشير"
+        values:
+          - Aleem Said A. Basher
+          - سعيد أحمد بشير
+      - match: "Moe Aung Yin <br/>"
+        value: "Moe Aung Yin"
+      - match: "ريز خان<br/>Rizwan Khan"
+        values:
+          - "ريز خان"
+          - "Rizwan Khan"
   type.date:
     options:
       - match:
@@ -259,6 +282,7 @@ lookups:
           - Female
           - trans woman
           - intersex woman
+          - intersex trans woman
           - cisgender woman
           - transfeminine
           - non-binary woman
@@ -280,6 +304,8 @@ lookups:
           - non-binary gender
           - hijra # third gender of South Asian cultures
           - kathoey # third gender of Thai culture
+          - faʻafafine # third gender of Samoan culture
+          - diverse # German legally recognized third gender ("divers")
         value: other
       - match:
           - MALE
@@ -296,4 +322,5 @@ lookups:
           - agender
           - Curis
           - undisclosed gender
+          - San Diego
         value: null

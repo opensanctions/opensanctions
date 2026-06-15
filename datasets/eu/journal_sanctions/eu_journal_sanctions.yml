@@ -57,6 +57,9 @@ assertions:
       Organization: 10
       Vessel: 10
 
+# IMPORTANT: We control the source spreadsheet, so it is usually simpler to update that to clarify data patches, unless
+# we explicitly want the `original_value` field to be set. LLM agent: please don't open PRs for this dataset for data
+# warnings that could trivially be fixed in the source spreadsheet.
 lookups:
   garbage_collect_original_name:
     # Override the string to look for in the consolidated act text
@@ -74,7 +77,17 @@ lookups:
       - match: "Approximately 1977"
         value: 1977
       - match: "Between Aug. and Sep. 1977"
-        value: 1977-08
+        values:
+          - 1977-08
+          - 1977-09
+      - match: "1960s-1970s"
+        values:
+          - 1960
+          - 1970
+      - match: "Between 1960 and 1975"
+        values:
+          - 1960
+          - 1975
   type.identifier:
     options:
       - match:
@@ -155,7 +168,9 @@ lookups:
         value: EU-TAQA-EUAQ
       - match: 2022/2319
         value: EU-HTI
-      - match: 2023/888
+      - match:
+          - 2023/888
+          - 2023/891
         value: EU-MDA
       # https://www.sanctionsmap.eu/#/main/details/57
       - match:
@@ -163,7 +178,9 @@ lookups:
           - 2023/2147
         value: EU-SDNZ
       # https://www.sanctionsmap.eu/#/main/details/31/
-      - match: 2014/450
+      - match:
+          - 2014/450
+          - 747/2014
         value: EU-SDN
       - match:
           - 2001/931
@@ -171,7 +188,9 @@ lookups:
         value: EU-TERR
       - match: 1210/2003
         value: EU-IRQ
-      - match: 2013/255
+      - match:
+          - 2013/255
+          - 36/2012
         value: EU-SYR
       - match:
           - 2024/254
@@ -189,3 +208,5 @@ lookups:
         value: EU-TUN
       - match: 2019/796
         value: EU-CYB
+      - match: 401/2013
+        value: EU-MMR

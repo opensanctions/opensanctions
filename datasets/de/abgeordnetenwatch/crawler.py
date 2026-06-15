@@ -51,6 +51,7 @@ def crawl_mandate(context: Context, mandate: Dict[str, Any]) -> None:
     else:
         person.id = context.make_id(politician.pop("id"))
 
+    person.add("citizenship", "de")
     person.add("wikidataId", wikidata_id)
     person.add("birthDate", politician_detail.pop("year_of_birth"))
     h.apply_name(
@@ -60,11 +61,11 @@ def crawl_mandate(context: Context, mandate: Dict[str, Any]) -> None:
         last_name=politician_detail.pop("last_name"),
         maiden_name=politician_detail.pop("birth_name"),
     )
+    person.add("political", politician_detail["party"]["label"])
     person.add("sourceUrl", politician_detail.pop("abgeordnetenwatch_url"))
+    person.add("education", politician_detail.pop("education"))
 
     # Occupancy
-    mandate_start_date = mandate.pop("start_date") or period_detail["start_date_period"]
-    mandate_end_date = mandate.pop("end_date") or period_detail["end_date_period"]
     categorisation = categorise(context, position)
     if not categorisation.is_pep:
         return
@@ -73,8 +74,10 @@ def crawl_mandate(context: Context, mandate: Dict[str, Any]) -> None:
         person,
         position,
         True,
-        start_date=mandate_start_date,
-        end_date=mandate_end_date,
+        period_start=period_detail["start_date_period"],
+        start_date=mandate.pop("start_date"),
+        period_end=period_detail["end_date_period"],
+        end_date=mandate.pop("end_date"),
         categorisation=categorisation,
     )
     if occupancy:
@@ -110,7 +113,6 @@ def crawl_mandate(context: Context, mandate: Dict[str, Any]) -> None:
             "sex",
             "party",
             "party_past",
-            "education",
             "residence",
             "occupation",
             "statistic_questions",

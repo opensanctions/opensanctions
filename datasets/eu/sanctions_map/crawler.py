@@ -29,13 +29,15 @@ REGIME_URL = "https://www.sanctionsmap.eu/api/v1/regime"
 # Note: the DMA list does not include links to the Official Journal.
 
 VESSELS_URL = (
-    "https://dk9q89lxhn3e0.cloudfront.net/EU+designated+vessels-+conso+July+2025.xlsx"
+    # "https://dk9q89lxhn3e0.cloudfront.net/EU+designated+vessels-+conso+July+2025.xlsx"
+    # November/December edition:
+    "https://dk9q89lxhn3e0.cloudfront.net/EU+designated+vessels+consolidated.xlsx"
 )
 PROGRAM_KEY = "EU-MARE"
 TYPES = {"E": "LegalEntity", "P": "Person"}
 
 
-def crawl_regime(context):
+def crawl_regime(context: Context) -> None:
     regime = context.fetch_json(REGIME_URL, cache_days=1)
     for item in regime["data"]:
         regime_url = f"{REGIME_URL}/{item['id']}"
@@ -104,7 +106,7 @@ def crawl_regime(context):
                     context.emit(sanction)
 
 
-def crawl_vessels(context):
+def crawl_vessels(context: Context) -> None:
     path = context.fetch_resource("vessels.xlsx", VESSELS_URL)
     workbook: openpyxl.Workbook = openpyxl.load_workbook(
         path, read_only=True, data_only=True
@@ -113,6 +115,7 @@ def crawl_vessels(context):
     for row in h.parse_xlsx_sheet(
         context,
         sheet=workbook["Sheet1"],
+        header_lookup=context.get_lookup("vessel_columns"),
     ):
         name = row.pop("vessel_name")
         imo = row.pop("imo_number")
@@ -134,6 +137,6 @@ def crawl_vessels(context):
         context.audit_data(row)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     crawl_regime(context)
     crawl_vessels(context)

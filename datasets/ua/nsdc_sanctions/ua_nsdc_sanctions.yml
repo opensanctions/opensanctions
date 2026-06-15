@@ -81,6 +81,7 @@ lookups:
           - "reg:cz_person"
           - "reg:chiop" # https://en.wikipedia.org/wiki/SNILS_(Russia)
           - "reg:reg_snils" # https://en.wikipedia.org/wiki/SNILS_(Russia)
+          - "reg:by_rnrb" # Belarus personal identification number
         prop: idNumber
       - match:
           - null
@@ -115,8 +116,17 @@ lookups:
           - "reg:number_nin"
           - "reg:oae_crn"
           - "reg:lu"
+          - "reg:reg_edi"
+          - "reg:reg_legal_cn"
+          - "reg:reg_acuris"
+          - "reg:reg_crii"
+          - "reg:reg_ner"
           - "tax:uci" # Possibly Unique Consignment Identifier?
         prop: registrationNumber
+      - match: "reg:reg_uscc_cn" # China Unified Social Credit Code
+        prop: uscCode
+      - match: "reg:reg_sam" # US SAM Unique Entity Identifier
+        prop: uniqueEntityId
       - match:
           - "doc:passport"
           - "doc:d_passport"
@@ -722,6 +732,7 @@ lookups:
           - "5914024719"
           - "5402692"
           - "5740562"
+          - "321000400012591" # 15-digit old-style China business registration number, not a USCC
         prop: registrationNumber
       - match:
           - 9102012001

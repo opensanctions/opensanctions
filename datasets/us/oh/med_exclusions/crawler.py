@@ -1,24 +1,23 @@
 from itertools import product
-from typing import Dict
 from rigour.mime.types import XLSX
 from openpyxl import load_workbook
 import re
 
 from zavod import Context, helpers as h
-from zavod.extract.zyte_api import fetch_html, fetch_resource
+from zavod.extract import zyte_api
 
 REGEX_DBA = re.compile(r"\bdba\b", re.IGNORECASE)
 REGEX_AKA = re.compile(r"\(?a\.?k\.?a\b\.?|\)", re.IGNORECASE)
 
 
-def crawl_individual(row: Dict[str, str], context: Context):
+def crawl_individual(row: dict[str, str | None], context: Context) -> None:
     entity = context.make("Person")
     entity.id = context.make_id(
         row.get("last_name"), row.get("first_name"), row.get("npi")
     )
-    last_names = REGEX_AKA.split(row.pop("last_name"))
+    last_names = REGEX_AKA.split(row.pop("last_name") or "")
     middle_names = REGEX_AKA.split(row.pop("middle_name") or "")
-    first_names = REGEX_AKA.split(row.pop("first_name"))
+    first_names = REGEX_AKA.split(row.pop("first_name") or "")
     for first_name, middle_name, last_name in product(
         first_names, middle_names, last_names
     ):
@@ -29,8 +28,8 @@ def crawl_individual(row: Dict[str, str], context: Context):
     entity.add("country", "us")
     entity.add("sector", row.pop("provider_type"))
     entity.add("topics", "debarment")
-    if row.get("provider_id"):
-        entity.add("description", "Provider ID: " + row.pop("provider_id"))
+    if (provider_id := row.pop("provider_id")) is not None:
+        entity.add("description", "Provider ID: " + provider_id)
     h.apply_date(entity, "birthDate", row.pop("dob"))
 
     if row.get("npi"):
@@ -50,10 +49,10 @@ def crawl_individual(row: Dict[str, str], context: Context):
     context.audit_data(row, ignore=["date_added"])
 
 
-def crawl_organization(row: Dict[str, str], context: Context):
+def crawl_organization(row: dict[str, str | None], context: Context) -> None:
     entity = context.make("Company")
     entity.id = context.make_id(row.get("organization_name"))
-    names = REGEX_DBA.split(row.pop("organization_name"))
+    names = REGEX_DBA.split(row.pop("organization_name") or "")
     aliases = names[1:]
     names = names[0].split("Owner:")
     entity.add("name", names[0])
@@ -62,7 +61,7 @@ def crawl_organization(row: Dict[str, str], context: Context):
     entity.add("sector", row.pop("provider_type"))
     entity.add("topics", "debarment")
     if row.get("provider_id"):
-        entity.add("description", "Provider ID: " + row.pop("provider_id"))
+        entity.add("description", "Provider ID: " + (row.pop("provider_id") or ""))
 
     for owner_name in names[1:]:
         owner = context.make("LegalEntity")
@@ -102,21 +101,24 @@ def crawl_organization(row: Dict[str, str], context: Context):
 
     context.emit(entity)
     context.emit(sanction)
-    context.emit(address)
+    if address is not None:
+        context.emit(address)
 
     context.audit_data(row, ignore=["date_added"])
 
 
-def crawl_excel_url(context: Context):
-    file_xpath = ".//a[contains(text(), 'Medicaid') and contains(text(), 'Exclusion') and contains(text(), 'Suspension') and contains(@href, 'xlsx')]"
-    doc = fetch_html(context, context.data_url, file_xpath, geolocation="US")
-    return doc.xpath(file_xpath)[0].get("href")
+def crawl_excel_url(context: Context) -> str:
+    file_a_xpath = ".//a[contains(text(), 'Medicaid') and contains(text(), 'Exclusion') and contains(text(), 'Suspension') and contains(@href, 'xlsx')]"
+    doc = zyte_api.fetch_html(context, context.data_url, unblock_validator=file_a_xpath)
+    url = h.xpath_string(doc, file_a_xpath + "/@href")
+    assert url is not None, "Could not find Excel file URL"
+    return url
 
 
 def crawl(context: Context) -> None:
     # First we find the link to the excel file
     excel_url = crawl_excel_url(context)
-    _, _, _, path = fetch_resource(
+    _, _, _, path = zyte_api.fetch_resource(
         context, "source.xlsx", excel_url, expected_media_type=XLSX, geolocation="US"
     )
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)

@@ -81,6 +81,8 @@ lookups:
           - "(venant aux droits et obligations de )"
           - "venant au droits et obligations de"
           - "<br />"
+          - "<br /> <br />"
+          - "<br /> <br /> <br /> <br />"
         entities: []
       - match: La société Traditia<br /> Monsieur Philippe Le Gouz de Saint Seine
         entities:
@@ -1052,3 +1054,12 @@ lookups:
         entities:
           - Makor Securities Paris
           - Yankel Hassan
+      - match: "La société Kerdiz Finance et Conseil<br /> M. Marc Peuvrier<br /> M. Anthony Finck"
+        entities:
+          - Kerdiz Finance et Conseil
+          - Marc Peuvrier
+          - Anthony Finck
+      - match: "MM. Ytane Mamou et Elie Houri"
+        entities:
+          - Ytane Mamou
+          - Elie Houri

@@ -1,6 +1,5 @@
-from lxml.etree import _Element
-
 from zavod import Context, helpers as h
+from zavod.util import Element
 
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.2 Safari/605.1.15",
@@ -11,7 +10,7 @@ HEADERS = {
 }
 
 
-def crawl_item(item: _Element, context: Context):
+def crawl_item(item: Element, context: Context) -> None:
     names = h.split_comma_names(context, item.text_content())
 
     source_url = item.get("href")
@@ -31,7 +30,7 @@ def crawl_item(item: _Element, context: Context):
         context.emit(sanction)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     response = context.fetch_html(
         context.data_url, headers=HEADERS, absolute_links=True
     )

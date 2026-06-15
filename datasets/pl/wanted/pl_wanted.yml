@@ -147,3 +147,5 @@ lookups:
         values: [DZ, BE]
       - match: AZERBEJDŻAN UKRAINA
         values: [AZ, UA]
+      - match: HISZPANIA ROSJA
+        values: [ES, RU]

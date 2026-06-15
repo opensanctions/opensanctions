@@ -1,5 +1,6 @@
 from normality.encoding import DEFAULT_ENCODING
 from followthemoney.statement.serialize import CSVStatementWriter
+from followthemoney.statement import Statement
 
 from zavod.entity import Entity
 from zavod.exporters.common import Exporter, ExportView
@@ -20,6 +21,8 @@ class StatementsCSVExporter(Exporter):
 
     def feed_unconsolidated(self, entity: Entity) -> None:
         for stmt in entity.statements:
+            if stmt.prop == Statement.BASE:
+                continue
             self.writer.write(stmt)
 
     def finish(self, view: ExportView) -> None:

@@ -1,11 +1,10 @@
-from typing import Dict
 from rigour.mime.types import CSV
 
 from zavod import Context, helpers as h
 import csv
 
 
-def crawl_item(row: Dict[str, str], context: Context):
+def crawl_item(row: dict[str, str], context: Context) -> None:
     start_date = row.pop("BeginDate")
     end_date = row.pop("EndDate")
     status = row.pop("Status")
@@ -15,7 +14,7 @@ def crawl_item(row: Dict[str, str], context: Context):
     npi = row.pop("IDN_NPI")
     title = row.pop("NAM_TITLE_PROVR")
 
-    if row.get("CAO").startswith("Out of State"):
+    if (row.get("CAO") or "").startswith("Out of State"):
         state = row.pop("CAO").replace("Out of State ", "")
         city = ""
     else:

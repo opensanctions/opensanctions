@@ -36,8 +36,8 @@ entity.add("birthPlace", row.pop("place_of_birth"))
 The method `entity.add` works seamlessly with both a single string and a list of strings. In the long run, however, we want to make the typing of `entity.add` more strict to accept only one argument at a time. With this in mind, it's generally better to add values individually if they are already in that form, rather than forcing them into a list unnecessarily.
 
   ```python
-for name in h.multi_split(names, SPLITS):  
-    entity.add(name)  
+for name in h.multi_split(names, SPLITS):
+    entity.add(name)
   ```
 
 ## Code structuring nitpicks
@@ -80,10 +80,10 @@ for name in h.multi_split(names, SPLITS):
     ```
 
     !!! note
-        We typically use the `crawl_thing` convention (e.g., `crawl_person`, `crawl_row`, `crawl_index`) for functions that lead to entities being emitted (directly or via a nested `crawl_` function call). 
+        We typically use the `crawl_thing` convention (e.g., `crawl_person`, `crawl_row`, `crawl_index`) for functions that lead to entities being emitted (directly or via a nested `crawl_` function call).
 
 - To improve readability and maintainability, break down deeply nested logic into smaller, focused functions.
-  
+
     ```python
     for link in main_grid.xpath(".//a/@href"):
         # Break down the handling of different data types into separate functions
@@ -121,14 +121,7 @@ for name in h.multi_split(names, SPLITS):
 
 ## Addresses
 
-When distinct address fields are available, use `h.make_address` to compose it, adding a country code if possible.
-
-Then use `h.copy_address` to add the full address to the entity's `address` property.
-
-    ```python
-    address_ent = h.make_address(context, full=addr, city=city, lang="zhu")
-    h.copy_address(entity, address_ent)
-    ```
+See the [addresses guide](addresses.md) for the full pattern, country handling, and the choice between `copy_address` and `apply_address`.
 
 ## Detect unhandled data
 
@@ -137,6 +130,18 @@ If a variable number of fields can extracted automatically (e.g. from a list or 
 * Capture all fields provided by the data source in a `dict`.
 * `dict_obj.pop()` individual fields when adding them to entities.
 * Log warnings if there are unhandled fields remaining in the `dict` so that we notice and improve the crawler. The context method [`context.audit_data()`][zavod.context.Context.audit_data] can be used to warn about extra fields in a `dict`. It takes the `ignore` argument to explicitly list fields that are unused.
+
+## Fields with no FollowTheMoney equivalent
+
+Source data sometimes includes descriptive fields (physical appearance, internal classification codes, administrative metadata, etc.) that don't map to any FTM property. Resist the temptation to pack these into narrative fields like `notes` or `description` as formatted strings (e.g. `f"Hair colour: {hair_colour}"`). This mixes structured data into free text where it can't be queried or validated, and clutters entity descriptions with noise.
+
+Instead, explicitly ignore them via `context.audit_data`:
+
+```python
+context.audit_data(row, ignore=["hair_colour", "skin_tone", "internal_ref"])
+```
+
+If a field has a clear use case for commercial screening or geopolitical research users — and structured support for it would add real value — propose adding it to the FollowTheMoney schema by opening an issue or PR in the [FollowTheMoney repository](https://github.com/opensanctions/followthemoney) with concrete examples from the source data.
 
 ## Logging and crawler feedback
 
@@ -156,7 +161,7 @@ Logs are essential for monitoring progress and debugging, but info-level and low
     context.log.info(f"Processed {page_number} pages")
     ```
 
-* Warning Logs: Indicate potential issues that don't stop the crawl but may require attention. These are surfaced to the dev team on the [Issues](https://www.opensanctions.org/issues/) page and checked daily. 
+* Warning Logs: Indicate potential issues that don't stop the crawl but may require attention. These are surfaced to the dev team on the [Issues](https://www.opensanctions.org/issues/) page and checked daily.
 
     Don't use warnings for things we know we won't fix, e.g. a permanent 404 that we can't do anything about. Do use warnings for things we should take action on, e.g. to notice a new entity type which we haven't mapped to a Schema yet.
 
@@ -179,25 +184,6 @@ assert position_name != "Socialdemokratiet"
 assert position_name is not None, entity.id
 ```
 
-## Generating consistent unique identifiers
-
-Make sure entity IDs are unique within the source. Avoid using only the name of the entity because there might eventually be two persons or two companies with the same name. [It is preferable](https://www.opensanctions.org/docs/identifiers) to have to deduplicate two Follow the Money entities for the same real world entity, rather than accidentally merge two entities. 
-
-Good values to use as identifiers are:
-
-* An ID in the source dataset, e.g. a sanction number, company registration number. These can be turned into a readable ID with the dataset prefix using the [`context.make_slug`][zavod.context.Context.make_slug] function.
-* Some combination of consistent attributes, e.g. a person's name and normalised date of birth in a dataset that holds a relatively small proportion of the population so that duplicates are extremely unlikely. These attributes can be turned into a unique hash describing the entity using the [`context.make_id`][zavod.context.Context.make_id] function.
-* A combination of identifiers for the entities related by another entity, e.g. an 
-  owner and a company, in the form `ownership.id = context.make_id(owner.id, "owns", company.id)`
-
-!!! note
-
-    Remember to make sure distinct sanctions, occupancies, positions, relationships, etc get distinct IDs.
-
-!!! note
-
-    Do not reveal personally-identifying information such as names, ID numbers, etc in IDs, e.g. via `context.make_slug`.
-
 ## Capture text in its original language
 
 Useful fields like the reason someone is sanctioned should be captured regardless of the language it is written in. Don't worry about translating fields where arbitrary text would be written. If the language is known, include the three-letter language code in the `lang` parameter to `Entity.add()`, e.g.:
@@ -209,7 +195,7 @@ sanction.add("reason", reason, lang="rom")
 
 ## Handling special space characters in strings
 
-Be aware of different types of space characters and how they affect text comparison. For example, a non-breaking space (`\xa0`) or zero-width space do not match a normal space character and can affect string comparison or processing. 
+Be aware of different types of space characters and how they affect text comparison. For example, a non-breaking space (`\xa0`) or zero-width space do not match a normal space character and can affect string comparison or processing.
 
 An editor like VS Code highlights characters like this by default, and a hex editor is an effective way to see more precisely which values are present in strings that are surprising you. Remember that a hex editor is looking at the data encoded e.g. to `utf-8` while Python strings are `unicode` code points.
 
@@ -229,6 +215,61 @@ text = text.replace("\xa0", " ")
 # e.g., collapsing whitespace from text extracted from HTML
 cleaned_text = normality.squash_spaces(text)
 ```
+
+## Pagination
+
+Pagination logic should be easy to read, and fail early and loudly if the source
+changes in a way that makes the logic invalid.
+
+It's often nice to implement pagination
+in a way that closely reflects the controls presented to the user, e.g.
+
+- loop until the current page number is the max page number
+- loop while there is a next URL (as opposed to looping until the next button isn't found, see below)
+
+Think about how we ensure we visit all pages, but we don't end up in an infinite loop.
+If there are many pages and entities, it's easy for dataset assertions to catch
+if we're visiting too few pages.
+
+Prefer code that fails in a way that clearly indicates what went wrong. e.g.
+a KeyError if the API response changes:
+
+```python
+next_url: Optional[str] = context.data_url
+while next_url:
+    response = context.fetch_json(next_url)
+    next_url = response["links"]["next"]  # KeyError if structure changes; None on last page
+    for item in response["data"]:
+        crawl_row(context, item)
+```
+
+Watch out for code where we might miss breaking out of the loop.
+`while True` in general easily results in infinite loops.
+
+e.g. an HTML source might change the class used to indicate that the "next page"
+button is disabled. Looping until the last page button is disabled might result
+in an infinite loop if we loop until a disabled next button can be selected using xpath.
+
+```python
+while True:
+    next_disabled = doc.xpath(".//span[text()='Next' and contains(@class, 'disabled')]")
+    if next_disabled:
+        break
+```
+
+If another obvious cue is available like a max page number, consider using that.
+
+If there is no more robust way to implement it than a while True loop, count the pages
+and assert that we haven't reached some extreme case, e.g.
+
+```python
+pages = 0
+while True:
+    pages += 1
+    # We expect about 10 pages. If we've reached 100, something's broken.
+    assert pages < 100, pages
+```
+
 
 ## Use datapatch lookups to clean or map values from external forms to OpenSanctions
 

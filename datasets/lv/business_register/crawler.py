@@ -89,8 +89,7 @@ def parse_old_names(context: Context, row: Item) -> None:
 
 def make_officer(context: Context, row: Item) -> Entity:
     entity_type = row.get("entity_type")
-    assert entity_type is not None
-    officer_type = TYPES.get(entity_type, "Person")
+    officer_type = TYPES.get(entity_type, "Person") if entity_type else "Person"
     is_person = officer_type == "Person"
     officer = context.make(officer_type)
     if is_person:

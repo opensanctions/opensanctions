@@ -109,8 +109,14 @@ lookups:
           - "ASISTENT.*"
           - "ANALIST.*"
           - "TECNICO.*"
+          - "AYUDANTE.*"
+          - "AUDITOR.*"
+          - "MÉDICO.*" # Doctor (accented)
+          - "MEDICO.*" # Doctor (unaccented)
+          - "ENFERMER.*" # Nurse
       - is_pep: false
         match:
+          - AUXILIAR ADMINISTRATIVO
           - BODEGUERO
           - CONSEJERO TECNICO
           - CONSEJERO TRIBUTARIO
@@ -128,6 +134,7 @@ lookups:
           - CAPITAN DE NAVIO
           - PROFESIONALES UNIVERSITARIOS
           - TECNOLOGO MEDICO
+          - "NINGUNO" # None
 
       - is_pep: null # haven't looked closely yet
         regex:
@@ -196,6 +203,7 @@ lookups:
           - "COORDINADOR NIVEL CENTRAL"
           - "COORDINADOR TERRITORIAL"
           - "COORDINADOR"
+          - "COORDINADOR/A ASESORES/AS GABINETE MINISTERIAL"
           - "COORDINADOR/A REGIONAL"
           - "COORDINADORA OFICINA SENDA-PREVIENE"
           - "DECANO"
@@ -227,9 +235,6 @@ lookups:
           - "ENCARGADO VIVIENDA"
           - "ENCARGADO ZONAL"
           - "ENCARGADO"
-          - "ENFERMERA (O)"
-          - "ENFERMERA"
-          - "ENFERMERO"
           - "EX ALCALDE"
           - "EX ALCALDESA"
           - "EX CONCEJAL"
@@ -259,6 +264,7 @@ lookups:
           - "INSPECTOR DE DOM"
           - "INSPECTOR DE OBRA"
           - "INSPECTOR DE OBRAS MUNICIPALES"
+          - "INSPECTOR DE PATENTES COMERCIALES"
           - "INSPECTOR ESTABLECIMIENTO EDUCACIONAL"
           - "INSPECTOR FISCAL"
           - "INSPECTOR GENERAL"
@@ -268,6 +274,7 @@ lookups:
           - "INSPECTOR TECNICO"
           - "INSPECTOR"
           - "INSPECTOR/A TECNICO DE OBRAS"
+          - "INTEGRANTE COMITE CIENTIFICO"
           - "INTEGRANTE DE LA COMISIÓN EXPERTA"
           - "INTEGRANTE DEL COMITÉ TÉCNICO DE ADMISIBILIDAD"
           - "INTEGRANTE PANEL TÉCNICO CONCESIONES"
@@ -298,17 +305,8 @@ lookups:
           - "MATRONA DIRECCIÓN DE SALUD MUNICIPAL"
           - "MATRONA"
           - "MEDICINA FAMILIAR "
-          - "MEDICO 22/22 HORAS"
-          - "MEDICO 22/28 HORAS"
-          - "MEDICO APS"
-          - "MEDICO CIRUJANO"
-          - "MEDICO DE 28 HORAS"
-          - "MEDICO EDF ART 8"
-          - "MEDICO"
-          - "MEDICOS"
           - "MIEMBRO DEL CONSEJO CONSTITUCIONAL"
           - "MIEMBRO ÓRGANO EJECUTIVO"
-          - "NINGUNO" # None
           - "NOTARIO CONSERVADOR ARCHIVERO"
           - "NOTARIO Y ARCHIVERO"
           - "NOTARIO"
@@ -388,6 +386,7 @@ lookups:
           - "SECRETARIO ABOGADO"
           - "SECRETARIO RELATOR"
           - "SECRETARIO EJECUTIVO"
+          - "SECRETARIA GENERAL DE POLÍTICA EXTERIOR"
           - "SECRETARIO GENERAL DE POLÍTICA EXTERIOR"
           - "SECRETARIO GENERAL"
           - "SECRETARIO MUNICIPAL"
@@ -408,6 +407,7 @@ lookups:
           - "SECRETARIO REGIONAL MINISTERIAL DE DEPORTES REGIÓN DEL LIBERTADOR BERNARDO O´HIGGINS"
           - "SECRETARIO REGIONAL MINISTERIAL DE ÑUBLE"
           - "SECRETARIO REGIONAL MINISTERIAL DE SALUD"
+          - "SECRETARIO REGIONAL MINISTERIAL DE VIVIENDA Y URBANISMO"
           - "SECRETARIO REGIONAL MINISTERIAL DEL DEPORTE REGION DEL MAULE"
           - "SECRETARIO"
           - "SECRETARIO(A) REGIONAL MINISTERIAL DE OBRAS PÚBLICAS REGIÓN DE ÑUBLE"
@@ -436,6 +436,7 @@ lookups:
           - "SUBCONTRALOR GENERAL"
           - "SUBDIRECTOR ADMINISTRATIVO SERVICIO"
           - "SUBDIRECTOR DE ARQUITECTURA"
+          - "SUBDIRECTOR DE COMUNICACIONES"
           - "SUBDIRECTOR GESTION DEL CUIDADO"
           - "SUBDIRECTOR NACIONAL"
           - "SUBDIRECTOR"
@@ -448,6 +449,7 @@ lookups:
           - "SUBSECRETARIA"
           - "SUBSECRETARIA(O) DE EVALUACIÓN SOCIAL"
           - "SUBSECRETARIA/O"
+          - "SUBSECRETARIO DE RELACIONES ECONOMICAS INTERNACIONALES"
           - "SUBSECRETARIO DE RELACIONES EXTERIORES"
           - "SUBSECRETARIO"
           - "SUBSECRETARIO(A) DEL PATRIMONIO CULTURAL"
@@ -470,6 +472,7 @@ lookups:
           - ANALISTA DE CONTRATOS
           - ASISTENTE DE CONTRATOS
           - AUDITOR INFORMATICO
+          - AUDITOR INFRAESTRUCTURA
           - AUDITOR INTERNO
           - AUDITOR INTERNO
           - AUDITOR INTERNO
@@ -493,3 +496,4 @@ lookups:
           - SUBJEFE DEPTO. INFORMATICA Y COMPUTACION
           - SUBSECRETARIA DE RELACIONES EXTERIORES
           - SUPERINTEDENTA (S)
+          - "INTEGRANTE COMITE DIRECTIVO LOCAL "

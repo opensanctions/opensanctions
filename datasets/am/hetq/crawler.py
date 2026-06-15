@@ -123,6 +123,8 @@ def crawl_person(
         h.apply_date(person, "birthDate", birth_date)
     if birth_place is not None:
         person.add("birthPlace", birth_place)
+    # various positons
+    person.add("country", "am")
     position_name = data.get("position_en", "").strip()
     position_name = fix_trans_spill(position_name)
     position_lang = "en"
@@ -139,7 +141,7 @@ def crawl_person(
             lang=position_lang,
         )
         # Do usual PEP logic for positions/occupancies
-        categorisation = categorise(context, position, is_pep=True)
+        categorisation = categorise(context, position, default_is_pep=True)
         if categorisation.is_pep:
             occupancy = h.make_occupancy(
                 context,
@@ -169,7 +171,7 @@ def crawl_list(
     data: List[Dict[str, Any]],
     year: int,
     lang: SupportedLanguage,
-):
+) -> None:
     """Accumulate person info from yearly list.  Do not actually
     create entities yet because they are duplicated in multiple years."""
     for entry in data:
@@ -206,7 +208,7 @@ def crawl_missing_pois(
     zipfh: ZipFile,
     missing_pois: Dict[int, Any],
     persons: Dict[int, Dict[str, Any]],
-):
+) -> None:
     """Create an entity for a person of interest not named in the
     front-page list of PEPs."""
     # We should have downloaded these in download.py (at first we didn't)
@@ -222,7 +224,7 @@ def crawl_missing_pois(
 
 def crawl_relations(
     context: Context, zipfh: ZipFile, persons: Dict[int, Dict[str, Any]], person_id: int
-):
+) -> None:
     """Read relation graph and create entities."""
     # There should always be a person / entity for the source
     assert person_id in persons
@@ -288,7 +290,7 @@ def crawl_relations(
         context.emit(relation)
 
 
-def crawl_lists(context: Context, zipfh: ZipFile):
+def crawl_lists(context: Context, zipfh: ZipFile) -> None:
     """Read lists of persons for each year covered, matching names and
     accumulating years in which the person was active."""
     persons: Dict[int, Dict[str, Any]] = {}
@@ -315,7 +317,7 @@ def crawl_lists(context: Context, zipfh: ZipFile):
         crawl_relations(context, zipfh, persons, person_id)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     """Download the zip of Hetq data and create Person entities."""
 
     data_path = context.get_resource_path("hetq-data.zip")

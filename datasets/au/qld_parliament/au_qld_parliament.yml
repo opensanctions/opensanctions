@@ -1,0 +1,57 @@
+title: Australia State Parliament of Queensland
+prefix: au-qldparl
+entry_point: crawler.py
+coverage:
+  frequency: weekly
+  start: "2026-06-15"
+load_statements: true
+
+summary: >
+  Current members (MLAs) of the unicameral Queensland Legislative Assembly, as
+  published on the Parliament's website.
+
+description: |
+  The Legislative Assembly of Queensland is the unicameral legislature of the
+  state of Queensland, Australia — the only mainland Australian state without an
+  upper house, the Legislative Council having been abolished in 1922. It has 93
+  members (MLAs), each elected to a single-member electorate. The roster is
+  updated between elections as casual vacancies are filled by by-election. This
+  dataset covers the current members listed on the Parliament's website, with
+  each member's electorate and party affiliation.
+
+url: https://www.parliament.qld.gov.au/Members/Current-Members/Member-List
+
+publisher:
+  name: Queensland Parliament
+  acronym: QLD Parliament
+  description: >
+    The unicameral legislature of the state of Queensland, Australia, comprising
+    93 elected Members of the Legislative Assembly (MLAs).
+  url: https://www.parliament.qld.gov.au/
+  country: au
+  official: true
+
+data:
+  url: https://www.parliament.qld.gov.au/Members/Current-Members/Member-List
+  format: HTML
+  lang: eng
+
+# The site's WAF returns 403 to the default zavod user agent; a browser UA
+# (transparently suffixed) is accepted.
+http:
+  user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36 (zavod; opensanctions.org)"
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 75
+      Position: 1
+    country_entities:
+      au: 75
+  max:
+    schema_entities:
+      Person: 140
+      Position: 1

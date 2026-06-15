@@ -14,23 +14,39 @@ jobs:
       - uses: actions/checkout@v6
       - name: Get modified dataset yamls
         id: changed-yamls
-        uses: tj-actions/changed-files@7dee1b0c1557f278e5c7dc244927139d78c0e22a  # v47.0.4
+        uses: tj-actions/changed-files@9426d40962ed5378910ee2e21d5f8c6fcbf2dd96  # v47.0.6
         with:
           files: 'datasets/**/*.y*ml'
+          separator: "\n"
+          safe_output: false  # false because we are using an environment variable to store the output and avoid command injection.
       - name: Lint modiied dataset yamls
         if: ${{ steps.changed-yamls.outputs.all_changed_files != '' }}
+        env:
+          # For security reasons, pass possibly attacker-chosen filenames via
+          # env var (not direct ${{ }} interpolation into shell) to prevent
+          # command injection through crafted PR filenames containing shell
+          # metacharacters.
+          CHANGED_FILES: ${{ steps.changed-yamls.outputs.all_changed_files }}
         run: |
-          yamllint ${{ steps.changed-yamls.outputs.all_changed_files }}
+          set -euo pipefail
+          # Read into an array so each filename is passed as its own quoted argv
+          # entry (a bare `for f in $CHANGED_FILES` would word-split unsafely).
+          mapfile -t files <<< "$CHANGED_FILES"
+          yamllint "${files[@]}"
       - name: Get modified dataset python
         id: changed-python
-        uses: tj-actions/changed-files@7dee1b0c1557f278e5c7dc244927139d78c0e22a  # v47.0.4
+        uses: tj-actions/changed-files@9426d40962ed5378910ee2e21d5f8c6fcbf2dd96  # v47.0.6
         with:
           files: 'datasets/**/*.py'
+          separator: "\n"
+          safe_output: false  # false because we are using an environment variable to store the output and avoid command injection.
       - name: Get all modified files
         id: changed-files
-        uses: tj-actions/changed-files@7dee1b0c1557f278e5c7dc244927139d78c0e22a  # v47.0.4
+        uses: tj-actions/changed-files@9426d40962ed5378910ee2e21d5f8c6fcbf2dd96  # v47.0.6
         with:
           files: 'datasets/**'
+          separator: "\n"
+          safe_output: false  # false because we are using an environment variable to store the output and avoid command injection.
       - uses: actions/setup-python@v6
         with:
           python-version: '3.12'
@@ -41,16 +57,27 @@ jobs:
           pip install -q -e ".[dev]"
       - name: Lint modified dataset python
         if: ${{ steps.changed-python.outputs.all_changed_files != '' }}
+        env:
+          # See note above: env var + quoted expansion avoids shell injection
+          # via filenames in PRs.
+          CHANGED_FILES: ${{ steps.changed-python.outputs.all_changed_files }}
         run: |
           set -euxo pipefail
-          for dataset in ${{ steps.changed-python.outputs.all_changed_files }}
-          do
-              echo Linting $dataset
-              ruff check $dataset
-              ruff format --check --diff $dataset
-          done
-      - name: pre-commit (prek)
+          while IFS= read -r dataset; do
+            [ -z "$dataset" ] && continue
+            echo Linting "$dataset"
+            ruff check "$dataset"
+            ruff format --check --diff "$dataset"
+          done <<< "$CHANGED_FILES"
+      - name: Run prek pre-commit hooks on modified files
         if: ${{ steps.changed-python.outputs.all_changed_files != '' }}
+        env:
+          # See note above: env var + quoted expansion avoids shell injection
+          # via filenames in PRs.
+          CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
         run: |
           set -euxo pipefail
-          prek run --files ${{ steps.changed-files.outputs.all_changed_files }} mypy
+          # Read into an array so each filename is passed as its own quoted argv
+          # entry (a bare `for f in $CHANGED_FILES` would word-split unsafely).
+          mapfile -t files <<< "$CHANGED_FILES"
+          prek run --files "${files[@]}"

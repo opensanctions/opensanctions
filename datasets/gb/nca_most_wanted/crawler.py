@@ -4,6 +4,7 @@ from normality import slugify
 
 from zavod import Context
 
+
 FIELD_NAMES = ("basic", "description", "additional")
 
 
@@ -28,12 +29,14 @@ def crawl_person(context: Context, item: _Element, url: str) -> None:
     # Article
     article = doc.find('.//div[@itemprop="articleBody"]').find(".//p")
     person.add("notes", article.text.strip())
-
     # Fields
     for field_name in FIELD_NAMES:
         column = doc.find(
             f'.//div[@class="span4 most-wanted-customfields most-wanted-{field_name}"]'
         )
+        if column is None:
+            context.log.info("Fields not found", url=person_url, field=field_name)
+            continue
         labels = column.findall('./span[@class="field-label "]')
         values = column.findall('./span[@class="field-value "]')
 
@@ -53,7 +56,7 @@ def crawl_person(context: Context, item: _Element, url: str) -> None:
     context.emit(person)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     url = context.data_url
     doc = context.fetch_html(url)
     mw_grid = doc.find('.//div[@class="blog most-wanted-grid"]')

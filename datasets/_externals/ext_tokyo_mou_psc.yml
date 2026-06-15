@@ -45,6 +45,7 @@ inputs:
   - maritime
 
 config:
+  topic_gated: true
   index_options:
     memory: 3000
   topics:
@@ -63,8 +64,8 @@ assertions:
   min:
     schema_entities:
       Vessel: 100
-      Company: 100
+      Company: 50
   max:
     schema_entities:
       Vessel: 500
-      Company: 300
+      Company: 150

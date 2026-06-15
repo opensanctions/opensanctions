@@ -1,11 +1,13 @@
 from typing import Dict, Optional, Set
 
+from followthemoney import registry
 from nomenklatura.wikidata import Item, WikidataClient, Claim
 from nomenklatura.wikidata.value import clean_wikidata_name
 from rigour.territories import get_territory_by_qid
 
 from zavod import Context, Entity
 from zavod import helpers as h
+from zavod.constants import ORIGIN_INFERRED
 from zavod.stateful.positions import categorise
 from zavod.shed.wikidata.country import is_historical_country, item_countries
 
@@ -71,6 +73,7 @@ IGNORE_TYPES: Set[str] = {
     "Q4240305",  # cross
     "Q120560",  # minor basilica?
     "Q2977",  # cathedral
+    "Q3320743",  # title of honor
 }
 
 # TEMP: We're starting to include municipal PEPs for specific countries
@@ -189,7 +192,7 @@ def wikidata_position(
         topics.discard("gov.head")
 
     position.add("topics", topics)
-    categorisation = categorise(context, position, is_pep=is_pep)
+    categorisation = categorise(context, position, default_is_pep=is_pep)
     if not categorisation.is_pep:
         return None
     real_topics = set(categorisation.topics)
@@ -230,7 +233,7 @@ def wikidata_occupancy(
     """Create an Occupancy entity for the given person and position based on the claim,
     which identifies relevant qualifiers."""
     start_date: Optional[str] = None
-    for qual in claim.qualifiers.get("P580", []):
+    for qual in claim.get_qualifier("P580"):
         qual_date = qual.text.text
         if qual_date is not None:
             if start_date is None:
@@ -239,18 +242,13 @@ def wikidata_occupancy(
                 start_date = min(start_date, qual_date)
 
     end_date: Optional[str] = None
-    for qual in claim.qualifiers.get("P582", []):
+    for qual in claim.get_qualifier("P582"):
         qual_date = qual.text.text
         if qual_date is not None:
             if end_date is None:
                 end_date = qual_date
             else:
                 end_date = max(end_date, qual_date)
-
-    # Diplomatic positions tend to be associated with the receiving country,
-    # so we don't want to propagate that to the person.
-    position_topics = position.get("topics")
-    is_diplomat = "role.diplo" in position_topics
 
     # Set the key prefix in order to avoid duplicating occupancies for the same
     # position held by the same person across multiple datasets. The choice is
@@ -262,19 +260,29 @@ def wikidata_occupancy(
         no_end_implies_current=False,
         start_date=start_date,
         end_date=end_date,
-        propagate_country=not is_diplomat,
         key_prefix="wd_peps",
     )
 
     if occupancy is None:
         return None
 
+    # Wikidata persons frequently lack their own citizenship statement, so we
+    # associate confirmed PEPs with the position's country. Diplomatic posts
+    # (role.diplo) name the receiving country rather than the person's, so those
+    # are left out.
+    if "role.diplo" not in position.get("topics"):
+        for country in position.get("country"):
+            if country not in person.get_type_values(registry.country, matchable=True):
+                person.add("country", country, origin=ORIGIN_INFERRED)
+
     # reference URL:
-    for qual in claim.qualifiers.get("P854", []):
-        if qual.text is not None:
-            qual.text.apply(occupancy, "sourceUrl")
+    for ref in claim.references:
+        for snak in ref.get("P854"):
+            if snak.text is not None:
+                snak.text.apply(occupancy, "sourceUrl")
+
     # electoral district:
-    for qual in claim.qualifiers.get("P768", []):
+    for qual in claim.get_qualifier("P768"):
         if qual.text is not None:
             qual.text.apply(occupancy, "constituency")
 

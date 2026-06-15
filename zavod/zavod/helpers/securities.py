@@ -1,3 +1,4 @@
+from zavod.constants import ORIGIN_INFERRED
 from zavod.context import Context
 from zavod.entity import Entity
 
@@ -12,5 +13,5 @@ def make_security(context: Context, isin: str) -> Entity:
     entity.add("isin", isin)
     cc = isin[:2]
     if cc not in ISIN_NON_COUNTRY:
-        entity.add("country", cc)
+        entity.add("country", cc, origin=ORIGIN_INFERRED)
     return entity

@@ -1,7 +1,6 @@
 from followthemoney.util import join_text
-from normality import collapse_spaces, slugify
+from normality import slugify, squash_spaces
 from rigour.mime.types import CSV
-from typing import Dict
 import csv
 from lxml import html
 
@@ -33,10 +32,12 @@ from zavod.stateful.positions import OccupancyStatus, categorise
 GRAPH_URL = "https://peps.directoriolegislativo.org/json/graph.json"
 
 
-def crawl_row(context: Context, row: Dict[str, str]) -> tuple[str, Entity]:
+def crawl_row(context: Context, row: dict[str, str]) -> tuple[str, Entity]:
     entity = context.make("Person")
     id_number = row.pop("ID / CC")
     entity.id = context.make_slug(id_number, prefix="co-cedula")
+    # required for Senador, Representante a la Cámara, Ministro
+    entity.add("citizenship", "co")
     h.apply_name(
         entity,
         given_name=join_text(
@@ -49,7 +50,9 @@ def crawl_row(context: Context, row: Dict[str, str]) -> tuple[str, Entity]:
         ),
     )
     entity.add("idNumber", id_number)
-    return slugify(entity.get("name")), entity
+    name_slug = slugify(entity.get("name"))
+    assert name_slug is not None
+    return name_slug, entity
 
 
 def parse_node(context: Context, node: dict[str, str]) -> dict[str, str] | None:
@@ -57,16 +60,21 @@ def parse_node(context: Context, node: dict[str, str]) -> dict[str, str] | None:
     if description.strip() == "":
         return None
     doc = html.fromstring(description)
-    text: str = doc.text_content()
+    # squash=False to preserve newlines — we split rows on \n below
+    text = h.element_text(doc, squash=False)
     data: dict[str, str] = {}
     for row in text.split("\n"):
         if row:
             key, value = row.split(":", 1)
-            data[slugify(key, "_")] = collapse_spaces(value)
+            slug_key = slugify(key, "_")
+            assert slug_key is not None
+            data[slug_key] = squash_spaces(value)
 
     links = doc.findall(".//a")
     if len(links) == 1:
-        data["link"] = links[0].get("href")
+        href = links[0].get("href")
+        assert href is not None
+        data["link"] = href
     else:
         context.log.warning(
             "Expected exactly one link for node", id=node["ID"], count=len(links)
@@ -81,6 +89,7 @@ def crawl_node(context: Context, peps: dict[str, Entity], node: dict[str, str]) 
 
     name = data["politically_exposed_person"]
     name_slug = slugify(name)
+    assert name_slug is not None
     entity = peps.get(name_slug, None)
     if entity:
         position_slug = slugify(data.pop("position"))
@@ -100,7 +109,7 @@ def crawl_node(context: Context, peps: dict[str, Entity], node: dict[str, str]) 
             position = h.make_position(
                 context, res.name, country="co", topics=res.topics
             )
-            categorisation = categorise(context, position, True)
+            categorisation = categorise(context, position, default_is_pep=True)
             if categorisation.is_pep:
                 occupancy = h.make_occupancy(
                     context, entity, position, status=OccupancyStatus.UNKNOWN

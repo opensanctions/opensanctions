@@ -1,9 +1,10 @@
 import re
 import csv
+import html
 from typing import Optional, List
 
 from rigour.mime.types import CSV
-from zavod.helpers.xml import ElementOrTree
+from zavod.util import ElementOrTree
 
 from zavod import Context, Entity
 from zavod import helpers as h
@@ -43,7 +44,7 @@ def get_csv_link(context: Context) -> str:
     raise ValueError("CSV link not found")
 
 
-def add_reg_property(entity: Entity, prop: str, value: str, original: str):
+def add_reg_property(entity: Entity, prop: str, value: str, original: str) -> None:
     """Helper to add property with Company cast for specific codes."""
     if prop in ("kppCode", "bikCode"):
         entity.add_cast("Company", prop, value, original_value=original)
@@ -51,7 +52,7 @@ def add_reg_property(entity: Entity, prop: str, value: str, original: str):
         entity.add(prop, value, original_value=original)
 
 
-def apply_reg_number(context: Context, entity: Entity, reg_number: str):
+def apply_reg_number(context: Context, entity: Entity, reg_number: str) -> None:
     for pattern, prop in PATTERNS:
         if match := re.match(pattern, reg_number, re.IGNORECASE):
             value = match.group(1)
@@ -97,7 +98,9 @@ def entity_type(type: str) -> str:
             raise ValueError("Unknown entity type")
 
 
-def xml_make_legal_entity(context: Context, designation: ElementOrTree, entity: Entity):
+def xml_make_legal_entity(
+    context: Context, designation: ElementOrTree, entity: Entity
+) -> None:
     # Add phone numbers
     for phone_number in designation.iterfind(".//PhoneNumbers//PhoneNumber"):
         if phone_number.text is not None:
@@ -126,7 +129,9 @@ def xml_make_legal_entity(context: Context, designation: ElementOrTree, entity: 
         h.copy_address(entity, addr)
 
 
-def xml_make_person(context: Context, designation: ElementOrTree, entity: Entity):
+def xml_make_person(
+    context: Context, designation: ElementOrTree, entity: Entity
+) -> None:
     for individual in designation.findall(".//IndividualDetails//Individual"):
         # Add the date of birth
         for dob in individual.iterfind(".//DOBs//DOB"):
@@ -150,7 +155,7 @@ def xml_make_person(context: Context, designation: ElementOrTree, entity: Entity
             entity.add("position", position.text)
 
 
-def xml_make_ship(context: Context, designation: ElementOrTree, entity: Entity):
+def xml_make_ship(context: Context, designation: ElementOrTree, entity: Entity) -> None:
     for ship in designation.findall(".//ShipDetails//Ship"):
         # Add the imonumber
         for imo in ship.iterfind(".//IMONumbers//IMONumber"):
@@ -182,7 +187,7 @@ def xml_make_ship(context: Context, designation: ElementOrTree, entity: Entity):
             entity.add("flag", flag.text)
 
 
-def crawl_xml(context: Context):
+def crawl_xml(context: Context) -> None:
     # Get the XML file
     url = get_xml_link(context)
     xml = context.fetch_resource("source.xml", url)
@@ -302,7 +307,7 @@ def crawl_xml(context: Context):
             for info in designation.iterfind(".//OtherInformation"):
                 entity.add("notes", info.text)
             for info in designation.iterfind(".//UKStatementofReasons"):
-                sanction.add("reason", info.text)
+                sanction.add("reason", html.unescape(info.text) if info.text else None)
             entity.add("topics", "sanction")
             context.emit(entity)
             context.emit(sanction)
@@ -310,7 +315,9 @@ def crawl_xml(context: Context):
             context.log.error(f"Failed to parse designation with id {unique_id}: {e}")
 
 
-def csv_make_legal_entity(context: Context, row: dict, entity: Entity):
+def csv_make_legal_entity(
+    context: Context, row: dict[str, str], entity: Entity
+) -> None:
     entity.add("phone", row.pop("Phone number"))
     entity.add("email", h.multi_split(row.pop("Email address"), [", ", "; "]))
     entity.add("website", row.pop("Website"))
@@ -362,7 +369,7 @@ def csv_make_legal_entity(context: Context, row: dict, entity: Entity):
         context.emit(ownership)
 
 
-def csv_make_person(context: Context, row: dict, entity: Entity):
+def csv_make_person(context: Context, row: dict[str, str], entity: Entity) -> None:
     csv_make_legal_entity(context, row, entity)
     h.apply_date(entity, "birthDate", row.pop("D.O.B"))
     entity.add("title", row.pop("Title"))
@@ -382,7 +389,7 @@ def csv_make_person(context: Context, row: dict, entity: Entity):
     context.emit(passport)
 
 
-def csv_make_ship(context: Context, row: dict, entity: Entity):
+def csv_make_ship(context: Context, row: dict[str, str], entity: Entity) -> None:
     entity.add("type", row.pop("Type of ship"))
     entity.add("flag", row.pop("Current believed flag of ship"))
     entity.add("pastFlags", row.pop("Previous flags"))
@@ -430,7 +437,7 @@ def get_name_prop(
     name_res = context.lookup("name_type", name_type, warn_unmatched=True)
     if name_res is None:
         return None
-    name_prop = name_res.prop
+    name_prop = str(name_res.prop)
     if not name_res.is_alias:
         return name_prop
 
@@ -457,7 +464,7 @@ def get_name_prop(
     return name_prop
 
 
-def crawl_csv(context: Context):
+def crawl_csv(context: Context) -> None:
     csv_url = get_csv_link(context)
     path = context.fetch_resource("source.csv", csv_url)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
@@ -535,7 +542,7 @@ def crawl_csv(context: Context):
             sanction.add("authorityId", row.pop("OFSI Group ID"))
             sanction.add("unscId", row.pop("UN Reference Number"))
             sanction.set("authority", row.pop("Designation source"))
-            sanction.add("reason", row.pop("UK Statement of Reasons"))
+            sanction.add("reason", html.unescape(row.pop("UK Statement of Reasons")))
             h.apply_date(sanction, "modifiedAt", row.pop("Last Updated"))
             h.apply_date(sanction, "startDate", row.pop("Date Designated"))
 
@@ -559,6 +566,6 @@ def crawl_csv(context: Context):
             )
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     crawl_xml(context)
     crawl_csv(context)

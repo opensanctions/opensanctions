@@ -62,6 +62,9 @@ SANCTION_FEATURES = {
     "Executive Order 13662 Directive Determination -": "summary",
     "Executive Order 13846 information:": "summary",
     "Additional Sanctions Information -": "summary",
+    # https://www.ecfr.gov/current/title-31/part-594/section-594.201
+    # "affiliates of the IRGC are identified by a special reference to the “IRGC” at the end of their entries"
+    "Additional Program Tags -": "program",
     "Secondary sanctions risk:": "summary",
     "Transactions Prohibited For Persons Owned or Controlled By U.S. Financial Institutions:": "summary",  # noqa
     "IFCA Determination -": "summary",
@@ -624,6 +627,13 @@ def emit_sanctions_entry(
 
     for feature, prop in SANCTION_FEATURES.items():
         for value in features.get(feature, []):
+            if prop == "program":
+                if not isinstance(value, str):
+                    context.log.warning("unexpected program", value=value)
+                    continue
+                program_id = h.lookup_sanction_program_key(context, value)
+                sanction.add("programId", program_id)
+                proxy.add("programId", program_id)
             if prop == "summary":
                 fname = feature.rstrip(":").rstrip("-").strip()
                 value = f"{fname}: {value}"
