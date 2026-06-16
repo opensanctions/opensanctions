@@ -6,9 +6,6 @@ from zavod.entity import Entity
 from zavod.stateful.positions import PositionCategorisation, categorise
 
 
-TOPICS = ["gov.national", "gov.legislative"]
-
-
 def term_starts(rows: list[dict[str, str]]) -> dict[str, str]:
     """Map each term id to its start date (raw `YYYY/MM/DD`).
 
@@ -139,7 +136,7 @@ def crawl(context: Context) -> None:
         context,
         name="Member of the Legislative Yuan",
         country="tw",
-        topics=TOPICS,
+        topics=["gov.national", "gov.legislative"],
         wikidata_id="Q6310593",
     )
     categorisation = categorise(context, position)
@@ -147,6 +144,8 @@ def crawl(context: Context) -> None:
 
     for row in rows:
         # `cutoff` is ISO (dash-separated); normalise the source separator to compare.
-        if starts[row["term"]].replace("/", "-") < h.earliest_term_start(TOPICS):
+        if starts[row["term"]].replace("/", "-") < h.earliest_term_start(
+            position.get("topics")
+        ):
             continue
         crawl_member(context, row, starts, next_start, position, categorisation)
