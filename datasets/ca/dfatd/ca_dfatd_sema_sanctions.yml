@@ -114,6 +114,10 @@ lookups:
         values: [1970, 1971, 1972, 1973, 1974]
       - match: "1975-19-25"
         value: "1975"
+      - match: "23/11/1973"
+        value: "1973-11-23"
+      - match: "09/30/1978"
+        value: "1978-09-30"
   type.name:
     normalize: true
     lowercase: true
