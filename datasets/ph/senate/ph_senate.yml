@@ -1,0 +1,45 @@
+title: Philippines Senate
+entry_point: crawler.py
+prefix: ph-sen
+coverage:
+  frequency: monthly
+  start: 2025-06-30
+load_statements: true
+ci_test: false  # uses Zyte to bypass Cloudflare; API key unavailable in CI
+summary: >-
+  Current and historical members of the Senate of the Philippines, the upper chamber of the
+  Congress of the Philippines.
+description: |
+  Current and historical members of the Senate, the upper chamber of the bicameral
+  Congress of the Philippines. Its 24 senators are elected nationwide to staggered
+  six-year terms, with half the chamber renewed every three years, and together with
+  the House of Representatives hold the country's legislative power, including passing
+  laws and approving the budget.
+
+  This dataset records the senators of the current Congress along with those of
+  earlier Congresses going back to the cutoff for PEP relevance, with their name,
+  email, website and social media links, address, and a biography.
+url: https://web.senate.gov.ph/senators/
+publisher:
+  name: Senate of the Philippines
+  description: >
+    The Senate is the upper chamber of the Congress of the Philippines, the
+    national legislature.
+  url: https://web.senate.gov.ph/
+  country: ph
+  official: true
+data:
+  url: https://senate.gov.ph/hq/congress/
+  format: JSON
+  lang: eng
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 40
+  max:
+    schema_entities:
+      Person: 100
