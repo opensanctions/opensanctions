@@ -67,6 +67,7 @@ inputs:
   - special_interest
 
 config:
+  topic_gated: true
   threshold: 0.5
   index_options:
     memory: 3000
@@ -89,7 +90,12 @@ config:
     - Organization
     - LegalEntity
 
+# estimates June 2026
+# Organizations: 3664
 assertions:
   min:
     schema_entities:
       Organization: 20
+  max:
+    schema_entities:
+      Organization: 7000
