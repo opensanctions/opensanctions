@@ -7,9 +7,7 @@ coverage:
 load_statements: true
 ci_test: false
 summary: >-
-  List of firms and individuals that the UK Financial Conduct Authority has
-  warned consumers about, because they appear to be operating without proper
-  authorisation or are suspected of carrying out financial scams.
+  Firms and individuals identified by the UK FCA as operating without authorisation.
 description: |
   The Financial Conduct Authority (FCA) publishes a warning list of firms and
   individuals that are not authorised or registered by the FCA, or which appear

@@ -25,10 +25,7 @@ def apply_prop(context: Context, entity: Entity, label: str, value: str) -> None
     prop = context.lookup_value("firm_details", label.lower())
     if prop is None:
         context.log.warning("Unhandled firm detail field", label=label, value=value)
-    elif prop == "address":
-        h.copy_address(entity, h.make_address(context, full=value))
-    elif prop == "notes":
-        entity.add("notes", f"{label}: {value}")
+        return
     else:
         entity.add(prop, h.multi_split(value, [","]))
 
@@ -104,7 +101,6 @@ def crawl(context: Context) -> None:
             url,
             ITEMS_XPATH,
             html_source="httpResponseBody",
-            cache_days=1,
         )
         items = h.xpath_elements(doc, ITEMS_XPATH)
 
