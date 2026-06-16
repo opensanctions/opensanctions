@@ -1,0 +1,51 @@
+title: Panama National Assembly (Deputies)
+entry_point: crawler.py
+prefix: pa-an
+coverage:
+  frequency: weekly
+  start: 2026-06-16
+load_statements: true
+ci_test: false
+summary: >-
+  Deputies of the National Assembly of Panama, the country's unicameral national
+  legislature
+description: |
+  The National Assembly (Asamblea Nacional) is the unicameral legislature of Panama,
+  made up of 71 deputies elected by electoral circuit for five-year terms.
+
+  This dataset covers the currently serving deputies. The Assembly's own website does
+  not expose structured deputy data (it is behind an anti-bot challenge), so the crawler
+  uses the deputy directory published by Espacio Cívico, a Panamanian civil-society
+  organisation that compiles and monitors official information on the deputies.
+url: https://espaciocivico.org/diputados
+publisher:
+  name: Espacio Cívico
+  description: >
+    Espacio Cívico is a Panamanian civil-society organisation that publishes a monitored
+    directory of the deputies of the National Assembly, compiling official information on
+    their profiles, attendance and declarations.
+  url: https://espaciocivico.org/
+  country: pa
+  official: false
+data:
+  url: https://espaciocivico.org/api/diputados
+  format: JSON
+  lang: spa
+
+dates:
+  formats: ["%Y-%m-%d"]
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 60
+      Position: 1
+    country_entities:
+      pa: 60
+  max:
+    schema_entities:
+      Person: 85
+      Position: 1
