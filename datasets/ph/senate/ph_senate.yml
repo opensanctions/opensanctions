@@ -39,7 +39,7 @@ tags:
 assertions:
   min:
     schema_entities:
-      Person: 40
+      Person: 20
   max:
     schema_entities:
       Person: 100

@@ -34,8 +34,8 @@ def clean_birth_date(raw: str | None) -> str | None:
 
 def crawl_member(context: Context, position: Entity, record: dict[str, Any]) -> None:
     person = context.make("Person")
-    first_name = record.get("emer")
-    last_name = record.get("mbiemer")
+    first_name = record.pop("emer")
+    last_name = record.pop("mbiemer")
     person.id = context.make_id(first_name, last_name, record.pop("id"))
 
     # `atesi` (patronymic) is sometimes a "-" placeholder rather than a name.
