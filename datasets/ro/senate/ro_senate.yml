@@ -3,7 +3,7 @@ prefix: ro-senate
 entry_point: crawler.py
 coverage:
   frequency: monthly
-  start: 2026-06-09
+  start: 2026-06-16
 load_statements: true
 # Each historical legislature exposes ~120-170 senators on their own detail pages,
 # so a full crawl issues well over a thousand requests -- too large for CI.
