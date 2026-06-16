@@ -1,0 +1,53 @@
+title: Guatemala Congress of the Republic (Deputies)
+entry_point: crawler.py
+prefix: gt-cong
+coverage:
+  frequency: weekly
+  start: 2026-06-16
+load_statements: true
+ci_test: false
+summary: >-
+  Deputies of the Congress of the Republic of Guatemala, the country's unicameral
+  national legislature
+description: |
+  The Congress of the Republic (Congreso de la República) is the unicameral legislature
+  of Guatemala, made up of 160 deputies elected for four-year terms.
+
+  This dataset covers the currently serving deputies. The official congressional member
+  directory (congreso.gob.gt) is behind an Incapsula anti-bot firewall and cannot be
+  fetched directly, so the crawler uses the open dataset published by Red Ciudadana, a
+  Guatemalan civil-society organisation that compiles deputy information from official
+  congressional sources. Each record links back to the deputy's official congressional
+  profile, whose identifier is used as the entity key.
+url: https://redciudadana.github.io/DatosAbiertos.gt/
+publisher:
+  name: Red Ciudadana
+  description: >
+    Red Ciudadana is a Guatemalan civil-society organisation that promotes transparency
+    and open data. It compiles and republishes information on the deputies of the
+    Congress of the Republic from official congressional sources.
+  url: https://redciudadana.org/
+  country: gt
+  official: false
+data:
+  url: https://raw.githubusercontent.com/RedCiudadana/Monitor_Legislativo/main/_data/diputados.json
+  format: JSON
+  lang: spa
+
+dates:
+  formats: ["%d-%m-%Y"]
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 140
+      Position: 1
+    country_entities:
+      gt: 140
+  max:
+    schema_entities:
+      Person: 175
+      Position: 1
