@@ -40,12 +40,15 @@ Preserve leading zeros. The answer is always exactly 5 digits."""
 MAX_LOGIN_ATTEMPTS = 5
 
 
-def attempt_login(context: Context) -> None:
+def attempt_login(context: Context, attempt: int) -> None:
     """Fetch a fresh CAPTCHA and attempt login, establishing the session cookie."""
     login_page = context.fetch_html(context.data_url)
     image = h.xpath_element(login_page, './/img[contains(@src, "captcha.php")]')
     captcha_url = urljoin(context.data_url, image.get("src"))
-    image_path: Path = context.fetch_resource("captcha.png", captcha_url)
+    # Each attempt rotates the server-side CAPTCHA, so use a unique filename:
+    # fetch_resource skips the download when the target file already exists, which
+    # would otherwise reuse a stale image that can never match the new session.
+    image_path: Path = context.fetch_resource(f"captcha-{attempt}.png", captcha_url)
     context.log.debug(f"Fetched CAPTCHA image from {captcha_url}")
     result = run_image_prompt(
         context,
@@ -71,7 +74,7 @@ def crawl(context: Context) -> None:
     for attempt in range(1, MAX_LOGIN_ATTEMPTS + 1):
         try:
             context.log.info(f"Login attempt {attempt}/{MAX_LOGIN_ATTEMPTS}")
-            attempt_login(context)
+            attempt_login(context, attempt)
             break
         except ValueError as exc:
             context.log.warning(str(exc))
