@@ -2,13 +2,12 @@ import csv
 from typing import Dict, Any
 from zipfile import ZipFile
 
+from rigour.mime.types import ZIP
+
 from zavod import Context
 from zavod import helpers as h
 from zavod.stateful.positions import categorise
 from zavod.extract.zyte_api import fetch_resource, fetch_html
-
-
-ZIP = "application/x-zip-compressed"
 
 
 # 1: CPF
