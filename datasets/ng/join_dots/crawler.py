@@ -18,7 +18,11 @@ REGEX_STATE_ASSEMBLY = re.compile(
 
 
 def clean_position(
-    context: Context, *, position_name: str, district: str, person_name: str
+    context: Context,
+    *,
+    position_name: str | None,
+    district: str,
+    person_name: str,
 ) -> str | None:
     """Normalise a raw position string, or returns None if the position name is invalid.
 
@@ -26,6 +30,8 @@ def clean_position(
     incorporating the district where needed. Falls back to lookups for
     other positions, or returns the cleaned input as-is if no match is found.
     """
+    if position_name is None:
+        return None
     collapsed = squash_spaces(position_name)
     if len(collapsed) == 0:
         return None
