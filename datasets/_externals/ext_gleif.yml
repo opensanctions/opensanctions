@@ -73,6 +73,7 @@ inputs:
   - special_interest
 
 config:
+  topic_gated: true
   index_options:
     max_candidates: 25
     match_batch: 300
@@ -95,14 +96,18 @@ config:
     - Organization
     # - LegalEntity
 
+# estimates June 2026
+# Securities: 92
+# Organizations: 1300
+# Companies: 4193
 assertions:
   min:
     schema_entities:
-      Security: 184000
-      Organization: 8000
-      Company: 4000
+      Security: 20
+      Organization: 800
+      Company: 3500
   max:
     schema_entities:
-      Security: 433000
-      Organization: 14000
+      Security: 500
+      Organization: 4000
       Company: 8000
