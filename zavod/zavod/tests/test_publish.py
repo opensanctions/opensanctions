@@ -79,7 +79,7 @@ def test_publish_failure(testdataset1: Dataset):
     try:
         crawl_dataset(testdataset1)
     except RunFailedException:
-        archive_failure(testdataset1, latest=True)
+        archive_failure(testdataset1)
     clear_data_path(testdataset1.name)
 
     history = _read_history(testdataset1.name)

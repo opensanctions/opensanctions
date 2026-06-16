@@ -103,14 +103,14 @@ def run(
 
     if dataset.model.disabled:
         log.info("Dataset is disabled, skipping: %s" % dataset.name)
-        archive_failure(dataset, latest=latest)
+        archive_failure(dataset)
         sys.exit(0)
     # crawl if it's a dataset, just create a new version if it's a collection
     if dataset.model.entry_point is not None and not dataset.is_collection:
         try:
             crawl_dataset(dataset, dry_run=False)
         except RunFailedException:
-            archive_failure(dataset, latest=latest)
+            archive_failure(dataset)
             sys.exit(1)
     else:
         # crawl_dataset -> Context.begin does this in the case above
@@ -126,7 +126,7 @@ def run(
             validate_dataset(dataset, view)
     except Exception:
         log.exception("Validation failed for %r" % dataset.name)
-        archive_failure(dataset, latest=latest)
+        archive_failure(dataset)
         store.close()
         sys.exit(1)
     # Export and Publish
