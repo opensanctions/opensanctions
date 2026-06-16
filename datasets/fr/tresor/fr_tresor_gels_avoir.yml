@@ -1319,11 +1319,14 @@ lookups:
             - "+7 (499) 404-79-66"
       # Codes we recognise but don't map to a property; keep as a note
       - match: "Code boursier (bourse de Shenzhen): 300910"
-        note: true
-        props: []
+        schema: Company
+        props:
+          ticker: "300910"
       - match: "PPC: 504701001"
         note: true
-        props: []
+      - match: "Tél.: 15.6.20267 (34147) 4-27-53; 15.6.20267  (34147) 2-99-77"
+        note: true
+
 
   ####################################################################################################
   ####################################################################################################
