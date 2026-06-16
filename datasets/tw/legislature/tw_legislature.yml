@@ -1,21 +1,21 @@
-title: Taiwan Legislative Yuan (Members)
+title: Taiwan Members of the Legislative Yuan
 entry_point: crawler.py
 prefix: tw-ly
 coverage:
-  frequency: daily
+  frequency: monthly
   start: 2026-06-15
 load_statements: true
 ci_test: true
 summary: >-
   Members of the Legislative Yuan, Taiwan's national legislature
 description: |
-  The Legislative Yuan is the unicameral legislature of the Republic of China (Taiwan).
+  Current and recent members of the Legislative Yuan (立法院), the unicameral national
+  legislature of Taiwan. Its 113 legislators are directly
+  elected to four-year terms and hold the country's legislative power, including
+  passing laws, approving the budget, and confirming senior appointments.
 
-  This dataset covers legislators of recent terms — both current members and those who
-  served in earlier terms that fall within the politically-exposed-person look-back
-  window — as published on the Legislative Yuan Open Data Service Platform and updated
-  daily. The source publishes the full historical roster; the crawler emits the terms
-  recent enough to still be relevant.
+  This dataset records the legislators of the current and recent terms, with their
+  name, gender, education, party affiliation, and parliamentary caucus.
 url: https://data.ly.gov.tw/
 publisher:
   name: Legislative Yuan
@@ -56,10 +56,3 @@ lookups:
         value: male
       - match: 女
         value: female
-  # Party affiliation (Person:political) and in-chamber caucus (Occupancy:politicalGroup)
-  # are stored verbatim as published; this lookup only drops non-affiliation markers
-  # (independent / a data glitch), not translate names.
-  party:
-    options:
-      - match: [無黨籍, 0無]      # independent / no caucus
-        value: null
