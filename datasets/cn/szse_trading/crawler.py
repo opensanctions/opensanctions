@@ -1,11 +1,13 @@
+import math
 import re
-from datetime import datetime, timezone, timedelta
+from datetime import datetime
 from typing import Any
+from zoneinfo import ZoneInfo
 
 from zavod import Context, helpers as h
 
 IGNORE = ["docpubjsonurl", "doctype", "chnlcode", "index", "navigation"]
-CST = timezone(timedelta(hours=8))
+CST = ZoneInfo("Asia/Shanghai")
 NAME_DELIMITERS = ["、", "，", ","]
 # The restrict_trading channel carries two notice grammars. Trading-restriction
 # decisions list the parties inside the trailing （…）:
@@ -47,7 +49,7 @@ def parse_item(context: Context, item: dict[str, Any]) -> None:
     date = (
         datetime.fromtimestamp(item.pop("docpubtime") / 1000, tz=CST).date().isoformat()
     )
-    doc_id = item.pop("id")
+    item.pop("id")  # CMS document id; the notice title keys the entity instead
     # truncated snippet from search API; full text would require fetching docpubjsonurl
     doc_content = item.pop("doccontent")
     url = item.pop("docpuburl")
@@ -60,8 +62,9 @@ def parse_item(context: Context, item: dict[str, Any]) -> None:
 
     for name in names:
         entity = context.make("LegalEntity")
-        # doc_id is per-notice, not per-entity; name disambiguates within a notice
-        entity.id = context.make_id(name, doc_id)
+        # the notice title is per-notice and more stable than the CMS doc id;
+        # the name disambiguates parties within a multi-entity notice
+        entity.id = context.make_id(name, doc_title)
 
         entity.add("name", name)
         entity.add("country", "cn")
@@ -96,11 +99,10 @@ def crawl(context: Context) -> None:
             data=data,
             method="POST",
             headers=HEADERS,
-            cache_days=1,
         )
         for item in result.get("data", []):
             parse_item(context, item)
 
-        total_pages = -(-result["totalSize"] // 20)  # ceil division
+        total_pages = math.ceil(result["totalSize"] / 20)
         if page >= total_pages:
             break
