@@ -53,7 +53,7 @@ assertions:
       Organization: 2240
       LegalEntity: 60
       Vessel: 80
-      Company: 150
+      Company: 190
 
 lookups:
   sanction.program:
@@ -1263,6 +1263,70 @@ lookups:
           type:
             - bateau-citerne
             - pétrolier
+      # Multi-word legal forms that the single-value guard rejects
+      - match: "Type d'entité: entreprise unitaire publique fédérale"
+        props:
+          legalForm: entreprise unitaire publique fédérale
+      - match: "Type d'entité: institution autonome de l'État fédéral"
+        props:
+          legalForm: institution autonome de l'État fédéral
+      # Registration dates with multiple values / month names
+      - match: "Date d'enregistrement: 8.8.1934; 30.1.2003"
+        props:
+          incorporationDate:
+            - "1934-08-08"
+            - "2003-01-30"
+      - match: "Date d'enregistrement: Décembre 2022"
+        props:
+          incorporationDate: "2022-12"
+      # Principal établissement -> jurisdiction (country failed to clean due to spacing/accents)
+      - match: "Principal établissement: République de  Biélorussie"
+        props:
+          jurisdiction: by
+      - match: "Principal établissement: République d'Azerbaïdjan"
+        props:
+          jurisdiction: az
+      - match: "Principal établissement: Province du Henan,  République populaire de Chine"
+        props:
+          jurisdiction: cn
+          address: "Province du Henan, République populaire de Chine"
+      # Lieu d'enregistrement (place of registration)
+      - match: "Lieu d'enregistrement: Xinxiang, province du  Henan, Chine"
+        props:
+          jurisdiction: cn
+          address: "Xinxiang, province du Henan, Chine"
+      - match: "Lieu d'enregistrement: Hong Kong, République  populaire de Chine"
+        props:
+          jurisdiction: hk
+          address: "Hong Kong, République populaire de Chine"
+      # Associated person
+      - match: "Personne associée: Pavel Nikitin"
+        associates:
+          - Pavel Nikitin
+      # OGRN with a double space before the parenthesis, so the key didn't match
+      - match: "Numéro d'identification national principal  (OGRN): 1077799011421"
+        props:
+          ogrnCode: "1077799011421"
+      # Website with the URL preceding the label
+      - match: "www.lsop.ru: Site internet"
+        props:
+          website: "www.lsop.ru"
+      # Fax numbers, mapped to phone per the existing Télécopieur convention
+      - match: "Télécopieur : +7 (495) 404-91-81;  +7 (499) 404-79-66"
+        props:
+          phone:
+            - "+7 (495) 404-91-81"
+            - "+7 (499) 404-79-66"
+      # Codes we recognise but don't map to a property; keep as a note
+      - match: "Code boursier (bourse de Shenzhen): 300910"
+        schema: Company
+        props:
+          ticker: "300910"
+      - match: "PPC: 504701001"
+        note: true
+      - match: "Tél.: 15.6.20267 (34147) 4-27-53; 15.6.20267  (34147) 2-99-77"
+        note: true
+
 
   ####################################################################################################
   ####################################################################################################
@@ -1287,6 +1351,42 @@ lookups:
     lowercase: true
     normalize: true
     options:
+      # IMO numbers given as "<number> - OMI" (number before the label), which the
+      # segment splitter can't reassemble.
+      - match: "5545171 - OMI"
+        props:
+          imoNumber: "5545171"
+      - match: "0044101 - OMI"
+        props:
+          imoNumber: "0044101"
+      - match: "0115002 - OMI"
+        props:
+          imoNumber: "0115002"
+      - match: "6472902 - OMI"
+        props:
+          imoNumber: "6472902"
+      - match: "5705072-OMI"
+        props:
+          imoNumber: "5705072"
+      - match: "1509747 - OMI"
+        props:
+          imoNumber: "1509747"
+      - match: "0156598 - OMI"
+        props:
+          imoNumber: "0156598"
+      - match: "0026325 - OMI"
+        props:
+          imoNumber: "0026325"
+      - match: "5371527 -OMI"
+        props:
+          imoNumber: "5371527"
+      - match: "0032244 - OMI"
+        props:
+          imoNumber: "0032244"
+      # INN where the parenthesis tripped the segment splitter
+      - match: "INN (numéro d’identification fiscale russe): 3900040153"
+        props:
+          innCode: "3900040153"
       - match: "Type d’entité: unités militaires - Lieu d’enregistrement: région de Kaliningrad, Fédération de Russie"
         props:
           legalForm: unités militaires
@@ -6323,6 +6423,10 @@ lookups:
   addresses:
     # Sometimes we can split on ; but sometimes it's just part of the address.
     options:
+      - match: "K.2.a, Tsiolkovskogo street 9, Saint-Pétersbourg, 190020, Fédération de Russie (siège); Office 311, Liter A, Fokina street 5, Saint-Pétersbourg, 194044"
+        addresses:
+          - "K.2.a, Tsiolkovskogo street 9, Saint-Pétersbourg, 190020, Fédération de Russie (siège)"
+          - "Office 311, Liter A, Fokina street 5, Saint-Pétersbourg, 194044"
       - match: "Fédération de Russie, Moscou, Smolnaya street, 14 ; 11 floor 24 office; Aeroportovskaya St., Office 210-2, 141580, Solnechnogorsk, Moscow Region, Fédération de Russie"
         addresses:
           - Fédération de Russie, Moscou, Smolnaya street, 14; 11 floor 24 office
