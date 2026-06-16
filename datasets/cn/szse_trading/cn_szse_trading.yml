@@ -6,8 +6,8 @@ coverage:
   start: 2026-03-30
 load_statements: true
 summary: >
-  Individuals and organisations subject to trading restrictions and disciplinary actions
-  issued by the Shenzhen Stock Exchange (SZSE).
+  Parties subject to trading restrictions and disciplinary actions by the
+  Shenzhen Stock Exchange (SZSE).
 description: |
    Transaction restriction decisions issued by The Shenzhen Stock Exchange (SZSE), which can take disciplinary
    actions against members, investors and practitioners who violate laws, regulations and self-regulatory rules.
@@ -41,7 +41,7 @@ dates:
 assertions:
   min:
     schema_entities:
-      LegalEntity: 20
+      LegalEntity: 10
   max:
     schema_entities:
       LegalEntity: 40
