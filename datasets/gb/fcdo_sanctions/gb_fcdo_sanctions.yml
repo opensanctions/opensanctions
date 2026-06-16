@@ -166,6 +166,8 @@ lookups:
         value: jpn
       - match: Central Khmer
         value: khm
+      - match: Lao
+        value: lao
       - match: "" # we don't want to warn on empty languages
         value: null
   name_type:
@@ -200,6 +202,8 @@ lookups:
         # what was meant by 'Tazmania' is yet to be figured out
       - match: Tazmania
         value: Australia
+      - match: St Vincent
+        value: Saint Vincent and the Grenadines
   type.address:
     options:
       - match:
@@ -1571,6 +1575,92 @@ lookups:
       - match: "580556306"
         props:
           registrationNumber: "580556306"
+      - match: "5190010691 (INN) "
+        props:
+          innCode: "5190010691"
+      - match: "CR: 2206502 Business registry number: 64446032 "
+        props:
+          registrationNumber: ["2206502", "64446032"]
+      - match: "INN - 9710000153 OGRN - 1157746703751 "
+        props:
+          innCode: "9710000153"
+          ogrnCode: "1157746703751"
+      - match: "INN – 7715145536 "
+        props:
+          innCode: "7715145536"
+      - match: "INN: 7705140391OGRN: 1027739800571"
+        props:
+          innCode: "7705140391"
+          ogrnCode: "1027739800571"
+      - match: "INN: 7710191592OGRN: 1027739825387"
+        props:
+          innCode: "7710191592"
+          ogrnCode: "1027739825387"
+      - match: "INN: 7733367676OGRN: 1217700170930"
+        props:
+          innCode: "7733367676"
+          ogrnCode: "1217700170930"
+      - match: "INN: 9714046230OGRN: 1247700292553"
+        props:
+          innCode: "9714046230"
+          ogrnCode: "1247700292553"
+      - match: "Issue code: LA3000130002SWIFT: JDBKLALAXXX"
+        props:
+          registrationNumber: "LA3000130002"
+          swiftBic: "JDBKLALAXXX"
+      - match: "KPP 997950001 / 770401001"
+        props:
+          kppCode: ["997950001", "770401001"]
+      - match: "OGRN - 1147748155213"
+        props:
+          ogrnCode: "1147748155213"
+      - match: "RC 1152041893259"
+        props:
+          registrationNumber: "1152041893259"
+      - match: "Russia INN - 9710138137Russia OGRN - 1247700638514"
+        props:
+          innCode: "9710138137"
+          ogrnCode: "1247700638514"
+      - match: "Russia INN - 9710138144Russia OGRN – 1247700638570Russia KPP - 771001001"
+        props:
+          innCode: "9710138144"
+          ogrnCode: "1247700638570"
+          kppCode: "771001001"
+      - match: "Russia INN – 7805013333 "
+        props:
+          innCode: "7805013333"
+      - match: "Russia OGRN - 1027802763240 "
+        props:
+          ogrnCode: "1027802763240"
+      - match: "Russia OGRN - 1077711000091Russia INN - 7750004168SWIFT/BIC - COAKRUM1Russia License No. - 3027"
+        props:
+          ogrnCode: "1077711000091"
+          innCode: "7750004168"
+          swiftBic: "COAKRUM1"
+          registrationNumber: "3027"
+      - match: "TIN - 6227005702"
+        props:
+          taxNumber: "6227005702"
+      - match: "TIN: 0102000578 OGRN: 1020100002340 Central Bank of Russia registration number 841"
+        props:
+          taxNumber: "0102000578"
+          ogrnCode: "1020100002340"
+          registrationNumber: "841"
+      - match: "Thai business registry no: 0105533103197 "
+        props:
+          registrationNumber: "0105533103197"
+      - match: "Thai business registry no: 0835565009378 "
+        props:
+          registrationNumber: "0835565009378"
+      - match: "Thai business registry no: 0845564005042 "
+        props:
+          registrationNumber: "0845564005042"
+      - match: "USCC: 91310000590448621H "
+        props:
+          uscCode: "91310000590448621H"
+      - match: "USCC: 914403006803743126 "
+        props:
+          uscCode: "914403006803743126"
   companies:
     normalize: true
     options:
@@ -2225,6 +2315,21 @@ lookups:
           - Xinbi Guarantee
           - EXMO POLAND SP Z.O.O.
           - REPRESENATIVE OFFICE OF ALISTAIR LTD
+          - Abakan LLC
+          - Celtic Maritime & Trading SA
+          - Dinghui HK Shipping Co Ltd
+          - Fleet Tanqo Pvt Ltd
+          - Gong Zhu Hu Shipmanagement Co
+          - Ha Trang Petrol Transportation
+          - Kurdos Shipping Inc
+          - Linghong Shipping Ltd
+          - Mei Zhou Dao Shipmanagement
+          - Ocean Dolphin Ship Management
+          - Peng Hu Wan Shipmanagement Co
+          - Radar Shipping Ltd-HKG
+          - Seadar Shipping Co Ltd
+          - Tika Shipping Ltd
+          - Wu Yi Shan Shipmanagement Co
         value: SAME
       - match: Subsidiary of the Organisation for Technological Industries (OTI) and therefore the Syrian Ministry of Defence
         values:
