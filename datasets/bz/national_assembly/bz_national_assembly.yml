@@ -1,0 +1,49 @@
+title: Belize National Assembly (Members)
+entry_point: crawler.py
+prefix: bz-na
+coverage:
+  frequency: weekly
+  start: 2026-06-16
+load_statements: true
+ci_test: false
+summary: >-
+  Members of the National Assembly of Belize — the elected House of Representatives
+  and the appointed Senate
+description: |
+  The National Assembly is the bicameral national legislature of Belize. It comprises
+  the House of Representatives (31 elected members plus the Speaker) and the Senate
+  (the President and appointed senators).
+
+  This dataset covers the currently sitting members of both chambers as published on
+  the National Assembly's official website. Senate membership in particular is treated
+  as authoritative-current on each run, since appointed senators can be replaced
+  mid-term without an election.
+url: https://www.nationalassembly.gov.bz/
+publisher:
+  name: National Assembly of Belize
+  acronym: NA
+  description: >
+    The National Assembly is the bicameral national legislature of Belize, made up of
+    the House of Representatives and the Senate.
+  url: https://www.nationalassembly.gov.bz/
+  country: bz
+  official: true
+data:
+  url: https://www.nationalassembly.gov.bz/
+  format: HTML
+  lang: eng
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 38
+      Position: 2
+    country_entities:
+      bz: 38
+  max:
+    schema_entities:
+      Person: 60
+      Position: 4
