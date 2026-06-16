@@ -39,6 +39,12 @@ http:
 dates:
   formats: ["%Y/%m/%d"]
 
+names:
+  schema_rules:
+    Person:
+      # some names are mixed-script
+      reject_chars: "．"
+
 tags:
   - list.pep
 
