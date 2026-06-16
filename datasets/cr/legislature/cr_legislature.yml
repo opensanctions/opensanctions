@@ -1,4 +1,4 @@
-title: Costa Rica Legislative Assembly (Deputies)
+title: Costa Rica Deputies of the Legislative Assembly
 entry_point: crawler.py
 prefix: cr-al
 coverage:
@@ -10,14 +10,13 @@ summary: >-
   Deputies of the Legislative Assembly of Costa Rica, the country's unicameral
   national legislature
 description: |
-  The Legislative Assembly (Asamblea Legislativa) is the unicameral legislature of
-  Costa Rica, made up of 57 deputies elected by province for four-year terms.
+  Current deputies of the Legislative Assembly (Asamblea Legislativa), the unicameral
+  national legislature of Costa Rica. Its 57 deputies are elected by province for
+  four-year terms and hold the country's legislative power, including passing laws,
+  approving the budget, and overseeing the government.
 
-  This dataset covers the currently serving deputies. The Assembly's open data portal
-  does not publish a dedicated roster file, so the crawler reads the monthly deputy
-  salary report (Salario Diputados), which lists every sitting deputy together with
-  their parliamentary group (fracción). It always uses the most recent monthly file, so
-  the roster follows the Assembly as deputies change between and within terms.
+  This dataset records each currently serving deputy with their name and parliamentary
+  group.
 url: https://www.asamblea.go.cr/opendata/SitePages/Inicio.aspx
 publisher:
   name: Asamblea Legislativa de la República de Costa Rica
@@ -49,22 +48,3 @@ assertions:
     schema_entities:
       Person: 70
       Position: 1
-
-lookups:
-  # Parliamentary groups (fracciones) are published as abbreviations. We store the
-  # abbreviation verbatim as `political` and add the full party name when known; an
-  # unmapped abbreviation logs a warning so new parties are noticed and added here.
-  fraccion:
-    options:
-      - match: PLN
-        name: Partido Liberación Nacional
-      - match: PUSC
-        name: Partido Unidad Social Cristiana
-      - match: PPSD
-        name: Partido Progreso Social Democrático
-      - match: PFA
-        name: Partido Frente Amplio
-      - match: PNR
-        name: Partido Nueva República
-      - match: PLP
-        name: Partido Liberal Progresista

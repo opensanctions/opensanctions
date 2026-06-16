@@ -19,7 +19,6 @@ SALARY_FOLDER = "/pa/datosabiertos/Documentos compartidos/SalarioDiputados"
 # chronologically, so the lexicographically greatest matching name is the newest report.
 FILE_RE = re.compile(r"^(\d{4}-\d{2})-Salario Diputados\.xlsx$")
 
-# Salary columns we do not capture (the report exists for transparency on remuneration).
 IGNORE_COLUMNS = [
     "mes",
     "ano",
@@ -74,21 +73,12 @@ def crawl_deputy(
 
     person = context.make("Person")
     person.id = context.make_id("cr-diputado", name)
-    # Published as "Apellido1 Apellido2 Nombre(s)"; stored verbatim (data.lang = spa).
     person.add("name", name)
     # Deputies must be Costa Rican citizens — by birth or naturalised with ten years'
     # residence (Political Constitution of Costa Rica, Art. 108).
     # http://www.pgrweb.go.cr/scij/Busqueda/Normativa/Normas/nrm_texto_completo.aspx?param1=NRTC&nValor1=1&nValor2=871&strTipM=TC
     person.add("citizenship", "cr")
-
-    # Parliamentary group: keep the abbreviation as published and add the full party name
-    # when we have a mapping for it.
     person.add("political", fraccion)
-    result = context.lookup("fraccion", fraccion)
-    if result is not None and result.name is not None:
-        person.add("political", result.name)
-    else:
-        context.log.warning("Unmapped fracción", fraccion=fraccion)
 
     # No start/end dates are published in this report and it is refreshed monthly, so it
     # is treated as a live roster: a listed deputy is currently in office.
@@ -123,7 +113,7 @@ def crawl(context: Context) -> None:
         wikidata_id="Q21328617",
         lang="eng",
     )
-    categorisation = categorise(context, position, default_is_pep=True)
+    categorisation = categorise(context, position)
     context.emit(position)
 
     for row in h.parse_xlsx_sheet(context, sheet):
