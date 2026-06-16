@@ -116,7 +116,7 @@ def crawl_type(context: Context, *, query_type: str, query_id: str) -> None:
     for page in count(1):
         if total_pages is not None and page > total_pages:
             break
-        url = FBI_URL % (type, query_id, page)
+        url = FBI_URL % (query_type, query_id, page)
         # print(url)
         context.log.info("Fetching %s" % url)
         doc = fetch_html(context, url, total_xpath)
