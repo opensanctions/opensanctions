@@ -2,9 +2,8 @@ title: UK FCA Warning List of Unauthorised Firms
 prefix: gb-fca-ntc
 entry_point: crawler.py
 coverage:
-  frequency: daily
-  schedule: "0 6 * * *"
-  start: 2024-01-01
+  frequency: weekly
+  start: 2026-06-16
 load_statements: true
 ci_test: false
 summary: >-
@@ -23,21 +22,22 @@ url: https://www.fca.org.uk/news/search-results
 publisher:
   name: Financial Conduct Authority
   acronym: FCA
-  description: >
-    The Financial Conduct Authority is the conduct regulator for around 45,000
-    financial services firms and financial markets in the UK.
+  description: |
+    The FCA is the conduct regulator for financial services firms and financial
+    markets in the UK. It publishes a number of databases and registers, including
+    the Financial Instruments Reference Data System (FIRDS).
   url: https://www.fca.org.uk/
   country: gb
   official: true
+tags:
+  - list.regulatory
+  - issuer.west
+  - sector.financial
 data:
   url: https://www.fca.org.uk/news/search-results?n_search_term=&category=warnings&sort_by=dmetaZ&start=1
   format: HTML
   lang: eng
 
-tags:
-  - list.regulatory
-  - issuer.west
-  - sector.financial
 dates:
   formats: ["%d/%m/%Y", "%Y-%m-%d"]
 names:
@@ -52,7 +52,7 @@ names:
         - "(updated)"
 
 lookups:
-  firm.field:
+  firm_details:
     lowercase: true
     options:
       - match: name

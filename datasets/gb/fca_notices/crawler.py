@@ -21,7 +21,7 @@ def apply_prop(context: Context, entity: Entity, label: str, value: str) -> None
     value = value.strip().strip(",")
     if not value:
         return
-    prop = context.lookup_value("firm.field", label.lower())
+    prop = context.lookup_value("firm_details", label.lower())
     if prop is None:
         context.log.warning("Unhandled firm detail field", label=label, value=value)
     elif prop == "address":
@@ -53,9 +53,7 @@ def crawl_item(context: Context, item: _Element) -> None:
 
     entity = context.make("LegalEntity")
     entity.id = context.make_id(url)
-    h.apply_reviewed_name_string(
-        context, entity, string=raw_name, llm_cleaning=True
-    )
+    h.apply_reviewed_name_string(context, entity, string=raw_name, llm_cleaning=True)
     entity.add("sourceUrl", url)
     entity.add("topics", "reg.warn")
 
