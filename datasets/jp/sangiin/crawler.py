@@ -128,21 +128,21 @@ def crawl_member(
     # real end date and is dropped (→ `unknown`).
     end_iso = era_to_iso(str(member["term_end"]))
     today = settings.RUN_TIME.date().isoformat()
-    if member["in_latest"] or (end_iso is not None and end_iso < today):
-        occupancy = h.make_occupancy(
-            context, person, position, end_date=end_iso, categorisation=categorisation
-        )
-    else:
-        occupancy = h.make_occupancy(
-            context,
-            person,
-            position,
-            end_date=None,
-            no_end_implies_current=False,
-            categorisation=categorisation,
-        )
+    # The scheduled term-end is a reliable end date only when the member still sits in the
+    # latest session or the date is already past; a departed member with a future term-end
+    # left mid-term, so we drop the date and let status fall to `unknown`.
+    term_end_reliable = bool(member["in_latest"]) or (
+        end_iso is not None and end_iso < today
+    )
+    occupancy = h.make_occupancy(
+        context,
+        person,
+        position,
+        end_date=end_iso if term_end_reliable else None,
+        no_end_implies_current=term_end_reliable,
+        categorisation=categorisation,
+    )
     if occupancy is None:
-        # Term ended beyond the PEP after-office window — no longer a PEP, don't emit.
         return
     occupancy.add("politicalGroup", member["faction"])  # 会派, in-chamber faction
     occupancy.add("constituency", member["district"])  # 選挙区
@@ -158,7 +158,7 @@ def crawl(context: Context) -> None:
         country="jp",
         topics=["gov.legislative", "gov.national"],
     )
-    categorisation = categorise(context, position, default_is_pep=True)
+    categorisation = categorise(context, position)
     context.emit(position)
 
     # Discover the active session from the /current/ redirect stub.
