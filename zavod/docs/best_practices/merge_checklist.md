@@ -6,7 +6,7 @@ Some things that are easy to forget but critical for new crawlers. Scope and per
     - required fields for crawlers that are often forgotten:
         - `coverage`
             - `frequency` (normally `daily`, but `weekly` for gpt crawlers, and `monthly` for company registers)
-            - `start` (updated to the current day when releasing)
+            - `start` - set when the dataset is released, not at merge time. Once the dataset has passed QA and initial de-duplication, it can be [released](release.md).
         - `load_statements`: `true` for normal crawlers, `false` for KYB data.
         - `assertions` - see [Data Assertions](../metadata.md#data-assertions)
     - dataset `name` is clear and conforms to convention. It's fine if it's just the yaml file name and not included in the file.

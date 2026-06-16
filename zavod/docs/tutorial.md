@@ -232,6 +232,9 @@ and see which collection they are directly included in.
 
 Broader collections include more specific collections and/or specific crawlers.
 
+See the [release guide](best_practices/release.md) for the full process of
+releasing a dataset into a collection.
+
 ### Next steps
 
 You may now want to level up your crawler by looking at
