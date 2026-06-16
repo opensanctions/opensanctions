@@ -54,7 +54,6 @@ names:
         - "previously"
         - "now known as"
         - "formerly"
-        - 
 
 lookups:
   firm_details:
@@ -81,7 +80,7 @@ lookups:
     options:
       - match: 'na/'
         value: null
-    
+
 assertions:
   min:
     schema_entities:
