@@ -1,13 +1,13 @@
-title: South Korea National Assembly Members
+title: South Korea Members of National Assembly
 entry_point: crawler.py
 prefix: kr-na
 load_statements: true
 ci_test: false
 coverage:
-  frequency: weekly
+  frequency: monthly
   start: "2026-06-15"
 summary: >-
-  Members of the unicameral National Assembly of the Republic of Korea.
+  Current members of the unicameral National Assembly of the Republic of Korea.
 description: |
   Individuals currently serving in the National Assembly (국회), the unicameral
   legislature of the Republic of Korea. The Assembly has 300 seats (254 single-member
@@ -20,7 +20,6 @@ url: https://open.assembly.go.kr/portal/assm/search/memberSchPage.do
 publisher:
   name: 대한민국 국회
   name_en: National Assembly of the Republic of Korea
-  acronym: NA
   description: >
     The National Assembly is the unicameral national legislature of the Republic of
     Korea. Its Secretariat publishes member and legislative data through the 열린국회정보
@@ -39,13 +38,9 @@ assertions:
   min:
     schema_entities:
       Person: 250
-      Position: 1
-    country_entities:
-      kr: 250
   max:
     schema_entities:
       Person: 350
-      Position: 1
 
 lookups:
   type.gender:

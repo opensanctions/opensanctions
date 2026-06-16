@@ -13,12 +13,11 @@ def crawl_member(
 ) -> None:
     person = context.make("Person")
     person.id = context.make_slug(row.pop("monaCd"))
-    person.add("name", row.pop("hgNm"))  # data.lang=kor default
+    person.add("name", row.pop("hgNm"))
     person.add("name", row.pop("engNm"), lang="eng")
     person.add("alias", row.pop("hjNm"))
-    person.add("gender", row.pop("sexGbnNm"))  # type.gender lookup
-    person.add("political", row.pop("polyNm"))  # party affiliation
-    # A few members pack two addresses into one field; split via the type.email lookup.
+    person.add("gender", row.pop("sexGbnNm"))
+    person.add("political", row.pop("polyNm"))
     person.add("email", row.pop("eMail"))
     person.add("website", row.pop("homepage"))
     person.add("sourceUrl", row.pop("linkUrl"))
@@ -66,7 +65,7 @@ def crawl(context: Context) -> None:
         country="kr",
         topics=["gov.legislative", "gov.national"],
     )
-    categorisation = categorise(context, position, default_is_pep=True)
+    categorisation = categorise(context, position)
     context.emit(position)
 
     # The endpoint caps the page size silently; request all seats in one call and assert
