@@ -1,10 +1,11 @@
-from typing import Optional, NamedTuple, List
-import orjson
+from typing import NamedTuple, Optional, List
+
+from pydantic import BaseModel
 
 from zavod.context import Context
 from zavod.entity import Entity
 from zavod.exc import ConfigurationException
-from zavod.extract.llm import run_text_prompt, DEFAULT_MODEL
+from zavod.extract.llm import run_typed_text_prompt, DEFAULT_MODEL
 from zavod.extract.names.clean import LangText
 from zavod import helpers as h
 
@@ -34,8 +35,8 @@ ARABIC = TransliterationLanguageSpec(
 
 
 NAME_TRANSLIT_PROMPT = """
-Transliterate the following name from the language denoted by the ISO 639-2 Code {code},
- returning a JSON object where
+Transliterate the following name from the language denoted by the ISO 639-2 Code {code}.
+Return one Translation entry per requested output language:
 
 {output_bullets}.
 
@@ -45,8 +46,7 @@ names, do not separate them in the output but adhere strictly to the output spec
 """
 POSITION_TRANS_PROMPT = """
 Translate the following public office position label from the language denoted by the
- ISO 639-2 code {code}, returning a JSON object where the key 'eng' has the value in
- English.
+ ISO 639-2 code {code} into English. Return a single Translation entry with lang='eng'.
 """
 
 
@@ -56,7 +56,7 @@ def make_name_translit_prompt(
     output_items = []
     for spec in output_specs:
         output_items.append(
-            f"- the key '{spec.language_code}' has the value in {spec.script} script for {spec.language_name} pronunciation"
+            f"- lang='{spec.language_code}', text in {spec.script} script for {spec.language_name} pronunciation"
         )
     return NAME_TRANSLIT_PROMPT.format(
         code=input_code, output_bullets="\n".join(output_items)
@@ -67,13 +67,32 @@ def make_position_translation_prompt(input_code: str) -> str:
     return POSITION_TRANS_PROMPT.format(code=input_code)
 
 
-class TranslationResult(NamedTuple):
-    texts: List[LangText]
-    cache_key: Optional[str]
-    """Cache key of the underlying run_text_prompt response, set only when
-    the response was parsed and accepted. Callers that do additional
-    per-result validation can drop this entry via context.cache.delete()
-    so a later run can retry."""
+class Translation(BaseModel):
+    lang: str
+    """ISO 639-2 (3-letter) language code."""
+    text: str
+    """The translated/transliterated value for ``lang``."""
+
+
+class TranslationResponse(BaseModel):
+    """JSON response schema for translation/transliteration prompts.
+
+    Translations are returned as a list of ``Translation`` entries rather
+    than as named fields per language. This keeps the schema generic
+    across any ISO 639-2 code without enumerating them — per-call the
+    prompt tells the LLM which languages to produce, and
+    ``run_translation_prompt`` filters the returned entries against the
+    caller's ``output_langs``.
+
+    Caching caveat: ``run_typed_text_prompt`` includes this model's JSON
+    schema in the cache key, so changing the shape of ``Translation`` or
+    ``TranslationResponse`` (renaming/adding/removing fields) invalidates
+    *every* cached translation response across every crawler. Adding a
+    new output language does not trigger this — only structural changes
+    do.
+    """
+
+    translations: List[Translation]
 
 
 def run_translation_prompt(
@@ -82,58 +101,40 @@ def run_translation_prompt(
     text: str,
     output_langs: List[str] = ["eng"],
     model: str = DEFAULT_MODEL,
-) -> TranslationResult:
+) -> List[LangText]:
     """Run a translation/transliteration prompt and return the result as
-    LangText instances together with the underlying response's cache key.
+    LangText instances.
 
-    The prompt must instruct the model to return a JSON object whose keys
-    are ISO 639-2 language codes (subset of ``output_langs``) and whose
-    values are the translated/transliterated strings. Caching is handled
-    by ``run_text_prompt``; the cached entry is invalidated on parse
-    failure so a later run can retry.
+    The prompt should describe what to translate and which output
+    languages are expected; the response shape is enforced via OpenAI
+    structured outputs against ``TranslationResponse`` so the prompt
+    does not need to spell out the JSON format. Caching is handled by
+    ``run_typed_text_prompt``.
 
-    Returns ``TranslationResult([], None)`` if the LLM is not configured,
-    the response is not valid JSON, or the response contains keys outside
-    ``output_langs``. On the success path ``cache_key`` is set so callers
-    can invalidate the response themselves if their own per-result
-    validation fails. Callers are responsible for applying the resulting
+    Returns ``[]`` if the LLM is not configured. Entries with unrequested
+    languages, missing/empty text, or duplicate language codes (first
+    wins) are dropped, so the result may have fewer entries than
+    ``output_langs``. Callers are responsible for applying the resulting
     LangText values to an entity.
     """
     try:
-        response = run_text_prompt(context, prompt, text, model=model)
+        response = run_typed_text_prompt(
+            context, prompt, text, response_type=TranslationResponse, model=model
+        )
     except ConfigurationException as ce:
         context.log.error("LLM translation skipped: %s" % ce.message)
-        return TranslationResult([], None)
-    try:
-        trans_by_lang = orjson.loads(response.content)
-    except orjson.JSONDecodeError:
-        context.cache.delete(response.cache_key)
-        context.log.error(
-            "LLM translation returned invalid JSON",
-            prompt=prompt,
-            text=text,
-            model=model,
-            response_content=response.content,
-        )
-        return TranslationResult([], None)
-    if not set(trans_by_lang.keys()).issubset(output_langs):
-        context.cache.delete(response.cache_key)
-        context.log.warning(
-            "LLM translation returned unexpected keys",
-            prompt=prompt,
-            text=text,
-            model=model,
-            response_content=response.content,
-            expected=sorted(output_langs),
-        )
-        return TranslationResult([], None)
+        return []
+    requested = set(output_langs)
+    seen: set[str] = set()
     results: List[LangText] = []
-    for lang in output_langs:
-        value = trans_by_lang.get(lang)
-        if not isinstance(value, str) or not value.strip():
+    for entry in response.translations:
+        if entry.lang not in requested or entry.lang in seen:
             continue
-        results.append(LangText(text=value, lang=lang))
-    return TranslationResult(results, response.cache_key)
+        if not entry.text.strip():
+            continue
+        seen.add(entry.lang)
+        results.append(LangText(text=entry.text, lang=entry.lang))
+    return results
 
 
 def apply_translit_names(
@@ -159,14 +160,14 @@ def apply_translit_names(
     """
     prompt = make_name_translit_prompt(input_code, output_spec)
     output_langs = [spec.language_code for spec in output_spec]
-    first_result = run_translation_prompt(
+    first_texts = run_translation_prompt(
         context, prompt, first_name, output_langs=output_langs, model=model
     )
-    last_result = run_translation_prompt(
+    last_texts = run_translation_prompt(
         context, prompt, last_name, output_langs=output_langs, model=model
     )
-    first_by_lang = {lt.lang: lt.text for lt in first_result.texts}
-    last_by_lang = {lt.lang: lt.text for lt in last_result.texts}
+    first_by_lang = {lt.lang: lt.text for lt in first_texts}
+    last_by_lang = {lt.lang: lt.text for lt in last_texts}
     for lang in output_langs:
         if lang not in first_by_lang:
             context.log.warning(
@@ -176,8 +177,6 @@ def apply_translit_names(
                 first_name=first_name,
                 model=model,
             )
-            if first_result.cache_key is not None:
-                context.cache.delete(first_result.cache_key)
             continue
         if lang not in last_by_lang:
             context.log.warning(
@@ -187,8 +186,6 @@ def apply_translit_names(
                 last_name=last_name,
                 model=model,
             )
-            if last_result.cache_key is not None:
-                context.cache.delete(last_result.cache_key)
             continue
         h.apply_name(
             entity,
@@ -223,10 +220,10 @@ def apply_translit_full_name(
     if prompt is None:
         prompt = make_name_translit_prompt(input_code, output)
     output_langs = [spec.language_code for spec in output]
-    result = run_translation_prompt(
+    texts = run_translation_prompt(
         context, prompt, name, output_langs=output_langs, model=model
     )
-    for lt in result.texts:
+    for lt in texts:
         h.apply_name(
             entity,
             full=lt.text,
