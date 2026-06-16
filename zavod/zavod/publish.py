@@ -97,7 +97,7 @@ def _warn_about_stale_latest_files(dataset: Dataset, published_files: set[str]) 
             )
 
 
-def archive_failure(dataset: Dataset, latest: bool = True) -> None:
+def archive_failure(dataset: Dataset) -> None:
     """Upload failure information about a dataset to the archive."""
     # Collections currently should never call publish_failure (as that only gets called for crawl and validate).
     # But if they ever did (for example to publish a failure in the export stage), we should think very well about
