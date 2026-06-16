@@ -102,7 +102,13 @@ def crawl_member(
 ) -> None:
     person = context.make("Person")
     person.id = context.make_slug(str(member["profile_id"]))
-    person.add("name", member["name"])  # kanji; data.lang=jpn default
+    h.apply_reviewed_names(
+        context,
+        person,
+        original=h.Names(name=str(member["name"])),
+        llm_cleaning=True,
+        lang="jpn",
+    )
     person.add("alias", member["reading"])  # kana reading (読み方)
     person.add("sourceUrl", member["profile_url"])
     # Public Offices Election Act (公職選挙法) Art. 10 requires Japanese nationality for
