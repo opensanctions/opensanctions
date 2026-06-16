@@ -55,7 +55,15 @@ def crawl_member(
 
     person = context.make("Person")
     person.id = context.make_id(term, name, onboard)
-    person.add("name", name)
+
+    h.apply_reviewed_names(
+        context,
+        person,
+        original=h.Names(name=name),
+        llm_cleaning=True,
+        lang="zho",
+    )
+
     person.add("name", row.pop("ename"), lang="eng")
     person.add("gender", row.pop("sex"))
     # The free-text degree field uses angle brackets for annotations (e.g.
