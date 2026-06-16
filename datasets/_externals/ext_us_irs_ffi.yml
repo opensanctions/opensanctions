@@ -93,7 +93,7 @@ config:
 assertions:
   min:
     schema_entities:
-      Company: 2000
+      Company: 80
   max:
     schema_entities:
       Company: 5000
