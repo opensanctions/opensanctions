@@ -31,6 +31,11 @@ data:
   format: JSON
   lang: zho
 
+http:
+  # The site sits behind a uproxy WAF that returns 403 for the default
+  # python-requests User-Agent, so present a browser User-Agent instead.
+  user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
+
 dates:
   formats: ["%Y/%m/%d"]
 
@@ -50,6 +55,12 @@ assertions:
       Position: 2
 
 lookups:
+  party:
+    options:
+      - match:
+          - 0無  # "0 none'
+          - 無黨籍 # no party affiliation
+        value: null
   type.gender:
     options:
       - match: 男
