@@ -38,9 +38,11 @@ assertions:
   min:
     schema_entities:
       Person: 250
+      Position: 1
   max:
     schema_entities:
       Person: 350
+      Position: 1
 
 lookups:
   type.gender:
