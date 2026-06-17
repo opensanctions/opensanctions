@@ -6,7 +6,7 @@ Wikidata reaches OpenSanctions in two ways: a [crawler](tutorial.md) that import
 
 ## Reconciling a dataset against Wikidata
 
-The `zavod wikidata-reconcile` command matches the persons in a dataset against Wikidata and prepares edits for the ones it links. It does not write to Wikidata directly. Confirmed `<os_entity_id> ↔ QID` links are recorded in the [resolver](https://www.opensanctions.org/docs/identifiers/), and the run writes a [QuickStatements](https://quickstatements.toolforge.org/) batch file that an operator reviews and runs in the QuickStatements web UI. There is no OAuth, pywikibot, or direct API write path; the operator runs the batch.
+The `zavod wikidata-reconcile` command matches the persons in a dataset against Wikidata and prepares edits for the ones it links. It does not write to Wikidata directly. Confirmed `<os_entity_id> ↔ QID` links are recorded in the [resolver](https://www.opensanctions.org/docs/identifiers/), and the run writes a [QuickStatements](https://quickstatements.toolforge.org/) batch file that an operator reviews and runs in the QuickStatements web UI.
 
 The command handles the `Person` schema only. It is built for the parliament/PEP use case, where a large fraction of members already have a Wikidata item.
 
