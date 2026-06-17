@@ -119,10 +119,15 @@ def get_outage_datasets() -> set[str]:
             dataset: str | None = None
             status: str | None = None
             for field in item.get("fields", []):
+                # `value` is present-but-null when a field exists on the board
+                # but is unset for this item (e.g. a fresh outage report with no
+                # Dataset assigned), so `.get("value", {})` won't shield us — the
+                # key is there, just null. Coerce each level with `or {}`.
                 if field["id"] == FIELD_DATASET:
-                    dataset = field.get("value", {}).get("raw")
+                    dataset = (field.get("value") or {}).get("raw")
                 elif field["id"] == FIELD_STATUS:
-                    status = field.get("value", {}).get("name", {}).get("raw")
+                    name = (field.get("value") or {}).get("name") or {}
+                    status = name.get("raw")
             if dataset is not None and status == OUTAGE_STATUS:
                 outages.add(dataset)
 
