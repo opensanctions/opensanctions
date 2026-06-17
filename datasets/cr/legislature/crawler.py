@@ -9,7 +9,7 @@ from zavod import helpers as h
 from zavod.entity import Entity
 from zavod.stateful.positions import PositionCategorisation, categorise
 
-SITE = "https://www.asamblea.go.cr"
+
 # SharePoint document library folder holding the monthly deputy salary reports. The
 # crawler lists it via the SharePoint REST API (context.data_url) and picks the latest
 # file; if the folder is moved or emptied the listing fails loudly rather than emitting a
@@ -51,7 +51,9 @@ def latest_report_url(context: Context) -> str:
     if latest_path is None:
         raise ValueError("No monthly salary report found in %s" % SALARY_FOLDER)
     # ServerRelativeUrl contains spaces and accented characters; percent-encode the path.
-    return SITE + quote(latest_path)
+    publisher_url = context.dataset.model.publisher
+    assert publisher_url is not None and publisher_url.url is not None
+    return publisher_url.url + quote(latest_path)
 
 
 def crawl_deputy(
