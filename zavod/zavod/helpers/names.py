@@ -20,8 +20,8 @@ from zavod.extract.names.clean import (
     LangNames,
     SourceNames,
     Names,
-    LangText,
 )
+from zavod.util import LangText
 
 # alias clean_names so that it could be imported from here
 from zavod.extract.names.clean import clean_names as clean_names
@@ -541,7 +541,9 @@ def _review_names(
             if v.lang is None:
                 items.append(v.text)
             else:
-                items.append(cast(Dict[str, str | None], v.model_dump()))
+                items.append(
+                    cast(Dict[str, str | None], {"text": v.text, "lang": v.lang})
+                )
         populated_props[prop] = items
     source_value_data: Dict[str, str | Dict[str, List[str | Dict[str, str | None]]]] = {
         "entity_schema": entity.schema.name,

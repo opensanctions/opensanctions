@@ -2,7 +2,7 @@ import orjson
 import logging
 from lxml import etree
 from functools import cache
-from typing import Optional, Union, IO, Any, Dict
+from typing import NamedTuple, Optional, Union, IO, Any, Dict
 from normality import slugify
 from followthemoney.util import ENTITY_ID_LEN
 
@@ -10,6 +10,21 @@ log = logging.getLogger(__name__)
 Element = etree._Element
 ElementOrTree = Union[etree._Element, etree._ElementTree]
 ID_SEP = "-"
+
+
+class LangText(NamedTuple):
+    """A piece of text together with its ISO 639-2 language code.
+
+    Use this as the general-purpose carrier for translated/transliterated
+    strings across zavod (e.g. ``shed/trans.py``). There is a separate
+    LangText pydantic model in ``zavod.extract.names.clean`` that is part
+    of the persisted name-cleaning review model — that one must stay
+    stable and is intentionally kept isolated from this namedtuple.
+    """
+
+    text: str
+    lang: Optional[str]
+    """ISO 639-2 (3-letter) language code, or None if not known."""
 
 
 @cache

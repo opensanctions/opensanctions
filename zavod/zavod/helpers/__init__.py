@@ -78,6 +78,7 @@ from zavod.helpers.html import (
 )
 from zavod.helpers.identification import make_identification
 from zavod.extract.names.clean import Names
+from zavod.util import LangText
 from zavod.helpers.names import (
     apply_name,
     apply_reviewed_names,
@@ -153,6 +154,7 @@ __all__ = [
     "assert_html_url_hash",
     "split_comma_names",
     "Names",
+    "LangText",
     "is_name_irregular",
     "check_name_regularity",
     "check_names_regularity",

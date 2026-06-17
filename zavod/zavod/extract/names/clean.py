@@ -3,9 +3,10 @@ from pathlib import Path
 from typing import Any, Generator, Optional, Sequence, Tuple
 import json
 
-from pydantic import BaseModel
+from pydantic import BaseModel, model_validator
 from zavod.context import Context
 from zavod.extract.llm import run_typed_text_prompt
+from zavod.util import LangText as UtilLangText
 
 LLM_MODEL_VERSION = "gpt-5.4"
 SINGLE_ENTITY_PROGRAM_PATH = Path(__file__).parent / "dspy/single_entity_program.json"
@@ -16,6 +17,18 @@ EXCLUDE_IF_EMPTY = {"previousName", "firstName", "middleName", "lastName"}
 
 
 class LangText(BaseModel):
+    """Internal name-cleaning value type.
+
+    This is part of the ``Names`` model that gets serialised into review
+    rows persisted to the database (``Review.extracted_data``). Its shape
+    must therefore remain eternally stable — changes here can invalidate
+    existing reviews and require data migrations.
+
+    For general-purpose translated/transliterated text inside zavod,
+    use the ``zavod.util.LangText`` namedtuple instead. Keep the two
+    intentionally isolated.
+    """
+
     text: str
     lang: Optional[str]
     """ISO 639-2 (3-letter) language code, or None if not known"""
@@ -26,7 +39,10 @@ class LangText(BaseModel):
 
 # A fairly broad set of types to reduce boilerplate editing in reviews.
 # See SimplifiedNames and LangNames for more specific types for specific use cases.
-NamesValues = None | str | Sequence[str | LangText]
+# Accepts ``zavod.util.LangText`` namedtuples on input — the
+# ``_coerce_util_langtext`` validator on ``Names`` converts those into the
+# internal pydantic ``LangText`` before field validation.
+NamesValues = None | str | Sequence[str | LangText | UtilLangText]
 
 
 class Names(BaseModel):
@@ -55,6 +71,29 @@ class Names(BaseModel):
     # middleName: NamesValue = None
     # lastName: NamesValue = None
 
+    @model_validator(mode="before")
+    @classmethod
+    def _coerce_util_langtext(cls, data: Any) -> Any:
+        """Convert ``zavod.util.LangText`` inputs into the internal pydantic
+        ``LangText`` so that the public API can accept the namedtuple while
+        the persisted model stays unchanged."""
+        if not isinstance(data, dict):
+            return data
+        result: dict[str, Any] = {}
+        for key, value in data.items():
+            if isinstance(value, UtilLangText):
+                result[key] = LangText(text=value.text, lang=value.lang)
+            elif isinstance(value, list):
+                result[key] = [
+                    LangText(text=v.text, lang=v.lang)
+                    if isinstance(v, UtilLangText)
+                    else v
+                    for v in value
+                ]
+            else:
+                result[key] = value
+        return result
+
     def _is_blank_value(self, value: NamesValues) -> bool:
         """Check if a value is blank (None, empty string, or empty list)."""
         if value is None:
@@ -80,13 +119,17 @@ class Names(BaseModel):
             return False
         return True
 
-    def as_langtexts(self) -> Generator[Tuple[str, list[LangText]], None, None]:
+    def as_langtexts(
+        self,
+    ) -> Generator[Tuple[str, list[UtilLangText]], None, None]:
         """
         Generator yielding each property and a list of any associated non-empty name values.
 
-        Plain str values are wrapped as LangText with lang=None.
-
-        Useful when iterating over values in a Names instance.
+        Values are yielded as ``zavod.util.LangText`` namedtuples — the
+        general-purpose external type. Plain str values are wrapped with
+        ``lang=None``. This intentionally hides the internal pydantic
+        ``LangText`` (which is persisted as part of the review model) from
+        callers.
         """
         for key in self.__class__.model_fields:
             value = getattr(self, key)
@@ -94,10 +137,10 @@ class Names(BaseModel):
                 continue
             if isinstance(value, (str, LangText)):
                 if not is_empty_string(value):
-                    yield key, [_to_lang_text(value)]
+                    yield key, [_to_util_lang_text(value)]
             elif isinstance(value, list):
                 nonempty_values = [
-                    _to_lang_text(v) for v in value if not is_empty_string(v)
+                    _to_util_lang_text(v) for v in value if not is_empty_string(v)
                 ]
                 if nonempty_values:
                     yield key, nonempty_values
@@ -168,7 +211,7 @@ class Names(BaseModel):
         # we do care about value repetition across props
         # single values and single-item lists are considered equal
         # str and LangText(text=str, lang=None) are considered equal
-        def to_dict(names: "Names") -> dict[str, frozenset[LangText]]:
+        def to_dict(names: "Names") -> dict[str, frozenset[UtilLangText]]:
             return {prop: frozenset(vals) for prop, vals in names.as_langtexts()}
 
         return to_dict(self) == to_dict(value)
@@ -185,13 +228,18 @@ class SimpleNames(Names):
 
 
 class LangNames(Names):
-    """Simplified Names where all values are LangText to make processing simpler."""
+    """Simplified Names where all values are LangText to make processing simpler.
 
-    name: Sequence[LangText] = []
-    alias: Sequence[LangText] = []
-    weakAlias: Sequence[LangText] = []
-    previousName: Sequence[LangText] = []
-    abbreviation: Sequence[LangText] = []
+    Accepts ``zavod.util.LangText`` on input — the inherited
+    ``_coerce_util_langtext`` validator converts it to the internal pydantic
+    ``LangText`` before field validation, so stored values are always pydantic.
+    """
+
+    name: Sequence[LangText | UtilLangText] = []
+    alias: Sequence[LangText | UtilLangText] = []
+    weakAlias: Sequence[LangText | UtilLangText] = []
+    previousName: Sequence[LangText | UtilLangText] = []
+    abbreviation: Sequence[LangText | UtilLangText] = []
 
 
 class SourceNames(BaseModel):
@@ -209,10 +257,10 @@ class PredictProgramData(BaseModel):
     signature: DSPySignature
 
 
-def _to_lang_text(value: str | LangText) -> LangText:
+def _to_util_lang_text(value: str | LangText) -> UtilLangText:
     if isinstance(value, str):
-        return LangText(text=value, lang=None)
-    return value
+        return UtilLangText(text=value, lang=None)
+    return UtilLangText(text=value.text, lang=value.lang)
 
 
 def is_empty_string(text: Optional[str | LangText]) -> bool:
