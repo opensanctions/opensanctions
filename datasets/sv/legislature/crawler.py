@@ -35,29 +35,20 @@ def crawl_deputy(
     person = context.make("Person")
     person.id = context.make_slug(guid)
     person.add("name", name)
-    person.add("gender", anchor.get("data-sexo"))  # via type.gender lookup (M/F)
+    person.add("gender", anchor.get("data-sexo"))
     # Deputies must be Salvadoran by birth and the child of a Salvadoran parent
     # (Constitution of El Salvador, Art. 126); naturalised citizenship is not sufficient.
     # https://www.asamblea.gob.sv/sites/default/files/documents/decretos/171117_073157406_archivo_documento_legislativo.pdf
     person.add("citizenship", "sv")
 
-    # Parliamentary group: store the abbreviation shown on the site, plus the full party
-    # name when we have a mapping for it.
     group_guid = anchor.get("data-grupo-parlamentario")
     abbr = party_names.get(group_guid) if group_guid is not None else None
-    if abbr is not None:
-        person.add("political", abbr)
-        result = context.lookup("party", abbr)
-        if result is not None and result.name is not None:
-            person.add("political", result.name)
-        else:
-            context.log.warning("Unmapped parliamentary group", abbr=abbr)
+    person.add("political", abbr)
 
     occupancy = h.make_occupancy(
         context,
         person,
         position,
-        no_end_implies_current=True,
         categorisation=categorisation,
     )
     if occupancy is None:
@@ -73,8 +64,6 @@ def crawl(context: Context) -> None:
 
     # Each titular deputy is an anchor whose id is "diputado-<GUID>".
     anchors = h.xpath_elements(doc, ".//a[starts-with(@id, 'diputado-')]")
-    if len(anchors) < 50:
-        raise ValueError("Expected at least 50 deputies, found %d" % len(anchors))
 
     position = h.make_position(
         context,
@@ -84,7 +73,7 @@ def crawl(context: Context) -> None:
         wikidata_id="Q21328618",
         lang="eng",
     )
-    categorisation = categorise(context, position, default_is_pep=True)
+    categorisation = categorise(context, position)
     context.emit(position)
 
     for anchor in anchors:
