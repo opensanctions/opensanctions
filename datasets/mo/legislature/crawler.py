@@ -60,8 +60,8 @@ def crawl_member(
     person = context.make("Person")
     person.id = context.make_id(deputy_id, name_zho)
     person.add("name", name_zho, lang="zho")
-    person.add("name", name_lat, lang="por")
-    person.add("name", listing_name, lang="por")
+    person.add("name", name_lat, lang="eng")
+    person.add("name", listing_name, lang="eng")
     h.apply_date(person, "birthDate", birth)
     # Members of the Legislative Assembly are only legally required to be permanent
     # residents of Macau (Basic Law Art. 68); they need not be Chinese nationals — Chinese
