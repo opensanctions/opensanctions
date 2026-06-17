@@ -2,7 +2,10 @@ from itertools import chain
 from lxml.etree import _Element
 from typing import Dict
 
-from zavod import Context, helpers as h
+from nomenklatura.resolver import Linker
+
+from zavod import Context, Entity, helpers as h
+from zavod.integration import get_dataset_linker
 from zavod.stateful.review import assert_all_accepted
 from zavod.shed import enforcements
 
@@ -10,7 +13,9 @@ PROGRAM_KEY = "CA-SEMA"
 MAX_AGE_DAYS = 100
 
 
-def crawl_entity_notice(context: Context, row: Dict[str, _Element]) -> None:
+def crawl_entity_notice(
+    context: Context, row: Dict[str, _Element], linker: Linker[Entity]
+) -> None:
     str_row = h.cells_to_str(row)
     listing_date = str_row.pop("date")
     assert listing_date is not None
@@ -57,6 +62,26 @@ def crawl_entity_notice(context: Context, row: Dict[str, _Element]) -> None:
     for raw_name in chain(persons, oranizations):
         entity = context.make(schema)
         entity.id = context.make_id(raw_name, country)
+        assert entity.id is not None
+
+        # drop entities already present in [ca_dfatd_sema_sanctions]
+        canonical_id = linker.get_canonical(entity.id)
+        already_present = False
+        for other_id in linker.get_referents(canonical_id):
+            if other_id.startswith("ca-sema") and not other_id.startswith(
+                "ca-sema-news"
+            ):
+                context.log.warning(
+                    f"Entity is also present in Consolidated List: {other_id}",
+                    name=raw_name,
+                    other_id=other_id,
+                    entity_type=entity_type,
+                    country=country,
+                )
+                already_present = True
+                break
+        if already_present:
+            continue
 
         born_patterns = [" (born ", " (bornon "]
         for born in born_patterns:
@@ -111,8 +136,9 @@ def crawl_vessel(context: Context, row: Dict[str, _Element]) -> None:
 def crawl(context: Context) -> None:
     doc = context.fetch_html(context.data_url)
     entities_table = h.xpath_element(doc, '//table[contains(@id, "dataset-filter1")]')
+    linker = get_dataset_linker(context.dataset)
     for row in h.parse_html_table(entities_table):
-        crawl_entity_notice(context, row)
+        crawl_entity_notice(context, row, linker)
 
     ship_table = h.xpath_element(doc, '//table[contains(@class, "table wb-tables")]')
     for row in h.parse_html_table(ship_table):
