@@ -51,6 +51,8 @@ lookups:
         prop: registrationNumber
       - match: N/A
         value: null
+      - match: "171092119"
+        prop: idNumber
   type.date:
     options:
       - match: 104/2024
