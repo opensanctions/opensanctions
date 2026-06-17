@@ -26,8 +26,26 @@ BIO_IGNORE = [
     "Partia",  # party — taken from the structural PARTIA row instead
     "Statusi civil",  # marital status
     "Gjuhë tjetër përveç amtares",  # other languages spoken
+    "Gjuhë tjetër përveç amtare",  # idem; one profile drops the trailing "s"
     "Aktivitete dhe funksione paraprake apo të tanishme",  # prior/current occupations
 ]
+
+# All labels we recognise, longest first so prefix matching is unambiguous. Used to
+# recover rows where the source dropped the ":" separator (e.g. "Gjinia Mashkull").
+KNOWN_BIO_LABELS = sorted({DOB_LABEL, *BIO_PROPS, *BIO_IGNORE}, key=len, reverse=True)
+
+
+def recover_unlabelled(text: str) -> tuple[str | None, str]:
+    """Recover ``(label, value)`` from a bio row missing its ":" separator.
+
+    A few source profiles render e.g. ``Gjinia Mashkull`` instead of ``Gjinia: Mashkull``.
+    Match the longest known label that prefixes the row; return ``(None, "")`` if none
+    matches, meaning the row carries no label we recognise and should be skipped.
+    """
+    for label in KNOWN_BIO_LABELS:
+        if text == label or text.startswith(label + " "):
+            return label, text[len(label) :]
+    return None, ""
 
 
 def parse_bio(context: Context, doc: _Element) -> dict[str, str]:
@@ -36,8 +54,10 @@ def parse_bio(context: Context, doc: _Element) -> dict[str, str]:
     Each field is its own ``<p>`` (e.g. ``Datëlindja: 19/08/1997;``), so we parse per
     paragraph rather than splitting on ";" — a value may itself contain ";" (e.g. a list
     of languages). Minority-community profiles use bilingual ``Albanian\\Serbian`` labels;
-    we keep the Albanian (first) half. The block is empty for some deputies, in which case
-    an empty dict is returned.
+    we keep the Albanian (first) half. Some profiles drop the ":" on an otherwise-labelled
+    row (e.g. ``Gjinia Mashkull``), which we recover via a known label prefix; rows that
+    are neither labelled nor recognised (e.g. a value paragraph the source split off from
+    its label) are skipped. The block is empty for some deputies, returning an empty dict.
     """
     block = doc.find(".//div[@class='bio-hidden']")
     if block is None:
@@ -47,11 +67,16 @@ def parse_bio(context: Context, doc: _Element) -> dict[str, str]:
         text = h.element_text(para).replace("\xa0", " ").rstrip(";").strip()
         if text == "":
             continue
-        if ":" not in text:
-            context.log.warning("Bio row without label", row=text)
-            continue
-        label, value = text.split(":", 1)
-        label = label.split("\\")[0].strip()  # drop Serbian half of bilingual labels
+        if ":" in text:
+            label, value = text.split(":", 1)
+            # Drop the Serbian half of bilingual ``Albanian\Serbian`` labels.
+            label = label.split("\\")[0].strip()
+        else:
+            recovered, value = recover_unlabelled(text)
+            if recovered is None:
+                context.log.info("Skipping bio row without label", row=text)
+                continue
+            label = recovered
         result[label] = value.strip()
     return result
 
@@ -95,8 +120,10 @@ def crawl_member(
             group = value
 
     bio = parse_bio(context, doc)
-    # Dates use "/" or, on some profiles, "\" as the separator (e.g. 29\03\1970).
-    h.apply_date(person, "birthDate", bio.pop(DOB_LABEL, "").replace("\\", "/"))
+    # Dates use "/", "\" (e.g. 29\03\1970) or "." (e.g. 16.12.1985) as the separator;
+    # normalise all to "/" to match the dataset's %d/%m/%Y format.
+    dob = bio.pop(DOB_LABEL, "").replace("\\", "/").replace(".", "/")
+    h.apply_date(person, "birthDate", dob)
     for bio_label, prop in BIO_PROPS.items():
         person.add(prop, bio.pop(bio_label, ""))
     context.audit_data(bio, ignore=BIO_IGNORE)
