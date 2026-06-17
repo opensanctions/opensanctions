@@ -27,7 +27,7 @@ For each person, the run produces QuickStatements commands:
 - **Linked and confirmed persons.** A person already linked to a QID (the resolver canonical is a QID, or the entity carries a `wikidataId`), or confirmed in review, is diffed against its Wikidata item and enriched with the properties the item is missing: birth date, citizenship (`P27`), gender (`P21`), positions held (`P39`), and names as aliases.
 - **Create decisions.** A create produces a new-item block (label, description, aliases, and core statements) for the operator to run.
 
-On exit, the commands are written to a single `.qs` batch that you upload in the QuickStatements UI. By default the batch lands at `<dataset state path>/wikidata-reconcile.qs`; pass `-o/--output` to change the path. Newly created items pick up their `entity ↔ QID` link on a later reconciliation pass, once they exist and search finds them.
+On exit, the commands are written to a single `.qs` batch that you upload in the QuickStatements UI. By default the batch lands at `<dataset state path>/wikidata.qs`; pass `-o/--output` to change the path. Newly created items pick up their `entity ↔ QID` link on a later reconciliation pass, once they exist and search finds them.
 
 ### Options
 

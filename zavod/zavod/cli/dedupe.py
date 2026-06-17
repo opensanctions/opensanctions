@@ -94,7 +94,7 @@ def dedupe(dataset_paths: List[Path], rebuild_store: bool = False) -> None:
     "--output",
     type=click.Path(dir_okay=False, writable=True, path_type=Path),
     default=None,
-    help="QuickStatements output path (default: <dataset state>/wikidata-reconcile.qs)",
+    help="QuickStatements output path (default: <dataset state>/wikidata.qs)",
 )
 def wikidata_reconcile(
     dataset_paths: List[Path],
@@ -118,7 +118,7 @@ def wikidata_reconcile(
     if algorithm_type is None:
         raise click.UsageError("Unknown algorithm: %s" % algorithm)
     if output is None:
-        output = dataset_state_path(dataset.name) / "wikidata-reconcile.qs"
+        output = dataset_state_path(dataset.name) / "wikidata.qs"
 
     resolver = get_resolver()
     resolver.begin()
