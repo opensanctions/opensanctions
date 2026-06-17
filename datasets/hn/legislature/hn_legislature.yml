@@ -1,8 +1,8 @@
-title: Honduras National Congress (Deputies)
+title: Honduras Deputies of National Congress
 entry_point: crawler.py
 prefix: hn-cn
 coverage:
-  frequency: weekly
+  frequency: monthly
   start: 2026-06-16
 load_statements: true
 ci_test: false
@@ -10,11 +10,13 @@ summary: >-
   Deputies of the National Congress of Honduras, the country's unicameral national
   legislature
 description: |
-  The National Congress (Congreso Nacional) is the unicameral legislature of Honduras,
-  made up of 128 deputies elected by department for four-year terms.
+  Current deputies of the National Congress (Congreso Nacional), the unicameral
+  national legislature of Honduras. Its 128 deputies are elected by department for
+  four-year terms and hold the country's legislative power, including passing laws and
+  approving the budget.
 
-  This dataset covers the sitting titular deputies (propietarios) as published on the
-  Congress's official website; their alternates (suplentes), listed alongside them by
+  This dataset records each sitting titular deputy (propietario) with their name and
+  parliamentary group (bancada). Their alternates (suplentes), listed alongside them by
   the source, are not included.
 url: https://congresonacional.hn/congresistas
 publisher:
