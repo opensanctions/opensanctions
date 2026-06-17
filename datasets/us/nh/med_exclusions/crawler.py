@@ -53,7 +53,7 @@ def crawl_item(row: dict[str, str | None], context: Context) -> None:
 
 def crawl_excel_url(context: Context) -> str:
     sanction_list_xpath = (
-        "//*[contains(text(), 'Medicaid Provider Exclusion and Sanction List')]"
+        "//*[contains(text(), 'Provider Exclusion and Sanctions List')]"
     )
     doc = zyte_api.fetch_html(
         context,
