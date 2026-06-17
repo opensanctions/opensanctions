@@ -226,11 +226,11 @@ def apply_translit_full_name(
     result = run_translation_prompt(
         context, prompt, name, output_langs=output_langs, model=model
     )
-    for lt in result.texts:
+    for lang_text in result.texts:
         h.apply_name(
             entity,
-            full=lt.text,
-            lang=lt.lang,
+            full=lang_text.text,
+            lang=lang_text.lang,
             alias=alias,
             origin=model,
         )
