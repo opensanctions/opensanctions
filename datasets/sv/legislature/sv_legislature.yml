@@ -1,8 +1,8 @@
-title: El Salvador Legislative Assembly (Deputies)
+title: El Salvador Deputies of Legislative Assembly
 entry_point: crawler.py
 prefix: sv-al
 coverage:
-  frequency: weekly
+  frequency: monthly
   start: 2026-06-16
 load_statements: true
 ci_test: false
@@ -10,13 +10,14 @@ summary: >-
   Deputies of the Legislative Assembly of El Salvador, the country's unicameral
   national legislature
 description: |
-  The Legislative Assembly (Asamblea Legislativa) is the unicameral legislature of El
-  Salvador. Since the 2023 constitutional reform it has 60 deputies (down from 84),
-  elected for three-year terms.
+  Current deputies of the Legislative Assembly (Asamblea Legislativa), the unicameral
+  national legislature of El Salvador. Since the 2023 constitutional reform its 60
+  deputies (down from 84) are elected for three-year terms and hold the country's
+  legislative power, including passing laws and approving the budget.
 
-  This dataset covers the sitting titular deputies (diputados propietarios) as published
-  on the Assembly's official website; their alternates (suplentes), listed separately by
-  the source, are not included.
+  This dataset records each sitting titular deputy (diputado propietario) with their
+  name, gender, and parliamentary group. Their alternates (suplentes), listed
+  separately by the source, are not included.
 url: https://www.asamblea.gob.sv/asamblea/diputados
 publisher:
   name: Asamblea Legislativa de El Salvador
@@ -54,18 +55,3 @@ lookups:
         value: male
       - match: F
         value: female
-  # Parliamentary group abbreviations as shown on the site. We store the abbreviation
-  # and add the full party name when known; an unmapped abbreviation warns so new groups
-  # are noticed and added here.
-  party:
-    options:
-      - match: NI
-        name: Nuevas Ideas
-      - match: ARENA
-        name: Alianza Republicana Nacionalista
-      - match: PCN
-        name: Partido de Concertación Nacional
-      - match: PDC
-        name: Partido Demócrata Cristiano
-      - match: VAMOS
-        name: Vamos
