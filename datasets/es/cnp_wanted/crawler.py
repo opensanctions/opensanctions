@@ -1,10 +1,15 @@
 from lxml import html
 from normality import slugify
-from typing import Dict
+from typing import Any, Dict, List
 from urllib.parse import urljoin
 
 from zavod import Context, helpers as h
 from zavod.extract import zyte_api
+
+# The site redirects to a cookies-consent page until this cookie is set.
+CONSENT_COOKIES: List[Dict[str, Any]] = [
+    {"name": "cookiesPoliciaNacional", "value": "aceptada", "domain": ".policia.es"},
+]
 
 
 def crawl_item(context: Context, row: Dict[str, str]) -> None:
@@ -26,6 +31,7 @@ def crawl_item(context: Context, row: Dict[str, str]) -> None:
         context,
         sourceUrl,
         unblock_validator=data_list_xpath,
+        request_cookies=CONSENT_COOKIES,
         cache_days=1,
     )
     details_section = doc.find(data_list_xpath)
@@ -76,9 +82,13 @@ def parse_link_element(
 
 
 def crawl(context: Context) -> None:
-    link_xpath = ".//a[starts-with(@href, 'colabora_masbucados_detalle')]"
+    link_xpath = ".//a[starts-with(@href, 'colabora_masbuscados_detalle')]"
     doc = zyte_api.fetch_html(
-        context, context.data_url, unblock_validator=link_xpath, cache_days=1
+        context,
+        context.data_url,
+        unblock_validator=link_xpath,
+        request_cookies=CONSENT_COOKIES,
+        cache_days=1,
     )
     # Find all <a> elements with the specified pattern
     link_elements = h.xpath_elements(doc, link_xpath)
