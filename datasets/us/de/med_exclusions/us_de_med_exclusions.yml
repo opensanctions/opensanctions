@@ -94,6 +94,8 @@ lookups:
         value: 2020-03-02
       - match: "MCO-Terminated-\n01/24/2014\nDMAP Except PTC\nVFC-Terminated-\n01/01/2013"
         value: 2013-01-01
+      - match: "MCO-Terminated-\n01/24/2014 DMAP\nExcept PTC VFC-"
+        value: 2014-01-24
       - match: 07/12/023
         value: 2023-07-12
       - match: 2/6/224
