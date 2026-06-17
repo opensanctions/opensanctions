@@ -1,8 +1,8 @@
-title: Macau Legislative Assembly (Members)
+title: Macau Members of Legislative Assembly
 entry_point: crawler.py
 prefix: mo-al
 coverage:
-  frequency: weekly
+  frequency: monthly
   start: 2026-06-15
 load_statements: true
 ci_test: false
@@ -10,21 +10,21 @@ summary: >-
   Members of the Legislative Assembly of Macau, the legislature of the Macao
   Special Administrative Region of China
 description: |
-  The Legislative Assembly (立法會 / Assembleia Legislativa) is the unicameral
-  legislature of the Macao Special Administrative Region. Under the Basic Law it has
-  33 members: directly elected, indirectly elected by professional sectors, and
-  appointed by the Chief Executive.
+  Current members of the Legislative Assembly (立法會 / Assembleia Legislativa), the
+  unicameral legislature of the Macao Special Administrative Region of China. Under the
+  Basic Law its 33 members serve five-year terms and hold the region's legislative power,
+  including passing laws and approving the budget.
+  Some members are directly elected, some indirectly elected by
+  professional sectors, and some appointed by the Chief Executive.
 
-  This dataset covers the members of the sitting legislature as published on the
-  Assembly's official website. The source publishes only the current legislature; the
-  crawler emits its members and re-derives the term when a new legislature takes office.
+  This dataset records each member of the sitting legislature with their name and year of birth.
 url: https://www.al.gov.mo/en/deputies
 publisher:
-  name: Legislative Assembly of the Macao SAR
-  name_zht: 澳門特別行政區立法會
+  name_en: Legislative Assembly of the Macao SAR
+  name: 澳門特別行政區立法會
   acronym: AL
   description: >
-    The Legislative Assembly (立法會 / Assembleia Legislativa) is the unicameral
+    The Legislative Assembly is the unicameral
     legislature of the Macao Special Administrative Region of the People's Republic of
     China, established under the Macau Basic Law.
   url: https://www.al.gov.mo/

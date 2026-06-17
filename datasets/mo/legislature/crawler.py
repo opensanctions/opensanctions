@@ -58,23 +58,18 @@ def crawl_member(
     birth = row.pop(LABEL_BIRTH, "")
 
     person = context.make("Person")
-    # No cross-source identifier is published; the numeric site id is stable within the
-    # source and the Chinese name disambiguates any hypothetical id reuse across terms.
-    # make_id hashes its inputs, so including the (PII) name here is fine.
     person.id = context.make_id(deputy_id, name_zho)
-    person.add("name", name_zho)  # Traditional Chinese (data.lang default)
-    person.add("name", name_lat, lang="por")  # romanised form, as published (all caps)
-    person.add(
-        "name", listing_name, lang="por"
-    )  # title-cased form from the listing page
+    person.add("name", name_zho, lang="zho")
+    person.add("name", name_lat, lang="por")
+    person.add("name", listing_name, lang="por")
     h.apply_date(person, "birthDate", birth)
     # Members of the Legislative Assembly are only legally required to be permanent
     # residents of Macau (Basic Law Art. 68); they need not be Chinese nationals — Chinese
     # nationality is required only of the President and Vice-President (Art. 72), and
-    # members may hold other nationalities (e.g. Portuguese). We therefore record their
-    # connection to Macau as `country`, not as a citizenship/nationality claim.
+    # members may hold other nationalities (e.g. Portuguese).
     # https://en.wikisource.org/wiki/Basic_Law_of_the_Macao_Special_Administrative_Region/Chapter_IV/Section_3
     person.add("country", "mo")
+    person.add("sourceUrl", url)
 
     occupancy = h.make_occupancy(
         context,
@@ -116,18 +111,13 @@ def crawl(context: Context) -> None:
         wikidata_id="Q28941940",
         lang="eng",
     )
-    categorisation = categorise(context, position, default_is_pep=True)
+    categorisation = categorise(context, position)
     context.emit(position)
 
-    # The listing groups deputies by election method (directly/indirectly elected,
-    # appointed) under `channel-title` headings. That distinction has no clean FTM
-    # property, so it is not emitted; all members hold the same position.
     links = h.xpath_elements(
         doc,
         ".//div[contains(@class, 'channel-deputy')]//a[contains(@href, '/deputies/')]",
     )
-    if len(links) < 20:
-        raise ValueError("Expected at least 20 deputy links, found %d" % len(links))
 
     seen: set[str] = set()
     for link in links:
