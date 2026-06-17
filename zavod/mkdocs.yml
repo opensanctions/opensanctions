@@ -61,6 +61,7 @@ nav:
       - best_practices/http_operations.md
       - best_practices/priorities.md
       - best_practices/merge_checklist.md
+      - best_practices/release.md
       - best_practices/xpath_and_html.md
   - Sanctions Programs: programs.md
   - PEPs: peps.md

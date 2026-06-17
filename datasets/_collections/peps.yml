@@ -30,18 +30,26 @@ description: |
   item](https://www.opensanctions.org/faq/165/peps-only/).**
 children:
   - ad_consell_general
+  - al_kuvendi
   - am_hetq_officials
   - ann_pep_positions
   - ar_parliament
   - at_meine_abgeordneten
   - at_parlament
+  - au_act_parliament
   - au_nsw_parliament
+  - au_nt_parliament
   - au_parliament
+  - au_qld_parliament
+  - au_sa_parliament
   - au_tas_parliament
   - au_vic_parliament
+  - au_wa_parliament
   - az_parliament
+  - ba_parliament
   - be_chamber
   - be_flemish_parliament
+  - be_senate
   - be_walloon_parliament
   - bg_jud_declarations
   - bg_parliament
@@ -112,16 +120,21 @@ children:
   - no_brreg
   - no_storting
   - nz_parliament
+  - ph_house_representatives
+  - ph_senate
   - pl_sejm
   - pl_senate
   - pt_parliament
+  - ro_cdep_deputies
   - ro_fiu_declarations
+  - ro_senate
   - rs_national_assembly
   - se_riksdag
   - se_soe
   - sg_gov_dir
   - si_dz_rs
   - si_zvezoskop
+  - sk_nrsr_poslanci
   - sk_public_officials
   - th_cabinet
   - tr_parliament

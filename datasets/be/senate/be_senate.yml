@@ -3,7 +3,7 @@ prefix: be-sen
 entry_point: crawler.py
 coverage:
   frequency: weekly
-  start: 2026-06-15
+  start: 2026-06-16
 load_statements: true
 summary: >-
   Members of the Belgian Federal Senate, the upper house of the parliament.

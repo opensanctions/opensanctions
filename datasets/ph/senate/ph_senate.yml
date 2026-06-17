@@ -3,7 +3,7 @@ entry_point: crawler.py
 prefix: ph-sen
 coverage:
   frequency: monthly
-  start: 2025-06-30
+  start: 2026-06-16
 load_statements: true
 ci_test: false  # uses Zyte to bypass Cloudflare; API key unavailable in CI
 summary: >-
