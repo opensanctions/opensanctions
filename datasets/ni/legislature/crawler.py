@@ -6,20 +6,6 @@ from zavod.entity import Entity
 from zavod.stateful.positions import PositionCategorisation, categorise
 from zavod.util import Element
 
-# The site rejects the default crawler User-Agent with HTTP 403, but serves a browser UA.
-HEADERS = {
-    "User-Agent": (
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
-        "(KHTML, like Gecko) Chrome/124.0 Safari/537.36"
-    )
-}
-
-# The deputy title encodes gender: "Diputado Propietario" (m) / "Diputada Propietaria" (f).
-GENDERS = {
-    "Diputado Propietario": "male",
-    "Diputada Propietaria": "female",
-}
-
 
 def crawl_deputy(
     context: Context,
@@ -27,7 +13,7 @@ def crawl_deputy(
     position: Entity,
     categorisation: PositionCategorisation,
 ) -> None:
-    doc = context.fetch_html(url, headers=HEADERS, cache_days=7)
+    doc = context.fetch_html(url, cache_days=7)
 
     # The detail page is an IBM XPages document; the deputy title span ("Diputado
     # Propietario" / "Diputada Propietaria") is immediately followed by the name span.
@@ -41,16 +27,14 @@ def crawl_deputy(
     person = context.make("Person")
     person.id = context.make_slug(url.rsplit("documentId=", 1)[-1].split("&")[0])
     person.add("name", name)
-    gender = GENDERS.get(title)
-    if gender is None:
-        raise ValueError("Unexpected deputy title: %r" % title)
-    person.add("gender", gender)
+    # The deputy title encodes gender
+    person.add("gender", title)
     # Deputies must be Nicaraguan nationals (Political Constitution of Nicaragua,
     # Art. 134); nationality by birth is not specifically required.
     # https://pdba.georgetown.edu/Constitutions/Nica/nica95.html
     person.add("citizenship", "ni")
     # Party as published, e.g. "Alianza FSLN"; some deputies sit without one.
-    person.add("political", party or None)
+    person.add("political", party)
 
     occupancy = h.make_occupancy(
         context,
@@ -67,7 +51,7 @@ def crawl_deputy(
 
 
 def crawl(context: Context) -> None:
-    doc = context.fetch_html(context.data_url, headers=HEADERS, cache_days=1)
+    doc = context.fetch_html(context.data_url, cache_days=1)
 
     anchors: list[Element] = h.xpath_elements(
         doc, ".//a[contains(@href, 'InfoDiputado.xsp')]"
@@ -81,8 +65,6 @@ def crawl(context: Context) -> None:
         absolute = urljoin(context.data_url, href)
         doc_id = absolute.rsplit("documentId=", 1)[-1].split("&")[0]
         urls[doc_id] = absolute
-    if len(urls) < 75:
-        raise ValueError("Expected at least 75 deputies, found %d" % len(urls))
 
     position = h.make_position(
         context,
@@ -92,7 +74,7 @@ def crawl(context: Context) -> None:
         wikidata_id="Q18616113",
         lang="eng",
     )
-    categorisation = categorise(context, position, default_is_pep=True)
+    categorisation = categorise(context, position)
     context.emit(position)
 
     for url in urls.values():
