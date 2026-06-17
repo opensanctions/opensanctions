@@ -10,7 +10,7 @@ from zavod.stateful.review import assert_all_accepted
 from zavod.shed import enforcements
 
 PROGRAM_KEY = "CA-SEMA"
-MAX_AGE_DAYS = 100
+MAX_AGE_DAYS = 15
 
 
 def crawl_entity_notice(
@@ -66,18 +66,6 @@ def crawl_entity_notice(
         entity = context.make(schema)
         entity.id = context.make_id(raw_name, country)
         assert entity.id is not None
-
-        # drop entities already present in [ca_dfatd_sema_sanctions]
-        canonical_id = linker.get_canonical(entity.id)
-        already_present = False
-        for other_id in linker.get_referents(canonical_id):
-            if other_id.startswith("ca-sema") and not other_id.startswith(
-                "ca-sema-news"
-            ):
-                already_present = True
-                break
-        if already_present:
-            continue
 
         born_patterns = [" (born ", " (bornon "]
         for born in born_patterns:

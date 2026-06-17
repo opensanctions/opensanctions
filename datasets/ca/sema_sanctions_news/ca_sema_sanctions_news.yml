@@ -60,8 +60,8 @@ names:
 assertions:
   min:
     schema_entities:
-      Person: 20
-      Organization: 30
+      Person: 3
+      Organization: 20
       Vessel: 550
   max:
     schema_entities:
