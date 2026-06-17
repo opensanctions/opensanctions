@@ -49,6 +49,8 @@ lookups:
         prop: registrationNumber
       - match: "40980"
         prop: registrationNumber
+      - match: "171092119"
+        prop: registrationNumber
       - match: N/A
         value: null
       - match: "171092119"
