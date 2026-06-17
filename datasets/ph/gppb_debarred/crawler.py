@@ -7,14 +7,9 @@ from rigour.text.stopwords import is_nullword
 
 
 class DebarmentStatus(Enum):
-    TEMPORARY = "temporary debarment"
-    PERMANENT = "permanent debarment"
+    BLACKLISTED_ENTITIES = "temporary debarment"
+    PERMANENT_BLACKLISTED_ENTITIES = "permanent debarment"
 
-
-CATEGORIES = {
-    "BLACKLISTED_ENTITIES": DebarmentStatus.TEMPORARY,
-    "PERMANENT_BLACKLISTED_ENTITIES": DebarmentStatus.PERMANENT,
-}
 
 IGNORE = [
     "category",
@@ -63,7 +58,7 @@ def crawl_record(
     h.apply_date(sanction, "modifiedAt", record.pop("updated_date"))
 
     end_date = record.pop("end_date")
-    if status != DebarmentStatus.PERMANENT:
+    if status != DebarmentStatus.PERMANENT_BLACKLISTED_ENTITIES:
         h.apply_date(sanction, "endDate", end_date)
 
     for offense in offenses.values():
@@ -79,11 +74,11 @@ def crawl_record(
 
 
 def crawl(context: Context) -> None:
-    for category, status in CATEGORIES.items():
-        context.log.info(f"Crawling category {category}")
+    for category in DebarmentStatus:
+        context.log.info(f"Crawling category {category.name}")
         data = context.fetch_json(
-            context.data_url + f"?category={category}", cache_days=1
+            context.data_url + f"?category={category.name}", cache_days=1
         )
         assert isinstance(data, list), f"Expected list, got {type(data)}"
         for record in data:
-            crawl_record(context, record, status)
+            crawl_record(context, record, category)
