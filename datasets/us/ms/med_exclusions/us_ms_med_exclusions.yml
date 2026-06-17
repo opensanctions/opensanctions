@@ -44,11 +44,11 @@ dates:
 assertions:
   min:
     schema_entities:
-      LegalEntity: 100
+      LegalEntity: 40
       Person: 80
   max:
     schema_entities:
-      LegalEntity: 250
+      LegalEntity: 150
       Person: 200
 
 lookups:
@@ -56,9 +56,23 @@ lookups:
     options:
       - match: "and"
         value: null
-  exclusion_period:
+  headers:
     options:
-      # Just a single date (that happens to be the same as the start date) means indefinite debarment
-      - match: 2025-03-07
-        value:
-          end_date: null
+      - match: "Provider Entity \n(Org/Ind)"
+        value: entity_type
+      - match: "Provider Organization Name\n (Applicable for Organizations Only)"
+        value: organization_name
+      - match: "Provider First Name\n(Applicable for Individuals Only)"
+        value: first_name
+      - match: "Provider Last Name\n(Applicable for Individuals Only)"
+        value: last_name
+      - match: "Provider MI Name\n(Applicable for Individuals Only)"
+        value: middle_name
+      - match: "Provider Suffix Name\n(Applicable for Individuals Only)"
+        value: suffix
+      - match: "Provider Address Line 12"
+        value: address_line_1
+      - match: "Provider Address Line 2"
+        value: address_line_2
+      - match: "Provider Speciality"
+        value: speciality
