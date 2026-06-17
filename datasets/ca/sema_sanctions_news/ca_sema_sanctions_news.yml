@@ -60,13 +60,13 @@ names:
 assertions:
   min:
     schema_entities:
-      Person: 1500
-      Organization: 600
-      Vessel: 80
+      Person: 20
+      Organization: 30
+      Vessel: 550
   max:
     schema_entities:
-      Person: 4000
-      Organization: 1500
+      Person: 60
+      Organization: 100
       Vessel: 1600
 
 lookups:
