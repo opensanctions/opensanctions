@@ -6,15 +6,10 @@ from zavod import helpers as h
 from zavod.entity import Entity
 from zavod.stateful.positions import PositionCategorisation, categorise
 
-# Fields not emitted: the official work email, photo, the internal record id ("dni" — a
-# 1-6 digit site id, not a real national identity number), the electoral department, the
-# formula/priority ordering, and the timestamp.
-# `firstName`/`lastName`/`delegate_id` are redundant duplicates of nombres/apellidos/dni
-# present on some records.
+# `firstName`/`lastName`/`delegate_id` are duplicates of nombres/apellidos/dni
+# present on some records or None
 IGNORE_FIELDS = [
     "titulo",
-    "departamento",
-    "email",
     "img",
     "formula",
     "priority",
@@ -49,16 +44,17 @@ def crawl_deputy(
     # https://pdba.georgetown.edu/Constitutions/Honduras/hond82.html
     person.add("citizenship", "hn")
     person.add("political", bancada)
+    person.add("email", row.pop("email"))
 
     occupancy = h.make_occupancy(
         context,
         person,
         position,
-        no_end_implies_current=True,
         categorisation=categorisation,
     )
     if occupancy is None:
         return
+    occupancy.add("constituency", row.pop("departamento"))
 
     context.emit(occupancy)
     context.emit(person)
@@ -74,8 +70,6 @@ def crawl(context: Context) -> None:
         raise ValueError("Empty __NEXT_DATA__ payload")
     data = json.loads(script.text)
     deputies = data["props"]["pageProps"]["congresistastemp"]["congresistas"]
-    if not isinstance(deputies, list) or len(deputies) < 100:
-        raise ValueError("Unexpected deputy payload: %r" % type(deputies))
 
     position = h.make_position(
         context,
@@ -85,7 +79,7 @@ def crawl(context: Context) -> None:
         wikidata_id="Q19300340",
         lang="eng",
     )
-    categorisation = categorise(context, position, default_is_pep=True)
+    categorisation = categorise(context, position)
     context.emit(position)
 
     for row in deputies:
