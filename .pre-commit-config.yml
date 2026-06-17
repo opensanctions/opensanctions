@@ -36,7 +36,6 @@ repos:
           (?x)^(
           zavod/zavod/tests|
           contrib/|
-          .pywikibot/|
           datasets/|
           )
         args: ['--strict']

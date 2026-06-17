@@ -10,91 +10,67 @@ We also occasionally publish data for a small selection of properties to Wikidat
 The current publishing process is interactive and completely supervised by a
 human.
 
-## Publishing to Wikidata using zavod
+## Reconciling a dataset against Wikidata
 
-The zavod command line tool can publish data from a specific dataset to Wikidata.
-The tool iterates over the entities in the specified dataset until it
-finds an entity for which it can perform some action:
+The `zavod wikidata-reconcile` command matches the persons in a dataset against
+Wikidata and prepares edits for the ones it links. It does **not** write to
+Wikidata directly: confirmed `<os_entity_id> ↔ QID` links are recorded in the
+[resolver](https://www.opensanctions.org/docs/identifiers/), and the run writes a
+[QuickStatements](https://quickstatements.toolforge.org/) batch file that an
+operator reviews and runs in the QuickStatements web UI. There is no OAuth,
+pywikibot, or API write path — the human in the loop runs the batch.
 
-1. If an entity has a Wikidata QID, it proposes any edits it can make, awaiting
-   user confirmation to publish.
-3. If an entity does not have a QID, it searches for existing Wikidata items to
-   [resolve the entity to](https://www.opensanctions.org/docs/identifiers/),
-   and proposes the wikidata edits it would make if the user
-   instead chooses to create a new Wikidata item.
+The tool is person-only (the `Person` schema) and built for the parliament/PEP
+use case, where a large fraction of members already have a Wikidata item.
 
-Resolving the entity to an existing Wikidata item repeats the check for potential
-edits. If no edits are proposed for the current entity, the next entity with possible
-actions is loaded.
-
-Publishing changes to wikidata can take a number of seconds, since the Wikidata
-API imposes throttling to avoid overload. Once changes are published, the next entity
-with possible actions is loaded.
-
-### Running zavod `wd-up`
-
-!!! info ""
-    Pronounced "wud up!"
-
-In addition to basic zavod setup, the following environment variables:
-
-
-    ZAVOD_ARCHIVE_BUCKET=data.opensanctions.org
-    ZAVOD_ARCHIVE_BACKEND=GoogleCloudBackend
-    ZAVOD_WD_CONSUMER_TOKEN
-    ZAVOD_WD_CONSUMER_SECRET
-    ZAVOD_WD_ACCESS_TOKEN
-    ZAVOD_WD_ACCESS_SECRET
-    ZAVOD_WD_USER
-    PYWIKIBOT_DIR=.pywikibot
-
-Get OAuth credentials by registering an
-[OAuth 1.0a consumer](https://meta.wikimedia.org/wiki/Special:OAuthConsumerRegistration/propose/oauth1a)
-with permission to:
-
-- edit existing pages
-- create, edit and move pages
-
-Set `ZAVOD_WD_USER` to the username used for the OAuth consumer.
-
-Set `PYWIKIBOT_DIR` to the directory directory with your `user-config.py` -
-`.pywikibot` in this repository is probably sufficient.
-
-Run `wd-up` as follows, changing for the dataset and country you'd like to sync up:
+### Running `wikidata-reconcile`
 
 ```
-zavod wd-up \
-  --clear \
-  datasets/de/abgeordnetenwatch/de_abgeordnetenwatch.yml \
-  datasets/_analysis/ann_pep_positions/ann_pep_positions.yml \
-  --country-adjective German \
-  --country-code de
+zavod wikidata-reconcile \
+  --rebuild-store \
+  datasets/de/abgeordnetenwatch/de_abgeordnetenwatch.yml
 ```
 
-- The panel on the left shows the current OpenSanctions entity, and below that the
-  proposed actions.
-- The middle panel shows the search results for Wikidata items if the current entity
-  does not have a QID. Highlight the right option using up/down arrows.
-- The panel on the right shows log of operations by `wd-up` and instructs your next step.
-- Press save after creating or resolving a wikidata item and remember to copy your resolve.ijson back and upstream the changes.
+The command always runs in review mode: each unlinked person is shown against its
+ranked Wikidata search candidates, and you decide per person — **confirm** a match,
+**no-match**, **unsure**, **create** a new item, or **skip**. Candidates are
+fetched, scored and sorted up front (watch the log), so the review itself runs in
+memory without per-screen network stalls.
 
-Country adjective is used to generate descriptions like `German politician`.
+For each person the run produces QuickStatements commands:
 
-Country code is used to sanity check that the position refers to the country of
-the supplied nationality adjective. It only works if you supply matching arguments -
-it isn't clever. Use lowercase like the data does.
+- **Linked persons** (resolver canonical is a QID, or the entity carries a
+  `wikidataId`) and **confirmed** matches are diffed against their Wikidata item
+  and enriched — adding properties the item is missing (birth date, citizenship
+  `P27`, gender `P21`, positions held `P39`, names as aliases, …).
+- **Create** decisions emit a new-item block (label, description, aliases, core
+  statements) for the operator to run.
 
-`wd-up` has the following limitations (and probably many more)
+On exit the commands are written to a single `.qs` batch
+(default: `<dataset state path>/wikidata-reconcile.qs`, override with `-o/--output`)
+that you upload in the QuickStatements UI. Newly created items pick up their
+entity↔QID link on a later reconciliation pass, once they exist and search finds
+them.
 
-- Collection datasets don't work very well because it does not properly generate sources for referencing.
-- Only Person entities which are targets are considered.
-- Supported properties:
-  - labels of any language
-  - descriptions only in `en` (English)
-  - 'instance of' Human
-  - 'sex or gender'
-  - 'birth date'
-  - 'position held'
-- Only positions which have QIDs are considered. You might benefit from doing an [xref](https://www.opensanctions.org/docs/identifiers/) between your dataset and wd_peps first.
-- Edits are only proposed if sources can be provided, except for labels, descriptions, and 'instance of'.
-- Sources are only proposed if a `sourceUrl` property is available for the entity with the same source dataset as the property being considered.
+### Options
+
+- `-r/--rebuild-store` — re-sync the entity store before reconciling.
+- `--aliases/--no-aliases` — include alternate names as search aliases (on by default).
+- `-a/--algorithm` — scoring algorithm used to rank candidates (defaults to the
+  ER matcher).
+- `-o/--output` — QuickStatements output path.
+
+References on each statement use the entity's own `sourceUrl`, falling back to the
+dataset's `url`; the dataset's `updated_at` is used as the retrieved-on date. A
+freshly crawled local dataset often has no `updated_at` yet, so the retrieved-on
+qualifier is simply omitted in that case.
+
+### Notes and limitations
+
+- Person entities only; positions are emitted as `P39` only when the `Position`
+  carries a Wikidata QID (no Wikidata lookup of positions is performed).
+- A full dataset export (including the `Occupancy` and `Position` entities) is
+  required for `P39` position emission — a persons-only slice will not carry the
+  occupancies.
+- Gender is emitted only for unambiguous `male`/`female` values.
+- QuickStatements API submission is out of scope: the tool writes files only.
