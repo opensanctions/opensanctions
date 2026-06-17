@@ -12,9 +12,7 @@ PROGRAM_KEY = "CA-SEMA"
 MAX_AGE_DAYS = 15
 
 
-def crawl_entity_notice(
-    context: Context, row: Dict[str, _Element], linker: Linker[Entity]
-) -> None:
+def crawl_entity_notice(context: Context, row: Dict[str, _Element]) -> None:
     str_row = h.cells_to_str(row)
     listing_date = str_row.pop("date")
     assert listing_date is not None
@@ -137,7 +135,7 @@ def crawl(context: Context) -> None:
     entities_table = h.xpath_element(doc, '//table[contains(@id, "dataset-filter1")]')
     linker = get_dataset_linker(context.dataset)
     for row in h.parse_html_table(entities_table):
-        crawl_entity_notice(context, row, linker)
+        crawl_entity_notice(context, row)
 
     ship_table = h.xpath_element(doc, '//table[contains(@class, "table wb-tables")]')
     for row in h.parse_html_table(ship_table):
