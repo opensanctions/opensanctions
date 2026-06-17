@@ -45,6 +45,27 @@ def crawl_item(row: dict[str, str | None], context: Context) -> None:
         entity.add("idNumber", dea)
     entity.add("npiCode", h.multi_split(npi, [";", ",", "&"]))
 
+    # Deal with sometimes intentional line breaks, and sometimes unwanted wrapping:
+    license_numbers = row.pop("license")
+    license_numbers = re.sub(
+        r"PROMISe", ";PROMISe", license_numbers, flags=re.IGNORECASE
+    )
+    license_numbers = re.sub(
+        r"PROMISe#?:?\n#?", "PROMISe# ", license_numbers, flags=re.IGNORECASE
+    )
+    for license_num in h.multi_split(license_numbers, [",", ";"]):
+        if "\n" in license_num:
+            res = context.lookup("license_numbers", license_num)
+            if res:
+                assert res.values, res
+                entity.add("idNumber", res.values, original_value=license_num)
+            else:
+                context.log.warning(
+                    "Unhandled license number", license_number=license_num
+                )
+        else:
+            entity.add("idNumber", squash_spaces(license_num))
+
     sanction = h.make_sanction(context, entity)
     assert (comments := row.pop("comments")) is not None
     sanction.add("description", squash_spaces(comments))
