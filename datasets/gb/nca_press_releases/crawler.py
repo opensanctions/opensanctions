@@ -1,7 +1,6 @@
 from typing import List, Literal
 
 from pydantic import BaseModel, Field
-from zavod.shed import enforcements
 from zavod.extract.llm import DEFAULT_MODEL, run_typed_text_prompt
 from zavod.stateful.review import (
     HtmlSourceValue,
@@ -122,7 +121,7 @@ def crawl_enforcement_action(context: Context, url: str) -> None:
 
         raw_date = get_date(context, url, article_doc)
         try:
-            if raw_date and not enforcements.within_max_age(context, raw_date):
+            if raw_date and not h.within_max_age(context, raw_date):
                 continue
         except ValueError:
             context.log.info(
