@@ -44,11 +44,11 @@ dates:
 assertions:
   min:
     schema_entities:
-      LegalEntity: 40
+      Organization: 40
       Person: 80
   max:
     schema_entities:
-      LegalEntity: 150
+      Organization: 150
       Person: 200
 
 lookups:
