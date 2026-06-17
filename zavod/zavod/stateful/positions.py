@@ -13,6 +13,9 @@ from zavod.stateful.model import position_table
 
 NOTIFIED_SYNC_POSITIONS = False
 
+# Position entity properties mirrored into position_table.properties.
+EXTRA_PROPERTIES = ("subnationalArea",)
+
 YEAR_DAYS = 365  # days
 DEFAULT_AFTER_OFFICE = timedelta(days=5 * YEAR_DAYS)
 EXTENDED_AFTER_OFFICE_YEARS = 20
@@ -58,23 +61,29 @@ def categorise(
     returned; later calls will pick up any edits made through the UI.
     """
     countries = sorted(position.get("country"))
+    properties = {prop: sorted(position.get(prop)) for prop in EXTRA_PROPERTIES}
     stmt = position_table.select()
     stmt = stmt.filter(position_table.c.entity_id == position.id)
     stmt = stmt.filter(position_table.c.deleted_at.is_(None))
     for row in context.conn.execute(stmt).fetchall():
-        if row.caption != position.caption or sorted(row.countries) != countries:
-            # If the caption or countries have changed, we need to update the row.
+        if (
+            row.caption != position.caption
+            or sorted(row.countries) != countries
+            or (row.properties or {}) != properties
+        ):
             context.log.info(
                 "Updating position metadata",
                 entity_id=position.id,
                 caption=position.caption,
                 countries=countries,
+                properties=properties,
             )
             ustmt = position_table.update()
             ustmt = ustmt.where(position_table.c.id == row.id)
             updates = {
                 "caption": position.caption,
                 "countries": countries,
+                "properties": properties,
                 # "modified_at": settings.RUN_TIME,
             }
             ustmt = ustmt.values(updates)
@@ -88,6 +97,7 @@ def categorise(
         "entity_id": position.id,
         "caption": position.caption,
         "countries": countries,
+        "properties": properties,
         "topics": position.get("topics"),
         "dataset": position.dataset.name,
         "created_at": settings.RUN_TIME,

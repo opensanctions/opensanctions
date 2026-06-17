@@ -24,6 +24,10 @@ position_table = Table(
     Column("caption", Unicode(VALUE_LEN), nullable=False),
     # SQLite doesn't support arrays so we use JSON
     Column("countries", JSON, nullable=False),
+    # Bag of extra position entity properties (subnationalArea,
+    # inceptionDate, dissolutionDate, ...) — lets us add fields without
+    # further schema migrations.
+    Column("properties", JSON, nullable=False, default=dict),
     Column("is_pep", Boolean, nullable=True),
     Column("topics", JSON, nullable=False),
     Column("dataset", Unicode(VALUE_LEN), nullable=False),
