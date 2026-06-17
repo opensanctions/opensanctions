@@ -12,7 +12,6 @@ from xlrd import (
 from xlrd.book import Book
 from xlrd.sheet import Cell, Sheet
 from xlrd.xldate import xldate_as_datetime
-from rigour.time import datetime_iso
 from openpyxl.worksheet.worksheet import Worksheet
 
 from zavod.context import Context
@@ -36,7 +35,8 @@ def convert_excel_cell(book: Book, cell: Cell) -> Optional[str]:
     if cell.ctype == XL_CELL_DATE:
         assert isinstance(cell.value, float)
         dt = xldate_as_datetime(cell.value, book.datemode)
-        return datetime_iso(dt)
+        # Naive ISO 8601, e.g. "2023-07-26T00:00:00" — Excel cells carry no timezone.
+        return dt.isoformat(sep="T", timespec="seconds")
     else:
         if cell.value is None:
             return None
@@ -64,7 +64,8 @@ def convert_excel_date(value: Optional[Union[str, int, float]]) -> Optional[str]
     if value < 4_000 or value > 100_000:
         return None
     dt = datetime.fromordinal(datetime(1900, 1, 1).toordinal() + value - 2)
-    return datetime_iso(dt)
+    # Naive ISO 8601, e.g. "2022-11-11T00:00:00" — Excel dates carry no timezone.
+    return dt.isoformat(sep="T", timespec="seconds")
 
 
 def parse_xls_sheet(
