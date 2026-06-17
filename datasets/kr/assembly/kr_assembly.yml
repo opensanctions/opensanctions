@@ -31,6 +31,14 @@ data:
   url: https://open.assembly.go.kr/portal/assm/search/searchAssmMemberSch.do
   format: JSON
   lang: kor
+http:
+  # The member search is fetched via POST, which urllib3 excludes from retries by
+  # default. The endpoint is slow and the source zone has a flaky authoritative DNS
+  # setup (several dead/bogus nameservers), causing intermittent resolution failures.
+  # The crawl makes a single request, so retries are cheap: allow POST to be retried
+  # and raise the count so one attempt lands on a live nameserver and primes the cache.
+  retry_methods: [GET, POST]
+  total_retries: 5
 tags:
   - list.pep
 
