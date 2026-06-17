@@ -78,6 +78,7 @@ class TranslationResult(NamedTuple):
 
 def run_translation_prompt(
     context: Context,
+    *,
     prompt: str,
     text: str,
     output_langs: List[str] = ["eng"],
@@ -160,10 +161,18 @@ def apply_translit_names(
     prompt = make_name_translit_prompt(input_code, output_spec)
     output_langs = [spec.language_code for spec in output_spec]
     first_result = run_translation_prompt(
-        context, prompt, first_name, output_langs=output_langs, model=model
+        context,
+        prompt=prompt,
+        text=first_name,
+        output_langs=output_langs,
+        model=model,
     )
     last_result = run_translation_prompt(
-        context, prompt, last_name, output_langs=output_langs, model=model
+        context,
+        prompt=prompt,
+        text=last_name,
+        output_langs=output_langs,
+        model=model,
     )
     first_by_lang = {lt.lang: lt.text for lt in first_result.texts}
     last_by_lang = {lt.lang: lt.text for lt in last_result.texts}
@@ -224,7 +233,7 @@ def apply_translit_full_name(
         prompt = make_name_translit_prompt(input_code, output)
     output_langs = [spec.language_code for spec in output]
     result = run_translation_prompt(
-        context, prompt, name, output_langs=output_langs, model=model
+        context, prompt=prompt, text=name, output_langs=output_langs, model=model
     )
     for lang_text in result.texts:
         h.apply_name(
