@@ -7,7 +7,6 @@ from nomenklatura.resolver import Linker
 from zavod import Context, Entity, helpers as h
 from zavod.integration import get_dataset_linker
 from zavod.stateful.review import assert_all_accepted
-from zavod.shed import enforcements
 
 PROGRAM_KEY = "CA-SEMA"
 MAX_AGE_DAYS = 15
@@ -21,7 +20,7 @@ def crawl_entity_notice(
     assert listing_date is not None
 
     # skip sanctions whose listing date is older than 100 days
-    if not enforcements.within_max_age(context, listing_date, MAX_AGE_DAYS):
+    if not h.within_max_age(context, listing_date, MAX_AGE_DAYS):
         return
 
     country = str_row.pop("country")

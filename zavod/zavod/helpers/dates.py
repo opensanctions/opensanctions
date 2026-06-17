@@ -3,18 +3,23 @@ from functools import lru_cache
 from normality import stringify
 from prefixdate import parse_formats
 from datetime import datetime, date, timedelta, timezone
-from typing import Tuple, Union, Iterable, Set, Optional, List
+from typing import Tuple, Union, Iterable, Set, Optional, List, TYPE_CHECKING
 from followthemoney import registry
 
 from zavod.logs import get_logger
 from zavod.entity import Entity
 from zavod.meta.dataset import Dataset
+from zavod.settings import RUN_TIME
+
+if TYPE_CHECKING:
+    from zavod.context import Context
 
 log = get_logger(__name__)
 NUMBERS = re.compile(r"\b\d+\b")
 # We always want to accept ISO prefix dates.
 ALWAYS_FORMATS = ["%Y-%m-%d", "%Y-%m", "%Y"]
 DateValue = Union[str, date, datetime, None]
+MAX_ENFORCEMENT_DAYS = 365 * 5
 
 __all__ = [
     "extract_date",
@@ -23,6 +28,7 @@ __all__ = [
     "apply_date",
     "apply_dates",
     "replace_months",
+    "within_max_age",
 ]
 
 
@@ -155,3 +161,25 @@ def backdate(date: datetime, delta: timedelta) -> str:
     """Return a partial ISO8601 date string backdated by the number of days provided"""
     dt = date - delta
     return dt.isoformat()[:10]
+
+
+def within_max_age(
+    context: "Context",
+    date: datetime | str,
+    max_age_days: int = MAX_ENFORCEMENT_DAYS,
+) -> bool:
+    """
+    Check if a the given date is within a specified maximum age, defaulting to `MAX_ENFORCEMENT_DAYS`.
+
+    This is useful for filtering out all but the most recent items, e.g. sanctions announcements
+    or enforcement actions.
+
+    Args:
+        context: The runner context with dataset metadata.
+        date: The date to check.
+        max_age_days: The maximum allowable age in days, if different from the default.
+    """
+    if isinstance(date, str):
+        date = date.strip()
+    cleaned_date = extract_date(context.dataset, date, fallback_to_original=False)[0]
+    return cleaned_date > backdate(RUN_TIME, timedelta(days=max_age_days))

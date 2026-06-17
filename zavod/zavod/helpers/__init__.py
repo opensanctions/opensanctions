@@ -57,6 +57,7 @@ from zavod.helpers.dates import (
     extract_years,
     parse_formats,
     replace_months,
+    within_max_age,
 )
 from zavod.helpers.excel import (
     convert_excel_cell,
@@ -129,6 +130,7 @@ __all__ = [
     "extract_date",
     "replace_months",
     "backdate",
+    "within_max_age",
     "apply_number",
     "convert_excel_cell",
     "convert_excel_date",
