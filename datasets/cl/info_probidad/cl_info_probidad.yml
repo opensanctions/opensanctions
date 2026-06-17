@@ -147,6 +147,7 @@ lookups:
           - "ABOGADO CONSEJERO"
           - "ABOGADO INTEGRANTE"
           - "ABOGADO SECRETARIO DE COMISIONES"
+          - "ABOGADO SECRETARIO DE COMISIONES (S)"  # (S) = subrogante (acting)
           - "ABOGADO"
           - "ABOGADO(A)"
           - "ABOGADO/A PANEL TÉCNICO CONCESIONES "
