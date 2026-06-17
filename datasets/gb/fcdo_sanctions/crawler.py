@@ -67,6 +67,10 @@ def apply_reg_number(context: Context, entity: Entity, reg_number: str) -> None:
             add_reg_property(entity, prop, value, reg_number)
     elif result.value == "SAME":
         entity.add("registrationNumber", reg_number)
+    elif result.value is None:
+        # Value explicitly dropped via the reg_number lookup (e.g. descriptive
+        # text that is not a registration identifier and has no FtM property).
+        return
     else:
         context.log.warn(
             "Ambiguous registration number lookup result",

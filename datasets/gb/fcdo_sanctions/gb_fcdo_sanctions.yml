@@ -304,6 +304,10 @@ lookups:
         value: "T710219"
   reg_number:
     options:
+      - match: "Correspondent account: 30101810900000000204 in OCC No 1 of the Main Directorate of the Bank of Russia for the Central Federal District,"
+        # A bank correspondent account, not a registration identifier; FtM has
+        # no property for it, so drop rather than mislabel.
+        value: null
       - match: "Registration Number: J8AQG9ZH6CA3"
         props:
           registrationNumber: "J8AQG9ZH6CA3"
