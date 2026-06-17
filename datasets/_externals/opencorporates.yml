@@ -83,6 +83,7 @@ lookups:
           - VIRGIN ISLANDS # which???!?
           - "AS"
           - "DE"
+          - "DL"
           - "PA"
           - "MH"
         value: null
