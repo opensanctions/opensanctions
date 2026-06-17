@@ -1,8 +1,8 @@
-title: Nicaragua National Assembly (Deputies)
+title: Nicaragua Deputies of National Assembly
 entry_point: crawler.py
 prefix: ni-an
 coverage:
-  frequency: weekly
+  frequency: monthly
   start: 2026-06-16
 load_statements: true
 ci_test: false
@@ -10,14 +10,14 @@ summary: >-
   Deputies of the National Assembly of Nicaragua, the country's unicameral national
   legislature
 description: |
-  The National Assembly (Asamblea Nacional) is the unicameral legislature of Nicaragua,
-  made up of 91 deputies (national- and department-list seats plus seats assigned by
-  constitutional formula).
+  Current deputies of the National Assembly (Asamblea Nacional), the unicameral
+  national legislature of Nicaragua. Its 91 deputies — elected from national and
+  department lists, plus seats assigned by constitutional formula — serve five-year
+  terms and hold the country's legislative power, including passing laws and approving
+  the budget.
 
-  This dataset covers the currently listed deputies as published on the Assembly's
-  official legislative information site. Membership is treated as authoritative-current
-  on each run rather than fixed for a term, since it has changed mid-term (for example
-  through citizenship-stripping of sitting deputies).
+  This dataset records each currently listed deputy with their name, gender, and
+  political party.
 url: http://legislacion.asamblea.gob.ni/Tablas%20Generales.nsf/Main.xsp
 publisher:
   name: Asamblea Nacional de Nicaragua
@@ -34,8 +34,20 @@ data:
   format: HTML
   lang: spa
 
+http:
+  # The site rejects the default crawler User-Agent with HTTP 403, but serves a browser UA.
+  user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36"
+
 tags:
   - list.pep
+
+lookups:
+  type.gender:
+    options:
+      - match: Diputado Propietario
+        value: male
+      - match: Diputada Propietaria
+        value: female
 
 assertions:
   min:
