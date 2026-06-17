@@ -2,11 +2,28 @@ from typing import Any
 
 from zavod import Context
 from zavod import helpers as h
+from zavod.entity import Entity
 from zavod.stateful.positions import categorise
 
 # Page size accepted by the Members API. The API caps `take` at 20.
 PAGE_SIZE = 20
 TOPICS = ["gov.national", "gov.legislative"]
+
+
+def apply_contact_details(context: Context, person: Entity, member_id: int) -> None:
+    """Add the member's published email, phone and website.
+
+    The Members API keeps contact details on a separate endpoint, so this costs
+    one extra request per member. Social media handles and office contact-form
+    URLs are skipped: FollowTheMoney has no property to hold them.
+    """
+    contact_url = f"https://members-api.parliament.uk/api/Members/{member_id}/Contact"
+    data = context.fetch_json(contact_url, cache_days=1)
+    for contact in data["value"]:
+        person.add("email", contact["email"])
+        person.add("phone", contact["phone"])
+        if contact["type"] == "Website":
+            person.add("website", contact["line1"])
 
 
 def crawl_member(
@@ -24,8 +41,9 @@ def crawl_member(
         return
 
     name = value.pop("nameDisplayAs")
+    member_id = value.pop("id")
     person = context.make("Person")
-    person.id = context.make_id(name, value.pop("id"))
+    person.id = context.make_id(name, member_id)
 
     person.add("name", name)
     person.add("name", value.pop("nameFullTitle"))
@@ -46,6 +64,8 @@ def crawl_member(
     categorisation = categorise(context, position)
     if not categorisation.is_pep:
         return
+
+    apply_contact_details(context, person, member_id)
 
     occupancy = h.make_occupancy(
         context,
