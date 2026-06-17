@@ -3,11 +3,16 @@ from pathlib import Path
 from typing import Optional, List, Tuple
 
 import click
-from nomenklatura.matching import DefaultAlgorithm
-from nomenklatura.tui import dedupe_ui
+from followthemoney import Dataset as FTMDataset
+from nomenklatura.cache import Cache
+from nomenklatura.matching import DefaultAlgorithm, DedupeAlgorithm, get_algorithm
+from nomenklatura.tui import dedupe_ui, reconcile_ui
+from nomenklatura.wikidata.client import WikidataClient
+from nomenklatura.wikidata.write import serialize
 
 from zavod.archive import dataset_state_path
 from zavod.cli import cli, DatasetInPath, _load_datasets, log
+from zavod.db import get_engine, meta
 from zavod.integration import get_resolver
 from zavod.integration.dedupe import blocking_xref, merge_entities, explode_cluster
 from zavod.store import get_store
@@ -74,6 +79,87 @@ def dedupe(dataset_paths: List[Path], rebuild_store: bool = False) -> None:
     store.sync(clear=rebuild_store)
     resolver.commit()
     dedupe_ui(resolver, store, url_base="https://opensanctions.org/entities/%s/")
+
+
+@cli.command(
+    "wikidata-reconcile",
+    help="Match dataset persons against Wikidata in a review UI",
+)
+@click.argument("dataset_paths", type=DatasetInPath, nargs=-1)
+@click.option("-r", "--rebuild-store", is_flag=True, default=False)
+@click.option("--aliases/--no-aliases", default=True)
+@click.option("-a", "--algorithm", type=str, default=DedupeAlgorithm.NAME)
+@click.option(
+    "-o",
+    "--output",
+    type=click.Path(dir_okay=False, writable=True, path_type=Path),
+    default=None,
+    help="QuickStatements output path (default: <dataset state>/wikidata.qs)",
+)
+def wikidata_reconcile(
+    dataset_paths: List[Path],
+    rebuild_store: bool = False,
+    aliases: bool = True,
+    algorithm: str = DedupeAlgorithm.NAME,
+    output: Optional[Path] = None,
+) -> None:
+    """Interactively reconcile dataset persons against Wikidata.
+
+    Each Person is presented against its ranked Wikidata search candidates for a
+    human decision (confirm / no-match / unsure / create / skip). Confirmed
+    matches are written to the resolver, and the run emits a QuickStatements
+    batch the operator runs in the QS web UI to enrich the matched items and
+    create new ones for unmatched persons. The dataset's own `url` and
+    `updated_at` are used as the fallback source and retrieved-on citation for
+    statements whose entity lacks a `sourceUrl` of its own.
+    """
+    dataset = _load_datasets(dataset_paths)
+    algorithm_type = get_algorithm(algorithm)
+    if algorithm_type is None:
+        raise click.UsageError("Unknown algorithm: %s" % algorithm)
+    if output is None:
+        output = dataset_state_path(dataset.name) / "wikidata.qs"
+
+    resolver = get_resolver()
+    resolver.begin()
+    store = get_store(dataset, resolver)
+    store.sync(clear=rebuild_store)
+    resolver.commit()
+
+    # Cite the dataset itself when an entity carries no sourceUrl/retrieved date.
+    retrieved: Optional[str] = None
+    if dataset.model.updated_at is not None:
+        retrieved = dataset.model.updated_at.date().isoformat()
+
+    # A throwaway FtM dataset namespaces the shared Wikidata API cache and the
+    # candidate-entity projection built by the reconciler.
+    wikidata = FTMDataset.make({"name": "wikidata", "title": "Wikidata"})
+    cache = Cache(get_engine(), meta, wikidata, create=True)
+    client = WikidataClient(cache)
+    try:
+        # reconcile_ui owns its resolver transactions (a commit per judgement),
+        # like dedupe_ui above, so we don't hold one open across the UI.
+        commands = reconcile_ui(
+            resolver,
+            store,
+            client,
+            wikidata,
+            algorithm_type,
+            aliases=aliases,
+            retrieved=retrieved,
+            source_url=dataset.url,
+            url_base="https://opensanctions.org/entities/%s/",
+        )
+    finally:
+        # Persist cached API responses even if the run is cancelled or errors.
+        cache.close()
+
+    output.parent.mkdir(parents=True, exist_ok=True)
+    text = serialize(commands)
+    if len(text):
+        text += "\n"
+    output.write_text(text)
+    log.info("Wrote %d QuickStatements commands: %s" % (len(commands), output))
 
 
 @cli.command("explode-cluster", help="Destroy a cluster of deduplication matches")
