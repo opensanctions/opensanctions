@@ -2,22 +2,25 @@ title: Argentina Members of the Senate
 entry_point: crawler.py
 prefix: ar-sen
 coverage:
-  frequency: daily
+  frequency: monthly
   start: 2026-06-18
 load_statements: true
 ci_test: false # Live external government source, not available in CI
 summary: >-
-  Current members of the Honorable Senate of the Nation, the upper house of the
-  National Congress of Argentina
+  Members of the Honorable Senate of the Nation, the upper house of the National
+  Congress of Argentina
 description: |
-  Current senators of the Honorable Senado de la Nación (Senate of the Nation),
-  the upper house of the bicameral National Congress of Argentina. Its 72 members
-  are elected directly, three per province across the 23 provinces and the
-  Autonomous City of Buenos Aires, for six-year terms.
+  Senators of the Honorable Senado de la Nación (Senate of the Nation), the upper
+  house of the bicameral National Congress of Argentina. Its 72 seats are elected
+  directly, three per province across the 23 provinces and the Autonomous City of
+  Buenos Aires, for six-year terms.
 
-  This dataset is sourced from the Senate's official open-data portal and records
-  each sitting senator with their name, party, parliamentary group (bloque),
-  province and term dates. It complements the ar_parliament dataset, which covers
+  This dataset is sourced from the Senate's official open-data portal. It uses the
+  historical roster so it spans multiple legislative terms — both sitting senators
+  and those who left office recently enough to remain politically exposed — and
+  records each with their name, party, province and term dates. Sitting senators
+  are additionally enriched with their email and parliamentary group (bloque) from
+  the current-members feed. It complements the ar_parliament dataset, which covers
   the lower house (Chamber of Deputies).
 url: https://www.senado.gob.ar/micrositios/DatosAbiertos/
 publisher:
@@ -31,7 +34,7 @@ publisher:
   country: ar
   official: true
 data:
-  url: https://www.senado.gob.ar/micrositios/DatosAbiertos/ExportarListadoSenadores/json
+  url: https://www.senado.gob.ar/micrositios/DatosAbiertos/ExportarListadoSenadoresHistorico/json
   format: JSON
   lang: spa
 dates:
@@ -43,11 +46,11 @@ tags:
 assertions:
   min:
     schema_entities:
-      Person: 57
+      Person: 130
       Position: 1
     country_entities:
-      ar: 57
+      ar: 130
   max:
     schema_entities:
-      Person: 100
+      Person: 400
       Position: 1
