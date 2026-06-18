@@ -1,0 +1,50 @@
+title: Paraguay Members of the Chamber of Senators
+entry_point: crawler.py
+prefix: py-senado
+coverage:
+  frequency: monthly
+  start: 2026-06-18
+load_statements: true
+ci_test: false # Live external government API, not available in CI
+summary: >-
+  Senators of the Cámara de Senadores, the upper chamber of the National
+  Congress of Paraguay
+description: |
+  Current senators of the Cámara de Senadores (Chamber of Senators), the upper
+  chamber of the bicameral National Congress of Paraguay. Its 45 senators are
+  elected from a single nationwide constituency for five-year terms.
+
+  This dataset records each sitting senator with their name, party (partido
+  político) and parliamentary group (bancada), sourced from the Congress
+  open-data API. The source lists the current occupant of each of the 45 seats,
+  whether the elected senator or a suplente who has taken over a vacated seat.
+url: https://www.senado.gov.py/
+publisher:
+  name: Cámara de Senadores del Paraguay
+  name_en: Chamber of Senators of Paraguay
+  acronym: HCS
+  description: >
+    The Chamber of Senators is the upper chamber of the National Congress
+    (Congreso Nacional), the bicameral national legislature of Paraguay.
+  url: https://www.senado.gov.py/
+  country: py
+  official: true
+data:
+  url: https://datos.congreso.gov.py/opendata/api/data/parlamentario/camara/S
+  format: JSON
+  lang: spa
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 36
+      Position: 1
+    country_entities:
+      py: 36
+  max:
+    schema_entities:
+      Person: 60
+      Position: 1
