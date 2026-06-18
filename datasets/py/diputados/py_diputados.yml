@@ -1,0 +1,52 @@
+title: Paraguay Members of the Chamber of Deputies
+entry_point: crawler.py
+prefix: py-diput
+coverage:
+  frequency: monthly
+  start: 2026-06-18
+load_statements: true
+ci_test: false # Live external government API, not available in CI
+summary: >-
+  Deputies of the Cámara de Diputados, the lower chamber of the National
+  Congress of Paraguay
+description: |
+  Current deputies of the Cámara de Diputados (Chamber of Deputies), the lower
+  chamber of the bicameral National Congress of Paraguay. Its 80 deputies are
+  elected from the 17 departments and the Capital District (Asunción) via
+  departmental party-list proportional representation for five-year terms.
+
+  This dataset records each sitting deputy with their name, party (partido
+  político), parliamentary group (bancada) and department, sourced from the
+  Congress open-data API. The source lists the current occupant of each of the
+  80 seats, whether the elected deputy or a suplente who has taken over a
+  vacated seat.
+url: https://www.diputados.gov.py/
+publisher:
+  name: Cámara de Diputados del Paraguay
+  name_en: Chamber of Deputies of Paraguay
+  acronym: HCD
+  description: >
+    The Chamber of Deputies is the lower chamber of the National Congress
+    (Congreso Nacional), the bicameral national legislature of Paraguay.
+  url: https://www.diputados.gov.py/
+  country: py
+  official: true
+data:
+  url: https://datos.congreso.gov.py/opendata/api/data/parlamentario/camara/D?limit=200
+  format: JSON
+  lang: spa
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 60
+      Position: 1
+    country_entities:
+      py: 60
+  max:
+    schema_entities:
+      Person: 120
+      Position: 1
