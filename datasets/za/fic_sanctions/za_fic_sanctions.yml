@@ -52,6 +52,21 @@ assertions:
       Person: 900
 dates:
   formats: ["%d-%m-%Y"]
+names:
+  schema_rules:
+    Person:
+      # "?" flags transliteration artefacts; "f.k.a"/"f.n.a" are alias markers
+      # not covered by rigour's name_split_phrases_list (which has "f/k/a").
+      reject_chars: "?"
+      reject_strings:
+        - f.k.a
+        - f.n.a
+    LegalEntity:
+      # As Person, plus parentheses (in the Person baseline but not LegalEntity's).
+      reject_chars: "?()"
+      reject_strings:
+        - f.k.a
+        - f.n.a
 lookups:
   type.address:
     lowercase: true

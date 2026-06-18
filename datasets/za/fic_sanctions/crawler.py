@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Dict
 import re
 
 from zavod import Context
@@ -6,16 +6,6 @@ from zavod import helpers as h
 
 
 REGEX_PASSPORT = re.compile(r"^[A-Z0-9-]{6,20}$")
-ALIAS_SPLITS = [
-    "a.k.a.,",
-    "f.k.a.,",
-    "; ",
-    "f.k.a,",
-    "f.n.a.,",
-    "Formerly known as,",
-    " Good,",
-    "Formerly Known As,",
-]
 ADDRESS_SPLITS = [
     "Branch Office 1:",
     "Branch Office 2:",
@@ -42,7 +32,7 @@ ADDRESS_SPLITS = [
 ]
 
 
-def clean_passports(context: Context, text: str) -> List[str]:
+def clean_passports(context: Context, text: str) -> tuple[list[str], list[str]]:
     values = text.split(", ")
     passports = []
     ids = []
@@ -78,10 +68,7 @@ def crawl_row(context: Context, data: Dict[str, str]) -> None:
     entity = context.make(schema)
     entity.id = context.make_slug(ent_id, full_name)
     assert entity.id, data
-    original = h.Names(name=full_name)
-    suggested = h.Names()
-    entity.add("name", full_name)
-    suggested.add("name", full_name)
+    names = h.Names(name=full_name)
     entity.add("topics", "sanction")
     entity.add("notes", h.clean_note(data.pop("Comments", None)))
     if entity.schema.is_a("Person"):
@@ -92,17 +79,7 @@ def crawl_row(context: Context, data: Dict[str, str]) -> None:
         entity.add("birthPlace", data.pop("IndividualPlaceOfBirth", None))
         dob = data.pop("IndividualDateOfBirth", None)
         h.apply_date(entity, "birthDate", dob)
-
-        aliases = data.pop("IndividualAlias", None)
-        if aliases is not None:
-            original.add("alias", aliases)
-        for alias in h.multi_split(aliases, ["Good", "Low", ","]):
-            if all(c in {"?", " "} for c in alias):
-                continue
-            entity.add("alias", alias)
-            suggested.add("alias", alias)
-            if any(["?" in a for a in entity.get("alias")]):
-                context.log.warning("Alias contains '?'", alias=alias)
+        names.add("alias", data.pop("IndividualAlias", None))
         passports, ids = clean_passports(context, data.pop("IndividualDocument", ""))
         entity.add("passportNumber", passports)
         entity.add("idNumber", ids)
@@ -112,27 +89,9 @@ def crawl_row(context: Context, data: Dict[str, str]) -> None:
         for address in h.multi_split(address, ADDRESS_SPLITS):
             address = address.rstrip(",")
             entity.add("address", address)
-        aliases = data.pop("EntityAlias", None)
-        if aliases is not None:
-            original.add("alias", aliases)
-        for alias in h.multi_split(aliases, ALIAS_SPLITS):
-            # if we split on a comma, we will separate ", LTD" from the name
-            alias = alias.rstrip(",")
-            if all(c in {"?", " "} for c in alias):
-                continue
-            entity.add("alias", alias)
-            suggested.add("alias", alias)
-            if any(["?" in a for a in entity.get("alias")]):
-                context.log.warning("Alias contains '?'", alias=alias)
-    is_irregular, suggested = h.check_names_regularity(entity, suggested)
-    h.review_names(
-        context,
-        entity,
-        original=original,
-        suggested=suggested,
-        is_irregular=is_irregular,
-        default_accepted=True,
-    )
+        names.add("alias", data.pop("EntityAlias", None))
+
+    h.apply_reviewed_names(context, entity, original=names)
     listed_on = data.pop("ListedOn", None)
     h.apply_date(entity, "createdAt", listed_on)
 
@@ -158,9 +117,9 @@ def crawl(context: Context) -> None:
     for table in tables:
         for row in doc.findall(table):
             data = {}
-            for field in row.getchildren():
+            for field in row.iterchildren():
                 value = field.text
-                if value == "NA":
+                if value is None or value == "NA":
                     continue
                 data[field.tag] = value
             crawl_row(context, data)
