@@ -20,7 +20,10 @@ def crawl_item_belarus(context: Context, source_url: str, raw_name: str) -> None
         return
 
     entity = context.make("Person")
-    entity.id = context.make_id(raw_name)
+    old_key = context.make_id(name)
+    new_key = context.make_id(raw_name)
+    context.rekey(old_key, new_key)  # TODO: Remove in name migration step 3
+    entity.id = new_key
     original = h.Names(name=raw_name)
     suggested = h.Names()
     entity.add("name", name, lang="eng")
@@ -62,7 +65,10 @@ def crawl_item_human_rights(context: Context, source_url: str, raw_name: str) ->
     last_name, first_name = name.split(", ")
 
     entity = context.make("Person")
-    entity.id = context.make_id(raw_name)
+    old_key = context.make_id(name)
+    new_key = context.make_id(raw_name)
+    context.rekey(old_key, new_key)  # TODO: Remove in name migration step 3
+    entity.id = new_key
     original = h.Names(name=raw_name)
     suggested = h.Names()
     h.apply_name(entity, first_name=first_name, last_name=last_name, lang="eng")
@@ -102,7 +108,10 @@ def crawl_item_rus(context: Context, source_url: str, raw_name: str) -> None:
         context.log.warning("Could not parse name", raw_name)
 
     entity = context.make("Person")
-    entity.id = context.make_id(raw_name)
+    old_key = context.make_id(name)
+    new_key = context.make_id(raw_name)
+    context.rekey(old_key, new_key)  # TODO: Remove in name migration step 3
+    entity.id = new_key
     original = h.Names(name=raw_name)
     suggested = h.Names()
     entity.add("name", name, lang="eng")
