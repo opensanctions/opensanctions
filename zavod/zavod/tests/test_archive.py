@@ -5,7 +5,7 @@ from zavod.meta import Dataset
 from zavod.runtime.versions import make_version
 from zavod.archive import get_dataset_artifact, publish_artifact, archive_artifact
 from zavod.archive import clear_data_path, dataset_data_path, dataset_resource_path
-from zavod.archive import archive_version_history, get_archive_backend
+from zavod.archive import publish_version_history, get_archive_backend
 from zavod.archive import ARTIFACTS, DATASETS, LATEST, VERSIONS_FILE
 
 
@@ -72,7 +72,7 @@ def test_artifact_backfill(testdataset1: Dataset):
     assert not versions_file.exists()
     assert not local_path.exists()
     make_version(testdataset1, settings.RUN_VERSION)
-    archive_version_history(testdataset1.name)
+    publish_version_history(testdataset1.name)
     assert versions_file.exists()
     local_path = get_dataset_artifact(testdataset1.name, name)
     assert local_path.exists()

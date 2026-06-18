@@ -48,7 +48,6 @@ def test_publish_dataset(testdataset1: Dataset):
     artifact_path = artifacts_path / testdataset1.name / history.latest.id
     assert artifact_path.exists()
     assert artifact_path.joinpath(STATEMENTS_FILE).exists()
-    assert artifact_path.joinpath(STATEMENTS_FILE).exists()
     assert artifact_path.joinpath(STATISTICS_FILE).exists()
 
     assert release_path.joinpath(INDEX_FILE).exists()
@@ -61,8 +60,6 @@ def test_publish_dataset(testdataset1: Dataset):
     publish_dataset(testdataset1, republish_to_latest=True)
     assert latest_path.joinpath(INDEX_FILE).exists()
 
-    # Resources are also copied to /datasets/{RELEASE} and /datasets/latest, and
-    # both copies must be byte-identical to the canonical /artifacts version.
     artifact_index = artifact_path.joinpath(INDEX_FILE).read_bytes()
     assert release_path.joinpath(INDEX_FILE).read_bytes() == artifact_index
     assert latest_path.joinpath(INDEX_FILE).read_bytes() == artifact_index

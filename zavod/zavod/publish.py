@@ -7,7 +7,7 @@ from zavod.exporters.metadata import DatasetVersionResult
 from zavod.meta import Dataset
 from zavod.logs import get_logger
 from zavod.archive import DATASETS, LATEST, UNLISTED_RESOURCES, dataset_resource_path
-from zavod.archive import archive_version_history, archive_artifact
+from zavod.archive import publish_version_history, archive_artifact
 from zavod.archive import publish_artifact
 from zavod.archive import INDEX_FILE, CATALOG_FILE
 from zavod.archive import STATEMENTS_FILE, RESOURCES_FILE, STATISTICS_FILE
@@ -21,7 +21,10 @@ log = get_logger(__name__)
 
 
 def _archive_artifacts(dataset: Dataset, extra_artifacts: list[str] = []) -> None:
-    """Upload every file we persist about a run to /artifacts/{dataset}/{version}/.
+    """
+    Upload every file we persist about a run to /artifacts/{dataset}/{version}/.
+
+    Also publishes the version history to the dataset's stable version history location.
 
     This covers both registered resources and non-resource files.
     """
@@ -57,7 +60,7 @@ def _archive_artifacts(dataset: Dataset, extra_artifacts: list[str] = []) -> Non
             mime_type=JSON if artifact.endswith(".json") else None,
         )
 
-    archive_version_history(dataset.name)
+    publish_version_history(dataset.name)
 
 
 def publish_dataset(dataset: Dataset, republish_to_latest: bool = True) -> None:
@@ -71,16 +74,16 @@ def publish_dataset(dataset: Dataset, republish_to_latest: bool = True) -> None:
     """
 
     extra_artifacts = []
-    publish_to_datasets: List[str] = [
+    all_published_files: List[str] = [
         r.name
         for r in DatasetResources(dataset).all()
         if r.name not in UNLISTED_RESOURCES
     ]
-    publish_to_datasets.append(INDEX_FILE)
+    all_published_files.append(INDEX_FILE)
 
     if dataset.is_collection:
         extra_artifacts.append(CATALOG_FILE)
-        publish_to_datasets.append(CATALOG_FILE)
+        all_published_files.append(CATALOG_FILE)
 
     _archive_artifacts(dataset, extra_artifacts)
 
@@ -88,18 +91,10 @@ def publish_dataset(dataset: Dataset, republish_to_latest: bool = True) -> None:
     assert version is not None
 
     if republish_to_latest:
-        _warn_about_stale_latest_files(dataset, set(publish_to_datasets))
+        _warn_about_stale_latest_files(dataset, set(all_published_files))
 
-    for name in publish_to_datasets:
-        if not dataset_resource_path(dataset.name, name).is_file():
-            log.error(
-                "File to copy to /datasets/ not found: %s" % name,
-                dataset=dataset.name,
-            )
-            continue
-        publish_artifact(
-            dataset.name, version.id, name, republish_to_latest=republish_to_latest
-        )
+    for name in all_published_files:
+        publish_artifact(dataset.name, version.id, name, republish_to_latest)
 
 
 def _warn_about_stale_latest_files(dataset: Dataset, published_files: set[str]) -> None:

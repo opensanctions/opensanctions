@@ -34,6 +34,8 @@ def get_opensanctions_catalog(scope: Dataset) -> Dict[str, Any]:
             "default", default_version.id, "statements.csv"
         )
     else:
+        # TODO: Remove after default dataset is published.
+        # https://github.com/opensanctions/operations/issues/2587
         statements_url = make_published_url("default", "statements.csv")
     return {
         "datasets": datasets,

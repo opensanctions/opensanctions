@@ -12,8 +12,8 @@ can be found for the latest successful run on a given day.
 be found for the latest successful run.
 
 See archive backends for operating on the archive - in OpenSanctions production
-this is the Google Cloud Storage bucket data.opensanctions.org. In the local
-filesystem can be used e.g. in development and testing.
+this is the Google Cloud Storage bucket data.opensanctions.org.
+A local filesystem path can be used in development and testing.
 
 When storing in /artifacts we use the verb "archive".
 When storing in /datasets we use the verb "publish".
@@ -56,8 +56,8 @@ CATALOG_FILE = "catalog.json"
 VERSIONS_FILE = "versions.json"
 # HACK: DatasetResources are defined as downloadable files of a dataset.
 # A couple of exporters use this as a mechanism to get files archived,
-# and some of those files are also referenced elsewhere in metadata. But we don't
-# want any of these files listed as resources in the dataset's resource list.
+# but their files are listed elsewhere in the dataset metadata so we don't
+# want them duplicated in the resources section of the metadata.
 UNLISTED_RESOURCES = [
     STATISTICS_FILE,
     DELTA_EXPORT_FILE,
@@ -187,7 +187,7 @@ def get_artifact_object(
     return None
 
 
-def archive_version_history(dataset_name: str) -> None:
+def publish_version_history(dataset_name: str) -> None:
     """Publish the history of versions for a given dataset to the artifact directory."""
     path = dataset_resource_path(dataset_name, VERSIONS_FILE)
     if not path.exists():
