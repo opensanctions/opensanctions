@@ -71,6 +71,7 @@ def crawl_item(context: Context, row: dict[str, Element], expired: bool) -> None
         original=original,
         suggested=suggested,
         is_irregular=is_irregular,
+        default_accepted=True,
     )
 
     sanction = h.make_sanction(context, organization, program_key=PROGRAM_KEY)
