@@ -4,11 +4,11 @@ coverage:
   start: "2021-09-01"
   schedule: "0 */6 * * *"
 deploy:
-  memory: "3000Mi"
-  memory_limit: "3000Mi"
+  memory: "4000Mi"
+  memory_limit: "6000Mi"
   cpu: "1200m"
   cpu_limit: "2000m"
-  disk: "80Gi"
+  disk: "100Gi"
   command: /etl/scripts/export-default.sh
   premium: true
 ci_test: false
@@ -50,7 +50,6 @@ children:
   - securities
 
   # banks
-  - iso9362_bic
   - ru_cbr_banks
 
   # misc

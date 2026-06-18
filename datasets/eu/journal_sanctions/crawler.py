@@ -30,7 +30,7 @@ GC_ROWS = []
 
 
 @cache
-def extract_program_code(context, source_url):
+def extract_program_code(context: Context, source_url: str) -> str | None:
     """Fetch EU act code from a EUR-Lex page."""
     if SPECIAL_CASE_URL in source_url:
         return "833/2014"
@@ -97,13 +97,16 @@ def get_consolidated_url(context: Context, source_url: str) -> str | None:
         absolute_links=True,
     )
     original_celex: str | None = None
-    for table in doc.xpath(".//table[@id='relatedDocsTbMS']"):
+    for table in h.xpath_elements(doc, ".//table[@id='relatedDocsTbMS']"):
         # The <th> header cells embed <select> filter widgets whose text corrupts
         # parse_html_table's slugified keys (e.g. "relation_all_modifies" instead
         # of "relation").  Strip them before parsing.
-        for select in table.xpath(".//thead//th/select"):
-            select.getparent().remove(select)
+        for select in h.xpath_elements(table, ".//thead//th/select"):
+            parent = select.getparent()
+            assert parent is not None
+            parent.remove(select)
         rows = [h.cells_to_str(row) for row in h.parse_html_table(table)]
+        rows = [r for r in rows if r.get("relation") != "Repeal"]
         act_values = {r.get("act") for r in rows if r.get("act")}
         assert len(act_values) <= 1, (
             f"Multiple CELEX numbers in amendments table for {source_url}: {act_values}"
@@ -304,6 +307,7 @@ def crawl_unconsolidated_row(
     entity.add("weakAlias", h.multi_split(row.pop("weakAlias"), ";"))
     entity.add_cast("Person", "passportNumber", h.multi_split(row.pop("passport"), ";"))
     entity.add("taxNumber", h.multi_split(row.pop("taxNumber"), ";"), quiet=True)
+    entity.add("kppCode", h.multi_split(row.pop("kppCode"), ";"), quiet=True)
     entity.add("idNumber", h.multi_split(row.pop("idNumber"), ";"), quiet=True)
     entity.add("imoNumber", row.pop("imoNumber"), quiet=True)
     entity.add("notes", row.pop("Notes").strip())
@@ -419,7 +423,7 @@ def crawl_context_row(context: Context, row_idx: int, row: dict[str, str]) -> No
     )
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     # Round 1: unconsolidated.csv with the latest journal updates
     # Unconsolidated between EU Journal and XML, not in the consolidated legislation sense.
     path = context.fetch_resource("unconsolidated.csv", context.data_url)

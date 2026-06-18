@@ -1,3 +1,5 @@
+from urllib.parse import urljoin
+
 from lxml import etree
 from lxml.html import HtmlElement
 from normality import slugify
@@ -152,6 +154,7 @@ def crawl_row(context: Context, row: dict[str, HtmlElement]) -> None:
     # produce different entity IDs across runs depending on which form appeared.
     # Stripping /index.php/ canonicalises the path before hashing.
     company_link_clean = company_link.replace("/index.php/", "/")
+    company_link_clean = urljoin(context.data_url, company_link_clean)
     company_name = str_row.pop("company_sort_descending")
 
     # Create and emit an entity

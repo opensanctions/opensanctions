@@ -1,0 +1,54 @@
+title: Philippines House of Representatives
+entry_point: crawler.py
+prefix: ph-hrep
+coverage:
+  frequency: monthly
+  start: 2026-06-16
+load_statements: true
+ci_test: false
+summary: >-
+  Members of the House of Representatives of the Philippines, the lower chamber of
+  the bicameral Congress.
+description: |
+  Current members of the House of Representatives, the lower chamber of the bicameral
+  Congress of the Philippines. Its members are elected for three-year terms and,
+  together with the Senate, hold the country's legislative power, including passing
+  laws and approving the budget. They sit either as district representatives, each
+  elected from a single legislative district, or as party-list representatives, who
+  represent national, regional, and sectoral organisations rather than a territorial
+  district.
+
+  This dataset records each member of the currently seated Congress with their name,
+  party-list or party affiliation, and the legislative district they represent.
+url: https://www.congress.gov.ph/house-members/
+publisher:
+  name: House of Representatives of the Philippines
+  acronym: HREP
+  description: >
+    The House of Representatives is the lower house of the Congress of the
+    Philippines, exercising legislative power together with the Senate.
+  url: https://www.congress.gov.ph/
+  country: ph
+  official: true
+
+data:
+  # POST endpoint backing the official member directory. Authenticated with a
+  # static public key baked into the website's frontend bundle (see crawler.py).
+  url: https://api.congress.gov.ph/hrep/api-v1/house-members/current
+  format: JSON
+  lang: eng
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 250
+      Position: 1
+    country_entities:
+      ph: 250
+  max:
+    schema_entities:
+      Person: 400
+      Position: 5

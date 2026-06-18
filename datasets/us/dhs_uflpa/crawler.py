@@ -1,4 +1,5 @@
 import re
+from typing import Any
 from normality import collapse_spaces, slugify
 
 from zavod import Context
@@ -32,7 +33,7 @@ REGEX_NAME_STRUCTURE = re.compile(
 SPLITTERS = [" and formerly known as ", ", and ", "; and ", ", ", "; "]
 
 
-def parse_names(context: Context, name_field: str):
+def parse_names(context: Context, name_field: str) -> dict[str, Any]:
     name_field = name_field.replace(", Ltd.", " Ltd.")
     structure_match = REGEX_NAME_STRUCTURE.match(name_field)
     if structure_match:
@@ -144,7 +145,7 @@ def crawl_program(
         context.audit_data(data)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     table_xpath = './/div[@id="block-mainpagecontent"]//table'
     doc = fetch_html(
         context,

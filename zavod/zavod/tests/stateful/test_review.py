@@ -50,7 +50,7 @@ def test_new_key_saved_and_accepted_false(testdataset1: Dataset):
 
     assert review.accepted is False
     context.flush()
-    row = get_row(context.conn, "key1")
+    row = get_row(context.conn, review_key("key1"))
     assert row is not None
     assert row["accepted"] is False
     context.close()
@@ -76,7 +76,8 @@ def test_no_change_updates_last_seen_version(testdataset1, monkeypatch):
         original_extraction=extracted_data,
         origin="test data",
     )
-    row = get_row(context1.conn, "key2")
+    key2 = review_key("key2")
+    row = get_row(context1.conn, key2)
     assert row and row["last_seen_version"] == context1_version
     monkeypatch.setattr(settings, "RUN_VERSION", "20240101010102-aaa")
     context2 = Context(testdataset1)
@@ -90,10 +91,10 @@ def test_no_change_updates_last_seen_version(testdataset1, monkeypatch):
         origin="test data",
     )
     # Updated in the db
-    row = get_row(context2.conn, "key2")
+    row = get_row(context2.conn, key2)
     assert row["last_seen_version"] == context2_version
     assert context1_version != context2_version
-    assert len(get_all_rows(context2.conn, "key2")) == 1
+    assert len(get_all_rows(context2.conn, key2)) == 1
     # Returned review is up to date
     assert review2.last_seen_version == context2_version
     context1.close()
@@ -133,7 +134,8 @@ def test_source_changed_resets_review(testdataset1: Dataset):
     review.extracted_data = DummyModel(foo="barrr")
     review.modified_by = "test@user.com"
     review.save(context1.conn, new_revision=True)
-    row = get_row(context1.conn, "key3")
+    key3 = review_key("key3")
+    row = get_row(context1.conn, key3)
     assert row["modified_by"] == "test@user.com"
 
     source_value2 = TextSourceValue(
@@ -149,13 +151,13 @@ def test_source_changed_resets_review(testdataset1: Dataset):
         origin="test data",
         default_accepted=False,
     )
-    new = get_row(context2.conn, "key3")
+    new = get_row(context2.conn, key3)
     assert new["accepted"] is False
     assert new["original_extraction"]["foo"] == "baz"
     assert new["extracted_data"]["foo"] == "baz"
     assert new["modified_by"] == "zavod"
     assert review.accepted is False
-    assert len(get_all_rows(context2.conn, "key3")) == 3  # original, edit, reset
+    assert len(get_all_rows(context2.conn, key3)) == 3  # original, edit, reset
     context1.close()
     context2.close()
 
@@ -177,8 +179,9 @@ def test_unaccepted_updates_original_extraction(testdataset1: Dataset):
         original_extraction=data1,
         origin="test data",
     )
+    key4 = review_key("key4")
     assert review1.accepted is False
-    row1 = get_row(context1.conn, "key4")
+    row1 = get_row(context1.conn, key4)
     assert row1 is not None
     assert row1["accepted"] is False
     assert row1["original_extraction"]["foo"] == "foo"
@@ -193,14 +196,14 @@ def test_unaccepted_updates_original_extraction(testdataset1: Dataset):
         original_extraction=data2,
         origin="test data",
     )
-    row2 = get_row(context2.conn, "key4")
+    row2 = get_row(context2.conn, key4)
     assert row2 is not None
     assert row2["accepted"] is False
     assert row2["original_extraction"]["foo"] == "bar"
     assert row2["extracted_data"]["foo"] == "bar"
     assert row2["modified_by"] == "zavod"
     # Expect this to be updated in-place because it's unaccepted.
-    assert len(get_all_rows(context2.conn, "key4")) == 1
+    assert len(get_all_rows(context2.conn, key4)) == 1
     context1.close()
     context2.close()
 
@@ -221,7 +224,8 @@ def test_crawler_version_bump_resets_review(testdataset1: Dataset):
     review.extracted_data = DummyModel(foo="barrr")
     review.modified_by = "test@user.com"
     review.save(context1.conn, new_revision=True)
-    row = get_row(context1.conn, "key5")
+    key5 = review_key("key5")
+    row = get_row(context1.conn, key5)
     assert row["modified_by"] == "test@user.com"
 
     class ClevererModel(BaseModel):
@@ -237,7 +241,7 @@ def test_crawler_version_bump_resets_review(testdataset1: Dataset):
         origin="test data",
         default_accepted=False,
     )
-    new = get_row(context2.conn, "key5")
+    new = get_row(context2.conn, key5)
     assert new["accepted"] is False
     assert new["original_extraction"]["foo"] == "bar"
     assert new["original_extraction"]["baz"] == "zab"
@@ -245,7 +249,7 @@ def test_crawler_version_bump_resets_review(testdataset1: Dataset):
     assert new["extracted_data"]["baz"] == "zab"
     assert new["modified_by"] == "zavod"
     assert review.accepted is False
-    assert len(get_all_rows(context2.conn, "key5")) == 3  # original, edit, reset
+    assert len(get_all_rows(context2.conn, key5)) == 3  # original, edit, reset
     context1.close()
     context2.close()
 
@@ -316,20 +320,57 @@ def test_text_source_comparison(testdataset1: Dataset):
     assert not source_value2.matches(review)
 
 
+def test_source_changed_updates_source_fields(testdataset1: Dataset):
+    #   preconditions:
+    #     - there is an existing review
+    #     - the source value has changed
+    #   postconditions:
+    #     - source_value, source_mime_type, source_label, source_url are all
+    #       updated to reflect the new source
+    context1 = Context(testdataset1)
+    source_value1 = TextSourceValue(
+        key_parts="key8", label="label-old", url="http://s/old", text="old text"
+    )
+    review_extraction(
+        context1,
+        crawler_version=1,
+        source_value=source_value1,
+        original_extraction=DummyModel(foo="old"),
+        origin="test data",
+        default_accepted=True,
+    )
+
+    context2 = Context(testdataset1)
+    source_value2 = TextSourceValue(
+        key_parts="key8", label="label-new", url="http://s/new", text="new text"
+    )
+    review_extraction(
+        context2,
+        crawler_version=1,
+        source_value=source_value2,
+        original_extraction=DummyModel(foo="new"),
+        origin="test data",
+    )
+
+    key8 = review_key("key8")
+    row = get_row(context2.conn, key8)
+    assert row is not None
+    assert row["source_value"] == source_value2.value_string
+    assert row["source_mime_type"] == source_value2.mime_type
+    assert row["source_label"] == source_value2.label
+    assert row["source_url"] == source_value2.url
+    context1.close()
+    context2.close()
+
+
 def test_review_key():
-    assert review_key("key1") == "key1"
-    assert review_key(["part1", "part2"]) == "part1-part2"
-    assert (
-        review_key("key1" * 100)
-        == "key1key1key1key1key1key1key1key1key1key1key1key1key1key1key1key1key1key1key1key1-0ed37245d1"
-    )
-    assert (
-        review_key(["key1"] * 100)
-        == "key1-key1-key1-key1-key1-key1-key1-key1-key1-key1-key1-key1-key1-key1-key1-key1--5611368bed"
-    )
-    # All punctuation incl / becomes dash (backward compatibility with normality slugify)
-    assert review_key("STEPHEN D/B/A S CONTRACTING") == "stephen-d-b-a-s-contracting"
-    # Non-ascii printable characters are kept
-    assert review_key("Север Мухамадмухтар Крот") == "север-мухамадмухтар-крот"
-    # Zero-width and other non-printable are removed
-    assert review_key("name\u200bwith\u200cweird\u200dchars") == "namewithweirdchars"
+    # Returns a 40-char hex SHA1
+    assert len(review_key("key1")) == 40
+    assert all(c in "0123456789abcdef" for c in review_key("key1"))
+    # Deterministic
+    assert review_key("key1") == review_key("key1")
+    assert review_key(["part1", "part2"]) == review_key(["part1", "part2"])
+    # Parts hashed separately — order matters at this level
+    assert review_key(["part1", "part2"]) != review_key(["part2", "part1"])
+    # Whitespace stripped from each part
+    assert review_key([" part1 ", "part2"]) == review_key(["part1", "part2"])

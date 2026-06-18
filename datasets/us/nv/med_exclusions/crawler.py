@@ -6,21 +6,21 @@ from zavod import Context, helpers as h
 from zavod.extract import zyte_api
 
 
-def crawl_item(row: dict[str, str], context: Context) -> None:
+def crawl_item(row: dict[str, str | None], context: Context) -> None:
     # We already crawl the federal dataset on another crawler
     sanction_tier = row.pop("nevada_medicaid_sanction_tier")
-    if sanction_tier.lower() == "federal":
+    if (sanction_tier or "").lower() == "federal":
         return
 
     entity = context.make("LegalEntity")
     name = row.pop("excluded_providers_entities_and_or_individuals")
-    if name.startswith("Effective February"):
+    if (name or "").startswith("Effective February"):
         return
 
     npi = row.pop("sanctioned_excluded_npi")
     entity.id = context.make_id(name, npi)
     entity.add("name", h.multi_split(name, [" aka ", " dba ", " DBA "]))
-    entity.add("npiCode", npi.split("\n"))
+    entity.add("npiCode", (npi or "").split("\n"))
     entity.add("country", "us")
 
     if associated_entity_name := row.pop("associated_legal_entity"):
@@ -56,7 +56,7 @@ def crawl_item(row: dict[str, str], context: Context) -> None:
     sanction = h.make_sanction(context, entity)
     sanction.add("provisions", f"Tier: {sanction_tier}")
     h.apply_dates(
-        sanction, "startDate", row.pop("contract_termination_date").split("\n")
+        sanction, "startDate", (row.pop("contract_termination_date") or "").split("\n")
     )
     h.apply_date(
         sanction, "endDate", row.pop("nevada_medicaid_sanction_period_end_date")

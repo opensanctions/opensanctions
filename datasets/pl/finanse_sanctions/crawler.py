@@ -16,8 +16,6 @@
 # Justification for entry on the list
 # Date of listing
 
-from typing import Dict
-
 from normality import collapse_spaces
 from openpyxl import load_workbook
 from rigour.mime.types import XLSX
@@ -32,13 +30,14 @@ UN_SC_PREFIXES = [Regime.TALIBAN, Regime.DAESH_AL_QAIDA]
 PSEUDONYM_SPLITS = ["a) ", "b) ", "c) "]
 
 
-def crawl_row(context: Context, row: Dict[str, str]):
+def crawl_row(context: Context, row: dict[str, str | None]) -> None:
     entity = context.make("Person")
     name = row.pop("imiona_i_nazwiska")
     birthplace = row.pop("miejsce_urodzenia")
     entity.id = context.make_id(birthplace, name)
     entity.add("name", name)
     entity.add("alias", h.multi_split(row.pop("pseudonim"), PSEUDONYM_SPLITS))
+    assert birthplace is not None
     birth_country = birthplace.split(",")[-1]
     entity.add("birthPlace", birthplace, lang="pol")
     entity.add("birthCountry", birth_country, lang="pol")
@@ -69,9 +68,11 @@ def crawl_row(context: Context, row: Dict[str, str]):
     entity.add("topics", "sanction")
     sanction = h.make_sanction(context, entity, program_key=PROGRAM_KEY)
     h.apply_date(sanction, "listingDate", row.pop("data_umieszczenia_na_liscie"))
+    reason = row.pop("uzasadnienie_wpisu_na_liste")
+    assert reason is not None
     sanction.add(
         "reason",
-        collapse_spaces(row.pop("uzasadnienie_wpisu_na_liste")),
+        collapse_spaces(reason),
         lang="pol",
     )
     sanction.add(
@@ -91,15 +92,19 @@ def crawl_row(context: Context, row: Dict[str, str]):
     )
 
 
-def crawl(context: Context):
-    doc = context.fetch_html(context.dataset.url, absolute_links=True)
-    xlsx_link_element = doc.xpath(
-        ".//a[@class='file-download' and contains(text(), 'art. 118 ust. 1 pkt 2 (wersja xlsx)')]"
+def crawl(context: Context) -> None:
+    url = context.dataset.url
+    assert url is not None
+    doc = context.fetch_html(url, absolute_links=True)
+    xlsx_link_elements = h.xpath_elements(
+        doc,
+        ".//a[@class='file-download' and contains(text(), 'art. 118 ust. 1 pkt 2 (wersja xlsx)')]",
     )
-    if len(xlsx_link_element) != 1:
+    if len(xlsx_link_elements) != 1:
         raise RuntimeError("Could not find XLSX link element")
 
-    xlsx_url = xlsx_link_element[0].get("href")
+    xlsx_url = xlsx_link_elements[0].get("href")
+    assert xlsx_url is not None
 
     # Assert the hash of the page content for <article class="article-area__article ">
     article = doc.find(".//article[@class='article-area__article ']")
@@ -118,10 +123,15 @@ def crawl(context: Context):
         crawl_row(context, row)
 
     # UN Security Council stubs
-    un_sc, doc = load_un_sc(context)
+    un_sc_meta, un_sc_doc = load_un_sc(context)
+    assert un_sc_meta.prefix is not None
 
-    for _node, entity in get_persons(context, un_sc.prefix, doc, UN_SC_PREFIXES):
+    for _node, entity in get_persons(
+        context, un_sc_meta.prefix, un_sc_doc, UN_SC_PREFIXES
+    ):
         context.emit(entity)
 
-    for _node, entity in get_legal_entities(context, un_sc.prefix, doc, UN_SC_PREFIXES):
+    for _node, entity in get_legal_entities(
+        context, un_sc_meta.prefix, un_sc_doc, UN_SC_PREFIXES
+    ):
         context.emit(entity)

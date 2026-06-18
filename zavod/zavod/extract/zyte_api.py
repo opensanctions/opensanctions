@@ -165,6 +165,8 @@ class ZyteAPIRequest:
     geolocation: Optional[str] = None
     # Forces JavaScript execution on a browser request to be enabled
     javascript: Optional[bool] = None
+    # Cookies sent with the request, e.g. [{"name": "x", "value": "y", "domain": ".example.com"}]
+    request_cookies: Optional[List[Dict[str, Any]]] = None
     # Request that response cookies be included in the ZyteResult
     response_cookies: bool = False
 
@@ -243,6 +245,8 @@ def fetch(
         zyte_data["actions"] = zyte_request.actions
     if zyte_request.javascript is not None:
         zyte_data["javascript"] = zyte_request.javascript
+    if zyte_request.request_cookies is not None:
+        zyte_data["requestCookies"] = zyte_request.request_cookies
     if zyte_request.response_cookies:
         zyte_data["responseCookies"] = True
     zyte_data[zyte_request.scrape_type.value] = True
@@ -414,6 +418,7 @@ def fetch_html(
     html_source: str = "browserHtml",
     javascript: Optional[bool] = None,
     geolocation: Optional[str] = None,
+    request_cookies: Optional[List[Dict[str, Any]]] = None,
     cache_days: Optional[int] = None,
     retries: int = 3,
     backoff_factor: int = 3,
@@ -444,6 +449,7 @@ def fetch_html(
             geolocation=geolocation,
             actions=actions,
             javascript=javascript,
+            request_cookies=request_cookies,
         ),
         cache_days=cache_days,
     )
@@ -474,6 +480,7 @@ def fetch_html(
                 actions,
                 html_source=html_source,
                 javascript=javascript,
+                request_cookies=request_cookies,
                 cache_days=cache_days,
                 retries=retries,
                 backoff_factor=backoff_factor,

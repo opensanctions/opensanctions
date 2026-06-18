@@ -67,7 +67,7 @@ def crawl_article(context: Context, url: Optional[str]) -> Optional[Entity]:
 
 def crawl_item(
     context: Context, original_filename: str, input_dict: Dict[str, Optional[str]]
-):
+) -> None:
     origin = None
     if input_dict["Individual"]:
         schema = "Person"
@@ -151,7 +151,7 @@ def crawl_item(
     context.audit_data(input_dict, ignore=["Name"])
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     original_filename = urlparse(context.data_url).path.split("/")[-1]
     path = context.fetch_resource("source.csv", context.data_url)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)

@@ -1,0 +1,68 @@
+title: Belgium Members of the Senate
+prefix: be-sen
+entry_point: crawler.py
+coverage:
+  frequency: weekly
+  start: 2026-06-16
+load_statements: true
+summary: >-
+  Members of the Belgian Federal Senate, the upper house of the parliament.
+description: |
+  This dataset contains persons who serve or have served as members of the
+  Belgian Federal Senate (Belgische Senaat / Sénat de Belgique), the upper house
+  of the federal Parliament. Since the sixth state reform the Senate is composed
+  of 60 senators: 50 designated by the parliaments of the communities and regions
+  (federated-entity senators) and 10 co-opted senators.
+
+  The crawler walks the per-legislature member lists published by the Senate,
+  covering the current term and earlier terms within the politically-exposed
+  relevance window. For each senator the dataset captures their full name,
+  political group affiliation, place and date of birth where stated in the
+  published biography, and a link to their profile page.
+url: https://www.senate.be/www/?MIval=index_senate&LANG=nl&MENUID=11220
+publisher:
+  name: Belgische Senaat
+  name_en: Belgian Senate
+  description: |
+    The Senate is the upper house of the Federal Parliament of Belgium. Since the
+    sixth state reform (2014) it is composed of 60 senators and acts mainly as a
+    meeting place between the federal state and the federated entities (communities
+    and regions).
+  country: be
+  url: https://www.senate.be/
+  official: true
+data:
+  url: https://www.senate.be/www/?MIval=/WieIsWie/SenPerType&LANG=nl
+  format: HTML
+  lang: nld
+
+dates:
+  formats: ["%d %m %Y"]
+  months:
+    "01": ["januari", "januarir"]
+    "02": "februari"
+    "03": "maart"
+    "04": "april"
+    "05": "mei"
+    "06": "juni"
+    "07": "juli"
+    "08": "augustus"
+    "09": "september"
+    "10": "oktober"
+    "11": "november"
+    "12": "december"
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 100
+      Position: 1
+    country_entities:
+      be: 100
+  max:
+    schema_entities:
+      Person: 800
+      Position: 1

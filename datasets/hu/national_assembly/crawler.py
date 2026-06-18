@@ -14,7 +14,7 @@ def categorise_and_emit(
     end_date: str | None,
     is_pep: bool | None,
 ) -> None:
-    categorisation = categorise(context, position, is_pep=is_pep)
+    categorisation = categorise(context, position, default_is_pep=is_pep)
     if not categorisation.is_pep:
         return
 

@@ -34,8 +34,10 @@ names:
   schema_rules:
     Organization:
       reject_chars: ","
+      reject_strings: [" and ", " or "]
       min_length: 3
       single_token_min_length: 4
+      reject_leading_digit: true
   suggest_weak_alias_person_single_token: true
   suggest_abbreviation_uppercase_org_single_token_shorter_than: 8
   suggest_abbreviation_non_person_single_token_shorter_than: 5

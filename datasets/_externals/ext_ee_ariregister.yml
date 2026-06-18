@@ -51,6 +51,7 @@ inputs:
   - special_interest
 
 config:
+  topic_gated: true
   index_options:
     memory: 3500
   threshold: 0.7
@@ -75,15 +76,14 @@ config:
 assertions:
   min:
     schema_entities:
-      Person: 10
-      LegalEntity: 5
+      Person: 4
+      LegalEntity: 2
       Company: 5
     country_entities:
       ee: 5
-      ua: 1
       cy: 1
     countries: 5
   max:
     schema_entities:
-      Company: 450
-      Person: 100
+      Company: 50
+      Person: 50

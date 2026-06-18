@@ -15,7 +15,7 @@ HEADERS = {
 }
 
 
-def crawl_item(row: dict[str, str], context: Context) -> None:
+def crawl_item(row: dict[str, str | None], context: Context) -> None:
     name = row.pop("provider_name")
 
     if not name:

@@ -1,10 +1,11 @@
 import os
-from typing import List
+from typing import Any
 from urllib.parse import urlencode, urljoin
 from requests.exceptions import HTTPError
 
 from zavod import helpers as h
 from zavod import Context
+from zavod.entity import Entity
 from zavod.stateful.positions import categorise
 
 API_KEY = os.environ.get("OPENSANCTIONS_US_CONGRESS_API_KEY")
@@ -12,12 +13,9 @@ IGNORE = [
     "addressInformation",
     "cosponsoredLegislation",
     "depiction",
-    "district",
     "invertedOrderName",
     "officialWebsiteUrl",
-    "partyHistory",
     "sponsoredLegislation",
-    "state",
     "updateDate",
     "bioguideId",
     "currentMember",
@@ -27,39 +25,55 @@ IGNORE = [
 ]
 
 
-def crawl_positions(context: Context, member, entity):
-    terms: List[dict] = member.pop("terms")
+def crawl_positions(
+    context: Context,
+    member: dict[str, Any],
+    person: Entity,
+) -> list[Entity]:
+    terms: list[dict[str, Any]] = member.pop("terms")
+    party_history = member.pop("partyHistory", None)
+    state = member.pop("state", None)
+    district = member.pop("district", None)
+    party_name = None
+    if party_history is not None:
+        party_name = max(party_history, key=lambda x: x["startYear"]).get("partyName")
+        person.add("political", party_name)
+
     entities = []
     for term in terms:
-        res = context.lookup("position", term["chamber"])
-        if res is None:
-            context.log.warn("Unknown chamber", chamber=term["chamber"])
-            continue
-        position = h.make_position(context, res.name, country="us")
+        res = context.lookup("position", term["chamber"], warn_unmatched=True)
+        assert res is not None
+        position = h.make_position(
+            context,
+            res.name,
+            country="us",
+            topics=res.topics,
+            wikidata_id=res.wikidata_id,
+        )
         categorisation = categorise(context, position)
         if categorisation.is_pep:
             occupancy = h.make_occupancy(
                 context,
-                entity,
+                person,
                 position,
-                True,
                 start_date=str(term.pop("startYear")),
                 end_date=str(term.pop("endYear")) if "endYear" in term else None,
                 categorisation=categorisation,
             )
-            if occupancy:
+            if occupancy is not None:
+                if state:
+                    constituency = f"{state}-{district}" if district else state
+                    occupancy.add("constituency", constituency)
                 entities.append(position)
                 entities.append(occupancy)
     return entities
 
 
-def crawl_member(context: Context, bioguide_id: str):
+def crawl_member(context: Context, bioguide_id: str) -> None:
     url = f"{urljoin(context.data_url, bioguide_id)}?{urlencode({'format': 'json'})}"
     assert API_KEY is not None, "No $OPENSANCTIONS_US_CONGRESS_API_KEY key set."
     headers = {"x-api-key": API_KEY}
     member = context.fetch_json(url, headers=headers, cache_days=30)["member"]
-    context.log.info("Crawling member: %s" % member.get("directOrderName"))
-
     person = context.make("Person")
     person.id = context.make_id(bioguide_id)
     person.add("citizenship", "us")
@@ -88,7 +102,7 @@ def crawl_member(context: Context, bioguide_id: str):
             context.emit(entity)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     if API_KEY is None:
         context.log.error("No API key set, skipping crawl.")
         return
@@ -105,6 +119,6 @@ def crawl(context: Context):
                 crawl_member(context, member["bioguideId"])
         except HTTPError as err:
             if err.response.status_code == 429:
-                context.log.info("Rate limit exceeded, stopping crawl.")
+                context.log.warning("Rate limit exceeded, stopping crawl.")
                 break
             raise

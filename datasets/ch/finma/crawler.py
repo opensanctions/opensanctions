@@ -1,11 +1,11 @@
-from typing import Any, Dict
+from typing import Any
 from urllib.parse import urljoin
 
 from zavod import Context
 from zavod import helpers as h
 
 
-def crawl(context: Context, data: Dict[str, Any]):
+def crawl(context: Context, data: dict[str, Any]) -> None:
     res = context.http.post(context.data_url, data=data)
     for item in res.json()["Items"]:
         url = urljoin(context.data_url, item.pop("Link"))
@@ -52,11 +52,11 @@ def crawl(context: Context, data: Dict[str, Any]):
         context.emit(entity)
 
 
-def crawl_warnings(context: Context):
+def crawl_warnings(context: Context) -> None:
     data = {"ds": "{1C6B8731-638C-4003-A93C-A625BF7A6800}", "Order": "1"}
     crawl(context, data)
 
 
-def crawl_rulings(context: Context):
+def crawl_rulings(context: Context) -> None:
     data = {"ds": "{20B37C3A-01FC-42B8-A031-847154F8BBDF}", "Order": "4"}
     crawl(context, data)

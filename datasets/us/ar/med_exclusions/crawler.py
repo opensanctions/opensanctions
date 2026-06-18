@@ -26,13 +26,10 @@ def crawl_item(row: dict[str, str], context: Context) -> None:
         provider.id = context.make_id(provider_name, zip_code)
 
         last_name, first_name = provider_name.split(",", 1)
-        names = REGEX_AKA.split(last_name)
-        if REGEX_WORD.search(first_name) and REGEX_WORD.search(last_name):
-            provider.add_schema("Person")
-            h.apply_name(
-                provider, last_name=names[0], alias=names[1:], first_name=first_name
-            )
-        else:
+        # If the provider name contains "aka" or the name look long enough, default to lookup
+        if REGEX_AKA.search(provider_name) or not (
+            REGEX_WORD.search(first_name) and REGEX_WORD.search(last_name)
+        ):
             result = context.lookup("names", provider_name)
             if result is None:
                 context.log.warning(
@@ -42,6 +39,9 @@ def crawl_item(row: dict[str, str], context: Context) -> None:
             else:
                 provider.add("name", result.name)
                 provider.add("alias", result.alias)
+        else:
+            provider.add_schema("Person")
+            h.apply_name(provider, last_name=last_name, first_name=first_name)
 
         provider.add("country", "us")
         provider.add("topics", "debarment")

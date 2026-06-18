@@ -84,7 +84,8 @@ def test_make_occupancy(testdataset1: Dataset):
     assert occupancy.get("endDate") == ["2021-01-02"]
     assert occupancy.get("status") == ["ended"]
 
-    assert person.get("country") == ["ls"]
+    # make_occupancy no longer propagates the position's country to the person.
+    assert person.get("country") == []
     assert person.get("topics") == ["role.pep"]
     context.close()
 

@@ -112,4 +112,6 @@ lookups:
           - "DE"
           - "WA"
           - "FL"
+          - "MD"
+          - "NA"
         value: null

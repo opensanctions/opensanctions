@@ -7,7 +7,7 @@ hidden: false
 prefix: us-npi
 coverage:
   frequency: weekly
-  start: "2026-02-03"
+  start: "2026-06-08"
 deploy:
   cpu: "1000m"
   cpu_limit: "2000m"

@@ -12,7 +12,7 @@ exports:
   - entities.delta.json
 deploy:
   cpu: "2000m"
-  memory: "6000Mi"
+  memory: "8000Mi"
   disk: "100Gi"
 load_statements: true
 ci_test: false
@@ -24,7 +24,7 @@ publisher:
   name: Agenția Servicii Publice
   name_en: Public Services Agency
   acronym: ASP
-  descrition: |
+  description: |
     The Public Services Agency (ASP) is a government institution responsible for
     implementing public policies in areas such as information technology, state
     registration, and business licensing. It manages core national registers, including
@@ -52,6 +52,7 @@ inputs:
   - special_interest
 
 config:
+  topic_gated: true
   index_options:
     memory: 3000
   threshold: 0.7
@@ -76,9 +77,9 @@ config:
 assertions:
   min:
     schema_entities:
-      LegalEntity: 40
+      LegalEntity: 15
       Company: 25
   max:
     schema_entities:
-      LegalEntity: 100
+      LegalEntity: 50
       Company: 100

@@ -24,11 +24,12 @@ def iter_output_statements(
     assert not scope.is_collection
     seen_ids: Set[str] = set()
     for stmt in iter_dataset_statements(scope, external=external):
-        if stmt.id is None or stmt.id in seen_ids:
-            continue
         if stmt.entity_id is None:
             continue
 
-        stmt.canonical_id = linker.get_canonical(stmt.entity_id)
+        stmt = linker.apply_statement(stmt)
+        if stmt.id is None or stmt.id in seen_ids:
+            continue
+
         yield stmt
         seen_ids.add(stmt.id)

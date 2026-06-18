@@ -1,5 +1,5 @@
 import re
-from typing import List
+from typing import Iterator, List
 from lxml import html
 from rigour.mime.types import HTML
 
@@ -37,15 +37,15 @@ ROLES = {
 }
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     path = context.fetch_resource("source.html", context.data_url)
     context.export_resource(path, HTML, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
         doc = html.parse(fh)
 
     table = doc.find(".//table")
-    for row in h.parse_html_table(table):
-        row = h.cells_to_str(row)
+    for _row in h.parse_html_table(table):
+        row = h.cells_to_str(_row)
         entity = context.make("Company")
         name = row.pop("denumirea_si_forma_de_organizare_a_operatorului_economic")
         entity.id = context.make_id(name, "md")
@@ -65,12 +65,14 @@ def crawl(context: Context):
                 delay_until_date = parse_date(date_match.group(1), context)
             else:
                 delay_note = "Mențiuni: " + delay
-        start_date = parse_date(row.pop("data_inscrierii"), context)
+        data_inscrierii = row.pop("data_inscrierii")
+        assert data_inscrierii is not None
+        start_date = parse_date(data_inscrierii, context)
         start_date = delay_until_date or start_date
 
-        sanction_num, decision_date = parse_sanction_decision(
-            context, row.pop("nr_si_data_deciziei_agentiei")
-        )
+        decision_raw = row.pop("nr_si_data_deciziei_agentiei")
+        assert decision_raw is not None
+        sanction_num, decision_date = parse_sanction_decision(context, decision_raw)
         sanction = h.make_sanction(context, entity, sanction_num)
         sanction.add("authorityId", sanction_num)
         reason = row.pop(
@@ -78,22 +80,21 @@ def crawl(context: Context):
         )
         sanction.add("reason", reason)
         h.apply_date(sanction, "startDate", start_date)
-        h.apply_date(
-            sanction,
-            "endDate",
-            parse_date(row.pop("termenul_limita_de_includere_in_lista"), context),
-        )
+        end_date_raw = row.pop("termenul_limita_de_includere_in_lista")
+        assert end_date_raw is not None
+        h.apply_date(sanction, "endDate", parse_date(end_date_raw, context))
         h.apply_date(sanction, "listingDate", start_date)
         sanction.add("status", delay_note)
 
         owners_and_admins = row.pop("date_privind_administratotul_si_fondatorii")
+        assert owners_and_admins is not None
         crawl_control(context, entity, decision_date, owners_and_admins)
 
         context.emit(entity)
         context.emit(sanction)
 
 
-def parse_date(text: str, context: Context):
+def parse_date(text: str, context: Context) -> str | None:
     segments = text.split(", ")
     if len(segments) == 3:
         text = " ".join(segments[1:])
@@ -105,12 +106,14 @@ def parse_date(text: str, context: Context):
     return None
 
 
-def parse_sanction_decision(context, text):
+def parse_sanction_decision(
+    context: Context, text: str
+) -> tuple[str | None, str | None]:
     match = REGEX_SANCTION_NUMBER.match(text)
     if match:
         return match.group(1), parse_date(match.group(2), context)
     else:
-        context.log.warn(f'Failed to parse saction number and date from "{ text }"')
+        context.log.warn(f'Failed to parse saction number and date from "{text}"')
         return None, None
 
 
@@ -124,7 +127,9 @@ def clean_control_string(text: str) -> str:
     return text
 
 
-def crawl_control(context: Context, entity: Entity, date, text: str):
+def crawl_control(
+    context: Context, entity: Entity, date: str | None, text: str
+) -> None:
     entities = []
     text = clean_control_string(text)
     match = re.match(REGEX_MEMBER_GROUPS, text)
@@ -136,7 +141,7 @@ def crawl_control(context: Context, entity: Entity, date, text: str):
         else:
             owners = []
 
-        members = []
+        members: list[str] = []
         admins_str = match.groupdict()["admin"]
         if admins_str:
             members = admins_str.split(",")
@@ -164,7 +169,9 @@ def crawl_control(context: Context, entity: Entity, date, text: str):
         context.emit(entity)
 
 
-def make_ownerships(context, company: Entity, date, owners: List[str]) -> Entity:
+def make_ownerships(
+    context: Context, company: Entity, date: str | None, owners: List[str]
+) -> Iterator[Entity]:
     for name in owners:
         name = name.strip()
         match = re.match(r"^([^\d\.\()]+)(\(?(\d+\.?\d*) ?%\)?)?$", name)
@@ -188,7 +195,9 @@ def make_ownerships(context, company: Entity, date, owners: List[str]) -> Entity
             yield ownership
 
 
-def make_members(context, company: Entity, date, members: List[str]):
+def make_members(
+    context: Context, company: Entity, date: str | None, members: List[str]
+) -> Iterator[Entity]:
     for name in members:
         name = name.strip()
         if name:

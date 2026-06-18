@@ -454,3 +454,13 @@ lookups:
           - name: "Meryem Karaaslan-Kilic"
             start_date: "2026-02-24"
             party: "D66"
+      - match: 'Meryem Karaaslan is sinds 24 februari 2026 lid van de D66-fractie in de Eerste Kamer'
+        details:
+          - name: "Meryem Karaaslan"
+            start_date: "2026-02-24"
+            party: "D66"
+      - match: 'Joris Steenkamp is sinds 19 mei 2026 lid van de CDA-fractie in de Eerste Kamer'
+        details:
+          - name: "Joris Steenkamp"
+            start_date: "2026-05-19"
+            party: "CDA"

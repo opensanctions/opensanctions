@@ -77,4 +77,4 @@ assertions:
       Company: 2800
   max:
     schema_entities:
-      Company: 6700
+      Company: 10000

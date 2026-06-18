@@ -5,7 +5,7 @@ argument-hint: "[crawler.py path]"
 disable-model-invocation: true
 ---
 
-Perform Step 1 of the name framework migration in $ARGUMENTS: introduce `h.review_names` alongside the existing cleaning logic. Existing `entity.add` / `h.apply_name` calls remain in place and continue to drive output; reviews are not applied until Step 3 of the procedure.
+Perform Step 1 of the name framework migration in $ARGUMENTS: introduce `h.review_names` alongside the existing cleaning logic.
 
 ## Branch setup
 
@@ -27,7 +27,6 @@ Before making any changes:
 - [examples/migrations.md](examples/migrations.md) — real before/after migrations; read before touching any crawler
 - `zavod/docs/extract/names.md#migrating-to-the-name-cleaning-helpers` — full three-step procedure and rationale
 - `zavod/zavod/helpers/names.py` — exact signatures for `review_names`, `check_names_regularity`, `Names`
-- `datasets/CLAUDE.md` — name cleaning section
 
 ## Trigger patterns to find
 
@@ -53,18 +52,20 @@ if len(name_split) > 1:
 
 ## Migration steps
 
-1. Capture the raw name string **before** any cleaning: `original = h.Names(name=<raw>)`.
-2. Initialise `suggested = h.Names()`.
-3. For each existing `entity.add(name_prop, value)` or `h.apply_name(...)` call, add a mirroring entry to `suggested` — see examples/migrations.md for the exact patterns.
-4. After all name-setting calls, add:
-   ```python
-   is_irregular, suggested = h.check_names_regularity(entity, suggested)
-   h.review_names(context, entity, original=original, suggested=suggested, is_irregular=is_irregular)
-   ```
-5. For non-sanctions crawlers, pass `llm_cleaning=True` and omit `suggested` and `is_irregular`:
-   ```python
-   h.review_names(context, entity, original=original, llm_cleaning=True)
-   ```
+`zavod/docs/extract/names.md` (the "Step 1" subsections) is the authoritative procedure and holds the exact code for each path — follow it, do not rely on a paraphrase here. This section only orients you and flags what's specific to running it as a skill.
+
+First decide the path by dataset type:
+
+- **Sanctions / debarment dataset** (e.g. tagged `list.sanction` or `list.debarment`): mirror the existing cleaned names into a `suggested = h.Names()`, then call `h.check_names_regularity` and `h.review_names(..., suggested=..., is_irregular=..., default_accepted=True)`.
+- **Non-sanctions dataset**: leave the existing logic untouched and add `h.review_names(context, entity, original=original, llm_cleaning=True)` — no `suggested`, no `is_irregular`. Then reconcile any custom alias-marker list (e.g. a `NAME_SPLITS` constant) against `rigour.names.name_split_phrases_list()` and add uncovered phrases as `reject_strings` under `names.schema_rules`, per the doc.
+
+Invariants for both paths:
+
+- `original` is the unmodified raw source string, captured **before** any cleaning.
+- Existing `entity.add` / `h.apply_name` calls stay in place unchanged and keep driving output; reviews are not applied until Step 3.
+- Call `h.review_names` at most once per entity.
+
+Tell the user, after the edit: for sanctions, check a sample of created reviews and confirm the export has no name changes, and deploy Step 3 ASAP so new entities aren't default-accepted; for non-sanctions, check a sample of the LLM extraction.
 
 ## After changes
 
@@ -92,10 +93,6 @@ where `<dataset_slug>` is derived from the path by stripping `datasets/` and `/c
 
 ## Do not
 
-- Do not remove or modify any existing `entity.add` / `h.apply_name` calls
-- Do not pass a cleaned or intermediate string as `original` — always use the unmodified raw source string
-- Do not use `llm_cleaning=True` for sanctions crawlers
 - Do not proceed to Step 3 of the three-step migration procedure (switching to `apply_reviewed_names`) — that requires completed reviews first
 - Do not construct `Names` by guessing field names — read `zavod/zavod/helpers/names.py` first
-- Do not call `h.review_names` more than once per entity
 - Do not add explanatory comments beyond what the code requires

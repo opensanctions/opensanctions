@@ -14,7 +14,7 @@ description: |
   possible, the listing includes the suspending authority.
 
   > ESMA is responsible only for the accurate reproduction of the relevant part
-  > of the notifications received from the national competent authorities. 
+  > of the notifications received from the national competent authorities.
   > ESMA does not provide any representation or warranty that the content of the
   > notification is complete, accurate or up to date. National competent
   > authorities are responsible for the content of the information shown on this
@@ -23,7 +23,7 @@ description: |
   > is drawn also to the Legal Notice of ESMA website.
   > Please note that following this/these suspension/s, other market/s or
   > national competent authority/ies may suspend the same or related financial
-  > instruments as well, according to Articles 32 and 52 MiFID. 
+  > instruments as well, according to Articles 32 and 52 MiFID.
   > No information about those follow-up suspensions will be displayed on this website.
 publisher:
   name: European Securities and Markets Authority
@@ -49,11 +49,11 @@ assertions:
   min:
     schema_entities:
       Security: 2000
-      LegalEntity: 1700
+      Organization: 1700
   max:
     schema_entities:
       Security: 4800
-      LegalEntity: 3900
+      Organization: 3900
 
 lookups:
   reason_topic:

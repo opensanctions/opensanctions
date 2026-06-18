@@ -34,8 +34,8 @@ def crawl(dataset_path: Path, dry_run: bool = False, clear_data: bool = False) -
 
 @cli.command("validate", help="Check the integrity of a dataset")
 @click.argument("dataset_path", type=DatasetInPath)
-@click.option("-r", "--rebuild-store", is_flag=True, default=False)
-def validate(dataset_path: Path, rebuild_store: bool = False) -> None:
+@click.option("--rebuild-store/--keep-store", is_flag=True, default=True)
+def validate(dataset_path: Path, rebuild_store: bool = True) -> None:
     dataset = _load_dataset(dataset_path)
     if dataset.model.disabled:
         log.info("Dataset is disabled, skipping: %s" % dataset.name)
@@ -53,8 +53,8 @@ def validate(dataset_path: Path, rebuild_store: bool = False) -> None:
 
 @cli.command("export", help="Export data from a specific dataset")
 @click.argument("dataset_path", type=DatasetInPath)
-@click.option("-r", "--rebuild-store", is_flag=True, default=False)
-def export(dataset_path: Path, rebuild_store: bool = False) -> None:
+@click.option("--rebuild-store/--keep-store", is_flag=True, default=True)
+def export(dataset_path: Path, rebuild_store: bool = True) -> None:
     dataset = _load_dataset(dataset_path)
     if dataset.model.disabled:
         log.info("Dataset is disabled, skipping: %s" % dataset.name)
@@ -76,7 +76,7 @@ def publish(dataset_path: Path, latest: bool = False) -> None:
     dataset = _load_dataset(dataset_path)
     make_version(dataset, settings.RUN_VERSION, append_new_version_to_history=False)
     try:
-        publish_dataset(dataset, latest=latest)
+        publish_dataset(dataset, republish_to_latest=latest)
     except Exception:
         log.exception("Failed to publish: %s" % dataset_path)
         sys.exit(1)
@@ -103,14 +103,14 @@ def run(
 
     if dataset.model.disabled:
         log.info("Dataset is disabled, skipping: %s" % dataset.name)
-        archive_failure(dataset, latest=latest)
+        archive_failure(dataset)
         sys.exit(0)
     # crawl if it's a dataset, just create a new version if it's a collection
     if dataset.model.entry_point is not None and not dataset.is_collection:
         try:
             crawl_dataset(dataset, dry_run=False)
         except RunFailedException:
-            archive_failure(dataset, latest=latest)
+            archive_failure(dataset)
             sys.exit(1)
     else:
         # crawl_dataset -> Context.begin does this in the case above
@@ -126,7 +126,7 @@ def run(
             validate_dataset(dataset, view)
     except Exception:
         log.exception("Validation failed for %r" % dataset.name)
-        archive_failure(dataset, latest=latest)
+        archive_failure(dataset)
         store.close()
         sys.exit(1)
     # Export and Publish
@@ -134,7 +134,7 @@ def run(
         export_dataset(dataset, view)
         # Set the version as successful in the version file, which will be archived by publish_dataset.
         set_last_successful_version(dataset, settings.RUN_VERSION)
-        publish_dataset(dataset, latest=latest)
+        publish_dataset(dataset, republish_to_latest=latest)
 
         if not dataset.is_collection and dataset.model.load_statements:
             log.info("Loading dataset into database...", dataset=dataset.name)

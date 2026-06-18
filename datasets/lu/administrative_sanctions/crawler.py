@@ -3,6 +3,7 @@ import re
 
 from zavod import Context
 from zavod import helpers as h
+from zavod.util import Element
 
 
 SUBTITLE_PATTERN = re.compile(
@@ -27,13 +28,13 @@ SUBTITLE_PATTERN = re.compile(
 )
 
 
-def crawl_item(card, context: Context) -> None:
+def crawl_item(card: Element, context: Context) -> None:
     # The title is in the format "Sanction administrative du XX XXXX 20XX"
-    title = card.find(".//*[@class='library-element__title']")
-    detail_url = title.find(".//a").get("href")
-    date = " ".join(title.text_content().strip().split(" ")[-3:]).replace("1er", "1")
-    subtitle_el = card.find(".//*[@class='library-element__subtitle']")
-    subtitle = subtitle_el.text_content().strip()
+    title = h.xpath_element(card, ".//*[@class='library-element__title']")
+    detail_url = h.xpath_string(title, ".//a/@href")
+    date = " ".join(h.element_text(title).split(" ")[-3:]).replace("1er", "1")
+    subtitle_el = h.xpath_element(card, ".//*[@class='library-element__subtitle']")
+    subtitle = h.element_text(subtitle_el)
     stripped_subtitle = SUBTITLE_PATTERN.sub("", subtitle, count=1)
 
     # Check if it's starts with a upper case and if the pattern was removed
@@ -57,7 +58,7 @@ def crawl_item(card, context: Context) -> None:
                 context.log.warning(
                     "Can't find the name of the company in subtitle, skipping",
                     subtitle=subtitle,
-                    url=title.find(".//a").get("href"),
+                    url=detail_url,
                 )
                 return
 
@@ -69,16 +70,14 @@ def crawl_item(card, context: Context) -> None:
     entity.id = context.make_id(*names)
     entity.add("name", names)
     entity.add("topics", "reg.warn")
-    subtitle_link = subtitle_el.find(".//a")
-    if subtitle_link is not None:
-        entity.add("sourceUrl", subtitle_link.get("href"))
+    entity.add("sourceUrl", h.xpath_strings(subtitle_el, ".//a/@href"))
 
-    sanction = h.make_sanction(context, entity, title.text_content().strip())
+    sanction = h.make_sanction(context, entity, h.element_text(title))
     h.apply_date(sanction, "date", date)
 
     sanction.add("sourceUrl", detail_url)
-    for a in card.xpath(".//a[contains(@class, 'pdf')]"):
-        sanction.add("sourceUrl", a.get("href"))
+    for href in h.xpath_strings(card, ".//a[contains(@class, 'pdf')]/@href"):
+        sanction.add("sourceUrl", href)
 
     context.emit(entity)
     context.emit(sanction)

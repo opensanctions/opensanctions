@@ -18,6 +18,11 @@ def test_is_name_irregular(testdataset1: Dataset):
     # Rejected chars
     assert is_name_irregular(org, "Org NPO, Org Charitable")
 
+    # Rejected strings
+    assert is_name_irregular(org, "Company Alpha and Company Beta")
+    assert is_name_irregular(org, "Company Alpha OR Company Beta")  # case-insensitive
+    assert not is_name_irregular(org, "Org NPO")
+
     # Nullwords
     assert is_name_irregular(org, "Unknown")
 
@@ -111,3 +116,18 @@ def test_suggest_abbreviation_non_person_single_token_shorter_than(
     # Has lowercase -> not caught
     reg = check_name_regularity(legal, "Abcd")
     assert not reg.is_irregular
+
+
+def test_reject_leading_digit(testdataset1: Dataset, testdataset2: Dataset) -> None:
+    # testdataset1 has reject_leading_digit: true
+    org_with_flag = Entity(
+        testdataset1, {"id": "a", "schema": "Organization", "properties": {}}
+    )
+    assert is_name_irregular(org_with_flag, "1 Some Organization")
+    assert not is_name_irregular(org_with_flag, "Some Organization 1")
+
+    # testdataset2 has no names config at all -> leading digit is not irregular by default
+    org_no_flag = Entity(
+        testdataset2, {"id": "b", "schema": "Organization", "properties": {}}
+    )
+    assert not is_name_irregular(org_no_flag, "1 Some Organization")

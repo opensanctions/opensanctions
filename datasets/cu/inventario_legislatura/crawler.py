@@ -39,7 +39,7 @@ def crawl(context: Context) -> None:
         inception_date=inception_date,
         dissolution_date=dissolution_date,
     )
-    categorisation = categorise(context, position, True)
+    categorisation = categorise(context, position, default_is_pep=True)
     context.emit(position)
 
     doc = context.fetch_html(context.data_url)

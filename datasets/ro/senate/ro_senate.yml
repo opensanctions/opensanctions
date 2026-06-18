@@ -1,0 +1,45 @@
+title: Romania Senate
+prefix: ro-senate
+entry_point: crawler.py
+coverage:
+  frequency: monthly
+  start: 2026-06-16
+load_statements: true
+# Each historical legislature exposes ~120-170 senators on their own detail pages,
+# so a full crawl issues well over a thousand requests -- too large for CI.
+ci_test: false
+summary: >-
+  Members of the Senatul României, the upper chamber of the Romanian Parliament.
+description: |
+  Current and historical senators of the Romanian Parliament's upper chamber. The data comes
+  from the official register of senators published by the Senate, which exposes
+  every legislature since the first post-communist parliament of 1990.
+
+tags:
+  - list.pep
+publisher:
+  name: Senatul României
+  name_en: Romanian Senate
+  acronym: Senat
+  description: |
+    The Senate (Senatul) is the upper chamber of the bicameral Parliament of Romania,
+    alongside the Chamber of Deputies. Senators are elected for four-year terms and are
+    responsible for reviewing and passing legislation and overseeing the executive.
+  country: ro
+  url: https://www.senat.ro/
+  official: true
+data:
+  url: https://www.senat.ro/FisaSenatori.aspx
+  format: HTML
+  lang: ron
+
+dates:
+  formats: ["%d.%m.%Y"]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 220
+  max:
+    schema_entities:
+      Person: 900

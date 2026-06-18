@@ -1,9 +1,10 @@
 import re
-from typing import Generator, Dict, Tuple
+from typing import Iterator
 
 from normality import squash_spaces
 from zavod import Context
 from zavod import helpers as h
+from zavod.util import Element
 
 EXPECTED_HEADERS = [
     [
@@ -32,8 +33,8 @@ NAME_SPLITS = [
 
 
 def parse_table(
-    table,
-) -> Generator[Dict[str, str | Tuple[str]], None, None]:
+    table: Element,
+) -> Iterator[dict[str, str]]:
     """
     The first two rows of the table represent the headers, but we're not going to
     try and parse colspan and rowspan.
@@ -54,7 +55,7 @@ def parse_table(
         yield {hdr: c for hdr, c in zip(HEADERS, cells, strict=True)}
 
 
-def crawl_item(item, context: Context):
+def crawl_item(item: dict[str, str], context: Context) -> None:
     raw_names = item.pop("Name")
     domain = item.pop("Domain")
     contacts = item.pop("Contacts")
@@ -92,7 +93,7 @@ def crawl_item(item, context: Context):
     context.emit(entity)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     response = context.fetch_html(context.data_url)
     tables = response.findall(".//table")
     for table in tables:

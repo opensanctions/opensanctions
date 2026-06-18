@@ -28,7 +28,7 @@ data:
 assertions:
   min:
     schema_entities:
-      Person: 350
+      Person: 300
   max:
     schema_entities:
-      Person: 830
+      Person: 700

@@ -8,11 +8,11 @@ import re
 REGEX_ALIAS = re.compile(r"\ba\.k\.a\.?|\baka\b|\bf/k/a\b|\bdba\b", re.IGNORECASE)
 
 
-def crawl_item(row: dict[str, str], context: Context) -> None:
+def crawl_item(row: dict[str, str | None], context: Context) -> None:
     entity = context.make("LegalEntity")
     npi = row.pop("npi")
     entity.id = context.make_id(row.get("individual_entity"), npi)
-    parts = REGEX_ALIAS.split(row.pop("individual_entity").strip())
+    parts = REGEX_ALIAS.split((row.pop("individual_entity") or "").strip())
 
     entity.add("name", parts[0])
     entity.add("alias", parts[1:])
@@ -59,5 +59,6 @@ def crawl(context: Context) -> None:
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
 
     wb = load_workbook(path, read_only=True)
+    assert wb.active is not None
     for item in h.parse_xlsx_sheet(context, wb.active, skiprows=2):
         crawl_item(item, context)

@@ -21,6 +21,7 @@ SCOPES = [
 TYPES = {
     "Individual": "Person",
     "individual": "Person",
+    "Indiividual": "Person",
     "Entity": "LegalEntity",
     "Bank": "Company",
 }
@@ -132,7 +133,7 @@ def crawl_entity(context: Context, data: Dict[str, Any]) -> None:
     context.audit_data(data)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     # The XLSX is behind Incapsula protection.
     # Simply fetching the linking HTML page with context.fetch doesn't
     # set the right cookies so there might be a javascript challenge

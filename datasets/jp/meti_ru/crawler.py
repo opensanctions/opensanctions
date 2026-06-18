@@ -84,7 +84,7 @@ def clean_name_en(data_string: str) -> tuple[str, list[str]]:
         # Default: Return the data string as the name with no aliases
         return data_string.strip(), []
 
-    clean_name = parts[0].strip().rstrip(",").rstrip(".").rstrip("a.k.a")
+    clean_name = parts[0].strip().rstrip(",").rstrip(".").removesuffix("a.k.a")
     aliases = []
     if len(parts) > 1:
         aliases_part = parts[1]
@@ -175,24 +175,9 @@ def crawl_row(context: Context, row: dict[str, Any]) -> None:
     )
 
 
-def crawl(context: Context) -> None:
-    divs_xpath = ".//div[@class='wrapper2011']"
-    doc = zyte_api.fetch_html(
-        context,
-        SOURCE_URL,
-        unblock_validator=divs_xpath,
-        html_source="httpResponseBody",
-        geolocation="jp",
-        absolute_links=True,
-    )
-    content_div = h.xpath_element(doc, divs_xpath)
-    # Check hash of the content part of the page
-    h.assert_dom_hash(content_div, "1c1664fcb9c771b62a2ccdec1d13a0bbbe2722d7")
-    pdf_xpath = ".//a[contains(@href, '.pdf') and contains(@href, 'export/17_russia/') and contains(@href, 'tokutei')]/@href"
-    pdf_urls = h.xpath_strings(content_div, pdf_xpath, expect_exactly=3)
-
-    # Update local copy of just the content part of the page to diff easily when
-    # there are changes. Commit changes once they're handled.
+def save_versioned_data(
+    context: Context, content_div: html.Element, pdf_urls: list[str]
+) -> None:
     with open(LOCAL_PATH / "page_content.txt", "w") as fh:
         text = html.tostring(
             content_div,
@@ -216,9 +201,33 @@ def crawl(context: Context) -> None:
         with pdfplumber.open(pdf_path) as pdf:
             for page in pdf.pages:
                 pdf_text += page.extract_text()
-        pdf_text_path = LOCAL_PATH / f"{pdf_name}.txt"
+        # Only write to predefined safe paths
+        assert pdf_name in EXPECTED_HASHES, pdf_name
+        txt_name = f"{pdf_name}.txt"
+        pdf_text_path = LOCAL_PATH / txt_name
         with open(pdf_text_path, "w") as fh:
             fh.write(pdf_text)
+
+
+def crawl(context: Context) -> None:
+    divs_xpath = ".//div[@id='__main_contents']"
+    doc = zyte_api.fetch_html(
+        context,
+        SOURCE_URL,
+        unblock_validator=divs_xpath,
+        html_source="httpResponseBody",
+        geolocation="jp",
+        absolute_links=True,
+    )
+    content_div = h.xpath_element(doc, divs_xpath)
+    # Check hash of the content part of the page
+    h.assert_dom_hash(content_div, "db271c508f831b212fe8fdf1fae2dc271d0810bc")
+    pdf_xpath = ".//a[contains(@href, '.pdf') and contains(@href, 'export/17_russia/') and contains(@href, 'tokutei')]/@href"
+    pdf_urls = h.xpath_strings(content_div, pdf_xpath, expect_exactly=3)
+
+    # Update local copy of just the content part of the
+    # page to diff easily when there are changes. Commit changes once they're handled.
+    save_versioned_data(context, content_div, pdf_urls)
 
     # Crawling the google sheet
     path = context.fetch_resource("source.csv", context.data_url)

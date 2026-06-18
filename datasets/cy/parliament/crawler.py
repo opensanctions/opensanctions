@@ -40,7 +40,7 @@ def crawl_person(context: Context, position: Entity, url: str) -> None:
         # else:
         #     print("strong_text:", strong_text)
 
-    occupancy = h.make_occupancy(context, person, position, no_end_implies_current=True)
+    occupancy = h.make_occupancy(context, person, position)
     if occupancy is not None:
         context.emit(occupancy)
     context.emit(person)

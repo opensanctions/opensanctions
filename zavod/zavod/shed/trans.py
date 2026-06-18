@@ -5,6 +5,7 @@ from zavod.context import Context
 from zavod.entity import Entity
 from zavod.exc import ConfigurationException
 from zavod.extract.llm import run_text_prompt, DEFAULT_MODEL
+from zavod.extract.names.clean import LangText
 from zavod import helpers as h
 
 
@@ -66,6 +67,76 @@ def make_position_translation_prompt(input_code: str) -> str:
     return POSITION_TRANS_PROMPT.format(code=input_code)
 
 
+class TranslationResult(NamedTuple):
+    texts: List[LangText]
+    cache_key: Optional[str]
+    """Cache key of the underlying run_text_prompt response, set only when
+    the response was parsed and accepted. Callers that do additional
+    per-result validation can drop this entry via context.cache.delete()
+    so a later run can retry."""
+
+
+def run_translation_prompt(
+    context: Context,
+    *,
+    prompt: str,
+    text: str,
+    output_langs: List[str] = ["eng"],
+    model: str = DEFAULT_MODEL,
+) -> TranslationResult:
+    """Run a translation/transliteration prompt and return the result as
+    LangText instances together with the underlying response's cache key.
+
+    The prompt must instruct the model to return a JSON object whose keys
+    are ISO 639-2 language codes (subset of ``output_langs``) and whose
+    values are the translated/transliterated strings. Caching is handled
+    by ``run_text_prompt``; the cached entry is invalidated on parse
+    failure so a later run can retry.
+
+    Returns ``TranslationResult([], None)`` if the LLM is not configured,
+    the response is not valid JSON, or the response contains keys outside
+    ``output_langs``. On the success path ``cache_key`` is set so callers
+    can invalidate the response themselves if their own per-result
+    validation fails. Callers are responsible for applying the resulting
+    LangText values to an entity.
+    """
+    try:
+        response = run_text_prompt(context, prompt, text, model=model)
+    except ConfigurationException as ce:
+        context.log.error("LLM translation skipped: %s" % ce.message)
+        return TranslationResult([], None)
+    try:
+        trans_by_lang = orjson.loads(response.content)
+    except orjson.JSONDecodeError:
+        context.cache.delete(response.cache_key)
+        context.log.error(
+            "LLM translation returned invalid JSON",
+            prompt=prompt,
+            text=text,
+            model=model,
+            response_content=response.content,
+        )
+        return TranslationResult([], None)
+    if not set(trans_by_lang.keys()).issubset(output_langs):
+        context.cache.delete(response.cache_key)
+        context.log.warning(
+            "LLM translation returned unexpected keys",
+            prompt=prompt,
+            text=text,
+            model=model,
+            response_content=response.content,
+            expected=sorted(output_langs),
+        )
+        return TranslationResult([], None)
+    results: List[LangText] = []
+    for lang in output_langs:
+        value = trans_by_lang.get(lang)
+        if not isinstance(value, str) or not value.strip():
+            continue
+        results.append(LangText(text=value, lang=lang))
+    return TranslationResult(results, response.cache_key)
+
+
 def apply_translit_names(
     context: Context,
     entity: Entity,
@@ -87,61 +158,54 @@ def apply_translit_names(
         last_name: The last name to transliterate.
         output_spec: A list of language specifications for the output names.
     """
-    try:
-        prompt = make_name_translit_prompt(input_code, output_spec)
-        first_name_response = run_text_prompt(context, prompt, first_name, model=model)
-        last_name_response = run_text_prompt(context, prompt, last_name, model=model)
-
-        try:
-            first_name_trans_by_lang = orjson.loads(first_name_response.content)
-            last_name_trans_by_lang = orjson.loads(last_name_response.content)
-        except orjson.JSONDecodeError:
-            context.cache.delete(first_name_response.cache_key)
-            context.cache.delete(last_name_response.cache_key)
-
-            context.log.error(
-                "Transliteration failed, returned invalid JSON",
+    prompt = make_name_translit_prompt(input_code, output_spec)
+    output_langs = [spec.language_code for spec in output_spec]
+    first_result = run_translation_prompt(
+        context,
+        prompt=prompt,
+        text=first_name,
+        output_langs=output_langs,
+        model=model,
+    )
+    last_result = run_translation_prompt(
+        context,
+        prompt=prompt,
+        text=last_name,
+        output_langs=output_langs,
+        model=model,
+    )
+    first_by_lang = {lt.lang: lt.text for lt in first_result.texts}
+    last_by_lang = {lt.lang: lt.text for lt in last_result.texts}
+    for lang in output_langs:
+        if lang not in first_by_lang:
+            context.log.warning(
+                f"Transliteration for first name did not return a value for "
+                f"{lang}. Will skip applying the transliterated name.",
                 prompt=prompt,
                 first_name=first_name,
+                model=model,
+            )
+            if first_result.cache_key is not None:
+                context.cache.delete(first_result.cache_key)
+            continue
+        if lang not in last_by_lang:
+            context.log.warning(
+                f"Transliteration for {last_name} did not return a value for "
+                f"{lang}. Will skip applying the transliterated name.",
+                prompt=prompt,
                 last_name=last_name,
                 model=model,
-                first_name_response_content=first_name_response.content,
-                last_name_response_content=last_name_response.content,
             )
-            return
-
-        for spec in output_spec:
-            lang = spec.language_code
-            if lang not in first_name_trans_by_lang.keys():
-                context.log.warning(
-                    f"Transliteration for name did not return a value for {lang}. Will skip applying the transliterated name.",
-                    prompt=prompt,
-                    first_name=first_name,
-                    model=model,
-                    response=repr(first_name_response),
-                )
-                context.cache.delete(first_name_response.cache_key)
-                continue
-            if lang not in last_name_trans_by_lang.keys():
-                context.log.warning(
-                    f"Transliteration for {last_name} did not return a value for {lang}. Will skip applying the transliterated name.",
-                    prompt=prompt,
-                    last_name=last_name,
-                    model=model,
-                    response=repr(last_name_response),
-                )
-                context.cache.delete(last_name_response.cache_key)
-                continue
-
-            h.apply_name(
-                entity,
-                first_name=first_name_trans_by_lang[lang],
-                last_name=last_name_trans_by_lang[lang],
-                lang=lang,
-                origin=model,
-            )
-    except ConfigurationException as ce:
-        context.log.error("Transliteration failed: %s" % ce.message)
+            if last_result.cache_key is not None:
+                context.cache.delete(last_result.cache_key)
+            continue
+        h.apply_name(
+            entity,
+            first_name=first_by_lang[lang],
+            last_name=last_by_lang[lang],
+            lang=lang,
+            origin=model,
+        )
 
 
 def apply_translit_full_name(
@@ -165,43 +229,17 @@ def apply_translit_full_name(
         output: A list of language specifications for the output names.
         model: GPT model used to translate/transliterate the name.
     """
-    try:
-        if prompt is None:
-            prompt = make_name_translit_prompt(input_code, output)
-        response = run_text_prompt(context, prompt, name, model=model)
-        try:
-            trans_by_lang = orjson.loads(response.content)
-        except orjson.JSONDecodeError:
-            context.cache.delete(response.cache_key)
-            context.log.error(
-                "Transliteration failed, returned invalid JSON",
-                prompt=prompt,
-                name=name,
-                model=model,
-                response_content=response.content,
-            )
-            return
-
-        output_codes = {spec.language_code for spec in output}
-        if not set(trans_by_lang.keys()).issubset(output_codes):
-            context.log.warning(
-                f"Transliteration for {name} returned unexpected keys. Will skip applying the transliterated name.",
-                prompt=prompt,
-                name=name,
-                model=model,
-                response=repr(response),
-                output=repr(output),
-            )
-            context.cache.delete(response.cache_key)
-            return
-
-        for lang, transliteration in trans_by_lang.items():
-            h.apply_name(
-                entity,
-                full=transliteration,
-                lang=lang,
-                alias=alias,
-                origin=model,
-            )
-    except ConfigurationException as ce:
-        context.log.error("Transliteration failed: %s" % ce.message)
+    if prompt is None:
+        prompt = make_name_translit_prompt(input_code, output)
+    output_langs = [spec.language_code for spec in output]
+    result = run_translation_prompt(
+        context, prompt=prompt, text=name, output_langs=output_langs, model=model
+    )
+    for lang_text in result.texts:
+        h.apply_name(
+            entity,
+            full=lang_text.text,
+            lang=lang_text.lang,
+            alias=alias,
+            origin=model,
+        )

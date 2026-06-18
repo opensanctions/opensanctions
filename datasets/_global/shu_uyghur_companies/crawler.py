@@ -1,6 +1,7 @@
 import openpyxl
 
 from zavod import Context, helpers as h
+from zavod.entity import Entity
 
 OPERATING_URL = "https://data.opensanctions.org/contrib/shu_uyghur_companies/Companies%20Operating%20in%20XUAR-web.archive.org-20240331100003.xlsx"
 LABOUR_TRANSFERS_URL = "https://data.opensanctions.org/contrib/shu_uyghur_companies/2023-07-03%20Companies%20Named%20in%20Reports%20v2-web.archive.org-20250102144725.xlsx"
@@ -22,7 +23,14 @@ OPERATING_SHEETS = {
 }
 
 
-def apply_addresses(context, entity, addr, addr_en, city, city_en) -> None:
+def apply_addresses(
+    context: Context,
+    entity: Entity,
+    addr: str | None,
+    addr_en: str | None,
+    city: str | None,
+    city_en: str | None,
+) -> None:
     """Create and apply addresses to an entity."""
     if addr:
         address_ent = h.make_address(context, full=addr, city=city, lang="zhu")
@@ -32,7 +40,7 @@ def apply_addresses(context, entity, addr, addr_en, city, city_en) -> None:
         h.copy_address(entity, address_en_ent)
 
 
-def crawl_labour_transfers(context: Context, labour_transfers_url) -> None:
+def crawl_labour_transfers(context: Context, labour_transfers_url: str) -> None:
     path = context.fetch_resource("labour_transfers.xlsx", labour_transfers_url)
     workbook: openpyxl.Workbook = openpyxl.load_workbook(path, read_only=True)
     assert set(workbook.sheetnames) == set(APP_LABOUR_SHEETS)
@@ -133,7 +141,7 @@ def crawl_labour_transfers(context: Context, labour_transfers_url) -> None:
         )
 
 
-def crawl_operating(context: Context, companies_url) -> None:
+def crawl_operating(context: Context, companies_url: str) -> None:
     path = context.fetch_resource("companies_registry.xlsx", companies_url)
     workbook: openpyxl.Workbook = openpyxl.load_workbook(path, read_only=True)
     assert set(workbook.sheetnames) == OPERATING_SHEETS

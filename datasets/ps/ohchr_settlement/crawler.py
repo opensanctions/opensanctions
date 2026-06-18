@@ -46,8 +46,13 @@ def crawl(context: Context) -> None:
     content = h.xpath_elements(doc, content_xpath, expect_exactly=1)
     # Check if the data has been updated, normally with a new report, if the content has changed.
     h.assert_dom_hash(
-        content[0], "8999f952feef57fd4c668b83c49e0623b4a8c8ae", text_only=True
+        content[0], "66e1e163a93d72deb0ad257d2069004f70afba0f", text_only=True
     )
+    # 2018: OHCHR published an interim report (A/HRC/37/39), setting out the methods of work and methodology used to discharge the mandate as set out in Council resolution 31/36.
+    # 2020: OHCHR published a report (A/HRC/43/71) containing a database listing 112 business enterprises.
+    # 2023: OHCHR published an update containing a review of the 112 business enterprises.
+    # 2024: OHCHR published a report (A/HRC/57/21) detailing the legal and human rights foundations for the work, as well as an updated methodology for updating the database. The report also contains preliminary data from an initial screening of the submissions received in response to a call for input made in May 2024.
+    # 2025: OHCHR published a report (A/HRC/60/19) containing an update of the database listing 158 business enterprises.
 
     # Crawl the CSV version of the database
     path = context.fetch_resource("ohchr_database.csv", context.data_url)

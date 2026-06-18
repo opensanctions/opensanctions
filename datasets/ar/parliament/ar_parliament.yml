@@ -25,7 +25,7 @@ publisher:
   url: https://www.hcdn.gob.ar/index.html
 url: https://datos.hcdn.gob.ar/dataset/legisladores
 data:
-  url: https://datos.hcdn.gob.ar/dataset/a80e0fa7-d73a-4ed1-9dec-80465e368951/resource/169de2eb-465f-4007-a4c2-39a5ba4c0df3/download/diputados1.6.csv
+  url: https://datos.hcdn.gob.ar/dataset/a80e0fa7-d73a-4ed1-9dec-80465e368951/resource/bed68ccd-81f4-4165-89b5-2b3ff9720cac/download/diputados_actuales1.8.csv
   format: CSV
   lang: spa
 dates:

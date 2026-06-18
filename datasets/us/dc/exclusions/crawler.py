@@ -1,12 +1,13 @@
 from zavod import Context, helpers as h
 
 
-def log_messy_names(context, name_value):
+def log_messy_names(context: Context, name_value: str) -> None:
     if any(term in name_value for term in ("aka", "a/k/a")):
         context.log.warning("Name needs to be cleaned up:", name=name_value)
 
 
-def lookup_position(context, principal):
+def lookup_position(context: Context, principal: str) -> tuple[str, str | None]:
+    """Returns (principal, position), where position is None if not found in the lookup."""
     position = None
     if "President" in principal:
         result = context.lookup("director", principal)
@@ -20,7 +21,9 @@ def lookup_position(context, principal):
     return principal, position
 
 
-def emit_directorship(context, entity_id, principal, position):
+def emit_directorship(
+    context: Context, entity_id: str | None, principal: str, position: str | None
+) -> None:
     director = context.make("Person")
     director.id = context.make_id(principal)
     director.add("name", principal)
@@ -35,7 +38,7 @@ def emit_directorship(context, entity_id, principal, position):
     context.emit(dir)
 
 
-def crawl_row(context, row):
+def crawl_row(context: Context, row: dict[str, str]) -> None:
     schema = "Person" if row.get("name_of_individual") else "Company"
     name_raw = row.pop("name_of_individual", None) or row.pop("name_of_company", None)
     assert name_raw is not None, "Entity must have a name"
@@ -72,7 +75,7 @@ def crawl_row(context, row):
     context.audit_data(row)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     doc = context.fetch_html(context.data_url, cache_days=1)
     tables = doc.xpath(".//table")
     # We expect 2 current and 2 historical tables

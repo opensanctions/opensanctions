@@ -4,8 +4,10 @@ from openpyxl import load_workbook
 from zavod import Context, helpers as h
 
 
-def crawl_item(row: dict[str, str], context: Context) -> None:
+def crawl_item(row: dict[str, str | None], context: Context) -> None:
     name = row.pop("name")
+    assert name
+    aliases: list[str]
     if len(name.split("\n")) == 1:
         aliases = []
     else:
@@ -15,6 +17,7 @@ def crawl_item(row: dict[str, str], context: Context) -> None:
 
     entity = context.make("LegalEntity")
     npi_or_p1 = row.pop("npi_or_p1")
+    assert npi_or_p1
     entity.id = context.make_id(name, npi_or_p1)
     entity.add("name", name)
     for number in npi_or_p1.split("\n"):
@@ -52,6 +55,7 @@ def crawl(context: Context) -> None:
 
     wb = load_workbook(path, read_only=True)
 
+    assert wb.active is not None
     for item in h.parse_xlsx_sheet(context, wb.active, skiprows=3):
         print(item)
         crawl_item(item, context)

@@ -10,7 +10,18 @@ module.exports = {
         module: "nodenext",
       },
     }],
+    "^.+/node_modules/kysely/.+\\.js$": ["ts-jest", {
+      diagnostics: false,
+      tsconfig: {
+        allowJs: true,
+        esModuleInterop: true,
+        module: "CommonJS",
+        moduleResolution: "node",
+        ignoreDeprecations: "6.0",
+      },
+    }],
   },
+  transformIgnorePatterns: ["/node_modules/(?!(kysely)/)"],
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/$1",
   },

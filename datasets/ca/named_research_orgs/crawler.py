@@ -1,15 +1,16 @@
 import re
+from typing import Any, Iterator
 
 from zavod.context import Context
 from zavod import helpers as h
-from zavod.helpers.xml import ElementOrTree
+from zavod.util import ElementOrTree
 
 
 COUNTRY_REGEX = re.compile(r"\((.*?)\)")
 PROGRAM_KEY = "CA-NRO"
 
 
-def parse_html(doc: ElementOrTree):
+def parse_html(doc: ElementOrTree) -> Iterator[dict[str, Any]]:
     content = doc.find('.//div[@class="content"]')
     if content is None:
         raise ValueError("Cannot find content div")
@@ -18,7 +19,9 @@ def parse_html(doc: ElementOrTree):
         if nro_element is None:
             continue
 
-        country_match = COUNTRY_REGEX.search(nro_element.text_content())
+        nro_text = h.element_text(nro_element)
+        assert nro_text is not None
+        country_match = COUNTRY_REGEX.search(nro_text)
         if country_match is None:
             continue
         country_str = country_match.group(1).strip()
@@ -27,13 +30,13 @@ def parse_html(doc: ElementOrTree):
         if aliases_el is None:
             aliases_str = ""
         else:
-            aliases_str = (
-                aliases_el.text_content().replace("Known alias(es):", "").strip()
-            )
+            aliases_text = h.element_text(aliases_el)
+            assert aliases_text is not None
+            aliases_str = aliases_text.replace("Known alias(es):", "").strip()
 
         # FIX: it turns out that the listed aliases are in fact often subsidiaries
         # so we're going to emit them separately from the main entity.
-        name = nro_element.find("strong").text
+        name = h.xpath_element(nro_element, "strong").text
         aliases = aliases_str.split(";")
         weak_aliases = []
         for alias in aliases:
@@ -53,7 +56,7 @@ def parse_html(doc: ElementOrTree):
         }
 
 
-def emit_nro(context: Context, nro):
+def emit_nro(context: Context, nro: dict[str, Any]) -> None:
     entity = context.make("Organization")
     entity.id = context.make_id("nro", nro["name"], nro["country"])
     entity.add("name", nro["name"])
@@ -70,7 +73,7 @@ def emit_nro(context: Context, nro):
     context.emit(sanction)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     doc = context.fetch_html(context.data_url, cache_days=1)
     for nro in parse_html(doc):
         emit_nro(context, nro)

@@ -15,7 +15,7 @@ PRINCIPALS_NAME = "FARA_All_ForeignPrincipals.xml"
 
 
 def read_rows(
-    context: Context, zip_path: Path, file_name
+    context: Context, zip_path: Path, file_name: str
 ) -> Generator[Dict[str, Any], None, None]:
     with ZipFile(zip_path, "r") as zip:
         with zip.open(file_name) as zfh:

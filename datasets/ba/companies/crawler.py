@@ -1,6 +1,5 @@
 import datetime
 import re
-from typing import Dict, List, Tuple
 from urllib.parse import urljoin
 
 import requests
@@ -91,6 +90,9 @@ def get_secret_param(context: Context) -> str:
     """
     try:
         resp = context.fetch_text(context.data_url)
+        if resp is None:
+            context.log.warning("Cannot find secret param")
+            return ""
         matches = re.search(r"f\?p=18\d\:\d+\:(\d+)", resp)
         if not matches:
             context.log.warning("Cannot find secret param")
@@ -102,7 +104,7 @@ def get_secret_param(context: Context) -> str:
         return ""
 
 
-def clean_name(raw_name: str | None) -> List[str]:
+def clean_name(raw_name: str | None) -> list[str]:
     """
     Clean a single company name string, returning one name and any aliases found.
 
@@ -115,7 +117,7 @@ def clean_name(raw_name: str | None) -> List[str]:
     return names
 
 
-def seed_city(context: Context, secret_param: str) -> List[Dict[str, str]]:
+def seed_city(context: Context, secret_param: str) -> list[dict[str, str]]:
     """
     Fetches the list of cities from the website.
     Args:
@@ -135,6 +137,7 @@ def seed_city(context: Context, secret_param: str) -> List[Dict[str, str]]:
         "x04": "-1",
     }
     resp = context.fetch_text(url=DICTS_URL, method="POST", data=payload)
+    assert resp is not None
     cities = re.findall(r'id: (\d+), data: "([\w /-]+)"', resp)
 
     return [{"city": city, "code": code} for code, city in cities]
@@ -143,10 +146,10 @@ def seed_city(context: Context, secret_param: str) -> List[Dict[str, str]]:
 def parse_city(
     context: Context,
     secret_param: str,
-    city: Dict[str, str],
+    city: dict[str, str],
     from_date: str,
     to_date: str,
-) -> None:
+) -> list[dict[str, str | None]]:
     """
     Fetches the list of companies from the website.
     Args:
@@ -203,21 +206,24 @@ def parse_city(
     for row in rows:
         if row.find(".//td/a") is None:
             continue
-        record = {}
+        record: dict[str, str | None] = {}
         record["city"] = city.get("city", "")
         record["registration_number"] = row[0].text
         record["name"] = row[1][0].text
         record["abbreviation"] = row[2][0].text
         record["address"] = row[3].text
         record["date_of_last_decision"] = row[4].text
-        record["details_url"] = urljoin(BASE_URL, row[1][0].attrib["href"])
+        detail_hrefs = h.xpath_strings(row, ".//td/a/@href")
+        record["details_url"] = (
+            urljoin(BASE_URL, detail_hrefs[0]) if detail_hrefs else None
+        )
 
         records.append(record)
 
     return records
 
 
-def crawl_details(context: Context, record: Dict[str, str]) -> bool:
+def crawl_details(context: Context, record: dict[str, str | None]) -> bool:
     """
     Fetches and emits the details of a company from the website.
 
@@ -228,95 +234,83 @@ def crawl_details(context: Context, record: Dict[str, str]) -> bool:
         record: The record to fetch the details for.
     """
     try:
-        details_page = context.fetch_html(record["details_url"], cache_days=CACHE_DAYS)
+        details_url = record["details_url"]
+        assert details_url is not None
+        details_page = context.fetch_html(details_url, cache_days=CACHE_DAYS)
     except requests.exceptions.HTTPError as exc:
         context.log.warning(
             f"Failed to fetch company {record['details_url']}: {type(exc)}, {exc}"
         )
         return False
 
-    legal_form = details_page.xpath(
-        "//td[contains(text(),"
-        + ' "Legal form of organization")'
-        + "]/following-sibling::td/text()"
+    legal_form = h.xpath_strings(
+        details_page,
+        '//td[contains(text(), "Legal form of organization")]/following-sibling::td/text()',
     )
     if legal_form:
         record["legal_form"] = legal_form[0]
 
-    address_add = details_page.xpath(
-        "//td[contains(text()," + ' "Address")' + "]/following-sibling::td/text()"
+    address_add = h.xpath_strings(
+        details_page,
+        '//td[contains(text(), "Address")]/following-sibling::td/text()',
     )
     if address_add:
         record["address_additional"] = address_add[0]
 
-    status = details_page.xpath(
-        "//td[contains(text(),"
-        + ' "Status (Bankruptcy – YES/NO)")'
-        + "]/following-sibling::td/text()"
+    status = h.xpath_strings(
+        details_page,
+        '//td[contains(text(), "Status (Bankruptcy – YES/NO)")]/following-sibling::td/text()',
     )
     if status:
         record["status_bankruptcy"] = status[0]
 
-    uin = details_page.xpath(
-        "//td[contains(text(),"
-        + ' "Unique Identification Number")'
-        + "]/following-sibling::td/text()"
+    uin = h.xpath_strings(
+        details_page,
+        '//td[contains(text(), "Unique Identification Number")]/following-sibling::td/text()',
     )
     # Jedinstveni identifikacioni broj - JIB or UIN
     # https://www.vatify.eu/bosnia-and-herzegovina-vat-number.html
     if uin:
         record["unique_id"] = uin[0]
 
-    customs_number = details_page.xpath(
-        "//td[contains(text(),"
-        + ' "Customs Number")'
-        + "]/following-sibling::td/text()"
+    customs_number = h.xpath_strings(
+        details_page,
+        '//td[contains(text(), "Customs Number")]/following-sibling::td/text()',
     )
-
     if customs_number and customs_number[0].replace("\xa0", " ").strip():
         record["customs_number"] = f"Customs number: {customs_number[0]}"
 
-    founders_people = []
-    founders_companies = []
-    managers = []
+    founders_people: list[dict[str, str]] = []
+    founders_companies: list[dict[str, str]] = []
+    managers: list[dict[str, str]] = []
 
     try:
-        founders_url = urljoin(
-            BASE_URL, details_page.xpath('//*[@id="podmeni"]/p/a')[0].attrib["href"]
-        )
+        founders_hrefs = h.xpath_strings(details_page, '//*[@id="podmeni"]/p/a/@href')
+        founders_url = urljoin(BASE_URL, founders_hrefs[0])
     except IndexError:
         context.log.warning("Details page empty", url=record["details_url"])
     else:
         founders_page = context.fetch_html(founders_url)
 
-        names = founders_page.xpath(
-            "//td[contains(text(),"
-            + ' "Ime osnivača")'
-            + "]/following-sibling::td/text()"
+        names = h.xpath_strings(
+            founders_page,
+            '//td[contains(text(), "Ime osnivača")]/following-sibling::td/text()',
         )
-
-        cap_paid = founders_page.xpath(
-            "//td[contains(text(),"
-            + ' "Kapital [uplaćeni]")'
-            + "]/following-sibling::td/text()"
+        cap_paid = h.xpath_strings(
+            founders_page,
+            '//td[contains(text(), "Kapital [uplaćeni]")]/following-sibling::td/text()',
         )
-
-        shares = founders_page.xpath(
-            "//td[contains(text(),"
-            + ' "Dionice [broj]")'
-            + "]/following-sibling::td/text()"
+        shares = h.xpath_strings(
+            founders_page,
+            '//td[contains(text(), "Dionice [broj]")]/following-sibling::td/text()',
         )
-
-        basic_data = founders_page.xpath(
-            "//td[contains(text(),"
-            + ' "Basic data")'
-            + "]/following-sibling::td/text()"
+        basic_data = h.xpath_strings(
+            founders_page,
+            '//td[contains(text(), "Basic data")]/following-sibling::td/text()',
         )
-
-        reg_num = founders_page.xpath(
-            "//td[contains(text(),"
-            + ' "Registration Number")'
-            + "]/following-sibling::td/text()"
+        reg_num = h.xpath_strings(
+            founders_page,
+            '//td[contains(text(), "Registration Number")]/following-sibling::td/text()',
         )
 
         for i, name in enumerate(names):
@@ -333,7 +327,7 @@ def crawl_details(context: Context, record: Dict[str, str]) -> bool:
             company_name = parsed_bd[0]
 
             # includes country
-            address = ", ".join(parsed_bd[1:]).strip().strip(",")
+            comp_address = ", ".join(parsed_bd[1:]).strip().strip(",")
             country = ""
             if len(parsed_bd) > 1:
                 country = parsed_bd[-1]
@@ -345,38 +339,31 @@ def crawl_details(context: Context, record: Dict[str, str]) -> bool:
                         reg_num[i] if re.search(r"\d", reg_num[i]) else ""
                     ),
                     "name": company_name,
-                    "address": address,
+                    "address": comp_address,
                     "country": country,
                 }
             )
 
-        managers_url = urljoin(
-            BASE_URL, founders_page.xpath('//*[@id="podmeni"]/p/a')[1].attrib["href"]
-        )
+        managers_hrefs = h.xpath_strings(founders_page, '//*[@id="podmeni"]/p/a/@href')
+        managers_url = urljoin(BASE_URL, managers_hrefs[1])
         managers_page = context.fetch_html(managers_url)
-        managers_names = managers_page.xpath(
-            "//td[contains(text()," + ' "Name")]/' + "following-sibling::td/text()"
+        managers_names = h.xpath_strings(
+            managers_page,
+            '//td[contains(text(), "Name")]/following-sibling::td/text()',
         )
-
-        managers_pos = managers_page.xpath(
-            "//td[contains(text(),"
-            + ' "Position")'
-            + "]/following-sibling"
-            + "::td/text()"
+        managers_pos = h.xpath_strings(
+            managers_page,
+            '//td[contains(text(), "Position")]/following-sibling::td/text()',
         )[1::2]
-
-        managers_auth = managers_page.xpath(
-            "//td[contains(text(),"
-            + ' "Authorisations/'
-            + ' Position limits")'
-            + "]/following-sibling::td/"
-            + "text()"
+        managers_auth = h.xpath_strings(
+            managers_page,
+            '//td[contains(text(), "Authorisations/ Position limits")]/following-sibling::td/text()',
         )
         if managers_names:
-            for i, manager in enumerate(managers_names):
+            for i, mgr_name in enumerate(managers_names):
                 managers.append(
                     {
-                        "name": manager,
+                        "name": mgr_name,
                         "authorizations": managers_auth[i],
                         "position": managers_pos[i],
                     }
@@ -384,10 +371,11 @@ def crawl_details(context: Context, record: Dict[str, str]) -> bool:
 
     finally:
         entity = context.make("Company")
-        if roughly_valid_regno(record.get("registration_number")):
-            entity.id = context.make_slug(record["registration_number"])
+        reg_number = record.get("registration_number")
+        if reg_number is not None and roughly_valid_regno(reg_number):
+            entity.id = context.make_slug(reg_number)
         else:
-            assert record["name"]
+            assert record["name"] is not None
             entity.id = context.make_id("BACompany", record["name"])
 
         # Abbreviation isn't so much an alias as simply a shortened but totally valid form
@@ -405,7 +393,9 @@ def crawl_details(context: Context, record: Dict[str, str]) -> bool:
         entity.add("status", record.get("status_bankruptcy", None), lang="bos")
 
         entity.add("country", "ba")
-        entity.add("address", record["address"], lang="bos")
+        address: str | None = record["address"]
+        if address != "-":
+            entity.add("address", address, lang="bos")
         entity.add("address", record.get("address_additional", None), lang="bos")
 
         entity.add("legalForm", record.get("legal_form", None), lang="bos")
@@ -430,7 +420,7 @@ def crawl_details(context: Context, record: Dict[str, str]) -> bool:
             own.id = context.make_id("BAOwnership", entity.id, founder.id)
             own.add("asset", entity.id)
             own.add("owner", founder.id)
-            own.add("ownershipType", "Founder", lang="eng")
+            own.add("role", "Founder", lang="eng")
 
             own.add("sharesValue", person["capital_paid"])
             if person["shares"].replace("\xa0", " ").strip("	 -"):
@@ -455,7 +445,7 @@ def crawl_details(context: Context, record: Dict[str, str]) -> bool:
             if comp.get("country"):
                 founder_company.add("country", comp["country"], lang="bos")
 
-            if comp.get("address"):
+            if comp.get("address") and comp["address"] != "-":
                 founder_company.add("address", comp["address"], lang="bos")
 
             if comp.get("registration_number"):
@@ -467,7 +457,7 @@ def crawl_details(context: Context, record: Dict[str, str]) -> bool:
             own.id = context.make_id("BAOwnership", entity.id, founder_company.id)
             own.add("asset", entity.id)
             own.add("owner", founder_company.id)
-            own.add("ownershipType", "Founder", lang="eng")
+            own.add("role", "Founder", lang="eng")
 
             context.emit(own)
 
@@ -490,7 +480,7 @@ def crawl_details(context: Context, record: Dict[str, str]) -> bool:
 
 def generate_periods(
     from_date: datetime.date, to_date: datetime.date, step_months: int = 6
-) -> List[Tuple[str, str]]:
+) -> list[tuple[str, str]]:
     """
     Generate periods for the given range of dates
     Args:
@@ -516,7 +506,7 @@ def generate_periods(
     return periods
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     """
     Main function to crawl and process data from the Registers of business entities in
     Bosnia and Herzegovina
@@ -529,7 +519,7 @@ def crawl(context: Context):
 
     cities = seed_city(context, secret_param)
 
-    periods: List[Tuple[str, str]] = [
+    periods: list[tuple[str, str]] = [
         # There are no companies registered before 2000
         ("01/01/2000", "01/01/2010"),
         # But some regions registered more than 500 companies

@@ -57,6 +57,7 @@ from zavod.helpers.dates import (
     extract_years,
     parse_formats,
     replace_months,
+    within_max_age,
 )
 from zavod.helpers.excel import (
     convert_excel_cell,
@@ -99,6 +100,7 @@ from zavod.helpers.sanctions import (
     make_sanction,
 )
 from zavod.helpers.securities import make_security
+from zavod.helpers.vessels import make_vessel_imo_id, make_org_imo_id
 from zavod.helpers.text import clean_note, is_empty, multi_split, remove_bracketed
 from zavod.helpers.xml import remove_namespace
 from zavod.helpers.wikidata import deref_wikidata_id
@@ -128,10 +130,13 @@ __all__ = [
     "extract_date",
     "replace_months",
     "backdate",
+    "within_max_age",
     "apply_number",
     "convert_excel_cell",
     "convert_excel_date",
     "make_security",
+    "make_vessel_imo_id",
+    "make_org_imo_id",
     "remove_namespace",
     "make_name",
     "apply_name",
