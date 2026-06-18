@@ -151,22 +151,6 @@ def crawl_member(
 
 
 def crawl(context: Context) -> None:
-    doc = context.fetch_html(context.data_url, cache_days=1)
-
-    bio_links: list[tuple[str, str, bool]] = []
-    for a_el in h.xpath_elements(doc, ".//a[contains(@href,'parliament/bio/view/')]"):
-        href_val = a_el.get("href", "")
-        if "cat_url_title" in href_val:
-            continue  # skip template placeholder
-        if href_val.startswith("https"):
-            url = href_val
-        else:
-            url = context.dataset.url + "index.php" + href_val
-
-        slug = url.rstrip("/").split("/")[-1]
-        is_governor = slug.startswith("governor-")
-        bio_links.append((url, slug, is_governor))
-
     mp_position = h.make_position(
         context,
         name="Member of the National Parliament of Papua New Guinea",
@@ -176,9 +160,21 @@ def crawl(context: Context) -> None:
     mp_categorisation = categorise(context, mp_position, default_is_pep=True)
     context.emit(mp_position)
 
-    governor_cache: dict[str, tuple[Entity, PositionCategorisation]] = {}
+    doc = context.fetch_html(context.data_url, cache_days=1)
 
-    for url, slug, is_governor in bio_links:
+    governor_cache: dict[str, tuple[Entity, PositionCategorisation]] = {}
+    for a_el in h.xpath_elements(doc, ".//a[contains(@href,'parliament/bio/view/')]"):
+        href_val = a_el.get("href", "")
+        if "cat_url_title" in href_val:
+            continue  # skip template placeholder
+        if href_val.startswith("https"):
+            url = href_val
+        else:
+            url = f"{context.data_url}index.php{href_val}"
+
+        slug = url.rstrip("/").split("/")[-1]
+        is_governor = slug.startswith("governor-")
+
         crawl_member(
             context,
             url,
