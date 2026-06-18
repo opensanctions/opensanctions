@@ -2,23 +2,22 @@ title: Peru Members of the Congress of the Republic
 entry_point: crawler.py
 prefix: pe-cong
 coverage:
-  frequency: weekly
+  frequency: monthly
   start: 2026-06-18
 load_statements: true
 ci_test: false # Live external website with per-member detail pages, not available in CI
 summary: >-
-  Sitting members of the Congreso de la República, the national legislature of
-  Peru
+  Members of the Congreso de la República, the national legislature of Peru
 description: |
-  Sitting members of the Congreso de la República (Congress of the Republic),
-  the currently unicameral national legislature of Peru. Its 130 members are
-  elected by electoral district for five-year terms.
+  Members of the Congreso de la República (Congress of the Republic), the
+  currently unicameral national legislature of Peru. Its 130 seats are elected by
+  electoral district for five-year terms.
 
-  This dataset records each congressperson currently in office ("en Ejercicio"),
-  scraped from the official Congress website, with their name, party,
-  parliamentary group (bancada), electoral district and term dates. Members who
-  have left office (e.g. deceased or suspended) are listed by the source but not
-  emitted.
+  This dataset is scraped from the official Congress website and records each
+  member of the current term — those in office ("en Ejercicio") as current, and
+  those who have since left the seat (deceased, removed, suspended) as former
+  occupants — with their name, party, parliamentary group (bancada), electoral
+  district and term dates.
 url: https://www3.congreso.gob.pe/pagina/congresistas
 publisher:
   name: Congreso de la República del Perú
@@ -52,11 +51,11 @@ tags:
 assertions:
   min:
     schema_entities:
-      Person: 104
+      Person: 112
       Position: 1
     country_entities:
-      pe: 104
+      pe: 112
   max:
     schema_entities:
-      Person: 145
+      Person: 160
       Position: 1
