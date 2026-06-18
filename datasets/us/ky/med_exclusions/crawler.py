@@ -81,7 +81,7 @@ def crawl(context: Context) -> None:
     sheet_names = wb.sheetnames
 
     assert wb.active is not None
-    for item in h.parse_xlsx_sheet(context, wb.active):
+    for item in h.parse_xlsx_sheet(context, wb.active, skiprows=2):
         crawl_item(item, context)
 
     sheet_names.remove(wb.active.title)
