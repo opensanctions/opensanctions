@@ -40,6 +40,13 @@ assertions:
     schema_entities:
       Company: 3000
 lookups:
+  type.url:
+    options:
+    # Parent/affiliate links are read straight from the subpage DOM without the
+    # urljoin() that canonicalises the main company link, so the site
+    # occasionally leaves them root-relative. Absolutise the known case.
+      - match: /company/hyundai-motor-company
+        value: https://www.unitedagainstnucleariran.com/company/hyundai-motor-company
   type.country:
     lowercase: true
     normalize: true
