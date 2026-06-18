@@ -20,7 +20,7 @@ def crawl_item_belarus(context: Context, source_url: str, raw_name: str) -> None
         return
 
     entity = context.make("Person")
-    entity.id = context.make_id(name)
+    entity.id = context.make_id(raw_name)
     original = h.Names(name=raw_name)
     suggested = h.Names()
     entity.add("name", name, lang="eng")
@@ -37,6 +37,7 @@ def crawl_item_belarus(context: Context, source_url: str, raw_name: str) -> None
         original=original,
         suggested=suggested,
         is_irregular=is_irregular,
+        default_accepted=True,
     )
 
     sanction = h.make_sanction(context, entity)
@@ -61,7 +62,7 @@ def crawl_item_human_rights(context: Context, source_url: str, raw_name: str) ->
     last_name, first_name = name.split(", ")
 
     entity = context.make("Person")
-    entity.id = context.make_id(name)
+    entity.id = context.make_id(raw_name)
     original = h.Names(name=raw_name)
     suggested = h.Names()
     h.apply_name(entity, first_name=first_name, last_name=last_name, lang="eng")
@@ -78,6 +79,7 @@ def crawl_item_human_rights(context: Context, source_url: str, raw_name: str) ->
         original=original,
         suggested=suggested,
         is_irregular=is_irregular,
+        default_accepted=True,
     )
 
     sanction = h.make_sanction(context, entity)
@@ -100,7 +102,7 @@ def crawl_item_rus(context: Context, source_url: str, raw_name: str) -> None:
         context.log.warning("Could not parse name", raw_name)
 
     entity = context.make("Person")
-    entity.id = context.make_id(name)
+    entity.id = context.make_id(raw_name)
     original = h.Names(name=raw_name)
     suggested = h.Names()
     entity.add("name", name, lang="eng")
@@ -115,6 +117,7 @@ def crawl_item_rus(context: Context, source_url: str, raw_name: str) -> None:
         original=original,
         suggested=suggested,
         is_irregular=is_irregular,
+        default_accepted=True,
     )
 
     sanction = h.make_sanction(context, entity)
