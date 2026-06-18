@@ -8,8 +8,7 @@ load_statements: true
 ci_test: false
 
 summary: >-
-  Current members of the National Parliament of Papua New Guinea, comprising
-  89 Open electorate members and 22 Provincial Governors.
+  Current members of the National Parliament of Papua New Guinea.
 
 description: |
   The National Parliament of Papua New Guinea is a unicameral legislature with
@@ -17,19 +16,19 @@ description: |
   and 22 from Provincial electorates, where the winning candidate serves
   simultaneously as the elected Provincial Governor.
 
-url: https://www.parliament.gov.pg/
+url: https://www.parliament.gov.pg
 
 publisher:
   name: National Parliament of Papua New Guinea
   description: >
     The unicameral legislature of Papua New Guinea, constituted under Part VI
     of the Constitution of the Independent State of Papua New Guinea.
-  url: https://www.parliament.gov.pg/
+  url: https://www.parliament.gov.pg
   country: pg
   official: true
 
 data:
-  url: https://www.parliament.gov.pg/
+  url: https://www.parliament.gov.pg
   format: HTML
   lang: eng
 
@@ -41,6 +40,15 @@ dates:
 
 tags:
   - list.pep
+
+names:
+  schema_rules:
+    Person:
+      reject_chars: ",."
+      reject_strings:
+        - Dr
+        - Sir
+        - Hon
 
 assertions:
   min:
