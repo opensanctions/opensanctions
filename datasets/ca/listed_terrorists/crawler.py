@@ -4,6 +4,7 @@ from rigour.mime.types import XML
 
 from zavod import Context
 from zavod import helpers as h
+from zavod.util import ElementOrTree
 
 ALIAS_SPLITS = ["; ", ", "]
 PROGRAM_KEY = "CA-UNSC1373"
@@ -15,10 +16,10 @@ def name_needs_checking(name: str) -> bool:
     return bool(REGEX_NAME_NEEDS_CHECKING.search(name))
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     path = context.fetch_resource("source.xml", context.data_url)
     context.export_resource(path, XML, title=context.SOURCE_TITLE)
-    doc = context.parse_resource_xml(path)
+    doc: ElementOrTree = context.parse_resource_xml(path)
     doc = h.remove_namespace(doc)
     for node in doc.findall("./entry"):
         entity = context.make("Organization")
@@ -26,11 +27,11 @@ def crawl(context: Context):
         entity.id = context.make_slug(node.findtext("./id"), name)
         entity.add("name", name)
 
-        link = node.find("./link").get("href")
+        link = h.xpath_string(node, "./link/@href")
         entity.add("sourceUrl", link)
         aliases_string = node.findtext("./summary")
         weak_aliases = None
-        if aliases_string != "N/A":
+        if aliases_string is not None and aliases_string != "N/A":
             if name_needs_checking(aliases_string):
                 res = context.lookup("aliases", aliases_string, warn_unmatched=True)
                 aliases = res.aliases if res else []

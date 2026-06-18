@@ -26,7 +26,7 @@ def clean_addresses(raw_addresses: str) -> list[str]:
     return cleaned
 
 
-def crawl_row(context: Context, row: Dict[str, str | None]):
+def crawl_row(context: Context, row: Dict[str, str | None]) -> None:
     item_id = row.pop("id")
     res = context.lookup("type", row.pop("type"), warn_unmatched=True)
     assert res and res.value
@@ -64,7 +64,7 @@ def crawl_row(context: Context, row: Dict[str, str | None]):
     context.audit_data(row)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     doc = context.fetch_html(context.data_url)
     xlsx_link = h.xpath_string(
         doc,

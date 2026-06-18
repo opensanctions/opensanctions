@@ -1,0 +1,63 @@
+# yamllint disable
+name: Claude PR assistant
+
+# Lets repo editors steer Claude on a PR or issue by mentioning @claude in a
+# comment or review. Distinct from issues-agent.yml: that runs on a schedule
+# with an explicit prompt; this is interactive "tag" mode, which the action
+# auto-detects when no prompt is passed and a comment mentions @claude.
+"on":
+  issue_comment:
+    types: [created]
+  pull_request_review_comment:
+    types: [created]
+  pull_request_review:
+    types: [submitted]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+  id-token: write
+
+jobs:
+  claude:
+    # Only react to @claude mentions, and only from org members / repo
+    # collaborators. This `if` is a cheap pre-filter that avoids spinning up a
+    # runner for unrelated comments; claude-code-action additionally enforces
+    # real write-access on the actor before doing anything, which is the
+    # authoritative gate (author_association alone can include org members
+    # without write on this repo).
+    if: |
+      (
+        contains(github.event.comment.body, '@claude') &&
+        contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association)
+      ) || (
+        contains(github.event.review.body, '@claude') &&
+        contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.review.author_association)
+      )
+    runs-on: ubuntu-latest
+    # One Claude run per PR/issue at a time; a follow-up comment queues rather
+    # than cancelling a run that may be mid-edit.
+    concurrency:
+      group: claude-${{ github.event.issue.number || github.event.pull_request.number }}
+      cancel-in-progress: false
+    steps:
+      # claude-code-action does its own `git fetch` of the PR branch, but it
+      # needs a checked-out repo (with the origin remote) to fetch into — without
+      # this it fails with "not a git repository". fetch-depth: 0 gives full
+      # history so commits can be pushed back to the PR branch cleanly.
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          # Folded (>-) so the multi-word system prompt stays readable; the
+          # embedded quotes are literal. --append-system-prompt (not
+          # --system-prompt) keeps Claude Code's default behavior and adds to it.
+          claude_args: >-
+            --model claude-opus-4-8 --max-turns 30
+            --append-system-prompt "On autofix/* PRs you are tuning datapatch lookups and small crawler fixes. Key references: zavod/docs/best_practices/datapatch_lookups.md (lookups) and .claude/docs/crawler-guide.md. The repo CLAUDE.md maps the rest of the documentation."
+            --allowed-tools "Bash,View,Edit,Write,GlobTool,GrepTool,WebFetch,Skill"

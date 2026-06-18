@@ -1,14 +1,13 @@
 from lxml import html
-from typing import Dict
 from rigour.mime.types import HTML
-from normality import collapse_spaces, slugify
+from normality import slugify
 
 from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
 
 
-def format_birth_place(city, country):
+def format_birth_place(city: str | None, country: str | None) -> str | None:
     if city and country:
         return f"{city}, {country}"
     if city:
@@ -18,26 +17,33 @@ def format_birth_place(city, country):
     return None
 
 
-def parse_page(context: Context, url) -> Dict[str, str]:
+def parse_page(context: Context, url: str) -> dict[str, str | None]:
     doc = context.fetch_html(url, cache_days=1)
-    data = dict()
+    data: dict[str, str | None] = {}
     for dt in doc.findall(".//dt"):
-        key = slugify(dt.text_content())
+        key = slugify(h.element_text(dt))
         next = dt.getnext()
         if next is None:
             value = None
         elif next.tag == "dt":
             value = None
         elif next.tag == "dd":
-            value = collapse_spaces(next.text_content())
+            value = h.element_text(next) or None
         else:
             context.log.warning("Unexpected tag after key", key=key, tag=next, url=url)
             value = None
-        data[key] = value
+        if key is not None:
+            data[key] = value
     return data
 
 
-def crawl_common(context: Context, url: str, entity: Entity, sanction: Entity, data):
+def crawl_common(
+    context: Context,
+    url: str,
+    entity: Entity,
+    sanction: Entity,
+    data: dict[str, str | None],
+) -> None:
     entity.add("sourceUrl", url)
     entity.add("topics", "sanction")
     entity.add("notes", data.pop("narrative-summary"))
@@ -51,7 +57,7 @@ def crawl_common(context: Context, url: str, entity: Entity, sanction: Entity, d
     context.audit_data(data, ["phone-numbers"])
 
 
-def crawl_individual(context: Context, url: str, data: Dict[str, str]):
+def crawl_individual(context: Context, url: str, data: dict[str, str | None]) -> None:
     first_name = data.pop("first-name")
     middle_name = data.pop("middlename")
     last_name = data.pop("surname")
@@ -73,8 +79,13 @@ def crawl_individual(context: Context, url: str, data: Dict[str, str]):
     entity = context.make("Person")
     birth_place = format_birth_place(data.pop("birth-city"), data.pop("birth-country"))
     birth_date = h.extract_date(context.dataset, data.pop("date-of-birth"))
+    # birth_date is list[str] but make_id expects str | None — don't transform it to avoid re-keying existing entities
     entity.id = context.make_id(
-        first_name, middle_name, last_name, birth_place, birth_date
+        first_name,
+        middle_name,
+        last_name,
+        birth_place,
+        birth_date,  # type: ignore[arg-type]
     )
     h.apply_name(
         entity, first_name=first_name, middle_name=middle_name, last_name=last_name
@@ -93,7 +104,7 @@ def crawl_individual(context: Context, url: str, data: Dict[str, str]):
     crawl_common(context, url, entity, sanction, data)
 
 
-def crawl_entity(context: Context, url: str, data: Dict[str, str]):
+def crawl_entity(context: Context, url: str, data: dict[str, str | None]) -> None:
     entity = context.make("LegalEntity")
     name = data.pop("entity-name")
     entity.id = context.make_id(name)
@@ -109,12 +120,12 @@ def crawl_entity(context: Context, url: str, data: Dict[str, str]):
     crawl_common(context, url, entity, sanction, data)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     path = context.fetch_resource("source.html", context.data_url)
     context.export_resource(path, HTML, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
         doc = html.fromstring(fh.read())
-    doc.make_links_absolute(context.data_url)
+    doc.make_links_absolute(context.data_url)  # type: ignore[attr-defined]  # lxml-stubs omits HtmlMixin methods
 
     individual_table = h.xpath_element(
         doc, ".//h6[text() = 'Individual']/following-sibling::table[1]"

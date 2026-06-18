@@ -58,12 +58,12 @@ inputs:
   - ext_gb_coh_psc
   - ext_gleif
   - ext_icij_offshoreleaks
+  - ext_iso9362_bic
   - ext_lv_business_register
   - ext_md_companies
   - ext_ru_egrul
   - ext_ua_edr
   - ext_us_irs_ffi
-  - iso9362_bic
   - opencorporates
   - permid
   - regulatory
@@ -73,6 +73,7 @@ inputs:
   - special_interest
 
 config:
+  topic_gated: true
   index_options:
     max_candidates: 25
     match_batch: 300
@@ -95,14 +96,18 @@ config:
     - Organization
     # - LegalEntity
 
+# estimates June 2026
+# Securities: 92
+# Organizations: 1300
+# Companies: 4193
 assertions:
   min:
     schema_entities:
-      Security: 184000
-      Organization: 1000
-      Company: 1250
+      Security: 20
+      Organization: 800
+      Company: 3500
   max:
     schema_entities:
-      Security: 433000
-      Organization: 3000
-      Company: 4000
+      Security: 500
+      Organization: 4000
+      Company: 8000

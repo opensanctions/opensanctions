@@ -50,7 +50,7 @@ def emit_relationship(
     related_name: str,
     list_entry: Dict[str, Any],
     source_program: str,
-):
+) -> None:
     related_entity = context.make("LegalEntity")
     related_entity.id = context.make_id(related_name)
     related_entity.add("name", related_name)
@@ -72,7 +72,7 @@ def emit_relationship(
 
 def make_and_emit_sanction(
     context: Context, entity: Entity, *, source_program: str, list_entry: Dict[str, Any]
-):
+) -> None:
     sanction = h.make_sanction(
         context,
         entity,
@@ -109,7 +109,7 @@ def parse_addresses(
         postal_code, po_box = h.postcode_pobox(address.get("postal_code"))
         state = address.get("state")
 
-        def contains_parts(addr):
+        def contains_parts(addr: str) -> bool:
             return (
                 (city is None or city in addr)
                 and (postal_code is None or postal_code in addr)
@@ -154,7 +154,7 @@ def clean_authority(value: Optional[str]) -> Optional[List[str]]:
     return h.multi_split(value, [";", ", "])
 
 
-def parse_list_entry(context: Context, list_entry: Dict[str, Any]):
+def parse_list_entry(context: Context, list_entry: Dict[str, Any]) -> None:
     for k, v in list(list_entry.items()):
         if isinstance(v, str) and len(v.strip()) == 0:
             list_entry.pop(k)
@@ -294,7 +294,7 @@ def parse_list_entry(context: Context, list_entry: Dict[str, Any]):
     context.audit_data(list_entry, ignore=["standard_order"])
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     path = context.fetch_resource("source.json", context.data_url)
     context.export_resource(path, JSON, title=context.SOURCE_TITLE)
     with open(path, "r") as file:

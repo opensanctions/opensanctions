@@ -1,8 +1,9 @@
 import shutil
 import warnings
+from datetime import datetime, timezone
 from functools import cache
 from pathlib import Path
-from typing import Dict, Optional, TextIO, Type, cast
+from typing import Dict, Iterator, Optional, TextIO, Type, cast
 
 from google.cloud.storage import Blob, Client  # type: ignore
 
@@ -27,6 +28,9 @@ class ArchiveObject(object):
     def size(self) -> int:
         raise NotImplementedError
 
+    def updated_at(self) -> datetime:
+        raise NotImplementedError
+
     def backfill(self, dest: Path) -> None:
         raise NotImplementedError
 
@@ -48,6 +52,10 @@ class ArchiveObject(object):
 
 class ArchiveBackend(object):
     def get_object(self, name: str) -> ArchiveObject:
+        raise NotImplementedError
+
+    def list_objects(self, prefix: str) -> Iterator[ArchiveObject]:
+        """List all objects with the given prefix."""
         raise NotImplementedError
 
 
@@ -77,6 +85,13 @@ class GoogleCloudObject(ArchiveObject):
         if self.blob is None:
             return 0
         return self.blob.size or 0
+
+    def updated_at(self) -> datetime:
+        if self.blob is None:
+            raise RuntimeError("Object does not exist: %s" % self.name)
+        updated = self.blob.updated
+        assert updated is not None
+        return cast(datetime, updated)
 
     def open(self) -> TextIO:
         if self.blob is None:
@@ -130,6 +145,12 @@ class GoogleCloudBackend(ArchiveBackend):
     def get_object(self, name: str) -> GoogleCloudObject:
         return GoogleCloudObject(self, name)
 
+    def list_objects(self, prefix: str) -> Iterator[ArchiveObject]:
+        for blob in self.bucket.list_blobs(prefix=prefix):
+            object = GoogleCloudObject(self, blob.name)
+            object._blob = blob
+            yield object
+
 
 class FileSystemObject(ArchiveObject):
     def __init__(self, backend: "FileSystemBackend", name: str) -> None:
@@ -144,6 +165,9 @@ class FileSystemObject(ArchiveObject):
         if not self.path.exists():
             return 0
         return self.path.stat().st_size
+
+    def updated_at(self) -> datetime:
+        return datetime.fromtimestamp(self.path.stat().st_mtime, tz=timezone.utc)
 
     def open(self) -> TextIO:
         return open(self.path, "r", buffering=BLOB_CHUNK)
@@ -184,6 +208,16 @@ class FileSystemObject(ArchiveObject):
 class FileSystemBackend(ArchiveBackend):
     def get_object(self, name: str) -> FileSystemObject:
         return FileSystemObject(self, name)
+
+    def list_objects(self, prefix: str) -> Iterator[ArchiveObject]:
+        prefix_path = settings.ARCHIVE_PATH / prefix
+        if not prefix_path.is_dir():
+            return
+        for path in prefix_path.rglob("*"):
+            if path.is_file():
+                yield FileSystemObject(
+                    self, path.relative_to(settings.ARCHIVE_PATH).as_posix()
+                )
 
 
 backends: Dict[str, Type[ArchiveBackend]] = {

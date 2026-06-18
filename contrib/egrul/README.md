@@ -1,4 +1,10 @@
 
+## Source-data format
+
+The XML format we parse is defined by FNS (Russian Federal Tax Service).
+See [`docs/README.md`](docs/README.md) for the vendored XSDs, FNS order
+references, and pointers to upcoming format versions.
+
 ## How to run
 
 Install a JVM (on macOS):

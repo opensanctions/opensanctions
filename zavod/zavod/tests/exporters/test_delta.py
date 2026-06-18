@@ -3,9 +3,9 @@ from copy import deepcopy
 from pathlib import Path
 from typing import Any, Dict, List
 
+from followthemoney.dataset import Version
 from nomenklatura.judgement import Judgement
 from nomenklatura.resolver import Resolver
-from nomenklatura.versions import Version
 from zavod import settings
 from zavod.archive import DELTA_EXPORT_FILE, DATASETS, DELTA_INDEX_FILE
 from zavod.entity import Entity

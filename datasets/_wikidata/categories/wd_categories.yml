@@ -127,6 +127,8 @@ lookups:
         value: 2019-11
       - match: "2012-02-30"
         value: 2012-02
+      - match: "2012-04-31"
+        value: 2012-04
       - match: "2020-04-31"
         value: 2020-04
       - match: "1973-09-31"
@@ -165,6 +167,8 @@ lookups:
         value: 2024-09
       - match: "2020-09-31"
         value: 2020-09
+      - match: "2026-06-31"
+        value: 2026-06
 
 config:
   seeds:
@@ -242,10 +246,17 @@ config:
   # categories that are by definition generally not PEPs.
   exclusion_checks:
     - Q5234712 # Came in via Dallas categories under Category:George_M._Dallas
+    - Q546195 # Khuit II, Queen Consort of Ancient Egypt
   categories:
     # Mega collections:
     - category: Political_office-holders_in_Asia
       depth: 8
+      negcats: |
+        Government_of_the_Achaemenid_Empire
+        Licchavi_kings_of_Nepal
+        Sinhalese_royalty
+        Tamil_monarchs
+        Egyptian_monarchs
     - category: Political_office-holders_in_Oceania
       depth: 8
     - category: Political_office-holders_in_North_America
@@ -451,6 +462,9 @@ config:
     - category: Political_office-holders_in_India
       topic: role.pep
       country: in
+      negcats: |
+        Tamil_monarchs
+        Government_of_the_Achaemenid_Empire
     - category: Legislators_in_India
       topic: role.pep
       country: in
@@ -465,6 +479,8 @@ config:
     - category: Political_office-holders_in_Nepal
       topic: role.pep
       country: np
+      negcats: |
+        Licchavi_kings_of_Nepal
 
     # Malaysia
     - category: Government_ministers_of_Malaysia
@@ -478,6 +494,8 @@ config:
     - category: Political_office-holders_in_Nigeria
       topic: role.pep
       country: ng
+      negcats: |
+        Medieval_monarchs
     - category: Nigerian_politicians
       topic: role.pep
       country: ng
@@ -487,6 +505,10 @@ config:
     - category: Political_office-holders_in_Africa
       topic: role.pep
       depth: 8
+      negcats: |
+        Political_office-holders_in_ancient_Rome
+        Ancient_Egyptian_officials
+        Ancient_Egyptian_queens_consort
     - category: South_African_political_people
       depth: 6
 
@@ -2038,6 +2060,8 @@ config:
     - category: Political_office-holders_in_Albania
       country: al
       topic: role.pep
+      negcats: |
+        Albanian_monarchs
     - category: 21st-century_Albanian_politicians
       country: al
     - category: Political_office-holders_in_Northern_Cyprus
@@ -2308,6 +2332,64 @@ config:
         topics:
           - gov.legislative
 
+    # Australian local government politicians
+    - category: New_South_Wales_local_councillors
+      topic: role.pep
+      country: au
+      position:
+        name: Local Councillor in New South Wales
+        country: au
+        topics:
+          - gov.muni
+    - category: Northern_Territory_local_councillors
+      topic: role.pep
+      country: au
+      position:
+        name: Local Councillor in the Northern Territory
+        country: au
+        topics:
+          - gov.muni
+    - category: Victoria_(state)_local_councillors
+      topic: role.pep
+      country: au
+      position:
+        name: Local Councillor in Victoria
+        country: au
+        topics:
+          - gov.muni
+    - category: Queensland_local_councillors
+      topic: role.pep
+      country: au
+      position:
+        name: Local Councillor in Queensland
+        country: au
+        topics:
+          - gov.muni
+    - category: Western_Australian_local_councillors
+      topic: role.pep
+      country: au
+      position:
+        name: Local Councillor in Western Australia
+        country: au
+        topics:
+          - gov.muni
+    - category: South_Australian_local_councillors
+      topic: role.pep
+      country: au
+      position:
+        name: Local Councillor in South Australia
+        country: au
+        topics:
+          - gov.muni
+    - category: Tasmanian_local_councillors
+      topic: role.pep
+      country: au
+      position:
+        name: Local Councillor in Tasmania
+        country: au
+        topics:
+          - gov.muni
+
     - category: Governors-general_of_New_Zealand
       topic: role.pep
       country: nz
@@ -2370,6 +2452,9 @@ config:
     - category: Political_office-holders_in_Sri_Lanka
       topic: role.pep
       country: lk
+      negcats: |
+        Sinhalese_royalty
+        Tamil_monarchs
 
     # country: Bhutan
     - category: Political_office-holders_in_Bhutan

@@ -85,6 +85,12 @@ assertions:
       Person: 875000
 
 lookups:
+  type.string:
+    options:
+      - match:
+          - "-"
+          - "."
+        value: null
   type.name:
     options:
       - match:
@@ -106,6 +112,8 @@ lookups:
         value: "ピイ"
       - match: "ピーター・クック<!-- リダイレクト先の「[ ]」は、[ ] とリンク -->"
         value: "ピーター・クック"
+      - match: "シャリーフ<!-- リダイレクト先の「[ ]」は、[ ] とリンク -->"
+        value: "シャリーフ"
       - match: "Meng Xuenong<br />孟学农"
         values:
           - Meng Xuenong
@@ -209,6 +217,8 @@ lookups:
         value: Aaron David Miller
       - match: "Nwankwo Chukwuemeka, <i>African Dependencies: A Challenge to Western Democracy</i>"
         value: Nwankwo Chukwuemeka
+      - match: "Antanas Mockus's<i>Cultura Ciudadana</i>: Theatrical acts for cultural change in Bogotá, Colombia"
+        value: Antanas Mockus
       - match: "Imdadul Haq Milon <br> ইমদাদুল হক মিলন"
         values:
           - Imdadul Haq Milon
@@ -227,6 +237,10 @@ lookups:
           - سعيد أحمد بشير
       - match: "Moe Aung Yin <br/>"
         value: "Moe Aung Yin"
+      - match: "ريز خان<br/>Rizwan Khan"
+        values:
+          - "ريز خان"
+          - "Rizwan Khan"
   type.date:
     options:
       - match:
@@ -270,6 +284,7 @@ lookups:
           - Female
           - trans woman
           - intersex woman
+          - intersex trans woman
           - cisgender woman
           - transfeminine
           - non-binary woman
@@ -291,6 +306,8 @@ lookups:
           - non-binary gender
           - hijra # third gender of South Asian cultures
           - kathoey # third gender of Thai culture
+          - faʻafafine # third gender of Samoan culture
+          - diverse # German legally recognized third gender ("divers")
         value: other
       - match:
           - MALE
@@ -307,4 +324,5 @@ lookups:
           - agender
           - Curis
           - undisclosed gender
+          - San Diego
         value: null

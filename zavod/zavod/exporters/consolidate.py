@@ -1,10 +1,16 @@
+from functools import lru_cache
+from typing import List, Tuple
+
 from normality import WS
+from followthemoney import registry
 from rigour.names import reduce_names
-from nomenklatura.resolver import Linker
-from nomenklatura.publish.dates import simplify_dates
-from nomenklatura.publish.edges import simplify_undirected
+from nomenklatura.resolver import Identifier, Linker
 
 from zavod.entity import Entity
+
+
+PROV_MIN_DATES = ("createdAt", "authoredAt", "publishedAt")
+PROV_MAX_DATES = ("modifiedAt", "retrievedAt")
 
 
 NAME_PROPS = (
@@ -38,6 +44,81 @@ NEVER_REMOVE_NAMES_DATASETS = {
     "ca_dfatd_sema_sanctions",
     "au_dfat_sanctions",
 }
+
+
+@lru_cache(maxsize=10000)
+def _remove_prefix_date_values(values: Tuple[str, ...]) -> Tuple[str, ...]:
+    """See ``_simplify_dates``."""
+    kept: List[str] = []
+    values_list = sorted(values, reverse=True)
+    for index, value in enumerate(values_list):
+        if index > 0:
+            longer = values_list[index - 1]
+            if longer.startswith(value):
+                continue
+        kept.append(value)
+    return tuple(kept)
+
+
+def _simplify_dates(entity: Entity) -> Entity:
+    """If an entity has multiple values for a date field, you may
+    want to remove all those that are prefixes of others. For example,
+    if a Person has both a birthDate of 1990 and of 1990-05-01, we'd
+    want to drop the mention of 1990."""
+    for prop in entity.iterprops():
+        if prop.type == registry.date:
+            # Unrolled hot path: called for every entity in every export.
+            stmts = entity._statements[prop.name]
+            if len(stmts) < 2:
+                continue
+            values_in = tuple({s.value for s in stmts})
+            if len(values_in) < 2:
+                continue
+            values = _remove_prefix_date_values(values_in)
+            if prop.name in PROV_MAX_DATES:
+                values = (max(values),)
+            elif prop.name in PROV_MIN_DATES:
+                values = (min(values),)
+
+            # If the sentinel HISTORIC is present, remove it during entity
+            # consolidation.
+            if registry.date.HISTORIC in values:
+                values = tuple(v for v in values if v != registry.date.HISTORIC)
+
+            for stmt in list(stmts):
+                if stmt.value not in values:
+                    entity._statements[prop.name].remove(stmt)
+    return entity
+
+
+def _simplify_undirected(entity: Entity) -> Entity:
+    """Simplify undirected edges by removing duplicate entity IDs on both
+    ends."""
+    # Problem: undirected relationships in which both
+    # entities are given as the source AND the target
+    if (
+        not entity.schema.edge
+        or entity.schema.edge_directed
+        or not entity.schema.edge_source
+        or not entity.schema.edge_target
+    ):
+        return entity
+    sources = entity.get_statements(entity.schema.edge_source)
+    targets = entity.get_statements(entity.schema.edge_target)
+    source_ids = set((s.value for s in sources))
+    target_ids = set((t.value for t in targets))
+    common = source_ids.intersection(target_ids)
+    if len(common) != 2:
+        return entity
+    identifiers = [Identifier.get(s) for s in common]
+    source_id, target_id = max(identifiers), min(identifiers)
+    for stmt in sources:
+        if stmt.value == target_id:
+            entity._statements[entity.schema.edge_source].remove(stmt)
+    for stmt in targets:
+        if stmt.value == source_id:
+            entity._statements[entity.schema.edge_target].remove(stmt)
+    return entity
 
 
 def simplify_names(entity: Entity) -> Entity:
@@ -94,7 +175,7 @@ def consolidate_entity(linker: Linker[Entity], entity: Entity) -> Entity:
     """Consolidate an entity by simplifying some of its properties."""
     if entity.id is not None:
         entity.extra_referents.update(linker.get_referents(entity.id))
-    entity = simplify_dates(entity)
+    entity = _simplify_dates(entity)
     entity = simplify_names(entity)
-    entity = simplify_undirected(entity)
+    entity = _simplify_undirected(entity)
     return entity

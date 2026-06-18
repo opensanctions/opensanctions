@@ -91,7 +91,7 @@ def crawl_person(
         topics=POSITION_TOPICS,
         lang="eng",
     )
-    categorisation = categorise(context, position, is_pep=True)
+    categorisation = categorise(context, position, default_is_pep=True)
     if not categorisation.is_pep:
         return
 

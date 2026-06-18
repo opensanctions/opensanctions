@@ -48,7 +48,6 @@ def crawl_person(
         position,
         start_date=start,
         end_date=end,
-        propagate_country=False,
     )
     if occupancy is not None:
         context.emit(occupancy)

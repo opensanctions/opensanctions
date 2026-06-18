@@ -78,7 +78,7 @@ UNBLOCK_ACTIONS = [
 ]
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     list_xpath = ".//*[@class='accordion-content']/ul/li"
     doc = fetch_html(context, context.data_url, list_xpath, actions=UNBLOCK_ACTIONS)
     for item in doc.findall(list_xpath):

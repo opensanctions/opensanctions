@@ -1,6 +1,6 @@
 import logging
 from decimal import Decimal
-from typing import Generator, Iterator, List, Tuple
+from typing import Dict, Generator, Iterable, Iterator, List, Tuple
 from followthemoney import registry, model
 from followthemoney.helpers import check_person_cutoff
 
@@ -18,9 +18,8 @@ from zavod.context import Context
 from zavod.integration.dedupe import get_dataset_linker, get_resolver
 from zavod.entity import Entity
 from zavod.meta import Dataset, get_multi_dataset, get_catalog
-from zavod.store import get_store
+from zavod.store import get_store, View
 from zavod.reset import reset_caches
-
 
 log = logging.getLogger(__name__)
 
@@ -101,10 +100,10 @@ class LocalEnricher(BaseEnricher[Dataset]):
     ) -> Generator[Entity, None, None]:
         # Make sure an entity with the same ID is yielded. E.g. a QID or ID scheme
         # intentionally consistent between datasets.
-        if entity.id is not None:
-            same_id_match = self.target_view.get_entity(entity.id)
-            if same_id_match is not None:
-                yield same_id_match
+        assert entity.id is not None
+        same_id_match = self.target_view.get_entity(entity.id)
+        if same_id_match is not None:
+            yield same_id_match
 
         scores: List[Tuple[float, Entity]] = []
         last_rounded_score = None
@@ -139,8 +138,7 @@ class LocalEnricher(BaseEnricher[Dataset]):
         self, entity: Entity, path: List[str] = []
     ) -> Generator[Entity, None, None]:
         """Expand starting from a match, recursing to related non-edge entities"""
-        if entity.id is None:
-            return
+        assert entity.id is not None
 
         yield entity
 
@@ -170,15 +168,66 @@ class LocalEnricher(BaseEnricher[Dataset]):
         yield from self.expand(match)
 
 
+def _endpoint_ids(entity: Entity) -> set[str]:
+    endpoint_ids: set[str] = set()
+    if entity.schema.source_prop is not None:
+        endpoint_ids.update(entity.get(entity.schema.source_prop.name))
+    if entity.schema.target_prop is not None:
+        endpoint_ids.update(entity.get(entity.schema.target_prop.name))
+    return endpoint_ids
+
+
+def has_enrich_topic(entity_id: str, view: View, enrich_topics: frozenset[str]) -> bool:
+    """True only if the entity exists in the view and carries one of the enrich topics."""
+    canonical_id = view.store.linker.get_canonical(entity_id)
+    entity = view.get_entity(canonical_id)
+    if entity is None:
+        return False
+    return bool(enrich_topics.intersection(entity.get("topics")))
+
+
+def check_enrich_topics(
+    expanded: Iterable[Entity], view: View, enrich_topics: frozenset[str]
+) -> Dict[str, bool]:
+    """Resolve has_enrich_topic exactly once per ID across an entire expansion.
+
+    Edges and non-edges in a single expansion  reference the same handful of IDs.
+    This avoids repeat entity lookups.
+    """
+    ids_to_check: set[str] = set()
+    for entity in expanded:
+        if entity.schema.edge:
+            ids_to_check.update(_endpoint_ids(entity))
+        else:
+            assert entity.id is not None
+            ids_to_check.add(entity.id)
+    return {eid: has_enrich_topic(eid, view, enrich_topics) for eid in ids_to_check}
+
+
+def should_promote(entity: Entity, topic_matches: Dict[str, bool]) -> bool:
+    """Decide whether an entity should be emitted as internal,
+    based on a precomputed map of entity-id → has_enrich_topic."""
+    if entity.schema.edge:
+        endpoint_ids = _endpoint_ids(entity)
+        if not endpoint_ids:
+            return False
+        return all(topic_matches.get(eid, False) for eid in endpoint_ids)
+    assert entity.id is not None
+    return topic_matches.get(entity.id, False)
+
+
 def save_match(
     context: Context,
     resolver: Resolver[Entity],
     enricher: LocalEnricher,
     entity: Entity,
     match: Entity,
+    subject_view: View,
+    topic_gated: bool,
+    enrich_topics: frozenset[str],
 ) -> None:
-    if match.id is None or entity.id is None:
-        return None
+    assert match.id is not None
+    assert entity.id is not None
     if not entity.schema.can_match(match.schema):
         return None
     judgement = resolver.get_judgement(match.id, entity.id)
@@ -190,10 +239,16 @@ def save_match(
     # them visible:
     if judgement == Judgement.POSITIVE:
         context.log.info("Enrich [%s]: %r" % (entity, match))
-        for adjacent in enricher.expand_wrapped(entity, match):
-            if check_person_cutoff(adjacent):
-                continue
-            context.emit(adjacent)
+        expanded = list(enricher.expand_wrapped(entity, match))
+        expanded = [adj for adj in expanded if not check_person_cutoff(adj)]
+
+        if topic_gated:
+            topic_matches = check_enrich_topics(expanded, subject_view, enrich_topics)
+            for adj in expanded:
+                context.emit(adj, external=not should_promote(adj, topic_matches))
+        else:
+            for adj in expanded:
+                context.emit(adj, external=False)
 
 
 def enrich(context: Context) -> None:
@@ -203,12 +258,22 @@ def enrich(context: Context) -> None:
     context.log.info(
         "Enriching %s (%s)" % (scope.name, [d.name for d in scope.datasets])
     )
+
+    config = dict(context.dataset.config)
+    topic_gated: bool = bool(config.get("topic_gated", False))
+    enricher = LocalEnricher(context.dataset, context.cache, config)
+    enrich_topics: frozenset[str] = frozenset(enricher._filter_topics)
+    if topic_gated and not enrich_topics:
+        context.log.warning(
+            "topic_gated=True but no topics configured; all expanded entities will be external"
+        )
+
     subject_store = get_store(scope, resolver)
     subject_store.sync()
-    subject_view = subject_store.view(scope)
-    config = dict(context.dataset.config)
-    enricher = LocalEnricher(context.dataset, context.cache, config)
+    subject_view = subject_store.view(scope, external=topic_gated)
+
     reset_caches()
+
     try:
         context.log.info("Matching candidates...")
         schemata = list(model.matchable_schemata())
@@ -225,7 +290,16 @@ def enrich(context: Context) -> None:
                 continue
             try:
                 for match in enricher.match_candidates(subject_entity, candidate_set):
-                    save_match(context, resolver, enricher, subject_entity, match)
+                    save_match(
+                        context,
+                        resolver,
+                        enricher,
+                        subject_entity,
+                        match,
+                        subject_view,
+                        topic_gated,
+                        enrich_topics,
+                    )
             except EnrichmentException as exc:
                 context.log.error(
                     "Enrichment error %r: %s" % (subject_entity, str(exc))

@@ -20,7 +20,7 @@ def crawl_row(
     entity.add("citizenship", "jp")
     entity.add("political", in_house_group)
 
-    occupancy = h.make_occupancy(context, entity, position, no_end_implies_current=True)
+    occupancy = h.make_occupancy(context, entity, position)
     if occupancy is not None:
         occupancy.add("constituency", area)
         context.emit(occupancy)

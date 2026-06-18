@@ -181,6 +181,14 @@ lookups:
         values:
           - 1940
           - 1941
+      - match: BETWEEN_X_X_1945_1950
+        values:
+          - 1945
+          - 1950
+      - match: BETWEEN_X_X_1958_1964
+        values:
+          - 1958
+          - 1964
       - match: EXACT_7/9/1975; 1982___
         values:
           - 1975-09-07

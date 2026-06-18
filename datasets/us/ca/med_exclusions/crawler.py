@@ -106,8 +106,9 @@ def crawl(context: Context) -> None:
     path = context.fetch_resource("source.csv", excel_url)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
 
-    with open(path, "r") as f:
+    with open(path, "r", encoding="utf-8-sig") as f:
         reader = csv.DictReader(f)
-        reader.fieldnames = [slugify(key, sep="_") for key in reader.fieldnames]
+        assert reader.fieldnames is not None
+        reader.fieldnames = [slugify(key, sep="_") or "" for key in reader.fieldnames]
         for row in reader:
             crawl_item(row, context)

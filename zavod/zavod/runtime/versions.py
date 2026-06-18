@@ -1,6 +1,6 @@
 from pathlib import Path
 from typing import Optional
-from nomenklatura.versions import Version, VersionHistory
+from followthemoney.dataset import Version, VersionHistory
 
 from zavod.meta import Dataset
 from zavod.archive import dataset_resource_path, get_versions_data

@@ -63,5 +63,13 @@ lookups:
     options:
       - match: House of Representatives
         name: United States representative
+        wikidata_id: Q13218630
+        topics:
+          - gov.national
+          - gov.legislative
       - match: Senate
         name: United States senator
+        wikidata_id: Q4416090
+        topics:
+          - gov.national
+          - gov.legislative

@@ -1,5 +1,6 @@
 import shutil
 import zipfile
+from typing import Any
 
 import xlrd
 
@@ -16,7 +17,7 @@ OTHER_DEBARRMENT_URL = (
 )
 
 
-def load_sheet(workbook, possible_names):
+def load_sheet(workbook: Any, possible_names: list[str]) -> Any:
     for name in possible_names:
         try:
             return workbook[name]
@@ -26,8 +27,8 @@ def load_sheet(workbook, possible_names):
 
 
 def crawl_ownership(
-    context: Context, owner: Entity, asset_name: str, is_debarred=False
-):
+    context: Context, owner: Entity, asset_name: str, is_debarred: bool = False
+) -> None:
     asset = context.make("LegalEntity")
     asset.id = context.make_id(owner.id, asset_name)
     asset.add("name", asset_name)
@@ -42,7 +43,7 @@ def crawl_ownership(
     return asset
 
 
-def crawl_item(input_dict: dict, context: Context):
+def crawl_item(input_dict: dict, context: Context) -> None:
     name = input_dict.pop("entity_individual_name")
     pan = input_dict.pop("pan", "")
     if name is None:
@@ -132,7 +133,7 @@ def crawl_item(input_dict: dict, context: Context):
     )
 
 
-def parse_xls_or_xlsx_sheet_from_url(context: Context, url: str, filename: str):
+def parse_xls_or_xlsx_sheet_from_url(context: Context, url: str, filename: str) -> None:
     _, _, _, filepath_tmp = zyte_api.fetch_resource(
         context, filename=f"{filename}.temp", url=url, geolocation="in"
     )
@@ -151,13 +152,13 @@ def parse_xls_or_xlsx_sheet_from_url(context: Context, url: str, filename: str):
             filepath_tmp, context.get_resource_path(f"{filename}.xls")
         )
         mimetype = XLS
-        items = h.parse_xls_sheet(context, xlrd.open_workbook(filepath)["Working"])
+        items = h.parse_xls_sheet(context, xlrd.open_workbook(filepath)["Sheet1"])
 
     context.export_resource(filepath, mimetype, title=context.SOURCE_TITLE)
     return items
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     items = []
 
     for item in parse_xls_or_xlsx_sheet_from_url(

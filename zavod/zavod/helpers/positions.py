@@ -1,13 +1,10 @@
 from datetime import datetime
-from functools import cache
 from typing import Iterable, List, Optional
 
 from banal import ensure_list
-from followthemoney import registry
 
 from zavod import helpers as h
 from zavod import settings
-from zavod.logs import get_logger
 from zavod.constants import ORIGIN_INFERRED
 from zavod.context import Context
 from zavod.entity import Entity
@@ -18,8 +15,6 @@ from zavod.stateful.positions import (
     get_after_office,
     occupancy_status,
 )
-
-log = get_logger(__name__)
 
 
 def make_position(
@@ -95,27 +90,6 @@ def make_position(
     return position
 
 
-@cache
-def _tmp_warn_person_dates(context: Context) -> None:
-    log.warning(
-        "Passing birth_date and death_date into make_occupancy is deprecated and "
-        "will be removed in a future release. Please set birth/death dates directly on "
-        "Person entities before calling make_occupancy."
-    )
-
-
-@cache
-def _tmp_warn_propagate_country(context: Context) -> None:
-    # Chaos datasets excluded. There's probably more?
-    if context.dataset.name in ("wd_peps", "wd_categories"):
-        return
-    log.warning(
-        "Passing person entities with no country affiliation into make_occupancy is "
-        "deprecated and will be removed in a future release. Please add citizenship "
-        "to Person entities before calling make_occupancy."
-    )
-
-
 def make_occupancy(
     context: Context,
     person: Entity,
@@ -127,17 +101,14 @@ def make_occupancy(
     period_start: Optional[str] = None,
     period_end: Optional[str] = None,
     election_date: Optional[str] = None,
-    birth_date: Optional[str] = None,
-    death_date: Optional[str] = None,
     categorisation: Optional[PositionCategorisation] = None,
     status: Optional[OccupancyStatus] = None,
-    propagate_country: bool = True,
     key_prefix: Optional[str] = None,
 ) -> Optional[Entity]:
     """Creates and returns an Occupancy entity if the arguments meet our criteria
-    for PEP position occupancy, otherwise returns None. Also adds the position countries
-    and the `role.pep` topic to the person if an Occupancy is returned.
-    **Emit the person after calling this to include these changes.**
+    for PEP position occupancy, otherwise returns None. Also adds the `role.pep` topic
+    to the person if an Occupancy is returned.
+    **Emit the person after calling this to include this change.**
 
     Unless `status` is overridden, Occupancies are only returned if end_date is None or
     less than the after-office period after current_time.
@@ -172,9 +143,6 @@ def make_occupancy(
     assert person.schema.is_a("Person")
     assert position.schema.is_a("Position")
 
-    if birth_date is not None or death_date is not None:
-        _tmp_warn_person_dates(context)
-
     occupancy = context.make("Occupancy")
     # Include started and ended strings so that two occupancies, one missing start
     # and and one missing end, don't get normalisted to the same ID
@@ -199,13 +167,6 @@ def make_occupancy(
     h.apply_date(occupancy, "periodStart", period_start)
     h.apply_date(occupancy, "periodEnd", period_end)
     h.apply_date(occupancy, "electionDate", election_date)
-
-    # FIXME: delete birth_date and death_date args in favor of setting
-    # these directly on the Person before calling make_occupancy
-    if birth_date not in person.get("birthDate"):
-        h.apply_date(person, "birthDate", birth_date)
-    if death_date not in person.get("deathDate"):
-        h.apply_date(person, "deathDate", death_date)
 
     if categorisation is not None and not categorisation.is_pep:
         context.log.warning(
@@ -235,14 +196,6 @@ def make_occupancy(
         occupancy.add("status", status.value)
 
     person.add("topics", "role.pep", origin=ORIGIN_INFERRED)
-    if propagate_country:
-        # TODO: Begin to warn here about removing this, then remove it.
-        for country in position.get("country"):
-            # Only propagate to Person.country it isn't already set
-            # in another field (such as citizenship).
-            if country not in person.get_type_values(registry.country, matchable=True):
-                _tmp_warn_propagate_country(context)
-                person.add("country", country, origin=ORIGIN_INFERRED)
 
     return occupancy
 

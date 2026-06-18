@@ -1,11 +1,10 @@
-from typing import Dict, List
-from lxml.etree import _Element
 from normality import squash_spaces
 from rigour.mime.types import XML
 from followthemoney.types import registry
 
 from zavod import Context
 from zavod import helpers as h
+from zavod.util import Element
 
 NAME_SPLITS = [
     " (a.k.a.",
@@ -32,9 +31,9 @@ ALIAS_SPLITS = [
 ]
 
 
-def split_name(name: str) -> List[str]:
+def split_name(name: str) -> list[str]:
     name = squash_spaces(name)
-    parts: List[str] = []
+    parts: list[str] = []
     for part in h.multi_split(name, NAME_SPLITS):
         part = part.rstrip(")").rstrip(";")
         if len(part):
@@ -42,7 +41,7 @@ def split_name(name: str) -> List[str]:
     return parts
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     path = context.fetch_resource("source.xml", context.data_url)
     context.export_resource(path, XML, title=context.SOURCE_TITLE)
     doc = context.parse_resource_xml(path)
@@ -50,16 +49,23 @@ def crawl(context: Context):
         parse_entry(context, node)
 
 
-def parse_entry(context: Context, node: _Element):
-    row: Dict[str, str] = {}
+def parse_entry(context: Context, node: Element) -> None:
+    row: dict[str, str] = {}
     for child in node:
         if child.text is not None:
-            row[child.tag] = child.text
+            text = child.text.strip()
+            if text:
+                row[child.tag] = text
 
     entity_name = row.pop("EntityOrShip", None)
     given_name = row.pop("GivenName", None)
     last_name = row.pop("LastName", None)
     dob = row.pop("DateOfBirthOrShipBuildDate", None)
+    dob_original = dob
+    if dob is not None:
+        excel_date = h.convert_excel_date(dob)
+        if excel_date is not None:
+            dob = excel_date
     title = row.pop("TitleOrShip", None)
     imo_number = row.pop("ShipIMONumber", None)
     schedule = row.pop("Schedule", None)
@@ -82,15 +88,15 @@ def parse_entry(context: Context, node: _Element):
         if entity_name is not None:
             entity.add("name", squash_spaces(entity_name))
         entity.add("type", title)
-        h.apply_date(entity, "buildDate", dob)
+        h.apply_date(entity, "buildDate", dob, original_value=dob_original)
     elif given_name is not None or last_name is not None or dob is not None:
         entity.add_schema("Person")
         h.apply_name(entity, first_name=given_name, last_name=last_name)
-        h.apply_date(entity, "birthDate", dob)
+        h.apply_date(entity, "birthDate", dob, original_value=dob_original)
         entity.add("title", title)
     elif entity_name is not None:
         entity.add("name", split_name(entity_name))
-        h.apply_date(entity, "incorporationDate", dob)
+        h.apply_date(entity, "incorporationDate", dob, original_value=dob_original)
         assert dob is None, (dob, entity_name)
 
     entity.add("topics", "sanction")

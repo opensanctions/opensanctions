@@ -1,0 +1,55 @@
+title: Liechtenstein Members of the Landtag
+prefix: li-landtag
+coverage:
+  frequency: monthly
+  start: "2026-06-08"
+load_statements: true
+entry_point: crawler.py
+ci_test: false
+summary: >-
+  Members and substitute members of the Landtag, the national parliament of the
+  Principality of Liechtenstein
+description: |
+  The Landtag is the unicameral parliament of the Principality of Liechtenstein.
+  It is composed of 25 members, elected for a four-year legislative period from the
+  two electoral districts (Wahlkreise) Oberland and Unterland. In addition to the full
+  members (Abgeordnete), the source also lists substitute members (Stellvertreter) who
+  stand in for members of their party when needed.
+
+  This dataset is sourced from the official roster published by the Landtag. The roster
+  is available per legislative period, and the crawler iterates over the published
+  periods so that members of recent past terms remain in the dataset after they leave
+  office.
+url: https://www.landtag.li/abgeordnete
+tags:
+  - list.pep
+publisher:
+  name: Landtag des Fürstentums Liechtenstein
+  name_en: Parliament of the Principality of Liechtenstein
+  acronym: Landtag
+  description: |
+    The Landtag is the legislative body of the Principality of Liechtenstein. It
+    passes laws, approves the budget and oversees the government. It publishes a
+    roster of its current members and substitute members on its official website.
+  url: https://www.landtag.li/
+  country: li
+  official: true
+data:
+  url: https://www.landtag.li/abgeordnete
+  format: HTML
+  lang: deu
+
+dates:
+  formats: ["%d.%m.%Y", "%Y"]
+
+assertions:
+  min:
+    schema_entities:
+      Person: 24
+      Position: 2
+    country_entities:
+      li: 24
+  max:
+    schema_entities:
+      Person: 120
+      Position: 2

@@ -171,6 +171,11 @@ class Entity(StatementEntity):
         """Return whether the entity has any statements."""
         return len(self._statements) > 0
 
+    @property
+    def external(self) -> bool:
+        """Return whether the entity is completely composed of external statements."""
+        return all(s.external for s in self.statements)
+
     def _to_nested_dict(
         self: Self, view: "View[Dataset, Entity]", depth: int, path: List[str]
     ) -> Dict[str, Any]:

@@ -5,7 +5,7 @@ from nomenklatura.judgement import Judgement
 
 from zavod import settings
 from zavod.entity import Entity
-from zavod.archive import clear_data_path
+from zavod.archive import clear_data_path, dataset_state_path
 from zavod.context import Context
 from zavod.crawl import crawl_dataset
 from zavod.integration.dedupe import get_resolver
@@ -23,7 +23,7 @@ DATASET_DATA = {
 UMBRELLA_CORP = {
     "schema": "LegalEntity",
     "id": "xxx",
-    "properties": {"name": ["Umbrella Corp."]},
+    "properties": {"name": ["Umbrella Corp."], "topics": ["reg.warn"]},
 }
 JON_DOVER = {
     "schema": "Person",
@@ -209,4 +209,102 @@ def test_limit(vcontext: Context):
     results = list(enricher.match_candidates(entity, candidates[entity.id]))
     assert len(results) == 0, results
 
+    shutil.rmtree(settings.DATA_PATH, ignore_errors=True)
+
+
+def test_enrich_topic_gated(testdataset1: Dataset, testdataset_enrich_subject: Dataset):
+    """With topic_gated=True, the matched entity (which has a topic) is emitted
+    internal; adjacent entities not in the subject store are emitted external."""
+    clear_data_path(testdataset_enrich_subject.name)
+    crawl_dataset(testdataset_enrich_subject)  # enriching this
+    crawl_dataset(testdataset1)  # enriching against this
+
+    # Confirm the match (decide requires an active transaction)
+    resolver = get_resolver()
+    resolver.begin()
+    canon_id = resolver.decide("osv-umbrella-corp", "xxx", Judgement.POSITIVE)
+    resolver.commit()
+
+    dataset_data = deepcopy(DATASET_DATA)
+    dataset_data["config"]["topic_gated"] = True
+    dataset_data["config"]["topics"] = ["reg.warn", "crime.boss"]
+    enricher_ds = make_enricher_dataset(dataset_data, testdataset1.name)
+    clear_data_path(enricher_ds.name)
+    crawl_dataset(enricher_ds)
+
+    resolver.begin()
+    store = get_store(enricher_ds, resolver)
+    store.sync(clear=True)
+    view_internal = store.view(enricher_ds, external=False)
+    view_all = store.view(enricher_ds, external=True)
+
+    # The matched entity has topic "reg.warn" in the subject store → emitted internal.
+    internals = list(view_internal.entities())
+    assert len(internals) == 1, internals
+    assert internals[0].id == canon_id
+
+    # oswell-spencer is reachable from the match but absent from the subject store
+    # (only the enrich subject is in scope), so it must be external only.
+    assert view_all.get_entity("osv-oswell-spencer") is not None
+    # oswell-spencer has no topic in the subject store → must be external
+    assert view_internal.get_entity("osv-oswell-spencer") is None, ""
+
+    # Ownership edge: oswell-spencer endpoint has no topic → external.
+    inverted = list(view_all.get_inverted(canon_id))
+    ownership_entities = [e for _, e in inverted if e.schema.edge]
+    assert len(ownership_entities) == 1, ownership_entities
+    ownership_id = ownership_entities[0].id
+    # ownership edge has an untagged endpoint → must be external
+    assert view_internal.get_entity(ownership_id) is None
+
+    resolver.rollback()
+    store.close()
+
+    # --- Round 2: give oswell-spencer a risk topic in the subject store ---
+    # Simulate what the graph analyzer would do after the first enricher run:
+    # tag an adjacent (currently external) entity with a topic and emit external.
+    subject_ctx = Context(testdataset_enrich_subject)
+    subject_ctx.emit(Entity.from_data(testdataset_enrich_subject, UMBRELLA_CORP))
+    oswell_patch = Entity.from_data(
+        testdataset_enrich_subject,
+        {
+            "schema": "Person",
+            "id": "osv-oswell-spencer",
+            "properties": {"topics": ["crime.boss"]},
+        },
+    )
+    subject_ctx.emit(oswell_patch, external=True)
+    subject_ctx.close()
+
+    shutil.rmtree(
+        dataset_state_path(testdataset_enrich_subject.name) / "store",
+        ignore_errors=True,
+    )
+    clear_data_path(enricher_ds.name)
+    crawl_dataset(enricher_ds)
+
+    resolver.begin()
+    store = get_store(enricher_ds, resolver)
+    store.sync(clear=True)
+    view_internal = store.view(enricher_ds, external=False)
+    view_all = store.view(enricher_ds, external=True)
+
+    # Both endpoints of the ownership now carry risk topics → all three emitted internal.
+    internals = list(view_internal.entities())
+    # umbrella-corp, oswell-spencer, ownership edge
+    assert len(internals) == 3, internals
+
+    assert view_internal.get_entity(canon_id) is not None
+    # oswell-spencer now has a risk topic in the subject store → must be internal
+    assert view_internal.get_entity("osv-oswell-spencer") is not None
+
+    inverted = list(view_all.get_inverted(canon_id))
+    ownership_entities = [e for _, e in inverted if e.schema.edge]
+    assert len(ownership_entities) == 1, ownership_entities
+    ownership_id = ownership_entities[0].id
+    # ownership edge: both endpoints now have topics → must be internal
+    assert view_internal.get_entity(ownership_id) is not None
+
+    resolver.rollback()
+    store.close()
     shutil.rmtree(settings.DATA_PATH, ignore_errors=True)

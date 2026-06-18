@@ -3,7 +3,6 @@ from pydantic import BaseModel
 
 from zavod import Context, helpers as h
 from rigour.names.split_phrases import contains_split_phrase
-from zavod.shed import enforcements
 from zavod.stateful.review import (
     TextSourceValue,
     review_extraction,
@@ -41,7 +40,7 @@ def crawl_row(context: Context, row: dict[str, _Element]) -> None:
     sanction_date = str_row.pop("date_sort_ascending")
     matter_number = str_row.pop("matter_number")
     assert sanction_date is not None
-    if not enforcements.within_max_age(context, sanction_date, MAX_AGE_DAYS):
+    if not h.within_max_age(context, sanction_date, MAX_AGE_DAYS):
         return
 
     assert case_name is not None

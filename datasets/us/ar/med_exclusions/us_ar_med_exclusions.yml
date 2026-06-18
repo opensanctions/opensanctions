@@ -84,3 +84,14 @@ lookups:
         name: null
       - match: "-, Precious Jewels In Home Care LLC "
         name: "Precious Jewels In Home Care LLC "
+      - match: "Lambert aka Sherbbie Allen, Sherbbie  "
+        name: "Sherbbie Allen"
+        weakAlias: ["Lambert", "Sherbbie"]
+      - match: "Sharp aka Angel Scarbro aka Angela Sharp, Angel Jamelle"
+        name: "Angel Scarbro"
+        weakAlias: ["Sharp"]
+        alias: ["Angela Sharp", "Angel Jamelle"]
+      - match: "Wood aka Licia Ann Lyle, Licia  Ann"
+        name: "Licia Ann Lyle"
+        alias: ["Licia Ann"]
+        weakAlias: ["Wood"]

@@ -3,7 +3,12 @@ This project contains crawlers that import source data, such as sanctions lists 
 ### Repo layout
 
 * `zavod` contains an ETL framework for crawlers, including definitions for metadata (`zavod.meta`), entity structure (`zavod.entity.Entity`) and crawler context (`zavod.context.Context`).
-    * Documentation for the entity structure (available schemata and properties in `followthemoney`) is available here: https://followthemoney.tech/explorer/schemata/ (sub paths eg. https://followthemoney.tech/explorer/schemata/Person/). Property types are documented here: https://followthemoney.tech/explorer/types/ (and eg. https://followthemoney.tech/explorer/types/name/).
+    * To discover which schemata and properties are available, use the `ftm ref` command group — the authoritative, always-current view of the model:
+        * `ftm ref schemata` — list all schemata (add `--matchable` to filter)
+        * `ftm ref schema Person` — one schema with all its (inherited) properties
+        * `ftm ref types` / `ftm ref type country` — list property types, or detail one with its allowed values
+        * `ftm ref prop Person:nationality` — one property's type and allowed values
+      Output is a formatted table in a real terminal, but JSON whenever the output is captured — so when you run these, you'll always get JSON. Pipe to `jq` to extract fields, e.g. `ftm ref schema Person | jq -r '.properties[] | "\(.name) [\(.type)]"'` (`.properties` is a list, not keyed by name).
     * Data cleaning functions from `rigour` are documented at: https://rigour.followthemoney.tech/
     * Write code for all zavod functions in `zavod/zavod/tests`.
     * Run tests using `cd zavod && pytest zavod/tests/`.
@@ -37,6 +42,7 @@ Use search (grep/glob/find) to find the most relevant starting document. Once yo
 
 * Writing a PEP crawler: use the `/crawler-pep` skill
 * Writing a sanctions crawler: use the `/crawler-sanctions` skill
+* Debugging a failing crawler: use the `/debug-crawler` skill
 * General crawler patterns (helpers, lookups, FTM schemata, qsv analysis): `.claude/docs/crawler-guide.md`
 
 ## Coding hints
@@ -48,4 +54,4 @@ Use search (grep/glob/find) to find the most relevant starting document. Once yo
 * When adding type hints, use the container types such as `set`, `tuple` or `dict` instead of the now-deprecated `typing.Set`, `typing.Tuple` or `typing.Dict`.
 * All new crawlers should be written using typed Python. Suggest adding types to existing ones.
 * We use `lxml` for parsing HTML/XML, and `context.fetch_` functions the retrieve online data. Other libraries are listed in `zavod/pyproject.toml`. NEVER use beautifulsoup, or the Python stdlib xml modules.
-* For crawlers that traverse HTML using XPath expressions, use the sensibly-typed helpers in `zavod.helpers.html` if possible.
+* For crawlers that traverse HTML using XPath expressions, use the sensibly-typed helpers in `zavod.helpers.html` (`h.xpath_element(s)`, `h.element_text`). Raw `.xpath()` returns `Any` and fails the `mypy --strict` check enforced on datasets by the `mypy-datasets` pre-commit hook — run `mypy --strict` on a new crawler before committing.

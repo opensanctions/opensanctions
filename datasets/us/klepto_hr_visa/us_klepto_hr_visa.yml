@@ -4,13 +4,16 @@ prefix: us-klepto-hr-visa
 coverage:
   frequency: daily
   start: "2023-10-18"
+# deploy:
+#   memory: 2500Mi
+#   memory_limit: "4000Mi"
 load_statements: true
 ci_test: false
 summary: >-
   US Visa restrictions on officials of foreign governments and family members
   credibly implicated in corruption or human rights violations
 description: |
-  The U.S. Department of State Bureau of International Narcotics and Law 
+  The U.S. Department of State Bureau of International Narcotics and Law
   Enforcement Affairs publishes this report of quarterly submissions
   to congress as per Section 7031(c)(1)(A) of the Department of State,
   Foreign Operations and Related Appropriations Act of 2021
@@ -33,7 +36,7 @@ publisher:
   name: US State Department
   acronym: State
   description: |
-    The U.S. State Department's stated mission is to protect and promote U.S. 
+    The U.S. State Department's stated mission is to protect and promote U.S.
     security, prosperity, and democratic values and shape an international
     environment in which all Americans can thrive.
   country: us

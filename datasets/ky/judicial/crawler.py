@@ -4,6 +4,7 @@ from normality import collapse_spaces
 
 from zavod import Context, helpers as h
 from zavod.stateful.positions import categorise
+from zavod.util import Element
 
 
 REGEX_CLEAN_NAME = re.compile(
@@ -11,7 +12,8 @@ REGEX_CLEAN_NAME = re.compile(
 )
 
 
-def get_name_pos(container, context: Context):
+def get_name_pos(container: Element, context: Context) -> tuple[str, str | None, str]:
+    """Returns (name, position, details) for a judge container element."""
     name_el = container.xpath(".//h2[@class='tlp-member-title']")
     position_el = container.xpath(".//div[@class='tlp-position']")
     details_el = container.xpath(".//div[@class='tlp-member-detail']")
@@ -39,7 +41,7 @@ def get_name_pos(container, context: Context):
     return name, position, details
 
 
-def crawl_page(context: Context, person_url):
+def crawl_page(context: Context, person_url: str) -> None:
     doc = context.fetch_html(person_url, cache_days=1)
     containers = doc.xpath(
         '//div[contains(@class, "tlp-member-description-container")]'
@@ -63,7 +65,7 @@ def crawl_page(context: Context, person_url):
             name=position,
             country="Cayman Islands",
         )
-        categorisation = categorise(context, position, is_pep=True)
+        categorisation = categorise(context, position, default_is_pep=True)
         if not categorisation.is_pep:
             continue
         occupancy = h.make_occupancy(
@@ -76,7 +78,7 @@ def crawl_page(context: Context, person_url):
         context.emit(occupancy)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     doc = context.fetch_html(context.data_url, cache_days=1)
     profile_links = [
         link

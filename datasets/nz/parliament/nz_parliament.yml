@@ -1,0 +1,57 @@
+title: New Zealand Members of Parliament
+entry_point: crawler.py
+prefix: nz-parl
+coverage:
+  frequency: monthly
+  start: 2026-06-11
+load_statements: true
+ci_test: false  # fetched via the Zyte API (catalogue.data.govt.nz is anti-bot protected)
+summary: >-
+  Current and historical members of the New Zealand House of Representatives
+description: |
+  Members of the House of Representatives, the unicameral parliament of New Zealand.
+  Its members are elected for three-year terms under a mixed-member proportional
+  system, currently filling 120–123 seats, and hold the country's legislative power,
+  including making laws, voting supply, and forming the government from which the Prime
+  Minister and Cabinet are drawn.
+
+  This dataset records both current and historical members, with
+  their name, year of birth and death, gender, the electorate they represented, and
+  their party affiliation across each parliamentary term.
+url: https://catalogue.data.govt.nz/dataset/members-of-parliament
+publisher:
+  name: New Zealand Parliament
+  description: |
+    Te Pāremata o Aotearoa, the New Zealand Parliament, is the unicameral legislature
+    of New Zealand, consisting of the Sovereign and the House of Representatives. The
+    member data is maintained by the Parliamentary Service and published via the
+    Department of Internal Affairs on the data.govt.nz open data catalogue.
+  country: nz
+  url: https://www.parliament.nz/
+  official: true
+data:
+  url: https://catalogue.data.govt.nz/dataset/members-of-parliament
+  format: JSON
+  lang: eng
+
+assertions:
+  min:
+    schema_entities:
+      Person: 110
+      Position: 1
+    country_entities:
+      nz: 110
+  max:
+    schema_entities:
+      Person: 400
+
+lookups:
+  type.gender:
+    normalize: true
+    options:
+      - match: Male
+        value: male
+      - match: Female
+        value: female
+      - match: Other
+        value: other

@@ -2,6 +2,7 @@ from typing import Any
 
 from zavod import Context
 from zavod import helpers as h
+from zavod.entity import Entity
 
 BASE_URL = "https://rpvs.gov.sk/opendatav2"
 ENTITY_DETAILS = (
@@ -52,7 +53,7 @@ IGNORE_PARTNER = [
 #       entity and related people.
 
 
-def rename_headers(context: Context, entry):
+def rename_headers(context: Context, entry: dict[str, Any]) -> dict[str, Any]:
     result = {}
     for old_key, value in entry.items():
         new_key = context.lookup_value("columns", old_key, old_key, warn_unmatched=True)
@@ -60,7 +61,7 @@ def rename_headers(context: Context, entry):
     return result
 
 
-def apply_address(context, entity, address):
+def apply_address(context: Context, entity: Entity, address: dict[str, Any]) -> None:
     if not address:
         return
     street_name = address.pop("street_name")
@@ -80,7 +81,7 @@ def apply_address(context, entity, address):
     h.copy_address(entity, address)
 
 
-def fetch_related_data(context, related_id, endpoint):
+def fetch_related_data(context: Context, related_id: Any, endpoint: str) -> Any:
     if not related_id:
         return None
     related_url = endpoint.format(id=related_id)
@@ -88,7 +89,9 @@ def fetch_related_data(context, related_id, endpoint):
     return response
 
 
-def emit_related_entity(context: Context, entity_data: dict[str, Any], is_pep: bool):
+def emit_related_entity(
+    context: Context, entity_data: dict[str, Any], is_pep: bool
+) -> Entity | None:
     first_name = entity_data.pop("name")
     last_name = entity_data.pop("surname")
     # We don't get dob for public officials
@@ -133,7 +136,7 @@ def emit_related_entity(context: Context, entity_data: dict[str, Any], is_pep: b
     return related
 
 
-def emit_ownership(context, related, entity_id):
+def emit_ownership(context: Context, related: Entity, entity_id: str | None) -> None:
     own = context.make("Ownership")
     own.id = context.make_id(entity_id, "owned by", related.id)
     own.add("owner", related.id)
@@ -141,7 +144,7 @@ def emit_ownership(context, related, entity_id):
     context.emit(own)
 
 
-def emit_link(context, related, entity_id):
+def emit_link(context: Context, related: Entity, entity_id: str | None) -> None:
     rel = context.make("UnknownLink")
     rel.id = context.make_id(related.id, "associated with", entity_id)
     rel.add("subject", related.id)
@@ -149,7 +152,7 @@ def emit_link(context, related, entity_id):
     context.emit(rel)
 
 
-def process_entry(context, entry):
+def process_entry(context: Context, entry: dict[str, Any]) -> None:
     entity_id = entry["Id"]
     context.log.info("Fetching entity details", entity_id=entity_id)
     details_url = ENTITY_DETAILS.format(id=entity_id)
@@ -215,7 +218,7 @@ def process_entry(context, entry):
     context.audit_data(entity_data, IGNORE_ENTITY)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     url = context.data_url
     total_count = context.fetch_json(TOTAL_COUNT)
     assert total_count is not None

@@ -1,7 +1,8 @@
 from normality import slugify
 import openpyxl
+from openpyxl.worksheet.worksheet import Worksheet
 from rigour.mime.types import XLSX
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Iterator, List, Optional
 
 from zavod import Context
 from zavod import helpers as h
@@ -12,26 +13,15 @@ US_DDTC_SD = "US-DDTC-SD"
 US_DDTC_AD = "US-DDTC-AD"
 
 
-def sheet_to_dicts(sheet):
+def sheet_to_dicts(sheet: Worksheet) -> Iterator[Dict[str, Any]]:
     headers: Optional[List[str]] = None
     for row in sheet.rows:
         cells = [c.value for c in row]
         if headers is None:
-            headers = [slugify(h) for h in cells]
+            headers = [slugify(h) or f"column_{i}" for i, h in enumerate(cells)]
             continue
         row = dict(zip(headers, cells))
         yield row
-
-
-def split_names(name: str) -> (str, List[str]):
-    parts = name.split("(a.k.a. ", 1)
-    main_name = parts[0]
-    alias_list = []
-    if len(parts) > 1:
-        aliases = parts[1]
-        aliases = aliases.replace(")", "")
-        alias_list = aliases.split("; ")
-    return main_name, alias_list
 
 
 def crawl_debarment(
@@ -40,25 +30,29 @@ def crawl_debarment(
     program_key: str,
     name_field: str,
     notice_date_field: str,
-    birth_date_field=None,
-):
-    date_of_birth = row.pop(birth_date_field, None)
-    if type(date_of_birth) is str:
-        date_of_birth = date_of_birth.strip()
+) -> None:
+    date_of_birth = row.pop("date-of-birth", None)
     if date_of_birth:
         schema = "Person"
     else:
         schema = "LegalEntity"
 
     entity = context.make(schema)
-    name, aliases = split_names(row.pop(name_field))
-    entity.id = context.make_slug(name, date_of_birth, strict=False)
-    entity.add("name", name)
-    entity.add("alias", aliases)
+    name = row.pop(name_field)
+    entity.id = context.make_id(name, date_of_birth)
+
     entity.add("country", "us")
     if schema == "Person":
         h.apply_date(entity, "birthDate", date_of_birth)
     entity.add("topics", "debarment")
+
+    original = h.Names(name=name)
+    h.apply_reviewed_names(
+        context,
+        entity,
+        original=original,
+        llm_cleaning=True,
+    )
 
     sanction = h.make_sanction(context, entity, program_key=program_key)
     sanction.add("listingDate", row.pop(notice_date_field).isoformat()[:10])
@@ -80,19 +74,12 @@ def crawl_debarment(
     context.audit_data(row, ["charging-letter", "debarment-order"])
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     path = context.fetch_resource("statutory.xlsx", STATUTORY_XLSX_URL)
     context.export_resource(path, XLSX, title="Statutory Debarments")
     rows = sheet_to_dicts(openpyxl.load_workbook(path, read_only=True).worksheets[0])
     for row in rows:
-        crawl_debarment(
-            context,
-            row,
-            US_DDTC_SD,
-            "party-name",
-            "notice-date",
-            "date-of-birth",
-        )
+        crawl_debarment(context, row, US_DDTC_SD, "party-name", "notice-date")
 
     path = context.fetch_resource("administrative.xlsx", ADMINISTRATIVE_XLSX_URL)
     context.export_resource(path, XLSX, title="Administrative Debarments")

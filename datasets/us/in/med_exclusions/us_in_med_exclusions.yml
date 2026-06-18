@@ -65,7 +65,7 @@ assertions:
       LegalEntity: 50
   max:
     schema_entities:
-      LegalEntity: 150
+      LegalEntity: 180
 
 lookups:
   type.identifier:

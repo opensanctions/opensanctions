@@ -9,12 +9,13 @@ AKA_PATTERN = r"\ba\.?k\.?a[\. -]*"
 PAGE_SETTINGS = {"join_y_tolerance": 100}
 
 
-def crawl_item(row: dict[str, str], context: Context) -> None:
+def crawl_item(row: dict[str, str | None], context: Context) -> None:
     address = h.make_address(
         context, city=row.pop("city"), state=row.pop("state"), country_code="US"
     )
     sector = row.pop("provider_type")
-    provider_number = row.pop("provider_number")
+    # In very rare exceptions, the provider number is missing.
+    provider_number = row.pop("provider_number") or ""
     exclusion_date = row.pop("exclusion_date")
     last_name = row.pop("last_name")
     first_name = row.pop("first_name")

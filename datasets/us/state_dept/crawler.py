@@ -1,12 +1,11 @@
-from typing import Optional
-from normality import collapse_spaces
+from lxml.html import HtmlElement
 from zavod import Context
 from zavod import helpers as h
 from zavod.stateful.positions import categorise
 from zavod.extract.zyte_api import fetch_html
 
 
-def crawl_bio_page(context: Context, url: str):
+def crawl_bio_page(context: Context, url: str) -> None:
     name_xpath = ".//h1[contains(@class, 'featured-content__headline')]"
     doc = fetch_html(
         context,
@@ -25,7 +24,8 @@ def crawl_bio_page(context: Context, url: str):
                 url=url,
             )
 
-    name = collapse_spaces(doc.xpath(name_xpath)[0].text_content())
+    name = h.element_text(h.xpath_element(doc, name_xpath))
+    assert name is not None
     title = None
     if name.startswith("Ambassador "):
         title = "Ambassador"
@@ -42,24 +42,28 @@ def crawl_bio_page(context: Context, url: str):
 
     # FAQ: Only U.S. citizens may apply for an appointment to the career
     # Foreign Service. A candidate must be a U.S. citizen on the date an
-    # application to the Foreign Service is submitted (for Generalists),
-    # or upon applying to fill a vacancy announcement (for Specialists).
+    # application to the Foreign Service is submitted (for Generalists),
+    # or upon applying to fill a vacancy announcement (for Specialists).
     # FAQ: As long as you are a U.S. citizen, you may apply for any Civil
     # Service position for which you qualify, even if you have other
     # nationalities.
     # https://careers.state.gov/faqs/
     entity.add("citizenship", "us")
 
-    description = doc.find(".//meta[@property='og:description']").get("content")
+    meta_el = doc.find(".//meta[@property='og:description']")
+    assert meta_el is not None
+    description: str | None = meta_el.get("content")
+    assert description is not None
     description = description.replace("[…]", "[...More on linked State Dept page]")
     entity.add("description", description)
 
-    position_container = doc.xpath(
-        ".//p[contains(@class, 'article-meta__author-bureau')]"
-    )[0]
-    for br in position_container.xpath(".//br"):
+    position_container = h.xpath_element(
+        doc, ".//p[contains(@class, 'article-meta__author-bureau')]"
+    )
+    for br in h.xpath_elements(position_container, ".//br"):
         br.tail = " - " + br.tail if br.tail else " - "
-    position_name = collapse_spaces(position_container.text_content())
+    position_name = h.element_text(position_container)
+    assert position_name is not None
 
     topics = ["gov.national"]
     if (
@@ -73,14 +77,12 @@ def crawl_bio_page(context: Context, url: str):
     categorisation = categorise(context, position)
     if not categorisation.is_pep:
         return
-    dates = collapse_spaces(
-        doc.xpath(".//p[contains(@class, 'article-meta__publish-date')]")[
-            0
-        ].text_content()
+    dates = h.element_text(
+        h.xpath_element(doc, ".//p[contains(@class, 'article-meta__publish-date')]")
     )
-    start_date, end_date = dates.split(" - ")
-    if end_date == "Present":
-        end_date = None
+    assert dates is not None
+    start_date, end_date_raw = dates.split(" - ")
+    end_date: str | None = None if end_date_raw == "Present" else end_date_raw
 
     occupancy = h.make_occupancy(
         context,
@@ -92,16 +94,19 @@ def crawl_bio_page(context: Context, url: str):
     )
     context.emit(entity)
     context.emit(position)
-    context.emit(occupancy)
+    if occupancy is not None:
+        context.emit(occupancy)
 
 
-def get_next_link(doc) -> Optional[str]:
+def get_next_link(doc: HtmlElement) -> str | None:
     el = doc.find(".//a[@class='next page-numbers']")
     if el is not None:
-        return el.get("href")
+        href: str | None = el.get("href")
+        return href
+    return None
 
 
-def crawl_index_page(context: Context, url: str):
+def crawl_index_page(context: Context, url: str) -> str | None:
     bios_xpath = ".//a[contains(@class, 'biography-collection__link')]"
     context.log.info("Crawling index page", url=url)
     doc = fetch_html(
@@ -110,13 +115,15 @@ def crawl_index_page(context: Context, url: str):
         bios_xpath,
         geolocation="US",
     )
-    for anchor in doc.xpath(bios_xpath):
-        context.log.info("Crawling bio page", url=anchor.get("href"))
-        crawl_bio_page(context, anchor.get("href"))
+    for anchor in h.xpath_elements(doc, bios_xpath):
+        href: str | None = anchor.get("href")
+        assert href is not None
+        context.log.info("Crawling bio page", url=href)
+        crawl_bio_page(context, href)
     return get_next_link(doc)
 
 
-def crawl(context: Context) -> Optional[str]:
-    next_link = context.data_url
+def crawl(context: Context) -> None:
+    next_link: str | None = context.data_url
     while next_link:
         next_link = crawl_index_page(context, next_link)

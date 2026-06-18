@@ -2,7 +2,7 @@ from pathlib import Path
 import shutil
 import orjson
 from rigour.mime.types import JSON
-from stdnum.pk import cnic as cnic_validator  # type: ignore
+from stdnum.pk import cnic as cnic_validator
 
 from zavod import Context
 from zavod import helpers as h
@@ -13,7 +13,7 @@ PROGRAM_KEY = "PK-ATA1997"
 LOCAL_PATH = Path(__file__).parent
 
 
-def crawl_person(context: Context, row: dict):
+def crawl_person(context: Context, row: dict[str, str]) -> None:
     person_name = row.pop("Name")
     father_name = row.pop("FatherName")
     cnic = row.pop("CNIC")
@@ -47,7 +47,7 @@ def crawl_person(context: Context, row: dict):
     context.audit_data(row)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     source_path = LOCAL_PATH / "source.json"
     data = orjson.loads(source_path.read_bytes())
     # Export the source data as a resource by copying it from the dataset folder

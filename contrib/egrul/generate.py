@@ -30,13 +30,15 @@ from zavod import Dataset
 LOCAL_BUCKET_CACHE_DIR = Path(
     os.environ.get("LOCAL_BUCKET_CACHE_DIR", tempfile.gettempdir())
 )
-SOURCE_DATA_BUCKET_NAME = "internal-data.opensanctions.org"
+SOURCE_DATA_BUCKET_NAME = "egrul.opensanctions.org"
 PROCESSESED_PREFIX = "ru_egrul/processed/"
 
-# The two formats don't seem to be different enough to make a difference to us, fortunately.
-# The overlap between the two formats is quite long, we use 2025-01-01 as the switchover date.
-SOURCE_DATA_PREFIX_OLD = "ru_egrul/egrul.itsoft.ru/EGRUL_406/"
-SOURCE_DATA_PREFIX_NEW = "ru_egrul/egrul.itsoft.ru/EGRUL_407/"
+# Format versions differ slightly but not enough to affect our parsing.
+# 406/407 overlap heavily; we switch to 407 at 2025-01-01.
+# 407/408 overlap Feb 10 – Mar 7 2026; we switch to 408 at 2026-03-01.
+SOURCE_DATA_PREFIX_406 = "egrul/EGRUL_406/"
+SOURCE_DATA_PREFIX_407 = "egrul/EGRUL_407/"
+SOURCE_DATA_PREFIX_408 = "egrul/EGRUL_408/"
 
 
 @dataclass
@@ -246,6 +248,7 @@ def crawl_archives_for_date(
     df = merge_duplicate_company_records(df)
 
     df.write.saveAsTable(table_name, mode="overwrite")
+    df.unpersist()
 
     return spark.table(table_name)
 
@@ -332,7 +335,7 @@ def write_companies_df_to_csv(df: DataFrame, path_prefix: Path) -> None:
 
 def get_archive_date_from_blob_url(blob_url: BlobURL) -> date:
     """Gets an archive date from the blob URL."""
-    # blob_url.name format: "ru_egrul/egrul.itsoft.ru/EGRUL_406/01.01.2022_FULL/EGRUL_FULL_2022-01-01_214.zip"
+    # blob_url.name format: "egrul/EGRUL_406/01.01.2022_FULL/EGRUL_FULL_2022-01-01_214.zip"
     path_parts = blob_url.name.split("/")
     if len(path_parts) < 2:
         raise ValueError(f"Invalid blob name format: {blob_url.name}")
@@ -395,18 +398,22 @@ def crawl(context: Context) -> None:
     spark.sparkContext.setCheckpointDir("env/spark-checkpoint")
     spark.sparkContext.setLogLevel("WARN")
 
-    # We split the archives into old and new because the format changed. The switchover date is a bit arbitrary, the overlap was quite long.
-    archives_old = [
+    archives_406 = [
         a
-        for a in list_archives(SOURCE_DATA_BUCKET_NAME, SOURCE_DATA_PREFIX_OLD)
+        for a in list_archives(SOURCE_DATA_BUCKET_NAME, SOURCE_DATA_PREFIX_406)
         if get_archive_date_from_blob_url(a) < date(2025, 1, 1)
     ]
-    archives_new = [
+    archives_407 = [
         a
-        for a in list_archives(SOURCE_DATA_BUCKET_NAME, SOURCE_DATA_PREFIX_NEW)
-        if get_archive_date_from_blob_url(a) >= date(2025, 1, 1)
+        for a in list_archives(SOURCE_DATA_BUCKET_NAME, SOURCE_DATA_PREFIX_407)
+        if date(2025, 1, 1) <= get_archive_date_from_blob_url(a) < date(2026, 3, 1)
     ]
-    archives = archives_old + archives_new
+    archives_408 = [
+        a
+        for a in list_archives(SOURCE_DATA_BUCKET_NAME, SOURCE_DATA_PREFIX_408)
+        if get_archive_date_from_blob_url(a) >= date(2026, 3, 1)
+    ]
+    archives = archives_406 + archives_407 + archives_408
 
     archives_by_date = sorted(aggregate_archives_by_date(archives).items())
     archives_by_date = [
@@ -434,7 +441,7 @@ def crawl(context: Context) -> None:
     # Saving to partial_ tables is not strictly required, but quite useful to interrupt and resume the process when
     # running locally and running sql queries on it.
     year_dfs = []
-    for year in [2022, 2023, 2024, 2025]:
+    for year in [2022, 2023, 2024, 2025, 2026]:
         year_archives = [
             (archive_date, archives)
             for archive_date, archives in archives_by_date
@@ -478,6 +485,9 @@ def crawl(context: Context) -> None:
         full_df = crawl_archives_for_date(spark, full_archive[0], full_archive[1])
         context.log.info("Merging full and partial daily records for %d" % year)
         year_df = merge_company_record_dfs(context, [full_df, partial_year_df])
+        # We've computed year_df now, we won't need month_dfs anymore.
+        for month_df in month_dfs:
+            month_df.unpersist()
         context.log.info("%d has %d records" % (year, year_df.count()))
 
         # Persist to make sure that Spark doesn't get the idea to throw away and recompute this.
@@ -502,7 +512,9 @@ def get_context(data_time: Optional[date] = None) -> Context:
     dataset = Dataset.from_path("datasets/ru/egrul/ru_egrul.yml")
     context = Context(dataset)
     if data_time is not None:
-        context._data_time = datetime.combine(data_time, datetime.min.time())
+        # TODO: This is very hacky, but that's how we pass "what archive are we in"
+        # down the stack right now
+        context.data_time = datetime.combine(data_time, datetime.min.time())
     return context
 
 

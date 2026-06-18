@@ -5,7 +5,7 @@ from zavod.extract.zyte_api import fetch_resource
 from normality import slugify, stringify
 
 
-def crawl_item(row: dict[str, str], context: Context) -> None:
+def crawl_item(row: dict[str, str | None], context: Context) -> None:
     if not row.get("name_provider") and not row.get("npi"):
         return
 
@@ -45,10 +45,12 @@ def crawl(context: Context) -> None:
     # Mark rows that look like they might need manual extraction,
     # as well as one row before and after.
     for i, item in enumerate(items):
+        name_provider = item.get("name_provider")
+        action_type = item.get("action_type_suspend_terminate")
         if (
-            (not item.get("name_provider"))
-            or "\n" in item.get("name_provider")
-            or "\n" in item.get("action_type_suspend_terminate")
+            not name_provider
+            or (name_provider is not None and "\n" in name_provider)
+            or (action_type is not None and "\n" in action_type)
         ):
             manual_extraction[i] = True
             if i != 0:
@@ -60,13 +62,16 @@ def crawl(context: Context) -> None:
     manual_strings = []
     last_manual = manual_extraction[0]
     if manual_extraction[0]:
-        manual_strings.append(slugify(stringify(items[0])))
+        first_slug = slugify(stringify(items[0]))
+        assert first_slug is not None
+        manual_strings.append(first_slug)
 
     # concatenate contiguous manual-extraction rows
     rows.append(items[0])
     for i, item in enumerate(items[1:], 1):
         if manual_extraction[i]:
             string = slugify(stringify(item))
+            assert string is not None
             if last_manual:
                 manual_strings[-1] += "\n" + string
             else:

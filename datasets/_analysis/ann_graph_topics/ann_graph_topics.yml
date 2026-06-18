@@ -10,6 +10,7 @@ coverage:
   schedule: "0 */6 * * *"
 exports:
   - statistics.json
+  - entities.ftm.json
 deploy:
   cpu: "1000m"
   cpu_limit: "2000m"
@@ -43,17 +44,11 @@ inputs:
 assertions:
   min:
     schema_entities:
-      Company: 50000
-      Person: 12200
-      LegalEntity: 1300
-      Organization: 300
+      LegalEntity: 65000
+      Security: 150
       Vessel: 15
-      PublicBody: 5
   max:
     schema_entities:
-      Company: 110000
-      Person: 30000
-      LegalEntity: 3000
-      Organization: 3000
+      LegalEntity: 130000
+      Security: 400
       Vessel: 200
-      PublicBody: 100

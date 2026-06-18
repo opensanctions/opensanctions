@@ -5,9 +5,9 @@ Legislative Council members.
 
 from typing import Any, Dict, NamedTuple, Union
 
+from banal import ensure_list
 from zavod import Context, Entity
 from zavod import helpers as h
-from zavod.stateful.positions import categorise
 
 MEMBER_URL_FORMAT = (
     "https://app4.legco.gov.hk/mapi/{lang}/api/LASS/getMember?member_id={member_id}"
@@ -43,46 +43,37 @@ def crawl_person(
     person.id = context.make_id(
         str(member.pop("member_id")), str(member.pop("search_key"))
     )
+    # citizenship not required (Art 67): https://www.cmab.gov.hk/doc/en/documents/policy_responsibilities/Racial_Discrimination/AnnexI-Eng.pdf
+    person.add("country", "hk")
     context.log.debug("Unique ID {person_id}".format(person_id=person.id))
     # Add names in English and both Chinese writing systems
     h.apply_name(person, full=pages.en.pop("name"), lang="eng")
     h.apply_name(person, full=pages.hant.pop("name"), lang="zho")
     h.apply_name(person, full=pages.hans.pop("name"), lang="zho")
-    emails = pages.en.pop("email_address", [])
-    if emails:
-        for email in emails:
-            context.log.debug("Email: {email}".format(email=email))
-            person.add("email", email)
-    homepages = pages.en.pop("homepage", [])
-    if homepages:
-        for url in homepages:
-            if url:
-                context.log.debug("Web: {url}".format(url=url))
-                person.add("website", url)
+    for email in ensure_list(pages.en.pop("email_address", [])):
+        context.log.debug("Email: {email}".format(email=email))
+        person.add("email", email)
+    for url in ensure_list(pages.en.pop("homepage", [])):
+        if url is not None:
+            context.log.debug("Web: {url}".format(url=url))
+            person.add("website", url)
     for phone in ("office_telephone", "mobile_phone"):
-        phones = pages.en.pop(phone, [])
-        if phones:
-            for number in phones:
-                if number:
-                    context.log.debug("Phone: {number}".format(number=number))
-                    person.add("phone", number)
+        for number in ensure_list(pages.en.pop(phone, [])):
+            if number:
+                context.log.debug("Phone: {number}".format(number=number))
+                person.add("phone", number)
     title = pages.en.pop("title")
     if title and title != "-":
-        context.log.debug("Title: {title}".format(title=title))
         person.add("title", title)
-    qualifications = pages.en.pop("qualification", [])
-    if qualifications:
-        for qual in qualifications:
-            if qual:
-                context.log.debug("Education: {qual}".format(qual=qual))
-                person.add("education", qual)
-    addresses = pages.en.pop("office_address", [])
-    if addresses:
-        for address in addresses:
-            if address:
-                context.log.debug("Address: {address}".format(address=address))
-                address_entity = h.make_address(context, address)
-                h.apply_address(context, person, address_entity)
+    for qual in ensure_list(pages.en.pop("qualification", [])):
+        if qual:
+            context.log.debug("Education: {qual}".format(qual=qual))
+            person.add("education", qual)
+    for address in ensure_list(pages.en.pop("office_address", [])):
+        if address:
+            context.log.debug("Address: {address}".format(address=address))
+            address_entity = h.make_address(context, address)
+            h.copy_address(person, address_entity)
     return person
 
 
@@ -96,17 +87,13 @@ UNUSED_LIST_FIELDS = [
     "honour",
 ]
 UNUSED_PAGE_FIELDS = [
-    "constituency",
     "constituency_type",
     "photo_url",
     "large_photo_url",
     "office_fax",
     "new_term",
     "enable_link",
-    "salute_name",
     "honour",
-    "occupation",
-    "party",
     "office_address",
     "office_list",
     "annual_report_list",
@@ -125,7 +112,7 @@ PAGE_FIELDS = [
 def crawl_member(
     context: Context,
     member: Dict[str, Union[str, int]],
-):
+) -> None:
     """Emit entities for a member of the Legislative Council from JSON data."""
     salute_name = member.pop("salute_name")
     context.log.debug("Adding {name}".format(name=salute_name))
@@ -133,47 +120,50 @@ def crawl_member(
     pages = crawl_member_pages(context, member_id)
     person = crawl_person(context, member, pages)
 
-    positions = []
+    position = h.make_position(
+        context,
+        name="Member of the Legislative Council of Hong Kong",
+        country="hk",
+        topics=["gov.national", "gov.legislative"],
+    )
     if member.pop("is_president", "N") == "Y":
         position = h.make_position(
             context,
             name="President of the Legislative Council of Hong Kong",
-            country="Hong Kong",
+            country="hk",
             topics=["gov.national", "gov.legislative"],
         )
-        categorisation = categorise(context, position)
-        if categorisation.is_pep:
-            positions.append(position)
-    position = h.make_position(
+
+    occupancy = h.make_occupancy(
         context,
-        name="Member of the Legislative Council of Hong Kong",
-        country="Hong Kong",
-        topics=["gov.national", "gov.legislative"],
+        person,
+        position,
     )
-    categorisation = categorise(context, position)
-    if categorisation.is_pep:
-        positions.append(position)
-    if not positions:
+    if occupancy is None:
         return
+
     for lang, page in zip(pages._fields, pages):
         context.log.debug("Auditing data for {lang}".format(lang=lang))
         assert int(page.pop("member_id")) == member_id
+        if lang in ("hant", "hans"):
+            lang = "zho"
+        person.add("political", page.pop("party", None), lang=lang)
+        person.add("alias", page.pop("salute_name", None), lang=lang)
+        person.add("profession", page.pop("occupation", None), lang=lang)
+        occupancy.add("constituency", page.pop("constituency", None), lang=lang)
+
         if lang == "en":
             context.audit_data(page, ignore=UNUSED_PAGE_FIELDS)
         else:
             context.audit_data(page, ignore=UNUSED_PAGE_FIELDS + PAGE_FIELDS)
+
+    context.emit(person)
+    context.emit(position)
+    context.emit(occupancy)
     context.audit_data(member, ignore=UNUSED_LIST_FIELDS)
-    for position in positions:
-        occupancy = h.make_occupancy(
-            context, person, position, True, categorisation=categorisation
-        )
-        if occupancy is not None:
-            context.emit(person)
-            context.emit(position)
-            context.emit(occupancy)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     """Retrieve member list and member information from the JSON API
     and emit entities for council members."""
     assert context.dataset.data is not None

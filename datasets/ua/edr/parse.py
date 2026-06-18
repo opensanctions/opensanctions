@@ -23,7 +23,7 @@ def tag_text(el: Element) -> str:
     return tostring(el, encoding="utf-8").decode("utf-8")
 
 
-def parse_owner(context: Context, company_id: str, unique_id: str, el: Element):
+def parse_owner(context: Context, company_id: str, unique_id: str, el: Element) -> None:
     if el.text is None:
         return
     if "причина відсутності:" in el.text:
@@ -64,7 +64,7 @@ def parse_owner(context: Context, company_id: str, unique_id: str, el: Element):
         context.emit(ownership)
 
 
-def parse_uo(context: Context, fh: IO[bytes]):
+def parse_uo(context: Context, fh: IO[bytes]) -> None:
     for idx, (_, el) in enumerate(etree.iterparse(fh, tag="RECORD")):
         if idx > 0 and idx % 10000 == 0:
             context.log.info("Parse UO records: %d..." % idx)
@@ -140,7 +140,7 @@ def parse_uo(context: Context, fh: IO[bytes]):
 #         el.clear()
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     path = context.get_resource_path("source.zip")
     fetch_internal_data("ua_edr/23022022.zip", path)
     context.log.info("Parsing: %s" % path)

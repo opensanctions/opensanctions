@@ -14,28 +14,19 @@ import io
 import csv
 import time
 from pathlib import Path
-from typing import Literal, Optional, Dict, Any, Generator, Tuple
+from typing import Optional, Dict, Any, Generator, Tuple
 from zipfile import ZipFile
 from urllib.parse import urljoin
-from pydantic import BaseModel
 from rigour.mime.types import ZIP
 
 from zavod import Context
 from zavod import helpers as h
 
-
 DOWNLOAD_URL = "https://sam.gov/api/prod/fileextractservices/v1/api/download/"
 IGNORE_COLUMNS = ["CT Code", "Open Data Flag", "SAM Number"]
 
-NameProp = Literal["name", "alias", "weakAlias"]
 
-
-class FullName(BaseModel):
-    name: str
-    property_name: NameProp
-
-
-def parse_date(date: Optional[str]):
+def parse_date(date: Optional[str]) -> str | None:
     if date in ("", "Indefinite", None):
         return None
     return date
@@ -122,6 +113,20 @@ def usgsa_id(
     return context.make_id(uei, id_name, id_zip, city, country)
 
 
+def sort_cross_ref(cross_ref: str) -> str:
+    """
+    Ensure ordering of cross-reference names is stable for values like
+    `(also  Abbas ABDI ASJARD ,  Abbas ABDIASJERD ,  Abbas ABDI ESJERD )`
+    """
+    prefix = "(also  "
+    suffix = " )"
+    if not (cross_ref.startswith(prefix) and cross_ref.endswith(suffix)):
+        return cross_ref
+    inner = cross_ref[len(prefix) : -len(suffix)]
+    names = sorted(n.strip() for n in inner.split(" , "))
+    return prefix + " ,  ".join(names) + suffix
+
+
 def crawl(context: Context) -> None:
     data_url = crawl_data_url(context)
     path = context.fetch_resource("source.zip", data_url)
@@ -174,6 +179,14 @@ def crawl(context: Context) -> None:
         entity = context.make(schema)
         entity.id = entity_id
 
+        # Basically if the name is something like "Pete's sport and kickball",
+        # run the crawler, unzip source.zip, check for rows where the same name can be
+        # constructed from the various name columns, and check if the Classification
+        # column differs for two rows that would generate the same id. Choose the
+        # most appropriate schema and map the id to that schema in lookups.
+        # Often a company is under both Firm and Special Designated Entity.
+        # Prefer putting a sole trader like "John Smith d.b.a. John's business ltd"
+        # under Company.
         if (
             not override_schema
             and entity.id in schemata
@@ -217,6 +230,7 @@ def crawl(context: Context) -> None:
         #             aliases.append(alias)
         #     entity.add("alias", aliases, lang="eng")
         # else:
+        cross_ref = sort_cross_ref(cross_ref)
         entity.add("notes", cross_ref, lang="eng")
 
         if "uniqueEntityId" in entity.schema.properties:
@@ -245,47 +259,8 @@ def crawl(context: Context) -> None:
 
         if not name:
             return
-        full_name_prop: NameProp = "name"
-        # Not vessels
-        if len(name) < 5 and entity.schema.is_a("LegalEntity"):
-            full_name_prop = "weakAlias"
-        elif len(name) < 10 and " " not in name and entity.schema.is_a("Person"):
-            full_name_prop = "weakAlias"
-        # Treat longer single word entity names as iffy for now
-        # len("Sebastiano") == 10
-        elif len(name) < 11 and " " not in name and entity.schema.is_a("LegalEntity"):
-            full_name_prop = "alias"
 
-        extraction = FullName(name=name, property_name=full_name_prop)
-        origin = filename
-
-        entity.add(
-            extraction.property_name,
-            extraction.name,
-            lang="eng",
-            origin=origin,
-        )
-
-        # The low quality names tend to come from OFAC so check those.
-        if agency == "TREAS-OFAC":
-            original = h.Names(name=name)
-            is_irregular, suggested = h.check_names_regularity(entity, original)
-
-            # A review will be created if standard heuristics suggest the name is irregular,
-            # or if there is a custom suggestion that differs from the original categorisation.
-            h.review_names(
-                context,
-                entity,
-                original=original,
-                suggested=suggested,
-                is_irregular=is_irregular,
-            )
-
-        # TODO: Once we're done with reviews and change the OFAC clause to apply_reviewed_names,
-        # and remove the heuristic-based cleaning/adding above, add the rest normally:
-        # else:
-        #     entity.add("name", name, lang="eng")
-
+        h.apply_reviewed_name_string(context, entity, string=name, lang="eng")
         entity.add("firstName", row.pop("First"), quiet=True, lang="eng")
         entity.add("middleName", row.pop("Middle"), quiet=True, lang="eng")
         entity.add("lastName", row.pop("Last"), quiet=True, lang="eng")

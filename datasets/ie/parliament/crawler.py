@@ -45,7 +45,7 @@ def crawl_member(context: Context, member: Dict[str, Any]) -> None:
             wikidata_id=wikidata_id,
         )
 
-        categorisation = categorise(context, position, is_pep=True)
+        categorisation = categorise(context, position, default_is_pep=True)
         if not categorisation.is_pep:
             continue
 
@@ -81,7 +81,7 @@ def crawl_member(context: Context, member: Dict[str, Any]) -> None:
                 topics=["gov.national"],
                 country=["ie"],
             )
-            categorisation = categorise(context, position_other, is_pep=True)
+            categorisation = categorise(context, position_other, default_is_pep=True)
             if not categorisation.is_pep:
                 continue
 

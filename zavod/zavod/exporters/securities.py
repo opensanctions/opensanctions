@@ -1,3 +1,35 @@
+"""Security-centric tabular export bridging finance identifiers and sanctions risk.
+
+Finance and sanctions speak different languages. Markets identify things by
+instrument and entity codes (ISIN, LEI, RIC, PermID, FIGI); sanctions lists
+describe companies and people by name, jurisdiction and registration number.
+The data vendors positioned to bridge that gap (Bloomberg and peers) will not
+license their mappings for an open dataset, so this export does the connecting
+work itself — emitting a flat CSV that lets a consumer look up the risk attached
+to the issuers behind the securities they hold.
+
+Who reaches for this: portfolio screeners — asset managers and similar
+compliance functions checking holdings for sanctions or EO 14071 exposure — by
+matching the instrument identifiers they hold against the rows here.
+
+Scope is dual-axis. A company is included when the *company itself* is
+designated, or when one of its *securities* is designated — both cases belong in
+the table, because a designation can attach to either. Also included are
+companies caught by broad measures such as the EO 14071 investment ban, and
+public-listed companies for context.
+
+Why company-centric (one row per issuer, identifiers inlined rather than one row
+per security): it is a deliberate fallback. Even when we hold no instrument
+identifiers for an in-scope company, it still gets a row — so a consumer can fall
+back to name-based matching, the last resort they dislike but sometimes have no
+alternative to.
+
+Limitations: coverage is best-effort and partial. A missing identifier means we
+do not hold it, not that none exists; and not every in-scope security is yet
+connected to its issuer. This is a risk-relevant view of issuers, not a complete
+securities universe.
+"""
+
 import csv
 from typing import Set, Iterable
 from normality import squash_spaces
@@ -62,7 +94,6 @@ class SecuritiesExporter(Exporter):
         self._count_leis = 0
 
     def _get_isins(self, entity: Entity, view: ExportView) -> Set[str]:
-        # TODO: normalize ISINs
         isins = set(entity.get("isinCode", quiet=True))
         for _, adjacent in view.get_adjacent(entity):
             if adjacent.schema.is_a("Security"):

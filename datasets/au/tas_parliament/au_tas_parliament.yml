@@ -1,0 +1,46 @@
+title: Australia State Parliament of Tasmania
+prefix: au-tas-ha
+entry_point: crawler.py
+coverage:
+  frequency: monthly
+  start: "2026-06-11"
+load_statements: true
+ci_test: false
+summary: >
+  Current members of both chambers of the Parliament of Tasmania, Australia, as published
+  on the parliament website.
+description: |
+  Current members of the Parliament of Tasmania, the bicameral state legislature of Tasmania,
+  Australia. This dataset covers members of both chambers:
+
+  - The House of Assembly (lower house), with 35 members representing five
+    multi-member electorates (Bass, Braddon, Clark, Franklin and Lyons),
+    elected using the Hare-Clark proportional representation system.
+  - The Legislative Council (upper house), with 15 members each representing
+    a single-member division, serving 6-year staggered terms.
+url: https://www.parliament.tas.gov.au/
+publisher:
+  name: Parliament of Tasmania
+  description: >
+    The Parliament of Tasmania is the bicameral state legislature of Tasmania,
+    Australia, consisting of the House of Assembly (lower house) and the
+    Legislative Council (upper house).
+  url: https://www.parliament.tas.gov.au/
+  country: au
+  official: true
+data:
+  url: https://www.parliament.tas.gov.au/house-of-assembly/currentmembers
+  format: HTML
+  lang: eng
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 45
+      Position: 2
+  max:
+    schema_entities:
+      Person: 55
+      Position: 2

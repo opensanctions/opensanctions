@@ -78,6 +78,8 @@ def crawl_person(
     person.id = context.make_id(name_raw, int_id)
     last_name, name = name_raw.split(",", 1)
     h.apply_name(person, first_name=name.strip(), last_name=last_name.strip())
+    # various roles, some require citizenship (e.g. ministers), some don't (e.g. admin roles)
+    person.add("country", "sk")
     person.add("topics", "role.pep")
     person.add("sourceUrl", href)
     for pos in position_slk:
@@ -103,7 +105,7 @@ def crawl_person(
             context, position, "slk", pos, TRANSLIT_OUTPUT, POSITION_PROMPT
         )
 
-        categorisation = categorise(context, position, is_pep=True)
+        categorisation = categorise(context, position, default_is_pep=True)
         if not categorisation.is_pep:
             return
 

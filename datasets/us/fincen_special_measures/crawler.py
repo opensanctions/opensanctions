@@ -16,7 +16,7 @@ def convert_date(date_str: str) -> List[str]:
     return dates
 
 
-def crawl_item(context: Context, row: Dict[str, str]):
+def crawl_item(context: Context, row: Dict[str, str]) -> None:
     # Create the entity based on the schema
     name = row.pop("name").text_content()
     schema = context.lookup_value("target_type", name)
@@ -97,7 +97,7 @@ def parse_table(table: html.HtmlElement) -> Generator[Dict[str, str], None, None
 
 
 # Main crawl function to fetch and process data.
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     doc = context.fetch_html(context.data_url, absolute_links=True)
     table = doc.get_element_by_id("special-measures-table")
     if table is not None:

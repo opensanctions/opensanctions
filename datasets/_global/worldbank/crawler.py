@@ -6,7 +6,7 @@ from zavod import helpers as h
 SPLITS = r"(a\.k\.a\.?|aka|f/k/a|also known as|\(formerly |, also d\.b\.a\.|\(currently (d/b/a)?|d/b/a|\(name change from|, as the successor or assign to)"  # noqa
 
 
-def clean_name(text):
+def clean_name(text: str) -> list[str]:
     text = text.replace("M/S", "MS")
     parts = re.split(SPLITS, text, re.I)
     names = []

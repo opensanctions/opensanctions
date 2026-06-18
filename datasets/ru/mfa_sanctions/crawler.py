@@ -1,5 +1,5 @@
 import re
-from typing import Dict, Generator, List, Optional
+from typing import Iterator
 from lxml.html import HtmlElement
 
 from zavod import Context, helpers as h
@@ -11,8 +11,8 @@ PROGRAM_KEY = "RU-MFA"
 def parse_html_table(
     table: HtmlElement,
     skiprows: int = 0,
-    headers: Optional[List[str]] = None,
-) -> Generator[Dict[str, HtmlElement], None, None]:
+    headers: list[str] | None = None,
+) -> Iterator[dict[str, HtmlElement]]:
     for rownum, row in enumerate(table.findall(".//tr")):
         if rownum < skiprows:
             continue
@@ -22,20 +22,22 @@ def parse_html_table(
         if any(cell.get("colspan") == "4" for cell in cells):
             continue
 
+        assert headers is not None
         yield {hdr: c for hdr, c in zip(headers, cells)}
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     doc = context.fetch_html(context.data_url, cache_days=1)
-    table = doc.xpath(".//table")
-    assert len(table) == 1
-    table = table[0]
+    table = h.xpath_element(doc, ".//table")
 
     for row in parse_html_table(table, headers=["index", "name", "-", "position"]):
         row = h.cells_to_str(row)
-        name_raw = row.pop("name").rstrip("–").rstrip(",").strip()
+        name_raw = row.pop("name")
+        assert name_raw is not None
+        name_raw = name_raw.rstrip("–").rstrip(",").strip()
         assert re.match(r"^[\S\s]+\s\(.+\)$", name_raw), name_raw
         position = row.pop("position")
+        assert position is not None
 
         person = context.make("Person")
         person.id = context.make_id(name_raw, position)

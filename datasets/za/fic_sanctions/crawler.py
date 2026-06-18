@@ -66,7 +66,7 @@ def clean_passports(context: Context, text: str) -> List[str]:
     return passports, ids
 
 
-def crawl_row(context: Context, data: Dict[str, str]):
+def crawl_row(context: Context, data: Dict[str, str]) -> None:
     full_name = data.pop("FullName", None)
     if full_name is not None:
         ent_id = data.pop("IndividualID")
@@ -127,7 +127,7 @@ def crawl_row(context: Context, data: Dict[str, str]):
     context.emit(sanction)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     path = context.fetch_resource(
         "source.xml",
         context.data_url,

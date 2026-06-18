@@ -1,5 +1,8 @@
+# type: ignore
 # Tries to extract tables from EU journal sanctions HTML pages.
 # Tries to map common key/value pairs in a cell to distinct columns.
+# This is a local development tool only and is not part of the crawler pipeline,
+# so it is excluded from type checking.
 #
 # Usage:
 #   python extract_tables.py --url "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32022R2092"

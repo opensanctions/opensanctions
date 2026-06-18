@@ -163,7 +163,7 @@ def emit_affiliated_position(
         context, position, "cnr", position_name, TRANSLIT_OUTPUT, POSITION_PROMPT
     )
 
-    categorisation = categorise(context, position, is_pep=True)
+    categorisation = categorise(context, position, default_is_pep=True)
     if not categorisation.is_pep:
         return
 
@@ -171,7 +171,6 @@ def emit_affiliated_position(
         context,
         person,
         position,
-        no_end_implies_current=True,
         categorisation=categorisation,
         start_date=start_date,
         end_date=end_date,
@@ -244,7 +243,7 @@ def crawl_person(context: Context, person_data: dict[str, Any]) -> bool:
     else:
         for label in function_labels:
             position = h.make_position(context, label, country="me")
-            categorisation = categorise(context, position, is_pep=True)
+            categorisation = categorise(context, position, default_is_pep=True)
             if not categorisation.is_pep:
                 continue
             occupancy = h.make_occupancy(

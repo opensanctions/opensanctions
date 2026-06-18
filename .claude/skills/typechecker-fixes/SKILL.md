@@ -129,6 +129,8 @@ content = h.xpath_element(doc, divs_xpath)
 
 `h.element_text()` calls `text_content()` internally and applies `collapse_spaces` + `strip`. If the original code was calling `squash_spaces` or `collapse_spaces` on the result, that's now redundant and should be removed. If the extracted text is used for lookups (check the `lookups:` section in the crawler's `.yml` file) or exact comparisons, pass `squash=False` to preserve the original whitespace.
 
+**Watch out for code that splits the text on `\n`** (or otherwise relies on line breaks) — the default `squash=True` collapses newlines into spaces, which silently breaks the splitting and merges all rows into one. Always pass `squash=False` in that case.
+
 ```python
 # Before
 name_info = summary.text.strip()
@@ -202,6 +204,29 @@ emit_linked_org(context, vessel_id=vessel.id, names=related_ros, role="Related R
 
 If the function returns a tuple, add a docstring comment to briefly
 describe the contents of the tuple. This is not a typechecker fix, but it helps readability since tuples don't have named fields.
+
+### 14. Using `# type: ignore` as a last resort
+
+`# type: ignore[<code>]` is only acceptable when the error originates from an **external library with incomplete stubs** (e.g. `requests`, `operator.concat`) and the runtime behaviour is demonstrably correct. Before reaching for it:
+
+1. Confirm no pattern above can fix the error without changing logic.
+2. Verify the runtime behaviour is correct independently of what mypy says.
+3. **Always add a comment explaining why** — describe the stub gap, not just the error code.
+
+```python
+# Bad — silences the error without explaining it
+context.http.cookies.set(name, value)  # type: ignore[no-untyped-call]
+
+# Good — explanatory comment on the line before, type: ignore on the offending line
+# requests stubs don't type RequestsCookieJar.set()
+context.http.cookies.set(name, value)  # type: ignore[no-untyped-call]
+
+# Good — explains the typing gap vs runtime reality
+# operator.concat is typed Sequence→Sequence, not list→list; runtime is correct
+aliases = reduce(concat, alias_lists, [])  # type: ignore[arg-type]
+```
+
+Never use `# type: ignore` to paper over errors in **your own code** — those should be fixed properly.
 
 ## General principles
 

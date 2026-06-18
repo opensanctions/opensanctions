@@ -1,9 +1,10 @@
 from rigour.mime.types import JSON
 
+from zavod.archive.backend import get_archive_backend
 from zavod.exporters.metadata import DatasetVersionResult
 from zavod.meta import Dataset
 from zavod.logs import get_logger
-from zavod.archive import publish_resource, dataset_resource_path
+from zavod.archive import DATASETS, LATEST, publish_resource, dataset_resource_path
 from zavod.archive import publish_dataset_version, publish_artifact
 from zavod.archive import INDEX_FILE, CATALOG_FILE
 from zavod.archive import STATEMENTS_FILE, RESOURCES_FILE, STATISTICS_FILE
@@ -34,7 +35,7 @@ def _archive_artifacts(dataset: Dataset) -> None:
     publish_dataset_version(dataset.name)
 
 
-def publish_dataset(dataset: Dataset, latest: bool = True) -> None:
+def publish_dataset(dataset: Dataset, republish_to_latest: bool = True) -> None:
     """Publish a dataset to the archive, i.e. to /datasets."""
     resources = DatasetResources(dataset)
     for resource in resources.all():
@@ -52,23 +53,51 @@ def publish_dataset(dataset: Dataset, latest: bool = True) -> None:
             path,
             dataset.name,
             resource.name,
-            latest=latest,
+            republish_to_latest=republish_to_latest,
             mime_type=resource.mime_type,
         )
-    files = [INDEX_FILE]
+    meta_files = [INDEX_FILE]
     if dataset.is_collection:
-        files.extend([CATALOG_FILE])
-    for meta in files:
-        path = dataset_resource_path(dataset.name, meta)
+        meta_files.extend([CATALOG_FILE])
+    for meta_file in meta_files:
+        path = dataset_resource_path(dataset.name, meta_file)
         if not path.is_file():
             log.error("Metadata file not found: %s" % path, dataset=dataset.name)
             continue
-        mime_type = JSON if meta.endswith(".json") else None
-        publish_resource(path, dataset.name, meta, latest=latest, mime_type=mime_type)
+        mime_type = JSON if meta_file.endswith(".json") else None
+        publish_resource(
+            path,
+            dataset.name,
+            meta_file,
+            republish_to_latest=republish_to_latest,
+            mime_type=mime_type,
+        )
+
+    if republish_to_latest:
+        all_published_files = set(meta_files) | {r.name for r in resources.all()}
+        _warn_about_stale_latest_files(dataset, all_published_files)
+
     _archive_artifacts(dataset)
 
 
-def archive_failure(dataset: Dataset, latest: bool = True) -> None:
+def _warn_about_stale_latest_files(dataset: Dataset, published_files: set[str]) -> None:
+    """Warn about files in datasets/latest/<dataset>/ that we no longer publish
+    so we can clean them up by hand. We don't delete automatically because
+    deleting from the bucket is scary."""
+    backend = get_archive_backend()
+    latest_prefix = f"{DATASETS}/{LATEST}/{dataset.name}/"
+    for object in backend.list_objects(latest_prefix):
+        basename = object.name[len(latest_prefix) :]
+        if basename not in published_files:
+            log.warning(
+                f"Stale file in datasets/latest/{dataset.name}: {basename}",
+                dataset=dataset.name,
+                object=object.name,
+                updated_at=object.updated_at().isoformat(),
+            )
+
+
+def archive_failure(dataset: Dataset) -> None:
     """Upload failure information about a dataset to the archive."""
     # Collections currently should never call publish_failure (as that only gets called for crawl and validate).
     # But if they ever did (for example to publish a failure in the export stage), we should think very well about

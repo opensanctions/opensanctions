@@ -2,7 +2,7 @@ title: Germany Banned organizations involved in foreign-related extremism
 prefix: de-bfv
 coverage:
   frequency: weekly
-  start: 2026-04-08
+  start: 2026-06-15
 load_statements: true
 entry_point: crawler.py
 summary: >-

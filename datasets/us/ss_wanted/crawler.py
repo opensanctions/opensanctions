@@ -5,7 +5,9 @@ from zavod import Context, helpers as h
 from zavod.extract.zyte_api import fetch_html
 
 
-def get_element_text(doc: ElementTree, xpath_value: str, to_remove=[]) -> str:
+def get_element_text(
+    doc: ElementTree, xpath_value: str, to_remove: list[str] = []
+) -> str:
     """Extract text from from an xpath
 
     Args:
@@ -29,7 +31,7 @@ def get_element_text(doc: ElementTree, xpath_value: str, to_remove=[]) -> str:
     return squash_spaces(element_text.strip())
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     person_xpath = './/div[@class="wanted-card"]//div[@class="button-container"]/a'
     doc = fetch_html(
         context,
@@ -45,13 +47,14 @@ def crawl(context: Context):
         crawl_person(context, url)
 
 
-def crawl_person(context: Context, url: str):
-    name_xpath = '//h1[contains(@class, "page-title")]'
+def crawl_person(context: Context, url: str) -> None:
+    unblock_xpath = './/li[contains(@class, "usa-sidenav__item")]'
     doc = fetch_html(
-        context, url, name_xpath, html_source="httpResponseBody", cache_days=1
+        context, url, unblock_xpath, html_source="httpResponseBody", cache_days=1
     )
 
-    name = get_element_text(doc, name_xpath)
+    name_xpath = './/li[contains(@class, "usa-sidenav__item")]//a[contains(@class, "usa-current")]//span/text()'
+    name = h.xpath_string(doc, name_xpath)
 
     alias = get_element_text(
         doc,

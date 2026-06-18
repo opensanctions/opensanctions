@@ -1,24 +1,9 @@
-import re
 from typing import Any, Dict
 
 from normality import collapse_spaces
 
 from zavod import Context
 from zavod import helpers as h
-
-NAME_SPLITS = [
-    "may also be doing business as",
-    "also doing business as",
-    "doing business as",
-    "also doing business under",
-    "also known as",
-    " or ",
-    "f/k/a",
-    "formerly known as",
-    "formerly operating as",
-    "formerly",
-]
-RE_NAME_SPLIT = re.compile("|".join(NAME_SPLITS), re.IGNORECASE)
 
 
 def crawl_entity(context: Context, data: Dict[str, Any]) -> None:
@@ -29,14 +14,9 @@ def crawl_entity(context: Context, data: Dict[str, Any]) -> None:
     country = collapse_spaces(data.pop("nationality"))
     entity = context.make("LegalEntity")
     entity.id = context.make_id(name_raw, address, country)
-    entity.add("name", RE_NAME_SPLIT.split(name_raw))
     subtitle = data.pop("subtitle", "")
-    if subtitle:
-        res = context.lookup("subtitle", subtitle, warn_unmatched=True)
-        if res:
-            entity.add("alias", res.value)
-            for alias in res.values:
-                entity.add("alias", alias)
+    original = h.Names(name=name_raw, alias=subtitle)
+    h.apply_reviewed_names(context, entity, original=original, llm_cleaning=True)
     entity.add("address", address.split("$"))
     entity.add("country", country)
 

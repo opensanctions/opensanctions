@@ -1,4 +1,4 @@
-from typing import Generator, Dict
+from typing import Any, Generator, Dict
 from lxml import html
 import re
 import json
@@ -12,7 +12,7 @@ REGEX_URLS = r"(https?://[^\s]+)"
 TABLE_XPATH = ".//div[@class='article-content']//table"
 
 
-def parse_table(table_data) -> Generator[Dict[str, str], None, None]:
+def parse_table(table_data: dict[str, Any]) -> Generator[Dict[str, str], None, None]:
     """
     Parse the table and returns the information as a list of dict
 
@@ -37,7 +37,7 @@ def parse_table(table_data) -> Generator[Dict[str, str], None, None]:
         yield {hdr: c for hdr, c in zip(headers, cells)}
 
 
-def crawl_item(input_dict: dict, context: Context):
+def crawl_item(input_dict: dict[str, str], context: Context) -> None:
     name = input_dict.pop("Name of unauthorised entities/individual")
 
     entity = context.make("LegalEntity")
@@ -67,7 +67,7 @@ def crawl_item(input_dict: dict, context: Context):
     context.audit_data(input_dict)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     actions = [
         # Wait for jQuery DataTable to instantiate
         {

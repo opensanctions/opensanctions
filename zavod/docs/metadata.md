@@ -12,7 +12,7 @@ Use the `.yml` extension.
 
 - `title` - As close as possible to an official title for what this dataset contains. If it is a subset of its source data, try to capture that. e.g. `Plural Legislators` - if the Plural portal includes committees but the dataset only captures the legislators. Prefix the dataset's name with the country name as `Country` (and not `Country's`).
 - `entry_point` e.g. `crawler.py:crawl_peps` - the file name, optionally followed by a method name called by the zavod `crawl` command. Defaults to the `crawler.py:crawl` calling an entry point in the dataset directory.
-- `prefix` - The prefix used by entity id helpers, e.g. `gb-coh` or `ofac` - try to make this short but unique across datasets, unless you would like different datasets to intentionally generate overlapping keys.
+- `prefix` - The prefix used by entity id helpers, e.g. `gb-coh` or `ofac` - try to make this short but unique across datasets, unless you would like different datasets to intentionally generate overlapping keys. See the [entity ID guide](best_practices/entity_id.md) for the shape and stability rules that apply to IDs.
 - `summary` - Capture what a user of the dataset needs to know to decide if it's what they're looking for in a single clear concise line. This is used in search results.
 - `description` - This can be one to three paragraphs of text. A more complete description of the dataset, perhaps with a bit more detail about what it includes, what it excludes, and how it is kept up to date if it is not from an official publisher.
 - `url` - the home page or most authoritative place where someone can read about this particular dataset at its source. E.g If a source publishes 5 different datasets, try to link to the page describing the data actually contained in this dataset.
@@ -21,7 +21,7 @@ Use the `.yml` extension.
 
 - `coverage`
     - `frequency` - e.g. `daily`, `weekly`, `monthly`, `never`. This represents how often it is expected that this dataset will be updated. It conveys to users how often to expect updates, and will also be used to generate a crawling schedule unless a specific schedule is defined.
-    - `start` - The start date of a dataset which covers only a specific period in time, e.g. for a dataset specific to a data dump or parliamentary term. A string in the format `YYYY-MM-DD`.
+    - `start` - The date the dataset was first included in the `default` collection — i.e. the date the crawler was added to OpenSanctions. Use today's date when scaffolding a new crawler. A string in the format `YYYY-MM-DD`. Do **not** set this to the date the source data begins covering (e.g. an election date or the start of a parliamentary term).
     - `end` - The end date of a dataset which covers only a specific period in time, e.g. for a dataset specific to a data dump or parliamentary term. A string in the format `YYYY-MM-DD`. Future dates imply an expected end to the maintenance and coverage period of the dataset. Past end dates result in the datasets last_change date being fixed to that date, while its last_exported date remains unchanged.
     - `schedule` - `string` - a cron style schedule defining what time and frequency a crawler should run, e.g `30 */6 * * *`
     - Data sources that don't receive updates are marked `never` and must have their schedule defined otherwise (e.g. usually `coverage.schedule: @monthly` just to keep consistent with FTM updates). You may want to set `disabled: true` for sources that are not available any more so that the metadata can get published without attempting to crawl the source.
@@ -72,7 +72,7 @@ You can find a full overview of available tags [here](https://www.opensanctions.
 
 ### Date formatting
 
-- `dates` - date formatting used by [helpers.apply_date and apply_dates](helpers.md#zavod.helpers.apply_date) but also accessible via the context for use in `helpers.parse_date`.
+- `dates` - date formatting used by [helpers.apply_date and apply_dates](helpers.md#zavod.helpers.apply_date) but also accessible via the context for use in `helpers.parse_date`. See the [date parsing guide](best_practices/dates_meta.md) for usage patterns and worked examples.
   - `formats`: Array of date format strings for parsing dates into partial ISO dates
   - `months`: Map where values like `März` are translated into keys like `"3"` so that it could then be parsed by a format string like `%m`
 
@@ -91,7 +91,7 @@ HTTP requests for GET requests are automatically retried for connection and HTTP
 
 Data assertions are intended to "smoke test" the data. Assertions are checked on export. If assertions aren't met, warnings are emitted.
 
-Data assertions are checked when running `zavod run` (and `zavod validate --rebuild-store` is useful when developing a crawler).
+Data assertions are checked when running `zavod run` (and `zavod validate` is useful when developing a crawler).
 
 Data assertions are useful to communicate our expectations about what's in a dataset. `min` validations set a baseline for what should be in the dataset and are fatal to the export if they fail. `max` validations emit a warning when the dataset has grown beyond the validity of our earlier baseline (or if something's gone horribly wrong and emitted way more than expected)
 

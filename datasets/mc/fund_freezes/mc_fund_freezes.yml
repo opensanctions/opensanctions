@@ -405,6 +405,10 @@ lookups:
           - 1980-1990
           - 10/10/(année inconnue)
         value: null
+      - match: "06/06/1980 (pour l’alias Oleg Tarasov)"
+        value: 1980-06-06
+      - match: "15/04/1974 (pour l’alias Mikhail Stepanov)"
+        value: 1974-04-15
   type.country:
     lowercase: true
     normalize: true
@@ -438,6 +442,10 @@ lookups:
         value: ua
       - match: TRINITE-ET-TOBAGO
         value: tt
+      - match: SAINT-CHRISTOPHE-ET-NIEVES
+        value: kn
+      - match: ISRAÉLIENNE
+        value: il
 
   type.name:
     options:

@@ -1,10 +1,22 @@
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 from rigour.env import env_str
 
 from zavod import settings
 from zavod.logs import get_logger
 
 log = get_logger(__name__)
+
+_retry_strategy = Retry(
+    total=5,
+    backoff_factor=2,
+    status_forcelist=[429],
+    allowed_methods=["POST"],
+)
+_adapter = HTTPAdapter(max_retries=_retry_strategy)
+_session = requests.Session()
+_session.mount("https://", _adapter)
 
 
 def invalidate_archive_cache(path: str) -> None:
@@ -19,10 +31,10 @@ def invalidate_archive_cache(path: str) -> None:
     purge_url = "https://api.bunny.net/purge"
     headers = {"AccessKey": bunnynet_api_key}
     archive_url = f"{settings.ARCHIVE_SITE}/{path}"
-    params = {"url": archive_url, "async": "true"}
+    params = {"url": archive_url, "async": "false"}
 
     try:
-        response = requests.post(purge_url, headers=headers, params=params)
+        response = _session.post(purge_url, headers=headers, params=params)
         response.raise_for_status()
         log.info("Invalidated archive CDN cache: %s" % path)
     except requests.RequestException as e:

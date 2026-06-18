@@ -40,7 +40,7 @@ def crawl_sec_row(context: Context, row: Dict[str, str]) -> None:
     context.audit_data(row)
 
 
-def crawl_sec(context: Context):
+def crawl_sec(context: Context) -> None:
     path = context.fetch_resource("sec-source.csv", SECURITIES_STATEMENTS_CSV)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
@@ -77,7 +77,7 @@ def crawl_sec(context: Context):
             crawl_sec_row(context, row)
 
 
-def crawl_sanction_ownership_row(context: Context, row: Dict):
+def crawl_sanction_ownership_row(context: Context, row: Dict) -> None:
     # source link to prove the relationships when a link exists
     source_link = stringify(row.pop("Source Link"))
     owner_schema = stringify(row.pop("Owner Schema"))
@@ -147,7 +147,7 @@ def crawl_sanction_ownership_row(context: Context, row: Dict):
         context.emit(ubo_ownership)
 
 
-def crawl_sanction_ownership(context: Context):
+def crawl_sanction_ownership(context: Context) -> None:
     path = context.fetch_resource(
         "sanction-ownership-source.csv", SANCTION_OWNERSHIP_CSV
     )
@@ -157,6 +157,6 @@ def crawl_sanction_ownership(context: Context):
             crawl_sanction_ownership_row(context, row)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     crawl_sec(context)
     crawl_sanction_ownership(context)
