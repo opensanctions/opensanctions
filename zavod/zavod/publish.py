@@ -20,11 +20,13 @@ from zavod.exporters import write_dataset_index
 log = get_logger(__name__)
 
 
-def _archive_artifacts(dataset: Dataset) -> None:
+def _archive_artifacts(dataset: Dataset, extra_artifacts: list[str] = []) -> None:
     """Upload every file we persist about a run to /artifacts/{dataset}/{version}/.
 
     This covers both registered resources and non-resource files.
     """
+    extra_artifacts = list(extra_artifacts) + EXTRA_ARTIFACTS
+
     version = get_latest(dataset.name, backfill=False)
     if version is None:
         raise ValueError(f"No working version found for dataset: {dataset.name}")
@@ -42,7 +44,7 @@ def _archive_artifacts(dataset: Dataset) -> None:
             mime_type=resource.mime_type,
         )
 
-    for artifact in EXTRA_ARTIFACTS:
+    for artifact in extra_artifacts:
         path = dataset_resource_path(dataset.name, artifact)
         if not path.is_file():
             log.error("Resource not found: %s" % path, dataset=dataset.name)
@@ -67,16 +69,20 @@ def publish_dataset(dataset: Dataset, republish_to_latest: bool = True) -> None:
     /datasets/{RELEASE}/{dataset}/ backward compatibility and
     /datasets/{LATEST}/{dataset}/ for discovery without the full catalog.
     """
-    _archive_artifacts(dataset)
 
+    extra_artifacts = []
     publish_to_datasets: List[str] = [
         r.name
         for r in DatasetResources(dataset).all()
         if r.name not in UNLISTED_RESOURCES
     ]
     publish_to_datasets.append(INDEX_FILE)
+
     if dataset.is_collection:
+        extra_artifacts.append(CATALOG_FILE)
         publish_to_datasets.append(CATALOG_FILE)
+
+    _archive_artifacts(dataset, extra_artifacts)
 
     version = get_latest(dataset.name, backfill=False)
     assert version is not None
@@ -96,9 +102,7 @@ def publish_dataset(dataset: Dataset, republish_to_latest: bool = True) -> None:
         )
 
 
-def _warn_about_stale_latest_files(
-    dataset: Dataset, published_files: set[str]
-) -> None:
+def _warn_about_stale_latest_files(dataset: Dataset, published_files: set[str]) -> None:
     """Warn about files in datasets/latest/<dataset>/ that we no longer publish
     so we can clean them up by hand. We don't delete automatically because
     deleting from the bucket is scary."""
