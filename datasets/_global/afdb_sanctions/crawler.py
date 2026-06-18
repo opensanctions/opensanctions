@@ -20,7 +20,9 @@ def crawl(context: Context) -> None:
         if all(v == "" for v in cells.values()):
             continue
 
-        name = cells.pop("name").strip()
+        name = cells.pop("name")
+        assert name is not None
+        name = name.strip()
         country = cells.pop("nationality")
         entity_id = context.make_id(name, country)
 

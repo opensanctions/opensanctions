@@ -96,6 +96,7 @@ def crawl_restricted_entities(context: Context) -> None:
 
 
 def crawl(context: Context) -> None:
+    assert context.dataset.url is not None
     doc = fetch_html(context, context.dataset.url, CONTENT_XPATH, actions=ACTIONS)
     node = doc.find(CONTENT_XPATH)
     # Chrome save HTML only

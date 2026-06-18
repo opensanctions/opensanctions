@@ -1,6 +1,5 @@
 import csv
 from pathlib import Path
-from typing import Dict
 
 from zavod import Context, helpers as h
 
@@ -8,7 +7,7 @@ LOCAL_PATH = Path(__file__).parent
 FR_API_URL = "https://www.federalregister.gov/api/v1/documents.json?conditions[agencies][]=state-department&conditions[term]=nonproliferation+measures&order=newest"
 
 
-def crawl_row(context: Context, row: Dict[str, str]) -> None:
+def crawl_row(context: Context, row: dict[str, str]) -> None:
     """Process one row of the CSV data"""
     schema = row.pop("schema")
     name = row.pop("name")
@@ -54,7 +53,8 @@ def crawl_fr_notices(context: Context) -> None:
     # update the us_special_leg Google Sheet accordingly. Then commit the updated
     # fr_notices.csv and update the hash in this function.
     h.assert_url_hash(context, FR_API_URL, "e12745d729fb89d7035faa000c6677052943b483")
-    rows, url = [], FR_API_URL
+    rows: list[list[str]] = []
+    url = FR_API_URL
     while url:
         data = context.fetch_json(url)
         rows.extend(
