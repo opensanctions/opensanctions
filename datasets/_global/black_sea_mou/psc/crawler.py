@@ -1,3 +1,4 @@
+import tempfile
 from datetime import datetime, timedelta
 from pathlib import Path
 from urllib.parse import urljoin
@@ -40,23 +41,26 @@ Preserve leading zeros. The answer is always exactly 5 digits."""
 MAX_LOGIN_ATTEMPTS = 5
 
 
-def attempt_login(context: Context, attempt: int) -> None:
+def attempt_login(context: Context) -> None:
     """Fetch a fresh CAPTCHA and attempt login, establishing the session cookie."""
     login_page = context.fetch_html(context.data_url)
     image = h.xpath_element(login_page, './/img[contains(@src, "captcha.php")]')
     captcha_url = urljoin(context.data_url, image.get("src"))
-    # Each attempt rotates the server-side CAPTCHA, so use a unique filename:
-    # fetch_resource skips the download when the target file already exists, which
-    # would otherwise reuse a stale image that can never match the new session.
-    image_path: Path = context.fetch_resource(f"captcha-{attempt}.png", captcha_url)
-    context.log.debug(f"Fetched CAPTCHA image from {captcha_url}")
-    result = run_image_prompt(
-        context,
-        prompt=PROMPT,
-        image_path=image_path,
-        cache_days=0,
-        model=LLM_VERSION,
-    )
+    # Fetch the CAPTCHA into a tempfile rather than via fetch_resource: the latter
+    # skips the download when the target file already exists, which on a retry would
+    # reuse a stale image that can never match the freshly rotated session CAPTCHA.
+    response = context.fetch_response(captcha_url)
+    with tempfile.NamedTemporaryFile(suffix=".png") as tmp:
+        tmp.write(response.content)
+        tmp.flush()
+        context.log.debug(f"Fetched CAPTCHA image from {captcha_url}")
+        result = run_image_prompt(
+            context,
+            prompt=PROMPT,
+            image_path=Path(tmp.name),
+            cache_days=0,
+            model=LLM_VERSION,
+        )
     code = result["code"]
     context.log.debug(f"Extracted CAPTCHA code: {code}")
     login_url = urljoin(context.data_url, "?action=login")
@@ -74,7 +78,7 @@ def crawl(context: Context) -> None:
     for attempt in range(1, MAX_LOGIN_ATTEMPTS + 1):
         try:
             context.log.info(f"Login attempt {attempt}/{MAX_LOGIN_ATTEMPTS}")
-            attempt_login(context, attempt)
+            attempt_login(context)
             break
         except ValueError as exc:
             context.log.warning(str(exc))
