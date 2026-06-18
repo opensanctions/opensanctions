@@ -56,6 +56,12 @@ lookups:
     options:
       - match: "and"
         value: null
+      - match: "1639354478"
+        prop: idNumber
+  type.date:
+    options:
+      - match: "20/27/1966"
+        value: "1966"
   headers:
     options:
       - match: "Provider Entity \n(Org/Ind)"
