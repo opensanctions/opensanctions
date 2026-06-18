@@ -94,6 +94,8 @@ def crawl_row(context: Context, data: Dict[str, str]) -> None:
         h.apply_date(entity, "birthDate", dob)
 
         aliases = data.pop("IndividualAlias", None)
+        if aliases is not None:
+            original.add("alias", aliases)
         for alias in h.multi_split(aliases, ["Good", "Low", ","]):
             if all(c in {"?", " "} for c in alias):
                 continue
@@ -111,6 +113,8 @@ def crawl_row(context: Context, data: Dict[str, str]) -> None:
             address = address.rstrip(",")
             entity.add("address", address)
         aliases = data.pop("EntityAlias", None)
+        if aliases is not None:
+            original.add("alias", aliases)
         for alias in h.multi_split(aliases, ALIAS_SPLITS):
             # if we split on a comma, we will separate ", LTD" from the name
             alias = alias.rstrip(",")
@@ -127,6 +131,7 @@ def crawl_row(context: Context, data: Dict[str, str]) -> None:
         original=original,
         suggested=suggested,
         is_irregular=is_irregular,
+        default_accepted=True,
     )
     listed_on = data.pop("ListedOn", None)
     h.apply_date(entity, "createdAt", listed_on)
