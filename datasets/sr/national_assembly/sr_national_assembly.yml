@@ -2,7 +2,7 @@ title: Suriname De Nationale Assemblée
 entry_point: crawler.py
 prefix: sr-dna
 coverage:
-  frequency: weekly
+  frequency: monthly
   start: 2026-06-18
 load_statements: true
 ci_test: false # Live external website, not available in CI
