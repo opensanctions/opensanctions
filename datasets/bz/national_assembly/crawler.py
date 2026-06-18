@@ -2,14 +2,14 @@ from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
 from zavod.stateful.positions import PositionCategorisation, categorise
-from zavod.util import Element
+from lxml.etree import _Element
 
 
 # Party names that may appear in the role/affiliation line.
 PARTIES = ["People's United Party", "United Democratic Party"]
 
 
-def parse_members(doc: Element) -> list[tuple[str, str]]:
+def parse_members(doc: _Element) -> list[tuple[str, str]]:
     """Pair each present member's name (h4 title) with its role/affiliation line (h5).
 
     Both pages render one title-heading and one custom-heading per sitting member, in
@@ -38,6 +38,8 @@ def emit_member(
     position: Entity,
     categorisation: PositionCategorisation,
 ) -> None:
+    name = name.replace("Hon.", "").strip()
+
     person = context.make("Person")
     person.id = context.make_id(position.id, name)
     person.add("name", name)
