@@ -1,0 +1,62 @@
+title: Peru Members of the Congress of the Republic
+entry_point: crawler.py
+prefix: pe-cong
+coverage:
+  frequency: weekly
+  start: 2026-06-18
+load_statements: true
+ci_test: false # Live external website with per-member detail pages, not available in CI
+summary: >-
+  Sitting members of the Congreso de la República, the national legislature of
+  Peru
+description: |
+  Sitting members of the Congreso de la República (Congress of the Republic),
+  the currently unicameral national legislature of Peru. Its 130 members are
+  elected by electoral district for five-year terms.
+
+  This dataset records each congressperson currently in office ("en Ejercicio"),
+  scraped from the official Congress website, with their name, party,
+  parliamentary group (bancada), electoral district and term dates. Members who
+  have left office (e.g. deceased or suspended) are listed by the source but not
+  emitted.
+url: https://www3.congreso.gob.pe/pagina/congresistas
+publisher:
+  name: Congreso de la República del Perú
+  name_en: Congress of the Republic of Peru
+  acronym: CRP
+  description: >
+    The Congress of the Republic is the national legislature of Peru.
+  url: https://www.congreso.gob.pe/
+  country: pe
+  official: true
+data:
+  url: https://www3.congreso.gob.pe/pagina/congresistas
+  format: HTML
+  lang: spa
+http:
+  # The site returns 403 to the default user agent; impersonate a browser.
+  user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.2 Safari/605.1.15"
+  additional_retry_statuses: [403]
+dates:
+  formats: ["%d-%b-%Y"]
+  months:
+    Jan: Ene
+    Apr: Abr
+    Aug: Ago
+    Sep: [Set, Sep]
+    Dec: Dic
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 104
+      Position: 1
+    country_entities:
+      pe: 104
+  max:
+    schema_entities:
+      Person: 145
+      Position: 1
