@@ -36,9 +36,17 @@ tags:
 names:
   schema_rules:
     LegalEntity:
-      reject_chars: "()（）"
-      allow_chars: ";" # We're splitting on semicolons so don't bother requiring review by default
-      single_token_min_length: 6
+      # ascii then non-ascii parens, semicolon, colon
+      reject_chars: "<>():/\\（）；："
+      single_token_min_length: 10
+      min_length: 8
+      require_space: true
+      reject_strings:
+        - 永久參考號 # Permanent Reference Number
+        - 繁體中文 # Traditional Chinese
+        - 簡體中文 # Simplified Chinese
+        - alias
+  suggest_abbreviation_non_person_single_token_shorter_than: 5
 
 assertions:
   min:
@@ -49,6 +57,10 @@ assertions:
       LegalEntity: 15000
 
 lookups:
+  type.country:
+    options:
+      - match: "null"
+        value: null
   type.name:
     options:
       - match: WEIHAI WORLD-SHPPING FREIGHT
@@ -60,6 +72,9 @@ lookups:
       - match: OOO Intech,intek Analitika, Intech, Intech Engineering
         values:
           - OOO INTEKH INZHINIRING
+      # Note: over-length names (where multiple aliases are concatenated into a
+      # single value) are split in the name review system, not here. Do not add
+      # type.name lookups to fan these out into individual values.
   details:
     options:
       - match: "Counterfeit Danish driving licence number 20645897 note:made out to Ali Barkani, born on 22 Aug. 1973 in Morocco"

@@ -231,6 +231,8 @@ When an issue references a property name, the corresponding type lookup is one o
 | `gender` | `type.gender` |
 
 The full property listing is at [followthemoney.tech](https://followthemoney.tech/explorer/types/).
+You can also resolve a single property's exact type from the command line with
+`ftm ref prop Schema:property --json` (e.g. `ftm ref prop Person:nationality`).
 
 
 ## Reference: configuration keys

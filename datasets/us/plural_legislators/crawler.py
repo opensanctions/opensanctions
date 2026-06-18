@@ -20,10 +20,15 @@ REGEX_JURISDICTION = re.compile(
 
 
 def make_source_url(id: str) -> str:
-    return f'https://pluralpolicy.com/app/person/{id.replace("ocd-person/", "")}'
+    return f"https://pluralpolicy.com/app/person/{id.replace('ocd-person/', '')}"
 
 
-def crawl_person(context, jurisdictions, house_positions, data: dict[str, Any]):
+def crawl_person(
+    context: Context,
+    jurisdictions: dict[str, str],
+    house_positions: dict[tuple[str, str], str],
+    data: dict[str, Any],
+) -> None:
     if data.pop("death_date", None):
         return
     person = context.make("Person")
@@ -99,7 +104,7 @@ def crawl_person(context, jurisdictions, house_positions, data: dict[str, Any]):
         position = h.make_position(
             context, position_name, country="us", subnational_area=jurisdiction_name
         )
-        categorisation = categorise(context, position, True)
+        categorisation = categorise(context, position, default_is_pep=True)
         if not categorisation.is_pep:
             return
         start_date = role.get("start_date", None)
@@ -136,7 +141,10 @@ def crawl_person(context, jurisdictions, house_positions, data: dict[str, Any]):
         context.emit(entity)
 
 
-def crawl_jurisdictions(context: Context):
+def crawl_jurisdictions(
+    context: Context,
+) -> tuple[dict[str, str], dict[tuple[str, str], str]]:
+    """Returns (jurisdictions, house_positions): state code→name and (code, chamber)→position name."""
     if API_KEY is None:
         raise ValueError("No OPENSANCTIONS_PLURAL_API_KEY key set for OpenStates")
     jurisdictions = {}
@@ -162,15 +170,15 @@ def crawl_jurisdictions(context: Context):
             for org in jurisdiction["organizations"]:
                 type = org["classification"]
                 if type == "legislature":
-                    house_positions[(code, type)] = f'Member of the {org["name"]}'
+                    house_positions[(code, type)] = f"Member of the {org['name']}"
                 if type == "upper":
                     house_positions[(code, type)] = (
-                        f'Member of the {name} {org["name"]}'
+                        f"Member of the {name} {org['name']}"
                     )
                 if type == "lower":
                     representative = org["districts"][0]["role"]
                     house_positions[(code, type)] = (
-                        f'Member of the {name} {org["name"]} of {representative}s'
+                        f"Member of the {name} {org['name']} of {representative}s"
                     )
 
         if query.get("page") == result.get("pagination").get("max_page", None):
@@ -179,7 +187,7 @@ def crawl_jurisdictions(context: Context):
     return jurisdictions, house_positions
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     jurisdictions, house_positions = crawl_jurisdictions(context)
     path = context.fetch_resource("source.zip", context.data_url)
     context.export_resource(path, ZIP, title=context.SOURCE_TITLE)

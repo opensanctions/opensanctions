@@ -1,9 +1,6 @@
-from functools import reduce
-from operator import concat
-from typing import Generator, Dict, Tuple, Optional
-from lxml.etree import _Element
-from normality import slugify
+from itertools import chain
 from zavod import Context, helpers as h
+from zavod.util import Element
 import re
 
 # It will match the following substrings: DD (any month) YYYY
@@ -18,41 +15,44 @@ ALIAS_SPLITS = [
 ]
 PROGRAM_KEY = "NZ-UNSC1373"
 
-
-def parse_table(
-    table: _Element,
-) -> Generator[Dict[str, Tuple[str, Optional[str]]], None, None]:
-    headers = None
-    for row in table.findall(".//tr"):
-        if headers is None:
-            headers = []
-            for el in row.findall("./th"):
-                headers.append(slugify(el.text_content()))
-            continue
-
-        cells = []
-        for el in row.findall("./td"):
-            for span in el.findall(".//span"):
-                # add newline to split spans later if we want
-                span.tail = "\n" + span.tail if span.tail else "\n"
-
-            # there can be multiple links in the same cell
-            a_tags = el.findall(".//a")
-            if a_tags is None:
-                cells.append((el.text_content(), None))
-            else:
-                cells.append((el.text_content(), [a.get("href") for a in a_tags]))
-
-        assert len(headers) == len(cells)
-        yield {hdr: c for hdr, c in zip(headers, cells) if hdr}
+ACTIVE_CAPTION = (
+    "Alphabetical list of Designated Terrorist Entities in New Zealand "
+    "pursuant to UNSC Resolution 1373"
+)
+ACTIVE_INITIAL_KEY = (
+    "date_of_designation_as_a_terrorist_entity_in_new_zealand_"
+    "including_and_statement_of_case_for_designation"
+)
+ACTIVE_RENEW_KEY = (
+    "date_terrorist_designation_was_renewed_in_new_zealand_"
+    "including_statement_of_case_for_renewal_of_designation"
+)
+EXPIRED_DATES_KEY = (
+    "date_of_designation_or_renewal_as_a_terrorist_entity_in_new_zealand_"
+    "including_and_statement_of_case_for_designati_and_the_attached_statement_of_case"
+)
+EXPIRED_END_KEY = (
+    "date_terrorist_designation_was_allowed_to_expire_"
+    "including_statement_of_case_for_expiration"
+)
+REVOKED_SECTION = "Revoked designations"
+EXPIRED_SECTION = "Expired designations"
+EMPTY_COLUMN_KEYS = ["column_0", "column_2", "column_4"]
 
 
-def crawl_item(input_dict: dict, context: Context):
+def _cell_dates(cell: Element) -> list[str]:
+    return re.findall(DATE_PATTERN, h.element_text(cell))
+
+
+def crawl_item(context: Context, row: dict[str, Element], expired: bool) -> None:
+    name_cell = row.pop("terrorist_entity")
     # aliases will be either a list of size one or None if there is no aliases
+
     raw_name = input_dict.pop("terrorist-entity")[0]
-    name, *aliases = h.multi_split(raw_name, ALIAS_SPLITS)
+    name, *aliases = h.multi_split(h.element_text(name_cell), ALIAS_SPLITS)
+
     alias_lists = [h.multi_split(alias, [", and", ","]) for alias in aliases]
-    aliases = reduce(concat, alias_lists, [])
+    aliases = list(chain.from_iterable(alias_lists))
 
     organization = context.make("Organization")
     original_names = input_dict.pop("terrorist-entity")[0]
@@ -80,43 +80,64 @@ def crawl_item(input_dict: dict, context: Context):
 
     sanction = h.make_sanction(context, organization, program_key=PROGRAM_KEY)
 
-    raw_initial_sanction_date, initial_statement_url = input_dict.pop(
-        "date-of-designation-as-a-terrorist-entity-in-new-zealand-including-and-statement-of-case-for-designation"
-    )
+    if expired:
+        designation_cell = row.pop(EXPIRED_DATES_KEY)
+        designation_dates = _cell_dates(designation_cell)
+        assert designation_dates, h.element_text(designation_cell)
+        h.apply_date(sanction, "startDate", designation_dates[0])
+        for d in designation_dates[1:]:
+            h.apply_date(sanction, "date", d)
+        for url in h.xpath_strings(designation_cell, ".//a/@href"):
+            sanction.add("sourceUrl", url)
 
-    initial_sanction_date = re.findall(DATE_PATTERN, raw_initial_sanction_date)[0]
+        end_cell = row.pop(EXPIRED_END_KEY)
+        end_dates = _cell_dates(end_cell)
+        assert len(end_dates) == 1, h.element_text(end_cell)
+        h.apply_date(sanction, "endDate", end_dates[0])
+        for url in h.xpath_strings(end_cell, ".//a/@href"):
+            sanction.add("sourceUrl", url)
+    else:
+        initial_cell = row.pop(ACTIVE_INITIAL_KEY)
+        initial_dates = _cell_dates(initial_cell)
+        # There is only one date in this case
+        h.apply_date(sanction, "startDate", initial_dates[0])
+        for url in h.xpath_strings(initial_cell, ".//a/@href"):
+            sanction.add("sourceUrl", url)
 
-    # There is only one date in this case
-    h.apply_date(sanction, "startDate", initial_sanction_date)
-    sanction.add("sourceUrl", initial_statement_url)
+        renew_cell = row.pop(ACTIVE_RENEW_KEY)
+        for d in _cell_dates(renew_cell):
+            h.apply_date(sanction, "date", d)
+        for url in h.xpath_strings(renew_cell, ".//a/@href"):
+            sanction.add("sourceUrl", url)
 
-    raw_renew_sanction_dates, renew_statement_urls = input_dict.pop(
-        "date-terrorist-designation-was-renewed-in-new-zealand-including-statement-of-case-for-renewal-of-designation"
-    )
-
-    renew_sanction_dates = re.findall(DATE_PATTERN, raw_renew_sanction_dates)
-
-    for renew_sanction_date in renew_sanction_dates:
-        h.apply_date(sanction, "date", renew_sanction_date)
-
-    for renew_statement_url in renew_statement_urls:
-        sanction.add("sourceUrl", renew_statement_url)
+    if h.is_active(sanction):
+        organization.add("topics", "sanction")
 
     context.emit(organization)
     context.emit(sanction)
-    context.audit_data(input_dict)
+    context.audit_data(row, ignore=EMPTY_COLUMN_KEYS)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     response = context.fetch_html(context.data_url, absolute_links=True)
 
-    table = response.find(".//table")
+    active_seen = False
+    for table in h.xpath_elements(response, ".//table"):
+        section_headings = h.xpath_elements(table, "preceding-sibling::h2[1]")
+        section = h.element_text(section_headings[0]) if section_headings else None
+        if section == REVOKED_SECTION:
+            continue
+        if section == EXPIRED_SECTION:
+            for item in h.parse_html_table(table, index_empty_headers=True):
+                crawl_item(context, item, expired=True)
+            continue
+        if section is not None:
+            raise ValueError(f"Unexpected section heading before table: {section!r}")
 
-    caption = table.findtext(".//caption/strong")
-    assert (
-        caption
-        == "Alphabetical list of Designated Terrorist Entities in New Zealand pursuant to UNSC Resolution 1373"
-    ), caption
+        caption = table.findtext(".//caption/strong")
+        assert caption == ACTIVE_CAPTION, caption
+        for item in h.parse_html_table(table, index_empty_headers=True):
+            crawl_item(context, item, expired=False)
+        active_seen = True
 
-    for item in parse_table(response.find(".//table")):
-        crawl_item(item, context)
+    assert active_seen, "Did not find active designations table"

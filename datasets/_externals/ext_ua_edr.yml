@@ -13,7 +13,7 @@ exports:
 deploy:
   schedule: "@monthly"
   cpu: "2000m"
-  memory: "6000Mi"
+  memory: "9000Mi"
   disk: "100Gi"
 load_statements: true
 ci_test: false
@@ -54,6 +54,11 @@ publisher:
   country: ua
   official: true
 
+assertions:
+  min:
+    schema_entities:
+      Company: 0
+
 inputs:
   - ann_graph_topics
   - debarment
@@ -71,6 +76,7 @@ inputs:
   - sanctions
 
 config:
+  topic_gated: true
   index_options:
     memory: 3000
   threshold: 0.7

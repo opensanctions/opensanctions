@@ -4,6 +4,7 @@ from normality import slugify
 from zavod import Context
 from zavod import helpers as h
 from zavod.extract.zyte_api import fetch_html
+from zavod.util import ElementOrTree
 
 
 def crawl_page(
@@ -12,7 +13,7 @@ def crawl_page(
     unblock_validator: str,
     program_key: str,
     required: bool = True,
-):
+) -> ElementOrTree:
     doc = fetch_html(context, link, unblock_validator, cache_days=3)
     for p in h.xpath_elements(doc, ".//p"):
         p.tail = p.tail + "\n" if p.tail else "\n"
@@ -84,7 +85,7 @@ def crawl_page(
     return doc
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     assert context.dataset.model.url
     # Detect if new sanctions programs are added
     index_doc = fetch_html(

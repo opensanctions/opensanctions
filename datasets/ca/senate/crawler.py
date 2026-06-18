@@ -18,8 +18,7 @@ def crawl(context: Context) -> None:
         link = row.find(".//a")
         if link is None:
             continue
-        cells = row.findall(".//td")
-        cells = [h.element_text(c) for c in cells]
+        cells: list[str | None] = [h.element_text(c) for c in row.findall(".//td")]
         href = link.get("href")
         assert href is not None, "Missing href"
         url = urljoin(context.data_url, href)
@@ -39,8 +38,6 @@ def crawl(context: Context) -> None:
             position=position,
             start_date=cells[3],
             end_date=cells[4],
-            no_end_implies_current=True,
-            propagate_country=False,
         )
         if occupancy:
             context.emit(occupancy)

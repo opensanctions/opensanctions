@@ -5,6 +5,10 @@ name: Issues agent
   workflow_dispatch: {}
   schedule:
     - cron: "0 3 * * 1-5"
+    # 12:00 UTC = 14:00 CEST (summer) / 13:00 CET (winter). GHA cron is always
+    # UTC and ignores DST, so this lands at 2pm Central European time only
+    # during summer time; in winter it runs an hour earlier.
+    - cron: "0 12 * * 1-5"
 
 permissions:
   contents: write
@@ -20,8 +24,17 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install task generator dependencies
+        run: pip install requests pyyaml jinja2
+
       - name: Generate sub-tasks
         id: gen
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           MATRIX=$(python contrib/issues_agent/tasks.py)
           echo "matrix=$MATRIX" >> "$GITHUB_OUTPUT"
@@ -30,21 +43,73 @@ jobs:
     needs: generate-matrix
     runs-on: ubuntu-latest
     name: ${{ matrix.task.name }}
+    # Match build.yml so `zavod crawl` behaves the same as in normal CI: the
+    # agent runs the crawler to verify its fixes (for datasets where ci_test
+    # allows it), so it needs a working zavod install, not just lookup edits.
+    env:
+      OPENSSL_CONF: "contrib/openssl.cnf"
+      FTM_USER_AGENT: "Mozilla/5.0 (compatible; github-actions-zavod/0.8; tech@opensanctions.org)"
+    # Cap the worst case: a hung crawl otherwise burns up to the 6h default.
+    timeout-minutes: 30
     strategy:
       matrix:
         task: ${{ fromJson(needs.generate-matrix.outputs.matrix) }}
       fail-fast: false
+      # Bound concurrent agents so we don't spike Anthropic API rate limits or cost.
+      max-parallel: 4
     steps:
       - uses: actions/checkout@v6
 
-      # - uses: actions/setup-node@v6
-      #   with:
-      #     cache: 'npm'
+      # The Python/zavod install is only needed for crawler datasets (mypy +
+      # crawling). Enrichment and lookup-only datasets edit YAML only, so they
+      # skip it and start the agent immediately.
+      - name: Set up Python
+        if: ${{ matrix.task.needs_zavod }}
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          # Key the pip download/build cache to zavod's dependency spec so the
+          # compiled wheels (lxml, icu, leveldb, pydantic) are reused across runs
+          # instead of rebuilt every time.
+          cache-dependency-path: zavod/pyproject.toml
+
+      - name: Install system dependencies
+        if: ${{ matrix.task.needs_zavod }}
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          sudo apt-get update
+          # libicu-dev/poppler-utils for zavod; jq + xmllint for the agent to
+          # inspect JSON issue logs and XML source documents while debugging.
+          sudo apt-get install -y -qq libicu-dev poppler-utils jq libxml2-utils
+
+      - name: Install qsv
+        if: ${{ matrix.task.needs_zavod }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # qsv is the standard tool for spot-checking emitted data
+          # (e.g. `qsv frequency -s prop statements.pack`), see crawler-guide.md.
+          # Resolve the latest release asset rather than pinning a version.
+          URL=$(gh release view --repo dathere/qsv --json assets \
+            -q '.assets[] | select(.name | test("^qsv-.*x86_64-unknown-linux-gnu.zip$")) | .url' \
+            | head -1)
+          curl -fsSL -o /tmp/qsv.zip "$URL"
+          sudo unzip -o -j /tmp/qsv.zip qsv -d /usr/local/bin
+          qsv --version
+
+      - name: Install zavod
+        if: ${{ matrix.task.needs_zavod }}
+        working-directory: zavod
+        run: |
+          python -m pip install --upgrade pip wheel
+          pip install --no-cache-dir -e ".[dev]"
 
       - uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           prompt: ${{ matrix.task.prompt }}
-          claude_args: "--max-turns 50 --allowed-tools \"Bash(git:*),Bash(curl:*),View,Edit,Write,GlobTool,GrepTool,WebFetch,mcp__github__create_pull_request\""
+          claude_args: "--model ${{ matrix.task.model }} --max-turns ${{ matrix.task.max_turns }} --allowed-tools \"Bash,View,Edit,Write,GlobTool,GrepTool,WebFetch,Skill,mcp__github__create_pull_request\""
           show_full_output: true
 

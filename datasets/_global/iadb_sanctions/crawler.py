@@ -1,5 +1,6 @@
 from datetime import datetime
-from typing import Optional, List
+from pathlib import Path
+from typing import Any, Iterator, Optional, List
 
 from normality import slugify, stringify
 from openpyxl import load_workbook
@@ -28,7 +29,7 @@ def parse_countries(countries: Optional[str]) -> List[str]:
     return parsed
 
 
-def header_names(cells):
+def header_names(cells: list[Any]) -> list[str]:
     headers = []
     for idx, cell in enumerate(cells):
         if cell is None:
@@ -37,7 +38,7 @@ def header_names(cells):
     return headers
 
 
-def excel_records(path):
+def excel_records(path: Path) -> Iterator[dict[str, str]]:
     wb = load_workbook(filename=path, read_only=True)
     for sheet in wb.worksheets:
         headers = None

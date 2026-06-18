@@ -1,12 +1,13 @@
 from urllib.parse import urlencode
 from datetime import datetime, timedelta
+from typing import Iterator
 
 from zavod import Context
 from zavod.shed.firds import latest_full_set, parse_xml_file
 
 
 # https://api.data.fca.org.uk/fca_data_firds_files?q=((file_type:FULINS)%20AND%20(publication_date:[2017-10-15%20TO%202017-12-31]))&from=0&size=100&pretty=true
-def get_recent_full_dump_urls(context: Context):
+def get_recent_full_dump_urls(context: Context) -> Iterator[tuple[str, str]]:
     from_date = (datetime.now() - timedelta(days=30)).isoformat()[:10]
     to_date = datetime.now().isoformat()[:10]
     params = {

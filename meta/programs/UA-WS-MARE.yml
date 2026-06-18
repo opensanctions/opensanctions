@@ -3,11 +3,20 @@ title: Vessels involved in the transportation of weapons, stolen Ukrainian produ
   and in the circumvention of sanctions
 key: UA-WS-MARE
 url: https://war-sanctions.gur.gov.ua/en/transport/ships
-summary: Ukraine's intelligence agency's assessment of the Russian shadow fleet.
+summary: |
+  Ukraine's GUR lists vessels, ship captains and connected companies in the context of their note
+
+  > Maritime logistics is critically important for building up the aggressor`s military
+  > capabilities, moving troops, obtaining weapons and sanctioned goods, and trading
+  > stolen goods. Aggressors transport weapons through international straits on civilian
+  > merchant vessels. Exporting fossil fuels to circumvent sanctions is the main source
+  > of income for russia and Iran. [...]
+
+  https://war-sanctions.gur.gov.ua/en/transport/ships
 issuer: ua_gur
 dataset: ua_war_sanctions
 target_territories:
-- ru
-- ua-cri
-- ua-dpr
-- ua-lpr
+  - ru
+  - ua-cri
+  - ua-dpr
+  - ua-lpr

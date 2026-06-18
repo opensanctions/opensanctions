@@ -4,6 +4,7 @@ prefix: nz-ru
 coverage:
   frequency: daily
   start: 2022-10-31
+  schedule: "0 */8 * * *"
 load_statements: true
 summary: >-
   The New Zealand government's list of people and companies sanctioned in relation

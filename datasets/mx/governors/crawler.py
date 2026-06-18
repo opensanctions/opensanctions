@@ -83,6 +83,8 @@ def crawl_item(context: Context, input_html: Element) -> None:
     person.id = context.make_id(name)
 
     person.add("name", name)
+    # citizenship by birth required (Art 116): https://mexico.justia.com/federales/constitucion-politica-de-los-estados-unidos-mexicanos/titulo-quinto/#articulo-116
+    person.add("citizenship", "mx")
 
     # birth_place, birth_date = extract_birth_place_and_date(link_governor_page, context)
     #
@@ -92,7 +94,7 @@ def crawl_item(context: Context, input_html: Element) -> None:
 
     name_of_position = "Governor of " + state.title()
     position = h.make_position(context, name_of_position, country="mx")
-    categorisation = categorise(context, position, is_pep=True)
+    categorisation = categorise(context, position, default_is_pep=True)
 
     occupancy = h.make_occupancy(
         context,

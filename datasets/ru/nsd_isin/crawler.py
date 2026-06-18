@@ -1,5 +1,4 @@
 import time
-from typing import Dict, List
 from urllib.parse import urljoin
 
 from banal import first
@@ -19,7 +18,7 @@ def parse_date(text: str) -> str:
     return date_info
 
 
-def crawl_item(context: Context, url: str):
+def crawl_item(context: Context, url: str) -> None:
     try:
         html = context.fetch_html(url, cache_days=60)
     except RequestException as re:
@@ -30,7 +29,7 @@ def crawl_item(context: Context, url: str):
     if len(table) != 1:
         context.log.info("ISIN announcement table not found", url=url)
         return
-    values: Dict[str, Dict[str, List[str]]] = {"security": {}, "issuer": {}}
+    values: dict[str, dict[str, list[str]]] = {"security": {}, "issuer": {}}
     for row in table[0].findall(".//tr"):
         if row is None:
             continue
@@ -88,7 +87,7 @@ def crawl_item(context: Context, url: str):
     context.emit(security)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     to_dt = settings.RUN_TIME.strftime("%d.%m.%Y")
     for page in range(1, 901):
         context.log.info("Crawl page", page=page)

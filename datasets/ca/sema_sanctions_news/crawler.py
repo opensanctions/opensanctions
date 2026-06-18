@@ -1,50 +1,27 @@
-import re
-
 from itertools import chain
 from lxml.etree import _Element
 from typing import Dict
 
-from zavod import Context, helpers as h
+from nomenklatura.resolver import Linker
+
+from zavod import Context, Entity, helpers as h
+from zavod.integration import get_dataset_linker
 from zavod.stateful.review import assert_all_accepted
 
 PROGRAM_KEY = "CA-SEMA"
-
-
-def split_names(name: str) -> tuple[bool, h.Names]:
-    """
-    Returns:
-    - True if any name or alias contains a conjunction (or, and, et), otherwise False
-    - categorised and cleaned Names instance
-    """
-    aliases = []
-    is_irregular = False
-
-    if "(also known as" in name.lower():
-        name, aka = name.split("(also known as", 1)
-        aliases.extend([a.strip().rstrip(")") for a in aka.split(",")])
-
-    if "(également connue sous le nom" in name.lower():
-        name, aka = name.split("(également connue sous le nom de ", 1)
-        aliases.extend([a.strip().rstrip(")") for a in aka.split(",")])
-
-    # some names contain digits at the beginning of the string
-    name = re.sub(r"^\d+\s*", "", name)
-
-    suggested = h.Names(name=name.strip(), alias=aliases)
-
-    for _prop_name, values in suggested.nonempty_item_lists():
-        for value in values:
-            if re.search(r"\b(or|and|et)\b", value, flags=re.I):
-                is_irregular = True
-                return is_irregular, suggested
-
-    return is_irregular, suggested
+MAX_AGE_DAYS = 15
 
 
 def crawl_entity_notice(context: Context, row: Dict[str, _Element]) -> None:
     str_row = h.cells_to_str(row)
-    country = str_row.pop("country")
     listing_date = str_row.pop("date")
+    assert listing_date is not None
+
+    # skip sanctions whose listing date is older than 100 days
+    if not h.within_max_age(context, listing_date, MAX_AGE_DAYS):
+        return
+
+    country = str_row.pop("country")
     entity_type = str_row.pop("types")
     res = context.lookup("schema_type", entity_type, warn_unmatched=True)
     schema = res.value if res else None
@@ -82,35 +59,23 @@ def crawl_entity_notice(context: Context, row: Dict[str, _Element]) -> None:
         listing_date,
     )
 
-    for name in chain(persons, oranizations):
+    for raw_name in chain(persons, oranizations):
         entity = context.make(schema)
-        entity.id = context.make_id(name, country)
+        entity.id = context.make_id(raw_name, country)
+        assert entity.id is not None
 
-        born_patterns = ["(born ", "(bornon "]
+        born_patterns = [" (born ", " (bornon "]
         for born in born_patterns:
-            if born in name.lower():
-                name, dob = name.split(born, 1)
+            if born in raw_name.lower():
+                name, dob = raw_name.split(born, 1)
                 dob = dob.strip(")")
                 h.apply_date(entity, "birthDate", dob)
+                break
+            else:
+                name = raw_name
 
-        # TODO: Add once LangText is merged
-        # https://github.com/opensanctions/opensanctions/pull/3770
-        if "(russian:" in name.lower():
-            name, name_ru = name.split("(Russian:", 1)
-            name_ru = name_ru.strip().rstrip(")")
-            h.apply_reviewed_name_string(context, entity, string=name_ru, lang="rus")
+        h.apply_reviewed_name_string(context, entity, string=name)
 
-        original = h.Names(name=name.strip())
-        crawler_is_irregular, suggested = split_names(name)
-        helper_is_irregular, suggested = h.check_names_regularity(entity, suggested)
-
-        h.apply_reviewed_names(
-            context,
-            entity,
-            original=original,
-            suggested=suggested,
-            is_irregular=crawler_is_irregular or helper_is_irregular,
-        )
         entity.add("topics", "sanction")
 
         sanction = h.make_sanction(
@@ -127,12 +92,28 @@ def crawl_entity_notice(context: Context, row: Dict[str, _Element]) -> None:
         context.emit(sanction)
 
 
-def crawl_vessel(context: Context, row: Dict[str, _Element]) -> None:
+def crawl_vessel(
+    context: Context, row: Dict[str, _Element], linker: Linker[Entity]
+) -> None:
     str_row = h.cells_to_str(row)
     imo_number = str_row.pop("ship_imo_number")
     name = str_row.pop("ship_name")
     vessel = context.make("Vessel")
     vessel.id = context.make_id(name, imo_number)
+    assert vessel.id is not None
+
+    # time-based check does not apply to vessels because
+    # the news table doesn't provide their individual ListingDates
+    # drop entities already present in [ca_dfatd_sema_sanctions]
+    canonical_id = linker.get_canonical(vessel.id)
+    already_present = False
+    for other_id in linker.get_referents(canonical_id):
+        if other_id.startswith("ca-sema") and not other_id.startswith("ca-sema-news"):
+            already_present = True
+            break
+    if already_present:
+        return
+
     vessel.add("name", name)
     vessel.add("imoNumber", imo_number)
     vessel.add("type", str_row.pop("ship_type"))
@@ -152,11 +133,12 @@ def crawl_vessel(context: Context, row: Dict[str, _Element]) -> None:
 def crawl(context: Context) -> None:
     doc = context.fetch_html(context.data_url)
     entities_table = h.xpath_element(doc, '//table[contains(@id, "dataset-filter1")]')
+    linker = get_dataset_linker(context.dataset)
     for row in h.parse_html_table(entities_table):
         crawl_entity_notice(context, row)
 
     ship_table = h.xpath_element(doc, '//table[contains(@class, "table wb-tables")]')
     for row in h.parse_html_table(ship_table):
-        crawl_vessel(context, row)
+        crawl_vessel(context, row, linker)
 
     assert_all_accepted(context, raise_on_unaccepted=False)

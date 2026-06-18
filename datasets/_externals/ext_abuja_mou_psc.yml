@@ -44,6 +44,7 @@ inputs:
   - maritime
 
 config:
+  topic_gated: true
   index_options:
     memory: 2500
   topics:

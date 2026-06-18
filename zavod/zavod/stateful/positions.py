@@ -46,8 +46,17 @@ class PositionCategorisation(object):
 def categorise(
     context: Context,
     position: Entity,
-    is_pep: Optional[bool] = True,
+    *,
+    default_is_pep: Optional[bool] = True,
 ) -> PositionCategorisation:
+    """Return the reviewed categorisation (topics, is_pep) for a position.
+
+    If the position has already been reviewed, the reviewed values are
+    returned and override `default_is_pep` and the topics on the entity.
+    Otherwise, the position is enrolled into the review UI with the
+    crawler-supplied topics and `default_is_pep`, and those defaults are
+    returned; later calls will pick up any edits made through the UI.
+    """
     countries = sorted(position.get("country"))
     stmt = position_table.select()
     stmt = stmt.filter(position_table.c.entity_id == position.id)
@@ -82,12 +91,12 @@ def categorise(
         "topics": position.get("topics"),
         "dataset": position.dataset.name,
         "created_at": settings.RUN_TIME,
-        "is_pep": is_pep,
+        "is_pep": default_is_pep,
     }
     istmt = position_table.insert()
     istmt = istmt.values(body)
     context.conn.execute(istmt)
-    return PositionCategorisation(topics=position.get("topics"), is_pep=is_pep)
+    return PositionCategorisation(topics=position.get("topics"), is_pep=default_is_pep)
 
 
 def categorise_many(

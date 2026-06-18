@@ -1,0 +1,70 @@
+title: South Korea Members of National Assembly
+entry_point: crawler.py
+prefix: kr-na
+load_statements: true
+ci_test: false
+coverage:
+  frequency: monthly
+  start: "2026-06-15"
+summary: >-
+  Current members of the unicameral National Assembly of the Republic of Korea.
+description: |
+  Individuals currently serving in the National Assembly (국회), the unicameral
+  legislature of the Republic of Korea. The Assembly has 300 seats (254 single-member
+  districts and 46 proportional-representation seats) whose members are elected to
+  four-year terms.
+
+  The data is sourced from the National Assembly Secretariat's public member-search
+  service, which reflects the sitting Assembly and is updated for by-elections.
+url: https://open.assembly.go.kr/portal/assm/search/memberSchPage.do
+publisher:
+  name: 대한민국 국회
+  name_en: National Assembly of the Republic of Korea
+  description: >
+    The National Assembly is the unicameral national legislature of the Republic of
+    Korea. Its Secretariat publishes member and legislative data through the 열린국회정보
+    (Open Assembly Information) portal.
+  country: kr
+  url: https://www.assembly.go.kr/
+  official: true
+data:
+  url: https://open.assembly.go.kr/portal/assm/search/searchAssmMemberSch.do
+  format: JSON
+  lang: kor
+http:
+  # The member search is fetched via POST, which urllib3 excludes from retries by
+  # default. The endpoint is slow and the source zone has a flaky authoritative DNS
+  # setup (several dead/bogus nameservers), causing intermittent resolution failures.
+  # The crawl makes a single request, so retries are cheap: allow POST to be retried
+  # and raise the count so one attempt lands on a live nameserver and primes the cache.
+  retry_methods: [GET, POST]
+  total_retries: 5
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 250
+      Position: 1
+  max:
+    schema_entities:
+      Person: 350
+      Position: 1
+
+lookups:
+  type.gender:
+    normalize: true
+    options:
+      - match: 남
+        value: male
+      - match: 여
+        value: female
+  type.email:
+    options:
+      # A few members list two addresses in one field with Korean location labels
+      # (회관 = office, 지역 = local district); split them into clean addresses.
+      - match: "ironkwon24@gmail.com (회관), ironregion24@gmail.com (지역)"
+        values:
+          - ironkwon24@gmail.com
+          - ironregion24@gmail.com

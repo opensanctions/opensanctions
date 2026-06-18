@@ -281,6 +281,39 @@ lookups:
       - match: "adres: Navoiy viloyati, Navoiy shahar, \"Kimyogar\" MFY, Navoiy ko'chasi 5-uy, Uzbekistan "
         props:
           address: "Navoiy viloyati, Navoiy shahar, \"Kimyogar\" MFY, Navoiy ko'chasi 5-uy, Uzbekistan"
+      - match: "adres: Svitrigailos g. 11K-109, LT-03228 Vilnius, Litwa kod przedsiębiorstwa: 305963633"
+        props:
+          address: "Svitrigailos g. 11K-109, LT-03228 Vilnius, Litwa"
+          registrationNumber: "305963633"
+      - match: "adres: Galleria Business Center, Trg Dragę Iblera 10, HR-10 000 Zagrzeb kod przedsiębiorstwa: 081536638"
+        props:
+          address: "Galleria Business Center, Trg Dragę Iblera 10, HR-10 000 Zagrzeb"
+          registrationNumber: "081536638"
+      - match: "adres: Kopli tn 27, 10412 Tallinn, Estonia kod przedsiębiorstwa: 14461101"
+        props:
+          address: "Kopli tn 27, 10412 Tallinn, Estonia"
+          registrationNumber: "14461101"
+      - match: "adres: Ausros aleja 48, Siauliai, LT-76236, Litwa identyfikator rejestracyjny: 306099031, DUNS: 67-772-9490"
+        props:
+          address: "Ausros aleja 48, Siauliai, LT-76236, Litwa"
+          registrationNumber: "306099031"
+          dunsCode: "67-772-9490"
+      - match: "adres: 197046 Sankt Petersburg, Ul. Bolshaya Posadskaya 12 budynek A Pokój 79-N kod przedsiębiorstwa 1107847012547"
+        props:
+          address: "197046 Sankt Petersburg, Ul. Bolshaya Posadskaya 12 budynek A Pokój 79-N"
+          registrationNumber: "1107847012547"
+      - match: "adres: Moskwa, ul. Ozernaya, budynek 42, fl. 1, pokój I, pokój 13-2 numer rejestrowy 1137746383851"
+        props:
+          address: "Moskwa, ul. Ozernaya, budynek 42, fl. 1, pokój I, pokój 13-2"
+          registrationNumber: "1137746383851"
+      - match: "adres: ul. Sienkiewicza 49, 42-600 Tarnowskie Góry "
+        props:
+          address: "ul. Sienkiewicza 49, 42-600 Tarnowskie Góry"
+      - match: "adres: 11 Boulevard Prince Henri, L-1724 Luksembourg (poprzedni adres: Avenue de la Gare 8–10, 1610 Luksemburg)"
+        props:
+          address:
+            - "11 Boulevard Prince Henri, L-1724 Luksembourg"
+            - "Avenue de la Gare 8–10, 1610 Luksemburg"
 
   names:
     options:

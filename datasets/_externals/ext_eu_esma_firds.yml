@@ -11,8 +11,8 @@ exports:
   - entities.delta.json
 deploy:
   cpu: "3000m"
-  memory: "5000Mi"
-  memory_limit: "6500Mi"
+  memory: "12Gi"
+  memory_limit: "15Gi"
   disk: "150Gi"
 load_statements: true
 summary: >
@@ -62,6 +62,7 @@ inputs:
   - special_interest
 
 config:
+  topic_gated: true
   index_options:
     match_batch: 300
     memory: 3000
@@ -83,12 +84,15 @@ config:
     - Organization
     - Security
 
+# estimates June 2026
+# Securities: 165
+# Organizations: 421
 assertions:
   min:
     schema_entities:
-      Security: 177000
+      Security: 10
       Organization: 220
   max:
     schema_entities:
-      Security: 418000
-      Organization: 520
+      Security: 500
+      Organization: 600

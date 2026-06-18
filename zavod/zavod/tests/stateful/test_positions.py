@@ -167,7 +167,7 @@ def test_categorise_flow(testdataset1: Dataset):
     context = Context(testdataset1)
     position = make_position(context, "A position", country="ls")
     assert len(context.conn.execute(position_table.select()).fetchall()) == 0
-    categorisation = categorise(context, position, is_pep=None)
+    categorisation = categorise(context, position, default_is_pep=None)
     assert categorisation.is_pep is None
     positions = context.conn.execute(position_table.select()).fetchall()
     assert len(positions) == 1
@@ -178,7 +178,7 @@ def test_categorise_flow(testdataset1: Dataset):
     assert pos.topics == []
     assert pos.is_pep is None
     categorise.cache_clear()
-    categorisation = categorise(context, position, is_pep=True)
+    categorisation = categorise(context, position, default_is_pep=True)
     assert categorisation.is_pep is None
 
     position2 = make_position(context, "Other position", country="de")
@@ -193,7 +193,7 @@ def test_categorise_flow(testdataset1: Dataset):
     }
     ins = position_table.insert().values(**values)
     context.conn.execute(ins)
-    categorisation = categorise(context, position2, is_pep=True)
+    categorisation = categorise(context, position2, default_is_pep=True)
     assert categorisation.is_pep is True
     assert categorisation.topics == ["gov.igo"]
     context.close()

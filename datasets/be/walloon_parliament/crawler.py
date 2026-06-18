@@ -52,11 +52,9 @@ def crawl_item(context: Context, item: Dict[str, Any]) -> None:
         topics=["gov.legislative", "gov.state"],
         lang="eng",
     )
-    # TODO: add "Wallonia" as a subnational area once it's in 'countrynames'
-    # https://github.com/opensanctions/countrynames/issues/55
-    position.add("subnationalArea", item.pop("dep_province"))
+    position.add("subnationalArea", "Wallonia")
 
-    categorisation = categorise(context, position, is_pep=True)
+    categorisation = categorise(context, position, default_is_pep=True)
     if not categorisation.is_pep:
         return
 
@@ -68,6 +66,8 @@ def crawl_item(context: Context, item: Dict[str, Any]) -> None:
         # plenary session mandate type
         # e.g. "President", "Membre effectif", "Secrétaire"
         occupancy.add("description", item.pop("dep_mandat_seance_pleniere"))
+        constituency = f"{item.pop('dep_circons')}, ({item.pop('dep_province')})"
+        occupancy.add("constituency", constituency)
         context.emit(entity)
         context.emit(occupancy)
         context.emit(position)

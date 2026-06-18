@@ -3,7 +3,6 @@ from typing import List, Literal, Optional
 
 from pydantic import BaseModel, Field
 from zavod.entity import Entity
-from zavod.shed import enforcements
 from zavod.extract.llm import DEFAULT_MODEL, run_typed_text_prompt
 from zavod.stateful.review import (
     HtmlSourceValue,
@@ -185,7 +184,7 @@ def crawl_enforcement_action(context: Context, url: str) -> None:
         context.emit(documentation)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     page = 0
     within_age_limit = True
     while within_age_limit:
@@ -206,7 +205,7 @@ def crawl(context: Context):
             )
             assert len(enforcement_date) == 1, "Expected exactly one enforcement date"
             clean_date = enforcement_date[0].strip().removesuffix(" -")
-            if not enforcements.within_max_age(context, clean_date, MAX_AGE_DAYS):
+            if not h.within_max_age(context, clean_date, MAX_AGE_DAYS):
                 within_age_limit = False
                 break
             link = result.xpath(

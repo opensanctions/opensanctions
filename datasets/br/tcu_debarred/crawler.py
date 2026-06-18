@@ -1,8 +1,10 @@
+from typing import Any
+
 from zavod import Context, helpers as h
 from rigour.ids.stdnum_ import CPF, CNPJ
 
 
-def crawl_item(input_dict: dict, context: Context):
+def crawl_item(context: Context, input_dict: dict[str, Any]) -> None:
     """
     Creates an entity from the raw data.
 
@@ -77,7 +79,7 @@ def crawl_item(input_dict: dict, context: Context):
     context.emit(sanction)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     url = context.data_url
     while True:
         response = context.fetch_json(url)
@@ -86,7 +88,7 @@ def crawl(context: Context):
             return
 
         for item in response["items"]:
-            crawl_item(item, context)
+            crawl_item(context, item)
 
         has_more = response.get("hasMore", False)
         if not has_more:

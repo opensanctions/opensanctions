@@ -45,7 +45,7 @@ def get_link_href(base_url: str, link: Optional[str]) -> Optional[str]:
     return urljoin(base_url, anchor.get("href"))
 
 
-def crawl_row(context: Context, row: Dict[str, Any]):
+def crawl_row(context: Context, row: Dict[str, Any]) -> None:
     entity = context.make("LegalEntity")
     name = row.pop("company")["value"]
     entity.id = context.make_slug(name)
@@ -69,7 +69,7 @@ def crawl_row(context: Context, row: Dict[str, Any]):
     context.audit_data(row, ignore=["sys_id", "consent_agreement", "order"])
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     # ServiceNow table widget requires X-UserToken which is set as global variable
     # using a script tag in the page, and JSESSIONID cookie which is set in response
     # to page request.

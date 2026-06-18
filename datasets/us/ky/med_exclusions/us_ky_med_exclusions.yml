@@ -98,5 +98,11 @@ lookups:
         value: 1568902427
       - match: 114891820
         value: 1194891820
-      - match: 7100353240
+      - match:
+          - 7100353240
+          - 1225810707
         prop: registrationNumber
+  type.date:
+    options:
+      - match: "N/A"
+        value: null

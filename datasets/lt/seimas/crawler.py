@@ -1,8 +1,17 @@
+from datetime import datetime
+import re
 from normality import collapse_spaces
 from zavod import Context
 from zavod import helpers as h
-from zavod.stateful.positions import categorise
+from zavod.extract import zyte_api
+from zavod.stateful.positions import categorise, get_after_office
 from zavod.util import Element
+
+POSITION_TOPICS = ["gov.legislative", "gov.national"]
+CUTOFF_DATE = (datetime.now() - get_after_office(POSITION_TOPICS)).year
+
+
+URL_PREV_SEIMAS = "https://www.lrs.lt/sip/portal.show?p_r=35357&p_k=2"
 
 
 def get_element_text(
@@ -28,7 +37,13 @@ def get_occupany_dates(tenure: str) -> tuple[str, str]:
 
 
 def crawl_member_bio(context: Context, url: str) -> None:
-    doc = context.fetch_html(url, cache_days=1)
+    doc = zyte_api.fetch_html(
+        context,
+        url,
+        unblock_validator='//div[@class="sn_narys_vardas_title"]',
+        html_source="httpResponseBody",
+        cache_days=1,
+    )
 
     # some pages do not list party names, hence None check
     party_list = h.xpath_strings(
@@ -98,11 +113,192 @@ def crawl_member_bio(context: Context, url: str) -> None:
         context.emit(occupancy)
 
 
-def crawl(context: Context) -> None:
-    doc = context.fetch_html(context.data_url, cache_days=1)
+def xpath_match(doc: Element, xpaths: list[str]) -> str | None:
+    for xpath in xpaths:
+        try:
+            return h.xpath_string(doc, xpath)
+        except ValueError:
+            continue
+    return None
 
-    for anchor_url in h.xpath_strings(
+
+def crawl_old_member_bio(context: Context, url: str) -> None:
+    doc = zyte_api.fetch_html(
+        context,
+        url,
+        unblock_validator='//table[contains(@summary, "Kadencijos")]',
+        html_source="httpResponseBody",
+        cache_days=1,
+    )
+
+    person_name = h.xpath_string(
+        doc, '//table[contains(@summary, "Kadencijos")]//font[@size="4"]/text()'
+    )  # TODO: more robust name fetch method
+    assert person_name is not None
+
+    date_of_birth = None
+    place_of_birth = None
+
+    try:
+        date_of_birth = h.xpath_string(
+            doc,
+            '//div[@class="par"][contains(text(),"Biography")]/following-sibling::div[@align="justify"][1]//table//tr[1]/td[last()]/p[1]/text()',
+        )
+
+        place_of_birth_xpaths = [
+            '//div[@class="par"][contains(text(),"Biography")]/following-sibling::div[@align="justify"][1]//table//tr[1]/td[last()]/p[1]//strong',
+            '//div[@class="par"][contains(text(),"Biography")]/following-sibling::div[@align="justify"][1]//table//tr[1]/td[last()]/p[1]',
+        ]
+        place_of_birth = xpath_match(doc, place_of_birth_xpaths)
+
+    except ValueError:
+        context.log.warning(
+            "Could not extract birth details for old member", url=url, name=person_name
+        )
+        return None
+
+    person = context.make("Person")
+    person.id = context.make_slug(person_name)
+    person.add("name", person_name)
+    person.add("birthPlace", place_of_birth)
+    h.apply_date(person, "birthDate", date_of_birth)
+
+    party_affiliation = h.xpath_strings(
         doc,
-        '//div[contains(@class,"list-member")]//a[contains(@class, "smn-name")]/@href',
-    ):
+        '//b[contains(text(), "Political Groups of the Seimas")]/following-sibling::ul[1]//li/a/text()',
+    )
+    person.add("political", party_affiliation)
+
+    person.add("sourceUrl", url)
+    person.add("citizenship", "lt")
+
+    seimas_position_dates = h.xpath_strings(
+        doc, '//table[contains(@summary, "Kadencijos")]//b/text()'
+    )
+    position = h.make_position(
+        context,
+        name="Member of the Seimas",
+        wikidata_id="Q18507240",
+        country="lt",
+        topics=["gov.legislative", "gov.national"],
+        lang="eng",
+    )
+
+    categorisation = categorise(context, position, is_pep=True)
+    if not categorisation.is_pep:
+        return
+
+    occupancy = h.make_occupancy(
+        context,
+        person=person,
+        position=position,
+        start_date=seimas_position_dates[1],
+        end_date=seimas_position_dates[2],
+        categorisation=categorisation,
+    )
+
+    if occupancy is not None:
+        context.emit(occupancy)
+        context.emit(position)
+        context.emit(person)
+
+
+def crawl(context: Context) -> None:
+    ### === crawl current legislature === ###
+    members_list_validator = (
+        '//div[contains(@class,"list-member")]//a[contains(@class, "smn-name")]'
+    )
+    doc = zyte_api.fetch_html(
+        context,
+        context.data_url,
+        unblock_validator=members_list_validator,
+        html_source="httpResponseBody",
+        cache_days=1,
+    )
+
+    for anchor_url in h.xpath_strings(doc, members_list_validator + "/@href"):
         crawl_member_bio(context, anchor_url)
+
+    ### === crawl older legislatures === ###
+    # navigate the landing page that contains a table with older seimas
+    doc_landing_older_seimas = zyte_api.fetch_html(
+        context,
+        URL_PREV_SEIMAS,
+        unblock_validator='//div[contains(@class, "rubrika-kvadratai-item")]',
+        html_source="httpResponseBody",
+        cache_days=1,
+    )
+    older_seimas_table = h.xpath_elements(
+        doc_landing_older_seimas, '//div[contains(@class, "rubrika-kvadratai-item")]'
+    )
+    assert older_seimas_table is not None
+
+    for seimas in older_seimas_table:
+        seimas_el = h.xpath_element(seimas, ".//a")
+        seimas_dates_match = re.search(r"\(\d{4}[–-]\d{4}\)", h.element_text(seimas_el))
+
+        assert seimas_dates_match is not None
+        seimas_dates = seimas_dates_match.group(0).strip("()")
+        start_year, end_year = seimas_dates.split("–")
+
+        # don't collect seimas data beyond the CUTOFF_DATE
+        if int(end_year) < CUTOFF_DATE:
+            continue
+
+        # visit the url of an older legislature landing page
+        seimas_url = seimas_el.get("href")
+        assert seimas_url is not None, "Coundn't fetch URL for the legislature"
+
+        # the overview page layout differs between modern (>=2016) and older legislatures,
+        # so the link to the members list — and thus the unblock validator — differs too.
+        if int(start_year) >= 2016:
+            members_link_xpath = '//div[contains(@class,"rubrika-kvadratai-item")]//a[@title="Members of the Seimas"]'
+        else:
+            members_link_xpath = '//*[@id="td_kaire"]//a[@class="medis" and text()="Members of the Seimas"]'
+
+        doc_seimas_overview = zyte_api.fetch_html(
+            context,
+            seimas_url,
+            unblock_validator=members_link_xpath,
+            html_source="httpResponseBody",
+            cache_days=1,
+            absolute_links=True,
+        )
+
+        members_url = h.xpath_string(doc_seimas_overview, members_link_xpath + "/@href")
+
+        # the seimas webpage is similar to the current seimas for years starting with 2016, recycle the function:
+        if int(start_year) >= 2016:
+            # visit the older legislature page listing its members
+            doc_seimas = zyte_api.fetch_html(
+                context,
+                members_url,
+                unblock_validator=members_list_validator,
+                html_source="httpResponseBody",
+                cache_days=1,
+            )
+
+            for anchor_url in h.xpath_strings(
+                doc_seimas, members_list_validator + "/@href"
+            ):
+                crawl_member_bio(context, anchor_url)
+
+        # older seimas webpages require a bit more love
+        else:
+            old_members_validator = (
+                '//div[contains(@id, "divDesContent")]//table//a[@href]'
+            )
+            doc_seimas = zyte_api.fetch_html(
+                context,
+                members_url,
+                unblock_validator=old_members_validator,
+                html_source="httpResponseBody",
+                cache_days=1,
+                absolute_links=True,
+            )
+
+            for anchor in h.xpath_elements(doc_seimas, old_members_validator):
+                old_member_url = anchor.get("href")
+                assert old_member_url is not None
+
+                crawl_old_member_bio(context, old_member_url)

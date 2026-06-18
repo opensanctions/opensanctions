@@ -1,0 +1,65 @@
+title: Montenegro Members of Parliament (Skupština)
+prefix: me-skup
+coverage:
+  frequency: monthly
+  start: "2026-06-09"
+load_statements: true
+entry_point: crawler.py
+ci_test: false
+summary: >-
+  Members of the Skupština, the unicameral parliament of Montenegro, including former
+  members of the current convocation
+description: |
+  The Skupština Crne Gore is the unicameral parliament of Montenegro. Its members
+  (poslanici) are elected for a four-year term.
+
+  This dataset is sourced from the JSON API backing the official Skupština website.
+  It covers the sitting members as well as members whose term has expired, the latter
+  emitted with an ended occupancy. For each member the source provides the name, date
+  and place of birth, political party, parliamentary group and a biography.
+url: https://www.skupstina.me/
+publisher:
+  name: Skupština Crne Gore
+  name_en: Parliament of Montenegro
+  description: |
+    The Skupština is the legislative body of Montenegro. It passes laws, adopts the
+    budget, elects and oversees the government, and ratifies international treaties.
+    It publishes data on its members through its official website.
+  url: https://www.skupstina.me/
+  country: me
+  official: true
+data:
+  url: https://api.skupstina.me/v1/parliament-members?limit=500&extended_fields=translation,image,political_party.translation,parliamentary_group.translation
+  format: JSON
+  lang: cnr
+
+dates:
+  formats: ["%d. %m. %Y.", "%d. %B %Y.", "%Y."]
+  months:
+    january: [januar]
+    february: [februar]
+    march: [mart, marta]
+    april: [april, aprila]
+    may: [maj, maja]
+    june: [jun, juna]
+    july: [jul, jula]
+    august: [avgust, avgusta]
+    september: [septembar, septembra]
+    october: [oktobar, oktobra]
+    november: [novembar, novembra]
+    december: [decembar, decembra]
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 90
+      Position: 1
+    country_entities:
+      me: 90
+  max:
+    schema_entities:
+      Person: 250
+      Position: 1

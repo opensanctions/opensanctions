@@ -29,13 +29,30 @@ description: |
   not include some relevant information from enrichment sources. [Read the FAQ
   item](https://www.opensanctions.org/faq/165/peps-only/).**
 children:
+  - ad_consell_general
+  - al_kuvendi
   - am_hetq_officials
   - ann_pep_positions
   - ar_parliament
   - at_meine_abgeordneten
   - at_parlament
+  - au_act_parliament
+  - au_nsw_parliament
+  - au_nt_parliament
+  - au_parliament
+  - au_qld_parliament
+  - au_sa_parliament
+  - au_tas_parliament
+  - au_vic_parliament
+  - au_wa_parliament
+  - az_parliament
+  - ba_parliament
   - be_chamber
+  - be_flemish_parliament
+  - be_senate
+  - be_walloon_parliament
   - bg_jud_declarations
+  - bg_parliament
   - br_pep
   - ca_commons
   - ca_foreign_reps
@@ -47,6 +64,7 @@ children:
   - co_join_dots
   - cu_inventario_legislatura
   - cy_parliament
+  - cz_pep_declarations
   - de_abgeordnetenwatch
   - de_bundesrat
   - de_bundestag
@@ -60,8 +78,11 @@ children:
   - everypolitician
   - fi_eduskunta
   - fr_assemblee
+  - fr_hatvp_declarations
   - fr_maires
   - fr_senat
+  - gb_commons
+  - gb_lords
   - ge_declarations
   - gr_parliament
   - hk_legco
@@ -78,11 +99,16 @@ children:
   - jp_shugiin
   - ky_judicial
   - ky_parliament
+  - li_landtag
   - lt_pep_declarations
   - lt_seimas
+  - lu_bourgmestres
+  - lu_chamber
   - lv_saeima
   - me_acp_peps
+  - me_skupstina
   - mk_officials
+  - mn_parliament
   - mt_parlament
   - mx_deputies
   - mx_governors
@@ -93,15 +119,26 @@ children:
   - nl_senate
   - no_brreg
   - no_storting
+  - nz_parliament
+  - ph_house_representatives
+  - ph_senate
   - pl_sejm
   - pl_senate
+  - pt_parliament
+  - ro_cdep_deputies
   - ro_fiu_declarations
+  - ro_senate
+  - rs_national_assembly
+  - se_riksdag
   - se_soe
   - sg_gov_dir
+  - si_dz_rs
   - si_zvezoskop
+  - sk_nrsr_poslanci
   - sk_public_officials
   - th_cabinet
   - tr_parliament
+  - ua_rada
   - un_ga_protocol
   - us_cia_world_leaders
   - us_congress
@@ -111,6 +148,7 @@ children:
   - us_state_dept
   - uy_pep
   - ve_asamblea_nacional
+  - vn_national_assembly
   - wd_categories
   - wd_peps
   - za_mm_officials

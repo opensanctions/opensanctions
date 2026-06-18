@@ -8,7 +8,7 @@ from hashlib import sha1
 from pathlib import Path
 from typing import Any, Optional, Type, TypeVar
 
-from openai import AzureOpenAI, OpenAI
+from openai import OpenAI
 from pydantic import BaseModel
 
 from zavod import settings
@@ -28,13 +28,7 @@ ResponseType = TypeVar("ResponseType", bound=BaseModel)
 def get_client() -> OpenAI:
     """Get the OpenAI client."""
     if settings.OPENAI_API_KEY is None:
-        raise ConfigurationException("No $OPENSANCTIONS_OPENAI_API_KEY key provided.")
-    if settings.AZURE_OPENAI_ENDPOINT is not None:
-        return AzureOpenAI(
-            api_key=settings.OPENAI_API_KEY,
-            api_version="2023-12-01-preview",
-            azure_endpoint=settings.AZURE_OPENAI_ENDPOINT,
-        )
+        raise ConfigurationException("No $OPENAI_API_KEY key provided.")
     return OpenAI(api_key=settings.OPENAI_API_KEY)
 
 

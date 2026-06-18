@@ -1,9 +1,9 @@
 import re
+from typing import Any, Dict, Optional, Set
 from urllib.parse import urljoin, unquote
-from typing import Dict, Optional, Set
 from followthemoney.helpers import post_summary
 
-from zavod import Context
+from zavod import Context, Entity
 from zavod import helpers as h
 from zavod.stateful.positions import categorise
 
@@ -12,7 +12,7 @@ PHONE_SPLITS = [",", "/", "(1)", "(2)", "(3)", "(4)", "(5)", "(6)", "(7)", "(8)"
 PHONE_REMOVE = re.compile(r"(ex|ext|extension|fax|tel|\:|\-)", re.IGNORECASE)
 
 
-def clean_emails(emails):
+def clean_emails(emails: str | None) -> list[str] | None:
     out = []
     for email in h.multi_split(emails, ["/", ","]):
         if email is None:
@@ -24,12 +24,19 @@ def clean_emails(emails):
     return out
 
 
-def clean_phones(phones):
+def clean_phones(phones: str | None) -> list[str]:
     out = []
     for phone in h.multi_split(phones, PHONE_SPLITS):
         phone = PHONE_REMOVE.sub("", phone)
         out.append(phone)
     return out
+
+
+def associate_country(entity: Entity, country: str) -> None:
+    if country.startswith("gb"):
+        entity.add("country", country)
+    else:
+        entity.add("citizenship", country)
 
 
 def crawl(context: Context) -> None:
@@ -42,7 +49,9 @@ def crawl(context: Context) -> None:
             crawl_legislature(context, code, legislature)
 
 
-def crawl_legislature(context: Context, country: str, legislature) -> None:
+def crawl_legislature(
+    context: Context, country: str, legislature: dict[str, Any]
+) -> None:
     url = urljoin(context.data_url, legislature.get("popolo"))
     # print(url)
     # this isn't being updated, hence long interval:
@@ -90,11 +99,11 @@ def crawl_legislature(context: Context, country: str, legislature) -> None:
             parse_person(context, person, country)
 
 
-def person_entity_id(context, person_id: str) -> str:
+def person_entity_id(context: Context, person_id: str) -> str | None:
     return context.make_slug(person_id)
 
 
-def parse_person(context: Context, data, country) -> None:
+def parse_person(context: Context, data: dict[str, Any], country: str) -> None:
     person_id = data.pop("id", None)
     person = context.make("Person")
     person.id = person_entity_id(context, person_id)
@@ -117,7 +126,7 @@ def parse_person(context: Context, data, country) -> None:
     person.add("deathDate", data.pop("death_date", None))
     person.add("email", clean_emails(data.pop("email", None)))
     person.add("notes", data.pop("summary", None))
-    person.add("citizenship", country)
+    associate_country(person, country)
     person.add("topics", "role.pep")
 
     for link in data.pop("links", []):
@@ -154,10 +163,10 @@ def parse_person(context: Context, data, country) -> None:
 
 def parse_membership(
     context: Context,
-    country,
-    data,
-    organizations,
-    events,
+    country: str,
+    data: dict[str, Any],
+    organizations: Dict[str, Optional[str]],
+    events: dict[str | None, Any],
     birth_dates: Dict[str, str],
     death_dates: Dict[str, str],
 ) -> Optional[str]:
@@ -192,12 +201,13 @@ def parse_membership(
             country=country,
             topics=["gov.national", "gov.legislative"],
         )
-        categorisation = categorise(context, position, True)
+        categorisation = categorise(context, position, default_is_pep=True)
 
         position_property = post_summary(org_name, role, starts, ends, [])
         person = context.make("Person")
         person.id = person_entity_id(context, person_id)
         person.add("position", position_property)
+        associate_country(person, country)
         person.add("birthDate", birth_dates.get(person_id, None))
         person.add("deathDate", death_dates.get(person_id, None))
 

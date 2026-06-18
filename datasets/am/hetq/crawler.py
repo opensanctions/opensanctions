@@ -123,6 +123,8 @@ def crawl_person(
         h.apply_date(person, "birthDate", birth_date)
     if birth_place is not None:
         person.add("birthPlace", birth_place)
+    # various positons
+    person.add("country", "am")
     position_name = data.get("position_en", "").strip()
     position_name = fix_trans_spill(position_name)
     position_lang = "en"
@@ -139,7 +141,7 @@ def crawl_person(
             lang=position_lang,
         )
         # Do usual PEP logic for positions/occupancies
-        categorisation = categorise(context, position, is_pep=True)
+        categorisation = categorise(context, position, default_is_pep=True)
         if categorisation.is_pep:
             occupancy = h.make_occupancy(
                 context,

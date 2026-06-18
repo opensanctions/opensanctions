@@ -334,3 +334,6 @@ lookups:
       - match: "Finca Monte Grande"
         entities:
           - name: Finca Monte Grande
+      - match: "Serbia Zijin Copper D.O.O."
+        entities:
+          - name: Serbia Zijin Copper D.O.O.

@@ -31,7 +31,7 @@ POSITIONS_OF_INTEREST = [
 ]
 
 
-def clean_emails(emails):
+def clean_emails(emails: str | None) -> list[str] | None:
     out = []
     for email in h.multi_split(emails, ["/", ",", " or "]):
         if email is None:
@@ -43,7 +43,7 @@ def clean_emails(emails):
     return out
 
 
-def clean_phones(phones):
+def clean_phones(phones: str | None) -> list[str]:
     out = []
     for phone in h.multi_split(phones, PHONE_SPLITS):
         phone = PHONE_REMOVE.sub("", phone)
@@ -51,7 +51,9 @@ def clean_phones(phones):
     return out
 
 
-def crawl_person(context: Context, person_data: dict, organizations):
+def crawl_person(
+    context: Context, person_data: dict[str, str], organizations: dict[str, str]
+) -> None:
     person_id = person_data.get("id")
 
     person_qid = None
@@ -157,7 +159,7 @@ def crawl_membership(
     )
 
     # Always PEP because filtered by known position label patterns
-    categorisation = categorise(context, position, is_pep=True)
+    categorisation = categorise(context, position, default_is_pep=True)
     override_status = OccupancyStatus.UNKNOWN if not (start_date or end_date) else None
     occupancy = h.make_occupancy(
         context,
@@ -176,7 +178,7 @@ def crawl_membership(
         context.emit(occupancy)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     path = context.fetch_resource("pombola.json", context.data_url)
     context.export_resource(path, JSON, context.SOURCE_TITLE)
     with open(path, "r") as f:

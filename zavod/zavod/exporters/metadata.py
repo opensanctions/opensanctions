@@ -1,7 +1,7 @@
 from enum import StrEnum
 import json
 from typing import Any, Dict, List, Optional
-from nomenklatura.versions import Version
+from followthemoney.dataset import Version
 
 from zavod import settings
 from zavod.logs import get_logger

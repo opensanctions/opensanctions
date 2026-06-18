@@ -3,7 +3,7 @@ prefix: tn-cnlct
 entry_point: crawler.py
 coverage:
   frequency: weekly
-  start: "2026-03-05"
+  start: "2026-06-08"
 load_statements: true
 ci_test: false
 summary: >
@@ -14,7 +14,7 @@ description: |
   published by the National Commission for Combating Terrorism (CNLCT) of Tunisia under
   Law No. 2015-26 of August 7, 2015 on counter-terrorism and the prevention of money
   laundering. Listed individuals and entities are subject to asset freezing.
-url: http://www.cnlct.tn/?page_id=2559
+url: http://www.cnlct.tn/fr/?page_id=1684
 tags:
   - list.sanction
 publisher:
@@ -29,28 +29,27 @@ publisher:
   country: tn
   official: true
 data:
-  url: http://www.cnlct.tn/?page_id=2559
+  url: http://www.cnlct.tn/fr/?page_id=1684
   format: HTML
-  lang: ara
+  lang: fra
 
 dates:
   formats:
-    - "%Y/%m/%d"
     - "%d/%m/%Y"
     - "%d %B %Y"
   months:
-    january: جانفي
-    february: فيفري
-    march: مارس
-    april: أفريل
-    may: ماي
-    june: جوان
-    july: جويلية
-    august: أوت
-    september: سبتمبر
-    october: أكتوبر
-    november: نوفمبر
-    december: ديسمبر
+    january: janvier
+    february: [février, fevrier]
+    march: mars
+    april: avril
+    may: mai
+    june: juin
+    july: juillet
+    august: [août, aout]
+    september: septembre
+    october: octobre
+    november: novembre
+    december: [décembre, decembre]
 
 assertions:
   min:
@@ -64,50 +63,51 @@ assertions:
 
 lookups:
   columns:
+    normalize: true
     options:
-      - match: م/ع
+      # The sequence-number column carries no header on the French sheet, so
+      # parse_xlsx_sheet falls back to the positional name "column_0".
+      - match: column_0
         value: seq_num
-      - match: الإسم الثلاثي
-        value: full_name
-      - match: اللقب
+      - match: Prenom
+        value: given_names
+      - match: Nom
         value: surname
-      - match: تاريخ الولادة ومكانها
+      - match: Date et Lieu de naissance
         value: dob_place
-      - match: العنوان
+      - match: Adresse
         value: address
-      - match: الجنسية
+      - match: Nationalité
         value: nationality
-      - match: مبررات الإدراج
+      - match: Justification d'Insertion
         value: reason
-      - match: قرار وتاريخ الإدراج
+      - match: Décision et Date d'Inscription
         value: decision
-      - match: آخر تعديل
+      - match: Dernière Modification
         value: last_modified
-      - match: تاريخ وساعة النشر بموقع اللجنة
+      - match: Date et heure de publication sur le site Web de la Commission
         value: pub_date
-      - match: معطيات إضافية
+      - match: Divers
         value: extra
 
   type.country:
     lowercase: true
     options:
-      - match: تونسية
+      - match: Tunisienne
         value: tn
-      - match: تونسي
-        value: tn
-      - match: إيطالية
+      - match: Italienne
         value: it
-      - match: مغربية
+      - match: Marocaine
         value: ma
-      - match: تونسية/بلجيكية
+      - match: Tunisienne/Belge
         values:
           - tn
           - be
-      - match: تونسية/إيرلندية
+      - match: Tunisienne/ Irlandaise
         values:
           - tn
           - ie
-      - match: تونسية/فرنسية
+      - match: Tunisienne/Française
         values:
           - tn
           - fr

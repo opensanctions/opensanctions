@@ -1,0 +1,90 @@
+title: UK FCA Warning List of Unauthorised Firms
+prefix: gb-fca-ntc
+entry_point: crawler.py
+coverage:
+  frequency: weekly
+  start: 2026-06-16
+load_statements: true
+ci_test: false
+summary: >-
+  Firms and individuals identified by the UK FCA as operating without authorisation.
+description: |
+  The Financial Conduct Authority (FCA) publishes a warning list of firms and
+  individuals that are not authorised or registered by the FCA, or which appear
+  to be impersonating legitimate authorised firms (clone firms). Consumers are
+  warned not to deal with these entities.
+
+  The list is continuously updated and includes entities operating in the UK
+  financial services sector without the required FCA authorisation.
+url: https://www.fca.org.uk/news/search-results
+publisher:
+  name: Financial Conduct Authority
+  acronym: FCA
+  description: |
+    The FCA is the conduct regulator for financial services firms and financial
+    markets in the UK. It publishes a number of databases and registers, including
+    the Warning List of firms and individuals that aren’t allowed to operate in the UK.
+  url: https://www.fca.org.uk/
+  country: gb
+  official: true
+tags:
+  - list.regulatory
+  - issuer.west
+  - sector.financial
+data:
+  url: https://www.fca.org.uk/news/search-results?n_search_term=&category=warnings&sort_by=dmetaZ&start=1
+  format: HTML
+  lang: eng
+
+dates:
+  formats: ["%d/%m/%Y", "%Y-%m-%d"]
+names:
+  schema_rules:
+    LegalEntity:
+      reject_chars: "/();"
+      # Clone/status annotations the FCA appends to names, e.g.
+      # "Fortradefx (Clone of FCA authorised firm)" or "Acme (new)".
+      reject_strings:
+        - "clone of"
+        - "(new)"
+        - "(updated)"
+        - "aka"
+        - "previously"
+        - "now known as"
+        - "formerly"
+
+lookups:
+  firm_details:
+    lowercase: true
+    options:
+      - match: name
+        value: name
+      - match: [website, url, web address]
+        value: website
+      - match: [telephone, tel, mobile, phone]
+        value: phone
+      - match: [email, e-mail]
+        value: email
+      - match: address
+        value: address
+      - match: [other information, social media details]
+        value: notes
+  type.email:
+    lowercase: true
+    options:
+      - match: '[email protected]'
+        value: null
+  type.address:
+    options:
+      - match: 'na/'
+        value: null
+
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 5000
+      Sanction: 5000
+  max:
+    schema_entities:
+      LegalEntity: 30000
+      Sanction: 30000

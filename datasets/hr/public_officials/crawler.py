@@ -86,14 +86,12 @@ def make_affiliation_entities(
 
     position = h.make_position(context, position_name, country="HR")
 
-    categorisation = categorise(context, position, is_pep=True)
+    categorisation = categorise(context, position, default_is_pep=True)
     occupancy = h.make_occupancy(
         context,
         person,
         position,
-        no_end_implies_current=True,
         categorisation=categorisation,
-        propagate_country=True,
         start_date=start_date,
         end_date=end_date,
     )
@@ -114,6 +112,10 @@ def make_person(
     position = positions[0] if positions else None
     person = context.make("Person")
     person.id = context.make_id(first_name, last_name, position)
+
+    # citizenship for state service is not required as per Article 52:
+    # https://www.zakon.hr/z/108/zakon-o-drzavnim-sluzbenicima
+    person.add("country", "hr")
     h.apply_name(person, first_name=first_name, last_name=last_name)
     return person
 

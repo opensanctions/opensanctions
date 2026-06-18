@@ -97,7 +97,7 @@ def test_basic():
     org_schema = Model.instance().get("Organization")
     org_spec = test_ds.names.get_spec(org_schema)
     # A schema can be added in addition to defaults (Organization)
-    # Ony org spec has +
+    # Only org spec has +
     assert "+" in org_spec.reject_chars_consolidated
     legal_entity_schema = Model.instance().get("LegalEntity")
     legal_entity_spec = test_ds.names.get_spec(legal_entity_schema)

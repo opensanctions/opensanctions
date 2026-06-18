@@ -7,7 +7,7 @@ from zavod import Context, helpers as h
 from zavod.extract import zyte_api
 
 
-def crawl_row(context: Context, row: Dict[str, str]):
+def crawl_row(context: Context, row: Dict[str, str]) -> None:
     full_name = row.pop("name")
     other_name = h.multi_split(row.pop("other name"), [",", ";"])
     birth_date_1_orig = row.pop("date of birth")
@@ -81,7 +81,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
         context.log.warning("Unhandled entity type", type=entity_type)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     url_xpath = ".//a[contains(text(), 'HG nr. 1.272/2005')]/@href"
     doc = zyte_api.fetch_html(
         context,
