@@ -1,5 +1,5 @@
 from typing import Any, Dict
-import ijson
+import ijson  # type: ignore[import-untyped]  # ijson has no type stubs
 import zipfile
 from urllib.parse import urljoin
 from rigour.mime.types import PDF

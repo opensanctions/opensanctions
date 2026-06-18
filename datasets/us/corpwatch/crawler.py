@@ -126,7 +126,12 @@ def parse_relationships(context: Context, row: Row) -> None:
             context.emit(rel)
 
 
-def parse_csv(context: Context, data_path: Path, name: str, handler: Callable) -> None:
+def parse_csv(
+    context: Context,
+    data_path: Path,
+    name: str,
+    handler: Callable[[Context, Row], None],
+) -> None:
     context.log.info(f"Parsing `{name}` ...")
     with tarfile.open(data_path, "r:*") as tf:
         member = tf.extractfile(f"corpwatch_api_tables_csv/{name}")

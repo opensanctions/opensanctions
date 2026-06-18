@@ -47,6 +47,7 @@ def crawl_item(row: dict[str, str | None], context: Context) -> None:
 
     # Deal with sometimes intentional line breaks, and sometimes unwanted wrapping:
     license_numbers = row.pop("license")
+    assert license_numbers is not None
     license_numbers = re.sub(
         r"PROMISe", ";PROMISe", license_numbers, flags=re.IGNORECASE
     )

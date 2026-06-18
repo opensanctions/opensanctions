@@ -168,7 +168,7 @@ def crawl(context: Context) -> None:
         raise RuntimeError(
             "Could not extract the D1N anti-bot cookie from the stub page"
         )
-    context.http.cookies.set("D1N", match.group(1))
+    context.http.cookies["D1N"] = match.group(1)
 
     doc = context.fetch_html(context.data_url, cache_days=1)
 

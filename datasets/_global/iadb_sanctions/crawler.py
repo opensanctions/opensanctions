@@ -34,7 +34,9 @@ def header_names(cells: list[Any]) -> list[str]:
     for idx, cell in enumerate(cells):
         if cell is None:
             cell = f"column_{idx}"
-        headers.append(slugify(cell, "_"))
+        slug = slugify(cell, "_")
+        assert slug is not None
+        headers.append(slug)
     return headers
 
 

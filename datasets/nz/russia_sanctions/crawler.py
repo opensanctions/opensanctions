@@ -3,7 +3,7 @@ from openpyxl import Workbook
 from banal import as_bool
 from normality import stringify
 from datetime import datetime, time
-from typing import Any, Dict, List, Optional
+from typing import Any
 from rigour.mime.types import XLSX
 
 from zavod import Context, Entity
@@ -70,7 +70,7 @@ def parse_associates(context: Context, target: Entity, value: str) -> None:
         context.log.warning("Unknown associate link type", value=value)
 
 
-def crawl_entity(context: Context, data: Dict[str, Any]) -> None:
+def crawl_entity(context: Context, data: dict[str, Any]) -> None:
     unique_id = data.pop("Unique Identifier")
     entity_type = data.pop("Type")
     if entity_type in ("Asset", "Total") or entity_type is None:
@@ -152,14 +152,14 @@ def crawl(context: Context) -> None:
         ),
     )
     for cookie in page_result.cookies or []:
-        context.http.cookies.set(cookie["name"], cookie["value"])
+        context.http.cookies[cookie["name"]] = cookie["value"]
 
     path = context.fetch_resource("source.xlsx", context.data_url)
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
     workbook: Workbook = openpyxl.load_workbook(path, read_only=True)
     has_listing = False
     for sheet in workbook.worksheets:
-        headers: Optional[List[Optional[str]]] = None
+        headers: list[str | None] | None = None
         for row in sheet.rows:
             cells = [c.value for c in row]
             if "Unique Identifier" in cells and "DOB" in cells:
