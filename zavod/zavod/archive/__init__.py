@@ -61,7 +61,6 @@ VERSIONS_FILE = "versions.json"
 UNLISTED_RESOURCES = [
     STATISTICS_FILE,
     DELTA_EXPORT_FILE,
-    DELTA_INDEX_FILE,
 ]
 # Files we persist about a run other than DatasetResources.
 EXTRA_ARTIFACTS = [
@@ -72,6 +71,7 @@ EXTRA_ARTIFACTS = [
     VERSIONS_FILE,
     RESOURCES_FILE,
     HASH_FILE,
+    DELTA_INDEX_FILE,
 ]
 TTL_SHORT = 10 * 60
 TTL_MEDIUM = 24 * 60 * 60
