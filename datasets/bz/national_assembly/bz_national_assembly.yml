@@ -7,8 +7,7 @@ coverage:
 load_statements: true
 ci_test: false
 summary: >-
-  Members of the National Assembly of Belize — the elected House of Representatives
-  and the appointed Senate
+  Members of the elected House of Representatives and the appointed Senate of Belize
 description: |
   Current members of the National Assembly, the bicameral national legislature of
   Belize, which holds the country's legislative power, including passing laws and

@@ -80,7 +80,7 @@ def make_chamber_position(
     return position, categorisation
 
 
-def crawl(context: Context) -> None:
+def crawl_representatives(context: Context) -> None:
     # House of Representatives: the Speaker plus the elected members.
     house_doc = context.fetch_html(
         context.data_url + "house-of-representatives/", cache_days=1
@@ -98,6 +98,8 @@ def crawl(context: Context) -> None:
         else:
             emit_member(context, name, role, rep_pos, rep_cat)
 
+
+def crawl_senators(context: Context) -> None:
     # Senate: the President plus the appointed senators.
     senate_doc = context.fetch_html(context.data_url + "senate/", cache_days=1)
     senators = parse_members(senate_doc)
@@ -114,3 +116,8 @@ def crawl(context: Context) -> None:
             emit_member(context, name, role, pres_pos, pres_cat)
         else:
             emit_member(context, name, role, sen_pos, sen_cat)
+
+
+def crawl(context: Context) -> None:
+    crawl_representatives(context)
+    crawl_senators(context)
