@@ -55,7 +55,11 @@ def crawl_item(input_dict: dict, context: Context):
     aliases = reduce(concat, alias_lists, [])
 
     organization = context.make("Organization")
-    organization.id = context.make_slug(name)
+    original_names = input_dict.pop("terrorist-entity")[0]
+    old_key = context.make_slug(name)
+    new_key = context.make_id(original_names)
+    context.rekey(old_key, new_key)  # TODO: Remove in name migration step 3
+    organization.id = new_key
     organization.add("topics", "sanction")
 
     organization.add("name", name)
