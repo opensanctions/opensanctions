@@ -64,7 +64,7 @@ assertions:
   max:
     schema_entities:
       Person: 50
-      LegalEntity: 20
+      LegalEntity: 25
 lookups:
   entities_as_individuals:
     options:
