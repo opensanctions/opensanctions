@@ -7,21 +7,20 @@ coverage:
 load_statements: true
 ci_test: false # Live external government source, not available in CI
 summary: >-
-  Members of the Honorable Senate of the Nation, the upper house of the National
-  Congress of Argentina
+  Upper house of Argentina's National Congress: three senators per province,
+  serving six-year terms
 description: |
   Senators of the Honorable Senado de la Nación (Senate of the Nation), the upper
   house of the bicameral National Congress of Argentina. Its 72 seats are elected
   directly, three per province across the 23 provinces and the Autonomous City of
   Buenos Aires, for six-year terms.
 
-  This dataset is sourced from the Senate's official open-data portal. It uses the
-  historical roster so it spans multiple legislative terms — both sitting senators
-  and those who left office recently enough to remain politically exposed — and
-  records each with their name, party, province and term dates. Sitting senators
-  are additionally enriched with their email and parliamentary group (bloque) from
-  the current-members feed. It complements the ar_parliament dataset, which covers
-  the lower house (Chamber of Deputies).
+  The dataset covers the chamber's full historical roster, spanning many
+  legislative terms: both sitting senators and those who left office recently
+  enough to remain politically exposed. Each senator is recorded with their name,
+  party, province and term dates; sitting senators additionally carry an email
+  address and their parliamentary group (bloque). It complements the ar_parliament
+  dataset, which covers the lower house (Chamber of Deputies).
 url: https://www.senado.gob.ar/micrositios/DatosAbiertos/
 publisher:
   name: Honorable Senado de la Nación Argentina

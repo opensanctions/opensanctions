@@ -22,10 +22,16 @@ def fetch_rows(context: Context, url: str) -> list[dict[str, Any]]:
     return rows
 
 
-def clean_date(value: str | None) -> str | None:
+def clean_date(context: Context, value: str | None) -> str | None:
+    """Normalize a source date to an ISO string, or None for empty/placeholder values.
+
+    Parses through the dataset's configured date formats so an unexpected format
+    raises rather than silently corrupting the downstream cutoff comparison.
+    """
     if value is None or value == "" or value == NO_DATE:
         return None
-    return value
+    dates = h.extract_date(context.dataset, value, fallback_to_original=False)
+    return dates[0]
 
 
 def crawl_senator(
@@ -38,12 +44,12 @@ def crawl_senator(
 ) -> None:
     senator_id = row.pop("ID")
     name = row.pop("SENADOR")
-    start_date = clean_date(row.pop("INICIO PERIODO REAL"))
-    end_date = clean_date(row.pop("CESE PERIODO REAL"))
+    start_date = clean_date(context, row.pop("INICIO PERIODO REAL"))
+    end_date = clean_date(context, row.pop("CESE PERIODO REAL"))
     # The legal period is the senator's full mandate; the real dates are when they
     # actually took and left the seat (earlier/later for replacements).
-    period_start = clean_date(row.pop("INICIO PERIODO LEGAL"))
-    period_end = clean_date(row.pop("CESE PERIODO LEGAL"))
+    period_start = clean_date(context, row.pop("INICIO PERIODO LEGAL"))
+    period_end = clean_date(context, row.pop("CESE PERIODO LEGAL"))
     province = row.pop("PROVINCIA")
     party = row.pop("PARTIDO POLITICO O ALIANZA")
 
@@ -88,8 +94,10 @@ def crawl_senator(
     if occupancy is None:
         return
     occupancy.add("constituency", province)
-    if current is not None:
-        # The bloque (parliamentary group) is distinct from party membership.
+    # The bloque (parliamentary group) is distinct from party membership. The current
+    # feed only reflects the present group, so apply it to the sitting term (no real
+    # end date); past terms have no bloque source and keep politicalGroup empty.
+    if current is not None and end_date is None:
         occupancy.add("politicalGroup", current["BLOQUE"])
 
     context.emit(occupancy)
@@ -101,6 +109,12 @@ def crawl(context: Context) -> None:
     cutoff = h.earliest_term_start(POSITION_TOPICS)
     current = {row["ID"]: row for row in fetch_rows(context, CURRENT_URL)}
     historico = fetch_rows(context, context.data_url)
+
+    # The two feeds are joined on ID to enrich sitting senators; if that overlap ever
+    # disappears, the join is broken and every senator silently loses email + bloque.
+    historico_ids = {row["ID"] for row in historico}
+    if not current.keys() & historico_ids:
+        raise ValueError("No ID overlap between current and historical senator feeds")
 
     position = h.make_position(
         context,
