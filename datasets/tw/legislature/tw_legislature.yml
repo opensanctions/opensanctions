@@ -49,12 +49,16 @@ tags:
   - list.pep
 
 assertions:
+  # Counts are post-resolution: the crawler mints one Person per term, so a
+  # multi-term legislator yields several entities at crawl time that the resolver
+  # merges into one. The released figure is the ~240 unique individuals across the
+  # terms in scope, not the ~850 person-terms emitted.
   min:
     schema_entities:
-      Person: 300
+      Person: 200
       Position: 1
     country_entities:
-      tw: 300
+      tw: 200
   max:
     schema_entities:
       Person: 1200
