@@ -7,8 +7,7 @@ coverage:
 load_statements: true
 ci_test: false
 summary: >-
-  Deputies of the National Assembly of Panama, the country's unicameral national
-  legislature, sourced from the Assembly's official website
+  Deputies of the unicameral national legislature of Panama
 description: |
   Current deputies of the National Assembly (Asamblea Nacional), the unicameral
   national legislature of Panama. Its 71 deputies are elected by electoral circuit for

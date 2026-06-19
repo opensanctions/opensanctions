@@ -12,14 +12,18 @@ def crawl_deputy(
     position: Entity,
     categorisation: PositionCategorisation,
 ) -> None:
-    name = row["Persona"]["Nombre_Completo"]
+    persona = row.pop("Persona")
+    name = persona.pop("Nombre_Completo")
     party = row.pop("Partido")
 
     person = context.make("Person")
-    person.id = context.make_id(name, party)
+    person.id = context.make_id(row.pop("Id_persona"), name)
     person.add("name", name)
+    person.add("firstName", persona.pop("Nombres"))
+    person.add("lastName", persona.pop("Apellidos"))
     person.add("political", party)
-    person.add("email", row["Persona"]["Correo"])
+    person.add("email", persona.pop("Correo"))
+    person.add("sourceUrl", f"https://www.asamblea.gob.pa/Diputados/{row.pop('Slug')}")
 
     # Deputies must be Panamanian — by birth, or naturalised with fifteen years'
     # residence (Political Constitution of Panama, Art. 153).
@@ -36,6 +40,9 @@ def crawl_deputy(
         return
     occupancy.add("constituency", row.pop("Circuito"))
     occupancy.add("constituency", row.pop("Provincia"))
+
+    context.audit_data(persona, ignore=["ID", "Diputado"])
+    context.audit_data(row, ignore=["ID", "Foto", "Suplentes", "Hoja_vida"])
 
     context.emit(occupancy)
     context.emit(person)
@@ -54,7 +61,7 @@ def crawl(context: Context) -> None:
     context.emit(position)
 
     data = zyte_api.fetch_json(
-        context, context.data_url, geolocation="pa", cache_days=30
+        context, context.data_url, geolocation="pa", cache_days=1
     )
     for row in data["data"]:
         crawl_deputy(context, row, position, categorisation)
