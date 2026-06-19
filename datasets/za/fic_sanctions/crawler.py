@@ -78,7 +78,10 @@ def crawl_row(context: Context, data: dict[str, str | None]) -> None:
     entity = context.make(schema)
     entity.id = context.make_slug(ent_id, full_name)
     assert entity.id, data
+    original = h.Names(name=full_name)
+    suggested = h.Names()
     entity.add("name", full_name)
+    suggested.add("name", full_name)
     entity.add("topics", "sanction")
     entity.add("notes", h.clean_note(data.pop("Comments", None)))
     if entity.schema.is_a("Person"):
@@ -91,10 +94,13 @@ def crawl_row(context: Context, data: dict[str, str | None]) -> None:
         h.apply_date(entity, "birthDate", dob)
 
         aliases = data.pop("IndividualAlias", None)
+        if aliases is not None:
+            original.add("alias", aliases)
         for alias in h.multi_split(aliases, ["Good", "Low", ","]):
             if all(c in {"?", " "} for c in alias):
                 continue
             entity.add("alias", alias)
+            suggested.add("alias", alias)
             if any(["?" in a for a in entity.get("alias")]):
                 context.log.warning("Alias contains '?'", alias=alias)
         individual_document = data.pop("IndividualDocument", None) or ""
@@ -108,14 +114,26 @@ def crawl_row(context: Context, data: dict[str, str | None]) -> None:
             address = address.rstrip(",")
             entity.add("address", address)
         aliases = data.pop("EntityAlias", None)
+        if aliases is not None:
+            original.add("alias", aliases)
         for alias in h.multi_split(aliases, ALIAS_SPLITS):
             # if we split on a comma, we will separate ", LTD" from the name
             alias = alias.rstrip(",")
             if all(c in {"?", " "} for c in alias):
                 continue
             entity.add("alias", alias)
+            suggested.add("alias", alias)
             if any(["?" in a for a in entity.get("alias")]):
                 context.log.warning("Alias contains '?'", alias=alias)
+    is_irregular, suggested = h.check_names_regularity(entity, suggested)
+    h.review_names(
+        context,
+        entity,
+        original=original,
+        suggested=suggested,
+        is_irregular=is_irregular,
+        default_accepted=True,
+    )
     listed_on = data.pop("ListedOn", None)
     h.apply_date(entity, "createdAt", listed_on)
 
