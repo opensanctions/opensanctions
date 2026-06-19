@@ -22,7 +22,7 @@ jobs:
     outputs:
       matrix: ${{ steps.gen.outputs.matrix }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: actions/setup-python@v6
         with:
@@ -58,7 +58,7 @@ jobs:
       # Bound concurrent agents so we don't spike Anthropic API rate limits or cost.
       max-parallel: 4
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       # The Python/zavod install is only needed for crawler datasets (mypy +
       # crawling). Enrichment and lookup-only datasets edit YAML only, so they
