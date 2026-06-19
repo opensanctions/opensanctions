@@ -56,7 +56,9 @@ def crawl_row(
     vessel.add("imoNumber", imo)
     vessel.add("flag", row.pop("Ship Flag"))
     vessel.add("buildDate", row.pop("Year of build"))
-    h.apply_number(vessel, "grossRegisteredTonnage", row.pop("Gross Tonnage"))
+    gross_tonnage = row.pop("Gross Tonnage")
+    if gross_tonnage is not None:
+        h.apply_number(vessel, "grossRegisteredTonnage", gross_tonnage)
     vessel.add("type", row.pop("Ship Type"))
     vessel.add("topics", "mare.detained")
 
@@ -98,12 +100,13 @@ def crawl_row(
     for br in reasons_cell.xpath(".//br"):
         br.tail = br.tail + "\n" if br.tail else "\n"
     reason = reasons_cell.text_content().split("\n")
+    # key is type-ignored to avoid a re-key
     sanction = h.make_sanction(
         context,
         vessel,
         start_date=start_date,
         end_date=end_date,
-        key=[start_date, end_date, sorted(reason)],
+        key=[start_date, end_date, sorted(reason)],  # type: ignore
     )
     sanction.add("reason", reason)
 

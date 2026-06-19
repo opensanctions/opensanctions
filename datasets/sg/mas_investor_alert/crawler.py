@@ -20,7 +20,9 @@ WEBSITE_KEYWORDS = [".com", ".net", ".org", "https:", "http:", "www.", ".sg", ".
 
 
 def check_num_found(context: Context, data: dict[str, Any]) -> None:
-    num_found = data.get("response").get("numFound")
+    response = data.get("response")
+    assert response is not None, "Response missing from data"
+    num_found = response.get("numFound")
     if num_found is None:
         context.log.warn("Response doesn't contain numFound field")
     else:
@@ -88,7 +90,7 @@ CrawlItemResult = namedtuple(
 )
 
 
-def crawl_item(context: Context, item: dict) -> CrawlItemResult:
+def crawl_item(context: Context, item: dict[str, Any]) -> CrawlItemResult:
     id = item.pop("id")
 
     relatedunregulatedpersonsid_s = item.pop("relatedunregulatedpersonsid_s")

@@ -1,4 +1,3 @@
-from typing import Dict, List
 import re
 
 from zavod import Context
@@ -42,7 +41,8 @@ ADDRESS_SPLITS = [
 ]
 
 
-def clean_passports(context: Context, text: str) -> List[str]:
+def clean_passports(context: Context, text: str) -> tuple[list[str], list[str]]:
+    # Returns (passport_numbers, national_id_numbers)
     values = text.split(", ")
     passports = []
     ids = []
@@ -66,7 +66,7 @@ def clean_passports(context: Context, text: str) -> List[str]:
     return passports, ids
 
 
-def crawl_row(context: Context, data: Dict[str, str]) -> None:
+def crawl_row(context: Context, data: dict[str, str | None]) -> None:
     full_name = data.pop("FullName", None)
     if full_name is not None:
         ent_id = data.pop("IndividualID")
@@ -97,7 +97,8 @@ def crawl_row(context: Context, data: Dict[str, str]) -> None:
             entity.add("alias", alias)
             if any(["?" in a for a in entity.get("alias")]):
                 context.log.warning("Alias contains '?'", alias=alias)
-        passports, ids = clean_passports(context, data.pop("IndividualDocument", ""))
+        individual_document = data.pop("IndividualDocument", None) or ""
+        passports, ids = clean_passports(context, individual_document)
         entity.add("passportNumber", passports)
         entity.add("idNumber", ids)
 
@@ -140,7 +141,7 @@ def crawl(context: Context) -> None:
     for table in tables:
         for row in doc.findall(table):
             data = {}
-            for field in row.getchildren():
+            for field in row:
                 value = field.text
                 if value == "NA":
                     continue

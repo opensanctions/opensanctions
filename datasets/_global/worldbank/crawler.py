@@ -33,7 +33,10 @@ def clean_name(text: str) -> list[str]:
 
 def crawl(context: Context) -> None:
     url = context.data_url
-    headers = {"apikey": context.dataset.data.api_key}
+    assert (
+        context.dataset.data is not None and context.dataset.data.api_key is not None
+    ), "API key is required for this dataset"
+    headers: dict[str, str] = {"apikey": context.dataset.data.api_key}
     data = context.fetch_json(url, headers=headers)
     # TODO write this out to a source.json
     for data in data["response"]["ZPROCSUPP"]:

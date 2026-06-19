@@ -442,12 +442,16 @@ def crawl(context: Context) -> None:
         response = fetch_endpoint(context, url)
 
         data = response.get("data")
+        assert data is not None, f"No data in response for {url}"
         for entity_details in data:
             # Construct entity specific page URL: {base_url}/{endpoint}/{entity_id}
             entity_id = entity_details.get("id")
             source_url = urljoin(context.data_url, f"{link.endpoint}/{entity_id}")
 
             if link.type is WSAPIDataType.PERSON:
+                assert link.program_key is not None, (
+                    f"No program_key for {link.endpoint}"
+                )
                 crawl_person(
                     context,
                     entity_details,
