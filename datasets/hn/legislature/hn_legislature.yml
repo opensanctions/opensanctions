@@ -29,8 +29,8 @@ publisher:
   country: hn
   official: true
 data:
-  url: https://congresonacional.hn/congresistas
-  format: HTML
+  url: https://congresonacional.hn/api/matizzo/diputados
+  format: JSON
   lang: spa
 
 tags:

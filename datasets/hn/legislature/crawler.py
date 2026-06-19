@@ -1,4 +1,3 @@
-import json
 from typing import Any
 
 from zavod import Context
@@ -6,17 +5,22 @@ from zavod import helpers as h
 from zavod.entity import Entity
 from zavod.stateful.positions import PositionCategorisation, categorise
 
-# `firstName`/`lastName`/`delegate_id` are duplicates of nombres/apellidos/dni
-# present on some records or None
+# The roster lists each seat's titular deputy alongside their alternate (suplente).
+# Titulars hold one of the leadership/member roles below; suplentes carry "SU".
+SUPLENTE_ROLE = "SU"
+TITULAR_ROLES = {
+    "P",  # Presidente
+    "VP",  # Vicepresidente
+    "S",  # Secretario
+    "PS",  # Prosecretario
+    "D",  # Diputado
+}
+
 IGNORE_FIELDS = [
-    "titulo",
-    "img",
-    "formula",
-    "priority",
-    "createAt",
-    "firstName",
-    "lastName",
-    "delegate_id",
+    "citizenId",
+    "imageUrl",
+    "isActive",
+    "createdOn",
 ]
 
 
@@ -26,25 +30,37 @@ def crawl_deputy(
     position: Entity,
     categorisation: PositionCategorisation,
 ) -> None:
-    # Only titular deputies (propietarios) are emitted; their alternates are suplentes.
-    cargo = row.pop("cargo")
-    if cargo != "PROPIETARIO":
+    # Only titular deputies are emitted; their alternates (suplentes) are skipped.
+    role = row.pop("role")
+    if role == SUPLENTE_ROLE:
         return
+    if role not in TITULAR_ROLES:
+        raise ValueError("Unknown deputy role: %r" % role)
 
-    record_id = row.pop("dni")
-    nombres = row.pop("nombres")
-    apellidos = row.pop("apellidos")
-    bancada = row.pop("bancada")
+    record_id = row.pop("userDocument")
+    party = row.pop("party")
 
     person = context.make("Person")
     person.id = context.make_slug(str(record_id))
-    h.apply_name(person, first_name=nombres, last_name=apellidos)
+    # Each deputy has a public profile page keyed by their numeric site id.
+    person.add(
+        "sourceUrl", "https://congresonacional.hn/congresistas/%s" % row.pop("userId")
+    )
+    h.apply_name(
+        person,
+        full=row.pop("displayName"),
+        first_name=row.pop("name"),
+        last_name=row.pop("lastname"),
+    )
     # Deputies must be Honduran by birth ("hondureño por nacimiento"); naturalised
     # citizens are not eligible (Constitution of Honduras, Art. 198).
     # https://pdba.georgetown.edu/Constitutions/Honduras/hond82.html
     person.add("citizenship", "hn")
-    person.add("political", bancada)
-    person.add("email", row.pop("email"))
+    person.add("political", party.pop("name"))
+    # Some records list several addresses in one field, comma-separated and
+    # occasionally with stray spaces inside the address.
+    for email in row.pop("email").split(","):
+        person.add("email", "".join(email.split()))
 
     occupancy = h.make_occupancy(
         context,
@@ -62,14 +78,10 @@ def crawl_deputy(
 
 
 def crawl(context: Context) -> None:
-    doc = context.fetch_html(context.data_url, cache_days=1)
-    # The deputy roster is embedded in the Next.js page data; parsing it (rather than the
-    # versioned _next/data endpoint) keeps the crawler independent of the build id.
-    script = h.xpath_element(doc, ".//script[@id='__NEXT_DATA__']")
-    if script.text is None:
-        raise ValueError("Empty __NEXT_DATA__ payload")
-    data = json.loads(script.text)
-    deputies = data["props"]["pageProps"]["congresistastemp"]["congresistas"]
+    # The roster is served as JSON by the site's API; the page itself loads it
+    # client-side, so there is no longer usable data embedded in the HTML.
+    data = context.fetch_json(context.data_url, cache_days=1)
+    deputies = data["data"]["diputados"]
 
     position = h.make_position(
         context,
