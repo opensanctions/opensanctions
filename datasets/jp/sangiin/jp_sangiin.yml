@@ -5,7 +5,7 @@ load_statements: true
 ci_test: false
 coverage:
   frequency: monthly
-  start: 2026-06-15
+  start: 2026-06-22
 summary: >-
   Japanese House of Councillors (Sangiin), the upper house of the National Diet of Japan.
 description: |

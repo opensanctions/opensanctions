@@ -3,7 +3,7 @@ entry_point: crawler.py
 prefix: xk-kuv
 coverage:
   frequency: weekly
-  start: "2026-06-13"
+  start: "2026-06-22"
 load_statements: true
 ci_test: false
 summary: >-
