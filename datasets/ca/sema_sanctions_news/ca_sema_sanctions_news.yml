@@ -62,12 +62,12 @@ assertions:
     schema_entities:
       Person: 3
       Organization: 20
-      Vessel: 550
+      # currently all vessels are merged with ca_dfatd_sema_sanctions
+      # Vessel: 0
   max:
     schema_entities:
       Person: 60
       Organization: 100
-      Vessel: 1600
 
 lookups:
   sanction.program:
