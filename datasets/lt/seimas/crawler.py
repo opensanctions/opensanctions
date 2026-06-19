@@ -43,6 +43,7 @@ def crawl_member_bio(context: Context, url: str) -> None:
         unblock_validator='//div[@class="sn_narys_vardas_title"]',
         html_source="httpResponseBody",
         cache_days=1,
+        absolute_links=True,
     )
 
     # some pages do not list party names, hence None check
@@ -214,6 +215,7 @@ def crawl(context: Context) -> None:
         unblock_validator=members_list_validator,
         html_source="httpResponseBody",
         cache_days=1,
+        absolute_links=True,
     )
 
     for anchor_url in h.xpath_strings(doc, members_list_validator + "/@href"):
@@ -227,6 +229,7 @@ def crawl(context: Context) -> None:
         unblock_validator='//div[contains(@class, "rubrika-kvadratai-item")]',
         html_source="httpResponseBody",
         cache_days=1,
+        absolute_links=True,
     )
     older_seimas_table = h.xpath_elements(
         doc_landing_older_seimas, '//div[contains(@class, "rubrika-kvadratai-item")]'
@@ -276,6 +279,7 @@ def crawl(context: Context) -> None:
                 unblock_validator=members_list_validator,
                 html_source="httpResponseBody",
                 cache_days=1,
+                absolute_links=True,
             )
 
             for anchor_url in h.xpath_strings(
