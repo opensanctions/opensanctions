@@ -2,7 +2,7 @@ from zavod import Context
 from zavod import helpers as h
 from zavod.shed.fsf import parse_entry, parse_sanctions
 from zavod.stateful.review import assert_all_accepted
-from zavod.util import Element
+from zavod.util import Element, ElementOrTree
 
 URL = "https://www.sanctionsmap.eu/api/v1/travelbans/file/%s"
 
@@ -11,6 +11,7 @@ def salvage_entity(context: Context, entry: Element) -> None:
     texts = [t.text for t in entry.findall("./remark")]
     assert len(texts) == 2, texts
     name, details = texts
+    assert name is not None
     name = name.split("(", 1)[0]
     entity = context.make("LegalEntity")
     entity.id = context.make_id(name)
@@ -29,7 +30,7 @@ def crawl(context: Context) -> None:
         data_url = URL % ban.get("id")
         path = context.fetch_resource("source.xml", data_url)
         context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)
-        doc = context.parse_resource_xml(path)
+        doc: ElementOrTree = context.parse_resource_xml(path)
         doc = h.remove_namespace(doc)
         for entry in doc.findall(".//sanctionEntity"):
             subject_type = entry.find("./subjectType")

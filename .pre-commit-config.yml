@@ -67,9 +67,6 @@ repos:
           datasets/_global/un_1718_vessels|
           datasets/_global/un_ga_protocol|
           datasets/_global/un_sc_sanctions|
-          datasets/_global/worldbank|
-          datasets/_global/tokyo_mou|
-          datasets/_global/abuja_mou|
           datasets/_wikidata|
           datasets/ae|
           datasets/bg/jud_declarations|
@@ -109,11 +106,8 @@ repos:
           datasets/us/cftc_enforcement_actions|
           datasets/us/occ_enfact|
           datasets/us/ddtc_enforcements|
-          datasets/us/ddtc_debarred|
-          datasets/us/sam_exclusions|
           datasets/us/nk_jointventures|
           datasets/us/cia_world_factbook|
-          datasets/us/fara_filings|
           datasets/us/fincen_msb|
           datasets/us/fbi_lazarus_crypto|
           datasets/us/sec_litigation_releases|
