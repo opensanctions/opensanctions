@@ -47,14 +47,32 @@ def _cell_dates(cell: Element) -> list[str]:
 def crawl_item(context: Context, row: dict[str, Element], expired: bool) -> None:
     name_cell = row.pop("terrorist_entity")
     # aliases will be either a list of size one or None if there is no aliases
-    name, *aliases = h.multi_split(h.element_text(name_cell), ALIAS_SPLITS)
+    raw_name = h.element_text(name_cell)
+    name, *aliases = h.multi_split(raw_name, ALIAS_SPLITS)
     alias_lists = [h.multi_split(alias, [", and", ","]) for alias in aliases]
     aliases = list(chain.from_iterable(alias_lists))
 
     organization = context.make("Organization")
-    organization.id = context.make_slug(name)
+    old_key = context.make_slug(name)
+    new_key = context.make_id(raw_name)
+    context.rekey(old_key, new_key)  # TODO: Remove in name migration step 3
+    organization.id = new_key
     organization.add("name", name)
     organization.add("alias", aliases)
+    original = h.Names(name=raw_name)
+    suggested = h.Names()
+    suggested.add("name", name)
+    for alias in aliases:
+        suggested.add("alias", alias)
+    is_irregular, suggested = h.check_names_regularity(organization, suggested)
+    h.review_names(
+        context,
+        organization,
+        original=original,
+        suggested=suggested,
+        is_irregular=is_irregular,
+        default_accepted=True,
+    )
 
     sanction = h.make_sanction(context, organization, program_key=PROGRAM_KEY)
 
