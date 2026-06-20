@@ -221,6 +221,8 @@ lookups:
           - "Q5123536" # city attorney
           - "Q5124691" # civil servant of the People's Republic of China
           - "Q5390229" # ambassador of Costa Rica
+          - "Q30056203" # ambassador to Qatar
+          - "Q30081888" # ambassador to Belarus
           - "Q5663887" # alcaide
           - "Q5928980" # jefe político superior
           - "Q6857706" # military profession
@@ -490,8 +492,6 @@ lookups:
           - "Q23685787" # working student
           - "Q28689677" # honorary secretary
           - "Q29982545" # function in the Evangelical Church of Czech Brethren
-          - "Q30056203" # ambassador to Qatar
-          - "Q30081888" # ambassador to Belarus
           - "Q30582382" # excavation director
           - "Q30682903" # data protection officer
           - "Q51321989" # Professional engineer
