@@ -385,7 +385,6 @@ lookups:
           - "Q3043452" # Délégué interministériel à la sécurité routière
           - "Q3043455" # délégué militaire départemental
           - "Q3043456" # Délégué militaire régional
-          - "Q3401661" # Premier bouteiller de Bretagne
           - "Q3933467" # responsible
           - "Q3969776" # Q3969776
           - "Q4498939" # Hokim
@@ -434,7 +433,6 @@ lookups:
           - "Q118278814" # président de l'Assemblée commune
           - "Q121620135" # Q121620135
           - "Q56669297" # superintendent
-          - "Q60832272" # Grand voyer
           - "Q65238772" # intendant
           - "Q480319" # title of authority
           - "Q135842653" # directeur de cabinet du ministre des Outre-mer
@@ -644,3 +642,5 @@ lookups:
           - "Q138412833" # Kurdirektor (spa/health resort director)
           - "Q15110009" # Ministerial Diary Secretary
           - "Q37110" # Pharaoh (ruler of ancient Egypt)
+          - "Q60832272" # Grand voyer (Quebec title, office abolished in 1840)
+          - "Q3401661" # Premier bouteiller de Bretagne (not used since the 1500s)
