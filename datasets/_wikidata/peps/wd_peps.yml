@@ -432,7 +432,6 @@ lookups:
           - "Q117458668" # Oberappellationsgerichtsrat
           - "Q118109623" # Q118109623
           - "Q118278814" # président de l'Assemblée commune
-          - "Q120633697" # antiabbot
           - "Q121620135" # Q121620135
           - "Q56669297" # superintendent
           - "Q60832272" # Grand voyer
@@ -450,6 +449,7 @@ lookups:
           - "Q11271" # Benevolent Dictator for Life
           - "Q29182" # bishop
           - "Q212071" # rector
+          - "Q120633697" # antiabbot
           - "Q368620" # Chief Apostle
           - "Q381136" # shareholder
           - "Q383865" # executive sponsor
