@@ -444,7 +444,10 @@ lookups:
           - "Q108466181" # judicial position
           - "Q107363151" # central bank governor
           - "Q5785176" # auditor general
-          - "Q19816651" # Order of Cardinals (members of the College of Cardinals are recognised by Holy See as being PEPs)
+          - "Q45722" # cardinal (members of the College of Cardinals are recognised by the Holy See as being PEPs)
+          - "Q1729113" # cardinal-bishop (members of the College of Cardinals are recognised by the Holy See as being PEPs)
+          - "Q2033341" # cardinal priest (members of the College of Cardinals are recognised by the Holy See as being PEPs)
+          - "Q2361374" # cardinal-deacon (members of the College of Cardinals are recognised by the Holy See as being PEPs)
       - maybe_pep: false
         match:
           - "Q8191099" # affiliate
