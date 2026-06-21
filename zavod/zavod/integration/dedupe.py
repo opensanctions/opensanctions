@@ -2,13 +2,13 @@ from typing import Any, Dict, List, Optional, TYPE_CHECKING, Set
 
 from pathlib import Path
 from followthemoney import model
+from nomenklatura.db import Session, make_session
 from nomenklatura.xref import xref
 from nomenklatura.resolver import Resolver, Linker
 from nomenklatura.judgement import Judgement
 from nomenklatura.matching import DefaultAlgorithm, get_algorithm
 
 from zavod.entity import Entity
-from zavod.db import get_engine, meta
 from zavod.logs import get_logger
 from zavod.meta import Dataset
 from zavod.integration.logic import logic_decide
@@ -19,9 +19,12 @@ if TYPE_CHECKING:
 log = get_logger(__name__)
 
 
-def get_resolver() -> Resolver[Entity]:
-    """Load the deduplication resolver."""
-    resolver = Resolver[Entity](get_engine(), meta, create=True)
+def get_resolver(session: Session) -> Resolver[Entity]:
+    """Load the deduplication resolver on the given session.
+
+    The session owns the unit of work: callers commit/checkpoint it (e.g. a
+    zavod Context shares its own session; a standalone CLI command owns one)."""
+    resolver = Resolver[Entity](session, create=True)
     log.info("Using resolver: %r" % resolver)
     return resolver
 
@@ -30,13 +33,15 @@ def get_dataset_linker(dataset: Dataset) -> Linker[Entity]:
     """Get a resolver linker for the given dataset."""
     if not dataset.model.resolve:
         return Linker[Entity]({})
-    resolver = get_resolver()
-    log.info("Loading linker from: %r" % resolver)
-    return resolver.get_linker()
+    with make_session() as session:
+        resolver = get_resolver(session)
+        log.info("Loading linker from: %r" % resolver)
+        return resolver.get_linker()
 
 
 def blocking_xref(
     resolver: Resolver[Entity],
+    session: Session,
     store: "Store",
     state_path: Path,
     limit: int = 5000,
@@ -67,6 +72,7 @@ def blocking_xref(
 
     xref(
         resolver,
+        session,
         store,
         index_dir=index_dir,
         limit=limit,

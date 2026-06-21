@@ -50,7 +50,7 @@ def test_new_key_saved_and_accepted_false(testdataset1: Dataset):
 
     assert review.accepted is False
     context.flush()
-    row = get_row(context.conn, review_key("key1"))
+    row = get_row(context.db, review_key("key1"))
     assert row is not None
     assert row["accepted"] is False
     context.close()
@@ -77,7 +77,7 @@ def test_no_change_updates_last_seen_version(testdataset1, monkeypatch):
         origin="test data",
     )
     key2 = review_key("key2")
-    row = get_row(context1.conn, key2)
+    row = get_row(context1.db, key2)
     assert row and row["last_seen_version"] == context1_version
     monkeypatch.setattr(settings, "RUN_VERSION", "20240101010102-aaa")
     context2 = Context(testdataset1)
@@ -91,10 +91,10 @@ def test_no_change_updates_last_seen_version(testdataset1, monkeypatch):
         origin="test data",
     )
     # Updated in the db
-    row = get_row(context2.conn, key2)
+    row = get_row(context2.db, key2)
     assert row["last_seen_version"] == context2_version
     assert context1_version != context2_version
-    assert len(get_all_rows(context2.conn, key2)) == 1
+    assert len(get_all_rows(context2.db, key2)) == 1
     # Returned review is up to date
     assert review2.last_seen_version == context2_version
     context1.close()
@@ -133,9 +133,9 @@ def test_source_changed_resets_review(testdataset1: Dataset):
     # Simulate a reviewer changing the extracted data
     review.extracted_data = DummyModel(foo="barrr")
     review.modified_by = "test@user.com"
-    review.save(context1.conn, new_revision=True)
+    review.save(context1.db, new_revision=True)
     key3 = review_key("key3")
-    row = get_row(context1.conn, key3)
+    row = get_row(context1.db, key3)
     assert row["modified_by"] == "test@user.com"
 
     source_value2 = TextSourceValue(
@@ -151,13 +151,13 @@ def test_source_changed_resets_review(testdataset1: Dataset):
         origin="test data",
         default_accepted=False,
     )
-    new = get_row(context2.conn, key3)
+    new = get_row(context2.db, key3)
     assert new["accepted"] is False
     assert new["original_extraction"]["foo"] == "baz"
     assert new["extracted_data"]["foo"] == "baz"
     assert new["modified_by"] == "zavod"
     assert review.accepted is False
-    assert len(get_all_rows(context2.conn, key3)) == 3  # original, edit, reset
+    assert len(get_all_rows(context2.db, key3)) == 3  # original, edit, reset
     context1.close()
     context2.close()
 
@@ -181,7 +181,7 @@ def test_unaccepted_updates_original_extraction(testdataset1: Dataset):
     )
     key4 = review_key("key4")
     assert review1.accepted is False
-    row1 = get_row(context1.conn, key4)
+    row1 = get_row(context1.db, key4)
     assert row1 is not None
     assert row1["accepted"] is False
     assert row1["original_extraction"]["foo"] == "foo"
@@ -196,14 +196,14 @@ def test_unaccepted_updates_original_extraction(testdataset1: Dataset):
         original_extraction=data2,
         origin="test data",
     )
-    row2 = get_row(context2.conn, key4)
+    row2 = get_row(context2.db, key4)
     assert row2 is not None
     assert row2["accepted"] is False
     assert row2["original_extraction"]["foo"] == "bar"
     assert row2["extracted_data"]["foo"] == "bar"
     assert row2["modified_by"] == "zavod"
     # Expect this to be updated in-place because it's unaccepted.
-    assert len(get_all_rows(context2.conn, key4)) == 1
+    assert len(get_all_rows(context2.db, key4)) == 1
     context1.close()
     context2.close()
 
@@ -223,9 +223,9 @@ def test_crawler_version_bump_resets_review(testdataset1: Dataset):
     # Simulate a reviewer changing the extracted data
     review.extracted_data = DummyModel(foo="barrr")
     review.modified_by = "test@user.com"
-    review.save(context1.conn, new_revision=True)
+    review.save(context1.db, new_revision=True)
     key5 = review_key("key5")
-    row = get_row(context1.conn, key5)
+    row = get_row(context1.db, key5)
     assert row["modified_by"] == "test@user.com"
 
     class ClevererModel(BaseModel):
@@ -241,7 +241,7 @@ def test_crawler_version_bump_resets_review(testdataset1: Dataset):
         origin="test data",
         default_accepted=False,
     )
-    new = get_row(context2.conn, key5)
+    new = get_row(context2.db, key5)
     assert new["accepted"] is False
     assert new["original_extraction"]["foo"] == "bar"
     assert new["original_extraction"]["baz"] == "zab"
@@ -249,7 +249,7 @@ def test_crawler_version_bump_resets_review(testdataset1: Dataset):
     assert new["extracted_data"]["baz"] == "zab"
     assert new["modified_by"] == "zavod"
     assert review.accepted is False
-    assert len(get_all_rows(context2.conn, key5)) == 3  # original, edit, reset
+    assert len(get_all_rows(context2.db, key5)) == 3  # original, edit, reset
     context1.close()
     context2.close()
 
@@ -353,7 +353,7 @@ def test_source_changed_updates_source_fields(testdataset1: Dataset):
     )
 
     key8 = review_key("key8")
-    row = get_row(context2.conn, key8)
+    row = get_row(context2.db, key8)
     assert row is not None
     assert row["source_value"] == source_value2.value_string
     assert row["source_mime_type"] == source_value2.mime_type

@@ -10,16 +10,15 @@ from followthemoney.statement.serialize import PackStatementWriter
 from lxml import etree, html
 from nomenklatura import Judgement, Resolver
 from nomenklatura.cache import Cache
+from nomenklatura.db import Session, make_session as make_db_session
 from requests import Response
 from rigour.env import ENCODING
 from rigour.urls import ParamsType, build_url
-from sqlalchemy.engine import Connection
 from structlog.contextvars import bind_contextvars, reset_contextvars
 
 from zavod import settings
 from zavod.archive import STATEMENTS_FILE, dataset_data_path, dataset_resource_path
 from zavod.audit import inspect
-from zavod.db import get_engine, meta
 from zavod.entity import Entity
 from zavod.integration.dedupe import get_resolver
 from zavod.logs import get_logger
@@ -59,6 +58,7 @@ class Context:
         self.resources = DatasetResources(dataset)
         self.log = get_logger(dataset.name)
         self.http = make_session(dataset.http)
+        self._db: Optional[Session] = None
         self._cache: Optional[Cache] = None
         self._timestamps: Optional[TimeStampIndex] = None
         self._resolver: Optional[Resolver[Entity]] = None
@@ -74,17 +74,38 @@ class Context:
             self.lang = dataset.data.lang
 
     @property
+    def db(self) -> Session:
+        """The database unit of work owned by this Context.
+
+        One session backs the cache, the resolver, and the stateful
+        position/review tables, so they commit on a single cadence
+        (``flush`` → checkpoint, ``close`` → commit). Named ``db`` to set it
+        apart from ``http`` (also a session). Created lazily so a crawler that
+        touches no database never opens a connection."""
+        if self._db is None:
+            self._db = make_db_session()
+        return self._db
+
+    @property
     def cache(self) -> Cache:
         """A cache object for storing HTTP responses and other data."""
         if self._cache is None:
-            self._cache = Cache(get_engine(), meta, self.dataset, create=True)
+            self._cache = Cache(self.db, self.dataset, create=True)
         return self._cache
 
     @property
-    def conn(self) -> Connection:
-        """Expose a database connection to the ETL store."""
-        # Transaction management is delegated to the cache.
-        return self.cache.conn
+    def resolver(self) -> Resolver[Entity]:
+        """The dedupe resolver, on the Context's session and loaded into memory.
+
+        Lazily built on first access (a crawl that never rekeys never loads the
+        graph); reads are then in-memory, and writes from ``rekey`` commit with
+        the rest of the session on ``close()``. Note the load runs inside the
+        getter, so first access is potentially expensive — that is what makes
+        the resolver safe to read without a separate load step."""
+        if self._resolver is None:
+            self._resolver = get_resolver(self.db)
+            self._resolver.load_into_memory()
+        return self._resolver
 
     @property
     def version(self) -> Version:
@@ -130,21 +151,18 @@ class Context:
         to be flawed."""
         if old_id is None or new_id is None or old_id == new_id:
             return
-        if self.cache._engine.dialect.name == "sqlite":
+        if self.db.is_sqlite:
             self.log.error(
                 "Rekeying is not supported with SQLite resolver",
                 old_id=old_id,
                 new_id=new_id,
             )
             return
-        if self._resolver is None:
-            self._resolver = get_resolver()
-            self._resolver.begin()
-        old_canonical = self._resolver.get_canonical(old_id)
-        new_canonical = self._resolver.get_canonical(new_id)
+        old_canonical = self.resolver.get_canonical(old_id)
+        new_canonical = self.resolver.get_canonical(new_id)
         if old_canonical == new_canonical:
             return
-        self._resolver.decide(
+        self.resolver.decide(
             old_canonical,
             new_canonical,
             user="zavod/rekey",
@@ -153,19 +171,14 @@ class Context:
 
     def flush(self) -> None:
         """Flush the context to ensure all data is written to disk."""
-        if self._cache is not None:
-            self._cache.flush()
-        # if self._resolver is not None:
-        #     self._resolver.commit()
-        #     self._resolver.begin()
+        if self._db is not None:
+            self._db.checkpoint()
 
     def close(self) -> None:
         """Flush and tear down the context."""
         self.http.close()
-        if self._resolver is not None:
-            self._resolver.commit()
-        if self._cache is not None:
-            self._cache.close()
+        if self._db is not None:
+            self._db.commit()
         if self._timestamps is not None:
             self._timestamps.close()
         if self._writer is not None:

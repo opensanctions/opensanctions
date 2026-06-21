@@ -14,7 +14,7 @@ from rigour.mime.types import HTML, PLAIN
 from rigour.text import text_hash
 from sqlalchemy import TableClause, func, insert, not_, select, update
 from sqlalchemy.dialects import postgresql, sqlite
-from sqlalchemy.engine import Connection
+from nomenklatura.db import Session
 from sqlalchemy.sql import Select
 from sqlalchemy.dialects.sqlite.dml import Insert as SqliteInsert
 from sqlalchemy.dialects.postgresql.dml import Insert as PostgresqlInsert
@@ -110,11 +110,11 @@ class Review(BaseModel, Generic[ModelType]):
     @classmethod
     def load(
         cls,
-        conn: Connection,
+        session: Session,
         data_model: Type[ModelType],
         stmt: Select,  # type: ignore
     ) -> Optional["Review[ModelType]"]:
-        res = conn.execute(stmt)
+        res = session.execute(stmt)
         rows = list(res.fetchall())
         assert len(rows) <= 1
         if rows == []:
@@ -128,16 +128,16 @@ class Review(BaseModel, Generic[ModelType]):
 
     @classmethod
     def by_key(
-        cls, conn: Connection, data_model: Type[ModelType], dataset: str, key: str
+        cls, session: Session, data_model: Type[ModelType], dataset: str, key: str
     ) -> Optional["Review[ModelType]"]:
         select_stmt = select(review_table).where(
             review_table.c.dataset == dataset,
             review_table.c.key == key,
             review_table.c.deleted_at.is_(None),
         )
-        return cls.load(conn, data_model, select_stmt)
+        return cls.load(session, data_model, select_stmt)
 
-    def save(self, conn: Connection, new_revision: bool) -> None:
+    def save(self, session: Session, new_revision: bool) -> None:
         values = {
             "key": self.key,
             "dataset": self.dataset,
@@ -157,13 +157,13 @@ class Review(BaseModel, Generic[ModelType]):
         }
         if new_revision:
             if self.id:
-                conn.execute(
+                session.execute(
                     update(review_table)
                     .where(review_table.c.id == self.id)
                     .values(deleted_at=datetime.now(timezone.utc))
                 )
             ins = insert(review_table).values(**values)
-            result = conn.execute(ins)
+            result = session.execute(ins)
             assert result.inserted_primary_key is not None
             self.id = result.inserted_primary_key[0]
         else:
@@ -173,16 +173,16 @@ class Review(BaseModel, Generic[ModelType]):
                 .where(review_table.c.id == self.id)
                 .values(**values)
             )
-            result = conn.execute(upd)
+            result = session.execute(upd)
 
     @classmethod
-    def count_unaccepted(cls, conn: Connection, dataset: str, version_id: str) -> int:
+    def count_unaccepted(cls, session: Session, dataset: str, version_id: str) -> int:
         select_stmt = select(func.count(review_table.c.id)).where(
             review_table.c.dataset == dataset,
             review_table.c.last_seen_version == version_id,
             not_(review_table.c.accepted),
         )
-        return conn.execute(select_stmt).scalar_one()
+        return int(session.execute(select_stmt).scalar_one())
 
     def matches_original(self, other: ModelType) -> bool:
         return model_hash(other) == model_hash(self.original_extraction)
@@ -192,7 +192,7 @@ class Review(BaseModel, Generic[ModelType]):
         If the link already exists, this operation succeeds without error."""
         assert entity.id is not None
 
-        if context.conn.dialect.name == "postgresql":
+        if context.db.is_postgres:
             insert: Insert = postgresql.insert
         else:
             insert = sqlite.insert
@@ -210,7 +210,7 @@ class Review(BaseModel, Generic[ModelType]):
             )
         )
 
-        context.conn.execute(ins)
+        context.db.execute(ins)
 
 
 class SourceValue(ABC):
@@ -392,7 +392,7 @@ def review_extraction(
     now = datetime.now(timezone.utc)
 
     review = Review[ModelType].by_key(
-        context.conn, data_model, dataset=context.dataset.name, key=key_slug
+        context.db, data_model, dataset=context.dataset.name, key=key_slug
     )
     save_new_revision = False
     if review is None:
@@ -473,7 +473,7 @@ def review_extraction(
         if save_new_revision:
             review.modified_at = now
             review.modified_by = MODIFIED_BY_CRAWLER
-    review.save(context.conn, new_revision=save_new_revision)
+    review.save(context.db, new_revision=save_new_revision)
     return review
 
 
@@ -491,7 +491,7 @@ def assert_all_accepted(context: Context, *, raise_on_unaccepted: bool = True) -
     context.flush()
 
     count = Review.count_unaccepted(
-        context.conn, context.dataset.name, context.version.id
+        context.db, context.dataset.name, context.version.id
     )
     if count > 0:
         message = (

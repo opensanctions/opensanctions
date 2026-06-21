@@ -61,7 +61,7 @@ def categorise(
     stmt = position_table.select()
     stmt = stmt.filter(position_table.c.entity_id == position.id)
     stmt = stmt.filter(position_table.c.deleted_at.is_(None))
-    for row in context.conn.execute(stmt).fetchall():
+    for row in context.db.execute(stmt).fetchall():
         if row.caption != position.caption or sorted(row.countries) != countries:
             # If the caption or countries have changed, we need to update the row.
             context.log.info(
@@ -78,7 +78,7 @@ def categorise(
                 # "modified_at": settings.RUN_TIME,
             }
             ustmt = ustmt.values(updates)
-            context.conn.execute(ustmt)
+            context.db.execute(ustmt)
         return PositionCategorisation(
             topics=row.topics,
             is_pep=row.is_pep,
@@ -95,7 +95,7 @@ def categorise(
     }
     istmt = position_table.insert()
     istmt = istmt.values(body)
-    context.conn.execute(istmt)
+    context.db.execute(istmt)
     return PositionCategorisation(topics=position.get("topics"), is_pep=default_is_pep)
 
 
@@ -107,7 +107,7 @@ def categorise_many(
     stmt = position_table.select()
     stmt = stmt.filter(position_table.c.entity_id.in_(position_ids))
     stmt = stmt.filter(position_table.c.deleted_at.is_(None))
-    rows = contextL.conn.execute(stmt).fetchall()
+    rows = contextL.db.execute(stmt).fetchall()
     categorisations = []
     for row in rows:
         categorisations.append(
@@ -125,7 +125,7 @@ def categorised_position_qids(context: Context) -> List[str]:
     stmt = stmt.filter(position_table.c.is_pep.is_(True))
     stmt = stmt.filter(position_table.c.deleted_at.is_(None))
     stmt = stmt.filter(position_table.c.entity_id.like("Q%"))
-    rows = context.conn.execute(stmt).fetchall()
+    rows = context.db.execute(stmt).fetchall()
     qids = []
     for row in rows:
         if is_qid(row.entity_id):

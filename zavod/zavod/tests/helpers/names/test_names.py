@@ -150,7 +150,7 @@ def test_apply_reviewed_names_no_cleaning_needed(vcontext: Context):
     assert entity.get("name") == ["Jim Doe"]
     assert entity.get("alias") == []
     key = review_key(review_key_parts(entity, original))
-    assert count_review_rows(vcontext.conn, key) == 0
+    assert count_review_rows(vcontext.db, key) == 0
 
 
 @patch("zavod.helpers.names.settings.OPENAI_API_KEY", None)
@@ -203,9 +203,9 @@ def test_apply_reviewed_names_llm(run_typed_text_prompt: MagicMock, vcontext: Co
     names = Names(name=raw_name)
     key = review_key(review_key_parts(entity, names))
 
-    review = Review.by_key(vcontext.conn, Names, vcontext.dataset.name, key)
+    review = Review.by_key(vcontext.db, Names, vcontext.dataset.name, key)
     review.accepted = True
-    review.save(vcontext.conn, new_revision=True)
+    review.save(vcontext.db, new_revision=True)
 
     apply_reviewed_names(vcontext, entity, original=original, llm_cleaning=True)
     assert entity.get("name") == ["James Doe"]
@@ -235,7 +235,7 @@ def test_apply_reviewed_names_manual_irregular(
 
     # Original extraction is original names
     key = review_key(review_key_parts(entity, original))
-    review = Review.by_key(vcontext.conn, Names, vcontext.dataset.name, key)
+    review = Review.by_key(vcontext.db, Names, vcontext.dataset.name, key)
     assert review.extracted_data == original
 
     # Until it's accepted, the original string is applied.
@@ -244,10 +244,10 @@ def test_apply_reviewed_names_manual_irregular(
     entity.set("name", [])  # clear to test after accept
 
     # simulate manually editing and accepting the review.
-    review = Review.by_key(vcontext.conn, Names, vcontext.dataset.name, key)
+    review = Review.by_key(vcontext.db, Names, vcontext.dataset.name, key)
     review.accepted = True
     review.extracted_data = Names(name=["James Doe"], alias=["Jim Doe"])
-    review.save(vcontext.conn, new_revision=True)
+    review.save(vcontext.db, new_revision=True)
 
     apply_reviewed_names(vcontext, entity, original=original)
     assert entity.get("name") == ["James Doe"]
@@ -289,7 +289,7 @@ def test_apply_reviewed_names_suggested_no_llm(vcontext: Context):
 
     # Original extraction is suggested names
     key = review_key(review_key_parts(entity, original))
-    review = Review.by_key(vcontext.conn, Names, vcontext.dataset.name, key)
+    review = Review.by_key(vcontext.db, Names, vcontext.dataset.name, key)
     assert review.extracted_data == suggested
 
     # Source value is based on original without blanks and, not suggested.
@@ -318,12 +318,12 @@ def test_apply_reviewed_names_suggested_original(vcontext: Context):
     suggested = Names(name=raw_name)
     review_names(vcontext, entity, original=original, suggested=suggested)
     key = review_key(review_key_parts(entity, original))
-    assert count_review_rows(vcontext.conn, key) == 0
+    assert count_review_rows(vcontext.db, key) == 0
 
     review_names(
         vcontext, entity, original=original, suggested=suggested, is_irregular=True
     )
-    assert count_review_rows(vcontext.conn, key) == 1
+    assert count_review_rows(vcontext.db, key) == 1
 
 
 def test_apply_names_with_lang_argument(vcontext: Context):

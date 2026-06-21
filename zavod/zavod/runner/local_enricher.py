@@ -10,12 +10,12 @@ from nomenklatura.enrich.common import BaseEnricher
 from nomenklatura.matching import get_algorithm, EntityResolveRegression
 from nomenklatura.blocker.index import BlockingMatches, Index
 from nomenklatura.resolver import Identifier
-from nomenklatura import Judgement, Resolver
+from nomenklatura import Judgement
 from nomenklatura.cache import Cache
 
 from zavod.archive import dataset_state_path
 from zavod.context import Context
-from zavod.integration.dedupe import get_dataset_linker, get_resolver
+from zavod.integration.dedupe import get_dataset_linker
 from zavod.entity import Entity
 from zavod.meta import Dataset, get_multi_dataset, get_catalog
 from zavod.store import get_store, View
@@ -218,7 +218,6 @@ def should_promote(entity: Entity, topic_matches: Dict[str, bool]) -> bool:
 
 def save_match(
     context: Context,
-    resolver: Resolver[Entity],
     enricher: LocalEnricher,
     entity: Entity,
     match: Entity,
@@ -230,7 +229,7 @@ def save_match(
     assert entity.id is not None
     if not entity.schema.can_match(match.schema):
         return None
-    judgement = resolver.get_judgement(match.id, entity.id)
+    judgement = context.resolver.get_judgement(match.id, entity.id)
 
     if judgement == Judgement.NO_JUDGEMENT:
         context.emit(match, external=True)
@@ -253,8 +252,8 @@ def save_match(
 
 def enrich(context: Context) -> None:
     scope = get_multi_dataset(context.dataset.inputs)
-    resolver = get_resolver()
-    resolver.begin()
+    # The Context resolver is read-only here (save_match only reads judgements),
+    # so its load commits as a no-op along with the cache via context.close().
     context.log.info(
         "Enriching %s (%s)" % (scope.name, [d.name for d in scope.datasets])
     )
@@ -268,7 +267,11 @@ def enrich(context: Context) -> None:
             "topic_gated=True but no topics configured; all expanded entities will be external"
         )
 
-    subject_store = get_store(scope, resolver)
+    subject_store = get_store(scope, context.resolver)
+    # Commit the resolver's load-time read (and the cache-table DDL) so no
+    # transaction is held open across the store sync and index build below; the
+    # resolver is in-memory after the load.
+    context.flush()
     subject_store.sync()
     subject_view = subject_store.view(scope, external=topic_gated)
 
@@ -282,6 +285,8 @@ def enrich(context: Context) -> None:
         entities = subject_view.entities(include_schemata=schemata)
         candidates = enricher.candidates(entities)
         for entity_idx, (entity_id, candidate_set) in enumerate(candidates):
+            if entity_idx > 0 and entity_idx % 1000 == 0:
+                context.flush()
             if entity_idx > 0 and entity_idx % 10000 == 0:
                 context.log.info("Enriched %s entities..." % entity_idx)
             subject_entity = subject_view.get_entity(entity_id.id)
@@ -292,7 +297,6 @@ def enrich(context: Context) -> None:
                 for match in enricher.match_candidates(subject_entity, candidate_set):
                     save_match(
                         context,
-                        resolver,
                         enricher,
                         subject_entity,
                         match,
@@ -306,6 +310,5 @@ def enrich(context: Context) -> None:
                 )
         context.log.info("Enrichment process complete.")
     finally:
-        resolver.rollback()
         enricher.close()
         subject_store.close()

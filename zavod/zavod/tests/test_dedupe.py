@@ -1,5 +1,6 @@
 import pytest
 from nomenklatura import Resolver
+from nomenklatura.db import Session
 from nomenklatura.judgement import Judgement
 
 from zavod.archive import dataset_state_path
@@ -11,14 +12,16 @@ from zavod.integration.dedupe import blocking_xref
 from zavod.integration.dedupe import merge_entities, explode_cluster
 
 
-def test_store_access(testdataset1: Dataset, resolver: Resolver[Entity]):
+def test_store_access(
+    testdataset1: Dataset, resolver: Resolver[Entity], session: Session
+):
     crawl_dataset(testdataset1)
     assert not len(resolver.edges)
 
     store = get_store(testdataset1, resolver)
     store.sync()
     state_path = dataset_state_path(testdataset1.name)
-    blocking_xref(resolver, store, state_path)
+    blocking_xref(resolver, session, store, state_path)
     assert len(resolver.edges) > 0
     for edge in resolver.edges.values():
         assert edge.score is not None

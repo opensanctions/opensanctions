@@ -4,15 +4,16 @@ import shutil
 from pathlib import Path
 from tempfile import mkdtemp
 import logging
+from sqlalchemy import MetaData
 from nomenklatura import Resolver
-from nomenklatura.db import close_db
+from nomenklatura.db import close_db, make_session, Session
 
 from zavod import settings
 from zavod.context import Context
 from zavod.entity import Entity
 from zavod.logs import configure_logging, reset_logging
 from zavod.meta import get_catalog, load_dataset_from_path, Dataset
-from zavod.db import meta
+from zavod.db import get_engine, meta
 from zavod.integration import get_resolver
 from zavod.stateful.model import create_db
 
@@ -45,6 +46,14 @@ def wrap_test():
     create_db()
     yield
     get_catalog.cache_clear()
+    # Cache and Resolver own per-instance MetaData, so dropping a fixed list of
+    # tables would leak their committed rows into the next test on a persistent
+    # Postgres (invisible on in-memory SQLite). Reflect and drop the whole live
+    # schema instead.
+    engine = get_engine()
+    drop_meta = MetaData()
+    drop_meta.reflect(bind=engine)
+    drop_meta.drop_all(bind=engine)
     close_db()
     meta.clear()
 
@@ -141,11 +150,22 @@ def collection(testdataset1) -> Dataset:
 
 
 @pytest.fixture(scope="function")
-def resolver() -> Generator[Resolver[Entity], None, None]:
-    resolver = get_resolver()
-    resolver.begin()
+def session() -> Generator[Session, None, None]:
+    """A database unit of work for tests that need to own one directly (e.g. to
+    pass to blocking_xref or to checkpoint resolver judgements)."""
+    session = make_session()
+    try:
+        yield session
+    finally:
+        # close() rolls back anything still open and disposes the connection.
+        session.close()
+
+
+@pytest.fixture(scope="function")
+def resolver(session: Session) -> Generator[Resolver[Entity], None, None]:
+    resolver = get_resolver(session)
+    resolver.load_into_memory()
     yield resolver
-    resolver.rollback()
 
 
 @pytest.fixture(scope="function")

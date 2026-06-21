@@ -7,6 +7,7 @@ from normality import slugify
 
 from zavod.archive import iter_dataset_statements
 from zavod.crawl import crawl_dataset
+from nomenklatura.db import make_session
 from zavod.integration.dedupe import get_resolver
 from zavod.meta import Dataset
 
@@ -30,16 +31,16 @@ class StubEnricher(Enricher):
 
 
 def test_enrich_process(testdataset1: Dataset, enricher: Dataset):
-    resolver = get_resolver()
-
-    resolver.begin()
-    assert len(resolver.edges) == 0, resolver.edges
-    resolver.rollback()
+    with make_session() as session:
+        resolver = get_resolver(session)
+        resolver.load_into_memory()
+        assert len(resolver.edges) == 0, resolver.edges
     crawl_dataset(testdataset1)
 
-    resolver.begin()
-    assert len(resolver.edges) == 0, resolver.edges
-    resolver.rollback()
+    with make_session() as session:
+        resolver = get_resolver(session)
+        resolver.load_into_memory()
+        assert len(resolver.edges) == 0, resolver.edges
     stats = crawl_dataset(enricher)
     assert stats.entities > 0, stats.entities
     internals = list(iter_dataset_statements(enricher, external=False))
@@ -47,16 +48,19 @@ def test_enrich_process(testdataset1: Dataset, enricher: Dataset):
     externals = list(iter_dataset_statements(enricher, external=True))
     assert len(externals) > 5, externals
 
-    # Now merge one of the enriched entities with an interal one:
-    resolver.begin()
-    canon_id = resolver.decide(
-        "osv-john-doe",
-        "enrich-john-doe",
-        Judgement.POSITIVE,
-    )
-    assert canon_id.id.startswith("NK-")
-    assert len(resolver.connected(canon_id)) == 3
-    resolver.commit()
+    # Now merge one of the enriched entities with an internal one. The `with`
+    # commits the judgement on exit, releasing the connection before the enrich
+    # crawl below opens its own session.
+    with make_session() as session:
+        resolver = get_resolver(session)
+        resolver.load_into_memory()
+        canon_id = resolver.decide(
+            "osv-john-doe",
+            "enrich-john-doe",
+            Judgement.POSITIVE,
+        )
+        assert canon_id.id.startswith("NK-")
+        assert len(resolver.connected(canon_id)) == 3
     stats = crawl_dataset(enricher)
     internals = list(iter_dataset_statements(enricher, external=False))
     assert len(internals) > 2, internals
