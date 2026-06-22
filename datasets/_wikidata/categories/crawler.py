@@ -286,7 +286,9 @@ def crawl_persons(state: CrawlState) -> None:
         for position in positions:
             if position.id is None or position.id in state.ignore_positions:
                 continue
-            occupancy = h.make_occupancy(state.context, entity, position)
+            occupancy = h.make_occupancy(
+                state.context, entity, position, no_end_implies_current=False
+            )
             if occupancy is not None:
                 state.emit_position(position)
                 state.context.emit(occupancy)
