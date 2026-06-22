@@ -12,7 +12,7 @@ exports:
 deploy:
   cpu: "3000m"
   memory: "5000Mi"
-  memory_limit: "6500Mi"
+  memory_limit: "8000Mi"
   disk: "150Gi"
 load_statements: true
 summary: >
