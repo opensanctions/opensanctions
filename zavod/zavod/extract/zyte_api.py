@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple, cast
 
 from lxml import html, etree
+from normality import predict_encoding
 from requests import Session
 from requests.adapters import HTTPAdapter
 from urllib3 import Retry
@@ -283,7 +284,12 @@ def fetch(
     )
     if zyte_request.scrape_type == ZyteScrapeType.HTTP_RESPONSE_BODY:
         b64_text = b64decode(text)
-        text = b64_text.decode(charset) if charset is not None else b64_text.decode()
+        # The Content-Type header often omits the charset, leaving the encoding
+        # declared only in an HTML <meta> tag (e.g. legacy windows-1257 pages).
+        # Assuming UTF-8 then raises on the first non-ASCII byte, so detect the
+        # encoding from the bytes when the header doesn't state it.
+        encoding = charset if charset is not None else predict_encoding(b64_text)
+        text = b64_text.decode(encoding)
 
     cookies = (
         api_response.json().get("responseCookies")
