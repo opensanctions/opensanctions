@@ -185,7 +185,7 @@ def crawl_old_member_bio(context: Context, url: str) -> None:
         lang="eng",
     )
 
-    categorisation = categorise(context, position, is_pep=True)
+    categorisation = categorise(context, position)
     if not categorisation.is_pep:
         return
 
