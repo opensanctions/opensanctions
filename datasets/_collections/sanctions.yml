@@ -54,6 +54,7 @@ children:
   - ca_facfoa
   - ca_listed_terrorists
   - ca_named_research_orgs
+  - ca_sema_sanctions_news
   - ch_seco_sanctions
   - cn_sanctions
   - cz_national_sanctions
