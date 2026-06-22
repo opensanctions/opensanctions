@@ -34,6 +34,7 @@ children:
   - am_hetq_officials
   - ann_pep_positions
   - ar_parliament
+  - ar_senado
   - at_meine_abgeordneten
   - at_parlament
   - au_act_parliament
@@ -54,6 +55,7 @@ children:
   - bg_jud_declarations
   - bg_parliament
   - br_pep
+  - bz_national_assembly
   - ca_commons
   - ca_foreign_reps
   - ca_senate
@@ -62,6 +64,7 @@ children:
   - cn_peoples_congress_wikipedia
   - co_funcion_publica
   - co_join_dots
+  - cr_legislature
   - cu_inventario_legislatura
   - cy_parliament
   - cz_pep_declarations
@@ -87,6 +90,7 @@ children:
   - gr_parliament
   - hk_legco
   - hk_principal_officials
+  - hn_legislature
   - hr_public_officials
   - hu_national_assembly
   - id_regional_2018
@@ -96,7 +100,9 @@ children:
   - is_althingi
   - it_deputies
   - it_senate
+  - jp_sangiin
   - jp_shugiin
+  - kr_assembly
   - ky_judicial
   - ky_parliament
   - li_landtag
@@ -109,17 +115,20 @@ children:
   - me_skupstina
   - mk_officials
   - mn_parliament
+  - mo_legislature
   - mt_parlament
   - mx_deputies
   - mx_governors
   - mx_senators
   - ng_chipper_peps
   - ng_join_dots
+  - ni_legislature
   - nl_house_of_representatives
   - nl_senate
   - no_brreg
   - no_storting
   - nz_parliament
+  - pa_asamblea
   - ph_house_representatives
   - ph_senate
   - pl_sejm
@@ -136,8 +145,10 @@ children:
   - si_zvezoskop
   - sk_nrsr_poslanci
   - sk_public_officials
+  - sv_legislature
   - th_cabinet
   - tr_parliament
+  - tw_legislature
   - ua_rada
   - un_ga_protocol
   - us_cia_world_leaders
@@ -151,5 +162,6 @@ children:
   - vn_national_assembly
   - wd_categories
   - wd_peps
+  - xk_assembly
   - za_mm_officials
   - za_pmg_legislators
