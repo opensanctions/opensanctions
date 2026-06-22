@@ -84,6 +84,36 @@ def test_fetch_html_http_response_body(testdataset1: Dataset):
     context.close()
 
 
+def test_fetch_html_detects_missing_charset(testdataset1: Dataset):
+    context = Context(testdataset1)
+
+    # Legacy pages declare their encoding only in a <meta> tag, not the HTTP
+    # Content-Type header. Byte 0xf0 ('š' in windows-1257) is invalid UTF-8, so
+    # assuming UTF-8 would crash; the encoding must be detected from the bytes.
+    name = "Žemaitaitis Čmilytė Šiauliuose gegužės mėnesį Tėvynės sąjunga"
+    page = (
+        '<html><head><meta http-equiv="Content-Type" '
+        'content="text/html; charset=windows-1257"></head>'
+        f"<body><h1>{name}</h1></body></html>"
+    )
+    with requests_mock.Mocker() as m:
+        m.post(
+            "https://api.zyte.com/v1/extract",
+            json={
+                "httpResponseBody": b64encode(page.encode("windows-1257")).decode(),
+                # No charset in the header, only in the page's <meta> tag.
+                "httpResponseHeaders": [{"name": "content-type", "value": "text/html"}],
+                "statusCode": 200,
+            },
+        )
+        doc = fetch_html(
+            context, "https://test.com/bla", ".//h1", html_source="httpResponseBody"
+        )
+        assert doc.find(".//h1").text == name
+
+    context.close()
+
+
 def test_unblock_failed(testdataset1: Dataset):
     context = Context(testdataset1)
 
