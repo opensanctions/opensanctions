@@ -42,6 +42,13 @@ data:
 
 dates:
   formats: ["%d %B %Y"]
+lookups:
+  type.date:
+    options:
+      - match: "3 May1958"
+        value: "1958-05-03"
+      - match: "19 August 1951."
+        value: "1951-08-19"
 assertions:
   min:
     schema_entities:
