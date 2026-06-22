@@ -1,17 +1,16 @@
 from enum import StrEnum
 import json
-from typing import Any, Dict, List, Optional
-from followthemoney.dataset import Version
+from typing import Any, Dict, List
 
 from zavod import settings
 from zavod.logs import get_logger
 from zavod.meta import Dataset, get_catalog
 from zavod.archive import INDEX_FILE, STATISTICS_FILE, ISSUES_FILE
 from zavod.archive import CATALOG_FILE, DELTA_INDEX_FILE, DELTA_EXPORT_FILE
-from zavod.archive import ARTIFACT_FILES
+from zavod.archive import UNLISTED_RESOURCES
 from zavod.archive import get_dataset_artifact, get_artifact_object
 from zavod.archive import iter_dataset_versions, dataset_resource_path
-from zavod.runtime.urls import make_published_url, make_artifact_url
+from zavod.runtime.urls import make_artifact_url
 from zavod.runtime.resources import DatasetResources
 from zavod.runtime.issues import DatasetIssues
 from zavod.runtime.versions import get_latest
@@ -25,18 +24,13 @@ class DatasetVersionResult(StrEnum):
     FAILURE = "failure"
 
 
-def get_base_dataset_metadata(
-    dataset: Dataset, version: Optional[Version] = None
-) -> Dict[str, Any]:
-    meta = {
+def get_base_dataset_metadata(dataset: Dataset) -> Dict[str, Any]:
+    """Build the barebones metadata block for a dataset, without artifact URLs."""
+    meta: Dict[str, Any] = {
         "issue_levels": {},
         "issue_count": 0,
         "updated_at": settings.RUN_TIME_ISO,
-        "index_url": make_published_url(dataset.name, INDEX_FILE),
     }
-    if version is not None:
-        meta["version"] = version.id
-        meta["updated_at"] = version.dt.isoformat()
 
     # This reads the file produced by the statistics exporter which
     # contains entity counts for the dataset, aggregated by various
@@ -62,11 +56,9 @@ def get_base_dataset_metadata(
             if last_change is not None:
                 meta["last_change"] = last_change
 
-    resources = DatasetResources(dataset)
     res_datas: List[Dict[str, Any]] = []
-    for res in resources.all():
-        if res.name in ARTIFACT_FILES:
-            # TODO: we could make artifact URLs here?
+    for res in DatasetResources(dataset).all():
+        if res.name in UNLISTED_RESOURCES:
             continue
         res_data = res.model_dump(mode="json", exclude_none=True)
         res_data["path"] = res.name
@@ -88,7 +80,7 @@ def write_dataset_index(dataset: Dataset, result: DatasetVersionResult) -> None:
         version=version.id,
         is_collection=dataset.is_collection,
     )
-    meta = get_base_dataset_metadata(dataset, version=version)
+    meta = get_base_dataset_metadata(dataset)
     meta.update(dataset.to_opensanctions_dict(catalog))
 
     # Remove redundant dataset hierarchy metadata
@@ -96,6 +88,12 @@ def write_dataset_index(dataset: Dataset, result: DatasetVersionResult) -> None:
     meta.pop("externals", None)
     meta.pop("sources", None)
     meta.pop("collections", None)
+
+    meta["version"] = version.id
+    meta["updated_at"] = version.dt.isoformat()
+    meta["index_url"] = make_artifact_url(dataset.name, version.id, INDEX_FILE)
+    for res_data in meta["resources"]:
+        res_data["url"] = make_artifact_url(dataset.name, version.id, res_data["path"])
 
     if not dataset.is_collection:
         issues = DatasetIssues(dataset)

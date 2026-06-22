@@ -1,3 +1,25 @@
+"""
+The archive is the place where we store the outputs of zavod runs
+beyond beyond their local scratch space.
+
+`/artifacts/{dataset}/{version}/` is the canonical, immutable location for all
+outputs of a given run, and is what we point to in the metadata.
+
+`/datasets/{date_stamp}/{dataset}/` is where the metadata and listed resources
+can be found for the latest successful run on a given day.
+
+`/datasets/latest/{dataset}/` is where the the metadata and listed resources can
+be found for the latest successful run.
+
+See archive backends for operating on the archive - in OpenSanctions production
+this is the Google Cloud Storage bucket data.opensanctions.org.
+A local filesystem path can be used in development and testing.
+
+When storing in /artifacts we use the verb "archive".
+When storing in /datasets we use the verb "publish".
+We "publish" by copying server-side what's been already been "archived".
+"""
+
 import shutil
 from pathlib import Path
 from functools import lru_cache
@@ -32,17 +54,24 @@ RESOURCES_FILE = "resources.json"
 INDEX_FILE = "index.json"
 CATALOG_FILE = "catalog.json"
 VERSIONS_FILE = "versions.json"
-ARTIFACT_FILES = [
+# HACK: DatasetResources are defined as downloadable files of a dataset.
+# A couple of exporters use this as a mechanism to get files archived,
+# but their files are listed elsewhere in the dataset metadata so we don't
+# want them duplicated in the resources section of the metadata.
+UNLISTED_RESOURCES = [
+    STATISTICS_FILE,
+    DELTA_EXPORT_FILE,
+]
+# Files we persist about a run other than DatasetResources.
+EXTRA_ARTIFACTS = [
     ISSUES_FILE,
     ISSUES_LOG,
     INDEX_FILE,
     STATEMENTS_FILE,
-    STATISTICS_FILE,
     VERSIONS_FILE,
     RESOURCES_FILE,
-    DELTA_EXPORT_FILE,
-    DELTA_INDEX_FILE,
     HASH_FILE,
+    DELTA_INDEX_FILE,
 ]
 TTL_SHORT = 10 * 60
 TTL_MEDIUM = 24 * 60 * 60
@@ -158,7 +187,7 @@ def get_artifact_object(
     return None
 
 
-def publish_dataset_version(dataset_name: str) -> None:
+def publish_version_history(dataset_name: str) -> None:
     """Publish the history of versions for a given dataset to the artifact directory."""
     path = dataset_resource_path(dataset_name, VERSIONS_FILE)
     if not path.exists():
@@ -172,7 +201,7 @@ def publish_dataset_version(dataset_name: str) -> None:
     get_versions_data.cache_clear()
 
 
-def publish_artifact(
+def archive_artifact(
     path: Path,
     dataset_name: str,
     version: Version,
@@ -180,33 +209,39 @@ def publish_artifact(
     mime_type: Optional[str] = None,
 ) -> None:
     """Publish a file in the given versions artifact directory of the dataset."""
+    assert path.relative_to(dataset_data_path(dataset_name))
     name = f"{ARTIFACTS}/{dataset_name}/{version.id}/{resource}"
     backend = get_archive_backend()
     object = backend.get_object(name)
     object.publish(path, mime_type=mime_type, ttl=TTL_LONG)
 
 
-def publish_resource(
-    path: Path,
-    dataset_name: Optional[str],
+def publish_artifact(
+    dataset_name: str,
+    version_id: str,
     resource: str,
     republish_to_latest: bool = True,
-    mime_type: Optional[str] = None,
 ) -> None:
-    """Resources are files published to the main publication directory of the dataset."""
+    """Server-side copy from /artifacts/{dataset}/{version}/{resource} into
+    /datasets/{RELEASE}/{dataset}/{resource} (and /datasets/{LATEST}/{dataset}/{resource}
+    when republish_to_latest=True and RELEASE != LATEST).
+
+    The /artifacts/ copy is the canonical, immutable URL surfaced in metadata;
+    the /datasets/ copies exist for back-compat with customers using stable
+    /datasets/{LATEST}/... or /datasets/{RELEASE}/... URLs.
+    """
     backend = get_archive_backend()
-    if dataset_name is not None:
-        assert path.relative_to(dataset_data_path(dataset_name))
-        resource = f"{dataset_name}/{resource}"
-    release_name = f"{DATASETS}/{settings.RELEASE}/{resource}"
+    artifact_name = f"{ARTIFACTS}/{dataset_name}/{version_id}/{resource}"
+
+    release_name = f"{DATASETS}/{settings.RELEASE}/{dataset_name}/{resource}"
     release_object = backend.get_object(release_name)
-    release_object.publish(path, mime_type=mime_type, ttl=TTL_MEDIUM)
+    release_object.republish(artifact_name, ttl=TTL_MEDIUM)
     invalidate_archive_cache(release_name)
 
     if republish_to_latest and settings.RELEASE != LATEST:
-        latest_name = f"{DATASETS}/{LATEST}/{resource}"
+        latest_name = f"{DATASETS}/{LATEST}/{dataset_name}/{resource}"
         latest_object = backend.get_object(latest_name)
-        latest_object.republish(release_name)
+        latest_object.republish(artifact_name, ttl=TTL_MEDIUM)
         invalidate_archive_cache(latest_name)
 
 
