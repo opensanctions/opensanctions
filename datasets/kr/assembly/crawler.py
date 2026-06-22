@@ -1,7 +1,9 @@
+import json
 from typing import Any
 
 from zavod import Context, Entity
 from zavod import helpers as h
+from zavod.extract import zyte_api
 from zavod.stateful.positions import PositionCategorisation, categorise
 
 
@@ -68,14 +70,21 @@ def crawl(context: Context) -> None:
     categorisation = categorise(context, position)
     context.emit(position)
 
+    # The source has a flaky authoritative DNS setup that the crawl host's resolver
+    # intermittently fails to resolve (and negatively caches the failure, so retries
+    # don't help). Fetch via Zyte, which resolves the host on its own infrastructure.
     # The endpoint caps the page size silently; request all seats in one call and assert
     # the returned count matches the reported total.
-    data = context.fetch_json(
+    _, _, _, path = zyte_api.fetch_resource(
+        context,
+        "members.json",
         context.data_url,
         method="POST",
-        data={"page": "1", "rows": 500},
-        cache_days=1,
+        body=b"page=1&rows=500",
+        headers={"Content-Type": "application/x-www-form-urlencoded"},
     )
+    with open(path, encoding="utf-8") as fh:
+        data = json.load(fh)
     rows = data["data"]
     # Fail loudly if the single-request assumption breaks (paging silently re-introduced,
     # or the seat count grows past ROWS and the response is truncated).
