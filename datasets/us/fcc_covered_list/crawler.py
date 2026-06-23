@@ -70,7 +70,7 @@ def crawl(context: Context) -> None:
         writer.writeheader()
         writer.writerows(rows)
     # Run locally and check the diff on table.csv to see what changed.
-    h.assert_dom_hash(table, "097ab828e6d4b6b8df8e25935d0bf08b6aa4cf24", text_only=True)
+    h.assert_dom_hash(table, "db093d17d2bd763ed527363ed4351b5e617d1383", text_only=True)
 
     path = context.fetch_resource("source.csv", context.data_url)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
