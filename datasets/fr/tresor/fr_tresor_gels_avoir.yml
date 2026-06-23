@@ -215,11 +215,11 @@ lookups:
           - 5878431
           - 644101001
         prop: registrationNumber
-      # Free-text wrongly placed in the UN reference (REFERENCE_ONU) field; not actual unscId values.
-      - match:
-          - "Al-Goney Hamdan Dagalo a été inscrit sur la liste le 28 avril 2026 en application du point 3, c), de la résolution 1591 (2005)."
-          - "Date de désignation par les Nations unies: 28 avril 2026."
-        value: null
+      - match: "Al-Goney Hamdan Dagalo a été inscrit sur la liste le 28 avril 2026 en application du point 3, c), de la résolution 1591 (2005)."
+        prop: reason
+        # Free-text wrongly placed in the UN reference (unscId) field; not actual unscId values.
+      - match: "Date de désignation par les Nations unies: 28 avril 2026."
+        prop: null
   identification_segment:
     lowercase: true
     normalize: true
