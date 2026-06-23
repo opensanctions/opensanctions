@@ -1,7 +1,7 @@
 import re
 from urllib.parse import urljoin
 
-from zavod import Context, settings
+from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
 from zavod.stateful.positions import (
@@ -12,10 +12,6 @@ from zavod.stateful.positions import (
 from zavod.util import Element
 
 ID_RE = re.compile(r"id=(\d+)")
-POSITION_TOPICS = ["gov.national", "gov.legislative"]
-# Members flagged with this condition are currently in office; any other condition
-# (Fallecido, Destituído, Suspendido, Inactivo, ...) means they have left the seat.
-ACTIVE_CONDITION = "en ejercicio"
 
 
 def field_value(el: Element, css_class: str) -> str | None:
@@ -48,51 +44,33 @@ def crawl_member(
     email: str | None,
     position: Entity,
     categorisation: PositionCategorisation,
-    cutoff: str,
 ) -> None:
     doc = context.fetch_html(detail_url, cache_days=7)
 
-    condition = field_value(doc, "condicion")
-    if condition is None:
-        raise ValueError(f"No condition found at {detail_url}")
     name = field_value(doc, "nombres")
-    if name is None:
-        raise ValueError(f"No name found at {detail_url}")
+    electoral_status = field_value(doc, "condicion")
+    if electoral_status is None:
+        raise ValueError(f"No electoral status found at {detail_url}")
 
     # Inicio (start) and Término (end) of the period of functions, in that order.
     period_dates = h.xpath_strings(
         doc,
         ".//p[@class='periodo']//span[@class='periododatos']/span[@class='value']/text()",
     )
-    if len(period_dates) != 2:
-        raise ValueError(f"Expected start and end dates at {detail_url}")
-    start_date, term_end = period_dates
+    start_date, end_date = period_dates
 
-    if condition.casefold() == ACTIVE_CONDITION:
-        # Sitting member: Término is the scheduled term end (in the future) and
-        # make_occupancy resolves the occupancy as current.
-        status = None
-        end_date: str | None = term_end
-    else:
-        # The member has left office. Término is usually still the scheduled term end
-        # rather than the actual departure, so only keep it as the end date when it is
-        # already in the past (e.g. a date of death); otherwise the end is unknown.
+    status = None
+    if electoral_status.casefold() != "en ejercicio":
+        # any other status means the member has left office
         status = OccupancyStatus.ENDED
-        term_end_iso = parse_iso(context, term_end)
-        today = settings.RUN_TIME.date().isoformat()
-        end_date = term_end if term_end_iso is not None and term_end_iso < today else None
-
-    # Skip members who left office before our PEP coverage window.
-    end_iso = parse_iso(context, end_date)
-    if end_iso is not None and end_iso < cutoff:
-        return
 
     person = context.make("Person")
-    person.id = context.make_slug(ID_RE.search(detail_url).group(1))  # type: ignore[union-attr]
+    person.id = context.make_id(name, detail_url)
     person.add("name", name)
     # Members of Congress must be Peruvian by birth (Constitution of Peru, Art. 90).
     # https://www.constituteproject.org/constitution/Peru_2021
     person.add("citizenship", "pe")
+
     person.add("political", field_value(doc, "grupo"))
     person.add("email", email)
     person.add("sourceUrl", detail_url)
@@ -108,16 +86,14 @@ def crawl_member(
     )
     if occupancy is None:
         return
-    occupancy.add("constituency", field_value(doc, "representa"))
-    # The bancada (parliamentary group) is distinct from party membership.
-    occupancy.add("politicalGroup", field_value(doc, "bancada"))
+    occupancy.add("constituency", field_value(doc, "representa"))  # electoral district
+    occupancy.add("politicalGroup", field_value(doc, "bancada"))  # parliamentary group
 
     context.emit(occupancy)
     context.emit(person)
 
 
 def crawl(context: Context) -> None:
-    cutoff = h.earliest_term_start(POSITION_TOPICS)
     doc = context.fetch_html(context.data_url, absolute_links=True, cache_days=1)
     links = h.xpath_elements(doc, './/a[@class="conginfo"]')
     if len(links) == 0:
@@ -127,7 +103,7 @@ def crawl(context: Context) -> None:
         context,
         name="Member of the Congress of the Republic of Peru",
         country="pe",
-        topics=POSITION_TOPICS,
+        topics=["gov.national", "gov.legislative"],
         wikidata_id="Q18812470",
         lang="eng",
     )
@@ -149,7 +125,9 @@ def crawl(context: Context) -> None:
         emails = h.xpath_strings(row, './/a[starts-with(@href, "mailto:")]/@href')
         email = emails[0].removeprefix("mailto:") if len(emails) > 0 else None
 
-        context.log.info(f"Crawling congressperson {index}/{len(links)}", url=detail_url)
-        crawl_member(context, detail_url, email, position, categorisation, cutoff)
+        context.log.info(
+            f"Crawling congressperson {index}/{len(links)}", url=detail_url
+        )
+        crawl_member(context, detail_url, email, position, categorisation)
         # Persist the HTTP cache periodically so a long run keeps its progress.
         context.flush()
