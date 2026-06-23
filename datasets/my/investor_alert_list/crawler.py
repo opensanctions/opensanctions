@@ -2,9 +2,10 @@ import json
 import re
 
 from zavod import Context
+from zavod import helpers as h
 
 
-def crawl_item(input_dict: dict, context: Context) -> None:
+def crawl_item(input_dict: dict[str, str], context: Context) -> None:
     name = input_dict.pop("name")
 
     # If it's a potential clone, we remove the "potential clone" from the name
@@ -43,11 +44,12 @@ def crawl(context: Context) -> None:
             target_script = script
             break
 
-    target_script = target_script.text_content().replace("$X.PMD = ", "")
+    assert target_script is not None, "Could not find $X.PMD script block"
+    script_text = h.element_text(target_script, squash=False).replace("$X.PMD = ", "")
 
-    idx = target_script.find(";$X.PPG")
+    idx = script_text.find(";$X.PPG")
 
-    full_data = json.loads(target_script[:idx])
+    full_data = json.loads(script_text[:idx])
 
     for key in full_data:
         if len(full_data[key]):

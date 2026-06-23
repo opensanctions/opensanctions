@@ -1,6 +1,6 @@
 import csv
+from typing import Any
 from normality import stringify
-from typing import Dict, Optional
 from rigour.mime.types import CSV
 from followthemoney import model
 
@@ -16,12 +16,12 @@ IGNORE_FIELDS: list[str] = [
 ]
 
 
-def add_source_link(entity: Entity, link: str) -> None:
+def add_source_link(entity: Entity, link: str | None) -> None:
     if entity.id is not None and link is not None and link.startswith("http"):
         entity.add("sourceUrl", link)
 
 
-def crawl_sec_row(context: Context, row: Dict[str, str]) -> None:
+def crawl_sec_row(context: Context, row: dict[str, str]) -> None:
     entity = context.make("Company")
     name = row.pop("name")
     entity.id = context.make_slug(name)
@@ -44,7 +44,7 @@ def crawl_sec(context: Context) -> None:
     path = context.fetch_resource("sec-source.csv", SECURITIES_STATEMENTS_CSV)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
-        entity: Optional[Entity] = None
+        entity: Entity | None = None
         for row in csv.DictReader(fh):
             entity_id = stringify(row.pop("entity_id"))
             if entity_id is None:
@@ -77,7 +77,7 @@ def crawl_sec(context: Context) -> None:
             crawl_sec_row(context, row)
 
 
-def crawl_sanction_ownership_row(context: Context, row: Dict) -> None:
+def crawl_sanction_ownership_row(context: Context, row: dict[str, Any]) -> None:
     # source link to prove the relationships when a link exists
     source_link = stringify(row.pop("Source Link"))
     owner_schema = stringify(row.pop("Owner Schema"))
