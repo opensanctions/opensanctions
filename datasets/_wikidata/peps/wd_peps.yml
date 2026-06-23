@@ -427,6 +427,7 @@ lookups:
           - "Q108466181" # judicial position
           - "Q107363151" # central bank governor
           - "Q5785176" # auditor general
+          - "Q7074545" # Oba of Lagos (traditional monarch, the AML rules in Nigeria cover 'members of royal families')
       - maybe_pep: false
         match:
           - "Q8191099" # affiliate
@@ -459,7 +460,6 @@ lookups:
           - "Q4048723" # SEO specialist
           - "Q4102597" # job vacancy
           - "Q5428874" # faculty member
-          - "Q7074545" # Oba of Lagos
           - "Q7140693" # partner
           - "Q7200276" # placeholder
           - "Q10438271" # office manager
