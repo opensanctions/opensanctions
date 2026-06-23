@@ -1,4 +1,4 @@
-title: Argentina Members of the Senate
+title: Argentina Members of Senate
 entry_point: crawler.py
 prefix: ar-sen
 coverage:
