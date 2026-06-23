@@ -187,8 +187,6 @@ lookups:
           - "Q1500391" # chief of municipal
           - "Q1513949" # Returning officer
           - "Q1516453" # lieutenant governor
-          - "Q1555246" # Supreme commanders of the Imperial and Royal Armed Forces
-          - "Q1654355" # Interior Minister of Prussia
           - "Q1758037" # speaker
           - "Q1837955" # Chief Minister of Punjab
           - "Q1890052" # president of the court
@@ -397,14 +395,12 @@ lookups:
           - "Q7886633" # centenier
           - "Q9325187" # Q9325187
           - "Q10312791" #  juiz de direito
-          - "Q10312792" # juiz de fora
           - "Q10342662" # ouvidor-mor
           - "Q10544194" # Q10544194
           - "Q13142904" # Sechser
           - "Q14173978" # Q14173978
           - "Q14418847" # Q14418847
           - "Q15913260" # Q15913260
-          - "Q16931516" # Muhandiram
           - "Q18677341" # Procurator
           - "Q20025378" # Q20025378
           - "Q20169991" # Kreisausschussinspektor
@@ -641,6 +637,10 @@ lookups:
           - "Q15110009" # Ministerial Diary Secretary
           - "Q37110" # Pharaoh (ruler of ancient Egypt)
           - "Q104492321" # copeiro-mor (chief cupbearer, office in the Kingdom of Portugal that has not existed for over 100 years)
+          - "Q10312792" # juiz de fora (magistrate, office in the Kingdom of Portugal that has not existed for over 100 years)
           - "Q81641582" # intendant of the généralité de Valenciennes (position existed before French Revolution)
+          - "Q16931516" # Muhandiram (colonial-era honour not awarded after 1956)
+          - "Q1654355" # Interior Minister of Prussia (Prussia was dissolved after World War II)
+          - "Q1555246" # Supreme commanders of the Imperial and Royal Armed Forces (office in Austro-Hungarian Empire)
           - "Q60832272" # Grand voyer (Quebec title, office abolished in 1840)
           - "Q3401661" # Premier bouteiller de Bretagne (not used since the 1500s)
