@@ -1,4 +1,4 @@
-title: Suriname De Nationale Assemblée
+title: Suriname Members of National Assembly
 entry_point: crawler.py
 prefix: sr-dna
 coverage:
@@ -7,20 +7,19 @@ coverage:
 load_statements: true
 ci_test: false # Live external website, not available in CI
 summary: >-
-  Members of De Nationale Assemblée, the unicameral national legislature of
+  Members of the National Assembly (De Nationale Assemblée), the unicameral national legislature of
   Suriname
 description: |
-  Current members of De Nationale Assemblée (DNA, National Assembly), the
+  Current members of the National Assembly (De Nationale Assemblée), the
   unicameral national legislature of Suriname. Its 51 members are elected from
   the ten districts via proportional representation for five-year terms.
 
-  This dataset records each sitting member with their name, party (partij) and
-  parliamentary group (fractie), scraped from the official Assembly website.
+  This dataset records each sitting member with their name, party, and
+  parliamentary group, scraped from the official Assembly website.
 url: https://www.dna.sr/politiek-college/leden-2025-2030/
 publisher:
   name: De Nationale Assemblée
   name_en: National Assembly of Suriname
-  acronym: DNA
   description: >
     De Nationale Assemblée is the unicameral national legislature of Suriname.
   url: https://www.dna.sr/
