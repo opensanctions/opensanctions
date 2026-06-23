@@ -1,6 +1,3 @@
-from typing import Optional
-from normality import slugify
-
 from zavod import Context
 from zavod import helpers as h
 from zavod.extract.zyte_api import fetch_html
@@ -15,26 +12,22 @@ def crawl_page(
     required: bool = True,
 ) -> Element:
     doc = fetch_html(context, link, unblock_validator, cache_days=3)
+    # Inject newlines after each <p> so multi-value cells (one value per
+    # paragraph) can be split on "\n" below.
     for p in h.xpath_elements(doc, ".//p"):
         p.tail = p.tail + "\n" if p.tail else "\n"
-    table = h.xpath_elements(doc, './/div[@class="content-block"]//table')
-    if len(table) == 0:
+    tables = h.xpath_elements(doc, './/div[@class="content-block"]//table')
+    if len(tables) == 0:
         if required:
             raise ValueError(f"No table found in {link}")
         else:
             return doc
 
-    assert len(table) == 1, f"Expected exactly one table in {link}"
-    headers: Optional[list[str]] = None
-    for row in h.xpath_elements(table[0], ".//tr"):
-        # squash=False to preserve \n separators used for splitting multi-value cells
-        cells = [
-            h.element_text(c, squash=False) for c in h.xpath_elements(row, ".//td")
-        ]
-        if headers is None:
-            headers = [s for k in cells if (s := slugify(k, sep="_")) is not None]
-            continue
-        data = dict(zip(headers, cells))
+    assert len(tables) == 1, f"Expected exactly one table in {link}"
+    # Headers are in <td>, not <th>. squash=False preserves the \n separators
+    # injected above for splitting multi-value cells.
+    for row in h.parse_html_table(tables[0], header_tag="td"):
+        data = {k: h.element_text(v, squash=False) for k, v in row.items()}
         nr = data.pop("nr")
         company_name_raw = (
             data.pop("fizinio_ar_juridinio_asmens_kurio_turtas_isaldytas_pavadinimas")
