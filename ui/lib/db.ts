@@ -39,6 +39,7 @@ const expectedPositionColumns = new Set<string>([
   'entity_id',
   'caption',
   'countries',
+  'subnational_areas',
   'is_pep',
   'topics',
   'dataset',
@@ -82,6 +83,7 @@ export interface PositionTable {
   entity_id: string
   caption: string
   countries: JSONColumnType<string[], string[], string[]>
+  subnational_areas: JSONColumnType<string[], string[], string[]> | null
   is_pep: boolean | null
   topics: JSONColumnType<string[], string[], string[]>
   dataset: string
@@ -510,6 +512,7 @@ export async function softDeleteAndCreatePosition({ entityId, positionUpdate, mo
         // NOTE(Leon Handreke): I don't know how else to make it work than to stringify
         // the lists manually.
         countries: JSON.stringify(updatedData.countries) as unknown as string[],
+        subnational_areas: JSON.stringify(updatedData.subnational_areas ?? []) as unknown as string[],
         topics: JSON.stringify(updatedData.topics) as unknown as string[],
       })
       .returningAll()
