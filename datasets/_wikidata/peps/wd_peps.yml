@@ -420,9 +420,7 @@ lookups:
           - "Q106581314" # Q106581314
           - "Q112660316" # Q112660316
           - "Q114850321" # Collector of Customs
-          - "Q116878625" # Appellationsgerichtsrat
           - "Q116908879" # Community Board member
-          - "Q117458668" # Oberappellationsgerichtsrat
           - "Q118109623" # Q118109623
           - "Q118278814" # président de l'Assemblée commune
           - "Q121620135" # Q121620135
@@ -642,5 +640,7 @@ lookups:
           - "Q1555246" # Supreme commanders of the Imperial and Royal Armed Forces (office in Austro-Hungarian Empire)
           - "Q10342662" # ouvidor-mor (office in colonial-era Brazil)
           - "Q26718" # Continental Congress (body from the 1700s)
+          - "Q116878625" # Appellationsgerichtsrat (abolished at around the time of German unification in the 1800s)
+          - "Q117458668" # Oberappellationsgerichtsrat (abolished at around the time of German unification in the 1800s)
           - "Q60832272" # Grand voyer (Quebec title, office abolished in 1840)
           - "Q3401661" # Premier bouteiller de Bretagne (not used since the 1500s)
