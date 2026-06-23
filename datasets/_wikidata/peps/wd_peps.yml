@@ -373,7 +373,6 @@ lookups:
           - "Q1802914" # Landgerichtsrat
           - "Q2038497" # Q2038497
           - "Q2101555" # Politischer Leiter
-          - "Q2246543" # Ruwaard
           - "Q2276758" # Q2276758
           - "Q2305417" # inspector general
           - "Q2324526" # Garpon
@@ -642,5 +641,6 @@ lookups:
           - "Q116878625" # Appellationsgerichtsrat (abolished at around the time of German unification in the 1800s)
           - "Q117458668" # Oberappellationsgerichtsrat (abolished at around the time of German unification in the 1800s)
           - "Q60832272" # Grand voyer (Quebec title, office abolished in 1840)
+          - "Q2246543" # Ruwaard (title used in medieval times)
           - "Q3401661" # Premier bouteiller de Bretagne (not used since the 1500s)
           - "Q5928980" # jefe político superior (Spanish office not used after the 1800s)
