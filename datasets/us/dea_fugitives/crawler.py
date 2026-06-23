@@ -21,9 +21,11 @@ def crawl_item(fugitive_url: str, context: Context) -> None:
     response = context.fetch_html(fugitive_url, cache_days=7, headers=HEADERS)
 
     name = response.findtext('.//h2[@class="fugitive__title"]')
+    table = response.find(".//table")
+    assert table is not None, "No table found on fugitive page"
     info_dict = {
-        row["label"].text_content(): row["description"].text_content()
-        for row in h.parse_html_table(response.find(".//table"))
+        h.element_text(row["label"]): h.element_text(row["description"])
+        for row in h.parse_html_table(table)
     }
 
     entity = context.make("Person")
@@ -88,6 +90,8 @@ def crawl(context: Context) -> None:
 
         for item in response.findall('.//div[@class="teaser "]/div/h3/a'):
             sleep(SLEEP_SECONDS)
-            crawl_item(item.get("href"), context)
+            item_url = item.get("href")
+            assert item_url is not None, "No href found on fugitive link"
+            crawl_item(item_url, context)
 
         page_num += 1

@@ -40,7 +40,9 @@ def lookup_topic(context: Context, program_name: Optional[str]) -> Optional[str]
     if res is None:
         context.log.warn(f"Topic for {program_name!r} not found.")
         return None
-    return res.topic
+    # datapatch Result.__getattr__ returns Any; topic is always str | None at runtime
+    topic: str | None = res.topic
+    return topic
 
 
 def emit_relationship(
@@ -149,7 +151,7 @@ def parse_addresses(
 
 def clean_authority(value: Optional[str]) -> Optional[List[str]]:
     if value is None:
-        return
+        return None
     value = REGEX_AUTHORITY_ID_SEP.sub(r", \1", value)
     return h.multi_split(value, [";", ", "])
 
@@ -211,6 +213,7 @@ def parse_list_entry(context: Context, list_entry: Dict[str, Any]) -> None:
         # entities might only appear through related names, we also apply 'make_and_emit_sanction'
         # within 'emit_relationship' to ensure they're not missed.
         if related_names:
+            assert entity.id is not None
             emit_relationship(
                 context,
                 entity.id,

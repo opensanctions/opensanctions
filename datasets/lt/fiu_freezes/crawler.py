@@ -1,10 +1,10 @@
-from typing import List, Optional
+from typing import Optional
 from normality import slugify
 
 from zavod import Context
 from zavod import helpers as h
 from zavod.extract.zyte_api import fetch_html
-from zavod.util import ElementOrTree
+from zavod.util import Element
 
 
 def crawl_page(
@@ -13,7 +13,7 @@ def crawl_page(
     unblock_validator: str,
     program_key: str,
     required: bool = True,
-) -> ElementOrTree:
+) -> Element:
     doc = fetch_html(context, link, unblock_validator, cache_days=3)
     for p in h.xpath_elements(doc, ".//p"):
         p.tail = p.tail + "\n" if p.tail else "\n"
@@ -25,11 +25,14 @@ def crawl_page(
             return doc
 
     assert len(table) == 1, f"Expected exactly one table in {link}"
-    headers: Optional[List[str]] = None
+    headers: Optional[list[str]] = None
     for row in h.xpath_elements(table[0], ".//tr"):
-        cells = [c.text_content() for c in h.xpath_elements(row, ".//td")]
+        # squash=False to preserve \n separators used for splitting multi-value cells
+        cells = [
+            h.element_text(c, squash=False) for c in h.xpath_elements(row, ".//td")
+        ]
         if headers is None:
-            headers = [slugify(k, sep="_") for k in cells]
+            headers = [s for k in cells if (s := slugify(k, sep="_")) is not None]
             continue
         data = dict(zip(headers, cells))
         nr = data.pop("nr")
