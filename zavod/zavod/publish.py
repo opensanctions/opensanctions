@@ -116,7 +116,7 @@ def _warn_about_stale_latest_files(dataset: Dataset, published_files: set[str]) 
 
 def archive_failure(dataset: Dataset) -> None:
     """Upload failure information about a dataset to the archive."""
-    # Collections currently should never call publish_failure (as that only gets called for crawl and validate).
+    # Collections currently should never call archive_failure (as that only gets called for crawl and validate).
     # But if they ever did (for example to publish a failure in the export stage), we should think very well about
     # what exactly a failed index.json for default should look like. Currently, it would have empty resources,
     # and our clients likely wouldn't appreciate that.
