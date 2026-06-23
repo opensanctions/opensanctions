@@ -19,7 +19,7 @@ IGNORE_COLUMNS = [
     "Genuri de activitate nelicentiate",
     "Genuri de activitate licentiate",
 ]
-NONPROFITS_URL = "https://dataset.gov.md/dataset/18516-date-din-registrul-de-stat-al-unitatilor-de-drept-privind-organizatiile-necomerciale"
+NONPROFITS_URL = "https://dataset.gov.md/dataset/date-din-registrul-de-stat-al-unitatilor-de-drept-privind-organizatiile-necomerciale"
 LEGAL_ENTITIES_URL = "https://dataset.gov.md/ro/dataset/11736-date-din-registrul-de-stat-al-unitatilor-de-drept-privind-intreprinderile-inregistrate-in-repu"
 REGEX_CONTAINS_WORDS = re.compile(r"\w{2}")
 
@@ -191,7 +191,7 @@ def parse_nonprofits(context: Context, wb: Workbook) -> None:
     assert set(wb.sheetnames) == {active_sheet.title}
     for row in h.parse_xlsx_sheet(
         context,
-        wb["organizations"],
+        wb["O.N."],
         skiprows=4,
         header_lookup=context.get_lookup("nonprofit_headers"),
     ):
