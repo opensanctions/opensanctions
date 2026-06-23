@@ -37,6 +37,12 @@ data:
 dates:
   formats: ["%Y-%m-%d"]
 
+lookups:
+  type.date:
+    options:
+      - match: "Sin Datos"
+        value: null
+
 tags:
   - list.pep
 
