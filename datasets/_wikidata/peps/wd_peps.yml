@@ -166,7 +166,6 @@ lookups:
           - "Q294414" # public office
           - "Q303618" # diplomatic rank
           - "Q334473" # division manager
-          - "Q337902" # naval rating
           - "Q524778" # commissioner
           - "Q620110" # Leader of the Opposition
           - "Q740126" # President of the European Parliament
@@ -629,6 +628,7 @@ lookups:
           - "Q1757970" # elder
           - "Q138412833" # Kurdirektor (spa/health resort director)
           - "Q15110009" # Ministerial Diary Secretary
+           - "Q337902" # naval rating (junior naval rank)
           - "Q37110" # Pharaoh (ruler of ancient Egypt)
           - "Q104492321" # copeiro-mor (chief cupbearer, office in the Kingdom of Portugal that has not existed for over 100 years)
           - "Q10312792" # juiz de fora (magistrate, office in the Kingdom of Portugal that has not existed for over 100 years)
