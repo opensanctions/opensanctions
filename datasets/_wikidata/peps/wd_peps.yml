@@ -221,7 +221,6 @@ lookups:
           - "Q30056203" # ambassador to Qatar
           - "Q30081888" # ambassador to Belarus
           - "Q5663887" # alcaide
-          - "Q5928980" # jefe político superior
           - "Q6857706" # military profession
           - "Q6888512" # moderator
           - "Q7210354" # Political officer
@@ -644,3 +643,4 @@ lookups:
           - "Q117458668" # Oberappellationsgerichtsrat (abolished at around the time of German unification in the 1800s)
           - "Q60832272" # Grand voyer (Quebec title, office abolished in 1840)
           - "Q3401661" # Premier bouteiller de Bretagne (not used since the 1500s)
+          - "Q5928980" # jefe político superior (Spanish office not used after the 1800s)
