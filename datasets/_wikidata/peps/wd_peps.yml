@@ -395,7 +395,6 @@ lookups:
           - "Q7886633" # centenier
           - "Q9325187" # Q9325187
           - "Q10312791" #  juiz de direito
-          - "Q10342662" # ouvidor-mor
           - "Q10544194" # Q10544194
           - "Q13142904" # Sechser
           - "Q14173978" # Q14173978
@@ -642,5 +641,6 @@ lookups:
           - "Q16931516" # Muhandiram (colonial-era honour not awarded after 1956)
           - "Q1654355" # Interior Minister of Prussia (Prussia was dissolved after World War II)
           - "Q1555246" # Supreme commanders of the Imperial and Royal Armed Forces (office in Austro-Hungarian Empire)
+          - "Q10342662" # ouvidor-mor (office in colonial-era Brazil)
           - "Q60832272" # Grand voyer (Quebec title, office abolished in 1840)
           - "Q3401661" # Premier bouteiller de Bretagne (not used since the 1500s)
