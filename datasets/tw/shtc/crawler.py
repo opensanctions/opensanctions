@@ -126,16 +126,18 @@ def crawl(context: Context) -> None:
     # On the dataset page is a link to a PDF file that contains a link to the CSV file.
     # Assert on the URL of the PDF file in the hope that it changes when the list is updated.
     url_xpath = ".//a[@title='SHTC Entity List']/@href"
+    source_url = context.dataset.model.url
+    assert source_url is not None, "Dataset model URL is not set"
     doc = fetch_html(
         context,
-        context.dataset.model.url,
+        source_url,
         url_xpath,
         cache_days=1,
     )
-    url = doc.xpath(url_xpath)
-    assert len(url) == 1, 'Expected exactly one document called "SHTC Entity List"'
+    urls = h.xpath_strings(doc, url_xpath)
+    assert len(urls) == 1, 'Expected exactly one document called "SHTC Entity List"'
     # 2025-03-04	SHTC Entity List
-    h.assert_url_hash(context, url[0], "d046359c5be70faccb040a94035bba54faff6e80")
+    h.assert_url_hash(context, urls[0], "d046359c5be70faccb040a94035bba54faff6e80")
 
     # Crawl the CSV file
     path = context.fetch_resource("shtc_list.csv", context.data_url)

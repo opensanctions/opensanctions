@@ -1,10 +1,9 @@
 import csv
-from typing import Dict
 
 from zavod import Context, helpers as h
 
 
-def crawl_row(context: Context, row: Dict[str, str]) -> None:
+def crawl_row(context: Context, row: dict[str, str]) -> None:
     name = row.pop("name")
     name_raw = row.pop("original_string")
     alias = row.pop("alias")
@@ -34,10 +33,10 @@ def crawl_row(context: Context, row: Dict[str, str]) -> None:
 
 
 def crawl(context: Context) -> None:
+    assert context.dataset.url is not None
     doc = context.fetch_html(context.dataset.url, cache_days=1)
-    table = doc.xpath(".//div[@class='item-page']/table")
-    assert len(table) == 1, "Expected exactly one table in the document"
-    h.assert_dom_hash(table[0], "60ffd9d35b4102ac60c69fdb5fdf7af2a8f23396")
+    table = h.xpath_element(doc, ".//div[@class='item-page']/table")
+    h.assert_dom_hash(table, "60ffd9d35b4102ac60c69fdb5fdf7af2a8f23396")
     # AMLC Resolution TF -114
     # AMLC Resolution TF -113
     # AMLC Resolution TF -112
