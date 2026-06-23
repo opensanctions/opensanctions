@@ -219,7 +219,6 @@ lookups:
           - "Q5390229" # ambassador of Costa Rica
           - "Q30056203" # ambassador to Qatar
           - "Q30081888" # ambassador to Belarus
-          - "Q5663887" # alcaide
           - "Q6857706" # military profession
           - "Q6888512" # moderator
           - "Q7210354" # Political officer
@@ -295,7 +294,6 @@ lookups:
           - "Q103838820" # elected position
           - "Q103888080" # audit committee member
           - "Q104178983" # municipal judge
-          - "Q104180972" # alcaide-mor
           - "Q105116421" # treasurer
           - "Q106090919" # Deputy Mayor of London for Policing and Crime
           - "Q107419604" # honorary consul of Ireland
@@ -642,5 +640,7 @@ lookups:
           - "Q117458668" # Oberappellationsgerichtsrat (abolished at around the time of German unification in the 1800s)
           - "Q60832272" # Grand voyer (Quebec title, office abolished in 1840)
           - "Q2246543" # Ruwaard (title used in medieval times)
+          - "Q5663887" # alcaide (captain of a fortress, title used in around 1500s)
+          - "Q104180972" # alcaide-mor (captain of a fortress, title used in around 1500s)
           - "Q3401661" # Premier bouteiller de Bretagne (not used since the 1500s)
           - "Q5928980" # jefe político superior (Spanish office not used after the 1800s)
