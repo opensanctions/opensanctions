@@ -5,7 +5,7 @@ coverage:
   frequency: monthly
   start: 2026-06-18
 load_statements: true
-ci_test: false # Live external government API, not available in CI
+ci_test: false
 summary: >-
   Senators of the Cámara de Senadores, the upper chamber of the Plurinational
   Legislative Assembly of Bolivia
@@ -22,7 +22,6 @@ url: https://senado.gob.bo/
 publisher:
   name: Cámara de Senadores de Bolivia
   name_en: Chamber of Senators of Bolivia
-  acronym: CS
   description: >
     The Chamber of Senators is the upper chamber of the Plurinational
     Legislative Assembly (Asamblea Legislativa Plurinacional), the bicameral
@@ -31,12 +30,36 @@ publisher:
   country: bo
   official: true
 data:
-  url: https://apisi.senado.gob.bo/page/senadores/pleno
+  url: https://apisi.senado.gob.bo/page/senadores
   format: JSON
   lang: spa
 
 tags:
   - list.pep
+
+lookups:
+  # The senators endpoint only exposes a numeric department (brigada) code; map
+  # it to the department name (the nine departments of Bolivia).
+  brigada_department:
+    options:
+      - match: "72"
+        value: Cochabamba
+      - match: "73"
+        value: Beni
+      - match: "74"
+        value: Chuquisaca
+      - match: "75"
+        value: La Paz
+      - match: "76"
+        value: Oruro
+      - match: "77"
+        value: Pando
+      - match: "78"
+        value: Potosí
+      - match: "79"
+        value: Santa Cruz
+      - match: "80"
+        value: Tarija
 
 assertions:
   min:
