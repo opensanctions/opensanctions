@@ -427,7 +427,8 @@ lookups:
           - "Q108466181" # judicial position
           - "Q107363151" # central bank governor
           - "Q5785176" # auditor general
-          - "Q7074545" # Oba of Lagos (traditional monarch, the AML rules in Nigeria cover 'members of royal families')
+          - "Q7074545" # Oba of Lagos (traditional monarch, the AML rules in Nigeria cover members of royal families)
+          - "Q3643105" # Rain Queen (traditional monarch, the AML rules in South Africa cover traditional leaders)
       - maybe_pep: false
         match:
           - "Q8191099" # affiliate
@@ -456,7 +457,6 @@ lookups:
           - "Q3149494" # printer to the King
           - "Q3290825" # churchwarden
           - "Q3504856" # substitute
-          - "Q3643105" # Rain Queen
           - "Q4048723" # SEO specialist
           - "Q4102597" # job vacancy
           - "Q5428874" # faculty member
