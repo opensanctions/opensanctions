@@ -96,7 +96,7 @@ def crawl(context: Context) -> None:
     response = context.fetch_html(context.data_url)
     tables = response.findall(".//table")
     for table in tables:
-        first_row = h.xpath_element(table, ".//tr")
+        first_row = table.find(".//tr")
         if "Nelegalios lošimų veiklos vykdytojo duomenys" not in h.element_text(
             first_row
         ):
