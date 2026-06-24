@@ -68,7 +68,9 @@ def crawl_item(
             topics = (
                 MAYOR_TOPICS
                 if "Mayor" in translated
-                else COUNCILLOR_TOPICS if "Councillor" in translated else DEFAULT_TOPICS
+                else COUNCILLOR_TOPICS
+                if "Councillor" in translated
+                else DEFAULT_TOPICS
             )
         else:
             context.log.warning("Unknown position", position=position_name.strip())
