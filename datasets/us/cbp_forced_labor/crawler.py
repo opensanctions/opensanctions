@@ -46,7 +46,7 @@ def crawl_row(context: Context, row: dict[str, str]) -> None:
             context.emit(sanction)
 
         context.emit(entity)
-        context.audit_data(row, ignore=["Calendar Year", "Country Code"])
+        context.audit_data(row, ignore=["Calendar Year", "Country Code", "Merchandise"])
 
 
 def crawl(context: Context) -> None:

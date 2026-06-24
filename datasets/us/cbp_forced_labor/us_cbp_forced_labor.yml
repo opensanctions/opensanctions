@@ -337,3 +337,9 @@ lookups:
       - match: "Serbia Zijin Copper D.O.O."
         entities:
           - name: Serbia Zijin Copper D.O.O.
+      - match: "Needle Craft Ltd"
+        entities:
+          - name: Needle Craft Ltd
+      - match: "Casual Wear Apparel L.L.C."
+        entities:
+          - name: Casual Wear Apparel L.L.C.
