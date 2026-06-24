@@ -10,13 +10,13 @@ summary: >-
   Deputies of the Cámara de Diputados, the lower chamber of the Plurinational
   Legislative Assembly of Bolivia
 description: |
-  Deputies of the Cámara de Diputados (Chamber of Deputies), the lower chamber of the
+  Deputies of the Chamber of Deputies (Cámara de Diputados), the lower chamber of the
   bicameral Plurinational Legislative Assembly of Bolivia. Its 130 titular deputies are
   elected per department through a mixed system: single-member districts (uninominal),
   department party lists (plurinominal) and special indigenous-campesino
-  circumscriptions, each with an alternate (suplente).
+  circumscriptions, each with an alternate.
 
-  This dataset records each deputy with their name, party (bancada), department and date
+  This dataset records each deputy with their name, party, department and date
   of birth, sourced from the Chamber's website. The source does not reliably flag which
   profiles are titulares and which are their suplentes, so both are included.
 url: https://diputados.gob.bo/diputados-home/
