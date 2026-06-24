@@ -145,6 +145,7 @@ LINKS: List[WSAPILink] = [
     ),
     WSAPILink(
         # partner's sanctions lists - legal entities
+        # Re-publishes other authorities' designations, so no topic by design.
         "sanctions/companies",
         WSAPIDataType.ENTITY,
         topic=None,
@@ -153,6 +154,7 @@ LINKS: List[WSAPILink] = [
     ),
     WSAPILink(
         # partner's sanctions lists - individuals
+        # Re-publishes other authorities' designations, so no topic by design.
         "sanctions/persons",
         WSAPIDataType.PERSON,
         topic=None,
@@ -254,7 +256,7 @@ def crawl_person(
     context: Context,
     person_data: Dict[str, Any],
     *,
-    program_key: str,
+    program_key: Optional[str],
     endpoint: str,
     source_url: str,
     topic: Optional[str] = "poi",
@@ -449,9 +451,13 @@ def crawl(context: Context) -> None:
             source_url = urljoin(context.data_url, f"{link.endpoint}/{entity_id}")
 
             if link.type is WSAPIDataType.PERSON:
-                assert link.program_key is not None, (
-                    f"No program_key for {link.endpoint}"
-                )
+                # Partner sanctions lists ("sanctions/...") re-publish other
+                # authorities' designations and carry no War & Sanctions program;
+                # every other list must declare one.
+                if not link.endpoint.startswith("sanctions/"):
+                    assert link.program_key is not None, (
+                        f"No program_key for {link.endpoint}"
+                    )
                 crawl_person(
                     context,
                     entity_details,
