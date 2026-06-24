@@ -1,4 +1,4 @@
-title: Croatia Members of the Croatian Parliament
+title: Croatia Members of the Parliament
 entry_point: crawler.py
 prefix: hr-sabor
 coverage:
