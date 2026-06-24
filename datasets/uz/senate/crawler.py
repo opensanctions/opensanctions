@@ -5,19 +5,6 @@ from zavod import helpers as h
 from zavod.entity import Entity
 from zavod.stateful.positions import PositionCategorisation, categorise
 
-# Per-senator birth details live on the detail endpoint. The list serves names in the
-# locale chosen by Accept-Language (default Uzbek Latin); the Russian-Cyrillic variant
-# is kept as an alias.
-DETAIL_URL = "https://senat.uz/api/v1/site/person/"
-
-IGNORE = [
-    "avatar",
-    "work_place",  # free-text role/job, varies (committee role, regional governor, ...)
-    "committee",  # committee membership — no entity field
-    "reception_days",
-    "reception_place",
-]
-
 
 def crawl_senator(
     context: Context,
@@ -33,12 +20,14 @@ def crawl_senator(
     if ru is not None:
         h.apply_name(person, full=ru.get("full_name"), lang="rus", alias=True)
 
-    detail = context.fetch_json(f"{DETAIL_URL}{senator_id}", cache_days=7)
-    detail = detail.get("data", detail)
-    h.apply_date(person, "birthDate", detail.get("birth_date"))
-    person.add("birthPlace", detail.get("birth_region"), lang="uzb")
-    person.add("birthPlace", detail.get("birth_district"), lang="uzb")
-    person.add("email", detail.get("email"))
+    detail = context.fetch_json(
+        f"{context.data_url.replace('list?type=1&limit=200&offset=0', '')}{senator_id}",
+        cache_days=7,
+    )["data"]
+    h.apply_date(person, "birthDate", detail.pop("birth_date"))
+    person.add("birthPlace", detail.pop("birth_region"), lang="uzb")
+    person.add("birthPlace", detail.pop("birth_district"), lang="uzb")
+    person.add("email", detail.pop("email"))
     # Members of the Senate must be citizens of Uzbekistan (Constitution art. 77).
     # https://www.constituteproject.org/constitution/Uzbekistan_2011
     person.add("citizenship", "uz")
@@ -50,7 +39,6 @@ def crawl_senator(
         return
     context.emit(occupancy)
     context.emit(person)
-    context.audit_data(row, ignore=IGNORE)
 
 
 def crawl(context: Context) -> None:
