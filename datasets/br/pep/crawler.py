@@ -2,13 +2,10 @@ import csv
 from typing import Dict, Any
 from zipfile import ZipFile
 
-from rigour.mime.types import ZIP
-
 from zavod import Context
 from zavod import helpers as h
 from zavod.stateful.positions import categorise
 from zavod.extract.zyte_api import fetch_resource, fetch_html
-
 
 # 1: CPF
 # 2: PEP_Name
@@ -80,8 +77,10 @@ def crawl(context: Context) -> None:
     :param context: The context object.
     """
     csv_url = get_csv_url(context)
+    # The portal serves the ZIP with the legacy IIS content type
+    # "application/x-zip-compressed" rather than the canonical "application/zip".
     _, _, _, path = fetch_resource(
-        context, "source.zip", csv_url, ZIP, geolocation="BR"
+        context, "source.zip", csv_url, "application/x-zip-compressed", geolocation="BR"
     )
     work_dir = path.parent / "files"
     work_dir.mkdir(exist_ok=True)
