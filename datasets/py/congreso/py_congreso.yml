@@ -1,0 +1,52 @@
+title: Paraguay Members of the National Congress
+entry_point: crawler.py
+prefix: py-congreso
+coverage:
+  frequency: monthly
+  start: 2026-06-23
+load_statements: true
+ci_test: false # Live external government API, not available in CI
+summary: >-
+  Members of the Chamber of Senators and the Chamber of Deputies of the National
+  Congress of Paraguay
+description: |
+  Current members of the bicameral National Congress (Congreso Nacional) of Paraguay,
+  which holds the country's legislative power, including passing laws and approving the
+  budget. It comprises the Chamber of Senators (Cámara de Senadores) — 45 senators
+  elected from a single nationwide constituency — and the Chamber of Deputies (Cámara
+  de Diputados) — 80 deputies elected from the 17 departments and the Capital District
+  (Asunción). Members serve five-year terms.
+
+  This dataset records each sitting member of both chambers with their name, party
+  (partido político), parliamentary group (bancada), constituency and email, sourced
+  from the Congress open-data API. The source lists the current occupant of each seat,
+  whether the elected member or a suplente who has taken over a vacated seat.
+url: https://datos.congreso.gov.py/
+publisher:
+  name: Congreso de la Nación Paraguaya
+  name_en: National Congress of Paraguay
+  description: >
+    The National Congress (Congreso Nacional) is the bicameral national legislature of
+    Paraguay, made up of the Chamber of Senators and the Chamber of Deputies.
+  url: https://www.congreso.gov.py/
+  country: py
+  official: true
+data:
+  url: https://datos.congreso.gov.py/opendata/api/data/parlamentario/camara/
+  format: JSON
+  lang: spa
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 100
+      Position: 2
+    country_entities:
+      py: 100
+  max:
+    schema_entities:
+      Person: 150
+      Position: 2
