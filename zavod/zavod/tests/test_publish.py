@@ -4,10 +4,12 @@ from followthemoney.dataset import VersionHistory
 
 from zavod import settings
 from zavod.meta import Dataset
-from zavod.archive import get_dataset_artifact, clear_data_path
+from zavod.archive import DELTA_EXPORT_FILE, get_dataset_artifact, clear_data_path
 from zavod.archive import iter_dataset_statements, iter_previous_statements
 from zavod.archive import STATISTICS_FILE, INDEX_FILE, STATEMENTS_FILE
 from zavod.archive import DATASETS, ARTIFACTS, VERSIONS_FILE
+from zavod.archive import ISSUES_FILE, ISSUES_LOG, RESOURCES_FILE
+from zavod.archive import HASH_FILE, DELTA_INDEX_FILE, CATALOG_FILE
 from zavod.crawl import crawl_dataset
 from zavod.store import get_store
 from zavod.exporters import export_dataset
@@ -47,15 +49,35 @@ def test_publish_dataset(testdataset1: Dataset):
     assert history.latest.id is not None
     artifact_path = artifacts_path / testdataset1.name / history.latest.id
     assert artifact_path.exists()
+    # Everything gets archived
+    assert artifact_path.joinpath(INDEX_FILE).exists()
+    assert artifact_path.joinpath(ISSUES_FILE).exists()
+    assert artifact_path.joinpath(ISSUES_LOG).exists()
+    assert artifact_path.joinpath(VERSIONS_FILE).exists()
+    assert artifact_path.joinpath(RESOURCES_FILE).exists()
+    assert artifact_path.joinpath(HASH_FILE).exists()
+    assert artifact_path.joinpath(DELTA_INDEX_FILE).exists()
     assert artifact_path.joinpath(STATEMENTS_FILE).exists()
     assert artifact_path.joinpath(STATISTICS_FILE).exists()
+    assert artifact_path.joinpath("entities.ftm.json").exists()
+    assert artifact_path.joinpath(DELTA_EXPORT_FILE).exists()
+    # Collections-only:
+    assert not artifact_path.joinpath(CATALOG_FILE).exists()
 
+    # Only index and real resources get published.
     assert release_path.joinpath(INDEX_FILE).exists()
+    assert release_path.joinpath("entities.ftm.json").exists()
     assert not release_path.joinpath(STATEMENTS_FILE).exists()
     assert not release_path.joinpath(STATISTICS_FILE).exists()
+    assert not release_path.joinpath(ISSUES_LOG).exists()
+    assert not release_path.joinpath(VERSIONS_FILE).exists()
+    assert not release_path.joinpath(RESOURCES_FILE).exists()
+    assert not release_path.joinpath(HASH_FILE).exists()
+    assert not release_path.joinpath(DELTA_INDEX_FILE).exists()
+    assert not release_path.joinpath(DELTA_EXPORT_FILE).exists()
+    assert not release_path.joinpath(CATALOG_FILE).exists()
 
     assert not latest_path.joinpath(INDEX_FILE).exists()
-    assert release_path.joinpath("entities.ftm.json").exists()
 
     publish_dataset(testdataset1, republish_to_latest=True)
     assert latest_path.joinpath(INDEX_FILE).exists()
@@ -67,7 +89,7 @@ def test_publish_dataset(testdataset1: Dataset):
     assert release_path.joinpath("entities.ftm.json").read_bytes() == artifact_entities
     assert latest_path.joinpath("entities.ftm.json").read_bytes() == artifact_entities
 
-    # URLs in the index.json point at the canonical /artifacts/{ds}/{v}/ path.
+    # URLs in the index.json point at the canonical artifacts/{dataset}/{vsn}/ path.
     index = json.loads(artifact_index)
     expected_prefix = (
         f"{settings.ARCHIVE_SITE}/{ARTIFACTS}/{testdataset1.name}/{history.latest.id}/"
@@ -88,9 +110,60 @@ def test_publish_dataset(testdataset1: Dataset):
     assert path.exists()
 
 
+def test_publish_collection(testdataset1: Dataset, collection: Dataset):
+    linker = get_dataset_linker(testdataset1)
+    artifacts_path = settings.ARCHIVE_PATH / ARTIFACTS
+    published_path = settings.ARCHIVE_PATH / DATASETS
+    release_path = published_path / settings.RELEASE / collection.name
+    latest_path = published_path / "latest" / collection.name
+
+    crawl_dataset(testdataset1)
+    store = get_store(testdataset1, linker)
+    store.sync()
+    view = store.view(testdataset1)
+    export_dataset(testdataset1, view)
+
+    export_dataset(collection, view)
+    publish_dataset(collection, republish_to_latest=True)
+
+    history = _read_history(collection.name)
+    assert history is not None
+    assert history.latest is not None
+    artifact_path = artifacts_path / collection.name / history.latest.id
+    assert artifact_path.exists()
+    # Everything gets archived
+    assert artifact_path.joinpath(INDEX_FILE).exists()
+    assert artifact_path.joinpath(ISSUES_FILE).exists()
+    assert artifact_path.joinpath(VERSIONS_FILE).exists()
+    assert artifact_path.joinpath(RESOURCES_FILE).exists()
+    assert artifact_path.joinpath(HASH_FILE).exists()
+    assert artifact_path.joinpath(DELTA_INDEX_FILE).exists()
+    assert artifact_path.joinpath(STATISTICS_FILE).exists()
+    # Collections get a catalog.json
+    assert artifact_path.joinpath(CATALOG_FILE).exists()
+    # Collections don't crawl, so statements.pack is never produced.
+    assert not artifact_path.joinpath(STATEMENTS_FILE).exists()
+    # No issue was logged during this export, so the lazily-created
+    # issues.log was never written.
+    assert not artifact_path.joinpath(ISSUES_LOG).exists()
+
+    # Only index, catalog, and real resources get published.
+    assert release_path.joinpath(INDEX_FILE).exists()
+    assert release_path.joinpath(CATALOG_FILE).exists()
+    assert release_path.joinpath("entities.ftm.json").exists()
+    assert latest_path.joinpath(INDEX_FILE).exists()
+    assert latest_path.joinpath(CATALOG_FILE).exists()
+    assert latest_path.joinpath("entities.ftm.json").exists()
+    # Artifact-only files don't leak into /datasets/.
+    assert not release_path.joinpath(ISSUES_LOG).exists()
+    assert not release_path.joinpath(VERSIONS_FILE).exists()
+    assert not release_path.joinpath(HASH_FILE).exists()
+
+
 def test_publish_failure(testdataset1: Dataset):
     published_path = settings.ARCHIVE_PATH / DATASETS
     artifacts_path = settings.ARCHIVE_PATH / ARTIFACTS
+    release_path = published_path / settings.RELEASE / testdataset1.name
     latest_path = published_path / "latest" / testdataset1.name
     assert testdataset1.data is not None
     testdataset1.data.format = "FAIL"
@@ -106,11 +179,20 @@ def test_publish_failure(testdataset1: Dataset):
     assert history.latest.id is not None
     artifact_path = artifacts_path / testdataset1.name / history.latest.id
 
-    assert not latest_path.joinpath("statements.pack").exists()
-    assert not latest_path.joinpath("issues.json").exists()
-    assert artifact_path.joinpath("issues.json").exists()
-    assert artifact_path.joinpath("index.json").exists()
+    # Only very specific files get archived.
+    assert artifact_path.joinpath(INDEX_FILE).exists()
+    assert artifact_path.joinpath(ISSUES_FILE).exists()
+    assert artifact_path.joinpath(ISSUES_LOG).exists()
+    assert artifact_path.joinpath(VERSIONS_FILE).exists()
+    # We want to be really, really sure we'll never backfill from failed runs
+    assert not artifact_path.joinpath(STATEMENTS_FILE).exists()
+    assert not artifact_path.joinpath(RESOURCES_FILE).exists()
+    assert not artifact_path.joinpath(HASH_FILE).exists()
+    assert not artifact_path.joinpath(DELTA_INDEX_FILE).exists()
 
     # We don't want failed runs to end up in /datasets
-    assert not latest_path.joinpath("index.json").exists()
+    assert not latest_path.joinpath(INDEX_FILE).exists()
+    assert not latest_path.joinpath(STATEMENTS_FILE).exists()
+    assert not latest_path.joinpath(ISSUES_FILE).exists()
     assert len(list(latest_path.glob("*"))) == 0
+    assert len(list(release_path.glob("*"))) == 0
