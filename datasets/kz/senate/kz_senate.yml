@@ -15,8 +15,8 @@ description: |
   per region and city of republican significance) and 9 appointed by the President — for
   six-year terms, half rotating every three years.
 
-  This dataset records each sitting senator with their name (Russian, Kazakh and Latin
-  forms) and date of birth, sourced from the Senate's official website.
+  This dataset records each sitting senator with their name, sourced from the Senate's
+  official website.
 url: https://senate.parlam.kz/
 publisher:
   name: Қазақстан Республикасы Парламентінің Сенаты
@@ -28,9 +28,9 @@ publisher:
   country: kz
   official: true
 data:
-  url: https://senate.parlam.kz/ru-RU/about/deputies
+  url: https://senate.parlam.kz/en-US/about/deputies
   format: HTML
-  lang: rus
+  lang: eng
 
 dates:
   formats: ["%Y-%m-%d"]
