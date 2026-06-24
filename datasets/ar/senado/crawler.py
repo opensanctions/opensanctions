@@ -3,7 +3,7 @@ from typing import Any
 from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
-from zavod.stateful.positions import OccupancyStatus, PositionCategorisation, categorise
+from zavod.stateful.positions import PositionCategorisation, categorise
 
 
 def fetch_rows(context: Context, url: str) -> list[dict[str, Any]]:
@@ -17,7 +17,6 @@ def fetch_rows(context: Context, url: str) -> list[dict[str, Any]]:
 def crawl_senator(
     context: Context,
     row: dict[str, Any],
-    current: dict[str, Any] | None,
     position: Entity,
     categorisation: PositionCategorisation,
 ) -> None:
@@ -34,22 +33,14 @@ def crawl_senator(
 
     person = context.make("Person")
     person.id = context.make_slug(senator_id)
-    if current is not None:
-        # The current-members feed has properly-cased names and an email.
-        h.apply_name(
-            person,
-            first_name=current["NOMBRE"],
-            last_name=current["APELLIDO"],
-        )
-        person.add("email", current["EMAIL"])
-    else:
-        # The historical feed gives "APELLIDO, NOMBRE" in upper case.
-        last_name, _, first_name = name.partition(",")
-        h.apply_name(
-            person,
-            first_name=first_name.strip() or None,
-            last_name=last_name.strip(),
-        )
+
+    # The feed gives "APELLIDO, NOMBRE" in upper case.
+    last_name, _, first_name = name.partition(",")
+    h.apply_name(
+        person,
+        first_name=first_name.strip(),
+        last_name=last_name.strip(),
+    )
     # Senators must have been citizens of the Nation for six years (Constitution of
     # Argentina, Art. 55). https://www.constituteproject.org/constitution/Argentina_1994
     person.add("citizenship", "ar")
@@ -68,11 +59,6 @@ def crawl_senator(
     if occupancy is None:
         return
     occupancy.add("constituency", province)
-    # The bloque (parliamentary group) is distinct from party membership. The current
-    # feed only reflects the present group, so apply it only to the senator's sitting
-    # term; past terms have no bloque source and keep politicalGroup empty.
-    if current is not None and OccupancyStatus.CURRENT.value in occupancy.get("status"):
-        occupancy.add("politicalGroup", current["BLOQUE"])
 
     context.emit(occupancy)
     context.emit(person)
@@ -80,15 +66,6 @@ def crawl_senator(
 
 
 def crawl(context: Context) -> None:
-    current = {row["ID"]: row for row in fetch_rows(context, context.data_url)}
-    historico = fetch_rows(context, context.data_url.replace("/json", "Historico/json"))
-
-    # The two feeds are joined on ID to enrich sitting senators; if that overlap ever
-    # disappears, the join is broken and every senator silently loses email + bloque.
-    historico_ids = {row["ID"] for row in historico}
-    if not current.keys() & historico_ids:
-        raise ValueError("No ID overlap between current and historical senator feeds")
-
     position = h.make_position(
         context,
         name="Member of the Argentine Chamber of Senators",
@@ -100,5 +77,5 @@ def crawl(context: Context) -> None:
     categorisation = categorise(context, position)
     context.emit(position)
 
-    for row in historico:
-        crawl_senator(context, row, current.get(row["ID"]), position, categorisation)
+    for row in fetch_rows(context, context.data_url):
+        crawl_senator(context, row, position, categorisation)

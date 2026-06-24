@@ -17,8 +17,7 @@ description: |
   approving the budget.
 
   This dataset records senators with their name, party, province, and term
-  dates; sitting senators additionally carry an email address and their parliamentary
-  group. It complements the [Argentina Members of Parliament](https://www.opensanctions.org/datasets/ar_parliament/) dataset, which covers the lower
+  dates. It complements the [Argentina Members of Parliament](https://www.opensanctions.org/datasets/ar_parliament/) dataset, which covers the lower
   house.
 url: https://www.senado.gob.ar/micrositios/DatosAbiertos/
 publisher:
@@ -31,7 +30,7 @@ publisher:
   country: ar
   official: true
 data:
-  url: https://www.senado.gob.ar/micrositios/DatosAbiertos/ExportarListadoSenadores/json
+  url: https://www.senado.gob.ar/micrositios/DatosAbiertos/ExportarListadoSenadoresHistorico/json
   format: JSON
   lang: spa
 dates:
