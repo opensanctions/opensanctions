@@ -97,7 +97,7 @@ def crawl_member(
     name = h.element_text(h.xpath_element(doc, ".//h1[@class='name']"))
 
     person = context.make("Person")
-    person.id = context.make_id(deputy_id, name)
+    person.id = context.make_slug(deputy_id)
     person.add("name", name)
     person.add("sourceUrl", url)
     # Deputies of the Assembly must be citizens of Kosovo: Constitution Art. 71(1)
@@ -126,6 +126,7 @@ def crawl_member(
     h.apply_date(person, "birthDate", dob)
     for bio_label, prop in BIO_PROPS.items():
         person.add(prop, bio.pop(bio_label, ""))
+    context.audit_data(bio, ignore=BIO_IGNORE)
 
     occupancy = h.make_occupancy(
         context,
