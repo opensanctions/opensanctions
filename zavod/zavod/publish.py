@@ -1,6 +1,8 @@
-from typing import List
+from itertools import chain
+from typing import Iterable, List
 
 from rigour.mime.types import JSON
+from followthemoney.dataset import DataResource
 
 from zavod.archive.backend import get_archive_backend
 from zavod.exporters.metadata import DatasetVersionResult
@@ -11,7 +13,7 @@ from zavod.archive import publish_version_history, archive_artifact
 from zavod.archive import publish_artifact
 from zavod.archive import INDEX_FILE, CATALOG_FILE, ISSUES_LOG
 from zavod.archive import STATEMENTS_FILE, RESOURCES_FILE, STATISTICS_FILE
-from zavod.archive import VERSIONS_FILE, EXTRA_ARTIFACTS
+from zavod.archive import VERSIONS_FILE, SUCCESS_ARTIFACTS, FAILURE_ARTIFACTS
 from zavod.archive import DELTA_EXPORT_FILE, DELTA_INDEX_FILE
 from zavod.runtime.resources import DatasetResources
 from zavod.runtime.versions import get_latest
@@ -20,21 +22,20 @@ from zavod.exporters import write_dataset_index
 log = get_logger(__name__)
 
 
-def _archive_artifacts(dataset: Dataset, extra_artifacts: list[str] = []) -> None:
+def _archive_artifacts(
+    dataset: Dataset, resources: List[DataResource], artifacts: Iterable[str]
+) -> None:
     """
     Upload every file we persist about a run to /artifacts/{dataset}/{version}/.
 
     Also publishes the version history to the dataset's stable version history location.
-
-    This covers both registered resources and non-resource files.
     """
-    extra_artifacts = list(extra_artifacts) + EXTRA_ARTIFACTS
 
     version = get_latest(dataset.name, backfill=False)
     if version is None:
         raise ValueError(f"No working version found for dataset: {dataset.name}")
 
-    for resource in DatasetResources(dataset).all():
+    for resource in resources:
         path = dataset_resource_path(dataset.name, resource.name)
         if not path.is_file():
             log.error("Resource not found: %s" % path, dataset=dataset.name)
@@ -47,7 +48,7 @@ def _archive_artifacts(dataset: Dataset, extra_artifacts: list[str] = []) -> Non
             mime_type=resource.mime_type,
         )
 
-    for artifact in extra_artifacts:
+    for artifact in artifacts:
         path = dataset_resource_path(dataset.name, artifact)
         if not path.is_file():
             log.error("Resource not found: %s" % path, dataset=dataset.name)
@@ -73,17 +74,16 @@ def publish_dataset(dataset: Dataset, republish_to_latest: bool = True) -> None:
     /datasets/{LATEST}/{dataset}/ for discovery without the full catalog.
     """
 
+    all_resources = DatasetResources(dataset).all()
     extra_artifacts = []
-    all_published_files: List[str] = [
-        r.name
-        for r in DatasetResources(dataset).all()
-        if r.name not in UNLISTED_RESOURCES
+    files_to_publish: List[str] = [
+        r.name for r in all_resources if r.name not in UNLISTED_RESOURCES
     ]
-    all_published_files.append(INDEX_FILE)
+    files_to_publish.append(INDEX_FILE)
 
     if dataset.is_collection:
         extra_artifacts.append(CATALOG_FILE)
-        all_published_files.append(CATALOG_FILE)
+        files_to_publish.append(CATALOG_FILE)
     else:
         # Only sources produce statements.pack (collections don't crawl).
         extra_artifacts.append(STATEMENTS_FILE)
@@ -92,15 +92,16 @@ def publish_dataset(dataset: Dataset, republish_to_latest: bool = True) -> None:
     if dataset_resource_path(dataset.name, ISSUES_LOG).is_file():
         extra_artifacts.append(ISSUES_LOG)
 
-    _archive_artifacts(dataset, extra_artifacts)
+    artifacts = chain(SUCCESS_ARTIFACTS, extra_artifacts)
+    _archive_artifacts(dataset, all_resources, artifacts)
 
     version = get_latest(dataset.name, backfill=False)
     assert version is not None
 
     if republish_to_latest:
-        _warn_about_stale_latest_files(dataset, set(all_published_files))
+        _warn_about_stale_latest_files(dataset, set(files_to_publish))
 
-    for name in all_published_files:
+    for name in files_to_publish:
         publish_artifact(dataset.name, version.id, name, republish_to_latest)
 
 
@@ -149,6 +150,8 @@ def archive_failure(dataset: Dataset) -> None:
         return
 
     # Assume issues.log was written if the run is failed.
-    _archive_artifacts(dataset, [ISSUES_LOG])
+    artifacts = chain(FAILURE_ARTIFACTS, [ISSUES_LOG])
+    # No resources are archived and nothing is published for failure.
+    _archive_artifacts(dataset, [], artifacts)
     dataset_resource_path(dataset.name, RESOURCES_FILE).unlink(missing_ok=True)
     dataset_resource_path(dataset.name, VERSIONS_FILE).unlink(missing_ok=True)

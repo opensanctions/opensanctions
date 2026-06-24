@@ -62,14 +62,20 @@ UNLISTED_RESOURCES = [
     STATISTICS_FILE,
     DELTA_EXPORT_FILE,
 ]
-# Files we persist about a run other than DatasetResources.
-EXTRA_ARTIFACTS = [
+# Baseline of files we persist about a successful/failed run
+# other than DatasetResources and other decisions at the point of archival.
+SUCCESS_ARTIFACTS = [
     ISSUES_FILE,
     INDEX_FILE,
     VERSIONS_FILE,
     RESOURCES_FILE,
     HASH_FILE,
     DELTA_INDEX_FILE,
+]
+FAILURE_ARTIFACTS = [
+    ISSUES_FILE,
+    INDEX_FILE,
+    VERSIONS_FILE,
 ]
 TTL_SHORT = 10 * 60
 TTL_MEDIUM = 24 * 60 * 60
