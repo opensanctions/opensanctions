@@ -27,6 +27,10 @@ def _read_history(dataset_name: str) -> Optional[VersionHistory]:
         return VersionHistory.from_json(fh.read())
 
 
+def filter_logs(cap_logs: list[dict], levels: tuple[str, ...]) -> list[dict]:
+    return [log for log in cap_logs if log.get("log_level") in levels]
+
+
 def test_publish_dataset(testdataset1: Dataset):
     linker = get_dataset_linker(testdataset1)
     artifacts_path = settings.ARCHIVE_PATH / ARTIFACTS
@@ -45,9 +49,7 @@ def test_publish_dataset(testdataset1: Dataset):
 
     with capture_logs() as cap_logs:
         publish_dataset(testdataset1, republish_to_latest=False)
-    assert not [
-        log for log in cap_logs if log.get("log_level") in ("warning", "error")
-    ], cap_logs
+    assert not filter_logs(cap_logs, ("warning", "error")), cap_logs
     history = _read_history(testdataset1.name)
     assert history is not None
     assert history.latest is not None
@@ -131,9 +133,7 @@ def test_publish_collection(testdataset1: Dataset, collection: Dataset):
     export_dataset(collection, view)
     with capture_logs() as cap_logs:
         publish_dataset(collection, republish_to_latest=True)
-    assert not [
-        log for log in cap_logs if log.get("log_level") in ("warning", "error")
-    ], cap_logs
+    assert not filter_logs(cap_logs, ("warning", "error")), cap_logs
 
     history = _read_history(collection.name)
     assert history is not None
@@ -182,9 +182,7 @@ def test_publish_failure(testdataset1: Dataset):
     except RunFailedException:
         with capture_logs() as cap_logs:
             archive_failure(testdataset1)
-        assert not [
-            log for log in cap_logs if log.get("log_level") in ("warning", "error")
-        ], cap_logs
+        assert not filter_logs(cap_logs, ("warning", "error")), cap_logs
     clear_data_path(testdataset1.name)
 
     history = _read_history(testdataset1.name)
