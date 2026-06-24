@@ -100,8 +100,6 @@ def crawl(context: Context) -> None:
     context.emit(position)
 
     deputies = context.fetch_json(context.data_url, params=PARAMS, cache_days=1)
-    if not isinstance(deputies, list) or len(deputies) == 0:
-        raise ValueError("Expected a non-empty list of deputies")
     # The Russian variant lives at the same URL behind Accept-Language; zavod's cache
     # keys on URL only, so fetch it uncached to avoid colliding with the Kazakh response.
     ru_rows = context.fetch_json(

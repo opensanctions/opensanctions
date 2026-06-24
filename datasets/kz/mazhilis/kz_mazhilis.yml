@@ -2,7 +2,7 @@ title: Kazakhstan Members of the Mäjilis
 entry_point: crawler.py
 prefix: kz-mazhilis
 coverage:
-  frequency: weekly
+  frequency: monthly
   start: 2026-06-24
 load_statements: true
 ci_test: false # Live external government API, not available in CI
