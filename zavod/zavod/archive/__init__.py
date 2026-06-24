@@ -65,9 +65,7 @@ UNLISTED_RESOURCES = [
 # Files we persist about a run other than DatasetResources.
 EXTRA_ARTIFACTS = [
     ISSUES_FILE,
-    ISSUES_LOG,
     INDEX_FILE,
-    STATEMENTS_FILE,
     VERSIONS_FILE,
     RESOURCES_FILE,
     HASH_FILE,
