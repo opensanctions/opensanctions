@@ -63,6 +63,7 @@ from followthemoney import registry
 
 from zavod import Context, Entity
 from zavod.meta import get_multi_dataset
+from zavod.constants import ORIGIN_INFERRED
 from zavod.store import get_store, View
 from zavod.integration import get_dataset_linker
 
@@ -94,7 +95,7 @@ def emit_patch(
         schema = related_entity.schema.name
     patch = context.make(schema)
     patch.id = related_entity.id
-    patch.add("topics", topic)
+    patch.add("topics", topic, origin=ORIGIN_INFERRED)
     context.emit(patch, external=related_entity.external)
 
 
@@ -119,6 +120,7 @@ def analyze_entity(context: Context, view: View, entity: Entity) -> None:
 
         # Tag role.rca for family relations of PEPs
         if "role.pep" in topics and adjacent.schema.is_a("Family"):
+            assert other_prop is not None
             for other_id in adjacent.get(other_prop):
                 other = view.get_entity(other_id)
                 if other is None or not other.schema.is_a("Person"):
@@ -149,6 +151,7 @@ def analyze_entity(context: Context, view: View, entity: Entity) -> None:
                 "Succession",
             ):
                 continue
+            assert other_prop is not None
             for other_id in adjacent.get(other_prop):
                 other = view.get_entity(other_id)
                 if other is None:
@@ -166,8 +169,10 @@ def analyze_entity(context: Context, view: View, entity: Entity) -> None:
         if (
             "sanction.linked" in topics
             and adjacent.schema.is_a("Ownership")
+            and prop.reverse is not None
             and prop.reverse.name == "owner"
         ):
+            assert other_prop is not None
             for other_id in adjacent.get(other_prop):
                 other = view.get_entity(other_id)
                 if other is None:
