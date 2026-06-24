@@ -1,41 +1,51 @@
 from typing import Any
+from enum import Enum
 
-from zavod import Context
-from zavod import helpers as h
-from zavod.entity import Entity
-from zavod.stateful.positions import PositionCategorisation, categorise
+from zavod import Context, helpers as h
+from zavod.stateful.positions import categorise
 
-# The current legislative term. The open-data endpoints are stable across terms, so we
-# assert the period on every record to fail loudly when the next term lands (and the
-# source starts returning 2028-2033 members).
-EXPECTED_PERIOD = "2023-2028"
 
-IGNORE_FIELDS = [
-    "camaraParlamentario",  # constant per chamber ("CAMARA DE DIPUTADOS"/"DE SENADORES")
-    "telefonoParlamentario",  # private contact detail
-    "fotoURL",
-    "tipoParlamentario",  # titular vs seated suplente — both emitted
-    "cargoBancada",  # role within the parliamentary bloc
-]
+POSITION_TOPICS = ["gov.national", "gov.legislative"]
+
+
+class Chamber(Enum):
+    DEPUTIES = ("Member of the Chamber of Deputies of Paraguay", "Q20058561")
+    SENATORS = ("Member of the Chamber of Senators of Paraguay", "Q20058559")
+
+    def __init__(self, position_name: str, wikidata_id: str) -> None:
+        self.position_name = position_name
+        self.wikidata_id = wikidata_id
+
+    @classmethod
+    def from_source(cls, value: str) -> "Chamber":
+        if "DIPUTADOS" in value:
+            return cls.DEPUTIES
+        if "SENADORES" in value:
+            return cls.SENATORS
+        raise ValueError(f"Unexpected chamber value: {value!r}")
 
 
 def crawl_member(
     context: Context,
     row: dict[str, Any],
-    position: Entity,
-    categorisation: PositionCategorisation,
 ) -> None:
     period = row.pop("periodoLegislativo")
-    if period != EXPECTED_PERIOD:
-        raise ValueError(f"Unexpected legislative period: {period!r}")
-    # The legislative term bounds (e.g. "2023-2028"); recorded as the occupancy's legal
-    # period. The source has no individual start/end date for seated suplentes.
     period_start, period_end = period.split("-")
 
-    # The endpoint returns one record per seat — the member currently occupying it.
-    # tipoParlamentario flags whether that occupant is the elected titular or a suplente
-    # who has taken over a vacated seat; both are sitting members, so we emit either.
-    # (We don't filter to TITULAR, which would drop seated replacements.)
+    if period_start < h.earliest_term_start(POSITION_TOPICS):
+        return
+
+    chamber = Chamber.from_source(row.pop("camaraParlamentario"))
+    position = h.make_position(
+        context,
+        name=chamber.position_name,
+        country="py",
+        topics=POSITION_TOPICS,
+        wikidata_id=chamber.wikidata_id,
+        lang="eng",
+    )
+    categorisation = categorise(context, position)
+
     person = context.make("Person")
     person.id = context.make_slug(str(row.pop("idParlamentario")))
     h.apply_name(person, first_name=row.pop("nombres"), last_name=row.pop("apellidos"))
@@ -57,52 +67,25 @@ def crawl_member(
     )
     if occupancy is None:
         return
-    # Deputies are elected by department (plus the Capital District, Asunción); senators
-    # from a single nationwide constituency (departamento "NACIONAL").
+    # Deputies are elected by department; senators from a single nationwide constituency ("NACIONAL")
     occupancy.add("constituency", row.pop("departamento"))
-    # The parliamentary bloc (bancada) is distinct from party membership.
-    occupancy.add("politicalGroup", row.pop("bancada"))
+    occupancy.add("politicalGroup", row.pop("bancada"))  # caucus
 
+    context.emit(position)
     context.emit(occupancy)
     context.emit(person)
-    context.audit_data(row, ignore=IGNORE_FIELDS)
-
-
-def crawl_chamber(
-    context: Context, path: str, position_name: str, wikidata_id: str
-) -> None:
-    members = context.fetch_json(context.data_url + path)
-    if not isinstance(members, list) or len(members) == 0:
-        raise ValueError(f"Expected a non-empty list of members from {path!r}")
-
-    position = h.make_position(
-        context,
-        name=position_name,
-        country="py",
-        topics=["gov.national", "gov.legislative"],
-        wikidata_id=wikidata_id,
-        lang="eng",
+    context.audit_data(
+        row,
+        ignore=[
+            "telefonoParlamentario",  # private contact detail
+            "fotoURL",
+            "tipoParlamentario",  # titular vs seated suplente — both emitted
+            "cargoBancada",  # role within the parliamentary bloc
+        ],
     )
-    categorisation = categorise(context, position)
-    context.emit(position)
-
-    for row in members:
-        crawl_member(context, row, position, categorisation)
 
 
 def crawl(context: Context) -> None:
-    # Both chambers come from the same Congress open-data API; data_url is the
-    # `.../camara/` base. limit=200 is required for the 80-seat Chamber of Deputies
-    # (the default page size of 50 would truncate it) and harmless for the Senate.
-    crawl_chamber(
-        context,
-        "S?limit=200",
-        "Member of the Chamber of Senators of Paraguay",
-        "Q20058559",
-    )
-    crawl_chamber(
-        context,
-        "D?limit=200",
-        "Member of the Chamber of Deputies of Paraguay",
-        "Q20058561",
-    )
+    members = context.fetch_json(context.data_url)
+    for row in members:
+        crawl_member(context, row)
