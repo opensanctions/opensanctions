@@ -8,7 +8,7 @@ from nomenklatura.judgement import Judgement
 from nomenklatura.resolver import Resolver
 from zavod import settings
 from zavod.archive import DELTA_EXPORT_FILE, DATASETS, DELTA_INDEX_FILE
-from zavod.archive import SUCCESS_ARTIFACTS
+from zavod.archive import SUCCESS_ARTIFACTS, HASH_FILE
 from zavod.entity import Entity
 from zavod.exporters import export_dataset
 from zavod.meta import Dataset
@@ -84,7 +84,9 @@ def test_delta_exporter(testdataset1: Dataset, resolver: Resolver):
     )
 
     resources = DatasetResources(testdataset1).all()
-    _archive_artifacts(testdataset1, resources, SUCCESS_ARTIFACTS)
+    _archive_artifacts(
+        testdataset1, resources, [*SUCCESS_ARTIFACTS, HASH_FILE, DELTA_INDEX_FILE]
+    )
 
     version2 = Version.new("bbb")
     make_version(testdataset1, version2, append_new_version_to_history=True)
@@ -117,7 +119,9 @@ def test_delta_exporter(testdataset1: Dataset, resolver: Resolver):
 
     # Round 3: check that the delta exporter can handle resolver changes
     resources = DatasetResources(testdataset1).all()
-    _archive_artifacts(testdataset1, resources, SUCCESS_ARTIFACTS)
+    _archive_artifacts(
+        testdataset1, resources, [*SUCCESS_ARTIFACTS, HASH_FILE, DELTA_INDEX_FILE]
+    )
     version3 = Version.new("ccc")
     make_version(testdataset1, version3, append_new_version_to_history=True)
     canon_id = resolver.decide("EC", "ECX", Judgement.POSITIVE)

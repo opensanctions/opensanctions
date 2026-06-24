@@ -11,7 +11,7 @@ from zavod.logs import get_logger
 from zavod.archive import DATASETS, LATEST, UNLISTED_RESOURCES, dataset_resource_path
 from zavod.archive import publish_version_history, archive_artifact
 from zavod.archive import publish_artifact
-from zavod.archive import INDEX_FILE, CATALOG_FILE, ISSUES_LOG
+from zavod.archive import INDEX_FILE, CATALOG_FILE, ISSUES_LOG, HASH_FILE
 from zavod.archive import STATEMENTS_FILE, RESOURCES_FILE, STATISTICS_FILE
 from zavod.archive import VERSIONS_FILE, SUCCESS_ARTIFACTS, FAILURE_ARTIFACTS
 from zavod.archive import DELTA_EXPORT_FILE, DELTA_INDEX_FILE
@@ -88,9 +88,10 @@ def publish_dataset(dataset: Dataset, republish_to_latest: bool = True) -> None:
         # Only sources produce statements.pack (collections don't crawl).
         extra_artifacts.append(STATEMENTS_FILE)
 
-    # issues.log is created lazily on the first issue write.
-    if dataset_resource_path(dataset.name, ISSUES_LOG).is_file():
-        extra_artifacts.append(ISSUES_LOG)
+    # Files produced conditionally
+    for lazy in (ISSUES_LOG, HASH_FILE, DELTA_INDEX_FILE):
+        if dataset_resource_path(dataset.name, lazy).is_file():
+            extra_artifacts.append(lazy)
 
     artifacts = chain(SUCCESS_ARTIFACTS, extra_artifacts)
     _archive_artifacts(dataset, all_resources, artifacts)
