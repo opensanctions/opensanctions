@@ -13,8 +13,9 @@ description: |
   of Turkmenistan since the 2023 constitutional reform that abolished the upper Halk
   Maslahaty. The Mejlis has 125 deputies elected for five-year terms.
 
-  This dataset records each sitting deputy with their name in Turkmen, Russian and
-  English forms, sourced from the parliament's official website.
+  This dataset records each sitting deputy with their name, year of birth, role and
+  parliamentary committee, biography and electoral constituency, sourced from the
+  parliament's official website.
 url: https://mejlis.gov.tm/
 publisher:
   name: Türkmenistanyň Mejlisi
@@ -27,7 +28,7 @@ publisher:
 data:
   url: https://mejlis.gov.tm/convocation
   format: HTML
-  lang: tuk
+  lang: eng
 
 http:
   # The site rejects the default crawler user agent.

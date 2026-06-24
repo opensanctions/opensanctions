@@ -1,5 +1,4 @@
 import re
-
 from lxml.html import HtmlElement
 
 from zavod import Context
@@ -7,55 +6,74 @@ from zavod import helpers as h
 from zavod.entity import Entity
 from zavod.stateful.positions import PositionCategorisation, categorise
 
-# The roster page lists the current convocation; assert it so the crawler fails loudly
-# when the next convocation is seated and the page contents change.
-EXPECTED_CONVOCATION = "VII convocation"
 DEPUTY_RE = re.compile(r"single-deputy/(\d+)")
+YEAR_RE = re.compile(r"^\d{4}$")
 
 
-def parse_deputies(doc: HtmlElement) -> dict[str, str]:
-    """Map each deputy's id to their name (the profile-link text) on the roster page."""
-    deputies: dict[str, str] = {}
-    for link in h.xpath_elements(doc, "//a[contains(@href, 'single-deputy/')]"):
-        match = DEPUTY_RE.search(link.get("href") or "")
-        name = h.element_text(link)
-        if match is not None and len(name) > 0:
-            deputies[match.group(1)] = name
-    return deputies
+def parse_deputy_ids(doc: HtmlElement) -> list[str]:
+    """Collect the deputy ids linked from the convocation roster page, in order."""
+    ids: list[str] = []
+    for href in h.xpath_strings(doc, "//a[contains(@href, 'single-deputy/')]/@href"):
+        match = DEPUTY_RE.search(href)
+        if match is not None and match.group(1) not in ids:
+            ids.append(match.group(1))
+    return ids
+
+
+def field_value(right_block: HtmlElement, label: str) -> str | None:
+    """Return the text of the profile's `label:` row value, if present."""
+    for row in h.xpath_elements(
+        right_block, ".//div[contains(@class, 'key_value_wrapper')]"
+    ):
+        key = h.element_text(h.xpath_element(row, ".//span[@class='key']")).rstrip(":")
+        if key == label:
+            return h.element_text(
+                h.xpath_element(row, ".//*[contains(@class, 'value')]")
+            )
+    return None
 
 
 def crawl_deputy(
     context: Context,
     deputy_id: str,
-    name_tm: str,
-    name_ru: str | None,
-    name_en: str | None,
     position: Entity,
     categorisation: PositionCategorisation,
 ) -> None:
+    url = f"https://mejlis.gov.tm/single-deputy/{deputy_id}"
+    doc = context.fetch_html(url, params={"lang": "en"}, cache_days=7)
+    right_block = h.xpath_element(doc, "//div[contains(@class, 'right_block')]")
+    name = h.element_text(h.xpath_element(right_block, ".//h3[@class='name']"))
+
     person = context.make("Person")
     person.id = context.make_slug("deputy", deputy_id)
-    h.apply_name(person, full=name_tm, lang="tuk")  # Turkmen Latin (authoritative)
-    if name_ru is not None:
-        h.apply_name(person, full=name_ru, lang="rus", alias=True)
-    if name_en is not None:
-        h.apply_name(person, full=name_en, lang="eng", alias=True)
+    h.apply_name(person, full=name, lang="eng")
+    person.add("sourceUrl", url)
     # Deputies of the Mejlis must be citizens of Turkmenistan (Constitution art. 120).
     # https://www.constituteproject.org/constitution/Turkmenistan_2016
     person.add("citizenship", "tm")
+
+    year = field_value(right_block, "Year of Birth")
+    if year is not None and YEAR_RE.match(year) is not None:
+        h.apply_date(person, "birthDate", year)
+
+    paragraphs = [
+        h.element_text(p)
+        for p in h.xpath_elements(right_block, ".//div[@class='deputy_bio_text']//p")
+    ]
+    person.add("biography", "\n".join(p for p in paragraphs if len(p) > 0))
 
     occupancy = h.make_occupancy(
         context, person, position, categorisation=categorisation
     )
     if occupancy is None:
         return
+
+    # electoral constituency: the named election district
+    district = h.xpath_elements(right_block, ".//span[@class='district_name']")
+    if len(district) > 0:
+        occupancy.add("constituency", h.element_text(district[0]))
     context.emit(occupancy)
     context.emit(person)
-
-
-def fetch_roster(context: Context, lang: str) -> dict[str, str]:
-    doc = context.fetch_html(context.data_url, params={"lang": lang}, cache_days=1)
-    return parse_deputies(doc)
 
 
 def crawl(context: Context) -> None:
@@ -69,20 +87,8 @@ def crawl(context: Context) -> None:
     categorisation = categorise(context, position)
     context.emit(position)
 
-    en_doc = context.fetch_html(context.data_url, params={"lang": "en"}, cache_days=1)
-    if EXPECTED_CONVOCATION not in h.element_text(en_doc):
-        raise ValueError(f"Roster no longer lists {EXPECTED_CONVOCATION!r}")
-    en = parse_deputies(en_doc)
-    ru = fetch_roster(context, "ru")
-    deputies = fetch_roster(context, "tm")
+    doc = context.fetch_html(context.data_url, params={"lang": "en"}, cache_days=1)
+    deputy_ids = parse_deputy_ids(doc)
 
-    for deputy_id, name_tm in deputies.items():
-        crawl_deputy(
-            context,
-            deputy_id,
-            name_tm,
-            ru.get(deputy_id),
-            en.get(deputy_id),
-            position,
-            categorisation,
-        )
+    for deputy_id in deputy_ids:
+        crawl_deputy(context, deputy_id, position, categorisation)
