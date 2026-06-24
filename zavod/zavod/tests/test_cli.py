@@ -149,7 +149,8 @@ def test_xref_dataset(testdataset1: Dataset):
     with make_session() as session:
         resolver = get_resolver(session)
         resolver.load_into_memory()
-        assert len(resolver.edges) == 0
+        assert list(resolver.get_candidates()) == []
+        assert list(resolver.get_judgements()) == []
 
     result = runner.invoke(
         cli, ["xref", "--rebuild-store", DATASET_1_YML.as_posix()], env=env
@@ -159,7 +160,7 @@ def test_xref_dataset(testdataset1: Dataset):
     with make_session() as session:
         resolver = get_resolver(session)
         resolver.load_into_memory()
-        assert len(resolver.edges) > 1
+        assert len(list(resolver.get_candidates())) > 1
 
     result = runner.invoke(cli, ["resolver-prune"], env=env)
     assert result.exit_code == 0, result.output
@@ -167,4 +168,5 @@ def test_xref_dataset(testdataset1: Dataset):
     with make_session() as session:
         resolver = get_resolver(session)
         resolver.load_into_memory()
-        assert len(resolver.edges) == 0
+        assert list(resolver.get_candidates()) == []
+        assert list(resolver.get_judgements()) == []

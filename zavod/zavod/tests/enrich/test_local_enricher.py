@@ -67,7 +67,8 @@ def test_enrich_process(testdataset1: Dataset, testdataset_enrich_subject: Datas
     with make_session() as session:
         resolver = get_resolver(session)
         resolver.load_into_memory()
-        assert len(resolver.edges) == 0
+        assert list(resolver.get_candidates()) == []
+        assert list(resolver.get_judgements()) == []
     enricher_ds = make_enricher_dataset(DATASET_DATA, testdataset1.name)
     crawl_dataset(enricher_ds)
     assert enricher_ds.name == "test_enricher"

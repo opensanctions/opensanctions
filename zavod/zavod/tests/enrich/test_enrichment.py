@@ -34,13 +34,15 @@ def test_enrich_process(testdataset1: Dataset, enricher: Dataset):
     with make_session() as session:
         resolver = get_resolver(session)
         resolver.load_into_memory()
-        assert len(resolver.edges) == 0, resolver.edges
+        assert list(resolver.get_candidates()) == []
+        assert list(resolver.get_judgements()) == []
     crawl_dataset(testdataset1)
 
     with make_session() as session:
         resolver = get_resolver(session)
         resolver.load_into_memory()
-        assert len(resolver.edges) == 0, resolver.edges
+        assert list(resolver.get_candidates()) == []
+        assert list(resolver.get_judgements()) == []
     stats = crawl_dataset(enricher)
     assert stats.entities > 0, stats.entities
     internals = list(iter_dataset_statements(enricher, external=False))
