@@ -1,6 +1,7 @@
 import json
 from typing import Optional
 from followthemoney.dataset import VersionHistory
+from structlog.testing import capture_logs
 
 from zavod import settings
 from zavod.meta import Dataset
@@ -42,7 +43,11 @@ def test_publish_dataset(testdataset1: Dataset):
     view = store.view(testdataset1)
     export_dataset(testdataset1, view)
 
-    publish_dataset(testdataset1, republish_to_latest=False)
+    with capture_logs() as cap_logs:
+        publish_dataset(testdataset1, republish_to_latest=False)
+    assert not [
+        log for log in cap_logs if log.get("log_level") in ("warning", "error")
+    ], cap_logs
     history = _read_history(testdataset1.name)
     assert history is not None
     assert history.latest is not None
@@ -124,7 +129,11 @@ def test_publish_collection(testdataset1: Dataset, collection: Dataset):
     export_dataset(testdataset1, view)
 
     export_dataset(collection, view)
-    publish_dataset(collection, republish_to_latest=True)
+    with capture_logs() as cap_logs:
+        publish_dataset(collection, republish_to_latest=True)
+    assert not [
+        log for log in cap_logs if log.get("log_level") in ("warning", "error")
+    ], cap_logs
 
     history = _read_history(collection.name)
     assert history is not None
@@ -133,6 +142,7 @@ def test_publish_collection(testdataset1: Dataset, collection: Dataset):
     assert artifact_path.exists()
     # Everything gets archived
     assert artifact_path.joinpath(INDEX_FILE).exists()
+    assert artifact_path.joinpath("entities.ftm.json").exists()
     assert artifact_path.joinpath(ISSUES_FILE).exists()
     assert artifact_path.joinpath(VERSIONS_FILE).exists()
     assert artifact_path.joinpath(RESOURCES_FILE).exists()
@@ -170,7 +180,11 @@ def test_publish_failure(testdataset1: Dataset):
     try:
         crawl_dataset(testdataset1)
     except RunFailedException:
-        archive_failure(testdataset1)
+        with capture_logs() as cap_logs:
+            archive_failure(testdataset1)
+        assert not [
+            log for log in cap_logs if log.get("log_level") in ("warning", "error")
+        ], cap_logs
     clear_data_path(testdataset1.name)
 
     history = _read_history(testdataset1.name)
