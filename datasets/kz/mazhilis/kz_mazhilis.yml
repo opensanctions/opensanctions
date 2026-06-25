@@ -5,10 +5,9 @@ coverage:
   frequency: monthly
   start: 2026-06-24
 load_statements: true
-ci_test: false # Live external government API, not available in CI
+ci_test: true
 summary: >-
-  Deputies of the Mäjilis, the lower chamber of the Parliament of the Republic
-  of Kazakhstan
+  Deputies of the lower chamber of the Parliament of the Republic of Kazakhstan
 description: |
   Deputies of the Mäjilis (Мәжіліс), the lower chamber of the bicameral Parliament of
   the Republic of Kazakhstan. Since the 2023 constitutional reform the Mäjilis has 98
