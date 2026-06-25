@@ -5,10 +5,9 @@ coverage:
   frequency: monthly
   start: 2026-06-24
 load_statements: true
-ci_test: false # Live external government website, not available in CI
+ci_test: true
 summary: >-
-  Members of the Croatian Parliament (Hrvatski sabor), the unicameral national
-  legislature of Croatia
+  Members of the Hrvatski sabor, the unicameral national legislature of Croatia
 description: |
   Members of the Croatian Parliament (Hrvatski sabor), the unicameral national
   legislature of Croatia, which has up to 151 representatives elected for four-year
