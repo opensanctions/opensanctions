@@ -1,6 +1,6 @@
 import os
 import re
-from typing import Any, Dict, List, Optional
+from typing import Any
 from urllib.parse import urljoin
 from rigour.ids import INN
 from followthemoney.types import registry
@@ -18,28 +18,30 @@ PROGRAM_KEY = "UA-SA1644"
 
 
 def fetch_data(
-    context: Context, path: str, cache_days: Optional[int] = None
-) -> List[Dict[str, Any]]:
+    context: Context, path: str, cache_days: int | None = None
+) -> list[dict[str, Any]]:
     assert API_KEY, "Missing $OPENSANCTIONS_NSDC_API_KEY!"
     headers = {"x-cota-public-api-key": API_KEY}
     url = urljoin(context.data_url, path)
-    return context.fetch_json(url, headers=headers, cache_days=cache_days)
+    # context.fetch_json returns Any; cast via list constructor is not sufficient,
+    # so we rely on type: ignore for the missing stub
+    return context.fetch_json(url, headers=headers, cache_days=cache_days)  # type: ignore[no-any-return]
 
 
-def clean_address(value: str) -> List[str]:
+def clean_address(value: str) -> list[str]:
     if match := REGEX_ADDR_2_PARTS.match(value):
-        return match.groups()
-    return value
+        return list(match.groups())
+    return [value]
 
 
-def note_long_identifier(entity: Entity, values: List[str]) -> None:
+def note_long_identifier(entity: Entity, values: list[str]) -> None:
     for value in values:
         if len(value) > registry.identifier.max_length:
             entity.add("notes", value, lang="ukr")
 
 
 def check_sanctioned(
-    context: Context, entity: Entity, subject_id: int, item: Dict[str, Any], status: str
+    context: Context, entity: Entity, subject_id: str, item: dict[str, Any], status: str
 ) -> bool | None:
     res = context.lookup("sanctioned_status", status)
     if res is None:
@@ -51,11 +53,14 @@ def check_sanctioned(
         )
         return True
     else:
+        assert res.value is not None, (
+            f"sanctioned_status lookup for {status!r} has no value"
+        )
         return res.value.lower() == "true"
 
 
 def crawl_common(
-    context: Context, subject_id: str, entity: Entity, item: Dict[str, Any]
+    context: Context, subject_id: str, entity: Entity, item: dict[str, Any]
 ) -> None:
     status = item.pop("status")
     if status is None:
@@ -88,7 +93,7 @@ def crawl_common(
         elif res.prop:
             note_long_identifier(entity, ident_values)
             if res.prop == "innCode":
-                if INN.is_valid(ident_values):
+                if all(INN.is_valid(v) for v in ident_values):
                     entity.add(res.prop, ident_values)
                 else:
                     entity.add("taxNumber", ident_values)
@@ -123,7 +128,9 @@ def crawl_common(
                     h.apply_date(entity, result.prop, value)
                     continue
                 if result.prop == "address":
-                    value = clean_address(value)
+                    address_parts = clean_address(value)
+                    entity.add(result.prop, address_parts, lang="ukr")
+                    continue
                 entity.add(result.prop, value, lang="ukr")
         elif key in ("КПП",):
             if entity.schema.is_a("Organization"):
@@ -174,7 +181,7 @@ def crawl_common(
     context.emit(entity)
 
 
-def crawl_individual(context: Context, item: Dict[str, Any]) -> None:
+def crawl_individual(context: Context, item: dict[str, Any]) -> None:
     subject_id = item.pop("sid")
     entity = context.make("Person")
     entity.id = context.make_slug(subject_id, item.get("name"))
@@ -184,7 +191,7 @@ def crawl_individual(context: Context, item: Dict[str, Any]) -> None:
     crawl_common(context, subject_id, entity, item)
 
 
-def crawl_legal(context: Context, item: Dict[str, Any]) -> None:
+def crawl_legal(context: Context, item: dict[str, Any]) -> None:
     subject_id = item.pop("sid")
     entity = context.make("Organization")
     entity.id = context.make_slug(subject_id, item.get("name"))

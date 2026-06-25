@@ -35,8 +35,9 @@ def split_clean_name(
     return name, name_former, alias
 
 
-def crawl_row(context: Context, row: dict[str, str]) -> None:
+def crawl_row(context: Context, row: dict[str, str | None]) -> None:
     name = row.pop("name")
+    assert name is not None
     # The designated table records the date the designation took effect; the
     # delisted table only carries the original listing date.
     start_date = row.pop("date_implemented", None)
@@ -69,7 +70,7 @@ def crawl_row(context: Context, row: dict[str, str]) -> None:
 def crawl(context: Context) -> None:
     doc = fetch_html(context, context.data_url, ".//table")
 
-    tables = doc.xpath(".//table")
+    tables = h.xpath_elements(doc, ".//table")
     # We expect designated and delisted entities
     assert len(tables) == 2
     for table in tables:

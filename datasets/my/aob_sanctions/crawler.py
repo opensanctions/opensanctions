@@ -1,8 +1,9 @@
-from typing import Generator, Dict
-from lxml.etree import _Element, tostring
+from typing import Iterator
+from lxml.etree import tostring
 from normality import collapse_spaces, slugify
 
 from zavod import Context, helpers as h
+from zavod.util import Element
 
 SPLITTERS = [
     "(",
@@ -15,30 +16,30 @@ SPLITTERS = [
 PROVISIONS_SPLITS = ["Appeal", "Judicial Review"]
 
 
-def parse_table(table: _Element) -> Generator[Dict[str, str], None, None]:
+def parse_table(table: Element) -> Iterator[dict[str, str | None]]:
     """
     First we find the headers by searching the th tags, then we iterate over the tr tags (i.e. rows).
 
     Returns:
-        A generator that yields a dictionary of the table columns and values. The keys are the
-        column names and the values are the column values.
+        An iterator that yields a dictionary of the table columns and values. The keys are the
+        column names and the values are the column values (str or None).
     Raises:
         AssertionError: If the headers don't match what we expect.
     """
-    headers = [th.text_content().strip() for th in table.findall(".//th")]
+    headers = [h.element_text(th) for th in table.findall(".//th")]
     # Rowspan state for last column. Value may be used by next row if span > 1.
-    rowspan_value = None
+    rowspan_value: str | None = None
     rowspan = 1
     for row in table.findall(".//tr")[1:]:
         if headers is None:
             headers = []
             for el in row.findall("./td"):
-                headers.append(slugify(el.text_content()))
+                headers.append(slugify(h.element_text(el)))
             continue
 
-        cells = []
+        cells: list[str | None] = []
         for idx, el in enumerate(row.findall("./td")):
-            value = collapse_spaces(el.text_content())
+            value = collapse_spaces(h.element_text(el))
             cells.append(value)
 
             # handle rowspan for last column
@@ -53,7 +54,9 @@ def parse_table(table: _Element) -> Generator[Dict[str, str], None, None]:
                         tostring(row),
                     )
                     rowspan_value = value
-                    rowspan = int(el.get("rowspan"))
+                    rowspan_str = el.get("rowspan")
+                    assert rowspan_str is not None
+                    rowspan = int(rowspan_str)
 
         if len(cells) == len(headers) - 1:
             assert rowspan > 1, (
@@ -70,7 +73,7 @@ def parse_table(table: _Element) -> Generator[Dict[str, str], None, None]:
         yield {hdr: c for hdr, c in zip(headers, cells)}
 
 
-def crawl_item(context: Context, input_dict: dict[str, str]) -> None:
+def crawl_item(context: Context, input_dict: dict[str, str | None]) -> None:
     dict_keys = list(input_dict.keys())
 
     for column in dict_keys:
@@ -79,8 +82,10 @@ def crawl_item(context: Context, input_dict: dict[str, str]) -> None:
             input_dict[new_column] = input_dict.pop(column)
 
     parties = input_dict.pop("parties")
+    assert parties is not None, "Expected non-None parties value"
     # The abbreviation a/l stands for anak lelaki, which means "son of" (s/o) in Malay
     split_parties = h.multi_split(parties, SPLITTERS)
+    clean_name: str | None
     if len(split_parties) > 1:
         clean_name = split_parties[0]
     else:

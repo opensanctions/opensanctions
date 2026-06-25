@@ -57,6 +57,7 @@ def rename_headers(context: Context, entry: dict[str, Any]) -> dict[str, Any]:
     result = {}
     for old_key, value in entry.items():
         new_key = context.lookup_value("columns", old_key, old_key, warn_unmatched=True)
+        assert new_key is not None, f"lookup_value returned None for key: {old_key!r}"
         result[new_key] = value
     return result
 
@@ -70,7 +71,7 @@ def apply_address(context: Context, entity: Entity, address: dict[str, Any]) -> 
     city_code = address.pop("city_code", "")
     postal_code = address.pop("postal_code")
 
-    address = h.make_address(
+    addr_entity = h.make_address(
         context,
         street=f"{street_name} {street_number}".strip(),
         city=city,
@@ -78,7 +79,7 @@ def apply_address(context: Context, entity: Entity, address: dict[str, Any]) -> 
         postal_code=postal_code,
         lang="svk",
     )
-    h.copy_address(entity, address)
+    h.copy_address(entity, addr_entity)
 
 
 def fetch_related_data(context: Context, related_id: Any, endpoint: str) -> Any:
@@ -103,7 +104,7 @@ def emit_related_entity(
 
     if not first_name and not last_name:
         context.log.warn("No first or last name", entity_data=entity_data)
-        return
+        return None
 
     related = context.make("Person")
     # We have very limited pep details, so we use only the name to create the ID
@@ -206,13 +207,15 @@ def process_entry(context: Context, entry: dict[str, Any]) -> None:
             owner_data = fetch_related_data(context, owner.pop("Id"), BENEFICIAL_OWNERS)
             owner_data = rename_headers(context, owner_data)
             rel_entity = emit_related_entity(context, owner_data, is_pep=False)
-            emit_ownership(context, rel_entity, entity.id)
+            if rel_entity is not None:
+                emit_ownership(context, rel_entity, entity.id)
 
         for pep in partner_data.pop("public_officials"):
             pep_data = fetch_related_data(context, pep.pop("Id"), PUBLIC_OFFICIALS)
             pep_data = rename_headers(context, pep_data)
             rel_entity = emit_related_entity(context, pep_data, is_pep=True)
-            emit_link(context, rel_entity, entity.id)
+            if rel_entity is not None:
+                emit_link(context, rel_entity, entity.id)
 
         context.audit_data(partner_data, IGNORE_PARTNER)
     context.audit_data(entity_data, IGNORE_ENTITY)

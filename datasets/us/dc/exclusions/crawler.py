@@ -38,7 +38,7 @@ def emit_directorship(
     context.emit(dir)
 
 
-def crawl_row(context: Context, row: dict[str, str]) -> None:
+def crawl_row(context: Context, row: dict[str, str | None]) -> None:
     schema = "Person" if row.get("name_of_individual") else "Company"
     name_raw = row.pop("name_of_individual", None) or row.pop("name_of_company", None)
     assert name_raw is not None, "Entity must have a name"
@@ -61,6 +61,7 @@ def crawl_row(context: Context, row: dict[str, str]) -> None:
     end_date = row.pop("expiration_date", row.pop("termination_date", None))
     assert end_date is not None, "Missing expiration or termination date for sanction"
     start_date = row.pop("action_date")
+    assert start_date is not None, "Missing action date for sanction"
     sanction = h.make_sanction(context, entity, key=start_date + end_date)
     sanction.set("authority", row.pop("agency_instituting_the_action", None))
     sanction.add("reason", row.pop("reason_for_the_action", None))
@@ -77,7 +78,7 @@ def crawl_row(context: Context, row: dict[str, str]) -> None:
 
 def crawl(context: Context) -> None:
     doc = context.fetch_html(context.data_url, cache_days=1)
-    tables = doc.xpath(".//table")
+    tables = h.xpath_elements(doc, ".//table")
     # We expect 2 current and 2 historical tables
     assert len(tables) == 4, "Expected 4 tables, found %d" % len(tables)
 

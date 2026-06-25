@@ -1,8 +1,7 @@
-from typing import Any, Generator, Dict
+from typing import Any, Iterator
 from lxml import html
 import re
 import json
-from normality import squash_spaces
 from followthemoney.types import registry
 
 from zavod import Context, helpers as h
@@ -12,7 +11,7 @@ REGEX_URLS = r"(https?://[^\s]+)"
 TABLE_XPATH = ".//div[@class='article-content']//table"
 
 
-def parse_table(table_data: dict[str, Any]) -> Generator[Dict[str, str], None, None]:
+def parse_table(table_data: dict[str, Any]) -> Iterator[dict[str, str]]:
     """
     Parse the table and returns the information as a list of dict
 
@@ -23,11 +22,11 @@ def parse_table(table_data: dict[str, Any]) -> Generator[Dict[str, str], None, N
         AssertionError: If the headers don't match what we expect.
     """
     header_tr = html.fromstring(table_data["header_tr"])
-    headers = [th.text_content() for th in header_tr.findall(".//th")]
+    headers = [h.element_text(th) for th in header_tr.findall(".//th")]
     for row in table_data["rows"]:
         cells = []
         for el in row:
-            cells.append(squash_spaces(html.fromstring(el).text_content()))
+            cells.append(h.element_text(html.fromstring(el)))
         assert len(cells) == len(headers)
 
         # The table has a last row with all empty values
@@ -68,7 +67,7 @@ def crawl_item(input_dict: dict[str, str], context: Context) -> None:
 
 
 def crawl(context: Context) -> None:
-    actions = [
+    actions: list[dict[str, Any]] = [
         # Wait for jQuery DataTable to instantiate
         {
             "action": "waitForSelector",
@@ -100,7 +99,11 @@ def crawl(context: Context) -> None:
         cache_days=1,
     )
 
-    table_data = json.loads(doc.find(data_xpath).text)
+    data_el = doc.find(data_xpath)
+    assert data_el is not None, f"Could not find data element at {data_xpath}"
+    data_text = data_el.text
+    assert data_text is not None, "Data element has no text content"
+    table_data = json.loads(data_text)
 
     for item in parse_table(table_data):
         crawl_item(item, context)
