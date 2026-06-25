@@ -94,10 +94,11 @@ def crawl_member(
         cache_days=20,
     )
     deputy_id = parse_qs(urlparse(url).query)["deputy"][0]
+    name = h.element_text(h.xpath_element(doc, ".//h1[@class='name']"))
 
     person = context.make("Person")
     person.id = context.make_slug(deputy_id)
-    person.add("name", h.element_text(h.xpath_element(doc, ".//h1[@class='name']")))
+    person.add("name", name)
     person.add("sourceUrl", url)
     # Deputies of the Assembly must be citizens of Kosovo: Constitution Art. 71(1)
     # (https://www.constituteproject.org/constitution/Kosovo_2016) and Law No. 03/L-073
@@ -116,7 +117,6 @@ def crawl_member(
         if label_text == "PARTIA":
             person.add("political", value)
         elif label_text == "GRUPI PARLAMENTAR":
-            # politicalGroup is the in-chamber faction, distinct from party membership.
             group = value
 
     bio = parse_bio(context, doc)
@@ -152,7 +152,7 @@ def crawl(context: Context) -> None:
         topics=["gov.national", "gov.legislative"],
         wikidata_id="Q22262242",
     )
-    categorisation = categorise(context, position, default_is_pep=True)
+    categorisation = categorise(context, position)
     context.emit(position)
 
     doc = fetch_html(
