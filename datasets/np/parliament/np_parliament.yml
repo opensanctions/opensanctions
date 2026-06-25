@@ -1,0 +1,68 @@
+title: Nepal Federal Parliament
+entry_point: crawler.py
+prefix: np-pa
+coverage:
+  frequency: weekly
+  start: 2018-03-04
+load_statements: true
+ci_test: false
+summary: >-
+  Members of both chambers of Nepal's Federal Parliament: the House of
+  Representatives and the National Assembly.
+description: |
+  Nepal's bicameral Federal Parliament (Sanghiya Sansad) comprises the House of
+  Representatives (Pratinidhi Sabha, the 275-seat lower house) and the National
+  Assembly (Rastriya Sabha, the 59-seat upper house).
+
+  Each chamber publishes a JSON API of its members. The bulk export returns members
+  of every term in a single call, so the dataset covers both current and former
+  parliamentarians. A member's `tenure_end_date` separates past terms (a date in the
+  past) from sitting members (no end date, or an end date in the future).
+
+  Source birth dates are unreliable — the field mixes Gregorian and Bikram Sambat
+  calendars, spreadsheet serial numbers and partial values — so they are emitted only
+  on a best-effort basis at year precision (converted from the Bikram Sambat calendar)
+  and may be off by a few years.
+url: https://hr.parliament.gov.np/en/members
+publisher:
+  name: Federal Parliament of Nepal
+  name_en: Federal Parliament of Nepal
+  description: >
+    The Federal Parliament (Sanghiya Sansad) is the bicameral national legislature
+    of Nepal, established under the 2015 Constitution. It consists of the House of
+    Representatives and the National Assembly.
+  url: https://www.parliament.gov.np/
+  country: np
+  official: true
+data:
+  url: https://hr.parliament.gov.np/api/v1/members?getAllMemberDownload=true
+  format: JSON
+  lang: eng
+
+tags:
+  - list.pep
+
+lookups:
+  type.gender:
+    options:
+      - match: "0"
+        value: male
+      - match: "1"
+        value: female
+  type.date:
+    options:
+      # Sentinel used by the source for an unset tenure end date.
+      - match: "0000-00-00"
+        value: null
+
+assertions:
+  min:
+    schema_entities:
+      Person: 700
+      Position: 2
+    country_entities:
+      np: 700
+  max:
+    schema_entities:
+      Person: 1100
+      Position: 2
