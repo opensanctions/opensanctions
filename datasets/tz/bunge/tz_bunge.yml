@@ -5,10 +5,9 @@ coverage:
   frequency: monthly
   start: 2026-06-25
 load_statements: true
-ci_test: false # Live external government website, not available in CI
+ci_test: true
 summary: >-
-  Members of the National Assembly (Bunge), the unicameral legislature of the
-  United Republic of Tanzania
+  Members of the Bunge, the unicameral legislature of the United Republic of Tanzania
 description: |
   Members of the National Assembly (Bunge), the unicameral national legislature of the
   United Republic of Tanzania. It comprises constituency members, special-seats
