@@ -115,8 +115,7 @@ lookups:
   name_notes:
     normalize: true
     options:
-      - match:
-          - "OBNOSOV/ ОБНОСОВ/\n\nZápis byl zrušen ke dni 18. prosince 2023 v souladu s § 7 odst. 3 písm. a) zákona č. 1/2023 Sb., o omezujících opatřeních proti některým závažným jednáním uplatňovaných v mezinárodních vztazích (sankční zákon), vzhledem k zařazení subjektu na sankční seznam Evropské unie rozhodnutím Rady (SZBP) 2023/2871."
+      - match: "OBNOSOV/ ОБНОСОВ/\n\nZápis byl zrušen ke dni 18. prosince 2023 v souladu s § 7 odst. 3 písm. a) zákona č. 1/2023 Sb., o omezujících opatřeních proti některým závažným jednáním uplatňovaných v mezinárodních vztazích (sankční zákon), vzhledem k zařazení subjektu na sankční seznam Evropské unie rozhodnutím Rady (SZBP) 2023/2871."
         names: ["OBNOSOV", "ОБНОСОВ"]
         sanction_props:
           endDate: "2023-12-18"
@@ -180,8 +179,7 @@ lookups:
           endDate: "2025-07-15"
           status: zrušen
           summary: Zápis byl zrušen ke dni 15. července 2025 v souladu s § 7 odst. 3 písm. a) zákona č. 1/2023 Sb., o omezujících opatřeních proti některým závažným jednáním uplatňovaných v mezinárodních vztazích (sankční zákon), vzhledem k zařazení subjektu na sankční seznam Evropské unie rozhodnutím Rady (SZBP) 2025/1443
-      - match:
-          - "OSIPOV / OSSIPOV / OSSIPOW / ОСИПОВ\n\nZápis byl zrušen ke dni 23. října 2025 v souladu s § 7 odst. 3 písm. a) zákona č. 1/2023 Sb., o omezujících opatřeních proti některým závažným jednáním uplatňovaných v mezinárodních vztazích (sankční zákon), vzhledem k zařazení subjektu na sankční seznam Evropské unie rozhodnutím Rady (SZBP) 2025/2036."
+      - match: "OSIPOV / OSSIPOV / OSSIPOW / ОСИПОВ\n\nZápis byl zrušen ke dni 23. října 2025 v souladu s § 7 odst. 3 písm. a) zákona č. 1/2023 Sb., o omezujících opatřeních proti některým závažným jednáním uplatňovaných v mezinárodních vztazích (sankční zákon), vzhledem k zařazení subjektu na sankční seznam Evropské unie rozhodnutím Rady (SZBP) 2025/2036."
         names: ["OSIPOV", "OSSIPOV", "OSSIPOW", "ОСИПОВ"]
         sanction_props:
           endDate: "2025-10-23"
