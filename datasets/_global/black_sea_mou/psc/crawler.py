@@ -1,3 +1,4 @@
+import tempfile
 from datetime import datetime, timedelta
 from pathlib import Path
 from urllib.parse import urljoin
@@ -45,15 +46,21 @@ def attempt_login(context: Context) -> None:
     login_page = context.fetch_html(context.data_url)
     image = h.xpath_element(login_page, './/img[contains(@src, "captcha.php")]')
     captcha_url = urljoin(context.data_url, image.get("src"))
-    image_path: Path = context.fetch_resource("captcha.png", captcha_url)
-    context.log.debug(f"Fetched CAPTCHA image from {captcha_url}")
-    result = run_image_prompt(
-        context,
-        prompt=PROMPT,
-        image_path=image_path,
-        cache_days=0,
-        model=LLM_VERSION,
-    )
+    # Fetch the CAPTCHA into a tempfile rather than via fetch_resource: the latter
+    # skips the download when the target file already exists, which on a retry would
+    # reuse a stale image that can never match the freshly rotated session CAPTCHA.
+    response = context.fetch_response(captcha_url)
+    with tempfile.NamedTemporaryFile(suffix=".png") as tmp:
+        tmp.write(response.content)
+        tmp.flush()
+        context.log.debug(f"Fetched CAPTCHA image from {captcha_url}")
+        result = run_image_prompt(
+            context,
+            prompt=PROMPT,
+            image_path=Path(tmp.name),
+            cache_days=0,
+            model=LLM_VERSION,
+        )
     code = result["code"]
     context.log.debug(f"Extracted CAPTCHA code: {code}")
     login_url = urljoin(context.data_url, "?action=login")
