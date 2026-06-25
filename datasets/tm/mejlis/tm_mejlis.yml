@@ -1,0 +1,50 @@
+title: Turkmenistan Members of the Mejlis
+entry_point: crawler.py
+prefix: tm-mejlis
+coverage:
+  frequency: monthly
+  start: 2026-06-24
+load_statements: true
+ci_test: false # Live external government website needing a browser UA, not in CI
+summary: >-
+  Deputies of the Mejlis, the unicameral parliament of Turkmenistan
+description: |
+  Deputies of the Mejlis (Türkmenistanyň Mejlisi), the unicameral national parliament
+  of Turkmenistan since the 2023 constitutional reform that abolished the upper Halk
+  Maslahaty. The Mejlis has 125 deputies elected for five-year terms.
+
+  This dataset records each sitting deputy with their name, year of birth, role and
+  parliamentary committee, biography and electoral constituency, sourced from the
+  parliament's official website.
+url: https://mejlis.gov.tm/
+publisher:
+  name: Türkmenistanyň Mejlisi
+  name_en: Mejlis of Turkmenistan
+  description: >
+    The Mejlis is the unicameral national parliament of Turkmenistan.
+  url: https://mejlis.gov.tm/
+  country: tm
+  official: true
+data:
+  url: https://mejlis.gov.tm/convocation
+  format: HTML
+  lang: eng
+
+http:
+  # The site rejects the default crawler user agent.
+  user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36"
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 100
+      Position: 1
+    country_entities:
+      tm: 100
+  max:
+    schema_entities:
+      Person: 140
+      Position: 1
