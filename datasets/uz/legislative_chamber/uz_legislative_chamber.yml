@@ -5,10 +5,9 @@ coverage:
   frequency: monthly
   start: 2026-06-24
 load_statements: true
-ci_test: false # Live external government API, not available in CI
+ci_test: true
 summary: >-
-  Deputies of the Legislative Chamber, the lower house of the Oliy Majlis of the
-  Republic of Uzbekistan
+  Deputies of the lower house of the Oliy Majlis of the Republic of Uzbekistan
 description: |
   Deputies of the Legislative Chamber (Qonunchilik palatasi), the lower house of the
   bicameral Oliy Majlis of the Republic of Uzbekistan. It has 150 deputies — 75 elected
@@ -19,7 +18,7 @@ description: |
   faction, sourced from the Oliy Majlis open JSON API.
 url: https://parliament.gov.uz/
 publisher:
-  name: Oʻzbekiston Respublikasi Oliy Majlisi Qonunchilik palatasi
+  name: "Oʻzbekiston Respublikasi Oliy Majlisi Qonunchilik palatasi"
   name_en: Legislative Chamber of the Oliy Majlis of the Republic of Uzbekistan
   description: >
     The Legislative Chamber is the lower house of the Oliy Majlis, the bicameral
