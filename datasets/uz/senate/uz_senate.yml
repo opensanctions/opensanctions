@@ -5,10 +5,9 @@ coverage:
   frequency: monthly
   start: 2026-06-24
 load_statements: true
-ci_test: false # Cloudflare-fronted government API needing a browser UA, not in CI
+ci_test: false  # Cloudflare-fronted government API needing a browser UA, not in CI
 summary: >-
-  Senators of the Senate, the upper house of the Oliy Majlis of the Republic of
-  Uzbekistan
+  Senators of the upper house of the Oliy Majlis of the Republic of Uzbekistan
 description: |
   Members of the Senate, the upper house of the bicameral Oliy Majlis of the Republic
   of Uzbekistan. Since the 2023 constitutional reform the Senate has 65 seats — 56
@@ -19,7 +18,7 @@ description: |
   forms), date and place of birth, sourced from the Senate's open JSON API.
 url: https://senat.uz/
 publisher:
-  name: Oʻzbekiston Respublikasi Oliy Majlisi Senati
+  name: "Oʻzbekiston Respublikasi Oliy Majlisi Senati"
   name_en: Senate of the Oliy Majlis of the Republic of Uzbekistan
   description: >
     The Senate is the upper house of the Oliy Majlis, the bicameral national
