@@ -6,7 +6,6 @@ from rigour.names import pick_name
 
 from zavod import Context, helpers as h
 
-
 # detect anything more complex than word/word/word (and handle question mark woopsie)
 REGEX_LAST_NAME = re.compile(r"^[\w\?]+( ?/\s*[\w\?]+)*$")
 
@@ -119,11 +118,13 @@ def crawl_item(context: Context, row: Dict[str, str | None]) -> None:
 
 def crawl_data_url(context: Context) -> str:
     doc = context.fetch_html(context.data_url, absolute_links=True)
-    anchors = h.xpath_strings(
-        doc, '//a/span[text()="Vnitrostátní sankční seznam"]/../@href'
+    # The page links both a PDF and an XLSX version of the list under the same
+    # "Vnitrostátní sankční seznam" title; match the XLSX anchor directly.
+    return h.xpath_string(
+        doc,
+        '//a[contains(@href, ".xlsx")]'
+        '/span[contains(text(), "Vnitrostátní sankční seznam")]/../@href',
     )
-    assert len(anchors) > 1
-    return anchors[0]
 
 
 def crawl(context: Context) -> None:
