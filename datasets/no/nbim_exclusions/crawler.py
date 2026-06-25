@@ -1,3 +1,5 @@
+from typing import cast
+
 from normality import slugify
 
 from zavod import Context
@@ -52,8 +54,8 @@ def crawl(context: Context) -> None:
         if company is None:
             continue
         entity = context.make("Company")
-        if isinstance(company, tuple) and len(company) == 2:
-            name, url = company
+        if isinstance(company, tuple):
+            name, url = cast(tuple[str, str], company)
         else:
             context.log.info("No link found for company", company=company)
             name, url = company, None
