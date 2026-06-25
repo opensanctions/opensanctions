@@ -134,23 +134,28 @@ def wikidata_position(
         # else is the next-best language Wikidata gave us, and we translate it to
         # English. Picking what to translate may get more complex in the future,
         # but for now translating the next-best pick after English works for us.
-        if item.label.lang in ("eng", MULTI_LANG):
+        if item.label.lang in ("eng", MULTI_LANG, None):
             item.label.apply(position, "name", clean=clean_wikidata_name)
-        elif item.label.lang is not None:
-            prompt = make_position_translation_prompt(item.label.lang)
-            for translated in run_translation_prompt(
-                context, prompt, item.label.text
-            ).texts:
-                clean_text = clean_wikidata_name(translated.text)
-                if clean_text is None or clean_text.strip() == "":
-                    continue
-                position.add(
-                    "name",
-                    clean_text,
-                    lang=translated.lang,
-                    original_value=item.label.text,
-                    origin=DEFAULT_MODEL,
-                )
+        else:
+            clean_label_text = clean_wikidata_name(item.label.text)
+            if clean_label_text is not None and clean_label_text.strip() != "":
+                assert item.label.lang is not None
+                prompt = make_position_translation_prompt(item.label.lang)
+                translations = run_translation_prompt(
+                    context, prompt=prompt, text=item.label.text
+                ).texts
+                # if for some reason the translation fails, fall back to the original
+                if len(translations) == 0:
+                    item.label.apply(position, "name", clean=clean_wikidata_name)
+                else:
+                    for translated in translations:
+                        position.add(
+                            "name",
+                            translated.text,
+                            lang=translated.lang,
+                            original_value=item.label.text,
+                            origin=DEFAULT_MODEL,
+                        )
 
     for claim in item.claims:
         if claim.property in ("P1001", "P17", "P27") and claim.qid is not None:
