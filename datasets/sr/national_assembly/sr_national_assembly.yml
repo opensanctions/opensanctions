@@ -5,10 +5,9 @@ coverage:
   frequency: monthly
   start: 2026-06-18
 load_statements: true
-ci_test: false # Live external website, not available in CI
+ci_test: true
 summary: >-
-  Members of the National Assembly (De Nationale Assemblée), the unicameral national legislature of
-  Suriname
+  Members of De Nationale Assemblée, the unicameral national legislature of Suriname
 description: |
   Current members of the National Assembly (De Nationale Assemblée), the
   unicameral national legislature of Suriname. Its 51 members are elected from
