@@ -2974,7 +2974,7 @@ config:
       country: ru
       language: ru
       position:
-        name: Глава парламента субъекта Российской Федерации
+        name: Chairman of a Regional Parliament of Russia
         topics:
           - gov.legislative
           - gov.state
