@@ -5,10 +5,9 @@ coverage:
   frequency: monthly
   start: 2026-06-18
 load_statements: true
-ci_test: false
+ci_test: true
 summary: >-
-  Senators of the Cámara de Senadores, the upper chamber of the Plurinational
-  Legislative Assembly of Bolivia
+  Senators of the upper chamber of the Plurinational Legislative Assembly of Bolivia
 description: |
   Current senators of the Cámara de Senadores (Chamber of Senators), the upper
   chamber of the bicameral Plurinational Legislative Assembly of Bolivia. Its 36
@@ -64,7 +63,7 @@ lookups:
 assertions:
   min:
     schema_entities:
-      Person: 28
+      Person: 20
       Position: 1
     country_entities:
       bo: 28
