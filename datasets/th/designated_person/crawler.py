@@ -1,9 +1,8 @@
 import re
-from typing import Dict
 
-from lxml.etree import _Element
 from normality import collapse_spaces
 from zavod.extract.zyte_api import fetch_html
+from zavod.util import Element
 
 from zavod import Context
 from zavod import helpers as h
@@ -13,11 +12,14 @@ PASSPORT_SPLITS = [",", "1.", " 2.", " 3. ", " 4."]
 
 
 def parse_table(
-    table: _Element,
-) -> Dict[str, str]:
-    return {
-        row.findtext(".//th"): row.findtext(".//td") for row in table.findall(".//tr")
-    }
+    table: Element,
+) -> dict[str, str | None]:
+    result: dict[str, str | None] = {}
+    for row in table.findall(".//tr"):
+        key = row.findtext(".//th")
+        if key is not None:
+            result[key] = row.findtext(".//td")
+    return result
 
 
 def clean_name(name: str) -> str:
@@ -33,9 +35,11 @@ def crawl_item(url: str, context: Context) -> None:
         cache_days=1,
     )
 
-    info_dict = parse_table(response.find(".//table"))
-    en_name = info_dict.pop("Individual/Entity Name (English)", "").strip()
-    th_name = info_dict.pop("Individual/Entity Name (Thailand)").strip()
+    table = response.find(".//table")
+    assert table is not None, "No table found in response"
+    info_dict = parse_table(table)
+    en_name = (info_dict.pop("Individual/Entity Name (English)", "") or "").strip()
+    th_name = (info_dict.pop("Individual/Entity Name (Thailand)") or "").strip()
     birth_date = info_dict.pop("Date of Birth")
     birth_date_parsed = (h.extract_date(context.dataset, birth_date))[0]
     entity = context.make("Person")
@@ -66,7 +70,7 @@ def crawl_item(url: str, context: Context) -> None:
 
     context.emit(entity)
 
-    passport_numbers = collapse_spaces(info_dict.pop("Passport Number", None))
+    passport_numbers = collapse_spaces(info_dict.pop("Passport Number", None) or "")
     if passport_numbers:
         for passport_number in h.multi_split(passport_numbers, PASSPORT_SPLITS):
             passport = h.make_identification(
@@ -77,7 +81,8 @@ def crawl_item(url: str, context: Context) -> None:
                 country="th",
                 passport=True,
             )
-            context.emit(passport)
+            if passport is not None:
+                context.emit(passport)
 
     context.audit_data(info_dict, ignore=["Status"])
 
@@ -86,5 +91,7 @@ def crawl(context: Context) -> None:
     response = context.fetch_html(context.data_url, cache_days=1, absolute_links=True)
 
     # We are going to iterate over all url of the designated persons
-    for a in response.findall(".//table[@id='datatable']/tbody/tr/td/a"):
-        crawl_item(a.get("href"), context)
+    for a in h.xpath_elements(response, ".//table[@id='datatable']/tbody/tr/td/a"):
+        url = a.get("href")
+        assert url is not None, f"Missing href on anchor: {a}"
+        crawl_item(url, context)
