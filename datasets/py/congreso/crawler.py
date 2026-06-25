@@ -1,5 +1,4 @@
 from typing import Any
-from enum import Enum
 
 from zavod import Context, helpers as h
 from zavod.stateful.positions import categorise
@@ -7,22 +6,17 @@ from zavod.stateful.positions import categorise
 
 POSITION_TOPICS = ["gov.national", "gov.legislative"]
 
-
-class Chamber(Enum):
-    DEPUTIES = ("Member of the Chamber of Deputies of Paraguay", "Q20058561")
-    SENATORS = ("Member of the Chamber of Senators of Paraguay", "Q20058559")
-
-    def __init__(self, position_name: str, wikidata_id: str) -> None:
-        self.position_name = position_name
-        self.wikidata_id = wikidata_id
-
-    @classmethod
-    def from_source(cls, value: str) -> "Chamber":
-        if "DIPUTADOS" in value:
-            return cls.DEPUTIES
-        if "SENADORES" in value:
-            return cls.SENATORS
-        raise ValueError(f"Unexpected chamber value: {value!r}")
+# Maps the source's camaraParlamentario value to (position name, Wikidata QID).
+CHAMBERS = {
+    "CAMARA DE DIPUTADOS": (
+        "Member of the Chamber of Deputies of Paraguay",
+        "Q20058561",
+    ),
+    "CAMARA DE SENADORES": (
+        "Member of the Chamber of Senators of Paraguay",
+        "Q20058559",
+    ),
+}
 
 
 def crawl_member(
@@ -35,13 +29,16 @@ def crawl_member(
     if period_start < h.earliest_term_start(POSITION_TOPICS):
         return
 
-    chamber = Chamber.from_source(row.pop("camaraParlamentario"))
+    camara = row.pop("camaraParlamentario")
+    if camara not in CHAMBERS:
+        raise ValueError(f"Unexpected chamber value: {camara!r}")
+    position_name, wikidata_id = CHAMBERS[camara]
     position = h.make_position(
         context,
-        name=chamber.position_name,
+        name=position_name,
         country="py",
         topics=POSITION_TOPICS,
-        wikidata_id=chamber.wikidata_id,
+        wikidata_id=wikidata_id,
         lang="eng",
     )
     categorisation = categorise(context, position)
