@@ -248,6 +248,8 @@ config:
     - Q5234712 # Came in via Dallas categories under Category:George_M._Dallas
     - Q546195 # Khuit II, Queen Consort of Ancient Egypt
   categories:
+    # Position names defined here (the `position.name` field) should be written
+    # in English — make_position tags them with lang="eng".
     # Mega collections:
     - category: Political_office-holders_in_Asia
       depth: 8
@@ -2974,7 +2976,7 @@ config:
       country: ru
       language: ru
       position:
-        name: Глава парламента субъекта Российской Федерации
+        name: Chairman of a Regional Parliament of Russia
         topics:
           - gov.legislative
           - gov.state

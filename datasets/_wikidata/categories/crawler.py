@@ -150,7 +150,11 @@ def crawl_category(state: CrawlState, category_crawl_spec: Dict[str, Any]) -> No
     position: Optional[Entity] = None
     if "name" in position_data:
         position = h.make_position(
-            state.context, **position_data, id_hash_prefix="wd-cat"
+            state.context,
+            **position_data,
+            # Our position specs in the metadata are always in English
+            lang="eng",
+            id_hash_prefix="wd-cat",
         )
 
     query_string = urlencode(query)
