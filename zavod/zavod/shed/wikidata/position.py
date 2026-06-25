@@ -9,11 +9,8 @@ from rigour.territories import get_territory_by_qid
 from zavod import Context, Entity
 from zavod import helpers as h
 from zavod.constants import ORIGIN_INFERRED
-from zavod.extract.llm import DEFAULT_MODEL
-from zavod.shed.trans import (
-    make_position_translation_prompt,
-    run_translation_prompt,
-)
+from zavod.shed.trans import translate_position_name
+from zavod.util import LangText
 from zavod.stateful.positions import categorise
 from zavod.shed.wikidata.country import is_historical_country, item_countries
 
@@ -140,22 +137,22 @@ def wikidata_position(
             clean_label_text = clean_wikidata_name(item.label.text)
             if clean_label_text is not None and clean_label_text.strip() != "":
                 assert item.label.lang is not None
-                prompt = make_position_translation_prompt(item.label.lang)
-                translations = run_translation_prompt(
-                    context, prompt=prompt, text=item.label.text
-                ).texts
+                result = translate_position_name(
+                    context,
+                    LangText(text=item.label.text, lang=item.label.lang),
+                )
+                translated = result.get_english()
                 # if for some reason the translation fails, fall back to the original
-                if len(translations) == 0:
+                if translated is None:
                     item.label.apply(position, "name", clean=clean_wikidata_name)
                 else:
-                    for translated in translations:
-                        position.add(
-                            "name",
-                            translated.text,
-                            lang=translated.lang,
-                            original_value=item.label.text,
-                            origin=DEFAULT_MODEL,
-                        )
+                    position.add(
+                        "name",
+                        translated.text,
+                        lang=translated.lang,
+                        original_value=item.label.text,
+                        origin=result.origin,
+                    )
 
     for claim in item.claims:
         if claim.property in ("P1001", "P17", "P27") and claim.qid is not None:
