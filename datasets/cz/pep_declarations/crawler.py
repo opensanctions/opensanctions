@@ -81,6 +81,7 @@ def crawl_person(context: Context, item: Dict[str, Any]) -> None:
             name=position_name,
             country="cz",
             lang="ces",
+            translate_name=True,
         )
         entity.add("position", position_name)
 
