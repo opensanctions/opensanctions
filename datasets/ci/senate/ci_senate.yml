@@ -1,0 +1,45 @@
+title: Côte d'Ivoire Members of the Senate
+entry_point: crawler.py
+prefix: ci-senate
+coverage:
+  frequency: monthly
+  start: 2026-06-25
+load_statements: true
+ci_test: false # Live external government website, not available in CI
+summary: >-
+  Senators of the Senate of Côte d'Ivoire, the upper house of Parliament
+description: |
+  Members of the Senate (Sénat), the upper house of the bicameral Parliament of Côte
+  d'Ivoire. It has 99 senators — two thirds elected indirectly and one third appointed
+  by the President — serving five-year terms.
+
+  This dataset records each sitting senator by name, sourced from the Senate's official
+  website. The site lists names only (no party or region in a structured form).
+url: https://www.senat.ci/les-senateurs
+publisher:
+  name: Sénat de Côte d'Ivoire
+  name_en: Senate of Côte d'Ivoire
+  description: >
+    The Senate is the upper house of the bicameral Parliament of Côte d'Ivoire.
+  url: https://www.senat.ci/
+  country: ci
+  official: true
+data:
+  url: https://www.senat.ci/les-senateurs
+  format: HTML
+  lang: fra
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 85
+      Position: 1
+    country_entities:
+      ci: 85
+  max:
+    schema_entities:
+      Person: 110
+      Position: 1
