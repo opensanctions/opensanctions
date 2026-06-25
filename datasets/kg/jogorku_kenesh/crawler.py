@@ -27,19 +27,22 @@ def crawl_deputy(
     # (Constitution art. 70). https://www.constituteproject.org/constitution/Kyrgyz_Republic_2016
     person.add("citizenship", "kg")
 
-    factions = row.pop("factions")
-    constituencies = [row.pop("constituencyRu"), row.pop("constituencyKg")]
     occupancy = h.make_occupancy(
         context, person, position, categorisation=categorisation
     )
     if occupancy is None:
         return
-    for value in constituencies:
-        if value is not None:
-            occupancy.add("constituency", value.strip())
+
+    for value in [row["constituencyRu"], row["constituencyKg"]]:
+        # add constituency names in kg and ru
+        occupancy.add("constituency", value.strip())
+
+    # can list several factions
+    factions = row.pop("factions")
     for faction in factions:
-        occupancy.add("politicalGroup", faction.get("titleRu"), lang="rus")
-        occupancy.add("politicalGroup", faction.get("titleKg"), lang="kir")
+        for value in [faction["titleRu"], faction["titleKg"]]:
+            # add faction names in kg and ru
+            occupancy.add("politicalGroup", value.strip())
 
     context.emit(occupancy)
     context.emit(person)
