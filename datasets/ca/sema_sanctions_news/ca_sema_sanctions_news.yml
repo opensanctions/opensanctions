@@ -4,7 +4,7 @@ prefix: ca-sema-news
 coverage:
   schedule: "0 */3 * * *"  # every 3 hours
   frequency: daily
-  start: 2026-02-24
+  start: 2026-06-22
 load_statements: true
 summary: >-
   Sanctions imposed by Canada in response to Russia’s invasion of Ukraine
@@ -60,14 +60,14 @@ names:
 assertions:
   min:
     schema_entities:
-      Person: 1500
-      Organization: 600
-      Vessel: 80
+      Person: 3
+      Organization: 20
+      # currently all vessels are merged with ca_dfatd_sema_sanctions
+      # Vessel: 0
   max:
     schema_entities:
-      Person: 4000
-      Organization: 1500
-      Vessel: 1600
+      Person: 60
+      Organization: 100
 
 lookups:
   sanction.program:

@@ -1,8 +1,7 @@
 import re
-from typing import Any, Dict, Generator, List, Optional
+from typing import Any
 import openpyxl
 from rigour.mime.types import XLSX
-from normality import slugify
 
 from zavod import Context
 from zavod import helpers as h
@@ -12,16 +11,6 @@ from zavod.stateful.positions import categorise
 REGEX_TITLE = re.compile(
     r"^(Drs\. |Dr\. |Ir\. |Hj\. |PROF\. |IRJEN POL\. \(Purn\) |Dra\. )*", re.IGNORECASE
 )
-
-
-def worksheet_rows(sheet: Any) -> Generator[Dict[str, Any], None, None]:
-    headers: Optional[List[str]] = None
-    for row in sheet.iter_rows(min_row=4):
-        cells = [c.value for c in row]
-        if headers is None:
-            headers = [slugify(h, sep="_") for h in cells]
-            continue
-        yield dict(zip(headers, cells))
 
 
 def clean_name(name: str) -> str:
@@ -65,12 +54,13 @@ def crawl_person(
 
     context.emit(entity)
     context.emit(position)
-    context.emit(occupancy)
+    if occupancy is not None:
+        context.emit(occupancy)
 
 
 def crawl_pair(
     context: Context,
-    row: Dict[str, Any],
+    row: dict[str, Any],
     head_ind: str,
     head_eng: str,
     deputy_ind: str,
@@ -90,7 +80,7 @@ def crawl(context: Context) -> None:
     path = context.fetch_resource("individuals.xlsx", context.data_url)
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
     workbook = openpyxl.load_workbook(path, read_only=True)
-    for row in worksheet_rows(workbook["Pemilihan Gubernur"]):
+    for row in h.parse_xlsx_sheet(context, workbook["Pemilihan Gubernur"], skiprows=3):
         crawl_pair(
             context,
             row,
@@ -102,7 +92,9 @@ def crawl(context: Context) -> None:
             ["gov.head", "gov.state"],
         )
 
-    for row in worksheet_rows(workbook["Pemilihan Bupati atau Walikota"]):
+    for row in h.parse_xlsx_sheet(
+        context, workbook["Pemilihan Bupati atau Walikota"], skiprows=3
+    ):
         crawl_pair(
             context,
             row,

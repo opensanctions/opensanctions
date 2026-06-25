@@ -13,7 +13,7 @@ def crawl_item(row: dict[str, str | None], context: Context) -> None:
     if not context.lookup("period", period):
         context.log.warning("Unexpected exclusion period", period=period, row=row)
 
-    if first_name := row.pop("first_name"):
+    if (first_name := row.pop("first_name")) and first_name != "N/A":
         entity = context.make("Person")
         entity.id = context.make_id(
             first_name, row.get("npi"), row.get("last_name_or_practice_name")
@@ -57,7 +57,7 @@ def crawl_item(row: dict[str, str | None], context: Context) -> None:
     entity.add("country", "us")
     entity.add("topics", "debarment")
     license = row.pop("license")
-    if license:
+    if license and license != "N/A":
         entity.add("description", "License number: " + license)
 
     sanction = h.make_sanction(context, entity)
@@ -81,7 +81,7 @@ def crawl(context: Context) -> None:
     sheet_names = wb.sheetnames
 
     assert wb.active is not None
-    for item in h.parse_xlsx_sheet(context, wb.active):
+    for item in h.parse_xlsx_sheet(context, wb.active, skiprows=2):
         crawl_item(item, context)
 
     sheet_names.remove(wb.active.title)

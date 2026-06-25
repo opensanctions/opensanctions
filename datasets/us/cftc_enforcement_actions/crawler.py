@@ -5,7 +5,6 @@ from lxml.html import HtmlElement
 from pydantic import BaseModel, Field
 from zavod.context import Context
 from zavod.entity import Entity
-from zavod.shed import enforcements
 from zavod.extract.llm import DEFAULT_MODEL, run_typed_text_prompt
 from zavod.stateful.review import (
     HtmlSourceValue,
@@ -233,7 +232,7 @@ def crawl_index_page(context: Context, doc: HtmlElement) -> bool:
     assert len(tables) == 1
     for row in h.parse_html_table(tables[0]):
         enforcement_date = h.element_text(row["date"])
-        if not enforcements.within_max_age(context, enforcement_date):
+        if not h.within_max_age(context, enforcement_date):
             return False
         action_cell = row["enforcement_actions"]
         # Remove related links so we can assert that there's one key link

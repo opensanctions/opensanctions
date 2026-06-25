@@ -282,11 +282,13 @@ def crawl_persons(state: CrawlState) -> None:
         if not len(entity.countries):
             entity.add("country", state.person_countries.get(person_qid, []))
 
-        positions = state.person_positions.get(person_qid, [])
+        positions: set[Entity] = state.person_positions.get(person_qid, set())
         for position in positions:
             if position.id is None or position.id in state.ignore_positions:
                 continue
-            occupancy = h.make_occupancy(state.context, entity, position)
+            occupancy = h.make_occupancy(
+                state.context, entity, position, no_end_implies_current=False
+            )
             if occupancy is not None:
                 state.emit_position(position)
                 state.context.emit(occupancy)

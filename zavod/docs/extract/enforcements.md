@@ -13,11 +13,11 @@ check whether an action date is within scope:
 ```python
     for row in h.parse_html_table(table):
         enforcement_date = h.element_text(row["date"])
-        if not enforcements.within_max_age(context, enforcement_date):
+        if not h.within_max_age(context, enforcement_date):
             return
 ```
 
-### ::: zavod.shed.enforcements.within_max_age
+### ::: zavod.helpers.dates.within_max_age
 
 
 ## Create Article and Documentation entities

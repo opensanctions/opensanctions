@@ -17,8 +17,10 @@ def get_recent_full_dump_urls(context: Context) -> Iterator[tuple[str, str]]:
         "pretty": "true",
         "sort": "file_name:asc",
     }
-    total = None
-    while total is None or params["from"] <= total:
+    offset: int = 0
+    total: int | None = None
+    while total is None or offset <= total:
+        params["from"] = offset
         url = f"{context.data_url}?{urlencode(params)}"
         data = context.fetch_json(url)
         total = data["hits"]["total"]
@@ -26,7 +28,7 @@ def get_recent_full_dump_urls(context: Context) -> Iterator[tuple[str, str]]:
             src = hit["_source"]
             yield src["file_name"], src["download_link"]
 
-        params["from"] += params["size"]
+        offset += 100
 
 
 def crawl(context: Context) -> None:

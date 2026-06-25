@@ -30,21 +30,20 @@ AGE_MAX = 90
 # TODO(Leon Handreke): Using mutable "constants" as global state is ugly
 STATUSES: defaultdict[int, int] = defaultdict(int)
 HEADERS = {
-    # "accept": "*/*",
-    # "accept-language": "en-GB,en-US;q=0.9,en;q=0.8",
-    # "cache-control": "max-age=0",
-    # "priority": "u=0, i",
-    # "sec-ch-ua": '"Not/A)Brand";v="8", "Chromium";v="126", "Google Chrome";v="126"',
-    # "sec-ch-ua-mobile": '?0',
-    # "sec-ch-ua-platform": '"macOS"',
-    # "sec-fetch-dest": "document",
+    "accept": "*/*",
+    "accept-language": "en-GB,en-US;q=0.9,en;q=0.8",
+    "cache-control": "no-cache",
+    "priority": "u=1, i",
     "origin": "https://www.interpol.int",
+    "pragma": "no-cache",
     "referer": "https://www.interpol.int/",
-    "sec-fetch-mode": "navigate",
-    "sec-fetch-site": "none",
-    "sec-fetch-user": "?1",
-    "upgrade-insecure-requests": "1",
-    "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
+    "sec-ch-ua": '"Chromium";v="148", "Google Chrome";v="148", "Not/A)Brand";v="99"',
+    "sec-ch-ua-mobile": "?0",
+    "sec-ch-ua-platform": '"macOS"',
+    "sec-fetch-dest": "empty",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-site": "same-site",
+    "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36",
 }
 PROGRAM_KEY = "INTERPOL-RN"
 

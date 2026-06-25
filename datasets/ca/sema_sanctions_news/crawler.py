@@ -2,16 +2,26 @@ from itertools import chain
 from lxml.etree import _Element
 from typing import Dict
 
-from zavod import Context, helpers as h
+from nomenklatura.resolver import Linker
+
+from zavod import Context, Entity, helpers as h
+from zavod.integration import get_dataset_linker
 from zavod.stateful.review import assert_all_accepted
 
 PROGRAM_KEY = "CA-SEMA"
+MAX_AGE_DAYS = 15
 
 
 def crawl_entity_notice(context: Context, row: Dict[str, _Element]) -> None:
     str_row = h.cells_to_str(row)
-    country = str_row.pop("country")
     listing_date = str_row.pop("date")
+    assert listing_date is not None
+
+    # skip sanctions whose listing date is older than 100 days
+    if not h.within_max_age(context, listing_date, MAX_AGE_DAYS):
+        return
+
+    country = str_row.pop("country")
     entity_type = str_row.pop("types")
     res = context.lookup("schema_type", entity_type, warn_unmatched=True)
     schema = res.value if res else None
@@ -52,6 +62,7 @@ def crawl_entity_notice(context: Context, row: Dict[str, _Element]) -> None:
     for raw_name in chain(persons, oranizations):
         entity = context.make(schema)
         entity.id = context.make_id(raw_name, country)
+        assert entity.id is not None
 
         born_patterns = [" (born ", " (bornon "]
         for born in born_patterns:
@@ -81,12 +92,28 @@ def crawl_entity_notice(context: Context, row: Dict[str, _Element]) -> None:
         context.emit(sanction)
 
 
-def crawl_vessel(context: Context, row: Dict[str, _Element]) -> None:
+def crawl_vessel(
+    context: Context, row: Dict[str, _Element], linker: Linker[Entity]
+) -> None:
     str_row = h.cells_to_str(row)
     imo_number = str_row.pop("ship_imo_number")
     name = str_row.pop("ship_name")
     vessel = context.make("Vessel")
     vessel.id = context.make_id(name, imo_number)
+    assert vessel.id is not None
+
+    # time-based check does not apply to vessels because
+    # the news table doesn't provide their individual ListingDates
+    # drop entities already present in [ca_dfatd_sema_sanctions]
+    canonical_id = linker.get_canonical(vessel.id)
+    already_present = False
+    for other_id in linker.get_referents(canonical_id):
+        if other_id.startswith("ca-sema") and not other_id.startswith("ca-sema-news"):
+            already_present = True
+            break
+    if already_present:
+        return
+
     vessel.add("name", name)
     vessel.add("imoNumber", imo_number)
     vessel.add("type", str_row.pop("ship_type"))
@@ -106,11 +133,12 @@ def crawl_vessel(context: Context, row: Dict[str, _Element]) -> None:
 def crawl(context: Context) -> None:
     doc = context.fetch_html(context.data_url)
     entities_table = h.xpath_element(doc, '//table[contains(@id, "dataset-filter1")]')
+    linker = get_dataset_linker(context.dataset)
     for row in h.parse_html_table(entities_table):
         crawl_entity_notice(context, row)
 
     ship_table = h.xpath_element(doc, '//table[contains(@class, "table wb-tables")]')
     for row in h.parse_html_table(ship_table):
-        crawl_vessel(context, row)
+        crawl_vessel(context, row, linker)
 
     assert_all_accepted(context, raise_on_unaccepted=False)

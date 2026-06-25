@@ -1,26 +1,24 @@
 from typing import cast
 
 from banal import ensure_list
-from lxml.etree import _Element
 from zavod.extract.zyte_api import fetch_html
+from zavod.util import Element
 
 from zavod import Context
 from zavod import helpers as h
 
 
-def crawl_item(li_tag: _Element, context: Context) -> None:
+def crawl_item(li_tag: Element, context: Context) -> None:
     name = li_tag.findtext(".//a/b")
     names = [] if name is None else [name]
     li_link = li_tag.find(".//a")
     if li_link is None:
         return
-    try:
-        description = li_tag.xpath(".//br/following-sibling::text()")[0]
-    except IndexError:
-        description = None
+    texts = h.xpath_strings(li_tag, ".//br/following-sibling::text()")
+    description: str | None = texts[0] if texts else None
 
     if not names:
-        long_name = li_link.text_content()
+        long_name = h.element_text(li_link)
         long_name = long_name.replace("SEC Advisory on", "").strip()
         res = context.lookup("names", long_name, warn_unmatched=True)
         if not res:
@@ -46,7 +44,9 @@ def crawl_item(li_tag: _Element, context: Context) -> None:
         return
 
     source_url = li_link.get("href")
-    date = li_tag.findtext(".//*[@class='myDate']").strip()
+    date_text = li_tag.findtext(".//*[@class='myDate']")
+    assert date_text is not None, li_tag
+    date = date_text.strip()
 
     entity = context.make("LegalEntity")
     entity.id = context.make_id(source_url)

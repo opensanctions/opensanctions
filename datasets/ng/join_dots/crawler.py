@@ -1,5 +1,5 @@
 import openpyxl
-from typing import Any, Iterator, cast
+from typing import Any, cast
 from normality import squash_spaces, slugify
 from rigour.mime.types import XLSX
 import re
@@ -106,7 +106,7 @@ def crawl_pep(
     """Returns (person name, entity ID), or (None, None) if the PEP was not emitted."""
     name = row.pop("name")
     birth_date = row.pop("date_of_birth", None)
-    birth_date = birth_date.isoformat()[:10] if birth_date else None
+    birth_date = birth_date[:10] if birth_date else None
     district = row.pop("district", None)
 
     entity = context.make("Person")
@@ -184,16 +184,6 @@ def crawl_relative(
     context.emit(rel)
 
 
-def worksheet_rows(sheet: Any) -> Iterator[dict[str | None, Any]]:
-    headers: list[str | None] | None = None
-    for row in sheet.rows:
-        cells = [c.value for c in row]
-        if headers is None:
-            headers = [slugify(h, sep="_") for h in cells]
-            continue
-        yield dict(zip(headers, cells))
-
-
 def crawl(context: Context) -> None:
     pep_ids: dict[str, str] = {}  # slugified name -> entity ID
     dupes = set()
@@ -203,7 +193,7 @@ def crawl(context: Context) -> None:
     )
     context.export_resource(peps_path, XLSX, title="PEPs source data")
     workbook = openpyxl.load_workbook(peps_path, read_only=True)
-    for row in worksheet_rows(workbook.worksheets[0]):
+    for row in h.parse_xlsx_sheet(context, workbook.worksheets[0]):
         name, entity_id = crawl_pep(context, row)
         if name is None:
             continue
@@ -224,6 +214,6 @@ def crawl(context: Context) -> None:
     )
     context.export_resource(peps_path, XLSX, title="PEP Relatives source data")
     workbook = openpyxl.load_workbook(peps_path, read_only=True)
-    for row in worksheet_rows(workbook.worksheets[0]):
+    for row in h.parse_xlsx_sheet(context, workbook.worksheets[0]):
         if row:
             crawl_relative(context, row, pep_ids)

@@ -256,6 +256,7 @@ config:
         Licchavi_kings_of_Nepal
         Sinhalese_royalty
         Tamil_monarchs
+        Egyptian_monarchs
     - category: Political_office-holders_in_Oceania
       depth: 8
     - category: Political_office-holders_in_North_America
@@ -2454,7 +2455,7 @@ config:
       negcats: |
         Sinhalese_royalty
         Tamil_monarchs
-        
+
     # country: Bhutan
     - category: Political_office-holders_in_Bhutan
       topic: role.pep

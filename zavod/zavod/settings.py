@@ -67,13 +67,6 @@ nk.DB_URL = f"sqlite:///{DATA_PATH.joinpath('zavod.sqlite3').as_posix()}"
 nk.DB_URL = env.get("ZAVOD_DATABASE_URI", nk.DB_URL)
 nk.DB_URL = env.get("OPENSANCTIONS_DATABASE_URI", nk.DB_URL)
 
-# pywikibot settings for editing Wikidata
-WD_CONSUMER_TOKEN = env.get("ZAVOD_WD_CONSUMER_TOKEN")
-WD_CONSUMER_SECRET = env.get("ZAVOD_WD_CONSUMER_SECRET")
-WD_ACCESS_TOKEN = env.get("ZAVOD_WD_ACCESS_TOKEN")
-WD_ACCESS_SECRET = env.get("ZAVOD_WD_ACCESS_SECRET")
-WD_USER = env.get("ZAVOD_WD_USER")
-
 ZYTE_API_KEY = env.get("OPENSANCTIONS_ZYTE_API_KEY", None)
 OPENAI_API_KEY = env.get("OPENAI_API_KEY", None)
 

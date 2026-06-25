@@ -1,5 +1,7 @@
 from typing import Dict, Any
 
+from requests.exceptions import HTTPError
+
 from zavod import Context, helpers as h
 from zavod.stateful.positions import categorise
 
@@ -122,8 +124,25 @@ def crawl(context: Context) -> None:
             # The list endpoint only returns flattened summary fields; the
             # structured workingPositions array lives on the detail endpoint.
             detail_url = f"{context.data_url}/{item['id']}"
-            detail = context.fetch_json(detail_url, cache_days=14)
-            assert detail is not None, "Expected JSON response"
-            crawl_person(context, detail)
+
+            # As of 2024-06-17, one detail page returns a 404 despite being listed in the
+            # declaration list for a few days.
+            # https://cro.gov.cz/verejnost/api/funkcionari/5a7e5a80-6a0e-493a-9d79-ca7ffef33778
+            # 'concatenatedWorkingPositionOrganizations': 'Obec Laškov'
+            # 'concatenatedWorkingPositions': 'starosta'
+            # 'concatenatedWorkingPositionDates': '07. 11. 2014 - 31. 10. 2018'
+            # There's nothing in the list data indicating when to skip, so skip on 404
+            # and rely on min assertion for this not to hide a bug resulting in us
+            # skipping everyone.
+
+            try:
+                detail = context.fetch_json(detail_url, cache_days=14)
+                assert detail is not None, "Expected JSON response"
+                crawl_person(context, detail)
+            except HTTPError as e:
+                if e.response.status_code == 404:
+                    context.log.info("Failed to fetch detail", item=item, error=e)
+                else:
+                    raise
 
         page += 1

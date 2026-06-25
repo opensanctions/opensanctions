@@ -9,7 +9,7 @@ def crawl_item(raw_name: str, context: Context) -> None:
         raw_name, ["; a.k.a.", "(a.k.a.", "(f.k.a.", "; f.k.a.", ", a.k.a."]
     )
 
-    entity.id = context.make_id(names)
+    entity.id = context.make_id(names)  # type: ignore[arg-type]
 
     for name in names:
         # If there is some name with a ) at the end without a (, we remove it
@@ -42,5 +42,5 @@ def crawl(context: Context) -> None:
     ]
     doc = fetch_html(context, context.data_url, list_xpath, actions)
 
-    for item in doc.xpath(list_xpath):
+    for item in h.xpath_strings(doc, list_xpath):
         crawl_item(item, context)

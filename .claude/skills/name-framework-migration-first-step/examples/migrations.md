@@ -1,6 +1,8 @@
 # Real migration examples
 
-Three patterns from production crawlers. Each shows a distinct variation of trigger pattern and how `suggested` is built in parallel.
+Three patterns from production crawlers. All three are sanctions/debarment datasets, so they follow the sanctions path: mirror the existing cleaned names into `suggested` and pass `default_accepted=True`. Each shows a distinct variation of trigger pattern and how `suggested` is built in parallel.
+
+For a non-sanctions dataset, do not build `suggested` — pass `llm_cleaning=True` instead (see SKILL.md).
 
 ---
 
@@ -40,7 +42,14 @@ def crawl_person(context: Context, row: dict):
             suggested.add("alias", alias)
 
     is_irregular, suggested = h.check_names_regularity(entity, suggested)
-    h.review_names(context, entity, original=original, suggested=suggested, is_irregular=is_irregular)
+    h.review_names(
+        context,
+        entity,
+        original=original,
+        suggested=suggested,
+        is_irregular=is_irregular,
+        default_accepted=True,
+    )
 ```
 
 ---
@@ -91,7 +100,14 @@ def crawl_entity(context: Context, data: Dict[str, Any]):
         suggested.add("name", name)
 
     is_irregular, suggested = h.check_names_regularity(entity, suggested)
-    h.review_names(context, entity, original=original, suggested=suggested, is_irregular=is_irregular)
+    h.review_names(
+        context,
+        entity,
+        original=original,
+        suggested=suggested,
+        is_irregular=is_irregular,
+        default_accepted=True,
+    )
 ```
 
 ---
@@ -158,7 +174,14 @@ def crawl_item_human_rights(context: Context, source_url, raw_name: str):
         suggested.add("alias", alias)
 
     is_irregular, suggested = h.check_names_regularity(entity, suggested)
-    h.review_names(context, entity, original=original, suggested=suggested, is_irregular=is_irregular)
+    h.review_names(
+        context,
+        entity,
+        original=original,
+        suggested=suggested,
+        is_irregular=is_irregular,
+        default_accepted=True,
+    )
 ```
 
 ---

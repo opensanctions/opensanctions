@@ -1,100 +1,46 @@
 # Wikidata
 
-We import [Wikidata](https://www.wikidata.org/wiki/Wikidata:Main_Page) to
-OpenSanctions in two ways: using a [crawler](tutorial.md) which
-imports persons who have held any of a set of wikidata positions we have categorised as
-[Politically Exposed Person positions](https://opensanctions.org/pep), and using
-our [Wikidata Enricher](https://www.opensanctions.org/datasets/wikidata/).
+OpenSanctions imports [Wikidata](https://www.wikidata.org/wiki/Wikidata:Main_Page) through a PEP-position crawler and an enricher, and publishes a small set of properties back to Wikidata under human supervision.
 
-We also occasionally publish data for a small selection of properties to Wikidata.
-The current publishing process is interactive and completely supervised by a
-human.
+Wikidata reaches OpenSanctions in two ways: a [crawler](tutorial.md) that imports persons who hold any of a set of Wikidata positions categorized as [Politically Exposed Person positions](https://opensanctions.org/pep), and the [Wikidata enricher](https://www.opensanctions.org/datasets/wikidata/). A small selection of properties is also published back to Wikidata through an interactive process that a human supervises in full.
 
-## Publishing to Wikidata using zavod
+## Reconciling a dataset against Wikidata
 
-The zavod command line tool can publish data from a specific dataset to Wikidata.
-The tool iterates over the entities in the specified dataset until it
-finds an entity for which it can perform some action:
+The `zavod wikidata-reconcile` command matches the persons in a dataset against Wikidata and prepares edits for the ones it links. It does not write to Wikidata directly. Confirmed `<os_entity_id> ↔ QID` links are recorded in the [resolver](https://www.opensanctions.org/docs/identifiers/), and the run writes a [QuickStatements](https://quickstatements.toolforge.org/) batch file that an operator reviews and runs in the QuickStatements web UI.
 
-1. If an entity has a Wikidata QID, it proposes any edits it can make, awaiting
-   user confirmation to publish.
-3. If an entity does not have a QID, it searches for existing Wikidata items to
-   [resolve the entity to](https://www.opensanctions.org/docs/identifiers/),
-   and proposes the wikidata edits it would make if the user
-   instead chooses to create a new Wikidata item.
+The command handles the `Person` schema only. It is built for the parliament/PEP use case, where a large fraction of members already have a Wikidata item.
 
-Resolving the entity to an existing Wikidata item repeats the check for potential
-edits. If no edits are proposed for the current entity, the next entity with possible
-actions is loaded.
+### Running wikidata-reconcile
 
-Publishing changes to wikidata can take a number of seconds, since the Wikidata
-API imposes throttling to avoid overload. Once changes are published, the next entity
-with possible actions is loaded.
+Run the command against one or more dataset paths:
 
-### Running zavod `wd-up`
-
-!!! info ""
-    Pronounced "wud up!"
-
-In addition to basic zavod setup, the following environment variables:
-
-
-    ZAVOD_ARCHIVE_BUCKET=data.opensanctions.org
-    ZAVOD_ARCHIVE_BACKEND=GoogleCloudBackend
-    ZAVOD_WD_CONSUMER_TOKEN
-    ZAVOD_WD_CONSUMER_SECRET
-    ZAVOD_WD_ACCESS_TOKEN
-    ZAVOD_WD_ACCESS_SECRET
-    ZAVOD_WD_USER
-    PYWIKIBOT_DIR=.pywikibot
-
-Get OAuth credentials by registering an
-[OAuth 1.0a consumer](https://meta.wikimedia.org/wiki/Special:OAuthConsumerRegistration/propose/oauth1a)
-with permission to:
-
-- edit existing pages
-- create, edit and move pages
-
-Set `ZAVOD_WD_USER` to the username used for the OAuth consumer.
-
-Set `PYWIKIBOT_DIR` to the directory directory with your `user-config.py` -
-`.pywikibot` in this repository is probably sufficient.
-
-Run `wd-up` as follows, changing for the dataset and country you'd like to sync up:
-
-```
-zavod wd-up \
-  --clear \
-  datasets/de/abgeordnetenwatch/de_abgeordnetenwatch.yml \
-  datasets/_analysis/ann_pep_positions/ann_pep_positions.yml \
-  --country-adjective German \
-  --country-code de
+```bash
+zavod wikidata-reconcile \
+  --rebuild-store \
+  datasets/de/abgeordnetenwatch/de_abgeordnetenwatch.yml
 ```
 
-- The panel on the left shows the current OpenSanctions entity, and below that the
-  proposed actions.
-- The middle panel shows the search results for Wikidata items if the current entity
-  does not have a QID. Highlight the right option using up/down arrows.
-- The panel on the right shows log of operations by `wd-up` and instructs your next step.
-- Press save after creating or resolving a wikidata item and remember to copy your resolve.ijson back and upstream the changes.
+The command always runs in review mode. Each unlinked person is shown against its ranked Wikidata search candidates, and you decide per person: confirm a match, record no-match, mark unsure, create a new item, or skip. Candidates are fetched, scored, and sorted up front (watch the log), so the review runs in memory without per-screen network stalls.
 
-Country adjective is used to generate descriptions like `German politician`.
+For each person, the run produces QuickStatements commands:
 
-Country code is used to sanity check that the position refers to the country of
-the supplied nationality adjective. It only works if you supply matching arguments -
-it isn't clever. Use lowercase like the data does.
+- **Linked and confirmed persons.** A person already linked to a QID (the resolver canonical is a QID, or the entity carries a `wikidataId`), or confirmed in review, is diffed against its Wikidata item and enriched with the properties the item is missing: birth date, citizenship (`P27`), gender (`P21`), positions held (`P39`), and names as aliases.
+- **Create decisions.** A create produces a new-item block (label, description, aliases, and core statements) for the operator to run.
 
-`wd-up` has the following limitations (and probably many more)
+On exit, the commands are written to a single `.qs` batch that you upload in the QuickStatements UI. By default the batch lands at `<dataset state path>/wikidata.qs`; pass `-o/--output` to change the path. Newly created items pick up their `entity ↔ QID` link on a later reconciliation pass, once they exist and search finds them.
 
-- Collection datasets don't work very well because it does not properly generate sources for referencing.
-- Only Person entities which are targets are considered.
-- Supported properties:
-  - labels of any language
-  - descriptions only in `en` (English)
-  - 'instance of' Human
-  - 'sex or gender'
-  - 'birth date'
-  - 'position held'
-- Only positions which have QIDs are considered. You might benefit from doing an [xref](https://www.opensanctions.org/docs/identifiers/) between your dataset and wd_peps first.
-- Edits are only proposed if sources can be provided, except for labels, descriptions, and 'instance of'.
-- Sources are only proposed if a `sourceUrl` property is available for the entity with the same source dataset as the property being considered.
+### Options
+
+- `-r/--rebuild-store` — re-sync the entity store before reconciling.
+- `--aliases/--no-aliases` — include alternate names as search aliases. On by default.
+- `-a/--algorithm` — scoring algorithm used to rank candidates. Defaults to the ER matcher.
+- `-o/--output` — path for the QuickStatements output file.
+
+References on each statement use the entity's own `sourceUrl`, falling back to the dataset's `url`. The dataset's `updated_at` provides the retrieved-on date. A freshly crawled local dataset often has no `updated_at` yet, so the retrieved-on qualifier is omitted in that case.
+
+### Notes and limitations
+
+- **Persons only.** Positions are emitted as `P39` only when the `Position` carries a Wikidata QID; no Wikidata lookup of positions is performed.
+- **Full export required for positions.** `P39` emission needs the `Occupancy` and `Position` entities, so a persons-only slice does not carry the occupancies.
+- **Gender.** Emitted only for unambiguous `male` or `female` values.
+- **Files only.** QuickStatements API submission is out of scope; the command writes files.

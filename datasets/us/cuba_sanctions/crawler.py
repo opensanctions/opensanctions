@@ -31,7 +31,7 @@ def crawl_accommodations(context: Context) -> None:
     )
     node = doc.find(CONTENT_XPATH)
     # Chrome save HTML only
-    # xmllint --format --html
+    # xmllint --format --html --encode UTF-8
     if not h.assert_dom_hash(node, "6dc9087e0ccb2e13fc2389ba4176ab114996ad32"):
         context.log.warning("Accommodations page changed. Check for data updates.")
 
@@ -59,8 +59,8 @@ def crawl_restricted_entities(context: Context) -> None:
     )
     node = doc.find(CONTENT_XPATH)
     # Chrome save HTML only
-    # xmllint --format --html
-    if not h.assert_dom_hash(node, "2ebc4e59a53eb3064a2deb2b2a2828e178f9bdfe"):
+    # xmllint --format --html --encode UTF-8
+    if not h.assert_dom_hash(node, "a146ff14f0a283a4a80afaaf0f46637574aa78c2"):
         context.log.warning("Restricted List content changed. Check for data updates")
 
     path = context.fetch_resource("restricted_entities.csv", RESTRICTED_ENTITIES_URL)
@@ -96,10 +96,11 @@ def crawl_restricted_entities(context: Context) -> None:
 
 
 def crawl(context: Context) -> None:
+    assert context.dataset.url is not None
     doc = fetch_html(context, context.dataset.url, CONTENT_XPATH, actions=ACTIONS)
     node = doc.find(CONTENT_XPATH)
     # Chrome save HTML only
-    # xmllint --format --html
+    # xmllint --format --html --encode UTF-8
     if not h.assert_dom_hash(node, "0355144d3d290c3c617b2dd0077582a3136679f7"):
         context.log.warning("Landing page changed. Check for added/removed lists.")
 

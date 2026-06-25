@@ -4,6 +4,9 @@ prefix: nz-terr
 coverage:
   frequency: daily
   start: 2024-04-24
+deploy:
+  memory: "1000Mi"
+  memory_limit: "3000Mi"
 load_statements: true
 summary: >
   Individuals and entities that have been designated terrorists by the New Zealand government.

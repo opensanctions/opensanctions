@@ -1,0 +1,48 @@
+title: Panama Deputies of National Assembly
+entry_point: crawler.py
+prefix: pa-asm
+coverage:
+  frequency: monthly
+  start: 2026-06-22
+load_statements: true
+ci_test: false
+summary: >-
+  Deputies of the unicameral national legislature of Panama
+description: |
+  Current deputies of the National Assembly (Asamblea Nacional), the unicameral
+  national legislature of Panama. Its 71 deputies are elected by electoral circuit for
+  five-year terms and hold the country's legislative power, including passing laws and
+  approving the budget.
+
+  This dataset records each currently serving deputy with their name, political party,
+  email, and the electoral circuit and province they represent.
+url: https://www.asamblea.gob.pa/Diputados
+publisher:
+  name: Asamblea Nacional de Panamá
+  name_en: National Assembly of Panama
+  acronym: AN
+  description: >
+    The National Assembly is the unicameral national legislature of Panama. Its official
+    website publishes the directory of the country's 71 sitting deputies.
+  url: https://www.asamblea.gob.pa/
+  country: pa
+  official: true
+data:
+  url: https://www.asamblea.gob.pa/Data/Diputado/List?page=1&pageSize=0&search=
+  format: JSON
+  lang: spa
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 60
+      Position: 1
+    country_entities:
+      pa: 60
+  max:
+    schema_entities:
+      Person: 85
+      Position: 1

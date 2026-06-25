@@ -6,7 +6,7 @@ from followthemoney.types.identifier import IdentifierType
 from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
-from zavod.helpers.xml import ElementOrTree
+from zavod.util import ElementOrTree
 from zavod.extract.zyte_api import fetch_resource
 from zavod.shed.un_sc import apply_un_name_list
 from normality import collapse_spaces
@@ -33,7 +33,7 @@ DATES_SPLITS = [
 
 def clean_id(entity: Entity, text: Optional[str]) -> Generator[str, None, None]:
     if text is None:
-        return []
+        return
     for substring in text.split(";"):
         if len(substring) > IdentifierType.max_length:
             entity.add("notes", substring)
@@ -117,8 +117,8 @@ def parse_entry(context: Context, entry: ElementOrTree) -> None:
         if dob.text is not None:
             entity.add_schema("Person")
             dates = h.multi_split(dob.text, DATES_SPLITS)
-            for date in dates:
-                h.apply_date(entity, "birthDate", date)
+            for dob_date in dates:
+                h.apply_date(entity, "birthDate", dob_date)
 
     for nat in entry.findall("./nationality-list"):
         for country in h.multi_split(nat.text, [";", ","]):

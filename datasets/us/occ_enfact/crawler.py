@@ -64,8 +64,11 @@ def crawl(context: Context) -> None:
             addr = h.make_address(context, full=location)
             h.apply_address(context, entity, addr)
 
+        # Making crawler typesafe — keeping tuple key as-is to preserve ID stability
         sanction = h.make_sanction(
-            context, entity, key=(docket_number, sorted(doc_numbers))
+            context,
+            entity,
+            key=(docket_number, sorted(doc_numbers)),  # type: ignore[arg-type]
         )
         h.apply_date(sanction, "startDate", record.pop("StartDate"))
         # sanction.add("endDate", record.pop("TerminationDate", None))

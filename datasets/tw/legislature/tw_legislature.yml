@@ -1,0 +1,79 @@
+title: Taiwan Members of the Legislative Yuan
+entry_point: crawler.py
+prefix: tw-ly
+coverage:
+  frequency: monthly
+  start: 2026-06-22
+load_statements: true
+ci_test: true
+summary: >-
+  Members of the Legislative Yuan, Taiwan's national legislature
+description: |
+  Current and recent members of the Legislative Yuan (立法院), the unicameral national
+  legislature of Taiwan. Its 113 legislators are directly
+  elected to four-year terms and hold the country's legislative power, including
+  passing laws, approving the budget, and confirming senior appointments.
+
+  This dataset records the legislators of the current and recent terms, with their
+  name, gender, education, party affiliation, and parliamentary caucus.
+url: https://data.ly.gov.tw/
+publisher:
+  name: Legislative Yuan
+  acronym: LY
+  description: >
+    The Legislative Yuan (立法院) is the unicameral national legislature of the Republic
+    of China (Taiwan). Its members are directly elected to four-year terms.
+  url: https://www.ly.gov.tw/
+  country: tw
+  official: true
+data:
+  url: https://data.ly.gov.tw/odw/ID16Action.action?fileType=json
+  format: JSON
+  lang: zho
+
+http:
+  # The site sits behind a uproxy WAF that returns 403 for the default
+  # python-requests User-Agent, so present a browser User-Agent instead.
+  user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
+
+dates:
+  formats: ["%Y/%m/%d"]
+
+names:
+  schema_rules:
+    Person:
+      # some names are mixed-script
+      reject_chars: "．"
+
+tags:
+  - list.pep
+
+assertions:
+  # Counts are post-resolution: the crawler mints one Person per term, so a
+  # multi-term legislator yields several entities at crawl time that the resolver
+  # merges into one. The released figure is the ~240 unique individuals across the
+  # terms in scope, not the ~850 person-terms emitted.
+  min:
+    schema_entities:
+      Person: 200
+      Position: 1
+    country_entities:
+      tw: 200
+  max:
+    schema_entities:
+      Person: 1200
+      Position: 2
+
+lookups:
+  party:
+    options:
+      - match:
+          - 0無  # "0 none'
+          - 無黨籍 # no party affiliation
+        value: null
+  type.gender:
+    options:
+      - match: 男
+        value: male
+      - match: 女
+        value: female

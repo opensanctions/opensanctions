@@ -1,7 +1,6 @@
 import re
 from typing import Iterator
 
-from normality import squash_spaces
 from zavod import Context
 from zavod import helpers as h
 from zavod.util import Element
@@ -47,7 +46,7 @@ def parse_table(
     """
 
     for row_ix, row in enumerate(table.findall(".//tr")):
-        cells = [squash_spaces(cell.text_content()) for cell in row.findall("./td")]
+        cells = [h.element_text(cell) for cell in row.findall("./td")]
         if row_ix < len(EXPECTED_HEADERS):
             assert cells == EXPECTED_HEADERS[row_ix], cells
             continue
@@ -98,9 +97,8 @@ def crawl(context: Context) -> None:
     tables = response.findall(".//table")
     for table in tables:
         first_row = table.find(".//tr")
-        if (
-            "Nelegalios lošimų veiklos vykdytojo duomenys"
-            not in first_row.text_content()
+        if "Nelegalios lošimų veiklos vykdytojo duomenys" not in h.element_text(
+            first_row
         ):
             continue
         for item in parse_table(table):
