@@ -60,7 +60,6 @@ def crawl(context: Context) -> None:
             # the site is behind an Imperva/Incapsula firewall
             url=context.data_url,
             method="POST",
-            body=b"",  # returns the full roster
             headers={
                 "Referer": "https://www.congreso.gob.gt/buscador_diputados",
                 "X-Requested-With": "XMLHttpRequest",
