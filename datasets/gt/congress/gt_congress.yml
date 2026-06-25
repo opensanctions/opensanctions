@@ -5,10 +5,9 @@ coverage:
   frequency: monthly
   start: 2026-06-17
 load_statements: true
-ci_test: false  # Zyte
+ci_test: false
 summary: >-
-  Deputies of the Congress of the Republic of Guatemala, the country's unicameral
-  national legislature, sourced from the Congress's official website
+  Deputies of the country's unicameral national legislature from the Congress's website.
 description: |
   Current deputies of the Congress of the Republic (Congreso de la República), the
   unicameral national legislature of Guatemala. Its 160 deputies are elected for
