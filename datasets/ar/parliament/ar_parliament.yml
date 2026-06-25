@@ -5,16 +5,13 @@ coverage:
   frequency: monthly
   start: 2023-12-31
 load_statements: true
-ci_test: false # No Zyte API in CI
+ci_test: false  # No Zyte API in CI
 summary: >-
-  Current and recent members of the Argentine Chamber of Deputies, the lower
-  house of the National Congress.
+  Current and recent members of the lower house of the National Congress.
 description: |
   National Deputies (Members of the Parliament) - Representatives elected directly
   by the people of the provinces and the city of Buenos Aires of Argentina. The
   chamber of deputies is one of two houses of parliament in Argentina.
-  The dataset complements the [Argentina Members of Senate](https://www.opensanctions.org/datasets/ar_senado/)
-  dataset, which covers the upper house.
 tags:
   - list.pep
 publisher:
