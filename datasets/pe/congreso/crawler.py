@@ -5,13 +5,14 @@ from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
 from zavod.stateful.positions import (
-    OccupancyStatus,
     PositionCategorisation,
     categorise,
 )
 from zavod.util import Element
 
 ID_RE = re.compile(r"id=(\d+)")
+YEAR_RE = re.compile(r"\d{4}")
+POSITION_TOPICS = ["gov.national", "gov.legislative"]
 
 
 def field_value(el: Element, css_class: str) -> str | None:
@@ -30,12 +31,31 @@ def field_value(el: Element, css_class: str) -> str | None:
     return h.element_text(spans[0]) or None
 
 
-def parse_iso(context: Context, raw: str | None) -> str | None:
-    """Parse a source date (e.g. ``26-Jul-2021``) to an ISO string, or None."""
-    if raw is None:
-        return None
-    parsed = h.extract_date(context.dataset, raw, fallback_to_original=False)
-    return parsed[0] if len(parsed) > 0 else None
+def list_periods(context: Context, doc: Element) -> list[str]:
+    """Return the in-window parliamentary-period ids from the listing's selector.
+
+    The roster can be filtered to any past parliamentary period via the
+    ``idRegistroPadre`` query parameter.
+    """
+    periods: list[str] = []
+    for option in h.xpath_elements(
+        doc, ".//select[@name='idRegistroPadre']/option[@value]"
+    ):
+        value = option.get("value")
+        if not value:
+            continue
+        years = [int(y) for y in YEAR_RE.findall(h.element_text(option))]
+        if len(years) > 0 and min(years) < int(
+            h.earliest_term_start(POSITION_TOPICS)[:4]
+        ):
+            context.log.info(
+                "Skipping out-of-window period", period=h.element_text(option)
+            )
+            continue
+        periods.append(value)
+    if len(periods) == 0:
+        raise ValueError("No parliamentary periods found in the listing selector")
+    return periods
 
 
 def crawl_member(
@@ -48,21 +68,17 @@ def crawl_member(
     doc = context.fetch_html(detail_url, cache_days=7)
 
     name = field_value(doc, "nombres")
-    electoral_status = field_value(doc, "condicion")
-    if electoral_status is None:
-        raise ValueError(f"No electoral status found at {detail_url}")
 
-    # Inicio (start) and Término (end) of the period of functions, in that order.
+    # "Periodo de Funciones" gives the Inicio (start) and Término (end) of the period
+    # the member actually served — the full legislative term for an ordinary member, or
+    # the sub-period for a replacement. These are the term/period bounds, recorded as
+    # the occupancy's periodStart/periodEnd (the source exposes no individual end date).
     period_dates = h.xpath_strings(
         doc,
         ".//p[@class='periodo']//span[@class='periododatos']/span[@class='value']/text()",
     )
-    start_date, end_date = period_dates
-
-    status = None
-    if electoral_status.casefold() != "en ejercicio":
-        # any other status means the member has left office
-        status = OccupancyStatus.ENDED
+    period_start = period_dates[0]
+    period_end = period_dates[1]
 
     person = context.make("Person")
     person.id = context.make_id(name, detail_url)
@@ -79,9 +95,8 @@ def crawl_member(
         context,
         person,
         position,
-        start_date=start_date,
-        end_date=end_date,
-        status=status,
+        period_start=period_start,
+        period_end=period_end,
         categorisation=categorisation,
     )
     if occupancy is None:
@@ -93,24 +108,23 @@ def crawl_member(
     context.emit(person)
 
 
-def crawl(context: Context) -> None:
-    doc = context.fetch_html(context.data_url, absolute_links=True, cache_days=1)
+def crawl_period(
+    context: Context,
+    period_id: str,
+    position: Entity,
+    categorisation: PositionCategorisation,
+    seen: set[str],
+) -> None:
+    doc = context.fetch_html(
+        context.data_url,
+        params={"idRegistroPadre": period_id},
+        absolute_links=True,
+        cache_days=1,
+    )
     links = h.xpath_elements(doc, './/a[@class="conginfo"]')
     if len(links) == 0:
-        raise ValueError("No congressperson links found on the listing page")
+        raise ValueError(f"No congressperson links found for period {period_id}")
 
-    position = h.make_position(
-        context,
-        name="Member of the Congress of the Republic of Peru",
-        country="pe",
-        topics=["gov.national", "gov.legislative"],
-        wikidata_id="Q18812470",
-        lang="eng",
-    )
-    categorisation = categorise(context, position)
-    context.emit(position)
-
-    seen: set[str] = set()
     for index, link in enumerate(links, start=1):
         href = link.get("href")
         if href is None or ID_RE.search(href) is None:
@@ -126,8 +140,29 @@ def crawl(context: Context) -> None:
         email = emails[0].removeprefix("mailto:") if len(emails) > 0 else None
 
         context.log.info(
-            f"Crawling congressperson {index}/{len(links)}", url=detail_url
+            f"Crawling period {period_id} congressperson {index}/{len(links)}",
+            url=detail_url,
         )
         crawl_member(context, detail_url, email, position, categorisation)
         # Persist the HTTP cache periodically so a long run keeps its progress.
         context.flush()
+
+
+def crawl(context: Context) -> None:
+    doc = context.fetch_html(context.data_url, absolute_links=True, cache_days=1)
+
+    position = h.make_position(
+        context,
+        name="Member of the Congress of the Republic of Peru",
+        country="pe",
+        topics=POSITION_TOPICS,
+        wikidata_id="Q18812470",
+        lang="eng",
+    )
+    categorisation = categorise(context, position)
+    context.emit(position)
+
+    # Crawl every parliamentary period exposed by the roster (current and historical).
+    seen: set[str] = set()
+    for period_id in list_periods(context, doc):
+        crawl_period(context, period_id, position, categorisation, seen)
