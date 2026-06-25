@@ -50,7 +50,6 @@ def _archive_artifacts(dataset: Dataset, extra_artifacts: list[str] = []) -> Non
     for artifact in extra_artifacts:
         path = dataset_resource_path(dataset.name, artifact)
         if not path.is_file():
-            log.error("Resource not found: %s" % path, dataset=dataset.name)
             continue
         archive_artifact(
             path,
