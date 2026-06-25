@@ -12,7 +12,6 @@ from zavod.util import Element
 
 ID_RE = re.compile(r"id=(\d+)")
 YEAR_RE = re.compile(r"\d{4}")
-POSITION_TOPICS = ["gov.national", "gov.legislative"]
 
 
 def field_value(el: Element, css_class: str) -> str | None:
@@ -31,7 +30,7 @@ def field_value(el: Element, css_class: str) -> str | None:
     return h.element_text(spans[0]) or None
 
 
-def list_periods(context: Context, doc: Element) -> list[str]:
+def list_periods(context: Context, position: Entity, doc: Element) -> list[str]:
     """Return the in-window parliamentary-period ids from the listing's selector.
 
     The roster can be filtered to any past parliamentary period via the
@@ -46,7 +45,7 @@ def list_periods(context: Context, doc: Element) -> list[str]:
             continue
         years = [int(y) for y in YEAR_RE.findall(h.element_text(option))]
         if len(years) > 0 and min(years) < int(
-            h.earliest_term_start(POSITION_TOPICS)[:4]
+            h.earliest_term_start(position.get("topics"))[:4]
         ):
             context.log.info(
                 "Skipping out-of-window period", period=h.element_text(option)
@@ -155,7 +154,7 @@ def crawl(context: Context) -> None:
         context,
         name="Member of the Congress of the Republic of Peru",
         country="pe",
-        topics=POSITION_TOPICS,
+        topics=["gov.national", "gov.legislative"],
         wikidata_id="Q18812470",
         lang="eng",
     )
@@ -164,5 +163,5 @@ def crawl(context: Context) -> None:
 
     # Crawl every parliamentary period exposed by the roster (current and historical).
     seen: set[str] = set()
-    for period_id in list_periods(context, doc):
+    for period_id in list_periods(context, position, doc):
         crawl_period(context, period_id, position, categorisation, seen)
