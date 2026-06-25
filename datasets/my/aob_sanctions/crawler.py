@@ -1,6 +1,4 @@
-from typing import Iterator
-from lxml.etree import tostring
-from normality import collapse_spaces, slugify
+from copy import deepcopy
 
 from zavod import Context, helpers as h
 from zavod.util import Element
@@ -16,61 +14,37 @@ SPLITTERS = [
 PROVISIONS_SPLITS = ["Appeal", "Judicial Review"]
 
 
-def parse_table(table: Element) -> Iterator[dict[str, str | None]]:
-    """
-    First we find the headers by searching the th tags, then we iterate over the tr tags (i.e. rows).
+def expand_rowspans(table: Element) -> None:
+    """Replace cells that span multiple rows with a copy in each row they cover.
 
-    Returns:
-        An iterator that yields a dictionary of the table columns and values. The keys are the
-        column names and the values are the column values (str or None).
-    Raises:
-        AssertionError: If the headers don't match what we expect.
+    `h.parse_html_table` expects every data row to have exactly one cell per
+    column. The source tables use `rowspan` (only on the date column, in
+    practice) to share a value across consecutive rows, leaving those rows one
+    cell short. Inserting copies first lets the standard helper parse the table.
     """
-    headers = [h.element_text(th) for th in table.findall(".//th")]
-    # Rowspan state for last column. Value may be used by next row if span > 1.
-    rowspan_value: str | None = None
-    rowspan = 1
-    for row in table.findall(".//tr")[1:]:
-        if headers is None:
-            headers = []
-            for el in row.findall("./td"):
-                headers.append(slugify(h.element_text(el)))
+    ncols = len(table.findall(".//th"))
+    assert ncols > 0, "Table has no header cells"
+
+    # carry[col] = (remaining_rows, element) for cells still spanning downward.
+    carry: dict[int, tuple[int, Element]] = {}
+    for row in table.findall(".//tr"):
+        cells = row.findall("./td")
+        if not cells:  # header row (th only) or structural empty row
             continue
 
-        cells: list[str | None] = []
-        for idx, el in enumerate(row.findall("./td")):
-            value = collapse_spaces(h.element_text(el))
-            cells.append(value)
-
-            # handle rowspan for last column
-            if idx == len(headers) - 1:
-                if el.get("rowspan") is None:
-                    rowspan_value = None
-                    rowspan = 1
-                else:
-                    assert rowspan == 1, (
-                        "Can't start new rowspan before previous one finished",
-                        rowspan,
-                        tostring(row),
-                    )
-                    rowspan_value = value
-                    rowspan_str = el.get("rowspan")
-                    assert rowspan_str is not None
-                    rowspan = int(rowspan_str)
-
-        if len(cells) == len(headers) - 1:
-            assert rowspan > 1, (
-                "Can't use rowspan value when we're not in its span",
-                rowspan,
-            )
-            cells.append(rowspan_value)
-            rowspan -= 1
-        assert len(cells) == len(headers), (len(cells), len(headers))
-
-        # The table has a last row with all empty values
-        if all(c == "" for c in cells):
-            continue
-        yield {hdr: c for hdr, c in zip(headers, cells)}
+        source = iter(cells)
+        expanded: list[Element] = []
+        for col in range(ncols):
+            if col in carry:
+                remaining, spanned = carry.pop(col)
+                if remaining > 1:
+                    carry[col] = (remaining - 1, spanned)
+                expanded.append(deepcopy(spanned))
+            elif (cell := next(source, None)) is not None:
+                expanded.append(cell)
+                if (rowspan := int(cell.get("rowspan") or 1)) > 1:
+                    carry[col] = (rowspan - 1, cell)
+        row[:] = expanded
 
 
 def crawl_item(context: Context, input_dict: dict[str, str | None]) -> None:
@@ -121,5 +95,10 @@ def crawl(context: Context) -> None:
 
     # There is a table for each year
     for table in response.findall(".//table"):
-        for item in parse_table(table):
+        expand_rowspans(table)
+        for row in h.parse_html_table(table, slugify_headers=False):
+            item = h.cells_to_str(row)
+            # Some tables have a trailing row with all cells empty.
+            if all(value is None for value in item.values()):
+                continue
             crawl_item(context, item)
