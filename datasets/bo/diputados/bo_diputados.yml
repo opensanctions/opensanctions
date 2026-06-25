@@ -5,7 +5,7 @@ coverage:
   frequency: monthly
   start: 2026-06-24
 load_statements: true
-ci_test: false 
+ci_test: false
 summary: >-
   Deputies of the lower chamber of the Plurinational Legislative Assembly of Bolivia
 description: |
