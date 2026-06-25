@@ -5,10 +5,9 @@ coverage:
   frequency: monthly
   start: 2026-06-24
 load_statements: true
-ci_test: false # Live government site needing a browser UA / Bolivia egress, not in CI
+ci_test: false 
 summary: >-
-  Deputies of the Cámara de Diputados, the lower chamber of the Plurinational
-  Legislative Assembly of Bolivia
+  Deputies of the lower chamber of the Plurinational Legislative Assembly of Bolivia
 description: |
   Deputies of the Chamber of Deputies (Cámara de Diputados), the lower chamber of the
   bicameral Plurinational Legislative Assembly of Bolivia. Its 130 titular deputies are
