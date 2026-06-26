@@ -124,7 +124,7 @@ def crawl_member(
         return
 
     person = context.make("Person")
-    person.id = context.make_slug(slug)
+    person.id = context.make_id(raw_name, slug)
 
     h.apply_reviewed_name_string(
         context, person, string=raw_name, llm_cleaning=True, lang="eng"
