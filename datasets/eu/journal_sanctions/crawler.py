@@ -100,8 +100,10 @@ def get_consolidated_url(context: Context, source_url: str) -> str | None:
     for table in h.xpath_elements(doc, ".//table[@id='relatedDocsTbMS']"):
         # The <th> header cells embed <select> filter widgets whose text corrupts
         # parse_html_table's slugified keys (e.g. "relation_all_modifies" instead
-        # of "relation").  Strip them before parsing.
-        for select in h.xpath_elements(table, ".//thead//th/select"):
+        # of "relation").  Strip them before parsing.  Use the descendant axis so
+        # widgets wrapped in an intermediate element (not a direct child of <th>)
+        # are also removed.
+        for select in h.xpath_elements(table, ".//thead//th//select"):
             parent = select.getparent()
             assert parent is not None
             parent.remove(select)
