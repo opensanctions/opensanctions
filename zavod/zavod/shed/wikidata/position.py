@@ -268,7 +268,7 @@ def position_holders(client: WikidataClient, item: Item) -> Dict[str, str]:
     }}
     """
     holders: Dict[str, str] = {}
-    response = client.query(query)
+    response = client.query(query, client.CACHE_SHORT)
     for result in response.results:
         person_qid = result.plain("person")
         modified_at = result.plain("modifiedAt")

@@ -270,7 +270,7 @@ def crawl_declarator(state: CrawlState) -> None:
         ?person schema:dateModified ?modifiedAt .
     }
     """
-    response = state.client.query(query)
+    response = state.client.query(query, state.client.CACHE_SHORT)
     state.log.info("Found %d declarator profiles" % len(response.results))
     for result in response.results:
         person_qid = result.plain("person")
