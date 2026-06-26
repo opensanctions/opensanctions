@@ -52,9 +52,9 @@ def parse_details(context: Context, entity: Entity, text: str) -> None:
         if len(parts) > 1:
             value = parts[1].strip().rstrip(",")
             if prop != "address" and re.search(r"[,:]", value):
-                clean_value = context.lookup("details", value, warn_unmatched=True)
-                if clean_value is not None:
-                    value = clean_value.props.get(prop, value)
+                result = context.lookup("details", value, warn_unmatched=True)
+                if result is not None:
+                    value = result.props.get(prop, value)
             entity.add(prop, value)
 
     if not len(text.strip()):
