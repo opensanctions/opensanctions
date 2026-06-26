@@ -82,9 +82,7 @@ lookups:
   details:
     lowercase: true
     options:
-      - match:
-          - (
-          - ","
+      - match: ","
         props: {}
       - match: "0000426746, numer"
         props:
@@ -125,9 +123,7 @@ lookups:
       - match: "Plac Dąbrowskiego 1, 00-057 Warszawa "
         props:
           address: Plac Dąbrowskiego 1, 00-057 Warszawa
-      - match:
-          - "prowadzący działalność gospodarczą pod adresem: 00-844 Warszawa, ul. Grzybowska 87, REGON 147421934"
-          - "prowadzący działalność gospodarczą pod adresem: 00-844 Warszawa, ul. Grzybowska 87, "
+      - match: "prowadzący działalność gospodarczą pod adresem: 00-844 Warszawa, ul. Grzybowska 87, "
         props:
           address: "00-844 Warszawa, ul. Grzybowska 87"
           registrationNumber: 147421934
@@ -171,9 +167,6 @@ lookups:
       - match: "adres: ul. Stefana Okrzei 1A lok. 10P, 03-715 Warszawa "
         props:
           address: "ul. Stefana Okrzei 1A lok. 10P, 03-715 Warszawa"
-      - match: "adres: Lielirbes iela 17A–46, Ryga, LV-1046 Łotwa"
-        props:
-          address: "Lielirbes iela 17A–46, Ryga, LV-1046 Łotwa"
       - match: "adres: Biuro 02, Aber King Khalfan Muhammad Khalfan Al Hamli – Al Thanyah 1, Dubaj, Zjednoczone Emiraty Arabskie (nazwa arabska: مكتب 02 ملك عابر خلفان محمد خلفان الهاملىالثنية االولى) numer rejestrowy: 2823197"
         props:
           address: "Biuro 02, Aber King Khalfan Muhammad Khalfan Al Hamli – Al Thanyah 1, Dubaj, Zjednoczone Emiraty Arabskie"
