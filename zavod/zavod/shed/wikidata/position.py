@@ -1,4 +1,6 @@
+from datetime import datetime, timezone
 from typing import Dict, Optional, Set
+from logging import getLogger
 
 from followthemoney import registry
 from nomenklatura.wikidata import Item, WikidataClient, Claim
@@ -13,6 +15,8 @@ from zavod.shed.trans import translate_position_name
 from zavod.util import LangText
 from zavod.stateful.positions import categorise
 from zavod.shed.wikidata.country import is_historical_country, item_countries
+
+log = getLogger(__name__)
 
 POSITION_BASICS: Set[str] = {
     "Q4164871",  # position
@@ -236,25 +240,43 @@ def wikidata_position(
     return position
 
 
-def position_holders(client: WikidataClient, item: Item) -> Set[str]:
+def days_since_modified(modified_at: Optional[str]) -> Optional[int]:
+    """Return the number of whole days since a Wikidata schema:dateModified timestamp.
+
+    Returns None when no timestamp is provided.
+    """
+    if modified_at is None:
+        return None
+
+    modified = datetime.strptime(modified_at, "%Y-%m-%dT%H:%M:%SZ")
+    modified = modified.replace(tzinfo=timezone.utc)
+    return max(0, (datetime.now(timezone.utc) - modified).days)
+
+
+def position_holders(client: WikidataClient, item: Item) -> Dict[str, str]:
     """Find persons who have held the position defined by `item`. This performs
     the inverted lookup on property P39 (position held). Independently, the crawler
     should check property P1308 (officeholder) on the position item itself.
+
+    Returns a dict mapping person QID → schema:dateModified timestamp (ISO 8601).
     """
     query = f"""
-    SELECT ?person WHERE {{
+    SELECT ?person ?modifiedAt WHERE {{
         ?person wdt:P39 wd:{item.id} .
-        ?person wdt:P31 wd:Q5
+        ?person wdt:P31 wd:Q5 .
+        ?person schema:dateModified ?modifiedAt .
     }}
     """
-    persons: Set[str] = set()
+    holders: Dict[str, str] = {}
     response = client.query(query)
     for result in response.results:
         person_qid = result.plain("person")
+        modified_at = result.plain("modifiedAt")
         if person_qid is not None:
-            persons.add(person_qid)
+            assert modified_at is not None, (person_qid, item.id)
+            holders[person_qid] = modified_at
 
-    return persons
+    return holders
 
 
 def wikidata_occupancy(
