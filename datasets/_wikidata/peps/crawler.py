@@ -8,7 +8,7 @@ from zavod import Context
 from zavod.entity import Entity
 from zavod.shed.wikidata.human import wikidata_basic_human
 from zavod.shed.wikidata.position import wikidata_occupancy, wikidata_position
-from zavod.shed.wikidata.position import position_holders
+from zavod.shed.wikidata.position import days_since_modified, position_holders
 
 
 class Country(NamedTuple):
@@ -38,10 +38,15 @@ def crawl_holder(
     client: WikidataClient,
     position: Entity,
     person_qid: str,
+    modified_at: Optional[str] = None,
 ) -> Optional[Entity]:
     if not is_qid(person_qid):
         return None
-    item = client.fetch_item(person_qid)
+    item = client.fetch_item(
+        person_qid,
+        cache_days=days_since_modified(modified_at),
+        randomize=modified_at is None,
+    )
     if item is None:
         return None
     if item.id != person_qid:
@@ -214,7 +219,6 @@ def crawl(context: Context) -> None:
     cache_days = context.dataset.config.get("cache_days", 14)
     client = WikidataClient(context.cache, context.http, cache_days=cache_days)
     position_classes = query_position_classes(context, client)
-
     for country in all_countries():
         context.log.info(f"Crawling country: {country.qid} ({country.label})")
 
@@ -241,8 +245,10 @@ def crawl(context: Context) -> None:
             context.log.info("Position [%s]: %s" % (position.id, position.caption))
 
             has_holders = False
-            for person in position_holders(client, pos_item):
-                holder = crawl_holder(context, client, position, person)
+            for person_qid, modified_at in position_holders(client, pos_item).items():
+                holder = crawl_holder(
+                    context, client, position, person_qid, modified_at
+                )
                 if holder is not None:
                     has_holders = True
 
