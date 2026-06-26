@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from typing import Optional, NamedTuple, List
 import orjson
 
@@ -76,7 +77,8 @@ def make_position_translation_prompt(input_code: str) -> str:
     return POSITION_TRANS_PROMPT.format(code=input_code)
 
 
-class TranslationResult(NamedTuple):
+@dataclass(frozen=True, kw_only=True)
+class TranslationResult:
     texts: List[LangText]
     cache_key: Optional[str]
     """Cache key of the underlying run_text_prompt response, set only when
@@ -123,7 +125,7 @@ def run_translation_prompt(
         response = run_text_prompt(context, prompt, text, model=model)
     except ConfigurationException as ce:
         context.log.error("LLM translation skipped: %s" % ce.message)
-        return TranslationResult([], None, model)
+        return TranslationResult(texts=[], cache_key=None, origin=model)
     try:
         trans_by_lang = orjson.loads(response.content)
     except orjson.JSONDecodeError:
@@ -135,7 +137,7 @@ def run_translation_prompt(
             model=model,
             response_content=response.content,
         )
-        return TranslationResult([], None, model)
+        return TranslationResult(texts=[], cache_key=None, origin=model)
     if not set(trans_by_lang.keys()).issubset(output_langs):
         context.cache.delete(response.cache_key)
         context.log.warning(
@@ -146,14 +148,14 @@ def run_translation_prompt(
             response_content=response.content,
             expected=sorted(output_langs),
         )
-        return TranslationResult([], None, model)
+        return TranslationResult(texts=[], cache_key=None, origin=model)
     results: List[LangText] = []
     for lang in output_langs:
         value = trans_by_lang.get(lang)
         if not isinstance(value, str) or not value.strip():
             continue
         results.append(LangText(text=value, lang=lang))
-    return TranslationResult(results, response.cache_key, model)
+    return TranslationResult(texts=results, cache_key=response.cache_key, origin=model)
 
 
 def translate_position_name(
