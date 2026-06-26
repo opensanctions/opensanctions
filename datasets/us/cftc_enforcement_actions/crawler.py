@@ -15,15 +15,6 @@ from zavod.stateful.review import (
 from zavod import helpers as h
 
 Schema = Literal["Person", "Company", "LegalEntity"]
-Status = Literal[
-    "Filed",
-    "Dismissed",
-    "Settled",
-    "Default judgement",
-    "Final judgement",
-    "Supplemental consent order",
-    "Other",
-]
 
 REGEX_RELEASE_ID = re.compile(r"(\w{2,8}-\w{2,4}[\w #-]*)$")
 
@@ -37,13 +28,6 @@ address_field = Field(
     default=[],
     description=("The addresses or even just the districts/states of the defendant."),
 )
-status_field = Field(
-    description=(
-        "The status of the enforcement action notice."
-        " If `Other`, add the text used as the status in the source to `notes`."
-    )
-)
-notes_field = Field(default=None, description=("Only used if `status` is `Other`."))
 original_press_release_number_field = Field(
     description=(
         "The original press release number of the enforcement action notice."
@@ -65,8 +49,11 @@ class Defendant(BaseModel):
     aliases: List[str] | None = []
     address: str | List[str] | None = address_field
     country: str | List[str] | None = []
-    status: Status = status_field
-    notes: Optional[str] = notes_field
+    # status - was removed because it isn't consistently present in the source
+    #          text in a way we can extract as a meaningful self-standing value.
+    #          It remains in the json of old accepted values but is unused and
+    #          not added for new entries.
+    # notes - was just additional context to 'status'. Same fate.
     original_press_release_number: Optional[str] = original_press_release_number_field
     related_companies: List[RelatedCompany] = []
 
@@ -88,8 +75,6 @@ Specific fields:
 - entity_schema: {schema_field.description}
 - address: {address_field.description}
 - country: Any countries explicitly associated with the defendant in the text. Leave empty if not explicitly stated.
-- status: {status_field.description}
-- notes: {notes_field.description}
 - original_press_release_number: {original_press_release_number_field.description}
 - related_companies: If the defendant is a person and a related company is mentioned in the source text, add it here.
     - relationship: Use text verbatim from the source. If it's ambiguous, e.g. "agents and owners", use that text exactly as it is, plural and all.
@@ -199,8 +184,6 @@ def crawl_enforcement_action(context: Context, date: str, url: str) -> None:
         )
         h.apply_date(sanction, "date", date)
         sanction.set("sourceUrl", url)
-        sanction.add("status", item.status, origin=review.origin)
-        sanction.add("summary", item.notes, origin=review.origin)
         sanction.add("authorityId", release_id)
         sanction.add(
             "authorityId", item.original_press_release_number, origin=review.origin
