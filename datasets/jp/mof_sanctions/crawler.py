@@ -162,7 +162,6 @@ def emit_row(
     raw_known_alias = row.pop("known_alias", [])
     raw_past_alias = row.pop("past_alias", [])
     raw_old_name = row.pop("old_name", [])
-    # TODO: apply raw_weak_alias and raw_nickname as weakAlias after review
     raw_weak_alias = row.pop("weak_alias", [])
     raw_nickname = row.pop("nickname", [])
     entity.add("name", parse_names(name_english), lang="eng")
