@@ -75,14 +75,22 @@ PROTECTED_PROPS: Dict[str, List[str]] = {
 }
 
 
-def get_vertices(entity: Entity) -> Optional[Tuple[Identifier, Identifier]]:
-    """Return the normalized graph endpoints for a single-ended edge.
+def bucket_key(entity: Entity) -> Optional[BucketKey]:
+    """Build the conservative candidate bucket for an edge.
 
-    Use this before edge comparison to discard edges that cannot be represented
-    as one source and one target. Directed schemata preserve source/target order;
-    undirected schemata canonicalize endpoint order.
+    Edges are only compared inside exact-schema endpoint buckets. This prevents
+    broad endpoint coincidences, such as ownership and directorship between the same
+    two entities, from becoming merge candidates. Edges that cannot be represented as
+    one source and one target are discarded here.
     """
-    assert entity.schema.source_prop and entity.schema.target_prop
+    if (
+        not entity.schema.edge
+        or entity.schema.source_prop is None
+        or entity.schema.target_prop is None
+        or entity.id is None
+    ):
+        return None
+
     sources = [Identifier.get(s) for s in entity.get(entity.schema.source_prop)]
     targets = [Identifier.get(t) for t in entity.get(entity.schema.target_prop)]
     if len(sources) != 1 or len(targets) != 1:
@@ -99,28 +107,7 @@ def get_vertices(entity: Entity) -> Optional[Tuple[Identifier, Identifier]]:
     if not entity.schema.edge_directed:
         source, target = max(source, target), min(source, target)
 
-    return source, target
-
-
-def bucket_key(entity: Entity) -> Optional[BucketKey]:
-    """Build the conservative candidate bucket for an edge.
-
-    Edges are only compared inside exact-schema endpoint buckets. This prevents
-    broad endpoint coincidences, such as ownership and directorship between the
-    same two entities, from becoming merge candidates.
-    """
-    if (
-        not entity.schema.edge
-        or entity.schema.source_prop is None
-        or entity.schema.target_prop is None
-        or entity.id is None
-    ):
-        return None
-
-    vertices = get_vertices(entity)
-    if vertices is None:
-        return None
-    return BucketKey(entity.schema.name, vertices[0], vertices[1])
+    return BucketKey(entity.schema.name, source, target)
 
 
 def temporal_values(entity: Entity) -> TemporalValues:
