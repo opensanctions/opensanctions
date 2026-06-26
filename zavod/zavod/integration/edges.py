@@ -38,11 +38,6 @@ class BucketKey(NamedTuple):
     target: Identifier
 
 
-class GroupKey(NamedTuple):
-    bucket: BucketKey
-    index: int
-
-
 @dataclass(frozen=True)
 class DateRange:
     start: date
@@ -317,10 +312,10 @@ def props_compatible(entities: List[Entity]) -> bool:
     return True
 
 
-def group_edges(resolver: Resolver[Entity], view: View) -> Dict[GroupKey, List[str]]:
+def group_edges(resolver: Resolver[Entity], view: View) -> List[List[str]]:
     """Group edge IDs that should become positive resolver decisions."""
     buckets: Dict[BucketKey, List[Entity]] = defaultdict(list)
-    groups: Dict[GroupKey, List[str]] = {}
+    groups: List[List[str]] = []
 
     for idx, entity in enumerate(view.entities()):
         if idx > 0 and idx % 100000 == 0:
@@ -331,26 +326,24 @@ def group_edges(resolver: Resolver[Entity], view: View) -> Dict[GroupKey, List[s
             continue
         buckets[key].append(entity)
 
-    for key, entities in buckets.items():
-        for idx, group in enumerate(temporal_candidate_groups(entities)):
+    for entities in buckets.values():
+        for group in temporal_candidate_groups(entities):
             if not props_compatible(group):
                 continue
-            groups[GroupKey(key, idx)] = [
-                entity.id for entity in group if entity.id is not None
-            ]
+            groups.append([entity.id for entity in group if entity.id is not None])
 
     return groups
 
 
 def merge_groups(
-    resolver: Resolver[Entity], view: View, groups: Dict[GroupKey, List[str]]
+    resolver: Resolver[Entity], view: View, groups: List[List[str]]
 ) -> None:
     """Write positive resolver decisions for deduped edge groups."""
     merged_count = 0
     cluster_count = 0
     dataset_counts: Dict[str, int] = defaultdict(int)
 
-    for values in groups.values():
+    for values in groups:
         if len(values) == 1:
             continue
 
