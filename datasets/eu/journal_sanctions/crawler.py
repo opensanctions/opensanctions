@@ -12,8 +12,7 @@ from rigour.ids.ogrn import OGRN
 from zavod.integration import get_dataset_linker
 from zavod import Context, Entity, helpers as h
 
-# Some entities come from the full text of the consolidated COUNCIL REGULATION (EU) No 833/2014.
-#  This consolidated document is treated differently from standard EUR-Lex lookups.
+# Some Russia-related entries are sourced from the consolidated regulation text.
 SPECIAL_CASE_URL = (
     "https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:02014R0833-20240625"
 )
@@ -21,20 +20,14 @@ SPECIAL_CASE_URL = (
 FIRST_CODE_RE = re.compile(
     r"\b(?:No\s+)?(\d{1,4}/\d{1,4})(?:/[A-Z]{2,5})?\b", re.IGNORECASE
 )
-# CELLAR content negotiation: resolves a CELEX id to its English XHTML rendering.
-# Unlike eur-lex.europa.eu, the Publications Office CELLAR repository isn't behind
-# the AWS WAF that serves JS bot-challenges to scripted requests, so plain HTTP
-# fetches the (large) consolidated regulation text reliably.
+# Resolve a CELEX id to its English XHTML rendering in CELLAR.
 CELLAR_URL = "http://publications.europa.eu/resource/celex/{celex}"
 CELLAR_HEADERS = {"Accept": "application/xhtml+xml", "Accept-Language": "eng"}
 # Pull the CELEX id out of a EUR-Lex URL. The colon may be plain (CELEX:) or
 # percent-encoded (CELEX%3A), and the keyword's case varies in the source sheet.
 CELEX_IN_URL_RE = re.compile(r"CELEX(?::|%3A)([0-9A-Z-]+)", re.IGNORECASE)
 
-# CELLAR's SPARQL endpoint exposes the legal-metadata graph (CDM ontology). We
-# query it to resolve which framework act a notice amends and that framework's
-# latest consolidated version — structured RDF facts, rather than scraping the
-# WAF-protected, JS-rendered eur-lex.europa.eu relations table.
+# Query CELLAR's CDM graph for legal-act relationships and consolidated versions.
 SPARQL_ENDPOINT = "https://publications.europa.eu/webapi/rdf/sparql"
 SPARQL_HEADERS = {
     "Accept": "application/sparql-results+json",
@@ -42,11 +35,7 @@ SPARQL_HEADERS = {
 }
 # Given an amending act's CELEX, return the framework act it amends and every
 # consolidated version of that framework. We use `amends` only (not `based_on`,
-# which for CFSP decisions points at the TEU article, not the framework). The
-# consolidated family shares the framework's CELEX with the leading sector digit
-# 3 -> 0. We pick the latest in Python: the endpoint's `MAX()` aggregate does not
-# return the lexicographic maximum for xsd:string, so it would yield an arbitrary
-# (often stale) version.
+# which for CFSP decisions points at the TEU article, not the framework).
 CONSOLIDATED_CELEX_SPARQL = """
 PREFIX cdm: <http://publications.europa.eu/ontology/cdm#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
@@ -60,10 +49,7 @@ SELECT DISTINCT ?fwk_celex ?cons_celex WHERE {
   }
 }
 """
-# Yesterday 2026-03-05, https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32024D1484
-# still showed https://eur-lex.europa.eu/legal-content/EN/AUTO/?uri=CELEX:02024D1484-20251120
-# as latest instead of https://eur-lex.europa.eu/legal-content/EN/AUTO/?uri=CELEX:02024D1484-20251222
-# (See timestamp at the end of each URL)
+# Recent journal notices can appear before the consolidated act is refreshed.
 CHECK_CONSOLIDATED_DATE = h.backdate(datetime.now(), timedelta(days=90))
 
 GC_ROWS: list[int] = []
@@ -72,9 +58,8 @@ GC_ROWS: list[int] = []
 def fetch_cellar_doc(context: Context, celex: str, cache_days: int) -> _Element:
     """Fetch and parse a CELEX document's English XHTML rendering from CELLAR.
 
-    CELLAR isn't behind the AWS WAF that makes scripted fetches of the EUR-Lex
-    front end unreliable. Act renderings carry an XML encoding declaration, which
-    lxml rejects when parsing a decoded str, so we parse the re-encoded bytes.
+    Use this for act metadata or consolidated text when the crawler needs the
+    document body from the Publications Office repository.
     """
     text = context.fetch_text(
         CELLAR_URL.format(celex=celex), headers=CELLAR_HEADERS, cache_days=cache_days
@@ -88,9 +73,8 @@ def fetch_cellar_doc(context: Context, celex: str, cache_days: int) -> _Element:
 def extract_program_code(context: Context, source_url: str) -> str | None:
     """Fetch the EU act code (e.g. '267/2012') for a sanctions notice.
 
-    Resolves the notice's CELEX id against CELLAR rather than browser-rendering
-    the WAF-protected eur-lex.europa.eu front end; the title block needed here
-    (`oj-doc-ti`) is present verbatim in the CELLAR XHTML.
+    Use this to link journal rows to their sanctions program. The code is taken
+    from the notice title that names the amended or implemented framework act.
     """
     if SPECIAL_CASE_URL in source_url:
         return "833/2014"
@@ -104,10 +88,8 @@ def extract_program_code(context: Context, source_url: str) -> str | None:
     if len(title_nodes) == 0:
         context.log.warning(f"Could not find program for {source_url}")
         return None
-    # The act-relation line ("amending/implementing Regulation ... No 267/2012")
-    # is always the last title paragraph and carries the framework's code.
+    # The last title paragraph names the framework act.
     title = h.element_text(title_nodes[-1])
-    # Extract the first EU act code (e.g., '2024/254') from a title.
     match = FIRST_CODE_RE.search(title)
     if not match:
         context.log.warning(
@@ -120,13 +102,11 @@ def extract_program_code(context: Context, source_url: str) -> str | None:
 
 @cache
 def get_consolidated_celex(context: Context, source_url: str) -> str | None:
-    """Resolve a notice's CELEX to the latest consolidated CELEX of the framework
-    act it amends, via CELLAR's SPARQL endpoint.
+    """Resolve a notice URL to the latest consolidated CELEX of its framework act.
 
-    Replaces scraping eur-lex.europa.eu's amendment-relations table and
-    consolidated-versions nav — both browser-rendered behind the AWS WAF, the
-    relations table populated by a post-load AJAX call that made the fetch race
-    against caching. The CDM graph answers both questions as structured facts.
+    Use this when checking whether a journal row still appears in the current
+    consolidated regulation. The CELLAR graph provides both the amended framework
+    act and its consolidated CELEX family.
     """
     celex_match = CELEX_IN_URL_RE.search(source_url)
     if celex_match is None:
@@ -164,18 +144,15 @@ def get_consolidated_celex(context: Context, source_url: str) -> str | None:
             frameworks=frameworks,
         )
         return None
-    # The date-suffixed consolidated CELEX (e.g. ...-20260227) sorts
-    # chronologically, so the lexicographic max is the latest version.
+    # Date-suffixed consolidated CELEX ids sort chronologically.
     return max(consolidated)
 
 
 def get_consolidated_text(context: Context, consolidated_celex: str) -> str | None:
     """Fetch the full text of a consolidated EU regulation from CELLAR.
 
-    `consolidated_celex` (e.g. `02012R0267-20260401`) is resolved against the
-    Publications Office CELLAR repository, which serves the document over plain
-    HTTP — unlike eur-lex.europa.eu, it isn't behind the AWS WAF whose JS
-    bot-challenge made browser-rendered fetches of these large texts unreliable.
+    Use this with a consolidated CELEX id such as `02012R0267-20260401` when the
+    crawler needs the regulation body for name-presence checks.
     """
     doc = fetch_cellar_doc(context, consolidated_celex, cache_days=1)
     text = h.element_text(doc)
@@ -204,11 +181,9 @@ def check_in_consolidated_act_text(
 ) -> None:
     """Warn if any name in `names` is absent from the consolidated regulation text.
 
-    Looks up the consolidated version of whatever regulation `source_url` amends,
-    so the check works for any EU sanctions regime, not just the Russia regulations.
-    Two rounds: first without asciifying (preserves non-Latin scripts), then with
-    asciifying (folds visually similar diacritics like Ş/Ș). Logs at info level
-    if only the ascii round finds the name, so the source data can be corrected.
+    Use this to identify journal rows that likely disappeared from the current
+    regulation. Names are checked with their source spelling first, then with
+    diacritics folded to catch transcription differences.
     """
     start_date_parsed = h.extract_date(context.dataset, start_date)
     if len(start_date_parsed) == 0 or CHECK_CONSOLIDATED_DATE < start_date_parsed[0]:
@@ -255,9 +230,10 @@ def check_in_consolidated_act_text(
 def crawl_unconsolidated_row(
     context: Context, linker: Linker[Entity], row_idx: int, row: dict[str, str]
 ) -> None:
-    """Process one row of the CSV data
+    """Emit an entity from a journal row not covered by the main EU XML feed.
 
-    Unconsolidated between EU Journal and XML, not in the consolidated legislation sense.
+    Use this for the current journal spreadsheet, where rows should eventually
+    disappear once their entities are available in the canonical EU sources.
     """
     row_id = row.pop("List ID").strip(" \t.")
     entity_type = row.pop("Type").strip()
@@ -396,7 +372,7 @@ def crawl_unconsolidated_row(
 
 
 def crawl_context_row(context: Context, row_idx: int, row: dict[str, str]) -> None:
-    """Process one row of the contextual CSV data"""
+    """Emit a context-only entity for rows already covered by canonical EU feeds."""
     row_id = row.pop("List ID").strip(" \t.")
     entity_type = row.pop("Type").strip()
     name = row.pop("Name").strip()
@@ -451,15 +427,14 @@ def crawl_context_row(context: Context, row_idx: int, row: dict[str, str]) -> No
 
 
 def crawl(context: Context) -> None:
-    # Round 1: unconsolidated.csv with the latest journal updates
-    # Unconsolidated between EU Journal and XML, not in the consolidated legislation sense.
+    # Current journal rows that are not yet present in the canonical EU feeds.
     path = context.fetch_resource("unconsolidated.csv", context.data_url)
     linker = get_dataset_linker(context.dataset)
     with open(path, "rt") as infh:
         for idx, row in enumerate(csv.DictReader(infh)):
             crawl_unconsolidated_row(context, linker, idx + 2, row)
 
-    # Round 2: context.csv with older entries now present in main databases
+    # Historical rows retained for context and link checks.
     context_url = context.data_url.replace("gid=0", "gid=1314630186")
     assert context_url != context.data_url
     path = context.fetch_resource("context.csv", context_url)
