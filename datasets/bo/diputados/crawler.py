@@ -4,6 +4,7 @@ from lxml.html import HtmlElement
 
 from zavod import Context
 from zavod import helpers as h
+from zavod.extract.zyte_api import fetch_json
 from zavod.entity import Entity
 from zavod.stateful.positions import PositionCategorisation, categorise
 
@@ -106,10 +107,12 @@ def crawl(context: Context) -> None:
     context.emit(position)
 
     for page in count(1):
-        records = context.fetch_json(
-            context.data_url,
-            params={"per_page": PAGE_SIZE, "page": page},
+        url = f"{context.data_url}?per_page={PAGE_SIZE}&page={page}"
+        records = fetch_json(
+            context,
+            url,
             cache_days=1,
+            geolocation="bo",
         )
         for record in records:
             crawl_deputy(context, record["link"], position, categorisation)
