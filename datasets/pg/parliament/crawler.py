@@ -55,11 +55,8 @@ def extract_profile_fields(div: Element) -> dict[str, str]:
 def crawl_member(
     context: Context,
     url: str,
-    slug: str,
-    is_governor: bool,
     mp_position: Entity,
     mp_categorisation: PositionCategorisation,
-    governor_cache: dict[str, tuple[Entity, PositionCategorisation]],
 ) -> None:
     doc = context.fetch_html(url, cache_days=7)
 
@@ -96,6 +93,9 @@ def crawl_member(
             "Unexpected profile fields", url=url, fields=list(fields.keys())
         )
 
+    slug = url.rstrip("/").split("/")[-1]
+    is_governor = slug.startswith("governor-")
+
     if is_governor:
         electorate_key = electorate.strip()
         if electorate_key not in GOVERNOR_POSITIONS:
@@ -103,19 +103,16 @@ def crawl_member(
                 "Unknown governor electorate", electorate=electorate_key, url=url
             )
             return
-        if electorate_key not in governor_cache:
-            province_name, wikidata_id = GOVERNOR_POSITIONS[electorate_key]
-            position = h.make_position(
-                context,
-                name=f"Governor of {province_name}",
-                country="pg",
-                subnational_area=province_name,
-                wikidata_id=wikidata_id,
-            )
-            cat = categorise(context, position, default_is_pep=True)
-            context.emit(position)
-            governor_cache[electorate_key] = (position, cat)
-        position, cat = governor_cache[electorate_key]
+        province_name, wikidata_id = GOVERNOR_POSITIONS[electorate_key]
+        position = h.make_position(
+            context,
+            name=f"Governor of {province_name}",
+            country="pg",
+            subnational_area=province_name,
+            wikidata_id=wikidata_id,
+        )
+        cat = categorise(context, position, default_is_pep=True)
+        context.emit(position)
     else:
         position = mp_position
         cat = mp_categorisation
@@ -124,7 +121,7 @@ def crawl_member(
         return
 
     person = context.make("Person")
-    person.id = context.make_slug(slug)
+    person.id = context.make_id("person", url, raw_name)
 
     h.apply_reviewed_name_string(
         context, person, string=raw_name, llm_cleaning=True, lang="eng"
@@ -162,7 +159,6 @@ def crawl(context: Context) -> None:
 
     doc = context.fetch_html(context.data_url, cache_days=1)
 
-    governor_cache: dict[str, tuple[Entity, PositionCategorisation]] = {}
     for a_el in h.xpath_elements(doc, ".//a[contains(@href,'parliament/bio/view/')]"):
         href_val = a_el.get("href", "")
         if "cat_url_title" in href_val:
@@ -172,15 +168,9 @@ def crawl(context: Context) -> None:
         else:
             url = f"{context.data_url}index.php{href_val}"
 
-        slug = url.rstrip("/").split("/")[-1]
-        is_governor = slug.startswith("governor-")
-
         crawl_member(
             context,
             url,
-            slug,
-            is_governor,
             mp_position,
             mp_categorisation,
-            governor_cache,
         )
