@@ -202,6 +202,7 @@ def emit_row(
         original=original,
         suggested=suggested,
         is_irregular=is_irregular,
+        default_accepted=True,
     )
     entity.add_cast("Person", "position", row.pop("position", []), lang="eng")
 
