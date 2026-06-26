@@ -8,15 +8,8 @@ from typing import Dict, Generator, List, Optional
 
 from zavod import Context, helpers as h
 from zavod.stateful.positions import categorise, OccupancyStatus
-from zavod.shed.trans import (
-    apply_translit_full_name,
-    make_position_translation_prompt,
-    ENGLISH,
-)
 
 
-TRANSLIT_OUTPUT = [ENGLISH]
-POSITION_PROMPT = prompt = make_position_translation_prompt("bul")
 # e.g. (name_html, name_pdf)
 # {
 #     ("Георги Иванов Иванов", "ВАНЯ СТОЯНОВА ЛАКОВСКА"),
@@ -178,9 +171,7 @@ def crawl_row(context: Context, row: Dict[str, HtmlElement], index_url: str) -> 
         name=position_name,
         lang="bul",
         country="BG",
-    )
-    apply_translit_full_name(
-        context, position, "bul", position_name, TRANSLIT_OUTPUT, POSITION_PROMPT
+        translate_name=True,
     )
 
     categorisation = categorise(context, position, default_is_pep=True)
