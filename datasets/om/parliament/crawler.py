@@ -283,11 +283,13 @@ def crawl_member(
     person = context.make("Person")
     person.id = context.make_slug(chamber.slug, member.member_id)
     h.apply_name(person, full=member.name)
-    detail = f"{chamber.listing_url}/MembersDetails?id={member.member_id}"
+
     # commenting out the sourceUrl as it doesn't work on its own, but
     # requires a cookie state or referer to be set, otherwise it redirects
     # to the home page; maybe it will work in the future
+    # detail = f"{chamber.listing_url}/MembersDetails?id={member.member_id}"
     # person.add("sourceUrl", detail)
+
     # Membership of Majlis Oman is reserved to Omani nationals.
     person.add("citizenship", "om")
 
