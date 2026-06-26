@@ -45,8 +45,17 @@ names, do not separate them in the output but adhere strictly to the output spec
 """
 POSITION_TRANS_PROMPT = """
 Translate the following public office position label from the language denoted by the
- ISO 639-2 code {code}, returning a JSON object where the key 'eng' has the value in
- English.
+ ISO 639-2 code {code} into English, returning a JSON object where the key 'eng' has
+ the value in English.
+
+Keep place names (countries, cities, regions, administrative areas) intact rather than
+ translating their meaning. Only replace a place name with its established English
+ exonym for very common, widely recognised cases — e.g. "Россия" → "Russia", "Москва"
+ → "Moscow", "Wien" → "Vienna", "München" → "Munich". For anything less obvious, err
+ on the side of keeping the original place name: if it is already in Latin script,
+ keep it verbatim (e.g. "São Paulo" stays "São Paulo", not "Saint Paul"); if it is in
+ a non-Latin script, transliterate it to Latin script rather than translating it
+ (e.g. "Карачаево-Черкесия" → "Karachayevo-Cherkesiya", not "Karachay-Cherkessia").
 """
 
 
