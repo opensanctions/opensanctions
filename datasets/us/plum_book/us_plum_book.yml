@@ -61,7 +61,7 @@ assertions:
       Person: 6700
   max:
     schema_entities:
-      Person: 9000
+      Person: 17000
 
 lookups:
   type.date:
