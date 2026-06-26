@@ -1,12 +1,11 @@
-from typing import Optional
 from normality import squash_spaces
 from followthemoney.types import registry
 import re
+from lxml.html import HtmlElement
 
 from zavod import Context
 from zavod import helpers as h
 from zavod.extract.zyte_api import fetch_html
-from zavod.util import ElementOrTree
 
 
 REGEX_ITEM = re.compile(
@@ -14,14 +13,18 @@ REGEX_ITEM = re.compile(
 )
 
 
-def crawl_section(context: Context, url: str, section: ElementOrTree):
-    listing_titles = section.xpath(".//h3[contains(@class, 'report__section-title')]")
-    if len(listing_titles) == 1:
-        year = re.match(r"(\d{4})$", listing_titles[0]).group(1)
-    else:
-        year = None
+def crawl_section(context: Context, url: str, section: HtmlElement) -> None:
+    listing_titles = h.xpath_elements(
+        section, "ancestor::section[contains(@class, 'report__content__inner')]/h2"
+    )
+    year: str | None = None
+    for title in listing_titles:
+        title_text = h.element_text(title)
+        m = re.match(r"(2\d{3})", title_text)
+        if m:
+            year = m.group(1)
 
-    program = section.find(".//h3[@class='report__section-subtitle']").text_content()
+    program = h.element_text(section.find(".//h3[@class='report__section-subtitle']"))
     program = program.replace("(Generally Listed in Chronological Order)", "")
     program = squash_spaces(program.replace("Since Previous Report", ""))
 
@@ -32,7 +35,7 @@ def crawl_section(context: Context, url: str, section: ElementOrTree):
         context.log.warning(f"Empty list for program {program}")
 
     for item in items:
-        item_text = squash_spaces(item.text_content())
+        item_text = h.element_text(item)
         if item_text == "":
             continue
         if item_text.startswith("* Denotes an action"):
@@ -46,13 +49,17 @@ def crawl_section(context: Context, url: str, section: ElementOrTree):
 
             if not all([registry.country.clean(c) for c in countries]):
                 res = context.lookup("unparsed", item_text)
+                if res is None:
+                    context.log.warning("Cannot parse country", item=item_text)
+                    continue
                 name = res.name
-                countries = res.country
                 reason = res.reason
+                countries = res.countries
 
             entity = context.make("Person")
-            entity.id = context.make_slug(countries, name)
+            entity.id = context.make_id(item_text)
             entity.add("name", name)
+            entity.add("notes", item_text)
             entity.add("country", countries)
             entity.add("topics", "sanction")
 
@@ -68,7 +75,7 @@ def crawl_section(context: Context, url: str, section: ElementOrTree):
             context.log.warning("Cannot parse item", item=item_text)
 
 
-def crawl_report(context: Context, url: str):
+def crawl_report(context: Context, url: str) -> None:
     context.log.info(f"Crawling {url}")
     sections_xpath = ".//section[@class='entry-content']"
     doc = fetch_html(context, url, sections_xpath, cache_days=1)
@@ -76,10 +83,11 @@ def crawl_report(context: Context, url: str):
         crawl_section(context, url, section)
 
 
-def crawl(context: Context) -> Optional[str]:
-    options_xpath = ".//nav[@id='report-nav']"
+def crawl(context: Context) -> None:
+    options_xpath = ".//nav[@id='report-nav']//option"
     doc = fetch_html(context, context.data_url, options_xpath, cache_days=1)
-    for option in doc.find(options_xpath).xpath(".//option"):
+    options_el = h.xpath_elements(doc, options_xpath)
+    for option in options_el:
         url = option.get("value")
-        if url != "":
+        if url is not None and url != "":
             crawl_report(context, url)

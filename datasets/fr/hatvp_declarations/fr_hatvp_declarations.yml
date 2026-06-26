@@ -3,8 +3,9 @@ prefix: fr-hatvp
 url: https://www.hatvp.fr/open-data/
 coverage:
   frequency: weekly
-  start: 2026-02-26
+  start: 2026-05-29
 load_statements: true
+ci_test: false  # position categorization in the UI
 entry_point: crawler.py
 summary: >-
   French public officials who are required to declare their interests and assets
@@ -19,9 +20,9 @@ description: |
   bodies.
 
   Members of the National Assembly, Senate, and mayors are covered by separate datasets:
-  - [fr_assemblee](https://www.opensanctions.org/datasets/fr_assemblee/);
-  - [fr_senat](https://www.opensanctions.org/datasets/fr_senat/);
-  - [fr_maires](https://www.opensanctions.org/datasets/fr_maires/).
+  - [Assembly](https://www.opensanctions.org/datasets/fr_assemblee/);
+  - [Senate](https://www.opensanctions.org/datasets/fr_senat/);
+  - [Mayors](https://www.opensanctions.org/datasets/fr_maires/).
 publisher:
   name: Haute Autorité pour la Transparence de la vie Publique
   name_en: High Authority for Transparency in Public Life
@@ -39,16 +40,15 @@ data:
 tags:
   - list.pep
 
-# TODO: Wait until we resolve the position taxonomy in the UI and set is_pep=True
-# assertions:
-#   min:
-#     schema_entities:
-#       Person: 4700
-#       Position: 1600
-#   max:
-#     schema_entities:
-#       Person: 12000
-#       Position: 4200
+assertions:
+  min:
+    schema_entities:
+      Person: 2000
+      Position: 530
+  max:
+    schema_entities:
+      Person: 5200
+      Position: 1300
 
 lookups:
   columns:

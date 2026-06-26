@@ -1,6 +1,8 @@
 import csv
 import json
-from typing import Optional, Generator, Dict, Any
+import re
+import yaml
+from typing import Optional, Generator, Dict, Any, cast
 from zipfile import ZipFile
 from functools import lru_cache
 from io import TextIOWrapper
@@ -16,6 +18,15 @@ from zavod import helpers as h
 
 BASE_URL = "http://download.companieshouse.gov.uk/en_output.html"
 PSC_URL = "http://download.companieshouse.gov.uk/en_pscdata.html"
+PUBLIC_BASE = "https://find-and-update.company-information.service.gov.uk"
+
+# Canonical PSC nature-of-control enumeration, published by Companies House
+# in companieshouse/api-enumerations. Fetched live each crawl (cached via
+# context.fetch_resource) so the slug taxonomy stays in sync with upstream
+# without a vendored snapshot to refresh.
+PSC_DESCRIPTIONS_URL = "https://raw.githubusercontent.com/companieshouse/api-enumerations/master/psc_descriptions.yml"
+
+PERCENTAGE_RE = re.compile(r"(\d+)-to-(\d+)-percent")
 
 KINDS = {
     "individual-person-with-significant-control": "Person",
@@ -52,6 +63,28 @@ IGNORE_BASE_COLUMNS = [
 def company_id(company_nr: str) -> str:
     nr = company_nr.lower()
     return f"oc-companies-gb-{nr}"
+
+
+def fetch_psc_short_descriptions(context: Context) -> dict[str, str]:
+    """Fetch CH's PSC nature-of-control short-description map.
+
+    Used to populate the ``role`` text on emitted Ownership links with CH's
+    official wording (``"Ownership of shares – More than 25% but not more
+    than 50%"``) rather than a slug-derived string. A slug missing from this
+    map is logged so new CH taxonomy additions surface in the run.
+    """
+    path = context.fetch_resource("psc_descriptions.yml", PSC_DESCRIPTIONS_URL)
+    with open(path, "r") as fh:
+        data = cast(dict[str, Any], yaml.safe_load(fh))
+    return cast(dict[str, str], data.get("short_description", {}))
+
+
+def percentage_range(slug: str) -> Optional[str]:
+    """Render the share-range encoded in a PSC slug as ``"25–50%"`` etc."""
+    match = PERCENTAGE_RE.search(slug)
+    if match is None:
+        return None
+    return f"{match.group(1)}–{match.group(2)}%"
 
 
 @lru_cache(maxsize=MEMO_MEDIUM)
@@ -169,6 +202,7 @@ def read_psc_data(path: PathLike) -> Generator[Dict[str, Any], None, None]:
 
 
 def parse_psc_data(context: Context) -> None:
+    short_descriptions = fetch_psc_short_descriptions(context)
     psc_data_url = get_psc_data_url(context)
     if psc_data_url is None:
         raise RuntimeError("PSC data zip URL not found!")
@@ -262,13 +296,6 @@ def parse_psc_data(context: Context) -> None:
         # if len(ident):
         #     pprint(ident)
         asset_id = company_id(company_nr)
-        link = context.make("Ownership")
-        link.id = context.make_id("psc", company_nr, psc_id)
-        link.add("owner", psc.id)
-        link.add("recordId", psc_id)
-        link.add("asset", asset_id)
-        link.add("startDate", data.pop("notified_on"))
-        link.add("endDate", data.pop("ceased_on", None))
 
         # Generate at least a stub of a company for dissolved companies which
         # aren't in the base data.
@@ -277,9 +304,52 @@ def parse_psc_data(context: Context) -> None:
         asset.add("registrationNumber", company_nr)
         asset.add("jurisdiction", "gb")
 
-        for nature in data.pop("natures_of_control", []):
-            nature = (nature or "").replace("-", " ").capitalize()
-            link.add("role", nature)
+        natures = data.pop("natures_of_control", None) or []
+        notified_on = data.pop("notified_on")
+        ceased_on = data.pop("ceased_on", None)
+        source_url = urljoin(PUBLIC_BASE, url)
+        status = "ceased" if ceased_on else "active"
+
+        # Every PSC declaration — Conditions 1–5 of the UK regime — is modelled
+        # as a single Ownership link. FTM's Ownership reverse is "Ownership and
+        # Control"; the per-nature wording lives in the multi-valued ``role``
+        # field (CH's short_description verbatim), and percentage ranges from
+        # share/voting/surplus-asset slugs are collected separately.
+        roles: list[str] = []
+        percentages: list[str] = []
+        unlabelled_natures: list[str] = []
+        for nature in natures:
+            if nature is None:
+                continue
+            label = short_descriptions.get(nature)
+            if label is None:
+                label = nature.replace("-", " ").capitalize()
+                unlabelled_natures.append(nature)
+            roles.append(label)
+            pct = percentage_range(nature)
+            if pct is not None:
+                percentages.append(pct)
+        if unlabelled_natures:
+            context.log.warn(
+                "PSC nature-of-control slug missing from CH enumeration",
+                natures=unlabelled_natures,
+                psc_id=psc_id,
+                company_number=company_nr,
+            )
+
+        link = context.make("Ownership")
+        link.id = context.make_id("psc", company_nr, psc_id)
+        link.add("owner", psc.id)
+        link.add("asset", asset_id)
+        link.add("recordId", psc_id)
+        link.add("role", roles)
+        link.add("startDate", notified_on)
+        link.add("endDate", ceased_on)
+        link.add("status", status)
+        link.add("sourceUrl", source_url)
+        link.add("ownershipType", "beneficial")
+        link.add("percentage", percentages)
+        context.emit(link)
 
         if data.pop("is_sanctioned", False):
             psc.add("topics", "sanction")
@@ -292,7 +362,6 @@ def parse_psc_data(context: Context) -> None:
             ],
         )
         context.emit(psc)
-        context.emit(link)
         context.emit(asset)
 
     data_path.unlink()

@@ -7,7 +7,7 @@ from zavod import Context
 from zavod import helpers as h
 
 
-def crawl_row(context: Context, row: dict):
+def crawl_row(context: Context, row: dict[str, str]) -> None:
     country = row.pop("Country")
     sector = row.pop("Industry")
     status = row.pop("Status")
@@ -46,15 +46,15 @@ def crawl_row(context: Context, row: dict):
             context.emit(sanction)
 
         context.emit(entity)
-        context.audit_data(row, ignore=["Calendar Year", "Country Code"])
+        context.audit_data(row, ignore=["Calendar Year", "Country Code", "Merchandise"])
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     csv_xpath = "//a[(contains(., 'Withold') or contains(., 'Withhold')) and contains(., 'Dataset')]/@href"
     doc = fetch_html(context, context.data_url, csv_xpath, absolute_links=True)
-    csv_url = doc.xpath(csv_xpath)
-    assert len(csv_url) == 1, len(csv_url)
-    csv_url = csv_url[0]
+    csv_urls = h.xpath_strings(doc, csv_xpath)
+    assert len(csv_urls) == 1, len(csv_urls)
+    csv_url = csv_urls[0]
 
     _, _, _, path = fetch_resource(context, "source.csv", csv_url, CSV)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)

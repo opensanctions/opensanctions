@@ -1,12 +1,12 @@
 # Checklist when reviewing a crawler
 
-Some things that are easy to forget but critical for new crawlers
+Some things that are easy to forget but critical for new crawlers. Scope and per-attribute completeness are governed by the [data priorities guide](priorities.md) — check the crawler against it before merging.
 
 - Metadata
     - required fields for crawlers that are often forgotten:
         - `coverage`
-            - `frequency` (normally `daily`, but `weekly` for zyte and gpt crawlers, and `monthly` for company registers)
-            - `start` (updated to the current day when releasing)
+            - `frequency` (normally `daily`, but `weekly` for gpt crawlers, and `monthly` for company registers)
+            - `start` - set when the dataset is released, not at merge time. Once the dataset has passed QA and initial de-duplication, it can be [released](release.md).
         - `load_statements`: `true` for normal crawlers, `false` for KYB data.
         - `assertions` - see [Data Assertions](../metadata.md#data-assertions)
     - dataset `name` is clear and conforms to convention. It's fine if it's just the yaml file name and not included in the file.
@@ -20,6 +20,6 @@ Some things that are easy to forget but critical for new crawlers
     - It emits as many entities as are available at the source
     - When first added, it doesn't emit warnings or errors (except transient, e.g. network timeout/server error that can be expected to go away tomorrow)
         - **note:** code designed to warn when there are issues with the data if something changes later is very welcome!
-    - all IDs are created via `Context.make_slug` or `Context.make_id` (it enforces validity)
+    - all IDs are created via `Context.make_slug` or `Context.make_id` (it enforces validity) and follow the [entity ID guide](entity_id.md)
       - QIDs validated by is_qid are an exception
     - all Persons have a `name` property. Add first and last name via `helpers.apply_name`.

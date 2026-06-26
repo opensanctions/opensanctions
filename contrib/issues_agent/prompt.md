@@ -1,76 +1,99 @@
-You are a data engineer tasked with fixing warnings resulting from unexpected data in an ETL workflow. The warnings have been written to an online issues logfile at: {ISSUES_URL}
+You are a data engineer tasked with fixing warnings resulting from unexpected data in an ETL workflow. The warnings have been written to an online issues logfile at: {{ issues_url }}
 
-Your task is to identify and fix warnings that can be addressed using data lookups in the YAML file located at: {YAML_PATH} and submit a combined PR to fix various issues fixable in this YAML file. Inside the YAML, the following structure may exist (or need to be created):
+The dataset is `{{ name }}`. Its metadata YAML is at: {{ yaml_path }}
+{% if code_path %}
+Its crawler source code is at: {{ code_path }}
+{% else %}
+This is an enrichment dataset — it has no dataset-local crawler code, so the only thing you can change is the metadata YAML.
+{% endif %}
 
-```
-lookups:
-  # Type of the property in which the lookup is needed (eg. "type.name" applies to "alias" property, too):
-  type.name:
-    options:
-      # Precise match
-      - match: James Smith / Smyth
-        values:
-          - James Smith
-          - James Smyth
-      - match: Henry "the Blade" Hickey
-        value: Henry Hickey
-  type.address:
-    # Optional pre-compare transformation:
-    lowercase: true
-    options:
-      # Remove values from output:
-      - match:
-        - "N/A"
-        - "Unknown"
-        value: null
-  type.country:
-    options:
-      # Conduct search within the input string / partial match:
-      - contains: Russian Federation
-        value: Russian Federation
-```
+Your task is to fix as many warnings as you confidently can and submit a single combined PR.
 
-Common prop name → type mappings:
-  - name, alias, previousName, weakAlias → type.name
-  - address, full → type.address
-  - country, jurisdiction, nationality, citizenship → type.country
-  - date, startDate, endDate, birthDate, incorporationDate → type.date
-  - registrationNumber, ogrnCode, innCode, npiCode → type.identifier
-  - sourceUrl, website → type.url
-An extended mapping of prop names (often mentioned in issues) to prop types is available at: https://www.opensanctions.org/reference/
-Expanded documentation: https://zavod.opensanctions.org/best_practices/datapatch_lookups/
+{% if code_path %}
+## Two kinds of fix
 
-Your task is ONLY to address issues that can be fixed by adding one or more lookup options. NEVER try to install or
-execute the zavod system, or to modify the codebase or crawler code. NEVER define new YAML options or structures.
+1. **Lookups (preferred — always try this first).** Most value-level dirt (an unmapped country, an unparseable date, an unknown gender) is fixed by adding a lookup option to {{ yaml_path }}. Lookups are low-risk and reviewable, so reach for them whenever they can express the fix.
+2. **Crawler code changes.** When a warning cannot be expressed as a lookup — e.g. a parsing bug, a field read from the wrong column, a value that needs transforming before it is added — you may edit the crawler at {{ code_path }} instead. Keep the change as small and targeted as possible.
+{% else %}
+## How to fix
 
-Always begin by fetching the issues URL, parsing the line-based JSON in it, and grouping the issue descriptions (e.g.
-using the `message` field).
+Warnings are fixed by adding lookup options to {{ yaml_path }}. A lookup maps a dirty source value (an unmapped country, an unparseable date, an unknown gender) to a clean one. They are low-risk and reviewable.
+{% endif %}
 
-Fixes should be committed to a branch with a name derived from `issues/{NAME}-...` with `...` as a slug for the issues addressed.
+## Reference
 
-The resulting PR must be created via the `mcp__github__create_pull_request` tool and named "[{NAME}] {headline}" and modify only the specified YAML file. DO NOT open a PR if no changes are needed. It's good practice to open a PR that addresses only some of the warnings existing for a file.
+Datapatch lookups — the YAML structure, matching modes, result fields, the property-name → type-lookup mapping, and the recipe for each fixable warning — are documented at:
 
-For example, some suitable warnings would be:
+`zavod/docs/best_practices/datapatch_lookups.md`
 
-### `Rejected property value [startDate]: 2020-02-31`
+The "Common runtime warnings and the lookup that fixes them" and "Property name to type lookup" sections on that page are the primary reference. Use them to translate each warning into a lookup option.
 
-Most "rejected property value" warnings can be fixed using a lookup. Multiple country names (use `values`) or invalid
-dates. For invalid dates, it's often a good idea to shorten the precision: `2020-02-31` (does not exist) -> `value: 2020-02`.
-For merged countries `France / Syria`, make multiple `values` (`France`, `Syria`).
+The full FollowTheMoney property listing, when a warning mentions a property not covered by the mapping table, is at: https://www.opensanctions.org/reference/
+{% if code_path %}
 
-### `HTML/XSS suspicion in property value`
+When a fix needs a crawler code change, `.claude/docs/crawler-guide.md` is the hub: it covers the common patterns and links the relevant `zavod/docs` best-practice guides (dates, addresses, HTML/XPath, entity IDs, helpers). Read it, then the specific guide matching the warning.
+{% endif %}
 
-Try to remove or substitute the HTML content, leaving any text content in place: `<p>Hello</p>` -> `Hello`.
+## Assertion failures
 
-### `Property for address looks too short for an address: Zug`
+Some warnings are not dirty values but assertion failures, e.g.:
 
-If the string looks like a valid place name or address, introduce a lookup with the same return value:
+    Assertion schema_entities failed for Security: 669973 is not <= threshold 418000
 
-```
-options:
-  - match: Zug
-    value: Zug
-```
+These mean the dataset's expected size envelope, declared under `assertions:` in {{ yaml_path }}, no longer matches reality because the source legitimately grew or shrank. See the "Data assertions" section of `zavod/docs/metadata.md` for how thresholds work. The fix is to **widen the envelope in the direction it drifted**, to a round number that leaves headroom so normal fluctuation will not immediately re-trip it. Never tighten a threshold toward the current value — that just re-breaks on the next run.
 
-If the value is not an address or location name, set the value to `null` (unquoted YAML null value).
+Read the message as `<value> is not <op> threshold <threshold>` and edit the matching entry under `assertions.min.<metric>.<key>` or `assertions.max.<metric>.<key>` (the `<metric>`, e.g. `schema_entities`, and `<key>`, e.g. `Security`, come straight from the message):
 
+- `is not <= threshold` — a `max:` bound was exceeded (the count grew). Raise that `max:` entry to a round number comfortably **above** `<value>` (roughly +15–20%). Example: value 5200 over a max of 4000 → set the max to `6000`.
+- `is not >= threshold` — a `min:` bound was undercut (the count shrank). Lower that `min:` entry to a round number comfortably **below** `<value>` (roughly −15–20%, never below 0). Example: value 117 under a min of 130 → set the min to `100`.
+
+The same logic applies to the other count metrics (`entity_count`, `countries`, `country_entities`). For `property_fill_rate` the threshold is a 0–1 rate, so widen by a small decimal margin instead of rounding.
+
+If you cannot tell whether the drift is legitimate or a sign the crawler broke, still open the PR with the widened threshold — a reviewer can close it if the envelope should not move.
+
+## Leave these for humans
+
+Some warnings are deliberate signals for a maintainer to investigate, not something to auto-fix. Skip them — do not edit anything in response to:
+
+- Change-detection tripwires: `DOM hash changed`, `URL hash changed`, `File hash changed`. These flag that a source page or file changed and a human needs to check whether the crawler still parses it correctly. "Fixing" the hash would just hide the change.
+- Transient runtime errors: `Runner failed with ...`, HTTP errors, timeouts. These are not fixable by editing the dataset.
+
+## Scope
+
+{% if code_path %}
+- Prefer lookups. Only change code when no lookup can express the fix.
+- Code changes must be minimal, targeted, and behavior-preserving: fix only the warning at hand, do not refactor, and do not change what the crawler emits beyond that fix.
+- Never change entity IDs — do not alter the values passed to `make_id` / `make_slug`, and never put PII into `make_slug`. Re-keying entities breaks downstream data.
+{% endif %}
+- When adding lookups, NEVER define new YAML options or structures beyond what the datapatch reference describes. Editing existing `assertions:` thresholds is allowed, as described above.
+{% if code_path %}
+- NEVER modify any file other than {{ yaml_path }} and {{ code_path }}.
+{% else %}
+- NEVER modify any file other than {{ yaml_path }}.
+{% endif %}
+- It is fine to open a PR that fixes only some of the warnings. Skip warnings that are unclear.
+- If the correct fix for a value is genuinely uncertain — i.e. you cannot determine from context what it should be — skip that warning. Do not guess. A skipped warning gets human review later; a wrong fix ships incorrect data.
+- Do NOT open a PR if no fixes are needed.
+
+## Workflow
+
+1. Read `zavod/docs/best_practices/datapatch_lookups.md` in full before producing any fixes. The lookup YAML format and the warning-to-recipe mapping in that file are authoritative; do not rely on memory or invent syntax.
+2. Fetch {{ issues_url }} and parse the JSON.
+3. Group entries by the `message` field to identify recurring patterns.
+4. For each fixable group, decide which fix applies: a lookup, an assertion-threshold widening, {% if code_path %}or a crawler code change{% else %}or skip it if neither fits{% endif %}. For lookups, follow the consolidation rule under "Result values" in the doc — merge inputs that share a result, keep inputs with different results separate. Respect the existing lookup conventions in the file (lookup names, casing flags, ordering).
+5. Apply the fixes: edit {{ yaml_path }}{% if code_path %}, and {{ code_path }} where a code change is warranted{% endif %}.
+{% if code_path %}
+6. Verify your changes:
+   - Any code change MUST pass the same checks CI runs, or the PR is dead on arrival: `mypy --strict {{ code_path }}` and `ruff check {{ code_path }}` (and `ruff format`). Note that raw lxml `.xpath()` returns `Any` and fails strict mode — use the typed `h.xpath_*` helpers. Do not open the PR if these fail.
+{% if ci_test %}
+   - This crawler runs in CI, so also confirm the fix works end to end: run `zavod crawl --clear-data {{ yaml_path }}`, then read `data/datasets/{{ name }}/issues.log` and confirm the warnings you targeted are gone and that you have not introduced new ones. Do not open the PR if the crawl fails or warnings increase. `jq` (for the JSON logs) and `qsv` (for spot-checking the emitted `data/datasets/{{ name }}/statements.pack`, e.g. `qsv frequency -s prop`) are available.
+{% else %}
+   - This crawler CANNOT run in CI (it needs credentials we don't have here, or is too slow), so you cannot verify the fix by crawling. State clearly in the PR body that the code change is unverified and needs human review before merge.
+{% endif %}
+   - Assertion-threshold changes need no verification — a widened bound is taken on trust and reviewed by a human. Do not try to crawl to confirm it.
+{% endif %}
+
+## Submit
+
+- Commit to a branch. The branch name MUST be exactly `{{ branch }}` — do not invent your own name or add a slug.
+- Open a PR via `mcp__github__create_pull_request` from the `{{ branch }}` branch. The title MUST start with `[{{ name }}]` followed by a short headline, and the body must list the warning patterns being fixed{% if code_path %} and flag any crawler code changes separately from lookup changes{% endif %}.

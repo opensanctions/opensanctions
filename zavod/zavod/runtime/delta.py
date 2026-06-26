@@ -2,7 +2,7 @@ from hashlib import sha1
 import shutil
 import plyvel  # type: ignore
 from typing import Optional, Generator, Tuple
-from nomenklatura.versions import Version
+from followthemoney.dataset import Version
 
 from zavod.logs import get_logger
 from zavod.meta import Dataset

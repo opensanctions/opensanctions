@@ -1,0 +1,62 @@
+title: Kosovo Members of Assembly
+entry_point: crawler.py
+prefix: xk-kuv
+coverage:
+  frequency: monthly
+  start: "2026-06-22"
+load_statements: true
+ci_test: false
+summary: >-
+  Members of the unicameral Assembly of the Republic of Kosovo.
+description: |
+  Current members of the Assembly of the Republic of Kosovo (Kuvendi i Republikës së
+  Kosovës), the unicameral national legislature of Kosovo. Its 120 deputies — 100 in
+  general seats and 20 reserved for ethnic minority communities — are elected for
+  four-year terms and hold the country's legislative power, including passing laws and
+  approving the budget.
+
+  This dataset records each sitting deputy with their name, party affiliation,
+  parliamentary group and, where the profile page provides them, date and place of
+  birth, gender, ethnicity, and education.
+url: https://www.kuvendikosoves.org/shq/deputetet/
+publisher:
+  name: Assembly of the Republic of Kosovo
+  acronym: Kuvendi
+  description: >
+    The Assembly is the unicameral parliament of the Republic of Kosovo, exercising
+    legislative power under the Constitution. Its 120 deputies are elected for
+    four-year terms.
+  url: https://www.kuvendikosoves.org/
+  country: xk
+  official: true
+data:
+  url: https://www.kuvendikosoves.org/shq/deputetet/
+  format: HTML
+  lang: sqi
+
+dates:
+  formats: ["%d/%m/%Y"]
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 100
+      Position: 1
+    country_entities:
+      xk: 100
+  max:
+    schema_entities:
+      Person: 200
+      Position: 1
+
+lookups:
+  type.gender:
+    normalize: true
+    options:
+      - match: [Femër]
+        value: female
+      - match: [Mashkull]
+        value: male

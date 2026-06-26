@@ -37,7 +37,6 @@ SKIP_IDS = {
     "E100002001974",  # member/employee owned
 }
 SELF_OWNED = {"E100000002236"}
-STATIC_URL = "https://globalenergymonitor.org/wp-content/uploads/2026/02/Global-Energy-Ownership-Tracker-February-2026-V1.xlsx"
 REGEX_URL_SPLIT = re.compile(r",\s*http")
 REGEX_POSSIBLE_ASSOCIATES = re.compile(r"（[^（）]*、[^（）]*）| \(\s*[^()]*,[^()]*\)")
 
@@ -208,11 +207,9 @@ def crawl_rel(context: Context, row: Dict[str, str | None], skipped: Set[str]) -
 
 
 def crawl(context: Context) -> None:
-    # _, _, _, path = zyte_api.fetch_resource(context, "source.xlsx", STATIC_URL, XLSX)
-
     path = context.get_resource_path("source.xlsx")
     fetch_internal_data(
-        "gem_energy_ownership/Global-Energy-Ownership-Tracker-February-2026-V1.xlsx",
+        "gem_energy_ownership/Global-Energy-Ownership-Tracker-May-2026-V1.xlsx",
         path,
     )
     workbook: openpyxl.Workbook = openpyxl.load_workbook(path, read_only=True)

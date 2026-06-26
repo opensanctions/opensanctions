@@ -8,12 +8,12 @@ from zavod.extract.zyte_api import fetch_resource
 REGEX_DBA = re.compile(r"\bdba\b", re.IGNORECASE)
 
 
-def crawl_item(row: dict[str, str], context: Context) -> None:
+def crawl_item(row: dict[str, str | None], context: Context) -> None:
     period = row.pop("timeframe_of_term_exclusion")
     if not context.lookup("period", period):
         context.log.warning("Unexpected exclusion period", period=period, row=row)
 
-    if first_name := row.pop("first_name"):
+    if (first_name := row.pop("first_name")) and first_name != "N/A":
         entity = context.make("Person")
         entity.id = context.make_id(
             first_name, row.get("npi"), row.get("last_name_or_practice_name")
@@ -28,9 +28,9 @@ def crawl_item(row: dict[str, str], context: Context) -> None:
         entity = context.make("Company")
         entity.id = context.make_id(raw_business_name, row.get("npi"))
 
-        if "Owner:" in raw_business_name:
+        if raw_business_name and "Owner:" in raw_business_name:
             parts = re.split(r"\s*Owner:\s*", raw_business_name)
-            business_name = parts[0].strip()
+            business_name: str | None = str(parts[0].strip())
             owner_name = parts[1].strip()
             owner = context.make("Person")
             owner.id = context.make_id(owner_name)
@@ -44,6 +44,7 @@ def crawl_item(row: dict[str, str], context: Context) -> None:
         else:
             business_name = raw_business_name
 
+        assert business_name is not None
         names = REGEX_DBA.split(business_name)
         entity.add("name", names[0])
         entity.add("alias", names[1:])
@@ -55,8 +56,9 @@ def crawl_item(row: dict[str, str], context: Context) -> None:
 
     entity.add("country", "us")
     entity.add("topics", "debarment")
-    if row.get("license"):
-        entity.add("description", "License number: " + row.pop("license"))
+    license = row.pop("license")
+    if license and license != "N/A":
+        entity.add("description", "License number: " + license)
 
     sanction = h.make_sanction(context, entity)
     h.apply_date(sanction, "startDate", row.pop("effective_date"))
@@ -78,7 +80,8 @@ def crawl(context: Context) -> None:
 
     sheet_names = wb.sheetnames
 
-    for item in h.parse_xlsx_sheet(context, wb.active):
+    assert wb.active is not None
+    for item in h.parse_xlsx_sheet(context, wb.active, skiprows=2):
         crawl_item(item, context)
 
     sheet_names.remove(wb.active.title)

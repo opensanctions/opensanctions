@@ -54,10 +54,12 @@ children:
   - ca_facfoa
   - ca_listed_terrorists
   - ca_named_research_orgs
+  - ca_sema_sanctions_news
   - ch_seco_sanctions
   - cn_sanctions
   - cz_national_sanctions
   - cz_terrorists
+  - de_bfv_extremism
   - ee_international_sanctions
   - eu_esma_saris
   - eu_fsf
@@ -106,6 +108,7 @@ children:
   - ru_mfa_sanctions
   - sg_terrorists
   - th_designated_person
+  - tn_cnlct
   - tr_fcib
   - tw_shtc
   - ua_nsdc_sanctions

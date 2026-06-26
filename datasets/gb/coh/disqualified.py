@@ -25,7 +25,7 @@ SLEEP = 315
 
 def http_get(
     context: Context,
-    url,
+    url: str,
     params: Optional[Dict[str, Any]] = None,
     cache_days: Optional[int] = None,
 ) -> Optional[Dict[str, Any]]:

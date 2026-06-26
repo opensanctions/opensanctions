@@ -5,7 +5,6 @@ from typing import List, Literal, Optional
 from lxml.html import HtmlElement
 from pydantic import BaseModel, Field
 from zavod.context import Context
-from zavod.shed import enforcements
 from zavod.extract.llm import DEFAULT_MODEL, run_typed_text_prompt
 from zavod.stateful.review import (
     HtmlSourceValue,
@@ -213,14 +212,14 @@ def crawl_release(
         context.emit(documentation)
 
 
-def crawl_index_page(context: Context, doc) -> bool:
+def crawl_index_page(context: Context, doc: HtmlElement) -> bool:
     """Returns false if we should stop crawling."""
     table_xpath = ".//table[contains(@class, 'views-view-table')]"
     tables = doc.xpath(table_xpath)
     assert len(tables) == 1
     for row in h.parse_html_table(tables[0]):
         enforcement_date = row["date_sort_descending"].text_content().strip()
-        if not enforcements.within_max_age(context, enforcement_date):
+        if not h.within_max_age(context, enforcement_date):
             return False
         action_cell = row["respondents"]
         action_link_xpath = (

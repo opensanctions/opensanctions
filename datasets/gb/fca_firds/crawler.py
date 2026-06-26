@@ -1,12 +1,13 @@
 from urllib.parse import urlencode
 from datetime import datetime, timedelta
+from typing import Iterator
 
 from zavod import Context
 from zavod.shed.firds import latest_full_set, parse_xml_file
 
 
 # https://api.data.fca.org.uk/fca_data_firds_files?q=((file_type:FULINS)%20AND%20(publication_date:[2017-10-15%20TO%202017-12-31]))&from=0&size=100&pretty=true
-def get_recent_full_dump_urls(context: Context):
+def get_recent_full_dump_urls(context: Context) -> Iterator[tuple[str, str]]:
     from_date = (datetime.now() - timedelta(days=30)).isoformat()[:10]
     to_date = datetime.now().isoformat()[:10]
     params = {
@@ -16,8 +17,10 @@ def get_recent_full_dump_urls(context: Context):
         "pretty": "true",
         "sort": "file_name:asc",
     }
-    total = None
-    while total is None or params["from"] <= total:
+    offset: int = 0
+    total: int | None = None
+    while total is None or offset <= total:
+        params["from"] = offset
         url = f"{context.data_url}?{urlencode(params)}"
         data = context.fetch_json(url)
         total = data["hits"]["total"]
@@ -25,7 +28,7 @@ def get_recent_full_dump_urls(context: Context):
             src = hit["_source"]
             yield src["file_name"], src["download_link"]
 
-        params["from"] += params["size"]
+        offset += 100
 
 
 def crawl(context: Context) -> None:

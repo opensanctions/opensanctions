@@ -50,11 +50,11 @@ inputs:
   - ext_gb_coh_psc
   - ext_gleif
   - ext_icij_offshoreleaks
+  - ext_iso9362_bic
   - ext_lv_business_register
   - ext_md_companies
   - ext_ru_egrul
   - ext_ua_edr
-  - iso9362_bic
   - opencorporates
   - regulatory
   - ru_cbr_banks
@@ -63,6 +63,7 @@ inputs:
   - special_interest
 
 config:
+  topic_gated: true
   threshold: 0.7
   index_options:
     memory: 3000
@@ -86,12 +87,13 @@ config:
     - Organization
     # - LegalEntity
     # - Person
-  cache_days: 90
 
+# estimates June 2026
+# Companies: 3113
 assertions:
   min:
     schema_entities:
-      Company: 2000
+      Company: 80
   max:
     schema_entities:
       Company: 5000

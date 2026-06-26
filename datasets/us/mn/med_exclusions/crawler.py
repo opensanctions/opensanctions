@@ -2,10 +2,11 @@ from rigour.mime.types import XLSX
 from openpyxl import load_workbook
 
 from zavod import Context, helpers as h
+from zavod.util import Element
 from zavod.extract.zyte_api import fetch_html, fetch_resource
 
 
-def crawl_item(row: dict[str, str], context: Context) -> None:
+def crawl_item(row: dict[str, str | None], context: Context) -> None:
     is_company = "practice_name" in row
 
     address = h.make_address(
@@ -55,11 +56,17 @@ def crawl_item(row: dict[str, str], context: Context) -> None:
     context.audit_data(row)
 
 
-def unblock_validator(doc) -> bool:
+def unblock_validator(doc: Element) -> bool:
     return (
-        len(doc.xpath(".//span[text()='MHCP Excluded Group Providers']/..")) > 0
+        len(h.xpath_elements(doc, ".//span[text()='MHCP Excluded Group Providers']/.."))
+        > 0
     ) and (
-        len(doc.xpath(".//span[text()='MHCP Excluded Individual Providers']/..")) > 0
+        len(
+            h.xpath_elements(
+                doc, ".//span[text()='MHCP Excluded Individual Providers']/.."
+            )
+        )
+        > 0
     )
 
 
@@ -91,5 +98,6 @@ def crawl(context: Context) -> None:
         context.export_resource(file_path, XLSX, title=context.SOURCE_TITLE)
         wb = load_workbook(file_path, read_only=True)
 
+        assert wb.active is not None
         for item in h.parse_xlsx_sheet(context, wb.active):
             crawl_item(item, context)

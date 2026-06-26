@@ -1,6 +1,6 @@
 import openpyxl
-from typing import Any, Dict, Generator, List, Optional, Tuple
-from normality import collapse_spaces, slugify
+from typing import Any, cast
+from normality import squash_spaces, slugify
 from rigour.mime.types import XLSX
 import re
 
@@ -18,30 +18,47 @@ REGEX_STATE_ASSEMBLY = re.compile(
 
 
 def clean_position(
-    context: Context, position: str, district: str, name: str
-) -> Optional[str]:
-    if position is None:
-        return None
-    position = collapse_spaces(position)
-    position = re.sub(r"Of The Of The", "of the", position)
-    slug = slugify(position)
+    context: Context,
+    *,
+    position_name: str | None,
+    district: str,
+    person_name: str,
+) -> str | None:
+    """Normalise a raw position string, or returns None if the position name is invalid.
 
-    # position: Member Of The House Of Assembly Orhionmwon, district: Kwara
+    Expands common state-assembly and legislature patterns into their full names,
+    incorporating the district where needed. Falls back to lookups for
+    other positions, or returns the cleaned input as-is if no match is found.
+    """
+    if position_name is None:
+        return None
+    collapsed = squash_spaces(position_name)
+    if len(collapsed) == 0:
+        return None
+
+    position_name = re.sub(r"Of The Of The", "of the", collapsed)
+    slug = slugify(position_name)
+    if slug is None:
+        return position_name
+
+    # position_name: Member Of The House Of Assembly Orhionmwon, district: Kwara
     # means the person is in the Orhionmwon seat of the Kwara state house of assembly
     # e.g. member of the Jigawa State House of Assembly (Q59528329)
 
     if slug.startswith("member-of-the-house-of-assembly"):
         if not district:
             context.log.info(
-                "No district for state assembly", position=position, name=name
+                "No district for state assembly",
+                position=position_name,
+                name=person_name,
             )
-            return position
+            return position_name
 
-        if REGEX_STATE_ASSEMBLY.match(position):
+        if REGEX_STATE_ASSEMBLY.match(position_name):
             return f"Member of the {district} State House of Assembly"
         else:
             context.log.warning(
-                "Cannot parse apparent state assembly", position=position
+                "Cannot parse apparent state assembly", position=position_name
             )
 
     if slug.startswith("member-of-the-house-of-representatives"):
@@ -52,14 +69,14 @@ def clean_position(
         # Q19822359
         return "Member of the Senate of Nigeria"
 
-    res = context.lookup("position", position)
+    res = context.lookup("position", position_name)
     if res is None:
-        return position
+        return position_name
     else:
-        return res.name
+        return cast(str, res.name)
 
 
-def position_topics(position):
+def position_topics(position: str) -> list[str]:
     if "President Federal Republic Of Nigeria" in position:
         return ["gov.national", "gov.head"]
     if position.startswith("Minister"):
@@ -73,20 +90,23 @@ def position_topics(position):
     return []
 
 
-def parse_position_dates(string: Optional[str]) -> Tuple[Optional[str], Optional[str]]:
+def parse_position_dates(string: str | None) -> tuple[str | None, str | None]:
     if string is None:
         return None, None
 
-    start, end = string.split(" - ")
-    start = None if start == "NA" else start
-    end = None if end == "NA" else end
+    parts = string.split(" - ")
+    start: str | None = None if parts[0] == "NA" else parts[0]
+    end: str | None = None if parts[1] == "NA" else parts[1]
     return start, end
 
 
-def crawl_pep(context: Context, row) -> Tuple[Optional[str], Optional[str]]:
+def crawl_pep(
+    context: Context, row: dict[str | None, Any]
+) -> tuple[str | None, str | None]:
+    """Returns (person name, entity ID), or (None, None) if the PEP was not emitted."""
     name = row.pop("name")
     birth_date = row.pop("date_of_birth", None)
-    birth_date = birth_date.isoformat()[:10] if birth_date else None
+    birth_date = birth_date[:10] if birth_date else None
     district = row.pop("district", None)
 
     entity = context.make("Person")
@@ -97,7 +117,9 @@ def crawl_pep(context: Context, row) -> Tuple[Optional[str], Optional[str]]:
     entity.add("birthDate", birth_date)
     entity.add("gender", row.pop("gender", None))
 
-    position_name = clean_position(context, row.pop("position"), district, name)
+    position_name = clean_position(
+        context, position_name=row.pop("position"), district=district, person_name=name
+    )
     if position_name:
         topics = position_topics(position_name)
         subnational_area = district if "gov.state" in topics else None
@@ -108,7 +130,7 @@ def crawl_pep(context: Context, row) -> Tuple[Optional[str], Optional[str]]:
             topics=topics,
             subnational_area=subnational_area,
         )
-        categorisation = categorise(context, position, True)
+        categorisation = categorise(context, position, default_is_pep=True)
 
         start_date, end_date = parse_position_dates(row.pop("period", None))
         if categorisation.is_pep:
@@ -132,10 +154,14 @@ def crawl_pep(context: Context, row) -> Tuple[Optional[str], Optional[str]]:
     return None, None
 
 
-def crawl_relative(context: Context, row, pep_ids):
+def crawl_relative(
+    context: Context, row: dict[str | None, Any], pep_ids: dict[str, str]
+) -> None:
     name = row.pop("name")
     pep_name = row.pop("pep_name")
-    pep_id = pep_ids.get(slugify(pep_name), None)
+    slugified_pep_name = slugify(pep_name)
+    assert slugified_pep_name is not None
+    pep_id = pep_ids.get(slugified_pep_name, None)
     if pep_id is None:
         # In spot-checked cases, their positions were too old to be relevant
         context.log.info("PEP not found for relative", pep=pep_name, relative=name)
@@ -158,18 +184,8 @@ def crawl_relative(context: Context, row, pep_ids):
     context.emit(rel)
 
 
-def worksheet_rows(sheet) -> Generator[Dict[str, Any], None, None]:
-    headers: Optional[List[str]] = None
-    for row in sheet.rows:
-        cells = [c.value for c in row]
-        if headers is None:
-            headers = [slugify(h, sep="_") for h in cells]
-            continue
-        yield dict(zip(headers, cells))
-
-
-def crawl(context: Context):
-    pep_ids = {}
+def crawl(context: Context) -> None:
+    pep_ids: dict[str, str] = {}  # slugified name -> entity ID
     dupes = set()
 
     peps_path = context.fetch_resource(
@@ -177,18 +193,20 @@ def crawl(context: Context):
     )
     context.export_resource(peps_path, XLSX, title="PEPs source data")
     workbook = openpyxl.load_workbook(peps_path, read_only=True)
-    for row in worksheet_rows(workbook.worksheets[0]):
-        name, id = crawl_pep(context, row)
+    for row in h.parse_xlsx_sheet(context, workbook.worksheets[0]):
+        name, entity_id = crawl_pep(context, row)
         if name is None:
             continue
         name_slug = slugify(name)
+        assert name_slug is not None
+        assert entity_id is not None
         if name_slug in pep_ids:
             context.log.info("Dropping name with duplicate entry", name=name_slug)
             dupes.add(name_slug)
             pep_ids.pop((name_slug))
         else:
             if name_slug not in dupes:
-                pep_ids[name_slug] = id
+                pep_ids[name_slug] = entity_id
 
     peps_path = context.fetch_resource(
         "pep_relatives.xlsx",
@@ -196,6 +214,6 @@ def crawl(context: Context):
     )
     context.export_resource(peps_path, XLSX, title="PEP Relatives source data")
     workbook = openpyxl.load_workbook(peps_path, read_only=True)
-    for row in worksheet_rows(workbook.worksheets[0]):
+    for row in h.parse_xlsx_sheet(context, workbook.worksheets[0]):
         if row:
             crawl_relative(context, row, pep_ids)

@@ -36,14 +36,14 @@ def make_proxy(context: Context, cw_id: str, row: Row) -> Optional[Entity]:
     return None
 
 
-def parse_companies(context: Context, row: Row):
+def parse_companies(context: Context, row: Row) -> None:
     proxy = make_proxy(context, row.pop("cw_id"), row)
     if proxy is not None:
         proxy.add("name", clean(row.pop("company_name")))
         context.emit(proxy)
 
 
-def parse_company_info(context: Context, row: Row):
+def parse_company_info(context: Context, row: Row) -> None:
     proxy = make_proxy(context, row.pop("cw_id"), row)
     if proxy is not None:
         proxy.add("name", clean(row.pop("company_name")))
@@ -53,7 +53,7 @@ def parse_company_info(context: Context, row: Row):
         context.emit(proxy)
 
 
-def parse_company_names(context: Context, row: Row):
+def parse_company_names(context: Context, row: Row) -> None:
     proxy = make_proxy(context, row.pop("cw_id"), row)
     if proxy is not None:
         proxy.add("country", clean(row.pop("country_code")))
@@ -67,7 +67,7 @@ def parse_company_names(context: Context, row: Row):
             context.emit(proxy)
 
 
-def parse_company_locations(context: Context, row: Row):
+def parse_company_locations(context: Context, row: Row) -> None:
     proxy = make_proxy(context, row.pop("cw_id"), row)
     if proxy is not None:
         country_code = clean(row.pop("country_code")) or ""
@@ -88,7 +88,7 @@ def parse_company_locations(context: Context, row: Row):
             context.emit(proxy)
 
 
-def parse_company_relations(context: Context, row: Row):
+def parse_company_relations(context: Context, row: Row) -> None:
     source = make_proxy(context, row.pop("source_cw_id"), row)
     target = make_proxy(context, row.pop("target_cw_id"), row)
     if source is not None and target is not None:
@@ -103,7 +103,7 @@ def parse_company_relations(context: Context, row: Row):
             context.emit(source)
 
 
-def parse_relationships(context: Context, row: Row):
+def parse_relationships(context: Context, row: Row) -> None:
     if row.pop("ignore_record") != "0":
         return
     year = clean(row.pop("year"))
@@ -126,7 +126,12 @@ def parse_relationships(context: Context, row: Row):
             context.emit(rel)
 
 
-def parse_csv(context: Context, data_path: Path, name: str, handler: Callable) -> None:
+def parse_csv(
+    context: Context,
+    data_path: Path,
+    name: str,
+    handler: Callable[[Context, Row], None],
+) -> None:
     context.log.info(f"Parsing `{name}` ...")
     with tarfile.open(data_path, "r:*") as tf:
         member = tf.extractfile(f"corpwatch_api_tables_csv/{name}")

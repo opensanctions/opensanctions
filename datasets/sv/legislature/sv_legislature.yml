@@ -1,0 +1,57 @@
+title: El Salvador Deputies of Legislative Assembly
+entry_point: crawler.py
+prefix: sv-al
+coverage:
+  frequency: monthly
+  start: 2026-06-22
+load_statements: true
+ci_test: false
+summary: >-
+  Deputies of the Legislative Assembly of El Salvador, the country's unicameral
+  national legislature
+description: |
+  Current deputies of the Legislative Assembly (Asamblea Legislativa), the unicameral
+  national legislature of El Salvador. Since the 2023 constitutional reform its 60
+  deputies (down from 84) are elected for three-year terms and hold the country's
+  legislative power, including passing laws and approving the budget.
+
+  This dataset records each sitting titular deputy (diputado propietario) with their
+  name, gender, and parliamentary group. Their alternates (suplentes), listed
+  separately by the source, are not included.
+url: https://www.asamblea.gob.sv/asamblea/diputados
+publisher:
+  name: Asamblea Legislativa de El Salvador
+  name_en: Legislative Assembly of El Salvador
+  acronym: AL
+  description: >
+    The Legislative Assembly is the unicameral national legislature of El Salvador.
+  url: https://www.asamblea.gob.sv/
+  country: sv
+  official: true
+data:
+  url: https://www.asamblea.gob.sv/asamblea/diputados
+  format: HTML
+  lang: spa
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 50
+      Position: 1
+    country_entities:
+      sv: 50
+  max:
+    schema_entities:
+      Person: 70
+      Position: 1
+
+lookups:
+  type.gender:
+    options:
+      - match: M
+        value: male
+      - match: F
+        value: female

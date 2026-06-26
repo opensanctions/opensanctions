@@ -41,8 +41,22 @@ type PositionTaggerRowProps = {
 
 export default function PositionTaggerRow({ countries, position, isSelected, onSelect, setRef }: PositionTaggerRowProps) {
   const countryLabels = position.countries.map((code: string) => {
-    return countries.get(code);
+    return countries.get(code) ?? code;
   })
+  const subnationalAreas = position.subnational_areas ?? [];
+
+  // Exactly one country and one subnational area: "subnational, national".
+  // Everything else: "country, country (subnational, subnational)", with the
+  // parenthetical dropped when there are no subnational areas.
+  let territory: string;
+  if (countryLabels.length === 1 && subnationalAreas.length === 1) {
+    territory = `${subnationalAreas[0]}, ${countryLabels[0]}`;
+  } else {
+    territory = countryLabels.join(", ");
+    if (subnationalAreas.length > 0) {
+      territory += ` (${subnationalAreas.join(", ")})`;
+    }
+  }
 
   // Initial state for the component
   const [state, setState] = useState({
@@ -169,7 +183,7 @@ export default function PositionTaggerRow({ countries, position, isSelected, onS
         <small><Link className="ps-2 align-text-bottom" href={`${OPENSANCTIONS_WEBSITE_BASE_URL}/entities/${position.entity_id}`} target="_blank" rel="noreferrer"><BoxArrowUpRight /></Link></small>
         {error && <span className="text-danger">Error saving</span>}
       </td>
-      <td>{countryLabels.join(", ")}</td>
+      <td>{territory}</td>
       <td>{position.dataset}</td>
       <td>
         <Form.Check

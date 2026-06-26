@@ -1,9 +1,11 @@
 import json
+from typing import Any
+
 from zavod import Context
 from zavod import helpers as h
 
 
-def map_gender(gender_code):
+def map_gender(gender_code: str) -> str | None:
     gender_map = {
         "V": "male",
         "M": "female",  # Assuming "M" stands for female in Lithuanian
@@ -11,7 +13,7 @@ def map_gender(gender_code):
     return gender_map.get(gender_code)
 
 
-def crawl_page(context: Context, entry):
+def crawl_page(context: Context, entry: dict[str, Any]) -> None:
     person = context.make("Person")
     # ID based on the person's first and last name
     person_id = context.make_id(entry.get("vardas"), entry.get("pavarde"))
@@ -19,7 +21,8 @@ def crawl_page(context: Context, entry):
     person.add("name", f"{entry.get('vardas')} {entry.get('pavarde')}", lang="lit")
     h.apply_date(person, "birthDate", entry.get("gimimoData"))
     person.add("topics", "sanction")
-    gender = map_gender(entry.get("lytis"))
+    gender_raw = entry.get("lytis")
+    gender = map_gender(gender_raw) if isinstance(gender_raw, str) else None
     if gender:
         person.add("gender", gender)
 
@@ -42,7 +45,7 @@ def crawl_page(context: Context, entry):
     context.emit(sanction)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     page = 0
     while True:
         url = f"https://www.migracija.lt/external/nam/search?pageNo={page}&pageSize=100&language=lt"

@@ -3,7 +3,7 @@ from pathlib import Path
 
 from banal import as_bool
 from nomenklatura import settings as nk
-from nomenklatura.versions import Version
+from followthemoney.dataset import Version
 from rigour.env import env_str
 
 # Logging configuration
@@ -50,7 +50,9 @@ ARCHIVE_BACKEND = env.get("ZAVOD_ARCHIVE_BACKEND", "FileSystemBackend")
 ARCHIVE_BUCKET = env.get("ZAVOD_ARCHIVE_BUCKET", None)
 ARCHIVE_BUCKET = env.get("OPENSANCTIONS_BACKFILL_BUCKET", ARCHIVE_BUCKET)
 ARCHIVE_PATH = Path(env.get("ZAVOD_ARCHIVE_PATH", DATA_PATH.joinpath("archive")))
-ARCHIVE_BACKFILL_STATEMENTS = as_bool(env_str("ARCHIVE_BACKFILL_STATEMENTS", "false"))
+ARCHIVE_BACKFILL_STATEMENTS = as_bool(
+    env_str("ZAVOD_ARCHIVE_BACKFILL_STATEMENTS", "false")
+)
 BACKFILL_RELEASE = env_str("ZAVOD_BACKFILL_RELEASE", "latest")
 
 # HTTP settings
@@ -65,16 +67,8 @@ nk.DB_URL = f"sqlite:///{DATA_PATH.joinpath('zavod.sqlite3').as_posix()}"
 nk.DB_URL = env.get("ZAVOD_DATABASE_URI", nk.DB_URL)
 nk.DB_URL = env.get("OPENSANCTIONS_DATABASE_URI", nk.DB_URL)
 
-# pywikibot settings for editing Wikidata
-WD_CONSUMER_TOKEN = env.get("ZAVOD_WD_CONSUMER_TOKEN")
-WD_CONSUMER_SECRET = env.get("ZAVOD_WD_CONSUMER_SECRET")
-WD_ACCESS_TOKEN = env.get("ZAVOD_WD_ACCESS_TOKEN")
-WD_ACCESS_SECRET = env.get("ZAVOD_WD_ACCESS_SECRET")
-WD_USER = env.get("ZAVOD_WD_USER")
-
 ZYTE_API_KEY = env.get("OPENSANCTIONS_ZYTE_API_KEY", None)
-OPENAI_API_KEY = env.get("OPENSANCTIONS_OPENAI_API_KEY", None)
-AZURE_OPENAI_ENDPOINT = env.get("OPENSANCTIONS_AZURE_OPENAI_ENDPOINT", None)
+OPENAI_API_KEY = env.get("OPENAI_API_KEY", None)
 
 # Test code in prod code is generally a Bad Idea.
 # This is here to allow for fallbacks to skip some external service usage

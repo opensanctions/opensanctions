@@ -52,8 +52,6 @@ def crawl_member(context: Context, el: etree._Element) -> None:
         position=position,
         start_date=el.findtext("FromDateTime"),
         end_date=el.findtext("ToDateTime"),
-        no_end_implies_current=True,
-        propagate_country=False,
     )
     if occupancy is not None:
         context.emit(occupancy)
@@ -101,8 +99,6 @@ def yes_minister(context: Context, el: etree._Element) -> None:
         position=position,
         start_date=el.findtext("FromDateTime"),
         end_date=el.findtext("ToDateTime"),
-        no_end_implies_current=True,
-        propagate_country=False,
     )
     if occupancy is not None:
         context.emit(occupancy)

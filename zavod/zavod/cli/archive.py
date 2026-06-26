@@ -11,7 +11,7 @@ from zavod.archive import (
 )
 from zavod.cli import cli, DatasetInPath, _load_dataset
 from zavod.meta.dataset import Dataset
-from nomenklatura.versions import VersionHistory
+from followthemoney.dataset import VersionHistory
 
 RESOURCE_FILENAMES = [STATEMENTS_FILE]
 

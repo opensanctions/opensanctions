@@ -8,7 +8,7 @@ from zavod import Context, helpers as h
 from zavod.stateful.positions import YEAR_DAYS
 
 
-def crawl_item(row: dict[str, str], context: Context) -> None:
+def crawl_item(row: dict[str, str | None], context: Context) -> None:
     enrollment_type = row.pop("enrollment_type")
     npi = row.pop("npi")
     license_type = row.pop("state_license_type")
@@ -46,6 +46,7 @@ def crawl_item(row: dict[str, str], context: Context) -> None:
     sanction_type = row.pop("type_of_sanction")
     sanction_start_date = row.pop("effective_date")
     sanction_end_date = row.pop("sanction_end_date")
+    assert sanction_start_date is not None, "Sanction start date is required"
     sanction = h.make_sanction(
         context, entity, key=slugify(sanction_type, sanction_start_date)
     )
@@ -81,11 +82,12 @@ def crawl_item(row: dict[str, str], context: Context) -> None:
 
 def crawl(context: Context) -> None:
     doc = context.fetch_html(context.data_url, absolute_links=True)
-    excel_url = h.xpath_string(doc, ".//a[contains(text(), 'Sanction List')]/@href")
+    excel_url = h.xpath_string(doc, ".//a[contains(text(), 'Sanctions List')]/@href")
     path = context.fetch_resource("list.xlsx", excel_url)
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
 
     wb = load_workbook(path, read_only=True)
+    assert wb.active is not None
 
     for item in h.parse_xlsx_sheet(context, wb.active, skiprows=1):
         crawl_item(item, context)

@@ -18,6 +18,7 @@ children:
   - be_fod_sanctions
   - bg_omnio_poi
   - cz_national_sanctions
+  - de_bfv_extremism
   - eu_fsf
   - eu_journal_sanctions
   - eu_sanctions_map

@@ -1,9 +1,69 @@
+"""Propagate risk topics across the entity graph by relationship adjacency.
+
+Sanctions lists and PEP registers flag individual entities, but risk rarely
+stops at the named entity: the spouse of a PEP, a subsidiary of a sanctioned
+company, or a vessel owned through several ownership tiers all carry derived
+risk. This analyzer walks the resolved graph and emits topic patches that
+capture that derived risk so the affected entities become visible to screening
+(and eligible for further enrichment). It implements the "risk propagation"
+step of the enrichment pipeline.
+
+Three propagation rules are applied per entity:
+
+- ``role.rca`` — a Person reachable via a ``Family`` edge from a ``role.pep``
+  is tagged as a relative or close associate.
+- ``sanction.linked`` — an entity adjacent to a ``sanction`` entity through a
+  curated set of edge schemata (Ownership, Directorship, Membership,
+  Employment, Associate, Family, Succession), plus Securities issued by a
+  sanctioned entity, is tagged as sanction-linked.
+- ``sanction.linked`` along ownership chains — an asset owned by an already
+  ``sanction.linked`` owner is itself tagged, pushing the tag one ownership hop
+  further on each run.
+
+Requirements and invariants that make this correct:
+
+- **Self-exclusion.** ``non_graph_topics`` ignores topic statements contributed
+  by this dataset itself, so a tag this analyzer emits does not, on its own,
+  re-trigger the rules that produced it. The one deliberate exception is the
+  ownership-chain rule, which reads prior ``sanction.linked`` values from the
+  store in order to walk one hop at a time.
+- **Iterative convergence.** Because ownership propagation advances a single hop
+  per run, a multi-tier corporate hierarchy only materializes over successive
+  runs. The dataset must be re-run for the graph to converge; a single pass is
+  not sufficient.
+- **External vs. internal, and why the view is ``external=True``.** A statement
+  is "external" when it is excluded from the published ``default`` exports.
+  Enrichers emit adjacency "passengers" — entities pulled in only because they
+  sit next to a match, carrying no risk topic of their own — as external, so
+  they drop out of ``default`` rather than bloating it (without this, untagged
+  enrichment passengers are roughly a quarter of all matchable entities). This
+  analyzer reads the store with ``external=True`` precisely so it can *see*
+  those passengers and apply the rules to them; with an internal-only view it
+  would be blind to exactly the entities it needs to evaluate.
+- **Patches inherit the related entity's external-ness.** A patch is emitted
+  internal iff the related entity already has at least one internal statement
+  (``Entity.external`` is true only when *every* statement is external),
+  otherwise external. So a derived topic on a genuinely published entity is
+  published, while a topic on a purely-external passenger stays external. Either
+  way the topic is visible in the ``external=True`` view and continues to feed
+  the next ownership hop — but tagging a passenger does not, on its own, force
+  it into the published export.
+- **Edge end dates terminate propagation.** Relationships carrying an
+  ``endDate`` are skipped: a former director or ex-spouse does not propagate
+  risk.
+- **Output is a patch dataset.** Each rule emits a minimal patch carrying only
+  the new topic (reduced to ``LegalEntity`` for legal-entity subtypes so stale
+  annotations don't pin a more specific schema); these are merged into the
+  target entities downstream rather than replacing them.
+"""
+
 from typing import Set
 
 from followthemoney import registry
 
 from zavod import Context, Entity
 from zavod.meta import get_multi_dataset
+from zavod.constants import ORIGIN_INFERRED
 from zavod.store import get_store, View
 from zavod.integration import get_dataset_linker
 
@@ -29,10 +89,14 @@ def emit_patch(
         existing_topics=list(existing_topics),
     )
 
-    patch = context.make(related_entity.schema)
+    if related_entity.schema.is_a("LegalEntity"):
+        schema = "LegalEntity"
+    else:
+        schema = related_entity.schema.name
+    patch = context.make(schema)
     patch.id = related_entity.id
-    patch.add("topics", topic)
-    context.emit(patch)
+    patch.add("topics", topic, origin=ORIGIN_INFERRED)
+    context.emit(patch, external=related_entity.external)
 
 
 def analyze_entity(context: Context, view: View, entity: Entity) -> None:
@@ -56,6 +120,7 @@ def analyze_entity(context: Context, view: View, entity: Entity) -> None:
 
         # Tag role.rca for family relations of PEPs
         if "role.pep" in topics and adjacent.schema.is_a("Family"):
+            assert other_prop is not None
             for other_id in adjacent.get(other_prop):
                 other = view.get_entity(other_id)
                 if other is None or not other.schema.is_a("Person"):
@@ -86,6 +151,7 @@ def analyze_entity(context: Context, view: View, entity: Entity) -> None:
                 "Succession",
             ):
                 continue
+            assert other_prop is not None
             for other_id in adjacent.get(other_prop):
                 other = view.get_entity(other_id)
                 if other is None:
@@ -103,8 +169,10 @@ def analyze_entity(context: Context, view: View, entity: Entity) -> None:
         if (
             "sanction.linked" in topics
             and adjacent.schema.is_a("Ownership")
+            and prop.reverse is not None
             and prop.reverse.name == "owner"
         ):
+            assert other_prop is not None
             for other_id in adjacent.get(other_prop):
                 other = view.get_entity(other_id)
                 if other is None:
@@ -120,7 +188,7 @@ def crawl(context: Context) -> None:
     linker = get_dataset_linker(scope)
     store = get_store(scope, linker)
     store.sync()
-    view = store.view(scope)
+    view = store.view(scope, external=True)
 
     for entity_idx, entity in enumerate(view.entities()):
         if entity_idx > 0 and entity_idx % 1000 == 0:

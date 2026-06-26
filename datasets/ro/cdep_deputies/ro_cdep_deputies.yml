@@ -1,0 +1,62 @@
+title: Romania Members of Chamber of Deputies
+entry_point: crawler.py
+prefix: ro-cdep
+coverage:
+  frequency: monthly
+  start: 2026-06-16
+load_statements: true
+ci_test: false
+summary: >-
+  Members of the Chamber of Deputies, the lower house of the Romanian Parliament.
+description: |
+  Current and historical members of the Chamber of Deputies (Camera Deputaților), the
+  lower house of the bicameral Parliament of Romania. Its deputies are elected for
+  four-year terms and, together with the Senate, hold the country's legislative power,
+  including passing laws, approving the budget, and giving the government a vote of
+  confidence.
+
+  This dataset records the deputies of the current and recent legislative terms, with
+  their name, date of birth, political party, and the term(s) they served.
+url: https://www.cdep.ro/ords/pls/parlam/structura2015.de?idl=2
+publisher:
+  name: Camera Deputaților
+  acronym: CDEP
+  description: >
+    The Chamber of Deputies is the lower house of the Parliament of Romania. It
+    publishes the official roster of its members on its website.
+  url: https://www.cdep.ro
+  country: ro
+  official: true
+data:
+  url: https://www.cdep.ro/ords/pls/parlam/structura2015.de?idl=2
+  format: HTML
+  lang: eng
+
+dates:
+  formats: ["%d %m %Y", "%d %m. %Y"]
+  months:
+    "01": ["jan", "january"]
+    "02": ["feb", "february"]
+    "03": ["mar", "march"]
+    "04": ["apr", "april"]
+    "05": ["may"]
+    "06": ["jun", "june"]
+    "07": ["jul", "july"]
+    "08": ["aug", "august"]
+    "09": ["sep", "september"]
+    "10": ["oct", "october"]
+    "11": ["nov", "november"]
+    "12": ["dec", "december"]
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 1000
+    country_entities:
+      ro: 1000
+  max:
+    schema_entities:
+      Person: 3000

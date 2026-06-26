@@ -2,14 +2,14 @@ from zavod import Context, helpers as h
 from zavod.extract.zyte_api import fetch_html
 
 
-def crawl_item(raw_name: str, context: Context):
+def crawl_item(raw_name: str, context: Context) -> None:
     entity = context.make("LegalEntity")
 
     names = h.multi_split(
         raw_name, ["; a.k.a.", "(a.k.a.", "(f.k.a.", "; f.k.a.", ", a.k.a."]
     )
 
-    entity.id = context.make_id(names)
+    entity.id = context.make_id(names)  # type: ignore[arg-type]
 
     for name in names:
         # If there is some name with a ) at the end without a (, we remove it
@@ -25,7 +25,7 @@ def crawl_item(raw_name: str, context: Context):
     context.emit(entity)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     # Find the title of the list by the text, then find the next sibling
     # (which is the list), then get all the list items texts
     list_xpath = ".//*[contains(text(), 'Terrorist Exclusion List Designees (alphabetical listing)')]/following-sibling::*[1]/li/text()"
@@ -42,5 +42,5 @@ def crawl(context: Context):
     ]
     doc = fetch_html(context, context.data_url, list_xpath, actions)
 
-    for item in doc.xpath(list_xpath):
+    for item in h.xpath_strings(doc, list_xpath):
         crawl_item(item, context)

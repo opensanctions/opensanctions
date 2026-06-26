@@ -101,10 +101,10 @@ def crawl_item(
     url: str,
     article_name: str,
     action_type: Optional[str],
-    origin: str,
+    origin: Optional[str],
 ) -> None:
     entity = context.make(item.entity_schema)
-    entity.id = context.make_id(item.name, item.country)
+    entity.id = context.make_id(item.name, item.country)  # type: ignore[arg-type]
     entity.add("name", item.name, origin=origin)
     nationality_prop = "nationality"
     if item.entity_schema != "Person":
@@ -131,8 +131,7 @@ def crawl_item(
 def crawl_enforcement_action(
     context: Context, url: str, date: str, action_type: Optional[str]
 ) -> None:
-    article = context.fetch_html(url, cache_days=7)
-    article.make_links_absolute(context.data_url)
+    article = context.fetch_html(url, cache_days=7, absolute_links=True)
     article_el = h.xpath_elements(
         article, "//div[contains(@class, 'mas-section__banner-item')]", expect_exactly=1
     )[0]

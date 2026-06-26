@@ -1,6 +1,5 @@
 import csv
 from pathlib import Path
-from typing import Dict
 
 from zavod import Context, helpers as h
 
@@ -8,7 +7,7 @@ LOCAL_PATH = Path(__file__).parent
 FR_API_URL = "https://www.federalregister.gov/api/v1/documents.json?conditions[agencies][]=state-department&conditions[term]=nonproliferation+measures&order=newest"
 
 
-def crawl_row(context: Context, row: Dict[str, str]):
+def crawl_row(context: Context, row: dict[str, str]) -> None:
     """Process one row of the CSV data"""
     schema = row.pop("schema")
     name = row.pop("name")
@@ -53,8 +52,9 @@ def crawl_fr_notices(context: Context) -> None:
     # If the hash changes, review the updated fr_notices.csv for new entries and
     # update the us_special_leg Google Sheet accordingly. Then commit the updated
     # fr_notices.csv and update the hash in this function.
-    h.assert_url_hash(context, FR_API_URL, "59f3eec13dbb3e2319784f767b8ca0b84bdecd16")
-    rows, url = [], FR_API_URL
+    h.assert_url_hash(context, FR_API_URL, "e12745d729fb89d7035faa000c6677052943b483")
+    rows: list[list[str]] = []
+    url = FR_API_URL
     while url:
         data = context.fetch_json(url)
         rows.extend(
@@ -68,13 +68,14 @@ def crawl_fr_notices(context: Context) -> None:
             if "Imposition of Nonproliferation Measures" in doc.get("title")
         )
         url = data.get("next_page_url")
+
     with open(LOCAL_PATH / "fr_notices.csv", "w") as f:
         writer = csv.writer(f)
         writer.writerow(["document_number", "publication_date", "html_url", "pdf_url"])
         writer.writerows(rows)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     path = context.fetch_resource("source.csv", context.data_url)
     with open(path, "r") as fh:
         reader = csv.DictReader(fh)

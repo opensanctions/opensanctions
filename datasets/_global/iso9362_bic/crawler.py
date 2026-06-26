@@ -16,11 +16,15 @@ def crawl(context: Context) -> None:
         page_settings=lambda page: (page, EXTRACT_ARGS),
     ):
         for key, value in row.items():
-            row[key] = value.strip().replace("\n", " ")
+            if value is not None:
+                row[key] = value.strip().replace("\n", " ")
         bic = row.pop("bic")
+        assert bic is not None, f"Missing BIC in row: {row}"
         if bic[4:6] == "UT":
             continue
-        branch = row.pop("brch_code").strip()
+        branch_raw = row.pop("brch_code")
+        assert branch_raw is not None, f"Missing branch code for BIC: {bic}"
+        branch = branch_raw.strip()
         assert len(branch) == 3, branch
         if branch != "XXX":
             # Skip branches for now:

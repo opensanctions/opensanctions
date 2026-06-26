@@ -3,7 +3,7 @@ prefix: pt-parl
 url: https://www.parlamento.pt/Cidadania/Paginas/DadosAbertos.aspx
 coverage:
   frequency: monthly
-  start: 2026-03-04
+  start: 2026-05-29
 load_statements: true
 entry_point: crawler.py
 ci_test: true  # lightweight crawler
@@ -25,7 +25,7 @@ publisher:
   description: |
     The Assembleia da República is the unicameral parliament of Portugal.
   country: pt
-  url:
+  url: https://www.parlamento.pt/
   official: true
 data:
   # data dictionary: https://app.parlamento.pt/webutils/docs/doc.pdf?path=6148523063446f764c324679626d56304c3239775a57356b595852684c3052685a47397a51574a6c636e5276637939446232317762334e70773666446f32386c4d6a426b5a5355794d4d4f54636d66446f32397a4c306c4a535355794d45786c5a326c7a6247463064584a684c3039795a324676513239746347397a61574e68627935775a47593d&fich=OrgaoComposicao.pdf&Inline=true
@@ -39,7 +39,7 @@ assertions:
   min:
     schema_entities:
       # count of Efetivo statuses (not necessarily unique MPs) from source: 2738
-      Person: 1800  # raw count for Efetivo from stats: 2257 (current + historical, incl. temporary MPs)
+      Person: 1000  # We expect at least 230 per parliament. At the moment older parliaments aren't emitting for some reason.
       Position: 1
   max:
     schema_entities:

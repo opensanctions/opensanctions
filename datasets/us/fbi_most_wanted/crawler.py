@@ -110,13 +110,13 @@ def crawl_person(context: Context, url: str) -> None:
     context.emit(person)
 
 
-def crawl_type(context: Context, type: str, query_id: str):
+def crawl_type(context: Context, *, query_type: str, query_id: str) -> None:
     total_pages: Optional[int] = None
     total_xpath = './/div[@class="row top-total"]//p'
     for page in count(1):
         if total_pages is not None and page > total_pages:
             break
-        url = FBI_URL % (type, query_id, page)
+        url = FBI_URL % (query_type, query_id, page)
         # print(url)
         context.log.info("Fetching %s" % url)
         doc = fetch_html(context, url, total_xpath)
@@ -148,19 +148,35 @@ def crawl_type(context: Context, type: str, query_id: str):
             crawl_person(context, href)
 
 
-def crawl(context: Context):
-    # Check if new menu items have been added that we potentially want to crawl.
-    # Expected items listed below.
+def crawl(context: Context) -> None:
+    # Check dataset URL (you will need to have a US IP).
+    # Check top row menu. If new menu items have been added, add them here, either
+    # to crawl or to ignore.
+    # To find query_id, press the "Filter" button once on the listing page and look
+    # at the console of network requests in the browser devtools.
     menu_xpath = ".//ul[contains(@class, 'section-menu')]"
-    doc = fetch_html(context, context.dataset.model.url, menu_xpath)
-    [menu] = doc.xpath(menu_xpath)
-    h.assert_dom_hash(menu, "8c4476503900c45adeb407a980cbc7663688aa1f")
+    url = context.dataset.model.url
+    assert url is not None
+    doc = fetch_html(context, url, menu_xpath)
+    menu = h.xpath_element(doc, menu_xpath)
+    h.assert_dom_hash(menu, "d5a637f3eb32e7f0e46cb0d9a99682620e4793df")
 
-    crawl_type(context, "topten", "0f737222c5054a81a120bce207b0446a")
-    crawl_type(context, "fugitives", "f7f80a1681ac41a08266bd0920c9d9d8")
-    crawl_type(context, "terrorism", "55d8265003c84ff2a7688d7acd8ebd5a")
+    crawl_type(
+        context, query_type="topten", query_id="0f737222c5054a81a120bce207b0446a"
+    )
+    crawl_type(
+        context, query_type="fugitives", query_id="f7f80a1681ac41a08266bd0920c9d9d8"
+    )
+    crawl_type(
+        context, query_type="terrorism", query_id="55d8265003c84ff2a7688d7acd8ebd5a"
+    )
+    crawl_type(
+        context,
+        query_type="most-wanted-fraudsters",
+        query_id="2dc632f7086346c992ce8fee76a98886",
+    )
     # kidnap - these are the victims, not wanted criminals.
-    crawl_type(context, "parental-kidnappings", "querylisting-1")
+    crawl_type(context, query_type="parental-kidnappings", query_id="querylisting-1")
     # seeking-information - some of these are victims, some name unknown criminals
     # ecap - name unknown, not all suspects
     # indian-country - some victims

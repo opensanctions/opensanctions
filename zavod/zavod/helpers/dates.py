@@ -3,18 +3,23 @@ from functools import lru_cache
 from normality import stringify
 from prefixdate import parse_formats
 from datetime import datetime, date, timedelta, timezone
-from typing import Tuple, Union, Iterable, Set, Optional, List
+from typing import Tuple, Union, Iterable, Set, Optional, List, TYPE_CHECKING
 from followthemoney import registry
 
 from zavod.logs import get_logger
 from zavod.entity import Entity
 from zavod.meta.dataset import Dataset
+from zavod.settings import RUN_TIME
+
+if TYPE_CHECKING:
+    from zavod.context import Context
 
 log = get_logger(__name__)
 NUMBERS = re.compile(r"\b\d+\b")
 # We always want to accept ISO prefix dates.
 ALWAYS_FORMATS = ["%Y-%m-%d", "%Y-%m", "%Y"]
 DateValue = Union[str, date, datetime, None]
+MAX_ENFORCEMENT_DAYS = 365 * 5
 
 __all__ = [
     "extract_date",
@@ -23,6 +28,7 @@ __all__ = [
     "apply_date",
     "apply_dates",
     "replace_months",
+    "within_max_age",
 ]
 
 
@@ -104,7 +110,11 @@ def extract_date(
 
 
 def apply_date(
-    entity: Entity, prop: str, text: DateValue, formats: Optional[Tuple[str]] = None
+    entity: Entity,
+    prop: str,
+    text: DateValue,
+    formats: Optional[Tuple[str]] = None,
+    original_value: Optional[str] = None,
 ) -> None:
     """Apply a date value to an entity, parsing it if necessary and cleaning it up.
 
@@ -115,6 +125,9 @@ def apply_date(
         prop: The property to which the date will be applied.
         text: The date value to be applied.
         formats: A list of date formats to use for parsing, overriding dataset defaults.
+        original_value: If provided, recorded as the entity's original value for
+            this property instead of ``text``. Use when ``text`` has already been
+            transformed.
     """
     prop_ = entity.schema.get(prop)
     if prop_ is None or prop_.type != registry.date:
@@ -126,8 +139,10 @@ def apply_date(
     if text is None:
         return None
 
+    if original_value is None:
+        original_value = text
     dates = extract_date(entity.dataset, text, formats=formats)
-    return entity.add(prop_, dates, original_value=text)
+    return entity.add(prop_, dates, original_value=original_value)
 
 
 def apply_dates(entity: Entity, prop: str, texts: Iterable[DateValue]) -> None:
@@ -146,3 +161,25 @@ def backdate(date: datetime, delta: timedelta) -> str:
     """Return a partial ISO8601 date string backdated by the number of days provided"""
     dt = date - delta
     return dt.isoformat()[:10]
+
+
+def within_max_age(
+    context: "Context",
+    date: datetime | str,
+    max_age_days: int = MAX_ENFORCEMENT_DAYS,
+) -> bool:
+    """
+    Check if a the given date is within a specified maximum age, defaulting to `MAX_ENFORCEMENT_DAYS`.
+
+    This is useful for filtering out all but the most recent items, e.g. sanctions announcements
+    or enforcement actions.
+
+    Args:
+        context: The runner context with dataset metadata.
+        date: The date to check.
+        max_age_days: The maximum allowable age in days, if different from the default.
+    """
+    if isinstance(date, str):
+        date = date.strip()
+    cleaned_date = extract_date(context.dataset, date, fallback_to_original=False)[0]
+    return cleaned_date > backdate(RUN_TIME, timedelta(days=max_age_days))

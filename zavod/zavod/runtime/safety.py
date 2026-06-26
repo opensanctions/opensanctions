@@ -26,7 +26,8 @@ HTML_ENTITY_PATTERN = re.compile(
 
 XSS_SUSPECT_PATTERN = re.compile(
     r"<[^>]*>|"  # Tags
-    r"javascript:|data:|vbscript:|"  # URI schemes
+    r"\b(?:javascript|data|vbscript):|"  # URI schemes (require a boundary before the
+    # scheme so words like "MANDATA:" don't match the "data:" alternative)
     r"(\b)on\w+\s*=|"  # Event handlers
     # Disabled for now because it produces too many false positives
     # r"&#|&[a-zA-Z]",  # Entity references

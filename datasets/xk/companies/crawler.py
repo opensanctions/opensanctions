@@ -202,8 +202,7 @@ def fetch_company(context: Context, company_id: int) -> int:
             own.add("asset", entity.id)
             own.add("owner", founder.id)
 
-            own.add("ownershipType", "Founder", lang="eng")
-
+            own.add("role", "Founder", lang="eng")
             own.add("sharesValue", founder_data["Kapitali"])
             own.add("percentage", founder_data["KapitaliPerqindje"])
             context.emit(own)

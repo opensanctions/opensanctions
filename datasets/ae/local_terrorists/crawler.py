@@ -28,7 +28,7 @@ def parse_row(
     headers: List[HeaderSpec],
     row: List[Optional[str]],
     sanctioned: bool,
-):
+) -> None:
     entity_id = context.make_id(*row)
     schema = context.lookup_value("schema.override", entity_id, "LegalEntity")
     entity = context.make(schema)
@@ -117,7 +117,7 @@ def parse_row(
     context.emit(entity)
 
 
-def parse_excel(context: Context, path: Path):
+def parse_excel(context: Context, path: Path) -> None:
     # Pass formatting_info=True to get the merged cells
     xls = xlrd.open_workbook(path, formatting_info=True)
     for sheet in xls.sheets():
@@ -174,7 +174,7 @@ def parse_excel(context: Context, path: Path):
             parse_row(context, headers, row, is_active)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     doc = context.fetch_html(context.data_url, absolute_links=True)
     xpath = ".//div[@class='local-list']//div[@class='file'][.//em[@class='icon-xlsx-file-extension-interface-symbol']]//a[contains(@href, 'DownloadFile')]"
     link = h.xpath_element(

@@ -5,7 +5,7 @@ from zavod import Context, helpers as h
 from zavod.extract import zyte_api
 
 
-def crawl_item(row: dict[str, str], context: Context) -> None:
+def crawl_item(row: dict[str, str | None], context: Context) -> None:
     name = row.pop("provider_name")
     npi = row.pop("npi")
     if not name:
@@ -35,9 +35,12 @@ def crawl_item(row: dict[str, str], context: Context) -> None:
 def crawl_excel_url(context: Context) -> str:
     file_xpath = ".//*[@about='/provider-termination']"
     doc = zyte_api.fetch_html(context, context.data_url, file_xpath)
-    for a in doc.find(file_xpath).xpath(".//a"):
-        if "Terminated Provider List" in a.text_content():
-            return a.get("href")
+    section = h.xpath_element(doc, file_xpath)
+    for a in h.xpath_elements(section, ".//a"):
+        if "Terminated Provider List" in h.element_text(a):
+            href = a.get("href")
+            assert href is not None
+            return href
 
     raise RuntimeError("No link to excel file found")
 

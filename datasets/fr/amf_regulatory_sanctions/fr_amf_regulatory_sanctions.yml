@@ -409,6 +409,10 @@ lookups:
       - match: "Société Bourse Direct et de"
         entities:
           - Bourse Direct
+      - match: "La société Bourse Direct<br /> Mme Catherine Nini"
+        entities:
+          - Bourse Direct
+          - Catherine Nini
       - match: "Sociétés Safetic, HSBC France et Arkeon Finance et de"
         entities:
           - Safetic
@@ -1059,3 +1063,7 @@ lookups:
           - Kerdiz Finance et Conseil
           - Marc Peuvrier
           - Anthony Finck
+      - match: "MM. Ytane Mamou et Elie Houri"
+        entities:
+          - Ytane Mamou
+          - Elie Houri

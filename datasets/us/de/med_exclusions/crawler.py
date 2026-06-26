@@ -12,8 +12,8 @@ REGEX_AKA = re.compile(r"\baka\b|a\.k\.a\.?", re.IGNORECASE)
 REGEX_JOB_ROLE = re.compile(r"^(?P<name>.+)[,\s]+(?P<role>([A-Z\.,/-]+|\([^\)]+\)))$")
 
 
-def crawl_item(row: dict[str, str], context: Context) -> None:
-    raw_name = squash_spaces(row.pop("sanctioned_provider_name"))
+def crawl_item(row: dict[str, str | None], context: Context) -> None:
+    raw_name = squash_spaces(row.pop("sanctioned_provider_name") or "")
     npi = row.pop("npi")
     # Skip empty rows
     if raw_name == "" and npi == "":
@@ -47,6 +47,7 @@ def crawl_item(row: dict[str, str], context: Context) -> None:
 
     # Deal with sometimes intentional line breaks, and sometimes unwanted wrapping:
     license_numbers = row.pop("license")
+    assert license_numbers is not None
     license_numbers = re.sub(
         r"PROMISe", ";PROMISe", license_numbers, flags=re.IGNORECASE
     )
@@ -67,8 +68,11 @@ def crawl_item(row: dict[str, str], context: Context) -> None:
             entity.add("idNumber", squash_spaces(license_num))
 
     sanction = h.make_sanction(context, entity)
-    sanction.add("description", squash_spaces(row.pop("comments")))
-    sanction.set("authority", squash_spaces(row.pop("oig_medicaid_sanction")))
+    assert (comments := row.pop("comments")) is not None
+    sanction.add("description", squash_spaces(comments))
+    assert (authority := row.pop("oig_medicaid_sanction")) is not None
+    sanction.set("authority", squash_spaces(authority))
+
     h.apply_date(sanction, "startDate", row.pop("effective_date"))
     reinstated_date = row.pop("reinstated_date")
     h.apply_date(sanction, "endDate", reinstated_date)

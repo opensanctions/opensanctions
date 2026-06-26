@@ -13,6 +13,7 @@ summary: >
   These data sources are only partially imported where a link to an existing
   entity of interest can be found.
 children:
+  - brightquery
   - ext_abuja_mou_psc
   - ext_ba_companies
   - ext_cy_companies
@@ -24,6 +25,7 @@ children:
   - ext_ge_company_registry
   - ext_gleif
   - ext_icij_offshoreleaks
+  - ext_iso9362_bic
   - ext_kz_companies
   - ext_lv_business_register
   - ext_md_companies
@@ -31,10 +33,10 @@ children:
   - ext_ru_egrul
   - ext_tokyo_mou_psc
   - ext_ua_edr
+  - ext_us_cms_npi
   - ext_us_irs_ffi
   - ext_us_ofac_press_releases
   - opencorporates
   - openfigi
   - permid
   - wikidata
-  - brightquery

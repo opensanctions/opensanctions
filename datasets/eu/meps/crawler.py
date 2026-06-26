@@ -2,9 +2,11 @@ from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
 from zavod.stateful.positions import PositionCategorisation, categorise
+from zavod.util import Element
 
 
-def split_name(name):
+def split_name(name: str) -> tuple[str, str] | tuple[None, None]:
+    """Returns (first_name, last_name), or (None, None) if no uppercase suffix found."""
     for i in range(len(name)):
         last_name = name[i:].strip()
         if last_name == last_name.upper():
@@ -15,14 +17,18 @@ def split_name(name):
 
 
 def crawl_node(
-    context: Context, node, position: Entity, categorisation: PositionCategorisation
-):
+    context: Context,
+    node: Element,
+    position: Entity,
+    categorisation: PositionCategorisation,
+) -> None:
     mep_id = node.findtext(".//id")
     person = context.make("Person")
     person.id = context.make_slug(mep_id)
     url = "http://www.europarl.europa.eu/meps/en/%s" % mep_id
     person.add("sourceUrl", url)
     name = node.findtext(".//fullName")
+    assert name is not None
     person.add("name", name)
     first_name, last_name = split_name(name)
     person.add("firstName", first_name)
@@ -31,10 +37,14 @@ def crawl_node(
     person.add("topics", "role.pep")
 
     occupancy = h.make_occupancy(
-        context, person, position, categorisation=categorisation
+        context,
+        person,
+        position,
+        categorisation=categorisation,
     )
+    if occupancy is not None:
+        context.emit(occupancy)
 
-    context.emit(occupancy)
     context.emit(person)
 
     party_name = node.findtext(".//nationalPoliticalGroup")
@@ -65,7 +75,7 @@ def crawl_node(
         context.emit(membership)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     path = context.fetch_resource("source.xml", context.data_url)
     context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)
     doc = context.parse_resource_xml(path)
@@ -76,7 +86,7 @@ def crawl(context: Context):
         country="eu",
         topics=["gov.igo", "gov.legislative"],
     )
-    categorisation = categorise(context, position, True)
+    categorisation = categorise(context, position, default_is_pep=True)
     context.emit(position)
     for node in doc.findall(".//mep"):
         crawl_node(context, node, position, categorisation)

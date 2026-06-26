@@ -1,0 +1,65 @@
+title: Philippines GPPB Consolidated Blacklisting Report
+entry_point: crawler.py
+prefix: ph-gppb
+coverage:
+  frequency: daily
+  start: 2026-06-25
+load_statements: true
+ci_test: true
+summary: >-
+  Companies debarred from Philippine government procurement by the
+  Government Procurement Policy Board (GPPB).
+
+description: |
+  The Consolidated Blacklisting Report (CBR) lists entities that have been
+  debarred from participating in Philippine government procurement under
+  the country's procurement law — Republic Act 9184 (Government Procurement
+  Reform Act), repealed and replaced by Republic Act 12009 (New Government
+  Procurement Act) effective August 2024; entries issued before then were
+  made under RA 9184. Entities are debarred for offenses such as failure
+  to comply with contractual obligations, unsatisfactory progress, or submission
+  of falsified documents.
+
+  Debarment periods are typically one year (first offense) or two years
+  (second offense). Permanent debarment may apply in specific cases. Entities
+  are automatically delisted at the end of the period unless removed earlier
+  by a lawful order.
+url: https://onlineblacklistingportal.gppb.gov.ph/
+
+publisher:
+  name: Government Procurement Policy Board
+  acronym: GPPB
+  description: >
+    The GPPB is the single policy-making body on public procurement in the
+    Philippines, created under Republic Act 9184. It oversees procurement
+    rules, blacklisting, and compliance.
+  country: ph
+  url: https://www.gppb.gov.ph
+  official: true
+
+data:
+  url: https://onlineblacklistingportal.gppb.gov.ph/obp-backend/cbr/cbr_public/
+  format: JSON
+  lang: eng
+
+dates:
+  formats: ["%Y-%m-%d"]
+
+tags:
+  - list.debarment
+
+assertions:
+  min:
+    schema_entities:
+      Organization: 90
+    country_entities:
+      ph: 90
+  max:
+    schema_entities:
+      Organization: 250
+
+lookups:
+  type.name:
+    options:
+      - match: "453453"
+        value: null

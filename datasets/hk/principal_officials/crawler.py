@@ -1,15 +1,17 @@
 import re
 from normality import collapse_spaces
-from xml.etree import ElementTree
 
 from zavod import Context
 from zavod import helpers as h
 from zavod.stateful.positions import categorise
+from zavod.util import Element
 
 
-def get_element_text(doc: ElementTree, xpath_value: str, to_remove=[], position=0):
-    element_tag = doc.xpath(xpath_value)
-    element_text = element_tag[position].text_content() if element_tag else ""
+def get_element_text(
+    doc: Element, xpath_value: str, to_remove: list[str] = [], position: int = 0
+) -> str | None:
+    elements = h.xpath_elements(doc, xpath_value)
+    element_text = h.element_text(elements[position]) if elements else ""
 
     for string in to_remove:
         element_text = element_text.replace(string, "")
@@ -17,12 +19,14 @@ def get_element_text(doc: ElementTree, xpath_value: str, to_remove=[], position=
     return collapse_spaces(element_text.strip())
 
 
-def crawl_members(context: Context, section: str, elem: ElementTree):
+def crawl_members(context: Context, section: str, elem: Element) -> None:
     url = elem.get("href")
+    assert url is not None
 
     doc = context.fetch_html(url, cache_days=1)
 
     member_header = get_element_text(doc, '//h1[contains(@class,"title")]')
+    assert member_header is not None
     member_desc = get_element_text(doc, '//section[@class="blockItem"]')
 
     person_name = member_header.split(",")[0]
@@ -34,8 +38,10 @@ def crawl_members(context: Context, section: str, elem: ElementTree):
     person.add("name", person_name)
     person.add("title", person_title)
     person.add("summary", member_header)
-    person.add("description", member_desc)
+    person.add("biography", member_desc)
     person.add("sourceUrl", url)
+    # various positions
+    person.add("country", "hk")
 
     position_name = ",".join(member_header.split(",")[1:])
     position_name = re.sub(
@@ -55,19 +61,18 @@ def crawl_members(context: Context, section: str, elem: ElementTree):
         person,
         position,
         categorisation=categorisation,
-        no_end_implies_current=True,
     )
 
+    # assert added during typechecker fixes to not change behavior; may not reflect reality
+    assert occupancy is not None
     context.emit(person)
     context.emit(position)
     context.emit(occupancy)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     doc = context.fetch_html(context.data_url, cache_days=1, absolute_links=True)
-    for section in doc.xpath('//section[@class="blockItem"]'):
-        section_name = section.xpath("./h3")[0].text_content()
-        officials = section.xpath(".//p//a")
-
-        for elem in officials:
+    for section in h.xpath_elements(doc, '//section[@class="blockItem"]'):
+        section_name = h.element_text(h.xpath_element(section, "./h3"))
+        for elem in h.xpath_elements(section, ".//p//a"):
             crawl_members(context, section_name, elem)

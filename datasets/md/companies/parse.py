@@ -19,12 +19,12 @@ IGNORE_COLUMNS = [
     "Genuri de activitate nelicentiate",
     "Genuri de activitate licentiate",
 ]
-NONPROFITS_URL = "https://dataset.gov.md/dataset/18516-date-din-registrul-de-stat-al-unitatilor-de-drept-privind-organizatiile-necomerciale"
+NONPROFITS_URL = "https://dataset.gov.md/dataset/date-din-registrul-de-stat-al-unitatilor-de-drept-privind-organizatiile-necomerciale"
 LEGAL_ENTITIES_URL = "https://dataset.gov.md/ro/dataset/11736-date-din-registrul-de-stat-al-unitatilor-de-drept-privind-intreprinderile-inregistrate-in-repu"
 REGEX_CONTAINS_WORDS = re.compile(r"\w{2}")
 
 
-def read_ckan(context: Context, source_url, label) -> str:
+def read_ckan(context: Context, source_url: str, label: str) -> str:
     resource_list_doc = context.fetch_html(source_url)
 
     resource_item_els = list(
@@ -37,7 +37,9 @@ def read_ckan(context: Context, source_url, label) -> str:
     resource_detail_doc = context.fetch_html(resource_url)
 
     for action_anchor_el in resource_detail_doc.findall('.//div[@class="actions"]//a'):
-        return action_anchor_el.get("href")
+        href = action_anchor_el.get("href")
+        assert href is not None
+        return href
 
     raise RuntimeError("No data URL on data resource page!")
 
@@ -139,7 +141,7 @@ def parse_company(context: Context, data: Dict[str, Any]) -> None:
     name = data.pop("Denumirea completă")
     address = data.pop("Adresa")
     company = context.make("Company")
-    if idno is not None:
+    if idno is not None and str(idno).strip():
         company.id = f"oc-companies-md-{idno}"
     else:
         company.id = context.make_id(name, address)
@@ -153,8 +155,8 @@ def parse_company(context: Context, data: Dict[str, Any]) -> None:
         return
     company.add("name", name)
     company.add("taxNumber", idno)
-    company.add("incorporationDate", data.pop("Data înregistrării"))
-    company.add("dissolutionDate", data.pop("Data lichidării"))
+    h.apply_date(company, "incorporationDate", data.pop("Data înregistrării"))
+    h.apply_date(company, "dissolutionDate", data.pop("Data lichidării"))
     company.add("jurisdiction", "md")
     company.add("address", address)
     company.add("legalForm", data.pop("Forma org./jurid."))
@@ -183,11 +185,13 @@ def parse_companies(context: Context, book: Workbook) -> None:
             context.log.info("Read %d companies..." % idx)
 
 
-def parse_nonprofits(context, wb):
-    assert set(wb.sheetnames) == {wb.active.title}
+def parse_nonprofits(context: Context, wb: Workbook) -> None:
+    active_sheet = wb.active
+    assert active_sheet is not None
+    assert set(wb.sheetnames) == {active_sheet.title}
     for row in h.parse_xlsx_sheet(
         context,
-        wb["organizations"],
+        wb["O.N."],
         skiprows=4,
         header_lookup=context.get_lookup("nonprofit_headers"),
     ):

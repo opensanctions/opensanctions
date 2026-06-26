@@ -84,6 +84,12 @@ lookups:
     options:
       - match: Regulation - EU - 2025/2618 - EN - EUR-Lex
         value: https://eur-lex.europa.eu/legal-content/EN/ALL/?uri=oj:L_202502618
+      - match: Regulation - EU - 2026/506 - EN - EUR-Lex
+        value: https://eur-lex.europa.eu/eli/reg/2026/506/oj/eng
+  type.date:
+    options:
+      - match: "#REF!"
+        value: null
   sanction.program:
     # in accordance with https://sanctionsmap.eu/#/main?search=%7B%22value%22:%22%22,%22searchType%22:%7B%7D%7D
     options:
@@ -198,3 +204,7 @@ lookups:
       # Zimbabwe
       - match: ZWE
         value: EU-ZWE
+  vessel_columns:
+    options:
+      - match: Vessel name at designation time
+        value: vessel_name

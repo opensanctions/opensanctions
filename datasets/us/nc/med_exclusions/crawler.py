@@ -4,7 +4,7 @@ from openpyxl import load_workbook
 from zavod import Context, helpers as h
 
 
-def crawl_item(row: dict[str, str], context: Context) -> None:
+def crawl_item(row: dict[str, str | None], context: Context) -> None:
     entity = context.make("LegalEntity")
     entity.id = context.make_id(
         row.get("excluded_entity"), row.get("npi_atypical_id_excluded")
@@ -58,5 +58,6 @@ def crawl(context: Context) -> None:
 
     wb = load_workbook(path, read_only=True)
 
+    assert wb.active is not None
     for item in h.parse_xlsx_sheet(context, wb.active, skiprows=6):
         crawl_item(item, context)

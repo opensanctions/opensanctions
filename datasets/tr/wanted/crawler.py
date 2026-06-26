@@ -1,6 +1,5 @@
 from zavod import Context
 from zavod import helpers as h
-from typing import Dict
 
 IGNORE_COLUMNS = [
     "ID",
@@ -26,7 +25,7 @@ def colour_en(colour: str) -> str:
     return COLOURS[colour]
 
 
-def crawl_row(context: Context, row: Dict[str, str]):
+def crawl_row(context: Context, row: dict[str, str]) -> None:
     person = context.make("Person")
 
     first_name = row.pop("Adi")
@@ -64,12 +63,13 @@ def crawl_row(context: Context, row: Dict[str, str]):
     context.audit_data(row, IGNORE_COLUMNS)
 
 
-def crawl(context):
+def crawl(context: Context) -> None:
     headers = {
         "Content-Length": "0",
         "Content-Type": "application/json",
     }
 
+    assert context.dataset.data is not None
     res = context.http.post(context.dataset.data.url, headers=headers)
     data = res.json()
     for key in data:

@@ -150,7 +150,11 @@ def crawl_category(state: CrawlState, category_crawl_spec: Dict[str, Any]) -> No
     position: Optional[Entity] = None
     if "name" in position_data:
         position = h.make_position(
-            state.context, **position_data, id_hash_prefix="wd-cat"
+            state.context,
+            **position_data,
+            # Our position specs in the metadata are always in English
+            lang="eng",
+            id_hash_prefix="wd-cat",
         )
 
     query_string = urlencode(query)
@@ -164,7 +168,9 @@ def crawl_category(state: CrawlState, category_crawl_spec: Dict[str, Any]) -> No
         if person_qid is None:
             continue
         if person_qid in state.exclusion_checks:
-            state.context.log.warning("Regression on exclusion found", qid=person_qid)
+            state.context.log.warning(
+                "Regression on exclusion found", category=cat, qid=person_qid
+            )
             continue
         state.persons[person_qid].from_categories.add(cat)
 
@@ -280,11 +286,13 @@ def crawl_persons(state: CrawlState) -> None:
         if not len(entity.countries):
             entity.add("country", state.person_countries.get(person_qid, []))
 
-        positions = state.person_positions.get(person_qid, [])
+        positions: set[Entity] = state.person_positions.get(person_qid, set())
         for position in positions:
             if position.id is None or position.id in state.ignore_positions:
                 continue
-            occupancy = h.make_occupancy(state.context, entity, position)
+            occupancy = h.make_occupancy(
+                state.context, entity, position, no_end_implies_current=False
+            )
             if occupancy is not None:
                 state.emit_position(position)
                 state.context.emit(occupancy)

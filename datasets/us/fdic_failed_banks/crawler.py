@@ -14,7 +14,7 @@ def clean_row(row: Dict[str, str]) -> Dict[str, str]:
     }
 
 
-def crawl_row(context: Context, row: Dict[str, str]):
+def crawl_row(context: Context, row: Dict[str, str]) -> None:
     row = clean_row(row)  # Clean the row before processing
 
     # Ensure the row contains necessary data
@@ -70,7 +70,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     # context.log.info(f"Emitted entity for bank: {bank_name}")
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     context.log.info("Fetching data from FDIC Failed Bank List")
 
     # Fetch the CSV file from the source URL

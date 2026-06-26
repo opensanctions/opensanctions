@@ -53,8 +53,6 @@ def crawl_person(context: Context, mdb: etree._Element, position: Entity) -> Non
             # MDBWP: Mitglied des Bundestags (MoP) Wahlperiode (term):
             start_date=period.findtext("./MDBWP_VON"),
             end_date=period.findtext("./MDBWP_BIS"),
-            birth_date=mdb.findtext(".//GEBURTSDATUM"),
-            propagate_country=True,
         )
         if occupancy is not None:
             has_occupancy = True

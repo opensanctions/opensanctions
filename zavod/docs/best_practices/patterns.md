@@ -66,11 +66,20 @@ for name in h.multi_split(names, SPLITS):
     ruff check --fix --select I /path/to/crawler.py
     ```
 
-- Define and precompile regular expressions as constants at the top of the module.
+- Keep a value's meaning next to where it's used. Prefer inlining a literal at its single call site over hoisting it into a module-level constant referenced only once. A constant referenced once adds a hop: the reader hits `make_position(..., topics=TOPICS)` or a `COLUMNS = [...]` reference and has to scroll back to the top of the file to recover what is, in the end, a one-off literal.
 
-    ```python
-    REGEX_DETAILS = re.compile(r"your_regex_pattern_here")
-    ```
+    Declare a named constant only when it earns its keep:
+
+    - **Performance or correctness.** Precompile regular expressions as constants at the top of the module. They are compiled once and reused, so the constant pays for itself even at a single call site.
+
+        ```python
+        REGEX_DETAILS = re.compile(r"your_regex_pattern_here")
+        ```
+
+    - **Genuine reuse.** The value appears at two or more call sites, so a single source of truth keeps the copies from drifting apart.
+    - **Enumeration that is itself the data.** A mapping such as a `POSITIONS` dict that collects all the known cases in one table.
+
+    Otherwise, inline it. Single-use `TOPICS`, `COLUMNS`, header-name lists and the like read better as literals at the point of use.
 
 - When naming functions for data extraction or processing tasks, it's important to be specific and clear. For example, use `crawl_entity()` instead of a generic name like `process_data()`.
 
@@ -81,6 +90,22 @@ for name in h.multi_split(names, SPLITS):
 
     !!! note
         We typically use the `crawl_thing` convention (e.g., `crawl_person`, `crawl_row`, `crawl_index`) for functions that lead to entities being emitted (directly or via a nested `crawl_` function call).
+
+- Define helper functions at module level, not nested inside another function. Give the helper a clear, specific name and pass it what it needs as arguments rather than capturing values from the enclosing scope. A module-level function is easier to name, test, and read than a closure buried in a larger function.
+
+    ```python
+    # Avoid: a closure buried inside another function
+    def crawl(context):
+        def parse(row):
+            ...
+
+    # Prefer: a named function at module level
+    def parse_row(context, row):
+        ...
+
+    def crawl(context):
+        ...
+    ```
 
 - To improve readability and maintainability, break down deeply nested logic into smaller, focused functions.
 
@@ -121,14 +146,7 @@ for name in h.multi_split(names, SPLITS):
 
 ## Addresses
 
-When distinct address fields are available, use `h.make_address` to compose it, adding a country code if possible.
-
-Then use `h.copy_address` to add the full address to the entity's `address` property.
-
-    ```python
-    address_ent = h.make_address(context, full=addr, city=city, lang="zhu")
-    h.copy_address(entity, address_ent)
-    ```
+See the [addresses guide](addresses.md) for the full pattern, country handling, and the choice between `copy_address` and `apply_address`.
 
 ## Detect unhandled data
 
@@ -148,7 +166,7 @@ Instead, explicitly ignore them via `context.audit_data`:
 context.audit_data(row, ignore=["hair_colour", "skin_tone", "internal_ref"])
 ```
 
-If a field has a clear use case for commercial screening or geopolitical research users — and structured support for it would add real value — propose adding it to the FollowTheMoney schema by opening an issue or PR in the [FollowTheMoney repository](https://github.com/alephdata/followthemoney) with concrete examples from the source data.
+If a field has a clear use case for commercial screening or geopolitical research users — and structured support for it would add real value — propose adding it to the FollowTheMoney schema by opening an issue or PR in the [FollowTheMoney repository](https://github.com/opensanctions/followthemoney) with concrete examples from the source data.
 
 ## Logging and crawler feedback
 
@@ -190,25 +208,6 @@ assert position_name != "Socialdemokratiet"
 # Check for Non-None Position Name
 assert position_name is not None, entity.id
 ```
-
-## Generating consistent unique identifiers
-
-Make sure entity IDs are unique within the source. Avoid using only the name of the entity because there might eventually be two persons or two companies with the same name. [It is preferable](https://www.opensanctions.org/docs/identifiers) to have to deduplicate two Follow the Money entities for the same real world entity, rather than accidentally merge two entities.
-
-Good values to use as identifiers are:
-
-* An ID in the source dataset, e.g. a sanction number, company registration number. These can be turned into a readable ID with the dataset prefix using the [`context.make_slug`][zavod.context.Context.make_slug] function.
-* Some combination of consistent attributes, e.g. a person's name and normalised date of birth in a dataset that holds a relatively small proportion of the population so that duplicates are extremely unlikely. These attributes can be turned into a unique hash describing the entity using the [`context.make_id`][zavod.context.Context.make_id] function.
-* A combination of identifiers for the entities related by another entity, e.g. an
-  owner and a company, in the form `ownership.id = context.make_id(owner.id, "owns", company.id)`
-
-!!! note
-
-    Remember to make sure distinct sanctions, occupancies, positions, relationships, etc get distinct IDs.
-
-!!! note
-
-    Do not reveal personally-identifying information such as names, ID numbers, etc in IDs, e.g. via `context.make_slug`.
 
 ## Capture text in its original language
 

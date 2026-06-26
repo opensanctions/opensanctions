@@ -2,7 +2,7 @@ from lxml import html
 from rigour.mime.types import HTML
 from prefixdate import parse_format
 
-from zavod import Context
+from zavod import Context, Entity
 from zavod import helpers as h
 
 SECTIONS = {
@@ -13,18 +13,16 @@ SECTIONS = {
 }
 
 
-def parse_name(entity, text):
+def parse_name(entity: Entity, text: str) -> None:
     text = text.strip().rstrip("*")
     if "(" in text:
         text, akas = text.split("(", 1)
-        akas = akas.replace(")", "")
-        akas = akas.split(";")
-        entity.add("alias", akas)
+        entity.add("alias", akas.replace(")", "").split(";"))
     text = text.strip().rstrip("*")
     entity.add("name", text)
 
 
-def parse_russian_orgs(context: Context, entity, text):
+def parse_russian_orgs(context: Context, entity: Entity, text: str) -> None:
     while "," in text:
         text, section = text.rsplit(",", 1)
         fragment = section.strip()
@@ -45,7 +43,7 @@ def parse_russian_orgs(context: Context, entity, text):
     parse_name(entity, text)
 
 
-def parse_russian_persons(context: Context, entity, text):
+def parse_russian_persons(context: Context, entity: Entity, text: str) -> None:
     while "," in text:
         text, section = text.rsplit(",", 1)
         fragment = section.strip()
@@ -65,13 +63,13 @@ def parse_russian_persons(context: Context, entity, text):
     parse_name(entity, text)
 
 
-def parse_foreign_orgs(context, entity, text):
+def parse_foreign_orgs(context: Context, entity: Entity, text: str) -> None:
     while text.endswith(","):
         text = text.rstrip(",").strip()
     parse_name(entity, text)
 
 
-def parse_foreign_persons(context: Context, entity, text):
+def parse_foreign_persons(context: Context, entity: Entity, text: str) -> None:
     while "," in text:
         text, section = text.rsplit(",", 1)
         fragment = section.strip()
@@ -85,7 +83,7 @@ def parse_foreign_persons(context: Context, entity, text):
     parse_name(entity, text)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     path = context.fetch_resource("source.html", context.data_url)
     context.export_resource(path, HTML, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:

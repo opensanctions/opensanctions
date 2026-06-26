@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple, cast
 
 from lxml import html, etree
+from normality import predict_encoding
 from requests import Session
 from requests.adapters import HTTPAdapter
 from urllib3 import Retry
@@ -165,6 +166,8 @@ class ZyteAPIRequest:
     geolocation: Optional[str] = None
     # Forces JavaScript execution on a browser request to be enabled
     javascript: Optional[bool] = None
+    # Cookies sent with the request, e.g. [{"name": "x", "value": "y", "domain": ".example.com"}]
+    request_cookies: Optional[List[Dict[str, Any]]] = None
     # Request that response cookies be included in the ZyteResult
     response_cookies: bool = False
 
@@ -243,6 +246,8 @@ def fetch(
         zyte_data["actions"] = zyte_request.actions
     if zyte_request.javascript is not None:
         zyte_data["javascript"] = zyte_request.javascript
+    if zyte_request.request_cookies is not None:
+        zyte_data["requestCookies"] = zyte_request.request_cookies
     if zyte_request.response_cookies:
         zyte_data["responseCookies"] = True
     zyte_data[zyte_request.scrape_type.value] = True
@@ -279,7 +284,12 @@ def fetch(
     )
     if zyte_request.scrape_type == ZyteScrapeType.HTTP_RESPONSE_BODY:
         b64_text = b64decode(text)
-        text = b64_text.decode(charset) if charset is not None else b64_text.decode()
+        # The Content-Type header often omits the charset, leaving the encoding
+        # declared only in an HTML <meta> tag (e.g. legacy windows-1257 pages).
+        # Assuming UTF-8 then raises on the first non-ASCII byte, so detect the
+        # encoding from the bytes when the header doesn't state it.
+        encoding = charset if charset is not None else predict_encoding(b64_text)
+        text = b64_text.decode(encoding)
 
     cookies = (
         api_response.json().get("responseCookies")
@@ -414,6 +424,7 @@ def fetch_html(
     html_source: str = "browserHtml",
     javascript: Optional[bool] = None,
     geolocation: Optional[str] = None,
+    request_cookies: Optional[List[Dict[str, Any]]] = None,
     cache_days: Optional[int] = None,
     retries: int = 3,
     backoff_factor: int = 3,
@@ -444,6 +455,7 @@ def fetch_html(
             geolocation=geolocation,
             actions=actions,
             javascript=javascript,
+            request_cookies=request_cookies,
         ),
         cache_days=cache_days,
     )
@@ -474,6 +486,7 @@ def fetch_html(
                 actions,
                 html_source=html_source,
                 javascript=javascript,
+                request_cookies=request_cookies,
                 cache_days=cache_days,
                 retries=retries,
                 backoff_factor=backoff_factor,

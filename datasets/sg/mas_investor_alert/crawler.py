@@ -1,11 +1,13 @@
 import itertools
 import json
 from collections import namedtuple
+from typing import Any
 
 from rigour.mime.types import JSON
 from followthemoney.types import registry
 
 from zavod import Context, helpers as h
+from zavod.entity import Entity
 
 
 IGNORE = [
@@ -17,8 +19,10 @@ OWNERSHIP_KEYWORDS = ["owned ", "managed ", "operates ", "operated "]
 WEBSITE_KEYWORDS = [".com", ".net", ".org", "https:", "http:", "www.", ".sg", ".co"]
 
 
-def check_num_found(context, data):
-    num_found = data.get("response").get("numFound")
+def check_num_found(context: Context, data: dict[str, Any]) -> None:
+    response = data.get("response")
+    assert response is not None, "Response missing from data"
+    num_found = response.get("numFound")
     if num_found is None:
         context.log.warn("Response doesn't contain numFound field")
     else:
@@ -28,7 +32,9 @@ def check_num_found(context, data):
             )
 
 
-def emit_ownership(context, entity, owner_name, name):
+def emit_ownership(
+    context: Context, entity: Entity, owner_name: str, name: str
+) -> None:
     result = context.lookup("ownership", name)
     if result is not None:
         entity.add("name", result.entity_name)
@@ -49,7 +55,9 @@ def emit_ownership(context, entity, owner_name, name):
         context.log.warning(f'Name "{name}" needs to be remapped', value=name)
 
 
-def emit_relationship(context, entity, related_ids, root_seen_ids):
+def emit_relationship(
+    context: Context, entity: Entity, related_ids: list[str], root_seen_ids: set[str]
+) -> None:
     for rel_id in related_ids:
         if rel_id not in root_seen_ids:
             # The relations described here should have a peer at the root level, otherwise they are dangling.
@@ -67,7 +75,7 @@ def emit_relationship(context, entity, related_ids, root_seen_ids):
         context.emit(rel)
 
 
-def add_lookup_items(context, entity, name):
+def add_lookup_items(context: Context, entity: Entity, name: str) -> None:
     res = context.lookup("names", name)
     if res:
         # This lookup may return either a 'name', a 'website', or both.
@@ -82,7 +90,7 @@ CrawlItemResult = namedtuple(
 )
 
 
-def crawl_item(context: Context, item: dict) -> CrawlItemResult:
+def crawl_item(context: Context, item: dict[str, Any]) -> CrawlItemResult:
     id = item.pop("id")
 
     relatedunregulatedpersonsid_s = item.pop("relatedunregulatedpersonsid_s")
@@ -125,7 +133,7 @@ def crawl_item(context: Context, item: dict) -> CrawlItemResult:
     return CrawlItemResult(entity=entity, source_id=id, related_source_ids=related_ids)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     path = context.fetch_resource("source.json", context.data_url)
     context.export_resource(path, JSON, title=context.SOURCE_TITLE)
     with open(path, "r", encoding="utf-8") as fh:

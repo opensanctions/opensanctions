@@ -1,0 +1,57 @@
+title: UK House of Commons
+entry_point: crawler.py
+prefix: gb-commons
+coverage:
+  frequency: monthly
+  start: 2026-06-11
+load_statements: true
+ci_test: true
+
+summary: >-
+  Current and historical Members of Parliament sitting in the House of Commons of the
+  United Kingdom.
+
+description: |
+  Current and historical members of the House of Commons, the elected lower house of the Parliament of the
+  United Kingdom. Members of Parliament (MPs) are elected to represent
+  geographic constituencies.
+
+  This dataset is sourced from the official UK Parliament Members API, which
+  publishes the roster of current MPs along with their party affiliation,
+  constituency and the date they entered the House.
+url: https://members-api.parliament.uk/
+
+publisher:
+  name: UK Parliament
+  description: >
+    The Parliament of the United Kingdom is the supreme legislative body of the
+    United Kingdom. It comprises the Sovereign, the House of Lords and the House
+    of Commons.
+  url: https://www.parliament.uk/
+  country: gb
+  official: true
+
+data:
+  url: https://members-api.parliament.uk/api/Members/Search?House=Commons
+  format: JSON
+  lang: eng
+
+tags:
+  - list.pep
+
+lookups:
+  type.gender:
+    normalize: true
+    options:
+      - match: F
+        value: female
+      - match: M
+        value: male
+
+assertions:
+  min:
+    schema_entities:
+      Person: 770
+  max:
+    schema_entities:
+      Person: 1500

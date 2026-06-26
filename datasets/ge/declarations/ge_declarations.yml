@@ -46,12 +46,12 @@ dates:
 assertions:
   min:
     schema_entities:
-      Person: 1000
+      Person: 1800
     country_entities:
       ge: 1
   max:
     schema_entities:
-      Person: 2000
+      Person: 2500
 
 lookups:
   type.name:

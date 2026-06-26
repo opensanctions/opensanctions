@@ -1,0 +1,70 @@
+title: Australia Parliament of South Australia
+name: au_sa_parliament
+prefix: au-saparl
+entry_point: crawler.py
+coverage:
+  frequency: weekly
+  start: "2026-06-16"
+load_statements: true
+
+summary: >-
+  Current members of both houses of the Parliament of South Australia.
+
+description: |
+  The Parliament of South Australia is the bicameral state legislature of South
+  Australia. This dataset covers the current members of both chambers:
+
+  - The House of Assembly (lower house), with 47 members each representing a
+    single-member electorate.
+  - The Legislative Council (upper house), with 22 members serving 8-year
+    staggered terms, elected statewide by proportional representation.
+
+  Members are sourced from the Parliament's official member-search API, and
+  ministerial and presiding-officer roles are captured as positions.
+
+url: https://www.parliament.sa.gov.au/Members/Member-Details
+
+publisher:
+  name: Parliament of South Australia
+  acronym: SA Parliament
+  description: >
+    The bicameral state legislature of South Australia, comprising the House of
+    Assembly and the Legislative Council.
+  url: https://www.parliament.sa.gov.au/
+  country: au
+  official: true
+
+data:
+  url: https://membersapp.parliament.sa.gov.au/api/members
+  format: JSON
+  lang: eng
+
+dates:
+  formats: ["%b %d %Y", "%Y-%m-%d"]
+
+tags:
+  - list.pep
+
+# The site returns 403 to the default zavod user agent; a browser UA
+# (transparently suffixed) is accepted.
+http:
+  user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36 (zavod; opensanctions.org)"
+
+assertions:
+  min:
+    schema_entities:
+      Person: 55
+      Position: 2
+    country_entities:
+      au: 55
+  max:
+    schema_entities:
+      Person: 105
+      Position: 2
+
+lookups:
+  type.string:
+    options:
+      # Not a party — flags members who have represented more than one over time.
+      - match: "Represented multiple parties"
+        value: null

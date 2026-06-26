@@ -1,23 +1,38 @@
 from typing import Dict, Any
 
+from requests.exceptions import HTTPError
+
 from zavod import Context, helpers as h
 from zavod.stateful.positions import categorise
 
 
 IGNORE = [
+    # Name composed from the parts above.
     "fullName",
+    # Declaration-filing records (private, canOpen=false) and metadata about
+    # them - not biographical data about the official.
+    "statements",
+    "hasPoint3",
+    "hasRequestStatement",
+    "hasSecretStatement",
+    # Visibility metadata for the declaration record (e.g. SECRET, REQUEST),
+    # mirroring the statement flags above - not biographical data.
+    "visibility",
+    # Whether the person currently holds any registered position.
     "active",
+    # Flattened, human-readable duplicates of workingPositions[].
     "concatenatedWorkingPositions",
     "concatenatedWorkingPositionDates",
     "concatenatedWorkingPositionOrganizations",
+    "workingFrom",
+    "workingTo",
+    # Person-level summary flags; the per-position deputy/senator flags inside
+    # workingPositions[].workingPosition are used instead.
     "deputy",
     "senator",
     "deputyAndOthers",
     "senatorAndOthers",
-    "workingFrom",
-    "workingTo",
     "judge",
-    "visibility",
     "government",
 ]
 
@@ -27,6 +42,10 @@ def crawl_person(context: Context, item: Dict[str, Any]) -> None:
     first_name = item.pop("firstName")
     last_name = item.pop("lastName")
     middle_name = item.pop("middleName", None)
+    # The source uses placeholder punctuation ("-", ";") in the middle name
+    # field to indicate the absence of a middle name; treat these as empty.
+    if middle_name is not None and middle_name.strip() in ("-", ";"):
+        middle_name = None
 
     entity = context.make("Person")
     entity.id = context.make_id(person_id)
@@ -62,10 +81,11 @@ def crawl_person(context: Context, item: Dict[str, Any]) -> None:
             name=position_name,
             country="cz",
             lang="ces",
+            translate_name=True,
         )
         entity.add("position", position_name)
 
-        categorisation = categorise(context, position, is_pep=is_pep)
+        categorisation = categorise(context, position, default_is_pep=is_pep)
         if not categorisation.is_pep:
             continue
 
@@ -102,6 +122,28 @@ def crawl(context: Context) -> None:
             break
 
         for item in items:
-            crawl_person(context, item)
+            # The list endpoint only returns flattened summary fields; the
+            # structured workingPositions array lives on the detail endpoint.
+            detail_url = f"{context.data_url}/{item['id']}"
+
+            # As of 2024-06-17, one detail page returns a 404 despite being listed in the
+            # declaration list for a few days.
+            # https://cro.gov.cz/verejnost/api/funkcionari/5a7e5a80-6a0e-493a-9d79-ca7ffef33778
+            # 'concatenatedWorkingPositionOrganizations': 'Obec Laškov'
+            # 'concatenatedWorkingPositions': 'starosta'
+            # 'concatenatedWorkingPositionDates': '07. 11. 2014 - 31. 10. 2018'
+            # There's nothing in the list data indicating when to skip, so skip on 404
+            # and rely on min assertion for this not to hide a bug resulting in us
+            # skipping everyone.
+
+            try:
+                detail = context.fetch_json(detail_url, cache_days=14)
+                assert detail is not None, "Expected JSON response"
+                crawl_person(context, detail)
+            except HTTPError as e:
+                if e.response.status_code == 404:
+                    context.log.info("Failed to fetch detail", item=item, error=e)
+                else:
+                    raise
 
         page += 1

@@ -1,9 +1,11 @@
 from datetime import datetime, timedelta
+from typing import Iterator
 from zavod import Context
 from zavod.shed.firds import parse_xml_file, latest_full_set
 
 
-def get_recent_full_dump_urls(context: Context):
+def get_recent_full_dump_urls(context: Context) -> Iterator[tuple[str, str]]:
+    """Yields (file_name, download_link) for the most recent full FIRDS dump."""
     from_date = (datetime.now() - timedelta(days=30)).isoformat()[:10]
     to_date = datetime.now().isoformat()[:10]
     query = {

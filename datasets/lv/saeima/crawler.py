@@ -20,6 +20,8 @@ def crawl_item(context: Context, unid: str) -> None:
     entity = context.make("Person")
     entity.id = context.make_slug(full_name)
     h.apply_name(entity, full_name)
+    # citizenship required (Art 9): https://likumi.lv/ta/en/id/57980-the-constitution-of-the-republic-of-latvia
+    entity.add("citizenship", "lv")
 
     entity.add("sourceUrl", member_url)
 
@@ -42,7 +44,7 @@ def crawl_item(context: Context, unid: str) -> None:
     entity.add("email", h.element_text(email_el))
 
     position = h.make_position(context, "deputy of Saeima", country="lv")
-    categorisation = categorise(context, position, is_pep=True)
+    categorisation = categorise(context, position, default_is_pep=True)
 
     occupancy = h.make_occupancy(
         context,

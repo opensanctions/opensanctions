@@ -8,7 +8,7 @@ from zavod import helpers as h
 CAATSA_URL = "https://prod-upp-image-read.ft.com/40911a30-057c-11e8-9650-9c0ad2d7c5b5"
 
 
-def crawl_row(context: Context, row: Dict[str, str]):
+def crawl_row(context: Context, row: Dict[str, str]) -> None:
     qid_raw = row.get("qid", "").strip()
     qid = h.deref_wikidata_id(context, qid_raw)
     if qid is None:
@@ -28,7 +28,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     context.emit(entity)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     path = context.fetch_resource("source.csv", context.data_url)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
