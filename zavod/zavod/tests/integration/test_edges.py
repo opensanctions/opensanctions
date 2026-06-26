@@ -5,7 +5,7 @@ from nomenklatura import Resolver, Store
 from nomenklatura.store import SimpleMemoryStore
 
 from zavod.entity import Entity
-from zavod.integration.edges import dedupe_edges, get_vertices
+from zavod.integration.edges import dedupe_edges
 from zavod.meta.dataset import Dataset
 
 
@@ -112,7 +112,6 @@ def test_multi_ended_edges_are_skipped(store: Store, resolver: Resolver):
     )
     add_entities(store, [entity1, entity2])
 
-    assert get_vertices(entity1) is None
     dedupe_edges(resolver, store.default_view())
     assert_not_merged(resolver, "e1", "e2")
 
