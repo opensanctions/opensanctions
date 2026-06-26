@@ -1,0 +1,71 @@
+title: Oman Council (Majlis Oman)
+entry_point: crawler.py
+prefix: om-pa
+coverage:
+  frequency: weekly
+  start: 2026-06-26
+load_statements: true
+ci_test: false
+summary: >-
+  Members of the Consultative Assembly (Majlis A'Shura) and the State Council (Majlis al-Dawla).
+description: |
+  The Council of Oman (Majlis Oman) is the bicameral legislature of the Sultanate.
+  It comprises the Consultative Assembly (Majlis A'Shura), the elected lower house,
+  and the State Council (Majlis al-Dawla), the appointed upper house.
+
+  Both chambers publish their members on near-identical Kentico portals. The dataset
+  covers every legislative term the portals expose — the current term (2023-2027) as
+  well as the previous ones — so members are emitted as sitting or former depending on
+  their term, along with leadership roles (Chairman, Deputy Chairman) where the listing
+  flags them. Members who also hold a leadership office appear in the source listing
+  twice — once under their leadership title and once as an ordinary member — and are
+  merged into a single person here.
+url: https://www.shura.om/Member/Members
+publisher:
+  name: Majlis Oman
+  name_en: Council of Oman
+  description: >
+    Majlis Oman is the bicameral legislature of the Sultanate of Oman, established
+    under the Basic Statute of the State. It consists of the elected Consultative
+    Assembly (Majlis A'Shura) and the appointed State Council (Majlis al-Dawla).
+  url: https://www.shura.om/
+  country: om
+  official: true
+data:
+  url: https://www.shura.om/Member/Members
+  format: HTML
+  lang: eng
+
+# The chamber portals run on Kentico WebForms behind a frontend that intermittently
+# returns 503s under automated access and serves member listings via POST pagination.
+# Retry POST as well as GET, lean on a generous exponential backoff, and present a
+# browser-like user agent.
+http:
+  user_agent: "Mozilla/5.0 (compatible; OpenSanctions/3.0; +https://www.opensanctions.org)"
+  total_retries: 5
+  backoff_factor: 2.0
+  retry_methods:
+    - GET
+    - POST
+  retry_statuses:
+    - 413
+    - 429
+    - 500
+    - 502
+    - 503
+    - 504
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 400
+      Position: 2
+    country_entities:
+      om: 400
+  max:
+    schema_entities:
+      Person: 700
+      Position: 8
