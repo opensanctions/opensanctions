@@ -20,9 +20,6 @@ def get_download_url(context: Context) -> str:
 
 
 def crawl_item(context: Context, item: Dict[str, Any]) -> None:
-    # from pprint import pprint
-
-    # pprint(item)
     ror_uri = item.pop("id")
     entity = context.make("Organization")
     entity.id = context.make_slug(ror_uri.rsplit("/", 1)[-1])
