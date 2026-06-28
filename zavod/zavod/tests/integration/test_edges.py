@@ -248,6 +248,24 @@ def test_ambiguous_temporal_bridge_is_skipped(store: Store, resolver: Resolver):
     assert_not_merged(resolver, "e1", "e2", "e3")
 
 
+def test_ambiguous_bridge_does_not_block_unambiguous_merge(
+    store: Store, resolver: Resolver
+):
+    # An ambiguous bridge (2025 overlaps both exact dates) and a conflicting edge
+    # share a bucket with an identical, unambiguous pair. The bridge must not pull
+    # the unambiguous pair into a discarded group.
+    base = {"director": "a", "organization": "b", "role": "director"}
+    bridge = e(store.dataset, "Directorship", "bridge", "2025", None, base)
+    pair1 = e(store.dataset, "Directorship", "pair1", "2025-01-01", None, base)
+    pair2 = e(store.dataset, "Directorship", "pair2", "2025-01-01", None, base)
+    conflict = e(store.dataset, "Directorship", "conflict", "2025-12-31", None, base)
+    add_entities(store, [bridge, pair1, conflict, pair2])
+
+    dedupe_edges(resolver, store.default_view())
+    assert_merged(resolver, "pair1", "pair2")
+    assert_not_merged(resolver, "bridge", "conflict", "pair1")
+
+
 def test_protected_props_match_on_shared_normalized_value(
     store: Store, resolver: Resolver
 ):

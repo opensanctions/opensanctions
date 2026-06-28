@@ -15,9 +15,10 @@ as protected are ignored by omission.
 import calendar
 import re
 from collections import defaultdict
+from collections.abc import Iterable
 from dataclasses import dataclass
 from datetime import date
-from typing import Dict, Iterable, List, NamedTuple, Optional, Set, Tuple
+from typing import NamedTuple
 
 from nomenklatura import Resolver
 from nomenklatura.judgement import Judgement
@@ -47,11 +48,11 @@ class DateRange:
 
 @dataclass(frozen=True)
 class TemporalValues:
-    starts: Tuple[str, ...]
-    ends: Tuple[str, ...]
+    starts: tuple[str, ...]
+    ends: tuple[str, ...]
 
 
-PROTECTED_PROPS: Dict[str, List[str]] = {
+PROTECTED_PROPS: dict[str, list[str]] = {
     "Ownership": [
         "percentage",
         "sharesCount",
@@ -70,7 +71,7 @@ PROTECTED_PROPS: Dict[str, List[str]] = {
 }
 
 
-def bucket_key(entity: Entity) -> Optional[BucketKey]:
+def bucket_key(entity: Entity) -> BucketKey | None:
     """Build the conservative candidate bucket for an edge.
 
     Edges are only compared inside exact-schema endpoint buckets. This prevents
@@ -112,8 +113,8 @@ def temporal_values(entity: Entity) -> TemporalValues:
     inconsistently; values are compared as start evidence or end evidence without
     preserving the original property name.
     """
-    starts: List[str] = []
-    ends: List[str] = []
+    starts: list[str] = []
+    ends: list[str] = []
     for prop in entity.schema.temporal_start_props:
         starts.extend(entity.get(prop.name))
     for prop in entity.schema.temporal_end_props:
@@ -121,7 +122,7 @@ def temporal_values(entity: Entity) -> TemporalValues:
     return TemporalValues(tuple(sorted(set(starts))), tuple(sorted(set(ends))))
 
 
-def parse_partial_iso_date(value: str) -> Optional[DateRange]:
+def parse_partial_iso_date(value: str) -> DateRange | None:
     """Parse a partial ISO date into the range it can represent.
 
     Use this for temporal compatibility so `2025` can match a more precise date
@@ -190,28 +191,33 @@ def pair_temporally_compatible(left: Entity, right: Entity) -> bool:
     ) and dates_compatible(left_values.ends, right_values.ends)
 
 
-def connected_components(nodes: Set[str], edges: Dict[str, Set[str]]) -> List[Set[str]]:
-    """Find connected components in a small compatibility graph."""
-    components: List[Set[str]] = []
-    seen: Set[str] = set()
+def connected_components(nodes: set[str], edges: dict[str, set[str]]) -> list[set[str]]:
+    """Find connected components in the subgraph induced by ``nodes``.
+
+    Traversal stays inside ``nodes``: adjacency to any node outside the set is
+    ignored. This matters when callers have already removed nodes (such as
+    ambiguous temporal bridges) but pass the unfiltered adjacency map.
+    """
+    components: list[set[str]] = []
+    seen: set[str] = set()
     for node in sorted(nodes):
         if node in seen:
             continue
         stack = [node]
-        component: Set[str] = set()
+        component: set[str] = set()
         while stack:
             current = stack.pop()
             if current in component:
                 continue
             component.add(current)
-            stack.extend(edges[current] - component)
+            stack.extend((edges[current] & nodes) - component)
         seen.update(component)
         components.append(component)
     return components
 
 
 def is_pairwise_compatible(
-    group: Iterable[str], compatible: Dict[str, Set[str]]
+    group: Iterable[str], compatible: dict[str, set[str]]
 ) -> bool:
     """Check that every member of a candidate group is compatible with every other."""
     ids = list(group)
@@ -222,7 +228,7 @@ def is_pairwise_compatible(
     return True
 
 
-def temporal_candidate_groups(entities: List[Entity]) -> List[List[Entity]]:
+def temporal_candidate_groups(entities: list[Entity]) -> list[list[Entity]]:
     """Emit unambiguous temporal candidate groups from one endpoint/schema bucket.
 
     This prevents a vague edge, such as `2025`, from arbitrarily merging into one
@@ -233,8 +239,8 @@ def temporal_candidate_groups(entities: List[Entity]) -> List[List[Entity]]:
 
     entity_by_id = {entity.id: entity for entity in entities if entity.id is not None}
     ids = set(entity_by_id)
-    compatible: Dict[str, Set[str]] = {id_: set() for id_ in ids}
-    incompatible: Dict[str, Set[str]] = {id_: set() for id_ in ids}
+    compatible: dict[str, set[str]] = {id_: set() for id_ in ids}
+    incompatible: dict[str, set[str]] = {id_: set() for id_ in ids}
 
     sorted_ids = sorted(ids)
     for idx, left_id in enumerate(sorted_ids):
@@ -248,7 +254,7 @@ def temporal_candidate_groups(entities: List[Entity]) -> List[List[Entity]]:
                 incompatible[left_id].add(right_id)
                 incompatible[right_id].add(left_id)
 
-    ambiguous: Set[str] = set()
+    ambiguous: set[str] = set()
     for id_ in ids:
         neighbors = sorted(compatible[id_])
         for idx, left_id in enumerate(neighbors):
@@ -259,7 +265,7 @@ def temporal_candidate_groups(entities: List[Entity]) -> List[List[Entity]]:
             if id_ in ambiguous:
                 break
 
-    candidates: List[List[Entity]] = []
+    candidates: list[list[Entity]] = []
     remaining = ids - ambiguous
     for component in connected_components(remaining, compatible):
         if len(component) < 2:
@@ -271,7 +277,7 @@ def temporal_candidate_groups(entities: List[Entity]) -> List[List[Entity]]:
     return candidates
 
 
-def schema_protected_props(entity: Entity) -> List[str]:
+def schema_protected_props(entity: Entity) -> list[str]:
     """Return the protected properties for the edge's most specific configured schema."""
     for schema_name, props in PROTECTED_PROPS.items():
         if entity.schema.is_a(schema_name):
@@ -279,9 +285,9 @@ def schema_protected_props(entity: Entity) -> List[str]:
     return []
 
 
-def protected_values(entity: Entity, prop: str) -> Set[str]:
+def protected_values(entity: Entity, prop: str) -> set[str]:
     """Return normalized values for a protected property."""
-    values: Set[str] = set()
+    values: set[str] = set()
     for value in entity.get(prop):
         normalized = slugify(value)
         if normalized is not None:
@@ -289,14 +295,14 @@ def protected_values(entity: Entity, prop: str) -> Set[str]:
     return values
 
 
-def value_sets_compatible(left: Set[str], right: Set[str]) -> bool:
+def value_sets_compatible(left: set[str], right: set[str]) -> bool:
     """Check protected-value compatibility using empty-as-wildcard semantics."""
     if not left or not right:
         return True
     return bool(left.intersection(right))
 
 
-def props_compatible(entities: List[Entity]) -> bool:
+def props_compatible(entities: list[Entity]) -> bool:
     """Reject a temporal candidate group if any protected property conflicts."""
     if not entities:
         return False
@@ -312,10 +318,10 @@ def props_compatible(entities: List[Entity]) -> bool:
     return True
 
 
-def group_edges(resolver: Resolver[Entity], view: View) -> List[List[str]]:
+def group_edges(view: View) -> list[list[str]]:
     """Group edge IDs that should become positive resolver decisions."""
-    buckets: Dict[BucketKey, List[Entity]] = defaultdict(list)
-    groups: List[List[str]] = []
+    buckets: dict[BucketKey, list[Entity]] = defaultdict(list)
+    groups: list[list[str]] = []
 
     for idx, entity in enumerate(view.entities()):
         if idx > 0 and idx % 100000 == 0:
@@ -336,12 +342,12 @@ def group_edges(resolver: Resolver[Entity], view: View) -> List[List[str]]:
 
 
 def merge_groups(
-    resolver: Resolver[Entity], view: View, groups: List[List[str]]
+    resolver: Resolver[Entity], view: View, groups: list[list[str]]
 ) -> None:
     """Write positive resolver decisions for deduped edge groups."""
     merged_count = 0
     cluster_count = 0
-    dataset_counts: Dict[str, int] = defaultdict(int)
+    dataset_counts: dict[str, int] = defaultdict(int)
 
     for values in groups:
         if len(values) == 1:
@@ -382,5 +388,5 @@ def merge_groups(
 
 def dedupe_edges(resolver: Resolver[Entity], view: View) -> None:
     """Deduplicate edge entities from a store view into resolver decisions."""
-    groups = group_edges(resolver, view)
+    groups = group_edges(view)
     merge_groups(resolver, view, groups)
