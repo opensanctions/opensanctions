@@ -6,10 +6,12 @@ can appear several times with slightly different dates or provenance fields. Thi
 module creates positive resolver decisions for edge fragments that describe the
 same relationship fact.
 
-The deduper is deliberately conservative: it first buckets by schema and graph
-endpoints, then keeps only unambiguous temporal candidate groups, then rejects
-groups with schema-specific protected-property conflicts. Properties not listed
-as protected are ignored by omission.
+The deduper is deliberately conservative. It buckets edges by exact schema and
+directed or canonicalized endpoints, compares schema-declared start and end values
+as partial ISO date ranges, and removes vague temporal bridges that could join two
+incompatible groups. The remaining pairwise-compatible groups are merged only when
+their schema-specific protected properties do not conflict; unlisted properties
+are ignored by omission.
 """
 
 import calendar
