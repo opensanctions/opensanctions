@@ -105,9 +105,6 @@ def crawl_item(
         for br in positions.xpath(".//br"):
             br.tail = br.tail + "\n" if br.tail else "\n"
         entity.add("position", positions.text_content().split("\n"), lang="chi")
-    entity.add(
-        "description", delegation + " delegation" if delegation else None, lang="chi"
-    )
 
     position = h.make_position(
         context, "Member of the National People’s Congress", country="cn"
@@ -129,6 +126,11 @@ def crawl_item(
         entity.add("description", remarks, lang="chi")
 
     if occupancy:
+        # The delegation (代表团) is the unit the delegate is elected to
+        # represent in the NPC. It's usually a province/region, but sometimes
+        # the military (解放军和武警部队), so stuffing it into constituency -
+        # defined as a geographic area - is somewhat of a misuse of the field.
+        occupancy.add("constituency", delegation, lang="chi")
         context.emit(position)
         context.emit(entity)
         context.emit(occupancy)
