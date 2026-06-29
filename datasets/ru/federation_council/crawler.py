@@ -1,13 +1,10 @@
+import re
 from lxml.html import HtmlElement
 
-from zavod import Context
-from zavod import helpers as h
+from zavod import Context, helpers as h
 from zavod.entity import Entity
 from zavod.extract import zyte_api
 from zavod.stateful.positions import categorise
-
-BASE_URL = "http://council.gov.ru"
-EN_MEMBERS_URL = "http://council.gov.ru/en/structure/members/"
 
 
 def crawl_person(
@@ -92,17 +89,16 @@ def crawl(context: Context) -> None:
     )
     context.emit(position)
 
-    doc = context.fetch_html(EN_MEMBERS_URL, cache_days=1)
+    doc = context.fetch_html(context.data_url, cache_days=1)
     links = h.xpath_elements(doc, ".//a[contains(@href, '/structure/persons/')]")
-    if not links:
-        raise ValueError(
-            "No member links found on listing page — the site structure may have changed"
-        )
-    seen: set[str] = set()
+
+    publisher = context.dataset.model.publisher
+    assert publisher is not None and publisher.url is not None
+    base = publisher.url.rstrip("/")
+
     for link in links:
         href: str = link.get("href", "")
-        parts = [p for p in href.split("/") if p.isdigit()]
-        if not parts or parts[-1] in seen:
+        m = re.search(r"/structure/persons/(\d+)/", href)
+        if not m:
             continue
-        seen.add(parts[-1])
-        crawl_person(context, position, f"{BASE_URL}/en/structure/persons/{parts[-1]}/")
+        crawl_person(context, position, f"{base}/en/structure/persons/{m.group(1)}/")

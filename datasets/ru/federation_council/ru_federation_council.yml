@@ -11,9 +11,10 @@ summary: >-
   Members of the Federation Council, the upper chamber of the Federal Assembly of Russia.
 description: |
   The Federation Council (Совет Федерации) is the upper house of the Russian Federal
-  Assembly. Each of Russia's 89 federal subjects sends two senators — one appointed by the
-  regional executive and one by the regional legislature. The dataset covers current members
-  only, with start and end dates for each senator's individual term in office.
+  Assembly. Each of Russia's 89 federal subjects (including two annexed in 2014 and four more
+  in 2022, which are not recognized by the international community) sends two senators: one
+  appointed by the regional executive and one by the regional legislature. The dataset covers 
+  current members only, with start and end dates for each senator's individual term in office.
 url: http://council.gov.ru/en/structure/members/
 publisher:
   name: Federation Council of the Federal Assembly of the Russian Federation
