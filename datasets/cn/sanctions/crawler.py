@@ -1,12 +1,22 @@
 import csv
+import shutil
+from pathlib import Path
 
+from rigour.mime.types import CSV
 from zavod import Context
 from zavod import helpers as h
 
 
+LOCAL_PATH = Path(__file__).parent
+
+
 def crawl(context: Context) -> None:
-    source_file = context.fetch_resource("source.csv", context.data_url)
-    with open(source_file, "r") as f:
+    source_file = LOCAL_PATH / "sanctions.csv"
+    resource_path = context.get_resource_path("source.csv")
+    shutil.copy(source_file, resource_path)
+    context.export_resource(resource_path, CSV, context.SOURCE_TITLE)
+
+    with open(source_file, encoding="utf-8", newline="") as f:
         reader = csv.DictReader(f)
         for row in reader:
             entity = context.make(row.pop("Type"))

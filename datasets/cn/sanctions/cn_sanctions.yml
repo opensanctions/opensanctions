@@ -1,5 +1,5 @@
 # For monthly check-ins on Chinese sanctions, see:
-# Our data: https://docs.google.com/spreadsheets/d/1DhQqlm2MHv3VpVjEJGstbBWlHV0eBJo-omMwn26TQw4/edit?gid=1070466538#gid=1070466538
+# Our data: sanctions.csv
 # MFA page: https://www.mfa.gov.cn/wjb_673085/zfxxgk_674865/gknrlb/fzcqdcs/
 # MOFCOM page: http://english.mofcom.gov.cn/article/policyrelease/questions
 title: China Sanctions Research
@@ -17,7 +17,8 @@ deploy:
 load_statements: true
 summary: >
   Individuals and organisations targeted by the Anti-Foreign Sanctions Law,
-  Counter-Measures List and the Unreliable Entities List (UEL).
+  Counter-Measures List, Unreliable Entities List (UEL), Export Control List,
+  and Export Control Watch List.
 description: |
   China does not publish structured data on individuals and entities targeted by the
   country's sanctions legislation. This dataset is a partial list of individuals and
@@ -25,11 +26,11 @@ description: |
   designated.
 
   Chinese sanctions are often framed as countermeasures against foreign sanctions
-  and to reprimand public figures for critizing China's policies, particularly
+  and to reprimand public figures for criticizing China's policies, particularly
   regarding Hong Kong, Taiwan, and Xinjiang province.
 
-  As of 2024-03-08, only two companies are officially listed as part of the Unreliable
-  Entities List (UEL).
+  The dataset also covers entities subject to trade restrictions under the Unreliable
+  Entities List (UEL), Export Control List, and Export Control Watch List.
 
   **Note**: This dataset is not comprehensive and should be used as a research
   tool but not as a definitive source of sanctions data on China.
@@ -39,7 +40,7 @@ description: |
 publisher:
   name: OpenSanctions
   description: |
-    This dataset comnbines data published by various government departments,
+    This dataset combines data published by various government departments,
     including:
 
     The Ministry of Commerce of the People's Republic of China, is a state
@@ -52,9 +53,9 @@ publisher:
   url: https://www.opensanctions.org/
   official: false
   country: cn
-url: https://docs.google.com/spreadsheets/d/1DhQqlm2MHv3VpVjEJGstbBWlHV0eBJo-omMwn26TQw4/edit#gid=1070466538
+url: https://github.com/opensanctions/opensanctions/blob/main/datasets/cn/sanctions/sanctions.csv
 data:
-  url: https://docs.google.com/spreadsheets/d/e/2PACX-1vT0BEUqT1iKb-QP0LA52qSwq3KLiJpEzNO9MiSLvJCoJXOLxkSr5rYtEXzTw0IgJ0pfpF_qiwueHyOQ/pub?gid=1070466538&single=true&output=csv
+  url: https://raw.githubusercontent.com/opensanctions/opensanctions/refs/heads/main/datasets/cn/sanctions/sanctions.csv
   format: CSV
 dates:
   formats: ["%d.%m.%y", "%d.%m.%Y"]
