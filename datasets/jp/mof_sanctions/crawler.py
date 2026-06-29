@@ -205,6 +205,8 @@ def emit_row(
         original=original,
         suggested=suggested,
         is_irregular=is_irregular,
+        # weak_alias and nickname fields often contain notes/descriptions rather
+        # than actual names, so require human review when they are present.
         default_accepted=not (raw_weak_alias or raw_nickname),
     )
     entity.add_cast("Person", "position", row.pop("position", []), lang="eng")
