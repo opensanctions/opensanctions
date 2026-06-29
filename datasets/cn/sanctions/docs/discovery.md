@@ -240,7 +240,7 @@ classification remain reviewed PR work.
    countermeasures.
 3. Backfill the Taiwan Affairs Office thematic and press-conference archives.
 4. Add embassy-domain and cross-department searches.
-5. Convert the proven discovery rules into the monitor described in `AUTOMATION.md`.
+5. Convert the proven discovery rules into the monitor described in `automation.md`.
 
 Stop after each authority inventory and report the number of notices found, accepted,
 missing, duplicated, and unresolved before beginning the next source family.
