@@ -59,6 +59,7 @@ def crawl_member(
     # Members must hold only Tajik citizenship (Constitution art. 49).
     # https://www.constituteproject.org/constitution/Tajikistan_2016
     person.add("citizenship", "tj")
+    person.add("sourceUrl", url)
 
     occupancy = h.make_occupancy(
         context, person, position, categorisation=categorisation
@@ -98,10 +99,11 @@ def crawl(context: Context) -> None:
         if url is None or url in seen or context.data_url.rstrip("/") in url:
             continue
         seen.add(url)
-        crawl_member(
-            context,
-            clean_name(h.element_text(titles[0])),
-            url,
-            position,
-            categorisation,
-        )
+        print(url)
+        # crawl_member(
+        #     context,
+        #     clean_name(h.element_text(titles[0])),
+        #     url,
+        #     position,
+        #     categorisation,
+        # )
