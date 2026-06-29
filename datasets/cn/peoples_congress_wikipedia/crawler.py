@@ -1,7 +1,7 @@
 from collections import defaultdict
 from dataclasses import dataclass
 from typing import Dict, Generator, cast
-from normality import collapse_spaces
+from normality import squash_spaces
 from lxml.html import HtmlElement
 import re
 
@@ -41,7 +41,7 @@ TRANSLIT_OUTPUT = [ENGLISH]
 
 
 def clean_text(text: str) -> str:
-    return collapse_spaces(strip_note(text))
+    return squash_spaces(strip_note(text))
 
 
 def get_cleaned_field(
@@ -60,9 +60,9 @@ def get_cleaned_field(
 
 def crawl_item(
     context: Context,
-    input_dict: dict,
-    delegation: str,
-) -> None:
+    input_dict: dict[str, HtmlElement],
+    delegation: str | None,
+) -> str | None:
     name_el = input_dict.pop("name")
     reference = name_el.find(".//sup")
     # Make sure to explicitly check if the element is not None.
@@ -223,18 +223,25 @@ def parse_table(
 
 def crawl(context: Context) -> None:
     doc = context.fetch_html(context.data_url)
-    ids = defaultdict(int)
+    ids: defaultdict[str | None, int] = defaultdict(int)
 
-    for h3 in doc.findall(".//h3"):
+    for h3_el in doc.findall(".//h3"):
+        # Workaround because lxml-stubs doesn't yet support HtmlElement
+        # https://github.com/lxml/lxml-stubs/pull/71
+        h3 = cast(HtmlElement, h3_el)
         h3_text = h3.text_content().strip()
         delegation_match = REGEX_DELEGATION_HEADING.match(h3_text)
+        heading_parent = h3.getparent()
+        assert heading_parent is not None, h3_text
         # Determine whether to process the <h3> based on delegation match or specific headings
         if delegation_match:
             delegation_name = delegation_match.group(1)
-            table = h3.getparent().getnext().getnext()
+            sibling = heading_parent.getnext()
+            assert sibling is not None, h3_text
+            table = sibling.getnext()
         elif any(heading in h3_text for heading in CHANGES_IN_REPRESENTATION):
             delegation_name = None
-            table = h3.getparent().getnext()
+            table = heading_parent.getnext()
         else:
             continue
         # There are cases where the table is not immediately after the <h3>
@@ -242,6 +249,7 @@ def crawl(context: Context) -> None:
         while table is not None and table.tag != "table":
             assert not table.tag.startswith("h"), table
             table = table.getnext()
+        assert table is not None, h3_text
         assert table.tag == "table"
         for row in parse_table(context, table):
             id = crawl_item(context, row, delegation_name)
