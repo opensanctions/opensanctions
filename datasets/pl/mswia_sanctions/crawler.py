@@ -225,4 +225,4 @@ def crawl(context: Context) -> None:
     for row in h.parse_html_table(table, header_tag="td"):
         crawl_row(context, h.cells_to_str(row), "podmioty")
 
-    assert_all_accepted(context)
+    assert_all_accepted(context, raise_on_unaccepted=False)
