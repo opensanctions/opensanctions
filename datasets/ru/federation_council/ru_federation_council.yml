@@ -31,9 +31,10 @@ data:
   lang: eng
 dates:
   formats:
-    - "%B %d, %Y"   # September 19, 1967
-    - "%B %Y"       # September 2030
-    - "%d %B %Y"       # 19 September 1967
+    - "%B %d, %Y"
+    - "%B %Y"
+    - "%d %B %Y"
+    - "%d %B, %Y"
 
 tags:
   - list.pep

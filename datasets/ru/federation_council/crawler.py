@@ -15,28 +15,24 @@ def crawl_person(
     position: Entity,
     profile_url: str,
 ) -> None:
+    name_xpath = ".//h2[@class='senators_title']//span"
     doc: HtmlElement = zyte_api.fetch_html(
         context,
         profile_url,
-        unblock_validator=".//body[not(contains(., '403 Forbidden'))]",
+        unblock_validator=name_xpath,
         html_source="httpResponseBody",
-        cache_days=7,
     )
 
-    name_el = h.xpath_element(doc, ".//h2[@class='senators_title']//span")
-    name = h.element_text(name_el)
-    if not name:
-        context.log.warning("No name found", url=profile_url)
-        return
-
+    person_id = profile_url.rstrip("/").rsplit("/", 1)[-1]
     person = context.make("Person")
-    person.id = context.make_slug(profile_url.rstrip("/").rsplit("/", 1)[-1])
+    person.id = context.make_slug(person_id)
+    name = h.element_text(h.xpath_element(doc, name_xpath))
     person.add("name", name, lang="eng")
 
-    born_els = h.xpath_elements(
+    info_paras = h.xpath_elements(
         doc, ".//div[contains(@class,'person_info_private')]//p"
     )
-    for p in born_els:
+    for p in info_paras:
         text = h.element_text(p)
         if text.startswith("Born:"):
             h.apply_date(person, "birthDate", text.removeprefix("Born:").strip())
@@ -54,14 +50,14 @@ def crawl_person(
 
     took_office: str | None = None
     term_ends: str | None = None
-    for p in born_els:
+    for p in info_paras:
         text = h.element_text(p)
         if text.startswith("Took office:"):
             took_office = text.removeprefix("Took office:").strip()
 
-    stars = h.xpath_elements(doc, ".//span[@class='person_post_star']")
-    if stars:
-        tail = (stars[0].tail or "").lstrip(":").strip()
+    starts = h.xpath_elements(doc, ".//span[@class='person_post_star']")
+    if starts:
+        tail = (starts[0].tail or "").lstrip(":").strip()
         if tail:
             term_ends = tail
 
@@ -80,8 +76,8 @@ def crawl_person(
     )
     if occupancy is not None:
         occupancy.add("constituency", constituency)
+
         context.emit(occupancy)
-        # emit person AFTER make_occupancy — it adds role.pep to person.topics
         context.emit(person)
 
 
