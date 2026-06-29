@@ -1,4 +1,5 @@
 from collections import defaultdict
+from dataclasses import dataclass
 from typing import Dict, Generator, cast
 from normality import collapse_spaces
 from lxml.html import HtmlElement
@@ -12,11 +13,9 @@ from zavod.shed.trans import ENGLISH, apply_translit_full_name
 REGEX_DELEGATION_HEADING = re.compile(r"(\w+)（\d+名）$")
 REGEX_BRACKETS = re.compile(r"\[.*?\]")
 CHANGES_IN_REPRESENTATION = [
-    # Skip because rowspan isn't supported yet
-    # "补选",  # by-election
+    "补选",  # by-election
     "辞职",  # resignation
-    # Not supporting this for now because of we don't yet support HTML rowspan
-    # "罢免",  # dismissal
+    "罢免",  # dismissal
     "去世",  # death
 ]
 REGEX_STRIP_NOTE = re.compile(r"\[註 \d+\]")
@@ -140,7 +139,7 @@ def crawl_item(
         ignore=[
             "position_before_death",
             "position_before_resignation",
-            # "position_before_dismissal",
+            "position_before_dismissal",
         ],
     )
     return entity.id
@@ -150,10 +149,54 @@ def strip_note(text: str) -> str:
     return REGEX_STRIP_NOTE.sub("", text)
 
 
+@dataclass
+class PendingRowspan:
+    """A cell that spans into subsequent rows via its rowspan attribute."""
+
+    element: HtmlElement
+    remaining: int
+
+
+def expand_rowspan_cells(
+    row: HtmlElement, rowspans: dict[int, PendingRowspan], num_columns: int
+) -> list[HtmlElement]:
+    """Reconstruct a row's cells, filling in cells carried over by a rowspan
+    from a row above.
+
+    The source HTML omits the <td>s covered by a rowspan from the rows below it,
+    so a naive zip with the headers would shift every following value one column
+    to the left. ``rowspans`` tracks the carry-over state across rows (keyed by
+    column index) and is mutated in place.
+    """
+    cells: list[HtmlElement] = []
+    td_iter = iter(row.findall("./td"))
+    for col in range(num_columns):
+        # A rowspan from a row above occupies this column: reuse its cell.
+        pending = rowspans.get(col)
+        if pending is not None:
+            cells.append(pending.element)
+            pending.remaining -= 1
+            if pending.remaining == 0:
+                del rowspans[col]
+            continue
+        # Otherwise consume the next actual <td> in this row.
+        cell = next(td_iter, None)
+        if cell is None:
+            break
+        cells.append(cell)
+        colspan = int(cell.get("colspan", "1"))
+        assert colspan == 1, ("colspan in data row not supported", row)
+        rowspan = int(cell.get("rowspan", "1"))
+        if rowspan > 1:
+            rowspans[col] = PendingRowspan(cell, rowspan - 1)
+    return cells
+
+
 def parse_table(
     context: Context, table: HtmlElement
 ) -> Generator[Dict[str, HtmlElement], None, None]:
     headers = None
+    rowspans: dict[int, PendingRowspan] = {}
     for row in table.findall(".//tr"):
         if headers is None:
             headers = []
@@ -162,7 +205,11 @@ def parse_table(
                 # https://github.com/lxml/lxml-stubs/pull/71
                 eltree = cast(HtmlElement, el)
                 label = strip_note(eltree.text_content())
-                headers.append(context.lookup_value("headers", label))
+                header = context.lookup_value("headers", label)
+                # An unmapped header would silently shift every value into the
+                # wrong column, so fail loudly and force a lookup to be added.
+                assert header is not None, ("Unmapped table header", label)
+                headers.append(header)
             continue
         # another row of th's after headers has been set
         if row.find("./th") is not None:
@@ -170,10 +217,8 @@ def parse_table(
             if subheader not in SKIP_SUBHEADERS:
                 context.log.warning(f"Unexpected subheader {subheader}")
             continue
-        # populate cells
-        cells = row.findall("./td")
-        row = {hdr: c for hdr, c in zip(headers, cells)}
-        yield row
+        cells = expand_rowspan_cells(row, rowspans, len(headers))
+        yield {hdr: c for hdr, c in zip(headers, cells)}
 
 
 def crawl(context: Context) -> None:
