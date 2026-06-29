@@ -1,6 +1,7 @@
 from collections import defaultdict
+from dataclasses import dataclass
 from typing import Dict, Generator, cast
-from normality import collapse_spaces
+from normality import squash_spaces
 from lxml.html import HtmlElement
 import re
 
@@ -12,11 +13,9 @@ from zavod.shed.trans import ENGLISH, apply_translit_full_name
 REGEX_DELEGATION_HEADING = re.compile(r"(\w+)（\d+名）$")
 REGEX_BRACKETS = re.compile(r"\[.*?\]")
 CHANGES_IN_REPRESENTATION = [
-    # Skip because rowspan isn't supported yet
-    # "补选",  # by-election
+    "补选",  # by-election
     "辞职",  # resignation
-    # Not supporting this for now because of we don't yet support HTML rowspan
-    # "罢免",  # dismissal
+    "罢免",  # dismissal
     "去世",  # death
 ]
 REGEX_STRIP_NOTE = re.compile(r"\[註 \d+\]")
@@ -42,7 +41,7 @@ TRANSLIT_OUTPUT = [ENGLISH]
 
 
 def clean_text(text: str) -> str:
-    return collapse_spaces(strip_note(text))
+    return squash_spaces(strip_note(text))
 
 
 def get_cleaned_field(
@@ -61,9 +60,9 @@ def get_cleaned_field(
 
 def crawl_item(
     context: Context,
-    input_dict: dict,
-    delegation: str,
-) -> None:
+    input_dict: dict[str, HtmlElement],
+    delegation: str | None,
+) -> str | None:
     name_el = input_dict.pop("name")
     reference = name_el.find(".//sup")
     # Make sure to explicitly check if the element is not None.
@@ -106,9 +105,6 @@ def crawl_item(
         for br in positions.xpath(".//br"):
             br.tail = br.tail + "\n" if br.tail else "\n"
         entity.add("position", positions.text_content().split("\n"), lang="chi")
-    entity.add(
-        "description", delegation + " delegation" if delegation else None, lang="chi"
-    )
 
     position = h.make_position(
         context, "Member of the National People’s Congress", country="cn"
@@ -130,6 +126,11 @@ def crawl_item(
         entity.add("description", remarks, lang="chi")
 
     if occupancy:
+        # The delegation (代表团) is the unit the delegate is elected to
+        # represent in the NPC. It's usually a province/region, but sometimes
+        # the military (解放军和武警部队), so stuffing it into constituency -
+        # defined as a geographic area - is somewhat of a misuse of the field.
+        occupancy.add("constituency", delegation, lang="chi")
         context.emit(position)
         context.emit(entity)
         context.emit(occupancy)
@@ -140,7 +141,7 @@ def crawl_item(
         ignore=[
             "position_before_death",
             "position_before_resignation",
-            # "position_before_dismissal",
+            "position_before_dismissal",
         ],
     )
     return entity.id
@@ -150,10 +151,54 @@ def strip_note(text: str) -> str:
     return REGEX_STRIP_NOTE.sub("", text)
 
 
+@dataclass
+class PendingRowspan:
+    """A cell that spans into subsequent rows via its rowspan attribute."""
+
+    element: HtmlElement
+    remaining: int
+
+
+def expand_rowspan_cells(
+    row: HtmlElement, rowspans: dict[int, PendingRowspan], num_columns: int
+) -> list[HtmlElement]:
+    """Reconstruct a row's cells, filling in cells carried over by a rowspan
+    from a row above.
+
+    The source HTML omits the <td>s covered by a rowspan from the rows below it,
+    so a naive zip with the headers would shift every following value one column
+    to the left. ``rowspans`` tracks the carry-over state across rows (keyed by
+    column index) and is mutated in place.
+    """
+    cells: list[HtmlElement] = []
+    td_iter = iter(row.findall("./td"))
+    for col in range(num_columns):
+        # A rowspan from a row above occupies this column: reuse its cell.
+        pending = rowspans.get(col)
+        if pending is not None:
+            cells.append(pending.element)
+            pending.remaining -= 1
+            if pending.remaining == 0:
+                del rowspans[col]
+            continue
+        # Otherwise consume the next actual <td> in this row.
+        cell = next(td_iter, None)
+        if cell is None:
+            break
+        cells.append(cell)
+        colspan = int(cell.get("colspan", "1"))
+        assert colspan == 1, ("colspan in data row not supported", row)
+        rowspan = int(cell.get("rowspan", "1"))
+        if rowspan > 1:
+            rowspans[col] = PendingRowspan(cell, rowspan - 1)
+    return cells
+
+
 def parse_table(
     context: Context, table: HtmlElement
 ) -> Generator[Dict[str, HtmlElement], None, None]:
     headers = None
+    rowspans: dict[int, PendingRowspan] = {}
     for row in table.findall(".//tr"):
         if headers is None:
             headers = []
@@ -162,7 +207,11 @@ def parse_table(
                 # https://github.com/lxml/lxml-stubs/pull/71
                 eltree = cast(HtmlElement, el)
                 label = strip_note(eltree.text_content())
-                headers.append(context.lookup_value("headers", label))
+                header = context.lookup_value("headers", label)
+                # An unmapped header would silently shift every value into the
+                # wrong column, so fail loudly and force a lookup to be added.
+                assert header is not None, ("Unmapped table header", label)
+                headers.append(header)
             continue
         # another row of th's after headers has been set
         if row.find("./th") is not None:
@@ -170,26 +219,31 @@ def parse_table(
             if subheader not in SKIP_SUBHEADERS:
                 context.log.warning(f"Unexpected subheader {subheader}")
             continue
-        # populate cells
-        cells = row.findall("./td")
-        row = {hdr: c for hdr, c in zip(headers, cells)}
-        yield row
+        cells = expand_rowspan_cells(row, rowspans, len(headers))
+        yield {hdr: c for hdr, c in zip(headers, cells)}
 
 
 def crawl(context: Context) -> None:
     doc = context.fetch_html(context.data_url)
-    ids = defaultdict(int)
+    ids: defaultdict[str | None, int] = defaultdict(int)
 
-    for h3 in doc.findall(".//h3"):
+    for h3_el in doc.findall(".//h3"):
+        # Workaround because lxml-stubs doesn't yet support HtmlElement
+        # https://github.com/lxml/lxml-stubs/pull/71
+        h3 = cast(HtmlElement, h3_el)
         h3_text = h3.text_content().strip()
         delegation_match = REGEX_DELEGATION_HEADING.match(h3_text)
+        heading_parent = h3.getparent()
+        assert heading_parent is not None, h3_text
         # Determine whether to process the <h3> based on delegation match or specific headings
         if delegation_match:
             delegation_name = delegation_match.group(1)
-            table = h3.getparent().getnext().getnext()
+            sibling = heading_parent.getnext()
+            assert sibling is not None, h3_text
+            table = sibling.getnext()
         elif any(heading in h3_text for heading in CHANGES_IN_REPRESENTATION):
             delegation_name = None
-            table = h3.getparent().getnext()
+            table = heading_parent.getnext()
         else:
             continue
         # There are cases where the table is not immediately after the <h3>
@@ -197,6 +251,7 @@ def crawl(context: Context) -> None:
         while table is not None and table.tag != "table":
             assert not table.tag.startswith("h"), table
             table = table.getnext()
+        assert table is not None, h3_text
         assert table.tag == "table"
         for row in parse_table(context, table):
             id = crawl_item(context, row, delegation_name)
