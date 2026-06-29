@@ -43,7 +43,6 @@ def crawl_deputy(
     position: Entity,
     categorisation: PositionCategorisation,
 ) -> None:
-
     html_response = fetch_html(
         context,
         url,
