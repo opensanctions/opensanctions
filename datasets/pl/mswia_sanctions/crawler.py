@@ -3,14 +3,13 @@ from pydantic import BaseModel
 
 from zavod import Context, Entity
 from zavod import helpers as h
-from zavod.extract.llm import run_typed_text_prompt
+from zavod.extract.llm import run_typed_text_prompt, DEFAULT_MODEL
 from zavod.stateful.review import (
     JSONSourceValue,
     assert_all_accepted,
     review_extraction,
 )
 
-LLM_MODEL_VERSION = "gpt-5.4"
 EXTRACT_PROMPT = """Extract structured data from an identification details string taken from a Polish sanctions list entry.
 
 The input is a Polish-language text that may contain various combinations of:
@@ -75,13 +74,13 @@ def extract_details(context: Context, entity: Entity, details: str) -> None:
         prompt=EXTRACT_PROMPT,
         string=details,
         response_type=DetailsExtractionResult,
-        model=LLM_MODEL_VERSION,
+        model=DEFAULT_MODEL,
     )
     review = review_extraction(
         context=context,
         source_value=source_value,
         original_extraction=result,
-        origin=LLM_MODEL_VERSION,
+        origin=DEFAULT_MODEL,
     )
     if not review.accepted:
         return
