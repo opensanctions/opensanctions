@@ -99,11 +99,10 @@ def crawl(context: Context) -> None:
         if url is None or url in seen or context.data_url.rstrip("/") in url:
             continue
         seen.add(url)
-        print(url)
-        # crawl_member(
-        #     context,
-        #     clean_name(h.element_text(titles[0])),
-        #     url,
-        #     position,
-        #     categorisation,
-        # )
+        crawl_member(
+            context,
+            clean_name(h.element_text(titles[0])),
+            url,
+            position,
+            categorisation,
+        )
