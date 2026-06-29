@@ -9,10 +9,17 @@ from zavod import helpers as h
 TYPES = {"osoby": "Person", "podmioty": "Company"}
 CHOPSKA = [
     # "Nr" = number; NIP = Polish tax ID, KRS = Polish business register number,
-    # PESEL = Polish personal ID, "siedziba" = registered seat / headquarters
+    # REGON = Polish statistical ID, PESEL = Polish personal ID,
+    # "siedziba" = registered seat / headquarters
+    ("Nr NIP:", "taxNumber"),
     ("Nr NIP", "taxNumber"),
+    ("NIP:", "taxNumber"),
     ("NIP", "taxNumber"),
+    ("REGON:", "registrationNumber"),
+    ("REGON", "registrationNumber"),
+    ("Nr KRS:", "registrationNumber"),
     ("Nr KRS", "registrationNumber"),
+    ("KRS:", "registrationNumber"),
     ("KRS", "registrationNumber"),
     ("(PESEL:", "idNumber"),
     ("PESEL:", "idNumber"),
@@ -43,7 +50,12 @@ def parse_details(context: Context, entity: Entity, text: str) -> None:
         parts = text.rsplit(chop, 1)
         text = parts[0]
         if len(parts) > 1:
-            entity.add(prop, parts[1].strip())
+            value = parts[1].strip().rstrip(",")
+            if prop != "address" and re.search(r"[,:]", value):
+                result = context.lookup("details", value, warn_unmatched=True)
+                if result is not None:
+                    value = result.props.get(prop, value)
+            entity.add(prop, value)
 
     if not len(text.strip()):
         return
@@ -55,10 +67,8 @@ def parse_details(context: Context, entity: Entity, text: str) -> None:
 
     if text == "":
         return
-    result = context.lookup("details", text)
-    if result is None:
-        context.log.warning("Unhandled details", details=text)
-    else:
+    result = context.lookup("details", text, warn_unmatched=True)
+    if result is not None:
         for prop, value in result.props.items():
             entity.add(prop, value)
 
