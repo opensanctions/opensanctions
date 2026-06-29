@@ -205,7 +205,7 @@ def emit_row(
         original=original,
         suggested=suggested,
         is_irregular=is_irregular,
-        default_accepted=True,
+        default_accepted=not (raw_weak_alias or raw_nickname),
     )
     entity.add_cast("Person", "position", row.pop("position", []), lang="eng")
 
