@@ -29,18 +29,20 @@ announced only by an embassy will not necessarily appear in the central index an
 need a separate discovery strategy.
 
 MOFCOM publishes a stream of announcements rather than a structured snapshot of the
-current lists. Monitoring must therefore detect notices that add, remove, suspend, or
-amend measures and reconstruct cumulative state from those events. The Export Control
-List is based on Article 28 of the Regulations on Export Control of Dual-use Items
-(State Council Regulation No. 792), effective from 1 December 2024.
+current lists. Monitoring must therefore detect notices that add, remove, suspend,
+resume, stop, or amend measures and reconstruct cumulative state from those events.
+The Export Control List is based on Article 28 of the Regulations on Export Control of
+Dual-use Items (State Council Regulation No. 792), effective from 1 December 2024.
 
 ## Proposed flow
 
 1. Fetch each index and follow pagination far enough to overlap the previous run.
-2. Extract the notice URL, Chinese title, publication date, and issuing authority.
-3. Canonicalize URLs and compare them with known notices.
+2. Extract the notice URL, Chinese title, publication date, effective timestamp, and
+   issuing authority.
+3. Group URL aliases into candidate notice events, but compare their content before
+   collapsing them. Preserve conflicting official copies for human review.
 4. Rank unseen notices using authority-specific keywords and page text, including
-   language indicating removal, suspension, amendment, or cancellation.
+   language indicating removal, suspension, resumption, amendment, or cancellation.
 5. Emit a review report containing the notice metadata and the reason it matched.
 6. A reviewer reads the official notice and submits the resulting CSV rows in a PR.
 
@@ -56,10 +58,16 @@ different official URL.
 
 The monitor will therefore need a small reviewed-notice manifest with, at minimum:
 
-- Canonical official URL.
-- Authority, title, and publication date.
-- Review status: accepted, no designations, duplicate, or needs follow-up.
-- Optional replacement URL and notes explaining the decision.
+- Stable notice key, canonical official URL, and known official URL aliases.
+- Authority, title, publication date, and effective timestamp.
+- Announcement or decree number and legal basis.
+- Event type: add, remove, suspend, resume, stop, amend, or informational.
+- Stated numbered-target count and explicit legal-entity count when they differ.
+- Content hash for each official copy and any conflict between those copies.
+- Relationships to earlier events that the notice changes or supersedes.
+- Review status: accepted, no designations, duplicate, out of scope, conflicting, or
+  needs follow-up.
+- Optional replacement URL, archived URL, and notes explaining the decision.
 
 This state should be reviewable in Git. It must not use CSV row numbers or entity names
 as identifiers because both can change independently of the source notice.
@@ -70,8 +78,11 @@ A candidate report should include:
 
 - Official URL and authority.
 - Original Chinese title and publication date.
+- Effective timestamp, when it differs from publication.
 - Matched keyword or other discovery rule.
 - Whether another known notice has the same title or date.
+- Both target counts when numbered groups contain several legal entities.
+- Any content difference between official URL aliases.
 - Best-effort archived URL, if one was created.
 
 Initially, produce one periodic report or GitHub issue rather than one issue per
@@ -85,8 +96,8 @@ evidence of delisting. Archiving should be best-effort and should not block inge
 an archive URL supplements rather than replaces the official citation.
 
 Likewise, the monitor must not infer an end date from a notice disappearing. A measure
-ends only when an official notice explicitly suspends, cancels, or establishes the
-expiry of that measure.
+ends only when an official notice explicitly stops, cancels, or establishes the expiry
+of that measure. Suspension and resumption are state changes, not end dates.
 
 ## Reliability checks
 
@@ -96,8 +107,12 @@ empty run. Useful checks include:
 
 - A minimum number of links extracted from each index.
 - Stable parsing tests based on saved index and notice fixtures.
-- Deduplication tests for relative, redirected, mobile, and translated URLs.
+- URL-grouping tests for relative, redirected, mobile, and translated URLs.
+- A test that official URL aliases with different content produce a conflict rather
+  than being silently deduplicated.
 - A test that previously reviewed false positives are not reported again.
+- A test that out-of-scope government actions are recorded but do not become
+  designation candidates.
 - A bounded lookback so pagination or ordering changes do not hide late additions.
 
 ## Possible later stages

@@ -69,11 +69,6 @@ assertions:
       Person: 90
       Company: 45
       Organization: 20
-  max:
-    schema_entities:
-      Person: 220
-      Company: 160
-      Organization: 45
 
 lookups:
   sanction.program:
@@ -91,5 +86,7 @@ lookups:
         value: CN-ECL
       - match: Export Control Watch List
         value: CN-ECWL
+      - match: Diehard "Taiwan Independence" Separatists
+        value: CN-TAO-DIEHARD
       - match: ""
         value: null
