@@ -171,7 +171,9 @@ def emit_row(
     entity.add("previousName", parse_names(raw_past_alias))
     entity.add("previousName", parse_names(raw_old_name))
     original = h.Names()
-    for n in chain(name_english, name_japanese):
+    for n in name_english:
+        original.add("name", n, lang="eng")
+    for n in name_japanese:
         original.add("name", n)
     for n in chain(raw_alias, raw_known_alias):
         original.add("alias", n)
@@ -180,7 +182,9 @@ def emit_row(
     for n in chain(raw_weak_alias, raw_nickname):
         original.add("weakAlias", n)
     suggested = h.Names()
-    for n in chain(parse_names(name_english), parse_names(name_japanese)):
+    for n in parse_names(name_english):
+        suggested.add("name", n, lang="eng")
+    for n in parse_names(name_japanese):
         suggested.add("name", n)
     for n in chain(
         parse_names(h.multi_split(raw_alias, ALIAS_SPLITS)),
