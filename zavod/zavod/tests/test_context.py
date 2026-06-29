@@ -149,6 +149,30 @@ def test_context_get_fetchers(testdataset1: Dataset):
     context.close()
 
 
+def test_context_fetch_text_encoding_cache(testdataset1: Dataset):
+    context = Context(testdataset1)
+    url = "https://test.com/encoding"
+    body = "商务部".encode("utf-8")
+
+    with requests_mock.Mocker() as m:
+        m.get(url, content=body, headers={"Content-Type": "text/html"})
+
+        mojibake = context.fetch_text(url, cache_days=14)
+        assert mojibake != "商务部"
+
+        text = context.fetch_text(url, cache_days=14, encoding="utf-8")
+        assert text == "商务部"
+
+        cached = context.fetch_text(url, cache_days=14, encoding="utf-8")
+        assert cached == "商务部"
+        assert m.call_count == 2
+
+    default_fingerprint = request_hash(url, method="GET")
+    encoded_fingerprint = request_hash(url, method="GET", encoding="utf-8")
+    assert default_fingerprint != encoded_fingerprint
+    context.close()
+
+
 def test_context_post_fetchers(testdataset1: Dataset):
     context = Context(testdataset1)
 

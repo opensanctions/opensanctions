@@ -284,6 +284,7 @@ class Context:
         cache_days: Optional[int] = None,
         method: str = "GET",
         data: Optional[_Body] = None,
+        encoding: Optional[str] = None,
     ) -> Optional[str]:
         """Execute an HTTP request using the contexts' session and return
         the decoded response body. If a `cache_days` argument is provided, a
@@ -297,17 +298,21 @@ class Context:
             cache_days: Number of days to retain cached responses for. `None` to disable.
             method: The HTTP method to use for the request.
             data: The data to be sent in the request body.
+            encoding: Override the response character encoding. Use this when a
+                source omits or misstates its HTTP charset.
 
         Returns:
             The decoded response body as a string.
         """
         url = build_url(url, params)
 
-        fingerprint = request_hash(url, auth=auth, method=method, data=data)
+        fingerprint = request_hash(
+            url, auth=auth, method=method, data=data, encoding=encoding
+        )
         if cache_days is not None:
             text = None
 
-            if method == "GET":
+            if method == "GET" and encoding is None:
                 # keeping the old caching keys that was GET requests only
                 text = self.cache.get(url, max_age=cache_days)
 
@@ -322,6 +327,8 @@ class Context:
         response = self.fetch_response(
             url, headers=headers, auth=auth, method=method, data=data
         )
+        if encoding is not None:
+            response.encoding = encoding
         text = response.text
         if text is None:
             return None

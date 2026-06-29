@@ -99,7 +99,9 @@ def discover_candidates(context: Context) -> list[Candidate]:
     """Find official notices that may require a data update or review."""
     candidates: list[Candidate] = []
     try:
-        content = context.fetch_text(MFA_INDEX_URL, cache_days=INDEX_CACHE_DAYS)
+        content = context.fetch_text(
+            MFA_INDEX_URL, cache_days=INDEX_CACHE_DAYS, encoding="utf-8"
+        )
         mfa_candidates = parse_mfa_index(content or "")
         if len(mfa_candidates) < 10:
             context.log.warning(
@@ -119,7 +121,10 @@ def discover_candidates(context: Context) -> list[Candidate]:
     for year in (current_year, current_year - 1):
         url = MOFCOM_INDEX_URL.format(year=year)
         try:
-            content = context.fetch_text(url, cache_days=INDEX_CACHE_DAYS) or ""
+            content = (
+                context.fetch_text(url, cache_days=INDEX_CACHE_DAYS, encoding="utf-8")
+                or ""
+            )
             article_count = count_mofcom_articles(content)
             if article_count == 0:
                 context.log.warning(
