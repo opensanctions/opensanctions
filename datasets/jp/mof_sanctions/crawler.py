@@ -174,7 +174,7 @@ def emit_row(
     for n in name_english:
         original.add("name", n, lang="eng")
     for n in name_japanese:
-        original.add("name", n)
+        original.add("name", n, lang="jpn")
     for n in chain(raw_alias, raw_known_alias):
         original.add("alias", n)
     for n in chain(raw_past_alias, raw_old_name):
@@ -185,7 +185,7 @@ def emit_row(
     for n in parse_names(name_english):
         suggested.add("name", n, lang="eng")
     for n in parse_names(name_japanese):
-        suggested.add("name", n)
+        suggested.add("name", n, lang="jpn")
     for n in chain(
         parse_names(h.multi_split(raw_alias, ALIAS_SPLITS)),
         parse_names(raw_known_alias),
