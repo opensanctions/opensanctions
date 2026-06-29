@@ -4,7 +4,7 @@ from lxml.html import HtmlElement
 
 from zavod import Context
 from zavod import helpers as h
-from zavod.extract.zyte_api import fetch_json
+from zavod.extract.zyte_api import fetch_json, fetch_html
 from zavod.entity import Entity
 from zavod.stateful.positions import PositionCategorisation, categorise
 
@@ -43,7 +43,14 @@ def crawl_deputy(
     position: Entity,
     categorisation: PositionCategorisation,
 ) -> None:
-    fields = deputy_fields(context.fetch_html(url, cache_days=7))
+    html_response = fetch_html(
+        context,
+        url,
+        ".//div[contains(@class, 'elementor-icon-box-content')]",
+        geolocation="bo",
+        cache_days=7,
+    )
+    fields = deputy_fields(html_response)
 
     name = fields.pop("Nombre", "").strip()
     if len(name) == 0:
