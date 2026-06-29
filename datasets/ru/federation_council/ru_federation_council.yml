@@ -29,6 +29,12 @@ data:
   url: http://council.gov.ru/en/structure/members/
   format: HTML
   lang: eng
+dates:
+  formats:
+    - "%B %d, %Y"   # September 19, 1967
+    - "%B %Y"       # September 2030
+    - "%d %B %Y"       # 19 September 1967
+
 tags:
   - list.pep
 

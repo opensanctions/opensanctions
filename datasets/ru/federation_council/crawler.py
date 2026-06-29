@@ -5,16 +5,17 @@ from lxml.html import HtmlElement
 from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
-from zavod.stateful.positions import PositionCategorisation, categorise
+from zavod.extract import zyte_api
+from zavod.stateful.positions import categorise
 
 BASE_URL = "http://council.gov.ru"
 EN_MEMBERS_URL = "http://council.gov.ru/en/structure/members/"
 RU_MEMBERS_URL = "http://council.gov.ru/structure/members/"
 
 
-def parse_listing(doc: HtmlElement) -> dict[str, dict[str, Any]]:
-    """Return {person_id: {"name": ..., "constituency": ...}} from a members listing page."""
-    members: dict[str, dict[str, Any]] = {}
+def parse_listing(doc: HtmlElement) -> dict[str, str]:
+    """Return {person_id: name} from a members listing page."""
+    members: dict[str, str] = {}
     for link in doc.xpath(".//a[contains(@href, '/structure/persons/')]"):
         href: str = link.get("href", "")
         # href may be /structure/persons/12345/ or /en/structure/persons/12345/
@@ -22,50 +23,75 @@ def parse_listing(doc: HtmlElement) -> dict[str, dict[str, Any]]:
         if not parts:
             continue
         person_id = parts[-1]
-        name = " ".join(link.itertext()).strip()
-        name = " ".join(name.split())  # normalise internal whitespace
+        # join itertext() with space to avoid collapsed spans (e.g. "АбрамовИван")
+        name = " ".join(" ".join(link.itertext()).split())
         if not name:
             continue
-        # Constituency is often in a sibling element; try the parent li/div text
-        constituency: str | None = None
-        parent = link.getparent()
-        if parent is not None:
-            for sibling in parent:
-                if sibling is link:
-                    continue
-                text = h.element_text(sibling)
-                if text and len(text) > 2:
-                    constituency = text
-                    break
-        members[person_id] = {"name": name, "constituency": constituency}
+        members[person_id] = name
     return members
+
+
+def parse_profile(doc: HtmlElement) -> dict[str, str | None]:
+    """Extract fields from the person__additional_info block of an EN profile page."""
+    result: dict[str, str | None] = {
+        "constituency": None,
+        "born": None,
+        "took office": None,
+        "term ends": None,
+    }
+
+    tops = h.xpath_elements(doc, ".//div[@class='person__additional_top']")
+    if tops:
+        result["constituency"] = h.element_text(tops[0]) or None
+
+    for p in h.xpath_elements(doc, ".//div[contains(@class,'person_info_private')]//p"):
+        text = h.element_text(p)
+        if text.startswith("Born:"):
+            result["born"] = text.removeprefix("Born:").strip()
+        elif text.startswith("Took office:"):
+            result["took office"] = text.removeprefix("Took office:").strip()
+
+    # Term ends: date is the tail of the person_post_star span after the ":" character
+    stars = h.xpath_elements(doc, ".//span[@class='person_post_star']")
+    if stars:
+        tail = (stars[0].tail or "").lstrip(":").strip()
+        if tail:
+            result["term ends"] = tail
+
+    return result
 
 
 def crawl_person(
     context: Context,
     position: Entity,
     person_id: str,
-    en_data: dict[str, Any],
+    en_name: str,
     ru_name: str | None,
 ) -> None:
+    profile_url = f"{BASE_URL}/en/structure/persons/{person_id}/"
+    profile_doc = zyte_api.fetch_html(
+        context,
+        profile_url,
+        unblock_validator=".//body[not(contains(., '403 Forbidden'))]",
+        html_source="httpResponseBody",
+        cache_days=7,
+    )
+    profile = parse_profile(profile_doc)
+
     person = context.make("Person")
     person.id = context.make_slug(person_id)
 
-    en_name: str = en_data["name"]
-    constituency: str | None = en_data.get("constituency")
-
-    # Add Latin-script name from English listing
     person.add("name", en_name, lang="eng")
-
-    # Add Cyrillic name from Russian listing as additional name variant
     if ru_name and ru_name != en_name:
         person.add("name", ru_name, lang="rus")
+
+    h.apply_date(person, "birthDate", profile.get("born"))
 
     # Russian citizenship is required to hold a seat in the Federation Council
     # per Federal Law No. 113-FZ "On the Order of Formation of the Federation Council"
     # https://www.consultant.ru/document/cons_doc_LAW_37200/
     person.add("citizenship", "ru")
-    person.add("sourceUrl", f"{BASE_URL}/en/structure/persons/{person_id}/")
+    person.add("sourceUrl", profile_url)
 
     # IMPORTANT: all person props must be set before make_occupancy;
     # categorise() is called here, adjacent to make_occupancy()
@@ -77,10 +103,11 @@ def crawl_person(
         person,
         position,
         categorisation=categorisation,
+        start_date=profile.get("took office"),
+        end_date=profile.get("term ends"),
     )
     if occupancy is not None:
-        if constituency:
-            occupancy.add("constituency", constituency)
+        occupancy.add("constituency", profile.get("constituency"))
         context.emit(occupancy)
         # emit person AFTER make_occupancy — it adds role.pep to person.topics
         context.emit(person)
@@ -108,6 +135,6 @@ def crawl(context: Context) -> None:
             "No members found on EN listing page — the site structure may have changed"
         )
 
-    for person_id, en_data in en_members.items():
-        ru_name = ru_members.get(person_id, {}).get("name") if ru_members else None
-        crawl_person(context, position, person_id, en_data, ru_name)
+    for person_id, en_name in en_members.items():
+        ru_name = ru_members.get(person_id)
+        crawl_person(context, position, person_id, en_name, ru_name)
