@@ -56,6 +56,7 @@ def request_hash(
     auth: Optional[_Auth] = None,
     method: str = "GET",
     data: Any = None,
+    encoding: Optional[str] = None,
 ) -> str:
     """
     Generate a unique fingerprint for an HTTP request.
@@ -64,10 +65,14 @@ def request_hash(
         auth: The authentication credentials.
         method: The HTTP method of the request.
         data: The data to be sent in the request body.
+        encoding: The character encoding used to decode the response body.
     Returns:
         A unique fingerprint for the request (url + hashed payload).
     """
-    hsh = hash_data((auth, method, data))
+    parts: tuple[Any, ...] = (auth, method, data)
+    if encoding is not None:
+        parts = (*parts, encoding)
+    hsh = hash_data(parts)
     return f"{url}[{hsh}]"
 
 
