@@ -59,6 +59,7 @@ def crawl_member(
     # Members must hold only Tajik citizenship (Constitution art. 49).
     # https://www.constituteproject.org/constitution/Tajikistan_2016
     person.add("citizenship", "tj")
+    person.add("sourceUrl", url)
 
     occupancy = h.make_occupancy(
         context, person, position, categorisation=categorisation
