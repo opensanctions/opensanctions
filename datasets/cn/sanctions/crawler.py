@@ -30,6 +30,7 @@ def crawl(context: Context) -> None:
             entity.add("alias", row.pop("Alias"), lang="eng")
             entity.add("alias", row.pop("Chinese name"), lang="zho")
             entity.add("country", row.pop("Country", None))
+            entity.add("address", row.pop("Address", None), lang="zho")
             entity.add("notes", row.pop("Summary", None), lang="eng")
             entity.add("notes", row.pop("Chinese summary", None), lang="zho")
             entity.add("topics", row.pop("Topics").split(";"))
