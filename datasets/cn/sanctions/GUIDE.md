@@ -48,6 +48,9 @@ made separately, retaining the source form as an alias where useful.
 Do not invent aliases, identifiers, or translated addresses. Leave unsupported fields
 empty.
 
+When the notice supplies multiple common names, place them in `Alias` separated by
+semicolons. The crawler emits each value as a separate alias.
+
 ## Choose the entity type
 
 The notice calls all targets “entities” and does not provide schema types. Classify
@@ -83,9 +86,9 @@ Combine the source address and postal code into `Address`, retaining the Chinese
 日本东京都新宿区市谷本村町5番1号，邮编：162-8808
 ```
 
-The crawler emits this field as a Chinese-language address. CSV values containing an
-ASCII comma must be quoted; using the Chinese punctuation from the source avoids
-introducing unnecessary CSV delimiters.
+Keep the address in the language used by the notice. CSV values containing an ASCII
+comma must be quoted; Chinese punctuation does not introduce additional CSV
+delimiters.
 
 ## Verify the extraction
 
