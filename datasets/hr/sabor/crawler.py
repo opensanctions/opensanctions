@@ -59,6 +59,7 @@ def crawl_member(
     # Suffrage in Croatian Parliament elections is reserved to Croatian citizens
     # (Constitution art. 45). https://www.constituteproject.org/constitution/Croatia_2013
     person.add("citizenship", "hr")
+    person.add("sourceUrl", url)
 
     occupancy = h.make_occupancy(
         context, person, position, categorisation=categorisation
