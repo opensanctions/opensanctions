@@ -38,34 +38,32 @@ def xref(
     discount_internal: float = 1.0,
 ) -> None:
     dataset = _load_datasets(dataset_paths)
-    session = make_session()
-    resolver = get_resolver(session)
-    resolver.load_into_memory()
-    store = get_store(dataset, resolver)
-    store.sync(clear=rebuild_store)
-    blocking_xref(
-        resolver,
-        session,
-        store,
-        dataset_state_path(dataset.name),
-        limit=limit,
-        auto_threshold=threshold,
-        algorithm=algorithm,
-        focus_datasets=set(focus),
-        schema_range=schema,
-        discount_internal=discount_internal,
-    )
-    session.commit()
+    with make_session() as session:
+        resolver = get_resolver(session)
+        resolver.load_into_memory()
+        store = get_store(dataset, resolver)
+        store.sync(clear=rebuild_store)
+        blocking_xref(
+            resolver,
+            session,
+            store,
+            dataset_state_path(dataset.name),
+            limit=limit,
+            auto_threshold=threshold,
+            algorithm=algorithm,
+            focus_datasets=set(focus),
+            schema_range=schema,
+            discount_internal=discount_internal,
+        )
 
 
 @cli.command("resolver-prune", help="Remove dedupe candidates from resolver file")
 def xref_prune() -> None:
     try:
-        session = make_session()
-        resolver = get_resolver(session)
-        resolver.load_into_memory()
-        resolver.prune()
-        session.commit()
+        with make_session() as session:
+            resolver = get_resolver(session)
+            resolver.load_into_memory()
+            resolver.prune()
     except Exception:
         log.exception("Failed to prune resolver file")
         sys.exit(1)
@@ -76,15 +74,14 @@ def xref_prune() -> None:
 @click.option("-r", "--rebuild-store", is_flag=True, default=False)
 def dedupe(dataset_paths: List[Path], rebuild_store: bool = False) -> None:
     dataset = _load_datasets(dataset_paths)
-    session = make_session()
-    resolver = get_resolver(session)
-    resolver.load_into_memory()
-    store = get_store(dataset, resolver)
-    store.sync(clear=rebuild_store)
-    dedupe_ui(
-        resolver, session, store, url_base="https://opensanctions.org/entities/%s/"
-    )
-    session.commit()
+    with make_session() as session:
+        resolver = get_resolver(session)
+        resolver.load_into_memory()
+        store = get_store(dataset, resolver)
+        store.sync(clear=rebuild_store)
+        dedupe_ui(
+            resolver, session, store, url_base="https://opensanctions.org/entities/%s/"
+        )
 
 
 @cli.command(
@@ -174,11 +171,10 @@ def wikidata_reconcile(
 @cli.command("explode-cluster", help="Destroy a cluster of deduplication matches")
 @click.argument("canonical_id", type=str)
 def explode(canonical_id: str) -> None:
-    session = make_session()
-    resolver = get_resolver(session)
-    resolver.load_into_memory()
-    explode_cluster(resolver, canonical_id)
-    session.commit()
+    with make_session() as session:
+        resolver = get_resolver(session)
+        resolver.load_into_memory()
+        explode_cluster(resolver, canonical_id)
 
 
 @cli.command("merge-cluster", help="Merge multiple entities as duplicates")
@@ -186,11 +182,10 @@ def explode(canonical_id: str) -> None:
 @click.option("-f", "--force", is_flag=True, default=False)
 def merge(entity_ids: List[str], force: bool = False) -> None:
     try:
-        session = make_session()
-        resolver = get_resolver(session)
-        resolver.load_into_memory()
-        merge_entities(resolver, entity_ids, force=force)
-        session.commit()
+        with make_session() as session:
+            resolver = get_resolver(session)
+            resolver.load_into_memory()
+            merge_entities(resolver, entity_ids, force=force)
     except ValueError as ve:
         log.error("Cannot merge: %s" % ve)
         sys.exit(1)
@@ -203,15 +198,13 @@ def dedupe_edges(dataset_paths: List[Path], rebuild_store: bool = False) -> None
     from zavod.integration import edges
 
     dataset = _load_datasets(dataset_paths)
-    session = make_session()
-    resolver = get_resolver(session)
     try:
-        resolver.load_into_memory()
-        store = get_store(dataset, resolver)
-        store.sync(clear=rebuild_store)
-        edges.dedupe_edges(resolver, store.view(dataset, external=True))
-        session.commit()
+        with make_session() as session:
+            resolver = get_resolver(session)
+            resolver.load_into_memory()
+            store = get_store(dataset, resolver)
+            store.sync(clear=rebuild_store)
+            edges.dedupe_edges(resolver, store.view(dataset, external=True))
     except Exception:
-        session.rollback()
         log.exception("Failed to dedupe edge entities: %r" % dataset_paths)
         sys.exit(1)
