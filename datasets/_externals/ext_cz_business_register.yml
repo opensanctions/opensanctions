@@ -64,9 +64,15 @@ config:
     - role.rca
     - sanction
     - sanction.linked
+    - sanction.control
+    - sanction.counter
     - export.control
     - export.control.linked
+    - invest.ban
+    - invest.risk
     - debarment
+    - reg.action
+    - reg.warn
     - asset.frozen
     - poi
     - gov.soe

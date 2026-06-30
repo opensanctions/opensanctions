@@ -18,7 +18,7 @@ classifiers = [
 requires-python = ">= 3.12"
 dependencies = [
     "followthemoney == 4.9.2",
-    "nomenklatura == 4.10.0",
+    "nomenklatura == 4.11.0",
     "plyvel == 1.5.1", # Also update macOS install docs
     "rigour == 2.1.2",
     "datapatch >= 1.2.4, < 1.3",

@@ -5,6 +5,7 @@ from typing import Optional, List, Tuple
 import click
 from followthemoney import Dataset as FTMDataset
 from nomenklatura.cache import Cache
+from nomenklatura.db import make_session
 from nomenklatura.matching import DefaultAlgorithm, DedupeAlgorithm, get_algorithm
 from nomenklatura.tui import dedupe_ui, reconcile_ui
 from nomenklatura.wikidata.client import WikidataClient
@@ -12,7 +13,6 @@ from nomenklatura.wikidata.write import serialize
 
 from zavod.archive import dataset_state_path
 from zavod.cli import cli, DatasetInPath, _load_datasets, log
-from zavod.db import get_engine, meta
 from zavod.integration import get_resolver
 from zavod.integration.dedupe import blocking_xref, merge_entities, explode_cluster
 from zavod.store import get_store
@@ -38,31 +38,32 @@ def xref(
     discount_internal: float = 1.0,
 ) -> None:
     dataset = _load_datasets(dataset_paths)
-    resolver = get_resolver()
-    resolver.begin()
-    store = get_store(dataset, resolver)
-    store.sync(clear=rebuild_store)
-    blocking_xref(
-        resolver,
-        store,
-        dataset_state_path(dataset.name),
-        limit=limit,
-        auto_threshold=threshold,
-        algorithm=algorithm,
-        focus_datasets=set(focus),
-        schema_range=schema,
-        discount_internal=discount_internal,
-    )
-    resolver.commit()
+    with make_session() as session:
+        resolver = get_resolver(session)
+        resolver.load_into_memory()
+        store = get_store(dataset, resolver)
+        store.sync(clear=rebuild_store)
+        blocking_xref(
+            resolver,
+            session,
+            store,
+            dataset_state_path(dataset.name),
+            limit=limit,
+            auto_threshold=threshold,
+            algorithm=algorithm,
+            focus_datasets=set(focus),
+            schema_range=schema,
+            discount_internal=discount_internal,
+        )
 
 
 @cli.command("resolver-prune", help="Remove dedupe candidates from resolver file")
 def xref_prune() -> None:
     try:
-        resolver = get_resolver()
-        resolver.begin()
-        resolver.prune()
-        resolver.commit()
+        with make_session() as session:
+            resolver = get_resolver(session)
+            resolver.load_into_memory()
+            resolver.prune()
     except Exception:
         log.exception("Failed to prune resolver file")
         sys.exit(1)
@@ -73,12 +74,14 @@ def xref_prune() -> None:
 @click.option("-r", "--rebuild-store", is_flag=True, default=False)
 def dedupe(dataset_paths: List[Path], rebuild_store: bool = False) -> None:
     dataset = _load_datasets(dataset_paths)
-    resolver = get_resolver()
-    resolver.begin()
-    store = get_store(dataset, resolver)
-    store.sync(clear=rebuild_store)
-    resolver.commit()
-    dedupe_ui(resolver, store, url_base="https://opensanctions.org/entities/%s/")
+    with make_session() as session:
+        resolver = get_resolver(session)
+        resolver.load_into_memory()
+        store = get_store(dataset, resolver)
+        store.sync(clear=rebuild_store)
+        dedupe_ui(
+            resolver, session, store, url_base="https://opensanctions.org/entities/%s/"
+        )
 
 
 @cli.command(
@@ -120,11 +123,11 @@ def wikidata_reconcile(
     if output is None:
         output = dataset_state_path(dataset.name) / "wikidata.qs"
 
-    resolver = get_resolver()
-    resolver.begin()
+    session = make_session()
+    resolver = get_resolver(session)
+    resolver.load_into_memory()
     store = get_store(dataset, resolver)
     store.sync(clear=rebuild_store)
-    resolver.commit()
 
     # Cite the dataset itself when an entity carries no sourceUrl/retrieved date.
     retrieved: Optional[str] = None
@@ -134,13 +137,14 @@ def wikidata_reconcile(
     # A throwaway FtM dataset namespaces the shared Wikidata API cache and the
     # candidate-entity projection built by the reconciler.
     wikidata = FTMDataset.make({"name": "wikidata", "title": "Wikidata"})
-    cache = Cache(get_engine(), meta, wikidata, create=True)
+    cache = Cache(session, wikidata, create=True)
     client = WikidataClient(cache)
     try:
-        # reconcile_ui owns its resolver transactions (a commit per judgement),
-        # like dedupe_ui above, so we don't hold one open across the UI.
+        # reconcile_ui checkpoints the session per judgement, so we don't hold a
+        # single transaction open across the UI.
         commands = reconcile_ui(
             resolver,
+            session,
             store,
             client,
             wikidata,
@@ -151,8 +155,10 @@ def wikidata_reconcile(
             url_base="https://opensanctions.org/entities/%s/",
         )
     finally:
-        # Persist cached API responses even if the run is cancelled or errors.
-        cache.close()
+        # Persist cached API responses and resolver judgements even if the run is
+        # cancelled or errors. A plain commit (not a `with`) so a mid-run failure
+        # keeps the cache writes rather than rolling them back.
+        session.commit()
 
     output.parent.mkdir(parents=True, exist_ok=True)
     text = serialize(commands)
@@ -165,10 +171,10 @@ def wikidata_reconcile(
 @cli.command("explode-cluster", help="Destroy a cluster of deduplication matches")
 @click.argument("canonical_id", type=str)
 def explode(canonical_id: str) -> None:
-    resolver = get_resolver()
-    resolver.begin()
-    explode_cluster(resolver, canonical_id)
-    resolver.commit()
+    with make_session() as session:
+        resolver = get_resolver(session)
+        resolver.load_into_memory()
+        explode_cluster(resolver, canonical_id)
 
 
 @cli.command("merge-cluster", help="Merge multiple entities as duplicates")
@@ -176,10 +182,10 @@ def explode(canonical_id: str) -> None:
 @click.option("-f", "--force", is_flag=True, default=False)
 def merge(entity_ids: List[str], force: bool = False) -> None:
     try:
-        resolver = get_resolver()
-        resolver.begin()
-        merge_entities(resolver, entity_ids, force=force)
-        resolver.commit()
+        with make_session() as session:
+            resolver = get_resolver(session)
+            resolver.load_into_memory()
+            merge_entities(resolver, entity_ids, force=force)
     except ValueError as ve:
         log.error("Cannot merge: %s" % ve)
         sys.exit(1)
@@ -192,14 +198,13 @@ def dedupe_edges(dataset_paths: List[Path], rebuild_store: bool = False) -> None
     from zavod.integration import edges
 
     dataset = _load_datasets(dataset_paths)
-    resolver = get_resolver()
     try:
-        resolver.begin()
-        store = get_store(dataset, resolver)
-        store.sync(clear=rebuild_store)
-        edges.dedupe_edges(resolver, store.view(dataset, external=True))
-        resolver.commit()
+        with make_session() as session:
+            resolver = get_resolver(session)
+            resolver.load_into_memory()
+            store = get_store(dataset, resolver)
+            store.sync(clear=rebuild_store)
+            edges.dedupe_edges(resolver, store.view(dataset, external=True))
     except Exception:
-        resolver.rollback()
         log.exception("Failed to dedupe edge entities: %r" % dataset_paths)
         sys.exit(1)

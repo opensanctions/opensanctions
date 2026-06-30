@@ -50,9 +50,18 @@ config:
   topics:
     - sanction
     - sanction.linked
+    - sanction.control
+    - asset.frozen
+    - invest.ban
+    - invest.risk
+    - mare.shadow
+    - mare.detained
+    - mare.sts
     - export.control
     - export.control.linked
+    - export.risk
     - debarment
+    - poi
   schemata:
     - Company
     - Organization
