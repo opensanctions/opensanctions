@@ -1,6 +1,14 @@
 title: Cuba Members of the Parliament
 entry_point: crawler.py
 prefix: cuinv
+manual_check:
+  last_checked: "2026-06-30"
+  # ~1 week after the next ANPP election, expected by March 2028 (deputies elected
+  # 26 Mar 2023, 11 Mar 2018 — consistently late March). Targets ~2028-04-02.
+  interval: 642
+  message: >-
+    Check whether the next Cuban National Assembly (ANPP) election has happened — it
+    was expected by March 2028.
 coverage:
   frequency: monthly
   start: "2023-08-14"
@@ -40,6 +48,9 @@ assertions:
     schema_entities:
       Person: 420
       Position: 1
+    country_entities:
+      cu: 420
   max:
     schema_entities:
       Person: 550
+      Position: 1
