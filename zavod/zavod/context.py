@@ -393,6 +393,7 @@ class Context:
         method: str = "GET",
         data: Optional[_Body] = None,
         absolute_links: bool = False,
+        encoding: Optional[str] = None,
     ) -> Element:
         """Execute an HTTP request using the contexts' session and return
         an HTML DOM object based on the response. If a `cache_days` argument
@@ -408,6 +409,10 @@ class Context:
             data: The data to be sent in the request body.
             absolute_links: Whether to convert relative links to absolute links.
                 Doesn't take redirects into account.
+            encoding: Override the response character encoding. Use this when a
+                source omits or misstates its HTTP charset, since the decoded
+                text is handed to the parser before the document's own charset
+                declaration can be consulted.
         Returns:
             An lxml-based DOM of the web page that has been returned.
         """
@@ -419,6 +424,7 @@ class Context:
             cache_days=cache_days,
             method=method,
             data=data,
+            encoding=encoding,
         )
         try:
             if text is None or len(text) == 0:
