@@ -66,7 +66,7 @@ export default function PositionTaggerTable({ countries, positions }: PositionTa
       <thead>
         <tr>
           <th>Position</th>
-          <th>Country</th>
+          <th>Territory</th>
           <th>Dataset</th>
           <th className="text-nowrap">Is a PEP</th>
           <th>Categories</th>

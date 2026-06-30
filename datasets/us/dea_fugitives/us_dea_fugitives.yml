@@ -55,3 +55,13 @@ lookups:
     options:
       - match: Unknown
         value: null
+  type.address:
+    options:
+      - match: UNK
+        value: null
+      - match: CA
+        value: CA
+      - match: NY
+        value: NY
+      - match: PR
+        value: PR

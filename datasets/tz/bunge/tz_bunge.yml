@@ -1,0 +1,46 @@
+title: Tanzania Members of the National Assembly
+entry_point: crawler.py
+prefix: tz-bunge
+coverage:
+  frequency: monthly
+  start: 2026-06-26
+load_statements: true
+ci_test: true
+summary: >-
+  Members of the Bunge, the unicameral legislature of the United Republic of Tanzania
+description: |
+  Members of the National Assembly (Bunge), the unicameral national legislature of the
+  United Republic of Tanzania. It comprises constituency members, special-seats
+  members, presidential nominees and ex-officio members serving five-year terms.
+
+  This dataset records each sitting member of the current Bunge with their name,
+  constituency and political party, sourced from the Bunge's official Polis directory.
+url: https://polis.bunge.go.tz/members
+publisher:
+  name: Bunge la Tanzania
+  name_en: Parliament of Tanzania
+  description: >
+    The Bunge is the unicameral National Assembly of the United Republic of Tanzania;
+    Polis is its official member and legislative directory.
+  url: https://www.bunge.go.tz/
+  country: tz
+  official: true
+data:
+  url: https://polis.bunge.go.tz/members
+  format: HTML
+  lang: eng
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 320
+      Position: 1
+    country_entities:
+      tz: 320
+  max:
+    schema_entities:
+      Person: 450
+      Position: 1

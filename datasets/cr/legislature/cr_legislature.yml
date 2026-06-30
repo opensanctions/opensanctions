@@ -3,7 +3,7 @@ entry_point: crawler.py
 prefix: cr-al
 coverage:
   frequency: monthly
-  start: 2026-06-16
+  start: 2026-06-22
 load_statements: true
 ci_test: false
 summary: >-

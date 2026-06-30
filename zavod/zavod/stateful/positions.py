@@ -58,23 +58,30 @@ def categorise(
     returned; later calls will pick up any edits made through the UI.
     """
     countries = sorted(position.get("country"))
+    subnational_areas = sorted(position.get("subnationalArea"))
     stmt = position_table.select()
     stmt = stmt.filter(position_table.c.entity_id == position.id)
     stmt = stmt.filter(position_table.c.deleted_at.is_(None))
     for row in context.db.execute(stmt).fetchall():
-        if row.caption != position.caption or sorted(row.countries) != countries:
+        if (
+            row.caption != position.caption
+            or sorted(row.countries) != countries
+            or sorted(row.subnational_areas or []) != subnational_areas
+        ):
             # If the caption or countries have changed, we need to update the row.
             context.log.info(
                 "Updating position metadata",
                 entity_id=position.id,
                 caption=position.caption,
                 countries=countries,
+                subnational_areas=subnational_areas,
             )
             ustmt = position_table.update()
             ustmt = ustmt.where(position_table.c.id == row.id)
             updates = {
                 "caption": position.caption,
                 "countries": countries,
+                "subnational_areas": subnational_areas,
                 # "modified_at": settings.RUN_TIME,
             }
             ustmt = ustmt.values(updates)
@@ -88,6 +95,7 @@ def categorise(
         "entity_id": position.id,
         "caption": position.caption,
         "countries": countries,
+        "subnational_areas": subnational_areas,
         "topics": position.get("topics"),
         "dataset": position.dataset.name,
         "created_at": settings.RUN_TIME,

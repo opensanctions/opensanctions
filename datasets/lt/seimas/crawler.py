@@ -137,32 +137,28 @@ def crawl_old_member_bio(context: Context, url: str) -> None:
     )  # TODO: more robust name fetch method
     assert person_name is not None
 
-    date_of_birth = None
-    place_of_birth = None
-
-    try:
-        date_of_birth = h.xpath_string(
-            doc,
-            '//div[@class="par"][contains(text(),"Biography")]/following-sibling::div[@align="justify"][1]//table//tr[1]/td[last()]/p[1]/text()',
-        )
-
-        place_of_birth_xpaths = [
+    # Birth details are missing or differently structured on many older member
+    # pages, so extract them leniently and emit the member even when absent.
+    date_of_birth = xpath_match(
+        doc,
+        [
+            '//div[@class="par"][contains(text(),"Biography")]/following-sibling::div[@align="justify"][1]//table//tr[1]/td[last()]/p[1]/text()'
+        ],
+    )
+    place_of_birth = xpath_match(
+        doc,
+        [
             '//div[@class="par"][contains(text(),"Biography")]/following-sibling::div[@align="justify"][1]//table//tr[1]/td[last()]/p[1]//strong',
             '//div[@class="par"][contains(text(),"Biography")]/following-sibling::div[@align="justify"][1]//table//tr[1]/td[last()]/p[1]',
-        ]
-        place_of_birth = xpath_match(doc, place_of_birth_xpaths)
-
-    except ValueError:
-        context.log.warning(
-            "Could not extract birth details for old member", url=url, name=person_name
-        )
-        return None
+        ],
+    )
 
     person = context.make("Person")
     person.id = context.make_slug(person_name)
     person.add("name", person_name)
     person.add("birthPlace", place_of_birth)
-    h.apply_date(person, "birthDate", date_of_birth)
+    if date_of_birth is not None:
+        h.apply_date(person, "birthDate", date_of_birth)
 
     party_affiliation = h.xpath_strings(
         doc,
@@ -185,7 +181,7 @@ def crawl_old_member_bio(context: Context, url: str) -> None:
         lang="eng",
     )
 
-    categorisation = categorise(context, position, is_pep=True)
+    categorisation = categorise(context, position)
     if not categorisation.is_pep:
         return
 

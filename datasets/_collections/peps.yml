@@ -34,6 +34,7 @@ children:
   - am_hetq_officials
   - ann_pep_positions
   - ar_parliament
+  - ar_senado
   - at_meine_abgeordneten
   - at_parlament
   - au_act_parliament
@@ -53,7 +54,9 @@ children:
   - be_walloon_parliament
   - bg_jud_declarations
   - bg_parliament
+  - bo_senado
   - br_pep
+  - bz_national_assembly
   - ca_commons
   - ca_foreign_reps
   - ca_senate
@@ -62,6 +65,7 @@ children:
   - cn_peoples_congress_wikipedia
   - co_funcion_publica
   - co_join_dots
+  - cr_legislature
   - cu_inventario_legislatura
   - cy_parliament
   - cz_pep_declarations
@@ -85,9 +89,12 @@ children:
   - gb_lords
   - ge_declarations
   - gr_parliament
+  - gt_congress
   - hk_legco
   - hk_principal_officials
+  - hn_legislature
   - hr_public_officials
+  - hr_sabor
   - hu_national_assembly
   - id_regional_2018
   - ie_parliament
@@ -96,9 +103,15 @@ children:
   - is_althingi
   - it_deputies
   - it_senate
+  - jp_sangiin
   - jp_shugiin
+  - kg_jogorku_kenesh
+  # Doesn't have data yet. Leads to broken catalog export.
+  # - kr_assembly
   - ky_judicial
   - ky_parliament
+  - kz_mazhilis
+  - kz_senate
   - li_landtag
   - lt_pep_declarations
   - lt_seimas
@@ -109,22 +122,28 @@ children:
   - me_skupstina
   - mk_officials
   - mn_parliament
+  - mo_legislature
   - mt_parlament
   - mx_deputies
   - mx_governors
   - mx_senators
   - ng_chipper_peps
   - ng_join_dots
+  - ni_legislature
   - nl_house_of_representatives
   - nl_senate
   - no_brreg
   - no_storting
   - nz_parliament
+  - pa_asamblea
+  - pe_congreso
+  - pg_parliament
   - ph_house_representatives
   - ph_senate
   - pl_sejm
   - pl_senate
   - pt_parliament
+  - py_congreso
   - ro_cdep_deputies
   - ro_fiu_declarations
   - ro_senate
@@ -136,8 +155,13 @@ children:
   - si_zvezoskop
   - sk_nrsr_poslanci
   - sk_public_officials
+  - sr_national_assembly
+  - sv_legislature
   - th_cabinet
+  - tj_majlisi_milli
   - tr_parliament
+  - tw_legislature
+  - tz_bunge
   - ua_rada
   - un_ga_protocol
   - us_cia_world_leaders
@@ -147,9 +171,12 @@ children:
   - us_plural_legislators
   - us_state_dept
   - uy_pep
+  - uz_legislative_chamber
+  - uz_senate
   - ve_asamblea_nacional
   - vn_national_assembly
   - wd_categories
   - wd_peps
+  - xk_assembly
   - za_mm_officials
   - za_pmg_legislators

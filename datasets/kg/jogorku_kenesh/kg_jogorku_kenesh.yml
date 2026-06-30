@@ -1,0 +1,47 @@
+title: Kyrgyzstan Members of the Jogorku Kenesh
+entry_point: crawler.py
+prefix: kg-kenesh
+coverage:
+  frequency: monthly
+  start: 2026-06-26
+load_statements: true
+ci_test: true
+summary: >-
+  Deputies of the Jogorku Kenesh, the unicameral parliament of the Kyrgyz
+  Republic
+description: |
+  Deputies of the Jogorku Kenesh (Жогорку Кеңеш), the unicameral national parliament of
+  the Kyrgyz Republic. It has 90 deputies: 54 elected in single-mandate districts and
+  36 by party list under the mixed system in force since the November 2021 election.
+
+  The dataset records each sitting deputy with their name, gender, electoral
+  constituency and parliamentary faction.
+url: https://kenesh.kg/
+publisher:
+  name: Жогорку Кеңеш
+  name_en: Jogorku Kenesh of the Kyrgyz Republic
+  description: >
+    The Jogorku Kenesh is the unicameral national parliament (Supreme Council) of the
+    Kyrgyz Republic.
+  url: https://kenesh.kg/
+  country: kg
+  official: true
+data:
+  url: https://kenesh.kg/api/deputies
+  format: JSON
+  lang: rus
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 70
+      Position: 1
+    country_entities:
+      kg: 70
+  max:
+    schema_entities:
+      Person: 110
+      Position: 1

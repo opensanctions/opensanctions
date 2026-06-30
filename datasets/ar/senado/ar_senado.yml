@@ -1,31 +1,25 @@
-title: Argentina Members of the Senate
+title: Argentina Members of Senate
 entry_point: crawler.py
 prefix: ar-sen
 coverage:
   frequency: monthly
-  start: 2026-06-18
+  start: 2026-06-22
 load_statements: true
-ci_test: false # Live external government source, not available in CI
+ci_test: false  # Live external government source, not available in CI
 summary: >-
-  Upper house of Argentina's National Congress: three senators per province,
-  serving six-year terms
+  Members of the upper house of Argentinas National Congress.
 description: |
-  Senators of the Honorable Senado de la Nación (Senate of the Nation), the upper
-  house of the bicameral National Congress of Argentina. Its 72 seats are elected
-  directly, three per province across the 23 provinces and the Autonomous City of
-  Buenos Aires, for six-year terms.
+  Current and historical senators of the Senate of the Nation (Honorable Senado de la Nación), the
+  upper house of the bicameral National Congress of Argentina. Its 72 senators are directly
+  elected, three per province across the 23 provinces and the Autonomous City of Buenos Aires, for
+  six-year terms, and together with the Chamber of Deputies hold the country's legislative power,
+  including passing laws and approving the budget.
 
-  The dataset covers the chamber's full historical roster, spanning many
-  legislative terms: both sitting senators and those who left office recently
-  enough to remain politically exposed. Each senator is recorded with their name,
-  party, province and term dates; sitting senators additionally carry an email
-  address and their parliamentary group (bloque). It complements the ar_parliament
-  dataset, which covers the lower house (Chamber of Deputies).
+  This dataset records senators with their name, party, province, and term dates.
 url: https://www.senado.gob.ar/micrositios/DatosAbiertos/
 publisher:
   name: Honorable Senado de la Nación Argentina
   name_en: Honorable Senate of the Argentine Nation
-  acronym: HSN
   description: >
     The Honorable Senate of the Nation is the upper house of the National
     Congress, the bicameral national legislature of Argentina.
@@ -38,6 +32,12 @@ data:
   lang: spa
 dates:
   formats: ["%Y-%m-%d"]
+
+lookups:
+  type.date:
+    options:
+      - match: "Sin Datos"
+        value: null
 
 tags:
   - list.pep

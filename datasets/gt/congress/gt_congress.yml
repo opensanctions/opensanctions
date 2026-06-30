@@ -1,0 +1,58 @@
+title: Guatemala Deputies of Congress of the Republic
+entry_point: crawler.py
+prefix: gt-crc
+coverage:
+  frequency: monthly
+  start: 2026-06-26
+load_statements: true
+ci_test: false
+summary: >-
+  Deputies of the country's unicameral national legislature from the Congress's website.
+description: |
+  Current deputies of the Congress of the Republic (Congreso de la República), the
+  unicameral national legislature of Guatemala. Its 160 deputies are elected for
+  four-year terms and hold the country's legislative power, including passing laws and
+  approving the budget.
+
+  This dataset records each currently serving deputy with their name, date of birth, district,
+  and political party.
+url: https://www.congreso.gob.gt/buscador_diputados
+publisher:
+  name: Congreso de la República de Guatemala
+  name_en: Congress of the Republic of Guatemala
+  description: >
+    The Congress of the Republic is the unicameral national legislature of Guatemala.
+    Its official website publishes the directory and individual profiles of the
+    country's 160 sitting deputies.
+  url: https://www.congreso.gob.gt/
+  country: gt
+  official: true
+data:
+  url: https://www.congreso.gob.gt/ctrl_website/finder_diputies
+  format: JSON
+  lang: spa
+
+dates:
+  formats: ["%Y-%m-%d"]
+
+tags:
+  - list.pep
+
+lookups:
+  type.date:
+    options:
+      - match:
+          - "0000-00-00"  # missing birth dates come with this placeholder
+        value: null
+
+assertions:
+  min:
+    schema_entities:
+      Person: 140
+      Position: 1
+    country_entities:
+      gt: 140
+  max:
+    schema_entities:
+      Person: 175
+      Position: 1

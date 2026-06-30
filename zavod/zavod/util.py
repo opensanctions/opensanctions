@@ -1,5 +1,6 @@
 import orjson
 import logging
+from dataclasses import dataclass
 from lxml import etree
 from functools import cache
 from typing import Optional, Union, IO, Any, Dict
@@ -10,6 +11,19 @@ log = logging.getLogger(__name__)
 Element = etree._Element
 ElementOrTree = Union[etree._Element, etree._ElementTree]
 ID_SEP = "-"
+
+
+@dataclass(frozen=True)
+class LangText:
+    """A piece of text together with its ISO 639-2 language code.
+
+    Use this as the general-purpose carrier for translated/transliterated
+    strings across zavod (e.g. ``shed/trans.py``).
+    """
+
+    text: str
+    lang: Optional[str]
+    """ISO 639-2 (3-letter) language code, or None if not known."""
 
 
 @cache

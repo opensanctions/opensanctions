@@ -21,18 +21,18 @@ def crawl(context: Context) -> None:
     base_url = context.data_url
     doc = context.fetch_html(base_url)
     for link in doc.findall(".//span[@class='field-content']"):
-        url = link.text
-        if url is None or not url.startswith("/"):
+        person_id = link.text
+        if person_id is None or not person_id.startswith("/"):
             continue
-        if url.startswith("/el/"):
+        if person_id.startswith("/el/"):
             continue
-        url = urljoin(base_url, url)
+        url = urljoin(base_url, person_id)
         if "legal-notice" in url:
             continue
-        crawl_person(context, link.text, url)
+        crawl_person(context, person_id=person_id, url=url)
 
 
-def crawl_person(context: Context, person_id: str, url: str) -> None:
+def crawl_person(context: Context, *, person_id: str, url: str) -> None:
     """read and parse every person-page"""
     doc = context.fetch_html(url)
     person = context.make("Person")
@@ -42,6 +42,7 @@ def crawl_person(context: Context, person_id: str, url: str) -> None:
     person.add("sourceUrl", url)
 
     title = doc.findtext(".//title")
+    assert title is not None
     name, _ = title.split("|")
     person.add("name", name.strip())
 
@@ -57,7 +58,9 @@ def crawl_person(context: Context, person_id: str, url: str) -> None:
             value = item.text
             item_time = item.find(".//time")
             if item_time is not None:
-                value = item_time.get("datetime").split("T")[0]
+                datetime_attr = item_time.get("datetime")
+                assert datetime_attr is not None
+                value = datetime_attr.split("T")[0]
             person.add(prop, value)
 
             # print(label, value)

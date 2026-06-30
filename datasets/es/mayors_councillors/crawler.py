@@ -146,7 +146,7 @@ def crawl(context: Context) -> None:
     # Note: Once hist_url xpath fails on 2019_2023, check the dates in the process_excel calls below and update if needed
     hist_url = h.xpath_string(
         hist_doc,
-        ".//div[@class='dnt-link-default']/a[contains(@href, 'Alcaldes_Mandato_2019_2023')]/@href",
+        ".//li[@class='dnt-link-default']/a[contains(@href, 'Alcaldes_Mandato_2019_2023')]/@href",
     )
     process_excel(
         context=context,

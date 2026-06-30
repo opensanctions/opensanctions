@@ -1,0 +1,54 @@
+title: Uzbekistan Members of the Senate
+entry_point: crawler.py
+prefix: uz-senate
+coverage:
+  frequency: monthly
+  start: 2026-06-26
+load_statements: true
+ci_test: false  # Cloudflare-fronted government API needing a browser UA, not in CI
+summary: >-
+  Senators of the upper house of the Oliy Majlis of the Republic of Uzbekistan
+description: |
+  Members of the Senate, the upper house of the bicameral Oliy Majlis of the Republic
+  of Uzbekistan. Since the 2023 constitutional reform the Senate has 65 seats — 56
+  elected indirectly by regional councils (four per region, Karakalpakstan and
+  Tashkent) and 9 appointed by the President — for a five-year term.
+
+  This dataset records each sitting senator with their name (Uzbek Latin and Russian
+  forms), date and place of birth, sourced from the Senate's open JSON API.
+url: https://senat.uz/
+publisher:
+  name: "Oʻzbekiston Respublikasi Oliy Majlisi Senati"
+  name_en: Senate of the Oliy Majlis of the Republic of Uzbekistan
+  description: >
+    The Senate is the upper house of the Oliy Majlis, the bicameral national
+    legislature of the Republic of Uzbekistan.
+  url: https://senat.uz/
+  country: uz
+  official: true
+data:
+  url: https://senat.uz/api/v1/site/person/list?type=1&limit=200&offset=0
+  format: JSON
+  lang: uzb
+
+http:
+  # The site is Cloudflare-fronted and rejects the default crawler user agent.
+  user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36"
+
+dates:
+  formats: ["%d.%m.%Y"]
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 48
+      Position: 1
+    country_entities:
+      uz: 48
+  max:
+    schema_entities:
+      Person: 80
+      Position: 1

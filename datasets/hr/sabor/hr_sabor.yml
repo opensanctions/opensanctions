@@ -1,0 +1,50 @@
+title: Croatia Members of the Parliament
+entry_point: crawler.py
+prefix: hr-sabor
+coverage:
+  frequency: monthly
+  start: 2026-06-26
+load_statements: true
+ci_test: true
+summary: >-
+  Members of the Hrvatski sabor, the unicameral national legislature of Croatia
+description: |
+  Members of the Croatian Parliament (Hrvatski sabor), the unicameral national
+  legislature of Croatia, which has up to 151 representatives elected for four-year
+  terms from territorial constituencies, the diaspora and the national-minority seats.
+
+  This dataset records each sitting representative with their name, date and place of
+  birth, constituency, political party and deputy club, sourced from the Parliament's
+  official website.
+url: https://www.sabor.hr/en/mps
+publisher:
+  name: Hrvatski sabor
+  name_en: Croatian Parliament
+  description: >
+    The Croatian Parliament (Hrvatski sabor) is the unicameral national legislature of
+    the Republic of Croatia.
+  url: https://www.sabor.hr/
+  country: hr
+  official: true
+data:
+  url: https://www.sabor.hr/en/mps
+  format: HTML
+  lang: eng
+
+dates:
+  formats: ["%d %B %Y"]
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 120
+      Position: 1
+    country_entities:
+      hr: 120
+  max:
+    schema_entities:
+      Person: 170
+      Position: 1

@@ -6,6 +6,7 @@ coverage:
   frequency: daily
   start: "2022-04-29"
 load_statements: true
+ci_test: false
 summary: >
   Decisions by the Polish Interior Ministry regarding entities linked
   to the aggression in Ukraine.
@@ -73,14 +74,8 @@ lookups:
   type.identifier:
     normalize: true
     options:
-      - match: 0001008314 REGON 523931831
-        values:
-          - 0001008314
-          - 523931831
       - match: 79090613232)
         value: 79090613232
-      - match: ": 7705122392 (adres w jęz. rosyjskim: 105064, г. Москва, Пер. Малый Казённый, д. 3)"
-        value: 7705122392
   type.name:
     options:
       - match: do 3.03.2022 r. – SULZER MIXPAC POLAND Sp. z o.o.
@@ -88,10 +83,19 @@ lookups:
   details:
     lowercase: true
     options:
-      - match:
-          - (
-          - ","
+      - match: ","
         props: {}
+      - match: "0000426746, numer"
+        props:
+          registrationNumber: "0000426746"
+      - match: "5273044625, REGON: 524556447"
+        props:
+          taxNumber: "5273044625"
+          registrationNumber: "524556447"
+      - match: "7705122392 (adres w jęz. rosyjskim: 105064, г. Москва, Пер. Малый Казённый, д. 3)"
+        props:
+          taxNumber: "7705122392"
+          address: "105064, г. Москва, Пер. Малый Казённый, д. 3"
       - match: ul. Udalcowa 2, Moskwa, Federacja Rosyjska
         props:
           address: ul. Udalcowa 2, Moskwa, Federacja Rosyjska
@@ -120,7 +124,7 @@ lookups:
       - match: "Plac Dąbrowskiego 1, 00-057 Warszawa "
         props:
           address: Plac Dąbrowskiego 1, 00-057 Warszawa
-      - match: "prowadzący działalność gospodarczą pod adresem: 00-844 Warszawa, ul. Grzybowska 87, REGON 147421934"
+      - match: "prowadzący działalność gospodarczą pod adresem: 00-844 Warszawa, ul. Grzybowska 87, "
         props:
           address: "00-844 Warszawa, ul. Grzybowska 87"
           registrationNumber: 147421934
@@ -164,9 +168,6 @@ lookups:
       - match: "adres: ul. Stefana Okrzei 1A lok. 10P, 03-715 Warszawa "
         props:
           address: "ul. Stefana Okrzei 1A lok. 10P, 03-715 Warszawa"
-      - match: "adres: Lielirbes iela 17A–46, Ryga, LV-1046 Łotwa"
-        props:
-          address: "Lielirbes iela 17A–46, Ryga, LV-1046 Łotwa"
       - match: "adres: Biuro 02, Aber King Khalfan Muhammad Khalfan Al Hamli – Al Thanyah 1, Dubaj, Zjednoczone Emiraty Arabskie (nazwa arabska: مكتب 02 ملك عابر خلفان محمد خلفان الهاملىالثنية االولى) numer rejestrowy: 2823197"
         props:
           address: "Biuro 02, Aber King Khalfan Muhammad Khalfan Al Hamli – Al Thanyah 1, Dubaj, Zjednoczone Emiraty Arabskie"

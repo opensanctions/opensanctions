@@ -1,23 +1,23 @@
-title: Assembly of the Republic of Kosovo (Kuvendi i Kosovës)
+title: Kosovo Members of Assembly
 entry_point: crawler.py
 prefix: xk-kuv
 coverage:
-  frequency: weekly
-  start: "2026-06-13"
+  frequency: monthly
+  start: "2026-06-22"
 load_statements: true
 ci_test: false
 summary: >-
   Members of the unicameral Assembly of the Republic of Kosovo.
 description: |
-  The Assembly of the Republic of Kosovo (Kuvendi i Republikës së Kosovës) is the
-  unicameral national legislature of Kosovo. It has 120 seats: 100 general seats and
-  20 reserved for ethnic minority communities, with members elected for four-year terms.
+  Current members of the Assembly of the Republic of Kosovo (Kuvendi i Republikës së
+  Kosovës), the unicameral national legislature of Kosovo. Its 120 deputies — 100 in
+  general seats and 20 reserved for ethnic minority communities — are elected for
+  four-year terms and hold the country's legislative power, including passing laws and
+  approving the budget.
 
-  This dataset captures the current sitting members listed on the Assembly's official
-  website. For each deputy it collects the name, party affiliation, parliamentary group
-  and, where the profile page provides them, date and place of birth, gender, ethnicity
-  and education. The roster is updated after elections and by-elections; not every
-  member's profile carries the full set of biographical fields.
+  This dataset records each sitting deputy with their name, party affiliation,
+  parliamentary group and, where the profile page provides them, date and place of
+  birth, gender, ethnicity, and education.
 url: https://www.kuvendikosoves.org/shq/deputetet/
 publisher:
   name: Assembly of the Republic of Kosovo

@@ -1,0 +1,73 @@
+title: Bolivia Members of the Chamber of Senators
+entry_point: crawler.py
+prefix: bo-senado
+coverage:
+  frequency: monthly
+  start: 2026-06-26
+load_statements: true
+ci_test: true
+summary: >-
+  Senators of the upper chamber of the Plurinational Legislative Assembly of Bolivia
+description: |
+  Current senators of the Cámara de Senadores (Chamber of Senators), the upper
+  chamber of the bicameral Plurinational Legislative Assembly of Bolivia. Its 36
+  senators are elected four per department across the nine departments.
+
+  This dataset records each sitting titular senator with their name, party
+  (bancada), department and date of birth, sourced from the Senate API. Their
+  alternates (suplentes), returned alongside them by the source, are not
+  included.
+url: https://senado.gob.bo/
+publisher:
+  name: Cámara de Senadores de Bolivia
+  name_en: Chamber of Senators of Bolivia
+  description: >
+    The Chamber of Senators is the upper chamber of the Plurinational
+    Legislative Assembly (Asamblea Legislativa Plurinacional), the bicameral
+    national legislature of Bolivia.
+  url: https://senado.gob.bo/
+  country: bo
+  official: true
+data:
+  url: https://apisi.senado.gob.bo/page/senadores
+  format: JSON
+  lang: spa
+
+tags:
+  - list.pep
+
+lookups:
+  # The senators endpoint only exposes a numeric department (brigada) code; map
+  # it to the department name (the nine departments of Bolivia).
+  brigada_department:
+    options:
+      - match: "72"
+        value: Cochabamba
+      - match: "73"
+        value: Beni
+      - match: "74"
+        value: Chuquisaca
+      - match: "75"
+        value: La Paz
+      - match: "76"
+        value: Oruro
+      - match: "77"
+        value: Pando
+      - match: "78"
+        value: Potosí
+      - match: "79"
+        value: Santa Cruz
+      - match: "80"
+        value: Tarija
+
+assertions:
+  min:
+    schema_entities:
+      Person: 20
+      Position: 1
+    country_entities:
+      bo: 28
+  max:
+    schema_entities:
+      Person: 50
+      Position: 1

@@ -1,0 +1,59 @@
+title: Bolivia Members of the Chamber of Deputies
+entry_point: crawler.py
+prefix: bo-dip
+coverage:
+  frequency: monthly
+  start: 2026-06-24
+load_statements: true
+ci_test: false
+summary: >-
+  Deputies of the lower chamber of the Plurinational Legislative Assembly of Bolivia
+description: |
+  Deputies of the Chamber of Deputies (Cámara de Diputados), the lower chamber of the
+  bicameral Plurinational Legislative Assembly of Bolivia. Its 130 titular deputies are
+  elected per department through a mixed system: single-member districts (uninominal),
+  department party lists (plurinominal) and special indigenous-campesino
+  circumscriptions, each with an alternate.
+
+  This dataset records each deputy with their name, party, department and date
+  of birth, sourced from the Chamber's website. The source does not reliably flag which
+  profiles are titulares and which are their suplentes, so both are included.
+url: https://diputados.gob.bo/diputados-home/
+publisher:
+  name: Cámara de Diputados de Bolivia
+  name_en: Chamber of Deputies of Bolivia
+  description: >
+    The Chamber of Deputies is the lower chamber of the Plurinational Legislative
+    Assembly (Asamblea Legislativa Plurinacional), the bicameral national legislature
+    of Bolivia.
+  url: https://diputados.gob.bo/
+  country: bo
+  official: true
+data:
+  # WordPress REST collection of deputy profiles; structured fields are scraped from
+  # each linked profile page (HTML).
+  url: https://diputados.gob.bo/wp-json/wp/v2/diputados
+  format: JSON
+  lang: spa
+
+http:
+  # The site 403s the default crawler user agent; send a browser-like one.
+  user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36"
+
+dates:
+  formats: ["%d/%m/%Y"]
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 200
+      Position: 1
+    country_entities:
+      bo: 200
+  max:
+    schema_entities:
+      Person: 300
+      Position: 1

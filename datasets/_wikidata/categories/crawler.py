@@ -150,7 +150,11 @@ def crawl_category(state: CrawlState, category_crawl_spec: Dict[str, Any]) -> No
     position: Optional[Entity] = None
     if "name" in position_data:
         position = h.make_position(
-            state.context, **position_data, id_hash_prefix="wd-cat"
+            state.context,
+            **position_data,
+            # Our position specs in the metadata are always in English
+            lang="eng",
+            id_hash_prefix="wd-cat",
         )
 
     query_string = urlencode(query)
@@ -286,7 +290,9 @@ def crawl_persons(state: CrawlState) -> None:
         for position in positions:
             if position.id is None or position.id in state.ignore_positions:
                 continue
-            occupancy = h.make_occupancy(state.context, entity, position)
+            occupancy = h.make_occupancy(
+                state.context, entity, position, no_end_implies_current=False
+            )
             if occupancy is not None:
                 state.emit_position(position)
                 state.context.emit(occupancy)

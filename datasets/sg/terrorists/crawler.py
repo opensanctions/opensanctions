@@ -1,13 +1,16 @@
 import re
 from csv import DictReader
+from pathlib import Path
 
 from lxml import html
+from lxml.html import HtmlElement
 from rigour.mime.types import HTML
 from zavod.extract import zyte_api
 
 from zavod import Context
 from zavod import helpers as h
 
+LOCAL_PATH = Path(__file__).parent
 IN_BRACKETS = re.compile(r"\(([^\)]*)\)")
 PROGRAM_KEY = "SG-TSFA2002"
 DOB = "Date of Birth:"
@@ -15,9 +18,15 @@ PASSPORT = "Passport No."
 ADDITIONAL_LISTS_PAGE_URL = "https://www.mas.gov.sg/regulation/anti-money-laundering/targeted-financial-sanctions"
 ADDITIONAL_LISTS_DATA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRb11upZ07FLqPyMrglwkgBFfnBUaRgzmSS6m4l7jKRzvsEcYfikz7tdZb-NmeA-1Eh4p1-Ls2-lc-D/pub?gid=0&single=true&output=csv"
 OTHER_MEASURES_HASHES = {
-    "https://www.mas.gov.sg/regulation/notices/notice-snr-n01-1": "a6ccac778018b2ae1f21eeb4a36942b519275e6b",
-    "https://www.mas.gov.sg/regulation/notices/notice-snr-n03": "8ec3fa32ad46afb0abaa34a03e8737c1fe0828d9",
+    "https://www.mas.gov.sg/regulation/notices/notice-snr-n01-1": "fa43d075a6b7e1099b401e61d5e1f1945cb9b8bc",
+    "https://www.mas.gov.sg/regulation/notices/notice-snr-n03": "f9a595a874e06c1c7610f05ad9fda3c5b96ed4c4",
 }
+
+
+def write_html_for_manual_diff(node: HtmlElement, path: Path) -> None:
+    """Dump a DOM node to a git-tracked, pretty-printed HTML snapshot."""
+    serialised: str = html.tostring(node, pretty_print=True, encoding="unicode")
+    path.write_text(serialised)
 
 
 def crawl_terrorism_act(context: Context) -> None:
@@ -86,6 +95,9 @@ def crawl_additional_lists(context: Context) -> None:
         context, ADDITIONAL_LISTS_PAGE_URL, validator, absolute_links=True
     )
     container = h.xpath_elements(doc, ".//main", expect_exactly=1)
+    write_html_for_manual_diff(
+        container[0], LOCAL_PATH / "targeted-financial-sanctions.html"
+    )
     h.assert_dom_hash(
         node=container[0],
         hash="e1493b2569df16edd621d0afa7eaa65e9a44901e",
@@ -107,6 +119,8 @@ def crawl_additional_lists(context: Context) -> None:
             context.log.warn("Add hash for unknown other measures link", url=other_link)
         else:
             other_container = h.xpath_elements(other_doc, ".//main", expect_exactly=1)
+            slug = other_link.rstrip("/").rsplit("/", 1)[-1]
+            write_html_for_manual_diff(other_container[0], LOCAL_PATH / f"{slug}.html")
             h.assert_dom_hash(
                 node=other_container[0], hash=expected_hash, raise_exc=False
             )

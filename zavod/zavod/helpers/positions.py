@@ -8,6 +8,7 @@ from zavod import settings
 from zavod.constants import ORIGIN_INFERRED
 from zavod.context import Context
 from zavod.entity import Entity
+from zavod.util import LangText
 from zavod.stateful.positions import (
     DEFAULT_AFTER_OFFICE,
     OccupancyStatus,
@@ -33,6 +34,7 @@ def make_position(
     source_url: Optional[str] = None,
     lang: Optional[str] = None,
     id_hash_prefix: Optional[str] = None,
+    translate_name: bool = False,
 ) -> Entity:
     """Creates a Position entity.
 
@@ -53,6 +55,11 @@ def make_position(
         wikidata_id: The Wikidata QID of the position.
         source_url: The URL of the source the position was found in.
         lang: The language of the position details.
+        translate_name: If True and `lang` is a non-English language, the
+            position name is translated to English via an LLM and stored as the
+            `name` (with the original kept as the value's original_value). The
+            entity id is always derived from the untranslated `name`, so it stays
+            stable and independent of the (LLM-produced) translation.
 
     Returns:
         A new entity of type `Position`."""
@@ -74,7 +81,30 @@ def make_position(
     else:
         position.id = context.make_id(*parts, hash_prefix=id_hash_prefix)
 
-    position.add("name", name, lang=lang)
+    # Optionally translate the name to English. The id above is keyed on the
+    # untranslated name, so it stays stable regardless of the LLM output.
+    if translate_name and lang is not None and lang != "eng":
+        # Local import to break the cycle: zavod.shed.trans imports the helpers
+        # package, which imports this module. TODO: move the translation core to
+        # a helpers-free zavod.helpers.translate in a followup so this can become
+        # a top-level import.
+        from zavod.shed.trans import translate_position_name
+
+        result = translate_position_name(context, LangText(text=name, lang=lang))
+        translated = result.get_english()
+        if translated is not None:
+            position.add(
+                "name",
+                translated.text,
+                lang=translated.lang,
+                original_value=name,
+                origin=result.origin,
+            )
+        else:
+            position.add("name", name, lang=lang)
+    else:
+        position.add("name", name, lang=lang)
+
     position.add("summary", summary, lang=lang)
     position.add("description", description, lang=lang)
     position.add("country", country)
