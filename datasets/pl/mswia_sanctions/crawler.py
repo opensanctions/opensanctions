@@ -25,6 +25,9 @@ The input is a Polish-language text that may contain various combinations of:
 - Citizenship (e.g. "obywatel Federacji Rosyjskiej", "obywatelka Republiki Białorusi")
 - Company codes for non-Polish registries ("kod przedsiębiorstwa", "numer rejestrowy",
   "identyfikator rejestracyjny", "numer identyfikacyjny BIN")
+- OGRN / ОГРН (Russian primary state registration number)
+- KPP / КПП (Russian tax registration reason code)
+- OKPO / ОКПО (Russian classifier of enterprises and organizations)
 - DUNS numbers
 
 Extract the following fields:
@@ -32,6 +35,10 @@ Extract the following fields:
   innCode            - Russian INN (ИНН / numer INN) specifically
   registrationNumber - REGON, KRS, BIN, and other business/company registration numbers
   idNumber           - PESEL and other personal ID numbers
+  ogrnCode           - Russian OGRN (ОГРН) specifically
+  kppCode            - Russian KPP (КПП) specifically
+  dunsCode           - DUNS number specifically
+  okpoCode           - Russian OKPO (ОКПО) specifically
   address            - all registered addresses; include both transliterated and original-script
                        versions as separate entries; preserve text exactly
   birthDate          - date of birth in ISO 8601 (YYYY-MM-DD, YYYY-MM, or YYYY)
@@ -41,6 +48,10 @@ Extract the following fields:
 Rules:
 - Preserve address text exactly — no translation.
 - Convert Polish month names to ISO date format for birthDate.
+- For every code/number field (taxNumber, innCode, registrationNumber, idNumber, ogrnCode,
+  kppCode, dunsCode, okpoCode), return ONLY the bare number. Strip any leading label, prefix,
+  or qualifier such as "OKPO", "REGON", "NIP", "INN", "OGRN", "KPP", "DUNS", "ИНН", "ОГРН",
+  "КПП", "ОКПО", ":", etc. For example "OKPO 12345678" must be returned as "12345678".
 - Return empty lists for fields with no value.
 """
 
@@ -53,6 +64,10 @@ class DetailsData(BaseModel):
     innCode: list[str] = []
     registrationNumber: list[str] = []
     idNumber: list[str] = []
+    ogrnCode: list[str] = []
+    kppCode: list[str] = []
+    dunsCode: list[str] = []
+    okpoCode: list[str] = []
     address: list[str] = []
     birthDate: list[str] = []
     birthPlace: list[str] = []
