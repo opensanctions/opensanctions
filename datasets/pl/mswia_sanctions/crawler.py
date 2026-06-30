@@ -40,13 +40,15 @@ Extract the following fields:
   dunsCode           - DUNS number specifically
   okpoCode           - Russian OKPO (ОКПО) specifically
   address            - all registered addresses; include both transliterated and original-script
-                       versions as separate entries; preserve text exactly
+                       versions as separate entries; preserve the address text exactly but strip
+                       any leading label such as "siedziba:", "adres:", "address:", "адрес:"
   birthDate          - date of birth in ISO 8601 (YYYY-MM-DD, YYYY-MM, or YYYY)
   birthPlace         - city/place of birth (English name if well-known, otherwise as given)
   citizenship        - ISO 2-letter country code(s) (e.g. RU, BY, PL, UA)
 
 Rules:
-- Preserve address text exactly — no translation.
+- Preserve address text exactly — no translation — but strip any leading label/prefix such as
+  "siedziba:", "adres:", "address:", "адрес:" so the value starts with the address itself.
 - Convert Polish month names to ISO date format for birthDate.
 - For every code/number field (taxNumber, innCode, registrationNumber, idNumber, ogrnCode,
   kppCode, dunsCode, okpoCode), return ONLY the bare number. Strip any leading label, prefix,
