@@ -40,10 +40,12 @@ Extract the following fields:
   dunsCode           - DUNS number specifically
   okpoCode           - Russian OKPO (ОКПО) specifically
   address            - all registered addresses; include both transliterated and original-script
-                       versions as separate entries; preserve the address text exactly but strip
-                       any leading label such as "siedziba:", "adres:", "address:", "адрес:"
+                       versions as separate entries (see address rule below)
   birthDate          - date of birth in ISO 8601 (YYYY-MM-DD, YYYY-MM, or YYYY)
-  birthPlace         - city/place of birth (English name if well-known, otherwise as given)
+  birthPlace         - city/place of birth as a bare place name in base (nominative) form: drop
+                       the preposition and undo grammatical-case inflection, but do NOT translate,
+                       transliterate to another language, modernise, or rename it. Keep the name
+                       in the language/script of the source ("w Wilnie" -> "Wilno")
   citizenship        - ISO 2-letter country code(s) (e.g. RU, BY, PL, UA)
 
 Rules:
