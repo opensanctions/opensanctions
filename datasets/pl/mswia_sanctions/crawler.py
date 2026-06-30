@@ -85,17 +85,13 @@ def extract_details(context: Context, entity: Entity, details: str) -> None:
     if not review.accepted:
         return
     data = review.extracted_data.details
-    entity.add("taxNumber", data.taxNumber)
-    entity.add("innCode", data.innCode)
-    entity.add("registrationNumber", data.registrationNumber)
-    entity.add("idNumber", data.idNumber)
-    entity.add("address", data.address)
-    for bd in data.birthDate:
-        h.apply_date(entity, "birthDate", bd)
-    for bp in data.birthPlace:
-        entity.add("birthPlace", bp)
-    for cs in data.citizenship:
-        entity.add("citizenship", cs)
+    # Each DetailsData field name maps 1:1 to an FTM property; apply every value.
+    for prop, values in data:
+        if prop == "birthDate":
+            for value in values:
+                h.apply_date(entity, prop, value)
+        else:
+            entity.add(prop, values)
 
 
 def crawl_row(context: Context, row: dict[str, str | None], table_title: str) -> None:
