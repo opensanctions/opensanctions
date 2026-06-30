@@ -25,6 +25,9 @@ The input is a Polish-language text that may contain various combinations of:
 - Citizenship (e.g. "obywatel Federacji Rosyjskiej", "obywatelka Republiki Białorusi")
 - Company codes for non-Polish registries ("kod przedsiębiorstwa", "numer rejestrowy",
   "identyfikator rejestracyjny", "numer identyfikacyjny BIN")
+- OGRN / ОГРН (Russian primary state registration number)
+- KPP / КПП (Russian tax registration reason code)
+- OKPO / ОКПО (Russian classifier of enterprises and organizations)
 - DUNS numbers
 
 Extract the following fields:
@@ -32,15 +35,27 @@ Extract the following fields:
   innCode            - Russian INN (ИНН / numer INN) specifically
   registrationNumber - REGON, KRS, BIN, and other business/company registration numbers
   idNumber           - PESEL and other personal ID numbers
+  ogrnCode           - Russian OGRN (ОГРН) specifically
+  kppCode            - Russian KPP (КПП) specifically
+  dunsCode           - DUNS number specifically
+  okpoCode           - Russian OKPO (ОКПО) specifically
   address            - all registered addresses; include both transliterated and original-script
-                       versions as separate entries; preserve text exactly
+                       versions as separate entries (see address rule below)
   birthDate          - date of birth in ISO 8601 (YYYY-MM-DD, YYYY-MM, or YYYY)
-  birthPlace         - city/place of birth (English name if well-known, otherwise as given)
+  birthPlace         - city/place of birth as a bare place name in base (nominative) form: drop
+                       the preposition and undo grammatical-case inflection, but do NOT translate,
+                       transliterate to another language, modernise, or rename it. Keep the name
+                       in the language/script of the source ("w Wilnie" -> "Wilno")
   citizenship        - ISO 2-letter country code(s) (e.g. RU, BY, PL, UA)
 
 Rules:
-- Preserve address text exactly — no translation.
+- Preserve address text exactly — no translation — but strip any leading label/prefix such as
+  "siedziba:", "adres:", "address:", "адрес:" so the value starts with the address itself.
 - Convert Polish month names to ISO date format for birthDate.
+- For every code/number field (taxNumber, innCode, registrationNumber, idNumber, ogrnCode,
+  kppCode, dunsCode, okpoCode), return ONLY the bare number. Strip any leading label, prefix,
+  or qualifier such as "OKPO", "REGON", "NIP", "INN", "OGRN", "KPP", "DUNS", "ИНН", "ОГРН",
+  "КПП", "ОКПО", ":", etc. For example "OKPO 12345678" must be returned as "12345678".
 - Return empty lists for fields with no value.
 """
 
@@ -53,6 +68,10 @@ class DetailsData(BaseModel):
     innCode: list[str] = []
     registrationNumber: list[str] = []
     idNumber: list[str] = []
+    ogrnCode: list[str] = []
+    kppCode: list[str] = []
+    dunsCode: list[str] = []
+    okpoCode: list[str] = []
     address: list[str] = []
     birthDate: list[str] = []
     birthPlace: list[str] = []
@@ -85,17 +104,13 @@ def extract_details(context: Context, entity: Entity, details: str) -> None:
     if not review.accepted:
         return
     data = review.extracted_data.details
-    entity.add("taxNumber", data.taxNumber)
-    entity.add("innCode", data.innCode)
-    entity.add("registrationNumber", data.registrationNumber)
-    entity.add("idNumber", data.idNumber)
-    entity.add("address", data.address)
-    for bd in data.birthDate:
-        h.apply_date(entity, "birthDate", bd)
-    for bp in data.birthPlace:
-        entity.add("birthPlace", bp)
-    for cs in data.citizenship:
-        entity.add("citizenship", cs)
+    # Each DetailsData field name maps 1:1 to an FTM property; apply every value.
+    for prop, values in data:
+        if prop == "birthDate":
+            for value in values:
+                h.apply_date(entity, prop, value)
+        else:
+            entity.add(prop, values)
 
 
 def crawl_row(context: Context, row: dict[str, str | None], table_title: str) -> None:
