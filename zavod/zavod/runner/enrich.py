@@ -36,8 +36,6 @@ def save_match(
 
 def enrich(context: Context) -> None:
     scope = get_multi_dataset(context.dataset.inputs)
-    # The Context resolver is read-only here (save_match only reads judgements),
-    # so its load commits as a no-op along with the cache via context.close().
     context.log.info(
         "Enriching %s (%s)" % (scope.name, [d.name for d in scope.datasets])
     )
@@ -55,7 +53,7 @@ def enrich(context: Context) -> None:
     )
     try:
         for entity_idx, entity in enumerate(view.entities()):
-            if entity_idx > 0 and entity_idx % 1000 == 0:
+            if entity_idx > 0 and entity_idx % 100 == 0:
                 context.flush()
             if entity_idx > 0 and entity_idx % 10000 == 0:
                 context.log.info("Enriched %s entities..." % entity_idx)

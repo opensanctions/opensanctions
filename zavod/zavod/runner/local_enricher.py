@@ -285,7 +285,7 @@ def enrich(context: Context) -> None:
         entities = subject_view.entities(include_schemata=schemata)
         candidates = enricher.candidates(entities)
         for entity_idx, (entity_id, candidate_set) in enumerate(candidates):
-            if entity_idx > 0 and entity_idx % 1000 == 0:
+            if entity_idx > 0 and entity_idx % 100 == 0:
                 context.flush()
             if entity_idx > 0 and entity_idx % 10000 == 0:
                 context.log.info("Enriched %s entities..." % entity_idx)
