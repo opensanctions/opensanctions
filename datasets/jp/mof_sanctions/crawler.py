@@ -1,6 +1,7 @@
 import re
 import string
 from datetime import date, datetime
+from itertools import chain
 from typing import Dict, List
 from urllib.parse import urljoin
 
@@ -15,8 +16,6 @@ from rigour.mime.types import XLS, XLSX
 from zavod import Context, Entity, settings
 from zavod import helpers as h
 
-# Match non-brackets inside an opening and closing pair of brackets
-BRACKETED = re.compile(r"([(（][^\(\)]*[)）]|\[[^\[\]]*\])")
 
 SPLITS = ["(%s)" % char for char in string.ascii_lowercase]
 SPLITS = SPLITS + ["（%s）" % char for char in string.ascii_lowercase]
@@ -76,42 +75,6 @@ def parse_date(text: List[str]) -> List[str]:
     return dates
 
 
-def parse_names(names: List[str]) -> List[str]:
-    cleaned = []
-    # We split on numbering e.g. (a), (b) when reading the rows of the excel file
-    # so we might have split a cell-wide opening and closing parenthesis
-    split_open = len([n.startswith("(") and n.count(")") == 0 for n in names])
-    split_close = len([n.endswith(")") and n.count("(") == 0 for n in names])
-    split_bracketed = split_open == split_close
-    for name in names:
-        # (a.k.a.:
-        # Full width colon. Yes really.
-        name = re.sub(r"[(（]a\.k\.a\.? ?[:：]? ?", "", name)
-        name = re.sub(r"[（(]original script[:：]\s*(.*?)[）)]", r"\1", name)
-        # It's come up in the opposite order after a U+202B right-to-left embedding char
-        name = re.sub(r"[（(](.*?)\s*[:：]original script[）)]", r"\1", name)
-        name = re.sub(r"[（(]f.k.a.:\s*(.*?)[）)]", r"\1", name)
-
-        # in Excel, it has this value as (previously listed as), (Previously listed as some name)
-        name = name.replace("(previously listed as)", "")
-        name = name.replace("(formerly listed as", "")
-        name = name.replace("a.k.a., the following three aliases:", "")
-        if split_bracketed and name.count("(") == 0 and name.endswith(")"):
-            name = name.rstrip(")")
-        if split_bracketed and name.count(")") == 0 and name.startswith("("):
-            name = name.lstrip("(")
-        # e.g: Al Qaïda au Maghreb islamique (AQMI))
-        name = name.replace("))", ")")
-        name = name.strip(" 、")
-        # U+202B Right to left embedding indicates a part of a string will be right to left
-        if name and name != "\u202b":
-            cleaned.append(name)
-        no_brackets = BRACKETED.sub(" ", name).strip()
-        if no_brackets != name and len(no_brackets):
-            cleaned.append(no_brackets)
-    return cleaned
-
-
 def parse_notes(context: Context, entity: Entity, notes: List[str]) -> None:
     for note in notes:
         cryptos = h.extract_cryptos(note)
@@ -157,19 +120,22 @@ def emit_row(
     if entity.id is None:
         # context.inspect((sheet, row))
         return
-    entity.add("name", parse_names(name_english), lang="eng")
-    entity.add("name", parse_names(name_japanese))
-    entity.add("alias", parse_names(h.multi_split(row.pop("alias", []), ALIAS_SPLITS)))
-    entity.add("alias", parse_names(row.pop("known_alias", [])))
-    # FIXME: https://github.com/opensanctions/opensanctions/issues/2928
-    # entity.add(
-    #     "weakAlias", parse_names(h.multi_split(row.pop("weak_alias", []), ALIAS_SPLITS))
-    # )
-    # entity.add(
-    #     "weakAlias", parse_names(h.multi_split(row.pop("nickname", []), ALIAS_SPLITS))
-    # )
-    entity.add("previousName", parse_names(row.pop("past_alias", [])))
-    entity.add("previousName", parse_names(row.pop("old_name", [])))
+    original = h.Names()
+    for n in chain(name_english, name_japanese):
+        original.add("name", n)
+    for n in chain(
+        h.multi_split(row.pop("alias", []), ALIAS_SPLITS),
+        row.pop("known_alias", []),
+    ):
+        original.add("alias", n)
+    for n in chain(row.pop("past_alias", []), row.pop("old_name", [])):
+        original.add("previousName", n)
+    for n in chain(
+        h.multi_split(row.pop("weak_alias", []), ALIAS_SPLITS),
+        h.multi_split(row.pop("nickname", []), ALIAS_SPLITS),
+    ):
+        original.add("weakAlias", n)
+    h.apply_reviewed_names(context, entity, original=original)
     entity.add_cast("Person", "position", row.pop("position", []), lang="eng")
 
     birth_date = parse_date(row.pop("birth_date", []))
@@ -231,8 +197,7 @@ def emit_row(
     entity.add("topics", "sanction")
     context.emit(entity)
     context.emit(sanction)
-    # TODO: remove IGNORE columns after https://github.com/opensanctions/opensanctions/issues/2928 is fixed
-    context.audit_data(row, ignore=["nickname", "weak_alias"])
+    context.audit_data(row)
 
 
 def trim_rightmost_blank(values: List[str | None], keep: int = 0) -> List[str | None]:
