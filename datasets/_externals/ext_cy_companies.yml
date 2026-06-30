@@ -80,7 +80,11 @@ config:
     - export.control
     - export.control.linked
     - export.risk
+    - invest.ban
+    - invest.risk
     - debarment
+    - reg.action
+    - reg.warn
     - asset.frozen
     - poi
     - gov.soe
