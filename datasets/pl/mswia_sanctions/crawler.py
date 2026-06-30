@@ -104,8 +104,20 @@ def extract_details(context: Context, entity: Entity, details: str) -> None:
     if not review.accepted:
         return
     data = review.extracted_data.details
-    # Each DetailsData field name maps 1:1 to an FTM property; apply every value.
+    # Each DetailsData field name maps 1:1 to an FTM property, but not every property
+    # exists on every schema (e.g. kppCode is Company-only, not on Person). Skip props
+    # the schema doesn't support, warning loudly if that would drop actual values.
     for prop, values in data:
+        if not values:
+            continue
+        if prop not in entity.schema.properties:
+            context.log.warning(
+                "Dropping values for property not on schema",
+                schema=entity.schema.name,
+                prop=prop,
+                values=values,
+            )
+            continue
         if prop == "birthDate":
             for value in values:
                 h.apply_date(entity, prop, value)
