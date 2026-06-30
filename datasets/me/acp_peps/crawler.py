@@ -5,18 +5,10 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 from zipfile import BadZipFile, ZipFile
 
-from zavod.shed.trans import (
-    ENGLISH,
-    apply_translit_full_name,
-    make_position_translation_prompt,
-)
 from zavod.stateful.positions import OccupancyStatus, categorise
 
 from zavod import Context, Entity
 from zavod import helpers as h
-
-TRANSLIT_OUTPUT = [ENGLISH]
-POSITION_PROMPT = prompt = make_position_translation_prompt("cnr")
 
 
 def fetch_latest_filing(
@@ -158,9 +150,8 @@ def emit_affiliated_position(
         context,
         position_name,
         country="me",
-    )
-    apply_translit_full_name(
-        context, position, "cnr", position_name, TRANSLIT_OUTPUT, POSITION_PROMPT
+        lang="cnr",
+        translate_name=True,
     )
 
     categorisation = categorise(context, position, default_is_pep=True)
