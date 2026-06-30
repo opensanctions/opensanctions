@@ -75,8 +75,11 @@ config:
     - role.rca
     - sanction
     - sanction.linked
+    - sanction.counter
+    - sanction.control
     - export.control
     - export.control.linked
+    - export.risk
     - debarment
     - asset.frozen
     - poi
