@@ -1,3 +1,4 @@
+from followthemoney import registry
 from followthemoney.helpers import check_person_cutoff
 from nomenklatura.judgement import Judgement
 from nomenklatura.enrich import Enricher, EnrichmentException, make_enricher
@@ -5,7 +6,8 @@ from nomenklatura.enrich import Enricher, EnrichmentException, make_enricher
 from zavod.meta import Dataset, get_multi_dataset
 from zavod.entity import Entity
 from zavod.context import Context
-from zavod.store import get_store
+from zavod.runner.util import check_enrich_topics, should_promote
+from zavod.store import get_store, View
 
 
 def save_match(
@@ -13,6 +15,7 @@ def save_match(
     enricher: Enricher[Dataset],
     entity: Entity,
     match: Entity,
+    subject_view: View,
 ) -> None:
     if match.id is None or entity.id is None:
         return None
@@ -23,15 +26,26 @@ def save_match(
     if judgement == Judgement.NO_JUDGEMENT:
         context.emit(match, external=True)
 
-    # Store previously confirmed matches to the database and make
-    # them visible:
+    # Store previously confirmed matches to the database and make them visible:
     if judgement == Judgement.POSITIVE:
         context.log.info("Enrich [%s]: %r" % (entity, match))
-        for adjacent in enricher.expand_wrapped(entity, match):
-            if check_person_cutoff(adjacent):
-                continue
-            # self.log.info("Added", entity=adjacent)
-            context.emit(adjacent)
+        expanded = [adjacent for adjacent in enricher.expand_wrapped(entity, match)]
+        if not expanded:
+            return
+
+        # The first expansion result is the confirmed match itself. Keep it
+        # visible; gate the graph context that follows it on risk topics assigned
+        # by the subject datasets and analyzers.
+        context.emit(expanded[0])
+        adjacent = [e for e in expanded[1:] if not check_person_cutoff(e)]
+        topic_matches = check_enrich_topics(
+            adjacent, subject_view, frozenset(registry.topic.RISKS)
+        )
+        for adjacent_entity in adjacent:
+            context.emit(
+                adjacent_entity,
+                external=not should_promote(adjacent_entity, topic_matches),
+            )
 
 
 def enrich(context: Context) -> None:
@@ -44,7 +58,7 @@ def enrich(context: Context) -> None:
     # the (potentially long) store sync below; the resolver is in-memory after.
     context.flush()
     store.sync()
-    view = store.view(scope)
+    view = store.view(scope, external=True)
     enricher = make_enricher(
         context.dataset,
         context.cache,
@@ -60,7 +74,7 @@ def enrich(context: Context) -> None:
             context.log.debug("Enrich query: %r" % entity)
             try:
                 for match in enricher.match_wrapped(entity):
-                    save_match(context, enricher, entity, match)
+                    save_match(context, enricher, entity, match, view)
             except EnrichmentException as exc:
                 context.log.error("Enrichment error %r: %s" % (entity, str(exc)))
         context.log.info("Enrichment process complete.")

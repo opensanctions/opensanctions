@@ -1,6 +1,6 @@
 import logging
 from decimal import Decimal
-from typing import Dict, Generator, Iterable, Iterator, List, Tuple
+from typing import Generator, Iterator, List, Tuple
 from followthemoney import registry, model
 from followthemoney.helpers import check_person_cutoff
 
@@ -18,6 +18,7 @@ from zavod.context import Context
 from zavod.integration.dedupe import get_dataset_linker
 from zavod.entity import Entity
 from zavod.meta import Dataset, get_multi_dataset, get_catalog
+from zavod.runner.util import check_enrich_topics, should_promote
 from zavod.store import get_store, View
 from zavod.reset import reset_caches
 
@@ -166,54 +167,6 @@ class LocalEnricher(BaseEnricher[Dataset]):
         if not self._filter_entity(entity):
             return
         yield from self.expand(match)
-
-
-def _endpoint_ids(entity: Entity) -> set[str]:
-    endpoint_ids: set[str] = set()
-    if entity.schema.source_prop is not None:
-        endpoint_ids.update(entity.get(entity.schema.source_prop.name))
-    if entity.schema.target_prop is not None:
-        endpoint_ids.update(entity.get(entity.schema.target_prop.name))
-    return endpoint_ids
-
-
-def has_enrich_topic(entity_id: str, view: View, enrich_topics: frozenset[str]) -> bool:
-    """True only if the entity exists in the view and carries one of the enrich topics."""
-    canonical_id = view.store.linker.get_canonical(entity_id)
-    entity = view.get_entity(canonical_id)
-    if entity is None:
-        return False
-    return bool(enrich_topics.intersection(entity.get("topics")))
-
-
-def check_enrich_topics(
-    expanded: Iterable[Entity], view: View, enrich_topics: frozenset[str]
-) -> Dict[str, bool]:
-    """Resolve has_enrich_topic exactly once per ID across an entire expansion.
-
-    Edges and non-edges in a single expansion  reference the same handful of IDs.
-    This avoids repeat entity lookups.
-    """
-    ids_to_check: set[str] = set()
-    for entity in expanded:
-        if entity.schema.edge:
-            ids_to_check.update(_endpoint_ids(entity))
-        else:
-            assert entity.id is not None
-            ids_to_check.add(entity.id)
-    return {eid: has_enrich_topic(eid, view, enrich_topics) for eid in ids_to_check}
-
-
-def should_promote(entity: Entity, topic_matches: Dict[str, bool]) -> bool:
-    """Decide whether an entity should be emitted as internal,
-    based on a precomputed map of entity-id → has_enrich_topic."""
-    if entity.schema.edge:
-        endpoint_ids = _endpoint_ids(entity)
-        if not endpoint_ids:
-            return False
-        return all(topic_matches.get(eid, False) for eid in endpoint_ids)
-    assert entity.id is not None
-    return topic_matches.get(entity.id, False)
 
 
 def save_match(

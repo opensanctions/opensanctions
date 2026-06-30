@@ -28,6 +28,16 @@ class StubEnricher(Enricher):
 
     def expand(self, entity: SE, match: SE) -> Generator[SE, None, None]:
         yield match
+        relative = self.make_entity(match, "Person")
+        relative.id = f"{match.id}-relative"
+        relative.add("name", "Enriched Relative")
+        yield relative
+
+        family = self.make_entity(match, "Family")
+        family.id = f"{match.id}-family"
+        family.add("person", match.id)
+        family.add("relative", relative.id)
+        yield family
 
 
 def test_enrich_process(testdataset1: Dataset, enricher: Dataset):
@@ -66,3 +76,14 @@ def test_enrich_process(testdataset1: Dataset, enricher: Dataset):
     stats = crawl_dataset(enricher)
     internals = list(iter_dataset_statements(enricher, external=False))
     assert len(internals) > 2, internals
+    internal_ids = {statement.entity_id for statement in internals}
+    assert "enrich-john-doe" in internal_ids
+    assert "enrich-john-doe-relative" not in internal_ids
+    assert "enrich-john-doe-family" not in internal_ids
+
+    all_statements = list(iter_dataset_statements(enricher, external=True))
+    external_ids = {
+        statement.entity_id for statement in all_statements if statement.external
+    }
+    assert "enrich-john-doe-relative" in external_ids
+    assert "enrich-john-doe-family" in external_ids
