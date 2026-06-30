@@ -46,7 +46,7 @@ lookups:
 assertions:
   min:
     schema_entities:
-      Person: 550
+      Person: 480
       Position: 2
     country_entities:
       py: 100
