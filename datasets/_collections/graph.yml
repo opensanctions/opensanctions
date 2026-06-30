@@ -1,6 +1,7 @@
 type: collection
 title: OpenSanctions Full Graph
 hidden: true
+disabled: true
 deploy:
   cpu: "2000m"
   memory: "6000Mi"
