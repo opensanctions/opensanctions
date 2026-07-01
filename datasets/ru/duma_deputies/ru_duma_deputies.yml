@@ -6,7 +6,6 @@ coverage:
   frequency: weekly
   start: 2026-07-01
 load_statements: true
-ci_test: false
 summary: >-
   Members of the State Duma, the lower chamber of the Federal Assembly of Russia.
 description: |
