@@ -6,6 +6,7 @@ from collections import defaultdict
 from itertools import combinations
 from nomenklatura.matching.compat import clean_name_ascii
 from nomenklatura.stream import StreamEntity
+from nomenklatura.db import make_session
 from rigour.text.distance import levenshtein_similarity
 
 from zavod.meta import Dataset
@@ -32,33 +33,35 @@ def norm_name(name: str) -> Optional[str]:
 def crossref_positions(dataset: Dataset) -> None:
     clear_store(dataset)
     view = get_view(dataset, external=True)
-    resolver = get_resolver()
-    resolver.prune()
-    countries: Dict[str, Dict[str, Set[StreamEntity]]] = defaultdict(
-        lambda: defaultdict(set)
-    )
+    with make_session() as session:
+        resolver = get_resolver(session)
+        resolver.prune()
+        countries: Dict[str, Dict[str, Set[StreamEntity]]] = defaultdict(
+            lambda: defaultdict(set)
+        )
 
-    for entity in view.entities():
-        if not entity.schema.name == "Position":
-            continue
-
-        for country in entity.get("country"):
-            for name in entity.get("name"):
-                name = norm_name(name)
-                if name is None:
-                    continue
-                for token in name.split(" "):
-                    countries[country][token].add(entity)
-                # countries[country][name].add(entity)
-
-    for country_posn in countries.values():
-        for positions in country_posn.values():
-            if len(positions) == 1:
+        for entity in view.entities():
+            if not entity.schema.name == "Position":
                 continue
-            for left, right in combinations(positions, 2):
-                score = levenshtein_similarity(left.caption, right.caption)
-                resolver.suggest(left.id, right.id, score=score, user="position-dedupe")
-    resolver.save()
+
+            for country in entity.get("country"):
+                for name in entity.get("name"):
+                    name = norm_name(name)
+                    if name is None:
+                        continue
+                    for token in name.split(" "):
+                        countries[country][token].add(entity)
+                    # countries[country][name].add(entity)
+
+        for country_posn in countries.values():
+            for positions in country_posn.values():
+                if len(positions) == 1:
+                    continue
+                for left, right in combinations(positions, 2):
+                    score = levenshtein_similarity(left.caption, right.caption)
+                    resolver.suggest(
+                        left.id, right.id, score=score, user="position-dedupe"
+                    )
 
 
 if __name__ == "__main__":
