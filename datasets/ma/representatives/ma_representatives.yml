@@ -5,10 +5,9 @@ coverage:
   frequency: monthly
   start: 2026-06-25
 load_statements: true
-ci_test: false # Live external open-data download, not exercised in CI
+ci_test: true
 summary: >-
-  Members of the House of Representatives (Chambre des Représentants), the lower
-  house of the Parliament of Morocco
+  Members of the Chambre des Représentants, the lower house of the Parliament of Morocco
 description: |
   Members of the House of Representatives (Chambre des Représentants / مجلس النواب), the
   directly elected lower house of the bicameral Parliament of Morocco. It has 395 seats
@@ -47,3 +46,11 @@ assertions:
     schema_entities:
       Person: 420
       Position: 1
+
+lookups:
+  type.gender:
+    options:
+      - match: Homme
+        value: male
+      - match: Femme
+        value: female

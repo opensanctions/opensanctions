@@ -1,4 +1,5 @@
 from openpyxl import load_workbook
+from followthemoney.util import sanitize_text
 from rigour.mime.types import XLSX
 
 from zavod import Context
@@ -6,12 +7,13 @@ from zavod import helpers as h
 from zavod.entity import Entity
 from zavod.stateful.positions import PositionCategorisation, categorise
 
-GENDERS = {"Homme": "male", "Femme": "female"}
+MISSING_ARABIC_NAME = "Said Outghilast"
 
 
 def crawl_member(
     context: Context,
     row: dict[str, str | None],
+    name_ara: str | None,
     position: Entity,
     categorisation: PositionCategorisation,
 ) -> None:
@@ -24,9 +26,8 @@ def crawl_member(
     constituency = row.get("nom_de_la_circonscription")
     person.id = context.make_id(name, constituency)
     h.apply_name(person, full=name, lang="fra")
-    gender = row.get("genre")
-    if gender is not None:
-        person.add("gender", GENDERS[gender])
+    h.apply_name(person, full=name_ara, lang="ara")
+    person.add("gender", row.get("genre"))
     person.add("political", row.get("appartenance_politique"), lang="fra")
     # The right to be elected to the House of Representatives is reserved to Moroccan
     # citizens (Constitution art. 30).
@@ -62,8 +63,16 @@ def crawl(context: Context) -> None:
     categorisation = categorise(context, position)
     context.emit(position)
 
-    # Two parallel sheets ("ar"/"fr"); the French sheet is the complete Latin-script
-    # roster (the Arabic sheet is one row short and has no shared key to join on).
     workbook = load_workbook(path, read_only=True)
+    arabic_names = iter(
+        name
+        for row in workbook["ar"].iter_rows(min_row=2, max_col=5)
+        if (name := sanitize_text(row[4].value)) is not None
+    )
     for row in h.parse_xlsx_sheet(context, workbook["fr"]):
-        crawl_member(context, row, position, categorisation)
+        # The sheets have the same ordering, but Said Outghilast is absent from the
+        # Arabic sheet. Do not advance the Arabic-name iterator for that member.
+        name_ara = None
+        if row.get("prenom_et_nom") != MISSING_ARABIC_NAME:
+            name_ara = next(arabic_names)
+        crawl_member(context, row, name_ara, position, categorisation)
