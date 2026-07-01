@@ -53,9 +53,9 @@ publisher:
   url: https://www.in.gov/fssa/
   official: true
   country: "us"
-url: "https://www.in.gov/fssa/ompp/provider-information4/termination-of-provider-participation-in-medicaid-and-chip/"
+url: "https://www.in.gov/fssa/ompp/provider-information/termination-of-provider-participation-in-medicaid-and-chip"
 data:
-  url: https://www.in.gov/fssa/ompp/provider-information4/termination-of-provider-participation-in-medicaid-and-chip/
+  url: https://www.in.gov/fssa/ompp/provider-information/termination-of-provider-participation-in-medicaid-and-chip/
   format: HTML
   lang: eng
 
