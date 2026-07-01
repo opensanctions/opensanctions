@@ -4,10 +4,17 @@ from zavod import Context, helpers as h
 from zavod.entity import Entity
 from zavod.stateful.positions import categorise
 
-DATA_JSON_URL = "http://duma.gov.ru/data.json"
+BASE_URL = "http://duma.gov.ru/duma/persons/"
 
 
 def current_fraction(record: dict[str, Any], convocation: int) -> dict[str, Any] | None:
+    # fraction_positions holds a person's full history across every convocation
+    # they've served in, and can even list two rows for the same convocation
+    # when a mid-term fraction change occurred. `actual` marks the one that's
+    # true right now, so this just picks that latest row rather than a stale
+    # one — it does not exclude any currently seated deputy: those with no
+    # party affiliation still have a row here for the "not in a faction"
+    # pseudo-fraction, so None only means the person isn't seated this term.
     matches = [
         fraction
         for fraction in record["fraction_positions"]
@@ -46,9 +53,8 @@ def crawl_person(
     # Article 97(1) of the Constitution of the Russian Federation:
     # https://constitutionrf.ru/rzd-1/gl-5/st-97-krf
     person.add("citizenship", "ru")
-    person.add("sourceUrl", f"http://duma.gov.ru/duma/persons/{person_id}/")
+    person.add("sourceUrl", f"{BASE_URL}{person_id}/")
 
-    # IMPORTANT: all person props must be set before make_occupancy
     categorisation = categorise(context, position, default_is_pep=True)
     if not categorisation.is_pep:
         return
@@ -73,7 +79,7 @@ def crawl_person(
 
 
 def crawl(context: Context) -> None:
-    data = context.fetch_json(DATA_JSON_URL, cache_days=1)
+    data = context.fetch_json(context.data_url, cache_days=1)
     convocation = data["last_convocation"]
 
     # Q17276321 — member of the State Duma, the lower house of the Federal
