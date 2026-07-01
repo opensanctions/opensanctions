@@ -6,15 +6,13 @@ coverage:
   frequency: weekly
   start: 2026-07-01
 load_statements: true
-ci_test: false
 summary: >-
   Members of the State Duma, the lower chamber of the Federal Assembly of Russia.
 description: |
   The State Duma (Государственная Дума) is the lower house of the Federal Assembly of
   Russia. It has 450 deputies elected for five-year terms, half via single-mandate
   constituencies and half via party lists under proportional representation. The dataset
-  covers current members of the sitting convocation only, with each deputy's date of
-  taking office where the source provides it.
+  covers current members of the sitting convocation only.
 url: http://duma.gov.ru/en/duma/deputies/
 publisher:
   name: The State Duma of the Federal Assembly of the Russian Federation
@@ -27,25 +25,9 @@ publisher:
   country: ru
   official: true
 data:
-  url: http://duma.gov.ru/en/duma/deputies/
-  format: HTML
-  lang: eng
-
-dates:
-  formats: ["%d %B %Y года"]
-  months:
-    January: января
-    February: февраля
-    March: марта
-    April: апреля
-    May: мая
-    June: июня
-    July: июля
-    August: августа
-    September: сентября
-    October: октября
-    November: ноября
-    December: декабря
+  url: http://duma.gov.ru/data.json
+  format: JSON
+  lang: rus
 
 tags:
   - list.pep
