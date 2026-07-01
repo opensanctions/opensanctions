@@ -51,7 +51,7 @@ tags:
 assertions:
   min:
     schema_entities:
-      Person: 350
+      Person: 400
       Position: 1
   max:
     schema_entities:
