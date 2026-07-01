@@ -8,7 +8,6 @@ from zavod.stateful.positions import PositionCategorisation, categorise
 # The roster is a Nuxt "devalue" payload: a flat pool where container values are
 # integer indices back into the same pool. Resolving one key yields the deputies.
 DEPUTIES_KEY = "deputies"
-GENDERS = {"M": "male", "F": "female"}
 
 
 def resolve(pool: list[Any], index: Any, seen: frozenset[int] = frozenset()) -> Any:
@@ -45,9 +44,7 @@ def crawl_deputy(
         last_name=deputy.get("last_name"),
         lang="fra",
     )
-    gender = deputy.get("gender")
-    if gender is not None:
-        person.add("gender", GENDERS[gender])
+    person.add("gender", deputy.get("gender"))
     h.apply_date(person, "birthDate", deputy.get("birthdate"))
     person.add("birthPlace", deputy.get("birthplace"))
     person.add("notes", deputy.get("biography"))

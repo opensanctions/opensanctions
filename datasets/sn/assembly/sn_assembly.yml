@@ -5,10 +5,9 @@ coverage:
   frequency: monthly
   start: 2026-06-25
 load_statements: true
-ci_test: false # Live external data source, not exercised in CI
+ci_test: true
 summary: >-
-  Members of the National Assembly (Assemblée nationale), the unicameral
-  parliament of Senegal
+  Members of the Assemblée nationale, the unicameral parliament of Senegal
 description: |
   Members of the National Assembly (Assemblée nationale), the unicameral national
   parliament of Senegal. It has 165 deputies elected for five-year terms from
@@ -50,3 +49,11 @@ assertions:
     schema_entities:
       Person: 200
       Position: 1
+
+lookups:
+  type.gender:
+    options:
+      - match: M
+        value: male
+      - match: F
+        value: female
