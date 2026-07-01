@@ -15,9 +15,6 @@ MEMBER_URL = f"{API_BASE}/terrorist-member"
 HEADERS = {"Portal-Id": "22"}
 PAGE_SIZE = 50
 
-# ``codeName`` packs several aliases into one string using either separator.
-ALIAS_SPLITS = [";", ","]
-
 
 def parse_local_date(raw: str | None) -> str | None:
     """
@@ -35,9 +32,12 @@ def crawl_member(
     full_name = member.pop("fullName")
     person.id = context.make_id(full_name)
 
-    h.apply_name(person, full=full_name, lang="vie")
-    for alias in h.multi_split(member.pop("codeName", None) or "", ALIAS_SPLITS):
-        person.add("alias", alias)
+    # aliases can require splitting on occasion;
+    # applying name framework
+    raw_alias = member.pop("codeName")
+    original = h.Names(name=full_name, alias=raw_alias, lang="viet")
+    h.review_names(context, person, original=original)
+    h.apply_reviewed_names(context, person, original=original)
 
     h.apply_date(person, "birthDate", parse_local_date(member.pop("birthDate", None)))
 

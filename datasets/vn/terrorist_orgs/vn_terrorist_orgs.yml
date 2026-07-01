@@ -98,3 +98,8 @@ lookups:
     options:
       - match: danh-sach-chi-dinh-cua-hoi-dong-bao-an-lien-hop-quoc-1751427648
         value: true
+
+names:
+  schema_rules:
+    Person:
+      reject_strings: [",", ";"]
