@@ -1,4 +1,3 @@
-from datetime import datetime, timedelta, timezone
 from typing import Any
 
 from zavod import Context
@@ -16,24 +15,17 @@ MEMBER_URL = f"{API_BASE}/terrorist-member"
 HEADERS = {"Portal-Id": "22"}
 PAGE_SIZE = 50
 
-# The source stores date-only values as local (Indochina Time, UTC+7) midnight
-# serialised to UTC, e.g. "1953-11-19T17:00:00Z" is 1953-11-20 in Vietnam.
-INDOCHINA_TZ = timezone(timedelta(hours=7))
-
 # ``codeName`` packs several aliases into one string using either separator.
 ALIAS_SPLITS = [";", ","]
 
 
 def parse_local_date(raw: str | None) -> str | None:
-    """Convert a UTC timestamp from the source into the intended local date.
-
-    Source birth dates are Indochina-Time midnights serialised to UTC, so the
-    calendar date must be read in UTC+7 to avoid an off-by-one day.
+    """
+    1953-11-19T17:00:00Z -> 1953-11-19
     """
     if raw is None or raw == "":
         return None
-    dt = datetime.fromisoformat(raw.replace("Z", "+00:00"))
-    return dt.astimezone(INDOCHINA_TZ).date().isoformat()
+    return raw[:10]
 
 
 def crawl_member(
