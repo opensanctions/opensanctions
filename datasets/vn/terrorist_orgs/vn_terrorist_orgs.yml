@@ -1,0 +1,100 @@
+title: "Vietnam MPS List of Terrorist Organizations and Individuals"
+entry_point: crawler.py
+prefix: vn-terror
+coverage:
+  frequency: daily
+  schedule: "0 */6 * * *"
+  start: 2026-07-01
+load_statements: true
+ci_test: false
+
+summary: >-
+  Vietnam's list of terrorist organizations by the Ministry of Public Security
+
+description: |
+  The Ministry of Public Security of Vietnam (Bộ Công an) maintains and publishes
+  a list of organizations and individuals designated as terrorist or connected to
+  terrorism and terrorism financing. Under Decree No. 122/2013/NĐ-CP (as amended by
+  Decree No. 93/2024/NĐ-CP), implementing the 2013 Law on Counter-Terrorism
+  (Law No. 28/2013/QH13), all organizations and individuals in Vietnam are required
+  to freeze, seal and sequester without delay the funds and assets of the persons
+  and entities on this list.
+
+  The list covers domestic designations issued by Vietnamese authorities. It also
+  mirrors the designations issued by the UN Security Council (under resolutions
+  1267/1373/1988/1989); those UN entries are already covered by dedicated
+  OpenSanctions datasets and are not imported here.
+
+  Several of the organizations designated by Vietnam — for example Viet Tan, Boat
+  People SOS and the Montagnard groups — are regarded as legitimate civil society
+  or diaspora organizations by international observers, and these designations have
+  been criticised by human rights bodies. Entities from this source are therefore
+  tagged with the ``sanction.counter`` topic to signal that these are
+  counter-terrorism designations whose political context users should weigh.
+
+url: https://bocongan.gov.vn/to-chuc-khung-bo
+
+publisher:
+  name: "Bộ Công an"
+  name_en: "Ministry of Public Security"
+  acronym: MPS
+  description: >
+    The Ministry of Public Security is the government ministry responsible for
+    national security and public order in Vietnam, and the designated national
+    counter-terrorism authority under Vietnamese law.
+  url: https://bocongan.gov.vn/
+  country: vn
+  official: true
+
+data:
+  url: https://api-portal.bocongan.gov.vn/backend-portal/terrorist-organization
+  format: JSON
+  lang: vie
+
+tags:
+  - list.terror
+
+assertions:
+  min:
+    schema_entities:
+      Organization: 4
+      Person: 10
+  max:
+    schema_entities:
+      Organization: 15
+      Person: 40
+
+lookups:
+  type.country:
+    lowercase: true
+    normalize: true
+    options:
+      - match: "Việt Nam"
+        value: vn
+      - match: "Mỹ"
+        value: us
+      - match: "Úc"
+        value: au
+      - match: "Pháp"
+        value: fr
+      - match: "Đan Mạch"
+        value: dk
+
+  type.address:
+    options:
+      - match: "Mỹ"
+        value: None
+
+  gender:
+    options:
+      - match: "1"
+        value: male
+      - match: "0"
+        value: female
+
+  # UN Security Council pass-through entries are skipped: they mirror UN 1267/1373/
+  # 1988/1989 designations already covered by dedicated OpenSanctions datasets.
+  skip.organization:
+    options:
+      - match: danh-sach-chi-dinh-cua-hoi-dong-bao-an-lien-hop-quoc-1751427648
+        value: true
