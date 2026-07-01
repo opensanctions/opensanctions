@@ -5,13 +5,13 @@ coverage:
   frequency: monthly
   start: 2026-06-25
 load_statements: true
-ci_test: false # Live external government website, not available in CI
+ci_test: true
 summary: >-
-  Senators of the Senate of Kenya, the upper house of the Parliament of Kenya
+  Senators of the upper house of the Parliament of Kenya
 description: |
-  Members of the Senate, the upper house of the bicameral Parliament of Kenya. The
-  Senate has 67 senators — 47 elected one per county, plus nominated members
-  representing women, youth and persons with disabilities — serving five-year terms.
+  Members of the Senate (the upper house of the bicameral Parliament of Kenya). The
+  Senate has 67 senators (47 elected one per county, plus nominated members
+  representing women, youth and persons with disabilities) serving five-year terms.
 
   This dataset records each sitting senator with their name, county and political party,
   sourced from the Parliament of Kenya's official website.
