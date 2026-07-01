@@ -6,6 +6,7 @@ coverage:
   frequency: weekly
   start: 2026-07-01
 load_statements: true
+ci_test: false
 summary: >-
   Members of the State Duma, the lower chamber of the Federal Assembly of Russia.
 description: |
@@ -28,6 +29,22 @@ data:
   url: http://duma.gov.ru/data.json
   format: JSON
   lang: rus
+
+dates:
+  formats: ["%d %B %Y года"]
+  months:
+    January: января
+    February: февраля
+    March: марта
+    April: апреля
+    May: мая
+    June: июня
+    July: июля
+    August: августа
+    September: сентября
+    October: октября
+    November: ноября
+    December: декабря
 
 tags:
   - list.pep
