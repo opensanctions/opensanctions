@@ -1,27 +1,30 @@
 from zavod.logs import get_logger
 from nomenklatura.cache import Cache
+from nomenklatura.db import Session
 from nomenklatura.util import is_qid
 from nomenklatura.enrich.wikidata import WikidataEnricher
 from nomenklatura.judgement import Judgement
 
 from zavod.integration import get_resolver
-from opensanctions.core.db import engine, metadata, engine_read
+from opensanctions.core.db import engine, engine_read
 from opensanctions.core.statements import entities_datasets
 from opensanctions.core.catalog import get_catalog
 
 log = get_logger(__name__)
 
 
-def get_wikidata_enricher() -> WikidataEnricher:
+def get_wikidata_enricher(session: Session) -> WikidataEnricher:
     wikidata = get_catalog().require("wikidata")
-    cache = Cache(engine, metadata, wikidata)
+    cache = Cache(session, wikidata)
     wd: WikidataEnricher = wikidata.get_enricher(cache)
     return wd
 
 
 def audit_resolver():
-    wd = get_wikidata_enricher()
-    resolver = get_resolver()
+    session = Session(engine)
+    wd = get_wikidata_enricher(session)
+    resolver = get_resolver(session)
+    resolver.load_into_memory()
 
     log.info("Loading all entity IDs...")
     with engine_read() as conn:
@@ -74,4 +77,4 @@ def audit_resolver():
         if len(qids) > 1:
             log.error("Entity has more than one QID", qids=qids)
 
-    resolver.save()
+    session.commit()
