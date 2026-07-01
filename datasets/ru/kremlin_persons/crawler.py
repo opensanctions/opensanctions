@@ -1,6 +1,5 @@
 import re
 
-from lxml.html import HtmlElement
 from rigour.territories import get_ftm_countries
 
 from zavod import Context
@@ -9,28 +8,6 @@ from zavod.extract import zyte_api
 from zavod.stateful.positions import categorise
 
 BASE_URL = "http://en.kremlin.ru"
-
-MONTHS = {
-    name: index + 1
-    for index, name in enumerate(
-        [
-            "January",
-            "February",
-            "March",
-            "April",
-            "May",
-            "June",
-            "July",
-            "August",
-            "September",
-            "October",
-            "November",
-            "December",
-        ]
-    )
-}
-MONTH_PATTERN = "|".join(MONTHS)
-
 # A former/deceased person's last position is suffixed with the years they held it,
 # e.g. "Adviser to the President of the Russian Federation (2009 - 2010)".
 DATE_RANGE = re.compile(r"^(.*?)\s*\((\d{4})\s*-\s*(\d{4})\)\s*$")
@@ -56,54 +33,6 @@ def foreign_country_match(title: str) -> str | None:
     return None
 
 
-def guess_topics(title: str) -> list[str]:
-    lowered = title.lower()
-    if any(
-        body in lowered
-        for body in ("state duma", "federation council", "federal assembly")
-    ):
-        return ["gov.national", "gov.legislative"]
-    if any(
-        body in lowered
-        for body in ("security council", "foreign intelligence", "fsb")
-    ):
-        return ["gov.national", "gov.security"]
-    if "governor of" in lowered or ("head of the" in lowered and "republic" in lowered):
-        return ["gov.state"]
-    return ["gov.national", "gov.executive"]
-
-
-def parse_date_from_text(text: str, year_hint: str | None) -> str | None:
-    text = text.replace("\xa0", " ")
-    match = re.search(rf"({MONTH_PATTERN})\s+(\d{{1,2}}),?\s+(\d{{4}})", text)
-    if match:
-        return f"{match.group(3)}-{MONTHS[match.group(1)]:02d}-{int(match.group(2)):02d}"
-    match = re.search(rf"(\d{{1,2}})\s+({MONTH_PATTERN})\s+(\d{{4}})", text)
-    if match:
-        return f"{match.group(3)}-{MONTHS[match.group(2)]:02d}-{int(match.group(1)):02d}"
-    match = re.search(rf"({MONTH_PATTERN})\s+(\d{{1,2}})\b", text)
-    if match and year_hint:
-        return f"{year_hint}-{MONTHS[match.group(1)]:02d}-{int(match.group(2)):02d}"
-    match = re.search(r"\b(\d{4})\b", text)
-    if match:
-        return match.group(1)
-    return year_hint
-
-
-def find_life_date(dl: HtmlElement, keyword: str) -> str | None:
-    # Timeline is a flat list of <dt>year</dt><dd>event</dd> pairs, plus some
-    # standalone <dd> entries (personal facts, birth) with no preceding <dt>.
-    year_hint: str | None = None
-    for child in dl.iterchildren():
-        text = h.element_text(child)
-        if child.tag == "dt":
-            year_hint = text.strip() if re.fullmatch(r"\d{4}", text.strip()) else None
-            continue
-        if child.tag == "dd" and re.search(rf"\b{keyword}\b", text, re.IGNORECASE):
-            return parse_date_from_text(text, year_hint)
-    return None
-
-
 def crawl_person(context: Context, person_id: str, kind: str) -> None:
     url = f"{BASE_URL}/catalog/persons/{person_id}/{kind}"
     name_xpath = ".//*[@itemprop='familyName']"
@@ -116,9 +45,7 @@ def crawl_person(context: Context, person_id: str, kind: str) -> None:
     )
 
     family_name = h.element_text(h.xpath_element(doc, name_xpath))
-    given_name = h.element_text(
-        h.xpath_element(doc, ".//*[@itemprop='givenName']")
-    )
+    given_name = h.element_text(h.xpath_element(doc, ".//*[@itemprop='givenName']"))
 
     title_elements = h.xpath_elements(doc, ".//*[@itemprop='jobTitle']")
     if len(title_elements) == 0:
@@ -162,24 +89,11 @@ def crawl_person(context: Context, person_id: str, kind: str) -> None:
     person.add("country", "ru")
     person.add("sourceUrl", url)
 
-    if kind == "biography":
-        timelines = h.xpath_elements(doc, ".//dl[@class='separate_dates']")
-        if len(timelines) != 1:
-            context.log.warning("Expected exactly one biography timeline", url=url)
-        else:
-            born = find_life_date(timelines[0], "born")
-            died = find_life_date(timelines[0], "died")
-            if born is None:
-                context.log.warning("Could not parse birth date", url=url)
-            h.apply_date(person, "birthDate", born)
-            h.apply_date(person, "deathDate", died)
-
     # IMPORTANT: all person props must be set before make_occupancy/categorise.
     position = h.make_position(
         context,
         name=title,
         country="ru",
-        topics=guess_topics(title),
     )
     # Mixed source: government appointees, elected officials, business executives
     # and (filtered out above) foreign leaders all share the one position field.
