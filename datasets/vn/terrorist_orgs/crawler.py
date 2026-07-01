@@ -35,7 +35,9 @@ def crawl_member(
     # aliases can require splitting on occasion;
     # applying name framework
     raw_alias = member.pop("codeName")
-    original = h.Names(name=full_name, alias=raw_alias, lang="viet")
+    original = h.Names()
+    original.add("name", full_name, lang="viet")
+    original.add("alias", raw_alias, lang="viet")
     h.review_names(context, person, original=original)
     h.apply_reviewed_names(context, person, original=original)
 
