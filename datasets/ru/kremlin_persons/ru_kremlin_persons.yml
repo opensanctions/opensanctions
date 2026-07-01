@@ -1,0 +1,54 @@
+name: ru_kremlin_persons
+title: Russia Kremlin Catalog of Persons
+prefix: ru-kremlin
+entry_point: crawler.py
+coverage:
+  frequency: weekly
+  start: 2026-07-01
+load_statements: true
+ci_test: false
+summary: >-
+  Officials, presidential aides, and other notable persons profiled in the
+  Kremlin's "Reference information on persons" directory, with their current
+  or most recently held Russian state position.
+description: |
+  The "Reference information on persons" section of the Kremlin's official
+  website is a directory of presidential administration staff, government
+  officials, security service and executive branch appointees, regional
+  heads, and other figures who have interacted with or served under the
+  President of Russia. It also profiles a smaller number of foreign heads of
+  state and government; this crawler only captures persons whose listed
+  position is at a Russian state body.
+
+  The directory does not separately flag current versus former
+  officeholders: an undated position title means the person currently holds
+  it, while a title suffixed with a year range gives the period during which
+  they held it. Only the most recently listed position is captured, not each
+  person's full career history.
+url: http://en.kremlin.ru/catalog/persons
+publisher:
+  name: Website of the President of Russia
+  acronym: Kremlin
+  description: >
+    The official website of the President of Russia, published by the
+    Presidential Executive Office.
+  url: http://en.kremlin.ru/
+  country: ru
+  official: true
+data:
+  url: http://en.kremlin.ru/catalog/persons
+  format: HTML
+  lang: eng
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 1
+      Position: 1
+  max:
+    schema_entities:
+      Person: 700
+      Position: 700
