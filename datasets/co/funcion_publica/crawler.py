@@ -69,7 +69,12 @@ def build_position(context: Context, *, role: str, entity_name: str) -> Entity:
     position_name = f"{role} - {entity_name}" if append_entity_name else role
 
     position = h.make_position(
-        context, position_name, country="co", topics=topics, lang="spa"
+        context,
+        position_name,
+        country="co",
+        topics=topics,
+        lang="spa",
+        translate_name=True,
     )
 
     return position
