@@ -20,11 +20,16 @@ NAME_PREFIX_RE = re.compile(
     r"^(MP|His Excellency|Her Excellency|Mr\.|Mrs\.|Ms\.|Dr\.|Eng\.|Sheikh)\s+",
     re.IGNORECASE,
 )
+# The member profile template, used both on detail pages and for the speaker's
+# block on the listing page.
+PROFILE_BLOCK = (
+    '//div[contains(@class, "content")]'
+    '[./h4][.//ul[contains(@class, "contactInfo")]]'
+)
 
 
 def parse_profile(block: _Element) -> tuple[str, str | None]:
-    """Parse a member profile block (used for both detail pages and the
-    speaker's block on the listing page), which share one template."""
+    """Parse a member profile block into its name and biography."""
     raw_name = h.element_text(h.xpath_element(block, "./h4"))
     name = NAME_PREFIX_RE.sub("", raw_name)
     paragraphs = [h.element_text(p) for p in h.xpath_elements(block, "./p")]
@@ -42,42 +47,6 @@ def member_links(container: _Element) -> set[str]:
     return links
 
 
-def emit_member(
-    context: Context,
-    position: Entity,
-    categorisation: PositionCategorisation,
-    entity_id: str | None,
-    name: str,
-    biography: str | None,
-    terms: set[int],
-    current_year: int,
-) -> None:
-    """Emit a person and one occupancy per term they served."""
-    assert entity_id is not None
-    person = context.make("Person")
-    person.id = entity_id
-    person.add("name", name, lang="eng")
-    person.add("biography", biography, lang="eng")
-    # The Constitution of Bahrain (2002), Article 57, requires a member of the
-    # Council of Representatives to hold Bahraini citizenship:
-    # https://www.lloc.gov.bh/en/page/The%20Constitution%20of%20the%20Kingdom%20of%20Bahrain
-    person.add("citizenship", "bh")
-
-    for year in terms:
-        is_current = year == current_year
-        occupancy = h.make_occupancy(
-            context,
-            person,
-            position,
-            period_start=str(year),
-            period_end=None if is_current else str(year + TERM_YEARS),
-            categorisation=categorisation,
-        )
-        if occupancy is not None:
-            context.emit(occupancy)
-            context.emit(person)
-
-
 def get_current_year(listing: _Element) -> int:
     """Read the current term's election year from the active navigation label
     (e.g. "MPs 2022"), so the crawler tracks new terms without code changes."""
@@ -88,6 +57,63 @@ def get_current_year(listing: _Element) -> int:
         if match is not None:
             return int(match.group(0))
     raise RuntimeError("Could not determine the current legislative term year")
+
+
+def crawl_person(
+    context: Context,
+    position: Entity,
+    categorisation: PositionCategorisation,
+    entity_id: str | None,
+    block: _Element,
+    year: int,
+    is_current: bool,
+) -> None:
+    """Make a member from their profile block and emit them with an occupancy
+    for the given term, if that occupancy qualifies as a PEP position."""
+    name, biography = parse_profile(block)
+    person = context.make("Person")
+    person.id = entity_id
+    person.add("name", name, lang="eng")
+    person.add("biography", biography, lang="eng")
+    # The Constitution of Bahrain (2002), Article 57, requires a member of the
+    # Council of Representatives to hold Bahraini citizenship:
+    # https://www.lloc.gov.bh/en/page/The%20Constitution%20of%20the%20Kingdom%20of%20Bahrain
+    person.add("citizenship", "bh")
+
+    occupancy = h.make_occupancy(
+        context,
+        person,
+        position,
+        period_start=str(year),
+        period_end=None if is_current else str(year + TERM_YEARS),
+        categorisation=categorisation,
+    )
+    if occupancy is not None:
+        context.emit(person)
+        context.emit(occupancy)
+
+
+def crawl_members(
+    context: Context,
+    position: Entity,
+    categorisation: PositionCategorisation,
+    links: set[str],
+    year: int,
+    is_current: bool,
+) -> None:
+    """Fetch each member's detail page and emit them for the given term."""
+    for url in links:
+        detail = context.fetch_html(url, cache_days=14)
+        block = h.xpath_element(detail, PROFILE_BLOCK)
+        crawl_person(
+            context,
+            position,
+            categorisation,
+            context.make_id(url),
+            block,
+            year,
+            is_current,
+        )
 
 
 def crawl(context: Context) -> None:
@@ -104,14 +130,27 @@ def crawl(context: Context) -> None:
     context.emit(position)
 
     listing = context.fetch_html(context.data_url, cache_days=1)
+    archive = context.fetch_html(ARCHIVE_URL, cache_days=1)
     current_year = get_current_year(listing)
 
-    # Map each member's detail-page URL to the set of terms they served in.
-    member_terms: dict[str, set[int]] = {}
-    for url in member_links(listing):
-        member_terms.setdefault(url, set()).add(current_year)
+    # Current term: the live roster, plus the Speaker who is featured on the
+    # listing page without a detail-page link.
+    crawl_members(
+        context, position, categorisation, member_links(listing), current_year, True
+    )
+    speaker_block = h.xpath_element(listing, PROFILE_BLOCK)
+    speaker_name, _ = parse_profile(speaker_block)
+    crawl_person(
+        context,
+        position,
+        categorisation,
+        context.make_id("speaker", speaker_name),
+        speaker_block,
+        current_year,
+        True,
+    )
 
-    archive = context.fetch_html(ARCHIVE_URL, cache_days=1)
+    # Historical terms: each <div id="<governorate><year>"> block in the archive.
     for block in h.xpath_elements(archive, "//div[@id]"):
         block_id = block.get("id")
         if block_id is None:
@@ -120,42 +159,10 @@ def crawl(context: Context) -> None:
         if match is None:
             continue
         year = int(match.group(1))
-        for url in member_links(block):
-            member_terms.setdefault(url, set()).add(year)
-
-    for url, terms in member_terms.items():
-        detail = context.fetch_html(url, cache_days=14)
-        block = h.xpath_element(
-            detail,
-            '//div[contains(@class, "content")]'
-            '[./h4][.//ul[contains(@class, "contactInfo")]]',
+        # The current term is emitted from the live roster above; skip it here
+        # so sitting members don't also get a second, closed-ended occupancy.
+        if year == current_year:
+            continue
+        crawl_members(
+            context, position, categorisation, member_links(block), year, False
         )
-        name, biography = parse_profile(block)
-        emit_member(
-            context,
-            position,
-            categorisation,
-            context.make_id(url),
-            name,
-            biography,
-            terms,
-            current_year,
-        )
-
-    # The Speaker is featured on the listing page without a detail-page link.
-    speaker_block = h.xpath_element(
-        listing,
-        '//div[contains(@class, "content")]'
-        '[./h4][.//ul[contains(@class, "contactInfo")]]',
-    )
-    name, biography = parse_profile(speaker_block)
-    emit_member(
-        context,
-        position,
-        categorisation,
-        context.make_id("speaker", name),
-        name,
-        biography,
-        {current_year},
-        current_year,
-    )
