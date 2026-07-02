@@ -12,7 +12,10 @@ from zavod.entity import Entity
 API_BASE = "https://api-portal.bocongan.gov.vn/backend-portal"
 MEMBER_URL = f"{API_BASE}/terrorist-member"
 HEADERS = {"Portal-Id": "22"}
-PAGE_SIZE = 50
+# The member endpoint exposes no total count and defaults to 10 results. The
+# largest designation currently has ~15 members, so we request a page well above
+# that and fail loudly if it ever fills up (signalling pagination is needed).
+MEMBER_PAGE_SIZE = 100
 
 ORG_PAGE = "https://bocongan.gov.vn/to-chuc-khung-bo/{slug}"
 
@@ -43,7 +46,6 @@ def crawl_member(
     # The field is labelled "Số hộ chiếu" (passport number) in the source.
     person.add("passportNumber", member.pop("identificationNumber", None))
     person.add("gender", member.pop("gender", None))
-    # notes are only available in Vietnamese
     person.add("notes", member.pop("infoOther", None), lang="vie")
     person.add("topics", "crime.terror")
     person.add("sourceUrl", ORG_PAGE.format(slug=org_slug))
@@ -56,10 +58,11 @@ def crawl_member(
     membership.add("organization", organization)
     membership.add("role", member.pop("position", None), lang="vie")
 
-    context.audit_data(member, ignore=["id", "image", "approvedDate", "status", "slug"])
     context.emit(person)
     context.emit(sanction)
     context.emit(membership)
+
+    context.audit_data(member, ignore=["id", "image", "approvedDate", "status", "slug"])
 
 
 def crawl_organization(context: Context, org: dict[str, Any]) -> None:
@@ -81,18 +84,15 @@ def crawl_organization(context: Context, org: dict[str, Any]) -> None:
     context.emit(entity)
     context.emit(sanction)
 
-    # Fetch structured member records (paginated). Most organizations have none;
-    # they are listed as organization-only designations.
-    for page in range(100):
-        params = {"organization_slug": slug, "page": page, "size": PAGE_SIZE}
-        data = context.fetch_json(
-            MEMBER_URL, params=params, headers=HEADERS, cache_days=1
-        )
-        members = data.get("data") or []
-        for member in members:
-            crawl_member(context, entity, slug, member)
-        if len(members) < PAGE_SIZE:
-            break
+    # Fetch member records. Most organizations have none; they are listed as
+    # organization-only designations.
+    params = {"organization_slug": slug, "size": MEMBER_PAGE_SIZE}
+    data = context.fetch_json(MEMBER_URL, params=params, headers=HEADERS, cache_days=1)
+    members = data.get("data") or []
+    if len(members) >= MEMBER_PAGE_SIZE:
+        raise ValueError(f"Member list for {slug} may be truncated; add pagination")
+    for member in members:
+        crawl_member(context, entity, slug, member)
 
 
 def crawl(context: Context) -> None:
