@@ -1,20 +1,9 @@
 from urllib.parse import urljoin
-from typing import Dict, Tuple, Optional
-from lxml.html import HtmlElement
 
 from zavod import Context, helpers as h
+from zavod.extract import zyte_api
 from zavod.stateful.positions import categorise
 
-
-HEADERS = {
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-    "Accept-Encoding": "gzip, deflate, br",
-    "Accept-Language": "en-GB,en;q=0.9",
-    "Priority": "u=0, i",
-    "Sec-Fetch-Dest": "document",
-    "Sec-Fetch-Mode": "navigate",
-    "Sec-Fetch-Site": "same-origin",
-}
 # List of IDs to skip:
 # These entries are explicitly skipped because they currently contain no data.
 # However, the skip list is maintained so we can verify each skipped case,
@@ -42,22 +31,19 @@ SKIP_LIST = [
 ]
 
 
-def lookup_term_dates(
-    context: Context, term: str
-) -> Tuple[Optional[str], Optional[str]]:
+def lookup_term_dates(context: Context, term: str) -> tuple[str | None, str | None]:
     dates_lookup_result = context.lookup("term", term)
-    if dates_lookup_result is not None:
-        dates = dates_lookup_result.dates[0]
-        start_date = dates.get("start_date")
-        end_date = dates.get("end_date")
-        return start_date, end_date
-    else:
+    if dates_lookup_result is None:
         context.log.warning("Term not found in lookup", term=term)
         return None, None
+    dates = dates_lookup_result.dates[0]
+    start_date = dates.get("start_date")
+    end_date = dates.get("end_date")
+    return start_date, end_date
 
 
 def crawl_row(
-    context: Context, str_row: Dict[str, str | None], id: str, name: str, url: str
+    context: Context, str_row: dict[str, str | None], id: str, name: str, url: str
 ) -> None:
     term = str_row.pop("term")
     assert term is not None, "Term is missing"
@@ -68,6 +54,9 @@ def crawl_row(
     person.add("name", name)
     person.add("political", str_row.pop("party"))
     person.add("sourceUrl", url)
+    # Being a Greek citizen is a constitutional requirement to be elected an MP.
+    # Constitution of Greece, Article 55(1):
+    # https://www.hellenicparliament.gr/UserFiles/f3c70a23-7696-49db-9148-f24dce6a27c8/001-156%20aggliko.pdf
     person.add("citizenship", "gr")
 
     position = h.make_position(
@@ -99,18 +88,31 @@ def crawl_row(
 
 
 def crawl(context: Context) -> None:
-    doc = context.fetch_html(context.data_url, headers=HEADERS, cache_days=1)
+    # The member dropdown is present on both the index and every detail page, so it
+    # doubles as the Zyte unblock validator (a page that rendered has these options).
+    mp_list_xpath = ".//select[@id='ctl00_ContentPlaceHolder1_dmps_mpsListId']/option"
+    doc = zyte_api.fetch_html(
+        context,
+        context.data_url,
+        unblock_validator=mp_list_xpath,
+        html_source="httpResponseBody",
+        cache_days=1,
+    )
     # Get all <option> elements (skip the first 'Select Member')
-    mp_option_els = doc.findall(
-        ".//select[@id='ctl00_ContentPlaceHolder1_dmps_mpsListId']/option"
-    )[1:]
+    mp_option_els = h.xpath_elements(doc, mp_list_xpath)[1:]
     for el in mp_option_els:
         mp_id = el.get("value")
         mp_name = el.text
         assert mp_id is not None and mp_name is not None, "MP ID or name is missing"
         url = urljoin(context.data_url, f"?MpId={mp_id}")
-        mp_page = context.fetch_html(url, cache_days=1)
-        tables = mp_page.findall(".//table[@class='grid']")
+        mp_page = zyte_api.fetch_html(
+            context,
+            url,
+            unblock_validator=mp_list_xpath,
+            html_source="httpResponseBody",
+            cache_days=7,
+        )
+        tables = h.xpath_elements(mp_page, ".//table[@class='grid']")
         # If no table is found for this MP and they're not already in SKIP_LIST,
         # log a warning. Check the logged URL manually to confirm whether this MP
         # genuinely has no details table. If confirmed, add their ID to SKIP_LIST.
@@ -122,7 +124,7 @@ def crawl(context: Context) -> None:
         if not tables:
             continue
         assert len(tables) == 1, len(tables)
-        table: HtmlElement = tables[0]
+        table = tables[0]
         # The last row in the table has a colspan=5 and contains no data.
         # ignore_colspan={"5"} ensures it's skipped during parsing.
         for row in h.parse_html_table(table, ignore_colspan={"5"}):
