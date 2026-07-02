@@ -16,7 +16,7 @@ HEADERS = {"Portal-Id": "22"}
 # largest designation currently has ~15 members, so we request a page well above
 # that and fail loudly if it ever fills up (signalling pagination is needed).
 MEMBER_PAGE_SIZE = 100
-
+PROGRAM_KEY = "VN-TERROR"
 ORG_PAGE = "https://bocongan.gov.vn/to-chuc-khung-bo/{slug}"
 
 
@@ -50,7 +50,7 @@ def crawl_member(
     person.add("topics", "crime.terror")
     person.add("sourceUrl", ORG_PAGE.format(slug=org_slug))
 
-    sanction = h.make_sanction(context, person)
+    sanction = h.make_sanction(context, person, program_key=PROGRAM_KEY)
 
     membership = context.make("Membership")
     membership.id = context.make_id(person.id, "member", organization.id)
@@ -78,7 +78,7 @@ def crawl_organization(context: Context, org: dict[str, Any]) -> None:
     entity.add("topics", "crime.terror")
     entity.add("sourceUrl", ORG_PAGE.format(slug=slug))
 
-    sanction = h.make_sanction(context, entity)
+    sanction = h.make_sanction(context, entity, program_key=PROGRAM_KEY)
 
     context.audit_data(org, ignore=["id", "description"])
     context.emit(entity)
