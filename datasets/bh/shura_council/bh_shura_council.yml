@@ -1,0 +1,77 @@
+title: Bahrain Shura Council Members
+entry_point: crawler.py
+prefix: bh-shura
+coverage:
+  frequency: weekly
+  start: 2026-06-25
+load_statements: true
+ci_test: true
+summary: >-
+  Current and former members of the Consultative Council, the
+  appointed upper house of the National Assembly of Bahrain.
+description: |
+  The Shura Council (Consultative Council, مجلس الشورى) is the upper house of
+  Bahrain's bicameral National Assembly. It has 40 members, all appointed by the
+  King for a four-year legislative term. Members serve alongside the elected
+  Council of Representatives.
+
+  This dataset is built from the council's open-data API. It covers the members
+  of every legislative term published by the council (the first term began in
+  2002), recording one occupancy per member per term they served. Members who
+  left office long enough ago that they no longer qualify as politically exposed
+  are not emitted.
+url: https://shura.bh/en/open-data
+publisher:
+  name: Shura Council of Bahrain
+  acronym: Shura
+  description: >
+    The Shura Council is the appointed upper house of the National Assembly of
+    the Kingdom of Bahrain.
+  url: https://shura.bh/en
+  country: bh
+  official: true
+data:
+  url: https://shura.bh/shura/api/shura-external/list-lts-with-cps
+  format: JSON
+  lang: ara
+
+# Legislative-term dates are written with Arabic Gregorian month names, mapped
+# here onto month numbers parsed by the "%d %m %Y" format.
+dates:
+  formats: ["%d %m %Y"]
+  months:
+    "1": [يناير]
+    "2": [فبراير]
+    "3": [مارس]
+    "4": [أبريل, إبريل]
+    "5": [مايو]
+    "6": [يونيو]
+    "7": [يوليو]
+    "8": [أغسطس]
+    "9": [سبتمبر]
+    "10": [أكتوبر, اكتوبر]
+    "11": [نوفمبر]
+    "12": [ديسمبر]
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 90
+      Position: 1
+    country_entities:
+      bh: 90
+  max:
+    schema_entities:
+      Person: 250
+      Position: 5
+
+lookups:
+  type.gender:
+    options:
+      - match: Male
+        value: male
+      - match: Female
+        value: female
