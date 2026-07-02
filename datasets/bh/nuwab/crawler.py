@@ -62,24 +62,29 @@ def get_current_year(listing: _Element) -> int:
     raise RuntimeError("Could not determine the current legislative term year")
 
 
-def crawl_person(
+def crawl_member(
     context: Context,
     position: Entity,
     categorisation: PositionCategorisation,
-    entity_id: str | None,
-    source_url: str | None,
-    block: _Element,
-    year: int,
-    is_current: bool,
+    url: str,
+    period_start: int,
+    period_end: int | None,
 ) -> None:
-    """Make a member from their profile block and emit them with an occupancy
-    for the given term, if that occupancy qualifies as a PEP position."""
+    """Fetch the member's page, build the person from its single profile block,
+    and emit them with an occupancy for the term if it qualifies as a PEP post.
+    The Speaker's profile is featured on the listing page itself, so passing that
+    URL yields the Speaker the same way a member detail page yields a member.
+
+    `period_end` is None for the current term (open-ended, so it resolves to a
+    current occupancy) and the term's final year for archived terms."""
+    detail = context.fetch_html(url, cache_days=14)
+    block = h.xpath_element(detail, PROFILE_BLOCK)
     name, biography = parse_profile(block)
     person = context.make("Person")
-    person.id = entity_id
+    person.id = context.make_id(url)
     person.add("name", name, lang="eng")
     person.add("biography", biography, lang="eng")
-    person.add("sourceUrl", source_url)
+    person.add("sourceUrl", url)
     # The Constitution of Bahrain (2002), Article 57, requires a member of the
     # Council of Representatives to hold Bahraini citizenship:
     # https://www.lloc.gov.bh/en/page/The%20Constitution%20of%20the%20Kingdom%20of%20Bahrain
@@ -89,37 +94,13 @@ def crawl_person(
         context,
         person,
         position,
-        period_start=str(year),
-        period_end=None if is_current else str(year + TERM_YEARS),
+        period_start=str(period_start),
+        period_end=None if period_end is None else str(period_end),
         categorisation=categorisation,
     )
     if occupancy is not None:
         context.emit(person)
         context.emit(occupancy)
-
-
-def crawl_members(
-    context: Context,
-    position: Entity,
-    categorisation: PositionCategorisation,
-    links: set[str],
-    year: int,
-    is_current: bool,
-) -> None:
-    """Fetch each member's detail page and emit them for the given term."""
-    for url in links:
-        detail = context.fetch_html(url, cache_days=14)
-        block = h.xpath_element(detail, PROFILE_BLOCK)
-        crawl_person(
-            context,
-            position,
-            categorisation,
-            context.make_id(url),
-            url,
-            block,
-            year,
-            is_current,
-        )
 
 
 def crawl(context: Context) -> None:
@@ -138,24 +119,11 @@ def crawl(context: Context) -> None:
     listing = context.fetch_html(context.data_url, cache_days=1)
     current_year = get_current_year(listing)
 
-    # Current term: the live roster, plus the Speaker who is featured on the
-    # listing page without a detail-page link.
-    crawl_members(
-        context, position, categorisation, member_links(listing), current_year, True
-    )
-    speaker_block = h.xpath_element(listing, PROFILE_BLOCK)
-    speaker_name, _ = parse_profile(speaker_block)
-    # The Speaker has no detail page, so there is no deep link to record.
-    crawl_person(
-        context,
-        position,
-        categorisation,
-        context.make_id("speaker", speaker_name),
-        None,
-        speaker_block,
-        current_year,
-        True,
-    )
+    # Current term: the live roster, plus the Speaker, whose profile is featured
+    # on the listing page itself rather than on a member detail page. It is
+    # open-ended (period_end=None) so the occupancy resolves to current.
+    for url in member_links(listing) | {context.data_url}:
+        crawl_member(context, position, categorisation, url, current_year, None)
 
     # Historical terms: one governorate tablist per term in the archive.
     archive = context.fetch_html(ARCHIVE_URL, cache_days=1)
@@ -175,6 +143,7 @@ def crawl(context: Context) -> None:
         assert governorates == expected, (year, expected ^ governorates)
         for panel_id in panel_ids:
             panel = h.xpath_element(archive, f'//div[@id="{panel_id}"]')
-            crawl_members(
-                context, position, categorisation, member_links(panel), year, False
-            )
+            for url in member_links(panel):
+                crawl_member(
+                    context, position, categorisation, url, year, year + TERM_YEARS
+                )
