@@ -83,8 +83,7 @@ def position_for_mandate(context: Context, role: dict[str, Any]) -> Optional[Ent
         )
     if typ == "Departement":
         # Ministers are listed with their Swedish title (e.g. "Statsråd",
-        # "Finansminister", "Statsminister"). We keep it verbatim rather than
-        # translating the dozens of portfolio variants into English.
+        # "Finansminister", "Statsminister").
         if not roll:
             context.log.warning("Cabinet mandate without a title", role=role)
             return None
@@ -94,6 +93,7 @@ def position_for_mandate(context: Context, role: dict[str, Any]) -> Optional[Ent
             country="se",
             topics=["gov.national", "gov.executive"],
             lang="swe",
+            translate_name=True,
         )
     if typ in SKIP_MANDATE_TYPES:
         return None
