@@ -111,6 +111,11 @@ def extract_details(context: Context, entity: Entity, details: str) -> None:
         if not values:
             continue
         if prop not in entity.schema.properties:
+            # Companies have no `citizenship`; the extracted value is the country
+            # the company belongs to, so re-route it to `country` instead.
+            if prop == "citizenship" and "country" in entity.schema.properties:
+                entity.add("country", values)
+                continue
             context.log.warning(
                 "Dropping values for property not on schema",
                 schema=entity.schema.name,
