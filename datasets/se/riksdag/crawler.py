@@ -77,6 +77,7 @@ def position_for_mandate(context: Context, role: dict[str, Any]) -> Optional[Ent
         return h.make_position(
             context,
             name="Member of the European Parliament",
+            wikidata_id="Q27169",
             country="eu",
             topics=["gov.igo", "gov.legislative"],
             lang="eng",
