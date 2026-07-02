@@ -33,20 +33,20 @@ def crawl_member(
     original.add("alias", member.pop("codeName"), lang="vie")
     h.apply_reviewed_names(context, person, original=original)
 
-    h.apply_date(person, "birthDate", member.pop("birthDate", None))
-    person.add("nationality", h.multi_split(member.pop("nationality", None), [","]))
+    h.apply_date(person, "birthDate", member.pop("birthDate"))
+    person.add("nationality", h.multi_split(member.pop("nationality"), [","]))
 
     # The source labels this field "Nơi sinh" (place of birth) but the values are
     # residential addresses (or, at most, a country), so we record them as such.
-    place = member.pop("placeOfBirth", None)
-    if place is not None and place.strip() != "":
+    place = member.pop("placeOfBirth")
+    if place.strip() != "":
         address = h.make_address(context, full=place, lang="vie")
         h.copy_address(person, address)
 
     # The field is labelled "Số hộ chiếu" (passport number) in the source.
-    person.add("passportNumber", member.pop("identificationNumber", None))
-    person.add("gender", member.pop("gender", None))
-    person.add("notes", member.pop("infoOther", None), lang="vie")
+    person.add("passportNumber", member.pop("identificationNumber"))
+    person.add("gender", member.pop("gender"))
+    person.add("notes", member.pop("infoOther"), lang="vie")
     person.add("topics", "crime.terror")
     person.add("sourceUrl", ORG_PAGE.format(slug=org_slug))
 
@@ -56,7 +56,7 @@ def crawl_member(
     membership.id = context.make_id(person.id, "member", organization.id)
     membership.add("member", person)
     membership.add("organization", organization)
-    membership.add("role", member.pop("position", None), lang="vie")
+    membership.add("role", member.pop("position"), lang="vie")
 
     context.emit(person)
     context.emit(sanction)
