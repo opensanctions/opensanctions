@@ -243,6 +243,37 @@ lookups:
         values:
           - "ريز خان"
           - "Rizwan Khan"
+      - match: "Anwar al-Bunni <br> أنور البني"
+        values:
+          - Anwar al-Bunni
+          - أنور البني
+      - match: "Olena Yuriivna Prytula<br />"
+        value: "Olena Yuriivna Prytula"
+      - match: "Ammar Al-Qurabi <br> عمار القربي"
+        values:
+          - Ammar Al-Qurabi
+          - عمار القربي
+      - match: "Hanif Sanket <br> হানিফ সংকেত"
+        values:
+          - Hanif Sanket
+          - হানিফ সংকেত
+      - match: "Lanhee Chen<br/>陳仁宜"
+        values:
+          - Lanhee Chen
+          - 陳仁宜
+      - match: "Mohamed Said Atom <br> محمد سعيد اتوم"
+        values:
+          - Mohamed Said Atom
+          - محمد سعيد اتوم
+      - match: "Muntassir Mamoon <br> মুনতাসীর মামুন"
+        values:
+          - Muntassir Mamoon
+          - মুনতাসীর মামুন
+      - match: "Sayed Zabiuddin<br/>aka Abu Jundal<br/>aka Abu Hamza"
+        values:
+          - Sayed Zabiuddin
+          - Abu Jundal
+          - Abu Hamza
   type.date:
     options:
       - match:
