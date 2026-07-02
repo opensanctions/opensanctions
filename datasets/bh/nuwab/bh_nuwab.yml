@@ -14,10 +14,9 @@ description: |
   elected for a four-year legislative term, serving alongside the appointed
   Shura Council.
 
-  This dataset covers the members of the current term and the archived terms
-  that still fall within the OpenSanctions PEP-relevance window. One occupancy
-  is recorded per member per term they served, along with a biography where the
-  council publishes one.
+  This dataset covers the members of the current term and previous terms, including
+  their name, position, term of office, and other biographical information 
+  where available.
 url: https://www.nuwab.bh/en/members-of-parliament/
 publisher:
   name: Council of Representatives of Bahrain
@@ -52,4 +51,4 @@ assertions:
   max:
     schema_entities:
       Person: 300
-      Position: 5
+      Position: 1
