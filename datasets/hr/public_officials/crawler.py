@@ -68,10 +68,8 @@ def make_position_name(data: Dict[str, str]) -> Optional[str]:
 def make_affiliation_entities(
     context: Context,
     person: Entity,
-    *,
     position_name: Optional[str],
-    default_is_pep: bool,
-    position_data: Dict[str, str],
+    data: Dict[str, str],
 ) -> List[Entity]:
     """Creates Position and Occupancy provided that the Occupancy meets OpenSanctions criteria.
     * A position's name include the title and optionally the name of the legal entity
@@ -82,13 +80,13 @@ def make_affiliation_entities(
     if position_name is None or position_name.strip() == "":
         return []
 
-    start_date = position_data.pop("position_start_date")
-    end_date = position_data.pop("position_end_date")
-    context.audit_data(position_data)
+    start_date = data.pop("position_start_date")
+    end_date = data.pop("position_end_date")
+    context.audit_data(data)
 
     position = h.make_position(context, position_name, country="HR")
 
-    categorisation = categorise(context, position, default_is_pep=default_is_pep)
+    categorisation = categorise(context, position, default_is_pep=True)
     occupancy = h.make_occupancy(
         context,
         person,
@@ -105,15 +103,12 @@ def make_affiliation_entities(
 
 def make_person(
     context: Context,
-    *,
     first_name: str,
     last_name: str,
-    primary_position_name: Optional[str],
-    secondary_position_name: Optional[str],
+    primary: Optional[str],
+    secondary: Optional[str],
 ) -> Entity:
-    positions = sorted(
-        p for p in [primary_position_name, secondary_position_name] if p is not None
-    )
+    positions = sorted(p for p in [primary, secondary] if p is not None)
     position = positions[0] if positions else None
     person = context.make("Person")
     person.id = context.make_id(first_name, last_name, position)
@@ -141,38 +136,29 @@ def crawl_row(context: Context, row: Dict[str, str]) -> None:
     position_entities = []
 
     primary_position_data = dict_keys_by_prefix(row, "primary_")
-    primary_has_title = primary_position_data.get("position") is not None
     primary_position_name = make_position_name(primary_position_data)
-    secondary_position_data = dict_keys_by_prefix(row, "secondary_")
-    secondary_has_title = secondary_position_data.get("position") is not None
-    secondary_position_name = make_position_name(secondary_position_data)
+    secondary_data = dict_keys_by_prefix(row, "secondary_")
+    secondary_position_name = make_position_name(secondary_data)
 
     person = make_person(
         context,
-        first_name=row.pop("first_name"),
-        last_name=row.pop("last_name"),
-        primary_position_name=primary_position_name,
-        secondary_position_name=secondary_position_name,
+        row.pop("first_name"),
+        row.pop("last_name"),
+        primary_position_name,
+        secondary_position_name,
     )
 
     position_entities.extend(
         make_affiliation_entities(
             context,
             person,
-            position_name=primary_position_name,
-            # "Unknown position" (no title) -> default to non-PEP
-            default_is_pep=primary_has_title,
-            position_data=primary_position_data,
+            primary_position_name,
+            primary_position_data,
         )
     )
     position_entities.extend(
         make_affiliation_entities(
-            context,
-            person,
-            position_name=secondary_position_name,
-            # "Unknown position" (no title) -> default to non-PEP
-            default_is_pep=secondary_has_title,
-            position_data=secondary_position_data,
+            context, person, secondary_position_name, secondary_data
         )
     )
 
