@@ -24,7 +24,6 @@ def crawl_item(context: Context, item: Dict[str, Any]) -> None:
     entity = context.make("Organization")
     entity.id = context.make_slug(ror_uri.rsplit("/", 1)[-1])
     entity.add("sourceUrl", ror_uri)
-    entity.add("name", item.pop("name", None))
     for name in item.pop("names", []):
         lang = iso_639_alpha3(name.get("lang", ""))
         types = name.pop("types", [])
@@ -33,7 +32,7 @@ def crawl_item(context: Context, item: Dict[str, Any]) -> None:
             prop = "alias"
         if "acronym" in types:
             prop = "weakAlias"
-        entity.add(prop, name.get("name"), lang=lang)
+        entity.add(prop, name.get("value"), lang=lang)
 
     entity.add("sector", item.pop("types"))
 
