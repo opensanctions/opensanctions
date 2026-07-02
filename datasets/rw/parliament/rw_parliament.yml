@@ -1,0 +1,49 @@
+title: Rwanda Members of Parliament
+entry_point: crawler.py
+prefix: rw-parl
+coverage:
+  frequency: monthly
+  start: 2026-07-02
+load_statements: true
+ci_test: true
+summary: >-
+  Members of the Chamber of Deputies and the Senate of the Parliament of Rwanda
+description: |
+  Members of the bicameral Parliament of Rwanda: the Chamber of Deputies — 80 members,
+  most directly elected and the remainder reserved for women, youth and persons with
+  disabilities — and the Senate — 26 members, elected and appointed through several
+  colleges. Both serve five-year terms.
+
+  This dataset records each sitting member of both chambers with their name, date of
+  birth and term, sourced from the Parliament's official website.
+url: https://www.parliament.gov.rw/parliament/members
+publisher:
+  name: Parliament of Rwanda
+  description: >
+    The Parliament of Rwanda is the bicameral national legislature, comprising the
+    Chamber of Deputies and the Senate.
+  url: https://www.parliament.gov.rw/
+  country: rw
+  official: true
+data:
+  url: https://www.parliament.gov.rw/parliament/members
+  format: HTML
+  lang: eng
+
+dates:
+  formats: ["%d.%m.%Y", "%Y"]
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 90
+      Position: 2
+    country_entities:
+      rw: 90
+  max:
+    schema_entities:
+      Person: 130
+      Position: 2
