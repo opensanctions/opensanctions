@@ -78,7 +78,6 @@ def make_affiliation_entities(
     * A position with a legal entity but no title is titled 'Unknown position'
     * All positions (and Occupancies, Persons) are assumed to be Croatian
     * Positions with start and/or end date but no position name or legal entity name are discarded
-    * Positions not categorised as PEP are discarded
     """
     if position_name is None or position_name.strip() == "":
         return []
@@ -90,8 +89,6 @@ def make_affiliation_entities(
     position = h.make_position(context, position_name, country="HR")
 
     categorisation = categorise(context, position, default_is_pep=default_is_pep)
-    if not categorisation.is_pep:
-        return []
     occupancy = h.make_occupancy(
         context,
         person,
