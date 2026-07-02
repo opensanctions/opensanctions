@@ -1,4 +1,3 @@
-# import re
 from itertools import count
 
 from lxml.html import HtmlElement
@@ -7,38 +6,6 @@ from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
 from zavod.stateful.positions import PositionCategorisation, categorise
-
-# # Leading honorifics/titles to strip from listing names; post-nominals (CBS, MP, OGW…)
-# # sit after a comma and are dropped with everything past the first comma.
-# TITLES = {
-#     "sen",
-#     "hon",
-#     "dr",
-#     "prof",
-#     "amb",
-#     "eng",
-#     "justice",
-#     "rtd",
-#     "gen",
-#     "capt",
-#     "maj",
-#     "col",
-#     "cs",
-#     "bishop",
-#     "rev",
-#     "mrs",
-#     "mr",
-#     "ms",
-# }
-#
-#
-# def clean_name(raw: str) -> str:
-#     name = re.sub(r"\([^)]*\)", " ", raw)  # drop "(Dr.)", "(Rtd)" etc.
-#     name = name.split(",")[0]  # drop trailing post-nominals
-#     tokens = name.split()
-#     while tokens and tokens[0].lower().strip(".") in TITLES:
-#         tokens.pop(0)
-#     return " ".join(tokens)
 
 
 def field(row: HtmlElement, name: str) -> str | None:
@@ -61,7 +28,9 @@ def crawl_senator(
 
     person = context.make("Person")
     person.id = context.make_slug("senator", slug)
-    h.apply_name(person, full=raw_name, lang="eng")
+    clean_name = h.strip_name_titles(context, raw_name)
+    original_name = raw_name if clean_name != raw_name else None
+    person.add("name", clean_name, lang="eng", original_value=original_name)
     party = field(row, "views-field-field-party-senator")
     person.add("political", party)
     # Senators must be Kenyan citizens (Constitution art. 99); as State officers they

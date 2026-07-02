@@ -33,6 +33,46 @@ data:
 tags:
   - list.pep
 
+names:
+  prefixes_strip:
+    - Sen.
+    - Hon.
+    - "Hon "
+    - Dr.
+    - (Dr.)
+    - Prof.
+    - (Prof.)
+    - Amb.
+    - (Amb.)
+    - Eng.
+    - (Eng.)
+    - "Justice "
+    - "Rtd "
+    - (Rtd)
+    - Gen.
+    - "Gen "
+    - (Gen.)
+    - (Gen)
+    - Capt.
+    - "Capt "
+    - Maj.
+    - "Maj "
+    - Col.
+    - "Col "
+    - "CS "
+    - (CS)
+    - "Bishop "
+    - Rev.
+    - "Rev "
+    - Mrs.
+    - Mr.
+    - Ms.
+  suffixes_strip:
+    - ", MP"
+    - ", CBS"
+    - ", OGW"
+    - ", CS"
+
 assertions:
   min:
     schema_entities:
