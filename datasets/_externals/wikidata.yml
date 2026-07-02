@@ -127,6 +127,8 @@ lookups:
           - CHEUNG Yan
       - match: "<<ال>>عناني، جواد أحمد"
         value: "العناني، جواد أحمد"
+      - match: "<<ال>>عونى، حاتم بن عارف"
+        value: "العونى، حاتم بن عارف"
       - match: "Yosra El Lozy <Br />"
         value: "Yosra El Lozy"
       - match: "Vadim Yakovlevich Pisarev<br /> Вадим Яковлевич Писарев"
