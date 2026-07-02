@@ -19,27 +19,6 @@ TERM_RE = re.compile(r"From\s+(\d{4})\s+to\s+(\d{4})")
 MAX_PAGES = 20
 
 
-def parse_profile(doc: Element) -> dict[str, Element]:
-    """Map each profile ``<dt>`` label to its ``<dd>`` value element.
-
-    The detail page renders member attributes as a definition list whose labels
-    vary between members and chambers (e.g. the term row is keyed by the chamber
-    name), so we key on the normalised label text.
-    """
-    fields: dict[str, Element] = {}
-    dls = h.xpath_elements(doc, "//dl")
-    if len(dls) == 0:
-        return fields
-    label: str | None = None
-    for child in dls[0]:
-        if child.tag == "dt":
-            label = h.element_text(child).strip().rstrip(":").strip()
-        elif child.tag == "dd" and label is not None:
-            fields[label] = child
-            label = None
-    return fields
-
-
 def collect_articles(articles: list[Element], members: dict[str, str]) -> None:
     """Record {detail_url: name} for each member article carrying a profile link."""
     for article in articles:
@@ -96,7 +75,6 @@ def crawl_member(
 ) -> None:
     doc = context.fetch_html(detail_url, cache_days=7)
     text = h.element_text(doc)
-    fields = parse_profile(doc)
 
     person = context.make("Person")
     person.id = context.make_slug(detail_url.rstrip("/").split("/")[-1])
