@@ -41,6 +41,16 @@ def parse_profile(block: _Element) -> tuple[str, str | None]:
     return (name, biography)
 
 
+def parse_constituency(block: _Element) -> str | None:
+    """The constituency ("<Governorate> - <District>") appears just below the
+    name — in a <span> on member detail pages, an <h5> on the listing page."""
+    for element in h.xpath_elements(block, "./span | ./h5"):
+        text = h.element_text(element)
+        if "Governorate" in text:
+            return text
+    return None
+
+
 def member_links(container: _Element) -> set[str]:
     """Collect the detail-page URLs of all members linked within an element."""
     links = set()
@@ -81,6 +91,7 @@ def crawl_member(
     detail = context.fetch_html(url, cache_days=14)
     block = h.xpath_element(detail, PROFILE_BLOCK)
     name, biography = parse_profile(block)
+    constituency = parse_constituency(block)
     person = context.make("Person")
     person.id = context.make_id(url)
     person.add("name", name, lang="eng")
@@ -100,6 +111,7 @@ def crawl_member(
         categorisation=categorisation,
     )
     if occupancy is not None:
+        occupancy.add("constituency", constituency)
         context.emit(person)
         context.emit(occupancy)
 
