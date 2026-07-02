@@ -83,7 +83,7 @@ lookups:
   type.address:
     options:
       - match: "Mỹ"
-        value: None
+        value: "United States"
 
   gender:
     options:

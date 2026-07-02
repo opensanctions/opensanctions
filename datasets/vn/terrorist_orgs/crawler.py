@@ -32,8 +32,7 @@ def crawl_member(
     full_name = member.pop("fullName")
     person.id = context.make_id(full_name)
 
-    # aliases can require splitting on occasion;
-    # applying name framework
+    # aliases can require splitting on occasion
     raw_alias = member.pop("codeName")
     original = h.Names()
     original.add("name", full_name, lang="viet")
