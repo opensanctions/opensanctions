@@ -64,6 +64,7 @@ def crawl_person(
     position: Entity,
     categorisation: PositionCategorisation,
     entity_id: str | None,
+    source_url: str | None,
     block: _Element,
     year: int,
     is_current: bool,
@@ -75,6 +76,7 @@ def crawl_person(
     person.id = entity_id
     person.add("name", name, lang="eng")
     person.add("biography", biography, lang="eng")
+    person.add("sourceUrl", source_url)
     # The Constitution of Bahrain (2002), Article 57, requires a member of the
     # Council of Representatives to hold Bahraini citizenship:
     # https://www.lloc.gov.bh/en/page/The%20Constitution%20of%20the%20Kingdom%20of%20Bahrain
@@ -110,6 +112,7 @@ def crawl_members(
             position,
             categorisation,
             context.make_id(url),
+            url,
             block,
             year,
             is_current,
@@ -140,11 +143,13 @@ def crawl(context: Context) -> None:
     )
     speaker_block = h.xpath_element(listing, PROFILE_BLOCK)
     speaker_name, _ = parse_profile(speaker_block)
+    # The Speaker has no detail page, so there is no deep link to record.
     crawl_person(
         context,
         position,
         categorisation,
         context.make_id("speaker", speaker_name),
+        None,
         speaker_block,
         current_year,
         True,

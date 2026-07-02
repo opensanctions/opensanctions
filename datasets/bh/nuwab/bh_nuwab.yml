@@ -14,10 +14,10 @@ description: |
   elected for a four-year legislative term, serving alongside the appointed
   Shura Council.
 
-  This dataset covers the members of the current term and every archived term
-  back to the first elections in 2002. One occupancy is recorded per member per
-  term they served, with biography, official email and phone number where the
-  council publishes them.
+  This dataset covers the members of the current term and the archived terms
+  that still fall within the OpenSanctions PEP-relevance window. One occupancy
+  is recorded per member per term they served, along with a biography where the
+  council publishes one.
 url: https://www.nuwab.bh/en/members-of-parliament/
 publisher:
   name: Council of Representatives of Bahrain
