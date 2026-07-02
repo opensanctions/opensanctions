@@ -1,0 +1,58 @@
+title: "Malaysia Dewan Negara"
+entry_point: crawler.py
+prefix: my-dn
+coverage:
+  frequency: weekly
+  start: 2026-07-02
+load_statements: true
+ci_test: false
+summary: >-
+  Members of the Senate, the upper house of the Parliament of Malaysia
+description: |
+  Members (senators) of the Malaysian Senate (Dewan Negara), scraped from the
+  official parliament portal. Senators serve three-year terms and are either
+  appointed by the King (Yang di-Pertuan Agong) or selected by the state
+  legislative assemblies. The chamber routinely operates below its 70-seat
+  capacity as appointed seats lapse and await reappointment.
+
+  In addition to the senators, the dataset includes the President
+  (Yang di-Pertua) and Deputy President of the house, and members' cabinet
+  (ministerial) offices.
+url: https://www.parlimen.gov.my/ahli-dewan-dn.html?uweb=dn&lang=en
+publisher:
+  name: Parliament of Malaysia
+  description: >
+    The Parliament of Malaysia is the national legislature, comprising the
+    Dewan Rakyat (House of Representatives) and the Dewan Negara (Senate).
+  url: https://www.parlimen.gov.my/
+  country: my
+  official: true
+data:
+  url: https://www.parlimen.gov.my/ahli-dewan-dn.html?uweb=dn&lang=en
+  format: HTML
+  lang: eng
+
+dates:
+  formats: ["%d.%m.%Y"]
+
+tags:
+  - list.pep
+
+lookups:
+  type.email:
+    options:
+      # Placeholder used by the source when no address is on file.
+      - match: "-"
+        value: null
+
+assertions:
+  min:
+    schema_entities:
+      Person: 40
+      Position: 1
+    country_entities:
+      my: 40
+  max:
+    schema_entities:
+      Person: 70
+      Position: 25
