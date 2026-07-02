@@ -2,48 +2,36 @@ from typing import Any
 
 from zavod import Context
 from zavod import helpers as h
+from zavod.entity import Entity
 
 # The portal's backend API. The list endpoint returns the designated
 # organizations; members of each organization are fetched from a paginated
 # per-organization endpoint. Both require the numeric ``Portal-Id`` header
-# that selects the Vietnamese-language portal.
+# that selects the Vietnamese-language portal (the authoritative content tree
+# that carries the member records).
 API_BASE = "https://api-portal.bocongan.gov.vn/backend-portal"
 MEMBER_URL = f"{API_BASE}/terrorist-member"
-# The portal serves separate Vietnamese- and English-language content trees,
-# each selected by a numeric ``Portal-Id`` header. The Vietnamese portal is the
-# authoritative source (it carries the member records);
 HEADERS = {"Portal-Id": "22"}
 PAGE_SIZE = 50
 
-
-def parse_local_date(raw: str | None) -> str | None:
-    """
-    1953-11-19T17:00:00Z -> 1953-11-19
-    """
-    if raw is None or raw == "":
-        return None
-    return raw[:10]
+ORG_PAGE = "https://bocongan.gov.vn/to-chuc-khung-bo/{slug}"
 
 
 def crawl_member(
-    context: Context, organization: Any, org_slug: str, member: dict[str, Any]
+    context: Context, organization: Entity, org_slug: str, member: dict[str, Any]
 ) -> None:
     person = context.make("Person")
     full_name = member.pop("fullName")
     person.id = context.make_id(full_name)
 
     # aliases can require splitting on occasion
-    raw_alias = member.pop("codeName")
     original = h.Names()
-    original.add("name", full_name, lang="viet")
-    original.add("alias", raw_alias, lang="viet")
-    h.review_names(context, person, original=original)
+    original.add("name", full_name, lang="vie")
+    original.add("alias", member.pop("codeName"), lang="vie")
     h.apply_reviewed_names(context, person, original=original)
 
-    h.apply_date(person, "birthDate", parse_local_date(member.pop("birthDate", None)))
-
-    for nationality in (member.pop("nationality", None) or "").split(","):
-        person.add("nationality", nationality.strip())
+    h.apply_date(person, "birthDate", member.pop("birthDate", None))
+    person.add("nationality", h.multi_split(member.pop("nationality", None), [","]))
 
     # The source labels this field "Nơi sinh" (place of birth) but the values are
     # residential addresses (or, at most, a country), so we record them as such.
@@ -54,31 +42,19 @@ def crawl_member(
 
     # The field is labelled "Số hộ chiếu" (passport number) in the source.
     person.add("passportNumber", member.pop("identificationNumber", None))
-
-    gender = member.pop("gender", None)
-    if gender is not None:
-        person.add("gender", context.lookup_value("gender", str(gender)))
-
-    # notes are only available in Vietnamese;
+    person.add("gender", member.pop("gender", None))
+    # notes are only available in Vietnamese
     person.add("notes", member.pop("infoOther", None), lang="vie")
     person.add("topics", "crime.terror")
+    person.add("sourceUrl", ORG_PAGE.format(slug=org_slug))
 
-    # listing of members is on the org page
-    person.add("sourceUrl", f"https://bocongan.gov.vn/to-chuc-khung-bo/{org_slug}")
-
-    position = member.pop("position", None)
-
-    sanction = h.make_sanction(
-        context,
-        person,
-        program_name="Vietnam MPS list of designated terrorists and terrorism financers",
-    )
+    sanction = h.make_sanction(context, person)
 
     membership = context.make("Membership")
     membership.id = context.make_id(person.id, "member", organization.id)
     membership.add("member", person)
     membership.add("organization", organization)
-    membership.add("role", position, lang="vie")
+    membership.add("role", member.pop("position", None), lang="vie")
 
     context.audit_data(member, ignore=["id", "image", "approvedDate", "status", "slug"])
     context.emit(person)
@@ -96,15 +72,10 @@ def crawl_organization(context: Context, org: dict[str, Any]) -> None:
     name = org.pop("name")
     entity.id = context.make_id(name, slug)
     entity.add("name", name, lang="vie")
-
     entity.add("topics", "crime.terror")
-    entity.add("sourceUrl", f"https://bocongan.gov.vn/to-chuc-khung-bo/{slug}")
+    entity.add("sourceUrl", ORG_PAGE.format(slug=slug))
 
-    sanction = h.make_sanction(
-        context,
-        entity,
-        program_name="Vietnam MPS list of designated terrorists and terrorism financers",
-    )
+    sanction = h.make_sanction(context, entity)
 
     context.audit_data(org, ignore=["id", "description"])
     context.emit(entity)
@@ -112,7 +83,7 @@ def crawl_organization(context: Context, org: dict[str, Any]) -> None:
 
     # Fetch structured member records (paginated). Most organizations have none;
     # they are listed as organization-only designations.
-    for page in range(0, 100):
+    for page in range(100):
         params = {"organization_slug": slug, "page": page, "size": PAGE_SIZE}
         data = context.fetch_json(
             MEMBER_URL, params=params, headers=HEADERS, cache_days=1

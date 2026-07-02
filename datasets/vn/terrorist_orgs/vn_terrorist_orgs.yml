@@ -43,9 +43,13 @@ data:
   url: https://api-portal.bocongan.gov.vn/backend-portal/terrorist-organization
   format: JSON
   lang: vie
-
 tags:
   - list.terror
+
+names:
+  schema_rules:
+    Person:
+      reject_chars: ";"
 
 assertions:
   min:
@@ -78,7 +82,7 @@ lookups:
       - match: "Mỹ"
         value: "United States"
 
-  gender:
+  type.gender:
     options:
       - match: "1"
         value: male
