@@ -1,5 +1,4 @@
 import re
-from dataclasses import dataclass
 
 from lxml.etree import _Element
 
@@ -8,7 +7,6 @@ from zavod import helpers as h
 from zavod.entity import Entity
 from zavod.stateful.positions import PositionCategorisation, categorise
 
-LISTING_URL = "https://www.nuwab.bh/en/members-of-parliament/"
 ARCHIVE_URL = "https://www.nuwab.bh/en/Archive-of-Member-of-Parliaments/"
 
 # Elected terms run four years; the source identifies each term by its election
@@ -22,49 +20,16 @@ NAME_PREFIX_RE = re.compile(
     r"^(MP|His Excellency|Her Excellency|Mr\.|Mrs\.|Ms\.|Dr\.|Eng\.|Sheikh)\s+",
     re.IGNORECASE,
 )
-EMAIL_RE = re.compile(r"[\w.+-]+@[\w.-]+\.\w+")
-PHONE_RE = re.compile(r"\b\d{8}\b")
 
 
-@dataclass
-class Profile:
-    """The fields parsed from a member's profile block."""
-
-    name: str
-    biography: str | None
-    email: str | None
-    phone: str | None
-
-
-def clean_name(raw: str) -> str:
-    """Strip the "MP"/honorific label the site prepends to a member's name."""
-    name = raw.strip()
-    while True:
-        stripped = NAME_PREFIX_RE.sub("", name)
-        if stripped == name:
-            return name
-        name = stripped
-
-
-def parse_profile(block: _Element) -> Profile:
+def parse_profile(block: _Element) -> tuple[str, str | None]:
     """Parse a member profile block (used for both detail pages and the
     speaker's block on the listing page), which share one template."""
-    name = clean_name(h.element_text(h.xpath_element(block, "./h4")))
+    raw_name = h.element_text(h.xpath_element(block, "./h4"))
+    name = NAME_PREFIX_RE.sub("", raw_name)
     paragraphs = [h.element_text(p) for p in h.xpath_elements(block, "./p")]
     biography = "\n".join(p for p in paragraphs if p) or None
-
-    contact = " ".join(
-        h.element_text(ul)
-        for ul in h.xpath_elements(block, './/ul[contains(@class, "contactInfo")]')
-    )
-    email_match = EMAIL_RE.search(contact)
-    phone_match = PHONE_RE.search(contact)
-    return Profile(
-        name=name,
-        biography=biography,
-        email=email_match.group(0) if email_match else None,
-        phone=f"+973{phone_match.group(0)}" if phone_match else None,
-    )
+    return (name, biography)
 
 
 def member_links(container: _Element) -> set[str]:
@@ -82,7 +47,8 @@ def emit_member(
     position: Entity,
     categorisation: PositionCategorisation,
     entity_id: str | None,
-    profile: Profile,
+    name: str,
+    biography: str | None,
     terms: set[int],
     current_year: int,
 ) -> None:
@@ -90,32 +56,26 @@ def emit_member(
     assert entity_id is not None
     person = context.make("Person")
     person.id = entity_id
-    person.add("name", profile.name, lang="eng")
-    person.add("biography", profile.biography, lang="eng")
-    person.add("email", profile.email)
-    person.add("phone", profile.phone)
+    person.add("name", name, lang="eng")
+    person.add("biography", biography, lang="eng")
     # The Constitution of Bahrain (2002), Article 57, requires a member of the
     # Council of Representatives to hold Bahraini citizenship:
     # https://www.lloc.gov.bh/en/page/The%20Constitution%20of%20the%20Kingdom%20of%20Bahrain
     person.add("citizenship", "bh")
 
-    emitted = False
     for year in terms:
         is_current = year == current_year
         occupancy = h.make_occupancy(
             context,
             person,
             position,
-            start_date=str(year),
-            end_date=None if is_current else str(year + TERM_YEARS),
+            period_start=str(year),
+            period_end=None if is_current else str(year + TERM_YEARS),
             categorisation=categorisation,
         )
         if occupancy is not None:
             context.emit(occupancy)
-            emitted = True
-
-    if emitted:
-        context.emit(person)
+            context.emit(person)
 
 
 def get_current_year(listing: _Element) -> int:
@@ -143,7 +103,7 @@ def crawl(context: Context) -> None:
         return
     context.emit(position)
 
-    listing = context.fetch_html(LISTING_URL, cache_days=1)
+    listing = context.fetch_html(context.data_url, cache_days=1)
     current_year = get_current_year(listing)
 
     # Map each member's detail-page URL to the set of terms they served in.
@@ -170,12 +130,14 @@ def crawl(context: Context) -> None:
             '//div[contains(@class, "content")]'
             '[./h4][.//ul[contains(@class, "contactInfo")]]',
         )
+        name, biography = parse_profile(block)
         emit_member(
             context,
             position,
             categorisation,
             context.make_id(url),
-            parse_profile(block),
+            name,
+            biography,
             terms,
             current_year,
         )
@@ -186,13 +148,14 @@ def crawl(context: Context) -> None:
         '//div[contains(@class, "content")]'
         '[./h4][.//ul[contains(@class, "contactInfo")]]',
     )
-    speaker = parse_profile(speaker_block)
+    name, biography = parse_profile(speaker_block)
     emit_member(
         context,
         position,
         categorisation,
-        context.make_id(LISTING_URL, "speaker", speaker.name),
-        speaker,
+        context.make_id("speaker", name),
+        name,
+        biography,
         {current_year},
         current_year,
     )
