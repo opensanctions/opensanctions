@@ -41,7 +41,10 @@ data:
   format: HTML
 
 dates:
-  formats: ["%d %B %Y"]
+  # "%d %B %Y" for birth dates ("27 December 1962"), "%d/%m/%Y" for the older
+  # legislatures' occupancy dates ("15/11/2004"). ISO dates ("2012-11-16") used
+  # by more recent legacy pages are parsed by default.
+  formats: ["%d %B %Y", "%d/%m/%Y"]
 
 lookups:
   # Source DOB strings carry formatting noise the date parser rejects:
@@ -54,9 +57,12 @@ lookups:
         value: "1951-08-19"
 
 assertions:
+  # Covers the current legislature plus historical ones back to the PEP
+  # after-office cutoff, so the count is far higher than a single term.
   min:
     schema_entities:
-      Person: 120
+      Person: 400
+      Position: 1
   max:
     schema_entities:
-      Person: 150
+      Person: 600

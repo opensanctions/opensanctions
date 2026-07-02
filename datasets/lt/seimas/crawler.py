@@ -3,12 +3,28 @@ import re
 from normality import collapse_spaces
 from zavod import Context
 from zavod import helpers as h
+from zavod.entity import Entity
 from zavod.extract import zyte_api
 from zavod.stateful.positions import categorise, get_after_office
 from zavod.util import Element
 
 POSITION_TOPICS = ["gov.legislative", "gov.national"]
 CUTOFF_DATE = (datetime.now() - get_after_office(POSITION_TOPICS)).year
+
+
+def make_seimas_position(context: Context) -> Entity:
+    # A single shared Position for the whole dataset: every member holds the same
+    # role. Passing the Wikidata QID makes it the position's entity ID, so this
+    # must be identical across the current and historical crawlers or they'd
+    # split into two entities for the same role.
+    return h.make_position(
+        context,
+        name="Member of the Seimas",
+        wikidata_id="Q18507240",
+        country="lt",
+        topics=POSITION_TOPICS,
+        lang="eng",
+    )
 
 
 URL_PREV_SEIMAS = "https://www.lrs.lt/sip/portal.show?p_r=35357&p_k=2"
@@ -36,6 +52,20 @@ def get_occupany_dates(tenure: str) -> tuple[str, str]:
     return start_year, end_year
 
 
+def cell_lines(cell: Element) -> list[str]:
+    """Split a table cell (or row) into its non-empty text lines.
+
+    The biography tables are Word-exported, so labels/values are separated
+    inconsistently by block boundaries (<p>/<div>) or <br> tags. Both produce
+    separate text nodes, so reading text nodes in document order recovers the
+    lines regardless of which separator a particular member's page used. We
+    join on these rather than the cell's string value because text_content()
+    concatenates block/column text without a separator (e.g. "2005–2009" would
+    glue onto the following text).
+    """
+    return [line.strip() for line in h.xpath_strings(cell, ".//text()") if line.strip()]
+
+
 def crawl_member_bio(context: Context, url: str) -> None:
     doc = zyte_api.fetch_html(
         context,
@@ -46,16 +76,26 @@ def crawl_member_bio(context: Context, url: str) -> None:
         absolute_links=True,
     )
 
-    # some pages do not list party names, hence None check
-    party_list = h.xpath_strings(
+    # "frakcija" is the member's single current parliamentary group. This page
+    # always renders the person's latest term, so the faction lines up with the
+    # (latest-term) occupancy we build below and belongs there as politicalGroup
+    # — a faction, not general party membership. Empty once they stop sitting,
+    # hence the None check.
+    group_list = h.xpath_strings(
         doc, '//div[@class="frakcija"]/a[contains(@class, "smn-frakcija link")]/text()'
     )
-    party = party_list[0] if party_list else None
+    political_group = group_list[0] if group_list else None
 
-    bio_table = h.xpath_strings(
-        doc, '//div[@id="sn_vidines_biografija"]//table//text()'
-    )
-    bio = collapse_spaces(" ".join(bio_table))
+    # The biography table's first two rows always repeat the birth date and
+    # place, which we capture as their own properties. Skip them so the
+    # biography starts at the narrative content instead of a redundant prefix.
+    bio_lines: list[str] = []
+    for row in h.xpath_elements(doc, '//div[@id="sn_vidines_biografija"]//table//tr'):
+        lines = cell_lines(row)
+        if lines and lines[0].lower() in ("date of birth", "place of birth"):
+            continue
+        bio_lines.extend(lines)
+    bio = collapse_spaces(" ".join(bio_lines))
 
     person_name = get_element_text(doc, '//div[@class="sn_narys_vardas_title"]')
     date_of_birth = get_element_text(
@@ -71,9 +111,6 @@ def crawl_member_bio(context: Context, url: str) -> None:
         position=-1,
     )
 
-    position_name = get_element_text(doc, '//div[@class="sn-nuo-iki"]')
-    position_name = position_name.split("from")[0].strip()
-
     tenure = get_element_text(doc, '//div[@class="kadencija"]')
     # Parliamentary term dates are not necessarily the same as candidate's occupancy dates
     period_start, period_end = get_occupany_dates(tenure)
@@ -83,18 +120,13 @@ def crawl_member_bio(context: Context, url: str) -> None:
     person.add("citizenship", "lt")
     person.add("name", person_name)
     person.add("biography", bio)
-    person.add("political", party)
     person.add("sourceUrl", url)
 
     if date_of_birth:
         h.apply_date(person, "birthDate", date_of_birth)
     person.add("birthPlace", place_of_birth)
 
-    position = h.make_position(
-        context,
-        position_name,
-        country="lt",
-    )
+    position = make_seimas_position(context)
 
     categorisation = categorise(context, position)
     if not categorisation.is_pep:
@@ -109,49 +141,70 @@ def crawl_member_bio(context: Context, url: str) -> None:
         categorisation=categorisation,
     )
     if occupancy is not None:
+        occupancy.add("politicalGroup", political_group)
         context.emit(person)
         context.emit(position)
         context.emit(occupancy)
 
 
-def xpath_match(doc: Element, xpaths: list[str]) -> str | None:
-    for xpath in xpaths:
-        try:
-            return h.xpath_string(doc, xpath)
-        except ValueError:
-            continue
-    return None
+# Occupancy tenure line, e.g. "Member of the Seimas from 2012-11-16 till
+# 2016-11-14." (recent legacy pages, ISO dates) or "... from 15/11/2004 till
+# 17/11/2008." (older ones, DD/MM/YYYY). Dates are parsed via dataset formats.
+TENURE_RE = re.compile(r"Member of the Seimas from\s+([\d/-]+)\s+till\s+([\d/-]+)")
+
+
+def get_birth_details(doc: Element) -> tuple[str | None, str | None]:
+    """Extract (birth date, birth place) from a legacy member's biography table.
+
+    The table is a single two-column row: the first cell stacks field labels,
+    the second the corresponding values in the same order. Date and place of
+    birth are always the first two entries, so we read them positionally, but
+    only after confirming the first two labels are indeed date/place of birth
+    — otherwise we'd risk pairing values against the wrong labels.
+    """
+    labels = h.xpath_elements(doc, '//b[normalize-space(.)="Date of birth"]')
+    if not labels:
+        return None, None
+
+    label_cell = h.xpath_element(labels[0], "ancestor::td[1]")
+    value_cells = h.xpath_elements(label_cell, "following-sibling::td[1]")
+    if not value_cells:
+        return None, None
+
+    label_lines = cell_lines(label_cell)
+    value_lines = cell_lines(value_cells[0])
+    if len(label_lines) < 2 or len(value_lines) < 2:
+        return None, None
+    assert label_lines[0] == "Date of birth", label_lines
+    # Capitalisation of "Place of birth" varies between members.
+    assert label_lines[1].lower() == "place of birth", label_lines
+    return value_lines[0], value_lines[1]
 
 
 def crawl_old_member_bio(context: Context, url: str) -> None:
     doc = zyte_api.fetch_html(
         context,
         url,
-        unblock_validator='//table[contains(@summary, "Kadencijos")]',
+        # Match on the tenure line (present on every bio) rather than a static
+        # container, which differs between the legacy layouts.
+        unblock_validator='//*[contains(normalize-space(.), "Member of the Seimas from")]',
         html_source="httpResponseBody",
         cache_days=1,
+        absolute_links=True,
     )
 
-    person_name = h.xpath_string(
-        doc, '//table[contains(@summary, "Kadencijos")]//font[@size="4"]/text()'
-    )  # TODO: more robust name fetch method
-    assert person_name is not None
+    # The rendered page title is "Members of the Seimas - <name>".
+    title = h.element_text(h.xpath_element(doc, "//title"))
+    person_name = title.rsplit(" - ", 1)[-1].strip()
+    assert person_name, url
 
-    # Birth details are missing or differently structured on many older member
-    # pages, so extract them leniently and emit the member even when absent.
-    date_of_birth = xpath_match(
-        doc,
-        [
-            '//div[@class="par"][contains(text(),"Biography")]/following-sibling::div[@align="justify"][1]//table//tr[1]/td[last()]/p[1]/text()'
-        ],
-    )
-    place_of_birth = xpath_match(
-        doc,
-        [
-            '//div[@class="par"][contains(text(),"Biography")]/following-sibling::div[@align="justify"][1]//table//tr[1]/td[last()]/p[1]//strong',
-            '//div[@class="par"][contains(text(),"Biography")]/following-sibling::div[@align="justify"][1]//table//tr[1]/td[last()]/p[1]',
-        ],
-    )
+    tenure_match = TENURE_RE.search(h.element_text(doc))
+    assert tenure_match is not None, url
+    start_date, end_date = tenure_match.groups()
+
+    # Birth details are absent on the oldest legislatures' pages, so extract
+    # them leniently and emit the member even when they're missing.
+    date_of_birth, place_of_birth = get_birth_details(doc)
 
     person = context.make("Person")
     person.id = context.make_slug(person_name)
@@ -160,26 +213,24 @@ def crawl_old_member_bio(context: Context, url: str) -> None:
     if date_of_birth is not None:
         h.apply_date(person, "birthDate", date_of_birth)
 
-    party_affiliation = h.xpath_strings(
+    # Parliamentary group memberships for this term, read as
+    # "<group>, <role> ( <dates> )"; keep the group name. These are factions
+    # within the body, not general party membership, so they go on the
+    # occupancy as politicalGroup below.
+    political_groups = set()
+    group_items = h.xpath_elements(
         doc,
-        '//b[contains(text(), "Political Groups of the Seimas")]/following-sibling::ul[1]//li/a/text()',
+        '//b[normalize-space(.)="Political Groups of the Seimas"]/following-sibling::ul[1]/li',
     )
-    person.add("political", party_affiliation)
+    for item in group_items:
+        group = h.element_text(item).split(",")[0].strip()
+        if group:
+            political_groups.add(group)
 
     person.add("sourceUrl", url)
     person.add("citizenship", "lt")
 
-    seimas_position_dates = h.xpath_strings(
-        doc, '//table[contains(@summary, "Kadencijos")]//b/text()'
-    )
-    position = h.make_position(
-        context,
-        name="Member of the Seimas",
-        wikidata_id="Q18507240",
-        country="lt",
-        topics=["gov.legislative", "gov.national"],
-        lang="eng",
-    )
+    position = make_seimas_position(context)
 
     categorisation = categorise(context, position)
     if not categorisation.is_pep:
@@ -189,15 +240,16 @@ def crawl_old_member_bio(context: Context, url: str) -> None:
         context,
         person=person,
         position=position,
-        start_date=seimas_position_dates[1],
-        end_date=seimas_position_dates[2],
+        start_date=start_date,
+        end_date=end_date,
         categorisation=categorisation,
     )
 
     if occupancy is not None:
-        context.emit(occupancy)
-        context.emit(position)
+        occupancy.add("politicalGroup", sorted(political_groups))
         context.emit(person)
+        context.emit(position)
+        context.emit(occupancy)
 
 
 def crawl(context: Context) -> None:
@@ -253,7 +305,13 @@ def crawl(context: Context) -> None:
         if int(start_year) >= 2016:
             members_link_xpath = '//div[contains(@class,"rubrika-kvadratai-item")]//a[@title="Members of the Seimas"]'
         else:
-            members_link_xpath = '//*[@id="td_kaire"]//a[@class="medis" and text()="Members of the Seimas"]'
+            # Legacy overview pages come in a couple of markup variants (e.g. the
+            # 2004-2008 layout drops both the "td_kaire" id and the "medis" link
+            # class that the 2012-2016 one still uses), but all wrap the menu link
+            # in <div class="med"><a>...</a></div>, so match on that plus the text.
+            members_link_xpath = (
+                '//div[@class="med"]/a[normalize-space(.)="Members of the Seimas"]'
+            )
 
         doc_seimas_overview = zyte_api.fetch_html(
             context,
@@ -283,11 +341,11 @@ def crawl(context: Context) -> None:
             ):
                 crawl_member_bio(context, anchor_url)
 
-        # older seimas webpages require a bit more love
+        # The older legislatures' layouts vary (they don't share the modern
+        # list markup), but all link to each member via a "p_asm_id" query
+        # parameter, so select on that.
         else:
-            old_members_validator = (
-                '//div[contains(@id, "divDesContent")]//table//a[@href]'
-            )
+            old_members_validator = '//a[contains(@href, "p_asm_id")]'
             doc_seimas = zyte_api.fetch_html(
                 context,
                 members_url,
@@ -297,8 +355,9 @@ def crawl(context: Context) -> None:
                 absolute_links=True,
             )
 
-            for anchor in h.xpath_elements(doc_seimas, old_members_validator):
-                old_member_url = anchor.get("href")
-                assert old_member_url is not None
-
+            # A member can appear more than once in the list, so dedupe URLs.
+            member_urls = set(
+                h.xpath_strings(doc_seimas, old_members_validator + "/@href")
+            )
+            for old_member_url in sorted(member_urls):
                 crawl_old_member_bio(context, old_member_url)
