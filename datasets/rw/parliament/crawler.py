@@ -1,12 +1,12 @@
 import re
 
-
 from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
 from zavod.stateful.positions import PositionCategorisation, categorise
+from zavod.util import Element
 
-POSITION_TOPICS = ["gov.national", "gov.legislative"]
+
 # The roster renders both chambers on one page, each in its own grid with an
 # independent "load more" pagination keyed by a rotating Typo3 cHash, so we follow the
 # rendered next link rather than constructing page URLs.
@@ -19,6 +19,37 @@ TERM_RE = re.compile(r"From\s+(\d{4})\s+to\s+(\d{4})")
 MAX_PAGES = 20
 
 
+def parse_profile(doc: Element) -> dict[str, Element]:
+    """Map each profile ``<dt>`` label to its ``<dd>`` value element.
+
+    The detail page renders member attributes as a definition list whose labels
+    vary between members and chambers (e.g. the term row is keyed by the chamber
+    name), so we key on the normalised label text.
+    """
+    fields: dict[str, Element] = {}
+    dls = h.xpath_elements(doc, "//dl")
+    if len(dls) == 0:
+        return fields
+    label: str | None = None
+    for child in dls[0]:
+        if child.tag == "dt":
+            label = h.element_text(child).strip().rstrip(":").strip()
+        elif child.tag == "dd" and label is not None:
+            fields[label] = child
+            label = None
+    return fields
+
+
+def collect_articles(articles: list[Element], members: dict[str, str]) -> None:
+    """Record {detail_url: name} for each member article carrying a profile link."""
+    for article in articles:
+        links = h.xpath_elements(article, ".//a[contains(@href, '/members-details/')]")
+        name = article.get("data-member-name")
+        href = links[0].get("href") if links else None
+        if href is not None and name is not None:
+            members[href] = name
+
+
 def collect_members(context: Context, tab: str) -> dict[str, str]:
     """Follow a chamber grid's load-more chain, returning {detail_url: name}."""
     members: dict[str, str] = {}
@@ -29,17 +60,23 @@ def collect_members(context: Context, tab: str) -> dict[str, str]:
             break
         seen_urls.add(url)
         doc = context.fetch_html(url, cache_days=1, absolute_links=True)
+        # The chamber's leadership (Speaker/President and their deputies) renders in
+        # a "The Bureau" block above the paginated grid, so collect it as well.
+        collect_articles(
+            h.xpath_elements(
+                doc,
+                f"//*[@data-admin-panel='{tab}']"
+                "//span[normalize-space()='The Bureau']"
+                "/following-sibling::div//article[@data-member-name]",
+            ),
+            members,
+        )
         grids = h.xpath_elements(doc, f"//*[@id='{tab}-members-grid']")
         if len(grids) == 0:
             break
-        for article in h.xpath_elements(grids[0], ".//article[@data-member-name]"):
-            links = h.xpath_elements(
-                article, ".//a[contains(@href, '/members-details/')]"
-            )
-            name = article.get("data-member-name")
-            href = links[0].get("href") if links else None
-            if href is not None and name is not None:
-                members[href] = name
+        collect_articles(
+            h.xpath_elements(grids[0], ".//article[@data-member-name]"), members
+        )
         # The chamber's own load-more link carries activeTab=<tab>.
         url = None
         for anchor in h.xpath_elements(doc, "//a[@data-load-more]"):
@@ -59,11 +96,13 @@ def crawl_member(
 ) -> None:
     doc = context.fetch_html(detail_url, cache_days=7)
     text = h.element_text(doc)
+    fields = parse_profile(doc)
 
     person = context.make("Person")
     person.id = context.make_slug(detail_url.rstrip("/").split("/")[-1])
     # Names are listed "Hon. SURNAME Given names".
     person.add("name", name.removeprefix("Hon.").strip())
+    person.add("sourceUrl", detail_url)
     dob = DOB_RE.search(text)
     if dob is not None:
         h.apply_date(person, "birthDate", dob.group(1))
@@ -86,6 +125,7 @@ def crawl_member(
     )
     if occupancy is None:
         return
+    occupancy.add("sourceUrl", detail_url)
     context.emit(occupancy)
     context.emit(person)
 
@@ -96,11 +136,11 @@ def crawl(context: Context) -> None:
             context,
             name=position_name,
             country="rw",
-            topics=POSITION_TOPICS,
+            topics=["gov.national", "gov.legislative"],
             wikidata_id=wikidata_id,
             lang="eng",
         )
-        categorisation = categorise(context, position)
+        categorisation = categorise(context, position, default_is_pep=True)
         context.emit(position)
 
         members = collect_members(context, tab)
