@@ -53,13 +53,27 @@ FIELDS = [
 ]
 
 
-def make_position_name(data: Dict[str, str]) -> Optional[str]:
+def build_position_name(data: Dict[str, str]) -> Optional[str]:
+    """Builds the full Croatian position name from the title and legal entity name.
+
+    When there's no title we fall back to the Croatian "Nepoznata dužnost" ("Unknown
+    position") so the whole name stays in one language and can be handed to
+    make_position for translation in a single pass. Returns None when there is neither
+    a title nor a legal entity.
+    """
     title = data.pop("position")
     legal_entity_name = data.pop("legal_entity")
     if title is None and legal_entity_name is None:
         return None
 
-    position_name = title or "Unknown position"
+    # Use the Croatian "Unknown position" placeholder so the whole name is one
+    # language and make_position can translate it (and key the ID off it) in a single
+    # pass. This does mean the placeholder ends up in the name's original_value even
+    # though it isn't literally from the source, but that's not catastrophic.
+    # The alternative is a whole dance: translate only the legal entity name, then
+    # prepend an English "Unknown position" ourselves, and set the name, lang and
+    # translation origin by hand rather than letting make_position do it.
+    position_name = title or "Nepoznata dužnost"
     if legal_entity_name:
         position_name = f"{position_name}, {legal_entity_name}"
     return position_name
@@ -70,7 +84,6 @@ def make_affiliation_entities(
     person: Entity,
     *,
     position_name: Optional[str],
-    default_is_pep: bool,
     position_data: Dict[str, str],
 ) -> List[Entity]:
     """Creates Position and Occupancy provided that the Occupancy meets OpenSanctions criteria.
@@ -78,7 +91,6 @@ def make_affiliation_entities(
     * A position with a legal entity but no title is titled 'Unknown position'
     * All positions (and Occupancies, Persons) are assumed to be Croatian
     * Positions with start and/or end date but no position name or legal entity name are discarded
-    * Positions not categorised as PEP are discarded
     """
     if position_name is None or position_name.strip() == "":
         return []
@@ -87,11 +99,13 @@ def make_affiliation_entities(
     end_date = position_data.pop("position_end_date")
     context.audit_data(position_data)
 
-    position = h.make_position(context, position_name, country="HR")
+    # The name is Croatian; make_position keys the ID on the untranslated name (so it
+    # stays stable) and stores the English translation for display.
+    position = h.make_position(
+        context, position_name, country="HR", lang="hrv", translate_name=True
+    )
 
-    categorisation = categorise(context, position, default_is_pep=default_is_pep)
-    if not categorisation.is_pep:
-        return []
+    categorisation = categorise(context, position, default_is_pep=True)
     occupancy = h.make_occupancy(
         context,
         person,
@@ -144,11 +158,9 @@ def crawl_row(context: Context, row: Dict[str, str]) -> None:
     position_entities = []
 
     primary_position_data = dict_keys_by_prefix(row, "primary_")
-    primary_has_title = primary_position_data.get("position") is not None
-    primary_position_name = make_position_name(primary_position_data)
-    secondary_position_data = dict_keys_by_prefix(row, "secondary_")
-    secondary_has_title = secondary_position_data.get("position") is not None
-    secondary_position_name = make_position_name(secondary_position_data)
+    primary_position_name = build_position_name(primary_position_data)
+    secondary_data = dict_keys_by_prefix(row, "secondary_")
+    secondary_position_name = build_position_name(secondary_data)
 
     person = make_person(
         context,
@@ -163,8 +175,6 @@ def crawl_row(context: Context, row: Dict[str, str]) -> None:
             context,
             person,
             position_name=primary_position_name,
-            # "Unknown position" (no title) -> default to non-PEP
-            default_is_pep=primary_has_title,
             position_data=primary_position_data,
         )
     )
@@ -173,9 +183,7 @@ def crawl_row(context: Context, row: Dict[str, str]) -> None:
             context,
             person,
             position_name=secondary_position_name,
-            # "Unknown position" (no title) -> default to non-PEP
-            default_is_pep=secondary_has_title,
-            position_data=secondary_position_data,
+            position_data=secondary_data,
         )
     )
 
