@@ -125,8 +125,18 @@ def check_assertion(
             (item["schema"], item["property"]): item["fill_rate"]
             for item in stats["things"]["entities_with_prop"]
         }
+        # Total entities per schema, to tell "schema not emitted at all" (skip the
+        # assertion) apart from "schema present but property never filled" (fill
+        # rate 0.0, enforce). Without this a fill-rate assertion on a schema the
+        # dataset doesn't produce would spuriously fail as 0.0.
+        stats_schema_to_total = {
+            item["schema"]: item["total"]
+            for item in stats["things"]["entities_with_prop"]
+        }
 
         for schema, properties in assertion.config.items():
+            if stats_schema_to_total.get(schema, 0) == 0:
+                continue
             for property, threshold in properties.items():
                 key = (schema, property)
                 fill_rate = stats_fill_rate_lookup.get(key, 0.0)
@@ -155,7 +165,9 @@ class StatisticsAssertionsValidator(BaseValidator):
         self.stats.observe(entity)
 
     def finish(self) -> None:
-        if len(self.context.dataset.assertions) == 0:
+        # Nudge maintainers based on what they configured in YAML, ignoring the
+        # baseline defaults that get merged into source datasets.
+        if not self.context.dataset.has_user_assertions:
             self.context.log.error("Dataset has no assertions.")
 
         for assertion in self.context.dataset.assertions:
