@@ -7,16 +7,15 @@ coverage:
 load_statements: true
 ci_test: false
 summary: >-
-  Current and former members of the elected lower house of the National Assembly of Bahrain.
+  Current and historical members of Bahrain's Council of Representatives.
 description: |
   The Council of Representatives (Majlis al-Nuwab, مجلس النواب) is the elected
-  lower house of Bahrain's bicameral National Assembly. It has 40 members
-  elected for a four-year legislative term, serving alongside the appointed
-  Shura Council.
+  lower house of Bahrain's National Assembly, sitting alongside the appointed
+  Shura Council. Its 40 members each serve a four-year term.
 
-  This dataset covers the members of the current term and previous terms, including
-  their name, position, term of office, and other biographical information
-  where available.
+  This dataset covers the representatives serving in the current term as well as
+  those who held seats in earlier ones, with a short biography for each wherever
+  the council publishes it.
 url: https://www.nuwab.bh/en/members-of-parliament/
 publisher:
   name: Council of Representatives of Bahrain
