@@ -19,9 +19,10 @@ TERM_YEARS = 4
 GOVERNORATES = {"southern", "capital", "northern", "muharraq", "central"}
 CENTRAL_ABOLISHED = 2014
 
-# Honorifics and the "MP" label the site prepends to member names.
+# Honorifics and the "MP" label the site prepends to member names; several may
+# stack (e.g. "His Excellency Mr."), so strip one or more from the front.
 NAME_PREFIX_RE = re.compile(
-    r"^(MP|His Excellency|Her Excellency|Mr\.|Mrs\.|Ms\.|Dr\.|Eng\.|Sheikh)\s+",
+    r"^(?:(?:MP|His Excellency|Her Excellency|Mr\.|Mrs\.|Ms\.|Dr\.|Eng\.|Sheikh)\s+)+",
     re.IGNORECASE,
 )
 # The member profile template, used both on detail pages and for the speaker's
