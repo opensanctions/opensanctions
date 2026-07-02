@@ -48,16 +48,11 @@ lookups:
         value: male
       - match: 女
         value: female
-      # Ethnicity value (Han) that landed in the gender column; drop it
-      - match: 汉族
-        value: null
   type.date:
     options:
       - match:
           - 鹤壁市豫剧团团长
           - 987年1月  # probably a typo for 1987, but let's not assume
-          # Position title that landed in a date column; drop it
-          - 重庆市人民政府副市长重庆市公安局党委书记、局长
         value: null
   type.name:
     options:
