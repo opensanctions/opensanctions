@@ -25,13 +25,6 @@ description: |
   1267/1373/1988/1989); those UN entries are already covered by dedicated
   OpenSanctions datasets and are not imported here.
 
-  Several of the organizations designated by Vietnam — for example Viet Tan, Boat
-  People SOS and the Montagnard groups — are regarded as legitimate civil society
-  or diaspora organizations by international observers, and these designations have
-  been criticised by human rights bodies. Entities from this source are therefore
-  tagged with the ``sanction.counter`` topic to signal that these are
-  counter-terrorism designations whose political context users should weigh.
-
 url: https://bocongan.gov.vn/to-chuc-khung-bo
 
 publisher:
