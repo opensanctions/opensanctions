@@ -13,8 +13,11 @@ ARCHIVE_URL = "https://www.nuwab.bh/en/Archive-of-Member-of-Parliaments/"
 # year (2002, 2006, ...). The current term has no end date.
 TERM_YEARS = 4
 
-# Archive members are grouped into <div id="<governorate><year>"> blocks.
-GEO_YEAR_RE = re.compile(r"^(?:southern|capital|northern|muharraq|central)(20\d{2})$")
+# The archive lists members by governorate constituency. All five ran until the
+# Central Governorate was abolished in 2014, but it still appears in the earlier
+# terms, so every governorate is expected somewhere in the archive.
+GOVERNORATES = {"southern", "capital", "northern", "muharraq", "central"}
+
 # Honorifics and the "MP" label the site prepends to member names.
 NAME_PREFIX_RE = re.compile(
     r"^(MP|His Excellency|Her Excellency|Mr\.|Mrs\.|Ms\.|Dr\.|Eng\.|Sheikh)\s+",
@@ -132,7 +135,6 @@ def crawl(context: Context) -> None:
     context.emit(position)
 
     listing = context.fetch_html(context.data_url, cache_days=1)
-    archive = context.fetch_html(ARCHIVE_URL, cache_days=1)
     current_year = get_current_year(listing)
 
     # Current term: the live roster, plus the Speaker who is featured on the
@@ -154,19 +156,17 @@ def crawl(context: Context) -> None:
         True,
     )
 
-    # Historical terms: each <div id="<governorate><year>"> block in the archive.
-    for block in h.xpath_elements(archive, "//div[@id]"):
-        block_id = block.get("id")
-        if block_id is None:
-            continue
-        match = GEO_YEAR_RE.match(block_id)
-        if match is None:
-            continue
-        year = int(match.group(1))
-        # The current term is emitted from the live roster above; skip it here
-        # so sitting members don't also get a second, closed-ended occupancy.
-        if year == current_year:
-            continue
+    # Historical terms: one governorate tablist per term in the archive.
+    archive = context.fetch_html(ARCHIVE_URL, cache_days=1)
+    tabs = h.xpath_elements(archive, '//ul[@id="tabs"]/li/a')
+    panel_ids = [tab.get("href", "").removeprefix("#") for tab in tabs]
+    # Each panel id is "<governorate><year>"; assert every governorate shows up
+    # in some term, catching a selector or markup change that drops one.
+    governorates = {panel_id.rstrip("0123456789") for panel_id in panel_ids}
+    assert GOVERNORATES <= governorates, GOVERNORATES - governorates
+    for panel_id in panel_ids:
+        year = int(panel_id[-4:])
+        panel = h.xpath_element(archive, f'//div[@id="{panel_id}"]')
         crawl_members(
-            context, position, categorisation, member_links(block), year, False
+            context, position, categorisation, member_links(panel), year, False
         )
