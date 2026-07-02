@@ -13,10 +13,11 @@ ARCHIVE_URL = "https://www.nuwab.bh/en/Archive-of-Member-of-Parliaments/"
 # year (2002, 2006, ...). The current term has no end date.
 TERM_YEARS = 4
 
-# The archive lists members by governorate constituency. All five ran until the
-# Central Governorate was abolished in 2014, but it still appears in the earlier
-# terms, so every governorate is expected somewhere in the archive.
+# The archive lists members by governorate constituency, one tab per governorate
+# per term. All five ran until the Central Governorate was abolished in 2014, so
+# terms from 2014 onward list only the other four.
 GOVERNORATES = {"southern", "capital", "northern", "muharraq", "central"}
+CENTRAL_ABOLISHED = 2014
 
 # Honorifics and the "MP" label the site prepends to member names.
 NAME_PREFIX_RE = re.compile(
@@ -158,15 +159,22 @@ def crawl(context: Context) -> None:
 
     # Historical terms: one governorate tablist per term in the archive.
     archive = context.fetch_html(ARCHIVE_URL, cache_days=1)
-    tabs = h.xpath_elements(archive, '//ul[@id="tabs"]/li/a')
-    panel_ids = [tab.get("href", "").removeprefix("#") for tab in tabs]
-    # Each panel id is "<governorate><year>"; assert every governorate shows up
-    # in some term, catching a selector or markup change that drops one.
-    governorates = {panel_id.rstrip("0123456789") for panel_id in panel_ids}
-    assert GOVERNORATES <= governorates, GOVERNORATES - governorates
-    for panel_id in panel_ids:
-        year = int(panel_id[-4:])
-        panel = h.xpath_element(archive, f'//div[@id="{panel_id}"]')
-        crawl_members(
-            context, position, categorisation, member_links(panel), year, False
-        )
+    for tablist in h.xpath_elements(archive, '//ul[@id="tabs"]'):
+        panel_ids = [
+            tab.get("href", "").removeprefix("#")
+            for tab in h.xpath_elements(tablist, "./li/a")
+        ]
+        year = int(panel_ids[0][-4:])
+        # Assert the term lists exactly the governorates we expect (minus Central
+        # once abolished), so a dropped or added tab crashes rather than silently
+        # under-collecting a term.
+        expected = GOVERNORATES
+        if year >= CENTRAL_ABOLISHED:
+            expected = GOVERNORATES - {"central"}
+        governorates = {panel_id.rstrip("0123456789") for panel_id in panel_ids}
+        assert governorates == expected, (year, expected ^ governorates)
+        for panel_id in panel_ids:
+            panel = h.xpath_element(archive, f'//div[@id="{panel_id}"]')
+            crawl_members(
+                context, position, categorisation, member_links(panel), year, False
+            )
