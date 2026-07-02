@@ -1,4 +1,4 @@
-from typing import List, Literal
+from typing import List, Literal, Optional
 
 from lxml.html import tostring
 from pydantic import BaseModel, Field
@@ -129,10 +129,10 @@ def crawl_item(
     date: str,
     url: str,
     article_name: str,
-    origin: str,
+    origin: Optional[str],
 ) -> None:
     entity = context.make(item.entity_schema)
-    entity.id = context.make_id(item.name, item.country)
+    entity.id = context.make_id(item.name, *item.country)
     entity.add("name", item.name, origin=origin)
     nationality_prop = "nationality"
     if item.entity_schema != "Person":
@@ -167,7 +167,7 @@ def crawl_press_release(context: Context, url: str) -> None:
                 img_parent.remove(img)
     assert len(article_content) == 1
     article_element = article_content[0]
-    date = article_element.xpath(".//time[@class='datetime']/@datetime")[0]
+    date = h.xpath_strings(article_element, ".//time[@class='datetime']/@datetime")[0]
     article_html = tostring(article_element, pretty_print=True, encoding="unicode")
     assert all([article_name, article_html, date]), "One or more fields are empty"
 
@@ -198,8 +198,10 @@ def crawl(context: Context) -> None:
     while True:
         base_url = f"https://ofac.treasury.gov/press-releases?page={page}"
         doc = context.fetch_html(base_url, absolute_links=True)
-        table = doc.xpath(".//table[contains(@class, 'views-table')]")
-        next_page = doc.xpath(".//a[contains(@class, 'usa-pagination__next-page')]")
+        table = h.xpath_elements(doc, ".//table[contains(@class, 'views-table')]")
+        next_page = h.xpath_elements(
+            doc, ".//a[contains(@class, 'usa-pagination__next-page')]"
+        )
         if not table or not next_page:
             break
         assert len(table) == 1, "Expected exactly one table in the document"

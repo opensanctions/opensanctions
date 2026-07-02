@@ -1,6 +1,7 @@
 import shutil
 import zipfile
-from typing import Any
+from pathlib import Path
+from typing import Any, Iterator
 
 import xlrd
 
@@ -28,7 +29,7 @@ def load_sheet(workbook: Any, possible_names: list[str]) -> Any:
 
 def crawl_ownership(
     context: Context, owner: Entity, asset_name: str, is_debarred: bool = False
-) -> None:
+) -> Entity:
     asset = context.make("LegalEntity")
     asset.id = context.make_id(owner.id, asset_name)
     asset.add("name", asset_name)
@@ -43,7 +44,7 @@ def crawl_ownership(
     return asset
 
 
-def crawl_item(input_dict: dict, context: Context) -> None:
+def crawl_item(context: Context, input_dict: dict[str, str | None]) -> None:
     name = input_dict.pop("entity_individual_name")
     pan = input_dict.pop("pan", "")
     if name is None:
@@ -92,7 +93,7 @@ def crawl_item(input_dict: dict, context: Context) -> None:
     if pan and "not provided" not in pan.lower():
         entity.add("taxNumber", pan)
     entity.add("topics", topics)
-    din_cin: str = input_dict.pop("din_cin", "")
+    din_cin: str = input_dict.pop("din_cin", "")  # type: ignore[assignment]
     if din_cin and "-" not in din_cin:
         entity.add("description", din_cin)
         entity.add("registrationNumber", din_cin.split(" "))
@@ -100,6 +101,7 @@ def crawl_item(input_dict: dict, context: Context) -> None:
     nse_circular_no = input_dict.pop("nse_circular_no_for_debarment")
     order_date = input_dict.pop("order_date")
     order_particulars = input_dict.pop("order_particulars")
+    assert order_particulars is not None
     urls = [
         input_dict.pop("source_url"),
         input_dict.pop("nse_circular_no_for_debarment_url", None),
@@ -133,14 +135,16 @@ def crawl_item(input_dict: dict, context: Context) -> None:
     )
 
 
-def parse_xls_or_xlsx_sheet_from_url(context: Context, url: str, filename: str) -> None:
+def parse_xls_or_xlsx_sheet_from_url(
+    context: Context, url: str, filename: str
+) -> Iterator[dict[str, str | None]]:
     _, _, _, filepath_tmp = zyte_api.fetch_resource(
         context, filename=f"{filename}.temp", url=url, geolocation="in"
     )
     # XLSX is a zipfile internally, sniff for that to detect mimetype
     if zipfile.is_zipfile(filepath_tmp):
-        filepath = shutil.move(
-            filepath_tmp, context.get_resource_path(f"{filename}.xlsx")
+        filepath = Path(
+            shutil.move(filepath_tmp, context.get_resource_path(f"{filename}.xlsx"))
         )
         mimetype = XLSX
         workbook = openpyxl.load_workbook(filepath)
@@ -148,18 +152,18 @@ def parse_xls_or_xlsx_sheet_from_url(context: Context, url: str, filename: str) 
         sheet = load_sheet(workbook, ["Sheet1", "Working"])
         items = h.parse_xlsx_sheet(context, sheet, extract_links=True)
     else:
-        filepath = shutil.move(
-            filepath_tmp, context.get_resource_path(f"{filename}.xls")
+        filepath = Path(
+            shutil.move(filepath_tmp, context.get_resource_path(f"{filename}.xls"))
         )
         mimetype = XLS
-        items = h.parse_xls_sheet(context, xlrd.open_workbook(filepath)["Sheet1"])
+        items = h.parse_xls_sheet(context, xlrd.open_workbook(str(filepath))["Sheet1"])
 
     context.export_resource(filepath, mimetype, title=context.SOURCE_TITLE)
     return items
 
 
 def crawl(context: Context) -> None:
-    items = []
+    items: list[dict[str, str | None]] = []
 
     for item in parse_xls_or_xlsx_sheet_from_url(
         context, SEBI_DEBARRMENT_URL, filename="sebi"
@@ -187,4 +191,4 @@ def crawl(context: Context) -> None:
             item["order_particulars"] = particulars
             item["nse_circular_no_for_debarment"] = nse_circular_num
 
-        crawl_item(item, context)
+        crawl_item(context, item)
