@@ -23,8 +23,7 @@ NAME_PREFIX_RE = re.compile(
 # The member profile template, used both on detail pages and for the speaker's
 # block on the listing page.
 PROFILE_BLOCK = (
-    '//div[contains(@class, "content")]'
-    '[./h4][.//ul[contains(@class, "contactInfo")]]'
+    '//div[contains(@class, "content")][./h4][.//ul[contains(@class, "contactInfo")]]'
 )
 
 
