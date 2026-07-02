@@ -1,0 +1,90 @@
+title: "Malaysia Dewan Rakyat"
+entry_point: crawler.py
+prefix: my-dr
+coverage:
+  frequency: weekly
+  start: 2026-07-02
+load_statements: true
+ci_test: false
+summary: >-
+  Members of the House of Representatives, the lower house of the Parliament of Malaysia
+description: |
+  Members of parliament of the Malaysian House of Representatives (Dewan Rakyat),
+  scraped from the official parliament portal. The roster is maintained by the
+  Parliament of Malaysia and updated as seats change through by-elections.
+
+  In addition to the elected members, the dataset includes the Speaker
+  (Yang di-Pertua) and the Secretary (Setiausaha) of the house.
+url: https://www.parlimen.gov.my/ahli-dewan.html?uweb=dr
+publisher:
+  name: Parliament of Malaysia
+  description: >
+    The Parliament of Malaysia is the national legislature, comprising the
+    Dewan Rakyat (House of Representatives) and the Dewan Negara (Senate).
+  url: https://www.parlimen.gov.my/
+  country: my
+  official: true
+data:
+  url: https://www.parlimen.gov.my/ahli-dewan.html?uweb=dr
+  format: HTML
+  lang: msa
+
+tags:
+  - list.pep
+
+# The most common honorifics and courtesy titles prepended to Malaysian names,
+# stripped from the head of the name by h.strip_name_titles. Hereditary name
+# particles that are NOT titles (Wan, Syed, Sharifah, Nik, Tengku, Raja, ...)
+# are left untouched. The trailing space enforces a word boundary.
+names:
+  prefixes_strip:
+    - "Yang Amat Berhormat "
+    - "Yang Berhormat "
+    - "Datuk Seri Panglima "
+    - "Datuk Seri Utama "
+    - "Dato' Seri Utama "
+    - "Dato' Seri Panglima "
+    - "Datuk Seri "
+    - "Dato' Seri "
+    - "Dato Seri "
+    - "Dato' Sri "
+    - "Tan Sri "
+    - "Puan Sri "
+    - "YAB "
+    - "YB "
+    - "Datuk "
+    - "Dato' "
+    - "Dato "
+    - "Datin "
+    - "Tuan "
+    - "Puan "
+    - "Encik "
+    - "Cik "
+    - "Haji "
+    - "Hajah "
+    - "Dr. "
+    - "Prof. "
+    - "Ir. "
+    - "Ts. "
+
+lookups:
+  type.email:
+    options:
+      # Placeholder used by the source when no address is on file.
+      - match: "-"
+        value: null
+      # Source typo with an empty subdomain; the correct address is unknown.
+      - match: "adamadli@.gov.my"
+        value: null
+
+assertions:
+  min:
+    schema_entities:
+      Person: 180
+      Position: 40
+    country_entities:
+      my: 180
+  max:
+    schema_entities:
+      Person: 400
+      Position: 90
