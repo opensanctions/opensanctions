@@ -83,6 +83,12 @@ class NamesSpec(BaseModel):
     schema_rules: Dict[str, CleaningSpec] = dict(_DEFAULT_SCHEMA_RULES)
     """Name cleaning requirements by schema. All matching schema configurations will apply."""
 
+    prefixes_strip: list[str] = []
+    """Title prefixes to strip from source names when a crawler calls the title-strip helper."""
+
+    suffixes_strip: list[str] = []
+    """Title suffixes and post-nominals to strip when a crawler calls the title-strip helper."""
+
     suggest_weak_alias_person_single_token: bool = False
     """
     If True, single-token Person names (after stripping name prefixes such as "Mr.")
