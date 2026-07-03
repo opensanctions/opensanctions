@@ -14,7 +14,7 @@ changes after pagination has been established.
 
 from lxml.etree import _Element
 from typing import Dict, Optional
-from urllib.parse import urlparse, parse_qs
+from urllib.parse import parse_qs, urljoin, urlparse
 
 from zavod import Context, helpers as h
 from zavod.extract import zyte_api
@@ -43,6 +43,8 @@ def crawl_item(context: Context, row: Dict[str, _Element]) -> None:
     case_id_el = row.pop("case_id")
     case_id = h.element_text(case_id_el)
     source_url = case_id_el.get("href")
+    if source_url is not None:
+        source_url = urljoin(context.data_url, source_url)
     date = h.element_text(row.pop("action_date_sort_ascending"))
 
     for name in names:
