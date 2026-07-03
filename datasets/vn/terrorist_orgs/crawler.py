@@ -82,21 +82,30 @@ def crawl_organization(context: Context, org: dict[str, Any]) -> None:
         context.log.info("Skipping UN Security Council pass-through entry", slug=slug)
         return
 
-    entity = context.make("Organization")
+    # Some records bundle several organizations into a single name joined by "và" (and)
     name = org.pop("name")
-    entity.id = context.make_id(name, slug)
-    entity.add("name", name, lang="vie")
-    entity.add("topics", "crime.terror")
-    entity.add("sourceUrl", f"{context.dataset.url}/{slug}")
+    if "và" in name:
+        result = context.lookup("organization_names", name, warn_unmatched=True)
+        assert result is not None, f"Organization name split missing for {name}"
+        names = result.names
+    else:
+        names = [name]
+    for org_name in names:
+        entity = context.make("Organization")
+        entity.id = context.make_id(org_name, slug)
+        entity.add("name", org_name, lang="vie")
+        entity.add("topics", "crime.terror")
+        entity.add("sourceUrl", f"{context.dataset.url}/{slug}")
 
-    sanction = h.make_sanction(context, entity, program_key=PROGRAM_KEY)
+        sanction = h.make_sanction(context, entity, program_key=PROGRAM_KEY)
 
-    context.emit(entity)
-    context.emit(sanction)
+        context.emit(entity)
+        context.emit(sanction)
 
-    context.audit_data(org, ignore=["id", "description"])
-    # Fetch and emit member records for this organization, if any.
-    crawl_org_members(context, entity, slug)
+        context.audit_data(org, ignore=["id", "description"])
+
+        # Fetch and emit member records for this organization, if any.
+        crawl_org_members(context, entity, slug)
 
 
 def crawl(context: Context) -> None:

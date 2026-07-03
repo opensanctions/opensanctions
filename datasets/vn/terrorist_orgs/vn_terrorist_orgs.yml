@@ -84,3 +84,10 @@ lookups:
     options:
       - match: danh-sach-chi-dinh-cua-hoi-dong-bao-an-lien-hop-quoc-1751427648
         value: true
+  # Some records bundle several organizations into one name joined by "và" (and).
+  organization_names:
+    options:
+      - match: 'Tổ chức khủng bố “Nhóm Hỗ trợ người Thượng” và “Người Thượng vì công lý”'
+        names:
+          - "Tổ chức khủng bố “Nhóm Hỗ trợ người Thượng”"
+          - "Tổ chức khủng bố “Người Thượng vì công lý”"
