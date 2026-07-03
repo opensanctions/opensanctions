@@ -94,6 +94,68 @@ def test_make_position_translate_name(testdataset1: Dataset):
     context.close()
 
 
+def test_make_position_translate_name_uses_dataset_language():
+    dataset = Dataset(
+        {
+            "name": "cz_positions",
+            "title": "Czech Positions",
+            "prefix": "czp",
+            "data": {
+                "url": "https://example.com/",
+                "format": "HTML",
+                "lang": "ces",
+            },
+        }
+    )
+    context = Context(dataset)
+    with patch(
+        "zavod.shed.trans.translate_position_name",
+        return_value=TranslationResult(
+            texts=[LangText(text="Member of Parliament", lang="eng")],
+            cache_key="cache-key",
+            origin="test-model",
+        ),
+    ) as mock_translate:
+        position = make_position(
+            context,
+            name="Poslanec",
+            country="cz",
+            translate_name=True,
+        )
+
+    mock_translate.assert_called_once_with(
+        context, LangText(text="Poslanec", lang="ces")
+    )
+    assert position.get("name") == ["Member of Parliament"]
+    context.close()
+
+
+def test_make_position_dataset_language_is_not_statement_override():
+    dataset = Dataset(
+        {
+            "name": "gb_positions",
+            "title": "UK Positions",
+            "prefix": "gbp",
+            "data": {
+                "url": "https://example.com/",
+                "format": "HTML",
+                "lang": "eng",
+            },
+        }
+    )
+    context = Context(dataset)
+    position = make_position(
+        context,
+        name="Speaker",
+        country="gb",
+        translate_name=True,
+    )
+
+    name_statement = next(s for s in position.statements if s.prop == "name")
+    assert name_statement.lang is None
+    context.close()
+
+
 def test_make_position_translate_fallback(testdataset1: Dataset):
     """When translation yields no English text, the original name is kept."""
     context = Context(testdataset1)
