@@ -359,6 +359,10 @@ lookups:
         props:
           registrationNumber: 1096659005200
           incorporationDate: 2009-05-15
+      - match: "Déclarée le 10 avril 2018 à la sous-préfecture du Raincy (93): W932007231"
+        props:
+          registrationNumber: W932007231
+          incorporationDate: 2018-04-10
       - match: 'Entités associées: le soi-disant "gouvernement" de la soi-disant "République populaire de Donetsk"'
         associates:
           - le soi-disant gouvernement de la soi-disant République populaire de Donetsk
