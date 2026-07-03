@@ -100,8 +100,5 @@ def crawl_organization(context: Context, org: dict[str, Any]) -> None:
 def crawl(context: Context) -> None:
     data = context.fetch_json(context.data_url, headers=HEADERS, cache_days=1)
     organizations = data.get("data")
-    if not organizations:
-        raise ValueError("No organizations returned by the terrorist list endpoint")
-
     for org in organizations:
         crawl_organization(context, org)
