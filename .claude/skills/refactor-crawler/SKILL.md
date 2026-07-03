@@ -26,6 +26,22 @@ don't silently alter what's emitted.
 Sanctioned/legal names are especially sensitive: never introduce LLM-based or heuristic
 name "cleaning". See `zavod/docs/extract/names.md`.
 
+## Second golden rule: make it brittle on the unexpected
+
+Distrust all input. A refactored crawler should be **more** likely to fail loudly than the
+draft it replaces — never less. When the code meets something it doesn't understand at
+runtime — an unmapped category, a shape that doesn't match, a field that's suddenly empty,
+a count that's off — it must **warn, error, or crash rather than guess or silently drop
+data**. Emitting ambiguous or partial data is worse than failing, because the failure gets
+noticed and the bad data doesn't. (CLAUDE.md: "When a crawler encounters uncertainty in any
+of the data it is parsing, it should crash or produce an error instead of emitting
+ambiguous data.")
+
+A refactor that makes code shorter but swallows more edge cases is a regression. When you
+remove a branch, replace it with a guard, not with silence. Concrete moves are in
+[Pattern 17](#17-fail-loud-turn-silent-assumptions-into-guards); it also reinforces the
+loud-failure angle already in patterns 5, 6, 13, and 14.
+
 ## Read first
 
 The best-practices docs, each governing one area below:
@@ -268,6 +284,54 @@ assert position_name is not None, entity.id
 Order imports stdlib → third-party → `zavod` (`ruff check --fix --select I <file>`). Fully
 type the crawler; use builtin generics (`dict`, `list`) and `X | None`. For the mypy-strict
 details defer to the `/typechecker-fixes` skill.
+
+### 17. Fail loud: turn silent assumptions into guards — `patterns.md`, `xpath_and_html.md`
+
+This is the [second golden rule](#second-golden-rule-make-it-brittle-on-the-unexpected)
+applied line by line. As you refactor, hunt for places where the draft quietly guesses or
+drops data on the unexpected, and replace them with a warning, an error, or a crash. Pick
+the loudness by whether the crawler can meaningfully continue:
+
+- **Crash / raise** when continuing would emit ambiguous or wrong data, or when the
+  assumption is structural (the whole parse is invalid if it's false). An `assert` with a
+  message, a raised exception, or an unguarded `dict[key]`/`row.pop(key)` that `KeyError`s
+  on drift are all fine.
+- **`context.log.warning`** when one record is unmappable but the rest of the crawl is
+  still valid — e.g. a category not in your lookup. Warnings hit the Issues page and get
+  reviewed daily. Skip that record; don't emit a half-built entity.
+- **Never** `except: pass`, `.get(key, "")` to paper over a missing mandatory field, a
+  bare `else` that lumps unknown inputs into a default schema/branch, or an empty selection
+  that loops zero times and emits nothing.
+
+```python
+# Before: unknown types silently become organizations; empty match emits nothing
+schema = "Person" if kind == "person" else "Organization"
+for row in table.xpath(".//tr"):
+    ...
+
+# After: unknown input is surfaced, not guessed; empty selection can't pass unnoticed
+schema = context.lookup_value("type.entity", kind)
+if schema is None:
+    context.log.warning("Unmapped entity type", kind=kind)
+    return
+rows = h.xpath_elements(table, ".//tr")
+assert len(rows) > 0, "no rows matched — page structure changed?"
+```
+
+```python
+# Before: a bare except hides real breakage
+try:
+    dob = parse_the_date(raw)
+except Exception:
+    dob = None
+
+# After: let apply_date warn on unparseable input and keep the original_value
+h.apply_date(entity, "birthDate", raw)   # emits a warning on bad input, doesn't hide it
+```
+
+When you deliberately allow an unhandled value (a field with no FTM home, a known-benign
+category), make the allowance **explicit** — `context.audit_data(row, ignore=[...])`, a
+lookup option, or a commented guard — so a genuinely new value still trips the alarm.
 
 ---
 
