@@ -68,6 +68,7 @@ PROTECTED_PROPS: dict[str, list[str]] = {
     "Associate": ["relationship"],
     "Family": ["relationship"],
     "UnknownLink": ["role"],
+    "Payment": ["amount", "currency", "amountUsd", "date", "purpose"],
     "Value": ["amount", "currency", "amountUsd"],
     "Occupancy": ["constituency", "politicalGroup", "status"],
 }

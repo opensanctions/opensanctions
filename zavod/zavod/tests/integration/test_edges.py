@@ -362,6 +362,78 @@ def test_unprotected_props_do_not_block_merge(store: Store, resolver: Resolver):
     assert_merged(resolver, "e1", "e2")
 
 
+def test_payment_protected_props_allow_matching_payments(
+    store: Store, resolver: Resolver
+):
+    entity1 = e(
+        store.dataset,
+        "Payment",
+        "e1",
+        properties={
+            "payer": "a",
+            "beneficiary": "b",
+            "amount": "1000",
+            "currency": "USD",
+            "date": "2025-10-01",
+            "purpose": "Services",
+            "sourceUrl": "https://example.com/1",
+        },
+    )
+    entity2 = e(
+        store.dataset,
+        "Payment",
+        "e2",
+        properties={
+            "payer": "a",
+            "beneficiary": "b",
+            "amount": "1000",
+            "currency": "USD",
+            "date": "2025-10-01",
+            "purpose": "services",
+            "sourceUrl": "https://example.com/2",
+        },
+    )
+    add_entities(store, [entity1, entity2])
+
+    dedupe_edges(resolver, store.default_view())
+    assert_merged(resolver, "e1", "e2")
+
+
+def test_payment_protected_props_block_distinct_transactions(
+    store: Store, resolver: Resolver
+):
+    entity1 = e(
+        store.dataset,
+        "Payment",
+        "e1",
+        properties={
+            "payer": "a",
+            "beneficiary": "b",
+            "amount": "1000",
+            "currency": "USD",
+            "date": "2025",
+            "purpose": "Services",
+        },
+    )
+    entity2 = e(
+        store.dataset,
+        "Payment",
+        "e2",
+        properties={
+            "payer": "a",
+            "beneficiary": "b",
+            "amount": "1000",
+            "currency": "USD",
+            "date": "2025-10-01",
+            "purpose": "Refund",
+        },
+    )
+    add_entities(store, [entity1, entity2])
+
+    dedupe_edges(resolver, store.default_view())
+    assert_not_merged(resolver, "e1", "e2")
+
+
 def test_occupancy_period_regression(store: Store, resolver: Resolver):
     entities = [
         e(
