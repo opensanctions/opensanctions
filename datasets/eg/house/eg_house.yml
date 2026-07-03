@@ -1,0 +1,48 @@
+title: Egypt House of Representatives
+entry_point: crawler.py
+prefix: eg-hor
+coverage:
+  frequency: weekly
+  start: "2026-07-02"
+load_statements: true
+ci_test: false
+summary: >-
+  Members of the House of Representatives, the lower chamber of the Parliament of Egypt.
+description: |
+  This dataset lists the members of the Egyptian House of Representatives
+  (مجلس النواب), the lower chamber of Egypt's bicameral parliament. The chamber
+  comprises both directly elected members (individual and party-list seats) and
+  members appointed by the President of the Republic.
+tags:
+  - list.pep
+url: https://www.parliament.gov.eg/members.aspx
+publisher:
+  name: مجلس النواب
+  name_en: House of Representatives
+  description: >-
+    The House of Representatives is the lower chamber of the bicameral Parliament
+    of Egypt, the upper chamber being the Senate (Majlis al-Shuyukh). It is the
+    country's principal legislative body.
+  url: https://www.parliament.gov.eg/
+  country: eg
+  official: true
+data:
+  url: https://www.parliament.gov.eg/MembersDetails.aspx
+  format: HTML
+  lang: ara
+
+# The chamber currently seats 596 members (568 elected + 28 appointed). The bounds
+# leave room for by-elections and future terms of a different size; a structural
+# change (e.g. the source no longer exposing members) collapses the count and trips
+# the minimum.
+assertions:
+  min:
+    schema_entities:
+      Person: 550
+      Position: 1
+    country_entities:
+      eg: 550
+  max:
+    schema_entities:
+      Person: 650
+      Position: 1
