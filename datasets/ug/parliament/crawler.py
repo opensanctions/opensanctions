@@ -10,12 +10,6 @@ from zavod.stateful.positions import PositionCategorisation, categorise
 
 # The party acronym is embedded in the photo filename as the last "(...)" token.
 PARTY_RE = re.compile(r"\(([^()]+)\)[^()]*$")
-# The filenames spell the independents inconsistently.
-INDEPENDENTS = {"INDEP", "INDEPENDENT", "IND"}
-
-
-def clean_party(value: str) -> str:
-    return "Independent" if value.upper() in INDEPENDENTS else value
 
 
 def crawl_member(
@@ -44,7 +38,7 @@ def crawl_member(
     if images:
         match = PARTY_RE.search(images[0].get("src") or "")
         if match is not None:
-            person.add("political", clean_party(match.group(1)))
+            person.add("political", match.group(1))
     # Members of Parliament must be citizens of Uganda (Constitution art. 80(1)(a)).
     # https://www.constituteproject.org/constitution/Uganda_2017
     person.add("citizenship", "ug")
