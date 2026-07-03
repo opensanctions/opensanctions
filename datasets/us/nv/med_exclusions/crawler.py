@@ -89,7 +89,7 @@ def page_settings(page: Page) -> tuple[Page, dict[str, Any]]:
 
 
 def crawl_pdf_url(context: Context) -> str:
-    pdf_link_xpath = "//*[text()='NV Exclusion List ']"
+    pdf_link_xpath = "//a[normalize-space()='NV Exclusion List']"
     doc = zyte_api.fetch_html(
         context, context.data_url, pdf_link_xpath, geolocation="US", absolute_links=True
     )
