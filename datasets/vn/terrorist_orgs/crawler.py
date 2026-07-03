@@ -48,6 +48,7 @@ def crawl_person(
     person.add("notes", member.pop("infoOther"), lang="vie")
     person.add("sourceUrl", f"{context.dataset.url}/{org_slug}")
     person.add("topics", "crime.terror")
+    person.add("topics", "sanction.counter")
 
     sanction = h.make_sanction(context, person, program_key=PROGRAM_KEY)
 
@@ -95,6 +96,7 @@ def crawl_organization(context: Context, org: dict[str, Any]) -> None:
         entity.id = context.make_id(org_name, slug)
         entity.add("name", org_name, lang="vie")
         entity.add("topics", "crime.terror")
+        entity.add("topics", "sanction.counter")
         entity.add("sourceUrl", f"{context.dataset.url}/{slug}")
 
         sanction = h.make_sanction(context, entity, program_key=PROGRAM_KEY)
