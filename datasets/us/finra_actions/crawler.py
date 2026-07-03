@@ -19,7 +19,6 @@ from urllib.parse import parse_qs, urljoin, urlparse
 from zavod import Context, helpers as h
 from zavod.extract import zyte_api
 
-
 RESULT_ROW_VALIDATOR = (
     ".//table[not(ancestor-or-self::*//div"
     "[contains(concat(' ', normalize-space(@class), ' '), ' view-empty ')])]//tr[td]"
