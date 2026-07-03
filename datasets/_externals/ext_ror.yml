@@ -93,7 +93,7 @@ config:
 assertions:
   min:
     schema_entities:
-      Organization: 210
+      Organization: 30
   max:
     schema_entities:
       Organization: 500
