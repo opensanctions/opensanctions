@@ -1,0 +1,43 @@
+title: Ghana Members of Parliament
+entry_point: crawler.py
+prefix: gh-mp
+coverage:
+  frequency: monthly
+  start: 2026-06-25
+load_statements: true
+summary: >-
+  Members of the Parliament of Ghana, the unicameral national legislature
+description: |
+  Members of Parliament of Ghana, the unicameral national legislature. It has 275
+  members elected one per constituency for four-year terms.
+
+  This dataset records each sitting member with their name, constituency and political
+  party, sourced from the Parliament of Ghana's official website.
+url: https://www.parliament.gh/members
+publisher:
+  name: Parliament of Ghana
+  description: >
+    The Parliament of Ghana is the unicameral national legislature of the Republic of
+    Ghana.
+  url: https://www.parliament.gh/
+  country: gh
+  official: true
+data:
+  url: https://www.parliament.gh/members
+  format: HTML
+  lang: eng
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 220
+      Position: 1
+    country_entities:
+      gh: 220
+  max:
+    schema_entities:
+      Person: 290
+      Position: 1
