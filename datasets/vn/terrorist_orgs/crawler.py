@@ -10,6 +10,8 @@ from zavod.entity import Entity
 # that selects the Vietnamese-language portal (the authoritative content tree
 # that carries the member records).
 MEMBER_URL = "https://api-portal.bocongan.gov.vn/backend-portal/terrorist-member"
+# We prefer Vietnamese portal (Portal-Id 22) over the English one (Portal-Id
+# 28). Only the Vietnamese portal exposes structured member records as JSON.
 HEADERS = {"Portal-Id": "22"}
 # The member endpoint exposes no total count and defaults to 10 results. The
 # largest designation currently has ~15 members, so we request a page well above
