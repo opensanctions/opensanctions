@@ -27,7 +27,7 @@ def crawl_member(
 
     person = context.make("Person")
     person.id = context.make_slug("mp", match.group(1))
-    h.apply_name(person, full=name, lang="eng")
+    h.apply_name(person, full=name)
     # Members of Parliament must be citizens of Ghana (Constitution art. 94(1)(a)) and
     # may not owe allegiance to another country (art. 94(2)(a)).
     # https://www.constituteproject.org/constitution/Ghana_1996
@@ -60,7 +60,6 @@ def crawl(context: Context) -> None:
         country="gh",
         topics=["gov.national", "gov.legislative"],
         wikidata_id="Q21290881",
-        lang="eng",
     )
     categorisation = categorise(context, position)
     context.emit(position)

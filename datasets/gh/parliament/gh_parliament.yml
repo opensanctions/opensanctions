@@ -5,7 +5,6 @@ coverage:
   frequency: monthly
   start: 2026-06-25
 load_statements: true
-ci_test: false # Live external government website, not available in CI
 summary: >-
   Members of the Parliament of Ghana, the unicameral national legislature
 description: |
