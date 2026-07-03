@@ -5,7 +5,7 @@ from zavod import helpers as h
 from zavod.entity import Entity
 
 # The portal's backend API. The list endpoint returns the designated
-# organizations; members of each organization are fetched from a paginated
+# organizations; members of each organization are fetched from a
 # per-organization endpoint. Both require the numeric ``Portal-Id`` header
 # that selects the Vietnamese-language portal (the authoritative content tree
 # that carries the member records).
