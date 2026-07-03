@@ -5,7 +5,7 @@ coverage:
   frequency: monthly
   start: 2026-07-03
 load_statements: true
-ci_test: false # Live external government website, not available in CI
+ci_test: false  # Live external government website, not available in CI
 summary: >-
   Members of the Parliament of Uganda, the unicameral national legislature
 description: |
