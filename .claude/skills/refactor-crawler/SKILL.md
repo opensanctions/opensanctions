@@ -1,5 +1,5 @@
 ---
-name: crawler-cleanup
+name: refactor-crawler
 description: Rewrite messy or AI-generated crawler code into clean, production-ready style that follows the zavod best practices. Use when the user asks to clean up, refactor, tidy, or "make production-ready" a crawler, or to bring code in line with best practices.
 argument-hint: "[crawler.py path]"
 allowed-tools: Read, Edit, Write, Glob, Grep, Bash
