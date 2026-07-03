@@ -1,15 +1,15 @@
 """
 # Occasional issues:
 
-## Crawl completes but fewer than asserted entities are emitted.
+FINRA listing pages are newest-first and served through inconsistent caches.
+Intermediate pages can temporarily render the "No results found" empty state
+even though reruns later return rows; pagination can also drift if the listing
+changes while a crawl is in progress.
 
-Running the crawler locally the next day results in the expected number
-of entities being emitted.
-
-The crawl runs to the same number of pages (1231 in querystring) as usual.
-It's not clear whether entities are removed and then new entities added by
-the time we check the issue, or whether there's a bug. Keeping an eye on this
-for a bit longer (2024-07-31)
+The Zyte fetch validator requires a populated table and rejects the empty-state
+marker so these pages are retried and, if persistent, abort the crawl instead
+of emitting a partial run. The crawler also aborts if the advertised last page
+changes after pagination has been established.
 """
 
 from lxml.etree import _Element
@@ -18,6 +18,12 @@ from urllib.parse import urlparse, parse_qs
 
 from zavod import Context, helpers as h
 from zavod.extract import zyte_api
+
+
+RESULT_ROW_VALIDATOR = (
+    ".//table[not(ancestor-or-self::*//div"
+    "[contains(concat(' ', normalize-space(@class), ' '), ' view-empty ')])]//tr[td]"
+)
 
 
 def crawl_item(context: Context, row: Dict[str, _Element]) -> None:
@@ -90,22 +96,24 @@ def crawl(context: Context) -> None:
         context.log.info(f"Crawling page {page_num} of {max_page}")
         url = context.data_url + "?page=" + str(page_num)
         # Zyte because occasional cloudflare javascript challenge.
-        response = zyte_api.fetch_html(context, url, ".//table", absolute_links=True)
+        response = zyte_api.fetch_html(
+            context, url, RESULT_ROW_VALIDATOR, absolute_links=True
+        )
 
-        # Update max_page each iteration in case pagination changes.
+        # Check the page count each iteration in case pagination changes.
         new_max = get_max_page(response)
         if new_max is not None:
-            max_page = new_max
+            if max_page is None:
+                max_page = new_max
+            elif new_max != max_page:
+                raise RuntimeError(
+                    "FINRA pagination changed during crawl: "
+                    f"expected last page {max_page}, got {new_max} "
+                    f"on page {page_num}"
+                )
 
         table = response.find(".//table")
-        if table is None:
-            context.log.info("No table found. Skipping page.", page_num=page_num)
-            page_num += 1
-            continue
-        if response.find(".//div[@class='view-empty']") is not None:
-            context.log.info("No results found. Skipping page.", page_num=page_num)
-            page_num += 1
-            continue
+        assert table is not None, "Validated FINRA page did not contain a table"
 
         for row in h.parse_html_table(table):
             crawl_item(context, row)
