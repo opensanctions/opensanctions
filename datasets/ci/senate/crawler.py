@@ -2,6 +2,12 @@ from zavod import Context
 from zavod import helpers as h
 from zavod.stateful.positions import categorise
 
+CARD_TITLE_XPATH = """
+    .//section[@id='main-container']
+    //*[self::h5 or self::h6]
+      [contains(concat(' ', normalize-space(@class), ' '), ' card-title ')]
+"""
+
 
 def crawl(context: Context) -> None:
     position = h.make_position(
@@ -12,18 +18,16 @@ def crawl(context: Context) -> None:
         lang="eng",
     )
     categorisation = categorise(context, position)
+    if not categorisation.is_pep:
+        return
     context.emit(position)
 
     doc = context.fetch_html(context.data_url, cache_days=1)
-    # Senators are rendered as cards; the same senator recurs under each commission
-    # section they sit on, so dedupe by name.
-    cards = h.xpath_elements(doc, "//div[contains(@class, 'tof-card')]")
+    # Senators recur across the page's organ and commission sections.
     seen: set[str] = set()
-    for card in cards:
-        titles = h.xpath_elements(card, ".//h6[contains(@class, 'card-title')]")
-        if not titles:
-            continue
-        name = h.element_text(titles[0])
+    titles = h.xpath_elements(doc, CARD_TITLE_XPATH)
+    for title in titles:
+        name = h.element_text(title)
         if len(name) == 0 or name in seen:
             continue
         seen.add(name)

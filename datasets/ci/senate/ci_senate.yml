@@ -5,7 +5,6 @@ coverage:
   frequency: monthly
   start: 2026-06-25
 load_statements: true
-ci_test: false # Live external government website, not available in CI
 summary: >-
   Senators of the Senate of Côte d'Ivoire, the upper house of Parliament
 description: |
