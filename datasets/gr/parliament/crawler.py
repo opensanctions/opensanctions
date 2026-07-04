@@ -4,33 +4,6 @@ from zavod import Context, helpers as h
 from zavod.extract import zyte_api
 from zavod.stateful.positions import categorise
 
-# List of IDs to skip:
-# These entries are explicitly skipped because they currently contain no data.
-# However, the skip list is maintained so we can verify each skipped case,
-# in case the relevant information exists elsewhere.
-SKIP_LIST = [
-    "3f25e40d-6ca8-4d3c-890c-7d7f51ec4358",
-    "2c05592f-07a9-47b9-bed9-b034010b8225",
-    "21b5a1ef-26d2-4c09-b11e-b034010b6653",
-    "456338e2-4989-4758-af4a-b034010b8e31",
-    "7443c8ee-18bb-42b0-9e41-b034010af009",
-    "736dc97f-816b-4d52-be1e-b034010aed03",
-    "4f3bf776-7361-4450-84a4-b034010b002a",
-    "82ba5fbf-0bcc-454e-bd9f-b034010ae40e",
-    "09cb7f35-8570-4e7f-8d83-b034010b4f73",
-    "4af9ce6a-263a-4f0f-a28c-b034010ad219",
-    "ea35c8e4-cd07-4360-be51-b034010b12d2",
-    "1294b6b9-9a50-4961-b429-b034010b019d",
-    "f8856bfc-54b4-4052-bfe0-b034010b56b3",
-    "c9c199ec-4bcd-4bd3-a545-b034010b0907",
-    "75f888b4-9245-479c-9aaa-b034010b4284",
-    "79bf7490-332e-40c7-a226-b034010b36eb",
-    "591f30ee-64a4-4f03-bfd0-b034010b18f2",
-    "363082e4-9389-409b-abf8-b34700d49a75",
-    "7451bc83-3eae-446f-a0bb-b42000e029ea",
-    "0d9b3171-ecdb-48ec-9d7a-b17900df3b0b",
-]
-
 
 def lookup_term_dates(context: Context, term: str) -> tuple[str | None, str | None]:
     dates_lookup_result = context.lookup("term", term)
@@ -114,15 +87,12 @@ def crawl(context: Context) -> None:
             cache_days=7,
         )
         tables = h.xpath_elements(mp_page, ".//table[@class='grid']")
-        # If no table is found for this MP and they're not already in SKIP_LIST,
-        # log a warning. Check the logged URL manually to confirm whether this MP
-        # genuinely has no details table. If confirmed, add their ID to SKIP_LIST.
-        if not tables and mp_id not in SKIP_LIST:
-            context.log.warning(
-                "No table found for MP not in skip list", mp_id=mp_id, url=url
-            )
-        # Skip processing if table is missing
+        # The source renders a full page but omits the term-history table for MPs
+        # with no record yet (e.g. elected but not yet seated). This is expected and
+        # self-correcting: the table appears once the source populates it, so we log
+        # at info level rather than warn, and move on without emitting the MP.
         if not tables:
+            context.log.info("No table found for MP", mp_id=mp_id, url=url)
             continue
         assert len(tables) == 1, len(tables)
         table = tables[0]
