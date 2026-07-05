@@ -1,0 +1,87 @@
+title: Kenya Judges of the Superior Courts
+entry_point: crawler.py
+prefix: ke-jud
+coverage:
+  frequency: monthly
+  start: 2026-07-05
+load_statements: true
+ci_test: false # Live external government website, not available in CI
+summary: Current judges of the superior courts listed by the Judiciary of Kenya
+description: |
+  Serving judges of Kenya's superior courts, as listed on the official website
+  of the Judiciary of Kenya. The superior courts are established by Chapter 10
+  of the Constitution of Kenya (2010):
+
+  * the **Supreme Court** (Article 163) — the Chief Justice, Deputy Chief
+    Justice and five other judges;
+  * the **Court of Appeal** (Article 164);
+  * the **High Court** (Article 165);
+  * the **Employment and Labour Relations Court** and the **Environment and
+    Land Court**, courts with the status of the High Court established under
+    Article 162(2).
+
+  The crawler follows the five judge-listing pages linked under "Judges" in
+  the site navigation, one per court. Each sitting judge is recorded with
+  their name, court-level position, and a link to their profile page.
+  Judicial leadership offices exposed by the source (Chief Justice, Deputy
+  Chief Justice, Principal Judge of the High Court and of the Employment and
+  Labour Relations Court, Presiding Judge of the Environment and Land Court)
+  are modelled as additional positions held alongside the court seat. A
+  judge marked "President-Elect" of the Court of Appeal is recorded as a
+  judge of that court only. Judges of the superior courts exercise national
+  judicial authority and are treated as politically exposed persons.
+url: https://judiciary.go.ke/
+publisher:
+  name: The Judiciary of Kenya
+  description: >
+    The Judiciary is one of the three arms of the government of Kenya,
+    established under Chapter 10 of the Constitution of Kenya to exercise
+    judicial authority.
+  url: https://judiciary.go.ke/
+  country: ke
+  official: true
+data:
+  url: https://judiciary.go.ke/supreme-court-judges/
+  format: HTML
+  lang: eng
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 210
+      Position: 5
+    country_entities:
+      ke: 210
+  max:
+    schema_entities:
+      Person: 400
+      Position: 15
+
+names:
+  prefixes_strip:
+    - "Hon."
+    - "Hon"
+    - "Lady Justice"
+    - "lady Justice"
+    - "Mr. Justice"
+    - "Mrs. Justice"
+    - "Justice"
+    - "Lady"
+    - "lady"
+    - "Mr."
+    - "Mrs."
+    - "Ms."
+    - "Ms"
+    - "(Dr.)"
+    - "(Dr)."
+    - "(Dr)"
+    - "Dr."
+    - "Dr"
+    - "(Prof.)"
+    - "(Prof)"
+    - "Prof."
+    - "Prof"
+    - "(Rtd)"
