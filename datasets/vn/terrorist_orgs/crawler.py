@@ -71,6 +71,8 @@ def crawl_org_members(context: Context, organization: Entity, org_slug: str) -> 
     params = {"organization_slug": org_slug, "size": MEMBER_PAGE_SIZE}
     data = context.fetch_json(MEMBER_URL, params=params, headers=HEADERS, cache_days=1)
     members = data.get("data") or []
+    import json
+    print(json.dumps(members, indent=2, ensure_ascii=False))
     if len(members) >= MEMBER_PAGE_SIZE:
         raise ValueError(f"Member list for {org_slug} may be truncated; add pagination")
     for member in members:
@@ -113,5 +115,7 @@ def crawl_organization(context: Context, org: dict[str, Any]) -> None:
 def crawl(context: Context) -> None:
     data = context.fetch_json(context.data_url, headers=HEADERS, cache_days=1)
     organizations = data.get("data")
+    import json
+    print(json.dumps(organizations, indent=2, ensure_ascii=False))
     for org in organizations:
         crawl_organization(context, org)
