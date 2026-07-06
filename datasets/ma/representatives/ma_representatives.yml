@@ -3,7 +3,7 @@ entry_point: crawler.py
 prefix: ma-rep
 coverage:
   frequency: monthly
-  start: 2026-06-25
+  start: 2026-07-06
 load_statements: true
 ci_test: true
 summary: >-
