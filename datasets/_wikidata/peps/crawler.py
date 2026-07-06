@@ -228,11 +228,8 @@ def crawl(context: Context) -> None:
             if pos_item is None:
                 continue
             if pos_item.id != wd_position.qid:
-                context.log.warning(
-                    "Redirected position QID",
-                    original=wd_position.qid,
-                    redirected=pos_item.id,
-                )
+                context.resolver.rename_node(wd_position.qid, pos_item.id)
+                context.flush()
 
             position = wikidata_position(context, client, pos_item)
             if position is None:
