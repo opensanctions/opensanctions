@@ -1143,3 +1143,8 @@ lookups:
         names:
           - Biltmore Wealth Management LLC
           - Caleb R. Overton
+      - match: OnPassive LLC, Ashraf Mufareh, and Asmahan Mufareh
+        names:
+          - OnPassive LLC
+          - Ashraf Mufareh
+          - Asmahan Mufareh
