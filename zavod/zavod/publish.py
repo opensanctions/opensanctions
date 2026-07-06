@@ -123,10 +123,8 @@ def archive_failure(dataset: Dataset) -> None:
     # Clear out interim artifacts so they cannot pollute the metadata we're
     # generating.
     dataset_resource_path(dataset.name, STATEMENTS_FILE).unlink(missing_ok=True)
-    # TODO: The statistics file gets pulled in by write_dataset_index,
-    #  so they get published as part of the artifacts anyway.
-    #  For a brief discussion of our currently broken failure semantics,
-    #  see https://github.com/opensanctions/opensanctions/pull/2483
+    # The statistics file may have been written by a partially-completed export,
+    # so its counts wouldn't describe anything a consumer can download.
     dataset_resource_path(dataset.name, STATISTICS_FILE).unlink(missing_ok=True)
     dataset_resource_path(dataset.name, INDEX_FILE).unlink(missing_ok=True)
     dataset_resource_path(dataset.name, CATALOG_FILE).unlink(missing_ok=True)
@@ -134,7 +132,11 @@ def archive_failure(dataset: Dataset) -> None:
     dataset_resource_path(dataset.name, DELTA_EXPORT_FILE).unlink(missing_ok=True)
     dataset_resource_path(dataset.name, DELTA_INDEX_FILE).unlink(missing_ok=True)
 
-    write_dataset_index(dataset, DatasetVersionResult.FAILURE)
+    # Don't backfill statistics from the archive: this run produced no data, so
+    # the failure index should not carry entity counts from a previous run.
+    write_dataset_index(
+        dataset, DatasetVersionResult.FAILURE, backfill_statistics=False
+    )
     path = dataset_resource_path(dataset.name, INDEX_FILE)
     if not path.is_file():
         log.error("Metadata file not found: %s" % path, dataset=dataset.name)

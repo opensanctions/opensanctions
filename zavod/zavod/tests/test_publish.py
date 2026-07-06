@@ -1,6 +1,8 @@
 import json
 from typing import Optional
-from followthemoney.dataset import VersionHistory
+
+import pytest
+from followthemoney.dataset import Version, VersionHistory
 from structlog.testing import capture_logs
 
 from zavod import settings
@@ -211,6 +213,7 @@ def test_archive_failure(testdataset1: Dataset):
     assert not artifact_path.joinpath(RESOURCES_FILE).exists()
     assert not artifact_path.joinpath(HASH_FILE).exists()
     assert not artifact_path.joinpath(DELTA_INDEX_FILE).exists()
+    assert not artifact_path.joinpath(STATISTICS_FILE).exists()
 
     # We don't want failed runs to end up in /datasets
     assert not latest_path.joinpath(INDEX_FILE).exists()
@@ -218,3 +221,51 @@ def test_archive_failure(testdataset1: Dataset):
     assert not latest_path.joinpath(ISSUES_FILE).exists()
     assert len(list(latest_path.glob("*"))) == 0
     assert len(list(release_path.glob("*"))) == 0
+
+
+def test_archive_failure_no_stale_statistics(
+    testdataset1: Dataset, monkeypatch: pytest.MonkeyPatch
+):
+    """A failed run following a successful one must not resurrect the previous
+    run's statistics from the archive in its failure index."""
+    linker = get_dataset_linker(testdataset1)
+    crawl_dataset(testdataset1)
+    store = get_store(testdataset1, linker)
+    store.sync()
+    export_dataset(testdataset1, store.view(testdataset1))
+    publish_dataset(testdataset1, republish_to_latest=True)
+    successful_version = settings.RUN_VERSION
+
+    # Fail a subsequent run under a fresh version, on a clean data path as in
+    # a production `zavod run`:
+    clear_data_path(testdataset1.name)
+    monkeypatch.setattr(settings, "RUN_VERSION", Version.new())
+    assert testdataset1.data is not None
+    testdataset1.data.format = "FAIL"
+    with pytest.raises(RunFailedException):
+        crawl_dataset(testdataset1)
+    archive_failure(testdataset1)
+
+    history = _read_history(testdataset1.name)
+    assert history is not None
+    assert history.latest is not None
+    assert history.latest.id == settings.RUN_VERSION.id
+    artifact_path = (
+        settings.ARCHIVE_PATH / ARTIFACTS / testdataset1.name / history.latest.id
+    )
+    # The failed version must not have statistics archived under it...
+    assert not artifact_path.joinpath(STATISTICS_FILE).exists()
+    # ...and its index must not carry counts from the previous successful run:
+    index = json.loads(artifact_path.joinpath(INDEX_FILE).read_text())
+    assert index["result"] == "failure"
+    assert "entity_count" not in index
+    assert "thing_count" not in index
+    assert "target_count" not in index
+
+    # The previous successful version's statistics remain untouched:
+    successful_path = (
+        settings.ARCHIVE_PATH / ARTIFACTS / testdataset1.name / successful_version.id
+    )
+    assert successful_path.joinpath(STATISTICS_FILE).exists()
+    successful_index = json.loads(successful_path.joinpath(INDEX_FILE).read_text())
+    assert successful_index["entity_count"] > 0

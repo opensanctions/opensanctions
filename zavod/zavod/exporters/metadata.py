@@ -24,8 +24,17 @@ class DatasetVersionResult(StrEnum):
     FAILURE = "failure"
 
 
-def get_base_dataset_metadata(dataset: Dataset) -> Dict[str, Any]:
-    """Build the barebones metadata block for a dataset, without artifact URLs."""
+def get_base_dataset_metadata(
+    dataset: Dataset, backfill_statistics: bool = True
+) -> Dict[str, Any]:
+    """Build the barebones metadata block for a dataset, without artifact URLs.
+
+    Args:
+        dataset: The dataset to generate metadata for.
+        backfill_statistics: Whether to fetch statistics.json from the archive
+            when no local copy exists. See `write_dataset_index` for the
+            reasoning behind this option.
+    """
     meta: Dict[str, Any] = {
         "issue_levels": {},
         "issue_count": 0,
@@ -35,15 +44,9 @@ def get_base_dataset_metadata(dataset: Dataset) -> Dict[str, Any]:
     # This reads the file produced by the statistics exporter which
     # contains entity counts for the dataset, aggregated by various
     # criteria:
-    # TODO: In the case of a failed run, this will currently backfill the stats from the last
-    #  previous run. That doesn't really make sense, because the resources of the index will
-    #  be empty - so what are these counts referring to? (Answer: the last successful run, and then
-    #  publish_failure will just publish that one over and over again).
-    #  But we currently show these numbers on our website, and we currently don't have well-defined
-    #  semantics how our website (or our customers) would figure out what the last successful run was.
-    #  For a brief discussion of our currently broken failure semantics,
-    #  see https://github.com/opensanctions/opensanctions/pull/2483
-    statistics_path = get_dataset_artifact(dataset.name, STATISTICS_FILE)
+    statistics_path = get_dataset_artifact(
+        dataset.name, STATISTICS_FILE, backfill=backfill_statistics
+    )
     if statistics_path.is_file():
         with open(statistics_path, "r") as fh:
             stats: Dict[str, Any] = json.load(fh)
@@ -67,8 +70,24 @@ def get_base_dataset_metadata(dataset: Dataset) -> Dict[str, Any]:
     return meta
 
 
-def write_dataset_index(dataset: Dataset, result: DatasetVersionResult) -> None:
-    """Export dataset metadata to index.json."""
+def write_dataset_index(
+    dataset: Dataset,
+    result: DatasetVersionResult,
+    backfill_statistics: bool = True,
+) -> None:
+    """Export dataset metadata to index.json.
+
+    Args:
+        dataset: The dataset to write the index for.
+        result: Whether the run being indexed succeeded or failed.
+        backfill_statistics: Whether to fetch statistics.json from the archive
+            when no local copy exists. This is so that catalog writers that
+            have not had a local crawl can backfill stats, but a failed
+            `zavod run` does not: a run that produced no data should not
+            publish an index carrying entity counts from a previous run.
+            (On successful exports the statistics exporter always runs, so a
+            fresh local copy exists and no backfill happens either way.)
+    """
     catalog = get_catalog()
     version = get_latest(dataset.name, backfill=True)
     if version is None:
@@ -80,7 +99,7 @@ def write_dataset_index(dataset: Dataset, result: DatasetVersionResult) -> None:
         version=version.id,
         is_collection=dataset.is_collection,
     )
-    meta = get_base_dataset_metadata(dataset)
+    meta = get_base_dataset_metadata(dataset, backfill_statistics=backfill_statistics)
     meta.update(dataset.to_opensanctions_dict(catalog))
 
     # Remove redundant dataset hierarchy metadata
