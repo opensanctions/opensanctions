@@ -1075,6 +1075,10 @@ lookups:
         props:
           registrationNumber: W381009783
           incorporationDate: 2010-04-06
+      - match: "Déclarée le 10 avril 2018 à la sous-préfecture du Raincy (93): W932007231"
+        props:
+          registrationNumber: W932007231
+          incorporationDate: 2018-04-10
       - match: "Date d’enregistrement: juin 2011"
         props:
           incorporationDate: 2011-06
