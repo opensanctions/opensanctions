@@ -119,24 +119,38 @@ Key differences from Pattern A:
 Same `default_is_pep=None` shape as Pattern B, but used for sources where each record names
 a sub-national position (e.g. mayor of municipality X). Two extras:
 
-- Pass the source-language label with `lang=` and `translate_name=True`.
+- Translate the role label to English via a `position` lookup. This is only
+  applicable when the source has very few distinct position names (a handful of
+  role labels shared across all municipalities). Otherwise, pass the
+  source-language label with `lang=` and `translate_name=True` as in Pattern B.
 - Pass `subnational_area=...` and **omit `wikidata_id`** — a Wikidata ID would
   collapse every municipality into the same entity.
 
 ```python
+res = context.lookup("position", row.pop("MAN_LABEL"))
+assert res is not None, f"Unknown position: {row['MAN_LABEL']!r}"
 position = h.make_position(
     context,
-    # Compose the whole name in the source language; translate_name produces the
-    # English name in one pass and keys the ID on the untranslated original.
-    name=f"{row.pop('MAN_LABEL')} de {commune_label}",
+    name=f"{res.value} of {commune_label}",   # English name + locality
     country="lu",
     subnational_area=commune_label,           # NOT wikidata_id — per-locality
-    lang="fra",
-    translate_name=True,
+    lang="eng",                               # already English after the lookup
 )
 categorisation = categorise(context, position, default_is_pep=None)
 if not categorisation.is_pep:
     return
+```
+
+YAML side — declare the translation lookup:
+
+```yaml
+lookups:
+  position:
+    options:
+      - match: Bourgmestre
+        value: Mayor
+      - match: Échevin
+        value: Alderman
 ```
 
 ## Pattern C: Multi-position crawler with `default_is_pep=True`

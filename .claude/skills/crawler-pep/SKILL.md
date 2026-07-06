@@ -63,7 +63,7 @@ assertions:
 
 - Include `Position` counts in assertions when the crawler creates multiple position types.
 - `frequency` matches source update cadence (daily/weekly/monthly). PEP crawlers do not have to be monthly.
-- Lookups rarely go past `type.*` for PEP crawlers. (Non-English role labels are handled by `translate_name=True` in `make_position`, not lookups.)
+- Lookups rarely go past `type.*` for PEP crawlers. (Non-English role labels are handled by `translate_name=True` in `make_position`; a `position` translation lookup is only worth it when the source has very few distinct labels.)
 
 ## Step 3: Write the crawler module
 
@@ -98,8 +98,10 @@ Build position names with `h.make_position`. Rules:
     - **Source-supplied names** (role labels read from the data): pass them through
       as-is with the source language as `lang=` and `translate_name=True` —
       `make_position` translates the name to English via LLM and keys the entity ID
-      on the untranslated original, so the ID stays stable. Do not translate labels
-      via a `position` YAML lookup.
+      on the untranslated original, so the ID stays stable. Only when the source has
+      very few distinct labels, a `position` YAML lookup translating them to English
+      (then `lang="eng"`) is fine instead — see the subnational variant in
+      `examples.md`.
 - Include the role, the organisational body where relevant, and the geographic jurisdiction. For members of national parliaments, include `citizenship` (except UK Parliament).
 - Avoid: legislative term, an elected official's constituency, or the country for sub-national representatives.
 - `wikidata_id` becomes the position's entity ID, so never pass the same QID to multiple distinct positions — they'd collapse into one entity. Per-municipality/region positions usually omit `wikidata_id` (per-locality QIDs rarely exist on Wikidata) and rely on `subnational_area=...` to disambiguate; pass a QID only when each subnational position has its own unique Wikidata entry.

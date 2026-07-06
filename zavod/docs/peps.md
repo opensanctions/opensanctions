@@ -84,7 +84,8 @@ Do
   pass. When the position name comes from the source in a non-English language,
   pass it unmodified with `translate_name=True` — the helper translates it to
   English and derives the entity ID from the untranslated name, keeping IDs
-  stable.
+  stable. When the source has only very few distinct labels, a `position` lookup
+  in the YAML translating them to English is an acceptable alternative.
 - include the role
 - include the organizational body where needed
 - include the specific geographic jurisdiction where relevant
