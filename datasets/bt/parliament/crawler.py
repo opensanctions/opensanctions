@@ -34,19 +34,15 @@ CHAMBERS = [
 
 # Fields left unused; passed to audit_data so new fields surface as warnings.
 IGNORE = [
-    "id",  # Strapi numeric id; we key on the stable documentId
+    "id",
     "createdAt",
     "updatedAt",
     "publishedAt",
     "locale",
-    "localizations",
-    "profile_image",
     "committee_memberships",
     "description",
     "parliament",  # term label, redundant with start/end
-    "dzongkhag",  # district; not represented on the position (constituency rule)
-    "constituency",  # National Assembly only
-    "party",  # National Assembly only; always null in the source
+    "constituency",  # National Assembly only; the dzongkhag (administrative district) is used instead
     "designation",  # leadership role within the chamber; not modelled separately
 ]
 
@@ -65,17 +61,17 @@ def crawl_member(
     # https://www.constituteproject.org/constitution/Bhutan_2008
     person.add("citizenship", "bt")
 
-    # start/end are term years; an end year in the future marks a sitting member.
     occupancy = h.make_occupancy(
         context,
         person,
         position,
-        start_date=record.pop("start", None),
-        end_date=record.pop("end", None),
+        period_start=record.pop("start"),
+        period_end=record.pop("end"),
         categorisation=categorisation,
     )
     if occupancy is None:
         return
+    occupancy.add("constituency", record.pop("dzongkhag"))
     context.emit(person)
     context.emit(occupancy)
     context.audit_data(record, ignore=IGNORE)
@@ -90,6 +86,8 @@ def crawl_chamber(context: Context, chamber: Chamber) -> None:
         wikidata_id=chamber.wikidata_id,
     )
     categorisation = categorise(context, position, default_is_pep=True)
+    if not categorisation.is_pep:
+        return
     context.emit(position)
 
     for page in count(1):
