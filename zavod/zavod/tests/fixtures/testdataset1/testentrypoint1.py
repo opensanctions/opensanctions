@@ -65,6 +65,10 @@ def crawl(context: Context):
         # Used by tests to trigger a runner failure.
         raise RuntimeError("Pipeline is broken")
 
+    if context.dataset.data is not None and context.dataset.data.format == "EMPTY":
+        # Used by tests to simulate a crawl that completes without emitting anything.
+        return
+
     context.export_resource(data_path, CSV, title=context.SOURCE_TITLE)
     with open(data_path, "r") as fh:
         for row in csv.DictReader(fh):
