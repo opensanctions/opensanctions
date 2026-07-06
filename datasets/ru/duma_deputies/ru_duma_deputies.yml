@@ -4,7 +4,7 @@ prefix: ru-duma
 entry_point: crawler.py
 coverage:
   frequency: weekly
-  start: 2026-07-01
+  start: 2026-07-06
 load_statements: true
 summary: >-
   Members of the State Duma, the lower chamber of the Federal Assembly of Russia.

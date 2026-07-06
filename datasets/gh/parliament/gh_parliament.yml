@@ -3,7 +3,7 @@ entry_point: crawler.py
 prefix: gh-mp
 coverage:
   frequency: monthly
-  start: 2026-06-25
+  start: 2026-07-06
 load_statements: true
 summary: >-
   Members of the Parliament of Ghana, the unicameral national legislature

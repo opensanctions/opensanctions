@@ -4,7 +4,7 @@ prefix: ru-fedco
 entry_point: crawler.py
 coverage:
   frequency: weekly
-  start: 2026-06-29
+  start: 2026-07-06
 load_statements: true
 ci_test: false
 summary: >-
