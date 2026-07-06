@@ -12,23 +12,30 @@ class Chamber(NamedTuple):
     endpoint: str
     position: str
     wikidata_id: str
+    constituency_field: str  # source field naming the seat's electorate
 
 
 # Both houses of Bhutan's Parliament publish their members — current and past — through
 # the same Strapi CMS. Each term of service is a separate record, so a member who served
 # several terms appears several times; downstream deduplication merges them.
 CHAMBERS = [
+    # National Council seats are elected one per dzongkhag (district), so the
+    # dzongkhag is the electorate; royally-appointed "eminent members" have none.
     Chamber(
         "nc",
         "https://cms.parliament.gov.bt/api/nc-members",
         "Member of the National Council of Bhutan",
         "Q21328625",
+        "dzongkhag",
     ),
+    # National Assembly members represent a single-member constituency within a
+    # dzongkhag; the constituency is the electorate.
     Chamber(
         "na",
         "https://cms.parliament.gov.bt/api/na-members",
         "Member of the National Assembly of Bhutan",
         "Q21295972",
+        "constituency",
     ),
 ]
 
@@ -42,7 +49,7 @@ IGNORE = [
     "committee_memberships",
     "description",
     "parliament",  # term label, redundant with start/end
-    "constituency",  # National Assembly only; the dzongkhag (administrative district) is used instead
+    "dzongkhag",  # National Assembly: the district containing the constituency
     "designation",  # leadership role within the chamber; not modelled separately
 ]
 
@@ -71,7 +78,8 @@ def crawl_member(
     )
     if occupancy is None:
         return
-    occupancy.add("constituency", record.pop("dzongkhag"))
+    # NC eminent members have no electorate, so the field is null and drops out.
+    occupancy.add("constituency", record.pop(chamber.constituency_field))
     context.emit(person)
     context.emit(occupancy)
     context.audit_data(record, ignore=IGNORE)
