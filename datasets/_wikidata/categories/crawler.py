@@ -61,8 +61,6 @@ class CrawlState(object):
         self._emitted_positions: Set[str] = set()
         exc = [str(x) for x in context.dataset.config.get("exclusion_checks", [])]
         self.exclusion_checks: Set[str] = set(exc)
-        # schema:dateModified timestamps keyed by person QID, populated during discovery.
-        # Used by crawl_person to pass an appropriate cache_days to fetch_item.
         self.person_modified_at: Dict[str, str] = {}
 
     def emit_position(self, position: Entity) -> None:

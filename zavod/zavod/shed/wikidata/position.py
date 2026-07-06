@@ -1,6 +1,5 @@
 from datetime import datetime, timezone
 from typing import Dict, Optional, Set
-from logging import getLogger
 
 from followthemoney import registry
 from nomenklatura.wikidata import Item, WikidataClient, Claim
@@ -16,7 +15,6 @@ from zavod.util import LangText
 from zavod.stateful.positions import categorise
 from zavod.shed.wikidata.country import is_historical_country, item_countries
 
-log = getLogger(__name__)
 
 POSITION_BASICS: Set[str] = {
     "Q4164871",  # position
