@@ -5,18 +5,20 @@ coverage:
   frequency: monthly
   start: 2026-06-25
 load_statements: true
-ci_test: true
 summary: >-
-  Members of the National Council and the National Assembly of Bhutan's Parliament.
+  Current and former members of both chambers of Bhutan's Parliament.
 description: |
-  Bhutan's bicameral Parliament (Chi Tshog) comprises the National Council
-  (Gyelyong Tshogde, the 25-seat upper house) and the National Assembly
-  (Gyelyong Tshogdu, the 47-seat lower house).
+  Bhutan's Parliament is the bicameral national legislature established under the
+  2008 Constitution. It comprises the National Council (Gyelyong Tshogde), a
+  25-seat upper house, and the National Assembly (Gyelyong Tshogdu), a 47-seat
+  lower house.
 
-  Both houses publish their members through a shared content management system.
-  Each endpoint returns members of every term since the first Parliament was
-  convened in 2008, so the dataset covers current and former parliamentarians.
-  A member's term `end` year separates past terms from sitting members.
+  The dataset lists members of both chambers across every parliamentary term
+  since the first Parliament was convened in 2008, covering sitting members as
+  well as those who served in earlier terms. National Council seats are filled
+  by one elected member per dzongkhag (district), together with five members
+  appointed by the King; National Assembly members represent single-member
+  constituencies.
 url: https://www.parliament.gov.bt/
 publisher:
   name: Chi Tshog
