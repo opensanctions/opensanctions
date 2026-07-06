@@ -148,6 +148,7 @@ children:
   - ro_fiu_declarations
   - ro_senate
   - rs_national_assembly
+  - rw_parliament
   - se_riksdag
   - se_soe
   - sg_gov_dir
