@@ -58,6 +58,7 @@ def crawl(context: Context) -> None:
         name="Member of Parliament",
         country="xx",
         wikidata_id="Q...",
+        lang="eng",  # crawler-supplied names are always English
     )
     categorisation = categorise(context, position, default_is_pep=True)
     # Gate even with default_is_pep=True: the position may have been un-flagged
@@ -78,8 +79,10 @@ PEP status is determined by the UI review workflow, not the crawler.
 
 ```python
 def crawl_member(context: Context, row: dict[str, Any]) -> None:
-    role = row.pop("role")
-    position = h.make_position(context, name=role, country="fr")
+    role = row.pop("role")  # source-supplied, in French
+    position = h.make_position(
+        context, name=role, country="fr", lang="fra", translate_name=True
+    )
     # default_is_pep=None: defers PEP determination to the UI
     categorisation = categorise(context, position, default_is_pep=None)
 
@@ -116,35 +119,24 @@ Key differences from Pattern A:
 Same `default_is_pep=None` shape as Pattern B, but used for sources where each record names
 a sub-national position (e.g. mayor of municipality X). Two extras:
 
-- Translate the role label to English via a `position` lookup.
+- Pass the source-language label with `lang=` and `translate_name=True`.
 - Pass `subnational_area=...` and **omit `wikidata_id`** — a Wikidata ID would
   collapse every municipality into the same entity.
 
 ```python
-res = context.lookup("position", row.pop("MAN_LABEL"))
-assert res is not None, f"Unknown position: {row['MAN_LABEL']!r}"
 position = h.make_position(
     context,
-    name=f"{res.value} of {commune_label}",   # English name + locality
+    # Compose the whole name in the source language; translate_name produces the
+    # English name in one pass and keys the ID on the untranslated original.
+    name=f"{row.pop('MAN_LABEL')} de {commune_label}",
     country="lu",
     subnational_area=commune_label,           # NOT wikidata_id — per-locality
     lang="fra",
+    translate_name=True,
 )
 categorisation = categorise(context, position, default_is_pep=None)
 if not categorisation.is_pep:
     return
-```
-
-YAML side — declare the translation lookup:
-
-```yaml
-lookups:
-  position:
-    options:
-      - match: Bourgmestre
-        value: Mayor
-      - match: Échevin
-        value: Alderman
 ```
 
 ## Pattern C: Multi-position crawler with `default_is_pep=True`
@@ -171,6 +163,7 @@ def crawl(context: Context) -> None:
             name=config["name"],
             country="ie",
             wikidata_id=config.get("wikidata_id"),
+            lang="eng",
         )
         categorisation = categorise(context, position, default_is_pep=True)
         context.emit(position)

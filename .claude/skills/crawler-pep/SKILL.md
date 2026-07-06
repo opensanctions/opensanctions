@@ -63,7 +63,7 @@ assertions:
 
 - Include `Position` counts in assertions when the crawler creates multiple position types.
 - `frequency` matches source update cadence (daily/weekly/monthly). PEP crawlers do not have to be monthly.
-- PEP crawlers may need a `position` lookup to translate non-English role labels into standard English names (see `examples.md`). Beyond that, lookups rarely go past `type.*`.
+- Lookups rarely go past `type.*` for PEP crawlers. (Non-English role labels are handled by `translate_name=True` in `make_position`, not lookups.)
 
 ## Step 3: Write the crawler module
 
@@ -88,7 +88,18 @@ capture".
 
 Build position names with `h.make_position`. Rules:
 
-- Name positions **in English**. Use the standard English term for the role; keep native-language terminology only for proper nouns of specific institutions (e.g. `Landtag of Mecklenburg-Vorpommern`). When the source labels roles in another language, declare a `position` lookup in the YAML to translate them before passing to `h.make_position`.
+- **Always pass `lang=`** (ISO 639-3, e.g. `lang="eng"`, `lang="fra"`) declaring the
+  language the position name is in. Two cases:
+    - **Crawler-supplied names** (the standard case — e.g. a parliament crawler where
+      the name is always `Member of the ... Parliament`): write the name in English
+      and pass `lang="eng"`. Use the standard English term for the role; keep
+      native-language terminology only for proper nouns of specific institutions
+      (e.g. `Landtag of Mecklenburg-Vorpommern`).
+    - **Source-supplied names** (role labels read from the data): pass them through
+      as-is with the source language as `lang=` and `translate_name=True` —
+      `make_position` translates the name to English via LLM and keys the entity ID
+      on the untranslated original, so the ID stays stable. Do not translate labels
+      via a `position` YAML lookup.
 - Include the role, the organisational body where relevant, and the geographic jurisdiction. For members of national parliaments, include `citizenship` (except UK Parliament).
 - Avoid: legislative term, an elected official's constituency, or the country for sub-national representatives.
 - `wikidata_id` becomes the position's entity ID, so never pass the same QID to multiple distinct positions — they'd collapse into one entity. Per-municipality/region positions usually omit `wikidata_id` (per-locality QIDs rarely exist on Wikidata) and rely on `subnational_area=...` to disambiguate; pass a QID only when each subnational position has its own unique Wikidata entry.

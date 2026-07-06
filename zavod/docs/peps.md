@@ -75,12 +75,16 @@ The [Position](https://www.opensanctions.org/reference/#schema.Position) `name` 
 
 Do
 
-- write the position in English. Use the standard English term for the role
-  (e.g. `Mayor`, not `Bourgmestre`). Preserve native-language terminology only for
-  proper nouns of specific institutions where translation would obscure the
-  reference (e.g. `Landtag of Mecklenburg-Vorpommern`, not `State Parliament of …`).
-  When the source labels roles in another language, declare a `position` lookup
-  in the YAML to translate each label before passing it to `h.make_position`.
+- write the position in English when the crawler supplies the name itself. Use
+  the standard English term for the role (e.g. `Mayor`, not `Bourgmestre`).
+  Preserve native-language terminology only for proper nouns of specific
+  institutions where translation would obscure the reference
+  (e.g. `Landtag of Mecklenburg-Vorpommern`, not `State Parliament of …`).
+- always pass `lang=` to `h.make_position` declaring the language of the name you
+  pass. When the position name comes from the source in a non-English language,
+  pass it unmodified with `translate_name=True` — the helper translates it to
+  English and derives the entity ID from the untranslated name, keeping IDs
+  stable.
 - include the role
 - include the organizational body where needed
 - include the specific geographic jurisdiction where relevant
