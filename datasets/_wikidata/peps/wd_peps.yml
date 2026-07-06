@@ -366,6 +366,8 @@ lookups:
           - "Q62122498" # maire de Tournan-en-Brie
           - "Q62578836" # Permanent Representative of Hungary to the United Nations, New York
           - "Q63456757" # ambassador of Hungary to Azerbaijan
+          - "Q30056203" # ambassador to Qatar
+          - "Q30081888" # ambassador to Belarus
           - "Q854185" # Bezirksamtsleiter
           - "Q1006064" # Bundesgeschäftsführer
           - "Q1221110" # Dienstposten
@@ -439,6 +441,8 @@ lookups:
           - "Q60832272" # Grand voyer
           - "Q65238772" # intendant
           - "Q480319" # title of authority
+          - "Q7074545" # Oba of Lagos
+          - "Q3643105" # Rain Queen
           - "Q135842653" # directeur de cabinet du ministre des Outre-mer
           - "Q8349973" # insular council
           - "Q108466181" # judicial position
@@ -475,11 +479,9 @@ lookups:
           - "Q3149494" # printer to the King
           - "Q3290825" # churchwarden
           - "Q3504856" # substitute
-          - "Q3643105" # Rain Queen
           - "Q4048723" # SEO specialist
           - "Q4102597" # job vacancy
           - "Q5428874" # faculty member
-          - "Q7074545" # Oba of Lagos
           - "Q7140693" # partner
           - "Q7200276" # placeholder
           - "Q10438271" # office manager
@@ -496,8 +498,6 @@ lookups:
           - "Q23685787" # working student
           - "Q28689677" # honorary secretary
           - "Q29982545" # function in the Evangelical Church of Czech Brethren
-          - "Q30056203" # ambassador to Qatar
-          - "Q30081888" # ambassador to Belarus
           - "Q30582382" # excavation director
           - "Q30682903" # data protection officer
           - "Q51321989" # Professional engineer
