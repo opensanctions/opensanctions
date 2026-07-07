@@ -1,4 +1,5 @@
 import re
+from urllib.parse import quote
 
 from zavod import Context, helpers as h
 
@@ -6,8 +7,10 @@ PROGRAM_KEY = "CZ-TERR"
 # Announced 17 June 2008, date of effect 17 June 2008
 START_DATE = "2008-06-17"
 
-API_BASE_URL = "https://opendata.eselpoint.gov.cz"
+OPENDATA_BASE = "https://opendata.eselpoint.gov.cz"
 JSONLD_HEADERS = {"Accept": "application/ld+json"}
+
+E_SBIRKA_BASE = "https://e-sbirka.gov.cz"
 
 
 def crawl_details(context: Context, details: str) -> None:
@@ -45,39 +48,47 @@ def crawl_details(context: Context, details: str) -> None:
 
 
 def crawl(context: Context) -> None:
-    # Fetch the legal act; contains a list of all dated versions of this regulation.
+    # Discover the latest consolidated version via the opendata JSON-LD API.
+    # `má-poslední-znění` is an IRI like `esel-esb/eli/cz/sb/2008/210/2009-04-01`.
     act_data = context.fetch_json(
         context.data_url, headers=JSONLD_HEADERS, cache_days=1
     )
-    # The IRI of the most recent consolidated version of the regulation text.
-    latest_version_iri = act_data["má-poslední-znění"]
+    latest_iri = act_data["má-poslední-znění"]
+    # Drop the `esel-esb/eli/cz` prefix to get the ELI path documented for
+    # e-Sbírka's stálé URL: `/sb/{rok}/{cislo}/{rrrr-mm-dd}`.
+    prefix = "esel-esb/eli/cz"
+    if not latest_iri.startswith(prefix):
+        raise RuntimeError(f"Unexpected latest-version IRI: {latest_iri}")
+    eli_path = latest_iri[len(prefix) :]
 
-    # Fetch the version; contains a flat list of all structural fragment IRIs
-    # (sections, paragraphs, individual list items, etc.)
-    version_data = context.fetch_json(
-        f"{API_BASE_URL}/{latest_version_iri}", headers=JSONLD_HEADERS, cache_days=1
+    # Resolve the ELI path to the numeric document ID.
+    doc_id = context.fetch_json(
+        f"{E_SBIRKA_BASE}/sbr-cache/dokumenty-sbirky/{quote(eli_path, safe='')}/id",
+        cache_days=1,
     )
-    all_fragments = version_data["má-fragment-znění"]
 
-    # Filter for individual list items (bod = "point/item") under the two
-    # appendix sections: cast_1 (Part 1) = persons,
-    # cast_2 (Part 2) = organizations.
-    bod_iris = sorted(f for f in all_fragments if re.search(r"/cast_[12]/bod_\d+$", f))
-    # 31 persons (cast_1) + 18 organizations (cast_2)
-    assert len(bod_iris) == 49, f"Expected 49 items, got {len(bod_iris)}"
+    # Request generation of the informative-version JSON, which returns the
+    # UUID of the generated file. For a static regulation like this the file
+    # is served from cache and comes back immediately with stavPozadavku=OK.
+    request = context.fetch_json(
+        f"{E_SBIRKA_BASE}/sbr-cache/stahni/informativni-zneni/{doc_id}/JSON",
+        cache_days=1,
+    )
+    if request.get("stavPozadavku") != "OK":
+        raise RuntimeError(f"Unexpected download request state: {request}")
+    file_id = request["id"]
 
-    for bod_iri in bod_iris:
-        # Each bod (list item in the version) references a reusable text fragment.
-        bod_data = context.fetch_json(
-            f"{API_BASE_URL}/{bod_iri}", headers=JSONLD_HEADERS, cache_days=1
-        )
-        fragment_iri = bod_data["obsahuje-fragment"]
+    document = context.fetch_json(
+        f"{E_SBIRKA_BASE}/souborove-sluzby/soubory/{file_id}", cache_days=1
+    )
+    # `fragmenty` is a flat list of structural fragments (sections, headings,
+    # list items, ...). Each individual list item under the appendix is typed
+    # `Bod_Dd` and holds the raw entity description in its `xhtml` field.
+    bods = [f for f in document["fragmenty"] if f.get("typ") == "Bod_Dd"]
+    # 31 persons (Part 1) + 18 organizations (Part 2)
+    assert len(bods) == 49, f"Expected 49 items, got {len(bods)}"
 
-        # The text fragment holds the actual prose content of the list item.
-        fragment_data = context.fetch_json(
-            f"{API_BASE_URL}/{fragment_iri}", headers=JSONLD_HEADERS, cache_days=1
-        )
-        raw_text = fragment_data["l-sgov-dat-sbirka-pojem:text-fragmentu"]
-        # Strip the <var>N.</var> numbering prefix, leaving the entity description
-        details = re.sub(r"<var>.*?</var>", "", raw_text)
+    for bod in bods:
+        # Strip the <var>N.</var> numbering prefix, leaving the entity description.
+        details = re.sub(r"<var>.*?</var>", "", bod["xhtml"])
         crawl_details(context, details)
