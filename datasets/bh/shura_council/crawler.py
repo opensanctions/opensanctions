@@ -30,6 +30,41 @@ ISO_DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 # still in office; enumerate its known values so a new one raises a signal.
 KNOWN_STATUSES = {"Current MP", "Previous MP"}
 
+# Fields on each record type that are out of scope for this membership dataset.
+# Anything not listed here (or consumed by `.pop()`) trips `audit_data`.
+TERM_IGNORE = [
+    "LTOrder",
+    "LegislativeTermArabicName",
+    "LegislativeTermEnglishName",
+    "ShowInWebsite",
+]
+PERIOD_IGNORE = [
+    "CPCurrent",
+    "CPOrder",
+    "ConveningPeriodArabicName",
+    "ConveningPeriodEnglishName",
+    "Description",
+    "LegTermId",
+    "ShowInWebsite",
+]
+RECORD_IGNORE = ["ID", "ConveningPeriodId", "UserOrder", "UserPosition_LOOKUP"]
+# The `UserPosition_LOOKUP` (committee chair, deputy chairman, council president,
+# etc.) and the CV/photo fields are out of scope for this membership dataset.
+USER_INFO_IGNORE = [
+    "ID",
+    "FileDeleted",
+    "FileURL",
+    "UserBio",
+    "UserCVFile",
+    "UserCV_JSON",
+    "UserCV_JSON_EN",
+    "UserGroupId",
+    "UserMiddlePhotoForWebsite",
+    "UserOrder",
+    "UserPhoto",
+    "UserTitle_LOOKUP",
+]
+
 # Term descriptions give the start and end as Gregorian dates written with
 # Arabic month names and the era marker "م" (Hijri dates use "هـ"), so anchoring
 # on "م" picks out only the Gregorian ones. The dataset `dates` config maps the
@@ -117,27 +152,7 @@ def crawl_member(
         context.log.warning(
             "Unknown member status", status=status_label, person=person.id
         )
-    # The `UserPosition_LOOKUP` (committee chair, deputy chairman, council
-    # president, etc.) and the CV/photo fields are out of scope for this
-    # membership dataset; ignore them explicitly so a genuinely new field trips
-    # the audit.
-    context.audit_data(
-        info,
-        ignore=[
-            "ID",
-            "FileDeleted",
-            "FileURL",
-            "UserBio",
-            "UserCVFile",
-            "UserCV_JSON",
-            "UserCV_JSON_EN",
-            "UserGroupId",
-            "UserMiddlePhotoForWebsite",
-            "UserOrder",
-            "UserPhoto",
-            "UserTitle_LOOKUP",
-        ],
-    )
+    context.audit_data(info, ignore=USER_INFO_IGNORE)
 
     # A member who left during the ongoing term has no resignation date, so fall
     # back to the council's current-service flag to avoid marking them as still
@@ -177,33 +192,14 @@ def crawl_term(
     term_end = parse_term_end(context, term.pop("Description"))
     term_id = term.pop("ID")
     periods = term.pop("ConveningPeriods")
-    context.audit_data(
-        term,
-        ignore=[
-            "LTOrder",
-            "LegislativeTermArabicName",
-            "LegislativeTermEnglishName",
-            "ShowInWebsite",
-        ],
-    )
+    context.audit_data(term, ignore=TERM_IGNORE)
     if not is_current and term_end is None:
         raise RuntimeError(f"Past term {term_id} has no parseable end date")
 
     members: dict[int, dict[str, Any]] = {}
     for period in periods:
         period_id = period.pop("ID")
-        context.audit_data(
-            period,
-            ignore=[
-                "CPCurrent",
-                "CPOrder",
-                "ConveningPeriodArabicName",
-                "ConveningPeriodEnglishName",
-                "Description",
-                "LegTermId",
-                "ShowInWebsite",
-            ],
-        )
+        context.audit_data(period, ignore=PERIOD_IGNORE)
         body = {"page": 1, "size": 1000, "ConveningPeriodId": period_id}
         for record in fetch_api(context, "council-members-cp-id", body, 7):
             user_id = record.pop("UserId")
@@ -211,10 +207,7 @@ def crawl_term(
             assert len(infos) == 1, (user_id, len(infos))
             start = real_date(context, record.pop("DesignationDate"))
             resignation = real_date(context, record.pop("ResignationDate"))
-            context.audit_data(
-                record,
-                ignore=["ID", "ConveningPeriodId", "UserOrder", "UserPosition_LOOKUP"],
-            )
+            context.audit_data(record, ignore=RECORD_IGNORE)
             member = members.setdefault(
                 user_id, {"info": infos[0], "start": None, "resignation": None}
             )
