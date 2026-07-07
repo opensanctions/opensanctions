@@ -5,7 +5,7 @@ coverage:
   frequency: weekly
   start: 2026-06-25
 load_statements: true
-ci_test: true
+ci_test: false
 summary: >-
   Current and former members of the Consultative Council, the
   appointed upper house of the National Assembly of Bahrain.
