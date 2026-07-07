@@ -11,15 +11,12 @@ summary: >-
   appointed upper house of the National Assembly of Bahrain.
 description: |
   The Shura Council (Consultative Council, مجلس الشورى) is the upper house of
-  Bahrain's bicameral National Assembly. It has 40 members, all appointed by the
-  King for a four-year legislative term. Members serve alongside the elected
-  Council of Representatives.
+  Bahrain's bicameral National Assembly. Its 40 members are all appointed by the
+  King for a four-year legislative term, serving alongside the elected Council of
+  Representatives.
 
-  This dataset is built from the council's open-data API. It covers the members
-  of every legislative term published by the council (the first term began in
-  2002), recording one occupancy per member per term they served. Members who
-  left office long enough ago that they no longer qualify as politically exposed
-  are not emitted.
+  This dataset covers the members of the current and previous legislative terms,
+  recording one occupancy per member per term they served.
 url: https://shura.bh/en/open-data
 publisher:
   name: Shura Council of Bahrain
