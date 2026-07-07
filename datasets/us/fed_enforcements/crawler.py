@@ -1,5 +1,5 @@
 import csv
-from typing import Dict, Optional
+from typing import Optional
 from urllib.parse import urljoin, urlparse
 
 from pydantic import BaseModel, Field
@@ -49,31 +49,32 @@ Instructions for specific fields:
 """
 
 
-def crawl_article(context: Context, url: Optional[str]) -> Optional[Entity]:
+def crawl_article(context: Context, url: str | None) -> Optional[Entity]:
     if not url or not url.strip():
         return None
-    if url.endswith(".pdf") or url.endswith(".csv") or "boarddocs" in url:
-        # Create the Documentation but don't try and fetch and extract the title and date.
-        title = [None]
-        published_at = [None]
-    else:
+    title: str | None = None
+    published_at: str | None = None
+    if not (url.endswith(".pdf") or url.endswith(".csv") or "boarddocs" in url):
         doc = context.fetch_html(str(url), cache_days=90)
-        title = doc.xpath(".//h3[@class='title']/text()")
-        published_at = doc.xpath(".//p[@class='article__time']/text()")
-    article = h.make_article(context, url, title=title, published_at=published_at[0])
+        titles = h.xpath_strings(doc, ".//h3[@class='title']/text()")
+        title = titles[0] if titles else None
+        dates = h.xpath_strings(doc, ".//p[@class='article__time']/text()")
+        published_at = dates[0] if dates else None
+    article = h.make_article(context, url, title=title, published_at=published_at)
     context.emit(article)
     return article
 
 
 def crawl_item(
-    context: Context, original_filename: str, input_dict: Dict[str, Optional[str]]
+    context: Context, original_filename: str, input_dict: dict[str, str | None]
 ) -> None:
     origin = None
     if input_dict["Individual"]:
         schema = "Person"
         party_name = input_dict.pop("Individual")
+        assert party_name is not None
 
-        names = [party_name]
+        names: list[str] = [party_name]
         result = context.lookup("individual_name", party_name)
         if result:
             names = result.values
@@ -88,6 +89,7 @@ def crawl_item(
         schema = "Company"
         affiliation = None
         party_name = input_dict.pop("Banking Organization")
+        assert party_name is not None
         source_value = TextSourceValue(
             key_parts=party_name,
             label="Banking Organization field in CSV",
@@ -128,7 +130,7 @@ def crawl_item(
             entity.add("topics", "fin.bank")
 
         sanction = h.make_sanction(
-            context, entity, key=[effective_date], program_key=PROGRAM_KEY
+            context, entity, key=effective_date, program_key=PROGRAM_KEY
         )
         h.apply_date(sanction, "startDate", effective_date)
         sanction.add("provisions", provisions)

@@ -329,9 +329,7 @@ def crawl_declaration(context: Context, *, item: dict[str, Any]) -> None:
         position_name_kat,
         country="ge",
         lang="kat",
-    )
-    apply_translit_full_name(
-        context, position, "kat", position_name_kat, TRANSLIT_OUTPUT, POSITION_PROMPT
+        translate_name=True,
     )
     categorisation = categorise(context, position, default_is_pep=None)
     if not categorisation.is_pep:

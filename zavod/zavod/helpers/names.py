@@ -37,6 +37,53 @@ REGEX_CLEAN_COMMA = re.compile(
     r", \b(LLC|L\.L\.C|Inc|Jr|INC|LLLP|L\.P|LP|Sr|III|II|IV|S\.A|LTD|USA INC|\(?A/K/A|\(?N\.K\.A|\(?N/K/A|\(?F\.K\.A|formerly known as|INCORPORATED)\b",  # noqa
     re.I,
 )
+REGEX_SPACES = re.compile(r"\s+")
+
+
+def _title_terms(terms: List[str]) -> List[str]:
+    terms_ = [REGEX_SPACES.sub(" ", term) for term in terms]
+    return sorted([term for term in terms_ if term.strip()], key=len, reverse=True)
+
+
+def _strip_title_prefixes(name: str, terms: List[str]) -> str:
+    terms_ = _title_terms(terms)
+    while True:
+        for term in terms_:
+            if name.lower().startswith(term.lower()):
+                name = name[len(term) :].lstrip()
+                break
+        else:
+            return name
+
+
+def _strip_title_suffixes(name: str, terms: List[str]) -> str:
+    terms_ = _title_terms(terms)
+    while True:
+        for term in terms_:
+            if name.lower().endswith(term.lower()):
+                name = name[: -len(term)].rstrip()
+                break
+        else:
+            return name
+
+
+def strip_name_titles(context: Context, name: Optional[str]) -> Optional[str]:
+    """Strip configured title affixes from a source name.
+
+    Use when a dataset stores honorific prefixes or post-nominals as part of a
+    name and declares those terms under `names.prefixes_strip` or
+    `names.suffixes_strip`. Configure the exact affixes used by the source, such
+    as `"Dr."`, `"(Dr.)"`, or `", CS"`, rather than relying on punctuation
+    variants. When storing the result directly, preserve provenance by passing
+    the raw titled value as `original_value` if it differs from the cleaned name.
+    """
+    if name is None:
+        return None
+
+    name = squash_spaces(name)
+    name = _strip_title_prefixes(name, context.dataset.names.prefixes_strip)
+    name = _strip_title_suffixes(name, context.dataset.names.suffixes_strip)
+    return name
 
 
 def make_name(

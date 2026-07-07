@@ -132,7 +132,9 @@ def crawl_mandate(
         )
         return None
 
-    position = h.make_position(context, position_name, country="at", lang="deu")
+    position = h.make_position(
+        context, position_name, country="at", lang="deu", translate_name=True
+    )
     categorisation = categorise(context, position, default_is_pep=True)
     if not categorisation.is_pep:
         return None

@@ -1,66 +1,133 @@
-import re
-
 from followthemoney.types import registry
+from pydantic import BaseModel
 
 from zavod import Context, Entity
 from zavod import helpers as h
+from zavod.extract.llm import run_typed_text_prompt, DEFAULT_MODEL
+from zavod.stateful.review import (
+    JSONSourceValue,
+    assert_all_accepted,
+    review_extraction,
+)
+
+EXTRACT_PROMPT = """Extract structured data from an identification details string taken from a Polish sanctions list entry.
+
+The input is a Polish-language text that may contain various combinations of:
+- NIP (Polish tax ID), INN (Russian tax ID / ИНН), TIN, VAT, and other tax identifiers
+- REGON (Polish statistical number), KRS (Polish business register), BIN (Kazakh business ID),
+  and other business/company registration numbers
+- PESEL (Polish personal ID) and other national personal ID numbers
+- A registered address (often preceded by "siedziba:", "adres:", or similar)
+- Russian/Arabic/other-script addresses alongside a Polish transliteration — include both as
+  separate address entries
+- Date of birth (e.g. "urodzon* DD miesiąc YYYY r."), using Polish month names
+- Place of birth (e.g. "w Moskwie", "w Leningradzie", "w Wilnie")
+- Citizenship (e.g. "obywatel Federacji Rosyjskiej", "obywatelka Republiki Białorusi")
+- Company codes for non-Polish registries ("kod przedsiębiorstwa", "numer rejestrowy",
+  "identyfikator rejestracyjny", "numer identyfikacyjny BIN")
+- OGRN / ОГРН (Russian primary state registration number)
+- KPP / КПП (Russian tax registration reason code)
+- OKPO / ОКПО (Russian classifier of enterprises and organizations)
+- DUNS numbers
+
+Extract the following fields:
+  taxNumber          - NIP, TIN, VAT, and other tax identifiers (not INN)
+  innCode            - Russian INN (ИНН / numer INN) specifically
+  registrationNumber - REGON, KRS, BIN, and other business/company registration numbers
+  idNumber           - PESEL and other personal ID numbers
+  ogrnCode           - Russian OGRN (ОГРН) specifically
+  kppCode            - Russian KPP (КПП) specifically
+  dunsCode           - DUNS number specifically
+  okpoCode           - Russian OKPO (ОКПО) specifically
+  address            - all registered addresses; include both transliterated and original-script
+                       versions as separate entries (see address rule below)
+  birthDate          - date of birth in ISO 8601 (YYYY-MM-DD, YYYY-MM, or YYYY)
+  birthPlace         - city/place of birth as a bare place name in base (nominative) form: drop
+                       the preposition and undo grammatical-case inflection, but do NOT translate,
+                       transliterate to another language, modernise, or rename it. Keep the name
+                       in the language/script of the source ("w Wilnie" -> "Wilno")
+  citizenship        - ISO 2-letter country code(s) (e.g. RU, BY, PL, UA)
+
+Rules:
+- Preserve address text exactly — no translation — but strip any leading label/prefix such as
+  "siedziba:", "adres:", "address:", "адрес:" so the value starts with the address itself.
+- Convert Polish month names to ISO date format for birthDate.
+- For every code/number field (taxNumber, innCode, registrationNumber, idNumber, ogrnCode,
+  kppCode, dunsCode, okpoCode), return ONLY the bare number. Strip any leading label, prefix,
+  or qualifier such as "OKPO", "REGON", "NIP", "INN", "OGRN", "KPP", "DUNS", "ИНН", "ОГРН",
+  "КПП", "ОКПО", ":", etc. For example "OKPO 12345678" must be returned as "12345678".
+- Return empty lists for fields with no value.
+"""
 
 # "osoby" = persons, "podmioty" = entities
 TYPES = {"osoby": "Person", "podmioty": "Company"}
-CHOPSKA = [
-    # "Nr" = number; NIP = Polish tax ID, KRS = Polish business register number,
-    # PESEL = Polish personal ID, "siedziba" = registered seat / headquarters
-    ("Nr NIP", "taxNumber"),
-    ("NIP", "taxNumber"),
-    ("Nr KRS", "registrationNumber"),
-    ("KRS", "registrationNumber"),
-    ("(PESEL:", "idNumber"),
-    ("PESEL:", "idNumber"),
-    ("siedziba:", "address"),
-]
 
 
-def parse_date(text: str, context: Context) -> str | None:
-    text = text.lower().strip()
-    # "urodzona/urodzonego/urodzony/urodzonej" = born (different gender/case forms)
-    text = text.replace("urodzona", "")
-    text = text.replace("urodzonego", "")
-    text = text.replace("urodzony", "")
-    text = text.replace("urodzonej", "")
-    # " r." = abbreviation for "rok" (year)
-    text = re.split(r" r\.| r$", text)[0]
-    text = text.strip()
-    if text is None:
-        return None
-    date_info = text
-    if date_info and len(date_info) < 25:  # avoid longer strings that are not dates
-        return date_info
-    return None
+class DetailsData(BaseModel):
+    taxNumber: list[str] = []
+    innCode: list[str] = []
+    registrationNumber: list[str] = []
+    idNumber: list[str] = []
+    ogrnCode: list[str] = []
+    kppCode: list[str] = []
+    dunsCode: list[str] = []
+    okpoCode: list[str] = []
+    address: list[str] = []
+    birthDate: list[str] = []
+    birthPlace: list[str] = []
+    citizenship: list[str] = []
 
 
-def parse_details(context: Context, entity: Entity, text: str) -> None:
-    for chop, prop in CHOPSKA:
-        parts = text.rsplit(chop, 1)
-        text = parts[0]
-        if len(parts) > 1:
-            entity.add(prop, parts[1].strip())
+class DetailsExtractionResult(BaseModel):
+    details: DetailsData
 
-    if not len(text.strip()):
+
+def extract_details(context: Context, entity: Entity, details: str) -> None:
+    source_value = JSONSourceValue(
+        key_parts=[details],
+        label="details extraction",
+        data=details,
+    )
+    result = run_typed_text_prompt(
+        context=context,
+        prompt=EXTRACT_PROMPT,
+        string=details,
+        response_type=DetailsExtractionResult,
+        model=DEFAULT_MODEL,
+    )
+    review = review_extraction(
+        context=context,
+        source_value=source_value,
+        original_extraction=result,
+        origin=DEFAULT_MODEL,
+    )
+    if not review.accepted:
         return
-
-    bday = parse_date(text, context)
-    if bday:
-        h.apply_date(entity, "birthDate", bday)
-        text = re.sub(r"urodzon. \d+[. ]\w+[. ]\d+ r\.?", "", text).strip()
-
-    if text == "":
-        return
-    result = context.lookup("details", text)
-    if result is None:
-        context.log.warning("Unhandled details", details=text)
-    else:
-        for prop, value in result.props.items():
-            entity.add(prop, value)
+    data = review.extracted_data.details
+    # Each DetailsData field name maps 1:1 to an FTM property, but not every property
+    # exists on every schema (e.g. kppCode is Company-only, not on Person). Skip props
+    # the schema doesn't support, warning loudly if that would drop actual values.
+    for prop, values in data:
+        if not values:
+            continue
+        if prop not in entity.schema.properties:
+            # Companies have no `citizenship`; the extracted value is the country
+            # the company belongs to, so re-route it to `country` instead.
+            if prop == "citizenship" and "country" in entity.schema.properties:
+                entity.add("country", values)
+                continue
+            context.log.warning(
+                "Dropping values for property not on schema",
+                schema=entity.schema.name,
+                prop=prop,
+                values=values,
+            )
+            continue
+        if prop == "birthDate":
+            for value in values:
+                h.apply_date(entity, prop, value)
+        else:
+            entity.add(prop, values)
 
 
 def crawl_row(context: Context, row: dict[str, str | None], table_title: str) -> None:
@@ -148,8 +215,8 @@ def crawl_row(context: Context, row: dict[str, str | None], table_title: str) ->
     # "dane_identyfikacyjne_podmiotu/osoby" = identification data of entity/person
     details = row.pop("dane_identyfikacyjne_podmiotu", None)
     details = row.pop("dane_identyfikacyjne_osoby", details)
-    if details is not None:
-        parse_details(context, entity, details)
+    if details is not None and details.strip():
+        extract_details(context, entity, details)
 
     sanction = h.make_sanction(context, entity)
     # "zastosowane_srodki_sankcyjne" = applied sanctions measures
@@ -188,3 +255,5 @@ def crawl(context: Context) -> None:
     )
     for row in h.parse_html_table(table, header_tag="td"):
         crawl_row(context, h.cells_to_str(row), "podmioty")
+
+    assert_all_accepted(context, raise_on_unaccepted=False)

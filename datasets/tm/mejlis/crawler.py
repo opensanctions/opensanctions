@@ -47,7 +47,8 @@ def crawl_deputy(
     person = context.make("Person")
     person.id = context.make_slug("deputy", deputy_id)
     h.apply_name(person, full=name, lang="eng")
-    person.add("sourceUrl", url)
+    url_en = f"{url}?lang=en"
+    person.add("sourceUrl", url_en)
     # Deputies of the Mejlis must be citizens of Turkmenistan (Constitution art. 120).
     # https://www.constituteproject.org/constitution/Turkmenistan_2016
     person.add("citizenship", "tm")

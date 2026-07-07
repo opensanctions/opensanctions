@@ -4,7 +4,7 @@ import sys
 import json
 import yaml
 import hashlib
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 import requests
 from pathlib import Path
 from jinja2 import Template
@@ -229,17 +229,10 @@ def get_code_path(yaml_path: str, entry_point: Optional[str]) -> Optional[str]:
     return None
 
 
-def read_dataset_meta(yaml_path: str) -> Tuple[Optional[str], bool]:
-    """Return the `entry_point` and `ci_test` flag from a dataset YAML.
-
-    `ci_test` indicates whether the crawler can run in CI at all: it is set to
-    false for crawlers that need credentials we don't have in CI (Zyte, GPT
-    keys) or are too slow. It tells the agent whether re-running the crawler to
-    verify a fix is even possible. Defaults to True, matching the zavod model.
-    """
+def read_dataset_meta(yaml_path: str) -> Dict[str, Any]:
+    """Load local operational metadata that is absent from the public catalog."""
     with open(yaml_path, "r") as fh:
-        data = yaml.safe_load(fh)
-    return data.get("entry_point"), data.get("ci_test", True)
+        return yaml.safe_load(fh)
 
 
 def get_issue_details(issue_url):
@@ -298,7 +291,10 @@ def index_jobs():
             continue
 
         path = get_path_from_name(name)
-        entry_point, ci_test = read_dataset_meta(path)
+        crawler_dir = Path(path).parent.as_posix()
+        dataset_meta = read_dataset_meta(path)
+        entry_point = dataset_meta.get("entry_point")
+        ci_test = dataset_meta.get("ci_test", True)
         code_path = get_code_path(path, entry_point)
 
         # Only crawler datasets can require code, so only they need zavod
@@ -312,10 +308,16 @@ def index_jobs():
             max_turns = MAX_TURNS_LOOKUP
             needs_zavod = False
 
+        deploy_config = dataset_meta.get("deploy", {})
+        max_turns = deploy_config.get("issues_turns", max_turns)
+        if max_turns > MAX_TURNS_CODE_VERIFIABLE:
+            model = MODEL_CODE
+
         prompt = PROMPT.render(
             name=name,
             issues_url=dataset.get("issues_url"),
             yaml_path=path,
+            crawler_dir=crawler_dir,
             branch=branch,
             code_path=code_path,
             ci_test=ci_test,

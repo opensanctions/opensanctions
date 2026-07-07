@@ -1,8 +1,11 @@
 from datetime import datetime, timedelta
+from unittest.mock import patch
 
 from zavod import settings
 from zavod.context import Context
 from zavod.meta import Dataset
+from zavod.util import LangText
+from zavod.shed.trans import TranslationResult
 from zavod.helpers.positions import make_position, make_occupancy, earliest_term_start
 
 
@@ -56,6 +59,138 @@ def test_make_position_full(testdataset1: Dataset):
     assert one_with_everything.get("numberOfSeats") == ["5"]
     assert one_with_everything.get("wikidataId") == ["Q123"]
     assert one_with_everything.get("sourceUrl") == ["http://example.com/"]
+    context.close()
+
+
+def test_make_position_translate_name(testdataset1: Dataset):
+    """With translate_name, a non-English name is translated to English
+    and stored as the name (original kept as original_value), while the id stays
+    keyed on the untranslated name so it's stable regardless of the LLM output."""
+    context = Context(testdataset1)
+    with patch(
+        "zavod.shed.trans.translate_position_name",
+        return_value=TranslationResult(
+            texts=[LangText(text="Member of Parliament", lang="eng")],
+            cache_key="cache-key",
+            origin="test-model",
+        ),
+    ) as mock_translate:
+        position = make_position(
+            context,
+            name="Poslanec",
+            country="cz",
+            lang="ces",
+            translate_name=True,
+        )
+    mock_translate.assert_called_once()
+    assert position.get("name") == ["Member of Parliament"]
+    name_statement = next(s for s in position.statements if s.prop == "name")
+    assert name_statement.lang == "eng"
+    assert name_statement.original_value == "Poslanec"
+    assert name_statement.origin == "test-model"
+    # id is keyed on the original name, so it matches the untranslated position.
+    untranslated = make_position(context, name="Poslanec", country="cz", lang="ces")
+    assert position.id == untranslated.id
+    context.close()
+
+
+def test_make_position_translate_name_uses_dataset_language():
+    dataset = Dataset(
+        {
+            "name": "cz_positions",
+            "title": "Czech Positions",
+            "prefix": "czp",
+            "data": {
+                "url": "https://example.com/",
+                "format": "HTML",
+                "lang": "ces",
+            },
+        }
+    )
+    context = Context(dataset)
+    with patch(
+        "zavod.shed.trans.translate_position_name",
+        return_value=TranslationResult(
+            texts=[LangText(text="Member of Parliament", lang="eng")],
+            cache_key="cache-key",
+            origin="test-model",
+        ),
+    ) as mock_translate:
+        position = make_position(
+            context,
+            name="Poslanec",
+            country="cz",
+            translate_name=True,
+        )
+
+    mock_translate.assert_called_once_with(
+        context, LangText(text="Poslanec", lang="ces")
+    )
+    assert position.get("name") == ["Member of Parliament"]
+    context.close()
+
+
+def test_make_position_dataset_language_is_not_statement_override():
+    dataset = Dataset(
+        {
+            "name": "gb_positions",
+            "title": "UK Positions",
+            "prefix": "gbp",
+            "data": {
+                "url": "https://example.com/",
+                "format": "HTML",
+                "lang": "eng",
+            },
+        }
+    )
+    context = Context(dataset)
+    position = make_position(
+        context,
+        name="Speaker",
+        country="gb",
+        translate_name=True,
+    )
+
+    name_statement = next(s for s in position.statements if s.prop == "name")
+    assert name_statement.lang is None
+    context.close()
+
+
+def test_make_position_translate_fallback(testdataset1: Dataset):
+    """When translation yields no English text, the original name is kept."""
+    context = Context(testdataset1)
+    with patch(
+        "zavod.shed.trans.translate_position_name",
+        return_value=TranslationResult(texts=[], cache_key=None, origin="test-model"),
+    ):
+        position = make_position(
+            context,
+            name="Poslanec",
+            country="cz",
+            lang="ces",
+            translate_name=True,
+        )
+    assert position.get("name") == ["Poslanec"]
+    context.close()
+
+
+def test_make_position_translate_skipped_for_english(testdataset1: Dataset):
+    """Translation is skipped when the language is already English or unset."""
+    context = Context(testdataset1)
+    with patch("zavod.shed.trans.translate_position_name") as mock_translate:
+        eng = make_position(
+            context,
+            name="Speaker",
+            country="gb",
+            lang="eng",
+            translate_name=True,
+        )
+        no_lang = make_position(
+            context, name="Speaker", country="gb", translate_name=True
+        )
+    mock_translate.assert_not_called()
+    assert eng.get("name") == ["Speaker"]
+    assert no_lang.get("name") == ["Speaker"]
     context.close()
 
 

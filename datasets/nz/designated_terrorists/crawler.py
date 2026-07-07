@@ -1,7 +1,9 @@
+import re
 from itertools import chain
+
 from zavod import Context, helpers as h
 from zavod.util import Element
-import re
+from zavod.extract import zyte_api
 
 # It will match the following substrings: DD (any month) YYYY
 DATE_PATTERN = r"\b(\d{1,2} (?:January|February|March|April|May|June|July|August|September|October|November|December) \d{4})\b"
@@ -41,6 +43,8 @@ EMPTY_COLUMN_KEYS = ["column_0", "column_2", "column_4"]
 
 
 def _cell_dates(cell: Element) -> list[str]:
+    for br in h.xpath_elements(cell, ".//br"):
+        br.tail = br.tail + "\n" if br.tail else "\n"
     return re.findall(DATE_PATTERN, h.element_text(cell))
 
 
@@ -88,8 +92,13 @@ def crawl_item(context: Context, row: dict[str, Element], expired: bool) -> None
 
         end_cell = row.pop(EXPIRED_END_KEY)
         end_dates = _cell_dates(end_cell)
-        assert len(end_dates) == 1, h.element_text(end_cell)
+        assert end_dates, h.element_text(end_cell)
+        # The expiry date is listed first. For some entities the source also
+        # lists the renewal history in this cell (rather than in the
+        # designation column); treat those trailing dates as renewals.
         h.apply_date(sanction, "endDate", end_dates[0])
+        for d in end_dates[1:]:
+            h.apply_date(sanction, "date", d)
         for url in h.xpath_strings(end_cell, ".//a/@href"):
             sanction.add("sourceUrl", url)
     else:
@@ -115,10 +124,13 @@ def crawl_item(context: Context, row: dict[str, Element], expired: bool) -> None
 
 
 def crawl(context: Context) -> None:
-    response = context.fetch_html(context.data_url, absolute_links=True)
+    table_xpath = ".//table"
+    response = zyte_api.fetch_html(
+        context, context.data_url, unblock_validator=table_xpath, absolute_links=True
+    )
 
     active_seen = False
-    for table in h.xpath_elements(response, ".//table"):
+    for table in h.xpath_elements(response, table_xpath):
         section_headings = h.xpath_elements(table, "preceding-sibling::h2[1]")
         section = h.element_text(section_headings[0]) if section_headings else None
         if section == REVOKED_SECTION:

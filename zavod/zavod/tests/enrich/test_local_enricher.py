@@ -7,6 +7,7 @@ from zavod import settings
 from zavod.entity import Entity
 from zavod.archive import clear_data_path, dataset_state_path
 from zavod.context import Context
+from nomenklatura.db import make_session
 from zavod.crawl import crawl_dataset
 from zavod.integration.dedupe import get_resolver
 from zavod.meta import Dataset
@@ -56,8 +57,6 @@ def load_enricher(context: Context, dataset_data, target_dataset: str):
 def test_enrich_process(testdataset1: Dataset, testdataset_enrich_subject: Dataset):
     """We match and expand an entity with a similar name"""
 
-    resolver = get_resolver()
-
     # Make a little subject dataset
     crawl_dataset(testdataset_enrich_subject)
 
@@ -65,51 +64,54 @@ def test_enrich_process(testdataset1: Dataset, testdataset_enrich_subject: Datas
     crawl_dataset(testdataset1)
 
     # Enrich the subject against the target
-    resolver.begin()
-    assert len(resolver.edges) == 0
-    resolver.rollback()
+    with make_session() as session:
+        resolver = get_resolver(session)
+        resolver.load_into_memory()
+        assert list(resolver.get_candidates()) == []
+        assert list(resolver.get_judgements()) == []
     enricher_ds = make_enricher_dataset(DATASET_DATA, testdataset1.name)
     crawl_dataset(enricher_ds)
     assert enricher_ds.name == "test_enricher"
 
-    resolver.begin()
-    store = get_store(enricher_ds, resolver)
-    store.sync(clear=True)
-    internals = list(store.view(enricher_ds, external=False).entities())
-    assert len(internals) == 0, internals
-    externals = list(store.view(enricher_ds, external=True).entities())
-    assert len(externals) == 1, externals
-    store.close()
+    with make_session() as session:
+        resolver = get_resolver(session)
+        resolver.load_into_memory()
+        store = get_store(enricher_ds, resolver)
+        store.sync(clear=True)
+        internals = list(store.view(enricher_ds, external=False).entities())
+        assert len(internals) == 0, internals
+        externals = list(store.view(enricher_ds, external=True).entities())
+        assert len(externals) == 1, externals
+        store.close()
 
-    # Judge a match candidate
-    canon_id = resolver.decide("osv-umbrella-corp", "xxx", Judgement.POSITIVE)
-    resolver.commit()
+        # Judge a match candidate (committed on block exit, before the next crawl)
+        canon_id = resolver.decide("osv-umbrella-corp", "xxx", Judgement.POSITIVE)
 
     # Enrich again, now with internals
     clear_data_path(enricher_ds.name)
     crawl_dataset(enricher_ds)
 
-    resolver.begin()
-    store = get_store(enricher_ds, resolver)
-    store.sync(clear=True)
-    internals = list(store.view(enricher_ds, external=False).entities())
-    assert len(internals) == 3, internals
-    externals = list(store.view(enricher_ds, external=True).entities())
-    for external in externals:
-        for statement in external.statements:
-            assert not statement.external, statement
+    with make_session() as session:
+        resolver = get_resolver(session)
+        resolver.load_into_memory()
+        store = get_store(enricher_ds, resolver)
+        store.sync(clear=True)
+        internals = list(store.view(enricher_ds, external=False).entities())
+        assert len(internals) == 3, internals
+        externals = list(store.view(enricher_ds, external=True).entities())
+        for external in externals:
+            for statement in external.statements:
+                assert not statement.external, statement
 
-    view = store.view(enricher_ds)
-    match = view.get_entity(canon_id)
-    "Umbrella Corp." in match.get("name")
-    "Umbrella Corporation" not in match.get("name")
-    assert match.schema.name == "Company"
-    _, ownership = list(view.get_inverted(canon_id))[0]
-    owner = view.get_entity(ownership.get("owner")[0])
-    assert owner.id == "osv-oswell-spencer"
-
-    resolver.rollback()
-    store.close()
+        view = store.view(enricher_ds)
+        match = view.get_entity(canon_id)
+        "Umbrella Corp." in match.get("name")
+        "Umbrella Corporation" not in match.get("name")
+        assert match.schema.name == "Company"
+        _, ownership = list(view.get_inverted(canon_id))[0]
+        owner = view.get_entity(ownership.get("owner")[0])
+        assert owner.id == "osv-oswell-spencer"
+        store.close()
     shutil.rmtree(settings.DATA_PATH, ignore_errors=True)
 
 
@@ -219,11 +221,11 @@ def test_enrich_topic_gated(testdataset1: Dataset, testdataset_enrich_subject: D
     crawl_dataset(testdataset_enrich_subject)  # enriching this
     crawl_dataset(testdataset1)  # enriching against this
 
-    # Confirm the match (decide requires an active transaction)
-    resolver = get_resolver()
-    resolver.begin()
-    canon_id = resolver.decide("osv-umbrella-corp", "xxx", Judgement.POSITIVE)
-    resolver.commit()
+    # Confirm the match (committed on block exit, before the enrich crawl)
+    with make_session() as session:
+        resolver = get_resolver(session)
+        resolver.load_into_memory()
+        canon_id = resolver.decide("osv-umbrella-corp", "xxx", Judgement.POSITIVE)
 
     dataset_data = deepcopy(DATASET_DATA)
     dataset_data["config"]["topic_gated"] = True
@@ -232,33 +234,33 @@ def test_enrich_topic_gated(testdataset1: Dataset, testdataset_enrich_subject: D
     clear_data_path(enricher_ds.name)
     crawl_dataset(enricher_ds)
 
-    resolver.begin()
-    store = get_store(enricher_ds, resolver)
-    store.sync(clear=True)
-    view_internal = store.view(enricher_ds, external=False)
-    view_all = store.view(enricher_ds, external=True)
+    with make_session() as session:
+        resolver = get_resolver(session)
+        resolver.load_into_memory()
+        store = get_store(enricher_ds, resolver)
+        store.sync(clear=True)
+        view_internal = store.view(enricher_ds, external=False)
+        view_all = store.view(enricher_ds, external=True)
 
-    # The matched entity has topic "reg.warn" in the subject store → emitted internal.
-    internals = list(view_internal.entities())
-    assert len(internals) == 1, internals
-    assert internals[0].id == canon_id
+        # The matched entity has topic "reg.warn" in the subject store → emitted internal.
+        internals = list(view_internal.entities())
+        assert len(internals) == 1, internals
+        assert internals[0].id == canon_id
 
-    # oswell-spencer is reachable from the match but absent from the subject store
-    # (only the enrich subject is in scope), so it must be external only.
-    assert view_all.get_entity("osv-oswell-spencer") is not None
-    # oswell-spencer has no topic in the subject store → must be external
-    assert view_internal.get_entity("osv-oswell-spencer") is None, ""
+        # oswell-spencer is reachable from the match but absent from the subject store
+        # (only the enrich subject is in scope), so it must be external only.
+        assert view_all.get_entity("osv-oswell-spencer") is not None
+        # oswell-spencer has no topic in the subject store → must be external
+        assert view_internal.get_entity("osv-oswell-spencer") is None, ""
 
-    # Ownership edge: oswell-spencer endpoint has no topic → external.
-    inverted = list(view_all.get_inverted(canon_id))
-    ownership_entities = [e for _, e in inverted if e.schema.edge]
-    assert len(ownership_entities) == 1, ownership_entities
-    ownership_id = ownership_entities[0].id
-    # ownership edge has an untagged endpoint → must be external
-    assert view_internal.get_entity(ownership_id) is None
-
-    resolver.rollback()
-    store.close()
+        # Ownership edge: oswell-spencer endpoint has no topic → external.
+        inverted = list(view_all.get_inverted(canon_id))
+        ownership_entities = [e for _, e in inverted if e.schema.edge]
+        assert len(ownership_entities) == 1, ownership_entities
+        ownership_id = ownership_entities[0].id
+        # ownership edge has an untagged endpoint → must be external
+        assert view_internal.get_entity(ownership_id) is None
+        store.close()
 
     # --- Round 2: give oswell-spencer a risk topic in the subject store ---
     # Simulate what the graph analyzer would do after the first enricher run:
@@ -283,28 +285,28 @@ def test_enrich_topic_gated(testdataset1: Dataset, testdataset_enrich_subject: D
     clear_data_path(enricher_ds.name)
     crawl_dataset(enricher_ds)
 
-    resolver.begin()
-    store = get_store(enricher_ds, resolver)
-    store.sync(clear=True)
-    view_internal = store.view(enricher_ds, external=False)
-    view_all = store.view(enricher_ds, external=True)
+    with make_session() as session:
+        resolver = get_resolver(session)
+        resolver.load_into_memory()
+        store = get_store(enricher_ds, resolver)
+        store.sync(clear=True)
+        view_internal = store.view(enricher_ds, external=False)
+        view_all = store.view(enricher_ds, external=True)
 
-    # Both endpoints of the ownership now carry risk topics → all three emitted internal.
-    internals = list(view_internal.entities())
-    # umbrella-corp, oswell-spencer, ownership edge
-    assert len(internals) == 3, internals
+        # Both endpoints of the ownership now carry risk topics → all three emitted internal.
+        internals = list(view_internal.entities())
+        # umbrella-corp, oswell-spencer, ownership edge
+        assert len(internals) == 3, internals
 
-    assert view_internal.get_entity(canon_id) is not None
-    # oswell-spencer now has a risk topic in the subject store → must be internal
-    assert view_internal.get_entity("osv-oswell-spencer") is not None
+        assert view_internal.get_entity(canon_id) is not None
+        # oswell-spencer now has a risk topic in the subject store → must be internal
+        assert view_internal.get_entity("osv-oswell-spencer") is not None
 
-    inverted = list(view_all.get_inverted(canon_id))
-    ownership_entities = [e for _, e in inverted if e.schema.edge]
-    assert len(ownership_entities) == 1, ownership_entities
-    ownership_id = ownership_entities[0].id
-    # ownership edge: both endpoints now have topics → must be internal
-    assert view_internal.get_entity(ownership_id) is not None
-
-    resolver.rollback()
-    store.close()
+        inverted = list(view_all.get_inverted(canon_id))
+        ownership_entities = [e for _, e in inverted if e.schema.edge]
+        assert len(ownership_entities) == 1, ownership_entities
+        ownership_id = ownership_entities[0].id
+        # ownership edge: both endpoints now have topics → must be internal
+        assert view_internal.get_entity(ownership_id) is not None
+        store.close()
     shutil.rmtree(settings.DATA_PATH, ignore_errors=True)

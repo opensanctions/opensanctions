@@ -89,7 +89,7 @@ def crawl(context: Context) -> None:
 
 `context.data_url` is from `data.url` in the YAML.
 
-**Fail loudly.** Crash or warn on unexpected data — never silently emit ambiguous output.
+**Strict interpretation.** Every source value within the crawler's scope is handled, explicitly ignored, or raises a signal — crash or warn on unexpected data, never silently emit ambiguous output. See `zavod/docs/best_practices/strict_interpretation.md`.
 
 ### Fetching data
 

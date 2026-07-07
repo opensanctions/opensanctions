@@ -1,0 +1,85 @@
+title: Kenya Members of the Senate
+entry_point: crawler.py
+prefix: ke-senate
+coverage:
+  frequency: monthly
+  start: 2026-07-06
+load_statements: true
+ci_test: true
+summary: >-
+  Senators of the upper house of the Parliament of Kenya
+description: |
+  Members of the Senate (the upper house of the bicameral Parliament of Kenya). The
+  Senate has 67 senators (47 elected one per county, plus nominated members
+  representing women, youth and persons with disabilities) serving five-year terms.
+
+  This dataset records each sitting senator with their name, county and political party,
+  sourced from the Parliament of Kenya's official website.
+url: https://parliament.go.ke/the-senate/senators
+publisher:
+  name: Parliament of Kenya
+  description: >
+    The Parliament of Kenya is the bicameral national legislature, comprising the
+    National Assembly and the Senate.
+  url: https://parliament.go.ke/
+  country: ke
+  official: true
+data:
+  url: https://parliament.go.ke/the-senate/senators
+  format: HTML
+  lang: eng
+
+tags:
+  - list.pep
+
+names:
+  prefixes_strip:
+    - Sen.
+    - Hon.
+    - "Hon "
+    - Dr.
+    - (Dr.)
+    - Prof.
+    - (Prof.)
+    - Amb.
+    - (Amb.)
+    - Eng.
+    - (Eng.)
+    - "Justice "
+    - "Rtd "
+    - (Rtd)
+    - Gen.
+    - "Gen "
+    - (Gen.)
+    - (Gen)
+    - Capt.
+    - "Capt "
+    - Maj.
+    - "Maj "
+    - Col.
+    - "Col "
+    - "CS "
+    - (CS)
+    - "Bishop "
+    - Rev.
+    - "Rev "
+    - Mrs.
+    - Mr.
+    - Ms.
+  suffixes_strip:
+    - ", MP"
+    - ", CBS"
+    - ", OGW"
+    - ", CS"
+
+assertions:
+  min:
+    schema_entities:
+      Person: 55
+      Position: 1
+    country_entities:
+      ke: 55
+  max:
+    schema_entities:
+      Person: 80
+      Position: 1

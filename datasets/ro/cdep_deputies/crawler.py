@@ -39,26 +39,54 @@ NAME_XPATH = ".//h1[@class='mp-profile-name2025']"
 ROSTER_URL = "https://www.cdep.ro/ords/pls/parlam/structura2015.de?leg=%s&idl=2"
 
 
+class InvalidMemberPage(Exception):
+    pass
+
+
 def fetch_html(
-    context: Context, url: str, absolute_links: bool = False, attempts: int = 6
+    context: Context,
+    url: str,
+    absolute_links: bool = False,
+    attempts: int = 6,
+    required_xpath: str | None = None,
 ) -> _Element:
-    """Fetch and parse an HTML page, retrying transient connection failures.
+    """Fetch and parse an HTML page, retrying transient bad responses.
 
     cdep.ro frequently resets connections mid-crawl; a plain `context.fetch_html`
     aborts the whole run on the first drop. This backs off and retries so the crawl
-    survives the flaky server, while still failing loudly once retries are exhausted.
+    survives the flaky server. When a marker XPath is supplied, bad cached or
+    interstitial pages are rejected and refetched before the member is skipped.
     """
     for attempt in range(1, attempts + 1):
         try:
-            return context.fetch_html(
+            doc = context.fetch_html(
                 url, absolute_links=absolute_links, cache_days=CACHE_DAYS
             )
+            if required_xpath is not None:
+                try:
+                    h.xpath_elements(doc, required_xpath, expect_exactly=1)
+                except ValueError as exc:
+                    context.clear_url(url)
+                    raise InvalidMemberPage(str(exc)) from exc
+            return doc
         except RequestException as exc:
             if attempt == attempts:
                 raise
             pause = 2**attempt
             context.log.info(
                 "Retrying after connection error",
+                url=url,
+                attempt=attempt,
+                pause=pause,
+                error=str(exc),
+            )
+            time.sleep(pause)
+        except InvalidMemberPage as exc:
+            if attempt == attempts:
+                raise
+            pause = 2**attempt
+            context.log.info(
+                "Retrying after invalid member page",
                 url=url,
                 attempt=attempt,
                 pause=pause,
@@ -93,12 +121,14 @@ def crawl_member(
     idm = match.group(1)
 
     try:
-        doc = fetch_html(context, url)
-    except RequestException:
+        doc = fetch_html(context, url, required_xpath=NAME_XPATH)
+    except (RequestException, InvalidMemberPage) as exc:
         # A single member page that stays unreachable after all retries shouldn't
         # abort a crawl of thousands of pages; drop it and let the `min` assertions
         # catch any wholesale shortfall.
-        context.log.warning("Skipping member after repeated fetch failures", url=url)
+        context.log.warning(
+            "Skipping member after repeated fetch failures", url=url, error=str(exc)
+        )
         return
 
     name = h.element_text(h.xpath_element(doc, NAME_XPATH))

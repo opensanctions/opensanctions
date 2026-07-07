@@ -3,7 +3,7 @@ entry_point: crawler.py
 prefix: kz-mazhilis
 coverage:
   frequency: monthly
-  start: 2026-06-24
+  start: 2026-06-26
 load_statements: true
 ci_test: true
 summary: >-
@@ -11,7 +11,7 @@ summary: >-
 description: |
   Deputies of the Mäjilis (Мәжіліс), the lower chamber of the bicameral Parliament of
   the Republic of Kazakhstan. Since the 2023 constitutional reform the Mäjilis has 98
-  seats — 69 elected in single-mandate districts and 29 by party list.
+  seats — 69 elected by party list and 29 in single-mandate districts.
 
   This dataset records each sitting deputy with their name (Kazakh and Russian forms),
   electoral region and parliamentary faction, sourced from the Mäjilis open JSON API.

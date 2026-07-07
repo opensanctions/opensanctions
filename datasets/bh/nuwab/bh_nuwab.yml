@@ -1,0 +1,53 @@
+title: Bahrain Council of Representatives Members
+entry_point: crawler.py
+prefix: bh-nuwab
+coverage:
+  frequency: weekly
+  start: 2026-07-06
+load_statements: true
+ci_test: false
+summary: >-
+  Current and historical members of Bahrain's Council of Representatives.
+description: |
+  The Council of Representatives (Majlis al-Nuwab, مجلس النواب) is the elected
+  lower house of Bahrain's National Assembly, sitting alongside the appointed
+  Shura Council. Its 40 members each serve a four-year term.
+
+  This dataset covers the representatives serving in the current term as well as
+  those who held seats in earlier ones, with a short biography for each wherever
+  the council publishes it.
+url: https://www.nuwab.bh/en/members-of-parliament/
+publisher:
+  name: Council of Representatives of Bahrain
+  acronym: COR
+  description: >
+    The Council of Representatives is the elected lower house of the National
+    Assembly of the Kingdom of Bahrain.
+  url: https://www.nuwab.bh/en
+  country: bh
+  official: true
+data:
+  url: https://www.nuwab.bh/en/members-of-parliament/
+  format: HTML
+  lang: eng
+
+# The site returns 403 to the default client; a browser User-Agent is enough.
+http:
+  user_agent: >-
+    Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36
+    (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 120
+      Position: 1
+    country_entities:
+      bh: 120
+  max:
+    schema_entities:
+      Person: 300
+      Position: 1

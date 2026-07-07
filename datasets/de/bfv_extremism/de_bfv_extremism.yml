@@ -33,9 +33,9 @@ publisher:
   country: de
   url: https://www.verfassungsschutz.de/DE/home/home_node.html
   official: true
-url: https://www.verfassungsschutz.de/DE/themen/auslandsbezogener-extremismus/verbotene-organisationen/verbotene-organisationen_node.html
+url: https://www.verfassungsschutz.de/DE/themen/auslandsbezogener-extremismus-terrorismus/verbotene-organisationen/verbotene-organisationen_artikel.html
 data:
-  url: https://www.verfassungsschutz.de/DE/themen/auslandsbezogener-extremismus/verbotene-organisationen/verbotene-organisationen_node.html
+  url: https://www.verfassungsschutz.de/DE/themen/auslandsbezogener-extremismus-terrorismus/verbotene-organisationen/verbotene-organisationen_artikel.html
   format: HTML
   lang: deu
 dates:

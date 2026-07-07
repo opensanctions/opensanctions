@@ -83,8 +83,10 @@ def crawl(context: Context) -> None:
     position = h.make_position(
         context,
         "Member of the European Parliament",
+        wikidata_id="Q27169",
         country="eu",
         topics=["gov.igo", "gov.legislative"],
+        lang="eng",
     )
     categorisation = categorise(context, position, default_is_pep=True)
     context.emit(position)

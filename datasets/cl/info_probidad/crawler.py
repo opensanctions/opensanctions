@@ -70,7 +70,11 @@ def crawl_row(context: Context, declaration_id: int) -> None:
     service_entity = entity.pop("Servicio_Entidad")
     position_institution = service_entity.pop("nombre")
     position = h.make_position(
-        context, f"{position_name}, {position_institution}", country="cl", lang="spa"
+        context,
+        f"{position_name}, {position_institution}",
+        country="cl",
+        lang="spa",
+        translate_name=True,
     )
 
     # 'cargos' can be marked as PEPs for all institutions in cl_info_probidad.yml

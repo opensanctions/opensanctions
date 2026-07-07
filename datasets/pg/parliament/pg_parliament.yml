@@ -3,21 +3,17 @@ prefix: pg-parliament
 entry_point: crawler.py
 coverage:
   frequency: weekly
-  start: 2026-06-17
+  start: 2026-06-26
 load_statements: true
 ci_test: false
-
 summary: >-
   Current members of the National Parliament of Papua New Guinea.
-
 description: |
   The National Parliament of Papua New Guinea is a unicameral legislature with
   111 seats. Members are directly elected: 89 from Open electorates (districts)
   and 22 from Provincial electorates, where the winning candidate serves
   simultaneously as the elected Provincial Governor.
-
 url: https://www.parliament.gov.pg
-
 publisher:
   name: National Parliament of Papua New Guinea
   description: >
@@ -26,7 +22,6 @@ publisher:
   url: https://www.parliament.gov.pg
   country: pg
   official: true
-
 data:
   url: https://www.parliament.gov.pg
   format: HTML

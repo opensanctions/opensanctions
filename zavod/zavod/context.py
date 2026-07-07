@@ -10,16 +10,15 @@ from followthemoney.statement.serialize import PackStatementWriter
 from lxml import etree, html
 from nomenklatura import Judgement, Resolver
 from nomenklatura.cache import Cache
+from nomenklatura.db import Session, make_session as make_db_session
 from requests import Response
 from rigour.env import ENCODING
 from rigour.urls import ParamsType, build_url
-from sqlalchemy.engine import Connection
 from structlog.contextvars import bind_contextvars, reset_contextvars
 
 from zavod import settings
 from zavod.archive import STATEMENTS_FILE, dataset_data_path, dataset_resource_path
 from zavod.audit import inspect
-from zavod.db import get_engine, meta
 from zavod.entity import Entity
 from zavod.integration.dedupe import get_resolver
 from zavod.logs import get_logger
@@ -59,6 +58,7 @@ class Context:
         self.resources = DatasetResources(dataset)
         self.log = get_logger(dataset.name)
         self.http = make_session(dataset.http)
+        self._db: Optional[Session] = None
         self._cache: Optional[Cache] = None
         self._timestamps: Optional[TimeStampIndex] = None
         self._resolver: Optional[Resolver[Entity]] = None
@@ -74,17 +74,38 @@ class Context:
             self.lang = dataset.data.lang
 
     @property
+    def db(self) -> Session:
+        """The database unit of work owned by this Context.
+
+        One session backs the cache, the resolver, and the stateful
+        position/review tables, so they commit on a single cadence
+        (``flush`` → checkpoint, ``close`` → commit). Named ``db`` to set it
+        apart from ``http`` (also a session). Created lazily so a crawler that
+        touches no database never opens a connection."""
+        if self._db is None:
+            self._db = make_db_session()
+        return self._db
+
+    @property
     def cache(self) -> Cache:
         """A cache object for storing HTTP responses and other data."""
         if self._cache is None:
-            self._cache = Cache(get_engine(), meta, self.dataset, create=True)
+            self._cache = Cache(self.db, self.dataset, create=True)
         return self._cache
 
     @property
-    def conn(self) -> Connection:
-        """Expose a database connection to the ETL store."""
-        # Transaction management is delegated to the cache.
-        return self.cache.conn
+    def resolver(self) -> Resolver[Entity]:
+        """The dedupe resolver, on the Context's session and loaded into memory.
+
+        Lazily built on first access (a crawl that never rekeys never loads the
+        graph); reads are then in-memory, and writes from ``rekey`` commit with
+        the rest of the session on ``close()``. Note the load runs inside the
+        getter, so first access is potentially expensive — that is what makes
+        the resolver safe to read without a separate load step."""
+        if self._resolver is None:
+            self._resolver = get_resolver(self.db)
+            self._resolver.load_into_memory()
+        return self._resolver
 
     @property
     def version(self) -> Version:
@@ -130,21 +151,18 @@ class Context:
         to be flawed."""
         if old_id is None or new_id is None or old_id == new_id:
             return
-        if self.cache._engine.dialect.name == "sqlite":
+        if self.db.is_sqlite:
             self.log.error(
                 "Rekeying is not supported with SQLite resolver",
                 old_id=old_id,
                 new_id=new_id,
             )
             return
-        if self._resolver is None:
-            self._resolver = get_resolver()
-            self._resolver.begin()
-        old_canonical = self._resolver.get_canonical(old_id)
-        new_canonical = self._resolver.get_canonical(new_id)
+        old_canonical = self.resolver.get_canonical(old_id)
+        new_canonical = self.resolver.get_canonical(new_id)
         if old_canonical == new_canonical:
             return
-        self._resolver.decide(
+        self.resolver.decide(
             old_canonical,
             new_canonical,
             user="zavod/rekey",
@@ -153,19 +171,14 @@ class Context:
 
     def flush(self) -> None:
         """Flush the context to ensure all data is written to disk."""
-        if self._cache is not None:
-            self._cache.flush()
-        # if self._resolver is not None:
-        #     self._resolver.commit()
-        #     self._resolver.begin()
+        if self._db is not None:
+            self._db.checkpoint()
 
     def close(self) -> None:
         """Flush and tear down the context."""
         self.http.close()
-        if self._resolver is not None:
-            self._resolver.commit()
-        if self._cache is not None:
-            self._cache.close()
+        if self._db is not None:
+            self._db.commit()
         if self._timestamps is not None:
             self._timestamps.close()
         if self._writer is not None:
@@ -284,6 +297,7 @@ class Context:
         cache_days: Optional[int] = None,
         method: str = "GET",
         data: Optional[_Body] = None,
+        encoding: Optional[str] = None,
     ) -> Optional[str]:
         """Execute an HTTP request using the contexts' session and return
         the decoded response body. If a `cache_days` argument is provided, a
@@ -297,17 +311,21 @@ class Context:
             cache_days: Number of days to retain cached responses for. `None` to disable.
             method: The HTTP method to use for the request.
             data: The data to be sent in the request body.
+            encoding: Override the response character encoding. Use this when a
+                source omits or misstates its HTTP charset.
 
         Returns:
             The decoded response body as a string.
         """
         url = build_url(url, params)
 
-        fingerprint = request_hash(url, auth=auth, method=method, data=data)
+        fingerprint = request_hash(
+            url, auth=auth, method=method, data=data, encoding=encoding
+        )
         if cache_days is not None:
             text = None
 
-            if method == "GET":
+            if method == "GET" and encoding is None:
                 # keeping the old caching keys that was GET requests only
                 text = self.cache.get(url, max_age=cache_days)
 
@@ -322,6 +340,8 @@ class Context:
         response = self.fetch_response(
             url, headers=headers, auth=auth, method=method, data=data
         )
+        if encoding is not None:
+            response.encoding = encoding
         text = response.text
         if text is None:
             return None
@@ -369,11 +389,7 @@ class Context:
             try:
                 return orjson.loads(text)
             except Exception:
-                cache_url = build_url(url, params)
-                fingerprint = request_hash(
-                    cache_url, auth=auth, method=method, data=data
-                )
-                self.clear_url(fingerprint)
+                self.clear_url(url, params=params, auth=auth, method=method, data=data)
                 raise
 
     def fetch_html(
@@ -386,6 +402,7 @@ class Context:
         method: str = "GET",
         data: Optional[_Body] = None,
         absolute_links: bool = False,
+        encoding: Optional[str] = None,
     ) -> Element:
         """Execute an HTTP request using the contexts' session and return
         an HTML DOM object based on the response. If a `cache_days` argument
@@ -401,6 +418,10 @@ class Context:
             data: The data to be sent in the request body.
             absolute_links: Whether to convert relative links to absolute links.
                 Doesn't take redirects into account.
+            encoding: Override the response character encoding. Use this when a
+                source omits or misstates its HTTP charset, since the decoded
+                text is handed to the parser before the document's own charset
+                declaration can be consulted.
         Returns:
             An lxml-based DOM of the web page that has been returned.
         """
@@ -412,6 +433,7 @@ class Context:
             cache_days=cache_days,
             method=method,
             data=data,
+            encoding=encoding,
         )
         try:
             if text is None or len(text) == 0:
@@ -421,19 +443,29 @@ class Context:
                 cast(html.HtmlElement, doc).make_links_absolute(url, params)
             return doc
         except Exception as exc:
-            cache_url = build_url(url, params)
-            fingerprint = request_hash(cache_url, auth=auth, method=method, data=data)
-            self.clear_url(fingerprint)
+            self.clear_url(url, params=params, auth=auth, method=method, data=data)
             raise exc
 
-    def clear_url(self, fingerprint: str) -> None:
+    def clear_url(
+        self,
+        url: str,
+        params: ParamsType = None,
+        auth: _Auth = None,
+        method: str = "GET",
+        data: Optional[_Body] = None,
+        encoding: Optional[str] = None,
+    ) -> None:
+        """Evict a cached response so the next fetch re-hits the server.
+
+        Reach for this when a fetch succeeded at the HTTP level but returned a bad
+        body (an interstitial, truncated, or otherwise unusable page) that must not
+        be served from cache. Pass the same arguments you fetched the URL with, so
+        the matching cache entry is the one that gets removed.
         """
-        Remove a given URL from the cache using request fingerprint
-        Args:
-            fingerprint: The unique fingerprint of the request.
-        Returns:
-            None
-        """
+        cache_url = build_url(url, params)
+        fingerprint = request_hash(
+            cache_url, auth=auth, method=method, data=data, encoding=encoding
+        )
         self.cache.delete(fingerprint)
 
     def parse_resource_xml(self, name: PathLike) -> etree._ElementTree:

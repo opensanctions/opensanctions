@@ -13,7 +13,8 @@ def crawl_deputy(
     categorisation: PositionCategorisation,
 ) -> None:
     person = context.make("Person")
-    person.id = context.make_slug("deputy", str(row.pop("id")))
+    raw_id = row.pop("id")
+    person.id = context.make_slug("deputy", str(raw_id))
     h.apply_name(
         person,
         first_name=row.pop("firstName"),
@@ -26,6 +27,7 @@ def crawl_deputy(
     # Deputies of the Jogorku Kenesh must be citizens of the Kyrgyz Republic
     # (Constitution art. 70). https://www.constituteproject.org/constitution/Kyrgyz_Republic_2016
     person.add("citizenship", "kg")
+    person.add("sourceUrl", f"https://kenesh.kg/deputies/{raw_id}")
 
     occupancy = h.make_occupancy(
         context, person, position, categorisation=categorisation

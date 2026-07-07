@@ -44,7 +44,9 @@ def create_entity(raw_entity: Dict[str, Any], context: Context) -> None:
     person.add("citizenship", "br")
 
     position_name = f"{raw_entity['Descrição_Função']}, {raw_entity['Nome_Órgão']}"
-    position = h.make_position(context, position_name, country="br")
+    position = h.make_position(
+        context, position_name, country="br", lang="por", translate_name=True
+    )
     categorisation = categorise(context, position, default_is_pep=True)
 
     if not categorisation.is_pep:

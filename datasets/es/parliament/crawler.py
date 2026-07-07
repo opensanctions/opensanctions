@@ -37,6 +37,7 @@ def emit_pep_entities(
     political_group: Optional[str] = None,
     is_pep: bool,
     wikidata_id: Optional[str] = None,
+    translate_name: bool = False,
 ) -> bool:
     person.add("position", position_name)
     position = h.make_position(
@@ -46,6 +47,7 @@ def emit_pep_entities(
         lang=lang,
         topics=["gov.legislative", "gov.national"],
         wikidata_id=wikidata_id,
+        translate_name=translate_name,
     )
     categorisation = categorise(context, position, default_is_pep=is_pep)
     occupancy = h.make_occupancy(
@@ -196,6 +198,7 @@ def crawl_senator(context: Context, senator_url: str) -> bool:
                 start_date=cargo.findtext("cargoAltaFec"),
                 end_date=cargo.findtext("cargoBajaFec"),
                 is_pep=True,
+                translate_name=True,
             )
 
         if legislatura.findtext("legislaturaActual") == "SI":
