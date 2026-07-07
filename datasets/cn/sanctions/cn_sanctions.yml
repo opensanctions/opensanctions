@@ -97,42 +97,28 @@ config:
   discovery:
     # Handling "Unreviewed designation notice" warnings:
     #
-    # 1. Fetch the warning's exact URL. Current MFA and MOFCOM notices are HTML;
-    #    `curl -LfsS "$URL"` is normally sufficient. Inspect linked annexes when
-    #    the designation names are not present in the main article.
-    # 2. Confirm that the page is an official designation/list-change notice.
-    #    Do not use press coverage as the source.
-    # 3. For an addition, append one sanctions.csv row per named person or legal
-    #    entity. Multiple listings of the same entity are intentional: each
-    #    designation event should remain a separate row.
-    # 4. Use the exact candidate URL in `Source URL`. Once every designation in
-    #    the notice is represented, this automatically mutes the warning.
-    # 5. If the page is an alternate official URL for represented data, or is
-    #    irrelevant, append its exact URL to `reviewed_urls` instead. Never mute
-    #    a notice before checking all names and annexes.
+    # 1. Fetch the warning's exact URL. Current MFA and MOFCOM notices are HTML; `curl -LfsS "$URL"` is normally sufficient. Inspect linked annexes when the designation names are not present in the main article.
+    # 2. Confirm that the page is an official designation/list-change notice. Do not use press coverage as the source.
+    # 3. For an addition, append one sanctions.csv row per named person or legal entity. Multiple listings of the same entity are intentional: each designation event should remain a separate row.
+    # 4. Use the exact candidate URL in `Source URL`. Once every designation in the notice is represented, this automatically mutes the warning.
+    # 5. If the page is an alternate official URL for represented data, or is irrelevant, append its exact URL to `reviewed_urls` instead. Never mute a notice before checking all names and annexes.
     #
-    # sanctions.csv conventions:
+    # sanctions.csv conventions (see docs/extraction.md for the full guide):
     # - Type: Person, Company, or Organization.
     # - Name: official Latin-script name where published.
     # - Alias: additional Latin-script names separated by semicolons.
     # - Chinese name: source spelling, when present.
     # - Country: ISO 3166-1 alpha-2 code when identifiable.
-    # - Date/End date: DD.MM.YYYY; use the effective date stated in the decision,
-    #   which may differ from the publication date in the URL.
+    # - Date/End date: DD.MM.YYYY; use the effective date stated in the decision, which may differ from the publication date in the URL.
     # - Address: preserve the official address as one value.
     # - QID: optional; add only when the identity is certain.
     # - Body: Ministry of Foreign Affairs or Ministry of Commerce.
-    # - List of Export Controls -> Topics `export.control`, List
-    #   `List of Export Controls`.
-    # - Export Control Watch List -> Topics `export.control`, List
-    #   `Export Control Watch List`.
+    # - List of Export Controls -> Topics `export.control`, List `List of Export Controls`.
+    # - Export Control Watch List -> Topics `export.control`, List `Export Control Watch List`.
     # - Unreliable Entity List -> Topics `sanction.counter`, List `UEL`.
-    # - MFA countermeasures -> Topics `sanction.counter`; retain the program/list
-    #   wording already used by comparable CSV rows.
+    # - MFA countermeasures -> Topics `sanction.counter`; retain the program/list wording already used by comparable CSV rows.
     #
-    # Preserve existing rows when an official source URL disappears. A formal
-    # delisting or suspension is a status-change task and must not be treated as
-    # evidence that the original designation never occurred.
+    # Preserve existing rows when an official source URL disappears. A formal delisting or suspension is a status-change task and must not be treated as evidence that the original designation never occurred.
     reviewed_urls:
       - https://www.mfa.gov.cn/web/wjb_673085/zfxxgk_674865/gknrlb/fzcqdcs/202212/t20221222_10993979.shtml
       - https://www.mfa.gov.cn/web/wjb_673085/zfxxgk_674865/gknrlb/fzcqdcs/202304/t20230407_11055802.shtml
