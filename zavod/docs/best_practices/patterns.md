@@ -1,5 +1,7 @@
 # Common Patterns
 
+Several of the patterns below (detecting unhandled data, assertions, warnings) exist to serve one principle: [strict interpretation](strict_interpretation.md) — every source value within the crawler's scope is handled, explicitly ignored, or raises a signal.
+
 The following are some patterns that have proved useful:
 
 ## Common crawler code structure
