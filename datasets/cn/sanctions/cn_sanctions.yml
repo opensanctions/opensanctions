@@ -88,6 +88,8 @@ lookups:
         value: CN-ECWL
       - match: Diehard "Taiwan Independence" Separatists
         value: CN-TAO-DIEHARD
+      - match: Henchmen and Accomplices of "Taiwan Independence"
+        value: CN-TAO-ACCOMP
       - match: ""
         value: null
 
@@ -154,3 +156,20 @@ config:
       - https://www.mofcom.gov.cn/zcfb/blgg/gg/2026/art/2026/art_aab677e956c943808cebf8c06a28ff0e.html
       - https://www.mofcom.gov.cn/zcfb/blgg/gg/2026/art/2026/art_6607ea694b704da8ac5e863a5568e47c.html
       - https://www.mofcom.gov.cn/zcfb/blgg/gg/2025/art/2025/art_6af71ac99d00410d895a50abc044d148.html
+      # TAO: spokesperson Q&A recording the 2023-07-13 lifting of measures on Skyla
+      # (天亮医疗); the End date is already applied to its designation row.
+      - http://www.gwytb.gov.cn/xwdt/xwfb/wyly/202307/t20230713_12550405.htm
+      # TAO: judicial opinion on prosecuting Taiwan-independence crimes; not a designation.
+      - http://www.gwytb.gov.cn/topone/202406/t20240621_12629559.htm
+      # TAO: consolidated "Taiwan independence diehards" list snapshot; all 14 named
+      # persons are already represented from their original designation notices.
+      - https://www.gwytb.gov.cn/zccs/zccs_61195/cjtdwgfz/md/202408/t20240801_12639616.htm
+      # TAO: Anti-Secession Law text; not a designation.
+      - https://www.gwytb.gov.cn/zccs/zccs_61195/cjtdwgfz/flwj/202408/t20240801_12639638.htm
+      # TAO: crime-reporting columns for listed persons; not designations.
+      - https://www.gwytb.gov.cn/zccs/zccs_61195/cjtdwgfz/xszx/202408/t20240802_12640004.htm
+      - https://www.gwytb.gov.cn/zccs/zccs_61195/cjtdwgfz/xtdwgfz/202408/t20240802_12640005.htm
+      - https://www.gwytb.gov.cn/zccs/zccs_61195/cjtdwgfz/dyphtbxjjb/202503/t20250324_12691717.htm
+      # TAO: consolidated "Taiwan independence henchmen and accomplices" list snapshot;
+      # all 12 named persons are represented from their original naming notices.
+      - https://www.gwytb.gov.cn/zccs/zccs_61195/cjtdwgfz/yfcjtdwgfzjdsbx/202601/t20260112_12745760.htm
