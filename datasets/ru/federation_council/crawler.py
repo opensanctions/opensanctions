@@ -50,7 +50,7 @@ def crawl_person(
     for p in info_paras:
         text = h.element_text(p)
         if text.startswith("Took office:"):
-            took_office = text.removeprefix("Took office:").strip()
+            took_office = text.removeprefix("Took office:").strip(" :")
 
     starts = h.xpath_elements(doc, ".//span[@class='person_post_star']")
     if starts:
