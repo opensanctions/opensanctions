@@ -1,6 +1,6 @@
 # Entity ID generation
 
-An entity's ID controls which records merge into one entity within a dataset and across the catalog, and must stay stable after publication.
+An entity's ID controls which records merge into one entity within a dataset and across the catalog, and must stay stable after publication. A dataset is published once it is added to a collection in `datasets/_collections/` (see [releasing a dataset](release.md)); before that point, ID schemes can change freely.
 
 ## What an entity ID is for
 
