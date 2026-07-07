@@ -8,9 +8,9 @@ manual_check:
   last_checked: "2026-06-29"
   interval: 45
   message: >
-    Review official Chinese authorities not covered by automated MFA and MOFCOM
-    discovery, including the Taiwan Affairs Office, for new designation or
-    list-change notices.
+    Review official Chinese authorities not covered by automated MFA, MOFCOM, and
+    Taiwan Affairs Office discovery — including Chinese embassies and other State
+    Council departments — for new designation or list-change notices.
 deploy:
   schedule: "30 6 * * *"
   issues_turns: 500

@@ -108,7 +108,9 @@ changes only in the body or attachment.
 
 ### Discovery methods
 
-1. Crawl the Security and Control Bureau index through all available pagination.
+1. Crawl the Security and Control Bureau index. Its list is served by a JPaaS CMS API
+   that returns every notice in one response (`paramJson` with a large `pageSize`), so
+   no pagination loop is needed; the static `index.html` is only a JavaScript shell.
 2. Enumerate annual MOFCOM announcements and filter on issuing unit, title, body text,
    and legal basis. Announcement-number gaps are candidates for inspection only.
 3. Search the main MOFCOM domain for each notice-family phrase and its state-change
@@ -127,7 +129,8 @@ ministry name.
 
 ### Primary paths
 
-- [Measures against Taiwan independence](https://www.gwytb.gov.cn/zccs/zccs_61195/cjtdwgfz/bt/)
+- [Measures against Taiwan independence hub](https://www.gwytb.gov.cn/zccs/zccs_61195/cjtdwgfz/)
+  (crawled at the parent path so new designation subpaths are caught)
 - Taiwan Affairs Office press-conference and spokesperson archives
 - Current formal-list pages for diehard separatists and accomplices
 
