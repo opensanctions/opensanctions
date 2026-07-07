@@ -1,19 +1,58 @@
 """
 The archive is the place where we store the outputs of zavod runs
-beyond beyond their local scratch space.
-
-`/artifacts/{dataset}/{version}/` is the canonical, immutable location for all
-outputs of a given run, and is what we point to in the metadata.
-
-`/datasets/{date_stamp}/{dataset}/` is where the metadata and listed resources
-can be found for the latest successful run on a given day.
-
-`/datasets/latest/{dataset}/` is where the the metadata and listed resources can
-be found for the latest successful run.
+beyond their local scratch space.
 
 See archive backends for operating on the archive - in OpenSanctions production
-this is the Google Cloud Storage bucket data.opensanctions.org.
-A local filesystem path can be used in development and testing.
+this is the Google Cloud Storage bucket served at
+https://data.opensanctions.org. A local filesystem path can be used in
+development and testing.
+
+Layout
+------
+
+`/artifacts/{dataset}/{version}/` is the canonical, immutable location for all
+outputs of a given run, and is what we point to in the metadata. It holds both
+the listed resources (e.g. `entities.ftm.json`) and run artifacts such as
+`index.json`, `statistics.json`, `issues.json`, `statements.pack`,
+`entities.delta.json`, `delta.json` and a `versions.json` snapshot.
+
+`/artifacts/{dataset}/versions.json` is the root version file: a window of the
+most recent version IDs of the dataset (oldest first, up to
+`VersionHistory.LENGTH`) plus the ID of the last successful run, e.g.
+`{"items": ["20260629141001-mek", ...], "last_successful": "20260707123218-hai"}`.
+It is updated on every run, including failed ones.
+
+`/datasets/{date_stamp}/{dataset}/` is where the metadata and listed resources
+can be found for the latest successful run on a given day (server-side copies
+of the `/artifacts/` objects).
+
+`/datasets/latest/{dataset}/` is the same for the latest successful run
+overall. `/datasets/latest/{dataset}/index.json` is the stable URL for the
+latest metadata of a dataset.
+
+Walking versions
+----------------
+
+Version IDs (see `followthemoney.dataset.versions.Version`) are opaque
+strings, but they sort chronologically. The root
+version file only holds a bounded window, but every run's artifact directory
+contains a `versions.json` snapshot whose window ends at that version. To walk
+the full history: read the root version file, iterate its items newest-first,
+then fetch `/artifacts/{dataset}/{oldest_item}/versions.json` and repeat until
+the window no longer extends further back. This is implemented in
+`iter_dataset_versions()`.
+
+Success and failure
+-------------------
+
+Each run's `index.json` has a `result` field, either "success" or "failure".
+Failed runs are archived to `/artifacts/` too (with issues, but without data
+resources), but never published to `/datasets/` - so `/datasets/latest/` always
+reflects the last successful run. `last_successful` in the root `versions.json`
+keeps pointing at the newest version whose run succeeded.
+
+Terminology
+-----------
 
 When storing in /artifacts we use the verb "archive".
 When storing in /datasets we use the verb "publish".
