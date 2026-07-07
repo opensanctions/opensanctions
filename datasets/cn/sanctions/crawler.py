@@ -24,11 +24,33 @@ MOFCOM_UEL_KEY = re.compile(r"不可靠实体清单工作机制公告〔(\d{4})�
 MOFCOM_ARTICLE_PATH = re.compile(r"/zcfb/blgg/gg/\d{4}[^/]*/art/")
 MOFCOM_CANDIDATE_PATTERNS = (
     re.compile(r"列入.*(?:出口管制管控名单|关注名单|不可靠实体清单)"),
-    re.compile(r"采取反制措施"),
+    re.compile(r"采取反制"),
     re.compile(
         r"(?:移出|暂停|恢复|继续暂停|停止|取消|调整).*"
         r"(?:出口管制管控名单|关注名单|不可靠实体清单|反制措施)"
     ),
+)
+
+# TAO designation hub: aggregates the two formal Taiwan-independence lists and
+# spokesperson announcements. Served as GB2312/GB18030, not UTF-8.
+TAO_HUB_URL = "https://www.gwytb.gov.cn/zccs/zccs_61195/cjtdwgfz/"
+TAO_NOTICE_PATH = re.compile(r"/(\d{6})/(t\d+_\d+)\.htm$")
+
+# MOFCOM Bureau of Industry Security index. The static page is a JS shell; the notice
+# list is served by a JPaaS CMS API whose front-end fetches the whole list in one call
+# (pageSize=99999) and paginates client-side, so a single request returns everything.
+MOFCOM_AQYGZJ_API = "https://aqygzj.mofcom.gov.cn/api-gateway/jpaas-publish-server/front/page/build/unit"
+MOFCOM_AQYGZJ_PARAMS = {
+    "webId": "b28941ad4e064442856787562c9a4961",
+    "pageId": "79d6d2c4e44d458180d37dd4f0996645",
+    "tagId": "信息列表",
+    "tplSetId": "DDBav9QvwJVbs9iznQVmO",
+    "parseType": "bulidstatic",
+    "pageType": "column",
+    "paramJson": '{"pageNo":1,"pageSize":99999}',
+}
+MOFCOM_AQYGZJ_ARTICLE_PATH = re.compile(
+    r"/flzc/gzjgfxwj/art/\d{4}/art_[0-9a-f]{32}\.html"
 )
 
 
@@ -62,6 +84,19 @@ def is_mofcom_candidate(title: str) -> bool:
     return any(pattern.search(title) for pattern in MOFCOM_CANDIDATE_PATTERNS)
 
 
+def mofcom_logical_key(title: str, url: str) -> str:
+    """Derive a stable notice key so the same announcement keys identically across
+    MOFCOM indexes. Prefers the announcement or UEL number, falling back to the URL
+    filename when neither is present (e.g. 商务部令 orders with Chinese-numeral years)."""
+    match = MOFCOM_NOTICE_KEY.search(title)
+    if match is not None:
+        return f"MOFCOM-{match.group(1)}-{int(match.group(2))}"
+    match = MOFCOM_UEL_KEY.search(title)
+    if match is not None:
+        return f"MOFCOM-UEL-{match.group(1)}-{int(match.group(2))}"
+    return f"MOFCOM-URL-{urlparse(url).path.rsplit('/', 1)[-1]}"
+
+
 def parse_mofcom_index(content: str, base_url: str) -> list[Candidate]:
     """Find likely designation events on a MOFCOM annual announcement index."""
     root = html.fromstring(content)
@@ -72,16 +107,9 @@ def parse_mofcom_index(content: str, base_url: str) -> list[Candidate]:
             continue
         href = cast(str, anchor.get("href"))
         url = urljoin(base_url, href)
-        match = MOFCOM_NOTICE_KEY.search(title)
-        if match is None:
-            match = MOFCOM_UEL_KEY.search(title)
-            if match is None:
-                logical_key = f"MOFCOM-URL-{urlparse(url).path.rsplit('/', 1)[-1]}"
-            else:
-                logical_key = f"MOFCOM-UEL-{match.group(1)}-{int(match.group(2))}"
-        else:
-            logical_key = f"MOFCOM-{match.group(1)}-{int(match.group(2))}"
-        candidates[url] = Candidate("MOFCOM", logical_key, title, url)
+        candidates[url] = Candidate(
+            "MOFCOM", mofcom_logical_key(title, url), title, url
+        )
     return list(candidates.values())
 
 
@@ -93,6 +121,62 @@ def count_mofcom_articles(content: str) -> int:
         is not None
         for anchor in h.xpath_elements(root, "//a[@href]")
     )
+
+
+def parse_tao_hub(content: str, base_url: str = TAO_HUB_URL) -> list[Candidate]:
+    """Find designation and list-change notices on the TAO hub page.
+
+    The hub aggregates the two formal Taiwan-independence lists, spokesperson
+    announcements, and future designation categories that appear as new subpaths.
+    TAO notice titles are inconsistent, so candidates are keyed on the article-URL
+    pattern rather than keywords; non-designation links (law texts, reporting columns)
+    are muted through reviewed_urls once seen.
+    """
+    root = html.fromstring(content)
+    candidates: dict[str, Candidate] = {}
+    for anchor in h.xpath_elements(root, "//a[@href]"):
+        title = h.element_text(anchor)
+        href = cast(str, anchor.get("href"))
+        url = urljoin(base_url, href)
+        match = TAO_NOTICE_PATH.search(urlparse(url).path)
+        if match is None or len(title) == 0:
+            continue
+        # The hub links each list page twice: once under its name, once as a "更多>>"
+        # ("more") navigation link. Keep the most informative title for review context.
+        existing = candidates.get(url)
+        if existing is not None and len(existing.title) >= len(title):
+            continue
+        logical_key = f"TAO-{match.group(1)}-{match.group(2)}"
+        candidates[url] = Candidate("TAO", logical_key, title, url)
+    return list(candidates.values())
+
+
+def parse_mofcom_aqygzj(payload: Any, base_url: str) -> list[Candidate]:
+    """Find designation notices on the MOFCOM industry-security JPaaS index.
+
+    Adds coverage the annual blgg/gg indexes miss — 商务部令 countermeasure orders and
+    some UEL Working Mechanism announcements. The rendered list markup is nested in the
+    API response's `data.html` field; a shape change raises rather than yielding zero.
+    """
+    if not isinstance(payload, dict) or "data" not in payload:
+        raise ValueError("MOFCOM industry-security response missing 'data'")
+    inner = payload["data"]
+    if not isinstance(inner, dict) or "html" not in inner:
+        raise ValueError("MOFCOM industry-security response missing 'data.html'")
+    root = html.fromstring(inner["html"])
+    candidates: dict[str, Candidate] = {}
+    for anchor in h.xpath_elements(root, "//a[@href]"):
+        title = h.element_text(anchor)
+        if len(title) == 0 or not is_mofcom_candidate(title):
+            continue
+        href = cast(str, anchor.get("href"))
+        url = urljoin(base_url, href)
+        if MOFCOM_AQYGZJ_ARTICLE_PATH.search(urlparse(url).path) is None:
+            continue
+        candidates[url] = Candidate(
+            "MOFCOM", mofcom_logical_key(title, url), title, url
+        )
+    return list(candidates.values())
 
 
 def discover_candidates(context: Context) -> list[Candidate]:
@@ -140,6 +224,43 @@ def discover_candidates(context: Context) -> list[Candidate]:
                 url=url,
                 error=str(exc),
             )
+
+    try:
+        payload = context.fetch_json(
+            MOFCOM_AQYGZJ_API, params=MOFCOM_AQYGZJ_PARAMS, cache_days=INDEX_CACHE_DAYS
+        )
+        aqygzj_candidates = parse_mofcom_aqygzj(payload, MOFCOM_AQYGZJ_API)
+        if len(aqygzj_candidates) == 0:
+            context.log.warning(
+                "MOFCOM industry-security index yielded no candidates",
+                url=MOFCOM_AQYGZJ_API,
+            )
+        candidates.extend(aqygzj_candidates)
+    except requests.RequestException as exc:
+        context.log.warning(
+            "MOFCOM industry-security index request failed",
+            url=MOFCOM_AQYGZJ_API,
+            error=str(exc),
+        )
+
+    try:
+        content = context.fetch_text(
+            TAO_HUB_URL, cache_days=INDEX_CACHE_DAYS, encoding="gb18030"
+        )
+        tao_candidates = parse_tao_hub(content or "")
+        if len(tao_candidates) < 3:
+            context.log.warning(
+                "TAO designation hub yielded too few notice links",
+                count=len(tao_candidates),
+                url=TAO_HUB_URL,
+            )
+        candidates.extend(tao_candidates)
+    except requests.RequestException as exc:
+        context.log.warning(
+            "TAO designation hub request failed",
+            url=TAO_HUB_URL,
+            error=str(exc),
+        )
 
     return sorted(
         candidates, key=lambda item: (item.authority, item.logical_key, item.url)

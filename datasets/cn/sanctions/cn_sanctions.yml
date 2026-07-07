@@ -8,9 +8,9 @@ manual_check:
   last_checked: "2026-06-29"
   interval: 45
   message: >
-    Review official Chinese authorities not covered by automated MFA and MOFCOM
-    discovery, including the Taiwan Affairs Office, for new designation or
-    list-change notices.
+    Review official Chinese authorities not covered by automated MFA, MOFCOM, and
+    Taiwan Affairs Office discovery — including Chinese embassies and other State
+    Council departments — for new designation or list-change notices.
 deploy:
   schedule: "30 6 * * *"
   issues_turns: 500
@@ -88,6 +88,8 @@ lookups:
         value: CN-ECWL
       - match: Diehard "Taiwan Independence" Separatists
         value: CN-TAO-DIEHARD
+      - match: Henchmen and Accomplices of "Taiwan Independence"
+        value: CN-TAO-ACCOMP
       - match: ""
         value: null
 
@@ -95,42 +97,28 @@ config:
   discovery:
     # Handling "Unreviewed designation notice" warnings:
     #
-    # 1. Fetch the warning's exact URL. Current MFA and MOFCOM notices are HTML;
-    #    `curl -LfsS "$URL"` is normally sufficient. Inspect linked annexes when
-    #    the designation names are not present in the main article.
-    # 2. Confirm that the page is an official designation/list-change notice.
-    #    Do not use press coverage as the source.
-    # 3. For an addition, append one sanctions.csv row per named person or legal
-    #    entity. Multiple listings of the same entity are intentional: each
-    #    designation event should remain a separate row.
-    # 4. Use the exact candidate URL in `Source URL`. Once every designation in
-    #    the notice is represented, this automatically mutes the warning.
-    # 5. If the page is an alternate official URL for represented data, or is
-    #    irrelevant, append its exact URL to `reviewed_urls` instead. Never mute
-    #    a notice before checking all names and annexes.
+    # 1. Fetch the warning's exact URL. Current MFA and MOFCOM notices are HTML; `curl -LfsS "$URL"` is normally sufficient. Inspect linked annexes when the designation names are not present in the main article.
+    # 2. Confirm that the page is an official designation/list-change notice. Do not use press coverage as the source.
+    # 3. For an addition, append one sanctions.csv row per named person or legal entity. Multiple listings of the same entity are intentional: each designation event should remain a separate row.
+    # 4. Use the exact candidate URL in `Source URL`. Once every designation in the notice is represented, this automatically mutes the warning.
+    # 5. If the page is an alternate official URL for represented data, or is irrelevant, append its exact URL to `reviewed_urls` instead. Never mute a notice before checking all names and annexes.
     #
-    # sanctions.csv conventions:
+    # sanctions.csv conventions (see docs/extraction.md for the full guide):
     # - Type: Person, Company, or Organization.
     # - Name: official Latin-script name where published.
     # - Alias: additional Latin-script names separated by semicolons.
     # - Chinese name: source spelling, when present.
     # - Country: ISO 3166-1 alpha-2 code when identifiable.
-    # - Date/End date: DD.MM.YYYY; use the effective date stated in the decision,
-    #   which may differ from the publication date in the URL.
+    # - Date/End date: DD.MM.YYYY; use the effective date stated in the decision, which may differ from the publication date in the URL.
     # - Address: preserve the official address as one value.
     # - QID: optional; add only when the identity is certain.
     # - Body: Ministry of Foreign Affairs or Ministry of Commerce.
-    # - List of Export Controls -> Topics `export.control`, List
-    #   `List of Export Controls`.
-    # - Export Control Watch List -> Topics `export.control`, List
-    #   `Export Control Watch List`.
+    # - List of Export Controls -> Topics `export.control`, List `List of Export Controls`.
+    # - Export Control Watch List -> Topics `export.control`, List `Export Control Watch List`.
     # - Unreliable Entity List -> Topics `sanction.counter`, List `UEL`.
-    # - MFA countermeasures -> Topics `sanction.counter`; retain the program/list
-    #   wording already used by comparable CSV rows.
+    # - MFA countermeasures -> Topics `sanction.counter`; retain the program/list wording already used by comparable CSV rows.
     #
-    # Preserve existing rows when an official source URL disappears. A formal
-    # delisting or suspension is a status-change task and must not be treated as
-    # evidence that the original designation never occurred.
+    # Preserve existing rows when an official source URL disappears. A formal delisting or suspension is a status-change task and must not be treated as evidence that the original designation never occurred.
     reviewed_urls:
       - https://www.mfa.gov.cn/web/wjb_673085/zfxxgk_674865/gknrlb/fzcqdcs/202212/t20221222_10993979.shtml
       - https://www.mfa.gov.cn/web/wjb_673085/zfxxgk_674865/gknrlb/fzcqdcs/202304/t20230407_11055802.shtml
@@ -154,3 +142,50 @@ config:
       - https://www.mofcom.gov.cn/zcfb/blgg/gg/2026/art/2026/art_aab677e956c943808cebf8c06a28ff0e.html
       - https://www.mofcom.gov.cn/zcfb/blgg/gg/2026/art/2026/art_6607ea694b704da8ac5e863a5568e47c.html
       - https://www.mofcom.gov.cn/zcfb/blgg/gg/2025/art/2025/art_6af71ac99d00410d895a50abc044d148.html
+      # MOFCOM industry-security (aqygzj) mirrors of export-control announcements already
+      # represented in sanctions.csv under their blgg/zwgk URLs; muted after confirming each
+      # notice's target list matches its existing CSV row group by name, count, and date.
+      - https://aqygzj.mofcom.gov.cn/flzc/gzjgfxwj/art/2025/art_efbe2d2540e845a59a70f2d0768f671f.html
+      - https://aqygzj.mofcom.gov.cn/flzc/gzjgfxwj/art/2025/art_23aa2fcf1fca4e4c9edb6bec193acfe0.html
+      - https://aqygzj.mofcom.gov.cn/flzc/gzjgfxwj/art/2025/art_c5da5a30a41b4a42aa65c83b121fc84e.html
+      - https://aqygzj.mofcom.gov.cn/flzc/gzjgfxwj/art/2025/art_74832a22b5a04ad4999a24cc7a42f547.html
+      - https://aqygzj.mofcom.gov.cn/flzc/gzjgfxwj/art/2025/art_513b38f5f0224bc49604495825375b78.html
+      - https://aqygzj.mofcom.gov.cn/flzc/gzjgfxwj/art/2025/art_2a67ef158b2243fe88f27260c79a0046.html
+      - https://aqygzj.mofcom.gov.cn/flzc/gzjgfxwj/art/2026/art_da1edef161284948bf97f32f5c0be6b8.html
+      - https://aqygzj.mofcom.gov.cn/flzc/gzjgfxwj/art/2026/art_9482ff2a127541ee9989bfd2a3d47dd8.html
+      - https://aqygzj.mofcom.gov.cn/flzc/gzjgfxwj/art/2026/art_c1afffc1c1214bc09f5c04d590fa1e3f.html
+      - https://aqygzj.mofcom.gov.cn/flzc/gzjgfxwj/art/2026/art_497968bd4481455a93639682dfa11770.html
+      - https://aqygzj.mofcom.gov.cn/flzc/gzjgfxwj/art/2026/art_73905ab28db0461bac977ba5d086e81d.html
+      - https://aqygzj.mofcom.gov.cn/flzc/gzjgfxwj/art/2026/art_dfc948e763ca464fb301f487cf42d535.html
+      # MOFCOM UEL Working Mechanism announcements already represented on the UEL from their
+      # original blgg/zwgk notices (Lockheed/Raytheon 2023; Boeing 2024; PVH/Illumina, Skydio,
+      # TCOM 2025; Dedrone et al. Oct 2025).
+      - https://aqygzj.mofcom.gov.cn/flzc/gzjgfxwj/art/2023/art_37761ceb51764e7095bfe3d0214f1d4e.html
+      - https://aqygzj.mofcom.gov.cn/flzc/gzjgfxwj/art/2024/art_41f74ffdff914c6dafb548617919d1dd.html
+      - https://aqygzj.mofcom.gov.cn/flzc/gzjgfxwj/art/2025/art_3341ae7fdd664c5bbd73261acff226f3.html
+      - https://aqygzj.mofcom.gov.cn/flzc/gzjgfxwj/art/2025/art_7f68ea17b56c4b32a45cc966dbfebde5.html
+      - https://aqygzj.mofcom.gov.cn/flzc/gzjgfxwj/art/2025/art_a536f01741964619b7d379abfc267663.html
+      - https://aqygzj.mofcom.gov.cn/flzc/gzjgfxwj/art/2025/art_902476c543bf426b8ec6a8e64142b7d0.html
+      # MOFCOM countermeasure orders that only change the state of designations extracted from
+      # their originating orders (商务部令2025年第5号 EU banks / 第6号 Hanwha Ocean subsidiaries):
+      # 第7号 suspends the Hanwha measures for one year (recorded on those rows' Summary); 二〇二六
+      # 年第1号 cancels the EU-bank measures (End date applied to those rows).
+      - https://aqygzj.mofcom.gov.cn/flzc/gzjgfxwj/art/2025/art_d52352ad387d4d9eac9ce684f12e777b.html
+      - https://aqygzj.mofcom.gov.cn/flzc/gzjgfxwj/art/2026/art_16b9c2bc90f740668943896da4544768.html
+      # TAO: spokesperson Q&A recording the 2023-07-13 lifting of measures on Skyla
+      # (天亮医疗); the End date is already applied to its designation row.
+      - http://www.gwytb.gov.cn/xwdt/xwfb/wyly/202307/t20230713_12550405.htm
+      # TAO: judicial opinion on prosecuting Taiwan-independence crimes; not a designation.
+      - http://www.gwytb.gov.cn/topone/202406/t20240621_12629559.htm
+      # TAO: consolidated "Taiwan independence diehards" list snapshot; all 14 named
+      # persons are already represented from their original designation notices.
+      - https://www.gwytb.gov.cn/zccs/zccs_61195/cjtdwgfz/md/202408/t20240801_12639616.htm
+      # TAO: Anti-Secession Law text; not a designation.
+      - https://www.gwytb.gov.cn/zccs/zccs_61195/cjtdwgfz/flwj/202408/t20240801_12639638.htm
+      # TAO: crime-reporting columns for listed persons; not designations.
+      - https://www.gwytb.gov.cn/zccs/zccs_61195/cjtdwgfz/xszx/202408/t20240802_12640004.htm
+      - https://www.gwytb.gov.cn/zccs/zccs_61195/cjtdwgfz/xtdwgfz/202408/t20240802_12640005.htm
+      - https://www.gwytb.gov.cn/zccs/zccs_61195/cjtdwgfz/dyphtbxjjb/202503/t20250324_12691717.htm
+      # TAO: consolidated "Taiwan independence henchmen and accomplices" list snapshot;
+      # all 12 named persons are represented from their original naming notices.
+      - https://www.gwytb.gov.cn/zccs/zccs_61195/cjtdwgfz/yfcjtdwgfzjdsbx/202601/t20260112_12745760.htm
