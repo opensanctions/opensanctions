@@ -156,6 +156,36 @@ config:
       - https://www.mofcom.gov.cn/zcfb/blgg/gg/2026/art/2026/art_aab677e956c943808cebf8c06a28ff0e.html
       - https://www.mofcom.gov.cn/zcfb/blgg/gg/2026/art/2026/art_6607ea694b704da8ac5e863a5568e47c.html
       - https://www.mofcom.gov.cn/zcfb/blgg/gg/2025/art/2025/art_6af71ac99d00410d895a50abc044d148.html
+      # MOFCOM industry-security (aqygzj) mirrors of export-control announcements already
+      # represented in sanctions.csv under their blgg/zwgk URLs; muted after confirming each
+      # notice's target list matches its existing CSV row group by name, count, and date.
+      - https://aqygzj.mofcom.gov.cn/flzc/gzjgfxwj/art/2025/art_efbe2d2540e845a59a70f2d0768f671f.html
+      - https://aqygzj.mofcom.gov.cn/flzc/gzjgfxwj/art/2025/art_23aa2fcf1fca4e4c9edb6bec193acfe0.html
+      - https://aqygzj.mofcom.gov.cn/flzc/gzjgfxwj/art/2025/art_c5da5a30a41b4a42aa65c83b121fc84e.html
+      - https://aqygzj.mofcom.gov.cn/flzc/gzjgfxwj/art/2025/art_74832a22b5a04ad4999a24cc7a42f547.html
+      - https://aqygzj.mofcom.gov.cn/flzc/gzjgfxwj/art/2025/art_513b38f5f0224bc49604495825375b78.html
+      - https://aqygzj.mofcom.gov.cn/flzc/gzjgfxwj/art/2025/art_2a67ef158b2243fe88f27260c79a0046.html
+      - https://aqygzj.mofcom.gov.cn/flzc/gzjgfxwj/art/2026/art_da1edef161284948bf97f32f5c0be6b8.html
+      - https://aqygzj.mofcom.gov.cn/flzc/gzjgfxwj/art/2026/art_9482ff2a127541ee9989bfd2a3d47dd8.html
+      - https://aqygzj.mofcom.gov.cn/flzc/gzjgfxwj/art/2026/art_c1afffc1c1214bc09f5c04d590fa1e3f.html
+      - https://aqygzj.mofcom.gov.cn/flzc/gzjgfxwj/art/2026/art_497968bd4481455a93639682dfa11770.html
+      - https://aqygzj.mofcom.gov.cn/flzc/gzjgfxwj/art/2026/art_73905ab28db0461bac977ba5d086e81d.html
+      - https://aqygzj.mofcom.gov.cn/flzc/gzjgfxwj/art/2026/art_dfc948e763ca464fb301f487cf42d535.html
+      # MOFCOM UEL Working Mechanism announcements already represented on the UEL from their
+      # original blgg/zwgk notices (Lockheed/Raytheon 2023; Boeing 2024; PVH/Illumina, Skydio,
+      # TCOM 2025; Dedrone et al. Oct 2025).
+      - https://aqygzj.mofcom.gov.cn/flzc/gzjgfxwj/art/2023/art_37761ceb51764e7095bfe3d0214f1d4e.html
+      - https://aqygzj.mofcom.gov.cn/flzc/gzjgfxwj/art/2024/art_41f74ffdff914c6dafb548617919d1dd.html
+      - https://aqygzj.mofcom.gov.cn/flzc/gzjgfxwj/art/2025/art_3341ae7fdd664c5bbd73261acff226f3.html
+      - https://aqygzj.mofcom.gov.cn/flzc/gzjgfxwj/art/2025/art_7f68ea17b56c4b32a45cc966dbfebde5.html
+      - https://aqygzj.mofcom.gov.cn/flzc/gzjgfxwj/art/2025/art_a536f01741964619b7d379abfc267663.html
+      - https://aqygzj.mofcom.gov.cn/flzc/gzjgfxwj/art/2025/art_902476c543bf426b8ec6a8e64142b7d0.html
+      # MOFCOM countermeasure orders that only change the state of designations extracted from
+      # their originating orders (商务部令2025年第5号 EU banks / 第6号 Hanwha Ocean subsidiaries):
+      # 第7号 suspends the Hanwha measures for one year (recorded on those rows' Summary); 二〇二六
+      # 年第1号 cancels the EU-bank measures (End date applied to those rows).
+      - https://aqygzj.mofcom.gov.cn/flzc/gzjgfxwj/art/2025/art_d52352ad387d4d9eac9ce684f12e777b.html
+      - https://aqygzj.mofcom.gov.cn/flzc/gzjgfxwj/art/2026/art_16b9c2bc90f740668943896da4544768.html
       # TAO: spokesperson Q&A recording the 2023-07-13 lifting of measures on Skyla
       # (天亮医疗); the End date is already applied to its designation row.
       - http://www.gwytb.gov.cn/xwdt/xwfb/wyly/202307/t20230713_12550405.htm
