@@ -2,13 +2,14 @@ from collections import defaultdict
 from typing import Optional, List, Generator, NamedTuple, Set
 from rigour.ids.wikidata import is_qid
 from rigour.territories import get_territories, get_territory_by_qid
+from rigour.time import iso_datetime
 from nomenklatura.wikidata import WikidataClient, SparqlBinding
 
 from zavod import Context
 from zavod.entity import Entity
 from zavod.shed.wikidata.human import wikidata_basic_human
 from zavod.shed.wikidata.position import wikidata_occupancy, wikidata_position
-from zavod.shed.wikidata.position import days_since_modified, position_holders
+from zavod.shed.wikidata.position import position_holders
 
 
 class Country(NamedTuple):
@@ -44,8 +45,7 @@ def crawl_holder(
         return None
     item = client.fetch_item(
         person_qid,
-        cache_days=days_since_modified(modified_at),
-        randomize=modified_at is None,
+        modified_at=iso_datetime(modified_at),
     )
     if item is None:
         return None

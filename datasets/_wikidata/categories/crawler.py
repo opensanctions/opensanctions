@@ -5,11 +5,12 @@ from io import StringIO
 from typing import Any, Dict, List, Optional, Set
 from urllib.parse import urlencode
 
+from rigour.time import iso_datetime
+
 from nomenklatura.wikidata import Claim, WikidataClient
 from zavod.shed.wikidata.human import wikidata_basic_human
 from nomenklatura.wikidata.value import clean_wikidata_name
 from zavod.shed.wikidata.position import (
-    days_since_modified,
     position_holders,
     wikidata_occupancy,
     wikidata_position,
@@ -115,10 +116,8 @@ def crawl_position(state: CrawlState, person: Entity, claim: Claim) -> None:
 
 
 def crawl_person(state: CrawlState, qid: str, recurse: bool = True) -> Optional[Entity]:
-    cache_days = days_since_modified(state.person_modified_at.get(qid))
-    item = state.client.fetch_item(
-        qid, cache_days=cache_days, randomize=cache_days is None
-    )
+    modified_at = iso_datetime(state.person_modified_at.get(qid))
+    item = state.client.fetch_item(qid, modified_at=modified_at)
     if item is None:
         return None
     if item.id != qid:
