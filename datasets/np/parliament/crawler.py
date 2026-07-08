@@ -75,20 +75,14 @@ IGNORE = [
 
 
 def parse_dob(raw: str | None) -> str | None:
-    """Best-effort Gregorian birth date from the messy ``dob`` field.
+    """Best-effort Gregorian birth *year* from the ``dob`` field.
 
-    Reach for this because the source mixes Gregorian dates, Bikram Sambat (BS, ~57
-    years ahead of the Gregorian calendar), Excel serial numbers and Devanagari digits
-    in one field. Only dashed ``YYYY-MM-DD`` values are trusted. In this data Gregorian
-    birth years stop at 1973 while BS values start at 2002, so a year from 2000 on is
-    BS and is folded to a Gregorian *year* — BS months don't map onto Gregorian ones,
-    so the day and month are dropped. Earlier values are already Gregorian and kept in
-    full. The result is returned only if it is a plausible adult birth year.
-
-    The BS new year falls in mid-April (month 1 = Baishakh), so a single BS year spans
-    two Gregorian ones: months 1–9 land in BS−57, months 10–12 (Magh/Falgun/Chaitra,
-    ≈ Jan–Apr) in BS−56. A flat −57 would put anyone born in those late months a year
-    too early.
+    Every parseable member value is a Bikram Sambat (BS) date, so this always converts
+    from BS; only strict ``YYYY-MM-DD`` values are trusted (the field also carries Excel
+    serials, Devanagari digits and placeholders, which are dropped). BS runs ~57 years
+    ahead and its new year is in mid-April, so months 1–9 map to BS−57 and months 10–12
+    to BS−56. BS months don't align with Gregorian ones, so only the year is kept, and
+    only when it falls in a plausible adult birth range.
     """
     if raw is None:
         return None
@@ -97,11 +91,10 @@ def parse_dob(raw: str | None) -> str | None:
         return None
     year = int(match.group(1))
     month = int(match.group(2))
-    is_bs = year >= 2000
-    greg_year = year - (56 if month >= 10 else 57) if is_bs else year
-    if not (1920 <= greg_year <= 2001):
+    greg_year = year - (56 if month >= 10 else 57)
+    if not (1930 <= greg_year <= 2006):  # plausible adult birth range
         return None
-    return str(greg_year) if is_bs else raw
+    return str(greg_year)
 
 
 def crawl_member(
