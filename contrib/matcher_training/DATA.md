@@ -49,7 +49,7 @@ out of scope.
 
 | exclusion | reason | `summary.json` counter |
 |---|---|---|
-| edges by users `zavod/logic`, `zavod/xref` | algorithm-made judgements; training a matcher on matcher output is a feedback loop. Their merges still shape replayed cluster states — they are replayed, just not emitted. | `skipped.automation` |
+| edges by users `zavod/xref`, `opensanctions/xref`, `edge-dedupe` | matcher-driven judgements; training a matcher on matcher output is a feedback loop. Their merges still shape replayed cluster states — they are replayed, just not emitted. Rule-based `zavod/logic` judgements are deliberately kept in. | `skipped.automation` |
 | `IGNORE_DATASETS` (see `generate.py`) | poor data quality / name-only matching; excluded from the store scope so their content cannot leak into merged clusters. Their pairs surface as missing entities. | part of `skipped.missing` |
 | Address entities | not meaningful matching targets; skipped during cluster merging | `skipped.address` (address-only sides) |
 | unresolvable sides | entity absent from the current store (deleted, renamed, out of scope) | `skipped.missing` |

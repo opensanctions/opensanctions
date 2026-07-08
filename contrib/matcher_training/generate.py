@@ -34,10 +34,11 @@ log = get_logger(Path(__file__).stem)
 
 FORMAT_VERSION = 1
 
-# Judgements produced by matching algorithms must not become training data for
-# a matcher: that is a feedback loop. Their edges still shape replayed cluster
-# states (they merged entities in reality), so they are registered, not emitted.
-AUTOMATION_USERS = {"zavod/logic", "zavod/xref"}
+# Judgements produced by matcher-driven tooling must not become training data
+# for a matcher: that is a feedback loop. Their edges still shape replayed
+# cluster states (they merged entities in reality), so they are registered,
+# not emitted. Rule-based judgements (zavod/logic) are deliberately kept in.
+AUTOMATION_USERS = {"zavod/xref", "opensanctions/xref", "edge-dedupe"}
 
 EMIT_JUDGEMENTS = (Judgement.POSITIVE, Judgement.NEGATIVE, Judgement.UNSURE)
 
