@@ -2,6 +2,7 @@ import json
 from typing import Optional
 from followthemoney.dataset import VersionHistory
 from structlog.testing import capture_logs
+from logging import Logger
 
 from zavod import settings
 from zavod.meta import Dataset
@@ -201,20 +202,74 @@ def test_archive_failure(testdataset1: Dataset):
     assert history.latest.id is not None
     artifact_path = artifacts_path / testdataset1.name / history.latest.id
 
+    artifacts = {str(p.name) for p in artifact_path.glob("*")}
+
     # Only very specific files get archived.
-    assert artifact_path.joinpath(INDEX_FILE).exists()
-    assert artifact_path.joinpath(ISSUES_FILE).exists()
-    assert artifact_path.joinpath(ISSUES_LOG).exists()
-    assert artifact_path.joinpath(VERSIONS_FILE).exists()
     # We want to be really, really sure we'll never backfill from failed runs
-    assert not artifact_path.joinpath(STATEMENTS_FILE).exists()
-    assert not artifact_path.joinpath(RESOURCES_FILE).exists()
-    assert not artifact_path.joinpath(HASH_FILE).exists()
-    assert not artifact_path.joinpath(DELTA_INDEX_FILE).exists()
+    assert artifacts == {
+        INDEX_FILE,
+        ISSUES_FILE,
+        ISSUES_LOG,
+        VERSIONS_FILE,
+        # We want to be really, really sure we'll never backfill from failed runs
+        # so specifically not:
+        #
+        # STATEMENTS_FILE,
+        # RESOURCES_FILE,
+        # HASH_FILE,
+        # DELTA_INDEX_FILE,
+    }
 
     # We don't want failed runs to end up in /datasets
-    assert not latest_path.joinpath(INDEX_FILE).exists()
-    assert not latest_path.joinpath(STATEMENTS_FILE).exists()
-    assert not latest_path.joinpath(ISSUES_FILE).exists()
+    assert len(list(latest_path.glob("*"))) == 0
+    assert len(list(release_path.glob("*"))) == 0
+
+
+def test_archive_collection_failure(
+    testdataset1: Dataset, collection: Dataset, logger: Logger
+):
+    """Effectively a 'zavod run' on a collection, checking that the the files
+    expected to be archived and published are present in the right locations."""
+    linker = get_dataset_linker(testdataset1)
+    artifacts_path = settings.ARCHIVE_PATH / ARTIFACTS
+    published_path = settings.ARCHIVE_PATH / DATASETS
+    release_path = published_path / settings.RELEASE / collection.name
+    latest_path = published_path / "latest" / collection.name
+
+    # Simulate something that logs results in an issue log during a collection run
+    collection.model.exports.add("missing.exp")
+
+    crawl_dataset(testdataset1)
+    store = get_store(testdataset1, linker)
+    store.sync()
+    view = store.view(testdataset1)
+    export_dataset(testdataset1, view)
+
+    export_dataset(collection, view)
+    # let's imagine there was an exception causing abort
+    archive_failure(collection)
+
+    history = _read_history(collection.name)
+    assert history is not None
+    assert history.latest is not None
+    assert history.latest.id is not None
+    artifact_path = artifacts_path / collection.name / history.latest.id
+
+    artifacts = {str(p.name) for p in artifact_path.glob("*")}
+
+    assert artifacts == {
+        INDEX_FILE,
+        ISSUES_FILE,
+        ISSUES_LOG,
+        VERSIONS_FILE,
+        # We want to be really, really sure we won't see exports from failed runs.
+        # Specifically not:
+        #
+        # STATEMENTS_FILE,
+        # RESOURCES_FILE,
+        # HASH_FILE,
+        # DELTA_INDEX_FILE,
+    }
+
     assert len(list(latest_path.glob("*"))) == 0
     assert len(list(release_path.glob("*"))) == 0
