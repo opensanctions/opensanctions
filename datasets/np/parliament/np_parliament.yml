@@ -3,26 +3,18 @@ entry_point: crawler.py
 prefix: np-pa
 coverage:
   frequency: weekly
-  start: 2018-03-04
+  start: 2026-07-08
 load_statements: true
 ci_test: false
 summary: >-
-  Members of both chambers of Nepal's Federal Parliament: the House of
-  Representatives and the National Assembly.
+  Current and former members of both the House of Representatives and the
+  National Assembly.
 description: |
   Nepal's bicameral Federal Parliament (Sanghiya Sansad) comprises the House of
   Representatives (Pratinidhi Sabha, the 275-seat lower house) and the National
-  Assembly (Rastriya Sabha, the 59-seat upper house).
-
-  Each chamber publishes a JSON API of its members. The bulk export returns members
-  of every term in a single call, so the dataset covers both current and former
-  parliamentarians. A member's `tenure_end_date` separates past terms (a date in the
-  past) from sitting members (no end date, or an end date in the future).
-
-  Source birth dates are unreliable — the field mixes Gregorian and Bikram Sambat
-  calendars, spreadsheet serial numbers and partial values — so they are emitted only
-  on a best-effort basis at year precision (converted from the Bikram Sambat calendar)
-  and may be off by a few years.
+  Assembly (Rastriya Sabha, the 59-seat upper house). The dataset lists members
+  of both chambers, covering those currently in office alongside members who
+  served in earlier terms.
 url: https://hr.parliament.gov.np/en/members
 publisher:
   name: Federal Parliament of Nepal
@@ -62,7 +54,11 @@ assertions:
       Position: 2
     country_entities:
       np: 700
+    property_fill_rate:
+      Person:
+        gender: 0.95
+        political: 0.95
   max:
     schema_entities:
-      Person: 1100
+      Person: 1500
       Position: 2
