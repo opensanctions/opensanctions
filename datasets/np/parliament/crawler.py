@@ -39,6 +39,11 @@ MP_TYPES = {"member", "speaker", "vicespeaker"}
 # warning instead of being silently dropped.
 NON_MP_TYPES = {"staff", "secretariat", "generalsecretariat"}
 
+# (chamber, id) of MP-typed records the source publishes as pure placeholders — every
+# name field is "-". Listed so they skip quietly; any other nameless member warns, since
+# dropping a real member the source publishes is a data-loss alarm, not a routine skip.
+PLACEHOLDER_IDS = {("hr", 2619)}
+
 # Fields left unused; passed to audit_data so new fields surface as warnings.
 IGNORE = [
     "code",
@@ -79,12 +84,21 @@ def parse_dob(raw: str | None) -> str | None:
     BS and is folded to a Gregorian *year* — BS months don't map onto Gregorian ones,
     so the day and month are dropped. Earlier values are already Gregorian and kept in
     full. The result is returned only if it is a plausible adult birth year.
+
+    The BS new year falls in mid-April (month 1 = Baishakh), so a single BS year spans
+    two Gregorian ones: months 1–9 land in BS−57, months 10–12 (Magh/Falgun/Chaitra,
+    ≈ Jan–Apr) in BS−56. A flat −57 would put anyone born in those late months a year
+    too early.
     """
-    if raw is None or not re.match(r"^\d{4}-\d{2}-\d{2}$", raw):
+    if raw is None:
         return None
-    year = int(raw[:4])
+    match = re.match(r"^(\d{4})-(\d{2})-\d{2}$", raw)
+    if match is None:
+        return None
+    year = int(match.group(1))
+    month = int(match.group(2))
     is_bs = year >= 2000
-    greg_year = year - 57 if is_bs else year
+    greg_year = year - (56 if month >= 10 else 57) if is_bs else year
     if not (1920 <= greg_year <= 2001):
         return None
     return str(greg_year) if is_bs else raw
@@ -98,11 +112,12 @@ def crawl_member(
     record: dict[str, Any],
 ) -> None:
     member_type = record.pop("member_type")
+    record_id = record.pop("id")
     if member_type in NON_MP_TYPES:
         return
     if member_type not in MP_TYPES:
         context.log.warning(
-            "Unknown member_type", member_type=member_type, id=record["id"]
+            "Unknown member_type", member_type=member_type, id=record_id
         )
         return
 
@@ -111,12 +126,13 @@ def crawl_member(
     }
     slug_name = record.pop("slug", None)
     en_name = (names.get("en") or slug_name or "").strip()
-    if en_name in ("", "-"):  # placeholder records carry no real name
-        context.log.info("Skipping member without a name", id=record["id"])
+    if en_name in ("", "-"):
+        if (chamber.slug, record_id) not in PLACEHOLDER_IDS:
+            context.log.warning("Member without a name", id=record_id, record=record)
         return
 
     person = context.make("Person")
-    person.id = context.make_slug(chamber.slug, str(record.pop("id")))
+    person.id = context.make_slug(chamber.slug, record_id)
     h.apply_name(person, full=en_name, lang="eng")
     np_name = names.get("np")
     if np_name is not None and np_name.strip() not in ("", "-"):
@@ -127,7 +143,6 @@ def crawl_member(
     # citizenship. https://www.constituteproject.org/constitution/Nepal_2015
     person.add("citizenship", "np")
     h.apply_date(person, "birthDate", parse_dob(record.pop("dob", None)))
-
     party = record.pop("political_party", None)
     if party is not None:
         person.add("political", party.get("party_name_en"))
@@ -143,8 +158,10 @@ def crawl_member(
     )
     if occupancy is None:
         return
+
     context.emit(person)
     context.emit(occupancy)
+
     context.audit_data(record, ignore=IGNORE)
 
 
