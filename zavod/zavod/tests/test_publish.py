@@ -19,6 +19,14 @@ from zavod.integration import get_dataset_linker
 from zavod.publish import publish_dataset, archive_failure
 from zavod.exc import RunFailedException
 
+STANDARD_EXPORTS = {
+    "entities.ftm.json",
+    "targets.simple.csv",
+    "names.txt",
+    "targets.nested.json",
+    "senzing.json",
+}
+
 
 def _read_history(dataset_name: str) -> Optional[VersionHistory]:
     fn = settings.ARCHIVE_PATH / ARTIFACTS / dataset_name / VERSIONS_FILE
@@ -61,36 +69,33 @@ def test_publish_dataset(testdataset1: Dataset):
     assert history.latest is not None
     assert history.latest.id is not None
     artifact_path = artifacts_path / testdataset1.name / history.latest.id
-    assert artifact_path.exists()
-    # Everything gets archived
-    assert artifact_path.joinpath(INDEX_FILE).exists()
-    assert artifact_path.joinpath(ISSUES_FILE).exists()
-    assert artifact_path.joinpath(ISSUES_LOG).exists()
-    assert artifact_path.joinpath(VERSIONS_FILE).exists()
-    assert artifact_path.joinpath(RESOURCES_FILE).exists()
-    assert artifact_path.joinpath(HASH_FILE).exists()
-    assert artifact_path.joinpath(DELTA_INDEX_FILE).exists()
-    assert artifact_path.joinpath(STATEMENTS_FILE).exists()
-    assert artifact_path.joinpath(STATISTICS_FILE).exists()
-    assert artifact_path.joinpath("entities.ftm.json").exists()
-    assert artifact_path.joinpath(DELTA_EXPORT_FILE).exists()
-    # Collections-only:
-    assert not artifact_path.joinpath(CATALOG_FILE).exists()
+    artifacts = {str(p.name) for p in artifact_path.glob("*")}
+    assert artifacts == {
+        # Everything gets archived
+        INDEX_FILE,
+        ISSUES_FILE,
+        ISSUES_LOG,
+        VERSIONS_FILE,
+        RESOURCES_FILE,
+        HASH_FILE,
+        DELTA_INDEX_FILE,
+        DELTA_EXPORT_FILE,
+        STATEMENTS_FILE,
+        STATISTICS_FILE,
+        "source.csv",
+        # Collections-only:
+        # CATALOG_FILE,
+    } | STANDARD_EXPORTS  # fmt: skip
 
     # Only index and real resources get published.
-    assert release_path.joinpath(INDEX_FILE).exists()
-    assert release_path.joinpath("entities.ftm.json").exists()
-    assert not release_path.joinpath(STATEMENTS_FILE).exists()
-    assert not release_path.joinpath(STATISTICS_FILE).exists()
-    assert not release_path.joinpath(ISSUES_LOG).exists()
-    assert not release_path.joinpath(VERSIONS_FILE).exists()
-    assert not release_path.joinpath(RESOURCES_FILE).exists()
-    assert not release_path.joinpath(HASH_FILE).exists()
-    assert not release_path.joinpath(DELTA_INDEX_FILE).exists()
-    assert not release_path.joinpath(DELTA_EXPORT_FILE).exists()
-    assert not release_path.joinpath(CATALOG_FILE).exists()
-
-    assert not latest_path.joinpath(INDEX_FILE).exists()
+    release_artifacts = {str(p.name) for p in release_path.glob("*")}
+    assert release_artifacts == {
+        INDEX_FILE,
+        "source.csv",
+    } | STANDARD_EXPORTS  # fmt: skip
+    # Nothing's published to 'latest'
+    latest_artifacts = {str(p.name) for p in latest_path.glob("*")}
+    assert latest_artifacts == set()
 
     publish_dataset(testdataset1, republish_to_latest=True)
     assert latest_path.joinpath(INDEX_FILE).exists()
@@ -147,35 +152,38 @@ def test_publish_collection(testdataset1: Dataset, collection: Dataset):
     assert history is not None
     assert history.latest is not None
     artifact_path = artifacts_path / collection.name / history.latest.id
-    assert artifact_path.exists()
-    # Everything gets archived
-    assert artifact_path.joinpath(INDEX_FILE).exists()
-    assert artifact_path.joinpath("entities.ftm.json").exists()
-    assert artifact_path.joinpath(ISSUES_FILE).exists()
-    assert artifact_path.joinpath(VERSIONS_FILE).exists()
-    assert artifact_path.joinpath(RESOURCES_FILE).exists()
-    assert artifact_path.joinpath(HASH_FILE).exists()
-    assert artifact_path.joinpath(DELTA_INDEX_FILE).exists()
-    assert artifact_path.joinpath(STATISTICS_FILE).exists()
-    # Collections get a catalog.json
-    assert artifact_path.joinpath(CATALOG_FILE).exists()
-    # Collections don't crawl, so statements.pack is never produced.
-    assert not artifact_path.joinpath(STATEMENTS_FILE).exists()
-    # No issue was logged during this export, so the lazily-created
-    # issues.log was never written.
-    assert not artifact_path.joinpath(ISSUES_LOG).exists()
+    artifacts = {str(p.name) for p in artifact_path.glob("*")}
+    assert artifacts == {
+        # Everything gets archived
+        INDEX_FILE,
+        ISSUES_FILE,
+        VERSIONS_FILE,
+        RESOURCES_FILE,
+        HASH_FILE,
+        DELTA_INDEX_FILE,
+        DELTA_EXPORT_FILE,
+        STATISTICS_FILE,
+        # Collections get a catalog.json
+        CATALOG_FILE,
+        # Collections don't crawl, so statements.pack is never produced.
+        # STATEMENTS_FILE
+        # No issue was logged during this export, so the lazily-created
+        # issues.log was never written.
+        # ISSUES_LOG
+    } | STANDARD_EXPORTS  # fmt: skip
 
+    release_artifacts = {str(p.name) for p in release_path.glob("*")}
     # Only index, catalog, and real resources get published.
-    assert release_path.joinpath(INDEX_FILE).exists()
-    assert release_path.joinpath(CATALOG_FILE).exists()
-    assert release_path.joinpath("entities.ftm.json").exists()
-    assert latest_path.joinpath(INDEX_FILE).exists()
-    assert latest_path.joinpath(CATALOG_FILE).exists()
-    assert latest_path.joinpath("entities.ftm.json").exists()
     # Artifact-only files don't leak into /datasets/.
-    assert not release_path.joinpath(ISSUES_LOG).exists()
-    assert not release_path.joinpath(VERSIONS_FILE).exists()
-    assert not release_path.joinpath(HASH_FILE).exists()
+    assert release_artifacts == {
+        INDEX_FILE,
+        CATALOG_FILE,
+    } | STANDARD_EXPORTS  # fmt: skip
+    latest_artifacts = {str(p.name) for p in latest_path.glob("*")}
+    assert latest_artifacts == {
+        INDEX_FILE,
+        CATALOG_FILE,
+    } | STANDARD_EXPORTS  # fmt: skip
 
 
 def test_archive_failure(testdataset1: Dataset):
@@ -218,7 +226,7 @@ def test_archive_failure(testdataset1: Dataset):
         # RESOURCES_FILE,
         # HASH_FILE,
         # DELTA_INDEX_FILE,
-    }
+    }  # fmt: skip
 
     # We don't want failed runs to end up in /datasets
     assert len(list(latest_path.glob("*"))) == 0
@@ -269,7 +277,7 @@ def test_archive_collection_failure(
         # RESOURCES_FILE,
         # HASH_FILE,
         # DELTA_INDEX_FILE,
-    }
+    }  # fmt: skip
 
     assert len(list(latest_path.glob("*"))) == 0
     assert len(list(release_path.glob("*"))) == 0
