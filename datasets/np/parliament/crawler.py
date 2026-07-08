@@ -32,8 +32,12 @@ CHAMBERS = [
     ),
 ]
 
-# member_type values that denote actual parliamentarians; the rest are secretariat/staff.
+# member_type values that denote actual parliamentarians.
 MP_TYPES = {"member", "speaker", "vicespeaker"}
+# member_type values for secretariat/staff, who are out of scope. Enumerated (rather than
+# skipping everything that is not an MP) so a genuinely new member_type surfaces as a
+# warning instead of being silently dropped.
+NON_MP_TYPES = {"staff", "secretariat", "generalsecretariat"}
 
 # Fields left unused; passed to audit_data so new fields surface as warnings.
 IGNORE = [
@@ -59,7 +63,7 @@ IGNORE = [
     "district",
     "representation_type",
     "election_type",
-    "name",  # National Assembly only; same value as the "en" translation
+    "name",  # top-level convenience copy of the "en" translation name
     "designation",
     "description",
 ]
@@ -94,7 +98,12 @@ def crawl_member(
     record: dict[str, Any],
 ) -> None:
     member_type = record.pop("member_type")
+    if member_type in NON_MP_TYPES:
+        return
     if member_type not in MP_TYPES:
+        context.log.warning(
+            "Unknown member_type", member_type=member_type, id=record["id"]
+        )
         return
 
     names = {
