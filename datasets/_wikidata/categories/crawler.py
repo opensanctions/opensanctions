@@ -83,12 +83,9 @@ def crawl_position(state: CrawlState, person: Entity, claim: Claim) -> None:
     if position is None or position.id is None:
         state.ignore_positions.add(item.id)
         return
-    if item.id != claim.qid:
-        state.context.log.warning(
-            "Redirected position QID",
-            original=claim.qid,
-            redirected=item.id,
-        )
+    if item.id != claim.qid and claim.qid is not None:
+        state.context.resolver.rename_node(claim.qid, item.id)
+        state.context.flush()
 
     occupancy = wikidata_occupancy(state.context, person, position, claim)
     if occupancy is not None:
@@ -150,7 +147,11 @@ def crawl_category(state: CrawlState, category_crawl_spec: Dict[str, Any]) -> No
     position: Optional[Entity] = None
     if "name" in position_data:
         position = h.make_position(
-            state.context, **position_data, id_hash_prefix="wd-cat"
+            state.context,
+            **position_data,
+            # Our position specs in the metadata are always in English
+            lang="eng",
+            id_hash_prefix="wd-cat",
         )
 
     query_string = urlencode(query)

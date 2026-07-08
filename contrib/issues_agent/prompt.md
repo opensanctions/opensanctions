@@ -10,10 +10,11 @@ This is an enrichment dataset — it has no dataset-local crawler code, so the o
 Your task is to fix as many warnings as you confidently can and submit a single combined PR.
 
 {% if code_path %}
-## Two kinds of fix
+## Three kinds of fix
 
 1. **Lookups (preferred — always try this first).** Most value-level dirt (an unmapped country, an unparseable date, an unknown gender) is fixed by adding a lookup option to {{ yaml_path }}. Lookups are low-risk and reviewable, so reach for them whenever they can express the fix.
 2. **Crawler code changes.** When a warning cannot be expressed as a lookup — e.g. a parsing bug, a field read from the wrong column, a value that needs transforming before it is added — you may edit the crawler at {{ code_path }} instead. Keep the change as small and targeted as possible.
+3. **Static data fixes.** Some crawlers read a repository-owned data file, such as CSV or YAML, containing data extracted from sources that are difficult to automate. Update these files when a warning identifies new source data. Preserve the existing schema and follow any dataset-specific instructions in the metadata or crawler comments.
 {% else %}
 ## How to fix
 
@@ -67,7 +68,7 @@ Some warnings are deliberate signals for a maintainer to investigate, not someth
 {% endif %}
 - When adding lookups, NEVER define new YAML options or structures beyond what the datapatch reference describes. Editing existing `assertions:` thresholds is allowed, as described above.
 {% if code_path %}
-- NEVER modify any file other than {{ yaml_path }} and {{ code_path }}.
+- NEVER modify files outside {{ crawler_dir }}.
 {% else %}
 - NEVER modify any file other than {{ yaml_path }}.
 {% endif %}
@@ -80,8 +81,8 @@ Some warnings are deliberate signals for a maintainer to investigate, not someth
 1. Read `zavod/docs/best_practices/datapatch_lookups.md` in full before producing any fixes. The lookup YAML format and the warning-to-recipe mapping in that file are authoritative; do not rely on memory or invent syntax.
 2. Fetch {{ issues_url }} and parse the JSON.
 3. Group entries by the `message` field to identify recurring patterns.
-4. For each fixable group, decide which fix applies: a lookup, an assertion-threshold widening, {% if code_path %}or a crawler code change{% else %}or skip it if neither fits{% endif %}. For lookups, follow the consolidation rule under "Result values" in the doc — merge inputs that share a result, keep inputs with different results separate. Respect the existing lookup conventions in the file (lookup names, casing flags, ordering).
-5. Apply the fixes: edit {{ yaml_path }}{% if code_path %}, and {{ code_path }} where a code change is warranted{% endif %}.
+4. For each fixable group, decide which fix applies: a lookup, an assertion-threshold widening, {% if code_path %}a crawler code change, or a static data update{% else %}or skip it if neither fits{% endif %}. For lookups, follow the consolidation rule under "Result values" in the doc — merge inputs that share a result, keep inputs with different results separate. Respect the existing lookup conventions in the file (lookup names, casing flags, ordering).
+5. Apply the fixes: edit {{ yaml_path }}{% if code_path %}, {{ code_path }}, and any directly referenced static data file required by the warning{% endif %}.
 {% if code_path %}
 6. Verify your changes:
    - Any code change MUST pass the same checks CI runs, or the PR is dead on arrival: `mypy --strict {{ code_path }}` and `ruff check {{ code_path }}` (and `ruff format`). Note that raw lxml `.xpath()` returns `Any` and fails strict mode — use the typed `h.xpath_*` helpers. Do not open the PR if these fail.

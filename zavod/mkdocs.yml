@@ -52,6 +52,7 @@ nav:
   - context.md
   - helpers.md
   - Best practices:
+      - best_practices/strict_interpretation.md
       - best_practices/caching.md
       - best_practices/patterns.md
       - best_practices/addresses.md

@@ -1,10 +1,10 @@
 import re
 from typing import Any
-from normality import collapse_spaces, slugify
+from normality import slugify
 
 from zavod import Context
 from zavod import helpers as h
-from zavod.helpers.xml import ElementOrTree
+from zavod.util import ElementOrTree
 from zavod.extract.zyte_api import fetch_html
 
 
@@ -70,10 +70,10 @@ def crawl_program(
     headers = None
     for row in table.findall(".//tr"):
         if headers is None:
-            headers = [slugify(el.text_content()) for el in row.findall("./th")]
+            headers = [slugify(h.element_text(el)) for el in row.findall("./th")]
             continue
 
-        cells = [collapse_spaces(el.text_content()) for el in row.findall("./td")]
+        cells = [h.element_text(el) for el in row.findall("./td")]
         data = {hdr: c for hdr, c in zip(headers, cells)}
 
         name_field = data.pop("name-of-entity", data.pop("entity-name", None))
@@ -161,8 +161,8 @@ def crawl(context: Context) -> None:
         section_link = program_container.find(".//a")
 
         if description is not None and section_link is not None:
-            section = section_link.text_content()
-            program = f"{description.text_content()} - {section}"
+            section = h.element_text(section_link)
+            program = f"{h.element_text(description)} - {section}"
             crawl_program(context, table, program, section)
         else:
             context.log.warning("Couldn't get program text for table.")

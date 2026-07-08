@@ -4,6 +4,7 @@ repos:
     hooks:
       - id: check-yaml
       - id: trailing-whitespace
+        exclude: '\.html?$'
       - id: check-merge-conflict
   - repo: local
     hooks:

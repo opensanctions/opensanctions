@@ -33,12 +33,27 @@ publisher:
 url: "https://ror.org/registry/"
 
 inputs:
+  - ann_graph_topics
+  - c4ads_xinjiang
+  - c4ads_xinjiang_mining
   - ca_named_research_orgs
+  - eiti_soe
+  - eu_edes
+  - eu_esma_sanctions
+  - eu_esma_saris
   - eu_sanctions
+  - ext_gleif
+  - gem_energy_ownership
   - no_nbim_exclusions
+  - permid
+  - research
+  - shu_uyghur_companies
   - special_interest
-  - us_bis_oac
+  - ua_war_sanctions
   - us_bis_antiboycott
+  - us_bis_denied
+  - us_bis_export
+  - us_bis_oac
   - us_ddtc_debarred
   - us_ddtc_enforcements
   - us_fcc_covered_list
@@ -48,12 +63,13 @@ inputs:
   - us_sec_pause
   - us_special_leg
   - us_trade_csl
-  - us_bis_denied
 
 config:
   topic_gated: true
   index_options:
     memory: 2000
+    max_bucket_size: 150
+  threshold: 0.3
   topics:
     - role.pep
     - role.rca
@@ -72,12 +88,12 @@ config:
     - Company
     - Organization
     - LegalEntity
-    # - Person
+    - PublicBody
 
 assertions:
   min:
     schema_entities:
-      Organization: 210
+      Organization: 30
   max:
     schema_entities:
       Organization: 500

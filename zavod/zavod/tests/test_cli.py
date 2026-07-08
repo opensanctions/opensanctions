@@ -2,6 +2,7 @@ import shutil
 
 from click.testing import CliRunner
 from followthemoney.dataset import VersionHistory
+from nomenklatura.db import make_session
 
 from zavod import settings
 from zavod.archive import dataset_state_path, dataset_resource_path, VERSIONS_FILE
@@ -145,25 +146,27 @@ def test_xref_dataset(testdataset1: Dataset):
     result = runner.invoke(cli, ["crawl", DATASET_1_YML.as_posix()], env=env)
     assert result.exit_code == 0, result.output
 
-    resolver = get_resolver()
-    resolver.begin()
-    assert len(resolver.edges) == 0
-    resolver.rollback()
+    with make_session() as session:
+        resolver = get_resolver(session)
+        resolver.load_into_memory()
+        assert list(resolver.get_candidates()) == []
+        assert list(resolver.get_judgements()) == []
 
     result = runner.invoke(
         cli, ["xref", "--rebuild-store", DATASET_1_YML.as_posix()], env=env
     )
     assert result.exit_code == 0, result.output
 
-    resolver = get_resolver()
-    resolver.begin()
-    assert len(resolver.edges) > 1
-    resolver.rollback()
+    with make_session() as session:
+        resolver = get_resolver(session)
+        resolver.load_into_memory()
+        assert len(list(resolver.get_candidates())) > 1
 
     result = runner.invoke(cli, ["resolver-prune"], env=env)
     assert result.exit_code == 0, result.output
 
-    resolver = get_resolver()
-    resolver.begin()
-    assert len(resolver.edges) == 0
-    resolver.rollback()
+    with make_session() as session:
+        resolver = get_resolver(session)
+        resolver.load_into_memory()
+        assert list(resolver.get_candidates()) == []
+        assert list(resolver.get_judgements()) == []

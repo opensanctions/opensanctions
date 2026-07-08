@@ -78,3 +78,10 @@ lookups:
     options:
       - match: 2002
         value: null
+      # Legitimate organisation names that trip the HTML/XSS smell detector because
+      # they contain the substring "Data:" (mistaken for a "data:" URI scheme).
+      - match:
+          - "Data:Lab Munich (Germany)"
+          - "GENSCALE: Algorithms for Genomic Data: Scalability, Precision and Sustainability"
+        silence_warnings:
+          - xss-html-smell

@@ -3,7 +3,7 @@ entry_point: crawler.py
 prefix: py-cgso
 coverage:
   frequency: monthly
-  start: 2026-06-23
+  start: 2026-06-26
 load_statements: true
 ci_test: true
 summary: >-
@@ -46,7 +46,7 @@ lookups:
 assertions:
   min:
     schema_entities:
-      Person: 550
+      Person: 480
       Position: 2
     country_entities:
       py: 100

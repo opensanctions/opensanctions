@@ -73,6 +73,7 @@ config:
     - role.rca
     - sanction
     - sanction.linked
+    - sanction.control
     - export.control
     - export.control.linked
     - debarment

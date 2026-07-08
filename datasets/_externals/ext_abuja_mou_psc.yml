@@ -50,9 +50,18 @@ config:
   topics:
     - sanction
     - sanction.linked
+    - sanction.control
+    - asset.frozen
+    - invest.ban
+    - invest.risk
+    - mare.shadow
+    - mare.detained
+    - mare.sts
     - export.control
     - export.control.linked
+    - export.risk
     - debarment
+    - poi
   schemata:
     - Company
     - Organization
@@ -66,5 +75,5 @@ assertions:
       Organization: 1
   max:
     schema_entities:
-      Vessel: 100
+      Vessel: 800
       Organization: 50

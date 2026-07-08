@@ -93,12 +93,22 @@ def crawl_councillor(context: Context, councillor_id: int) -> None:
         assert isinstance(body, dict)
         name = body.get("name")
         assert name is not None
+        # The API returns the chamber name in French regardless of lang; map it to
+        # the standard English position name and its Wikidata QID.
+        if name == "Conseil national":
+            position_name = "Member of the Swiss National Council"
+            wikidata_id = "Q18510612"
+        elif name == "Conseil des Etats":
+            position_name = "Member of the Swiss Council of States"
+            wikidata_id = "Q18510613"
+        else:
+            raise ValueError(f"Unexpected council name: {name!r}")
         position = h.make_position(
             context,
-            name=name,
+            name=position_name,
             country="ch",
             topics=["gov.legislative", "gov.national"],
-            # lang="eng",
+            wikidata_id=wikidata_id,
         )
         categorisation = categorise(context, position, default_is_pep=True)
         if not categorisation.is_pep:

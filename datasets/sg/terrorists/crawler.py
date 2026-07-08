@@ -18,8 +18,8 @@ PASSPORT = "Passport No."
 ADDITIONAL_LISTS_PAGE_URL = "https://www.mas.gov.sg/regulation/anti-money-laundering/targeted-financial-sanctions"
 ADDITIONAL_LISTS_DATA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRb11upZ07FLqPyMrglwkgBFfnBUaRgzmSS6m4l7jKRzvsEcYfikz7tdZb-NmeA-1Eh4p1-Ls2-lc-D/pub?gid=0&single=true&output=csv"
 OTHER_MEASURES_HASHES = {
-    "https://www.mas.gov.sg/regulation/notices/notice-snr-n01-1": "fa43d075a6b7e1099b401e61d5e1f1945cb9b8bc",
-    "https://www.mas.gov.sg/regulation/notices/notice-snr-n03": "f9a595a874e06c1c7610f05ad9fda3c5b96ed4c4",
+    "https://www.mas.gov.sg/regulation/notices/notice-snr-n01-1": "a8ce0ccfb530a4ec87310c851579718dfa6ce79b",
+    "https://www.mas.gov.sg/regulation/notices/notice-snr-n03": "c1bea2e00ee5cae6137d7681157f9deac922cec8",
 }
 
 

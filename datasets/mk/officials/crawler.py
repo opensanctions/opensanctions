@@ -47,6 +47,7 @@ def crawl_row(context: Context, row: dict[str, str]) -> None:
         position_names[0],
         country="mk",
         lang="mkd",
+        translate_name=True,
     )
     position.add("name", position_names[1:])
 

@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from typing import Optional, NamedTuple, List
 import orjson
 
@@ -5,7 +6,7 @@ from zavod.context import Context
 from zavod.entity import Entity
 from zavod.exc import ConfigurationException
 from zavod.extract.llm import run_text_prompt, DEFAULT_MODEL
-from zavod.extract.names.clean import LangText
+from zavod.util import LangText
 from zavod import helpers as h
 
 
@@ -45,8 +46,17 @@ names, do not separate them in the output but adhere strictly to the output spec
 """
 POSITION_TRANS_PROMPT = """
 Translate the following public office position label from the language denoted by the
- ISO 639-2 code {code}, returning a JSON object where the key 'eng' has the value in
- English.
+ ISO 639-2 code {code} into English, returning a JSON object where the key 'eng' has
+ the value in English.
+
+Keep place names (countries, cities, regions, administrative areas) intact rather than
+ translating their meaning. Only replace a place name with its established English
+ exonym for very common, widely recognised cases — e.g. "Россия" → "Russia", "Москва"
+ → "Moscow", "Wien" → "Vienna", "München" → "Munich". For anything less obvious, err
+ on the side of keeping the original place name: if it is already in Latin script,
+ keep it verbatim (e.g. "São Paulo" stays "São Paulo", not "Saint Paul"); if it is in
+ a non-Latin script, transliterate it to Latin script rather than translating it
+ (e.g. "Карачаево-Черкесия" → "Karachayevo-Cherkesiya", not "Karachay-Cherkessia").
 """
 
 
@@ -67,13 +77,24 @@ def make_position_translation_prompt(input_code: str) -> str:
     return POSITION_TRANS_PROMPT.format(code=input_code)
 
 
-class TranslationResult(NamedTuple):
+@dataclass(frozen=True, kw_only=True)
+class TranslationResult:
     texts: List[LangText]
     cache_key: Optional[str]
     """Cache key of the underlying run_text_prompt response, set only when
     the response was parsed and accepted. Callers that do additional
     per-result validation can drop this entry via context.cache.delete()
     so a later run can retry."""
+    origin: str
+    """The model that produced the translation. Suitable for passing as the
+    ``origin`` when applying the resulting values to an entity."""
+
+    def get_english(self) -> Optional[LangText]:
+        """Return the English ``LangText`` from ``texts``, or None if absent."""
+        for text in self.texts:
+            if text.lang == "eng":
+                return text
+        return None
 
 
 def run_translation_prompt(
@@ -104,7 +125,7 @@ def run_translation_prompt(
         response = run_text_prompt(context, prompt, text, model=model)
     except ConfigurationException as ce:
         context.log.error("LLM translation skipped: %s" % ce.message)
-        return TranslationResult([], None)
+        return TranslationResult(texts=[], cache_key=None, origin=model)
     try:
         trans_by_lang = orjson.loads(response.content)
     except orjson.JSONDecodeError:
@@ -116,7 +137,7 @@ def run_translation_prompt(
             model=model,
             response_content=response.content,
         )
-        return TranslationResult([], None)
+        return TranslationResult(texts=[], cache_key=None, origin=model)
     if not set(trans_by_lang.keys()).issubset(output_langs):
         context.cache.delete(response.cache_key)
         context.log.warning(
@@ -127,14 +148,33 @@ def run_translation_prompt(
             response_content=response.content,
             expected=sorted(output_langs),
         )
-        return TranslationResult([], None)
+        return TranslationResult(texts=[], cache_key=None, origin=model)
     results: List[LangText] = []
     for lang in output_langs:
         value = trans_by_lang.get(lang)
         if not isinstance(value, str) or not value.strip():
             continue
         results.append(LangText(text=value, lang=lang))
-    return TranslationResult(results, response.cache_key)
+    return TranslationResult(texts=results, cache_key=response.cache_key, origin=model)
+
+
+def translate_position_name(
+    context: Context,
+    label: LangText,
+    *,
+    model: str = DEFAULT_MODEL,
+) -> TranslationResult:
+    """Translate a public office position label into English.
+
+    ``label`` carries the source text and its language in ``label.lang``,
+    which must be set. Builds the position-translation prompt for that
+    language and runs it. Use ``result.get_english()`` to read the English
+    ``LangText`` (None if none was produced) and ``result.origin`` as the
+    ``origin`` when applying it to an entity.
+    """
+    assert label.lang is not None, "Source language is required for translation"
+    prompt = make_position_translation_prompt(label.lang)
+    return run_translation_prompt(context, prompt=prompt, text=label.text, model=model)
 
 
 def apply_translit_names(

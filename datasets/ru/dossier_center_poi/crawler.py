@@ -33,7 +33,7 @@ def paginate_crawl(
 def crawl_persons_list(
     context: Context, url: str, accomplices: bool = False
 ) -> str | None:
-    doc = context.fetch_html(url, cache_days=1, absolute_links=True)
+    doc = context.fetch_html(url, cache_days=1, absolute_links=True, encoding="utf-8")
 
     for anchor_url in h.xpath_strings(doc, '//div[@class="b-archive-item"]//a/@href'):
         crawl_person(context, anchor_url, accomplices)
@@ -45,7 +45,7 @@ def crawl_persons_list(
 
 
 def crawl_person(context: Context, url: str, accomplice: bool = False) -> None:
-    doc = context.fetch_html(url, cache_days=1)
+    doc = context.fetch_html(url, cache_days=1, encoding="utf-8")
 
     person_name = get_element_text(
         doc, '//div[@class="b-pr-section__field bottom-gap p-compact"]//p[1]'
@@ -94,7 +94,7 @@ def crawl_person(context: Context, url: str, accomplice: bool = False) -> None:
     )
 
     person = context.make("Person")
-    person.id = context.make_slug(person_name)
+    person.id = context.make_id(url)
     person.add("name", person_name, lang="rus")
     person.add("name", latinised)
     person.add("sourceUrl", url)

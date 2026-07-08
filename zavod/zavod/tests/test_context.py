@@ -5,6 +5,7 @@ import pytest
 import requests_mock
 import structlog
 from requests.adapters import HTTPAdapter
+from rigour.urls import build_url
 from followthemoney.statement import read_statements, PACK
 
 from zavod import settings
@@ -149,6 +150,30 @@ def test_context_get_fetchers(testdataset1: Dataset):
     context.close()
 
 
+def test_context_fetch_text_encoding_cache(testdataset1: Dataset):
+    context = Context(testdataset1)
+    url = "https://test.com/encoding"
+    body = "商务部".encode("utf-8")
+
+    with requests_mock.Mocker() as m:
+        m.get(url, content=body, headers={"Content-Type": "text/html"})
+
+        mojibake = context.fetch_text(url, cache_days=14)
+        assert mojibake != "商务部"
+
+        text = context.fetch_text(url, cache_days=14, encoding="utf-8")
+        assert text == "商务部"
+
+        cached = context.fetch_text(url, cache_days=14, encoding="utf-8")
+        assert cached == "商务部"
+        assert m.call_count == 2
+
+    default_fingerprint = request_hash(url, method="GET")
+    encoded_fingerprint = request_hash(url, method="GET", encoding="utf-8")
+    assert default_fingerprint != encoded_fingerprint
+    context.close()
+
+
 def test_context_post_fetchers(testdataset1: Dataset):
     context = Context(testdataset1)
 
@@ -240,6 +265,49 @@ def test_context_fetchers_exceptions(testdataset1: Dataset):
 
     # Checking that cleanup function wiped the cache properly
     assert list(context.cache.all(None)) == []
+
+    context.close()
+
+
+def test_context_clear_url(testdataset1: Dataset):
+    context = Context(testdataset1)
+    url = "https://test.com/bla"
+
+    with requests_mock.Mocker() as m:
+        m.get("/bla", text="Hello, World!")
+        assert context.fetch_text(url, cache_days=14) == "Hello, World!"
+        # Second read is served from cache, so the server is only hit once.
+        assert context.fetch_text(url, cache_days=14) == "Hello, World!"
+        assert m.call_count == 1
+
+    # clear_url takes the URL (not a pre-hashed fingerprint) and evicts the entry.
+    assert context.cache.get(request_hash(url, method="GET"), max_age=14) is not None
+    context.clear_url(url)
+    assert context.cache.get(request_hash(url, method="GET"), max_age=14) is None
+
+    # With the entry gone, the next fetch re-hits the server.
+    with requests_mock.Mocker() as m:
+        m.get("/bla", text="Fresh, World!")
+        assert context.fetch_text(url, cache_days=14) == "Fresh, World!"
+        assert m.call_count == 1
+
+    # The fingerprint depends on the fetch args, so clearing with mismatched args
+    # leaves the cached entry in place.
+    with requests_mock.Mocker() as m:
+        m.get("/bla", text="Param, World!")
+        assert (
+            context.fetch_text(url, params={"q": "1"}, cache_days=14) == "Param, World!"
+        )
+    context.clear_url(url)  # no params: different fingerprint, no eviction
+    assert (
+        context.cache.get(request_hash(build_url(url, {"q": "1"}), method="GET"), 14)
+        is not None
+    )
+    context.clear_url(url, params={"q": "1"})
+    assert (
+        context.cache.get(request_hash(build_url(url, {"q": "1"}), method="GET"), 14)
+        is None
+    )
 
     context.close()
 

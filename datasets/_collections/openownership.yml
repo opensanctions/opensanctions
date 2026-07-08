@@ -1,6 +1,7 @@
 type: collection
 title: Open Ownership Datasets
 hidden: true
+disabled: true
 deploy:
   memory: "2000Mi"
   disk: "100Gi"
