@@ -1,15 +1,16 @@
 import csv
 from collections import defaultdict
 from dataclasses import dataclass, field
+from datetime import datetime
 from io import StringIO
 from typing import Any, Dict, List, Optional, Set
 from urllib.parse import urlencode
 
+from nomenklatura.wikidata import Claim, WikidataClient
+from nomenklatura.wikidata.value import clean_wikidata_name
 from rigour.time import iso_datetime
 
-from nomenklatura.wikidata import Claim, WikidataClient
 from zavod.shed.wikidata.human import wikidata_basic_human
-from nomenklatura.wikidata.value import clean_wikidata_name
 from zavod.shed.wikidata.position import (
     position_holders,
     wikidata_occupancy,
@@ -62,7 +63,7 @@ class CrawlState(object):
         self._emitted_positions: Set[str] = set()
         exc = [str(x) for x in context.dataset.config.get("exclusion_checks", [])]
         self.exclusion_checks: Set[str] = set(exc)
-        self.person_modified_at: Dict[str, str] = {}
+        self.person_modified_at: Dict[str, datetime] = {}
 
     def emit_position(self, position: Entity) -> None:
         if position.id is None:
@@ -116,7 +117,7 @@ def crawl_position(state: CrawlState, person: Entity, claim: Claim) -> None:
 
 
 def crawl_person(state: CrawlState, qid: str, recurse: bool = True) -> Optional[Entity]:
-    modified_at = iso_datetime(state.person_modified_at.get(qid))
+    modified_at = state.person_modified_at.get(qid)
     item = state.client.fetch_item(qid, modified_at=modified_at)
     if item is None:
         return None
@@ -203,7 +204,7 @@ def crawl_category(state: CrawlState, category_crawl_spec: Dict[str, Any]) -> No
 
 
 def crawl_position_holder(state: CrawlState, position_qid: str) -> Set[str]:
-    persons: Set[str] = set()
+    persons: Set[str] = set([])
 
     if position_qid in state.ignore_positions:
         return persons
@@ -218,8 +219,10 @@ def crawl_position_holder(state: CrawlState, position_qid: str) -> Set[str]:
 
     # find person QIDs such that person --( P39 position held )--> position_qid
     holders = position_holders(state.client, item)
-    state.person_modified_at.update(holders)
     persons.update(holders.keys())
+    for person_qid, modified_at in holders.items():
+        if modified_at is not None:
+            state.person_modified_at[person_qid] = modified_at
 
     # find person QIDs such that position_qid --( P1308 officeholder )--> person
     for claim in item.claims:
@@ -275,7 +278,9 @@ def crawl_declarator(state: CrawlState) -> None:
             continue
         modified_at = result.plain("modifiedAt")
         if modified_at is not None:
-            state.person_modified_at[person_qid] = modified_at
+            modified_datetime = iso_datetime(modified_at)
+            if modified_datetime is not None:
+                state.person_modified_at[person_qid] = modified_datetime
         state.persons[person_qid] = FoundRecord(from_declarator=True)
         if person_qid not in state.person_topics:
             state.person_topics[person_qid] = set()

@@ -1,8 +1,9 @@
 from collections import defaultdict
 from typing import Optional, List, Generator, NamedTuple, Set
+from datetime import datetime
+
 from rigour.ids.wikidata import is_qid
 from rigour.territories import get_territories, get_territory_by_qid
-from rigour.time import iso_datetime
 from nomenklatura.wikidata import WikidataClient, SparqlBinding
 
 from zavod import Context
@@ -39,14 +40,11 @@ def crawl_holder(
     client: WikidataClient,
     position: Entity,
     person_qid: str,
-    modified_at: Optional[str] = None,
+    modified_at: Optional[datetime] = None,
 ) -> Optional[Entity]:
     if not is_qid(person_qid):
         return None
-    item = client.fetch_item(
-        person_qid,
-        modified_at=iso_datetime(modified_at),
-    )
+    item = client.fetch_item(person_qid, modified_at=modified_at)
     if item is None:
         return None
     if item.id != person_qid:

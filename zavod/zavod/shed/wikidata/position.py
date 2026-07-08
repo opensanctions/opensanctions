@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import Dict, Optional, Set
 
 from followthemoney import registry
@@ -6,6 +6,7 @@ from nomenklatura.wikidata import Item, WikidataClient, Claim
 from nomenklatura.wikidata.lang import MULTI_LANG
 from nomenklatura.wikidata.value import clean_wikidata_name
 from rigour.territories import get_territory_by_qid
+from rigour.time import iso_datetime
 
 from zavod import Context, Entity
 from zavod import helpers as h
@@ -238,20 +239,9 @@ def wikidata_position(
     return position
 
 
-def days_since_modified(modified_at: Optional[str]) -> Optional[int]:
-    """Return the number of whole days since a Wikidata schema:dateModified timestamp.
-
-    Returns None when no timestamp is provided.
-    """
-    if modified_at is None:
-        return None
-
-    modified = datetime.strptime(modified_at, "%Y-%m-%dT%H:%M:%SZ")
-    modified = modified.replace(tzinfo=timezone.utc)
-    return max(0, (datetime.now(timezone.utc) - modified).days)
-
-
-def position_holders(client: WikidataClient, item: Item) -> Dict[str, str]:
+def position_holders(
+    client: WikidataClient, item: Item
+) -> Dict[str, Optional[datetime]]:
     """Find persons who have held the position defined by `item`. This performs
     the inverted lookup on property P39 (position held). Independently, the crawler
     should check property P1308 (officeholder) on the position item itself.
@@ -265,14 +255,13 @@ def position_holders(client: WikidataClient, item: Item) -> Dict[str, str]:
         ?person schema:dateModified ?modifiedAt .
     }}
     """
-    holders: Dict[str, str] = {}
+    holders: Dict[str, Optional[datetime]] = {}
     response = client.query(query, client.CACHE_SHORT)
     for result in response.results:
         person_qid = result.plain("person")
         modified_at = result.plain("modifiedAt")
         if person_qid is not None:
-            assert modified_at is not None, (person_qid, item.id)
-            holders[person_qid] = modified_at
+            holders[person_qid] = iso_datetime(modified_at)
 
     return holders
 
