@@ -255,3 +255,33 @@ lookups:
         values:
           - 1980
           - 1982
+      - match: EXACT_04/07/1964_1964__
+        value: 1964-07-04
+      - match: EXACT_20/04/1963_1963__
+        value: 1963-04-20
+      - match: EXACT_18/05/1966_1966__
+        value: 1966-05-18
+      - match: EXACT_08/08/1970_1970__
+        value: 1970-08-08
+      - match: EXACT_21/07/1977_1977__
+        value: 1977-07-21
+      - match: EXACT_28/11/1974_1974_لبنان_Lebanon
+        value: 1974-11-28
+      - match: EXACT_29/06/1978_1978__
+        value: 1978-06-29
+      - match: EXACT_21/02/1987_1987__
+        value: 1987-02-21
+      - match: EXACT_25/09/1969_1969__
+        value: 1969-09-25
+      - match: EXACT_17/07/1977_1977__
+        value: 1977-07-17
+      - match: EXACT_01/11/1967_1967_لبنان_Lebanon
+        value: 1967-11-01
+      - match: EXACT_06/08/1973_1973__
+        value: 1973-08-06
+      - match: EXACT_29/06/1979_1979__
+        value: 1979-06-29
+      - match: EXACT_23/02/1961_1961__
+        value: 1961-02-23
+      - match: EXACT_14/07/1975_1975__
+        value: 1975-07-14
