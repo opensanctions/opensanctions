@@ -66,7 +66,7 @@ def cell_lines(cell: Element) -> list[str]:
     return [line.strip() for line in h.xpath_strings(cell, ".//text()") if line.strip()]
 
 
-def crawl_member_bio(context: Context, url: str) -> None:
+def crawl_member_bio(context: Context, url: str) -> bool:
     doc = zyte_api.fetch_html(
         context,
         url,
@@ -130,7 +130,7 @@ def crawl_member_bio(context: Context, url: str) -> None:
 
     categorisation = categorise(context, position)
     if not categorisation.is_pep:
-        return
+        return False
 
     occupancy = h.make_occupancy(
         context,
@@ -140,11 +140,13 @@ def crawl_member_bio(context: Context, url: str) -> None:
         period_end=period_end,
         categorisation=categorisation,
     )
-    if occupancy is not None:
-        occupancy.add("politicalGroup", political_group)
-        context.emit(person)
-        context.emit(position)
-        context.emit(occupancy)
+    if occupancy is None:
+        return False
+    occupancy.add("politicalGroup", political_group)
+    context.emit(person)
+    context.emit(position)
+    context.emit(occupancy)
+    return True
 
 
 # Occupancy tenure line, e.g. "Member of the Seimas from 2012-11-16 till
@@ -181,7 +183,7 @@ def get_birth_details(doc: Element) -> tuple[str | None, str | None]:
     return value_lines[0], value_lines[1]
 
 
-def crawl_old_member_bio(context: Context, url: str) -> None:
+def crawl_old_member_bio(context: Context, url: str) -> bool:
     doc = zyte_api.fetch_html(
         context,
         url,
@@ -234,7 +236,7 @@ def crawl_old_member_bio(context: Context, url: str) -> None:
 
     categorisation = categorise(context, position)
     if not categorisation.is_pep:
-        return
+        return False
 
     occupancy = h.make_occupancy(
         context,
@@ -244,12 +246,13 @@ def crawl_old_member_bio(context: Context, url: str) -> None:
         end_date=end_date,
         categorisation=categorisation,
     )
-
-    if occupancy is not None:
-        occupancy.add("politicalGroup", sorted(political_groups))
-        context.emit(person)
-        context.emit(position)
-        context.emit(occupancy)
+    if occupancy is None:
+        return False
+    occupancy.add("politicalGroup", sorted(political_groups))
+    context.emit(person)
+    context.emit(position)
+    context.emit(occupancy)
+    return True
 
 
 def crawl(context: Context) -> None:
@@ -268,8 +271,11 @@ def crawl(context: Context) -> None:
 
     current_member_urls = h.xpath_strings(doc, members_list_validator + "/@href")
     context.log.info("Current legislature", member_link_count=len(current_member_urls))
+    emitted = 0
     for anchor_url in current_member_urls:
-        crawl_member_bio(context, anchor_url)
+        if crawl_member_bio(context, anchor_url):
+            emitted += 1
+    context.log.info("Current legislature", emitted_count=emitted)
 
     ### === crawl older legislatures === ###
     # navigate the landing page that contains a table with older seimas
@@ -341,8 +347,11 @@ def crawl(context: Context) -> None:
 
             member_urls = h.xpath_strings(doc_seimas, members_list_validator + "/@href")
             context.log.info(seimas_label, member_link_count=len(member_urls))
+            emitted = 0
             for anchor_url in member_urls:
-                crawl_member_bio(context, anchor_url)
+                if crawl_member_bio(context, anchor_url):
+                    emitted += 1
+            context.log.info(seimas_label, emitted_count=emitted)
 
         # The older legislatures' layouts vary (they don't share the modern
         # list markup), but all link to each member via a "p_asm_id" query
@@ -363,5 +372,8 @@ def crawl(context: Context) -> None:
                 h.xpath_strings(doc_seimas, old_members_validator + "/@href")
             )
             context.log.info(seimas_label, member_link_count=len(old_member_urls))
+            emitted = 0
             for old_member_url in sorted(old_member_urls):
-                crawl_old_member_bio(context, old_member_url)
+                if crawl_old_member_bio(context, old_member_url):
+                    emitted += 1
+            context.log.info(seimas_label, emitted_count=emitted)
