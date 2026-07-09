@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Dict, Optional, Set
 
 from followthemoney import registry
@@ -5,6 +6,7 @@ from nomenklatura.wikidata import Item, WikidataClient, Claim
 from nomenklatura.wikidata.lang import MULTI_LANG
 from nomenklatura.wikidata.value import clean_wikidata_name
 from rigour.territories import get_territory_by_qid
+from rigour.time import iso_datetime
 
 from zavod import Context, Entity
 from zavod import helpers as h
@@ -13,6 +15,7 @@ from zavod.shed.trans import translate_position_name
 from zavod.util import LangText
 from zavod.stateful.positions import categorise
 from zavod.shed.wikidata.country import is_historical_country, item_countries
+
 
 POSITION_BASICS: Set[str] = {
     "Q4164871",  # position
@@ -236,25 +239,31 @@ def wikidata_position(
     return position
 
 
-def position_holders(client: WikidataClient, item: Item) -> Set[str]:
+def position_holders(
+    client: WikidataClient, item: Item
+) -> Dict[str, Optional[datetime]]:
     """Find persons who have held the position defined by `item`. This performs
     the inverted lookup on property P39 (position held). Independently, the crawler
     should check property P1308 (officeholder) on the position item itself.
+
+    Returns a dict mapping person QID → schema:dateModified timestamp (ISO 8601).
     """
     query = f"""
-    SELECT ?person WHERE {{
+    SELECT ?person ?modifiedAt WHERE {{
         ?person wdt:P39 wd:{item.id} .
-        ?person wdt:P31 wd:Q5
+        ?person wdt:P31 wd:Q5 .
+        ?person schema:dateModified ?modifiedAt .
     }}
     """
-    persons: Set[str] = set()
-    response = client.query(query)
+    holders: Dict[str, Optional[datetime]] = {}
+    response = client.query(query, client.CACHE_SHORT)
     for result in response.results:
         person_qid = result.plain("person")
+        modified_at = result.plain("modifiedAt")
         if person_qid is not None:
-            persons.add(person_qid)
+            holders[person_qid] = iso_datetime(modified_at)
 
-    return persons
+    return holders
 
 
 def wikidata_occupancy(
