@@ -161,13 +161,22 @@ def entity_dict(entity: Entity) -> Dict[str, Any]:
     return {"id": entity.id, "schema": entity.schema.name, "properties": properties}
 
 
-def make_row(edge: Edge, group: str, left: Entity, right: Entity) -> Dict[str, Any]:
+def make_row(
+    edge: Edge,
+    group: str,
+    left: Entity,
+    right: Entity,
+    left_cluster: str,
+    right_cluster: str,
+) -> Dict[str, Any]:
     return {
         "format_version": FORMAT_VERSION,
         "left": entity_dict(left),
         "right": entity_dict(right),
         "judgement": edge.judgement.value,
         "group": group,
+        "left_cluster": left_cluster,
+        "right_cluster": right_cluster,
         "source_id": edge.source.id,
         "target_id": edge.target.id,
         "created_at": edge.created_at,
@@ -231,18 +240,25 @@ def generate(scope: str, outdir: Path) -> Dict[str, Any]:
         edges = load_edges(resolver)
     log.info(f"Replaying {len(edges)} edges...")
 
-    # Components span every judged edge - negatives and automation included -
-    # because their pairs share evidence with the component's other pairs.
-    # This is what a leakage-safe train/test split downstream must respect.
+    # Two views of the final judgement graph. Positive-only clusters are the
+    # split unit: partition clusters, keep pairs whose sides fall in the same
+    # partition (see DATA.md). Full-graph components are diagnostic only -
+    # negative-edge chaining fuses about half of all pairs into one component.
     groups = UnionFind()
+    clusters = UnionFind()
     for edge in edges:
         groups.union(edge.source.id, edge.target.id)
+        if edge.judgement == Judgement.POSITIVE:
+            clusters.union(edge.source.id, edge.target.id)
 
     replay = UnionFind()
     group_cache: Dict[str, str] = {}
+    cluster_cache: Dict[str, str] = {}
     skips: Counter[str] = Counter()
     emitted: Counter[str] = Counter()
     pairs_per_group: Counter[str] = Counter()
+    pairs_per_cluster: Counter[str] = Counter()
+    contradictions = 0
 
     outdir.mkdir(parents=True, exist_ok=True)
     with open(outdir / "pairs.jsonl", "wb") as fh:
@@ -265,11 +281,22 @@ def generate(scope: str, outdir: Path) -> Dict[str, Any]:
                     skips[reason or "missing"] += 1
                 else:
                     group = group_label(groups, edge.source.id, group_cache)
-                    row = make_row(edge, group, left, right)
+                    left_cluster = group_label(clusters, edge.target.id, cluster_cache)
+                    right_cluster = group_label(clusters, edge.source.id, cluster_cache)
+                    if edge.judgement != Judgement.POSITIVE:
+                        if left_cluster == right_cluster:
+                            # A non-positive judgement inside one positive
+                            # cluster: the resolver graph contradicts itself.
+                            contradictions += 1
+                    row = make_row(
+                        edge, group, left, right, left_cluster, right_cluster
+                    )
                     fh.write(orjson.dumps(row, option=orjson.OPT_SORT_KEYS))
                     fh.write(b"\n")
                     emitted[edge.judgement.value] += 1
                     pairs_per_group[group] += 1
+                    pairs_per_cluster[left_cluster] += 1
+                    pairs_per_cluster[right_cluster] += 1
             # Register after emission: the pair reflects the cluster state the
             # decider saw, before their own judgement was applied.
             if edge.judgement == Judgement.POSITIVE:
@@ -284,6 +311,15 @@ def generate(scope: str, outdir: Path) -> Dict[str, Any]:
         "emitted_total": sum(emitted.values()),
         "skipped": dict(sorted(skips.items())),
         "components": component_stats(groups, group_cache, pairs_per_group),
+        "clusters": {
+            "positive_clusters": len(clusters.members),
+            "largest_nodes": max(
+                (len(m) for m in clusters.members.values()), default=0
+            ),
+            "distinct_in_output": len(cluster_cache),
+            "max_pair_sides_per_cluster": max(pairs_per_cluster.values(), default=0),
+            "contradictory_nonpositive_pairs": contradictions,
+        },
         "elapsed_seconds": round(time.monotonic() - started, 1),
     }
     with open(outdir / "summary.json", "wb") as fh:
