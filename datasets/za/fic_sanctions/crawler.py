@@ -2,6 +2,7 @@ import re
 
 from zavod import Context
 from zavod import helpers as h
+from zavod.stateful.review import assert_all_accepted
 
 
 REGEX_PASSPORT = re.compile(r"^[A-Z0-9-]{6,20}$")
@@ -126,3 +127,4 @@ def crawl(context: Context) -> None:
     potential_table = doc.find(".//Table2")
     if potential_table is not None:
         context.log.warning("Table2 found in source, but not yet implemented")
+    assert_all_accepted(context, raise_on_unaccepted=False)
