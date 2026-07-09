@@ -115,11 +115,14 @@ def _warn_about_stale_latest_files(dataset: Dataset, published_files: set[str]) 
 
 def archive_failure(dataset: Dataset) -> None:
     """Upload failure information about a dataset to the archive."""
-    # Collections currently should never call archive_failure (as that only gets called for crawl and validate).
-    # But if they ever did (for example to publish a failure in the export stage), we should think very well about
-    # what exactly a failed index.json for default should look like. Currently, it would have empty resources,
-    # and our clients likely wouldn't appreciate that.
-    assert not dataset.is_collection
+    # For collections, we used to refuse to archive_failure because we were worried about a failed
+    # `default/index.json` ending up at `/datasets/latest/default/index.json` with empty resources.
+    # That's no longer a concern: we stopped publishing failed `index.json` to `/datasets` in
+    # https://github.com/opensanctions/opensanctions/commit/476dcbc0088d5f92b9258244644e61754e85ffdb,
+    # and `index.json` carries an explicit `result: failure` since
+    # https://github.com/opensanctions/opensanctions/commit/ff9c602c66668393b66e79850fc1fb8810b899fa.
+    # So archiving a failed collection just lands a `result: failure` version in `/artifacts`,
+    # which is exactly what we want for surfacing the `issues.log`.
     # Clear out interim artifacts so they cannot pollute the metadata we're
     # generating.
     dataset_resource_path(dataset.name, STATEMENTS_FILE).unlink(missing_ok=True)

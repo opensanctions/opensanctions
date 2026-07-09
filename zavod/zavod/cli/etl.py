@@ -137,11 +137,7 @@ def run(
         set_last_successful_version(dataset, settings.RUN_VERSION)
     except Exception:
         log.exception("Failed to export: %s" % dataset_path)
-        # archive_failure currently does not support collections
-        # see https://github.com/opensanctions/opensanctions/issues/2459 for context
-        # and an effort to change this.
-        if not dataset.is_collection:
-            archive_failure(dataset)
+        archive_failure(dataset)
         store.close()
         sys.exit(1)
 
