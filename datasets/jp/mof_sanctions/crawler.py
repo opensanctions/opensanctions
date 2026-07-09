@@ -205,9 +205,12 @@ def emit_row(
         original=original,
         suggested=suggested,
         is_irregular=is_irregular,
-        # weak_alias and nickname fields often contain notes/descriptions rather
-        # than actual names, so require human review when they are present.
-        default_accepted=not (raw_weak_alias or raw_nickname),
+        # Only auto-accept clean names. Names still flagged as irregular (e.g. ones that
+        # contain brackets, colons or an _x000D_ carriage-return artifact) are held back
+        # for human review instead of being locked in as accepted. The weak_alias and
+        # nickname fields often hold notes/descriptions rather than names, so they are
+        # held back too.
+        default_accepted=not is_irregular and not (raw_weak_alias or raw_nickname),
     )
     entity.add_cast("Person", "position", row.pop("position", []), lang="eng")
 

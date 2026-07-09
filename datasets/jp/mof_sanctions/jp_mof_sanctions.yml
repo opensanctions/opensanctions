@@ -83,6 +83,22 @@ assertions:
       Organization: 300
       CryptoWallet: 70
 
+names:
+  schema_rules:
+    # Names still containing these are not clean enough to auto-accept in step 1;
+    # flag them as irregular so they are held back for human review.
+    LegalEntity:
+      # "/" is already rejected by the baseline.
+      reject_chars: "()（）:：;；"
+      reject_strings:
+        - "_x000D_"
+    Person:
+      # The half-width brackets, colon and semicolon are already rejected by the
+      # Person baseline; add the full-width variants common in the Japanese source.
+      reject_chars: "（）：；"
+      reject_strings:
+        - "_x000D_"
+
 lookups:
   schema:
     options:
