@@ -4,15 +4,22 @@
 FINRA listing pages are newest-first and served through inconsistent caches.
 Intermediate pages can temporarily render the "No results found" empty state
 even though reruns later return rows; pagination can also drift if the listing
-changes while a crawl is in progress.
+changes while a crawl is in progress. Stale Varnish entries can also return an
+older slice of the (shifting) list, so records skip or duplicate across pages.
 
-The Zyte fetch validator requires a populated table and rejects the empty-state
-marker so these pages are retried and, if persistent, abort the crawl instead
-of emitting a partial run. The crawler also aborts if the advertised last page
-changes after pagination has been established.
+Mitigations:
+
+- Every request carries a per-run `cache_bust` query parameter so Varnish
+  treats each page URL as unique and fetches fresh from origin.
+- The Zyte fetch validator requires a populated table and rejects the
+  empty-state marker so those pages are retried and, if persistent, abort the
+  crawl instead of emitting a partial run.
+- The crawler aborts if the advertised last page changes after pagination has
+  been established.
 """
 
 from lxml.etree import _Element
+from secrets import token_urlsafe
 from typing import Dict, Optional
 from urllib.parse import parse_qs, urljoin, urlparse
 
@@ -93,9 +100,12 @@ def crawl(context: Context) -> None:
     # when later pages still have data.
     page_num = 0
     max_page = None
+    # A single token for the whole crawl bypasses Varnish's stale per-page
+    # entries without varying between our own pages within one run.
+    cache_bust = token_urlsafe(8)
     while max_page is None or page_num <= max_page:
         context.log.info(f"Crawling page {page_num} of {max_page}")
-        url = context.data_url + "?page=" + str(page_num)
+        url = f"{context.data_url}?page={page_num}&cache_bust={cache_bust}"
         # Zyte because occasional cloudflare javascript challenge.
         response = zyte_api.fetch_html(
             context, url, RESULT_ROW_VALIDATOR, absolute_links=True
