@@ -266,7 +266,9 @@ def crawl(context: Context) -> None:
         absolute_links=True,
     )
 
-    for anchor_url in h.xpath_strings(doc, members_list_validator + "/@href"):
+    current_member_urls = h.xpath_strings(doc, members_list_validator + "/@href")
+    context.log.info("Current legislature", member_link_count=len(current_member_urls))
+    for anchor_url in current_member_urls:
         crawl_member_bio(context, anchor_url)
 
     ### === crawl older legislatures === ###
@@ -286,7 +288,8 @@ def crawl(context: Context) -> None:
 
     for seimas in older_seimas_table:
         seimas_el = h.xpath_element(seimas, ".//a")
-        seimas_dates_match = re.search(r"\(\d{4}[–-]\d{4}\)", h.element_text(seimas_el))
+        seimas_label = h.element_text(seimas_el)
+        seimas_dates_match = re.search(r"\(\d{4}[–-]\d{4}\)", seimas_label)
 
         assert seimas_dates_match is not None
         seimas_dates = seimas_dates_match.group(0).strip("()")
@@ -336,9 +339,9 @@ def crawl(context: Context) -> None:
                 absolute_links=True,
             )
 
-            for anchor_url in h.xpath_strings(
-                doc_seimas, members_list_validator + "/@href"
-            ):
+            member_urls = h.xpath_strings(doc_seimas, members_list_validator + "/@href")
+            context.log.info(seimas_label, member_link_count=len(member_urls))
+            for anchor_url in member_urls:
                 crawl_member_bio(context, anchor_url)
 
         # The older legislatures' layouts vary (they don't share the modern
@@ -356,8 +359,9 @@ def crawl(context: Context) -> None:
             )
 
             # A member can appear more than once in the list, so dedupe URLs.
-            member_urls = set(
+            old_member_urls = set(
                 h.xpath_strings(doc_seimas, old_members_validator + "/@href")
             )
-            for old_member_url in sorted(member_urls):
+            context.log.info(seimas_label, member_link_count=len(old_member_urls))
+            for old_member_url in sorted(old_member_urls):
                 crawl_old_member_bio(context, old_member_url)
