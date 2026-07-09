@@ -96,6 +96,14 @@ data. Comparisons across regenerations are still not apples-to-apples for
 
 - `unsure` handling: drop, map to negative, or down-weight (historically it
   was silently mapped to negative — an explicit choice is required).
+- Weighting of rule-based `zavod/logic` judgements: they are legitimate
+  evidence (deterministic rules, not matcher output) but dominate the file —
+  roughly 45% of all rows, and the large majority of negatives. They are also
+  systematically easier than human negatives, since a rule only fires on
+  clear-cut evidence. Left at full weight they can swamp the human signal and
+  flatter the metrics; consider down-weighting or slicing them in training
+  and evaluation. They are identifiable by their `user` hash — the single
+  dominant value in the field (`sha256("zavod/logic")[:12]`).
 
 ## format_version changelog
 
