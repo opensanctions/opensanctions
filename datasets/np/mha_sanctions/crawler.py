@@ -1,10 +1,9 @@
 import csv
-from typing import Dict
 
 from zavod import Context, helpers as h
 
 
-def crawl_row(context: Context, row: Dict[str, str]) -> None:
+def crawl_row(context: Context, row: dict[str, str]) -> None:
     unsc_id = row.pop("code")
     entity_type = row.pop("type")
     name = row.pop("name")
@@ -69,7 +68,7 @@ def crawl_row(context: Context, row: Dict[str, str]) -> None:
 
     elif entity_type == "GROUP":
         entity = context.make("Organization")
-        entity.id = context.make_id(name, address, unsc_id)
+        entity.id = context.make_id(name, address, unsc_id)  # type: ignore[arg-type]  # avoid re-keying entities
         entity.add("name", name)
         entity.add("notes", remarks)
         for a in alias:  # Add aliases

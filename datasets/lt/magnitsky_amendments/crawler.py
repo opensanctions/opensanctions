@@ -21,7 +21,8 @@ def crawl_page(context: Context, entry: dict[str, Any]) -> None:
     person.add("name", f"{entry.get('vardas')} {entry.get('pavarde')}", lang="lit")
     h.apply_date(person, "birthDate", entry.get("gimimoData"))
     person.add("topics", "sanction")
-    gender = map_gender(entry.get("lytis"))
+    gender_raw = entry.get("lytis")
+    gender = map_gender(gender_raw) if isinstance(gender_raw, str) else None
     if gender:
         person.add("gender", gender)
 

@@ -40,16 +40,6 @@ url: "https://www.fic.gov.za/International/sanctions/SitePages/Home.aspx"
 data:
   url: https://tfs.fic.gov.za/Pages/TFSListDownload?fileType=xml
   format: XML
-
-assertions:
-  min:
-    schema_entities:
-      LegalEntity: 220
-      Person: 650
-  max:
-    schema_entities:
-      LegalEntity: 500
-      Person: 900
 dates:
   formats: ["%d-%m-%Y"]
 names:
@@ -67,6 +57,17 @@ names:
       reject_strings:
         - f.k.a
         - f.n.a
+
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 220
+      Person: 650
+  max:
+    schema_entities:
+      LegalEntity: 500
+      Person: 900
+
 lookups:
   type.address:
     lowercase: true

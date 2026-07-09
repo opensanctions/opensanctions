@@ -1,0 +1,50 @@
+title: Kazakhstan Members of the Senate
+entry_point: crawler.py
+prefix: kz-senate
+coverage:
+  frequency: monthly
+  start: 2026-06-26
+load_statements: true
+ci_test: true
+summary: >-
+  Senators of the upper chamber of the Parliament of the Republic of Kazakhstan
+description: |
+  Members of the Senate, the upper chamber of the bicameral Parliament of the Republic
+  of Kazakhstan. The Senate has 49 seats — 40 elected indirectly by the maslikhats (two
+  per region and city of republican significance) and 9 appointed by the President — for
+  six-year terms, half rotating every three years.
+
+  This dataset records each sitting senator with their name, sourced from the Senate's
+  official website.
+url: https://senate.parlam.kz/
+publisher:
+  name: Қазақстан Республикасы Парламентінің Сенаты
+  name_en: Senate of the Parliament of the Republic of Kazakhstan
+  description: >
+    The Senate is the upper chamber of the Parliament of the Republic of Kazakhstan,
+    the country's bicameral national legislature.
+  url: https://senate.parlam.kz/
+  country: kz
+  official: true
+data:
+  url: https://senate.parlam.kz/en-US/about/deputies
+  format: HTML
+  lang: eng
+
+dates:
+  formats: ["%Y-%m-%d"]
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 40
+      Position: 1
+    country_entities:
+      kz: 40
+  max:
+    schema_entities:
+      Person: 60
+      Position: 1

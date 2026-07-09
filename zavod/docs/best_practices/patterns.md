@@ -1,5 +1,7 @@
 # Common Patterns
 
+Several of the patterns below (detecting unhandled data, assertions, warnings) exist to serve one principle: [strict interpretation](strict_interpretation.md) — every source value within the crawler's scope is handled, explicitly ignored, or raises a signal.
+
 The following are some patterns that have proved useful:
 
 ## Common crawler code structure
@@ -66,11 +68,20 @@ for name in h.multi_split(names, SPLITS):
     ruff check --fix --select I /path/to/crawler.py
     ```
 
-- Define and precompile regular expressions as constants at the top of the module.
+- Keep a value's meaning next to where it's used. Prefer inlining a literal at its single call site over hoisting it into a module-level constant referenced only once. A constant referenced once adds a hop: the reader hits `make_position(..., topics=TOPICS)` or a `COLUMNS = [...]` reference and has to scroll back to the top of the file to recover what is, in the end, a one-off literal.
 
-    ```python
-    REGEX_DETAILS = re.compile(r"your_regex_pattern_here")
-    ```
+    Declare a named constant only when it earns its keep:
+
+    - **Performance or correctness.** Precompile regular expressions as constants at the top of the module. They are compiled once and reused, so the constant pays for itself even at a single call site.
+
+        ```python
+        REGEX_DETAILS = re.compile(r"your_regex_pattern_here")
+        ```
+
+    - **Genuine reuse.** The value appears at two or more call sites, so a single source of truth keeps the copies from drifting apart.
+    - **Enumeration that is itself the data.** A mapping such as a `POSITIONS` dict that collects all the known cases in one table.
+
+    Otherwise, inline it. Single-use `TOPICS`, `COLUMNS`, header-name lists and the like read better as literals at the point of use.
 
 - When naming functions for data extraction or processing tasks, it's important to be specific and clear. For example, use `crawl_entity()` instead of a generic name like `process_data()`.
 
@@ -81,6 +92,22 @@ for name in h.multi_split(names, SPLITS):
 
     !!! note
         We typically use the `crawl_thing` convention (e.g., `crawl_person`, `crawl_row`, `crawl_index`) for functions that lead to entities being emitted (directly or via a nested `crawl_` function call).
+
+- Define helper functions at module level, not nested inside another function. Give the helper a clear, specific name and pass it what it needs as arguments rather than capturing values from the enclosing scope. A module-level function is easier to name, test, and read than a closure buried in a larger function.
+
+    ```python
+    # Avoid: a closure buried inside another function
+    def crawl(context):
+        def parse(row):
+            ...
+
+    # Prefer: a named function at module level
+    def parse_row(context, row):
+        ...
+
+    def crawl(context):
+        ...
+    ```
 
 - To improve readability and maintainability, break down deeply nested logic into smaller, focused functions.
 

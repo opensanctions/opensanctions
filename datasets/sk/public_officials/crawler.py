@@ -3,18 +3,10 @@ from lxml import etree
 from lxml.etree import _Element as Element
 from typing import Any, Dict, List
 
-from zavod.shed.trans import (
-    apply_translit_full_name,
-    make_position_translation_prompt,
-    ENGLISH,
-)
 from zavod.stateful.positions import OccupancyStatus, categorise
 
 from zavod import Context
 from zavod import helpers as h
-
-TRANSLIT_OUTPUT = [ENGLISH]
-POSITION_PROMPT = prompt = make_position_translation_prompt("slk")
 
 
 def parse_details(context: Context, link_el: Element) -> None:
@@ -98,12 +90,9 @@ def crawl_person(
             pos,
             lang="slk",
             country="SK",
+            translate_name=True,
         )
         person.add("position", pos)
-
-        apply_translit_full_name(
-            context, position, "slk", pos, TRANSLIT_OUTPUT, POSITION_PROMPT
-        )
 
         categorisation = categorise(context, position, default_is_pep=True)
         if not categorisation.is_pep:

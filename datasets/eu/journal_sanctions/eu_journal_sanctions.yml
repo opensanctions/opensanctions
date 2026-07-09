@@ -162,7 +162,9 @@ lookups:
         value: EU-UKR
       - match: 765/2006
         value: EU-BLR
-      - match: 2018/1542
+      - match:
+          - 2018/1542
+          - 2018/1544
         value: EU-CHEM
       - match: 881/2002
         value: EU-TAQA-EUAQ
@@ -210,3 +212,5 @@ lookups:
         value: EU-CYB
       - match: 401/2013
         value: EU-MMR
+      - match: 2015/735
+        value: EU-SSD

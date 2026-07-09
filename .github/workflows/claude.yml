@@ -46,7 +46,7 @@ jobs:
       # needs a checked-out repo (with the origin remote) to fetch into — without
       # this it fails with "not a git repository". fetch-depth: 0 gives full
       # history so commits can be pushed back to the PR branch cleanly.
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 

@@ -254,6 +254,7 @@ lookups:
           - "Q20801619" # secrétaire général du ministère de la Justice
           - "Q20900278" # Island Administrator
           - "Q20995522" # title of nobility in the United Kingdom
+          - "Q19808790" # Episcopal Co-Prince (one of two joint heads of state of Andorra)
           - "Q21028311" # White House Cabinet Secretary
           - "Q23307026" # Shadow minister
           - "Q23541196" # Queen mothers in Africa
@@ -443,6 +444,10 @@ lookups:
           - "Q108466181" # judicial position
           - "Q107363151" # central bank governor
           - "Q5785176" # auditor general
+          - "Q45722" # cardinal (members of the College of Cardinals are recognised by the Holy See as being PEPs)
+          - "Q1729113" # cardinal-bishop (members of the College of Cardinals are recognised by the Holy See as being PEPs)
+          - "Q2033341" # cardinal priest (members of the College of Cardinals are recognised by the Holy See as being PEPs)
+          - "Q2361374" # cardinal-deacon (members of the College of Cardinals are recognised by the Holy See as being PEPs)
       - maybe_pep: false
         match:
           - "Q8191099" # affiliate
@@ -487,7 +492,6 @@ lookups:
           - "Q15140392" # founding member
           - "Q15143900" # United Nations Special Rapporteur
           - "Q15726407" # President of the World Esperanto Youth Organization
-          - "Q19816651" # Order of Cardinals
           - "Q21114371" # episcopal title
           - "Q23685787" # working student
           - "Q28689677" # honorary secretary

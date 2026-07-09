@@ -1,0 +1,55 @@
+title: Argentina Members of Senate
+entry_point: crawler.py
+prefix: ar-sen
+coverage:
+  frequency: monthly
+  start: 2026-06-22
+load_statements: true
+ci_test: false  # Live external government source, not available in CI
+summary: >-
+  Members of the upper house of Argentinas National Congress.
+description: |
+  Current and historical senators of the Senate of the Nation (Honorable Senado de la Nación), the
+  upper house of the bicameral National Congress of Argentina. Its 72 senators are directly
+  elected, three per province across the 23 provinces and the Autonomous City of Buenos Aires, for
+  six-year terms, and together with the Chamber of Deputies hold the country's legislative power,
+  including passing laws and approving the budget.
+
+  This dataset records senators with their name, party, province, and term dates.
+url: https://www.senado.gob.ar/micrositios/DatosAbiertos/
+publisher:
+  name: Honorable Senado de la Nación Argentina
+  name_en: Honorable Senate of the Argentine Nation
+  description: >
+    The Honorable Senate of the Nation is the upper house of the National
+    Congress, the bicameral national legislature of Argentina.
+  url: https://www.senado.gob.ar/
+  country: ar
+  official: true
+data:
+  url: https://www.senado.gob.ar/micrositios/DatosAbiertos/ExportarListadoSenadoresHistorico/json
+  format: JSON
+  lang: spa
+dates:
+  formats: ["%Y-%m-%d"]
+
+lookups:
+  type.date:
+    options:
+      - match: "Sin Datos"
+        value: null
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 130
+      Position: 1
+    country_entities:
+      ar: 130
+  max:
+    schema_entities:
+      Person: 400
+      Position: 1

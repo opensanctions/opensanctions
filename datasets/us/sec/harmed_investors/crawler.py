@@ -1,17 +1,13 @@
 from zavod import Context, helpers as h
 from zavod.util import Element
 
-HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.2 Safari/605.1.15",
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-    "Accept-Encoding": "gzip, deflate, br",
-    "Sec-Fetch-Dest": "document",
-    "Sec-Fetch-Mode": "navigate",
-}
+# SEC's Fair Access policy blocks browser-mimicking user agents and requires
+# a declared UA with contact info. See https://www.sec.gov/developer
+HEADERS = {"User-Agent": "OpenSanctions tech@opensanctions.org"}
 
 
 def crawl_item(item: Element, context: Context) -> None:
-    names = h.split_comma_names(context, item.text_content())
+    names = h.split_comma_names(context, h.element_text(item))
 
     source_url = item.get("href")
 
@@ -34,7 +30,8 @@ def crawl(context: Context) -> None:
     response = context.fetch_html(
         context.data_url, headers=HEADERS, absolute_links=True
     )
-    for item in response.xpath(
-        './/*[contains(text(), "Search Cases:")]/../following-sibling::ul/li/a'
+    for item in h.xpath_elements(
+        response,
+        './/*[contains(text(), "Search Cases:")]/../following-sibling::ul/li/a',
     ):
         crawl_item(item, context)

@@ -1,5 +1,4 @@
 import csv
-from typing import Dict
 
 from rigour.mime.types import PDF
 
@@ -7,7 +6,7 @@ from zavod import Context, helpers as h
 from zavod.extract import zyte_api
 
 
-def crawl_row(context: Context, row: Dict[str, str]) -> None:
+def crawl_row(context: Context, row: dict[str, str]) -> None:
     full_name = row.pop("name")
     other_name = h.multi_split(row.pop("other name"), [",", ";"])
     birth_date_1_orig = row.pop("date of birth")
@@ -42,7 +41,10 @@ def crawl_row(context: Context, row: Dict[str, str]) -> None:
 
     if entity_type == "Person":
         entity = context.make("Person")
-        entity.id = context.make_id(full_name, birth_date_1, birth_place)
+        # birth_date_1 is list[str] but make_id expects str|None; changing the
+        # argument type would re-key all existing entities, so keep the current
+        # runtime behaviour and suppress the type error.
+        entity.id = context.make_id(full_name, birth_date_1, birth_place)  # type: ignore[arg-type]
         entity.add("name", full_name)
         entity.add("alias", other_name)
         entity.add("birthDate", birth_date_1, original_value=birth_date_1_orig)
@@ -83,6 +85,7 @@ def crawl_row(context: Context, row: Dict[str, str]) -> None:
 
 def crawl(context: Context) -> None:
     url_xpath = ".//a[contains(text(), 'HG nr. 1.272/2005')]/@href"
+    assert context.dataset.url is not None
     doc = zyte_api.fetch_html(
         context,
         context.dataset.url,

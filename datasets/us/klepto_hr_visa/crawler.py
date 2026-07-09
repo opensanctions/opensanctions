@@ -1,4 +1,3 @@
-from typing import Optional
 from normality import squash_spaces
 from followthemoney.types import registry
 import re
@@ -84,7 +83,7 @@ def crawl_report(context: Context, url: str) -> None:
         crawl_section(context, url, section)
 
 
-def crawl(context: Context) -> Optional[str]:
+def crawl(context: Context) -> None:
     options_xpath = ".//nav[@id='report-nav']//option"
     doc = fetch_html(context, context.data_url, options_xpath, cache_days=1)
     options_el = h.xpath_elements(doc, options_xpath)

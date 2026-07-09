@@ -20,7 +20,7 @@
     "jose": "^6.2.3",
     "json-schema-library": "^11.6.1",
     "kysely": "^0.29.2",
-    "next": "16.2.9",
+    "next": "16.2.10",
     "pg": "^8.21.0",
     "query-string": "^9.4.0",
     "react-bootstrap": "^2.10.10",
@@ -32,7 +32,7 @@
   },
   "devDependencies": {
     "@types/jest": "^30.0.0",
-    "@types/node": "^25",
+    "@types/node": "^26",
     "@types/pg": "^8.20.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",

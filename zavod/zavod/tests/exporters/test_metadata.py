@@ -1,11 +1,14 @@
 import json
+import logging
 
 from nomenklatura import Resolver
 
 from zavod import settings
+from zavod.context import Context
 from zavod.crawl import crawl_dataset
 from zavod.entity import Entity
 from zavod.exporters import export_dataset
+from zavod.exporters.metadata import DatasetVersionResult, write_dataset_index
 from zavod.meta import Dataset
 from zavod.store import get_store
 
@@ -55,3 +58,23 @@ def test_metadata_collection_export(
         assert ds["updated_at"] == settings.RUN_TIME_ISO
         if ds["name"] in (collection.name, testdataset1.name):
             assert len(ds["resources"]) > 2
+
+
+def test_metadata_collection_issue_count(
+    collection: Dataset, logger: logging.Logger
+) -> None:
+    """Issues logged against a collection (e.g. assemble errors surfaced when its
+    store is built during export) are counted in the collection's index.json."""
+    context = Context(collection)
+    context.begin(clear=True)
+    context.log.error("This is an assemble error")
+    context.log.warning("This is a warning")
+    context.close()
+
+    write_dataset_index(collection, DatasetVersionResult.SUCCESS)
+
+    index_path = settings.DATA_PATH / "datasets" / collection.name / "index.json"
+    with open(index_path, "r") as fh:
+        index = json.load(fh)
+    assert index["issue_count"] == 2, index
+    assert index["issue_levels"] == {"error": 1, "warning": 1}, index

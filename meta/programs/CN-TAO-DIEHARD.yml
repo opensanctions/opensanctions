@@ -1,0 +1,10 @@
+title: Diehard "Taiwan Independence" Separatists
+key: CN-TAO-DIEHARD
+url: https://www.gwytb.gov.cn/zccs/zccs_61195/cjtdwgfz/md/202408/t20240801_12639616.htm
+summary: >
+  Individuals formally identified by China's Taiwan Affairs Office as diehard
+  proponents of Taiwan independence and made subject to punitive measures.
+issuer: cn_tao
+dataset: cn_sanctions
+target_territories:
+  - tw

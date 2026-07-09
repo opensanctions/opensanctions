@@ -53,7 +53,9 @@ def crawl_row(context: Context, row: dict[str, str | None]) -> None:
     vessel.add("imoNumber", imo)
     vessel.add("flag", row.pop("Flag"))
     vessel.add("buildDate", row.pop("Year of build"))
-    h.apply_number(vessel, "grossRegisteredTonnage", row.pop("Tonnage"))
+    tonnage = row.pop("Tonnage")
+    if tonnage is not None:
+        h.apply_number(vessel, "grossRegisteredTonnage", tonnage)
     vessel.add("type", row.pop("Type"))
     vessel.add("topics", "mare.detained")
 
@@ -97,6 +99,7 @@ def crawl_row(context: Context, row: dict[str, str | None]) -> None:
         end_date=end_date,
     )
     reasons = row.pop("Nature of deficiencies")
+    assert reasons is not None, "Nature of deficiencies is required"
     for reason in reasons.split(";"):
         sanction.add("reason", reason.strip())
     # Most of the ships (even from 2019) have no end_date, most of them will be marked as active

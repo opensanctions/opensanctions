@@ -165,16 +165,19 @@ def test_occupancy_status(testdataset1: Dataset):
 
 def test_categorise_flow(testdataset1: Dataset):
     context = Context(testdataset1)
-    position = make_position(context, "A position", country="ls")
-    assert len(context.conn.execute(position_table.select()).fetchall()) == 0
+    position = make_position(
+        context, "A position", country="ls", subnational_area="Maseru"
+    )
+    assert len(context.db.execute(position_table.select()).fetchall()) == 0
     categorisation = categorise(context, position, default_is_pep=None)
     assert categorisation.is_pep is None
-    positions = context.conn.execute(position_table.select()).fetchall()
+    positions = context.db.execute(position_table.select()).fetchall()
     assert len(positions) == 1
     pos = positions[0]
     assert pos.entity_id == position.id
     assert pos.caption == position.caption
     assert pos.countries == ["ls"]
+    assert pos.subnational_areas == ["Maseru"]
     assert pos.topics == []
     assert pos.is_pep is None
     categorise.cache_clear()
@@ -192,8 +195,41 @@ def test_categorise_flow(testdataset1: Dataset):
         "created_at": settings.RUN_TIME,
     }
     ins = position_table.insert().values(**values)
-    context.conn.execute(ins)
+    context.db.execute(ins)
     categorisation = categorise(context, position2, default_is_pep=True)
     assert categorisation.is_pep is True
     assert categorisation.topics == ["gov.igo"]
+    context.close()
+
+
+def test_categorise_updates_changed_metadata(testdataset1: Dataset):
+    """When caption/countries/subnationalArea on a position change, the
+    existing row is updated in place rather than a new one being inserted."""
+    context = Context(testdataset1)
+
+    position = make_position(
+        context, "Minister of Health", country="us", subnational_area="California"
+    )
+    categorise(context, position, default_is_pep=None)
+    [row] = context.db.execute(position_table.select()).fetchall()
+    original_id = row.id
+    assert row.caption == "Minister of Health"
+    assert row.countries == ["us"]
+    assert row.subnational_areas == ["California"]
+
+    # Same entity id, but renamed and moved to a different subnational area.
+    # categorise() should update the existing row, not insert a second one.
+    renamed = make_position(
+        context, "Secretary of Health", country="ca", subnational_area="Texas"
+    )
+    renamed.id = position.id
+    categorise.cache_clear()
+    categorise(context, renamed, default_is_pep=None)
+
+    [row] = context.db.execute(position_table.select()).fetchall()
+    assert row.id == original_id
+    assert row.caption == "Secretary of Health"
+    assert row.countries == ["ca"]
+    assert row.subnational_areas == ["Texas"]
+
     context.close()

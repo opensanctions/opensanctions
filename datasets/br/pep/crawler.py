@@ -2,13 +2,10 @@ import csv
 from typing import Dict, Any
 from zipfile import ZipFile
 
-from rigour.mime.types import ZIP
-
 from zavod import Context
 from zavod import helpers as h
 from zavod.stateful.positions import categorise
 from zavod.extract.zyte_api import fetch_resource, fetch_html
-
 
 # 1: CPF
 # 2: PEP_Name
@@ -47,7 +44,9 @@ def create_entity(raw_entity: Dict[str, Any], context: Context) -> None:
     person.add("citizenship", "br")
 
     position_name = f"{raw_entity['Descrição_Função']}, {raw_entity['Nome_Órgão']}"
-    position = h.make_position(context, position_name, country="br")
+    position = h.make_position(
+        context, position_name, country="br", lang="por", translate_name=True
+    )
     categorisation = categorise(context, position, default_is_pep=True)
 
     if not categorisation.is_pep:
@@ -80,8 +79,10 @@ def crawl(context: Context) -> None:
     :param context: The context object.
     """
     csv_url = get_csv_url(context)
+    # The portal serves the ZIP with the legacy IIS content type
+    # "application/x-zip-compressed" rather than the canonical "application/zip".
     _, _, _, path = fetch_resource(
-        context, "source.zip", csv_url, ZIP, geolocation="BR"
+        context, "source.zip", csv_url, "application/x-zip-compressed", geolocation="BR"
     )
     work_dir = path.parent / "files"
     work_dir.mkdir(exist_ok=True)

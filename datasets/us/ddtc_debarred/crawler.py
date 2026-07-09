@@ -1,8 +1,6 @@
-from normality import slugify
 import openpyxl
-from openpyxl.worksheet.worksheet import Worksheet
 from rigour.mime.types import XLSX
-from typing import Any, Dict, Iterator, List, Optional
+from typing import Any
 
 from zavod import Context
 from zavod import helpers as h
@@ -13,25 +11,14 @@ US_DDTC_SD = "US-DDTC-SD"
 US_DDTC_AD = "US-DDTC-AD"
 
 
-def sheet_to_dicts(sheet: Worksheet) -> Iterator[Dict[str, Any]]:
-    headers: Optional[List[str]] = None
-    for row in sheet.rows:
-        cells = [c.value for c in row]
-        if headers is None:
-            headers = [slugify(h) or f"column_{i}" for i, h in enumerate(cells)]
-            continue
-        row = dict(zip(headers, cells))
-        yield row
-
-
 def crawl_debarment(
     context: Context,
-    row: Dict[str, Any],
+    row: dict[str, Any],
     program_key: str,
     name_field: str,
     notice_date_field: str,
 ) -> None:
-    date_of_birth = row.pop("date-of-birth", None)
+    date_of_birth = row.pop("date_of_birth", None)
     if date_of_birth:
         schema = "Person"
     else:
@@ -55,13 +42,13 @@ def crawl_debarment(
     )
 
     sanction = h.make_sanction(context, entity, program_key=program_key)
-    sanction.add("listingDate", row.pop(notice_date_field).isoformat()[:10])
-    sanction.add("listingDate", row.pop("corrected-notice-date", None))
+    sanction.add("listingDate", row.pop(notice_date_field))
+    sanction.add("listingDate", row.pop("corrected_notice_date", None))
     sanction.add(
         "description",
-        "Federal register notice: " + row.pop("federal-register-notice"),
+        "Federal register notice: " + row.pop("federal_register_notice"),
     )
-    corrected_notice_number = row.pop("corrected-notice", None)
+    corrected_notice_number = row.pop("corrected_notice", None)
     if corrected_notice_number:
         sanction.add(
             "description",
@@ -71,18 +58,18 @@ def crawl_debarment(
     context.emit(entity)
     context.emit(sanction)
 
-    context.audit_data(row, ["charging-letter", "debarment-order"])
+    context.audit_data(row, ["charging_letter", "debarment_order"])
 
 
 def crawl(context: Context) -> None:
     path = context.fetch_resource("statutory.xlsx", STATUTORY_XLSX_URL)
     context.export_resource(path, XLSX, title="Statutory Debarments")
-    rows = sheet_to_dicts(openpyxl.load_workbook(path, read_only=True).worksheets[0])
-    for row in rows:
-        crawl_debarment(context, row, US_DDTC_SD, "party-name", "notice-date")
+    wb = openpyxl.load_workbook(path, read_only=True)
+    for row in h.parse_xlsx_sheet(context, wb.worksheets[0]):
+        crawl_debarment(context, row, US_DDTC_SD, "party_name", "notice_date")
 
     path = context.fetch_resource("administrative.xlsx", ADMINISTRATIVE_XLSX_URL)
     context.export_resource(path, XLSX, title="Administrative Debarments")
-    rows = sheet_to_dicts(openpyxl.load_workbook(path, read_only=True).worksheets[0])
-    for row in rows:
+    wb = openpyxl.load_workbook(path, read_only=True)
+    for row in h.parse_xlsx_sheet(context, wb.worksheets[0]):
         crawl_debarment(context, row, US_DDTC_AD, "name", "date")

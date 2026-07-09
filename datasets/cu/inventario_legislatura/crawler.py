@@ -29,15 +29,12 @@ IGNORE_COLUMNS = [
 
 
 def crawl(context: Context) -> None:
-    pos = "X Legislatura de la Asamblea Nacional del Poder Popular (ANPP)"
-    inception_date = "2023"
-    dissolution_date = "2028"
+    term_start = "2023"
     position = h.make_position(
         context,
-        pos,
+        "Member of the National Assembly of People's Power",
         country="cu",
-        inception_date=inception_date,
-        dissolution_date=dissolution_date,
+        wikidata_id="Q21272829",
     )
     categorisation = categorise(context, position, default_is_pep=True)
     context.emit(position)
@@ -62,6 +59,9 @@ def crawl(context: Context) -> None:
         entity.add("education", data.pop("nivel_escolar"))
         entity.add("political", data.pop("ujc_pcc"))
         h.apply_date(entity, "birthDate", data.pop("fecha_de_nacimiento"))
+        # ANPP deputies must be Cuban citizens: Ley Electoral (Ley No. 127/2019)
+        # Art. 9.1 ("Tienen derecho a ser elegidos los ciudadanos cubanos...").
+        # https://www.gacetaoficial.gob.cu/es/ley-no-127-ley-electoral-de-13-de-julio-de-2019
         entity.add("citizenship", "cu")
         entity.add("topics", "role.pep")
 
@@ -69,7 +69,12 @@ def crawl(context: Context) -> None:
             context,
             entity,
             position,
-            start_date=inception_date,
+            start_date=term_start,
+            # Even though the term runs until the next election (expected by March
+            # 2028), the source is a one-time press release rather than a continuously
+            # updated register. It tells us nothing about whether a given person still
+            # holds the seat today, so we can't assert an end date or imply that the
+            # occupancy is current.
             end_date=None,
             no_end_implies_current=False,
             categorisation=categorisation,

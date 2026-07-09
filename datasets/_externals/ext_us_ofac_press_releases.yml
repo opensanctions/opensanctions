@@ -49,6 +49,7 @@ inputs:
 config:
   index_options:
     memory: 2000
+    max_bucket_size: 300
   topics:
     - sanction
     - sanction.linked
@@ -75,5 +76,5 @@ assertions:
       Person: 4500
       Article: 1330
       Organization: 930
-      Vessel: 540
+      Vessel: 900
       LegalEntity: 35

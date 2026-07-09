@@ -3,7 +3,7 @@ from datetime import datetime
 from lxml import etree
 from rigour.mime.types import ZIP
 from pathlib import Path
-from typing import Any, Dict, Generator
+from typing import Iterator
 from zipfile import ZipFile
 
 from zavod import Context, helpers as h
@@ -16,7 +16,7 @@ PRINCIPALS_NAME = "FARA_All_ForeignPrincipals.xml"
 
 def read_rows(
     context: Context, zip_path: Path, file_name: str
-) -> Generator[Dict[str, Any], None, None]:
+) -> Iterator[dict[str, str | None]]:
     with ZipFile(zip_path, "r") as zip:
         with zip.open(file_name) as zfh:
             fh = io.TextIOWrapper(zfh, encoding="iso-8859-1")
@@ -25,11 +25,11 @@ def read_rows(
                 yield {el.tag: el.text for el in node}
 
 
-def registrant_id(context: Context, registration_number: str) -> str:
+def registrant_id(context: Context, registration_number: str) -> str | None:
     return context.make_slug("reg", registration_number)
 
 
-def crawl_registrant(context: Context, item: Dict[str, Any]) -> None:
+def crawl_registrant(context: Context, item: dict[str, str | None]) -> None:
     # Extract relevant fields from each item
     address = h.make_address(
         context,
@@ -43,10 +43,12 @@ def crawl_registrant(context: Context, item: Dict[str, Any]) -> None:
         context.dataset, item.pop("Termination_Date", None)
     )
     registration_number = item.pop("Registration_Number")
+    assert registration_number is not None
 
     entity = context.make("LegalEntity")
     entity.id = registrant_id(context, registration_number)
-    entity.add("name", item.pop("Name").strip() or None)
+    name = item.pop("Name")
+    entity.add("name", name.strip() if name else None)
     entity.add("topics", "role.lobby")
     h.apply_address(context, entity, address)
     entity.add("registrationNumber", registration_number)
@@ -56,7 +58,7 @@ def crawl_registrant(context: Context, item: Dict[str, Any]) -> None:
         entity.add("description", f"Terminated registration {termination_date[0]}")
     context.emit(entity)
 
-    business_name = item.pop("Business_Name", "").strip()
+    business_name = (item.pop("Business_Name", None) or "").strip()
     if business_name:
         business_entity = context.make("LegalEntity")
         business_entity.id = context.make_slug(
@@ -77,7 +79,7 @@ def crawl_registrant(context: Context, item: Dict[str, Any]) -> None:
     context.audit_data(item)
 
 
-def crawl_principal(context: Context, item: Dict[str, Any]) -> None:
+def crawl_principal(context: Context, item: dict[str, str | None]) -> None:
     # Add relevant agency client information to the company entity
     p_name = item.pop("Foreign_principal")
     address = h.make_address(
@@ -89,10 +91,12 @@ def crawl_principal(context: Context, item: Dict[str, Any]) -> None:
         state=item.pop("State", None),
     )
     registration_number = item.pop("Registration_number")
+    assert registration_number is not None
 
     # Now create a new Company entity for the agency client
     principal = context.make("LegalEntity")
-    full_address = address.get("full") if address else None
+    full_address_parts = address.get("full") if address else []
+    full_address = full_address_parts[0] if full_address_parts else None
     principal.id = context.make_id("principal", p_name, full_address)
     principal.add("name", p_name)
     principal.add("country", item.pop("Country_location_represented"))

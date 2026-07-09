@@ -95,6 +95,8 @@ def crawl_parliament(context: Context, parl_name: str, url: str) -> None:
                 name=f"{leadership_role['carDes']}, Assembleia da República",
                 topics=["gov.national", "gov.legislative"],
                 country=["pt"],
+                lang="por",
+                translate_name=True,
             )
             categorisation_leadership = categorise(
                 context, position_leadership, default_is_pep=None

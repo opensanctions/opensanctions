@@ -1,0 +1,70 @@
+title: Uganda Members of Parliament
+entry_point: crawler.py
+prefix: ug-mp
+coverage:
+  frequency: monthly
+  start: 2026-07-06
+load_statements: true
+ci_test: false  # Live external government website, not available in CI
+summary: >-
+  Members of the Parliament of Uganda, the unicameral national legislature
+description: |
+  Members of the Parliament of Uganda, the unicameral national legislature. It comprises
+  directly elected constituency members, district woman representatives, and members for
+  special interest groups (army, youth, persons with disabilities, workers and older
+  persons), serving five-year terms.
+
+  This dataset records each sitting member with their name, constituency/district,
+  political party, date of birth and email address, sourced from the individual member
+  profiles in the Parliament's official MPs database.
+url: https://mpsdb.parliament.go.ug/
+publisher:
+  name: Parliament of Uganda
+  description: >
+    The Parliament of Uganda is the unicameral national legislature of the Republic of
+    Uganda; the MPs Database is its official member directory.
+  url: https://www.parliament.go.ug/
+  country: ug
+  official: true
+data:
+  url: https://mpsdb.parliament.go.ug/
+  format: HTML
+  lang: eng
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 450
+      Position: 1
+    country_entities:
+      ug: 450
+  max:
+    schema_entities:
+      Person: 620
+      Position: 1
+
+lookups:
+  type.email:
+    options:
+      - match: mmuruuli@parliament,go,ug
+        value: mmuruuli@parliament.go.ug
+      - match: jalobo@parliament.go,ug
+        value: jalobo@parliament.go.ug
+  type.political:
+    options:
+      - match: INDEP
+        value: INDEPENDENT
+      - match: IND
+        value: INDEPENDENT
+
+dates:
+  formats:
+    - "%d %B %Y"
+
+names:
+  prefixes_strip:
+    - Hon.
+    - Hon

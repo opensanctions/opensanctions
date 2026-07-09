@@ -1,0 +1,46 @@
+title: Kazakhstan Members of the Mäjilis
+entry_point: crawler.py
+prefix: kz-mazhilis
+coverage:
+  frequency: monthly
+  start: 2026-06-26
+load_statements: true
+ci_test: true
+summary: >-
+  Deputies of the lower chamber of the Parliament of the Republic of Kazakhstan
+description: |
+  Deputies of the Mäjilis (Мәжіліс), the lower chamber of the bicameral Parliament of
+  the Republic of Kazakhstan. Since the 2023 constitutional reform the Mäjilis has 98
+  seats — 69 elected by party list and 29 in single-mandate districts.
+
+  This dataset records each sitting deputy with their name (Kazakh and Russian forms),
+  electoral region and parliamentary faction, sourced from the Mäjilis open JSON API.
+url: https://www.parlam.kz/
+publisher:
+  name: Қазақстан Республикасы Парламентінің Мәжілісі
+  name_en: Mäjilis of the Parliament of the Republic of Kazakhstan
+  description: >
+    The Mäjilis is the lower chamber of the Parliament of the Republic of Kazakhstan,
+    the country's bicameral national legislature.
+  url: https://www.mazhilis.parlam.kz/
+  country: kz
+  official: true
+data:
+  url: https://mazhilis.parlam.kz/api/core/deputies/
+  format: JSON
+  lang: kaz
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 75
+      Position: 1
+    country_entities:
+      kz: 75
+  max:
+    schema_entities:
+      Person: 120
+      Position: 1

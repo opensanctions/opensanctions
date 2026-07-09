@@ -170,7 +170,7 @@ def parse_membership(
     birth_dates: Dict[str, str],
     death_dates: Dict[str, str],
 ) -> Optional[str]:
-    person_id = data.pop("person_id", None)
+    person_id: str | None = data.pop("person_id", None)
     org_name = organizations.get(data.pop("organization_id", None))
 
     if person_id and org_name:
@@ -186,7 +186,7 @@ def parse_membership(
         # for source in data.get("sources", []):
         #     membership.add("sourceUrl", source.get("url"))
 
-        position_label = f"{role.title()} of the {org_name}"
+        position_label: str | None = f"{role.title()} of the {org_name}"
         res = context.lookup("position_label", position_label)
         if res:
             position_label = res.value
@@ -226,3 +226,4 @@ def parse_membership(
                 context.emit(occupancy)
                 context.emit(person)
                 return person_id
+    return None

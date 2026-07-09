@@ -1,5 +1,7 @@
 from collections import defaultdict
 from typing import Optional, List, Generator, NamedTuple, Set
+from datetime import datetime
+
 from rigour.ids.wikidata import is_qid
 from rigour.territories import get_territories, get_territory_by_qid
 from nomenklatura.wikidata import WikidataClient, SparqlBinding
@@ -38,10 +40,11 @@ def crawl_holder(
     client: WikidataClient,
     position: Entity,
     person_qid: str,
+    modified_at: Optional[datetime] = None,
 ) -> Optional[Entity]:
     if not is_qid(person_qid):
         return None
-    item = client.fetch_item(person_qid)
+    item = client.fetch_item(person_qid, modified_at=modified_at)
     if item is None:
         return None
     if item.id != person_qid:
@@ -214,7 +217,6 @@ def crawl(context: Context) -> None:
     cache_days = context.dataset.config.get("cache_days", 14)
     client = WikidataClient(context.cache, context.http, cache_days=cache_days)
     position_classes = query_position_classes(context, client)
-
     for country in all_countries():
         context.log.info(f"Crawling country: {country.qid} ({country.label})")
 
@@ -228,11 +230,8 @@ def crawl(context: Context) -> None:
             if pos_item is None:
                 continue
             if pos_item.id != wd_position.qid:
-                context.log.warning(
-                    "Redirected position QID",
-                    original=wd_position.qid,
-                    redirected=pos_item.id,
-                )
+                context.resolver.rename_node(wd_position.qid, pos_item.id)
+                context.flush()
 
             position = wikidata_position(context, client, pos_item)
             if position is None:
@@ -241,8 +240,10 @@ def crawl(context: Context) -> None:
             context.log.info("Position [%s]: %s" % (position.id, position.caption))
 
             has_holders = False
-            for person in position_holders(client, pos_item):
-                holder = crawl_holder(context, client, position, person)
+            for person_qid, modified_at in position_holders(client, pos_item).items():
+                holder = crawl_holder(
+                    context, client, position, person_qid, modified_at
+                )
                 if holder is not None:
                     has_holders = True
 

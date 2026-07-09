@@ -2,13 +2,12 @@ title: Argentina Members of Parliament
 entry_point: crawler
 prefix: ar-dep
 coverage:
-  frequency: daily
+  frequency: monthly
   start: 2023-12-31
 load_statements: true
-ci_test: false # No Zyte API in CI
+ci_test: false  # No Zyte API in CI
 summary: >-
-  Current and recent members of the Argentine Chamber of Deputies, the lower
-  house of the National Congress.
+  Current and recent members of the lower house of the National Congress.
 description: |
   National Deputies (Members of the Parliament) - Representatives elected directly
   by the people of the provinces and the city of Buenos Aires of Argentina. The

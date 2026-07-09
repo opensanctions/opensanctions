@@ -1,15 +1,21 @@
+from datetime import datetime
 from typing import Dict, Optional, Set
 
 from followthemoney import registry
 from nomenklatura.wikidata import Item, WikidataClient, Claim
+from nomenklatura.wikidata.lang import MULTI_LANG
 from nomenklatura.wikidata.value import clean_wikidata_name
 from rigour.territories import get_territory_by_qid
+from rigour.time import iso_datetime
 
 from zavod import Context, Entity
 from zavod import helpers as h
 from zavod.constants import ORIGIN_INFERRED
+from zavod.shed.trans import translate_position_name
+from zavod.util import LangText
 from zavod.stateful.positions import categorise
 from zavod.shed.wikidata.country import is_historical_country, item_countries
+
 
 POSITION_BASICS: Set[str] = {
     "Q4164871",  # position
@@ -121,8 +127,35 @@ def wikidata_position(
     position = context.make("Position")
     position.id = item.id
     position.add("wikidataId", item.id)
-    if item.label is not None:
-        item.label.apply(position, "name", clean=clean_wikidata_name)
+    if item.label is not None and item.label.text is not None:
+        # item.label is picked from the available labels in PREFERRED_WD_LANGS order
+        # (English first, then "mul"/multilingual, then the next-best preferred
+        # language). English and multilingual labels can be used as-is; anything
+        # else is the next-best language Wikidata gave us, and we translate it to
+        # English. Picking what to translate may get more complex in the future,
+        # but for now translating the next-best pick after English works for us.
+        if item.label.lang in ("eng", MULTI_LANG, None):
+            item.label.apply(position, "name", clean=clean_wikidata_name)
+        else:
+            clean_label_text = clean_wikidata_name(item.label.text)
+            if clean_label_text is not None and clean_label_text.strip() != "":
+                assert item.label.lang is not None
+                result = translate_position_name(
+                    context,
+                    LangText(text=item.label.text, lang=item.label.lang),
+                )
+                translated = result.get_english()
+                # if for some reason the translation fails, fall back to the original
+                if translated is None:
+                    item.label.apply(position, "name", clean=clean_wikidata_name)
+                else:
+                    position.add(
+                        "name",
+                        translated.text,
+                        lang=translated.lang,
+                        original_value=item.label.text,
+                        origin=result.origin,
+                    )
 
     for claim in item.claims:
         if claim.property in ("P1001", "P17", "P27") and claim.qid is not None:
@@ -206,25 +239,31 @@ def wikidata_position(
     return position
 
 
-def position_holders(client: WikidataClient, item: Item) -> Set[str]:
+def position_holders(
+    client: WikidataClient, item: Item
+) -> Dict[str, Optional[datetime]]:
     """Find persons who have held the position defined by `item`. This performs
     the inverted lookup on property P39 (position held). Independently, the crawler
     should check property P1308 (officeholder) on the position item itself.
+
+    Returns a dict mapping person QID → schema:dateModified timestamp (ISO 8601).
     """
     query = f"""
-    SELECT ?person WHERE {{
+    SELECT ?person ?modifiedAt WHERE {{
         ?person wdt:P39 wd:{item.id} .
-        ?person wdt:P31 wd:Q5
+        ?person wdt:P31 wd:Q5 .
+        ?person schema:dateModified ?modifiedAt .
     }}
     """
-    persons: Set[str] = set()
-    response = client.query(query)
+    holders: Dict[str, Optional[datetime]] = {}
+    response = client.query(query, client.CACHE_SHORT)
     for result in response.results:
         person_qid = result.plain("person")
+        modified_at = result.plain("modifiedAt")
         if person_qid is not None:
-            persons.add(person_qid)
+            holders[person_qid] = iso_datetime(modified_at)
 
-    return persons
+    return holders
 
 
 def wikidata_occupancy(

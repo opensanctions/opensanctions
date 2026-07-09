@@ -1,0 +1,50 @@
+title: Uzbekistan Members of the Legislative Chamber
+entry_point: crawler.py
+prefix: uz-legch
+coverage:
+  frequency: monthly
+  start: 2026-06-26
+load_statements: true
+ci_test: true
+summary: >-
+  Deputies of the lower house of the Oliy Majlis of the Republic of Uzbekistan
+description: |
+  Deputies of the Legislative Chamber (Qonunchilik palatasi), the lower house of the
+  bicameral Oliy Majlis of the Republic of Uzbekistan. It has 150 deputies — 75 elected
+  in single-mandate districts and 75 by party list — for a five-year term.
+
+  This dataset records each sitting deputy with their name (Uzbek Latin, Uzbek Cyrillic
+  and Russian forms), date and place of birth, electoral district and parliamentary
+  faction, sourced from the Oliy Majlis open JSON API.
+url: https://parliament.gov.uz/
+publisher:
+  name: "Oʻzbekiston Respublikasi Oliy Majlisi Qonunchilik palatasi"
+  name_en: Legislative Chamber of the Oliy Majlis of the Republic of Uzbekistan
+  description: >
+    The Legislative Chamber is the lower house of the Oliy Majlis, the bicameral
+    national legislature of the Republic of Uzbekistan.
+  url: https://parliament.gov.uz/
+  country: uz
+  official: true
+data:
+  url: https://parliament.gov.uz/api/v1/structure/deputy/list/
+  format: JSON
+  lang: uzb
+
+dates:
+  formats: ["%Y-%m-%d"]
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 110
+      Position: 1
+    country_entities:
+      uz: 110
+  max:
+    schema_entities:
+      Person: 170
+      Position: 1

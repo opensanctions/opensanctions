@@ -28,6 +28,7 @@ def crawl_node(
     url = "http://www.europarl.europa.eu/meps/en/%s" % mep_id
     person.add("sourceUrl", url)
     name = node.findtext(".//fullName")
+    assert name is not None
     person.add("name", name)
     first_name, last_name = split_name(name)
     person.add("firstName", first_name)
@@ -82,8 +83,10 @@ def crawl(context: Context) -> None:
     position = h.make_position(
         context,
         "Member of the European Parliament",
+        wikidata_id="Q27169",
         country="eu",
         topics=["gov.igo", "gov.legislative"],
+        lang="eng",
     )
     categorisation = categorise(context, position, default_is_pep=True)
     context.emit(position)

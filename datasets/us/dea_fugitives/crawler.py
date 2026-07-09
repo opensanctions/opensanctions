@@ -8,12 +8,10 @@ from zavod import helpers as h
 SLEEP_SECONDS = 1
 HEADERS = {
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-    "accept-language": "en-US,en;q=0.5",
-    "cache-control": "no-cache",
+    "accept-language": "en-GB,en;q=0.9",
     "pragma": "no-cache",
     "Priority": "u=1, i",
-    "upgrade-insecure-requests": "1",
-    "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:139.0) Gecko/20100101 Firefox/139.0 (zavod; opensanctions.org)",
+    "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.3.1 Safari/605.1.15 (zavod; opensanctions.org)",
 }
 
 
@@ -21,9 +19,11 @@ def crawl_item(fugitive_url: str, context: Context) -> None:
     response = context.fetch_html(fugitive_url, cache_days=7, headers=HEADERS)
 
     name = response.findtext('.//h2[@class="fugitive__title"]')
+    table = response.find(".//table")
+    assert table is not None, "No table found on fugitive page"
     info_dict = {
-        row["label"].text_content(): row["description"].text_content()
-        for row in h.parse_html_table(response.find(".//table"))
+        h.element_text(row["label"]): h.element_text(row["description"])
+        for row in h.parse_html_table(table)
     }
 
     entity = context.make("Person")
@@ -83,11 +83,13 @@ def crawl(context: Context) -> None:
         )
 
         # If there are no more fugitives, we can stop crawling.
-        if len(response.findall('.//div[@class="teaser "]/div/h3/a')) == 0:
+        if len(response.findall('.//h3[@class="teaser__heading"]/a')) == 0:
             break
 
-        for item in response.findall('.//div[@class="teaser "]/div/h3/a'):
+        for item in response.findall('.//h3[@class="teaser__heading"]/a'):
             sleep(SLEEP_SECONDS)
-            crawl_item(item.get("href"), context)
+            item_url = item.get("href")
+            assert item_url is not None, "No href found on fugitive link"
+            crawl_item(item_url, context)
 
         page_num += 1

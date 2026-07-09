@@ -120,7 +120,9 @@ def parse_affiliations(
                 context,
                 name=main_duty,
                 topics=None,
-                country="LT",
+                country="lt",
+                lang="lit",
+                translate_name=True,
             )
             categorisation = categorise(
                 context,

@@ -2,7 +2,7 @@ import csv
 import json
 import re
 import yaml
-from typing import Optional, Generator, Dict, Any
+from typing import Optional, Generator, Dict, Any, cast
 from zipfile import ZipFile
 from functools import lru_cache
 from io import TextIOWrapper
@@ -75,8 +75,8 @@ def fetch_psc_short_descriptions(context: Context) -> dict[str, str]:
     """
     path = context.fetch_resource("psc_descriptions.yml", PSC_DESCRIPTIONS_URL)
     with open(path, "r") as fh:
-        data = yaml.safe_load(fh)
-    return data.get("short_description", {})
+        data = cast(dict[str, Any], yaml.safe_load(fh))
+    return cast(dict[str, str], data.get("short_description", {}))
 
 
 def percentage_range(slug: str) -> Optional[str]:

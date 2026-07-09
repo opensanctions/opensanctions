@@ -32,6 +32,7 @@ from followthemoney.cli.util import InPath
 from pathlib import Path
 from nomenklatura.resolver import Linker
 from nomenklatura.resolver.identifier import Identifier
+from nomenklatura.db import make_session
 
 from zavod.cli import _load_datasets
 from zavod.entity import Entity
@@ -52,10 +53,9 @@ def main(dataset_paths: List[Path], clear: bool) -> None:
     store.sync(clear=clear)
     view = store.default_view()
 
-    resolver = get_resolver()
-    resolver.begin()
-    linker = resolver.get_linker()
-    resolver.rollback()
+    with make_session() as session:
+        resolver = get_resolver(session)
+        linker = resolver.get_linker()
 
     observations: Dict[str, bool] = defaultdict(bool)
 

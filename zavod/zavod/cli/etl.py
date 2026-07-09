@@ -129,11 +129,20 @@ def run(
         archive_failure(dataset)
         store.close()
         sys.exit(1)
-    # Export and Publish
+
+    # Export
     try:
         export_dataset(dataset, view)
         # Set the version as successful in the version file, which will be archived by publish_dataset.
         set_last_successful_version(dataset, settings.RUN_VERSION)
+    except Exception:
+        log.exception("Failed to export: %s" % dataset_path)
+        archive_failure(dataset)
+        store.close()
+        sys.exit(1)
+
+    # Publish
+    try:
         publish_dataset(dataset, republish_to_latest=latest)
 
         if not dataset.is_collection and dataset.model.load_statements:
@@ -141,5 +150,5 @@ def run(
             load_dataset_to_db(dataset, linker, external=False)
         log.info("Dataset run is complete :)", dataset=dataset.name)
     except Exception:
-        log.exception("Failed to export and publish %r" % dataset.name)
+        log.exception("Failed to publish %r" % dataset.name)
         sys.exit(1)

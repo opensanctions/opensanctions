@@ -37,6 +37,8 @@ def crawl_row(context: Context, row: Dict[str, str | None]) -> None:
         context,
         name=role,
         country="fr",
+        lang="fra",
+        translate_name=True,
     )
 
     categorisation = categorise(context, position, default_is_pep=None)

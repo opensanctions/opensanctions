@@ -42,7 +42,7 @@ class ArchiveObject(object):
     ) -> None:
         raise NotImplementedError
 
-    def republish(self, source: str) -> None:
+    def republish(self, source: str, ttl: Optional[int] = None) -> None:
         """Copy the object inside the archive, avoid re-uploads"""
         pass
 
@@ -116,17 +116,22 @@ class GoogleCloudObject(ArchiveObject):
         log.info(f"Uploading blob: {source.name}", blob_name=self.name, max_age=ttl)
         self._blob.upload_from_filename(source, content_type=mime_type)
 
-    def republish(self, source: str) -> None:
+    def republish(self, source: str, ttl: Optional[int] = None) -> None:
         source_blob = self.backend.bucket.get_blob(source)
         if source_blob is None:
             raise RuntimeError("Object does not exist: %s" % source)
         # TODO: add if_generation_match
-        log.info(f"Copying blob: {self.name}", source=source)
+        log.info(f"Copying blob: {self.name}", source=source, max_age=ttl)
         self._blob = self.backend.bucket.copy_blob(
             source_blob,
             self.backend.bucket,
             self.name,
         )
+        # copy_blob inherits cache_control from the source; override it so the
+        # destination doesn't keep the source's TTL (which may differ — e.g.
+        # /datasets/ copies should not inherit the long TTL of an artifact).
+        self._blob.cache_control = f"public, max-age={ttl}" if ttl is not None else None
+        self._blob.patch()
 
 
 class GoogleCloudBackend(ArchiveBackend):
@@ -194,7 +199,7 @@ class FileSystemObject(ArchiveObject):
         self.path.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(source, self.path)
 
-    def republish(self, source: str) -> None:
+    def republish(self, source: str, ttl: Optional[int] = None) -> None:
         source_path = settings.ARCHIVE_PATH / source
         log.info(
             f"Copying file: {self.path.name} to archive",

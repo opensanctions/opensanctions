@@ -24,6 +24,7 @@ position_table = Table(
     Column("caption", Unicode(VALUE_LEN), nullable=False),
     # SQLite doesn't support arrays so we use JSON
     Column("countries", JSON, nullable=False),
+    Column("subnational_areas", JSON, nullable=True),
     Column("is_pep", Boolean, nullable=True),
     Column("topics", JSON, nullable=False),
     Column("dataset", Unicode(VALUE_LEN), nullable=False),

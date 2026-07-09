@@ -1,4 +1,3 @@
-from typing import Dict
 import re
 
 from zavod import Context
@@ -33,6 +32,7 @@ ADDRESS_SPLITS = [
 
 
 def clean_passports(context: Context, text: str) -> tuple[list[str], list[str]]:
+    # Returns (passport_numbers, national_id_numbers)
     values = text.split(", ")
     passports = []
     ids = []
@@ -56,7 +56,7 @@ def clean_passports(context: Context, text: str) -> tuple[list[str], list[str]]:
     return passports, ids
 
 
-def crawl_row(context: Context, data: Dict[str, str]) -> None:
+def crawl_row(context: Context, data: dict[str, str]) -> None:
     full_name = data.pop("FullName", None)
     if full_name is not None:
         ent_id = data.pop("IndividualID")

@@ -1,5 +1,4 @@
 import re
-from typing import Dict
 
 from lxml.html import HtmlElement
 from zavod import Context
@@ -11,9 +10,10 @@ REGEX_SUFFIX = re.compile(r",? (Jr|Sr|II|III|IV).?,")
 
 
 def crawl_item(
-    context: Context, row: Dict[str, str], row_elements: dict[str, HtmlElement]
+    context: Context, row: dict[str, str | None], row_elements: dict[str, HtmlElement]
 ) -> None:
     raw_name = row.pop("name")
+    assert raw_name is not None
     state = row.pop("state")
 
     entity = context.make("Person")

@@ -35,10 +35,10 @@ def parse_date(date: Optional[str]) -> str | None:
 def clean_address_part(part: Any) -> Optional[str]:
     if part is None:
         return None
-    part = str(part).strip()
-    if len(part) == 0 or part == "-" or part == "XX":
+    cleaned: str = str(part).strip()
+    if len(cleaned) == 0 or cleaned == "-" or cleaned == "XX":
         return None
-    return part
+    return cleaned
 
 
 def read_rows(zip_path: Path) -> Generator[Tuple[str, Dict[str, str]], None, None]:
@@ -57,7 +57,7 @@ def crawl_data_url(context: Context) -> str:
     metadata = context.fetch_json(url)
     objects = metadata.pop("_embedded").pop("customS3ObjectSummaryList")
     for obj in objects:
-        data_url = urljoin(DOWNLOAD_URL, obj["key"])
+        data_url: str = urljoin(DOWNLOAD_URL, obj["key"])
         if data_url.endswith(".ZIP"):
             return data_url
     raise RuntimeError("No ZIP file found")

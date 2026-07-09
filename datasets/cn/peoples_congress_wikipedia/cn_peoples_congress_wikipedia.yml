@@ -5,7 +5,8 @@ coverage:
   start: 2024-05-30
 load_statements: true
 summary: >
-  Current members of the Chinese National People's Congress
+  Members of the Chinese National People's Congress, including those who have
+  left office through resignation, dismissal or death
 description: |
   The National People's Congress (NPC) is the highest organ of
   state power of the People's Republic of China. It is the only
@@ -78,8 +79,8 @@ lookups:
       辞职前职务: position_before_resignation
       去世日期: date_of_death
       生前职务: position_before_death
-      # 罢免日期: date_of_dismissal
-      # 罢免前职务: position_before_dismissal
+      罢免日期: date_of_dismissal
+      罢免前职务: position_before_dismissal
 
 assertions:
   min:
@@ -87,4 +88,4 @@ assertions:
       Person: 2850
   max:
     schema_entities:
-      Person: 3000
+      Person: 3100

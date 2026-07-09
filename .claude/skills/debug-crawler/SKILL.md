@@ -81,7 +81,7 @@ Compare what the source actually contains against what the crawler expects.
 | Expected field/column not found | Source renamed or restructured columns | Update the crawler to match the new structure |
 | First page parses fine, later pages fail | Per-page header handling no longer matches source | Adjust header-reading logic to match current source |
 | 403 / empty response from Zyte | Source geo-restricts content | Add `geolocation=` to the fetch call |
-| Assertion on entity count fails | Source grew or shrank | Verify the count is real, then update `assertions:` bounds |
+| Assertion on entity count fails | Source grew or shrank | Verify the count is real (see recent historical index.json and statistics.json files), see what changed in recent entities.delta.json files, then update `assertions:` bounds if changes can be explained by e.g. sanctions expiring. |
 | Unexpected keys in `audit_data` | New columns added to source | Pop and handle (or explicitly ignore) the new fields |
 
 ## Step 5: Fix and verify

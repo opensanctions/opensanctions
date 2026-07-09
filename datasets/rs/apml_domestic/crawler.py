@@ -20,6 +20,7 @@ def crawl(context: Context) -> None:
             # There was a PDF; we've let them know it's gone.
             # The error says ERROR 404 but status is 200..
             content = context.fetch_text(url)
+            assert content is not None
             if "Error 404" in content:
                 # We'll just skip it since we know it's still a PDF link
                 # but it's broken, i.e. no updates

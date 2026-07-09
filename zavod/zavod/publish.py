@@ -1,14 +1,17 @@
+from typing import List
+
 from rigour.mime.types import JSON
 
 from zavod.archive.backend import get_archive_backend
 from zavod.exporters.metadata import DatasetVersionResult
 from zavod.meta import Dataset
 from zavod.logs import get_logger
-from zavod.archive import DATASETS, LATEST, publish_resource, dataset_resource_path
-from zavod.archive import publish_dataset_version, publish_artifact
+from zavod.archive import DATASETS, LATEST, UNLISTED_RESOURCES, dataset_resource_path
+from zavod.archive import publish_version_history, archive_artifact
+from zavod.archive import publish_artifact
 from zavod.archive import INDEX_FILE, CATALOG_FILE
 from zavod.archive import STATEMENTS_FILE, RESOURCES_FILE, STATISTICS_FILE
-from zavod.archive import VERSIONS_FILE, ARTIFACT_FILES
+from zavod.archive import VERSIONS_FILE, EXTRA_ARTIFACTS
 from zavod.archive import DELTA_EXPORT_FILE, DELTA_INDEX_FILE
 from zavod.runtime.resources import DatasetResources
 from zavod.runtime.versions import get_latest
@@ -17,67 +20,80 @@ from zavod.exporters import write_dataset_index
 log = get_logger(__name__)
 
 
-def _archive_artifacts(dataset: Dataset) -> None:
-    """Archive artifacts to the /artifacts/ path on the data bucket."""
+def _archive_artifacts(dataset: Dataset, extra_artifacts: list[str] = []) -> None:
+    """
+    Upload every file we persist about a run to /artifacts/{dataset}/{version}/.
+
+    Also publishes the version history to the dataset's stable version history location.
+
+    This covers both registered resources and non-resource files.
+    """
+    extra_artifacts = list(extra_artifacts) + EXTRA_ARTIFACTS
+
     version = get_latest(dataset.name, backfill=False)
     if version is None:
         raise ValueError(f"No working version found for dataset: {dataset.name}")
-    for artifact in ARTIFACT_FILES:
-        path = dataset_resource_path(dataset.name, artifact)
-        if path.is_file():
-            publish_artifact(
-                path,
-                dataset.name,
-                version,
-                artifact,
-                mime_type=JSON if artifact.endswith(".json") else None,
-            )
-    publish_dataset_version(dataset.name)
 
-
-def publish_dataset(dataset: Dataset, republish_to_latest: bool = True) -> None:
-    """Publish a dataset to the archive, i.e. to /datasets."""
-    resources = DatasetResources(dataset)
-    for resource in resources.all():
-        if resource.name in ARTIFACT_FILES:
-            # This is a bit hacky: the delta exporter and statistics exporter are
-            # generating artifacts used for internal purposes, but they should
-            # not be included in the dataset metadata.
-            resources.remove(resource.name)
-            continue
+    for resource in DatasetResources(dataset).all():
         path = dataset_resource_path(dataset.name, resource.name)
         if not path.is_file():
             log.error("Resource not found: %s" % path, dataset=dataset.name)
             continue
-        publish_resource(
+        archive_artifact(
             path,
             dataset.name,
+            version,
             resource.name,
-            republish_to_latest=republish_to_latest,
             mime_type=resource.mime_type,
         )
-    meta_files = [INDEX_FILE]
-    if dataset.is_collection:
-        meta_files.extend([CATALOG_FILE])
-    for meta_file in meta_files:
-        path = dataset_resource_path(dataset.name, meta_file)
+
+    for artifact in extra_artifacts:
+        path = dataset_resource_path(dataset.name, artifact)
         if not path.is_file():
-            log.error("Metadata file not found: %s" % path, dataset=dataset.name)
             continue
-        mime_type = JSON if meta_file.endswith(".json") else None
-        publish_resource(
+        archive_artifact(
             path,
             dataset.name,
-            meta_file,
-            republish_to_latest=republish_to_latest,
-            mime_type=mime_type,
+            version,
+            artifact,
+            mime_type=JSON if artifact.endswith(".json") else None,
         )
 
-    if republish_to_latest:
-        all_published_files = set(meta_files) | {r.name for r in resources.all()}
-        _warn_about_stale_latest_files(dataset, all_published_files)
+    publish_version_history(dataset.name)
 
-    _archive_artifacts(dataset)
+
+def publish_dataset(dataset: Dataset, republish_to_latest: bool = True) -> None:
+    """Publish a dataset.
+
+    Every file we persist about this run is uploaded to /artifacts/{dataset}/{version}/
+
+    Listed resources plus index and collection catalog are copied to
+    /datasets/{RELEASE}/{dataset}/ backward compatibility and
+    /datasets/{LATEST}/{dataset}/ for discovery without the full catalog.
+    """
+
+    extra_artifacts = []
+    all_published_files: List[str] = [
+        r.name
+        for r in DatasetResources(dataset).all()
+        if r.name not in UNLISTED_RESOURCES
+    ]
+    all_published_files.append(INDEX_FILE)
+
+    if dataset.is_collection:
+        extra_artifacts.append(CATALOG_FILE)
+        all_published_files.append(CATALOG_FILE)
+
+    _archive_artifacts(dataset, extra_artifacts)
+
+    version = get_latest(dataset.name, backfill=False)
+    assert version is not None
+
+    if republish_to_latest:
+        _warn_about_stale_latest_files(dataset, set(all_published_files))
+
+    for name in all_published_files:
+        publish_artifact(dataset.name, version.id, name, republish_to_latest)
 
 
 def _warn_about_stale_latest_files(dataset: Dataset, published_files: set[str]) -> None:
@@ -99,11 +115,14 @@ def _warn_about_stale_latest_files(dataset: Dataset, published_files: set[str]) 
 
 def archive_failure(dataset: Dataset) -> None:
     """Upload failure information about a dataset to the archive."""
-    # Collections currently should never call publish_failure (as that only gets called for crawl and validate).
-    # But if they ever did (for example to publish a failure in the export stage), we should think very well about
-    # what exactly a failed index.json for default should look like. Currently, it would have empty resources,
-    # and our clients likely wouldn't appreciate that.
-    assert not dataset.is_collection
+    # For collections, we used to refuse to archive_failure because we were worried about a failed
+    # `default/index.json` ending up at `/datasets/latest/default/index.json` with empty resources.
+    # That's no longer a concern: we stopped publishing failed `index.json` to `/datasets` in
+    # https://github.com/opensanctions/opensanctions/commit/476dcbc0088d5f92b9258244644e61754e85ffdb,
+    # and `index.json` carries an explicit `result: failure` since
+    # https://github.com/opensanctions/opensanctions/commit/ff9c602c66668393b66e79850fc1fb8810b899fa.
+    # So archiving a failed collection just lands a `result: failure` version in `/artifacts`,
+    # which is exactly what we want for surfacing the `issues.log`.
     # Clear out interim artifacts so they cannot pollute the metadata we're
     # generating.
     dataset_resource_path(dataset.name, STATEMENTS_FILE).unlink(missing_ok=True)

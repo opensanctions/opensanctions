@@ -197,6 +197,8 @@ def crawl_soe_peps(
                 topics=["gov.soe"],
                 country=["no"],
                 organization=entity,
+                lang="nob",
+                translate_name=True,
             )
             categorisation = categorise(context, position, default_is_pep=True)
 

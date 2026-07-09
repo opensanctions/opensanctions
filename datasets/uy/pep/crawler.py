@@ -36,7 +36,11 @@ def parse_sheet_row(context: Context, row: Dict[str, str]) -> None:
     person.add("country", "uy")
 
     position = h.make_position(
-        context, f"{role}, {organization_name}", country="uy", lang="spa"
+        context,
+        f"{role}, {organization_name}",
+        country="uy",
+        lang="spa",
+        translate_name=True,
     )
 
     categorisation = categorise(context, position)

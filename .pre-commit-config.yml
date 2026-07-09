@@ -4,6 +4,7 @@ repos:
     hooks:
       - id: check-yaml
       - id: trailing-whitespace
+        exclude: '\.html?$'
       - id: check-merge-conflict
   - repo: local
     hooks:
@@ -53,33 +54,26 @@ repos:
           datasets/_analysis|
           datasets/_collections|
           datasets/_externals|
-          datasets/_global/afdb_sanctions|
           datasets/_global/c4ads_xinjiang|
           datasets/_global/c4ads_xinjiang_mining|
           datasets/_global/ebrd_ineligible|
           datasets/_global/eiti_soe|
           datasets/_global/everypolitician|
-          datasets/_global/iadb_sanctions|
           datasets/_global/iso9362_bic|
           datasets/_global/paris_mou_banned|
           datasets/_global/ransomwhere|
           datasets/_global/research|
-          datasets/_global/ror|
           datasets/_global/shu_uyghur_companies|
           datasets/_global/thesentry_atlas|
           datasets/_global/un_1718_vessels|
           datasets/_global/un_ga_protocol|
           datasets/_global/un_sc_sanctions|
-          datasets/_global/worldbank|
-          datasets/_global/tokyo_mou|
-          datasets/_global/abuja_mou|
           datasets/_wikidata|
           datasets/ae|
           datasets/bg/jud_declarations|
           datasets/cn|
           datasets/eu|
           datasets/gb/coh|
-          datasets/gb/fca_firds|
           datasets/gb/nca_most_wanted|
           datasets/gb/nca_press_releases|
           datasets/id|
@@ -105,7 +99,6 @@ repos:
           datasets/us/ice_wanted|
           datasets/us/irs_ffi|
           datasets/us/state_terrorist_exclusion|
-          datasets/us/klepto_hr_visa|
           datasets/us/ofac/enforcement_actions|
           datasets/us/ofac/press_releases|
           datasets/us/sec/pause|
@@ -114,27 +107,20 @@ repos:
           datasets/us/cftc_enforcement_actions|
           datasets/us/occ_enfact|
           datasets/us/ddtc_enforcements|
-          datasets/us/ddtc_debarred|
-          datasets/us/sam_exclusions|
           datasets/us/nk_jointventures|
           datasets/us/cia_world_factbook|
-          datasets/us/fara_filings|
           datasets/us/fincen_msb|
           datasets/us/fbi_lazarus_crypto|
-          datasets/us/special_leg|
           datasets/us/sec_litigation_releases|
           datasets/us/dod_chinese_milcorps|
           datasets/us/dc/exclusions|
-          datasets/us/cuba_sanctions|
           datasets/us/fdic_failed_banks|
           datasets/us/hhs_exclusions|
           datasets/us/plural_legislators|
           datasets/us/fed_enforcements|
           datasets/us/trade_csl|
-          datasets/us/corpwatch|
           datasets/us/cbp_forced_labor|
           datasets/us/dhs_uflpa|
-          datasets/us/fda_restricted|
           datasets/us/congress|
           datasets/us/bis_denied|
           datasets/us/state_terrorist_orgs|

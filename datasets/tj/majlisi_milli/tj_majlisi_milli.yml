@@ -1,0 +1,50 @@
+title: Tajikistan Members of the Majlisi Milli
+entry_point: crawler.py
+prefix: tj-milli
+coverage:
+  frequency: monthly
+  start: 2026-06-26
+load_statements: true
+ci_test: true
+summary: >-
+  Members of the upper chamber of the Supreme Assembly of the Republic of Tajikistan
+description: |
+  Members of the Majlisi Milli (Маҷлиси миллӣ), the upper chamber of the bicameral
+  Supreme Assembly (Majlisi Oli) of the Republic of Tajikistan. It has 33 members: 25
+  elected indirectly by the regional and city assemblies and 8 appointed by the
+  President. Former presidents are ex-officio members for life.
+
+  This dataset records each sitting member with their name, date and place of birth,
+  sourced from the chamber's official website.
+url: https://majmilli.tj/azoi-majlisi-milli/
+publisher:
+  name: Маҷлиси миллии Маҷлиси Олии Ҷумҳурии Тоҷикистон
+  name_en: Majlisi Milli of the Supreme Assembly of the Republic of Tajikistan
+  description: >
+    The Majlisi Milli is the upper chamber of the Supreme Assembly (Majlisi Oli), the
+    bicameral national legislature of the Republic of Tajikistan.
+  url: https://majmilli.tj/
+  country: tj
+  official: true
+data:
+  url: https://majmilli.tj/azoi-majlisi-milli/
+  format: HTML
+  lang: tgk
+
+dates:
+  formats: ["%Y-%m-%d", "%Y"]
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 25
+      Position: 1
+    country_entities:
+      tj: 25
+  max:
+    schema_entities:
+      Person: 40
+      Position: 1
