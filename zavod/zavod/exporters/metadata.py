@@ -87,6 +87,11 @@ def write_dataset_index(
             publish an index carrying entity counts from a previous run.
             (On successful exports the statistics exporter always runs, so a
             fresh local copy exists and no backfill happens either way.)
+
+            TODO: This flag should become obsolete once artifact backfills
+            reference an explicit version (last_successful, or the specific
+            version being exported/validated); see
+            https://github.com/opensanctions/operations/issues/2675
     """
     catalog = get_catalog()
     version = get_latest(dataset.name, backfill=True)

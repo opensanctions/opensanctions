@@ -134,6 +134,10 @@ def archive_failure(dataset: Dataset) -> None:
 
     # Don't backfill statistics from the archive: this run produced no data, so
     # the failure index should not carry entity counts from a previous run.
+    # TODO: Once artifact backfills reference an explicit version
+    # (https://github.com/opensanctions/operations/issues/2675), this flag can
+    # go away: a failure publish simply wouldn't reference any version to
+    # backfill from.
     write_dataset_index(
         dataset, DatasetVersionResult.FAILURE, backfill_statistics=False
     )
