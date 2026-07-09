@@ -95,10 +95,9 @@ def write_dataset_index(dataset: Dataset, result: DatasetVersionResult) -> None:
     for res_data in meta["resources"]:
         res_data["url"] = make_artifact_url(dataset.name, version.id, res_data["path"])
 
-    if not dataset.is_collection:
-        issues = DatasetIssues(dataset)
-        meta["issue_levels"] = issues.by_level()
-        meta["issue_count"] = sum(meta["issue_levels"].values())
+    issues = DatasetIssues(dataset)
+    meta["issue_levels"] = issues.by_level()
+    meta["issue_count"] = sum(meta["issue_levels"].values())
     meta["last_export"] = settings.RUN_TIME_ISO
     meta["result"] = result.value
     # NOTE: when adding a another URL here, make sure to update Delivery Service,
