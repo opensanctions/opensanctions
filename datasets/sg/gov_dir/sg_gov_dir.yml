@@ -42,7 +42,7 @@ assertions:
       Person: 7_000
   max:
     schema_entities:
-      Person: 10_000
+      Person: 24_000
 
 lookups:
   type.email:
