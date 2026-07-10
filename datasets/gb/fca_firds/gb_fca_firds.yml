@@ -38,6 +38,14 @@ data:
   url: https://api.data.fca.org.uk/fca_data_firds_files
   format: JSON
 
+lookups:
+  type.name:
+    options:
+      # Legitimate financial instrument name; "<10" and ">15" are comparison
+      # operators, not HTML markup, so the XSS smell check is a false positive.
+      - match: "Endlos-Zertifikat bezogen auf LUS Wikifolio-Index KGV - BUY <10 - SELL >15"
+        value: "Endlos-Zertifikat bezogen auf LUS Wikifolio-Index KGV - BUY <10 - SELL >15"
+
 assertions:
   min:
     schema_entities:
