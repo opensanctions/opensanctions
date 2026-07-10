@@ -39,7 +39,7 @@
     "@types/turndown": "^5.0.6",
     "jest": "^30.4.2",
     "ts-jest": "^29.4.11",
-    "typescript": "^6",
+    "typescript": "^7",
     "eslint": "^9.39.4",
     "eslint-config-next": "^16.2.9",
     "eslint-plugin-import": "^2.32.0"
