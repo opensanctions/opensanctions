@@ -46,8 +46,8 @@ publisher:
     tailored for users within government, business, academia and journalism.
     It is hosted by the Royal United Services Institute (RUSI) in London.
 data:
-  url: https://dprk-reports.org/assets/export.zip
-  format: ZIP+FTM
+  url: https://dprk-reports.org/data.json
+  format: JSON
 
 assertions:
   min:
