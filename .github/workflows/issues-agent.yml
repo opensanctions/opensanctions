@@ -82,6 +82,9 @@ jobs:
           {
             echo 'TASK_PROMPT<<TASK_PROMPT_EOF'
             cat "task-prompts/${{ matrix.task.dataset }}.md"
+            # The prompt file has no trailing newline (Jinja strips it), so
+            # force one — the closing delimiter must sit on its own line.
+            echo ''
             echo 'TASK_PROMPT_EOF'
           } >> "$GITHUB_ENV"
 
