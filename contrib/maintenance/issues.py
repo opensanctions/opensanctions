@@ -43,7 +43,9 @@ def issues_checksum(issues: list[Any]) -> str:
 # persistent HTTPError usually means a moved or bot-blocked source, which is
 # actionable.
 IGNORED_MESSAGES = [
-    "deadlock detected",
+    # psycopg2.errors.DeadlockDetected — match both the class name (no space
+    # when lowercased) and the "deadlock detected" prose psycopg2 appends.
+    "deadlock",
     "connectionerror",
     "connection reset",
     "connection aborted",
