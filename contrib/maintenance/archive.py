@@ -10,9 +10,9 @@ Archive semantics this module encodes:
   only present for successful runs.
 """
 
-import json
 from dataclasses import dataclass
 from datetime import datetime, timezone
+from functools import lru_cache
 from typing import Any
 
 from . import session
@@ -74,14 +74,34 @@ class VersionsInfo:
         return list(self.items)
 
 
-def get_versions(dataset_name: str) -> VersionsInfo | None:
-    """Fetch a dataset's run history; None if it was never deployed."""
-    url = f"{ARCHIVE_SITE}/artifacts/{dataset_name}/versions.json"
+@lru_cache(maxsize=1024)
+def fetch_json(url: str) -> Any | None:
+    """GET and parse a JSON document, memoized per URL for the process lifetime.
+
+    The issues agent and the diagnose report both read a dataset's
+    versions.json and issues.json; memoizing spares the duplicate round-trips
+    and guarantees both describe the same run even if a new one publishes
+    mid-process. Version-prefixed artifact URLs are immutable, so entries
+    never go stale; versions.json can, but minutes-level staleness within one
+    process is deliberate. Treat results as read-only — every caller gets the
+    same object.
+
+    Returns None on 404 (cached: absent stays absent). Other HTTP errors and
+    unparseable payloads raise, and are not cached, so a retry gets a fresh
+    attempt.
+    """
     response = session.get(url)
     if response.status_code == 404:
         return None
     response.raise_for_status()
-    data = response.json()
+    return response.json()
+
+
+def get_versions(dataset_name: str) -> VersionsInfo | None:
+    """Fetch a dataset's run history; None if it was never deployed."""
+    data = fetch_json(f"{ARCHIVE_SITE}/artifacts/{dataset_name}/versions.json")
+    if data is None:
+        return None
     return VersionsInfo(
         items=list(data.get("items", [])),
         last_successful=data.get("last_successful"),
@@ -103,22 +123,14 @@ def head_artifact(
     return response.status_code, int(length) if length is not None else None
 
 
-def fetch_json_artifact(
-    dataset_name: str, version_id: str, resource: str
-) -> Any | None:
-    """Fetch and parse a JSON artifact; None when absent or unparseable."""
-    response = session.get(artifact_url(dataset_name, version_id, resource))
-    if response.status_code != 200:
-        return None
-    try:
-        return response.json()
-    except json.JSONDecodeError:
-        return None
+def fetch_artifact(dataset_name: str, version_id: str, resource: str) -> Any | None:
+    """Fetch and parse one run's JSON artifact; None when absent (cached)."""
+    return fetch_json(artifact_url(dataset_name, version_id, resource))
 
 
 def get_issues(dataset_name: str, version_id: str) -> list[dict[str, Any]] | None:
     """Fetch the issues of one run; None when the artifact is missing."""
-    data = fetch_json_artifact(dataset_name, version_id, "issues.json")
+    data = fetch_artifact(dataset_name, version_id, "issues.json")
     if data is None:
         return None
     issues = data.get("issues", [])
@@ -127,7 +139,12 @@ def get_issues(dataset_name: str, version_id: str) -> list[dict[str, Any]] | Non
 
 
 def get_catalog() -> Any:
-    """Fetch the full latest-datasets catalog (large; call once per process)."""
+    """Fetch the full latest-datasets catalog.
+
+    Not routed through fetch_json: it is ~20MB parsed and read once, so
+    pinning it in the LRU buys nothing, and a missing catalog is a hard error
+    rather than a None.
+    """
     response = session.get(CATALOG_URL)
     response.raise_for_status()
     return response.json()

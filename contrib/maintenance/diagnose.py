@@ -24,7 +24,7 @@ from .archive import (
     RUN_ARTIFACTS,
     VersionsInfo,
     artifact_url,
-    fetch_json_artifact,
+    fetch_artifact,
     get_issues,
     get_versions,
     head_artifact,
@@ -316,7 +316,7 @@ def _assertions_section(
             "",
             "No successful run — no statistics to compare the assertions against.",
         ]
-    stats = fetch_json_artifact(name, versions.last_successful, "statistics.json")
+    stats = fetch_artifact(name, versions.last_successful, "statistics.json")
     if stats is None:
         return [
             "## Assertions",
