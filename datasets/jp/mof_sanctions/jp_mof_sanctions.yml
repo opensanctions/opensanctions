@@ -88,15 +88,10 @@ names:
     # Names still containing these are not clean enough to auto-accept in step 1;
     # flag them as irregular so they are held back for human review.
     LegalEntity:
-      # "/" is already rejected by the baseline. The Japanese comma (、) separates
-      # multiple names crammed into one cell, so flag it for review too.
       reject_chars: "()（）:：;；、"
       reject_strings:
         - "_x000D_"
     Person:
-      # The half-width brackets, colon and semicolon are already rejected by the
-      # Person baseline; add the full-width variants common in the Japanese source,
-      # plus the Japanese comma (、) which separates multiple names in one cell.
       reject_chars: "（）：；、"
       reject_strings:
         - "_x000D_"
