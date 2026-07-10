@@ -36,8 +36,19 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          MATRIX=$(python -m contrib.maintenance.issues_agent)
+          MATRIX=$(python -m contrib.maintenance.issues_agent --prompts-dir task-prompts)
           echo "matrix=$MATRIX" >> "$GITHUB_OUTPUT"
+
+      # The prompts travel as an artifact, not inside the matrix output: they
+      # embed diagnostic reports full of arbitrary source data, and GitHub
+      # silently drops a job output when it spots anything resembling a secret
+      # in it ("Skip output 'matrix' since it may contain secret"), which
+      # breaks the fromJson() strategy expression downstream.
+      - name: Upload task prompts
+        uses: actions/upload-artifact@v7
+        with:
+          name: task-prompts
+          path: task-prompts/
 
   run-tasks:
     needs: generate-matrix
@@ -59,6 +70,20 @@ jobs:
       max-parallel: 4
     steps:
       - uses: actions/checkout@v7
+
+      - name: Download task prompts
+        uses: actions/download-artifact@v8
+        with:
+          name: task-prompts
+          path: task-prompts
+
+      - name: Load task prompt
+        run: |
+          {
+            echo 'TASK_PROMPT<<TASK_PROMPT_EOF'
+            cat "task-prompts/${{ matrix.task.dataset }}.md"
+            echo 'TASK_PROMPT_EOF'
+          } >> "$GITHUB_ENV"
 
       - name: Set up Python
         uses: actions/setup-python@v6
@@ -113,7 +138,7 @@ jobs:
       - uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          prompt: ${{ matrix.task.prompt }}
+          prompt: ${{ env.TASK_PROMPT }}
           claude_args: "--model ${{ matrix.task.model }} --max-turns ${{ matrix.task.max_turns }} --allowed-tools \"Bash,View,Edit,Write,GlobTool,GrepTool,WebFetch,Skill,mcp__github__create_pull_request\""
           show_full_output: true
 
