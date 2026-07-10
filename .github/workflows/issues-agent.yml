@@ -36,7 +36,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          MATRIX=$(python contrib/issues_agent/tasks.py)
+          MATRIX=$(python -m contrib.maintenance.issues_agent)
           echo "matrix=$MATRIX" >> "$GITHUB_OUTPUT"
 
   run-tasks:
