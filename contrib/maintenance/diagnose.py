@@ -30,7 +30,7 @@ from .archive import (
     head_artifact,
     version_timestamp,
 )
-from .datasets import get_code_path, get_path_from_name, read_dataset_meta
+from .datasets import get_code_path, get_path_from_name, read_dataset_meta, repo_path
 from .issues import group_issues
 
 MAX_ISSUE_GROUPS = 15
@@ -48,14 +48,12 @@ def _fmt_ts(version_id: str) -> str:
     return ts.strftime("%Y-%m-%d %H:%M UTC") if ts is not None else "?"
 
 
-def _fmt_size(size: int | None) -> str:
-    if size is None:
-        return ""
+def _fmt_size(size: int) -> str:
     if size >= 1024 * 1024:
-        return f"{size / (1024 * 1024):.1f}MB, "
+        return f"{size / (1024 * 1024):.1f}MB"
     if size >= 1024:
-        return f"{size / 1024:.1f}kB, "
-    return f"{size}B, "
+        return f"{size / 1024:.1f}kB"
+    return f"{size}B"
 
 
 def _verdict_section(
@@ -193,7 +191,8 @@ def _artifacts_section(name: str, versions: VersionsInfo) -> list[str]:
                 lines.append(f"- {resource} (check failed: {exc})")
                 continue
             if status == 200:
-                lines.append(f"- {resource} ({_fmt_size(size)}200) {url}")
+                note = "200" if size is None else f"{_fmt_size(size)}, 200"
+                lines.append(f"- {resource} ({note}) {url}")
             else:
                 lines.append(f"- {resource} (absent, HTTP {status})")
         if failed:
@@ -206,9 +205,18 @@ def _artifacts_section(name: str, versions: VersionsInfo) -> list[str]:
 def _clean_issue(issue: dict[str, Any]) -> dict[str, Any]:
     # `id` churns every run, `dataset`/`module` repeat the dataset name and
     # `timestamp` is summarized once for the whole run. Everything else —
-    # notably the `data` payload with the actual dirty values — is kept.
+    # notably the `data` payload with the actual dirty values — is kept,
+    # except the dataset name repeated inside `data` too.
     drop = ("id", "dataset", "module", "timestamp")
-    return {k: v for k, v in issue.items() if k not in drop}
+    cleaned = {k: v for k, v in issue.items() if k not in drop}
+    data = cleaned.get("data")
+    if isinstance(data, dict):
+        data = {k: v for k, v in data.items() if k != "dataset"}
+        if data:
+            cleaned["data"] = data
+        else:
+            del cleaned["data"]
+    return cleaned
 
 
 def _issues_section(
@@ -353,6 +361,7 @@ def _history_section(yaml_path: str) -> list[str]:
             capture_output=True,
             text=True,
             timeout=10,
+            cwd=repo_path,
         )
         if shallow.stdout.strip() == "true":
             return [
@@ -374,6 +383,7 @@ def _history_section(yaml_path: str) -> list[str]:
             capture_output=True,
             text=True,
             timeout=10,
+            cwd=repo_path,
         )
     except (OSError, subprocess.SubprocessError):
         return []
