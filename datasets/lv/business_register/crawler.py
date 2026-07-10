@@ -134,6 +134,11 @@ def parse_beneficial_owners(context: Context, row: Item) -> None:
     officer = make_officer(context, row)
     officer.add("nationality", row["nationality"])
     officer.add("country", row["residence"])
+    if not officer.properties:
+        # Name-only officer whose name was dropped by the type.name lookup and
+        # with no other identifying data: skip to avoid an empty entity and a
+        # relationship referencing a missing owner.
+        return
     cid = company_id(context, row["legal_entity_registration_number"])
     rel = context.make("Ownership")
     rel.id = context.make_slug("OWNER", officer.id, cid)
@@ -153,6 +158,11 @@ def parse_members(context: Context, row: Item) -> None:
         rel.id = context.make_slug("OWNER", row["id"])
     else:
         officer = make_officer(context, row)
+        if not officer.properties:
+            # Name-only officer whose name was dropped by the type.name lookup
+            # and with no other identifying data: skip to avoid an empty entity
+            # and a relationship referencing a missing owner.
+            return
         rel.id = context.make_slug("OWNER", officer.id, cid)
         rel.add("owner", officer)
         context.emit(officer)
