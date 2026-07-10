@@ -1,4 +1,5 @@
 import csv
+import html
 from io import TextIOWrapper
 from typing import Any, Optional, TextIO
 from urllib.parse import urljoin
@@ -8,6 +9,13 @@ from rigour.text.stopwords import is_nullword
 
 from zavod import Context
 from zavod import helpers as h
+
+
+def unescape_row(row: dict[str, Any]) -> dict[str, Any]:
+    """Decode HTML numeric character references (e.g. ``&#8232;``) that the
+    source CSV embeds in name and address fields. Leaving them undecoded trips
+    zavod's HTML/XSS smell check; decoding recovers the intended characters."""
+    return {k: html.unescape(v) if isinstance(v, str) else v for k, v in row.items()}
 
 
 def npi_id(npi: Any) -> Optional[str]:
@@ -34,8 +42,8 @@ def crawl_data_file(context: Context) -> str:
 
 
 def crawl_npidata(context: Context, fh: TextIO) -> None:
-    for row in csv.DictReader(fh):
-        # row = {k: v for k, v in raw.items() if len(v) > 0}
+    for raw in csv.DictReader(fh):
+        row = unescape_row(raw)
         type_code = row.pop("Entity Type Code")
         schema = "LegalEntity"
         if type_code == "1":
@@ -95,7 +103,8 @@ def crawl_npidata(context: Context, fh: TextIO) -> None:
 
 
 def crawl_othernames(context: Context, fh: TextIO) -> None:
-    for row in csv.DictReader(fh):
+    for raw in csv.DictReader(fh):
+        row = unescape_row(raw)
         entity = context.make("LegalEntity")
         entity.id = npi_id(row.get("NPI"))
         if not entity.id:
