@@ -301,7 +301,7 @@ def _assertion_values(
             for schema, props in config.items()
             for prop, t in props.items()
         ]
-    return [("", float("nan"), float("nan"))]
+    raise ValueError(f"Unknown assertion metric: {metric}")
 
 
 def _assertions_section(
@@ -336,8 +336,10 @@ def _assertions_section(
             for key, threshold, value in _assertion_values(metric, config, stats):
                 if bound == "min":
                     violated, close = value < threshold, value < threshold * 1.1
-                else:
+                elif bound == "max":
                     violated, close = value > threshold, value > threshold * 0.9
+                else:
+                    raise ValueError(f"Unknown assertion bound: {bound}")
                 status = (
                     "VIOLATED" if violated else ("close to bound" if close else "ok")
                 )
