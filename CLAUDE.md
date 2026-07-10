@@ -18,6 +18,7 @@ This project contains crawlers that import source data, such as sanctions lists 
     * When a crawler encounters uncertainty in any of the data it is parsing, it should crash or produce an error instead of emitting ambiguous data.
     * Crawlers use `lookups` to override specific values for entity properties of a particular type. For ambiguous data, individual cases can be clarified by adding lookups.
     * After running a crawler, output data is written to `data/datasets/<dataset_name>/`. The file `issues.log` contains line-based JSON of any warnings or errors produced by the crawler. Often the source data fetched by `context.fetch_resource` is also available in that folder.
+    * To see a dataset's state in production — whether the latest run failed and since when, links to its archived artifacts, the current issues, and assertion drift — run `python -m contrib.maintenance.diagnose <dataset_name>` from the repo root.
     * Crawlers commonly do `from zavod import helpers as h`. The relevant code is in `zavod/zavod/helpers`. Use this pattern over direct imports.
 * `ui` contains a NextJS user interface for reviewing and verifying information from crawlers. The contained table structures need to match those in `zavod.stateful`.
 * `zavod/docs` documents the zavod framework, as well as best practices, especially with regards to semantic issues like Politically Exposed Persons
