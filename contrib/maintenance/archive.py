@@ -14,6 +14,7 @@ import json
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from functools import lru_cache
+from itertools import islice
 from typing import Any, Generator
 
 from . import session
@@ -140,32 +141,40 @@ def fetch_artifact(dataset_name: str, version_id: str, resource: str) -> Any | N
     return fetch_json(artifact_url(dataset_name, version_id, resource))
 
 
-@lru_cache(maxsize=256)
-def get_issues(dataset_name: str, version_id: str) -> list[dict[str, Any]] | None:
-    """Stream the issues of one run from its line-based issues.log.
+def iter_issues(
+    dataset_name: str, version_id: str
+) -> Generator[dict[str, Any], None, None]:
+    """Stream one run's issues from its line-based issues.log.
 
-    Returns None when the log is missing. issues.json holds the same records
-    wrapped in one document, but KYB-scale sources log issues by the thousand,
-    so this streams the log and stops after MAX_ISSUES + 1 records — check
-    len(issues) > MAX_ISSUES to detect truncation. Treat the result as
-    read-only; the cache hands every caller the same list.
+    issues.json holds the same records wrapped in one document, but KYB-scale
+    sources log issues by the thousand — streaming the log lets callers cap
+    the read or consume it all incrementally. Raises FileNotFoundError when
+    the run has no issues.log.
     """
     url = artifact_url(dataset_name, version_id, "issues.log")
     response = session.get(url, stream=True)
     if response.status_code == 404:
-        return None
+        raise FileNotFoundError(url)
     response.raise_for_status()
-    issues: list[dict[str, Any]] = []
     try:
         for line in response.iter_lines():
-            if not line:
-                continue
-            issues.append(json.loads(line))
-            if len(issues) > MAX_ISSUES:
-                break
+            if line:
+                yield json.loads(line)
     finally:
         response.close()
-    return issues
+
+
+@lru_cache(maxsize=256)
+def get_issues(dataset_name: str, version_id: str) -> list[dict[str, Any]] | None:
+    """The first MAX_ISSUES + 1 issues of one run; None when the log is missing.
+
+    Check len(issues) > MAX_ISSUES to detect a truncated read. Treat the
+    result as read-only; the cache hands every caller the same list.
+    """
+    try:
+        return list(islice(iter_issues(dataset_name, version_id), MAX_ISSUES + 1))
+    except FileNotFoundError:
+        return None
 
 
 def iter_catalog_datasets() -> Generator[dict[str, Any], None, None]:

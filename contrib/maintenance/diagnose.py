@@ -282,6 +282,11 @@ def _issues_section(
                 f"Counts cover only the first {MAX_ISSUES} issues; the full set "
                 "is in the linked issues.log / issues.json."
             )
+        lines.append("")
+        lines.append(
+            "For the full, uncapped pattern aggregation run: "
+            f"`python -m contrib.maintenance.aggregate_issues {name}`"
+        )
     return lines
 
 
