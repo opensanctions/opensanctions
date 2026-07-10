@@ -10,15 +10,27 @@ Archive semantics this module encodes:
   only present for successful runs.
 """
 
+import json
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from functools import lru_cache
-from typing import Any
+from typing import Any, Generator
 
 from . import session
 
 ARCHIVE_SITE = "https://data.opensanctions.org"
-CATALOG_URL = f"{ARCHIVE_SITE}/datasets/latest/index.json"
+# The scopes we maintain are published as separate catalogs with disjoint
+# dataset sets: default (sanctions/PEPs) and KYB (corporate registries).
+CATALOG_URLS = [
+    f"{ARCHIVE_SITE}/datasets/latest/default/catalog.json",
+    f"{ARCHIVE_SITE}/datasets/latest/kyb/catalog.json",
+]
+
+# Reading more than this many issues from one run is pointless for agent
+# selection and reporting alike — a dataset in that state needs different
+# handling. get_issues reads one extra record so callers can detect
+# truncation via len(issues) > MAX_ISSUES.
+MAX_ISSUES = 1000
 
 # The artifacts a run may leave behind, in the order we report them.
 RUN_ARTIFACTS = [
@@ -128,23 +140,48 @@ def fetch_artifact(dataset_name: str, version_id: str, resource: str) -> Any | N
     return fetch_json(artifact_url(dataset_name, version_id, resource))
 
 
+@lru_cache(maxsize=256)
 def get_issues(dataset_name: str, version_id: str) -> list[dict[str, Any]] | None:
-    """Fetch the issues of one run; None when the artifact is missing."""
-    data = fetch_artifact(dataset_name, version_id, "issues.json")
-    if data is None:
+    """Stream the issues of one run from its line-based issues.log.
+
+    Returns None when the log is missing. issues.json holds the same records
+    wrapped in one document, but KYB-scale sources log issues by the thousand,
+    so this streams the log and stops after MAX_ISSUES + 1 records — check
+    len(issues) > MAX_ISSUES to detect truncation. Treat the result as
+    read-only; the cache hands every caller the same list.
+    """
+    url = artifact_url(dataset_name, version_id, "issues.log")
+    response = session.get(url, stream=True)
+    if response.status_code == 404:
         return None
-    issues = data.get("issues", [])
-    assert isinstance(issues, list), f"Unexpected issues.json shape: {dataset_name}"
+    response.raise_for_status()
+    issues: list[dict[str, Any]] = []
+    try:
+        for line in response.iter_lines():
+            if not line:
+                continue
+            issues.append(json.loads(line))
+            if len(issues) > MAX_ISSUES:
+                break
+    finally:
+        response.close()
     return issues
 
 
-def get_catalog() -> Any:
-    """Fetch the full latest-datasets catalog.
+def iter_catalog_datasets() -> Generator[dict[str, Any], None, None]:
+    """Yield the dataset entries of every published catalog, deduped by name.
 
-    Not routed through fetch_json: it is ~20MB parsed and read once, so
-    pinning it in the LRU buys nothing, and a missing catalog is a hard error
+    The catalogs are disjoint today; first catalog wins if that ever changes.
+    Not routed through fetch_json: the catalogs are large (~20MB parsed for
+    the default scope), read once, and a missing catalog is a hard error
     rather than a None.
     """
-    response = session.get(CATALOG_URL)
-    response.raise_for_status()
-    return response.json()
+    seen: set[str] = set()
+    for url in CATALOG_URLS:
+        response = session.get(url)
+        response.raise_for_status()
+        for dataset in response.json().get("datasets", []):
+            name = dataset.get("name")
+            if name and name not in seen:
+                seen.add(name)
+                yield dataset

@@ -16,7 +16,7 @@ from typing import Any
 
 from jinja2 import Template
 
-from .archive import get_catalog, get_issues, get_versions
+from .archive import MAX_ISSUES, get_issues, get_versions, iter_catalog_datasets
 from .datasets import get_code_path, get_path_from_name, read_dataset_meta
 from .diagnose import build_report
 from .github import (
@@ -27,8 +27,6 @@ from .github import (
     has_closed_pr_for_branch,
 )
 from .issues import is_issue_ignored, issues_checksum
-
-MAX_ISSUES = 1000
 
 # Match compute to task difficulty. Lookup/assertion edits on YAML are mechanical,
 # so a mid-tier model with few turns suffices. Datasets with a crawler may need an
@@ -58,29 +56,24 @@ def log(message: str) -> None:
 
 
 def index_jobs() -> None:
-    index_data = get_catalog()
     outage_datasets = get_outage_datasets()
     open_autofix_branches = get_open_autofix_branches()
     tasks: list[Any] = []
 
-    for dataset in index_data.get("datasets", []):
+    for dataset in iter_catalog_datasets():
         name = dataset.get("name")
         if not name:
             continue
-        # The catalog is only a discovery index: a cheap pre-filter for which
-        # datasets are worth a look and a guard against enormous issue sets.
-        # The authoritative issue contents and counts come from the latest run
-        # in versions.json below — the same run the embedded diagnostic report
-        # describes, which can be fresher than the catalog snapshot.
+        # The catalogs are only a discovery index: a cheap pre-filter for
+        # which datasets are worth a look. The authoritative issue contents
+        # and counts come from the latest run in versions.json below — the
+        # same run the embedded diagnostic report describes, which can be
+        # fresher than the catalog snapshot.
         levels = dataset.get("issue_levels", {})
-        catalog_issues = levels.get("warning", 0) + levels.get("error", 0)
-        if catalog_issues == 0:
+        if levels.get("warning", 0) + levels.get("error", 0) == 0:
             continue
         if name in outage_datasets:
             log(f"Documented outage: {name}")
-            continue
-        if catalog_issues > MAX_ISSUES:
-            log(f"Fubar: {name}")
             continue
 
         if dataset_has_open_pr(name, open_autofix_branches):
@@ -92,6 +85,9 @@ def index_jobs() -> None:
             log(f"No archived runs: {name}")
             continue
         issues = get_issues(name, versions.latest) or []
+        if len(issues) > MAX_ISSUES:
+            log(f"Fubar: {name} ({MAX_ISSUES}+ issues in latest run)")
+            continue
         errors = sum(1 for i in issues if i.get("level") == "error")
         warnings = sum(1 for i in issues if i.get("level") == "warning")
         if warnings + errors == 0:

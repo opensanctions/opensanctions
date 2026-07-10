@@ -21,6 +21,7 @@ import yaml
 
 from .archive import (
     FAILED_RUN_ARTIFACTS,
+    MAX_ISSUES,
     RUN_ARTIFACTS,
     VersionsInfo,
     artifact_url,
@@ -223,8 +224,14 @@ def _issues_section(
     name: str, issues: list[dict[str, Any]] | None, max_issues: int
 ) -> list[str]:
     if issues is None:
-        return ["## Issues", "", "No issues.json found for the latest run."]
-    lines = [f"## Issues of the latest run ({len(issues)} total)", ""]
+        return ["## Issues", "", "No issues.log found for the latest run."]
+    truncated = len(issues) > MAX_ISSUES
+    if truncated:
+        issues = issues[:MAX_ISSUES]
+        total = f"more than {MAX_ISSUES} — reading stopped there"
+    else:
+        total = f"{len(issues)} total"
+    lines = [f"## Issues of the latest run ({total})", ""]
     if len(issues) == 0:
         return lines + ["The latest run logged no issues."]
 
@@ -268,6 +275,12 @@ def _issues_section(
             rest = sum(len(m) for _, m in groups[MAX_ISSUE_GROUPS:])
             lines.append(
                 f"- … {len(groups) - MAX_ISSUE_GROUPS} more patterns ({rest} issues)"
+            )
+        if truncated:
+            lines.append("")
+            lines.append(
+                f"Counts cover only the first {MAX_ISSUES} issues; the full set "
+                "is in the linked issues.log / issues.json."
             )
     return lines
 
