@@ -20,6 +20,7 @@ from typing import Any
 import yaml
 
 from .archive import (
+    FAILED_RUN_ARTIFACTS,
     RUN_ARTIFACTS,
     VersionsInfo,
     artifact_url,
@@ -96,7 +97,10 @@ def _verdict_section(
         for issue in issues or []:
             level = str(issue.get("level", "unknown"))
             levels[level] = levels.get(level, 0) + 1
-        summary = ", ".join(f"{n} {level}s" for level, n in sorted(levels.items()))
+        summary = ", ".join(
+            f"{n} {level}" + ("s" if n != 1 else "")
+            for level, n in sorted(levels.items())
+        )
         lines.append(f"# {name} — latest run succeeded ({summary or 'no issues'})")
         lines.append("")
         lines.append(f"Latest run: {versions.latest} ({_fmt_ts(versions.latest)})")
@@ -178,9 +182,10 @@ def _artifacts_section(name: str, versions: VersionsInfo) -> list[str]:
         runs.append((versions.latest, "Latest (successful) run"))
 
     for version_id, title in runs:
+        failed = title.startswith("Latest (failed)")
         lines.append(f"## {title} {version_id} ({_fmt_ts(version_id)})")
         lines.append("")
-        for resource in RUN_ARTIFACTS:
+        for resource in FAILED_RUN_ARTIFACTS if failed else RUN_ARTIFACTS:
             url = artifact_url(name, version_id, resource)
             try:
                 status, size = head_artifact(name, version_id, resource)
@@ -189,13 +194,11 @@ def _artifacts_section(name: str, versions: VersionsInfo) -> list[str]:
                 continue
             if status == 200:
                 lines.append(f"- {resource} ({_fmt_size(size)}200) {url}")
-            elif resource in (
-                "statistics.json",
-                "statements.pack",
-            ) and title.startswith("Latest (failed)"):
-                lines.append(f"- {resource} (absent — failed runs don't archive it)")
             else:
                 lines.append(f"- {resource} (absent, HTTP {status})")
+        if failed:
+            success_only = [r for r in RUN_ARTIFACTS if r not in FAILED_RUN_ARTIFACTS]
+            lines.append(f"- {', '.join(success_only)}: never exported by failed runs")
         lines.append("")
     return lines[:-1]
 

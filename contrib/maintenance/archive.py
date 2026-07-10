@@ -30,6 +30,9 @@ RUN_ARTIFACTS = [
     "resources.json",
     "delta.json",
 ]
+# The subset archived even when the run failed; the rest of RUN_ARTIFACTS is
+# only ever exported by successful runs.
+FAILED_RUN_ARTIFACTS = ["index.json", "issues.json", "issues.log"]
 
 
 def artifact_url(dataset_name: str, version_id: str, resource: str) -> str:
@@ -121,17 +124,6 @@ def get_issues(dataset_name: str, version_id: str) -> list[dict[str, Any]] | Non
     issues = data.get("issues", [])
     assert isinstance(issues, list), f"Unexpected issues.json shape: {dataset_name}"
     return issues
-
-
-def get_issue_details(issues_url: str) -> Any | None:
-    """Fetch an issues.json by URL (as listed in the catalog index)."""
-    response = session.get(issues_url)
-    if response.status_code != 200:
-        return None
-    try:
-        return response.json()
-    except json.JSONDecodeError:
-        return None
 
 
 def get_catalog() -> Any:

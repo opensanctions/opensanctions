@@ -16,7 +16,7 @@ from typing import Any
 
 from jinja2 import Template
 
-from .archive import get_catalog, get_issue_details
+from .archive import get_catalog, get_issues, get_versions
 from .datasets import get_code_path, get_path_from_name, read_dataset_meta
 from .diagnose import build_report
 from .github import (
@@ -67,16 +67,19 @@ def index_jobs() -> None:
         name = dataset.get("name")
         if not name:
             continue
+        # The catalog is only a discovery index: a cheap pre-filter for which
+        # datasets are worth a look and a guard against enormous issue sets.
+        # The authoritative issue contents and counts come from the latest run
+        # in versions.json below — the same run the embedded diagnostic report
+        # describes, which can be fresher than the catalog snapshot.
         levels = dataset.get("issue_levels", {})
-        warnings = levels.get("warning", 0)
-        errors = levels.get("error", 0)
-
-        if warnings == 0:
+        catalog_issues = levels.get("warning", 0) + levels.get("error", 0)
+        if catalog_issues == 0:
             continue
         if name in outage_datasets:
             log(f"Documented outage: {name}")
             continue
-        if (warnings + errors) > MAX_ISSUES:
+        if catalog_issues > MAX_ISSUES:
             log(f"Fubar: {name}")
             continue
 
@@ -84,8 +87,25 @@ def index_jobs() -> None:
             log(f"Open PR exists: {name}")
             continue
 
-        issues = get_issue_details(dataset.get("issues_url")) or {}
-        checksum = issues_checksum(issues.get("issues", []))
+        versions = get_versions(name)
+        if versions is None or versions.latest is None:
+            log(f"No archived runs: {name}")
+            continue
+        issues = get_issues(name, versions.latest) or []
+        errors = sum(1 for i in issues if i.get("level") == "error")
+        warnings = sum(1 for i in issues if i.get("level") == "warning")
+        if warnings + errors == 0:
+            log(f"Latest run is clean: {name}")
+            continue
+        # The prompt tells agents to leave transient runtime errors to humans,
+        # so when that is all a run produced, don't spawn one just to conclude
+        # there is nothing to do. Mixed runs (a runner error alongside fixable
+        # warnings) still get a task.
+        if all(str(i.get("message", "")).startswith("Runner failed") for i in issues):
+            log(f"Transient runner failure only: {name}")
+            continue
+
+        checksum = issues_checksum(issues)
         branch = f"{branch_prefix(name)}{checksum[:10]}"
         if has_closed_pr_for_branch(branch):
             log(f"Already handled (closed PR): {name} ({branch})")
@@ -117,8 +137,8 @@ def index_jobs() -> None:
         # The report is the prompt's single source of runtime facts (run
         # verdict, artifact links, the issues themselves); the template only
         # carries instructions and the values its conditionals/scope rules
-        # need. Note the report reads versions.json, which can be a run
-        # fresher than the catalog snapshot this selection loop is based on.
+        # need. It describes the same versions.json-latest run the checksum
+        # above was computed from.
         prompt = PROMPT.render(
             name=name,
             report=build_report(name).rstrip(),
@@ -128,7 +148,12 @@ def index_jobs() -> None:
             code_path=code_path,
             ci_test=ci_test,
         )
-        title = f"[{name}]: {warnings} warnings"
+        counts = [
+            f"{n} {label}" + ("s" if n != 1 else "")
+            for n, label in ((errors, "error"), (warnings, "warning"))
+            if n > 0
+        ]
+        title = f"[{name}]: {', '.join(counts)}"
         tasks.append(
             {
                 "prompt": prompt,
