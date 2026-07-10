@@ -37,8 +37,9 @@ def issues_checksum(issues: list[Any]) -> str:
     return hashlib.sha1(canonical.encode("utf-8")).hexdigest()
 
 
-# Exact, case-sensitive markers of infrastructure noise: nobody — agent or
-# human — can act on these, and they resolve (or recur) on their own.
+# Exact, case-sensitive markers of issues that cannot be addressed by editing
+# this repository: transient infrastructure noise that resolves (or recurs) on
+# its own, and backlogs handled in out-of-band systems.
 #
 # zavod's crawl.py logs RequestException failures as "Runner failed with
 # {type}[ on {url}]" — only connection-level exception types are listed here.
@@ -52,16 +53,21 @@ IGNORED_MESSAGES = [
     "Runner failed with ReadTimeout",
     "Runner failed with Timeout",
     "psycopg2.errors.DeadlockDetected",
+    # zavod.stateful.review.assert_all_accepted — cleared by a human in the
+    # review UI, which the agent has no access to. Occurs both as a warning
+    # and, raised, as "Runner failed: There are N unaccepted items...".
+    "unaccepted items for dataset",
 ]
 
 
 def is_issue_ignored(issue: dict[str, Any]) -> bool:
-    """True for infrastructure noise that neither an agent nor a human can act on.
+    """True for issues that cannot be addressed by editing this repository.
 
-    Use this to avoid spawning an agent (or demanding human attention) for a
-    run whose only issues are transient — a database deadlock, a dropped
-    connection, a timeout. The match is deliberately narrow: exact markers for
-    known-transient failures, so anything unrecognized stays visible.
+    Use this to avoid spawning an agent for a run whose issues it could never
+    fix: transient infrastructure noise (a database deadlock, a dropped
+    connection, a timeout) and review-system backlog, which a human clears in
+    the review UI. The match is deliberately narrow: exact markers for known
+    cases, so anything unrecognized stays visible.
     """
     message = str(issue.get("message", ""))
     return any(pattern in message for pattern in IGNORED_MESSAGES)
