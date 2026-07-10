@@ -18,6 +18,7 @@ from jinja2 import Template
 
 from .archive import get_catalog, get_issue_details
 from .datasets import get_code_path, get_path_from_name, read_dataset_meta
+from .diagnose import build_report
 from .github import (
     branch_prefix,
     dataset_has_open_pr,
@@ -113,9 +114,14 @@ def index_jobs() -> None:
         if max_turns > MAX_TURNS_CODE_VERIFIABLE:
             model = MODEL_CODE
 
+        # The report is the prompt's single source of runtime facts (run
+        # verdict, artifact links, the issues themselves); the template only
+        # carries instructions and the values its conditionals/scope rules
+        # need. Note the report reads versions.json, which can be a run
+        # fresher than the catalog snapshot this selection loop is based on.
         prompt = PROMPT.render(
             name=name,
-            issues_url=dataset.get("issues_url"),
+            report=build_report(name).rstrip(),
             yaml_path=path,
             crawler_dir=crawler_dir,
             branch=branch,

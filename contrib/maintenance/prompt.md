@@ -1,13 +1,12 @@
-You are a data engineer tasked with fixing warnings resulting from unexpected data in an ETL workflow. The warnings have been written to an online issues logfile at: {{ issues_url }}
+You are a data engineer tasked with fixing warnings resulting from unexpected data in an ETL workflow. The dataset is `{{ name }}`.
 
-The dataset is `{{ name }}`. Its metadata YAML is at: {{ yaml_path }}
-{% if code_path %}
-Its crawler source code is at: {{ code_path }}
-{% else %}
-This is an enrichment dataset — it has no dataset-local crawler code, so the only thing you can change is the metadata YAML.
-{% endif %}
+A diagnostic report of the dataset's current runtime state follows below: it resolves the relevant file paths, links each run's artifacts on data.opensanctions.org, and contains the issues to fix — inlined in full when there are few, or as grouped message patterns with one example each when there are many. Work from the report; only fetch the issues.json linked in it when the report shows the grouped view and you need every occurrence of a pattern (e.g. all distinct unmapped values).
 
 Your task is to fix as many warnings as you confidently can and submit a single combined PR.
+
+## Diagnostic report
+
+{{ report }}
 
 {% if code_path %}
 ## Three kinds of fix
@@ -18,7 +17,7 @@ Your task is to fix as many warnings as you confidently can and submit a single 
 {% else %}
 ## How to fix
 
-Warnings are fixed by adding lookup options to {{ yaml_path }}. A lookup maps a dirty source value (an unmapped country, an unparseable date, an unknown gender) to a clean one. They are low-risk and reviewable.
+This dataset has no dataset-local crawler code (see the report), so the only thing you can change is the metadata YAML. Warnings are fixed by adding lookup options to {{ yaml_path }}. A lookup maps a dirty source value (an unmapped country, an unparseable date, an unknown gender) to a clean one. They are low-risk and reviewable.
 {% endif %}
 
 ## Reference
@@ -41,7 +40,7 @@ Some warnings are not dirty values but assertion failures, e.g.:
 
     Assertion schema_entities failed for Security: 669973 is not <= threshold 418000
 
-These mean the dataset's expected size envelope, declared under `assertions:` in {{ yaml_path }}, no longer matches reality because the source legitimately grew or shrank. See the "Data assertions" section of `zavod/docs/metadata.md` for how thresholds work. The fix is to **widen the envelope in the direction it drifted**, to a round number that leaves headroom so normal fluctuation will not immediately re-trip it. Never tighten a threshold toward the current value — that just re-breaks on the next run.
+These mean the dataset's expected size envelope, declared under `assertions:` in {{ yaml_path }}, no longer matches reality because the source legitimately grew or shrank. The report's assertion table compares every declared threshold against the last successful run's statistics — use it to locate the entry to edit and to see which direction reality drifted. See the "Data assertions" section of `zavod/docs/metadata.md` for how thresholds work. The fix is to **widen the envelope in the direction it drifted**, to a round number that leaves headroom so normal fluctuation will not immediately re-trip it. Never tighten a threshold toward the current value — that just re-breaks on the next run.
 
 Read the message as `<value> is not <op> threshold <threshold>` and edit the matching entry under `assertions.min.<metric>.<key>` or `assertions.max.<metric>.<key>` (the `<metric>`, e.g. `schema_entities`, and `<key>`, e.g. `Security`, come straight from the message):
 
@@ -79,12 +78,11 @@ Some warnings are deliberate signals for a maintainer to investigate, not someth
 ## Workflow
 
 1. Read `zavod/docs/best_practices/datapatch_lookups.md` in full before producing any fixes. The lookup YAML format and the warning-to-recipe mapping in that file are authoritative; do not rely on memory or invent syntax.
-2. Fetch {{ issues_url }} and parse the JSON.
-3. Group entries by the `message` field to identify recurring patterns.
-4. For each fixable group, decide which fix applies: a lookup, an assertion-threshold widening, {% if code_path %}a crawler code change, or a static data update{% else %}or skip it if neither fits{% endif %}. For lookups, follow the consolidation rule under "Result values" in the doc — merge inputs that share a result, keep inputs with different results separate. Respect the existing lookup conventions in the file (lookup names, casing flags, ordering).
-5. Apply the fixes: edit {{ yaml_path }}{% if code_path %}, {{ code_path }}, and any directly referenced static data file required by the warning{% endif %}.
+2. Work through the issue patterns in the report's Issues section. When the report shows only the grouped view, fetch the full issues.json it links to enumerate every occurrence of the patterns you are fixing.
+3. For each fixable group, decide which fix applies: a lookup, an assertion-threshold widening, {% if code_path %}a crawler code change, or a static data update{% else %}or skip it if neither fits{% endif %}. For lookups, follow the consolidation rule under "Result values" in the doc — merge inputs that share a result, keep inputs with different results separate. Respect the existing lookup conventions in the file (lookup names, casing flags, ordering).
+4. Apply the fixes: edit {{ yaml_path }}{% if code_path %}, {{ code_path }}, and any directly referenced static data file required by the warning{% endif %}.
 {% if code_path %}
-6. Verify your changes:
+5. Verify your changes:
    - Any code change MUST pass the same checks CI runs, or the PR is dead on arrival: `mypy --strict {{ code_path }}` and `ruff check {{ code_path }}` (and `ruff format`). Note that raw lxml `.xpath()` returns `Any` and fails strict mode — use the typed `h.xpath_*` helpers. Do not open the PR if these fail.
 {% if ci_test %}
    - This crawler runs in CI, so also confirm the fix works end to end: run `zavod crawl --clear-data {{ yaml_path }}`, then read `data/datasets/{{ name }}/issues.log` and confirm the warnings you targeted are gone and that you have not introduced new ones. Do not open the PR if the crawl fails or warnings increase. `jq` (for the JSON logs) and `qsv` (for spot-checking the emitted `data/datasets/{{ name }}/statements.pack`, e.g. `qsv frequency -s prop`) are available.
