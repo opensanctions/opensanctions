@@ -182,7 +182,7 @@ entity.id = context.make_id(names_string, ...)
 h.apply_reviewed_name_string(context, entity, string=names_string)
 ```
 
-All sanctions crawlers should end with a call to `assert_all_accepted(context, raise_on_unaccepted=False)` (imported from `zavod.stateful.review`). This logs a warning with the count of any name reviews that are still unaccepted for the current dataset and version, rather than raising, so the crawler completes and emits output while flagging that reviews remain outstanding.
+All crawlers calling `h.review_names` or `h.apply_reviewed_names` should end with a call to `assert_all_accepted(context, raise_on_unaccepted=False)` (imported from `zavod.stateful.review`). This logs a warning with the count of any name reviews that are still unaccepted for the current dataset and version, rather than raising, so the crawler completes and emits output while flagging that reviews remain outstanding.
 
 After the deployment of step 3 has run, check the latest reviews and make sure new names were't auto-accepted between deploying step 1 and step 3.
 
