@@ -4,11 +4,19 @@ Invoked by .github/workflows/issues-agent.yml as:
 
     python -m contrib.maintenance.issues_agent
 
-Emits the matrix JSON on stdout; everything human-readable goes to stderr.
+Emits the matrix JSON on stdout and writes each task's prompt to
+<prompts-dir>/<dataset>.md; everything human-readable goes to stderr. The
+prompts travel to the run-tasks job as a workflow artifact rather than inside
+the matrix: they embed diagnostic reports full of arbitrary source data, and
+GitHub silently drops a job output when it spots anything resembling a secret
+in it ("Skip output 'matrix' since it may contain secret"), which breaks the
+fromJson() strategy expression downstream.
+
 This module holds only agent policy — model/turn selection, branch naming and
 PR dedup. The shared mechanics live in the sibling modules of this package.
 """
 
+import argparse
 import json
 import sys
 from pathlib import Path
@@ -55,7 +63,7 @@ def log(message: str) -> None:
     print(message, file=sys.stderr)
 
 
-def index_jobs() -> None:
+def index_jobs(prompts_dir: Path) -> None:
     outage_datasets = get_outage_datasets()
     open_autofix_branches = get_open_autofix_branches()
     tasks: list[Any] = []
@@ -149,9 +157,10 @@ def index_jobs() -> None:
             if n > 0
         ]
         title = f"[{name}]: {', '.join(counts)}"
+        (prompts_dir / f"{name}.md").write_text(prompt)
         tasks.append(
             {
-                "prompt": prompt,
+                "dataset": name,
                 "name": title,
                 "branch": branch,
                 "model": model,
@@ -164,4 +173,15 @@ def index_jobs() -> None:
 
 
 if __name__ == "__main__":
-    index_jobs()
+    parser = argparse.ArgumentParser(
+        description="Generate the issues-agent task matrix and prompt files."
+    )
+    parser.add_argument(
+        "--prompts-dir",
+        type=Path,
+        default=Path("task-prompts"),
+        help="directory to write one <dataset>.md prompt file per task into",
+    )
+    args = parser.parse_args()
+    args.prompts_dir.mkdir(parents=True, exist_ok=True)
+    index_jobs(args.prompts_dir)
