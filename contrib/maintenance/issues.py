@@ -37,20 +37,21 @@ def issues_checksum(issues: list[Any]) -> str:
     return hashlib.sha1(canonical.encode("utf-8")).hexdigest()
 
 
-# Issue messages that are pure infrastructure noise: nobody — agent or human —
-# can act on them, and they resolve (or recur) on their own. Matched as
-# case-insensitive substrings. HTTP errors are deliberately NOT listed: a
-# persistent HTTPError usually means a moved or bot-blocked source, which is
-# actionable.
+# Exact, case-sensitive markers of infrastructure noise: nobody — agent or
+# human — can act on these, and they resolve (or recur) on their own.
+#
+# zavod's crawl.py logs RequestException failures as "Runner failed with
+# {type}[ on {url}]" — only connection-level exception types are listed here.
+# HTTPError is deliberately absent: a persistent 404/403 means a moved or
+# bot-blocked source, which is actionable. All other exceptions are logged as
+# "Runner failed: {str(exc)}", where a database deadlock surfaces the
+# qualified psycopg2 class name.
 IGNORED_MESSAGES = [
-    # psycopg2.errors.DeadlockDetected — match both the class name (no space
-    # when lowercased) and the "deadlock detected" prose psycopg2 appends.
-    "deadlock",
-    "connectionerror",
-    "connection reset",
-    "connection aborted",
-    "timeout",
-    "timed out",
+    "Runner failed with ConnectionError",
+    "Runner failed with ConnectTimeout",
+    "Runner failed with ReadTimeout",
+    "Runner failed with Timeout",
+    "psycopg2.errors.DeadlockDetected",
 ]
 
 
@@ -59,9 +60,10 @@ def is_issue_ignored(issue: dict[str, Any]) -> bool:
 
     Use this to avoid spawning an agent (or demanding human attention) for a
     run whose only issues are transient — a database deadlock, a dropped
-    connection, a timeout.
+    connection, a timeout. The match is deliberately narrow: exact markers for
+    known-transient failures, so anything unrecognized stays visible.
     """
-    message = str(issue.get("message", "")).lower()
+    message = str(issue.get("message", ""))
     return any(pattern in message for pattern in IGNORED_MESSAGES)
 
 
