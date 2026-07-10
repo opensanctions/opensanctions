@@ -30,7 +30,7 @@ CATALOG_URLS = [
 # selection and reporting alike — a dataset in that state needs different
 # handling. get_issues reads one extra record so callers can detect
 # truncation via len(issues) > MAX_ISSUES.
-MAX_ISSUES = 1000
+MAX_ISSUES = 500
 
 # The artifacts a run may leave behind, in the order we report them.
 RUN_ARTIFACTS = [
