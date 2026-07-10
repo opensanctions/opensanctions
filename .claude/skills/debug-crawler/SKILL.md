@@ -39,7 +39,7 @@ import requests, os
 from base64 import b64decode
 
 ZYTE_API_KEY = os.environ['OPENSANCTIONS_ZYTE_API_KEY']
-url = '<data_url from .yml>'
+url = '<the Source data URL from the diagnostic report>'
 
 resp = requests.post(
     'https://api.zyte.com/v1/extract',
