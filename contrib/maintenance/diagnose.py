@@ -46,7 +46,7 @@ STALE_AFTER = {
 
 def _fmt_ts(version_id: str) -> str:
     ts = version_timestamp(version_id)
-    return ts.strftime("%Y-%m-%d %H:%M UTC") if ts is not None else "?"
+    return ts.strftime("%Y-%m-%d %H:%M") if ts is not None else "?"
 
 
 def _fmt_size(size: int) -> str:
@@ -192,10 +192,12 @@ def _artifacts_section(name: str, versions: VersionsInfo) -> list[str]:
                 lines.append(f"- {resource} (check failed: {exc})")
                 continue
             if status == 200:
-                note = "200" if size is None else f"{_fmt_size(size)}, 200"
-                lines.append(f"- {resource} ({note}) {url}")
+                if size is None:
+                    lines.append(f"- {resource} {url}")
+                else:
+                    lines.append(f"- {resource} ({_fmt_size(size)}) {url}")
             else:
-                lines.append(f"- {resource} (absent, HTTP {status})")
+                lines.append(f"- {resource} (absent)")
         if failed:
             success_only = [r for r in RUN_ARTIFACTS if r not in FAILED_RUN_ARTIFACTS]
             lines.append(f"- {', '.join(success_only)}: never exported by failed runs")
@@ -221,7 +223,7 @@ def _clean_issue(issue: dict[str, Any]) -> dict[str, Any]:
 
 
 def _issues_section(
-    name: str, issues: list[dict[str, Any]] | None, max_issues: int
+    name: str, version_id: str, issues: list[dict[str, Any]] | None, max_issues: int
 ) -> list[str]:
     if issues is None:
         return ["## Issues", "", "No issues.log found for the latest run."]
@@ -231,17 +233,9 @@ def _issues_section(
         total = f"more than {MAX_ISSUES} — reading stopped there"
     else:
         total = f"{len(issues)} total"
-    lines = [f"## Issues of the latest run ({total})", ""]
+    lines = [f"## Issues of latest run ({version_id}, {total})", ""]
     if len(issues) == 0:
         return lines + ["The latest run logged no issues."]
-
-    timestamps = sorted({str(i.get("timestamp", ""))[:16] for i in issues})
-    if timestamps:
-        if timestamps[0] == timestamps[-1]:
-            lines.append(f"All logged at {timestamps[0]}.")
-        else:
-            lines.append(f"Logged between {timestamps[0]} and {timestamps[-1]}.")
-        lines.append("")
 
     if len(issues) <= max_issues:
         cleaned = [_clean_issue(issue) for issue in issues]
@@ -449,7 +443,7 @@ def build_report(name: str, max_issues: int = 10) -> str:
             sections.append(_artifacts_section(name, versions))
         except Exception as exc:
             sections.append(["## Artifacts", "", f"(section unavailable: {exc})"])
-        sections.append(_issues_section(name, issues, max_issues))
+        sections.append(_issues_section(name, versions.latest, issues, max_issues))
         try:
             sections.append(_assertions_section(name, meta, versions))
         except Exception as exc:
