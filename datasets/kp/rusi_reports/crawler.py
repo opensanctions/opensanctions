@@ -1,22 +1,35 @@
 import json
-import zipfile
-from typing import Dict, Any, List
+from typing import Any
 from followthemoney.property import Property
 from followthemoney.types import registry
+from rigour.mime.types import JSON
+
 from zavod import Context
 
-IGNORE_SCHEMATA = ["Event", "Documentation", "Document"]
+# Schemata we don't ingest. Documentation/Document/Event/Source are the source's
+# provenance graph (which reports mention an entity); we keep only the entity
+# network. Sanction designations are intentionally excluded from this dataset.
+IGNORE_SCHEMATA = ["Event", "Documentation", "Document", "Source", "Sanction"]
 IGNORE_PROPS = ["proof"]
 
+# Relationship edges that only exist in the source's `edges` array (they have no
+# node record of their own), mapped to the FTM edge's (source, target) properties.
+EDGE_SCHEMATA: dict[str, tuple[str, str]] = {
+    "Employment": ("employee", "employer"),
+    "Membership": ("member", "organization"),
+    "Associate": ("person", "associate"),
+    "UnknownLink": ("subject", "object"),
+}
 
-def parse_entity(context: Context, data: Dict[str, Any]) -> None:
+
+def parse_entity(context: Context, data: dict[str, Any]) -> None:
     if data["schema"] in IGNORE_SCHEMATA:
         return
 
     entity = context.make(data["schema"])
     entity.id = context.make_slug(data["id"])
 
-    properties: Dict[str, List[str]] = data.pop("properties", {})
+    properties: dict[str, list[str]] = data.pop("properties", {})
     for prop_name, values in properties.items():
         if prop_name in IGNORE_PROPS:
             continue
@@ -45,7 +58,7 @@ def parse_entity(context: Context, data: Dict[str, Any]) -> None:
                     )
                 else:
                     scheme, value = value.split(":", 1)
-                    res = context.lookup_value("id_scheme", scheme)
+                    res = context.lookup_value("id_scheme", scheme.strip())
                     if res is None:
                         context.log.warn(
                             "Unknown id scheme",
@@ -64,15 +77,36 @@ def parse_entity(context: Context, data: Dict[str, Any]) -> None:
     context.emit(entity)
 
 
-def crawl(context: Context) -> None:
-    path = context.fetch_resource("data.zip", context.data_url)
-    context.export_resource(path, "application/zip", title=context.SOURCE_TITLE)
+def parse_edge(context: Context, data: dict[str, Any]) -> None:
+    schema = data.pop("schema")
+    if schema not in EDGE_SCHEMATA:
+        return
+    source_prop, target_prop = EDGE_SCHEMATA[schema]
+    source = data.pop("source")
+    target = data.pop("target")
+    role = data.pop("role").strip()
+    relationship = data.pop("relationship").strip()
 
-    with zipfile.ZipFile(path, "r") as zipfh:
-        for name in zipfh.namelist():
-            if not name.endswith(".json"):
-                continue
-            with zipfh.open(name, "r") as fh:
-                while line := fh.readline():
-                    data = json.loads(line)
-                    parse_entity(context, data)
+    entity = context.make(schema)
+    entity.id = context.make_id(schema, source, target, role, relationship)
+    entity.add(source_prop, context.make_slug(source))
+    entity.add(target_prop, context.make_slug(target))
+    if role:
+        entity.add("role", role)
+    if relationship:
+        entity.add("relationship", relationship)
+    context.audit_data(data)
+    context.emit(entity)
+
+
+def crawl(context: Context) -> None:
+    path = context.fetch_resource("data.json", context.data_url)
+    context.export_resource(path, JSON, title=context.SOURCE_TITLE)
+
+    with open(path, "r") as fh:
+        data = json.load(fh)
+
+    for item in data["entities"]:
+        parse_entity(context, item)
+    for edge in data["edges"]:
+        parse_edge(context, edge)
