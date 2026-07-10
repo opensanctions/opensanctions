@@ -305,7 +305,7 @@ For a dataset already deployed, `python -m contrib.maintenance.diagnose <name>` 
 its production runtime state: run verdict, artifact links, current issues, assertion
 drift.
 
-Check `issues.json` for errors, then spot-check with qsv:
+Check `issues.log` for errors, then spot-check with qsv:
 
 ```bash
 qsv count data/datasets/xx_foo/statements.pack
