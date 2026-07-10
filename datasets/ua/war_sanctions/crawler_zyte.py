@@ -64,6 +64,7 @@ PERSON_POSITION_LABELS = [
     "Position",
     "Positions or membership in the governance bodies of the russian MIC",
     "Other positions",
+    "Former position in the management bodies of the Russian military-industrial complex",
 ]
 
 PERSON_LINK_LABELS = ["Links", "Archive links"]
@@ -339,8 +340,13 @@ def crawl_vessel_page(context: Context, url: str) -> None:
     vessel.add("mmsi", pop_text(pairs, "MMSI"))
     vessel.add("callSign", pop_text(pairs, "Call sign"))
     vessel.add("type", pop_text(pairs, "Vessel Type"))
+    # The source relabelled the tonnage fields to carry the unit ("Gross tonnage (t)",
+    # "DWT (t)"). Read both the old and unit-suffixed labels so neither drift trips the
+    # unmapped-label warning; both feed the same numeric property.
     vessel.add("grossRegisteredTonnage", pop_text(pairs, "Gross tonnage"))
+    vessel.add("grossRegisteredTonnage", pop_text(pairs, "Gross tonnage (t)"))
     vessel.add("deadweightTonnage", pop_text(pairs, "DWT"))
+    vessel.add("deadweightTonnage", pop_text(pairs, "DWT (t)"))
     vessel.add("description", pop_text(pairs, "Vessel information"))
     for name in h.multi_split(pop_text(pairs, "Former ship names"), [SPLIT]):
         vessel.add("previousName", name)
