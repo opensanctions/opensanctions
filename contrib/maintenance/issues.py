@@ -37,6 +37,32 @@ def issues_checksum(issues: list[Any]) -> str:
     return hashlib.sha1(canonical.encode("utf-8")).hexdigest()
 
 
+# Issue messages that are pure infrastructure noise: nobody — agent or human —
+# can act on them, and they resolve (or recur) on their own. Matched as
+# case-insensitive substrings. HTTP errors are deliberately NOT listed: a
+# persistent HTTPError usually means a moved or bot-blocked source, which is
+# actionable.
+IGNORED_MESSAGES = [
+    "deadlock detected",
+    "connectionerror",
+    "connection reset",
+    "connection aborted",
+    "timeout",
+    "timed out",
+]
+
+
+def is_issue_ignored(issue: dict[str, Any]) -> bool:
+    """True for infrastructure noise that neither an agent nor a human can act on.
+
+    Use this to avoid spawning an agent (or demanding human attention) for a
+    run whose only issues are transient — a database deadlock, a dropped
+    connection, a timeout.
+    """
+    message = str(issue.get("message", "")).lower()
+    return any(pattern in message for pattern in IGNORED_MESSAGES)
+
+
 # For grouping we normalize more aggressively than for checksumming: values
 # that vary per occurrence (numbers, quoted/bracketed payloads) are collapsed
 # so e.g. every "Assertion ... 379 is not >= 400" instance lands in one bucket.

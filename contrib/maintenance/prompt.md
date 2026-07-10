@@ -53,10 +53,12 @@ Exception: when the failing value has collapsed far below the last-good value in
 
 ## Leave these for humans
 
-Some warnings are deliberate signals for a maintainer to investigate, not something to auto-fix. Skip them — do not edit anything in response to:
+Some issues are deliberate signals for a maintainer to investigate, not something to auto-fix. Skip them — do not edit anything in response to:
 
 - Change-detection tripwires: `DOM hash changed`, `URL hash changed`, `File hash changed`. These flag that a source page or file changed and a human needs to check whether the crawler still parses it correctly. "Fixing" the hash would just hide the change.
-- Transient runtime errors: `Runner failed with ...`, HTTP errors, timeouts. These are not fixable by editing the dataset.
+- Transient infrastructure errors: database deadlocks, connection errors, timeouts. These are not fixable by editing the dataset.
+
+HTTP errors (`Runner failed with HTTPError on <url>`) are the exception among runtime failures: when the report shows the failure persisting across several runs, the source has likely moved the file or started blocking the crawler. If you can locate the new URL on the source's website, updating `data.url` in the metadata (or the fetch in the crawler) is a legitimate fix. If you cannot determine a fix, leave it for humans.
 
 ## Scope
 

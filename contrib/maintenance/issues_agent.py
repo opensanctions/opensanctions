@@ -26,7 +26,7 @@ from .github import (
     get_outage_datasets,
     has_closed_pr_for_branch,
 )
-from .issues import issues_checksum
+from .issues import is_issue_ignored, issues_checksum
 
 MAX_ISSUES = 1000
 
@@ -97,12 +97,11 @@ def index_jobs() -> None:
         if warnings + errors == 0:
             log(f"Latest run is clean: {name}")
             continue
-        # The prompt tells agents to leave transient runtime errors to humans,
-        # so when that is all a run produced, don't spawn one just to conclude
-        # there is nothing to do. Mixed runs (a runner error alongside fixable
-        # warnings) still get a task.
-        if all(str(i.get("message", "")).startswith("Runner failed") for i in issues):
-            log(f"Transient runner failure only: {name}")
+        # Don't spawn an agent when a run produced nothing anyone can act on.
+        # Mixed runs (an ignored infrastructure error alongside real issues)
+        # still get a task.
+        if all(is_issue_ignored(i) for i in issues):
+            log(f"Only transient infrastructure issues: {name}")
             continue
 
         checksum = issues_checksum(issues)
