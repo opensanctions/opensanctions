@@ -36,7 +36,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          MATRIX=$(python contrib/issues_agent/tasks.py)
+          MATRIX=$(python -m contrib.maintenance.issues_agent)
           echo "matrix=$MATRIX" >> "$GITHUB_OUTPUT"
 
   run-tasks:
@@ -60,11 +60,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      # The Python/zavod install is only needed for crawler datasets (mypy +
-      # crawling). Enrichment and lookup-only datasets edit YAML only, so they
-      # skip it and start the agent immediately.
       - name: Set up Python
-        if: ${{ matrix.task.needs_zavod }}
         uses: actions/setup-python@v6
         with:
           python-version: "3.12"
@@ -73,6 +69,14 @@ jobs:
           # compiled wheels (lxml, icu, leveldb, pydantic) are reused across runs
           # instead of rebuilt every time.
           cache-dependency-path: zavod/pyproject.toml
+
+      # The full zavod install is only needed for crawler datasets (mypy +
+      # crawling). Enrichment and lookup-only datasets edit YAML only, but the
+      # agent still needs the contrib.maintenance tools (diagnose,
+      # aggregate_issues) that the prompt's diagnostic report points at.
+      - name: Install maintenance tool dependencies
+        if: ${{ !matrix.task.needs_zavod }}
+        run: pip install requests pyyaml
 
       - name: Install system dependencies
         if: ${{ matrix.task.needs_zavod }}
