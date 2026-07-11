@@ -145,12 +145,12 @@ def test_no_assertions_error() -> None:
     assert ("error", "Dataset has no assertions.") in logs
 
 
-def test_no_entities_warning() -> None:
+def test_no_entities_abort() -> None:
     ds = Dataset(BASE_DATASET_CONFIG)
 
     validator, logs = run_validator(EmptyValidator, ds)
-    assert "No entities validated" in str(logs)
-    assert validator.abort is False
+    assert ("error", "No entities validated.") in logs
+    assert validator.abort is True
 
     emit_entity(ds, "Person", {"name": ["Vladimir Putin"]})
     validator, logs = run_validator(EmptyValidator, ds)

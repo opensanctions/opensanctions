@@ -16,6 +16,7 @@ from zavod.archive import DELTA_EXPORT_FILE, DELTA_INDEX_FILE
 from zavod.runtime.resources import DatasetResources
 from zavod.runtime.versions import get_latest
 from zavod.exporters import write_dataset_index
+from zavod.exporters.metadata import validate_index
 
 log = get_logger(__name__)
 
@@ -71,6 +72,7 @@ def publish_dataset(dataset: Dataset, republish_to_latest: bool = True) -> None:
     /datasets/{RELEASE}/{dataset}/ backward compatibility and
     /datasets/{LATEST}/{dataset}/ for discovery without the full catalog.
     """
+    validate_index(dataset)
 
     extra_artifacts = []
     all_published_files: List[str] = [
