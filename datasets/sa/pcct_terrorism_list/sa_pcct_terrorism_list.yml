@@ -56,6 +56,71 @@ assertions:
       Vessel: 30
 
 lookups:
+  # Maps each worksheet to the FTM schema of its rows.
+  schema:
+    normalize: true
+    options:
+      - match: Individuals
+        value: Person
+      - match: Entities
+        value: Organization
+      - match: Vessels
+        value: Vessel
+  # Normalizes the differing per-sheet headers to one common vocabulary.
+  columns:
+    normalize: true
+    options:
+      - match: [Full Name, Entities Name, Vessel Name]
+        value: name
+      - match: Aliases
+        value: alias
+      - match: Gender
+        value: gender
+      - match: Link of Terrorism Org.
+        value: linked_org
+      - match: DOB
+        value: birth_date
+      - match: POB
+        value: birth_place
+      - match: COB
+        value: birth_country
+      - match: Nationality
+        value: nationality
+      - match: Document Type
+        value: doc_type
+      - match: Document No.
+        value: doc_number
+      - match: Issuing Country
+        value: issuing_country
+      - match: Registration Number
+        value: reg_number
+      - match: Vessel Flag
+        value: flag
+      - match: IMO No.
+        value: imo_number
+      - match: Owner Name
+        value: owner_name
+      - match: Owner information
+        value: owner_info
+      - match: Address
+        value: address
+      - match: [Additional Information, Additional info.]
+        value: notes
+      - match: Designated Date
+        value: designated_date
+      - match: "No."
+        value: "no"
+  # Maps an extracted identifier type to the FTM property it populates.
+  identifier.type:
+    options:
+      - match: passport
+        value: passportNumber
+      - match: [nationalId, residency]
+        value: idNumber
+      - match: registration
+        value: registrationNumber
+      - match: other
+        value: null
   type.gender:
     normalize: true
     options:
@@ -67,11 +132,11 @@ lookups:
     lowercase: true
     normalize: true
     options:
-      - match: Iranian
+      - match: Iranian flag
         value: ir
-      - match: Gabonian
+      - match: Gabonian flag
         value: ga
-      - match: Saint kitts and Nevis
+      - match: Saint kitts and Nevis flag
         value: kn
       - match: Kingdom of Saudi Arabia
         value: sa
