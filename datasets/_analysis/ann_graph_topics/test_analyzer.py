@@ -226,6 +226,167 @@ def test_ownership_descent_ignores_non_ownership_edges() -> None:
     assert _emits(ctx) == []
 
 
+# ---- rule_sanction_control_descent --------------------------------------
+
+
+def test_sanction_control_descent_emits_from_sanctioned_owner() -> None:
+    # A directly sanctioned owner tags the asset sanction.control (with the
+    # sanction.linked co-emit) on the first pass.
+    ctx = _analyze(
+        [
+            _entity("Person", "boss", {"topics": ["sanction"]}),
+            _entity(
+                "Ownership",
+                "own",
+                {"owner": ["boss"], "asset": ["acme"]},
+            ),
+            _entity("Company", "acme"),
+        ],
+        source_id="boss",
+    )
+    emits = _emits(ctx)
+    assert ("acme", "sanction.control") in emits
+    assert ("acme", "sanction.linked") in emits
+
+
+def test_sanction_control_descent_propagates_from_control_seed() -> None:
+    # An entity carrying sanction.control (from a prior run) continues the
+    # descent one hop further.
+    ctx = _analyze(
+        [
+            _entity("Company", "parent", {"topics": ["sanction.control"]}),
+            _entity(
+                "Ownership",
+                "own",
+                {"owner": ["parent"], "asset": ["child"]},
+            ),
+            _entity("Company", "child"),
+        ],
+        source_id="parent",
+    )
+    assert ("child", "sanction.control") in _emits(ctx)
+
+
+def test_sanction_control_descent_walks_directorship() -> None:
+    # A sanctioned director tags the organization via director → organization.
+    ctx = _analyze(
+        [
+            _entity("Person", "director", {"topics": ["sanction"]}),
+            _entity(
+                "Directorship",
+                "dir",
+                {"director": ["director"], "organization": ["co"]},
+            ),
+            _entity("Company", "co"),
+        ],
+        source_id="director",
+    )
+    emits = _emits(ctx)
+    assert ("co", "sanction.control") in emits
+    assert ("co", "sanction.linked") in emits
+
+
+def test_sanction_control_descent_does_not_ascend_ownership() -> None:
+    # From the asset side, do not tag the owner.
+    ctx = _analyze(
+        [
+            _entity("Company", "parent"),
+            _entity(
+                "Ownership",
+                "own",
+                {"owner": ["parent"], "asset": ["child"]},
+            ),
+            _entity("Company", "child", {"topics": ["sanction.control"]}),
+        ],
+        source_id="child",
+    )
+    assert _emits(ctx) == []
+
+
+def test_sanction_control_descent_does_not_ascend_directorship() -> None:
+    # From the organization side, do not tag the director.
+    ctx = _analyze(
+        [
+            _entity("Person", "director"),
+            _entity(
+                "Directorship",
+                "dir",
+                {"director": ["director"], "organization": ["co"]},
+            ),
+            _entity("Company", "co", {"topics": ["sanction.control"]}),
+        ],
+        source_id="co",
+    )
+    assert _emits(ctx) == []
+
+
+def test_sanction_control_descent_ignores_non_control_edges() -> None:
+    # Membership is not part of the control chain — sanction.control must
+    # not spread across it.
+    ctx = _analyze(
+        [
+            _entity("Person", "boss", {"topics": ["sanction"]}),
+            _entity(
+                "Membership",
+                "mem",
+                {"member": ["boss"], "organization": ["club"]},
+            ),
+            _entity("Organization", "club"),
+        ],
+        source_id="boss",
+    )
+    topics = {topic for _id, topic in _emits(ctx)}
+    assert "sanction.control" not in topics
+
+
+def test_sanction_control_descent_skips_target_already_controlled() -> None:
+    # If the target already carries sanction or sanction.control from another
+    # source, don't re-emit either topic.
+    ctx = _analyze(
+        [
+            _entity("Person", "boss", {"topics": ["sanction"]}),
+            _entity(
+                "Ownership",
+                "own",
+                {"owner": ["boss"], "asset": ["acme"]},
+            ),
+            _entity("Company", "acme", {"topics": ["sanction.control"]}),
+        ],
+        source_id="boss",
+    )
+    emits = _emits(ctx)
+    assert ("acme", "sanction.control") not in emits
+    # rule_sanction_adjacency still fires and tags sanction.linked on the
+    # asset via the broad-edge Ownership path — but SANCTION_SEEDS check
+    # in that rule requires the target to lack sanction/sanction.linked; here
+    # it has sanction.control (not seeded for that rule) so it *will* emit.
+    # The important assertion for THIS rule is only that sanction.control
+    # wasn't re-emitted, which is above.
+
+
+def test_sanction_control_descent_terminated_by_end_date() -> None:
+    # Ex-director doesn't propagate — the endDate skip is shared with the
+    # rest of the rules but included here as a smoke test.
+    ctx = _analyze(
+        [
+            _entity("Person", "director", {"topics": ["sanction"]}),
+            _entity(
+                "Directorship",
+                "dir",
+                {
+                    "director": ["director"],
+                    "organization": ["co"],
+                    "endDate": ["2020-01-01"],
+                },
+            ),
+            _entity("Company", "co"),
+        ],
+        source_id="director",
+    )
+    topics = {topic for _id, topic in _emits(ctx)}
+    assert "sanction.control" not in topics
+
+
 # ---- rule_export_control_descent ----------------------------------------
 
 
