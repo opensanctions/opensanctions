@@ -1,18 +1,28 @@
 import json
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 from followthemoney import model, registry
+from followthemoney.dataset import Version
 
 from zavod import settings
 from zavod.util import write_json
 from zavod.meta import Dataset
 from zavod.runtime.urls import make_artifact_url, make_published_url
-from zavod.runtime.versions import get_latest
 from zavod.exporters.metadata import get_catalog_datasets
 from zavod.archive import datasets_path, get_dataset_artifact
+from zavod.archive import find_archive_artifact, latest_local_version
 from zavod.archive import INDEX_FILE, STATISTICS_FILE
 from zavod.logs import get_logger
 
 log = get_logger(__name__)
+
+
+def _latest_version(dataset_name: str, resource: str) -> Optional[Version]:
+    """Resolve the newest run of a dataset that has the given resource: a local run
+    if present, otherwise the newest one available in the archive."""
+    version = latest_local_version(dataset_name, with_resource=resource)
+    if version is None:
+        version, _ = find_archive_artifact(dataset_name, resource)
+    return version
 
 
 def get_opensanctions_catalog(scope: Dataset) -> Dict[str, Any]:
@@ -21,14 +31,18 @@ def get_opensanctions_catalog(scope: Dataset) -> Dict[str, Any]:
     datasets = get_catalog_datasets(scope)
 
     schemata = set()
-    statistics_path = get_dataset_artifact(scope.name, STATISTICS_FILE)
-    if statistics_path.is_file():
-        with open(statistics_path, "r") as fh:
-            stats: Dict[str, Any] = json.load(fh)
-            schemata.update(stats.get("schemata", []))
+    stats_version = _latest_version(scope.name, STATISTICS_FILE)
+    if stats_version is not None:
+        statistics_path = get_dataset_artifact(
+            scope.name, stats_version, STATISTICS_FILE
+        )
+        if statistics_path.is_file():
+            with open(statistics_path, "r") as fh:
+                stats: Dict[str, Any] = json.load(fh)
+                schemata.update(stats.get("schemata", []))
 
     log.info("Generating catalog", schemata=len(schemata), datasets=len(datasets))
-    default_version = get_latest("default", backfill=False)
+    default_version = _latest_version("default", "statements.csv")
     if default_version is not None:
         statements_url = make_artifact_url(
             "default", default_version.id, "statements.csv"

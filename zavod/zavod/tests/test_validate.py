@@ -3,7 +3,7 @@ import uuid
 
 from structlog.testing import capture_logs
 
-from zavod import Entity
+from zavod import Entity, settings
 from zavod.context import Context
 from zavod.crawl import crawl_dataset
 from zavod.integration import get_dataset_linker
@@ -25,7 +25,7 @@ BASE_DATASET_CONFIG = {
 
 
 def run_validator(clazz: Type[BaseValidator], dataset: Dataset):
-    context = Context(dataset)
+    context = Context(dataset, settings.RUN_VERSION)
     linker = get_dataset_linker(dataset)
     store = get_store(dataset, linker)
     # Pass clear so that if the test emits statements and re-validates, we pick that up.
@@ -46,7 +46,7 @@ def run_validator(clazz: Type[BaseValidator], dataset: Dataset):
 
 
 def emit_entity(ds: Dataset, schema: str, properties: dict[str, list[str]]) -> Entity:
-    context = Context(ds)
+    context = Context(ds, settings.RUN_VERSION)
     context.begin()
 
     entity = Entity.from_data(

@@ -14,7 +14,7 @@ class DeltaExporter(Exporter):
 
     def setup(self) -> None:
         super().setup()
-        self.delta = HashDelta(self.dataset)
+        self.delta = HashDelta(self.dataset, self.context.version)
         self.delta.backfill()
         self.counts = {
             "ADD": 0,

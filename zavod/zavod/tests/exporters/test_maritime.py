@@ -4,12 +4,12 @@ from zavod.tests.exporters.util import harnessed_export
 from zavod.meta import Dataset
 from zavod.exporters.maritime import MaritimeExporter
 from zavod import settings
-from zavod.archive import clear_data_path
+from zavod.archive import clear_data_path, dataset_version_path
 from zavod.crawl import crawl_dataset
 
 
 def test_maritime(testdataset_maritime: Dataset):
-    dataset_path = settings.DATA_PATH / "datasets" / testdataset_maritime.name
+    dataset_path = dataset_version_path(testdataset_maritime.name, settings.RUN_VERSION)
     clear_data_path(testdataset_maritime.name)
 
     crawl_dataset(testdataset_maritime)

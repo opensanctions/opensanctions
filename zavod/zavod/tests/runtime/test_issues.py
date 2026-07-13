@@ -1,14 +1,17 @@
 import json
 from rigour.time import iso_datetime
 import logging
+from zavod import settings
 from zavod.archive import ISSUES_FILE, dataset_resource_path
 from zavod.context import Context
 from zavod.meta import Dataset
 
 
 def test_issue_logger(testdataset1: Dataset, logger: logging.Logger):
-    issues_path = dataset_resource_path(testdataset1.name, ISSUES_FILE)
-    context = Context(testdataset1)
+    issues_path = dataset_resource_path(
+        testdataset1.name, settings.RUN_VERSION, ISSUES_FILE
+    )
+    context = Context(testdataset1, settings.RUN_VERSION)
     context.begin(clear=True)
     assert not issues_path.exists()
     entity = context.make("Person")
@@ -45,7 +48,7 @@ def test_issue_logger(testdataset1: Dataset, logger: logging.Logger):
             assert issue["level"] in ("warning", "error")
             assert issue["dataset"] == testdataset1.name
 
-    context = Context(testdataset1)
+    context = Context(testdataset1, settings.RUN_VERSION)
     context.begin(clear=True)
     assert len(list(context.issues.all())) == 0
     context.close()

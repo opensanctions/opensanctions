@@ -9,17 +9,16 @@ from zavod.meta import Dataset
 from zavod.entity import Entity
 from zavod.archive import dataset_resource_path, dataset_state_path
 from zavod.archive import iter_dataset_versions, get_artifact_object, HASH_FILE
-from zavod.runtime.versions import get_latest
 
 log = get_logger(__name__)
 
 
 class HashDelta(object):
-    def __init__(self, dataset: Dataset):
+    def __init__(self, dataset: Dataset, version: Version):
         self.dataset = dataset
-        self.curr = get_latest(dataset.name, backfill=False)
+        self.curr: Version = version
         self.prev: Optional[Version] = None
-        self.curr_path = dataset_resource_path(dataset.name, HASH_FILE)
+        self.curr_path = dataset_resource_path(dataset.name, version, HASH_FILE)
         self.fh = self.curr_path.open("w")
         self.db_path = dataset_state_path(dataset.name) / "hashes"
         shutil.rmtree(self.db_path, ignore_errors=True)
@@ -44,7 +43,7 @@ class HashDelta(object):
         log.info("No previous hash data found.")
 
     def feed(self, entity: Entity) -> None:
-        if entity.id is None or self.curr is None:
+        if entity.id is None:
             return
         digest = sha1()
         digest.update(entity.id.encode("utf-8"))
@@ -83,7 +82,7 @@ class HashDelta(object):
                     if entity_id is not None:
                         yield entity_id, prev_hash, curr_hash
                     entity_id, prev_hash, curr_hash = new_id, None, None
-                if self.curr is not None and version_id == self.curr.id:
+                if version_id == self.curr.id:
                     curr_hash = hash
                 else:
                     prev_hash = hash

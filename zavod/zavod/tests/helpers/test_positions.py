@@ -10,7 +10,7 @@ from zavod.helpers.positions import make_position, make_occupancy, earliest_term
 
 
 def test_make_position(testdataset1: Dataset):
-    context = Context(testdataset1)
+    context = Context(testdataset1, settings.RUN_VERSION)
     name = "Minister of finance"
     de = make_position(context, name=name, country="de")
     de_with_date = make_position(
@@ -25,7 +25,7 @@ def test_make_position(testdataset1: Dataset):
 
 
 def test_make_position_full(testdataset1: Dataset):
-    context = Context(testdataset1)
+    context = Context(testdataset1, settings.RUN_VERSION)
     org = context.make("Organization")
     org.id = "myorg"
     one_with_everything = make_position(
@@ -66,7 +66,7 @@ def test_make_position_translate_name(testdataset1: Dataset):
     """With translate_name, a non-English name is translated to English
     and stored as the name (original kept as original_value), while the id stays
     keyed on the untranslated name so it's stable regardless of the LLM output."""
-    context = Context(testdataset1)
+    context = Context(testdataset1, settings.RUN_VERSION)
     with patch(
         "zavod.shed.trans.translate_position_name",
         return_value=TranslationResult(
@@ -107,7 +107,7 @@ def test_make_position_translate_name_uses_dataset_language():
             },
         }
     )
-    context = Context(dataset)
+    context = Context(dataset, settings.RUN_VERSION)
     with patch(
         "zavod.shed.trans.translate_position_name",
         return_value=TranslationResult(
@@ -143,7 +143,7 @@ def test_make_position_dataset_language_is_not_statement_override():
             },
         }
     )
-    context = Context(dataset)
+    context = Context(dataset, settings.RUN_VERSION)
     position = make_position(
         context,
         name="Speaker",
@@ -158,7 +158,7 @@ def test_make_position_dataset_language_is_not_statement_override():
 
 def test_make_position_translate_fallback(testdataset1: Dataset):
     """When translation yields no English text, the original name is kept."""
-    context = Context(testdataset1)
+    context = Context(testdataset1, settings.RUN_VERSION)
     with patch(
         "zavod.shed.trans.translate_position_name",
         return_value=TranslationResult(texts=[], cache_key=None, origin="test-model"),
@@ -176,7 +176,7 @@ def test_make_position_translate_fallback(testdataset1: Dataset):
 
 def test_make_position_translate_skipped_for_english(testdataset1: Dataset):
     """Translation is skipped when the language is already English or unset."""
-    context = Context(testdataset1)
+    context = Context(testdataset1, settings.RUN_VERSION)
     with patch("zavod.shed.trans.translate_position_name") as mock_translate:
         eng = make_position(
             context,
@@ -195,7 +195,7 @@ def test_make_position_translate_skipped_for_english(testdataset1: Dataset):
 
 
 def test_make_occupancy(testdataset1: Dataset):
-    context = Context(testdataset1)
+    context = Context(testdataset1, settings.RUN_VERSION)
     pos = make_position(context, name="A position", country="ls")
     person = context.make("Person")
     person.id = "thabo"
@@ -230,7 +230,7 @@ def test_occupancy_not_same_start_end_id(testdataset1: Dataset):
     same end but no start, don't end up with the same ID. This occurs in the wild
     when a source has an unknown start date, ends a term, then starts the next
     term."""
-    context = Context(testdataset1)
+    context = Context(testdataset1, settings.RUN_VERSION)
     pos = make_position(context, name="A position", country="ls")
     person = context.make("Person")
     person.id = "thabo"
@@ -262,7 +262,7 @@ def test_occupancy_dataset_coverage():
             "prefix": "dataset1",
         },
     )
-    context1 = Context(dataset1)
+    context1 = Context(dataset1, settings.RUN_VERSION)
     pos = make_position(context1, name="A position", country="ls")
     person = context1.make("Person")
     person.id = "thabo"
@@ -287,7 +287,7 @@ def test_occupancy_dataset_coverage():
             "prefix": "dataset2",
         },
     )
-    context2 = Context(dataset2)
+    context2 = Context(dataset2, settings.RUN_VERSION)
     pos2 = make_position(context2, name="A position", country="ls")
     person2 = context2.make("Person")
     person2.id = "thabo"

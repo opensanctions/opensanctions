@@ -265,7 +265,7 @@ def test_enrich_topic_gated(testdataset1: Dataset, testdataset_enrich_subject: D
     # --- Round 2: give oswell-spencer a risk topic in the subject store ---
     # Simulate what the graph analyzer would do after the first enricher run:
     # tag an adjacent (currently external) entity with a topic and emit external.
-    subject_ctx = Context(testdataset_enrich_subject)
+    subject_ctx = Context(testdataset_enrich_subject, settings.RUN_VERSION)
     subject_ctx.emit(Entity.from_data(testdataset_enrich_subject, UMBRELLA_CORP))
     oswell_patch = Entity.from_data(
         testdataset_enrich_subject,

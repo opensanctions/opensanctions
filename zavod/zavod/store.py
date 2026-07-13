@@ -3,6 +3,7 @@ import plyvel  # type: ignore
 from typing import List, Optional
 from followthemoney.exc import InvalidData
 from followthemoney import Statement
+from followthemoney.dataset import Version
 from nomenklatura.resolver import Linker
 from nomenklatura.store.level import LevelDBStore, LevelDBView
 
@@ -16,8 +17,10 @@ log = get_logger(__name__)
 View = LevelDBView[Dataset, Entity]
 
 
-def get_store(dataset: Dataset, linker: Linker[Entity]) -> "Store":
-    store = Store(dataset, linker)
+def get_store(
+    dataset: Dataset, linker: Linker[Entity], version: Optional[Version] = None
+) -> "Store":
+    store = Store(dataset, linker, version=version)
     return store
 
 
@@ -26,10 +29,14 @@ class Store(LevelDBStore[Dataset, Entity]):
         self,
         dataset: Dataset,
         linker: Linker[Entity],
+        version: Optional[Version] = None,
     ):
         path = dataset_state_path(dataset.name) / "store"
         super().__init__(dataset, linker, path)
         self.entity_class = Entity
+        self.version = version
+        """The version of the dataset being operated on, if an explicit one is
+        known. Collection leaves resolve their versions independently."""
 
     def view(self, scope: Dataset, external: bool = False) -> View:
         return LevelDBView(self, scope, external=external)
@@ -56,7 +63,9 @@ class Store(LevelDBStore[Dataset, Entity]):
         log.info("Building local LevelDB aggregator...", scope=self.dataset.name)
         idx = 0
         with self.writer() as writer:
-            stmts = iter_dataset_statements(self.dataset, external=True)
+            stmts = iter_dataset_statements(
+                self.dataset, external=True, version=self.version
+            )
             for idx, stmt in enumerate(stmts):
                 if idx > 0 and idx % 50_000 == 0:
                     log.info(

@@ -22,7 +22,7 @@ from zavod.tests.conftest import XML_DOC
 
 
 def test_context_helpers(testdataset1: Dataset):
-    context = Context(testdataset1)
+    context = Context(testdataset1, settings.RUN_VERSION)
     assert context.dataset == testdataset1
     assert "docs.google.com" in context.data_url
     assert testdataset1.name in repr(context)
@@ -75,7 +75,7 @@ def test_context_helpers(testdataset1: Dataset):
 
 
 def test_context_dry_run(testdataset1: Dataset):
-    context = Context(testdataset1, dry_run=True)
+    context = Context(testdataset1, settings.RUN_VERSION, dry_run=True)
     assert context.dataset == testdataset1
     context.begin(clear=True)
     assert context.dry_run
@@ -85,7 +85,7 @@ def test_context_dry_run(testdataset1: Dataset):
 
 
 def test_context_get_fetchers(testdataset1: Dataset):
-    context = Context(testdataset1)
+    context = Context(testdataset1, settings.RUN_VERSION)
 
     with requests_mock.Mocker() as m:
         m.get("/bla", text="Hello, World!")
@@ -151,7 +151,7 @@ def test_context_get_fetchers(testdataset1: Dataset):
 
 
 def test_context_fetch_text_encoding_cache(testdataset1: Dataset):
-    context = Context(testdataset1)
+    context = Context(testdataset1, settings.RUN_VERSION)
     url = "https://test.com/encoding"
     body = "商务部".encode("utf-8")
 
@@ -175,7 +175,7 @@ def test_context_fetch_text_encoding_cache(testdataset1: Dataset):
 
 
 def test_context_post_fetchers(testdataset1: Dataset):
-    context = Context(testdataset1)
+    context = Context(testdataset1, settings.RUN_VERSION)
 
     with requests_mock.Mocker() as m:
         m.post("/bla", text="Hello, World!")
@@ -223,7 +223,7 @@ def test_context_post_fetchers(testdataset1: Dataset):
 
 
 def test_context_fetchers_exceptions(testdataset1: Dataset):
-    context = Context(testdataset1)
+    context = Context(testdataset1, settings.RUN_VERSION)
 
     with pytest.raises(ValueError, match="Unsupported HTTP method.+"):
         context.fetch_text("https://test.com/bla", cache_days=0, method="PLOP")
@@ -270,7 +270,7 @@ def test_context_fetchers_exceptions(testdataset1: Dataset):
 
 
 def test_context_clear_url(testdataset1: Dataset):
-    context = Context(testdataset1)
+    context = Context(testdataset1, settings.RUN_VERSION)
     url = "https://test.com/bla"
 
     with requests_mock.Mocker() as m:
@@ -313,11 +313,13 @@ def test_context_clear_url(testdataset1: Dataset):
 
 
 def test_crawl_dataset(testdataset1: Dataset):
-    path = dataset_resource_path(testdataset1.name, STATEMENTS_FILE)
+    path = dataset_resource_path(
+        testdataset1.name, settings.RUN_VERSION, STATEMENTS_FILE
+    )
     if path.is_file():
         path.unlink()
     assert len(list(iter_dataset_statements(testdataset1))) == 0
-    context = Context(testdataset1)
+    context = Context(testdataset1, settings.RUN_VERSION)
     context.begin(clear=True)
     assert len(context.resources.all()) == 0
     func = load_entry_point(testdataset1)
@@ -347,7 +349,7 @@ def test_crawl_dataset_wrapper(testdataset1: Dataset):
 
 
 def test_dataset_sink(testdataset1: Dataset):
-    context = Context(testdataset1)
+    context = Context(testdataset1, settings.RUN_VERSION)
     assert context._writer_path.is_relative_to(settings.DATA_PATH)
     entity = context.make("Person")
     entity.id = "foo"

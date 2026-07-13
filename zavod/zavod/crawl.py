@@ -1,5 +1,7 @@
+from typing import Optional
 from requests.exceptions import RequestException
 from datapatch import LookupException
+from followthemoney.dataset import Version
 
 from zavod import settings
 from zavod.meta import Dataset
@@ -8,6 +10,7 @@ from zavod.exc import RunFailedException
 from zavod.archive import dataset_data_path
 from zavod.runtime.stats import ContextStats
 from zavod.runtime.loader import load_entry_point
+from zavod.runtime.versions import make_version
 from zavod.runner.enrich import enrich
 from zavod.reset import reset_caches
 
@@ -16,13 +19,21 @@ from zavod.reset import reset_caches
 assert enrich is not None
 
 
-def crawl_dataset(dataset: Dataset, dry_run: bool = False) -> ContextStats:
+def crawl_dataset(
+    dataset: Dataset, dry_run: bool = False, version: Optional[Version] = None
+) -> ContextStats:
     """Load the dataset entry point, configure a context, and then execute the entry
-    point; finally disband the context."""
-    context = Context(dataset, dry_run=dry_run)
+    point; finally disband the context.
+
+    A crawl is the start of a new run of the dataset, so this mints a new version
+    unless one is passed in."""
+    if version is None:
+        version = settings.RUN_VERSION
+    context = Context(dataset, version, dry_run=dry_run)
     if dataset.model.disabled:
         context.log.info("Source is disabled", source=dataset.name)
         return context.stats
+    make_version(dataset, version)
 
     try:
         context.begin(clear=True)

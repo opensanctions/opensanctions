@@ -1,5 +1,7 @@
 import shutil
 
+from followthemoney.dataset import Version
+
 from zavod import settings
 from zavod.meta import Dataset
 from zavod.runtime.versions import make_version
@@ -13,7 +15,7 @@ def test_archive_then_publish(testdataset1: Dataset):
     name = "foo.json"
     version = settings.RUN_VERSION
     data_path = dataset_data_path(testdataset1.name)
-    local_path = dataset_resource_path(testdataset1.name, name)
+    local_path = dataset_resource_path(testdataset1.name, version, name)
     artifacts_root = settings.ARCHIVE_PATH / ARTIFACTS
     datasets_root = settings.ARCHIVE_PATH / DATASETS
 
@@ -57,22 +59,33 @@ def test_archive_then_publish(testdataset1: Dataset):
 
 def test_artifact_backfill(testdataset1: Dataset):
     name = "foo.json"
-    local_path = dataset_resource_path(testdataset1.name, name)
+    version = settings.RUN_VERSION
+    local_path = dataset_resource_path(testdataset1.name, version, name)
     assert not local_path.exists()
     with open(local_path, "w") as fh:
         fh.write("hello, world!\n")
 
     artifacts_path = settings.ARCHIVE_PATH / ARTIFACTS / testdataset1.name
-    archive_artifact(local_path, testdataset1.name, settings.RUN_VERSION, name)
+    archive_artifact(local_path, testdataset1.name, version, name)
     assert artifacts_path.is_dir()
     local_path.unlink()
-    local_path = get_dataset_artifact(testdataset1.name, name)
-    # Data is unpublished:
+    assert not local_path.exists()
+
+    # Backfilling references an exact version and does not depend on a published
+    # version history existing.
     versions_file = artifacts_path / VERSIONS_FILE
     assert not versions_file.exists()
-    assert not local_path.exists()
-    make_version(testdataset1, settings.RUN_VERSION)
-    publish_version_history(testdataset1.name)
+    backfilled = get_dataset_artifact(testdataset1.name, version, name)
+    assert backfilled.exists()
+    assert backfilled.read_text() == "hello, world!\n"
+
+    # A different version has no such artifact, so nothing is backfilled.
+    backfilled.unlink()
+    other_version = Version.new("zzz")
+    missing = get_dataset_artifact(testdataset1.name, other_version, name)
+    assert not missing.exists()
+
+    # Publishing the version history writes the dataset's root versions.json.
+    make_version(testdataset1, version)
+    publish_version_history(testdataset1.name, version)
     assert versions_file.exists()
-    local_path = get_dataset_artifact(testdataset1.name, name)
-    assert local_path.exists()

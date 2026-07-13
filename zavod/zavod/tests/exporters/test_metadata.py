@@ -13,12 +13,13 @@ from zavod.store import get_store
 def test_metadata_collection_export(
     testdataset1: Dataset, collection: Dataset, resolver: Resolver[Entity]
 ) -> None:
-    ds_path = settings.DATA_PATH / "datasets" / testdataset1.name
-    crawl_dataset(testdataset1)
-    store = get_store(testdataset1, resolver)
+    version = settings.RUN_VERSION
+    ds_path = settings.DATA_PATH / "datasets" / testdataset1.name / version.id
+    crawl_dataset(testdataset1, version=version)
+    store = get_store(testdataset1, resolver, version=version)
     store.sync()
     view = store.view(testdataset1)
-    export_dataset(testdataset1, view)
+    export_dataset(testdataset1, view, version)
     assert ds_path.is_dir()
     catalog_path = ds_path / "catalog.json"
     assert not catalog_path.is_file()
@@ -33,8 +34,8 @@ def test_metadata_collection_export(
         assert testdataset1.model.resolve is False
         assert index["resolve"] is False, index
 
-    collection_path = settings.DATA_PATH / "datasets" / collection.name
-    export_dataset(collection, view)
+    collection_path = settings.DATA_PATH / "datasets" / collection.name / version.id
+    export_dataset(collection, view, version)
     assert collection_path.is_dir()
 
     with open(collection_path / "index.json", "r") as fh:

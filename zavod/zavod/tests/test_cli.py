@@ -32,6 +32,11 @@ def test_export_dataset():
     runner = CliRunner()
     result = runner.invoke(cli, ["export", "/dev/null"])
     assert result.exit_code != 0, result.output
+    # Export operates on the latest local run, so it errors without a crawl first.
+    result = runner.invoke(cli, ["export", DATASET_1_YML.as_posix()])
+    assert result.exit_code != 0, result.output
+    result = runner.invoke(cli, ["crawl", DATASET_1_YML.as_posix()])
+    assert result.exit_code == 0, result.output
     result = runner.invoke(cli, ["export", DATASET_1_YML.as_posix()])
     assert result.exit_code == 0, result.output
     shutil.rmtree(settings.DATA_PATH)
@@ -41,6 +46,11 @@ def test_validate_dataset():
     runner = CliRunner()
     result = runner.invoke(cli, ["validate", "/dev/null"])
     assert result.exit_code != 0, result.output
+    # Validation operates on the latest local run, so it errors without a crawl first.
+    result = runner.invoke(cli, ["validate", DATASET_1_YML.as_posix()])
+    assert result.exit_code != 0, result.output
+    result = runner.invoke(cli, ["crawl", DATASET_1_YML.as_posix()])
+    assert result.exit_code == 0, result.output
     result = runner.invoke(cli, ["validate", DATASET_1_YML.as_posix()])
     assert result.exit_code == 0, result.output
     shutil.rmtree(settings.DATA_PATH)
@@ -122,16 +132,25 @@ def test_run_update_last_successful_version(
 ):
     runner = CliRunner()
 
-    # testdataset3 has validation errors, so last_successful should NOT be set
+    # testdataset3 has validation errors, so last_successful should NOT be set.
+    # The crawl still minted the version, so the version history file exists.
     result = runner.invoke(cli, ["run", "--latest", DATASET_3_YML.as_posix()])
     assert result.exit_code != 0, result.output
-    versions_path = dataset_resource_path(testdataset3.name, VERSIONS_FILE)
-    assert not versions_path.exists(), "versions.json should not exist after failed run"
+    versions_path = dataset_resource_path(
+        testdataset3.name, settings.RUN_VERSION, VERSIONS_FILE
+    )
+    assert versions_path.exists(), "versions.json should exist after crawl"
+    history = VersionHistory.from_json(versions_path.read_text())
+    assert history.last_successful is None, (
+        "last_successful should not be set on failure"
+    )
 
     # testdataset1 succeeds, so last_successful should be set
     result = runner.invoke(cli, ["run", "--latest", DATASET_1_YML.as_posix()])
     assert result.exit_code == 0, result.output
-    versions_path = dataset_resource_path(testdataset1.name, VERSIONS_FILE)
+    versions_path = dataset_resource_path(
+        testdataset1.name, settings.RUN_VERSION, VERSIONS_FILE
+    )
     assert versions_path.exists(), "versions.json should exist after run"
     history = VersionHistory.from_json(versions_path.read_text())
     assert history.last_successful is not None

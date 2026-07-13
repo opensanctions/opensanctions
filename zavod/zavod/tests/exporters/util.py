@@ -1,3 +1,4 @@
+from zavod import settings
 from zavod.context import Context
 from zavod.exporters.consolidate import consolidate_entity
 from zavod.store import get_store
@@ -6,11 +7,12 @@ from zavod.integration import get_dataset_linker
 
 
 def harnessed_export(exporter_class, dataset, linker=None) -> None:
-    context = Context(dataset)
+    version = settings.RUN_VERSION
+    context = Context(dataset, version)
     context.begin(clear=False)
     if linker is None:
         linker = get_dataset_linker(dataset)
-    store = get_store(dataset, linker)
+    store = get_store(dataset, linker, version=version)
     store.sync()
     view = store.view(dataset)
 

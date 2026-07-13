@@ -1,4 +1,5 @@
 from typing import List, Dict, Type, Set
+from followthemoney.dataset import Version
 
 from zavod.exporters.consolidate import consolidate_entity
 from zavod.logs import get_logger
@@ -86,9 +87,10 @@ def export_data(context: Context, view: View) -> None:
         exporter.finish(view)
 
 
-def export_dataset(dataset: Dataset, view: View) -> None:
-    """Dump the contents of the dataset to the output directory."""
-    context = Context(dataset)
+def export_dataset(dataset: Dataset, view: View, version: Version) -> None:
+    """Dump the contents of the given run (version) of the dataset to its working
+    directory."""
+    context = Context(dataset, version)
     try:
         context.begin(clear=False)
         export_data(context, view)
@@ -96,7 +98,7 @@ def export_dataset(dataset: Dataset, view: View) -> None:
         context.close()
 
     # Export metadata and issues (after the context is closed & flushed)
-    write_delta_index(dataset)
-    write_dataset_index(dataset, DatasetVersionResult.SUCCESS)
-    write_catalog(dataset)
+    write_delta_index(dataset, version)
+    write_dataset_index(dataset, version, DatasetVersionResult.SUCCESS)
+    write_catalog(dataset, version)
     log.info("Exported dataset: %s" % dataset.name)

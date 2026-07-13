@@ -17,6 +17,7 @@ from zavod.store import get_store
 from zavod.exporters import export_dataset
 from zavod.integration import get_dataset_linker
 from zavod.publish import publish_dataset, archive_failure
+from zavod.runtime.versions import make_version
 from zavod.exc import RunFailedException
 
 STANDARD_EXPORTS = {
@@ -55,14 +56,15 @@ def test_publish_dataset(testdataset1: Dataset):
     assert not latest_path.joinpath(INDEX_FILE).exists()
     history = _read_history(testdataset1.name)
     assert history is None
-    crawl_dataset(testdataset1)
-    store = get_store(testdataset1, linker)
+    version = settings.RUN_VERSION
+    crawl_dataset(testdataset1, version=version)
+    store = get_store(testdataset1, linker, version=version)
     store.sync()
     view = store.view(testdataset1)
-    export_dataset(testdataset1, view)
+    export_dataset(testdataset1, view, version)
 
     with capture_logs() as cap_logs:
-        publish_dataset(testdataset1, republish_to_latest=False)
+        publish_dataset(testdataset1, version, republish_to_latest=False)
     assert not filter_logs(cap_logs, ("warning", "error")), cap_logs
     history = _read_history(testdataset1.name)
     assert history is not None
@@ -97,7 +99,7 @@ def test_publish_dataset(testdataset1: Dataset):
     latest_artifacts = {str(p.name) for p in latest_path.glob("*")}
     assert latest_artifacts == set()
 
-    publish_dataset(testdataset1, republish_to_latest=True)
+    publish_dataset(testdataset1, version, republish_to_latest=True)
     assert latest_path.joinpath(INDEX_FILE).exists()
 
     artifact_index = artifact_path.joinpath(INDEX_FILE).read_bytes()
@@ -122,9 +124,9 @@ def test_publish_dataset(testdataset1: Dataset):
     clear_data_path(testdataset1.name)
     assert len(list(iter_dataset_statements(testdataset1))) > 5
     assert len(list(iter_previous_statements(testdataset1))) > 5
-    path = get_dataset_artifact(testdataset1.name, INDEX_FILE, backfill=False)
+    path = get_dataset_artifact(testdataset1.name, version, INDEX_FILE, backfill=False)
     assert not path.exists()
-    path = get_dataset_artifact(testdataset1.name, INDEX_FILE, backfill=True)
+    path = get_dataset_artifact(testdataset1.name, version, INDEX_FILE, backfill=True)
     assert path.exists()
 
 
@@ -137,15 +139,18 @@ def test_publish_collection(testdataset1: Dataset, collection: Dataset):
     release_path = published_path / settings.RELEASE / collection.name
     latest_path = published_path / "latest" / collection.name
 
-    crawl_dataset(testdataset1)
-    store = get_store(testdataset1, linker)
+    version = settings.RUN_VERSION
+    crawl_dataset(testdataset1, version=version)
+    store = get_store(testdataset1, linker, version=version)
     store.sync()
     view = store.view(testdataset1)
-    export_dataset(testdataset1, view)
+    export_dataset(testdataset1, view, version)
 
-    export_dataset(collection, view)
+    # A collection run mints its own version (leaves were crawled in their own runs).
+    make_version(collection, version)
+    export_dataset(collection, view, version)
     with capture_logs() as cap_logs:
-        publish_dataset(collection, republish_to_latest=True)
+        publish_dataset(collection, version, republish_to_latest=True)
     assert not filter_logs(cap_logs, ("warning", "error")), cap_logs
 
     history = _read_history(collection.name)
@@ -196,11 +201,12 @@ def test_archive_failure(testdataset1: Dataset):
     latest_path = published_path / "latest" / testdataset1.name
     assert testdataset1.data is not None
     testdataset1.data.format = "FAIL"
+    version = settings.RUN_VERSION
     try:
-        crawl_dataset(testdataset1)
+        crawl_dataset(testdataset1, version=version)
     except RunFailedException:
         with capture_logs() as cap_logs:
-            archive_failure(testdataset1)
+            archive_failure(testdataset1, version)
         assert not filter_logs(cap_logs, ("warning", "error")), cap_logs
     clear_data_path(testdataset1.name)
 
@@ -247,15 +253,17 @@ def test_archive_collection_failure(
     # Simulate something that logs results in an issue log during a collection run
     collection.model.exports.add("missing.exp")
 
-    crawl_dataset(testdataset1)
-    store = get_store(testdataset1, linker)
+    version = settings.RUN_VERSION
+    crawl_dataset(testdataset1, version=version)
+    store = get_store(testdataset1, linker, version=version)
     store.sync()
     view = store.view(testdataset1)
-    export_dataset(testdataset1, view)
+    export_dataset(testdataset1, view, version)
 
-    export_dataset(collection, view)
+    make_version(collection, version)
+    export_dataset(collection, view, version)
     # let's imagine there was an exception causing abort
-    archive_failure(collection)
+    archive_failure(collection, version)
 
     history = _read_history(collection.name)
     assert history is not None

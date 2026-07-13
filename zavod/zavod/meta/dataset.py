@@ -11,7 +11,6 @@ from followthemoney.dataset.coverage import DataCoverage
 from followthemoney.dataset.resource import DataResource
 
 from zavod import settings
-from zavod.archive import dataset_data_path
 from zavod.logs import get_logger
 from zavod.meta.assertion import Assertion, parse_assertions
 from zavod.meta.dates import DatesSpec
@@ -102,16 +101,23 @@ class Dataset(FollowTheMoneyDataset):
     def resource_from_path(
         self,
         path: Path,
+        name: str,
         mime_type: Optional[str] = None,
         title: Optional[str] = None,
     ) -> "DataResource":
-        """Create a resource description object from a local file path."""
+        """Create a resource description object from a local file path.
+
+        Args:
+            path: The local file to describe.
+            name: The name of the resource, i.e. its path relative to the root of
+                the run it belongs to.
+            mime_type: MIME type of the resource, will be guessed otherwise.
+            title: A human-readable description.
+        """
         if not path.exists():
             raise ValueError("File does not exist: %s" % path)
         if mime_type is None:
             mime_type, _ = mimetypes.guess_type(path.as_posix(), strict=False)
-        dataset_path_ = dataset_data_path(self.name)
-        name = path.relative_to(dataset_path_).as_posix()
 
         digest = sha1()
         size = 0

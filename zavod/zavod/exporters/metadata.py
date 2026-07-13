@@ -1,6 +1,8 @@
 from enum import StrEnum
 import json
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
+
+from followthemoney.dataset import Version
 
 from zavod import settings
 from zavod.logs import get_logger
@@ -9,11 +11,11 @@ from zavod.archive import INDEX_FILE, STATISTICS_FILE, ISSUES_FILE
 from zavod.archive import CATALOG_FILE, DELTA_INDEX_FILE, DELTA_EXPORT_FILE
 from zavod.archive import UNLISTED_RESOURCES
 from zavod.archive import get_dataset_artifact, get_artifact_object
+from zavod.archive import find_archive_artifact, latest_local_version
 from zavod.archive import iter_dataset_versions, dataset_resource_path
 from zavod.runtime.urls import make_artifact_url
 from zavod.runtime.resources import DatasetResources
 from zavod.runtime.issues import DatasetIssues
-from zavod.runtime.versions import get_latest
 from zavod.util import write_json
 
 log = get_logger(__name__)
@@ -24,26 +26,31 @@ class DatasetVersionResult(StrEnum):
     FAILURE = "failure"
 
 
-def get_base_dataset_metadata(dataset: Dataset) -> Dict[str, Any]:
-    """Build the barebones metadata block for a dataset, without artifact URLs."""
+def get_base_dataset_metadata(
+    dataset: Dataset, version: Optional[Version]
+) -> Dict[str, Any]:
+    """Build the barebones metadata block for a dataset, without artifact URLs.
+
+    Args:
+        dataset: The dataset to generate metadata for.
+        version: The run of the dataset to describe. Statistics and resources are
+            read from exactly this version, so e.g. a failed run (which produced
+            no statistics) never picks up entity counts from a previous run.
+            `None` if the dataset has never run.
+    """
     meta: Dict[str, Any] = {
         "issue_levels": {},
         "issue_count": 0,
         "updated_at": settings.RUN_TIME_ISO,
+        "resources": [],
     }
+    if version is None:
+        return meta
 
     # This reads the file produced by the statistics exporter which
     # contains entity counts for the dataset, aggregated by various
     # criteria:
-    # TODO: In the case of a failed run, this will currently backfill the stats from the last
-    #  previous run. That doesn't really make sense, because the resources of the index will
-    #  be empty - so what are these counts referring to? (Answer: the last successful run, and then
-    #  publish_failure will just publish that one over and over again).
-    #  But we currently show these numbers on our website, and we currently don't have well-defined
-    #  semantics how our website (or our customers) would figure out what the last successful run was.
-    #  For a brief discussion of our currently broken failure semantics,
-    #  see https://github.com/opensanctions/opensanctions/pull/2483
-    statistics_path = get_dataset_artifact(dataset.name, STATISTICS_FILE)
+    statistics_path = get_dataset_artifact(dataset.name, version, STATISTICS_FILE)
     if statistics_path.is_file():
         with open(statistics_path, "r") as fh:
             stats: Dict[str, Any] = json.load(fh)
@@ -57,7 +64,7 @@ def get_base_dataset_metadata(dataset: Dataset) -> Dict[str, Any]:
                 meta["last_change"] = last_change
 
     res_datas: List[Dict[str, Any]] = []
-    for res in DatasetResources(dataset).all():
+    for res in DatasetResources(dataset, version).all():
         if res.name in UNLISTED_RESOURCES:
             continue
         res_data = res.model_dump(mode="json", exclude_none=True)
@@ -67,20 +74,20 @@ def get_base_dataset_metadata(dataset: Dataset) -> Dict[str, Any]:
     return meta
 
 
-def write_dataset_index(dataset: Dataset, result: DatasetVersionResult) -> None:
-    """Export dataset metadata to index.json."""
+def write_dataset_index(
+    dataset: Dataset, version: Version, result: DatasetVersionResult
+) -> None:
+    """Export dataset metadata to index.json for the given run (version) of the
+    dataset."""
     catalog = get_catalog()
-    version = get_latest(dataset.name, backfill=True)
-    if version is None:
-        raise ValueError(f"No version found for dataset: {dataset.name}")
-    index_path = dataset_resource_path(dataset.name, INDEX_FILE)
+    index_path = dataset_resource_path(dataset.name, version, INDEX_FILE)
     log.info(
         "Writing dataset index",
         path=index_path,
         version=version.id,
         is_collection=dataset.is_collection,
     )
-    meta = get_base_dataset_metadata(dataset)
+    meta = get_base_dataset_metadata(dataset, version)
     meta.update(dataset.to_opensanctions_dict(catalog))
 
     # Remove redundant dataset hierarchy metadata
@@ -96,7 +103,7 @@ def write_dataset_index(dataset: Dataset, result: DatasetVersionResult) -> None:
         res_data["url"] = make_artifact_url(dataset.name, version.id, res_data["path"])
 
     if not dataset.is_collection:
-        issues = DatasetIssues(dataset)
+        issues = DatasetIssues(dataset, version)
         meta["issue_levels"] = issues.by_level()
         meta["issue_count"] = sum(meta["issue_levels"].values())
     meta["last_export"] = settings.RUN_TIME_ISO
@@ -108,7 +115,7 @@ def write_dataset_index(dataset: Dataset, result: DatasetVersionResult) -> None:
         dataset.name, version.id, STATISTICS_FILE
     )
 
-    delta_index_path = dataset_resource_path(dataset.name, DELTA_INDEX_FILE)
+    delta_index_path = dataset_resource_path(dataset.name, version, DELTA_INDEX_FILE)
     if delta_index_path.is_file():
         # Only generated for successful exports:
         meta["delta_url"] = make_artifact_url(
@@ -117,13 +124,11 @@ def write_dataset_index(dataset: Dataset, result: DatasetVersionResult) -> None:
     else:
         # If the delta index is not available, try to find the newest delta index
         # generate the URL from that:
-        for version in iter_dataset_versions(dataset.name):
-            object = get_artifact_object(
-                dataset.name, DELTA_EXPORT_FILE, version=version.id
-            )
+        for v in iter_dataset_versions(dataset.name):
+            object = get_artifact_object(dataset.name, DELTA_EXPORT_FILE, v.id)
             if object is not None:
                 meta["delta_url"] = make_artifact_url(
-                    dataset.name, version.id, DELTA_INDEX_FILE
+                    dataset.name, v.id, DELTA_INDEX_FILE
                 )
                 break
 
@@ -134,21 +139,34 @@ def write_dataset_index(dataset: Dataset, result: DatasetVersionResult) -> None:
 def get_catalog_dataset(dataset: Dataset) -> Dict[str, Any]:
     """Get a metadata description of a single dataset for the catalog.
 
-    Uses run information from the latest published index file, but patches it with the latest metadata from
-    the dataset object to allow us to quickly patch the catalog without waiting for another export.
+    Uses run information from the latest run available (a local run if present,
+    otherwise the newest published index file in the archive), but patches it with
+    the latest metadata from the dataset object to allow us to quickly patch the
+    catalog without waiting for another export.
     """
-    # Get a barebones metadata object, only relevant before the first export
-    meta = get_base_dataset_metadata(dataset)
+    index_data: Optional[Dict[str, Any]] = None
+    version = latest_local_version(dataset.name, with_resource=INDEX_FILE)
+    if version is None:
+        version, legacy_object = find_archive_artifact(dataset.name, INDEX_FILE)
+        if version is None and legacy_object is not None:
+            # FIXME: legacy fallback, remove after migration.
+            with legacy_object.open() as fh:
+                index_data = json.load(fh)
+    if version is not None:
+        path = get_dataset_artifact(dataset.name, version, INDEX_FILE)
+        if path.is_file():
+            with open(path, "r") as fh:
+                index_data = json.load(fh)
 
-    # Use the latest published index file, if available.
-    path = get_dataset_artifact(dataset.name, INDEX_FILE)
-    if path.is_file():
-        with open(path, "r") as fh:
-            meta.update(json.load(fh))
+    # Get a barebones metadata object, only relevant before the first export
+    meta = get_base_dataset_metadata(dataset, version)
+
+    if index_data is not None:
+        meta.update(index_data)
     else:
         log.warn(
             "No index file found, dataset likely hasn't run yet",
-            path=path.as_posix(),
+            dataset=dataset.name,
             report_issue=False,
         )
 
@@ -167,7 +185,10 @@ def get_catalog_datasets(scope: Dataset) -> List[Dict[str, Any]]:
 
 
 def write_delta_index(
-    dataset: Dataset, max_versions: int = 100, include_latest: bool = True
+    dataset: Dataset,
+    version: Version,
+    max_versions: int = 100,
+    include_latest: bool = True,
 ) -> None:
     """Export list of delta data versions for the dataset with their URLs
     associated."""
@@ -175,25 +196,20 @@ def write_delta_index(
 
     # This hasn't been uploaded yet, but will become available at the same
     # time as the index file:
-    latest = get_latest(dataset.name, backfill=False)
-    if latest is not None and include_latest:
-        data_path = dataset_resource_path(dataset.name, DELTA_EXPORT_FILE)
+    if include_latest:
+        data_path = dataset_resource_path(dataset.name, version, DELTA_EXPORT_FILE)
         if data_path.is_file() and data_path.stat().st_size > 0:
-            versions[latest.id] = make_artifact_url(
-                dataset.name, latest.id, DELTA_EXPORT_FILE
-            )
-
-    # Get the most recent versions of the dataset:
-    for version in iter_dataset_versions(dataset.name):
-        if version.id in versions:
-            continue
-        object = get_artifact_object(
-            dataset.name, DELTA_EXPORT_FILE, version=version.id
-        )
-        if object is not None and object.size() > 0:
             versions[version.id] = make_artifact_url(
                 dataset.name, version.id, DELTA_EXPORT_FILE
             )
+
+    # Get the most recent versions of the dataset:
+    for v in iter_dataset_versions(dataset.name):
+        if v.id in versions:
+            continue
+        object = get_artifact_object(dataset.name, DELTA_EXPORT_FILE, v.id)
+        if object is not None and object.size() > 0:
+            versions[v.id] = make_artifact_url(dataset.name, v.id, DELTA_EXPORT_FILE)
         if len(versions) >= max_versions:
             break
 
@@ -213,7 +229,7 @@ def write_delta_index(
     if len(versions) == 0:
         log.info(f"No delta versions found: {dataset.name}")
         return
-    index_path = dataset_resource_path(dataset.name, DELTA_INDEX_FILE)
+    index_path = dataset_resource_path(dataset.name, version, DELTA_INDEX_FILE)
     log.info("Writing delta versions index...", path=index_path.as_posix())
     with open(index_path, "wb") as fh:
         data = {
@@ -224,12 +240,12 @@ def write_delta_index(
         write_json(data, fh)
 
 
-def write_catalog(scope: Dataset) -> None:
+def write_catalog(scope: Dataset, version: Version) -> None:
     """Export a Nomenklatura-style data catalog file to represent all the datasets
     within this scope."""
     if not scope.is_collection:
         return
-    catalog_path = dataset_resource_path(scope.name, CATALOG_FILE)
+    catalog_path = dataset_resource_path(scope.name, version, CATALOG_FILE)
     log.info("Writing collection as catalog...", path=catalog_path.as_posix())
     with open(catalog_path, "wb") as fh:
         data = {

@@ -4,6 +4,7 @@ import shutil
 from pathlib import Path
 from tempfile import mkdtemp
 import logging
+from followthemoney.dataset import Version
 from sqlalchemy import MetaData
 from nomenklatura import Resolver
 from nomenklatura.db import close_db, make_session, Session
@@ -119,8 +120,15 @@ def testdataset_dedupe() -> Dataset:
 
 
 @pytest.fixture(scope="function")
+def version() -> Version:
+    """The version minted for the current process, i.e. the one a crawl in a test
+    will produce and operate on."""
+    return settings.RUN_VERSION
+
+
+@pytest.fixture(scope="function")
 def vcontext(testdataset1) -> Generator[Context, None, None]:
-    context = Context(testdataset1)
+    context = Context(testdataset1, settings.RUN_VERSION)
     yield context
     context.close()
 

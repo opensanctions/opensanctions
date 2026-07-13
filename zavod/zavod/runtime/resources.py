@@ -1,6 +1,6 @@
 import json
 from typing import Dict, Any, List
-from followthemoney.dataset import DataResource
+from followthemoney.dataset import DataResource, Version
 
 from zavod.meta import Dataset
 from zavod.archive import dataset_resource_path
@@ -8,12 +8,12 @@ from zavod.archive import RESOURCES_FILE
 
 
 class DatasetResources(object):
-    """Store information about the resources in the dataset that have been emitted
-    from the context during runtime."""
+    """Store information about the resources in the given run (version) of the
+    dataset that have been emitted from the context during runtime."""
 
-    def __init__(self, dataset: Dataset) -> None:
+    def __init__(self, dataset: Dataset, version: Version) -> None:
         self.dataset = dataset
-        self.path = dataset_resource_path(dataset.name, RESOURCES_FILE)
+        self.path = dataset_resource_path(dataset.name, version, RESOURCES_FILE)
 
     def _store_resources(self, resources: List[DataResource]) -> None:
         with open(self.path, "w") as fh:
@@ -37,8 +37,6 @@ class DatasetResources(object):
     def all(self) -> List[DataResource]:
         resources: List[DataResource] = []
         data: Dict[str, Any] = {}
-        # if not self.path.exists():
-        #     self.path = get_dataset_artifact(self.dataset.name, RESOURCES_FILE)
         if self.path.exists():
             with open(self.path, "r") as fh:
                 data = json.load(fh)

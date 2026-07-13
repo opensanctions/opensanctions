@@ -1,7 +1,7 @@
 from json import load
 
 from zavod import settings, Context
-from zavod.archive import clear_data_path
+from zavod.archive import clear_data_path, dataset_version_path
 from zavod.exporters.statistics import StatisticsExporter
 from zavod.meta import Dataset
 from zavod.crawl import crawl_dataset
@@ -9,7 +9,7 @@ from zavod.tests.exporters.util import harnessed_export
 
 
 def test_statistics(testdataset1: Dataset):
-    dataset_path = settings.DATA_PATH / "datasets" / testdataset1.name
+    dataset_path = dataset_version_path(testdataset1.name, settings.RUN_VERSION)
     clear_data_path(testdataset1.name)
 
     crawl_dataset(testdataset1)
@@ -54,7 +54,7 @@ def test_statistics(testdataset1: Dataset):
 
 
 def test_sanction_programs(testdataset1):
-    context = Context(testdataset1)
+    context = Context(testdataset1, settings.RUN_VERSION)
 
     company = context.make("Company")
     company.id = "company-evil"
@@ -70,7 +70,7 @@ def test_sanction_programs(testdataset1):
     context.close()
     harnessed_export(StatisticsExporter, testdataset1)
 
-    dataset_path = settings.DATA_PATH / "datasets" / testdataset1.name
+    dataset_path = dataset_version_path(testdataset1.name, settings.RUN_VERSION)
     with open(dataset_path / "statistics.json") as statistics_file:
         statistics = load(statistics_file)
 

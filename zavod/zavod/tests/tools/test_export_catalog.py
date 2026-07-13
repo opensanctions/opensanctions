@@ -11,11 +11,12 @@ from zavod.exporters import export_dataset
 
 
 def export(dataset: Dataset) -> None:
+    version = settings.RUN_VERSION
     linker = get_dataset_linker(dataset)
-    store = get_store(dataset, linker)
+    store = get_store(dataset, linker, version=version)
     store.sync()
     view = store.view(dataset)
-    export_dataset(dataset, view)
+    export_dataset(dataset, view, version)
 
 
 def test_export_index(testdataset1: Dataset, testdataset2: Dataset):

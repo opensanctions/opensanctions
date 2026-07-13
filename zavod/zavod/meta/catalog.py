@@ -4,7 +4,8 @@ from pathlib import Path
 from followthemoney.dataset import DataCatalog
 
 from zavod.meta.dataset import Dataset
-from zavod.archive import get_dataset_artifact, INDEX_FILE
+from zavod.archive import find_archive_artifact, get_dataset_artifact
+from zavod.archive import latest_local_version, INDEX_FILE
 
 
 class ArchiveBackedCatalog(DataCatalog[Dataset]):
@@ -27,7 +28,14 @@ class ArchiveBackedCatalog(DataCatalog[Dataset]):
         dataset = super().get(name)
         if dataset is not None:
             return dataset
-        path = get_dataset_artifact(name, INDEX_FILE)
+        # The dataset is not defined locally, so use the metadata of the newest run
+        # available: a local one if present, otherwise from the archive.
+        version = latest_local_version(name, with_resource=INDEX_FILE)
+        if version is None:
+            version, _ = find_archive_artifact(name, INDEX_FILE)
+        if version is None:
+            return None
+        path = get_dataset_artifact(name, version, INDEX_FILE)
         if path.exists():
             return self.load_yaml(path)
         return None

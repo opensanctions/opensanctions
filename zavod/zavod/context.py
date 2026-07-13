@@ -1,4 +1,5 @@
 import orjson
+import shutil
 import contextvars
 from pathlib import Path
 from typing import Any, Dict, List, Mapping, Optional, Union, cast
@@ -18,6 +19,7 @@ from structlog.contextvars import bind_contextvars, reset_contextvars
 
 from zavod import settings
 from zavod.archive import STATEMENTS_FILE, dataset_data_path, dataset_resource_path
+from zavod.archive import dataset_version_path
 from zavod.audit import inspect
 from zavod.entity import Entity
 from zavod.integration.dedupe import get_resolver
@@ -35,7 +37,6 @@ from zavod.runtime.issues import DatasetIssues
 from zavod.runtime.resources import DatasetResources
 from zavod.runtime.stats import ContextStats
 from zavod.runtime.timestamps import TimeStampIndex
-from zavod.runtime.versions import get_latest, make_version
 from zavod.util import Element, join_slug, prefixed_hash_id
 
 
@@ -50,12 +51,15 @@ class Context:
 
     SOURCE_TITLE = "Source data"
 
-    def __init__(self, dataset: Dataset, dry_run: bool = False):
+    def __init__(self, dataset: Dataset, version: Version, dry_run: bool = False):
         self.dataset = dataset
+        self.version = version
+        """The version of the dataset this context is operating on."""
+        self.version_time_iso = version.dt.isoformat(sep="T", timespec="seconds")
         self.dry_run = dry_run
         self.stats = ContextStats()
-        self.issues = DatasetIssues(dataset)
-        self.resources = DatasetResources(dataset)
+        self.issues = DatasetIssues(dataset, version)
+        self.resources = DatasetResources(dataset, version)
         self.log = get_logger(dataset.name)
         self.http = make_session(dataset.http)
         self._db: Optional[Session] = None
@@ -65,7 +69,9 @@ class Context:
         self._structlog_contextvars_tokens: Optional[
             Mapping[str, contextvars.Token[Any]]
         ] = None
-        self._writer_path = dataset_resource_path(dataset.name, STATEMENTS_FILE)
+        self._writer_path = dataset_resource_path(
+            dataset.name, version, STATEMENTS_FILE
+        )
         self._writer: Optional[PackStatementWriter] = None
 
         self.lang: Optional[str] = None
@@ -108,11 +114,6 @@ class Context:
         return self._resolver
 
     @property
-    def version(self) -> Version:
-        """The current version of the dataset."""
-        return get_latest(self.dataset.name, backfill=False) or settings.RUN_VERSION
-
-    @property
     def timestamps(self) -> TimeStampIndex:
         """An index of the first_seen time of every statement previous emitted by
         the dataset. This is used to determine if a statement is new or not."""
@@ -131,14 +132,12 @@ class Context:
         """Prepare the context for running the exporter.
 
         Args:
-            clear: Remove the existing resources and issues from the dataset.
+            clear: Remove the existing resources and issues of this version of
+                the dataset.
         """
         self._structlog_contextvars_tokens = bind_contextvars(
             dataset=self.dataset.name,
             context=self,
-        )
-        make_version(
-            self.dataset, settings.RUN_VERSION, append_new_version_to_history=clear
         )
         if clear and not self.dry_run:
             self.resources.clear()
@@ -189,19 +188,34 @@ class Context:
             self.issues.export()
 
     def get_resource_path(self, name: PathLike) -> Path:
-        """Get the path to a file in the dataset data folder.
+        """Get the path to a working file in the dataset data folder, e.g. a fetched
+        source file. Use `export_resource` to register a file as a resource of this
+        run of the dataset.
 
         Args:
             name: The name of the file, relative to the dataset data folder.
 
         Returns:
             The full path to the file."""
-        return dataset_resource_path(self.dataset.name, str(name))
+        return dataset_data_path(self.dataset.name).joinpath(str(name))
+
+    def get_artifact_path(self, name: PathLike) -> Path:
+        """Get the path to a file in the working directory of the version of the
+        dataset this context is operating on.
+
+        Args:
+            name: The name of the file, relative to the version directory.
+
+        Returns:
+            The full path to the file."""
+        return dataset_resource_path(self.dataset.name, self.version, str(name))
 
     def export_resource(
         self, path: Path, mime_type: Optional[str] = None, title: Optional[str] = None
     ) -> DataResource:
-        """Register a file as a data resource exported by the dataset.
+        """Register a file as a data resource exported by this run of the dataset.
+        Files outside the working directory of this version (e.g. fetched source
+        files) are copied into it.
 
         Args:
             path: The file path of the exported resource
@@ -211,8 +225,22 @@ class Context:
         Returns:
             The generated resource object which has been saved.
         """
+        version_path = dataset_version_path(self.dataset.name, self.version)
+        data_path = dataset_data_path(self.dataset.name)
+        if path.is_relative_to(version_path):
+            name = path.relative_to(version_path).as_posix()
+        elif path.is_relative_to(data_path):
+            name = path.relative_to(data_path).as_posix()
+        else:
+            raise ValueError(f"Resource path is outside the data folder: {path}")
+
+        artifact_path = dataset_resource_path(self.dataset.name, self.version, name)
+        if path != artifact_path:
+            artifact_path.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(path, artifact_path)
+
         resource = self.dataset.resource_from_path(
-            path, mime_type=mime_type, title=title
+            artifact_path, name=name, mime_type=mime_type, title=title
         )
         if not self.dry_run:
             self.resources.save(resource)
@@ -645,10 +673,10 @@ class Context:
             )
             if stmt.id is None:
                 raise ValueError("Statement has no ID: %r", stmt)
-            stmt.first_seen = stamps.get(stmt.id, settings.RUN_TIME_ISO)
-            if stmt.first_seen == settings.RUN_TIME_ISO:
+            stmt.first_seen = stamps.get(stmt.id, self.version_time_iso)
+            if stmt.first_seen == self.version_time_iso:
                 self.stats.changed += 1
-            stmt.last_seen = settings.RUN_TIME_ISO
+            stmt.last_seen = self.version_time_iso
             if not self.dry_run:
                 if self._writer is None:
                     fh = self._writer_path.open("w", encoding=ENCODING)

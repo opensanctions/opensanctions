@@ -1,7 +1,8 @@
 from typing import List, Type
 from followthemoney import registry
+from followthemoney.dataset import Version
 
-from zavod.archive import dataset_data_path
+from zavod.archive import dataset_version_path
 from zavod.context import Context
 from zavod.exc import RunFailedException
 from zavod.meta.dataset import Dataset
@@ -70,18 +71,18 @@ VALIDATORS: List[Type[BaseValidator]] = [
 ]
 
 
-def validate_dataset(dataset: Dataset, view: View) -> None:
+def validate_dataset(dataset: Dataset, view: View, version: Version) -> None:
     """
     Run all validators on the given view.
 
     Returns True if publication should be aborted.
     """
-    context = Context(dataset)
+    context = Context(dataset, version)
     try:
         context.begin(clear=False)
         context.log.info(
             "Validating dataset",
-            path=dataset_data_path(dataset.name),
+            path=dataset_version_path(dataset.name, version),
         )
 
         validators = [validator(context, view) for validator in VALIDATORS]

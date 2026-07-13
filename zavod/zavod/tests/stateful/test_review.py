@@ -1,6 +1,7 @@
 from lxml import html
 from rigour.time import utc_now
 from pydantic import BaseModel
+from followthemoney.dataset import Version
 
 from zavod import settings
 from zavod.context import Context
@@ -38,7 +39,7 @@ def get_all_rows(conn, key):
 
 
 def test_new_key_saved_and_accepted_false(testdataset1: Dataset):
-    context = Context(testdataset1)
+    context = Context(testdataset1, settings.RUN_VERSION)
     data = DummyModel(foo="bar")
     review = review_extraction(
         context,
@@ -63,8 +64,10 @@ def test_no_change_updates_last_seen_version(testdataset1, monkeypatch):
     #   postconditions:
     #     - no new row
     #     - last_seen_version updated
-    monkeypatch.setattr(settings, "RUN_VERSION", "20240101010101-aaa")
-    context1 = Context(testdataset1)
+    monkeypatch.setattr(
+        settings, "RUN_VERSION", Version.from_string("20240101010101-aaa")
+    )
+    context1 = Context(testdataset1, settings.RUN_VERSION)
     context1.begin(clear=True)
     context1_version = context1.version.id
     source_value = mock_source_value("key2")
@@ -79,8 +82,10 @@ def test_no_change_updates_last_seen_version(testdataset1, monkeypatch):
     key2 = review_key("key2")
     row = get_row(context1.db, key2)
     assert row and row["last_seen_version"] == context1_version
-    monkeypatch.setattr(settings, "RUN_VERSION", "20240101010102-aaa")
-    context2 = Context(testdataset1)
+    monkeypatch.setattr(
+        settings, "RUN_VERSION", Version.from_string("20240101010102-aaa")
+    )
+    context2 = Context(testdataset1, settings.RUN_VERSION)
     context2.begin(clear=True)
     context2_version = context2.version.id
     review2 = review_extraction(
@@ -115,7 +120,7 @@ def test_source_changed_resets_review(testdataset1: Dataset):
     #   Also testing that original default_accepted=True saves,
     #   but the resetting crawl can set it to False.
 
-    context1 = Context(testdataset1)
+    context1 = Context(testdataset1, settings.RUN_VERSION)
     source_value1 = TextSourceValue(
         key_parts="key3", label="test", url="http://s", text="bar"
     )
@@ -142,7 +147,7 @@ def test_source_changed_resets_review(testdataset1: Dataset):
         key_parts="key3", label="test", url="http://s", text="baz"
     )
     data2 = DummyModel(foo="baz")
-    context2 = Context(testdataset1)
+    context2 = Context(testdataset1, settings.RUN_VERSION)
     review = review_extraction(
         context2,
         crawler_version=1,
@@ -170,7 +175,7 @@ def test_unaccepted_updates_original_extraction(testdataset1: Dataset):
     #     - a new version of the review is created
     #     - original_extraction is the new data
     #     - extracted_data is is the new data
-    context1 = Context(testdataset1)
+    context1 = Context(testdataset1, settings.RUN_VERSION)
     data1 = DummyModel(foo="foo")
     review1 = review_extraction(
         context1,
@@ -187,7 +192,7 @@ def test_unaccepted_updates_original_extraction(testdataset1: Dataset):
     assert row1["original_extraction"]["foo"] == "foo"
     assert row1["extracted_data"]["foo"] == "foo"
 
-    context2 = Context(testdataset1)
+    context2 = Context(testdataset1, settings.RUN_VERSION)
     data2 = DummyModel(foo="bar")
     review_extraction(
         context2,
@@ -209,7 +214,7 @@ def test_unaccepted_updates_original_extraction(testdataset1: Dataset):
 
 
 def test_crawler_version_bump_resets_review(testdataset1: Dataset):
-    context1 = Context(testdataset1)
+    context1 = Context(testdataset1, settings.RUN_VERSION)
     review = review_extraction(
         context1,
         crawler_version=1,
@@ -232,7 +237,7 @@ def test_crawler_version_bump_resets_review(testdataset1: Dataset):
         foo: str
         baz: str  # baz is required in the new model -> backward incompatible
 
-    context2 = Context(testdataset1)
+    context2 = Context(testdataset1, settings.RUN_VERSION)
     review = review_extraction(
         context2,
         crawler_version=2,
@@ -327,7 +332,7 @@ def test_source_changed_updates_source_fields(testdataset1: Dataset):
     #   postconditions:
     #     - source_value, source_mime_type, source_label, source_url are all
     #       updated to reflect the new source
-    context1 = Context(testdataset1)
+    context1 = Context(testdataset1, settings.RUN_VERSION)
     source_value1 = TextSourceValue(
         key_parts="key8", label="label-old", url="http://s/old", text="old text"
     )
@@ -340,7 +345,7 @@ def test_source_changed_updates_source_fields(testdataset1: Dataset):
         default_accepted=True,
     )
 
-    context2 = Context(testdataset1)
+    context2 = Context(testdataset1, settings.RUN_VERSION)
     source_value2 = TextSourceValue(
         key_parts="key8", label="label-new", url="http://s/new", text="new text"
     )

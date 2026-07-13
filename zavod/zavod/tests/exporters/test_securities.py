@@ -4,12 +4,12 @@ from zavod.tests.exporters.util import harnessed_export
 from zavod.meta import Dataset
 from zavod.exporters.securities import SecuritiesExporter
 from zavod import settings
-from zavod.archive import clear_data_path
+from zavod.archive import clear_data_path, dataset_version_path
 from zavod.crawl import crawl_dataset
 
 
 def test_securities(testdataset2_export: Dataset):
-    dataset_path = settings.DATA_PATH / "datasets" / testdataset2_export.name
+    dataset_path = dataset_version_path(testdataset2_export.name, settings.RUN_VERSION)
     clear_data_path(testdataset2_export.name)
 
     crawl_dataset(testdataset2_export)

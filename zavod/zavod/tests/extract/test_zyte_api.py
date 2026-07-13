@@ -2,6 +2,7 @@ import pytest
 import requests_mock
 from base64 import b64encode
 
+from zavod import settings
 from zavod.context import Context
 from zavod.meta.dataset import Dataset
 from zavod.extract.zyte_api import (
@@ -14,7 +15,7 @@ from zavod.extract.zyte_api import (
 
 
 def test_browser_html(testdataset1: Dataset):
-    context = Context(testdataset1)
+    context = Context(testdataset1, settings.RUN_VERSION)
 
     with requests_mock.Mocker() as m:
         m.post(
@@ -52,7 +53,7 @@ def test_browser_html(testdataset1: Dataset):
 
 
 def test_fetch_html_http_response_body(testdataset1: Dataset):
-    context = Context(testdataset1)
+    context = Context(testdataset1, settings.RUN_VERSION)
 
     with requests_mock.Mocker() as m:
         m.post(
@@ -85,7 +86,7 @@ def test_fetch_html_http_response_body(testdataset1: Dataset):
 
 
 def test_fetch_html_detects_missing_charset(testdataset1: Dataset):
-    context = Context(testdataset1)
+    context = Context(testdataset1, settings.RUN_VERSION)
 
     # Legacy pages declare their encoding only in a <meta> tag, not the HTTP
     # Content-Type header. Byte 0xf0 ('š' in windows-1257) is invalid UTF-8, so
@@ -115,7 +116,7 @@ def test_fetch_html_detects_missing_charset(testdataset1: Dataset):
 
 
 def test_unblock_failed(testdataset1: Dataset):
-    context = Context(testdataset1)
+    context = Context(testdataset1, settings.RUN_VERSION)
 
     with requests_mock.Mocker() as m:
         m.post(
@@ -130,7 +131,7 @@ def test_unblock_failed(testdataset1: Dataset):
 
 
 def test_caching(testdataset1: Dataset):
-    context = Context(testdataset1)
+    context = Context(testdataset1, settings.RUN_VERSION)
 
     with requests_mock.Mocker() as m:
         m.post(
@@ -154,7 +155,7 @@ def test_caching(testdataset1: Dataset):
 
 
 def test_fetch_resource(testdataset1: Dataset):
-    context = Context(testdataset1)
+    context = Context(testdataset1, settings.RUN_VERSION)
     url = "https://test.com/download.csv"
 
     with requests_mock.Mocker() as m:
@@ -210,7 +211,7 @@ def test_fetch_resource(testdataset1: Dataset):
 
 
 def test_fetch_text(testdataset1: Dataset):
-    context = Context(testdataset1)
+    context = Context(testdataset1, settings.RUN_VERSION)
 
     with requests_mock.Mocker() as m:
         m.post(
@@ -237,7 +238,7 @@ def test_fetch_text(testdataset1: Dataset):
 
 
 def test_fetch_json(testdataset1: Dataset):
-    context = Context(testdataset1)
+    context = Context(testdataset1, settings.RUN_VERSION)
 
     with requests_mock.Mocker() as m:
         m.post(
@@ -267,7 +268,7 @@ def test_fetch_json(testdataset1: Dataset):
 
 
 def test_fetch_json_expect_json(testdataset1: Dataset):
-    context = Context(testdataset1)
+    context = Context(testdataset1, settings.RUN_VERSION)
 
     with requests_mock.Mocker() as m:
         m.post(

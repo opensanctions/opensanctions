@@ -14,7 +14,7 @@ from zavod.entity import Entity
 from zavod.integration.dedupe import get_dataset_linker
 from zavod.store import get_store
 from zavod.exporters import export_dataset
-from zavod.archive import clear_data_path, DATASETS
+from zavod.archive import clear_data_path, dataset_version_path
 from zavod.exporters.ftm import FtMExporter
 from zavod.exporters.names import NamesExporter
 from zavod.exporters.simplecsv import SimpleCSVExporter
@@ -42,7 +42,7 @@ def emit_entity(
     id_: Optional[str] = None,
     properties: dict[str, list[str]] = {},
 ) -> Entity:
-    context = Context(ds)
+    context = Context(ds, settings.RUN_VERSION)
     context.begin()
 
     entity = Entity.from_data(
@@ -56,20 +56,21 @@ def emit_entity(
 
 
 def export(dataset: Dataset) -> None:
+    version = settings.RUN_VERSION
     linker = get_dataset_linker(dataset)
-    store = get_store(dataset, linker)
+    store = get_store(dataset, linker, version=version)
     store.sync(clear=True)
     view = store.view(dataset)
-    export_dataset(dataset, view)
+    export_dataset(dataset, view, version)
 
 
 def read_exported_entities(dataset: Dataset) -> list[ValueEntity]:
-    dataset_path = settings.DATA_PATH / DATASETS / dataset.name
+    dataset_path = dataset_version_path(dataset.name, settings.RUN_VERSION)
     return list(path_entities(dataset_path / "entities.ftm.json", ValueEntity))
 
 
 def test_export(testdataset1: Dataset):
-    dataset_path = settings.DATA_PATH / DATASETS / testdataset1.name
+    dataset_path = dataset_version_path(testdataset1.name, settings.RUN_VERSION)
     clear_data_path(testdataset1.name)
 
     crawl_dataset(testdataset1)
@@ -123,7 +124,7 @@ def test_export(testdataset1: Dataset):
 
 def test_minimal_export_config(testdataset2: Dataset):
     """Test export when dataset.exporters is empty list"""
-    dataset_path = settings.DATA_PATH / "datasets" / testdataset2.name
+    dataset_path = dataset_version_path(testdataset2.name, settings.RUN_VERSION)
     clear_data_path(testdataset2.name)
 
     crawl_dataset(testdataset2)
@@ -148,7 +149,7 @@ def test_minimal_export_config(testdataset2: Dataset):
 
 def test_custom_export_config(testdataset2_export: Dataset):
     """Test export when dataset.exporters has custom exports listed"""
-    dataset_path = settings.DATA_PATH / "datasets" / testdataset2_export.name
+    dataset_path = dataset_version_path(testdataset2_export.name, settings.RUN_VERSION)
     clear_data_path(testdataset2_export.name)
 
     crawl_dataset(testdataset2_export)
@@ -248,7 +249,7 @@ def test_ftm_referents(testdataset1: Dataset, resolver: Resolver[Entity]):
 
 
 def test_names(testdataset1: Dataset):
-    dataset_path = settings.DATA_PATH / "datasets" / testdataset1.name
+    dataset_path = dataset_version_path(testdataset1.name, settings.RUN_VERSION)
     clear_data_path(testdataset1.name)
 
     crawl_dataset(testdataset1)
@@ -265,7 +266,7 @@ def test_names(testdataset1: Dataset):
 
 
 def test_targets_simple(testdataset1: Dataset):
-    dataset_path = settings.DATA_PATH / "datasets" / testdataset1.name
+    dataset_path = dataset_version_path(testdataset1.name, settings.RUN_VERSION)
     clear_data_path(testdataset1.name)
 
     crawl_dataset(testdataset1)
@@ -318,7 +319,7 @@ def test_targets_simple(testdataset1: Dataset):
 
 
 def test_statements(testdataset1: Dataset):
-    dataset_path = settings.DATA_PATH / "datasets" / testdataset1.name
+    dataset_path = dataset_version_path(testdataset1.name, settings.RUN_VERSION)
     clear_data_path(testdataset1.name)
 
     crawl_dataset(testdataset1)
@@ -355,7 +356,7 @@ def test_statements_preserves_consolidated_removals() -> None:
 
     export(collection)
 
-    dataset_path = settings.DATA_PATH / DATASETS / collection.name
+    dataset_path = dataset_version_path(collection.name, settings.RUN_VERSION)
 
     # Statements export must contain both the original variants, even though
     # consolidation removes "JOHN DOE" as a case-duplicate of "John Doe".

@@ -57,7 +57,8 @@ def test_delta_exporter(testdataset1: Dataset, resolver: Resolver):
         return resolver.apply(Entity.from_data(testdataset1, data))
 
     version = Version.new("aaa")
-    make_version(testdataset1, version, append_new_version_to_history=True)
+    make_version(testdataset1, version)
+    version_path = dataset_path / version.id
     store.clear()
     writer = store.writer()
     writer.add_entity(e(ENTITY_B))
@@ -67,10 +68,10 @@ def test_delta_exporter(testdataset1: Dataset, resolver: Resolver):
     writer.flush()
     view = store.view(testdataset1)
     assert len(list(view.entities())) == 4
-    export_dataset(testdataset1, view)
+    export_dataset(testdataset1, view, version)
 
-    assert dataset_path.joinpath(DELTA_EXPORT_FILE).exists()
-    with open(dataset_path.joinpath(DELTA_EXPORT_FILE), "r") as fh:
+    assert version_path.joinpath(DELTA_EXPORT_FILE).exists()
+    with open(version_path.joinpath(DELTA_EXPORT_FILE), "r") as fh:
         objects = [json.loads(line) for line in fh.readlines()]
         assert len(objects) == 4, objects
         for data in objects:
@@ -78,13 +79,14 @@ def test_delta_exporter(testdataset1: Dataset, resolver: Resolver):
 
     expected_versions = [str(version)]
     _assert_delta_index_matches_expected(
-        dataset_path / DELTA_INDEX_FILE, expected_versions
+        version_path / DELTA_INDEX_FILE, expected_versions
     )
 
-    _archive_artifacts(testdataset1)
+    _archive_artifacts(testdataset1, version)
 
     version2 = Version.new("bbb")
-    make_version(testdataset1, version2, append_new_version_to_history=True)
+    make_version(testdataset1, version2)
+    version2_path = dataset_path / version2.id
     store.clear()
     writer = store.writer()
     writer.add_entity(e(ENTITY_A))
@@ -95,9 +97,9 @@ def test_delta_exporter(testdataset1: Dataset, resolver: Resolver):
     writer.add_entity(e(ENTITY_CX))
     writer.flush()
 
-    export_dataset(testdataset1, view)
-    assert dataset_path.joinpath(DELTA_EXPORT_FILE).exists()
-    with open(dataset_path.joinpath(DELTA_EXPORT_FILE), "r") as fh:
+    export_dataset(testdataset1, view, version2)
+    assert version2_path.joinpath(DELTA_EXPORT_FILE).exists()
+    with open(version2_path.joinpath(DELTA_EXPORT_FILE), "r") as fh:
         objects = [json.loads(line) for line in fh.readlines()]
         assert len(objects) == 3, [o["entity"]["id"] for o in objects]
         for data in objects:
@@ -109,13 +111,14 @@ def test_delta_exporter(testdataset1: Dataset, resolver: Resolver):
                 assert data["op"] == "DEL"
     expected_versions.append(str(version2))
     _assert_delta_index_matches_expected(
-        dataset_path / DELTA_INDEX_FILE, expected_versions
+        version2_path / DELTA_INDEX_FILE, expected_versions
     )
 
     # Round 3: check that the delta exporter can handle resolver changes
-    _archive_artifacts(testdataset1)
+    _archive_artifacts(testdataset1, version2)
     version3 = Version.new("ccc")
-    make_version(testdataset1, version3, append_new_version_to_history=True)
+    make_version(testdataset1, version3)
+    version3_path = dataset_path / version3.id
     canon_id = resolver.decide("EC", "ECX", Judgement.POSITIVE)
     store.clear()
     writer = store.writer()
@@ -126,13 +129,11 @@ def test_delta_exporter(testdataset1: Dataset, resolver: Resolver):
     writer.add_entity(e(changed))
     writer.add_entity(e(ENTITY_CX))
     writer.flush()
-    # writer.release()
-    # assert len(store.get_history(testdataset1.name)) == 3
     view = store.view(testdataset1)
 
-    export_dataset(testdataset1, view)
-    assert dataset_path.joinpath(DELTA_EXPORT_FILE).exists()
-    with open(dataset_path.joinpath(DELTA_EXPORT_FILE), "r") as fh:
+    export_dataset(testdataset1, view, version3)
+    assert version3_path.joinpath(DELTA_EXPORT_FILE).exists()
+    with open(version3_path.joinpath(DELTA_EXPORT_FILE), "r") as fh:
         objects = [json.loads(line) for line in fh.readlines()]
         assert len(objects) == 3, [o["entity"]["id"] for o in objects]
         for data in objects:
@@ -148,5 +149,5 @@ def test_delta_exporter(testdataset1: Dataset, resolver: Resolver):
                 assert data["op"] == "DEL"
     expected_versions.append(str(version3))
     _assert_delta_index_matches_expected(
-        dataset_path / DELTA_INDEX_FILE, expected_versions
+        version3_path / DELTA_INDEX_FILE, expected_versions
     )

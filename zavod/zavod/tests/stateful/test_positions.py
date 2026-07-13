@@ -15,7 +15,7 @@ from zavod.helpers.positions import make_position
 
 
 def test_occupancy_status(testdataset1: Dataset):
-    context = Context(testdataset1)
+    context = Context(testdataset1, settings.RUN_VERSION)
     person = context.make("Person")
     person.id = "thabo"
 
@@ -164,7 +164,7 @@ def test_occupancy_status(testdataset1: Dataset):
 
 
 def test_categorise_flow(testdataset1: Dataset):
-    context = Context(testdataset1)
+    context = Context(testdataset1, settings.RUN_VERSION)
     position = make_position(
         context, "A position", country="ls", subnational_area="Maseru"
     )
@@ -205,7 +205,7 @@ def test_categorise_flow(testdataset1: Dataset):
 def test_categorise_updates_changed_metadata(testdataset1: Dataset):
     """When caption/countries/subnationalArea on a position change, the
     existing row is updated in place rather than a new one being inserted."""
-    context = Context(testdataset1)
+    context = Context(testdataset1, settings.RUN_VERSION)
 
     position = make_position(
         context, "Minister of Health", country="us", subnational_area="California"
