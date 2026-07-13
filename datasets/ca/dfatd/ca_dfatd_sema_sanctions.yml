@@ -52,6 +52,24 @@ assertions:
     entities_with_prop:
       Sanction:
         listingDate: 2500
+    # Properties that are always 1.0 are asserted at 0.98, so a single
+    # unparseable value doesn't fail the whole export, while a mass drop still
+    # trips the assertion.
+    property_fill_rate:
+      Person:
+        name: 0.98
+        country: 0.9
+        birthDate: 0.4
+      LegalEntity:
+        name: 0.98
+        country: 0.95
+      Vessel:
+        name: 0.98
+        imoNumber: 0.95
+      Sanction:
+        program: 0.98
+        listingDate: 0.98
+        reason: 0.85
   max:
     schema_entities:
       Person: 6500

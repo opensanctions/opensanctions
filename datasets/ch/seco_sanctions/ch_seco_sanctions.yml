@@ -49,6 +49,23 @@ assertions:
       LegalEntity: 1500
       Address: 1200
       Vessel: 100
+    # Properties that are always 1.0 are asserted at 0.98, so a single
+    # unparseable value doesn't fail the whole export, while a mass drop still
+    # trips the assertion.
+    property_fill_rate:
+      Person:
+        name: 0.98
+        birthDate: 0.75
+        gender: 0.65
+      LegalEntity:
+        name: 0.98
+      Vessel:
+        name: 0.98
+        imoNumber: 0.2
+      Sanction:
+        program: 0.98
+        startDate: 0.95
+        listingDate: 0.95
   max:
     schema_entities:
       Person: 8500

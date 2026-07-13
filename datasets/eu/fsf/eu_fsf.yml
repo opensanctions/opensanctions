@@ -84,6 +84,22 @@ assertions:
       Address: 1250
       Organization: 970
       Vessel: 1
+    # Properties that are always 1.0 are asserted at 0.98, so a single
+    # unparseable value doesn't fail the whole export, while a mass drop still
+    # trips the assertion.
+    property_fill_rate:
+      Person:
+        # Manual review demotes some names to weakAlias, leaving those entities
+        # without a primary name at all.
+        name: 0.98
+        birthDate: 0.7
+      Organization:
+        name: 0.98
+        country: 0.7
+      Sanction:
+        program: 0.98
+        startDate: 0.98
+        listingDate: 0.98
   max:
     schema_entities:
       Person: 8000

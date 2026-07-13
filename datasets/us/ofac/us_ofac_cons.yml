@@ -55,6 +55,22 @@ assertions:
       Security: 200
       Person: 70
       Company: 4
+    # Properties that are always 1.0 are asserted at 0.98, so a single
+    # unparseable value doesn't fail the whole export, while a mass drop still
+    # trips the assertion.
+    property_fill_rate:
+      Person:
+        name: 0.98
+        birthDate: 0.8
+      Organization:
+        name: 0.98
+        country: 0.95
+        address: 0.9
+      Security:
+        issuer: 0.98
+        isin: 0.55
+      Sanction:
+        program: 0.98
   max:
     schema_entities:
       Address: 1030
