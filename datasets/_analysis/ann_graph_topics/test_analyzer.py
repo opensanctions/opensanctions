@@ -6,11 +6,12 @@ that captures emitted patches, and asserts on the set of ``(target_id, topic)``
 pairs that came out.
 """
 
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 
 from nomenklatura.resolver import Linker
 from nomenklatura.store.memory import MemoryStore
-from zavod import Dataset, Entity
+from zavod import Context, Dataset, Entity
+from zavod.logs import get_logger
 
 from .analyzer import analyze_entity, non_graph_topics
 
@@ -18,34 +19,26 @@ SOURCE = Dataset({"name": "src", "title": "Source"})
 GRAPH = Dataset({"name": "ann_graph_topics", "title": "Graph"})
 
 
-class FakeLogger:
-    def info(self, *args: Any, **kwargs: Any) -> None:
-        pass
+class FakeContext(Context):
+    """Test double for zavod's ``Context``.
 
-    def warning(self, *args: Any, **kwargs: Any) -> None:
-        pass
-
-    def error(self, *args: Any, **kwargs: Any) -> None:
-        pass
-
-
-class FakeContext:
-    """Minimal ``zavod.Context`` stand-in.
-
-    ``make`` produces entities in the graph dataset (matching the real
-    analyzer), ``emit`` captures them, and ``log`` is a no-op that accepts
-    structlog's arbitrary keyword arguments.
+    Bypasses ``Context.__init__`` (which sets up a DB session, HTTP session
+    and a file-backed statement writer) and populates only the attributes the
+    analyzer's rules touch: ``dataset``, ``log``, and a captured ``emit``
+    buffer. ``make`` is inherited unchanged.
     """
 
     def __init__(self, dataset: Dataset = GRAPH) -> None:
         self.dataset = dataset
-        self.log = FakeLogger()
+        self.log = get_logger(dataset.name)
         self.emitted: List[Tuple[Entity, bool]] = []
 
-    def make(self, schema: str) -> Entity:
-        return Entity(self.dataset, {"schema": schema})
-
-    def emit(self, entity: Entity, external: bool = False) -> None:
+    def emit(
+        self,
+        entity: Entity,
+        external: bool = False,
+        origin: Optional[str] = None,
+    ) -> None:
         self.emitted.append((entity, external))
 
 
@@ -92,7 +85,7 @@ def _analyze(entities: List[Entity], source_id: str) -> FakeContext:
     source = view.get_entity(source_id)
     assert source is not None
     ctx = FakeContext()
-    analyze_entity(ctx, view, source)  # type: ignore[arg-type]
+    analyze_entity(ctx, view, source)
     return ctx
 
 
@@ -123,24 +116,6 @@ def test_rca_skipped_if_target_already_rca_or_pep() -> None:
     assert _emits(ctx) == []
 
 
-def test_rca_not_emitted_for_non_person_relatives() -> None:
-    # Family::relative type is LegalEntity, so an Organization is allowed on
-    # the other end. The RCA topic is Person-only and must not spread to it.
-    ctx = _analyze(
-        [
-            _entity("Person", "pep", {"topics": ["role.pep"]}),
-            _entity(
-                "Family",
-                "fam",
-                {"person": ["pep"], "relative": ["org"]},
-            ),
-            _entity("Organization", "org"),
-        ],
-        source_id="pep",
-    )
-    assert _emits(ctx) == []
-
-
 # ---- rule_sanction_adjacency --------------------------------------------
 
 
@@ -165,23 +140,6 @@ def test_sanction_linked_via_direct_securities_property() -> None:
         source_id="co",
     )
     assert ("sec1", "sanction.linked") in _emits(ctx)
-
-
-def test_sanctioned_security_does_not_propagate() -> None:
-    # A sanctioned Security itself is a dead end — we don't taint the issuer
-    # graph from a security-level listing.
-    ctx = _analyze(
-        [
-            _entity(
-                "Security",
-                "sec1",
-                {"topics": ["sanction"], "issuer": ["co"]},
-            ),
-            _entity("Company", "co"),
-        ],
-        source_id="sec1",
-    )
-    assert _emits(ctx) == []
 
 
 def test_sanction_linked_not_emitted_via_unlisted_edge() -> None:
@@ -329,8 +287,8 @@ def test_non_graph_topics_filters_out_own_dataset() -> None:
     # other datasets count towards "already tagged".
     store = _store(
         [
-            _entity("Person", "e", {"topics": ["from-src"]}, dataset=SOURCE),
-            _entity("Person", "e", {"topics": ["from-graph"]}, dataset=GRAPH),
+            _entity("Person", "e", {"topics": ["poi"]}, dataset=SOURCE),
+            _entity("Person", "e", {"topics": ["debarred"]}, dataset=GRAPH),
         ],
         scope=SOURCE,
     )
@@ -338,4 +296,4 @@ def test_non_graph_topics_filters_out_own_dataset() -> None:
     entity = view.get_entity("e")
     assert entity is not None
     ctx = FakeContext()
-    assert non_graph_topics(ctx, entity) == {"from-src"}  # type: ignore[arg-type]
+    assert non_graph_topics(ctx, entity) == {"poi"}

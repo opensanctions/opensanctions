@@ -61,12 +61,19 @@ from typing import Iterator, Set, Tuple
 
 from followthemoney import registry
 from followthemoney.property import Property
+from nomenklatura.store.base import View as BaseView
 
 from zavod import Context, Entity
-from zavod.meta import get_multi_dataset
+from zavod.meta import Dataset, get_multi_dataset
 from zavod.constants import ORIGIN_INFERRED
-from zavod.store import get_store, View
+from zavod.store import get_store
 from zavod.integration import get_dataset_linker
+
+# The analyzer only uses base ``View`` semantics (``get_entity``,
+# ``get_adjacent``, ``entities``); typing against the base class here means
+# the rules accept any store's view — including the in-memory view used by
+# unit tests, without a cast.
+View = BaseView[Dataset, Entity]
 
 
 # Edge schemata that count as "broad adjacency" for sanction propagation.
@@ -160,6 +167,8 @@ def rule_pep_family_to_rca(
     if not adjacent.schema.is_a("Family"):
         return
     for target, _ in walk_edge(view, adjacent, prop):
+        # This is a guard for potential future schema changes. There's no valid form
+        # of Family where an adjacent entity isn't a Person at the moment.
         if not target.schema.is_a("Person"):
             continue
         target_topics = non_graph_topics(context, target)
