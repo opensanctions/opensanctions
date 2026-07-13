@@ -1,55 +1,16 @@
-from typing import Literal, NamedTuple
+from typing import NamedTuple
 
 from openpyxl import load_workbook
-from pydantic import BaseModel, Field
 from rigour.mime.types import XLSX
 from zavod.entity import Entity
-from zavod.extract.llm import DEFAULT_MODEL, run_typed_text_prompt
 from zavod.stateful.review import (
-    TextSourceValue,
     assert_all_accepted,
-    review_extraction,
 )
 
 from zavod import Context
 from zavod import helpers as h
 
 PROGRAM_KEY = "SA-UNSC1373"
-
-
-class Identifier(BaseModel):
-    """A single identity or registration number extracted from the source."""
-
-    type: Literal["passport", "nationalId", "residency", "registration", "other"] = (
-        Field(
-            description=(
-                "The kind of number: 'passport', 'nationalId' (national "
-                "identification), 'residency' (residency permit/number), "
-                "'registration' (company registration number) or 'other'."
-            )
-        )
-    )
-    number: str = Field(
-        description="A single number, exactly as written in the source."
-    )
-
-
-class Identifiers(BaseModel):
-    identifiers: list[Identifier] = Field(default_factory=list)
-
-
-IDENTIFIER_PROMPT = """
-Extract every identity or registration number from the text of a sanctions
-designation. The text combines a label, one or more numbers, and sometimes an
-issuing country. A single entry may list several numbers separated by
-semicolons, or compound entries like "A) National identification; B) Passport"
-that pair each number with a type. Return one item per distinct number.
-
-Instructions for specific fields:
-  - type: passport, nationalId (national identification), residency (residency
-    permit/number), registration (company registration number) or other.
-  - number: a single number, exactly as written in the source.
-"""
 
 
 class Relation(NamedTuple):
@@ -66,8 +27,12 @@ class Relation(NamedTuple):
 RELATIONS = {
     # The terrorist organization each designation is affiliated with.
     "terror-org": Relation(
-        "Organization", "UnknownLink", "subject", "object",
-        "Linked terrorist organization", "crime.terror",
+        "Organization",
+        "UnknownLink",
+        "subject",
+        "object",
+        "Linked terrorist organization",
+        "crime.terror",
     ),
     # The owner of a designated organization or vessel.
     "owner": Relation("LegalEntity", "Ownership", "asset", "owner", "Owner", None),
@@ -120,53 +85,6 @@ def emit_related(
     context.emit(link)
 
 
-def apply_identifiers(context: Context, entity: Entity, row: dict[str, str | None]) -> None:
-    """Extract identity and registration numbers via reviewed LLM extraction.
-
-    The document and registration columns mix clean numbers, free-text remarks
-    and compound "A) ...; B) ..." entries, so parsing is delegated to an LLM
-    whose output is confirmed through the human review system before any number
-    is emitted. Each number's type is mapped to a property via the
-    ``identifier.type`` lookup; quiet adds drop numbers that don't fit the
-    entity's schema.
-    """
-    labelled = [
-        f"{label}: {value}"
-        for label, value in (
-            ("Document type", clean_cell(row.pop("doc_type", None))),
-            ("Document number", clean_cell(row.pop("doc_number", None))),
-            ("Issuing country", clean_cell(row.pop("issuing_country", None))),
-            ("Registration number", clean_cell(row.pop("reg_number", None))),
-        )
-        if value is not None
-    ]
-    if not labelled:
-        return
-
-    text = "\n".join(labelled)
-    source_value = TextSourceValue(
-        key_parts=text, label="Identifiers", text=text, url=context.data_url
-    )
-    extraction = run_typed_text_prompt(
-        context,
-        prompt=IDENTIFIER_PROMPT,
-        string=source_value.value_string,
-        response_type=Identifiers,
-    )
-    review = review_extraction(
-        context,
-        source_value=source_value,
-        original_extraction=extraction,
-        origin=DEFAULT_MODEL,
-    )
-    if not review.accepted:
-        return
-    for identifier in review.extracted_data.identifiers:
-        prop = context.lookup_value("identifier.type", identifier.type)
-        if prop is not None:
-            entity.add(prop, identifier.number, origin=review.origin, quiet=True)
-
-
 def crawl_row(context: Context, schema: str, row: dict[str, str | None]) -> None:
     """Emit a designated entity of ``schema`` from a source row.
 
@@ -185,14 +103,31 @@ def crawl_row(context: Context, schema: str, row: dict[str, str | None]) -> None
     entity.id = context.make_id(name, designated_date)
     entity.add("name", name)
     entity.add("alias", h.multi_split(row.pop("alias", None), [";"]), quiet=True)
-    entity.add("gender", clean_cell(row.pop("gender", None)), quiet=True)
-    entity.add("birthPlace", h.multi_split(row.pop("birth_place", None), [";"]), quiet=True)
-    entity.add("nationality", h.multi_split(row.pop("nationality", None), [";"]), quiet=True)
-    entity.add("country", h.multi_split(row.pop("birth_country", None), [";"]), quiet=True)
-    entity.add("flag", clean_cell(row.pop("flag", None)), quiet=True)
-    entity.add("imoNumber", clean_cell(row.pop("imo_number", None)), quiet=True)
+    entity.add("gender", row.pop("gender", None), quiet=True)
+    entity.add(
+        "birthPlace", h.multi_split(row.pop("birth_place", None), [";"]), quiet=True
+    )
+    entity.add(
+        "nationality", h.multi_split(row.pop("nationality", None), [";"]), quiet=True
+    )
+    entity.add(
+        "country", h.multi_split(row.pop("birth_country", None), [";"]), quiet=True
+    )
+    entity.add("flag", row.pop("flag", None), quiet=True)
+    entity.add("imoNumber", row.pop("imo_number", None), quiet=True)
     entity.add("notes", clean_cell(row.pop("notes", None)))
+    entity.add("registrationNumber", row.pop("reg_number", None), quiet=True)
 
+    doc_type = row.pop("doc_type", None)
+    if doc_type is not None:
+        h.make_identification(
+            context,
+            entity,
+            row.pop("doc_number", None),
+            doc_type,
+            country=row.pop("issuing_country", None),
+            passport=(doc_type == "Passport"),
+        )
     birth_date = row.pop("birth_date", None)
     if entity.schema.is_a("Person"):
         h.apply_dates(entity, "birthDate", h.multi_split(birth_date, [";"]))
@@ -202,16 +137,20 @@ def crawl_row(context: Context, schema: str, row: dict[str, str | None]) -> None
     for org in h.multi_split(row.pop("linked_org", None), [";"]):
         emit_related(context, entity, "terror-org", org)
     emit_related(
-        context, entity, "owner", row.pop("owner_name", None), row.pop("owner_info", None)
+        context,
+        entity,
+        "owner",
+        row.pop("owner_name", None),
+        row.pop("owner_info", None),
     )
-    apply_identifiers(context, entity, row)
+    context.emit(entity)
 
     sanction = h.make_sanction(
         context, entity, program_key=PROGRAM_KEY, start_date=designated_date
     )
     entity.add("topics", "sanction")
     context.emit(sanction)
-    context.emit(entity)
+
     context.audit_data(row, ignore=["no"])
 
 
