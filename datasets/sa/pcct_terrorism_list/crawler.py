@@ -3,9 +3,6 @@ from typing import NamedTuple
 from openpyxl import load_workbook
 from rigour.mime.types import XLSX
 from zavod.entity import Entity
-from zavod.stateful.review import (
-    assert_all_accepted,
-)
 
 from zavod import Context
 from zavod import helpers as h
@@ -116,8 +113,11 @@ def crawl_row(context: Context, schema: str, row: dict[str, str | None]) -> None
     entity.add("flag", row.pop("flag", None), quiet=True)
     entity.add("imoNumber", row.pop("imo_number", None), quiet=True)
     entity.add("notes", clean_cell(row.pop("notes", None)))
-    entity.add("registrationNumber", row.pop("reg_number", None), quiet=True)
-
+    entity.add(
+        "registrationNumber",
+        h.multi_split(row.pop("reg_number", None), [";"]),
+        quiet=True,
+    )
     doc_type = row.pop("doc_type", None)
     if doc_type is not None:
         h.make_identification(
@@ -167,7 +167,3 @@ def crawl(context: Context) -> None:
             continue
         for row in h.parse_xlsx_sheet(context, workbook[sheet], header_lookup=columns):
             crawl_row(context, schema, row)
-
-    # Identifier extractions await human review; warn rather than block the whole
-    # dataset, since the numbers are a secondary enrichment here.
-    assert_all_accepted(context, raise_on_unaccepted=False)

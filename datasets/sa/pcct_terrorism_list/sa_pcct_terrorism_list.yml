@@ -110,17 +110,12 @@ lookups:
         value: designated_date
       - match: "No."
         value: "no"
-  # Maps an extracted identifier type to the FTM property it populates.
-  identifier.type:
+  # Flags which document-type labels are passports (others become Identifications).
+  document.type:
+    normalize: true
     options:
-      - match: passport
-        value: passportNumber
-      - match: [nationalId, residency]
-        value: idNumber
-      - match: registration
-        value: registrationNumber
-      - match: other
-        value: null
+      - match: Passport
+        value: passport
   type.gender:
     normalize: true
     options:
