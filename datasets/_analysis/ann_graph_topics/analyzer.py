@@ -8,29 +8,29 @@ capture that derived risk so the affected entities become visible to screening
 (and eligible for further enrichment). It implements the "risk propagation"
 step of the enrichment pipeline.
 
-Three propagation rules are applied per entity:
+Three propagation rules are applied per (entity, adjacent) pair:
 
-- ``role.rca`` — a Person reachable via a ``Family`` edge from a ``role.pep``
-  is tagged as a relative or close associate.
-- ``sanction.linked`` — an entity adjacent to a ``sanction`` entity through a
-  curated set of edge schemata (Ownership, Directorship, Membership,
+- ``rule_pep_family_to_rca`` — a Person reachable via a ``Family`` edge from a
+  ``role.pep`` is tagged as a relative or close associate (``role.rca``).
+- ``rule_sanction_adjacency`` — an entity adjacent to a ``sanction`` entity
+  through a curated set of edge schemata (Ownership, Directorship, Membership,
   Employment, Associate, Family, Succession), plus Securities issued by a
-  sanctioned entity, is tagged as sanction-linked.
-- ``sanction.linked`` along ownership chains — an asset owned by an already
-  ``sanction.linked`` owner is itself tagged, pushing the tag one ownership hop
-  further on each run.
+  sanctioned entity, is tagged as ``sanction.linked``.
+- ``rule_ownership_descent`` — an asset owned by an already ``sanction.linked``
+  owner is itself tagged ``sanction.linked``, pushing the tag one ownership hop
+  further per run.
 
 Requirements and invariants that make this correct:
 
 - **Self-exclusion.** ``non_graph_topics`` ignores topic statements contributed
   by this dataset itself, so a tag this analyzer emits does not, on its own,
-  re-trigger the rules that produced it. The one deliberate exception is the
-  ownership-chain rule, which reads prior ``sanction.linked`` values from the
-  store in order to walk one hop at a time.
-- **Iterative convergence.** Because ownership propagation advances a single hop
-  per run, a multi-tier corporate hierarchy only materializes over successive
-  runs. The dataset must be re-run for the graph to converge; a single pass is
-  not sufficient.
+  re-trigger the rules that produced it. The one deliberate exception is
+  ``rule_ownership_descent``, which reads prior ``sanction.linked`` values from
+  the store in order to walk one hop at a time.
+- **Iterative convergence.** Because ownership propagation advances a single
+  hop per run, a multi-tier corporate hierarchy only materializes over
+  successive runs. The dataset must be re-run for the graph to converge; a
+  single pass is not sufficient.
 - **External vs. internal, and why the view is ``external=True``.** A statement
   is "external" when it is excluded from the published ``default`` exports.
   Enrichers emit adjacency "passengers" — entities pulled in only because they
@@ -44,22 +44,23 @@ Requirements and invariants that make this correct:
   internal iff the related entity already has at least one internal statement
   (``Entity.external`` is true only when *every* statement is external),
   otherwise external. So a derived topic on a genuinely published entity is
-  published, while a topic on a purely-external passenger stays external. Either
-  way the topic is visible in the ``external=True`` view and continues to feed
-  the next ownership hop — but tagging a passenger does not, on its own, force
-  it into the published export.
+  published, while a topic on a purely-external passenger stays external.
+  Either way the topic is visible in the ``external=True`` view and continues
+  to feed the next ownership hop — but tagging a passenger does not, on its
+  own, force it into the published export.
 - **Edge end dates terminate propagation.** Relationships carrying an
   ``endDate`` are skipped: a former director or ex-spouse does not propagate
-  risk.
+  risk. Checked once in ``analyze_entity`` before rule dispatch.
 - **Output is a patch dataset.** Each rule emits a minimal patch carrying only
   the new topic (reduced to ``LegalEntity`` for legal-entity subtypes so stale
   annotations don't pin a more specific schema); these are merged into the
   target entities downstream rather than replacing them.
 """
 
-from typing import Set
+from typing import Iterator, Set, Tuple
 
 from followthemoney import registry
+from followthemoney.property import Property
 
 from zavod import Context, Entity
 from zavod.meta import get_multi_dataset
@@ -68,7 +69,30 @@ from zavod.store import get_store, View
 from zavod.integration import get_dataset_linker
 
 
+# Edge schemata that count as "broad adjacency" for sanction propagation.
+SANCTION_ADJACENCY_EDGES = frozenset(
+    {
+        "Ownership",
+        "Directorship",
+        "Membership",
+        "Employment",
+        "Associate",
+        "Family",
+        "Succession",
+    }
+)
+
+# Topics that mean "already sanction-linked" — used to skip re-tagging.
+SANCTION_SEEDS = frozenset({"sanction", "sanction.linked"})
+
+
 def non_graph_topics(context: Context, entity: Entity) -> Set[str]:
+    """Return topics on ``entity`` that were contributed by other datasets.
+
+    Used to decide whether a candidate target is *already* tagged without
+    observing this analyzer's own prior emits — see the ``Self-exclusion``
+    invariant in the module docstring.
+    """
     topic_stmts = entity.get_statements("topics")
     return {s.value for s in topic_stmts if s.dataset != context.dataset.name}
 
@@ -88,27 +112,145 @@ def emit_patch(
         related_entity_id=related_entity.id,
         existing_topics=list(existing_topics),
     )
-
     if related_entity.schema.is_a("LegalEntity"):
-        schema = "LegalEntity"
+        schema_name = "LegalEntity"
     else:
-        schema = related_entity.schema.name
-    patch = context.make(schema)
+        schema_name = related_entity.schema.name
+    patch = context.make(schema_name)
     patch.id = related_entity.id
     patch.add("topics", topic, origin=ORIGIN_INFERRED)
     context.emit(patch, external=related_entity.external)
 
 
+def walk_edge(
+    view: View, edge: Entity, prop: Property
+) -> Iterator[Tuple[Entity, Property]]:
+    """Yield ``(other_end, counterpart_prop)`` pairs across an edge entity.
+
+    ``prop`` is the property on the *source* entity that reached ``edge``. The
+    counterpart is the property on the edge that points at the other node.
+    """
+    edge_schema = edge.schema
+    if edge_schema.source_prop is None or edge_schema.target_prop is None:
+        return
+    if prop.reverse == edge_schema.target_prop:
+        counterpart = edge_schema.source_prop
+    else:
+        counterpart = edge_schema.target_prop
+    for other_id in edge.get(counterpart):
+        other = view.get_entity(other_id)
+        if other is not None:
+            yield other, counterpart
+
+
+# ---- Rules ---------------------------------------------------------------
+
+
+def rule_pep_family_to_rca(
+    context: Context,
+    view: View,
+    source: Entity,
+    source_topics: Set[str],
+    prop: Property,
+    adjacent: Entity,
+) -> None:
+    """Tag Persons on the other side of a ``Family`` edge from a PEP."""
+    if "role.pep" not in source_topics:
+        return
+    if not adjacent.schema.is_a("Family"):
+        return
+    for target, _ in walk_edge(view, adjacent, prop):
+        if not target.schema.is_a("Person"):
+            continue
+        target_topics = non_graph_topics(context, target)
+        if target_topics & {"role.rca", "role.pep"}:
+            continue
+        emit_patch(context, source, target, "role.rca", target_topics)
+
+
+def rule_sanction_adjacency(
+    context: Context,
+    view: View,
+    source: Entity,
+    source_topics: Set[str],
+    prop: Property,
+    adjacent: Entity,
+) -> None:
+    """Tag ``sanction.linked`` on direct neighbors of a sanctioned entity.
+
+    Two topologies:
+
+    - Company → Security via the direct ``securities`` property (no
+      intermediate edge entity).
+    - Curated broad edge schemata (``SANCTION_ADJACENCY_EDGES``) walked to the
+      counterpart node.
+    """
+    if "sanction" not in source_topics:
+        return
+    # A sanctioned Security itself does not propagate — sanctions on a security
+    # don't inherently taint the whole issuer graph.
+    if source.schema.is_a("Security"):
+        return
+    # Direct Company → Security relation. The adjacent entity *is* the target.
+    if prop.name == "securities" and adjacent.schema.is_a("Security"):
+        target_topics = non_graph_topics(context, adjacent)
+        if not target_topics & SANCTION_SEEDS:
+            emit_patch(context, source, adjacent, "sanction.linked", target_topics)
+        return
+    # Otherwise the adjacent is an edge entity; walk it to the counterpart.
+    if not adjacent.schema.edge:
+        return
+    if adjacent.schema.name not in SANCTION_ADJACENCY_EDGES:
+        return
+    for target, _ in walk_edge(view, adjacent, prop):
+        target_topics = non_graph_topics(context, target)
+        if target_topics & SANCTION_SEEDS:
+            continue
+        emit_patch(context, source, target, "sanction.linked", target_topics)
+
+
+def rule_ownership_descent(
+    context: Context,
+    view: View,
+    source: Entity,
+    source_topics: Set[str],
+    prop: Property,
+    adjacent: Entity,
+) -> None:
+    """Descend one ``Ownership`` hop from a ``sanction.linked`` owner.
+
+    This rule *does* observe ``sanction.linked`` values emitted by this
+    analyzer in prior runs — that is how the tag advances one hop per run and
+    converges over successive runs. See ``Iterative convergence`` in the
+    module docstring.
+    """
+    if "sanction.linked" not in source_topics:
+        return
+    if not adjacent.schema.is_a("Ownership"):
+        return
+    # ``prop`` is the property on ``source`` that reached the Ownership edge;
+    # ``prop.reverse`` is the Ownership property pointing back at ``source``.
+    # "owner" means ``source`` sits on the owner side and we should walk to
+    # the asset. We never descend upward from an asset to its owner.
+    if prop.reverse is None or prop.reverse.name != "owner":
+        return
+    for target, _ in walk_edge(view, adjacent, prop):
+        target_topics = non_graph_topics(context, target)
+        if target_topics & SANCTION_SEEDS:
+            continue
+        emit_patch(context, source, target, "sanction.linked", target_topics)
+
+
+RULES = (
+    rule_pep_family_to_rca,
+    rule_sanction_adjacency,
+    rule_ownership_descent,
+)
+
+
 def analyze_entity(context: Context, view: View, entity: Entity) -> None:
-    topics = entity.get_type_values(registry.topic)
+    source_topics: Set[str] = set(entity.get_type_values(registry.topic))
     for prop, adjacent in view.get_adjacent(entity):
-        asch = adjacent.schema
-
-        # For when the other entity is on the other side of an edge
-        other_prop = (
-            asch.source_prop if prop.reverse == asch.target_prop else asch.target_prop
-        )
-
         if len(adjacent.get("endDate", quiet=True)) > 0:
             context.log.info(
                 "Skipping entity with end date",
@@ -117,70 +259,8 @@ def analyze_entity(context: Context, view: View, entity: Entity) -> None:
                 end=adjacent.get("endDate"),
             )
             continue
-
-        # Tag role.rca for family relations of PEPs
-        if "role.pep" in topics and adjacent.schema.is_a("Family"):
-            assert other_prop is not None
-            for other_id in adjacent.get(other_prop):
-                other = view.get_entity(other_id)
-                if other is None or not other.schema.is_a("Person"):
-                    continue
-                other_topics = non_graph_topics(context, other)
-                if other_topics.intersection({"role.rca", "role.pep"}):
-                    continue
-                emit_patch(context, entity, other, "role.rca", other_topics)
-
-        # Tag sanction.linked for sanction-linked entities
-        if "sanction" in topics:
-            if entity.schema.is_a("Security"):
-                continue
-            if prop.name == "securities" and adjacent.schema.is_a("Security"):
-                adj_topics = non_graph_topics(context, adjacent)
-                if adj_topics.intersection({"sanction", "sanction.linked"}):
-                    continue
-                emit_patch(context, entity, adjacent, "sanction.linked", adj_topics)
-            if not asch.edge:
-                continue
-            if adjacent.schema.name not in (
-                "Ownership",
-                "Directorship",
-                "Membership",
-                "Employment",
-                "Associate",
-                "Family",
-                "Succession",
-            ):
-                continue
-            assert other_prop is not None
-            for other_id in adjacent.get(other_prop):
-                other = view.get_entity(other_id)
-                if other is None:
-                    continue
-                other_topics = non_graph_topics(context, other)
-                if other_topics.intersection({"sanction", "sanction.linked"}):
-                    continue
-                emit_patch(context, entity, other, "sanction.linked", other_topics)
-
-        # Tag sanction.linked for Assets of sanction.linked Owners
-        #
-        # This works by each run of this analyzer tagging further along the
-        # ownership chain. So sanction.linked values from this analyzer
-        # may be used in subsequent runs.
-        if (
-            "sanction.linked" in topics
-            and adjacent.schema.is_a("Ownership")
-            and prop.reverse is not None
-            and prop.reverse.name == "owner"
-        ):
-            assert other_prop is not None
-            for other_id in adjacent.get(other_prop):
-                other = view.get_entity(other_id)
-                if other is None:
-                    continue
-                other_topics = non_graph_topics(context, other)
-                if other_topics.intersection({"sanction", "sanction.linked"}):
-                    continue
-                emit_patch(context, entity, other, "sanction.linked", other_topics)
+        for rule in RULES:
+            rule(context, view, entity, source_topics, prop, adjacent)
 
 
 def crawl(context: Context) -> None:
