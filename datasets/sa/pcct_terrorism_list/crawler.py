@@ -1,11 +1,12 @@
 import re
+from typing import NamedTuple
 
 from openpyxl import load_workbook
 from rigour.mime.types import XLSX
+from zavod.entity import Entity
 
 from zavod import Context
 from zavod import helpers as h
-from zavod.entity import Entity
 
 PROGRAM_NAME = "Saudi Arabia National Terrorism List (1373)"
 PROGRAM_KEY = "SA-UNSC1373"
@@ -21,6 +22,39 @@ DOC_PROPS = {
     "national identification": "idNumber",
     "national id": "idNumber",
     "residency number": "idNumber",
+}
+
+
+class Relation(NamedTuple):
+    """Shape of a related entity and the edge that links it to the anchor."""
+
+    schema: str  # schema of the related entity
+    link_schema: str  # schema of the edge entity
+    anchor_prop: str  # edge property pointing at the anchor entity
+    related_prop: str  # edge property pointing at the related entity
+    role: str  # the edge's role, describing the relationship
+    topics: str | None  # optional topic set on the related entity
+
+
+RELATIONS = {
+    # The terrorist organization each designation is affiliated with.
+    "terror-org": Relation(
+        schema="Organization",
+        link_schema="UnknownLink",
+        anchor_prop="subject",
+        related_prop="object",
+        role="Linked terrorist organization",
+        topics="crime.terror",
+    ),
+    # The owner of a designated organization or vessel.
+    "owner": Relation(
+        schema="LegalEntity",
+        link_schema="Ownership",
+        anchor_prop="asset",
+        related_prop="owner",
+        role="Owner",
+        topics=None,
+    ),
 }
 
 
@@ -40,6 +74,17 @@ def split_values(value: str | None) -> list[str]:
     if cleaned is None:
         return []
     return [p.strip() for p in cleaned.split(";") if p.strip()]
+
+
+def apply_addresses(context: Context, entity: Entity, value: str | None) -> None:
+    """Compose each semicolon-separated address and copy it onto the entity.
+
+    The source publishes addresses as single strings (e.g. "Beirut, Lebanon"),
+    so they go in as ``full=`` and ``make_address`` parses out the country.
+    """
+    for full in split_values(value):
+        address = h.make_address(context, full=full)
+        h.copy_address(entity, address)
 
 
 def parse_numbers(value: str | None) -> list[str] | None:
@@ -98,7 +143,9 @@ def apply_documents(
             entity.add(prop, number)
 
 
-def emit_sanction(context: Context, entity: Entity, designated_date: str | None) -> None:
+def emit_sanction(
+    context: Context, entity: Entity, designated_date: str | None
+) -> None:
     sanction = h.make_sanction(
         context,
         entity,
@@ -109,6 +156,43 @@ def emit_sanction(context: Context, entity: Entity, designated_date: str | None)
     )
     entity.add("topics", "sanction")
     context.emit(sanction)
+
+
+def emit_related(
+    context: Context,
+    entity: Entity,
+    kind: str,
+    name: str | None,
+    notes: str | None = None,
+) -> None:
+    """Emit a related entity of the given ``kind`` and the edge linking it.
+
+    Handles both the affiliated terrorist organization and the owner (see
+    ``RELATIONS``). The related entity is keyed on its name alone, so the same
+    organization or owner referenced by several designations shares one entity;
+    duplicates are resolved at the later dedup stage. When no name is present,
+    any remark stays on the anchor entity.
+    """
+    relation = RELATIONS[kind]
+    name = clean_cell(name)
+    notes = clean_cell(notes)
+    if name is None:
+        entity.add("notes", notes)
+        return
+
+    related = context.make(relation.schema)
+    related.id = context.make_id(kind, name)
+    related.add("name", name)
+    related.add("topics", relation.topics)
+    related.add("notes", notes)
+    context.emit(related)
+
+    link = context.make(relation.link_schema)
+    link.id = context.make_id(entity.id, kind, related.id)
+    link.add(relation.anchor_prop, entity)
+    link.add(relation.related_prop, related)
+    link.add("role", relation.role)
+    context.emit(link)
 
 
 def crawl_individual(context: Context, row: dict[str, str | None]) -> None:
@@ -131,10 +215,9 @@ def crawl_individual(context: Context, row: dict[str, str | None]) -> None:
         entity.add("country", cob)
     for nationality in split_values(row.pop("nationality")):
         entity.add("nationality", nationality)
-    for address in split_values(row.pop("address")):
-        entity.add("address", address)
+    apply_addresses(context, entity, row.pop("address"))
     for org in split_values(row.pop("link_of_terrorism_org")):
-        entity.add("notes", f"Linked terrorist organization: {org}")
+        emit_related(context, entity, "terror-org", org)
     entity.add("notes", clean_cell(row.pop("additional_information")))
     apply_documents(
         entity,
@@ -143,9 +226,10 @@ def crawl_individual(context: Context, row: dict[str, str | None]) -> None:
         row.pop("issuing_country"),
     )
 
-    context.audit_data(row, ignore=["no"])
     emit_sanction(context, entity, designated_date)
     context.emit(entity)
+
+    context.audit_data(row, ignore=["no"])
 
 
 def crawl_entity(context: Context, row: dict[str, str | None]) -> None:
@@ -160,10 +244,9 @@ def crawl_entity(context: Context, row: dict[str, str | None]) -> None:
     entity.add("name", name)
     for alias in split_values(row.pop("aliases")):
         entity.add("alias", alias)
-    for address in split_values(row.pop("address")):
-        entity.add("address", address)
+    apply_addresses(context, entity, row.pop("address"))
     for org in split_values(row.pop("link_of_terrorism_org")):
-        entity.add("notes", f"Linked terrorist organization: {org}")
+        emit_related(context, entity, "terror-org", org)
 
     registration = row.pop("registration_number")
     numbers = parse_numbers(registration)
@@ -173,26 +256,15 @@ def crawl_entity(context: Context, row: dict[str, str | None]) -> None:
         for number in numbers:
             entity.add("registrationNumber", number)
 
-    owner_name = clean_cell(row.pop("owner_name"))
-    owner_info = clean_cell(row.pop("owner_information"))
-    if owner_name is not None:
-        owner = context.make("LegalEntity")
-        owner.id = context.make_id("owner", name, owner_name)
-        owner.add("name", owner_name)
-        owner.add("notes", owner_info)
-        context.emit(owner)
-        link = context.make("Ownership")
-        link.id = context.make_id(entity.id, "owner", owner.id)
-        link.add("owner", owner)
-        link.add("asset", entity)
-        context.emit(link)
-    else:
-        entity.add("notes", owner_info)
+    emit_related(
+        context, entity, "owner", row.pop("owner_name"), row.pop("owner_information")
+    )
     entity.add("notes", clean_cell(row.pop("additional_info")))
 
-    context.audit_data(row, ignore=["no"])
     emit_sanction(context, entity, designated_date)
     context.emit(entity)
+
+    context.audit_data(row, ignore=["no"])
 
 
 def crawl_vessel(context: Context, row: dict[str, str | None]) -> None:
@@ -215,12 +287,16 @@ def crawl_vessel(context: Context, row: dict[str, str | None]) -> None:
         # Values look like "Iranian flag"; strip the suffix before country cleaning.
         entity.add("flag", re.sub(r"\bflag\b", "", flag, flags=re.I).strip())
     for org in split_values(row.pop("link_of_terrorism_org")):
-        entity.add("notes", f"Linked terrorist organization: {org}")
+        emit_related(context, entity, "terror-org", org)
+    emit_related(
+        context, entity, "owner", row.pop("owner_name"), row.pop("owner_information")
+    )
     entity.add("notes", clean_cell(row.pop("additional_info")))
 
-    context.audit_data(row, ignore=["no", "owner_name", "owner_information"])
     emit_sanction(context, entity, designated_date)
     context.emit(entity)
+
+    context.audit_data(row, ignore=["no"])
 
 
 def crawl(context: Context) -> None:
