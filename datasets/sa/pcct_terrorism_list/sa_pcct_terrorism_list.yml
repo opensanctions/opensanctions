@@ -1,0 +1,79 @@
+title: "Saudi Arabia National Terrorism List (1373)"
+entry_point: crawler.py
+prefix: sa-pcct
+coverage:
+  frequency: daily
+  start: "2024-06-13"
+load_statements: true
+ci_test: false
+summary: >-
+  Individuals, entities and vessels designated by Saudi Arabia's Permanent Committee
+  for Counter-Terrorism under UN Security Council Resolution 1373.
+description: |
+  The National Terrorism List is maintained by the Permanent Committee for
+  Counter-Terrorism (PCCT), which operates under the Presidency of State Security
+  of the Kingdom of Saudi Arabia. It implements UN Security Council Resolution 1373
+  (2001), imposing asset freezes and other measures on persons, organizations and
+  vessels designated for their involvement in, or support of, terrorist acts.
+
+  The committee publishes the list in Arabic and English as downloadable spreadsheets,
+  split into three sections: individuals, entities and vessels. This crawler parses the
+  English workbook.
+publisher:
+  name: Permanent Committee for Counter-Terrorism
+  acronym: PCCT
+  description: >
+    The Permanent Committee for Counter-Terrorism operates under the Presidency of
+    State Security and is responsible for designating and delisting persons, entities
+    and vessels on Saudi Arabia's National Terrorism List.
+  url: https://pctc.pss.gov.sa/
+  country: sa
+  official: true
+url: https://pctc.pss.gov.sa/wps/portal/departments/pcct/lists/
+data:
+  url: https://pctc.pss.gov.sa/portal/pcct/slist/js/slistEN.xlsx
+  format: XLSX
+  lang: eng
+
+dates:
+  formats: ["%Y/%m/%d", "%Y"]
+
+tags:
+  - list.sanction
+
+assertions:
+  min:
+    schema_entities:
+      Person: 180
+      Organization: 90
+      Vessel: 5
+    country_entities:
+      sa: 1
+  max:
+    schema_entities:
+      Person: 400
+      Organization: 200
+      Vessel: 30
+
+lookups:
+  type.gender:
+    normalize: true
+    options:
+      - match: Male
+        value: male
+      - match: Female
+        value: female
+  type.country:
+    lowercase: true
+    normalize: true
+    options:
+      - match: Iranian
+        value: ir
+      - match: Gabonian
+        value: ga
+      - match: Saint kitts and Nevis
+        value: kn
+      - match: Kingdom of Saudi Arabia
+        value: sa
+      - match: Bahrain (Citizenship Revoked)
+        value: bh
