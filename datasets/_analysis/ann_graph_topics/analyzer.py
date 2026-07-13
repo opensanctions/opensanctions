@@ -8,7 +8,7 @@ capture that derived risk so the affected entities become visible to screening
 (and eligible for further enrichment). It implements the "risk propagation"
 step of the enrichment pipeline.
 
-Five propagation rules are applied per (entity, adjacent) pair:
+Propagation rules are applied per (entity, adjacent) pair:
 
 - ``rule_pep_family_to_rca`` — a Person reachable via a ``Family`` edge from a
   ``role.pep`` is tagged as a relative or close associate (``role.rca``).
@@ -247,7 +247,7 @@ def rule_ownership_descent(
 ) -> None:
     """Descend one ``Ownership`` hop from a ``sanction.linked`` owner.
 
-    This rule *does* observe ``sanction.linked`` values emitted by this
+    This rule observes ``sanction.linked`` values emitted by this
     analyzer in prior runs — that is how the tag advances one hop per run and
     converges over successive runs. See ``Iterative convergence`` in the
     module docstring.
@@ -279,23 +279,16 @@ def rule_sanction_control_descent(
 ) -> None:
     """Descend one control hop from a ``sanction`` or ``sanction.control`` seed.
 
-    Walks two edges, downward only:
+    Walks one step downward along any of:
 
     - ``Ownership``: ``owner → asset``
     - ``Directorship``: ``director → organization``
-
-    Emits ``sanction.control`` and *co-emits* ``sanction.linked`` in lockstep
-    so ``sanction.linked`` remains a superset of ``sanction.control`` and
-    existing customer filters keep working through the roll-out.
 
     NOTE on ``Directorship``: this rule deliberately treats a board seat as
     part of the control chain even though a single directorship isn't
     legally "control" on its own. In practice a sanctioned director on a
     company board creates sanctions exposure for the whole corporate
-    hierarchy, and we prefer to over-reach here rather than miss it. Do not
-    "correct" this by dropping ``Directorship`` — export-control descent is
-    the ownership-only counterpart, and its rule is where the narrow
-    Ownership-only reading lives.
+    hierarchy, and we prefer to over-reach here rather than miss it.
     """
     if source_topics.isdisjoint(SANCTION_CONTROL_SEEDS):
         return
@@ -309,11 +302,6 @@ def rule_sanction_control_descent(
         if target_topics & SANCTION_CONTROL_SEEDS:
             continue
         emit_patch(context, source, target, "sanction.control", target_topics)
-        # Co-emit sanction.linked in lockstep: filters on sanction.linked
-        # continue to include every sanction.control entity, so a downstream
-        # narrowing of sanction.linked (Phase 2 of #4496) does not silently
-        # drop control-chain entities.
-        emit_patch(context, source, target, "sanction.linked", target_topics)
 
 
 def rule_export_control_descent(

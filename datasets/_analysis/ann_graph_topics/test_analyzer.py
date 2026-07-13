@@ -259,7 +259,6 @@ def test_sanction_control_descent_emits_from_sanctioned_owner() -> None:
     )
     emits = _emits(ctx)
     assert ("acme", "sanction.control") in emits
-    assert ("acme", "sanction.linked") in emits
 
 
 def test_sanction_control_descent_propagates_from_control_seed() -> None:
@@ -296,7 +295,6 @@ def test_sanction_control_descent_walks_directorship() -> None:
     )
     emits = _emits(ctx)
     assert ("co", "sanction.control") in emits
-    assert ("co", "sanction.linked") in emits
 
 
 def test_sanction_control_descent_does_not_ascend_ownership() -> None:
