@@ -4,6 +4,7 @@ from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
 from zavod.stateful.positions import PositionCategorisation, categorise
+from zavod.stateful.review import assert_all_accepted
 
 # Judge cards live in the single team-member grid on each court's listing page.
 # Scoping card selection to that grid keeps stray team-member widgets elsewhere
@@ -108,6 +109,7 @@ def crawl_judge(
     # (arts. 78(1), 78(2)).
     # https://www.constituteproject.org/constitution/Kenya_2010
     person.add("citizenship", "ke")
+    person.add("topics", "role.judge")
 
     for position, categorisation in positions:
         occupancy = h.make_occupancy(
@@ -138,3 +140,5 @@ def crawl(context: Context) -> None:
                 positions.append(leadership[label])
             crawl_judge(context, profile_url, raw_name, positions)
         context.log.info("Crawled court", position=court["position"], judges=len(cards))
+
+    assert_all_accepted(context, raise_on_unaccepted=False)
