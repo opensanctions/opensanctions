@@ -54,14 +54,20 @@ def attempt_login(context: Context) -> None:
         tmp.write(response.content)
         tmp.flush()
         context.log.debug(f"Fetched CAPTCHA image from {captcha_url}")
-        result = run_image_prompt(
-            context,
-            prompt=PROMPT,
-            image_path=Path(tmp.name),
-            cache_days=0,
-            model=LLM_VERSION,
-        )
-    code = result["code"]
+        try:
+            result = run_image_prompt(
+                context,
+                prompt=PROMPT,
+                image_path=Path(tmp.name),
+                cache_days=0,
+                model=LLM_VERSION,
+            )
+            code = result["code"]
+        except (AssertionError, KeyError) as exc:
+            # The LLM occasionally returns no/malformed content for a CAPTCHA image.
+            # Treat that like any other login failure so the retry loop fetches a
+            # fresh CAPTCHA and tries again, rather than crashing the whole run.
+            raise ValueError(f"CAPTCHA extraction failed: {exc!r}") from exc
     context.log.debug(f"Extracted CAPTCHA code: {code}")
     login_url = urljoin(context.data_url, "?action=login")
     # The server returns an empty body on wrong CAPTCHA, HTML on success.
