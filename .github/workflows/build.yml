@@ -60,6 +60,10 @@ jobs:
         working-directory: zavod
         run: |
           make test
+      - name: Run prompt tuning tests
+        # Run from the repo root so that `contrib.*` imports resolve.
+        run: |
+          python -m pytest contrib/prompt_tuning
       - name: Build a zavod distribution
         working-directory: zavod
         run: |

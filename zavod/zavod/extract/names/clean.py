@@ -8,7 +8,11 @@ from zavod.context import Context
 from zavod.extract.llm import run_typed_text_prompt
 
 LLM_MODEL_VERSION = "gpt-5.4"
-SINGLE_ENTITY_PROGRAM_PATH = Path(__file__).parent / "dspy/single_entity_program.json"
+# The optimised prompt is produced offline by the DSPy tuning tools in
+# contrib/prompt_tuning/. We deliberately keep the resulting program JSON inside the
+# zavod package (rather than in contrib/) because it is loaded at ETL runtime, while the
+# tooling that generates it is not shipped.
+SINGLE_ENTITY_PROGRAM_PATH = Path(__file__).parent / "single_entity_program.json"
 # Properties that shouldn't be shown to the reviewer if they are empty,
 # so that they aren't tempted into populating them unless they had a value in the
 # original extraction.
@@ -228,6 +232,12 @@ def is_empty_string(text: Optional[str | LangText]) -> bool:
 
 @cache
 def load_single_entity_prompt() -> str:
+    # We parse the prompt out of the DSPy program JSON ourselves rather than loading it
+    # via DSPy's own loader. We don't want DSPy as a production ETL dependency: it pulls
+    # in a lot of extra packages, and something in it interacts badly with leveldb,
+    # crashing on process exit unless leveldb is imported first (see
+    # https://github.com/google/leveldb/issues/634). All we need at runtime is the prompt
+    # string, so we read it directly. The tuning tooling lives in contrib/prompt_tuning/.
     with open(SINGLE_ENTITY_PROGRAM_PATH) as program_file:
         program = PredictProgramData.model_validate_json(program_file.read())
         prompt = program.signature.instructions
