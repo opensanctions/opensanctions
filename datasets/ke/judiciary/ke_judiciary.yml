@@ -5,31 +5,21 @@ coverage:
   frequency: monthly
   start: 2026-07-05
 load_statements: true
-ci_test: false # Live external government website, not available in CI
+ci_test: true
 summary: Current judges of the superior courts listed by the Judiciary of Kenya
 description: |
-  Serving judges of Kenya's superior courts, as listed on the official website
-  of the Judiciary of Kenya. The superior courts are established by Chapter 10
-  of the Constitution of Kenya (2010):
+  Judges of Kenya's five superior courts — the Supreme Court, the Court of
+  Appeal, the High Court, the Employment and Labour Relations Court, and the
+  Environment and Land Court — established under Chapter 10 of the Constitution
+  of Kenya (2010).
 
-  * the **Supreme Court** (Article 163) — the Chief Justice, Deputy Chief
-    Justice and five other judges;
-  * the **Court of Appeal** (Article 164);
-  * the **High Court** (Article 165);
-  * the **Employment and Labour Relations Court** and the **Environment and
-    Land Court**, courts with the status of the High Court established under
-    Article 162(2).
-
-  The crawler follows the five judge-listing pages linked under "Judges" in
-  the site navigation, one per court. Each sitting judge is recorded with
-  their name, court-level position, and a link to their profile page.
-  Judicial leadership offices exposed by the source (Chief Justice, Deputy
-  Chief Justice, Principal Judge of the High Court and of the Employment and
-  Labour Relations Court, Presiding Judge of the Environment and Land Court)
-  are modelled as additional positions held alongside the court seat. A
-  judge marked "President-Elect" of the Court of Appeal is recorded as a
-  judge of that court only. Judges of the superior courts exercise national
-  judicial authority and are treated as politically exposed persons.
+  Each judge is recorded with their name and their court-level judicial
+  position. Judges holding a leadership office (Chief Justice, Deputy Chief
+  Justice, Principal Judge of the High Court or of the Employment and Labour
+  Relations Court, or Presiding Judge of the Environment and Land Court) also
+  carry that office as an additional position. Judges of the superior courts
+  exercise national judicial authority and are treated as politically exposed
+  persons.
 url: https://judiciary.go.ke/
 publisher:
   name: The Judiciary of Kenya
@@ -41,7 +31,7 @@ publisher:
   country: ke
   official: true
 data:
-  url: https://judiciary.go.ke/supreme-court-judges/
+  url: https://judiciary.go.ke/
   format: HTML
   lang: eng
 
@@ -61,27 +51,13 @@ assertions:
       Position: 15
 
 names:
-  prefixes_strip:
-    - "Hon."
-    - "Hon"
-    - "Lady Justice"
-    - "lady Justice"
-    - "Mr. Justice"
-    - "Mrs. Justice"
-    - "Justice"
-    - "Lady"
-    - "lady"
-    - "Mr."
-    - "Mrs."
-    - "Ms."
-    - "Ms"
-    - "(Dr.)"
-    - "(Dr)."
-    - "(Dr)"
-    - "Dr."
-    - "Dr"
-    - "(Prof.)"
-    - "(Prof)"
-    - "Prof."
-    - "Prof"
-    - "(Rtd)"
+  schema_rules:
+    Person:
+      # Judge names on the source carry honorific titles (e.g. "Hon. Justice",
+      # "Hon. Lady Justice") and, in some cases, comma-separated post-nominals
+      # ("..., EGH"). These reject rules flag the names as needing cleaning so
+      # they are sent for LLM-assisted review rather than emitted as-is.
+      reject_strings:
+        - "Justice"
+        - "Judge"
+      reject_chars: ","
