@@ -129,6 +129,8 @@ lookups:
           - 1969-01-01
       - match: February 8,1965
         value: "1965-02-08"
+      - match: квітень 2014 # Ukrainian for "April 2014"
+        value: "2014-04"
       - match: 19 December 1980,
         values:
           - 1980-12-19
