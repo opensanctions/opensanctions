@@ -84,6 +84,21 @@ assertions:
       Address: 1250
       Organization: 970
       Vessel: 1
+    property_fill_rate:
+      Person:
+        # name is below 1.0 because manual review demotes some names to
+        # weakAlias, leaving those entities without a primary name.
+        name: 0.99
+        birthDate: 0.7
+      Organization:
+        name: 1.0
+        country: 0.7
+      Sanction:
+        # Actually 1.0, but we make them 0.98 so a single unparseable value
+        # doesn't fail the export, while a mass drop still trips the assertion.
+        program: 0.98
+        startDate: 0.98
+        listingDate: 0.98
   max:
     schema_entities:
       Person: 8000
