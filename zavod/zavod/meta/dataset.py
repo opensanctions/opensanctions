@@ -13,7 +13,11 @@ from followthemoney.dataset.resource import DataResource
 from zavod import settings
 from zavod.archive import dataset_data_path
 from zavod.logs import get_logger
-from zavod.meta.assertion import Assertion, parse_assertions
+from zavod.meta.assertion import (
+    Assertion,
+    merge_assertions_config,
+    parse_assertions,
+)
 from zavod.meta.dates import DatesSpec
 from zavod.meta.http import HTTP
 from zavod.meta.model import DataModel, ZavodDatasetModel
@@ -25,6 +29,26 @@ if TYPE_CHECKING:
     from zavod.meta.catalog import ArchiveBackedCatalog
 
 log = get_logger(__name__)
+
+# Baseline assertions applied to every dataset. They can be overridden
+# per-dataset in the `assertions:` YAML block: because the merge happens at the
+# config-dict level (see `merge_assertions_config`), a dataset that sets e.g.
+# `min.property_fill_rate.Person.name` replaces the default threshold for that
+# exact schema/property while keeping the rest. Lower a threshold to 0 to
+# effectively disable a `min` default.
+#
+# `property_fill_rate` only applies to schemata the dataset actually emits: the
+# validator skips any schema with zero entities, so naming schemata a dataset
+# doesn't produce here is harmless.
+DEFAULT_ASSERTIONS: Dict[str, Any] = {
+    "min": {
+        "property_fill_rate": {
+            "Person": {"name": 0.95},
+            "Organization": {"name": 0.95},
+            "Company": {"name": 0.95},
+        }
+    }
+}
 
 
 class Dataset(FollowTheMoneyDataset):
@@ -51,9 +75,12 @@ class Dataset(FollowTheMoneyDataset):
         _type = "collection" if self.is_collection else "source"
         self._type: str = data.get("type", _type).lower().strip()
 
-        self.assertions: List[Assertion] = list(
-            parse_assertions(data.get("assertions", {}))
+        # The YAML block overrides defaults at the leaf level (see merge_assertions_config).
+        user_assertions_config = ensure_dict(data.get("assertions", {}))
+        assertions_config = merge_assertions_config(
+            DEFAULT_ASSERTIONS, user_assertions_config
         )
+        self.assertions: List[Assertion] = list(parse_assertions(assertions_config))
         """
         List of assertions which should be considered warnings if they fail.
 

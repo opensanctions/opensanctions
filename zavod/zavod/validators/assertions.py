@@ -1,9 +1,10 @@
 from typing import Dict, Any
+from banal import ensure_dict
 
 from zavod.context import Context
 from zavod.entity import Entity
 from zavod.exporters.statistics import Statistics
-from zavod.meta.assertion import Assertion, Comparison, Metric
+from zavod.meta.assertion import Assertion, Comparison, Metric, parse_assertions
 from zavod.store import View
 from zavod.validators.common import BaseValidator
 
@@ -125,8 +126,17 @@ def check_assertion(
             (item["schema"], item["property"]): item["fill_rate"]
             for item in stats["things"]["entities_with_prop"]
         }
+        # Schemata the dataset actually emits, to tell "schema not emitted at all"
+        # (skip the assertion) apart from "schema present but property never
+        # filled" (fill rate 0.0, enforce). Without this a fill-rate assertion on
+        # a schema the dataset doesn't produce would spuriously fail as 0.0.
+        emitted_schemata = {
+            item["schema"] for item in stats["things"]["entities_with_prop"]
+        }
 
         for schema, properties in assertion.config.items():
+            if schema not in emitted_schemata:
+                continue
             for property, threshold in properties.items():
                 key = (schema, property)
                 fill_rate = stats_fill_rate_lookup.get(key, 0.0)
@@ -155,7 +165,14 @@ class StatisticsAssertionsValidator(BaseValidator):
         self.stats.observe(entity)
 
     def finish(self) -> None:
-        if len(self.context.dataset.assertions) == 0:
+        # Nudge maintainers based on what they configured in YAML, ignoring the
+        # baseline defaults that get merged into source datasets. Read the raw
+        # config rather than dataset.assertions, which already has the defaults
+        # merged in.
+        user_assertions_config = ensure_dict(
+            self.context.dataset._data.get("assertions", {})
+        )
+        if not list(parse_assertions(user_assertions_config)):
             self.context.log.error("Dataset has no assertions.")
 
         for assertion in self.context.dataset.assertions:

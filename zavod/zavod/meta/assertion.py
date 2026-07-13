@@ -1,3 +1,4 @@
+from copy import deepcopy
 from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Dict, Generator
@@ -60,6 +61,24 @@ class Assertion:
         return (
             f"<Assertion {self.metric.value} {self.comparison.value} {self.config!r}>"
         )
+
+
+def merge_assertions_config(
+    base: Dict[str, Any], override: Dict[str, Any]
+) -> Dict[str, Any]:
+    """Deep-merge two assertion config dicts, with `override` winning at the leaf.
+
+    Nested dicts (comparison -> metric -> schema -> property) are merged
+    recursively; any non-dict value in `override` replaces the base value.
+    """
+    result = deepcopy(base)
+    for key, value in override.items():
+        existing = result.get(key)
+        if isinstance(existing, dict) and isinstance(value, dict):
+            result[key] = merge_assertions_config(existing, value)
+        else:
+            result[key] = deepcopy(value)
+    return result
 
 
 def parse_assertions(config: Dict[str, Any]) -> Generator[Assertion, None, None]:
