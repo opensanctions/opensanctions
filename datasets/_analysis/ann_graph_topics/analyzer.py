@@ -14,8 +14,9 @@ Four propagation rules are applied per (entity, adjacent) pair:
   ``role.pep`` is tagged as a relative or close associate (``role.rca``).
 - ``rule_sanction_adjacency`` — an entity adjacent to a ``sanction`` entity
   through a curated set of edge schemata (Ownership, Directorship, Membership,
-  Employment, Associate, Family, Succession), plus Securities issued by a
-  sanctioned entity, is tagged as ``sanction.linked``.
+  Employment, Associate, Family, Succession); Securities issued by a
+  sanctioned entity; and the issuer of a sanctioned Security — tagged
+  ``sanction.linked``.
 - ``rule_ownership_descent`` — an asset owned by an already ``sanction.linked``
   owner is itself tagged ``sanction.linked``, pushing the tag one ownership hop
   further per run.
@@ -198,19 +199,19 @@ def rule_sanction_adjacency(
 
     Two topologies:
 
-    - Company → Security via the direct ``securities`` property (no
-      intermediate edge entity).
+    - Company ↔ Security via the direct ``securities`` / ``issuer``
+      properties (no intermediate edge entity). Both directions emit: a
+      sanctioned Company tags its Security, and a sanctioned Security tags
+      its issuer.
     - Curated broad edge schemata (``SANCTION_ADJACENCY_EDGES``) walked to the
       counterpart node.
     """
     if "sanction" not in source_topics:
         return
-    # A sanctioned Security itself does not propagate — sanctions on a security
-    # don't inherently taint the whole issuer graph.
-    if source.schema.is_a("Security"):
-        return
-    # Direct Company → Security relation. The adjacent entity *is* the target.
-    if prop.name == "securities" and adjacent.schema.is_a("Security"):
+    # Direct Company ↔ Security relation. The adjacent entity *is* the target.
+    if (prop.name == "issuer" and source.schema.is_a("Security")) or (
+        prop.name == "securities" and adjacent.schema.is_a("Security")
+    ):
         target_topics = non_graph_topics(context, adjacent)
         if not target_topics & SANCTION_SEEDS:
             emit_patch(context, source, adjacent, "sanction.linked", target_topics)
