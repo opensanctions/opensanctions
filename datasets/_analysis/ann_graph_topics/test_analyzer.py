@@ -226,6 +226,125 @@ def test_ownership_descent_ignores_non_ownership_edges() -> None:
     assert _emits(ctx) == []
 
 
+# ---- rule_export_control_descent ----------------------------------------
+
+
+def test_export_control_descent_emits_from_direct_seed() -> None:
+    # A directly listed export.control entity pushes export.control.linked to
+    # its immediate downstream asset on the first run.
+    ctx = _analyze(
+        [
+            _entity("Company", "parent", {"topics": ["export.control"]}),
+            _entity(
+                "Ownership",
+                "own",
+                {"owner": ["parent"], "asset": ["child"]},
+            ),
+            _entity("Company", "child"),
+        ],
+        source_id="parent",
+    )
+    assert ("child", "export.control.linked") in _emits(ctx)
+
+
+def test_export_control_descent_propagates_from_linked() -> None:
+    # A prior-run tag (export.control.linked) advances one hop further.
+    ctx = _analyze(
+        [
+            _entity("Company", "parent", {"topics": ["export.control.linked"]}),
+            _entity(
+                "Ownership",
+                "own",
+                {"owner": ["parent"], "asset": ["child"]},
+            ),
+            _entity("Company", "child"),
+        ],
+        source_id="parent",
+    )
+    assert ("child", "export.control.linked") in _emits(ctx)
+
+
+def test_export_control_descent_does_not_ascend() -> None:
+    # Ownership descent is downward-only; from the asset side we must not
+    # tag the owner.
+    ctx = _analyze(
+        [
+            _entity("Company", "parent"),
+            _entity(
+                "Ownership",
+                "own",
+                {"owner": ["parent"], "asset": ["child"]},
+            ),
+            _entity(
+                "Company",
+                "child",
+                {"topics": ["export.control.linked"]},
+            ),
+        ],
+        source_id="child",
+    )
+    assert _emits(ctx) == []
+
+
+def test_export_control_descent_ignores_directorship() -> None:
+    # Deliberately narrower than sanction.control: Directorship must NOT
+    # propagate export.control.linked. The BIS rule is ownership-based.
+    ctx = _analyze(
+        [
+            _entity("Person", "director", {"topics": ["export.control"]}),
+            _entity(
+                "Directorship",
+                "dir",
+                {"director": ["director"], "organization": ["co"]},
+            ),
+            _entity("Company", "co"),
+        ],
+        source_id="director",
+    )
+    assert _emits(ctx) == []
+
+
+def test_export_control_descent_skips_target_already_seeded() -> None:
+    ctx = _analyze(
+        [
+            _entity("Company", "parent", {"topics": ["export.control"]}),
+            _entity(
+                "Ownership",
+                "own",
+                {"owner": ["parent"], "asset": ["child"]},
+            ),
+            _entity(
+                "Company",
+                "child",
+                {"topics": ["export.control"]},
+            ),
+        ],
+        source_id="parent",
+    )
+    assert _emits(ctx) == []
+
+
+def test_export_control_descent_does_not_coemit_sanction_linked() -> None:
+    # Explicit: export.control.linked is NOT sanction.linked despite the
+    # suffix, and we must not co-emit the sanctions topic. This test guards
+    # against a plausible future "correction".
+    ctx = _analyze(
+        [
+            _entity("Company", "parent", {"topics": ["export.control"]}),
+            _entity(
+                "Ownership",
+                "own",
+                {"owner": ["parent"], "asset": ["child"]},
+            ),
+            _entity("Company", "child"),
+        ],
+        source_id="parent",
+    )
+    topics = {topic for _id, topic in _emits(ctx)}
+    assert "sanction.linked" not in topics
+    assert "sanction.control" not in topics
+
+
 # ---- analyze_entity plumbing --------------------------------------------
 
 
