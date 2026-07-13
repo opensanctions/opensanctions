@@ -77,3 +77,8 @@ lookups:
         value: sa
       - match: Bahrain (Citizenship Revoked)
         value: bh
+  type.name:
+    lowercase: true
+    options:
+      - match: "NA"
+        value: null

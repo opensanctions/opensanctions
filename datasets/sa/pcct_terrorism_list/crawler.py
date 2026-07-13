@@ -1,28 +1,70 @@
 import re
-from typing import NamedTuple
+from typing import Literal, NamedTuple, Optional
 
 from openpyxl import load_workbook
+from pydantic import BaseModel, Field
 from rigour.mime.types import XLSX
 from zavod.entity import Entity
+from zavod.extract.llm import DEFAULT_MODEL, run_typed_text_prompt
+from zavod.stateful.review import (
+    TextSourceValue,
+    assert_all_accepted,
+    review_extraction,
+)
 
 from zavod import Context
 from zavod import helpers as h
 
-PROGRAM_NAME = "Saudi Arabia National Terrorism List (1373)"
 PROGRAM_KEY = "SA-UNSC1373"
 
-# An identifier part looks like a plain reference number: it starts with an
-# alphanumeric, contains at least one digit and only uses a small set of
-# separators. Anything else (prose, "A) ...; B) ..." markers) is kept as a note.
+# A plain reference number: starts with an alphanumeric, contains at least one
+# digit and only uses a small set of separators. Anything else (prose,
+# "A) ...; B) ..." markers) is treated as unparseable and kept as a note.
 NUMBER_CLEAN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9 ./-]*$")
 
-# Maps a normalized source document type to an FTM identifier property.
-DOC_PROPS = {
+# Maps the extracted document type to the FTM identifier property it populates.
+DOCUMENT_PROPS = {
     "passport": "passportNumber",
-    "national identification": "idNumber",
-    "national id": "idNumber",
-    "residency number": "idNumber",
+    "nationalId": "idNumber",
+    "residency": "idNumber",
 }
+
+
+class IdentityDocument(BaseModel):
+    """A single identity document extracted from the source document field."""
+
+    type: Literal["passport", "nationalId", "residency", "other"] = Field(
+        description=(
+            "The kind of document: 'passport', 'nationalId' for a national "
+            "identification number, 'residency' for a residency permit or number, "
+            "or 'other' for anything else."
+        )
+    )
+    number: str = Field(
+        description="A single document number, exactly as written in the source."
+    )
+    country: Optional[str] = Field(
+        default=None, description="The issuing country, if stated."
+    )
+
+
+class IdentityDocuments(BaseModel):
+    documents: list[IdentityDocument] = Field(default_factory=list)
+
+
+DOCUMENT_PROMPT = """
+Extract every identity document from the text of a sanctions designation. The
+text combines a document type, one or more document numbers, and an issuing
+country. A single entry may list several numbers separated by semicolons, or
+compound entries like "A) National identification; B) Passport" that pair each
+number with a type. Return one item per distinct document number.
+
+Instructions for specific fields:
+  - type: passport, nationalId (national identification), residency (residency
+    permit/number), or other.
+  - number: a single document number, exactly as written in the source.
+  - country: the issuing country, if stated.
+"""
 
 
 class Relation(NamedTuple):
@@ -68,21 +110,13 @@ def clean_cell(value: str | None) -> str | None:
     return value
 
 
-def split_values(value: str | None) -> list[str]:
-    """Split a semicolon-separated multi-value cell into clean parts."""
-    cleaned = clean_cell(value)
-    if cleaned is None:
-        return []
-    return [p.strip() for p in cleaned.split(";") if p.strip()]
-
-
 def apply_addresses(context: Context, entity: Entity, value: str | None) -> None:
     """Compose each semicolon-separated address and copy it onto the entity.
 
     The source publishes addresses as single strings (e.g. "Beirut, Lebanon"),
     so they go in as ``full=`` and ``make_address`` parses out the country.
     """
-    for full in split_values(value):
+    for full in h.multi_split(value, [";"]):
         address = h.make_address(context, full=full)
         h.copy_address(entity, address)
 
@@ -111,36 +145,58 @@ def parse_numbers(value: str | None) -> list[str] | None:
 
 
 def apply_documents(
+    context: Context,
     entity: Entity,
     doc_type: str | None,
     doc_number: str | None,
     issuing_country: str | None,
 ) -> None:
-    """Add identification numbers, keeping the raw value as a note.
+    """Extract identity documents and add the confirmed ones to the entity.
 
-    The source mixes clean reference numbers with free-text remarks and
-    compound "A) ...; B) ..." entries, so structured properties are only set
-    when the whole field parses cleanly. The raw text is always preserved.
+    The document columns mix clean numbers, free-text remarks and compound
+    "A) ...; B) ..." entries, so parsing is delegated to an LLM whose output is
+    confirmed through the human review system before any number is emitted.
     """
     doc_type = clean_cell(doc_type)
     doc_number = clean_cell(doc_number)
     issuing_country = clean_cell(issuing_country)
-    if doc_number is None and doc_type is None:
+    if doc_number is None:
         return
 
-    note_parts = [p for p in (doc_type, doc_number) if p is not None]
-    note = " — ".join(note_parts)
-    if issuing_country is not None:
-        note = f"{note} (issued in {issuing_country})"
-    entity.add("notes", note)
-
-    if doc_type is None:
+    labelled = [
+        f"{label}: {value}"
+        for label, value in (
+            ("Document type", doc_type),
+            ("Document number", doc_number),
+            ("Issuing country", issuing_country),
+        )
+        if value is not None
+    ]
+    text = "\n".join(labelled)
+    source_value = TextSourceValue(
+        key_parts=text,
+        label="Identity documents",
+        text=text,
+        url=context.data_url,
+    )
+    extraction = run_typed_text_prompt(
+        context,
+        prompt=DOCUMENT_PROMPT,
+        string=source_value.value_string,
+        response_type=IdentityDocuments,
+    )
+    review = review_extraction(
+        context,
+        source_value=source_value,
+        original_extraction=extraction,
+        origin=DEFAULT_MODEL,
+    )
+    if not review.accepted:
         return
-    prop = DOC_PROPS.get(" ".join(doc_type.lower().split()))
-    numbers = parse_numbers(doc_number)
-    if prop is not None and numbers:
-        for number in numbers:
-            entity.add(prop, number)
+    for document in review.extracted_data.documents:
+        prop = DOCUMENT_PROPS.get(document.type)
+        if prop is not None:
+            entity.add(prop, document.number, origin=review.origin)
 
 
 def emit_sanction(
@@ -149,10 +205,8 @@ def emit_sanction(
     sanction = h.make_sanction(
         context,
         entity,
-        program_name=PROGRAM_NAME,
-        source_program_key=PROGRAM_NAME,
         program_key=PROGRAM_KEY,
-        start_date=clean_cell(designated_date),
+        start_date=designated_date,
     )
     entity.add("topics", "sanction")
     context.emit(sanction)
@@ -196,30 +250,28 @@ def emit_related(
 
 
 def crawl_individual(context: Context, row: dict[str, str | None]) -> None:
-    name = clean_cell(row.pop("full_name"))
-    if name is None:
-        context.log.warning("Individual without a name", row=row)
-        return
+    name = row.pop("full_name")
     designated_date = row.pop("designated_date")
 
     entity = context.make("Person")
     entity.id = context.make_id(name, designated_date)
     entity.add("name", name)
-    for alias in split_values(row.pop("aliases")):
+    for alias in h.multi_split(row.pop("aliases"), [";"]):
         entity.add("alias", alias)
     entity.add("gender", clean_cell(row.pop("gender")))
-    h.apply_dates(entity, "birthDate", split_values(row.pop("dob")))
-    for pob in split_values(row.pop("pob")):
+    h.apply_dates(entity, "birthDate", h.multi_split(row.pop("dob"), [";"]))
+    for pob in h.multi_split(row.pop("pob"), [";"]):
         entity.add("birthPlace", pob)
-    for cob in split_values(row.pop("cob")):
+    for cob in h.multi_split(row.pop("cob"), [";"]):
         entity.add("country", cob)
-    for nationality in split_values(row.pop("nationality")):
+    for nationality in h.multi_split(row.pop("nationality"), [";"]):
         entity.add("nationality", nationality)
     apply_addresses(context, entity, row.pop("address"))
-    for org in split_values(row.pop("link_of_terrorism_org")):
+    for org in h.multi_split(row.pop("link_of_terrorism_org"), [";"]):
         emit_related(context, entity, "terror-org", org)
     entity.add("notes", clean_cell(row.pop("additional_information")))
     apply_documents(
+        context,
         entity,
         row.pop("document_type"),
         row.pop("document_no"),
@@ -242,10 +294,10 @@ def crawl_entity(context: Context, row: dict[str, str | None]) -> None:
     entity = context.make("Organization")
     entity.id = context.make_id(name, designated_date)
     entity.add("name", name)
-    for alias in split_values(row.pop("aliases")):
+    for alias in h.multi_split(row.pop("aliases"), [";"]):
         entity.add("alias", alias)
     apply_addresses(context, entity, row.pop("address"))
-    for org in split_values(row.pop("link_of_terrorism_org")):
+    for org in h.multi_split(row.pop("link_of_terrorism_org"), [";"]):
         emit_related(context, entity, "terror-org", org)
 
     registration = row.pop("registration_number")
@@ -286,7 +338,7 @@ def crawl_vessel(context: Context, row: dict[str, str | None]) -> None:
     if flag is not None:
         # Values look like "Iranian flag"; strip the suffix before country cleaning.
         entity.add("flag", re.sub(r"\bflag\b", "", flag, flags=re.I).strip())
-    for org in split_values(row.pop("link_of_terrorism_org")):
+    for org in h.multi_split(row.pop("link_of_terrorism_org"), [";"]):
         emit_related(context, entity, "terror-org", org)
     emit_related(
         context, entity, "owner", row.pop("owner_name"), row.pop("owner_information")
@@ -310,3 +362,7 @@ def crawl(context: Context) -> None:
         crawl_entity(context, row)
     for row in h.parse_xlsx_sheet(context, workbook["Vessels"]):
         crawl_vessel(context, row)
+
+    # Document extractions await human review; warn rather than block the whole
+    # dataset, since the documents are a secondary enrichment here.
+    assert_all_accepted(context, raise_on_unaccepted=False)
