@@ -1,4 +1,4 @@
-from zavod.extract.names.dspy.optimise import metric_with_feedback_dict
+from contrib.prompt_tuning.names.optimise import metric_with_feedback_dict
 
 
 def test_metric_with_feedback_partial():

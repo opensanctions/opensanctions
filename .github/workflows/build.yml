@@ -61,8 +61,11 @@ jobs:
         run: |
           make test
       - name: Run prompt tuning tests
-        # Run from the repo root so that `contrib.*` imports resolve.
+        # DSPy is no longer a zavod dependency; it's declared by the prompt_tuning project.
+        # Install its deps (dspy, litellm) on top of the editable zavod, then run from the
+        # repo root so that `contrib.*` imports resolve.
         run: |
+          pip install --no-cache-dir -q ./contrib/prompt_tuning
           python -m pytest contrib/prompt_tuning
       - name: Build a zavod distribution
         working-directory: zavod

@@ -11,8 +11,10 @@ production code only ever loads the *resulting* prompt string, which is why the 
 program JSON is checked in inside the `zavod` package while the tooling that generates it
 is not shipped.
 
-DSPy and its pin (`litellm`) are declared in `zavod`'s `dev` optional-dependencies, so a
-`pip install -e ".[dev]"` in `zavod/` gives you everything these tools need.
+This directory is its own project (`pyproject.toml`) and a member of the `os` uv
+workspace. It depends on `zavod` and pulls in DSPy + `litellm` — those are declared here,
+*not* in `zavod`, so the published `zavod` package stays free of them. The code isn't
+packaged (it's dependency-only); you run it from the source tree, as described below.
 
 ## Layout
 
@@ -24,12 +26,18 @@ One subdirectory per tuned prompt. Today there's only one:
 
 ## Running
 
-Run everything as a module from the repo root (`~/Development/os/opensanctions`), so that
-`contrib.*` and `zavod.*` both resolve:
+Run everything as a module from the opensanctions repo root
+(`~/Development/os/opensanctions`), so that `contrib.*` and `zavod.*` both resolve. Use
+`uv run` so the tuning dependencies (DSPy et al.) are present:
 
 ```
-python -m contrib.prompt_tuning.names.tune --help
+uv run python -m contrib.prompt_tuning.names.tune --help
 ```
+
+`uv run` resolves the workspace, syncs the tuning dependencies into the shared venv on
+demand, and runs the command. If you've already `uv sync`'d the workspace, the plain
+`python -m contrib.prompt_tuning.names.tune ...` works too. The examples below drop the
+`uv run` prefix for brevity — add it if the DSPy import fails.
 
 ### Optimising the prompt
 
@@ -111,10 +119,10 @@ python -m contrib.prompt_tuning.names.tune dump-examples reviews.csv single_enti
 ## Tests
 
 ```
-python -m pytest contrib/prompt_tuning
+uv run python -m pytest contrib/prompt_tuning
 ```
 
-Run from the repo root so that `contrib.*` imports resolve.
+Run from the opensanctions repo root so that `contrib.*` imports resolve.
 
 ## Warning: leveldb
 
