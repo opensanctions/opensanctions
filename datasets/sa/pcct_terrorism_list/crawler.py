@@ -53,14 +53,6 @@ def emit_related(
     name: str | None,
     notes: str | None = None,
 ) -> None:
-    """Emit a related entity of the given ``kind`` and the edge linking it.
-
-    Handles both the affiliated terrorist organization and the owner (see
-    ``RELATIONS``). The related entity is keyed on its raw name, so the same
-    organization or owner referenced by several designations shares one entity;
-    duplicates are resolved at the later dedup stage. When no name is present,
-    any remark stays on the anchor entity.
-    """
     relation = RELATIONS[kind]
     notes = clean_cell(notes)
     if clean_cell(name) is None:
@@ -83,8 +75,7 @@ def emit_related(
 
 
 def crawl_row(context: Context, schema: str, row: dict[str, str | None]) -> None:
-    """Emit a designated entity of ``schema`` from a source row.
-
+    """
     All three sheets share this path; the headers are normalized to a common
     vocabulary by the ``columns`` lookup, and properties that don't apply to a
     given schema are added with ``quiet=True`` and silently skipped.
@@ -94,11 +85,15 @@ def crawl_row(context: Context, schema: str, row: dict[str, str | None]) -> None
         context.log.warning("Row without a name", row=row)
         return
     designated_date = row.pop("designated_date")
+    birth_date = row.pop("birth_date", None)
+    doc_type = row.pop("doc_type", None)
 
     entity = context.make(schema)
     # Strict rule: only raw source values go into the ID.
     entity.id = context.make_id(name, designated_date)
     entity.add("name", name)
+    if entity.schema.is_a("Person"):
+        h.apply_dates(entity, "birthDate", h.multi_split(birth_date, [";"]))
     entity.add("alias", h.multi_split(row.pop("alias", None), [";"]), quiet=True)
     entity.add("gender", row.pop("gender", None), quiet=True)
     entity.add(
@@ -120,7 +115,7 @@ def crawl_row(context: Context, schema: str, row: dict[str, str | None]) -> None
     )
     doc_type = row.pop("doc_type", None)
     if doc_type is not None:
-        h.make_identification(
+        passport = h.make_identification(
             context,
             entity,
             row.pop("doc_number", None),
@@ -128,14 +123,15 @@ def crawl_row(context: Context, schema: str, row: dict[str, str | None]) -> None
             country=row.pop("issuing_country", None),
             passport=(doc_type == "Passport"),
         )
-    birth_date = row.pop("birth_date", None)
-    if entity.schema.is_a("Person"):
-        h.apply_dates(entity, "birthDate", h.multi_split(birth_date, [";"]))
+        if passport is not None:
+            context.emit(passport)
 
     for full in h.multi_split(row.pop("address", None), [";"]):
-        h.copy_address(entity, h.make_address(context, full=full))
+        entity.add("address", full)
+    # Emit linked organizations
     for org in h.multi_split(row.pop("linked_org", None), [";"]):
         emit_related(context, entity, "terror-org", org)
+    # Emit owners of designated vessels
     emit_related(
         context,
         entity,
@@ -143,12 +139,15 @@ def crawl_row(context: Context, schema: str, row: dict[str, str | None]) -> None
         row.pop("owner_name", None),
         row.pop("owner_info", None),
     )
-    context.emit(entity)
 
     sanction = h.make_sanction(
-        context, entity, program_key=PROGRAM_KEY, start_date=designated_date
+        context,
+        entity,
+        program_key=PROGRAM_KEY,
+        start_date=designated_date,
     )
-    entity.add("topics", "sanction")
+
+    context.emit(entity)
     context.emit(sanction)
 
     context.audit_data(row, ignore=["no"])
