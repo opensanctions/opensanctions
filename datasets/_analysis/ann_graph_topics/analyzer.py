@@ -8,7 +8,7 @@ capture that derived risk so the affected entities become visible to screening
 (and eligible for further enrichment). It implements the "risk propagation"
 step of the enrichment pipeline.
 
-Three propagation rules are applied per (entity, adjacent) pair:
+Four propagation rules are applied per (entity, adjacent) pair:
 
 - ``rule_pep_family_to_rca`` — a Person reachable via a ``Family`` edge from a
   ``role.pep`` is tagged as a relative or close associate (``role.rca``).
@@ -19,13 +19,18 @@ Three propagation rules are applied per (entity, adjacent) pair:
 - ``rule_ownership_descent`` — an asset owned by an already ``sanction.linked``
   owner is itself tagged ``sanction.linked``, pushing the tag one ownership hop
   further per run.
+- ``rule_export_control_descent`` — an asset owned by an ``export.control`` or
+  ``export.control.linked`` entity is itself tagged ``export.control.linked``,
+  the export-control analogue of the BIS Affiliates Rule / 50% ownership
+  restriction. Ownership-only, downward-only, one hop per run.
 
 Requirements and invariants that make this correct:
 
 - **Self-exclusion.** ``non_graph_topics`` ignores topic statements contributed
   by this dataset itself, so a tag this analyzer emits does not, on its own,
-  re-trigger the rules that produced it. The one deliberate exception is
-  ``rule_ownership_descent``, which reads prior ``sanction.linked`` values from
+  re-trigger the rules that produced it. The deliberate exceptions are the
+  ownership-descent rules (``rule_ownership_descent`` and
+  ``rule_export_control_descent``), which read their emitted topics back from
   the store in order to walk one hop at a time.
 - **Iterative convergence.** Because ownership propagation advances a single
   hop per run, a multi-tier corporate hierarchy only materializes over
@@ -91,6 +96,10 @@ SANCTION_ADJACENCY_EDGES = frozenset(
 
 # Topics that mean "already sanction-linked" — used to skip re-tagging.
 SANCTION_SEEDS = frozenset({"sanction", "sanction.linked"})
+
+# Topics that mean "already export-controlled" — both seed the descent and
+# suppress redundant re-tagging on downstream assets.
+EXPORT_CONTROL_SEEDS = frozenset({"export.control", "export.control.linked"})
 
 
 def non_graph_topics(context: Context, entity: Entity) -> Set[str]:
@@ -250,10 +259,48 @@ def rule_ownership_descent(
         emit_patch(context, source, target, "sanction.linked", target_topics)
 
 
+def rule_export_control_descent(
+    context: Context,
+    view: View,
+    source: Entity,
+    source_topics: Set[str],
+    prop: Property,
+    adjacent: Entity,
+) -> None:
+    """Descend one ``Ownership`` hop and tag ``export.control.linked``.
+
+    Structurally the export-control twin of ``rule_ownership_descent``:
+    ownership-only, downward-only (owner → asset), and self-observing so that
+    the tag advances one hop per run and converges across successive runs.
+
+    NOTE on the asymmetric naming: ``export.control.linked`` carries the
+    ownership-*descent* semantics — it is the export-control analogue of
+    ``sanction.control``, NOT of ``sanction.linked``, despite the ``.linked``
+    suffix. Export control has only one derived topic (there is no
+    ``export.control.control``, and no broad-adjacency topic is needed
+    because the BIS Affiliates Rule is purely ownership-based), so the single
+    ``.linked`` topic takes on the control meaning. Do not later "correct"
+    this rule by adding ``Directorship`` edges, an upward walk, or a
+    broad-adjacency step, and do not co-emit anything.
+    """
+    if source_topics.isdisjoint(EXPORT_CONTROL_SEEDS):
+        return
+    if not adjacent.schema.is_a("Ownership"):
+        return
+    if prop.reverse is None or prop.reverse.name != "owner":
+        return
+    for target, _ in walk_edge(view, adjacent, prop):
+        target_topics = non_graph_topics(context, target)
+        if target_topics & EXPORT_CONTROL_SEEDS:
+            continue
+        emit_patch(context, source, target, "export.control.linked", target_topics)
+
+
 RULES = (
     rule_pep_family_to_rca,
     rule_sanction_adjacency,
     rule_ownership_descent,
+    rule_export_control_descent,
 )
 
 
