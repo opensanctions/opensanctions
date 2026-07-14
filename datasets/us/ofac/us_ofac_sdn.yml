@@ -597,6 +597,7 @@ lookups:
           - "Digital Currency Address - TRX"
           - "Digital Currency Address - BNB"
           - "Digital Currency Address - SOL"
+          - "Digital Currency Address - DOGE"
         nested:
           schema: CryptoWallet
           feature: currency
