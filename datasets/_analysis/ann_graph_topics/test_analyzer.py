@@ -171,12 +171,16 @@ def test_sanction_linked_skipped_if_target_already_seed() -> None:
     assert _emits(ctx) == []
 
 
-# ---- rule_ownership_descent ---------------------------------------------
+# ---- sanction.linked is non-transitive ---------------------------------
 
 
-def test_ownership_descent_emits_on_asset() -> None:
-    # An owner already tagged sanction.linked (as if from a prior run) pushes
-    # the tag one hop further to its asset.
+def test_sanction_linked_does_not_propagate_transitively() -> None:
+    # Phase 2 of #4496: the old rule_ownership_descent (sanction.linked →
+    # sanction.linked down ownership) has been removed. An entity that only
+    # carries sanction.linked (i.e. isn't directly a sanction seed and isn't
+    # in the sanction.control chain) must NOT push sanction.linked to its
+    # asset. Multi-tier reach for sanction.linked now comes exclusively
+    # from the sanction.control co-emit.
     ctx = _analyze(
         [
             _entity("Company", "parent", {"topics": ["sanction.linked"]}),
@@ -188,40 +192,6 @@ def test_ownership_descent_emits_on_asset() -> None:
             _entity("Company", "child"),
         ],
         source_id="parent",
-    )
-    assert ("child", "sanction.linked") in _emits(ctx)
-
-
-def test_ownership_descent_does_not_ascend() -> None:
-    # From the asset side, the rule must not push the tag up to the owner.
-    ctx = _analyze(
-        [
-            _entity("Company", "parent"),
-            _entity(
-                "Ownership",
-                "own",
-                {"owner": ["parent"], "asset": ["child"]},
-            ),
-            _entity("Company", "child", {"topics": ["sanction.linked"]}),
-        ],
-        source_id="child",
-    )
-    assert _emits(ctx) == []
-
-
-def test_ownership_descent_ignores_non_ownership_edges() -> None:
-    # Directorship is out of scope for the descent rule.
-    ctx = _analyze(
-        [
-            _entity("Person", "director", {"topics": ["sanction.linked"]}),
-            _entity(
-                "Directorship",
-                "dir",
-                {"director": ["director"], "organization": ["co"]},
-            ),
-            _entity("Company", "co"),
-        ],
-        source_id="director",
     )
     assert _emits(ctx) == []
 
