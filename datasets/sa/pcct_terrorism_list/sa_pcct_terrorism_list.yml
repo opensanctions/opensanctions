@@ -3,7 +3,7 @@ entry_point: crawler.py
 prefix: sa-pcct
 coverage:
   frequency: daily
-  start: "2024-06-13"
+  start: "2026-07-14"
 load_statements: true
 ci_test: false
 summary: >-
@@ -15,10 +15,6 @@ description: |
   of the Kingdom of Saudi Arabia. It implements UN Security Council Resolution 1373
   (2001), imposing asset freezes and other measures on persons, organizations and
   vessels designated for their involvement in, or support of, terrorist acts.
-
-  The committee publishes the list in Arabic and English as downloadable spreadsheets,
-  split into three sections: individuals, entities and vessels. This crawler parses the
-  English workbook.
 publisher:
   name: Permanent Committee for Counter-Terrorism
   acronym: PCCT
