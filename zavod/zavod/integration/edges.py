@@ -129,8 +129,7 @@ def parse_partial_iso_date(value: str) -> DateRange | None:
     """Parse a partial ISO date into the range it can represent.
 
     Use this for temporal compatibility so `2025` can match a more precise date
-    inside that year, while malformed or unsupported legacy values fall back to
-    exact-value comparison elsewhere.
+    inside that year. Returns None for calendar-invalid values.
     """
     if not PARTIAL_ISO_DATE.match(value):
         return None
@@ -162,7 +161,7 @@ def dates_compatible(left: Iterable[str], right: Iterable[str]) -> bool:
     """Check whether two temporal value sets can describe the same boundary.
 
     Empty sets are compatible with everything. Non-empty sets compare as partial
-    ISO date ranges when possible, with exact equality as a fallback for legacy
+    ISO date ranges, with exact equality as a fallback for calendar-invalid
     values.
     """
     left_values = set(left)
@@ -180,8 +179,8 @@ def dates_compatible(left: Iterable[str], right: Iterable[str]) -> bool:
             for right_range in right_ranges
         )
 
-    # Date-typed values should normally be clean ISO dates. Fall back to exact
-    # equality for any legacy values that cannot be parsed as partial ISO dates.
+    # FtM dates are ISO date prefixes, so parsing only fails for
+    # calendar-invalid values (e.g. a month of 13). Compare those by equality.
     return bool(left_values.intersection(right_values))
 
 
