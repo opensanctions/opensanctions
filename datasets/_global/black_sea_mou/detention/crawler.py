@@ -9,9 +9,14 @@ from lxml import html
 
 from zavod import Context, helpers as h
 from zavod.extract import zyte_api
+from zavod.util import Element
 
 START_YEAR = 2019
 START_MONTH = 1
+# The source server intermittently returns a 500 error page without the
+# detention table. Retry a bounded number of times with backoff before giving
+# up on a month, rather than logging an error on every transient failure.
+FETCH_RETRIES = 5
 
 
 def emit_linked_org(
@@ -125,30 +130,42 @@ def crawl(context: Context) -> None:
             "auth": "0",
             "held": "0",
         }
-        zyte_result = zyte_api.fetch(
-            context,
-            zyte_api.ZyteAPIRequest(
-                url=context.data_url,
-                headers=headers,
-                body=urlencode(data).encode("utf-8"),
-                method="POST",
-            ),
-            cache_days=1,
-        )
+        table: Element | None = None
+        for attempt in range(FETCH_RETRIES):
+            zyte_result = zyte_api.fetch(
+                context,
+                zyte_api.ZyteAPIRequest(
+                    url=context.data_url,
+                    headers=headers,
+                    body=urlencode(data).encode("utf-8"),
+                    method="POST",
+                ),
+                cache_days=1,
+            )
+            try:
+                doc = html.fromstring(zyte_result.response_text)
+                table = h.xpath_element(doc, "//table[@id='dvData']")
+                break
+            except Exception:
+                # The response didn't contain the expected table, most likely a
+                # transient 500 error page. Drop it from the cache and retry
+                # with backoff so we don't hammer the server.
+                zyte_result.invalidate_cache(context)
+                context.log.debug(
+                    "Detention table not found, retrying",
+                    month=month,
+                    year=year,
+                    attempt=attempt + 1,
+                )
+                time.sleep(random.uniform(1.0, 3.0) * (attempt + 1))
 
-        try:
-            doc = html.fromstring(zyte_result.response_text)
-            table = h.xpath_element(doc, "//table[@id='dvData']")
-        except Exception:
-            if zyte_result:
-                context.cache.delete(zyte_result.cache_fingerprint)
-            context.log.exception(
+        if table is None:
+            context.log.error(
                 "Failed to fetch HTML or find table for month", month=month, year=year
             )
-            continue
-
-        for row in h.parse_html_table(table, slugify_headers=False):
-            crawl_row(context, h.cells_to_str(row))
+        else:
+            for row in h.parse_html_table(table, slugify_headers=False):
+                crawl_row(context, h.cells_to_str(row))
 
         # Random sleep to avoid overwhelming the server (and hitting 500 Server Error)
         time.sleep(random.uniform(0.5, 2.0))  # sleep for 1.5–3 seconds
