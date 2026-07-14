@@ -1,13 +1,56 @@
-from typing import NamedTuple
+from typing import Literal, NamedTuple, Optional
 
 from openpyxl import load_workbook
+from pydantic import BaseModel, Field
 from rigour.mime.types import XLSX
 from zavod.entity import Entity
+from zavod.extract.llm import DEFAULT_MODEL, run_typed_text_prompt
+from zavod.stateful.review import (
+    TextSourceValue,
+    assert_all_accepted,
+    review_extraction,
+)
 
 from zavod import Context
 from zavod import helpers as h
 
 PROGRAM_KEY = "SA-UNSC1373"
+
+
+class IdentityDocument(BaseModel):
+    """A single identity document extracted from a row's document columns."""
+
+    type: Literal["passport", "nationalId", "residency", "other"] = Field(
+        description=(
+            "The kind of document: 'passport', 'nationalId' for a national "
+            "identification number, 'residency' for a residency permit or "
+            "number, or 'other' for anything else."
+        )
+    )
+    number: str = Field(
+        description="A single document number, exactly as written in the source."
+    )
+    country: Optional[str] = Field(
+        default=None,
+        description="The issuing country of this document, if stated in the text.",
+    )
+
+
+class IdentityDocuments(BaseModel):
+    documents: list[IdentityDocument] = Field(default_factory=list)
+
+
+DOCUMENT_PROMPT = """
+Extract every identity document from a sanctions designation. The text combines
+a document type, one or more document numbers, and an issuing country. A single
+entry may list several numbers separated by semicolons, or compound entries like
+"A) National identification; B) Passport" that pair each number with a type.
+Return one item per distinct document number.
+  - type: passport, nationalId (national identification), residency (residency
+    permit/number), or other.
+  - number: a single document number, exactly as written in the source.
+  - country: the issuing country of this document, if stated; otherwise null.
+"""
 
 
 class Relation(NamedTuple):
@@ -81,41 +124,74 @@ def emit_documents(
     raw_number: str | None,
     raw_country: str | None,
 ) -> None:
-    """Emit an identity document per number, or apply raw numbers to props.
+    """Emit the identity documents described by a row's document columns.
 
-    Only the simplest shape - a single number from a single issuing country - is
-    handled in code, emitting one ``Identification`` (or ``Passport``). Rows with
-    no country apply their numbers to the holder's ``passportNumber``/``idNumber``
-    directly. Every messier shape (multiple numbers or countries, prose blobs,
-    inline annotations) is resolved through the ``documents`` lookup.
+    A row carrying exactly one value in each of the three columns - a single
+    number, type and issuing country - is unambiguous and emitted directly. Any
+    other shape (several numbers or countries, a compound "A) ...; B) ..." type,
+    or a missing value) is handed to an LLM that splits the columns into one
+    document each; nothing is emitted until a reviewer accepts that extraction.
     """
-    numbers = h.multi_split(raw_number, [";"])
-    countries = h.multi_split(raw_country, [";"])
-
-    # No issuing country: keep the numbers on the holder; type.identifier cleans them.
-    if len(countries) == 0:
-        passport = context.lookup_value("document.type", doc_type) == "passport"
-        entity.add("passportNumber" if passport else "idNumber", numbers, quiet=True)
+    doc_type = clean_cell(doc_type)
+    raw_number = clean_cell(raw_number)
+    raw_country = clean_cell(raw_country)
+    if raw_number is None:
         return
 
-    # The one straightforward case: a single number from a single country.
-    if len(numbers) == 1 and len(countries) == 1:
-        documents = [(numbers[0], countries[0], doc_type)]
-    else:
-        # Everything else - multiple numbers, multiple countries, prose blobs -
-        # is spelled out in the `documents` lookup, which supplies aligned
-        # numbers/countries and, where the type varies per number (e.g.
-        # "A) National ID; B) Passport"), an aligned `types` list.
-        result = context.lookup("documents", raw_number, warn_unmatched=True)
-        if result is None:
-            return
-        types = getattr(result, "types", None) or [doc_type] * len(result.numbers)
-        documents = list(zip(result.numbers, result.countries, types))
+    numbers = h.multi_split(raw_number, [";"])
+    countries = h.multi_split(raw_country, [";"])
+    types = h.multi_split(doc_type, [";"])
 
-    for number, country, dtype in documents:
-        passport = context.lookup_value("document.type", dtype) == "passport"
+    # Unambiguous: one number, one type, one country -> emit without review.
+    if len(numbers) == 1 and len(countries) == 1 and len(types) == 1:
+        passport = context.lookup_value("document.type", doc_type) == "passport"
         identification = h.make_identification(
-            context, entity, number, dtype, country=country, passport=passport
+            context, entity, numbers[0], doc_type, country=countries[0], passport=passport
+        )
+        if identification is not None:
+            context.emit(identification)
+        return
+
+    # Ambiguous: delegate parsing to an LLM and gate emission on human review.
+    # The review text carries all three columns, so the model assigns each
+    # document its own type and country - no code-side pairing or fallback.
+    text = "\n".join(
+        f"{label}: {value}"
+        for label, value in (
+            ("Document type", doc_type),
+            ("Document number", raw_number),
+            ("Issuing country", raw_country),
+        )
+        if value is not None
+    )
+    source_value = TextSourceValue(
+        key_parts=text,
+        label="Identity documents",
+        text=text,
+        url=context.data_url,
+    )
+    extraction = run_typed_text_prompt(
+        context,
+        prompt=DOCUMENT_PROMPT,
+        string=source_value.value_string,
+        response_type=IdentityDocuments,
+    )
+    review = review_extraction(
+        context,
+        source_value=source_value,
+        original_extraction=extraction,
+        origin=DEFAULT_MODEL,
+    )
+    if not review.accepted:
+        return
+    for document in review.extracted_data.documents:
+        identification = h.make_identification(
+            context,
+            entity,
+            document.number,
+            document.type,
+            country=document.country,
+            passport=document.type == "passport",
         )
         if identification is not None:
             context.emit(identification)
@@ -207,3 +283,7 @@ def crawl(context: Context) -> None:
             continue
         for row in h.parse_xlsx_sheet(context, workbook[sheet], header_lookup=columns):
             crawl_row(context, schema, row)
+
+    # Ambiguous document extractions await human review; warn rather than block
+    # the run, since the documents are a secondary enrichment here.
+    assert_all_accepted(context, raise_on_unaccepted=False)
