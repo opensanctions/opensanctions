@@ -1,12 +1,13 @@
-from typing import Literal, NamedTuple, Optional
+import json
+from typing import Literal, NamedTuple
 
 from openpyxl import load_workbook
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, JsonValue
 from rigour.mime.types import XLSX
 from zavod.entity import Entity
 from zavod.extract.llm import DEFAULT_MODEL, run_typed_text_prompt
 from zavod.stateful.review import (
-    TextSourceValue,
+    JSONSourceValue,
     assert_all_accepted,
     review_extraction,
 )
@@ -18,36 +19,22 @@ PROGRAM_KEY = "SA-UNSC1373"
 
 
 class IdentityDocument(BaseModel):
-    """A single identity document extracted from a row's document columns."""
-
-    type: Literal["passport", "nationalId", "residency", "other"] = Field(
-        description=(
-            "The kind of document: 'passport', 'nationalId' for a national "
-            "identification number, 'residency' for a residency permit or "
-            "number, or 'other' for anything else."
-        )
-    )
-    number: str = Field(
-        description="A single document number, exactly as written in the source."
-    )
-    country: Optional[str] = Field(
-        default=None,
-        description="The issuing country of this document, if stated in the text.",
-    )
+    type: Literal["passport", "nationalId"]
+    number: str
+    country: str | None = None
 
 
 class IdentityDocuments(BaseModel):
-    documents: list[IdentityDocument] = Field(default_factory=list)
+    documents: list[IdentityDocument] = []
 
 
 DOCUMENT_PROMPT = """
-Extract every identity document from a sanctions designation. The text combines
-a document type, one or more document numbers, and an issuing country. A single
-entry may list several numbers separated by semicolons, or compound entries like
-"A) National identification; B) Passport" that pair each number with a type.
-Return one item per distinct document number.
-  - type: passport, nationalId (national identification), residency (residency
-    permit/number), or other.
+Extract every identity document from a sanctions designation. The input is a
+JSON object with a document type, one or more document numbers, and an issuing
+country. A single field may list several numbers separated by semicolons, or
+compound entries like "A) National identification; B) Passport" that pair each
+number with a type. Return one item per distinct document number.
+  - type: passport, nationalId (national identification).
   - number: a single document number, exactly as written in the source.
   - country: the issuing country of this document, if stated; otherwise null.
 """
@@ -146,34 +133,39 @@ def emit_documents(
     if len(numbers) == 1 and len(countries) == 1 and len(types) == 1:
         passport = context.lookup_value("document.type", doc_type) == "passport"
         identification = h.make_identification(
-            context, entity, numbers[0], doc_type, country=countries[0], passport=passport
+            context,
+            entity,
+            numbers[0],
+            doc_type,
+            country=countries[0],
+            passport=passport,
         )
         if identification is not None:
             context.emit(identification)
         return
 
     # Ambiguous: delegate parsing to an LLM and gate emission on human review.
-    # The review text carries all three columns, so the model assigns each
-    # document its own type and country - no code-side pairing or fallback.
-    text = "\n".join(
-        f"{label}: {value}"
-        for label, value in (
-            ("Document type", doc_type),
-            ("Document number", raw_number),
-            ("Issuing country", raw_country),
+    # The three columns are passed together, so the model assigns each document
+    # its own type and country - no code-side pairing or fallback.
+    source_data: JsonValue = {
+        key: value
+        for key, value in (
+            ("document_type", doc_type),
+            ("document_number", raw_number),
+            ("issuing_country", raw_country),
         )
         if value is not None
-    )
-    source_value = TextSourceValue(
-        key_parts=text,
+    }
+    source_value = JSONSourceValue(
+        key_parts=[v for v in (raw_number, doc_type, raw_country) if v is not None],
         label="Identity documents",
-        text=text,
+        data=source_data,
         url=context.data_url,
     )
     extraction = run_typed_text_prompt(
         context,
         prompt=DOCUMENT_PROMPT,
-        string=source_value.value_string,
+        string=json.dumps(source_data, ensure_ascii=False),
         response_type=IdentityDocuments,
     )
     review = review_extraction(
@@ -185,16 +177,18 @@ def emit_documents(
     if not review.accepted:
         return
     for document in review.extracted_data.documents:
-        identification = h.make_identification(
-            context,
-            entity,
-            document.number,
-            document.type,
-            country=document.country,
-            passport=document.type == "passport",
-        )
-        if identification is not None:
-            context.emit(identification)
+        passport = document.type == "passport"
+        proxy = context.make("Passport" if passport else "Identification")
+        proxy.id = context.make_id(entity.id, document.number, document.type)
+        # Reviewed values are tagged with the review origin so the statements
+        # are attributed to the model extraction rather than the crawler.
+        proxy.add("holder", entity, origin=review.origin)
+        proxy.add("number", document.number, origin=review.origin)
+        proxy.add("type", document.type, origin=review.origin)
+        proxy.add("country", document.country, origin=review.origin)
+        context.emit(proxy)
+        holder_prop = "passportNumber" if passport else "idNumber"
+        entity.add(holder_prop, document.number, origin=review.origin)
 
 
 def crawl_row(context: Context, schema: str, row: dict[str, str | None]) -> None:
