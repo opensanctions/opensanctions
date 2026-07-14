@@ -1,5 +1,6 @@
 title: Brazil Ministry of Labour and Employment slavery prevention list
 entry_point: crawler.py
+ci_test: false # no zyte in CI
 prefix: br-slv
 coverage:
   frequency: weekly

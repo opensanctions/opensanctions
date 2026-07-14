@@ -5,6 +5,7 @@ from rigour.ids import CNPJ, CPF
 from rigour.mime.types import CSV
 
 from zavod import Context, helpers as h
+from zavod.extract.zyte_api import fetch_resource
 
 LISTING_INTERVAL_RE = re.compile(r"(?P<start_date>.+) a (?P<end_date>.+)")
 
@@ -78,7 +79,11 @@ def crawl_row(context: Context, row: dict[str, str]) -> None:
 
 
 def crawl(context: Context) -> None:
-    path = context.fetch_resource("source.csv", context.data_url)
+    # gov.br blocks datacenter/foreign IPs for this file (serving a "Conteúdo
+    # Restrito" page instead), so fetch it via Zyte from within Brazil.
+    _, _, _, path = fetch_resource(
+        context, "source.csv", context.data_url, geolocation="BR"
+    )
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
     with open(path, "r", encoding="latin-1") as fh:
         # Skip garbage at beginning of file
