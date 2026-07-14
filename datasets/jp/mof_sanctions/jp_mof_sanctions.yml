@@ -83,6 +83,21 @@ assertions:
       Organization: 300
       CryptoWallet: 70
 
+names:
+  schema_rules:
+    # Names still containing these are not clean enough to auto-accept in step 1;
+    # flag them as irregular so they are held back for human review.
+    LegalEntity:
+      reject_chars: "()（）:：;；、"
+      reject_strings:
+        - "_x000D_"
+        - "original script:"
+    Person:
+      reject_chars: "()（）:：;；、"
+      reject_strings:
+        - "_x000D_"
+        - "original script:"
+
 lookups:
   schema:
     options:

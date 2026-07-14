@@ -1,0 +1,63 @@
+title: Kenya Judges of the Superior Courts
+entry_point: crawler.py
+prefix: ke-jud
+coverage:
+  frequency: monthly
+  start: 2026-07-05
+load_statements: true
+ci_test: true
+summary: Current judges of the superior courts listed by the Judiciary of Kenya
+description: |
+  Judges of Kenya's five superior courts — the Supreme Court, the Court of
+  Appeal, the High Court, the Employment and Labour Relations Court, and the
+  Environment and Land Court — established under Chapter 10 of the Constitution
+  of Kenya (2010).
+
+  Each judge is recorded with their name and their court-level judicial
+  position. Judges holding a leadership office (Chief Justice, Deputy Chief
+  Justice, Principal Judge of the High Court or of the Employment and Labour
+  Relations Court, or Presiding Judge of the Environment and Land Court) also
+  carry that office as an additional position. Judges of the superior courts
+  exercise national judicial authority and are treated as politically exposed
+  persons.
+url: https://judiciary.go.ke/
+publisher:
+  name: The Judiciary of Kenya
+  description: >
+    The Judiciary is one of the three arms of the government of Kenya,
+    established under Chapter 10 of the Constitution of Kenya to exercise
+    judicial authority.
+  url: https://judiciary.go.ke/
+  country: ke
+  official: true
+data:
+  url: https://judiciary.go.ke/
+  format: HTML
+  lang: eng
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 210
+      Position: 5
+    country_entities:
+      ke: 210
+  max:
+    schema_entities:
+      Person: 400
+      Position: 15
+
+names:
+  schema_rules:
+    Person:
+      # Judge names on the source carry honorific titles (e.g. "Hon. Justice",
+      # "Hon. Lady Justice") and, in some cases, comma-separated post-nominals
+      # ("..., EGH"). These reject rules flag the names as needing cleaning so
+      # they are sent for LLM-assisted review rather than emitted as-is.
+      reject_strings:
+        - "Justice"
+        - "Judge"
+      reject_chars: ","

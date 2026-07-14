@@ -50,7 +50,7 @@ def parse_organisations(
             )
             continue
         entity.add("name", row.pop("ORGANISATION_NAME"), lang="mul")
-        entity.add("status", row.pop("ORGANISATION_STATUS"))
+        entity.add("status", row.pop("ORGANISATION_STATUS", None))
         if org_type == "O":
             entity.add("country", "cy")
         else:

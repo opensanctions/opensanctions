@@ -48,6 +48,11 @@ assertions:
       Organization: 60_000
 
 lookups:
+  type.name:
+    options:
+      # "<10" / ">15" are comparison operators in the instrument name, not markup.
+      - match: Endlos-Zertifikat bezogen auf LUS Wikifolio-Index KGV - BUY <10 - SELL >15
+        value: Endlos-Zertifikat bezogen auf LUS Wikifolio-Index KGV - BUY <10 - SELL >15
   type.country:
     options:
       - match: EZ

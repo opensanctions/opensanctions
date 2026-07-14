@@ -60,6 +60,7 @@ lookups:
       - match:
           - 1892617
           - 0783218
+          - 5785052
         prop: registrationNumber
   type.country:
     options:
@@ -71,3 +72,5 @@ lookups:
         value: doubleeastship@163.com
       - match: "marine @d-sailingshpg.com"
         value: marine@d-sailingshpg.com"
+      - match: ANDREY
+        value: null

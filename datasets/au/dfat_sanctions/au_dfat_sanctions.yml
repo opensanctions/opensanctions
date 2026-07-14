@@ -49,6 +49,22 @@ assertions:
     schema_entities:
       Person: 2000
       LegalEntity: 700
+    property_fill_rate:
+      Person:
+        name: 1.0
+        birthDate: 0.85
+        citizenship: 0.7
+        createdAt: 1.0
+      LegalEntity:
+        name: 1.0
+        createdAt: 1.0
+      Vessel:
+        name: 1.0
+        imoNumber: 0.9
+        createdAt: 1.0
+      Sanction:
+        startDate: 1.0
+        program: 0.95
   max:
     schema_entities:
       Person: 4000

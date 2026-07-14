@@ -274,6 +274,10 @@ lookups:
           - Sayed Zabiuddin
           - Abu Jundal
           - Abu Hamza
+      - match: "Kokaew Pikulthong<br>ก่อแก้ว พิกุลทอง"
+        values:
+          - Kokaew Pikulthong
+          - ก่อแก้ว พิกุลทอง
   type.date:
     options:
       - match:
@@ -358,4 +362,5 @@ lookups:
           - Curis
           - undisclosed gender
           - San Diego
+          - Transfer tax
         value: null

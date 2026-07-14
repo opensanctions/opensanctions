@@ -56,7 +56,10 @@ ARCHIVE_BACKFILL_STATEMENTS = as_bool(
 BACKFILL_RELEASE = env_str("ZAVOD_BACKFILL_RELEASE", "latest")
 
 # HTTP settings
-HTTP_TIMEOUT = 1200
+# Connect and read timeout in seconds, applied to both the context HTTP session
+# and Zyte API requests. Can be overridden per-dataset via the `http.timeout`
+# metadata option.
+HTTP_TIMEOUT = 60
 HTTP_RETRY_TOTAL = int(env.get("ZAVOD_HTTP_RETRY_TOTAL", 3))
 HTTP_RETRY_BACKOFF_FACTOR = float(env.get("ZAVOD_HTTP_RETRY_BACKOFF_FACTOR", 1.0))
 # urllib.util.Retry.DEFAULT_BACKOFF_MAX is 120

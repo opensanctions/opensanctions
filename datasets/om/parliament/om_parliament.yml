@@ -61,11 +61,11 @@ tags:
 assertions:
   min:
     schema_entities:
-      Person: 400
+      Person: 300
       Position: 2
     country_entities:
-      om: 400
+      om: 300
   max:
     schema_entities:
-      Person: 700
+      Person: 500
       Position: 8

@@ -74,6 +74,17 @@ def parse_date(text: List[str]) -> List[str]:
     return dates
 
 
+def split_english_names(names: List[str]) -> tuple[List[str], List[str]]:
+    """Split the English-column values into truly-English names and others.
+
+    The source's English name column sometimes appends the original-script name
+    (e.g. the Arabic script version) after the English transliteration. Only the
+    first value is reliably in English; the remainder are language-undetermined
+    and should not be tagged as English.
+    """
+    return names[:1], names[1:]
+
+
 def parse_notes(context: Context, entity: Entity, notes: List[str]) -> None:
     for note in notes:
         cryptos = h.extract_cryptos(note)
@@ -125,9 +136,12 @@ def emit_row(
     raw_old_name = row.pop("old_name", [])
     raw_weak_alias = row.pop("weak_alias", [])
     raw_nickname = row.pop("nickname", [])
+    english_first, english_rest = split_english_names(name_english)
     original = h.Names()
-    for n in name_english:
+    for n in english_first:
         original.add("name", n, lang="eng")
+    for n in english_rest:
+        original.add("name", n)
     for n in name_japanese:
         original.add("name", n, lang="jpn")
     for n in chain(raw_alias, raw_known_alias):

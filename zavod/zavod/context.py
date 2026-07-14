@@ -260,7 +260,7 @@ class Context:
             A response object.
         """
         self.log.debug(f"HTTP {method}", url=url)
-        timeout = (settings.HTTP_TIMEOUT, settings.HTTP_TIMEOUT)
+        timeout = (self.dataset.http.timeout, self.dataset.http.timeout)
 
         kwargs: Dict[str, Any] = {
             "headers": headers,

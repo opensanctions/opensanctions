@@ -301,7 +301,11 @@ zavod crawl datasets/xx/foo/xx_foo.yml
 # Output: data/datasets/xx_foo/
 ```
 
-Check `issues.json` for errors, then spot-check with qsv:
+For a dataset already deployed, `python -m contrib.maintenance.diagnose <name>` prints
+its production runtime state: run verdict, artifact links, current issues, assertion
+drift.
+
+Check `issues.log` for errors, then spot-check with qsv:
 
 ```bash
 qsv count data/datasets/xx_foo/statements.pack
