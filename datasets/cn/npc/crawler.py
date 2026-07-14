@@ -27,14 +27,6 @@ EXPECTED_TERM = 14
 # Hong Kong, Macau, Taiwan.
 EXPECTED_DELEGATIONS = 35
 
-TRANSLIT_OUTPUT = [ENGLISH]
-
-# Annotation tokens that are neither gender nor ethnicity: the Tibet
-# delegation has two deputies both named 拉琼 (both Tibetan), which the source
-# disambiguates by home district. The token stays part of the raw annotation -
-# and thereby keeps the two entity IDs distinct - but maps to no property.
-IGNORED_ANNOTATION_TOKENS = {"拉萨城关区", "拉萨达孜区"}
-
 
 def crawl_deputy(
     context: Context,
@@ -71,6 +63,12 @@ def crawl_deputy(
         match = REGEX_ANNOTATION.match(annotation)
         if match is None:
             raise ValueError(f"Unparseable annotation for {name}: {annotation!r}")
+        # Annotation tokens that are neither gender nor ethnicity: the Tibet
+        # delegation has two deputies both named 拉琼 (both Tibetan), which the
+        # source disambiguates by home district. The token stays part of the
+        # raw annotation - and thereby keeps the two entity IDs distinct - but
+        # maps to no property.
+        ignored_tokens = {"拉萨城关区", "拉萨达孜区"}
         for part in REGEX_ANNOTATION_SPLIT.split(match.group("parts")):
             part = part.strip()
             if part == "":
@@ -79,7 +77,7 @@ def crawl_deputy(
                 gender = part
             elif part.endswith("族") and ethnicity is None:
                 ethnicity = part
-            elif part in IGNORED_ANNOTATION_TOKENS:
+            elif part in ignored_tokens:
                 continue
             else:
                 raise ValueError(f"Unknown annotation token for {name}: {part!r}")
@@ -100,7 +98,7 @@ def crawl_deputy(
     person.id = person_id
 
     person.add("name", name, lang="zho")
-    apply_translit_full_name(context, person, "chi", name, TRANSLIT_OUTPUT)
+    apply_translit_full_name(context, person, "chi", name, [ENGLISH])
     # Only women are annotated; the source's silence on the rest is not
     # interpreted as "male".
     person.add("gender", gender)
@@ -204,4 +202,3 @@ def crawl(context: Context) -> None:
         crawl_delegation(
             context, href, delegation, term, position, categorisation, seen
         )
-    context.log.info(f"Crawled {len(seen)} deputies across {len(links)} delegations")
