@@ -24,6 +24,26 @@ SPLITS = SPLITS + ["（a）", "（b）", "（c）", "\n"]
 SPLITS = SPLITS + ["(i)", "(ii)", "(iii)", "(iv)", "(v)", "(vi)", "(vii)", "(viii)"]
 SPLITS = SPLITS + ["; a.k.a.", "; a.k.a ", ", a.k.a.", ", f.k.a."]
 
+# Columns whose values are names. These are handed to the review system as raw
+# strings so that splitting and cleaning (brackets, "a.k.a.", enumeration markers,
+# original-script appendages, ...) happen there rather than through brittle
+# crawler-side rules. See datasets/jp/mof_sanctions/jp_mof_sanctions.yml `names`
+# for the namespec rules that flag these for review.
+NAME_COLUMNS = {
+    "name_english",
+    "name_japanese",
+    "alias",
+    "known_alias",
+    "past_alias",
+    "old_name",
+    "weak_alias",
+    "nickname",
+}
+# We only split name cells on newlines: a single cell often stacks several
+# distinct names on separate lines, and that structure can't be recovered later
+# because whitespace is squashed before names reach the review system.
+NAME_SPLITS = ["\n"]
+
 ADDR_SPLITS = ["; and ", ";"]
 DATE_SPLITS = SPLITS + [
     "、",
@@ -72,17 +92,6 @@ def parse_date(text: List[str]) -> List[str]:
             if normal:
                 dates.append(normal)
     return dates
-
-
-def split_english_names(names: List[str]) -> tuple[List[str], List[str]]:
-    """Split the English-column values into truly-English names and others.
-
-    The source's English name column sometimes appends the original-script name
-    (e.g. the Arabic script version) after the English transliteration. Only the
-    first value is reliably in English; the remainder are language-undetermined
-    and should not be tagged as English.
-    """
-    return names[:1], names[1:]
 
 
 def parse_notes(context: Context, entity: Entity, notes: List[str]) -> None:
@@ -136,12 +145,9 @@ def emit_row(
     raw_old_name = row.pop("old_name", [])
     raw_weak_alias = row.pop("weak_alias", [])
     raw_nickname = row.pop("nickname", [])
-    english_first, english_rest = split_english_names(name_english)
     original = h.Names()
-    for n in english_first:
+    for n in name_english:
         original.add("name", n, lang="eng")
-    for n in english_rest:
-        original.add("name", n)
     for n in name_japanese:
         original.add("name", n, lang="jpn")
     for n in chain(raw_alias, raw_known_alias):
@@ -303,8 +309,12 @@ def crawl_sheets(
                 for header, cell in zip(headers, row):
                     if header is None:
                         continue
+                    # Name columns keep their raw content (only newline-split) and
+                    # are cleaned by the review system; all other columns keep the
+                    # existing SPLITS-based splitting.
+                    splits = NAME_SPLITS if header in NAME_COLUMNS else SPLITS
                     values: list[str] = []
-                    for value in h.multi_split(stringify(cell), SPLITS):
+                    for value in h.multi_split(stringify(cell), splits):
                         if value is None:
                             continue
                         if value == "不明":

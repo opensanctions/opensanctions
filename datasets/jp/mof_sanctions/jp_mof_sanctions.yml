@@ -92,11 +92,15 @@ names:
       reject_strings:
         - "_x000D_"
         - "original script:"
+        - "a.k.a."
+        - "f.k.a."
     Person:
       reject_chars: "()（）:：;；、"
       reject_strings:
         - "_x000D_"
         - "original script:"
+        - "a.k.a."
+        - "f.k.a."
 
 lookups:
   schema:
