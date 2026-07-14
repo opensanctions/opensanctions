@@ -301,6 +301,8 @@ def rule_sanction_control_descent(
         if target_topics & SANCTION_CONTROL_SEEDS:
             continue
         emit_patch(context, source, target, "sanction.control", target_topics)
+        # Anything that's under sanctioned control is also sanction-linked.
+        emit_patch(context, source, target, "sanction.linked", target_topics)
 
 
 def rule_export_control_descent(
