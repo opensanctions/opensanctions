@@ -15,17 +15,14 @@ Propagation rules are applied per (entity, adjacent) pair:
 - ``rule_sanction_adjacency`` — an entity adjacent to a ``sanction`` entity
   through a curated set of edge schemata (Ownership, Directorship, Membership,
   Employment, Associate, Family, Succession), plus Securities issued by a
-  sanctioned entity, is tagged as ``sanction.linked``. This rule is
-  non-transitive: it walks exactly one broad-adjacency hop from a directly
-  sanctioned entity and stops.
+  sanctioned entity, is tagged ``sanction.linked``. Non-transitive: walks
+  exactly one broad-adjacency hop from a directly sanctioned entity.
 - ``rule_sanction_control_descent`` — an asset or organization controlled by a
   ``sanction`` or ``sanction.control`` entity (via ``Ownership`` owner→asset or
   ``Directorship`` director→organization) is tagged ``sanction.control`` and
-  co-emitted ``sanction.linked``. Models the 50%-rule "ownership or control"
-  reading; one hop per run, converging across successive runs. Also the way
-  ``sanction.linked`` reaches multi-tier hierarchies now that
-  ``sanction.linked`` no longer propagates on its own — see the note on
-  Phase 2 below.
+  co-emitted ``sanction.linked`` (so ``sanction.linked`` is a superset of
+  ``sanction.control``). Models the 50%-rule "ownership or control" reading;
+  one hop per run, converging across successive runs.
 - ``rule_export_control_descent`` — an asset owned by an ``export.control`` or
   ``export.control.linked`` entity is itself tagged ``export.control.linked``,
   the export-control analogue of the BIS Affiliates Rule / 50% ownership
@@ -39,15 +36,12 @@ Requirements and invariants that make this correct:
   descent rules (``rule_sanction_control_descent`` and
   ``rule_export_control_descent``), which read their emitted topics back from
   the store in order to walk one hop at a time.
-- **``sanction.linked`` is no longer transitive by itself.** Before Phase 2 of
-  the ``sanction.control`` roll-out (#4496), an ownership-only rule walked
-  ``sanction.linked → sanction.linked`` down chains — meaning a company two
-  hops below a sanctioned owner would be tagged. That rule has been removed:
-  ``sanction.linked`` now means *directly adjacent to a sanction seed* (via
-  broad-edge or securities), plus every entity in a ``sanction.control``
-  chain via the lockstep co-emit. Multi-tier reach is now expressed
-  exclusively through ``sanction.control``, and downstream filters on
-  ``sanction.linked`` still see every controlled entity via the co-emit.
+- **``sanction.linked`` is non-transitive.** It means *directly adjacent to
+  a sanction seed* (via broad edge or the direct Company↔Security relation),
+  plus every entity in a ``sanction.control`` chain via the lockstep
+  co-emit. Multi-tier reach is expressed exclusively through
+  ``sanction.control``; downstream filters on ``sanction.linked`` still see
+  every controlled entity via that co-emit.
 - **Iterative convergence.** Because ownership propagation advances a single
   hop per run, a multi-tier corporate hierarchy only materializes over
   successive runs. The dataset must be re-run for the graph to converge; a

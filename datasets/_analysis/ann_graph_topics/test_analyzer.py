@@ -175,12 +175,10 @@ def test_sanction_linked_skipped_if_target_already_seed() -> None:
 
 
 def test_sanction_linked_does_not_propagate_transitively() -> None:
-    # Phase 2 of #4496: the old rule_ownership_descent (sanction.linked →
-    # sanction.linked down ownership) has been removed. An entity that only
-    # carries sanction.linked (i.e. isn't directly a sanction seed and isn't
-    # in the sanction.control chain) must NOT push sanction.linked to its
-    # asset. Multi-tier reach for sanction.linked now comes exclusively
-    # from the sanction.control co-emit.
+    # An entity carrying only sanction.linked (not a sanction seed, not in
+    # a sanction.control chain) must not push sanction.linked to its asset.
+    # Multi-tier reach for sanction.linked comes exclusively from the
+    # sanction.control co-emit.
     ctx = _analyze(
         [
             _entity("Company", "parent", {"topics": ["sanction.linked"]}),
