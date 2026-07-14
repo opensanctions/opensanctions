@@ -15,15 +15,14 @@ Propagation rules are applied per (entity, adjacent) pair:
 - ``rule_sanction_adjacency`` — an entity adjacent to a ``sanction`` entity
   through a curated set of edge schemata (Ownership, Directorship, Membership,
   Employment, Associate, Family, Succession), plus Securities issued by a
-  sanctioned entity, is tagged as ``sanction.linked``.
-- ``rule_ownership_descent`` — an asset owned by an already ``sanction.linked``
-  owner is itself tagged ``sanction.linked``, pushing the tag one ownership hop
-  further per run.
+  sanctioned entity, is tagged ``sanction.linked``. Non-transitive: walks
+  exactly one broad-adjacency hop from a directly sanctioned entity.
 - ``rule_sanction_control_descent`` — an asset or organization controlled by a
   ``sanction`` or ``sanction.control`` entity (via ``Ownership`` owner→asset or
   ``Directorship`` director→organization) is tagged ``sanction.control`` and
-  co-emitted ``sanction.linked``. Models the 50%-rule "ownership or control"
-  reading; one hop per run.
+  co-emitted ``sanction.linked`` (so ``sanction.linked`` is a superset of
+  ``sanction.control``). Models the 50%-rule "ownership or control" reading;
+  one hop per run, converging across successive runs.
 - ``rule_export_control_descent`` — an asset owned by an ``export.control`` or
   ``export.control.linked`` entity is itself tagged ``export.control.linked``,
   the export-control analogue of the BIS Affiliates Rule / 50% ownership
@@ -34,9 +33,12 @@ Requirements and invariants that make this correct:
 - **Self-exclusion.** ``non_graph_topics`` ignores topic statements contributed
   by this dataset itself, so a tag this analyzer emits does not, on its own,
   re-trigger the rules that produced it. The deliberate exceptions are the
-  descent rules (``rule_ownership_descent``, ``rule_sanction_control_descent``,
+  descent rules (``rule_sanction_control_descent`` and
   ``rule_export_control_descent``), which read their emitted topics back from
   the store in order to walk one hop at a time.
+- **``sanction.linked`` is non-transitive.** It means *directly adjacent to
+  a 'sanction' tagged entity* (via broad edge or the direct Company↔Security relation),
+  plus every entity in a ``sanction.control`` chain.
 - **Iterative convergence.** Because ownership propagation advances a single
   hop per run, a multi-tier corporate hierarchy only materializes over
   successive runs. The dataset must be re-run for the graph to converge; a
@@ -236,38 +238,6 @@ def rule_sanction_adjacency(
         emit_patch(context, source, target, "sanction.linked", target_topics)
 
 
-def rule_ownership_descent(
-    context: Context,
-    view: View,
-    source: Entity,
-    source_topics: Set[str],
-    prop: Property,
-    adjacent: Entity,
-) -> None:
-    """Descend one ``Ownership`` hop from a ``sanction.linked`` owner.
-
-    This rule observes ``sanction.linked`` values emitted by this
-    analyzer in prior runs — that is how the tag advances one hop per run and
-    converges over successive runs. See ``Iterative convergence`` in the
-    module docstring.
-    """
-    if "sanction.linked" not in source_topics:
-        return
-    if not adjacent.schema.is_a("Ownership"):
-        return
-    # ``prop`` is the property on ``source`` that reached the Ownership edge;
-    # ``prop.reverse`` is the Ownership property pointing back at ``source``.
-    # "owner" means ``source`` sits on the owner side and we should walk to
-    # the asset. We never descend upward from an asset to its owner.
-    if prop.reverse is None or prop.reverse.name != "owner":
-        return
-    for target, _ in walk_edge(view, adjacent, prop):
-        target_topics = non_graph_topics(context, target)
-        if target_topics & SANCTION_SEEDS:
-            continue
-        emit_patch(context, source, target, "sanction.linked", target_topics)
-
-
 def rule_sanction_control_descent(
     context: Context,
     view: View,
@@ -301,6 +271,8 @@ def rule_sanction_control_descent(
         if target_topics & SANCTION_CONTROL_SEEDS:
             continue
         emit_patch(context, source, target, "sanction.control", target_topics)
+        if target_topics & SANCTION_SEEDS:
+            continue
         # Anything that's under sanctioned control is also sanction-linked.
         emit_patch(context, source, target, "sanction.linked", target_topics)
 
@@ -315,9 +287,9 @@ def rule_export_control_descent(
 ) -> None:
     """Descend one ``Ownership`` hop and tag ``export.control.linked``.
 
-    Structurally the export-control twin of ``rule_ownership_descent``:
-    ownership-only, downward-only (owner → asset), and self-observing so that
-    the tag advances one hop per run and converges across successive runs.
+    Ownership-only, downward-only (owner → asset), and self-observing so that
+    the tag advances one hop per run and converges across successive runs —
+    the ownership-only sibling of ``rule_sanction_control_descent``.
 
     NOTE on the asymmetric naming: ``export.control.linked`` carries the
     ownership-*descent* semantics — it is the export-control analogue of
@@ -345,7 +317,6 @@ def rule_export_control_descent(
 RULES = (
     rule_pep_family_to_rca,
     rule_sanction_adjacency,
-    rule_ownership_descent,
     rule_sanction_control_descent,
     rule_export_control_descent,
 )
