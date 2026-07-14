@@ -145,18 +145,37 @@ def emit_row(
     raw_old_name = row.pop("old_name", [])
     raw_weak_alias = row.pop("weak_alias", [])
     raw_nickname = row.pop("nickname", [])
-    original = h.Names()
-    for n in name_english:
-        original.add("name", n, lang="eng")
-    for n in name_japanese:
-        original.add("name", n, lang="jpn")
-    for n in chain(raw_alias, raw_known_alias):
-        original.add("alias", n)
-    for n in chain(raw_past_alias, raw_old_name):
-        original.add("previousName", n)
-    for n in chain(raw_weak_alias, raw_nickname):
-        original.add("weakAlias", n)
-    h.apply_reviewed_names(context, entity, original=original)
+    # Exception: we normally never enable llm_cleaning on a sanctions dataset, but
+    # this list mixes English and Japanese names and none of our reviewers read
+    # Japanese - so a non-speaker can't reliably tell a name from embedded
+    # commentary or an original-script appendage. The LLM proposes splits/cleanups
+    # that a human still has to accept (nothing is auto-applied), which is safer
+    # here than eyeballing an unreadable script. Names are cleaned per language
+    # because llm_cleaning returns plain strings and drops per-value language.
+    for name in name_english:
+        h.apply_reviewed_name_string(
+            context, entity, string=name, lang="eng", llm_cleaning=True
+        )
+    for name in name_japanese:
+        h.apply_reviewed_name_string(
+            context, entity, string=name, lang="jpn", llm_cleaning=True
+        )
+    for name in chain(raw_alias, raw_known_alias):
+        h.apply_reviewed_name_string(
+            context, entity, string=name, original_prop="alias", llm_cleaning=True
+        )
+    for name in chain(raw_past_alias, raw_old_name):
+        h.apply_reviewed_name_string(
+            context,
+            entity,
+            string=name,
+            original_prop="previousName",
+            llm_cleaning=True,
+        )
+    for name in chain(raw_weak_alias, raw_nickname):
+        h.apply_reviewed_name_string(
+            context, entity, string=name, original_prop="weakAlias", llm_cleaning=True
+        )
     entity.add_cast("Person", "position", row.pop("position", []), lang="eng")
 
     birth_date = parse_date(row.pop("birth_date", []))
