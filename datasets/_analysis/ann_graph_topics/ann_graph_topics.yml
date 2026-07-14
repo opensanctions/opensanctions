@@ -51,4 +51,4 @@ assertions:
     schema_entities:
       LegalEntity: 130000
       Security: 400
-      Vessel: 200
+      Vessel: 900
