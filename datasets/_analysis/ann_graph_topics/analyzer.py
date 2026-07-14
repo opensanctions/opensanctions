@@ -37,11 +37,8 @@ Requirements and invariants that make this correct:
   ``rule_export_control_descent``), which read their emitted topics back from
   the store in order to walk one hop at a time.
 - **``sanction.linked`` is non-transitive.** It means *directly adjacent to
-  a sanction seed* (via broad edge or the direct Company↔Security relation),
-  plus every entity in a ``sanction.control`` chain via the lockstep
-  co-emit. Multi-tier reach is expressed exclusively through
-  ``sanction.control``; downstream filters on ``sanction.linked`` still see
-  every controlled entity via that co-emit.
+  a 'sanction' tagged entity* (via broad edge or the direct Company↔Security relation),
+  plus every entity in a ``sanction.control`` chain.
 - **Iterative convergence.** Because ownership propagation advances a single
   hop per run, a multi-tier corporate hierarchy only materializes over
   successive runs. The dataset must be re-run for the graph to converge; a
