@@ -2,8 +2,8 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from normality import slugify
-from zavod.extract.names.dspy.clean import init_module
-from zavod.extract.names.dspy.example_data import FIELDS, load_data
+from contrib.prompt_tuning.names.clean import init_module
+from contrib.prompt_tuning.names.example_data import FIELDS, load_data
 from zavod.settings import OPENAI_API_KEY
 
 import dspy  # type: ignore

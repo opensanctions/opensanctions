@@ -12,9 +12,9 @@ import yaml
 from followthemoney.cli.util import InPath, OutPath
 
 from zavod.extract.names.clean import SINGLE_ENTITY_PROGRAM_PATH
-from zavod.extract.names.dspy.compare import compare_single_entity
-from zavod.extract.names.dspy.example_data import EXAMPLES_PATH
-from zavod.extract.names.dspy.optimise import LEVELS, optimise_single_entity
+from contrib.prompt_tuning.names.compare import compare_single_entity
+from contrib.prompt_tuning.names.example_data import EXAMPLES_PATH
+from contrib.prompt_tuning.names.optimise import LEVELS, optimise_single_entity
 
 LEVEL_OPTIONS = click.Choice(LEVELS, case_sensitive=False)
 
@@ -24,12 +24,14 @@ class IndentedListDumper(yaml.Dumper):
         return super(IndentedListDumper, self).increase_indent(flow, indentless=False)
 
 
-@click.group(help="Zavod DSPy optimisation and evaluation tools")
+@click.group(help="DSPy optimisation and evaluation tools for the name cleaning prompt")
 def cli(debug: bool = False) -> None:
     pass
 
 
-@cli.command("optimise", help="Crawl a specific dataset")
+@cli.command(
+    "optimise", help="Optimise the name cleaning prompt against the example data"
+)
 @click.argument("examples_path", type=InPath, default=EXAMPLES_PATH)
 @click.argument("program_path", type=OutPath, default=SINGLE_ENTITY_PROGRAM_PATH)
 @click.option("--level", type=str, default="heavy", help="Optimisation level")
