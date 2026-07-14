@@ -43,6 +43,31 @@ data:
 tags:
   - list.pep
 
+lookups:
+  # Maps the biography's free-text "Born ..." line to a birth date and cleaned
+  # place name(s). Add an option per unmatched line reported by the crawler; a
+  # place given as "X (now Y)" is captured as both the historical and modern name.
+  birth:
+    options:
+      - match: "Born September 14, 1965, in Leningrad."
+        birth_date: "1965-09-14"
+        birth_place:
+          - Leningrad
+          - St Petersburg
+      - match: "Born on January 31, 1953, in Leningrad (now St Petersburg)."
+        birth_date: "1953-01-31"
+        birth_place:
+          - Leningrad
+          - St Petersburg
+      - match: "Born on March 26, 1972, in Moscow."
+        birth_date: "1972-03-26"
+        birth_place:
+          - Moscow
+      - match: "Born on September 19, 1965 in Moscow."
+        birth_date: "1965-09-19"
+        birth_place:
+          - Moscow
+
 assertions:
   min:
     schema_entities:
