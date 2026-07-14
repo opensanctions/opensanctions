@@ -60,6 +60,12 @@ lookups:
         values:
           - Netherlands
           - United Kingdom
+  type.url:
+    options:
+    # Relative company link that was not resolved to an absolute URL on the
+    # source page; map it to the canonical absolute UANI company URL.
+      - match: /company/fortis-bank-sanv
+        value: https://www.unitedagainstnucleariran.com/company/fortis-bank-sanv
   type.text:
     options:
     # Nulling empty notes
