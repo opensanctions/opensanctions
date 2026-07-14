@@ -74,6 +74,53 @@ def emit_related(
     context.emit(link)
 
 
+def emit_documents(
+    context: Context,
+    entity: Entity,
+    doc_type: str | None,
+    raw_number: str | None,
+    raw_country: str | None,
+) -> None:
+    """Emit an identity document per number, or apply raw numbers to props.
+
+    Only the simplest shape - a single number from a single issuing country - is
+    handled in code, emitting one ``Identification`` (or ``Passport``). Rows with
+    no country apply their numbers to the holder's ``passportNumber``/``idNumber``
+    directly. Every messier shape (multiple numbers or countries, prose blobs,
+    inline annotations) is resolved through the ``documents`` lookup.
+    """
+    numbers = h.multi_split(raw_number, [";"])
+    countries = h.multi_split(raw_country, [";"])
+
+    # No issuing country: keep the numbers on the holder; type.identifier cleans them.
+    if len(countries) == 0:
+        passport = context.lookup_value("document.type", doc_type) == "passport"
+        entity.add("passportNumber" if passport else "idNumber", numbers, quiet=True)
+        return
+
+    # The one straightforward case: a single number from a single country.
+    if len(numbers) == 1 and len(countries) == 1:
+        documents = [(numbers[0], countries[0], doc_type)]
+    else:
+        # Everything else - multiple numbers, multiple countries, prose blobs -
+        # is spelled out in the `documents` lookup, which supplies aligned
+        # numbers/countries and, where the type varies per number (e.g.
+        # "A) National ID; B) Passport"), an aligned `types` list.
+        result = context.lookup("documents", raw_number, warn_unmatched=True)
+        if result is None:
+            return
+        types = getattr(result, "types", None) or [doc_type] * len(result.numbers)
+        documents = list(zip(result.numbers, result.countries, types))
+
+    for number, country, dtype in documents:
+        passport = context.lookup_value("document.type", dtype) == "passport"
+        identification = h.make_identification(
+            context, entity, number, dtype, country=country, passport=passport
+        )
+        if identification is not None:
+            context.emit(identification)
+
+
 def crawl_row(context: Context, schema: str, row: dict[str, str | None]) -> None:
     """
     All three sheets share this path; the headers are normalized to a common
@@ -86,7 +133,6 @@ def crawl_row(context: Context, schema: str, row: dict[str, str | None]) -> None
         return
     designated_date = row.pop("designated_date")
     birth_date = row.pop("birth_date", None)
-    doc_type = row.pop("doc_type", None)
 
     entity = context.make(schema)
     # Strict rule: only raw source values go into the ID.
@@ -113,21 +159,16 @@ def crawl_row(context: Context, schema: str, row: dict[str, str | None]) -> None
         h.multi_split(row.pop("reg_number", None), [";"]),
         quiet=True,
     )
-    doc_type = row.pop("doc_type", None)
-    if doc_type is not None:
-        passport = h.make_identification(
-            context,
-            entity,
-            row.pop("doc_number", None),
-            doc_type,
-            country=row.pop("issuing_country", None),
-            passport=(doc_type == "Passport"),
-        )
-        if passport is not None:
-            context.emit(passport)
-
     for full in h.multi_split(row.pop("address", None), [";"]):
         entity.add("address", full)
+    # Emit identity documents
+    emit_documents(
+        context,
+        entity,
+        row.pop("doc_type", None),
+        row.pop("doc_number", None),
+        row.pop("issuing_country", None),
+    )
     # Emit linked organizations
     for org in h.multi_split(row.pop("linked_org", None), [";"]):
         emit_related(context, entity, "terror-org", org)
