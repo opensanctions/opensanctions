@@ -207,9 +207,9 @@ lookups:
 assertions:
   min:
     schema_entities:
-      Person: 1
+      Person: 55
       Position: 1
   max:
     schema_entities:
-      Person: 700
-      Position: 700
+      Person: 200
+      Position: 200
