@@ -1,4 +1,4 @@
-title: "Malaysia Dewan Negara"
+title: "Malaysia Members of Dewan Negara"
 entry_point: crawler.py
 prefix: my-dn
 coverage:
@@ -9,7 +9,7 @@ ci_test: false
 summary: >-
   Members of the Senate, the upper house of the Parliament of Malaysia
 description: |
-  Members (senators) of the Dewan Negara, the Senate, which is the upper house
+  Senators of the Dewan Negara, the Senate, the upper house
   of the Parliament of Malaysia. Senators serve three-year terms and are either
   appointed by the King (Yang di-Pertuan Agong) or selected by the state
   legislative assemblies. The chamber routinely operates below its 70-seat
