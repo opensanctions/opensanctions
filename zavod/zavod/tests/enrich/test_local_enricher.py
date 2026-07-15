@@ -216,7 +216,9 @@ def test_limit(vcontext: Context):
 
 def test_enrich_topic_gated(testdataset1: Dataset, testdataset_enrich_subject: Dataset):
     """With topic_gated=True, the matched entity (which has a topic) is emitted
-    internal; adjacent entities not in the subject store are emitted external."""
+    internal; an adjacent untagged risk-target entity is emitted external. Once
+    that neighbour is tagged in the subject store, a subsequent run promotes
+    both the node and the connecting edge to internal."""
     clear_data_path(testdataset_enrich_subject.name)
     crawl_dataset(testdataset_enrich_subject)  # enriching this
     crawl_dataset(testdataset1)  # enriching against this
