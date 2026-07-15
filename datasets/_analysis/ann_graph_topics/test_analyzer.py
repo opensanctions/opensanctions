@@ -142,6 +142,19 @@ def test_sanction_linked_via_direct_securities_property() -> None:
     assert ("sec1", "sanction.linked") in _emits(ctx)
 
 
+def test_sanction_linked_from_sanctioned_security_to_issuer() -> None:
+    # A sanctioned Security tags its issuer as sanction.linked — the
+    # reverse direction of the Company → Security path.
+    ctx = _analyze(
+        [
+            _entity("Company", "co"),
+            _entity("Security", "sec1", {"topics": ["sanction"], "issuer": ["co"]}),
+        ],
+        source_id="sec1",
+    )
+    assert ("co", "sanction.linked") in _emits(ctx)
+
+
 def test_sanction_linked_not_emitted_via_unlisted_edge() -> None:
     # UnknownLink is not in SANCTION_ADJACENCY_EDGES; the rule must ignore it.
     ctx = _analyze(
