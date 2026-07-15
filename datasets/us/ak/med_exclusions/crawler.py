@@ -3,6 +3,7 @@ from rigour.mime.types import PDF
 
 from zavod import Context, helpers as h
 from zavod.extract.llm import run_image_prompt
+from zavod.extract import zyte_api
 
 prompt = """
 Extract structured data from the following page of a PDF document. Return
@@ -47,14 +48,20 @@ def crawl_item(row: Dict[str, str], context: Context) -> None:
 
 def crawl(context: Context) -> None:
     # locate URL to source pdf
-    body = context.fetch_html(context.data_url, absolute_links=True)
-    pdf_url = h.xpath_string(
-        body, "//a[contains(text(), 'Current Alaska Excluded provider list')]/@href"
+    xpath = "//a[contains(text(), 'Current Alaska Excluded provider list')]/@href"
+    body = zyte_api.fetch_html(
+        context,
+        context.data_url,
+        unblock_validator=xpath,
+        cache_days=1,
+        absolute_links=True,
     )
+    pdf_url = h.xpath_string(body, xpath)
 
     # fetch source pdf
-    # https://health.alaska.gov/media/drecsv54/3_accessibleexclusionlist-march-2026-with-coverpage.pdf
-    path = context.fetch_resource("source.pdf", pdf_url)
+    _, _, _, path = zyte_api.fetch_resource(
+        context, "source.pdf", pdf_url, PDF, geolocation="us"
+    )
     context.export_resource(path, PDF, title=context.SOURCE_TITLE)
     for page_path in h.make_pdf_page_images(path)[1:]:
         data = run_image_prompt(context, prompt, page_path)
