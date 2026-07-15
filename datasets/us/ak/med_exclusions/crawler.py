@@ -46,7 +46,15 @@ def crawl_item(row: Dict[str, str], context: Context) -> None:
 
 
 def crawl(context: Context) -> None:
-    path = context.fetch_resource("source.pdf", context.data_url)
+    # locate URL to source pdf
+    body = context.fetch_html(context.data_url, absolute_links=True)
+    pdf_url = h.xpath_string(
+        body, "//a[contains(text(), 'Current Alaska Excluded provider list')]/@href"
+    )
+
+    # fetch source pdf
+    # https://health.alaska.gov/media/drecsv54/3_accessibleexclusionlist-march-2026-with-coverpage.pdf
+    path = context.fetch_resource("source.pdf", pdf_url)
     context.export_resource(path, PDF, title=context.SOURCE_TITLE)
     for page_path in h.make_pdf_page_images(path)[1:]:
         data = run_image_prompt(context, prompt, page_path)
