@@ -92,6 +92,10 @@ def parse_officials(context: Context, rows: Iterable[Dict[str, str]]) -> None:
         entity = context.make("LegalEntity")
         entity.id = context.make_id(org_type, reg_nr, name)
         entity.add("name", name)
+        if not entity.has("name"):
+            # The name was rejected (e.g. a phone number in the name column), so
+            # there is nothing to emit - skip the official and its directorship.
+            continue
         context.emit(entity)
 
         link = context.make("Directorship")
