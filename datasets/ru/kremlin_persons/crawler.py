@@ -14,7 +14,7 @@ BASE_URL = "http://en.kremlin.ru"
 DATE_RANGE = re.compile(r"^(.*?)\s*\((\d{4})\s*-\s*(\d{4})\)\s*$")
 
 
-def parse_birth(
+def apply_birth_details(
     context: Context, person: Entity, doc: etree._Element, url: str
 ) -> None:
     """Apply birth date and place from the biography's leading "Born ..." line.
@@ -147,7 +147,7 @@ def crawl_person(context: Context, person_id: str) -> None:
     # occupancy created in crawl_position.
     person.add("topics", "poi")
 
-    parse_birth(context, person, doc, url)
+    apply_birth_details(context, person, doc, url)
     apply_biography(person, doc)
     crawl_position(context, person, doc, url)
 
