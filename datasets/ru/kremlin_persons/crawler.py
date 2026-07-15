@@ -65,27 +65,17 @@ def parse_birth(
         person.add("birthPlace", place)
 
 
-def crawl_person(context: Context, person_id: str) -> None:
-    url = f"{BASE_URL}/catalog/persons/{person_id}/biography"
-    name_xpath = ".//*[@itemprop='familyName']"
-    doc = zyte_api.fetch_html(
-        context,
-        url,
-        unblock_validator=name_xpath,
-        html_source="httpResponseBody",
-        cache_days=7,
-    )
+def crawl_position(
+    context: Context, person: Entity, doc: etree._Element, url: str
+) -> None:
+    """Emit the person's most recently listed Russian state position, if any.
 
-    family_name = h.element_text(h.xpath_element(doc, name_xpath))
-    given_name = h.element_text(h.xpath_element(doc, ".//*[@itemprop='givenName']"))
-
+    People with a biography but no single unambiguous title are still recorded
+    (as persons of interest by the caller); only one non-foreign title produces
+    a Position and PEP Occupancy.
+    """
     title_elements = h.xpath_elements(doc, ".//*[@itemprop='jobTitle']")
     if len(title_elements) == 0:
-        context.log.info(
-            "No position listed, skipping",
-            url=url,
-            name=f"{given_name} {family_name}",
-        )
         return
     if len(title_elements) > 1:
         context.log.warning("Multiple job titles found", url=url)
@@ -105,37 +95,22 @@ def crawl_person(context: Context, person_id: str) -> None:
     # Only Russian-state figures get a narrative biography here; foreign leaders
     # get an events-only page and are never crawled. A foreign country in the
     # title of a biography page therefore breaks that assumption: warn and skip
-    # rather than emit the person mislabelled as Russian.
+    # the position rather than emit it mislabelled as Russian.
     foreign_country = foreign_country_match(title)
     if foreign_country is not None:
         context.log.warning(
-            "Foreign country in biography title, skipping",
+            "Foreign country in biography title, skipping position",
             url=url,
             title=title,
             country=foreign_country,
         )
         return
 
-    person = context.make("Person")
-    person.id = context.make_slug(person_id)
-    h.apply_name(person, given_name=given_name, last_name=family_name, lang="eng")
-    # Positions here are Presidential Executive Office appointees, civil servants and
-    # security service officials, not directly elected, so `country` rather than
-    # `citizenship` (see zavod/docs/peps.md, "Properties to capture").
-    person.add("country", "ru")
-    person.add("sourceUrl", url)
-
-    parse_birth(context, person, doc, url)
-
-    # IMPORTANT: all person props must be set before make_occupancy/categorise.
     position = h.make_position(
         context,
         name=title,
         country="ru",
     )
-    # A biography page can still describe a former official or someone whose most
-    # recent role is non-state (e.g. an international sports body), so PEP status
-    # is decided manually in the review UI rather than assumed.
     categorisation = categorise(context, position)
     if categorisation.is_pep is not True:
         return
@@ -152,9 +127,43 @@ def crawl_person(context: Context, person_id: str) -> None:
         no_end_implies_current=True,
     )
     if occupancy is not None:
-        context.emit(person)
         context.emit(position)
         context.emit(occupancy)
+
+
+def crawl_person(context: Context, person_id: str) -> None:
+    url = f"{BASE_URL}/catalog/persons/{person_id}/biography"
+    name_xpath = ".//*[@itemprop='familyName']"
+    doc = zyte_api.fetch_html(
+        context,
+        url,
+        unblock_validator=name_xpath,
+        html_source="httpResponseBody",
+        cache_days=7,
+    )
+
+    family_name = h.element_text(h.xpath_element(doc, name_xpath))
+    given_name = h.element_text(h.xpath_element(doc, ".//*[@itemprop='givenName']"))
+
+    person = context.make("Person")
+    person.id = context.make_slug(person_id)
+    h.apply_name(person, given_name=given_name, last_name=family_name, lang="eng")
+    # Positions here are Presidential Executive Office appointees, civil servants and
+    # security service officials, not directly elected, so `country` rather than
+    # `citizenship` (see zavod/docs/peps.md, "Properties to capture").
+    person.add("country", "ru")
+    person.add("sourceUrl", url)
+    # A Kremlin biography alone makes someone notable enough to record, even with
+    # no current state position; mark every such person as a person of interest.
+    # Those with a listed position additionally gain the PEP role via the
+    # occupancy created in crawl_position.
+    person.add("topics", "poi")
+
+    # IMPORTANT: all person props must be set before make_occupancy/categorise.
+    parse_birth(context, person, doc, url)
+    crawl_position(context, person, doc, url)
+
+    context.emit(person)
 
 
 def crawl(context: Context) -> None:

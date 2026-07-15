@@ -8,17 +8,23 @@ coverage:
 load_statements: true
 ci_test: false
 summary: >-
-  Officials, presidential aides, and other notable persons profiled in the
-  Kremlin's "Reference information on persons" directory, with their current
-  or most recently held Russian state position.
+  Officials, presidential aides, and other notable persons profiled with a
+  narrative biography in the Kremlin's "Reference information on persons"
+  directory, with their current or most recently held Russian state position.
 description: |
   The "Reference information on persons" section of the Kremlin's official
   website is a directory of presidential administration staff, government
   officials, security service and executive branch appointees, regional
   heads, and other figures who have interacted with or served under the
   President of Russia. It also profiles a smaller number of foreign heads of
-  state and government; this crawler only captures persons whose listed
-  position is at a Russian state body.
+  state and government.
+
+  Only persons the Kremlin has written a narrative biography for are captured:
+  the directory links them via a `/biography` page, while foreign leaders and
+  figures who merely appear in event listings get an events-only page. Every
+  such person is recorded as a person of interest. Where a single Russian
+  position is listed, it is additionally captured as a PEP position; titles
+  naming a foreign country are skipped.
 
   The directory does not separately flag current versus former
   officeholders: an undated position title means the person currently holds
