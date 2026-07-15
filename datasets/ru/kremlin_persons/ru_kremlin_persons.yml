@@ -8,7 +8,7 @@ coverage:
 load_statements: true
 ci_test: false
 summary: >-
-  People associated with the President of Russia.
+  Russian senior officials and those associated with the President of Russia.
 description: |
   People associated with the President of Russia, including presidential
   administration staff, government and security officials, regional leaders,
