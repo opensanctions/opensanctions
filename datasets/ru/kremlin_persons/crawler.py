@@ -1,7 +1,6 @@
 import re
 
 from lxml import etree
-from rigour.territories import get_ftm_countries
 
 from zavod import Context
 from zavod import helpers as h
@@ -13,26 +12,6 @@ BASE_URL = "http://en.kremlin.ru"
 # A former/deceased person's last position is suffixed with the years they held it,
 # e.g. "Adviser to the President of the Russian Federation (2009 - 2010)".
 DATE_RANGE = re.compile(r"^(.*?)\s*\((\d{4})\s*-\s*(\d{4})\)\s*$")
-
-FOREIGN_COUNTRY_NAMES = sorted(
-    {
-        country.name
-        for country in get_ftm_countries()
-        if country.code != "ru"
-        and country.is_country
-        and not country.is_historical
-        and country.name
-    },
-    key=len,
-    reverse=True,
-)
-
-
-def foreign_country_match(title: str) -> str | None:
-    for name in FOREIGN_COUNTRY_NAMES:
-        if re.search(rf"\b{re.escape(name)}\b", title, re.IGNORECASE):
-            return name
-    return None
 
 
 def parse_birth(
@@ -48,7 +27,7 @@ def parse_birth(
     born_lines = [
         text
         for el in h.xpath_elements(doc, ".//dl[@class='separate_dates']//dd")
-        if (text := h.element_text(el).replace("\xa0", " ").strip()).startswith("Born")
+        if (text := h.element_text(el)).startswith("Born")
     ]
     if len(born_lines) == 0:
         context.log.warning("No birth line found in biography", url=url)
@@ -61,8 +40,29 @@ def parse_birth(
     if result is None:
         return
     h.apply_date(person, "birthDate", result.birth_date)
-    for place in result.birth_place or []:
-        person.add("birthPlace", place)
+    person.add("birthPlace", result.birth_place)
+
+
+def apply_biography(person: Entity, doc: etree._Element) -> None:
+    """Store the biography's dated timeline verbatim in ``notes``.
+
+    The biography is a ``<dl class='separate_dates'>`` of ``<dt>`` period /
+    ``<dd>`` event pairs (a few ``<dd>`` entries, such as the birth line, stand
+    alone). It is rendered as one "period: event" line per entry, preserving the
+    source text.
+    """
+    timeline = h.xpath_element(doc, ".//dl[@class='separate_dates']")
+    lines: list[str] = []
+    period: str | None = None
+    for child in timeline.iterchildren():
+        if child.tag == "dt":
+            period = h.element_text(child) or None
+        elif child.tag == "dd":
+            text = h.element_text(child)
+            lines.append(f"{period}: {text}" if period is not None else text)
+            period = None
+    if len(lines) > 0:
+        person.add("notes", "\n".join(lines))
 
 
 def crawl_position(
@@ -93,19 +93,7 @@ def crawl_position(
         title, start_date, end_date = raw_title, None, None
 
     # Only Russian-state figures get a narrative biography here; foreign leaders
-    # get an events-only page and are never crawled. A foreign country in the
-    # title of a biography page therefore breaks that assumption: warn and skip
-    # the position rather than emit it mislabelled as Russian.
-    foreign_country = foreign_country_match(title)
-    if foreign_country is not None:
-        context.log.warning(
-            "Foreign country in biography title, skipping position",
-            url=url,
-            title=title,
-            country=foreign_country,
-        )
-        return
-
+    # get an events-only page and are never crawled.
     position = h.make_position(
         context,
         name=title,
@@ -159,8 +147,8 @@ def crawl_person(context: Context, person_id: str) -> None:
     # occupancy created in crawl_position.
     person.add("topics", "poi")
 
-    # IMPORTANT: all person props must be set before make_occupancy/categorise.
     parse_birth(context, person, doc, url)
+    apply_biography(person, doc)
     crawl_position(context, person, doc, url)
 
     context.emit(person)
