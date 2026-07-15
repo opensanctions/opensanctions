@@ -80,6 +80,23 @@ lookups:
           - "-"
           - "."
         value: null
+      - match: "Omanikukonto: ORKLA CONFECTIONERY &#038; SNACKS AS"
+        value: "Omanikukonto: ORKLA CONFECTIONERY & SNACKS AS"
+  type.address:
+    options:
+      - match:
+          - "-"
+          - "."
+          - "#"
+          - "1"
+          - "WE"
+          - "???"
+        value: null
+      # Real short place names, marked as curated to silence the length smell:
+      - match: zug # Zug, Switzerland
+        value: zug
+      - match: Raa # Råå, Sweden
+        value: Raa
   type.country:
     options:
       - match: GER
