@@ -2,22 +2,23 @@ title: "Malaysia Dewan Negara"
 entry_point: crawler.py
 prefix: my-dn
 coverage:
-  frequency: weekly
+  frequency: monthly
   start: 2026-07-02
 load_statements: true
 ci_test: false
 summary: >-
   Members of the Senate, the upper house of the Parliament of Malaysia
 description: |
-  Members (senators) of the Malaysian Senate (Dewan Negara), scraped from the
-  official parliament portal. Senators serve three-year terms and are either
+  Members (senators) of the Dewan Negara, the Senate, which is the upper house
+  of the Parliament of Malaysia. Senators serve three-year terms and are either
   appointed by the King (Yang di-Pertuan Agong) or selected by the state
   legislative assemblies. The chamber routinely operates below its 70-seat
-  capacity as appointed seats lapse and await reappointment.
+  capacity as appointed seats lapse and await reappointment. Each senator,
+  including the chamber's presiding officers, is recorded with their name, party
+  affiliation, and term of office.
 
-  In addition to the senators, the dataset includes the President
-  (Yang di-Pertua) and Deputy President of the house, and members' cabinet
-  (ministerial) offices.
+  Senators who also hold an executive office additionally carry their cabinet
+  position.
 url: https://www.parlimen.gov.my/ahli-dewan-dn.html?uweb=dn&lang=en
 publisher:
   name: Parliament of Malaysia
@@ -37,6 +38,32 @@ dates:
 
 tags:
   - list.pep
+
+# The most common honorifics and courtesy titles prepended to Malaysian names.
+# Hereditary name particles that are NOT titles (Wan, Syed, Sharifah, Nik,
+# Tengku, Raja, ...) are left untouched.
+names:
+  schema_rules:
+    Person:
+      reject_strings:
+        - "Berhormat "
+        - "Seri"
+        - "Sri"
+        - "YAB"
+        - "YB"
+        - "Datuk "
+        - "Dato"
+        - "Datin"
+        - "Tuan"
+        - "Puan"
+        - "Encik"
+        - "Cik"
+        - "Haji"
+        - "Hajah"
+        - "Dr."
+        - "Prof."
+        - "Ir."
+        - "Ts."
 
 lookups:
   type.email:

@@ -1,35 +1,37 @@
 import re
+from typing import Iterator
+
 import urllib3
 
 from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
-from zavod.stateful.positions import categorise
+from zavod.stateful.positions import PositionCategorisation, categorise
+from zavod.stateful.review import assert_all_accepted
 
 # The parliament portal serves an incomplete TLS certificate chain, which makes
 # the default `requests` verification fail. Disabling verification is acceptable
 # here: the source is a public government site and there is no login or secret.
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
+# Minimum roster size below which the roster page is assumed to be broken.
+DEWAN_NEGARA_MIN = 40
+TOPICS = ["gov.legislative", "gov.national"]
 
-def clean_senator_name(raw: str) -> str:
-    """Return a senator's name without its trailing honorifics.
-
-    With `lang=en` the source formats names as "<name>, YB Senator <titles>",
-    so everything from the first comma onward is honorific decoration. Splitting
-    on the comma keeps father-name patronymics that themselves contain titles
-    (e.g. "... bin Tan Sri Mohamed", "... a/l Tun Samy Vellu"), which sit before
-    the comma.
-    """
-    return raw.split(",")[0].strip()
-
-
-def parse_term(value: str) -> tuple[str | None, str | None]:
-    """Split a "DD.MM.YYYY - DD.MM.YYYY" term string into (start, end)."""
-    parts = value.split(" - ")
-    if len(parts) != 2:
-        return None, None
-    return parts[0].strip(), parts[1].strip()
+# The `Position in the Parliament` field carries the (Malay) presiding-officer
+# role labels; ordinary senators and cabinet titles are handled elsewhere.
+OFFICER_POSITIONS: dict[str, tuple[str, list[str], str | None]] = {
+    "Yang di-Pertua Dewan Negara": (
+        "President of the Dewan Negara",
+        TOPICS,
+        "Q7241319",
+    ),
+    "Timbalan Yang di-Pertua Dewan Negara": (
+        "Deputy President of the Dewan Negara",
+        TOPICS,
+        "Q134572656",
+    ),
+}
 
 
 def parse_detail(context: Context, url: str) -> dict[str, str]:
@@ -49,17 +51,51 @@ def parse_detail(context: Context, url: str) -> dict[str, str]:
     return data
 
 
+def parse_term(value: str) -> tuple[str | None, str | None]:
+    """Split a "DD.MM.YYYY - DD.MM.YYYY" term string into (start, end)."""
+    parts = value.split("-")
+    if len(parts) != 2:
+        return None, None
+    return parts[0].strip(), parts[1].strip()
+
+
+def make_member(context: Context, senator_id: str, name: str, url: str) -> Entity:
+    """Build the Person for a senator (id, name, source, citizenship)."""
+    person = context.make("Person")
+    person.id = context.make_slug(senator_id)
+    h.apply_reviewed_name_string(
+        context, person, string=name, llm_cleaning=True, lang="msa"
+    )
+    person.add("name", name)
+    person.add("sourceUrl", url)
+    # Senate membership requires Malaysian citizenship under Article 47(a) of the
+    # Federal Constitution ("Every citizen ... is qualified to be a member of the
+    # Senate, if he is not less than thirty years old"; presiding officers are
+    # likewise Malaysian office holders):
+    # https://lom.agc.gov.my/ (Laws of Malaysia — Federal Constitution)
+    person.add("citizenship", "my")
+    return person
+
+
 def emit_occupancy(
     context: Context,
     person: Entity,
     position: Entity,
+    categorisation: PositionCategorisation | None = None,
     start_date: str | None = None,
     end_date: str | None = None,
-) -> bool:
-    """Categorise a position and emit an occupancy for it. Returns True on emit."""
-    categorisation = categorise(context, position, default_is_pep=True)
+) -> None:
+    """Emit an occupancy of `position` held by `person`, if it qualifies as PEP.
+
+    `categorisation` is reused when the caller already categorised the position
+    (the shared Member seat, categorised once in `crawl`); otherwise the position
+    is categorised here. The position and person are emitted alongside each
+    qualifying occupancy, so a person is materialised only if they hold at least
+    one PEP position."""
+    if categorisation is None:
+        categorisation = categorise(context, position)
     if not categorisation.is_pep:
-        return False
+        return
     occupancy = h.make_occupancy(
         context,
         person,
@@ -69,94 +105,91 @@ def emit_occupancy(
         categorisation=categorisation,
     )
     if occupancy is None:
-        return False
+        return
     context.emit(position)
     context.emit(occupancy)
-    return True
+    context.emit(person)
 
 
-def crawl_senator(context: Context, senator_id: str, url: str) -> None:
-    data = parse_detail(context, url)
-    name = data.pop("Name", None)
-    if name is None:
-        context.log.warning("Senator without a name", url=url)
+def emit_officer(context: Context, person: Entity, role: str | None) -> None:
+    """Emit the presiding-officer occupancy for a role label, if known.
+
+    Roles absent from `OFFICER_POSITIONS` (ordinary senators and the cabinet titles
+    that pollute the role field) are ignored."""
+    spec = OFFICER_POSITIONS.get(role) if role is not None else None
+    if spec is None:
         return
-    role = data.pop("Position in the Parliament", "")
-    cabinet = data.pop("Position in Cabinet", "")
-    party = data.pop("Party", "")
-    term = data.pop("Term of Office", "")
-    reappointment = data.pop("Reappointment", "")
-    email = data.pop("Email", "")
-
-    person = context.make("Person")
-    person.id = context.make_slug(senator_id)
-    person.add("name", clean_senator_name(name))
-    person.add("sourceUrl", url)
-    # Senate membership requires Malaysian citizenship under Article 47(a) of the
-    # Federal Constitution ("Every citizen ... is qualified to be a member of the
-    # Senate, if he is not less than thirty years old"):
-    # https://lom.agc.gov.my/ (Laws of Malaysia — Federal Constitution)
-    person.add("citizenship", "my")
-    if party and party != "BEBAS":
-        person.add("political", party)
-    # Some senators list several contact addresses in one field, separated by
-    # slashes or commas. The "-" placeholder is dropped via a type.email lookup.
-    person.add("email", h.multi_split(email, ["/", ",", ";"]))
-
-    emitted = False
-
-    # Every listed person is a senator. The senate term (and any reappointment
-    # for a second term) give the occupancy dates.
-    member = h.make_position(
+    name, topics, wikidata_id = spec
+    position = h.make_position(
         context,
-        name="Member of the Dewan Negara",
+        name=name,
         country="my",
-        wikidata_id="Q21328606",
+        topics=topics,
+        wikidata_id=wikidata_id,
         lang="eng",
     )
+    emit_occupancy(context, person, position)
+
+
+def emit_cabinet(context: Context, person: Entity, cabinet: str | None) -> None:
+    """Emit an executive (cabinet) office held alongside a seat, if any.
+
+    Despite `lang=en`, the cabinet field is inconsistently English or Malay, so
+    it is translated (English input passes through unchanged); the position id
+    stays keyed on the untranslated name. "&" is normalised to "dan" so the two
+    spellings of a ministry collapse to one position."""
+    if not cabinet or cabinet == "-":
+        return
+    position = h.make_position(
+        context,
+        name=cabinet.replace("&", "dan"),
+        country="my",
+        lang="msa",
+        translate_name=True,
+    )
+    emit_occupancy(context, person, position)
+
+
+def crawl_senator(
+    context: Context,
+    senator_id: str,
+    url: str,
+    member_position: Entity,
+    member_categorisation: PositionCategorisation,
+) -> None:
+    data = parse_detail(context, url)
+    name = data.pop("Name")
+    role = data.pop("Position in the Parliament", None)
+    cabinet = data.pop("Position in Cabinet", None)
+    term = data.pop("Term of Office", None)
+    reappointment = data.pop("Reappointment", None)
+
+    person = make_member(context, senator_id, name, url)
+    party = data.pop("Party", None)
+    if party != "BEBAS":  # BEBAS marks an independent, not a party affiliation
+        person.add("political", party)
+    person.add("email", h.multi_split(data.pop("Email", ""), ["/", ",", ";"]))
+
+    # Every listed person holds the shared Member seat. The senate term (and any
+    # reappointment for a second term) give the occupancy dates.
     for period in (term, reappointment):
         if not period or period == "-":
             continue
         start_date, end_date = parse_term(period)
-        if emit_occupancy(context, person, member, start_date, end_date):
-            emitted = True
+        if start_date is None or end_date is None:
+            context.log.warning("Unparseable senate term", url=url, term=period)
+            continue
+        emit_occupancy(
+            context,
+            person,
+            member_position,
+            categorisation=member_categorisation,
+            start_date=start_date,
+            end_date=end_date,
+        )
 
-    # Presiding officers, identified by the (Malay) role label.
-    if role == "Yang di-Pertua Dewan Negara":
-        president = h.make_position(
-            context,
-            name="President of the Dewan Negara",
-            country="my",
-            wikidata_id="Q7241319",
-            lang="eng",
-        )
-        emitted = emit_occupancy(context, person, president) or emitted
-    elif role == "Timbalan Yang di-Pertua Dewan Negara":
-        deputy = h.make_position(
-            context,
-            name="Deputy President of the Dewan Negara",
-            country="my",
-            wikidata_id="Q134572656",
-            lang="eng",
-        )
-        emitted = emit_occupancy(context, person, deputy) or emitted
-
-    # Senators who also hold an executive office. Despite `lang=en`, the
-    # `Position in Cabinet` field is inconsistently populated in English or Malay,
-    # so it is translated (English input passes through unchanged); the id stays
-    # keyed on the untranslated name. "&" is normalised to "dan" so the two
-    # spellings of a ministry collapse to one position. (The `Position in the
-    # Parliament` field duplicates the cabinet title for ministers; we use the
-    # dedicated cabinet field instead.)
-    if cabinet and cabinet != "-":
-        minister = h.make_position(
-            context,
-            name=cabinet.replace("&", "dan"),
-            country="my",
-            lang="msa",
-            translate_name=True,
-        )
-        emitted = emit_occupancy(context, person, minister) or emitted
+    emit_officer(context, person, role)
+    emit_cabinet(context, person, cabinet)
 
     context.audit_data(
         data,
@@ -170,31 +203,48 @@ def crawl_senator(context: Context, senator_id: str, url: str) -> None:
         ],
     )
 
-    if emitted:
-        context.emit(person)
+
+def iter_member_links(
+    context: Context, roster_url: str, minimum: int
+) -> Iterator[tuple[str, str]]:
+    """Yield (senator_id, profile_url) for each senator listed on the chamber roster."""
+    doc = context.fetch_html(roster_url, absolute_links=True, cache_days=1)
+    links = h.xpath_strings(
+        doc,
+        ".//ul[contains(@class,'member-of-parliament')]/li//a[contains(@href,'id=')]/@href",
+    )
+    if len(links) < minimum:
+        raise ValueError(
+            "Unexpectedly few senators at %s: %d" % (roster_url, len(links))
+        )
+    for link in links:
+        match = re.search(r"[?&]id=(\d+)", link)
+        if match is None:
+            raise ValueError("Senator link without id: %s" % link)
+        yield match.group(1), link
 
 
 def crawl(context: Context) -> None:
     context.http.verify = False
-    doc = context.fetch_html(context.data_url, absolute_links=True, cache_days=1)
-    links = h.xpath_elements(
-        doc,
-        ".//ul[contains(@class,'member-of-parliament')]/li//a[contains(@href,'id=')]",
-    )
-    if len(links) < 40:
-        raise ValueError("Unexpectedly few senators: %d" % len(links))
 
-    seen: set[str] = set()
-    for link in links:
-        href = link.get("href")
-        if href is None:
-            continue
-        match = re.search(r"id=(\d+)", href)
-        if match is None:
-            context.log.warning("Senator link without id", href=href)
-            continue
-        senator_id = match.group(1)
-        if senator_id in seen:
-            continue
-        seen.add(senator_id)
-        crawl_senator(context, senator_id, href)
+    # The single Member seat is held by all senators, so it is built and
+    # categorised once here and passed down; the exceptional roles (presiding
+    # officers, cabinet offices) are categorised as encountered.
+    member_position = h.make_position(
+        context,
+        name="Member of the Dewan Negara",
+        country="my",
+        topics=TOPICS,
+        wikidata_id="Q21328606",
+        lang="eng",
+    )
+    member_categorisation = categorise(context, member_position)
+    if member_categorisation.is_pep:
+        context.emit(member_position)
+
+    for senator_id, url in iter_member_links(
+        context, context.data_url, DEWAN_NEGARA_MIN
+    ):
+        crawl_senator(context, senator_id, url, member_position, member_categorisation)
+
+    assert_all_accepted(context, raise_on_unaccepted=False)
