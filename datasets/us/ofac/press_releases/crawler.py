@@ -132,7 +132,9 @@ def crawl_item(
     origin: Optional[str],
 ) -> None:
     entity = context.make(item.entity_schema)
+    old_id = context.make_id(item.name, item.country)  # type: ignore
     entity.id = context.make_id(item.name, *item.country)
+    context.rekey(old_id, entity.id)
     entity.add("name", item.name, origin=origin)
     nationality_prop = "nationality"
     if item.entity_schema != "Person":
