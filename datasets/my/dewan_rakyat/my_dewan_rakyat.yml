@@ -1,4 +1,4 @@
-title: "Malaysia Dewan Rakyat"
+title: "Malaysia Members of Dewan Rakyat"
 entry_point: crawler.py
 prefix: my-dr
 coverage:
@@ -9,7 +9,7 @@ ci_test: false
 summary: >-
   Members of the House of Representatives, the lower house of the Parliament of Malaysia
 description: |
-  Members of the Dewan Rakyat, the House of Representatives, which is the lower
+  Members of the Dewan Rakyat, the House of Representatives, the lower
   house of the Parliament of Malaysia. Its members are elected from single-member
   federal constituencies. Each member, including the chamber's presiding officers,
   is recorded with their name, party affiliation, and the constituency they
