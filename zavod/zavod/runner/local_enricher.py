@@ -18,7 +18,7 @@ from zavod.context import Context
 from zavod.integration.dedupe import get_dataset_linker
 from zavod.entity import Entity
 from zavod.meta import Dataset, get_multi_dataset, get_catalog
-from zavod.runner.util import check_enrich_topics, should_promote
+from zavod.runner.util import check_publishability, should_promote
 from zavod.store import get_store, View
 from zavod.reset import reset_caches
 
@@ -195,9 +195,9 @@ def save_match(
         expanded = [adj for adj in expanded if not check_person_cutoff(adj)]
 
         if topic_gated:
-            topic_matches = check_enrich_topics(expanded, subject_view, enrich_topics)
+            publishable = check_publishability(expanded, subject_view, enrich_topics)
             for adj in expanded:
-                context.emit(adj, external=not should_promote(adj, topic_matches))
+                context.emit(adj, external=not should_promote(adj, publishable))
         else:
             for adj in expanded:
                 context.emit(adj, external=False)
@@ -216,8 +216,10 @@ def enrich(context: Context) -> None:
     enricher = LocalEnricher(context.dataset, context.cache, config)
     enrich_topics: frozenset[str] = frozenset(enricher._filter_topics)
     if topic_gated and not enrich_topics:
-        context.log.warning(
-            "topic_gated=True but no topics configured; all expanded entities will be external"
+        enrich_topics = frozenset(registry.topic.RISKS)
+        context.log.info(
+            "topic_gated=True but no `topics` configured; gating expansion on "
+            "FollowTheMoney's risk topics (registry.topic.RISKS)."
         )
 
     subject_store = get_store(scope, context.resolver)
@@ -226,6 +228,9 @@ def enrich(context: Context) -> None:
     # resolver is in-memory after the load.
     context.flush()
     subject_store.sync()
+    # When topic-gated, read the subject store including external statements so
+    # the analyzer's topic patches on ingested-but-untagged neighbours are
+    # visible.
     subject_view = subject_store.view(scope, external=topic_gated)
 
     reset_caches()
