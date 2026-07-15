@@ -10,8 +10,9 @@ Failed"), sometimes HTTP/2 framing errors, sometimes an empty reply with no
 response body at all.
 
 The frontend swallows whichever flavor of failure happens upstream and renders
-the listing page with `var datos = null;` instead of the expected JSON array,
-so the page itself still responds with a happy 200.
+the listing page with `var datos = null;` (or an empty `var datos =   ;`)
+instead of the expected JSON array, so the page itself still responds with a
+happy 200.
 
 This happens for a few days, then it goes away again for a few weeks. We've
 emailed them about it, but since it comes back from time to time, it's probably
@@ -29,7 +30,7 @@ from zavod import helpers as h
 from zavod.archive import dataset_data_path
 from zavod.stateful.positions import categorise
 
-REGEX_DATOS = re.compile(r"var datos =\s*(null|\[.+?}\]);")
+REGEX_DATOS = re.compile(r"var datos =\s*(null|\[.+?}\])?\s*;")
 DECLARATION_URL = "https://www.infoprobidad.cl/Declaracion/descargarDeclaracionJSon"
 
 
@@ -169,12 +170,13 @@ def crawl(context: Context) -> None:
     match = REGEX_DATOS.search(html)
     assert match is not None, "Could not find `var datos = ...` in source HTML"
     json = match.group(1)
-    # The listing page server-renders `var datos = null;` when its upstream
-    # SPARQL endpoint is failing. we catch this here to have a more informative
+    # The listing page server-renders `var datos = null;` (or an empty
+    # `var datos = ;`, which the regex captures as None) when its upstream
+    # SPARQL endpoint is failing. We catch this here to have a more informative
     # error than just failing to parse the JSON.
     # See the module docstring; this typically self-heals in a few days.
-    assert json != "null", (
-        "Source listing page returned `var datos = null` — upstream backend is likely failing."
+    assert json is not None and json != "null", (
+        "Source listing page returned no data (`var datos = null` or empty) — upstream backend is likely failing."
     )
     with open(json_path, "w") as fh:
         fh.write(json)
