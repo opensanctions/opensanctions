@@ -117,14 +117,17 @@ def process_page(context: Context, page_number: int) -> ProcessPageResult:
         return ProcessPageResult(success=False, done=False)
 
     if not resp.response_text:
-        context.log.error(f"No data found for page {page_number}")
+        # The source's cache is flaky and sometimes serves empty/broken data; this
+        # is recoverable via the retry in crawl(), so log at info here and let crawl()
+        # emit the definitive error only when the retry also fails.
+        context.log.info(f"No data found for page {page_number}")
         resp.invalidate_cache(context)
         return ProcessPageResult(success=False, done=False)
 
     doc = parse_json_or_xml(context, url, resp.response_text)
 
     if not doc:
-        context.log.error(f"No parseable data found for page {page_number}")
+        context.log.info(f"No parseable data found for page {page_number}")
         resp.invalidate_cache(context)
         return ProcessPageResult(success=False, done=False)
 
