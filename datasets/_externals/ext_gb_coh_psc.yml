@@ -68,6 +68,7 @@ config:
     max_candidates: 100
     match_batch: 300
     memory: 4000
+    max_bucket_size: 200
   limit: 100
   max_bin: 14
   threshold: 0.5
