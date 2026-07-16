@@ -39,6 +39,13 @@ dates:
 tags:
   - list.pep
 
+lookups:
+  type.email:
+    options:
+      - match: "-"
+        values:
+          - null
+
 assertions:
   min:
     schema_entities:
