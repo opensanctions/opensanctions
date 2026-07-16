@@ -131,14 +131,14 @@ def emit_documents(
 
     # Unambiguous: one number, one type, one country -> emit without review.
     if len(numbers) == 1 and len(countries) == 1 and len(types) == 1:
-        passport = context.lookup_value("document.type", doc_type) == "passport"
+        is_passport = context.lookup_value("document.type", doc_type) == "passport"
         identification = h.make_identification(
             context,
             entity,
             numbers[0],
             doc_type,
             country=countries[0],
-            passport=passport,
+            passport=is_passport,
         )
         if identification is not None:
             context.emit(identification)
