@@ -321,8 +321,13 @@ def props_compatible(entities: list[Entity]) -> bool:
 
 
 def group_edges(view: View) -> list[list[str]]:
-    """Group edge IDs that should become positive resolver decisions."""
-    buckets: dict[BucketKey, list[Entity]] = defaultdict(list)
+    """Group edge IDs that should become positive resolver decisions.
+
+    Buckets hold entity IDs rather than entities: keeping every hydrated edge
+    entity in memory scales with the size of the whole graph. Multi-member
+    buckets are re-fetched from the view one bucket at a time.
+    """
+    buckets: dict[BucketKey, list[str]] = defaultdict(list)
     groups: list[list[str]] = []
 
     for idx, entity in enumerate(view.entities()):
@@ -332,9 +337,17 @@ def group_edges(view: View) -> list[list[str]]:
         key = bucket_key(entity)
         if key is None:
             continue
-        buckets[key].append(entity)
+        assert entity.id is not None
+        buckets[key].append(entity.id)
 
-    for entities in buckets.values():
+    for ids in buckets.values():
+        if len(ids) < 2:
+            continue
+        entities: list[Entity] = []
+        for entity_id in ids:
+            member = view.get_entity(entity_id)
+            assert member is not None
+            entities.append(member)
         for group in temporal_candidate_groups(entities):
             if not props_compatible(group):
                 continue
