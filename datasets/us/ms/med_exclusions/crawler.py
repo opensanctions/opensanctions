@@ -104,7 +104,7 @@ def crawl(context: Context) -> None:
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
 
     workbook: openpyxl.Workbook = openpyxl.load_workbook(path, read_only=True)
-    assert set(workbook.sheetnames) == set(["Sheet1", "Sheet2", "Sheet3"])
+    assert "Sheet1" in workbook.sheetnames, workbook.sheetnames
     header_lookup = context.dataset.lookups["headers"]
     for row in h.parse_xlsx_sheet(
         context,
