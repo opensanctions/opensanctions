@@ -17,23 +17,27 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 # Minimum roster sizes
 DEWAN_RAKYAT_MIN = 180
 DEWAN_NEGARA_MIN = 40
-TOPICS = ["gov.legislative", "gov.national"]
+DEFAULT_PARLIAMENT_TOPICS = ["gov.legislative", "gov.national"]
 
 # field is inconsistently localized: most values arrive in Malay
 # even under `lang=en`, so most keys are Malay, but the House clerk arrives in English
 OFFICER_POSITIONS: dict[str, tuple[str, list[str], str | None]] = {
     "Yang di-Pertua Dewan Rakyat": (
         "Speaker of the Dewan Rakyat",
-        TOPICS,
+        DEFAULT_PARLIAMENT_TOPICS,
         "Q7574262",
     ),
     "Timbalan Yang di-Pertua Dewan Rakyat": (
         "Deputy Speaker of the Dewan Rakyat",
-        TOPICS,
+        DEFAULT_PARLIAMENT_TOPICS,
         "Q126361900",
     ),
-    "Ketua Majlis": ("Leader of the Dewan Rakyat", TOPICS, None),
-    "Timbalan Ketua Majlis": ("Deputy Leader of the Dewan Rakyat", TOPICS, None),
+    "Ketua Majlis": ("Leader of the Dewan Rakyat", DEFAULT_PARLIAMENT_TOPICS, None),
+    "Timbalan Ketua Majlis": (
+        "Deputy Leader of the Dewan Rakyat",
+        DEFAULT_PARLIAMENT_TOPICS,
+        None,
+    ),
     "Secretary Of The House Of Representatives": (
         "Secretary of the Dewan Rakyat",
         ["gov.admin", "gov.national"],
@@ -41,12 +45,12 @@ OFFICER_POSITIONS: dict[str, tuple[str, list[str], str | None]] = {
     ),
     "Yang di-Pertua Dewan Negara": (
         "President of the Dewan Negara",
-        TOPICS,
+        DEFAULT_PARLIAMENT_TOPICS,
         "Q7241319",
     ),
     "Timbalan Yang di-Pertua Dewan Negara": (
         "Deputy President of the Dewan Negara",
-        TOPICS,
+        DEFAULT_PARLIAMENT_TOPICS,
         "Q134572656",
     ),
 }
@@ -93,7 +97,6 @@ def make_member(context: Context, member_id: str, name: str, url: str) -> Entity
     h.apply_reviewed_name_string(
         context, person, string=name, llm_cleaning=True, lang="msa"
     )
-    person.add("name", name)
     person.add("sourceUrl", url)
     # Membership of either house of Parliament requires Malaysian citizenship
     # under Article 47 of the Federal Constitution of Malaysia (presiding officers
@@ -187,44 +190,35 @@ def crawl_representative(
 ) -> None:
     data = parse_detail(context, url)
 
-    name = data.pop("Name")
-    role = data.pop("Position in the Parliament", None)
-    cabinet = data.pop("Position in Cabinet", None)
-
-    # `Parliament` is the constituency code (e.g. "P075"); its presence marks an
-    # elected MP. The readable constituency name is built from `Area`/`State`.
-    constituency_code = data.pop("Parliament")
-    constituency = constituency_name(data)
-
-    person = make_member(context, member_id, name, url)
+    person = make_member(context, member_id, data.pop("Name"), url)
     party = data.pop("Party", None)
     if party != "BEBAS":  # BEBAS marks an independent, not a party affiliation
         person.add("political", party)
     person.add("email", h.multi_split(data.pop("Email", ""), ["/", ",", ";"]))
 
+    # `Parliament` is the constituency code; its presence marks an elected MP.
     # A member with a constituency (P-code) is an elected MP holding the shared
-    # Member seat, with the constituency recorded on the occupancy. The presiding
-    # officers (Speaker, Secretary) hold no constituency and are identified by role.
-    if constituency_code:
+    # Member seat, with the constituency recorded on the occupancy.
+    role = data.pop("Position in the Parliament", None)
+    if data.pop("Parliament"):
         emit_occupancy(
             context,
             person,
             member_position,
             categorisation=member_categorisation,
-            constituency=constituency,
+            constituency=constituency_name(data),
         )
         # A sitting MP may additionally be the Deputy Speaker.
         emit_officer(context, person, role)
     elif role in OFFICER_POSITIONS:
-        # The Speaker and the Secretary (House clerk) hold no constituency.
+        # The Speaker and the Secretary (House clerk) hold no constituency, identified by role.
         emit_officer(context, person, role)
     else:
         context.log.warning(
             "Member without constituency or known role", url=url, role=role
         )
         return
-
-    emit_cabinet(context, person, cabinet)
+    emit_cabinet(context, person, data.pop("Position in Cabinet", None))
 
     context.audit_data(
         data,
@@ -248,13 +242,8 @@ def crawl_senator(
     member_categorisation: PositionCategorisation,
 ) -> None:
     data = parse_detail(context, url)
-    name = data.pop("Name")
-    role = data.pop("Position in the Parliament", None)
-    cabinet = data.pop("Position in Cabinet", None)
-    term = data.pop("Term of Office", None)
-    reappointment = data.pop("Reappointment", None)
 
-    person = make_member(context, senator_id, name, url)
+    person = make_member(context, senator_id, data.pop("Name"), url)
     party = data.pop("Party", None)
     if party != "BEBAS":  # BEBAS marks an independent, not a party affiliation
         person.add("political", party)
@@ -262,7 +251,7 @@ def crawl_senator(
 
     # Every listed person holds the shared Member seat. The senate term (and any
     # reappointment for a second term) give the occupancy dates.
-    for period in (term, reappointment):
+    for period in (data.pop("Term of Office", None), data.pop("Reappointment", None)):
         if not period or period == "-":
             continue
         start_date, end_date = parse_term(period)
@@ -278,8 +267,8 @@ def crawl_senator(
             end_date=end_date,
         )
 
-    emit_officer(context, person, role)
-    emit_cabinet(context, person, cabinet)
+    emit_officer(context, person, data.pop("Position in the Parliament", None))
+    emit_cabinet(context, person, data.pop("Position in Cabinet", None))
 
     context.audit_data(
         data,
@@ -314,17 +303,12 @@ def iter_member_links(
         yield match.group(1), link
 
 
-def crawl(context: Context) -> None:
-    context.http.verify = False
-
-    # Each house has a single Member seat held by all its ordinary members, so it
-    # is built and categorised once here and passed down; the exceptional roles
-    # (presiding officers, cabinet offices) are categorised as encountered.
+def crawl_rakyat(context: Context) -> None:
     rakyat_position = h.make_position(
         context,
         name="Member of the Dewan Rakyat",
         country="my",
-        topics=TOPICS,
+        topics=DEFAULT_PARLIAMENT_TOPICS,
         wikidata_id="Q21290861",
         lang="eng",
     )
@@ -332,11 +316,20 @@ def crawl(context: Context) -> None:
     if rakyat_categorisation.is_pep:
         context.emit(rakyat_position)
 
+    for member_id, url in iter_member_links(
+        context, context.data_url + "ahli-dewan.html?uweb=dr&lang=en", DEWAN_RAKYAT_MIN
+    ):
+        crawl_representative(
+            context, member_id, url, rakyat_position, rakyat_categorisation
+        )
+
+
+def crawl_negara(context: Context) -> None:
     negara_position = h.make_position(
         context,
         name="Member of the Dewan Negara",
         country="my",
-        topics=TOPICS,
+        topics=DEFAULT_PARLIAMENT_TOPICS,
         wikidata_id="Q21328606",
         lang="eng",
     )
@@ -344,14 +337,6 @@ def crawl(context: Context) -> None:
     if negara_categorisation.is_pep:
         context.emit(negara_position)
 
-    # crawl rakyat
-    for member_id, url in iter_member_links(
-        context, context.data_url + "ahli-dewan.html?uweb=dr&lang=en", DEWAN_RAKYAT_MIN
-    ):
-        crawl_representative(
-            context, member_id, url, rakyat_position, rakyat_categorisation
-        )
-    # crawl negara
     for member_id, url in iter_member_links(
         context,
         context.data_url + "ahli-dewan-dn.html?uweb=dn&lang=en",
@@ -359,4 +344,8 @@ def crawl(context: Context) -> None:
     ):
         crawl_senator(context, member_id, url, negara_position, negara_categorisation)
 
+
+def crawl(context: Context) -> None:
+    crawl_rakyat(context)
+    crawl_negara(context)
     assert_all_accepted(context, raise_on_unaccepted=False)
