@@ -83,7 +83,12 @@ def crawl_subpage(context: Context, url: str, entity: Entity, entity_id: str) ->
 
     for owner in facts.pop("parent_company", []):
         parent_company = owner.text_content().strip()
-        parent_urls = owner.xpath(".//a/@href")
+        # Some links on the source page are relative (e.g. /company/fortis-bank-sanv);
+        # resolve them against the data URL so the url type cleaner accepts them and
+        # entity IDs stay consistent. urljoin is a no-op on already-absolute URLs.
+        parent_urls = [
+            urljoin(context.data_url, url) for url in owner.xpath(".//a/@href")
+        ]
         parent = context.make("Company")
         parent.id = context.make_id(parent_company, *parent_urls, prefix="ir-br-co")
         parent.add("name", parent_company)
@@ -99,7 +104,10 @@ def crawl_subpage(context: Context, url: str, entity: Entity, entity_id: str) ->
     # and Japan Energy Corporation are only affiliates
     for affiliate in facts.pop("affiliates_subsidiaries", []):
         affiliate_name = affiliate.text_content().strip()
-        affiliates_urls = affiliate.xpath(".//a/@href")
+        # Resolve relative links to absolute (see parent_company handling above).
+        affiliates_urls = [
+            urljoin(context.data_url, url) for url in affiliate.xpath(".//a/@href")
+        ]
         subsidiary = context.make("Company")
         subsidiary.id = context.make_id(
             affiliate_name, *affiliates_urls, prefix="ir-br-co"
