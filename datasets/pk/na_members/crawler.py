@@ -5,8 +5,6 @@ from zavod import helpers as h
 from zavod.entity import Entity
 from zavod.stateful.positions import PositionCategorisation, categorise
 
-MEMBERS_URL = "https://www.na.gov.pk/en/all-members.php"
-PROFILE_URL = "https://www.na.gov.pk/en/profile.php?uid=%s"
 
 # Member profile links look like ``profile.php?uid=1617``; the uid is a stable,
 # opaque source identifier we key the person entity on.
@@ -23,10 +21,11 @@ def crawl_member(
     categorisation: PositionCategorisation,
     uid: str,
 ) -> None:
-    url = PROFILE_URL % uid
-    doc = context.fetch_html(url, cache_days=7)
+    member_url = context.data_url.replace("all-members.php", "profile.php?uid=%s") % uid
+    doc = context.fetch_html(member_url, cache_days=7)
 
-    # The profile is a simple label/value table (``<tr><th>Label</th><td>…</td>``).
+    # The profile is a vertical label/value table (``<tr><th>Label</th><td>…</td>``),
+    # not a column-oriented one, so h/parse_html_table() wouldn't fit
     data: dict[str, str] = {}
     rows = h.xpath_elements(
         doc, '//table[contains(@class, "profile_tbl")]//tr[th and td]'
@@ -36,23 +35,21 @@ def crawl_member(
         value = h.element_text(h.xpath_element(row, "./td[1]"))
         data[label] = value
 
-    name = HONORIFIC_RE.sub("", data.pop("Name", "")).strip()
-    if not name:
-        context.log.warning("Member profile without a name", uid=uid, url=url)
-        return
+    name = HONORIFIC_RE.sub("", data.pop("Name")).strip()
+    assert name, member_url
 
     person = context.make("Person")
     person.id = context.make_slug(uid)
     person.add("name", name)
-    person.add("sourceUrl", url)
+    person.add("sourceUrl", member_url)
+    person.add("email", data.pop("Email", None))
 
     # "IND" denotes an independent (no party), not a political affiliation.
     party = data.pop("Party", None)
     if party is not None and party != "IND":
         person.add("political", party)
 
-    # CNIC is the Pakistani national ID number; the field is usually absent or a
-    # "-" placeholder, so only record values that carry actual digits.
+    # CNIC is the Pakistani national ID number
     cnic = data.pop("CNIC", None)
     if cnic is not None and any(char.isdigit() for char in cnic):
         person.add("idNumber", cnic)
@@ -72,8 +69,12 @@ def crawl_member(
     if occupancy is None:
         return
 
-    # Deliberately dropped: private residences, phone number, father's name (no
-    # FTM property), and the constituency/province (kept off the position name).
+    constituency = data.pop("Constituency", None)
+    province = data.pop("Province", None)
+    parts = [part for part in (constituency, province) if part is not None]
+    if parts:
+        occupancy.add("constituency", ", ".join(parts))
+
     context.audit_data(
         data,
         ignore=[
@@ -82,9 +83,6 @@ def crawl_member(
             "Permanent Address",
             "Local Address",
             "Contact Number",
-            "Province",
-            "Constituency",
-            "Email",
         ],
     )
 
@@ -99,15 +97,14 @@ def crawl(context: Context) -> None:
         country="pk",
         wikidata_id="Q20760546",
     )
-    categorisation = categorise(context, position, default_is_pep=True)
+    categorisation = categorise(context, position)
     context.emit(position)
 
-    doc = context.fetch_html(MEMBERS_URL, cache_days=1)
+    doc = context.fetch_html(context.data_url, cache_days=1)
     hrefs = h.xpath_strings(doc, '//a[contains(@href, "profile.php?uid=")]/@href')
     uids = {match.group(1) for href in hrefs if (match := UID_RE.search(href))}
     if not uids:
-        raise ValueError("No member profile links found on %s" % MEMBERS_URL)
-    context.log.info("Found members", count=len(uids))
+        raise ValueError("No member profile links found on %s" % context.data_url)
 
     for uid in sorted(uids, key=int):
         crawl_member(context, position, categorisation, uid)
