@@ -142,7 +142,8 @@ def crawl_members(context: Context, url: str) -> None:
     id_pattern = re.compile(r"/catalog/persons/(\d+)/")
     for card in h.xpath_elements(doc, ".//p[@class='contacts_name']"):
         link = h.xpath_element(card, "./a[contains(@href, '/catalog/persons/')]")
-        match = id_pattern.search(link.get("href", ""))
+        href = link.get("href", "")
+        match = id_pattern.search(href)
         if match is None:
             context.log.warning("Member link without a person id", url=url)
             continue
@@ -158,7 +159,9 @@ def crawl_members(context: Context, url: str) -> None:
         person.id = context.make_slug(person_id)
         h.apply_name(person, given_name=given_name, last_name=family_name, lang="eng")
         person.add("country", "ru")
-        person.add("sourceUrl", url)
+        # Link to the member's own catalogue page (built against BASE_URL so it
+        # matches the biography crawl's sourceUrl and merges), not the listing.
+        person.add("sourceUrl", f"{BASE_URL}{href}")
         person.add("topics", "poi")
 
         # The role sits in a sibling ``jobTitle`` within the same card block.
@@ -173,6 +176,7 @@ def crawl_members(context: Context, url: str) -> None:
                 "Member without a single role title",
                 url=url,
                 person=person_id,
+                name=f"{given_name} {family_name}",
                 roles=len(role_elements),
             )
             context.emit(person)
