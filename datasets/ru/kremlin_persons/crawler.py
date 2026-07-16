@@ -9,6 +9,14 @@ from zavod.extract import zyte_api
 from zavod.stateful.positions import categorise
 
 BASE_URL = "http://en.kremlin.ru"
+# Membership listings of Russian state bodies chaired by / attached to the
+# President. Each page lists a body's members with their current role; the roles
+# are all treated as PEP positions (see crawl_members).
+MEMBER_URLS = [
+    "http://en.special.kremlin.ru/structure/state-council/members",
+    "http://en.special.kremlin.ru/structure/security-council/members",
+    "http://en.special.kremlin.ru/structure/administration/members",
+]
 
 
 # The biographical detail we extract, one entry per kind of line. Each line is
@@ -115,6 +123,78 @@ def crawl_position(
         context.emit(occupancy)
 
 
+def crawl_members(context: Context, url: str) -> None:
+    """Emit each listed member of a Kremlin state body as a current PEP.
+
+    These structure pages list a body's members as ``contacts_name`` cards, each
+    pairing a link to the person's catalogue entry with their current role. We
+    only read the listing (not the linked detail pages), reusing the catalogue
+    id so members merge with the biography-crawled persons. Every listed role is
+    treated as a currently-held PEP position.
+    """
+    doc = zyte_api.fetch_html(
+        context,
+        url,
+        unblock_validator=".//p[@class='contacts_name']",
+        html_source="httpResponseBody",
+        cache_days=1,
+    )
+    id_pattern = re.compile(r"/catalog/persons/(\d+)/")
+    for card in h.xpath_elements(doc, ".//p[@class='contacts_name']"):
+        link = h.xpath_element(card, "./a[contains(@href, '/catalog/persons/')]")
+        match = id_pattern.search(link.get("href", ""))
+        if match is None:
+            context.log.warning("Member link without a person id", url=url)
+            continue
+        person_id = match.group(1)
+        family_name = h.element_text(
+            h.xpath_element(card, ".//*[@itemprop='familyName']")
+        )
+        given_name = h.element_text(
+            h.xpath_element(card, ".//*[@itemprop='givenName']")
+        )
+
+        person = context.make("Person")
+        person.id = context.make_slug(person_id)
+        h.apply_name(person, given_name=given_name, last_name=family_name, lang="eng")
+        person.add("country", "ru")
+        person.add("sourceUrl", url)
+        person.add("topics", "poi")
+
+        # The role sits in a sibling ``jobTitle`` within the same card block.
+        block = card.getparent()
+        role_elements = (
+            h.xpath_elements(block, ".//*[@itemprop='jobTitle']")
+            if block is not None
+            else []
+        )
+        if len(role_elements) != 1:
+            context.log.warning(
+                "Member without a single role title",
+                url=url,
+                person=person_id,
+                roles=len(role_elements),
+            )
+            context.emit(person)
+            continue
+
+        position = h.make_position(
+            context,
+            name=h.element_text(role_elements[0]),
+            country="ru",
+        )
+        # Membership of these presidential bodies is itself the PEP signal, so
+        # every listed role is classified as a PEP position by default.
+        categorisation = categorise(context, position, default_is_pep=True)
+        occupancy = h.make_occupancy(
+            context, person, position, categorisation=categorisation
+        )
+        if occupancy is not None:
+            context.emit(position)
+            context.emit(occupancy)
+        context.emit(person)
+
+
 def crawl_person(context: Context, person_id: str) -> None:
     url = f"{BASE_URL}/catalog/persons/{person_id}/biography"
     name_xpath = ".//*[@itemprop='familyName']"
@@ -177,3 +257,6 @@ def crawl(context: Context) -> None:
 
     for person_id in person_ids:
         crawl_person(context, person_id)
+
+    for url in MEMBER_URLS:
+        crawl_members(context, url)
