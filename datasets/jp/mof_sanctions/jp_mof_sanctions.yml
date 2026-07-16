@@ -491,6 +491,10 @@ lookups:
         values:
           - 1966
           - 1967
+      - match: 1966年から1967年
+        values:
+          - 1966
+          - 1967
       - match: 1962年-1963年頃
         values:
           - 1962
