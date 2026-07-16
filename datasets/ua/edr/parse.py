@@ -3,6 +3,7 @@ from lxml import etree
 from typing import IO
 from lxml.etree import _Element as Element, tostring
 
+from followthemoney.types import registry
 from followthemoney.util import make_entity_id
 
 from zavod import Context
@@ -55,9 +56,16 @@ def parse_owner(context: Context, company_id: str, unique_id: str, el: Element) 
     if not len(name):
         return
 
-    owner.add("name", name)
-    if name != el.text:
+    # The founder/beneficiary field frequently contains a long descriptive
+    # paragraph (beneficial-ownership structures, addresses, etc.) rather than
+    # an actual name. Such values exceed the name type's max length, so keep the
+    # raw text in notes and skip adding it as a name.
+    if len(name) > registry.name.max_length:
         owner.add("notes", el.text)
+    else:
+        owner.add("name", name)
+        if name != el.text:
+            owner.add("notes", el.text)
     # print(name, latinize_text(name))
     if len(owner.properties):
         context.emit(owner)
