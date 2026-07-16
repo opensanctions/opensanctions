@@ -421,6 +421,7 @@ lookups:
         value: jo
       - match:
           - ou RUSSIE
+          - prétendument RUSSIE
           - RUSSIE (l’Union européenne ne reconnait pas les passeports délivrés par la Fédération de Russie en Crimée)
         value: ru
       - match: Ukraine Russie
