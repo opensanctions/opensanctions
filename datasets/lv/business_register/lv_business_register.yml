@@ -52,6 +52,10 @@ lookups:
         values:
           - IL
           - RU
+      - match: RU;MD
+        values:
+          - RU
+          - MD
   type.name:
     options:
       - match:
