@@ -1,12 +1,11 @@
-from collections import defaultdict
-from typing import Dict, Optional
+from typing import Optional
 
 import pytest
 from nomenklatura import Resolver, Store
 from nomenklatura.store import SimpleMemoryStore
 
 from zavod.entity import Entity
-from zavod.integration.edges import dedupe_edges, get_vertices, make_key
+from zavod.integration.edges import dedupe_edges
 from zavod.meta.dataset import Dataset
 
 
@@ -28,24 +27,115 @@ def e(
     id: str,
     start: Optional[str] = None,
     end: Optional[str] = None,
-    properties: Dict[str, str] = {},
+    properties: Optional[dict[str, str | list[str] | None]] = None,
 ) -> Entity:
     assert type(start) is str or start is None
     assert type(end) is str or end is None
-    properties["startDate"] = start
-    properties["endDate"] = end
+    data = dict(properties or {})
+    data["startDate"] = start
+    data["endDate"] = end
     return Entity.from_data(
         dataset,
         {
             "schema": schema,
             "id": id,
-            "properties": {p: [v] for p, v in properties.items()},
+            "properties": {
+                prop: value if isinstance(value, list) else [value]
+                for prop, value in data.items()
+                if value is not None
+            },
         },
         cleaned=False,
     )
 
 
-def test_dedupe_edges_same_temporal_extent(store: Store, resolver: Resolver):
+def assert_merged(resolver: Resolver, *ids: str) -> None:
+    canonicals = {resolver.get_canonical(id_) for id_ in ids}
+    assert len(canonicals) == 1, canonicals
+
+
+def assert_not_merged(resolver: Resolver, *ids: str) -> None:
+    canonicals = {resolver.get_canonical(id_) for id_ in ids}
+    assert len(canonicals) == len(ids), canonicals
+
+
+def test_directed_edges_preserve_direction(store: Store, resolver: Resolver):
+    entity1 = e(
+        store.dataset,
+        "Directorship",
+        "e1",
+        properties={"director": "a", "organization": "b"},
+    )
+    entity2 = e(
+        store.dataset,
+        "Directorship",
+        "e2",
+        properties={"director": "b", "organization": "a"},
+    )
+    add_entities(store, [entity1, entity2])
+
+    dedupe_edges(resolver, store.default_view())
+    assert_not_merged(resolver, "e1", "e2")
+
+
+def test_undirected_edges_canonicalize_endpoints(store: Store, resolver: Resolver):
+    entity1 = e(
+        store.dataset,
+        "UnknownLink",
+        "e1",
+        properties={"subject": "a", "object": "b", "role": "advisor"},
+    )
+    entity2 = e(
+        store.dataset,
+        "UnknownLink",
+        "e2",
+        properties={"subject": "b", "object": "a", "role": "advisor"},
+    )
+    add_entities(store, [entity1, entity2])
+
+    dedupe_edges(resolver, store.default_view())
+    assert_merged(resolver, "e1", "e2")
+
+
+def test_multi_ended_edges_are_skipped(store: Store, resolver: Resolver):
+    entity1 = e(
+        store.dataset,
+        "Ownership",
+        "e1",
+        properties={"owner": ["a", "c"], "asset": "b"},
+    )
+    entity2 = e(
+        store.dataset,
+        "Ownership",
+        "e2",
+        properties={"owner": "a", "asset": "b"},
+    )
+    add_entities(store, [entity1, entity2])
+
+    dedupe_edges(resolver, store.default_view())
+    assert_not_merged(resolver, "e1", "e2")
+
+
+def test_different_schemata_do_not_merge(store: Store, resolver: Resolver):
+    entity1 = e(
+        store.dataset,
+        "Ownership",
+        "e1",
+        properties={"owner": "a", "asset": "b"},
+    )
+    entity2 = e(
+        store.dataset,
+        "Directorship",
+        "e2",
+        properties={"director": "a", "organization": "b"},
+    )
+    add_entities(store, [entity1, entity2])
+
+    dedupe_edges(resolver, store.default_view())
+    assert_not_merged(resolver, "e1", "e2")
+
+
+def test_same_temporal_extent_merges(store: Store, resolver: Resolver):
     entity1 = e(
         store.dataset,
         "UnknownLink",
@@ -63,177 +153,313 @@ def test_dedupe_edges_same_temporal_extent(store: Store, resolver: Resolver):
         {"subject": "a", "object": "b", "role": "AAA", "description": "bbb"},
     )
     add_entities(store, [entity1, entity2])
-    view = store.default_view()
 
-    dedupe_edges(resolver, view)
-    # Same basic grouping key results in merge, description has no impact
-    assert resolver.get_canonical("e1") == resolver.get_canonical("e2")
+    dedupe_edges(resolver, store.default_view())
+    assert_merged(resolver, "e1", "e2")
 
 
-def test_dedupe_edges_different_extra_prop(store: Store, resolver: Resolver):
-    # with temporal extent
-    entity1 = e(
-        store.dataset,
-        "UnknownLink",
-        "e1",
-        "2020-01-01",
-        "2021-01-01",
-        {"subject": "a", "object": "b", "role": "AAA"},
-    )
-    entity2 = e(
-        store.dataset,
-        "UnknownLink",
-        "e2",
-        "2020-01-01",
-        "2021-01-01",
-        {
-            "subject": "a",
-            "object": "b",
-            "role": "BBB",
-        },
-    )
-    add_entities(store, [entity1, entity2])
-    view = store.default_view()
-
-    dedupe_edges(resolver, view)
-    # Different extra prop for schema prevents merge
-    assert resolver.get_canonical("e1") != resolver.get_canonical("e2")
-
-
-def test_no_dedupe_for_different_keys(store: Store, resolver: Resolver):
+def test_missing_dates_are_temporally_compatible(store: Store, resolver: Resolver):
     entity1 = e(
         store.dataset, "Ownership", "e1", None, None, {"owner": "a", "asset": "b"}
     )
-    # Different schema
+    entity2 = e(
+        store.dataset, "Ownership", "e2", "2024", None, {"owner": "a", "asset": "b"}
+    )
+    add_entities(store, [entity1, entity2])
+
+    dedupe_edges(resolver, store.default_view())
+    assert_merged(resolver, "e1", "e2")
+
+
+def test_partial_dates_overlap(store: Store, resolver: Resolver):
+    entity1 = e(
+        store.dataset,
+        "Directorship",
+        "e1",
+        "2025",
+        None,
+        {"director": "a", "organization": "b", "role": "director"},
+    )
     entity2 = e(
         store.dataset,
         "Directorship",
         "e2",
+        "2025-10-01",
         None,
-        None,
-        {"director": "a", "organization": "b"},
+        {"director": "a", "organization": "b", "role": "director"},
     )
-    # Different vertices
-    entity3 = e(
-        store.dataset, "Ownership", "e3", None, None, {"owner": "a", "asset": "c"}
-    )
-    entity4 = e(
-        store.dataset, "Ownership", "e4", None, None, {"owner": "c", "asset": "b"}
-    )
-    # Different start
-    entity5 = e(
-        store.dataset, "Ownership", "e5", "2024", None, {"owner": "a", "asset": "b"}
-    )
-    add_entities(store, [entity1, entity2, entity3, entity4, entity5])
-    view = store.default_view()
+    add_entities(store, [entity1, entity2])
 
-    dedupe_edges(resolver, view)
-    merges = defaultdict(list)
-    merges[resolver.get_canonical("e1")].append("e1")
-    merges[resolver.get_canonical("e2")].append("e2")
-    merges[resolver.get_canonical("e3")].append("e3")
-    merges[resolver.get_canonical("e4")].append("e4")
-    merges[resolver.get_canonical("e5")].append("e5")
-    # No merges should have happened
-    assert len(merges) == 5, merges
+    dedupe_edges(resolver, store.default_view())
+    assert_merged(resolver, "e1", "e2")
 
 
-def test_group_common_start(store: Store, resolver: Resolver):
-    # common start
+def test_incompatible_dates_do_not_merge(store: Store, resolver: Resolver):
     entity1 = e(
         store.dataset,
-        "Ownership",
+        "Directorship",
         "e1",
-        "2020-01-01",
+        "2025-09",
         None,
-        {"owner": "a", "asset": "b"},
+        {"director": "a", "organization": "b", "role": "director"},
     )
     entity2 = e(
         store.dataset,
-        "Ownership",
+        "Directorship",
         "e2",
-        "2020-01-01",
-        "2021-01-01",
-        {
-            "owner": "a",
-            "asset": "b",
+        "2025-10-01",
+        None,
+        {"director": "a", "organization": "b", "role": "director"},
+    )
+    add_entities(store, [entity1, entity2])
+
+    dedupe_edges(resolver, store.default_view())
+    assert_not_merged(resolver, "e1", "e2")
+
+
+def test_ambiguous_temporal_bridge_is_skipped(store: Store, resolver: Resolver):
+    entity1 = e(
+        store.dataset,
+        "Directorship",
+        "e1",
+        "2025",
+        None,
+        {"director": "a", "organization": "b", "role": "director"},
+    )
+    entity2 = e(
+        store.dataset,
+        "Directorship",
+        "e2",
+        "2025-01-01",
+        None,
+        {"director": "a", "organization": "b", "role": "director"},
+    )
+    entity3 = e(
+        store.dataset,
+        "Directorship",
+        "e3",
+        "2025-12-31",
+        None,
+        {"director": "a", "organization": "b", "role": "director"},
+    )
+    add_entities(store, [entity1, entity2, entity3])
+
+    dedupe_edges(resolver, store.default_view())
+    assert_not_merged(resolver, "e1", "e2", "e3")
+
+
+def test_ambiguous_bridge_does_not_block_unambiguous_merge(
+    store: Store, resolver: Resolver
+):
+    # An ambiguous bridge (2025 overlaps both exact dates) and a conflicting edge
+    # share a bucket with an identical, unambiguous pair. The bridge must not pull
+    # the unambiguous pair into a discarded group.
+    base = {"director": "a", "organization": "b", "role": "director"}
+    bridge = e(store.dataset, "Directorship", "bridge", "2025", None, base)
+    pair1 = e(store.dataset, "Directorship", "pair1", "2025-01-01", None, base)
+    pair2 = e(store.dataset, "Directorship", "pair2", "2025-01-01", None, base)
+    conflict = e(store.dataset, "Directorship", "conflict", "2025-12-31", None, base)
+    add_entities(store, [bridge, pair1, conflict, pair2])
+
+    dedupe_edges(resolver, store.default_view())
+    assert_merged(resolver, "pair1", "pair2")
+    assert_not_merged(resolver, "bridge", "conflict", "pair1")
+
+
+def test_protected_props_match_on_shared_normalized_value(
+    store: Store, resolver: Resolver
+):
+    entity1 = e(
+        store.dataset,
+        "Directorship",
+        "e1",
+        properties={
+            "director": "a",
+            "organization": "b",
+            "role": "Président-directeur général",
+        },
+    )
+    entity2 = e(
+        store.dataset,
+        "Directorship",
+        "e2",
+        properties={
+            "director": "a",
+            "organization": "b",
+            "role": "president directeur general",
         },
     )
     add_entities(store, [entity1, entity2])
-    view = store.default_view()
 
-    dedupe_edges(resolver, view)
-    assert resolver.get_canonical("e1") == resolver.get_canonical("e2")
+    dedupe_edges(resolver, store.default_view())
+    assert_merged(resolver, "e1", "e2")
 
 
-def test_group_common_start_multiple_options(store: Store, resolver: Resolver):
-    # common start
+def test_protected_props_conflict_on_disjoint_values(store: Store, resolver: Resolver):
     entity1 = e(
         store.dataset,
-        "Ownership",
+        "UnknownLink",
         "e1",
-        "2020-01-01",
-        None,
-        {"owner": "a", "asset": "b"},
+        properties={"subject": "a", "object": "b", "role": "director"},
     )
     entity2 = e(
         store.dataset,
-        "Ownership",
+        "UnknownLink",
         "e2",
-        "2020-01-01",
-        "2021-01-01",
-        {
-            "owner": "a",
-            "asset": "b",
-        },
+        properties={"subject": "a", "object": "b", "role": "signatory"},
     )
-    entity3 = e(
+    add_entities(store, [entity1, entity2])
+
+    dedupe_edges(resolver, store.default_view())
+    assert_not_merged(resolver, "e1", "e2")
+
+
+def test_empty_protected_props_do_not_block_merge(store: Store, resolver: Resolver):
+    entity1 = e(
         store.dataset,
-        "Ownership",
-        "e3",
-        "2020-01-01",
-        "2020-01-02",
-        {"owner": "a", "asset": "b"},
+        "Directorship",
+        "e1",
+        properties={"director": "a", "organization": "b"},
     )
-
-    add_entities(store, [entity1, entity2, entity3])
-    view = store.default_view()
-
-    dedupe_edges(resolver, view)
-    assert resolver.get_canonical("e1") != resolver.get_canonical("e2")
-    assert resolver.get_canonical("e1") != resolver.get_canonical("e3")
-    assert resolver.get_canonical("e2") != resolver.get_canonical("e3")
-
-
-def test_make_key(testdataset1: Dataset):
-    # End date is defined
     entity2 = e(
-        testdataset1,
-        "Ownership",
+        store.dataset,
+        "Directorship",
         "e2",
-        "2020-01-01",
-        "2021-01-01",
-        {
-            "owner": "a",
-            "asset": "b",
-            "role": "FOOBAR",
+        properties={"director": "a", "organization": "b", "role": "director"},
+    )
+    add_entities(store, [entity1, entity2])
+
+    dedupe_edges(resolver, store.default_view())
+    assert_merged(resolver, "e1", "e2")
+
+
+def test_unprotected_props_do_not_block_merge(store: Store, resolver: Resolver):
+    entity1 = e(
+        store.dataset,
+        "Directorship",
+        "e1",
+        properties={
+            "director": "a",
+            "organization": "b",
+            "role": "director",
+            "sourceUrl": "https://example.com/1",
         },
     )
-    vertices = get_vertices(entity2)
-    key = make_key(vertices, entity2, {})
-    # only basics used for key
-    assert key.source == "a"
-    assert key.target == "b"
-    assert key.schema.name == "Ownership"
-    assert key.temporal_start[1] == "2020-01-01"
-    assert key.temporal_end[1] == "2021-01-01"
-    assert key.role is None
+    entity2 = e(
+        store.dataset,
+        "Directorship",
+        "e2",
+        properties={
+            "director": "a",
+            "organization": "b",
+            "role": "director",
+            "sourceUrl": "https://example.com/2",
+        },
+    )
+    add_entities(store, [entity1, entity2])
 
-    key = make_key(vertices, entity2, {}, blank_end=True)
-    # end date gets blanked
-    assert key.temporal_start[1] == "2020-01-01"
-    assert key.temporal_end is None
+    dedupe_edges(resolver, store.default_view())
+    assert_merged(resolver, "e1", "e2")
 
-    key = make_key(vertices, entity2, {"Ownership": ["role"]})
-    # extra prop used for key
-    assert key.role == ("FOOBAR",)
+
+def test_payment_protected_props_allow_matching_payments(
+    store: Store, resolver: Resolver
+):
+    entity1 = e(
+        store.dataset,
+        "Payment",
+        "e1",
+        properties={
+            "payer": "a",
+            "beneficiary": "b",
+            "amount": "1000",
+            "currency": "USD",
+            "date": "2025-10-01",
+            "purpose": "Services",
+            "sourceUrl": "https://example.com/1",
+        },
+    )
+    entity2 = e(
+        store.dataset,
+        "Payment",
+        "e2",
+        properties={
+            "payer": "a",
+            "beneficiary": "b",
+            "amount": "1000",
+            "currency": "USD",
+            "date": "2025-10-01",
+            "purpose": "services",
+            "sourceUrl": "https://example.com/2",
+        },
+    )
+    add_entities(store, [entity1, entity2])
+
+    dedupe_edges(resolver, store.default_view())
+    assert_merged(resolver, "e1", "e2")
+
+
+def test_payment_protected_props_block_distinct_transactions(
+    store: Store, resolver: Resolver
+):
+    entity1 = e(
+        store.dataset,
+        "Payment",
+        "e1",
+        properties={
+            "payer": "a",
+            "beneficiary": "b",
+            "amount": "1000",
+            "currency": "USD",
+            "date": "2025",
+            "purpose": "Services",
+        },
+    )
+    entity2 = e(
+        store.dataset,
+        "Payment",
+        "e2",
+        properties={
+            "payer": "a",
+            "beneficiary": "b",
+            "amount": "1000",
+            "currency": "USD",
+            "date": "2025-10-01",
+            "purpose": "Refund",
+        },
+    )
+    add_entities(store, [entity1, entity2])
+
+    dedupe_edges(resolver, store.default_view())
+    assert_not_merged(resolver, "e1", "e2")
+
+
+def test_occupancy_period_regression(store: Store, resolver: Resolver):
+    entities = [
+        e(
+            store.dataset,
+            "Occupancy",
+            f"e{idx}",
+            properties={
+                "holder": "person",
+                "post": "position",
+                "status": "ended",
+                "periodStart": start,
+                "periodEnd": end,
+            },
+        )
+        for idx, (start, end) in enumerate(
+            [
+                ("2003", "2007"),
+                ("2007", "2010"),
+                ("2010", "2014"),
+                ("2014", "2019"),
+                ("2019", "2024"),
+            ],
+            start=1,
+        )
+    ]
+    add_entities(store, entities)
+
+    dedupe_edges(resolver, store.default_view())
+    assert_not_merged(resolver, "e1", "e2", "e3", "e4", "e5")
