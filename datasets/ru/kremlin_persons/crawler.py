@@ -11,12 +11,13 @@ from zavod.stateful.positions import categorise
 BASE_URL = "http://en.kremlin.ru"
 # Membership listings of Russian state bodies chaired by / attached to the
 # President. Each page lists a body's members with their current role; the roles
-# are all treated as PEP positions (see crawl_members).
+# are all treated as PEP positions (see crawl_pep).
 MEMBER_URLS = [
     "http://en.special.kremlin.ru/structure/state-council/members",
     "http://en.special.kremlin.ru/structure/security-council/members",
     "http://en.special.kremlin.ru/structure/administration/members",
 ]
+PERSON_ID_RE = re.compile(r"/catalog/persons/(\d+)/")
 
 
 # The biographical detail we extract, one entry per kind of line. Each line is
@@ -28,65 +29,6 @@ DETAILS = [
     ("birth", "born", "was born", True),
     ("death", "died", "died on", False),
 ]
-
-
-def fetch(
-    context: Context, url: str, validator: str, cache_days: int
-) -> etree._Element:
-    """Fetch a Kremlin page via Zyte; plain requests are blocked by the site."""
-    return zyte_api.fetch_html(
-        context,
-        url,
-        unblock_validator=validator,
-        html_source="httpResponseBody",
-        cache_days=cache_days,
-    )
-
-
-def make_person(
-    context: Context,
-    person_id: str,
-    given_name: str,
-    family_name: str,
-    source_url: str,
-) -> Entity:
-    """Build a person-of-interest from a Kremlin catalogue id and name.
-
-    The id is reused as the entity slug so the same person is merged across the
-    person directory and the membership listings.
-    """
-    person = context.make("Person")
-    person.id = context.make_slug(person_id)
-    h.apply_name(person, given_name=given_name, last_name=family_name, lang="eng")
-    # These are Presidential appointees, civil servants and security officials,
-    # not directly elected, so `country` rather than `citizenship` (see
-    # zavod/docs/peps.md, "Properties to capture").
-    person.add("country", "ru")
-    person.add("sourceUrl", source_url)
-    # A place in the Kremlin catalogue alone makes someone notable enough to
-    # record, even without a current position; mark everyone a person of interest.
-    person.add("topics", "poi")
-    return person
-
-
-def emit_position(
-    context: Context, person: Entity, title: str, *, default_is_pep: bool | None
-) -> None:
-    """Emit a Position and a current PEP Occupancy held by ``person``.
-
-    ``default_is_pep`` is the fallback classification for a position not yet
-    reviewed; nothing is emitted unless the position resolves to a PEP.
-    """
-    position = h.make_position(context, name=title, country="ru")
-    categorisation = categorise(context, position, default_is_pep=default_is_pep)
-    if categorisation.is_pep is not True:
-        return
-    occupancy = h.make_occupancy(
-        context, person, position, categorisation=categorisation
-    )
-    if occupancy is not None:
-        context.emit(position)
-        context.emit(occupancy)
 
 
 def apply_details(
@@ -148,75 +90,66 @@ def apply_biography(person: Entity, doc: etree._Element) -> None:
         person.add("notes", "\n".join(lines))
 
 
-def crawl_members(context: Context, url: str) -> None:
-    """Emit each listed member of a Kremlin state body as a current PEP.
+def emit_position(
+    context: Context, person: Entity, title: str, *, default_is_pep: bool | None
+) -> None:
+    """Emit a Position and a current Occupancy held by ``person``, if it's a PEP.
 
-    These structure pages list a body's members as ``contacts_name`` cards, each
-    pairing a link to the person's catalogue entry with their current role. We
-    only read the listing (not the linked detail pages). Every listed role is
-    treated as a currently-held PEP position.
+    ``default_is_pep`` is the fallback classification for a position not yet
+    reviewed: ``crawl_pep`` passes ``True`` because membership of a presidential
+    body is itself the PEP signal, while ``crawl_associate`` passes ``None`` so a
+    biography's job title stays review-gated. Nothing is emitted unless the
+    position resolves to a PEP.
     """
-    doc = fetch(context, url, ".//p[@class='contacts_name']", cache_days=1)
-    id_pattern = re.compile(r"/catalog/persons/(\d+)/")
-    for card in h.xpath_elements(doc, ".//p[@class='contacts_name']"):
-        link = h.xpath_element(card, "./a[contains(@href, '/catalog/persons/')]")
-        href = link.get("href", "")
-        match = id_pattern.search(href)
-        if match is None:
-            context.log.warning("Member link without a person id", url=url)
-            continue
-        # Link to the member's own catalogue page (built against BASE_URL so it
-        # matches the biography crawl's sourceUrl and merges), not the listing.
-        person = make_person(
-            context,
-            match.group(1),
-            h.element_text(h.xpath_element(card, ".//*[@itemprop='givenName']")),
-            h.element_text(h.xpath_element(card, ".//*[@itemprop='familyName']")),
-            f"{BASE_URL}{href}",
-        )
-
-        # The role sits in a sibling ``jobTitle`` within the same card block.
-        block = card.getparent()
-        roles = (
-            h.xpath_elements(block, ".//*[@itemprop='jobTitle']")
-            if block is not None
-            else []
-        )
-        if len(roles) == 1:
-            # Membership of these presidential bodies is itself the PEP signal,
-            # so every listed role is classified as a PEP position by default.
-            emit_position(
-                context, person, h.element_text(roles[0]), default_is_pep=True
-            )
-        else:
-            context.log.warning(
-                "Member without a single role title",
-                url=url,
-                person=person.id,
-                roles=len(roles),
-            )
-        context.emit(person)
+    position = h.make_position(context, name=title, country="ru")
+    categorisation = categorise(context, position, default_is_pep=default_is_pep)
+    if categorisation.is_pep is not True:
+        return
+    occupancy = h.make_occupancy(
+        context, person, position, categorisation=categorisation
+    )
+    if occupancy is not None:
+        context.emit(position)
+        context.emit(occupancy)
 
 
-def crawl_person(context: Context, person_id: str) -> None:
+def crawl_associate(context: Context, person_id: str) -> None:
+    """Emit one person from the Kremlin directory as an associate of the President.
+
+    Fetches the narrative biography, applies birth/death details and the timeline,
+    and records a single listed job title as a review-gated position.
+    """
     url = f"{BASE_URL}/catalog/persons/{person_id}/biography"
     name_xpath = ".//*[@itemprop='familyName']"
-    doc = fetch(context, url, name_xpath, cache_days=7)
-
-    person = make_person(
+    doc = zyte_api.fetch_html(
         context,
-        person_id,
-        h.element_text(h.xpath_element(doc, ".//*[@itemprop='givenName']")),
-        h.element_text(h.xpath_element(doc, name_xpath)),
         url,
+        unblock_validator=name_xpath,
+        html_source="httpResponseBody",
+        cache_days=7,
     )
+
+    given_name = h.element_text(h.xpath_element(doc, ".//*[@itemprop='givenName']"))
+    family_name = h.element_text(h.xpath_element(doc, name_xpath))
+
+    person = context.make("Person")
+    person.id = context.make_slug(person_id)
+    h.apply_name(person, given_name=given_name, last_name=family_name, lang="eng")
+    # These are Presidential appointees, civil servants and security officials,
+    # not directly elected, so `country` rather than `citizenship` (see
+    # zavod/docs/peps.md, "Properties to capture").
+    person.add("country", "ru")
+    person.add("sourceUrl", url)
+    # A Kremlin biography alone makes someone notable enough to record, even
+    # without a current position; mark everyone a person of interest.
+    person.add("topics", "poi")
 
     apply_details(context, person, doc, url)
     apply_biography(person, doc)
 
     # Only Russian-state figures get a narrative biography here; foreign leaders
     # get an events-only page and are never crawled. A single listed title is
-    # recorded as a review-gated position (default_is_pep=None).
+    # recorded as a review-gated position.
     titles = h.xpath_elements(
         doc, ".//div[@class='persona__info']//div[@itemprop='jobTitle']"
     )
@@ -226,32 +159,85 @@ def crawl_person(context: Context, person_id: str) -> None:
     context.emit(person)
 
 
+def crawl_pep(context: Context, card: etree._Element, url: str) -> None:
+    """Emit one member of a presidential state body as a current PEP.
+
+    Reads a single ``contacts_name`` card from a membership listing (surface only,
+    no detail-page fetch), reusing the catalogue id so the member merges with any
+    biography-crawled associate. The listed role is a currently-held PEP position.
+    """
+    link = h.xpath_element(card, "./a[contains(@href, '/catalog/persons/')]")
+    href = link.get("href", "")
+    match = PERSON_ID_RE.search(href)
+    if match is None:
+        context.log.warning("Member link without a person id", url=url)
+        return
+    given_name = h.element_text(h.xpath_element(card, ".//*[@itemprop='givenName']"))
+    family_name = h.element_text(h.xpath_element(card, ".//*[@itemprop='familyName']"))
+
+    person = context.make("Person")
+    person.id = context.make_slug(match.group(1))
+    h.apply_name(person, given_name=given_name, last_name=family_name, lang="eng")
+    person.add("country", "ru")
+    # Link to the member's own catalogue page (built against BASE_URL so it matches
+    # the biography crawl's sourceUrl and merges), not the listing.
+    person.add("sourceUrl", f"{BASE_URL}{href}")
+    person.add("topics", "poi")
+
+    # The role sits in a sibling ``jobTitle`` within the same card block.
+    block = card.getparent()
+    roles = (
+        h.xpath_elements(block, ".//*[@itemprop='jobTitle']")
+        if block is not None
+        else []
+    )
+    if len(roles) == 1:
+        emit_position(context, person, h.element_text(roles[0]), default_is_pep=True)
+    else:
+        context.log.warning(
+            "Member without a single role title",
+            url=url,
+            person=person.id,
+            roles=len(roles),
+        )
+
+    context.emit(person)
+
+
 def crawl(context: Context) -> None:
     # Plain requests get connection-timed-out/blocked by this site, even for the
     # listing page, so route through Zyte like the per-person pages below.
-    doc = fetch(
+    doc = zyte_api.fetch_html(
         context,
         context.data_url,
-        ".//a[contains(@href, '/catalog/persons/')]",
+        unblock_validator=".//a[contains(@href, '/catalog/persons/')]",
+        html_source="httpResponseBody",
         cache_days=1,
     )
     # Only crawl people the Kremlin has written a narrative biography for: the
     # directory links them via `/biography`, while everyone else (foreign leaders,
-    # people who merely appear in event listings) gets an `/events` link with no
-    # date/place of birth. Biography pages are both the reliable Russian-official
-    # signal and the only pages carrying the biographical detail we want.
+    # people who merely appear in event listings) gets an `/events` link we skip.
     link_pattern = re.compile(r"/catalog/persons/(\d+)/biography")
 
     person_ids: set[str] = set()
     for link in h.xpath_elements(doc, ".//a[contains(@href, '/catalog/persons/')]"):
-        href = link.get("href", "")
-        match = link_pattern.search(href)
-        if match is None:
-            continue
-        person_ids.add(match.group(1))
+        match = link_pattern.search(link.get("href", ""))
+        if match is not None:
+            person_ids.add(match.group(1))
 
+    # An associate and a council/administration member can be the same person;
+    # they merge by catalogue id, so an entity may gain both a biography and a
+    # PEP occupancy.
     for person_id in person_ids:
-        crawl_person(context, person_id)
+        crawl_associate(context, person_id)
 
     for url in MEMBER_URLS:
-        crawl_members(context, url)
+        doc = zyte_api.fetch_html(
+            context,
+            url,
+            unblock_validator=".//p[@class='contacts_name']",
+            html_source="httpResponseBody",
+            cache_days=1,
+        )
+        for card in h.xpath_elements(doc, ".//p[@class='contacts_name']"):
+            crawl_pep(context, card, url)
