@@ -242,7 +242,7 @@ def test_ownership_descent_ignores_non_ownership_edges() -> None:
 # ---- rule_sanction_control_descent --------------------------------------
 
 
-def test_sanction_control_descent_emits_from_sanctioned_owner() -> None:
+def test_sanction_control_descends_from_sanctioned_owner() -> None:
     # A directly sanctioned owner tags the asset sanction.control (with the
     # sanction.linked co-emit) on the first pass.
     ctx = _analyze(
@@ -259,6 +259,7 @@ def test_sanction_control_descent_emits_from_sanctioned_owner() -> None:
     )
     emits = _emits(ctx)
     assert ("acme", "sanction.control") in emits
+    assert ("acme", "sanction.linked") in emits
 
 
 def test_sanction_control_descent_propagates_from_control_seed() -> None:
@@ -277,10 +278,10 @@ def test_sanction_control_descent_propagates_from_control_seed() -> None:
         source_id="parent",
     )
     assert ("child", "sanction.control") in _emits(ctx)
+    assert ("child", "sanction.linked") in _emits(ctx)
 
 
-def test_sanction_control_descent_walks_directorship() -> None:
-    # A sanctioned director tags the organization via director → organization.
+def test_sanction_control_does_not_descend_directorship() -> None:
     ctx = _analyze(
         [
             _entity("Person", "director", {"topics": ["sanction"]}),
@@ -310,23 +311,6 @@ def test_sanction_control_descent_does_not_ascend_ownership() -> None:
             _entity("Company", "child", {"topics": ["sanction.control"]}),
         ],
         source_id="child",
-    )
-    assert _emits(ctx) == []
-
-
-def test_sanction_control_descent_does_not_ascend_directorship() -> None:
-    # From the organization side, do not tag the director.
-    ctx = _analyze(
-        [
-            _entity("Person", "director"),
-            _entity(
-                "Directorship",
-                "dir",
-                {"director": ["director"], "organization": ["co"]},
-            ),
-            _entity("Company", "co", {"topics": ["sanction.control"]}),
-        ],
-        source_id="co",
     )
     assert _emits(ctx) == []
 
