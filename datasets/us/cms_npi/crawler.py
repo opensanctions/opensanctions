@@ -1,5 +1,6 @@
 import csv
 import html
+import re
 from io import TextIOWrapper
 from typing import Any, Optional, TextIO
 from urllib.parse import urljoin
@@ -9,6 +10,26 @@ from rigour.text.stopwords import is_nullword
 
 from zavod import Context
 from zavod import helpers as h
+
+# Name-part fields in the source occasionally carry junk instead of a name:
+# bare dashes, phone numbers, dates or ID numbers. A real name in any script
+# contains at least one letter, so a value made up entirely of digits,
+# whitespace and punctuation is never a name.
+NON_NAME = re.compile(r"^[\d\s\W]+$")
+
+
+def clean_name_part(value: Optional[str]) -> Optional[str]:
+    """Drop name-part values that contain no letters, keeping genuine names.
+
+    ``middleName``/``firstName``/``lastName`` are string-typed properties, so
+    ``zavod``'s automatic type.name lookup does not run on them; junk values
+    would otherwise reach the name validator and emit a warning. Filtering here
+    also keeps the junk out of the assembled full name."""
+    if value is None:
+        return None
+    if NON_NAME.match(value):
+        return None
+    return value
 
 
 def unescape_row(row: dict[str, Any]) -> dict[str, Any]:
@@ -61,9 +82,9 @@ def crawl_npidata(context: Context, fh: TextIO) -> None:
         entity.add("name", row.pop("Provider Organization Name (Legal Business Name)"))
         h.apply_name(
             entity,
-            first_name=row.pop("Provider First Name"),
-            last_name=row.pop("Provider Last Name (Legal Name)"),
-            middle_name=row.pop("Provider Middle Name"),
+            first_name=clean_name_part(row.pop("Provider First Name")),
+            last_name=clean_name_part(row.pop("Provider Last Name (Legal Name)")),
+            middle_name=clean_name_part(row.pop("Provider Middle Name")),
             quiet=True,
         )
         entity.add("title", row.pop("Provider Name Prefix Text"), quiet=True)
