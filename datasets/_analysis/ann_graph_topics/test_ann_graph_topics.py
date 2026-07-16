@@ -294,7 +294,7 @@ def test_sanction_control_descent_walks_directorship() -> None:
         source_id="director",
     )
     emits = _emits(ctx)
-    assert ("co", "sanction.control") in emits
+    assert ("co", "sanction.control") not in emits
 
 
 def test_sanction_control_descent_does_not_ascend_ownership() -> None:

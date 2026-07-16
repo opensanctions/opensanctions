@@ -21,14 +21,12 @@ Propagation rules are applied per (entity, adjacent) pair:
   owner is itself tagged ``sanction.linked``, pushing the tag one ownership hop
   further per run.
 - ``rule_sanction_control_descent`` — an asset or organization controlled by a
-  ``sanction`` or ``sanction.control`` entity (via ``Ownership`` owner→asset or
-  ``Directorship`` director→organization) is tagged ``sanction.control`` and
-  co-emitted ``sanction.linked``. Models the 50%-rule "ownership or control"
-  reading; one hop per run.
+  ``sanction`` or ``sanction.control`` entity (via ``Ownership`` owner→asset)
+  is tagged ``sanction.control`` and co-emitted ``sanction.linked``.
+  No 50% ownership threshold is applied.
 - ``rule_export_control_descent`` — an asset owned by an ``export.control`` or
-  ``export.control.linked`` entity is itself tagged ``export.control.linked``,
-  the export-control analogue of the BIS Affiliates Rule / 50% ownership
-  restriction. Ownership-only, downward-only, one hop per run.
+  ``export.control.linked`` entity is itself tagged ``export.control.linked``.
+    Ownership-only, downward-only, one hop per run.
 
 Requirements and invariants that make this correct:
 
@@ -279,23 +277,13 @@ def rule_sanction_control_descent(
 ) -> None:
     """Descend one control hop from a ``sanction`` or ``sanction.control`` seed.
 
-    Walks one step downward along any of:
-
-    - ``Ownership``: ``owner → asset``
-    - ``Directorship``: ``director → organization``
-
-    NOTE on ``Directorship``: this rule deliberately treats a board seat as
-    part of the control chain even though a single directorship isn't
-    legally "control" on its own. In practice a sanctioned director on a
-    company board creates sanctions exposure for the whole corporate
-    hierarchy, and we prefer to over-reach here rather than miss it.
+    Walks one step downward along ``Ownership``: ``owner → asset``.
     """
     if source_topics.isdisjoint(SANCTION_CONTROL_SEEDS):
         return
     if prop.reverse is None:
         return
-    descent_side = (adjacent.schema.name, prop.reverse.name)
-    if descent_side not in (("Ownership", "owner"), ("Directorship", "director")):
+    if adjacent.schema.name != "Ownership" or prop.reverse.name != "owner":
         return
     for target, _ in walk_edge(view, adjacent, prop):
         target_topics = non_graph_topics(context, target)
