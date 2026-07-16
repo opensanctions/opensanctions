@@ -11,53 +11,52 @@ from zavod.stateful.positions import categorise
 BASE_URL = "http://en.kremlin.ru"
 
 
-def apply_birth_details(
+# The biographical detail we extract, one entry per kind of line. Each line is
+# matched by a leading verb ("Born"/"Died") or an inline phrase ("... was born
+# ...", "... died on ..."), which avoids unrelated mentions such as a child's
+# "(born 1995)" or a relative's death. A birth line is expected for everyone, so
+# its absence is warned about; a death line only appears for the deceased.
+DETAILS = [
+    ("birth", "born", "was born", True),
+    ("death", "died", "died on", False),
+]
+
+
+def apply_details(
     context: Context, person: Entity, doc: etree._Element, url: str
 ) -> None:
     """Apply birth date/place and, for the deceased, death date from the biography.
 
     These details are only ever available as free-text prose, so rather than
-    parse them in code we route each raw line through the ``details`` lookup,
-    which maps an exact line to ISO date(s) and cleaned place name(s). A birth
-    line is expected for everyone (missing/ambiguous lines are warned about); a
-    death line only appears for the deceased. Unmatched lines are warned about
-    and left unset, never guessed at.
+    parse them in code we route each matched line through the ``details`` lookup,
+    which maps an exact line to ISO date(s) and cleaned place name(s). Unmatched
+    lines are warned about and left unset, never guessed at.
     """
     lines = [
         h.element_text(el)
         for el in h.xpath_elements(doc, ".//dl[@class='separate_dates']//dd")
     ]
 
-    # "born" also appears in unrelated lines (e.g. "...son, Ilya (born 1995)"),
-    # so only take a leading "Born ..." or a subject's "... was born ..." line.
-    born_lines = [
-        line
-        for line in lines
-        if line.lower().startswith("born") or "was born" in line.lower()
-    ]
-    if len(born_lines) == 0:
-        context.log.warning("No birth line found in biography", url=url)
-    elif len(born_lines) > 1:
-        context.log.warning("Multiple birth lines found in biography", url=url)
-    else:
-        result = context.lookup("details", born_lines[0], warn_unmatched=True)
-        if result is not None:
-            h.apply_date(person, "birthDate", result.birth_date)
-            person.add("birthPlace", result.birth_place)
-
-    # "died" can also refer to a relative, so only take a leading "Died ..." or a
-    # subject's "... died on ..." line.
-    died_lines = [
-        line
-        for line in lines
-        if line.lower().startswith("died") or "died on" in line.lower()
-    ]
-    if len(died_lines) > 1:
-        context.log.warning("Multiple death lines found in biography", url=url)
-    elif len(died_lines) == 1:
-        result = context.lookup("details", died_lines[0], warn_unmatched=True)
-        if result is not None:
-            h.apply_date(person, "deathDate", result.death_date)
+    for kind, verb, phrase, warn_missing in DETAILS:
+        matched = [
+            line
+            for line in lines
+            if line.lower().startswith(verb) or phrase in line.lower()
+        ]
+        if len(matched) == 0:
+            if warn_missing:
+                context.log.warning(f"No {kind} line found in biography", url=url)
+            continue
+        if len(matched) > 1:
+            context.log.warning(f"Multiple {kind} lines found in biography", url=url)
+            continue
+        result = context.lookup("details", matched[0], warn_unmatched=True)
+        if result is None:
+            continue
+        # A line only carries the fields for its kind; the rest are None no-ops.
+        h.apply_date(person, "birthDate", result.birth_date)
+        person.add("birthPlace", result.birth_place)
+        h.apply_date(person, "deathDate", result.death_date)
 
 
 def apply_biography(person: Entity, doc: etree._Element) -> None:
@@ -144,7 +143,7 @@ def crawl_person(context: Context, person_id: str) -> None:
     # occupancy created in crawl_position.
     person.add("topics", "poi")
 
-    apply_birth_details(context, person, doc, url)
+    apply_details(context, person, doc, url)
     apply_biography(person, doc)
     crawl_position(context, person, doc, url)
 
