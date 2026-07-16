@@ -37,7 +37,8 @@ tags:
   - target.ru
 
 lookups:
-  birth:
+  details:
+    lowercase: true
     options:
       - match: "Born September 14, 1965, in Leningrad."
         birth_date: "1965-09-14"
@@ -204,6 +205,16 @@ lookups:
       - match: "Born on March 1, 1956, in Perm, to a family of oil industry workers."
         birth_date: "1956-03-01"
         birth_place: "Perm"
+      - match: 'vladimir putin was born in leningrad on october 7, 1952.'
+        birth_date: "1952-10-07"
+        birth_place: "Leningrad"
+      - match: 'mr yeltsin was born on february 1, 1931, in sverdlovsk region.'
+        birth_date: "1931-02-01"
+        birth_place: "Sverdlovsk Region"
+      - match: 'boris yeltsin died on april 23 of a heart attack.'
+        death_date: "2007-04-23"
+      - match: 'died on november 3, 2010.'
+        death_date: "2010-11-03"
 assertions:
   min:
     schema_entities:

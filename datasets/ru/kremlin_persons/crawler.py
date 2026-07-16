@@ -9,38 +9,55 @@ from zavod.extract import zyte_api
 from zavod.stateful.positions import categorise
 
 BASE_URL = "http://en.kremlin.ru"
-# A former/deceased person's last position is suffixed with the years they held it,
-# e.g. "Adviser to the President of the Russian Federation (2009 - 2010)".
-DATE_RANGE = re.compile(r"^(.*?)\s*\((\d{4})\s*-\s*(\d{4})\)\s*$")
 
 
 def apply_birth_details(
     context: Context, person: Entity, doc: etree._Element, url: str
 ) -> None:
-    """Apply birth date and place from the biography's leading "Born ..." line.
+    """Apply birth date/place and, for the deceased, death date from the biography.
 
-    Birth details are only ever available as free-text prose, so rather than
-    parse them in code we route the raw line through the ``birth`` lookup, which
-    maps each exact line to an ISO date and cleaned place name(s). Unmatched
-    lines are warned about and left unset, never guessed at.
+    These details are only ever available as free-text prose, so rather than
+    parse them in code we route each raw line through the ``details`` lookup,
+    which maps an exact line to ISO date(s) and cleaned place name(s). A birth
+    line is expected for everyone (missing/ambiguous lines are warned about); a
+    death line only appears for the deceased. Unmatched lines are warned about
+    and left unset, never guessed at.
     """
-    born_lines = [
-        text
+    lines = [
+        h.element_text(el)
         for el in h.xpath_elements(doc, ".//dl[@class='separate_dates']//dd")
-        if (text := h.element_text(el)).startswith("Born")
+    ]
+
+    # "born" also appears in unrelated lines (e.g. "...son, Ilya (born 1995)"),
+    # so only take a leading "Born ..." or a subject's "... was born ..." line.
+    born_lines = [
+        line
+        for line in lines
+        if line.lower().startswith("born") or "was born" in line.lower()
     ]
     if len(born_lines) == 0:
         context.log.warning("No birth line found in biography", url=url)
-        return
-    if len(born_lines) > 1:
+    elif len(born_lines) > 1:
         context.log.warning("Multiple birth lines found in biography", url=url)
-        return
+    else:
+        result = context.lookup("details", born_lines[0], warn_unmatched=True)
+        if result is not None:
+            h.apply_date(person, "birthDate", result.birth_date)
+            person.add("birthPlace", result.birth_place)
 
-    result = context.lookup("birth", born_lines[0], warn_unmatched=True)
-    if result is None:
-        return
-    h.apply_date(person, "birthDate", result.birth_date)
-    person.add("birthPlace", result.birth_place)
+    # "died" can also refer to a relative, so only take a leading "Died ..." or a
+    # subject's "... died on ..." line.
+    died_lines = [
+        line
+        for line in lines
+        if line.lower().startswith("died") or "died on" in line.lower()
+    ]
+    if len(died_lines) > 1:
+        context.log.warning("Multiple death lines found in biography", url=url)
+    elif len(died_lines) == 1:
+        result = context.lookup("details", died_lines[0], warn_unmatched=True)
+        if result is not None:
+            h.apply_date(person, "deathDate", result.death_date)
 
 
 def apply_biography(person: Entity, doc: etree._Element) -> None:
@@ -74,45 +91,25 @@ def crawl_position(
     (as persons of interest by the caller); only one non-foreign title produces
     a Position and PEP Occupancy.
     """
-    title_elements = h.xpath_elements(doc, ".//*[@itemprop='jobTitle']")
-    if len(title_elements) == 0:
+    title_element = h.xpath_elements(
+        doc, ".//div[@class='persona__info']//div[@itemprop='jobTitle']"
+    )
+    if len(title_element) == 0:
         return
-    if len(title_elements) > 1:
-        context.log.warning("Multiple job titles found", url=url)
-        return
-    raw_title = h.element_text(title_elements[0]).replace("\xa0", " ").strip()
-
-    range_match = DATE_RANGE.match(raw_title)
-    if range_match:
-        title, start_date, end_date = (
-            range_match.group(1),
-            range_match.group(2),
-            range_match.group(3),
-        )
-    else:
-        title, start_date, end_date = raw_title, None, None
-
+    position_title = h.element_text(title_element[0])
     # Only Russian-state figures get a narrative biography here; foreign leaders
     # get an events-only page and are never crawled.
     position = h.make_position(
         context,
-        name=title,
+        name=position_title,
         country="ru",
     )
-    categorisation = categorise(context, position)
+    categorisation = categorise(context, position, default_is_pep=None)
     if categorisation.is_pep is not True:
         return
 
     occupancy = h.make_occupancy(
-        context,
-        person,
-        position,
-        categorisation=categorisation,
-        start_date=start_date,
-        end_date=end_date,
-        # An undated title reliably means "currently held" here: departed and
-        # deceased officials get either a trailing year range or no title at all.
-        no_end_implies_current=True,
+        context, person, position, categorisation=categorisation
     )
     if occupancy is not None:
         context.emit(position)
