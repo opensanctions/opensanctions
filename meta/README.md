@@ -63,9 +63,13 @@ from an earlier metadata system.
 - `aliases`: List alternative program names, legal citations, resolutions, and
   well-established abbreviations. Do not use aliases for names of designated
   entities.
-- `target_territories`: List lowercase ISO 3166-1 alpha-2 codes for territories
-  targeted by a geographic regime. Omit this field for thematic programs that
-  target people or entities regardless of geography.
+- `target_territories`: List lowercase territory codes for the territories a
+  regime is directed at. Codes are validated against rigour's territory
+  registry, which extends ISO 3166-1 alpha-2 with historical entities (e.g.
+  `csxx` for Serbia and Montenegro) and the pseudo-territories `zz` (global)
+  and `ip` (cyberspace). Use `zz` when worldwide reach is a defining feature
+  of a thematic program, and `ip` for regimes aimed at cyber activity. Omit
+  the field when geography says nothing useful about the program.
 - `measures`: Use the controlled vocabulary to describe the operative legal
   effects of the program. See the measures policy below.
 
