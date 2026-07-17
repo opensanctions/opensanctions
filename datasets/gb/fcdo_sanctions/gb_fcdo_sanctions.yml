@@ -304,6 +304,12 @@ lookups:
         value: "T710219"
   reg_number:
     options:
+      - match: " Unknown commercial register ID: 1489833Unknown chamber of commerce ID: 337486Cedar Rose internal identifier: AEC222397594Alternative Cedar rose number: 0119786794"
+        props:
+          registrationNumber: ["1489833", "337486", "AEC222397594", "0119786794"]
+      - match: "Unknown Chamber of commerce ID: 327399 Unknown Commercial register ID: 1563678 Orbis ID: 482272018 "
+        props:
+          registrationNumber: ["1563678", "327399", "482272018"]
       - match: "Registration Number: J8AQG9ZH6CA3"
         props:
           registrationNumber: "J8AQG9ZH6CA3"
@@ -1454,6 +1460,8 @@ lookups:
           - "5610083568"
           - "1521418"
           - "97947 "
+          - "40411"
+          - "5219"
         value: SAME
       - match: "'0012021"
         props:
@@ -2338,6 +2346,10 @@ lookups:
         values:
           - Organisation for Technological Industries (OTI)
           - Syrian Ministry of Defence
+      - match: 82% owned by Rida Engineering and 18% owned by the state-owned Sudamin Mining Company.
+        values:
+          - Rida Engineering
+          - Sudamin Mining Company
       - match: "Carrier Tanker Inc, Fornax Ship Management"
         values:
           - Carrier Tanker Inc
