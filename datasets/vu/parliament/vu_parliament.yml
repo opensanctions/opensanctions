@@ -1,0 +1,48 @@
+title: Vanuatu Parliament
+name: vu_parliament
+prefix: vu-parl
+entry_point: crawler.py
+coverage:
+  frequency: monthly
+  start: 2026-07-17
+load_statements: true
+ci_test: false
+summary: >-
+  Members of the Parliament of the Republic of Vanuatu, the unicameral national
+  legislature.
+description: |
+  The Parliament of Vanuatu is the country's unicameral national legislature. Its members
+  are directly elected from multi- and single-member constituencies for four-year terms,
+  though the composition changes frequently through motions of no confidence and
+  by-elections.
+
+  This dataset records each sitting member with their name, constituency and political
+  party as published in the official members roster.
+url: https://parliament.gov.vu/
+publisher:
+  name: Parliament of the Republic of Vanuatu
+  description: >
+    The Parliament of Vanuatu is the unicameral legislature of the Republic of Vanuatu,
+    made up of members elected from constituencies across the archipelago.
+  url: https://parliament.gov.vu/
+  country: vu
+  official: true
+data:
+  url: https://parliament.gov.vu/index.php/mp-electorates/members-of-14th-legislature
+  format: HTML
+  lang: eng
+
+tags:
+  - list.pep
+
+assertions:
+  min:
+    schema_entities:
+      Person: 40
+      Position: 1
+    country_entities:
+      vu: 40
+  max:
+    schema_entities:
+      Person: 65
+      Position: 1
