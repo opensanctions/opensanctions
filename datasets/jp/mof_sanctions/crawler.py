@@ -113,17 +113,6 @@ def parse_names(names: List[str]) -> List[str]:
     return cleaned
 
 
-def split_english_names(names: List[str]) -> tuple[List[str], List[str]]:
-    """Split the English-column values into truly-English names and others.
-
-    The source's English name column sometimes appends the original-script name
-    (e.g. the Arabic script version) after the English transliteration. Only the
-    first value is reliably in English; the remainder are language-undetermined
-    and should not be tagged as English.
-    """
-    return names[:1], names[1:]
-
-
 def parse_notes(context: Context, entity: Entity, notes: List[str]) -> None:
     for note in notes:
         cryptos = h.extract_cryptos(note)
@@ -175,18 +164,14 @@ def emit_row(
     raw_old_name = row.pop("old_name", [])
     raw_weak_alias = row.pop("weak_alias", [])
     raw_nickname = row.pop("nickname", [])
-    english_first, english_rest = split_english_names(name_english)
-    entity.add("name", parse_names(english_first), lang="eng")
-    entity.add("name", parse_names(english_rest))
+    entity.add("name", parse_names(name_english))
     entity.add("name", parse_names(name_japanese))
     entity.add("alias", parse_names(h.multi_split(raw_alias, ALIAS_SPLITS)))
     entity.add("alias", parse_names(raw_known_alias))
     entity.add("previousName", parse_names(raw_past_alias))
     entity.add("previousName", parse_names(raw_old_name))
     original = h.Names()
-    for n in english_first:
-        original.add("name", n, lang="eng")
-    for n in english_rest:
+    for n in name_english:
         original.add("name", n)
     for n in name_japanese:
         original.add("name", n, lang="jpn")
@@ -197,9 +182,7 @@ def emit_row(
     for n in chain(raw_weak_alias, raw_nickname):
         original.add("weakAlias", n)
     suggested = h.Names()
-    for n in parse_names(english_first):
-        suggested.add("name", n, lang="eng")
-    for n in parse_names(english_rest):
+    for n in parse_names(name_english):
         suggested.add("name", n)
     for n in parse_names(name_japanese):
         suggested.add("name", n, lang="jpn")
