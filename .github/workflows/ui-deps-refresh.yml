@@ -54,7 +54,7 @@ jobs:
       - name: Build
         run: npm run build
       - name: Create pull request
-        uses: peter-evans/create-pull-request@v7
+        uses: peter-evans/create-pull-request@v8
         with:
           branch: chore/ui-deps-refresh
           delete-branch: true
