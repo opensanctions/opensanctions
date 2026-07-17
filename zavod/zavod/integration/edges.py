@@ -23,6 +23,7 @@ from datetime import date
 from typing import NamedTuple
 
 from nomenklatura import Resolver
+from nomenklatura.db import Session
 from nomenklatura.judgement import Judgement
 from nomenklatura.resolver import Identifier
 from normality import slugify
@@ -357,11 +358,20 @@ def group_edges(view: View) -> list[list[str]]:
 
 
 def merge_groups(
-    resolver: Resolver[Entity], view: View, groups: list[list[str]]
+    resolver: Resolver[Entity],
+    session: Session,
+    view: View,
+    groups: list[list[str]],
+    commit_every: int = 500,
 ) -> None:
-    """Write positive resolver decisions for deduped edge groups."""
+    """Write positive resolver decisions for deduped edge groups.
+
+    Decisions are committed in batches of ``commit_every`` so a large run does
+    not hold one long-lived transaction; the caller's final commit persists the
+    remainder."""
     merged_count = 0
     cluster_count = 0
+    uncommitted = 0
     dataset_counts: dict[str, int] = defaultdict(int)
 
     for values in groups:
@@ -392,16 +402,21 @@ def merge_groups(
             ).id
 
             merged_count += 1
+            uncommitted += 1
             for dataset in other.datasets:
                 dataset_counts[dataset] += 1
 
         cluster_count += 1
+        if uncommitted >= commit_every:
+            session.checkpoint()
+            log.info("Committed %s merge decisions..." % merged_count)
+            uncommitted = 0
     log.info("Merged %s edge entities into %s clusters" % (merged_count, cluster_count))
     for dataset, count in dataset_counts.items():
         log.info("Merged %s edges in dataset %s" % (count, dataset))
 
 
-def dedupe_edges(resolver: Resolver[Entity], view: View) -> None:
+def dedupe_edges(resolver: Resolver[Entity], session: Session, view: View) -> None:
     """Deduplicate edge entities from a store view into resolver decisions."""
     groups = group_edges(view)
-    merge_groups(resolver, view, groups)
+    merge_groups(resolver, session, view, groups)

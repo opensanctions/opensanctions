@@ -204,7 +204,7 @@ def dedupe_edges(dataset_paths: List[Path], rebuild_store: bool = False) -> None
             resolver.load_into_memory()
             store = get_store(dataset, resolver)
             store.sync(clear=rebuild_store)
-            edges.dedupe_edges(resolver, store.view(dataset, external=True))
+            edges.dedupe_edges(resolver, session, store.view(dataset, external=True))
     except Exception:
         log.exception("Failed to dedupe edge entities: %r" % dataset_paths)
         sys.exit(1)
