@@ -490,11 +490,13 @@ def fetch_html(
                 actions,
                 html_source=html_source,
                 javascript=javascript,
+                geolocation=geolocation,
                 request_cookies=request_cookies,
                 cache_days=cache_days,
                 retries=retries,
                 backoff_factor=backoff_factor,
                 previous_retries=previous_retries + 1,
+                absolute_links=absolute_links,
             )
         context.log.debug("Unblocking failed", url=url, html=zyte_result.response_text)
         raise UnblockFailedException(url, unblock_validator)
