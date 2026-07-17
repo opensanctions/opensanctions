@@ -41,17 +41,19 @@ dates:
 tags:
   - list.pep
 
-# The most common honorifics and courtesy titles
+# Honorifics and courtesy titles that need stripping.
+# "@" marks an alias ("atau") embedded in the name.
 names:
   schema_rules:
     Person:
+      reject_chars: "@"
       reject_strings:
         - "Berhormat "
         - "Seri"
         - "Sri"
         - "YAB"
         - "YB"
-        - "Datuk "
+        - "Datuk"
         - "Dato"
         - "Datin"
         - "Tuan"
@@ -64,6 +66,8 @@ names:
         - "Prof."
         - "Ir."
         - "Ts."
+        - "Senator"
+        - "Hon."
 
 lookups:
   # "Position in the Parliament" names a presiding office for a handful of
