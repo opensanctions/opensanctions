@@ -11,7 +11,7 @@ from zavod.util import Element
 log = get_logger(__name__)
 
 
-BR_RE = re.compile(r"<(br|p)\s*/?>", re.IGNORECASE)
+BR_RE = re.compile(r"</?(?:br|p)\s*/?>", re.IGNORECASE)
 
 
 def element_text(el: Element | None, squash: bool = True) -> str:
@@ -215,8 +215,8 @@ def xpath_string(el: Element, xpath: str) -> str:
 
 def split_html_newline_tags(string: str) -> List[str]:
     """
-    Split a string on HTML <br> tags, returning a list of strings.
+    Split a string on HTML <br> and <p> tags, returning a list of strings.
 
-    Non-empty strings will not be returned.
+    Empty and whitespace-only strings are dropped from the result.
     """
     return [s for s in BR_RE.split(string) if s.strip()]
