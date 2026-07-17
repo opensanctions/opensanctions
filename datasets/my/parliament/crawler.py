@@ -1,18 +1,17 @@
 import re
 from typing import Iterator
 
-import urllib3
-
-from zavod import Context
-from zavod import helpers as h
 from zavod.entity import Entity
 from zavod.stateful.positions import PositionCategorisation, categorise
 from zavod.stateful.review import assert_all_accepted
 
-# The parliament portal serves an incomplete TLS certificate chain, which makes
-# the default `requests` verification fail. Disabling verification is acceptable
-# here: the source is a public government site and there is no login or secret.
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+from zavod import Context
+from zavod import helpers as h
+
+# Chamber roster pages. `lang=en` yields English field labels on the linked
+# detail pages (see `parse_detail`).
+RAKYAT_URL = "https://www.parlimen.gov.my/ahli-dewan.html?uweb=dr&lang=en"
+NEGARA_URL = "https://www.parlimen.gov.my/ahli-dewan-dn.html?uweb=dn&lang=en"
 
 # Minimum roster sizes
 DEWAN_RAKYAT_MIN = 180
@@ -90,12 +89,14 @@ def constituency_name(data: dict[str, str]) -> str | None:
     return ", ".join(labels)
 
 
-def make_member(context: Context, member_id: str, name: str, url: str) -> Entity:
-    """Build the Person shared by both houses (id, name, source, citizenship)."""
-    person = context.make("Person")
-    person.id = context.make_slug(member_id)
+def apply_member_details(
+    context: Context, person: Entity, data: dict[str, str], url: str
+) -> None:
+    """Populate the fields shared by both houses on an already-created person.
+
+    Consumes the `Name`, `Party` and `Email` entries from the detail table."""
     h.apply_reviewed_name_string(
-        context, person, string=name, llm_cleaning=True, lang="msa"
+        context, person, string=data.pop("Name"), llm_cleaning=True, lang="msa"
     )
     person.add("sourceUrl", url)
     # Membership of either house of Parliament requires Malaysian citizenship
@@ -103,7 +104,10 @@ def make_member(context: Context, member_id: str, name: str, url: str) -> Entity
     # are likewise Malaysian office holders):
     # https://lom.agc.gov.my/ (Laws of Malaysia — Federal Constitution)
     person.add("citizenship", "my")
-    return person
+    party = data.pop("Party", None)
+    if party != "BEBAS":  # BEBAS marks an independent, not a party affiliation
+        person.add("political", party)
+    person.add("email", h.multi_split(data.pop("Email", ""), ["/", ",", ";"]))
 
 
 def emit_occupancy(
@@ -190,11 +194,9 @@ def crawl_representative(
 ) -> None:
     data = parse_detail(context, url)
 
-    person = make_member(context, member_id, data.pop("Name"), url)
-    party = data.pop("Party", None)
-    if party != "BEBAS":  # BEBAS marks an independent, not a party affiliation
-        person.add("political", party)
-    person.add("email", h.multi_split(data.pop("Email", ""), ["/", ",", ";"]))
+    person = context.make("Person")
+    person.id = context.make_slug(member_id)
+    apply_member_details(context, person, data, url)
 
     # `Parliament` is the constituency code; its presence marks an elected MP.
     # A member with a constituency (P-code) is an elected MP holding the shared
@@ -243,11 +245,9 @@ def crawl_senator(
 ) -> None:
     data = parse_detail(context, url)
 
-    person = make_member(context, senator_id, data.pop("Name"), url)
-    party = data.pop("Party", None)
-    if party != "BEBAS":  # BEBAS marks an independent, not a party affiliation
-        person.add("political", party)
-    person.add("email", h.multi_split(data.pop("Email", ""), ["/", ",", ";"]))
+    person = context.make("Person")
+    person.id = context.make_slug(senator_id)
+    apply_member_details(context, person, data, url)
 
     # Every listed person holds the shared Member seat. The senate term (and any
     # reappointment for a second term) give the occupancy dates.
@@ -316,9 +316,7 @@ def crawl_rakyat(context: Context) -> None:
     if rakyat_categorisation.is_pep:
         context.emit(rakyat_position)
 
-    for member_id, url in iter_member_links(
-        context, context.data_url + "ahli-dewan.html?uweb=dr&lang=en", DEWAN_RAKYAT_MIN
-    ):
+    for member_id, url in iter_member_links(context, RAKYAT_URL, DEWAN_RAKYAT_MIN):
         crawl_representative(
             context, member_id, url, rakyat_position, rakyat_categorisation
         )
@@ -337,11 +335,7 @@ def crawl_negara(context: Context) -> None:
     if negara_categorisation.is_pep:
         context.emit(negara_position)
 
-    for member_id, url in iter_member_links(
-        context,
-        context.data_url + "ahli-dewan-dn.html?uweb=dn&lang=en",
-        DEWAN_NEGARA_MIN,
-    ):
+    for member_id, url in iter_member_links(context, NEGARA_URL, DEWAN_NEGARA_MIN):
         crawl_senator(context, member_id, url, negara_position, negara_categorisation)
 
 
