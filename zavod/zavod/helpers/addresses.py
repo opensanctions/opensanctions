@@ -184,10 +184,12 @@ def make_address(
     if country_code is None:
         country_code = registry.country.clean(full)
 
-    # If both fields carry the same value, keep only the state so that no
-    # rendering path can duplicate it (e.g. "Aleppo, Aleppo"):
-    if region is not None and state is not None and region == state:
-        region = None
+    # If both fields carry the same value, suppress the region only for
+    # rendering to avoid duplication (e.g. "Aleppo, Aleppo"), while keeping
+    # the original region value for provenance in the emitted Address entity.
+    region_for_display = (
+        None if (region is not None and state is not None and region == state) else region
+    )
 
     full_origin = origin
     if not full:
@@ -198,7 +200,7 @@ def make_address(
             postal_code=postal_code,
             city=city,
             state=state,
-            state_district=region,
+            state_district=region_for_display,
             country=country,
             country_code=country_code,
         )
@@ -214,7 +216,7 @@ def make_address(
                 postal_code=postal_code,
                 city=city,
                 state=state,
-                state_district=join_text(region, state, sep=", "),
+                state_district=join_text(region_for_display, state, sep=", "),
                 country=country,
                 country_code=country_code,
             )
