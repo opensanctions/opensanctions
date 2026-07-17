@@ -15,6 +15,24 @@ NEGARA_URL = "https://www.parlimen.gov.my/ahli-dewan-dn.html?uweb=dn&lang=en"
 
 DEFAULT_PARLIAMENT_TOPICS = ["gov.legislative", "gov.national"]
 
+REPRESENTATIVE_IGNORE = [
+    "Seat Number",
+    "Phone Number",
+    "Fax No.",
+    "Social Media",
+    "Mailing Address",
+    "Area",
+    "State",
+]
+SENATOR_IGNORE = [
+    "Appointment",
+    "State",
+    "Phone Number",
+    "Fax No.",
+    "Social Media",
+    "Mailing Address",
+]
+
 
 def parse_detail(context: Context, url: str) -> dict[str, str]:
     """Return the label -> value pairs of a member's `MAKLUMAT` info table.
@@ -172,18 +190,7 @@ def crawl_representative(
         return
     emit_cabinet(context, person, data.pop("Position in Cabinet", None))
 
-    context.audit_data(
-        data,
-        ignore=[
-            "Seat Number",
-            "Phone Number",
-            "Fax No.",
-            "Social Media",
-            "Mailing Address",
-            "Area",
-            "State",
-        ],
-    )
+    context.audit_data(data, ignore=REPRESENTATIVE_IGNORE)
 
 
 def crawl_senator(
@@ -221,17 +228,7 @@ def crawl_senator(
     emit_officer(context, person, url, data.pop("Position in the Parliament", None))
     emit_cabinet(context, person, data.pop("Position in Cabinet", None))
 
-    context.audit_data(
-        data,
-        ignore=[
-            "Appointment",
-            "State",
-            "Phone Number",
-            "Fax No.",
-            "Social Media",
-            "Mailing Address",
-        ],
-    )
+    context.audit_data(data, ignore=SENATOR_IGNORE)
 
 
 def iter_member_links(context: Context, roster_url: str) -> Iterator[tuple[str, str]]:
