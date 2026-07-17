@@ -1,18 +1,51 @@
 id: 21
-title: 'Iran Sanctions '
+title: Iran Sanctions
 key: US-IRAN
 url: https://ofac.treasury.gov/sanctions-programs-and-country-information/iran-sanctions
-summary: These sanctions target the Iranian government and entities involved in nuclear
-  proliferation, terrorism, human rights abuses, and other destabilizing activities.
-  The comprehensive measures include asset freezes, prohibitions on transactions,
-  and restrictions on trade to pressure Iran to comply with international norms and
-  agreements. (EO 13949, EO 13902, EO 13876, EO 13871, EO 13846, EO 13608, EO 13606,
-  EO 13599, EO 13553, EO 13059, EO 12595, EO 12957, EO 12613, EO 12294, EO 12284,
-  EO 12283, EO 12281, EO 12280, EO 12279, EO 12278, EO 12277, EO 12276, EO 12211,
-  EO 12205, EO 12170)
+summary: Combines a comprehensive embargo on Iran with designation-based blocking
+  sanctions. The Iranian Transactions and Sanctions Regulations prohibit most US
+  trade with Iran, including imports of Iranian-origin goods, exports of goods
+  and services to Iran, and new investment in Iran. Designations target the
+  Government of Iran, Iranian financial institutions, the Islamic Revolutionary
+  Guard Corps, and persons involved in Iran's petroleum, petrochemical, metals,
+  and financial sectors, conventional arms activity, or serious human rights
+  abuses; designated persons are subject to an asset freeze and, under several
+  authorities, barred from entry into the United States. Foreign financial
+  institutions that knowingly facilitate significant transactions for designated
+  persons or sanctioned sectors risk losing access to US correspondent accounts.
 issuer: us_ofac
 dataset: us_ofac_sdn
 aliases:
-- EO 13949
+  - Iranian Transactions and Sanctions Regulations
+  - ITSR
+  - 31 CFR Part 560
+  - Iranian Financial Sanctions Regulations
+  - 31 CFR Part 561
+  - Iran Sanctions Act
+  - CISADA
+  - EO 13599
+  - EO 13846
+  - EO 13876
+  - EO 13902
+  - EO 13949
+  - IRAN
+  - IRAN-HR
+  - IRAN-TRA
+  - IRAN-CON-ARMS-EO
+  - IRAN-EO13846
+  - IRAN-EO13871
+  - IRAN-EO13876
+  - IRAN-EO13902
+  - HRIT-IR
+  - IFSR
+  - IRGC
+  - ISA
 target_territories:
-- ir
+  - ir
+measures:
+  - Asset freeze
+  - Import restrictions
+  - Export control
+  - Investment ban
+  - Financial restrictions
+  - Travel ban

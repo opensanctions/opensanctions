@@ -2,13 +2,27 @@ id: 19
 title: Hong Kong-Related Sanctions
 key: US-HONGKONG
 url: https://ofac.treasury.gov/sanctions-programs-and-country-information/hong-kong-related-sanctions
-summary: These sanctions target individuals and entities responsible for undermining
-  Hong Kong's autonomy and democratic processes. The measures include asset freezes
-  and transaction prohibitions to pressure China to uphold its commitments under the
-  Sino-British Joint Declaration and protect Hong Kong's freedoms.
+summary: Targeted foreign persons determined to undermine Hong Kong's autonomy
+  or the freedoms of its residents, including officials involved in developing
+  and implementing the national security law, under Executive Order 13936 and
+  the Hong Kong Autonomy Act. Designated persons had their US assets blocked
+  and designated individuals were barred from entry into the United States.
+  The national emergency declared in EO 13936 expired on July 14, 2026;
+  persons blocked solely under the order have been removed from the SDN List,
+  while persons who remain sanctioned under the Hong Kong Autonomy Act have
+  been moved to the Non-SDN Menu-Based Sanctions List, with assets blocked
+  before that date remaining blocked.
 issuer: us_ofac
 dataset: us_ofac_sdn
 aliases:
-- EO 13936
+  - EO 13936
+  - HK-EO13936
+  - Hong Kong Autonomy Act
+  - HKAA
+  - Hong Kong-Related Sanctions Regulations
+  - 31 CFR Part 585
 target_territories:
-- hk
+  - hk
+measures:
+  - Asset freeze
+  - Travel ban

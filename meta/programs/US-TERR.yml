@@ -2,16 +2,22 @@ id: 12
 title: Counter Terrorism
 key: US-TERR
 url: https://ofac.treasury.gov/sanctions-programs-and-country-information/counter-terrorism-sanctions
-summary: These sanctions target individuals and entities involved in terrorism and
-  related activities. The executive orders empower the U.S. government to block assets
-  and prohibit transactions with designated terrorists and their supporters to prevent
-  and disrupt terrorist activities and funding.
+summary: Targets foreign individuals and entities determined to have committed
+  or to pose a significant risk of committing acts of terrorism, along with
+  their leaders, agents, financiers, and material supporters. Designated
+  persons, most of them listed as Specially Designated Global Terrorists,
+  have their assets within US jurisdiction blocked, and US persons are
+  prohibited from transacting with them.
 issuer: us_ofac
 dataset: us_ofac_sdn
 aliases:
-- EO 13886
-- EO 13372
-- EO 13268
-- EO 13224
-- EO 13099
-- EO 12947
+  - SDGT
+  - Specially Designated Global Terrorist
+  - EO 13886
+  - EO 13372
+  - EO 13268
+  - EO 13224
+  - EO 13099
+  - EO 12947
+measures:
+  - Asset freeze

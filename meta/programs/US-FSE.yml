@@ -2,13 +2,25 @@ id: 49
 title: Foreign Sanctions Evaders (FSE) List
 key: US-FSE
 url: https://ofac.treasury.gov/other-ofac-sanctions-lists
-summary: This list, maintained by OFAC, includes individuals and entities that have
-  engaged in activities to evade U.S. sanctions. The measures include asset freezes
-  and prohibitions on transactions to enforce U.S. sanctions programs and prevent
-  these actors from undermining U.S. foreign policy objectives.
+summary: Targets foreign individuals and entities determined to have violated,
+  attempted to violate, conspired to violate, or caused a violation of US
+  sanctions on Iran or Syria, or to have facilitated deceptive transactions
+  for persons subject to those sanctions. US persons are generally prohibited
+  from all transactions or dealings with listed persons in goods, services, or
+  technology in or intended for the United States or provided by or to US
+  persons, and designated natural persons are barred from entry into the
+  United States. Listing does not itself block a person's property, although
+  listed persons may also be blocked under other authorities.
 issuer: us_ofac
 dataset: us_ofac_cons
 aliases:
-- EO 13608
+  - EO 13608
+  - FSE List
+  - List of Foreign Sanctions Evaders
+  - FSE-IR
+  - FSE-SY
 target_territories:
-- zz
+  - zz
+measures:
+  - Financial restrictions
+  - Travel ban

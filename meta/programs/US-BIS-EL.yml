@@ -1,18 +1,19 @@
 id: 2
 title: BIS Entity List (EL)
 key: US-BIS-EL
-url: https://www.bis.doc.gov/index.php/policy-guidance/lists-of-parties-of-concern/entity-list
-summary: The Export Administration Regulations (EAR) contain a list of names of certain
-  foreign persons – including businesses, research institutions, government and private
-  organizations, individuals, and other types of legal persons – that are subject
-  to specific license requirements for the export, reexport and/or transfer (in-country)
-  of specified items. These persons comprise the Entity List, which is found in Supplement
-  No. 4 to Part 744 of the EAR. On an individual basis, the persons on the Entity
-  List are subject to licensing requirements and policies supplemental to those found
-  elsewhere in the EAR.
+url: https://www.ecfr.gov/current/title-15/subtitle-B/chapter-VII/subchapter-C/part-744/appendix-Supplement%20No.%204%20to%20Part%20744
+summary: Lists foreign businesses, research institutions, government and private
+  organizations, and individuals reasonably believed to be involved, or to pose a
+  significant risk of becoming involved, in activities contrary to the national
+  security or foreign policy interests of the United States. Exports, reexports,
+  and in-country transfers of items subject to the Export Administration
+  Regulations to a listed party require a license from the Bureau of Industry and
+  Security, and most license exceptions are unavailable. The items covered and
+  the license review policy vary by entry.
 issuer: us_bis
 dataset: us_trade_csl
 aliases:
-- Supplement No. 4 to Part 744 of the EAR
+  - Entity List
+  - Supplement No. 4 to Part 744 of the EAR
 measures:
-- Export control
+  - Export control

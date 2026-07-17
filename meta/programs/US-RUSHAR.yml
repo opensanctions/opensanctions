@@ -2,17 +2,37 @@ id: 31
 title: Russian Harmful Foreign Activities Sanctions
 key: US-RUSHAR
 url: https://ofac.treasury.gov/sanctions-programs-and-country-information/russian-harmful-foreign-activities-sanctions
-summary: 'These sanctions target individuals and entities involved in activities that
-  undermine democratic processes and institutions, human rights abuses, and destabilizing
-  activities related to Russia. The measures include asset freezes and prohibitions
-  on transactions to counter Russia''s harmful foreign activities and support global
-  security.
-
-
-  (EO 14114, EO 14071, EO 14068, EO 14066, EO 14039, EO 14024)'
+summary: Targets persons responsible for or supporting specified harmful
+  foreign activities of the Russian government, including election
+  interference, malicious cyber activity, transnational corruption, and the
+  invasion of Ukraine, and extends to persons operating in sectors of the
+  Russian economy such as finance, defence, and technology. Designated persons
+  have their US assets frozen and US persons may not deal with them. The
+  program also imposes country-wide prohibitions, including bans on imports of
+  Russian energy products, seafood, diamonds, and gold, on new investment in
+  Russia, on exports of luxury goods, and on providing accounting, management
+  consulting, and certain other professional services to Russia. Directives
+  further restrict dealings in Russian sovereign debt and transactions with
+  major Russian financial institutions, including the Central Bank.
 issuer: us_ofac
 dataset: us_ofac_sdn
 aliases:
-- EO 14114 et al.
+  - EO 14024
+  - EO 14039
+  - EO 14066
+  - EO 14068
+  - EO 14071
+  - EO 14114
+  - RUSSIA-EO14024
+  - PEESA-EO14039
+  - PEESA
+  - 31 CFR Part 587
 target_territories:
-- ru
+  - ru
+measures:
+  - Asset freeze
+  - Financial restrictions
+  - Import restrictions
+  - Export control
+  - Investment ban
+  - Services ban

@@ -2,15 +2,43 @@ id: 30
 title: North Korea Sanctions
 key: US-NK
 url: https://ofac.treasury.gov/sanctions-programs-and-country-information/north-korea-sanctions
-summary: "These sanctions target the North Korean government and entities involved\
-  \ in nuclear proliferation, human rights abuses, and other destabilizing activities.\
-  \ The comprehensive measures include asset freezes, prohibitions on transactions,\
-  \ and restrictions on trade to pressure North Korea to comply with international\
-  \ norms and agreement.\n\n (EO 13810, EO 13722, EO 13687, EO 13570, EO 13551, EO\
-  \ 13466)"
+summary: Combines a comprehensive embargo on North Korea with designation-based
+  blocking sanctions. The North Korea Sanctions Regulations block the
+  Government of North Korea and the Workers' Party of Korea and prohibit most
+  US trade with the country, including imports of North Korean goods, services,
+  and technology, exports to North Korea, and new investment there.
+  Designations target persons involved in North Korea's weapons programmes,
+  arms trade, sanctions evasion, overseas labour exports, and revenue
+  generation for the government; designated persons are subject to an asset
+  freeze and barred from entry into the United States. Further measures bar
+  vessels and aircraft that have recently visited North Korea from the United
+  States and cut off foreign financial institutions that facilitate North
+  Korean transactions from US correspondent accounts.
 issuer: us_ofac
 dataset: us_ofac_sdn
 aliases:
-- EO 13810 et al.
+  - North Korea Sanctions Regulations
+  - 31 CFR Part 510
+  - EO 13466
+  - EO 13551
+  - EO 13570
+  - EO 13687
+  - EO 13722
+  - EO 13810
+  - North Korea Sanctions and Policy Enhancement Act of 2016
+  - NKSPEA
+  - DPRK
+  - DPRK2
+  - DPRK3
+  - DPRK4
+  - DPRK-NKSPEA
 target_territories:
-- kp
+  - kp
+measures:
+  - Asset freeze
+  - Import restrictions
+  - Export control
+  - Investment ban
+  - Financial restrictions
+  - Transportation restrictions
+  - Travel ban

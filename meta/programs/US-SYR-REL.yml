@@ -1,22 +1,29 @@
 id: 36
-title: Syria-Related Sanctions (EO 13894)
+title: Promoting Accountability for Assad and Regional Stabilization Sanctions (PAARSS)
 key: US-SYR-REL
-url: https://ofac.treasury.gov/sanctions-programs-and-country-information/syria-related-sanctions
-summary: 'These sanctions target individuals and entities involved in obstructing
-  a political solution to the conflict in Syria, committing human rights abuses, or
-  supporting the Assad regime. The measures include asset freezes and prohibitions
-  on transactions to pressure the Syrian government and other actors to engage in
-  peace negotiations and respect human rights.
-
-
-  On June 30, 2025, President Trump issued an Executive Order (E.O. of June 30, 2025)
-  that removes U.S. sanctions on Syria, effective July 1, 2025. Sanctions will remain
-  on Bashar al-Assad and his associates, human rights abusers, Captagon traffickers,
-  persons linked to Syria''s past proliferation activities, ISIS and Al-Qa''ida affiliates,
-  and Iran and its proxies. [Source: Official Website](https://ofac.treasury.gov/sanctions-programs-and-country-information/paarss)'
+url: https://ofac.treasury.gov/sanctions-programs-and-country-information/paarss
+summary: Targets Bashar al-Assad and his associates, persons responsible for
+  human rights abuses in Syria, Captagon traffickers, persons linked to Syria's
+  past proliferation activities, and other destabilizing regional actors under
+  Executive Order 13894, as amended. It is the principal remaining US sanctions
+  authority for Syria after the broader Syria sanctions program was revoked
+  effective July 1, 2025. Designated persons are subject to an asset freeze and
+  barred from entry into the United States, and foreign financial institutions
+  that knowingly facilitate significant transactions for them can be cut off
+  from US correspondent and payable-through accounts.
 issuer: us_ofac
 dataset: us_ofac_sdn
 aliases:
-- PAARSS
+  - PAARSS
+  - Syria-Related Sanctions
+  - EO 13894
+  - EO 14142
+  - EO 14312
+  - 31 CFR Part 569
+  - PAARSSR-EO13894
 target_territories:
-- sy
+  - sy
+measures:
+  - Asset freeze
+  - Financial restrictions
+  - Travel ban
