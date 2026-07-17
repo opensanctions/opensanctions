@@ -55,6 +55,27 @@ def test_make_address_helper(vcontext: Context):
     assert "mz" in person.get("country")
 
 
+def test_make_address_state_not_duplicated(vcontext: Context):
+    # state used to be folded into state_district as well, so templates that
+    # render both slots printed the state twice ("PA, PA"):
+    addr = make_address(vcontext, city=None, state="PA", country_code="us")
+    assert addr is not None, addr
+    assert addr.first("full") == "PA"
+
+    addr = make_address(
+        vcontext,
+        street="1 Main St",
+        state="California",
+        region="Southern",
+        country="United States",
+    )
+    assert addr is not None, addr
+    full = addr.first("full")
+    assert full is not None
+    assert full.count("California") == 1, full
+    assert "Southern" in full, full
+
+
 def test_make_address_cleaning(vcontext: Context):
     addr = make_address(vcontext, full="Congo")
     assert addr is not None, addr

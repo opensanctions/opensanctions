@@ -187,7 +187,7 @@ def make_address(
             postal_code=postal_code,
             city=city,
             state=state,
-            state_district=join_text(region, state, sep=", "),
+            state_district=region,
             country=country,
             country_code=country_code,
         )
