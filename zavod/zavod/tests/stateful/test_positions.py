@@ -122,10 +122,40 @@ def test_occupancy_status(testdataset1: Dataset):
     # Current when the source is really good (no end implies current)
     assert status(True, "1981-01-15", None) == OccupancyStatus.CURRENT
 
+    # --- Prefix (year/month precision) date semantics ---
+    # A year-precision end date in the current year must not flip to ENDED
+    # on the 1st of January.
+    assert status(True, "2020-01-01", "2021") == OccupancyStatus.CURRENT
+    assert status(True, "2020-01-01", "2021-01") == OccupancyStatus.CURRENT
+    # An end date of today has not elapsed yet.
+    assert status(True, "2020-01-01", "2021-01-01") == OccupancyStatus.CURRENT
+    # A year-precision end date at the after-office boundary: the office may
+    # have ended as late as 2016-12-31, which is within the 5-year window.
+    assert status(False, "2010-01-01", "2016") == OccupancyStatus.ENDED
+
     # Not a PEP if they died longer than AFTER_DEATH ago
     assert status(True, "2020-01-01", None, None, "2016-01-01") is None
     assert status(True, "1950-01-01", "2021-01-02", None, "2016-01-01") is None
     assert status(True, "1950-01-01", "2020-12-31", None, "2016-01-01") is None
+    # A year-precision death date is only beyond AFTER_DEATH once the whole
+    # year is: death in "2016" may have been in December 2016.
+    assert status(True, "2014-01-01", None, None, "2016") == OccupancyStatus.ENDED
+    assert status(True, "2014-01-01", None, None, "2015") is None
+
+    # --- Death date caps the status at ENDED ---
+    # A person who died within AFTER_DEATH is never a CURRENT office-holder,
+    # even without an end date and with a well-maintained source.
+    assert status(True, "2018-01-01", None, None, "2019-06-01") == OccupancyStatus.ENDED
+    assert (
+        status(False, "2018-01-01", None, None, "2019-06-01") == OccupancyStatus.ENDED
+    )
+    # Death overrides an end date in the future.
+    assert (
+        status(True, "1950-01-01", "2021-01-02", None, "2019-06-01")
+        == OccupancyStatus.ENDED
+    )
+    # But death does not resurrect an occupancy that is already disqualified.
+    assert status(False, "1950-01-01", "2015-01-01", None, "2019-06-01") is None
 
     # Not a PEP if they were born longer than MAX_AGE ago
     assert status(True, "2020-01-01", None, "1910-01-01") is None
