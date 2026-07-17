@@ -11,7 +11,7 @@ summary: Gives effect to the UN Security Council's Libya sanctions regime,
   country-wide arms embargo, export bans on equipment for internal repression
   and goods used for migrant smuggling, and port and transport restrictions on
   UN-designated ships, including those illicitly transporting Libyan oil.
-issuer: gb_ofsi
+issuer: gb_fcdo
 dataset: gb_fcdo_sanctions
 aliases:
   - The Libya (Sanctions) (EU Exit) Regulations 2020

@@ -8,7 +8,7 @@ summary: Implements the UN Security Council's Afghanistan sanctions regime in
   Afghanistan. Designated persons are subject to an asset freeze and a travel
   ban, as well as bans on the supply of military goods and military technology
   to them or for their benefit.
-issuer: gb_ofsi
+issuer: gb_fcdo
 dataset: gb_fcdo_sanctions
 aliases:
   - The Afghanistan (Sanctions) (EU Exit) Regulations 2020

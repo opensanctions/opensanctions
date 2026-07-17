@@ -13,7 +13,7 @@ summary: Gives effect to the UN Security Council's sanctions regime against
   textiles, seafood and other commodities, restrictions on financial services
   and investment, and bans on North Korean ships and aircraft entering UK ports
   and airspace.
-issuer: gb_ofsi
+issuer: gb_fcdo
 dataset: gb_fcdo_sanctions
 aliases:
   - The Democratic People's Republic of Korea (Sanctions) (EU Exit) Regulations 2019

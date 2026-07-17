@@ -8,7 +8,7 @@ summary: Targets people and entities responsible for serious human rights
   subject to an asset freeze, and designated individuals are barred from
   entering or transiting the United Kingdom. The regime applies to designated
   persons only and imposes no trade sanctions on goods or services.
-issuer: gb_ofsi
+issuer: gb_fcdo
 dataset: gb_fcdo_sanctions
 aliases:
   - The Nicaragua (Sanctions) (EU Exit) Regulations 2020

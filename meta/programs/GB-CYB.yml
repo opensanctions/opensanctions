@@ -8,7 +8,7 @@ summary: Targets individuals and entities involved in cyber activity that
   organisations, or affects a significant number of people in an indiscriminate
   manner. Designated persons are subject to an asset freeze, and designated
   individuals are barred from entering or transiting the United Kingdom.
-issuer: gb_ofsi
+issuer: gb_fcdo
 dataset: gb_fcdo_sanctions
 aliases:
   - The Cyber (Sanctions) (EU Exit) Regulations 2020

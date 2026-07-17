@@ -10,7 +10,7 @@ summary: Targets individuals and entities that repress the civilian population
   transiting the United Kingdom. The regime also imposes a country-wide arms
   embargo and export bans on dual-use items and on equipment for internal
   repression or communications interception.
-issuer: gb_ofsi
+issuer: gb_fcdo
 dataset: gb_fcdo_sanctions
 aliases:
   - The Myanmar (Sanctions) Regulations 2021

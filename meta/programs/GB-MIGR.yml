@@ -7,7 +7,7 @@ summary: Targets persons involved in facilitating irregular migration to the
   persons only, who are subject to an asset freeze; designated individuals are
   also barred from entering or transiting the United Kingdom. There are no
   sanctions on goods or services under the regime.
-issuer: gb_ofsi
+issuer: gb_fcdo
 dataset: gb_fcdo_sanctions
 aliases:
   - The Global Irregular Migration and Trafficking in Persons Sanctions Regulations 2025

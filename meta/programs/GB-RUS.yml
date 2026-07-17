@@ -12,7 +12,7 @@ summary: Targets individuals and entities involved in destabilising Ukraine or i
   services, and the closure of UK ports and airspace to Russian ships and aircraft.
   Some named entities face sectoral financial and investment restrictions rather
   than an asset freeze.
-issuer: gb_ofsi
+issuer: gb_fcdo
 dataset: gb_fcdo_sanctions
 aliases:
   - The Russia (Sanctions) (EU Exit) Regulations 2019

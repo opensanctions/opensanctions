@@ -10,7 +10,7 @@ summary: Targets people and entities involved in actions that undermine the
   travel ban under Security Council resolution 2048 (2012) are separately
   excluded under UK immigration rules; the regime imposes no goods or services
   sanctions.
-issuer: gb_ofsi
+issuer: gb_fcdo
 dataset: gb_fcdo_sanctions
 aliases:
   - The Republic of Guinea-Bissau (Sanctions) (EU Exit) Regulations 2019

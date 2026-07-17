@@ -10,7 +10,7 @@ summary: Gives effect to the United Nations sanctions regime on Haiti
   designated individuals are barred from entering or transiting the United
   Kingdom. The regime also imposes a country-wide embargo on arms and other
   military goods destined for Haiti.
-issuer: gb_ofsi
+issuer: gb_fcdo
 dataset: gb_fcdo_sanctions
 aliases:
   - The Haiti (Sanctions) Regulations 2022

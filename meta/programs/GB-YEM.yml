@@ -9,7 +9,7 @@ summary: Gives effect to the UN Security Council's Yemen sanctions regime,
   asset freeze and a ban on the supply of military goods and technology to
   them, and designated individuals are barred from entering or transiting the
   United Kingdom. The regime imposes no country-wide trade restrictions.
-issuer: gb_ofsi
+issuer: gb_fcdo
 dataset: gb_fcdo_sanctions
 aliases:
   - The Yemen (Sanctions) (EU Exit) Regulations 2020

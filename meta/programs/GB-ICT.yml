@@ -9,7 +9,7 @@ summary: Targets individuals and organisations involved in terrorist activity
   military technology, including related technical assistance, financing and
   brokering services. The regime applies to designated persons only and imposes
   no country-wide trade restrictions.
-issuer: gb_ofsi
+issuer: gb_fcdo
 dataset: gb_fcdo_sanctions
 aliases:
   - The Counter-Terrorism (International Sanctions) (EU Exit) Regulations 2019

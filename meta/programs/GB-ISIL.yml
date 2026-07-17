@@ -8,7 +8,7 @@ summary: Implements the UN Security Council's ISIL (Da'esh) and Al-Qaida
   subject to an asset freeze and to bans on the supply of military goods and
   military technology to them or for their benefit, including related technical
   assistance, financing and brokering services.
-issuer: gb_ofsi
+issuer: gb_fcdo
 dataset: gb_fcdo_sanctions
 aliases:
   - Isil (Da'esh) and Al-Qaeda (United Nations Sanctions) (EU Exit) Regulations 2019

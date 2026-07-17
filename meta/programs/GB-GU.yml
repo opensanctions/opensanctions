@@ -9,7 +9,7 @@ summary: Targets those responsible for the violent repression of demonstrators
   persons are subject to an asset freeze, and designated individuals are barred
   from entering or transiting the United Kingdom; the regime imposes no goods
   or services sanctions.
-issuer: gb_ofsi
+issuer: gb_fcdo
 dataset: gb_fcdo_sanctions
 aliases:
   - The Guinea (Sanctions) (EU Exit) Regulations 2019

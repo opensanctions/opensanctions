@@ -9,7 +9,7 @@ summary: Gives effect to the UN Security Council's South Sudan sanctions regime,
   individuals are barred from entering or transiting the United Kingdom. The
   regime also imposes a country-wide embargo on the export of military goods
   and technology to South Sudan.
-issuer: gb_ofsi
+issuer: gb_fcdo
 dataset: gb_fcdo_sanctions
 aliases:
   - The South Sudan (Sanctions) (EU Exit) Regulations 2019
