@@ -99,6 +99,7 @@ def run_typed_image_prompt(
     cache_hash.update(prompt.encode("utf-8"))
     json_schema = response_type.model_json_schema()
     cache_hash.update(json.dumps(json_schema, sort_keys=True).encode("utf-8"))
+    cache_hash.update(model.encode("utf-8"))
     cache_key = cache_hash.hexdigest()
     cached_data = context.cache.get_json(cache_key, max_age=cache_days)
     if cached_data is not None:
@@ -197,6 +198,7 @@ def run_typed_text_prompt(
     cache_hash.update(prompt.encode("utf-8"))
     json_schema = response_type.model_json_schema()
     cache_hash.update(json.dumps(json_schema, sort_keys=True).encode("utf-8"))
+    cache_hash.update(model.encode("utf-8"))
     cache_key = cache_hash.hexdigest()
     cached_data = context.cache.get_json(cache_key, max_age=cache_days)
     if cached_data is not None:
