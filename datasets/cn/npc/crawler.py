@@ -23,9 +23,6 @@ REGEX_WHITESPACE = re.compile(r"\s+")
 # starts pointing at its roster and the crawler fails loudly below, forcing a
 # review of the page structure before the new term is crawled.
 EXPECTED_TERM = 14
-# 22 provinces, 5 autonomous regions, 4 municipalities, PLA and armed police,
-# Hong Kong, Macau, Taiwan.
-EXPECTED_DELEGATIONS = 35
 
 
 def crawl_deputy(
@@ -35,7 +32,6 @@ def crawl_deputy(
     term: int,
     position: Entity,
     categorisation: PositionCategorisation,
-    seen: set[str],
 ) -> None:
     cls = div.get("class")
     # md_zi2 is a wide-cell variant used for long (mostly non-Han) names.
@@ -83,27 +79,11 @@ def crawl_deputy(
                 raise ValueError(f"Unknown annotation token for {name}: {part!r}")
 
     person = context.make("Person")
-    # The source has no per-deputy identifiers, so identity is the listing
-    # itself. The term is part of the key so that a same-named deputy in a
-    # future congress cannot silently inherit this entity; cross-term
-    # continuity of re-elected deputies is left to downstream deduplication.
-    person_id = context.make_id(f"NPC-{term}", delegation, name, annotation)
-    if person_id is None:
-        raise ValueError(f"Could not build an ID for {name} in {delegation}")
-    if person_id in seen:
-        raise ValueError(
-            f"Indistinguishable deputies: {name} {annotation!r} in {delegation}"
-        )
-    seen.add(person_id)
-    person.id = person_id
+    person.id = context.make_id(f"NPC-{term}", delegation, name, annotation)
 
     person.add("name", name, lang="zho")
     apply_translit_full_name(context, person, "chi", name, [ENGLISH])
-    # Only women are annotated; the source's silence on the rest is not
-    # interpreted as "male".
     person.add("gender", gender)
-    # Only the 55 recognized minorities are annotated; Han is never stated
-    # and therefore not inferred.
     person.add("ethnicity", ethnicity, lang="zho")
     # NPC deputies must be PRC citizens, including those elected for the Hong
     # Kong and Macau delegations: Electoral Law of the National People's
@@ -116,18 +96,11 @@ def crawl_deputy(
         context,
         person,
         position,
-        # The roster is maintained: deputies whose credentials are terminated
-        # are removed from the page, so being listed means currently in
-        # office. The source states no start or end dates.
         no_end_implies_current=True,
         categorisation=categorisation,
     )
     if occupancy is None:
-        raise ValueError(f"Occupancy not created for {name}")
-    # The delegation (代表团) is the unit the deputy is elected to represent.
-    # It's usually a province/region, but includes the military (解放军和武警
-    # 部队), so stuffing it into constituency - defined as a geographic area -
-    # is somewhat of a misuse of the field.
+        return
     occupancy.add("constituency", delegation, lang="zho")
 
     context.emit(person)
@@ -141,7 +114,6 @@ def crawl_delegation(
     term: int,
     position: Entity,
     categorisation: PositionCategorisation,
-    seen: set[str],
 ) -> None:
     doc = context.fetch_html(url, cache_days=1, encoding="utf-8")
     divs = h.xpath_elements(doc, ".//div[starts-with(@class, 'md_zi')]")
@@ -151,11 +123,23 @@ def crawl_delegation(
             "page structure changed or a WAF challenge was served"
         )
     for div in divs:
-        crawl_deputy(context, div, delegation, term, position, categorisation, seen)
+        crawl_deputy(context, div, delegation, term, position, categorisation)
     context.log.info(f"{delegation}: {len(divs)} deputies")
 
 
 def crawl(context: Context) -> None:
+    position = h.make_position(
+        context,
+        "Member of the National People's Congress",
+        country="cn",
+        wikidata_id="Q10891456",
+        lang="eng",
+    )
+    categorisation = categorise(context, position)
+    if not categorisation.is_pep:
+        return
+    context.emit(position)
+
     # The server sends no charset header; the pages declare UTF-8 in a META
     # tag only, so the encoding needs to be forced.
     stub = context.fetch_html(context.data_url, cache_days=1, encoding="utf-8")
@@ -171,34 +155,19 @@ def crawl(context: Context) -> None:
         )
     index_url = urljoin(context.data_url, match.group("path"))
 
-    position = h.make_position(
-        context,
-        "Member of the National People's Congress",
-        country="cn",
-        # "National People's Congress deputy" - term-agnostic
-        wikidata_id="Q10891456",
-        lang="eng",
-    )
-    categorisation = categorise(context, position, default_is_pep=True)
-    if not categorisation.is_pep:
-        return
-    context.emit(position)
-
     index = context.fetch_html(
         index_url, absolute_links=True, cache_days=1, encoding="utf-8"
     )
     # The PLA delegation's long name puts it in the wide-cell md_zi2 class.
-    links = h.xpath_elements(
+    el_links = h.xpath_elements(
         index,
         ".//div[starts-with(@class, 'md_zi')]/a",
-        expect_exactly=EXPECTED_DELEGATIONS,
+        expect_exactly=35,  # 35 electoral delegations
     )
-    seen: set[str] = set()
-    for link in links:
-        delegation = h.element_text(link)
-        href = link.get("href")
-        if href is None or delegation == "":
-            raise ValueError(f"Delegation link without target or label: {delegation!r}")
+    for el in el_links:
+        delegation_name = h.element_text(el)
+        delegation_link = el.get("href")
+        assert delegation_link is not None
         crawl_delegation(
-            context, href, delegation, term, position, categorisation, seen
+            context, delegation_link, delegation_name, term, position, categorisation
         )
