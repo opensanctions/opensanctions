@@ -14,8 +14,6 @@ aliases:
   - EO 13818
   - GLOMAG
   - Global Magnitsky Human Rights Accountability Act
-target_territories:
-  - zz
 measures:
   - Asset freeze
   - Travel ban

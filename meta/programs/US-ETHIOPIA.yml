@@ -17,6 +17,7 @@ aliases:
   - 31 CFR Part 550
   - ETHIOPIA-EO14046
 target_territories:
+  - er
   - et
 measures:
   - Asset freeze

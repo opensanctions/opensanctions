@@ -18,6 +18,8 @@ aliases:
   - Sectoral Sanctions Identifications
   - EO 13662
   - UKRAINE-EO13662
+target_territories:
+  - ru
 measures:
   - Financial restrictions
   - Export control

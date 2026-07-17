@@ -20,7 +20,8 @@ aliases:
   - FSE-IR
   - FSE-SY
 target_territories:
-  - zz
+  - ir
+  - sy
 measures:
   - Financial restrictions
   - Travel ban

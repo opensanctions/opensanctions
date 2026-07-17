@@ -19,7 +19,5 @@ aliases:
   - CYBER3
   - CYBER4
   - 31 CFR Part 578
-target_territories:
-  - ip
 measures:
   - Asset freeze
