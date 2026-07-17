@@ -55,6 +55,8 @@ def make_identification(
 
     if number is None:
         return None
+    # It is very unlikely that two countries issue the same person a document
+    # with the same number.
     proxy.id = context.make_id(entity.id, number, doc_type, key)
     proxy.add("holder", entity.id)
     proxy.add("number", number)
