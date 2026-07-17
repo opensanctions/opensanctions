@@ -149,10 +149,10 @@ def crawl_row(context: Context, row: dict[str, Element]) -> None:
         withdrawn_cell, './/div[contains(@class, "featured")]'
     )
     is_withdrawn = len(withdrawn_marker) > 0
-    # The cell carries text if and only if it holds the withdrawn marker; if the
-    # site renames the marker class, fail here rather than silently re-emitting
-    # withdrawn companies.
-    assert (withdrawn_text is not None) == is_withdrawn, withdrawn_text
+    # Withdrawn status is only conveyed by the empty marker div, never as cell
+    # text; if the cell starts carrying text, the column semantics have changed
+    # and the marker check needs review.
+    assert withdrawn_text is None, withdrawn_text
     if is_withdrawn:
         return
 
