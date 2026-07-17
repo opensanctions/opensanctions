@@ -49,9 +49,18 @@ def _strip_title_prefixes(name: str, terms: List[str]) -> str:
     terms_ = _title_terms(terms)
     while True:
         for term in terms_:
-            if name.lower().startswith(term.lower()):
-                name = name[len(term) :].lstrip()
-                break
+            if not name.lower().startswith(term.lower()):
+                continue
+            remainder = name[len(term) :]
+            # A term ending in punctuation ("Hon.", "(Dr.)", "Dato' ") delimits
+            # itself. A bare word term ("Hon") must be followed by whitespace or
+            # the end of the name, so it cannot eat into names like "Honorata".
+            if term[-1].isalnum() and not (
+                len(remainder) == 0 or remainder[0].isspace()
+            ):
+                continue
+            name = remainder.lstrip()
+            break
         else:
             return name
 
@@ -60,9 +69,18 @@ def _strip_title_suffixes(name: str, terms: List[str]) -> str:
     terms_ = _title_terms(terms)
     while True:
         for term in terms_:
-            if name.lower().endswith(term.lower()):
-                name = name[: -len(term)].rstrip()
-                break
+            if not name.lower().endswith(term.lower()):
+                continue
+            remainder = name[: -len(term)]
+            # A term starting with punctuation (", MP", " (MP)") delimits
+            # itself. A bare word term ("MP") must be preceded by whitespace or
+            # the start of the name, so it cannot eat into names like "Kamp".
+            if term[0].isalnum() and not (
+                len(remainder) == 0 or remainder[-1].isspace()
+            ):
+                continue
+            name = remainder.rstrip()
+            break
         else:
             return name
 
@@ -76,14 +94,24 @@ def strip_name_titles(context: Context, name: Optional[str]) -> Optional[str]:
     as `"Dr."`, `"(Dr.)"`, or `", CS"`, rather than relying on punctuation
     variants. When storing the result directly, preserve provenance by passing
     the raw titled value as `original_value` if it differs from the cleaned name.
+
+    A term is only stripped at a word boundary: terms delimited by their own
+    punctuation (`"Hon."`, `"(Dr.)"`) match directly, while bare word terms
+    (`"Hon"`) must be followed (prefixes) or preceded (suffixes) by whitespace,
+    so they never truncate names like "Honorata". If stripping consumes the
+    entire name, a warning is emitted and `None` is returned so the affected
+    record surfaces in the issue log instead of silently losing its name.
     """
     if name is None:
         return None
 
     name = squash_spaces(name)
-    name = _strip_title_prefixes(name, context.dataset.names.prefixes_strip)
-    name = _strip_title_suffixes(name, context.dataset.names.suffixes_strip)
-    return name
+    stripped = _strip_title_prefixes(name, context.dataset.names.prefixes_strip)
+    stripped = _strip_title_suffixes(stripped, context.dataset.names.suffixes_strip)
+    if len(stripped) == 0 and len(name) > 0:
+        context.log.warning("Name consists only of title affixes", name=name)
+        return None
+    return stripped
 
 
 def make_name(
