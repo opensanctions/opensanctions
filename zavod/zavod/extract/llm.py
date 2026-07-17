@@ -55,6 +55,7 @@ def run_image_prompt(
     image_url = encode_file(image_path)
     cache_hash = sha1(image_url.encode("utf-8"))
     cache_hash.update(prompt.encode("utf-8"))
+    cache_hash.update(model.encode("utf-8"))
     cache_key = cache_hash.hexdigest()
     cached_data = context.cache.get_json(cache_key, max_age=cache_days)
     if cached_data is not None:
@@ -154,6 +155,7 @@ def run_text_prompt(
     client = get_client()
     cache_hash = sha1(string.encode("utf-8"))
     cache_hash.update(prompt.encode("utf-8"))
+    cache_hash.update(model.encode("utf-8"))
     cache_key = cache_hash.hexdigest()
     cached_data = context.cache.get(cache_key, max_age=cache_days)
     if cached_data is not None:

@@ -5,7 +5,12 @@ from unittest.mock import MagicMock, patch
 from pydantic import BaseModel
 
 from zavod.context import Context
-from zavod.extract.llm import run_typed_image_prompt, run_typed_text_prompt
+from zavod.extract.llm import (
+    run_image_prompt,
+    run_text_prompt,
+    run_typed_image_prompt,
+    run_typed_text_prompt,
+)
 
 
 class Extracted(BaseModel):
@@ -22,6 +27,7 @@ def mock_client() -> MagicMock:
     response = MagicMock()
     response.choices = [choice]
     client.chat.completions.parse.return_value = response
+    client.chat.completions.create.return_value = response
     return client
 
 
@@ -79,3 +85,48 @@ def test_typed_image_prompt_cache_key_includes_model(
     # A different model must not be served the other model's cached response.
     run_typed_image_prompt(vcontext, "prompt", image_path, Extracted, model="model-b")
     assert parse.call_count == 2
+
+
+@patch("zavod.extract.llm.get_client")
+def test_text_prompt_cache_key_includes_model(
+    get_client: MagicMock, vcontext: Context
+) -> None:
+    client = mock_client()
+    get_client.return_value = client
+    create = client.chat.completions.create
+
+    result = run_text_prompt(vcontext, "prompt", "input string", model="model-a")
+    assert json.loads(result.content) == {"name": "John Doe"}
+    assert create.call_count == 1
+
+    # Same input, prompt and model: served from the cache.
+    run_text_prompt(vcontext, "prompt", "input string", model="model-a")
+    assert create.call_count == 1
+
+    # A different model must not be served the other model's cached response.
+    other = run_text_prompt(vcontext, "prompt", "input string", model="model-b")
+    assert create.call_count == 2
+    assert other.cache_key != result.cache_key
+
+
+@patch("zavod.extract.llm.get_client")
+def test_image_prompt_cache_key_includes_model(
+    get_client: MagicMock, vcontext: Context, tmp_path: Path
+) -> None:
+    client = mock_client()
+    get_client.return_value = client
+    create = client.chat.completions.create
+    image_path = tmp_path / "image.png"
+    image_path.write_bytes(b"\x89PNG not really an image")
+
+    result = run_image_prompt(vcontext, "prompt", image_path, model="model-a")
+    assert result == {"name": "John Doe"}
+    assert create.call_count == 1
+
+    # Same image, prompt and model: served from the cache.
+    run_image_prompt(vcontext, "prompt", image_path, model="model-a")
+    assert create.call_count == 1
+
+    # A different model must not be served the other model's cached response.
+    run_image_prompt(vcontext, "prompt", image_path, model="model-b")
+    assert create.call_count == 2
