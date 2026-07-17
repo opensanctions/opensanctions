@@ -36,6 +36,11 @@ def make_sanction(
     The country, authority, sourceUrl, and subject entity properties
     are automatically set.
 
+    If an ``end_date`` is given, a ``status`` of "active" or "inactive" is
+    derived using the same semantics as `is_active`. Note that the status is
+    only computed at construction time: dates applied to the sanction
+    afterwards (e.g. via `h.apply_date`) do not update it.
+
     Args:
         context: The runner context with dataset metadata.
         entity: The entity to which the sanctions object will be linked.
@@ -83,9 +88,13 @@ def make_sanction(
         h.apply_date(sanction, "startDate", start_date)
     if end_date:
         h.apply_date(sanction, "endDate", end_date)
-        iso_end_date = max(sanction.get("endDate"))
-        is_active = iso_end_date >= settings.RUN_TIME_ISO
-        sanction.add("status", "active" if is_active else "inactive")
+        if not sanction.get("endDate"):
+            raise ValueError(
+                f"Sanction end_date {end_date!r} could not be parsed as a date "
+                f"(entity {entity.id!r}). Add a datepatterns entry or a lookup "
+                "to clean the value."
+            )
+        sanction.add("status", "active" if is_active(sanction) else "inactive")
 
     return sanction
 
