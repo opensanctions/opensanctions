@@ -2,8 +2,23 @@ id: 246
 title: UK sanctions relating to Mali
 key: GB-MLI
 url: https://www.gov.uk/government/collections/uk-sanctions-on-mali
-summary: Sanctions against entities and individuals in Mali.
+summary: Targets people and entities involved in activities that threaten the
+  peace, security or stability of Mali. The regime originally gave effect to
+  the UN sanctions regime under Security Council resolution 2374 (2017); after
+  the UN regime expired in August 2023, the UK amended the regulations to
+  continue designations on an autonomous basis. Designated persons are subject
+  to an asset freeze, and designated individuals are barred from entering or
+  transiting the United Kingdom; the regime imposes no goods or services
+  sanctions.
 issuer: gb_ofsi
 dataset: gb_fcdo_sanctions
+aliases:
+  - The Mali (Sanctions) (EU Exit) Regulations 2020
+  - SI 2020/705
+  - Mali
+  - UNSCR 2374
 target_territories:
-- ml
+  - ml
+measures:
+  - Asset freeze
+  - Travel ban

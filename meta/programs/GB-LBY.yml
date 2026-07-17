@@ -2,8 +2,27 @@ id: 245
 title: UK sanctions relating to Libya
 key: GB-LBY
 url: https://www.gov.uk/government/collections/uk-sanctions-relating-to-libya
-summary: Targeting entities and individuals in Libya.
+summary: Gives effect to the UN Security Council's Libya sanctions regime,
+  established by resolution 1970 (2011), targeting persons who threaten the
+  peace, security or stability of Libya, and permits further UK designations.
+  Designated persons are subject to an asset freeze, with a partial asset
+  freeze applying to certain entities, and designated individuals are barred
+  from entering or transiting the United Kingdom. The regime also imposes a
+  country-wide arms embargo, export bans on equipment for internal repression
+  and goods used for migrant smuggling, and port and transport restrictions on
+  UN-designated ships, including those illicitly transporting Libyan oil.
 issuer: gb_ofsi
 dataset: gb_fcdo_sanctions
+aliases:
+  - The Libya (Sanctions) (EU Exit) Regulations 2020
+  - SI 2020/1665
+  - Libya
+  - UNSCR 1970
 target_territories:
-- ly
+  - ly
+measures:
+  - Arms embargo
+  - Asset freeze
+  - Export control
+  - Transportation restrictions
+  - Travel ban

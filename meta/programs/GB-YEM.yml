@@ -2,8 +2,25 @@ id: 256
 title: UK sanctions relating to Yemen
 key: GB-YEM
 url: https://www.gov.uk/government/collections/uk-sanctions-on-yemen
-summary: Sanctions against entities and individuals in Yemen.
+summary: Gives effect to the UN Security Council's Yemen sanctions regime,
+  established by resolution 2140 (2014) and extended by resolution 2216 (2015),
+  which targets persons who threaten the peace, security or stability of Yemen
+  or obstruct its political transition. Designated persons are subject to an
+  asset freeze and a ban on the supply of military goods and technology to
+  them, and designated individuals are barred from entering or transiting the
+  United Kingdom. The regime imposes no country-wide trade restrictions.
 issuer: gb_ofsi
 dataset: gb_fcdo_sanctions
+aliases:
+  - The Yemen (Sanctions) (EU Exit) Regulations 2020
+  - The Yemen (Sanctions) (EU Exit) (No. 2) Regulations 2020
+  - SI 2020/1278
+  - Yemen
+  - UNSCR 2140
+  - UNSCR 2216
 target_territories:
-- ye
+  - ye
+measures:
+  - Arms restrictions
+  - Asset freeze
+  - Travel ban

@@ -2,8 +2,21 @@ id: 237
 title: UK sanctions relating to Guinea
 key: GB-GU
 url: https://www.gov.uk/government/collections/uk-sanctions-on-guinea
-summary: Sanctions against individuals and entities in Guinea.
+summary: Targets those responsible for the violent repression of demonstrators
+  in Conakry, Guinea, on 28 September 2009, seeking to press the Guinean
+  government to investigate the events and hold the perpetrators to account.
+  The regime continues measures first imposed by the EU in 2009. Designated
+  persons are subject to an asset freeze, and designated individuals are barred
+  from entering or transiting the United Kingdom; the regime imposes no goods
+  or services sanctions.
 issuer: gb_ofsi
 dataset: gb_fcdo_sanctions
+aliases:
+  - The Guinea (Sanctions) (EU Exit) Regulations 2019
+  - SI 2019/1145
+  - Guinea
 target_territories:
-- gn
+  - gn
+measures:
+  - Asset freeze
+  - Travel ban

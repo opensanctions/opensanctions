@@ -2,8 +2,27 @@ id: 231
 title: UK sanctions relating to the Republic of Belarus
 key: GB-BLR
 url: https://www.gov.uk/government/collections/uk-sanctions-on-the-republic-of-belarus
-summary: Targeting entities and individuals in Belarus.
+summary: Targets individuals and entities responsible for human rights violations
+  and the repression of civil society in Belarus, for undermining democracy and the
+  rule of law, and for actions destabilising Ukraine. Designated persons are subject
+  to an asset freeze, and designated individuals to a travel ban. The regime also
+  imposes country-wide restrictions on Belarus, including export bans on military,
+  dual-use, internal-repression and luxury goods, import bans on potash, iron and
+  steel and other commodities, restrictions on loans, securities and insurance, and
+  the closure of UK ports and airspace to Belarusian ships and aircraft.
 issuer: gb_ofsi
 dataset: gb_fcdo_sanctions
+aliases:
+  - The Republic of Belarus (Sanctions) (EU Exit) Regulations 2019
+  - SI 2019/600
+  - Belarus
 target_territories:
-- by
+  - by
+measures:
+  - Asset freeze
+  - Travel ban
+  - Arms embargo
+  - Export control
+  - Import restrictions
+  - Financial restrictions
+  - Transportation restrictions

@@ -2,8 +2,21 @@ id: 224
 title: UK sanctions relating to global human rights
 key: GB-HR
 url: https://www.gov.uk/government/collections/uk-global-human-rights-sanctions
-summary: Measures addressing serious human rights abuses worldwide.
+summary: Targets individuals and entities involved in serious violations of the
+  right to life, the prohibition of torture and cruel, inhuman or degrading
+  treatment, or the right to be free from slavery and forced labour, whether
+  committed by state or non-state actors anywhere in the world. Designated
+  persons are subject to an asset freeze, and designated individuals are barred
+  from entering or transiting the United Kingdom.
 issuer: gb_ofsi
 dataset: gb_fcdo_sanctions
+aliases:
+  - The Global Human Rights Sanctions Regulations 2020
+  - SI 2020/680
+  - Global Human Rights
+  - UK Magnitsky sanctions
 target_territories:
-- zz
+  - zz
+measures:
+  - Asset freeze
+  - Travel ban

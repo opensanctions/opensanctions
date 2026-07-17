@@ -2,8 +2,28 @@ id: 241
 title: UK sanctions relating to Iran (nuclear weapons)
 key: GB-IRAN-NW
 url: https://www.gov.uk/government/collections/uk-sanctions-on-iran-relating-to-nuclear-weapons
-summary: Sanctions related to Iran's nuclear weapons program.
+summary: Gives effect to UN nuclear-related sanctions against Iran, targeting
+  persons and entities involved in Iran's nuclear weapons and ballistic missile
+  programmes. Designated persons are subject to an asset freeze, a travel ban
+  and director disqualification. Country-wide restrictions prohibit the export
+  to and import from Iran of military, nuclear-related and missile-related
+  goods and technology, as well as graphite, certain metals and enterprise
+  resource planning software, along with related financial services,
+  specialised financial messaging services, ship bunkering and cargo aircraft
+  maintenance.
 issuer: gb_ofsi
 dataset: gb_fcdo_sanctions
+aliases:
+  - The Iran (Sanctions) (Nuclear) (EU Exit) Regulations 2019
+  - SI 2019/461
+  - Iran (Nuclear)
 target_territories:
-- ir
+  - ir
+measures:
+  - Arms embargo
+  - Asset freeze
+  - Export control
+  - Financial restrictions
+  - Import restrictions
+  - Transportation restrictions
+  - Travel ban

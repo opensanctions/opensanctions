@@ -2,8 +2,19 @@ id: 248
 title: UK sanctions relating to Nicaragua
 key: GB-NIC
 url: https://www.gov.uk/government/collections/uk-sanctions-on-nicaragua
-summary: Targeting entities and individuals in Nicaragua.
+summary: Targets people and entities responsible for serious human rights
+  violations, the repression of civil society and the democratic opposition, or
+  undermining democracy and the rule of law in Nicaragua. Designated persons are
+  subject to an asset freeze, and designated individuals are barred from
+  entering or transiting the United Kingdom. The regime applies to designated
+  persons only and imposes no trade sanctions on goods or services.
 issuer: gb_ofsi
 dataset: gb_fcdo_sanctions
+aliases:
+  - The Nicaragua (Sanctions) (EU Exit) Regulations 2020
+  - SI 2020/610
 target_territories:
-- ni
+  - ni
+measures:
+  - Asset freeze
+  - Travel ban

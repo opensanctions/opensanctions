@@ -2,8 +2,20 @@ id: 223
 title: UK sanctions relating to global anti-corruption
 key: GB-AC
 url: https://www.gov.uk/government/collections/uk-sanctions-relating-to-global-anti-corruption
-summary: Targeting global corruption and related financial crimes.
+summary: Targets individuals and entities involved in serious corruption, meaning
+  the bribery of foreign public officials or the misappropriation of property
+  entrusted to them, anywhere in the world. Designations can also reach those who
+  facilitate or profit from such conduct. Designated persons are subject to an
+  asset freeze, and designated individuals are barred from entering or transiting
+  the United Kingdom.
 issuer: gb_ofsi
 dataset: gb_fcdo_sanctions
+aliases:
+  - The Global Anti-Corruption Sanctions Regulations 2021
+  - SI 2021/488
+  - Global Anti-Corruption
 target_territories:
-- zz
+  - zz
+measures:
+  - Asset freeze
+  - Travel ban

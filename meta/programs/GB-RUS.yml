@@ -2,8 +2,31 @@ id: 249
 title: UK sanctions relating to Russia
 key: GB-RUS
 url: https://www.gov.uk/government/collections/uk-sanctions-on-russia
-summary: Sanctions against entities and individuals in Russia.
+summary: Targets individuals and entities involved in destabilising Ukraine or in
+  obtaining a benefit from or supporting the Russian government. Designated persons
+  are subject to an asset freeze, and designated individuals to a travel ban.
+  Designations sit alongside country-wide restrictions on Russia, including bans on
+  the export of military, dual-use, critical-industry and luxury goods, import bans
+  on oil, gold, diamonds, and iron and steel, capital-market, lending and
+  correspondent-banking prohibitions, a ban on providing professional and business
+  services, and the closure of UK ports and airspace to Russian ships and aircraft.
+  Some named entities face sectoral financial and investment restrictions rather
+  than an asset freeze.
 issuer: gb_ofsi
 dataset: gb_fcdo_sanctions
+aliases:
+  - The Russia (Sanctions) (EU Exit) Regulations 2019
+  - SI 2019/855
+  - Russia
 target_territories:
-- ru
+  - ru
+measures:
+  - Asset freeze
+  - Travel ban
+  - Arms embargo
+  - Export control
+  - Import restrictions
+  - Financial restrictions
+  - Investment ban
+  - Services ban
+  - Transportation restrictions

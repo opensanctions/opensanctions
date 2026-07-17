@@ -2,8 +2,20 @@ id: 220
 title: UK sanctions relating to chemical weapons
 key: GB-CW
 url: https://www.gov.uk/government/collections/uk-chemical-weapons-sanctions
-summary: Sanctions aimed at preventing the use and spread of chemical weapons.
+summary: Aims to deter the proliferation and use of chemical weapons and to
+  encourage the effective implementation of the Chemical Weapons Convention.
+  Individuals and entities involved in the use or proliferation of chemical
+  weapons anywhere in the world can be designated. Designated persons are
+  subject to an asset freeze, and designated individuals are barred from
+  entering or transiting the United Kingdom.
 issuer: gb_ofsi
 dataset: gb_fcdo_sanctions
+aliases:
+  - The Chemical Weapons (Sanctions) (EU Exit) Regulations 2019
+  - SI 2019/618
+  - Chemical Weapons
 target_territories:
-- zz
+  - zz
+measures:
+  - Asset freeze
+  - Travel ban

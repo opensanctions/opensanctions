@@ -2,8 +2,22 @@ id: 255
 title: UK sanctions relating to Venezuela
 key: GB-VEN
 url: https://www.gov.uk/government/collections/uk-sanctions-on-venezuela
-summary: Targeting entities and individuals in Venezuela.
+summary: Targets people and entities involved in the repression of civil society
+  or serious human rights violations in Venezuela, or in undermining democracy
+  and the rule of law there. Designated persons are subject to an asset freeze,
+  and designated individuals are barred from entering or transiting the United
+  Kingdom. The regime also imposes a country-wide embargo on military goods and
+  prohibits supplying internal-repression and interception and monitoring
+  equipment to Venezuela.
 issuer: gb_ofsi
 dataset: gb_fcdo_sanctions
+aliases:
+  - The Venezuela (Sanctions) (EU Exit) Regulations 2019
+  - SI 2019/135
 target_territories:
-- ve
+  - ve
+measures:
+  - Asset freeze
+  - Travel ban
+  - Arms embargo
+  - Export control

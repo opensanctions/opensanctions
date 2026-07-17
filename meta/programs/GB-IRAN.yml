@@ -2,8 +2,27 @@ id: 240
 title: UK sanctions relating to Iran
 key: GB-IRAN
 url: https://www.gov.uk/government/collections/uk-sanctions-relating-to-iran
-summary: Measures targeting entities and individuals in Iran.
+summary: Targets persons responsible for or involved in serious human rights
+  violations in Iran, or in hostile activity by the Iranian government or armed
+  groups it backs, including the supply of UAVs and missiles. Designated persons
+  are subject to an asset freeze, a travel ban and director disqualification,
+  and ships they own or control can be refused port access and UK ship
+  registration. The regime also restricts exports to Iran of goods and
+  technology usable for internal repression or telecommunications interception
+  and monitoring, and of items of strategic concern to Iran's UAV and missile
+  industry.
 issuer: gb_ofsi
 dataset: gb_fcdo_sanctions
+aliases:
+  - The Iran (Sanctions) Regulations 2023
+  - SI 2023/1314
+  - The Iran (Sanctions) (Human Rights) (EU Exit) Regulations 2019
+  - SI 2019/134
+  - Iran (Human Rights)
 target_territories:
-- ir
+  - ir
+measures:
+  - Asset freeze
+  - Export control
+  - Transportation restrictions
+  - Travel ban

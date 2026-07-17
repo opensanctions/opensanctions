@@ -2,9 +2,23 @@ id: 236
 title: UK sanctions relating to the Democratic Republic of the Congo
 key: GB-DRC
 url: https://www.gov.uk/government/collections/uk-sanctions-on-the-democratic-republic-of-the-congo
-summary: Measures addressing conflict and issues in the Democratic Republic of the
-  Congo.
+summary: Gives effect in the United Kingdom to the UN Security Council's
+  Democratic Republic of the Congo sanctions regime established by Resolution
+  1533, targeting armed groups operating in the DRC and those who support them
+  or violate the arms embargo. Designated persons are subject to an asset
+  freeze, and designated individuals are banned from entering or transiting
+  the UK. The supply of military goods and technology, and related technical,
+  financing and brokering services, to non-governmental persons operating in
+  the DRC is prohibited.
 issuer: gb_ofsi
 dataset: gb_fcdo_sanctions
+aliases:
+  - The Democratic Republic of the Congo (Sanctions) (EU Exit) Regulations 2019
+  - SI 2019/433
+  - Resolution 1533
 target_territories:
-- cd
+  - cd
+measures:
+  - Asset freeze
+  - Travel ban
+  - Arms restrictions

@@ -2,8 +2,20 @@ id: 232
 title: UK sanctions relating to Bosnia and Herzegovina
 key: GB-BH
 url: https://www.gov.uk/government/collections/uk-sanctions-on-bosnia-and-herzegovina
-summary: Measures addressing issues in Bosnia and Herzegovina.
+summary: Targets people and entities that undermine the sovereignty, territorial
+  integrity or constitutional order of Bosnia and Herzegovina, threaten its
+  peace and stability, or obstruct the implementation of the 1995 General
+  Framework Agreement for Peace (the Dayton Agreement). Designated persons are
+  subject to an asset freeze, and designated individuals are barred from
+  entering or transiting the United Kingdom. The regime applies to designated
+  persons only and imposes no trade sanctions on goods or services.
 issuer: gb_ofsi
 dataset: gb_fcdo_sanctions
+aliases:
+  - The Bosnia and Herzegovina (Sanctions) (EU Exit) Regulations 2020
+  - SI 2020/608
 target_territories:
-- ba
+  - ba
+measures:
+  - Asset freeze
+  - Travel ban
