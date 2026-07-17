@@ -1,6 +1,7 @@
 import unicodedata
 from typing import TYPE_CHECKING
 from typing import Optional, Generator, Tuple
+from rigour.dates import starts_after
 from rigour.ids import get_identifier_format
 from rigour.names import is_name
 from prefixdate.precision import Precision
@@ -8,6 +9,7 @@ from followthemoney import registry, Property, model
 from followthemoney.statement.util import NON_LANG_TYPE_NAMES
 
 from zavod.constants import ORIGIN_INFERRED, ORIGIN_LOOKUP
+from zavod.settings import RUN_TIME
 from zavod.logs import get_logger
 from zavod.runtime.lookups import is_type_lookup_value, prop_lookup
 from zavod.runtime.safety import check_xss_html_smell
@@ -134,6 +136,25 @@ def value_clean(
         if prop_.type == registry.date and clean is not None:
             # none of the information in OpenSanctions is time-critical
             clean = clean[: Precision.DAY.value]
+            if prop_.name == "birthDate":
+                # A birth date in the future is always a parsing error, most
+                # commonly a %y format pivoting a pre-1969 two-digit year
+                # into 20xx.
+                try:
+                    is_future = starts_after(clean, RUN_TIME)
+                except ValueError:
+                    # Not a canonical date (e.g. added with cleaned=True);
+                    # leave it to the validity checks below.
+                    is_future = False
+                if is_future:
+                    log.warning(
+                        f"Rejecting future birth date: {value}",
+                        entity_id=entity.id,
+                        prop=prop_.name,
+                        value=value,
+                        clean=clean,
+                    )
+                    continue
         if clean is not None:
             if len(clean) > prop_.max_length:
                 log.warning(
