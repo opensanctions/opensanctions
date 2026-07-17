@@ -13,9 +13,6 @@ from zavod import helpers as h
 RAKYAT_URL = "https://www.parlimen.gov.my/ahli-dewan.html?uweb=dr&lang=en"
 NEGARA_URL = "https://www.parlimen.gov.my/ahli-dewan-dn.html?uweb=dn&lang=en"
 
-# Minimum roster sizes
-DEWAN_RAKYAT_MIN = 180
-DEWAN_NEGARA_MIN = 40
 DEFAULT_PARLIAMENT_TOPICS = ["gov.legislative", "gov.national"]
 
 
@@ -251,19 +248,16 @@ def crawl_senator(
     )
 
 
-def iter_member_links(
-    context: Context, roster_url: str, minimum: int
-) -> Iterator[tuple[str, str]]:
-    """Yield (member_id, profile_url) for each member listed on a chamber roster."""
+def iter_member_links(context: Context, roster_url: str) -> Iterator[tuple[str, str]]:
+    """Yield (member_id, profile_url) for each member listed on a chamber roster.
+
+    A roster that returns too few members is caught by the dataset assertions
+    (the per-chamber `entities_with_prop` minimums), not here."""
     doc = context.fetch_html(roster_url, absolute_links=True, cache_days=1)
     links = h.xpath_strings(
         doc,
         ".//ul[contains(@class,'member-of-parliament')]/li//a[contains(@href,'id=')]/@href",
     )
-    if len(links) < minimum:
-        raise ValueError(
-            "Unexpectedly few members at %s: %d" % (roster_url, len(links))
-        )
     for link in links:
         match = re.search(r"[?&]id=(\d+)", link)
         if match is None:
@@ -284,7 +278,7 @@ def crawl_rakyat(context: Context) -> None:
     if rakyat_categorisation.is_pep:
         context.emit(rakyat_position)
 
-    for member_id, url in iter_member_links(context, RAKYAT_URL, DEWAN_RAKYAT_MIN):
+    for member_id, url in iter_member_links(context, RAKYAT_URL):
         crawl_representative(
             context, member_id, url, rakyat_position, rakyat_categorisation
         )
@@ -303,7 +297,7 @@ def crawl_negara(context: Context) -> None:
     if negara_categorisation.is_pep:
         context.emit(negara_position)
 
-    for member_id, url in iter_member_links(context, NEGARA_URL, DEWAN_NEGARA_MIN):
+    for member_id, url in iter_member_links(context, NEGARA_URL):
         crawl_senator(context, member_id, url, negara_position, negara_categorisation)
 
 

@@ -130,6 +130,13 @@ assertions:
       Position: 40
     country_entities:
       my: 220
+    entities_with_prop:
+      # Per-chamber roster floors: a constituency marks a Dewan Rakyat seat, a
+      # term start date marks a Dewan Negara seat. These catch one chamber's
+      # roster silently under-collecting, which a combined Person floor would not.
+      Occupancy:
+        constituency: 180
+        startDate: 40
   max:
     schema_entities:
       Person: 470
